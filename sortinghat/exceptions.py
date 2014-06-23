@@ -38,3 +38,9 @@ class BaseError(Exception):
 
     def __unicode__(self):
         return unicode(self.msg)
+
+
+class AlreadyExistsError(BaseError):
+    """Exception raised when an entity already exists in the registry"""
+
+    message = "%(entity)s already exists in the registry"

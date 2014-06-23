@@ -27,7 +27,7 @@ import unittest
 if not '..' in sys.path:
     sys.path.insert(0, '..')
 
-from sortinghat.exceptions import BaseError
+from sortinghat.exceptions import BaseError, AlreadyExistsError
 
 
 # Mock classes to test BaseError class
@@ -68,6 +68,24 @@ class TestBaseError(unittest.TestCase):
         """
         kwargs = {'code' : 1, 'error' : 'Fatal error'}
         self.assertRaises(KeyError, MockErrorArgs, **kwargs)
+
+
+class TestAlreadyExistsError(unittest.TestCase):
+
+    def test_message(self):
+        """Make sure that prints the correct error"""
+
+        e = AlreadyExistsError(entity='example.com')
+        self.assertEqual('example.com already exists in the registry',
+                         str(e))
+        self.assertEqual(u'example.com already exists in the registry',
+                         unicode(e))
+
+    def test_no_args(self):
+        """Check whether it raises a KeyError exception when
+        required parameters are not given"""
+        kwargs = {}
+        self.assertRaises(KeyError, AlreadyExistsError, **kwargs)
 
 
 if __name__ == "__main__":
