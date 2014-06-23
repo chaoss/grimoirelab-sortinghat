@@ -32,7 +32,7 @@ class Organization(ModelBase):
     __tablename__ = 'companies'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(255))
+    name = Column(String(255), nullable=False)
 
     # One-to-Many relationship
     domains = relationship("Domain", backref='companies', lazy='dynamic')
@@ -44,8 +44,8 @@ class Domain(ModelBase):
     __tablename__ = 'domains_companies'
 
     id = Column(Integer, primary_key=True)
-    domain = Column(String(128))
-    company_id = Column(Integer, ForeignKey('companies.id'), nullable = False)
+    domain = Column(String(128), nullable=False)
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=False)
 
     # Many-to-One relationship
     company = relationship("Organization", backref='domains_companies')

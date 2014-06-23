@@ -79,6 +79,15 @@ class TestOrganization(unittest.TestCase):
             self.session.add(org2)
             self.session.commit()
 
+    def test_none_name_organizations(self):
+        """Check whether organizations without name can be stored"""
+
+        with self.assertRaisesRegexp(OperationalError, NULL_CHECK_ERROR):
+            org1 = Organization()
+
+            self.session.add(org1)
+            self.session.commit()
+
 
 class TestDomain(unittest.TestCase):
 
@@ -114,6 +123,19 @@ class TestDomain(unittest.TestCase):
 
         with self.assertRaisesRegexp(OperationalError, NULL_CHECK_ERROR):
             dom1 = Domain(domain='example.com')
+            self.session.add(dom1)
+            self.session.commit()
+
+    def test_none_name_domains(self):
+        """Check whether domains without name can be stored"""
+
+        with self.assertRaisesRegexp(OperationalError, NULL_CHECK_ERROR):
+            org1 = Organization(name='Example')
+            self.session.add(org1)
+
+            dom1 = Domain()
+            dom1.company = org1
+
             self.session.add(dom1)
             self.session.commit()
 
