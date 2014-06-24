@@ -68,16 +68,16 @@ def add_domain(db, organization, domain, overwrite=False):
     organization, you can use 'overwrite' parameter to shift the domain
     from the old organization to the new one.
 
-    :param db: database manager:
+    :param db: database manager
     :param organization: name of the organization
     :param domain: domain to add to the registry
     :param overwrite: force to reassign the domain to the given company
 
     :raise ValueError: raised when domain is None or an empty string
-    :raise NotFoundError: raised when the given company is not found in
-        the registry
+    :raise NotFoundError: raised when the given organization is not found
+        in the registry
     :raises AlreadyExistsError: raised when the domain already exists
-        in the registry.
+        in the registry
     """
     if domain is None:
         raise ValueError('domain cannot be None')
