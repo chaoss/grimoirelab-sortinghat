@@ -101,3 +101,40 @@ def add_domain(db, organization, domain, overwrite=False):
 
         dom.company = org
         session.add(dom)
+
+
+def registry(db, organization=None):
+    """List the organizations available in the registry.
+
+    The function will return the list of organizations. If organization
+    parameter is set, it will only return the information about
+    that organization. When the given organization is not in the registry
+    a 'NotFounError' exception will be raised.
+
+    :param db: database manager
+    :param organization: name of the organization
+
+    :returns: a list of organizations sorted by their name
+
+    :raise NotFoundError: raised when the given organization is not found
+        in the registry
+    """
+    orgs = []
+
+    with db.connect() as session:
+        if organization:
+            org = session.query(Organization).\
+                filter(Organization.name == organization).first()
+
+            if not org:
+                raise NotFoundError(entity=organization)
+
+            orgs = [org]
+        else:
+            orgs = session.query(Organization).\
+                order_by(Organization.name).all()
+
+        # Detach objects from the session
+        session.expunge_all()
+
+    return orgs

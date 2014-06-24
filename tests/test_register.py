@@ -30,7 +30,7 @@ if not '..' in sys.path:
 from sortinghat.db.database import Database
 from sortinghat.db.model import Organization, Domain
 from sortinghat.exceptions import AlreadyExistsError, NotFoundError
-from sortinghat.register import add_organization, add_domain
+from sortinghat.register import add_organization, add_domain, registry
 
 from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
@@ -228,6 +228,87 @@ class TestAddDomain(unittest.TestCase):
 
         self.assertRaisesRegexp(ValueError, DOMAIN_NONE_OR_EMPTY_ERROR,
                                 add_domain, self.db, 'Example', '')
+
+
+class TestRegistry(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
+
+    def tearDown(self):
+        self.db.clear()
+
+    def test_get_registry(self):
+        """Check if it returns the registry of organizations"""
+
+        add_organization(self.db, 'Example')
+        add_domain(self.db, 'Example', 'example.com')
+        add_domain(self.db, 'Example', 'example.org')
+        add_organization(self.db, 'Bitergia')
+        add_domain(self.db, 'Bitergia', 'bitergia.com')
+        add_organization(self.db, 'LibreSoft')
+
+        orgs = registry(self.db)
+        self.assertEqual(len(orgs), 3)
+
+        org1 = orgs[0]
+        self.assertIsInstance(org1, Organization)
+        self.assertEqual(org1.name, 'Bitergia')
+        self.assertEqual(len(org1.domains), 1)
+
+        org2 = orgs[1]
+        self.assertIsInstance(org2, Organization)
+        self.assertEqual(org2.name, 'Example')
+        self.assertEqual(len(org2.domains), 2)
+
+        org3 = orgs[2]
+        self.assertIsInstance(org3, Organization)
+        self.assertEqual(org3.name, 'LibreSoft')
+        self.assertEqual(len(org3.domains), 0)
+
+    def test_get_registry_organization(self):
+        """Check if it returns the info about an existing organization"""
+
+        add_organization(self.db, 'Example')
+        add_domain(self.db, 'Example', 'example.com')
+        add_domain(self.db, 'Example', 'example.org')
+        add_organization(self.db, 'Bitergia')
+        add_domain(self.db, 'Bitergia', 'bitergia.com')
+
+        orgs = registry(self.db, 'Example')
+        self.assertEqual(len(orgs), 1)
+
+        org1 = orgs[0]
+        self.assertIsInstance(org1, Organization)
+        self.assertEqual(org1.name, 'Example')
+        self.assertEqual(len(org1.domains), 2)
+
+        dom1 = org1.domains[0]
+        self.assertIsInstance(dom1, Domain)
+        self.assertEqual(dom1.domain, 'example.com')
+
+        dom2 = org1.domains[1]
+        self.assertIsInstance(dom2, Domain)
+        self.assertEqual(dom2.domain, 'example.org')
+
+    def test_empty_registry(self):
+        """Check whether it returns an empty list when the registry is empty"""
+
+        orgs = registry(self.db)
+        self.assertListEqual(orgs, [])
+
+    def test_not_found_organization(self):
+        """Check whether it raises an error when the organization is not available"""
+
+        # It should raise an error when the registry is empty
+        self.assertRaises(NotFoundError, registry, self.db, 'Example')
+
+        # It should do the same when there are some orgs available
+        add_organization(self.db, 'Example')
+        add_organization(self.db, 'Bitergia')
+
+        self.assertRaises(NotFoundError, registry, self.db, 'LibreSoft')
 
 
 if __name__ == "__main__":
