@@ -20,8 +20,8 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from sortinghat.db.model import Organization
-from sortinghat.exceptions import AlreadyExistsError
+from sortinghat.db.model import Organization, Domain
+from sortinghat.exceptions import AlreadyExistsError, NotFoundError
 
 
 def add_organization(db, organization):
@@ -53,3 +53,51 @@ def add_organization(db, organization):
 
         org = Organization(name=organization)
         session.add(org)
+
+
+def add_domain(db, organization, domain, overwrite=False):
+    """Add a domain to the registry.
+
+    This function adds a new domain to the given organization.
+    The organization must exists on the registry prior to insert the new
+    domain. Otherwise, it will raise a 'NotFoundError' exception. Moreover,
+    if the given domain is already in the registry an 'AlreadyExistsError'
+    exception will be raised.
+    Remember that a domain can only be assigned to one (and only one)
+    organization. When the given domain is already assigned to a distinct
+    organization, you can use 'overwrite' parameter to shift the domain
+    from the old organization to the new one.
+
+    :param db: database manager:
+    :param organization: name of the organization
+    :param domain: domain to add to the registry
+    :param overwrite: force to reassign the domain to the given company
+
+    :raise ValueError: raised when domain is None or an empty string
+    :raise NotFoundError: raised when the given company is not found in
+        the registry
+    :raises AlreadyExistsError: raised when the domain already exists
+        in the registry.
+    """
+    if domain is None:
+        raise ValueError('domain cannot be None')
+    if domain == '':
+        raise ValueError('domain cannot be an empty string')
+
+    with db.connect() as session:
+        org = session.query(Organization).\
+            filter(Organization.name == organization).first()
+
+        if not org:
+            raise NotFoundError(entity=organization)
+
+        dom = session.query(Domain).\
+            filter(Domain.domain == domain).first()
+
+        if dom and not overwrite:
+            raise AlreadyExistsError(entity=domain)
+        elif not dom:
+            dom = Domain(domain=domain)
+
+        dom.company = org
+        session.add(dom)
