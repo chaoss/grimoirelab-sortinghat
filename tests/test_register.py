@@ -30,7 +30,7 @@ if not '..' in sys.path:
 from sortinghat.db.database import Database
 from sortinghat.db.model import Organization, Domain
 from sortinghat.exceptions import AlreadyExistsError, NotFoundError
-from sortinghat.register import add_organization, add_domain, registry
+from sortinghat.register import add_organization, add_domain, delete_organization, registry
 
 from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
@@ -228,6 +228,86 @@ class TestAddDomain(unittest.TestCase):
 
         self.assertRaisesRegexp(ValueError, DOMAIN_NONE_OR_EMPTY_ERROR,
                                 add_domain, self.db, 'Example', '')
+
+
+class TestDeleteOrganization(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
+
+    def setUp(self):
+        self.db.clear()
+
+    def tearDown(self):
+        self.db.clear()
+
+    def test_delete_organizations(self):
+        """Check whether it deletes a set of organizations"""
+
+        # First, add a set of organizations, including some domains
+        add_organization(self.db, 'Example')
+        add_domain(self.db, 'Example', 'example.com')
+        add_domain(self.db, 'Example', 'example.org')
+        add_organization(self.db, 'Bitergia')
+        add_domain(self.db, 'Bitergia', 'bitergia.com')
+        add_organization(self.db, 'LibreSoft')
+
+        # Delete the first organization
+        delete_organization(self.db, 'Example')
+
+        with self.db.connect() as session:
+            org1 = session.query(Organization).\
+                    filter(Organization.name == 'Example').first()
+            self.assertEqual(org1, None)
+
+            dom1 = session.query(Domain).\
+                    filter(Domain.domain == 'example.com').first()
+            self.assertEqual(dom1, None)
+            dom2 = session.query(Domain).\
+                    filter(Domain.domain == 'example.org').first()
+            self.assertEqual(dom2, None)
+
+        # Delete the last organization
+        delete_organization(self.db, 'LibreSoft')
+
+        with self.db.connect() as session:
+            org2 = session.query(Organization).\
+                    filter(Organization.name == 'LibreSoft').first()
+            self.assertEqual(org2, None)
+
+            # Check if there only remains one organization and one domain
+            orgs = session.query(Organization).all()
+            self.assertEqual(len(orgs), 1)
+            self.assertEqual(orgs[0].name, 'Bitergia')
+
+            doms = session.query(Domain).all()
+            self.assertEqual(len(doms), 1)
+            self.assertEqual(doms[0].domain, 'bitergia.com')
+
+    def test_not_found_organization(self):
+        """Check if it fails removing an organization that does not exists"""
+
+        # It should raise an error when the registry is empty
+        self.assertRaises(NotFoundError, delete_organization,
+                          self.db, 'Example')
+
+        # Add a pair of organizations first
+        add_organization(self.db, 'Example')
+        add_organization(self.db, 'Bitergia')
+        add_domain(self.db, 'Bitergia', 'bitergia.com')
+
+        # The error should be the same
+        self.assertRaises(NotFoundError, delete_organization,
+                          self.db, 'LibreSoft')
+
+        # Nothing has been deleted from the registry
+        with self.db.connect() as session:
+            orgs = session.query(Organization).all()
+            self.assertEqual(len(orgs), 2)
+
+            doms = session.query(Domain).all()
+            self.assertEqual(len(doms), 1)
 
 
 class TestRegistry(unittest.TestCase):

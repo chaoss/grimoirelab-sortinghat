@@ -35,7 +35,8 @@ class Organization(ModelBase):
     name = Column(String(255), nullable=False)
 
     # One-to-Many relationship
-    domains = relationship("Domain", backref='companies', lazy='joined')
+    domains = relationship("Domain", backref='companies',
+                           lazy='joined', cascade="save-update, merge, delete")
 
     __table_args__ = (UniqueConstraint('name', name='_name_unique'),)
 

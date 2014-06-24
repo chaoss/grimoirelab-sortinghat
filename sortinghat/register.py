@@ -103,6 +103,31 @@ def add_domain(db, organization, domain, overwrite=False):
         session.add(dom)
 
 
+def delete_organization(db, organization):
+    """Remove an organization from the registry.
+
+    This function removes the given organization from the registry.
+    Domains assigned to that organization are also removed.
+    It checks first whether the organization is already on the registry.
+    When it is found, the organization is removed. Otherwise,
+    it will raise a 'NotFoundError'.
+
+    :param db: database manager
+    :param organization: name of the organization to remove
+
+    :raises NotFoundError: raised when the organization does not exist
+        in the registry.
+    """
+    with db.connect() as session:
+        org = session.query(Organization).\
+            filter(Organization.name == organization).first()
+
+        if not org:
+            raise NotFoundError(entity=organization)
+
+        session.delete(org)
+
+
 def registry(db, organization=None):
     """List the organizations available in the registry.
 
