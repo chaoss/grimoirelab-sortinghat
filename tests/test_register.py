@@ -30,7 +30,8 @@ if not '..' in sys.path:
 from sortinghat.db.database import Database
 from sortinghat.db.model import Organization, Domain
 from sortinghat.exceptions import AlreadyExistsError, NotFoundError
-from sortinghat.register import add_organization, add_domain, delete_organization, registry
+from sortinghat.register import add_organization, add_domain,\
+    delete_organization, delete_domain, registry
 
 from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
@@ -300,6 +301,97 @@ class TestDeleteOrganization(unittest.TestCase):
         # The error should be the same
         self.assertRaises(NotFoundError, delete_organization,
                           self.db, 'LibreSoft')
+
+        # Nothing has been deleted from the registry
+        with self.db.connect() as session:
+            orgs = session.query(Organization).all()
+            self.assertEqual(len(orgs), 2)
+
+            doms = session.query(Domain).all()
+            self.assertEqual(len(doms), 1)
+
+
+class TestDeleteDomain(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
+
+    def setUp(self):
+        self.db.clear()
+
+    def tearDown(self):
+        self.db.clear()
+
+    def test_delete_domains(self):
+        """Check whether it deletes a set of domains"""
+
+        # First, add a set of organizations, including some domains
+        add_organization(self.db, 'Example')
+        add_domain(self.db, 'Example', 'example.com')
+        add_domain(self.db, 'Example', 'example.org')
+        add_organization(self.db, 'Bitergia')
+        add_domain(self.db, 'Bitergia', 'bitergia.com')
+        add_organization(self.db, 'LibreSoft')
+
+        # Delete some domains
+        delete_domain(self.db, 'Example', 'example.org')
+        delete_domain(self.db, 'Bitergia', 'bitergia.com')
+
+        with self.db.connect() as session:
+            doms1 = session.query(Domain).join(Organization).\
+                    filter(Organization.name == 'Example').all()
+            self.assertEqual(len(doms1), 1)
+            self.assertEqual(doms1[0].domain, 'example.com')
+
+            doms2 = session.query(Domain).join(Organization).\
+                    filter(Organization.name == 'Bitergia').all()
+            self.assertEqual(len(doms2), 0)
+
+        # Delete the last domain
+        delete_domain(self.db, 'Example', 'example.com')
+
+        with self.db.connect() as session:
+            doms3 = session.query(Domain).join(Organization).\
+                    filter(Organization.name == 'Example').all()
+            self.assertEqual(len(doms3), 0)
+
+            doms4 = session.query(Domain).all()
+            self.assertEqual(len(doms4), 0)
+
+    def test_not_found_organization(self):
+        """Check if it fails removing a domain from an organization
+           that does not exists"""
+
+        add_organization(self.db, 'Example')
+        add_organization(self.db, 'Bitergia')
+        add_domain(self.db, 'Bitergia', 'bitergia.com')
+
+        self.assertRaises(NotFoundError, delete_domain,
+                          self.db, 'LibreSoft', 'libresoft.es')
+
+        # Nothing has been deleted from the registry
+        with self.db.connect() as session:
+            orgs = session.query(Organization).all()
+            self.assertEqual(len(orgs), 2)
+
+            doms = session.query(Domain).all()
+            self.assertEqual(len(doms), 1)
+
+    def test_not_found_domain(self):
+        """Check if it fails removing a domain that does not exists"""
+
+        add_organization(self.db, 'Example')
+        add_organization(self.db, 'Bitergia')
+        add_domain(self.db, 'Bitergia', 'bitergia.com')
+
+        self.assertRaises(NotFoundError, delete_domain,
+                          self.db, 'Example', 'example.com')
+
+        # It should not fail because the domain is assigned
+        # to other company
+        self.assertRaises(NotFoundError, delete_domain,
+                          self.db, 'Example', 'bitergia.com')
 
         # Nothing has been deleted from the registry
         with self.db.connect() as session:
