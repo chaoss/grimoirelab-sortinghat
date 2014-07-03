@@ -30,7 +30,7 @@ if not '..' in sys.path:
 from sortinghat.db.database import Database
 from sortinghat.db.model import Organization, Domain
 from sortinghat.exceptions import AlreadyExistsError, NotFoundError
-from sortinghat.register import add_organization, add_domain,\
+from sortinghat.api import add_organization, add_domain,\
     delete_organization, delete_domain, registry
 
 from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
