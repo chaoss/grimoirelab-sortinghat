@@ -26,4 +26,4 @@ import unittest
 
 if __name__ == '__main__':
     test_suite = unittest.TestLoader().discover('.', pattern='test*.py')
-    unittest.TextTestRunner(buffer=False).run(test_suite)
+    unittest.TextTestRunner(buffer=True).run(test_suite)
