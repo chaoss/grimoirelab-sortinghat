@@ -22,13 +22,54 @@
 
 from sortinghat import api
 from sortinghat.command import Command
-from sortinghat.exceptions import NotFoundError
+from sortinghat.exceptions import AlreadyExistsError, NotFoundError
 
 
 class Organizations(Command):
 
     def __init__(self, **kwargs):
         super(Organizations, self).__init__(**kwargs)
+
+    def add(self, organization, domain=None, overwrite=False):
+        """Add organizations and domains to the registry.
+
+        This method adds the given 'organization' or 'domain' to the registry,
+        but not both at the same time.
+
+        When 'organization' is the only parameter given, it will be added to
+        the registry. When 'domain' parameter is also given, the function will
+        assign it to 'organization'. In this case, 'organization' must exists in
+        the registry prior adding the domain.
+
+        A domain can only be assigned to one company. If the given domain is already
+        in the registry, the method will fail. Set 'overwrite' to 'True' to create
+        the new relationship. In this case, previous relationships will be removed.
+
+        :param organization: name of the organization to add
+        :param domain: domain to add to the registry
+        :param overwrite: force to reassign the domain to the given company
+        """
+        # Empty or None values for organizations are not allowed
+        if not organization:
+            return
+
+        if not domain:
+            try:
+                api.add_organization(self.db, organization)
+            except ValueError, e:
+                # If the code reaches here, something really wrong has happened
+                # because organization cannot be None or empty
+                raise RuntimeError(str(e))
+            except AlreadyExistsError, e:
+                print "Error: %s" % str(e)
+        else:
+            try:
+                api.add_domain(self.db, organization, domain, overwrite)
+            except ValueError, e:
+                # Same as above, domains cannot be None or empty
+                raise RuntimeError(str(e))
+            except (AlreadyExistsError, NotFoundError), e:
+                print "Error: %s" % str(e)
 
     def registry(self, organization=None):
         """List organizations and domains.
