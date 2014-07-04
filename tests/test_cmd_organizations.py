@@ -30,13 +30,17 @@ if not '..' in sys.path:
 from sortinghat import api
 from sortinghat.cmd.organizations import Organizations
 from sortinghat.db.database import Database
+from sortinghat.exceptions import NotFoundError
 
 from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
 
 REGISTRY_ORG_ALREADY_EXISTS_ERROR = "Error: Bitergium already exists in the registry"
 REGISTRY_DOM_ALREADY_EXISTS_ERROR = "Error: bitergia.com already exists in the registry"
-REGISTRY_NOT_FOUND_ERROR = "Error: Bitergium not found in the registry"
+REGISTRY_ORG_NOT_FOUND_ERROR = "Error: Bitergium not found in the registry"
+REGISTRY_ORG_NOT_FOUND_ERROR_ALT = "Error: LibreSoft not found in the registry"
+REGISTRY_DOM_NOT_FOUND_ERROR = "Error: example.com not found in the registry"
+REGISTRY_DOM_NOT_FOUND_ERROR_ALT = "Error: bitergia.com not found in the registry"
 REGISTRY_EMPTY_OUTPUT = ""
 REGISTRY_OUTPUT = """Bitergia    bitergia.net
 Bitergia    bitergia.com
@@ -96,7 +100,7 @@ class TestOrgsAdd(unittest.TestCase):
 
         self.cmd.add('Bitergium', 'bitergium.com')
         output = sys.stdout.getvalue().strip()
-        self.assertEqual(output, REGISTRY_NOT_FOUND_ERROR)
+        self.assertEqual(output, REGISTRY_ORG_NOT_FOUND_ERROR)
 
     def test_existing_domain(self):
         """Check if it fails adding a domain that already exists"""
@@ -170,7 +174,139 @@ class TestOrgsAdd(unittest.TestCase):
         self.assertEqual(len(orgs), 0)
 
 
+class TestOrgsDelete(unittest.TestCase):
 
+    def setUp(self):
+        if not hasattr(sys.stdout, 'getvalue'):
+            self.fail('This test needs to be run in buffered mode')
+
+        # Create a connection to check the contents of the registry
+        self.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
+
+        # Create command
+        self.kwargs = {'user' : DB_USER,
+                       'password' : DB_PASSWORD,
+                       'database' :DB_NAME,
+                       'host' : DB_HOST,
+                       'port' : DB_PORT}
+        self.cmd = Organizations(**self.kwargs)
+
+    def tearDown(self):
+        self.db.clear()
+
+    def test_delete(self):
+        """Check whether everything works ok when deleting organizations and domains"""
+
+        # First, add a set of organizations, including some domains
+        self.cmd.add('Example')
+        self.cmd.add('Example', 'example.com')
+        self.cmd.add('Example', 'example.org')
+        self.cmd.add('Example', 'example.net')
+        self.cmd.add('Bitergia')
+        self.cmd.add('Bitergia', 'bitergia.com')
+        self.cmd.add('LibreSoft')
+        self.cmd.add('Bitergium')
+        self.cmd.add('Bitergium', 'bitergium.com')
+        self.cmd.add('Bitergium', 'bitergium.net')
+
+        # Delete an organization
+        orgs = api.registry(self.db, 'Bitergia')
+        self.assertEqual(len(orgs), 1)
+
+        self.cmd.delete('Bitergia')
+
+        self.assertRaises(NotFoundError, api.registry,
+                          self.db, 'Bitergia')
+
+        # Delete a domain
+        orgs = api.registry(self.db, 'Bitergium')
+        self.assertEqual(len(orgs[0].domains), 2)
+
+        self.cmd.delete('Bitergium', 'bitergium.com')
+
+        orgs = api.registry(self.db, 'Bitergium')
+        self.assertEqual(len(orgs[0].domains), 1)
+
+        # Delete organization with several domains
+        orgs = api.registry(self.db, 'Example')
+        self.assertEqual(len(orgs), 1)
+
+        self.cmd.delete('Example')
+
+        self.assertRaises(NotFoundError, api.registry,
+                          self.db, 'Example')
+
+        # The final content of the registry should have
+        # two companies and one domain
+        orgs = api.registry(self.db)
+        self.assertEqual(len(orgs), 2)
+
+        org1 = orgs[0]
+        self.assertEqual(org1.name, 'Bitergium')
+        doms1 = org1.domains
+        self.assertEqual(len(doms1), 1)
+        self.assertEqual(doms1[0].domain, 'bitergium.net')
+
+        org2 = orgs[1]
+        self.assertEqual(org2.name, 'LibreSoft')
+        doms2 = org2.domains
+        self.assertEqual(len(doms2), 0)
+
+    def test_not_found_organization(self):
+        """Check if it fails removing an organization that does not exists"""
+
+        # It should print an error when the registry is empty
+        self.cmd.delete('Bitergium')
+        output = sys.stdout.getvalue().strip().split('\n')[0]
+        self.assertEqual(output, REGISTRY_ORG_NOT_FOUND_ERROR)
+
+        # Add a pair of organizations to check delete with a registry
+        # with contents
+        self.cmd.add('Example')
+        self.cmd.add('Bitergia')
+        self.cmd.add('Bitergia', 'bitergia.com')
+
+        # The error should be the same
+        self.cmd.delete('Bitergium')
+        output = sys.stdout.getvalue().strip().split('\n')[1]
+        self.assertEqual(output, REGISTRY_ORG_NOT_FOUND_ERROR)
+
+        # It fails again, when trying to delete a domain from
+        # a organization that does not exist
+        self.cmd.delete('LibreSoft', 'bitergium.com')
+        output = sys.stdout.getvalue().strip().split('\n')[2]
+        self.assertEqual(output, REGISTRY_ORG_NOT_FOUND_ERROR_ALT)
+
+        # Nothing has been deleted from the registry
+        orgs = api.registry(self.db)
+        self.assertEqual(len(orgs), 2)
+        self.assertEqual(len(orgs[0].domains), 1)
+        self.assertEqual(len(orgs[1].domains), 0)
+
+    def test_not_found_domain(self):
+        """Check if it fails removing an domain that does not exists"""
+
+        # Add a pair of organizations to check delete with a registry
+        # with contents
+        self.cmd.add('Example')
+        self.cmd.add('Bitergia')
+        self.cmd.add('Bitergia', 'bitergia.com')
+
+        self.cmd.delete('Example', 'example.com')
+        output = sys.stdout.getvalue().strip().split('\n')[0]
+        self.assertEqual(output, REGISTRY_DOM_NOT_FOUND_ERROR)
+
+        # It should not fail because the domain is assigned
+        # to other organization
+        self.cmd.delete('Example', 'bitergia.com')
+        output = sys.stdout.getvalue().strip().split('\n')[1]
+        self.assertEqual(output, REGISTRY_DOM_NOT_FOUND_ERROR_ALT)
+
+        # Nothing has been deleted from the registry
+        orgs = api.registry(self.db)
+        self.assertEqual(len(orgs), 2)
+        self.assertEqual(len(orgs[0].domains), 1)
+        self.assertEqual(len(orgs[1].domains), 0)
 
 class TestOrgsRegistry(unittest.TestCase):
 
@@ -215,7 +351,7 @@ class TestOrgsRegistry(unittest.TestCase):
 
         self.cmd.registry('Bitergium')
         output = sys.stdout.getvalue().strip()
-        self.assertEqual(output, REGISTRY_NOT_FOUND_ERROR)
+        self.assertEqual(output, REGISTRY_ORG_NOT_FOUND_ERROR)
 
     def test_empty_registry(self):
         """Check output when the registry is empty"""

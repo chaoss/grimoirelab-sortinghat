@@ -71,6 +71,34 @@ class Organizations(Command):
             except (AlreadyExistsError, NotFoundError), e:
                 print "Error: %s" % str(e)
 
+    def delete(self, organization, domain=None):
+        """Remove organizations and domains from the registry.
+
+        The method removes the given 'organization' or 'domain' from the registry,
+        but not both at the same time.
+
+        When 'organization' is the only parameter given, it will be removed from
+        the registry, including those domains related to it. When 'domain' parameter
+        is also given, only the domain will be deleted. 'organization' must exists in
+        the registry prior removing the domain.
+
+        :param organization: name of the organization to remove
+        :param domain: domain to remove from the registry
+        """
+        if not organization:
+            return
+
+        if not domain:
+            try:
+                api.delete_organization(self.db, organization)
+            except NotFoundError, e:
+                print "Error: %s" % str(e)
+        else:
+            try:
+                api.delete_domain(self.db, organization, domain)
+            except NotFoundError, e:
+                print "Error: %s" % str(e)
+
     def registry(self, organization=None):
         """List organizations and domains.
 
