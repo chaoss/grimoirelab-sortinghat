@@ -175,6 +175,9 @@ class TestOrgsAdd(unittest.TestCase):
 class TestOrgsRegistry(unittest.TestCase):
 
     def setUp(self):
+        if not hasattr(sys.stdout, 'getvalue'):
+            self.fail('This test needs to be run in buffered mode')
+
         # Create a dataset to test the registry
         self.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
 
@@ -203,9 +206,6 @@ class TestOrgsRegistry(unittest.TestCase):
     def test_registry(self):
         """Check registry output list"""
 
-        if not hasattr(sys.stdout, 'getvalue'):
-            self.fail('This test needs to be run in buffered mode')
-
         self.cmd.registry()
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, REGISTRY_OUTPUT)
@@ -213,18 +213,12 @@ class TestOrgsRegistry(unittest.TestCase):
     def test_not_found_organization(self):
         """Check whether it prints an error for not existing organizations"""
 
-        if not hasattr(sys.stdout, 'getvalue'):
-            self.fail('This test needs to be run in buffered mode')
-
         self.cmd.registry('Bitergium')
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, REGISTRY_NOT_FOUND_ERROR)
 
     def test_empty_registry(self):
         """Check output when the registry is empty"""
-
-        if not hasattr(sys.stdout, 'getvalue'):
-            self.fail('This test needs to be run in buffered mode')
 
         # Delete the contents of the database
         self.db.clear()
