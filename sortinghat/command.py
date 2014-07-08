@@ -30,5 +30,13 @@ class Command(object):
         self.db = Database(kwargs['user'], kwargs['password'],
                            kwargs['database'], kwargs['host'], kwargs['port'])
 
-    def run(self, **kwargs):
+    @property
+    def description(self):
+        raise NotImplementedError
+
+    @property
+    def usage(self):
+        raise NotImplementedError
+
+    def run(self, *args):
         raise NotImplementedError
