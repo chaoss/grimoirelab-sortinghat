@@ -42,12 +42,155 @@ REGISTRY_ORG_NOT_FOUND_ERROR_ALT = "Error: LibreSoft not found in the registry"
 REGISTRY_DOM_NOT_FOUND_ERROR = "Error: example.com not found in the registry"
 REGISTRY_DOM_NOT_FOUND_ERROR_ALT = "Error: bitergia.com not found in the registry"
 REGISTRY_EMPTY_OUTPUT = ""
+
 REGISTRY_OUTPUT = """Bitergia    bitergia.net
 Bitergia    bitergia.com
 Example    example.com
 Example    example.org
 Example    example.net
 LibreSoft"""
+
+REGISTRY_OUTPUT_EXAMPLE = """Example    example.com
+Example    example.org
+Example    example.net"""
+
+REGISTRY_OUTPUT_EXAMPLE_ALT = """Example    example.com
+Example    example.net"""
+
+
+class TestOrgsCommand(unittest.TestCase):
+    """Organization command unit tests"""
+
+    def setUp(self):
+        if not hasattr(sys.stdout, 'getvalue'):
+            self.fail('This test needs to be run in buffered mode')
+
+        # Create a connection to check the contents of the registry
+        self.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
+
+        # Create command
+        self.kwargs = {'user' : DB_USER,
+                       'password' : DB_PASSWORD,
+                       'database' :DB_NAME,
+                       'host' : DB_HOST,
+                       'port' : DB_PORT}
+        self.cmd = Organizations(**self.kwargs)
+
+    def tearDown(self):
+        self.db.clear()
+
+    def test_default_action(self):
+        """Check whether when no action is given it runs --list"""
+
+        # Add some contents first
+        self.cmd.add('Example')
+        self.cmd.add('Example', 'example.com')
+        self.cmd.add('Example', 'example.org')
+        self.cmd.add('Example', 'example.net')
+
+        self.cmd.run()
+        output = sys.stdout.getvalue().strip()
+        self.assertEqual(output, REGISTRY_OUTPUT_EXAMPLE)
+
+    def test_list_without_args(self):
+        """Test list action with and without arguments"""
+
+        self.__load_test_dataset()
+
+        self.cmd.run('-l')
+        output = sys.stdout.getvalue().strip()
+        self.assertEqual(output, REGISTRY_OUTPUT)
+
+    def test_list_with_args(self):
+        """Test list action with arguments"""
+
+        self.__load_test_dataset()
+
+        self.cmd.run('--list', 'Example')
+        output = sys.stdout.getvalue().strip()
+        self.assertEqual(output, REGISTRY_OUTPUT_EXAMPLE)
+
+    def test_add_with_args(self):
+        """Test add action"""
+
+        self.cmd.run('--add', 'LibreSoft')
+        self.cmd.run('-a', 'Example')
+        self.cmd.run('--add', 'Example', 'example.com')
+        self.cmd.run('--add', 'Bitergia')
+        self.cmd.run('-a', 'Bitergia', 'bitergia.net')
+        self.cmd.run('--add', 'Example', 'example.org')
+        self.cmd.run('--add', 'Bitergia', 'bitergia.com')
+        self.cmd.run('-a', 'Example', 'example.net')
+
+        self.cmd.run('--list')
+        output = sys.stdout.getvalue().strip()
+        self.assertEqual(output, REGISTRY_OUTPUT)
+
+    def test_add_without_args(self):
+        """Check when calling --add without args, it does not do anything"""
+
+        self.cmd.run('--add')
+
+        self.cmd.run('-l')
+        output = sys.stdout.getvalue().strip()
+        self.assertEqual(output, "")
+
+    def test_delete_with_args(self):
+        """Test delete action"""
+
+        self.__load_test_dataset()
+
+        # Delete contents
+        self.cmd.run('--delete', 'Bitergia', 'bitergia.com')
+        self.cmd.run('-d', 'LibreSoft')
+        self.cmd.run('--delete', 'Bitergia')
+        self.cmd.run('-d', 'Example', 'example.org')
+
+        self.cmd.run('--list')
+        output = sys.stdout.getvalue().strip()
+        self.assertEqual(output, REGISTRY_OUTPUT_EXAMPLE_ALT)
+
+    def test_delete_without_args(self):
+        """Check when calling --delete without args, it does not do anything"""
+
+        self.__load_test_dataset()
+
+        self.cmd.run('--delete')
+
+        self.cmd.run('-l')
+        output = sys.stdout.getvalue().strip()
+        self.assertEqual(output, REGISTRY_OUTPUT)
+
+    def test_run_mixing_actions(self):
+        """Check how it works when mixing actions"""
+
+        self.cmd.run('--add', 'LibreSoft')
+        self.cmd.run('-a', 'LibreSoft', 'libresoft.es')
+        self.cmd.run('-a', 'Example')
+        self.cmd.run('--add', 'Example', 'example.org')
+        self.cmd.run('-d', 'Example', 'example.org')
+        self.cmd.run('--add', 'Bitergia')
+        self.cmd.run('-a', 'Bitergia', 'bitergia.net')
+        self.cmd.run('--delete', 'LibreSoft')
+        self.cmd.run('--add', 'Example', 'example.com')
+        self.cmd.run('--add', 'Bitergia', 'bitergia.com')
+        self.cmd.run('-a', 'Example', 'example.net')
+        self.cmd.run('--delete', 'Bitergia', 'bitergia.com')
+        self.cmd.run('-d', 'Bitergia')
+        self.cmd.run()
+
+        output = sys.stdout.getvalue().strip()
+        self.assertEqual(output, REGISTRY_OUTPUT_EXAMPLE_ALT)
+
+    def __load_test_dataset(self):
+        self.cmd.add('Example')
+        self.cmd.add('Example', 'example.com')
+        self.cmd.add('Bitergia')
+        self.cmd.add('Bitergia', 'bitergia.net')
+        self.cmd.add('Bitergia', 'bitergia.com')
+        self.cmd.add('LibreSoft')
+        self.cmd.add('Example', 'example.org')
+        self.cmd.add('Example', 'example.net')
 
 
 class TestOrgsAdd(unittest.TestCase):

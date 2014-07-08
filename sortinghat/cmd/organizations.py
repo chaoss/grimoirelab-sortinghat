@@ -20,6 +20,8 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+import argparse
+
 from sortinghat import api
 from sortinghat.command import Command
 from sortinghat.exceptions import AlreadyExistsError, NotFoundError
@@ -29,6 +31,50 @@ class Organizations(Command):
 
     def __init__(self, **kwargs):
         super(Organizations, self).__init__(**kwargs)
+
+        self.parser = argparse.ArgumentParser(description=self.description,
+                                              usage=self.usage)
+
+        # Actions
+        group = self.parser.add_mutually_exclusive_group()
+        group.add_argument('-l', '--list', action='store_true',
+                           help="List the contents of the registry")
+        group.add_argument('-a', '--add', action='store_true',
+                           help="Add an organization or domain to the registry")
+        group.add_argument('-d', '--delete', action='store_true',
+                           help="Delete an organization or domain from the registry")
+
+        # Positional arguments
+        self.parser.add_argument('organization', nargs='?', default=None,
+                                 help="Organization to list, add or remove")
+        self.parser.add_argument('domain', nargs='?', default=None,
+                                 help="Domain to add or remove")
+
+    @property
+    def description(self):
+        return """List, add or delete organizations and domains from the registry."""
+
+    @property
+    def usage(self):
+        return "sortinghat orgs (--list | --add | --delete) [organization] [domain]"
+
+    def run(self, *args):
+        """List, add or delete organizations and domains from the registry.
+
+        By default, it prints the list of organizations available on
+        the registry.
+        """
+        params = self.parser.parse_args(args)
+
+        organization = params.organization
+        domain = params.domain
+
+        if params.add:
+            self.add(organization, domain)
+        elif params.delete:
+            self.delete(organization, domain)
+        else:
+            self.registry(organization)
 
     def add(self, organization, domain=None, overwrite=False):
         """Add organizations and domains to the registry.
