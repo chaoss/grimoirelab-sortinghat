@@ -28,7 +28,30 @@ from sortinghat.exceptions import AlreadyExistsError, NotFoundError
 
 
 class Organizations(Command):
+    """List, add or delete organizations and domains from the registry.
 
+    By default, this command lists the organizations and domains existing
+    in the registry. If <organization> is given, the method will list only
+    those domains related to it.
+
+    Organizations and domains can be added to the registry using '--add'
+    option. This will add the given <organization> or <domain>, but not
+    both at the same time. When <organization> is the only parameter given,
+    it will be added to the registry. When both parameters are given,
+    the command will assign <domain> to <organization>. Note: <organization>
+    must exists before adding a domain.
+
+    A domain can only be assigned to one company. Use '--overwrite' to to create
+    a new relationship. In this case, previous <domain> relationship will be
+    removed.
+
+    To delete organizations use '--delete' option. When <organization> is the only
+    parameter given, it will be removed from the registry, including those domains
+    related to it. When both <domain> and <organization> are given, only the domain
+    will be deleted.
+
+    Database connection parameters are required to run this command.
+    """
     def __init__(self, **kwargs):
         super(Organizations, self).__init__(**kwargs)
 
@@ -56,7 +79,7 @@ class Organizations(Command):
 
     @property
     def usage(self):
-        return "sortinghat orgs (--list | --add | --delete) [organization] [domain]"
+        return "%(prog)s orgs [-l] [organization]\n   or: %(prog)s orgs [-a|-d] <organization> [domain]"
 
     def run(self, *args):
         """List, add or delete organizations and domains from the registry.
