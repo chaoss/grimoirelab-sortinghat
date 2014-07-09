@@ -50,6 +50,13 @@ Example    example.org
 Example    example.net
 LibreSoft"""
 
+REGISTRY_OUTPUT_ALT = """Bitergia    bitergia.net
+Example    example.com
+Example    bitergia.com
+Example    example.org
+Example    example.net
+LibreSoft"""
+
 REGISTRY_OUTPUT_EXAMPLE = """Example    example.com
 Example    example.org
 Example    example.net"""
@@ -134,6 +141,24 @@ class TestOrgsCommand(unittest.TestCase):
         self.cmd.run('-l')
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, "")
+
+    def test_add_with_overwrite_option(self):
+        """Check whether it not fails running add with overwrite option"""
+
+        self.__load_test_dataset()
+
+        self.cmd.run('--add', 'Example', 'bitergia.com')
+        output = sys.stdout.getvalue().strip()
+        self.assertEqual(output, REGISTRY_DOM_ALREADY_EXISTS_ERROR)
+
+        self.cmd.run('--add', '--overwrite', 'Example', 'bitergia.com')
+        self.cmd.run('-l')
+        output = sys.stdout.getvalue().strip()
+        # This check includes the output of the add command because
+        # it cannot be removed from the stdout
+        self.assertEqual(output,
+                         REGISTRY_DOM_ALREADY_EXISTS_ERROR + '\n' +
+                         REGISTRY_OUTPUT_ALT)
 
     def test_delete_with_args(self):
         """Test delete action"""

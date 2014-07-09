@@ -67,6 +67,10 @@ class Organizations(Command):
         group.add_argument('-d', '--delete', action='store_true',
                            help="Delete an organization or domain from the registry")
 
+        # General options
+        self.parser.add_argument('--overwrite', action='store_true',
+                                 help="Force to overwrite existing domain relationships")
+
         # Positional arguments
         self.parser.add_argument('organization', nargs='?', default=None,
                                  help="Organization to list, add or remove")
@@ -91,9 +95,10 @@ class Organizations(Command):
 
         organization = params.organization
         domain = params.domain
+        overwrite = params.overwrite
 
         if params.add:
-            self.add(organization, domain)
+            self.add(organization, domain, overwrite)
         elif params.delete:
             self.delete(organization, domain)
         else:
