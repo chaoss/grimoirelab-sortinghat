@@ -61,21 +61,21 @@ class Organizations(Command):
         # Actions
         group = self.parser.add_mutually_exclusive_group()
         group.add_argument('-l', '--list', action='store_true',
-                           help="List the contents of the registry")
+                           help="list the contents of the registry")
         group.add_argument('-a', '--add', action='store_true',
-                           help="Add an organization or domain to the registry")
+                           help="add an organization or domain to the registry")
         group.add_argument('-d', '--delete', action='store_true',
-                           help="Delete an organization or domain from the registry")
+                           help="delete an organization or domain from the registry")
 
         # General options
         self.parser.add_argument('--overwrite', action='store_true',
-                                 help="Force to overwrite existing domain relationships")
+                                 help="force to overwrite existing domain relationships")
 
         # Positional arguments
         self.parser.add_argument('organization', nargs='?', default=None,
-                                 help="Organization to list, add or remove")
+                                 help="organization to list, add or remove")
         self.parser.add_argument('domain', nargs='?', default=None,
-                                 help="Domain to add or remove")
+                                 help="domain to add or remove")
 
     @property
     def description(self):
