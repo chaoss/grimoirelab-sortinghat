@@ -84,6 +84,7 @@ class Load(Command):
             # Add domain
             try:
                 api.add_domain(self.db, organization, domain, overwrite)
+                print "Domain %s added to organization %s" % (domain, organization)
             except (ValueError, NotFoundError), e:
                 raise RuntimeError(str(e))
             except AlreadyExistsError, e:
