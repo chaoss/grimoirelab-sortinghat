@@ -320,6 +320,12 @@ class TestLoadImportDomains(unittest.TestCase):
         self.assertEqual(output, "Error: invalid format on line 8")
         f2.close()
 
+    def test_invalid_file(self):
+        """Check if it raises a RuntimeError when an invalid file object is given"""
+
+        self.assertRaises(RuntimeError, self.cmd.import_domains, None)
+        self.assertRaises(RuntimeError, self.cmd.import_domains, 1)
+
 
 if __name__ == "__main__":
     unittest.main(buffer=True, exit=False)

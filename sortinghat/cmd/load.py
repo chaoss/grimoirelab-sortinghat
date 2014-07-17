@@ -63,15 +63,13 @@ class Load(Command):
 
         :param infile: file to import
         :param overwrite: force to reassign domains
-
-        :raise BadFileFormatError: raised when the format of 'infile' is invalid
         """
         try:
             entries = self.__parse_domains_file(infile)
         except BadFileFormatError, e:
             print "Error: %s" % str(e)
             return
-        except IOError, e:
+        except (IOError, TypeError), e:
             raise RuntimeError(str(e))
 
         for domain, organization in entries:
