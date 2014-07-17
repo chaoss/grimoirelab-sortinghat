@@ -1,0 +1,19 @@
+##
+## Domains - Companies
+##
+## Note: some of the examples include tabs and spaces between
+## domains and companies entries.
+##
+## line 17: domain already on the registry (line 12)
+##          use to check overwrite param
+##
+##
+
+example.com        Example
+example.org        Example
+example.net        Example
+bitergia.com    Bitergia
+bitergia.net    Bitergia
+example.com     Bitergia
+libresoft.es         GSyC/LibreSoft
+gsyc.es              GSyC/LibreSoft
