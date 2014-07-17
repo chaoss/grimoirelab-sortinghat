@@ -34,6 +34,72 @@ from sortinghat.db.database import Database
 
 from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
+LOAD_DOMAINS_OUTPUT = """Domain example.com added to organization Example
+Domain example.org added to organization Example
+Domain example.net added to organization Example
+Domain bitergia.com added to organization Bitergia
+Domain bitergia.net added to organization Bitergia
+Warning: example.com already exists in the registry. Not updated.
+Domain libresoft.es added to organization GSyC/LibreSoft
+Domain gsyc.es added to organization GSyC/LibreSoft"""
+
+LOAD_DOMAINS_OVERWRITE_OUTPUT = """Domain example.com added to organization Example
+Domain example.org added to organization Example
+Domain example.net added to organization Example
+Domain bitergia.com added to organization Bitergia
+Domain bitergia.net added to organization Bitergia
+Domain example.com added to organization Bitergia
+Domain libresoft.es added to organization GSyC/LibreSoft
+Domain gsyc.es added to organization GSyC/LibreSoft"""
+
+
+class TestLoadCommand(unittest.TestCase):
+    """Load command unit tests"""
+
+    def setUp(self):
+        if not hasattr(sys.stdout, 'getvalue'):
+            self.fail('This test needs to be run in buffered mode')
+
+        # Create a connection to check the contents of the registry
+        self.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
+
+        # Create command
+        self.kwargs = {'user' : DB_USER,
+                       'password' : DB_PASSWORD,
+                       'database' :DB_NAME,
+                       'host' : DB_HOST,
+                       'port' : DB_PORT}
+        self.cmd = Load(**self.kwargs)
+
+    def tearDown(self):
+        self.db.clear()
+
+    def test_load_domains(self):
+        """Test to load domains from a file"""
+
+        self.cmd.run('--domains', 'data/domains_orgs_valid.txt')
+        output = sys.stdout.getvalue().strip()
+        self.assertEqual(output, LOAD_DOMAINS_OUTPUT)
+
+    def test_load_domains_overwrite(self):
+        """Test to load domains from a file with overwrite parameter set"""
+
+        self.cmd.run('--domains', '--overwrite',
+                     'data/domains_orgs_valid.txt')
+        output = sys.stdout.getvalue().strip()
+        self.assertEqual(output, LOAD_DOMAINS_OVERWRITE_OUTPUT)
+
+    def test_load_domains_invalid_file(self):
+        """Test whether it prints error messages while reading invalid files"""
+
+        self.cmd.run('--domains', 'data/domains_orgs_invalid_comments.txt')
+        output = sys.stdout.getvalue().strip().split('\n')[0]
+        self.assertEqual(output, "Error: invalid format on line 10")
+
+        self.cmd.run('--domains', 'data/domains_orgs_invalid_entries.txt')
+        output = sys.stdout.getvalue().strip().split('\n')[1]
+        self.assertEqual(output, "Error: invalid format on line 8")
+
 
 class TestDomainsRegEx(unittest.TestCase):
     """Test regular expressions used while parsing domains inputs"""

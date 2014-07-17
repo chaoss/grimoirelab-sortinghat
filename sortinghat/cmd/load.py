@@ -20,6 +20,8 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+import argparse
+import sys
 import re
 
 from sortinghat import api
@@ -40,6 +42,45 @@ class Load(Command):
     """
     def __init__(self, **kwargs):
         super(Load, self).__init__(**kwargs)
+
+        self.parser = argparse.ArgumentParser(description=self.description,
+                                              usage=self.usage)
+
+        # Actions
+        group = self.parser.add_mutually_exclusive_group()
+        group.add_argument('--domains', action='store_true',
+                           help="import domains - organizations file")
+
+        # General options
+        self.parser.add_argument('--overwrite', action='store_true',
+                                 help="force to overwrite existing domain relationships")
+
+        # Positional arguments
+        self.parser.add_argument('infile', nargs='?', type=argparse.FileType('r'),
+                                 default=sys.stdin,
+                                 help="domains - organization file")
+
+    @property
+    def description(self):
+        return """Import a list of organizations and domains."""
+
+    @property
+    def usage(self):
+        return "%(prog)s load --domains [--overwrite] [file]"
+
+    def run(self, *args):
+        """Import a list of organizations and domains.
+
+        By default, it reads the data from the standard input. If a positional
+        argument is given, it will read the data from there.
+        """
+        params = self.parser.parse_args(args)
+
+        infile = params.infile
+        overwrite = params.overwrite
+
+        if params.domains:
+            self.import_domains(infile, overwrite)
 
     def import_domains(self, infile, overwrite=False):
         """Import domains from a file on the registry.
