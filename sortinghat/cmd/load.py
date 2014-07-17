@@ -1,0 +1,117 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2014 Bitergia
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+#
+# Authors:
+#     Santiago Dueñas <sduenas@bitergia.com>
+#
+
+import re
+
+from sortinghat import api
+from sortinghat.command import Command
+from sortinghat.exceptions import AlreadyExistsError, NotFoundError,\
+    BadFileFormatError
+
+
+# Regex for parsing domains input
+LINES_TO_IGNORE_REGEX = r"^((#.*)?\s+)?$"
+DOMAINS_LINE_REGEX = r"^(?P<domain>\w\S+)[ \t]+(?P<organization>\w[ \w\\/.\-\']+)$"
+
+
+class Load(Command):
+    """Import organizations and domains on the registry.
+
+    Database connection parameters are required to run this command.
+    """
+    def __init__(self, **kwargs):
+        super(Load, self).__init__(**kwargs)
+
+    def import_domains(self, infile, overwrite=False):
+        """Import domains from a file on the registry.
+
+        New domains and organizations stored on 'infile' will be added
+        to the registry. Remember that a domain can only be assigned to
+        one company. If one of the given domains is already on the registry,
+        the new relationship will NOT be created unless 'overwrite' is set
+        to 'True'.
+
+        Each line of the file has to contain a domain and a company, separated
+        by white spaces or tabs. Comment lines start with the hash character (#)
+        For example:
+
+        # Domains from domains.txt
+        example.org        Example
+        example.com        Example
+        bitergia.com       Bitergia
+        libresoft.es       LibreSoft
+        example.org        LibreSoft
+
+        :param infile: file to import
+        :param overwrite: force to reassign domains
+
+        :raise BadFileFormatError: raised when the format of 'infile' is invalid
+        """
+        try:
+            entries = self.__parse_domains_file(infile)
+        except BadFileFormatError, e:
+            print "Error: %s" % str(e)
+            return
+        except IOError, e:
+            raise RuntimeError(str(e))
+
+        for domain, organization in entries:
+            # Add organization
+            try:
+                api.add_organization(self.db, organization)
+            except ValueError, e:
+                raise RuntimeError(str(e))
+            except AlreadyExistsError, e:
+                pass
+
+            # Add domain
+            try:
+                api.add_domain(self.db, organization, domain, overwrite)
+            except (ValueError, NotFoundError), e:
+                raise RuntimeError(str(e))
+            except AlreadyExistsError, e:
+                print "Warning: %s. Not updated." % str(e)
+
+    def __parse_domains_file(self, infile):
+        """Parse domains file object into a list of tuples"""
+
+        domains = []
+        nline = 0
+
+        for line in infile:
+            nline += 1
+
+            # Ignore blank lines and comments
+            m = re.match(LINES_TO_IGNORE_REGEX, line)
+            if m:
+                continue
+
+            m = re.match(DOMAINS_LINE_REGEX, line)
+            if not m:
+                cause = "invalid format on line %s" % str(nline)
+                raise BadFileFormatError(cause=cause)
+
+            domain = m.group('domain')
+            organization = m.group('organization')
+            domains.append((domain, organization))
+
+        return domains
