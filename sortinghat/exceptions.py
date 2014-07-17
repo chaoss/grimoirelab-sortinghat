@@ -50,3 +50,9 @@ class NotFoundError(BaseError):
     """Exception raised when an entity is not found in the registry"""
 
     message = "%(entity)s not found in the registry"
+
+
+class BadFileFormatError(BaseError):
+    """Exception raised when an input file does not have the expected format"""
+
+    message = "%(cause)s"

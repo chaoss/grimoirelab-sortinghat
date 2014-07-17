@@ -27,7 +27,8 @@ import unittest
 if not '..' in sys.path:
     sys.path.insert(0, '..')
 
-from sortinghat.exceptions import BaseError, AlreadyExistsError, NotFoundError
+from sortinghat.exceptions import BaseError, AlreadyExistsError, NotFoundError,\
+    BadFileFormatError
 
 
 # Mock classes to test BaseError class
@@ -104,6 +105,22 @@ class TestNotFoundError(unittest.TestCase):
         required parameters are not given"""
         kwargs = {}
         self.assertRaises(KeyError, NotFoundError, **kwargs)
+
+
+class TestBadFileFormatError(unittest.TestCase):
+
+    def test_message(self):
+        """Make sure that prints the correct error"""
+
+        e = BadFileFormatError(cause='Invalid file format')
+        self.assertEqual('Invalid file format', str(e))
+        self.assertEqual(u'Invalid file format', unicode(e))
+
+    def test_no_args(self):
+        """Check whether it raises a KeyError exception when
+        required parameters are not given"""
+        kwargs = {}
+        self.assertRaises(KeyError, BadFileFormatError, **kwargs)
 
 
 if __name__ == "__main__":
