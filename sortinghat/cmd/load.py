@@ -31,8 +31,8 @@ from sortinghat.exceptions import AlreadyExistsError, NotFoundError,\
 
 
 # Regex for parsing domains input
-LINES_TO_IGNORE_REGEX = r"^((#.*)?\s+)?$"
-DOMAINS_LINE_REGEX = r"^(?P<domain>\w\S+)[ \t]+(?P<organization>\w[ \w\\/.\-\']+)$"
+LINES_TO_IGNORE_REGEX = ur"^((#.*)?\s+)?$"
+DOMAINS_LINE_REGEX = ur"^(?P<domain>\w\S+)[ \t]+(?P<organization>\w[ \w\\/.\-\']+)$"
 
 
 class Load(Command):
@@ -149,12 +149,14 @@ class Load(Command):
         for line in infile:
             nline += 1
 
+            line = line.decode('UTF-8')
+
             # Ignore blank lines and comments
-            m = re.match(LINES_TO_IGNORE_REGEX, line)
+            m = re.match(LINES_TO_IGNORE_REGEX, line, re.UNICODE)
             if m:
                 continue
 
-            m = re.match(DOMAINS_LINE_REGEX, line)
+            m = re.match(DOMAINS_LINE_REGEX, line, re.UNICODE)
             if not m:
                 cause = "invalid format on line %s" % str(nline)
                 raise BadFileFormatError(cause=cause)

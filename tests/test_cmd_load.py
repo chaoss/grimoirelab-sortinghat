@@ -34,6 +34,7 @@ from sortinghat.db.database import Database
 
 from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
+
 LOAD_DOMAINS_OUTPUT = """Domain example.com added to organization Example
 Domain example.org added to organization Example
 Domain example.net added to organization Example
@@ -149,7 +150,7 @@ class TestDomainsRegEx(unittest.TestCase):
     def test_domains_line(self):
         """Check whether it parsers domain - organization lines"""
 
-        parser = re.compile(DOMAINS_LINE_REGEX)
+        parser = re.compile(DOMAINS_LINE_REGEX, re.UNICODE)
 
         # Parse some valid domain lines
         m = parser.match("example.org    Example")
@@ -211,6 +212,10 @@ class TestDomainsRegEx(unittest.TestCase):
 
         m = parser.match("example.org    ")
         self.assertIsNone(m)
+
+        # Unicode characters
+        m = parser.match(u"example.org     Examplé")
+        self.assertIsNotNone(m)
 
 
 class TestLoadImportDomains(unittest.TestCase):
