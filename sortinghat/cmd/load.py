@@ -38,6 +38,15 @@ DOMAINS_LINE_REGEX = r"^(?P<domain>\w\S+)[ \t]+(?P<organization>\w[ \w\\/.\-\']+
 class Load(Command):
     """Import organizations and domains on the registry.
 
+    Organizations and domains are read, by default, from the standard input.
+    Files can also be used as data input giving the path to file as a positional
+    argument.
+
+    Domains are added to the registry using the option '--domains'. Remember
+    that a domain can only be assigned to one company. If one of the given
+    domains is already on the registry, the new relationship will NOT be
+    created unless --overwrite option were set.
+
     Database connection parameters are required to run this command.
     """
     def __init__(self, **kwargs):
@@ -88,7 +97,7 @@ class Load(Command):
         New domains and organizations stored on 'infile' will be added
         to the registry. Remember that a domain can only be assigned to
         one company. If one of the given domains is already on the registry,
-        the new relationship will NOT be created unless 'overwrite' is set
+        the new relationship will NOT be created unless 'overwrite' were set
         to 'True'.
 
         Each line of the file has to contain a domain and a company, separated
