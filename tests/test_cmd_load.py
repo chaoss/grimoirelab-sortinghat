@@ -178,6 +178,12 @@ class TestDomainsRegEx(unittest.TestCase):
         m = parser.match("\texample.org   Example")
         self.assertIsNone(m)
 
+        m = parser.match("example.org   Exa\tmple")
+        self.assertIsNone(m)
+
+        m = parser.match("example.org   Exa\nmple")
+        self.assertIsNone(m)
+
         m = parser.match("example.org organization ### comment")
         self.assertIsNone(m)
 

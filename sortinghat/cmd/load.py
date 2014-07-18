@@ -32,7 +32,7 @@ from sortinghat.exceptions import AlreadyExistsError, NotFoundError,\
 
 # Regex for parsing domains input
 LINES_TO_IGNORE_REGEX = ur"^((#.*)?\s+)?$"
-DOMAINS_LINE_REGEX = ur"^(?P<domain>\w\S+)[ \t]+(?P<organization>\w[ \w\\/.\-\']+)$"
+DOMAINS_LINE_REGEX = ur"^(?P<domain>\w\S+)[ \t]+(?P<organization>\w[^#\t\n\r\f\v]+)$"
 
 
 class Load(Command):
