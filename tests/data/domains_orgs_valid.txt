@@ -9,11 +9,18 @@
 ##
 ##
 
+
 example.com        Example
 example.org        Example
 example.net        Example
-bitergia.com    Bitergia
+bitergia.com    Bitergia            # Comment test #0
 bitergia.net    Bitergia
 example.com     Bitergia
+
+# Comment test #1
+
 libresoft.es         GSyC/LibreSoft
+
+          # Comment test #2
+
 gsyc.es              GSyC/LibreSoft

@@ -140,13 +140,6 @@ class TestDomainsRegEx(unittest.TestCase):
         m = parser.match("#|tcomment #1\r\n")
         self.assertIsNotNone(m)
 
-        # Do not parse invalid comments
-        m = parser.match("domain organization #   \t\n\r")
-        self.assertIsNone(m)
-
-        m = parser.match("domain organization\t   #\tcomment #1\r\n")
-        self.assertIsNone(m)
-
     def test_domains_line(self):
         """Check whether it parsers domain - organization lines"""
 
@@ -184,8 +177,15 @@ class TestDomainsRegEx(unittest.TestCase):
         m = parser.match("example.org   Exa\nmple")
         self.assertIsNone(m)
 
+        # Parse some valid comments
         m = parser.match("example.org organization ### comment")
-        self.assertIsNone(m)
+        self.assertIsNotNone(m)
+
+        m = parser.match("domain organization #   \t\r")
+        self.assertIsNotNone(m)
+
+        m = parser.match("domain organization\t   #\tcomment #1\r\n")
+        self.assertIsNotNone(m)
 
         # Domains and organizations must start with a
         # alpha numeric or underscores characters
