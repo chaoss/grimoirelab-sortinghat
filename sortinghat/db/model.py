@@ -38,7 +38,8 @@ class Organization(ModelBase):
     domains = relationship("Domain", backref='companies',
                            lazy='joined', cascade="save-update, merge, delete")
 
-    __table_args__ = (UniqueConstraint('name', name='_name_unique'),)
+    __table_args__ = (UniqueConstraint('name', name='_name_unique'),
+                      {'mysql_charset': 'utf8'})
 
 
 class Domain(ModelBase):
@@ -51,4 +52,5 @@ class Domain(ModelBase):
     # Many-to-One relationship
     company = relationship("Organization", backref='domains_companies')
 
-    __table_args__ = (UniqueConstraint('domain', name='_domain_unique'),)
+    __table_args__ = (UniqueConstraint('domain', name='_domain_unique'),
+                      {'mysql_charset': 'utf8'})

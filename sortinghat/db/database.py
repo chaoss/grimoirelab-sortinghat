@@ -33,8 +33,9 @@ class Database(object):
 
     def __init__(self, user, password, database, host='localhost', port='3306'):
         # Create an engine
-        self.url = URL('mysql', user, password, host, port, database)
-        self._engine = create_engine(self.url, echo=True)
+        self.url = URL('mysql', user, password, host, port, database,
+                       query={'charset' : 'utf8'})
+        self._engine = create_engine(self.url, echo=False)
         self._Session = sessionmaker(bind=self._engine)
 
         # Create the schema on the database.
