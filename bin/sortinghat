@@ -130,5 +130,5 @@ if __name__ == '__main__':
         print "\n\nReceived Ctrl-C or other break signal. Exiting."
         sys.exit(0)
     except RuntimeError, e:
-        print e
+        print "Runtime error: %s" % str(e)
         sys.exit(1)
