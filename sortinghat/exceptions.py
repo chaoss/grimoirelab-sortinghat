@@ -23,10 +23,8 @@
 class BaseError(Exception):
     """Base class error.
 
-    Derived classes can overwrite error message declaring
-    'message' property.
+    Derived classes can overwrite error message declaring 'message' property.
     """
-
     message = 'Unknown error'
 
     def __init__(self, **kwargs):
@@ -46,13 +44,19 @@ class AlreadyExistsError(BaseError):
     message = "%(entity)s already exists in the registry"
 
 
-class NotFoundError(BaseError):
-    """Exception raised when an entity is not found in the registry"""
-
-    message = "%(entity)s not found in the registry"
-
-
 class BadFileFormatError(BaseError):
     """Exception raised when an input file does not have the expected format"""
 
     message = "%(cause)s"
+
+
+class DatabaseError(BaseError):
+    """Exception raised when a database error occurs"""
+
+    message = "%(error)s (err: %(code)s)"
+
+
+class NotFoundError(BaseError):
+    """Exception raised when an entity is not found in the registry"""
+
+    message = "%(entity)s not found in the registry"

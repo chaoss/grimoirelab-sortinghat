@@ -27,8 +27,8 @@ import unittest
 if not '..' in sys.path:
     sys.path.insert(0, '..')
 
-from sortinghat.exceptions import BaseError, AlreadyExistsError, NotFoundError,\
-    BadFileFormatError
+from sortinghat.exceptions import BaseError, AlreadyExistsError, BadFileFormatError,\
+    DatabaseError, NotFoundError
 
 
 # Mock classes to test BaseError class
@@ -121,6 +121,28 @@ class TestBadFileFormatError(unittest.TestCase):
         required parameters are not given"""
         kwargs = {}
         self.assertRaises(KeyError, BadFileFormatError, **kwargs)
+
+
+class TestDatabaseError(unittest.TestCase):
+
+    def test_message(self):
+        """Make sure that prints the correct error"""
+
+        e = DatabaseError(error="Unknown database 'mydb'", code=1049)
+        self.assertEqual("Unknown database 'mydb' (err: 1049)", str(e))
+        self.assertEqual(u"Unknown database 'mydb' (err: 1049)", unicode(e))
+
+    def test_no_args(self):
+        """Check whether it raises a KeyError exception when
+        required parameters are not given"""
+        kwargs = {}
+        self.assertRaises(KeyError, DatabaseError, **kwargs)
+
+        kwargs = {'error' : "Unknown database 'mydb'"}
+        self.assertRaises(KeyError, DatabaseError, **kwargs)
+
+        kwargs = {'code' : 1049}
+        self.assertRaises(KeyError, DatabaseError, **kwargs)
 
 
 if __name__ == "__main__":

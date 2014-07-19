@@ -20,6 +20,7 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+from sortinghat.exceptions import DatabaseError
 from sortinghat.db.database import Database
 
 
@@ -27,8 +28,11 @@ class Command(object):
     """Abstract class to run commands"""
 
     def __init__(self, **kwargs):
-        self.db = Database(kwargs['user'], kwargs['password'],
-                           kwargs['database'], kwargs['host'], kwargs['port'])
+        try:
+            self.db = Database(kwargs['user'], kwargs['password'],
+                               kwargs['database'], kwargs['host'], kwargs['port'])
+        except DatabaseError, e:
+            raise RuntimeError(str(e))
 
     @property
     def description(self):

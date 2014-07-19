@@ -23,9 +23,11 @@
 from contextlib import contextmanager
 
 from sqlalchemy import create_engine
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.engine.url import URL
 from sqlalchemy.orm import sessionmaker
 
+from sortinghat.exceptions import DatabaseError
 from sortinghat.db.model import ModelBase
 
 
@@ -40,7 +42,10 @@ class Database(object):
 
         # Create the schema on the database.
         # It won't replace any existing schema
-        ModelBase.metadata.create_all(self._engine)
+        try:
+            ModelBase.metadata.create_all(self._engine)
+        except OperationalError, e:
+            raise DatabaseError(error=e.orig[1], code=e.orig[0])
 
     @contextmanager
     def connect(self):
