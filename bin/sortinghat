@@ -22,10 +22,15 @@
 #
 
 import argparse
+import ConfigParser
+import os.path
 import sys
 
 from sortinghat.cmd.load import Load
 from sortinghat.cmd.organizations import Organizations
+
+
+SORTINGHAT_USAGE_MSG = "Usage: '%(prog)s [options] command"
 
 
 def main():
@@ -38,39 +43,84 @@ def main():
     else:
         raise RuntimeError("Unknown command %s" % args.command)
 
-    cmd = cmd_klass(user=args.db_user, password=args.db_password,
-                    database=args.db_name, host=args.db_hostname,
-                    port=args.db_port)
+    cmd = cmd_klass(user=args.user, password=args.password,
+                    database=args.database, host=args.host,
+                    port=args.port)
     cmd.run(*args.cmd_args)
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(usage="Usage: '%(prog)s [options] command")
+    # Parse first configuration file parameter
+    config_parser = create_config_arguments_parser()
+    config_args, args = config_parser.parse_known_args()
+
+    # And then, read default parameters from a configuration file
+    if config_args.config_file:
+        defaults = read_config_file(config_args.config_file)
+    else:
+        defaults = {}
+
+    # Parse common arguments using the command parser
+    parser = create_common_arguments_parser(defaults)
+
+    # Parse arguments
+    return parser.parse_args(args)
+
+
+def read_config_file(filepath):
+    config = ConfigParser.SafeConfigParser()
+    config.read(filepath)
+
+    if 'db' in config.sections():
+        return dict(config.items('db'))
+    else:
+        return {}
+
+
+def create_common_arguments_parser(defaults):
+    parser = argparse.ArgumentParser(usage=SORTINGHAT_USAGE_MSG)
 
     # Database options
     db_group = parser.add_argument_group('Database options')
-    db_group.add_argument('-u', '--user', dest='db_user',
-                          help="Database user name",
+    db_group.add_argument('-u', '--user', dest='user',
+                          help="database user name",
                           default='root')
-    db_group.add_argument('-p', '--password', dest='db_password',
-                          help="Database user password",
+    db_group.add_argument('-p', '--password', dest='password',
+                          help="database user password",
                           default='')
-    db_group.add_argument('-d', '--database', dest='db_name',
-                          help="Name of the database where fetched projects will be stored")
-    db_group.add_argument('--host', dest='db_hostname',
-                          help="Name of the host where the database server is running",
+    db_group.add_argument('-d', '--database', dest='database',
+                          help="name of the database where fetched projects will be stored")
+    db_group.add_argument('--host', dest='host',
+                          help="name of the host where the database server is running",
                           default='localhost')
-    db_group.add_argument('--port', dest='db_port',
-                          help="Port of the host where the database server is running",
+    db_group.add_argument('--port', dest='port',
+                          help="port of the host where the database server is running",
                           default='3306')
 
     # Command arguments
     parser.add_argument('command',
-                        help="Command to run")
+                        help="command to run. i.e: orgs, load")
     parser.add_argument('cmd_args', nargs=argparse.REMAINDER)
 
-    # Parse arguments
-    return parser.parse_args()
+    # Set default values
+    parser.set_defaults(**defaults)
+
+    return parser
+
+
+def create_config_arguments_parser():
+    parser = argparse.ArgumentParser(usage=SORTINGHAT_USAGE_MSG,
+                                         add_help=False)
+
+    parser.add_argument('-c', '--config', dest='config_file',
+                        help="set configuration file")
+
+    # Set default values
+    defaults = {'config_file' : os.path.expanduser('~/.sortinghat'),}
+
+    parser.set_defaults(**defaults)
+
+    return parser
 
 
 if __name__ == '__main__':
@@ -79,3 +129,6 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print "\n\nReceived Ctrl-C or other break signal. Exiting."
         sys.exit(0)
+    except RuntimeError, e:
+        print e
+        sys.exit(1)
