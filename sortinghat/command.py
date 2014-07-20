@@ -28,11 +28,7 @@ class Command(object):
     """Abstract class to run commands"""
 
     def __init__(self, **kwargs):
-        try:
-            self.db = Database(kwargs['user'], kwargs['password'],
-                               kwargs['database'], kwargs['host'], kwargs['port'])
-        except DatabaseError, e:
-            raise RuntimeError(str(e))
+        self._kwargs = kwargs
 
     @property
     def description(self):
@@ -44,3 +40,10 @@ class Command(object):
 
     def run(self, *args):
         raise NotImplementedError
+
+    def _set_database(self, **kwargs):
+        try:
+            self.db = Database(kwargs['user'], kwargs['password'],
+                               kwargs['database'], kwargs['host'], kwargs['port'])
+        except DatabaseError, e:
+            raise RuntimeError(str(e))

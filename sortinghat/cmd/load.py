@@ -52,6 +52,8 @@ class Load(Command):
     def __init__(self, **kwargs):
         super(Load, self).__init__(**kwargs)
 
+        self._set_database(**kwargs)
+
         self.parser = argparse.ArgumentParser(description=self.description,
                                               usage=self.usage)
 
