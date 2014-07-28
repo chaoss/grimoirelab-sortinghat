@@ -1,0 +1,218 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2014 Bitergia
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+#
+# Authors:
+#     Santiago Dueñas <sduenas@bitergia.com>
+#
+
+
+import ConfigParser
+import os.path
+import sys
+import unittest
+
+if not '..' in sys.path:
+    sys.path.insert(0, '..')
+
+from sortinghat.cmd.config import Config
+
+
+MOCK_CONFIG_FILE = './data/mock_config_file.cfg'
+
+INVALID_CONFIG_FILE = "Configuration file not given"
+SET_KEY_CONFIG_ERROR = "%(param)s parameter does not exists or cannot be set"
+GET_KEY_CONFIG_ERROR = "%(param)s parameter does not exists"
+NOT_FOUND_FILE_ERROR = "./data/invalid_config_file.cfg config file does not exist"
+
+
+class TestSetConfig(unittest.TestCase):
+    """Set method unit tests"""
+
+    def setUp(self):
+        kwargs = {}
+        self.cmd = Config(**kwargs)
+
+    def test_none_param_values(self):
+        """Check it if raises exceptions when passing None params"""
+
+        self.assertRaisesRegexp(RuntimeError,
+                                SET_KEY_CONFIG_ERROR % {'param' : 'None'},
+                                self.cmd.set, None, 'value',
+                                MOCK_CONFIG_FILE)
+
+        self.assertRaisesRegexp(RuntimeError,
+                                INVALID_CONFIG_FILE,
+                                self.cmd.set, 'db.user', 'value',
+                                None)
+
+    def test_unsupported_keys(self):
+        """Check if it raises an error when passing unsupported keys"""
+
+        # Test not available keys
+        self.assertRaisesRegexp(RuntimeError,
+                                SET_KEY_CONFIG_ERROR % {'param' : 'section.option'},
+                                self.cmd.set, 'section.option', 'value',
+                                MOCK_CONFIG_FILE)
+
+        # Test keys that do not follow '<section>.<option>' schema
+        self.assertRaisesRegexp(RuntimeError,
+                                SET_KEY_CONFIG_ERROR % {'param' : '1'},
+                                self.cmd.set, 1, 'value',
+                                MOCK_CONFIG_FILE)
+        self.assertRaisesRegexp(RuntimeError,
+                                SET_KEY_CONFIG_ERROR % {'param' : ''},
+                                self.cmd.set, '.', 'value',
+                                MOCK_CONFIG_FILE)
+        self.assertRaisesRegexp(RuntimeError,
+                                SET_KEY_CONFIG_ERROR % {'param' : '.'},
+                                self.cmd.set, '.', 'value',
+                                MOCK_CONFIG_FILE)
+        self.assertRaisesRegexp(RuntimeError,
+                                SET_KEY_CONFIG_ERROR % {'param' : 'section.'},
+                                self.cmd.set, 'section.', 'value',
+                                MOCK_CONFIG_FILE)
+        self.assertRaisesRegexp(RuntimeError,
+                                SET_KEY_CONFIG_ERROR % {'param' : '.option'},
+                                self.cmd.set, '.option', 'value',
+                                MOCK_CONFIG_FILE)
+        self.assertRaisesRegexp(RuntimeError,
+                                SET_KEY_CONFIG_ERROR % {'param' : 'section.option.suboption'},
+                                self.cmd.set, 'section.option.suboption', 'value',
+                                MOCK_CONFIG_FILE)
+
+    def test_invalid_config_files(self):
+        """Check whether it raises and error reading invalid configuration files"""
+
+        # Test directory
+        dirpath = os.path.expanduser('~')
+
+        self.assertRaises(RuntimeError, self.cmd.set,
+                          'db.user', 'value', dirpath)
+
+    def test_set_value(self):
+        """Check set method"""
+
+        import shutil
+        import tempfile
+
+        # Copy the reference config file to a temporary directory
+        testpath = tempfile.mkdtemp(prefix='sortinghat_')
+        shutil.copy(MOCK_CONFIG_FILE, testpath)
+        filepath = os.path.join(testpath, 'mock_config_file.cfg')
+
+        # First read initial values
+        config = ConfigParser.SafeConfigParser()
+        config.read(filepath)
+
+        self.assertEqual(config.get('db', 'user'), 'root')
+        self.assertEqual(config.get('db', 'database'), 'testdb')
+
+        # Set the new values
+        self.cmd.set('db.user', 'jsmith', filepath)
+        self.cmd.set('db.database', 'mydb', filepath)
+
+        # Check the new values
+        config.read(filepath)
+        self.assertEqual(config.get('db', 'user'), 'jsmith')
+        self.assertEqual(config.get('db', 'password'), '****')
+        self.assertEqual(config.get('db', 'database'), 'mydb')
+
+        shutil.rmtree(testpath)
+
+
+class TestGetConfig(unittest.TestCase):
+    """Get method unit tests"""
+
+    def setUp(self):
+        kwargs = {}
+        self.cmd = Config(**kwargs)
+
+    def test_none_param_values(self):
+        """Check it if raises exceptions when passing None params"""
+
+        self.assertRaisesRegexp(RuntimeError,
+                                GET_KEY_CONFIG_ERROR % {'param' : 'None'},
+                                self.cmd.get, None, MOCK_CONFIG_FILE)
+
+        self.assertRaisesRegexp(RuntimeError,
+                                INVALID_CONFIG_FILE,
+                                self.cmd.get, 'db.user', None)
+
+    def test_unsupported_keys(self):
+        """Check if it raises an error when passing unsupported keys"""
+
+        # Test not available keys
+        self.assertRaisesRegexp(RuntimeError,
+                                GET_KEY_CONFIG_ERROR % {'param' : 'section.option'},
+                                self.cmd.get, 'section.option',
+                                MOCK_CONFIG_FILE)
+
+        # Test keys that do not follow '<section>.<option>' schema
+        self.assertRaisesRegexp(RuntimeError,
+                                GET_KEY_CONFIG_ERROR % {'param' : '1'},
+                                self.cmd.get, 1, MOCK_CONFIG_FILE)
+        self.assertRaisesRegexp(RuntimeError,
+                                GET_KEY_CONFIG_ERROR % {'param' : ''},
+                                self.cmd.get, '.', MOCK_CONFIG_FILE)
+        self.assertRaisesRegexp(RuntimeError,
+                                GET_KEY_CONFIG_ERROR % {'param' : '.'},
+                                self.cmd.get, '.', MOCK_CONFIG_FILE)
+        self.assertRaisesRegexp(RuntimeError,
+                                GET_KEY_CONFIG_ERROR % {'param' : 'section.'},
+                                self.cmd.get, 'section.', MOCK_CONFIG_FILE)
+        self.assertRaisesRegexp(RuntimeError,
+                                GET_KEY_CONFIG_ERROR % {'param' : '.option'},
+                                self.cmd.get, '.option', MOCK_CONFIG_FILE)
+        self.assertRaisesRegexp(RuntimeError,
+                                GET_KEY_CONFIG_ERROR % {'param' : 'section.option.suboption'},
+                                self.cmd.get, 'section.option.suboption',
+                                MOCK_CONFIG_FILE)
+
+    def test_invalid_config_files(self):
+        """Check whether it raises and error reading invalid configuration files"""
+
+        # Test directory
+        dirpath = os.path.expanduser('~')
+
+        self.assertRaises(RuntimeError, self.cmd.get,
+                          'db.user', dirpath)
+
+        # Test non existing file
+        self.assertRaisesRegexp(RuntimeError, NOT_FOUND_FILE_ERROR,
+                                self.cmd.get, 'db.user',
+                                './data/invalid_config_file.cfg')
+
+    def test_get_value(self):
+        """Test get method"""
+
+        self.cmd.get('db.user', MOCK_CONFIG_FILE)
+        output = sys.stdout.getvalue().strip().split('\n')[0]
+        self.assertEqual(output, 'db.user root')
+
+        self.cmd.get('db.password', MOCK_CONFIG_FILE)
+        output = sys.stdout.getvalue().strip().split('\n')[1]
+        self.assertEqual(output, 'db.password ****')
+
+        self.cmd.get('db.database', MOCK_CONFIG_FILE)
+        output = sys.stdout.getvalue().strip().split('\n')[2]
+        self.assertEqual(output, 'db.database testdb')
+
+
+if __name__ == "__main__":
+    unittest.main(buffer=True, exit=False)
