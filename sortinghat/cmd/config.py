@@ -20,6 +20,7 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+import argparse
 import ConfigParser
 import os.path
 
@@ -27,14 +28,98 @@ from sortinghat.command import Command
 
 
 class Config(Command):
-    """Set and get configuration parameters"""
+    """Get and set configuration parameters.
+
+    This command gets or sets parameter values from the user configuration
+    file. On Linux systems, configuration will be stored in the file '~/.sortinghat'.
+
+    Configuration parameters selected to get/set must follow the schema
+    <section>.<option>. Available, configuration parameters can be found in
+    CONFIG_OPTIONS dictionary.
+    """
 
     CONFIG_OPTIONS = {
                       'db' : ['user', 'password', 'database', 'host', 'port'],
                       }
 
     def __init__(self, **kwargs):
-        super(Command, self).__init__(**kwargs)
+        super(Config, self).__init__(**kwargs)
+
+        self.parser = argparse.ArgumentParser(description=self.description,
+                                              usage=self.usage)
+
+        # Actions sub-parser
+        subparsers = self.parser.add_subparsers(dest='action')
+
+        # Get action parser
+        parser_get = subparsers.add_parser('get',
+                                           help="Get a configuration parameter")
+        parser_get.add_argument('parameter',
+                                help="Parameter to get")
+
+        # Set action parser
+        parser_set = subparsers.add_parser('set',
+                                           help="Set a configuration parameter")
+        parser_set.add_argument('parameter',
+                                help="Parameter to set")
+        parser_set.add_argument('value',
+                                help="Value to set")
+
+    @property
+    def description(self):
+        return """Get and set configuration parameters."""
+
+    @property
+    def usage(self):
+        return "%(prog)s config get <parameter>\n   or: %(prog)s config set <parameter> <value>"
+
+    def run(self, *args):
+        """Get and set configuration parameters.
+
+        This command gets or sets parameter values from the user configuration
+        file. On Linux systems, configuration will be stored in the file
+        '~/.sortinghat'.
+        """
+        params = self.parser.parse_args(args)
+
+        config_file = os.path.expanduser('~/.sortinghat')
+
+        if params.action == 'get':
+            self.get(params.parameter, config_file)
+        elif params.action == 'set':
+            self.set(params.parameter, params.value, config_file)
+        else:
+            raise RuntimeError("Not get or set action given")
+
+    def get(self, key, filepath):
+        """Get configuration parameter.
+
+        Reads 'key' configuration parameter from the configuration file given
+        in 'filepath'. Configuration parameter in 'key' must follow the schema
+        <section>.<option> .
+
+        :param key: key to get
+        :param filepath: configuration file
+        """
+        if not filepath:
+            raise RuntimeError("Configuration file not given")
+
+        if not self.__check_config_key(key):
+            raise RuntimeError("%s parameter does not exists" % key)
+
+        if not os.path.isfile(filepath):
+            raise RuntimeError("%s config file does not exist" % filepath)
+
+        section, option = key.split('.')
+
+        config = ConfigParser.SafeConfigParser()
+        config.read(filepath)
+
+        try:
+            option = config.get(section, option)
+            print key, option
+        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
+            pass
 
     def set(self, key, value, filepath):
         """Set configuration parameter.
@@ -73,36 +158,6 @@ class Config(Command):
                 config.write(f)
         except IOError, e:
             raise RuntimeError(str(e))
-
-    def get(self, key, filepath):
-        """Get configuration parameter.
-
-        Reads 'key' configuration parameter from the configuration file given
-        in 'filepath'. Configuration parameter in 'key' must follow the schema
-        <section>.<option> .
-
-        :param key: key to get
-        :param filepath: configuration file
-        """
-        if not filepath:
-            raise RuntimeError("Configuration file not given")
-
-        if not self.__check_config_key(key):
-            raise RuntimeError("%s parameter does not exists" % key)
-
-        if not os.path.isfile(filepath):
-            raise RuntimeError("%s config file does not exist" % filepath)
-
-        section, option = key.split('.')
-
-        config = ConfigParser.SafeConfigParser()
-        config.read(filepath)
-
-        try:
-            option = config.get(section, option)
-            print key, option
-        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
-            pass
 
     def __check_config_key(self, key):
         """Check whether the key is valid.
