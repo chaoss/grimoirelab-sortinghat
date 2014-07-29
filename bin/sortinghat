@@ -26,6 +26,7 @@ import ConfigParser
 import os.path
 import sys
 
+from sortinghat.cmd.config import Config
 from sortinghat.cmd.load import Load
 from sortinghat.cmd.organizations import Organizations
 
@@ -36,7 +37,9 @@ SORTINGHAT_USAGE_MSG = "Usage: '%(prog)s [options] command"
 def main():
     args = parse_args()
 
-    if args.command == 'load':
+    if args.command == 'config':
+        cmd_klass = Config
+    elif args.command == 'load':
         cmd_klass = Load
     elif args.command == 'orgs':
         cmd_klass = Organizations
@@ -99,7 +102,7 @@ def create_common_arguments_parser(defaults):
 
     # Command arguments
     parser.add_argument('command',
-                        help="command to run. i.e: orgs, load")
+                        help="command to run. i.e: config, orgs, load")
     parser.add_argument('cmd_args', nargs=argparse.REMAINDER)
 
     # Set default values
@@ -110,7 +113,7 @@ def create_common_arguments_parser(defaults):
 
 def create_config_arguments_parser():
     parser = argparse.ArgumentParser(usage=SORTINGHAT_USAGE_MSG,
-                                         add_help=False)
+                                     add_help=False)
 
     parser.add_argument('-c', '--config', dest='config_file',
                         help="set configuration file")
@@ -130,5 +133,5 @@ if __name__ == '__main__':
         print "\n\nReceived Ctrl-C or other break signal. Exiting."
         sys.exit(0)
     except RuntimeError, e:
-        print "Runtime error: %s" % str(e)
+        print "Error: %s" % str(e)
         sys.exit(1)
