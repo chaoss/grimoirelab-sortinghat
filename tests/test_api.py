@@ -28,16 +28,71 @@ if not '..' in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat.db.database import Database
-from sortinghat.db.model import Organization, Domain
+from sortinghat.db.model import UniqueIdentity, Organization, Domain
 from sortinghat.exceptions import AlreadyExistsError, NotFoundError
-from sortinghat.api import add_organization, add_domain,\
+from sortinghat.api import add_unique_identity, add_organization, add_domain,\
     delete_organization, delete_domain, registry
 
 from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
 
+UUID_NONE_OR_EMPTY_ERROR = 'uuid cannot be'
 ORG_NONE_OR_EMPTY_ERROR = 'organization cannot be'
 DOMAIN_NONE_OR_EMPTY_ERROR = 'domain cannot be'
+
+
+class TestAddUniqueIdentity(unittest.TestCase):
+    """Unit tests for add_unique_identity"""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
+
+    def tearDown(self):
+        self.db.clear()
+
+    def test_add_unique_identities(self):
+        """Check whether it adds a set of unique identities"""
+
+        add_unique_identity(self.db, 'John Smith')
+        add_unique_identity(self.db, 'John Doe')
+        add_unique_identity(self.db, 'Jane Roe')
+
+        with self.db.connect() as session:
+            uid = session.query(UniqueIdentity).\
+                    filter(UniqueIdentity.identifier == 'John Smith').first()
+            self.assertEqual(uid.identifier, 'John Smith')
+
+            uid = session.query(UniqueIdentity).\
+                    filter(UniqueIdentity.identifier == 'John Doe').first()
+            self.assertEqual(uid.identifier, 'John Doe')
+
+            uid = session.query(UniqueIdentity).\
+                    filter(UniqueIdentity.identifier == 'Jane Roe').first()
+            self.assertEqual(uid.identifier, 'Jane Roe')
+
+    def test_existing_uuid(self):
+        """Check if it fails adding an identity that already exists"""
+
+        # Add a pair of identities first
+        add_unique_identity(self.db, 'John Smith')
+        add_unique_identity(self.db, 'John Doe')
+
+        # Insert the first identity again. It should raise AlreadyExistsError
+        self.assertRaises(AlreadyExistsError, add_unique_identity,
+                          self.db, 'John Smith')
+
+    def test_none_uuid(self):
+        """Check whether None identities cannot be added to the registry"""
+
+        self.assertRaisesRegexp(ValueError, UUID_NONE_OR_EMPTY_ERROR,
+                                add_unique_identity, self.db, None)
+
+    def test_empty_uuid(self):
+        """Check whether empty uuids cannot be added to the registry"""
+
+        self.assertRaisesRegexp(ValueError, UUID_NONE_OR_EMPTY_ERROR,
+                                add_unique_identity, self.db, '')
 
 
 class TestAddOrganization(unittest.TestCase):

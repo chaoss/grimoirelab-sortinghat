@@ -20,8 +20,38 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from sortinghat.db.model import Organization, Domain
+from sortinghat.db.model import UniqueIdentity, Organization, Domain
 from sortinghat.exceptions import AlreadyExistsError, NotFoundError
+
+
+def add_unique_identity(db, uuid):
+    """Add a unique identity to the registry.
+
+    This function adds a unique identity to the registry.
+    First, it checks if the unique identifier (uuid) used to create the
+    identity is already on the registry. When it is not found, a new unique
+    identity is created. Otherwise, it raises a 'AlreadyExistError' exception.
+
+    :param db: database session
+    :param uuid: unique identifier for the identity
+    :raises ValueError: when uuid is None or an empty string
+    :raises AlreadyExistsError: when the identifier already exists
+        in the registry.
+    """
+    if uuid is None:
+        raise ValueError('uuid cannot be None')
+    if uuid == '':
+        raise ValueError('uuid cannot be an empty string')
+
+    with db.connect() as session:
+        identity = session.query(UniqueIdentity).\
+            filter(UniqueIdentity.identifier == uuid).first()
+
+        if identity:
+            raise AlreadyExistsError(entity=uuid)
+
+        identity = UniqueIdentity(identifier=uuid)
+        session.add(identity)
 
 
 def add_organization(db, organization):
