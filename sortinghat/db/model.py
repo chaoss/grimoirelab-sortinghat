@@ -20,8 +20,12 @@
 #         Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from sqlalchemy import Column, Integer, String, ForeignKey, UniqueConstraint
-from sqlalchemy.orm import relationship
+import dateutil.parser
+
+from sqlalchemy import Column, Integer, String, DateTime,\
+    ForeignKey, UniqueConstraint
+from sqlalchemy.orm import backref, relationship
+from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declarative_base
 
 
@@ -53,4 +57,39 @@ class Domain(ModelBase):
     company = relationship("Organization", backref='domains_companies')
 
     __table_args__ = (UniqueConstraint('domain', name='_domain_unique'),
+                      {'mysql_charset': 'utf8'})
+
+
+class UniqueIdentity(ModelBase):
+    __tablename__ = 'upeople'
+
+    id = Column(Integer, primary_key=True) # UUID
+    identifier = Column(String(128), nullable=False)
+
+    # Many-to-many association proxy
+    keywords = association_proxy('upeople_companies', 'organizations')
+
+    __table_args__ = ({'mysql_charset': 'utf8'})
+
+
+class Enrollment(ModelBase):
+    __tablename__ = 'upeople_companies'
+
+    id = Column(Integer, primary_key=True)
+    upeople_id = Column(Integer, ForeignKey('upeople.id'), nullable=False)
+    company_id = Column(Integer, ForeignKey('companies.id'), nullable=False)
+    init = Column(DateTime, default=dateutil.parser.parse('1900-01-01'), nullable=False)
+    end = Column(DateTime, default=dateutil.parser.parse('2100-01-01'), nullable=False)
+
+    # Bidirectional attribute/collection of "upeople"/"upeople_companies"
+    user = relationship(UniqueIdentity,
+                        backref=backref('upeople_companies',
+                                        cascade="all, delete-orphan"))
+
+    # Reference to the "Organization" object
+    organization = relationship('Organization')
+
+    __table_args__ = (UniqueConstraint('upeople_id', 'company_id',
+                                       'init', 'end',
+                                       name='_period_unique'),
                       {'mysql_charset': 'utf8'})

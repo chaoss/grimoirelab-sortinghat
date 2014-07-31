@@ -32,7 +32,7 @@ from sqlalchemy.engine.url import URL
 from sqlalchemy.exc import IntegrityError, OperationalError
 from sqlalchemy.orm import sessionmaker
 
-from sortinghat.db.model import ModelBase, Organization, Domain
+from sortinghat.db.model import ModelBase, Organization, Domain, UniqueIdentity, Enrollment
 from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
 DUP_CHECK_ERROR = 'Duplicate entry'
@@ -138,6 +138,131 @@ class TestDomain(unittest.TestCase):
 
             self.session.add(dom1)
             self.session.commit()
+
+
+class TestUniqueIdentity(unittest.TestCase):
+    """Unit tests for UniqueIdentity class"""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.db = MockDatabase(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
+
+    def setUp(self):
+        self.session = self.db.session()
+
+    def tearDown(self):
+        self.session.rollback()
+        self.session.close()
+
+    def test_not_null_identifiers(self):
+        """Check whether every unique identity has an identifier"""
+
+        with self.assertRaisesRegexp(OperationalError, NULL_CHECK_ERROR):
+            uid = UniqueIdentity()
+            self.session.add(uid)
+            self.session.commit()
+
+
+class TestEnrollment(unittest.TestCase):
+    """Unit tests for Enrollment class"""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.db = MockDatabase(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
+
+    def setUp(self):
+        self.session = self.db.session()
+
+    def tearDown(self):
+        self.session.rollback()
+
+        for table in reversed(ModelBase.metadata.sorted_tables):
+            self.session.execute(table.delete())
+            self.session.commit()
+
+        self.session.close()
+
+    def test_not_null_relationships(self):
+        """Check whether every enrollment is assigned organizations and unique identities"""
+
+        with self.assertRaisesRegexp(OperationalError, NULL_CHECK_ERROR):
+            rol1 = Enrollment()
+            self.session.add(rol1)
+            self.session.commit()
+
+        self.session.rollback()
+
+        with self.assertRaisesRegexp(OperationalError, NULL_CHECK_ERROR):
+            uid = UniqueIdentity(identifier='John Smith')
+            self.session.add(uid)
+
+            rol2 = Enrollment(user=uid)
+            self.session.add(rol2)
+            self.session.commit()
+
+        self.session.rollback()
+
+        with self.assertRaisesRegexp(OperationalError, NULL_CHECK_ERROR):
+            org = Organization(name='Example')
+            self.session.add(org)
+
+            rol3 = Enrollment(organization=org)
+            self.session.add(rol3)
+            self.session.commit()
+
+        self.session.rollback()
+
+    def test_unique_enrollments(self):
+        """Check if there is only one tuple with the same values"""
+
+        with self.assertRaisesRegexp(IntegrityError, DUP_CHECK_ERROR):
+            uid = UniqueIdentity(identifier='John Smith')
+            self.session.add(uid)
+
+            org = Organization(name='Example')
+            self.session.add(org)
+
+            rol1 = Enrollment(user=uid, organization=org)
+            rol2 = Enrollment(user=uid, organization=org)
+
+            self.session.add(rol1)
+            self.session.add(rol2)
+            self.session.commit()
+
+    def test_default_enrollment_period(self):
+        """Check whether the default period is set when initializing the class"""
+
+        import datetime
+
+        uid = UniqueIdentity(identifier='John Smith')
+        self.session.add(uid)
+
+        org = Organization(name='Example')
+        self.session.add(org)
+
+        rol1 = Enrollment(user=uid, organization=org)
+        self.session.add(rol1)
+        self.session.commit()
+
+        self.assertEqual(rol1.init, datetime.datetime(1900, 1, 1, 0, 0, 0))
+        self.assertEqual(rol1.end, datetime.datetime(2100, 1, 1, 0, 0, 0))
+
+        # Setting init and end dates to None produce the same result
+        rol2 = Enrollment(user=uid, organization=org,
+                          init=None, end=datetime.datetime(2222, 1, 1, 0, 0, 0))
+        self.session.add(rol2)
+        self.session.commit()
+
+        self.assertEqual(rol2.init, datetime.datetime(1900, 1, 1, 0, 0, 0))
+        self.assertEqual(rol2.end, datetime.datetime(2222, 1, 1, 0, 0, 0))
+
+        rol3 = Enrollment(user=uid, organization=org,
+                          init=datetime.datetime(1999, 1, 1, 0, 0, 0), end=None)
+        self.session.add(rol3)
+        self.session.commit()
+
+        self.assertEqual(rol3.init, datetime.datetime(1999, 1, 1, 0, 0, 0))
+        self.assertEqual(rol3.end, datetime.datetime(2100, 1, 1, 0, 0, 0))
 
 
 if __name__ == "__main__":
