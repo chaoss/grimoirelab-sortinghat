@@ -35,6 +35,7 @@ from sqlalchemy.orm import sessionmaker
 from sortinghat.db.model import ModelBase, Organization, Domain, UniqueIdentity, Enrollment
 from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
+
 DUP_CHECK_ERROR = 'Duplicate entry'
 NULL_CHECK_ERROR = 'cannot be null'
 
@@ -55,7 +56,8 @@ class MockDatabase(object):
         return self._Session()
 
 
-class TestOrganization(unittest.TestCase):
+class TestCaseBase(unittest.TestCase):
+    """Defines common setup and teardown methods on model unit tests"""
 
     @classmethod
     def setUpClass(cls):
@@ -66,7 +68,16 @@ class TestOrganization(unittest.TestCase):
 
     def tearDown(self):
         self.session.rollback()
+
+        for table in reversed(ModelBase.metadata.sorted_tables):
+            self.session.execute(table.delete())
+            self.session.commit()
+
         self.session.close()
+
+
+class TestOrganization(TestCaseBase):
+    """Unit tests for Organization class"""
 
     def test_unique_organizations(self):
         """Check whether organizations are unique"""
@@ -89,18 +100,8 @@ class TestOrganization(unittest.TestCase):
             self.session.commit()
 
 
-class TestDomain(unittest.TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        cls.db = MockDatabase(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
-
-    def setUp(self):
-        self.session = self.db.session()
-
-    def tearDown(self):
-        self.session.rollback()
-        self.session.close()
+class TestDomain(TestCaseBase):
+    """Unit tests for Domain class"""
 
     def test_unique_domains(self):
         """Check whether domains are unique"""
@@ -140,19 +141,8 @@ class TestDomain(unittest.TestCase):
             self.session.commit()
 
 
-class TestUniqueIdentity(unittest.TestCase):
+class TestUniqueIdentity(TestCaseBase):
     """Unit tests for UniqueIdentity class"""
-
-    @classmethod
-    def setUpClass(cls):
-        cls.db = MockDatabase(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
-
-    def setUp(self):
-        self.session = self.db.session()
-
-    def tearDown(self):
-        self.session.rollback()
-        self.session.close()
 
     def test_not_null_identifiers(self):
         """Check whether every unique identity has an identifier"""
@@ -163,24 +153,8 @@ class TestUniqueIdentity(unittest.TestCase):
             self.session.commit()
 
 
-class TestEnrollment(unittest.TestCase):
+class TestEnrollment(TestCaseBase):
     """Unit tests for Enrollment class"""
-
-    @classmethod
-    def setUpClass(cls):
-        cls.db = MockDatabase(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
-
-    def setUp(self):
-        self.session = self.db.session()
-
-    def tearDown(self):
-        self.session.rollback()
-
-        for table in reversed(ModelBase.metadata.sorted_tables):
-            self.session.execute(table.delete())
-            self.session.commit()
-
-        self.session.close()
 
     def test_not_null_relationships(self):
         """Check whether every enrollment is assigned organizations and unique identities"""
