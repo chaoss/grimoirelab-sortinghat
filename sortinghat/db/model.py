@@ -67,7 +67,7 @@ class UniqueIdentity(ModelBase):
     identifier = Column(String(128), nullable=False)
 
     # Many-to-many association proxy
-    keywords = association_proxy('upeople_companies', 'organizations')
+    organizations = association_proxy('upeople_companies', 'organizations')
 
     __table_args__ = ({'mysql_charset': 'utf8'})
 
