@@ -21,6 +21,7 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+import datetime
 import sys
 import unittest
 
@@ -28,17 +29,19 @@ if not '..' in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat.db.database import Database
-from sortinghat.db.model import UniqueIdentity, Organization, Domain
+from sortinghat.db.model import UniqueIdentity, Organization, Domain, Enrollment
 from sortinghat.exceptions import AlreadyExistsError, NotFoundError
 from sortinghat.api import add_unique_identity, add_organization, add_domain,\
-    delete_organization, delete_domain, registry
+    add_enrollment, delete_organization, delete_domain, registry
 
 from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
 
-UUID_NONE_OR_EMPTY_ERROR = 'uuid cannot be'
-ORG_NONE_OR_EMPTY_ERROR = 'organization cannot be'
-DOMAIN_NONE_OR_EMPTY_ERROR = 'domain cannot be'
+UUID_NONE_OR_EMPTY_ERROR = "uuid cannot be"
+ORG_NONE_OR_EMPTY_ERROR = "organization cannot be"
+DOMAIN_NONE_OR_EMPTY_ERROR = "domain cannot be"
+ENROLLMENT_PERIOD_INVALID_ERROR = "cannot be greater than end_date"
+NOT_FOUND_ERROR =  "%(entity)s not found in the registry"
 
 
 class TestAddUniqueIdentity(unittest.TestCase):
@@ -284,6 +287,101 @@ class TestAddDomain(unittest.TestCase):
 
         self.assertRaisesRegexp(ValueError, DOMAIN_NONE_OR_EMPTY_ERROR,
                                 add_domain, self.db, 'Example', '')
+
+
+class TestAddEnrollment(unittest.TestCase):
+    """Unit tests for add_enrollment"""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
+
+    def tearDown(self):
+        self.db.clear()
+
+    def test_add_domains(self):
+        """Check whether it adds a set of enrollment to the same
+        unique identity and organization"""
+
+        add_organization(self.db, 'Example')
+        add_unique_identity(self.db, 'John Smith')
+
+        add_enrollment(self.db, 'John Smith', 'Example',
+                       datetime.datetime(1999, 1, 1),
+                       datetime.datetime(2000, 1, 1))
+        add_enrollment(self.db, 'John Smith', 'Example',
+                       datetime.datetime(2005, 1, 1),
+                       datetime.datetime(2006, 1, 1))
+        add_enrollment(self.db, 'John Smith', 'Example',
+                       datetime.datetime(2013, 1, 1),
+                       datetime.datetime(2014, 1, 1))
+
+        with self.db.connect() as session:
+            enrollments = session.query(Enrollment).\
+                filter(UniqueIdentity.identifier == 'John Smith',
+                       Organization.name == 'Example').all()
+            self.assertEqual(len(enrollments), 3)
+
+            enrollment = enrollments[0]
+            self.assertEqual(enrollment.init, datetime.datetime(1999, 1, 1))
+            self.assertEqual(enrollment.end, datetime.datetime(2000, 1, 1))
+
+            enrollment = enrollments[1]
+            self.assertEqual(enrollment.init, datetime.datetime(2005, 1, 1))
+            self.assertEqual(enrollment.end, datetime.datetime(2006, 1, 1))
+
+            enrollment = enrollments[2]
+            self.assertEqual(enrollment.init, datetime.datetime(2013, 1, 1))
+            self.assertEqual(enrollment.end, datetime.datetime(2014, 1, 1))
+
+    def test_period_ranges(self):
+        """Check whether enrollments cannot be added giving invalid period ranges"""
+
+        self.assertRaisesRegexp(ValueError, ENROLLMENT_PERIOD_INVALID_ERROR,
+                                add_enrollment, self.db, 'John Smith', 'Example',
+                                datetime.datetime(2001, 1, 1),
+                                datetime.datetime(1999, 1, 1))
+
+    def test_non_existing_uuid(self):
+        """Check if it fails adding enrollments to not existing unique identities"""
+
+        self.assertRaisesRegexp(NotFoundError,
+                                NOT_FOUND_ERROR % {'entity' : 'John Smith'},
+                                add_enrollment,
+                                self.db, 'John Smith', 'Example')
+
+    def test_non_existing_organization(self):
+        """Check if it fails adding enrollments to not existing organizations"""
+
+        # We need first to add a unique identity
+        add_unique_identity(self.db, 'John Smith')
+
+        self.assertRaisesRegexp(NotFoundError,
+                                NOT_FOUND_ERROR % {'entity' : 'Example'},
+                                add_enrollment,
+                                self.db, 'John Smith', 'Example')
+
+    def test_existing_enrollment(self):
+        """Check if it fails adding enrollment data that already exists"""
+
+        # Add unique identity, organization and enrollment first
+        add_unique_identity(self.db, 'John Smith')
+        add_organization(self.db, 'Example')
+        add_enrollment(self.db, 'John Smith', 'Example')
+        add_enrollment(self.db, 'John Smith', 'Example',
+                       datetime.datetime(1999, 1, 1),
+                       datetime.datetime(2000, 1, 1))
+        add_enrollment(self.db, 'John Smith', 'Example',
+                       datetime.datetime(2005, 1, 1),
+                       datetime.datetime(2006, 1, 1))
+
+        # Same dates should raise an AlreadyExistsError exception.
+        self.assertRaises(AlreadyExistsError, add_enrollment,
+                          self.db, 'John Smith', 'Example')
+        self.assertRaises(AlreadyExistsError, add_enrollment,
+                          self.db, 'John Smith', 'Example',
+                          datetime.datetime(1999, 1, 1),
+                          datetime.datetime(2000, 1, 1))
 
 
 class TestDeleteOrganization(unittest.TestCase):

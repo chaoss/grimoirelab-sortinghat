@@ -20,7 +20,8 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from sortinghat.db.model import UniqueIdentity, Organization, Domain
+from sortinghat.db.model import DEFAULT_START_DATE, DEFAULT_END_DATE,\
+    UniqueIdentity, Organization, Domain, Enrollment
 from sortinghat.exceptions import AlreadyExistsError, NotFoundError
 
 
@@ -133,11 +134,85 @@ def add_domain(db, organization, domain, overwrite=False):
         session.add(dom)
 
 
+def add_enrollment(db, uuid, organization, start_date=None, end_date=None):
+    """Enroll a unique identity to an organization.
+
+    The function adds a new relationship between the unique identity
+    identified by 'uuid' and the given 'organization'. The given
+    identity and organization must exist prior to add this enrollment
+    in the registry. Otherwise, a 'NotFoundError' exception will be raised.
+
+    The period of the enrollment can be given with the parameters 'start_date'
+    and 'end_date', where "start_date <= end_date". Default values to these
+    dates are '1900-01-01' and '2100-01-01'.
+
+    If the given enrollment data is already in the registry, the function
+    will raise a 'AlreadyExistsError' exception.
+
+    :param uuid: unique identifier
+    :param organization: name of the organization
+    :param start_date: date when the enrollment starts
+    :param end_date: date when the enrollment ends
+
+    :raises NotFoundError: when either 'uuid' or 'organization' are not
+        found in the registry.
+    :raises ValeError: raised in two cases, when either identity or
+        organization are None or empty strings; when "start_date > end_date".
+    :raises AlreadyExistsError: raised when given enrollment already exists
+        in the registry.
+    """
+    if uuid is None:
+        raise ValueError('uuid cannot be None')
+    if uuid == '':
+        raise ValueError('uuid cannot be an empty string')
+    if organization is None:
+        raise ValueError('organization cannot be None')
+    if organization == '':
+        raise ValueError('organization cannot be an empty string')
+
+    if start_date and end_date and start_date > end_date:
+        raise ValueError('start date %s cannot be greater than end_date %s'
+                         % (start_date, end_date))
+
+    if not start_date:
+        start_date = DEFAULT_START_DATE
+    if not end_date:
+        end_date = DEFAULT_END_DATE
+
+    with db.connect() as session:
+        identity = session.query(UniqueIdentity).\
+            filter(UniqueIdentity.identifier == uuid).first()
+
+        if not identity:
+            raise NotFoundError(entity=uuid)
+
+        org = session.query(Organization).\
+            filter(Organization.name == organization).first()
+
+        if not org:
+            raise NotFoundError(entity=organization)
+
+        enrollment = session.query(Enrollment).\
+            filter(Enrollment.identity == identity,
+                   Enrollment.organization == org,
+                   Enrollment.init == start_date,
+                   Enrollment.end == end_date).first()
+
+        if enrollment:
+            entity = '-'.join((uuid, organization,
+                              str(enrollment.init), str(enrollment.end)))
+            raise AlreadyExistsError(entity=entity)
+
+        enrollment = Enrollment(identity=identity, organization=org,
+                                init=start_date, end=end_date)
+        session.add(enrollment)
+
+
 def delete_organization(db, organization):
     """Remove an organization from the registry.
 
     This function removes the given organization from the registry.
-    Domains assigned to that organization are also removed.
+    Related information such as domains or enrollments are also removed.
     It checks first whether the organization is already on the registry.
     When it is found, the organization is removed. Otherwise,
     it will raise a 'NotFoundError'.
