@@ -28,11 +28,10 @@ import unittest
 if not '..' in sys.path:
     sys.path.insert(0, '..')
 
+from sortinghat import api
 from sortinghat.db.database import Database
 from sortinghat.db.model import UniqueIdentity, Organization, Domain, Enrollment
 from sortinghat.exceptions import AlreadyExistsError, NotFoundError
-from sortinghat.api import add_unique_identity, add_organization, add_domain,\
-    add_enrollment, delete_unique_identity, delete_organization, delete_domain, registry
 
 from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
@@ -64,9 +63,9 @@ class TestAddUniqueIdentity(TestBaseCase):
     def test_add_unique_identities(self):
         """Check whether it adds a set of unique identities"""
 
-        add_unique_identity(self.db, 'John Smith')
-        add_unique_identity(self.db, 'John Doe')
-        add_unique_identity(self.db, 'Jane Roe')
+        api.add_unique_identity(self.db, 'John Smith')
+        api.add_unique_identity(self.db, 'John Doe')
+        api.add_unique_identity(self.db, 'Jane Roe')
 
         with self.db.connect() as session:
             uid = session.query(UniqueIdentity).\
@@ -85,24 +84,24 @@ class TestAddUniqueIdentity(TestBaseCase):
         """Check if it fails adding an identity that already exists"""
 
         # Add a pair of identities first
-        add_unique_identity(self.db, 'John Smith')
-        add_unique_identity(self.db, 'John Doe')
+        api.add_unique_identity(self.db, 'John Smith')
+        api.add_unique_identity(self.db, 'John Doe')
 
         # Insert the first identity again. It should raise AlreadyExistsError
-        self.assertRaises(AlreadyExistsError, add_unique_identity,
+        self.assertRaises(AlreadyExistsError, api.add_unique_identity,
                           self.db, 'John Smith')
 
     def test_none_uuid(self):
         """Check whether None identities cannot be added to the registry"""
 
         self.assertRaisesRegexp(ValueError, UUID_NONE_OR_EMPTY_ERROR,
-                                add_unique_identity, self.db, None)
+                                api.add_unique_identity, self.db, None)
 
     def test_empty_uuid(self):
         """Check whether empty uuids cannot be added to the registry"""
 
         self.assertRaisesRegexp(ValueError, UUID_NONE_OR_EMPTY_ERROR,
-                                add_unique_identity, self.db, '')
+                                api.add_unique_identity, self.db, '')
 
 
 class TestAddOrganization(TestBaseCase):
@@ -111,9 +110,9 @@ class TestAddOrganization(TestBaseCase):
     def test_add_organizations(self):
         """Check whether it adds a set of organizations"""
 
-        add_organization(self.db, 'Example')
-        add_organization(self.db, 'Bitergia')
-        add_organization(self.db, 'LibreSoft')
+        api.add_organization(self.db, 'Example')
+        api.add_organization(self.db, 'Bitergia')
+        api.add_organization(self.db, 'LibreSoft')
 
         with self.db.connect() as session:
             org = session.query(Organization).\
@@ -132,24 +131,24 @@ class TestAddOrganization(TestBaseCase):
         """Check if it fails adding an organization that already exists"""
 
         # Add a pair of organizations first
-        add_organization(self.db, 'Example')
-        add_organization(self.db, 'Bitergia')
+        api.add_organization(self.db, 'Example')
+        api.add_organization(self.db, 'Bitergia')
 
         # Insert the first organization. It should raise AlreadyExistsError
-        self.assertRaises(AlreadyExistsError, add_organization,
+        self.assertRaises(AlreadyExistsError, api.add_organization,
                           self.db, 'Example')
 
     def test_none_organization(self):
         """Check whether None organizations cannot be added to the registry"""
 
         self.assertRaisesRegexp(ValueError, ORG_NONE_OR_EMPTY_ERROR,
-                                add_organization, self.db, None)
+                                api.add_organization, self.db, None)
 
     def test_empty_organization(self):
         """Check whether empty organizations cannot be added to the registry"""
 
         self.assertRaisesRegexp(ValueError, ORG_NONE_OR_EMPTY_ERROR,
-                                add_organization, self.db, '')
+                                api.add_organization, self.db, '')
 
 
 class TestAddDomain(TestBaseCase):
@@ -158,10 +157,10 @@ class TestAddDomain(TestBaseCase):
     def test_add_domains(self):
         """Check whether it adds a set of domains to one organization"""
 
-        add_organization(self.db, 'Example')
-        add_domain(self.db, 'Example', 'example.com')
-        add_domain(self.db, 'Example', 'example.org')
-        add_domain(self.db, 'Example', 'example.net')
+        api.add_organization(self.db, 'Example')
+        api.add_domain(self.db, 'Example', 'example.com')
+        api.add_domain(self.db, 'Example', 'example.org')
+        api.add_domain(self.db, 'Example', 'example.net')
 
         with self.db.connect() as session:
             domains = session.query(Domain).\
@@ -174,16 +173,16 @@ class TestAddDomain(TestBaseCase):
     def test_add_domains_to_organization(self):
         """Check whether it adds several domains to set of organizations"""
 
-        add_organization(self.db, 'Example')
-        add_organization(self.db, 'Bitergia')
-        add_organization(self.db, 'LibreSoft')
+        api.add_organization(self.db, 'Example')
+        api.add_organization(self.db, 'Bitergia')
+        api.add_organization(self.db, 'LibreSoft')
 
-        add_domain(self.db, 'Example', 'example.com')
-        add_domain(self.db, 'LibreSoft', 'libresoft.es')
-        add_domain(self.db, 'Example', 'example.org')
-        add_domain(self.db, 'Example', 'example.net')
-        add_domain(self.db, 'Bitergia', 'bitergia.com')
-        add_domain(self.db, 'LibreSoft', 'libresoft.org')
+        api.add_domain(self.db, 'Example', 'example.com')
+        api.add_domain(self.db, 'LibreSoft', 'libresoft.es')
+        api.add_domain(self.db, 'Example', 'example.org')
+        api.add_domain(self.db, 'Example', 'example.net')
+        api.add_domain(self.db, 'Bitergia', 'bitergia.com')
+        api.add_domain(self.db, 'LibreSoft', 'libresoft.org')
 
         with self.db.connect() as session:
             domains = session.query(Domain).join(Organization).\
@@ -207,37 +206,37 @@ class TestAddDomain(TestBaseCase):
     def test_non_existing_organization(self):
         """Check if it fails adding domains to not existing organizations"""
 
-        self.assertRaises(NotFoundError, add_domain,
+        self.assertRaises(NotFoundError, api.add_domain,
                           self.db, 'ErrorOrg', 'example.com')
 
     def test_existing_domain(self):
         """Check if it fails adding a domain that already exists"""
 
         # Add a pair of organizations and domains first
-        add_organization(self.db, 'Example')
-        add_organization(self.db, 'Bitergia')
-        add_domain(self.db, 'Example', 'example.com')
-        add_domain(self.db, 'Bitergia', 'bitergia.com')
+        api.add_organization(self.db, 'Example')
+        api.add_organization(self.db, 'Bitergia')
+        api.add_domain(self.db, 'Example', 'example.com')
+        api.add_domain(self.db, 'Bitergia', 'bitergia.com')
 
         # Add 'bitergia.com' to 'Example' org. It should raise an
         # AlreadyExistsError exception.
-        self.assertRaises(AlreadyExistsError, add_domain,
+        self.assertRaises(AlreadyExistsError, api.add_domain,
                           self.db, 'Example', 'bitergia.com')
 
         # It should still falling when adding the same domain twice
-        self.assertRaises(AlreadyExistsError, add_domain,
+        self.assertRaises(AlreadyExistsError, api.add_domain,
                           self.db, 'Example', 'example.com')
-        self.assertRaises(AlreadyExistsError, add_domain,
+        self.assertRaises(AlreadyExistsError, api.add_domain,
                           self.db, 'Bitergia', 'bitergia.com')
 
     def test_overwrite_domain(self):
         """Check whether it overwrites the old organization-domain relationship"""
 
         # Add a pair of organizations and domains first
-        add_organization(self.db, 'Example')
-        add_organization(self.db, 'Bitergia')
-        add_domain(self.db, 'Example', 'example.com')
-        add_domain(self.db, 'Example', 'example.org')
+        api.add_organization(self.db, 'Example')
+        api.add_organization(self.db, 'Bitergia')
+        api.add_domain(self.db, 'Example', 'example.com')
+        api.add_domain(self.db, 'Example', 'example.org')
 
         # Check that everything went well
         with self.db.connect() as session:
@@ -253,10 +252,10 @@ class TestAddDomain(TestBaseCase):
 
         # Overwrite the relationship assigning the domain to a different
         # company
-        add_domain(self.db, 'Bitergia', 'example.com', overwrite=True)
+        api.add_domain(self.db, 'Bitergia', 'example.com', overwrite=True)
 
         # When overwrite is not set, it raises an AlreadyExistsError error
-        self.assertRaises(AlreadyExistsError, add_domain,
+        self.assertRaises(AlreadyExistsError, api.add_domain,
                           self.db, 'Bitergia', 'example.org')
 
         # Finally, check that domain was overwritten
@@ -275,13 +274,13 @@ class TestAddDomain(TestBaseCase):
         """Check whether None domains cannot be added to the registry"""
 
         self.assertRaisesRegexp(ValueError, DOMAIN_NONE_OR_EMPTY_ERROR,
-                                add_domain, self.db, 'Example', None)
+                                api.add_domain, self.db, 'Example', None)
 
     def test_empty_domain(self):
         """Check whether empty domains cannot be added to the registry"""
 
         self.assertRaisesRegexp(ValueError, DOMAIN_NONE_OR_EMPTY_ERROR,
-                                add_domain, self.db, 'Example', '')
+                                api.add_domain, self.db, 'Example', '')
 
 
 class TestAddEnrollment(TestBaseCase):
@@ -291,18 +290,18 @@ class TestAddEnrollment(TestBaseCase):
         """Check whether it adds a set of enrollment to the same
         unique identity and organization"""
 
-        add_organization(self.db, 'Example')
-        add_unique_identity(self.db, 'John Smith')
+        api.add_organization(self.db, 'Example')
+        api.add_unique_identity(self.db, 'John Smith')
 
-        add_enrollment(self.db, 'John Smith', 'Example',
-                       datetime.datetime(1999, 1, 1),
-                       datetime.datetime(2000, 1, 1))
-        add_enrollment(self.db, 'John Smith', 'Example',
-                       datetime.datetime(2005, 1, 1),
-                       datetime.datetime(2006, 1, 1))
-        add_enrollment(self.db, 'John Smith', 'Example',
-                       datetime.datetime(2013, 1, 1),
-                       datetime.datetime(2014, 1, 1))
+        api.add_enrollment(self.db, 'John Smith', 'Example',
+                           datetime.datetime(1999, 1, 1),
+                           datetime.datetime(2000, 1, 1))
+        api.add_enrollment(self.db, 'John Smith', 'Example',
+                           datetime.datetime(2005, 1, 1),
+                           datetime.datetime(2006, 1, 1))
+        api.add_enrollment(self.db, 'John Smith', 'Example',
+                           datetime.datetime(2013, 1, 1),
+                           datetime.datetime(2014, 1, 1))
 
         with self.db.connect() as session:
             enrollments = session.query(Enrollment).\
@@ -326,7 +325,7 @@ class TestAddEnrollment(TestBaseCase):
         """Check whether enrollments cannot be added giving invalid period ranges"""
 
         self.assertRaisesRegexp(ValueError, ENROLLMENT_PERIOD_INVALID_ERROR,
-                                add_enrollment, self.db, 'John Smith', 'Example',
+                                api.add_enrollment, self.db, 'John Smith', 'Example',
                                 datetime.datetime(2001, 1, 1),
                                 datetime.datetime(1999, 1, 1))
 
@@ -335,38 +334,38 @@ class TestAddEnrollment(TestBaseCase):
 
         self.assertRaisesRegexp(NotFoundError,
                                 NOT_FOUND_ERROR % {'entity' : 'John Smith'},
-                                add_enrollment,
+                                api.add_enrollment,
                                 self.db, 'John Smith', 'Example')
 
     def test_non_existing_organization(self):
         """Check if it fails adding enrollments to not existing organizations"""
 
         # We need first to add a unique identity
-        add_unique_identity(self.db, 'John Smith')
+        api.add_unique_identity(self.db, 'John Smith')
 
         self.assertRaisesRegexp(NotFoundError,
                                 NOT_FOUND_ERROR % {'entity' : 'Example'},
-                                add_enrollment,
+                                api.add_enrollment,
                                 self.db, 'John Smith', 'Example')
 
     def test_existing_enrollment(self):
         """Check if it fails adding enrollment data that already exists"""
 
         # Add unique identity, organization and enrollment first
-        add_unique_identity(self.db, 'John Smith')
-        add_organization(self.db, 'Example')
-        add_enrollment(self.db, 'John Smith', 'Example')
-        add_enrollment(self.db, 'John Smith', 'Example',
-                       datetime.datetime(1999, 1, 1),
-                       datetime.datetime(2000, 1, 1))
-        add_enrollment(self.db, 'John Smith', 'Example',
-                       datetime.datetime(2005, 1, 1),
-                       datetime.datetime(2006, 1, 1))
+        api.add_unique_identity(self.db, 'John Smith')
+        api.add_organization(self.db, 'Example')
+        api.add_enrollment(self.db, 'John Smith', 'Example')
+        api.add_enrollment(self.db, 'John Smith', 'Example',
+                           datetime.datetime(1999, 1, 1),
+                           datetime.datetime(2000, 1, 1))
+        api.add_enrollment(self.db, 'John Smith', 'Example',
+                           datetime.datetime(2005, 1, 1),
+                           datetime.datetime(2006, 1, 1))
 
         # Same dates should raise an AlreadyExistsError exception.
-        self.assertRaises(AlreadyExistsError, add_enrollment,
+        self.assertRaises(AlreadyExistsError, api.add_enrollment,
                           self.db, 'John Smith', 'Example')
-        self.assertRaises(AlreadyExistsError, add_enrollment,
+        self.assertRaises(AlreadyExistsError, api.add_enrollment,
                           self.db, 'John Smith', 'Example',
                           datetime.datetime(1999, 1, 1),
                           datetime.datetime(2000, 1, 1))
@@ -379,22 +378,22 @@ class TestDeleteUniqueIdentity(TestBaseCase):
 
         # First, add a set of identities, including some organizations
         # and enrollments
-        add_unique_identity(self.db, 'John Smith')
-        add_unique_identity(self.db, 'John Doe')
-        add_unique_identity(self.db, 'Jane Rae')
+        api.add_unique_identity(self.db, 'John Smith')
+        api.add_unique_identity(self.db, 'John Doe')
+        api.add_unique_identity(self.db, 'Jane Rae')
 
-        add_organization(self.db, 'Example')
-        add_enrollment(self.db, 'John Smith', 'Example')
-        add_enrollment(self.db, 'John Doe', 'Example')
+        api.add_organization(self.db, 'Example')
+        api.add_enrollment(self.db, 'John Smith', 'Example')
+        api.add_enrollment(self.db, 'John Doe', 'Example')
 
-        add_organization(self.db, 'Bitergia')
-        add_enrollment(self.db, 'John Smith', 'Bitergia')
+        api.add_organization(self.db, 'Bitergia')
+        api.add_enrollment(self.db, 'John Smith', 'Bitergia')
 
-        add_organization(self.db, 'LibreSoft')
-        add_enrollment(self.db, 'Jane Rae', 'LibreSoft')
+        api.add_organization(self.db, 'LibreSoft')
+        api.add_enrollment(self.db, 'Jane Rae', 'LibreSoft')
 
         # Delete the first identity
-        delete_unique_identity(self.db, 'John Smith')
+        api.delete_unique_identity(self.db, 'John Smith')
 
         with self.db.connect() as session:
             uid1 = session.query(UniqueIdentity).\
@@ -406,7 +405,7 @@ class TestDeleteUniqueIdentity(TestBaseCase):
             self.assertEqual(len(enrollments), 0)
 
         # Delete the last identity
-        delete_unique_identity(self.db, 'Jane Rae')
+        api.delete_unique_identity(self.db, 'Jane Rae')
 
         with self.db.connect() as session:
             uid2 = session.query(UniqueIdentity).\
@@ -431,17 +430,17 @@ class TestDeleteUniqueIdentity(TestBaseCase):
         """Check if it fails removing a unique identity that does not exists"""
 
         # It should raise an error when the registry is empty
-        self.assertRaises(NotFoundError, delete_unique_identity,
+        self.assertRaises(NotFoundError, api.delete_unique_identity,
                           self.db, 'John Smith')
 
         # Add a pair of unique identities first
-        add_unique_identity(self.db, 'Jonh Smith')
-        add_unique_identity(self.db, 'John Doe')
-        add_organization(self.db, 'Example')
-        add_enrollment(self.db, 'John Doe', 'Example')
+        api.add_unique_identity(self.db, 'Jonh Smith')
+        api.add_unique_identity(self.db, 'John Doe')
+        api.add_organization(self.db, 'Example')
+        api.add_enrollment(self.db, 'John Doe', 'Example')
 
         # The error should be the same
-        self.assertRaises(NotFoundError, delete_unique_identity,
+        self.assertRaises(NotFoundError, api.delete_unique_identity,
                           self.db, 'Jane Rae')
 
         # Nothing has been deleted from the registry
@@ -461,20 +460,20 @@ class TestDeleteOrganization(TestBaseCase):
 
         # First, add a set of organizations, including some domains
         # and enrollments
-        add_unique_identity(self.db, 'John Smith')
-        add_unique_identity(self.db, 'John Doe')
-        add_organization(self.db, 'Example')
-        add_domain(self.db, 'Example', 'example.com')
-        add_domain(self.db, 'Example', 'example.org')
-        add_enrollment(self.db, 'John Smith', 'Example')
-        add_enrollment(self.db, 'John Doe', 'Example')
-        add_organization(self.db, 'Bitergia')
-        add_domain(self.db, 'Bitergia', 'bitergia.com')
-        add_enrollment(self.db, 'John Smith', 'Bitergia')
-        add_organization(self.db, 'LibreSoft')
+        api.add_unique_identity(self.db, 'John Smith')
+        api.add_unique_identity(self.db, 'John Doe')
+        api.add_organization(self.db, 'Example')
+        api.add_domain(self.db, 'Example', 'example.com')
+        api.add_domain(self.db, 'Example', 'example.org')
+        api.add_enrollment(self.db, 'John Smith', 'Example')
+        api.add_enrollment(self.db, 'John Doe', 'Example')
+        api.add_organization(self.db, 'Bitergia')
+        api.add_domain(self.db, 'Bitergia', 'bitergia.com')
+        api.add_enrollment(self.db, 'John Smith', 'Bitergia')
+        api.add_organization(self.db, 'LibreSoft')
 
         # Delete the first organization
-        delete_organization(self.db, 'Example')
+        api.delete_organization(self.db, 'Example')
 
         with self.db.connect() as session:
             org1 = session.query(Organization).\
@@ -493,7 +492,7 @@ class TestDeleteOrganization(TestBaseCase):
             self.assertEqual(enr1, None)
 
         # Delete the last organization
-        delete_organization(self.db, 'LibreSoft')
+        api.delete_organization(self.db, 'LibreSoft')
 
         with self.db.connect() as session:
             org2 = session.query(Organization).\
@@ -518,16 +517,16 @@ class TestDeleteOrganization(TestBaseCase):
         """Check if it fails removing an organization that does not exists"""
 
         # It should raise an error when the registry is empty
-        self.assertRaises(NotFoundError, delete_organization,
+        self.assertRaises(NotFoundError, api.delete_organization,
                           self.db, 'Example')
 
         # Add a pair of organizations first
-        add_organization(self.db, 'Example')
-        add_organization(self.db, 'Bitergia')
-        add_domain(self.db, 'Bitergia', 'bitergia.com')
+        api.add_organization(self.db, 'Example')
+        api.add_organization(self.db, 'Bitergia')
+        api.add_domain(self.db, 'Bitergia', 'bitergia.com')
 
         # The error should be the same
-        self.assertRaises(NotFoundError, delete_organization,
+        self.assertRaises(NotFoundError, api.delete_organization,
                           self.db, 'LibreSoft')
 
         # Nothing has been deleted from the registry
@@ -546,16 +545,16 @@ class TestDeleteDomain(TestBaseCase):
         """Check whether it deletes a set of domains"""
 
         # First, add a set of organizations, including some domains
-        add_organization(self.db, 'Example')
-        add_domain(self.db, 'Example', 'example.com')
-        add_domain(self.db, 'Example', 'example.org')
-        add_organization(self.db, 'Bitergia')
-        add_domain(self.db, 'Bitergia', 'bitergia.com')
-        add_organization(self.db, 'LibreSoft')
+        api.add_organization(self.db, 'Example')
+        api.add_domain(self.db, 'Example', 'example.com')
+        api.add_domain(self.db, 'Example', 'example.org')
+        api.add_organization(self.db, 'Bitergia')
+        api.add_domain(self.db, 'Bitergia', 'bitergia.com')
+        api.add_organization(self.db, 'LibreSoft')
 
         # Delete some domains
-        delete_domain(self.db, 'Example', 'example.org')
-        delete_domain(self.db, 'Bitergia', 'bitergia.com')
+        api.delete_domain(self.db, 'Example', 'example.org')
+        api.delete_domain(self.db, 'Bitergia', 'bitergia.com')
 
         with self.db.connect() as session:
             doms1 = session.query(Domain).join(Organization).\
@@ -568,7 +567,7 @@ class TestDeleteDomain(TestBaseCase):
             self.assertEqual(len(doms2), 0)
 
         # Delete the last domain
-        delete_domain(self.db, 'Example', 'example.com')
+        api.delete_domain(self.db, 'Example', 'example.com')
 
         with self.db.connect() as session:
             doms3 = session.query(Domain).join(Organization).\
@@ -582,11 +581,11 @@ class TestDeleteDomain(TestBaseCase):
         """Check if it fails removing a domain from an organization
            that does not exists"""
 
-        add_organization(self.db, 'Example')
-        add_organization(self.db, 'Bitergia')
-        add_domain(self.db, 'Bitergia', 'bitergia.com')
+        api.add_organization(self.db, 'Example')
+        api.add_organization(self.db, 'Bitergia')
+        api.add_domain(self.db, 'Bitergia', 'bitergia.com')
 
-        self.assertRaises(NotFoundError, delete_domain,
+        self.assertRaises(NotFoundError, api.delete_domain,
                           self.db, 'LibreSoft', 'libresoft.es')
 
         # Nothing has been deleted from the registry
@@ -600,16 +599,16 @@ class TestDeleteDomain(TestBaseCase):
     def test_not_found_domain(self):
         """Check if it fails removing a domain that does not exists"""
 
-        add_organization(self.db, 'Example')
-        add_organization(self.db, 'Bitergia')
-        add_domain(self.db, 'Bitergia', 'bitergia.com')
+        api.add_organization(self.db, 'Example')
+        api.add_organization(self.db, 'Bitergia')
+        api.add_domain(self.db, 'Bitergia', 'bitergia.com')
 
-        self.assertRaises(NotFoundError, delete_domain,
+        self.assertRaises(NotFoundError, api.delete_domain,
                           self.db, 'Example', 'example.com')
 
         # It should not fail because the domain is assigned
         # to other company
-        self.assertRaises(NotFoundError, delete_domain,
+        self.assertRaises(NotFoundError, api.delete_domain,
                           self.db, 'Example', 'bitergia.com')
 
         # Nothing has been deleted from the registry
@@ -627,14 +626,14 @@ class TestRegistry(TestBaseCase):
     def test_get_registry(self):
         """Check if it returns the registry of organizations"""
 
-        add_organization(self.db, 'Example')
-        add_domain(self.db, 'Example', 'example.com')
-        add_domain(self.db, 'Example', 'example.org')
-        add_organization(self.db, 'Bitergia')
-        add_domain(self.db, 'Bitergia', 'bitergia.com')
-        add_organization(self.db, 'LibreSoft')
+        api.add_organization(self.db, 'Example')
+        api.add_domain(self.db, 'Example', 'example.com')
+        api.add_domain(self.db, 'Example', 'example.org')
+        api.add_organization(self.db, 'Bitergia')
+        api.add_domain(self.db, 'Bitergia', 'bitergia.com')
+        api.add_organization(self.db, 'LibreSoft')
 
-        orgs = registry(self.db)
+        orgs = api.registry(self.db)
         self.assertEqual(len(orgs), 3)
 
         org1 = orgs[0]
@@ -655,13 +654,13 @@ class TestRegistry(TestBaseCase):
     def test_get_registry_organization(self):
         """Check if it returns the info about an existing organization"""
 
-        add_organization(self.db, 'Example')
-        add_domain(self.db, 'Example', 'example.com')
-        add_domain(self.db, 'Example', 'example.org')
-        add_organization(self.db, 'Bitergia')
-        add_domain(self.db, 'Bitergia', 'bitergia.com')
+        api.add_organization(self.db, 'Example')
+        api.add_domain(self.db, 'Example', 'example.com')
+        api.add_domain(self.db, 'Example', 'example.org')
+        api.add_organization(self.db, 'Bitergia')
+        api.add_domain(self.db, 'Bitergia', 'bitergia.com')
 
-        orgs = registry(self.db, 'Example')
+        orgs = api.registry(self.db, 'Example')
         self.assertEqual(len(orgs), 1)
 
         org1 = orgs[0]
@@ -680,20 +679,20 @@ class TestRegistry(TestBaseCase):
     def test_empty_registry(self):
         """Check whether it returns an empty list when the registry is empty"""
 
-        orgs = registry(self.db)
+        orgs = api.registry(self.db)
         self.assertListEqual(orgs, [])
 
     def test_not_found_organization(self):
         """Check whether it raises an error when the organization is not available"""
 
         # It should raise an error when the registry is empty
-        self.assertRaises(NotFoundError, registry, self.db, 'Example')
+        self.assertRaises(NotFoundError, api.registry, self.db, 'Example')
 
         # It should do the same when there are some orgs available
-        add_organization(self.db, 'Example')
-        add_organization(self.db, 'Bitergia')
+        api.add_organization(self.db, 'Example')
+        api.add_organization(self.db, 'Bitergia')
 
-        self.assertRaises(NotFoundError, registry, self.db, 'LibreSoft')
+        self.assertRaises(NotFoundError, api.registry, self.db, 'LibreSoft')
 
 
 if __name__ == "__main__":
