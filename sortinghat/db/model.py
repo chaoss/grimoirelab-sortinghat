@@ -20,13 +20,18 @@
 #         Santiago Dueñas <sduenas@bitergia.com>
 #
 
-import dateutil.parser
+import datetime
 
 from sqlalchemy import Column, Integer, String, DateTime,\
     ForeignKey, UniqueConstraint
 from sqlalchemy.orm import backref, relationship
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declarative_base
+
+
+# Default dates for periods
+DEFAULT_START_DATE = datetime.datetime(1900, 1, 1, 0, 0, 0)
+DEFAULT_END_DATE = datetime.datetime(2100, 1, 1, 0, 0, 0)
 
 
 ModelBase = declarative_base()
@@ -78,8 +83,8 @@ class Enrollment(ModelBase):
     id = Column(Integer, primary_key=True)
     upeople_id = Column(Integer, ForeignKey('upeople.id'), nullable=False)
     company_id = Column(Integer, ForeignKey('companies.id'), nullable=False)
-    init = Column(DateTime, default=dateutil.parser.parse('1900-01-01'), nullable=False)
-    end = Column(DateTime, default=dateutil.parser.parse('2100-01-01'), nullable=False)
+    init = Column(DateTime, default=DEFAULT_START_DATE, nullable=False)
+    end = Column(DateTime, default=DEFAULT_END_DATE, nullable=False)
 
     # Bidirectional attribute/collection of "upeople"/"upeople_companies"
     identity = relationship(UniqueIdentity,
