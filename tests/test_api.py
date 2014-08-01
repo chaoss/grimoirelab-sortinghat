@@ -44,15 +44,22 @@ ENROLLMENT_PERIOD_INVALID_ERROR = "cannot be greater than end_date"
 NOT_FOUND_ERROR =  "%(entity)s not found in the registry"
 
 
-class TestAddUniqueIdentity(unittest.TestCase):
-    """Unit tests for add_unique_identity"""
+class TestBaseCase(unittest.TestCase):
+    """Defines common setup and teardown methods on api unit tests"""
 
     @classmethod
     def setUpClass(cls):
         cls.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
 
+    def setUp(self):
+        self.db.clear()
+
     def tearDown(self):
         self.db.clear()
+
+
+class TestAddUniqueIdentity(TestBaseCase):
+    """Unit tests for add_unique_identity"""
 
     def test_add_unique_identities(self):
         """Check whether it adds a set of unique identities"""
@@ -98,14 +105,7 @@ class TestAddUniqueIdentity(unittest.TestCase):
                                 add_unique_identity, self.db, '')
 
 
-class TestAddOrganization(unittest.TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        cls.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
-
-    def tearDown(self):
-        self.db.clear()
+class TestAddOrganization(TestBaseCase):
 
     def test_add_organizations(self):
         """Check whether it adds a set of organizations"""
@@ -151,14 +151,7 @@ class TestAddOrganization(unittest.TestCase):
                                 add_organization, self.db, '')
 
 
-class TestAddDomain(unittest.TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        cls.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
-
-    def tearDown(self):
-        self.db.clear()
+class TestAddDomain(TestBaseCase):
 
     def test_add_domains(self):
         """Check whether it adds a set of domains to one organization"""
@@ -289,15 +282,8 @@ class TestAddDomain(unittest.TestCase):
                                 add_domain, self.db, 'Example', '')
 
 
-class TestAddEnrollment(unittest.TestCase):
+class TestAddEnrollment(TestBaseCase):
     """Unit tests for add_enrollment"""
-
-    @classmethod
-    def setUpClass(cls):
-        cls.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
-
-    def tearDown(self):
-        self.db.clear()
 
     def test_add_domains(self):
         """Check whether it adds a set of enrollment to the same
@@ -383,17 +369,7 @@ class TestAddEnrollment(unittest.TestCase):
                           datetime.datetime(1999, 1, 1),
                           datetime.datetime(2000, 1, 1))
 
-class TestDeleteUniqueIdentity(unittest.TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        cls.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
-
-    def setUp(self):
-        self.db.clear()
-
-    def tearDown(self):
-        self.db.clear()
+class TestDeleteUniqueIdentity(TestBaseCase):
 
     def test_delete_unique_identities(self):
         """Check whether it deletes a set of unique identities"""
@@ -474,17 +450,7 @@ class TestDeleteUniqueIdentity(unittest.TestCase):
             self.assertEqual(len(enrollments), 1)
 
 
-class TestDeleteOrganization(unittest.TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        cls.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
-
-    def setUp(self):
-        self.db.clear()
-
-    def tearDown(self):
-        self.db.clear()
+class TestDeleteOrganization(TestBaseCase):
 
     def test_delete_organizations(self):
         """Check whether it deletes a set of organizations"""
@@ -569,17 +535,7 @@ class TestDeleteOrganization(unittest.TestCase):
             self.assertEqual(len(doms), 1)
 
 
-class TestDeleteDomain(unittest.TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        cls.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
-
-    def setUp(self):
-        self.db.clear()
-
-    def tearDown(self):
-        self.db.clear()
+class TestDeleteDomain(TestBaseCase):
 
     def test_delete_domains(self):
         """Check whether it deletes a set of domains"""
@@ -660,14 +616,7 @@ class TestDeleteDomain(unittest.TestCase):
             self.assertEqual(len(doms), 1)
 
 
-class TestRegistry(unittest.TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        cls.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
-
-    def tearDown(self):
-        self.db.clear()
+class TestRegistry(TestBaseCase):
 
     def test_get_registry(self):
         """Check if it returns the registry of organizations"""
