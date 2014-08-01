@@ -400,11 +400,17 @@ class TestDeleteOrganization(unittest.TestCase):
         """Check whether it deletes a set of organizations"""
 
         # First, add a set of organizations, including some domains
+        # and enrollments
+        add_unique_identity(self.db, 'John Smith')
+        add_unique_identity(self.db, 'John Doe')
         add_organization(self.db, 'Example')
         add_domain(self.db, 'Example', 'example.com')
         add_domain(self.db, 'Example', 'example.org')
+        add_enrollment(self.db, 'John Smith', 'Example')
+        add_enrollment(self.db, 'John Doe', 'Example')
         add_organization(self.db, 'Bitergia')
         add_domain(self.db, 'Bitergia', 'bitergia.com')
+        add_enrollment(self.db, 'John Smith', 'Bitergia')
         add_organization(self.db, 'LibreSoft')
 
         # Delete the first organization
@@ -422,6 +428,10 @@ class TestDeleteOrganization(unittest.TestCase):
                     filter(Domain.domain == 'example.org').first()
             self.assertEqual(dom2, None)
 
+            enr1 = session.query(Enrollment).\
+                filter(Organization.name == 'Example').first()
+            self.assertEqual(enr1, None)
+
         # Delete the last organization
         delete_organization(self.db, 'LibreSoft')
 
@@ -438,6 +448,11 @@ class TestDeleteOrganization(unittest.TestCase):
             doms = session.query(Domain).all()
             self.assertEqual(len(doms), 1)
             self.assertEqual(doms[0].domain, 'bitergia.com')
+
+            enrollments = session.query(Enrollment).all()
+            self.assertEqual(len(enrollments), 1)
+            self.assertEqual(enrollments[0].identity.identifier, 'John Smith')
+            self.assertEqual(enrollments[0].organization.name, 'Bitergia')
 
     def test_not_found_organization(self):
         """Check if it fails removing an organization that does not exists"""
