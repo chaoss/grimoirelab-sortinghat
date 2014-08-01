@@ -58,7 +58,7 @@ def add_unique_identity(db, uuid):
 def add_organization(db, organization):
     """Add an organization to the registry.
 
-    This method adds an organization to the registry.
+    This function adds an organization to the registry.
     It checks first whether the organization is already on the registry.
     When it is not found, the new organization is added. Otherwise,
     it raises a 'AlreadyExistsError' exception to notify that the organization
@@ -66,7 +66,7 @@ def add_organization(db, organization):
 
     :param db: database session
     :param organization: name of the organization
-    :raise ValueError: raised when organization is None or an empty string
+    :raises ValueError: raised when organization is None or an empty string
     :raises AlreadyExistsError: raised when the organization already exists
         in the registry.
     """
@@ -104,8 +104,8 @@ def add_domain(db, organization, domain, overwrite=False):
     :param domain: domain to add to the registry
     :param overwrite: force to reassign the domain to the given company
 
-    :raise ValueError: raised when domain is None or an empty string
-    :raise NotFoundError: raised when the given organization is not found
+    :raises ValueError: raised when domain is None or an empty string
+    :raises NotFoundError: raised when the given organization is not found
         in the registry
     :raises AlreadyExistsError: raised when the domain already exists
         in the registry
@@ -303,7 +303,7 @@ def registry(db, organization=None):
 
     :returns: a list of organizations sorted by their name
 
-    :raise NotFoundError: raised when the given organization is not found
+    :raises NotFoundError: raised when the given organization is not found
         in the registry
     """
     orgs = []

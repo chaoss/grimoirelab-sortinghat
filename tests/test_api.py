@@ -106,6 +106,7 @@ class TestAddUniqueIdentity(TestBaseCase):
 
 
 class TestAddOrganization(TestBaseCase):
+    """Unit tests for add_organization"""
 
     def test_add_organizations(self):
         """Check whether it adds a set of organizations"""
@@ -152,6 +153,7 @@ class TestAddOrganization(TestBaseCase):
 
 
 class TestAddDomain(TestBaseCase):
+    """Unit tests for add_domain"""
 
     def test_add_domains(self):
         """Check whether it adds a set of domains to one organization"""
@@ -370,6 +372,7 @@ class TestAddEnrollment(TestBaseCase):
                           datetime.datetime(2000, 1, 1))
 
 class TestDeleteUniqueIdentity(TestBaseCase):
+    """Unit tests for delete_unique_identity"""
 
     def test_delete_unique_identities(self):
         """Check whether it deletes a set of unique identities"""
@@ -451,6 +454,7 @@ class TestDeleteUniqueIdentity(TestBaseCase):
 
 
 class TestDeleteOrganization(TestBaseCase):
+    """Unit tests for delete_organization"""
 
     def test_delete_organizations(self):
         """Check whether it deletes a set of organizations"""
@@ -536,6 +540,7 @@ class TestDeleteOrganization(TestBaseCase):
 
 
 class TestDeleteDomain(TestBaseCase):
+    """Unit tests for delete_domain"""
 
     def test_delete_domains(self):
         """Check whether it deletes a set of domains"""
@@ -617,6 +622,7 @@ class TestDeleteDomain(TestBaseCase):
 
 
 class TestRegistry(TestBaseCase):
+    """Unit tests for registry"""
 
     def test_get_registry(self):
         """Check if it returns the registry of organizations"""
