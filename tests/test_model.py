@@ -170,7 +170,7 @@ class TestEnrollment(TestCaseBase):
             uid = UniqueIdentity(identifier='John Smith')
             self.session.add(uid)
 
-            rol2 = Enrollment(user=uid)
+            rol2 = Enrollment(identity=uid)
             self.session.add(rol2)
             self.session.commit()
 
@@ -196,8 +196,8 @@ class TestEnrollment(TestCaseBase):
             org = Organization(name='Example')
             self.session.add(org)
 
-            rol1 = Enrollment(user=uid, organization=org)
-            rol2 = Enrollment(user=uid, organization=org)
+            rol1 = Enrollment(identity=uid, organization=org)
+            rol2 = Enrollment(identity=uid, organization=org)
 
             self.session.add(rol1)
             self.session.add(rol2)
@@ -214,7 +214,7 @@ class TestEnrollment(TestCaseBase):
         org = Organization(name='Example')
         self.session.add(org)
 
-        rol1 = Enrollment(user=uid, organization=org)
+        rol1 = Enrollment(identity=uid, organization=org)
         self.session.add(rol1)
         self.session.commit()
 
@@ -222,7 +222,7 @@ class TestEnrollment(TestCaseBase):
         self.assertEqual(rol1.end, datetime.datetime(2100, 1, 1, 0, 0, 0))
 
         # Setting init and end dates to None produce the same result
-        rol2 = Enrollment(user=uid, organization=org,
+        rol2 = Enrollment(identity=uid, organization=org,
                           init=None, end=datetime.datetime(2222, 1, 1, 0, 0, 0))
         self.session.add(rol2)
         self.session.commit()
@@ -230,7 +230,7 @@ class TestEnrollment(TestCaseBase):
         self.assertEqual(rol2.init, datetime.datetime(1900, 1, 1, 0, 0, 0))
         self.assertEqual(rol2.end, datetime.datetime(2222, 1, 1, 0, 0, 0))
 
-        rol3 = Enrollment(user=uid, organization=org,
+        rol3 = Enrollment(identity=uid, organization=org,
                           init=datetime.datetime(1999, 1, 1, 0, 0, 0), end=None)
         self.session.add(rol3)
         self.session.commit()

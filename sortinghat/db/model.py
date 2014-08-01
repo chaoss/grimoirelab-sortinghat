@@ -82,9 +82,9 @@ class Enrollment(ModelBase):
     end = Column(DateTime, default=dateutil.parser.parse('2100-01-01'), nullable=False)
 
     # Bidirectional attribute/collection of "upeople"/"upeople_companies"
-    user = relationship(UniqueIdentity,
-                        backref=backref('upeople_companies',
-                                        cascade="all, delete-orphan"))
+    identity = relationship(UniqueIdentity,
+                            backref=backref('upeople_companies',
+                                            cascade="all, delete-orphan"))
 
     # Reference to the "Organization" object
     organization = relationship('Organization')
