@@ -32,7 +32,7 @@ from sortinghat.db.database import Database
 from sortinghat.db.model import UniqueIdentity, Organization, Domain, Enrollment
 from sortinghat.exceptions import AlreadyExistsError, NotFoundError
 from sortinghat.api import add_unique_identity, add_organization, add_domain,\
-    add_enrollment, delete_organization, delete_domain, registry
+    add_enrollment, delete_unique_identity, delete_organization, delete_domain, registry
 
 from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
@@ -382,6 +382,96 @@ class TestAddEnrollment(unittest.TestCase):
                           self.db, 'John Smith', 'Example',
                           datetime.datetime(1999, 1, 1),
                           datetime.datetime(2000, 1, 1))
+
+class TestDeleteUniqueIdentity(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
+
+    def setUp(self):
+        self.db.clear()
+
+    def tearDown(self):
+        self.db.clear()
+
+    def test_delete_unique_identities(self):
+        """Check whether it deletes a set of unique identities"""
+
+        # First, add a set of identities, including some organizations
+        # and enrollments
+        add_unique_identity(self.db, 'John Smith')
+        add_unique_identity(self.db, 'John Doe')
+        add_unique_identity(self.db, 'Jane Rae')
+
+        add_organization(self.db, 'Example')
+        add_enrollment(self.db, 'John Smith', 'Example')
+        add_enrollment(self.db, 'John Doe', 'Example')
+
+        add_organization(self.db, 'Bitergia')
+        add_enrollment(self.db, 'John Smith', 'Bitergia')
+
+        add_organization(self.db, 'LibreSoft')
+        add_enrollment(self.db, 'Jane Rae', 'LibreSoft')
+
+        # Delete the first identity
+        delete_unique_identity(self.db, 'John Smith')
+
+        with self.db.connect() as session:
+            uid1 = session.query(UniqueIdentity).\
+                filter(UniqueIdentity.identifier == 'John Smith').first()
+            self.assertEqual(uid1, None)
+
+            enrollments = session.query(Enrollment).\
+                filter(UniqueIdentity.identifier == 'John Smith').all()
+            self.assertEqual(len(enrollments), 0)
+
+        # Delete the last identity
+        delete_unique_identity(self.db, 'Jane Rae')
+
+        with self.db.connect() as session:
+            uid2 = session.query(UniqueIdentity).\
+                filter(UniqueIdentity.identifier == 'Jane Rae').first()
+            self.assertEqual(uid2, None)
+
+            # Check if there only remains one unique identity and one
+            # enrollment
+            identities = session.query(UniqueIdentity).all()
+            self.assertEqual(len(identities), 1)
+            self.assertEqual(identities[0].identifier, 'John Doe')
+
+            enrollments = session.query(Enrollment).all()
+            self.assertEqual(len(enrollments), 1)
+            self.assertEqual(enrollments[0].identity.identifier, 'John Doe')
+            self.assertEqual(enrollments[0].organization.name, 'Example')
+
+            orgs = session.query(Organization).all()
+            self.assertEqual(len(orgs), 3)
+
+    def test_not_found_uuid(self):
+        """Check if it fails removing a unique identity that does not exists"""
+
+        # It should raise an error when the registry is empty
+        self.assertRaises(NotFoundError, delete_unique_identity,
+                          self.db, 'John Smith')
+
+        # Add a pair of unique identities first
+        add_unique_identity(self.db, 'Jonh Smith')
+        add_unique_identity(self.db, 'John Doe')
+        add_organization(self.db, 'Example')
+        add_enrollment(self.db, 'John Doe', 'Example')
+
+        # The error should be the same
+        self.assertRaises(NotFoundError, delete_unique_identity,
+                          self.db, 'Jane Rae')
+
+        # Nothing has been deleted from the registry
+        with self.db.connect() as session:
+            ids = session.query(UniqueIdentity).all()
+            self.assertEqual(len(ids), 2)
+
+            enrollments = session.query(Enrollment).all()
+            self.assertEqual(len(enrollments), 1)
 
 
 class TestDeleteOrganization(unittest.TestCase):

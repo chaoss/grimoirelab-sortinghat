@@ -208,6 +208,32 @@ def add_enrollment(db, uuid, organization, start_date=None, end_date=None):
         session.add(enrollment)
 
 
+def delete_unique_identity(db, uuid):
+    """Remove a unique identity from the registry.
+
+    Function that removes from the registry, the unique identity
+    that matches with uuid. Data related to this identity will be
+    also removed.
+    It checks first whether the identity is already on the registry.
+    When it is found, the identity is removed. Otherwise, it will raise
+    a 'NotFoundError' exception.
+
+    :param db: database manager
+    :param uuid: unique identifier assigned to the identity set for being removed
+
+    :raises NotFoundError: raised when the identity does not exist
+        in the registry.
+    """
+    with db.connect() as session:
+        identity = session.query(UniqueIdentity).\
+            filter(UniqueIdentity.identifier == uuid).first()
+
+        if not identity:
+            raise NotFoundError(entity=uuid)
+
+        session.delete(identity)
+
+
 def delete_organization(db, organization):
     """Remove an organization from the registry.
 
