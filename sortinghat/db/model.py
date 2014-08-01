@@ -44,8 +44,11 @@ class Organization(ModelBase):
     name = Column(String(255), nullable=False)
 
     # One-to-Many relationship
-    domains = relationship("Domain", backref='companies',
+    domains = relationship('Domain', backref='companies',
                            lazy='joined', cascade="save-update, merge, delete")
+
+    # Enrollment relationships
+    identities = association_proxy('upeople_companies', 'upeople')
 
     __table_args__ = (UniqueConstraint('name', name='_name_unique'),
                       {'mysql_charset': 'utf8'})
@@ -56,7 +59,8 @@ class Domain(ModelBase):
 
     id = Column(Integer, primary_key=True)
     domain = Column(String(128), nullable=False)
-    company_id = Column(Integer, ForeignKey('companies.id'), nullable=False)
+    company_id = Column(Integer, ForeignKey('companies.id', ondelete='CASCADE'),
+                        nullable=False)
 
     # Many-to-One relationship
     company = relationship("Organization", backref='domains_companies')
@@ -81,10 +85,12 @@ class Enrollment(ModelBase):
     __tablename__ = 'upeople_companies'
 
     id = Column(Integer, primary_key=True)
-    upeople_id = Column(Integer, ForeignKey('upeople.id'), nullable=False)
-    company_id = Column(Integer, ForeignKey('companies.id'), nullable=False)
     init = Column(DateTime, default=DEFAULT_START_DATE, nullable=False)
     end = Column(DateTime, default=DEFAULT_END_DATE, nullable=False)
+    upeople_id = Column(Integer, ForeignKey('upeople.id', ondelete='CASCADE'),
+                        nullable=False)
+    company_id = Column(Integer, ForeignKey('companies.id',ondelete='CASCADE'),
+                        nullable=False)
 
     # Bidirectional attribute/collection of "upeople"/"upeople_companies"
     identity = relationship(UniqueIdentity,
@@ -92,7 +98,9 @@ class Enrollment(ModelBase):
                                             cascade="all, delete-orphan"))
 
     # Reference to the "Organization" object
-    organization = relationship('Organization')
+    organization = relationship(Organization,
+                                backref=backref('upeople_companies',
+                                                cascade="all, delete-orphan"))
 
     __table_args__ = (UniqueConstraint('upeople_id', 'company_id',
                                        'init', 'end',
