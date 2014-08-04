@@ -39,7 +39,7 @@ from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 UUID_NONE_OR_EMPTY_ERROR = "uuid cannot be"
 ORG_NONE_OR_EMPTY_ERROR = "organization cannot be"
 DOMAIN_NONE_OR_EMPTY_ERROR = "domain cannot be"
-ENROLLMENT_PERIOD_INVALID_ERROR = "cannot be greater than end_date"
+ENROLLMENT_PERIOD_INVALID_ERROR = "cannot be greater than "
 NOT_FOUND_ERROR =  "%(entity)s not found in the registry"
 
 

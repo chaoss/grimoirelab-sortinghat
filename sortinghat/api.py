@@ -134,7 +134,7 @@ def add_domain(db, organization, domain, overwrite=False):
         session.add(dom)
 
 
-def add_enrollment(db, uuid, organization, start_date=None, end_date=None):
+def add_enrollment(db, uuid, organization, from_date=None, to_date=None):
     """Enroll a unique identity to an organization.
 
     The function adds a new relationship between the unique identity
@@ -142,8 +142,8 @@ def add_enrollment(db, uuid, organization, start_date=None, end_date=None):
     identity and organization must exist prior to add this enrollment
     in the registry. Otherwise, a 'NotFoundError' exception will be raised.
 
-    The period of the enrollment can be given with the parameters 'start_date'
-    and 'end_date', where "start_date <= end_date". Default values to these
+    The period of the enrollment can be given with the parameters 'from_date'
+    and 'to_date', where "from_date <= to_date". Default values to these
     dates are '1900-01-01' and '2100-01-01'.
 
     If the given enrollment data is already in the registry, the function
@@ -151,13 +151,13 @@ def add_enrollment(db, uuid, organization, start_date=None, end_date=None):
 
     :param uuid: unique identifier
     :param organization: name of the organization
-    :param start_date: date when the enrollment starts
-    :param end_date: date when the enrollment ends
+    :param from_date: date when the enrollment starts
+    :param to_date: date when the enrollment ends
 
     :raises NotFoundError: when either 'uuid' or 'organization' are not
         found in the registry.
     :raises ValeError: raised in two cases, when either identity or
-        organization are None or empty strings; when "start_date > end_date".
+        organization are None or empty strings; when "from_date > to_date".
     :raises AlreadyExistsError: raised when given enrollment already exists
         in the registry.
     """
@@ -170,14 +170,14 @@ def add_enrollment(db, uuid, organization, start_date=None, end_date=None):
     if organization == '':
         raise ValueError('organization cannot be an empty string')
 
-    if start_date and end_date and start_date > end_date:
-        raise ValueError('start date %s cannot be greater than end_date %s'
-                         % (start_date, end_date))
+    if from_date and to_date and from_date > to_date:
+        raise ValueError('start date %s cannot be greater than %s'
+                         % (from_date, to_date))
 
-    if not start_date:
-        start_date = DEFAULT_START_DATE
-    if not end_date:
-        end_date = DEFAULT_END_DATE
+    if not from_date:
+        from_date = DEFAULT_START_DATE
+    if not to_date:
+        to_date = DEFAULT_END_DATE
 
     with db.connect() as session:
         identity = session.query(UniqueIdentity).\
@@ -195,8 +195,8 @@ def add_enrollment(db, uuid, organization, start_date=None, end_date=None):
         enrollment = session.query(Enrollment).\
             filter(Enrollment.identity == identity,
                    Enrollment.organization == org,
-                   Enrollment.init == start_date,
-                   Enrollment.end == end_date).first()
+                   Enrollment.init == from_date,
+                   Enrollment.end == to_date).first()
 
         if enrollment:
             entity = '-'.join((uuid, organization,
@@ -204,7 +204,7 @@ def add_enrollment(db, uuid, organization, start_date=None, end_date=None):
             raise AlreadyExistsError(entity=entity)
 
         enrollment = Enrollment(identity=identity, organization=org,
-                                init=start_date, end=end_date)
+                                init=from_date, end=to_date)
         session.add(enrollment)
 
 
