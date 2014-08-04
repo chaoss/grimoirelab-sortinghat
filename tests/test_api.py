@@ -620,6 +620,143 @@ class TestDeleteDomain(TestBaseCase):
             self.assertEqual(len(doms), 1)
 
 
+class TestDeleteEnrollment(TestBaseCase):
+    """Unit tests for delete_enrollment"""
+
+    def test_delete_enrollments(self):
+        """Check whether it deletes a set of enrollments"""
+
+        # First, add a set of uuids, organizations and enrollments
+        api.add_unique_identity(self.db, 'John Smith')
+        api.add_unique_identity(self.db, 'John Doe')
+        api.add_unique_identity(self.db, 'Jane Rae')
+
+        api.add_organization(self.db, 'Example')
+        api.add_enrollment(self.db, 'John Smith', 'Example')
+        api.add_enrollment(self.db, 'John Doe', 'Example')
+        api.add_organization(self.db, 'Bitergia')
+        api.add_enrollment(self.db, 'John Smith', 'Bitergia')
+        api.add_enrollment(self.db, 'John Smith', 'Bitergia',
+                           datetime.datetime(1999, 1, 1),
+                           datetime.datetime(2000, 1, 1))
+        api.add_organization(self.db, 'LibreSoft')
+        api.add_enrollment(self.db, 'John Doe', 'LibreSoft')
+        api.add_enrollment(self.db, 'Jane Rae', 'LibreSoft')
+
+        # Delete some enrollments
+        api.delete_enrollment(self.db, 'John Doe', 'LibreSoft')
+        api.delete_enrollment(self.db, 'John Doe', 'Example')
+
+        with self.db.connect() as session:
+            enrollments = session.query(Enrollment).join(Organization).\
+                    filter(Organization.name == 'LibreSoft').all()
+            self.assertEqual(len(enrollments), 1)
+            self.assertEqual(enrollments[0].identity.identifier, 'Jane Rae')
+
+            enrollments = session.query(Enrollment).join(Organization).\
+                    filter(Organization.name == 'Example').all()
+            self.assertEqual(len(enrollments), 1)
+            self.assertEqual(enrollments[0].identity.identifier, 'John Smith')
+
+        # Delete enrollments from Bitergia
+        api.delete_enrollment(self.db, 'John Smith', 'Bitergia')
+
+        with self.db.connect() as session:
+            enrollments = session.query(Enrollment).join(Organization).\
+                    filter(Organization.name == 'Bitergia').all()
+            self.assertEqual(len(enrollments), 0)
+
+    def test_delete_with_period_ranges(self):
+        """Check whether it deletes a set of enrollments using some periods"""
+
+        # First, add a set of uuids, organizations and enrollments
+        api.add_unique_identity(self.db, 'John Smith')
+        api.add_unique_identity(self.db, 'John Doe')
+
+        api.add_organization(self.db, 'Example')
+        api.add_enrollment(self.db, 'John Smith', 'Example')
+        api.add_enrollment(self.db, 'John Smith', 'Example',
+                           datetime.datetime(1999, 1, 1),
+                           datetime.datetime(2010, 1, 1))
+        api.add_enrollment(self.db, 'John Smith', 'Example',
+                           datetime.datetime(1981, 1, 1),
+                           datetime.datetime(1990, 1, 1))
+        api.add_enrollment(self.db, 'John Smith', 'Example',
+                           datetime.datetime(1991, 1, 1),
+                           datetime.datetime(1993, 1, 1))
+
+        # This should delete two enrolmments: 1981-1990 and 1991-1993
+        # but not the one from 1999-2010 nor 1900-21000
+        api.delete_enrollment(self.db, 'John Smith', 'Example',
+                              datetime.datetime(1970, 1, 1),
+                              datetime.datetime(1995, 1, 1))
+
+        with self.db.connect() as session:
+            enrollments = session.query(Enrollment).join(Organization).\
+                    filter(Organization.name == 'Example').all()
+            self.assertEqual(len(enrollments), 2)
+
+            self.assertEqual(enrollments[0].init, datetime.datetime(1900, 1, 1))
+            self.assertEqual(enrollments[0].end, datetime.datetime(2100, 1, 1))
+
+            self.assertEqual(enrollments[1].init, datetime.datetime(1999, 1, 1))
+            self.assertEqual(enrollments[1].end, datetime.datetime(2010, 1, 1))
+
+    def test_period_ranges(self):
+        """Check whether enrollments cannot be removed giving invalid period ranges"""
+
+        self.assertRaisesRegexp(ValueError, ENROLLMENT_PERIOD_INVALID_ERROR,
+                                api.delete_enrollment, self.db, 'John Smith', 'Example',
+                                datetime.datetime(2001, 1, 1),
+                                datetime.datetime(1999, 1, 1))
+
+    def test_not_found_uuid(self):
+        """Check if it fails removing enrollments from an organization
+           that does not exists"""
+
+        api.add_unique_identity(self.db, 'John Smith')
+        api.add_organization(self.db, 'Example')
+        api.add_enrollment(self.db, 'John Smith', 'Example')
+        api.add_organization(self.db, 'Bitergia')
+
+        self.assertRaises(NotFoundError, api.delete_enrollment,
+                          self.db, 'John Doe', 'Example')
+
+        # Nothing has been deleted from the registry
+        with self.db.connect() as session:
+            uids = session.query(UniqueIdentity).all()
+            self.assertEqual(len(uids), 1)
+
+            orgs = session.query(Organization).all()
+            self.assertEqual(len(orgs), 2)
+
+            enrollments = session.query(Enrollment).all()
+            self.assertEqual(len(enrollments), 1)
+
+    def test_not_found_organization(self):
+        """Check if it fails removing enrollments from a unique identity
+           that does not exists"""
+
+        api.add_unique_identity(self.db, 'John Smith')
+        api.add_organization(self.db, 'Example')
+        api.add_enrollment(self.db, 'John Smith', 'Example')
+        api.add_organization(self.db, 'Bitergia')
+
+        self.assertRaises(NotFoundError, api.delete_enrollment,
+                          self.db, 'John Smith', 'LibreSoft')
+
+        # Nothing has been deleted from the registry
+        with self.db.connect() as session:
+            uids = session.query(UniqueIdentity).all()
+            self.assertEqual(len(uids), 1)
+
+            orgs = session.query(Organization).all()
+            self.assertEqual(len(orgs), 2)
+
+            enrollments = session.query(Enrollment).all()
+            self.assertEqual(len(enrollments), 1)
+
+
 class TestRegistry(TestBaseCase):
     """Unit tests for registry"""
 

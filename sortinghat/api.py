@@ -290,6 +290,66 @@ def delete_domain(db, organization, domain):
         session.delete(dom)
 
 
+def delete_enrollment(db, uuid, organization, from_date=None, to_date=None):
+    """Withdraw a unique identity from an organization.
+
+    This function removes all the enrollments between the unique identity
+    identified by 'uuid' and the given 'organization'. Both 'uuid' and
+    organization must exists before deleting. Otherwise, it will raise a
+    'NotFoundError' exception.
+
+    When a period of time is given using 'from_date' and 'to_date'
+    parameters, the function will remove those periods on which
+    'from_date' <= enrollment <= 'to_date'. Default values for these dates
+    are '1900-01-01' and '2100-01-01'.
+
+    :param db: database manager
+    :param uuid: unique identifier
+    :param organization: name of the organization
+    :param from_date: date when the enrollment starts
+    :param to_date: date when the enrollment ends
+
+    :raises NotFoundError: when either 'uuid' or 'organization' are not
+        found in the registry.
+    :raises ValeError: when "from_date > to_date".
+    """
+    if from_date and to_date and from_date > to_date:
+        raise ValueError('start date %s cannot be greater than %s'
+                         % (from_date, to_date))
+
+    if not from_date:
+        from_date = DEFAULT_START_DATE
+    if not to_date:
+        to_date = DEFAULT_END_DATE
+
+    with db.connect() as session:
+        identity = session.query(UniqueIdentity).\
+            filter(UniqueIdentity.identifier == uuid).first()
+
+        if not identity:
+            raise NotFoundError(entity=uuid)
+
+        org = session.query(Organization).\
+            filter(Organization.name == organization).first()
+
+        if not org:
+            raise NotFoundError(entity=organization)
+
+        enrollments = session.query(Enrollment).\
+            filter(Enrollment.identity == identity,
+                   Enrollment.organization == org,
+                   from_date <= Enrollment.init,
+                   Enrollment.end <= to_date).all()
+
+        if not enrollments:
+            entity = '-'.join((uuid, organization,
+                              str(from_date), str(to_date)))
+            raise NotFoundError(entity=entity)
+
+        for enr in enrollments:
+            session.delete(enr)
+
+
 def registry(db, organization=None):
     """List the organizations available in the registry.
 
