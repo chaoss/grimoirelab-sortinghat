@@ -263,7 +263,7 @@ class TestOrgsAdd(unittest.TestCase):
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, REGISTRY_ORG_ALREADY_EXISTS_ERROR)
 
-    def test_non_exixting_organization(self):
+    def test_non_existing_organization(self):
         """Check if it fails adding domains to not existing organizations"""
 
         self.cmd.add('Bitergium', 'bitergium.com')

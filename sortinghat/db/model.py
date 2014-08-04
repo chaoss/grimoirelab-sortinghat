@@ -89,7 +89,7 @@ class Enrollment(ModelBase):
     end = Column(DateTime, default=DEFAULT_END_DATE, nullable=False)
     upeople_id = Column(Integer, ForeignKey('upeople.id', ondelete='CASCADE'),
                         nullable=False)
-    company_id = Column(Integer, ForeignKey('companies.id',ondelete='CASCADE'),
+    company_id = Column(Integer, ForeignKey('companies.id', ondelete='CASCADE'),
                         nullable=False)
 
     # Bidirectional attribute/collection of "upeople"/"upeople_companies"

@@ -33,7 +33,7 @@ def add_unique_identity(db, uuid):
     identity is already on the registry. When it is not found, a new unique
     identity is created. Otherwise, it raises a 'AlreadyExistError' exception.
 
-    :param db: database session
+    :param db: database manager
     :param uuid: unique identifier for the identity
     :raises ValueError: when uuid is None or an empty string
     :raises AlreadyExistsError: when the identifier already exists
@@ -64,7 +64,7 @@ def add_organization(db, organization):
     it raises a 'AlreadyExistsError' exception to notify that the organization
     already exists.
 
-    :param db: database session
+    :param db: database manager
     :param organization: name of the organization
     :raises ValueError: raised when organization is None or an empty string
     :raises AlreadyExistsError: raised when the organization already exists
@@ -143,12 +143,13 @@ def add_enrollment(db, uuid, organization, from_date=None, to_date=None):
     in the registry. Otherwise, a 'NotFoundError' exception will be raised.
 
     The period of the enrollment can be given with the parameters 'from_date'
-    and 'to_date', where "from_date <= to_date". Default values to these
+    and 'to_date', where "from_date <= to_date". Default values for these
     dates are '1900-01-01' and '2100-01-01'.
 
     If the given enrollment data is already in the registry, the function
     will raise a 'AlreadyExistsError' exception.
 
+    :param db: database manager
     :param uuid: unique identifier
     :param organization: name of the organization
     :param from_date: date when the enrollment starts

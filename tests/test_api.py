@@ -286,7 +286,7 @@ class TestAddDomain(TestBaseCase):
 class TestAddEnrollment(TestBaseCase):
     """Unit tests for add_enrollment"""
 
-    def test_add_domains(self):
+    def test_add_enrollment(self):
         """Check whether it adds a set of enrollment to the same
         unique identity and organization"""
 
