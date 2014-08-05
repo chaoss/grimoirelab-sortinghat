@@ -95,12 +95,14 @@ class Enrollment(ModelBase):
     # Bidirectional attribute/collection of "upeople"/"upeople_companies"
     identity = relationship(UniqueIdentity,
                             backref=backref('upeople_companies',
-                                            cascade="all, delete-orphan"))
+                                            cascade="all, delete-orphan"),
+                            lazy='joined')
 
     # Reference to the "Organization" object
     organization = relationship(Organization,
                                 backref=backref('upeople_companies',
-                                                cascade="all, delete-orphan"))
+                                                cascade="all, delete-orphan"),
+                                lazy='joined')
 
     __table_args__ = (UniqueConstraint('upeople_id', 'company_id',
                                        'init', 'end',
