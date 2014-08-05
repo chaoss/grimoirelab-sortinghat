@@ -386,3 +386,61 @@ def registry(db, organization=None):
         session.expunge_all()
 
     return orgs
+
+
+def enrollments(db, uuid=None, organization=None):
+    """List the enrollment information available in the registry.
+
+    This function will return a list of enrollments. If 'uuid'
+    parameter is set, it will return the enrollments related to that
+    unique identity; if 'organization' parameter is given, it will
+    return the enrollments related to that organization; if both
+    parameters are set, the function will return the list of enrollments
+    of 'uuid' on the 'organization'.
+
+    When either 'uuid' or 'organization' are not in the registry a
+    'NotFoundError' exception will be raised.
+
+    :param db: database manager
+    :param uuid: unique identifier
+    :param organization: name of the organization
+
+    :returns: a list of enrollments sorted by uuid or by organization.
+
+    :raises NotFoundError: when either 'uuid' or 'organization' are not
+        found in the registry.
+    """
+    enrollments = []
+
+    with db.connect() as session:
+        query = session.query(Enrollment).join(UniqueIdentity, Organization)
+
+        # Filter by uuid
+        if uuid:
+            identity = session.query(UniqueIdentity).\
+                filter(UniqueIdentity.identifier == uuid).first()
+
+            if not identity:
+                raise NotFoundError(entity=uuid)
+
+            query = query.filter(Enrollment.identity == identity)
+
+        # Filter by organization
+        if organization:
+            org = session.query(Organization).\
+                filter(Organization.name == organization).first()
+
+            if not org:
+                raise NotFoundError(entity=organization)
+
+            query = query.filter(Enrollment.organization == org)
+
+        # Get the results
+        enrollments = query.order_by(UniqueIdentity.identifier,
+                                     Organization.name,
+                                     Enrollment.init).all()
+
+        # Detach objects from the session
+        session.expunge_all()
+
+    return enrollments

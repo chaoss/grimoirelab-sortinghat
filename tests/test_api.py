@@ -832,5 +832,209 @@ class TestRegistry(TestBaseCase):
         self.assertRaises(NotFoundError, api.registry, self.db, 'LibreSoft')
 
 
+class TestEnrollments(TestBaseCase):
+    """Unit tests for enrollments"""
+
+    def test_get_enrollments(self):
+        """Check if it returns the registry of enrollments"""
+
+        # First, add a set of uuids, organizations and enrollments
+        api.add_unique_identity(self.db, 'John Smith')
+        api.add_unique_identity(self.db, 'John Doe')
+        api.add_unique_identity(self.db, 'Jane Rae')
+
+        api.add_organization(self.db, 'Example')
+        api.add_enrollment(self.db, 'John Smith', 'Example')
+        api.add_enrollment(self.db, 'John Doe', 'Example')
+
+        api.add_organization(self.db, 'Bitergia')
+        api.add_enrollment(self.db, 'John Smith', 'Bitergia')
+        api.add_enrollment(self.db, 'John Smith', 'Bitergia',
+                           datetime.datetime(1999, 1, 1),
+                           datetime.datetime(2000, 1, 1))
+
+        api.add_organization(self.db, 'LibreSoft')
+        api.add_enrollment(self.db, 'John Doe', 'LibreSoft')
+        api.add_enrollment(self.db, 'Jane Rae', 'LibreSoft')
+
+        # Tests
+        enrollments = api.enrollments(self.db)
+        self.assertEqual(len(enrollments), 6)
+
+        rol = enrollments[0]
+        self.assertIsInstance(rol, Enrollment)
+        self.assertEqual(rol.identity.identifier, 'Jane Rae')
+        self.assertEqual(rol.organization.name, 'LibreSoft')
+
+        rol = enrollments[1]
+        self.assertIsInstance(rol, Enrollment)
+        self.assertEqual(rol.identity.identifier, 'John Doe')
+        self.assertEqual(rol.organization.name, 'Example')
+
+        rol = enrollments[2]
+        self.assertIsInstance(rol, Enrollment)
+        self.assertEqual(rol.identity.identifier, 'John Doe')
+        self.assertEqual(rol.organization.name, 'LibreSoft')
+
+        rol = enrollments[3]
+        self.assertIsInstance(rol, Enrollment)
+        self.assertEqual(rol.identity.identifier, 'John Smith')
+        self.assertEqual(rol.organization.name, 'Bitergia')
+
+        rol = enrollments[4]
+        self.assertIsInstance(rol, Enrollment)
+        self.assertEqual(rol.identity.identifier, 'John Smith')
+        self.assertEqual(rol.organization.name, 'Bitergia')
+        self.assertEqual(rol.init, datetime.datetime(1999, 1, 1))
+        self.assertEqual(rol.end, datetime.datetime(2000, 1, 1))
+
+        rol = enrollments[5]
+        self.assertIsInstance(rol, Enrollment)
+        self.assertEqual(rol.identity.identifier, 'John Smith')
+        self.assertEqual(rol.organization.name, 'Example')
+
+    def test_enrollments_uuid(self):
+        """Check if it returns the registry of enrollments for a uuid"""
+
+        # First, add a set of uuids, organizations and enrollments
+        api.add_unique_identity(self.db, 'John Smith')
+        api.add_unique_identity(self.db, 'John Doe')
+
+        api.add_organization(self.db, 'Example')
+        api.add_enrollment(self.db, 'John Smith', 'Example')
+        api.add_enrollment(self.db, 'John Doe', 'Example')
+
+        api.add_organization(self.db, 'Bitergia')
+        api.add_enrollment(self.db, 'John Smith', 'Bitergia')
+
+        api.add_organization(self.db, 'LibreSoft')
+        api.add_enrollment(self.db, 'John Doe', 'LibreSoft')
+
+        # Tests
+        enrollments = api.enrollments(self.db, uuid='John Smith')
+        self.assertEqual(len(enrollments), 2)
+
+        rol = enrollments[0]
+        self.assertEqual(rol.identity.identifier, 'John Smith')
+        self.assertEqual(rol.organization.name, 'Bitergia')
+
+        rol = enrollments[1]
+        self.assertEqual(rol.identity.identifier, 'John Smith')
+        self.assertEqual(rol.organization.name, 'Example')
+
+        # Test using uuid and organization
+        enrollments = api.enrollments(self.db,
+                                      uuid='John Doe', organization='LibreSoft')
+        self.assertEqual(len(enrollments), 1)
+
+    def test_enrollments_organization(self):
+        """Check if it returns the registry of enrollments for an organization"""
+
+        # First, add a set of uuids, organizations and enrollments
+        api.add_unique_identity(self.db, 'John Smith')
+        api.add_unique_identity(self.db, 'John Doe')
+
+        api.add_organization(self.db, 'Example')
+        api.add_enrollment(self.db, 'John Smith', 'Example')
+        api.add_enrollment(self.db, 'John Doe', 'Example')
+
+        api.add_organization(self.db, 'Bitergia')
+        api.add_enrollment(self.db, 'John Smith', 'Bitergia')
+
+        api.add_organization(self.db, 'LibreSoft')
+        api.add_enrollment(self.db, 'John Doe', 'LibreSoft')
+
+        # Tests
+        enrollments = api.enrollments(self.db, organization='Example')
+        self.assertEqual(len(enrollments), 2)
+
+        rol = enrollments[0]
+        self.assertEqual(rol.identity.identifier, 'John Doe')
+        self.assertEqual(rol.organization.name, 'Example')
+
+        rol = enrollments[1]
+        self.assertEqual(rol.identity.identifier, 'John Smith')
+        self.assertEqual(rol.organization.name, 'Example')
+
+    def test_empty_results(self):
+        "Check cases when the result is empty"
+
+        # First, add a set of uuids, organizations and enrollments
+        api.add_unique_identity(self.db, 'John Smith')
+        api.add_unique_identity(self.db, 'John Doe')
+        api.add_unique_identity(self.db, 'Jane Rae')
+
+        api.add_organization(self.db, 'Example')
+        api.add_enrollment(self.db, 'John Smith', 'Example')
+        api.add_enrollment(self.db, 'John Doe', 'Example')
+
+        api.add_organization(self.db, 'Bitergia')
+        api.add_enrollment(self.db, 'John Smith', 'Bitergia')
+
+        api.add_organization(self.db, 'LibreSoft')
+        api.add_enrollment(self.db, 'John Doe', 'LibreSoft')
+
+        api.add_organization(self.db, 'GSyC')
+
+        # Test when there are not enrollments for a uuid
+        enrollments = api.enrollments(self.db,
+                                      uuid='Jane Rae')
+        self.assertEqual(len(enrollments), 0)
+
+        # Test when there are not enrollments for an organization
+        enrollments = api.enrollments(self.db,
+                                      organization='GSyC')
+        self.assertEqual(len(enrollments), 0)
+
+        # Test when an enrollment does not exist
+        enrollments = api.enrollments(self.db,
+                                      uuid='John Doe', organization='Bitergia')
+        self.assertEqual(len(enrollments), 0)
+
+    def test_empty_registry(self):
+        """Check whether it returns an empty list when the registry is empty"""
+
+        enrollments = api.enrollments(self.db)
+        self.assertListEqual(enrollments, [])
+
+    def test_not_found_uuid(self):
+        """Check whether it raises an error when the uiid is not available"""
+
+        # It should raise an error when the registry is empty
+        self.assertRaisesRegexp(NotFoundError,
+                                NOT_FOUND_ERROR % {'entity' : 'John Smith'},
+                                api.enrollments, self.db,
+                                'John Smith', 'Example')
+
+        # It should do the same when there are some identities available
+        api.add_unique_identity(self.db, 'John Smith')
+        api.add_unique_identity(self.db, 'John Doe')
+
+        self.assertRaisesRegexp(NotFoundError,
+                                NOT_FOUND_ERROR % {'entity' : 'Jane Rae'},
+                                api.enrollments, self.db,
+                                'Jane Rae', 'LibreSoft')
+
+    def test_not_found_organization(self):
+        """Check whether it raises an error when the organization is not available"""
+
+        api.add_unique_identity(self.db, 'John Smith')
+
+        # It should raise an error when the registry is empty
+        self.assertRaisesRegexp(NotFoundError,
+                                NOT_FOUND_ERROR % {'entity' : 'Example'},
+                                api.enrollments, self.db,
+                                'John Smith', 'Example')
+
+        # It should do the same when there are some orgs available
+        api.add_organization(self.db, 'Example')
+        api.add_organization(self.db, 'Bitergia')
+
+        self.assertRaisesRegexp(NotFoundError,
+                                NOT_FOUND_ERROR % {'entity' : 'LibreSoft'},
+                                api.enrollments, self.db,
+                                'John Smith', 'LibreSoft')
+
+
 if __name__ == "__main__":
     unittest.main()
