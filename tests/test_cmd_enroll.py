@@ -73,6 +73,36 @@ class TestBaseCase(unittest.TestCase):
         api.add_organization(self.db, 'Bitergia')
 
 
+class TestEnrollCommand(TestBaseCase):
+    """Enroll command unit tests"""
+
+    def test_enroll(self):
+        """Check how it works when enrolling"""
+
+        self.cmd.run('John Smith', 'Example')
+        self.cmd.run('John Doe', 'Bitergia')
+        self.cmd.run('John Smith', 'Bitergia')
+
+        output = sys.stdout.getvalue().strip()
+        self.assertEqual(output, ENROLL_EMPTY_OUTPUT)
+
+        # Check the output list
+        enrollments = api.enrollments(self.db)
+        self.assertEqual(len(enrollments), 3)
+
+        rol = enrollments[0]
+        self.assertEqual(rol.identity.identifier, 'John Doe')
+        self.assertEqual(rol.organization.name, 'Bitergia')
+
+        rol = enrollments[1]
+        self.assertEqual(rol.identity.identifier, 'John Smith')
+        self.assertEqual(rol.organization.name, 'Bitergia')
+
+        rol = enrollments[2]
+        self.assertEqual(rol.identity.identifier, 'John Smith')
+        self.assertEqual(rol.organization.name, 'Example')
+
+
 class TestEnroll(TestBaseCase):
     """Unit tests for enroll"""
 

@@ -20,28 +20,80 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+import argparse
+
 from sortinghat import api
 from sortinghat.command import Command
 from sortinghat.exceptions import AlreadyExistsError, NotFoundError
 
 
 class Enroll(Command):
+    """Enroll identities in organizations.
 
+    This command enrolls a unique identity, identified by <uuid>,
+    in an <organization>. Both entities must exist on the registry before
+    creating the new relationship.
+
+    The period of the enrollment can be set with --from and --to parameters,
+    where --from must be less or equal than --to. Default values for these
+    dates are '1900-01-01' and '2100-01-01'.
+
+    Dates must follow the next pattern: 'YYYY-MM-DD'. Optionally, time
+    information can be included using patters like 'YYYY-MM-DD:hh:mm:ss'.
+    """
     def __init__(self, **kwargs):
         super(Enroll, self).__init__(**kwargs)
 
         self._set_database(**kwargs)
 
-    def enroll(self, uuid, organization, from_date=None, to_date=None):
-        """Enroll a unique identity to an organization.
+        self.parser = argparse.ArgumentParser(description=self.description,
+                                              usage=self.usage)
 
-        This method adda a new relationship between the unique identity,
+        # Enrollment period options
+        self.parser.add_argument('--from', dest='from_date',
+                                 help="date (YYYY-MM-DD:hh:mm:ss) when the enrollment starts")
+        self.parser.add_argument('--to', dest='to_date',
+                                 help="date (YYYY-MM-DD:hh:mm:ss) when the enrollment ends")
+
+        # Positional arguments
+        self.parser.add_argument('uuid', default=None,
+                                 help="unique identity to enroll")
+        self.parser.add_argument('organization', default=None,
+                                 help="organization where the uuid will be enrolled")
+
+    @property
+    def description(self):
+        return """Enroll identities in organizations."""
+
+    @property
+    def usage(self):
+        return "%(prog)s enroll [--from <date>] [--to <date>] <uuid> <organization>"
+
+    def run(self, *args):
+        """Enroll a unique identity in an organization."""
+
+        params = self.parser.parse_args(args)
+
+        uuid = params.uuid
+        organization = params.organization
+
+        self.enroll(uuid, organization)
+
+    def enroll(self, uuid, organization, from_date=None, to_date=None):
+        """Enroll a unique identity in an organization.
+
+        This method adds a new relationship between the unique identity,
         identified by <uuid>, and <organization>. Both entities must exist
         on the registry before creating the new enrollment.
 
         The period of the enrollment can be given with the parameters <from_date>
         and <to_date>, where "from_date <= to_date". Default values for these
         dates are '1900-01-01' and '2100-01-01'.
+
+        :param uuid: unique identifier
+        :param organization: name of the organization
+        :param from_date: date when the enrollment starts
+        :param to_date: date when the enrollment ends
         """
         # Empty or None values for uuid and organizations are not allowed
         if not uuid or not organization:
