@@ -56,6 +56,12 @@ class DatabaseError(BaseError):
     message = "%(error)s (err: %(code)s)"
 
 
+class InvalidDateError(BaseError):
+    """Exception raised when a date is invalid"""
+
+    message = "%(date)s is not a valid date"
+
+
 class NotFoundError(BaseError):
     """Exception raised when an entity is not found in the registry"""
 
