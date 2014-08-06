@@ -852,6 +852,9 @@ class TestEnrollments(TestBaseCase):
         api.add_enrollment(self.db, 'John Smith', 'Bitergia',
                            datetime.datetime(1999, 1, 1),
                            datetime.datetime(2000, 1, 1))
+        api.add_enrollment(self.db, 'Jane Rae', 'Bitergia',
+                           datetime.datetime(1998, 1, 1),
+                           datetime.datetime(2005, 1, 1))
 
         api.add_organization(self.db, 'LibreSoft')
         api.add_enrollment(self.db, 'John Doe', 'LibreSoft')
@@ -859,39 +862,57 @@ class TestEnrollments(TestBaseCase):
 
         # Tests
         enrollments = api.enrollments(self.db)
-        self.assertEqual(len(enrollments), 6)
+        self.assertEqual(len(enrollments), 7)
 
         rol = enrollments[0]
         self.assertIsInstance(rol, Enrollment)
         self.assertEqual(rol.identity.identifier, 'Jane Rae')
-        self.assertEqual(rol.organization.name, 'LibreSoft')
+        self.assertEqual(rol.organization.name, 'Bitergia')
 
         rol = enrollments[1]
         self.assertIsInstance(rol, Enrollment)
-        self.assertEqual(rol.identity.identifier, 'John Doe')
-        self.assertEqual(rol.organization.name, 'Example')
+        self.assertEqual(rol.identity.identifier, 'Jane Rae')
+        self.assertEqual(rol.organization.name, 'LibreSoft')
 
         rol = enrollments[2]
         self.assertIsInstance(rol, Enrollment)
         self.assertEqual(rol.identity.identifier, 'John Doe')
-        self.assertEqual(rol.organization.name, 'LibreSoft')
+        self.assertEqual(rol.organization.name, 'Example')
 
         rol = enrollments[3]
+        self.assertIsInstance(rol, Enrollment)
+        self.assertEqual(rol.identity.identifier, 'John Doe')
+        self.assertEqual(rol.organization.name, 'LibreSoft')
+
+        rol = enrollments[4]
         self.assertIsInstance(rol, Enrollment)
         self.assertEqual(rol.identity.identifier, 'John Smith')
         self.assertEqual(rol.organization.name, 'Bitergia')
 
-        rol = enrollments[4]
+        rol = enrollments[5]
         self.assertIsInstance(rol, Enrollment)
         self.assertEqual(rol.identity.identifier, 'John Smith')
         self.assertEqual(rol.organization.name, 'Bitergia')
         self.assertEqual(rol.init, datetime.datetime(1999, 1, 1))
         self.assertEqual(rol.end, datetime.datetime(2000, 1, 1))
 
-        rol = enrollments[5]
+        rol = enrollments[6]
         self.assertIsInstance(rol, Enrollment)
         self.assertEqual(rol.identity.identifier, 'John Smith')
         self.assertEqual(rol.organization.name, 'Example')
+
+        # Test dates
+        enrollments = api.enrollments(self.db,
+                                      from_date=datetime.datetime(1998, 5, 1),
+                                      to_date=datetime.datetime(2006, 1, 1))
+        self.assertEqual(len(enrollments), 1)
+
+        rol = enrollments[0]
+        self.assertIsInstance(rol, Enrollment)
+        self.assertEqual(rol.identity.identifier, 'John Smith')
+        self.assertEqual(rol.organization.name, 'Bitergia')
+        self.assertEqual(rol.init, datetime.datetime(1999, 1, 1))
+        self.assertEqual(rol.end, datetime.datetime(2000, 1, 1))
 
     def test_enrollments_uuid(self):
         """Check if it returns the registry of enrollments for a uuid"""
@@ -902,7 +923,9 @@ class TestEnrollments(TestBaseCase):
 
         api.add_organization(self.db, 'Example')
         api.add_enrollment(self.db, 'John Smith', 'Example')
-        api.add_enrollment(self.db, 'John Doe', 'Example')
+        api.add_enrollment(self.db, 'John Doe', 'Example',
+                           datetime.datetime(1999, 1, 1),
+                           datetime.datetime(2000, 1, 1))
 
         api.add_organization(self.db, 'Bitergia')
         api.add_enrollment(self.db, 'John Smith', 'Bitergia')
@@ -927,6 +950,12 @@ class TestEnrollments(TestBaseCase):
                                       uuid='John Doe', organization='LibreSoft')
         self.assertEqual(len(enrollments), 1)
 
+        # Test using period ranges
+        enrollments = api.enrollments(self.db, uuid='John Doe',
+                                      from_date=datetime.datetime(1998, 1, 1),
+                                      to_date=datetime.datetime(2005, 1, 1))
+        self.assertEqual(len(enrollments), 1)
+
     def test_enrollments_organization(self):
         """Check if it returns the registry of enrollments for an organization"""
 
@@ -936,7 +965,9 @@ class TestEnrollments(TestBaseCase):
 
         api.add_organization(self.db, 'Example')
         api.add_enrollment(self.db, 'John Smith', 'Example')
-        api.add_enrollment(self.db, 'John Doe', 'Example')
+        api.add_enrollment(self.db, 'John Doe', 'Example',
+                           datetime.datetime(1999, 1, 1),
+                           datetime.datetime(2000, 1, 1))
 
         api.add_organization(self.db, 'Bitergia')
         api.add_enrollment(self.db, 'John Smith', 'Bitergia')
@@ -956,6 +987,15 @@ class TestEnrollments(TestBaseCase):
         self.assertEqual(rol.identity.identifier, 'John Smith')
         self.assertEqual(rol.organization.name, 'Example')
 
+        enrollments = api.enrollments(self.db, organization='Example')
+        self.assertEqual(len(enrollments), 2)
+
+        # Test using period ranges
+        enrollments = api.enrollments(self.db, organization='Example',
+                                      from_date=datetime.datetime(1998, 1, 1),
+                                      to_date=datetime.datetime(2005, 1, 1))
+        self.assertEqual(len(enrollments), 1)
+
     def test_empty_results(self):
         "Check cases when the result is empty"
 
@@ -965,7 +1005,9 @@ class TestEnrollments(TestBaseCase):
         api.add_unique_identity(self.db, 'Jane Rae')
 
         api.add_organization(self.db, 'Example')
-        api.add_enrollment(self.db, 'John Smith', 'Example')
+        api.add_enrollment(self.db, 'John Smith', 'Example',
+                           datetime.datetime(1999, 1, 1),
+                           datetime.datetime(2005, 1, 1))
         api.add_enrollment(self.db, 'John Doe', 'Example')
 
         api.add_organization(self.db, 'Bitergia')
@@ -989,6 +1031,13 @@ class TestEnrollments(TestBaseCase):
         # Test when an enrollment does not exist
         enrollments = api.enrollments(self.db,
                                       uuid='John Doe', organization='Bitergia')
+        self.assertEqual(len(enrollments), 0)
+
+        # Test enrollments between two dates
+        enrollments = api.enrollments(self.db,
+                                      uuid='John Smith', organization='Example',
+                                      from_date=datetime.datetime(1999, 1, 1),
+                                      to_date=datetime.datetime(2000, 1, 1))
         self.assertEqual(len(enrollments), 0)
 
     def test_empty_registry(self):

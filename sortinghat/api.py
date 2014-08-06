@@ -388,7 +388,7 @@ def registry(db, organization=None):
     return orgs
 
 
-def enrollments(db, uuid=None, organization=None):
+def enrollments(db, uuid=None, organization=None, from_date=None, to_date=None):
     """List the enrollment information available in the registry.
 
     This function will return a list of enrollments. If 'uuid'
@@ -398,12 +398,20 @@ def enrollments(db, uuid=None, organization=None):
     parameters are set, the function will return the list of enrollments
     of 'uuid' on the 'organization'.
 
+    Enrollments between a period can also be listed using 'from_date' and
+    'to_date' parameters. When these are set, the function will return
+    all those enrollments where Enrollment.init >= from_date AND
+    Enrollment.end <= to_date. Defaults values for these dates are
+    1900-01-01 and 2100-01-01.
+
     When either 'uuid' or 'organization' are not in the registry a
     'NotFoundError' exception will be raised.
 
     :param db: database manager
     :param uuid: unique identifier
     :param organization: name of the organization
+    :param from_date: date when the enrollment starts
+    :param to_date: date when the enrollment ends
 
     :returns: a list of enrollments sorted by uuid or by organization.
 
@@ -412,8 +420,20 @@ def enrollments(db, uuid=None, organization=None):
     """
     enrollments = []
 
+    if from_date and to_date and from_date > to_date:
+        raise ValueError('start date %s cannot be greater than %s'
+                         % (from_date, to_date))
+
+    if not from_date:
+        from_date = DEFAULT_START_DATE
+    if not to_date:
+        to_date = DEFAULT_END_DATE
+
     with db.connect() as session:
-        query = session.query(Enrollment).join(UniqueIdentity, Organization)
+        query = session.query(Enrollment).\
+            join(UniqueIdentity, Organization).\
+            filter(Enrollment.init >= from_date,
+                   Enrollment.end <= to_date)
 
         # Filter by uuid
         if uuid:
