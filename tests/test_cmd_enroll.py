@@ -39,7 +39,10 @@ ENROLL_UUID_NOT_FOUND_ERROR = "Error: Jane Roe not found in the registry"
 ENROLL_ORG_NOT_FOUND_ERROR = "Error: LibreSoft not found in the registry"
 ENROLL_INVALID_PERIOD_ERROR = "Error: start date 2001-01-01 00:00:00 cannot be greater than 1999-01-01 00:00:00"
 ENROLL_EXISTING_ERROR = "Error: John Smith-Example-1900-01-01 00:00:00-2100-01-01 00:00:00 already exists in the registry"
+ENROLL_INVALID_DATE_ERROR = "Error: 1999-13-01 is not a valid date"
+ENROLL_INVALID_FORMAT_DATE_ERROR = "Error: YYZYY is not a valid date"
 ENROLL_EMPTY_OUTPUT = ""
+
 
 
 class TestBaseCase(unittest.TestCase):
@@ -80,19 +83,23 @@ class TestEnrollCommand(TestBaseCase):
         """Check how it works when enrolling"""
 
         self.cmd.run('John Smith', 'Example')
-        self.cmd.run('John Doe', 'Bitergia')
+        self.cmd.run('--from', '2013-01-01', '--to', '2014-01-01', 'John Doe', 'Bitergia')
         self.cmd.run('John Smith', 'Bitergia')
+        self.cmd.run('--from', '1999-01-01 18:33:58', 'John Smith', 'Bitergia')
+        self.cmd.run('--to', '1970-01-01 01:02:03', 'John Smith', 'Example')
 
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, ENROLL_EMPTY_OUTPUT)
 
         # Check the output list
         enrollments = api.enrollments(self.db)
-        self.assertEqual(len(enrollments), 3)
+        self.assertEqual(len(enrollments), 5)
 
         rol = enrollments[0]
         self.assertEqual(rol.identity.identifier, 'John Doe')
         self.assertEqual(rol.organization.name, 'Bitergia')
+        self.assertEqual(rol.init, datetime.datetime(2013, 1, 01))
+        self.assertEqual(rol.end, datetime.datetime(2014, 1, 01))
 
         rol = enrollments[1]
         self.assertEqual(rol.identity.identifier, 'John Smith')
@@ -100,7 +107,44 @@ class TestEnrollCommand(TestBaseCase):
 
         rol = enrollments[2]
         self.assertEqual(rol.identity.identifier, 'John Smith')
+        self.assertEqual(rol.organization.name, 'Bitergia')
+        self.assertEqual(rol.init, datetime.datetime(1999, 1, 1, 18, 33, 58))
+        self.assertEqual(rol.end, datetime.datetime(2100, 1, 1))
+
+        rol = enrollments[3]
+        self.assertEqual(rol.identity.identifier, 'John Smith')
         self.assertEqual(rol.organization.name, 'Example')
+        self.assertEqual(rol.init, datetime.datetime(1900, 1, 1))
+        self.assertEqual(rol.end, datetime.datetime(2100, 1, 1))
+
+        rol = enrollments[4]
+        self.assertEqual(rol.identity.identifier, 'John Smith')
+        self.assertEqual(rol.organization.name, 'Example')
+        self.assertEqual(rol.init, datetime.datetime(1900, 1, 1))
+        self.assertEqual(rol.end, datetime.datetime(1970, 1, 1, 1, 2, 3))
+
+    def test_invalid_dates(self):
+        """Check whether it fails when invalid dates are given"""
+
+        self.cmd.run('--from', '1999-13-01',
+                     'John Smith', 'Example')
+        output = sys.stdout.getvalue().strip('\n').split('\n')[0]
+        self.assertEqual(output, ENROLL_INVALID_DATE_ERROR)
+
+        self.cmd.run('--from', 'YYZYY',
+                     'John Smith', 'Example')
+        output = sys.stdout.getvalue().strip('\n').split('\n')[1]
+        self.assertEqual(output, ENROLL_INVALID_FORMAT_DATE_ERROR)
+
+        self.cmd.run('--to', '1999-13-01',
+                     'John Smith', 'Example')
+        output = sys.stdout.getvalue().strip('\n').split('\n')[2]
+        self.assertEqual(output, ENROLL_INVALID_DATE_ERROR)
+
+        self.cmd.run('--to', 'YYZYY',
+                     'John Smith', 'Example')
+        output = sys.stdout.getvalue().strip('\n').split('\n')[3]
+        self.assertEqual(output, ENROLL_INVALID_FORMAT_DATE_ERROR)
 
 
 class TestEnroll(TestBaseCase):

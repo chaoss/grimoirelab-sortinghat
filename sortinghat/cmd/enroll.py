@@ -22,9 +22,9 @@
 
 import argparse
 
-from sortinghat import api
+from sortinghat import api, utils
 from sortinghat.command import Command
-from sortinghat.exceptions import AlreadyExistsError, NotFoundError
+from sortinghat.exceptions import AlreadyExistsError, InvalidDateError, NotFoundError
 
 
 class Enroll(Command):
@@ -38,8 +38,8 @@ class Enroll(Command):
     where --from must be less or equal than --to. Default values for these
     dates are '1900-01-01' and '2100-01-01'.
 
-    Dates must follow the next pattern: 'YYYY-MM-DD'. Optionally, time
-    information can be included using patters like 'YYYY-MM-DD:hh:mm:ss'.
+    Dates may follow the next pattern: 'YYYY-MM-DD'. Optionally, time
+    information can be included using patters like 'YYYY-MM-DD hh:mm:ss'.
     """
     def __init__(self, **kwargs):
         super(Enroll, self).__init__(**kwargs)
@@ -50,9 +50,9 @@ class Enroll(Command):
                                               usage=self.usage)
 
         # Enrollment period options
-        self.parser.add_argument('--from', dest='from_date',
+        self.parser.add_argument('--from', dest='from_date', default=None,
                                  help="date (YYYY-MM-DD:hh:mm:ss) when the enrollment starts")
-        self.parser.add_argument('--to', dest='to_date',
+        self.parser.add_argument('--to', dest='to_date', default=None,
                                  help="date (YYYY-MM-DD:hh:mm:ss) when the enrollment ends")
 
         # Positional arguments
@@ -77,7 +77,14 @@ class Enroll(Command):
         uuid = params.uuid
         organization = params.organization
 
-        self.enroll(uuid, organization)
+        try:
+            from_date = utils.str_to_datetime(params.from_date)
+            to_date = utils.str_to_datetime(params.to_date)
+        except InvalidDateError, e:
+            print "Error: %s" % str(e)
+            return
+
+        self.enroll(uuid, organization, from_date, to_date)
 
     def enroll(self, uuid, organization, from_date=None, to_date=None):
         """Enroll a unique identity in an organization.
