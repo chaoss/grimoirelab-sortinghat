@@ -23,14 +23,16 @@
 from sortinghat.cmd.config import Config
 from sortinghat.cmd.enroll import Enroll
 from sortinghat.cmd.load import Load
+from sortinghat.cmd.log import Log
 from sortinghat.cmd.organizations import Organizations
 from sortinghat.cmd.withdraw import Withdraw
 
 
 SORTINGHAT_COMMANDS = {
-                       'config' : Config,
-                       'enroll' : Enroll,
-                       'load'   : Load,
-                       'orgs'   : Organizations,
+                       'config'   : Config,
+                       'enroll'   : Enroll,
+                       'load'     : Load,
+                       'log'      : Log,
+                       'orgs'     : Organizations,
                        'withdraw' : Withdraw,
                        }
