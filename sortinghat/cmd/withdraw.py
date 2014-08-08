@@ -20,17 +20,71 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from sortinghat import api
+import argparse
+
+from sortinghat import api, utils
 from sortinghat.command import Command
-from sortinghat.exceptions import NotFoundError
+from sortinghat.exceptions import InvalidDateError, NotFoundError
 
 
 class Withdraw(Command):
+    """Withdraw identities from organizations.
 
+    This command withdraws all the enrollments of a unique identity,
+    identified by <uuid>, from an <organization>.
+
+    The period of the enrollments to withdraw can be set with <from> and <to>
+    parameters, where <from> must be less or equal than <to>. Default values
+    for these dates are '1900-01-01' and '2100-01-01'.
+
+    Dates may follow several patterns. The most common and recommended
+    is 'YYYY-MM-DD'. Optionally, time information can be included using
+    patters like 'YYYY-MM-DD hh:mm:ss'.
+    """
     def __init__(self, **kwargs):
         super(Withdraw, self).__init__(**kwargs)
 
         self._set_database(**kwargs)
+
+        self.parser = argparse.ArgumentParser(description=self.description,
+                                              usage=self.usage)
+
+        # Enrollment period options
+        self.parser.add_argument('--from', dest='from_date', default=None,
+                                 help="date (YYYY-MM-DD:hh:mm:ss) when the enrollment starts")
+        self.parser.add_argument('--to', dest='to_date', default=None,
+                                 help="date (YYYY-MM-DD:hh:mm:ss) when the enrollment ends")
+
+        # Positional arguments
+        self.parser.add_argument('uuid', default=None,
+                                 help="unique identity to withdraw")
+        self.parser.add_argument('organization', default=None,
+                                 help="organization where the uuid is enrolled")
+
+    @property
+    def description(self):
+        return """Withdraw identities from organizations."""
+
+    @property
+    def usage(self):
+        return "%(prog)s withdraw [--from <date>] [--to <date>] <uuid> <organization>"
+
+    def run(self, *args):
+        """Withdraw a unique identity from an organization."""
+
+        params = self.parser.parse_args(args)
+
+        uuid = params.uuid
+        organization = params.organization
+
+        try:
+            from_date = utils.str_to_datetime(params.from_date)
+            to_date = utils.str_to_datetime(params.to_date)
+        except InvalidDateError, e:
+            print "Error: %s" % str(e)
+            return
+
+        self.withdraw(uuid, organization, from_date, to_date)
 
     def withdraw(self, uuid, organization, from_date=None, to_date=None):
         """Withdraw a unique identity from an organization.

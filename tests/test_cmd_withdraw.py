@@ -39,6 +39,8 @@ WITHDRAW_UUID_NOT_FOUND_ERROR = "Error: Jane Roe not found in the registry"
 WITHDRAW_ORG_NOT_FOUND_ERROR = "Error: LibreSoft not found in the registry"
 WITHDRAW_INVALID_PERIOD_ERROR = "Error: start date 2001-01-01 00:00:00 cannot be greater than 1999-01-01 00:00:00"
 WITHDRAW_ENROLLMENT_NOT_FOUND_ERROR = "Error: John Doe-Bitergia-2050-01-01 00:00:00-2070-01-01 00:00:00 not found in the registry"
+WITHDRAW_INVALID_DATE_ERROR = "Error: 1999-13-01 is not a valid date"
+WITHDRAW_INVALID_FORMAT_DATE_ERROR = "Error: YYZYY is not a valid date"
 WITHDRAW_EMPTY_OUTPUT = ""
 
 
@@ -88,6 +90,74 @@ class TestBaseCase(unittest.TestCase):
         api.add_enrollment(self.db, 'John Smith', 'Example',
                            datetime.datetime(1991, 1, 1),
                            datetime.datetime(1993, 1, 1))
+
+
+class TestWithdrawCommand(TestBaseCase):
+    """Unit tests for withdraw command"""
+
+    def test_withdraw(self):
+        """Check withdraw command"""
+
+        # Remove some enrollments giving partial periods
+        self.cmd.run('--from', '1970-01-01 21:00:00', 'John Smith', 'Example')
+        self.cmd.run('--to', '2010-01-01', 'John Doe', 'Example')
+
+        # Check the output list
+        enrollments = api.enrollments(self.db)
+        self.assertEqual(len(enrollments), 2)
+
+        rol = enrollments[0]
+        self.assertEqual(rol.identity.identifier, 'John Doe')
+        self.assertEqual(rol.organization.name, 'Bitergia')
+
+        rol = enrollments[1]
+        self.assertEqual(rol.identity.identifier, 'John Smith')
+        self.assertEqual(rol.organization.name, 'Example')
+        self.assertEqual(rol.init, datetime.datetime(1900, 1, 1))
+        self.assertEqual(rol.end, datetime.datetime(2100, 1, 1))
+
+        # Remove using a period range
+        self.cmd.run('--from', '1900-01-01', '--to', '2100-01-01', 'John Smith', 'Example')
+
+        enrollments = api.enrollments(self.db)
+        self.assertEqual(len(enrollments), 1)
+
+        rol = enrollments[0]
+        self.assertEqual(rol.identity.identifier, 'John Doe')
+        self.assertEqual(rol.organization.name, 'Bitergia')
+
+        # Remove without using ranges
+        self.cmd.run('John Doe', 'Bitergia')
+
+        enrollments = api.enrollments(self.db)
+        self.assertEqual(len(enrollments), 0)
+
+        # Check the output, it should be empty
+        output = sys.stdout.getvalue().strip()
+        self.assertEqual(output, WITHDRAW_EMPTY_OUTPUT)
+
+    def test_invalid_dates(self):
+        """Check whether it fails when invalid dates are given"""
+
+        self.cmd.run('--from', '1999-13-01',
+                     'John Smith', 'Example')
+        output = sys.stdout.getvalue().strip('\n').split('\n')[0]
+        self.assertEqual(output, WITHDRAW_INVALID_DATE_ERROR)
+
+        self.cmd.run('--from', 'YYZYY',
+                     'John Smith', 'Example')
+        output = sys.stdout.getvalue().strip('\n').split('\n')[1]
+        self.assertEqual(output, WITHDRAW_INVALID_FORMAT_DATE_ERROR)
+
+        self.cmd.run('--to', '1999-13-01',
+                     'John Smith', 'Example')
+        output = sys.stdout.getvalue().strip('\n').split('\n')[2]
+        self.assertEqual(output, WITHDRAW_INVALID_DATE_ERROR)
+
+        self.cmd.run('--to', 'YYZYY',
+                     'John Smith', 'Example')
+        output = sys.stdout.getvalue().strip('\n').split('\n')[3]
+        self.assertEqual(output, WITHDRAW_INVALID_FORMAT_DATE_ERROR)
 
 
 class TestWithdraw(TestBaseCase):
