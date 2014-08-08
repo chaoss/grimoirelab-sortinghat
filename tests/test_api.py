@@ -1046,6 +1046,14 @@ class TestEnrollments(TestBaseCase):
         enrollments = api.enrollments(self.db)
         self.assertListEqual(enrollments, [])
 
+    def test_period_ranges(self):
+        """Check whether enrollments cannot be listed giving invalid period ranges"""
+
+        self.assertRaisesRegexp(ValueError, ENROLLMENT_PERIOD_INVALID_ERROR,
+                                api.enrollments, self.db, 'John Smith', 'Example',
+                                datetime.datetime(2001, 1, 1),
+                                datetime.datetime(1999, 1, 1))
+
     def test_not_found_uuid(self):
         """Check whether it raises an error when the uiid is not available"""
 
