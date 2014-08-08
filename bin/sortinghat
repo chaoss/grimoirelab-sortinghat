@@ -30,6 +30,7 @@ from sortinghat.cmd.config import Config
 from sortinghat.cmd.enroll import Enroll
 from sortinghat.cmd.load import Load
 from sortinghat.cmd.organizations import Organizations
+from sortinghat.cmd.withdraw import Withdraw
 
 
 SORTINGHAT_USAGE_MSG = "Usage: '%(prog)s [options] command"
@@ -46,6 +47,8 @@ def main():
         cmd_klass = Load
     elif args.command == 'orgs':
         cmd_klass = Organizations
+    elif args.command == 'withdraw':
+        cmd_klass = Withdraw
     else:
         raise RuntimeError("Unknown command %s" % args.command)
 
