@@ -20,17 +20,69 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from sortinghat import api
+import argparse
+
+from sortinghat import api, utils
 from sortinghat.command import Command
-from sortinghat.exceptions import NotFoundError
+from sortinghat.exceptions import InvalidDateError, NotFoundError
 
 
 class Log(Command):
+    """List enrollment information available in the registry.
 
+    The command list a set of enrollments. Some searching parameters
+    to filter the results are available. Parameters <uuid> and <organization>
+    filter by unique identity and organization name. Enrollments between a
+    period can also be listed using <from> and <to> parameters, where
+    <from> must be less or equal than <to>. Default values for these dates
+    are '1900-01-01' and '2100-01-01'.
+
+    Dates may follow several patterns. The most common and recommended
+    is 'YYYY-MM-DD'. Optionally, time information can be included using
+    patters like 'YYYY-MM-DD hh:mm:ss'.
+    """
     def __init__(self, **kwargs):
         super(Log, self).__init__(**kwargs)
 
         self._set_database(**kwargs)
+
+        self.parser = argparse.ArgumentParser(description=self.description,
+                                              usage=self.usage)
+
+        # Enrollments search options
+        self.parser.add_argument('--uuid', default=None,
+                                 help="unique identity to withdraw")
+        self.parser.add_argument('--organization', default=None,
+                                 help="organization where the uuid is enrolled")
+        self.parser.add_argument('--from', dest='from_date', default=None,
+                                 help="date (YYYY-MM-DD:hh:mm:ss) when the enrollment starts")
+        self.parser.add_argument('--to', dest='to_date', default=None,
+                                 help="date (YYYY-MM-DD:hh:mm:ss) when the enrollment ends")
+
+    @property
+    def description(self):
+        return """List enrollments."""
+
+    @property
+    def usage(self):
+        return "%(prog)s log [--uuid <uuid>] [--organization <organization>] [--from <date>] [--to <date>]"
+
+    def run(self, *args):
+        """List enrollments using search parameters."""
+
+        params = self.parser.parse_args(args)
+
+        uuid = params.uuid
+        organization = params.organization
+
+        try:
+            from_date = utils.str_to_datetime(params.from_date)
+            to_date = utils.str_to_datetime(params.to_date)
+        except InvalidDateError, e:
+            print "Error: %s" % str(e)
+            return
+
+        self.log(uuid, organization, from_date, to_date)
 
     def log(self, uuid=None, organization=None, from_date=None, to_date=None):
         """"List enrollment information available in the registry.

@@ -38,6 +38,8 @@ from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 LOG_UUID_NOT_FOUND_ERROR = "Error: Jane Roe not found in the registry"
 LOG_ORG_NOT_FOUND_ERROR = "Error: LibreSoft not found in the registry"
 LOG_INVALID_PERIOD_ERROR = "Error: start date 2001-01-01 00:00:00 cannot be greater than 1999-01-01 00:00:00"
+LOG_INVALID_DATE_ERROR = "Error: 1999-13-01 is not a valid date"
+LOG_INVALID_FORMAT_DATE_ERROR = "Error: YYZYY is not a valid date"
 
 LOG_EMPTY_OUTPUT = ""
 
@@ -99,6 +101,78 @@ class TestBaseCase(unittest.TestCase):
         api.add_enrollment(self.db, 'John Smith', 'Bitergia',
                            datetime.datetime(2006, 1, 1),
                            datetime.datetime(2008, 1, 1))
+
+
+class TestLogCommand(TestBaseCase):
+    """Unit tests for log command"""
+
+    def test_log(self):
+        """Check log output"""
+
+        self.cmd.run()
+        output = sys.stdout.getvalue().strip()
+        self.assertEqual(output, LOG_OUTPUT)
+
+    def test_log_uuid(self):
+        """Check log using a uuid"""
+
+        self.cmd.run('--uuid', 'John Doe')
+        output = sys.stdout.getvalue().strip()
+        self.assertEqual(output, LOG_UUID_OUTPUT)
+
+    def test_log_organization(self):
+        """Check log using a organization"""
+
+        self.cmd.run('--organization', 'Bitergia')
+        output = sys.stdout.getvalue().strip()
+        self.assertEqual(output, LOG_ORG_OUTPUT)
+
+    def test_log_period(self):
+        """Check log using a time period"""
+
+        self.cmd.run('--from', '1990-1-1 08:59:17',
+                     '--to', '2005-1-1')
+        output = sys.stdout.getvalue().strip()
+        self.assertEqual(output, LOG_TIME_PERIOD_OUTPUT)
+
+    def test_log_mix_filter(self):
+        """Check log using some filters"""
+
+        self.cmd.run('--uuid', 'John Doe',
+                     '--organization', 'Example',
+                     '--from', '1990-1-1 08:59:17',
+                     '--to', '2005-1-1')
+        output = sys.stdout.getvalue().strip()
+        self.assertEqual(output, LOG_EMPTY_OUTPUT)
+
+    def test_empty_registry(self):
+        """Check output when the registry is empty"""
+
+        # Delete the contents of the database
+        self.db.clear()
+
+        self.cmd.run()
+        output = sys.stdout.getvalue().strip()
+        self.assertEqual(output, LOG_EMPTY_OUTPUT)
+
+    def test_invalid_dates(self):
+        """Check whether it fails when invalid dates are given"""
+
+        self.cmd.run('--from', '1999-13-01')
+        output = sys.stdout.getvalue().strip('\n').split('\n')[0]
+        self.assertEqual(output, LOG_INVALID_DATE_ERROR)
+
+        self.cmd.run('--from', 'YYZYY')
+        output = sys.stdout.getvalue().strip('\n').split('\n')[1]
+        self.assertEqual(output, LOG_INVALID_FORMAT_DATE_ERROR)
+
+        self.cmd.run('--to', '1999-13-01')
+        output = sys.stdout.getvalue().strip('\n').split('\n')[2]
+        self.assertEqual(output, LOG_INVALID_DATE_ERROR)
+
+        self.cmd.run('--to', 'YYZYY')
+        output = sys.stdout.getvalue().strip('\n').split('\n')[3]
+        self.assertEqual(output, LOG_INVALID_FORMAT_DATE_ERROR)
 
 
 class TestLog(TestBaseCase):
