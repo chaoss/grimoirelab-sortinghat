@@ -150,7 +150,7 @@ class TestEnrollCommand(TestBaseCase):
 class TestEnroll(TestBaseCase):
     """Unit tests for enroll"""
 
-    def test_enrollment(self):
+    def test_enroll(self):
         """Check whether everything works right when enrolling identities"""
 
         self.cmd.enroll('John Smith', 'Example',
@@ -204,14 +204,14 @@ class TestEnroll(TestBaseCase):
         self.assertEqual(output, ENROLL_INVALID_PERIOD_ERROR)
 
     def test_non_existing_uuid(self):
-        """Check if it fails adding enrollments to not existing unique identities"""
+        """Check if it fails adding enrollments to unique identities that do not exist"""
 
         self.cmd.enroll('Jane Roe', 'Example')
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, ENROLL_UUID_NOT_FOUND_ERROR)
 
     def test_non_existing_organization(self):
-        """Check if it fails adding enrollments to not existing organizations"""
+        """Check if it fails adding enrollments to organizations that do not exist"""
 
         self.cmd.enroll('John Smith', 'LibreSoft')
         output = sys.stdout.getvalue().strip()
