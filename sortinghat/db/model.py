@@ -38,32 +38,33 @@ ModelBase = declarative_base()
 
 
 class Organization(ModelBase):
-    __tablename__ = 'companies'
+    __tablename__ = 'organizations'
 
     id = Column(Integer, primary_key=True)
     name = Column(String(255), nullable=False)
 
     # One-to-Many relationship
-    domains = relationship('Domain', backref='companies',
+    domains = relationship('Domain', backref='organizations',
                            lazy='joined', cascade="save-update, merge, delete")
 
     # Enrollment relationships
-    identities = association_proxy('upeople_companies', 'upeople')
+    enrollments = association_proxy('upeople_companies', 'upeople')
 
     __table_args__ = (UniqueConstraint('name', name='_name_unique'),
                       {'mysql_charset': 'utf8'})
 
 
 class Domain(ModelBase):
-    __tablename__ = 'domains_companies'
+    __tablename__ = 'domains_organizations'
 
     id = Column(Integer, primary_key=True)
     domain = Column(String(128), nullable=False)
-    company_id = Column(Integer, ForeignKey('companies.id', ondelete='CASCADE'),
-                        nullable=False)
+    organization_id = Column(Integer,
+                             ForeignKey('organizations.id', ondelete='CASCADE'),
+                             nullable=False)
 
     # Many-to-One relationship
-    company = relationship("Organization", backref='domains_companies')
+    organization = relationship("Organization", backref='domains_organizations')
 
     __table_args__ = (UniqueConstraint('domain', name='_domain_unique'),
                       {'mysql_charset': 'utf8'})
@@ -89,8 +90,9 @@ class Enrollment(ModelBase):
     end = Column(DateTime, default=DEFAULT_END_DATE, nullable=False)
     upeople_id = Column(Integer, ForeignKey('upeople.id', ondelete='CASCADE'),
                         nullable=False)
-    company_id = Column(Integer, ForeignKey('companies.id', ondelete='CASCADE'),
-                        nullable=False)
+    organization_id = Column(Integer,
+                             ForeignKey('organizations.id', ondelete='CASCADE'),
+                             nullable=False)
 
     # Bidirectional attribute/collection of "upeople"/"upeople_companies"
     identity = relationship(UniqueIdentity,
@@ -104,7 +106,7 @@ class Enrollment(ModelBase):
                                                 cascade="all, delete-orphan"),
                                 lazy='joined')
 
-    __table_args__ = (UniqueConstraint('upeople_id', 'company_id',
+    __table_args__ = (UniqueConstraint('upeople_id', 'organization_id',
                                        'init', 'end',
                                        name='_period_unique'),
                       {'mysql_charset': 'utf8'})

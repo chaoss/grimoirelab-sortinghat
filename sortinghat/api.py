@@ -102,7 +102,7 @@ def add_domain(db, organization, domain, overwrite=False):
     :param db: database manager
     :param organization: name of the organization
     :param domain: domain to add to the registry
-    :param overwrite: force to reassign the domain to the given company
+    :param overwrite: force to reassign the domain to the given organization
 
     :raises ValueError: raised when domain is None or an empty string
     :raises NotFoundError: raised when the given organization is not found
@@ -130,7 +130,7 @@ def add_domain(db, organization, domain, overwrite=False):
         elif not dom:
             dom = Domain(domain=domain)
 
-        dom.company = org
+        dom.organization = org
         session.add(dom)
 
 

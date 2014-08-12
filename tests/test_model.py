@@ -111,9 +111,9 @@ class TestDomain(TestCaseBase):
             self.session.add(org1)
 
             dom1 = Domain(domain='example.com')
-            dom1.company = org1
+            dom1.organization = org1
             dom2 = Domain(domain='example.com')
-            dom2.company = org1
+            dom2.organization = org1
 
             self.session.add(dom1)
             self.session.add(dom2)
@@ -135,7 +135,7 @@ class TestDomain(TestCaseBase):
             self.session.add(org1)
 
             dom1 = Domain()
-            dom1.company = org1
+            dom1.organization = org1
 
             self.session.add(dom1)
             self.session.commit()
