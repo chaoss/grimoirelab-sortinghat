@@ -115,13 +115,13 @@ class TestEnrollCommand(TestBaseCase):
         self.assertEqual(rol.identity.identifier, 'John Smith')
         self.assertEqual(rol.organization.name, 'Example')
         self.assertEqual(rol.init, datetime.datetime(1900, 1, 1))
-        self.assertEqual(rol.end, datetime.datetime(2100, 1, 1))
+        self.assertEqual(rol.end, datetime.datetime(1970, 1, 1, 1, 2, 3))
 
         rol = enrollments[4]
         self.assertEqual(rol.identity.identifier, 'John Smith')
         self.assertEqual(rol.organization.name, 'Example')
         self.assertEqual(rol.init, datetime.datetime(1900, 1, 1))
-        self.assertEqual(rol.end, datetime.datetime(1970, 1, 1, 1, 2, 3))
+        self.assertEqual(rol.end, datetime.datetime(2100, 1, 1))
 
     def test_invalid_dates(self):
         """Check whether it fails when invalid dates are given"""

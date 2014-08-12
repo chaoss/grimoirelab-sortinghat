@@ -458,7 +458,8 @@ def enrollments(db, uuid=None, organization=None, from_date=None, to_date=None):
         # Get the results
         enrollments = query.order_by(UniqueIdentity.identifier,
                                      Organization.name,
-                                     Enrollment.init).all()
+                                     Enrollment.init,
+                                     Enrollment.end).all()
 
         # Detach objects from the session
         session.expunge_all()
