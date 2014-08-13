@@ -29,7 +29,37 @@ import sys
 from sortinghat.cmd import SORTINGHAT_COMMANDS
 
 
-SORTINGHAT_USAGE_MSG = "Usage: '%(prog)s [options] command"
+SORTINGHAT_USAGE_MSG = \
+"""%(prog)s [--help] [-c <file>] [-u <user>] [-p <password>]
+                  [--host <host>] [--port <port>] [-d <name>]
+                  command [<cmd_args>]"""
+
+SORTINGHAT_DESC_MSG = \
+"""The most commonly used %(prog)s commands are:
+
+    config      Get and set configuration parameters
+    enroll      Enroll identities in organizations
+    load        Import organizations and domains on the registry
+    log         List enrollment information available in the registry
+    orgs        List, add or delete organizations and domains
+    withdraw    Remove identities from organizations
+
+General options:
+  -h, --help            show this help message and exit
+  -c FILE, --config FILE
+                        set configuration file
+  -u USER, --user USER  database user name
+  -p PASSWORD, --password PASSWORD
+                        database user password
+  -d DATABASE, --database DATABASE
+                        name of the database where the registry will be stored
+  --host HOST           name of the host where the database server is running
+  --port PORT           port of the host where the database server is running
+"""
+
+SORTINGHAT_EPILOG_MSG = \
+"""Run '%(prog)s <command> --help' to get information about a specific command"""
+
 
 
 def main():
@@ -60,6 +90,11 @@ def parse_args():
     # Parse common arguments using the command parser
     parser = create_common_arguments_parser(defaults)
 
+    # Print help when not enough arguments were given
+    if len(sys.argv) == 1:
+        parser.print_help()
+        sys.exit(1)
+
     # Parse arguments
     return parser.parse_args(args)
 
@@ -75,29 +110,31 @@ def read_config_file(filepath):
 
 
 def create_common_arguments_parser(defaults):
-    parser = argparse.ArgumentParser(usage=SORTINGHAT_USAGE_MSG)
+    parser = argparse.ArgumentParser(description=SORTINGHAT_DESC_MSG,
+                                     usage=SORTINGHAT_USAGE_MSG,
+                                     epilog=SORTINGHAT_EPILOG_MSG,
+                                     formatter_class=argparse.RawDescriptionHelpFormatter,
+                                     add_help=False)
 
-    # Database options
-    db_group = parser.add_argument_group('Database options')
-    db_group.add_argument('-u', '--user', dest='user',
-                          help="database user name",
-                          default='root')
-    db_group.add_argument('-p', '--password', dest='password',
-                          help="database user password",
-                          default='')
-    db_group.add_argument('-d', '--database', dest='database',
-                          help="name of the database where fetched projects will be stored")
-    db_group.add_argument('--host', dest='host',
-                          help="name of the host where the database server is running",
-                          default='localhost')
-    db_group.add_argument('--port', dest='port',
-                          help="port of the host where the database server is running",
-                          default='3306')
+    # Options
+    group = parser.add_argument_group('General options')
+    group.add_argument('-h', '--help', action='help',
+                       help=argparse.SUPPRESS)
+    group.add_argument('-u', '--user', dest='user', default='root',
+                       help=argparse.SUPPRESS)
+    group.add_argument('-p', '--password', dest='password', default='',
+                       help=argparse.SUPPRESS)
+    group.add_argument('-d', '--database', dest='database',
+                       help=argparse.SUPPRESS)
+    group.add_argument('--host', dest='host', default='localhost',
+                       help=argparse.SUPPRESS)
+    group.add_argument('--port', dest='port', default='3306',
+                       help=argparse.SUPPRESS)
 
     # Command arguments
-    parser.add_argument('command',
-                        help="command to run. i.e: config, orgs, load")
-    parser.add_argument('cmd_args', nargs=argparse.REMAINDER)
+    parser.add_argument('command', help=argparse.SUPPRESS)
+    parser.add_argument('cmd_args', nargs=argparse.REMAINDER,
+                        help=argparse.SUPPRESS)
 
     # Set default values
     parser.set_defaults(**defaults)
@@ -110,7 +147,7 @@ def create_config_arguments_parser():
                                      add_help=False)
 
     parser.add_argument('-c', '--config', dest='config_file',
-                        help="set configuration file")
+                        help=argparse.SUPPRESS)
 
     # Set default values
     defaults = {'config_file' : os.path.expanduser('~/.sortinghat'),}
