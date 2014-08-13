@@ -46,12 +46,12 @@ def add_unique_identity(db, uuid):
 
     with db.connect() as session:
         identity = session.query(UniqueIdentity).\
-            filter(UniqueIdentity.identifier == uuid).first()
+            filter(UniqueIdentity.uuid == uuid).first()
 
         if identity:
             raise AlreadyExistsError(entity=uuid)
 
-        identity = UniqueIdentity(identifier=uuid)
+        identity = UniqueIdentity(uuid=uuid)
         session.add(identity)
 
 
@@ -182,7 +182,7 @@ def add_enrollment(db, uuid, organization, from_date=None, to_date=None):
 
     with db.connect() as session:
         identity = session.query(UniqueIdentity).\
-            filter(UniqueIdentity.identifier == uuid).first()
+            filter(UniqueIdentity.uuid == uuid).first()
 
         if not identity:
             raise NotFoundError(entity=uuid)
@@ -194,7 +194,7 @@ def add_enrollment(db, uuid, organization, from_date=None, to_date=None):
             raise NotFoundError(entity=organization)
 
         enrollment = session.query(Enrollment).\
-            filter(Enrollment.identity == identity,
+            filter(Enrollment.uidentity == identity,
                    Enrollment.organization == org,
                    Enrollment.init == from_date,
                    Enrollment.end == to_date).first()
@@ -204,7 +204,7 @@ def add_enrollment(db, uuid, organization, from_date=None, to_date=None):
                               str(enrollment.init), str(enrollment.end)))
             raise AlreadyExistsError(entity=entity)
 
-        enrollment = Enrollment(identity=identity, organization=org,
+        enrollment = Enrollment(uidentity=identity, organization=org,
                                 init=from_date, end=to_date)
         session.add(enrollment)
 
@@ -227,7 +227,7 @@ def delete_unique_identity(db, uuid):
     """
     with db.connect() as session:
         identity = session.query(UniqueIdentity).\
-            filter(UniqueIdentity.identifier == uuid).first()
+            filter(UniqueIdentity.uuid == uuid).first()
 
         if not identity:
             raise NotFoundError(entity=uuid)
@@ -325,7 +325,7 @@ def delete_enrollment(db, uuid, organization, from_date=None, to_date=None):
 
     with db.connect() as session:
         identity = session.query(UniqueIdentity).\
-            filter(UniqueIdentity.identifier == uuid).first()
+            filter(UniqueIdentity.uuid == uuid).first()
 
         if not identity:
             raise NotFoundError(entity=uuid)
@@ -337,7 +337,7 @@ def delete_enrollment(db, uuid, organization, from_date=None, to_date=None):
             raise NotFoundError(entity=organization)
 
         enrollments = session.query(Enrollment).\
-            filter(Enrollment.identity == identity,
+            filter(Enrollment.uidentity == identity,
                    Enrollment.organization == org,
                    from_date <= Enrollment.init,
                    Enrollment.end <= to_date).all()
@@ -438,12 +438,12 @@ def enrollments(db, uuid=None, organization=None, from_date=None, to_date=None):
         # Filter by uuid
         if uuid:
             identity = session.query(UniqueIdentity).\
-                filter(UniqueIdentity.identifier == uuid).first()
+                filter(UniqueIdentity.uuid == uuid).first()
 
             if not identity:
                 raise NotFoundError(entity=uuid)
 
-            query = query.filter(Enrollment.identity == identity)
+            query = query.filter(Enrollment.uidentity == identity)
 
         # Filter by organization
         if organization:
@@ -456,7 +456,7 @@ def enrollments(db, uuid=None, organization=None, from_date=None, to_date=None):
             query = query.filter(Enrollment.organization == org)
 
         # Get the results
-        enrollments = query.order_by(UniqueIdentity.identifier,
+        enrollments = query.order_by(UniqueIdentity.uuid,
                                      Organization.name,
                                      Enrollment.init,
                                      Enrollment.end).all()

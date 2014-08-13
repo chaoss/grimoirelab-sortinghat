@@ -48,7 +48,7 @@ class Organization(ModelBase):
                            lazy='joined', cascade="save-update, merge, delete")
 
     # Enrollment relationships
-    enrollments = association_proxy('enrollments', 'upeople')
+    enrollments = association_proxy('enrollments', 'uidentities')
 
     __table_args__ = (UniqueConstraint('name', name='_name_unique'),
                       {'mysql_charset': 'utf8'})
@@ -71,10 +71,10 @@ class Domain(ModelBase):
 
 
 class UniqueIdentity(ModelBase):
-    __tablename__ = 'upeople'
+    __tablename__ = 'uidentities'
 
-    id = Column(Integer, primary_key=True) # UUID
-    identifier = Column(String(128), nullable=False)
+    id = Column(Integer, primary_key=True)
+    uuid = Column(String(128), nullable=False)
 
     # Many-to-many association proxy
     organizations = association_proxy('enrollments', 'organizations')
@@ -88,17 +88,17 @@ class Enrollment(ModelBase):
     id = Column(Integer, primary_key=True)
     init = Column(DateTime, default=DEFAULT_START_DATE, nullable=False)
     end = Column(DateTime, default=DEFAULT_END_DATE, nullable=False)
-    upeople_id = Column(Integer, ForeignKey('upeople.id', ondelete='CASCADE'),
-                        nullable=False)
+    uidentity_id = Column(Integer, ForeignKey('uidentities.id', ondelete='CASCADE'),
+                          nullable=False)
     organization_id = Column(Integer,
                              ForeignKey('organizations.id', ondelete='CASCADE'),
                              nullable=False)
 
     # Bidirectional attribute/collection of "upeople"/"enrollments"
-    identity = relationship(UniqueIdentity,
-                            backref=backref('enrollments',
-                                            cascade="all, delete-orphan"),
-                            lazy='joined')
+    uidentity = relationship(UniqueIdentity,
+                             backref=backref('enrollments',
+                                             cascade="all, delete-orphan"),
+                             lazy='joined')
 
     # Reference to the "Organization" object
     organization = relationship(Organization,
@@ -106,7 +106,7 @@ class Enrollment(ModelBase):
                                                 cascade="all, delete-orphan"),
                                 lazy='joined')
 
-    __table_args__ = (UniqueConstraint('upeople_id', 'organization_id',
+    __table_args__ = (UniqueConstraint('uidentity_id', 'organization_id',
                                        'init', 'end',
                                        name='_period_unique'),
                       {'mysql_charset': 'utf8'})

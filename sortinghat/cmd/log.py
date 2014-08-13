@@ -114,7 +114,7 @@ class Log(Command):
 
     def _pretty_print(self, enrollments):
         for rol in enrollments:
-            uuid = rol.identity.identifier
+            uuid = rol.uidentity.uuid
             organization = rol.organization.name
             from_date = str(rol.init)
             to_date = str(rol.end)

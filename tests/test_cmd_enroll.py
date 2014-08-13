@@ -96,29 +96,29 @@ class TestEnrollCommand(TestBaseCase):
         self.assertEqual(len(enrollments), 5)
 
         rol = enrollments[0]
-        self.assertEqual(rol.identity.identifier, 'John Doe')
+        self.assertEqual(rol.uidentity.uuid, 'John Doe')
         self.assertEqual(rol.organization.name, 'Bitergia')
         self.assertEqual(rol.init, datetime.datetime(2013, 1, 01))
         self.assertEqual(rol.end, datetime.datetime(2014, 1, 01))
 
         rol = enrollments[1]
-        self.assertEqual(rol.identity.identifier, 'John Smith')
+        self.assertEqual(rol.uidentity.uuid, 'John Smith')
         self.assertEqual(rol.organization.name, 'Bitergia')
 
         rol = enrollments[2]
-        self.assertEqual(rol.identity.identifier, 'John Smith')
+        self.assertEqual(rol.uidentity.uuid, 'John Smith')
         self.assertEqual(rol.organization.name, 'Bitergia')
         self.assertEqual(rol.init, datetime.datetime(1999, 1, 1, 18, 33, 58))
         self.assertEqual(rol.end, datetime.datetime(2100, 1, 1))
 
         rol = enrollments[3]
-        self.assertEqual(rol.identity.identifier, 'John Smith')
+        self.assertEqual(rol.uidentity.uuid, 'John Smith')
         self.assertEqual(rol.organization.name, 'Example')
         self.assertEqual(rol.init, datetime.datetime(1900, 1, 1))
         self.assertEqual(rol.end, datetime.datetime(1970, 1, 1, 1, 2, 3))
 
         rol = enrollments[4]
-        self.assertEqual(rol.identity.identifier, 'John Smith')
+        self.assertEqual(rol.uidentity.uuid, 'John Smith')
         self.assertEqual(rol.organization.name, 'Example')
         self.assertEqual(rol.init, datetime.datetime(1900, 1, 1))
         self.assertEqual(rol.end, datetime.datetime(2100, 1, 1))
@@ -171,25 +171,25 @@ class TestEnroll(TestBaseCase):
         self.assertEqual(len(enrollments), 5)
 
         rol = enrollments[0]
-        self.assertEqual(rol.identity.identifier, 'John Doe')
+        self.assertEqual(rol.uidentity.uuid, 'John Doe')
         self.assertEqual(rol.organization.name, 'Bitergia')
 
         rol = enrollments[1]
-        self.assertEqual(rol.identity.identifier, 'John Doe')
+        self.assertEqual(rol.uidentity.uuid, 'John Doe')
         self.assertEqual(rol.organization.name, 'Example')
 
         rol = enrollments[2]
-        self.assertEqual(rol.identity.identifier, 'John Smith')
+        self.assertEqual(rol.uidentity.uuid, 'John Smith')
         self.assertEqual(rol.organization.name, 'Bitergia')
 
         rol = enrollments[3]
-        self.assertEqual(rol.identity.identifier, 'John Smith')
+        self.assertEqual(rol.uidentity.uuid, 'John Smith')
         self.assertEqual(rol.organization.name, 'Example')
         self.assertEqual(rol.init, datetime.datetime(1981, 1, 1))
         self.assertEqual(rol.end, datetime.datetime(1995, 1, 1))
 
         rol = enrollments[4]
-        self.assertEqual(rol.identity.identifier, 'John Smith')
+        self.assertEqual(rol.uidentity.uuid, 'John Smith')
         self.assertEqual(rol.organization.name, 'Example')
         self.assertEqual(rol.init, datetime.datetime(2013, 1, 1))
         self.assertEqual(rol.end, datetime.datetime(2100, 1, 1))

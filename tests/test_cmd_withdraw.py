@@ -107,11 +107,11 @@ class TestWithdrawCommand(TestBaseCase):
         self.assertEqual(len(enrollments), 2)
 
         rol = enrollments[0]
-        self.assertEqual(rol.identity.identifier, 'John Doe')
+        self.assertEqual(rol.uidentity.uuid, 'John Doe')
         self.assertEqual(rol.organization.name, 'Bitergia')
 
         rol = enrollments[1]
-        self.assertEqual(rol.identity.identifier, 'John Smith')
+        self.assertEqual(rol.uidentity.uuid, 'John Smith')
         self.assertEqual(rol.organization.name, 'Example')
         self.assertEqual(rol.init, datetime.datetime(1900, 1, 1))
         self.assertEqual(rol.end, datetime.datetime(2100, 1, 1))
@@ -123,7 +123,7 @@ class TestWithdrawCommand(TestBaseCase):
         self.assertEqual(len(enrollments), 1)
 
         rol = enrollments[0]
-        self.assertEqual(rol.identity.identifier, 'John Doe')
+        self.assertEqual(rol.uidentity.uuid, 'John Doe')
         self.assertEqual(rol.organization.name, 'Bitergia')
 
         # Remove without using ranges
@@ -177,21 +177,21 @@ class TestWithdraw(TestBaseCase):
         self.assertEqual(len(enrollments), 4)
 
         rol = enrollments[0]
-        self.assertEqual(rol.identity.identifier, 'John Doe')
+        self.assertEqual(rol.uidentity.uuid, 'John Doe')
         self.assertEqual(rol.organization.name, 'Bitergia')
 
         rol = enrollments[1]
-        self.assertEqual(rol.identity.identifier, 'John Doe')
+        self.assertEqual(rol.uidentity.uuid, 'John Doe')
         self.assertEqual(rol.organization.name, 'Example')
 
         rol = enrollments[2]
-        self.assertEqual(rol.identity.identifier, 'John Smith')
+        self.assertEqual(rol.uidentity.uuid, 'John Smith')
         self.assertEqual(rol.organization.name, 'Example')
         self.assertEqual(rol.init, datetime.datetime(1900, 1, 1))
         self.assertEqual(rol.end, datetime.datetime(2100, 1, 1))
 
         rol = enrollments[3]
-        self.assertEqual(rol.identity.identifier, 'John Smith')
+        self.assertEqual(rol.uidentity.uuid, 'John Smith')
         self.assertEqual(rol.organization.name, 'Example')
         self.assertEqual(rol.init, datetime.datetime(1999, 1, 1))
         self.assertEqual(rol.end, datetime.datetime(2010, 1, 1))
@@ -208,11 +208,11 @@ class TestWithdraw(TestBaseCase):
         self.assertEqual(len(enrollments), 2)
 
         rol = enrollments[0]
-        self.assertEqual(rol.identity.identifier, 'John Smith')
+        self.assertEqual(rol.uidentity.uuid, 'John Smith')
         self.assertEqual(rol.organization.name, 'Example')
 
         rol = enrollments[1]
-        self.assertEqual(rol.identity.identifier, 'John Smith')
+        self.assertEqual(rol.uidentity.uuid, 'John Smith')
         self.assertEqual(rol.organization.name, 'Example')
 
     def test_period_ranges(self):

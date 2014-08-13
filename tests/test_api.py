@@ -69,16 +69,16 @@ class TestAddUniqueIdentity(TestBaseCase):
 
         with self.db.connect() as session:
             uid = session.query(UniqueIdentity).\
-                    filter(UniqueIdentity.identifier == 'John Smith').first()
-            self.assertEqual(uid.identifier, 'John Smith')
+                    filter(UniqueIdentity.uuid == 'John Smith').first()
+            self.assertEqual(uid.uuid, 'John Smith')
 
             uid = session.query(UniqueIdentity).\
-                    filter(UniqueIdentity.identifier == 'John Doe').first()
-            self.assertEqual(uid.identifier, 'John Doe')
+                    filter(UniqueIdentity.uuid == 'John Doe').first()
+            self.assertEqual(uid.uuid, 'John Doe')
 
             uid = session.query(UniqueIdentity).\
-                    filter(UniqueIdentity.identifier == 'Jane Roe').first()
-            self.assertEqual(uid.identifier, 'Jane Roe')
+                    filter(UniqueIdentity.uuid == 'Jane Roe').first()
+            self.assertEqual(uid.uuid, 'Jane Roe')
 
     def test_existing_uuid(self):
         """Check if it fails adding an identity that already exists"""
@@ -305,7 +305,7 @@ class TestAddEnrollment(TestBaseCase):
 
         with self.db.connect() as session:
             enrollments = session.query(Enrollment).\
-                filter(UniqueIdentity.identifier == 'John Smith',
+                filter(UniqueIdentity.uuid == 'John Smith',
                        Organization.name == 'Example').all()
             self.assertEqual(len(enrollments), 3)
 
@@ -397,11 +397,11 @@ class TestDeleteUniqueIdentity(TestBaseCase):
 
         with self.db.connect() as session:
             uid1 = session.query(UniqueIdentity).\
-                filter(UniqueIdentity.identifier == 'John Smith').first()
+                filter(UniqueIdentity.uuid == 'John Smith').first()
             self.assertEqual(uid1, None)
 
             enrollments = session.query(Enrollment).\
-                filter(UniqueIdentity.identifier == 'John Smith').all()
+                filter(UniqueIdentity.uuid == 'John Smith').all()
             self.assertEqual(len(enrollments), 0)
 
         # Delete the last identity
@@ -409,18 +409,18 @@ class TestDeleteUniqueIdentity(TestBaseCase):
 
         with self.db.connect() as session:
             uid2 = session.query(UniqueIdentity).\
-                filter(UniqueIdentity.identifier == 'Jane Rae').first()
+                filter(UniqueIdentity.uuid == 'Jane Rae').first()
             self.assertEqual(uid2, None)
 
             # Check if there only remains one unique identity and one
             # enrollment
             identities = session.query(UniqueIdentity).all()
             self.assertEqual(len(identities), 1)
-            self.assertEqual(identities[0].identifier, 'John Doe')
+            self.assertEqual(identities[0].uuid, 'John Doe')
 
             enrollments = session.query(Enrollment).all()
             self.assertEqual(len(enrollments), 1)
-            self.assertEqual(enrollments[0].identity.identifier, 'John Doe')
+            self.assertEqual(enrollments[0].uidentity.uuid, 'John Doe')
             self.assertEqual(enrollments[0].organization.name, 'Example')
 
             orgs = session.query(Organization).all()
@@ -510,7 +510,7 @@ class TestDeleteOrganization(TestBaseCase):
 
             enrollments = session.query(Enrollment).all()
             self.assertEqual(len(enrollments), 1)
-            self.assertEqual(enrollments[0].identity.identifier, 'John Smith')
+            self.assertEqual(enrollments[0].uidentity.uuid, 'John Smith')
             self.assertEqual(enrollments[0].organization.name, 'Bitergia')
 
     def test_not_found_organization(self):
@@ -651,12 +651,12 @@ class TestDeleteEnrollment(TestBaseCase):
             enrollments = session.query(Enrollment).join(Organization).\
                     filter(Organization.name == 'LibreSoft').all()
             self.assertEqual(len(enrollments), 1)
-            self.assertEqual(enrollments[0].identity.identifier, 'Jane Rae')
+            self.assertEqual(enrollments[0].uidentity.uuid, 'Jane Rae')
 
             enrollments = session.query(Enrollment).join(Organization).\
                     filter(Organization.name == 'Example').all()
             self.assertEqual(len(enrollments), 1)
-            self.assertEqual(enrollments[0].identity.identifier, 'John Smith')
+            self.assertEqual(enrollments[0].uidentity.uuid, 'John Smith')
 
         # Delete enrollments from Bitergia
         api.delete_enrollment(self.db, 'John Smith', 'Bitergia')
@@ -866,39 +866,39 @@ class TestEnrollments(TestBaseCase):
 
         rol = enrollments[0]
         self.assertIsInstance(rol, Enrollment)
-        self.assertEqual(rol.identity.identifier, 'Jane Rae')
+        self.assertEqual(rol.uidentity.uuid, 'Jane Rae')
         self.assertEqual(rol.organization.name, 'Bitergia')
 
         rol = enrollments[1]
         self.assertIsInstance(rol, Enrollment)
-        self.assertEqual(rol.identity.identifier, 'Jane Rae')
+        self.assertEqual(rol.uidentity.uuid, 'Jane Rae')
         self.assertEqual(rol.organization.name, 'LibreSoft')
 
         rol = enrollments[2]
         self.assertIsInstance(rol, Enrollment)
-        self.assertEqual(rol.identity.identifier, 'John Doe')
+        self.assertEqual(rol.uidentity.uuid, 'John Doe')
         self.assertEqual(rol.organization.name, 'Example')
 
         rol = enrollments[3]
         self.assertIsInstance(rol, Enrollment)
-        self.assertEqual(rol.identity.identifier, 'John Doe')
+        self.assertEqual(rol.uidentity.uuid, 'John Doe')
         self.assertEqual(rol.organization.name, 'LibreSoft')
 
         rol = enrollments[4]
         self.assertIsInstance(rol, Enrollment)
-        self.assertEqual(rol.identity.identifier, 'John Smith')
+        self.assertEqual(rol.uidentity.uuid, 'John Smith')
         self.assertEqual(rol.organization.name, 'Bitergia')
 
         rol = enrollments[5]
         self.assertIsInstance(rol, Enrollment)
-        self.assertEqual(rol.identity.identifier, 'John Smith')
+        self.assertEqual(rol.uidentity.uuid, 'John Smith')
         self.assertEqual(rol.organization.name, 'Bitergia')
         self.assertEqual(rol.init, datetime.datetime(1999, 1, 1))
         self.assertEqual(rol.end, datetime.datetime(2000, 1, 1))
 
         rol = enrollments[6]
         self.assertIsInstance(rol, Enrollment)
-        self.assertEqual(rol.identity.identifier, 'John Smith')
+        self.assertEqual(rol.uidentity.uuid, 'John Smith')
         self.assertEqual(rol.organization.name, 'Example')
 
         # Test dates
@@ -909,7 +909,7 @@ class TestEnrollments(TestBaseCase):
 
         rol = enrollments[0]
         self.assertIsInstance(rol, Enrollment)
-        self.assertEqual(rol.identity.identifier, 'John Smith')
+        self.assertEqual(rol.uidentity.uuid, 'John Smith')
         self.assertEqual(rol.organization.name, 'Bitergia')
         self.assertEqual(rol.init, datetime.datetime(1999, 1, 1))
         self.assertEqual(rol.end, datetime.datetime(2000, 1, 1))
@@ -938,11 +938,11 @@ class TestEnrollments(TestBaseCase):
         self.assertEqual(len(enrollments), 2)
 
         rol = enrollments[0]
-        self.assertEqual(rol.identity.identifier, 'John Smith')
+        self.assertEqual(rol.uidentity.uuid, 'John Smith')
         self.assertEqual(rol.organization.name, 'Bitergia')
 
         rol = enrollments[1]
-        self.assertEqual(rol.identity.identifier, 'John Smith')
+        self.assertEqual(rol.uidentity.uuid, 'John Smith')
         self.assertEqual(rol.organization.name, 'Example')
 
         # Test using uuid and organization
@@ -980,11 +980,11 @@ class TestEnrollments(TestBaseCase):
         self.assertEqual(len(enrollments), 2)
 
         rol = enrollments[0]
-        self.assertEqual(rol.identity.identifier, 'John Doe')
+        self.assertEqual(rol.uidentity.uuid, 'John Doe')
         self.assertEqual(rol.organization.name, 'Example')
 
         rol = enrollments[1]
-        self.assertEqual(rol.identity.identifier, 'John Smith')
+        self.assertEqual(rol.uidentity.uuid, 'John Smith')
         self.assertEqual(rol.organization.name, 'Example')
 
         enrollments = api.enrollments(self.db, organization='Example')
