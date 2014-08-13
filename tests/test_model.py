@@ -32,7 +32,8 @@ from sqlalchemy.engine.url import URL
 from sqlalchemy.exc import IntegrityError, OperationalError
 from sqlalchemy.orm import sessionmaker
 
-from sortinghat.db.model import ModelBase, Organization, Domain, UniqueIdentity, Enrollment
+from sortinghat.db.model import ModelBase, Organization, Domain,\
+    UniqueIdentity, Identity, Enrollment
 from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
 
@@ -151,6 +152,41 @@ class TestUniqueIdentity(TestCaseBase):
             uid = UniqueIdentity()
             self.session.add(uid)
             self.session.commit()
+
+
+class TestIdentity(TestCaseBase):
+    """Unit tests for Identity class"""
+
+    def test_not_null_source(self):
+        """Check whether every identity has a source"""
+
+        with self.assertRaisesRegexp(OperationalError, NULL_CHECK_ERROR):
+            id1 = Identity()
+            self.session.add(id1)
+            self.session.commit()
+
+    def test_unique_identities(self):
+        """Check if there is only one tuple with the same values"""
+
+        id1 = Identity(name='John Smith', email='jsmith@example.com',
+                           username='jsmith', source='scm')
+        id2 = Identity(name='John Smith', email='jsmith@example.com',
+                       username='jsmith', source='scm')
+
+        with self.assertRaisesRegexp(IntegrityError, DUP_CHECK_ERROR):
+            self.session.add(id1)
+            self.session.add(id2)
+            self.session.commit()
+
+        self.session.rollback()
+
+        # Changing an property should not raise any error
+        id2.source = 'mls'
+        self.session.add(id1)
+        self.session.add(id2)
+        self.session.commit()
+
+        self.assertNotEqual(id1.id, id2.id)
 
 
 class TestEnrollment(TestCaseBase):

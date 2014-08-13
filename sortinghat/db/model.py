@@ -76,10 +76,33 @@ class UniqueIdentity(ModelBase):
     id = Column(Integer, primary_key=True)
     uuid = Column(String(128), nullable=False)
 
+    # One-to-Many relationship
+    identities = relationship('Identity', backref='uidentities',
+                              lazy='joined', cascade="save-update, merge, delete")
+
     # Many-to-many association proxy
     organizations = association_proxy('enrollments', 'organizations')
 
     __table_args__ = ({'mysql_charset': 'utf8'})
+
+
+class Identity(ModelBase):
+    __tablename__ = 'identities'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(128))
+    email = Column(String(128))
+    username = Column(String(128))
+    source = Column(String(32), nullable=False)
+    uuid = Column(Integer,
+                  ForeignKey('uidentities.id', ondelete='CASCADE'))
+
+    # Many-to-One relationship
+    uidentity = relationship('UniqueIdentity', backref='uuid_identy')
+
+    __table_args__ = (UniqueConstraint('name', 'email', 'username', 'source',
+                                       name='_identity_unique'),
+                      {'mysql_charset': 'utf8'})
 
 
 class Enrollment(ModelBase):
