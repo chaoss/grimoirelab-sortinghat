@@ -153,6 +153,17 @@ class TestUniqueIdentity(TestCaseBase):
             self.session.add(uid)
             self.session.commit()
 
+    def test_unique_uuid(self):
+        """Check whether the uuid is in fact unique"""
+
+        with self.assertRaisesRegexp(IntegrityError, DUP_CHECK_ERROR):
+            uid1 = UniqueIdentity(uuid='John Smith')
+            uid2 = UniqueIdentity(uuid='John Smith')
+
+            self.session.add(uid1)
+            self.session.add(uid2)
+            self.session.commit()
+
 
 class TestIdentity(TestCaseBase):
     """Unit tests for Identity class"""

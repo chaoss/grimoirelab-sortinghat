@@ -83,7 +83,8 @@ class UniqueIdentity(ModelBase):
     # Many-to-many association proxy
     organizations = association_proxy('enrollments', 'organizations')
 
-    __table_args__ = ({'mysql_charset': 'utf8'})
+    __table_args__ = (UniqueConstraint('uuid', name='_uuid_unique'),
+                      {'mysql_charset': 'utf8'})
 
 
 class Identity(ModelBase):
