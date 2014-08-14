@@ -465,3 +465,33 @@ def enrollments(db, uuid=None, organization=None, from_date=None, to_date=None):
         session.expunge_all()
 
     return enrollments
+
+
+def uuid(source, email=None, name=None, username=None):
+    """Get the UUID related to the identity data.
+
+    Based on the input data, the function will return the UUID associated
+    to an identity. On this version, the UUID will be one of the given
+    parameters. By priority: email, name, username. Future versions
+    will use SHA-1 algorithm.
+
+    :param source: data source
+    :param email: email of the identity
+    :param name: full name of the identity
+    :param username: user name used by the identity
+
+    :returns: a universal an unique identifier
+
+    :raises ValueError: when source is None or empty; each one of the
+        parameters is None; parameters are empty.
+    """
+    if source is None:
+        raise ValueError('source cannot be None')
+    if source == '':
+        raise ValueError('source cannot be an empty string')
+    if not (email or name or username):
+        raise ValueError('identity data cannot be None or empty')
+
+    uuid = email or name or username
+
+    return uuid
