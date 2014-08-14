@@ -29,7 +29,11 @@ if not '..' in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat.exceptions import InvalidDateError
-from sortinghat.utils import str_to_datetime
+from sortinghat.utils import str_to_datetime, uuid
+
+
+SOURCE_NONE_OR_EMPTY_ERROR = "source cannot be"
+IDENTITY_NONE_OR_EMPTY_ERROR = "identity data cannot be None or empty"
 
 
 class TestStrToDatetime(unittest.TestCase):
@@ -77,6 +81,51 @@ class TestStrToDatetime(unittest.TestCase):
 
         date = str_to_datetime('')
         self.assertEqual(date, None)
+
+
+class TestUUID(unittest.TestCase):
+    """Unit tests for uuid function"""
+
+    def test_uuid(self):
+        """Check whether the function returns the expected UUID"""
+
+        result = uuid('scm', email='jsmith@example.com',
+                      name='John Smith', username='jsmith')
+        self.assertEqual(result, 'jsmith@example.com')
+
+        result = uuid('scm', email='jsmith@example.com')
+        self.assertEqual(result, 'jsmith@example.com')
+
+        result= uuid('scm', email='', name='John Smith',
+                     username='jsmith')
+        self.assertEqual(result, 'John Smith')
+
+        result = uuid('scm', email='', name='John Smith',
+                      username='')
+        self.assertEqual(result, 'John Smith')
+
+        result = uuid('scm', email='', name='', username='jsmith')
+        self.assertEqual(result, 'jsmith')
+
+    def test_none_source(self):
+        """Check whether uuid cannot be obtained giving a None source"""
+
+        self.assertRaisesRegexp(ValueError, SOURCE_NONE_OR_EMPTY_ERROR,
+                                uuid, None)
+
+    def test_empty_source(self):
+        """Check whether uuid cannot be obtained giving aadded to the registry"""
+
+        self.assertRaisesRegexp(ValueError, SOURCE_NONE_OR_EMPTY_ERROR,
+                                uuid, '')
+
+    def test_none_or_empty_data(self):
+        """Check whether uuid cannot be obtained when identity data is None or empty"""
+
+        self.assertRaisesRegexp(ValueError, IDENTITY_NONE_OR_EMPTY_ERROR,
+                                uuid, 'scm', None, '', None)
+        self.assertRaisesRegexp(ValueError, IDENTITY_NONE_OR_EMPTY_ERROR,
+                                uuid, 'scm', '', '', '')
 
 
 if __name__ == "__main__":

@@ -39,8 +39,6 @@ from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 UUID_NONE_OR_EMPTY_ERROR = "uuid cannot be"
 ORG_NONE_OR_EMPTY_ERROR = "organization cannot be"
 DOMAIN_NONE_OR_EMPTY_ERROR = "domain cannot be"
-SOURCE_NONE_OR_EMPTY_ERROR = "source cannot be"
-IDENTITY_NONE_OR_EMPTY_ERROR = "identity data cannot be None or empty"
 ENROLLMENT_PERIOD_INVALID_ERROR = "cannot be greater than "
 NOT_FOUND_ERROR =  "%(entity)s not found in the registry"
 
@@ -1093,51 +1091,6 @@ class TestEnrollments(TestBaseCase):
                                 NOT_FOUND_ERROR % {'entity' : 'LibreSoft'},
                                 api.enrollments, self.db,
                                 'John Smith', 'LibreSoft')
-
-
-class TestUUID(unittest.TestCase):
-    """Unit tests for uuid function"""
-
-    def test_uuid(self):
-        """Check whether the function returns the expected UUID"""
-
-        uuid = api.uuid('scm', email='jsmith@example.com',
-                        name='John Smith', username='jsmith')
-        self.assertEqual(uuid, 'jsmith@example.com')
-
-        uuid = api.uuid('scm', email='jsmith@example.com')
-        self.assertEqual(uuid, 'jsmith@example.com')
-
-        uuid = api.uuid('scm', email='', name='John Smith',
-                        username='jsmith')
-        self.assertEqual(uuid, 'John Smith')
-
-        uuid = api.uuid('scm', email='', name='John Smith',
-                        username='')
-        self.assertEqual(uuid, 'John Smith')
-
-        uuid = api.uuid('scm', email='', name='', username='jsmith')
-        self.assertEqual(uuid, 'jsmith')
-
-    def test_none_source(self):
-        """Check whether uuid cannot be obtained giving a None source"""
-
-        self.assertRaisesRegexp(ValueError, SOURCE_NONE_OR_EMPTY_ERROR,
-                                api.uuid, None)
-
-    def test_empty_source(self):
-        """Check whether uuid cannot be obtained giving aadded to the registry"""
-
-        self.assertRaisesRegexp(ValueError, SOURCE_NONE_OR_EMPTY_ERROR,
-                                api.uuid, '')
-
-    def test_none_or_empty_data(self):
-        """Check whether uuid cannot be obtained when identity data is None or empty"""
-
-        self.assertRaisesRegexp(ValueError, IDENTITY_NONE_OR_EMPTY_ERROR,
-                                api.uuid, 'scm', None, '', None)
-        self.assertRaisesRegexp(ValueError, IDENTITY_NONE_OR_EMPTY_ERROR,
-                                api.uuid, 'scm', '', '', '')
 
 
 if __name__ == "__main__":
