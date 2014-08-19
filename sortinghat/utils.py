@@ -21,6 +21,7 @@
 #
 
 import dateutil.parser
+import hashlib
 
 from sortinghat.exceptions import InvalidDateError
 
@@ -52,9 +53,9 @@ def uuid(source, email=None, name=None, username=None):
     """Get the UUID related to the identity data.
 
     Based on the input data, the function will return the UUID associated
-    to an identity. On this version, the UUID will be one of the given
-    parameters. By priority: email, name, username. Future versions
-    will use SHA-1 algorithm.
+    to an identity. On this version, the UUID will be the SHA1 of
+    "source:email:name:username" string. Future versions will use UUID
+    standard.
 
     :param source: data source
     :param email: email of the identity
@@ -73,6 +74,9 @@ def uuid(source, email=None, name=None, username=None):
     if not (email or name or username):
         raise ValueError('identity data cannot be None or empty')
 
-    uuid = email or name or username
+    s = ':'.join((source, str(email), str(name), str(username)))
+
+    sha1 = hashlib.sha1(s)
+    uuid = sha1.hexdigest()
 
     return uuid

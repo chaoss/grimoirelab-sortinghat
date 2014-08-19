@@ -91,21 +91,21 @@ class TestUUID(unittest.TestCase):
 
         result = uuid('scm', email='jsmith@example.com',
                       name='John Smith', username='jsmith')
-        self.assertEqual(result, 'jsmith@example.com')
+        self.assertEqual(result, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
 
         result = uuid('scm', email='jsmith@example.com')
-        self.assertEqual(result, 'jsmith@example.com')
+        self.assertEqual(result, 'a4d4845e1b1e0edb85e37b04553026a6b76fc4ac')
 
         result= uuid('scm', email='', name='John Smith',
                      username='jsmith')
-        self.assertEqual(result, 'John Smith')
+        self.assertEqual(result, 'b63e8e4e67381271e67e55d46a63b63fc306119f')
 
         result = uuid('scm', email='', name='John Smith',
                       username='')
-        self.assertEqual(result, 'John Smith')
+        self.assertEqual(result, 'e2189be970c39c26b84d815f913b32ca953db940')
 
         result = uuid('scm', email='', name='', username='jsmith')
-        self.assertEqual(result, 'jsmith')
+        self.assertEqual(result, '6e7ce2426673f8a23a72a343b1382dda84c0078b')
 
     def test_none_source(self):
         """Check whether uuid cannot be obtained giving a None source"""
