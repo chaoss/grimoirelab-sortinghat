@@ -20,8 +20,9 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+from sortinghat import utils
 from sortinghat.db.model import DEFAULT_START_DATE, DEFAULT_END_DATE,\
-    UniqueIdentity, Organization, Domain, Enrollment
+    UniqueIdentity, Identity, Organization, Domain, Enrollment
 from sortinghat.exceptions import AlreadyExistsError, NotFoundError
 
 
@@ -53,6 +54,92 @@ def add_unique_identity(db, uuid):
 
         identity = UniqueIdentity(uuid=uuid)
         session.add(identity)
+
+
+def add_identity(db, source, email=None, name=None, username=None, uuid=None):
+    """Add an identity to the registry.
+
+    This function adds a new identity to the registry. By default, a new
+    unique identity will be also added an associated to the new identity.
+    When 'uuid' parameter is set, it only creates a new identity that will be
+    associated to a unique identity defined by 'uuid'. If the given unique
+    identity does not exist, it raises a 'NotFoundError'.
+
+    The registry considers that two identities are distinct when any value
+    of the tuple (source, email, name, username) is different. Thus, the
+    identities  id1:('scm', 'jsmith@example.com', 'John Smith', 'jsmith')
+    and id2:('mls', 'jsmith@example.com', 'John Smith', 'jsmith') will be
+    registered as different identities. A 'AlreadyExistError' exception will
+    be raised when the function tries to insert a tuple that exists in the
+    registry.
+
+    The function returns the uuid associated to the new registered identity.
+
+    :param db: database manager
+    :param source: data source
+    :param email: email of the identity
+    :param name: full name of the identity
+    :param username: user name used by the identity
+    :param uuid: associates the new identity to the unique identity
+        identified by this id
+
+    :returns: a universal an unique identifier
+
+    :raises ValueError: when source is None or empty; each one of the
+        parameters is None; parameters are empty.
+    :raises AlreadyExistsError: raised when the identity already exists
+        in the registry.
+    :raises NotFoundError: raised when the unique identity associated
+        to the given 'uuid' is not in the registry.
+    """
+    def _find_unique_identity(session, uuid):
+        """Find a unique identity.
+
+        :param session: database session
+        :param uuid: unique identity to find
+
+        :returns: a unique identity object
+        """
+        uid = session.query(UniqueIdentity).\
+                filter(UniqueIdentity.uuid == uuid).first()
+        return uid
+
+    if source is None:
+        raise ValueError('source cannot be None')
+    if source == '':
+        raise ValueError('source cannot be an empty string')
+    if not (email or name or username):
+        raise ValueError('identity data cannot be None or empty')
+
+    with db.connect() as session:
+        identity = session.query(Identity).\
+            filter(Identity.name == name,
+                   Identity.email == email,
+                   Identity.username == username,
+                   Identity.source == source).first()
+
+        if identity:
+            entity = '-'.join((str(source), str(email), str(name), str(username)))
+            raise AlreadyExistsError(entity=entity)
+
+        # Create a new unique identity
+        if not uuid:
+            uuid = utils.uuid(source, email=email, name=name,
+                              username=username)
+            uid = UniqueIdentity(uuid=uuid)
+            session.add(uid)
+        else:
+            uid = _find_unique_identity(session, uuid)
+
+        if not uid:
+            raise NotFoundError(entity=uuid)
+
+        identity = Identity(name=name, email=email, username=username,
+                            source=source)
+        identity.uidentity = uid
+        session.add(identity)
+
+        return uid.uuid
 
 
 def add_organization(db, organization):

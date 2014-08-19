@@ -30,7 +30,7 @@ if not '..' in sys.path:
 
 from sortinghat import api
 from sortinghat.db.database import Database
-from sortinghat.db.model import UniqueIdentity, Organization, Domain, Enrollment
+from sortinghat.db.model import UniqueIdentity, Identity, Organization, Domain, Enrollment
 from sortinghat.exceptions import AlreadyExistsError, NotFoundError
 
 from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
@@ -39,6 +39,8 @@ from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 UUID_NONE_OR_EMPTY_ERROR = "uuid cannot be"
 ORG_NONE_OR_EMPTY_ERROR = "organization cannot be"
 DOMAIN_NONE_OR_EMPTY_ERROR = "domain cannot be"
+SOURCE_NONE_OR_EMPTY_ERROR = "source cannot be"
+IDENTITY_NONE_OR_EMPTY_ERROR = "identity data cannot be None or empty"
 ENROLLMENT_PERIOD_INVALID_ERROR = "cannot be greater than "
 NOT_FOUND_ERROR =  "%(entity)s not found in the registry"
 
@@ -102,6 +104,168 @@ class TestAddUniqueIdentity(TestBaseCase):
 
         self.assertRaisesRegexp(ValueError, UUID_NONE_OR_EMPTY_ERROR,
                                 api.add_unique_identity, self.db, '')
+
+
+class TestAddIdentity(TestBaseCase):
+    """Unit tests for add_identity"""
+
+    def test_add_new_identity(self):
+        """Check if everything goes OK when adding a new identity"""
+
+        uuid = api.add_identity(self.db, 'scm', 'jsmith@example.com',
+                                'John Smith', 'jsmith')
+
+        with self.db.connect() as session:
+            uid = session.query(UniqueIdentity).\
+                    filter(UniqueIdentity.uuid == '03e12d00e37fd45593c49a5a5a1652deca4cf302').first()
+            self.assertEqual(uid.uuid, uuid)
+
+            identities = session.query(Identity).\
+                            filter(Identity.uuid == uid.id).all()
+            self.assertEqual(len(identities), 1)
+
+            id1 = identities[0]
+            self.assertEqual(id1.name, 'John Smith')
+            self.assertEqual(id1.email, 'jsmith@example.com')
+            self.assertEqual(id1.username, 'jsmith')
+            self.assertEqual(id1.source, 'scm')
+
+    def test_add_new_identities_to_uuid(self):
+        """Check if everything goes OK when adding a new identities to an existing one"""
+
+        # First, insert the identity that will create the unique identity
+        jsmith_uuid = api.add_identity(self.db, 'scm',
+                                       'jsmith@example.com', 'John Smith', 'jsmith')
+
+        jdoe_uuid = api.add_identity(self.db, 'scm',
+                                     'jdoe@example.com', 'John Doe', 'jdoe')
+
+        # Create new identities and assign them to John Smith id
+        uuid = api.add_identity(self.db, 'mls',
+                                'jsmith@example.com', 'John Smith', 'jsmith',
+                                uuid=jsmith_uuid)
+        self.assertEqual(jsmith_uuid, uuid)
+
+        uuid = api.add_identity(self.db, 'mls',
+                                name='John Smith', username='jsmith',
+                                uuid=jsmith_uuid)
+        self.assertEqual(jsmith_uuid, uuid)
+
+        # Create a new identity for John Doe
+        uuid = api.add_identity(self.db, 'mls',
+                                'jdoe@example.com',
+                                uuid=jdoe_uuid)
+        self.assertEqual(jdoe_uuid, uuid)
+
+        # Check identities
+        with self.db.connect() as session:
+            # First, John Smith
+            uid = session.query(UniqueIdentity).\
+                    filter(UniqueIdentity.uuid == jsmith_uuid).first()
+
+            self.assertEqual(len(uid.identities), 3)
+
+            id1 = uid.identities[0]
+            self.assertEqual(id1.name, 'John Smith')
+            self.assertEqual(id1.email, 'jsmith@example.com')
+            self.assertEqual(id1.username, 'jsmith')
+            self.assertEqual(id1.source, 'scm')
+
+            id2 = uid.identities[1]
+            self.assertEqual(id2.name, 'John Smith')
+            self.assertEqual(id2.email, 'jsmith@example.com')
+            self.assertEqual(id2.username, 'jsmith')
+            self.assertEqual(id2.source, 'mls')
+
+            id3 = uid.identities[2]
+            self.assertEqual(id3.name, 'John Smith')
+            self.assertEqual(id3.email, None)
+            self.assertEqual(id3.username, 'jsmith')
+            self.assertEqual(id3.source, 'mls')
+
+            # Next, John Doe
+            uid = session.query(UniqueIdentity).\
+                    filter(UniqueIdentity.uuid == jdoe_uuid).first()
+
+            self.assertEqual(len(uid.identities), 2)
+
+            id1 = uid.identities[0]
+            self.assertEqual(id1.name, 'John Doe')
+            self.assertEqual(id1.email, 'jdoe@example.com')
+            self.assertEqual(id1.username, 'jdoe')
+            self.assertEqual(id1.source, 'scm')
+
+            id2 = uid.identities[1]
+            self.assertEqual(id2.name, None)
+            self.assertEqual(id2.email, 'jdoe@example.com')
+            self.assertEqual(id2.username, None)
+            self.assertEqual(id2.source, 'mls')
+
+    def test_similar_identities(self):
+        """Check if it works when adding similar identities"""
+
+        api.add_identity(self.db, 'scm', 'jsmith@example.com')
+
+        # Although, this identities belongs to the same unique identity,
+        # the api will create different unique identities for each one of
+        # them
+        uuid1 = api.add_identity(self.db, 'scm', 'jsmith@example.com',
+                                 'John Smith')
+        uuid2 = api.add_identity(self.db, 'scm', 'jsmith@example.com',
+                                 'John Smith', 'jsmith')
+        uuid3 = api.add_identity(self.db, 'mls', 'jsmith@example.com',
+                                 'John Smith', 'jsmith')
+        uuid4 = api.add_identity(self.db, 'mls', name='John Smith')
+        uuid5 = api.add_identity(self.db, 'scm', name='John Smith')
+
+        self.assertEqual(uuid1, '75d95d6c8492fd36d24a18bd45d62161e05fbc97')
+        self.assertEqual(uuid2, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
+        self.assertEqual(uuid3, '764deab5c5f065025cd5518581f45ffd18d1f3bd')
+        self.assertEqual(uuid4, 'a2e6bd8f997635d02837c86a6fea98fa835baf2a')
+        self.assertEqual(uuid5, 'd32f8895d998f2e8f83375d544e40a30737f09e5')
+
+    def test_non_existing_uuid(self):
+        """Check whether it fails adding identities to one uuid that does not exist"""
+
+        # Add a pair of identities first
+        api.add_identity(self.db, 'scm', 'jsmith@example.com')
+        api.add_identity(self.db, 'scm', 'jdoe@example.com')
+
+        self.assertRaises(NotFoundError, api.add_identity,
+                          self.db, 'mls',
+                          'jsmith@example.com', None, None,
+                          'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF')
+
+    def test_existing_identity(self):
+        """Check if it fails adding an identity that already exists"""
+
+        # Add a pair of identities first
+        api.add_identity(self.db, 'scm', 'jsmith@example.com')
+        api.add_identity(self.db, 'scm', 'jdoe@example.com')
+
+        # Insert the first identity again. It should raise AlreadyExistsError
+        self.assertRaises(AlreadyExistsError, api.add_identity,
+                          self.db, 'scm', 'jsmith@example.com')
+
+    def test_none_source(self):
+        """Check whether new identities cannot be added when giving a None source"""
+
+        self.assertRaisesRegexp(ValueError, SOURCE_NONE_OR_EMPTY_ERROR,
+                                api.add_identity, self.db, None)
+
+    def test_empty_source(self):
+        """Check whether new identities cannot be added when giving an empty source"""
+
+        self.assertRaisesRegexp(ValueError, SOURCE_NONE_OR_EMPTY_ERROR,
+                                api.add_identity, self.db, '')
+
+    def test_none_or_empty_data(self):
+        """Check whether new identities cannot be added when identity data is None or empty"""
+
+        self.assertRaisesRegexp(ValueError, IDENTITY_NONE_OR_EMPTY_ERROR,
+                                api.add_identity, self.db, 'scm', None, '', None)
+        self.assertRaisesRegexp(ValueError, IDENTITY_NONE_OR_EMPTY_ERROR,
+                                api.add_identity, self.db, 'scm', '', '', '')
 
 
 class TestAddOrganization(TestBaseCase):
