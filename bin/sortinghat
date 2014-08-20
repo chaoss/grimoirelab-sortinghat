@@ -37,8 +37,9 @@ SORTINGHAT_USAGE_MSG = \
 SORTINGHAT_DESC_MSG = \
 """The most commonly used %(prog)s commands are:
 
+    add         Add identities
     config      Get and set configuration parameters
-    enroll      Enroll identities in organizations
+    enroll      Enroll identities into organizations
     load        Import organizations and domains on the registry
     log         List enrollment information available in the registry
     orgs        List, add or delete organizations and domains
@@ -58,8 +59,7 @@ General options:
 """
 
 SORTINGHAT_EPILOG_MSG = \
-"""Run '%(prog)s <command> --help' to get information about a specific command"""
-
+"""Run '%(prog)s <command> --help' to get information about a specific command."""
 
 
 def main():

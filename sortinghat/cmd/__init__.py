@@ -20,6 +20,7 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+from sortinghat.cmd.add import Add
 from sortinghat.cmd.config import Config
 from sortinghat.cmd.enroll import Enroll
 from sortinghat.cmd.load import Load
@@ -29,6 +30,7 @@ from sortinghat.cmd.withdraw import Withdraw
 
 
 SORTINGHAT_COMMANDS = {
+                       'add'      : Add,
                        'config'   : Config,
                        'enroll'   : Enroll,
                        'load'     : Load,
