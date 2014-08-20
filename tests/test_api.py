@@ -540,9 +540,14 @@ class TestDeleteUniqueIdentity(TestBaseCase):
     def test_delete_unique_identities(self):
         """Check whether it deletes a set of unique identities"""
 
-        # First, add a set of identities, including some organizations
-        # and enrollments
+        # First, add a set of unique identities, including some
+        # identities, organizations and enrollments
         api.add_unique_identity(self.db, 'John Smith')
+        api.add_identity(self.db, 'scm', 'jsmith@example',
+                         uuid='John Smith')
+        api.add_identity(self.db, 'scm', 'jsmith@example', 'John Smith',
+                         uuid='John Smith')
+
         api.add_unique_identity(self.db, 'John Doe')
         api.add_unique_identity(self.db, 'Jane Rae')
 
@@ -563,6 +568,10 @@ class TestDeleteUniqueIdentity(TestBaseCase):
             uid1 = session.query(UniqueIdentity).\
                 filter(UniqueIdentity.uuid == 'John Smith').first()
             self.assertEqual(uid1, None)
+
+            identities = session.query(Identity).\
+                filter(UniqueIdentity.uuid == 'John Smith').all()
+            self.assertEqual(len(identities), 0)
 
             enrollments = session.query(Enrollment).\
                 filter(UniqueIdentity.uuid == 'John Smith').all()
