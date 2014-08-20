@@ -42,6 +42,7 @@ ADD_UUID_NOT_FOUND_ERROR = "Error: FFFFFFFFFFFFFFF not found in the registry"
 
 ADD_OUTPUT = """New identity added to 0b7c0ba5f9fc01e4799d684e0a1c3561b53d93d5
 New identity added to fef873c50a48cfc057f7aa19f423f81889a8907f
+New identity added to 7367d83759d7b12790d0a44bf615c5215aa867d4
 New identity added to 03e12d00e37fd45593c49a5a5a1652deca4cf302"""
 
 
@@ -74,6 +75,28 @@ class TestBaseCase(unittest.TestCase):
         api.add_identity(self.db, 'scm', 'jsmith@example.com',
                          'John Smith')
 
+class TestEnrollCommand(TestBaseCase):
+    """Enroll command unit tests"""
+
+    def test_add(self):
+        """Check how it works when adding identities"""
+
+        # Create new identities
+        self.cmd.run('--name', 'Jane Roe', '--email', 'jroe@example.com',
+                     '--username', 'jrae', '--source', 'scm')
+        self.cmd.run('--email', 'jroe@example.com', '--source', 'scm')
+
+        # Source set to default value 'unknown'
+        self.cmd.run('--email', 'jroe@example.com')
+
+        # Assign to John Smith - 03e12d00e37fd45593c49a5a5a1652deca4cf302
+        # unique identity
+        self.cmd.run('--email', 'jsmith@example.com', '--source', 'mls',
+                     '--uuid', '03e12d00e37fd45593c49a5a5a1652deca4cf302')
+
+        # Check output first
+        output = sys.stdout.getvalue().strip()
+        self.assertEqual(output, ADD_OUTPUT)
 
 class TestAdd(TestBaseCase):
     """Unit tests for add"""
@@ -83,6 +106,7 @@ class TestAdd(TestBaseCase):
 
         self.cmd.add('scm', 'jroe@example.com', 'Jane Roe', 'jrae')
         self.cmd.add('scm', 'jroe@example.com')
+        self.cmd.add('unknown', 'jroe@example.com')
 
         # Add this identity to 'Jonh Smith' - 03e12d00e37fd45593c49a5a5a1652deca4cf302
         self.cmd.add('mls', email='jsmith@example.com',
