@@ -99,7 +99,8 @@ class Identity(ModelBase):
                   ForeignKey('uidentities.id', ondelete='CASCADE'))
 
     # Many-to-One relationship
-    uidentity = relationship('UniqueIdentity', backref='uuid_identy')
+    uidentity = relationship('UniqueIdentity', backref='uuid_identy',
+                             lazy='joined')
 
     __table_args__ = (UniqueConstraint('name', 'email', 'username', 'source',
                                        name='_identity_unique'),
