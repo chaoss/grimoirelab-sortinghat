@@ -26,6 +26,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.engine.url import URL
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import NullPool
 
 from sortinghat.exceptions import DatabaseError
 from sortinghat.db.model import ModelBase
@@ -37,7 +38,7 @@ class Database(object):
         # Create an engine
         self.url = URL('mysql', user, password, host, port, database,
                        query={'charset' : 'utf8'})
-        self._engine = create_engine(self.url, echo=False)
+        self._engine = create_engine(self.url, poolclass=NullPool, echo=False)
         self._Session = sessionmaker(bind=self._engine)
 
         # Create the schema on the database.
