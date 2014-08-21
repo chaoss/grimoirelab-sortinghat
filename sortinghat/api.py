@@ -438,6 +438,42 @@ def delete_enrollment(db, uuid, organization, from_date=None, to_date=None):
             session.delete(enr)
 
 
+def unique_identities(db, uuid=None):
+    """List the unique identities available in the registry.
+
+    The function returns a list of unique identities. When 'uuid'
+    parameter is set, it will only return the information related
+    to the unique identity identified by 'uuid'. When the given
+    'uuid' is not in the registry, a 'NotFoundError' exception will
+    be raised.
+
+    :param db: database manager
+    :param uuid: unique identifier for the identity
+
+    :raises NotFoundError: raised when the given uuid is not found
+        in the registry
+    """
+    uidentities = []
+
+    with db.connect() as session:
+        if uuid:
+            uid = session.query(UniqueIdentity).\
+                filter(UniqueIdentity.uuid == uuid).first()
+
+            if not uid:
+                raise NotFoundError(entity=uuid)
+
+            uidentities = [uid]
+        else:
+            uidentities = session.query(UniqueIdentity).\
+                order_by(UniqueIdentity.uuid).all()
+
+        # Detach objects from the session
+        session.expunge_all()
+
+    return uidentities
+
+
 def registry(db, organization=None):
     """List the organizations available in the registry.
 
