@@ -1,0 +1,23 @@
+{% for uid in uidentities %}
+unique identity {{ uid.uuid }}
+
+{% if uid.identities %}
+Identities:
+{% for identity in uid.identities %}
+  {{ identity.name|d('-', true) }}	{{ identity.email|d('-', true) }}	{{ identity.username|d('-', true) }}	{{ identity.source }}
+{% endfor %}
+{% else %}
+No identities
+{% endif %}
+
+{% if uid.roles %}
+Enrollments:
+{% for enrollment in uid.roles %}
+  {{ enrollment.organization.name }}	{{ enrollment.init }}	{{ enrollment.end }}
+{% endfor %}
+{% else %}
+No enrollments
+{% endif %}
+
+
+{% endfor %}

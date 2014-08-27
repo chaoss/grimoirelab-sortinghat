@@ -86,6 +86,9 @@ class UniqueIdentity(ModelBase):
     __table_args__ = (UniqueConstraint('uuid', name='_uuid_unique'),
                       {'mysql_charset': 'utf8'})
 
+    def __repr__(self):
+        return self.uuid
+
 
 class Identity(ModelBase):
     __tablename__ = 'identities'
