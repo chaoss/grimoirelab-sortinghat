@@ -26,6 +26,7 @@ from sortinghat.cmd.enroll import Enroll
 from sortinghat.cmd.load import Load
 from sortinghat.cmd.log import Log
 from sortinghat.cmd.organizations import Organizations
+from sortinghat.cmd.show import Show
 from sortinghat.cmd.withdraw import Withdraw
 
 
@@ -36,5 +37,6 @@ SORTINGHAT_COMMANDS = {
                        'load'     : Load,
                        'log'      : Log,
                        'orgs'     : Organizations,
+                       'show'     : Show,
                        'withdraw' : Withdraw,
                        }

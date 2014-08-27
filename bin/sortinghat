@@ -43,6 +43,7 @@ SORTINGHAT_DESC_MSG = \
     load        Import organizations and domains on the registry
     log         List enrollment information available in the registry
     orgs        List, add or delete organizations and domains
+    show        Show information about a unique identity
     withdraw    Remove identities from organizations
 
 General options:
