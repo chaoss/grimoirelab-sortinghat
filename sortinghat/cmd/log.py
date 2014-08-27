@@ -108,14 +108,6 @@ class Log(Command):
         try:
             enrollments = api.enrollments(self.db, uuid, organization,
                                           from_date, to_date)
-            self._pretty_print(enrollments)
+            self.display('log.tmpl', enrollments=enrollments)
         except (NotFoundError, ValueError), e:
             print "Error: %s" % str(e)
-
-    def _pretty_print(self, enrollments):
-        for rol in enrollments:
-            uuid = rol.uidentity.uuid
-            organization = rol.organization.name
-            from_date = str(rol.init)
-            to_date = str(rol.end)
-            print "%s    %s    %s    %s" % (uuid, organization, from_date, to_date)

@@ -117,7 +117,7 @@ class Config(Command):
 
         try:
             option = config.get(section, option)
-            print key, option
+            self.display('config.tmpl', key=key, option=option)
         except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             pass
 

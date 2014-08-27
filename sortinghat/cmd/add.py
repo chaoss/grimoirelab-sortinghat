@@ -99,6 +99,6 @@ class Add(Command):
         """
         try:
             new_uuid = api.add_identity(self.db, source, email, name, username, uuid)
-            print "New identity added to %s" % (new_uuid)
+            self.display('add.tmpl', new_uuid=new_uuid)
         except (AlreadyExistsError, NotFoundError, ValueError), e:
             print "Error: %s" % str(e)

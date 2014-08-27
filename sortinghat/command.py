@@ -20,6 +20,10 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+import sys
+
+import jinja2
+
 from sortinghat.exceptions import DatabaseError
 from sortinghat.db.database import Database
 
@@ -40,6 +44,16 @@ class Command(object):
 
     def run(self, *args):
         raise NotImplementedError
+
+    def display(self, template, **kwargs):
+        loader = jinja2.PackageLoader('sortinghat', 'templates')
+        env = jinja2.Environment(loader=loader,
+                                 lstrip_blocks=True, trim_blocks=True)
+
+        t = env.get_template(template)
+        s = t.render(**kwargs)
+
+        sys.stdout.write(s)
 
     def _set_database(self, **kwargs):
         try:

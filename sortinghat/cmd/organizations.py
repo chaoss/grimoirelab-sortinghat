@@ -186,15 +186,6 @@ class Organizations(Command):
         """
         try:
             orgs = api.registry(self.db, organization)
-            self._pretty_print(orgs)
+            self.display('organizations.tmpl', organizations=orgs)
         except NotFoundError, e:
             print "Error: %s" % e
-
-    def _pretty_print(self, organizations):
-        for org in organizations:
-            if not org.domains:
-                print org.name
-                continue
-
-            for dom in org.domains:
-                print "%s    %s" % (org.name, dom.domain)

@@ -22,8 +22,6 @@
 
 import argparse
 
-import jinja2
-
 from sortinghat import api
 from sortinghat.command import Command
 from sortinghat.exceptions import NotFoundError
@@ -81,13 +79,6 @@ class Show(Command):
                 enrollments = api.enrollments(self.db, uid.uuid)
                 uid.roles = enrollments
 
-            if uidentities:
-                self.pprint(uidentities)
+            self.display('show.tmpl', uidentities=uidentities)
         except NotFoundError, e:
             print "Error: %s" % str(e)
-
-    def pprint(self, uidentities):
-        env = jinja2.Environment(loader=jinja2.PackageLoader('sortinghat', 'templates'),
-                                 lstrip_blocks=True, trim_blocks=True)
-        template = env.get_template('show.tmpl')
-        print template.render(uidentities=uidentities)
