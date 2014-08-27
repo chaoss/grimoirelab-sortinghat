@@ -1,7 +1,7 @@
 {% for org in organizations %}
 {% if org.domains %}
 {% for dom in org.domains %}
-{{ org.name }}    {{ dom.domain }}
+{{ org.name }}	{{ dom.domain }}
 {% endfor %}
 {% else %}
 {{ org.name }}

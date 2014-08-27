@@ -43,26 +43,26 @@ REGISTRY_DOM_NOT_FOUND_ERROR = "Error: example.com not found in the registry"
 REGISTRY_DOM_NOT_FOUND_ERROR_ALT = "Error: bitergia.com not found in the registry"
 REGISTRY_EMPTY_OUTPUT = ""
 
-REGISTRY_OUTPUT = """Bitergia    bitergia.net
-Bitergia    bitergia.com
-Example    example.com
-Example    example.org
-Example    example.net
+REGISTRY_OUTPUT = """Bitergia\tbitergia.net
+Bitergia\tbitergia.com
+Example\texample.com
+Example\texample.org
+Example\texample.net
 LibreSoft"""
 
-REGISTRY_OUTPUT_ALT = """Bitergia    bitergia.net
-Example    example.com
-Example    bitergia.com
-Example    example.org
-Example    example.net
+REGISTRY_OUTPUT_ALT = """Bitergia\tbitergia.net
+Example\texample.com
+Example\tbitergia.com
+Example\texample.org
+Example\texample.net
 LibreSoft"""
 
-REGISTRY_OUTPUT_EXAMPLE = """Example    example.com
-Example    example.org
-Example    example.net"""
+REGISTRY_OUTPUT_EXAMPLE = """Example\texample.com
+Example\texample.org
+Example\texample.net"""
 
-REGISTRY_OUTPUT_EXAMPLE_ALT = """Example    example.com
-Example    example.net"""
+REGISTRY_OUTPUT_EXAMPLE_ALT = """Example\texample.com
+Example\texample.net"""
 
 
 class TestOrgsCommand(unittest.TestCase):

@@ -43,19 +43,19 @@ LOG_INVALID_FORMAT_DATE_ERROR = "Error: YYZYY is not a valid date"
 
 LOG_EMPTY_OUTPUT = ""
 
-LOG_OUTPUT = """John Doe    Example    1900-01-01 00:00:00    2100-01-01 00:00:00
-John Smith    Bitergia    1900-01-01 00:00:00    2100-01-01 00:00:00
-John Smith    Bitergia    1999-01-01 00:00:00    2000-01-01 00:00:00
-John Smith    Bitergia    2006-01-01 00:00:00    2008-01-01 00:00:00
-John Smith    Example    1900-01-01 00:00:00    2100-01-01 00:00:00"""
+LOG_OUTPUT = """John Doe\tExample\t1900-01-01 00:00:00\t2100-01-01 00:00:00
+John Smith\tBitergia\t1900-01-01 00:00:00\t2100-01-01 00:00:00
+John Smith\tBitergia\t1999-01-01 00:00:00\t2000-01-01 00:00:00
+John Smith\tBitergia\t2006-01-01 00:00:00\t2008-01-01 00:00:00
+John Smith\tExample\t1900-01-01 00:00:00\t2100-01-01 00:00:00"""
 
-LOG_UUID_OUTPUT = """John Doe    Example    1900-01-01 00:00:00    2100-01-01 00:00:00"""
+LOG_UUID_OUTPUT = """John Doe\tExample\t1900-01-01 00:00:00\t2100-01-01 00:00:00"""
 
-LOG_ORG_OUTPUT = """John Smith    Bitergia    1900-01-01 00:00:00    2100-01-01 00:00:00
-John Smith    Bitergia    1999-01-01 00:00:00    2000-01-01 00:00:00
-John Smith    Bitergia    2006-01-01 00:00:00    2008-01-01 00:00:00"""
+LOG_ORG_OUTPUT = """John Smith\tBitergia\t1900-01-01 00:00:00\t2100-01-01 00:00:00
+John Smith\tBitergia\t1999-01-01 00:00:00\t2000-01-01 00:00:00
+John Smith\tBitergia\t2006-01-01 00:00:00\t2008-01-01 00:00:00"""
 
-LOG_TIME_PERIOD_OUTPUT = """John Smith    Bitergia    1999-01-01 00:00:00    2000-01-01 00:00:00"""
+LOG_TIME_PERIOD_OUTPUT = """John Smith\tBitergia\t1999-01-01 00:00:00\t2000-01-01 00:00:00"""
 
 
 class TestBaseCase(unittest.TestCase):
