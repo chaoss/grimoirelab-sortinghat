@@ -140,7 +140,7 @@ class TestOrgsCommand(unittest.TestCase):
 
         self.cmd.run('-l')
         output = sys.stdout.getvalue().strip()
-        self.assertEqual(output, "")
+        self.assertEqual(output, REGISTRY_EMPTY_OUTPUT)
 
     def test_add_with_overwrite_option(self):
         """Check whether it not fails running add with overwrite option"""
