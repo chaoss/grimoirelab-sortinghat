@@ -73,8 +73,7 @@ class Domain(ModelBase):
 class UniqueIdentity(ModelBase):
     __tablename__ = 'uidentities'
 
-    id = Column(Integer, primary_key=True)
-    uuid = Column(String(128), nullable=False)
+    uuid = Column(String(128), primary_key=True)
 
     # One-to-Many relationship
     identities = relationship('Identity', backref='uidentities',
@@ -83,8 +82,7 @@ class UniqueIdentity(ModelBase):
     # Many-to-many association proxy
     organizations = association_proxy('enrollments', 'organizations')
 
-    __table_args__ = (UniqueConstraint('uuid', name='_uuid_unique'),
-                      {'mysql_charset': 'utf8'})
+    __table_args__ = ({'mysql_charset': 'utf8'})
 
     def __repr__(self):
         return self.uuid
@@ -98,8 +96,8 @@ class Identity(ModelBase):
     email = Column(String(128))
     username = Column(String(128))
     source = Column(String(32), nullable=False)
-    uuid = Column(Integer,
-                  ForeignKey('uidentities.id', ondelete='CASCADE'))
+    uuid = Column(String(128),
+                  ForeignKey('uidentities.uuid', ondelete='CASCADE'))
 
     # Many-to-One relationship
     uidentity = relationship('UniqueIdentity', backref='uuid_identy',
@@ -116,8 +114,9 @@ class Enrollment(ModelBase):
     id = Column(Integer, primary_key=True)
     init = Column(DateTime, default=DEFAULT_START_DATE, nullable=False)
     end = Column(DateTime, default=DEFAULT_END_DATE, nullable=False)
-    uidentity_id = Column(Integer, ForeignKey('uidentities.id', ondelete='CASCADE'),
-                          nullable=False)
+    uuid = Column(String(128),
+                  ForeignKey('uidentities.uuid', ondelete='CASCADE'),
+                  nullable=False)
     organization_id = Column(Integer,
                              ForeignKey('organizations.id', ondelete='CASCADE'),
                              nullable=False)
@@ -134,7 +133,7 @@ class Enrollment(ModelBase):
                                                 cascade="all, delete-orphan"),
                                 lazy='joined')
 
-    __table_args__ = (UniqueConstraint('uidentity_id', 'organization_id',
+    __table_args__ = (UniqueConstraint('uuid', 'organization_id',
                                        'init', 'end',
                                        name='_period_unique'),
                       {'mysql_charset': 'utf8'})

@@ -145,14 +145,6 @@ class TestDomain(TestCaseBase):
 class TestUniqueIdentity(TestCaseBase):
     """Unit tests for UniqueIdentity class"""
 
-    def test_not_null_identifiers(self):
-        """Check whether every unique identity has an identifier"""
-
-        with self.assertRaisesRegexp(OperationalError, NULL_CHECK_ERROR):
-            uid = UniqueIdentity()
-            self.session.add(uid)
-            self.session.commit()
-
     def test_unique_uuid(self):
         """Check whether the uuid is in fact unique"""
 
@@ -180,7 +172,7 @@ class TestIdentity(TestCaseBase):
         """Check if there is only one tuple with the same values"""
 
         id1 = Identity(name='John Smith', email='jsmith@example.com',
-                           username='jsmith', source='scm')
+                       username='jsmith', source='scm')
         id2 = Identity(name='John Smith', email='jsmith@example.com',
                        username='jsmith', source='scm')
 

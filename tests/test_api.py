@@ -121,7 +121,7 @@ class TestAddIdentity(TestBaseCase):
             self.assertEqual(uid.uuid, uuid)
 
             identities = session.query(Identity).\
-                            filter(Identity.uuid == uid.id).all()
+                            filter(Identity.uuid == uid.uuid).all()
             self.assertEqual(len(identities), 1)
 
             id1 = identities[0]
