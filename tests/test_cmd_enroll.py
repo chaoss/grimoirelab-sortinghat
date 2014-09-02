@@ -49,7 +49,7 @@ class TestBaseCase(unittest.TestCase):
     """Defines common setup and teardown methods on enroll unit tests"""
 
     def setUp(self):
-        if not hasattr(sys.stdout, 'getvalue'):
+        if not hasattr(sys.stdout, 'getvalue') and not hasattr(sys.stderr, 'getvalue'):
             self.fail('This test needs to be run in buffered mode')
 
         # Create a connection to check the contents of the registry
@@ -128,22 +128,22 @@ class TestEnrollCommand(TestBaseCase):
 
         self.cmd.run('--from', '1999-13-01',
                      'John Smith', 'Example')
-        output = sys.stdout.getvalue().strip('\n').split('\n')[0]
+        output = sys.stderr.getvalue().strip('\n').split('\n')[0]
         self.assertEqual(output, ENROLL_INVALID_DATE_ERROR)
 
         self.cmd.run('--from', 'YYZYY',
                      'John Smith', 'Example')
-        output = sys.stdout.getvalue().strip('\n').split('\n')[1]
+        output = sys.stderr.getvalue().strip('\n').split('\n')[1]
         self.assertEqual(output, ENROLL_INVALID_FORMAT_DATE_ERROR)
 
         self.cmd.run('--to', '1999-13-01',
                      'John Smith', 'Example')
-        output = sys.stdout.getvalue().strip('\n').split('\n')[2]
+        output = sys.stderr.getvalue().strip('\n').split('\n')[2]
         self.assertEqual(output, ENROLL_INVALID_DATE_ERROR)
 
         self.cmd.run('--to', 'YYZYY',
                      'John Smith', 'Example')
-        output = sys.stdout.getvalue().strip('\n').split('\n')[3]
+        output = sys.stderr.getvalue().strip('\n').split('\n')[3]
         self.assertEqual(output, ENROLL_INVALID_FORMAT_DATE_ERROR)
 
 
@@ -200,21 +200,21 @@ class TestEnroll(TestBaseCase):
         self.cmd.enroll('John Smith', 'Example',
                         datetime.datetime(2001, 1, 1),
                         datetime.datetime(1999, 1, 1))
-        output = sys.stdout.getvalue().strip()
+        output = sys.stderr.getvalue().strip()
         self.assertEqual(output, ENROLL_INVALID_PERIOD_ERROR)
 
     def test_non_existing_uuid(self):
         """Check if it fails adding enrollments to unique identities that do not exist"""
 
         self.cmd.enroll('Jane Roe', 'Example')
-        output = sys.stdout.getvalue().strip()
+        output = sys.stderr.getvalue().strip()
         self.assertEqual(output, ENROLL_UUID_NOT_FOUND_ERROR)
 
     def test_non_existing_organization(self):
         """Check if it fails adding enrollments to organizations that do not exist"""
 
         self.cmd.enroll('John Smith', 'LibreSoft')
-        output = sys.stdout.getvalue().strip()
+        output = sys.stderr.getvalue().strip()
         self.assertEqual(output, ENROLL_ORG_NOT_FOUND_ERROR)
 
     def test_existing_enrollment(self):
@@ -227,34 +227,34 @@ class TestEnroll(TestBaseCase):
         self.cmd.enroll('John Smith', 'Example',
                         datetime.datetime(1900, 1, 1),
                         datetime.datetime(2100, 1, 1))
-        output = sys.stdout.getvalue().strip().split('\n')[0]
+        output = sys.stderr.getvalue().strip().split('\n')[0]
         self.assertEqual(output, ENROLL_EXISTING_ERROR)
 
         # Test it without giving any period
         self.cmd.enroll('John Smith', 'Example')
-        output = sys.stdout.getvalue().strip().split('\n')[1]
+        output = sys.stderr.getvalue().strip().split('\n')[1]
         self.assertEqual(output, ENROLL_EXISTING_ERROR)
 
     def test_none_parameters(self):
         """Check behavior adding None parameters"""
 
         self.cmd.enroll(None, 'Example')
-        output = sys.stdout.getvalue().strip()
+        output = sys.stderr.getvalue().strip()
         self.assertEqual(output, ENROLL_EMPTY_OUTPUT)
 
         self.cmd.enroll('John Smith', None)
-        output = sys.stdout.getvalue().strip()
+        output = sys.stderr.getvalue().strip()
         self.assertEqual(output, ENROLL_EMPTY_OUTPUT)
 
     def test_empty_parameters(self):
         """Check behavior adding empty parameters"""
 
         self.cmd.enroll('', 'Example')
-        output = sys.stdout.getvalue().strip()
+        output = sys.stderr.getvalue().strip()
         self.assertEqual(output, ENROLL_EMPTY_OUTPUT)
 
         self.cmd.enroll('John Smith', '')
-        output = sys.stdout.getvalue().strip()
+        output = sys.stderr.getvalue().strip()
         self.assertEqual(output, ENROLL_EMPTY_OUTPUT)
 
 

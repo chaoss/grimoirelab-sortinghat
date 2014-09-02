@@ -141,22 +141,22 @@ class TestWithdrawCommand(TestBaseCase):
 
         self.cmd.run('--from', '1999-13-01',
                      'John Smith', 'Example')
-        output = sys.stdout.getvalue().strip('\n').split('\n')[0]
+        output = sys.stderr.getvalue().strip('\n').split('\n')[0]
         self.assertEqual(output, WITHDRAW_INVALID_DATE_ERROR)
 
         self.cmd.run('--from', 'YYZYY',
                      'John Smith', 'Example')
-        output = sys.stdout.getvalue().strip('\n').split('\n')[1]
+        output = sys.stderr.getvalue().strip('\n').split('\n')[1]
         self.assertEqual(output, WITHDRAW_INVALID_FORMAT_DATE_ERROR)
 
         self.cmd.run('--to', '1999-13-01',
                      'John Smith', 'Example')
-        output = sys.stdout.getvalue().strip('\n').split('\n')[2]
+        output = sys.stderr.getvalue().strip('\n').split('\n')[2]
         self.assertEqual(output, WITHDRAW_INVALID_DATE_ERROR)
 
         self.cmd.run('--to', 'YYZYY',
                      'John Smith', 'Example')
-        output = sys.stdout.getvalue().strip('\n').split('\n')[3]
+        output = sys.stderr.getvalue().strip('\n').split('\n')[3]
         self.assertEqual(output, WITHDRAW_INVALID_FORMAT_DATE_ERROR)
 
 
@@ -221,21 +221,21 @@ class TestWithdraw(TestBaseCase):
         self.cmd.withdraw('John Smith', 'Example',
                           datetime.datetime(2001, 1, 1),
                           datetime.datetime(1999, 1, 1))
-        output = sys.stdout.getvalue().strip()
+        output = sys.stderr.getvalue().strip()
         self.assertEqual(output, WITHDRAW_INVALID_PERIOD_ERROR)
 
     def test_non_existing_uuid(self):
         """Check if it fails removing enrollments from unique identities that do not exist"""
 
         self.cmd.withdraw('Jane Roe', 'Example')
-        output = sys.stdout.getvalue().strip()
+        output = sys.stderr.getvalue().strip()
         self.assertEqual(output, WITHDRAW_UUID_NOT_FOUND_ERROR)
 
     def test_non_existing_organization(self):
         """Check if it fails removing enrollments from organizations that do not exist"""
 
         self.cmd.withdraw('John Smith', 'LibreSoft')
-        output = sys.stdout.getvalue().strip()
+        output = sys.stderr.getvalue().strip()
         self.assertEqual(output, WITHDRAW_ORG_NOT_FOUND_ERROR)
 
     def test_non_existing_enrollment(self):
@@ -245,7 +245,7 @@ class TestWithdraw(TestBaseCase):
         self.cmd.withdraw('John Doe', 'Bitergia',
                           datetime.datetime(2050, 1, 1),
                           datetime.datetime(2070, 1, 1))
-        output = sys.stdout.getvalue().strip()
+        output = sys.stderr.getvalue().strip()
         self.assertEqual(output, WITHDRAW_ENROLLMENT_NOT_FOUND_ERROR)
 
     def test_none_parameters(self):

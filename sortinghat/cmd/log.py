@@ -78,11 +78,10 @@ class Log(Command):
         try:
             from_date = utils.str_to_datetime(params.from_date)
             to_date = utils.str_to_datetime(params.to_date)
-        except InvalidDateError, e:
-            print "Error: %s" % str(e)
-            return
 
-        self.log(uuid, organization, from_date, to_date)
+            self.log(uuid, organization, from_date, to_date)
+        except InvalidDateError, e:
+            self.error(str(e))
 
     def log(self, uuid=None, organization=None, from_date=None, to_date=None):
         """"List enrollment information available in the registry.
@@ -110,4 +109,4 @@ class Log(Command):
                                           from_date, to_date)
             self.display('log.tmpl', enrollments=enrollments)
         except (NotFoundError, ValueError), e:
-            print "Error: %s" % str(e)
+            self.error(str(e))

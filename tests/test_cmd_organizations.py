@@ -148,17 +148,14 @@ class TestOrgsCommand(unittest.TestCase):
         self.__load_test_dataset()
 
         self.cmd.run('--add', 'Example', 'bitergia.com')
-        output = sys.stdout.getvalue().strip()
+        output = sys.stderr.getvalue().strip()
         self.assertEqual(output, REGISTRY_DOM_ALREADY_EXISTS_ERROR)
 
         self.cmd.run('--add', '--overwrite', 'Example', 'bitergia.com')
         self.cmd.run('-l')
+
         output = sys.stdout.getvalue().strip()
-        # This check includes the output of the add command because
-        # it cannot be removed from the stdout
-        self.assertEqual(output,
-                         REGISTRY_DOM_ALREADY_EXISTS_ERROR + '\n' +
-                         REGISTRY_OUTPUT_ALT)
+        self.assertEqual(output, REGISTRY_OUTPUT_ALT)
 
     def test_delete_with_args(self):
         """Test delete action"""
@@ -260,14 +257,14 @@ class TestOrgsAdd(unittest.TestCase):
 
         self.cmd.add('Bitergium')
         self.cmd.add('Bitergium')
-        output = sys.stdout.getvalue().strip()
+        output = sys.stderr.getvalue().strip()
         self.assertEqual(output, REGISTRY_ORG_ALREADY_EXISTS_ERROR)
 
     def test_non_existing_organization(self):
         """Check if it fails adding domains to not existing organizations"""
 
         self.cmd.add('Bitergium', 'bitergium.com')
-        output = sys.stdout.getvalue().strip()
+        output = sys.stderr.getvalue().strip()
         self.assertEqual(output, REGISTRY_ORG_NOT_FOUND_ERROR)
 
     def test_existing_domain(self):
@@ -282,7 +279,7 @@ class TestOrgsAdd(unittest.TestCase):
         # Add 'bitergia.com' to 'Example' org
         # It should print an error
         self.cmd.add('Example', 'bitergia.com')
-        output = sys.stdout.getvalue().strip()
+        output = sys.stderr.getvalue().strip()
         self.assertEqual(output, REGISTRY_DOM_ALREADY_EXISTS_ERROR)
 
     def test_overwrite_domain(self):
@@ -425,7 +422,7 @@ class TestOrgsDelete(unittest.TestCase):
 
         # It should print an error when the registry is empty
         self.cmd.delete('Bitergium')
-        output = sys.stdout.getvalue().strip().split('\n')[0]
+        output = sys.stderr.getvalue().strip().split('\n')[0]
         self.assertEqual(output, REGISTRY_ORG_NOT_FOUND_ERROR)
 
         # Add a pair of organizations to check delete with a registry
@@ -436,13 +433,13 @@ class TestOrgsDelete(unittest.TestCase):
 
         # The error should be the same
         self.cmd.delete('Bitergium')
-        output = sys.stdout.getvalue().strip().split('\n')[1]
+        output = sys.stderr.getvalue().strip().split('\n')[1]
         self.assertEqual(output, REGISTRY_ORG_NOT_FOUND_ERROR)
 
         # It fails again, when trying to delete a domain from
         # a organization that does not exist
         self.cmd.delete('LibreSoft', 'bitergium.com')
-        output = sys.stdout.getvalue().strip().split('\n')[2]
+        output = sys.stderr.getvalue().strip().split('\n')[2]
         self.assertEqual(output, REGISTRY_ORG_NOT_FOUND_ERROR_ALT)
 
         # Nothing has been deleted from the registry
@@ -461,13 +458,13 @@ class TestOrgsDelete(unittest.TestCase):
         self.cmd.add('Bitergia', 'bitergia.com')
 
         self.cmd.delete('Example', 'example.com')
-        output = sys.stdout.getvalue().strip().split('\n')[0]
+        output = sys.stderr.getvalue().strip().split('\n')[0]
         self.assertEqual(output, REGISTRY_DOM_NOT_FOUND_ERROR)
 
         # It should not fail because the domain is assigned
         # to other organization
         self.cmd.delete('Example', 'bitergia.com')
-        output = sys.stdout.getvalue().strip().split('\n')[1]
+        output = sys.stderr.getvalue().strip().split('\n')[1]
         self.assertEqual(output, REGISTRY_DOM_NOT_FOUND_ERROR_ALT)
 
         # Nothing has been deleted from the registry
@@ -518,7 +515,7 @@ class TestOrgsRegistry(unittest.TestCase):
         """Check whether it prints an error for not existing organizations"""
 
         self.cmd.registry('Bitergium')
-        output = sys.stdout.getvalue().strip()
+        output = sys.stderr.getvalue().strip()
         self.assertEqual(output, REGISTRY_ORG_NOT_FOUND_ERROR)
 
     def test_empty_registry(self):

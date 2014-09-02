@@ -80,11 +80,10 @@ class Withdraw(Command):
         try:
             from_date = utils.str_to_datetime(params.from_date)
             to_date = utils.str_to_datetime(params.to_date)
-        except InvalidDateError, e:
-            print "Error: %s" % str(e)
-            return
 
-        self.withdraw(uuid, organization, from_date, to_date)
+            self.withdraw(uuid, organization, from_date, to_date)
+        except InvalidDateError, e:
+            self.error(str(e))
 
     def withdraw(self, uuid, organization, from_date=None, to_date=None):
         """Withdraw a unique identity from an organization.
@@ -111,4 +110,4 @@ class Withdraw(Command):
         try:
             api.delete_enrollment(self.db, uuid, organization, from_date, to_date)
         except (NotFoundError, ValueError), e:
-            print "Error: %s" % str(e)
+            self.error(str(e))

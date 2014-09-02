@@ -81,4 +81,4 @@ class Show(Command):
 
             self.display('show.tmpl', uidentities=uidentities)
         except NotFoundError, e:
-            print "Error: %s" % str(e)
+            self.error(str(e))

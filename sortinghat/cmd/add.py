@@ -101,4 +101,4 @@ class Add(Command):
             new_uuid = api.add_identity(self.db, source, email, name, username, uuid)
             self.display('add.tmpl', new_uuid=new_uuid)
         except (AlreadyExistsError, NotFoundError, ValueError), e:
-            print "Error: %s" % str(e)
+            self.error(str(e))

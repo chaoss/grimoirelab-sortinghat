@@ -55,6 +55,14 @@ class Command(object):
 
         sys.stdout.write(s)
 
+    def error(self, msg):
+        s = "Error: %s\n" % msg
+        sys.stderr.write(s)
+
+    def warning(self, msg):
+        s = "Warning: %s\n" % msg
+        sys.stderr.write(s)
+
     def _set_database(self, **kwargs):
         try:
             self.db = Database(kwargs['user'], kwargs['password'],

@@ -50,7 +50,7 @@ class TestBaseCase(unittest.TestCase):
     """Defines common setup and teardown methods on add unit tests"""
 
     def setUp(self):
-        if not hasattr(sys.stdout, 'getvalue'):
+        if not hasattr(sys.stdout, 'getvalue') and not hasattr(sys.stderr, 'getvalue'):
             self.fail('This test needs to be run in buffered mode')
 
         # Create a connection to check the contents of the registry
@@ -120,36 +120,36 @@ class TestAdd(TestBaseCase):
         """Check if it fails adding identities to unique identities that do not exist"""
 
         self.cmd.add('scm', email='jroe@example.com', uuid='FFFFFFFFFFFFFFF')
-        output = sys.stdout.getvalue().strip()
+        output = sys.stderr.getvalue().strip()
         self.assertEqual(output, ADD_UUID_NOT_FOUND_ERROR)
 
     def test_existing_identity(self):
         """Check if it fails adding an identity that already exists"""
 
         self.cmd.add('scm', 'jsmith@example.com', 'John Smith', 'jsmith')
-        output = sys.stdout.getvalue().strip()
+        output = sys.stderr.getvalue().strip()
         self.assertEqual(output, ADD_EXISTING_ERROR)
 
     def test_none_or_empty_source(self):
         """Check whether new identities cannot be added when giving a None or empty source"""
 
         self.cmd.add(None)
-        output = sys.stdout.getvalue().strip().split('\n')[0]
+        output = sys.stderr.getvalue().strip().split('\n')[0]
         self.assertEqual(output, ADD_SOURCE_NONE_ERROR)
 
         self.cmd.add('')
-        output = sys.stdout.getvalue().strip().split('\n')[1]
+        output = sys.stderr.getvalue().strip().split('\n')[1]
         self.assertEqual(output, ADD_SOURCE_EMPTY_ERROR)
 
     def test_none_or_empty_data(self):
         """Check whether new identities cannot be added when identity data is None or empty"""
 
         self.cmd.add('scm', None, '', None)
-        output = sys.stdout.getvalue().strip().split('\n')[0]
+        output = sys.stderr.getvalue().strip().split('\n')[0]
         self.assertEqual(output, ADD_IDENTITY_NONE_OR_EMPTY_ERROR)
 
         self.cmd.add('scm', '', '', '')
-        output = sys.stdout.getvalue().strip().split('\n')[1]
+        output = sys.stderr.getvalue().strip().split('\n')[1]
         self.assertEqual(output, ADD_IDENTITY_NONE_OR_EMPTY_ERROR)
 
 

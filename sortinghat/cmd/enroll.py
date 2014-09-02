@@ -80,11 +80,10 @@ class Enroll(Command):
         try:
             from_date = utils.str_to_datetime(params.from_date)
             to_date = utils.str_to_datetime(params.to_date)
-        except InvalidDateError, e:
-            print "Error: %s" % str(e)
-            return
 
-        self.enroll(uuid, organization, from_date, to_date)
+            self.enroll(uuid, organization, from_date, to_date)
+        except InvalidDateError, e:
+            self.error(str(e))
 
     def enroll(self, uuid, organization, from_date=None, to_date=None):
         """Enroll a unique identity in an organization.
@@ -109,4 +108,4 @@ class Enroll(Command):
         try:
             api.add_enrollment(self.db, uuid, organization, from_date, to_date)
         except (AlreadyExistsError, NotFoundError, ValueError), e:
-            print "Error: %s" % str(e)
+            self.error(str(e))

@@ -159,19 +159,19 @@ class TestLogCommand(TestBaseCase):
         """Check whether it fails when invalid dates are given"""
 
         self.cmd.run('--from', '1999-13-01')
-        output = sys.stdout.getvalue().strip('\n').split('\n')[0]
+        output = sys.stderr.getvalue().strip('\n').split('\n')[0]
         self.assertEqual(output, LOG_INVALID_DATE_ERROR)
 
         self.cmd.run('--from', 'YYZYY')
-        output = sys.stdout.getvalue().strip('\n').split('\n')[1]
+        output = sys.stderr.getvalue().strip('\n').split('\n')[1]
         self.assertEqual(output, LOG_INVALID_FORMAT_DATE_ERROR)
 
         self.cmd.run('--to', '1999-13-01')
-        output = sys.stdout.getvalue().strip('\n').split('\n')[2]
+        output = sys.stderr.getvalue().strip('\n').split('\n')[2]
         self.assertEqual(output, LOG_INVALID_DATE_ERROR)
 
         self.cmd.run('--to', 'YYZYY')
-        output = sys.stdout.getvalue().strip('\n').split('\n')[3]
+        output = sys.stderr.getvalue().strip('\n').split('\n')[3]
         self.assertEqual(output, LOG_INVALID_FORMAT_DATE_ERROR)
 
 
@@ -213,21 +213,21 @@ class TestLog(TestBaseCase):
         self.cmd.log('John Smith', 'Example',
                      datetime.datetime(2001, 1, 1),
                      datetime.datetime(1999, 1, 1))
-        output = sys.stdout.getvalue().strip()
+        output = sys.stderr.getvalue().strip()
         self.assertEqual(output, LOG_INVALID_PERIOD_ERROR)
 
     def test_not_found_uuid(self):
         """Check whether it raises an error when the uiid is not available"""
 
         self.cmd.log(uuid='Jane Roe')
-        output = sys.stdout.getvalue().strip()
+        output = sys.stderr.getvalue().strip()
         self.assertEqual(output, LOG_UUID_NOT_FOUND_ERROR)
 
     def test_not_found_organization(self):
         """Check whether it raises an error when the organization is not available"""
 
         self.cmd.log(organization='LibreSoft')
-        output = sys.stdout.getvalue().strip()
+        output = sys.stderr.getvalue().strip()
         self.assertEqual(output, LOG_ORG_NOT_FOUND_ERROR)
 
     def test_empty_registry(self):
@@ -237,7 +237,7 @@ class TestLog(TestBaseCase):
         self.db.clear()
 
         self.cmd.log()
-        output = sys.stdout.getvalue().strip()
+        output = sys.stderr.getvalue().strip()
         self.assertEqual(output, LOG_EMPTY_OUTPUT)
 
 

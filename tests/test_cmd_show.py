@@ -189,7 +189,7 @@ class TestShow(TestBaseCase):
         """Check whether it raises an error when the uiid is not available"""
 
         self.cmd.show('FFFFFFFFFFFFFFF')
-        output = sys.stdout.getvalue().strip()
+        output = sys.stderr.getvalue().strip()
         self.assertEqual(output, SHOW_UUID_NOT_FOUND_ERROR)
 
     def test_empty_registry(self):
@@ -199,7 +199,7 @@ class TestShow(TestBaseCase):
         self.db.clear()
 
         self.cmd.show()
-        output = sys.stdout.getvalue().strip()
+        output = sys.stderr.getvalue().strip()
         self.assertEqual(output, SHOW_EMPTY_OUTPUT)
 
 

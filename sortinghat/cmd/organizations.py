@@ -137,7 +137,7 @@ class Organizations(Command):
                 # because organization cannot be None or empty
                 raise RuntimeError(str(e))
             except AlreadyExistsError, e:
-                print "Error: %s" % str(e)
+                self.error(str(e))
         else:
             try:
                 api.add_domain(self.db, organization, domain, overwrite)
@@ -145,7 +145,7 @@ class Organizations(Command):
                 # Same as above, domains cannot be None or empty
                 raise RuntimeError(str(e))
             except (AlreadyExistsError, NotFoundError), e:
-                print "Error: %s" % str(e)
+                self.error(str(e))
 
     def delete(self, organization, domain=None):
         """Remove organizations and domains from the registry.
@@ -168,12 +168,12 @@ class Organizations(Command):
             try:
                 api.delete_organization(self.db, organization)
             except NotFoundError, e:
-                print "Error: %s" % str(e)
+                self.error(str(e))
         else:
             try:
                 api.delete_domain(self.db, organization, domain)
             except NotFoundError, e:
-                print "Error: %s" % str(e)
+                self.error(str(e))
 
     def registry(self, organization=None):
         """List organizations and domains.
@@ -188,4 +188,4 @@ class Organizations(Command):
             orgs = api.registry(self.db, organization)
             self.display('organizations.tmpl', organizations=orgs)
         except NotFoundError, e:
-            print "Error: %s" % e
+            self.error(str(e))

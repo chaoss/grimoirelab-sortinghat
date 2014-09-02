@@ -119,7 +119,7 @@ class Load(Command):
         try:
             entries = self.__parse_domains_file(infile)
         except BadFileFormatError, e:
-            print "Error: %s" % str(e)
+            self.error(str(e))
             return
         except (IOError, TypeError), e:
             raise RuntimeError(str(e))
@@ -141,7 +141,8 @@ class Load(Command):
             except (ValueError, NotFoundError), e:
                 raise RuntimeError(str(e))
             except AlreadyExistsError, e:
-                print "Warning: %s. Not updated." % str(e)
+                msg = "%s. Not updated." % str(e)
+                self.warning(msg)
 
     def __parse_domains_file(self, infile):
         """Parse domains file object into a list of tuples"""
