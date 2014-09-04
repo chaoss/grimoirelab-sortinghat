@@ -91,7 +91,7 @@ class UniqueIdentity(ModelBase):
 class Identity(ModelBase):
     __tablename__ = 'identities'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(String(128), primary_key=True)
     name = Column(String(128))
     email = Column(String(128))
     username = Column(String(128))

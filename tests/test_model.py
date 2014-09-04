@@ -171,9 +171,9 @@ class TestIdentity(TestCaseBase):
     def test_unique_identities(self):
         """Check if there is only one tuple with the same values"""
 
-        id1 = Identity(name='John Smith', email='jsmith@example.com',
+        id1 = Identity(id='A', name='John Smith', email='jsmith@example.com',
                        username='jsmith', source='scm')
-        id2 = Identity(name='John Smith', email='jsmith@example.com',
+        id2 = Identity(id='B', name='John Smith', email='jsmith@example.com',
                        username='jsmith', source='scm')
 
         with self.assertRaisesRegexp(IntegrityError, DUP_CHECK_ERROR):

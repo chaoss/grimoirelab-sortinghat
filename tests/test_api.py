@@ -112,19 +112,21 @@ class TestAddIdentity(TestBaseCase):
     def test_add_new_identity(self):
         """Check if everything goes OK when adding a new identity"""
 
-        uuid = api.add_identity(self.db, 'scm', 'jsmith@example.com',
-                                'John Smith', 'jsmith')
+        unique_id = api.add_identity(self.db, 'scm', 'jsmith@example.com',
+                                     'John Smith', 'jsmith')
 
         with self.db.connect() as session:
             uid = session.query(UniqueIdentity).\
                     filter(UniqueIdentity.uuid == '03e12d00e37fd45593c49a5a5a1652deca4cf302').first()
-            self.assertEqual(uid.uuid, uuid)
+            self.assertEqual(uid.uuid, unique_id)
 
             identities = session.query(Identity).\
                             filter(Identity.uuid == uid.uuid).all()
             self.assertEqual(len(identities), 1)
 
             id1 = identities[0]
+            self.assertEqual(id1.id, unique_id)
+            self.assertEqual(id1.id, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
             self.assertEqual(id1.name, 'John Smith')
             self.assertEqual(id1.email, 'jsmith@example.com')
             self.assertEqual(id1.username, 'jsmith')
@@ -141,21 +143,18 @@ class TestAddIdentity(TestBaseCase):
                                      'jdoe@example.com', 'John Doe', 'jdoe')
 
         # Create new identities and assign them to John Smith id
-        uuid = api.add_identity(self.db, 'mls',
-                                'jsmith@example.com', 'John Smith', 'jsmith',
-                                uuid=jsmith_uuid)
-        self.assertEqual(jsmith_uuid, uuid)
+        unique_id1 = api.add_identity(self.db, 'mls',
+                                      'jsmith@example.com', 'John Smith', 'jsmith',
+                                      uuid=jsmith_uuid)
 
-        uuid = api.add_identity(self.db, 'mls',
-                                name='John Smith', username='jsmith',
-                                uuid=jsmith_uuid)
-        self.assertEqual(jsmith_uuid, uuid)
+        unique_id2 = api.add_identity(self.db, 'mls',
+                                      name='John Smith', username='jsmith',
+                                      uuid=jsmith_uuid)
 
         # Create a new identity for John Doe
-        uuid = api.add_identity(self.db, 'mls',
-                                'jdoe@example.com',
-                                uuid=jdoe_uuid)
-        self.assertEqual(jdoe_uuid, uuid)
+        unique_id3 = api.add_identity(self.db, 'mls',
+                                      'jdoe@example.com',
+                                      uuid=jdoe_uuid)
 
         # Check identities
         with self.db.connect() as session:
@@ -166,18 +165,22 @@ class TestAddIdentity(TestBaseCase):
             self.assertEqual(len(uid.identities), 3)
 
             id1 = uid.identities[0]
+            self.assertEqual(id1.id, jsmith_uuid)
             self.assertEqual(id1.name, 'John Smith')
             self.assertEqual(id1.email, 'jsmith@example.com')
             self.assertEqual(id1.username, 'jsmith')
             self.assertEqual(id1.source, 'scm')
+            self.assertEqual(id1.uuid, jsmith_uuid)
 
             id2 = uid.identities[1]
+            self.assertEqual(id2.id, unique_id1)
             self.assertEqual(id2.name, 'John Smith')
             self.assertEqual(id2.email, 'jsmith@example.com')
             self.assertEqual(id2.username, 'jsmith')
             self.assertEqual(id2.source, 'mls')
 
             id3 = uid.identities[2]
+            self.assertEqual(id3.id, unique_id2)
             self.assertEqual(id3.name, 'John Smith')
             self.assertEqual(id3.email, None)
             self.assertEqual(id3.username, 'jsmith')
@@ -190,12 +193,14 @@ class TestAddIdentity(TestBaseCase):
             self.assertEqual(len(uid.identities), 2)
 
             id1 = uid.identities[0]
+            self.assertEqual(id1.id, jdoe_uuid)
             self.assertEqual(id1.name, 'John Doe')
             self.assertEqual(id1.email, 'jdoe@example.com')
             self.assertEqual(id1.username, 'jdoe')
             self.assertEqual(id1.source, 'scm')
 
             id2 = uid.identities[1]
+            self.assertEqual(id2.id, unique_id3)
             self.assertEqual(id2.name, None)
             self.assertEqual(id2.email, 'jdoe@example.com')
             self.assertEqual(id2.username, None)
@@ -972,10 +977,10 @@ class TestUniqueIdentities(TestBaseCase):
         self.assertEqual(len(uid.identities), 2)
 
         id1 = uid.identities[0]
-        self.assertEqual(id1.email, 'jdoe@example.com')
+        self.assertEqual(id1.email, 'jdoe@libresoft.es')
 
         id2 = uid.identities[1]
-        self.assertEqual(id2.email, 'jdoe@libresoft.es')
+        self.assertEqual(id2.email, 'jdoe@example.com')
 
     def test_unique_identity_uuid(self):
         """Check if it returns the given unique identitie"""

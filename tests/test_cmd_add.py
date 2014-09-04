@@ -40,10 +40,10 @@ ADD_SOURCE_NONE_ERROR = "Error: source cannot be None"
 ADD_SOURCE_EMPTY_ERROR = "Error: source cannot be an empty string"
 ADD_UUID_NOT_FOUND_ERROR = "Error: FFFFFFFFFFFFFFF not found in the registry"
 
-ADD_OUTPUT = """New identity added to 0b7c0ba5f9fc01e4799d684e0a1c3561b53d93d5
-New identity added to fef873c50a48cfc057f7aa19f423f81889a8907f
-New identity added to 7367d83759d7b12790d0a44bf615c5215aa867d4
-New identity added to 03e12d00e37fd45593c49a5a5a1652deca4cf302"""
+ADD_OUTPUT = """New identity 0b7c0ba5f9fc01e4799d684e0a1c3561b53d93d5 added to 0b7c0ba5f9fc01e4799d684e0a1c3561b53d93d5
+New identity fef873c50a48cfc057f7aa19f423f81889a8907f added to fef873c50a48cfc057f7aa19f423f81889a8907f
+New identity 7367d83759d7b12790d0a44bf615c5215aa867d4 added to 7367d83759d7b12790d0a44bf615c5215aa867d4
+New identity 02f161840469eb5348dec798166a171b34f0bc8a added to 03e12d00e37fd45593c49a5a5a1652deca4cf302"""
 
 
 class TestBaseCase(unittest.TestCase):

@@ -60,8 +60,8 @@ unique identity 52e0aa0a14826627e633fd15332988686b730ab3
 
 Identities:
   Jane Roe\tjroe@example.com\tjroe\tscm
-  -\tjroe@example.com\t-\tscm
   -\tjroe@bitergia.com\t-\tunknown
+  -\tjroe@example.com\t-\tscm
 
 Enrollments:
   Bitergia\t1999-01-01 00:00:00\t2000-01-01 00:00:00
@@ -72,8 +72,8 @@ SHOW_UUID_OUTPUT = """unique identity 52e0aa0a14826627e633fd15332988686b730ab3
 
 Identities:
   Jane Roe\tjroe@example.com\tjroe\tscm
-  -\tjroe@example.com\t-\tscm
   -\tjroe@bitergia.com\t-\tunknown
+  -\tjroe@example.com\t-\tscm
 
 Enrollments:
   Bitergia\t1999-01-01 00:00:00\t2000-01-01 00:00:00

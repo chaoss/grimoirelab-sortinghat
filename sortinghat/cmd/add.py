@@ -88,7 +88,7 @@ class Add(Command):
         When <uuid> parameter is set, it only creates a new identity that will be
         associated to a unique identity defined by <uuid>.
 
-        The method will print the uuid associated to the new registered identity.
+        The method will print the uuids associated to the new registered identity.
 
         :param source: data source
         :param email: email of the identity
@@ -98,7 +98,8 @@ class Add(Command):
             identified by this id
         """
         try:
-            new_uuid = api.add_identity(self.db, source, email, name, username, uuid)
-            self.display('add.tmpl', new_uuid=new_uuid)
+            id = api.add_identity(self.db, source, email, name, username, uuid)
+            uuid = uuid or id
+            self.display('add.tmpl', id=id, uuid=uuid)
         except (AlreadyExistsError, NotFoundError, ValueError), e:
             self.error(str(e))

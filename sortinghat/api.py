@@ -73,7 +73,9 @@ def add_identity(db, source, email=None, name=None, username=None, uuid=None):
     be raised when the function tries to insert a tuple that exists in the
     registry.
 
-    The function returns the uuid associated to the new registered identity.
+    The function returns the identifier associated to the new registered
+    identity. When no 'uuid' is given, this id and the uuid associated to
+    the new identity will be the same.
 
     :param db: database manager
     :param source: data source
@@ -83,7 +85,7 @@ def add_identity(db, source, email=None, name=None, username=None, uuid=None):
     :param uuid: associates the new identity to the unique identity
         identified by this id
 
-    :returns: a universal an unique identifier
+    :returns: a universal unique identifier
 
     :raises ValueError: when source is None or empty; each one of the
         parameters is None; parameters are empty.
@@ -122,11 +124,11 @@ def add_identity(db, source, email=None, name=None, username=None, uuid=None):
             entity = '-'.join((str(source), str(email), str(name), str(username)))
             raise AlreadyExistsError(entity=entity)
 
-        # Create a new unique identity
+        # Each identity needs a unique identifier
+        id = utils.uuid(source, email=email, name=name, username=username)
+
         if not uuid:
-            uuid = utils.uuid(source, email=email, name=name,
-                              username=username)
-            uid = UniqueIdentity(uuid=uuid)
+            uid = UniqueIdentity(uuid=id)
             session.add(uid)
         else:
             uid = _find_unique_identity(session, uuid)
@@ -134,12 +136,12 @@ def add_identity(db, source, email=None, name=None, username=None, uuid=None):
         if not uid:
             raise NotFoundError(entity=uuid)
 
-        identity = Identity(name=name, email=email, username=username,
-                            source=source)
+        identity = Identity(id=id, name=name, email=email,
+                            username=username, source=source)
         identity.uidentity = uid
         session.add(identity)
 
-        return uid.uuid
+        return id
 
 
 def add_organization(db, organization):
