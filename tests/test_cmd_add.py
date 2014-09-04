@@ -75,8 +75,8 @@ class TestBaseCase(unittest.TestCase):
         api.add_identity(self.db, 'scm', 'jsmith@example.com',
                          'John Smith')
 
-class TestEnrollCommand(TestBaseCase):
-    """Enroll command unit tests"""
+class TestAddCommand(TestBaseCase):
+    """Add command unit tests"""
 
     def test_add(self):
         """Check how it works when adding identities"""
