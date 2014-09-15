@@ -332,7 +332,7 @@ class TestAddDomain(TestBaseCase):
         api.add_domain(self.db, 'Example', 'example.net')
 
         with self.db.connect() as session:
-            domains = session.query(Domain).\
+            domains = session.query(Domain).join(Organization).\
                 filter(Organization.name == 'Example').all()
             self.assertEqual(len(domains), 3)
             self.assertEqual(domains[0].domain, 'example.com')
@@ -474,6 +474,7 @@ class TestAddEnrollment(TestBaseCase):
 
         with self.db.connect() as session:
             enrollments = session.query(Enrollment).\
+                join(UniqueIdentity, Organization).\
                 filter(UniqueIdentity.uuid == 'John Smith',
                        Organization.name == 'Example').all()
             self.assertEqual(len(enrollments), 3)
@@ -574,11 +575,11 @@ class TestDeleteUniqueIdentity(TestBaseCase):
                 filter(UniqueIdentity.uuid == 'John Smith').first()
             self.assertEqual(uid1, None)
 
-            identities = session.query(Identity).\
+            identities = session.query(Identity).join(UniqueIdentity).\
                 filter(UniqueIdentity.uuid == 'John Smith').all()
             self.assertEqual(len(identities), 0)
 
-            enrollments = session.query(Enrollment).\
+            enrollments = session.query(Enrollment).join(UniqueIdentity).\
                 filter(UniqueIdentity.uuid == 'John Smith').all()
             self.assertEqual(len(enrollments), 0)
 
@@ -762,7 +763,7 @@ class TestDeleteOrganization(TestBaseCase):
                     filter(Domain.domain == 'example.org').first()
             self.assertEqual(dom2, None)
 
-            enr1 = session.query(Enrollment).\
+            enr1 = session.query(Enrollment).join(Organization).\
                 filter(Organization.name == 'Example').first()
             self.assertEqual(enr1, None)
 
