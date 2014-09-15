@@ -630,6 +630,103 @@ class TestDeleteUniqueIdentity(TestBaseCase):
             self.assertEqual(len(enrollments), 1)
 
 
+class TestDeteleIdentity(TestBaseCase):
+    """Unit tests for delete_identity"""
+
+    def test_delete_identities(self):
+        """Check whether it deletes a set of identities"""
+
+        # First, add a set of identities
+        jsmith_uuid = api.add_identity(self.db, 'scm', 'jsmith@example')
+        jsmith = api.add_identity(self.db, 'scm', 'jsmith@example', 'John Smith',
+                                  uuid=jsmith_uuid)
+        jdoe_uuid = api.add_identity(self.db, 'scm', 'jdoe@example')
+        jrae_uuid = api.add_identity(self.db, 'scm', 'jrae@example', 'Jane Rae')
+
+        api.add_organization(self.db, 'Example')
+        api.add_enrollment(self.db, jsmith_uuid, 'Example')
+        api.add_enrollment(self.db, jdoe_uuid, 'Example')
+
+        api.add_organization(self.db, 'Bitergia')
+        api.add_enrollment(self.db, jsmith_uuid, 'Bitergia')
+
+        api.add_organization(self.db, 'LibreSoft')
+        api.add_enrollment(self.db, jrae_uuid, 'LibreSoft')
+
+        # Delete the first identity
+        api.delete_identity(self.db, jsmith)
+
+        with self.db.connect() as session:
+            uid1 = session.query(UniqueIdentity).\
+                filter(UniqueIdentity.uuid == jsmith_uuid).first()
+            self.assertEqual(uid1.uuid, jsmith_uuid)
+            self.assertEqual(len(uid1.identities), 1)
+
+            identities = session.query(Identity).\
+                filter(Identity.id == jsmith).all()
+            self.assertEqual(len(identities), 0)
+
+            enrollments = session.query(Enrollment).join(UniqueIdentity).\
+                filter(UniqueIdentity.uuid == jsmith_uuid).all()
+            self.assertEqual(len(enrollments), 2)
+
+        # Delete the last identity
+        api.delete_identity(self.db, jrae_uuid)
+
+        with self.db.connect() as session:
+            uid2 = session.query(UniqueIdentity).\
+                filter(UniqueIdentity.uuid == jrae_uuid).first()
+            self.assertEqual(uid2.uuid, jrae_uuid)
+            self.assertEqual(len(uid2.identities), 0)
+
+            # Check if there only remains three unique identity and
+            # two identities (one from John Smith and another one
+            # from John Doe)
+            uidentities = session.query(UniqueIdentity).all()
+            self.assertEqual(len(uidentities), 3)
+            self.assertEqual(uidentities[0].uuid, jdoe_uuid)
+            self.assertEqual(uidentities[1].uuid, jrae_uuid)
+            self.assertEqual(uidentities[2].uuid, jsmith_uuid)
+
+            identities = session.query(Identity).all()
+            self.assertEqual(len(identities), 2)
+            self.assertEqual(identities[0].id, jdoe_uuid)
+            self.assertEqual(identities[1].id, jsmith_uuid)
+
+            enrollments = session.query(Enrollment).all()
+            self.assertEqual(len(enrollments), 4)
+
+            orgs = session.query(Organization).all()
+            self.assertEqual(len(orgs), 3)
+
+    def test_not_found_id(self):
+        """Check if it fails removing an identity that does not exists"""
+
+        # It should raise an error when the registry is empty
+        self.assertRaises(NotFoundError, api.delete_identity,
+                          self.db, 'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF')
+
+        # Add a pair of identities first
+        id1 = api.add_identity(self.db, 'scm',
+                               'jsmith@example.com', 'John Smith', 'jsmith')
+        id2 = api.add_identity(self.db, 'scm',
+                         'jdoe@example.com', 'John Doe', 'jdoe')
+
+        # The error should be the same
+        self.assertRaises(NotFoundError, api.delete_identity,
+                          self.db, 'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF')
+
+        # Nothing has been deleted from the registry
+        with self.db.connect() as session:
+            ids = session.query(UniqueIdentity).all()
+            self.assertEqual(len(ids), 2)
+
+            ids = session.query(Identity).all()
+            self.assertEqual(len(ids), 2)
+            self.assertEqual(ids[0].id, id1)
+            self.assertEqual(ids[1].id, id2)
+
+
 class TestDeleteOrganization(TestBaseCase):
     """Unit tests for delete_organization"""
 

@@ -324,6 +324,32 @@ def delete_unique_identity(db, uuid):
         session.delete(identity)
 
 
+def delete_identity(db, id):
+    """Remove an identity from the registry.
+
+    This function removes from the registry, the identity which its identifier
+    matches with id. Take into account that this function does not remove
+    unique identities.
+
+    When the given identity is not found in the registry a 'NotFoundError'
+    exception is raised.
+
+    :param db: database manager
+    :param id: identifier assigned to the identity that will be removed
+
+    :raises NotFoundError: raised when the identity does not exist in the
+        registry.
+    """
+    with db.connect() as session:
+        identity = session.query(Identity).\
+            filter(Identity.id == id).first()
+
+        if not identity:
+            raise NotFoundError(entity=id)
+
+        session.delete(identity)
+
+
 def delete_organization(db, organization):
     """Remove an organization from the registry.
 
