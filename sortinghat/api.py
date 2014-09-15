@@ -304,14 +304,16 @@ def delete_unique_identity(db, uuid):
     Function that removes from the registry, the unique identity
     that matches with uuid. Data related to this identity will be
     also removed.
-    It checks first whether the identity is already on the registry.
-    When it is found, the identity is removed. Otherwise, it will raise
-    a 'NotFoundError' exception.
+
+    It checks first whether the unique identity is already on the registry.
+    When it is found, the unique identity is removed. Otherwise, it will
+    raise a 'NotFoundError' exception.
 
     :param db: database manager
-    :param uuid: unique identifier assigned to the identity set for being removed
+    :param uuid: unique identifier assigned to the unique identity set
+        for being removed
 
-    :raises NotFoundError: raised when the identity does not exist
+    :raises NotFoundError: raised when the unique identity does not exist
         in the registry.
     """
     with db.connect() as session:
