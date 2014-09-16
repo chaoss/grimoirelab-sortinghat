@@ -78,6 +78,23 @@ class TestBaseCase(unittest.TestCase):
                          'John Doe', 'jdoe')
 
 
+class TestRemoveCommand(TestBaseCase):
+    """Remove command unit tests"""
+
+    def test_remove(self):
+        """Check how it works when removing unique identities and identities"""
+
+        # Remove an identity
+        self.cmd.run('--identity', '62cce16ac0a5c391b4e0c3ccb3e924d65de8c345')
+        output = sys.stdout.getvalue().strip('\n').split('\n')[0]
+        self.assertEqual(output, REMOVE_ID_OUTPUT)
+
+        # Remove a unique identity
+        self.cmd.run('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF')
+        output = sys.stdout.getvalue().strip('\n').split('\n')[1]
+        self.assertEqual(output, REMOVE_UUID_OUTPUT)
+
+
 class TestRemove(TestBaseCase):
     """Unit tests for remove"""
 

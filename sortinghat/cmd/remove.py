@@ -20,18 +20,59 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+import argparse
+
 from sortinghat import api
 from sortinghat.command import Command
 from sortinghat.exceptions import NotFoundError
 
 
 class Remove(Command):
-    """Remove identities from the registry."""
+    """Remove identities from the registry.
 
+    By default, this command removes a unique identity, identified by
+    <identifier> from the registry. When '--identity' option is set, it
+    will remove an identity, not a unique identity.
+
+    When a unique identity is removed, its related information such as
+    enrollments or identities will be also removed.
+    """
     def __init__(self, **kwargs):
         super(Remove, self).__init__(**kwargs)
 
         self._set_database(**kwargs)
+
+        self.parser = argparse.ArgumentParser(description=self.description,
+                                              usage=self.usage)
+
+        # Optional arguments
+        self.parser.add_argument('--identity', action='store_true',
+                                 help="set to remove an identity")
+
+        # Positional arguments
+        self.parser.add_argument('identifier',
+                                 help="identifier of the (unique) identity to remove")
+
+    @property
+    def description(self):
+        return """Remove unique identities or identities from the registry."""
+
+    @property
+    def usage(self):
+        return "%(prog)s rm [--identity] <identifier>"
+
+    def run(self, *args):
+        """Remove unique identities or identities from the registry.
+
+        By default, it removes the unique identity identified by <identifier>.
+        To remove an identity, set <identity> parameter.
+        """
+        params = self.parser.parse_args(args)
+
+        identifier = params.identifier
+        identity = params.identity
+
+        self.remove(identifier, identity)
 
     def remove(self, uuid_or_id, identity=False):
         """Remove an identity from the registry.
