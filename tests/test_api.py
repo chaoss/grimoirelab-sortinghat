@@ -1115,6 +1115,31 @@ class TestMergeUniqueIdentities(TestBaseCase):
             self.assertEqual(rol3.init, datetime.datetime(1999, 1, 1))
             self.assertEqual(rol3.end, datetime.datetime(2000, 1, 1))
 
+    def test_equal_unique_identities(self):
+        """Test that all remains the same when 'from' and 'to' identities are the same"""
+
+        # Add some unique identities and identities
+        api.add_unique_identity(self.db, 'John Smith')
+        api.add_identity(self.db, 'scm', 'jsmith@example.com',
+                         uuid='John Smith')
+        api.add_identity(self.db, 'scm', 'jsmith@example.com', 'John Smith',
+                         uuid='John Smith')
+
+        api.add_unique_identity(self.db, 'John Doe')
+        api.add_identity(self.db, 'scm', 'jdoe@example.com',
+                         uuid='John Doe')
+
+        # Merge the same identity
+        api.merge_unique_identities(self.db, 'John Smith', 'John Smith')
+
+        # Nothing has happened
+        with self.db.connect() as session:
+            uidentities = session.query(UniqueIdentity).all()
+            self.assertEqual(len(uidentities), 2)
+
+            uid2 = uidentities[1]
+            self.assertEqual(uid2.uuid, 'John Smith')
+            self.assertEqual(len(uid2.identities), 2)
 
     def test_not_found_unique_identities(self):
         """Test whether it fails when one of the unique identities is not found"""
@@ -1134,6 +1159,13 @@ class TestMergeUniqueIdentities(TestBaseCase):
                                 NOT_FOUND_ERROR % {'entity' : 'Jane Roe'},
                                 api.merge_unique_identities,
                                 self.db, 'John Smith', 'Jane Roe')
+
+        # Even if the identities are the same and do not exist, it still
+        # raises the exception
+        self.assertRaisesRegexp(NotFoundError,
+                                NOT_FOUND_ERROR % {'entity' : 'Jane Roe'},
+                                api.merge_unique_identities,
+                                self.db, 'Jane Roe', 'Jane Roe')
 
 
 class TestUniqueIdentities(TestBaseCase):
