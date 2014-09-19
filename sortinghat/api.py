@@ -468,6 +468,61 @@ def delete_enrollment(db, uuid, organization, from_date=None, to_date=None):
             session.delete(enr)
 
 
+def merge_unique_identities(db, from_uuid, to_uuid):
+    """Merge one unique identity into another.
+
+    Use this function to join 'from_uuid' unique identity into
+    'to_uuid'. Identities and enrollments related to 'from_uuid' will be
+    assigned to 'to_uuid'. In addition, 'from_uuid' will be removed
+    from the registry. Duplicated enrollments will be also removed from the
+    registry.
+
+    The function raises a 'NotFoundError exception when either 'from_uuid'
+    or 'to_uuid' do not exist in the registry.
+
+    :param from_uuid: identifier of the unique identity set to merge
+    :param to_uuid: identifier of the unique identity where 'from_uuid'
+        will be merged
+
+    :raises NotFoundError: raised when either 'from_uuid' or 'to_uuid'
+        do not exist in the registry
+    """
+    with db.connect() as session:
+        fuid =  session.query(UniqueIdentity).\
+            filter(UniqueIdentity.uuid == from_uuid).first()
+        tuid =  session.query(UniqueIdentity).\
+            filter(UniqueIdentity.uuid == to_uuid).first()
+
+        if not fuid:
+            raise NotFoundError(entity=from_uuid)
+        if not tuid:
+            raise NotFoundError(entity=to_uuid)
+
+        # Update identities
+        for identity in fuid.identities:
+            identity.uuid = to_uuid
+
+        # Update and remove duplicated enrollments
+        for rol in fuid.enrollments:
+            enrollment = session.query(Enrollment).\
+                filter(Enrollment.uidentity == tuid,
+                       Enrollment.organization == rol.organization,
+                       Enrollment.init == rol.init,
+                       Enrollment.end == rol.end).first()
+
+            if enrollment:
+                session.delete(rol)
+            else:
+                rol.uuid = to_uuid
+
+        # For some reason, uuid are not updated until changes are
+        # committed (flush does nothing). Force to commit changes
+        # to avoid deletion of identities when removing 'fuid'
+        session.commit()
+
+        session.delete(fuid)
+
+
 def unique_identities(db, uuid=None):
     """List the unique identities available in the registry.
 

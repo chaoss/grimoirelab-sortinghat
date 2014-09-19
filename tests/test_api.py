@@ -56,7 +56,8 @@ class TestBaseCase(unittest.TestCase):
         self.db.clear()
 
     def tearDown(self):
-        self.db.clear()
+        #self.db.clear()
+        pass
 
 
 class TestAddUniqueIdentity(TestBaseCase):
@@ -1031,6 +1032,108 @@ class TestDeleteEnrollment(TestBaseCase):
 
             enrollments = session.query(Enrollment).all()
             self.assertEqual(len(enrollments), 1)
+
+
+class TestMergeUniqueIdentities(TestBaseCase):
+    """Unit tests for merge_unique_identities"""
+
+    def test_merge_identitites(self):
+        """Test behavior merging unique identities"""
+
+        # Add some unique identities, identities and
+        # enrollments first
+        api.add_unique_identity(self.db, 'John Smith')
+        api.add_identity(self.db, 'scm', 'jsmith@example.com',
+                         uuid='John Smith')
+        api.add_identity(self.db, 'scm', 'jsmith@example.com', 'John Smith',
+                         uuid='John Smith')
+
+        api.add_unique_identity(self.db, 'John Doe')
+        api.add_identity(self.db, 'scm', 'jdoe@example.com',
+                         uuid='John Doe')
+        api.add_unique_identity(self.db, 'Jane Rae')
+
+        api.add_organization(self.db, 'Example')
+        api.add_enrollment(self.db, 'John Smith', 'Example')
+        api.add_enrollment(self.db, 'John Doe', 'Example')
+
+        api.add_organization(self.db, 'Bitergia')
+        api.add_enrollment(self.db, 'John Smith', 'Bitergia')
+        api.add_enrollment(self.db, 'John Doe', 'Bitergia',
+                           datetime.datetime(1999, 1, 1),
+                           datetime.datetime(2000, 1, 1))
+
+        api.add_organization(self.db, 'LibreSoft')
+        api.add_enrollment(self.db, 'Jane Rae', 'LibreSoft')
+
+        # Merge John Smith and John Doe unique identities
+        api.merge_unique_identities(self.db, 'John Smith', 'John Doe')
+
+        with self.db.connect() as session:
+            uidentities = session.query(UniqueIdentity).all()
+            self.assertEqual(len(uidentities), 2)
+
+            uid1 = uidentities[0]
+            self.assertEqual(uid1.uuid, 'Jane Rae')
+            self.assertEqual(len(uid1.identities), 0)
+            self.assertEqual(len(uid1.enrollments), 1)
+
+            uid2 = uidentities[1]
+            self.assertEqual(uid2.uuid, 'John Doe')
+            self.assertEqual(len(uid2.identities), 3)
+
+            id1 = uid2.identities[0]
+            self.assertEqual(id1.name, 'John Smith')
+            self.assertEqual(id1.email, 'jsmith@example.com')
+            self.assertEqual(id1.source, 'scm')
+
+            id2 = uid2.identities[1]
+            self.assertEqual(id2.name, None)
+            self.assertEqual(id2.email, 'jsmith@example.com')
+            self.assertEqual(id2.source, 'scm')
+
+            id3 = uid2.identities[2]
+            self.assertEqual(id3.name, None)
+            self.assertEqual(id3.email, 'jdoe@example.com')
+            self.assertEqual(id3.source, 'scm')
+
+            # Duplicate enrollments should had been removed
+            self.assertEqual(len(uid2.enrollments), 3)
+
+            rol1 = uid2.enrollments[0]
+            self.assertEqual(rol1.organization.name, 'Example')
+            self.assertEqual(rol1.init, datetime.datetime(1900, 1, 1))
+            self.assertEqual(rol1.end, datetime.datetime(2100, 1, 1))
+
+            rol2 = uid2.enrollments[1]
+            self.assertEqual(rol2.organization.name, 'Bitergia')
+            self.assertEqual(rol2.init, datetime.datetime(1900, 1, 1))
+            self.assertEqual(rol2.end, datetime.datetime(2100, 1, 1))
+
+            rol3 = uid2.enrollments[2]
+            self.assertEqual(rol3.organization.name, 'Bitergia')
+            self.assertEqual(rol3.init, datetime.datetime(1999, 1, 1))
+            self.assertEqual(rol3.end, datetime.datetime(2000, 1, 1))
+
+
+    def test_not_found_unique_identities(self):
+        """Test whether it fails when one of the unique identities is not found"""
+
+        # Add some unique identities first
+        api.add_unique_identity(self.db, 'John Smith')
+        api.add_unique_identity(self.db, 'John Doe')
+
+        # Check 'from_uuid' parameter
+        self.assertRaisesRegexp(NotFoundError,
+                                NOT_FOUND_ERROR % {'entity' : 'Jane Roe'},
+                                api.merge_unique_identities,
+                                self.db, 'Jane Roe', 'John Smith')
+
+        # Check 'to_uuid' parameter
+        self.assertRaisesRegexp(NotFoundError,
+                                NOT_FOUND_ERROR % {'entity' : 'Jane Roe'},
+                                api.merge_unique_identities,
+                                self.db, 'John Smith', 'Jane Roe')
 
 
 class TestUniqueIdentities(TestBaseCase):
