@@ -56,8 +56,7 @@ class TestBaseCase(unittest.TestCase):
         self.db.clear()
 
     def tearDown(self):
-        #self.db.clear()
-        pass
+        self.db.clear()
 
 
 class TestAddUniqueIdentity(TestBaseCase):
@@ -1166,6 +1165,105 @@ class TestMergeUniqueIdentities(TestBaseCase):
                                 NOT_FOUND_ERROR % {'entity' : 'Jane Roe'},
                                 api.merge_unique_identities,
                                 self.db, 'Jane Roe', 'Jane Roe')
+
+
+class TestMoveIdentity(TestBaseCase):
+    """Unit tests for move_identity"""
+
+    def test_move_identity(self):
+        """Test when an identity is moved to a unique identity"""
+
+        # Add some unique identities and identities first
+        api.add_unique_identity(self.db, 'John Smith')
+        api.add_identity(self.db, 'scm', 'jsmith@example.com',
+                         uuid='John Smith')
+        api.add_identity(self.db, 'scm', 'jsmith@example.com', 'John Smith',
+                         uuid='John Smith')
+
+        api.add_unique_identity(self.db, 'John Doe')
+        from_id = api.add_identity(self.db, 'scm', 'jdoe@example.com',
+                                   uuid='John Doe')
+
+        api.move_identity(self.db, from_id, 'John Smith')
+
+        with self.db.connect() as session:
+            uidentities = session.query(UniqueIdentity).all()
+            self.assertEqual(len(uidentities), 2)
+
+            uid1 = uidentities[0]
+            self.assertEqual(uid1.uuid, 'John Doe')
+            self.assertEqual(len(uid1.identities), 0)
+
+            uid2 = uidentities[1]
+            self.assertEqual(uid2.uuid, 'John Smith')
+            self.assertEqual(len(uid2.identities), 3)
+
+            id1 = uid2.identities[0]
+            self.assertEqual(id1.name, 'John Smith')
+            self.assertEqual(id1.email, 'jsmith@example.com')
+            self.assertEqual(id1.source, 'scm')
+
+            id2 = uid2.identities[1]
+            self.assertEqual(id2.name, None)
+            self.assertEqual(id2.email, 'jsmith@example.com')
+            self.assertEqual(id2.source, 'scm')
+
+            id3 = uid2.identities[2]
+            self.assertEqual(id3.id, from_id)
+            self.assertEqual(id3.name, None)
+            self.assertEqual(id3.email, 'jdoe@example.com')
+            self.assertEqual(id3.source, 'scm')
+
+    def test_equal_related_unique_identity(self):
+        """Test that all remains the same when to_uuid is the unique identity related to 'from_id'"""
+
+        # Add some unique identities and identities first
+        api.add_unique_identity(self.db, 'John Smith')
+        from_id = api.add_identity(self.db, 'scm', 'jsmith@example.com',
+                                   uuid='John Smith')
+
+        api.add_unique_identity(self.db, 'John Doe')
+        api.add_identity(self.db, 'scm', 'jdoe@example.com',
+                         uuid='John Doe')
+
+        # Move the identity to the same unique identity
+        api.move_identity(self.db, from_id, 'John Smith')
+
+        # Nothing has happened
+        with self.db.connect() as session:
+            uidentities = session.query(UniqueIdentity).all()
+            self.assertEqual(len(uidentities), 2)
+
+            uid2 = uidentities[1]
+            self.assertEqual(uid2.uuid, 'John Smith')
+            self.assertEqual(len(uid2.identities), 1)
+
+            id1 = uid2.identities[0]
+            self.assertEqual(id1.id, from_id)
+
+    def test_not_found_identities(self):
+        """Test whether it fails when one of identities is not found"""
+
+        # Add some unique identities first
+        api.add_unique_identity(self.db, 'John Smith')
+        from_id = api.add_identity(self.db, 'scm', 'jsmith@example.com',
+                                   uuid='John Smith')
+
+        api.add_unique_identity(self.db, 'John Doe')
+        api.add_identity(self.db, 'scm', 'jdoe@example.com',
+                         uuid='John Doe')
+
+        # Check 'from_id' parameter
+        self.assertRaisesRegexp(NotFoundError,
+                                NOT_FOUND_ERROR % {'entity' : 'FFFFFFFFFFF'},
+                                api.move_identity,
+                                self.db, 'FFFFFFFFFFF', 'John Smith')
+
+        # Check 'to_uuid' parameter
+        self.assertRaisesRegexp(NotFoundError,
+                                NOT_FOUND_ERROR % {'entity' : 'Jane Roe'},
+                                api.move_identity,
+                                self.db, from_id, 'Jane Roe')
 
 
 class TestUniqueIdentities(TestBaseCase):

@@ -530,6 +530,41 @@ def merge_unique_identities(db, from_uuid, to_uuid):
         session.delete(fuid)
 
 
+def move_identity(db, from_id, to_uuid):
+    """Move an identity to a unique identity.
+
+    This function shifts the identity identified by 'from_id' to
+    the unique identity 'to_uuid'. When 'to_uuid' is the unique
+    identity that is currently related to 'from_id', the action does
+    not have any effect.
+
+    The function raises a 'NotFoundError exception when either 'from_id'
+    or 'to_uuid' do not exist in the registry.
+
+    :param from_id: identifier of the identity set to be moved
+    :param to_uuid: identifier of the unique identity where 'from_id'
+        will be moved
+
+    :raises NotFoundError: raised when either 'from_uuid' or 'to_uuid'
+        do not exist in the registry
+    """
+    with db.connect() as session:
+        fid = session.query(Identity).\
+            filter(Identity.id == from_id).first()
+        tuid = session.query(UniqueIdentity).\
+            filter(UniqueIdentity.uuid == to_uuid).first()
+
+        if not fid:
+            raise NotFoundError(entity=from_id)
+        if not tuid:
+            raise NotFoundError(entity=to_uuid)
+
+        if fid.uuid == to_uuid:
+            return
+
+        fid.uuid = to_uuid
+
+
 def unique_identities(db, uuid=None):
     """List the unique identities available in the registry.
 
