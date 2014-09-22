@@ -20,17 +20,56 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+import argparse
+
 from sortinghat import api
 from sortinghat.command import Command
 from sortinghat.exceptions import NotFoundError
 
 
 class Merge(Command):
+    """Merge one unique identity into another.
 
+    This command merges <from_uuid> unique identity into <to_uuid>,
+    removing the first unique identity from the registry. Identities
+    and enrollments will be also merged. Duplicated enrollments will be
+    removed from the registry.
+    """
     def __init__(self, **kwargs):
         super(Merge, self).__init__(**kwargs)
 
         self._set_database(**kwargs)
+
+        self.parser = argparse.ArgumentParser(description=self.description,
+                                              usage=self.usage)
+
+        # Positional arguments
+        self.parser.add_argument('from_uuid',
+                                 help="Unique identity to merge")
+        self.parser.add_argument('to_uuid',
+                                 help="Merge on this unique identity")
+
+    @property
+    def description(self):
+        return """Merge a unique identity into another one."""
+
+    @property
+    def usage(self):
+        return "%(prog)s merge <from_uuid> <to_uuid>"
+
+    def run(self, *args):
+        """Merge two identities.
+
+        When <from_uuid> or <to_uuid> are empty the command does not have
+        any effect. The same happens when both <from_uuid> and <to_uuid>
+        are the same unique identity.
+        """
+        params = self.parser.parse_args(args)
+
+        from_uuid = params.from_uuid
+        to_uuid = params.to_uuid
+
+        self.merge(from_uuid, to_uuid)
 
     def merge(self, from_uuid, to_uuid):
         """Merge one unique identity into another.

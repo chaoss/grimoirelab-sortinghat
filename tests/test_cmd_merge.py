@@ -91,6 +91,18 @@ class TestBaseCase(unittest.TestCase):
         api.add_organization(self.db, 'LibreSoft')
 
 
+class TestMergeCommand(TestBaseCase):
+    """Merge command unit tests"""
+
+    def test_merge(self):
+        """Check how it works when merging unique identities"""
+
+        # Remove an identity
+        self.cmd.run('John Doe', 'John Smith')
+        output = sys.stdout.getvalue().strip()
+        self.assertEqual(output, MERGE_OUTPUT)
+
+
 class TestMerge(TestBaseCase):
     """Unit tests for merge"""
 
