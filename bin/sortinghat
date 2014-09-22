@@ -41,6 +41,7 @@ SORTINGHAT_DESC_MSG = \
     config      Get and set configuration parameters
     enroll      Enroll identities into organizations
     load        Import organizations and domains on the registry
+    merge       Merge unique identities
     log         List enrollment information available in the registry
     orgs        List, add or delete organizations and domains
     rm          Remove identities from the registry

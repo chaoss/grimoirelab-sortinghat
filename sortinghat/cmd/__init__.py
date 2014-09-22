@@ -25,6 +25,7 @@ from sortinghat.cmd.config import Config
 from sortinghat.cmd.enroll import Enroll
 from sortinghat.cmd.load import Load
 from sortinghat.cmd.log import Log
+from sortinghat.cmd.merge import Merge
 from sortinghat.cmd.organizations import Organizations
 from sortinghat.cmd.remove import Remove
 from sortinghat.cmd.show import Show
@@ -37,6 +38,7 @@ SORTINGHAT_COMMANDS = {
                        'enroll'   : Enroll,
                        'load'     : Load,
                        'log'      : Log,
+                       'merge'    : Merge,
                        'orgs'     : Organizations,
                        'rm'       : Remove,
                        'show'     : Show,
