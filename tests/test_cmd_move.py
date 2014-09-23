@@ -78,6 +78,18 @@ class TestBaseCase(unittest.TestCase):
                          uuid='John Doe')
 
 
+class TestMoveCommand(TestBaseCase):
+    """Move command unit tests"""
+
+    def test_move(self):
+        """Check how it works when moving an identity"""
+
+        # Remove an identity
+        self.cmd.run('b4c250eaaf873a04093319f26ca13b02a9248251', 'John Smith')
+        output = sys.stdout.getvalue().strip()
+        self.assertEqual(output, MOVE_OUTPUT)
+
+
 class TestMove(TestBaseCase):
     """Unit tests for move"""
 

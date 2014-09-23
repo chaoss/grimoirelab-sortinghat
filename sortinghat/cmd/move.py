@@ -20,20 +20,58 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+import argparse
+
 from sortinghat import api
 from sortinghat.command import Command
 from sortinghat.exceptions import NotFoundError
 
 
 class Move(Command):
+    """Move an identity into a unique identity.
 
+    This command moves <from_id> identity into <to_uuid> unique identity.
+    When <to_uuid> is the unique identity that is currently related to
+    <from_id>, the command does not have any effect.
+    """
     def __init__(self, **kwargs):
         super(Move, self).__init__(**kwargs)
 
         self._set_database(**kwargs)
 
+        self.parser = argparse.ArgumentParser(description=self.description,
+                                              usage=self.usage)
+
+        # Positional arguments
+        self.parser.add_argument('from_id',
+                                 help="Identity to move")
+        self.parser.add_argument('to_uuid',
+                                 help="Move into this unique identity")
+
+    @property
+    def description(self):
+        return """Move an identity into a unique identity."""
+
+    @property
+    def usage(self):
+        return "%(prog)s mv <from_id> <to_uuid>"
+
+    def run(self, *args):
+        """Move an identity into a unique identity.
+
+        When <from_id> or <to_uuid> are empty the command does not have any
+        effect. The same happens when both <from_id> is currently related to
+        <to_uuid>.
+        """
+        params = self.parser.parse_args(args)
+
+        from_id = params.from_id
+        to_uuid = params.to_uuid
+
+        self.move(from_id, to_uuid)
+
     def move(self, from_id, to_uuid):
-        """Move an identity to a unique identity.
+        """Move an identity into a unique identity.
 
         The method moves the identity identified by <from_id> to
         the unique identity <to_uuid>.
