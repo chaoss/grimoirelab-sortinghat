@@ -26,6 +26,7 @@ from sortinghat.cmd.enroll import Enroll
 from sortinghat.cmd.load import Load
 from sortinghat.cmd.log import Log
 from sortinghat.cmd.merge import Merge
+from sortinghat.cmd.move import Move
 from sortinghat.cmd.organizations import Organizations
 from sortinghat.cmd.remove import Remove
 from sortinghat.cmd.show import Show
@@ -39,6 +40,7 @@ SORTINGHAT_COMMANDS = {
                        'load'     : Load,
                        'log'      : Log,
                        'merge'    : Merge,
+                       'mv'       : Move,
                        'orgs'     : Organizations,
                        'rm'       : Remove,
                        'show'     : Show,
