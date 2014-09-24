@@ -36,6 +36,7 @@ def add_unique_identity(db, uuid):
 
     :param db: database manager
     :param uuid: unique identifier for the identity
+
     :raises ValueError: when uuid is None or an empty string
     :raises AlreadyExistsError: when the identifier already exists
         in the registry.
@@ -46,14 +47,14 @@ def add_unique_identity(db, uuid):
         raise ValueError('uuid cannot be an empty string')
 
     with db.connect() as session:
-        identity = session.query(UniqueIdentity).\
+        uidentity = session.query(UniqueIdentity).\
             filter(UniqueIdentity.uuid == uuid).first()
 
-        if identity:
+        if uidentity:
             raise AlreadyExistsError(entity=uuid)
 
-        identity = UniqueIdentity(uuid=uuid)
-        session.add(identity)
+        uidentity = UniqueIdentity(uuid=uuid)
+        session.add(uidentity)
 
 
 def add_identity(db, source, email=None, name=None, username=None, uuid=None):
@@ -61,9 +62,10 @@ def add_identity(db, source, email=None, name=None, username=None, uuid=None):
 
     This function adds a new identity to the registry. By default, a new
     unique identity will be also added an associated to the new identity.
-    When 'uuid' parameter is set, it only creates a new identity that will be
-    associated to a unique identity defined by 'uuid'. If the given unique
-    identity does not exist, it raises a 'NotFoundError'.
+    When 'uuid' parameter is set, it creates a new identity that will be
+    associated to the unique identity defined by 'uuid' that already exists
+    on the registry. If the given unique identity does not exist, it raises
+    a 'NotFoundError' exception.
 
     The registry considers that two identities are distinct when any value
     of the tuple (source, email, name, username) is different. Thus, the
@@ -102,9 +104,9 @@ def add_identity(db, source, email=None, name=None, username=None, uuid=None):
 
         :returns: a unique identity object
         """
-        uid = session.query(UniqueIdentity).\
-                filter(UniqueIdentity.uuid == uuid).first()
-        return uid
+        uidentity = session.query(UniqueIdentity).\
+            filter(UniqueIdentity.uuid == uuid).first()
+        return uidentity
 
     if source is None:
         raise ValueError('source cannot be None')
@@ -125,23 +127,24 @@ def add_identity(db, source, email=None, name=None, username=None, uuid=None):
             raise AlreadyExistsError(entity=entity)
 
         # Each identity needs a unique identifier
-        id = utils.uuid(source, email=email, name=name, username=username)
+        identity_id = utils.uuid(source, email=email,
+                                 name=name, username=username)
 
         if not uuid:
-            uid = UniqueIdentity(uuid=id)
-            session.add(uid)
+            uidentity = UniqueIdentity(uuid=identity_id)
+            session.add(uidentity)
         else:
-            uid = _find_unique_identity(session, uuid)
+            uidentity = _find_unique_identity(session, uuid)
 
-        if not uid:
+        if not uidentity:
             raise NotFoundError(entity=uuid)
 
-        identity = Identity(id=id, name=name, email=email,
+        identity = Identity(id=identity_id, name=name, email=email,
                             username=username, source=source)
-        identity.uidentity = uid
+        identity.uidentity = uidentity
         session.add(identity)
 
-        return id
+        return identity_id
 
 
 def add_organization(db, organization):
@@ -155,6 +158,7 @@ def add_organization(db, organization):
 
     :param db: database manager
     :param organization: name of the organization
+
     :raises ValueError: raised when organization is None or an empty string
     :raises AlreadyExistsError: raised when the organization already exists
         in the registry.
@@ -270,10 +274,10 @@ def add_enrollment(db, uuid, organization, from_date=None, to_date=None):
         to_date = DEFAULT_END_DATE
 
     with db.connect() as session:
-        identity = session.query(UniqueIdentity).\
+        uidentity = session.query(UniqueIdentity).\
             filter(UniqueIdentity.uuid == uuid).first()
 
-        if not identity:
+        if not uidentity:
             raise NotFoundError(entity=uuid)
 
         org = session.query(Organization).\
@@ -283,7 +287,7 @@ def add_enrollment(db, uuid, organization, from_date=None, to_date=None):
             raise NotFoundError(entity=organization)
 
         enrollment = session.query(Enrollment).\
-            filter(Enrollment.uidentity == identity,
+            filter(Enrollment.uidentity == uidentity,
                    Enrollment.organization == org,
                    Enrollment.init == from_date,
                    Enrollment.end == to_date).first()
@@ -293,7 +297,7 @@ def add_enrollment(db, uuid, organization, from_date=None, to_date=None):
                               str(enrollment.init), str(enrollment.end)))
             raise AlreadyExistsError(entity=entity)
 
-        enrollment = Enrollment(uidentity=identity, organization=org,
+        enrollment = Enrollment(uidentity=uidentity, organization=org,
                                 init=from_date, end=to_date)
         session.add(enrollment)
 
@@ -317,16 +321,16 @@ def delete_unique_identity(db, uuid):
         in the registry.
     """
     with db.connect() as session:
-        identity = session.query(UniqueIdentity).\
+        uidentity = session.query(UniqueIdentity).\
             filter(UniqueIdentity.uuid == uuid).first()
 
-        if not identity:
+        if not uidentity:
             raise NotFoundError(entity=uuid)
 
-        session.delete(identity)
+        session.delete(uidentity)
 
 
-def delete_identity(db, id):
+def delete_identity(db, identity_id):
     """Remove an identity from the registry.
 
     This function removes from the registry, the identity which its identifier
@@ -337,17 +341,18 @@ def delete_identity(db, id):
     exception is raised.
 
     :param db: database manager
-    :param id: identifier assigned to the identity that will be removed
+    :param identity_id: identifier assigned to the identity that will
+        be removed
 
     :raises NotFoundError: raised when the identity does not exist in the
         registry.
     """
     with db.connect() as session:
         identity = session.query(Identity).\
-            filter(Identity.id == id).first()
+            filter(Identity.id == identity_id).first()
 
         if not identity:
-            raise NotFoundError(entity=id)
+            raise NotFoundError(entity=identity_id)
 
         session.delete(identity)
 
@@ -584,13 +589,13 @@ def unique_identities(db, uuid=None):
 
     with db.connect() as session:
         if uuid:
-            uid = session.query(UniqueIdentity).\
+            uidentity = session.query(UniqueIdentity).\
                 filter(UniqueIdentity.uuid == uuid).first()
 
-            if not uid:
+            if not uidentity:
                 raise NotFoundError(entity=uuid)
 
-            uidentities = [uid]
+            uidentities = [uidentity]
         else:
             uidentities = session.query(UniqueIdentity).\
                 order_by(UniqueIdentity.uuid).all()
@@ -687,13 +692,13 @@ def enrollments(db, uuid=None, organization=None, from_date=None, to_date=None):
 
         # Filter by uuid
         if uuid:
-            identity = session.query(UniqueIdentity).\
+            uidentity = session.query(UniqueIdentity).\
                 filter(UniqueIdentity.uuid == uuid).first()
 
-            if not identity:
+            if not uidentity:
                 raise NotFoundError(entity=uuid)
 
-            query = query.filter(Enrollment.uidentity == identity)
+            query = query.filter(Enrollment.uidentity == uidentity)
 
         # Filter by organization
         if organization:
