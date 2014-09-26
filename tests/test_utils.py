@@ -29,11 +29,118 @@ if not '..' in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat.exceptions import InvalidDateError
-from sortinghat.utils import str_to_datetime, uuid
+from sortinghat.utils import merge_date_ranges, str_to_datetime, uuid
 
-
+DATE_OUT_OF_BOUNDS_ERROR = "%(type)s %(date)s is out of bounds"
 SOURCE_NONE_OR_EMPTY_ERROR = "source cannot be"
 IDENTITY_NONE_OR_EMPTY_ERROR = "identity data cannot be None or empty"
+
+
+class TestMergeDateRanges(unittest.TestCase):
+    """Unit tests for merge_date_ranges function"""
+
+    def test_merge_date_ranges(self):
+        """Test function with several case inputs"""
+
+        # Case 1
+        dates = [(datetime.datetime(1900, 1, 1), datetime.datetime(2010, 1, 1)),
+                 (datetime.datetime(2008, 1, 1), datetime.datetime(2100, 1, 1))]
+
+        ranges = [r for r in merge_date_ranges(dates)]
+        self.assertEqual(len(ranges), 1)
+        self.assertEqual(ranges[0], (datetime.datetime(2008, 1, 1), datetime.datetime(2010, 1, 1)))
+
+        # Case 2
+        dates = [(datetime.datetime(1900, 1, 1), datetime.datetime(2010, 1, 1)),
+                 (datetime.datetime(2010, 1, 2), datetime.datetime(2100, 1, 1)),
+                 (datetime.datetime(2008, 1, 1), datetime.datetime(2010, 1, 1))]
+
+        ranges = [r for r in merge_date_ranges(dates)]
+        self.assertEqual(len(ranges), 2)
+        self.assertEqual(ranges[0], (datetime.datetime(2008, 1, 1), datetime.datetime(2010, 1, 1)))
+        self.assertEqual(ranges[1], (datetime.datetime(2010, 1, 2), datetime.datetime(2100, 1, 1)))
+
+        # Case 3
+        dates = [(datetime.datetime(1900, 1, 1), datetime.datetime(2010, 1, 1)),
+                 (datetime.datetime(2010, 1, 2), datetime.datetime(2100, 1, 1))]
+
+        ranges = [r for r in merge_date_ranges(dates)]
+        self.assertEqual(len(ranges), 2)
+        self.assertEqual(ranges[0], (datetime.datetime(1900, 1, 1), datetime.datetime(2010, 1, 1)))
+        self.assertEqual(ranges[1], (datetime.datetime(2010, 1, 2), datetime.datetime(2100, 1, 1)))
+
+        # Case 4
+        dates = [(datetime.datetime(2005, 1, 1), datetime.datetime(2008, 1, 1)),
+                 (datetime.datetime(2005, 10, 15), datetime.datetime(2010, 1, 1)),
+                 (datetime.datetime(2008, 1, 5), datetime.datetime(2009, 1, 1))]
+
+        ranges = [r for r in merge_date_ranges(dates)]
+        self.assertEqual(len(ranges), 1)
+        self.assertEqual(ranges[0], (datetime.datetime(2005, 1, 1), datetime.datetime(2010, 1, 1)))
+
+        # Case 5
+        dates = [(datetime.datetime(1900, 1, 1), datetime.datetime(2100, 1, 1))]
+
+        ranges = [r for r in merge_date_ranges(dates)]
+        self.assertEqual(len(ranges), 1)
+        self.assertEqual(ranges[0], (datetime.datetime(1900, 1, 1), datetime.datetime(2100, 1, 1)))
+
+        # Case 6
+        dates = [(datetime.datetime(1900, 1, 1), datetime.datetime(2100, 1, 1)),
+                 (datetime.datetime(1900, 1, 1), datetime.datetime(2100, 1, 1))]
+
+        ranges = [r for r in merge_date_ranges(dates)]
+        self.assertEqual(len(ranges), 1)
+        self.assertEqual(ranges[0], (datetime.datetime(1900, 1, 1), datetime.datetime(2100, 1, 1)))
+
+        # Case 7
+        dates = [(datetime.datetime(1900, 1, 1), datetime.datetime(2005, 1, 1))]
+
+        ranges = [r for r in merge_date_ranges(dates)]
+        self.assertEqual(len(ranges), 1)
+        self.assertEqual(ranges[0], (datetime.datetime(1900, 1, 1), datetime.datetime(2005, 1, 1)))
+
+        # Case 8
+        dates = [(datetime.datetime(2005, 1, 1), datetime.datetime(2100, 1, 1))]
+
+        ranges = [r for r in merge_date_ranges(dates)]
+        self.assertEqual(len(ranges), 1)
+        self.assertEqual(ranges[0], (datetime.datetime(2005, 1, 1), datetime.datetime(2100, 1, 1)))
+
+    def test_dates_out_of_bounds(self):
+        """Check whether it raises an exception when dates are out of bounds"""
+
+        # Case 1
+        dates = [(datetime.datetime(2008, 1, 1), datetime.datetime(2100, 1, 1)),
+                 (datetime.datetime(1800, 1, 1), datetime.datetime(2010, 1, 1))]
+
+        with self.assertRaisesRegexp(ValueError,
+                                     DATE_OUT_OF_BOUNDS_ERROR
+                                     % {'type' : 'start date',
+                                        'date' : '1800-01-01 00:00:00'}):
+            [r for r in merge_date_ranges(dates)]
+
+        # Case 2
+        dates = [(datetime.datetime(2008, 1, 1), datetime.datetime(2100, 2, 1)),
+                 (datetime.datetime(1900, 1, 1), datetime.datetime(2010, 1, 1))]
+
+        with self.assertRaisesRegexp(ValueError,
+                                     DATE_OUT_OF_BOUNDS_ERROR
+                                     % {'type' : 'end date',
+                                        'date' : '2100-02-01 00:00:00'}):
+            [r for r in merge_date_ranges(dates)]
+
+    def test_none_list_of_dates(self):
+        """Check if the result is empty when the list of ranges is None"""
+
+        ranges = [r for r in merge_date_ranges(None)]
+        self.assertEqual(ranges, [])
+
+    def test_empty_list_of_dates(self):
+        """Check if the result is empty when the list of ranges is empty"""
+
+        ranges = [r for r in merge_date_ranges([])]
+        self.assertEqual(ranges, [])
 
 
 class TestStrToDatetime(unittest.TestCase):
