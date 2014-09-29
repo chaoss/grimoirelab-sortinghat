@@ -20,6 +20,8 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+import sqlalchemy.exc
+
 from sortinghat import utils
 from sortinghat.db.model import DEFAULT_START_DATE, DEFAULT_END_DATE,\
     UniqueIdentity, Identity, Organization, Domain, Enrollment
@@ -533,6 +535,80 @@ def merge_unique_identities(db, from_uuid, to_uuid):
         session.commit()
 
         session.delete(fuid)
+
+
+def merge_enrollments(db, uuid, organization):
+    """Merge overlapping enrollments.
+
+    This function merges those enrollments, related to the given 'uuid' and
+    'organization', that have overlapping dates. Default init and end dates
+    (1900-01-01 and 2100-01-01) are considered range limits and will be
+    removed when a set of ranges overlap. For example:
+
+     * [(1900-01-01, 2010-01-01), (2008-01-01, 2100-01-01)]
+           --> (2008-01-01, 2010-01-01)
+     * [(1900-01-01, 2010-01-01), (2008-01-01, 2010-01-01), (2010-01-02, 2100-01-01)]
+           --> (2008-01-01, 2010-01-01),(2010-01-02, 2100-01-01)
+     * [(1900-01-01, 2010-01-01), (2010-01-02, 2100-01-01)]
+           --> (1900-01-01, 2010-01-01), (2010-01-02, 2100-01-01)
+
+    It may raise a ValueError when any date is out of bounds. In other words, when
+    any date < 1900-01-01 or date > 2100-01-01.
+
+    :param db: database manager
+    :param uuid: unique identifier
+    :param organization: name of the organization
+
+    :raises NotFoundError: when either 'uuid' or 'organization' are not
+        found in the registry. It is also raised when there are not enrollments
+        related to 'uuid' and 'organization'
+    :raises ValueError: when any date is out of bounds
+    """
+    # Merge enrollments
+    with db.connect() as session:
+        uidentity = session.query(UniqueIdentity).\
+            filter(UniqueIdentity.uuid == uuid).first()
+
+        if not uidentity:
+            raise NotFoundError(entity=uuid)
+
+        org = session.query(Organization).\
+            filter(Organization.name == organization).first()
+
+        if not org:
+            raise NotFoundError(entity=organization)
+
+        disjoint = session.query(Enrollment).\
+            filter(Enrollment.uidentity == uidentity,
+                   Enrollment.organization == org).all()
+
+        if not disjoint:
+            entity = '-'.join((uuid, organization))
+            raise NotFoundError(entity=entity)
+
+        dates = [(enr.init, enr.end) for enr in disjoint]
+
+        for st, en in utils.merge_date_ranges(dates):
+            # We prefer this method to find duplicates
+            # to avoid integrity exceptions when creating
+            # enrollments that are already in the database
+            is_dup = lambda x, st, en : x.init == st and x.end == en
+
+            filtered = [x for x in disjoint if not is_dup(x, st, en)]
+
+            if len(filtered) != len(disjoint):
+                disjoint = filtered
+                continue
+
+            # This means no dups where found so we need to add a
+            # new enrollment
+            enr = Enrollment(uidentity=uidentity, organization=org,
+                             init=st, end=en)
+            session.add(enr)
+
+        # Remove disjoint enrollments from the registry
+        for enr in disjoint:
+            session.delete(enr)
 
 
 def move_identity(db, from_id, to_uuid):

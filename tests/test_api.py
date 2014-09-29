@@ -987,7 +987,7 @@ class TestDeleteEnrollment(TestBaseCase):
                                 datetime.datetime(1999, 1, 1))
 
     def test_not_found_uuid(self):
-        """Check if it fails removing enrollments from an organization
+        """Check if it fails removing enrollments from a unique identity
            that does not exists"""
 
         api.add_unique_identity(self.db, 'John Smith')
@@ -1010,7 +1010,7 @@ class TestDeleteEnrollment(TestBaseCase):
             self.assertEqual(len(enrollments), 1)
 
     def test_not_found_organization(self):
-        """Check if it fails removing enrollments from a unique identity
+        """Check if it fails removing enrollments from an organization
            that does not exists"""
 
         api.add_unique_identity(self.db, 'John Smith')
@@ -1031,6 +1031,186 @@ class TestDeleteEnrollment(TestBaseCase):
 
             enrollments = session.query(Enrollment).all()
             self.assertEqual(len(enrollments), 1)
+
+
+class TestMergeEnrollments(TestBaseCase):
+    """Unite tests for merge_enrollments"""
+
+    def test_merge_enrollments(self):
+        """Check if it merges a set of enrollments"""
+
+        api.add_unique_identity(self.db, 'John Smith')
+        api.add_organization(self.db, 'Example')
+        api.add_enrollment(self.db, 'John Smith', 'Example',
+                           datetime.datetime(1900, 1, 1),
+                           datetime.datetime(2010, 1, 1))
+        api.add_enrollment(self.db, 'John Smith', 'Example',
+                           datetime.datetime(2008, 1, 1),
+                           datetime.datetime(2100, 1, 1))
+
+        api.add_unique_identity(self.db, 'John Doe')
+        api.add_enrollment(self.db, 'John Doe', 'Example',
+                           datetime.datetime(2010, 1, 2),
+                           datetime.datetime(2100, 1, 1))
+        api.add_enrollment(self.db, 'John Doe', 'Example',
+                           datetime.datetime(2008, 1, 1),
+                           datetime.datetime(2010, 1, 1))
+        api.add_enrollment(self.db, 'John Doe', 'Example',
+                           datetime.datetime(1900, 1, 1),
+                           datetime.datetime(2010, 1, 1))
+
+        api.add_unique_identity(self.db, 'Jane Rae')
+        api.add_organization(self.db, 'Bitergia')
+        api.add_enrollment(self.db, 'Jane Rae', 'Bitergia',
+                           datetime.datetime(2010, 1, 2),
+                           datetime.datetime(2100, 1, 1))
+        api.add_enrollment(self.db, 'Jane Rae', 'Bitergia',
+                           datetime.datetime(1900, 1, 1),
+                           datetime.datetime(2010, 1, 1))
+
+        # This enrollments will not be merged
+        api.add_enrollment(self.db, 'John Smith', 'Bitergia',
+                           datetime.datetime(1900, 1, 1),
+                           datetime.datetime(2010, 1, 1))
+        api.add_enrollment(self.db, 'John Smith', 'Bitergia',
+                           datetime.datetime(2008, 1, 1),
+                           datetime.datetime(2100, 1, 1))
+
+        # Tests John Smith enrollments
+        api.merge_enrollments(self.db, 'John Smith', 'Example')
+
+        with self.db.connect() as session:
+            enrollments = session.query(Enrollment).\
+                join(UniqueIdentity, Organization).\
+                filter(UniqueIdentity.uuid == 'John Smith',
+                       Organization.name == 'Example').all()
+            self.assertEqual(len(enrollments), 1)
+
+            rol0 = enrollments[0]
+            self.assertEqual(rol0.init, datetime.datetime(2008, 1, 1))
+            self.assertEqual(rol0.end, datetime.datetime(2010, 1, 1))
+
+            # Enrollments on Bitergia were not modified
+            enrollments = session.query(Enrollment).\
+                join(UniqueIdentity, Organization).\
+                filter(UniqueIdentity.uuid == 'John Smith',
+                       Organization.name == 'Bitergia').all()
+            self.assertEqual(len(enrollments), 2)
+
+            rol0 = enrollments[0]
+            self.assertEqual(rol0.init, datetime.datetime(1900, 1, 1))
+            self.assertEqual(rol0.end, datetime.datetime(2010, 1, 1))
+
+            rol1 = enrollments[1]
+            self.assertEqual(rol1.init, datetime.datetime(2008, 1, 1))
+            self.assertEqual(rol1.end, datetime.datetime(2100, 1, 1))
+
+        # Test Jonh Doe enrollments
+        api.merge_enrollments(self.db, 'John Doe', 'Example')
+
+        with self.db.connect() as session:
+            enrollments = session.query(Enrollment).\
+                join(UniqueIdentity, Organization).\
+                filter(UniqueIdentity.uuid == 'John Doe',
+                       Organization.name == 'Example').all()
+            self.assertEqual(len(enrollments), 2)
+
+            rol0 = enrollments[0]
+            self.assertEqual(rol0.init, datetime.datetime(2008, 1, 1))
+            self.assertEqual(rol0.end, datetime.datetime(2010, 1, 1))
+
+            rol1 = enrollments[1]
+            self.assertEqual(rol1.init, datetime.datetime(2010, 1, 2))
+            self.assertEqual(rol1.end, datetime.datetime(2100, 1, 1))
+
+        # Test Jane Rae enrollments
+        api.merge_enrollments(self.db, 'Jane Rae', 'Bitergia')
+
+        with self.db.connect() as session:
+            enrollments = session.query(Enrollment).\
+                join(UniqueIdentity, Organization).\
+                filter(UniqueIdentity.uuid == 'Jane Rae',
+                       Organization.name == 'Bitergia').all()
+            self.assertEqual(len(enrollments), 2)
+
+            rol0 = enrollments[0]
+            self.assertEqual(rol0.init, datetime.datetime(1900, 1, 1))
+            self.assertEqual(rol0.end, datetime.datetime(2010, 1, 1))
+
+            rol1 = enrollments[1]
+            self.assertEqual(rol1.init, datetime.datetime(2010, 1, 2))
+            self.assertEqual(rol1.end, datetime.datetime(2100, 1, 1))
+
+    def test_not_found_uuid(self):
+        """Check if it fails merging enrollments from a unique identity
+           that does not exists"""
+
+        # Add some data first
+        api.add_unique_identity(self.db, 'John Smith')
+        api.add_organization(self.db, 'Example')
+        api.add_enrollment(self.db, 'John Smith', 'Example',
+                           datetime.datetime(1900, 1, 1),
+                           datetime.datetime(2010, 1, 1))
+        api.add_enrollment(self.db, 'John Smith', 'Example',
+                           datetime.datetime(2008, 1, 1),
+                           datetime.datetime(2100, 1, 1))
+        api.add_organization(self.db, 'Bitergia')
+
+        # Test
+        self.assertRaises(NotFoundError, api.merge_enrollments,
+                          self.db, 'John Doe', 'Example')
+
+        # Nothing has been merged on the registry
+        with self.db.connect() as session:
+            enrollments = session.query(Enrollment).all()
+            self.assertEqual(len(enrollments), 2)
+
+    def test_not_found_organization(self):
+        """Check if it fails merging enrollments from an organization
+           that does not exists"""
+
+        # Add some data first
+        api.add_unique_identity(self.db, 'John Smith')
+        api.add_organization(self.db, 'Example')
+        api.add_enrollment(self.db, 'John Smith', 'Example',
+                           datetime.datetime(1900, 1, 1),
+                           datetime.datetime(2010, 1, 1))
+        api.add_enrollment(self.db, 'John Smith', 'Example',
+                           datetime.datetime(2008, 1, 1),
+                           datetime.datetime(2100, 1, 1))
+        api.add_organization(self.db, 'Bitergia')
+
+        # Test
+        self.assertRaises(NotFoundError, api.merge_enrollments,
+                          self.db, 'John Smith', 'LibreSoft')
+
+        # Nothing has been merged on the registry
+        with self.db.connect() as session:
+            enrollments = session.query(Enrollment).all()
+            self.assertEqual(len(enrollments), 2)
+
+    def test_not_found_enrollments(self):
+        """Check if it fails merging enrollments that do not exist"""
+
+        # Add some data first
+        api.add_unique_identity(self.db, 'John Smith')
+        api.add_organization(self.db, 'Example')
+        api.add_enrollment(self.db, 'John Smith', 'Example',
+                           datetime.datetime(1900, 1, 1),
+                           datetime.datetime(2010, 1, 1))
+        api.add_enrollment(self.db, 'John Smith', 'Example',
+                           datetime.datetime(2008, 1, 1),
+                           datetime.datetime(2100, 1, 1))
+        api.add_organization(self.db, 'Bitergia')
+
+        # Test
+        self.assertRaises(NotFoundError, api.merge_enrollments,
+                          self.db, 'John Smith', 'Bitergia')
+
+        # Nothing has been merged on the registry
+        with self.db.connect() as session:
+            enrollments = session.query(Enrollment).all()
+            self.assertEqual(len(enrollments), 2)
 
 
 class TestMergeUniqueIdentities(TestBaseCase):
