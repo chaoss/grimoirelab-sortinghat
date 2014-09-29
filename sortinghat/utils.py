@@ -23,7 +23,7 @@
 import dateutil.parser
 import hashlib
 
-from sortinghat.db.model import DEFAULT_START_DATE, DEFAULT_END_DATE
+from sortinghat.db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE
 from sortinghat.exceptions import InvalidDateError
 
 
@@ -42,7 +42,7 @@ def merge_date_ranges(dates):
      * [(1900-01-01, 2010-01-01), (2010-01-02, 2100-01-01)]
            --> (1900-01-01, 2010-01-01), (2010-01-02, 2100-01-01)
 
-    The condition DEFAULT_START_DATE <= dt <= DEFAULT_END_DATE must be true for each
+    The condition MIN_PERIOD_DATE <= dt <= MAX_PERIOD_DATE must be true for each
     date. Otherwise, the generator will raise a ValueError exception.
 
     This code is based on samplebias' answer to StackOverflow's question
@@ -60,16 +60,16 @@ def merge_date_ranges(dates):
     saved = list(dates[0])
 
     for st, en in sorted([sorted(t) for t in dates]):
-        if st < DEFAULT_START_DATE or st > DEFAULT_END_DATE:
+        if st < MIN_PERIOD_DATE or st > MAX_PERIOD_DATE:
             raise ValueError('start date %s is out of bounds' % str(st))
-        if en < DEFAULT_START_DATE or en > DEFAULT_END_DATE:
+        if en < MIN_PERIOD_DATE or en > MAX_PERIOD_DATE:
             raise ValueError('end date %s is out of bounds' % str(en))
 
         if st <= saved[1]:
-            if saved[0] == DEFAULT_START_DATE:
+            if saved[0] == MIN_PERIOD_DATE:
                 saved[0] = st
 
-            if DEFAULT_END_DATE in (en, saved[1]):
+            if MAX_PERIOD_DATE in (en, saved[1]):
                 saved[1] = min(saved[1], en)
             else:
                 saved[1] = max(saved[1], en)

@@ -42,6 +42,7 @@ DOMAIN_NONE_OR_EMPTY_ERROR = "domain cannot be"
 SOURCE_NONE_OR_EMPTY_ERROR = "source cannot be"
 IDENTITY_NONE_OR_EMPTY_ERROR = "identity data cannot be None or empty"
 ENROLLMENT_PERIOD_INVALID_ERROR = "cannot be greater than "
+ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR = "%(type)s %(date)s is out of bounds"
 NOT_FOUND_ERROR =  "%(entity)s not found in the registry"
 
 
@@ -498,6 +499,32 @@ class TestAddEnrollment(TestBaseCase):
                                 api.add_enrollment, self.db, 'John Smith', 'Example',
                                 datetime.datetime(2001, 1, 1),
                                 datetime.datetime(1999, 1, 1))
+
+        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'start date',
+                                                       'date' : '1899-12-31 23:59:59'}
+        self.assertRaisesRegexp(ValueError, exc,
+                                api.add_enrollment, self.db, 'John Smith', 'Example',
+                                datetime.datetime(1899, 12, 31, 23, 59, 59))
+
+        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'start date',
+                                                       'date' : '2100-01-01 00:00:01'}
+        self.assertRaisesRegexp(ValueError, exc,
+                                api.add_enrollment, self.db, 'John Smith', 'Example',
+                                datetime.datetime(2100, 1, 1, 0, 0, 1))
+
+        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'end date',
+                                                       'date' : '2100-01-01 00:00:01'}
+        self.assertRaisesRegexp(ValueError, exc,
+                                api.add_enrollment, self.db, 'John Smith', 'Example',
+                                datetime.datetime(1900, 1, 1),
+                                datetime.datetime(2100, 1, 1, 0, 0, 1))
+
+        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'end date',
+                                                       'date' : '1899-12-31 23:59:59'}
+        self.assertRaisesRegexp(ValueError, exc,
+                                api.add_enrollment, self.db, 'John Smith', 'Example',
+                                datetime.datetime(1900, 1, 1),
+                                datetime.datetime(1899, 12, 31, 23, 59, 59))
 
     def test_non_existing_uuid(self):
         """Check if it fails adding enrollments to not existing unique identities"""
@@ -985,6 +1012,32 @@ class TestDeleteEnrollment(TestBaseCase):
                                 api.delete_enrollment, self.db, 'John Smith', 'Example',
                                 datetime.datetime(2001, 1, 1),
                                 datetime.datetime(1999, 1, 1))
+
+        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'start date',
+                                                       'date' : '1899-12-31 23:59:59'}
+        self.assertRaisesRegexp(ValueError, exc,
+                                api.delete_enrollment, self.db, 'John Smith', 'Example',
+                                datetime.datetime(1899, 12, 31, 23, 59, 59))
+
+        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'start date',
+                                                       'date' : '2100-01-01 00:00:01'}
+        self.assertRaisesRegexp(ValueError, exc,
+                                api.delete_enrollment, self.db, 'John Smith', 'Example',
+                                datetime.datetime(2100, 1, 1, 0, 0, 1))
+
+        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'end date',
+                                                       'date' : '2100-01-01 00:00:01'}
+        self.assertRaisesRegexp(ValueError, exc,
+                                api.delete_enrollment, self.db, 'John Smith', 'Example',
+                                datetime.datetime(1900, 1, 1),
+                                datetime.datetime(2100, 1, 1, 0, 0, 1))
+
+        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'end date',
+                                                       'date' : '1899-12-31 23:59:59'}
+        self.assertRaisesRegexp(ValueError, exc,
+                                api.delete_enrollment, self.db, 'John Smith', 'Example',
+                                datetime.datetime(1900, 1, 1),
+                                datetime.datetime(1899, 12, 31, 23, 59, 59))
 
     def test_not_found_uuid(self):
         """Check if it fails removing enrollments from a unique identity
@@ -1829,6 +1882,32 @@ class TestEnrollments(TestBaseCase):
                                 api.enrollments, self.db, 'John Smith', 'Example',
                                 datetime.datetime(2001, 1, 1),
                                 datetime.datetime(1999, 1, 1))
+
+        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'start date',
+                                                       'date' : '1899-12-31 23:59:59'}
+        self.assertRaisesRegexp(ValueError, exc,
+                                api.delete_enrollment, self.db, 'John Smith', 'Example',
+                                datetime.datetime(1899, 12, 31, 23, 59, 59))
+
+        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'start date',
+                                                       'date' : '2100-01-01 00:00:01'}
+        self.assertRaisesRegexp(ValueError, exc,
+                                api.delete_enrollment, self.db, 'John Smith', 'Example',
+                                datetime.datetime(2100, 1, 1, 0, 0, 1))
+
+        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'end date',
+                                                       'date' : '2100-01-01 00:00:01'}
+        self.assertRaisesRegexp(ValueError, exc,
+                                api.delete_enrollment, self.db, 'John Smith', 'Example',
+                                datetime.datetime(1900, 1, 1),
+                                datetime.datetime(2100, 1, 1, 0, 0, 1))
+
+        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'end date',
+                                                       'date' : '1899-12-31 23:59:59'}
+        self.assertRaisesRegexp(ValueError, exc,
+                                api.delete_enrollment, self.db, 'John Smith', 'Example',
+                                datetime.datetime(1900, 1, 1),
+                                datetime.datetime(1899, 12, 31, 23, 59, 59))
 
     def test_not_found_uuid(self):
         """Check whether it raises an error when the uiid is not available"""

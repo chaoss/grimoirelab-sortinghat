@@ -20,10 +20,8 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-import sqlalchemy.exc
-
 from sortinghat import utils
-from sortinghat.db.model import DEFAULT_START_DATE, DEFAULT_END_DATE,\
+from sortinghat.db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE,\
     UniqueIdentity, Identity, Organization, Domain, Enrollment
 from sortinghat.exceptions import AlreadyExistsError, NotFoundError
 
@@ -252,8 +250,9 @@ def add_enrollment(db, uuid, organization, from_date=None, to_date=None):
 
     :raises NotFoundError: when either 'uuid' or 'organization' are not
         found in the registry.
-    :raises ValeError: raised in two cases, when either identity or
-        organization are None or empty strings; when "from_date > to_date".
+    :raises ValeError: raised in three cases, when either identity or
+        organization are None or empty strings; when "from_date" < 1900-01-01 or
+        "to_date" > 2100-01-01; when "from_date > to_date"
     :raises AlreadyExistsError: raised when given enrollment already exists
         in the registry.
     """
@@ -266,14 +265,19 @@ def add_enrollment(db, uuid, organization, from_date=None, to_date=None):
     if organization == '':
         raise ValueError('organization cannot be an empty string')
 
-    if from_date and to_date and from_date > to_date:
+    if not from_date:
+        from_date = MIN_PERIOD_DATE
+    if not to_date:
+        to_date = MAX_PERIOD_DATE
+
+    if from_date < MIN_PERIOD_DATE or from_date > MAX_PERIOD_DATE:
+        raise ValueError('start date %s is out of bounds' % str(from_date))
+    if to_date < MIN_PERIOD_DATE or to_date > MAX_PERIOD_DATE:
+        raise ValueError('end date %s is out of bounds' % str(to_date))
+
+    if from_date > to_date:
         raise ValueError('start date %s cannot be greater than %s'
                          % (from_date, to_date))
-
-    if not from_date:
-        from_date = DEFAULT_START_DATE
-    if not to_date:
-        to_date = DEFAULT_END_DATE
 
     with db.connect() as session:
         uidentity = session.query(UniqueIdentity).\
@@ -436,16 +440,22 @@ def delete_enrollment(db, uuid, organization, from_date=None, to_date=None):
 
     :raises NotFoundError: when either 'uuid' or 'organization' are not
         found in the registry.
-    :raises ValeError: when "from_date > to_date".
+    :raises ValeError: it is raised in two cases, when "from_date" < 1900-01-01 or
+        "to_date" > 2100-01-01; when "from_date > to_date".
     """
-    if from_date and to_date and from_date > to_date:
+    if not from_date:
+        from_date = MIN_PERIOD_DATE
+    if not to_date:
+        to_date = MAX_PERIOD_DATE
+
+    if from_date < MIN_PERIOD_DATE or from_date > MAX_PERIOD_DATE:
+        raise ValueError('start date %s is out of bounds' % str(from_date))
+    if to_date < MIN_PERIOD_DATE or to_date > MAX_PERIOD_DATE:
+        raise ValueError('end date %s is out of bounds' % str(to_date))
+
+    if from_date > to_date:
         raise ValueError('start date %s cannot be greater than %s'
                          % (from_date, to_date))
-
-    if not from_date:
-        from_date = DEFAULT_START_DATE
-    if not to_date:
-        to_date = DEFAULT_END_DATE
 
     with db.connect() as session:
         identity = session.query(UniqueIdentity).\
@@ -748,17 +758,24 @@ def enrollments(db, uuid=None, organization=None, from_date=None, to_date=None):
 
     :raises NotFoundError: when either 'uuid' or 'organization' are not
         found in the registry.
+    :raises ValeError: it is raised in two cases, when "from_date" < 1900-01-01 or
+        "to_date" > 2100-01-01; when "from_date > to_date".
     """
-    enrollments = []
+    if not from_date:
+        from_date = MIN_PERIOD_DATE
+    if not to_date:
+        to_date = MAX_PERIOD_DATE
+
+    if from_date < MIN_PERIOD_DATE or from_date > MAX_PERIOD_DATE:
+        raise ValueError('start date %s is out of bounds' % str(from_date))
+    if to_date < MIN_PERIOD_DATE or to_date > MAX_PERIOD_DATE:
+        raise ValueError('end date %s is out of bounds' % str(to_date))
 
     if from_date and to_date and from_date > to_date:
         raise ValueError('start date %s cannot be greater than %s'
                          % (from_date, to_date))
 
-    if not from_date:
-        from_date = DEFAULT_START_DATE
-    if not to_date:
-        to_date = DEFAULT_END_DATE
+    enrollments = []
 
     with db.connect() as session:
         query = session.query(Enrollment).\

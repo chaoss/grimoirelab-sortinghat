@@ -30,8 +30,8 @@ from sqlalchemy.ext.declarative import declarative_base
 
 
 # Default dates for periods
-DEFAULT_START_DATE = datetime.datetime(1900, 1, 1, 0, 0, 0)
-DEFAULT_END_DATE = datetime.datetime(2100, 1, 1, 0, 0, 0)
+MIN_PERIOD_DATE = datetime.datetime(1900, 1, 1, 0, 0, 0)
+MAX_PERIOD_DATE = datetime.datetime(2100, 1, 1, 0, 0, 0)
 
 
 ModelBase = declarative_base()
@@ -112,8 +112,8 @@ class Enrollment(ModelBase):
     __tablename__ = 'enrollments'
 
     id = Column(Integer, primary_key=True)
-    init = Column(DateTime, default=DEFAULT_START_DATE, nullable=False)
-    end = Column(DateTime, default=DEFAULT_END_DATE, nullable=False)
+    init = Column(DateTime, default=MIN_PERIOD_DATE, nullable=False)
+    end = Column(DateTime, default=MAX_PERIOD_DATE, nullable=False)
     uuid = Column(String(128),
                   ForeignKey('uidentities.uuid', ondelete='CASCADE'),
                   nullable=False)
