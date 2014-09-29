@@ -40,6 +40,10 @@ class Enroll(Command):
 
     Dates may follow the next pattern: 'YYYY-MM-DD'. Optionally, time
     information can be included using patters like 'YYYY-MM-DD hh:mm:ss'.
+
+    Setting the option --merge will merge overlapped enrollments related
+    to <uuid> and <organization> found on the registry. The given enrollment
+    will be also merged.
     """
     def __init__(self, **kwargs):
         super(Enroll, self).__init__(**kwargs)
@@ -54,6 +58,10 @@ class Enroll(Command):
                                  help="date (YYYY-MM-DD:hh:mm:ss) when the enrollment starts")
         self.parser.add_argument('--to', dest='to_date', default=None,
                                  help="date (YYYY-MM-DD:hh:mm:ss) when the enrollment ends")
+
+        # Merge enrollment option
+        self.parser.add_argument('--merge', action='store_true',
+                                 help="merge exiting enrollments")
 
         # Positional arguments
         self.parser.add_argument('uuid', default=None,
@@ -80,12 +88,13 @@ class Enroll(Command):
         try:
             from_date = utils.str_to_datetime(params.from_date)
             to_date = utils.str_to_datetime(params.to_date)
+            merge = params.merge
 
-            self.enroll(uuid, organization, from_date, to_date)
+            self.enroll(uuid, organization, from_date, to_date, merge)
         except InvalidDateError, e:
             self.error(str(e))
 
-    def enroll(self, uuid, organization, from_date=None, to_date=None):
+    def enroll(self, uuid, organization, from_date=None, to_date=None, merge=False):
         """Enroll a unique identity in an organization.
 
         This method adds a new relationship between the unique identity,
@@ -96,10 +105,15 @@ class Enroll(Command):
         and <to_date>, where "from_date <= to_date". Default values for these
         dates are '1900-01-01' and '2100-01-01'.
 
+        When "merge" parameter is set to True, those overlapped enrollments related
+        to <uuid> and <organization> found on the registry will be merged. The given
+        enrollment will be also merged.
+
         :param uuid: unique identifier
         :param organization: name of the organization
         :param from_date: date when the enrollment starts
         :param to_date: date when the enrollment ends
+        :param merge: merge overlapped enrollments; by default, it is set to False
         """
         # Empty or None values for uuid and organizations are not allowed
         if not uuid or not organization:
@@ -107,5 +121,18 @@ class Enroll(Command):
 
         try:
             api.add_enrollment(self.db, uuid, organization, from_date, to_date)
-        except (AlreadyExistsError, NotFoundError, ValueError), e:
+        except (NotFoundError, ValueError), e:
             self.error(str(e))
+        except AlreadyExistsError, e:
+            if not merge:
+                self.error(str(e))
+
+        if not merge:
+            return
+
+        try:
+            api.merge_enrollments(self.db, uuid, organization)
+        except (NotFoundError, ValueError), e:
+            # These exceptions were checked above. If any of these raises
+            # is due to something really wrong has happened
+            raise RuntimeError(str(e))

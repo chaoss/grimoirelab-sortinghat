@@ -98,8 +98,8 @@ class TestEnrollCommand(TestBaseCase):
         rol = enrollments[0]
         self.assertEqual(rol.uidentity.uuid, 'John Doe')
         self.assertEqual(rol.organization.name, 'Bitergia')
-        self.assertEqual(rol.init, datetime.datetime(2013, 1, 01))
-        self.assertEqual(rol.end, datetime.datetime(2014, 1, 01))
+        self.assertEqual(rol.init, datetime.datetime(2013, 1, 1))
+        self.assertEqual(rol.end, datetime.datetime(2014, 1, 1))
 
         rol = enrollments[1]
         self.assertEqual(rol.uidentity.uuid, 'John Smith')
@@ -122,6 +122,37 @@ class TestEnrollCommand(TestBaseCase):
         self.assertEqual(rol.organization.name, 'Example')
         self.assertEqual(rol.init, datetime.datetime(1900, 1, 1))
         self.assertEqual(rol.end, datetime.datetime(2100, 1, 1))
+
+        # Enroll and merge
+        self.cmd.run('--from', '2008-01-01', '--merge', 'John Doe', 'Bitergia')
+        self.cmd.run('--merge', 'John Smith', 'Example')
+
+        enrollments = api.enrollments(self.db)
+        self.assertEqual(len(enrollments), 4)
+
+        rol = enrollments[0]
+        self.assertEqual(rol.uidentity.uuid, 'John Doe')
+        self.assertEqual(rol.organization.name, 'Bitergia')
+        self.assertEqual(rol.init, datetime.datetime(2008, 1, 1))
+        self.assertEqual(rol.end, datetime.datetime(2014, 1, 1))
+
+        rol = enrollments[1]
+        self.assertEqual(rol.uidentity.uuid, 'John Smith')
+        self.assertEqual(rol.organization.name, 'Bitergia')
+        self.assertEqual(rol.init, datetime.datetime(1900, 1, 1))
+        self.assertEqual(rol.end, datetime.datetime(2100, 1, 1))
+
+        rol = enrollments[2]
+        self.assertEqual(rol.uidentity.uuid, 'John Smith')
+        self.assertEqual(rol.organization.name, 'Bitergia')
+        self.assertEqual(rol.init, datetime.datetime(1999, 1, 1, 18, 33, 58))
+        self.assertEqual(rol.end, datetime.datetime(2100, 1, 1))
+
+        rol = enrollments[3]
+        self.assertEqual(rol.uidentity.uuid, 'John Smith')
+        self.assertEqual(rol.organization.name, 'Example')
+        self.assertEqual(rol.init, datetime.datetime(1900, 1, 1))
+        self.assertEqual(rol.end, datetime.datetime(1970, 1, 1, 1, 2, 3))
 
     def test_invalid_dates(self):
         """Check whether it fails when invalid dates are given"""
@@ -194,6 +225,39 @@ class TestEnroll(TestBaseCase):
         self.assertEqual(rol.init, datetime.datetime(2013, 1, 1))
         self.assertEqual(rol.end, datetime.datetime(2100, 1, 1))
 
+    def test_enroll_with_merge(self):
+        """Check whether everything works right when enrolling and merging"""
+
+        self.cmd.enroll('John Smith', 'Example',
+                        datetime.datetime(2013, 1, 1))
+        self.cmd.enroll('John Smith', 'Example',
+                        datetime.datetime(1981, 1, 1),
+                        datetime.datetime(2003, 1, 1))
+        self.cmd.enroll('John Smith', 'Example',
+                        datetime.datetime(1982, 1, 1),
+                        datetime.datetime(1997, 1, 1),
+                        True)
+        self.cmd.enroll('John Smith', 'Example',
+                        datetime.datetime(1996, 1, 1),
+                        datetime.datetime(2005, 1, 1),
+                        True)
+
+        # List the registry and check the output list
+        enrollments = api.enrollments(self.db)
+        self.assertEqual(len(enrollments), 2)
+
+        rol = enrollments[0]
+        self.assertEqual(rol.uidentity.uuid, 'John Smith')
+        self.assertEqual(rol.organization.name, 'Example')
+        self.assertEqual(rol.init, datetime.datetime(1981, 1, 1))
+        self.assertEqual(rol.end, datetime.datetime(2005, 1, 1))
+
+        rol = enrollments[1]
+        self.assertEqual(rol.uidentity.uuid, 'John Smith')
+        self.assertEqual(rol.organization.name, 'Example')
+        self.assertEqual(rol.init, datetime.datetime(2013, 1, 1))
+        self.assertEqual(rol.end, datetime.datetime(2100, 1, 1))
+
     def test_period_ranges(self):
         """Check whether enrollments cannot be added giving invalid period ranges"""
 
@@ -234,6 +298,20 @@ class TestEnroll(TestBaseCase):
         self.cmd.enroll('John Smith', 'Example')
         output = sys.stderr.getvalue().strip().split('\n')[1]
         self.assertEqual(output, ENROLL_EXISTING_ERROR)
+
+    def test_existing_enrollment_with_merge(self):
+        """Check if does not fail adding enrollment data that already exists when using merge option"""
+
+        # Lets try again with the same period
+        self.cmd.enroll('John Smith', 'Example',
+                        datetime.datetime(1900, 1, 1),
+                        datetime.datetime(2100, 1, 1))
+        self.cmd.enroll('John Smith', 'Example',
+                        datetime.datetime(1900, 1, 1),
+                        datetime.datetime(2100, 1, 1),
+                        True)
+        output = sys.stderr.getvalue().strip()
+        self.assertEqual(output, ENROLL_EMPTY_OUTPUT)
 
     def test_none_parameters(self):
         """Check behavior adding None parameters"""
