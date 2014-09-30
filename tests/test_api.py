@@ -91,8 +91,10 @@ class TestAddUniqueIdentity(TestBaseCase):
         api.add_unique_identity(self.db, 'John Doe')
 
         # Insert the first identity again. It should raise AlreadyExistsError
-        self.assertRaises(AlreadyExistsError, api.add_unique_identity,
-                          self.db, 'John Smith')
+        with self.assertRaises(AlreadyExistsError) as context:
+            api.add_unique_identity(self.db, 'John Smith')
+
+        self.assertEqual(context.exception.uuid, 'John Smith')
 
     def test_none_uuid(self):
         """Check whether None identities cannot be added to the registry"""
@@ -250,8 +252,11 @@ class TestAddIdentity(TestBaseCase):
         api.add_identity(self.db, 'scm', 'jdoe@example.com')
 
         # Insert the first identity again. It should raise AlreadyExistsError
-        self.assertRaises(AlreadyExistsError, api.add_identity,
-                          self.db, 'scm', 'jsmith@example.com')
+        with self.assertRaises(AlreadyExistsError) as context:
+            api.add_identity(self.db, 'scm', 'jsmith@example.com')
+
+        self.assertEqual(context.exception.uuid,
+                         'a4d4845e1b1e0edb85e37b04553026a6b76fc4ac')
 
     def test_none_source(self):
         """Check whether new identities cannot be added when giving a None source"""

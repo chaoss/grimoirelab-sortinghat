@@ -77,17 +77,25 @@ class TestAlreadyExistsError(unittest.TestCase):
         """Make sure that prints the correct error"""
 
         e = AlreadyExistsError(entity='example.com')
-        self.assertEqual('example.com already exists in the registry',
-                         str(e))
-        self.assertEqual(u'example.com already exists in the registry',
-                         unicode(e))
+        self.assertEqual(str(e),
+                         'example.com already exists in the registry')
+        self.assertEqual(unicode(e),
+                         u'example.com already exists in the registry')
+
+    def test_uuid_arg(self):
+        """Test that uuid attribute is set when given as argument"""
+
+        e = AlreadyExistsError(uuid='FFFFFFFFFFF', entity='FFFFFFFFFFF')
+        self.assertEqual(str(e),
+                         'FFFFFFFFFFF already exists in the registry')
+        self.assertEqual(e.uuid, 'FFFFFFFFFFF')
 
     def test_no_args(self):
         """Check whether it raises a KeyError exception when
         required parameters are not given"""
+
         kwargs = {}
         self.assertRaises(KeyError, AlreadyExistsError, **kwargs)
-
 
 
 class TestBadFileFormatError(unittest.TestCase):

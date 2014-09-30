@@ -51,7 +51,7 @@ def add_unique_identity(db, uuid):
             filter(UniqueIdentity.uuid == uuid).first()
 
         if uidentity:
-            raise AlreadyExistsError(entity=uuid)
+            raise AlreadyExistsError(entity=uuid, uuid=uuid)
 
         uidentity = UniqueIdentity(uuid=uuid)
         session.add(uidentity)
@@ -124,7 +124,8 @@ def add_identity(db, source, email=None, name=None, username=None, uuid=None):
 
         if identity:
             entity = '-'.join((str(source), str(email), str(name), str(username)))
-            raise AlreadyExistsError(entity=entity)
+            raise AlreadyExistsError(entity=entity,
+                                     uuid=identity.uuid)
 
         # Each identity needs a unique identifier
         identity_id = utils.uuid(source, email=email,

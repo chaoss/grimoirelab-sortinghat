@@ -43,6 +43,9 @@ class AlreadyExistsError(BaseError):
 
     message = "%(entity)s already exists in the registry"
 
+    def __init__(self, **kwargs):
+        self.uuid = kwargs.pop('uuid', None)
+        super(AlreadyExistsError, self).__init__(**kwargs)
 
 class BadFileFormatError(BaseError):
     """Exception raised when an input file does not have the expected format"""
