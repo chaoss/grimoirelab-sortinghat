@@ -21,6 +21,7 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+import datetime
 import re
 import sys
 import unittest
@@ -34,6 +35,9 @@ from sortinghat.db.database import Database
 
 from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
+
+LOAD_IDENTITIES_IVALID_JSON_FORMAT_ERROR = "Error: invalid json format. Expecting ':' delimiter: line 19 column 15 (char 844)"
+LOAD_IDENTITIES_MISSING_KEYS_ERROR = "Error: invalid json format. Attribute active not found"
 
 LOAD_DOMAINS_OUTPUT = """Domain example.com added to organization Example
 Domain example.org added to organization Example
@@ -228,6 +232,111 @@ class TestDomainsRegEx(unittest.TestCase):
         m = parser.match(u"example.org     Examplé")
         self.assertIsNotNone(m)
 
+
+class TestLoadImportIdentities(unittest.TestCase):
+    """Test import_identities method with some inputs"""
+
+    def setUp(self):
+        if not hasattr(sys.stdout, 'getvalue'):
+            self.fail('This test needs to be run in buffered mode')
+
+        # Create a connection to check the contents of the registry
+        self.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
+
+        # Create command
+        self.kwargs = {'user' : DB_USER,
+                       'password' : DB_PASSWORD,
+                       'database' :DB_NAME,
+                       'host' : DB_HOST,
+                       'port' : DB_PORT}
+        self.cmd = Load(**self.kwargs)
+
+    def tearDown(self):
+        self.db.clear()
+
+    def test_valid_identities_file(self):
+        """Check insertion of valid data from a file"""
+
+        f = open('data/identities_valid_json.txt', 'r')
+
+        self.cmd.import_identities(f)
+
+        # Check the contents of the registry
+        uidentities = api.unique_identities(self.db)
+        self.assertEqual(len(uidentities), 2)
+
+        # John Smith unique identity
+        uid0 = uidentities[0]
+        self.assertEqual(uid0.uuid, '924c44459f46e2375a94c3b2f517d866a1032cbf')
+        self.assertEqual(len(uid0.identities), 2)
+
+        id0 = uid0.identities[0]
+        self.assertEqual(id0.id, '0fc271807a0c3107198ab6d51f21aad9f97465fc')
+        self.assertEqual(id0.name, 'John Smith')
+        self.assertEqual(id0.email, 'jsmith@bitergia.com')
+        self.assertEqual(id0.username, 'jsmith')
+        self.assertEqual(id0.uuid, '924c44459f46e2375a94c3b2f517d866a1032cbf')
+
+        id1 = uid0.identities[1]
+        self.assertEqual(id1.id, '924c44459f46e2375a94c3b2f517d866a1032cbf')
+        self.assertEqual(id1.name, 'John Smith')
+        self.assertEqual(id1.email, 'jsmith@example.com')
+        self.assertEqual(id1.username, 'jsmith')
+        self.assertEqual(id1.uuid, '924c44459f46e2375a94c3b2f517d866a1032cbf')
+
+        enrollments = api.enrollments(self.db, uid0.uuid)
+        self.assertEqual(len(enrollments), 2)
+
+        rol0 = enrollments[0]
+        self.assertEqual(rol0.organization.name, 'Bitergia')
+        self.assertEqual(rol0.init, datetime.datetime(2011, 1, 1))
+        self.assertEqual(rol0.end, datetime.datetime(2100, 1, 1))
+
+        rol1 = enrollments[1]
+        self.assertEqual(rol1.organization.name, 'Example')
+        self.assertEqual(rol1.init, datetime.datetime(2010, 1, 1))
+        self.assertEqual(rol1.end, datetime.datetime(2011, 1, 1))
+
+        # John Doe unique identity
+        uid1 = uidentities[1]
+        self.assertEqual(uid1.uuid, 'a5923b2880b45315d2889c41100ed0db5cd01903')
+        self.assertEqual(len(uid1.identities), 1)
+
+        id1 = uid1.identities[0]
+        self.assertEqual(id1.id, 'a5923b2880b45315d2889c41100ed0db5cd01903')
+        self.assertEqual(id1.name, 'John Doe')
+        self.assertEqual(id1.email, 'jdoe@example.com')
+        self.assertEqual(id1.username, 'jdoe')
+        self.assertEqual(id1.uuid, 'a5923b2880b45315d2889c41100ed0db5cd01903')
+
+        enrollments = api.enrollments(self.db, uid1.uuid)
+        self.assertEqual(len(enrollments), 1)
+
+        rol0 = enrollments[0]
+        self.assertEqual(rol0.organization.name, 'Example')
+        self.assertEqual(rol0.init, datetime.datetime(2010, 1, 1))
+        self.assertEqual(rol0.end, datetime.datetime(2100, 1, 1))
+
+    def test_not_valid_identities_file(self):
+        """Check whether it prints an error when parsing invalid files"""
+
+        f1 = open('data/identities_invalid_json_file.txt', 'r')
+        self.cmd.import_identities(f1)
+        output = sys.stderr.getvalue().strip().split('\n')[0]
+        self.assertEqual(output, LOAD_IDENTITIES_IVALID_JSON_FORMAT_ERROR)
+        f1.close()
+
+        f2 = open('data/identities_missing_keys_json.txt', 'r')
+        self.cmd.import_identities(f2)
+        output = sys.stderr.getvalue().strip().split('\n')[1]
+        self.assertEqual(output, LOAD_IDENTITIES_MISSING_KEYS_ERROR)
+        f2.close()
+
+    def test_invalid_file(self):
+        """Check if it raises a RuntimeError when an invalid file object is given"""
+
+        self.assertRaises(RuntimeError, self.cmd.import_identities, None)
+        self.assertRaises(RuntimeError, self.cmd.import_identities, 1)
 
 class TestLoadImportDomains(unittest.TestCase):
     """Test import_domains method with some inputs"""

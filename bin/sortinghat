@@ -40,7 +40,7 @@ SORTINGHAT_DESC_MSG = \
     add         Add identities
     config      Get and set configuration parameters
     enroll      Enroll identities into organizations
-    load        Import organizations and domains on the registry
+    load        Import data (i.e identities, organizations) on the registry
     merge       Merge unique identities
     mv          Move an identity into a unique identity
     log         List enrollment information available in the registry
