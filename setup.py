@@ -31,4 +31,4 @@ setup(name="sortinghat",
       url="https://github.com/MetricsGrimoire/sortinghat",
       packages=['sortinghat', 'sortinghat.db', 'sortinghat.cmd', 'sortinghat.templates'],
       package_data={'sortinghat.templates': ['*.tmpl']},
-      scripts=["bin/sortinghat"])
+      scripts=["bin/sortinghat", "bin/mg2sh"])
