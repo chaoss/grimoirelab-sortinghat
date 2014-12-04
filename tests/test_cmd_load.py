@@ -276,6 +276,7 @@ class TestLoadImportIdentities(unittest.TestCase):
         self.assertEqual(id0.email, 'jsmith@bitergia.com')
         self.assertEqual(id0.username, 'jsmith')
         self.assertEqual(id0.uuid, '924c44459f46e2375a94c3b2f517d866a1032cbf')
+        self.assertEqual(id0.source, 'unknown')
 
         id1 = uid0.identities[1]
         self.assertEqual(id1.id, '924c44459f46e2375a94c3b2f517d866a1032cbf')
@@ -283,6 +284,7 @@ class TestLoadImportIdentities(unittest.TestCase):
         self.assertEqual(id1.email, 'jsmith@example.com')
         self.assertEqual(id1.username, 'jsmith')
         self.assertEqual(id1.uuid, '924c44459f46e2375a94c3b2f517d866a1032cbf')
+        self.assertEqual(id1.source, 'unknown')
 
         enrollments = api.enrollments(self.db, uid0.uuid)
         self.assertEqual(len(enrollments), 2)
@@ -308,6 +310,7 @@ class TestLoadImportIdentities(unittest.TestCase):
         self.assertEqual(id1.email, 'jdoe@example.com')
         self.assertEqual(id1.username, 'jdoe')
         self.assertEqual(id1.uuid, 'a5923b2880b45315d2889c41100ed0db5cd01903')
+        self.assertEqual(id1.source, 'unknown')
 
         enrollments = api.enrollments(self.db, uid1.uuid)
         self.assertEqual(len(enrollments), 1)
@@ -316,6 +319,39 @@ class TestLoadImportIdentities(unittest.TestCase):
         self.assertEqual(rol0.organization.name, 'Example')
         self.assertEqual(rol0.init, datetime.datetime(2010, 1, 1))
         self.assertEqual(rol0.end, datetime.datetime(2100, 1, 1))
+
+    def test_setting_source_param(self):
+        """Check if identities are imported setting the source param"""
+
+        f = open('data/identities_valid_json.txt', 'r')
+
+        self.cmd.import_identities(f, 'scm')
+
+        # Check the contents of the registry
+        uidentities = api.unique_identities(self.db)
+        self.assertEqual(len(uidentities), 2)
+
+        # John Smith unique identity
+        uid0 = uidentities[0]
+        self.assertEqual(uid0.uuid, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
+        self.assertEqual(len(uid0.identities), 2)
+
+        id0 = uid0.identities[0]
+        self.assertEqual(id0.id, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
+        self.assertEqual(id0.source, 'scm')
+
+        id1 = uid0.identities[1]
+        self.assertEqual(id1.id, 'bc3b356ba009880d3f2a25dfa32306ec4de7d8cf')
+        self.assertEqual(id1.source, 'scm')
+
+        # John Doe unique identity
+        uid1 = uidentities[1]
+        self.assertEqual(uid1.uuid, '8e9eac4c6449d2661d66dc62c1752529f935f0b1')
+        self.assertEqual(len(uid1.identities), 1)
+
+        id1 = uid1.identities[0]
+        self.assertEqual(id1.id, '8e9eac4c6449d2661d66dc62c1752529f935f0b1')
+        self.assertEqual(id1.source, 'scm')
 
     def test_not_valid_identities_file(self):
         """Check whether it prints an error when parsing invalid files"""

@@ -51,6 +51,10 @@ class Load(Command):
     only be assigned to one company. If one of the given domains is already on
     the registry, the new relationship will NOT be created unless --overwrite
     option were set.
+
+    Using the option '--source' will set on the registry where the information
+    to load comes from. This option only has effect when loading identities.
+    The default value for '--source' is 'unknown'.
     """
     def __init__(self, **kwargs):
         super(Load, self).__init__(**kwargs)
@@ -68,6 +72,8 @@ class Load(Command):
                            help="import domains - organizations file")
 
         # General options
+        self.parser.add_argument('--source', dest='source', default='unknown',
+                                 help="name of the source where the information to load comes from")
         self.parser.add_argument('--overwrite', action='store_true',
                                  help="force to overwrite existing domain relationships")
 
@@ -95,18 +101,20 @@ class Load(Command):
         infile = params.infile
 
         if params.identities:
-            self.import_identities(infile)
+            source = params.source
+            self.import_identities(infile, source)
         elif params.domains:
             overwrite = params.overwrite
             self.import_domains(infile, overwrite)
 
-    def import_identities(self, infile):
+    def import_identities(self, infile, source='unknown'):
         """Import identities information from a file on the registry.
 
         New unique identities, organizations and enrollment data stored
         on 'infile' will be added to the registry.
 
         :param infile: file to import
+        :param source: name of the source where the identities were extracted
         """
         try:
             identities = self.__parse_identities_file(infile)
@@ -122,7 +130,7 @@ class Load(Command):
         # Add identities
         try:
             for identity in identities['committers'].values():
-                uuid = self.__import_identity_json(identity)
+                uuid = self.__import_identity_json(identity, source)
 
                 if not 'affiliations' in identity:
                     continue
@@ -224,7 +232,7 @@ class Load(Command):
 
         return domains
 
-    def __import_identity_json(self, identity):
+    def __import_identity_json(self, identity, source):
         """Import an identity from a json dict"""
 
         name = (identity['first'] + ' ' + identity['last']).encode('UTF-8')
@@ -232,7 +240,7 @@ class Load(Command):
         username = identity['id'].encode('UTF-8')
 
         try:
-            uuid = api.add_identity(self.db, 'unknown', email,
+            uuid = api.add_identity(self.db, source, email,
                                     name, username)
         except AlreadyExistsError, e:
             uuid = e.uuid
@@ -247,7 +255,7 @@ class Load(Command):
             if alt_email == email:
                 continue
             try:
-                api.add_identity(self.db, 'unknown',
+                api.add_identity(self.db, source,
                                  alt_email, name, username, uuid)
             except AlreadyExistsError, e:
                 msg = "%s. Identity not updated." % str(e)
