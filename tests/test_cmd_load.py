@@ -59,8 +59,8 @@ Domain libresoft.es added to organization GSyC/LibreSoft
 Domain gsyc.es added to organization GSyC/LibreSoft"""
 
 
-class TestLoadCommand(unittest.TestCase):
-    """Load command unit tests"""
+class TestBaseCase(unittest.TestCase):
+    """Defines common setup and teardown methods on show unit tests"""
 
     def setUp(self):
         if not hasattr(sys.stdout, 'getvalue'):
@@ -72,13 +72,17 @@ class TestLoadCommand(unittest.TestCase):
         # Create command
         self.kwargs = {'user' : DB_USER,
                        'password' : DB_PASSWORD,
-                       'database' :DB_NAME,
+                       'database' : DB_NAME,
                        'host' : DB_HOST,
                        'port' : DB_PORT}
         self.cmd = Load(**self.kwargs)
 
     def tearDown(self):
         self.db.clear()
+
+
+class TestLoadCommand(TestBaseCase):
+    """Load command unit tests"""
 
     def test_load_domains(self):
         """Test to load domains from a file"""
@@ -233,31 +237,13 @@ class TestDomainsRegEx(unittest.TestCase):
         self.assertIsNotNone(m)
 
 
-class TestLoadImportIdentities(unittest.TestCase):
+class TestLoadImportIdentities(TestBaseCase):
     """Test import_identities method with some inputs"""
-
-    def setUp(self):
-        if not hasattr(sys.stdout, 'getvalue'):
-            self.fail('This test needs to be run in buffered mode')
-
-        # Create a connection to check the contents of the registry
-        self.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
-
-        # Create command
-        self.kwargs = {'user' : DB_USER,
-                       'password' : DB_PASSWORD,
-                       'database' :DB_NAME,
-                       'host' : DB_HOST,
-                       'port' : DB_PORT}
-        self.cmd = Load(**self.kwargs)
-
-    def tearDown(self):
-        self.db.clear()
 
     def test_valid_identities_file(self):
         """Check insertion of valid data from a file"""
 
-        f = open('data/identities_valid_json.txt', 'r')
+        f = open('data/eclipse_identities_valid.json', 'r')
 
         self.cmd.import_identities(f)
 
@@ -323,7 +309,7 @@ class TestLoadImportIdentities(unittest.TestCase):
     def test_setting_source_param(self):
         """Check if identities are imported setting the source param"""
 
-        f = open('data/identities_valid_json.txt', 'r')
+        f = open('data/eclipse_identities_valid.json', 'r')
 
         self.cmd.import_identities(f, 'scm')
 
@@ -356,13 +342,13 @@ class TestLoadImportIdentities(unittest.TestCase):
     def test_not_valid_identities_file(self):
         """Check whether it prints an error when parsing invalid files"""
 
-        f1 = open('data/identities_invalid_json_file.txt', 'r')
+        f1 = open('data/eclipse_identities_invalid_file.json', 'r')
         self.cmd.import_identities(f1)
         output = sys.stderr.getvalue().strip().split('\n')[0]
         self.assertEqual(output, LOAD_IDENTITIES_IVALID_JSON_FORMAT_ERROR)
         f1.close()
 
-        f2 = open('data/identities_missing_keys_json.txt', 'r')
+        f2 = open('data/eclipse_identities_missing_keys.json', 'r')
         self.cmd.import_identities(f2)
         output = sys.stderr.getvalue().strip().split('\n')[1]
         self.assertEqual(output, LOAD_IDENTITIES_MISSING_KEYS_ERROR)
@@ -374,26 +360,9 @@ class TestLoadImportIdentities(unittest.TestCase):
         self.assertRaises(RuntimeError, self.cmd.import_identities, None)
         self.assertRaises(RuntimeError, self.cmd.import_identities, 1)
 
-class TestLoadImportDomains(unittest.TestCase):
+
+class TestLoadImportDomains(TestBaseCase):
     """Test import_domains method with some inputs"""
-
-    def setUp(self):
-        if not hasattr(sys.stdout, 'getvalue'):
-            self.fail('This test needs to be run in buffered mode')
-
-        # Create a connection to check the contents of the registry
-        self.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
-
-        # Create command
-        self.kwargs = {'user' : DB_USER,
-                       'password' : DB_PASSWORD,
-                       'database' :DB_NAME,
-                       'host' : DB_HOST,
-                       'port' : DB_PORT}
-        self.cmd = Load(**self.kwargs)
-
-    def tearDown(self):
-        self.db.clear()
 
     def test_valid_domain_file(self):
         """Check insertion of valid data from a file"""
