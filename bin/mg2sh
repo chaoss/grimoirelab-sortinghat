@@ -58,7 +58,7 @@ General options:
 
 
 class MappedIdentity(object):
-    """Generic identity to map identities data from Metrics Gimoire databases"""
+    """Generic identity to map identities data from Metrics Grimoire databases"""
 
     IDENTITIES_TABLES = ['people', 'users', 'irclog']
 
