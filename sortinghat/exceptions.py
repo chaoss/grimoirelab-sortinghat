@@ -47,6 +47,7 @@ class AlreadyExistsError(BaseError):
         self.uuid = kwargs.pop('uuid', None)
         super(AlreadyExistsError, self).__init__(**kwargs)
 
+
 class BadFileFormatError(BaseError):
     """Exception raised when an input file does not have the expected format"""
 
@@ -63,6 +64,12 @@ class InvalidDateError(BaseError):
     """Exception raised when a date is invalid"""
 
     message = "%(date)s is not a valid date"
+
+
+class LoadError(BaseError):
+    """Exception raised when an error occurs loading data"""
+
+    message = "%(cause)s"
 
 
 class NotFoundError(BaseError):

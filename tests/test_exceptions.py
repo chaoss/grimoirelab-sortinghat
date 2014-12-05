@@ -28,7 +28,7 @@ if not '..' in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat.exceptions import BaseError, AlreadyExistsError, BadFileFormatError,\
-    DatabaseError, InvalidDateError, NotFoundError
+    DatabaseError, InvalidDateError, LoadError, NotFoundError
 
 
 # Mock classes to test BaseError class
@@ -152,6 +152,23 @@ class TestInvalidDateError(unittest.TestCase):
         required parameters are not given"""
         kwargs = {}
         self.assertRaises(KeyError, InvalidDateError, **kwargs)
+
+
+class TestLoadError(unittest.TestCase):
+
+    def test_message(self):
+        """Make sure that prints the correct error"""
+
+        e = LoadError(cause='Invalid json format')
+        self.assertEqual('Invalid json format', str(e))
+        self.assertEqual(u'Invalid json format',
+                         unicode(e))
+
+    def test_no_args(self):
+        """Check whether it raises a KeyError exception when
+        required parameters are not given"""
+        kwargs = {}
+        self.assertRaises(KeyError, LoadError, **kwargs)
 
 
 class TestNotFoundError(unittest.TestCase):

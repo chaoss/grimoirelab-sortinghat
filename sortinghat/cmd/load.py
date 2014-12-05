@@ -31,7 +31,7 @@ from sortinghat import api
 from sortinghat.command import Command
 from sortinghat.db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE
 from sortinghat.exceptions import AlreadyExistsError, NotFoundError,\
-    BadFileFormatError
+    BadFileFormatError, LoadError
 
 
 # Regex for parsing domains input
@@ -124,22 +124,16 @@ class Load(Command):
         except (IOError, TypeError, AttributeError), e:
             raise RuntimeError(str(e))
 
-        if not 'committers' in identities:
+        if 'committers' in identities:
+            loader = EclipseIdentitiesLoader(self.db)
+        else:
             return
 
-        # Add identities
         try:
-            for identity in identities['committers'].values():
-                uuid = self.__import_identity_json(identity, source)
-
-                if not 'affiliations' in identity:
-                    continue
-
-                self.__import_affiliations_json(uuid, identity['affiliations'])
-        except KeyError, e:
-            # This is a BadFileFormatError
-            msg = "invalid json format. Attribute %s not found" % e.args
-            self.error(msg)
+            loader.warning = self.warning
+            loader.load(identities, source)
+        except LoadError, e:
+            self.error(str(e))
 
     def import_domains(self, infile, overwrite=False):
         """Import domains from a file on the registry.
@@ -232,6 +226,53 @@ class Load(Command):
 
         return domains
 
+
+class IdentitiesLoader(object):
+    """Abstract class for loading identities."""
+
+    def __init__(self, db):
+        self.db = db
+
+    def load(self, identities, source):
+        raise NotImplementedError
+
+    def warning(self, msg):
+        raise NotImplementedError
+
+
+class EclipseIdentitiesLoader(IdentitiesLoader):
+    """Import identities using Eclipse identities format.
+
+    This class imports in the registry sets of identities defined
+    by the Eclipse identities JSON format.
+
+    :param db: database manager
+    """
+    def __init__(self, db):
+        super(EclipseIdentitiesLoader, self).__init__(db)
+
+    def load(self, identities, source):
+        """Load a set of identities.
+
+        Method to import identities into the registry. Identities schema must
+        follow Eclipse JSON format. LoadError exception is raised when either
+        the format is invalid or an error occurs importing the data.
+
+        :param identities: identities stored in a JSON object
+        :param source: name of the source where the identities come from
+        """
+        try:
+            for identity in identities['committers'].values():
+                uuid = self.__import_identity_json(identity, source)
+
+                if not 'affiliations' in identity:
+                    continue
+
+                self.__import_affiliations_json(uuid, identity['affiliations'])
+        except KeyError, e:
+            msg = "invalid json format. Attribute %s not found" % e.args
+            raise LoadError(cause=msg)
+
     def __import_identity_json(self, identity, source):
         """Import an identity from a json dict"""
 
@@ -261,7 +302,7 @@ class Load(Command):
                 msg = "%s. Identity not updated." % str(e)
                 self.warning(msg)
             except (ValueError, NotFoundError), e:
-                raise RuntimeError(str(e))
+                raise LoadError(cause=str(e))
 
         return uuid
 
@@ -289,4 +330,4 @@ class Load(Command):
                 msg = "%s. Enrollment not updated." % str(e)
                 self.warning(msg)
             except (ValueError, NotFoundError), e:
-                raise RuntimeError(str(e))
+                raise LoadError(cause=str(e))

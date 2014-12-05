@@ -30,14 +30,17 @@ if not '..' in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat import api
-from sortinghat.cmd.load import Load, LINES_TO_IGNORE_REGEX, DOMAINS_LINE_REGEX
+from sortinghat.cmd.load import Load, EclipseIdentitiesLoader,\
+    LINES_TO_IGNORE_REGEX, DOMAINS_LINE_REGEX
 from sortinghat.db.database import Database
+from sortinghat.exceptions import LoadError
 
 from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
 
 LOAD_IDENTITIES_IVALID_JSON_FORMAT_ERROR = "Error: invalid json format. Expecting ':' delimiter: line 19 column 15 (char 844)"
 LOAD_IDENTITIES_MISSING_KEYS_ERROR = "Error: invalid json format. Attribute active not found"
+LOAD_ECLIPSE_IDS_MISSING_KEYS_ERROR_ALT = "invalid json format. Attribute active not found"
 
 LOAD_DOMAINS_OUTPUT = """Domain example.com added to organization Example
 Domain example.org added to organization Example
@@ -79,6 +82,14 @@ class TestBaseCase(unittest.TestCase):
 
     def tearDown(self):
         self.db.clear()
+
+    def read_json(self, filename):
+        import json
+
+        with open(filename, 'r') as f:
+            content = f.read().decode('UTF-8')
+            obj = json.loads(content)
+        return obj
 
 
 class TestLoadCommand(TestBaseCase):
@@ -359,6 +370,88 @@ class TestLoadImportIdentities(TestBaseCase):
 
         self.assertRaises(RuntimeError, self.cmd.import_identities, None)
         self.assertRaises(RuntimeError, self.cmd.import_identities, 1)
+
+
+class TestEclipseIdentitiesLoader(TestBaseCase):
+    """Test Eclipse loader"""
+
+    def test_valid_identities_file(self):
+        """Check insertion of valid data from a file"""
+
+        identities = self.read_json('data/eclipse_identities_valid.json')
+
+        loader = EclipseIdentitiesLoader(self.db)
+        loader.warning = sys.stdout.write
+        loader.load(identities, 'unknown')
+
+        # Check the contents of the registry
+        uidentities = api.unique_identities(self.db)
+        self.assertEqual(len(uidentities), 2)
+
+        # John Smith unique identity
+        uid0 = uidentities[0]
+        self.assertEqual(uid0.uuid, '924c44459f46e2375a94c3b2f517d866a1032cbf')
+        self.assertEqual(len(uid0.identities), 2)
+
+        id0 = uid0.identities[0]
+        self.assertEqual(id0.id, '0fc271807a0c3107198ab6d51f21aad9f97465fc')
+        self.assertEqual(id0.name, 'John Smith')
+        self.assertEqual(id0.email, 'jsmith@bitergia.com')
+        self.assertEqual(id0.username, 'jsmith')
+        self.assertEqual(id0.uuid, '924c44459f46e2375a94c3b2f517d866a1032cbf')
+        self.assertEqual(id0.source, 'unknown')
+
+        id1 = uid0.identities[1]
+        self.assertEqual(id1.id, '924c44459f46e2375a94c3b2f517d866a1032cbf')
+        self.assertEqual(id1.name, 'John Smith')
+        self.assertEqual(id1.email, 'jsmith@example.com')
+        self.assertEqual(id1.username, 'jsmith')
+        self.assertEqual(id1.uuid, '924c44459f46e2375a94c3b2f517d866a1032cbf')
+        self.assertEqual(id1.source, 'unknown')
+
+        enrollments = api.enrollments(self.db, uid0.uuid)
+        self.assertEqual(len(enrollments), 2)
+
+        rol0 = enrollments[0]
+        self.assertEqual(rol0.organization.name, 'Bitergia')
+        self.assertEqual(rol0.init, datetime.datetime(2011, 1, 1))
+        self.assertEqual(rol0.end, datetime.datetime(2100, 1, 1))
+
+        rol1 = enrollments[1]
+        self.assertEqual(rol1.organization.name, 'Example')
+        self.assertEqual(rol1.init, datetime.datetime(2010, 1, 1))
+        self.assertEqual(rol1.end, datetime.datetime(2011, 1, 1))
+
+        # John Doe unique identity
+        uid1 = uidentities[1]
+        self.assertEqual(uid1.uuid, 'a5923b2880b45315d2889c41100ed0db5cd01903')
+        self.assertEqual(len(uid1.identities), 1)
+
+        id1 = uid1.identities[0]
+        self.assertEqual(id1.id, 'a5923b2880b45315d2889c41100ed0db5cd01903')
+        self.assertEqual(id1.name, 'John Doe')
+        self.assertEqual(id1.email, 'jdoe@example.com')
+        self.assertEqual(id1.username, 'jdoe')
+        self.assertEqual(id1.uuid, 'a5923b2880b45315d2889c41100ed0db5cd01903')
+        self.assertEqual(id1.source, 'unknown')
+
+        enrollments = api.enrollments(self.db, uid1.uuid)
+        self.assertEqual(len(enrollments), 1)
+
+        rol0 = enrollments[0]
+        self.assertEqual(rol0.organization.name, 'Example')
+        self.assertEqual(rol0.init, datetime.datetime(2010, 1, 1))
+        self.assertEqual(rol0.end, datetime.datetime(2100, 1, 1))
+
+    def test_not_valid_schema(self):
+        """Check whether it raises an error when loading invalid files"""
+
+        loader = EclipseIdentitiesLoader(self.db)
+        loader.warning = sys.stdout.write
+
+        ids1 = self.read_json('data/eclipse_identities_missing_keys.json')
+        self.assertRaisesRegexp(LoadError, LOAD_ECLIPSE_IDS_MISSING_KEYS_ERROR_ALT,
+                                loader.load, ids1, 'unknown')
 
 
 class TestLoadImportDomains(TestBaseCase):
