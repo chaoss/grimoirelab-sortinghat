@@ -1,0 +1,25 @@
+{
+    "source": "scm",
+    "time": "2014-12-05 13:35:42.526895",
+    "identities": [
+        {
+            "username": null,
+            "name": "John Doe",
+            "email": "jdoe@example.com"
+        },
+        {
+            "username": "jdoe",
+            "email": "jdoe@example.com"
+        },
+        {
+            "username": "jsmith",
+            "name": "John Smith",
+            "email": null
+        },
+        {
+            "username": "jrae",
+            "name": null,
+            "email": null
+        }
+    ]
+}

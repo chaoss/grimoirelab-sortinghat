@@ -30,7 +30,8 @@ if not '..' in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat import api
-from sortinghat.cmd.load import Load, EclipseIdentitiesLoader,\
+from sortinghat.cmd.load import Load,\
+    GrimoireIdentitiesLoader, EclipseIdentitiesLoader,\
     LINES_TO_IGNORE_REGEX, DOMAINS_LINE_REGEX
 from sortinghat.db.database import Database
 from sortinghat.exceptions import LoadError
@@ -40,7 +41,10 @@ from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
 LOAD_IDENTITIES_IVALID_JSON_FORMAT_ERROR = "Error: invalid json format. Expecting ':' delimiter: line 19 column 15 (char 844)"
 LOAD_IDENTITIES_MISSING_KEYS_ERROR = "Error: invalid json format. Attribute active not found"
+LOAD_IDENTITIES_NOT_SUPPORTED_FORMAT = "Error: format not supported"
+LOAD_GRIMOIRE_IDS_MISSING_KEYS_ERROR = "invalid json format. Attribute name not found"
 LOAD_ECLIPSE_IDS_MISSING_KEYS_ERROR_ALT = "invalid json format. Attribute active not found"
+
 
 LOAD_DOMAINS_OUTPUT = """Domain example.com added to organization Example
 Domain example.org added to organization Example
@@ -251,71 +255,24 @@ class TestDomainsRegEx(unittest.TestCase):
 class TestLoadImportIdentities(TestBaseCase):
     """Test import_identities method with some inputs"""
 
-    def test_valid_identities_file(self):
-        """Check insertion of valid data from a file"""
+    def test_valid_identities_files(self):
+        """Check insertion of valid data from files with differnt formats"""
 
-        f = open('data/eclipse_identities_valid.json', 'r')
-
+        # Metrics Grimoire format file
+        f = open('data/grimoire_identities_valid.json', 'r')
         self.cmd.import_identities(f)
 
-        # Check the contents of the registry
+        # Eclipse format file
+        f = open('data/eclipse_identities_valid.json', 'r')
+        self.cmd.import_identities(f)
+
+        # Check the contents of the registry. It inserts
+        # only 5 identities because one of them is duplicated
         uidentities = api.unique_identities(self.db)
-        self.assertEqual(len(uidentities), 2)
+        self.assertEqual(len(uidentities), 5)
 
-        # John Smith unique identity
-        uid0 = uidentities[0]
-        self.assertEqual(uid0.uuid, '924c44459f46e2375a94c3b2f517d866a1032cbf')
-        self.assertEqual(len(uid0.identities), 2)
-
-        id0 = uid0.identities[0]
-        self.assertEqual(id0.id, '0fc271807a0c3107198ab6d51f21aad9f97465fc')
-        self.assertEqual(id0.name, 'John Smith')
-        self.assertEqual(id0.email, 'jsmith@bitergia.com')
-        self.assertEqual(id0.username, 'jsmith')
-        self.assertEqual(id0.uuid, '924c44459f46e2375a94c3b2f517d866a1032cbf')
-        self.assertEqual(id0.source, 'unknown')
-
-        id1 = uid0.identities[1]
-        self.assertEqual(id1.id, '924c44459f46e2375a94c3b2f517d866a1032cbf')
-        self.assertEqual(id1.name, 'John Smith')
-        self.assertEqual(id1.email, 'jsmith@example.com')
-        self.assertEqual(id1.username, 'jsmith')
-        self.assertEqual(id1.uuid, '924c44459f46e2375a94c3b2f517d866a1032cbf')
-        self.assertEqual(id1.source, 'unknown')
-
-        enrollments = api.enrollments(self.db, uid0.uuid)
-        self.assertEqual(len(enrollments), 2)
-
-        rol0 = enrollments[0]
-        self.assertEqual(rol0.organization.name, 'Bitergia')
-        self.assertEqual(rol0.init, datetime.datetime(2011, 1, 1))
-        self.assertEqual(rol0.end, datetime.datetime(2100, 1, 1))
-
-        rol1 = enrollments[1]
-        self.assertEqual(rol1.organization.name, 'Example')
-        self.assertEqual(rol1.init, datetime.datetime(2010, 1, 1))
-        self.assertEqual(rol1.end, datetime.datetime(2011, 1, 1))
-
-        # John Doe unique identity
-        uid1 = uidentities[1]
-        self.assertEqual(uid1.uuid, 'a5923b2880b45315d2889c41100ed0db5cd01903')
-        self.assertEqual(len(uid1.identities), 1)
-
-        id1 = uid1.identities[0]
-        self.assertEqual(id1.id, 'a5923b2880b45315d2889c41100ed0db5cd01903')
-        self.assertEqual(id1.name, 'John Doe')
-        self.assertEqual(id1.email, 'jdoe@example.com')
-        self.assertEqual(id1.username, 'jdoe')
-        self.assertEqual(id1.uuid, 'a5923b2880b45315d2889c41100ed0db5cd01903')
-        self.assertEqual(id1.source, 'unknown')
-
-        enrollments = api.enrollments(self.db, uid1.uuid)
-        self.assertEqual(len(enrollments), 1)
-
-        rol0 = enrollments[0]
-        self.assertEqual(rol0.organization.name, 'Example')
-        self.assertEqual(rol0.init, datetime.datetime(2010, 1, 1))
-        self.assertEqual(rol0.end, datetime.datetime(2100, 1, 1))
+        enrollments = api.enrollments(self.db)
+        self.assertEqual(len(enrollments), 3)
 
     def test_setting_source_param(self):
         """Check if identities are imported setting the source param"""
@@ -370,6 +327,96 @@ class TestLoadImportIdentities(TestBaseCase):
 
         self.assertRaises(RuntimeError, self.cmd.import_identities, None)
         self.assertRaises(RuntimeError, self.cmd.import_identities, 1)
+
+    def test_not_supported_format(self):
+        """Check if it prints an error when a format is not supported"""
+
+        f = open('data/identities_format_not_supported.json', 'r')
+
+        self.cmd.import_identities(f)
+
+        output = sys.stderr.getvalue().strip()
+        self.assertEqual(output, LOAD_IDENTITIES_NOT_SUPPORTED_FORMAT)
+
+        f.close()
+
+class TestGrimoireIdentitiesLoader(TestBaseCase):
+    """Test Metrics Grimoire loader"""
+
+    def test_valid_identities_file(self):
+        """Check insertion of valid data from a file"""
+
+        identities = self.read_json('data/grimoire_identities_valid.json')
+
+        loader = GrimoireIdentitiesLoader(self.db)
+        loader.warning = sys.stdout.write
+        loader.load(identities, 'unknown')
+
+        # Check the contents of the registry
+        uidentities = api.unique_identities(self.db)
+        self.assertEqual(len(uidentities), 4)
+
+        # Jane Rae
+        uid0 = uidentities[0]
+        self.assertEqual(uid0.uuid, '24f76417b78d41f409d10e70bb3adfbccb21d6a9')
+        self.assertEqual(len(uid0.identities), 1)
+
+        id0 = uid0.identities[0]
+        self.assertEqual(id0.id, '24f76417b78d41f409d10e70bb3adfbccb21d6a9')
+        self.assertEqual(id0.name, None)
+        self.assertEqual(id0.email, None)
+        self.assertEqual(id0.username, 'jrae')
+        self.assertEqual(id0.uuid, '24f76417b78d41f409d10e70bb3adfbccb21d6a9')
+        self.assertEqual(id0.source, 'unknown')
+
+        # John Smith
+        uid1 = uidentities[1]
+        self.assertEqual(uid1.uuid, '2cb7f5d70a3549f35f995d27085c14ea81c529cd')
+        self.assertEqual(len(uid1.identities), 1)
+
+        id0 = uid1.identities[0]
+        self.assertEqual(id0.id, '2cb7f5d70a3549f35f995d27085c14ea81c529cd')
+        self.assertEqual(id0.name, 'John Smith')
+        self.assertEqual(id0.email, None)
+        self.assertEqual(id0.username, 'jsmith')
+        self.assertEqual(id0.uuid, '2cb7f5d70a3549f35f995d27085c14ea81c529cd')
+        self.assertEqual(id0.source, 'unknown')
+
+        # John Doe first unique identity
+        uid2 = uidentities[2]
+        self.assertEqual(uid2.uuid, 'a5923b2880b45315d2889c41100ed0db5cd01903')
+        self.assertEqual(len(uid2.identities), 1)
+
+        id0 = uid2.identities[0]
+        self.assertEqual(id0.id, 'a5923b2880b45315d2889c41100ed0db5cd01903')
+        self.assertEqual(id0.name, 'John Doe')
+        self.assertEqual(id0.email, 'jdoe@example.com')
+        self.assertEqual(id0.username, 'jdoe')
+        self.assertEqual(id0.uuid, 'a5923b2880b45315d2889c41100ed0db5cd01903')
+        self.assertEqual(id0.source, 'unknown')
+
+        # John Doe second unique identity
+        uid3 = uidentities[3]
+        self.assertEqual(uid3.uuid, 'd4e07b257232ca7a0514a03c8d324ba327cc6934')
+        self.assertEqual(len(uid3.identities), 1)
+
+        id0 = uid3.identities[0]
+        self.assertEqual(id0.id, 'd4e07b257232ca7a0514a03c8d324ba327cc6934')
+        self.assertEqual(id0.name, 'John Doe')
+        self.assertEqual(id0.email, 'jdoe@example.com')
+        self.assertEqual(id0.username, None)
+        self.assertEqual(id0.uuid, 'd4e07b257232ca7a0514a03c8d324ba327cc6934')
+        self.assertEqual(id0.source, 'unknown')
+
+    def test_not_valid_schema(self):
+        """Check whether it raises an error when loading invalid files"""
+
+        loader = GrimoireIdentitiesLoader(self.db)
+        loader.warning = sys.stdout.write
+
+        ids0 = self.read_json('data/grimoire_identities_missing_keys.json')
+        self.assertRaisesRegexp(LoadError, LOAD_GRIMOIRE_IDS_MISSING_KEYS_ERROR,
+                                loader.load, ids0, 'unknown')
 
 
 class TestEclipseIdentitiesLoader(TestBaseCase):
@@ -427,13 +474,13 @@ class TestEclipseIdentitiesLoader(TestBaseCase):
         self.assertEqual(uid1.uuid, 'a5923b2880b45315d2889c41100ed0db5cd01903')
         self.assertEqual(len(uid1.identities), 1)
 
-        id1 = uid1.identities[0]
-        self.assertEqual(id1.id, 'a5923b2880b45315d2889c41100ed0db5cd01903')
-        self.assertEqual(id1.name, 'John Doe')
-        self.assertEqual(id1.email, 'jdoe@example.com')
-        self.assertEqual(id1.username, 'jdoe')
-        self.assertEqual(id1.uuid, 'a5923b2880b45315d2889c41100ed0db5cd01903')
-        self.assertEqual(id1.source, 'unknown')
+        id0 = uid1.identities[0]
+        self.assertEqual(id0.id, 'a5923b2880b45315d2889c41100ed0db5cd01903')
+        self.assertEqual(id0.name, 'John Doe')
+        self.assertEqual(id0.email, 'jdoe@example.com')
+        self.assertEqual(id0.username, 'jdoe')
+        self.assertEqual(id0.uuid, 'a5923b2880b45315d2889c41100ed0db5cd01903')
+        self.assertEqual(id0.source, 'unknown')
 
         enrollments = api.enrollments(self.db, uid1.uuid)
         self.assertEqual(len(enrollments), 1)
@@ -449,9 +496,9 @@ class TestEclipseIdentitiesLoader(TestBaseCase):
         loader = EclipseIdentitiesLoader(self.db)
         loader.warning = sys.stdout.write
 
-        ids1 = self.read_json('data/eclipse_identities_missing_keys.json')
+        ids0 = self.read_json('data/eclipse_identities_missing_keys.json')
         self.assertRaisesRegexp(LoadError, LOAD_ECLIPSE_IDS_MISSING_KEYS_ERROR_ALT,
-                                loader.load, ids1, 'unknown')
+                                loader.load, ids0, 'unknown')
 
 
 class TestLoadImportDomains(TestBaseCase):

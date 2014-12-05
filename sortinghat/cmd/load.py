@@ -126,7 +126,10 @@ class Load(Command):
 
         if 'committers' in identities:
             loader = EclipseIdentitiesLoader(self.db)
+        elif 'identities' in identities:
+            loader = GrimoireIdentitiesLoader(self.db)
         else:
+            self.error("format not supported")
             return
 
         try:
@@ -240,11 +243,64 @@ class IdentitiesLoader(object):
         raise NotImplementedError
 
 
+class GrimoireIdentitiesLoader(IdentitiesLoader):
+    """Import identities using Metrics Grimoire identities format.
+
+    This class imports in the registry sets of identities defined
+    by the Metrics Grimoire JSON format. When a new instance is
+    created, do not forget to set warning method.
+
+    :param db: database manager
+    """
+    def __init__(self, db):
+        super(GrimoireIdentitiesLoader, self).__init__(db)
+
+    def load(self, identities, source):
+        """Load a set of identities.
+
+        Method to import identities into the registry. Identities schema must
+        follow Metrics Grimoire JSON format. This format includes 'source'
+        and 'time' properties that are ignored during loading process.
+
+        LoadError exception is raised when either the format is invalid
+        or an error occurs importing the data.
+
+        :param identities: identities stored in a JSON object
+        :param source: name of the source where the identities come from
+        """
+        try:
+            for identity in identities['identities']:
+                self.__import_identity_json(identity, source)
+        except KeyError, e:
+            msg = "invalid json format. Attribute %s not found" % e.args
+            raise LoadError(cause=msg)
+
+    def __import_identity_json(self, identity, source):
+        """Import an identity from a json dict"""
+
+        encode = lambda s: s.encode('UTF-8') if s else None
+
+        name = encode(identity['name'])
+        email = encode(identity['email'])
+        username = encode(identity['username'])
+
+        try:
+            uuid = api.add_identity(self.db, source, email,
+                                    name, username)
+        except AlreadyExistsError, e:
+            uuid = e.uuid
+            msg = "%s. Unique identity not updated." % str(e)
+            self.warning(msg)
+
+        return uuid
+
+
 class EclipseIdentitiesLoader(IdentitiesLoader):
     """Import identities using Eclipse identities format.
 
     This class imports in the registry sets of identities defined
-    by the Eclipse identities JSON format.
+    by the Eclipse identities JSON format. When a new instance is
+    created, do not forget to set warning method.
 
     :param db: database manager
     """
