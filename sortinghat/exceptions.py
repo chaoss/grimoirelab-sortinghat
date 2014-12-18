@@ -72,6 +72,12 @@ class LoadError(BaseError):
     message = "%(cause)s"
 
 
+class MatcherNotSupportedError(BaseError):
+    """Exception raised when an identity matcher is not supported"""
+
+    message = "%(matcher)s identity matcher is not supported"
+
+
 class NotFoundError(BaseError):
     """Exception raised when an entity is not found in the registry"""
 
