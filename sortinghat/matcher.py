@@ -40,7 +40,7 @@ class IdentityMatcher(object):
         raise NotImplementedError
 
 
-def create_identity_matcher(matcher=None):
+def create_identity_matcher(matcher='default'):
     """Create an identity matcher of the given type.
 
     Factory function that creates an identity matcher object of the type
@@ -53,7 +53,11 @@ def create_identity_matcher(matcher=None):
     :raises MatcherNotSupportedError: when the given matcher type is not
         supported or available
     """
-    if matcher != 'default':
+    import sortinghat.matching as matching
+
+    if matcher not in matching.SORTINGHAT_IDENTITIES_MATCHERS:
         raise MatcherNotSupportedError(matcher=str(matcher))
 
-    return IdentityMatcher()
+    klass = matching.SORTINGHAT_IDENTITIES_MATCHERS[matcher]
+
+    return klass()

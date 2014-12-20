@@ -19,3 +19,11 @@
 # Authors:
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
+
+from sortinghat.matching.simple import SimpleMatcher
+
+
+SORTINGHAT_IDENTITIES_MATCHERS = {
+                                  'default' : SimpleMatcher,
+                                  'simple'  : SimpleMatcher,
+                                  }

@@ -29,16 +29,19 @@ if not '..' in sys.path:
 
 from sortinghat.exceptions import MatcherNotSupportedError
 from sortinghat.matcher import IdentityMatcher, create_identity_matcher
+from sortinghat.matching import SimpleMatcher
 
 
 class TestCreateIdentityMatcher(unittest.TestCase):
 
     def test_identity_matcher_instance(self):
-        """Test if the factory function returns a identity matcher instance"""
+        """Test if the factory function returns an identity matcher instance"""
 
         matcher = create_identity_matcher('default')
-
         self.assertIsInstance(matcher, IdentityMatcher)
+
+        matcher = create_identity_matcher('simple')
+        self.assertIsInstance(matcher, SimpleMatcher)
 
     def test_not_supported_matcher(self):
         """Check if an exception is raised when the given matcher type is not supported"""
