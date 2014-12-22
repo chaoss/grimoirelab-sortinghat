@@ -657,6 +657,48 @@ def move_identity(db, from_id, to_uuid):
         fid.uuid = to_uuid
 
 
+def match_identities(db, uuid, matcher):
+    """Search for similar unique identities.
+
+    The function will search in the registry for similar identities to 'uuid'.
+    The result will be a list matches containing unique identities objects.
+    This list will also include the given unique identity.
+
+    The criteria used to check when an identity matches with another one
+    is defined by 'matcher' parameter. This parameter is an instance
+    of 'IdentityMatcher' class.
+
+    :param db: database manager
+    :param uuid: identifier of the identity to match
+    :param matcher: criteria used to match identities
+
+    :returns: list of matched unique identities
+
+    :raises NotFoundError: raised when 'uuid' does not exist in the
+        registry
+    """
+    uidentities = []
+
+    with db.connect() as session:
+        uid = session.query(UniqueIdentity).\
+            filter(UniqueIdentity.uuid == uuid).first()
+
+        if not uid:
+            raise NotFoundError(entity=uuid)
+
+        candidates = session.query(UniqueIdentity).all()
+
+        for candidate in candidates:
+            if not matcher.match(uid, candidate):
+                continue
+            uidentities.append(candidate)
+
+        # Detach objects from the session
+        session.expunge_all()
+
+    return uidentities
+
+
 def unique_identities(db, uuid=None):
     """List the unique identities available in the registry.
 

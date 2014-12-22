@@ -32,6 +32,7 @@ from sortinghat import api
 from sortinghat.db.database import Database
 from sortinghat.db.model import UniqueIdentity, Identity, Organization, Domain, Enrollment
 from sortinghat.exceptions import AlreadyExistsError, NotFoundError
+from sortinghat.matcher import create_identity_matcher
 
 from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
@@ -1502,6 +1503,115 @@ class TestMoveIdentity(TestBaseCase):
                                 NOT_FOUND_ERROR % {'entity' : 'Jane Roe'},
                                 api.move_identity,
                                 self.db, from_id, 'Jane Roe')
+
+
+class TestMatchIdentities(TestBaseCase):
+    """Unit tests for match_identities"""
+
+    def test_simple_matcher(self):
+        """Test simple identity matcher"""
+
+        # Add some unique identities first
+        api.add_unique_identity(self.db, 'John Smith')
+        api.add_identity(self.db, 'scm', 'jsmith@example.com',
+                         uuid='John Smith')
+        api.add_identity(self.db, 'scm', name='John Smith', uuid='John Smith')
+        api.add_identity(self.db, 'scm', username='jsmith', uuid='John Smith')
+
+        api.add_unique_identity(self.db, 'John Doe')
+        api.add_identity(self.db, 'mls', 'johndoe@example.com', uuid='John Doe')
+        api.add_identity(self.db, 'mls', 'johndoe@example.net', uuid='John Doe')
+
+        api.add_unique_identity(self.db, 'Smith J.')
+        api.add_identity(self.db, 'mls', 'JSmith@example.com',
+                         uuid='Smith J.')
+
+        api.add_unique_identity(self.db, 'Jane Rae')
+        api.add_identity(self.db, 'scm', 'janerae@example.com', 'Jane Rae', uuid='Jane Rae')
+
+        api.add_unique_identity(self.db, 'JRae')
+        api.add_identity(self.db, 'mls', name='Jane Rae', username='jrae', uuid='JRae')
+        api.add_identity(self.db, 'scm', username='jrae', uuid='JRae')
+        api.add_identity(self.db, 'scm', 'janerae@example.com', uuid='JRae')
+
+        api.add_unique_identity(self.db, 'Jane')
+        api.add_identity(self.db, 'unknown', 'jane@example.com', 'Jane', uuid='Jane')
+        api.add_identity(self.db, 'unknown', 'jane@example.net', 'Jane', uuid='Jane')
+        api.add_identity(self.db, 'unknown', 'jane@example.org', 'Jane', uuid='Jane')
+        api.add_identity(self.db, 'unknown', 'jrae@example.org', 'Jane', uuid='Jane')
+        api.add_identity(self.db, 'unknown', 'jrae@example.com', 'Jane', uuid='Jane')
+        api.add_identity(self.db, 'unknown', 'janerae@example.com', 'Jane', uuid='Jane')
+
+        # Tests
+        get_uuids = lambda l: [u.uuid for u in l]
+
+        matcher = create_identity_matcher('simple')
+
+        # John Smith
+        m1 = api.match_identities(self.db, 'John Smith', matcher)
+        uids = get_uuids(m1)
+
+        self.assertListEqual(uids, ['John Smith', 'Smith J.'])
+
+        # Smith J.
+        m1 = api.match_identities(self.db, 'Smith J.', matcher)
+        uids = get_uuids(m1)
+
+        self.assertListEqual(uids, ['John Smith', 'Smith J.'])
+
+        # John Doe
+        m2 = api.match_identities(self.db, 'John Doe', matcher)
+        uids = get_uuids(m2)
+
+        self.assertListEqual(uids, ['John Doe'])
+
+        # Jane Rae
+        m3 = api.match_identities(self.db, 'Jane Rae', matcher)
+        uids = get_uuids(m3)
+
+        self.assertListEqual(uids, ['Jane', 'Jane Rae', 'JRae'])
+
+        # JRae
+        m3 = api.match_identities(self.db, 'JRae', matcher)
+        uids = get_uuids(m3)
+
+        self.assertListEqual(uids, ['Jane', 'Jane Rae', 'JRae'])
+
+        # Jane
+        m3 = api.match_identities(self.db, 'Jane', matcher)
+        uids = get_uuids(m3)
+
+        self.assertListEqual(uids, ['Jane', 'Jane Rae', 'JRae'])
+
+
+    def test_empty_registry(self):
+        """Test whether it fails when the registry is empty"""
+
+        matcher = create_identity_matcher('default')
+
+        # This test must raise a NotFoundError
+        self.assertRaisesRegexp(NotFoundError,
+                                NOT_FOUND_ERROR % {'entity' : 'Jane Roe'},
+                                api.match_identities,
+                                self.db, 'Jane Roe', matcher)
+
+    def test_not_found_identities(self):
+        """Test whether it fails when uuid is not found"""
+
+        # Add some unique identities first
+        api.add_unique_identity(self.db, 'John Smith')
+        api.add_identity(self.db, 'scm', 'jsmith@example.com',
+                         uuid='John Smith')
+        api.add_unique_identity(self.db, 'Smith J.')
+        api.add_identity(self.db, 'mls', 'jsmith@example.com',
+                         uuid='Smith J.')
+
+        matcher = create_identity_matcher('default')
+
+        self.assertRaisesRegexp(NotFoundError,
+                                NOT_FOUND_ERROR % {'entity' : 'Jane Roe'},
+                                api.match_identities,
+                                self.db, 'Jane Roe', matcher)
 
 
 class TestUniqueIdentities(TestBaseCase):
