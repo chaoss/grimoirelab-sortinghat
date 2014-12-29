@@ -36,6 +36,7 @@ from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
 ADD_EXISTING_ERROR = "Error: scm-jsmith@example.com-John Smith-jsmith already exists in the registry"
 ADD_IDENTITY_NONE_OR_EMPTY_ERROR = "Error: identity data cannot be None or empty"
+ADD_MATCHING_ERROR = "Error: mock identity matcher is not supported"
 ADD_SOURCE_NONE_ERROR = "Error: source cannot be None"
 ADD_SOURCE_EMPTY_ERROR = "Error: source cannot be an empty string"
 ADD_UUID_NOT_FOUND_ERROR = "Error: FFFFFFFFFFFFFFF not found in the registry"
@@ -44,6 +45,27 @@ ADD_OUTPUT = """New identity 0b7c0ba5f9fc01e4799d684e0a1c3561b53d93d5 added to 0
 New identity fef873c50a48cfc057f7aa19f423f81889a8907f added to fef873c50a48cfc057f7aa19f423f81889a8907f
 New identity 7367d83759d7b12790d0a44bf615c5215aa867d4 added to 7367d83759d7b12790d0a44bf615c5215aa867d4
 New identity 02f161840469eb5348dec798166a171b34f0bc8a added to 03e12d00e37fd45593c49a5a5a1652deca4cf302"""
+
+ADD_OUTPUT_MATCHING = """New identity 02f161840469eb5348dec798166a171b34f0bc8a added to 02f161840469eb5348dec798166a171b34f0bc8a
+
+New match found
+
++ 02f161840469eb5348dec798166a171b34f0bc8a
+  * -\tjsmith@example.com\t-\tmls
+
++ 03e12d00e37fd45593c49a5a5a1652deca4cf302
+  * John Smith\tjsmith@example.com\tjsmith\tscm
+Unique identity 02f161840469eb5348dec798166a171b34f0bc8a merged on 03e12d00e37fd45593c49a5a5a1652deca4cf302
+
+New match found
+
++ 03e12d00e37fd45593c49a5a5a1652deca4cf302
+  * -\tjsmith@example.com\t-\tmls
+  * John Smith\tjsmith@example.com\tjsmith\tscm
+
++ 75d95d6c8492fd36d24a18bd45d62161e05fbc97
+  * John Smith\tjsmith@example.com\t-\tscm
+Unique identity 03e12d00e37fd45593c49a5a5a1652deca4cf302 merged on 75d95d6c8492fd36d24a18bd45d62161e05fbc97"""
 
 
 class TestBaseCase(unittest.TestCase):
@@ -94,9 +116,19 @@ class TestAddCommand(TestBaseCase):
         self.cmd.run('--email', 'jsmith@example.com', '--source', 'mls',
                      '--uuid', '03e12d00e37fd45593c49a5a5a1652deca4cf302')
 
-        # Check output first
+        # Check output
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, ADD_OUTPUT)
+
+    def test_add_with_matching(self):
+        """Check how it works when using matching methods"""
+
+        self.cmd.run('--email', 'jsmith@example.com', '--source', 'mls',
+                     '--matching', 'default')
+
+        # Check output
+        output = sys.stdout.getvalue().strip()
+        self.assertEqual(output, ADD_OUTPUT_MATCHING)
 
 class TestAdd(TestBaseCase):
     """Unit tests for add"""
@@ -151,6 +183,23 @@ class TestAdd(TestBaseCase):
         self.cmd.add('scm', '', '', '')
         output = sys.stderr.getvalue().strip().split('\n')[1]
         self.assertEqual(output, ADD_IDENTITY_NONE_OR_EMPTY_ERROR)
+
+    def test_invalid_matching_method(self):
+        """Check if it fails when an invalid matching method is given"""
+
+        self.cmd.add('scm', 'jsmith@example.com', matching='mock')
+        output = sys.stderr.getvalue().strip()
+        self.assertEqual(output, ADD_MATCHING_ERROR)
+
+    def test_default_matching_method(self):
+        """Check whether new identities are merged using the default matching method"""
+
+        # Add this identity to 'Jonh Smith' and merge
+        self.cmd.add('mls', email='jsmith@example.com', matching='default')
+
+        # Check output
+        output = sys.stdout.getvalue().strip()
+        self.assertEqual(output, ADD_OUTPUT_MATCHING)
 
 
 if __name__ == "__main__":

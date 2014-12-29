@@ -1,0 +1,13 @@
+
+New match found
+
++ {{ uid.uuid }}
+{% for identity in uid.identities %}
+  * {{ identity.name|d('-', true) }}	{{ identity.email|d('-', true) }}	{{ identity.username|d('-', true) }}	{{ identity.source }}
+{% endfor %}
+
++ {{ match.uuid }}
+{% for identity in match.identities %}
+  * {{ identity.name|d('-', true) }}	{{ identity.email|d('-', true) }}	{{ identity.username|d('-', true) }}	{{ identity.source }}
+{% endfor %}
+

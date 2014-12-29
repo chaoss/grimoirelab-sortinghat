@@ -24,7 +24,13 @@ import argparse
 
 from sortinghat import api
 from sortinghat.command import Command
-from sortinghat.exceptions import AlreadyExistsError, NotFoundError
+from sortinghat.exceptions import AlreadyExistsError, MatcherNotSupportedError, NotFoundError
+from sortinghat.matcher import create_identity_matcher
+
+
+ADD_COMMAND_USAGE_MSG = \
+"""%(prog)s add [--name <name>] [--email <email>] [--username <user>] [--source <src>] [--uuid <uuid>]
+                      [--matching <matcher>] [--interactive]"""
 
 
 class Add(Command):
@@ -43,6 +49,11 @@ class Add(Command):
     identities  id1:('scm', 'jsmith@example.com', 'John Smith', 'jsmith')
     and id2:('mls', 'jsmith@example.com', 'John Smith', 'jsmith') will be
     registered as different identities.
+
+    Optionally, the command can use a <matching> method to look for possible
+    identities that match with. When a match is found, identities will be
+    merged. When <interactive> parameter is set, the command will wait for
+    the user verification to merge both identities.
     """
     def __init__(self, **kwargs):
         super(Add, self).__init__(**kwargs)
@@ -63,6 +74,10 @@ class Add(Command):
                                  help="user name of the identity")
         self.parser.add_argument('--uuid', dest='uuid', default=None,
                                  help="associates identity to this unique identity")
+        self.parser.add_argument('-m', '--matching', dest='matching', default=None,
+                                 help="match and merge using this type of matching")
+        self.parser.add_argument('-i', '--interactive', action='store_true',
+                                 help="run interactive mode while matching and merging")
 
     @property
     def description(self):
@@ -70,7 +85,7 @@ class Add(Command):
 
     @property
     def usage(self):
-        return "%(prog)s add [--name <name>] [--email <email>] [--username <user>] [--source <src>] [--uuid <uuid>]"
+        return ADD_COMMAND_USAGE_MSG
 
     def run(self, *args):
         """Add an identity to the registry."""
@@ -78,9 +93,10 @@ class Add(Command):
         params = self.parser.parse_args(args)
 
         self.add(params.source, params.email, params.name, params.username,
-                 params.uuid)
+                 params.uuid, params.matching, params.interactive)
 
-    def add(self, source, email=None, name=None, username=None, uuid=None):
+    def add(self, source, email=None, name=None, username=None, uuid=None,
+            matching=None, interactive=False):
         """Add an identity to the registry.
 
         This method adds a new identity to the registry. By default, a new
@@ -90,16 +106,92 @@ class Add(Command):
 
         The method will print the uuids associated to the new registered identity.
 
+        Optionally, this method can look for possible identities that match with
+        the new one to insert. If a match is found, that means both identities are
+        likely the same. Therefore, both identities would be merged into one. The
+        algorithm used to search for matches will be defined by <matching> parameter.
+        Please take into account that both unique identities will be always merged
+        into the one from the registry, not into the new one.
+
+        When <interactive> parameter is set to True, the user will have to confirm
+        whether these to identities should be merged into one. By default, the method
+        is set to False.
+
         :param source: data source
         :param email: email of the identity
         :param name: full name of the identity
         :param username: user name used by the identity
         :param uuid: associates the new identity to the unique identity
             identified by this id
+        :param matching: type of matching used to merge existing identities
+        :param interactive: interactive mode for merging identities, only available
+            when <matching> parameter is set
         """
+        matcher = None
+
+        if matching:
+            try:
+                matcher = create_identity_matcher(matching)
+            except MatcherNotSupportedError, e:
+                self.error(str(e))
+                return
+
         try:
-            id = api.add_identity(self.db, source, email, name, username, uuid)
-            uuid = uuid or id
-            self.display('add.tmpl', id=id, uuid=uuid)
+            new_uuid = api.add_identity(self.db, source, email, name, username, uuid)
+            uuid = uuid or new_uuid
+            self.display('add.tmpl', id=new_uuid, uuid=uuid)
+
+            if matcher:
+                self.__merge_on_matching(uuid, matcher, interactive)
         except (AlreadyExistsError, NotFoundError, ValueError), e:
             self.error(str(e))
+
+    def __merge_on_matching(self, uuid, matcher, interactive):
+        matches = api.match_identities(self.db, uuid, matcher)
+
+        u = api.unique_identities(self.db, uuid)[0]
+
+        for m in matches:
+            if m.uuid == uuid:
+                continue
+
+            merged = self.__merge(u, m, interactive)
+
+            if not merged:
+                continue
+
+            # Swap uids to merge with those that could
+            # remain on the list with updated info
+            u = api.unique_identities(self.db, m.uuid)[0]
+
+    def __merge(self, uid, match, interactive):
+        self.display('match.tmpl', uid=uid, match=match)
+
+        # By default, always merge
+        merge = True
+
+        if interactive:
+            merge = self.__read_verification()
+
+        if not merge:
+            return False
+
+        api.merge_unique_identities(self.db, uid.uuid, match.uuid)
+
+        self.display('merge.tmpl', from_uuid=uid.uuid, to_uuid=match.uuid)
+
+        return True
+
+    def __read_verification(self):
+        answer = None
+
+        while answer not in ['y', 'Y', 'n', 'N', '']:
+            try:
+                answer = raw_input("Merge unique identities [Y/n]? ")
+            except EOFError:
+                return False
+
+        if answer in ['n', 'N']:
+            return False
+
+        return True
