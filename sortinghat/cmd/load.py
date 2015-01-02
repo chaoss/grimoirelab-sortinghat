@@ -31,7 +31,8 @@ from sortinghat import api
 from sortinghat.command import Command
 from sortinghat.db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE
 from sortinghat.exceptions import AlreadyExistsError, NotFoundError,\
-    BadFileFormatError, LoadError
+    BadFileFormatError, LoadError, MatcherNotSupportedError
+from sortinghat.matcher import create_identity_matcher
 
 
 # Regex for parsing domains input
@@ -77,6 +78,13 @@ class Load(Command):
         self.parser.add_argument('--overwrite', action='store_true',
                                  help="force to overwrite existing domain relationships")
 
+        # Matching options
+        group = self.parser.add_argument_group('matching options')
+        group.add_argument('-m', '--matching', dest='matching', default=None,
+                           help="match and merge using this type of matching")
+        group.add_argument('-v', '--verbose', dest='verbose', action='store_true',
+                           help="run verbose mode while matching and merging")
+
         # Positional arguments
         self.parser.add_argument('infile', nargs='?', type=argparse.FileType('r'),
                                  default=sys.stdin,
@@ -88,7 +96,7 @@ class Load(Command):
 
     @property
     def usage(self):
-        return "%(prog)s load --identities [file]\n   or: %(prog)s load --domains [--overwrite] [file]"
+        return "%(prog)s load --identities [-m matching] [-v] [file]\n   or: %(prog)s load --domains [--overwrite] [file]"
 
     def run(self, *args):
         """Import data on the registry.
@@ -98,24 +106,38 @@ class Load(Command):
         """
         params = self.parser.parse_args(args)
 
-        infile = params.infile
-
         if params.identities:
-            source = params.source
-            self.import_identities(infile, source)
+            self.import_identities(params.infile, params.source,
+                                   params.matching, params.verbose)
         elif params.domains:
-            overwrite = params.overwrite
-            self.import_domains(infile, overwrite)
+            self.import_domains(params.infile, params.overwrite)
 
-    def import_identities(self, infile, source='unknown'):
+    def import_identities(self, infile, source='unknown', matching=None,
+                          verbose=False):
         """Import identities information from a file on the registry.
 
         New unique identities, organizations and enrollment data stored
         on 'infile' will be added to the registry.
 
+        Optionally, this method can look for possible identities that match with
+        the new one to insert using 'matching' method. If a match is found,
+        that means both identities are likely the same. Therefore, both identities
+        would be merged into one.
+
         :param infile: file to import
         :param source: name of the source where the identities were extracted
+        :param matching: type of matching used to merge existing identities
+        :param verbose: run in verbose mode when matching is set
         """
+        matcher = None
+
+        if matching:
+            try:
+                matcher = create_identity_matcher(matching)
+            except MatcherNotSupportedError, e:
+                self.error(str(e))
+                return
+
         try:
             identities = self.__parse_identities_file(infile)
         except BadFileFormatError, e:
@@ -133,8 +155,9 @@ class Load(Command):
             return
 
         try:
+            loader.display = self.display
             loader.warning = self.warning
-            loader.load(identities, source)
+            loader.load(identities, source, matcher, verbose)
         except LoadError, e:
             self.error(str(e))
 
@@ -236,11 +259,38 @@ class IdentitiesLoader(object):
     def __init__(self, db):
         self.db = db
 
-    def load(self, identities, source):
+    def load(self, identities, source, matcher=None, verbose=False):
+        raise NotImplementedError
+
+    def display(self, msg):
         raise NotImplementedError
 
     def warning(self, msg):
         raise NotImplementedError
+
+    def _merge_on_matching(self, uuid, matcher, verbose):
+        matches = api.match_identities(self.db, uuid, matcher)
+
+        u = api.unique_identities(self.db, uuid)[0]
+
+        for m in matches:
+            if m.uuid == uuid:
+                continue
+
+            self._merge(u, m, verbose)
+
+            # Swap uids to merge with those that could
+            # remain on the list with updated info
+            u = api.unique_identities(self.db, m.uuid)[0]
+
+    def _merge(self, uid, match, verbose):
+        if verbose:
+            self.display('match.tmpl', uid=uid, match=match)
+
+        api.merge_unique_identities(self.db, uid.uuid, match.uuid)
+
+        if verbose:
+            self.display('merge.tmpl', from_uuid=uid.uuid, to_uuid=match.uuid)
 
 
 class GrimoireIdentitiesLoader(IdentitiesLoader):
@@ -255,7 +305,7 @@ class GrimoireIdentitiesLoader(IdentitiesLoader):
     def __init__(self, db):
         super(GrimoireIdentitiesLoader, self).__init__(db)
 
-    def load(self, identities, source):
+    def load(self, identities, source, matcher=None, verbose=False):
         """Load a set of identities.
 
         Method to import identities into the registry. Identities schema must
@@ -265,12 +315,21 @@ class GrimoireIdentitiesLoader(IdentitiesLoader):
         LoadError exception is raised when either the format is invalid
         or an error occurs importing the data.
 
+        When 'matcher' parameter is given, this method will look for similar
+        identities among those on the registry. If a match is found, identities
+        will be merged. The matcher is an instance of IdentityMatcher class.
+
         :param identities: identities stored in a JSON object
         :param source: name of the source where the identities come from
+        :param matcher: matcher instance used to find similar identities
+        :param verbose: run in verbose mode when matcher is set
         """
         try:
             for identity in identities['identities']:
-                self.__import_identity_json(identity, source)
+                uuid = self.__import_identity_json(identity, source)
+
+                if matcher:
+                    self._merge_on_matching(uuid, matcher, verbose)
         except KeyError, e:
             msg = "invalid json format. Attribute %s not found" % e.args
             raise LoadError(cause=msg)
@@ -307,24 +366,31 @@ class EclipseIdentitiesLoader(IdentitiesLoader):
     def __init__(self, db):
         super(EclipseIdentitiesLoader, self).__init__(db)
 
-    def load(self, identities, source):
+    def load(self, identities, source, matcher=None, verbose=False):
         """Load a set of identities.
 
         Method to import identities into the registry. Identities schema must
         follow Eclipse JSON format. LoadError exception is raised when either
         the format is invalid or an error occurs importing the data.
 
+        When 'matcher' parameter is given, this method will look for similar
+        identities among those on the registry. If a match is found, identities
+        will be merged. The matcher is an instance of IdentityMatcher class.
+
         :param identities: identities stored in a JSON object
         :param source: name of the source where the identities come from
+        :param matcher: matcher instance used to find similar identities
+        :param verbose: run in verbose mode when matcher is set
         """
         try:
             for identity in identities['committers'].values():
                 uuid = self.__import_identity_json(identity, source)
 
-                if not 'affiliations' in identity:
-                    continue
+                if 'affiliations' in identity:
+                    self.__import_affiliations_json(uuid, identity['affiliations'])
 
-                self.__import_affiliations_json(uuid, identity['affiliations'])
+                if matcher:
+                    self._merge_on_matching(uuid, matcher, verbose)
         except KeyError, e:
             msg = "invalid json format. Attribute %s not found" % e.args
             raise LoadError(cause=msg)

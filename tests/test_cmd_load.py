@@ -35,11 +35,13 @@ from sortinghat.cmd.load import Load,\
     LINES_TO_IGNORE_REGEX, DOMAINS_LINE_REGEX
 from sortinghat.db.database import Database
 from sortinghat.exceptions import LoadError
+from sortinghat.matcher import create_identity_matcher
 
 from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
 
 LOAD_IDENTITIES_IVALID_JSON_FORMAT_ERROR = "Error: invalid json format. Expecting ':' delimiter: line 19 column 15 (char 844)"
+LOAD_IDENTITIES_MATCHING_ERROR = "Error: mock identity matcher is not supported"
 LOAD_IDENTITIES_MISSING_KEYS_ERROR = "Error: invalid json format. Attribute active not found"
 LOAD_IDENTITIES_NOT_SUPPORTED_FORMAT = "Error: format not supported"
 LOAD_GRIMOIRE_IDS_MISSING_KEYS_ERROR = "invalid json format. Attribute name not found"
@@ -98,6 +100,41 @@ class TestBaseCase(unittest.TestCase):
 
 class TestLoadCommand(TestBaseCase):
     """Load command unit tests"""
+
+    def test_load_identities(self):
+        """Test to load identities from a file"""
+
+        self.cmd.run('--identities', 'data/eclipse_identities_valid.json')
+        self.cmd.run('--identities', 'data/grimoire_identities_valid.json')
+
+    def test_load_identities_with_default_matching(self):
+        """Test to load identities from a file using default matching"""
+
+        self.cmd.run('--identities', '--matching', 'default',
+                     'data/eclipse_identities_valid.json')
+        self.cmd.run('--identities', '--matching', 'default',
+                     'data/grimoire_identities_valid.json')
+
+    def test_load_identities_invalid_file(self):
+        """Test whether it prints error messages while reading invalid files"""
+
+        self.cmd.run('--identities', 'data/eclipse_identities_invalid_file.json')
+        output = sys.stderr.getvalue().strip().split('\n')[0]
+        self.assertEqual(output, LOAD_IDENTITIES_IVALID_JSON_FORMAT_ERROR)
+
+        self.cmd.run('--identities', 'data/identities_format_not_supported.json')
+        output = sys.stderr.getvalue().strip().split('\n')[1]
+        self.assertEqual(output, LOAD_IDENTITIES_NOT_SUPPORTED_FORMAT)
+
+    def test_load_invalid_identity_matcher(self):
+        """Test errors on invalid or not supported identity matcher"""
+
+        self.cmd.run('--identities', '--matching', 'mock',
+                     'data/eclipse_identities_valid.json')
+
+        self.cmd.run('--identities', 'data/eclipse_identities_invalid_file.json')
+        output = sys.stderr.getvalue().strip().split('\n')[0]
+        self.assertEqual(output, LOAD_IDENTITIES_MATCHING_ERROR)
 
     def test_load_domains(self):
         """Test to load domains from a file"""
@@ -256,7 +293,7 @@ class TestLoadImportIdentities(TestBaseCase):
     """Test import_identities method with some inputs"""
 
     def test_valid_identities_files(self):
-        """Check insertion of valid data from files with differnt formats"""
+        """Check insertion of valid data from files with different formats"""
 
         # Metrics Grimoire format file
         f = open('data/grimoire_identities_valid.json', 'r')
@@ -270,6 +307,26 @@ class TestLoadImportIdentities(TestBaseCase):
         # only 5 identities because one of them is duplicated
         uidentities = api.unique_identities(self.db)
         self.assertEqual(len(uidentities), 5)
+
+        enrollments = api.enrollments(self.db)
+        self.assertEqual(len(enrollments), 3)
+
+    def test_valid_identities_with_default_matching(self):
+        """Check insertion, matching and merging of valid data from files with different formats"""
+
+        # Metrics Grimoire format file
+        f = open('data/grimoire_identities_valid.json', 'r')
+        self.cmd.import_identities(f, matching='default')
+
+        # Eclipse format file
+        f = open('data/eclipse_identities_valid.json', 'r')
+        self.cmd.import_identities(f, matching='default')
+
+        # Check the contents of the registry. It inserts
+        # only 4 identities because one of them is duplicated
+        # and there are some matches of 'John Doe'
+        uidentities = api.unique_identities(self.db)
+        self.assertEqual(len(uidentities), 4)
 
         enrollments = api.enrollments(self.db)
         self.assertEqual(len(enrollments), 3)
@@ -340,6 +397,19 @@ class TestLoadImportIdentities(TestBaseCase):
 
         f.close()
 
+    def test_invalid_matching_method(self):
+        """Check if it fails when an invalid matching method is given"""
+
+        f = open('data/eclipse_identities_valid.json', 'r')
+
+        self.cmd.import_identities(f, matching='mock')
+
+        output = sys.stderr.getvalue().strip()
+        self.assertEqual(output, LOAD_IDENTITIES_MATCHING_ERROR)
+
+        f.close()
+
+
 class TestGrimoireIdentitiesLoader(TestBaseCase):
     """Test Metrics Grimoire loader"""
 
@@ -407,6 +477,51 @@ class TestGrimoireIdentitiesLoader(TestBaseCase):
         self.assertEqual(id0.username, None)
         self.assertEqual(id0.uuid, 'd4e07b257232ca7a0514a03c8d324ba327cc6934')
         self.assertEqual(id0.source, 'unknown')
+
+    def test_valid_identities_with_default_matching(self):
+        """Check insertion, matching and merging of valid data from a file"""
+
+        identities = self.read_json('data/grimoire_identities_valid.json')
+        matcher = create_identity_matcher('default')
+
+        loader = GrimoireIdentitiesLoader(self.db)
+        loader.warning = sys.stdout.write
+        loader.load(identities, 'unknown', matcher)
+
+        # Check the contents of the registry
+        uidentities = api.unique_identities(self.db)
+        self.assertEqual(len(uidentities), 3)
+
+        # Jane Rae
+        uid0 = uidentities[0]
+        self.assertEqual(uid0.uuid, '24f76417b78d41f409d10e70bb3adfbccb21d6a9')
+        self.assertEqual(len(uid0.identities), 1)
+
+        # John Smith
+        uid1 = uidentities[1]
+        self.assertEqual(uid1.uuid, '2cb7f5d70a3549f35f995d27085c14ea81c529cd')
+        self.assertEqual(len(uid1.identities), 1)
+
+        # John Doe identities were merged into one
+        uid2 = uidentities[2]
+        self.assertEqual(uid2.uuid, 'd4e07b257232ca7a0514a03c8d324ba327cc6934')
+        self.assertEqual(len(uid2.identities), 2)
+
+        id0 = uid2.identities[0]
+        self.assertEqual(id0.id, 'a5923b2880b45315d2889c41100ed0db5cd01903')
+        self.assertEqual(id0.name, 'John Doe')
+        self.assertEqual(id0.email, 'jdoe@example.com')
+        self.assertEqual(id0.username, 'jdoe')
+        self.assertEqual(id0.uuid, 'd4e07b257232ca7a0514a03c8d324ba327cc6934')
+        self.assertEqual(id0.source, 'unknown')
+
+        id1 = uid2.identities[1]
+        self.assertEqual(id1.id, 'd4e07b257232ca7a0514a03c8d324ba327cc6934')
+        self.assertEqual(id1.name, 'John Doe')
+        self.assertEqual(id1.email, 'jdoe@example.com')
+        self.assertEqual(id1.username, None)
+        self.assertEqual(id1.uuid, 'd4e07b257232ca7a0514a03c8d324ba327cc6934')
+        self.assertEqual(id1.source, 'unknown')
 
     def test_not_valid_schema(self):
         """Check whether it raises an error when loading invalid files"""
@@ -490,6 +605,98 @@ class TestEclipseIdentitiesLoader(TestBaseCase):
         self.assertEqual(rol0.init, datetime.datetime(2010, 1, 1))
         self.assertEqual(rol0.end, datetime.datetime(2100, 1, 1))
 
+    def test_valid_identities_with_default_matching(self):
+        """Check insertion, matching and merging of valid data from a file"""
+
+        identities = self.read_json('data/eclipse_identities_valid.json')
+        matcher = create_identity_matcher('default')
+
+        loader = EclipseIdentitiesLoader(self.db)
+        loader.warning = sys.stdout.write
+
+        # Due to how Eclipse files are generated, each entry belongs to
+        # a unique identity and all its different identities. That's why
+        # we have to insert some identities first to check matching and
+        # merge processes.
+        api.add_identity(self.db, 'test', 'jdoe@example.com', None, 'jdoe')
+        api.add_identity(self.db, 'test', 'jsmith@bitergia.com', None, None)
+
+        loader.load(identities, 'unknown', matcher)
+
+        uidentities = api.unique_identities(self.db)
+        self.assertEqual(len(uidentities), 2)
+
+        # John Smith unique identity
+        uid0 = uidentities[0]
+        self.assertEqual(uid0.uuid, 'b1e0bf50af778fc8190d48eafe83b42e06529424')
+        self.assertEqual(len(uid0.identities), 3)
+
+        id0 = uid0.identities[0]
+        self.assertEqual(id0.id, '0fc271807a0c3107198ab6d51f21aad9f97465fc')
+        self.assertEqual(id0.name, 'John Smith')
+        self.assertEqual(id0.email, 'jsmith@bitergia.com')
+        self.assertEqual(id0.username, 'jsmith')
+        self.assertEqual(id0.uuid, 'b1e0bf50af778fc8190d48eafe83b42e06529424')
+        self.assertEqual(id0.source, 'unknown')
+
+        id1 = uid0.identities[1]
+        self.assertEqual(id1.id, '924c44459f46e2375a94c3b2f517d866a1032cbf')
+        self.assertEqual(id1.name, 'John Smith')
+        self.assertEqual(id1.email, 'jsmith@example.com')
+        self.assertEqual(id1.username, 'jsmith')
+        self.assertEqual(id1.uuid, 'b1e0bf50af778fc8190d48eafe83b42e06529424')
+        self.assertEqual(id1.source, 'unknown')
+
+        id2 = uid0.identities[2]
+        self.assertEqual(id2.id, 'b1e0bf50af778fc8190d48eafe83b42e06529424')
+        self.assertEqual(id2.name, None)
+        self.assertEqual(id2.email, 'jsmith@bitergia.com')
+        self.assertEqual(id2.username, None)
+        self.assertEqual(id2.uuid, 'b1e0bf50af778fc8190d48eafe83b42e06529424')
+        self.assertEqual(id2.source, 'test')
+
+        enrollments = api.enrollments(self.db, uid0.uuid)
+        self.assertEqual(len(enrollments), 2)
+
+        rol0 = enrollments[0]
+        self.assertEqual(rol0.organization.name, 'Bitergia')
+        self.assertEqual(rol0.init, datetime.datetime(2011, 1, 1))
+        self.assertEqual(rol0.end, datetime.datetime(2100, 1, 1))
+
+        rol1 = enrollments[1]
+        self.assertEqual(rol1.organization.name, 'Example')
+        self.assertEqual(rol1.init, datetime.datetime(2010, 1, 1))
+        self.assertEqual(rol1.end, datetime.datetime(2011, 1, 1))
+
+        # John Doe unique identity
+        uid1 = uidentities[1]
+        self.assertEqual(uid1.uuid, 'c0259e8a627ed751a812760e0e201f61a9cb46be')
+        self.assertEqual(len(uid1.identities), 2)
+
+        id0 = uid1.identities[0]
+        self.assertEqual(id0.id, 'a5923b2880b45315d2889c41100ed0db5cd01903')
+        self.assertEqual(id0.name, 'John Doe')
+        self.assertEqual(id0.email, 'jdoe@example.com')
+        self.assertEqual(id0.username, 'jdoe')
+        self.assertEqual(id0.uuid, 'c0259e8a627ed751a812760e0e201f61a9cb46be')
+        self.assertEqual(id0.source, 'unknown')
+
+        id1 = uid1.identities[1]
+        self.assertEqual(id1.id, 'c0259e8a627ed751a812760e0e201f61a9cb46be')
+        self.assertEqual(id1.name, None)
+        self.assertEqual(id1.email, 'jdoe@example.com')
+        self.assertEqual(id1.username, 'jdoe')
+        self.assertEqual(id1.uuid, 'c0259e8a627ed751a812760e0e201f61a9cb46be')
+        self.assertEqual(id1.source, 'test')
+
+        enrollments = api.enrollments(self.db, uid1.uuid)
+        self.assertEqual(len(enrollments), 1)
+
+        rol0 = enrollments[0]
+        self.assertEqual(rol0.organization.name, 'Example')
+        self.assertEqual(rol0.init, datetime.datetime(2010, 1, 1))
+        self.assertEqual(rol0.end, datetime.datetime(2100, 1, 1))
+
     def test_not_valid_schema(self):
         """Check whether it raises an error when loading invalid files"""
 
@@ -546,7 +753,7 @@ class TestLoadImportDomains(TestBaseCase):
         f.close()
 
     def test_overwrite_domains(self):
-        """Test whether domains are reasigned when overwrite is given"""
+        """Test whether domains are reassigned when overwrite is given"""
 
         f = open('data/domains_orgs_valid.txt', 'r')
 
