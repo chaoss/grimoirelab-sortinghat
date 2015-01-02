@@ -1,4 +1,4 @@
-Sorting Hat [![Build Status](https://travis-ci.org/MetricsGrimoire/sortinghat.svg?branch=master)](https://travis-ci.org/MetricsGrimoire/sortinghat)
+Sorting Hat [![Build Status](https://travis-ci.org/MetricsGrimoire/sortinghat.svg?branch=master)](https://travis-ci.org/MetricsGrimoire/sortinghat) [![Coverage Status](https://img.shields.io/coveralls/MetricsGrimoire/sortinghat.svg)](https://coveralls.io/r/MetricsGrimoire/sortinghat?branch=master)
 ===========
 
 A tool to manage identities.
