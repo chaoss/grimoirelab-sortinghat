@@ -1,0 +1,22 @@
+language: python
+
+python:
+  - "2.7"
+
+before_install:
+  - pip install MYSQL-python SQLAlchemy
+  - pip install Jinja2
+  - pip install python-dateutil
+
+install:
+  - ./setup.py install
+
+before_script:
+  - mysql -e 'create database testhat;'
+
+script:
+  - cd tests
+  - ./run_tests.py
+
+notifications:
+  irc: "chat.freenode.net#metrics-grimoire"
