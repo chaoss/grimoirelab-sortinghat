@@ -21,9 +21,11 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+import sys
 import unittest
 
 
 if __name__ == '__main__':
     test_suite = unittest.TestLoader().discover('.', pattern='test*.py')
-    unittest.TextTestRunner(buffer=True).run(test_suite)
+    result = unittest.TextTestRunner(buffer=True).run(test_suite)
+    sys.exit(not result.wasSuccessful())
