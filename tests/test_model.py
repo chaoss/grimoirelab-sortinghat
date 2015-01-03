@@ -29,7 +29,7 @@ if not '..' in sys.path:
 
 from sqlalchemy import create_engine
 from sqlalchemy.engine.url import URL
-from sqlalchemy.exc import IntegrityError, OperationalError
+from sqlalchemy.exc import IntegrityError, OperationalError, StatementError
 from sqlalchemy.orm import sessionmaker
 
 from sortinghat.db.model import ModelBase, Organization, Domain,\
@@ -39,6 +39,7 @@ from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
 DUP_CHECK_ERROR = 'Duplicate entry'
 NULL_CHECK_ERROR = 'cannot be null'
+INVALID_DATATYPE_ERROR = 'ValueError'
 
 
 class MockDatabase(object):
@@ -136,6 +137,19 @@ class TestDomain(TestCaseBase):
             self.session.add(org1)
 
             dom1 = Domain()
+            dom1.organization = org1
+
+            self.session.add(dom1)
+            self.session.commit()
+
+    def test_is_top_domain_invalid_type(self):
+        """Check invalid values on top_domain bool collumn"""
+
+        with self.assertRaisesRegexp(StatementError, INVALID_DATATYPE_ERROR):
+            org1 = Organization(name='Example')
+            self.session.add(org1)
+
+            dom1 = Domain(domain='example.com', is_top_domain='True')
             dom1.organization = org1
 
             self.session.add(dom1)

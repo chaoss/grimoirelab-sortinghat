@@ -180,7 +180,7 @@ def add_organization(db, organization):
         session.add(org)
 
 
-def add_domain(db, organization, domain, overwrite=False):
+def add_domain(db, organization, domain, is_top_domain=False, overwrite=False):
     """Add a domain to the registry.
 
     This function adds a new domain to the given organization.
@@ -188,17 +188,28 @@ def add_domain(db, organization, domain, overwrite=False):
     domain. Otherwise, it will raise a 'NotFoundError' exception. Moreover,
     if the given domain is already in the registry an 'AlreadyExistsError'
     exception will be raised.
+
+    The new domain can be also set as a top domain. That is useful to avoid
+    the insertion of sub-domains that belong to the same organization (i.e
+    eu.example.com, us.example.com).
+
     Remember that a domain can only be assigned to one (and only one)
-    organization. When the given domain is already assigned to a distinct
-    organization, you can use 'overwrite' parameter to shift the domain
-    from the old organization to the new one.
+    organization.
+
+    When the given domain already exist on the registry, you can use
+    'overwrite' parameter to update its information. For instance, shift
+    the domain to another organization or to update the top domain flag.
+    Take into account that both fields will be updated at the same time.
 
     :param db: database manager
     :param organization: name of the organization
     :param domain: domain to add to the registry
+    :param is_top_domain: set this domain as a top domain
     :param overwrite: force to reassign the domain to the given organization
+        and to update top domain field
 
-    :raises ValueError: raised when domain is None or an empty string
+    :raises ValueError: raised when domain is None or an empty string or
+        is_top_domain does not have a boolean value
     :raises NotFoundError: raised when the given organization is not found
         in the registry
     :raises AlreadyExistsError: raised when the domain already exists
@@ -208,6 +219,8 @@ def add_domain(db, organization, domain, overwrite=False):
         raise ValueError('domain cannot be None')
     if domain == '':
         raise ValueError('domain cannot be an empty string')
+    if type(is_top_domain) != bool:
+        raise ValueError('top_domain must have a boolean value')
 
     with db.connect() as session:
         org = session.query(Organization).\
@@ -225,6 +238,7 @@ def add_domain(db, organization, domain, overwrite=False):
             dom = Domain(domain=domain)
 
         dom.organization = org
+        dom.is_top_domain = is_top_domain
         session.add(dom)
 
 

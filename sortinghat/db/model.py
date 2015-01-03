@@ -22,7 +22,7 @@
 
 import datetime
 
-from sqlalchemy import Column, Integer, String, DateTime,\
+from sqlalchemy import Column, Boolean, Integer, String, DateTime,\
     ForeignKey, UniqueConstraint
 from sqlalchemy.orm import backref, relationship
 from sqlalchemy.ext.associationproxy import association_proxy
@@ -59,6 +59,7 @@ class Domain(ModelBase):
 
     id = Column(Integer, primary_key=True)
     domain = Column(String(128), nullable=False)
+    is_top_domain = Column(Boolean(name='top_domain_check'), default=False)
     organization_id = Column(Integer,
                              ForeignKey('organizations.id', ondelete='CASCADE'),
                              nullable=False)

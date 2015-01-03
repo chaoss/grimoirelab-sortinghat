@@ -40,6 +40,7 @@ from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 UUID_NONE_OR_EMPTY_ERROR = "uuid cannot be"
 ORG_NONE_OR_EMPTY_ERROR = "organization cannot be"
 DOMAIN_NONE_OR_EMPTY_ERROR = "domain cannot be"
+TOP_DOMAIN_VALUE_ERROR = "top_domain must have a boolean value"
 SOURCE_NONE_OR_EMPTY_ERROR = "source cannot be"
 IDENTITY_NONE_OR_EMPTY_ERROR = "identity data cannot be None or empty"
 ENROLLMENT_PERIOD_INVALID_ERROR = "cannot be greater than "
@@ -335,16 +336,22 @@ class TestAddDomain(TestBaseCase):
 
         api.add_organization(self.db, 'Example')
         api.add_domain(self.db, 'Example', 'example.com')
-        api.add_domain(self.db, 'Example', 'example.org')
+        api.add_domain(self.db, 'Example', 'example.org', is_top_domain=True)
         api.add_domain(self.db, 'Example', 'example.net')
 
         with self.db.connect() as session:
             domains = session.query(Domain).join(Organization).\
                 filter(Organization.name == 'Example').all()
             self.assertEqual(len(domains), 3)
+
             self.assertEqual(domains[0].domain, 'example.com')
+            self.assertEqual(domains[0].is_top_domain, False)
+
             self.assertEqual(domains[1].domain, 'example.org')
+            self.assertEqual(domains[1].is_top_domain, True)
+
             self.assertEqual(domains[2].domain, 'example.net')
+            self.assertEqual(domains[2].is_top_domain, False)
 
     def test_add_domains_to_organization(self):
         """Check whether it adds several domains to set of organizations"""
@@ -354,7 +361,7 @@ class TestAddDomain(TestBaseCase):
         api.add_organization(self.db, 'LibreSoft')
 
         api.add_domain(self.db, 'Example', 'example.com')
-        api.add_domain(self.db, 'LibreSoft', 'libresoft.es')
+        api.add_domain(self.db, 'LibreSoft', 'libresoft.es', is_top_domain=True)
         api.add_domain(self.db, 'Example', 'example.org')
         api.add_domain(self.db, 'Example', 'example.net')
         api.add_domain(self.db, 'Bitergia', 'bitergia.com')
@@ -377,7 +384,10 @@ class TestAddDomain(TestBaseCase):
                 filter(Organization.name == 'LibreSoft').all()
             self.assertEqual(len(domains), 2)
             self.assertEqual(domains[0].domain, 'libresoft.es')
+            self.assertEqual(domains[0].is_top_domain, True)
+
             self.assertEqual(domains[1].domain, 'libresoft.org')
+            self.assertEqual(domains[1].is_top_domain, False)
 
     def test_non_existing_organization(self):
         """Check if it fails adding domains to not existing organizations"""
@@ -405,8 +415,13 @@ class TestAddDomain(TestBaseCase):
         self.assertRaises(AlreadyExistsError, api.add_domain,
                           self.db, 'Bitergia', 'bitergia.com')
 
+        # And even if we try to update top_domain information
+        self.assertRaises(AlreadyExistsError, api.add_domain,
+                          self.db, 'Example', 'example.com',
+                          is_top_domain=True)
+
     def test_overwrite_domain(self):
-        """Check whether it overwrites the old organization-domain relationship"""
+        """Check whether it overwrites domain information"""
 
         # Add a pair of organizations and domains first
         api.add_organization(self.db, 'Example')
@@ -420,6 +435,8 @@ class TestAddDomain(TestBaseCase):
                 filter(Organization.name == 'Example').all()
             self.assertEqual(len(domains), 2)
             self.assertEqual(domains[0].domain, 'example.com')
+            self.assertEqual(domains[0].is_top_domain, False)
+
             self.assertEqual(domains[1].domain, 'example.org')
 
             domains = session.query(Domain).join(Organization).\
@@ -428,7 +445,8 @@ class TestAddDomain(TestBaseCase):
 
         # Overwrite the relationship assigning the domain to a different
         # company
-        api.add_domain(self.db, 'Bitergia', 'example.com', overwrite=True)
+        api.add_domain(self.db, 'Bitergia', 'example.com',
+                       is_top_domain=True, overwrite=True)
 
         # When overwrite is not set, it raises an AlreadyExistsError error
         self.assertRaises(AlreadyExistsError, api.add_domain,
@@ -445,6 +463,7 @@ class TestAddDomain(TestBaseCase):
                 filter(Organization.name == 'Bitergia').all()
             self.assertEqual(len(domains), 1)
             self.assertEqual(domains[0].domain, 'example.com')
+            self.assertEqual(domains[0].is_top_domain, True)
 
     def test_none_domain(self):
         """Check whether None domains cannot be added to the registry"""
@@ -457,6 +476,14 @@ class TestAddDomain(TestBaseCase):
 
         self.assertRaisesRegexp(ValueError, DOMAIN_NONE_OR_EMPTY_ERROR,
                                 api.add_domain, self.db, 'Example', '')
+
+    def test_invalid_type_top_domain(self):
+        """Check type values of top domain flag"""
+
+        self.assertRaisesRegexp(ValueError, TOP_DOMAIN_VALUE_ERROR,
+                                api.add_domain, self.db, 'Example', 'example.com', 1)
+        self.assertRaisesRegexp(ValueError, TOP_DOMAIN_VALUE_ERROR,
+                                api.add_domain, self.db, 'Example', 'example.com', 'False')
 
 
 class TestAddEnrollment(TestBaseCase):

@@ -140,7 +140,8 @@ class Organizations(Command):
                 self.error(str(e))
         else:
             try:
-                api.add_domain(self.db, organization, domain, overwrite)
+                api.add_domain(self.db, organization, domain,
+                               overwrite=overwrite)
             except ValueError, e:
                 # Same as above, domains cannot be None or empty
                 raise RuntimeError(str(e))
