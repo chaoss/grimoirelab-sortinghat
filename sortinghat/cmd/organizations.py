@@ -27,6 +27,12 @@ from sortinghat.command import Command
 from sortinghat.exceptions import AlreadyExistsError, NotFoundError
 
 
+ORGS_COMMAND_USAGE_MSG = \
+"""%(prog)s orgs -l [organization]
+   or: %(prog)s orgs -a <organization> [domain] [--top-domain] [--overwrite]"
+   or: %(prog)s orgs -d <organization> [domain]"""
+
+
 class Organizations(Command):
     """List, add or delete organizations and domains from the registry.
 
@@ -44,6 +50,11 @@ class Organizations(Command):
     A domain can only be assigned to one company. Use '--overwrite' to to create
     a new relationship. In this case, previous <domain> relationship will be
     removed.
+
+    New domains can be also set as a top domains using '--top-domain' flag. That is
+    useful to avoid the insertion of sub-domains that belong to the same organization
+    (i.e eu.example.com, us.example.com). Take into account when 'overwrite' is set
+    it will also update 'top_domain' flag even when this flag were not set.
 
     To delete organizations use '--delete' option. When <organization> is the only
     parameter given, it will be removed from the registry, including those domains
@@ -69,9 +80,12 @@ class Organizations(Command):
         group.add_argument('-d', '--delete', action='store_true',
                            help="delete an organization or domain from the registry")
 
-        # General options
-        self.parser.add_argument('--overwrite', action='store_true',
-                                 help="force to overwrite existing domain relationships")
+        # Domain options
+        group = self.parser.add_argument_group('domain arguments')
+        group.add_argument('--top-domain', action='store_true',
+                           help="set this domain as a top domain")
+        group.add_argument('--overwrite', action='store_true',
+                           help="force to overwrite existing domain relationships")
 
         # Positional arguments
         self.parser.add_argument('organization', nargs='?', default=None,
@@ -85,7 +99,7 @@ class Organizations(Command):
 
     @property
     def usage(self):
-        return "%(prog)s orgs [-l] [organization]\n   or: %(prog)s orgs [-a|-d] <organization> [domain]"
+        return ORGS_COMMAND_USAGE_MSG
 
     def run(self, *args):
         """List, add or delete organizations and domains from the registry.
@@ -97,16 +111,18 @@ class Organizations(Command):
 
         organization = params.organization
         domain = params.domain
+        is_top_domain = params.top_domain
         overwrite = params.overwrite
 
+
         if params.add:
-            self.add(organization, domain, overwrite)
+            self.add(organization, domain, is_top_domain, overwrite)
         elif params.delete:
             self.delete(organization, domain)
         else:
             self.registry(organization)
 
-    def add(self, organization, domain=None, overwrite=False):
+    def add(self, organization, domain=None, is_top_domain=False, overwrite=False):
         """Add organizations and domains to the registry.
 
         This method adds the given 'organization' or 'domain' to the registry,
@@ -121,8 +137,14 @@ class Organizations(Command):
         in the registry, the method will fail. Set 'overwrite' to 'True' to create
         the new relationship. In this case, previous relationships will be removed.
 
+        The new domain can be also set as a top domain. That is useful to avoid
+        the insertion of sub-domains that belong to the same organization (i.e
+        eu.example.com, us.example.com). Take into account when 'overwrite' is set
+        it will update 'is_top_domain' flag too.
+
         :param organization: name of the organization to add
         :param domain: domain to add to the registry
+        :param is_top_domain: set the domain as a top domain
         :param overwrite: force to reassign the domain to the given company
         """
         # Empty or None values for organizations are not allowed
@@ -141,6 +163,7 @@ class Organizations(Command):
         else:
             try:
                 api.add_domain(self.db, organization, domain,
+                               is_top_domain=is_top_domain,
                                overwrite=overwrite)
             except ValueError, e:
                 # Same as above, domains cannot be None or empty

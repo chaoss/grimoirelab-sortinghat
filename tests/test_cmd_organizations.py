@@ -44,7 +44,7 @@ REGISTRY_DOM_NOT_FOUND_ERROR_ALT = "Error: bitergia.com not found in the registr
 REGISTRY_EMPTY_OUTPUT = ""
 
 REGISTRY_OUTPUT = """Bitergia\tbitergia.net
-Bitergia\tbitergia.com
+Bitergia\tbitergia.com *
 Example\texample.com
 Example\texample.org
 Example\texample.net
@@ -126,7 +126,7 @@ class TestOrgsCommand(unittest.TestCase):
         self.cmd.run('--add', 'Bitergia')
         self.cmd.run('-a', 'Bitergia', 'bitergia.net')
         self.cmd.run('--add', 'Example', 'example.org')
-        self.cmd.run('--add', 'Bitergia', 'bitergia.com')
+        self.cmd.run('--add', 'Bitergia', 'bitergia.com', '--top-domain')
         self.cmd.run('-a', 'Example', 'example.net')
 
         self.cmd.run('--list')
@@ -209,7 +209,7 @@ class TestOrgsCommand(unittest.TestCase):
         self.cmd.add('Example', 'example.com')
         self.cmd.add('Bitergia')
         self.cmd.add('Bitergia', 'bitergia.net')
-        self.cmd.add('Bitergia', 'bitergia.com')
+        self.cmd.add('Bitergia', 'bitergia.com', is_top_domain=True)
         self.cmd.add('LibreSoft')
         self.cmd.add('Example', 'example.org')
         self.cmd.add('Example', 'example.net')
@@ -242,7 +242,7 @@ class TestOrgsAdd(unittest.TestCase):
         self.cmd.add('Example', 'example.com')
         self.cmd.add('Bitergia')
         self.cmd.add('Bitergia', 'bitergia.net')
-        self.cmd.add('Bitergia', 'bitergia.com')
+        self.cmd.add('Bitergia', 'bitergia.com', is_top_domain=True)
         self.cmd.add('LibreSoft', '') # This will work like adding a organization
         self.cmd.add('Example', 'example.org')
         self.cmd.add('Example', 'example.net')
@@ -283,7 +283,8 @@ class TestOrgsAdd(unittest.TestCase):
         self.assertEqual(output, REGISTRY_DOM_ALREADY_EXISTS_ERROR)
 
     def test_overwrite_domain(self):
-        """Check whether it overwrites the old organization-domain relationship"""
+        """Check whether it overwrites the old organization-domain relationship
+        and the top_domain flag"""
 
         # Add a pair of organizations and domains first
         self.cmd.add('Example')
@@ -293,8 +294,9 @@ class TestOrgsAdd(unittest.TestCase):
         self.cmd.add('Bitergia', 'bitergia.com')
 
         # Overwrite the relationship assigning the domain to a different
-        # company
-        self.cmd.add('Bitergia', 'example.com', overwrite=True)
+        # company and top_domain flag
+        self.cmd.add('Bitergia', 'example.com',
+                     is_top_domain=True, overwrite=True)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, REGISTRY_EMPTY_OUTPUT)
 
@@ -306,6 +308,7 @@ class TestOrgsAdd(unittest.TestCase):
         self.assertEqual(len(doms1), 2)
         dom1 = doms1[0]
         self.assertEqual(dom1.domain, 'example.com')
+        self.assertEqual(dom1.is_top_domain, True)
         dom2 = doms1[1]
         self.assertEqual(dom2.domain, 'bitergia.com')
 
@@ -489,7 +492,7 @@ class TestOrgsRegistry(unittest.TestCase):
 
         api.add_organization(self.db, 'Bitergia')
         api.add_domain(self.db, 'Bitergia', 'bitergia.net')
-        api.add_domain(self.db, 'Bitergia', 'bitergia.com')
+        api.add_domain(self.db, 'Bitergia', 'bitergia.com', is_top_domain=True)
 
         api.add_organization(self.db, 'LibreSoft')
 
