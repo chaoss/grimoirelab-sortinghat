@@ -21,6 +21,7 @@
 #
 
 from sortinghat.cmd.add import Add
+from sortinghat.cmd.affiliate import Affiliate
 from sortinghat.cmd.config import Config
 from sortinghat.cmd.enroll import Enroll
 from sortinghat.cmd.load import Load
@@ -34,15 +35,16 @@ from sortinghat.cmd.withdraw import Withdraw
 
 
 SORTINGHAT_COMMANDS = {
-                       'add'      : Add,
-                       'config'   : Config,
-                       'enroll'   : Enroll,
-                       'load'     : Load,
-                       'log'      : Log,
-                       'merge'    : Merge,
-                       'mv'       : Move,
-                       'orgs'     : Organizations,
-                       'rm'       : Remove,
-                       'show'     : Show,
-                       'withdraw' : Withdraw,
+                       'add'       : Add,
+                       'affiliate' : Affiliate,
+                       'config'    : Config,
+                       'enroll'    : Enroll,
+                       'load'      : Load,
+                       'log'       : Log,
+                       'merge'     : Merge,
+                       'mv'        : Move,
+                       'orgs'      : Organizations,
+                       'rm'        : Remove,
+                       'show'      : Show,
+                       'withdraw'  : Withdraw,
                        }
