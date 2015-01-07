@@ -65,7 +65,8 @@ class Domain(ModelBase):
                              nullable=False)
 
     # Many-to-One relationship
-    organization = relationship("Organization", backref='domains_organizations')
+    organization = relationship("Organization", backref='domains_organizations',
+                                lazy='joined')
 
     __table_args__ = (UniqueConstraint('domain', name='_domain_unique'),
                       {'mysql_charset': 'utf8'})

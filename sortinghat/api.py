@@ -786,6 +786,69 @@ def registry(db, organization=None):
     return orgs
 
 
+def domains(db, domain=None, top=False):
+    """List the domains available in the registry.
+
+    The function will return the list of domains. Settting the top flag,
+    it will look for those domains that are top domains. If domain parameter
+    is set, it will only return the information about that domain.
+
+    When both paramaters are set, it will first search for the given domain.
+    If it is not found, it will look for its top domains. In the case of
+    neither the domain exists nor has top domains, a 'NotFoundError' exception
+    will be raised.
+
+    :param db: database manager
+    :param domain: name of the domain
+    :param top: filter by top domains
+
+    :returns: a list of domains
+
+    :raises NotFoundError: raised when the given domain is not found in the
+        registry
+    """
+    doms = []
+
+    with db.connect() as session:
+        if domain:
+            dom = session.query(Domain).\
+                filter(Domain.domain == domain).first()
+
+            if not dom:
+                if not top:
+                    raise NotFoundError(entity=domain)
+                else:
+                    # Adds a dot to the beggining of the domain.
+                    # Useful to compare domains like example.com and
+                    # myexample.com
+                    add_dot = lambda d: '.' + d if not d.startswith('.') else d
+
+                    d = add_dot(domain)
+
+                    tops = session.query(Domain).\
+                        filter(Domain.is_top_domain).order_by(Domain.domain).all()
+
+                    doms = [t for t in tops\
+                            if d.endswith(add_dot(t.domain))]
+
+                    if not doms:
+                        raise NotFoundError(entity=domain)
+            else:
+                doms = [dom]
+        else:
+            query = session.query(Domain)
+
+            if top:
+                query = query.filter(Domain.is_top_domain)
+
+            doms = query.order_by(Domain.domain).all()
+
+        # Detach objects from the session
+        session.expunge_all()
+
+    return doms
+
+
 def enrollments(db, uuid=None, organization=None, from_date=None, to_date=None):
     """List the enrollment information available in the registry.
 

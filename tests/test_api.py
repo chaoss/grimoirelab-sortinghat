@@ -1803,6 +1803,172 @@ class TestRegistry(TestBaseCase):
         self.assertRaises(NotFoundError, api.registry, self.db, 'LibreSoft')
 
 
+class TestDomains(TestBaseCase):
+    """Unit tests for domains"""
+
+    def test_get_domains(self):
+        """Check if it returns the registry of domains"""
+
+        # Add some domains
+        api.add_organization(self.db, 'Example')
+        api.add_domain(self.db, 'Example', 'example.com', is_top_domain=True)
+        api.add_domain(self.db, 'Example', 'u.example.com', is_top_domain=True)
+        api.add_domain(self.db, 'Example', 'es.u.example.com')
+        api.add_domain(self.db, 'Example', 'en.u.example.com')
+
+        api.add_organization(self.db, 'Bitergia')
+        api.add_domain(self.db, 'Bitergia', 'bitergia.com')
+        api.add_domain(self.db, 'Bitergia', 'bitergia.org')
+
+        api.add_organization(self.db, 'LibreSoft')
+
+        doms = api.domains(self.db)
+        self.assertEqual(len(doms), 6)
+
+        dom0 = doms[0]
+        self.assertIsInstance(dom0, Domain)
+        self.assertEqual(dom0.domain, 'bitergia.com')
+        self.assertEqual(dom0.organization.name, 'Bitergia')
+
+        dom1 = doms[1]
+        self.assertIsInstance(dom1, Domain)
+        self.assertEqual(dom1.domain, 'bitergia.org')
+        self.assertEqual(dom1.organization.name, 'Bitergia')
+
+        dom2 = doms[2]
+        self.assertIsInstance(dom2, Domain)
+        self.assertEqual(dom2.domain, 'en.u.example.com')
+        self.assertEqual(dom2.organization.name, 'Example')
+
+        dom3 = doms[3]
+        self.assertIsInstance(dom3, Domain)
+        self.assertEqual(dom3.domain, 'es.u.example.com')
+        self.assertEqual(dom3.organization.name, 'Example')
+
+        dom4 = doms[4]
+        self.assertIsInstance(dom4, Domain)
+        self.assertEqual(dom4.domain, 'example.com')
+        self.assertEqual(dom4.organization.name, 'Example')
+
+        dom5 = doms[5]
+        self.assertIsInstance(dom5, Domain)
+        self.assertEqual(dom5.domain, 'u.example.com')
+        self.assertEqual(dom5.organization.name, 'Example')
+
+    def test_domain(self):
+        """Check if it returns the info about an existing domain"""
+
+        # Add some domains
+        api.add_organization(self.db, 'Example')
+        api.add_domain(self.db, 'Example', 'example.com', is_top_domain=True)
+        api.add_domain(self.db, 'Example', 'u.example.com', is_top_domain=True)
+        api.add_domain(self.db, 'Example', 'es.u.example.com')
+        api.add_domain(self.db, 'Example', 'en.u.example.com')
+
+        api.add_organization(self.db, 'Bitergia')
+        api.add_domain(self.db, 'Bitergia', 'bitergia.com')
+        api.add_domain(self.db, 'Bitergia', 'bitergia.org')
+
+        api.add_organization(self.db, 'LibreSoft')
+
+        # Find the given domain
+        doms = api.domains(self.db, 'example.com')
+        self.assertEqual(len(doms), 1)
+
+        dom0 = doms[0]
+        self.assertEqual(dom0.domain, 'example.com')
+        self.assertEqual(dom0.organization.name, 'Example')
+
+        # Find the given domain
+        doms = api.domains(self.db, 'es.u.example.com')
+        self.assertEqual(len(doms), 1)
+
+        dom0 = doms[0]
+        self.assertEqual(dom0.domain, 'es.u.example.com')
+        self.assertEqual(dom0.organization.name, 'Example')
+
+    def test_top_domains(self):
+        """Check top domains option"""
+
+        # Add some domains
+        api.add_organization(self.db, 'Example')
+        api.add_domain(self.db, 'Example', 'example.com', is_top_domain=True)
+        api.add_domain(self.db, 'Example', 'u.example.com', is_top_domain=True)
+        api.add_domain(self.db, 'Example', 'es.u.example.com')
+        api.add_domain(self.db, 'Example', 'en.u.example.com')
+
+        api.add_organization(self.db, 'Bitergia')
+        api.add_domain(self.db, 'Bitergia', 'bitergia.com')
+        api.add_domain(self.db, 'Bitergia', 'bitergia.org')
+
+        api.add_organization(self.db, 'LibreSoft')
+
+        # Look only for top domains
+        doms = api.domains(self.db, top=True)
+        self.assertEqual(len(doms), 2)
+
+        dom0 = doms[0]
+        self.assertIsInstance(dom0, Domain)
+        self.assertEqual(dom0.domain, 'example.com')
+        self.assertEqual(dom0.organization.name, 'Example')
+
+        dom1 = doms[1]
+        self.assertIsInstance(dom1, Domain)
+        self.assertEqual(dom1.domain, 'u.example.com')
+        self.assertEqual(dom1.organization.name, 'Example')
+
+        # Look top domains of the given domain
+        doms = api.domains(self.db, 'us.u.example.com', top=True)
+        self.assertEqual(len(doms), 2)
+
+        dom0 = doms[0]
+        self.assertEqual(dom0.domain, 'example.com')
+        self.assertEqual(dom0.organization.name, 'Example')
+
+        dom1 = doms[1]
+        self.assertEqual(dom1.domain, 'u.example.com')
+        self.assertEqual(dom1.organization.name, 'Example')
+
+        # Look for a top domain
+        doms = api.domains(self.db, 'u.example.com', top=True)
+        self.assertEqual(len(doms), 1)
+
+        dom0 = doms[0]
+        self.assertEqual(dom0.domain, 'u.example.com')
+        self.assertEqual(dom0.organization.name, 'Example')
+
+    def test_empty_registry(self):
+        """Check whether it returns an empty list when the registry is empty"""
+
+        doms = api.domains(self.db)
+        self.assertListEqual(doms, [])
+
+    def test_not_found_domain(self):
+        """Check whether it raises an error when the domain is not available"""
+
+        # It should raise an error when the registry is empty
+        self.assertRaises(NotFoundError, api.domains, self.db, 'Example')
+        self.assertRaises(NotFoundError, api.domains, self.db, 'Example', True)
+
+        # Add some domains
+        api.add_organization(self.db, 'Example')
+        api.add_domain(self.db, 'Example', 'example.com', is_top_domain=True)
+        api.add_domain(self.db, 'Example', 'es.example.com')
+        api.add_domain(self.db, 'Example', 'en.example.com')
+
+        api.add_organization(self.db, 'Bitergia')
+        api.add_domain(self.db, 'Bitergia', 'bitergia.com')
+
+        # It should fail when there are some domains available
+        self.assertRaises(NotFoundError, api.domains, self.db, 'libresoft.es')
+        self.assertRaises(NotFoundError, api.domains, self.db, 'us.example.com')
+
+        # Or even when looks for top domains
+        self.assertRaises(NotFoundError, api.domains, self.db, 'libresoft.es', True)
+        self.assertRaises(NotFoundError, api.domains, self.db, 'myexample.com', True)
+        self.assertRaises(NotFoundError, api.domains, self.db, '.myexample.com', True)
+
+
 class TestEnrollments(TestBaseCase):
     """Unit tests for enrollments"""
 
