@@ -1,0 +1,134 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2014-2015 Bitergia
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+#
+# Authors:
+#     Santiago Dueñas <sduenas@bitergia.com>
+#
+
+import sys
+import unittest
+import uuid
+
+if not '..' in sys.path:
+    sys.path.insert(0, '..')
+
+from sortinghat.cmd.init import Init
+from sortinghat.db.database import Database
+
+from tests.config import DB_USER, DB_PASSWORD, DB_HOST, DB_PORT
+
+
+DB_ACCESS_ERROR = "Error: Access denied for user '%(user)s'@'localhost' (using password: YES) (err: 1045)"
+DB_EXISTS_ERROR = "Error: Can't create database '%(database)s'; database exists (err: 1007)"
+
+
+class TestBaseCase(unittest.TestCase):
+    """Defines common setup and teardown methods on init unit tests"""
+
+    def setUp(self):
+        if not hasattr(sys.stdout, 'getvalue') and not hasattr(sys.stderr, 'getvalue'):
+            self.fail('This test needs to be run in buffered mode')
+
+        # Create a temporal name for the registry
+        self.name = 'tmp' + uuid.uuid4().hex
+
+        # Create command
+        self.kwargs = {'user' : DB_USER,
+                       'password' : DB_PASSWORD,
+                       'database' : self.name,
+                       'host' : DB_HOST,
+                       'port' : DB_PORT}
+        self.cmd = Init(**self.kwargs)
+
+    def tearDown(self):
+        Database.drop(self.kwargs['user'], self.kwargs['password'],
+                      self.name, self.kwargs['host'],
+                      self.kwargs['port'])
+
+
+class TestInitCommand(TestBaseCase):
+    """Unit tests for init command"""
+
+    def test_init(self):
+        """Check registry initialization"""
+
+        self.cmd.run(self.name)
+        db = Database(self.kwargs['user'], self.kwargs['password'], self.name,
+                      self.kwargs['host'], self.kwargs['port'])
+        self.assertIsInstance(db, Database)
+
+    def test_connection_error(self):
+        """Check connection errors"""
+
+        kwargs = {'user' : 'nouser',
+                  'password' : 'nopassword',
+                  'database' : None,
+                  'host' : 'localhost',
+                  'port' : '3306'}
+
+        cmd = Init(**kwargs)
+        cmd.run(self.name)
+        output = sys.stderr.getvalue().strip()
+        self.assertEqual(output, DB_ACCESS_ERROR % {'user' : 'nouser'})
+
+    def test_existing_db_error(self):
+        """Check if it returns an error when tries to create the registry twice"""
+
+        self.cmd.run(self.name)
+        self.cmd.run(self.name)
+        output = sys.stderr.getvalue().strip()
+        self.assertEqual(output, DB_EXISTS_ERROR % {'database' : self.name})
+
+
+class TestInitialize(TestBaseCase):
+    """Unit tests for init command"""
+
+    def test_initialize(self):
+        """Check registry initialization"""
+
+        self.cmd.initialize(self.name)
+        db = Database(self.kwargs['user'], self.kwargs['password'], self.name,
+                      self.kwargs['host'], self.kwargs['port'])
+        self.assertIsInstance(db, Database)
+
+    def test_connection_error(self):
+        """Check connection errors"""
+
+        kwargs = {'user' : 'nouser',
+                  'password' : 'nopassword',
+                  'database' : None,
+                  'host' : 'localhost',
+                  'port' : '3306'}
+
+        cmd = Init(**kwargs)
+        cmd.initialize(self.name)
+        output = sys.stderr.getvalue().strip()
+        self.assertEqual(output, DB_ACCESS_ERROR % {'user' : 'nouser'})
+
+    def test_existing_db_error(self):
+        """Check if it returns an error when tries to create the registry twice"""
+
+        self.cmd.initialize(self.name)
+        self.cmd.initialize(self.name)
+        output = sys.stderr.getvalue().strip()
+        self.assertEqual(output, DB_EXISTS_ERROR % {'database' : self.name})
+
+
+if __name__ == "__main__":
+    unittest.main(buffer=True, exit=False)

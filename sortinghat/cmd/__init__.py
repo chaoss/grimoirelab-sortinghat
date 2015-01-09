@@ -24,6 +24,7 @@ from sortinghat.cmd.add import Add
 from sortinghat.cmd.affiliate import Affiliate
 from sortinghat.cmd.config import Config
 from sortinghat.cmd.enroll import Enroll
+from sortinghat.cmd.init import Init
 from sortinghat.cmd.load import Load
 from sortinghat.cmd.log import Log
 from sortinghat.cmd.merge import Merge
@@ -39,6 +40,7 @@ SORTINGHAT_COMMANDS = {
                        'affiliate' : Affiliate,
                        'config'    : Config,
                        'enroll'    : Enroll,
+                       'init'      : Init,
                        'load'      : Load,
                        'log'       : Log,
                        'merge'     : Merge,
