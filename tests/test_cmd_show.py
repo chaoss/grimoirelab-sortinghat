@@ -199,7 +199,7 @@ class TestShow(TestBaseCase):
         self.db.clear()
 
         self.cmd.show()
-        output = sys.stderr.getvalue().strip()
+        output = sys.stdout.getvalue().strip()
         self.assertEqual(output, SHOW_EMPTY_OUTPUT)
 
 
