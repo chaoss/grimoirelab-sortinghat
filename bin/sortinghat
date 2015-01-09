@@ -38,8 +38,10 @@ SORTINGHAT_DESC_MSG = \
 """The most commonly used %(prog)s commands are:
 
     add         Add identities
+    affiliate   Affiliate identities
     config      Get and set configuration parameters
     enroll      Enroll identities into organizations
+    init        Create an empty registry
     load        Import data (i.e identities, organizations) on the registry
     merge       Merge unique identities
     mv          Move an identity into a unique identity
