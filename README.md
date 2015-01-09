@@ -13,8 +13,10 @@ sortinghat [--help] [-c <file>] [-u <user>] [-p <password>]
 The most commonly used sortinghat commands are:
 
     add         Add identities
+    affiliate   Affiliate identities
     config      Get and set configuration parameters
     enroll      Enroll identities into organizations
+    init        Create an empty registry
     load        Import data (i.e identities, organizations) on the registry
     merge       Merge unique identities
     mv          Move an identity into a unique identity
@@ -37,6 +39,21 @@ General options:
   --port PORT           port of the host where the database server is running
 
 Run 'sortinghat <command> --help' to get information about a specific command.
+```
+
+Configuration
+-------------
+
+* Configure database parameters
+```
+  $ sortinghat config set db:user <user>
+  $ sortinghat config set db:password <password>
+  $ sortinghat config set db:database <name>
+```
+
+* Initialize database
+```
+  $ sortinghat init <name>
 ```
 
 Requirements
