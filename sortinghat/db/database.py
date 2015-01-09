@@ -23,7 +23,7 @@
 from contextlib import contextmanager
 
 from sqlalchemy import create_engine
-from sqlalchemy.exc import OperationalError
+from sqlalchemy.exc import OperationalError, ProgrammingError
 from sqlalchemy.engine.url import URL
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
@@ -34,17 +34,16 @@ from sortinghat.db.model import ModelBase
 
 class Database(object):
 
+    MYSQL_CREATE_DB = "CREATE DATABASE %(database)s CHARACTER SET utf8 COLLATE utf8_unicode_ci"
+    MYSQL_DROP_DB = "DROP DATABASE IF EXISTS %(database)s"
+
+
     def __init__(self, user, password, database, host='localhost', port='3306'):
-        # Create an engine
-        self.url = URL('mysql', user, password, host, port, database,
-                       query={'charset' : 'utf8'})
-        self._engine = create_engine(self.url, poolclass=NullPool, echo=False)
+        self._engine = self.build_engine(user, password, database, host, port)
         self._Session = sessionmaker(bind=self._engine)
 
-        # Create the schema on the database.
-        # It won't replace any existing schema
         try:
-            ModelBase.metadata.create_all(self._engine)
+            self.__create_schema(self._engine)
         except OperationalError, e:
             raise DatabaseError(error=e.orig[1], code=e.orig[0])
 
@@ -68,3 +67,32 @@ class Database(object):
             session.execute(table.delete())
             session.commit()
         session.close()
+
+    @classmethod
+    def create(cls, user, password, database, host='localhost', port='3306'):
+        engine = cls.build_engine(user, password, None, host, port)
+        query = Database.MYSQL_CREATE_DB % {'database' : database}
+        cls.execute(engine, query)
+
+    @classmethod
+    def drop(cls, user, password, database, host='localhost', port='3306'):
+        engine = cls.build_engine(user, password, None, host, port)
+        query = Database.MYSQL_DROP_DB % {'database' : database}
+        cls.execute(engine, query)
+
+    @classmethod
+    def execute(cls, engine, query):
+        try:
+            conn = engine.connect()
+            conn.execute(query);
+        except (OperationalError, ProgrammingError), e:
+            raise DatabaseError(error=e.orig[1], code=e.orig[0])
+
+    @classmethod
+    def build_engine(cls, user, password, database, host='localhost', port='3306'):
+        url = URL('mysql', user, password, host, port, database,
+                  query={'charset' : 'utf8'})
+        return create_engine(url, poolclass=NullPool, echo=False)
+
+    def __create_schema(self, engine):
+        ModelBase.metadata.create_all(engine)
