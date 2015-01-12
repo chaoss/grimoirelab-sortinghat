@@ -1688,6 +1688,31 @@ class TestUniqueIdentities(TestBaseCase):
         id2 = uid.identities[1]
         self.assertEqual(id2.email, 'jdoe@example.com')
 
+
+    def test_unique_identities_source(self):
+        """Check if it returns the registry of unique identities assigned to a source"""
+
+        # Add some identities
+        jsmith_uuid = api.add_identity(self.db, 'scm', 'jsmith@example.com',
+                                       'John Smith', 'jsmith')
+        api.add_identity(self.db, 'scm', 'jsmith@bitergia.com', uuid=jsmith_uuid)
+        api.add_identity(self.db, 'mls', 'jsmith@bitergia.com', uuid=jsmith_uuid)
+
+        jdoe_uuid = api.add_identity(self.db, 'scm', 'jdoe@example.com',
+                                     'John Doe', 'jdoe')
+        api.add_identity(self.db, 'scm', 'jdoe@libresoft.es', uuid=jdoe_uuid)
+
+        # Test unique identities with source 'mls'
+        uidentities = api.unique_identities(self.db, source='mls')
+        self.assertEqual(len(uidentities), 1)
+
+        uid = uidentities[0]
+        self.assertEqual(uid.uuid, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
+
+        # No unique identities for 'its' source
+        uidentities = api.unique_identities(self.db, source='its')
+        self.assertEqual(len(uidentities), 0)
+
     def test_unique_identity_uuid(self):
         """Check if it returns the given unique identitie"""
 
@@ -1698,7 +1723,7 @@ class TestUniqueIdentities(TestBaseCase):
                          'John Doe', 'jdoe')
 
         # Tests
-        uidentities = api.unique_identities(self.db, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
+        uidentities = api.unique_identities(self.db, uuid='03e12d00e37fd45593c49a5a5a1652deca4cf302')
         self.assertEqual(len(uidentities), 1)
 
         uid = uidentities[0]
@@ -1707,6 +1732,15 @@ class TestUniqueIdentities(TestBaseCase):
 
         id1 = uid.identities[0]
         self.assertEqual(id1.email, 'jsmith@example.com')
+
+        # Using the source parameter should return the same result
+        uidentities = api.unique_identities(self.db,
+                                            uuid='03e12d00e37fd45593c49a5a5a1652deca4cf302',
+                                            source='scm')
+        self.assertEqual(len(uidentities), 1)
+
+        uid = uidentities[0]
+        self.assertEqual(uid.uuid, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
 
     def test_empty_registry(self):
         """Check whether it returns an empty list when the registry is empty"""
@@ -1725,7 +1759,12 @@ class TestUniqueIdentities(TestBaseCase):
         api.add_unique_identity(self.db, 'John Smith')
         api.add_unique_identity(self.db, 'John Doe')
 
-        self.assertRaises(NotFoundError, api.registry, self.db, 'Jane Rae')
+        self.assertRaises(NotFoundError, api.unique_identities,
+                          self.db, 'Jane Rae')
+
+        # Or even using a valid uuid but an invalid source parameter
+        self.assertRaises(NotFoundError, api.unique_identities,
+                          self.db, 'John Smith', 'scm')
 
 
 class TestRegistry(TestBaseCase):

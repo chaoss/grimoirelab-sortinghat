@@ -713,17 +713,21 @@ def match_identities(db, uuid, matcher):
     return uidentities
 
 
-def unique_identities(db, uuid=None):
+def unique_identities(db, uuid=None, source=None):
     """List the unique identities available in the registry.
 
     The function returns a list of unique identities. When 'uuid'
     parameter is set, it will only return the information related
-    to the unique identity identified by 'uuid'. When the given
-    'uuid' is not in the registry, a 'NotFoundError' exception will
-    be raised.
+    to the unique identity identified by 'uuid'. When 'source' is
+    given, only thouse unique identities with one or more identities
+    related to that source will be returned.
+
+    When the given 'uuid', assigned to the given 'source', is not in the
+    registry, a 'NotFoundError' exception will be raised.
 
     :param db: database manager
     :param uuid: unique identifier for the identity
+    :param source: source of the identities
 
     :raises NotFoundError: raised when the given uuid is not found
         in the registry
@@ -731,8 +735,15 @@ def unique_identities(db, uuid=None):
     uidentities = []
 
     with db.connect() as session:
+        query = session.query(UniqueIdentity)
+
+        if source:
+            query = query.join(Identity).\
+                filter(UniqueIdentity.uuid == Identity.uuid,
+                       Identity.source == source)
+
         if uuid:
-            uidentity = session.query(UniqueIdentity).\
+            uidentity = query.\
                 filter(UniqueIdentity.uuid == uuid).first()
 
             if not uidentity:
@@ -740,7 +751,7 @@ def unique_identities(db, uuid=None):
 
             uidentities = [uidentity]
         else:
-            uidentities = session.query(UniqueIdentity).\
+            uidentities = query.\
                 order_by(UniqueIdentity.uuid).all()
 
         # Detach objects from the session
