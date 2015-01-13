@@ -53,6 +53,12 @@ class Organization(ModelBase):
     __table_args__ = (UniqueConstraint('name', name='_name_unique'),
                       {'mysql_charset': 'utf8'})
 
+    def to_dict(self):
+        return {
+                'name'    : self.name,
+                'domains' : [d.to_dict() for d in self.domains]
+                }
+
 
 class Domain(ModelBase):
     __tablename__ = 'domains_organizations'
@@ -71,6 +77,13 @@ class Domain(ModelBase):
     __table_args__ = (UniqueConstraint('domain', name='_domain_unique'),
                       {'mysql_charset': 'utf8'})
 
+    def to_dict(self):
+        return {
+                'domain'       : self.domain,
+                'top_domain'   : self.is_top_domain,
+                'organization' : self.organization.name
+                }
+
 
 class UniqueIdentity(ModelBase):
     __tablename__ = 'uidentities'
@@ -85,6 +98,12 @@ class UniqueIdentity(ModelBase):
     organizations = association_proxy('enrollments', 'organizations')
 
     __table_args__ = ({'mysql_charset': 'utf8'})
+
+    def to_dict(self):
+        return {
+                'uuid'       : self.uuid,
+                'identities' : [i.to_dict() for i in self.identities]
+                }
 
     def __repr__(self):
         return self.uuid
@@ -108,6 +127,16 @@ class Identity(ModelBase):
     __table_args__ = (UniqueConstraint('name', 'email', 'username', 'source',
                                        name='_identity_unique'),
                       {'mysql_charset': 'utf8'})
+
+    def to_dict(self):
+        return {
+                'id'       : self.id,
+                'name'     : self.name,
+                'email'    : self.email,
+                'username' : self.username,
+                'source'   : self.source,
+                'uuid'     : self.uuid
+                }
 
 
 class Enrollment(ModelBase):
@@ -139,3 +168,11 @@ class Enrollment(ModelBase):
                                        'init', 'end',
                                        name='_period_unique'),
                       {'mysql_charset': 'utf8'})
+
+    def to_dict(self):
+        return {
+                'init'         : self.init,
+                'end'          : self.end,
+                'uuid'         : self.uuid,
+                'organization' : self.organization.name
+                }

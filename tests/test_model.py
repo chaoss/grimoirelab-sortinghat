@@ -21,6 +21,7 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+import datetime
 import sys
 import unittest
 
@@ -101,6 +102,41 @@ class TestOrganization(TestCaseBase):
             self.session.add(org1)
             self.session.commit()
 
+    def test_to_dict(self):
+        """Test output of to_dict() method"""
+
+        org = Organization(name='Example')
+        self.session.add(org)
+
+        dom1 = Domain(domain='example.com',
+                      is_top_domain=True,
+                      organization=org)
+        dom2 = Domain(domain='us.example.net',
+                      is_top_domain=False,
+                      organization=org)
+        self.session.add(dom1)
+        self.session.add(dom2)
+        self.session.commit()
+
+        # Tests
+        d = org.to_dict()
+
+        self.assertIsInstance(d, dict)
+        self.assertEqual(d['name'], 'Example')
+
+        doms = d['domains']
+        self.assertEqual(len(doms), 2)
+
+        d0 = doms[0]
+        self.assertEqual(d0['domain'], 'example.com')
+        self.assertEqual(d0['top_domain'], True)
+        self.assertEqual(d0['organization'], 'Example')
+
+        d1 = doms[1]
+        self.assertEqual(d1['domain'], 'us.example.net')
+        self.assertEqual(d1['top_domain'], False)
+        self.assertEqual(d1['organization'], 'Example')
+
 
 class TestDomain(TestCaseBase):
     """Unit tests for Domain class"""
@@ -155,6 +191,26 @@ class TestDomain(TestCaseBase):
             self.session.add(dom1)
             self.session.commit()
 
+    def test_to_dict(self):
+        """Test output of to_dict() method"""
+
+        org = Organization(name='Example')
+        self.session.add(org)
+
+        dom = Domain(domain='example.com',
+                     is_top_domain=True,
+                     organization=org)
+        self.session.add(dom)
+        self.session.commit()
+
+        # Tests
+        d = dom.to_dict()
+
+        self.assertIsInstance(d, dict)
+        self.assertEqual(d['domain'], 'example.com')
+        self.assertEqual(d['top_domain'], True)
+        self.assertEqual(d['organization'], 'Example')
+
 
 class TestUniqueIdentity(TestCaseBase):
     """Unit tests for UniqueIdentity class"""
@@ -169,6 +225,46 @@ class TestUniqueIdentity(TestCaseBase):
             self.session.add(uid1)
             self.session.add(uid2)
             self.session.commit()
+
+    def test_to_dict(self):
+        """Test output of to_dict() method"""
+
+        uid = UniqueIdentity(uuid='John Smith')
+        self.session.add(uid)
+
+        id1 = Identity(id='A', name='John Smith', email='jsmith@example.com',
+                       username='jsmith', source='scm', uuid='John Smith')
+        id2 = Identity(id='B', name=None, email='jsmith@example.net',
+                       username=None, source='scm', uuid='John Smith')
+
+        self.session.add(id1)
+        self.session.add(id2)
+        self.session.commit()
+
+        # Tests
+        d = uid.to_dict()
+
+        self.assertIsInstance(d, dict)
+        self.assertEqual(d['uuid'], 'John Smith')
+
+        identities = d['identities']
+        self.assertEqual(len(identities), 2)
+
+        d0 = d['identities'][0]
+        self.assertEqual(d0['id'], 'A')
+        self.assertEqual(d0['name'], 'John Smith')
+        self.assertEqual(d0['email'], 'jsmith@example.com')
+        self.assertEqual(d0['username'], 'jsmith')
+        self.assertEqual(d0['source'], 'scm')
+        self.assertEqual(d0['uuid'], 'John Smith')
+
+        d1 = d['identities'][1]
+        self.assertEqual(d1['id'], 'B')
+        self.assertEqual(d1['name'], None)
+        self.assertEqual(d1['email'], 'jsmith@example.net')
+        self.assertEqual(d1['username'], None)
+        self.assertEqual(d1['source'], 'scm')
+        self.assertEqual(d1['uuid'], 'John Smith')
 
 
 class TestIdentity(TestCaseBase):
@@ -204,6 +300,29 @@ class TestIdentity(TestCaseBase):
         self.session.commit()
 
         self.assertNotEqual(id1.id, id2.id)
+
+    def test_to_dict(self):
+        """Test output of to_dict() method"""
+
+        uid = UniqueIdentity(uuid='John Smith')
+        self.session.add(uid)
+
+        id1 = Identity(id='A', name='John Smith', email='jsmith@example.com',
+                       username='jsmith', source='scm', uuid='John Smith')
+
+        self.session.add(id1)
+        self.session.commit()
+
+        # Tests
+        d = id1.to_dict()
+
+        self.assertIsInstance(d, dict)
+        self.assertEqual(d['id'], 'A')
+        self.assertEqual(d['name'], 'John Smith')
+        self.assertEqual(d['email'], 'jsmith@example.com')
+        self.assertEqual(d['username'], 'jsmith')
+        self.assertEqual(d['source'], 'scm')
+        self.assertEqual(d['uuid'], 'John Smith')
 
 
 class TestEnrollment(TestCaseBase):
@@ -259,8 +378,6 @@ class TestEnrollment(TestCaseBase):
     def test_default_enrollment_period(self):
         """Check whether the default period is set when initializing the class"""
 
-        import datetime
-
         uid = UniqueIdentity(uuid='John Smith')
         self.session.add(uid)
 
@@ -290,6 +407,31 @@ class TestEnrollment(TestCaseBase):
 
         self.assertEqual(rol3.init, datetime.datetime(1999, 1, 1, 0, 0, 0))
         self.assertEqual(rol3.end, datetime.datetime(2100, 1, 1, 0, 0, 0))
+
+    def test_to_dict(self):
+        """Test output of to_dict() method"""
+
+        uid = UniqueIdentity(uuid='John Smith')
+        self.session.add(uid)
+
+        org = Organization(name='Example')
+        self.session.add(org)
+
+        rol = Enrollment(uidentity=uid, organization=org,
+                         init=datetime.datetime(1999, 1, 1, 0, 0, 0),
+                         end=datetime.datetime(2001, 1, 1, 0, 0, 0))
+
+        self.session.add(rol)
+        self.session.commit()
+
+        # Tests
+        d = rol.to_dict()
+
+        self.assertIsInstance(d, dict)
+        self.assertEqual(d['uuid'], 'John Smith')
+        self.assertEqual(d['organization'], 'Example')
+        self.assertEqual(d['init'], datetime.datetime(1999, 1, 1, 0, 0, 0))
+        self.assertEqual(d['end'], datetime.datetime(2001, 1, 1, 0, 0, 0))
 
 
 if __name__ == "__main__":
