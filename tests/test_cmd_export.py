@@ -29,7 +29,7 @@ if not '..' in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat import api
-from sortinghat.cmd.export import SortingHatIdentitiesExporter
+from sortinghat.cmd.export import Export, SortingHatIdentitiesExporter
 from sortinghat.db.database import Database
 
 from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
@@ -39,6 +39,8 @@ class TestBaseCase(unittest.TestCase):
     """Defines common setup and teardown methods on show unit tests"""
 
     def setUp(self):
+        import tempfile
+
         if not hasattr(sys.stdout, 'getvalue'):
             self.fail('This test needs to be run in buffered mode')
 
@@ -48,18 +50,33 @@ class TestBaseCase(unittest.TestCase):
         # Import predefined dataset for testing
         self._load_test_dataset()
 
+        # Temporary file for outputs
+        self.tmpfile = tempfile.mkstemp()[1]
+
         # Create command
         self.kwargs = {'user' : DB_USER,
                        'password' : DB_PASSWORD,
                        'database' : DB_NAME,
                        'host' : DB_HOST,
                        'port' : DB_PORT}
+        self.cmd = Export(**self.kwargs)
 
     def tearDown(self):
+        import os
+
         self.db.clear()
+        os.remove(self.tmpfile)
+
+    def read_json(self, filename):
+        with open(filename, 'r') as f:
+            content = f.read().decode('UTF-8')
+            obj = json.loads(content)
+        return obj
 
     def _load_test_dataset(self):
         import datetime
+
+        self.db.clear()
 
         # Add organizations
         api.add_organization(self.db, 'Example')
@@ -94,6 +111,55 @@ class TestBaseCase(unittest.TestCase):
         api.add_enrollment(self.db, jroe_uuid, 'Bitergia',
                            datetime.datetime(2006, 1, 1),
                            datetime.datetime(2008, 1, 1))
+
+
+class TestExportIdentities(TestBaseCase):
+    """Test export_identities method with some inputs"""
+
+    def test_export_identities(self):
+        """Check the output of export_identities method"""
+
+        with open(self.tmpfile, 'w') as f:
+            self.cmd.export_identities(f)
+
+        # Read results and pre-generated file to tests whether
+        # both are the same. To compare, we generate a dict object
+        # removing 'time' key.
+        a = self.read_json(self.tmpfile)
+        b = self.read_json('data/sortinghat_identities_valid.json')
+
+        a.pop('time')
+        b.pop('time')
+
+        self.assertEqual(a, b)
+
+    def test_export_identities_source(self):
+        """Check the output of export_identities method setting a source"""
+
+        with open(self.tmpfile, 'w') as f:
+            self.cmd.export_identities(f, source='unknown')
+
+        a = self.read_json(self.tmpfile)
+        b = self.read_json('data/sortinghat_identities_source.json')
+
+        a.pop('time')
+        b.pop('time')
+
+        self.assertEqual(a, b)
+
+    def test_export_identities_empty_registry(self):
+        """Check the output when registry is empty"""
+
+        self.db.clear()
+
+        with open(self.tmpfile, 'w') as f:
+            self.cmd.export_identities(f)
+
+        a = self.read_json(self.tmpfile)
+
+        self.assertEqual(a['source'], None)
+        self.assertIn('time', a)
+        self.assertEqual(len(a['uidentities']), 0)
 
 
 class TestSortingHatIdentitiesExporter(TestBaseCase):

@@ -1,0 +1,89 @@
+{
+    "source": null, 
+    "time": "2015-01-14 13:31:19.507613", 
+    "uidentities": {
+        "0000000000000000000000000000000000000000": {
+            "enrollments": [], 
+            "identities": [], 
+            "uuid": "0000000000000000000000000000000000000000"
+        }, 
+        "03e12d00e37fd45593c49a5a5a1652deca4cf302": {
+            "enrollments": [
+                {
+                    "end": "2100-01-01T00:00:00", 
+                    "init": "1900-01-01T00:00:00", 
+                    "organization": "Example", 
+                    "uuid": "03e12d00e37fd45593c49a5a5a1652deca4cf302"
+                }
+            ], 
+            "identities": [
+                {
+                    "email": "jsmith@example.com", 
+                    "id": "03e12d00e37fd45593c49a5a5a1652deca4cf302", 
+                    "name": "John Smith", 
+                    "source": "scm", 
+                    "username": "jsmith", 
+                    "uuid": "03e12d00e37fd45593c49a5a5a1652deca4cf302"
+                }, 
+                {
+                    "email": "jsmith@example.com", 
+                    "id": "75d95d6c8492fd36d24a18bd45d62161e05fbc97", 
+                    "name": "John Smith", 
+                    "source": "scm", 
+                    "username": null, 
+                    "uuid": "03e12d00e37fd45593c49a5a5a1652deca4cf302"
+                }
+            ], 
+            "uuid": "03e12d00e37fd45593c49a5a5a1652deca4cf302"
+        }, 
+        "52e0aa0a14826627e633fd15332988686b730ab3": {
+            "enrollments": [
+                {
+                    "end": "2000-01-01T00:00:00", 
+                    "init": "1999-01-01T00:00:00", 
+                    "organization": "Bitergia", 
+                    "uuid": "52e0aa0a14826627e633fd15332988686b730ab3"
+                }, 
+                {
+                    "end": "2008-01-01T00:00:00", 
+                    "init": "2006-01-01T00:00:00", 
+                    "organization": "Bitergia", 
+                    "uuid": "52e0aa0a14826627e633fd15332988686b730ab3"
+                }, 
+                {
+                    "end": "2100-01-01T00:00:00", 
+                    "init": "1900-01-01T00:00:00", 
+                    "organization": "Example", 
+                    "uuid": "52e0aa0a14826627e633fd15332988686b730ab3"
+                }
+            ], 
+            "identities": [
+                {
+                    "email": "jroe@example.com", 
+                    "id": "52e0aa0a14826627e633fd15332988686b730ab3", 
+                    "name": "Jane Roe", 
+                    "source": "scm", 
+                    "username": "jroe", 
+                    "uuid": "52e0aa0a14826627e633fd15332988686b730ab3"
+                }, 
+                {
+                    "email": "jroe@bitergia.com", 
+                    "id": "cbfb7bd31d556322c640f5bc7b31d58a12b15904", 
+                    "name": null, 
+                    "source": "unknown", 
+                    "username": null, 
+                    "uuid": "52e0aa0a14826627e633fd15332988686b730ab3"
+                }, 
+                {
+                    "email": "jroe@example.com", 
+                    "id": "fef873c50a48cfc057f7aa19f423f81889a8907f", 
+                    "name": null, 
+                    "source": "scm", 
+                    "username": null, 
+                    "uuid": "52e0aa0a14826627e633fd15332988686b730ab3"
+                }
+            ], 
+            "uuid": "52e0aa0a14826627e633fd15332988686b730ab3"
+        }
+    }
+}

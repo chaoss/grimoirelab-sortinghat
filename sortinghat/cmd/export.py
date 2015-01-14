@@ -24,6 +24,40 @@ import datetime
 import json
 
 from sortinghat import api
+from sortinghat.command import Command
+
+
+class Export(Command):
+    """Export data from the registry.
+
+    This command exports data about identities. Data are exported, by default,
+    to the standard output.
+    """
+    def __init__(self, **kwargs):
+        super(Export, self).__init__(**kwargs)
+
+        self._set_database(**kwargs)
+
+    def export_identities(self, outfile, source=None):
+        """Export identities information to a file.
+
+        The method exports information related to unique identities, to
+        the given 'outfile' output file.
+
+        When 'source' parameter is given, only those unique identities which have
+        one or more identities from the given source will be exported.
+
+        :param outfile: destination file object
+        :param source: source of the identities to export
+        """
+        exporter = SortingHatIdentitiesExporter(self.db)
+
+        dump = exporter.export(source)
+
+        try:
+            outfile.write(dump)
+        except IOError, e:
+            raise RuntimeError(str(e))
 
 
 class IdentitiesExporter(object):
@@ -75,7 +109,8 @@ class SortingHatIdentitiesExporter(IdentitiesExporter):
                'source' : source,
                'uidentities' : uidentities}
 
-        return json.dumps(obj, default=self._json_encoder)
+        return json.dumps(obj, default=self._json_encoder,
+                          indent=4, sort_keys=True)
 
     def _json_encoder(self, obj):
         """Default JSON encoder"""
