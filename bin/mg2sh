@@ -110,6 +110,7 @@ def main():
 
     try:
         args.outfile.write(json)
+        args.outfile.write('\n')
     except IOError, e:
         raise RuntimeError(str(e))
 
@@ -174,7 +175,7 @@ def to_json(identities, source):
            'source' : source,
            'identities' : ids}
 
-    return json.dumps(obj)
+    return json.dumps(obj, indent=4, sort_keys=True)
 
 
 def create_database_engine(user, password, database, host, port):
