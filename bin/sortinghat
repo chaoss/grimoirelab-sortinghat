@@ -41,6 +41,7 @@ SORTINGHAT_DESC_MSG = \
     affiliate   Affiliate identities
     config      Get and set configuration parameters
     enroll      Enroll identities into organizations
+    export      Export data (i.e identities) from the registry
     init        Create an empty registry
     load        Import data (i.e identities, organizations) on the registry
     merge       Merge unique identities
