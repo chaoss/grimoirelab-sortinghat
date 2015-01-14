@@ -176,3 +176,84 @@ class Enrollment(ModelBase):
                 'uuid'         : self.uuid,
                 'organization' : self.organization.name
                 }
+
+
+class MappedTable(object):
+
+    @classmethod
+    def tables(cls):
+        raise NotImplementedError
+
+    @classmethod
+    def column_prefix(cls):
+        raise NotImplementedError
+
+
+class MetricsGrimoireIdentity(MappedTable):
+    """Generic identity to map identities data from Metrics Grimoire databases"""
+
+    IDENTITIES_TABLES = ['people', 'users', 'irclog']
+
+    COLUMN_PREFIX = '_'
+
+    MG_ID_KEYS = ['_id', '_email_address', '_nick']
+    NAME_KEYS = ['_name']
+    EMAIL_KEYS = ['_email', '_email_address']
+    USERNAME_KEYS = ['_username', '_user_id', '_nick']
+
+    def __init__(self):
+        super(MetricsGrimoireIdentity, self).__init__()
+
+    def __eq__(self, other):
+        if isinstance(other, MetricsGrimoireIdentity) or\
+           isinstance(other, Identity):
+            return self.name == other.name \
+                   and self.email == other.email \
+                   and self.username == other.username
+        else:
+            return NotImplemented
+
+    def __ne__(self, other):
+        result = self.__eq__(other)
+
+        if result is NotImplemented:
+            return result
+        return not result
+
+    @property
+    def mg_id(self):
+        return self.__map_to_attr(self.MG_ID_KEYS)
+
+    @property
+    def name(self):
+        return self.__map_to_attr(self.NAME_KEYS)
+
+    @property
+    def email(self):
+        return self.__map_to_attr(self.EMAIL_KEYS)
+
+    @property
+    def username(self):
+        return self.__map_to_attr(self.USERNAME_KEYS)
+
+    @classmethod
+    def tables(cls):
+        return cls.IDENTITIES_TABLES
+
+    @classmethod
+    def column_prefix(cls):
+        return cls.COLUMN_PREFIX
+
+    def to_dict(self):
+        return {'name' : self.name,
+                'email' : self.email,
+                'username' : self.username}
+
+    def __map_to_attr(self, m):
+        for k in m:
+            try:
+                v = self.__getattribute__(k)
+                return v if v else None
+            except:
+                pass
+        return None

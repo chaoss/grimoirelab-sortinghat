@@ -24,13 +24,9 @@
 import argparse
 import sys
 
-from sqlalchemy import create_engine
-from sqlalchemy.engine.url import URL
-from sqlalchemy.exc import OperationalError
-from sqlalchemy.schema import MetaData
-from sqlalchemy.orm import mapper, sessionmaker
-from sqlalchemy.pool import NullPool
+import sortinghat.db.database as db
 
+from sortinghat.db.model import MetricsGrimoireIdentity
 from sortinghat.exceptions import DatabaseError
 
 
@@ -55,43 +51,6 @@ General options:
   -o FILE, --output FILE
                         output file
 """
-
-
-class MappedIdentity(object):
-    """Generic identity to map identities data from Metrics Grimoire databases"""
-
-    IDENTITIES_TABLES = ['people', 'users', 'irclog']
-
-    COLUMN_PREFIX = '_'
-
-    NAME_KEYS = ['_name']
-    EMAIL_KEYS = ['_email', '_email_address']
-    USERNAME_KEYS = ['_username', '_user_id', '_nick']
-
-    @property
-    def name(self):
-        return self.__map_to_attr(self.NAME_KEYS)
-
-    @property
-    def email(self):
-        return self.__map_to_attr(self.EMAIL_KEYS)
-
-    @property
-    def username(self):
-        return self.__map_to_attr(self.USERNAME_KEYS)
-
-    def to_dict(self):
-        return {'name' : self.name,
-                'email' : self.email,
-                'username' : self.username}
-
-    def __map_to_attr(self, m):
-        for k in m:
-            try:
-                return self.__getattribute__(k)
-            except:
-                pass
-        return None
 
 
 def main():
@@ -145,20 +104,20 @@ def parse_args():
 def fetch_identities(user, password, database, host, port):
     """Retrieve identities from a database"""
 
-    engine = create_database_engine(user, password, database,
+    engine = db.create_database_engine(user, password, database,
                                     host, port)
-    session = create_database_session(engine)
-    table = reflect_identities_table(engine)
+    session = db.create_database_session(engine)
+    table = db.reflect_table(engine, MetricsGrimoireIdentity)
 
-    query = session.query(MappedIdentity)
+    query = session.query(MetricsGrimoireIdentity)
 
     # Specific case for IRC databases
     if 'nick' in table.columns:
-        query = query.group_by(MappedIdentity._nick)
+        query = query.group_by(MetricsGrimoireIdentity._nick)
 
     identities = query.all()
 
-    close_database_session(session)
+    db.close_database_session(session)
 
     return identities
 
@@ -176,61 +135,6 @@ def to_json(identities, source):
            'identities' : ids}
 
     return json.dumps(obj, indent=4, sort_keys=True)
-
-
-def create_database_engine(user, password, database, host, port):
-    """Create a database engine"""
-
-    url = URL('mysql', user, password, host, port, database,
-              query={'charset' : 'utf8'})
-    return create_engine(url, poolclass=NullPool, echo=False)
-
-
-def create_database_session(engine):
-    """Connect to the database"""
-
-    try:
-        Session = sessionmaker(bind=engine)
-        return Session()
-    except OperationalError, e:
-        raise DatabaseError(error=e.orig[1], code=e.orig[0])
-
-
-def close_database_session(session):
-    """Close connection with the database"""
-
-    try:
-        session.close()
-    except OperationalError, e:
-        raise DatabaseError(error=e.orig[1], code=e.orig[0])
-
-
-def reflect_identities_table(engine):
-    """Inspect and reflect identity objects"""
-
-    try:
-        meta = MetaData()
-        meta.reflect(bind=engine)
-    except OperationalError, e:
-        raise DatabaseError(error=e.orig[1], code=e.orig[0])
-
-    # Try to reflect from any of the supported tables
-    table = None
-
-    for tb in MappedIdentity.IDENTITIES_TABLES:
-        if tb in meta.tables:
-            table = meta.tables[tb]
-            break
-
-    if table is None:
-        raise DatabaseError(error="Invalid schema. Identities table not found",
-                            code="-1")
-
-    # Map table schema into generic identity object
-    mapper(MappedIdentity, table,
-           column_prefix=MappedIdentity.COLUMN_PREFIX)
-
-    return table
 
 
 if __name__ == '__main__':
