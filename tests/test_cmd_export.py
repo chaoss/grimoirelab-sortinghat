@@ -113,6 +113,40 @@ class TestBaseCase(unittest.TestCase):
                            datetime.datetime(2008, 1, 1))
 
 
+class TestExportCommand(TestBaseCase):
+    """Export command unit tests"""
+
+    def test_export_identities(self):
+        """Test to export identities to a file"""
+
+        self.cmd.run('--identities', self.tmpfile)
+
+        # Read results and pre-generated file to tests whether
+        # both are the same. To compare, we generate a dict object
+        # removing 'time' key.
+        a = self.read_json(self.tmpfile)
+        b = self.read_json('data/sortinghat_identities_valid.json')
+
+        a.pop('time')
+        b.pop('time')
+
+        self.assertEqual(a, b)
+
+    def test_export_identities_source(self):
+        """Check the export indentities to a file filtering by source"""
+
+        self.cmd.run('--identities', '--source', 'unknown',
+                     self.tmpfile)
+
+        a = self.read_json(self.tmpfile)
+        b = self.read_json('data/sortinghat_identities_source.json')
+
+        a.pop('time')
+        b.pop('time')
+
+        self.assertEqual(a, b)
+
+
 class TestExportIdentities(TestBaseCase):
     """Test export_identities method with some inputs"""
 

@@ -20,8 +20,10 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+import argparse
 import datetime
 import json
+import sys
 
 from sortinghat import api
 from sortinghat.command import Command
@@ -31,12 +33,53 @@ class Export(Command):
     """Export data from the registry.
 
     This command exports data about identities. Data are exported, by default,
-    to the standard output.
+    to the standard output. A file path can also be given to store the data.
+
+    Identities are exported using the option '--identities'. Using the option
+    '--source' will only export those identities which have one or more
+    identities associated to that source.
     """
     def __init__(self, **kwargs):
         super(Export, self).__init__(**kwargs)
 
         self._set_database(**kwargs)
+
+        self.parser = argparse.ArgumentParser(description=self.description,
+                                              usage=self.usage)
+
+        # Actions
+        group = self.parser.add_mutually_exclusive_group()
+        group.add_argument('--identities', action='store_true',
+                           help="export identities")
+
+        # General options
+        self.parser.add_argument('--source', dest='source', default=None,
+                                 help="source of the identities to export")
+
+        # Positional arguments
+        self.parser.add_argument('outfile', nargs='?', type=argparse.FileType('w'),
+                                 default=sys.stdout,
+                                 help="output file")
+
+    @property
+    def description(self):
+        return """Export data from the registry."""
+
+    @property
+    def usage(self):
+        return "%(prog)s export --identities [file]"
+
+    def run(self, *args):
+        """Export data from the registry.
+
+        By default, it writes the data to the standard output. If a
+        positional argument is given, it will write the data on that
+        file.
+        """
+        params = self.parser.parse_args(args)
+
+        if params.identities:
+            self.export_identities(params.outfile, params.source)
 
     def export_identities(self, outfile, source=None):
         """Export identities information to a file.
@@ -56,6 +99,7 @@ class Export(Command):
 
         try:
             outfile.write(dump)
+            outfile.write('\n')
         except IOError, e:
             raise RuntimeError(str(e))
 
