@@ -146,7 +146,10 @@ class SortingHatIdentitiesExporter(IdentitiesExporter):
             enrollments = [rol.to_dict()\
                            for rol in api.enrollments(self.db, uuid=uid.uuid)]
 
-            uidentities[uid.uuid] = uid.to_dict()
+            u = uid.to_dict()
+            u['identities'].sort(key=lambda x: x['id'])
+
+            uidentities[uid.uuid] = u
             uidentities[uid.uuid]['enrollments'] = enrollments
 
         obj = {'time' : str(datetime.datetime.now()),
