@@ -29,6 +29,7 @@ setup(name="sortinghat",
       author="Bitergia",
       author_email="metrics-grimoire@lists.libresoft.es",
       url="https://github.com/MetricsGrimoire/sortinghat",
-      packages=['sortinghat', 'sortinghat.db', 'sortinghat.cmd', 'sortinghat.matching', 'sortinghat.templates'],
+      packages=['sortinghat', 'sortinghat.db', 'sortinghat.cmd', 'sortinghat.matching',
+                'sortinghat.templates'],
       package_data={'sortinghat.templates': ['*.tmpl']},
-      scripts=["bin/sortinghat", "bin/mg2sh"])
+      scripts=["bin/sortinghat", "bin/mg2sh", "bin/sh2mg"])
