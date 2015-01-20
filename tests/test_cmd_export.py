@@ -154,6 +154,22 @@ class TestExportCommand(TestBaseCase):
 
         self.assertEqual(a, b)
 
+    def test_export_organizations(self):
+        """Test to export organizations to a file"""
+
+        self.cmd.run('--orgs', self.tmpfile)
+
+        # Read results and pre-generated file to tests whether
+        # both are the same. To compare, we generate a dict object
+        # removing 'time' key.
+        a = self.read_json(self.tmpfile)
+        b = self.read_json('data/sortinghat_orgs_valid.json')
+
+        a.pop('time')
+        b.pop('time')
+
+        self.assertEqual(a, b)
+
 
 class TestExportIdentities(TestBaseCase):
     """Test export_identities method with some inputs"""
@@ -351,6 +367,40 @@ class TestSortingHatIdentitiesExporter(TestBaseCase):
         self.assertEqual(obj['source'], None)
         self.assertIn('time', obj)
         self.assertEqual(len(obj['uidentities']), 0)
+
+
+class TestExportOrganizations(TestBaseCase):
+    """Test export_organizations method with some inputs"""
+
+    def test_export_organizations(self):
+        """Check the output of export_identities method"""
+
+        with open(self.tmpfile, 'w') as f:
+            self.cmd.export_organizations(f)
+
+        # Read results and pre-generated file to tests whether
+        # both are the same. To compare, we generate a dict object
+        # removing 'time' key.
+        a = self.read_json(self.tmpfile)
+        b = self.read_json('data/sortinghat_orgs_valid.json')
+
+        a.pop('time')
+        b.pop('time')
+
+        self.assertEqual(a, b)
+
+    def test_export_organizations_empty_registry(self):
+        """Check the output when registry is empty"""
+
+        self.db.clear()
+
+        with open(self.tmpfile, 'w') as f:
+            self.cmd.export_organizations(f)
+
+        a = self.read_json(self.tmpfile)
+
+        self.assertIn('time', a)
+        self.assertEqual(len(a['organizations']), 0)
 
 
 class TestSortingHatOrganizationsExporter(TestBaseCase):

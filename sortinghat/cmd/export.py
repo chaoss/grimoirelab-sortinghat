@@ -51,6 +51,8 @@ class Export(Command):
         group = self.parser.add_mutually_exclusive_group()
         group.add_argument('--identities', action='store_true',
                            help="export identities")
+        group.add_argument('--orgs', action='store_true',
+                           help="export organizations")
 
         # General options
         self.parser.add_argument('--source', dest='source', default=None,
@@ -67,7 +69,7 @@ class Export(Command):
 
     @property
     def usage(self):
-        return "%(prog)s export --identities [file]"
+        return "%(prog)s export --identities [--source <source>] [file]\n   or: %(prog)s export --orgs [file]"
 
     def run(self, *args):
         """Export data from the registry.
@@ -80,6 +82,8 @@ class Export(Command):
 
         if params.identities:
             self.export_identities(params.outfile, params.source)
+        elif params.orgs:
+            self.export_organizations(params.outfile)
 
     def export_identities(self, outfile, source=None):
         """Export identities information to a file.
@@ -96,6 +100,24 @@ class Export(Command):
         exporter = SortingHatIdentitiesExporter(self.db)
 
         dump = exporter.export(source)
+
+        try:
+            outfile.write(dump)
+            outfile.write('\n')
+        except IOError, e:
+            raise RuntimeError(str(e))
+
+    def export_organizations(self, outfile):
+        """Export organizations information to a file.
+
+        The method exports information related to organizations, to
+        the given 'outfile' output file.
+
+        :param outfile: destination file object
+        """
+        exporter = SortingHatOrganizationsExporter(self.db)
+
+        dump = exporter.export()
 
         try:
             outfile.write(dump)
