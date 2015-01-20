@@ -166,3 +166,59 @@ class SortingHatIdentitiesExporter(IdentitiesExporter):
             return obj.isoformat()
         else:
             return json.JSONEncoder.default(obj)
+
+
+class OrganizationsExporter(object):
+    """Abstract class for exporting organizations"""
+
+    def __init__(self, db):
+        self.db = db
+
+    def export(self, source=None):
+        raise NotImplementedError
+
+
+class SortingHatOrganizationsExporter(OrganizationsExporter):
+    """Export organizations to Sorting Hat organizations format.
+
+    This class exports the organizations stored in the registry
+    following the Sorting Hat organizations JSON format.
+
+    :param db: database manager
+    """
+    def __init__(self, db):
+        super(SortingHatOrganizationsExporter, self).__init__(db)
+
+    def export(self):
+        """Export a set of organizations.
+
+        Method to export organizations from the registry. Organizations schema
+        will follow Sorting Hat JSON format.
+
+        :returns: a JSON formatted str
+        """
+        organizations = {}
+
+        orgs = api.registry(self.db)
+
+        for org in orgs:
+            domains = [{'domain': dom.domain,
+                        'is_top': dom.is_top_domain} \
+                       for dom in org.domains]
+            domains.sort(key=lambda x: x['domain'])
+
+            organizations[org.name] = domains
+
+        obj = {'time' : str(datetime.datetime.now()),
+               'organizations' : organizations}
+
+        return json.dumps(obj, default=self._json_encoder,
+                          indent=4, sort_keys=True)
+
+    def _json_encoder(self, obj):
+        """Default JSON encoder"""
+
+        if isinstance(obj, datetime.datetime):
+            return obj.isoformat()
+        else:
+            return json.JSONEncoder.default(obj)

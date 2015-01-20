@@ -29,7 +29,8 @@ if not '..' in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat import api
-from sortinghat.cmd.export import Export, SortingHatIdentitiesExporter
+from sortinghat.cmd.export import Export,\
+    SortingHatIdentitiesExporter, SortingHatOrganizationsExporter
 from sortinghat.db.database import Database
 
 from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
@@ -80,7 +81,14 @@ class TestBaseCase(unittest.TestCase):
 
         # Add organizations
         api.add_organization(self.db, 'Example')
+        api.add_domain(self.db, 'Example', 'example.com', is_top_domain=True)
+        api.add_domain(self.db, 'Example', 'example.net', is_top_domain=True)
+
         api.add_organization(self.db, 'Bitergia')
+        api.add_domain(self.db, 'Bitergia', 'bitergia.net', is_top_domain=True)
+        api.add_domain(self.db, 'Bitergia', 'bitergia.com', is_top_domain=True)
+        api.add_domain(self.db, 'Bitergia', 'api.bitergia.com', is_top_domain=False)
+        api.add_domain(self.db, 'Bitergia', 'test.bitergia.com', is_top_domain=False)
 
         # Add John Smith identity
         jsmith_uuid = api.add_identity(self.db, 'scm', 'jsmith@example.com',
@@ -343,6 +351,69 @@ class TestSortingHatIdentitiesExporter(TestBaseCase):
         self.assertEqual(obj['source'], None)
         self.assertIn('time', obj)
         self.assertEqual(len(obj['uidentities']), 0)
+
+
+class TestSortingHatOrganizationsExporter(TestBaseCase):
+    """Test Sorting Hat exporter"""
+
+    def test_export(self):
+        """Test the output from export"""
+
+        exporter = SortingHatOrganizationsExporter(self.db)
+        dump = exporter.export()
+
+        # The best way to check this is to build a JSON object
+        # with the output from export()
+        obj = json.loads(dump)
+
+        self.assertIn('time', obj)
+
+        orgs = obj['organizations']
+        self.assertEqual(len(orgs), 2)
+
+        # Bitergia
+        org0 = orgs['Bitergia']
+        self.assertEqual(len(org0), 4)
+
+        dom0 = org0[0]
+        self.assertEqual(dom0['domain'], 'api.bitergia.com')
+        self.assertEqual(dom0['is_top'], False)
+
+        dom1 = org0[1]
+        self.assertEqual(dom1['domain'], 'bitergia.com')
+        self.assertEqual(dom1['is_top'], True)
+
+        dom2 = org0[2]
+        self.assertEqual(dom2['domain'], 'bitergia.net')
+        self.assertEqual(dom2['is_top'], True)
+
+        dom3 = org0[3]
+        self.assertEqual(dom3['domain'], 'test.bitergia.com')
+        self.assertEqual(dom3['is_top'], False)
+
+        # Example
+        org1 = orgs['Example']
+        self.assertEqual(len(org1), 2)
+
+        dom0 = org1[0]
+        self.assertEqual(dom0['domain'], 'example.com')
+        self.assertEqual(dom0['is_top'], True)
+
+        dom1 = org1[1]
+        self.assertEqual(dom1['domain'], 'example.net')
+        self.assertEqual(dom1['is_top'], True)
+
+    def test_empty_registry(self):
+        """Check output when the registry is empty"""
+
+        self.db.clear()
+
+        exporter = SortingHatOrganizationsExporter(self.db)
+        dump = exporter.export()
+        obj = json.loads(dump)
+
+        self.assertIn('time', obj)
+        self.assertEqual(len(obj['organizations']), 0)
 
 
 if __name__ == "__main__":
