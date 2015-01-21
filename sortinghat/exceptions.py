@@ -66,6 +66,12 @@ class InvalidDateError(BaseError):
     message = "%(date)s is not a valid date"
 
 
+class InvalidFormatError(BaseError):
+    """Exception raised when a format is invalid"""
+
+    message = "%(cause)s"
+
+
 class LoadError(BaseError):
     """Exception raised when an error occurs loading data"""
 
