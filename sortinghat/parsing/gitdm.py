@@ -90,3 +90,34 @@ class GitdmOrganizationsParser(OrganizationsParser):
             org.domains.append(dom)
 
             yield org
+
+    def check(self, stream):
+        """Check if the format of the stream could be parsed.
+
+        The method check if the stream could be parsed. This does not imply
+        that the stream is a valid input.
+
+        It checks if the first 10 lines follows the Gitdm pattern. If this
+        check fails, the stream format is not supported.
+
+        :param stream: string of organizations to check
+
+        :returns: boolean value
+        """
+        if not stream:
+            return False
+
+        lines = stream.split('\n')
+        count = min(len(lines), 10)
+
+        for i in range(count):
+            line = lines[i]
+
+            m = re.match(self.LINES_TO_IGNORE_REGEX, line, re.UNICODE)
+            if m:
+                continue
+
+            m = re.match(self.DOMAINS_LINE_REGEX, line, re.UNICODE)
+            if not m:
+                return False
+        return True

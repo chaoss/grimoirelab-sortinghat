@@ -115,6 +115,41 @@ class TestSortingHatOrganizationsParser(TestBaseCase):
         self.assertEqual(dom.domain, 'example.net')
         self.assertEqual(dom.is_top_domain, True)
 
+    def test_check(self):
+        """Test check method"""
+
+        parser = SortingHatOrganizationsParser()
+
+        s = self.read_file('data/sortinghat_orgs_valid.json')
+        result = parser.check(s)
+        self.assertEqual(result, True)
+
+        s = self.read_file('data/sortinghat_orgs_invalid_json.json')
+        result = parser.check(s)
+        self.assertEqual(result, False)
+
+        s = self.read_file('data/sortinghat_orgs_missing_keys.json')
+        result = parser.check(s)
+        self.assertEqual(result, True)
+
+        s = self.read_file('data/sortinghat_orgs_invalid_top.json')
+        result = parser.check(s)
+        self.assertEqual(result, True)
+
+        s = "{'organizations' : null}"
+        result = parser.check(s)
+        self.assertEqual(result, False)
+
+        s = "{'time' : null}"
+        result = parser.check(s)
+        self.assertEqual(result, False)
+
+        result = parser.check("")
+        self.assertEqual(result, False)
+
+        result = parser.check(None)
+        self.assertEqual(result, False)
+
     def test_not_valid_organizations_stream(self):
         """Check whether it prints an error when parsing invalid streams"""
 

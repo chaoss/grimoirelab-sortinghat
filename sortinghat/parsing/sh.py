@@ -90,6 +90,31 @@ class SortingHatOrganizationsParser(OrganizationsParser):
             msg = "invalid json format. Attribute %s not found" % e.args
             raise InvalidFormatError(cause=msg)
 
+    def check(self, stream):
+        """Check if the format of the stream could be parsed.
+
+        The method check if the stream could be parsed. This does not imply
+        that the stream is a valid input.
+
+        It checks first if the stream is a valid JSON object. Then it
+        checks whether 'organizations' and 'time' attributes are in the
+        JSON object. If any of these checks fails, the stream format is not
+        supported.
+
+        :param stream: string of organizations to check
+
+        :returns: boolean value
+        """
+        if not stream:
+            return False
+
+        try:
+            json = self.__load_json(stream)
+        except:
+            return False
+
+        return 'organizations' in json and 'time' in json
+
     def __load_json(self, stream):
         """Load json stream into a dict object """
 

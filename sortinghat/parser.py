@@ -24,4 +24,9 @@ class OrganizationsParser(object):
     """Abstract class for parsing organizations"""
 
     def organizations(self, stream):
+        """Parse organizations from a stream"""
+        raise NotImplementedError
+
+    def check(self, stream):
+        """Check whether the format of the stream could be valid"""
         raise NotImplementedError

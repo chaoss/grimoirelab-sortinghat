@@ -1,0 +1,16 @@
+##
+## Domains - Companies
+##
+
+example.com        Bitergia
+alt-co.com  Alt'Co.
+bitergia.com    Bitergia
+bitergia.net  Example
+gsyc.escet.urjc.es       GSyC
+example.org        Example
+example.net     
+libresoft.es         GSyC/LibreSoft
+gsyc.es              GSyC
+example.com        Example
+
+

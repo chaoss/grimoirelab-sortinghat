@@ -173,7 +173,7 @@ class TestGitdmDomainsRegEx(unittest.TestCase):
 class TestGitdmOrganizationsParser(TestBaseCase):
     """Test Gitdm parser with some inputs"""
 
-    def test_valid_organizations_file(self):
+    def test_valid_organizations_stream(self):
         """Check whether it parses a valid stream"""
 
         stream = self.read_file('data/gitdm_orgs_valid.txt')
@@ -258,6 +258,38 @@ class TestGitdmOrganizationsParser(TestBaseCase):
         self.assertEqual(len(doms), 1)
         self.assertIsInstance(doms[0], Domain)
         self.assertEqual(doms[0].domain, 'gsyc.es')
+
+    def test_check(self):
+        """Test check method"""
+
+        parser = GitdmOrganizationsParser()
+
+        s = self.read_file('data/gitdm_orgs_valid.txt')
+        result = parser.check(s)
+        self.assertEqual(result, True)
+
+        s = self.read_file('data/gitdm_orgs_valid_alt.txt')
+        result = parser.check(s)
+        self.assertEqual(result, True)
+
+        s = self.read_file('data/gitdm_orgs_invalid_comments.txt')
+        result = parser.check(s)
+        self.assertEqual(result, False)
+
+        s = self.read_file('data/gitdm_orgs_invalid_entries.txt')
+        result = parser.check(s)
+        self.assertEqual(result, False)
+
+        # Error is beyond of the 10 first lines
+        s = self.read_file('data/gitdm_orgs_invalid_entries_alt.txt')
+        result = parser.check(s)
+        self.assertEqual(result, True)
+
+        result = parser.check("")
+        self.assertEqual(result, False)
+
+        result = parser.check(None)
+        self.assertEqual(result, False)
 
     def test_not_valid_organizations_stream(self):
         """Check whether it prints an error when parsing invalid streams"""
