@@ -90,6 +90,8 @@ class TestBaseCase(unittest.TestCase):
         api.add_domain(self.db, 'Bitergia', 'api.bitergia.com', is_top_domain=False)
         api.add_domain(self.db, 'Bitergia', 'test.bitergia.com', is_top_domain=False)
 
+        api.add_organization(self.db, 'Unknown')
+
         # Add John Smith identity
         jsmith_uuid = api.add_identity(self.db, 'scm', 'jsmith@example.com',
                                        'John Smith', 'jsmith')
@@ -419,7 +421,7 @@ class TestSortingHatOrganizationsExporter(TestBaseCase):
         self.assertIn('time', obj)
 
         orgs = obj['organizations']
-        self.assertEqual(len(orgs), 2)
+        self.assertEqual(len(orgs), 3)
 
         # Bitergia
         org0 = orgs['Bitergia']
@@ -452,6 +454,10 @@ class TestSortingHatOrganizationsExporter(TestBaseCase):
         dom1 = org1[1]
         self.assertEqual(dom1['domain'], 'example.net')
         self.assertEqual(dom1['is_top'], True)
+
+        # Unknown (empty list of domains)
+        org2 = orgs['Unknown']
+        self.assertEqual(len(org2), 0)
 
     def test_empty_registry(self):
         """Check output when the registry is empty"""
