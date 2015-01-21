@@ -136,10 +136,10 @@ class TestLoadCommand(TestBaseCase):
         output = sys.stderr.getvalue().strip().split('\n')[0]
         self.assertEqual(output, LOAD_IDENTITIES_MATCHING_ERROR)
 
-    def test_load_domains(self):
-        """Test to load domains from a file"""
+    def test_load_organizations(self):
+        """Test to load organizations from a file"""
 
-        self.cmd.run('--domains', 'data/domains_orgs_valid.txt')
+        self.cmd.run('--orgs', 'data/domains_orgs_valid.txt')
 
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, LOAD_DOMAINS_OUTPUT)
@@ -147,22 +147,22 @@ class TestLoadCommand(TestBaseCase):
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, LOAD_DOMAINS_OUTPUT_WARNING)
 
-    def test_load_domains_overwrite(self):
-        """Test to load domains from a file with overwrite parameter set"""
+    def test_load_organizations_overwrite(self):
+        """Test to load organizations from a file with overwrite parameter set"""
 
-        self.cmd.run('--domains', '--overwrite',
+        self.cmd.run('--orgs', '--overwrite',
                      'data/domains_orgs_valid.txt')
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, LOAD_DOMAINS_OVERWRITE_OUTPUT)
 
-    def test_load_domains_invalid_file(self):
+    def test_load_organizations_invalid_file(self):
         """Test whether it prints error messages while reading invalid files"""
 
-        self.cmd.run('--domains', 'data/domains_orgs_invalid_comments.txt')
+        self.cmd.run('--orgs', 'data/domains_orgs_invalid_comments.txt')
         output = sys.stderr.getvalue().strip().split('\n')[0]
         self.assertEqual(output, "Error: invalid format on line 10")
 
-        self.cmd.run('--domains', 'data/domains_orgs_invalid_entries.txt')
+        self.cmd.run('--orgs', 'data/domains_orgs_invalid_entries.txt')
         output = sys.stderr.getvalue().strip().split('\n')[1]
         self.assertEqual(output, "Error: invalid format on line 8")
 
@@ -708,15 +708,15 @@ class TestEclipseIdentitiesLoader(TestBaseCase):
                                 loader.load, ids0, 'unknown')
 
 
-class TestLoadImportDomains(TestBaseCase):
-    """Test import_domains method with some inputs"""
+class TestLoadImportOrganizations(TestBaseCase):
+    """Test import_organizations method with some inputs"""
 
-    def test_valid_domain_file(self):
+    def test_valid_organizations_file(self):
         """Check insertion of valid data from a file"""
 
         f = open('data/domains_orgs_valid.txt', 'r')
 
-        self.cmd.import_domains(f)
+        self.cmd.import_organizations(f)
 
         # Check the contents of the registry
         orgs = api.registry(self.db)
@@ -757,7 +757,7 @@ class TestLoadImportDomains(TestBaseCase):
 
         f = open('data/domains_orgs_valid.txt', 'r')
 
-        self.cmd.import_domains(f, True)
+        self.cmd.import_organizations(f, True)
 
         # Check the contents of the registry
         orgs = api.registry(self.db)
@@ -798,7 +798,7 @@ class TestLoadImportDomains(TestBaseCase):
         # Import new data, overwriting existing relationships
         f = open('data/domains_orgs_valid_alt.txt', 'r')
 
-        self.cmd.import_domains(f, True)
+        self.cmd.import_organizations(f, True)
 
         # Check the contents of the registry
         orgs = api.registry(self.db)
@@ -848,17 +848,17 @@ class TestLoadImportDomains(TestBaseCase):
         self.assertEqual(len(doms5), 1)
         self.assertEqual(doms5[0].domain, 'libresoft.es')
 
-    def test_not_valid_domain_file(self):
+    def test_not_valid_organizations_file(self):
         """Check whether it prints an error when parsing invalid files"""
 
         f1 = open('data/domains_orgs_invalid_comments.txt', 'r')
-        self.cmd.import_domains(f1)
+        self.cmd.import_organizations(f1)
         output = sys.stderr.getvalue().strip().split('\n')[0]
         self.assertEqual(output, "Error: invalid format on line 10")
         f1.close()
 
         f2 = open('data/domains_orgs_invalid_entries.txt', 'r')
-        self.cmd.import_domains(f2)
+        self.cmd.import_organizations(f2)
         output = sys.stderr.getvalue().strip().split('\n')[1]
         self.assertEqual(output, "Error: invalid format on line 8")
         f2.close()
@@ -866,8 +866,8 @@ class TestLoadImportDomains(TestBaseCase):
     def test_invalid_file(self):
         """Check if it raises a RuntimeError when an invalid file object is given"""
 
-        self.assertRaises(RuntimeError, self.cmd.import_domains, None)
-        self.assertRaises(RuntimeError, self.cmd.import_domains, 1)
+        self.assertRaises(RuntimeError, self.cmd.import_organizations, None)
+        self.assertRaises(RuntimeError, self.cmd.import_organizations, 1)
 
 
 if __name__ == "__main__":

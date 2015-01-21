@@ -43,13 +43,13 @@ DOMAINS_LINE_REGEX = ur"^(?P<domain>\w\S+)[ \t]+(?P<organization>\w[^#\t\n\r\f\v
 class Load(Command):
     """Import data into the registry.
 
-    This command is able to import data about identities, organizationsa and
+    This command is able to import data about identities, organizations and
     domains. Data are read, by default, from the standard input. Files can also
     be used as data input giving the path to file as a positional argument.
 
     Identities are added to the registry using the option '--identities' while
-    domains are added using the option '--domains'. Remember that a domain can
-    only be assigned to one company. If one of the given domains is already on
+    organizations are added using the option '--orgs'. Remember that a domain can
+    only be assigned to one organization. If one of the given domains is already on
     the registry, the new relationship will NOT be created unless --overwrite
     option were set.
 
@@ -69,8 +69,8 @@ class Load(Command):
         group = self.parser.add_mutually_exclusive_group()
         group.add_argument('--identities', action='store_true',
                            help="import identities")
-        group.add_argument('--domains', action='store_true',
-                           help="import domains - organizations file")
+        group.add_argument('--orgs', action='store_true',
+                           help="import organizations")
 
         # General options
         self.parser.add_argument('--source', dest='source', default='unknown',
@@ -96,7 +96,7 @@ class Load(Command):
 
     @property
     def usage(self):
-        return "%(prog)s load --identities [-m matching] [-v] [file]\n   or: %(prog)s load --domains [--overwrite] [file]"
+        return "%(prog)s load --identities [-m matching] [-v] [file]\n   or: %(prog)s load --orgs [--overwrite] [file]"
 
     def run(self, *args):
         """Import data on the registry.
@@ -109,8 +109,8 @@ class Load(Command):
         if params.identities:
             self.import_identities(params.infile, params.source,
                                    params.matching, params.verbose)
-        elif params.domains:
-            self.import_domains(params.infile, params.overwrite)
+        elif params.orgs:
+            self.import_organizations(params.infile, params.overwrite)
 
     def import_identities(self, infile, source='unknown', matching=None,
                           verbose=False):
@@ -161,16 +161,16 @@ class Load(Command):
         except LoadError, e:
             self.error(str(e))
 
-    def import_domains(self, infile, overwrite=False):
-        """Import domains from a file on the registry.
+    def import_organizations(self, infile, overwrite=False):
+        """Import organizations from a file.
 
         New domains and organizations stored on 'infile' will be added
         to the registry. Remember that a domain can only be assigned to
-        one company. If one of the given domains is already on the registry,
+        one organization. If one of the given domains is already on the registry,
         the new relationship will NOT be created unless 'overwrite' were set
         to 'True'.
 
-        Each line of the file has to contain a domain and a company, separated
+        Each line of the file has to contain a domain and a organization, separated
         by white spaces or tabs. Comment lines start with the hash character (#)
         For example:
 
