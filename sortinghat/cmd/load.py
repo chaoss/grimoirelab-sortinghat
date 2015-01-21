@@ -30,7 +30,7 @@ from sortinghat import api
 from sortinghat.command import Command
 from sortinghat.db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE
 from sortinghat.exceptions import AlreadyExistsError, NotFoundError,\
-    BadFileFormatError, LoadError, MatcherNotSupportedError
+    BadFileFormatError, InvalidFormatError, LoadError, MatcherNotSupportedError
 from sortinghat.matcher import create_identity_matcher
 from sortinghat.parsing.gitdm import GitdmOrganizationsParser
 
@@ -183,7 +183,7 @@ class Load(Command):
             stream = self.__read_file(infile)
             parser = GitdmOrganizationsParser()
             orgs = [org for org in parser.organizations(stream)]
-        except BadFileFormatError, e:
+        except (BadFileFormatError, InvalidFormatError), e:
             self.error(str(e))
             return
         except (IOError, TypeError, AttributeError), e:

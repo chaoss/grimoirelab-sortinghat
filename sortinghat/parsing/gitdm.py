@@ -23,7 +23,7 @@
 import re
 
 from sortinghat.db.model import Organization, Domain
-from sortinghat.exceptions import BadFileFormatError
+from sortinghat.exceptions import InvalidFormatError
 from sortinghat.parser import OrganizationsParser
 
 
@@ -58,9 +58,12 @@ class GitdmOrganizationsParser(OrganizationsParser):
 
         :returns: organizations generator
 
-        :raises BadFileFormatError: exception raised when the format of
+        :raises InvalidFormatError: exception raised when the format of
             the stream is not valid
         """
+        if not stream:
+            raise InvalidFormatError(cause='stream cannot be empty or None')
+
         nline = 0
         lines = stream.split('\n')
 
@@ -77,7 +80,7 @@ class GitdmOrganizationsParser(OrganizationsParser):
             m = re.match(self.DOMAINS_LINE_REGEX, line, re.UNICODE)
             if not m:
                 cause = "invalid format on line %s" % str(nline)
-                raise BadFileFormatError(cause=cause)
+                raise InvalidFormatError(cause=cause)
 
             domain = m.group('domain').strip()
             organization = m.group('organization').strip()

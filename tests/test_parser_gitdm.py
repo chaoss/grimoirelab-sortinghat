@@ -29,11 +29,12 @@ if not '..' in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat.db.model import Organization, Domain
-from sortinghat.exceptions import BadFileFormatError
+from sortinghat.exceptions import InvalidFormatError
 from sortinghat.parsing.gitdm import GitdmOrganizationsParser
 
 
 DOMAINS_INVALID_FORMAT_ERROR = "invalid format on line %(line)s"
+ORGS_STREAM_INVALID_ERROR = "stream cannot be empty or None"
 
 
 class TestBaseCase(unittest.TestCase):
@@ -173,7 +174,7 @@ class TestGitdmOrganizationsParser(TestBaseCase):
     """Test Gitdm parser with some inputs"""
 
     def test_valid_organizations_file(self):
-        """Check whether it parses a valid file"""
+        """Check whether it parses a valid stream"""
 
         stream = self.read_file('data/gitdm_orgs_valid.txt')
 
@@ -258,20 +259,38 @@ class TestGitdmOrganizationsParser(TestBaseCase):
         self.assertIsInstance(doms[0], Domain)
         self.assertEqual(doms[0].domain, 'gsyc.es')
 
-    def test_not_valid_organizations_file(self):
-        """Check whether it prints an error when parsing invalid files"""
+    def test_not_valid_organizations_stream(self):
+        """Check whether it prints an error when parsing invalid streams"""
 
         parser = GitdmOrganizationsParser()
 
-        with self.assertRaisesRegexp(BadFileFormatError,
+        with self.assertRaisesRegexp(InvalidFormatError,
                                      DOMAINS_INVALID_FORMAT_ERROR % {'line' : '10'}):
             s1 = self.read_file('data/gitdm_orgs_invalid_comments.txt')
             [org for org in parser.organizations(s1)]
 
-        with self.assertRaisesRegexp(BadFileFormatError,
+        with self.assertRaisesRegexp(InvalidFormatError,
                                      DOMAINS_INVALID_FORMAT_ERROR % {'line' : '8'}):
             s2 = self.read_file('data/gitdm_orgs_invalid_entries.txt')
             [org for org in parser.organizations(s2)]
+
+    def test_empty_organizations_stream(self):
+        """Check whether it raises an exception when the stream is empty"""
+
+        parser = GitdmOrganizationsParser()
+
+        with self.assertRaisesRegexp(InvalidFormatError,
+                                     ORGS_STREAM_INVALID_ERROR):
+            [org for org in parser.organizations("")]
+
+    def test_none_organizations_stream(self):
+        """Check whether it raises an exception when the stream is None"""
+
+        parser = GitdmOrganizationsParser()
+
+        with self.assertRaisesRegexp(InvalidFormatError,
+                                     ORGS_STREAM_INVALID_ERROR):
+            [org for org in parser.organizations(None)]
 
 
 if __name__ == "__main__":
