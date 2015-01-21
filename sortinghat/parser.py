@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2014-2015 Bitergia
@@ -21,15 +20,8 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from distutils.core import setup
+class OrganizationsParser(object):
+    """Abstract class for parsing organizations"""
 
-
-setup(name="sortinghat",
-      version="0.0.1",
-      author="Bitergia",
-      author_email="metrics-grimoire@lists.libresoft.es",
-      url="https://github.com/MetricsGrimoire/sortinghat",
-      packages=['sortinghat', 'sortinghat.db', 'sortinghat.cmd', 'sortinghat.matching',
-                'sortinghat.parsing', 'sortinghat.templates'],
-      package_data={'sortinghat.templates': ['*.tmpl']},
-      scripts=["bin/sortinghat", "bin/mg2sh", "bin/sh2mg"])
+    def organizations(self, stream):
+        raise NotImplementedError

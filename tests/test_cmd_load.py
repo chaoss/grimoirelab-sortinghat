@@ -22,7 +22,6 @@
 #
 
 import datetime
-import re
 import sys
 import unittest
 
@@ -31,11 +30,9 @@ if not '..' in sys.path:
 
 from sortinghat import api
 from sortinghat.cmd.load import Load,\
-    GrimoireIdentitiesLoader, EclipseIdentitiesLoader,\
-    GitdmOrganizationsParser
+    GrimoireIdentitiesLoader, EclipseIdentitiesLoader
 from sortinghat.db.database import Database
-from sortinghat.db.model import Organization, Domain
-from sortinghat.exceptions import BadFileFormatError, LoadError
+from sortinghat.exceptions import LoadError
 from sortinghat.matcher import create_identity_matcher
 
 from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
@@ -68,8 +65,6 @@ Domain example.com added to organization Bitergia
 Domain libresoft.es added to organization GSyC/LibreSoft
 Domain gsyc.es added to organization GSyC/LibreSoft"""
 
-DOMAINS_INVALID_FORMAT_ERROR = "invalid format on line %(line)s"
-
 
 class TestBaseCase(unittest.TestCase):
     """Defines common setup and teardown methods on show unit tests"""
@@ -99,11 +94,6 @@ class TestBaseCase(unittest.TestCase):
             content = f.read().decode('UTF-8')
             obj = json.loads(content)
         return obj
-
-    def read_file(self, filename):
-        with open(filename, 'r') as f:
-            content = f.read().decode('UTF-8')
-        return content
 
 
 class TestLoadCommand(TestBaseCase):
@@ -173,130 +163,6 @@ class TestLoadCommand(TestBaseCase):
         self.cmd.run('--orgs', 'data/gitdm_orgs_invalid_entries.txt')
         output = sys.stderr.getvalue().strip().split('\n')[1]
         self.assertEqual(output, "Error: invalid format on line 8")
-
-
-class TestGitdmDomainsRegEx(unittest.TestCase):
-    """Test regular expressions used while parsing Gitdm inputs"""
-
-    def test_lines_to_ignore(self):
-        """Check whether it parsers blank or comment lines"""
-
-        parser = re.compile(GitdmOrganizationsParser.LINES_TO_IGNORE_REGEX,
-                            re.UNICODE)
-
-        # Parse some valid blank lines
-        m = parser.match("")
-        self.assertIsNotNone(m)
-
-        m = parser.match("\n\n\n")
-        self.assertIsNotNone(m)
-
-        m = parser.match("      \t    \r\n ")
-        self.assertIsNotNone(m)
-
-        m = parser.match("\t\t  \n  \t\n")
-        self.assertIsNotNone(m)
-
-        # Do not parse invalid blank lines
-        m = parser.match("\ndomain organization\n\n")
-        self.assertIsNone(m)
-
-        m = parser.match(" domain \t organization  \r\n ")
-        self.assertIsNone(m)
-
-        m = parser.match("\t   domain organization\t  \n  \n")
-        self.assertIsNone(m)
-
-        # Parse some valid comments
-        m = parser.match("#    \t\n\r")
-        self.assertIsNotNone(m)
-
-        m = parser.match("#|tcomment #1\r\n")
-        self.assertIsNotNone(m)
-
-    def test_domains_line(self):
-        """Check whether it parsers domain - organization lines"""
-
-        parser = re.compile(GitdmOrganizationsParser.DOMAINS_LINE_REGEX,
-                            re.UNICODE)
-
-        # Parse some valid domain lines
-        m = parser.match("example.org    Example")
-        self.assertIsNotNone(m)
-
-        m = parser.match("example.org\tExample")
-        self.assertIsNotNone(m)
-
-        m = parser.match("example.org    \t  \t  Example/n' Co. ")
-        self.assertIsNotNone(m)
-
-        m = parser.match("ex-amp'le.org Example")
-        self.assertIsNotNone(m)
-
-        # Do not parse invalid domain lines
-        m = parser.match("   example.org   Example")
-        self.assertIsNone(m)
-
-        m = parser.match("example.org \n Example")
-        self.assertIsNone(m)
-
-        m = parser.match("   example.org   Example\t\n")
-        self.assertIsNone(m)
-
-        m = parser.match("\texample.org   Example")
-        self.assertIsNone(m)
-
-        m = parser.match("example.org   Exa\tmple")
-        self.assertIsNone(m)
-
-        m = parser.match("example.org   Exa\nmple")
-        self.assertIsNone(m)
-
-        # Parse some valid comments
-        m = parser.match("example.org organization ### comment")
-        self.assertIsNotNone(m)
-
-        m = parser.match("domain organization #   \t\r")
-        self.assertIsNotNone(m)
-
-        m = parser.match("domain organization\t   #\tcomment #1\r\n")
-        self.assertIsNotNone(m)
-
-        # Domains and organizations must start with a
-        # alpha numeric or underscores characters
-
-        # These must work
-        m = parser.match("__example.org    Example")
-        self.assertIsNotNone(m)
-
-        m = parser.match("_example.org    0Example")
-        self.assertIsNotNone(m)
-
-        m = parser.match("9example.org    _Example")
-        self.assertIsNotNone(m)
-
-        # While these won't work
-        m = parser.match("'_example.org    Example")
-        self.assertIsNone(m)
-
-        m = parser.match("/example.org    Example")
-        self.assertIsNone(m)
-
-        m = parser.match("example.org    'Example")
-        self.assertIsNone(m)
-
-        m = parser.match("example.org    /Example")
-        self.assertIsNone(m)
-
-        m = parser.match("example.org    -Example")
-        self.assertIsNone(m)
-
-        m = parser.match("example.org    ")
-        self.assertIsNone(m)
-
-        # Unicode characters
-        m = parser.match(u"example.org     Examplé")
-        self.assertIsNotNone(m)
 
 
 class TestLoadImportIdentities(TestBaseCase):
@@ -878,110 +744,6 @@ class TestLoadImportOrganizations(TestBaseCase):
 
         self.assertRaises(RuntimeError, self.cmd.import_organizations, None)
         self.assertRaises(RuntimeError, self.cmd.import_organizations, 1)
-
-class TestGitdmOrganizationsParser(TestBaseCase):
-    """Test Gitdm parser with some inputs"""
-
-    def test_valid_organizations_file(self):
-        """Check whether it parses a valid file"""
-
-        stream = self.read_file('data/gitdm_orgs_valid.txt')
-
-        parser = GitdmOrganizationsParser()
-        orgs = [org for org in parser.organizations(stream)]
-
-        # Check parsed organizations
-        self.assertEqual(len(orgs), 8)
-
-        # Example entries
-        org = orgs[0]
-        self.assertIsInstance(org, Organization)
-        self.assertEqual(org.name, 'Example')
-
-        doms = org.domains
-        self.assertEqual(len(doms), 1)
-        self.assertIsInstance(doms[0], Domain)
-        self.assertEqual(doms[0].domain, 'example.com')
-
-        org = orgs[1]
-        self.assertIsInstance(org, Organization)
-        self.assertEqual(org.name, 'Example')
-
-        doms = org.domains
-        self.assertEqual(len(doms), 1)
-        self.assertIsInstance(doms[0], Domain)
-        self.assertEqual(doms[0].domain, 'example.org')
-
-        org = orgs[2]
-        self.assertIsInstance(org, Organization)
-        self.assertEqual(org.name, 'Example')
-
-        doms = org.domains
-        self.assertEqual(len(doms), 1)
-        self.assertIsInstance(doms[0], Domain)
-        self.assertEqual(doms[0].domain, 'example.net')
-
-        # Bitergia entries
-        org = orgs[3]
-        self.assertIsInstance(org, Organization)
-        self.assertEqual(org.name, 'Bitergia')
-
-        doms = org.domains
-        self.assertEqual(len(doms), 1)
-        self.assertIsInstance(doms[0], Domain)
-        self.assertEqual(doms[0].domain, 'bitergia.com')
-
-        org = orgs[4]
-        self.assertIsInstance(org, Organization)
-        self.assertEqual(org.name, 'Bitergia')
-
-        doms = org.domains
-        self.assertEqual(len(doms), 1)
-        self.assertIsInstance(doms[0], Domain)
-        self.assertEqual(doms[0].domain, 'bitergia.net')
-
-        org = orgs[5]
-        self.assertIsInstance(org, Organization)
-        self.assertEqual(org.name, 'Bitergia')
-
-        doms = org.domains
-        self.assertEqual(len(doms), 1)
-        self.assertIsInstance(doms[0], Domain)
-        self.assertEqual(doms[0].domain, 'example.com')
-
-        # GSyC/Libresof entries
-        org = orgs[6]
-        self.assertIsInstance(org, Organization)
-        self.assertEqual(org.name, 'GSyC/LibreSoft')
-
-        doms = org.domains
-        self.assertEqual(len(doms), 1)
-        self.assertIsInstance(doms[0], Domain)
-        self.assertEqual(doms[0].domain, 'libresoft.es')
-
-        org = orgs[7]
-        self.assertIsInstance(org, Organization)
-        self.assertEqual(org.name, 'GSyC/LibreSoft')
-
-        doms = org.domains
-        self.assertEqual(len(doms), 1)
-        self.assertIsInstance(doms[0], Domain)
-        self.assertEqual(doms[0].domain, 'gsyc.es')
-
-    def test_not_valid_organizations_file(self):
-        """Check whether it prints an error when parsing invalid files"""
-
-        parser = GitdmOrganizationsParser()
-
-        with self.assertRaisesRegexp(BadFileFormatError,
-                                     DOMAINS_INVALID_FORMAT_ERROR % {'line' : '10'}):
-            s1 = self.read_file('data/gitdm_orgs_invalid_comments.txt')
-            [org for org in parser.organizations(s1)]
-
-        with self.assertRaisesRegexp(BadFileFormatError,
-                                     DOMAINS_INVALID_FORMAT_ERROR % {'line' : '8'}):
-            s2 = self.read_file('data/gitdm_orgs_invalid_entries.txt')
-            [org for org in parser.organizations(s2)]
 
 
 if __name__ == "__main__":
