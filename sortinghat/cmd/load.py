@@ -29,15 +29,11 @@ import dateutil.parser
 
 from sortinghat import api
 from sortinghat.command import Command
-from sortinghat.db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE
+from sortinghat.db.model import Organization, Domain,\
+    MIN_PERIOD_DATE, MAX_PERIOD_DATE
 from sortinghat.exceptions import AlreadyExistsError, NotFoundError,\
     BadFileFormatError, LoadError, MatcherNotSupportedError
 from sortinghat.matcher import create_identity_matcher
-
-
-# Regex for parsing domains input
-LINES_TO_IGNORE_REGEX = ur"^\s*(#.*)?\s*$"
-DOMAINS_LINE_REGEX = ur"^(?P<domain>\w\S+)[ \t]+(?P<organization>\w[^#\t\n\r\f\v]+)(([ \t]+#.+)?|\s*)$"
 
 
 class Load(Command):
@@ -185,38 +181,39 @@ class Load(Command):
         :param overwrite: force to reassign domains
         """
         try:
-            entries = self.__parse_domains_file(infile)
+            stream = self.__read_file(infile)
+            parser = GitdmOrganizationsParser()
+            orgs = [org for org in parser.organizations(stream)]
         except BadFileFormatError, e:
             self.error(str(e))
             return
-        except (IOError, TypeError), e:
+        except (IOError, TypeError, AttributeError), e:
             raise RuntimeError(str(e))
 
-        for domain, organization in entries:
-            # Add organization
+        for org in orgs:
             try:
-                api.add_organization(self.db, organization)
+                api.add_organization(self.db, org.name)
             except ValueError, e:
                 raise RuntimeError(str(e))
             except AlreadyExistsError, e:
                 pass
 
-            # Add domain
-            try:
-                api.add_domain(self.db, organization, domain,
-                               overwrite=overwrite)
-                self.display('load_domains.tmpl', domain=domain,
-                             organization=organization)
-            except (ValueError, NotFoundError), e:
-                raise RuntimeError(str(e))
-            except AlreadyExistsError, e:
-                msg = "%s. Not updated." % str(e)
-                self.warning(msg)
+            for dom in org.domains:
+                try:
+                    api.add_domain(self.db, org.name, dom.domain,
+                                   overwrite=overwrite)
+                    self.display('load_domains.tmpl', domain=dom.domain,
+                                 organization=org.name)
+                except (ValueError, NotFoundError), e:
+                    raise RuntimeError(str(e))
+                except AlreadyExistsError, e:
+                    msg = "%s. Not updated." % str(e)
+                    self.warning(msg)
 
     def __parse_identities_file(self, infile):
         """Parse identities file object into a dict"""
 
-        content = infile.read().decode('UTF-8')
+        content = self.__read_file(infile)
 
         try:
             data = json.loads(content)
@@ -226,32 +223,10 @@ class Load(Command):
 
         return data
 
-    def __parse_domains_file(self, infile):
-        """Parse domains file object into a list of tuples"""
+    def __read_file(self, infile):
+        """Read a file into a str object"""
 
-        domains = []
-        nline = 0
-
-        for line in infile:
-            nline += 1
-
-            line = line.decode('UTF-8')
-
-            # Ignore blank lines and comments
-            m = re.match(LINES_TO_IGNORE_REGEX, line, re.UNICODE)
-            if m:
-                continue
-
-            m = re.match(DOMAINS_LINE_REGEX, line, re.UNICODE)
-            if not m:
-                cause = "invalid format on line %s" % str(nline)
-                raise BadFileFormatError(cause=cause)
-
-            domain = m.group('domain').strip()
-            organization = m.group('organization').strip()
-            domains.append((domain, organization))
-
-        return domains
+        return infile.read().decode('UTF-8')
 
 
 class IdentitiesLoader(object):
@@ -454,3 +429,72 @@ class EclipseIdentitiesLoader(IdentitiesLoader):
                 self.warning(msg)
             except (ValueError, NotFoundError), e:
                 raise LoadError(cause=str(e))
+
+
+class OrganizationsParser(object):
+    """Abstract class for parsing organizations"""
+
+    def organizations(self, stream):
+        raise NotImplementedError
+
+
+class GitdmOrganizationsParser(OrganizationsParser):
+    """Import organizations using Gitdm file format.
+
+    Each line of the stream has to contain a domain and a organization, separated
+    by white spaces or tabs. Comment lines start with the hash character (#)
+    For example:
+
+    # Domains from domains.txt
+    example.org        Example
+    example.com        Example
+    bitergia.com       Bitergia
+    libresoft.es       LibreSoft
+    example.org        LibreSoft
+    """
+    # Regex for parsing domains input
+    LINES_TO_IGNORE_REGEX = ur"^\s*(#.*)?\s*$"
+    DOMAINS_LINE_REGEX = ur"^(?P<domain>\w\S+)[ \t]+(?P<organization>\w[^#\t\n\r\f\v]+)(([ \t]+#.+)?|\s*)$"
+
+    def __init__(self):
+        super(GitdmOrganizationsParser, self).__init__()
+
+    def organizations(self, stream):
+        """Parse organizations file object into a list of tuples.
+
+        This method creates a generator of Organization objects from the
+        'stream' object.
+
+        :param stream: string of organizations
+
+        :returns: organizations generator
+
+        :raises BadFileFormatError: exception raised when the format of
+            the stream is not valid
+        """
+        nline = 0
+        lines = stream.split('\n')
+
+        for line in lines:
+            nline += 1
+
+            line = line.decode('UTF-8')
+
+            # Ignore blank lines and comments
+            m = re.match(self.LINES_TO_IGNORE_REGEX, line, re.UNICODE)
+            if m:
+                continue
+
+            m = re.match(self.DOMAINS_LINE_REGEX, line, re.UNICODE)
+            if not m:
+                cause = "invalid format on line %s" % str(nline)
+                raise BadFileFormatError(cause=cause)
+
+            domain = m.group('domain').strip()
+            organization = m.group('organization').strip()
+
+            org = Organization(name=organization)
+            dom = Domain(domain=domain)
+            org.domains.append(dom)
+
+            yield org

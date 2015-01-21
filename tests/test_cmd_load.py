@@ -32,9 +32,10 @@ if not '..' in sys.path:
 from sortinghat import api
 from sortinghat.cmd.load import Load,\
     GrimoireIdentitiesLoader, EclipseIdentitiesLoader,\
-    LINES_TO_IGNORE_REGEX, DOMAINS_LINE_REGEX
+    GitdmOrganizationsParser
 from sortinghat.db.database import Database
-from sortinghat.exceptions import LoadError
+from sortinghat.db.model import Organization, Domain
+from sortinghat.exceptions import BadFileFormatError, LoadError
 from sortinghat.matcher import create_identity_matcher
 
 from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
@@ -67,6 +68,8 @@ Domain example.com added to organization Bitergia
 Domain libresoft.es added to organization GSyC/LibreSoft
 Domain gsyc.es added to organization GSyC/LibreSoft"""
 
+DOMAINS_INVALID_FORMAT_ERROR = "invalid format on line %(line)s"
+
 
 class TestBaseCase(unittest.TestCase):
     """Defines common setup and teardown methods on show unit tests"""
@@ -96,6 +99,11 @@ class TestBaseCase(unittest.TestCase):
             content = f.read().decode('UTF-8')
             obj = json.loads(content)
         return obj
+
+    def read_file(self, filename):
+        with open(filename, 'r') as f:
+            content = f.read().decode('UTF-8')
+        return content
 
 
 class TestLoadCommand(TestBaseCase):
@@ -139,7 +147,7 @@ class TestLoadCommand(TestBaseCase):
     def test_load_organizations(self):
         """Test to load organizations from a file"""
 
-        self.cmd.run('--orgs', 'data/domains_orgs_valid.txt')
+        self.cmd.run('--orgs', 'data/gitdm_orgs_valid.txt')
 
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, LOAD_DOMAINS_OUTPUT)
@@ -151,29 +159,30 @@ class TestLoadCommand(TestBaseCase):
         """Test to load organizations from a file with overwrite parameter set"""
 
         self.cmd.run('--orgs', '--overwrite',
-                     'data/domains_orgs_valid.txt')
+                     'data/gitdm_orgs_valid.txt')
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, LOAD_DOMAINS_OVERWRITE_OUTPUT)
 
     def test_load_organizations_invalid_file(self):
         """Test whether it prints error messages while reading invalid files"""
 
-        self.cmd.run('--orgs', 'data/domains_orgs_invalid_comments.txt')
+        self.cmd.run('--orgs', 'data/gitdm_orgs_invalid_comments.txt')
         output = sys.stderr.getvalue().strip().split('\n')[0]
         self.assertEqual(output, "Error: invalid format on line 10")
 
-        self.cmd.run('--orgs', 'data/domains_orgs_invalid_entries.txt')
+        self.cmd.run('--orgs', 'data/gitdm_orgs_invalid_entries.txt')
         output = sys.stderr.getvalue().strip().split('\n')[1]
         self.assertEqual(output, "Error: invalid format on line 8")
 
 
-class TestDomainsRegEx(unittest.TestCase):
-    """Test regular expressions used while parsing domains inputs"""
+class TestGitdmDomainsRegEx(unittest.TestCase):
+    """Test regular expressions used while parsing Gitdm inputs"""
 
     def test_lines_to_ignore(self):
         """Check whether it parsers blank or comment lines"""
 
-        parser = re.compile(LINES_TO_IGNORE_REGEX)
+        parser = re.compile(GitdmOrganizationsParser.LINES_TO_IGNORE_REGEX,
+                            re.UNICODE)
 
         # Parse some valid blank lines
         m = parser.match("")
@@ -208,7 +217,8 @@ class TestDomainsRegEx(unittest.TestCase):
     def test_domains_line(self):
         """Check whether it parsers domain - organization lines"""
 
-        parser = re.compile(DOMAINS_LINE_REGEX, re.UNICODE)
+        parser = re.compile(GitdmOrganizationsParser.DOMAINS_LINE_REGEX,
+                            re.UNICODE)
 
         # Parse some valid domain lines
         m = parser.match("example.org    Example")
@@ -714,7 +724,7 @@ class TestLoadImportOrganizations(TestBaseCase):
     def test_valid_organizations_file(self):
         """Check insertion of valid data from a file"""
 
-        f = open('data/domains_orgs_valid.txt', 'r')
+        f = open('data/gitdm_orgs_valid.txt', 'r')
 
         self.cmd.import_organizations(f)
 
@@ -755,7 +765,7 @@ class TestLoadImportOrganizations(TestBaseCase):
     def test_overwrite_domains(self):
         """Test whether domains are reassigned when overwrite is given"""
 
-        f = open('data/domains_orgs_valid.txt', 'r')
+        f = open('data/gitdm_orgs_valid.txt', 'r')
 
         self.cmd.import_organizations(f, True)
 
@@ -796,7 +806,7 @@ class TestLoadImportOrganizations(TestBaseCase):
         api.add_domain(self.db, 'Bitergia', 'bitergia.com')
 
         # Import new data, overwriting existing relationships
-        f = open('data/domains_orgs_valid_alt.txt', 'r')
+        f = open('data/gitdm_orgs_valid_alt.txt', 'r')
 
         self.cmd.import_organizations(f, True)
 
@@ -851,13 +861,13 @@ class TestLoadImportOrganizations(TestBaseCase):
     def test_not_valid_organizations_file(self):
         """Check whether it prints an error when parsing invalid files"""
 
-        f1 = open('data/domains_orgs_invalid_comments.txt', 'r')
+        f1 = open('data/gitdm_orgs_invalid_comments.txt', 'r')
         self.cmd.import_organizations(f1)
         output = sys.stderr.getvalue().strip().split('\n')[0]
         self.assertEqual(output, "Error: invalid format on line 10")
         f1.close()
 
-        f2 = open('data/domains_orgs_invalid_entries.txt', 'r')
+        f2 = open('data/gitdm_orgs_invalid_entries.txt', 'r')
         self.cmd.import_organizations(f2)
         output = sys.stderr.getvalue().strip().split('\n')[1]
         self.assertEqual(output, "Error: invalid format on line 8")
@@ -868,6 +878,110 @@ class TestLoadImportOrganizations(TestBaseCase):
 
         self.assertRaises(RuntimeError, self.cmd.import_organizations, None)
         self.assertRaises(RuntimeError, self.cmd.import_organizations, 1)
+
+class TestGitdmOrganizationsParser(TestBaseCase):
+    """Test Gitdm parser with some inputs"""
+
+    def test_valid_organizations_file(self):
+        """Check whether it parses a valid file"""
+
+        stream = self.read_file('data/gitdm_orgs_valid.txt')
+
+        parser = GitdmOrganizationsParser()
+        orgs = [org for org in parser.organizations(stream)]
+
+        # Check parsed organizations
+        self.assertEqual(len(orgs), 8)
+
+        # Example entries
+        org = orgs[0]
+        self.assertIsInstance(org, Organization)
+        self.assertEqual(org.name, 'Example')
+
+        doms = org.domains
+        self.assertEqual(len(doms), 1)
+        self.assertIsInstance(doms[0], Domain)
+        self.assertEqual(doms[0].domain, 'example.com')
+
+        org = orgs[1]
+        self.assertIsInstance(org, Organization)
+        self.assertEqual(org.name, 'Example')
+
+        doms = org.domains
+        self.assertEqual(len(doms), 1)
+        self.assertIsInstance(doms[0], Domain)
+        self.assertEqual(doms[0].domain, 'example.org')
+
+        org = orgs[2]
+        self.assertIsInstance(org, Organization)
+        self.assertEqual(org.name, 'Example')
+
+        doms = org.domains
+        self.assertEqual(len(doms), 1)
+        self.assertIsInstance(doms[0], Domain)
+        self.assertEqual(doms[0].domain, 'example.net')
+
+        # Bitergia entries
+        org = orgs[3]
+        self.assertIsInstance(org, Organization)
+        self.assertEqual(org.name, 'Bitergia')
+
+        doms = org.domains
+        self.assertEqual(len(doms), 1)
+        self.assertIsInstance(doms[0], Domain)
+        self.assertEqual(doms[0].domain, 'bitergia.com')
+
+        org = orgs[4]
+        self.assertIsInstance(org, Organization)
+        self.assertEqual(org.name, 'Bitergia')
+
+        doms = org.domains
+        self.assertEqual(len(doms), 1)
+        self.assertIsInstance(doms[0], Domain)
+        self.assertEqual(doms[0].domain, 'bitergia.net')
+
+        org = orgs[5]
+        self.assertIsInstance(org, Organization)
+        self.assertEqual(org.name, 'Bitergia')
+
+        doms = org.domains
+        self.assertEqual(len(doms), 1)
+        self.assertIsInstance(doms[0], Domain)
+        self.assertEqual(doms[0].domain, 'example.com')
+
+        # GSyC/Libresof entries
+        org = orgs[6]
+        self.assertIsInstance(org, Organization)
+        self.assertEqual(org.name, 'GSyC/LibreSoft')
+
+        doms = org.domains
+        self.assertEqual(len(doms), 1)
+        self.assertIsInstance(doms[0], Domain)
+        self.assertEqual(doms[0].domain, 'libresoft.es')
+
+        org = orgs[7]
+        self.assertIsInstance(org, Organization)
+        self.assertEqual(org.name, 'GSyC/LibreSoft')
+
+        doms = org.domains
+        self.assertEqual(len(doms), 1)
+        self.assertIsInstance(doms[0], Domain)
+        self.assertEqual(doms[0].domain, 'gsyc.es')
+
+    def test_not_valid_organizations_file(self):
+        """Check whether it prints an error when parsing invalid files"""
+
+        parser = GitdmOrganizationsParser()
+
+        with self.assertRaisesRegexp(BadFileFormatError,
+                                     DOMAINS_INVALID_FORMAT_ERROR % {'line' : '10'}):
+            s1 = self.read_file('data/gitdm_orgs_invalid_comments.txt')
+            [org for org in parser.organizations(s1)]
+
+        with self.assertRaisesRegexp(BadFileFormatError,
+                                     DOMAINS_INVALID_FORMAT_ERROR % {'line' : '8'}):
+            s2 = self.read_file('data/gitdm_orgs_invalid_entries.txt')
+            [org for org in parser.organizations(s2)]
 
 
 if __name__ == "__main__":
