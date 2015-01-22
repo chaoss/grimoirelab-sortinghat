@@ -52,7 +52,7 @@ class GitdmOrganizationsParser(OrganizationsParser):
         """Parse organizations stream.
 
         This method creates a generator of Organization objects from the
-        'stream' object.
+        (unicode) 'stream' object.
 
         :param stream: string of organizations
 
@@ -69,8 +69,6 @@ class GitdmOrganizationsParser(OrganizationsParser):
 
         for line in lines:
             nline += 1
-
-            line = line.decode('UTF-8')
 
             # Ignore blank lines and comments
             m = re.match(self.LINES_TO_IGNORE_REGEX, line, re.UNICODE)
