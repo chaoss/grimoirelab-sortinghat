@@ -46,9 +46,9 @@ Configuration
 
 * Configure database parameters
 ```
-  $ sortinghat config set db:user <user>
-  $ sortinghat config set db:password <password>
-  $ sortinghat config set db:database <name>
+  $ sortinghat config set db.user <user>
+  $ sortinghat config set db.password <password>
+  $ sortinghat config set db.database <name>
 ```
 
 * Initialize database
