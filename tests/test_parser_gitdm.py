@@ -193,6 +193,7 @@ class TestGitdmOrganizationsParser(TestBaseCase):
         self.assertEqual(len(doms), 1)
         self.assertIsInstance(doms[0], Domain)
         self.assertEqual(doms[0].domain, 'example.com')
+        self.assertEqual(doms[0].is_top_domain, False)
 
         org = orgs[1]
         self.assertIsInstance(org, Organization)
@@ -202,6 +203,7 @@ class TestGitdmOrganizationsParser(TestBaseCase):
         self.assertEqual(len(doms), 1)
         self.assertIsInstance(doms[0], Domain)
         self.assertEqual(doms[0].domain, 'example.org')
+        self.assertEqual(doms[0].is_top_domain, False)
 
         org = orgs[2]
         self.assertIsInstance(org, Organization)
@@ -211,6 +213,7 @@ class TestGitdmOrganizationsParser(TestBaseCase):
         self.assertEqual(len(doms), 1)
         self.assertIsInstance(doms[0], Domain)
         self.assertEqual(doms[0].domain, 'example.net')
+        self.assertEqual(doms[0].is_top_domain, False)
 
         # Bitergia entries
         org = orgs[3]
@@ -221,6 +224,7 @@ class TestGitdmOrganizationsParser(TestBaseCase):
         self.assertEqual(len(doms), 1)
         self.assertIsInstance(doms[0], Domain)
         self.assertEqual(doms[0].domain, 'bitergia.com')
+        self.assertEqual(doms[0].is_top_domain, False)
 
         org = orgs[4]
         self.assertIsInstance(org, Organization)
@@ -230,6 +234,7 @@ class TestGitdmOrganizationsParser(TestBaseCase):
         self.assertEqual(len(doms), 1)
         self.assertIsInstance(doms[0], Domain)
         self.assertEqual(doms[0].domain, 'bitergia.net')
+        self.assertEqual(doms[0].is_top_domain, False)
 
         org = orgs[5]
         self.assertIsInstance(org, Organization)
@@ -239,6 +244,7 @@ class TestGitdmOrganizationsParser(TestBaseCase):
         self.assertEqual(len(doms), 1)
         self.assertIsInstance(doms[0], Domain)
         self.assertEqual(doms[0].domain, 'example.com')
+        self.assertEqual(doms[0].is_top_domain, False)
 
         # GSyC/Libresof entries
         org = orgs[6]
@@ -249,6 +255,7 @@ class TestGitdmOrganizationsParser(TestBaseCase):
         self.assertEqual(len(doms), 1)
         self.assertIsInstance(doms[0], Domain)
         self.assertEqual(doms[0].domain, 'libresoft.es')
+        self.assertEqual(doms[0].is_top_domain, False)
 
         org = orgs[7]
         self.assertIsInstance(org, Organization)
@@ -258,6 +265,7 @@ class TestGitdmOrganizationsParser(TestBaseCase):
         self.assertEqual(len(doms), 1)
         self.assertIsInstance(doms[0], Domain)
         self.assertEqual(doms[0].domain, 'gsyc.es')
+        self.assertEqual(doms[0].is_top_domain, False)
 
     def test_check(self):
         """Test check method"""

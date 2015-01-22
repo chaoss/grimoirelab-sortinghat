@@ -86,7 +86,7 @@ class GitdmOrganizationsParser(OrganizationsParser):
             organization = m.group('organization').strip()
 
             org = Organization(name=organization)
-            dom = Domain(domain=domain)
+            dom = Domain(domain=domain, is_top_domain=False)
             org.domains.append(dom)
 
             yield org
