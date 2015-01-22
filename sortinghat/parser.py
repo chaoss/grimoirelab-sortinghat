@@ -20,6 +20,12 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+from sortinghat.exceptions import InvalidFormatError
+
+
+INVALID_FORMAT_MSG = "organizations format not supported. Please check it."
+
+
 class OrganizationsParser(object):
     """Abstract class for parsing organizations"""
 
@@ -30,3 +36,30 @@ class OrganizationsParser(object):
     def check(self, stream):
         """Check whether the format of the stream could be valid"""
         raise NotImplementedError
+
+
+def create_organizations_parser(stream):
+    """Create an organizations parser for the given stream.
+
+    Factory function that creates an organizations parser for the
+    given stream. The stream is only used to guess the type of the
+    required parser.
+
+    :param stream: stream used to guess the type of the parser
+
+    :returns: an organizations parser
+
+    :raise InvalidFormatError: raised when no one of the available
+        parsers can parse the given stream
+    """
+    import sortinghat.parsing as parsing
+
+    # First, try with default parser
+    for p in parsing.SORTINGHAT_ORGS_PARSERS:
+        klass = parsing.SORTINGHAT_ORGS_PARSERS[p]
+
+        parser = klass()
+
+        if parser.check(stream):
+            return parser
+    raise InvalidFormatError(cause=INVALID_FORMAT_MSG)

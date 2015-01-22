@@ -1,0 +1,41 @@
+{
+    "organizations": {
+        "Bitergia": [
+            {
+                "domain": "api.bitergia.com",
+                "is_top": false
+            },
+            {
+                "domain": "bitergia.com",
+                "is_top": true
+            },
+            {
+                "domain": "bitergia.net",
+                "is_top": true
+            },
+            {
+                "domain": "test.bitergia.com",
+                "is_top": false
+            }
+        ],
+        "Example": [
+            {
+                "domain": "example.net",
+                "is_top": true
+            }
+        ],
+        "Unknown": [
+        ],
+        "GSyC/LibreSoft": [
+            {
+                "domain": "libresoft.es",
+                "is_top": true
+            },
+            {
+                "domain": "example.com",
+                "is_top": true
+            }
+        ]
+    },
+    "time": "2015-01-20 20:10:56.133378"
+}

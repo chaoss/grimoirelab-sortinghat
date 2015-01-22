@@ -32,7 +32,7 @@ from sortinghat.db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE
 from sortinghat.exceptions import AlreadyExistsError, NotFoundError,\
     BadFileFormatError, InvalidFormatError, LoadError, MatcherNotSupportedError
 from sortinghat.matcher import create_identity_matcher
-from sortinghat.parsing.gitdm import GitdmOrganizationsParser
+from sortinghat.parser import create_organizations_parser
 
 
 class Load(Command):
@@ -165,23 +165,13 @@ class Load(Command):
         the new relationship will NOT be created unless 'overwrite' were set
         to 'True'.
 
-        Each line of the file has to contain a domain and a organization, separated
-        by white spaces or tabs. Comment lines start with the hash character (#)
-        For example:
-
-        # Domains from domains.txt
-        example.org        Example
-        example.com        Example
-        bitergia.com       Bitergia
-        libresoft.es       LibreSoft
-        example.org        LibreSoft
-
         :param infile: file to import
         :param overwrite: force to reassign domains
         """
         try:
             stream = self.__read_file(infile)
-            parser = GitdmOrganizationsParser()
+
+            parser = create_organizations_parser(stream)
             orgs = [org for org in parser.organizations(stream)]
         except (BadFileFormatError, InvalidFormatError), e:
             self.error(str(e))
@@ -200,6 +190,7 @@ class Load(Command):
             for dom in org.domains:
                 try:
                     api.add_domain(self.db, org.name, dom.domain,
+                                   is_top_domain=dom.is_top_domain,
                                    overwrite=overwrite)
                     self.display('load_domains.tmpl', domain=dom.domain,
                                  organization=org.name)
