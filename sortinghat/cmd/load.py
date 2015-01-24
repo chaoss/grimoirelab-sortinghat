@@ -32,6 +32,7 @@ from sortinghat.db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE
 from sortinghat.exceptions import AlreadyExistsError, NotFoundError,\
     BadFileFormatError, InvalidFormatError, LoadError, MatcherNotSupportedError
 from sortinghat.matcher import create_identity_matcher
+from sortinghat.matching import SORTINGHAT_IDENTITIES_MATCHERS
 from sortinghat.parser import create_organizations_parser
 
 
@@ -76,6 +77,7 @@ class Load(Command):
         # Matching options
         group = self.parser.add_argument_group('matching options')
         group.add_argument('-m', '--matching', dest='matching', default=None,
+                           choices=SORTINGHAT_IDENTITIES_MATCHERS,
                            help="match and merge using this type of matching")
         group.add_argument('-v', '--verbose', dest='verbose', action='store_true',
                            help="run verbose mode while matching and merging")

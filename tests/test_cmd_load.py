@@ -133,16 +133,6 @@ class TestLoadCommand(TestBaseCase):
         output = sys.stderr.getvalue().strip().split('\n')[1]
         self.assertEqual(output, LOAD_IDENTITIES_NOT_SUPPORTED_FORMAT)
 
-    def test_load_invalid_identity_matcher(self):
-        """Test errors on invalid or not supported identity matcher"""
-
-        self.cmd.run('--identities', '--matching', 'mock',
-                     'data/eclipse_identities_valid.json')
-
-        self.cmd.run('--identities', 'data/eclipse_identities_invalid_file.json')
-        output = sys.stderr.getvalue().strip().split('\n')[0]
-        self.assertEqual(output, LOAD_IDENTITIES_MATCHING_ERROR)
-
     def test_load_organizations(self):
         """Test to load organizations from a file"""
 
