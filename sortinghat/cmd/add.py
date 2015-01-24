@@ -26,6 +26,7 @@ from sortinghat import api
 from sortinghat.command import Command
 from sortinghat.exceptions import AlreadyExistsError, MatcherNotSupportedError, NotFoundError
 from sortinghat.matcher import create_identity_matcher
+from sortinghat.matching import SORTINGHAT_IDENTITIES_MATCHERS
 
 
 ADD_COMMAND_USAGE_MSG = \
@@ -75,6 +76,7 @@ class Add(Command):
         self.parser.add_argument('--uuid', dest='uuid', default=None,
                                  help="associates identity to this unique identity")
         self.parser.add_argument('-m', '--matching', dest='matching', default=None,
+                                 choices=SORTINGHAT_IDENTITIES_MATCHERS,
                                  help="match and merge using this type of matching")
         self.parser.add_argument('-i', '--interactive', action='store_true',
                                  help="run interactive mode while matching and merging")
