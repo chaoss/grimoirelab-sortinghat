@@ -61,7 +61,7 @@ class Load(Command):
                                               usage=self.usage)
 
         # Actions
-        group = self.parser.add_mutually_exclusive_group()
+        group = self.parser.add_mutually_exclusive_group(required=True)
         group.add_argument('--identities', action='store_true',
                            help="import identities")
         group.add_argument('--orgs', action='store_true',
