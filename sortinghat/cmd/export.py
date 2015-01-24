@@ -38,6 +38,8 @@ class Export(Command):
     Identities are exported using the option '--identities'. Using the option
     '--source' will only export those identities which have one or more
     identities associated to that source.
+
+    To export organizations and domains information use the option '--orgs'.
     """
     def __init__(self, **kwargs):
         super(Export, self).__init__(**kwargs)
@@ -48,7 +50,7 @@ class Export(Command):
                                               usage=self.usage)
 
         # Actions
-        group = self.parser.add_mutually_exclusive_group()
+        group = self.parser.add_mutually_exclusive_group(required=True)
         group.add_argument('--identities', action='store_true',
                            help="export identities")
         group.add_argument('--orgs', action='store_true',
