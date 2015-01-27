@@ -98,7 +98,7 @@ class TestEnrollCommand(TestBaseCase):
         rol = enrollments[0]
         self.assertEqual(rol.uidentity.uuid, 'John Doe')
         self.assertEqual(rol.organization.name, 'Bitergia')
-        self.assertEqual(rol.init, datetime.datetime(2013, 1, 1))
+        self.assertEqual(rol.start, datetime.datetime(2013, 1, 1))
         self.assertEqual(rol.end, datetime.datetime(2014, 1, 1))
 
         rol = enrollments[1]
@@ -108,19 +108,19 @@ class TestEnrollCommand(TestBaseCase):
         rol = enrollments[2]
         self.assertEqual(rol.uidentity.uuid, 'John Smith')
         self.assertEqual(rol.organization.name, 'Bitergia')
-        self.assertEqual(rol.init, datetime.datetime(1999, 1, 1, 18, 33, 58))
+        self.assertEqual(rol.start, datetime.datetime(1999, 1, 1, 18, 33, 58))
         self.assertEqual(rol.end, datetime.datetime(2100, 1, 1))
 
         rol = enrollments[3]
         self.assertEqual(rol.uidentity.uuid, 'John Smith')
         self.assertEqual(rol.organization.name, 'Example')
-        self.assertEqual(rol.init, datetime.datetime(1900, 1, 1))
+        self.assertEqual(rol.start, datetime.datetime(1900, 1, 1))
         self.assertEqual(rol.end, datetime.datetime(1970, 1, 1, 1, 2, 3))
 
         rol = enrollments[4]
         self.assertEqual(rol.uidentity.uuid, 'John Smith')
         self.assertEqual(rol.organization.name, 'Example')
-        self.assertEqual(rol.init, datetime.datetime(1900, 1, 1))
+        self.assertEqual(rol.start, datetime.datetime(1900, 1, 1))
         self.assertEqual(rol.end, datetime.datetime(2100, 1, 1))
 
         # Enroll and merge
@@ -133,25 +133,25 @@ class TestEnrollCommand(TestBaseCase):
         rol = enrollments[0]
         self.assertEqual(rol.uidentity.uuid, 'John Doe')
         self.assertEqual(rol.organization.name, 'Bitergia')
-        self.assertEqual(rol.init, datetime.datetime(2008, 1, 1))
+        self.assertEqual(rol.start, datetime.datetime(2008, 1, 1))
         self.assertEqual(rol.end, datetime.datetime(2014, 1, 1))
 
         rol = enrollments[1]
         self.assertEqual(rol.uidentity.uuid, 'John Smith')
         self.assertEqual(rol.organization.name, 'Bitergia')
-        self.assertEqual(rol.init, datetime.datetime(1900, 1, 1))
+        self.assertEqual(rol.start, datetime.datetime(1900, 1, 1))
         self.assertEqual(rol.end, datetime.datetime(2100, 1, 1))
 
         rol = enrollments[2]
         self.assertEqual(rol.uidentity.uuid, 'John Smith')
         self.assertEqual(rol.organization.name, 'Bitergia')
-        self.assertEqual(rol.init, datetime.datetime(1999, 1, 1, 18, 33, 58))
+        self.assertEqual(rol.start, datetime.datetime(1999, 1, 1, 18, 33, 58))
         self.assertEqual(rol.end, datetime.datetime(2100, 1, 1))
 
         rol = enrollments[3]
         self.assertEqual(rol.uidentity.uuid, 'John Smith')
         self.assertEqual(rol.organization.name, 'Example')
-        self.assertEqual(rol.init, datetime.datetime(1900, 1, 1))
+        self.assertEqual(rol.start, datetime.datetime(1900, 1, 1))
         self.assertEqual(rol.end, datetime.datetime(1970, 1, 1, 1, 2, 3))
 
     def test_invalid_dates(self):
@@ -216,13 +216,13 @@ class TestEnroll(TestBaseCase):
         rol = enrollments[3]
         self.assertEqual(rol.uidentity.uuid, 'John Smith')
         self.assertEqual(rol.organization.name, 'Example')
-        self.assertEqual(rol.init, datetime.datetime(1981, 1, 1))
+        self.assertEqual(rol.start, datetime.datetime(1981, 1, 1))
         self.assertEqual(rol.end, datetime.datetime(1995, 1, 1))
 
         rol = enrollments[4]
         self.assertEqual(rol.uidentity.uuid, 'John Smith')
         self.assertEqual(rol.organization.name, 'Example')
-        self.assertEqual(rol.init, datetime.datetime(2013, 1, 1))
+        self.assertEqual(rol.start, datetime.datetime(2013, 1, 1))
         self.assertEqual(rol.end, datetime.datetime(2100, 1, 1))
 
     def test_enroll_with_merge(self):
@@ -249,13 +249,13 @@ class TestEnroll(TestBaseCase):
         rol = enrollments[0]
         self.assertEqual(rol.uidentity.uuid, 'John Smith')
         self.assertEqual(rol.organization.name, 'Example')
-        self.assertEqual(rol.init, datetime.datetime(1981, 1, 1))
+        self.assertEqual(rol.start, datetime.datetime(1981, 1, 1))
         self.assertEqual(rol.end, datetime.datetime(2005, 1, 1))
 
         rol = enrollments[1]
         self.assertEqual(rol.uidentity.uuid, 'John Smith')
         self.assertEqual(rol.organization.name, 'Example')
-        self.assertEqual(rol.init, datetime.datetime(2013, 1, 1))
+        self.assertEqual(rol.start, datetime.datetime(2013, 1, 1))
         self.assertEqual(rol.end, datetime.datetime(2100, 1, 1))
 
     def test_period_ranges(self):

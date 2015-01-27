@@ -388,24 +388,24 @@ class TestEnrollment(TestCaseBase):
         self.session.add(rol1)
         self.session.commit()
 
-        self.assertEqual(rol1.init, datetime.datetime(1900, 1, 1, 0, 0, 0))
+        self.assertEqual(rol1.start, datetime.datetime(1900, 1, 1, 0, 0, 0))
         self.assertEqual(rol1.end, datetime.datetime(2100, 1, 1, 0, 0, 0))
 
-        # Setting init and end dates to None produce the same result
+        # Setting start and end dates to None produce the same result
         rol2 = Enrollment(uidentity=uid, organization=org,
-                          init=None, end=datetime.datetime(2222, 1, 1, 0, 0, 0))
+                          start=None, end=datetime.datetime(2222, 1, 1, 0, 0, 0))
         self.session.add(rol2)
         self.session.commit()
 
-        self.assertEqual(rol2.init, datetime.datetime(1900, 1, 1, 0, 0, 0))
+        self.assertEqual(rol2.start, datetime.datetime(1900, 1, 1, 0, 0, 0))
         self.assertEqual(rol2.end, datetime.datetime(2222, 1, 1, 0, 0, 0))
 
         rol3 = Enrollment(uidentity=uid, organization=org,
-                          init=datetime.datetime(1999, 1, 1, 0, 0, 0), end=None)
+                          start=datetime.datetime(1999, 1, 1, 0, 0, 0), end=None)
         self.session.add(rol3)
         self.session.commit()
 
-        self.assertEqual(rol3.init, datetime.datetime(1999, 1, 1, 0, 0, 0))
+        self.assertEqual(rol3.start, datetime.datetime(1999, 1, 1, 0, 0, 0))
         self.assertEqual(rol3.end, datetime.datetime(2100, 1, 1, 0, 0, 0))
 
     def test_to_dict(self):
@@ -418,7 +418,7 @@ class TestEnrollment(TestCaseBase):
         self.session.add(org)
 
         rol = Enrollment(uidentity=uid, organization=org,
-                         init=datetime.datetime(1999, 1, 1, 0, 0, 0),
+                         start=datetime.datetime(1999, 1, 1, 0, 0, 0),
                          end=datetime.datetime(2001, 1, 1, 0, 0, 0))
 
         self.session.add(rol)
@@ -430,7 +430,7 @@ class TestEnrollment(TestCaseBase):
         self.assertIsInstance(d, dict)
         self.assertEqual(d['uuid'], 'John Smith')
         self.assertEqual(d['organization'], 'Example')
-        self.assertEqual(d['init'], datetime.datetime(1999, 1, 1, 0, 0, 0))
+        self.assertEqual(d['start'], datetime.datetime(1999, 1, 1, 0, 0, 0))
         self.assertEqual(d['end'], datetime.datetime(2001, 1, 1, 0, 0, 0))
 
 

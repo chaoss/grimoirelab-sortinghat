@@ -310,16 +310,16 @@ def add_enrollment(db, uuid, organization, from_date=None, to_date=None):
         enrollment = session.query(Enrollment).\
             filter(Enrollment.uidentity == uidentity,
                    Enrollment.organization == org,
-                   Enrollment.init == from_date,
+                   Enrollment.start == from_date,
                    Enrollment.end == to_date).first()
 
         if enrollment:
             entity = '-'.join((uuid, organization,
-                              str(enrollment.init), str(enrollment.end)))
+                              str(enrollment.start), str(enrollment.end)))
             raise AlreadyExistsError(entity=entity)
 
         enrollment = Enrollment(uidentity=uidentity, organization=org,
-                                init=from_date, end=to_date)
+                                start=from_date, end=to_date)
         session.add(enrollment)
 
 
@@ -488,7 +488,7 @@ def delete_enrollment(db, uuid, organization, from_date=None, to_date=None):
         enrollments = session.query(Enrollment).\
             filter(Enrollment.uidentity == identity,
                    Enrollment.organization == org,
-                   from_date <= Enrollment.init,
+                   from_date <= Enrollment.start,
                    Enrollment.end <= to_date).all()
 
         if not enrollments:
@@ -546,7 +546,7 @@ def merge_unique_identities(db, from_uuid, to_uuid):
             enrollment = session.query(Enrollment).\
                 filter(Enrollment.uidentity == tuid,
                        Enrollment.organization == rol.organization,
-                       Enrollment.init == rol.init,
+                       Enrollment.start == rol.start,
                        Enrollment.end == rol.end).first()
 
             if enrollment:
@@ -566,7 +566,7 @@ def merge_enrollments(db, uuid, organization):
     """Merge overlapping enrollments.
 
     This function merges those enrollments, related to the given 'uuid' and
-    'organization', that have overlapping dates. Default init and end dates
+    'organization', that have overlapping dates. Default start and end dates
     (1900-01-01 and 2100-01-01) are considered range limits and will be
     removed when a set of ranges overlap. For example:
 
@@ -611,13 +611,13 @@ def merge_enrollments(db, uuid, organization):
             entity = '-'.join((uuid, organization))
             raise NotFoundError(entity=entity)
 
-        dates = [(enr.init, enr.end) for enr in disjoint]
+        dates = [(enr.start, enr.end) for enr in disjoint]
 
         for st, en in utils.merge_date_ranges(dates):
             # We prefer this method to find duplicates
             # to avoid integrity exceptions when creating
             # enrollments that are already in the database
-            is_dup = lambda x, st, en : x.init == st and x.end == en
+            is_dup = lambda x, st, en : x.start == st and x.end == en
 
             filtered = [x for x in disjoint if not is_dup(x, st, en)]
 
@@ -628,7 +628,7 @@ def merge_enrollments(db, uuid, organization):
             # This means no dups where found so we need to add a
             # new enrollment
             enr = Enrollment(uidentity=uidentity, organization=org,
-                             init=st, end=en)
+                             start=st, end=en)
             session.add(enr)
 
         # Remove disjoint enrollments from the registry
@@ -872,7 +872,7 @@ def enrollments(db, uuid=None, organization=None, from_date=None, to_date=None):
 
     Enrollments between a period can also be listed using 'from_date' and
     'to_date' parameters. When these are set, the function will return
-    all those enrollments where Enrollment.init >= from_date AND
+    all those enrollments where Enrollment.start >= from_date AND
     Enrollment.end <= to_date. Defaults values for these dates are
     1900-01-01 and 2100-01-01.
 
@@ -911,7 +911,7 @@ def enrollments(db, uuid=None, organization=None, from_date=None, to_date=None):
     with db.connect() as session:
         query = session.query(Enrollment).\
             join(UniqueIdentity, Organization).\
-            filter(Enrollment.init >= from_date,
+            filter(Enrollment.start >= from_date,
                    Enrollment.end <= to_date)
 
         # Filter by uuid
@@ -937,7 +937,7 @@ def enrollments(db, uuid=None, organization=None, from_date=None, to_date=None):
         # Get the results
         enrollments = query.order_by(UniqueIdentity.uuid,
                                      Organization.name,
-                                     Enrollment.init,
+                                     Enrollment.start,
                                      Enrollment.end).all()
 
         # Detach objects from the session

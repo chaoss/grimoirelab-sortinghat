@@ -94,7 +94,7 @@ class Log(Command):
 
         Enrollments between a period can also be listed using <from_date> and
         <to_date> parameters. When these are set, the method will return
-        all those enrollments where Enrollment.init >= from_date AND
+        all those enrollments where Enrollment.start >= from_date AND
         Enrollment.end <= to_date. Defaults values for these dates are
         1900-01-01 and 2100-01-01.
 

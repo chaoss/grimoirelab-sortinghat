@@ -113,7 +113,7 @@ class TestWithdrawCommand(TestBaseCase):
         rol = enrollments[1]
         self.assertEqual(rol.uidentity.uuid, 'John Smith')
         self.assertEqual(rol.organization.name, 'Example')
-        self.assertEqual(rol.init, datetime.datetime(1900, 1, 1))
+        self.assertEqual(rol.start, datetime.datetime(1900, 1, 1))
         self.assertEqual(rol.end, datetime.datetime(2100, 1, 1))
 
         # Remove using a period range
@@ -187,13 +187,13 @@ class TestWithdraw(TestBaseCase):
         rol = enrollments[2]
         self.assertEqual(rol.uidentity.uuid, 'John Smith')
         self.assertEqual(rol.organization.name, 'Example')
-        self.assertEqual(rol.init, datetime.datetime(1900, 1, 1))
+        self.assertEqual(rol.start, datetime.datetime(1900, 1, 1))
         self.assertEqual(rol.end, datetime.datetime(2100, 1, 1))
 
         rol = enrollments[3]
         self.assertEqual(rol.uidentity.uuid, 'John Smith')
         self.assertEqual(rol.organization.name, 'Example')
-        self.assertEqual(rol.init, datetime.datetime(1999, 1, 1))
+        self.assertEqual(rol.start, datetime.datetime(1999, 1, 1))
         self.assertEqual(rol.end, datetime.datetime(2010, 1, 1))
 
         # Remove enrollments from John Doe

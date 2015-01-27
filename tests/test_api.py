@@ -514,15 +514,15 @@ class TestAddEnrollment(TestBaseCase):
             self.assertEqual(len(enrollments), 3)
 
             enrollment = enrollments[0]
-            self.assertEqual(enrollment.init, datetime.datetime(1999, 1, 1))
+            self.assertEqual(enrollment.start, datetime.datetime(1999, 1, 1))
             self.assertEqual(enrollment.end, datetime.datetime(2000, 1, 1))
 
             enrollment = enrollments[1]
-            self.assertEqual(enrollment.init, datetime.datetime(2005, 1, 1))
+            self.assertEqual(enrollment.start, datetime.datetime(2005, 1, 1))
             self.assertEqual(enrollment.end, datetime.datetime(2006, 1, 1))
 
             enrollment = enrollments[2]
-            self.assertEqual(enrollment.init, datetime.datetime(2013, 1, 1))
+            self.assertEqual(enrollment.start, datetime.datetime(2013, 1, 1))
             self.assertEqual(enrollment.end, datetime.datetime(2014, 1, 1))
 
     def test_period_ranges(self):
@@ -1032,10 +1032,10 @@ class TestDeleteEnrollment(TestBaseCase):
                     filter(Organization.name == 'Example').all()
             self.assertEqual(len(enrollments), 2)
 
-            self.assertEqual(enrollments[0].init, datetime.datetime(1900, 1, 1))
+            self.assertEqual(enrollments[0].start, datetime.datetime(1900, 1, 1))
             self.assertEqual(enrollments[0].end, datetime.datetime(2100, 1, 1))
 
-            self.assertEqual(enrollments[1].init, datetime.datetime(1999, 1, 1))
+            self.assertEqual(enrollments[1].start, datetime.datetime(1999, 1, 1))
             self.assertEqual(enrollments[1].end, datetime.datetime(2010, 1, 1))
 
     def test_period_ranges(self):
@@ -1173,7 +1173,7 @@ class TestMergeEnrollments(TestBaseCase):
             self.assertEqual(len(enrollments), 1)
 
             rol0 = enrollments[0]
-            self.assertEqual(rol0.init, datetime.datetime(2008, 1, 1))
+            self.assertEqual(rol0.start, datetime.datetime(2008, 1, 1))
             self.assertEqual(rol0.end, datetime.datetime(2010, 1, 1))
 
             # Enrollments on Bitergia were not modified
@@ -1184,11 +1184,11 @@ class TestMergeEnrollments(TestBaseCase):
             self.assertEqual(len(enrollments), 2)
 
             rol0 = enrollments[0]
-            self.assertEqual(rol0.init, datetime.datetime(1900, 1, 1))
+            self.assertEqual(rol0.start, datetime.datetime(1900, 1, 1))
             self.assertEqual(rol0.end, datetime.datetime(2010, 1, 1))
 
             rol1 = enrollments[1]
-            self.assertEqual(rol1.init, datetime.datetime(2008, 1, 1))
+            self.assertEqual(rol1.start, datetime.datetime(2008, 1, 1))
             self.assertEqual(rol1.end, datetime.datetime(2100, 1, 1))
 
         # Test Jonh Doe enrollments
@@ -1202,11 +1202,11 @@ class TestMergeEnrollments(TestBaseCase):
             self.assertEqual(len(enrollments), 2)
 
             rol0 = enrollments[0]
-            self.assertEqual(rol0.init, datetime.datetime(2008, 1, 1))
+            self.assertEqual(rol0.start, datetime.datetime(2008, 1, 1))
             self.assertEqual(rol0.end, datetime.datetime(2010, 1, 1))
 
             rol1 = enrollments[1]
-            self.assertEqual(rol1.init, datetime.datetime(2010, 1, 2))
+            self.assertEqual(rol1.start, datetime.datetime(2010, 1, 2))
             self.assertEqual(rol1.end, datetime.datetime(2100, 1, 1))
 
         # Test Jane Rae enrollments
@@ -1220,11 +1220,11 @@ class TestMergeEnrollments(TestBaseCase):
             self.assertEqual(len(enrollments), 2)
 
             rol0 = enrollments[0]
-            self.assertEqual(rol0.init, datetime.datetime(1900, 1, 1))
+            self.assertEqual(rol0.start, datetime.datetime(1900, 1, 1))
             self.assertEqual(rol0.end, datetime.datetime(2010, 1, 1))
 
             rol1 = enrollments[1]
-            self.assertEqual(rol1.init, datetime.datetime(2010, 1, 2))
+            self.assertEqual(rol1.start, datetime.datetime(2010, 1, 2))
             self.assertEqual(rol1.end, datetime.datetime(2100, 1, 1))
 
     def test_not_found_uuid(self):
@@ -1367,17 +1367,17 @@ class TestMergeUniqueIdentities(TestBaseCase):
 
             rol1 = uid2.enrollments[0]
             self.assertEqual(rol1.organization.name, 'Example')
-            self.assertEqual(rol1.init, datetime.datetime(1900, 1, 1))
+            self.assertEqual(rol1.start, datetime.datetime(1900, 1, 1))
             self.assertEqual(rol1.end, datetime.datetime(2100, 1, 1))
 
             rol2 = uid2.enrollments[1]
             self.assertEqual(rol2.organization.name, 'Bitergia')
-            self.assertEqual(rol2.init, datetime.datetime(1900, 1, 1))
+            self.assertEqual(rol2.start, datetime.datetime(1900, 1, 1))
             self.assertEqual(rol2.end, datetime.datetime(2100, 1, 1))
 
             rol3 = uid2.enrollments[2]
             self.assertEqual(rol3.organization.name, 'Bitergia')
-            self.assertEqual(rol3.init, datetime.datetime(1999, 1, 1))
+            self.assertEqual(rol3.start, datetime.datetime(1999, 1, 1))
             self.assertEqual(rol3.end, datetime.datetime(2000, 1, 1))
 
     def test_equal_unique_identities(self):
@@ -2069,7 +2069,7 @@ class TestEnrollments(TestBaseCase):
         self.assertIsInstance(rol, Enrollment)
         self.assertEqual(rol.uidentity.uuid, 'John Smith')
         self.assertEqual(rol.organization.name, 'Bitergia')
-        self.assertEqual(rol.init, datetime.datetime(1999, 1, 1))
+        self.assertEqual(rol.start, datetime.datetime(1999, 1, 1))
         self.assertEqual(rol.end, datetime.datetime(2000, 1, 1))
 
         rol = enrollments[6]
@@ -2087,7 +2087,7 @@ class TestEnrollments(TestBaseCase):
         self.assertIsInstance(rol, Enrollment)
         self.assertEqual(rol.uidentity.uuid, 'John Smith')
         self.assertEqual(rol.organization.name, 'Bitergia')
-        self.assertEqual(rol.init, datetime.datetime(1999, 1, 1))
+        self.assertEqual(rol.start, datetime.datetime(1999, 1, 1))
         self.assertEqual(rol.end, datetime.datetime(2000, 1, 1))
 
     def test_enrollments_uuid(self):

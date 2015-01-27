@@ -143,7 +143,7 @@ class Enrollment(ModelBase):
     __tablename__ = 'enrollments'
 
     id = Column(Integer, primary_key=True)
-    init = Column(DateTime, default=MIN_PERIOD_DATE, nullable=False)
+    start = Column(DateTime, default=MIN_PERIOD_DATE, nullable=False)
     end = Column(DateTime, default=MAX_PERIOD_DATE, nullable=False)
     uuid = Column(String(128),
                   ForeignKey('uidentities.uuid', ondelete='CASCADE'),
@@ -165,13 +165,13 @@ class Enrollment(ModelBase):
                                 lazy='joined')
 
     __table_args__ = (UniqueConstraint('uuid', 'organization_id',
-                                       'init', 'end',
+                                       'start', 'end',
                                        name='_period_unique'),
                       {'mysql_charset': 'utf8'})
 
     def to_dict(self):
         return {
-                'init'         : self.init,
+                'start'        : self.start,
                 'end'          : self.end,
                 'uuid'         : self.uuid,
                 'organization' : self.organization.name

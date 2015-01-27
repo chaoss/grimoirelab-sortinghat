@@ -459,12 +459,12 @@ class TestEclipseIdentitiesLoader(TestBaseCase):
 
         rol0 = enrollments[0]
         self.assertEqual(rol0.organization.name, 'Bitergia')
-        self.assertEqual(rol0.init, datetime.datetime(2011, 1, 1))
+        self.assertEqual(rol0.start, datetime.datetime(2011, 1, 1))
         self.assertEqual(rol0.end, datetime.datetime(2100, 1, 1))
 
         rol1 = enrollments[1]
         self.assertEqual(rol1.organization.name, 'Example')
-        self.assertEqual(rol1.init, datetime.datetime(2010, 1, 1))
+        self.assertEqual(rol1.start, datetime.datetime(2010, 1, 1))
         self.assertEqual(rol1.end, datetime.datetime(2011, 1, 1))
 
         # John Doe unique identity
@@ -485,7 +485,7 @@ class TestEclipseIdentitiesLoader(TestBaseCase):
 
         rol0 = enrollments[0]
         self.assertEqual(rol0.organization.name, 'Example')
-        self.assertEqual(rol0.init, datetime.datetime(2010, 1, 1))
+        self.assertEqual(rol0.start, datetime.datetime(2010, 1, 1))
         self.assertEqual(rol0.end, datetime.datetime(2100, 1, 1))
 
     def test_valid_identities_with_default_matching(self):
@@ -543,12 +543,12 @@ class TestEclipseIdentitiesLoader(TestBaseCase):
 
         rol0 = enrollments[0]
         self.assertEqual(rol0.organization.name, 'Bitergia')
-        self.assertEqual(rol0.init, datetime.datetime(2011, 1, 1))
+        self.assertEqual(rol0.start, datetime.datetime(2011, 1, 1))
         self.assertEqual(rol0.end, datetime.datetime(2100, 1, 1))
 
         rol1 = enrollments[1]
         self.assertEqual(rol1.organization.name, 'Example')
-        self.assertEqual(rol1.init, datetime.datetime(2010, 1, 1))
+        self.assertEqual(rol1.start, datetime.datetime(2010, 1, 1))
         self.assertEqual(rol1.end, datetime.datetime(2011, 1, 1))
 
         # John Doe unique identity
@@ -577,7 +577,7 @@ class TestEclipseIdentitiesLoader(TestBaseCase):
 
         rol0 = enrollments[0]
         self.assertEqual(rol0.organization.name, 'Example')
-        self.assertEqual(rol0.init, datetime.datetime(2010, 1, 1))
+        self.assertEqual(rol0.start, datetime.datetime(2010, 1, 1))
         self.assertEqual(rol0.end, datetime.datetime(2100, 1, 1))
 
     def test_not_valid_schema(self):

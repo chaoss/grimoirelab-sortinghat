@@ -13,7 +13,7 @@ No identities
 {% if uid.roles %}
 Enrollments:
 {% for enrollment in uid.roles %}
-  {{ enrollment.organization.name }}	{{ enrollment.init }}	{{ enrollment.end }}
+  {{ enrollment.organization.name }}	{{ enrollment.start }}	{{ enrollment.end }}
 {% endfor %}
 {% else %}
 No enrollments

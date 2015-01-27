@@ -282,19 +282,19 @@ class TestSortingHatIdentitiesExporter(TestBaseCase):
         rol0 = enrollments[0]
         self.assertEqual(rol0['uuid'], '52e0aa0a14826627e633fd15332988686b730ab3')
         self.assertEqual(rol0['organization'], 'Bitergia')
-        self.assertEqual(rol0['init'], '1999-01-01T00:00:00')
+        self.assertEqual(rol0['start'], '1999-01-01T00:00:00')
         self.assertEqual(rol0['end'], '2000-01-01T00:00:00')
 
         rol1 = enrollments[1]
         self.assertEqual(rol1['uuid'], '52e0aa0a14826627e633fd15332988686b730ab3')
         self.assertEqual(rol1['organization'], 'Bitergia')
-        self.assertEqual(rol1['init'], '2006-01-01T00:00:00')
+        self.assertEqual(rol1['start'], '2006-01-01T00:00:00')
         self.assertEqual(rol1['end'], '2008-01-01T00:00:00')
 
         rol2 = enrollments[2]
         self.assertEqual(rol2['uuid'], '52e0aa0a14826627e633fd15332988686b730ab3')
         self.assertEqual(rol2['organization'], 'Example')
-        self.assertEqual(rol2['init'], '1900-01-01T00:00:00')
+        self.assertEqual(rol2['start'], '1900-01-01T00:00:00')
         self.assertEqual(rol2['end'], '2100-01-01T00:00:00')
 
         # John Smith
@@ -326,7 +326,7 @@ class TestSortingHatIdentitiesExporter(TestBaseCase):
         rol0 = enrollments[0]
         self.assertEqual(rol0['uuid'], '03e12d00e37fd45593c49a5a5a1652deca4cf302')
         self.assertEqual(rol0['organization'], 'Example')
-        self.assertEqual(rol0['init'], '1900-01-01T00:00:00')
+        self.assertEqual(rol0['start'], '1900-01-01T00:00:00')
         self.assertEqual(rol0['end'], '2100-01-01T00:00:00')
 
     def test_source(self):
