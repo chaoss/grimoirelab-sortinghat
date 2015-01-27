@@ -36,7 +36,7 @@ from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
 
 REGISTRY_ORG_ALREADY_EXISTS_ERROR = "Error: Bitergium already exists in the registry"
-REGISTRY_DOM_ALREADY_EXISTS_ERROR = "Error: bitergia.com already exists in the registry"
+REGISTRY_DOM_ALREADY_EXISTS_ERROR = "Error: bitergia.com (Bitergia) already exists in the registry"
 REGISTRY_ORG_NOT_FOUND_ERROR = "Error: Bitergium not found in the registry"
 REGISTRY_ORG_NOT_FOUND_ERROR_ALT = "Error: LibreSoft not found in the registry"
 REGISTRY_DOM_NOT_FOUND_ERROR = "Error: example.com not found in the registry"

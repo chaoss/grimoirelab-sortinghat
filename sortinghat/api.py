@@ -233,7 +233,7 @@ def add_domain(db, organization, domain, is_top_domain=False, overwrite=False):
             filter(Domain.domain == domain).first()
 
         if dom and not overwrite:
-            raise AlreadyExistsError(entity=domain)
+            raise AlreadyExistsError(entity=dom)
         elif not dom:
             dom = Domain(domain=domain)
 

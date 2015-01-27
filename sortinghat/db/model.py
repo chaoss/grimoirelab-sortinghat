@@ -84,6 +84,9 @@ class Domain(ModelBase):
                 'organization' : self.organization.name
                 }
 
+    def __repr__(self):
+        return "%s (%s)" % (self.domain, self.organization.name)
+
 
 class UniqueIdentity(ModelBase):
     __tablename__ = 'uidentities'

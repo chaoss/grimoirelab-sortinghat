@@ -63,7 +63,7 @@ Domain bitergia.net added to organization Bitergia
 Domain libresoft.es added to organization GSyC/LibreSoft
 Domain gsyc.es added to organization GSyC/LibreSoft"""
 
-LOAD_GITDM_ORGS_OUTPUT_WARNING = """Warning: example.com already exists in the registry. Not updated."""
+LOAD_GITDM_ORGS_OUTPUT_WARNING = """Warning: example.com (Example) already exists in the registry. Not updated."""
 
 LOAD_GITDM_ORGS_OVERWRITE_OUTPUT = """Domain example.com added to organization Example
 Domain example.org added to organization Example
