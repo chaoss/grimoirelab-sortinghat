@@ -760,33 +760,33 @@ def unique_identities(db, uuid=None, source=None):
     return uidentities
 
 
-def registry(db, organization=None):
+def registry(db, term=None):
     """List the organizations available in the registry.
 
-    The function will return the list of organizations. If organization
+    The function will return the list of organizations. If term
     parameter is set, it will only return the information about
-    that organization. When the given organization is not in the registry
-    a 'NotFounError' exception will be raised.
+    the organizations which match that term. When the given term does
+    not match with any organization from the registry a 'NotFounError'
+    exception will be raised.
 
     :param db: database manager
-    :param organization: name of the organization
+    :param term: term to match with organizations names
 
     :returns: a list of organizations sorted by their name
 
-    :raises NotFoundError: raised when the given organization is not found
-        in the registry
+    :raises NotFoundError: raised when the given term is not found on
+        any organization from the registry
     """
     orgs = []
 
     with db.connect() as session:
-        if organization:
-            org = session.query(Organization).\
-                filter(Organization.name == organization).first()
+        if term:
+            orgs = session.query(Organization).\
+                filter(Organization.name.like('%' + term + '%')).\
+                order_by(Organization.name).all()
 
-            if not org:
-                raise NotFoundError(entity=organization)
-
-            orgs = [org]
+            if not orgs:
+                raise NotFoundError(entity=term)
         else:
             orgs = session.query(Organization).\
                 order_by(Organization.name).all()

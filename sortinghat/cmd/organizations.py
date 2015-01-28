@@ -28,7 +28,7 @@ from sortinghat.exceptions import AlreadyExistsError, NotFoundError
 
 
 ORGS_COMMAND_USAGE_MSG = \
-"""%(prog)s orgs -l [organization]
+"""%(prog)s orgs -l [term]
    or: %(prog)s orgs -a <organization> [domain] [--top-domain] [--overwrite]"
    or: %(prog)s orgs -d <organization> [domain]"""
 
@@ -37,8 +37,8 @@ class Organizations(Command):
     """List, add or delete organizations and domains from the registry.
 
     By default, this command lists the organizations and domains existing
-    in the registry. If <organization> is given, the method will list only
-    those domains related to it.
+    in the registry. If <term> is given, the method will list only
+    those organizations that match with that term.
 
     Organizations and domains can be added to the registry using '--add'
     option. This will add the given <organization> or <domain>, but not
@@ -120,7 +120,8 @@ class Organizations(Command):
         elif params.delete:
             self.delete(organization, domain)
         else:
-            self.registry(organization)
+            term = organization
+            self.registry(term)
 
     def add(self, organization, domain=None, is_top_domain=False, overwrite=False):
         """Add organizations and domains to the registry.
@@ -199,17 +200,17 @@ class Organizations(Command):
             except NotFoundError, e:
                 self.error(str(e))
 
-    def registry(self, organization=None):
+    def registry(self, term=None):
         """List organizations and domains.
 
-        When no organization is given, the method will list the organizations
-        existing in the registry. If 'organization' is set, the method will list
-        only those domains related with it.
+        When no term is given, the method will list the organizations
+        existing in the registry. If 'term' is set, the method will list
+        only those organizations and domains that match with that term.
 
-        :param organization: list the domains related to this organization
+        :param term: term to match
         """
         try:
-            orgs = api.registry(self.db, organization)
+            orgs = api.registry(self.db, term)
             self.display('organizations.tmpl', organizations=orgs)
         except NotFoundError, e:
             self.error(str(e))

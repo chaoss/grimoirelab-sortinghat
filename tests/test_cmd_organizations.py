@@ -59,7 +59,8 @@ LibreSoft"""
 
 REGISTRY_OUTPUT_EXAMPLE = """Example\texample.com
 Example\texample.org
-Example\texample.net"""
+Example\texample.net
+MyExample\tmyexample.com"""
 
 REGISTRY_OUTPUT_EXAMPLE_ALT = """Example\texample.com
 Example\texample.net"""
@@ -94,6 +95,8 @@ class TestOrgsCommand(unittest.TestCase):
         self.cmd.add('Example', 'example.com')
         self.cmd.add('Example', 'example.org')
         self.cmd.add('Example', 'example.net')
+        self.cmd.add('MyExample')
+        self.cmd.add('MyExample', 'myexample.com')
 
         self.cmd.run()
         output = sys.stdout.getvalue().strip()
@@ -112,6 +115,10 @@ class TestOrgsCommand(unittest.TestCase):
         """Test list action with arguments"""
 
         self.__load_test_dataset()
+
+        # Add an extra organization
+        self.cmd.add('MyExample')
+        self.cmd.add('MyExample', 'myexample.com')
 
         self.cmd.run('--list', 'Example')
         output = sys.stdout.getvalue().strip()
@@ -514,7 +521,18 @@ class TestOrgsRegistry(unittest.TestCase):
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, REGISTRY_OUTPUT)
 
-    def test_not_found_organization(self):
+    def test_registry_term(self):
+        """Check if it returns the info about orgs using a search term"""
+
+        # Add an extra organization first
+        api.add_organization(self.db, 'MyExample')
+        api.add_domain(self.db, 'MyExample', 'myexample.com')
+
+        self.cmd.registry('Example')
+        output = sys.stdout.getvalue().strip()
+        self.assertEqual(output, REGISTRY_OUTPUT_EXAMPLE)
+
+    def test_not_found_term(self):
         """Check whether it prints an error for not existing organizations"""
 
         self.cmd.registry('Bitergium')

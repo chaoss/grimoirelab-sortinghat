@@ -1798,30 +1798,44 @@ class TestRegistry(TestBaseCase):
         self.assertEqual(org3.name, 'LibreSoft')
         self.assertEqual(len(org3.domains), 0)
 
-    def test_get_registry_organization(self):
-        """Check if it returns the info about an existing organization"""
+    def test_get_registry_term(self):
+        """Check if it returns the info about orgs using a search term"""
 
         api.add_organization(self.db, 'Example')
         api.add_domain(self.db, 'Example', 'example.com')
         api.add_domain(self.db, 'Example', 'example.org')
         api.add_organization(self.db, 'Bitergia')
         api.add_domain(self.db, 'Bitergia', 'bitergia.com')
+        api.add_organization(self.db, 'My Example')
+        api.add_domain(self.db, 'My Example', 'myexample.com')
 
+        # This query have to return two organizations
         orgs = api.registry(self.db, 'Example')
-        self.assertEqual(len(orgs), 1)
+        self.assertEqual(len(orgs), 2)
 
-        org1 = orgs[0]
-        self.assertIsInstance(org1, Organization)
-        self.assertEqual(org1.name, 'Example')
-        self.assertEqual(len(org1.domains), 2)
+        # Example organization
+        org = orgs[0]
+        self.assertIsInstance(org, Organization)
+        self.assertEqual(org.name, 'Example')
+        self.assertEqual(len(org.domains), 2)
 
-        dom1 = org1.domains[0]
-        self.assertIsInstance(dom1, Domain)
-        self.assertEqual(dom1.domain, 'example.com')
+        dom = org.domains[0]
+        self.assertIsInstance(dom, Domain)
+        self.assertEqual(dom.domain, 'example.com')
 
-        dom2 = org1.domains[1]
-        self.assertIsInstance(dom2, Domain)
-        self.assertEqual(dom2.domain, 'example.org')
+        dom = org.domains[1]
+        self.assertIsInstance(dom, Domain)
+        self.assertEqual(dom.domain, 'example.org')
+
+        # My Example organization
+        org = orgs[1]
+        self.assertIsInstance(org, Organization)
+        self.assertEqual(org.name, 'My Example')
+        self.assertEqual(len(org.domains), 1)
+
+        dom = org.domains[0]
+        self.assertIsInstance(dom, Domain)
+        self.assertEqual(dom.domain, 'myexample.com')
 
     def test_empty_registry(self):
         """Check whether it returns an empty list when the registry is empty"""
@@ -1829,7 +1843,7 @@ class TestRegistry(TestBaseCase):
         orgs = api.registry(self.db)
         self.assertListEqual(orgs, [])
 
-    def test_not_found_organization(self):
+    def test_not_found_term(self):
         """Check whether it raises an error when the organization is not available"""
 
         # It should raise an error when the registry is empty
