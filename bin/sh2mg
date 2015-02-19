@@ -192,7 +192,6 @@ def load_mapping(engine, mapping):
                   Column('people_id', String(255), nullable=False),
                   Column('uuid', String(128), nullable=False),
                   UniqueConstraint('people_id', name='people_unique'),
-                  UniqueConstraint('uuid', name='uuid_unique'),
                   mysql_engine='MyISAM',
                   mysql_charset='utf8',
                   )
