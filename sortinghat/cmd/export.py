@@ -234,7 +234,8 @@ class SortingHatOrganizationsExporter(OrganizationsExporter):
             organizations[org.name] = domains
 
         obj = {'time' : str(datetime.datetime.now()),
-               'organizations' : organizations}
+               'organizations' : organizations,
+               'uidentities' : {}}
 
         return json.dumps(obj, default=self._json_encoder,
                           indent=4, sort_keys=True)

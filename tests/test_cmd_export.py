@@ -165,7 +165,7 @@ class TestExportCommand(TestBaseCase):
         # both are the same. To compare, we generate a dict object
         # removing 'time' key.
         a = self.read_json(self.tmpfile)
-        b = self.read_json('data/sortinghat_orgs_valid.json')
+        b = self.read_json('data/sortinghat_orgs.json')
 
         a.pop('time')
         b.pop('time')
@@ -384,7 +384,7 @@ class TestExportOrganizations(TestBaseCase):
         # both are the same. To compare, we generate a dict object
         # removing 'time' key.
         a = self.read_json(self.tmpfile)
-        b = self.read_json('data/sortinghat_orgs_valid.json')
+        b = self.read_json('data/sortinghat_orgs.json')
 
         a.pop('time')
         b.pop('time')

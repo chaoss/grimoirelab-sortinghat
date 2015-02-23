@@ -102,6 +102,10 @@ class UniqueIdentity(ModelBase):
 
     __table_args__ = ({'mysql_charset': 'utf8'})
 
+    def __init__(self, uuid=None):
+        self.uuid = uuid
+        self.enrollments = []
+
     def to_dict(self):
         return {
                 'uuid'       : self.uuid,
