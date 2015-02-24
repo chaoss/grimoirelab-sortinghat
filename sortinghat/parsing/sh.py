@@ -22,16 +22,33 @@
 
 from sortinghat.db.model import UniqueIdentity, Identity, Enrollment, Organization, Domain
 from sortinghat.exceptions import InvalidFormatError
-from sortinghat.parser import OrganizationsParser
 
 
 class SortingHatParser(object):
-    """Parse identities and organizations using Sorting Hat format"""
+    """Parse identities and organizations using Sorting Hat format.
+
+    The Sorting Hat data format is a JSON stream that contains
+    information about unique identities and organizations.
+
+    The unique identities are stored in an object named 'uidentities'.
+    The keys of this object are the UUID of the unique identities.
+    Each unique identity object stores a list of identities and
+    enrollments.
+
+    Organizations are stored in 'organizations' object. Its keys
+    are the name of the organizations and each organization object is
+    related to a list of domains.
+
+    :param stream: stream to parse
+
+    :raises InvalidFormatError: raised when the format of the stream is
+        not valid.
+    """
 
     def __init__(self, stream):
         self._identities = []
         self._organizations = {}
-        self._parse(stream)
+        self.__parse(stream)
 
     @property
     def identities(self):
@@ -44,7 +61,7 @@ class SortingHatParser(object):
         orgs.sort(key=lambda o: o.name)
         return orgs
 
-    def _parse(self, stream):
+    def __parse(self, stream):
         """Parse Sorting Hat stream"""
 
         if not stream:
@@ -52,10 +69,10 @@ class SortingHatParser(object):
 
         json = self.__load_json(stream)
 
-        self._parse_organizations(json)
-        self._parse_identities(json)
+        self.__parse_organizations(json)
+        self.__parse_identities(json)
 
-    def _parse_identities(self, json):
+    def __parse_identities(self, json):
         """Parse identities using Sorting Hat format.
 
         The Sorting Hat identities format is a JSON stream on which its
@@ -105,6 +122,11 @@ class SortingHatParser(object):
                     "uuid": "03e12d00e37fd45593c49a5a5a1652deca4cf302"
                 }
         }
+
+        :param stream: stream to parse
+
+        :raises InvalidFormatError: raised when the format of the stream is
+        not valid.
         """
         try:
             for uidentity in json['uidentities'].values():
@@ -128,8 +150,8 @@ class SortingHatParser(object):
                         org = Organization(name=organization)
                         self._organizations[organization] = org
 
-                    start = self.parse_datetime(enrollment['start'])
-                    end = self.parse_datetime(enrollment['end'])
+                    start = self.__parse_datetime(enrollment['start'])
+                    end = self.__parse_datetime(enrollment['end'])
 
                     rol = Enrollment(start=start, end=end, organization=org)
 
@@ -140,7 +162,7 @@ class SortingHatParser(object):
             msg = "invalid json format. Attribute %s not found" % e.args
             raise InvalidFormatError(cause=msg)
 
-    def _parse_organizations(self, json):
+    def __parse_organizations(self, json):
         """Parse organizations using Sorting Hat format.
 
         The Sorting Hat organizations format is a JSON stream which
@@ -191,7 +213,7 @@ class SortingHatParser(object):
             msg = "invalid json format. Attribute %s not found" % e.args
             raise InvalidFormatError(cause=msg)
 
-    def parse_datetime(self, t):
+    def __parse_datetime(self, t):
         """Parse datetime string"""
 
         import dateutil.parser
