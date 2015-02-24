@@ -45,6 +45,10 @@ LOAD_IDENTITIES_NOT_SUPPORTED_FORMAT = "Error: format not supported"
 LOAD_GRIMOIRE_IDS_MISSING_KEYS_ERROR = "invalid json format. Attribute name not found"
 LOAD_ECLIPSE_IDS_MISSING_KEYS_ERROR_ALT = "invalid json format. Attribute active not found"
 
+LOAD_ORGS_INVALID_FORMAT_ERROR = "Error: invalid json format. Expecting object: line 36 column 2 (char 811)"
+LOAD_ORGS_MISSING_KEYS_ERROR = "Error: invalid json format. Attribute is_top not found"
+LOAD_ORGS_IS_TOP_ERROR = "Error: invalid json format. 'is_top' must have a bool value"
+
 
 # Organization outputs
 
@@ -52,27 +56,18 @@ LOAD_SH_ORGS_OUTPUT = """Domain api.bitergia.com added to organization Bitergia
 Domain bitergia.com added to organization Bitergia
 Domain bitergia.net added to organization Bitergia
 Domain test.bitergia.com added to organization Bitergia
+Domain example.net added to organization Bitergia
+Domain example.com added to organization Example"""
+
+LOAD_ORGS_OVERWRITE_OUTPUT = """Domain api.bitergia.com added to organization Bitergia
+Domain bitergia.com added to organization Bitergia
+Domain bitergia.net added to organization Bitergia
+Domain test.bitergia.com added to organization Bitergia
+Domain example.net added to organization Bitergia
 Domain example.com added to organization Example
 Domain example.net added to organization Example"""
 
-LOAD_GITDM_ORGS_OUTPUT = """Domain example.com added to organization Example
-Domain example.org added to organization Example
-Domain example.net added to organization Example
-Domain bitergia.com added to organization Bitergia
-Domain bitergia.net added to organization Bitergia
-Domain libresoft.es added to organization GSyC/LibreSoft
-Domain gsyc.es added to organization GSyC/LibreSoft"""
-
-LOAD_GITDM_ORGS_OUTPUT_WARNING = """Warning: example.com (Example) already exists in the registry. Not updated."""
-
-LOAD_GITDM_ORGS_OVERWRITE_OUTPUT = """Domain example.com added to organization Example
-Domain example.org added to organization Example
-Domain example.net added to organization Example
-Domain bitergia.com added to organization Bitergia
-Domain bitergia.net added to organization Bitergia
-Domain example.com added to organization Bitergia
-Domain libresoft.es added to organization GSyC/LibreSoft
-Domain gsyc.es added to organization GSyC/LibreSoft"""
+LOAD_ORGS_OUTPUT_WARNING = """Warning: example.net (Bitergia) already exists in the registry. Not updated."""
 
 
 class TestBaseCase(unittest.TestCase):
@@ -141,35 +136,23 @@ class TestLoadCommand(TestBaseCase):
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, LOAD_SH_ORGS_OUTPUT)
 
-    def test_load_gitdm_organizations(self):
-        """Test to load organizations from a file"""
-
-        self.cmd.run('--orgs', 'data/gitdm_orgs_valid.txt')
-
-        output = sys.stdout.getvalue().strip()
-        self.assertEqual(output, LOAD_GITDM_ORGS_OUTPUT)
-
         output = sys.stderr.getvalue().strip()
-        self.assertEqual(output, LOAD_GITDM_ORGS_OUTPUT_WARNING)
+        self.assertEqual(output, LOAD_ORGS_OUTPUT_WARNING)
 
     def test_load_organizations_overwrite(self):
         """Test to load organizations from a file with overwrite parameter set"""
 
         self.cmd.run('--orgs', '--overwrite',
-                     'data/gitdm_orgs_valid.txt')
+                     'data/sortinghat_orgs_valid.json')
         output = sys.stdout.getvalue().strip()
-        self.assertEqual(output, LOAD_GITDM_ORGS_OVERWRITE_OUTPUT)
+        self.assertEqual(output, LOAD_ORGS_OVERWRITE_OUTPUT)
 
     def test_load_organizations_invalid_file(self):
         """Test whether it prints error messages while reading invalid files"""
 
         self.cmd.run('--orgs', 'data/sortinghat_orgs_invalid_json.json')
         output = sys.stderr.getvalue().strip().split('\n')[0]
-        self.assertEqual(output, "Error: organizations format not supported. Please check it.")
-
-        self.cmd.run('--orgs', 'data/gitdm_orgs_invalid_entries.txt')
-        output = sys.stderr.getvalue().strip().split('\n')[1]
-        self.assertEqual(output, "Error: organizations format not supported. Please check it.")
+        self.assertEqual(output, LOAD_ORGS_INVALID_FORMAT_ERROR)
 
 
 class TestLoadImportIdentities(TestBaseCase):
@@ -610,7 +593,7 @@ class TestLoadSortingHatImportOrganizations(TestBaseCase):
         self.assertEqual(org.name, 'Bitergia')
 
         doms = org.domains
-        self.assertEqual(len(doms), 4)
+        self.assertEqual(len(doms), 5)
 
         dom = doms[0]
         self.assertEqual(dom.domain, 'api.bitergia.com')
@@ -628,19 +611,19 @@ class TestLoadSortingHatImportOrganizations(TestBaseCase):
         self.assertEqual(dom.domain, 'test.bitergia.com')
         self.assertEqual(dom.is_top_domain, False)
 
+        dom = doms[4]
+        self.assertEqual(dom.domain, 'example.net')
+        self.assertEqual(dom.is_top_domain, False)
+
         # Example
         org = orgs[1]
         self.assertEqual(org.name, 'Example')
 
         doms = org.domains
-        self.assertEqual(len(doms), 2)
+        self.assertEqual(len(doms), 1)
 
         dom = doms[0]
         self.assertEqual(dom.domain, 'example.com')
-        self.assertEqual(dom.is_top_domain, True)
-
-        dom = doms[1]
-        self.assertEqual(dom.domain, 'example.net')
         self.assertEqual(dom.is_top_domain, True)
 
         # Unknown
@@ -732,200 +715,20 @@ class TestLoadSortingHatImportOrganizations(TestBaseCase):
         f1 = open('data/sortinghat_orgs_invalid_json.json', 'r')
         self.cmd.import_organizations(f1)
         output = sys.stderr.getvalue().strip().split('\n')[0]
-        self.assertEqual(output, "Error: organizations format not supported. Please check it.")
+        self.assertEqual(output, LOAD_ORGS_INVALID_FORMAT_ERROR)
         f1.close()
 
         f2 = open('data/sortinghat_orgs_missing_keys.json', 'r')
         self.cmd.import_organizations(f2)
         output = sys.stderr.getvalue().strip().split('\n')[1]
-        self.assertEqual(output, "Error: invalid json format. Attribute is_top not found")
+        self.assertEqual(output, LOAD_ORGS_MISSING_KEYS_ERROR)
         f2.close()
 
         f3 = open('data/sortinghat_orgs_invalid_top.json', 'r')
         self.cmd.import_organizations(f3)
         output = sys.stderr.getvalue().strip().split('\n')[2]
-        self.assertEqual(output, "Error: invalid json format. 'is_top' must have a bool value")
+        self.assertEqual(output, LOAD_ORGS_IS_TOP_ERROR)
         f3.close()
-
-
-class TestLoadGitdmImportOrganizations(TestBaseCase):
-    """Test import_organizations method with some Gitdm inputs"""
-
-    def test_valid_organizations_file(self):
-        """Check insertion of valid data from a file"""
-
-        f = open('data/gitdm_orgs_valid.txt', 'r')
-
-        self.cmd.import_organizations(f)
-
-        # Check the contents of the registry
-        orgs = api.registry(self.db)
-        self.assertEqual(len(orgs), 3)
-
-        # Bitergia organization
-        org1 = orgs[0]
-        self.assertEqual(org1.name, 'Bitergia')
-
-        doms1 = org1.domains
-        self.assertEqual(len(doms1), 2)
-        self.assertEqual(doms1[0].domain, 'bitergia.com')
-        self.assertEqual(doms1[0].is_top_domain, False)
-        self.assertEqual(doms1[1].domain, 'bitergia.net')
-        self.assertEqual(doms1[1].is_top_domain, False)
-
-        # Example organization
-        org2 = orgs[1]
-        self.assertEqual(org2.name, 'Example')
-
-        doms2 = org2.domains
-        self.assertEqual(len(doms2), 3)
-        self.assertEqual(doms2[0].domain, 'example.com')
-        self.assertEqual(doms2[0].is_top_domain, False)
-        self.assertEqual(doms2[1].domain, 'example.org')
-        self.assertEqual(doms2[1].is_top_domain, False)
-        self.assertEqual(doms2[2].domain, 'example.net')
-        self.assertEqual(doms2[2].is_top_domain, False)
-
-        # LibreSoft organization
-        org3 = orgs[2]
-        self.assertEqual(org3.name, 'GSyC/LibreSoft')
-
-        doms3 = org3.domains
-        self.assertEqual(len(doms3), 2)
-        self.assertEqual(doms3[0].domain, 'libresoft.es')
-        self.assertEqual(doms3[0].is_top_domain, False)
-        self.assertEqual(doms3[1].domain, 'gsyc.es')
-        self.assertEqual(doms3[1].is_top_domain, False)
-
-        f.close()
-
-    def test_overwrite_domains(self):
-        """Test whether domains are reassigned when overwrite is given"""
-
-        f = open('data/gitdm_orgs_valid.txt', 'r')
-
-        self.cmd.import_organizations(f, True)
-
-        # Check the contents of the registry
-        orgs = api.registry(self.db)
-        self.assertEqual(len(orgs), 3)
-
-        # Bitergia organization
-        org1 = orgs[0]
-        self.assertEqual(org1.name, 'Bitergia')
-
-        doms1 = org1.domains
-        self.assertEqual(len(doms1), 3)
-        self.assertEqual(doms1[0].domain, 'example.com')
-        self.assertEqual(doms1[0].is_top_domain, False)
-        self.assertEqual(doms1[1].domain, 'bitergia.com')
-        self.assertEqual(doms1[1].is_top_domain, False)
-        self.assertEqual(doms1[2].domain, 'bitergia.net')
-        self.assertEqual(doms1[2].is_top_domain, False)
-
-        # Example organization
-        org2 = orgs[1]
-        self.assertEqual(org2.name, 'Example')
-
-        doms2 = org2.domains
-        self.assertEqual(len(doms2), 2)
-        self.assertEqual(doms2[0].domain, 'example.org')
-        self.assertEqual(doms2[0].is_top_domain, False)
-        self.assertEqual(doms2[1].domain, 'example.net')
-        self.assertEqual(doms2[1].is_top_domain, False)
-
-        f.close()
-
-    def test_import_to_non_empty_registry(self):
-        """Test load process in a registry with some contents"""
-
-        # First, load some data
-        api.add_organization(self.db, 'Example')
-        api.add_domain(self.db, 'Example', 'example.com')
-
-        api.add_organization(self.db, 'Bitergia')
-        api.add_domain(self.db, 'Bitergia', 'bitergia.net')
-        api.add_domain(self.db, 'Bitergia', 'bitergia.com')
-
-        # Import new data, overwriting existing relationships
-        f = open('data/gitdm_orgs_valid_alt.txt', 'r')
-
-        self.cmd.import_organizations(f, True)
-
-        # Check the contents of the registry
-        orgs = api.registry(self.db)
-        self.assertEqual(len(orgs), 5)
-
-        # Alt'Co. organization
-        org1 = orgs[0]
-        self.assertEqual(org1.name, 'Alt\'Co.')
-
-        doms1 = org1.domains
-        self.assertEqual(len(doms1), 1)
-        self.assertEqual(doms1[0].domain, 'alt-co.com')
-        self.assertEqual(doms1[0].is_top_domain, False)
-
-        # Bitergia organization
-        org2 = orgs[1]
-        self.assertEqual(org2.name, 'Bitergia')
-
-        doms2 = org2.domains
-        self.assertEqual(len(doms2), 1)
-        self.assertEqual(doms2[0].domain, 'bitergia.com')
-        self.assertEqual(doms2[0].is_top_domain, False)
-
-        # Example organization
-        org3 = orgs[2]
-        self.assertEqual(org3.name, 'Example')
-
-        doms3 = org3.domains
-        self.assertEqual(len(doms3), 4)
-        self.assertEqual(doms3[0].domain, 'example.com')
-        self.assertEqual(doms3[0].is_top_domain, False)
-        self.assertEqual(doms3[1].domain, 'bitergia.net')
-        self.assertEqual(doms3[1].is_top_domain, False)
-        self.assertEqual(doms3[2].domain, 'example.org')
-        self.assertEqual(doms3[2].is_top_domain, False)
-        self.assertEqual(doms3[3].domain, 'example.net')
-        self.assertEqual(doms3[3].is_top_domain, False)
-
-        # GSyC organizations
-        org4 = orgs[3]
-        self.assertEqual(org4.name, 'GSyC')
-
-        doms4 = org4.domains
-        self.assertEqual(len(doms4), 2)
-        self.assertEqual(doms4[0].domain, 'gsyc.escet.urjc.es')
-        self.assertEqual(doms4[1].domain, 'gsyc.es')
-
-        # LibreSoft organization
-        org5 = orgs[4]
-        self.assertEqual(org5.name, 'GSyC/LibreSoft')
-
-        doms5 = org5.domains
-        self.assertEqual(len(doms5), 1)
-        self.assertEqual(doms5[0].domain, 'libresoft.es')
-
-    def test_not_valid_organizations_file(self):
-        """Check whether it prints an error when parsing invalid files"""
-
-        f1 = open('data/gitdm_orgs_invalid_comments.txt', 'r')
-        self.cmd.import_organizations(f1)
-        output = sys.stderr.getvalue().strip().split('\n')[0]
-        self.assertEqual(output, "Error: organizations format not supported. Please check it.")
-        f1.close()
-
-        f2 = open('data/gitdm_orgs_invalid_entries.txt', 'r')
-        self.cmd.import_organizations(f2)
-        output = sys.stderr.getvalue().strip().split('\n')[1]
-        self.assertEqual(output, "Error: organizations format not supported. Please check it.")
-        f2.close()
-
-    def test_invalid_file(self):
-        """Check if it raises a RuntimeError when an invalid file object is given"""
-
-        self.assertRaises(RuntimeError, self.cmd.import_organizations, None)
-        self.assertRaises(RuntimeError, self.cmd.import_organizations, 1)
 
 
 if __name__ == "__main__":

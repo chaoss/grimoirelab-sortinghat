@@ -16,6 +16,10 @@
             {
                 "domain": "test.bitergia.com",
                 "is_top": false
+            },
+            {
+                "domain": "example.net",
+                "is_top": false
             }
         ],
         "Example": [
@@ -31,5 +35,6 @@
         "Unknown": [
         ]
     },
-    "time": "2015-01-20 20:10:56.133378"
+    "time": "2015-01-20 20:10:56.133378",
+    "uidentities": {}
 }

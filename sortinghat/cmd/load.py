@@ -33,7 +33,7 @@ from sortinghat.exceptions import AlreadyExistsError, NotFoundError,\
     BadFileFormatError, InvalidFormatError, LoadError, MatcherNotSupportedError
 from sortinghat.matcher import create_identity_matcher
 from sortinghat.matching import SORTINGHAT_IDENTITIES_MATCHERS
-from sortinghat.parser import create_organizations_parser
+from sortinghat.parsing.sh import SortingHatParser
 
 
 class Load(Command):
@@ -173,8 +173,8 @@ class Load(Command):
         try:
             stream = self.__read_file(infile)
 
-            parser = create_organizations_parser(stream)
-            orgs = [org for org in parser.organizations(stream)]
+            parser = SortingHatParser(stream)
+            orgs = parser.organizations
         except (BadFileFormatError, InvalidFormatError), e:
             self.error(str(e))
             return

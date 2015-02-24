@@ -292,7 +292,7 @@ class TestSortingHatOrganizationsParser(TestBaseCase):
         self.assertEqual(org.name, 'Bitergia')
 
         doms = org.domains
-        self.assertEqual(len(doms), 4)
+        self.assertEqual(len(doms), 5)
 
         dom = doms[0]
         self.assertIsInstance(dom, Domain)
@@ -314,6 +314,11 @@ class TestSortingHatOrganizationsParser(TestBaseCase):
         self.assertEqual(dom.domain, 'test.bitergia.com')
         self.assertEqual(dom.is_top_domain, False)
 
+        dom = doms[4]
+        self.assertIsInstance(dom, Domain)
+        self.assertEqual(dom.domain, 'example.net')
+        self.assertEqual(dom.is_top_domain, False)
+
         # Example entry
         org = orgs[2]
         self.assertIsInstance(org, Organization)
@@ -325,11 +330,6 @@ class TestSortingHatOrganizationsParser(TestBaseCase):
         dom = doms[0]
         self.assertIsInstance(dom, Domain)
         self.assertEqual(dom.domain, 'example.com')
-        self.assertEqual(dom.is_top_domain, True)
-
-        dom = doms[1]
-        self.assertIsInstance(dom, Domain)
-        self.assertEqual(dom.domain, 'example.net')
         self.assertEqual(dom.is_top_domain, True)
 
     def test_check(self):
