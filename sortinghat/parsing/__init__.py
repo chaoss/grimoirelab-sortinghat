@@ -21,11 +21,11 @@
 #
 
 from sortinghat.parsing.gitdm import GitdmOrganizationsParser
-from sortinghat.parsing.sh import SortingHatOrganizationsParser
+from sortinghat.parsing.sh import SortingHatParser
 
 
 SORTINGHAT_ORGS_PARSERS = {
-                            'default' : SortingHatOrganizationsParser,
+                            'default' : SortingHatParser,
                             'gitdm'   : GitdmOrganizationsParser,
-                            'sh'      : SortingHatOrganizationsParser
+                            'sh'      : SortingHatParser
                           }
