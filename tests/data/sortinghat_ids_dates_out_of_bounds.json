@@ -1,0 +1,65 @@
+{
+    "source": null,
+    "time": "2015-01-14 13:31:19.507613",
+    "organizations": {
+        "Bitergia": [
+            {
+                "domain": "api.bitergia.com",
+                "is_top": false
+            },
+            {
+                "domain": "bitergia.com",
+                "is_top": true
+            },
+            {
+                "domain": "bitergia.net",
+                "is_top": true
+            },
+            {
+                "domain": "test.bitergia.com",
+                "is_top": false
+            }
+        ],
+        "Example": [
+            {
+                "domain": "example.com",
+                "is_top": true
+            },
+            {
+                "domain": "example.net",
+                "is_top": true
+            }
+        ],
+        "Unknown": [
+        ]
+    },
+    "uidentities": {
+        "52e0aa0a14826627e633fd15332988686b730ab3": {
+            "enrollments": [
+                {
+                    "end": "2200-01-01T00:00:00",
+                    "start": "1999-01-01T00:00:00",
+                    "organization": "Bitergia",
+                    "uuid": "52e0aa0a14826627e633fd15332988686b730ab3"
+                },
+                {
+                    "end": "2100-01-01T00:00:00",
+                    "start": "1800-01-01T00:00:00",
+                    "organization": "Example",
+                    "uuid": "52e0aa0a14826627e633fd15332988686b730ab3"
+                }
+            ],
+            "identities": [
+                {
+                    "email": "jroe@example.com",
+                    "id": "52e0aa0a14826627e633fd15332988686b730ab3",
+                    "name": "Jane Roe",
+                    "source": "scm",
+                    "username": "jroe",
+                    "uuid": "52e0aa0a14826627e633fd15332988686b730ab3"
+                }
+            ],
+            "uuid": "52e0aa0a14826627e633fd15332988686b730ab3"
+        }
+    }
+}

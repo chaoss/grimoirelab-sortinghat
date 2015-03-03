@@ -24,8 +24,6 @@ import argparse
 import json
 import sys
 
-import dateutil.parser
-
 from sortinghat import api
 from sortinghat.command import Command
 from sortinghat.db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE
@@ -95,6 +93,14 @@ class Load(Command):
     def usage(self):
         return "%(prog)s load --identities [-m matching] [-v] [file]\n   or: %(prog)s load --orgs [--overwrite] [file]"
 
+    def log(self, msg, debug=True):
+        if debug:
+            sys.stdout.write(msg + '\n')
+
+    def warning(self, msg, debug=True):
+        if debug:
+            Command.warning(self, msg)
+
     def run(self, *args):
         """Import data on the registry.
 
@@ -136,27 +142,190 @@ class Load(Command):
                 return
 
         try:
-            identities = self.__parse_identities_file(infile)
-        except BadFileFormatError, e:
+            stream = self.__read_file(infile)
+
+            parser = SortingHatParser(stream)
+            uidentities = parser.identities
+        except InvalidFormatError, e:
             self.error(str(e))
             return
         except (IOError, TypeError, AttributeError), e:
             raise RuntimeError(str(e))
 
-        if 'committers' in identities:
-            loader = EclipseIdentitiesLoader(self.db)
-        elif 'identities' in identities:
-            loader = GrimoireIdentitiesLoader(self.db)
-        else:
-            self.error("format not supported")
-            return
-
         try:
-            loader.display = self.display
-            loader.warning = self.warning
-            loader.load(identities, source, matcher, verbose)
+            self.__load_unique_identities(uidentities, matcher, verbose)
         except LoadError, e:
             self.error(str(e))
+
+    def __load_unique_identities(self, uidentities, matcher, verbose):
+        """Load unique identities"""
+
+        n = 0
+
+        self.log("Loading unique identities...")
+
+        for uidentity in uidentities:
+            self.log("\n=====", verbose)
+            self.log("+ Processing %s" % uidentity.uuid, verbose)
+
+            try:
+                stored_uuid = self.__load_unique_identity(uidentity, verbose)
+            except LoadError, e:
+                self.error("%s Skipping." % str(e))
+                self.log("=====", verbose)
+                continue
+
+            stored_uuid = self.__load_identities(uidentity.identities, stored_uuid,
+                                                 verbose)
+
+            # Matching and merging is doing before loading enrollments.
+            # This is required because 'merge_unique_identities' does not
+            # call to 'merge_enrollments' function.
+            if matcher:
+                stored_uuid = self._merge_on_matching(stored_uuid, matcher,
+                                                      verbose)
+
+            self.__load_enrollments(uidentity.enrollments, stored_uuid,
+                                    verbose)
+
+            self.log("+ %s (old %s) loaded" % (stored_uuid, uidentity.uuid))
+            self.log("=====", verbose)
+            n += 1
+
+        self.log("%d/%d unique identities loaded" % (n, len(uidentities)))
+
+    def __load_unique_identity(self, uidentity, verbose):
+        """Seek or store unique identity"""
+
+        uuid = uidentity.uuid
+
+        if uuid:
+            try:
+                api.unique_identities(self.db, uuid)
+                self.log("-- %s already exists." % uuid, verbose)
+                return uuid
+            except NotFoundError, e:
+                self.log("-- %s not found. Generating a new UUID." % uuid, verbose)
+
+        # We don't have a unique identity, so we have to create
+        # a new one.
+        if len(uidentity.identities) == 0:
+            msg = "not enough info to load %s unique identity." % uidentity.uuid
+            raise LoadError(cause=msg)
+
+        identity = uidentity.identities[0]
+
+        try:
+            stored_uuid = api.add_identity(self.db, identity.source,
+                                           identity.email,
+                                           identity.name,
+                                           identity.username)
+        except AlreadyExistsError, e:
+            stored_uuid = e.uuid
+            self.warning("-- " + str(e))
+
+        self.log("-- using %s for %s unique identity." % (stored_uuid, uuid), verbose)
+
+        return stored_uuid
+
+    def __load_identities(self, identities, uuid, verbose):
+        """Store identities"""
+
+        self.log("-- loading identities", verbose)
+
+        for identity in identities:
+            try:
+                api.add_identity(self.db, identity.source, identity.email,
+                                 identity.name, identity.username, uuid)
+            except AlreadyExistsError, e:
+                self.warning(str(e), verbose)
+
+                stored_uuid = e.uuid
+
+                if uuid != stored_uuid:
+                    msg = "%s is already assigned to %s. Merging." % (uuid, stored_uuid)
+                    self.warning(msg, verbose)
+
+                    api.merge_unique_identities(self.db, uuid, stored_uuid)
+                    uuid = stored_uuid
+
+        self.log("-- identities loaded", verbose)
+
+        return uuid
+
+    def __load_enrollments(self, enrollments, uuid, verbose):
+        """Store enrollments"""
+
+        self.log("-- loading enrollments", verbose)
+
+        organizations = []
+
+        for enrollment in enrollments:
+            organization = enrollment.organization.name
+
+            try:
+                api.add_organization(self.db, organization)
+            except AlreadyExistsError, e:
+                msg = "%s. Organization not updated." % str(e)
+                self.warning(msg, verbose)
+
+            if organization not in organizations:
+                organizations.append(organization)
+
+            from_date = max(MIN_PERIOD_DATE, enrollment.start)
+            to_date = min(MAX_PERIOD_DATE, enrollment.end)
+
+            if from_date != enrollment.start or to_date != enrollment.end:
+                msg = "Dates out of bound. Set to %s and %s." % (str(from_date), str(to_date))
+                self.warning(msg, verbose)
+
+            try:
+                api.add_enrollment(self.db, uuid, enrollment.organization.name,
+                                   from_date, to_date)
+            except AlreadyExistsError, e:
+                msg = "%s. Enrollment not updated." % str(e)
+                self.warning(msg, verbose)
+            except (ValueError, NotFoundError), e:
+                raise LoadError(cause=str(e))
+
+        for organization in organizations:
+            api.merge_enrollments(self.db, uuid, organization)
+
+        self.log("-- enrollments loaded", verbose)
+
+    def _merge_on_matching(self, uuid, matcher, verbose):
+        """Merge unique identity with uuid when a match is found"""
+
+        matches = api.match_identities(self.db, uuid, matcher)
+
+        new_uuid = uuid
+
+        u = api.unique_identities(self.db, uuid)[0]
+
+        for m in matches:
+            if m.uuid == uuid:
+                continue
+
+            self._merge(u, m, verbose)
+
+            new_uuid = m.uuid
+
+            # Swap uids to merge with those that could
+            # remain on the list with updated info
+            u = api.unique_identities(self.db, m.uuid)[0]
+
+        return new_uuid
+
+    def _merge(self, from_uid, to_uid, verbose):
+        """Merge unique identity uid on match"""
+
+        if verbose:
+            self.display('match.tmpl', uid=from_uid, match=to_uid)
+
+        api.merge_unique_identities(self.db, from_uid.uuid, to_uid.uuid)
+
+        if verbose:
+            self.display('merge.tmpl', from_uuid=from_uid.uuid, to_uuid=to_uid.uuid)
 
     def import_organizations(self, infile, overwrite=False):
         """Import organizations from a file.
@@ -219,205 +388,3 @@ class Load(Command):
         """Read a file into a str object"""
 
         return infile.read().decode('UTF-8')
-
-
-class IdentitiesLoader(object):
-    """Abstract class for loading identities."""
-
-    def __init__(self, db):
-        self.db = db
-
-    def load(self, identities, source, matcher=None, verbose=False):
-        raise NotImplementedError
-
-    def display(self, msg):
-        raise NotImplementedError
-
-    def warning(self, msg):
-        raise NotImplementedError
-
-    def _merge_on_matching(self, uuid, matcher, verbose):
-        matches = api.match_identities(self.db, uuid, matcher)
-
-        u = api.unique_identities(self.db, uuid)[0]
-
-        for m in matches:
-            if m.uuid == uuid:
-                continue
-
-            self._merge(u, m, verbose)
-
-            # Swap uids to merge with those that could
-            # remain on the list with updated info
-            u = api.unique_identities(self.db, m.uuid)[0]
-
-    def _merge(self, uid, match, verbose):
-        if verbose:
-            self.display('match.tmpl', uid=uid, match=match)
-
-        api.merge_unique_identities(self.db, uid.uuid, match.uuid)
-
-        if verbose:
-            self.display('merge.tmpl', from_uuid=uid.uuid, to_uuid=match.uuid)
-
-
-class GrimoireIdentitiesLoader(IdentitiesLoader):
-    """Import identities using Metrics Grimoire identities format.
-
-    This class imports in the registry sets of identities defined
-    by the Metrics Grimoire JSON format. When a new instance is
-    created, do not forget to set warning method.
-
-    :param db: database manager
-    """
-    def __init__(self, db):
-        super(GrimoireIdentitiesLoader, self).__init__(db)
-
-    def load(self, identities, source, matcher=None, verbose=False):
-        """Load a set of identities.
-
-        Method to import identities into the registry. Identities schema must
-        follow Metrics Grimoire JSON format. This format includes 'source'
-        and 'time' properties that are ignored during loading process.
-
-        LoadError exception is raised when either the format is invalid
-        or an error occurs importing the data.
-
-        When 'matcher' parameter is given, this method will look for similar
-        identities among those on the registry. If a match is found, identities
-        will be merged. The matcher is an instance of IdentityMatcher class.
-
-        :param identities: identities stored in a JSON object
-        :param source: name of the source where the identities come from
-        :param matcher: matcher instance used to find similar identities
-        :param verbose: run in verbose mode when matcher is set
-        """
-        try:
-            for identity in identities['identities']:
-                uuid = self.__import_identity_json(identity, source)
-
-                if matcher:
-                    self._merge_on_matching(uuid, matcher, verbose)
-        except KeyError, e:
-            msg = "invalid json format. Attribute %s not found" % e.args
-            raise LoadError(cause=msg)
-
-    def __import_identity_json(self, identity, source):
-        """Import an identity from a json dict"""
-
-        encode = lambda s: s.encode('UTF-8') if s else None
-
-        name = encode(identity['name'])
-        email = encode(identity['email'])
-        username = encode(identity['username'])
-
-        try:
-            uuid = api.add_identity(self.db, source, email,
-                                    name, username)
-        except AlreadyExistsError, e:
-            uuid = e.uuid
-            msg = "%s. Unique identity not updated." % str(e)
-            self.warning(msg)
-
-        return uuid
-
-
-class EclipseIdentitiesLoader(IdentitiesLoader):
-    """Import identities using Eclipse identities format.
-
-    This class imports in the registry sets of identities defined
-    by the Eclipse identities JSON format. When a new instance is
-    created, do not forget to set warning method.
-
-    :param db: database manager
-    """
-    def __init__(self, db):
-        super(EclipseIdentitiesLoader, self).__init__(db)
-
-    def load(self, identities, source, matcher=None, verbose=False):
-        """Load a set of identities.
-
-        Method to import identities into the registry. Identities schema must
-        follow Eclipse JSON format. LoadError exception is raised when either
-        the format is invalid or an error occurs importing the data.
-
-        When 'matcher' parameter is given, this method will look for similar
-        identities among those on the registry. If a match is found, identities
-        will be merged. The matcher is an instance of IdentityMatcher class.
-
-        :param identities: identities stored in a JSON object
-        :param source: name of the source where the identities come from
-        :param matcher: matcher instance used to find similar identities
-        :param verbose: run in verbose mode when matcher is set
-        """
-        try:
-            for identity in identities['committers'].values():
-                uuid = self.__import_identity_json(identity, source)
-
-                if 'affiliations' in identity:
-                    self.__import_affiliations_json(uuid, identity['affiliations'])
-
-                if matcher:
-                    self._merge_on_matching(uuid, matcher, verbose)
-        except KeyError, e:
-            msg = "invalid json format. Attribute %s not found" % e.args
-            raise LoadError(cause=msg)
-
-    def __import_identity_json(self, identity, source):
-        """Import an identity from a json dict"""
-
-        name = (identity['first'] + ' ' + identity['last']).encode('UTF-8')
-        email = identity['primary'].encode('UTF-8')
-        username = identity['id'].encode('UTF-8')
-
-        try:
-            uuid = api.add_identity(self.db, source, email,
-                                    name, username)
-        except AlreadyExistsError, e:
-            uuid = e.uuid
-            msg = "%s. Unique identity not updated." % str(e)
-            self.warning(msg)
-
-        if not 'email' in identity:
-            return uuid
-
-        # Import alternative identities
-        for alt_email in identity['email']:
-            if alt_email == email:
-                continue
-            try:
-                api.add_identity(self.db, source,
-                                 alt_email, name, username, uuid)
-            except AlreadyExistsError, e:
-                msg = "%s. Identity not updated." % str(e)
-                self.warning(msg)
-            except (ValueError, NotFoundError), e:
-                raise LoadError(cause=str(e))
-
-        return uuid
-
-    def __import_affiliations_json(self, uuid, affiliations):
-        """Import identity's affiliations from a json dict"""
-
-        for affiliation in affiliations.values():
-            organization = affiliation['name'].encode('UTF-8')
-
-            try:
-                api.add_organization(self.db, organization)
-            except AlreadyExistsError, e:
-                msg = "%s. Organization not updated." % str(e)
-                self.warning(msg)
-
-            to_datetime = lambda x, d: dateutil.parser.parse(x) if x else d
-
-            from_date = to_datetime(affiliation['active'], MIN_PERIOD_DATE)
-            to_date = to_datetime(affiliation['inactive'], MAX_PERIOD_DATE)
-
-            try:
-                api.add_enrollment(self.db, uuid, organization,
-                                   from_date, to_date)
-            except AlreadyExistsError, e:
-                msg = "%s. Enrollment not updated." % str(e)
-                self.warning(msg)
-            except (ValueError, NotFoundError), e:
-                raise LoadError(cause=str(e))
