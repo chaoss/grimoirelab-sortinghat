@@ -46,10 +46,6 @@ class Load(Command):
     only be assigned to one organization. If one of the given domains is already on
     the registry, the new relationship will NOT be created unless --overwrite
     option were set.
-
-    Using the option '--source' will set on the registry where the information
-    to load comes from. This option only has effect when loading identities.
-    The default value for '--source' is 'unknown'.
     """
     def __init__(self, **kwargs):
         super(Load, self).__init__(**kwargs)
@@ -67,8 +63,6 @@ class Load(Command):
                            help="import organizations")
 
         # General options
-        self.parser.add_argument('--source', dest='source', default='unknown',
-                                 help="name of the source where the information to load comes from")
         self.parser.add_argument('--overwrite', action='store_true',
                                  help="force to overwrite existing domain relationships")
 
@@ -110,13 +104,12 @@ class Load(Command):
         params = self.parser.parse_args(args)
 
         if params.identities:
-            self.import_identities(params.infile, params.source,
-                                   params.matching, params.verbose)
+            self.import_identities(params.infile, params.matching,
+                                   params.verbose)
         elif params.orgs:
             self.import_organizations(params.infile, params.overwrite)
 
-    def import_identities(self, infile, source='unknown', matching=None,
-                          verbose=False):
+    def import_identities(self, infile, matching=None, verbose=False):
         """Import identities information from a file on the registry.
 
         New unique identities, organizations and enrollment data stored
@@ -128,7 +121,6 @@ class Load(Command):
         would be merged into one.
 
         :param infile: file to import
-        :param source: name of the source where the identities were extracted
         :param matching: type of matching used to merge existing identities
         :param verbose: run in verbose mode when matching is set
         """
