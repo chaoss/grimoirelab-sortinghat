@@ -32,8 +32,8 @@ from sortinghat.exceptions import DatabaseError
 
 MG2SH_USAGE_MSG = \
 """%(prog)s [--help] [-u <user>] [-p <password>]
-             [--host <host>] [--port <port>] [-d <name>]
-             [-o <output>]"""
+             [--host <host>] [--port <port>] -d <name>
+             -s <source> [-o <output>]"""
 
 MG2SH_DESC_MSG = \
 """Export identities information from Metrics Grimoire databases to
@@ -48,6 +48,8 @@ General options:
                         name of the Metrics Grimoire database
   --host HOST           name of the host where the database server is running
   --port PORT           port of the host where the database server is running
+  -s SOURCE, --source SOURCE
+                        name of the identities source
   -o FILE, --output FILE
                         output file
 """
@@ -65,7 +67,7 @@ def main():
     except DatabaseError, e:
         raise RuntimeError(str(e))
 
-    json = to_json(identities, args.database)
+    json = to_json(identities, args.source)
 
     try:
         args.outfile.write(json)
@@ -93,6 +95,8 @@ def parse_args():
     parser.add_argument('--host', dest='host', default='localhost',
                         help=argparse.SUPPRESS)
     parser.add_argument('--port', dest='port', default='3306',
+                        help=argparse.SUPPRESS)
+    parser.add_argument('-s', '--source', dest='source', required=True,
                         help=argparse.SUPPRESS)
     parser.add_argument('-o', '--outfile', nargs='?', type=argparse.FileType('w'),
                         default=sys.stdout,
