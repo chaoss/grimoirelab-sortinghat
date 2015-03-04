@@ -21,14 +21,13 @@
 #
 
 import argparse
-import json
 import sys
 
 from sortinghat import api
 from sortinghat.command import Command
 from sortinghat.db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE
 from sortinghat.exceptions import AlreadyExistsError, NotFoundError,\
-    BadFileFormatError, InvalidFormatError, LoadError, MatcherNotSupportedError
+    InvalidFormatError, LoadError, MatcherNotSupportedError
 from sortinghat.matcher import create_identity_matcher
 from sortinghat.matching import SORTINGHAT_IDENTITIES_MATCHERS
 from sortinghat.parsing.sh import SortingHatParser
@@ -41,10 +40,19 @@ class Load(Command):
     domains. Data are read, by default, from the standard input. Files can also
     be used as data input giving the path to file as a positional argument.
 
-    Identities are added to the registry using the option '--identities' while
-    organizations are added using the option '--orgs'. Remember that a domain can
-    only be assigned to one organization. If one of the given domains is already on
-    the registry, the new relationship will NOT be created unless --overwrite
+    By default, identities and organizations are both loaded but two parameters
+    can be used to import some parts from the input. When '--identities' option
+    is set, only the data related to identities will be loaded. Identities
+    matching engine is set with '--matching' option. By default, no matching
+    engine is selected.
+
+    Take into account that those organizations set on each identity enrollment
+    will be loaded despite '--identities' option were set.
+
+    In the same way, when '--orgs' option is set, the command will only import
+    the data from 'organizations' section. Remember that a domain can only be
+    assigned to one organization. If one of the given domains is already on the
+    registry, the new relationship will NOT be created unless --overwrite
     option were set.
     """
     def __init__(self, **kwargs):
@@ -56,7 +64,7 @@ class Load(Command):
                                               usage=self.usage)
 
         # Actions
-        group = self.parser.add_mutually_exclusive_group(required=True)
+        group = self.parser.add_mutually_exclusive_group(required=False)
         group.add_argument('--identities', action='store_true',
                            help="import identities")
         group.add_argument('--orgs', action='store_true',
@@ -85,7 +93,7 @@ class Load(Command):
 
     @property
     def usage(self):
-        return "%(prog)s load --identities [-m matching] [-v] [file]\n   or: %(prog)s load --orgs [--overwrite] [file]"
+        return "%(prog)s load [-v] [--identities | --orgs] [-m matching] [--overwrite] [file]"
 
     def log(self, msg, debug=True):
         if debug:
@@ -103,24 +111,72 @@ class Load(Command):
         """
         params = self.parser.parse_args(args)
 
+        try:
+            stream = self.__read_file(params.infile)
+            parser = SortingHatParser(stream)
+        except InvalidFormatError, e:
+            self.error(str(e))
+            return
+        except (IOError, TypeError, AttributeError), e:
+            raise RuntimeError(str(e))
+
         if params.identities:
-            self.import_identities(params.infile, params.matching,
+            self.import_identities(parser, params.matching,
                                    params.verbose)
         elif params.orgs:
-            self.import_organizations(params.infile, params.overwrite)
+            self.import_organizations(parser, params.overwrite)
+        else:
+            self.import_organizations(parser, params.overwrite)
+            self.import_identities(parser, params.matching,
+                                   params.verbose)
 
-    def import_identities(self, infile, matching=None, verbose=False):
-        """Import identities information from a file on the registry.
+    def import_organizations(self, parser, overwrite=False):
+        """Import organizations.
 
-        New unique identities, organizations and enrollment data stored
-        on 'infile' will be added to the registry.
+        New domains and organizations parsed by 'parser' will be added
+        to the registry. Remember that a domain can only be assigned to
+        one organization. If one of the given domains is already on the registry,
+        the new relationship will NOT be created unless 'overwrite' were set
+        to 'True'.
+
+        :param parser: sorting hat parser
+        :param overwrite: force to reassign domains
+        """
+        orgs = parser.organizations
+
+        for org in orgs:
+            try:
+                api.add_organization(self.db, org.name)
+            except ValueError, e:
+                raise RuntimeError(str(e))
+            except AlreadyExistsError, e:
+                pass
+
+            for dom in org.domains:
+                try:
+                    api.add_domain(self.db, org.name, dom.domain,
+                                   is_top_domain=dom.is_top_domain,
+                                   overwrite=overwrite)
+                    self.display('load_domains.tmpl', domain=dom.domain,
+                                 organization=org.name)
+                except (ValueError, NotFoundError), e:
+                    raise RuntimeError(str(e))
+                except AlreadyExistsError, e:
+                    msg = "%s. Not updated." % str(e)
+                    self.warning(msg)
+
+    def import_identities(self, parser, matching=None, verbose=False):
+        """Import identities information on the registry.
+
+        New unique identities, organizations and enrollment data parsed
+        by 'parser' will be added to the registry.
 
         Optionally, this method can look for possible identities that match with
         the new one to insert using 'matching' method. If a match is found,
         that means both identities are likely the same. Therefore, both identities
         would be merged into one.
 
-        :param infile: file to import
+        :param parser: sorting hat parser
         :param matching: type of matching used to merge existing identities
         :param verbose: run in verbose mode when matching is set
         """
@@ -133,16 +189,7 @@ class Load(Command):
                 self.error(str(e))
                 return
 
-        try:
-            stream = self.__read_file(infile)
-
-            parser = SortingHatParser(stream)
-            uidentities = parser.identities
-        except InvalidFormatError, e:
-            self.error(str(e))
-            return
-        except (IOError, TypeError, AttributeError), e:
-            raise RuntimeError(str(e))
+        uidentities = parser.identities
 
         try:
             self.__load_unique_identities(uidentities, matcher, verbose)
@@ -318,63 +365,6 @@ class Load(Command):
 
         if verbose:
             self.display('merge.tmpl', from_uuid=from_uid.uuid, to_uuid=to_uid.uuid)
-
-    def import_organizations(self, infile, overwrite=False):
-        """Import organizations from a file.
-
-        New domains and organizations stored on 'infile' will be added
-        to the registry. Remember that a domain can only be assigned to
-        one organization. If one of the given domains is already on the registry,
-        the new relationship will NOT be created unless 'overwrite' were set
-        to 'True'.
-
-        :param infile: file to import
-        :param overwrite: force to reassign domains
-        """
-        try:
-            stream = self.__read_file(infile)
-
-            parser = SortingHatParser(stream)
-            orgs = parser.organizations
-        except (BadFileFormatError, InvalidFormatError), e:
-            self.error(str(e))
-            return
-        except (IOError, TypeError, AttributeError), e:
-            raise RuntimeError(str(e))
-
-        for org in orgs:
-            try:
-                api.add_organization(self.db, org.name)
-            except ValueError, e:
-                raise RuntimeError(str(e))
-            except AlreadyExistsError, e:
-                pass
-
-            for dom in org.domains:
-                try:
-                    api.add_domain(self.db, org.name, dom.domain,
-                                   is_top_domain=dom.is_top_domain,
-                                   overwrite=overwrite)
-                    self.display('load_domains.tmpl', domain=dom.domain,
-                                 organization=org.name)
-                except (ValueError, NotFoundError), e:
-                    raise RuntimeError(str(e))
-                except AlreadyExistsError, e:
-                    msg = "%s. Not updated." % str(e)
-                    self.warning(msg)
-
-    def __parse_identities_file(self, infile):
-        """Parse identities file object into a dict"""
-
-        content = self.__read_file(infile)
-
-        try:
-            data = json.loads(content)
-        except ValueError, e:
-            cause = "invalid json format. %s" % str(e)
-            raise BadFileFormatError(cause=cause)
-
-        return data
 
     def __read_file(self, infile):
         """Read a file into a str object"""
