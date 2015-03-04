@@ -37,7 +37,7 @@ MG2SH_USAGE_MSG = \
 
 MG2SH_DESC_MSG = \
 """Export identities information from Metrics Grimoire databases to
-sortinghat JSON format.
+Sorting Hat JSON format.
 
 General options:
   -h, --help            show this help message and exit
@@ -123,16 +123,31 @@ def fetch_identities(user, password, database, host, port):
 
 
 def to_json(identities, source):
-    """Convert identities to sortinghat JSON format"""
+    """Convert identities to Sorting Hat JSON format"""
 
     import datetime
     import json
 
-    ids = [identity.to_dict() for identity in identities]
+    uids = {}
+
+    for identity in identities:
+        uuid = str(identity.mg_id)
+
+        x = identity.to_dict()
+        x['id'] = uuid
+        x['uuid'] = uuid
+        x['source'] = source
+
+        uid = {'uuid' : uuid,
+               'enrollments' : [],
+               'identities' : [x]}
+
+        uids[uuid] = uid
 
     obj = {'time' : str(datetime.datetime.now()),
            'source' : source,
-           'identities' : ids}
+           'organizations' : {},
+           'uidentities' : uids}
 
     return json.dumps(obj, indent=4, sort_keys=True)
 
