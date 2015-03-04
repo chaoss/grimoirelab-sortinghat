@@ -206,7 +206,7 @@ class MetricsGrimoireIdentity(MappedTable):
     MG_ID_KEYS = ['_id', '_email_address', '_nick']
     NAME_KEYS = ['_name']
     EMAIL_KEYS = ['_email', '_email_address']
-    USERNAME_KEYS = ['_username', '_user_id', '_nick']
+    USERNAME_KEYS = ['_username', '_user_id', '_nick', '_login']
 
     def __init__(self):
         super(MetricsGrimoireIdentity, self).__init__()
