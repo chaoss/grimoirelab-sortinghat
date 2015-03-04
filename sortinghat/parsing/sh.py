@@ -136,14 +136,20 @@ class SortingHatParser(object):
                 uid = UniqueIdentity(uuid=uuid)
 
                 for identity in uidentity['identities']:
-                    sh_id = Identity(id=identity['id'], name=identity['name'],
-                                     email=identity['email'], username=identity['username'],
-                                     source=identity['source'])
+                    identity_id = identity['id']
+                    name = self.__encode(identity['name'])
+                    email = self.__encode(identity['email'])
+                    username = self.__encode(identity['username'])
+                    source = self.__encode(identity['source'])
+
+                    sh_id = Identity(id=identity_id, name=name,
+                                     email=email, username=username,
+                                     source=source)
 
                     uid.identities.append(sh_id)
 
                 for enrollment in uidentity['enrollments']:
-                    organization = enrollment['organization']
+                    organization = self.__encode(enrollment['organization'])
 
                     org = self._organizations.get(organization, None)
 
@@ -197,11 +203,13 @@ class SortingHatParser(object):
         """
         try:
             for organization in json['organizations']:
-                org = self._organizations.get(organization, None)
+                name = self.__encode(organization)
+
+                org = self._organizations.get(name, None)
 
                 if not org:
-                    org = Organization(name=organization)
-                    self._organizations[organization] = org
+                    org = Organization(name=name)
+                    self._organizations[name] = org
 
                 domains = json['organizations'][organization]
 
@@ -227,3 +235,6 @@ class SortingHatParser(object):
         except ValueError, e:
             cause = "invalid json format. %s" % str(e)
             raise InvalidFormatError(cause=cause)
+
+    def __encode(self, s):
+        return s.encode('UTF-8') if s else None
