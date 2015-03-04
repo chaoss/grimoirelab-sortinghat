@@ -178,6 +178,7 @@ class SortingHatIdentitiesExporter(IdentitiesExporter):
 
         obj = {'time' : str(datetime.datetime.now()),
                'source' : source,
+               'organizations' : {},
                'uidentities' : uidentities}
 
         return json.dumps(obj, default=self._json_encoder,
