@@ -21,7 +21,8 @@
 #
 
 from sortinghat.db.model import UniqueIdentity, Identity, Enrollment, Organization, Domain
-from sortinghat.exceptions import InvalidFormatError
+from sortinghat.exceptions import InvalidFormatError, InvalidDateError
+from sortinghat.utils import str_to_datetime
 
 
 class SortingHatParser(object):
@@ -126,7 +127,7 @@ class SortingHatParser(object):
         :param stream: stream to parse
 
         :raises InvalidFormatError: raised when the format of the stream is
-        not valid.
+            not valid.
         """
         try:
             for uidentity in json['uidentities'].values():
@@ -150,8 +151,11 @@ class SortingHatParser(object):
                         org = Organization(name=organization)
                         self._organizations[organization] = org
 
-                    start = self.__parse_datetime(enrollment['start'])
-                    end = self.__parse_datetime(enrollment['end'])
+                    try:
+                        start = str_to_datetime(enrollment['start'])
+                        end = str_to_datetime(enrollment['end'])
+                    except InvalidDateError, e:
+                        raise InvalidFormatError(cause=str(e))
 
                     rol = Enrollment(start=start, end=end, organization=org)
 
@@ -211,17 +215,6 @@ class SortingHatParser(object):
                     org.domains.append(dom)
         except KeyError, e:
             msg = "invalid json format. Attribute %s not found" % e.args
-            raise InvalidFormatError(cause=msg)
-
-    def __parse_datetime(self, t):
-        """Parse datetime string"""
-
-        import dateutil.parser
-
-        try:
-            return dateutil.parser.parse(t)
-        except ValueError:
-            msg = "invalid date format: %s" % t
             raise InvalidFormatError(cause=msg)
 
     def __load_json(self, stream):

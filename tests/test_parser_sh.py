@@ -35,7 +35,7 @@ from sortinghat.parsing.sh import SortingHatParser
 
 SH_INVALID_JSON_FORMAT_ERROR = "invalid json format\. Expecting ',' delimiter"
 SH_IDS_MISSING_KEYS_ERROR = "Attribute uuid not found"
-SH_IDS_DATETIME_ERROR = "invalid date format: 2100-01-32T00:00:00"
+SH_IDS_DATETIME_ERROR = "2100-01-32T00:00:00 is not a valid date"
 SH_ORGS_MISSING_KEYS_ERROR = "Attribute is_top not found"
 SH_ORGS_IS_TOP_ERROR = "'is_top' must have a bool value"
 
