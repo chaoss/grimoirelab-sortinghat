@@ -252,7 +252,7 @@ class Load(Command):
             msg = "not enough info to load %s unique identity." % uidentity.uuid
             raise LoadError(cause=msg)
 
-        identity = uidentity.identities[0]
+        identity = uidentity.identities.pop(0)
 
         try:
             stored_uuid = api.add_identity(self.db, identity.source,
