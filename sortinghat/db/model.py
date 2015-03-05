@@ -203,7 +203,7 @@ class MetricsGrimoireIdentity(MappedTable):
 
     COLUMN_PREFIX = '_'
 
-    MG_ID_KEYS = ['_id', '_email_address', '_nick']
+    MG_ID_KEYS = ['_nick', '_id', '_email_address']
     NAME_KEYS = ['_name']
     EMAIL_KEYS = ['_email', '_email_address']
     USERNAME_KEYS = ['_username', '_user_id', '_nick', '_login']
