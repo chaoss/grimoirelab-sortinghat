@@ -110,6 +110,8 @@ class TestBaseCase(unittest.TestCase):
             content = f.read().decode('UTF-8')
         return SortingHatParser(content)
 
+    def sort_identities(self, ids):
+        return sorted(ids, key=lambda x: x.id)
 
 class TestLoadCommand(TestBaseCase):
     """Load command unit tests"""
@@ -233,7 +235,7 @@ class TestLoadIdentities(TestBaseCase):
         uid = uids[0]
         self.assertEqual(uid.uuid, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
 
-        ids = uid.identities
+        ids = self.sort_identities(uid.identities)
         self.assertEqual(len(ids), 2)
 
         id0 = ids[0]
@@ -262,7 +264,7 @@ class TestLoadIdentities(TestBaseCase):
         uid = uids[1]
         self.assertEqual(uid.uuid, '52e0aa0a14826627e633fd15332988686b730ab3')
 
-        ids = uid.identities
+        ids = self.sort_identities(uid.identities)
         self.assertEqual(len(ids), 3)
 
         id0 = ids[0]
@@ -327,7 +329,7 @@ class TestLoadIdentities(TestBaseCase):
         uid = uids[0]
         self.assertEqual(uid.uuid, '23fe3a011190a27a7c5cf6f8925de38ff0994d8d')
 
-        ids = uid.identities
+        ids = self.sort_identities(uid.identities)
         self.assertEqual(len(ids), 3)
 
         id0 = ids[0]
@@ -364,7 +366,7 @@ class TestLoadIdentities(TestBaseCase):
         uid = uids[1]
         self.assertEqual(uid.uuid, '52e0aa0a14826627e633fd15332988686b730ab3')
 
-        ids = uid.identities
+        ids = self.sort_identities(uid.identities)
         self.assertEqual(len(ids), 3)
 
         id0 = ids[0]
@@ -411,7 +413,7 @@ class TestLoadIdentities(TestBaseCase):
         uid = uids[0]
         self.assertEqual(uid.uuid, '23fe3a011190a27a7c5cf6f8925de38ff0994d8d')
 
-        ids = uid.identities
+        ids = self.sort_identities(uid.identities)
         self.assertEqual(len(ids), 3)
 
         id0 = ids[0]
