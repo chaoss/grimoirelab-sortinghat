@@ -22,7 +22,6 @@
 #
 
 import argparse
-import json
 import sys
 
 from sqlalchemy import Table, MetaData, Column, String, UniqueConstraint
@@ -30,8 +29,9 @@ from sqlalchemy.exc import OperationalError, ProgrammingError
 
 import sortinghat.db.database as db
 
-from sortinghat.db.model import Identity, MetricsGrimoireIdentity
-from sortinghat.exceptions import BadFileFormatError, DatabaseError
+from sortinghat.db.model import MetricsGrimoireIdentity
+from sortinghat.exceptions import InvalidFormatError, DatabaseError
+from sortinghat.parsing.sh import SortingHatParser
 
 
 SH2MG_USAGE_MSG = \
@@ -68,7 +68,7 @@ def main():
 
     try:
         sh_ids = retrieve_sh_identities(args.infile, args.source)
-    except BadFileFormatError, e:
+    except InvalidFormatError, e:
         raise RuntimeError(str(e))
 
     try:
@@ -79,9 +79,9 @@ def main():
     mapping = find_matches(sh_ids, mg_ids)
 
     try:
-        load_mapping(engine, mapping)
+        n = load_mapping(engine, mapping)
         sys.stdout.write("%s of %s relationships created\n"\
-                         % (str(len(mapping)), str(len(mg_ids))))
+                         % (str(n), str(len(mg_ids))))
     except DatabaseError, e:
         raise RuntimeError(str(e))
 
@@ -122,26 +122,17 @@ def retrieve_sh_identities(infile, source):
 
     content = infile.read().decode('UTF-8')
 
-    try:
-        data = json.loads(content)
+    parser = SortingHatParser(content)
+    uids = parser.identities
 
-        for uuid in data['uidentities']:
-            sh_ids = data['uidentities'][uuid]['identities']
+    for uid in uids:
+        sh_ids = uid.identities
 
-            for sh_id in sh_ids:
-                if sh_id['source'] != source:
-                    continue
+        for sh_id in sh_ids:
+            if sh_id.source != source:
+                continue
 
-                identity = Identity(name=sh_id['name'], email=sh_id['email'],
-                                    username=sh_id['username'], source=sh_id['source'],
-                                    uuid=uuid)
-                identities.append(identity)
-    except KeyError, e:
-        cause = "invalid json file. Missing key %s" % str(e)
-        raise BadFileFormatError(cause=cause)
-    except ValueError, e:
-        cause = "invalid json file. %s" % str(e)
-        raise BadFileFormatError(cause=cause)
+            identities.append(sh_id)
 
     return identities
 
@@ -168,8 +159,6 @@ def retrieve_mg_identities(engine):
 def find_matches(sh_ids, mg_ids):
     """Find matches between Sorting Hat and Metrics Grimoire identities"""
 
-    matches = []
-
     # Keep this two nested loops to find multiple duplicates,
     # that will mean data are wrong
     for sh in sh_ids:
@@ -177,10 +166,8 @@ def find_matches(sh_ids, mg_ids):
             if sh != mg:
                 continue
 
-            m = {'uuid' : sh.uuid, 'people_id' : str(mg.mg_id)}
-            matches.append(m)
-
-    return matches
+            m = {'uuid' : sh.uuid, 'people_id' : unicode(mg.mg_id)}
+            yield m
 
 
 def load_mapping(engine, mapping):
@@ -206,9 +193,16 @@ def load_mapping(engine, mapping):
         table.create(engine)
 
         conn = engine.connect()
-        conn.execute(table.insert(), mapping)
+
+        n = 0
+
+        for m in mapping:
+            conn.execute(table.insert(), [m])
+            n += 1
     except (OperationalError, ProgrammingError), e:
         raise DatabaseError(error=e.orig[1], code=e.orig[0])
+
+    return n
 
 
 if __name__ == '__main__':
