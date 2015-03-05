@@ -109,7 +109,7 @@ def fetch_identities(user, password, database, host, port):
     """Retrieve identities from a database"""
 
     engine = db.create_database_engine(user, password, database,
-                                    host, port)
+                                       host, port)
     session = db.create_database_session(engine)
     table = db.reflect_table(engine, MetricsGrimoireIdentity)
 
@@ -117,6 +117,7 @@ def fetch_identities(user, password, database, host, port):
 
     # Specific case for IRC databases
     if 'nick' in table.columns:
+        query = query.filter(MetricsGrimoireIdentity._nick != None)
         query = query.group_by(MetricsGrimoireIdentity._nick)
 
     identities = query.all()
