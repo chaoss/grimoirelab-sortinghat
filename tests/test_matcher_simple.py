@@ -53,7 +53,11 @@ class TestSimpleMatcher(unittest.TestCase):
         jsmith_alt = UniqueIdentity(uuid='J. Smith')
         jsmith_alt.identities = [Identity(name='J. Smith', username='john_smith', source='alt'),
                                  Identity(name='John Smith', username='jsmith', source='alt'),
-                                 Identity(email='', source='alt')]
+                                 Identity(email='', source='alt'),
+                                 Identity(email='jsmith', source='alt')]
+
+        jsmith_not_email = UniqueIdentity(uuid='John Smith')
+        jsmith_not_email.identities = [Identity(email='jsmith', source='mls')]
 
         # Tests
         matcher = SimpleMatcher()
@@ -76,6 +80,12 @@ class TestSimpleMatcher(unittest.TestCase):
         self.assertEqual(result, False)
 
         result = matcher.match(jsmith_alt, john_smith)
+        self.assertEqual(result, False)
+
+        # This two unique identities have the same email address
+        # but due to 'jsmith' is not a valid email address, they
+        # do not match
+        result = matcher.match(jsmith_alt, jsmith_not_email)
         self.assertEqual(result, False)
 
 

@@ -20,8 +20,13 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+import re
+
 from sortinghat.db.model import UniqueIdentity
 from sortinghat.matcher import IdentityMatcher
+
+
+EMAIL_ADDRESS_REGEX = ur"^(?P<email>[^\s@]+@[^\s@.]+\.[^\s@]+)$"
 
 
 class SimpleMatcher(IdentityMatcher):
@@ -34,6 +39,7 @@ class SimpleMatcher(IdentityMatcher):
     """
     def __init__(self):
         super(SimpleMatcher, self).__init__()
+        self.email_pattern = re.compile(EMAIL_ADDRESS_REGEX)
 
     def match(self, a, b):
         """Determine if two unique identities are the same.
@@ -69,4 +75,10 @@ class SimpleMatcher(IdentityMatcher):
         return False
 
     def _filter_emails(self, ids):
-        return [id.email.lower() for id in ids if id.email]
+        return [id.email.lower() for id in ids \
+                if self._check_email(id.email)]
+
+    def _check_email(self, email):
+        if not email:
+            return False
+        return self.email_pattern.match(email) is not None
