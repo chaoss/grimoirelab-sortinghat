@@ -99,6 +99,20 @@ class TestSimpleMatcher(unittest.TestCase):
 
         self.assertEqual(result, True)
 
+    def test_match_same_uuid(self):
+        """Test if there is a match when compares identities with the same UUID"""
+
+        uid1 = UniqueIdentity(uuid='John Smith')
+        uid2 = UniqueIdentity(uuid='John Smith')
+
+        matcher = SimpleMatcher()
+
+        result = matcher.match(uid1, uid2)
+        self.assertEqual(result, True)
+
+        result = matcher.match(uid2, uid1)
+        self.assertEqual(result, True)
+
     def test_identities_instances(self):
         """Test whether it raises an error when ids are not UniqueIdentities"""
 
