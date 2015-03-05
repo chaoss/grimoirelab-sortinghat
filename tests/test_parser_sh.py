@@ -89,6 +89,7 @@ class TestSortingHatParser(TestBaseCase):
         self.assertEqual(id0.email, 'jsmith@example.com')
         self.assertEqual(id0.username, 'jsmith')
         self.assertEqual(id0.source, 'scm')
+        self.assertEqual(id0.uuid, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
 
         id1 = ids[1]
         self.assertEqual(id1.id, '75d95d6c8492fd36d24a18bd45d62161e05fbc97')
@@ -96,6 +97,7 @@ class TestSortingHatParser(TestBaseCase):
         self.assertEqual(id1.email, 'jsmith@example.com')
         self.assertEqual(id1.username, None)
         self.assertEqual(id1.source, 'scm')
+        self.assertEqual(id1.uuid, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
 
         enrollments = uid.enrollments
         self.assertEqual(len(enrollments), 1)
@@ -120,6 +122,7 @@ class TestSortingHatParser(TestBaseCase):
         self.assertEqual(id0.email, 'jroe@example.com')
         self.assertEqual(id0.username, 'jroe')
         self.assertEqual(id0.source, 'scm')
+        self.assertEqual(id0.uuid, '52e0aa0a14826627e633fd15332988686b730ab3')
 
         id1 = ids[1]
         self.assertEqual(id1.id, 'cbfb7bd31d556322c640f5bc7b31d58a12b15904')
@@ -127,6 +130,7 @@ class TestSortingHatParser(TestBaseCase):
         self.assertEqual(id1.email, 'jroe@bitergia.com')
         self.assertEqual(id1.username, None)
         self.assertEqual(id1.source, 'unknown')
+        self.assertEqual(id0.uuid, '52e0aa0a14826627e633fd15332988686b730ab3')
 
         id2 = ids[2]
         self.assertEqual(id2.id, 'fef873c50a48cfc057f7aa19f423f81889a8907f')
@@ -134,6 +138,7 @@ class TestSortingHatParser(TestBaseCase):
         self.assertEqual(id2.email, 'jroe@example.com')
         self.assertEqual(id2.username, None)
         self.assertEqual(id2.source, 'scm')
+        self.assertEqual(id0.uuid, '52e0aa0a14826627e633fd15332988686b730ab3')
 
         enrollments = uid.enrollments
         self.assertEqual(len(enrollments), 3)

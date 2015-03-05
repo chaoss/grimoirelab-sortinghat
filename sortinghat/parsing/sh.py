@@ -144,7 +144,7 @@ class SortingHatParser(object):
 
                     sh_id = Identity(id=identity_id, name=name,
                                      email=email, username=username,
-                                     source=source)
+                                     source=source, uuid=uuid)
 
                     uid.identities.append(sh_id)
 
