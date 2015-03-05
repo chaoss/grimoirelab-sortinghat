@@ -136,7 +136,7 @@ def to_json(identities, source):
     uids = {}
 
     for identity in identities:
-        uuid = str(identity.mg_id)
+        uuid = unicode(identity.mg_id)
 
         x = identity.to_dict()
         x['id'] = uuid
