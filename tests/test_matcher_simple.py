@@ -44,7 +44,7 @@ class TestSimpleMatcher(unittest.TestCase):
                              Identity(username='jsmith', source='scm'),
                              Identity(email='', source='scm')]
 
-        john_smith = UniqueIdentity(uuid='jsmith')
+        john_smith = UniqueIdentity(uuid='js')
         john_smith.identities = [Identity(name='J. Smith', username='john_smith', source='scm'),
                                  Identity(username='john_smith', source='scm'),
                                  Identity(name='Smith. J', source='mls'),
