@@ -262,6 +262,8 @@ class Load(Command):
         except AlreadyExistsError, e:
             stored_uuid = e.uuid
             self.warning("-- " + str(e))
+        except ValueError, e:
+            raise LoadError(cause=str(e))
 
         self.log("-- using %s for %s unique identity." % (stored_uuid, uuid), verbose)
 
