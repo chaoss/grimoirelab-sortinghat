@@ -1535,8 +1535,8 @@ class TestMoveIdentity(TestBaseCase):
 class TestMatchIdentities(TestBaseCase):
     """Unit tests for match_identities"""
 
-    def test_simple_matcher(self):
-        """Test simple identity matcher"""
+    def test_default_matcher(self):
+        """Test default identity matcher"""
 
         # Add some unique identities first
         api.add_unique_identity(self.db, 'John Smith')
@@ -1572,7 +1572,7 @@ class TestMatchIdentities(TestBaseCase):
         # Tests
         get_uuids = lambda l: [u.uuid for u in l]
 
-        matcher = create_identity_matcher('simple')
+        matcher = create_identity_matcher('default')
 
         # John Smith
         m1 = api.match_identities(self.db, 'John Smith', matcher)

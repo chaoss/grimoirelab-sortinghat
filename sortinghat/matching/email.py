@@ -29,7 +29,7 @@ from sortinghat.matcher import IdentityMatcher
 EMAIL_ADDRESS_REGEX = ur"^(?P<email>[^\s@]+@[^\s@.]+\.[^\s@]+)$"
 
 
-class SimpleMatcher(IdentityMatcher):
+class EmailMatcher(IdentityMatcher):
     """
     Simple unique identities matcher.
 
@@ -38,7 +38,7 @@ class SimpleMatcher(IdentityMatcher):
     returns a positive match when the uuid on both unique identities is equal.
     """
     def __init__(self):
-        super(SimpleMatcher, self).__init__()
+        super(EmailMatcher, self).__init__()
         self.email_pattern = re.compile(EMAIL_ADDRESS_REGEX)
 
     def match(self, a, b):
@@ -46,7 +46,7 @@ class SimpleMatcher(IdentityMatcher):
 
         This method compares the email addresses of each identity to check
         if the given unique identities are the same. When the given unique
-        identities are the same object or share the same uuid, this will
+        identities are the same object or share the same UUID, this will
         also produce a positive match.
 
         :param a: unique identity to match
@@ -75,8 +75,8 @@ class SimpleMatcher(IdentityMatcher):
         return False
 
     def _filter_emails(self, ids):
-        return [id.email.lower() for id in ids \
-                if self._check_email(id.email)]
+        return [id_.email.lower() for id_ in ids \
+                if self._check_email(id_.email)]
 
     def _check_email(self, email):
         if not email:

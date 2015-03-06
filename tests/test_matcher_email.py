@@ -27,12 +27,11 @@ import unittest
 if not '..' in sys.path:
     sys.path.insert(0, '..')
 
-from sortinghat import api
 from sortinghat.db.model import UniqueIdentity, Identity
-from sortinghat.matching.simple import SimpleMatcher
+from sortinghat.matching.email import EmailMatcher
 
 
-class TestSimpleMatcher(unittest.TestCase):
+class TestEmailMatcher(unittest.TestCase):
 
     def test_match(self):
         """Test match method"""
@@ -60,7 +59,7 @@ class TestSimpleMatcher(unittest.TestCase):
         jsmith_not_email.identities = [Identity(email='jsmith', source='mls')]
 
         # Tests
-        matcher = SimpleMatcher()
+        matcher = EmailMatcher()
 
         # First two unique identities must match
         result = matcher.match(jsmith, john_smith)
@@ -88,13 +87,12 @@ class TestSimpleMatcher(unittest.TestCase):
         result = matcher.match(jsmith_alt, jsmith_not_email)
         self.assertEqual(result, False)
 
-
     def test_match_same_identity(self):
         """Test whether there is a match comparing the same identity"""
 
         uid = UniqueIdentity(uuid='John Smith')
 
-        matcher = SimpleMatcher()
+        matcher = EmailMatcher()
         result = matcher.match(uid, uid)
 
         self.assertEqual(result, True)
@@ -105,7 +103,7 @@ class TestSimpleMatcher(unittest.TestCase):
         uid1 = UniqueIdentity(uuid='John Smith')
         uid2 = UniqueIdentity(uuid='John Smith')
 
-        matcher = SimpleMatcher()
+        matcher = EmailMatcher()
 
         result = matcher.match(uid1, uid2)
         self.assertEqual(result, True)
@@ -118,7 +116,7 @@ class TestSimpleMatcher(unittest.TestCase):
 
         uid = UniqueIdentity(uuid='John Smith')
 
-        matcher = SimpleMatcher()
+        matcher = EmailMatcher()
 
         self.assertRaises(ValueError, matcher.match, 'John Smith', uid)
         self.assertRaises(ValueError, matcher.match, uid, 'John Smith')

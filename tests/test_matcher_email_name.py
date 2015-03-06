@@ -69,7 +69,6 @@ class TestEmailNameMatcher(unittest.TestCase):
         jrae_no_name = UniqueIdentity(uuid='Jane Rae')
         jrae_no_name.identities = [Identity(name='jrae', source='scm')]
 
-
         # Tests
         matcher = EmailNameMatcher()
 
@@ -132,7 +131,6 @@ class TestEmailNameMatcher(unittest.TestCase):
         # like "firstname lastname"
         result = matcher.match(jrae_doe, jrae_no_name)
         self.assertEqual(result, False)
-
 
     def test_match_same_identity(self):
         """Test whether there is a match comparing the same identity"""

@@ -29,7 +29,7 @@ if not '..' in sys.path:
 
 from sortinghat.exceptions import MatcherNotSupportedError
 from sortinghat.matcher import IdentityMatcher, create_identity_matcher
-from sortinghat.matching import SimpleMatcher
+from sortinghat.matching import EmailMatcher, EmailNameMatcher
 
 
 class TestCreateIdentityMatcher(unittest.TestCase):
@@ -40,8 +40,11 @@ class TestCreateIdentityMatcher(unittest.TestCase):
         matcher = create_identity_matcher('default')
         self.assertIsInstance(matcher, IdentityMatcher)
 
-        matcher = create_identity_matcher('simple')
-        self.assertIsInstance(matcher, SimpleMatcher)
+        matcher = create_identity_matcher('email')
+        self.assertIsInstance(matcher, EmailMatcher)
+
+        matcher = create_identity_matcher('email-name')
+        self.assertIsInstance(matcher, EmailNameMatcher)
 
     def test_not_supported_matcher(self):
         """Check if an exception is raised when the given matcher type is not supported"""
