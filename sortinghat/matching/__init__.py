@@ -21,9 +21,11 @@
 #
 
 from sortinghat.matching.simple import SimpleMatcher
+from sortinghat.matching.email_name import EmailNameMatcher
 
 
 SORTINGHAT_IDENTITIES_MATCHERS = {
-                                  'default' : SimpleMatcher,
-                                  'simple'  : SimpleMatcher,
+                                  'default'    : SimpleMatcher,
+                                  'simple'     : SimpleMatcher,
+                                  'email-name' : EmailNameMatcher,
                                   }
