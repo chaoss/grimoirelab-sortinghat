@@ -131,12 +131,12 @@ class SortingHatParser(object):
         """
         try:
             for uidentity in json['uidentities'].values():
-                uuid = uidentity['uuid']
+                uuid = self.__encode(uidentity['uuid'])
 
                 uid = UniqueIdentity(uuid=uuid)
 
                 for identity in uidentity['identities']:
-                    identity_id = identity['id']
+                    identity_id = self.__encode(identity['id'])
                     name = self.__encode(identity['name'])
                     email = self.__encode(identity['email'])
                     username = self.__encode(identity['username'])
@@ -237,4 +237,7 @@ class SortingHatParser(object):
             raise InvalidFormatError(cause=cause)
 
     def __encode(self, s):
-        return s.encode('UTF-8') if s else None
+        if type(s) is str:
+            return s.encode('UTF-8') if s else None
+        else:
+            return s
