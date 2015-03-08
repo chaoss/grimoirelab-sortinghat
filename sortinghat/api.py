@@ -123,7 +123,7 @@ def add_identity(db, source, email=None, name=None, username=None, uuid=None):
                    Identity.source == source).first()
 
         if identity:
-            entity = '-'.join((str(source), str(email), str(name), str(username)))
+            entity = '-'.join((unicode(source), unicode(email), unicode(name), unicode(username)))
             raise AlreadyExistsError(entity=entity,
                                      uuid=identity.uuid)
 

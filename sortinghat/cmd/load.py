@@ -261,9 +261,9 @@ class Load(Command):
                                            identity.username)
         except AlreadyExistsError, e:
             stored_uuid = e.uuid
-            self.warning("-- " + str(e))
+            self.warning("-- " + unicode(e))
         except ValueError, e:
-            raise LoadError(cause=str(e))
+            raise LoadError(cause=unicode(e))
 
         self.log("-- using %s for %s unique identity." % (stored_uuid, uuid), verbose)
 
@@ -279,7 +279,7 @@ class Load(Command):
                 api.add_identity(self.db, identity.source, identity.email,
                                  identity.name, identity.username, uuid)
             except AlreadyExistsError, e:
-                self.warning(str(e), verbose)
+                self.warning(unicode(e), verbose)
 
                 stored_uuid = e.uuid
 
