@@ -128,9 +128,12 @@ def uuid(source, email=None, name=None, username=None):
     if not (email or name or username):
         raise ValueError('identity data cannot be None or empty')
 
-    s = ':'.join((source, str(email), str(name), str(username)))
+    to_unicode = lambda x: x if type(x) is unicode else unicode(x)
 
-    sha1 = hashlib.sha1(s)
+    s = ':'.join((to_unicode(source), to_unicode(email),
+                  to_unicode(name), to_unicode(username)))
+
+    sha1 = hashlib.sha1(s.encode('UTF-8'))
     uuid = sha1.hexdigest()
 
     return uuid
