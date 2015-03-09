@@ -115,10 +115,10 @@ class Load(Command):
             stream = self.__read_file(params.infile)
             parser = SortingHatParser(stream)
         except InvalidFormatError, e:
-            self.error(str(e))
+            self.error(unicode(e))
             return
         except (IOError, TypeError, AttributeError), e:
-            raise RuntimeError(str(e))
+            raise RuntimeError(unicode(e))
 
         if params.identities:
             self.import_identities(parser, params.matching,
@@ -148,7 +148,7 @@ class Load(Command):
             try:
                 api.add_organization(self.db, org.name)
             except ValueError, e:
-                raise RuntimeError(str(e))
+                raise RuntimeError(unicode(e))
             except AlreadyExistsError, e:
                 pass
 
@@ -160,9 +160,9 @@ class Load(Command):
                     self.display('load_domains.tmpl', domain=dom.domain,
                                  organization=org.name)
                 except (ValueError, NotFoundError), e:
-                    raise RuntimeError(str(e))
+                    raise RuntimeError(unicode(e))
                 except AlreadyExistsError, e:
-                    msg = "%s. Not updated." % str(e)
+                    msg = "%s. Not updated." % unicode(e)
                     self.warning(msg)
 
     def import_identities(self, parser, matching=None, verbose=False):
@@ -186,7 +186,7 @@ class Load(Command):
             try:
                 matcher = create_identity_matcher(matching)
             except MatcherNotSupportedError, e:
-                self.error(str(e))
+                self.error(unicode(e))
                 return
 
         uidentities = parser.identities
@@ -194,7 +194,7 @@ class Load(Command):
         try:
             self.__load_unique_identities(uidentities, matcher, verbose)
         except LoadError, e:
-            self.error(str(e))
+            self.error(unicode(e))
 
     def __load_unique_identities(self, uidentities, matcher, verbose):
         """Load unique identities"""
@@ -210,7 +210,7 @@ class Load(Command):
             try:
                 stored_uuid = self.__load_unique_identity(uidentity, verbose)
             except LoadError, e:
-                self.error("%s Skipping." % str(e))
+                self.error("%s Skipping." % unicode(e))
                 self.log("=====", verbose)
                 continue
 
@@ -307,7 +307,7 @@ class Load(Command):
             try:
                 api.add_organization(self.db, organization)
             except AlreadyExistsError, e:
-                msg = "%s. Organization not updated." % str(e)
+                msg = "%s. Organization not updated." % unicode(e)
                 self.warning(msg, verbose)
 
             if organization not in organizations:
@@ -324,10 +324,10 @@ class Load(Command):
                 api.add_enrollment(self.db, uuid, enrollment.organization.name,
                                    from_date, to_date)
             except AlreadyExistsError, e:
-                msg = "%s. Enrollment not updated." % str(e)
+                msg = "%s. Enrollment not updated." % unicode(e)
                 self.warning(msg, verbose)
             except (ValueError, NotFoundError), e:
-                raise LoadError(cause=str(e))
+                raise LoadError(cause=unicode(e))
 
         for organization in organizations:
             api.merge_enrollments(self.db, uuid, organization)
