@@ -53,15 +53,16 @@ class Command(object):
         t = env.get_template(template)
         s = t.render(**kwargs)
 
+        s = s.encode('UTF-8')
         sys.stdout.write(s)
 
     def error(self, msg):
         s = "Error: %s\n" % msg
-        sys.stderr.write(s)
+        sys.stderr.write(s.encode('UTF-8'))
 
     def warning(self, msg):
         s = "Warning: %s\n" % msg
-        sys.stderr.write(s)
+        sys.stderr.write(s.encode('UTF-8'))
 
     def _set_database(self, **kwargs):
         try:
