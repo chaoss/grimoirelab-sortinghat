@@ -97,7 +97,8 @@ class Load(Command):
 
     def log(self, msg, debug=True):
         if debug:
-            sys.stdout.write(msg + '\n')
+            s = msg + '\n'
+            sys.stdout.write(s.encode('UTF-8'))
 
     def warning(self, msg, debug=True):
         if debug:
