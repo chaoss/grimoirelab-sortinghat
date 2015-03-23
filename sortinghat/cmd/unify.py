@@ -34,6 +34,9 @@ class Unify(Command):
 
     The command looks for sets of similar identities using the given
     <matcher>, merging those identities into one unique identity.
+
+    When <interactive> parameter is set, the command will wait for
+    the user verification to merge both identities.
     """
     def __init__(self, **kwargs):
         super(Unify, self).__init__(**kwargs)
@@ -49,6 +52,8 @@ class Unify(Command):
         self.parser.add_argument('-m', '--matching', dest='matching', default=None,
                                  choices=SORTINGHAT_IDENTITIES_MATCHERS,
                                  help="find similar unique identities using this type of matching")
+        self.parser.add_argument('-i', '--interactive', action='store_true',
+                                 help="run interactive mode while unifying")
 
     @property
     def description(self):
@@ -56,16 +61,16 @@ class Unify(Command):
 
     @property
     def usage(self):
-        return """%(prog)s unify [--matching <matcher>]"""
+        return """%(prog)s unify [--matching <matcher>] [--interactive]"""
 
     def run(self, *args):
         """Merge unique identities using a matching algorithm."""
 
         params = self.parser.parse_args(args)
 
-        self.unify(params.matching)
+        self.unify(params.matching, params.interactive)
 
-    def unify(self, matching=None):
+    def unify(self, matching=None, interactive=False):
         """Merge unique identities using a matching algorithm.
 
         This method looks for sets of similar identities, merging those
@@ -74,7 +79,12 @@ class Unify(Command):
         using the parameter <matching>. When this parameter is not given,
         the default algorithm will be used.
 
+        When <interactive> parameter is set to True, the user will have to confirm
+        whether these to identities should be merged into one. By default, the method
+        is set to False.
+
         :param matching: type of matching used to merge existing identities
+        :param interactive: interactive mode for merging identities
         """
         matcher = None
 
@@ -90,13 +100,13 @@ class Unify(Command):
         uidentities = api.unique_identities(self.db)
 
         try:
-            self.__unify_unique_identities(uidentities, matcher)
+            self.__unify_unique_identities(uidentities, matcher, interactive)
             self.__display_stats()
         except Exception, e:
             self.__display_stats()
             raise RuntimeError(unicode(e))
 
-    def __unify_unique_identities(self, uidentities, matcher):
+    def __unify_unique_identities(self, uidentities, matcher, interactive):
         """Unify unique identities looking for similar identities."""
 
         remaining = [uidentity for uidentity in uidentities]
@@ -119,14 +129,13 @@ class Unify(Command):
                 if not matcher.match(u, m):
                     continue
 
-                # Merge and retrieve the merged uidentity 
-                api.merge_unique_identities(self.db, u.uuid, m.uuid)
-                m = api.unique_identities(self.db, uuid=m.uuid)[0]
-                merged[i] = m
-                self.matched += 1
-
-                was_merged = True
-                break
+                # Merge and retrieve the merged uidentity
+                if self.__merge(u, m, interactive):
+                    m = api.unique_identities(self.db, uuid=m.uuid)[0]
+                    merged[i] = m
+                    self.matched += 1
+                    was_merged = True
+                    break
 
             if was_merged:
                 continue
@@ -134,17 +143,19 @@ class Unify(Command):
             # No match was found on merged list, so find as much as possible
             # matches on the list of remaining unique identities. Those
             # identities that won't match will be added to the not merged
-            # list. 
+            # list.
             not_merged = []
 
             while remaining:
                 c = remaining.pop(0)
 
                 if matcher.match(c, u):
-                    # Merge and retrieve the merged uidentity 
-                    api.merge_unique_identities(self.db, c.uuid, u.uuid)
-                    u = api.unique_identities(self.db, uuid=u.uuid)[0]
-                    self.matched += 1
+                    # Merge and retrieve the merged uidentity
+                    if self.__merge(c, u, interactive):
+                        u = api.unique_identities(self.db, uuid=u.uuid)[0]
+                        self.matched += 1
+                    else:
+                        not_merged.append(c)
                 else:
                     not_merged.append(c)
 
@@ -154,6 +165,39 @@ class Unify(Command):
             merged.append(u)
 
             remaining = not_merged
+
+    def __merge(self, from_uid, to_uid, interactive):
+        # By default, always merge
+        merge = True
+
+        if interactive:
+            self.display('match.tmpl', uid=from_uid, match=to_uid)
+            merge = self.__read_verification()
+
+        if not merge:
+            return False
+
+        api.merge_unique_identities(self.db, from_uid.uuid, to_uid.uuid)
+
+        if interactive:
+            self.display('merge.tmpl', from_uuid=from_uid.uuid,
+                         to_uuid=to_uid.uuid)
+
+        return True
+
+    def __read_verification(self):
+        answer = None
+
+        while answer not in ['y', 'Y', 'n', 'N', '']:
+            try:
+                answer = raw_input("Merge unique identities [Y/n]? ")
+            except EOFError:
+                return False
+
+        if answer in ['n', 'N']:
+            return False
+
+        return True
 
     def __display_stats(self):
         """Display some stats regarding unify process"""
