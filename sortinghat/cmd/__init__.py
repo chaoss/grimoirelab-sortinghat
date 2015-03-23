@@ -33,6 +33,7 @@ from sortinghat.cmd.move import Move
 from sortinghat.cmd.organizations import Organizations
 from sortinghat.cmd.remove import Remove
 from sortinghat.cmd.show import Show
+from sortinghat.cmd.unify import Unify
 from sortinghat.cmd.withdraw import Withdraw
 
 
@@ -50,5 +51,6 @@ SORTINGHAT_COMMANDS = {
                        'orgs'      : Organizations,
                        'rm'        : Remove,
                        'show'      : Show,
+                       'unify'     : Unify,
                        'withdraw'  : Withdraw,
                        }

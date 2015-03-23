@@ -50,6 +50,7 @@ SORTINGHAT_DESC_MSG = \
     orgs        List, add or delete organizations and domains
     rm          Remove identities from the registry
     show        Show information about a unique identity
+    unify       Merge identities using a matching algorithm
     withdraw    Remove identities from organizations
 
 General options:
