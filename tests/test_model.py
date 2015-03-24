@@ -33,7 +33,7 @@ from sqlalchemy.engine.url import URL
 from sqlalchemy.exc import IntegrityError, OperationalError, StatementError
 from sqlalchemy.orm import sessionmaker
 
-from sortinghat.db.model import ModelBase, Organization, Domain,\
+from sortinghat.db.model import ModelBase, Organization, Domain, Country,\
     UniqueIdentity, Identity, Enrollment
 from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
@@ -210,6 +210,66 @@ class TestDomain(TestCaseBase):
         self.assertEqual(d['domain'], 'example.com')
         self.assertEqual(d['top_domain'], True)
         self.assertEqual(d['organization'], 'Example')
+
+
+class TestCountry(TestCaseBase):
+    """Unit tests for Country class"""
+
+    def test_unique_countries(self):
+        """Check whether countries are unique"""
+
+        with self.assertRaisesRegexp(IntegrityError, DUP_CHECK_ERROR):
+            c1 = Country(code='ES', name='Spain', alpha3='ESP')
+            self.session.add(c1)
+
+            c2 = Country(code='ES', name='España', alpha3='E')
+            self.session.add(c2)
+
+            self.session.commit()
+
+    def test_unique_alpha3(self):
+        """Check whether alpha3 codes are unique"""
+
+        with self.assertRaisesRegexp(IntegrityError, DUP_CHECK_ERROR):
+            c1 = Country(code='ES', name='Spain', alpha3='ESP')
+            self.session.add(c1)
+
+            c2 = Country(code='E', name='Spain', alpha3='ESP')
+            self.session.add(c2)
+
+            self.session.commit()
+
+    def test_none_name_country(self):
+        """Check whether countries without name can be stored"""
+
+        with self.assertRaisesRegexp(OperationalError, NULL_CHECK_ERROR):
+            c = Country(code='ES', alpha3='ESP')
+            self.session.add(c)
+
+            self.session.commit()
+
+    def test_none_alpha3_country(self):
+        """Check whether countries without alpha3 code can be stored"""
+
+        with self.assertRaisesRegexp(OperationalError, NULL_CHECK_ERROR):
+            c = Country(code='ES', name='Spain')
+            self.session.add(c)
+
+            self.session.commit()
+
+    def test_to_dict(self):
+        """Test output of to_dict() method"""
+
+        c = Country(code='ES', name='Spain', alpha3='ESP')
+        self.session.add(c)
+
+        # Tests
+        d = c.to_dict()
+
+        self.assertIsInstance(d, dict)
+        self.assertEqual(d['code'], 'ES')
+        self.assertEqual(d['name'], 'Spain')
+        self.assertEqual(d['alpha3'], 'ESP')
 
 
 class TestUniqueIdentity(TestCaseBase):

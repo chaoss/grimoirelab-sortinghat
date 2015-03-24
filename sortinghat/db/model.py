@@ -88,6 +88,27 @@ class Domain(ModelBase):
         return "%s (%s)" % (self.domain, self.organization.name)
 
 
+class Country(ModelBase):
+    __tablename__ = 'countries'
+
+    code = Column(String(2), primary_key=True)
+    name = Column(String(255), nullable=False)
+    alpha3 = Column(String(3), nullable=False)
+
+    __table_args__ = (UniqueConstraint('alpha3', name='_alpha_unique'),
+                      {'mysql_charset': 'utf8'})
+
+    def to_dict(self):
+        return {
+                'code'   : self.code,
+                'name'   : self.name,
+                'alpha3' : self.alpha3
+                }
+
+    def __repr__(self):
+        return "%s - %s" % (self.code, self.name)
+
+
 class UniqueIdentity(ModelBase):
     __tablename__ = 'uidentities'
 
