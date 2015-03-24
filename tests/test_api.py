@@ -30,7 +30,8 @@ if not '..' in sys.path:
 
 from sortinghat import api
 from sortinghat.db.database import Database
-from sortinghat.db.model import UniqueIdentity, Identity, Organization, Domain, Enrollment
+from sortinghat.db.model import UniqueIdentity, Identity, Organization, Domain,\
+    Country, Enrollment
 from sortinghat.exceptions import AlreadyExistsError, NotFoundError
 from sortinghat.matcher import create_identity_matcher
 
@@ -43,6 +44,7 @@ DOMAIN_NONE_OR_EMPTY_ERROR = "domain cannot be"
 TOP_DOMAIN_VALUE_ERROR = "top_domain must have a boolean value"
 SOURCE_NONE_OR_EMPTY_ERROR = "source cannot be"
 IDENTITY_NONE_OR_EMPTY_ERROR = "identity data cannot be None or empty"
+COUNTRY_CODE_INVALID_ERROR = "country code must be a 2 length alpha string - %(code)s given"
 ENROLLMENT_PERIOD_INVALID_ERROR = "cannot be greater than "
 ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR = "%(type)s %(date)s is out of bounds"
 NOT_FOUND_ERROR =  "%(entity)s not found in the registry"
@@ -2020,6 +2022,136 @@ class TestDomains(TestBaseCase):
         self.assertRaises(NotFoundError, api.domains, self.db, 'libresoft.es', True)
         self.assertRaises(NotFoundError, api.domains, self.db, 'myexample.com', True)
         self.assertRaises(NotFoundError, api.domains, self.db, '.myexample.com', True)
+
+
+class TestCountries(TestBaseCase):
+    """Unit tests for countries"""
+
+    def test_get_countries(self):
+        """Check if it returns the list of countries"""
+
+        with self.db.connect() as session:
+            us = Country(code='US', name='United States of America', alpha3='USA')
+            es = Country(code='ES', name='Spain', alpha3='ESP')
+            gb = Country(code='GB', name='United Kingdom', alpha3='GBR')
+
+            session.add(es)
+            session.add(us)
+            session.add(gb)
+
+        cs = api.countries(self.db)
+        self.assertEqual(len(cs), 3)
+
+        c0 = cs[0]
+        self.assertIsInstance(c0, Country)
+        self.assertEqual(c0.code, 'ES')
+        self.assertEqual(c0.name, 'Spain')
+        self.assertEqual(c0.alpha3, 'ESP')
+
+        c1 = cs[1]
+        self.assertIsInstance(c1, Country)
+        self.assertEqual(c1.code, 'GB')
+        self.assertEqual(c1.name, 'United Kingdom')
+        self.assertEqual(c1.alpha3, 'GBR')
+
+        c2 = cs[2]
+        self.assertIsInstance(c2, Country)
+        self.assertEqual(c2.code, 'US')
+        self.assertEqual(c2.name, 'United States of America')
+        self.assertEqual(c2.alpha3, 'USA')
+
+    def test_get_countries_using_search_params(self):
+        """Check if it returns the info about countries using search parameters"""
+
+        with self.db.connect() as session:
+            us = Country(code='US', name='United States of America', alpha3='USA')
+            es = Country(code='ES', name='Spain', alpha3='ESP')
+            gb = Country(code='GB', name='United Kingdom', alpha3='GBR')
+
+            session.add(es)
+            session.add(us)
+            session.add(gb)
+
+        # Check code param
+        cs = api.countries(self.db, code='ES')
+        self.assertEqual(len(cs), 1)
+
+        c0 = cs[0]
+        self.assertIsInstance(c0, Country)
+        self.assertEqual(c0.code, 'ES')
+        self.assertEqual(c0.name, 'Spain')
+        self.assertEqual(c0.alpha3, 'ESP')
+
+        # Check term param
+        cs = api.countries(self.db, term='ited')
+        self.assertEqual(len(cs), 2)
+
+        c0 = cs[0]
+        self.assertIsInstance(c0, Country)
+        self.assertEqual(c0.code, 'GB')
+        self.assertEqual(c0.name, 'United Kingdom')
+        self.assertEqual(c0.alpha3, 'GBR')
+
+        c1 = cs[1]
+        self.assertIsInstance(c1, Country)
+        self.assertEqual(c1.code, 'US')
+        self.assertEqual(c1.name, 'United States of America')
+        self.assertEqual(c1.alpha3, 'USA')
+
+        # Check if term is ignored when code is given
+        cs = api.countries(self.db, code='ES', term='ited')
+        self.assertEqual(len(cs), 1)
+
+        c0 = cs[0]
+        self.assertIsInstance(c0, Country)
+        self.assertEqual(c0.code, 'ES')
+        self.assertEqual(c0.name, 'Spain')
+        self.assertEqual(c0.alpha3, 'ESP')
+
+    def test_empty_registry(self):
+        """Check whether it returns an empty list when the registry is empty"""
+
+        cs = api.countries(self.db)
+        self.assertListEqual(cs, [])
+
+    def test_not_found(self):
+        """Check whether it raises an error when the country is not available"""
+
+        # It should raise an error when the registry is empty
+        self.assertRaises(NotFoundError, api.countries, self.db, 'ES')
+
+        # It should do the same when there are some orgs available
+        with self.db.connect() as session:
+            us = Country(code='US', name='United States of America', alpha3='USA')
+            es = Country(code='ES', name='Spain', alpha3='ESP')
+            gb = Country(code='GB', name='United Kingdom', alpha3='GBR')
+
+            session.add(es)
+            session.add(us)
+            session.add(gb)
+
+        self.assertRaises(NotFoundError, api.countries, self.db, 'GR')
+        self.assertRaises(NotFoundError, api.countries, self.db, None, 'Greece')
+        self.assertRaises(NotFoundError, api.countries, self.db, 'GR', 'Greece')
+
+    def test_invalid_country_code(self):
+        """Check whether it raises an error when the country code is not valid"""
+
+        exc = COUNTRY_CODE_INVALID_ERROR % {'code' : ''}
+        self.assertRaisesRegexp(ValueError, exc,
+                                api.countries, self.db, '')
+
+        exc = COUNTRY_CODE_INVALID_ERROR % {'code' : 'AAA'}
+        self.assertRaisesRegexp(ValueError, exc,
+                                api.countries, self.db, 'AAA')
+
+        exc = COUNTRY_CODE_INVALID_ERROR % {'code' : '2A'}
+        self.assertRaisesRegexp(ValueError, exc,
+                                api.countries, self.db, '2A')
+
+        exc = COUNTRY_CODE_INVALID_ERROR % {'code' : '8'}
+        self.assertRaisesRegexp(ValueError, exc,
+                                api.countries, self.db, 8)
 
 
 class TestEnrollments(TestBaseCase):

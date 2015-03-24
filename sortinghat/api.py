@@ -22,7 +22,7 @@
 
 from sortinghat import utils
 from sortinghat.db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE,\
-    UniqueIdentity, Identity, Organization, Domain, Enrollment
+    UniqueIdentity, Identity, Organization, Domain, Country, Enrollment
 from sortinghat.exceptions import AlreadyExistsError, NotFoundError
 
 
@@ -858,6 +858,67 @@ def domains(db, domain=None, top=False):
         session.expunge_all()
 
     return doms
+
+
+def countries(db, code=None, term=None):
+    """List the countries available in the registry.
+
+    The function will return the list of countries. When either 'code' or
+    'term' parameters are set, it will only return the information about
+    those countries that match them.
+
+    Take into account that 'code' is a country identifier composed by two
+    letters (i.e ES or US). A 'ValueError' exception will be raised when
+    this identifier is not valid. If this value is valid, 'term' parameter
+    will be ignored.
+
+    When the given values do not match with any country from the registry
+    a 'NotFounError' exception will be raised.
+
+    :param db: database manager
+    :param code: country identifier composed by two letters
+    :param term: term to match with countries names
+
+    :returns: a list of countries sorted by their country id
+
+    :raises ValueError: raised when 'code' is not a string composed by
+        two letters
+    :raises NotFoundError: raised when the given 'code' or 'term' is not
+        found for any country from the registry
+    """
+    def _is_code_valid(code):
+        return type(code) == str \
+            and len(code) == 2 \
+            and code.isalpha()
+
+    if code is not None and not _is_code_valid(code):
+        raise ValueError('country code must be a 2 length alpha string - %s given' \
+                         % str(code))
+
+    cs = []
+
+    with db.connect() as session:
+        query = session.query(Country)
+
+        if code or term:
+            if code:
+                query = query.filter(Country.code == code.upper())
+            elif term:
+                query = query.filter(Country.name.like('%' + term + '%'))
+
+            cs = query.order_by(Country.code).all()
+
+            if not cs:
+                e = code if code else term
+                raise NotFoundError(entity=e)
+        else:
+            cs = session.query(Country).\
+                order_by(Country.code).all()
+
+        # Detach objects from the session
+        session.expunge_all()
+
+    return cs
 
 
 def enrollments(db, uuid=None, organization=None, from_date=None, to_date=None):
