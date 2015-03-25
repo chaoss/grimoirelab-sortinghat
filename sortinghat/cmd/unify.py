@@ -118,53 +118,34 @@ class Unify(Command):
         while remaining:
             u = remaining.pop(0)
 
-            was_merged = False
+            # Find all positive matches on the list of merged
+            # unique identities.
+            candidates = []
+            no_match = []
 
-            # Try to find a positive match on the list of merged
-            # unique identities. In this case, merge and continue
-            # with the next unique identity from the remaining list
-            for i in range(len(merged)):
-                m = merged[i]
+            while merged:
+                m = merged.pop(0)
 
-                if not matcher.match(u, m):
-                    continue
-
-                # Merge and retrieve the merged uidentity
-                if self.__merge(u, m, interactive):
-                    m = api.unique_identities(self.db, uuid=m.uuid)[0]
-                    merged[i] = m
-                    self.matched += 1
-                    was_merged = True
-                    break
-
-            if was_merged:
-                continue
-
-            # No match was found on merged list, so find as much as possible
-            # matches on the list of remaining unique identities. Those
-            # identities that won't match will be added to the not merged
-            # list.
-            not_merged = []
-
-            while remaining:
-                c = remaining.pop(0)
-
-                if matcher.match(c, u):
-                    # Merge and retrieve the merged uidentity
-                    if self.__merge(c, u, interactive):
-                        u = api.unique_identities(self.db, uuid=u.uuid)[0]
-                        self.matched += 1
-                    else:
-                        not_merged.append(c)
+                if matcher.match(u, m):
+                    candidates.append(m)
                 else:
-                    not_merged.append(c)
+                    no_match.append(m)
 
-            # Add this unique identity to the list of merged ones, although
-            # there were no other identities which matched with it. Swap
-            # not merged list with remaining list.
-            merged.append(u)
+            # Merge with the list of candidates
+            if len(candidates) > 0:
+                candidates.append(u)
 
-            remaining = not_merged
+                u = candidates[0]
+
+                for c in candidates[1:]:
+                    if self.__merge(c, u, interactive):
+                        self.matched += 1
+
+                u = api.unique_identities(self.db, uuid=u.uuid)[0]
+
+            # Generate the new list of merged identities
+            merged = [u] + no_match
+
 
     def __merge(self, from_uid, to_uid, interactive):
         # By default, always merge
