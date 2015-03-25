@@ -28,6 +28,7 @@ import uuid
 if not '..' in sys.path:
     sys.path.insert(0, '..')
 
+from sortinghat import api
 from sortinghat.cmd.init import Init
 from sortinghat.db.database import Database
 
@@ -73,6 +74,10 @@ class TestInitCommand(TestBaseCase):
                       self.kwargs['host'], self.kwargs['port'])
         self.assertIsInstance(db, Database)
 
+        # Check if the list of countries was loaded
+        countries = api.countries(db)
+        self.assertEqual(len(countries), 249)
+
     def test_connection_error(self):
         """Check connection errors"""
 
@@ -106,6 +111,10 @@ class TestInitialize(TestBaseCase):
         db = Database(self.kwargs['user'], self.kwargs['password'], self.name,
                       self.kwargs['host'], self.kwargs['port'])
         self.assertIsInstance(db, Database)
+
+        # Check if the list of countries was loaded
+        countries = api.countries(db)
+        self.assertEqual(len(countries), 249)
 
     def test_connection_error(self):
         """Check connection errors"""

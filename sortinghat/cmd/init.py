@@ -23,8 +23,9 @@
 import argparse
 
 from sortinghat.command import Command
-from sortinghat.exceptions import DatabaseError
+from sortinghat.exceptions import DatabaseError, LoadError
 from sortinghat.db.database import Database
+from sortinghat.db.model import Country
 
 
 class Init(Command):
@@ -71,12 +72,46 @@ class Init(Command):
 
         :param name: name of the database
         """
+        user = self._kwargs['user']
+        password = self._kwargs['password']
+        host = self._kwargs['host']
+        port = self._kwargs['port']
+
         try:
-            Database.create(self._kwargs['user'], self._kwargs['password'],
-                            name, self._kwargs['host'], self._kwargs['port'])
+            Database.create(user, password, name, host, port)
 
             # Try to access and create schema
-            Database(self._kwargs['user'], self._kwargs['password'],
-                     name, self._kwargs['host'], self._kwargs['port'])
+            db = Database(user, password, name, host, port)
+
+            # Load countries list
+            self.__load_countries(db)
         except DatabaseError, e:
             self.error(str(e))
+        except LoadError, e:
+            Database.drop(user, password, name, host, port)
+            self.error(str(e))
+
+    def __load_countries(self, db):
+        """Load the list of countries"""
+
+        try:
+            countries = self.__read_countries_file()
+        except IOError, e:
+            raise LoadError(str(e))
+
+        try:
+            with db.connect() as session:
+                for country in countries:
+                    session.add(country)
+        except Exception, e:
+            raise LoadError(str(e))
+
+    def __read_countries_file(self):
+        """Read countries from a CSV file"""
+        import csv
+        import pkg_resources
+
+        f = pkg_resources.resource_stream('sortinghat', 'data/countries.csv')
+        reader = csv.DictReader(f, fieldnames=['name', 'code', 'alpha3'])
+
+        return [Country(**c) for c in reader]
