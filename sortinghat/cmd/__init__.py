@@ -23,6 +23,7 @@
 from sortinghat.cmd.add import Add
 from sortinghat.cmd.affiliate import Affiliate
 from sortinghat.cmd.config import Config
+from sortinghat.cmd.countries import Countries
 from sortinghat.cmd.enroll import Enroll
 from sortinghat.cmd.export import Export
 from sortinghat.cmd.init import Init
@@ -41,6 +42,7 @@ SORTINGHAT_COMMANDS = {
                        'add'       : Add,
                        'affiliate' : Affiliate,
                        'config'    : Config,
+                       'countries' : Countries,
                        'enroll'    : Enroll,
                        'export'    : Export,
                        'init'      : Init,

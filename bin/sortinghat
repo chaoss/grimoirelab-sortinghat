@@ -40,6 +40,7 @@ SORTINGHAT_DESC_MSG = \
     add         Add identities
     affiliate   Affiliate identities
     config      Get and set configuration parameters
+    countries   List information about countries
     enroll      Enroll identities into organizations
     export      Export data (i.e identities) from the registry
     init        Create an empty registry
