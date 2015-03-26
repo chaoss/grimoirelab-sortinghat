@@ -79,10 +79,12 @@ class Affiliate(Command):
                     except NotFoundError, e:
                         continue
 
-                    if len(doms) != 1:
-                        msg = "multiple top domains for %s sub-domain. Please fix it before continue"
-                        msg = msg % domain
-                        raise RuntimeError(msg)
+                    if len(doms) > 1:
+                        doms.sort(key=lambda d: len(d.domain), reverse=True)
+
+                        msg = "multiple top domains for %s sub-domain. Domain %s selected."
+                        msg = msg % (domain, doms[0].domain)
+                        self.warning(msg)
 
                     organization = doms[0].organization.name
 

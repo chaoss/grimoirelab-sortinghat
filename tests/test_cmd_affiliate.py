@@ -38,9 +38,14 @@ AFFILIATE_OUTPUT = """Unique identity 52e0aa0a14826627e633fd15332988686b730ab3 (
 Unique identity 52e0aa0a14826627e633fd15332988686b730ab3 (jroe@bitergia.com) affiliated to Bitergia
 Unique identity 5b59daf41755fa6f65c1c85b0a75ca138c1baaa6 (jsmith@us.example.com) affiliated to Example"""
 
+AFFILIATE_OUTPUT_ALT = """Unique identity 52e0aa0a14826627e633fd15332988686b730ab3 (jroe@example.com) affiliated to Example
+Unique identity 52e0aa0a14826627e633fd15332988686b730ab3 (jroe@bitergia.com) affiliated to Bitergia
+Unique identity 5b59daf41755fa6f65c1c85b0a75ca138c1baaa6 (jsmith@us.example.com) affiliated to Example
+Unique identity fcc708d84d4e948ea10e594a55652f5fcbd5a339 (janedoe@it.u.example.com) affiliated to Example Alt"""
+
 AFFILIATE_EMPTY_OUTPUT = ""
 
-MULTIPLE_DOMAIN_RUNTIME_ERROR = "multiple top domains for %(domain)s sub-domain. Please fix it before continue"
+MULTIPLE_DOMAIN_WARNING = "Warning: multiple top domains for %(subdomain)s sub-domain. Domain %(domain)s selected."
 
 
 class TestBaseCase(unittest.TestCase):
@@ -70,9 +75,11 @@ class TestBaseCase(unittest.TestCase):
         # Add some domains
         api.add_organization(self.db, 'Example')
         api.add_domain(self.db, 'Example', 'example.com', is_top_domain=True)
-        api.add_domain(self.db, 'Example', 'u.example.com', is_top_domain=True)
-        api.add_domain(self.db, 'Example', 'es.u.example.com')
-        api.add_domain(self.db, 'Example', 'en.u.example.com')
+
+        api.add_organization(self.db, 'Example Alt')
+        api.add_domain(self.db, 'Example Alt', 'u.example.com', is_top_domain=True)
+        api.add_domain(self.db, 'Example Alt', 'es.u.example.com')
+        api.add_domain(self.db, 'Example Alt', 'en.u.example.com')
 
         api.add_organization(self.db, 'Bitergia')
         api.add_domain(self.db, 'Bitergia', 'bitergia.com')
@@ -111,15 +118,20 @@ class TestAffiliateCommand(TestBaseCase):
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, AFFILIATE_OUTPUT)
 
-    def test_multiple_top_domains_error(self):
-        """Check if it raises a RuntimeError on multiple top domains"""
+    def test_multiple_top_domains(self):
+        """Check if it choose the right domain when multiple top domains are available"""
 
-        # To check this, add a new top domain to an existing organization
-        api.add_domain(self.db, 'Example', '.com', is_top_domain=True)
+        api.add_identity(self.db, 'scm', 'janedoe@it.u.example.com')
 
-        self.assertRaisesRegexp(RuntimeError,
-                                MULTIPLE_DOMAIN_RUNTIME_ERROR % {'domain' : 'us.example.com'},
-                                self.cmd.run)
+        self.cmd.run()
+
+        output = sys.stdout.getvalue().strip()
+        self.assertEqual(output, AFFILIATE_OUTPUT_ALT)
+
+        wrn = sys.stderr.getvalue().strip()
+        self.assertEqual(wrn,
+                         MULTIPLE_DOMAIN_WARNING % {'subdomain' : 'it.u.example.com',
+                                                    'domain' : 'u.example.com'})
 
     def test_empty_registry(self):
         """Check output when the registry is empty"""
@@ -142,15 +154,20 @@ class TestAffiliate(TestBaseCase):
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, AFFILIATE_OUTPUT)
 
-    def test_multiple_top_domains_error(self):
-        """Check if it raises a RuntimeError on multiple top domains"""
+    def test_multiple_top_domains(self):
+        """Check if it choose the right domain when multiple top domains are available"""
 
-        # To check this, add a new top domain to an existing organization
-        api.add_domain(self.db, 'Example', '.com', is_top_domain=True)
+        api.add_identity(self.db, 'scm', 'janedoe@it.u.example.com')
 
-        self.assertRaisesRegexp(RuntimeError,
-                                MULTIPLE_DOMAIN_RUNTIME_ERROR % {'domain' : 'us.example.com'},
-                                self.cmd.affiliate)
+        self.cmd.affiliate()
+
+        output = sys.stdout.getvalue().strip()
+        self.assertEqual(output, AFFILIATE_OUTPUT_ALT)
+
+        wrn = sys.stderr.getvalue().strip()
+        self.assertEqual(wrn,
+                         MULTIPLE_DOMAIN_WARNING % {'subdomain' : 'it.u.example.com',
+                                                    'domain' : 'u.example.com'})
 
     def test_empty_registry(self):
         """Check output when the registry is empty"""
