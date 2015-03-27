@@ -22,7 +22,7 @@
 
 from sortinghat import utils
 from sortinghat.db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE,\
-    UniqueIdentity, Identity, Organization, Domain, Country, Enrollment
+    UniqueIdentity, Identity, Profile, Organization, Domain, Country, Enrollment
 from sortinghat.exceptions import AlreadyExistsError, NotFoundError
 
 
@@ -321,6 +321,71 @@ def add_enrollment(db, uuid, organization, from_date=None, to_date=None):
         enrollment = Enrollment(uidentity=uidentity, organization=org,
                                 start=from_date, end=to_date)
         session.add(enrollment)
+
+
+def edit_profile(db, uuid, **kwargs):
+    """Edit unique identity profile.
+
+    This function allows to edit or update the profile information of the
+    unique identity identified by 'uuid'. When there is not a profile
+    for the given 'uuid', a new one will be created.
+
+    The values to update are given as keyword arguments. The allowed
+    keys are listed below (other keywords will be ignored):
+
+       - 'name' : name of the unique identity
+       - 'email' : email address of the unique identity
+       - 'is_bot' : boolean value to determine whether a unique identity is
+             a bot or not. By default, this value is initialized to
+             False.
+       - 'country_code' : ISO-3166 country code
+
+    :raises NotFoundError: raised when either the unique identity
+        or the country code do not exist in the registry.
+    :raises ValueError: raised when is_bot does not have a boolean
+        value.
+    """
+    with db.connect() as session:
+        uidentity = session.query(UniqueIdentity).\
+            filter(UniqueIdentity.uuid == uuid).first()
+
+        if not uidentity:
+            raise NotFoundError(entity=uuid)
+
+        if not uidentity.profile:
+            # Create a new profile
+            profile = Profile(uuid=uuid)
+        else:
+            profile = uidentity.profile
+
+        if 'is_bot' in kwargs:
+            is_bot = kwargs['is_bot']
+
+            if type(is_bot) != bool:
+                raise ValueError('is_bot must have a boolean value')
+
+            profile.is_bot = is_bot
+
+        if 'country_code' in kwargs:
+            code = kwargs['country_code']
+
+            country = session.query(Country).\
+                filter(Country.code == code).first()
+
+            if not country:
+                raise NotFoundError(entity='country code %s' % str(code))
+
+            profile.country_code = country.code
+
+        # Function to avoid empty strings on the database
+        to_none_if_empty = lambda x: None if x == '' else x
+
+        if 'name' in kwargs:
+            profile.name = to_none_if_empty(kwargs['name'])
+        if 'email' in kwargs:
+            profile.email = to_none_if_empty(kwargs['email'])
+
+        session.add(profile)
 
 
 def delete_unique_identity(db, uuid):

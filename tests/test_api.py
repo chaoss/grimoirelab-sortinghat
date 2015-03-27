@@ -30,8 +30,8 @@ if not '..' in sys.path:
 
 from sortinghat import api
 from sortinghat.db.database import Database
-from sortinghat.db.model import UniqueIdentity, Identity, Organization, Domain,\
-    Country, Enrollment
+from sortinghat.db.model import UniqueIdentity, Identity, Profile,\
+    Organization, Domain, Country, Enrollment
 from sortinghat.exceptions import AlreadyExistsError, NotFoundError
 from sortinghat.matcher import create_identity_matcher
 
@@ -42,6 +42,7 @@ UUID_NONE_OR_EMPTY_ERROR = "uuid cannot be"
 ORG_NONE_OR_EMPTY_ERROR = "organization cannot be"
 DOMAIN_NONE_OR_EMPTY_ERROR = "domain cannot be"
 TOP_DOMAIN_VALUE_ERROR = "top_domain must have a boolean value"
+IS_BOT_VALUE_ERROR = "is_bot must have a boolean value"
 SOURCE_NONE_OR_EMPTY_ERROR = "source cannot be"
 IDENTITY_NONE_OR_EMPTY_ERROR = "identity data cannot be None or empty"
 COUNTRY_CODE_INVALID_ERROR = "country code must be a 2 length alpha string - %(code)s given"
@@ -601,6 +602,130 @@ class TestAddEnrollment(TestBaseCase):
                           self.db, 'John Smith', 'Example',
                           datetime.datetime(1999, 1, 1),
                           datetime.datetime(2000, 1, 1))
+
+
+class TestEditProfile(TestBaseCase):
+    """Unit tests for edit_profile"""
+
+    def test_edit_new_profile(self):
+        """Check if it creates an new profile"""
+
+        api.add_unique_identity(self.db, 'John Smith')
+
+        with self.db.connect() as session:
+            # Add a country
+            us = Country(code='US', name='United States of America', alpha3='USA')
+            session.add(us)
+
+            # There are not profiles for the given uuid yet
+            prf = session.query(Profile).\
+                filter(Profile.uuid == 'John Smith').first()
+            self.assertEqual(prf, None)
+
+        # Add the new profile
+        api.edit_profile(self.db, 'John Smith', name='Smith, J.', email='',
+                         is_bot=True, country_code='US')
+
+        with self.db.connect() as session:
+            uid = session.query(UniqueIdentity).\
+                filter(UniqueIdentity.uuid == 'John Smith').first()
+
+            prf = uid.profile
+
+            self.assertEqual(prf.uuid, 'John Smith')
+            self.assertEqual(prf.name, 'Smith, J.')
+            # This should be converted to None
+            self.assertEqual(prf.email, None)
+            self.assertEqual(prf.is_bot, True)
+            self.assertEqual(prf.country_code, 'US')
+            self.assertEqual(prf.country.code, 'US')
+            self.assertEqual(prf.country.name, 'United States of America')
+
+    def test_update_profile(self):
+        """Check if it updates an existing profile"""
+
+        with self.db.connect() as session:
+            # Add a country
+            us = Country(code='US', name='United States of America', alpha3='USA')
+            session.add(us)
+
+        # Add a unique identity with a profile
+        api.add_unique_identity(self.db, 'John Smith')
+        api.edit_profile(self.db, 'John Smith', name='Smith, J.',
+                         is_bot=True)
+
+        with self.db.connect() as session:
+            uid = session.query(UniqueIdentity).\
+                filter(UniqueIdentity.uuid == 'John Smith').first()
+
+            prf = uid.profile
+
+            self.assertEqual(prf.uuid, 'John Smith')
+            self.assertEqual(prf.name, 'Smith, J.')
+            self.assertEqual(prf.email, None)
+            self.assertEqual(prf.is_bot, True)
+            self.assertEqual(prf.country_code, None)
+            self.assertEqual(prf.country, None)
+
+        # Update some fields
+        api.edit_profile(self.db, 'John Smith', name='', email='jsmith@example.com',
+                         is_bot=False, country_code='US')
+
+        with self.db.connect() as session:
+            uid = session.query(UniqueIdentity).\
+                filter(UniqueIdentity.uuid == 'John Smith').first()
+
+            prf = uid.profile
+
+            self.assertEqual(prf.uuid, 'John Smith')
+            self.assertEqual(prf.name, None)
+            self.assertEqual(prf.email, 'jsmith@example.com')
+            self.assertEqual(prf.is_bot, False)
+            self.assertEqual(prf.country_code, 'US')
+            self.assertEqual(prf.country.code, 'US')
+            self.assertEqual(prf.country.name, 'United States of America')
+
+    def test_not_found_uuid(self):
+        """Check if it fails editing a profile of a unique identity that does not exists"""
+
+        # It should raise an error when the registry is empty
+        self.assertRaises(NotFoundError, api.edit_profile,
+                          self.db, 'John Smith')
+
+        # Add a pair of unique identities first
+        api.add_unique_identity(self.db, 'Jonh Smith')
+        api.add_unique_identity(self.db, 'John Doe')
+
+        # The error should be the same
+        self.assertRaises(NotFoundError, api.edit_profile,
+                          self.db, 'Jane Rae')
+
+    def test_not_found_country_code(self):
+        """Check if it fails when the given country is not found"""
+
+        api.add_unique_identity(self.db, 'John Smith')
+
+        with self.db.connect() as session:
+            us = Country(code='US', name='United States of America', alpha3='USA')
+            session.add(us)
+
+        self.assertRaisesRegexp(NotFoundError,
+                                NOT_FOUND_ERROR % {'entity' : 'country code ES'},
+                                api.edit_profile, self.db, 'John Smith',
+                                **{'country_code' : 'ES'})
+
+    def test_invalid_type_is_bot(self):
+        """Check type values of is_bot parameter"""
+
+        api.add_unique_identity(self.db, 'John Smith')
+
+        self.assertRaisesRegexp(ValueError, IS_BOT_VALUE_ERROR,
+                                api.edit_profile, self.db, 'John Smith',
+                                **{'is_bot' : 1})
+        self.assertRaisesRegexp(ValueError, IS_BOT_VALUE_ERROR,
+                                api.edit_profile, self.db, 'John Smith',
+                                **{'is_bot' : 'True'})
+
 
 class TestDeleteUniqueIdentity(TestBaseCase):
     """Unit tests for delete_unique_identity"""
