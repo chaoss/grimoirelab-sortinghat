@@ -34,7 +34,7 @@ from sqlalchemy.exc import IntegrityError, OperationalError, StatementError
 from sqlalchemy.orm import sessionmaker
 
 from sortinghat.db.model import ModelBase, Organization, Domain, Country,\
-    UniqueIdentity, Identity, Enrollment
+    UniqueIdentity, Identity, Profile, Enrollment
 from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
 
@@ -383,6 +383,63 @@ class TestIdentity(TestCaseBase):
         self.assertEqual(d['username'], 'jsmith')
         self.assertEqual(d['source'], 'scm')
         self.assertEqual(d['uuid'], 'John Smith')
+
+
+class TestProfile(TestCaseBase):
+    """Unit tests for Profile class"""
+
+    def test_unique_profile(self):
+        """Check if there is only one profile for each unique identity"""
+
+        uid = UniqueIdentity(uuid='John Smith')
+        self.session.add(uid)
+
+        prf1 = Profile(uuid='John Smith', name='John Smith')
+        prf2 = Profile(uuid='John Smith', name='Smith, J.')
+
+        with self.assertRaisesRegexp(IntegrityError, DUP_CHECK_ERROR):
+            self.session.add(prf1)
+            self.session.add(prf2)
+            self.session.commit()
+
+    def test_is_bot_invalid_type(self):
+        """Check invalid values on is_bot bool column"""
+
+        with self.assertRaisesRegexp(StatementError, INVALID_DATATYPE_ERROR):
+            uid = UniqueIdentity(uuid='John Smith')
+            self.session.add(uid)
+
+            prf = Profile(uuid='John Smith', name='John Smith', is_bot='True')
+
+            self.session.add(prf)
+            self.session.commit()
+
+    def test_to_dict(self):
+        """Test output of to_dict() method"""
+
+        uid = UniqueIdentity(uuid='John Smith')
+        self.session.add(uid)
+
+        c = Country(code='US', name='United States of America', alpha3='USA')
+        self.session.add(c)
+
+        prf = Profile(uuid='John Smith', name='Smith, J.',
+                      email='jsmith@example.com', is_bot=True,
+                      country_code='US')
+
+        self.session.add(prf)
+        self.session.commit()
+
+        # Tests
+        d = prf.to_dict()
+
+        self.assertIsInstance(d, dict)
+        self.assertEqual(d['uuid'], 'John Smith')
+        self.assertEqual(d['name'], 'Smith, J.')
+        self.assertEqual(d['email'], 'jsmith@example.com')
+        self.assertEqual(d['is_bot'], True)
+        self.assertEqual(d['country']['code'], 'US')
+        self.assertEqual(d['country']['name'], 'United States of America')
 
 
 class TestEnrollment(TestCaseBase):

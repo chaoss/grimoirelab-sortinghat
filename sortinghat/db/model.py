@@ -114,6 +114,10 @@ class UniqueIdentity(ModelBase):
 
     uuid = Column(String(128), primary_key=True)
 
+    # One to one relationship
+    profile = relationship('Profile', backref='uidentities', uselist=False,
+                           lazy='joined', cascade="save-update, merge, delete")
+
     # One-to-Many relationship
     identities = relationship('Identity', backref='uidentities',
                               lazy='joined', cascade="save-update, merge, delete")
@@ -165,6 +169,36 @@ class Identity(ModelBase):
                 'source'   : self.source,
                 'uuid'     : self.uuid
                 }
+
+
+class Profile(ModelBase):
+    __tablename__ = 'profiles'
+
+    uuid = Column(String(128),
+                  ForeignKey('uidentities.uuid', ondelete='CASCADE'),
+                  primary_key=True)
+    name = Column(String(128))
+    email = Column(String(128))
+    is_bot = Column(Boolean(name='is_bot_check'), default=False)
+    country_code = Column(String(2),
+                          ForeignKey('countries.code', ondelete='CASCADE'))
+
+    country = relationship('Country', backref='profile_country',
+                           lazy='joined')
+
+    __table_args__ = ({'mysql_charset': 'utf8'})
+
+    def to_dict(self):
+        return {
+                'uuid'     : self.uuid,
+                'name'     : self.name,
+                'email'    : self.email,
+                'is_bot'   : self.is_bot,
+                'country'  : self.country.to_dict()
+                }
+
+    def __repr__(self):
+        return "%s - %s (%s)" % (self.uuid, self.name)
 
 
 class Enrollment(ModelBase):
