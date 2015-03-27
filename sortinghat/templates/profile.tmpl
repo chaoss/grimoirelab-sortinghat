@@ -1,0 +1,12 @@
+unique identity {{ uid.uuid }}
+
+{% if uid.profile %}
+Profile:
+    * Name: {{ uid.profile.name|d('-', true) }}
+    * E-Mail: {{ uid.profile.email|d('-', true) }}
+    * Bot: {{ '%s' % 'Yes' if uid.profile.is_bot else 'No' }}
+    * Country: {{ '%s' % uid.profile.country.code + ' - ' + uid.profile.country.name if uid.profile.country else '-' }}
+{% else %}
+No profile
+{% endif %}
+

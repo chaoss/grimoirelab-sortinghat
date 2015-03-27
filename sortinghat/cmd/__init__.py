@@ -32,6 +32,7 @@ from sortinghat.cmd.log import Log
 from sortinghat.cmd.merge import Merge
 from sortinghat.cmd.move import Move
 from sortinghat.cmd.organizations import Organizations
+from sortinghat.cmd.profile import Profile
 from sortinghat.cmd.remove import Remove
 from sortinghat.cmd.show import Show
 from sortinghat.cmd.unify import Unify
@@ -51,6 +52,7 @@ SORTINGHAT_COMMANDS = {
                        'merge'     : Merge,
                        'mv'        : Move,
                        'orgs'      : Organizations,
+                       'profile'   : Profile,
                        'rm'        : Remove,
                        'show'      : Show,
                        'unify'     : Unify,

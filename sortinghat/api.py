@@ -378,7 +378,7 @@ def edit_profile(db, uuid, **kwargs):
             profile.country_code = country.code
 
         # Function to avoid empty strings on the database
-        to_none_if_empty = lambda x: None if x == '' else x
+        to_none_if_empty = lambda x: None if x == '' else x.decode('utf-8')
 
         if 'name' in kwargs:
             profile.name = to_none_if_empty(kwargs['name'])

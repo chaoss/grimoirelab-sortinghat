@@ -49,6 +49,7 @@ SORTINGHAT_DESC_MSG = \
     mv          Move an identity into a unique identity
     log         List enrollment information available in the registry
     orgs        List, add or delete organizations and domains
+    profile     Edit profile
     rm          Remove identities from the registry
     show        Show information about a unique identity
     unify       Merge identities using a matching algorithm
