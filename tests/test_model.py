@@ -441,6 +441,14 @@ class TestProfile(TestCaseBase):
         self.assertEqual(d['country']['code'], 'US')
         self.assertEqual(d['country']['name'], 'United States of America')
 
+        # No country set
+        prf = Profile(uuid='John Smith', name='Smith, J.',
+                      email='jsmith@example.com', is_bot=True,
+                      country_code=None)
+
+        d = prf.to_dict()
+        self.assertEqual(d['country'], None)
+
 
 class TestEnrollment(TestCaseBase):
     """Unit tests for Enrollment class"""

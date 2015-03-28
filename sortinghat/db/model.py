@@ -194,7 +194,8 @@ class Profile(ModelBase):
                 'name'     : self.name,
                 'email'    : self.email,
                 'is_bot'   : self.is_bot,
-                'country'  : self.country.to_dict()
+                'country'  : self.country.to_dict() \
+                             if self.country else None
                 }
 
     def __repr__(self):
