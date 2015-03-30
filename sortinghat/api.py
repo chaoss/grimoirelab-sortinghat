@@ -369,13 +369,16 @@ def edit_profile(db, uuid, **kwargs):
         if 'country_code' in kwargs:
             code = kwargs['country_code']
 
-            country = session.query(Country).\
-                filter(Country.code == code).first()
+            if code:
+                country = session.query(Country).\
+                    filter(Country.code == code).first()
 
-            if not country:
-                raise NotFoundError(entity='country code %s' % str(code))
+                if not country:
+                    raise NotFoundError(entity='country code %s' % str(code))
 
-            profile.country_code = country.code
+                profile.country_code = country.code
+            else:
+                profile.country_code = None
 
         # Function to avoid empty strings on the database
         to_none_if_empty = lambda x: None if x == '' else x.decode('utf-8')

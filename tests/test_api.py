@@ -685,6 +685,18 @@ class TestEditProfile(TestBaseCase):
             self.assertEqual(prf.country.code, 'US')
             self.assertEqual(prf.country.name, 'United States of America')
 
+        # Unset country data
+        api.edit_profile(self.db, 'John Smith', country_code=None)
+
+        with self.db.connect() as session:
+            uid = session.query(UniqueIdentity).\
+                filter(UniqueIdentity.uuid == 'John Smith').first()
+
+            prf = uid.profile
+            self.assertEqual(prf.uuid, 'John Smith')
+            self.assertEqual(prf.country_code, None)
+            self.assertEqual(prf.country, None)
+
     def test_not_found_uuid(self):
         """Check if it fails editing a profile of a unique identity that does not exists"""
 
