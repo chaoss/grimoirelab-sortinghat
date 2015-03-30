@@ -574,6 +574,11 @@ def merge_unique_identities(db, from_uuid, to_uuid):
     from the registry. Duplicated enrollments will be also removed from the
     registry.
 
+    This function also merges two profiles. When a field on 'to_uuid'
+    profile is None or empty, it will be updated with the value on the
+    profile of 'from_uuid'. If any of the two unique identities was set
+    as a bot, the new profile will also be set as a bot.
+
     When 'from_uuid' and 'to_uuid' are equal, the action does not have any
     effect.
 
@@ -601,6 +606,23 @@ def merge_unique_identities(db, from_uuid, to_uuid):
 
         if not tuid:
             raise NotFoundError(entity=to_uuid)
+
+        # Update profile information
+        if tuid.profile and fuid.profile:
+            # Update empty fields
+            if not tuid.profile.name:
+                tuid.profile.name = fuid.profile.name
+            if not tuid.profile.email:
+                tuid.profile.email = fuid.profile.email
+            if not tuid.profile.country_code:
+                tuid.profile.country_code = fuid.profile.country_code
+
+            # If the from_uuid is a bot, set to_uuid as a bot
+            if fuid.profile.is_bot:
+                tuid.profile.is_bot = True
+        elif not tuid.profile and fuid.profile:
+            # Swap profiles
+            fuid.profile.uuid = to_uuid
 
         # Update identities
         for identity in fuid.identities:

@@ -31,6 +31,7 @@ if not '..' in sys.path:
 from sortinghat import api
 from sortinghat.cmd.merge import Merge
 from sortinghat.db.database import Database
+from sortinghat.db.model import Country
 
 from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
@@ -68,15 +69,24 @@ class TestBaseCase(unittest.TestCase):
         self.db.clear()
 
     def _load_test_dataset(self):
+        # Add country
+        with self.db.connect() as session:
+            # Add a country
+            us = Country(code='US', name='United States of America', alpha3='USA')
+            session.add(us)
+
         api.add_unique_identity(self.db, 'John Smith')
         api.add_identity(self.db, 'scm', 'jsmith@example.com',
                          uuid='John Smith')
         api.add_identity(self.db, 'scm', 'jsmith@example.com', 'John Smith',
                          uuid='John Smith')
+        api.edit_profile(self.db, 'John Smith', name='John Smith', is_bot=False)
 
         api.add_unique_identity(self.db, 'John Doe')
         api.add_identity(self.db, 'scm', 'jdoe@example.com',
                          uuid='John Doe')
+        api.edit_profile(self.db, 'John Doe', email='jdoe@example.com', is_bot=True,
+                         country_code='US')
 
         api.add_organization(self.db, 'Example')
         api.add_enrollment(self.db, 'John Smith', 'Example')

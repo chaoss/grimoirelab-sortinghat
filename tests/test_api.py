@@ -1432,17 +1432,26 @@ class TestMergeUniqueIdentities(TestBaseCase):
     def test_merge_identitites(self):
         """Test behavior merging unique identities"""
 
-        # Add some unique identities, identities and
+        # Add some countries, unique identities, identities and
         # enrollments first
+        with self.db.connect() as session:
+            # Add a country
+            us = Country(code='US', name='United States of America', alpha3='USA')
+            session.add(us)
+
         api.add_unique_identity(self.db, 'John Smith')
         api.add_identity(self.db, 'scm', 'jsmith@example.com',
                          uuid='John Smith')
         api.add_identity(self.db, 'scm', 'jsmith@example.com', 'John Smith',
                          uuid='John Smith')
+        api.edit_profile(self.db, 'John Smith', name='John Smith', is_bot=True,
+                         country_code='US')
 
         api.add_unique_identity(self.db, 'John Doe')
         api.add_identity(self.db, 'scm', 'jdoe@example.com',
                          uuid='John Doe')
+        api.edit_profile(self.db, 'John Doe', email='jdoe@example.com', is_bot=False)
+
         api.add_unique_identity(self.db, 'Jane Rae')
 
         api.add_organization(self.db, 'Example')
@@ -1472,6 +1481,15 @@ class TestMergeUniqueIdentities(TestBaseCase):
 
             uid2 = uidentities[1]
             self.assertEqual(uid2.uuid, 'John Doe')
+
+            self.assertEqual(uid2.profile.uuid, 'John Doe')
+            self.assertEqual(uid2.profile.name, 'John Smith')
+            self.assertEqual(uid2.profile.email, 'jdoe@example.com')
+            self.assertEqual(uid2.profile.is_bot, True)
+            self.assertEqual(uid2.profile.country_code, 'US')
+            self.assertEqual(uid2.profile.country.code, 'US')
+            self.assertEqual(uid2.profile.country.name, 'United States of America')
+
             self.assertEqual(len(uid2.identities), 3)
 
             id1 = uid2.identities[0]
@@ -1506,6 +1524,41 @@ class TestMergeUniqueIdentities(TestBaseCase):
             self.assertEqual(rol3.organization.name, 'Bitergia')
             self.assertEqual(rol3.start, datetime.datetime(1999, 1, 1))
             self.assertEqual(rol3.end, datetime.datetime(2000, 1, 1))
+
+    def test_merge_identities_and_swap_profile(self):
+        """Test swap of profiles when a unique identity does not have one"""
+
+        # Add some countries, unique identities, identities and
+        # enrollments first
+        with self.db.connect() as session:
+            # Add a country
+            us = Country(code='US', name='United States of America', alpha3='USA')
+            session.add(us)
+
+        api.add_unique_identity(self.db, 'John Smith')
+        api.edit_profile(self.db, 'John Smith', name='John Smith', is_bot=True,
+                         country_code='US')
+
+        api.add_unique_identity(self.db, 'Jane Rae')
+
+        # Merge John Smith and Jane Rae unique identities
+        # John Smith profile should be swapped to Jane Rae
+        api.merge_unique_identities(self.db, 'John Smith', 'Jane Rae')
+
+        with self.db.connect() as session:
+            uidentities = session.query(UniqueIdentity).all()
+            self.assertEqual(len(uidentities), 1)
+
+            uid1 = uidentities[0]
+            self.assertEqual(uid1.uuid, 'Jane Rae')
+
+            self.assertEqual(uid1.profile.uuid, 'Jane Rae')
+            self.assertEqual(uid1.profile.name, 'John Smith')
+            self.assertEqual(uid1.profile.email, None)
+            self.assertEqual(uid1.profile.is_bot, True)
+            self.assertEqual(uid1.profile.country_code, 'US')
+            self.assertEqual(uid1.profile.country.code, 'US')
+            self.assertEqual(uid1.profile.country.name, 'United States of America')
 
     def test_equal_unique_identities(self):
         """Test that all remains the same when 'from' and 'to' identities are the same"""

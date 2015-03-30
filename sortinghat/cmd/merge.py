@@ -80,6 +80,10 @@ class Merge(Command):
         from the registry. Duplicated enrollments will be also removed from the
         registry.
 
+        Profile information will be updated with the values of <from_uuid> in the
+        case of <to_uuid> values were empty. If <from_uuid> was set as a bot,
+        <to_uuid> will be set too.
+
         When <from_uuid> and <to_uuid> are equal, None or empty, the action does
         not have any effect.
 
