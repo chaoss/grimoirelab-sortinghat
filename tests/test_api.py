@@ -742,6 +742,8 @@ class TestDeleteUniqueIdentity(TestBaseCase):
                          uuid='John Smith')
 
         api.add_unique_identity(self.db, 'John Doe')
+        api.edit_profile(self.db, 'John Doe', name='John Doe', is_bot=False)
+
         api.add_unique_identity(self.db, 'Jane Rae')
 
         api.add_organization(self.db, 'Example')
@@ -778,11 +780,15 @@ class TestDeleteUniqueIdentity(TestBaseCase):
                 filter(UniqueIdentity.uuid == 'Jane Rae').first()
             self.assertEqual(uid2, None)
 
-            # Check if there only remains one unique identity and one
-            # enrollment
+            # Check if there only remains one unique identity, one profile
+            # and one enrollment
             identities = session.query(UniqueIdentity).all()
             self.assertEqual(len(identities), 1)
             self.assertEqual(identities[0].uuid, 'John Doe')
+
+            profiles = session.query(Profile).all()
+            self.assertEqual(len(profiles), 1)
+            self.assertEqual(profiles[0].uuid, 'John Doe')
 
             enrollments = session.query(Enrollment).all()
             self.assertEqual(len(enrollments), 1)
@@ -1827,11 +1833,19 @@ class TestUniqueIdentities(TestBaseCase):
     def test_unique_identities(self):
         """Check if it returns the registry of unique identities"""
 
+        # Add a country
+        with self.db.connect() as session:
+            us = Country(code='US', name='United States of America', alpha3='USA')
+            session.add(us)
+
         # Add some identities
         jsmith_uuid = api.add_identity(self.db, 'scm', 'jsmith@example.com',
                                        'John Smith', 'jsmith')
         api.add_identity(self.db, 'scm', 'jsmith@bitergia.com', uuid=jsmith_uuid)
         api.add_identity(self.db, 'mls', 'jsmith@bitergia.com', uuid=jsmith_uuid)
+        api.edit_profile(self.db, jsmith_uuid, email='jsmith@example.com',
+                         is_bot=True, country_code='US')
+
 
         jdoe_uuid = api.add_identity(self.db, 'scm', 'jdoe@example.com',
                                      'John Doe', 'jdoe')
@@ -1844,6 +1858,15 @@ class TestUniqueIdentities(TestBaseCase):
         # Test John Smith unique identity
         uid = uidentities[0]
         self.assertEqual(uid.uuid, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
+
+        self.assertEqual(uid.profile.uuid, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
+        self.assertEqual(uid.profile.name, None)
+        self.assertEqual(uid.profile.email, 'jsmith@example.com')
+        self.assertEqual(uid.profile.is_bot, True)
+        self.assertEqual(uid.profile.country_code, 'US')
+        self.assertEqual(uid.profile.country.code, 'US')
+        self.assertEqual(uid.profile.country.name, 'United States of America')
+
         self.assertEqual(len(uid.identities), 3)
 
         id1 = uid.identities[0]
@@ -1860,6 +1883,8 @@ class TestUniqueIdentities(TestBaseCase):
         # Test John Doe unique identity
         uid = uidentities[1]
         self.assertEqual(uid.uuid, '8e9eac4c6449d2661d66dc62c1752529f935f0b1')
+        self.assertEqual(uid.profile, None)
+
         self.assertEqual(len(uid.identities), 2)
 
         id1 = uid.identities[0]
@@ -1867,7 +1892,6 @@ class TestUniqueIdentities(TestBaseCase):
 
         id2 = uid.identities[1]
         self.assertEqual(id2.email, 'jdoe@example.com')
-
 
     def test_unique_identities_source(self):
         """Check if it returns the registry of unique identities assigned to a source"""
