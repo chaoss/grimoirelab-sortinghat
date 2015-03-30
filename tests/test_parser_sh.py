@@ -36,6 +36,7 @@ from sortinghat.parsing.sh import SortingHatParser
 SH_INVALID_JSON_FORMAT_ERROR = "invalid json format\. Expecting ',' delimiter"
 SH_IDS_MISSING_KEYS_ERROR = "Attribute uuid not found"
 SH_IDS_DATETIME_ERROR = "2100-01-32T00:00:00 is not a valid date"
+SH_IDS_IS_BOT_ERROR = "'is_bot' must have a bool value"
 SH_ORGS_MISSING_KEYS_ERROR = "Attribute is_top not found"
 SH_ORGS_IS_TOP_ERROR = "'is_top' must have a bool value"
 
@@ -72,13 +73,22 @@ class TestSortingHatParser(TestBaseCase):
         uid = uids[0]
         self.assertIsInstance(uid, UniqueIdentity)
         self.assertEqual(uid.uuid, '0000000000000000000000000000000000000000')
-        self.assertEqual(len(uid.enrollments), 0)
+        self.assertEqual(uid.profile, None)
         self.assertEqual(len(uid.identities), 0)
+        self.assertEqual(len(uid.enrollments), 0)
 
         # John Smith
         uid = uids[1]
         self.assertIsInstance(uid, UniqueIdentity)
         self.assertEqual(uid.uuid, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
+
+        prf = uid.profile
+        self.assertEqual(prf.uuid, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
+        self.assertEqual(prf.name, None)
+        self.assertEqual(prf.email, 'jsmith@example.com')
+        self.assertEqual(prf.is_bot, True)
+        self.assertEqual(prf.country_code, None)
+        self.assertEqual(prf.country, None)
 
         ids = uid.identities
         self.assertEqual(len(ids), 2)
@@ -112,6 +122,16 @@ class TestSortingHatParser(TestBaseCase):
         uid = uids[2]
         self.assertIsInstance(uid, UniqueIdentity)
         self.assertEqual(uid.uuid, '52e0aa0a14826627e633fd15332988686b730ab3')
+
+        prf = uid.profile
+        self.assertEqual(prf.uuid, '52e0aa0a14826627e633fd15332988686b730ab3')
+        self.assertEqual(prf.name, 'Jane Roe')
+        self.assertEqual(prf.email, 'jroe@example.com')
+        self.assertEqual(prf.is_bot, False)
+        self.assertEqual(prf.country_code, 'US')
+        self.assertEqual(prf.country.alpha3, 'USA')
+        self.assertEqual(prf.country.code, 'US')
+        self.assertEqual(prf.country.name, 'United States of America')
 
         ids = uid.identities
         self.assertEqual(len(ids), 3)
@@ -247,6 +267,11 @@ class TestSortingHatParser(TestBaseCase):
         with self.assertRaisesRegexp(InvalidFormatError,
                                      SH_IDS_DATETIME_ERROR):
             s = self.read_file('data/sortinghat_ids_invalid_date.json')
+            SortingHatParser(s)
+
+        with self.assertRaisesRegexp(InvalidFormatError,
+                                     SH_IDS_IS_BOT_ERROR):
+            s = self.read_file('data/sortinghat_ids_invalid_is_bot.json')
             SortingHatParser(s)
 
         with self.assertRaisesRegexp(InvalidFormatError,

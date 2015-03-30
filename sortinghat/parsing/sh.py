@@ -20,7 +20,8 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from sortinghat.db.model import UniqueIdentity, Identity, Enrollment, Organization, Domain
+from sortinghat.db.model import UniqueIdentity, Identity, Profile,\
+    Enrollment, Organization, Domain, Country
 from sortinghat.exceptions import InvalidFormatError, InvalidDateError
 from sortinghat.utils import str_to_datetime
 
@@ -120,8 +121,20 @@ class SortingHatParser(object):
                             "uuid": "03e12d00e37fd45593c49a5a5a1652deca4cf302"
                         }
                     ],
+                    "profile": {
+                        "country": {
+                            "alpha3": "USA",
+                            "code": "US",
+                            "name": "United States of America"
+                        },
+                        "email": "jsmith@example.com",
+                        "name": null,
+                        "is_bot": true,
+                        "uuid": "03e12d00e37fd45593c49a5a5a1652deca4cf302"
+                    },
                     "uuid": "03e12d00e37fd45593c49a5a5a1652deca4cf302"
                 }
+            }
         }
 
         :param stream: stream to parse
@@ -134,6 +147,33 @@ class SortingHatParser(object):
                 uuid = self.__encode(uidentity['uuid'])
 
                 uid = UniqueIdentity(uuid=uuid)
+
+                if uidentity['profile']:
+                    profile = uidentity['profile']
+
+                    if type(profile['is_bot']) != bool:
+                        msg = "invalid json format. 'is_bot' must have a bool value"
+                        raise InvalidFormatError(cause=msg)
+
+                    is_bot = profile['is_bot']
+
+                    name = self.__encode(profile['name'])
+                    email = self.__encode(profile['email'])
+
+                    prf = Profile(uuid=uuid, name=name, email=email,
+                                  is_bot=is_bot)
+
+                    if profile['country']:
+                        alpha3 = self.__encode(profile['country']['alpha3'])
+                        code = self.__encode(profile['country']['code'])
+                        name = self.__encode(profile['country']['name'])
+
+                        c = Country(alpha3=alpha3, code=code, name=name)
+
+                        prf.country_code = code
+                        prf.country = c
+
+                    uid.profile = prf
 
                 for identity in uidentity['identities']:
                     identity_id = self.__encode(identity['id'])
