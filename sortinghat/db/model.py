@@ -134,7 +134,9 @@ class UniqueIdentity(ModelBase):
     def to_dict(self):
         return {
                 'uuid'       : self.uuid,
-                'identities' : [i.to_dict() for i in self.identities]
+                'identities' : [i.to_dict() for i in self.identities],
+                'profile'    : self.profile.to_dict() \
+                               if self.profile else None,
                 }
 
     def __repr__(self):

@@ -59,6 +59,17 @@
                     "uuid": "52e0aa0a14826627e633fd15332988686b730ab3"
                 }
             ],
+            "profile": {
+                "country": {
+                    "alpha3": "USA",
+                    "code": "US",
+                    "name": "United States of America"
+                },
+                "email": "jroe@example.com",
+                "name": "Jane Roe",
+                "is_bot": false,
+                "uuid": "52e0aa0a14826627e633fd15332988686b730ab3"
+            },
             "uuid": "52e0aa0a14826627e633fd15332988686b730ab3"
         }
     }

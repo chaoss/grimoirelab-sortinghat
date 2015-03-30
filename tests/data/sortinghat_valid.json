@@ -37,6 +37,7 @@
         "0000000000000000000000000000000000000000": {
             "enrollments": [],
             "identities": [],
+            "profile": null,
             "uuid": "0000000000000000000000000000000000000000"
         },
         "03e12d00e37fd45593c49a5a5a1652deca4cf302": {
@@ -66,6 +67,13 @@
                     "uuid": "03e12d00e37fd45593c49a5a5a1652deca4cf302"
                 }
             ],
+            "profile": {
+                "country": null,
+                "email": "jsmith@example.com",
+                "name": null,
+                "is_bot": true,
+                "uuid": "03e12d00e37fd45593c49a5a5a1652deca4cf302"
+            },
             "uuid": "03e12d00e37fd45593c49a5a5a1652deca4cf302"
         },
         "52e0aa0a14826627e633fd15332988686b730ab3": {
@@ -115,6 +123,17 @@
                     "uuid": "52e0aa0a14826627e633fd15332988686b730ab3"
                 }
             ],
+            "profile": {
+                "country": {
+                    "alpha3": "USA",
+                    "code": "US",
+                    "name": "United States of America"
+                },
+                "email": "jroe@example.com",
+                "name": "Jane Roe",
+                "is_bot": false,
+                "uuid": "52e0aa0a14826627e633fd15332988686b730ab3"
+            },
             "uuid": "52e0aa0a14826627e633fd15332988686b730ab3"
         }
     }

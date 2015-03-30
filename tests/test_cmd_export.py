@@ -32,6 +32,7 @@ from sortinghat import api
 from sortinghat.cmd.export import Export,\
     SortingHatIdentitiesExporter, SortingHatOrganizationsExporter
 from sortinghat.db.database import Database
+from sortinghat.db.model import Country
 
 from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
@@ -79,6 +80,12 @@ class TestBaseCase(unittest.TestCase):
 
         self.db.clear()
 
+        # Add country
+        with self.db.connect() as session:
+            # Add a country
+            us = Country(code='US', name='United States of America', alpha3='USA')
+            session.add(us)
+
         # Add organizations
         api.add_organization(self.db, 'Example')
         api.add_domain(self.db, 'Example', 'example.com', is_top_domain=True)
@@ -97,6 +104,7 @@ class TestBaseCase(unittest.TestCase):
                                        'John Smith', 'jsmith')
         api.add_identity(self.db, 'scm', 'jsmith@example.com', 'John Smith',
                          uuid=jsmith_uuid)
+        api.edit_profile(self.db, jsmith_uuid, email='jsmith@example.com', is_bot=True)
 
         # Add Joe Roe identity
         jroe_uuid = api.add_identity(self.db, 'scm', 'jroe@example.com',
@@ -105,6 +113,8 @@ class TestBaseCase(unittest.TestCase):
                          uuid=jroe_uuid)
         api.add_identity(self.db, 'unknown', 'jroe@bitergia.com',
                          uuid=jroe_uuid)
+        api.edit_profile(self.db, jroe_uuid, name='Jane Roe', email='jroe@example.com',
+                         is_bot=False, country_code='US')
 
         # Add unique identity, this one won't have neither identities
         # nor enrollments 
@@ -243,11 +253,20 @@ class TestSortingHatIdentitiesExporter(TestBaseCase):
 
         uid0 = uidentities['0000000000000000000000000000000000000000']
         self.assertEqual(uid0['uuid'], '0000000000000000000000000000000000000000')
+        self.assertEqual(uid0['profile'], None)
         self.assertEqual(len(uid0['identities']), 0)
 
         # Jane Roe
         uid1 = uidentities['52e0aa0a14826627e633fd15332988686b730ab3']
         self.assertEqual(uid1['uuid'], '52e0aa0a14826627e633fd15332988686b730ab3')
+
+        self.assertEqual(uid1['profile']['uuid'], '52e0aa0a14826627e633fd15332988686b730ab3')
+        self.assertEqual(uid1['profile']['name'], 'Jane Roe')
+        self.assertEqual(uid1['profile']['email'], 'jroe@example.com')
+        self.assertEqual(uid1['profile']['is_bot'], False)
+        self.assertEqual(uid1['profile']['country']['alpha3'], 'USA')
+        self.assertEqual(uid1['profile']['country']['code'], 'US')
+        self.assertEqual(uid1['profile']['country']['name'], 'United States of America')
 
         ids = uid1['identities']
         self.assertEqual(len(ids), 3)
@@ -300,6 +319,11 @@ class TestSortingHatIdentitiesExporter(TestBaseCase):
         # John Smith
         uid2 = uidentities['03e12d00e37fd45593c49a5a5a1652deca4cf302']
         self.assertEqual(uid2['uuid'], '03e12d00e37fd45593c49a5a5a1652deca4cf302')
+
+        self.assertEqual(uid2['profile']['uuid'], '03e12d00e37fd45593c49a5a5a1652deca4cf302')
+        self.assertEqual(uid2['profile']['name'], None)
+        self.assertEqual(uid2['profile']['email'], 'jsmith@example.com')
+        self.assertEqual(uid2['profile']['is_bot'], True)
 
         ids = uid2['identities']
         self.assertEqual(len(ids), 2)

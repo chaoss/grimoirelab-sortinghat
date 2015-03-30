@@ -289,6 +289,9 @@ class TestUniqueIdentity(TestCaseBase):
     def test_to_dict(self):
         """Test output of to_dict() method"""
 
+        c = Country(code='US', name='United States of America', alpha3='USA')
+        self.session.add(c)
+
         uid = UniqueIdentity(uuid='John Smith')
         self.session.add(uid)
 
@@ -306,6 +309,8 @@ class TestUniqueIdentity(TestCaseBase):
 
         self.assertIsInstance(d, dict)
         self.assertEqual(d['uuid'], 'John Smith')
+
+        self.assertEqual(d['profile'], None)
 
         identities = d['identities']
         self.assertEqual(len(identities), 2)
@@ -325,6 +330,25 @@ class TestUniqueIdentity(TestCaseBase):
         self.assertEqual(d1['username'], None)
         self.assertEqual(d1['source'], 'scm')
         self.assertEqual(d1['uuid'], 'John Smith')
+
+
+        prf = Profile(uuid='John Smith', name='Smith, J.',
+                      email='jsmith@example.com', is_bot=True,
+                      country_code='US')
+
+        # Add profile information
+        self.session.add(prf)
+        self.session.commit()
+
+        d = uid.to_dict()
+
+        dp = d['profile']
+        self.assertEqual(dp['uuid'], 'John Smith')
+        self.assertEqual(dp['name'], 'Smith, J.')
+        self.assertEqual(dp['email'], 'jsmith@example.com')
+        self.assertEqual(dp['is_bot'], True)
+        self.assertEqual(dp['country']['code'], 'US')
+        self.assertEqual(dp['country']['name'], 'United States of America')
 
 
 class TestIdentity(TestCaseBase):
