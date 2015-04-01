@@ -144,6 +144,7 @@ def to_json(identities, source):
         x['source'] = source
 
         uid = {'uuid' : uuid,
+               'profile' : None,
                'enrollments' : [],
                'identities' : [x]}
 
