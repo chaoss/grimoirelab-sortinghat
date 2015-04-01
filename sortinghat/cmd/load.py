@@ -218,6 +218,14 @@ class Load(Command):
             stored_uuid = self.__load_identities(uidentity.identities, stored_uuid,
                                                  verbose)
 
+            # The profile will be loaded when the stored unique identity
+            # does not have any one.
+            try:
+                self.__load_profile(uidentity.profile, stored_uuid, verbose)
+            except Exception, e:
+                self.error("%s. Loading %s profile. Skipping profile." % \
+                           (unicode(e), stored_uuid))
+
             # Matching and merging is doing before loading enrollments.
             # This is required because 'merge_unique_identities' does not
             # call to 'merge_enrollments' function.
@@ -294,6 +302,81 @@ class Load(Command):
         self.log("-- identities loaded", verbose)
 
         return uuid
+
+    def __load_profile(self, profile, uuid, verbose):
+        """Create a new profile when the unique identity does not have any."""
+
+        uid = api.unique_identities(self.db, uuid)[0]
+
+        if uid.profile:
+            self.log("-- profile already available for %s. Not updated" % uuid, verbose)
+            return
+
+        if profile:
+            self.__create_profile(profile, uuid, verbose)
+        else:
+            self.__create_profile_from_identities(uid.identities, uuid, verbose)
+
+    def __create_profile(self, profile, uuid, verbose):
+        """Create profile information from a profile object"""
+
+        # Set parameters to edit
+        kw = profile.to_dict()
+        kw['country_code'] = profile.country_code
+
+        # Remove unused keywords
+        kw.pop('uuid')
+        kw.pop('country')
+
+        api.edit_profile(self.db, uuid, **kw)
+
+        self.log("-- profile %s updated" % uuid, verbose)
+
+    def __create_profile_from_identities(self, identities, uuid, verbose):
+        """Create a profile using the data from the identities"""
+
+        import re
+
+        EMAIL_ADDRESS_REGEX = ur"^(?P<email>[^\s@]+@[^\s@.]+\.[^\s@]+)$"
+        NAME_REGEX = ur"^\w+\s\w+"
+
+        name = None
+        email = None
+        username = None
+
+        for identity in identities:
+            if not name and identity.name:
+                m = re.match(NAME_REGEX, identity.name)
+
+                if m:
+                    name = identity.name
+
+            if not email and identity.email:
+                m = re.match(EMAIL_ADDRESS_REGEX, identity.email)
+
+                if m:
+                    email = identity.email
+
+            if not username:
+                if identity.username and identity.username != 'None':
+                    username = identity.username
+
+        # We need a name for each profile, so if no one was defined,
+        # use email or username to complete it.
+        if not name:
+            if email:
+                name = email.split('@')[0]
+            elif username:
+                name = username
+            else:
+                name = 'Unknown'
+
+        kw = {'name' : name,
+              'email' : email}
+
+        api.edit_profile(self.db, uuid, **kw)
+
+        self.log("-- profile %s updated" % uuid, verbose)
 
     def __load_enrollments(self, enrollments, uuid, verbose):
         """Store enrollments"""

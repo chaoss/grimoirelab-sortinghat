@@ -31,6 +31,7 @@ if not '..' in sys.path:
 from sortinghat import api
 from sortinghat.cmd.load import Load
 from sortinghat.db.database import Database
+from sortinghat.db.model import Country
 from sortinghat.parsing.sh import SortingHatParser
 
 from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
@@ -94,6 +95,8 @@ class TestBaseCase(unittest.TestCase):
         # Create a connection to check the contents of the registry
         self.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
 
+        self._load_test_dataset()
+
         # Create command
         self.kwargs = {'user' : DB_USER,
                        'password' : DB_PASSWORD,
@@ -101,6 +104,13 @@ class TestBaseCase(unittest.TestCase):
                        'host' : DB_HOST,
                        'port' : DB_PORT}
         self.cmd = Load(**self.kwargs)
+
+    def _load_test_dataset(self):
+        # Add country
+        with self.db.connect() as session:
+            # Add a country
+            us = Country(code='US', name='United States of America', alpha3='USA')
+            session.add(us)
 
     def tearDown(self):
         self.db.clear()
@@ -238,6 +248,14 @@ class TestLoadIdentities(TestBaseCase):
         ids = self.sort_identities(uid.identities)
         self.assertEqual(len(ids), 2)
 
+        prf = uid.profile
+        self.assertEqual(prf.uuid, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
+        self.assertEqual(prf.name, None)
+        self.assertEqual(prf.email, 'jsmith@example.com')
+        self.assertEqual(prf.is_bot, True)
+        self.assertEqual(prf.country_code, None)
+        self.assertEqual(prf.country, None)
+
         id0 = ids[0]
         self.assertEqual(id0.id, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
         self.assertEqual(id0.name, 'John Smith')
@@ -263,6 +281,16 @@ class TestLoadIdentities(TestBaseCase):
         # Jane Roe
         uid = uids[1]
         self.assertEqual(uid.uuid, '52e0aa0a14826627e633fd15332988686b730ab3')
+
+        prf = uid.profile
+        self.assertEqual(prf.uuid, '52e0aa0a14826627e633fd15332988686b730ab3')
+        self.assertEqual(prf.name, 'Jane Roe')
+        self.assertEqual(prf.email, 'jroe@example.com')
+        self.assertEqual(prf.is_bot, False)
+        self.assertEqual(prf.country_code, 'US')
+        self.assertEqual(prf.country.alpha3, 'USA')
+        self.assertEqual(prf.country.code, 'US')
+        self.assertEqual(prf.country.name, 'United States of America')
 
         ids = self.sort_identities(uid.identities)
         self.assertEqual(len(ids), 3)
@@ -316,6 +344,8 @@ class TestLoadIdentities(TestBaseCase):
         api.add_enrollment(self.db, uuid, 'Example',
                            datetime.datetime(2000, 1, 1, 0, 0),
                            datetime.datetime(2100, 1, 1, 0, 0))
+        api.edit_profile(self.db, uuid, name='John Smith', is_bot=False,
+                         country_code='US')
 
         parser = self.get_parser('data/sortinghat_valid.json')
 
@@ -331,6 +361,16 @@ class TestLoadIdentities(TestBaseCase):
 
         ids = self.sort_identities(uid.identities)
         self.assertEqual(len(ids), 3)
+
+        # The profile was merged
+        prf = uid.profile
+        self.assertEqual(prf.uuid, '23fe3a011190a27a7c5cf6f8925de38ff0994d8d')
+        self.assertEqual(prf.name, 'John Smith')
+        self.assertEqual(prf.email, 'jsmith@example.com')
+        self.assertEqual(prf.is_bot, True)
+        self.assertEqual(prf.country_code, 'US')
+        self.assertEqual(prf.country.code, 'US')
+        self.assertEqual(prf.country.name, 'United States of America')
 
         id0 = ids[0]
         self.assertEqual(id0.id, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
@@ -366,6 +406,16 @@ class TestLoadIdentities(TestBaseCase):
         uid = uids[1]
         self.assertEqual(uid.uuid, '52e0aa0a14826627e633fd15332988686b730ab3')
 
+        prf = uid.profile
+        self.assertEqual(prf.uuid, '52e0aa0a14826627e633fd15332988686b730ab3')
+        self.assertEqual(prf.name, 'Jane Roe')
+        self.assertEqual(prf.email, 'jroe@example.com')
+        self.assertEqual(prf.is_bot, False)
+        self.assertEqual(prf.country_code, 'US')
+        self.assertEqual(prf.country.alpha3, 'USA')
+        self.assertEqual(prf.country.code, 'US')
+        self.assertEqual(prf.country.name, 'United States of America')
+
         ids = self.sort_identities(uid.identities)
         self.assertEqual(len(ids), 3)
 
@@ -394,12 +444,14 @@ class TestLoadIdentities(TestBaseCase):
         self.assertEqual(len(enrollments), 3)
 
     def test_valid_identities_already_exist(self):
-        """Check method when an identity already exists but with distinc UUID"""
+        """Check method when an identity already exists but with distinct UUID"""
 
         # The identity already exists but with a different UUID
         uuid = api.add_identity(self.db, 'unknown', email='jsmith@example.com')
         api.add_identity(self.db, source='scm', email='jsmith@example.com',
                          name='John Smith', username='jsmith', uuid=uuid)
+        api.edit_profile(self.db, uuid, name='John Smith', is_bot=False,
+                         country_code='US')
 
         parser = self.get_parser('data/sortinghat_valid.json')
 
@@ -412,6 +464,16 @@ class TestLoadIdentities(TestBaseCase):
         # John Smith
         uid = uids[0]
         self.assertEqual(uid.uuid, '23fe3a011190a27a7c5cf6f8925de38ff0994d8d')
+
+        # The profile was not updated because it was already available
+        prf = uid.profile
+        self.assertEqual(prf.uuid, '23fe3a011190a27a7c5cf6f8925de38ff0994d8d')
+        self.assertEqual(prf.name, 'John Smith')
+        self.assertEqual(prf.email, None)
+        self.assertEqual(prf.is_bot, False)
+        self.assertEqual(prf.country_code, 'US')
+        self.assertEqual(prf.country.code, 'US')
+        self.assertEqual(prf.country.name, 'United States of America')
 
         ids = self.sort_identities(uid.identities)
         self.assertEqual(len(ids), 3)
@@ -436,6 +498,53 @@ class TestLoadIdentities(TestBaseCase):
         self.assertEqual(id2.email, 'jsmith@example.com')
         self.assertEqual(id2.username, None)
         self.assertEqual(id2.source, 'scm')
+
+    def test_create_profile_from_identities(self):
+        """Check whether a profile is created using the data identities"""
+
+        parser = self.get_parser('data/sortinghat_identities_profiles.json')
+
+        self.cmd.import_identities(parser)
+
+        # Check the contents of the registry
+        uids = api.unique_identities(self.db)
+        self.assertEqual(len(uids), 3)
+
+        # John Smith
+        uid = uids[0]
+        self.assertEqual(uid.uuid, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
+
+        prf = uid.profile
+        self.assertEqual(prf.uuid, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
+        self.assertEqual(prf.name, 'John Smith')
+        self.assertEqual(prf.email, 'jsmith@example.com')
+        self.assertEqual(prf.is_bot, False)
+        self.assertEqual(prf.country_code, None)
+        self.assertEqual(prf.country, None)
+
+        # John Doe
+        uid = uids[1]
+        self.assertEqual(uid.uuid, '3c3c71c67952135eb92a9cace538ffbe6cb39d88')
+
+        prf = uid.profile
+        self.assertEqual(prf.uuid, '3c3c71c67952135eb92a9cace538ffbe6cb39d88')
+        self.assertEqual(prf.name, 'jdoe')
+        self.assertEqual(prf.email, 'jdoe@example.com')
+        self.assertEqual(prf.is_bot, False)
+        self.assertEqual(prf.country_code, None)
+        self.assertEqual(prf.country, None)
+
+        # Jane Rae
+        uid = uids[2]
+        self.assertEqual(uid.uuid, '52e0aa0a14826627e633fd15332988686b730ab3')
+
+        prf = uid.profile
+        self.assertEqual(prf.uuid, '52e0aa0a14826627e633fd15332988686b730ab3')
+        self.assertEqual(prf.name, 'Jane Roe')
+        self.assertEqual(prf.email, 'jroe@example.com')
+        self.assertEqual(prf.is_bot, False)
+        self.assertEqual(prf.country_code, None)
+        self.assertEqual(prf.country, None)
 
     def test_dates_out_of_bounds(self):
         """Check dates when they are out of bounds"""
