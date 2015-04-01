@@ -115,11 +115,11 @@ class Profile(Command):
         kw = {}
 
         if params.name:
-            kw['name'] = params.name
+            kw['name'] = params.name.decode('utf-8')
         if params.email:
-            kw['email'] = params.email
+            kw['email'] = params.email.decode('utf-8')
         if params.country:
-            kw['country_code'] = params.country
+            kw['country_code'] = params.country.decode('utf-8')
 
         if params.is_bot:
             kw['is_bot'] = True
