@@ -266,14 +266,19 @@ class MetricsGrimoireIdentity(MappedTable):
     EMAIL_KEYS = ['_email', '_email_address']
     USERNAME_KEYS = ['_username', '_user_id', '_nick', '_login']
 
+    __mg_id = None
+    __name = None
+    __email = None
+    __username = None
+
     def __init__(self):
         super(MetricsGrimoireIdentity, self).__init__()
 
     def __eq__(self, other):
         if isinstance(other, MetricsGrimoireIdentity) or\
            isinstance(other, Identity):
-            return self.name == other.name \
-                   and self.email == other.email \
+            return self.email == other.email \
+                   and self.name == other.name \
                    and self.username == other.username
         else:
             return NotImplemented
@@ -287,19 +292,27 @@ class MetricsGrimoireIdentity(MappedTable):
 
     @property
     def mg_id(self):
-        return self.__map_to_attr(self.MG_ID_KEYS)
+        if not self.__mg_id:
+            self.__mg_id = self.__map_to_attr(self.MG_ID_KEYS)
+        return self.__mg_id
 
     @property
     def name(self):
-        return self.__map_to_attr(self.NAME_KEYS)
+        if not self.__name:
+            self.__name = self.__map_to_attr(self.NAME_KEYS)
+        return self.__name
 
     @property
     def email(self):
-        return self.__map_to_attr(self.EMAIL_KEYS)
+        if not self.__email:
+            self.__email = self.__map_to_attr(self.EMAIL_KEYS)
+        return self.__email
 
     @property
     def username(self):
-        return self.__map_to_attr(self.USERNAME_KEYS)
+        if not self.__username:
+            self.__username = self.__map_to_attr(self.USERNAME_KEYS)
+        return self.__username
 
     @classmethod
     def tables(cls):
