@@ -443,6 +443,66 @@ class TestLoadIdentities(TestBaseCase):
         enrollments = api.enrollments(self.db, uid.uuid)
         self.assertEqual(len(enrollments), 3)
 
+    def test_match_new_identities(self):
+        """Check whether it matches only new identities"""
+
+        parser = self.get_parser('data/sortinghat_valid.json')
+
+        self.cmd.import_identities(parser, matching='default')
+
+        # Check the contents of the registry
+        uids = api.unique_identities(self.db)
+        self.assertEqual(len(uids), 2)
+
+        # We add a new identity that matches with some of the
+        # already inserted
+        jsmith_uuid = api.add_identity(self.db, 'unknown', email='jsmith@example.com')
+
+        uids = api.unique_identities(self.db)
+        self.assertEqual(len(uids), 3)
+
+        # This file has a new identity, only Jane Roe will match.
+        parser = self.get_parser('data/sortinghat_valid_updated.json')
+
+        self.cmd.import_identities(parser, matching='default',
+                                   match_new=True)
+
+        uids = api.unique_identities(self.db)
+        self.assertEqual(len(uids), 3)
+
+        # Jane Roe
+        uid = uids[2]
+        self.assertEqual(uid.uuid, '52e0aa0a14826627e633fd15332988686b730ab3')
+
+        ids = self.sort_identities(uid.identities)
+        self.assertEqual(len(ids), 4)
+
+        self.assertEqual(ids[0].id, '52e0aa0a14826627e633fd15332988686b730ab3')
+        self.assertEqual(ids[1].id, '684bb801b0ab02a8c0b6867711a994c695cbed4a')
+        self.assertEqual(ids[2].id, 'cbfb7bd31d556322c640f5bc7b31d58a12b15904')
+        self.assertEqual(ids[3].id, 'fef873c50a48cfc057f7aa19f423f81889a8907f')
+
+        # Now, if we reload again the file but setting 'match_new' to false,
+        # the identity that we inserted before will match "John Smith"
+        parser = self.get_parser('data/sortinghat_valid_updated.json')
+
+        self.cmd.import_identities(parser, matching='default')
+
+        uids = api.unique_identities(self.db)
+        self.assertEqual(len(uids), 2)
+
+        # John Smith
+        uid = uids[0]
+        self.assertEqual(uid.uuid, '23fe3a011190a27a7c5cf6f8925de38ff0994d8d')
+
+        ids = self.sort_identities(uid.identities)
+        self.assertEqual(len(ids), 3)
+
+        self.assertEqual(ids[0].id, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
+        self.assertEqual(ids[1].id, '23fe3a011190a27a7c5cf6f8925de38ff0994d8d')
+        self.assertEqual(ids[1].id, jsmith_uuid)
+        self.assertEqual(ids[2].id, '75d95d6c8492fd36d24a18bd45d62161e05fbc97')
+
     def test_valid_identities_already_exist(self):
         """Check method when an identity already exists but with distinct UUID"""
 

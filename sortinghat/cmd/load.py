@@ -44,7 +44,8 @@ class Load(Command):
     can be used to import some parts from the input. When '--identities' option
     is set, only the data related to identities will be loaded. Identities
     matching engine is set with '--matching' option. By default, no matching
-    engine is selected.
+    engine is selected. The parameter '--match-new' can also be used to match
+    only those identities that are new on the registry.
 
     Take into account that those organizations set on each identity enrollment
     will be loaded despite '--identities' option were set.
@@ -59,6 +60,7 @@ class Load(Command):
         super(Load, self).__init__(**kwargs)
 
         self._set_database(**kwargs)
+        self.new_uids = set()
 
         self.parser = argparse.ArgumentParser(description=self.description,
                                               usage=self.usage)
@@ -79,6 +81,8 @@ class Load(Command):
         group.add_argument('-m', '--matching', dest='matching', default=None,
                            choices=SORTINGHAT_IDENTITIES_MATCHERS,
                            help="match and merge using this type of matching")
+        group.add_argument('-n', '--match-new', dest='match_new', action='store_true',
+                           help="match and merge only new unique identities")
         group.add_argument('-v', '--verbose', dest='verbose', action='store_true',
                            help="run verbose mode while matching and merging")
 
@@ -93,7 +97,7 @@ class Load(Command):
 
     @property
     def usage(self):
-        return "%(prog)s load [-v] [--identities | --orgs] [-m matching] [--overwrite] [file]"
+        return "%(prog)s load [-v] [--identities | --orgs] [-m matching] [-n] [--overwrite] [file]"
 
     def log(self, msg, debug=True):
         if debug:
@@ -123,13 +127,13 @@ class Load(Command):
 
         if params.identities:
             self.import_identities(parser, params.matching,
-                                   params.verbose)
+                                   params.match_new, params.verbose)
         elif params.orgs:
             self.import_organizations(parser, params.overwrite)
         else:
             self.import_organizations(parser, params.overwrite)
             self.import_identities(parser, params.matching,
-                                   params.verbose)
+                                   params.match_new, params.verbose)
 
     def import_organizations(self, parser, overwrite=False):
         """Import organizations.
@@ -166,7 +170,8 @@ class Load(Command):
                     msg = "%s. Not updated." % unicode(e)
                     self.warning(msg)
 
-    def import_identities(self, parser, matching=None, verbose=False):
+    def import_identities(self, parser, matching=None, match_new=False,
+                          verbose=False):
         """Import identities information on the registry.
 
         New unique identities, organizations and enrollment data parsed
@@ -175,10 +180,12 @@ class Load(Command):
         Optionally, this method can look for possible identities that match with
         the new one to insert using 'matching' method. If a match is found,
         that means both identities are likely the same. Therefore, both identities
-        would be merged into one.
+        would be merged into one. The 'match_new' parameter can be set to match
+        and merge only new loaded identities.
 
         :param parser: sorting hat parser
         :param matching: type of matching used to merge existing identities
+        :param match_new: match and merge only the new loaded identities
         :param verbose: run in verbose mode when matching is set
         """
         matcher = None
@@ -193,12 +200,16 @@ class Load(Command):
         uidentities = parser.identities
 
         try:
-            self.__load_unique_identities(uidentities, matcher, verbose)
+            self.__load_unique_identities(uidentities, matcher, match_new,
+                                          verbose)
         except LoadError, e:
             self.error(unicode(e))
 
-    def __load_unique_identities(self, uidentities, matcher, verbose):
+    def __load_unique_identities(self, uidentities, matcher, match_new,
+                                 verbose):
         """Load unique identities"""
+
+        self.new_uids.clear()
 
         n = 0
 
@@ -226,15 +237,12 @@ class Load(Command):
                 self.error("%s. Loading %s profile. Skipping profile." % \
                            (unicode(e), stored_uuid))
 
-            # Matching and merging is doing before loading enrollments.
-            # This is required because 'merge_unique_identities' does not
-            # call to 'merge_enrollments' function.
-            if matcher:
-                stored_uuid = self._merge_on_matching(stored_uuid, matcher,
-                                                      verbose)
-
             self.__load_enrollments(uidentity.enrollments, stored_uuid,
                                     verbose)
+
+            if matcher and (not match_new or stored_uuid in self.new_uids):
+                stored_uuid = self._merge_on_matching(stored_uuid, matcher,
+                                                      verbose)
 
             self.log("+ %s (old %s) loaded" % (stored_uuid, uidentity.uuid))
             self.log("=====", verbose)
@@ -268,6 +276,7 @@ class Load(Command):
                                            identity.email,
                                            identity.name,
                                            identity.username)
+            self.new_uids.add(stored_uuid)
         except AlreadyExistsError, e:
             stored_uuid = e.uuid
             self.warning("-- " + unicode(e))
@@ -287,6 +296,7 @@ class Load(Command):
             try:
                 api.add_identity(self.db, identity.source, identity.email,
                                  identity.name, identity.username, uuid)
+                self.new_uids.add(uuid)
             except AlreadyExistsError, e:
                 self.warning(unicode(e), verbose)
 
@@ -297,6 +307,11 @@ class Load(Command):
                     self.warning(msg, verbose)
 
                     api.merge_unique_identities(self.db, uuid, stored_uuid)
+
+                    if uuid in self.new_uids:
+                        self.new_uids.remove(uuid)
+
+                    self.new_uids.add(stored_uuid)
                     uuid = stored_uuid
 
         self.log("-- identities loaded", verbose)
