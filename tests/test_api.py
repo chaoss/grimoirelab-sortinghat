@@ -1526,7 +1526,8 @@ class TestMergeUniqueIdentities(TestBaseCase):
             self.assertEqual(id3.source, 'scm')
 
             # Duplicate enrollments should had been removed
-            self.assertEqual(len(uid2.enrollments), 3)
+            # and overlaped enrollments shoud had been merged
+            self.assertEqual(len(uid2.enrollments), 2)
 
             rol1 = uid2.enrollments[0]
             self.assertEqual(rol1.organization.name, 'Example')
@@ -1535,13 +1536,8 @@ class TestMergeUniqueIdentities(TestBaseCase):
 
             rol2 = uid2.enrollments[1]
             self.assertEqual(rol2.organization.name, 'Bitergia')
-            self.assertEqual(rol2.start, datetime.datetime(1900, 1, 1))
-            self.assertEqual(rol2.end, datetime.datetime(2100, 1, 1))
-
-            rol3 = uid2.enrollments[2]
-            self.assertEqual(rol3.organization.name, 'Bitergia')
-            self.assertEqual(rol3.start, datetime.datetime(1999, 1, 1))
-            self.assertEqual(rol3.end, datetime.datetime(2000, 1, 1))
+            self.assertEqual(rol2.start, datetime.datetime(1999, 1, 1))
+            self.assertEqual(rol2.end, datetime.datetime(2000, 1, 1))
 
     def test_merge_identities_and_swap_profile(self):
         """Test swap of profiles when a unique identity does not have one"""

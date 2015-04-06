@@ -574,8 +574,8 @@ def merge_unique_identities(db, from_uuid, to_uuid):
     Use this function to join 'from_uuid' unique identity into
     'to_uuid'. Identities and enrollments related to 'from_uuid' will be
     assigned to 'to_uuid'. In addition, 'from_uuid' will be removed
-    from the registry. Duplicated enrollments will be also removed from the
-    registry.
+    from the registry. Duplicated enrollments will be also removed from
+    the registry while overlapped enrollments will be merged.
 
     This function also merges two profiles. When a field on 'to_uuid'
     profile is None or empty, it will be updated with the value on the
@@ -650,6 +650,18 @@ def merge_unique_identities(db, from_uuid, to_uuid):
         session.commit()
 
         session.delete(fuid)
+
+        # Retrieve of organizations to merge the enrollments,
+        # before closing the session
+        query = session.query(Organization.name).\
+            join(Enrollment).\
+            filter(Enrollment.uidentity == tuid).distinct()
+
+        orgs = [org.name for org in query]
+
+    # Merge enrollments
+    for org in orgs:
+        merge_enrollments(db, to_uuid, org)
 
 
 def merge_enrollments(db, uuid, organization):
