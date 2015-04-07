@@ -39,6 +39,33 @@ class IdentityMatcher(object):
         """
         raise NotImplementedError
 
+    def match_filtered_identities(self, fa, fb):
+        """Abstract method used to determine if both filtered identities are the same.
+
+        :param fa: filtered identity to match
+        :param fb: filtered identity to match
+
+        :returns: True when both filtered identities are likely to be the same.
+        """
+        raise NotImplementedError
+
+    def filter(self, u):
+        """Filter the valid identities for this matcher.
+
+        :param u: unique identity which stores the identities to filter
+
+        :returns: a list of identities valid to work with this matcher.
+        """
+        raise NotImplementedError
+
+
+class FilteredIdentity(object):
+    """Generic class to store filtered identities"""
+
+    def __init__(self, id, uuid):
+        self.id = id
+        self.uuid = uuid
+
 
 def create_identity_matcher(matcher='default'):
     """Create an identity matcher of the given type.
