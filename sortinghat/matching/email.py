@@ -23,10 +23,18 @@
 import re
 
 from sortinghat.db.model import UniqueIdentity
-from sortinghat.matcher import IdentityMatcher
+from sortinghat.matcher import IdentityMatcher, FilteredIdentity
 
 
 EMAIL_ADDRESS_REGEX = ur"^(?P<email>[^\s@]+@[^\s@.]+\.[^\s@]+)$"
+
+
+class EmailIdentity(FilteredIdentity):
+    """Class to stored EmailName filtered identities"""
+
+    def __init__(self, id, uuid, email):
+        super(EmailIdentity, self).__init__(id, uuid)
+        self.email = email
 
 
 class EmailMatcher(IdentityMatcher):
@@ -73,6 +81,64 @@ class EmailMatcher(IdentityMatcher):
             if email in emails_b:
                 return True
         return False
+
+    def match_filtered_identities(self, fa, fb):
+        """Determine if two filtered identities are the same.
+
+        The method compares the email addresses of each filtered identity
+        to check if they are the same. When the given filtered identities
+        are the same object or share the same UUID, this will also
+        produce a positive match.
+
+        :param fa: filtered identity to match
+        :param fb: filtered identity to match
+
+        :returns: True when both filtered identities are likely to be the same.
+            Otherwise, returns False.
+
+        :raises ValueError: when any of the given filtered identities is not
+            an instance of EmailIdentity class.
+        """
+        if not isinstance(fa, EmailIdentity):
+            raise ValueError('<fa> is not an instance of UniqueIdentity')
+        if not isinstance(fb, EmailIdentity):
+            raise ValueError('<fb> is not an instance of EmailNameIdentity')
+
+        if fa.uuid == fb.uuid:
+            return True
+
+        # Compare email addresses first
+        if fa.email and fa.email == fb.email:
+            return True
+
+        return False
+
+    def filter(self, u):
+        """Filter the valid identities for this matcher.
+
+        :param u: unique identity which stores the identities to filter
+
+        :returns: a list of identities valid to work with this matcher.
+
+        :raises ValueError: when the unique identity is not an instance
+            of UniqueIdentity class
+        """
+        if not isinstance(u, UniqueIdentity):
+            raise ValueError('<u> is not an instance of UniqueIdentity')
+
+        filtered = []
+
+        for id_ in u.identities:
+            email = None
+
+            if self._check_email(id_.email):
+                email = id_.email.lower()
+
+            if email:
+                fid = EmailIdentity(id_.id, id_.uuid, email)
+                filtered.append(fid)
+
+        return filtered
 
     def _filter_emails(self, ids):
         return [id_.email.lower() for id_ in ids \
