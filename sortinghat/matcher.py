@@ -88,3 +88,96 @@ def create_identity_matcher(matcher='default'):
     klass = matching.SORTINGHAT_IDENTITIES_MATCHERS[matcher]
 
     return klass()
+
+
+def match(uidentities, matcher):
+    """Find matches in a set of unique identities.
+
+    This function looks for possible similar or equal identities from a set
+    of unique identities. The result will be a list of subsets where each
+    subset is a list of matching identities.
+
+    :param uidentities: list of unique identities to match
+    :param matcher: instance of the matcher
+
+    :returns: a list of subsets with the matched unique identities
+
+    :raises TypeError: when matcher is not an instance of
+        IdentityMatcher class
+    """
+    def match_filtered_identities(x, ids, matcher):
+        """Check if an identity matches a set of identities"""
+
+        for y in ids:
+            if x.uuid == y.uuid:
+                return True
+            if matcher.match_filtered_identities(x, y):
+                return True
+        return False
+
+    def build_result(matches, uuids, no_filtered):
+        """Build a list with the matching subsets"""
+
+        result = []
+
+        for m in matches:
+            subset = [uuids[m[0].uuid]]
+
+            for id_ in m[1:]:
+                u = uuids[id_.uuid]
+
+                if u not in subset:
+                    subset.append(u)
+
+            result.append(subset)
+
+        result += no_filtered
+
+        result.sort(key=len, reverse=True)
+
+        return result
+
+    # The algorithm used to find matches starts here
+    if not isinstance(matcher, IdentityMatcher):
+        raise TypeError('matcher is not an instance of IdentityMatcher')
+
+    uuids = {}
+    no_filtered = []
+
+    remaining = []
+    matched = []
+
+    # Filter identities
+    for uidentity in uidentities:
+        n = len(remaining)
+
+        remaining += matcher.filter(uidentity)
+
+        if len(remaining) > n:
+            uuids[uidentity.uuid] = uidentity
+        else:
+            # This uidentity does not have identities to match
+            no_filtered.append([uidentity])
+
+    # Find subsets of matches
+    while remaining:
+        candidates = []
+        no_match = []
+
+        x = remaining.pop(0)
+
+        while matched:
+            ids = matched.pop(0)
+
+            if match_filtered_identities(x, ids, matcher):
+                candidates += ids
+            else:
+                no_match.append(ids)
+
+        candidates.append(x)
+
+        # Generate the new list of matched subsets
+        matched = [candidates] + no_match
+
+    # All subsets were found, create a list and return it
+    return build_result(matched, uuids, no_filtered)

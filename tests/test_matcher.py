@@ -27,8 +27,9 @@ import unittest
 if not '..' in sys.path:
     sys.path.insert(0, '..')
 
+from sortinghat.db.model import UniqueIdentity, Identity
 from sortinghat.exceptions import MatcherNotSupportedError
-from sortinghat.matcher import IdentityMatcher, create_identity_matcher
+from sortinghat.matcher import IdentityMatcher, create_identity_matcher, match
 from sortinghat.matching import EmailMatcher, EmailNameMatcher
 
 
@@ -51,6 +52,92 @@ class TestCreateIdentityMatcher(unittest.TestCase):
 
         self.assertRaises(MatcherNotSupportedError,
                           create_identity_matcher, 'custom')
+
+
+class TestMatch(unittest.TestCase):
+
+    def setUp(self):
+        # Add some unique identities
+
+        self.john_smith = UniqueIdentity('John Smith')
+        self.john_smith.identities = [Identity(email='jsmith@example.com', name='John Smith',
+                                               source='scm', uuid='John Smith'),
+                                      Identity(name='John Smith',
+                                               source='scm', uuid='John Smith'),
+                                      Identity(username='jsmith',
+                                               source='scm', uuid='John Smith')]
+
+        self.jsmith = UniqueIdentity('J. Smith')
+        self.jsmith.identities = [Identity(name='J. Smith', username='john_smith',
+                                           source='alt', uuid='J. Smith'),
+                                  Identity(name='John Smith', username='jsmith',
+                                           source='alt', uuid='J. Smith'),
+                                  Identity(email='jsmith',
+                                           source='alt', uuid='J. Smith')]
+
+        self.jane_rae = UniqueIdentity('Jane Rae')
+        self.jane_rae.identities = [Identity(name='Janer Rae',
+                                             source='mls', uuid='Jane Rae'),
+                                    Identity(email='jane.rae@example.net', name='Jane Rae Doe',
+                                             source='mls', uuid='Jane Rae')]
+
+        self.js_alt = UniqueIdentity('john_smith')
+        self.js_alt.identities = [Identity(name='J. Smith', username='john_smith',
+                                           source='scm', uuid='john_smith'),
+                                  Identity(username='john_smith',
+                                           source='mls', uuid='john_smith'),
+                                  Identity(username='Smith. J',
+                                           source='mls', uuid='john_smith'),
+                                  Identity(email='JSmith@example.com', name='Smith. J',
+                                           source='mls', uuid='john_smith')]
+
+        self.jrae = UniqueIdentity('jrae')
+        self.jrae.identities = [Identity(email='jrae@example.net', name='Jane Rae Doe',
+                                         source='mls', uuid='jrae'),
+                                Identity(name='jrae', source='mls', uuid='jrae'),
+                                Identity(name='jrae', source='scm', uuid='jrae')]
+
+    def test_match_email(self):
+        """Test whether the function finds every possible matching using email matcher"""
+
+        uidentities = [self.jsmith, self.jrae, self.js_alt,
+                       self.john_smith, self.jane_rae]
+
+        matcher = EmailMatcher()
+
+        result = match([], matcher)
+        self.assertEqual(len(result), 0)
+
+        result = match(uidentities, matcher)
+
+        self.assertEqual(len(result), 4)
+        self.assertListEqual(result,
+                             [[self.js_alt, self.john_smith],
+                              [self.jane_rae], [self.jrae], [self.jsmith]])
+
+    def test_match_email_name(self):
+        """Test whether the function finds every possible matching using email-name matcher"""
+
+        uidentities = [self.jsmith, self.jrae, self.js_alt,
+                       self.john_smith, self.jane_rae]
+
+        matcher = EmailNameMatcher()
+
+        result = match([], matcher)
+        self.assertEqual(len(result), 0)
+
+        result = match(uidentities, matcher)
+
+        self.assertEqual(len(result), 2)
+        self.assertListEqual(result,
+                             [[self.js_alt, self.jsmith, self.john_smith],
+                              [self.jane_rae, self.jrae]])
+
+    def test_matcher_error(self):
+        """Test if it raises an error when the matcher is not valid"""
+
+        self.assertRaises(TypeError, match, [], None)
+        self.assertRaises(TypeError, match, [], "")
 
 
 if __name__ == "__main__":
