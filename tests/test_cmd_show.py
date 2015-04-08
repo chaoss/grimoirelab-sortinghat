@@ -58,8 +58,8 @@ Profile:
     * Country: -
 
 Identities:
-  John Smith\tjsmith@example.com\tjsmith\tscm
-  John Smith\tjsmith@example.com\t-\tscm
+  03e12d00e37fd45593c49a5a5a1652deca4cf302\tJohn Smith\tjsmith@example.com\tjsmith\tscm
+  75d95d6c8492fd36d24a18bd45d62161e05fbc97\tJohn Smith\tjsmith@example.com\t-\tscm
 
 Enrollments:
   Example\t1900-01-01 00:00:00\t2100-01-01 00:00:00
@@ -74,9 +74,9 @@ Profile:
     * Country: US - United States of America
 
 Identities:
-  Jane Roe\tjroe@example.com\tjroe\tscm
-  -\tjroe@bitergia.com\t-\tunknown
-  -\tjroe@example.com\t-\tscm
+  52e0aa0a14826627e633fd15332988686b730ab3\tJane Roe\tjroe@example.com\tjroe\tscm
+  cbfb7bd31d556322c640f5bc7b31d58a12b15904\t-\tjroe@bitergia.com\t-\tunknown
+  fef873c50a48cfc057f7aa19f423f81889a8907f\t-\tjroe@example.com\t-\tscm
 
 Enrollments:
   Bitergia\t1999-01-01 00:00:00\t2000-01-01 00:00:00
@@ -92,9 +92,9 @@ Profile:
     * Country: US - United States of America
 
 Identities:
-  Jane Roe\tjroe@example.com\tjroe\tscm
-  -\tjroe@bitergia.com\t-\tunknown
-  -\tjroe@example.com\t-\tscm
+  52e0aa0a14826627e633fd15332988686b730ab3\tJane Roe\tjroe@example.com\tjroe\tscm
+  cbfb7bd31d556322c640f5bc7b31d58a12b15904\t-\tjroe@bitergia.com\t-\tunknown
+  fef873c50a48cfc057f7aa19f423f81889a8907f\t-\tjroe@example.com\t-\tscm
 
 Enrollments:
   Bitergia\t1999-01-01 00:00:00\t2000-01-01 00:00:00

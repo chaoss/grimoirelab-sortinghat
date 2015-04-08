@@ -14,7 +14,7 @@ No profile
 {% if uid.identities %}
 Identities:
 {% for identity in uid.identities %}
-  {{ identity.name|d('-', true) }}	{{ identity.email|d('-', true) }}	{{ identity.username|d('-', true) }}	{{ identity.source }}
+  {{ identity.id }}	{{ identity.name|d('-', true) }}	{{ identity.email|d('-', true) }}	{{ identity.username|d('-', true) }}	{{ identity.source }}
 {% endfor %}
 {% else %}
 No identities
