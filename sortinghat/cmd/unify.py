@@ -25,7 +25,7 @@ import argparse
 from sortinghat import api
 from sortinghat.command import Command
 from sortinghat.exceptions import MatcherNotSupportedError
-from sortinghat.matcher import create_identity_matcher
+from sortinghat.matcher import create_identity_matcher, match
 from sortinghat.matching import SORTINGHAT_IDENTITIES_MATCHERS
 
 
@@ -100,7 +100,8 @@ class Unify(Command):
         uidentities = api.unique_identities(self.db)
 
         try:
-            self.__unify_unique_identities(uidentities, matcher, interactive)
+            self.__unify_unique_identities(uidentities, matcher,
+                                           interactive)
             self.__display_stats()
         except Exception, e:
             self.__display_stats()
@@ -109,45 +110,27 @@ class Unify(Command):
     def __unify_unique_identities(self, uidentities, matcher, interactive):
         """Unify unique identities looking for similar identities."""
 
-        remaining = [uidentity for uidentity in uidentities]
-        merged = []
-
-        self.total = len(remaining)
+        self.total = len(uidentities)
         self.matched = 0
 
-        while remaining:
-            u = remaining.pop(0)
+        matched = match(uidentities, matcher)
+        self.__merge(matched, interactive)
 
-            # Find all positive matches on the list of merged
-            # unique identities.
-            candidates = []
-            no_match = []
+    def __merge(self, matched, interactive):
+        """Merge a lists of matched unique identities"""
 
-            while merged:
-                m = merged.pop(0)
+        for m in matched:
+            u = m[0]
 
-                if matcher.match(u, m):
-                    candidates.append(m)
-                else:
-                    no_match.append(m)
+            for c in m[1:]:
+                if self.__merge_unique_identities(c, u, interactive):
+                    self.matched += 1
 
-            # Merge with the list of candidates
-            if len(candidates) > 0:
-                candidates.append(u)
+                    # Retrieve unique identity to show updated info
+                    if interactive:
+                        u = api.unique_identities(self.db, uuid=u.uuid)[0]
 
-                u = candidates[0]
-
-                for c in candidates[1:]:
-                    if self.__merge(c, u, interactive):
-                        self.matched += 1
-
-                u = api.unique_identities(self.db, uuid=u.uuid)[0]
-
-            # Generate the new list of merged identities
-            merged = [u] + no_match
-
-
-    def __merge(self, from_uid, to_uid, interactive):
+    def __merge_unique_identities(self, from_uid, to_uid, interactive):
         # By default, always merge
         merge = True
 
