@@ -1685,6 +1685,8 @@ class TestMoveIdentity(TestBaseCase):
         api.add_unique_identity(self.db, 'John Doe')
         api.add_identity(self.db, 'scm', 'jdoe@example.com',
                          uuid='John Doe')
+        new_uuid = api.add_identity(self.db, 'scm', 'john.doe@example.com',
+                                    uuid='John Doe')
 
         # Move the identity to the same unique identity
         api.move_identity(self.db, from_id, 'John Smith')
@@ -1694,12 +1696,35 @@ class TestMoveIdentity(TestBaseCase):
             uidentities = session.query(UniqueIdentity).all()
             self.assertEqual(len(uidentities), 2)
 
-            uid2 = uidentities[1]
-            self.assertEqual(uid2.uuid, 'John Smith')
-            self.assertEqual(len(uid2.identities), 1)
+            uid = uidentities[0]
+            self.assertEqual(uid.uuid, 'John Doe')
+            self.assertEqual(len(uid.identities), 2)
 
-            id1 = uid2.identities[0]
+            uid = uidentities[1]
+            self.assertEqual(uid.uuid, 'John Smith')
+            self.assertEqual(len(uid.identities), 1)
+
+            id1 = uid.identities[0]
             self.assertEqual(id1.id, from_id)
+
+        # This will create a new unique identity,
+        # moving the identity to this new unique identity
+        api.move_identity(self.db, new_uuid, new_uuid)
+
+        with self.db.connect() as session:
+            uidentities = session.query(UniqueIdentity).all()
+            self.assertEqual(len(uidentities), 3)
+
+            uid = uidentities[0]
+            self.assertEqual(uid.uuid, new_uuid)
+            self.assertEqual(len(uid.identities), 1)
+
+            id1 = uid.identities[0]
+            self.assertEqual(id1.id, new_uuid)
+
+            uid = uidentities[1]
+            self.assertEqual(uid.uuid, 'John Doe')
+            self.assertEqual(len(uid.identities), 1)
 
     def test_not_found_identities(self):
         """Test whether it fails when one of identities is not found"""

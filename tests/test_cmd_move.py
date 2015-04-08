@@ -38,6 +38,7 @@ MOVE_FROM_ID_NOT_FOUND_ERROR = "Error: FFFFFFFFFFF not found in the registry"
 MOVE_TO_UUID_NOT_FOUND_ERROR = "Error: Jane Rae not found in the registry"
 
 MOVE_OUTPUT = """Identity b4c250eaaf873a04093319f26ca13b02a9248251 moved to unique identity John Smith"""
+MOVE_NEW_UID_OUTPUT = """New unique identity b4c250eaaf873a04093319f26ca13b02a9248251 created. Identity moved"""
 MOVE_EMPTY_OUTPUT = ""
 
 
@@ -84,7 +85,7 @@ class TestMoveCommand(TestBaseCase):
     def test_move(self):
         """Check how it works when moving an identity"""
 
-        # Remove an identity
+        # Move an identity
         self.cmd.run('b4c250eaaf873a04093319f26ca13b02a9248251', 'John Smith')
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, MOVE_OUTPUT)
@@ -113,6 +114,13 @@ class TestMove(TestBaseCase):
         self.cmd.move('b4c250eaaf873a04093319f26ca13b02a9248251', 'Jane Rae')
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, MOVE_TO_UUID_NOT_FOUND_ERROR)
+
+    def test_create_new_unique_identity(self):
+        """Check if a new unique identity is created when both uuids are equal"""
+
+        self.cmd.move('b4c250eaaf873a04093319f26ca13b02a9248251', 'b4c250eaaf873a04093319f26ca13b02a9248251')
+        output = sys.stdout.getvalue().strip()
+        self.assertEqual(output, MOVE_NEW_UID_OUTPUT)
 
     def test_none_ids(self):
         """Check behavior moving None ids"""

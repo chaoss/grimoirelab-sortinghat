@@ -33,6 +33,9 @@ class Move(Command):
     This command moves <from_id> identity into <to_uuid> unique identity.
     When <to_uuid> is the unique identity that is currently related to
     <from_id>, the command does not have any effect.
+    When <from_id> is equal to <to_uuid> and this unique identity does
+    not exist, a new unique identity will be created, detaching <from_id>
+    from its current unique identity and moving it to the new one.
     """
     def __init__(self, **kwargs):
         super(Move, self).__init__(**kwargs)
@@ -57,12 +60,8 @@ class Move(Command):
         return "%(prog)s mv <from_id> <to_uuid>"
 
     def run(self, *args):
-        """Move an identity into a unique identity.
+        """Move an identity into a unique identity."""
 
-        When <from_id> or <to_uuid> are empty the command does not have any
-        effect. The same happens when both <from_id> is currently related to
-        <to_uuid>.
-        """
         params = self.parser.parse_args(args)
 
         from_id = params.from_id
@@ -75,6 +74,10 @@ class Move(Command):
 
         The method moves the identity identified by <from_id> to
         the unique identity <to_uuid>.
+
+        In the case of<from_id> is equal to <to_uuid> and this unique identity
+        does not exist, a new unique identity will be created, detaching <from_id>
+        from its current unique identity and moving it to the new one.
 
         When <to_uuid> is the unique identity that is currently related to
         <from_id>, the action does not have any effect. The same occurs when

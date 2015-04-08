@@ -742,9 +742,14 @@ def move_identity(db, from_id, to_uuid):
     """Move an identity to a unique identity.
 
     This function shifts the identity identified by 'from_id' to
-    the unique identity 'to_uuid'. When 'to_uuid' is the unique
-    identity that is currently related to 'from_id', the action does
-    not have any effect.
+    the unique identity 'to_uuid'.
+
+    When 'to_uuid' is the unique identity that is currently related
+    to 'from_id', the action does not have any effect.
+
+    In the case of 'from_id' and 'to_uuid' have equal values and the
+    unique identity does not exist, a new unique identity will be
+    created and the identity will be moved to it.
 
     The function raises a 'NotFoundError exception when either 'from_id'
     or 'to_uuid' do not exist in the registry.
@@ -765,7 +770,12 @@ def move_identity(db, from_id, to_uuid):
         if not fid:
             raise NotFoundError(entity=from_id)
         if not tuid:
-            raise NotFoundError(entity=to_uuid)
+            # Move identity to a new one
+            if from_id == to_uuid:
+                tuid = UniqueIdentity(uuid=to_uuid)
+                session.add(tuid)
+            else:
+                raise NotFoundError(entity=to_uuid)
 
         if fid.uuid == to_uuid:
             return
