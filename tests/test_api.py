@@ -2779,5 +2779,88 @@ class TestEnrollments(TestBaseCase):
                                 'John Smith', 'LibreSoft')
 
 
+class TestBlacklist(TestBaseCase):
+    """Unit tests for blacklist"""
+
+    def test_get_blacklist(self):
+        """Check if it returns the blacklist"""
+
+        api.add_to_matching_blacklist(self.db, 'root@example.com')
+        api.add_to_matching_blacklist(self.db, 'John Smith')
+        api.add_to_matching_blacklist(self.db, 'Bitergia')
+        api.add_to_matching_blacklist(self.db, 'John Doe')
+
+        mbs = api.blacklist(self.db)
+        self.assertEqual(len(mbs), 4)
+
+        with self.db.connect() as session:
+            mb = session.query(MatchingBlacklist).\
+                filter(MatchingBlacklist.excluded == 'root@example.com').first()
+            self.assertEqual(mb.excluded, 'root@example.com')
+
+            mb = session.query(MatchingBlacklist).\
+                filter(MatchingBlacklist.excluded == 'Bitergia').first()
+            self.assertEqual(mb.excluded, 'Bitergia')
+
+            mb = session.query(MatchingBlacklist).\
+                filter(MatchingBlacklist.excluded == 'John Doe').first()
+            self.assertEqual(mb.excluded, 'John Doe')
+
+        mb = mbs[0]
+        self.assertIsInstance(mb, MatchingBlacklist)
+        self.assertEqual(mb.excluded, 'Bitergia')
+
+        mb = mbs[1]
+        self.assertIsInstance(mb, MatchingBlacklist)
+        self.assertEqual(mb.excluded, 'John Doe')
+
+        mb = mbs[2]
+        self.assertIsInstance(mb, MatchingBlacklist)
+        self.assertEqual(mb.excluded, 'John Smith')
+
+        mb = mbs[3]
+        self.assertIsInstance(mb, MatchingBlacklist)
+        self.assertEqual(mb.excluded, 'root@example.com')
+
+    def test_get_blacklist_term(self):
+        """Check if it returns the info about blacklisted entities using a search term"""
+
+        api.add_to_matching_blacklist(self.db, 'root@example.com')
+        api.add_to_matching_blacklist(self.db, 'John Smith')
+        api.add_to_matching_blacklist(self.db, 'Bitergia')
+        api.add_to_matching_blacklist(self.db, 'John Doe')
+
+        # This query have to return two entries
+        mbs = api.blacklist(self.db, 'ohn')
+        self.assertEqual(len(mbs), 2)
+
+        # John Doe
+        mb = mbs[0]
+        self.assertIsInstance(mb, MatchingBlacklist)
+        self.assertEqual(mb.excluded, 'John Doe')
+
+        mb = mbs[1]
+        self.assertIsInstance(mb, MatchingBlacklist)
+        self.assertEqual(mb.excluded, 'John Smith')
+
+    def test_empty_blacklist(self):
+        """Check whether it returns an empty list when the blacklist is empty"""
+
+        mbs = api.blacklist(self.db)
+        self.assertListEqual(mbs, [])
+
+    def test_not_found_term(self):
+        """Check whether it raises an error when the term is not found"""
+
+        # It should raise an error when the blacklist is empty
+        self.assertRaises(NotFoundError, api.blacklist, self.db, 'jane')
+
+        # It should do the same when there are some orgs available
+        api.add_to_matching_blacklist(self.db, 'root@example.com')
+        api.add_to_matching_blacklist(self.db, 'John Smith')
+
+        self.assertRaises(NotFoundError, api.blacklist, self.db, 'jane')
+
+
 if __name__ == "__main__":
     unittest.main()

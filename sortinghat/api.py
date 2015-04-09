@@ -1173,3 +1173,40 @@ def enrollments(db, uuid=None, organization=None, from_date=None, to_date=None):
         session.expunge_all()
 
     return enrollments
+
+
+def blacklist(db, term=None):
+    """List the blacklisted entities available in the registry.
+
+    The function will return the list of blacklisted entities. If term
+    parameter is set, it will only return the information about the
+    entities which match that term. When the given term does not match
+    with any entry on the blacklist a 'NotFounError' exception will
+    be raised.
+
+    :param db: database manager
+    :param term: term to match with blacklisted entries
+
+    :returns: a list of blacklisted entities sorted by their name
+
+    :raises NotFoundError: raised when the given term is not found on
+        any blacklisted entry from the registry
+    """
+    mbs = []
+
+    with db.connect() as session:
+        if term:
+            mbs = session.query(MatchingBlacklist).\
+                filter(MatchingBlacklist.excluded.like('%' + term + '%')).\
+                order_by(MatchingBlacklist.excluded).all()
+
+            if not mbs:
+                raise NotFoundError(entity=term)
+        else:
+            mbs = session.query(MatchingBlacklist).\
+                order_by(MatchingBlacklist.excluded).all()
+
+        # Detach objects from the session
+        session.expunge_all()
+
+    return mbs
