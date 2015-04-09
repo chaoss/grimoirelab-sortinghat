@@ -22,6 +22,7 @@
 
 from sortinghat.cmd.add import Add
 from sortinghat.cmd.affiliate import Affiliate
+from sortinghat.cmd.blacklist import Blacklist
 from sortinghat.cmd.config import Config
 from sortinghat.cmd.countries import Countries
 from sortinghat.cmd.enroll import Enroll
@@ -42,6 +43,7 @@ from sortinghat.cmd.withdraw import Withdraw
 SORTINGHAT_COMMANDS = {
                        'add'       : Add,
                        'affiliate' : Affiliate,
+                       'blacklist' : Blacklist,
                        'config'    : Config,
                        'countries' : Countries,
                        'enroll'    : Enroll,
