@@ -34,7 +34,7 @@ from sqlalchemy.exc import IntegrityError, OperationalError, StatementError
 from sqlalchemy.orm import sessionmaker
 
 from sortinghat.db.model import ModelBase, Organization, Domain, Country,\
-    UniqueIdentity, Identity, Profile, Enrollment
+    UniqueIdentity, Identity, Profile, Enrollment, MatchingBlacklist
 from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
 
@@ -581,6 +581,21 @@ class TestEnrollment(TestCaseBase):
         self.assertEqual(d['organization'], 'Example')
         self.assertEqual(d['start'], datetime.datetime(1999, 1, 1, 0, 0, 0))
         self.assertEqual(d['end'], datetime.datetime(2001, 1, 1, 0, 0, 0))
+
+
+class TestMatchingBlacklist(TestCaseBase):
+    """Unit tests for MatchingBlacklist class"""
+
+    def test_unique_excluded(self):
+        """Check whether the excluded term is in fact unique"""
+
+        with self.assertRaisesRegexp(IntegrityError, DUP_CHECK_ERROR):
+            mb1 = MatchingBlacklist(excluded='John Smith')
+            mb2 = MatchingBlacklist(excluded='John Smith')
+
+            self.session.add(mb1)
+            self.session.add(mb2)
+            self.session.commit()
 
 
 if __name__ == "__main__":

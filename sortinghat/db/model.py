@@ -243,6 +243,14 @@ class Enrollment(ModelBase):
                 }
 
 
+class MatchingBlacklist(ModelBase):
+    __tablename__ = 'matching_blacklist'
+
+    excluded = Column(String(128), primary_key=True)
+
+    __table_args__ = ({'mysql_charset': 'utf8'})
+
+
 class MappedTable(object):
 
     @classmethod
