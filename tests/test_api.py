@@ -31,7 +31,7 @@ if not '..' in sys.path:
 from sortinghat import api
 from sortinghat.db.database import Database
 from sortinghat.db.model import UniqueIdentity, Identity, Profile,\
-    Organization, Domain, Country, Enrollment
+    Organization, Domain, Country, Enrollment, MatchingBlacklist
 from sortinghat.exceptions import AlreadyExistsError, NotFoundError
 from sortinghat.matcher import create_identity_matcher
 
@@ -45,6 +45,7 @@ TOP_DOMAIN_VALUE_ERROR = "top_domain must have a boolean value"
 IS_BOT_VALUE_ERROR = "is_bot must have a boolean value"
 SOURCE_NONE_OR_EMPTY_ERROR = "source cannot be"
 IDENTITY_NONE_OR_EMPTY_ERROR = "identity data cannot be None or empty"
+ENTITY_BLACKLIST_NONE_OR_EMPTY_ERROR = "entity to blacklist cannot be"
 COUNTRY_CODE_INVALID_ERROR = "country code must be a 2 length alpha string - %(code)s given"
 ENROLLMENT_PERIOD_INVALID_ERROR = "cannot be greater than "
 ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR = "%(type)s %(date)s is out of bounds"
@@ -602,6 +603,55 @@ class TestAddEnrollment(TestBaseCase):
                           self.db, 'John Smith', 'Example',
                           datetime.datetime(1999, 1, 1),
                           datetime.datetime(2000, 1, 1))
+
+
+class TestAddToMatchingBlacklist(TestBaseCase):
+    """Unit tests for add_to_matching_blacklist"""
+
+    def test_add_entity(self):
+        """Check whether it adds a set of entities"""
+
+        api.add_to_matching_blacklist(self.db, 'root@example.com')
+        api.add_to_matching_blacklist(self.db, 'Bitergia')
+        api.add_to_matching_blacklist(self.db, 'John Doe')
+
+        with self.db.connect() as session:
+            mb = session.query(MatchingBlacklist).\
+                filter(MatchingBlacklist.excluded == 'root@example.com').first()
+            self.assertEqual(mb.excluded, 'root@example.com')
+
+            mb = session.query(MatchingBlacklist).\
+                filter(MatchingBlacklist.excluded == 'Bitergia').first()
+            self.assertEqual(mb.excluded, 'Bitergia')
+
+            mb = session.query(MatchingBlacklist).\
+                filter(MatchingBlacklist.excluded == 'John Doe').first()
+            self.assertEqual(mb.excluded, 'John Doe')
+
+    def test_existing_excluded_entity(self):
+        """Check if it fails adding an entity that already exists"""
+
+        # Add a pair of entities first
+        api.add_to_matching_blacklist(self.db, 'root@example.com')
+        api.add_to_matching_blacklist(self.db, 'John Doe')
+
+        # Insert the first entity. It should raise AlreadyExistsError
+        self.assertRaises(AlreadyExistsError, api.add_to_matching_blacklist,
+                          self.db, 'root@example.com')
+
+    def test_none_entity(self):
+        """Check whether None entities cannot be added to the registry"""
+
+        self.assertRaisesRegexp(ValueError,
+                                ENTITY_BLACKLIST_NONE_OR_EMPTY_ERROR,
+                                api.add_to_matching_blacklist, self.db, None)
+
+    def test_empty_entity(self):
+        """Check whether empty entities cannot be added to the registry"""
+
+        self.assertRaisesRegexp(ValueError,
+                                ENTITY_BLACKLIST_NONE_OR_EMPTY_ERROR,
+                                api.add_to_matching_blacklist, self.db, '')
 
 
 class TestEditProfile(TestBaseCase):

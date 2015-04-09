@@ -22,7 +22,8 @@
 
 from sortinghat import utils
 from sortinghat.db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE,\
-    UniqueIdentity, Identity, Profile, Organization, Domain, Country, Enrollment
+    UniqueIdentity, Identity, Profile, Organization, Domain, Country, Enrollment,\
+    MatchingBlacklist
 from sortinghat.exceptions import AlreadyExistsError, NotFoundError
 
 
@@ -321,6 +322,37 @@ def add_enrollment(db, uuid, organization, from_date=None, to_date=None):
         enrollment = Enrollment(uidentity=uidentity, organization=org,
                                 start=from_date, end=to_date)
         session.add(enrollment)
+
+
+def add_to_matching_blacklist(db, entity):
+    """Add entity to the matching blacklist.
+
+    This function adds an 'entity' o term to the matching blacklist.
+    The term to add cannot have a None or empty value, in this case
+    a ValueError will be raised. If the given 'entity' exists in the
+    registry, the function will raise an AlreadyExistsError exception.
+
+    :param db: database manager
+    :param entity: term, word or value to blacklist
+
+    :raises ValueError: raised when entity is None or an empty string
+    :raises AlreadyExistsError: raised when the entity already exists
+        in the registry.
+    """
+    if entity is None:
+        raise ValueError('entity to blacklist cannot be None')
+    if entity == '':
+        raise ValueError('entity to blacklist cannot be an empty string')
+
+    with db.connect() as session:
+        mb = session.query(MatchingBlacklist).\
+            filter(MatchingBlacklist.excluded == entity).first()
+
+        if mb:
+            raise AlreadyExistsError(entity=entity)
+
+        mb = MatchingBlacklist(excluded=entity)
+        session.add(mb)
 
 
 def edit_profile(db, uuid, **kwargs):
