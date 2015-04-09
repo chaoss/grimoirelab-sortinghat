@@ -1314,6 +1314,59 @@ class TestDeleteEnrollment(TestBaseCase):
             self.assertEqual(len(enrollments), 1)
 
 
+class TestDeleteFromMatchingBlacklist(TestBaseCase):
+    """Unit tests for delete_from_matching_blacklist"""
+
+    def test_delete_blacklisted_entity(self):
+        """Check whether it deletes a set of blacklisted entities"""
+
+        # First, add a set of blacklisted entities
+        api.add_to_matching_blacklist(self.db, 'root@example.com')
+        api.add_to_matching_blacklist(self.db, 'Bitergia')
+        api.add_to_matching_blacklist(self.db, 'John Doe')
+
+        # Delete the first entity
+        api.delete_from_matching_blacklist(self.db, 'root@example.com')
+
+        with self.db.connect() as session:
+            mb1 = session.query(MatchingBlacklist).\
+                filter(MatchingBlacklist.excluded == 'root@example.net').first()
+            self.assertEqual(mb1, None)
+
+        # Delete the last entity
+        api.delete_from_matching_blacklist(self.db, 'John Doe')
+
+        with self.db.connect() as session:
+            mb2 = session.query(MatchingBlacklist).\
+                filter(MatchingBlacklist.excluded == 'John Doe').first()
+            self.assertEqual(mb2, None)
+
+            # Check if there only remains one entity
+            mbs = session.query(MatchingBlacklist).all()
+            self.assertEqual(len(mbs), 1)
+            self.assertEqual(mbs[0].excluded, 'Bitergia')
+
+    def test_not_found_blacklisted_entity(self):
+        """Check if it fails removing an entity that does not exists"""
+
+        # It should raise an error when the registry is empty
+        self.assertRaises(NotFoundError, api.delete_from_matching_blacklist,
+                          self.db, 'root@example.com')
+
+        # Add a pair of entities first
+        api.add_to_matching_blacklist(self.db, 'root@example.com')
+        api.add_to_matching_blacklist(self.db, 'John Doe')
+
+        # The error should be the same
+        self.assertRaises(NotFoundError, api.delete_from_matching_blacklist,
+                          self.db, 'John Smith')
+
+        # Nothing has been deleted from the registry
+        with self.db.connect() as session:
+            mbs = session.query(MatchingBlacklist).all()
+            self.assertEqual(len(mbs), 2)
+
+
 class TestMergeEnrollments(TestBaseCase):
     """Unite tests for merge_enrollments"""
 

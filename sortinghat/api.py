@@ -600,6 +600,30 @@ def delete_enrollment(db, uuid, organization, from_date=None, to_date=None):
             session.delete(enr)
 
 
+def delete_from_matching_blacklist(db, entity):
+    """Remove an blacklisted entity from the registry.
+
+    This function removes the given blacklisted entity from the registry.
+    It checks first whether the excluded entity is already on the registry.
+    When it is found, the entity is removed. Otherwise, it will raise
+    a 'NotFoundError'.
+
+    :param db: database manager
+    :param entity: blacklisted entity to remove
+
+    :raises NotFoundError: raised when the blacklisted entity does not exist
+        in the registry.
+    """
+    with db.connect() as session:
+        mb = session.query(MatchingBlacklist).\
+            filter(MatchingBlacklist.excluded == entity).first()
+
+        if not mb:
+            raise NotFoundError(entity=entity)
+
+        session.delete(mb)
+
+
 def merge_unique_identities(db, from_uuid, to_uuid):
     """Merge one unique identity into another.
 
