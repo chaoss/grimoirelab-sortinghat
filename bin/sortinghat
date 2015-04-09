@@ -39,6 +39,7 @@ SORTINGHAT_DESC_MSG = \
 
     add         Add identities
     affiliate   Affiliate identities
+    blacklist   List, add or delete entries from the blacklist
     config      Get and set configuration parameters
     countries   List information about countries
     enroll      Enroll identities into organizations
