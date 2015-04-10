@@ -145,9 +145,13 @@ def retrieve_mg_identities(engine):
     table = db.reflect_table(engine, MetricsGrimoireIdentity)
     query = session.query(MetricsGrimoireIdentity)
 
-    # Specific case for IRC databases
-    if 'nick' in table.columns:
+    # Specific case for IRC or Wiki databases
+    if table.name == 'irclog' and 'nick' in table.columns:
+        query = query.filter(MetricsGrimoireIdentity._nick != None)
         query = query.group_by(MetricsGrimoireIdentity._nick)
+    elif table.name == 'wiki_pages_revs' and 'user' in table.columns:
+        query = query.filter(MetricsGrimoireIdentity._user != None)
+        query = query.group_by(MetricsGrimoireIdentity._user)
 
     identities = query.all()
 
