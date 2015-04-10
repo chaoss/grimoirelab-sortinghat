@@ -265,14 +265,14 @@ class MappedTable(object):
 class MetricsGrimoireIdentity(MappedTable):
     """Generic identity to map identities data from Metrics Grimoire databases"""
 
-    IDENTITIES_TABLES = ['people', 'users', 'irclog']
+    IDENTITIES_TABLES = ['wiki_pages_revs', 'people', 'users', 'irclog']
 
     COLUMN_PREFIX = '_'
 
-    MG_ID_KEYS = ['_nick', '_id', '_email_address']
+    MG_ID_KEYS = ['_nick', '_user', '_id', '_email_address']
     NAME_KEYS = ['_name']
     EMAIL_KEYS = ['_email', '_email_address']
-    USERNAME_KEYS = ['_username', '_user_id', '_nick', '_login']
+    USERNAME_KEYS = ['_nick', '_user', '_username', '_user_id', '_login']
 
     __mg_id = None
     __name = None
