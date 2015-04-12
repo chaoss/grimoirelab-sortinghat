@@ -56,6 +56,38 @@ Configuration
   $ sortinghat init <name>
 ```
 
+Migration from "old" MetricsGrimoire identities
+-----------------------------------------------
+
+Assume we had a database named "project_scm", with information about the gi trepository of project "project", with the "old" MetricsGrimoire identities. The process to migrate to Sorting Hat is as follows (assuming sortinghat is already installed):
+
+```
+[Create the Sorting Hat database for "new" identities]
+  $ sortinghat init project_ids
+[For each data source of interest (SCM, ITS, MLS, etc.) export identities
+ to a JSON file, and import it into the Sorting Hat database]
+  $ mg2sh -d project_scm -s project:scm -o project-scm.json
+  $ sortinghat -d project_ids load --identities  project-scm.json
+  ... [Repeat previous two step per each data source, switching "scm"
+       to "its", "mls", etc.]
+[Export all the identities in the Sorting Hat database]
+  $ sortinghat -d project_ids export --identities project-sh.json
+[Create people2identities table for each data source database,
+ using the identities exported in the previous step]
+  $ sh2mg -d project_scm -s project:scm project-sh.json
+[Transfer merged uids and company affiliation to sorting hat database]
+  $ migrate.py -d project_scm -s project_ids -i project_scm -o
+  ... [Repeat previous two steps per each data source, switching "scm"
+       to "its", "mls",  etc. except in the "-i" parameter]
+[Select a main identity for each merged identity]
+  $ identifier2sh.py -d project_ids
+```
+
+Notes:
+
+* migrate.py is in the VizGrimoireUtils repo, identities directory.
+* All scripts need parameters to grant access to the databases, such the -u and -p (MySQL user and password) parameters.
+
 Requirements
 ------------
 
