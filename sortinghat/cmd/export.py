@@ -176,8 +176,11 @@ class SortingHatIdentitiesExporter(IdentitiesExporter):
             uidentities[uid.uuid] = u
             uidentities[uid.uuid]['enrollments'] = enrollments
 
+        blacklist = [mb.excluded for mb in api.blacklist(self.db)]
+
         obj = {'time' : str(datetime.datetime.now()),
                'source' : source,
+               'blacklist' : blacklist,
                'organizations' : {},
                'uidentities' : uidentities}
 
@@ -235,6 +238,7 @@ class SortingHatOrganizationsExporter(OrganizationsExporter):
             organizations[org.name] = domains
 
         obj = {'time' : str(datetime.datetime.now()),
+               'blacklist' : [],
                'organizations' : organizations,
                'uidentities' : {}}
 

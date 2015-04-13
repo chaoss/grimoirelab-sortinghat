@@ -132,6 +132,10 @@ class TestBaseCase(unittest.TestCase):
                            datetime.datetime(2006, 1, 1),
                            datetime.datetime(2008, 1, 1))
 
+        # Add blacklist
+        api.add_to_matching_blacklist(self.db, 'jroe@example.com')
+        api.add_to_matching_blacklist(self.db, 'John Smith')
+
 
 class TestExportCommand(TestBaseCase):
     """Export command unit tests"""
@@ -353,6 +357,16 @@ class TestSortingHatIdentitiesExporter(TestBaseCase):
         self.assertEqual(rol0['start'], '1900-01-01T00:00:00')
         self.assertEqual(rol0['end'], '2100-01-01T00:00:00')
 
+        # Check blacklist
+        blacklist = obj['blacklist']
+        self.assertEqual(len(blacklist), 2)
+
+        bl0 = blacklist[0]
+        self.assertEqual(bl0, 'John Smith')
+
+        bl1 = blacklist[1]
+        self.assertEqual(bl1, 'jroe@example.com')
+
     def test_source(self):
         """Check output when source is given"""
 
@@ -381,6 +395,16 @@ class TestSortingHatIdentitiesExporter(TestBaseCase):
         self.assertEqual(len(uid['identities']), 3)
         self.assertEqual(len(uid['enrollments']), 3)
 
+        # Check blacklist
+        blacklist = obj['blacklist']
+        self.assertEqual(len(blacklist), 2)
+
+        bl0 = blacklist[0]
+        self.assertEqual(bl0, 'John Smith')
+
+        bl1 = blacklist[1]
+        self.assertEqual(bl1, 'jroe@example.com')
+
     def test_empty_registry(self):
         """Check output when the registry is empty"""
 
@@ -393,6 +417,7 @@ class TestSortingHatIdentitiesExporter(TestBaseCase):
         self.assertEqual(obj['source'], None)
         self.assertIn('time', obj)
         self.assertEqual(len(obj['uidentities']), 0)
+        self.assertEqual(len(obj['blacklist']), 0)
 
 
 class TestExportOrganizations(TestBaseCase):
