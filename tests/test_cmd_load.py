@@ -36,10 +36,11 @@ from sortinghat.parsing.sh import SortingHatParser
 
 from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
-LOAD_IDENTITIES_INVALID_JSON_FORMAT_ERROR = "Error: invalid json format. Expecting ',' delimiter: line 85 column 17 (char 2800)"
+LOAD_BLACKLIST_EMPTY_STRINGS_ERROR = "Error: invalid json format. Blacklist entries cannot be null or empty"
+LOAD_IDENTITIES_INVALID_JSON_FORMAT_ERROR = "Error: invalid json format. Expecting ',' delimiter: line 86 column 17 (char 2821)"
 LOAD_IDENTITIES_MISSING_KEYS_ERROR = "Error: invalid json format. Attribute uuid not found"
 LOAD_IDENTITIES_MATCHING_ERROR = "Error: mock identity matcher is not supported"
-LOAD_ORGS_INVALID_FORMAT_ERROR = "Error: invalid json format. Expecting object: line 36 column 2 (char 811)"
+LOAD_ORGS_INVALID_FORMAT_ERROR = "Error: invalid json format. Expecting object: line 37 column 2 (char 832)"
 LOAD_ORGS_MISSING_KEYS_ERROR = "Error: invalid json format. Attribute is_top not found"
 LOAD_ORGS_IS_TOP_ERROR = "Error: invalid json format. 'is_top' must have a bool value"
 
@@ -51,6 +52,10 @@ Domain bitergia.net added to organization Bitergia
 Domain test.bitergia.com added to organization Bitergia
 Domain example.com added to organization Example
 Domain example.net added to organization Example
+Loading blacklist...
+Entry  added to the blacklist
+Entry  added to the blacklist
+2/2 blacklist entries loaded
 Loading unique identities...
 + 03e12d00e37fd45593c49a5a5a1652deca4cf302 (old 03e12d00e37fd45593c49a5a5a1652deca4cf302) loaded
 + 52e0aa0a14826627e633fd15332988686b730ab3 (old 52e0aa0a14826627e633fd15332988686b730ab3) loaded
@@ -58,7 +63,11 @@ Loading unique identities...
 
 # Identities outputs
 
-LOAD_IDENTITIES_OUTPUT = """Loading unique identities...
+LOAD_IDENTITIES_OUTPUT = """Loading blacklist...
+Entry  added to the blacklist
+Entry  added to the blacklist
+2/2 blacklist entries loaded
+Loading unique identities...
 + 03e12d00e37fd45593c49a5a5a1652deca4cf302 (old 03e12d00e37fd45593c49a5a5a1652deca4cf302) loaded
 + 52e0aa0a14826627e633fd15332988686b730ab3 (old 52e0aa0a14826627e633fd15332988686b730ab3) loaded
 2/3 unique identities loaded"""
@@ -225,6 +234,32 @@ class TestLoadCommand(TestBaseCase):
         self.cmd.run('data/sortinghat_orgs_invalid_top.json')
         output = sys.stderr.getvalue().strip().split('\n')[4]
         self.assertEqual(output, LOAD_ORGS_IS_TOP_ERROR)
+
+        self.cmd.run('data/sortinghat_blacklist_empty_strings.json')
+        output = sys.stderr.getvalue().strip().split('\n')[5]
+        self.assertEqual(output, LOAD_BLACKLIST_EMPTY_STRINGS_ERROR)
+
+
+class TestLoadBlacklist(TestBaseCase):
+    """Test import_blacklist method with some Sorting Hat inputs"""
+
+    def test_valid_file(self):
+        """Check insertion of valid data from a file"""
+
+        parser = self.get_parser('data/sortinghat_valid.json')
+
+        self.cmd.import_blacklist(parser)
+
+        # Check the contents of the registry
+        bl = api.blacklist(self.db)
+        self.assertEqual(len(bl), 2)
+
+        # John Smith
+        b = bl[0]
+        self.assertEqual(b.excluded, 'John Smith')
+
+        b = bl[1]
+        self.assertEqual(b.excluded, 'jroe@example.com')
 
 
 class TestLoadIdentities(TestBaseCase):

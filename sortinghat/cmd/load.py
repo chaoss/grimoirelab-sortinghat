@@ -126,14 +126,41 @@ class Load(Command):
             raise RuntimeError(unicode(e))
 
         if params.identities:
+            self.import_blacklist(parser)
             self.import_identities(parser, params.matching,
                                    params.match_new, params.verbose)
         elif params.orgs:
             self.import_organizations(parser, params.overwrite)
         else:
             self.import_organizations(parser, params.overwrite)
+            self.import_blacklist(parser)
             self.import_identities(parser, params.matching,
                                    params.match_new, params.verbose)
+
+    def import_blacklist(self, parser):
+        """Import blacklist.
+
+        New entries parsed by 'parser' will be added to the blacklist.
+
+        :param parser: sorting hat parser
+        """
+        blacklist = parser.blacklist
+
+        self.log("Loading blacklist...")
+        n = 0
+
+        for entry in blacklist:
+            try:
+                api.add_to_matching_blacklist(self.db, entry.excluded)
+                self.display('load_blacklist.tmpl', entry=entry.excluded)
+                n += 1
+            except ValueError, e:
+                raise RuntimeError(unicode(e))
+            except AlreadyExistsError, e:
+                msg = "%s. Not added." % unicode(e)
+                self.warning(msg)
+
+        self.log("%d/%d blacklist entries loaded" % (n, len(blacklist)))
 
     def import_organizations(self, parser, overwrite=False):
         """Import organizations.
