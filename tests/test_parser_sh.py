@@ -28,12 +28,13 @@ import unittest
 if not '..' in sys.path:
     sys.path.insert(0, '..')
 
-from sortinghat.db.model import UniqueIdentity, Organization, Domain
+from sortinghat.db.model import UniqueIdentity, Organization, Domain, MatchingBlacklist
 from sortinghat.exceptions import InvalidFormatError
 from sortinghat.parsing.sh import SortingHatParser
 
 
 SH_INVALID_JSON_FORMAT_ERROR = "invalid json format\. Expecting ',' delimiter"
+SH_BL_EMPTY_STRING_ERROR = "invalid json format. Blacklist entries cannot be null or empty"
 SH_IDS_MISSING_KEYS_ERROR = "Attribute uuid not found"
 SH_IDS_DATETIME_ERROR = "2100-01-32T00:00:00 is not a valid date"
 SH_IDS_IS_BOT_ERROR = "'is_bot' must have a bool value"
@@ -57,6 +58,25 @@ class TestBaseCase(unittest.TestCase):
 
 class TestSortingHatParser(TestBaseCase):
     """Test SortingHat parser with some inputs"""
+
+    def test_valid_blacklist_stream(self):
+        """Check whether it parsers blacklist section from a valid stream"""
+
+        stream = self.read_file('data/sortinghat_valid.json')
+
+        parser = SortingHatParser(stream)
+        bl = parser.blacklist
+
+        # Check parsed blacklist
+        self.assertEqual(len(bl), 2)
+
+        b = bl[0]
+        self.assertIsInstance(b, MatchingBlacklist)
+        self.assertEqual(b.excluded, 'John Smith')
+
+        b = bl[1]
+        self.assertIsInstance(b, MatchingBlacklist)
+        self.assertEqual(b.excluded, 'jroe@example.com')
 
     def test_valid_identities_stream(self):
         """Check whether it parsers identities section from a valid stream"""
@@ -252,6 +272,11 @@ class TestSortingHatParser(TestBaseCase):
         with self.assertRaisesRegexp(InvalidFormatError,
                                      SH_INVALID_JSON_FORMAT_ERROR):
             s = self.read_file('data/sortinghat_invalid.json')
+            SortingHatParser(s)
+
+        with self.assertRaisesRegexp(InvalidFormatError,
+                                     SH_BL_EMPTY_STRING_ERROR):
+            s = self.read_file('data/sortinghat_blacklist_empty_strings.json')
             SortingHatParser(s)
 
         with self.assertRaisesRegexp(InvalidFormatError,

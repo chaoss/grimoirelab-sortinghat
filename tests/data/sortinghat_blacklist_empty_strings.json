@@ -2,7 +2,7 @@
     "source": null,
     "time": "2015-01-14 13:31:19.507613",
     "blacklist": [
-        "John Smith",
+        "",
         "jroe@example.com"
     ],
     "organizations": {
@@ -47,7 +47,7 @@
         "03e12d00e37fd45593c49a5a5a1652deca4cf302": {
             "enrollments": [
                 {
-                    "end": "2100-01-32T00:00:00",
+                    "end": "2100-01-01T00:00:00",
                     "start": "1900-01-01T00:00:00",
                     "organization": "Example",
                     "uuid": "03e12d00e37fd45593c49a5a5a1652deca4cf302"

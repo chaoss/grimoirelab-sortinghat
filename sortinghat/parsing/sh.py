@@ -21,7 +21,7 @@
 #
 
 from sortinghat.db.model import UniqueIdentity, Identity, Profile,\
-    Enrollment, Organization, Domain, Country
+    Enrollment, Organization, Domain, Country, MatchingBlacklist
 from sortinghat.exceptions import InvalidFormatError, InvalidDateError
 from sortinghat.utils import str_to_datetime
 
@@ -48,9 +48,16 @@ class SortingHatParser(object):
     """
 
     def __init__(self, stream):
+        self._blacklist = {}
         self._identities = []
         self._organizations = {}
         self.__parse(stream)
+
+    @property
+    def blacklist(self):
+        bl = [b for b in self._blacklist.values()]
+        bl.sort(key=lambda b: b.excluded)
+        return bl
 
     @property
     def identities(self):
@@ -73,6 +80,45 @@ class SortingHatParser(object):
 
         self.__parse_organizations(json)
         self.__parse_identities(json)
+        self.__parse_blacklist(json)
+
+    def __parse_blacklist(self, json):
+        """Parse blacklist entries using Sorting Hat format.
+
+        The Sorting Hat blacklist format is a JSON stream that
+        stores a list of blacklisted entries.
+
+        Next, there is an example of a valid stream:
+
+        {
+            "blacklist": [
+                "John Doe",
+                "John Smith",
+                "root@example.com"
+            ]
+        }
+
+        :param stream: stream to parse
+
+        :raises InvalidFormatError: raised when the format of the stream is
+            not valid.
+        """
+        try:
+            for entry in json['blacklist']:
+                if not entry:
+                    msg = "invalid json format. Blacklist entries cannot be null or empty"
+                    raise InvalidFormatError(cause=msg)
+
+                excluded = self.__encode(entry)
+
+                bl = self._blacklist.get(excluded, None)
+
+                if not bl:
+                    bl = MatchingBlacklist(excluded=excluded)
+                    self._blacklist[excluded] = bl
+        except KeyError, e:
+            msg = "invalid json format. Attribute %s not found" % e.args
+            raise InvalidFormatError(cause=msg)
 
     def __parse_identities(self, json):
         """Parse identities using Sorting Hat format.
