@@ -24,13 +24,29 @@ from sortinghat.exceptions import MatcherNotSupportedError
 
 
 class IdentityMatcher(object):
-    """Abstract class to determine whether two unique identities match"""
+    """Abstract class to determine whether two unique identities match.
 
+    The object receives a list of keyword arguments. The allowed
+    keys are listed below (other keywords will be ignored):
+
+       - 'blacklist' : list of entries to ignore during the matching process
+    """
     def __init__(self, **kwargs):
+
         self._kwargs = kwargs
+
+        if 'blacklist' in self._kwargs:
+            self.blacklist = [entry.excluded.lower() \
+                              for entry in self._kwargs['blacklist']]
+            self.blacklist.sort()
+        else:
+            self.blacklist = []
 
     def match(self, a, b):
         """Abstract method used to determine if both unique identities are the same.
+
+        Take into account that some identities cannot match when this class
+        was initialized with a blacklist.
 
         :param a: unique identity to match
         :param b: unique identity to match
@@ -45,12 +61,18 @@ class IdentityMatcher(object):
         :param fa: filtered identity to match
         :param fb: filtered identity to match
 
+        Take into account that some identities cannot match when this class
+        was initialized with a blacklist.
+
         :returns: True when both filtered identities are likely to be the same.
         """
         raise NotImplementedError
 
     def filter(self, u):
         """Filter the valid identities for this matcher.
+
+        Some identities can be filtered if this class was initialized
+        with a blacklist.
 
         :param u: unique identity which stores the identities to filter
 

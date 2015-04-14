@@ -27,7 +27,7 @@ import unittest
 if not '..' in sys.path:
     sys.path.insert(0, '..')
 
-from sortinghat.db.model import UniqueIdentity, Identity
+from sortinghat.db.model import UniqueIdentity, Identity, MatchingBlacklist
 from sortinghat.exceptions import MatcherNotSupportedError
 from sortinghat.matcher import IdentityMatcher, create_identity_matcher, match
 from sortinghat.matching import EmailMatcher, EmailNameMatcher
@@ -54,7 +54,33 @@ class TestCreateIdentityMatcher(unittest.TestCase):
                           create_identity_matcher, 'custom')
 
 
+class TestIdentityMatcher(unittest.TestCase):
+    """Test IdentityMatcher class"""
+
+    def test_blacklist(self):
+        """Test blacklist contents"""
+
+        m = IdentityMatcher()
+        self.assertListEqual(m.blacklist, [])
+
+        m = IdentityMatcher(blacklist=[])
+        self.assertListEqual(m.blacklist, [])
+
+        blacklist = [MatchingBlacklist(excluded='JSMITH@example.com'),
+                     MatchingBlacklist(excluded='jrae@example.com'),
+                     MatchingBlacklist(excluded='jrae@example.net'),
+                     MatchingBlacklist(excluded='John Smith'),
+                     MatchingBlacklist(excluded='root')]
+
+        m = IdentityMatcher(blacklist=blacklist)
+
+        self.assertListEqual(m.blacklist, ['john smith', 'jrae@example.com',
+                                           'jrae@example.net', 'jsmith@example.com',
+                                           'root'])
+
+
 class TestMatch(unittest.TestCase):
+    """Test match function"""
 
     def setUp(self):
         # Add some unique identities
