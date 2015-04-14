@@ -44,9 +44,11 @@ class EmailMatcher(IdentityMatcher):
     This matcher only produces a positive result when two identities
     from each unique identity share the same email address. It also
     returns a positive match when the uuid on both unique identities is equal.
+
+    :param blacklist: list of entries to ignore during the matching process
     """
-    def __init__(self):
-        super(EmailMatcher, self).__init__()
+    def __init__(self, blacklist=[]):
+        super(EmailMatcher, self).__init__(blacklist=blacklist)
         self.email_pattern = re.compile(EMAIL_ADDRESS_REGEX)
 
     def match(self, a, b):
@@ -56,6 +58,9 @@ class EmailMatcher(IdentityMatcher):
         if the given unique identities are the same. When the given unique
         identities are the same object or share the same UUID, this will
         also produce a positive match.
+
+        Identities which their email addresses are in the blacklist will be
+        ignored and the result of the comparison will be false.
 
         :param a: unique identity to match
         :param b: unique identity to match
@@ -90,6 +95,9 @@ class EmailMatcher(IdentityMatcher):
         are the same object or share the same UUID, this will also
         produce a positive match.
 
+        Identities which their email addresses are in the blacklist will be
+        ignored and the result of the comparison will be false.
+
         :param fa: filtered identity to match
         :param fb: filtered identity to match
 
@@ -106,6 +114,9 @@ class EmailMatcher(IdentityMatcher):
 
         if fa.uuid == fb.uuid:
             return True
+
+        if fa.email in self.blacklist:
+            return False
 
         # Compare email addresses first
         if fa.email and fa.email == fb.email:
@@ -146,5 +157,7 @@ class EmailMatcher(IdentityMatcher):
 
     def _check_email(self, email):
         if not email:
+            return False
+        elif email.lower() in self.blacklist:
             return False
         return self.email_pattern.match(email) is not None
