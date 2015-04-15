@@ -219,7 +219,8 @@ class Load(Command):
 
         if matching:
             try:
-                matcher = create_identity_matcher(matching)
+                blacklist = api.blacklist(self.db)
+                matcher = create_identity_matcher(matching, blacklist)
             except MatcherNotSupportedError, e:
                 self.error(unicode(e))
                 return
