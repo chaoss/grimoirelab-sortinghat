@@ -47,6 +47,25 @@ class TestCreateIdentityMatcher(unittest.TestCase):
         matcher = create_identity_matcher('email-name')
         self.assertIsInstance(matcher, EmailNameMatcher)
 
+    def test_identity_matcher_instance_with_blacklist(self):
+        """Test if the factory function adds a blacklist to the matcher instance"""
+
+        # The blacklist is empty
+        matcher = create_identity_matcher('default')
+        self.assertIsInstance(matcher, IdentityMatcher)
+        self.assertEqual(len(matcher.blacklist), 0)
+
+        # Create a matcher with a blacklist
+        blacklist = [MatchingBlacklist(excluded='JSMITH@example.com'),
+                     MatchingBlacklist(excluded='jrae@example.com'),
+                     MatchingBlacklist(excluded='jrae@example.net'),
+                     MatchingBlacklist(excluded='John Smith'),
+                     MatchingBlacklist(excluded='root')]
+
+        matcher = create_identity_matcher('default', blacklist=blacklist)
+        self.assertIsInstance(matcher, IdentityMatcher)
+        self.assertEqual(len(matcher.blacklist), 5)
+
     def test_not_supported_matcher(self):
         """Check if an exception is raised when the given matcher type is not supported"""
 

@@ -89,13 +89,15 @@ class FilteredIdentity(object):
         self.uuid = uuid
 
 
-def create_identity_matcher(matcher='default'):
+def create_identity_matcher(matcher='default', blacklist=[]):
     """Create an identity matcher of the given type.
 
     Factory function that creates an identity matcher object of the type
-    defined on 'matcher' parameter.
+    defined on 'matcher' parameter. A blacklist can also be added to
+    ignore those values while matching.
 
     :param matcher: type of the matcher
+    :param blacklist: list of entries to ignore while matching
 
     :returns: a identity matcher object of the given type
 
@@ -109,7 +111,7 @@ def create_identity_matcher(matcher='default'):
 
     klass = matching.SORTINGHAT_IDENTITIES_MATCHERS[matcher]
 
-    return klass()
+    return klass(blacklist=blacklist)
 
 
 def match(uidentities, matcher):
