@@ -67,6 +67,29 @@ New match found
   * John Smith\tjsmith@example.com\t-\tscm
 Unique identity 03e12d00e37fd45593c49a5a5a1652deca4cf302 merged on 75d95d6c8492fd36d24a18bd45d62161e05fbc97"""
 
+ADD_OUTPUT_BLACKLIST = """New identity 1be5376d8d87bc3a391459a18ec0b41d1c8080d5 added to 1be5376d8d87bc3a391459a18ec0b41d1c8080d5
+
+New match found
+
++ 1be5376d8d87bc3a391459a18ec0b41d1c8080d5
+  * John Smith\tjsmith@example.com\t-\tunknown
+
++ 03e12d00e37fd45593c49a5a5a1652deca4cf302
+  * John Smith\tjsmith@example.com\tjsmith\tscm
+Unique identity 1be5376d8d87bc3a391459a18ec0b41d1c8080d5 merged on 03e12d00e37fd45593c49a5a5a1652deca4cf302
+
+New match found
+
++ 03e12d00e37fd45593c49a5a5a1652deca4cf302
+  * John Smith\tjsmith@example.com\tjsmith\tscm
+  * John Smith\tjsmith@example.com\t-\tunknown
+
++ 75d95d6c8492fd36d24a18bd45d62161e05fbc97
+  * John Smith\tjsmith@example.com\t-\tscm
+Unique identity 03e12d00e37fd45593c49a5a5a1652deca4cf302 merged on 75d95d6c8492fd36d24a18bd45d62161e05fbc97
+New identity 24769e96010fa84fd7af86586c3eb6090e66e319 added to 24769e96010fa84fd7af86586c3eb6090e66e319
+New identity 9ba1f605f3621fa10d98335ddad36b77b57fae99 added to 9ba1f605f3621fa10d98335ddad36b77b57fae99"""
+
 
 class TestBaseCase(unittest.TestCase):
     """Defines common setup and teardown methods on add unit tests"""
@@ -200,6 +223,27 @@ class TestAdd(TestBaseCase):
         # Check output
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, ADD_OUTPUT_MATCHING)
+
+    def test_default_matching_method_with_blacklist(self):
+        """Check whether new identities are merged using a blacklist"""
+
+        # Add some entries to the blacklist
+        api.add_to_matching_blacklist(self.db, 'John Smith')
+        api.add_to_matching_blacklist(self.db, 'jrae@example.com')
+
+        # Add this identity to 'Jonh Smith' and merge
+        self.cmd.add('unknown', name='John Smith', email='jsmith@example.com',
+                     matching='default')
+
+        # These two will not match due to the blacklist
+        self.cmd.add('scm', name='Jane Rae', email='jrae@example.com',
+                     matching='default')
+        self.cmd.add('mls', name='Jane Rae', email='jrae@example.com',
+                     matching='default')
+
+        # Check output
+        output = sys.stdout.getvalue().strip()
+        self.assertEqual(output, ADD_OUTPUT_BLACKLIST)
 
 
 if __name__ == "__main__":
