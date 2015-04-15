@@ -156,6 +156,22 @@ class TestUnify(TestBaseCase):
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, UNIFY_DEFAULT_OUTPUT)
 
+    def test_unify_with_blacklist(self):
+        """Test unify method using a blacklist"""
+
+        # Add some entries to the blacklist
+        api.add_to_matching_blacklist(self.db, 'Jane Rae Doe')
+        api.add_to_matching_blacklist(self.db, 'jsmith@example.com')
+
+        before = api.unique_identities(self.db)
+        self.assertEqual(len(before), 6)
+
+        self.cmd.unify(matching='default')
+
+        # No match was found
+        after = api.unique_identities(self.db)
+        self.assertEqual(len(after), 6)
+
     def test_unify_email_name_matcher(self):
         """Test unify method using the email-name matcher"""
 
@@ -169,6 +185,26 @@ class TestUnify(TestBaseCase):
 
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, UNIFY_EMAIL_NAME_OUTPUT)
+
+    def test_unify_email_name_matcher_with_blacklist(self):
+        """Test unify method using a blacklist"""
+
+        # Add some entries to the blacklist
+        api.add_to_matching_blacklist(self.db, 'Jane Rae Doe')
+        api.add_to_matching_blacklist(self.db, 'jsmith@example.com')
+
+        before = api.unique_identities(self.db)
+        self.assertEqual(len(before), 6)
+
+        self.cmd.unify(matching='email-name')
+
+        after = api.unique_identities(self.db)
+        self.assertEqual(len(after), 5)
+
+        # Only two identities were merged due to the blacklist
+        jsmith = after[2]
+        self.assertEqual(jsmith.uuid, '75d95d6c8492fd36d24a18bd45d62161e05fbc97')
+        self.assertEqual(len(jsmith.identities), 6)
 
     def test_empty_registry(self):
         """Check output when the registry is empty"""
