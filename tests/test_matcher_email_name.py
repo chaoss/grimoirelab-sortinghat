@@ -27,7 +27,7 @@ import unittest
 if not '..' in sys.path:
     sys.path.insert(0, '..')
 
-from sortinghat.db.model import UniqueIdentity, Identity
+from sortinghat.db.model import UniqueIdentity, Identity, MatchingBlacklist
 from sortinghat.matching.email_name import EmailNameMatcher, EmailNameIdentity
 
 
@@ -132,6 +132,52 @@ class TestEmailNameMatcher(unittest.TestCase):
         result = matcher.match(jrae_doe, jrae_no_name)
         self.assertEqual(result, False)
 
+    def test_match_with_blacklist(self):
+        """Test match when there are entries in the blacklist"""
+
+        jsmith = UniqueIdentity(uuid='jsmith')
+        jsmith.identities = [Identity(name='John Smith', email='jsmith@example.com', source='scm'),
+                             Identity(name='John Smith', source='scm'),
+                             Identity(username='jsmith', source='scm'),
+                             Identity(email='', source='scm')]
+
+        john_smith = UniqueIdentity(uuid='js')
+        john_smith.identities = [Identity(name='John Smith JR', username='john_smith', source='scm'),
+                                 Identity(username='john_smith', source='scm'),
+                                 Identity(name='Smith. J', source='mls'),
+                                 Identity(name='Smith. J', email='JSmith@example.com', source='mls')]
+
+        jsmith_alt = UniqueIdentity(uuid='J. Smith')
+        jsmith_alt.identities = [Identity(name='John Smith JR', username='john_smith', source='alt'),
+                                 Identity(name='John Smith', username='jsmith', source='alt'),
+                                 Identity(email='', source='alt'),
+                                 Identity(email='jsmith', source='alt')]
+
+        # Tests
+        bl = [MatchingBlacklist(excluded='John Smith'),
+              MatchingBlacklist(excluded='jsmith@example.com')]
+
+        matcher = EmailNameMatcher(blacklist=bl)
+
+        result = matcher.match(jsmith, john_smith)
+        self.assertEqual(result, False)
+
+        result = matcher.match(john_smith, jsmith)
+        self.assertEqual(result, False)
+
+        # John Smith is blacklisted, so no match
+        result = matcher.match(jsmith, jsmith_alt)
+        self.assertEqual(result, False)
+
+        result = matcher.match(jsmith_alt, jsmith)
+        self.assertEqual(result, False)
+
+        result = matcher.match(john_smith, jsmith_alt)
+        self.assertEqual(result, True)
+
+        result = matcher.match(jsmith_alt, john_smith)
+        self.assertEqual(result, True)
+
     def test_match_same_identity(self):
         """Test whether there is a match comparing the same identity"""
 
@@ -156,6 +202,18 @@ class TestEmailNameMatcher(unittest.TestCase):
         result = matcher.match(uid2, uid1)
         self.assertEqual(result, True)
 
+        # None UUIDs do not produce a positive match
+        uid1 = UniqueIdentity(uuid=None)
+        uid2 = UniqueIdentity(uuid=None)
+
+        matcher = EmailNameMatcher()
+
+        result = matcher.match(uid1, uid2)
+        self.assertEqual(result, False)
+
+        result = matcher.match(uid2, uid1)
+        self.assertEqual(result, False)
+
     def test_match_identities_instances(self):
         """Test whether it raises an error when ids are not UniqueIdentities"""
 
@@ -175,6 +233,8 @@ class TestEmailNameMatcher(unittest.TestCase):
         jsmith = EmailNameIdentity('1', None, 'jsmith@example.com', 'john smith')
         jsmith_alt = EmailNameIdentity('2', 'jsmith', None, 'john smith')
         jsmith_uuid = EmailNameIdentity('3', 'jsmith', 'john.smith@example.com', 'john')
+        jsmith_none = EmailNameIdentity('4', 'jsmith', 'john.smith@example.com', None)
+        jdoe_none = EmailNameIdentity('4', 'jdoe', 'jdoe@example.com', None)
 
         matcher = EmailNameMatcher()
 
@@ -195,6 +255,10 @@ class TestEmailNameMatcher(unittest.TestCase):
 
         result = matcher.match_filtered_identities(jsmith_uuid, jsmith_alt)
         self.assertEqual(result, True)
+
+        # Although the UUID is equal to None, these two does not match
+        result = matcher.match_filtered_identities(jsmith_none, jdoe_none)
+        self.assertEqual(result, False)
 
     def test_match_filtered_identities_instances(self):
         """Test whether it raises an error when ids are not EmailNameIdentities"""
@@ -262,6 +326,53 @@ class TestEmailNameMatcher(unittest.TestCase):
         self.assertEqual(fid.uuid, 'jrae')
         self.assertEqual(fid.name, None)
         self.assertEqual(fid.email, 'jrae@example.net')
+
+    def test_filter_identities_with_blacklist(self):
+        """Test if identities are filtered when there is a blacklist"""
+
+        # Let's define some identities first
+        jsmith = UniqueIdentity(uuid='jsmith')
+        jsmith.identities = [Identity(name='John Smith', email='jsmith@example.com', source='scm', uuid='jsmith'),
+                             Identity(name='John Smith', source='scm', uuid='jsmith'),
+                             Identity(name='John Smith JR', source='scm', uuid='jsmith'),
+                             Identity(username='jsmith', source='scm', uuid='jsmith'),
+                             Identity(email='', source='scm', uuid='jsmith')]
+
+        jrae = UniqueIdentity(uuid='jrae')
+        jrae.identities = [Identity(name='Jane Rae', source='scm', uuid='jrae'),
+                           Identity(name='Jane Rae Doe', email='jane.rae@example.net', source='mls', uuid='jrae'),
+                           Identity(name='jrae', source='scm', uuid='jrae'),
+                           Identity(email='JRAE@example.net', source='scm', uuid='jrae')]
+
+        # Tests
+        bl = [MatchingBlacklist(excluded='John Smith'),
+              MatchingBlacklist(excluded='jrae@example.net')]
+
+        matcher = EmailNameMatcher(blacklist=bl)
+
+        result = matcher.filter(jsmith)
+        self.assertEqual(len(result), 1)
+
+        fid = result[0]
+        self.assertIsInstance(fid, EmailNameIdentity)
+        self.assertEqual(fid.uuid, 'jsmith')
+        self.assertEqual(fid.name, 'john smith jr')
+        self.assertEqual(fid.email, None)
+
+        result = matcher.filter(jrae)
+        self.assertEqual(len(result), 2)
+
+        fid = result[0]
+        self.assertIsInstance(fid, EmailNameIdentity)
+        self.assertEqual(fid.uuid, 'jrae')
+        self.assertEqual(fid.name, 'jane rae')
+        self.assertEqual(fid.email, None)
+
+        fid = result[1]
+        self.assertIsInstance(fid, EmailNameIdentity)
+        self.assertEqual(fid.uuid, 'jrae')
+        self.assertEqual(fid.name, 'jane rae doe')
+        self.assertEqual(fid.email, 'jane.rae@example.net')
 
     def test_filter_identities_instances(self):
         """Test whether it raises an error when id is not a UniqueIdentity"""

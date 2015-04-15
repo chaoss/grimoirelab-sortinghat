@@ -51,9 +51,11 @@ class EmailNameMatcher(IdentityMatcher):
        - name field is composed by "firstname lastname" and both are
          equal; i.e: "John Smith" and "J Smith Rae" are valid name fields;
          "jonhsmith" are "j.smith" not valid
+
+    :param blacklist: list of entries to ignore during the matching process
     """
-    def __init__(self):
-        super(EmailNameMatcher, self).__init__()
+    def __init__(self, blacklist=[]):
+        super(EmailNameMatcher, self).__init__(blacklist=blacklist)
         self.email_pattern = re.compile(EMAIL_ADDRESS_REGEX)
         self.name_pattern = re.compile(NAME_REGEX)
 
@@ -64,6 +66,9 @@ class EmailNameMatcher(IdentityMatcher):
         identity to check if the given unique identities are the same.
         When the given unique identities are the same object or share
         the same UUID, this will also produce a positive match.
+
+        Identities which their email addresses or names are in the blacklist
+        will be ignored during the matching.
 
         :param a: unique identity to match
         :param b: unique identity to match
@@ -79,25 +84,16 @@ class EmailNameMatcher(IdentityMatcher):
         if not isinstance(b, UniqueIdentity):
             raise ValueError('<b> is not an instance of UniqueIdentity')
 
-        if a.uuid == b.uuid:
+        if a.uuid and b.uuid and a.uuid == b.uuid:
             return True
 
-        # Compare email addresses first
-        emails_a = self._filter_emails(a.identities)
-        emails_b = self._filter_emails(b.identities)
+        filtered_a = self.filter(a)
+        filtered_b = self.filter(b)
 
-        for email in emails_a:
-            if email in emails_b:
-                return True
-
-        # No match yet, so compare names
-        names_a = self._filter_names(a.identities)
-        names_b = self._filter_names(b.identities)
-
-        for name in names_a:
-            if name in names_b:
-                return True
-
+        for fa in filtered_a:
+            for fb in filtered_b:
+                if self.match_filtered_identities(fa, fb):
+                    return True
         return False
 
     def match_filtered_identities(self, fa, fb):
@@ -107,6 +103,9 @@ class EmailNameMatcher(IdentityMatcher):
         filtered identity to check if they are the same. When the given
         filtered identities are the same object or share the same UUID,
         this will also produce a positive match.
+
+        Identities which their email addresses or names are in the blacklist
+        will be ignored and the result of the comparison will be false.
 
         :param fa: filtered identity to match
         :param fb: filtered identity to match
@@ -122,8 +121,11 @@ class EmailNameMatcher(IdentityMatcher):
         if not isinstance(fb, EmailNameIdentity):
             raise ValueError('<fb> is not an instance of EmailNameIdentity')
 
-        if fa.uuid == fb.uuid:
+        if fa.uuid and fb.uuid and fa.uuid == fb.uuid:
             return True
+
+        if self._check_blacklist(fa):
+            return False
 
         # Compare email addresses first
         if fa.email and fa.email == fb.email:
@@ -154,6 +156,9 @@ class EmailNameMatcher(IdentityMatcher):
             email = None
             name = None
 
+            if self._check_blacklist(id_):
+                continue
+
             if self._check_pattern(self.email_pattern, id_.email):
                 email = id_.email.lower()
             if self._check_pattern(self.name_pattern, id_.name):
@@ -166,15 +171,17 @@ class EmailNameMatcher(IdentityMatcher):
 
         return filtered
 
-    def _filter_emails(self, ids):
-        return [id_.email.lower() for id_ in ids \
-                if self._check_pattern(self.email_pattern, id_.email)]
-
-    def _filter_names(self, ids):
-        return [id_.name.lower() for id_ in ids \
-                if self._check_pattern(self.name_pattern, id_.name)]
-
     def _check_pattern(self, pattern, value):
         if not value:
             return False
         return pattern.match(value) is not None
+
+    def _check_blacklist(self, id_):
+        if self._check_value_in_blacklist(id_.email):
+            return True
+        if self._check_value_in_blacklist(id_.name):
+            return True
+        return False
+
+    def _check_value_in_blacklist(self, value):
+        return value and value.lower() in self.blacklist
