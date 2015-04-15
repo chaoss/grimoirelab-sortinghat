@@ -76,7 +76,7 @@ class EmailMatcher(IdentityMatcher):
         if not isinstance(b, UniqueIdentity):
             raise ValueError('<b> is not an instance of UniqueIdentity')
 
-        if a.uuid == b.uuid:
+        if a.uuid and b.uuid and a.uuid == b.uuid:
             return True
 
         emails_a = self._filter_emails(a.identities)
@@ -112,7 +112,7 @@ class EmailMatcher(IdentityMatcher):
         if not isinstance(fb, EmailIdentity):
             raise ValueError('<fb> is not an instance of EmailNameIdentity')
 
-        if fa.uuid == fb.uuid:
+        if fa.uuid and fb.uuid and fa.uuid == fb.uuid:
             return True
 
         if fa.email in self.blacklist:

@@ -190,6 +190,12 @@ class TestEmailMatcher(unittest.TestCase):
         result = matcher.match(uid2, uid1)
         self.assertEqual(result, True)
 
+        uid1 = UniqueIdentity(uuid=None)
+        uid2 = UniqueIdentity(uuid=None)
+
+        result = matcher.match(uid1, uid2)
+        self.assertEqual(result, False)
+
     def test_match_identities_instances(self):
         """Test whether it raises an error when ids are not UniqueIdentities"""
 
@@ -237,6 +243,8 @@ class TestEmailMatcher(unittest.TestCase):
         jsmith_alt = EmailIdentity('2', 'jsmith', 'jsmith@example.com')
         jsmith_uuid = EmailIdentity('3', 'jsmith', 'john.smith@example.com')
         john_alt = EmailIdentity('4', None, 'john.smith@example.com')
+        jsmith_none = EmailIdentity('4', 'john.smith@example.com', None)
+        jdoe_none = EmailIdentity('4', 'jdoe@example.com', None)
 
         bl = [MatchingBlacklist(excluded='JSMITH@example.com')]
 
@@ -267,6 +275,10 @@ class TestEmailMatcher(unittest.TestCase):
 
         result = matcher.match_filtered_identities(john_alt, jsmith_uuid)
         self.assertEqual(result, True)
+
+        # Although the UUID is equal to None, these two does not match
+        result = matcher.match_filtered_identities(jsmith_none, jdoe_none)
+        self.assertEqual(result, False)
 
     def test_match_filtered_identities_instances(self):
         """Test whether it raises an error when ids are not EmailNameIdentities"""
