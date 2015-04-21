@@ -155,6 +155,7 @@ def to_json(identities, source):
 
     obj = {'time' : str(datetime.datetime.now()),
            'source' : source,
+           'blacklist' : [],
            'organizations' : {},
            'uidentities' : uids}
 
