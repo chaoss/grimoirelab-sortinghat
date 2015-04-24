@@ -67,7 +67,8 @@ class Domain(ModelBase):
     domain = Column(String(128), nullable=False)
     is_top_domain = Column(Boolean(name='top_domain_check'), default=False)
     organization_id = Column(Integer,
-                             ForeignKey('organizations.id', ondelete='CASCADE'),
+                             ForeignKey('organizations.id', ondelete='CASCADE',
+                                        onupdate='CASCADE'),
                              nullable=False)
 
     # Many-to-One relationship
