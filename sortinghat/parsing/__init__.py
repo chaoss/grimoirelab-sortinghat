@@ -19,13 +19,3 @@
 # Authors:
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
-
-from sortinghat.parsing.gitdm import GitdmOrganizationsParser
-from sortinghat.parsing.sh import SortingHatParser
-
-
-SORTINGHAT_ORGS_PARSERS = {
-                            'default' : SortingHatParser,
-                            'gitdm'   : GitdmOrganizationsParser,
-                            'sh'      : SortingHatParser
-                          }

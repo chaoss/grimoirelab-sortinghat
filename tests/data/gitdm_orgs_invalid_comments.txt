@@ -4,10 +4,10 @@
 ## Note: the error is on line 10. It can't be a comment there
 ##
 
-example.com        Example
-example.org        Example
-example.net        Example
-bitergia.com    Bitergia# Comment
-bitergia.net    Bitergia
-libresoft.es         GSyC/LibreSoft
-gsyc.es              GSyC/LibreSoft
+example.com	Example
+example.org	Example
+example.net	Example
+bitergia.com	Bitergia# Comment
+bitergia.net	Bitergia
+libresoft.es	GSyC/LibreSoft
+gsyc.es	GSyC/LibreSoft

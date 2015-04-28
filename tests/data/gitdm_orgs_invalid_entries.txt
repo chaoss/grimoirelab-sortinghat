@@ -4,10 +4,10 @@
 ## Note: the error is on line 8. Organization is missing.
 ##
 
-example.com        Example
+example.com	Example
 example.org        
-example.net        Example
-bitergia.com    Bitergia
-bitergia.net    Bitergia
-libresoft.es         GSyC/LibreSoft
-gsyc.es              GSyC/LibreSoft
+example.net	Example
+bitergia.com	Bitergia
+bitergia.net	Bitergia
+libresoft.es	GSyC/LibreSoft
+gsyc.es	GSyC/LibreSoft

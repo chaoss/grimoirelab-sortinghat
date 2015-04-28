@@ -21,6 +21,7 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+import datetime
 import re
 import sys
 import unittest
@@ -28,13 +29,12 @@ import unittest
 if not '..' in sys.path:
     sys.path.insert(0, '..')
 
-from sortinghat.db.model import Organization, Domain
+from sortinghat.db.model import UniqueIdentity, Identity, Enrollment, Organization, Domain
 from sortinghat.exceptions import InvalidFormatError
-from sortinghat.parsing.gitdm import GitdmOrganizationsParser
+from sortinghat.parsing.gitdm import GitdmParser
 
 
-DOMAINS_INVALID_FORMAT_ERROR = "invalid format on line %(line)s"
-ORGS_STREAM_INVALID_ERROR = "stream cannot be empty or None"
+DOMAINS_INVALID_FORMAT_ERROR = "line %(line)s: invalid format"
 
 
 class TestBaseCase(unittest.TestCase):
@@ -46,14 +46,361 @@ class TestBaseCase(unittest.TestCase):
         return content
 
 
-class TestGitdmDomainsRegEx(unittest.TestCase):
+class TestGidmParser(TestBaseCase):
+    """Test Gitdm parser"""
+
+    def test_aliases_parser(self):
+        aliases = self.read_file('data/gitdm_email_aliases_valid.txt')
+
+        parser = GitdmParser(email_aliases=aliases)
+
+        # Parsed unique identities
+        uids = parser.identities
+        self.assertEqual(len(uids), 2)
+
+        # jdoe@example.com & john_doe@example.net
+        uid = uids[0]
+        self.assertIsInstance(uid, UniqueIdentity)
+        self.assertEqual(uid.uuid, 'jdoe@example.com')
+
+        self.assertIsInstance(uid, UniqueIdentity)
+
+        ids = uid.identities
+        self.assertEqual(len(ids), 2)
+
+        id0 = ids[0]
+        self.assertIsInstance(id0, Identity)
+        self.assertEqual(id0.name, None)
+        self.assertEqual(id0.email, 'jdoe@example.com')
+        self.assertEqual(id0.username, None)
+        self.assertEqual(id0.source, 'gitdm')
+        self.assertEqual(id0.uuid, None)
+
+        id1 = ids[1]
+        self.assertIsInstance(id1, Identity)
+        self.assertEqual(id1.name, None)
+        self.assertEqual(id1.email, 'john_doe@example.net')
+        self.assertEqual(id1.username, None)
+        self.assertEqual(id1.source, 'gitdm')
+        self.assertEqual(id1.uuid, None)
+
+        self.assertEqual(len(uid.enrollments), 0)
+
+        # jrae@example.net & jrae@example.com
+        uid = uids[1]
+        self.assertIsInstance(uid, UniqueIdentity)
+        self.assertEqual(uid.uuid, 'jrae@example.net')
+
+        ids = uid.identities
+        self.assertEqual(len(ids), 2)
+
+        id0 = ids[0]
+        self.assertIsInstance(id0, Identity)
+        self.assertEqual(id0.name, None)
+        self.assertEqual(id0.email, 'jrae@example.net')
+        self.assertEqual(id0.username, None)
+        self.assertEqual(id0.source, 'gitdm')
+        self.assertEqual(id0.uuid, None)
+
+        id0 = ids[1]
+        self.assertIsInstance(id0, Identity)
+        self.assertEqual(id0.name, None)
+        self.assertEqual(id0.email, 'jrae@example.com')
+        self.assertEqual(id0.username, None)
+        self.assertEqual(id0.source, 'gitdm')
+        self.assertEqual(id0.uuid, None)
+
+        self.assertEqual(len(uid.enrollments), 0)
+
+    def test_enrollments_parser(self):
+        aliases = self.read_file('data/gitdm_email_aliases_valid.txt')
+        email_to_employer = self.read_file('data/gitdm_email_to_employer_valid.txt')
+
+        parser = GitdmParser(email_aliases=aliases,
+                             email_to_employer=email_to_employer,
+                             source='unknown')
+
+        # Parsed unique identities
+        uids = parser.identities
+        self.assertEqual(len(uids), 3)
+
+        # jdoe@example.com & john_doe@example.net
+        uid = uids[0]
+        self.assertIsInstance(uid, UniqueIdentity)
+        self.assertEqual(uid.uuid, 'jdoe@example.com')
+
+        self.assertIsInstance(uid, UniqueIdentity)
+
+        ids = uid.identities
+        self.assertEqual(len(ids), 2)
+
+        id0 = ids[0]
+        self.assertIsInstance(id0, Identity)
+        self.assertEqual(id0.name, None)
+        self.assertEqual(id0.email, 'jdoe@example.com')
+        self.assertEqual(id0.username, None)
+        self.assertEqual(id0.source, 'unknown')
+        self.assertEqual(id0.uuid, None)
+
+        id1 = ids[1]
+        self.assertIsInstance(id1, Identity)
+        self.assertEqual(id1.name, None)
+        self.assertEqual(id1.email, 'john_doe@example.net')
+        self.assertEqual(id1.username, None)
+        self.assertEqual(id1.source, 'unknown')
+        self.assertEqual(id1.uuid, None)
+
+        self.assertEqual(len(uid.enrollments), 2)
+
+        rol = uid.enrollments[0]
+        self.assertIsInstance(rol, Enrollment)
+        self.assertEqual(rol.organization.name, 'LibreSoft')
+        self.assertEqual(rol.start, datetime.datetime(1900, 1, 1, 0, 0))
+        self.assertEqual(rol.end, datetime.datetime(2100, 1, 1, 0, 0))
+
+        rol = uid.enrollments[1]
+        self.assertIsInstance(rol, Enrollment)
+        self.assertEqual(rol.organization.name, 'Example Company')
+        self.assertEqual(rol.start, datetime.datetime(1900, 1, 1, 0, 0))
+        self.assertEqual(rol.end, datetime.datetime(2100, 1, 1, 0, 0))
+
+        # jrae@example.net & jrae@example.com
+        uid = uids[1]
+        self.assertIsInstance(uid, UniqueIdentity)
+        self.assertEqual(uid.uuid, 'jrae@example.net')
+
+        ids = uid.identities
+        self.assertEqual(len(ids), 2)
+
+        id0 = ids[0]
+        self.assertIsInstance(id0, Identity)
+        self.assertEqual(id0.name, None)
+        self.assertEqual(id0.email, 'jrae@example.net')
+        self.assertEqual(id0.username, None)
+        self.assertEqual(id0.source, 'unknown')
+        self.assertEqual(id0.uuid, None)
+
+        id0 = ids[1]
+        self.assertIsInstance(id0, Identity)
+        self.assertEqual(id0.name, None)
+        self.assertEqual(id0.email, 'jrae@example.com')
+        self.assertEqual(id0.username, None)
+        self.assertEqual(id0.source, 'unknown')
+        self.assertEqual(id0.uuid, None)
+
+        self.assertEqual(len(uid.enrollments), 1)
+
+        rol = uid.enrollments[0]
+        self.assertIsInstance(rol, Enrollment)
+        self.assertEqual(rol.organization.name, 'Bitergia')
+        self.assertEqual(rol.start, datetime.datetime(1900, 1, 1, 0, 0))
+        self.assertEqual(rol.end, datetime.datetime(2100, 1, 1, 0, 0))
+
+        # jsmith@example.com
+        uid = uids[2]
+        self.assertIsInstance(uid, UniqueIdentity)
+        self.assertEqual(uid.uuid, 'jsmith@example.com')
+
+        ids = uid.identities
+        self.assertEqual(len(ids), 1)
+
+        id0 = ids[0]
+        self.assertIsInstance(id0, Identity)
+        self.assertEqual(id0.name, None)
+        self.assertEqual(id0.email, 'jsmith@example.com')
+        self.assertEqual(id0.username, None)
+        self.assertEqual(id0.source, 'unknown')
+        self.assertEqual(id0.uuid, None)
+
+        self.assertEqual(len(uid.enrollments), 2)
+
+        rol = uid.enrollments[0]
+        self.assertIsInstance(rol, Enrollment)
+        self.assertEqual(rol.organization.name, 'Bitergia')
+        self.assertEqual(rol.start, datetime.datetime(1900, 1, 1, 0, 0))
+        self.assertEqual(rol.end, datetime.datetime(2015, 1, 1, 0, 0))
+
+        rol = uid.enrollments[1]
+        self.assertIsInstance(rol, Enrollment)
+        self.assertEqual(rol.organization.name, 'Example Company')
+        self.assertEqual(rol.start, datetime.datetime(2015, 1, 1, 0, 0))
+        self.assertEqual(rol.end, datetime.datetime(2100, 1, 1, 0, 0))
+
+        # Parsed organizations
+        orgs = parser.organizations
+        self.assertEqual(len(orgs), 3)
+
+        org = orgs[0]
+        self.assertIsInstance(org, Organization)
+        self.assertEqual(org.name, 'Bitergia')
+
+        org = orgs[1]
+        self.assertIsInstance(org, Organization)
+        self.assertEqual(org.name, 'Example Company')
+
+        org = orgs[2]
+        self.assertIsInstance(org, Organization)
+        self.assertEqual(org.name, 'LibreSoft')
+
+    def test_organizations_parser(self):
+        """Check whether it parses a valid organizations file"""
+
+        stream = self.read_file('data/gitdm_orgs_valid.txt')
+
+        parser = GitdmParser(domain_to_employer=stream)
+
+        # Parsed unique identities
+        uids = parser.identities
+        self.assertEqual(len(uids), 0)
+
+        # Parsed organizations
+        orgs = parser.organizations
+
+        self.assertEqual(len(orgs), 3)
+
+        # Bitergia entries
+        org = orgs[0]
+        self.assertIsInstance(org, Organization)
+        self.assertEqual(org.name, 'Bitergia')
+
+        doms = org.domains
+        self.assertEqual(len(doms), 3)
+
+        dom = doms[0]
+        self.assertIsInstance(dom, Domain)
+        self.assertEqual(dom.domain, 'bitergia.com')
+        self.assertEqual(dom.is_top_domain, False)
+
+        dom = doms[1]
+        self.assertIsInstance(dom, Domain)
+        self.assertEqual(dom.domain, 'bitergia.net')
+        self.assertEqual(dom.is_top_domain, False)
+
+        dom = doms[2]
+        self.assertIsInstance(dom, Domain)
+        self.assertEqual(dom.domain, 'example.com')
+        self.assertEqual(dom.is_top_domain, False)
+
+        # Example entries
+        org = orgs[1]
+        self.assertIsInstance(org, Organization)
+        self.assertEqual(org.name, 'Example')
+
+        doms = org.domains
+        self.assertEqual(len(doms), 3)
+
+        dom = doms[0]
+        self.assertIsInstance(dom, Domain)
+        self.assertEqual(dom.domain, 'example.com')
+        self.assertEqual(dom.is_top_domain, False)
+
+        dom = doms[1]
+        self.assertIsInstance(dom, Domain)
+        self.assertEqual(dom.domain, 'example.org')
+        self.assertEqual(dom.is_top_domain, False)
+
+        dom = doms[2]
+        self.assertIsInstance(dom, Domain)
+        self.assertEqual(dom.domain, 'example.net')
+        self.assertEqual(dom.is_top_domain, False)
+
+        # GSyC/Libresof entries
+        org = orgs[2]
+        self.assertIsInstance(org, Organization)
+        self.assertEqual(org.name, 'GSyC/LibreSoft')
+
+        doms = org.domains
+        self.assertEqual(len(doms), 2)
+
+        dom = doms[0]
+        self.assertIsInstance(dom, Domain)
+        self.assertEqual(dom.domain, 'libresoft.es')
+        self.assertEqual(dom.is_top_domain, False)
+
+        dom = doms[1]
+        self.assertIsInstance(dom, Domain)
+        self.assertEqual(dom.domain, 'gsyc.es')
+        self.assertEqual(dom.is_top_domain, False)
+
+    def test_not_valid_organizations_stream(self):
+        """Check whether it raises an error when parsing invalid streams"""
+
+        with self.assertRaisesRegexp(InvalidFormatError,
+                                     DOMAINS_INVALID_FORMAT_ERROR % {'line' : '10'}):
+            stream = self.read_file('data/gitdm_orgs_invalid_comments.txt')
+            GitdmParser(domain_to_employer=stream)
+
+        with self.assertRaisesRegexp(InvalidFormatError,
+                                     DOMAINS_INVALID_FORMAT_ERROR % {'line' : '8'}):
+            stream = self.read_file('data/gitdm_orgs_invalid_entries.txt')
+            GitdmParser(domain_to_employer=stream)
+
+
+class TestGitdmRegEx(unittest.TestCase):
     """Test regular expressions used while parsing Gitdm inputs"""
+
+    def test_valid_lines(self):
+        """Check whether it parses valid lines"""
+
+        parser = re.compile(GitdmParser.VALID_LINE_REGEX, re.UNICODE)
+
+        # Parse some valid lines
+        m = parser.match("jdoe@example.com\tExample  Company\t# John Doe")
+        self.assertIsNotNone(m)
+
+        m = parser.match("jdoe@example.com\t\tExample < 2010-01-01\t\t# John Doe")
+        self.assertIsNotNone(m)
+
+        m = parser.match("jdoe@example.com\tExample  Company")
+        self.assertIsNotNone(m)
+
+        m = parser.match("jdoe@example.com\t\t\tjohndoe@example.com")
+        self.assertIsNotNone(m)
+
+        m = parser.match("example.org\t\tExample/n' Co. ")
+        self.assertIsNotNone(m)
+
+        # Parse some lines with valid comments
+        m = parser.match("example.org\torganization\t### comment")
+        self.assertIsNotNone(m)
+
+        m = parser.match("jonhdoe@exampl.com\torganization\t#   \t\r")
+        self.assertIsNotNone(m)
+
+        m = parser.match("domain\torganization\t#\tcomment #1\r\n")
+        self.assertIsNotNone(m)
+
+        m = parser.match(u"example.org\tExamplé")
+        self.assertIsNotNone(m)
+
+        # These are examples or invalid lines
+        m = parser.match("\texample.org\t\tExample")
+
+        m = parser.match("   example.org   Example")
+        self.assertIsNone(m)
+
+        m = parser.match("jdoe@example.org    Example")
+        self.assertIsNone(m)
+
+        m = parser.match("jdoe@example.org\nExample\t\n")
+        self.assertIsNone(m)
+
+        m = parser.match("example.org\t\n\tExample")
+        self.assertIsNone(m)
+
+        m = parser.match("jdoe@example.org\tjdoe@exa\tmple.com")
+        self.assertIsNone(m)
+
+        m = parser.match("example.org\tExa\nmple")
+        self.assertIsNone(m)
+
+        m = parser.match("domain organization\t   # comment\n\t")
+        self.assertIsNone(m)
 
     def test_lines_to_ignore(self):
         """Check whether it parsers blank or comment lines"""
 
-        parser = re.compile(GitdmOrganizationsParser.LINES_TO_IGNORE_REGEX,
-                            re.UNICODE)
+        parser = re.compile(GitdmParser.LINES_TO_IGNORE_REGEX, re.UNICODE)
 
         # Parse some valid blank lines
         m = parser.match("")
@@ -85,253 +432,174 @@ class TestGitdmDomainsRegEx(unittest.TestCase):
         m = parser.match("#|tcomment #1\r\n")
         self.assertIsNotNone(m)
 
-    def test_domains_line(self):
-        """Check whether it parsers domain - organization lines"""
+    def test_email(self):
+        """Check email address pattern"""
 
-        parser = re.compile(GitdmOrganizationsParser.DOMAINS_LINE_REGEX,
-                            re.UNICODE)
+        parser = re.compile(GitdmParser.EMAIL_ADDRESS_REGEX, re.UNICODE)
 
-        # Parse some valid domain lines
-        m = parser.match("example.org    Example")
+        # Parse some valid email addresses
+        m = parser.match("johndoe@example.com")
         self.assertIsNotNone(m)
 
-        m = parser.match("example.org\tExample")
+        m = parser.match("jonh.doe@exampel.com")
         self.assertIsNotNone(m)
 
-        m = parser.match("example.org    \t  \t  Example/n' Co. ")
+        m = parser.match("?¡~,123@example.com")
         self.assertIsNotNone(m)
 
-        m = parser.match("ex-amp'le.org Example")
-        self.assertIsNotNone(m)
-
-        # Do not parse invalid domain lines
-        m = parser.match("   example.org   Example")
+        # Do not parse invalid email addresses
+        m = parser.match("jonh@doe@example.com")
         self.assertIsNone(m)
 
-        m = parser.match("example.org \n Example")
+        m = parser.match("   johndoe@example.com")
         self.assertIsNone(m)
 
-        m = parser.match("   example.org   Example\t\n")
+        m = parser.match("johndoe@example.com  ")
         self.assertIsNone(m)
 
-        m = parser.match("\texample.org   Example")
+        m = parser.match("johndoe@example.com\t")
         self.assertIsNone(m)
 
-        m = parser.match("example.org   Exa\tmple")
+        m = parser.match("johndoe@.com")
         self.assertIsNone(m)
 
-        m = parser.match("example.org   Exa\nmple")
-        self.assertIsNone(m)
+    def test_organization(self):
+        """Check organization pattern"""
 
-        # Parse some valid comments
-        m = parser.match("example.org organization ### comment")
-        self.assertIsNotNone(m)
+        parser = re.compile(GitdmParser.ORGANIZATION_REGEX, re.UNICODE)
 
-        m = parser.match("domain organization #   \t\r")
-        self.assertIsNotNone(m)
-
-        m = parser.match("domain organization\t   #\tcomment #1\r\n")
-        self.assertIsNotNone(m)
-
-        # Domains and organizations must start with a
-        # alpha numeric or underscores characters
+        # Organizations must start with alpha numeric or underscore
+        # characters. They can have spaces or other symbols, but
+        # cannot include other separators like tabs or #
 
         # These must work
-        m = parser.match("__example.org    Example")
+        m = parser.match("Example")
         self.assertIsNotNone(m)
 
-        m = parser.match("_example.org    0Example")
+        m = parser.match("0Example")
         self.assertIsNotNone(m)
 
-        m = parser.match("9example.org    _Example")
+        m = parser.match("_Example")
+        self.assertIsNotNone(m)
+
+        m = parser.match("My Example")
+        self.assertIsNotNone(m)
+
+        m = parser.match("Example\n")
+        self.assertIsNotNone(m)
+        self.assertEqual(m.group(1), "Example")
+
+        # While these won't work
+        m = parser.match("'Example")
+        self.assertIsNone(m)
+
+        m = parser.match("/Example")
+        self.assertIsNone(m)
+
+        m = parser.match("-Example")
+        self.assertIsNone(m)
+
+        m = parser.match("Exa\tmple")
+        self.assertIsNone(m)
+
+        m = parser.match("Example #")
+        self.assertIsNone(m)
+
+        m = parser.match("Example   ")
+        self.assertIsNone(m)
+
+        m = parser.match(" ")
+        self.assertIsNone(m)
+
+    def test_domain(self):
+        """Check domain pattern"""
+
+        parser = re.compile(GitdmParser.DOMAIN_REGEX, re.UNICODE)
+
+        # Domains must start with alpha numeric or underscore
+        # characters.
+
+        # These must work
+        m = parser.match("__example.org")
+        self.assertIsNotNone(m)
+
+        m = parser.match("9example.org")
         self.assertIsNotNone(m)
 
         # While these won't work
-        m = parser.match("'_example.org    Example")
+        m = parser.match("'_example.org")
         self.assertIsNone(m)
 
-        m = parser.match("/example.org    Example")
+        m = parser.match("/example.org")
         self.assertIsNone(m)
 
-        m = parser.match("example.org    'Example")
+        m = parser.match("exa\tmple.org")
         self.assertIsNone(m)
 
-        m = parser.match("example.org    /Example")
+        m = parser.match(" example.org")
         self.assertIsNone(m)
 
-        m = parser.match("example.org    -Example")
-        self.assertIsNone(m)
+    def test_enrollment(self):
+        """Check enrollment pattern"""
 
-        m = parser.match("example.org    ")
-        self.assertIsNone(m)
+        parser = re.compile(GitdmParser.ENROLLMENT_REGEX, re.UNICODE)
 
-        # Unicode characters
-        m = parser.match(u"example.org     Examplé")
+        # These must work
+        m = parser.match("Example")
         self.assertIsNotNone(m)
 
+        m = parser.match("0Example")
+        self.assertIsNotNone(m)
 
-class TestGitdmOrganizationsParser(TestBaseCase):
-    """Test Gitdm parser with some inputs"""
+        m = parser.match("_Example")
+        self.assertIsNotNone(m)
 
-    def test_valid_organizations_stream(self):
-        """Check whether it parses a valid stream"""
+        m = parser.match("My Example")
+        self.assertIsNotNone(m)
 
-        stream = self.read_file('data/gitdm_orgs_valid.txt')
+        m = parser.match("Example < 2012-01-01")
+        self.assertIsNotNone(m)
 
-        parser = GitdmOrganizationsParser()
-        orgs = [org for org in parser.organizations(stream)]
+        # While these won't work
+        m = parser.match("'Example")
+        self.assertIsNone(m)
 
-        # Check parsed organizations
-        self.assertEqual(len(orgs), 8)
+        m = parser.match("/Example")
+        self.assertIsNone(m)
 
-        # Example entries
-        org = orgs[0]
-        self.assertIsInstance(org, Organization)
-        self.assertEqual(org.name, 'Example')
+        m = parser.match("Exa\tmple")
+        self.assertIsNone(m)
 
-        doms = org.domains
-        self.assertEqual(len(doms), 1)
-        self.assertIsInstance(doms[0], Domain)
-        self.assertEqual(doms[0].domain, 'example.com')
-        self.assertEqual(doms[0].is_top_domain, False)
+        m = parser.match("Example #")
+        self.assertIsNone(m)
 
-        org = orgs[1]
-        self.assertIsInstance(org, Organization)
-        self.assertEqual(org.name, 'Example')
+        m = parser.match(" ")
+        self.assertIsNone(m)
 
-        doms = org.domains
-        self.assertEqual(len(doms), 1)
-        self.assertIsInstance(doms[0], Domain)
-        self.assertEqual(doms[0].domain, 'example.org')
-        self.assertEqual(doms[0].is_top_domain, False)
+        m = parser.match("Example <")
+        self.assertIsNone(m)
 
-        org = orgs[2]
-        self.assertIsInstance(org, Organization)
-        self.assertEqual(org.name, 'Example')
+        m = parser.match("Example<")
+        self.assertIsNone(m)
 
-        doms = org.domains
-        self.assertEqual(len(doms), 1)
-        self.assertIsInstance(doms[0], Domain)
-        self.assertEqual(doms[0].domain, 'example.net')
-        self.assertEqual(doms[0].is_top_domain, False)
+        m = parser.match("Example < 200-01-01")
+        self.assertIsNone(m)
 
-        # Bitergia entries
-        org = orgs[3]
-        self.assertIsInstance(org, Organization)
-        self.assertEqual(org.name, 'Bitergia')
+        m = parser.match("Example < 2012-1-1")
+        self.assertIsNone(m)
 
-        doms = org.domains
-        self.assertEqual(len(doms), 1)
-        self.assertIsInstance(doms[0], Domain)
-        self.assertEqual(doms[0].domain, 'bitergia.com')
-        self.assertEqual(doms[0].is_top_domain, False)
+        m = parser.match("Example < 2012-01-1")
+        self.assertIsNone(m)
 
-        org = orgs[4]
-        self.assertIsInstance(org, Organization)
-        self.assertEqual(org.name, 'Bitergia')
+        m = parser.match("Example < 1-1-2001")
+        self.assertIsNone(m)
 
-        doms = org.domains
-        self.assertEqual(len(doms), 1)
-        self.assertIsInstance(doms[0], Domain)
-        self.assertEqual(doms[0].domain, 'bitergia.net')
-        self.assertEqual(doms[0].is_top_domain, False)
+        m = parser.match("Example   < 2012-01-01")
+        self.assertIsNone(m)
 
-        org = orgs[5]
-        self.assertIsInstance(org, Organization)
-        self.assertEqual(org.name, 'Bitergia')
-
-        doms = org.domains
-        self.assertEqual(len(doms), 1)
-        self.assertIsInstance(doms[0], Domain)
-        self.assertEqual(doms[0].domain, 'example.com')
-        self.assertEqual(doms[0].is_top_domain, False)
-
-        # GSyC/Libresof entries
-        org = orgs[6]
-        self.assertIsInstance(org, Organization)
-        self.assertEqual(org.name, 'GSyC/LibreSoft')
-
-        doms = org.domains
-        self.assertEqual(len(doms), 1)
-        self.assertIsInstance(doms[0], Domain)
-        self.assertEqual(doms[0].domain, 'libresoft.es')
-        self.assertEqual(doms[0].is_top_domain, False)
-
-        org = orgs[7]
-        self.assertIsInstance(org, Organization)
-        self.assertEqual(org.name, 'GSyC/LibreSoft')
-
-        doms = org.domains
-        self.assertEqual(len(doms), 1)
-        self.assertIsInstance(doms[0], Domain)
-        self.assertEqual(doms[0].domain, 'gsyc.es')
-        self.assertEqual(doms[0].is_top_domain, False)
-
-    def test_check(self):
-        """Test check method"""
-
-        parser = GitdmOrganizationsParser()
-
-        s = self.read_file('data/gitdm_orgs_valid.txt')
-        result = parser.check(s)
-        self.assertEqual(result, True)
-
-        s = self.read_file('data/gitdm_orgs_valid_alt.txt')
-        result = parser.check(s)
-        self.assertEqual(result, True)
-
-        s = self.read_file('data/gitdm_orgs_invalid_comments.txt')
-        result = parser.check(s)
-        self.assertEqual(result, False)
-
-        s = self.read_file('data/gitdm_orgs_invalid_entries.txt')
-        result = parser.check(s)
-        self.assertEqual(result, False)
-
-        # Error is beyond of the 10 first lines
-        s = self.read_file('data/gitdm_orgs_invalid_entries_alt.txt')
-        result = parser.check(s)
-        self.assertEqual(result, True)
-
-        result = parser.check("")
-        self.assertEqual(result, False)
-
-        result = parser.check(None)
-        self.assertEqual(result, False)
-
-    def test_not_valid_organizations_stream(self):
-        """Check whether it prints an error when parsing invalid streams"""
-
-        parser = GitdmOrganizationsParser()
-
-        with self.assertRaisesRegexp(InvalidFormatError,
-                                     DOMAINS_INVALID_FORMAT_ERROR % {'line' : '10'}):
-            s1 = self.read_file('data/gitdm_orgs_invalid_comments.txt')
-            [org for org in parser.organizations(s1)]
-
-        with self.assertRaisesRegexp(InvalidFormatError,
-                                     DOMAINS_INVALID_FORMAT_ERROR % {'line' : '8'}):
-            s2 = self.read_file('data/gitdm_orgs_invalid_entries.txt')
-            [org for org in parser.organizations(s2)]
-
-    def test_empty_organizations_stream(self):
-        """Check whether it raises an exception when the stream is empty"""
-
-        parser = GitdmOrganizationsParser()
-
-        with self.assertRaisesRegexp(InvalidFormatError,
-                                     ORGS_STREAM_INVALID_ERROR):
-            [org for org in parser.organizations("")]
-
-    def test_none_organizations_stream(self):
-        """Check whether it raises an exception when the stream is None"""
-
-        parser = GitdmOrganizationsParser()
-
-        with self.assertRaisesRegexp(InvalidFormatError,
-                                     ORGS_STREAM_INVALID_ERROR):
-            [org for org in parser.organizations(None)]
+        m = parser.match("Example < 2012-01-01 <")
+        self.assertIsNone(m)
 
 
 if __name__ == "__main__":
-    unittest.main(buffer=True, exit=False)
+    unittest.main(buffer=False, exit=False)
