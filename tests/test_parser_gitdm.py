@@ -360,6 +360,9 @@ class TestGitdmRegEx(unittest.TestCase):
         m = parser.match("example.org\t\tExample/n' Co. ")
         self.assertIsNotNone(m)
 
+        m = parser.match("jdoe@example.org    Example")
+        self.assertIsNotNone(m)
+
         # Parse some lines with valid comments
         m = parser.match("example.org\torganization\t### comment")
         self.assertIsNotNone(m)
@@ -373,22 +376,20 @@ class TestGitdmRegEx(unittest.TestCase):
         m = parser.match(u"example.org\tExamplé")
         self.assertIsNotNone(m)
 
+        # It's weird but it's a valid line
+        m = parser.match("jdoe@example.org\tjdoe@exa\tmple.com")
+        self.assertIsNotNone(m)
+
         # These are examples or invalid lines
         m = parser.match("\texample.org\t\tExample")
 
         m = parser.match("   example.org   Example")
         self.assertIsNone(m)
 
-        m = parser.match("jdoe@example.org    Example")
-        self.assertIsNone(m)
-
         m = parser.match("jdoe@example.org\nExample\t\n")
         self.assertIsNone(m)
 
         m = parser.match("example.org\t\n\tExample")
-        self.assertIsNone(m)
-
-        m = parser.match("jdoe@example.org\tjdoe@exa\tmple.com")
         self.assertIsNone(m)
 
         m = parser.match("example.org\tExa\nmple")
@@ -489,23 +490,23 @@ class TestGitdmRegEx(unittest.TestCase):
         self.assertIsNotNone(m)
         self.assertEqual(m.group(1), "Example")
 
-        # While these won't work
         m = parser.match("'Example")
-        self.assertIsNone(m)
+        self.assertIsNotNone(m)
 
         m = parser.match("/Example")
-        self.assertIsNone(m)
+        self.assertIsNotNone(m)
 
         m = parser.match("-Example")
+        self.assertIsNotNone(m)
+
+        # While these won't work
+        m = parser.match("Example   ")
         self.assertIsNone(m)
 
         m = parser.match("Exa\tmple")
         self.assertIsNone(m)
 
         m = parser.match("Example #")
-        self.assertIsNone(m)
-
-        m = parser.match("Example   ")
         self.assertIsNone(m)
 
         m = parser.match(" ")
@@ -560,16 +561,22 @@ class TestGitdmRegEx(unittest.TestCase):
         m = parser.match("Example < 2012-01-01")
         self.assertIsNotNone(m)
 
-        # While these won't work
+        m = parser.match("Example, Inc.")
+        self.assertIsNotNone(m)
+
         m = parser.match("'Example")
-        self.assertIsNone(m)
+        self.assertIsNotNone(m)
 
         m = parser.match("/Example")
-        self.assertIsNone(m)
+        self.assertIsNotNone(m)
+
+        m = parser.match("Example   < 2012-01-01")
+        self.assertIsNotNone(m)
 
         m = parser.match("Exa\tmple")
-        self.assertIsNone(m)
+        self.assertIsNotNone(m)
 
+        # While these won't work
         m = parser.match("Example #")
         self.assertIsNone(m)
 
@@ -592,9 +599,6 @@ class TestGitdmRegEx(unittest.TestCase):
         self.assertIsNone(m)
 
         m = parser.match("Example < 1-1-2001")
-        self.assertIsNone(m)
-
-        m = parser.match("Example   < 2012-01-01")
         self.assertIsNone(m)
 
         m = parser.match("Example < 2012-01-01 <")

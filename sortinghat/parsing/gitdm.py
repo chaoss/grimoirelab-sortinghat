@@ -52,12 +52,12 @@ class GitdmParser(object):
         given streams is not valid.
     """
     # Common Gitdm patterns
-    VALID_LINE_REGEX = ur"^(\S+)\t+([^#\t\n\r\f\v]+\S)(?:([ \t]+#.+)?|\s*)$"
+    VALID_LINE_REGEX = ur"^(\S+)[ \t]+([^#\n\r\f\v]+[^#\s])(?:([ \t]+#.*)?|\s*)$"
     LINES_TO_IGNORE_REGEX = ur"^\s*(?:#.*)?\s*$"
     EMAIL_ADDRESS_REGEX = ur"^(?P<email>[^\s@]+@[^\s@.]+\.[^\s@]+)$"
-    ORGANIZATION_REGEX = ur"^(?P<organization>\w[^#<\t\n\r\f\v]+\w)$"
+    ORGANIZATION_REGEX = ur"^(?P<organization>[^#<\t\n\r\f\v]*[^#<\t\n\r\f\v\s])?$"
     DOMAIN_REGEX = ur"^(?P<domain>\w\S+)$"
-    ENROLLMENT_REGEX = ur"^(?P<organization>\w[^#<\t\n\r\f\v]+\w)(?: < (?P<date>\d{4}\-\d{2}\-\d{2}))?$"
+    ENROLLMENT_REGEX = ur"^(?P<organization>[^#<\n\r\f\v]*[^#<\t\n\r\f\v\s])(?:[ \t]+<[ \t]+(?P<date>\d{4}\-\d{2}\-\d{2}))?$"
 
 
     def __init__(self, email_aliases=None, email_to_employer=None,
