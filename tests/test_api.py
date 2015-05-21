@@ -935,16 +935,18 @@ class TestDeteleIdentity(TestBaseCase):
             self.assertEqual(uid2.uuid, jrae_uuid)
             self.assertEqual(len(uid2.identities), 0)
 
-            # Check if there only remains three unique identity and
+            # Check if there only remains three unique identities and
             # two identities (one from John Smith and another one
             # from John Doe)
-            uidentities = session.query(UniqueIdentity).all()
+            uidentities = session.query(UniqueIdentity).\
+                order_by(UniqueIdentity.uuid).all()
             self.assertEqual(len(uidentities), 3)
             self.assertEqual(uidentities[0].uuid, jdoe_uuid)
             self.assertEqual(uidentities[1].uuid, jrae_uuid)
             self.assertEqual(uidentities[2].uuid, jsmith_uuid)
 
-            identities = session.query(Identity).all()
+            identities = session.query(Identity).\
+                order_by(Identity.id).all()
             self.assertEqual(len(identities), 2)
             self.assertEqual(identities[0].id, jdoe_uuid)
             self.assertEqual(identities[1].id, jsmith_uuid)
@@ -1592,7 +1594,8 @@ class TestMergeUniqueIdentities(TestBaseCase):
         api.merge_unique_identities(self.db, 'John Smith', 'John Doe')
 
         with self.db.connect() as session:
-            uidentities = session.query(UniqueIdentity).all()
+            uidentities = session.query(UniqueIdentity).\
+                order_by(UniqueIdentity.uuid).all()
             self.assertEqual(len(uidentities), 2)
 
             uid1 = uidentities[0]
@@ -1613,17 +1616,20 @@ class TestMergeUniqueIdentities(TestBaseCase):
 
             self.assertEqual(len(uid2.identities), 3)
 
-            id1 = uid2.identities[0]
+            identities = uid2.identities
+            identities.sort(key=lambda x: x.id)
+
+            id1 = identities[0]
             self.assertEqual(id1.name, 'John Smith')
             self.assertEqual(id1.email, 'jsmith@example.com')
             self.assertEqual(id1.source, 'scm')
 
-            id2 = uid2.identities[1]
+            id2 = identities[1]
             self.assertEqual(id2.name, None)
             self.assertEqual(id2.email, 'jsmith@example.com')
             self.assertEqual(id2.source, 'scm')
 
-            id3 = uid2.identities[2]
+            id3 = identities[2]
             self.assertEqual(id3.name, None)
             self.assertEqual(id3.email, 'jdoe@example.com')
             self.assertEqual(id3.source, 'scm')
@@ -1696,7 +1702,8 @@ class TestMergeUniqueIdentities(TestBaseCase):
 
         # Nothing has happened
         with self.db.connect() as session:
-            uidentities = session.query(UniqueIdentity).all()
+            uidentities = session.query(UniqueIdentity).\
+                order_by(UniqueIdentity.uuid).all()
             self.assertEqual(len(uidentities), 2)
 
             uid2 = uidentities[1]
@@ -1750,7 +1757,8 @@ class TestMoveIdentity(TestBaseCase):
         api.move_identity(self.db, from_id, 'John Smith')
 
         with self.db.connect() as session:
-            uidentities = session.query(UniqueIdentity).all()
+            uidentities = session.query(UniqueIdentity).\
+                order_by(UniqueIdentity.uuid).all()
             self.assertEqual(len(uidentities), 2)
 
             uid1 = uidentities[0]
@@ -1761,21 +1769,25 @@ class TestMoveIdentity(TestBaseCase):
             self.assertEqual(uid2.uuid, 'John Smith')
             self.assertEqual(len(uid2.identities), 3)
 
-            id1 = uid2.identities[0]
+            identities = uid2.identities
+            identities.sort(key=lambda x: x.id)
+
+            id1 = identities[0]
             self.assertEqual(id1.name, 'John Smith')
             self.assertEqual(id1.email, 'jsmith@example.com')
             self.assertEqual(id1.source, 'scm')
 
-            id2 = uid2.identities[1]
+            id2 = identities[1]
             self.assertEqual(id2.name, None)
             self.assertEqual(id2.email, 'jsmith@example.com')
             self.assertEqual(id2.source, 'scm')
 
-            id3 = uid2.identities[2]
+            id3 = identities[2]
             self.assertEqual(id3.id, from_id)
             self.assertEqual(id3.name, None)
             self.assertEqual(id3.email, 'jdoe@example.com')
             self.assertEqual(id3.source, 'scm')
+
 
     def test_equal_related_unique_identity(self):
         """Test that all remains the same when to_uuid is the unique identity related to 'from_id'"""
@@ -1815,7 +1827,8 @@ class TestMoveIdentity(TestBaseCase):
         api.move_identity(self.db, new_uuid, new_uuid)
 
         with self.db.connect() as session:
-            uidentities = session.query(UniqueIdentity).all()
+            uidentities = session.query(UniqueIdentity).\
+                order_by(UniqueIdentity.uuid).all()
             self.assertEqual(len(uidentities), 3)
 
             uid = uidentities[0]
@@ -2005,14 +2018,17 @@ class TestUniqueIdentities(TestBaseCase):
 
         self.assertEqual(len(uid.identities), 3)
 
-        id1 = uid.identities[0]
+        identities = uid.identities
+        identities.sort(key=lambda x: x.id)
+
+        id1 = identities[0]
         self.assertEqual(id1.email, 'jsmith@example.com')
 
-        id2 = uid.identities[1]
+        id2 = identities[1]
         self.assertEqual(id2.email, 'jsmith@bitergia.com')
         self.assertEqual(id2.source, 'scm')
 
-        id3 = uid.identities[2]
+        id3 = identities[2]
         self.assertEqual(id3.email, 'jsmith@bitergia.com')
         self.assertEqual(id3.source, 'mls')
 
@@ -2023,10 +2039,13 @@ class TestUniqueIdentities(TestBaseCase):
 
         self.assertEqual(len(uid.identities), 2)
 
-        id1 = uid.identities[0]
+        identities = uid.identities
+        identities.sort(key=lambda x: x.id)
+
+        id1 = identities[0]
         self.assertEqual(id1.email, 'jdoe@libresoft.es')
 
-        id2 = uid.identities[1]
+        id2 = identities[1]
         self.assertEqual(id2.email, 'jdoe@example.com')
 
     def test_unique_identities_source(self):
@@ -2159,11 +2178,14 @@ class TestRegistry(TestBaseCase):
         self.assertEqual(org.name, 'Example')
         self.assertEqual(len(org.domains), 2)
 
-        dom = org.domains[0]
+        domains = org.domains
+        domains.sort(key=lambda x: x.domain)
+
+        dom = domains[0]
         self.assertIsInstance(dom, Domain)
         self.assertEqual(dom.domain, 'example.com')
 
-        dom = org.domains[1]
+        dom = domains[1]
         self.assertIsInstance(dom, Domain)
         self.assertEqual(dom.domain, 'example.org')
 
