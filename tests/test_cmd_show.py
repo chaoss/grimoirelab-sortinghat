@@ -101,6 +101,40 @@ Enrollments:
   Bitergia\t2006-01-01 00:00:00\t2008-01-01 00:00:00
   Example\t1900-01-01 00:00:00\t2100-01-01 00:00:00"""
 
+SHOW_TERM_OUTPUT = """unique identity 03e12d00e37fd45593c49a5a5a1652deca4cf302
+
+Profile:
+    * Name: -
+    * E-Mail: jsmith@example.com
+    * Bot: Yes
+    * Country: -
+
+Identities:
+  03e12d00e37fd45593c49a5a5a1652deca4cf302\tJohn Smith\tjsmith@example.com\tjsmith\tscm
+  75d95d6c8492fd36d24a18bd45d62161e05fbc97\tJohn Smith\tjsmith@example.com\t-\tscm
+
+Enrollments:
+  Example\t1900-01-01 00:00:00\t2100-01-01 00:00:00
+
+
+unique identity 52e0aa0a14826627e633fd15332988686b730ab3
+
+Profile:
+    * Name: Jane Roe
+    * E-Mail: jroe@example.com
+    * Bot: No
+    * Country: US - United States of America
+
+Identities:
+  52e0aa0a14826627e633fd15332988686b730ab3\tJane Roe\tjroe@example.com\tjroe\tscm
+  cbfb7bd31d556322c640f5bc7b31d58a12b15904\t-\tjroe@bitergia.com\t-\tunknown
+  fef873c50a48cfc057f7aa19f423f81889a8907f\t-\tjroe@example.com\t-\tscm
+
+Enrollments:
+  Bitergia\t1999-01-01 00:00:00\t2000-01-01 00:00:00
+  Bitergia\t2006-01-01 00:00:00\t2008-01-01 00:00:00
+  Example\t1900-01-01 00:00:00\t2100-01-01 00:00:00"""
+
 
 class TestBaseCase(unittest.TestCase):
     """Defines common setup and teardown methods on show unit tests"""
@@ -155,7 +189,7 @@ class TestBaseCase(unittest.TestCase):
                          is_bot=False, country_code='US')
 
         # Add unique identity, this one won't have neither identities
-        # nor enrollments 
+        # nor enrollments
         api.add_unique_identity(self.db,
                                 '0000000000000000000000000000000000000000')
 
@@ -170,6 +204,7 @@ class TestBaseCase(unittest.TestCase):
                            datetime.datetime(2006, 1, 1),
                            datetime.datetime(2008, 1, 1))
 
+
 class TestShowCommand(TestBaseCase):
     """Unit tests for show command"""
 
@@ -180,10 +215,25 @@ class TestShowCommand(TestBaseCase):
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, SHOW_OUTPUT)
 
-    def test_log_uuid(self):
-        """Check log using a uuid"""
+    def test_show_uuid(self):
+        """Check show using a uuid"""
 
         self.cmd.run('52e0aa0a14826627e633fd15332988686b730ab3')
+        output = sys.stdout.getvalue().strip()
+        self.assertEqual(output, SHOW_UUID_OUTPUT)
+
+    def test_show_term(self):
+        """Check show using a term"""
+
+        self.cmd.run('--term', 'example')
+        output = sys.stdout.getvalue().strip()
+        self.assertEqual(output, SHOW_TERM_OUTPUT)
+
+    def test_show_uuid_with_term(self):
+        """When the UUID is given, term parameter is ignored"""
+
+        self.cmd.run('--term', 'jsmith',
+                      '52e0aa0a14826627e633fd15332988686b730ab3')
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, SHOW_UUID_OUTPUT)
 
@@ -209,16 +259,38 @@ class TestShow(TestBaseCase):
         self.assertEqual(output, SHOW_OUTPUT)
 
     def test_show_uuid(self):
-        """Check show using a uuid"""
+        """Check show using a UUID"""
 
-        self.cmd.show('52e0aa0a14826627e633fd15332988686b730ab3')
+        self.cmd.show(uuid='52e0aa0a14826627e633fd15332988686b730ab3')
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, SHOW_UUID_OUTPUT)
 
     def test_not_found_uuid(self):
-        """Check whether it raises an error when the uiid is not available"""
+        """Check whether it prints an error when the uiid is not available"""
 
-        self.cmd.show('FFFFFFFFFFFFFFF')
+        self.cmd.show(uuid='FFFFFFFFFFFFFFF')
+        output = sys.stderr.getvalue().strip()
+        self.assertEqual(output, SHOW_UUID_NOT_FOUND_ERROR)
+
+    def test_show_term(self):
+        """Check show using a term"""
+
+        self.cmd.show(term='example')
+        output = sys.stdout.getvalue().strip()
+        self.assertEqual(output, SHOW_TERM_OUTPUT)
+
+    def test_show_uuid_with_term(self):
+        """When the UUID is given, term parameter is ignored"""
+
+        self.cmd.show(uuid='52e0aa0a14826627e633fd15332988686b730ab3',
+                      term='jsmith')
+        output = sys.stdout.getvalue().strip()
+        self.assertEqual(output, SHOW_UUID_OUTPUT)
+
+    def test_not_found_term(self):
+        """Check whether it prints an error when the term is not found"""
+
+        self.cmd.show(term='FFFFFFFFFFFFFFF')
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, SHOW_UUID_NOT_FOUND_ERROR)
 

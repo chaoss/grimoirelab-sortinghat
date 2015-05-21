@@ -31,8 +31,15 @@ class Show(Command):
     """Show information about unique identities.
 
     This command prints information related to the unique identities such as
-    identities or enrollments. When <uuid> is given, it will only show information
-    about the unique identity related to <uuid>.
+    identities or enrollments.
+
+    When <uuid> is given, it will only show information about the unique
+    identity related to <uuid>.
+
+    When <term> is set, it will only show information about those unique
+    identities that have any attribute (name, email, username, source)
+    which match with the given term. This parameter does not have any
+    effect when <uuid> is set.
     """
     def __init__(self, **kwargs):
         super(Show, self).__init__(**kwargs)
@@ -42,37 +49,52 @@ class Show(Command):
         self.parser = argparse.ArgumentParser(description=self.description,
                                               usage=self.usage)
 
+        # Optional arguments
+        self.parser.add_argument('--term', dest='term', default=None,
+                                 help="search this term on identities data; ignored when <uuid> is given")
         # Positional arguments
         self.parser.add_argument('uuid', nargs='?', default=None,
                                  help="unique identifier of the identity to show")
 
     @property
     def description(self):
-        return """Show information about a unique identity."""
+        return """Show information about unique identities."""
 
     @property
     def usage(self):
-        return "%(prog)s show [<uuid>]"
+        return "%(prog)s show [--term <term>][<uuid>]"
 
     def run(self, *args):
         """Show information about unique identities."""
 
         params = self.parser.parse_args(args)
 
-        self.show(params.uuid)
+        self.show(params.uuid, params.term)
 
-    def show(self, uuid=None):
+    def show(self, uuid=None, term=None):
         """Show the information related to unique identities.
 
         This method prints information related to unique identities such as
         identities or enrollments.
+
         When <uuid> is given, it will only show information about the unique
         identity related to <uuid>.
 
+        When <term> is set, it will only show information about those unique
+        identities that have any attribute (name, email, username, source)
+        which match with the given term. This parameter does not have any
+        effect when <uuid> is set.
+
         :param uuid: unique identifier
+        :param term: term to match with unique identities data
         """
         try:
-            uidentities = api.unique_identities(self.db, uuid)
+            if uuid:
+                uidentities = api.unique_identities(self.db, uuid)
+            elif term:
+                uidentities = api.search_unique_identities(self.db, term)
+            else:
+                uidentities = api.unique_identities(self.db)
 
             for uid in uidentities:
                 # Add enrollments to a new property 'roles'
