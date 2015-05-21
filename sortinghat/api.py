@@ -928,6 +928,49 @@ def unique_identities(db, uuid=None, source=None):
     return uidentities
 
 
+def search_unique_identities(db, term):
+    """Look for unique identities.
+
+    This function returns those unique identities which match with the
+    given 'term'. The term will be compated with name, email, username
+    and source values of each identity.
+
+    :param db: database manater
+    :param term: term to match with unique identities data
+
+    :raises NotFoundError: raised when the given term is not found on
+        any unique identity from the registry
+    """
+    uidentities = []
+    pattern = '%' + term + '%' if term else None
+
+    with db.connect() as session:
+        query = session.query(UniqueIdentity).\
+            join(Identity).\
+            filter(UniqueIdentity.uuid == Identity.uuid)
+
+        if pattern:
+            query = query.filter(Identity.name.like(pattern)
+                                 | Identity.email.like(pattern)
+                                 | Identity.username.like(pattern)
+                                 | Identity.source.like(pattern))
+        else:
+            query = query.filter((Identity.name == None)
+                                 | (Identity.email == None)
+                                 | (Identity.username == None)
+                                 | (Identity.source == None))
+
+        uidentities = query.order_by(UniqueIdentity.uuid).all()
+
+        if not uidentities:
+            raise NotFoundError(entity=term)
+
+        # Detach objects from the session
+        session.expunge_all()
+
+    return uidentities
+
+
 def registry(db, term=None):
     """List the organizations available in the registry.
 

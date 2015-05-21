@@ -2126,6 +2126,72 @@ class TestUniqueIdentities(TestBaseCase):
                           self.db, 'John Smith', 'scm')
 
 
+class TestSearchUniqueIdentities(TestBaseCase):
+    """Unit tests for search_unique_identities"""
+
+    def test_search_unique_identities(self):
+        """Check if it returns the unique identities that match with the criteria"""
+
+        # Add a country
+        with self.db.connect() as session:
+            us = Country(code='US', name='United States of America', alpha3='USA')
+            session.add(us)
+
+        # Add some identities
+        jsmith_uuid = api.add_identity(self.db, 'scm', 'jsmith@example.com',
+                                       'John Smith', 'jsmith')
+        api.add_identity(self.db, 'scm', 'jsmith@bitergia.com', uuid=jsmith_uuid)
+        api.add_identity(self.db, 'mls', 'jsmith@bitergia.com', uuid=jsmith_uuid)
+        api.edit_profile(self.db, jsmith_uuid, email='jsmith@example.com',
+                         is_bot=True, country_code='US')
+
+        jdoe_uuid = api.add_identity(self.db, 'scm', 'jdoe@example.com',
+                                     'John Doe', 'jdoe')
+        api.add_identity(self.db, 'scm', 'jdoe@libresoft.es',
+                         'jdoe', 'jdoe', uuid=jdoe_uuid)
+
+        # Tests
+        uids = api.search_unique_identities(self.db, 'jsmith')
+        self.assertEqual(len(uids), 1)
+        self.assertEqual(uids[0].uuid, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
+        self.assertEqual(len(uids[0].identities), 3)
+
+        uids = api.search_unique_identities(self.db, 'john')
+        self.assertEqual(len(uids), 2)
+        self.assertEqual(uids[0].uuid, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
+        self.assertEqual(len(uids[0].identities), 3)
+        self.assertEqual(uids[1].uuid, '8e9eac4c6449d2661d66dc62c1752529f935f0b1')
+        self.assertEqual(len(uids[1].identities), 2)
+
+        # None values can also be used
+        uids = api.search_unique_identities(self.db, None)
+        self.assertEqual(len(uids), 1)
+        self.assertEqual(uids[0].uuid, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
+        self.assertEqual(len(uids[0].identities), 3)
+
+    def test_empty_registry(self):
+        """Check whether it returns an exception when the registry is empty"""
+
+        self.assertRaises(NotFoundError, api.search_unique_identities,
+                          self.db, None)
+
+    def test_term_not_found(self):
+        """Check whether it raises an error when the term is not found"""
+
+        # It should raise an error when the registry is empty
+        self.assertRaises(NotFoundError, api.search_unique_identities,
+                          self.db, 'John Smith')
+
+        # It should do the same when there are some identities available
+        api.add_identity(self.db, 'scm', 'jsmith@example.com',
+                         'John Smith', 'jsmith')
+        api.add_identity(self.db, 'scm', 'jdoe@example.com',
+                         'John Doe', 'jdoe')
+
+        self.assertRaises(NotFoundError, api.search_unique_identities,
+                          self.db, 'Jane Rae')
+
+
 class TestRegistry(TestBaseCase):
     """Unit tests for registry"""
 
