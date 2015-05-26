@@ -179,7 +179,7 @@ def load_mapping(engine, mapping):
 
     table = Table('people_uidentities', metadata,
                   Column('people_id', String(255), nullable=False),
-                  Column('uuid', String(128), nullable=False),
+                  Column('uuid', String(128), nullable=False, index=True),
                   UniqueConstraint('people_id', name='people_unique'),
                   mysql_engine='MyISAM',
                   mysql_charset='utf8',
