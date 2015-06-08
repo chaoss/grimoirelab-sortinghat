@@ -142,6 +142,7 @@ class TestUnify(TestBaseCase):
         self.assertEqual(jsmith.uuid, '72ae225d363c83456d788da14eeb0718efe7a0fc')
 
         identities = jsmith.identities
+        identities.sort(key=lambda x: x.id)
 
         self.assertEqual(len(identities), 7)
 

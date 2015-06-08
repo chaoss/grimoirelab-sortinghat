@@ -66,6 +66,9 @@ class Affiliate(Command):
             uidentities = api.unique_identities(self.db)
 
             for uid in uidentities:
+
+                uid.identities.sort(key=lambda x: x.id)
+
                 for identity in uid.identities:
 
                     # Only check email address to find new affiliations
