@@ -264,6 +264,15 @@ class TestAddIdentity(TestBaseCase):
         self.assertEqual(context.exception.uuid,
                          'a4d4845e1b1e0edb85e37b04553026a6b76fc4ac')
 
+        # "None" tuples also raise an exception
+        api.add_identity(self.db, 'scm', "None", None, None)
+
+        with self.assertRaises(AlreadyExistsError) as context:
+            api.add_identity(self.db, 'scm', None, "None", None)
+
+        self.assertEqual(context.exception.uuid,
+                         'fd13313b1f565153e179b167b8a321eaddf29c7f')
+
     def test_none_source(self):
         """Check whether new identities cannot be added when giving a None source"""
 

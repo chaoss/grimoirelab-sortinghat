@@ -133,6 +133,17 @@ def add_identity(db, source, email=None, name=None, username=None, uuid=None):
                                  name=name, username=username)
 
         if not uuid:
+            # Double check to prevent from cases where the values
+            # of email, name and username are "None" strings. This
+            # may return the same UUID.
+            uidentity = _find_unique_identity(session, identity_id)
+
+            if uidentity:
+                entity = '-'.join((unicode(identity_id), unicode(source),
+                                   unicode(email), unicode(name), unicode(username)))
+                raise AlreadyExistsError(entity=entity,
+                                         uuid=identity_id)
+
             uidentity = UniqueIdentity(uuid=identity_id)
             session.add(uidentity)
         else:
