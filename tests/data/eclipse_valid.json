@@ -1,0 +1,81 @@
+{
+ "committers" :
+    {
+     "jsmith" : {
+                 "id": "jsmith",
+                 "first": "John",
+                 "last": "Smith",
+                 "primary": "jsmith@example.com",
+                 "email": ["jsmith@example.com", "jsmith@bitergia.com"],
+                 "affiliations": {
+                                  "1": {
+                                        "name": "Example",
+                                        "active": "2010-01-01",
+                                        "inactive": "2011-01-01"
+                                       },
+                                  "2": {
+                                        "name": "Bitergia",
+                                        "active": "2011-01-01",
+                                        "inactive": null
+                                       }
+                                  }
+                },
+     "jdoe" :  {
+                "id": "jdoe",
+                "first": "John",
+                "last": "Doe",
+                "primary": "jdoe@example.com",
+                "email": ["jdoe@example.com"],
+                "affiliations": {
+                                 "1": {
+                                       "name": "Example",
+                                       "active": "2010-01-01",
+                                       "inactive": null
+                                      }
+                                 }
+               },
+     "jrae" :  {
+                "id": "jrae",
+                "first": "Jane",
+                "last": "Rae",
+                "primary": "jrae@example.com",
+                "email": ["jrae@example.com"],
+                "affiliations": {
+                                 "1": {
+                                       "name": "Example",
+                                        "active": null,
+                                        "inactive": null
+                                       }
+                                }
+               }
+    },
+    "organizations" : {
+         "1": {
+                  "active": "2009-01-01",
+                  "id": "1",
+                  "image": "http://example.com/image1",
+                  "inactive": "2014-09-01",
+                  "isMember": "1",
+                  "name": "Example",
+                  "url": "http://example.com"
+           },
+         "2": {
+                  "active": "2012-01-01",
+                  "id": "2",
+                  "image": "http://bitergia.com/logo",
+                  "inactive": null,
+                  "isMember": "1",
+                  "name": "Bitergia",
+                  "url": "http://bitergia.com"
+           },
+         "3": {
+                  "active": null,
+                  "id": "3",
+                  "image": "http://example.net/logo",
+                  "inactive": null,
+                  "isMember": "0",
+                  "name": "Ignore",
+                  "url": "http://example.net"
+             }
+   }
+}

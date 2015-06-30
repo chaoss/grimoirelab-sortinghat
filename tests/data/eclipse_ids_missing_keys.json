@@ -2,7 +2,7 @@
  "committers" :
     {
      "jsmith" : {
-                 "id": "jsmith", 
+                 "id": "jsmith",
                  "first": "John",
                  "last": "Smith",
                  "primary": "jsmith@example.com",
@@ -33,5 +33,6 @@
                                       }
                                  }
                }
-    }
+    },
+ "organizations" : {}
 }
