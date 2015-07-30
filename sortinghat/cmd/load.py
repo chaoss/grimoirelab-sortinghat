@@ -410,7 +410,8 @@ class Load(Command):
             if email:
                 name = email.split('@')[0]
             elif username:
-                name = username
+                # filter email addresses on username fields
+                name = username.split('@')[0]
             else:
                 name = 'Unknown'
 
