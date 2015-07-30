@@ -413,7 +413,7 @@ class Load(Command):
                 # filter email addresses on username fields
                 name = username.split('@')[0]
             else:
-                name = 'Unknown'
+                name = None
 
         kw = {'name' : name,
               'email' : email}
