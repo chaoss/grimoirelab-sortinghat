@@ -29,6 +29,7 @@ if not '..' in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat import api
+from sortinghat.command import CMD_SUCCESS, CMD_FAILURE
 from sortinghat.cmd.log import Log
 from sortinghat.db.database import Database
 
@@ -109,39 +110,44 @@ class TestLogCommand(TestBaseCase):
     def test_log(self):
         """Check log output"""
 
-        self.cmd.run()
+        code = self.cmd.run()
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, LOG_OUTPUT)
 
     def test_log_uuid(self):
         """Check log using a uuid"""
 
-        self.cmd.run('--uuid', 'John Doe')
+        code = self.cmd.run('--uuid', 'John Doe')
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, LOG_UUID_OUTPUT)
 
     def test_log_organization(self):
         """Check log using a organization"""
 
-        self.cmd.run('--organization', 'Bitergia')
+        code = self.cmd.run('--organization', 'Bitergia')
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, LOG_ORG_OUTPUT)
 
     def test_log_period(self):
         """Check log using a time period"""
 
-        self.cmd.run('--from', '1990-1-1 08:59:17',
-                     '--to', '2005-1-1')
+        code = self.cmd.run('--from', '1990-1-1 08:59:17',
+                            '--to', '2005-1-1')
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, LOG_TIME_PERIOD_OUTPUT)
 
     def test_log_mix_filter(self):
         """Check log using some filters"""
 
-        self.cmd.run('--uuid', 'John Doe',
-                     '--organization', 'Example',
-                     '--from', '1990-1-1 08:59:17',
-                     '--to', '2005-1-1')
+        code = self.cmd.run('--uuid', 'John Doe',
+                            '--organization', 'Example',
+                            '--from', '1990-1-1 08:59:17',
+                            '--to', '2005-1-1')
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, LOG_EMPTY_OUTPUT)
 
@@ -151,26 +157,31 @@ class TestLogCommand(TestBaseCase):
         # Delete the contents of the database
         self.db.clear()
 
-        self.cmd.run()
+        code = self.cmd.run()
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, LOG_EMPTY_OUTPUT)
 
     def test_invalid_dates(self):
         """Check whether it fails when invalid dates are given"""
 
-        self.cmd.run('--from', '1999-13-01')
+        code = self.cmd.run('--from', '1999-13-01')
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip('\n').split('\n')[0]
         self.assertEqual(output, LOG_INVALID_DATE_ERROR)
 
-        self.cmd.run('--from', 'YYZYY')
+        code = self.cmd.run('--from', 'YYZYY')
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip('\n').split('\n')[1]
         self.assertEqual(output, LOG_INVALID_FORMAT_DATE_ERROR)
 
-        self.cmd.run('--to', '1999-13-01')
+        code = self.cmd.run('--to', '1999-13-01')
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip('\n').split('\n')[2]
         self.assertEqual(output, LOG_INVALID_DATE_ERROR)
 
-        self.cmd.run('--to', 'YYZYY')
+        code = self.cmd.run('--to', 'YYZYY')
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip('\n').split('\n')[3]
         self.assertEqual(output, LOG_INVALID_FORMAT_DATE_ERROR)
 
@@ -181,52 +192,59 @@ class TestLog(TestBaseCase):
     def test_log(self):
         """Check log output"""
 
-        self.cmd.log()
+        code = self.cmd.log()
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, LOG_OUTPUT)
 
     def test_log_uuid(self):
         """Check log using a uuid"""
 
-        self.cmd.log('John Doe')
+        code = self.cmd.log('John Doe')
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, LOG_UUID_OUTPUT)
 
     def test_log_organization(self):
         """Check log using a organization"""
 
-        self.cmd.log(organization='Bitergia')
+        code = self.cmd.log(organization='Bitergia')
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, LOG_ORG_OUTPUT)
 
     def test_log_period(self):
         """Check log using a time period"""
 
-        self.cmd.log(from_date=datetime.datetime(1990, 1, 1),
-                     to_date=datetime.datetime(2005, 1, 1))
+        code = self.cmd.log(from_date=datetime.datetime(1990, 1, 1),
+                            to_date=datetime.datetime(2005, 1, 1))
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, LOG_TIME_PERIOD_OUTPUT)
 
     def test_period_ranges(self):
         """Check whether enrollments cannot be listed giving invalid period ranges"""
 
-        self.cmd.log('John Smith', 'Example',
-                     datetime.datetime(2001, 1, 1),
-                     datetime.datetime(1999, 1, 1))
+        code = self.cmd.log('John Smith', 'Example',
+                            datetime.datetime(2001, 1, 1),
+                            datetime.datetime(1999, 1, 1))
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, LOG_INVALID_PERIOD_ERROR)
 
     def test_not_found_uuid(self):
         """Check whether it raises an error when the uiid is not available"""
 
-        self.cmd.log(uuid='Jane Roe')
+        code = self.cmd.log(uuid='Jane Roe')
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, LOG_UUID_NOT_FOUND_ERROR)
 
     def test_not_found_organization(self):
         """Check whether it raises an error when the organization is not available"""
 
-        self.cmd.log(organization='LibreSoft')
+        code = self.cmd.log(organization='LibreSoft')
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, LOG_ORG_NOT_FOUND_ERROR)
 
@@ -236,7 +254,8 @@ class TestLog(TestBaseCase):
         # Delete the contents of the database
         self.db.clear()
 
-        self.cmd.log()
+        code = self.cmd.log()
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, LOG_EMPTY_OUTPUT)
 

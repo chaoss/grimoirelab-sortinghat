@@ -84,7 +84,9 @@ def main():
     cmd = klass(user=args.user, password=args.password,
                 database=args.database, host=args.host,
                 port=args.port)
-    cmd.run(*args.cmd_args)
+    code = cmd.run(*args.cmd_args)
+
+    return code
 
 
 def parse_args():
@@ -170,7 +172,8 @@ def create_config_arguments_parser():
 
 if __name__ == '__main__':
     try:
-        main()
+        code = main()
+        sys.exit(code)
     except KeyboardInterrupt:
         s = "\n\nReceived Ctrl-C or other break signal. Exiting.\n"
         sys.stdout.write(s)

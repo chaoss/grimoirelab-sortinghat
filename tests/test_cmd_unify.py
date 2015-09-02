@@ -28,6 +28,7 @@ if not '..' in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat import api
+from sortinghat.command import CMD_SUCCESS, CMD_FAILURE
 from sortinghat.cmd.unify import Unify
 from sortinghat.db.database import Database
 
@@ -101,14 +102,16 @@ class TestUnifyCommand(TestBaseCase):
     def test_unify(self):
         """Test command"""
 
-        self.cmd.run()
+        code = self.cmd.run()
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, UNIFY_DEFAULT_OUTPUT)
 
     def test_unify_email_name_matcher(self):
         """Test command using the email-name matcher"""
 
-        self.cmd.run('--matching', 'email-name')
+        code = self.cmd.run('--matching', 'email-name')
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, UNIFY_EMAIL_NAME_OUTPUT)
 
@@ -118,7 +121,8 @@ class TestUnifyCommand(TestBaseCase):
         # Delete the contents of the database
         self.db.clear()
 
-        self.cmd.run()
+        code = self.cmd.run()
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, UNIFY_EMPTY_OUTPUT)
 
@@ -132,7 +136,8 @@ class TestUnify(TestBaseCase):
         before = api.unique_identities(self.db)
         self.assertEqual(len(before), 6)
 
-        self.cmd.unify(matching='default')
+        code = self.cmd.unify(matching='default')
+        self.assertEqual(code, CMD_SUCCESS)
 
         after = api.unique_identities(self.db)
         self.assertEqual(len(after), 5)
@@ -167,7 +172,8 @@ class TestUnify(TestBaseCase):
         before = api.unique_identities(self.db)
         self.assertEqual(len(before), 6)
 
-        self.cmd.unify(matching='default')
+        code = self.cmd.unify(matching='default')
+        self.assertEqual(code, CMD_SUCCESS)
 
         # No match was found
         after = api.unique_identities(self.db)
@@ -179,7 +185,8 @@ class TestUnify(TestBaseCase):
         before = api.unique_identities(self.db)
         self.assertEqual(len(before), 6)
 
-        self.cmd.unify(matching='email-name')
+        code = self.cmd.unify(matching='email-name')
+        self.assertEqual(code, CMD_SUCCESS)
 
         after = api.unique_identities(self.db)
         self.assertEqual(len(after), 3)
@@ -197,7 +204,8 @@ class TestUnify(TestBaseCase):
         before = api.unique_identities(self.db)
         self.assertEqual(len(before), 6)
 
-        self.cmd.unify(matching='email-name')
+        code = self.cmd.unify(matching='email-name')
+        self.assertEqual(code, CMD_SUCCESS)
 
         after = api.unique_identities(self.db)
         self.assertEqual(len(after), 5)
@@ -213,15 +221,16 @@ class TestUnify(TestBaseCase):
         # Delete the contents of the database
         self.db.clear()
 
-        self.cmd.unify()
+        code = self.cmd.unify()
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, UNIFY_EMPTY_OUTPUT)
 
     def test_invalid_matching_method(self):
         """Check if it fails when an invalid matching method is given"""
 
-        self.cmd.unify(matching='mock')
-
+        code = self.cmd.unify(matching='mock')
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, UNIFY_MATCHING_ERROR)
 

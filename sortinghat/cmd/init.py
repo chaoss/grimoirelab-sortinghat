@@ -22,7 +22,7 @@
 
 import argparse
 
-from sortinghat.command import Command
+from sortinghat.command import Command, CMD_SUCCESS, CMD_FAILURE
 from sortinghat.exceptions import DatabaseError, LoadError
 from sortinghat.db.database import Database
 from sortinghat.db.model import Country
@@ -61,7 +61,9 @@ class Init(Command):
         """
         params = self.parser.parse_args(args)
 
-        self.initialize(params.name)
+        code = self.initialize(params.name)
+
+        return code
 
     def initialize(self, name):
         """Create an empty Sorting Hat registry.
@@ -87,9 +89,13 @@ class Init(Command):
             self.__load_countries(db)
         except DatabaseError, e:
             self.error(str(e))
+            return CMD_FAILURE
         except LoadError, e:
             Database.drop(user, password, name, host, port)
             self.error(str(e))
+            return CMD_FAILURE
+
+        return CMD_SUCCESS
 
     def __load_countries(self, db):
         """Load the list of countries"""

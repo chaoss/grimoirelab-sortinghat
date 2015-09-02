@@ -23,7 +23,7 @@
 import argparse
 
 from sortinghat import api
-from sortinghat.command import Command
+from sortinghat.command import Command, CMD_SUCCESS, CMD_FAILURE
 from sortinghat.exceptions import AlreadyExistsError, MatcherNotSupportedError, NotFoundError
 from sortinghat.matcher import create_identity_matcher
 from sortinghat.matching import SORTINGHAT_IDENTITIES_MATCHERS
@@ -94,8 +94,10 @@ class Add(Command):
 
         params = self.parser.parse_args(args)
 
-        self.add(params.source, params.email, params.name, params.username,
-                 params.uuid, params.matching, params.interactive)
+        code = self.add(params.source, params.email, params.name, params.username,
+                        params.uuid, params.matching, params.interactive)
+
+        return code
 
     def add(self, source, email=None, name=None, username=None, uuid=None,
             matching=None, interactive=False):
@@ -137,7 +139,7 @@ class Add(Command):
                 matcher = create_identity_matcher(matching, blacklist)
             except MatcherNotSupportedError, e:
                 self.error(str(e))
-                return
+                return CMD_FAILURE
 
         try:
             new_uuid = api.add_identity(self.db, source, email, name, username, uuid)
@@ -148,6 +150,9 @@ class Add(Command):
                 self.__merge_on_matching(uuid, matcher, interactive)
         except (AlreadyExistsError, NotFoundError, ValueError), e:
             self.error(str(e))
+            return CMD_FAILURE
+
+        return CMD_SUCCESS
 
     def __merge_on_matching(self, uuid, matcher, interactive):
         matches = api.match_identities(self.db, uuid, matcher)

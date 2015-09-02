@@ -23,7 +23,7 @@
 import argparse
 
 from sortinghat import api
-from sortinghat.command import Command
+from sortinghat.command import Command, CMD_SUCCESS, CMD_FAILURE
 from sortinghat.exceptions import NotFoundError
 
 
@@ -63,7 +63,7 @@ class Countries(Command):
 
         if ct and len(ct) < 2:
             self.error('Code country or term must have 2 or more characters length')
-            return
+            return CMD_FAILURE
 
         code = ct if ct and len(ct) == 2 else None
         term = ct if ct and len(ct) > 2 else None
@@ -73,3 +73,6 @@ class Countries(Command):
             self.display('countries.tmpl', countries=countries)
         except NotFoundError, e:
             self.error(str(e))
+            return CMD_FAILURE
+
+        return CMD_SUCCESS

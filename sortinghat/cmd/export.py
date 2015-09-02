@@ -26,7 +26,7 @@ import json
 import sys
 
 from sortinghat import api
-from sortinghat.command import Command
+from sortinghat.command import Command, CMD_SUCCESS
 
 
 class Export(Command):
@@ -83,9 +83,15 @@ class Export(Command):
         params = self.parser.parse_args(args)
 
         if params.identities:
-            self.export_identities(params.outfile, params.source)
+            code = self.export_identities(params.outfile, params.source)
         elif params.orgs:
-            self.export_organizations(params.outfile)
+            code = self.export_organizations(params.outfile)
+        else:
+            # The running proccess never should reach this section
+            raise RuntimeError("Unexpected export option")
+
+        return code
+
 
     def export_identities(self, outfile, source=None):
         """Export identities information to a file.
@@ -109,6 +115,8 @@ class Export(Command):
         except IOError, e:
             raise RuntimeError(str(e))
 
+        return CMD_SUCCESS
+
     def export_organizations(self, outfile):
         """Export organizations information to a file.
 
@@ -126,6 +134,8 @@ class Export(Command):
             outfile.write('\n')
         except IOError, e:
             raise RuntimeError(str(e))
+
+        return CMD_SUCCESS
 
 
 class IdentitiesExporter(object):

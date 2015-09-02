@@ -28,6 +28,7 @@ if not '..' in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat import api
+from sortinghat.command import CMD_SUCCESS, CMD_FAILURE
 from sortinghat.cmd.remove import Remove
 from sortinghat.db.database import Database
 
@@ -85,12 +86,14 @@ class TestRemoveCommand(TestBaseCase):
         """Check how it works when removing unique identities and identities"""
 
         # Remove an identity
-        self.cmd.run('--identity', '62cce16ac0a5c391b4e0c3ccb3e924d65de8c345')
+        code = self.cmd.run('--identity', '62cce16ac0a5c391b4e0c3ccb3e924d65de8c345')
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip('\n').split('\n')[0]
         self.assertEqual(output, REMOVE_ID_OUTPUT)
 
         # Remove a unique identity
-        self.cmd.run('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF')
+        code = self.cmd.run('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF')
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip('\n').split('\n')[1]
         self.assertEqual(output, REMOVE_UUID_OUTPUT)
 
@@ -101,14 +104,16 @@ class TestRemove(TestBaseCase):
     def test_remove_unique_identity(self):
         """Check behavior removing a unique identity"""
 
-        self.cmd.remove('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF')
+        code = self.cmd.remove('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF')
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, REMOVE_UUID_OUTPUT)
 
     def test_remove_identity(self):
         """Check behavior removing an identity"""
 
-        self.cmd.remove('62cce16ac0a5c391b4e0c3ccb3e924d65de8c345', identity=True)
+        code = self.cmd.remove('62cce16ac0a5c391b4e0c3ccb3e924d65de8c345', identity=True)
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, REMOVE_ID_OUTPUT)
 
@@ -117,7 +122,8 @@ class TestRemove(TestBaseCase):
 
         # The given id is assigned to an identity, this test
         # should not remove anything
-        self.cmd.remove('62cce16ac0a5c391b4e0c3ccb3e924d65de8c345')
+        code = self.cmd.remove('62cce16ac0a5c391b4e0c3ccb3e924d65de8c345')
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, REMOVE_UUID_NOT_FOUND_ERROR)
 
@@ -126,15 +132,19 @@ class TestRemove(TestBaseCase):
 
         # The given id is assigned to a unique identity, this test
         # should not remove anything
-        self.cmd.remove('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF', identity=True)
+        code = self.cmd.remove('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF', identity=True)
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, REMOVE_ID_NOT_FOUND_ERROR)
 
     def test_none_uuid_or_id(self):
         """Check behavior removing None uuids"""
 
-        self.cmd.remove(None)
-        self.cmd.remove(None, identity=True)
+        code = self.cmd.remove(None)
+        self.assertEqual(code, CMD_SUCCESS)
+
+        code = self.cmd.remove(None, identity=True)
+        self.assertEqual(code, CMD_SUCCESS)
 
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, REMOVE_EMPTY_OUTPUT)

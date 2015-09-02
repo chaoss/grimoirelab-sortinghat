@@ -73,7 +73,7 @@ def parse_args():
                         help='name of the source')
     parser.add_argument('-o', '--outfile', nargs='?', type=argparse.FileType('w'),
                         default=sys.stdout,
-                        help='Sorting Hat JSON output filena')
+                        help='Sorting Hat JSON output filename')
 
     return parser.parse_args()
 

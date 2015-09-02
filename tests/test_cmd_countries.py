@@ -27,6 +27,7 @@ import unittest
 if not '..' in sys.path:
     sys.path.insert(0, '..')
 
+from sortinghat.command import CMD_SUCCESS, CMD_FAILURE
 from sortinghat.cmd.countries import Countries
 from sortinghat.db.database import Database
 from sortinghat.db.model import Country
@@ -86,35 +87,40 @@ class TestCountriesCommand(TestBaseCase):
     def test_countries(self):
         """Check countries command"""
 
-        self.cmd.run()
+        retval = self.cmd.run()
+        self.assertEqual(retval, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, COUNTRIES_OUTPUT)
 
     def test_countries_code(self):
         """Check output when a code country is given"""
 
-        self.cmd.run('ES')
+        retval = self.cmd.run('ES')
+        self.assertEqual(retval, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, COUNTRIES_CODE_OUTPUT)
 
     def test_countries_term(self):
         """Check output when a code country is given"""
 
-        self.cmd.run('unit')
+        retval = self.cmd.run('unit')
+        self.assertEqual(retval, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, COUNTRIES_TERM_OUTPUT)
 
     def test_code_or_term_error(self):
         """Check output error when a code or term is invalid"""
 
-        self.cmd.run('U')
+        retval = self.cmd.run('U')
+        self.assertEqual(retval, CMD_FAILURE)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, COUNTRIES_CODE_OR_TERM_ERROR)
 
     def test_not_found_error(self):
         """Check output error when a country is not found"""
 
-        self.cmd.run('Uk')
+        retval = self.cmd.run('Uk')
+        self.assertEqual(retval, CMD_FAILURE)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, COUNTRIES_NOT_FOUND_ERROR)
 

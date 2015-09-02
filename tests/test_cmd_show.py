@@ -29,6 +29,7 @@ if not '..' in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat import api
+from sortinghat.command import CMD_SUCCESS, CMD_FAILURE
 from sortinghat.cmd.show import Show
 from sortinghat.db.database import Database
 from sortinghat.db.model import Country
@@ -211,29 +212,33 @@ class TestShowCommand(TestBaseCase):
     def test_show(self):
         """Check show output"""
 
-        self.cmd.run()
+        code = self.cmd.run()
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, SHOW_OUTPUT)
 
     def test_show_uuid(self):
         """Check show using a uuid"""
 
-        self.cmd.run('52e0aa0a14826627e633fd15332988686b730ab3')
+        code = self.cmd.run('52e0aa0a14826627e633fd15332988686b730ab3')
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, SHOW_UUID_OUTPUT)
 
     def test_show_term(self):
         """Check show using a term"""
 
-        self.cmd.run('--term', 'example')
+        code = self.cmd.run('--term', 'example')
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, SHOW_TERM_OUTPUT)
 
     def test_show_uuid_with_term(self):
         """When the UUID is given, term parameter is ignored"""
 
-        self.cmd.run('--term', 'jsmith',
-                      '52e0aa0a14826627e633fd15332988686b730ab3')
+        code = self.cmd.run('--term', 'jsmith',
+                            '52e0aa0a14826627e633fd15332988686b730ab3')
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, SHOW_UUID_OUTPUT)
 
@@ -243,7 +248,8 @@ class TestShowCommand(TestBaseCase):
         # Delete the contents of the database
         self.db.clear()
 
-        self.cmd.run()
+        code = self.cmd.run()
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, SHOW_EMPTY_OUTPUT)
 
@@ -254,43 +260,49 @@ class TestShow(TestBaseCase):
     def test_show(self):
         "Check show"
 
-        self.cmd.show()
+        code = self.cmd.show()
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, SHOW_OUTPUT)
 
     def test_show_uuid(self):
         """Check show using a UUID"""
 
-        self.cmd.show(uuid='52e0aa0a14826627e633fd15332988686b730ab3')
+        code = self.cmd.show(uuid='52e0aa0a14826627e633fd15332988686b730ab3')
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, SHOW_UUID_OUTPUT)
 
     def test_not_found_uuid(self):
         """Check whether it prints an error when the uiid is not available"""
 
-        self.cmd.show(uuid='FFFFFFFFFFFFFFF')
+        code = self.cmd.show(uuid='FFFFFFFFFFFFFFF')
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, SHOW_UUID_NOT_FOUND_ERROR)
 
     def test_show_term(self):
         """Check show using a term"""
 
-        self.cmd.show(term='example')
+        code = self.cmd.show(term='example')
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, SHOW_TERM_OUTPUT)
 
     def test_show_uuid_with_term(self):
         """When the UUID is given, term parameter is ignored"""
 
-        self.cmd.show(uuid='52e0aa0a14826627e633fd15332988686b730ab3',
-                      term='jsmith')
+        code = self.cmd.show(uuid='52e0aa0a14826627e633fd15332988686b730ab3',
+                             term='jsmith')
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, SHOW_UUID_OUTPUT)
 
     def test_not_found_term(self):
         """Check whether it prints an error when the term is not found"""
 
-        self.cmd.show(term='FFFFFFFFFFFFFFF')
+        code = self.cmd.show(term='FFFFFFFFFFFFFFF')
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, SHOW_UUID_NOT_FOUND_ERROR)
 
@@ -300,7 +312,8 @@ class TestShow(TestBaseCase):
         # Delete the contents of the database
         self.db.clear()
 
-        self.cmd.show()
+        code = self.cmd.show()
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, SHOW_EMPTY_OUTPUT)
 

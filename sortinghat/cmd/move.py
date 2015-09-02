@@ -23,7 +23,7 @@
 import argparse
 
 from sortinghat import api
-from sortinghat.command import Command
+from sortinghat.command import Command, CMD_SUCCESS, CMD_FAILURE
 from sortinghat.exceptions import NotFoundError
 
 
@@ -67,7 +67,9 @@ class Move(Command):
         from_id = params.from_id
         to_uuid = params.to_uuid
 
-        self.move(from_id, to_uuid)
+        code = self.move(from_id, to_uuid)
+
+        return code
 
     def move(self, from_id, to_uuid):
         """Move an identity into a unique identity.
@@ -88,7 +90,7 @@ class Move(Command):
             will be moved
         """
         if not from_id or not to_uuid:
-            return
+            return CMD_SUCCESS
 
         try:
             api.move_identity(self.db, from_id, to_uuid)
@@ -96,3 +98,6 @@ class Move(Command):
                          from_id=from_id, to_uuid=to_uuid)
         except NotFoundError, e:
             self.error(str(e))
+            return CMD_FAILURE
+
+        return CMD_SUCCESS

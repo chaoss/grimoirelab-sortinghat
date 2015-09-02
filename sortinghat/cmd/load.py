@@ -24,7 +24,7 @@ import argparse
 import sys
 
 from sortinghat import api
-from sortinghat.command import Command
+from sortinghat.command import Command, CMD_SUCCESS, CMD_FAILURE
 from sortinghat.db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE
 from sortinghat.exceptions import AlreadyExistsError, NotFoundError,\
     InvalidFormatError, LoadError, MatcherNotSupportedError
@@ -121,21 +121,24 @@ class Load(Command):
             parser = SortingHatParser(stream)
         except InvalidFormatError, e:
             self.error(unicode(e))
-            return
+            return CMD_FAILURE
         except (IOError, TypeError, AttributeError), e:
             raise RuntimeError(unicode(e))
 
         if params.identities:
             self.import_blacklist(parser)
-            self.import_identities(parser, params.matching,
-                                   params.match_new, params.verbose)
+            code = self.import_identities(parser, params.matching,
+                                          params.match_new, params.verbose)
         elif params.orgs:
             self.import_organizations(parser, params.overwrite)
+            code = CMD_SUCCESS
         else:
             self.import_organizations(parser, params.overwrite)
             self.import_blacklist(parser)
-            self.import_identities(parser, params.matching,
-                                   params.match_new, params.verbose)
+            code = self.import_identities(parser, params.matching,
+                                          params.match_new, params.verbose)
+
+        return code
 
     def import_blacklist(self, parser):
         """Import blacklist.
@@ -223,7 +226,7 @@ class Load(Command):
                 matcher = create_identity_matcher(matching, blacklist)
             except MatcherNotSupportedError, e:
                 self.error(unicode(e))
-                return
+                return CMD_FAILURE
 
         uidentities = parser.identities
 
@@ -232,6 +235,9 @@ class Load(Command):
                                           verbose)
         except LoadError, e:
             self.error(unicode(e))
+            return CMD_FAILURE
+
+        return CMD_SUCCESS
 
     def __load_unique_identities(self, uidentities, matcher, match_new,
                                  verbose):

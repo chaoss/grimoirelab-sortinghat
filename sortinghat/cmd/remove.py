@@ -23,7 +23,7 @@
 import argparse
 
 from sortinghat import api
-from sortinghat.command import Command
+from sortinghat.command import Command, CMD_SUCCESS, CMD_FAILURE
 from sortinghat.exceptions import NotFoundError
 
 
@@ -72,7 +72,9 @@ class Remove(Command):
         identifier = params.identifier
         identity = params.identity
 
-        self.remove(identifier, identity)
+        code = self.remove(identifier, identity)
+
+        return code
 
     def remove(self, uuid_or_id, identity=False):
         """Remove an identity from the registry.
@@ -88,7 +90,7 @@ class Remove(Command):
             not a unique identity.  By default it is set to False.
         """
         if not uuid_or_id:
-            return
+            return CMD_SUCCESS
 
         try:
             if not identity:
@@ -100,3 +102,6 @@ class Remove(Command):
                          uuid_or_id=uuid_or_id, identity=identity)
         except NotFoundError, e:
             self.error(str(e))
+            return CMD_FAILURE
+
+        return CMD_SUCCESS

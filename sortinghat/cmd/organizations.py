@@ -23,7 +23,7 @@
 import argparse
 
 from sortinghat import api
-from sortinghat.command import Command
+from sortinghat.command import Command, CMD_SUCCESS, CMD_FAILURE
 from sortinghat.exceptions import AlreadyExistsError, NotFoundError
 
 
@@ -116,12 +116,14 @@ class Organizations(Command):
 
 
         if params.add:
-            self.add(organization, domain, is_top_domain, overwrite)
+            code = self.add(organization, domain, is_top_domain, overwrite)
         elif params.delete:
-            self.delete(organization, domain)
+            code = self.delete(organization, domain)
         else:
             term = organization
-            self.registry(term)
+            code = self.registry(term)
+
+        return code
 
     def add(self, organization, domain=None, is_top_domain=False, overwrite=False):
         """Add organizations and domains to the registry.
@@ -150,7 +152,7 @@ class Organizations(Command):
         """
         # Empty or None values for organizations are not allowed
         if not organization:
-            return
+            return CMD_SUCCESS
 
         if not domain:
             try:
@@ -161,6 +163,7 @@ class Organizations(Command):
                 raise RuntimeError(str(e))
             except AlreadyExistsError, e:
                 self.error(str(e))
+                return CMD_FAILURE
         else:
             try:
                 api.add_domain(self.db, organization, domain,
@@ -171,6 +174,9 @@ class Organizations(Command):
                 raise RuntimeError(str(e))
             except (AlreadyExistsError, NotFoundError), e:
                 self.error(str(e))
+                return CMD_FAILURE
+
+        return CMD_SUCCESS
 
     def delete(self, organization, domain=None):
         """Remove organizations and domains from the registry.
@@ -187,18 +193,22 @@ class Organizations(Command):
         :param domain: domain to remove from the registry
         """
         if not organization:
-            return
+            return CMD_SUCCESS
 
         if not domain:
             try:
                 api.delete_organization(self.db, organization)
             except NotFoundError, e:
                 self.error(str(e))
+                return CMD_FAILURE
         else:
             try:
                 api.delete_domain(self.db, organization, domain)
             except NotFoundError, e:
                 self.error(str(e))
+                return CMD_FAILURE
+
+        return CMD_SUCCESS
 
     def registry(self, term=None):
         """List organizations and domains.
@@ -214,3 +224,6 @@ class Organizations(Command):
             self.display('organizations.tmpl', organizations=orgs)
         except NotFoundError, e:
             self.error(str(e))
+            return CMD_FAILURE
+
+        return CMD_SUCCESS

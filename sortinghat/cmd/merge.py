@@ -23,7 +23,7 @@
 import argparse
 
 from sortinghat import api
-from sortinghat.command import Command
+from sortinghat.command import Command, CMD_SUCCESS, CMD_FAILURE
 from sortinghat.exceptions import NotFoundError
 
 
@@ -69,7 +69,9 @@ class Merge(Command):
         from_uuid = params.from_uuid
         to_uuid = params.to_uuid
 
-        self.merge(from_uuid, to_uuid)
+        code = self.merge(from_uuid, to_uuid)
+
+        return code
 
     def merge(self, from_uuid, to_uuid):
         """Merge one unique identity into another.
@@ -92,7 +94,7 @@ class Merge(Command):
             will be merged
         """
         if not from_uuid or not to_uuid:
-            return
+            return CMD_SUCCESS
 
         try:
             api.merge_unique_identities(self.db, from_uuid, to_uuid)
@@ -100,3 +102,6 @@ class Merge(Command):
                          from_uuid=from_uuid, to_uuid=to_uuid)
         except NotFoundError, e:
             self.error(str(e))
+            return CMD_FAILURE
+
+        return CMD_SUCCESS

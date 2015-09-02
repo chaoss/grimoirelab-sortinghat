@@ -29,6 +29,7 @@ if not '..' in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat import api
+from sortinghat.command import CMD_SUCCESS
 from sortinghat.cmd.export import Export,\
     SortingHatIdentitiesExporter, SortingHatOrganizationsExporter
 from sortinghat.db.database import Database
@@ -117,7 +118,7 @@ class TestBaseCase(unittest.TestCase):
                          is_bot=False, country_code='US')
 
         # Add unique identity, this one won't have neither identities
-        # nor enrollments 
+        # nor enrollments
         api.add_unique_identity(self.db,
                                 '0000000000000000000000000000000000000000')
 
@@ -143,7 +144,8 @@ class TestExportCommand(TestBaseCase):
     def test_export_identities(self):
         """Test to export identities to a file"""
 
-        self.cmd.run('--identities', self.tmpfile)
+        code = self.cmd.run('--identities', self.tmpfile)
+        self.assertEqual(code, CMD_SUCCESS)
 
         # Read results and pre-generated file to tests whether
         # both are the same. To compare, we generate a dict object
@@ -159,8 +161,9 @@ class TestExportCommand(TestBaseCase):
     def test_export_identities_source(self):
         """Check the export indentities to a file filtering by source"""
 
-        self.cmd.run('--identities', '--source', 'unknown',
-                     self.tmpfile)
+        code = self.cmd.run('--identities', '--source', 'unknown',
+                           self.tmpfile)
+        self.assertEqual(code, CMD_SUCCESS)
 
         a = self.read_json(self.tmpfile)
         b = self.read_json('data/sortinghat_identities_source.json')
@@ -173,7 +176,8 @@ class TestExportCommand(TestBaseCase):
     def test_export_organizations(self):
         """Test to export organizations to a file"""
 
-        self.cmd.run('--orgs', self.tmpfile)
+        code = self.cmd.run('--orgs', self.tmpfile)
+        self.assertEqual(code, CMD_SUCCESS)
 
         # Read results and pre-generated file to tests whether
         # both are the same. To compare, we generate a dict object
@@ -194,7 +198,8 @@ class TestExportIdentities(TestBaseCase):
         """Check the output of export_identities method"""
 
         with open(self.tmpfile, 'w') as f:
-            self.cmd.export_identities(f)
+            code = self.cmd.export_identities(f)
+            self.assertEqual(code, CMD_SUCCESS)
 
         # Read results and pre-generated file to tests whether
         # both are the same. To compare, we generate a dict object
@@ -211,7 +216,8 @@ class TestExportIdentities(TestBaseCase):
         """Check the output of export_identities method setting a source"""
 
         with open(self.tmpfile, 'w') as f:
-            self.cmd.export_identities(f, source='unknown')
+            code = self.cmd.export_identities(f, source='unknown')
+            self.assertEqual(code, CMD_SUCCESS)
 
         a = self.read_json(self.tmpfile)
         b = self.read_json('data/sortinghat_identities_source.json')
@@ -227,7 +233,8 @@ class TestExportIdentities(TestBaseCase):
         self.db.clear()
 
         with open(self.tmpfile, 'w') as f:
-            self.cmd.export_identities(f)
+            code = self.cmd.export_identities(f)
+            self.assertEqual(code, CMD_SUCCESS)
 
         a = self.read_json(self.tmpfile)
 

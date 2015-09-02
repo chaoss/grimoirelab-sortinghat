@@ -29,6 +29,7 @@ if not '..' in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat import api
+from sortinghat.command import CMD_SUCCESS, CMD_FAILURE
 from sortinghat.cmd.load import Load
 from sortinghat.db.database import Database
 from sortinghat.db.model import Country
@@ -138,7 +139,8 @@ class TestLoadCommand(TestBaseCase):
     def test_load(self):
         """Test to load identities and organizations from a file"""
 
-        self.cmd.run('data/sortinghat_valid.json')
+        code = self.cmd.run('data/sortinghat_valid.json')
+        self.assertEqual(code, CMD_SUCCESS)
 
         uids = api.unique_identities(self.db)
         self.assertEqual(len(uids), 2)
@@ -152,7 +154,8 @@ class TestLoadCommand(TestBaseCase):
     def test_load_identities(self):
         """Test to load identities from a file"""
 
-        self.cmd.run('--identities', 'data/sortinghat_valid.json')
+        code = self.cmd.run('--identities', 'data/sortinghat_valid.json')
+        self.assertEqual(code, CMD_SUCCESS)
 
         uids = api.unique_identities(self.db)
         self.assertEqual(len(uids), 2)
@@ -171,8 +174,9 @@ class TestLoadCommand(TestBaseCase):
     def test_load_identities_with_default_matching(self):
         """Test to load identities from a file using default matching"""
 
-        self.cmd.run('--identities', '--matching', 'default',
-                     'data/sortinghat_valid.json')
+        code = self.cmd.run('--identities', '--matching', 'default',
+                            'data/sortinghat_valid.json')
+        self.assertEqual(code, CMD_SUCCESS)
 
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, LOAD_IDENTITIES_OUTPUT)
@@ -183,14 +187,16 @@ class TestLoadCommand(TestBaseCase):
     def test_load_identities_invalid_file(self):
         """Test whether it prints error messages while reading invalid files"""
 
-        self.cmd.run('--identities', 'data/sortinghat_invalid.json')
+        code = self.cmd.run('--identities', 'data/sortinghat_invalid.json')
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip().split('\n')[0]
         self.assertEqual(output, LOAD_IDENTITIES_INVALID_JSON_FORMAT_ERROR)
 
     def test_load_organizations(self):
         """Test to load organizations from a file"""
 
-        self.cmd.run('--orgs', 'data/sortinghat_orgs_valid.json')
+        code = self.cmd.run('--orgs', 'data/sortinghat_orgs_valid.json')
+        self.assertEqual(code, CMD_SUCCESS)
 
         uids = api.unique_identities(self.db)
         self.assertEqual(len(uids), 0)
@@ -207,35 +213,42 @@ class TestLoadCommand(TestBaseCase):
     def test_load_organizations_overwrite(self):
         """Test to load organizations from a file with overwrite parameter set"""
 
-        self.cmd.run('--orgs', '--overwrite',
-                     'data/sortinghat_orgs_valid.json')
+        code = self.cmd.run('--orgs', '--overwrite',
+                            'data/sortinghat_orgs_valid.json')
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, LOAD_ORGS_OVERWRITE_OUTPUT)
 
     def test_invalid_format(self):
         """Check whether it prints an error when parsing invalid files"""
 
-        self.cmd.run('data/sortinghat_invalid.json')
+        code = self.cmd.run('data/sortinghat_invalid.json')
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip().split('\n')[0]
         self.assertEqual(output, LOAD_IDENTITIES_INVALID_JSON_FORMAT_ERROR)
 
-        self.cmd.run('data/sortinghat_ids_missing_keys.json')
+        code = self.cmd.run('data/sortinghat_ids_missing_keys.json')
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip().split('\n')[1]
         self.assertEqual(output, LOAD_IDENTITIES_MISSING_KEYS_ERROR)
 
-        self.cmd.run('data/sortinghat_orgs_invalid_json.json')
+        code = self.cmd.run('data/sortinghat_orgs_invalid_json.json')
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip().split('\n')[2]
         self.assertEqual(output, LOAD_ORGS_INVALID_FORMAT_ERROR)
 
-        self.cmd.run('data/sortinghat_orgs_missing_keys.json')
+        code = self.cmd.run('data/sortinghat_orgs_missing_keys.json')
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip().split('\n')[3]
         self.assertEqual(output, LOAD_ORGS_MISSING_KEYS_ERROR)
 
-        self.cmd.run('data/sortinghat_orgs_invalid_top.json')
+        code = self.cmd.run('data/sortinghat_orgs_invalid_top.json')
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip().split('\n')[4]
         self.assertEqual(output, LOAD_ORGS_IS_TOP_ERROR)
 
-        self.cmd.run('data/sortinghat_blacklist_empty_strings.json')
+        code = self.cmd.run('data/sortinghat_blacklist_empty_strings.json')
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip().split('\n')[5]
         self.assertEqual(output, LOAD_BLACKLIST_EMPTY_STRINGS_ERROR)
 
@@ -270,7 +283,8 @@ class TestLoadIdentities(TestBaseCase):
 
         parser = self.get_parser('data/sortinghat_valid.json')
 
-        self.cmd.import_identities(parser)
+        code = self.cmd.import_identities(parser)
+        self.assertEqual(code, CMD_SUCCESS)
 
         # Check the contents of the registry
         uids = api.unique_identities(self.db)
@@ -384,7 +398,8 @@ class TestLoadIdentities(TestBaseCase):
 
         parser = self.get_parser('data/sortinghat_valid.json')
 
-        self.cmd.import_identities(parser, matching='default')
+        code = self.cmd.import_identities(parser, matching='default')
+        self.assertEqual(code, CMD_SUCCESS)
 
         # Check the contents of the registry
         uids = api.unique_identities(self.db)
@@ -483,7 +498,8 @@ class TestLoadIdentities(TestBaseCase):
 
         parser = self.get_parser('data/sortinghat_valid.json')
 
-        self.cmd.import_identities(parser, matching='default')
+        code = self.cmd.import_identities(parser, matching='default')
+        self.assertEqual(code, CMD_SUCCESS)
 
         # Check the contents of the registry
         uids = api.unique_identities(self.db)
@@ -499,8 +515,9 @@ class TestLoadIdentities(TestBaseCase):
         # This file has a new identity, only Jane Roe will match.
         parser = self.get_parser('data/sortinghat_valid_updated.json')
 
-        self.cmd.import_identities(parser, matching='default',
-                                   match_new=True)
+        code = self.cmd.import_identities(parser, matching='default',
+                                          match_new=True)
+        self.assertEqual(code, CMD_SUCCESS)
 
         uids = api.unique_identities(self.db)
         self.assertEqual(len(uids), 3)
@@ -521,7 +538,8 @@ class TestLoadIdentities(TestBaseCase):
         # the identity that we inserted before will match "John Smith"
         parser = self.get_parser('data/sortinghat_valid_updated.json')
 
-        self.cmd.import_identities(parser, matching='default')
+        code = self.cmd.import_identities(parser, matching='default')
+        self.assertEqual(code, CMD_SUCCESS)
 
         uids = api.unique_identities(self.db)
         self.assertEqual(len(uids), 2)
@@ -550,7 +568,8 @@ class TestLoadIdentities(TestBaseCase):
 
         parser = self.get_parser('data/sortinghat_valid.json')
 
-        self.cmd.import_identities(parser)
+        code = self.cmd.import_identities(parser)
+        self.assertEqual(code, CMD_SUCCESS)
 
         # Check the contents of the registry
         uids = api.unique_identities(self.db)
@@ -599,7 +618,8 @@ class TestLoadIdentities(TestBaseCase):
 
         parser = self.get_parser('data/sortinghat_identities_profiles.json')
 
-        self.cmd.import_identities(parser)
+        code = self.cmd.import_identities(parser)
+        self.assertEqual(code, CMD_SUCCESS)
 
         # Check the contents of the registry
         uids = api.unique_identities(self.db)
@@ -646,7 +666,9 @@ class TestLoadIdentities(TestBaseCase):
 
         parser = self.get_parser('data/sortinghat_ids_dates_out_of_bounds.json')
 
-        self.cmd.import_identities(parser)
+        # This command returns a success value even when some data is wrong
+        code = self.cmd.import_identities(parser)
+        self.assertEqual(code, CMD_SUCCESS)
 
         # Check the contents of the registry
         uids = api.unique_identities(self.db)
@@ -676,7 +698,8 @@ class TestLoadIdentities(TestBaseCase):
 
         parser = self.get_parser('data/sortinghat_valid.json')
 
-        self.cmd.import_identities(parser, matching='mock')
+        code = self.cmd.import_identities(parser, matching='mock')
+        self.assertEqual(code, CMD_FAILURE)
 
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, LOAD_IDENTITIES_MATCHING_ERROR)

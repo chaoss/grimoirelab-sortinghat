@@ -29,6 +29,7 @@ if not '..' in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat import api
+from sortinghat.command import CMD_SUCCESS, CMD_FAILURE
 from sortinghat.cmd.enroll import Enroll
 from sortinghat.db.database import Database
 
@@ -82,11 +83,20 @@ class TestEnrollCommand(TestBaseCase):
     def test_enroll(self):
         """Check how it works when enrolling"""
 
-        self.cmd.run('John Smith', 'Example')
-        self.cmd.run('--from', '2013-01-01', '--to', '2014-01-01', 'John Doe', 'Bitergia')
-        self.cmd.run('John Smith', 'Bitergia')
-        self.cmd.run('--from', '1999-01-01 18:33:58', 'John Smith', 'Bitergia')
-        self.cmd.run('--to', '1970-01-01 01:02:03', 'John Smith', 'Example')
+        code = self.cmd.run('John Smith', 'Example')
+        self.assertEqual(code, CMD_SUCCESS)
+
+        code = self.cmd.run('--from', '2013-01-01', '--to', '2014-01-01', 'John Doe', 'Bitergia')
+        self.assertEqual(code, CMD_SUCCESS)
+
+        code = self.cmd.run('John Smith', 'Bitergia')
+        self.assertEqual(code, CMD_SUCCESS)
+
+        code = self.cmd.run('--from', '1999-01-01 18:33:58', 'John Smith', 'Bitergia')
+        self.assertEqual(code, CMD_SUCCESS)
+
+        code = self.cmd.run('--to', '1970-01-01 01:02:03', 'John Smith', 'Example')
+        self.assertEqual(code, CMD_SUCCESS)
 
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, ENROLL_EMPTY_OUTPUT)
@@ -124,8 +134,11 @@ class TestEnrollCommand(TestBaseCase):
         self.assertEqual(rol.end, datetime.datetime(2100, 1, 1))
 
         # Enroll and merge
-        self.cmd.run('--from', '2008-01-01', '--merge', 'John Doe', 'Bitergia')
-        self.cmd.run('--merge', 'John Smith', 'Example')
+        code = self.cmd.run('--from', '2008-01-01', '--merge', 'John Doe', 'Bitergia')
+        self.assertEqual(code, CMD_SUCCESS)
+
+        code = self.cmd.run('--merge', 'John Smith', 'Example')
+        self.assertEqual(code, CMD_SUCCESS)
 
         enrollments = api.enrollments(self.db)
         self.assertEqual(len(enrollments), 4)
@@ -157,23 +170,27 @@ class TestEnrollCommand(TestBaseCase):
     def test_invalid_dates(self):
         """Check whether it fails when invalid dates are given"""
 
-        self.cmd.run('--from', '1999-13-01',
-                     'John Smith', 'Example')
+        code = self.cmd.run('--from', '1999-13-01',
+                            'John Smith', 'Example')
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip('\n').split('\n')[0]
         self.assertEqual(output, ENROLL_INVALID_DATE_ERROR)
 
-        self.cmd.run('--from', 'YYZYY',
-                     'John Smith', 'Example')
+        code = self.cmd.run('--from', 'YYZYY',
+                            'John Smith', 'Example')
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip('\n').split('\n')[1]
         self.assertEqual(output, ENROLL_INVALID_FORMAT_DATE_ERROR)
 
-        self.cmd.run('--to', '1999-13-01',
-                     'John Smith', 'Example')
+        code = self.cmd.run('--to', '1999-13-01',
+                            'John Smith', 'Example')
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip('\n').split('\n')[2]
         self.assertEqual(output, ENROLL_INVALID_DATE_ERROR)
 
-        self.cmd.run('--to', 'YYZYY',
-                     'John Smith', 'Example')
+        code = self.cmd.run('--to', 'YYZYY',
+                            'John Smith', 'Example')
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip('\n').split('\n')[3]
         self.assertEqual(output, ENROLL_INVALID_FORMAT_DATE_ERROR)
 
@@ -184,18 +201,27 @@ class TestEnroll(TestBaseCase):
     def test_enroll(self):
         """Check whether everything works right when enrolling identities"""
 
-        self.cmd.enroll('John Smith', 'Example',
-                        datetime.datetime(2013, 1, 1))
-        self.cmd.enroll('John Smith', 'Example',
-                        datetime.datetime(1981, 1, 1),
-                        datetime.datetime(1995, 1, 1))
-        self.cmd.enroll('John Smith', 'Bitergia',
-                        datetime.datetime(2001, 1, 1),
-                        datetime.datetime(2010, 1, 1))
-        self.cmd.enroll('John Doe', 'Example')
-        self.cmd.enroll('John Doe', 'Bitergia',
-                        datetime.datetime(1999, 1, 1),
-                        datetime.datetime(2001, 1, 1))
+        code = self.cmd.enroll('John Smith', 'Example',
+                               datetime.datetime(2013, 1, 1))
+        self.assertEqual(code, CMD_SUCCESS)
+
+        code = self.cmd.enroll('John Smith', 'Example',
+                               datetime.datetime(1981, 1, 1),
+                               datetime.datetime(1995, 1, 1))
+        self.assertEqual(code, CMD_SUCCESS)
+
+        code = self.cmd.enroll('John Smith', 'Bitergia',
+                               datetime.datetime(2001, 1, 1),
+                               datetime.datetime(2010, 1, 1))
+        self.assertEqual(code, CMD_SUCCESS)
+
+        code = self.cmd.enroll('John Doe', 'Example')
+        self.assertEqual(code, CMD_SUCCESS)
+
+        code = self.cmd.enroll('John Doe', 'Bitergia',
+                               datetime.datetime(1999, 1, 1),
+                               datetime.datetime(2001, 1, 1))
+        self.assertEqual(code, CMD_SUCCESS)
 
         # List the registry and check the output list
         enrollments = api.enrollments(self.db)
@@ -228,19 +254,26 @@ class TestEnroll(TestBaseCase):
     def test_enroll_with_merge(self):
         """Check whether everything works right when enrolling and merging"""
 
-        self.cmd.enroll('John Smith', 'Example',
-                        datetime.datetime(2013, 1, 1))
-        self.cmd.enroll('John Smith', 'Example',
-                        datetime.datetime(1981, 1, 1),
-                        datetime.datetime(2003, 1, 1))
-        self.cmd.enroll('John Smith', 'Example',
-                        datetime.datetime(1982, 1, 1),
-                        datetime.datetime(1997, 1, 1),
-                        True)
-        self.cmd.enroll('John Smith', 'Example',
-                        datetime.datetime(1996, 1, 1),
-                        datetime.datetime(2005, 1, 1),
-                        True)
+        code = self.cmd.enroll('John Smith', 'Example',
+                               datetime.datetime(2013, 1, 1))
+        self.assertEqual(code, CMD_SUCCESS)
+
+        code = self.cmd.enroll('John Smith', 'Example',
+                               datetime.datetime(1981, 1, 1),
+                               datetime.datetime(2003, 1, 1))
+        self.assertEqual(code, CMD_SUCCESS)
+
+        code = self.cmd.enroll('John Smith', 'Example',
+                               datetime.datetime(1982, 1, 1),
+                               datetime.datetime(1997, 1, 1),
+                               True)
+        self.assertEqual(code, CMD_SUCCESS)
+
+        code = self.cmd.enroll('John Smith', 'Example',
+                               datetime.datetime(1996, 1, 1),
+                               datetime.datetime(2005, 1, 1),
+                               True)
+        self.assertEqual(code, CMD_SUCCESS)
 
         # List the registry and check the output list
         enrollments = api.enrollments(self.db)
@@ -261,23 +294,26 @@ class TestEnroll(TestBaseCase):
     def test_period_ranges(self):
         """Check whether enrollments cannot be added giving invalid period ranges"""
 
-        self.cmd.enroll('John Smith', 'Example',
-                        datetime.datetime(2001, 1, 1),
-                        datetime.datetime(1999, 1, 1))
+        code = self.cmd.enroll('John Smith', 'Example',
+                               datetime.datetime(2001, 1, 1),
+                               datetime.datetime(1999, 1, 1))
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, ENROLL_INVALID_PERIOD_ERROR)
 
     def test_non_existing_uuid(self):
         """Check if it fails adding enrollments to unique identities that do not exist"""
 
-        self.cmd.enroll('Jane Roe', 'Example')
+        code = self.cmd.enroll('Jane Roe', 'Example')
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, ENROLL_UUID_NOT_FOUND_ERROR)
 
     def test_non_existing_organization(self):
         """Check if it fails adding enrollments to organizations that do not exist"""
 
-        self.cmd.enroll('John Smith', 'LibreSoft')
+        code = self.cmd.enroll('John Smith', 'LibreSoft')
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, ENROLL_ORG_NOT_FOUND_ERROR)
 
@@ -285,17 +321,22 @@ class TestEnroll(TestBaseCase):
         """Check if it fails adding enrollment data that already exists"""
 
         # Lets try again with the same period
-        self.cmd.enroll('John Smith', 'Example',
-                        datetime.datetime(1900, 1, 1),
-                        datetime.datetime(2100, 1, 1))
-        self.cmd.enroll('John Smith', 'Example',
-                        datetime.datetime(1900, 1, 1),
-                        datetime.datetime(2100, 1, 1))
+        code1 = self.cmd.enroll('John Smith', 'Example',
+                               datetime.datetime(1900, 1, 1),
+                               datetime.datetime(2100, 1, 1))
+        self.assertEqual(code1, CMD_SUCCESS)
+
+        code2 = self.cmd.enroll('John Smith', 'Example',
+                                datetime.datetime(1900, 1, 1),
+                                datetime.datetime(2100, 1, 1))
+        self.assertEqual(code2, CMD_FAILURE)
+
         output = sys.stderr.getvalue().strip().split('\n')[0]
         self.assertEqual(output, ENROLL_EXISTING_ERROR)
 
         # Test it without giving any period
-        self.cmd.enroll('John Smith', 'Example')
+        code = self.cmd.enroll('John Smith', 'Example')
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip().split('\n')[1]
         self.assertEqual(output, ENROLL_EXISTING_ERROR)
 
@@ -303,35 +344,43 @@ class TestEnroll(TestBaseCase):
         """Check if does not fail adding enrollment data that already exists when using merge option"""
 
         # Lets try again with the same period
-        self.cmd.enroll('John Smith', 'Example',
-                        datetime.datetime(1900, 1, 1),
-                        datetime.datetime(2100, 1, 1))
-        self.cmd.enroll('John Smith', 'Example',
-                        datetime.datetime(1900, 1, 1),
-                        datetime.datetime(2100, 1, 1),
-                        True)
+        code1 = self.cmd.enroll('John Smith', 'Example',
+                                datetime.datetime(1900, 1, 1),
+                                datetime.datetime(2100, 1, 1))
+        self.assertEqual(code1, CMD_SUCCESS)
+
+        code2 = self.cmd.enroll('John Smith', 'Example',
+                                datetime.datetime(1900, 1, 1),
+                                datetime.datetime(2100, 1, 1),
+                                True)
+        self.assertEqual(code2, CMD_SUCCESS)
+
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, ENROLL_EMPTY_OUTPUT)
 
     def test_none_parameters(self):
         """Check behavior adding None parameters"""
 
-        self.cmd.enroll(None, 'Example')
+        code = self.cmd.enroll(None, 'Example')
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, ENROLL_EMPTY_OUTPUT)
 
-        self.cmd.enroll('John Smith', None)
+        code = self.cmd.enroll('John Smith', None)
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, ENROLL_EMPTY_OUTPUT)
 
     def test_empty_parameters(self):
         """Check behavior adding empty parameters"""
 
-        self.cmd.enroll('', 'Example')
+        code = self.cmd.enroll('', 'Example')
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, ENROLL_EMPTY_OUTPUT)
 
-        self.cmd.enroll('John Smith', '')
+        code = self.cmd.enroll('John Smith', '')
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, ENROLL_EMPTY_OUTPUT)
 

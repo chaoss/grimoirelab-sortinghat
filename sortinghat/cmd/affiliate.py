@@ -23,7 +23,7 @@
 import argparse
 
 from sortinghat import api
-from sortinghat.command import Command
+from sortinghat.command import Command, CMD_SUCCESS
 from sortinghat.exceptions import NotFoundError
 
 
@@ -54,7 +54,9 @@ class Affiliate(Command):
 
         self.parser.parse_args(args)
 
-        self.affiliate()
+        code = self.affiliate()
+
+        return code
 
     def affiliate(self):
         """Affiliate unique identities.
@@ -66,11 +68,9 @@ class Affiliate(Command):
             uidentities = api.unique_identities(self.db)
 
             for uid in uidentities:
-
                 uid.identities.sort(key=lambda x: x.id)
 
                 for identity in uid.identities:
-
                     # Only check email address to find new affiliations
                     if not identity.email:
                         continue
@@ -104,3 +104,5 @@ class Affiliate(Command):
                                  email=identity.email, organization=organization)
         except (NotFoundError, ValueError), e:
             raise RuntimeError(str(e))
+
+        return CMD_SUCCESS

@@ -29,6 +29,7 @@ if not '..' in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat import api
+from sortinghat.command import CMD_SUCCESS, CMD_FAILURE
 from sortinghat.cmd.init import Init
 from sortinghat.db.database import Database
 
@@ -69,7 +70,9 @@ class TestInitCommand(TestBaseCase):
     def test_init(self):
         """Check registry initialization"""
 
-        self.cmd.run(self.name)
+        code = self.cmd.run(self.name)
+        self.assertEqual(code, CMD_SUCCESS)
+
         db = Database(self.kwargs['user'], self.kwargs['password'], self.name,
                       self.kwargs['host'], self.kwargs['port'])
         self.assertIsInstance(db, Database)
@@ -88,15 +91,21 @@ class TestInitCommand(TestBaseCase):
                   'port' : '3306'}
 
         cmd = Init(**kwargs)
-        cmd.run(self.name)
+        code = cmd.run(self.name)
+        self.assertEqual(code, CMD_FAILURE)
+
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, DB_ACCESS_ERROR % {'user' : 'nouser'})
 
     def test_existing_db_error(self):
         """Check if it returns an error when tries to create the registry twice"""
 
-        self.cmd.run(self.name)
-        self.cmd.run(self.name)
+        code1 = self.cmd.run(self.name)
+        self.assertEqual(code1, CMD_SUCCESS)
+
+        code2 = self.cmd.run(self.name)
+        self.assertEqual(code2, CMD_FAILURE)
+
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, DB_EXISTS_ERROR % {'database' : self.name})
 
@@ -107,7 +116,9 @@ class TestInitialize(TestBaseCase):
     def test_initialize(self):
         """Check registry initialization"""
 
-        self.cmd.initialize(self.name)
+        code = self.cmd.initialize(self.name)
+        self.assertEqual(code, CMD_SUCCESS)
+
         db = Database(self.kwargs['user'], self.kwargs['password'], self.name,
                       self.kwargs['host'], self.kwargs['port'])
         self.assertIsInstance(db, Database)
@@ -126,15 +137,20 @@ class TestInitialize(TestBaseCase):
                   'port' : '3306'}
 
         cmd = Init(**kwargs)
-        cmd.initialize(self.name)
+        code = cmd.initialize(self.name)
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, DB_ACCESS_ERROR % {'user' : 'nouser'})
 
     def test_existing_db_error(self):
         """Check if it returns an error when tries to create the registry twice"""
 
-        self.cmd.initialize(self.name)
-        self.cmd.initialize(self.name)
+        code1 = self.cmd.initialize(self.name)
+        self.assertEqual(code1, CMD_SUCCESS)
+
+        code2 = self.cmd.initialize(self.name)
+        self.assertEqual(code2, CMD_FAILURE)
+
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, DB_EXISTS_ERROR % {'database' : self.name})
 

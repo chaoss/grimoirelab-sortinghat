@@ -28,6 +28,7 @@ if not '..' in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat import api
+from sortinghat.command import CMD_SUCCESS, CMD_FAILURE
 from sortinghat.cmd.add import Add
 from sortinghat.db.database import Database
 
@@ -136,8 +137,9 @@ class TestAddCommand(TestBaseCase):
 
         # Assign to John Smith - 03e12d00e37fd45593c49a5a5a1652deca4cf302
         # unique identity
-        self.cmd.run('--email', 'jsmith@example.com', '--source', 'mls',
-                     '--uuid', '03e12d00e37fd45593c49a5a5a1652deca4cf302')
+        code = self.cmd.run('--email', 'jsmith@example.com', '--source', 'mls',
+                            '--uuid', '03e12d00e37fd45593c49a5a5a1652deca4cf302')
+        self.assertEqual(code, CMD_SUCCESS)
 
         # Check output
         output = sys.stdout.getvalue().strip()
@@ -146,12 +148,14 @@ class TestAddCommand(TestBaseCase):
     def test_add_with_matching(self):
         """Check how it works when using matching methods"""
 
-        self.cmd.run('--email', 'jsmith@example.com', '--source', 'mls',
-                     '--matching', 'default')
+        code = self.cmd.run('--email', 'jsmith@example.com', '--source', 'mls',
+                            '--matching', 'default')
+        self.assertEqual(code, CMD_SUCCESS)
 
         # Check output
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, ADD_OUTPUT_MATCHING)
+
 
 class TestAdd(TestBaseCase):
     """Unit tests for add"""
@@ -164,8 +168,9 @@ class TestAdd(TestBaseCase):
         self.cmd.add('unknown', 'jroe@example.com')
 
         # Add this identity to 'Jonh Smith' - 03e12d00e37fd45593c49a5a5a1652deca4cf302
-        self.cmd.add('mls', email='jsmith@example.com',
-                     uuid='03e12d00e37fd45593c49a5a5a1652deca4cf302')
+        code = self.cmd.add('mls', email='jsmith@example.com',
+                            uuid='03e12d00e37fd45593c49a5a5a1652deca4cf302')
+        self.assertEqual(code, CMD_SUCCESS)
 
         # Check output first
         output = sys.stdout.getvalue().strip()
@@ -174,43 +179,51 @@ class TestAdd(TestBaseCase):
     def test_non_existing_uuid(self):
         """Check if it fails adding identities to unique identities that do not exist"""
 
-        self.cmd.add('scm', email='jroe@example.com', uuid='FFFFFFFFFFFFFFF')
+        code = self.cmd.add('scm', email='jroe@example.com', uuid='FFFFFFFFFFFFFFF')
+        self.assertEqual(code, CMD_FAILURE)
+
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, ADD_UUID_NOT_FOUND_ERROR)
 
     def test_existing_identity(self):
         """Check if it fails adding an identity that already exists"""
 
-        self.cmd.add('scm', 'jsmith@example.com', 'John Smith', 'jsmith')
+        code = self.cmd.add('scm', 'jsmith@example.com', 'John Smith', 'jsmith')
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, ADD_EXISTING_ERROR)
 
     def test_none_or_empty_source(self):
         """Check whether new identities cannot be added when giving a None or empty source"""
 
-        self.cmd.add(None)
+        code = self.cmd.add(None)
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip().split('\n')[0]
         self.assertEqual(output, ADD_SOURCE_NONE_ERROR)
 
-        self.cmd.add('')
+        code = self.cmd.add('')
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip().split('\n')[1]
         self.assertEqual(output, ADD_SOURCE_EMPTY_ERROR)
 
     def test_none_or_empty_data(self):
         """Check whether new identities cannot be added when identity data is None or empty"""
 
-        self.cmd.add('scm', None, '', None)
+        code = self.cmd.add('scm', None, '', None)
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip().split('\n')[0]
         self.assertEqual(output, ADD_IDENTITY_NONE_OR_EMPTY_ERROR)
 
-        self.cmd.add('scm', '', '', '')
+        code = self.cmd.add('scm', '', '', '')
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip().split('\n')[1]
         self.assertEqual(output, ADD_IDENTITY_NONE_OR_EMPTY_ERROR)
 
     def test_invalid_matching_method(self):
         """Check if it fails when an invalid matching method is given"""
 
-        self.cmd.add('scm', 'jsmith@example.com', matching='mock')
+        code = self.cmd.add('scm', 'jsmith@example.com', matching='mock')
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, ADD_MATCHING_ERROR)
 
@@ -218,7 +231,8 @@ class TestAdd(TestBaseCase):
         """Check whether new identities are merged using the default matching method"""
 
         # Add this identity to 'Jonh Smith' and merge
-        self.cmd.add('mls', email='jsmith@example.com', matching='default')
+        code = self.cmd.add('mls', email='jsmith@example.com', matching='default')
+        self.assertEqual(code, CMD_SUCCESS)
 
         # Check output
         output = sys.stdout.getvalue().strip()
@@ -232,14 +246,17 @@ class TestAdd(TestBaseCase):
         api.add_to_matching_blacklist(self.db, 'jrae@example.com')
 
         # Add this identity to 'Jonh Smith' and merge
-        self.cmd.add('unknown', name='John Smith', email='jsmith@example.com',
-                     matching='default')
+        code = self.cmd.add('unknown', name='John Smith', email='jsmith@example.com',
+                            matching='default')
+        self.assertEqual(code, CMD_SUCCESS)
 
         # These two will not match due to the blacklist
-        self.cmd.add('scm', name='Jane Rae', email='jrae@example.com',
-                     matching='default')
-        self.cmd.add('mls', name='Jane Rae', email='jrae@example.com',
-                     matching='default')
+        code1 = self.cmd.add('scm', name='Jane Rae', email='jrae@example.com',
+                            matching='default')
+        code2 = self.cmd.add('mls', name='Jane Rae', email='jrae@example.com',
+                            matching='default')
+        self.assertEqual(code1, CMD_SUCCESS)
+        self.assertEqual(code2, CMD_SUCCESS)
 
         # Check output
         output = sys.stdout.getvalue().strip()

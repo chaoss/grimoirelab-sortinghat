@@ -28,6 +28,7 @@ if not '..' in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat import api
+from sortinghat.command import CMD_SUCCESS
 from sortinghat.cmd.affiliate import Affiliate
 from sortinghat.db.database import Database
 
@@ -114,7 +115,9 @@ class TestAffiliateCommand(TestBaseCase):
     def test_affiliate(self):
         """Check affiliate output"""
 
-        self.cmd.run()
+        code = self.cmd.run()
+        self.assertEqual(code, CMD_SUCCESS)
+
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, AFFILIATE_OUTPUT)
 
@@ -123,7 +126,8 @@ class TestAffiliateCommand(TestBaseCase):
 
         api.add_identity(self.db, 'scm', 'janedoe@it.u.example.com')
 
-        self.cmd.run()
+        code = self.cmd.run()
+        self.assertEqual(code, CMD_SUCCESS)
 
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, AFFILIATE_OUTPUT_ALT)
@@ -139,7 +143,9 @@ class TestAffiliateCommand(TestBaseCase):
         # Delete the contents of the database
         self.db.clear()
 
-        self.cmd.run()
+        code = self.cmd.run()
+        self.assertEqual(code, CMD_SUCCESS)
+
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, AFFILIATE_EMPTY_OUTPUT)
 
@@ -150,7 +156,9 @@ class TestAffiliate(TestBaseCase):
     def test_affiliate(self):
         """Check affiliation"""
 
-        self.cmd.affiliate()
+        code = self.cmd.affiliate()
+        self.assertEqual(code, CMD_SUCCESS)
+
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, AFFILIATE_OUTPUT)
 
@@ -159,7 +167,8 @@ class TestAffiliate(TestBaseCase):
 
         api.add_identity(self.db, 'scm', 'janedoe@it.u.example.com')
 
-        self.cmd.affiliate()
+        code = self.cmd.affiliate()
+        self.assertEqual(code, CMD_SUCCESS)
 
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, AFFILIATE_OUTPUT_ALT)
@@ -175,7 +184,9 @@ class TestAffiliate(TestBaseCase):
         # Delete the contents of the database
         self.db.clear()
 
-        self.cmd.affiliate()
+        code = self.cmd.affiliate()
+        self.assertEqual(code, CMD_SUCCESS)
+
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, AFFILIATE_EMPTY_OUTPUT)
 

@@ -23,7 +23,7 @@
 import argparse
 
 from sortinghat import api
-from sortinghat.command import Command
+from sortinghat.command import Command, CMD_SUCCESS, CMD_FAILURE
 from sortinghat.exceptions import MatcherNotSupportedError
 from sortinghat.matcher import create_identity_matcher, match
 from sortinghat.matching import SORTINGHAT_IDENTITIES_MATCHERS
@@ -68,7 +68,9 @@ class Unify(Command):
 
         params = self.parser.parse_args(args)
 
-        self.unify(params.matching, params.interactive)
+        code = self.unify(params.matching, params.interactive)
+
+        return code
 
     def unify(self, matching=None, interactive=False):
         """Merge unique identities using a matching algorithm.
@@ -96,7 +98,7 @@ class Unify(Command):
             matcher = create_identity_matcher(matching, blacklist)
         except MatcherNotSupportedError, e:
             self.error(str(e))
-            return
+            return CMD_FAILURE
 
         uidentities = api.unique_identities(self.db)
 
@@ -107,6 +109,8 @@ class Unify(Command):
         except Exception, e:
             self.__display_stats()
             raise RuntimeError(unicode(e))
+
+        return CMD_SUCCESS
 
     def __unify_unique_identities(self, uidentities, matcher, interactive):
         """Unify unique identities looking for similar identities."""

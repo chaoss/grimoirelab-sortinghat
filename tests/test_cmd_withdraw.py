@@ -29,6 +29,7 @@ if not '..' in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat import api
+from sortinghat.command import CMD_SUCCESS, CMD_FAILURE
 from sortinghat.cmd.withdraw import Withdraw
 from sortinghat.db.database import Database
 
@@ -99,8 +100,11 @@ class TestWithdrawCommand(TestBaseCase):
         """Check withdraw command"""
 
         # Remove some enrollments giving partial periods
-        self.cmd.run('--from', '1970-01-01 21:00:00', 'John Smith', 'Example')
-        self.cmd.run('--to', '2010-01-01', 'John Doe', 'Example')
+        code = self.cmd.run('--from', '1970-01-01 21:00:00', 'John Smith', 'Example')
+        self.assertEqual(code, CMD_SUCCESS)
+
+        code = self.cmd.run('--to', '2010-01-01', 'John Doe', 'Example')
+        self.assertEqual(code, CMD_SUCCESS)
 
         # Check the output list
         enrollments = api.enrollments(self.db)
@@ -117,7 +121,8 @@ class TestWithdrawCommand(TestBaseCase):
         self.assertEqual(rol.end, datetime.datetime(2100, 1, 1))
 
         # Remove using a period range
-        self.cmd.run('--from', '1900-01-01', '--to', '2100-01-01', 'John Smith', 'Example')
+        code = self.cmd.run('--from', '1900-01-01', '--to', '2100-01-01', 'John Smith', 'Example')
+        self.assertEqual(code, CMD_SUCCESS)
 
         enrollments = api.enrollments(self.db)
         self.assertEqual(len(enrollments), 1)
@@ -127,7 +132,8 @@ class TestWithdrawCommand(TestBaseCase):
         self.assertEqual(rol.organization.name, 'Bitergia')
 
         # Remove without using ranges
-        self.cmd.run('John Doe', 'Bitergia')
+        code = self.cmd.run('John Doe', 'Bitergia')
+        self.assertEqual(code, CMD_SUCCESS)
 
         enrollments = api.enrollments(self.db)
         self.assertEqual(len(enrollments), 0)
@@ -139,23 +145,27 @@ class TestWithdrawCommand(TestBaseCase):
     def test_invalid_dates(self):
         """Check whether it fails when invalid dates are given"""
 
-        self.cmd.run('--from', '1999-13-01',
-                     'John Smith', 'Example')
+        code = self.cmd.run('--from', '1999-13-01',
+                            'John Smith', 'Example')
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip('\n').split('\n')[0]
         self.assertEqual(output, WITHDRAW_INVALID_DATE_ERROR)
 
-        self.cmd.run('--from', 'YYZYY',
-                     'John Smith', 'Example')
+        code = self.cmd.run('--from', 'YYZYY',
+                            'John Smith', 'Example')
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip('\n').split('\n')[1]
         self.assertEqual(output, WITHDRAW_INVALID_FORMAT_DATE_ERROR)
 
-        self.cmd.run('--to', '1999-13-01',
-                     'John Smith', 'Example')
+        code = self.cmd.run('--to', '1999-13-01',
+                            'John Smith', 'Example')
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip('\n').split('\n')[2]
         self.assertEqual(output, WITHDRAW_INVALID_DATE_ERROR)
 
-        self.cmd.run('--to', 'YYZYY',
-                     'John Smith', 'Example')
+        code = self.cmd.run('--to', 'YYZYY',
+                            'John Smith', 'Example')
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip('\n').split('\n')[3]
         self.assertEqual(output, WITHDRAW_INVALID_FORMAT_DATE_ERROR)
 
@@ -168,9 +178,10 @@ class TestWithdraw(TestBaseCase):
 
         # This should delete two enrolmments: 1981-1990 and 1991-1993
         # but not the one from 1999-2010 nor 1900-2100
-        self.cmd.withdraw('John Smith', 'Example',
-                          datetime.datetime(1970, 1, 1),
-                          datetime.datetime(1995, 1, 1))
+        code = self.cmd.withdraw('John Smith', 'Example',
+                                 datetime.datetime(1970, 1, 1),
+                                 datetime.datetime(1995, 1, 1))
+        self.assertEqual(code, CMD_SUCCESS)
 
         # List the registry and check the output list
         enrollments = api.enrollments(self.db)
@@ -197,12 +208,14 @@ class TestWithdraw(TestBaseCase):
         self.assertEqual(rol.end, datetime.datetime(2010, 1, 1))
 
         # Remove enrollments from John Doe
-        self.cmd.withdraw('John Doe', 'Bitergia')
+        code = self.cmd.withdraw('John Doe', 'Bitergia')
+        self.assertEqual(code, CMD_SUCCESS)
 
         enrollments = api.enrollments(self.db)
         self.assertEqual(len(enrollments), 3)
 
-        self.cmd.withdraw('John Doe', 'Example')
+        code = self.cmd.withdraw('John Doe', 'Example')
+        self.assertEqual(code, CMD_SUCCESS)
 
         enrollments = api.enrollments(self.db)
         self.assertEqual(len(enrollments), 2)
@@ -218,23 +231,26 @@ class TestWithdraw(TestBaseCase):
     def test_period_ranges(self):
         """Check whether enrollments cannot be removed giving invalid period ranges"""
 
-        self.cmd.withdraw('John Smith', 'Example',
-                          datetime.datetime(2001, 1, 1),
-                          datetime.datetime(1999, 1, 1))
+        code = self.cmd.withdraw('John Smith', 'Example',
+                                 datetime.datetime(2001, 1, 1),
+                                 datetime.datetime(1999, 1, 1))
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, WITHDRAW_INVALID_PERIOD_ERROR)
 
     def test_non_existing_uuid(self):
         """Check if it fails removing enrollments from unique identities that do not exist"""
 
-        self.cmd.withdraw('Jane Roe', 'Example')
+        code = self.cmd.withdraw('Jane Roe', 'Example')
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, WITHDRAW_UUID_NOT_FOUND_ERROR)
 
     def test_non_existing_organization(self):
         """Check if it fails removing enrollments from organizations that do not exist"""
 
-        self.cmd.withdraw('John Smith', 'LibreSoft')
+        code = self.cmd.withdraw('John Smith', 'LibreSoft')
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, WITHDRAW_ORG_NOT_FOUND_ERROR)
 
@@ -242,31 +258,36 @@ class TestWithdraw(TestBaseCase):
         """Check if it fails removing enrollment data that does not exist"""
 
         # Lets try again with the same period
-        self.cmd.withdraw('John Doe', 'Bitergia',
-                          datetime.datetime(2050, 1, 1),
-                          datetime.datetime(2070, 1, 1))
+        code = self.cmd.withdraw('John Doe', 'Bitergia',
+                                 datetime.datetime(2050, 1, 1),
+                                 datetime.datetime(2070, 1, 1))
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, WITHDRAW_ENROLLMENT_NOT_FOUND_ERROR)
 
     def test_none_parameters(self):
         """Check behavior removing with None parameters"""
 
-        self.cmd.withdraw(None, 'Example')
+        code = self.cmd.withdraw(None, 'Example')
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, WITHDRAW_EMPTY_OUTPUT)
 
-        self.cmd.withdraw('John Smith', None)
+        code = self.cmd.withdraw('John Smith', None)
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, WITHDRAW_EMPTY_OUTPUT)
 
     def test_empty_parameters(self):
         """Check behavior removing with empty parameters"""
 
-        self.cmd.withdraw('', 'Example')
+        code = self.cmd.withdraw('', 'Example')
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, WITHDRAW_EMPTY_OUTPUT)
 
-        self.cmd.withdraw('John Smith', '')
+        code = self.cmd.withdraw('John Smith', '')
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, WITHDRAW_EMPTY_OUTPUT)
 

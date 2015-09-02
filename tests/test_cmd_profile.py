@@ -28,6 +28,7 @@ if not '..' in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat import api
+from sortinghat.command import CMD_SUCCESS, CMD_FAILURE
 from sortinghat.cmd.profile import Profile
 from sortinghat.db.database import Database
 from sortinghat.db.model import Country
@@ -104,33 +105,38 @@ class TestProfileCommand(TestBaseCase):
     def test_profile(self):
         """Check profile output"""
 
-        self.cmd.run('52e0aa0a14826627e633fd15332988686b730ab3',
-                     '--name', 'Jane Roe', '--email', 'jroe@example.com',
-                     '--bot', '--country', 'US')
+        code = self.cmd.run('52e0aa0a14826627e633fd15332988686b730ab3',
+                            '--name', 'Jane Roe', '--email', 'jroe@example.com',
+                            '--bot', '--country', 'US')
+        self.assertEqual(code, CMD_SUCCESS)
 
-        self.cmd.run('52e0aa0a14826627e633fd15332988686b730ab3',
-                     '--no-bot')
+        code = self.cmd.run('52e0aa0a14826627e633fd15332988686b730ab3',
+                            '--no-bot')
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, PROFILE_OUTPUT)
 
     def test_profile_uuid(self):
         """Check profile output using a uuid"""
 
-        self.cmd.run('52e0aa0a14826627e633fd15332988686b730ab3')
+        code = self.cmd.run('52e0aa0a14826627e633fd15332988686b730ab3')
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, PROFILE_UUID_OUTPUT)
 
     def test_not_found_uuid(self):
         """Check whether it raises an error when the uiid is not available"""
 
-        self.cmd.run('FFFFFFFFFFFFFFF')
+        code = self.cmd.run('FFFFFFFFFFFFFFF')
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, PROFILE_UUID_NOT_FOUND_ERROR)
 
     def test_not_found_country(self):
         """Check whether it raises an error when the code country is not available"""
 
-        self.cmd.run('52e0aa0a14826627e633fd15332988686b730ab3', '--country', 'ES')
+        code = self.cmd.run('52e0aa0a14826627e633fd15332988686b730ab3', '--country', 'ES')
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, PROFILE_COUNTRY_NOT_FOUND_ERROR)
 

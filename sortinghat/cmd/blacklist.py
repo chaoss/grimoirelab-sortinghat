@@ -23,7 +23,7 @@
 import argparse
 
 from sortinghat import api
-from sortinghat.command import Command
+from sortinghat.command import Command, CMD_SUCCESS, CMD_FAILURE
 from sortinghat.exceptions import AlreadyExistsError, NotFoundError
 
 
@@ -83,12 +83,14 @@ class Blacklist(Command):
         entry = params.entry
 
         if params.add:
-            self.add(entry)
+            code = self.add(entry)
         elif params.delete:
-            self.delete(entry)
+            code = self.delete(entry)
         else:
             term = entry
-            self.blacklist(term)
+            code = self.blacklist(term)
+
+        return code
 
     def add(self, entry):
         """Add entries to the blacklist.
@@ -99,7 +101,7 @@ class Blacklist(Command):
         """
         # Empty or None values for organizations are not allowed
         if not entry:
-            return
+            return CMD_SUCCESS
 
         try:
             api.add_to_matching_blacklist(self.db, entry)
@@ -109,6 +111,9 @@ class Blacklist(Command):
             raise RuntimeError(str(e))
         except AlreadyExistsError, e:
             self.error(str(e))
+            return CMD_FAILURE
+
+        return CMD_SUCCESS
 
     def delete(self, entry):
         """Remove entries from the blacklist.
@@ -118,12 +123,15 @@ class Blacklist(Command):
         :param entry: entry to remove from the blacklist
         """
         if not entry:
-            return
+            return CMD_SUCCESS
 
         try:
             api.delete_from_matching_blacklist(self.db, entry)
         except NotFoundError, e:
             self.error(str(e))
+            return CMD_FAILURE
+
+        return CMD_SUCCESS
 
     def blacklist(self, term=None):
         """List blacklisted entries.
@@ -139,3 +147,6 @@ class Blacklist(Command):
             self.display('blacklist.tmpl', blacklist=bl)
         except NotFoundError, e:
             self.error(str(e))
+            return CMD_FAILURE
+
+        return CMD_SUCCESS

@@ -27,6 +27,9 @@ import jinja2
 from sortinghat.exceptions import DatabaseError
 from sortinghat.db.database import Database
 
+CMD_SUCCESS = 0
+CMD_FAILURE = 1
+
 
 class Command(object):
     """Abstract class to run commands"""

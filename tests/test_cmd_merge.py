@@ -29,6 +29,7 @@ if not '..' in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat import api
+from sortinghat.command import CMD_SUCCESS, CMD_FAILURE
 from sortinghat.cmd.merge import Merge
 from sortinghat.db.database import Database
 from sortinghat.db.model import Country
@@ -108,7 +109,8 @@ class TestMergeCommand(TestBaseCase):
         """Check how it works when merging unique identities"""
 
         # Remove an identity
-        self.cmd.run('John Doe', 'John Smith')
+        code = self.cmd.run('John Doe', 'John Smith')
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, MERGE_OUTPUT)
 
@@ -119,26 +121,32 @@ class TestMerge(TestBaseCase):
     def test_merge(self):
         """Check behaviour merging two unique identities"""
 
-        self.cmd.merge('John Doe', 'John Smith')
+        code = self.cmd.merge('John Doe', 'John Smith')
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, MERGE_OUTPUT)
 
     def test_non_existing_unique_identities(self):
         """Check if it fails merging unique identities that do not exist"""
 
-        self.cmd.merge('Jane Rae', 'John Smith')
+        code = self.cmd.merge('Jane Rae', 'John Smith')
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip().split('\n')[0]
         self.assertEqual(output, MERGE_FROM_UUID_NOT_FOUND_ERROR)
 
-        self.cmd.merge('John Smith', 'Jane Doe')
+        code = self.cmd.merge('John Smith', 'Jane Doe')
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip().split('\n')[1]
         self.assertEqual(output, MERGE_TO_UUID_NOT_FOUND_ERROR)
 
     def test_none_uuids(self):
         """Check behavior merging None uuids"""
 
-        self.cmd.merge(None, 'John Smith')
-        self.cmd.merge('John Smith', None)
+        code = self.cmd.merge(None, 'John Smith')
+        self.assertEqual(code, CMD_SUCCESS)
+
+        code = self.cmd.merge('John Smith', None)
+        self.assertEqual(code, CMD_SUCCESS)
 
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, MERGE_EMPTY_OUTPUT)
@@ -149,8 +157,11 @@ class TestMerge(TestBaseCase):
     def test_empty_uuids(self):
         """Check behavior merging empty uuids"""
 
-        self.cmd.merge('', 'John Smith')
-        self.cmd.merge('John Smith', '')
+        code = self.cmd.merge('', 'John Smith')
+        self.assertEqual(code, CMD_SUCCESS)
+
+        code = self.cmd.merge('John Smith', '')
+        self.assertEqual(code, CMD_SUCCESS)
 
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, MERGE_EMPTY_OUTPUT)

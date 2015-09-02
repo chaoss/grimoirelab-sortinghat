@@ -23,7 +23,7 @@
 import argparse
 
 from sortinghat import api
-from sortinghat.command import Command
+from sortinghat.command import Command, CMD_SUCCESS, CMD_FAILURE
 from sortinghat.exceptions import NotFoundError
 
 
@@ -69,7 +69,9 @@ class Show(Command):
 
         params = self.parser.parse_args(args)
 
-        self.show(params.uuid, params.term)
+        code = self.show(params.uuid, params.term)
+
+        return code
 
     def show(self, uuid=None, term=None):
         """Show the information related to unique identities.
@@ -104,3 +106,6 @@ class Show(Command):
             self.display('show.tmpl', uidentities=uidentities)
         except NotFoundError, e:
             self.error(str(e))
+            return CMD_FAILURE
+
+        return CMD_SUCCESS

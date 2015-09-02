@@ -30,6 +30,7 @@ import unittest
 if not '..' in sys.path:
     sys.path.insert(0, '..')
 
+from sortinghat.command import CMD_SUCCESS
 from sortinghat.cmd.config import Config
 
 
@@ -124,8 +125,11 @@ class TestSetConfig(unittest.TestCase):
         self.assertEqual(config.get('db', 'database'), 'testdb')
 
         # Set the new values
-        self.cmd.set('db.user', 'jsmith', filepath)
-        self.cmd.set('db.database', 'mydb', filepath)
+        retcode = self.cmd.set('db.user', 'jsmith', filepath)
+        self.assertEqual(retcode, CMD_SUCCESS)
+
+        retcode = self.cmd.set('db.database', 'mydb', filepath)
+        self.assertEqual(retcode, CMD_SUCCESS)
 
         # Check the new values
         config.read(filepath)
@@ -201,15 +205,18 @@ class TestGetConfig(unittest.TestCase):
     def test_get_value(self):
         """Test get method"""
 
-        self.cmd.get('db.user', MOCK_CONFIG_FILE)
+        code = self.cmd.get('db.user', MOCK_CONFIG_FILE)
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip().split('\n')[0]
         self.assertEqual(output, 'db.user root')
 
-        self.cmd.get('db.password', MOCK_CONFIG_FILE)
+        code = self.cmd.get('db.password', MOCK_CONFIG_FILE)
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip().split('\n')[1]
         self.assertEqual(output, 'db.password ****')
 
-        self.cmd.get('db.database', MOCK_CONFIG_FILE)
+        code = self.cmd.get('db.database', MOCK_CONFIG_FILE)
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip().split('\n')[2]
         self.assertEqual(output, 'db.database testdb')
 

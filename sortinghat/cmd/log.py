@@ -23,7 +23,7 @@
 import argparse
 
 from sortinghat import api, utils
-from sortinghat.command import Command
+from sortinghat.command import Command, CMD_SUCCESS, CMD_FAILURE
 from sortinghat.exceptions import InvalidDateError, NotFoundError
 
 
@@ -79,9 +79,12 @@ class Log(Command):
             from_date = utils.str_to_datetime(params.from_date)
             to_date = utils.str_to_datetime(params.to_date)
 
-            self.log(uuid, organization, from_date, to_date)
+            code = self.log(uuid, organization, from_date, to_date)
         except InvalidDateError, e:
             self.error(str(e))
+            return CMD_FAILURE
+
+        return code
 
     def log(self, uuid=None, organization=None, from_date=None, to_date=None):
         """"List enrollment information available in the registry.
@@ -110,3 +113,6 @@ class Log(Command):
             self.display('log.tmpl', enrollments=enrollments)
         except (NotFoundError, ValueError), e:
             self.error(str(e))
+            return CMD_FAILURE
+
+        return CMD_SUCCESS

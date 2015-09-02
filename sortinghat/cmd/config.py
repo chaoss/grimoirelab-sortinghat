@@ -24,7 +24,7 @@ import argparse
 import ConfigParser
 import os.path
 
-from sortinghat.command import Command
+from sortinghat.command import Command, CMD_SUCCESS
 
 
 class Config(Command):
@@ -85,11 +85,13 @@ class Config(Command):
         config_file = os.path.expanduser('~/.sortinghat')
 
         if params.action == 'get':
-            self.get(params.parameter, config_file)
+            code = self.get(params.parameter, config_file)
         elif params.action == 'set':
-            self.set(params.parameter, params.value, config_file)
+            code = self.set(params.parameter, params.value, config_file)
         else:
             raise RuntimeError("Not get or set action given")
+
+        return code
 
     def get(self, key, filepath):
         """Get configuration parameter.
@@ -120,6 +122,8 @@ class Config(Command):
             self.display('config.tmpl', key=key, option=option)
         except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
             pass
+
+        return CMD_SUCCESS
 
     def set(self, key, value, filepath):
         """Set configuration parameter.
@@ -159,6 +163,8 @@ class Config(Command):
         except IOError, e:
             raise RuntimeError(str(e))
 
+        return CMD_SUCCESS
+
     def __check_config_key(self, key):
         """Check whether the key is valid.
 
@@ -177,4 +183,3 @@ class Config(Command):
 
         return section in Config.CONFIG_OPTIONS and\
             option in Config.CONFIG_OPTIONS[section]
-

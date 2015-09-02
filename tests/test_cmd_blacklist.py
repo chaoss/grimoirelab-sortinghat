@@ -28,6 +28,7 @@ if not '..' in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat import api
+from sortinghat.command import CMD_SUCCESS, CMD_FAILURE
 from sortinghat.cmd.blacklist import Blacklist
 from sortinghat.db.database import Database
 from sortinghat.exceptions import NotFoundError
@@ -84,7 +85,8 @@ class TestBlacklistCommand(unittest.TestCase):
 
         self.__load_test_dataset()
 
-        self.cmd.run()
+        code = self.cmd.run()
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, BLACKLIST_OUTPUT)
 
@@ -93,7 +95,8 @@ class TestBlacklistCommand(unittest.TestCase):
 
         self.__load_test_dataset()
 
-        self.cmd.run('-l')
+        code = self.cmd.run('-l')
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, BLACKLIST_OUTPUT)
 
@@ -102,28 +105,42 @@ class TestBlacklistCommand(unittest.TestCase):
 
         self.__load_test_dataset()
 
-        self.cmd.run('--list', 'ohn')
+        code = self.cmd.run('--list', 'ohn')
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, BLACKLIST_OUTPUT_JOHN)
 
     def test_add_with_args(self):
         """Test add action"""
 
-        self.cmd.run('--add', 'John Smith')
-        self.cmd.run('-a', 'Bitergia')
-        self.cmd.run('--add', 'John Doe')
-        self.cmd.run('-a', 'root@example.com')
+        code = self.cmd.run('--add', 'John Smith')
+        self.assertEqual(code, CMD_SUCCESS)
 
-        self.cmd.run('--list')
+        code = self.cmd.run('-a', 'Bitergia')
+        self.assertEqual(code, CMD_SUCCESS)
+
+        code = self.cmd.run('--add', 'John Doe')
+        self.assertEqual(code, CMD_SUCCESS)
+
+        code = self.cmd.run('-a', 'root@example.com')
+        self.assertEqual(code, CMD_SUCCESS)
+
+        code = self.cmd.run('--list')
+        self.assertEqual(code, CMD_SUCCESS)
+
+        # Check output
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, BLACKLIST_OUTPUT)
 
     def test_add_without_args(self):
         """Check when calling --add without args, it does not do anything"""
 
-        self.cmd.run('--add')
+        code = self.cmd.run('--add')
+        self.assertEqual(code, CMD_SUCCESS)
 
-        self.cmd.run('-l')
+        code = self.cmd.run('-l')
+        self.assertEqual(code, CMD_SUCCESS)
+
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, BLACKLIST_EMPTY_OUTPUT)
 
@@ -133,10 +150,16 @@ class TestBlacklistCommand(unittest.TestCase):
         self.__load_test_dataset()
 
         # Delete contents
-        self.cmd.run('--delete', 'Bitergia')
-        self.cmd.run('-d', 'John Doe')
+        code = self.cmd.run('--delete', 'Bitergia')
+        self.assertEqual(code, CMD_SUCCESS)
 
-        self.cmd.run('--list')
+        code = self.cmd.run('-d', 'John Doe')
+        self.assertEqual(code, CMD_SUCCESS)
+
+        code = self.cmd.run('--list')
+        self.assertEqual(code, CMD_SUCCESS)
+
+        # Check output
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, BLACKLIST_OUTPUT_ALT)
 
@@ -145,9 +168,13 @@ class TestBlacklistCommand(unittest.TestCase):
 
         self.__load_test_dataset()
 
-        self.cmd.run('--delete')
+        code = self.cmd.run('--delete')
+        self.assertEqual(code, CMD_SUCCESS)
 
-        self.cmd.run('-l')
+        code = self.cmd.run('-l')
+        self.assertEqual(code, CMD_SUCCESS)
+
+        # Check output
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, BLACKLIST_OUTPUT)
 
@@ -208,22 +235,29 @@ class TestAdd(unittest.TestCase):
         self.cmd.add('John Doe')
 
         # List the registry and check the output
-        self.cmd.blacklist()
+        code = self.cmd.blacklist()
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, BLACKLIST_OUTPUT)
 
     def test_existing_entry(self):
         """Check if it fails adding an entry that already exists"""
 
-        self.cmd.add('root@example.com')
-        self.cmd.add('root@example.com')
+        code = self.cmd.add('root@example.com')
+        self.assertEqual(code, CMD_SUCCESS)
+
+        code = self.cmd.add('root@example.com')
+        self.assertEqual(code, CMD_FAILURE)
+
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, BLACKLIST_ALREADY_EXISTS_ERROR)
 
     def test_none_entry(self):
         """Check behavior adding None entries"""
 
-        self.cmd.add(None)
+        code = self.cmd.add(None)
+        self.assertEqual(code, CMD_SUCCESS)
+
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, BLACKLIST_EMPTY_OUTPUT)
 
@@ -234,7 +268,9 @@ class TestAdd(unittest.TestCase):
     def test_empty_entry(self):
         """Check behavior adding empty organizations"""
 
-        self.cmd.add('')
+        code = self.cmd.add('')
+        self.assertEqual(code, CMD_SUCCESS)
+
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, BLACKLIST_EMPTY_OUTPUT)
 
@@ -277,12 +313,14 @@ class TestDelete(unittest.TestCase):
         bl = api.blacklist(self.db, 'Bitergia')
         self.assertEqual(len(bl), 1)
 
-        self.cmd.delete('Bitergia')
+        code = self.cmd.delete('Bitergia')
+        self.assertEqual(code, CMD_SUCCESS)
 
         self.assertRaises(NotFoundError, api.blacklist,
                           self.db, 'Bitergia')
 
-        self.cmd.delete('root@example.com')
+        code = self.cmd.delete('root@example.com')
+        self.assertEqual(code, CMD_SUCCESS)
 
         # The final content of the registry should have
         # two entries
@@ -299,7 +337,8 @@ class TestDelete(unittest.TestCase):
         """Check if it fails removing an entry that does not exists"""
 
         # It should print an error when the blacklist is empty
-        self.cmd.delete('root@example.net')
+        code = self.cmd.delete('root@example.net')
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip().split('\n')[0]
         self.assertEqual(output, BLACKLIST_NOT_FOUND_ERROR)
 
@@ -309,7 +348,8 @@ class TestDelete(unittest.TestCase):
         self.cmd.add('root@example.com')
 
         # The error should be the same
-        self.cmd.delete('root@example.net')
+        code = self.cmd.delete('root@example.net')
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip().split('\n')[1]
         self.assertEqual(output, BLACKLIST_NOT_FOUND_ERROR)
 
@@ -346,21 +386,24 @@ class TestBlacklist(unittest.TestCase):
     def test_blacklist(self):
         """Check blacklist output list"""
 
-        self.cmd.blacklist()
+        code = self.cmd.blacklist()
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, BLACKLIST_OUTPUT)
 
     def test_blacklist_term(self):
         """Check if it returns the info about entries using a search term"""
 
-        self.cmd.blacklist('ohn')
+        code = self.cmd.blacklist('ohn')
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, BLACKLIST_OUTPUT_JOHN)
 
     def test_not_found_term(self):
         """Check whether it prints an error for not existing entries"""
 
-        self.cmd.blacklist('root@example.net')
+        code = self.cmd.blacklist('root@example.net')
+        self.assertEqual(code, CMD_FAILURE)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, BLACKLIST_NOT_FOUND_ERROR)
 
@@ -370,7 +413,8 @@ class TestBlacklist(unittest.TestCase):
         # Delete the contents of the database
         self.db.clear()
 
-        self.cmd.blacklist()
+        code = self.cmd.blacklist()
+        self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, BLACKLIST_EMPTY_OUTPUT)
 

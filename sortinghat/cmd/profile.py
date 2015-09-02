@@ -23,7 +23,7 @@
 import argparse
 
 from sortinghat import api
-from sortinghat.command import Command
+from sortinghat.command import Command, CMD_SUCCESS, CMD_FAILURE
 from sortinghat.exceptions import NotFoundError
 
 
@@ -84,7 +84,9 @@ class Profile(Command):
 
         uuid, kwargs = self.__parse_arguments(*args)
 
-        self.edit_profile(uuid, **kwargs)
+        code = self.edit_profile(uuid, **kwargs)
+
+        return code
 
     def edit_profile(self, uuid, **kwargs):
         """Edit unique identity profile.
@@ -104,6 +106,9 @@ class Profile(Command):
             self.display('profile.tmpl', uid=uid)
         except (NotFoundError, ValueError), e:
             self.error(str(e))
+            return CMD_FAILURE
+
+        return CMD_SUCCESS
 
     def __parse_arguments(self, *args):
         """Parse command line arguments"""
