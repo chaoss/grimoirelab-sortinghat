@@ -46,6 +46,34 @@ General options:
 Run 'sortinghat <command> --help' to get information about a specific command.
 ```
 
+Installation
+-------------
+
+You can install sortinghat just by running setup.py script:
+
+```
+$ python setup.py install
+```
+
+This will install it in the python default directories in your system.
+
+If you don't install sortinghat with root privileges, or don't want to install it in the default directories, you can also use the source code directory, as cloned from the main git repo. It is enough to
+configure your `$PATH` and `$PYTHONPATH` so that sortinghat, and the Python modules it needs, are found.
+
+Add to your `$PATH` the directory which contains the sortinghat executables:
+
+```
+$ export PATH=$PATH:sortinghatdir/bin
+```
+
+In `$PYHTONPATH`, you need to include sortinghat as well. If sortinghatdir is the path where sortinghat is installed:
+
+```
+$ export PYTHONPATH=$PYTHONPATH:sortinghatdir
+```
+
+You are ready to use sortinghat!
+
 Configuration
 -------------
 
