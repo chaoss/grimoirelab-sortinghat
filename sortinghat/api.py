@@ -1235,7 +1235,7 @@ def blacklist(db, term=None):
     The function will return the list of blacklisted entities. If term
     parameter is set, it will only return the information about the
     entities which match that term. When the given term does not match
-    with any entry on the blacklist a 'NotFounError' exception will
+    with any entry on the blacklist a 'NotFoundError' exception will
     be raised.
 
     :param db: database manager
