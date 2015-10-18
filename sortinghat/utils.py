@@ -103,6 +103,16 @@ def str_to_datetime(ts):
         raise InvalidDateError(date=str(ts))
 
 
+def to_unicode(x):
+    if type(x) is unicode:
+        return x
+
+    if x is None:
+        return unicode(x)
+
+    return unicode(x.decode('utf-8'))
+
+
 def uuid(source, email=None, name=None, username=None):
     """Get the UUID related to the identity data.
 
@@ -121,15 +131,6 @@ def uuid(source, email=None, name=None, username=None):
     :raises ValueError: when source is None or empty; each one of the
         parameters is None; parameters are empty.
     """
-    def to_unicode(x):
-        if type(x) is unicode:
-            return x
-
-        if x is None:
-            return unicode(x)
-
-        return unicode(x.decode('utf-8'))
-
     if source is None:
         raise ValueError('source cannot be None')
     if source == '':
