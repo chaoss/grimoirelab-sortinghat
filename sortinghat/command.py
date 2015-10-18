@@ -24,7 +24,7 @@ import sys
 
 import jinja2
 
-from sortinghat.exceptions import DatabaseError
+from sortinghat.exceptions import DatabaseError, CODE_VALUE_ERROR
 from sortinghat.db.database import Database
 
 CMD_SUCCESS = 0
