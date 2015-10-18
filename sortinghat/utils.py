@@ -121,14 +121,21 @@ def uuid(source, email=None, name=None, username=None):
     :raises ValueError: when source is None or empty; each one of the
         parameters is None; parameters are empty.
     """
+    def to_unicode(x):
+        if type(x) is unicode:
+            return x
+
+        if x is None:
+            return unicode(x)
+
+        return unicode(x.decode('utf-8'))
+
     if source is None:
         raise ValueError('source cannot be None')
     if source == '':
         raise ValueError('source cannot be an empty string')
     if not (email or name or username):
         raise ValueError('identity data cannot be None or empty')
-
-    to_unicode = lambda x: x if type(x) is unicode else unicode(x)
 
     s = ':'.join((to_unicode(source), to_unicode(email),
                   to_unicode(name), to_unicode(username)))
