@@ -103,6 +103,16 @@ def str_to_datetime(ts):
         raise InvalidDateError(date=str(ts))
 
 
+def to_unicode(x):
+    if type(x) is unicode:
+        return x
+
+    if x is None:
+        return unicode(x)
+
+    return unicode(x.decode('utf-8'))
+
+
 def uuid(source, email=None, name=None, username=None):
     """Get the UUID related to the identity data.
 
@@ -127,8 +137,6 @@ def uuid(source, email=None, name=None, username=None):
         raise ValueError('source cannot be an empty string')
     if not (email or name or username):
         raise ValueError('identity data cannot be None or empty')
-
-    to_unicode = lambda x: x if type(x) is unicode else unicode(x)
 
     s = ':'.join((to_unicode(source), to_unicode(email),
                   to_unicode(name), to_unicode(username)))

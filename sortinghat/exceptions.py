@@ -20,6 +20,12 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+# encoding=utf8
+import sys
+
+reload(sys)
+sys.setdefaultencoding('utf8')
+
 class BaseError(Exception):
     """Base class error.
 
