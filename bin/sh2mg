@@ -22,12 +22,14 @@
 #
 
 import argparse
+import collections
 import sys
 
 from sqlalchemy import Table, MetaData, Column, String, UniqueConstraint
 from sqlalchemy.exc import OperationalError, ProgrammingError
 
 import sortinghat.db.database as db
+import sortinghat.utils as utils
 
 from sortinghat.db.model import MetricsGrimoireIdentity
 from sortinghat.exceptions import InvalidFormatError, DatabaseError
@@ -57,6 +59,8 @@ Required parameters:
   input                 list of Sorting Hat unique identities
 """
 
+Identity = collections.namedtuple('Identity', 'id uuid')
+
 
 def main():
     """Link Sorting Hat unique identities to Metrics Grimoire identities"""
@@ -72,7 +76,7 @@ def main():
         raise RuntimeError(str(e))
 
     try:
-        mg_ids = retrieve_mg_identities(engine)
+        mg_ids = retrieve_mg_identities(engine, args.source)
     except DatabaseError, e:
         raise RuntimeError(str(e))
 
@@ -118,12 +122,12 @@ def parse_args():
 def retrieve_sh_identities(infile, source):
     """Retrieve identities from a file object"""
 
-    identities = []
-
     content = infile.read().decode('UTF-8')
 
     parser = SortingHatParser(content)
     uids = parser.identities
+
+    identities = []
 
     for uid in uids:
         sh_ids = uid.identities
@@ -132,12 +136,13 @@ def retrieve_sh_identities(infile, source):
             if sh_id.source != source:
                 continue
 
-            identities.append(sh_id)
+            i = Identity(sh_id.id, sh_id.uuid)
+            identities.append(i)
 
     return identities
 
 
-def retrieve_mg_identities(engine):
+def retrieve_mg_identities(engine, source):
     """Retrieve identities from a Metrics Grimoire database"""
 
     session = db.create_database_session(engine)
@@ -153,9 +158,16 @@ def retrieve_mg_identities(engine):
         query = query.filter(MetricsGrimoireIdentity._user != None)
         query = query.group_by(MetricsGrimoireIdentity._user)
 
-    identities = query.all()
+    mg_identities = query.all()
 
     db.close_database_session(session)
+
+    identities = []
+
+    for mg in mg_identities:
+        uuid = utils.uuid(source, mg.email, mg.name, mg.username)
+        i = Identity(unicode(mg.mg_id), uuid)
+        identities.append(i)
 
     return identities
 
@@ -167,8 +179,8 @@ def find_matches(sh_ids, mg_ids):
     # that will mean data are wrong
     for sh in sh_ids:
         for mg in mg_ids:
-            if mg == sh:
-                m = {'uuid' : sh.uuid, 'people_id' : unicode(mg.mg_id)}
+            if sh.id == mg.uuid:
+                m = {'uuid' : sh.uuid, 'people_id' : mg.id}
                 yield m
 
 
