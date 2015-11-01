@@ -67,24 +67,6 @@ class Command(object):
         s = "Warning: %s\n" % msg
         sys.stderr.write(s.encode('UTF-8'))
 
-    def get_code_of_exception(self, e):
-        code = CMD_FAILURE
-        try:
-            return int(e)
-        except TypeError:
-            pass
-
-        if type(e).__name__ == "ValueError":
-            code = CODE_VALUE_ERROR
-
-        return code
-
-    def get_exit_code(self, code):
-        if code >= CMD_FAILURE:
-            return CMD_FAILURE
-
-        return CMD_SUCCESS
-
     def _set_database(self, **kwargs):
         try:
             self.db = Database(kwargs['user'], kwargs['password'],
