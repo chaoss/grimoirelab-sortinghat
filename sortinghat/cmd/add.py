@@ -24,7 +24,7 @@ import argparse
 
 from sortinghat import api
 from sortinghat.command import Command, CMD_SUCCESS
-from sortinghat.exceptions import AlreadyExistsError, MatcherNotSupportedError, NotFoundError
+from sortinghat.exceptions import AlreadyExistsError, MatcherNotSupportedError, NotFoundError, WrappedValueError
 from sortinghat.matcher import create_identity_matcher
 from sortinghat.matching import SORTINGHAT_IDENTITIES_MATCHERS
 
@@ -148,7 +148,7 @@ class Add(Command):
 
             if matcher:
                 self.__merge_on_matching(uuid, matcher, interactive)
-        except (AlreadyExistsError, NotFoundError, ValueError), e:
+        except (AlreadyExistsError, NotFoundError, WrappedValueError), e:
             self.error(str(e))
             return e.code
 
