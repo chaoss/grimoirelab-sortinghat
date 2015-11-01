@@ -118,3 +118,9 @@ class NotFoundError(BaseError):
 
     message = "%(entity)s not found in the registry"
     code = CODE_NOT_FOUND_ERROR
+
+
+class WrappedValueError(ValueError):
+    """Exception WrappedValueError is a normal ValueError with code support"""
+
+    code = CODE_VALUE_ERROR
