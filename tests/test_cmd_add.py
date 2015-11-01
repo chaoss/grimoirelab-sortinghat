@@ -31,6 +31,7 @@ from sortinghat import api
 from sortinghat.command import CMD_SUCCESS, CMD_FAILURE
 from sortinghat.cmd.add import Add
 from sortinghat.db.database import Database
+from sortinghat.exceptions import CODE_ALREADY_EXISTS_ERROR, CODE_MATCHER_NOT_SUPPORTED_ERROR, CODE_NOT_FOUND_ERROR, CODE_VALUE_ERROR
 
 from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
@@ -180,7 +181,7 @@ class TestAdd(TestBaseCase):
         """Check if it fails adding identities to unique identities that do not exist"""
 
         code = self.cmd.add('scm', email='jroe@example.com', uuid='FFFFFFFFFFFFFFF')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_NOT_FOUND_ERROR)
 
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, ADD_UUID_NOT_FOUND_ERROR)
@@ -189,7 +190,7 @@ class TestAdd(TestBaseCase):
         """Check if it fails adding an identity that already exists"""
 
         code = self.cmd.add('scm', 'jsmith@example.com', 'John Smith', 'jsmith')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_ALREADY_EXISTS_ERROR)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, ADD_EXISTING_ERROR)
 
@@ -197,12 +198,12 @@ class TestAdd(TestBaseCase):
         """Check whether new identities cannot be added when giving a None or empty source"""
 
         code = self.cmd.add(None)
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_VALUE_ERROR)
         output = sys.stderr.getvalue().strip().split('\n')[0]
         self.assertEqual(output, ADD_SOURCE_NONE_ERROR)
 
         code = self.cmd.add('')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_VALUE_ERROR)
         output = sys.stderr.getvalue().strip().split('\n')[1]
         self.assertEqual(output, ADD_SOURCE_EMPTY_ERROR)
 
@@ -210,12 +211,12 @@ class TestAdd(TestBaseCase):
         """Check whether new identities cannot be added when identity data is None or empty"""
 
         code = self.cmd.add('scm', None, '', None)
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_VALUE_ERROR)
         output = sys.stderr.getvalue().strip().split('\n')[0]
         self.assertEqual(output, ADD_IDENTITY_NONE_OR_EMPTY_ERROR)
 
         code = self.cmd.add('scm', '', '', '')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_VALUE_ERROR)
         output = sys.stderr.getvalue().strip().split('\n')[1]
         self.assertEqual(output, ADD_IDENTITY_NONE_OR_EMPTY_ERROR)
 
@@ -223,7 +224,7 @@ class TestAdd(TestBaseCase):
         """Check if it fails when an invalid matching method is given"""
 
         code = self.cmd.add('scm', 'jsmith@example.com', matching='mock')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_MATCHER_NOT_SUPPORTED_ERROR)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, ADD_MATCHING_ERROR)
 

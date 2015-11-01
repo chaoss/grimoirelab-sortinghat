@@ -24,7 +24,7 @@ from sortinghat import utils
 from sortinghat.db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE,\
     UniqueIdentity, Identity, Profile, Organization, Domain, Country, Enrollment,\
     MatchingBlacklist
-from sortinghat.exceptions import AlreadyExistsError, NotFoundError
+from sortinghat.exceptions import AlreadyExistsError, NotFoundError, WrappedValueError
 
 
 def add_unique_identity(db, uuid):
@@ -110,11 +110,11 @@ def add_identity(db, source, email=None, name=None, username=None, uuid=None):
         return uidentity
 
     if source is None:
-        raise ValueError('source cannot be None')
+        raise WrappedValueError('source cannot be None')
     if source == '':
-        raise ValueError('source cannot be an empty string')
+        raise WrappedValueError('source cannot be an empty string')
     if not (email or name or username):
-        raise ValueError('identity data cannot be None or empty')
+        raise WrappedValueError('identity data cannot be None or empty')
 
     with db.connect() as session:
         identity = session.query(Identity).\
