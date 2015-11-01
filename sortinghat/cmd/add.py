@@ -160,6 +160,9 @@ class Add(Command):
         u = api.unique_identities(self.db, uuid)[0]
 
         for m in matches:
+            if m.uuid == uuid:
+                continue
+
             merged = self.__merge(u, m, interactive)
 
             if not merged:
