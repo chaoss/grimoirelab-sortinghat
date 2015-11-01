@@ -33,4 +33,5 @@ setup(name="sortinghat",
                 'sortinghat.parsing', 'sortinghat.templates', 'sortinghat.data'],
       package_data={'sortinghat.templates' : ['*.tmpl'],
                     'sortinghat.data' : ['*'],},
-      scripts=["bin/sortinghat", "bin/mg2sh", "bin/sh2mg"])
+      scripts=["bin/sortinghat", "bin/mg2sh", "bin/sh2mg"],
+      requires=['sqlalchemy', 'jinja2'])
