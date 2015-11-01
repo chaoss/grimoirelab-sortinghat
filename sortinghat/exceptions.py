@@ -20,6 +20,12 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+# encoding=utf8
+import sys
+
+reload(sys)
+sys.setdefaultencoding('utf8')
+
 CODE_BASE_ERROR = 1
 CODE_ALREADY_EXISTS_ERROR = 2
 CODE_BAD_FILE_FORMAT_ERROR = 3
@@ -30,6 +36,7 @@ CODE_LOAD_ERROR = 7
 CODE_MATCHER_NOT_SUPPORTED_ERROR = 8
 CODE_NOT_FOUND_ERROR = 9
 CODE_VALUE_ERROR = 10
+
 
 class BaseError(Exception):
     """Base class error.
