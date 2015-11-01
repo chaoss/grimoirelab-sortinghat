@@ -855,7 +855,7 @@ def match_identities(db, uuid, matcher):
 
     The function will search in the registry for similar identities to 'uuid'.
     The result will be a list matches containing unique identities objects.
-    This list will also include the given unique identity.
+    This list will not(!) include the given unique identity.
 
     The criteria used to check when an identity matches with another one
     is defined by 'matcher' parameter. This parameter is an instance
@@ -879,7 +879,8 @@ def match_identities(db, uuid, matcher):
         if not uid:
             raise NotFoundError(entity=uuid)
 
-        candidates = session.query(UniqueIdentity).all()
+        # Get all identities expect of the one requested one query above (uid)
+        candidates = session.query(UniqueIdentity).filter(UniqueIdentity.uuid != uuid).all()
 
         for candidate in candidates:
             if not matcher.match(uid, candidate):

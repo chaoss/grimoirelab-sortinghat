@@ -1922,37 +1922,37 @@ class TestMatchIdentities(TestBaseCase):
         m1 = api.match_identities(self.db, 'John Smith', matcher)
         uids = get_uuids(m1)
 
-        self.assertListEqual(uids, ['John Smith', 'Smith J.'])
+        self.assertListEqual(uids, ['Smith J.'])
 
         # Smith J.
         m1 = api.match_identities(self.db, 'Smith J.', matcher)
         uids = get_uuids(m1)
 
-        self.assertListEqual(uids, ['John Smith', 'Smith J.'])
+        self.assertListEqual(uids, ['John Smith'])
 
         # John Doe
         m2 = api.match_identities(self.db, 'John Doe', matcher)
         uids = get_uuids(m2)
 
-        self.assertListEqual(uids, ['John Doe'])
+        self.assertListEqual(uids, [])
 
         # Jane Rae
         m3 = api.match_identities(self.db, 'Jane Rae', matcher)
         uids = get_uuids(m3)
 
-        self.assertListEqual(uids, ['Jane', 'Jane Rae', 'JRae'])
+        self.assertListEqual(uids, ['Jane', 'JRae'])
 
         # JRae
         m3 = api.match_identities(self.db, 'JRae', matcher)
         uids = get_uuids(m3)
 
-        self.assertListEqual(uids, ['Jane', 'Jane Rae', 'JRae'])
+        self.assertListEqual(uids, ['Jane', 'Jane Rae'])
 
         # Jane
         m3 = api.match_identities(self.db, 'Jane', matcher)
         uids = get_uuids(m3)
 
-        self.assertListEqual(uids, ['Jane', 'Jane Rae', 'JRae'])
+        self.assertListEqual(uids, ['Jane Rae', 'JRae'])
 
 
     def test_empty_registry(self):
