@@ -100,6 +100,7 @@ You are ready to use sortinghat!
 
 * Configure database parameters
 ```
+  $ sortinghat config set db.host <mysql-host>
   $ sortinghat config set db.user <user>
   $ sortinghat config set db.password <password>
   $ sortinghat config set db.database <name>
