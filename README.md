@@ -78,7 +78,7 @@ You are ready to use sortinghat!
 
 Start a MySQL docker container for data storage:
 
-```
+```sh
 $ docker run --name mysql \
              -e MYSQL_USER=sortinghat \
              -e MYSQL_PASSWORD=sortinghat \
@@ -88,7 +88,7 @@ $ docker run --name mysql \
 
 Run the sortinghat docker container in interactive mode:
 
-```
+```sh
 $ docker run -i -t --rm \
              --link mysql:mysql metricsgrimoire/sortinghat:latest \
              /bin/bash
