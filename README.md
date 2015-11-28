@@ -47,6 +47,8 @@ Run 'sortinghat <command> --help' to get information about a specific command.
 
 ## Installation
 
+### Native
+
 You can install sortinghat just by running setup.py script:
 
 ```
@@ -68,6 +70,28 @@ In `$PYHTONPATH`, you need to include sortinghat as well. If sortinghatdir is th
 
 ```
 $ export PYTHONPATH=$PYTHONPATH:sortinghatdir
+```
+
+You are ready to use sortinghat!
+
+### Docker
+
+Start a MySQL docker container for data storage:
+
+```
+$ docker run --name mysql \
+             -e MYSQL_USER=sortinghat \
+             -e MYSQL_PASSWORD=sortinghat \
+             -e MYSQL_ROOT_PASSWORD=sortinghat \
+             -d mysql
+```
+
+Run the sortinhat docker container in interactive mode:
+
+```
+$ docker run -i -t --rm \
+             --link mysql:mysql metricsgrimoire/sortinghat:latest \
+             /bin/bash
 ```
 
 You are ready to use sortinghat!
