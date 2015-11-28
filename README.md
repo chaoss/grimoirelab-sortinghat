@@ -5,7 +5,8 @@ A tool to manage identities.
 
 Usage
 -----
-```
+
+```sh
 usage: sortinghat [--help] [-c <file>] [-u <user>] [-p <password>]
                   [--host <host>] [--port <port>] [-d <name>]
                   command [<cmd_args>]
@@ -51,7 +52,7 @@ Installation
 
 You can install sortinghat just by running setup.py script:
 
-```
+```sh
 $ python setup.py install
 ```
 
@@ -62,13 +63,13 @@ configure your `$PATH` and `$PYTHONPATH` so that sortinghat, and the Python modu
 
 Add to your `$PATH` the directory which contains the sortinghat executables:
 
-```
+```sh
 $ export PATH=$PATH:sortinghatdir/bin
 ```
 
 In `$PYHTONPATH`, you need to include sortinghat as well. If sortinghatdir is the path where sortinghat is installed:
 
-```
+```sh
 $ export PYTHONPATH=$PYTHONPATH:sortinghatdir
 ```
 
@@ -78,172 +79,196 @@ Configuration
 -------------
 
 * Configure database parameters
-```
-  $ sortinghat config set db.user <user>
-  $ sortinghat config set db.password <password>
-  $ sortinghat config set db.database <name>
+
+```sh
+$ sortinghat config set db.user <user>
+$ sortinghat config set db.password <password>
+$ sortinghat config set db.database <name>
 ```
 
 * Initialize database
-```
-  $ sortinghat init <name>
+
+```sh
+$ sortinghat init <name>
 ```
 
 Basic commands
 --------------
 
 * Add some unique identities
-```
-  $ sortinghat add --name "John Smith" --email "jsmith@example.com" --username "jsmith" --source scm
-  New identity 03e12d00e37fd45593c49a5a5a1652deca4cf302 added to 03e12d00e37fd45593c49a5a5a1652deca4cf302
 
-  $ sortinghat add --name "John Doe" --email "jdoe@example.com" --source scm
-  New identity a7637bb1737bc2a83f3a3e25b9b441cba62d97c2 added to a7637bb1737bc2a83f3a3e25b9b441cba62d97c2  
+```sh
+$ sortinghat add --name "John Smith" --email "jsmith@example.com" --username "jsmith" --source scm
+New identity 03e12d00e37fd45593c49a5a5a1652deca4cf302 added to 03e12d00e37fd45593c49a5a5a1652deca4cf302
+
+$ sortinghat add --name "John Doe" --email "jdoe@example.com" --source scm
+New identity a7637bb1737bc2a83f3a3e25b9b441cba62d97c2 added to a7637bb1737bc2a83f3a3e25b9b441cba62d97c2  
 ```
 
 * Set a profile
-```
-  $ sortinghat profile --name "John Smith" --email "jsmith@example.com" --country US 03e12d00e37fd45593c49a5a5a1652deca4cf302
-  unique identity 03e12d00e37fd45593c49a5a5a1652deca4cf302
 
-  Profile:
-      * Name: John Smith
-      * E-Mail: jsmith@example.com
-      * Bot: No
-      * Country: US - United States of America
+```sh
+$ sortinghat profile --name "John Smith" --email "jsmith@example.com" --country US 03e12d00e37fd45593c49a5a5a1652deca4cf302
+unique identity 03e12d00e37fd45593c49a5a5a1652deca4cf302
+
+Profile:
+    * Name: John Smith
+    * E-Mail: jsmith@example.com
+    * Bot: No
+    * Country: US - United States of America
 ```
 
 * Add an identity to an existing unique identity
-```
-  $ sortinghat add --username "jsmith" --source mls --uuid 03e12d00e37fd45593c49a5a5a1652deca4cf302
-  New identity 0dbc8c481b56df6da15398c83dde2f844030e978 added to 03e12d00e37fd45593c49a5a5a1652deca4cf302
+
+```sh
+$ sortinghat add --username "jsmith" --source mls --uuid 03e12d00e37fd45593c49a5a5a1652deca4cf302
+New identity 0dbc8c481b56df6da15398c83dde2f844030e978 added to 03e12d00e37fd45593c49a5a5a1652deca4cf302
 ```
 
 * Merge two identities
-```
-  $ sortinghat merge a7637bb1737bc2a83f3a3e25b9b441cba62d97c2 03e12d00e37fd45593c49a5a5a1652deca4cf302
-  Unique identity a7637bb1737bc2a83f3a3e25b9b441cba62d97c2 merged on 03e12d00e37fd45593c49a5a5a1652deca4cf302
+
+```sh
+$ sortinghat merge a7637bb1737bc2a83f3a3e25b9b441cba62d97c2 03e12d00e37fd45593c49a5a5a1652deca4cf302
+Unique identity a7637bb1737bc2a83f3a3e25b9b441cba62d97c2 merged on 03e12d00e37fd45593c49a5a5a1652deca4cf302
 ```
 
 * Move an identiy into a unique identity
+
 ```
-  $ sortinghat move a7637bb1737bc2a83f3a3e25b9b441cba62d97c2 a7637bb1737bc2a83f3a3e25b9b441cba62d97c2
-  New unique identity a7637bb1737bc2a83f3a3e25b9b441cba62d97c2 created. Identity moved
+$ sortinghat move a7637bb1737bc2a83f3a3e25b9b441cba62d97c2 a7637bb1737bc2a83f3a3e25b9b441cba62d97c2
+New unique identity a7637bb1737bc2a83f3a3e25b9b441cba62d97c2 created. Identity moved
 ```
 
 * Remove a unique identity
-```
-  $ sortinghat rm a7637bb1737bc2a83f3a3e25b9b441cba62d97c2
-  Unique identity a7637bb1737bc2a83f3a3e25b9b441cba62d97c2 removed
+
+```sh
+$ sortinghat rm a7637bb1737bc2a83f3a3e25b9b441cba62d97c2
+Unique identity a7637bb1737bc2a83f3a3e25b9b441cba62d97c2 removed
 ```
 
 * Show identities information
-```
-  $ sortinghat show
-  unique identity 03e12d00e37fd45593c49a5a5a1652deca4cf302
 
-  Profile:
-      * Name: John Smith
-      * E-Mail: jsmith@example.com
-      * Bot: No
-      * Country: US - United States of America
+```sh
+$ sortinghat show
+unique identity 03e12d00e37fd45593c49a5a5a1652deca4cf302
 
-  Identities:
-    03e12d00e37fd45593c49a5a5a1652deca4cf302	John Smith	jsmith@example.com	jsmith	scm
-    0dbc8c481b56df6da15398c83dde2f844030e978	-	-	jsmith	mls
+Profile:
+    * Name: John Smith
+    * E-Mail: jsmith@example.com
+    * Bot: No
+    * Country: US - United States of America
 
-  No enrollments
+Identities:
+  03e12d00e37fd45593c49a5a5a1652deca4cf302  
+  John Smith	jsmith@example.com	jsmith	scm
+  0dbc8c481b56df6da15398c83dde2f844030e978
+  -		-								jsmith	mls
+
+No enrollments
 ```
 
 * Add some organizations
-```
-  $ sortinghat orgs -a Example
-  $ sortinghat orgs -a Bitergia
-  $ sortinghat orgs -a Individual
+
+```sh
+$ sortinghat orgs -a Example
+$ sortinghat orgs -a Bitergia
+$ sortinghat orgs -a Individual
 ```
 
 * Add some domains to the organizations
-```
-  $ sortinghat orgs -a Example example.com --top-domain
-  $ sortinghat orgs -a Example web.example.com
-  $ sortinghat orgs -a Bitergia bitergia.com --top-domain
+
+```sh
+$ sortinghat orgs -a Example example.com --top-domain
+$ sortinghat orgs -a Example web.example.com
+$ sortinghat orgs -a Bitergia bitergia.com --top-domain
 ```
 
 * List organizations
-```
-  $ sortinghat orgs
-  Bitergia	bitergia.com *
-  Example	example.com *
-  Example	web.example.com
-  Individual
+
+```sh
+$ sortinghat orgs
+Bitergia	bitergia.com *
+Example	example.com *
+Example	web.example.com
+Individual
 ```
 
 * Remove domains
-```
-  $ sortinghat orgs -d Example web.example.com
+
+```sh
+$ sortinghat orgs -d Example web.example.com
 ```
 
 * Remove organizations
-```
- $ sortinghat orgs -d Bitergia
+
+```sh
+$ sortinghat orgs -d Bitergia
 ```
 
 * Enroll
-```
-  $ sortinghat enroll --from 2014-06-01 --to 2015-09-01 03e12d00e37fd45593c49a5a5a1652deca4cf302 Example
-  $ sortinghat enroll --from 2015-09-01 03e12d00e37fd45593c49a5a5a1652deca4cf30 Individual
+
+```sh
+$ sortinghat enroll --from 2014-06-01 --to 2015-09-01 03e12d00e37fd45593c49a5a5a1652deca4cf302 Example
+$ sortinghat enroll --from 2015-09-01 03e12d00e37fd45593c49a5a5a1652deca4cf30 Individual
 ```
 
 * Show enrollments information
-```
-  $ sortinghat show 03e12d00e37fd45593c49a5a5a1652deca4cf302
-  unique identity 03e12d00e37fd45593c49a5a5a1652deca4cf302
 
-  Profile:
-      * Name: John Smith
-      * E-Mail: jsmith@example.com
-      * Bot: No
-      * Country: US - United States of America
+```sh
+$ sortinghat show 03e12d00e37fd45593c49a5a5a1652deca4cf302
+unique identity 03e12d00e37fd45593c49a5a5a1652deca4cf302
 
-  Identities:
-    03e12d00e37fd45593c49a5a5a1652deca4cf302	John Smith	jsmith@example.com	jsmith	scm
-    0dbc8c481b56df6da15398c83dde2f844030e978	-	-	jsmith	mls
+Profile:
+    * Name: John Smith
+    * E-Mail: jsmith@example.com
+    * Bot: No
+    * Country: US - United States of America
 
-  Enrollments:
-    Example	2014-06-01 00:00:00	2015-09-01 00:00:00
-    Individual	2015-09-01 00:00:00	2100-01-01 00:00:00
+Identities:
+  03e12d00e37fd45593c49a5a5a1652deca4cf302
+  John Smith	jsmith@example.com	jsmith	scm
+  0dbc8c481b56df6da15398c83dde2f844030e978
+  -		- 								jsmith	mls
+
+Enrollments:
+  Example	2014-06-01 00:00:00	2015-09-01 00:00:00
+  Individual	2015-09-01 00:00:00	2100-01-01 00:00:00
 ```
 
 * Withdraw
-```
-  $ sortinghat withdraw --from 2014-06-01 --to 2015-09-01 03e12d00e37fd45593c49a5a5a1652deca4cf302 Example
+
+```sh
+$ sortinghat withdraw --from 2014-06-01 --to 2015-09-01 03e12d00e37fd45593c49a5a5a1652deca4cf302 Example
 ```
 
 Import / Export
 ---------------
 
 * Import data from a Sorting Hat JSON file
-```
-  $ sortinghat load sh.json
-  Loading blacklist...
-  Entry  added to the blacklist
-  1/1 blacklist entries loaded
-  Loading unique identities...
-  + 00000ba7f563234e5f239e912f2df1021695122e (old 00000ba7f563234e5f239e912f2df1021695122e) loaded
-  + 00003e37e7586be36c64ce4f9eafa89f11be2448 (old 00003e37e7586be36c64ce4f9eafa89f11be2448) loaded
-  ...
-  + fa84729382093928570aef849483948489238498 (old fa84729382093928570aef849483948489238498) loaded
-  100/100 unique identities loaded
+
+```sh
+$ sortinghat load sh.json
+Loading blacklist...
+Entry  added to the blacklist
+1/1 blacklist entries loaded
+Loading unique identities...
++ 00000ba7f563234e5f239e912f2df1021695122e (old 00000ba7f563234e5f239e912f2df1021695122e) loaded
++ 00003e37e7586be36c64ce4f9eafa89f11be2448 (old 00003e37e7586be36c64ce4f9eafa89f11be2448) loaded
+...
++ fa84729382093928570aef849483948489238498 (old fa84729382093928570aef849483948489238498) loaded
+100/100 unique identities loaded
 ```
 
 * Export identities
-```
-  $ sortinghat export --identities sh_ids.json
+
+```sh
+$ sortinghat export --identities sh_ids.json
 ```
 
 * Export organizations
-```
-  $ sortinghat export --orgs sh_orgs.json
+
+```sh
+$ sortinghat export --orgs sh_orgs.json
 ```
 
 Requirements
