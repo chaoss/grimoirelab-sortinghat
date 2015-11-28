@@ -7,6 +7,7 @@ Usage
 -----
 
 ```sh
+$ bin/sortinghat --help
 usage: sortinghat [--help] [-c <file>] [-u <user>] [-p <password>]
                   [--host <host>] [--port <port>] [-d <name>]
                   command [<cmd_args>]
@@ -162,7 +163,7 @@ Identities:
   03e12d00e37fd45593c49a5a5a1652deca4cf302  
   John Smith	jsmith@example.com	jsmith	scm
   0dbc8c481b56df6da15398c83dde2f844030e978
-  -		-								jsmith	mls
+  -		-							jsmith	mls
 
 No enrollments
 ```
@@ -228,7 +229,7 @@ Identities:
   03e12d00e37fd45593c49a5a5a1652deca4cf302
   John Smith	jsmith@example.com	jsmith	scm
   0dbc8c481b56df6da15398c83dde2f844030e978
-  -		- 								jsmith	mls
+  -		- 							jsmith	mls
 
 Enrollments:
   Example	2014-06-01 00:00:00	2015-09-01 00:00:00
