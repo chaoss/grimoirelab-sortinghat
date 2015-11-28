@@ -86,7 +86,7 @@ $ docker run --name mysql \
              -d mysql
 ```
 
-Run the sortinhat docker container in interactive mode:
+Run the sortinghat docker container in interactive mode:
 
 ```
 $ docker run -i -t --rm \
