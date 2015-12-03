@@ -1,10 +1,9 @@
-Sorting Hat [![Build Status](https://travis-ci.org/MetricsGrimoire/sortinghat.svg?branch=master)](https://travis-ci.org/MetricsGrimoire/sortinghat) [![Coverage Status](https://img.shields.io/coveralls/MetricsGrimoire/sortinghat.svg)](https://coveralls.io/r/MetricsGrimoire/sortinghat?branch=master)
-===========
+# Sorting Hat [![Build Status](https://travis-ci.org/MetricsGrimoire/sortinghat.svg?branch=master)](https://travis-ci.org/MetricsGrimoire/sortinghat) [![Coverage Status](https://img.shields.io/coveralls/MetricsGrimoire/sortinghat.svg)](https://coveralls.io/r/MetricsGrimoire/sortinghat?branch=master)
 
 A tool to manage identities.
 
-Usage
------
+## Usage
+
 ```
 usage: sortinghat [--help] [-c <file>] [-u <user>] [-p <password>]
                   [--host <host>] [--port <port>] [-d <name>]
@@ -46,8 +45,9 @@ General options:
 Run 'sortinghat <command> --help' to get information about a specific command.
 ```
 
-Installation
--------------
+## Installation
+
+### Native
 
 You can install sortinghat just by running setup.py script:
 
@@ -74,11 +74,33 @@ $ export PYTHONPATH=$PYTHONPATH:sortinghatdir
 
 You are ready to use sortinghat!
 
-Configuration
--------------
+### Docker
+
+Start a MySQL docker container for data storage:
+
+```sh
+$ docker run --name mysql \
+             -e MYSQL_USER=sortinghat \
+             -e MYSQL_PASSWORD=sortinghat \
+             -e MYSQL_ROOT_PASSWORD=sortinghat \
+             -d mysql
+```
+
+Run the sortinghat docker container in interactive mode:
+
+```sh
+$ docker run -i -t --rm \
+             --link mysql:mysql metricsgrimoire/sortinghat:latest \
+             /bin/bash
+```
+
+You are ready to use sortinghat!
+
+## Configuration
 
 * Configure database parameters
 ```
+  $ sortinghat config set db.host <mysql-host>
   $ sortinghat config set db.user <user>
   $ sortinghat config set db.password <password>
   $ sortinghat config set db.database <name>
@@ -89,8 +111,7 @@ Configuration
   $ sortinghat init <name>
 ```
 
-Basic commands
---------------
+## Basic commands
 
 * Add some unique identities
 ```
@@ -219,8 +240,7 @@ Basic commands
   $ sortinghat withdraw --from 2014-06-01 --to 2015-09-01 03e12d00e37fd45593c49a5a5a1652deca4cf302 Example
 ```
 
-Import / Export
----------------
+## Import / Export
 
 * Import data from a Sorting Hat JSON file
 ```
@@ -246,8 +266,7 @@ Import / Export
   $ sortinghat export --orgs sh_orgs.json
 ```
 
-Requirements
-------------
+## Requirements
 
 * Python >= 2.7 (3.x series not supported yet)
 * MySQL >= 5.5
@@ -255,7 +274,6 @@ Requirements
 * Jinja2 >= 2.7
 * python-dateutil >= 1.5
 
-License
--------
+## License
 
 Licensed under GNU General Public License (GPL), version 3 or later.
