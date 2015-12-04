@@ -76,7 +76,13 @@ You are ready to use sortinghat!
 
 ### Docker
 
-Start a MySQL docker container for data storage:
+At first you need to build the image:
+
+```sh
+$ docker build -t metricsgrimoire/sortinghat:latest .
+```
+
+Next step would be to start a MySQL docker container for data storage:
 
 ```sh
 $ docker run --name mysql \
