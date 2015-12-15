@@ -101,7 +101,13 @@ class Database(object):
 def create_database_engine(user, password, database, host, port):
     """Create a database engine"""
 
-    url = URL('mysql', user, password, host, port, database,
+    try:
+        import MySQLdb
+        driver = 'mysql+mysqldb'
+    except ImportError:
+        driver = 'mysql'
+
+    url = URL(driver, user, password, host, port, database,
               query={'charset' : 'utf8'})
     return create_engine(url, poolclass=NullPool, echo=False)
 

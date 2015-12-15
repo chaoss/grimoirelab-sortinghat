@@ -47,7 +47,13 @@ class MockDatabase(object):
 
     def __init__(self, user, password, database, host, port):
         # Create an engine
-        self.url = URL('mysql', user, password, host, port, database)
+        try:
+            import MySQLdb
+            driver = 'mysql+mysqldb'
+        except ImportError:
+            driver = 'mysql'
+
+        self.url = URL(driver, user, password, host, port, database)
         self._engine = create_engine(self.url, echo=True)
         self._Session = sessionmaker(bind=self._engine)
 
