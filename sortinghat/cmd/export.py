@@ -20,13 +20,15 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+from __future__ import absolute_import
+
 import argparse
 import datetime
 import json
 import sys
 
-from sortinghat import api
-from sortinghat.command import Command, CMD_SUCCESS
+from .. import api
+from ..command import Command, CMD_SUCCESS
 
 
 class Export(Command):

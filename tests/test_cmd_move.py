@@ -21,6 +21,8 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+from __future__ import absolute_import
+
 import sys
 import unittest
 
@@ -32,7 +34,7 @@ from sortinghat.command import CMD_SUCCESS, CMD_FAILURE
 from sortinghat.cmd.move import Move
 from sortinghat.db.database import Database
 
-from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
+from .config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
 
 MOVE_FROM_ID_NOT_FOUND_ERROR = "Error: FFFFFFFFFFF not found in the registry"

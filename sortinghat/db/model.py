@@ -20,6 +20,8 @@
 #         Santiago Dueñas <sduenas@bitergia.com>
 #
 
+from __future__ import absolute_import
+
 import datetime
 
 from sqlalchemy import Column, Boolean, Integer, String, DateTime,\

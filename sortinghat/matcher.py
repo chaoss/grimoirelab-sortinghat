@@ -20,7 +20,9 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from sortinghat.exceptions import MatcherNotSupportedError
+from __future__ import absolute_import
+
+from .exceptions import MatcherNotSupportedError
 
 
 class IdentityMatcher(object):

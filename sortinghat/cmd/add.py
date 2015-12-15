@@ -20,13 +20,15 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+from __future__ import absolute_import
+
 import argparse
 
-from sortinghat import api
-from sortinghat.command import Command, CMD_SUCCESS
-from sortinghat.exceptions import AlreadyExistsError, MatcherNotSupportedError, NotFoundError, WrappedValueError
-from sortinghat.matcher import create_identity_matcher
-from sortinghat.matching import SORTINGHAT_IDENTITIES_MATCHERS
+from .. import api
+from ..command import Command, CMD_SUCCESS
+from ..exceptions import AlreadyExistsError, MatcherNotSupportedError, NotFoundError, WrappedValueError
+from ..matcher import create_identity_matcher
+from ..matching import SORTINGHAT_IDENTITIES_MATCHERS
 
 
 ADD_COMMAND_USAGE_MSG = \

@@ -20,7 +20,9 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from sortinghat.exceptions import InvalidFormatError
+from __future__ import absolute_import
+
+from .exceptions import InvalidFormatError
 
 
 INVALID_FORMAT_MSG = "organizations format not supported. Please check it."

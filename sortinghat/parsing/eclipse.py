@@ -20,10 +20,12 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from sortinghat.db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE, \
+from __future__ import absolute_import
+
+from ..db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE, \
     UniqueIdentity, Identity, Enrollment, Organization
-from sortinghat.exceptions import InvalidDateError, InvalidFormatError
-from sortinghat.utils import str_to_datetime
+from ..exceptions import InvalidDateError, InvalidFormatError
+from ..utils import str_to_datetime
 
 
 class EclipseParser(object):

@@ -21,6 +21,8 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+from __future__ import absolute_import
+
 import sys
 import unittest
 
@@ -33,7 +35,7 @@ from sortinghat.cmd.blacklist import Blacklist
 from sortinghat.db.database import Database
 from sortinghat.exceptions import NotFoundError
 
-from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
+from .config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
 
 BLACKLIST_ALREADY_EXISTS_ERROR = "Error: root@example.com already exists in the registry"

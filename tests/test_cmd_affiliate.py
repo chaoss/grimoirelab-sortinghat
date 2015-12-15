@@ -21,6 +21,8 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+from __future__ import absolute_import
+
 import sys
 import unittest
 
@@ -32,7 +34,7 @@ from sortinghat.command import CMD_SUCCESS
 from sortinghat.cmd.affiliate import Affiliate
 from sortinghat.db.database import Database
 
-from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
+from .config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
 
 AFFILIATE_OUTPUT = """Unique identity 52e0aa0a14826627e633fd15332988686b730ab3 (jroe@example.com) affiliated to Example

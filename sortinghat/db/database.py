@@ -20,6 +20,8 @@
 #         Santiago Dueñas <sduenas@bitergia.com>
 #
 
+from __future__ import absolute_import
+
 from contextlib import contextmanager
 
 from sqlalchemy import create_engine

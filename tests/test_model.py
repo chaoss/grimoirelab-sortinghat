@@ -21,6 +21,8 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+from __future__ import absolute_import
+
 import datetime
 import sys
 import unittest
@@ -35,7 +37,8 @@ from sqlalchemy.orm import sessionmaker
 
 from sortinghat.db.model import ModelBase, Organization, Domain, Country,\
     UniqueIdentity, Identity, Profile, Enrollment, MatchingBlacklist
-from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
+
+from .config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
 
 DUP_CHECK_ERROR = 'Duplicate entry'

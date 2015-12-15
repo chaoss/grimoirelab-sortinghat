@@ -20,10 +20,12 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+from __future__ import absolute_import
+
 import re
 
-from sortinghat.db.model import UniqueIdentity
-from sortinghat.matcher import IdentityMatcher, FilteredIdentity
+from ..db.model import UniqueIdentity
+from ..matcher import IdentityMatcher, FilteredIdentity
 
 
 EMAIL_ADDRESS_REGEX = ur"^(?P<email>[^\s@]+@[^\s@.]+\.[^\s@]+)$"

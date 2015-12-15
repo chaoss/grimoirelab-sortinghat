@@ -20,11 +20,13 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+from __future__ import absolute_import
+
 import argparse
 
-from sortinghat import api
-from sortinghat.command import Command, CMD_SUCCESS, CMD_FAILURE
-from sortinghat.exceptions import NotFoundError
+from .. import api
+from ..command import Command, CMD_SUCCESS, CMD_FAILURE
+from ..exceptions import NotFoundError
 
 
 class Show(Command):

@@ -20,8 +20,10 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from sortinghat.matching.email import EmailMatcher
-from sortinghat.matching.email_name import EmailNameMatcher
+from __future__ import absolute_import
+
+from .email import EmailMatcher
+from .email_name import EmailNameMatcher
 
 
 SORTINGHAT_IDENTITIES_MATCHERS = {

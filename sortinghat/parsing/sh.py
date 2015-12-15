@@ -20,10 +20,12 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from sortinghat.db.model import UniqueIdentity, Identity, Profile,\
+from __future__ import absolute_import
+
+from ..db.model import UniqueIdentity, Identity, Profile,\
     Enrollment, Organization, Domain, Country, MatchingBlacklist
-from sortinghat.exceptions import InvalidFormatError, InvalidDateError
-from sortinghat.utils import str_to_datetime
+from ..exceptions import InvalidFormatError, InvalidDateError
+from ..utils import str_to_datetime
 
 
 class SortingHatParser(object):

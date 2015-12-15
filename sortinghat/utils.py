@@ -20,11 +20,13 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+from __future__ import absolute_import
+
 import dateutil.parser
 import hashlib
 
-from sortinghat.db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE
-from sortinghat.exceptions import InvalidDateError
+from .db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE
+from .exceptions import InvalidDateError
 
 
 def merge_date_ranges(dates):

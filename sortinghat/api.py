@@ -20,11 +20,13 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from sortinghat import utils
-from sortinghat.db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE,\
+from __future__ import absolute_import
+
+from . import utils
+from .db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE,\
     UniqueIdentity, Identity, Profile, Organization, Domain, Country, Enrollment,\
     MatchingBlacklist
-from sortinghat.exceptions import AlreadyExistsError, NotFoundError, WrappedValueError
+from .exceptions import AlreadyExistsError, NotFoundError, WrappedValueError
 
 
 def add_unique_identity(db, uuid):

@@ -20,17 +20,19 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+from __future__ import absolute_import
+
 import argparse
 import sys
 
-from sortinghat import api
-from sortinghat.command import Command, CMD_SUCCESS, CMD_FAILURE
-from sortinghat.db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE
-from sortinghat.exceptions import AlreadyExistsError, NotFoundError,\
+from .. import api
+from ..command import Command, CMD_SUCCESS, CMD_FAILURE
+from ..db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE
+from ..exceptions import AlreadyExistsError, NotFoundError,\
     InvalidFormatError, LoadError, MatcherNotSupportedError
-from sortinghat.matcher import create_identity_matcher
-from sortinghat.matching import SORTINGHAT_IDENTITIES_MATCHERS
-from sortinghat.parsing.sh import SortingHatParser
+from ..matcher import create_identity_matcher
+from ..matching import SORTINGHAT_IDENTITIES_MATCHERS
+from ..parsing.sh import SortingHatParser
 
 
 class Load(Command):

@@ -20,12 +20,14 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+from __future__ import absolute_import
+
 import re
 import dateutil.parser
 
-from sortinghat.db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE, UniqueIdentity,\
+from ..db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE, UniqueIdentity,\
     Identity, Enrollment, Organization, Domain
-from sortinghat.exceptions import InvalidFormatError
+from ..exceptions import InvalidFormatError
 
 
 class GitdmParser(object):

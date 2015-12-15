@@ -21,6 +21,8 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+from __future__ import absolute_import
+
 import datetime
 import sys
 import unittest
@@ -35,7 +37,8 @@ from sortinghat.db.database import Database
 from sortinghat.db.model import Country
 from sortinghat.parsing.sh import SortingHatParser
 
-from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
+from .config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
+
 
 LOAD_BLACKLIST_EMPTY_STRINGS_ERROR = "Error: invalid json format. Blacklist entries cannot be null or empty"
 LOAD_IDENTITIES_INVALID_JSON_FORMAT_ERROR = "Error: invalid json format. Expecting ',' delimiter: line 86 column 17 (char 2821)"

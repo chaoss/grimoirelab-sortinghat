@@ -21,6 +21,8 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+from __future__ import absolute_import
+
 import datetime
 import sys
 import unittest
@@ -34,7 +36,7 @@ from sortinghat.cmd.show import Show
 from sortinghat.db.database import Database
 from sortinghat.db.model import Country
 
-from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
+from .config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
 
 SHOW_UUID_NOT_FOUND_ERROR = "Error: FFFFFFFFFFFFFFF not found in the registry"

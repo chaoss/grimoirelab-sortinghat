@@ -20,11 +20,13 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+from __future__ import absolute_import
+
 import argparse
 import ConfigParser
 import os.path
 
-from sortinghat.command import Command, CMD_SUCCESS
+from ..command import Command, CMD_SUCCESS
 
 
 class Config(Command):

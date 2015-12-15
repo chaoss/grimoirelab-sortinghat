@@ -21,6 +21,8 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+from __future__ import absolute_import
+
 import sys
 import unittest
 
@@ -32,7 +34,7 @@ from sortinghat.command import CMD_SUCCESS, CMD_FAILURE
 from sortinghat.cmd.remove import Remove
 from sortinghat.db.database import Database
 
-from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
+from .config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
 
 REMOVE_UUID_NOT_FOUND_ERROR = "Error: 62cce16ac0a5c391b4e0c3ccb3e924d65de8c345 not found in the registry"

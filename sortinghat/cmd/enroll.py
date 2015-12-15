@@ -20,11 +20,13 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+from __future__ import absolute_import
+
 import argparse
 
-from sortinghat import api, utils
-from sortinghat.command import Command, CMD_SUCCESS, CMD_FAILURE
-from sortinghat.exceptions import AlreadyExistsError, InvalidDateError, NotFoundError
+from .. import api, utils
+from ..command import Command, CMD_SUCCESS, CMD_FAILURE
+from ..exceptions import AlreadyExistsError, InvalidDateError, NotFoundError
 
 
 class Enroll(Command):

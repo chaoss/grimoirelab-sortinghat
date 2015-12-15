@@ -20,12 +20,14 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+from __future__ import absolute_import
+
 import argparse
 
-from sortinghat.command import Command, CMD_SUCCESS, CMD_FAILURE
-from sortinghat.exceptions import DatabaseError, LoadError
-from sortinghat.db.database import Database
-from sortinghat.db.model import Country
+from ..command import Command, CMD_SUCCESS, CMD_FAILURE
+from ..exceptions import DatabaseError, LoadError
+from ..db.database import Database
+from ..db.model import Country
 
 
 class Init(Command):

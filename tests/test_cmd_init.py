@@ -21,6 +21,8 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+from __future__ import absolute_import
+
 import sys
 import unittest
 import uuid
@@ -33,7 +35,7 @@ from sortinghat.command import CMD_SUCCESS, CMD_FAILURE
 from sortinghat.cmd.init import Init
 from sortinghat.db.database import Database
 
-from tests.config import DB_USER, DB_PASSWORD, DB_HOST, DB_PORT
+from .config import DB_USER, DB_PASSWORD, DB_HOST, DB_PORT
 
 
 DB_ACCESS_ERROR = "Error: Access denied for user '%(user)s'@'localhost' (using password: YES) (err: 1045)"
