@@ -23,8 +23,12 @@
 from __future__ import absolute_import
 
 import argparse
-import ConfigParser
 import os.path
+
+try:
+    import configparser
+except ImportError:
+    import ConfigParser as configparser
 
 from ..command import Command, CMD_SUCCESS
 
@@ -116,13 +120,13 @@ class Config(Command):
 
         section, option = key.split('.')
 
-        config = ConfigParser.SafeConfigParser()
+        config = configparser.SafeConfigParser()
         config.read(filepath)
 
         try:
             option = config.get(section, option)
             self.display('config.tmpl', key=key, option=option)
-        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
+        except (configparser.NoSectionError, configparser.NoOptionError):
             pass
 
         return CMD_SUCCESS
@@ -144,7 +148,7 @@ class Config(Command):
         if not self.__check_config_key(key):
             raise RuntimeError("%s parameter does not exists or cannot be set" % key)
 
-        config = ConfigParser.SafeConfigParser()
+        config = configparser.SafeConfigParser()
 
         if os.path.isfile(filepath):
             config.read(filepath)

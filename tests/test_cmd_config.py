@@ -23,10 +23,14 @@
 
 from __future__ import absolute_import
 
-import ConfigParser
 import os.path
 import sys
 import unittest
+
+try:
+    import configparser
+except ImportError:
+    import ConfigParser as configparser
 
 if not '..' in sys.path:
     sys.path.insert(0, '..')
@@ -119,7 +123,7 @@ class TestSetConfig(unittest.TestCase):
         filepath = os.path.join(testpath, 'mock_config_file.cfg')
 
         # First read initial values
-        config = ConfigParser.SafeConfigParser()
+        config = configparser.SafeConfigParser()
         config.read(filepath)
 
         self.assertEqual(config.get('db', 'user'), 'root')
