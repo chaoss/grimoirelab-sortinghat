@@ -82,7 +82,7 @@ class Withdraw(Command):
             to_date = utils.str_to_datetime(params.to_date)
 
             code = self.withdraw(uuid, organization, from_date, to_date)
-        except InvalidDateError, e:
+        except InvalidDateError as e:
             self.error(str(e))
             return CMD_FAILURE
 
@@ -112,7 +112,7 @@ class Withdraw(Command):
 
         try:
             api.delete_enrollment(self.db, uuid, organization, from_date, to_date)
-        except (NotFoundError, ValueError), e:
+        except (NotFoundError, ValueError) as e:
             self.error(str(e))
             return CMD_FAILURE
 

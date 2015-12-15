@@ -178,7 +178,7 @@ if __name__ == '__main__':
         s = "\n\nReceived Ctrl-C or other break signal. Exiting.\n"
         sys.stdout.write(s)
         sys.exit(0)
-    except RuntimeError, e:
+    except RuntimeError as e:
         s = "Error: %s\n" % str(e)
         sys.stderr.write(s)
         sys.exit(1)

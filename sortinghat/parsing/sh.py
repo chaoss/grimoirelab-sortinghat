@@ -116,7 +116,7 @@ class SortingHatParser(object):
                 if not bl:
                     bl = MatchingBlacklist(excluded=excluded)
                     self._blacklist[excluded] = bl
-        except KeyError, e:
+        except KeyError as e:
             msg = "invalid json format. Attribute %s not found" % e.args
             raise InvalidFormatError(cause=msg)
 
@@ -246,7 +246,7 @@ class SortingHatParser(object):
                     try:
                         start = str_to_datetime(enrollment['start'])
                         end = str_to_datetime(enrollment['end'])
-                    except InvalidDateError, e:
+                    except InvalidDateError as e:
                         raise InvalidFormatError(cause=str(e))
 
                     rol = Enrollment(start=start, end=end, organization=org)
@@ -254,7 +254,7 @@ class SortingHatParser(object):
                     uid.enrollments.append(rol)
 
                 self._identities.append(uid)
-        except KeyError, e:
+        except KeyError as e:
             msg = "invalid json format. Attribute %s not found" % e.args
             raise InvalidFormatError(cause=msg)
 
@@ -307,7 +307,7 @@ class SortingHatParser(object):
                     dom = Domain(domain=domain['domain'],
                                  is_top_domain=domain['is_top'])
                     org.domains.append(dom)
-        except KeyError, e:
+        except KeyError as e:
             msg = "invalid json format. Attribute %s not found" % e.args
             raise InvalidFormatError(cause=msg)
 
@@ -318,7 +318,7 @@ class SortingHatParser(object):
 
         try:
             return json.loads(stream)
-        except ValueError, e:
+        except ValueError as e:
             cause = "invalid json format. %s" % str(e)
             raise InvalidFormatError(cause=cause)
 

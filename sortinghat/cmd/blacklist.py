@@ -105,11 +105,11 @@ class Blacklist(Command):
 
         try:
             api.add_to_matching_blacklist(self.db, entry)
-        except ValueError, e:
+        except ValueError as e:
             # If the code reaches here, something really wrong has happened
             # because entry cannot be None or empty
             raise RuntimeError(str(e))
-        except AlreadyExistsError, e:
+        except AlreadyExistsError as e:
             self.error(str(e))
             return CMD_FAILURE
 
@@ -127,7 +127,7 @@ class Blacklist(Command):
 
         try:
             api.delete_from_matching_blacklist(self.db, entry)
-        except NotFoundError, e:
+        except NotFoundError as e:
             self.error(str(e))
             return CMD_FAILURE
 
@@ -145,7 +145,7 @@ class Blacklist(Command):
         try:
             bl = api.blacklist(self.db, term)
             self.display('blacklist.tmpl', blacklist=bl)
-        except NotFoundError, e:
+        except NotFoundError as e:
             self.error(str(e))
             return CMD_FAILURE
 

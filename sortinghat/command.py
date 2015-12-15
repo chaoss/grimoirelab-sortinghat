@@ -71,5 +71,5 @@ class Command(object):
         try:
             self.db = Database(kwargs['user'], kwargs['password'],
                                kwargs['database'], kwargs['host'], kwargs['port'])
-        except DatabaseError, e:
+        except DatabaseError as e:
             raise RuntimeError(str(e))

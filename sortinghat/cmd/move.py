@@ -96,7 +96,7 @@ class Move(Command):
             api.move_identity(self.db, from_id, to_uuid)
             self.display('move.tmpl',
                          from_id=from_id, to_uuid=to_uuid)
-        except NotFoundError, e:
+        except NotFoundError as e:
             self.error(str(e))
             return CMD_FAILURE
 

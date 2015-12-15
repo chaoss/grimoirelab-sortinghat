@@ -72,12 +72,12 @@ def main():
 
     try:
         sh_ids = retrieve_sh_identities(args.infile, args.source)
-    except InvalidFormatError, e:
+    except InvalidFormatError as e:
         raise RuntimeError(str(e))
 
     try:
         mg_ids = retrieve_mg_identities(engine, args.source)
-    except DatabaseError, e:
+    except DatabaseError as e:
         raise RuntimeError(str(e))
 
     mapping = find_matches(sh_ids, mg_ids)
@@ -86,7 +86,7 @@ def main():
         n = load_mapping(engine, mapping)
         sys.stdout.write("%s of %s relationships created\n"\
                          % (str(n), str(len(mg_ids))))
-    except DatabaseError, e:
+    except DatabaseError as e:
         raise RuntimeError(str(e))
 
 
@@ -222,7 +222,7 @@ def load_mapping(engine, mapping):
         # Insert remaining data
         if data:
             conn.execute(table.insert(), data)
-    except (OperationalError, ProgrammingError), e:
+    except (OperationalError, ProgrammingError) as e:
         raise DatabaseError(error=e.orig[1], code=e.orig[0])
 
     return n
@@ -237,7 +237,7 @@ if __name__ == '__main__':
         s = "\n\nReceived Ctrl-C or other break signal. Exiting.\n"
         sys.stdout.write(s)
         sys.exit(0)
-    except RuntimeError, e:
+    except RuntimeError as e:
         s = "Error: %s\n" % str(e)
         sys.stderr.write(s)
         sys.exit(1)

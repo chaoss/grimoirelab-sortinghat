@@ -154,13 +154,13 @@ class Config(Command):
 
         try:
             config.set(section, option, value)
-        except TypeError, e:
+        except TypeError as e:
             raise RuntimeError(str(e))
 
         try:
             with open(filepath, 'wb') as f:
                 config.write(f)
-        except IOError, e:
+        except IOError as e:
             raise RuntimeError(str(e))
 
         return CMD_SUCCESS

@@ -112,7 +112,7 @@ class Export(Command):
         try:
             outfile.write(dump)
             outfile.write('\n')
-        except IOError, e:
+        except IOError as e:
             raise RuntimeError(str(e))
 
         return CMD_SUCCESS
@@ -132,7 +132,7 @@ class Export(Command):
         try:
             outfile.write(dump)
             outfile.write('\n')
-        except IOError, e:
+        except IOError as e:
             raise RuntimeError(str(e))
 
         return CMD_SUCCESS

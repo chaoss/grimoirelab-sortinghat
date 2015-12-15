@@ -96,7 +96,7 @@ class Unify(Command):
         try:
             blacklist = api.blacklist(self.db)
             matcher = create_identity_matcher(matching, blacklist)
-        except MatcherNotSupportedError, e:
+        except MatcherNotSupportedError as e:
             self.error(str(e))
             return CMD_FAILURE
 
@@ -106,7 +106,7 @@ class Unify(Command):
             self.__unify_unique_identities(uidentities, matcher,
                                            interactive)
             self.__display_stats()
-        except Exception, e:
+        except Exception as e:
             self.__display_stats()
             raise RuntimeError(unicode(e))
 

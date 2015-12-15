@@ -91,7 +91,7 @@ class Enroll(Command):
             merge = params.merge
 
             code = self.enroll(uuid, organization, from_date, to_date, merge)
-        except InvalidDateError, e:
+        except InvalidDateError as e:
             self.error(str(e))
             return CMD_FAILURE
 
@@ -125,10 +125,10 @@ class Enroll(Command):
         try:
             api.add_enrollment(self.db, uuid, organization, from_date, to_date)
             code = CMD_SUCCESS
-        except (NotFoundError, ValueError), e:
+        except (NotFoundError, ValueError) as e:
             self.error(str(e))
             code = CMD_FAILURE
-        except AlreadyExistsError, e:
+        except AlreadyExistsError as e:
             if not merge:
                 self.error(str(e))
                 code = CMD_FAILURE
@@ -138,7 +138,7 @@ class Enroll(Command):
 
         try:
             api.merge_enrollments(self.db, uuid, organization)
-        except (NotFoundError, ValueError), e:
+        except (NotFoundError, ValueError) as e:
             # These exceptions were checked above. If any of these raises
             # is due to something really wrong has happened
             raise RuntimeError(str(e))

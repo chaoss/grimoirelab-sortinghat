@@ -87,10 +87,10 @@ class Init(Command):
 
             # Load countries list
             self.__load_countries(db)
-        except DatabaseError, e:
+        except DatabaseError as e:
             self.error(str(e))
             return CMD_FAILURE
-        except LoadError, e:
+        except LoadError as e:
             Database.drop(user, password, name, host, port)
             self.error(str(e))
             return CMD_FAILURE
@@ -102,14 +102,14 @@ class Init(Command):
 
         try:
             countries = self.__read_countries_file()
-        except IOError, e:
+        except IOError as e:
             raise LoadError(str(e))
 
         try:
             with db.connect() as session:
                 for country in countries:
                     session.add(country)
-        except Exception, e:
+        except Exception as e:
             raise LoadError(str(e))
 
     def __read_countries_file(self):

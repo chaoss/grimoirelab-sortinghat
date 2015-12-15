@@ -100,7 +100,7 @@ class Merge(Command):
             api.merge_unique_identities(self.db, from_uuid, to_uuid)
             self.display('merge.tmpl',
                          from_uuid=from_uuid, to_uuid=to_uuid)
-        except NotFoundError, e:
+        except NotFoundError as e:
             self.error(str(e))
             return CMD_FAILURE
 

@@ -137,7 +137,7 @@ class Add(Command):
             try:
                 blacklist = api.blacklist(self.db)
                 matcher = create_identity_matcher(matching, blacklist)
-            except MatcherNotSupportedError, e:
+            except MatcherNotSupportedError as e:
                 self.error(str(e))
                 return e.code
 
@@ -148,7 +148,7 @@ class Add(Command):
 
             if matcher:
                 self.__merge_on_matching(uuid, matcher, interactive)
-        except (AlreadyExistsError, NotFoundError, WrappedValueError), e:
+        except (AlreadyExistsError, NotFoundError, WrappedValueError) as e:
             self.error(str(e))
             return e.code
 

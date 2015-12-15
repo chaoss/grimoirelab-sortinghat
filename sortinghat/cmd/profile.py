@@ -104,7 +104,7 @@ class Profile(Command):
             uid = api.unique_identities(self.db, uuid)[0]
 
             self.display('profile.tmpl', uid=uid)
-        except (NotFoundError, ValueError), e:
+        except (NotFoundError, ValueError) as e:
             self.error(str(e))
             return CMD_FAILURE
 

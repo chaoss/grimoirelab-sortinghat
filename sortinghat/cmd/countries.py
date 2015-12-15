@@ -71,7 +71,7 @@ class Countries(Command):
         try:
             countries = api.countries(self.db, code=code, term=term)
             self.display('countries.tmpl', countries=countries)
-        except NotFoundError, e:
+        except NotFoundError as e:
             self.error(str(e))
             return CMD_FAILURE
 

@@ -79,7 +79,7 @@ class Affiliate(Command):
 
                     try:
                         doms = api.domains(self.db, domain=domain, top=True)
-                    except NotFoundError, e:
+                    except NotFoundError as e:
                         continue
 
                     if len(doms) > 1:
@@ -102,7 +102,7 @@ class Affiliate(Command):
 
                     self.display('affiliate.tmpl', id=uid.uuid,
                                  email=identity.email, organization=organization)
-        except (NotFoundError, ValueError), e:
+        except (NotFoundError, ValueError) as e:
             raise RuntimeError(str(e))
 
         return CMD_SUCCESS

@@ -119,10 +119,10 @@ class Load(Command):
         try:
             stream = self.__read_file(params.infile)
             parser = SortingHatParser(stream)
-        except InvalidFormatError, e:
+        except InvalidFormatError as e:
             self.error(unicode(e))
             return CMD_FAILURE
-        except (IOError, TypeError, AttributeError), e:
+        except (IOError, TypeError, AttributeError) as e:
             raise RuntimeError(unicode(e))
 
         if params.identities:
@@ -157,9 +157,9 @@ class Load(Command):
                 api.add_to_matching_blacklist(self.db, entry.excluded)
                 self.display('load_blacklist.tmpl', entry=entry.excluded)
                 n += 1
-            except ValueError, e:
+            except ValueError as e:
                 raise RuntimeError(unicode(e))
-            except AlreadyExistsError, e:
+            except AlreadyExistsError as e:
                 msg = "%s. Not added." % unicode(e)
                 self.warning(msg)
 
@@ -182,9 +182,9 @@ class Load(Command):
         for org in orgs:
             try:
                 api.add_organization(self.db, org.name)
-            except ValueError, e:
+            except ValueError as e:
                 raise RuntimeError(unicode(e))
-            except AlreadyExistsError, e:
+            except AlreadyExistsError as e:
                 pass
 
             for dom in org.domains:
@@ -194,9 +194,9 @@ class Load(Command):
                                    overwrite=overwrite)
                     self.display('load_domains.tmpl', domain=dom.domain,
                                  organization=org.name)
-                except (ValueError, NotFoundError), e:
+                except (ValueError, NotFoundError) as e:
                     raise RuntimeError(unicode(e))
-                except AlreadyExistsError, e:
+                except AlreadyExistsError as e:
                     msg = "%s. Not updated." % unicode(e)
                     self.warning(msg)
 
@@ -224,7 +224,7 @@ class Load(Command):
             try:
                 blacklist = api.blacklist(self.db)
                 matcher = create_identity_matcher(matching, blacklist)
-            except MatcherNotSupportedError, e:
+            except MatcherNotSupportedError as e:
                 self.error(unicode(e))
                 return CMD_FAILURE
 
@@ -233,7 +233,7 @@ class Load(Command):
         try:
             self.__load_unique_identities(uidentities, matcher, match_new,
                                           verbose)
-        except LoadError, e:
+        except LoadError as e:
             self.error(unicode(e))
             return CMD_FAILURE
 
@@ -255,7 +255,7 @@ class Load(Command):
 
             try:
                 stored_uuid = self.__load_unique_identity(uidentity, verbose)
-            except LoadError, e:
+            except LoadError as e:
                 self.error("%s Skipping." % unicode(e))
                 self.log("=====", verbose)
                 continue
@@ -267,7 +267,7 @@ class Load(Command):
             # does not have any one.
             try:
                 self.__load_profile(uidentity.profile, stored_uuid, verbose)
-            except Exception, e:
+            except Exception as e:
                 self.error("%s. Loading %s profile. Skipping profile." % \
                            (unicode(e), stored_uuid))
 
@@ -294,7 +294,7 @@ class Load(Command):
                 api.unique_identities(self.db, uuid)
                 self.log("-- %s already exists." % uuid, verbose)
                 return uuid
-            except NotFoundError, e:
+            except NotFoundError as e:
                 self.log("-- %s not found. Generating a new UUID." % uuid, verbose)
 
         # We don't have a unique identity, so we have to create
@@ -311,10 +311,10 @@ class Load(Command):
                                            identity.name,
                                            identity.username)
             self.new_uids.add(stored_uuid)
-        except AlreadyExistsError, e:
+        except AlreadyExistsError as e:
             stored_uuid = e.uuid
             self.warning("-- " + unicode(e))
-        except ValueError, e:
+        except ValueError as e:
             raise LoadError(cause=unicode(e))
 
         self.log("-- using %s for %s unique identity." % (stored_uuid, uuid), verbose)
@@ -331,7 +331,7 @@ class Load(Command):
                 api.add_identity(self.db, identity.source, identity.email,
                                  identity.name, identity.username, uuid)
                 self.new_uids.add(uuid)
-            except AlreadyExistsError, e:
+            except AlreadyExistsError as e:
                 self.warning(unicode(e), verbose)
 
                 stored_uuid = e.uuid
@@ -440,7 +440,7 @@ class Load(Command):
 
             try:
                 api.add_organization(self.db, organization)
-            except AlreadyExistsError, e:
+            except AlreadyExistsError as e:
                 msg = "%s. Organization not updated." % unicode(e)
                 self.warning(msg, verbose)
 
@@ -457,7 +457,7 @@ class Load(Command):
             try:
                 api.add_enrollment(self.db, uuid, enrollment.organization.name,
                                    from_date, to_date)
-            except AlreadyExistsError, e:
+            except AlreadyExistsError as e:
                 msg = "%s. Enrollment not updated." % unicode(e)
                 self.warning(msg, verbose)
             except (ValueError, NotFoundError), e:

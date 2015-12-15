@@ -284,7 +284,7 @@ class GitdmParser(object):
             try:
                 result = parse_line(m.group(1), m.group(2))
                 yield result
-            except InvalidFormatError, e:
+            except InvalidFormatError as e:
                 cause = "line %s: %s" % (str(nline), e)
                 raise InvalidFormatError(cause=cause)
 
@@ -331,7 +331,7 @@ class GitdmParser(object):
         if date:
             try:
                 dt = dateutil.parser.parse(r.group('date'))
-            except Exception, e:
+            except Exception as e:
                 cause = "invalid date: '%s'" % date
         else:
             dt = MAX_PERIOD_DATE

@@ -104,7 +104,7 @@ class Show(Command):
                 uid.roles = enrollments
 
             self.display('show.tmpl', uidentities=uidentities)
-        except NotFoundError, e:
+        except NotFoundError as e:
             self.error(str(e))
             return CMD_FAILURE
 

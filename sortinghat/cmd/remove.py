@@ -100,7 +100,7 @@ class Remove(Command):
 
             self.display('remove.tmpl',
                          uuid_or_id=uuid_or_id, identity=identity)
-        except NotFoundError, e:
+        except NotFoundError as e:
             self.error(str(e))
             return CMD_FAILURE
 

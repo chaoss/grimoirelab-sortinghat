@@ -138,7 +138,7 @@ class EclipseParser(object):
                         uid.enrollments.append(rol)
 
                 self._identities[uuid] = uid
-        except KeyError, e:
+        except KeyError as e:
             msg = "invalid json format. Attribute %s not found" % e.args
             raise InvalidFormatError(cause=msg)
 
@@ -193,7 +193,7 @@ class EclipseParser(object):
                         active = MIN_PERIOD_DATE
                     if not inactive:
                         inactive = MAX_PERIOD_DATE
-                except InvalidDateError, e:
+                except InvalidDateError as e:
                     raise InvalidFormatError(cause=str(e))
 
                 org = self._organizations.get(name, None)
@@ -206,7 +206,7 @@ class EclipseParser(object):
                     org.inactive = inactive
 
                     self._organizations[name] = org
-        except KeyError, e:
+        except KeyError as e:
             msg = "invalid json format. Attribute %s not found" % e.args
             raise InvalidFormatError(cause=msg)
 
@@ -221,7 +221,7 @@ class EclipseParser(object):
             try:
                 start_date = str_to_datetime(affiliation['active'])
                 end_date = str_to_datetime(affiliation['inactive'])
-            except InvalidDateError, e:
+            except InvalidDateError as e:
                 raise InvalidFormatError(cause=str(e))
 
             # Ignore affiliation
@@ -258,7 +258,7 @@ class EclipseParser(object):
 
         try:
             return json.loads(stream)
-        except ValueError, e:
+        except ValueError as e:
             cause = "invalid json format. %s" % str(e)
             raise InvalidFormatError(cause=cause)
 

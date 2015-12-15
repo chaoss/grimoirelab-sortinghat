@@ -80,7 +80,7 @@ class Log(Command):
             to_date = utils.str_to_datetime(params.to_date)
 
             code = self.log(uuid, organization, from_date, to_date)
-        except InvalidDateError, e:
+        except InvalidDateError as e:
             self.error(str(e))
             return CMD_FAILURE
 
@@ -111,7 +111,7 @@ class Log(Command):
             enrollments = api.enrollments(self.db, uuid, organization,
                                           from_date, to_date)
             self.display('log.tmpl', enrollments=enrollments)
-        except (NotFoundError, ValueError), e:
+        except (NotFoundError, ValueError) as e:
             self.error(str(e))
             return CMD_FAILURE
 

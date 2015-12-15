@@ -157,11 +157,11 @@ class Organizations(Command):
         if not domain:
             try:
                 api.add_organization(self.db, organization)
-            except ValueError, e:
+            except ValueError as e:
                 # If the code reaches here, something really wrong has happened
                 # because organization cannot be None or empty
                 raise RuntimeError(str(e))
-            except AlreadyExistsError, e:
+            except AlreadyExistsError as e:
                 self.error(str(e))
                 return CMD_FAILURE
         else:
@@ -169,10 +169,10 @@ class Organizations(Command):
                 api.add_domain(self.db, organization, domain,
                                is_top_domain=is_top_domain,
                                overwrite=overwrite)
-            except ValueError, e:
+            except ValueError as e:
                 # Same as above, domains cannot be None or empty
                 raise RuntimeError(str(e))
-            except (AlreadyExistsError, NotFoundError), e:
+            except (AlreadyExistsError, NotFoundError) as e:
                 self.error(str(e))
                 return CMD_FAILURE
 
@@ -198,13 +198,13 @@ class Organizations(Command):
         if not domain:
             try:
                 api.delete_organization(self.db, organization)
-            except NotFoundError, e:
+            except NotFoundError as e:
                 self.error(str(e))
                 return CMD_FAILURE
         else:
             try:
                 api.delete_domain(self.db, organization, domain)
-            except NotFoundError, e:
+            except NotFoundError as e:
                 self.error(str(e))
                 return CMD_FAILURE
 
@@ -222,7 +222,7 @@ class Organizations(Command):
         try:
             orgs = api.registry(self.db, term)
             self.display('organizations.tmpl', organizations=orgs)
-        except NotFoundError, e:
+        except NotFoundError as e:
             self.error(str(e))
             return CMD_FAILURE
 
