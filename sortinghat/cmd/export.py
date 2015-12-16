@@ -84,16 +84,16 @@ class Export(Command):
         """
         params = self.parser.parse_args(args)
 
-        if params.identities:
-            code = self.export_identities(params.outfile, params.source)
-        elif params.orgs:
-            code = self.export_organizations(params.outfile)
-        else:
-            # The running proccess never should reach this section
-            raise RuntimeError("Unexpected export option")
+        with params.outfile as outfile:
+            if params.identities:
+                code = self.export_identities(outfile, params.source)
+            elif params.orgs:
+                code = self.export_organizations(outfile)
+            else:
+                # The running proccess never should reach this section
+                raise RuntimeError("Unexpected export option")
 
         return code
-
 
     def export_identities(self, outfile, source=None):
         """Export identities information to a file.
