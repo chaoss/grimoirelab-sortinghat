@@ -119,7 +119,10 @@ class Init(Command):
         import csv
         import pkg_resources
 
-        f = pkg_resources.resource_stream('sortinghat', 'data/countries.csv')
-        reader = csv.DictReader(f, fieldnames=['name', 'code', 'alpha3'])
+        filename = pkg_resources.resource_filename('sortinghat', 'data/countries.csv')
 
-        return [Country(**c) for c in reader]
+        with open(filename, 'r') as f:
+            reader = csv.DictReader(f, fieldnames=['name', 'code', 'alpha3'])
+            countries = [Country(**c) for c in reader]
+
+        return countries
