@@ -26,6 +26,7 @@ from __future__ import absolute_import
 import sys
 import unittest
 import uuid
+import warnings
 
 if not '..' in sys.path:
     sys.path.insert(0, '..')
@@ -35,11 +36,11 @@ from sortinghat.command import CMD_SUCCESS, CMD_FAILURE
 from sortinghat.cmd.init import Init
 from sortinghat.db.database import Database
 
-from .config import DB_USER, DB_PASSWORD, DB_HOST, DB_PORT
+from tests.config import DB_USER, DB_PASSWORD, DB_HOST, DB_PORT
 
 
-DB_ACCESS_ERROR = "Error: Access denied for user '%(user)s'@'localhost' (using password: YES) (err: 1045)"
-DB_EXISTS_ERROR = "Error: Can't create database '%(database)s'; database exists (err: 1007)"
+DB_ACCESS_ERROR = r".+Access denied for user '%(user)s'@'localhost' \(using password: YES\)"
+DB_EXISTS_ERROR = r".+Can't create database '%(database)s'; database exists \(err: 1007\)"
 
 
 class TestBaseCase(unittest.TestCase):
@@ -96,8 +97,10 @@ class TestInitCommand(TestBaseCase):
         code = cmd.run(self.name)
         self.assertEqual(code, CMD_FAILURE)
 
-        output = sys.stderr.getvalue().strip()
-        self.assertEqual(output, DB_ACCESS_ERROR % {'user' : 'nouser'})
+        with warnings.catch_warnings(record=True):
+            output = sys.stderr.getvalue().strip()
+            self.assertRegexpMatches(output,
+                                     DB_ACCESS_ERROR % {'user' : 'nouser'})
 
     def test_existing_db_error(self):
         """Check if it returns an error when tries to create the registry twice"""
@@ -108,8 +111,11 @@ class TestInitCommand(TestBaseCase):
         code2 = self.cmd.run(self.name)
         self.assertEqual(code2, CMD_FAILURE)
 
-        output = sys.stderr.getvalue().strip()
-        self.assertEqual(output, DB_EXISTS_ERROR % {'database' : self.name})
+        # Context added to catch deprecation warnings raised on Python 3
+        with warnings.catch_warnings(record=True):
+            output = sys.stderr.getvalue().strip()
+            self.assertRegexpMatches(output,
+                                     DB_EXISTS_ERROR % {'database' : self.name})
 
 
 class TestInitialize(TestBaseCase):
@@ -141,8 +147,12 @@ class TestInitialize(TestBaseCase):
         cmd = Init(**kwargs)
         code = cmd.initialize(self.name)
         self.assertEqual(code, CMD_FAILURE)
-        output = sys.stderr.getvalue().strip()
-        self.assertEqual(output, DB_ACCESS_ERROR % {'user' : 'nouser'})
+
+        # Context added to catch deprecation warnings raised on Python 3
+        with warnings.catch_warnings(record=True):
+            output = sys.stderr.getvalue().strip()
+            self.assertRegexpMatches(output,
+                                     DB_ACCESS_ERROR % {'user' : 'nouser'})
 
     def test_existing_db_error(self):
         """Check if it returns an error when tries to create the registry twice"""
@@ -153,8 +163,11 @@ class TestInitialize(TestBaseCase):
         code2 = self.cmd.initialize(self.name)
         self.assertEqual(code2, CMD_FAILURE)
 
-        output = sys.stderr.getvalue().strip()
-        self.assertEqual(output, DB_EXISTS_ERROR % {'database' : self.name})
+        # Context added to catch deprecation warnings raised on Python 3
+        with warnings.catch_warnings(record=True):
+            output = sys.stderr.getvalue().strip()
+            self.assertRegexpMatches(output,
+                                     DB_EXISTS_ERROR % {'database' : self.name})
 
 
 if __name__ == "__main__":

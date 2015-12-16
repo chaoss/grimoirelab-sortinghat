@@ -105,7 +105,12 @@ class TestOrganization(TestCaseBase):
     def test_none_name_organizations(self):
         """Check whether organizations without name can be stored"""
 
-        with self.assertRaisesRegexp(OperationalError, NULL_CHECK_ERROR):
+        if sys.version_info[0] >= 3: # Python 3
+            expected = IntegrityError
+        else: # Python 2
+            expected = OperationalError
+
+        with self.assertRaisesRegexp(expected, NULL_CHECK_ERROR):
             org1 = Organization()
 
             self.session.add(org1)
@@ -169,7 +174,12 @@ class TestDomain(TestCaseBase):
     def test_not_null_organizations(self):
         """Check whether every domain is assigned to an organization"""
 
-        with self.assertRaisesRegexp(OperationalError, NULL_CHECK_ERROR):
+        if sys.version_info[0] >= 3: # Python 3
+            expected = IntegrityError
+        else: # Python 2
+            expected = OperationalError
+
+        with self.assertRaisesRegexp(expected, NULL_CHECK_ERROR):
             dom1 = Domain(domain='example.com')
             self.session.add(dom1)
             self.session.commit()
@@ -177,7 +187,12 @@ class TestDomain(TestCaseBase):
     def test_none_name_domains(self):
         """Check whether domains without name can be stored"""
 
-        with self.assertRaisesRegexp(OperationalError, NULL_CHECK_ERROR):
+        if sys.version_info[0] >= 3: # Python 3
+            expected = IntegrityError
+        else: # Python 2
+            expected = OperationalError
+
+        with self.assertRaisesRegexp(expected, NULL_CHECK_ERROR):
             org1 = Organization(name='Example')
             self.session.add(org1)
 
@@ -251,7 +266,12 @@ class TestCountry(TestCaseBase):
     def test_none_name_country(self):
         """Check whether countries without name can be stored"""
 
-        with self.assertRaisesRegexp(OperationalError, NULL_CHECK_ERROR):
+        if sys.version_info[0] >= 3: # Python 3
+            expected = IntegrityError
+        else: # Python 2
+            expected = OperationalError
+
+        with self.assertRaisesRegexp(expected, NULL_CHECK_ERROR):
             c = Country(code='ES', alpha3='ESP')
             self.session.add(c)
 
@@ -260,7 +280,12 @@ class TestCountry(TestCaseBase):
     def test_none_alpha3_country(self):
         """Check whether countries without alpha3 code can be stored"""
 
-        with self.assertRaisesRegexp(OperationalError, NULL_CHECK_ERROR):
+        if sys.version_info[0] >= 3: # Python 3
+            expected = IntegrityError
+        else: # Python 2
+            expected = OperationalError
+
+        with self.assertRaisesRegexp(expected, NULL_CHECK_ERROR):
             c = Country(code='ES', name='Spain')
             self.session.add(c)
 
@@ -366,7 +391,12 @@ class TestIdentity(TestCaseBase):
     def test_not_null_source(self):
         """Check whether every identity has a source"""
 
-        with self.assertRaisesRegexp(OperationalError, NULL_CHECK_ERROR):
+        if sys.version_info[0] >= 3: # Python 3
+            expected = IntegrityError
+        else: # Python 2
+            expected = OperationalError
+
+        with self.assertRaisesRegexp(expected, NULL_CHECK_ERROR):
             id1 = Identity()
             self.session.add(id1)
             self.session.commit()
@@ -489,14 +519,19 @@ class TestEnrollment(TestCaseBase):
     def test_not_null_relationships(self):
         """Check whether every enrollment is assigned organizations and unique identities"""
 
-        with self.assertRaisesRegexp(OperationalError, NULL_CHECK_ERROR):
+        if sys.version_info[0] >= 3: # Python 3
+            expected = IntegrityError
+        else: # Python 2
+            expected = OperationalError
+
+        with self.assertRaisesRegexp(expected, NULL_CHECK_ERROR):
             rol1 = Enrollment()
             self.session.add(rol1)
             self.session.commit()
 
         self.session.rollback()
 
-        with self.assertRaisesRegexp(OperationalError, NULL_CHECK_ERROR):
+        with self.assertRaisesRegexp(expected, NULL_CHECK_ERROR):
             uid = UniqueIdentity(uuid='John Smith')
             self.session.add(uid)
 
@@ -506,7 +541,7 @@ class TestEnrollment(TestCaseBase):
 
         self.session.rollback()
 
-        with self.assertRaisesRegexp(OperationalError, NULL_CHECK_ERROR):
+        with self.assertRaisesRegexp(expected, NULL_CHECK_ERROR):
             org = Organization(name='Example')
             self.session.add(org)
 

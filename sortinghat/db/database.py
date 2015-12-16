@@ -48,7 +48,7 @@ class Database(object):
         try:
             self.__create_schema(self._engine)
         except OperationalError as e:
-            raise DatabaseError(error=e.orig[1], code=e.orig[0])
+            raise DatabaseError(error=e.orig.args[1], code=e.orig.args[0])
 
     @contextmanager
     def connect(self):
@@ -87,9 +87,9 @@ class Database(object):
     def execute(cls, engine, query):
         try:
             conn = engine.connect()
-            conn.execute(query);
+            conn.execute(query)
         except (OperationalError, ProgrammingError) as e:
-            raise DatabaseError(error=e.orig[1], code=e.orig[0])
+            raise DatabaseError(error=e.orig.args[1], code=e.orig.args[0])
 
     @classmethod
     def build_engine(cls, user, password, database, host='localhost', port='3306'):
@@ -121,7 +121,7 @@ def create_database_session(engine):
         Session = sessionmaker(bind=engine)
         return Session()
     except OperationalError as e:
-        raise DatabaseError(error=e.orig[1], code=e.orig[0])
+        raise DatabaseError(error=e.orig.args[1], code=e.orig.args[0])
 
 
 def close_database_session(session):
@@ -130,7 +130,7 @@ def close_database_session(session):
     try:
         session.close()
     except OperationalError as e:
-        raise DatabaseError(error=e.orig[1], code=e.orig[0])
+        raise DatabaseError(error=e.orig.args[1], code=e.orig.args[0])
 
 
 def reflect_table(engine, klass):
@@ -140,7 +140,7 @@ def reflect_table(engine, klass):
         meta = MetaData()
         meta.reflect(bind=engine)
     except OperationalError as e:
-        raise DatabaseError(error=e.orig[1], code=e.orig[0])
+        raise DatabaseError(error=e.orig.args[1], code=e.orig.args[0])
 
     # Try to reflect from any of the supported tables
     table = None
