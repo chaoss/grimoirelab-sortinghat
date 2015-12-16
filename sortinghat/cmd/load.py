@@ -118,14 +118,15 @@ class Load(Command):
         """
         params = self.parser.parse_args(args)
 
-        try:
-            stream = self.__read_file(params.infile)
-            parser = SortingHatParser(stream)
-        except InvalidFormatError as e:
-            self.error(unicode(e))
-            return CMD_FAILURE
-        except (IOError, TypeError, AttributeError) as e:
-            raise RuntimeError(unicode(e))
+        with params.infile as infile:
+            try:
+                stream = self.__read_file(infile)
+                parser = SortingHatParser(stream)
+            except InvalidFormatError as e:
+                self.error(str(e))
+                return CMD_FAILURE
+            except (IOError, TypeError, AttributeError) as e:
+                raise RuntimeError(str(e))
 
         if params.identities:
             self.import_blacklist(parser)
