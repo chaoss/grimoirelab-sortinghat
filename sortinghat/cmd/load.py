@@ -21,6 +21,7 @@
 #
 
 from __future__ import absolute_import
+from __future__ import unicode_literals
 
 import argparse
 import sys
@@ -104,7 +105,11 @@ class Load(Command):
     def log(self, msg, debug=True):
         if debug:
             s = msg + '\n'
-            sys.stdout.write(s.encode('UTF-8'))
+
+            if sys.version_info[0] < 3: # Python 2.7
+                s = s.encode('UTF-8')
+
+            sys.stdout.write(s)
 
     def warning(self, msg, debug=True):
         if debug:
@@ -161,9 +166,9 @@ class Load(Command):
                 self.display('load_blacklist.tmpl', entry=entry.excluded)
                 n += 1
             except ValueError as e:
-                raise RuntimeError(unicode(e))
+                raise RuntimeError(str(e))
             except AlreadyExistsError as e:
-                msg = "%s. Not added." % unicode(e)
+                msg = "%s. Not added." % str(e)
                 self.warning(msg)
 
         self.log("%d/%d blacklist entries loaded" % (n, len(blacklist)))
@@ -186,7 +191,7 @@ class Load(Command):
             try:
                 api.add_organization(self.db, org.name)
             except ValueError as e:
-                raise RuntimeError(unicode(e))
+                raise RuntimeError(str(e))
             except AlreadyExistsError as e:
                 pass
 
@@ -198,9 +203,9 @@ class Load(Command):
                     self.display('load_domains.tmpl', domain=dom.domain,
                                  organization=org.name)
                 except (ValueError, NotFoundError) as e:
-                    raise RuntimeError(unicode(e))
+                    raise RuntimeError(str(e))
                 except AlreadyExistsError as e:
-                    msg = "%s. Not updated." % unicode(e)
+                    msg = "%s. Not updated." % str(e)
                     self.warning(msg)
 
     def import_identities(self, parser, matching=None, match_new=False,
@@ -228,7 +233,7 @@ class Load(Command):
                 blacklist = api.blacklist(self.db)
                 matcher = create_identity_matcher(matching, blacklist)
             except MatcherNotSupportedError as e:
-                self.error(unicode(e))
+                self.error(str(e))
                 return CMD_FAILURE
 
         uidentities = parser.identities
@@ -237,7 +242,7 @@ class Load(Command):
             self.__load_unique_identities(uidentities, matcher, match_new,
                                           verbose)
         except LoadError as e:
-            self.error(unicode(e))
+            self.error(str(e))
             return CMD_FAILURE
 
         return CMD_SUCCESS
@@ -259,7 +264,7 @@ class Load(Command):
             try:
                 stored_uuid = self.__load_unique_identity(uidentity, verbose)
             except LoadError as e:
-                self.error("%s Skipping." % unicode(e))
+                self.error("%s Skipping." % str(e))
                 self.log("=====", verbose)
                 continue
 
@@ -272,7 +277,7 @@ class Load(Command):
                 self.__load_profile(uidentity.profile, stored_uuid, verbose)
             except Exception as e:
                 self.error("%s. Loading %s profile. Skipping profile." % \
-                           (unicode(e), stored_uuid))
+                           (str(e), stored_uuid))
 
             self.__load_enrollments(uidentity.enrollments, stored_uuid,
                                     verbose)
@@ -316,9 +321,9 @@ class Load(Command):
             self.new_uids.add(stored_uuid)
         except AlreadyExistsError as e:
             stored_uuid = e.uuid
-            self.warning("-- " + unicode(e))
+            self.warning("-- " + str(e))
         except ValueError as e:
-            raise LoadError(cause=unicode(e))
+            raise LoadError(cause=str(e))
 
         self.log("-- using %s for %s unique identity." % (stored_uuid, uuid), verbose)
 
@@ -335,7 +340,7 @@ class Load(Command):
                                  identity.name, identity.username, uuid)
                 self.new_uids.add(uuid)
             except AlreadyExistsError as e:
-                self.warning(unicode(e), verbose)
+                self.warning(str(e), verbose)
 
                 stored_uuid = e.uuid
 
@@ -389,8 +394,8 @@ class Load(Command):
 
         import re
 
-        EMAIL_ADDRESS_REGEX = ur"^(?P<email>[^\s@]+@[^\s@.]+\.[^\s@]+)$"
-        NAME_REGEX = ur"^\w+\s\w+"
+        EMAIL_ADDRESS_REGEX = r"^(?P<email>[^\s@]+@[^\s@.]+\.[^\s@]+)$"
+        NAME_REGEX = r"^\w+\s\w+"
 
         name = None
         email = None
@@ -444,7 +449,7 @@ class Load(Command):
             try:
                 api.add_organization(self.db, organization)
             except AlreadyExistsError as e:
-                msg = "%s. Organization not updated." % unicode(e)
+                msg = "%s. Organization not updated." % str(e)
                 self.warning(msg, verbose)
 
             if organization not in organizations:
@@ -461,10 +466,10 @@ class Load(Command):
                 api.add_enrollment(self.db, uuid, enrollment.organization.name,
                                    from_date, to_date)
             except AlreadyExistsError as e:
-                msg = "%s. Enrollment not updated." % unicode(e)
+                msg = "%s. Enrollment not updated." % str(e)
                 self.warning(msg, verbose)
-            except (ValueError, NotFoundError), e:
-                raise LoadError(cause=unicode(e))
+            except (ValueError, NotFoundError) as e:
+                raise LoadError(cause=str(e))
 
         for organization in organizations:
             api.merge_enrollments(self.db, uuid, organization)
@@ -508,4 +513,9 @@ class Load(Command):
     def __read_file(self, infile):
         """Read a file into a str object"""
 
-        return infile.read().decode('UTF-8')
+        if sys.version_info[0] >= 3: # Python 3
+            content = infile.read()
+        else: # Python 2
+            content = infile.read().decode('UTF-8')
+
+        return content

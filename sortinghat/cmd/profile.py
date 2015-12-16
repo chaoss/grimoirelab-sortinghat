@@ -21,6 +21,7 @@
 #
 
 from __future__ import absolute_import
+from __future__ import unicode_literals
 
 import argparse
 
@@ -122,11 +123,11 @@ class Profile(Command):
         kw = {}
 
         if params.name:
-            kw['name'] = params.name.decode('utf-8')
+            kw['name'] = self.__decode(params.name)
         if params.email:
-            kw['email'] = params.email.decode('utf-8')
+            kw['email'] = self.__decode(params.email)
         if params.country:
-            kw['country_code'] = params.country.decode('utf-8')
+            kw['country_code'] = self.__decode(params.country)
 
         if params.is_bot:
             kw['is_bot'] = True
@@ -134,3 +135,11 @@ class Profile(Command):
             kw['is_bot'] = False
 
         return uuid, kw
+
+    def __decode(self, s):
+        import sys
+
+        if sys.version_info[0] >= 3: # Python 3
+            return s
+        else: # Python 2
+            return s.decode('UTF-8')

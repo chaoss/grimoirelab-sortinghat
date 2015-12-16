@@ -22,6 +22,7 @@
 #
 
 from __future__ import absolute_import
+from __future__ import unicode_literals
 
 import datetime
 import sys
@@ -38,7 +39,7 @@ from sqlalchemy.orm import sessionmaker
 from sortinghat.db.model import ModelBase, Organization, Domain, Country,\
     UniqueIdentity, Identity, Profile, Enrollment, MatchingBlacklist
 
-from .config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
+from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
 
 DUP_CHECK_ERROR = 'Duplicate entry'

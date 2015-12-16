@@ -22,6 +22,7 @@
 #
 
 from __future__ import absolute_import
+from __future__ import unicode_literals
 
 import sys
 import unittest
@@ -34,7 +35,7 @@ from sortinghat.command import CMD_SUCCESS, CMD_FAILURE
 from sortinghat.cmd.unify import Unify
 from sortinghat.db.database import Database
 
-from .config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
+from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
 
 UNIFY_DEFAULT_OUTPUT = """Total unique identities processed: 6

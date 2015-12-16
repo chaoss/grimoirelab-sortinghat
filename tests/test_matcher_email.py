@@ -21,6 +21,8 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+from __future__ import unicode_literals
+
 import sys
 import unittest
 

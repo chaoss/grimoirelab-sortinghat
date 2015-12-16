@@ -20,6 +20,8 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+from __future__ import absolute_import
+
 # Database parameters
 DB_USER = 'root'
 DB_PASSWORD = ''

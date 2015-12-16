@@ -21,6 +21,7 @@
 #
 
 from __future__ import absolute_import
+from __future__ import unicode_literals
 
 import re
 
@@ -28,8 +29,8 @@ from ..db.model import UniqueIdentity
 from ..matcher import IdentityMatcher, FilteredIdentity
 
 
-EMAIL_ADDRESS_REGEX = ur"^(?P<email>[^\s@]+@[^\s@.]+\.[^\s@]+)$"
-NAME_REGEX = ur"^\w+\s\w+"
+EMAIL_ADDRESS_REGEX = r"^(?P<email>[^\s@]+@[^\s@.]+\.[^\s@]+)$"
+NAME_REGEX = r"^\w+\s\w+"
 
 
 class EmailNameIdentity(FilteredIdentity):
@@ -82,9 +83,9 @@ class EmailNameMatcher(IdentityMatcher):
             an instance of UniqueIdentity class
         """
         if not isinstance(a, UniqueIdentity):
-            raise ValueError('<a> is not an instance of UniqueIdentity')
+            raise ValueError("<a> is not an instance of UniqueIdentity")
         if not isinstance(b, UniqueIdentity):
-            raise ValueError('<b> is not an instance of UniqueIdentity')
+            raise ValueError("<b> is not an instance of UniqueIdentity")
 
         if a.uuid and b.uuid and a.uuid == b.uuid:
             return True
@@ -119,9 +120,9 @@ class EmailNameMatcher(IdentityMatcher):
             an instance of EmailNameIdentity class.
         """
         if not isinstance(fa, EmailNameIdentity):
-            raise ValueError('<fa> is not an instance of UniqueIdentity')
+            raise ValueError("<fa> is not an instance of UniqueIdentity")
         if not isinstance(fb, EmailNameIdentity):
-            raise ValueError('<fb> is not an instance of EmailNameIdentity')
+            raise ValueError("<fb> is not an instance of EmailNameIdentity")
 
         if fa.uuid and fb.uuid and fa.uuid == fb.uuid:
             return True
@@ -150,7 +151,7 @@ class EmailNameMatcher(IdentityMatcher):
             of UniqueIdentity class
         """
         if not isinstance(u, UniqueIdentity):
-            raise ValueError('<u> is not an instance of UniqueIdentity')
+            raise ValueError("<u> is not an instance of UniqueIdentity")
 
         filtered = []
 

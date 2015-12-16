@@ -22,10 +22,12 @@
 #
 
 from __future__ import absolute_import
+from __future__ import unicode_literals
 
 import datetime
 import sys
 import unittest
+import warnings
 
 if not '..' in sys.path:
     sys.path.insert(0, '..')
@@ -37,14 +39,14 @@ from sortinghat.db.database import Database
 from sortinghat.db.model import Country
 from sortinghat.parsing.sh import SortingHatParser
 
-from .config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
+from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
 
 LOAD_BLACKLIST_EMPTY_STRINGS_ERROR = "Error: invalid json format. Blacklist entries cannot be null or empty"
 LOAD_IDENTITIES_INVALID_JSON_FORMAT_ERROR = "Error: invalid json format. Expecting ',' delimiter: line 86 column 17 (char 2821)"
 LOAD_IDENTITIES_MISSING_KEYS_ERROR = "Error: invalid json format. Attribute uuid not found"
 LOAD_IDENTITIES_MATCHING_ERROR = "Error: mock identity matcher is not supported"
-LOAD_ORGS_INVALID_FORMAT_ERROR = "Error: invalid json format. Expecting object: line 37 column 2 (char 832)"
+LOAD_ORGS_INVALID_FORMAT_ERROR = r"Error: invalid json format\. Expecting .+ line \d+ column \d+ \(char \d+\)"
 LOAD_ORGS_MISSING_KEYS_ERROR = "Error: invalid json format. Attribute is_top not found"
 LOAD_ORGS_IS_TOP_ERROR = "Error: invalid json format. 'is_top' must have a bool value"
 
@@ -129,12 +131,17 @@ class TestBaseCase(unittest.TestCase):
         self.db.clear()
 
     def get_parser(self, filename):
-        with open(filename, 'r') as f:
-            content = f.read().decode('UTF-8')
+        if sys.version_info[0] >= 3: # Python 3
+            with open(filename, 'r', encoding='UTF-8') as f:
+                content = f.read()
+        else: # Python 2
+            with open(filename, 'r') as f:
+                content = f.read().decode('UTF-8')
         return SortingHatParser(content)
 
     def sort_identities(self, ids):
         return sorted(ids, key=lambda x: x.id)
+
 
 class TestLoadCommand(TestBaseCase):
     """Load command unit tests"""
@@ -235,10 +242,12 @@ class TestLoadCommand(TestBaseCase):
         output = sys.stderr.getvalue().strip().split('\n')[1]
         self.assertEqual(output, LOAD_IDENTITIES_MISSING_KEYS_ERROR)
 
-        code = self.cmd.run('data/sortinghat_orgs_invalid_json.json')
-        self.assertEqual(code, CMD_FAILURE)
-        output = sys.stderr.getvalue().strip().split('\n')[2]
-        self.assertEqual(output, LOAD_ORGS_INVALID_FORMAT_ERROR)
+        # Context added to catch deprecation warnings raised on Python 3
+        with warnings.catch_warnings(record=True):
+            code = self.cmd.run('data/sortinghat_orgs_invalid_json.json')
+            self.assertEqual(code, CMD_FAILURE)
+            output = sys.stderr.getvalue().strip().split('\n')[2]
+            self.assertRegexpMatches(output, LOAD_ORGS_INVALID_FORMAT_ERROR)
 
         code = self.cmd.run('data/sortinghat_orgs_missing_keys.json')
         self.assertEqual(code, CMD_FAILURE)

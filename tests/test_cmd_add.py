@@ -22,6 +22,7 @@
 #
 
 from __future__ import absolute_import
+from __future__ import unicode_literals
 
 import sys
 import unittest
@@ -35,7 +36,7 @@ from sortinghat.cmd.add import Add
 from sortinghat.db.database import Database
 from sortinghat.exceptions import CODE_ALREADY_EXISTS_ERROR, CODE_MATCHER_NOT_SUPPORTED_ERROR, CODE_NOT_FOUND_ERROR, CODE_VALUE_ERROR
 
-from .config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
+from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
 
 ADD_EXISTING_ERROR = "Error: scm-jsmith@example.com-John Smith-jsmith already exists in the registry"

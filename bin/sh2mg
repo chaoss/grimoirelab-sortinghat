@@ -21,6 +21,8 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+from __future__ import unicode_literals
+
 import argparse
 import collections
 import sys
@@ -34,6 +36,7 @@ import sortinghat.utils as utils
 from sortinghat.db.model import MetricsGrimoireIdentity
 from sortinghat.exceptions import InvalidFormatError, DatabaseError
 from sortinghat.parsing.sh import SortingHatParser
+from sortinghat.utils import to_unicode
 
 
 SH2MG_USAGE_MSG = \
@@ -122,7 +125,7 @@ def parse_args():
 def retrieve_sh_identities(infile, source):
     """Retrieve identities from a file object"""
 
-    content = infile.read().decode('UTF-8')
+    content = read_file(infile)
 
     parser = SortingHatParser(content)
     uids = parser.identities
@@ -166,7 +169,7 @@ def retrieve_mg_identities(engine, source):
 
     for mg in mg_identities:
         uuid = utils.uuid(source, mg.email, mg.name, mg.username)
-        i = Identity(unicode(mg.mg_id), uuid)
+        i = Identity(to_unicode(mg.mg_id), uuid)
         identities.append(i)
 
     return identities
@@ -223,9 +226,16 @@ def load_mapping(engine, mapping):
         if data:
             conn.execute(table.insert(), data)
     except (OperationalError, ProgrammingError) as e:
-        raise DatabaseError(error=e.orig[1], code=e.orig[0])
+        raise DatabaseError(error=e.orig.args[1], code=e.orig.args[0])
 
     return n
+
+def read_file(infile):
+    if sys.version_info[0] >= 3: # Python 3
+        content = infile.read()
+    else: # Python 2
+        content = infile.read().decode('UTF-8')
+    return content
 
 
 if __name__ == '__main__':

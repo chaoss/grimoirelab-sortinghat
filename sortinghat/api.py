@@ -21,6 +21,7 @@
 #
 
 from __future__ import absolute_import
+from __future__ import unicode_literals
 
 from . import utils
 from .db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE,\
@@ -126,7 +127,8 @@ def add_identity(db, source, email=None, name=None, username=None, uuid=None):
                    Identity.source == source).first()
 
         if identity:
-            entity = '-'.join((utils.to_unicode(source), utils.to_unicode(email), utils.to_unicode(name), utils.to_unicode(username)))
+            entity = '-'.join((utils.to_unicode(source), utils.to_unicode(email),
+                               utils.to_unicode(name), utils.to_unicode(username)))
             raise AlreadyExistsError(entity=entity,
                                      uuid=identity.uuid)
 
@@ -142,7 +144,8 @@ def add_identity(db, source, email=None, name=None, username=None, uuid=None):
 
             if uidentity:
                 entity = '-'.join((utils.to_unicode(identity_id), utils.to_unicode(source),
-                                   utils.to_unicode(email), utils.to_unicode(name), utils.to_unicode(username)))
+                                   utils.to_unicode(email), utils.to_unicode(name),
+                                   utils.to_unicode(username)))
                 raise AlreadyExistsError(entity=entity,
                                          uuid=identity_id)
 
@@ -1111,10 +1114,19 @@ def countries(db, code=None, term=None):
     :raises NotFoundError: raised when the given 'code' or 'term' is not
         found for any country from the registry
     """
-    def _is_code_valid(code):
-        return type(code) == str \
-            and len(code) == 2 \
-            and code.isalpha()
+    import sys
+
+    if sys.version_info[0] >= 3: # Python 3
+        def _is_code_valid(code):
+            return type(code) == str \
+                and len(code) == 2 \
+                and code.isalpha()
+    else: # Python 2
+        def _is_code_valid(code):
+            return (type(code) == str \
+                    or type(code) == unicode) \
+                and len(code) == 2 \
+                and code.isalpha()
 
     if code is not None and not _is_code_valid(code):
         raise ValueError('country code must be a 2 length alpha string - %s given' \

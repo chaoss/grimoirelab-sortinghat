@@ -21,6 +21,8 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+from __future__ import unicode_literals
+
 import sys
 import unittest
 
@@ -51,7 +53,6 @@ class TestBaseError(unittest.TestCase):
         e = MockErrorNoArgs(code=1, msg='Fatal error')
 
         self.assertEqual("Mock error without args", str(e))
-        self.assertEqual(u"Mock error without args", unicode(e))
 
     def test_subclass_args(self):
         """Check subclasses that require arguments"""
@@ -60,8 +61,6 @@ class TestBaseError(unittest.TestCase):
 
         self.assertEqual("Mock error with args. Error: 1 Fatal error",
                          str(e))
-        self.assertEqual(u"Mock error with args. Error: 1 Fatal error",
-                         unicode(e))
 
     def test_subclass_invalid_args(self):
         """Check when required arguments are not given.
@@ -79,16 +78,14 @@ class TestAlreadyExistsError(unittest.TestCase):
 
         e = AlreadyExistsError(entity='example.com')
         self.assertEqual(str(e),
-                         'example.com already exists in the registry')
-        self.assertEqual(unicode(e),
-                         u'example.com already exists in the registry')
+                         "example.com already exists in the registry")
 
     def test_uuid_arg(self):
         """Test that uuid attribute is set when given as argument"""
 
         e = AlreadyExistsError(uuid='FFFFFFFFFFF', entity='FFFFFFFFFFF')
         self.assertEqual(str(e),
-                         'FFFFFFFFFFF already exists in the registry')
+                         u"FFFFFFFFFFF already exists in the registry")
         self.assertEqual(e.uuid, 'FFFFFFFFFFF')
 
     def test_no_args(self):
@@ -105,8 +102,7 @@ class TestBadFileFormatError(unittest.TestCase):
         """Make sure that prints the correct error"""
 
         e = BadFileFormatError(cause='Invalid file format')
-        self.assertEqual('Invalid file format', str(e))
-        self.assertEqual(u'Invalid file format', unicode(e))
+        self.assertEqual("Invalid file format", str(e))
 
     def test_no_args(self):
         """Check whether it raises a KeyError exception when
@@ -122,7 +118,6 @@ class TestDatabaseError(unittest.TestCase):
 
         e = DatabaseError(error="Unknown database 'mydb'", code=1049)
         self.assertEqual("Unknown database 'mydb' (err: 1049)", str(e))
-        self.assertEqual(u"Unknown database 'mydb' (err: 1049)", unicode(e))
 
     def test_no_args(self):
         """Check whether it raises a KeyError exception when
@@ -143,10 +138,8 @@ class TestInvalidDateError(unittest.TestCase):
         """Make sure that prints the correct error"""
 
         e = InvalidDateError(date='1900-13-01')
-        self.assertEqual('1900-13-01 is not a valid date',
+        self.assertEqual("1900-13-01 is not a valid date",
                          str(e))
-        self.assertEqual(u'1900-13-01 is not a valid date',
-                         unicode(e))
 
     def test_no_args(self):
         """Check whether it raises a KeyError exception when
@@ -161,8 +154,7 @@ class TestInvalidFormatError(unittest.TestCase):
         """Make sure that prints the correct error"""
 
         e = InvalidFormatError(cause='error on line 10')
-        self.assertEqual('error on line 10', str(e))
-        self.assertEqual(u'error on line 10', unicode(e))
+        self.assertEqual("error on line 10", str(e))
 
     def test_no_args(self):
         """Check whether it raises a KeyError exception when
@@ -177,9 +169,7 @@ class TestLoadError(unittest.TestCase):
         """Make sure that prints the correct error"""
 
         e = LoadError(cause='Invalid json format')
-        self.assertEqual('Invalid json format', str(e))
-        self.assertEqual(u'Invalid json format',
-                         unicode(e))
+        self.assertEqual("Invalid json format", str(e))
 
     def test_no_args(self):
         """Check whether it raises a KeyError exception when
@@ -194,10 +184,8 @@ class TestMatcherNotSupported(unittest.TestCase):
         """Make sure that prints the correct error"""
 
         e = MatcherNotSupportedError(matcher='custom')
-        self.assertEqual('custom identity matcher is not supported',
+        self.assertEqual("custom identity matcher is not supported",
                          str(e))
-        self.assertEqual(u'custom identity matcher is not supported',
-                         unicode(e))
 
     def test_no_args(self):
         """Check whether it raises a KeyError exception when
@@ -212,10 +200,8 @@ class TestNotFoundError(unittest.TestCase):
         """Make sure that prints the correct error"""
 
         e = NotFoundError(entity='example.com')
-        self.assertEqual('example.com not found in the registry',
+        self.assertEqual("example.com not found in the registry",
                          str(e))
-        self.assertEqual(u'example.com not found in the registry',
-                         unicode(e))
 
     def test_no_args(self):
         """Check whether it raises a KeyError exception when

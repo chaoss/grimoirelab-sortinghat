@@ -21,6 +21,8 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+from __future__ import unicode_literals
+
 import argparse
 import sys
 
@@ -28,6 +30,7 @@ import sortinghat.db.database as db
 
 from sortinghat.db.model import MetricsGrimoireIdentity
 from sortinghat.exceptions import DatabaseError
+from sortinghat.utils import to_unicode
 
 
 MG2SH_USAGE_MSG = \
@@ -139,7 +142,7 @@ def to_json(identities, source):
     uids = {}
 
     for identity in identities:
-        uuid = unicode(identity.mg_id)
+        uuid = to_unicode(identity.mg_id)
 
         x = identity.to_dict()
         x['id'] = uuid

@@ -21,6 +21,7 @@
 #
 
 from __future__ import absolute_import
+from __future__ import unicode_literals
 
 import argparse
 import os.path
@@ -164,7 +165,7 @@ class Config(Command):
             raise RuntimeError(str(e))
 
         try:
-            with open(filepath, 'wb') as f:
+            with open(filepath, 'w') as f:
                 config.write(f)
         except IOError as e:
             raise RuntimeError(str(e))

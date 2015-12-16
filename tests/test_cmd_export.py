@@ -22,6 +22,7 @@
 #
 
 from __future__ import absolute_import
+from __future__ import unicode_literals
 
 import json
 import sys
@@ -37,7 +38,7 @@ from sortinghat.cmd.export import Export,\
 from sortinghat.db.database import Database
 from sortinghat.db.model import Country
 
-from .config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
+from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
 
 class TestBaseCase(unittest.TestCase):
@@ -73,9 +74,14 @@ class TestBaseCase(unittest.TestCase):
         os.remove(self.tmpfile)
 
     def read_json(self, filename):
-        with open(filename, 'r') as f:
-            content = f.read().decode('UTF-8')
-            obj = json.loads(content)
+        if sys.version_info[0] >= 3: # Python 3
+            with open(filename, 'r', encoding='UTF-8') as f:
+                content = f.read()
+        else: # Python 2
+            with open(filename, 'r') as f:
+                content = f.read().decode('UTF-8')
+
+        obj = json.loads(content)
         return obj
 
     def _load_test_dataset(self):

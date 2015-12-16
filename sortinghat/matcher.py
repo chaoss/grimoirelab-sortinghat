@@ -21,6 +21,7 @@
 #
 
 from __future__ import absolute_import
+from __future__ import unicode_literals
 
 from .exceptions import MatcherNotSupportedError
 
@@ -165,7 +166,7 @@ def match(uidentities, matcher):
 
     # The algorithm used to find matches starts here
     if not isinstance(matcher, IdentityMatcher):
-        raise TypeError('matcher is not an instance of IdentityMatcher')
+        raise TypeError("matcher is not an instance of IdentityMatcher")
 
     uuids = {}
     no_filtered = []

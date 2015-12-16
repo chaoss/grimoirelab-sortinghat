@@ -21,6 +21,7 @@
 #
 
 from __future__ import absolute_import
+from __future__ import unicode_literals
 
 from .email import EmailMatcher
 from .email_name import EmailNameMatcher

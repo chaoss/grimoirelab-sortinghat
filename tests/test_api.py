@@ -22,6 +22,7 @@
 #
 
 from __future__ import absolute_import
+from __future__ import unicode_literals
 
 import datetime
 import sys
@@ -37,7 +38,7 @@ from sortinghat.db.model import UniqueIdentity, Identity, Profile,\
 from sortinghat.exceptions import AlreadyExistsError, NotFoundError
 from sortinghat.matcher import create_identity_matcher
 
-from .config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
+from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
 
 UUID_NONE_OR_EMPTY_ERROR = "uuid cannot be"

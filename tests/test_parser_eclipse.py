@@ -21,6 +21,8 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+from __future__ import unicode_literals
+
 import datetime
 import sys
 import unittest
@@ -44,8 +46,12 @@ class TestBaseCase(unittest.TestCase):
     """Defines common methods for unit tests"""
 
     def read_file(self, filename):
-        with open(filename, 'r') as f:
-            content = f.read().decode('UTF-8')
+        if sys.version_info[0] >= 3: # Python 3
+            with open(filename, 'r', encoding='UTF-8') as f:
+                content = f.read()
+        else: # Python 2
+            with open(filename, 'r') as f:
+                content = f.read().decode('UTF-8')
         return content
 
 
@@ -134,6 +140,7 @@ class TestEclipseParser(TestBaseCase):
         self.assertEqual(id1.source, 'unknown')
 
         enrollments = uid.enrollments
+        enrollments.sort(key=lambda x: x.start)
         self.assertEqual(len(enrollments), 2)
 
         rol0 = enrollments[0]
@@ -158,6 +165,7 @@ class TestEclipseParser(TestBaseCase):
 
         parser = EclipseParser(stream)
         orgs = parser.organizations
+        orgs.sort(key=lambda x: x.name)
 
         # Check parsed organizations
         self.assertEqual(len(orgs), 2)

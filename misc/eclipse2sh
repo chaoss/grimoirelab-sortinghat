@@ -21,6 +21,8 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+from __future__ import unicode_literals
+
 import argparse
 import datetime
 import json
@@ -73,7 +75,7 @@ def parse_args():
 def parse_eclipse_file(infile, source):
     """Parse Eclipse JSON file"""
 
-    content = infile.read().decode('UTF-8')
+    content = read_file(infile)
 
     parser = EclipseParser(content, source=source)
 
@@ -120,6 +122,14 @@ def json_encoder(obj):
         return obj.isoformat()
     else:
         return json.JSONEncoder.default(obj)
+
+
+def read_file(f):
+    if sys.version_info[0] >= 3: # Python 3
+        content = f.read()
+    else: # Python 2
+        content = f.read().decode('UTF-8')
+    return content
 
 
 if __name__ == '__main__':

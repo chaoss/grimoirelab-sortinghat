@@ -20,11 +20,15 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-# encoding=utf8
-import sys
+from __future__ import unicode_literals
 
-reload(sys)
-sys.setdefaultencoding('utf8')
+# Only needed on Python 2.7 to encode to UTF-8
+try:
+    import sys
+    reload(sys)
+    sys.setdefaultencoding('utf8')
+except NameError:
+    pass
 
 
 CODE_BASE_ERROR = 1
@@ -44,21 +48,25 @@ class BaseError(Exception):
 
     Derived classes can overwrite error message declaring 'message' property.
     """
-    message = 'Unknown error'
+    message = "Unknown error"
     code = CODE_BASE_ERROR
 
     def __init__(self, **kwargs):
         super(BaseError, self).__init__(kwargs)
         self.msg = self.message % kwargs
 
-    def __str__(self):
-        return self.msg
+    if sys.version_info[0] >= 3: # Python 3
+        def __str__(self):
+            return self.__unicode__()
+    else: # Python 2
+        def __str__(self):
+            return self.__unicode__().encode('utf8')
 
     def __int__(self):
         return self.code
 
     def __unicode__(self):
-        return unicode(self.msg)
+        return self.msg
 
 
 class AlreadyExistsError(BaseError):
@@ -125,4 +133,3 @@ class WrappedValueError(ValueError):
     """Exception WrappedValueError is a normal ValueError with code support"""
 
     code = CODE_VALUE_ERROR
-
