@@ -108,7 +108,7 @@ def create_database_engine(user, password, database, host, port):
         import MySQLdb
         driver = 'mysql+mysqldb'
     except ImportError:
-        driver = 'mysql'
+        driver = 'mysql+pymysql'
 
     url = URL(driver, user, password, host, port, database,
               query={'charset' : 'utf8'})
