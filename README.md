@@ -274,11 +274,17 @@ You are ready to use sortinghat!
 
 ## Requirements
 
-* Python >= 2.7 (3.x series not supported yet)
+* Python 2.7 and >= 3.4
 * MySQL >= 5.5
 * SQLAlchemy >= 0.8
 * Jinja2 >= 2.7
 * python-dateutil >= 1.5
+
+You will also need a MySQL Python driver to connect with the database server. We recommend to use one these packages:
+
+* MySQLdb (only available for Python 2.7)
+* PyMySQL
+
 
 ## License
 
