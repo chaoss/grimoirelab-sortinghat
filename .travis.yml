@@ -2,11 +2,18 @@ language: python
 
 python:
   - "2.7"
+  - "3.4"
 
 sudo: false
 
 before_install:
-  - pip install MYSQL-python SQLAlchemy
+  - | # MySQLdb is not available in Python 3.x
+    if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then
+        pip install MYSQL-python
+    else
+        pip install PyMySQL
+    fi
+  - pip install SQLAlchemy
   - pip install Jinja2
   - pip install python-dateutil
   - pip install coveralls
