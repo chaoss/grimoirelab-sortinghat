@@ -21,10 +21,16 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+from __future__ import unicode_literals
+
 import argparse
-import ConfigParser
 import os.path
 import sys
+
+try:
+    import configparser
+except ImportError:
+    import ConfigParser as configparser
 
 from sortinghat.cmd import SORTINGHAT_COMMANDS
 
@@ -113,7 +119,7 @@ def parse_args():
 
 
 def read_config_file(filepath):
-    config = ConfigParser.SafeConfigParser()
+    config = configparser.SafeConfigParser()
     config.read(filepath)
 
     if 'db' in config.sections():
