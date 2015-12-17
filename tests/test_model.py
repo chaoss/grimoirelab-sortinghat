@@ -55,7 +55,7 @@ class MockDatabase(object):
             import MySQLdb
             driver = 'mysql+mysqldb'
         except ImportError:
-            driver = 'mysql+pymsql'
+            driver = 'mysql+pymysql'
 
         self.url = URL(driver, user, password, host, port, database)
         self._engine = create_engine(self.url, echo=True)
