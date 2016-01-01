@@ -139,7 +139,7 @@ def create_common_arguments_parser(defaults):
     group = parser.add_argument_group('General options')
     group.add_argument('-h', '--help', action='help',
                        help=argparse.SUPPRESS)
-    group.add_argument('-u', '--user', dest='user', default=os.getenv('SORTINGHAT_DB_USER', 'root1'),
+    group.add_argument('-u', '--user', dest='user', default=os.getenv('SORTINGHAT_DB_USER', 'root'),
                        help=argparse.SUPPRESS)
     group.add_argument('-p', '--password', dest='password', default=os.getenv('SORTINGHAT_DB_PASSWORD', ''),
                        help=argparse.SUPPRESS)
