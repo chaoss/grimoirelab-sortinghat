@@ -111,6 +111,7 @@ Set the database parameters via the `config` command:
   $ sortinghat config set db.user <user>
   $ sortinghat config set db.password <password>
   $ sortinghat config set db.database <name>
+  $ sortinghat config set db.port <port>
 ```
 
 Alternatively you can set environment variables:
@@ -120,6 +121,7 @@ Alternatively you can set environment variables:
   $ export SORTINGHAT_DB_USER=<user>
   $ export SORTINGHAT_DB_PASSWORD=<password>
   $ export SORTINGHAT_DB_DATABASE=<name>
+  $ export SORTINGHAT_DB_PORT=<port>
 ```
 
 After this initialize a new database:
