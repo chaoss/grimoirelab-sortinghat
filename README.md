@@ -104,7 +104,8 @@ You are ready to use sortinghat!
 
 ## Configuration
 
-* Configure database parameters
+Set the database parameters via the `config` command:
+
 ```
   $ sortinghat config set db.host <mysql-host>
   $ sortinghat config set db.user <user>
@@ -112,7 +113,17 @@ You are ready to use sortinghat!
   $ sortinghat config set db.database <name>
 ```
 
-* Initialize database
+Alternatively you can set environment variables:
+
+```
+  $ export SORTINGHAT_DB_HOST=<mysql-host>
+  $ export SORTINGHAT_DB_USER=<user>
+  $ export SORTINGHAT_DB_PASSWORD=<password>
+  $ export SORTINGHAT_DB_DATABASE=<name>
+```
+
+After this initialize a new database:
+
 ```
   $ sortinghat init <name>
 ```
