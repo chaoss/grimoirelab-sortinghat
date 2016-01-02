@@ -26,8 +26,8 @@ from __future__ import unicode_literals
 import argparse
 
 from .. import api, utils
-from ..command import Command, CMD_SUCCESS, CMD_FAILURE
-from ..exceptions import AlreadyExistsError, InvalidDateError, NotFoundError
+from ..command import Command, CMD_SUCCESS
+from ..exceptions import AlreadyExistsError, InvalidDateError, NotFoundError, WrappedValueError
 
 
 class Enroll(Command):
@@ -96,7 +96,7 @@ class Enroll(Command):
             code = self.enroll(uuid, organization, from_date, to_date, merge)
         except InvalidDateError as e:
             self.error(str(e))
-            return CMD_FAILURE
+            return e.code
 
         return code
 
@@ -128,20 +128,20 @@ class Enroll(Command):
         try:
             api.add_enrollment(self.db, uuid, organization, from_date, to_date)
             code = CMD_SUCCESS
-        except (NotFoundError, ValueError) as e:
+        except (NotFoundError, WrappedValueError) as e:
             self.error(str(e))
-            code = CMD_FAILURE
+            code = e.code
         except AlreadyExistsError as e:
             if not merge:
                 self.error(str(e))
-                code = CMD_FAILURE
+                code = e.code
 
         if not merge:
             return code
 
         try:
             api.merge_enrollments(self.db, uuid, organization)
-        except (NotFoundError, ValueError) as e:
+        except (NotFoundError, WrappedValueError) as e:
             # These exceptions were checked above. If any of these raises
             # is due to something really wrong has happened
             raise RuntimeError(str(e))
