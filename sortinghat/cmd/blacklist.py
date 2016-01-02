@@ -26,7 +26,7 @@ from __future__ import unicode_literals
 import argparse
 
 from .. import api
-from ..command import Command, CMD_SUCCESS
+from ..command import Command, CMD_SUCCESS, HELP_LIST
 from ..exceptions import AlreadyExistsError, NotFoundError, WrappedValueError
 
 
@@ -49,8 +49,6 @@ class Blacklist(Command):
     def __init__(self, **kwargs):
         super(Blacklist, self).__init__(**kwargs)
 
-        self._set_database(**kwargs)
-
         self.parser = argparse.ArgumentParser(description=self.description,
                                               usage=self.usage)
 
@@ -66,6 +64,12 @@ class Blacklist(Command):
         # Positional arguments
         self.parser.add_argument('entry', nargs='?', default=None,
                                  help="entry to list, add or remove")
+
+        # Exit early if help is requested
+        if 'cmd_args' in kwargs and [i for i in kwargs['cmd_args'] if i in HELP_LIST]:
+            return
+
+        self._set_database(**kwargs)
 
     @property
     def description(self):

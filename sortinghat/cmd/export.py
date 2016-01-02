@@ -29,7 +29,7 @@ import json
 import sys
 
 from .. import api
-from ..command import Command, CMD_SUCCESS
+from ..command import Command, CMD_SUCCESS, HELP_LIST
 
 
 class Export(Command):
@@ -46,8 +46,6 @@ class Export(Command):
     """
     def __init__(self, **kwargs):
         super(Export, self).__init__(**kwargs)
-
-        self._set_database(**kwargs)
 
         self.parser = argparse.ArgumentParser(description=self.description,
                                               usage=self.usage)
@@ -67,6 +65,12 @@ class Export(Command):
         self.parser.add_argument('outfile', nargs='?', type=argparse.FileType('w'),
                                  default=sys.stdout,
                                  help="output file")
+
+        # Exit early if help is requested
+        if 'cmd_args' in kwargs and [i for i in kwargs['cmd_args'] if i in HELP_LIST]:
+            return
+
+        self._set_database(**kwargs)
 
     @property
     def description(self):

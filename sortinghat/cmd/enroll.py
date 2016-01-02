@@ -26,7 +26,7 @@ from __future__ import unicode_literals
 import argparse
 
 from .. import api, utils
-from ..command import Command, CMD_SUCCESS
+from ..command import Command, CMD_SUCCESS, HELP_LIST
 from ..exceptions import AlreadyExistsError, InvalidDateError, NotFoundError, WrappedValueError
 
 
@@ -51,8 +51,6 @@ class Enroll(Command):
     def __init__(self, **kwargs):
         super(Enroll, self).__init__(**kwargs)
 
-        self._set_database(**kwargs)
-
         self.parser = argparse.ArgumentParser(description=self.description,
                                               usage=self.usage)
 
@@ -71,6 +69,12 @@ class Enroll(Command):
                                  help="unique identity to enroll")
         self.parser.add_argument('organization', default=None,
                                  help="organization where the uuid will be enrolled")
+
+        # Exit early if help is requested
+        if 'cmd_args' in kwargs and [i for i in kwargs['cmd_args'] if i in HELP_LIST]:
+            return
+
+        self._set_database(**kwargs)
 
     @property
     def description(self):
