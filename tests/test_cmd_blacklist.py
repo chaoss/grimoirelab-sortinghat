@@ -31,10 +31,10 @@ if not '..' in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat import api
-from sortinghat.command import CMD_SUCCESS, CMD_FAILURE
+from sortinghat.command import CMD_SUCCESS
 from sortinghat.cmd.blacklist import Blacklist
 from sortinghat.db.database import Database
-from sortinghat.exceptions import NotFoundError
+from sortinghat.exceptions import NotFoundError, CODE_ALREADY_EXISTS_ERROR, CODE_NOT_FOUND_ERROR
 
 from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
@@ -250,7 +250,7 @@ class TestAdd(unittest.TestCase):
         self.assertEqual(code, CMD_SUCCESS)
 
         code = self.cmd.add('root@example.com')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_ALREADY_EXISTS_ERROR)
 
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, BLACKLIST_ALREADY_EXISTS_ERROR)
@@ -341,7 +341,7 @@ class TestDelete(unittest.TestCase):
 
         # It should print an error when the blacklist is empty
         code = self.cmd.delete('root@example.net')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_NOT_FOUND_ERROR)
         output = sys.stderr.getvalue().strip().split('\n')[0]
         self.assertEqual(output, BLACKLIST_NOT_FOUND_ERROR)
 
@@ -352,7 +352,7 @@ class TestDelete(unittest.TestCase):
 
         # The error should be the same
         code = self.cmd.delete('root@example.net')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_NOT_FOUND_ERROR)
         output = sys.stderr.getvalue().strip().split('\n')[1]
         self.assertEqual(output, BLACKLIST_NOT_FOUND_ERROR)
 
@@ -406,7 +406,7 @@ class TestBlacklist(unittest.TestCase):
         """Check whether it prints an error for not existing entries"""
 
         code = self.cmd.blacklist('root@example.net')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_NOT_FOUND_ERROR)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, BLACKLIST_NOT_FOUND_ERROR)
 
