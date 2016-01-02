@@ -182,9 +182,9 @@ def add_organization(db, organization):
         in the registry.
     """
     if organization is None:
-        raise ValueError('organization cannot be None')
+        raise WrappedValueError('organization cannot be None')
     if organization == '':
-        raise ValueError('organization cannot be an empty string')
+        raise WrappedValueError('organization cannot be an empty string')
 
     with db.connect() as session:
         org = session.query(Organization).\
@@ -233,11 +233,11 @@ def add_domain(db, organization, domain, is_top_domain=False, overwrite=False):
         in the registry
     """
     if domain is None:
-        raise ValueError('domain cannot be None')
+        raise WrappedValueError('domain cannot be None')
     if domain == '':
-        raise ValueError('domain cannot be an empty string')
+        raise WrappedValueError('domain cannot be an empty string')
     if type(is_top_domain) != bool:
-        raise ValueError('top_domain must have a boolean value')
+        raise WrappedValueError('top_domain must have a boolean value')
 
     with db.connect() as session:
         org = session.query(Organization).\

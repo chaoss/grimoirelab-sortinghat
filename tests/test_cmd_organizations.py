@@ -31,10 +31,10 @@ if not '..' in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat import api
-from sortinghat.command import CMD_SUCCESS, CMD_FAILURE
+from sortinghat.command import CMD_SUCCESS
 from sortinghat.cmd.organizations import Organizations
 from sortinghat.db.database import Database
-from sortinghat.exceptions import NotFoundError
+from sortinghat.exceptions import NotFoundError, CODE_ALREADY_EXISTS_ERROR, CODE_NOT_FOUND_ERROR
 
 from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
@@ -178,7 +178,7 @@ class TestOrgsCommand(unittest.TestCase):
         self.__load_test_dataset()
 
         code = self.cmd.run('--add', 'Example', 'bitergia.com')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_ALREADY_EXISTS_ERROR)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, REGISTRY_DOM_ALREADY_EXISTS_ERROR)
 
@@ -314,7 +314,7 @@ class TestOrgsAdd(unittest.TestCase):
         self.assertEqual(code1, CMD_SUCCESS)
 
         code2 = self.cmd.add('Bitergium')
-        self.assertEqual(code2, CMD_FAILURE)
+        self.assertEqual(code2, CODE_ALREADY_EXISTS_ERROR)
 
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, REGISTRY_ORG_ALREADY_EXISTS_ERROR)
@@ -323,7 +323,7 @@ class TestOrgsAdd(unittest.TestCase):
         """Check if it fails adding domains to not existing organizations"""
 
         code = self.cmd.add('Bitergium', 'bitergium.com')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_NOT_FOUND_ERROR)
 
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, REGISTRY_ORG_NOT_FOUND_ERROR)
@@ -340,7 +340,7 @@ class TestOrgsAdd(unittest.TestCase):
         # Add 'bitergia.com' to 'Example' org
         # It should print an error
         code = self.cmd.add('Example', 'bitergia.com')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_ALREADY_EXISTS_ERROR)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, REGISTRY_DOM_ALREADY_EXISTS_ERROR)
 
@@ -497,7 +497,7 @@ class TestOrgsDelete(unittest.TestCase):
 
         # It should print an error when the registry is empty
         code = self.cmd.delete('Bitergium')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_NOT_FOUND_ERROR)
         output = sys.stderr.getvalue().strip().split('\n')[0]
         self.assertEqual(output, REGISTRY_ORG_NOT_FOUND_ERROR)
 
@@ -509,14 +509,14 @@ class TestOrgsDelete(unittest.TestCase):
 
         # The error should be the same
         code = self.cmd.delete('Bitergium')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_NOT_FOUND_ERROR)
         output = sys.stderr.getvalue().strip().split('\n')[1]
         self.assertEqual(output, REGISTRY_ORG_NOT_FOUND_ERROR)
 
         # It fails again, when trying to delete a domain from
         # a organization that does not exist
         code = self.cmd.delete('LibreSoft', 'bitergium.com')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_NOT_FOUND_ERROR)
         output = sys.stderr.getvalue().strip().split('\n')[2]
         self.assertEqual(output, REGISTRY_ORG_NOT_FOUND_ERROR_ALT)
 
@@ -536,14 +536,14 @@ class TestOrgsDelete(unittest.TestCase):
         self.cmd.add('Bitergia', 'bitergia.com')
 
         code = self.cmd.delete('Example', 'example.com')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_NOT_FOUND_ERROR)
         output = sys.stderr.getvalue().strip().split('\n')[0]
         self.assertEqual(output, REGISTRY_DOM_NOT_FOUND_ERROR)
 
         # It should not fail because the domain is assigned
         # to other organization
         code = self.cmd.delete('Example', 'bitergia.com')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_NOT_FOUND_ERROR)
         output = sys.stderr.getvalue().strip().split('\n')[1]
         self.assertEqual(output, REGISTRY_DOM_NOT_FOUND_ERROR_ALT)
 
@@ -609,7 +609,7 @@ class TestOrgsRegistry(unittest.TestCase):
         """Check whether it prints an error for not existing organizations"""
 
         code = self.cmd.registry('Bitergium')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_NOT_FOUND_ERROR)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, REGISTRY_ORG_NOT_FOUND_ERROR)
 
