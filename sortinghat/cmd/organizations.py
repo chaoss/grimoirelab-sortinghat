@@ -26,7 +26,7 @@ from __future__ import unicode_literals
 import argparse
 
 from .. import api
-from ..command import Command, CMD_SUCCESS, CMD_FAILURE
+from ..command import Command, CMD_SUCCESS, CMD_FAILURE, HELP_LIST
 from ..exceptions import AlreadyExistsError, NotFoundError
 
 
@@ -69,8 +69,6 @@ class Organizations(Command):
     def __init__(self, **kwargs):
         super(Organizations, self).__init__(**kwargs)
 
-        self._set_database(**kwargs)
-
         self.parser = argparse.ArgumentParser(description=self.description,
                                               usage=self.usage)
 
@@ -95,6 +93,12 @@ class Organizations(Command):
                                  help="organization to list, add or remove")
         self.parser.add_argument('domain', nargs='?', default=None,
                                  help="domain to add or remove")
+
+        # Exit early if help is requested
+        if 'cmd_args' in kwargs and [i for i in kwargs['cmd_args'] if i in HELP_LIST]:
+            return
+
+        self._set_database(**kwargs)
 
     @property
     def description(self):

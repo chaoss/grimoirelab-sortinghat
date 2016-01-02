@@ -89,7 +89,7 @@ def main():
 
     cmd = klass(user=args.user, password=args.password,
                 database=args.database, host=args.host,
-                port=args.port)
+                port=args.port, cmd_args=args.cmd_args)
     code = cmd.run(*args.cmd_args)
 
     return code

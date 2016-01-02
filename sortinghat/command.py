@@ -33,6 +33,9 @@ from .db.database import Database
 CMD_SUCCESS = 0
 CMD_FAILURE = 1
 
+# List of various help options
+HELP_LIST = ['-h', '--help']
+
 
 class Command(object):
     """Abstract class to run commands"""
