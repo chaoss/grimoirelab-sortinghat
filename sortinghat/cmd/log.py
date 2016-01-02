@@ -26,8 +26,8 @@ from __future__ import unicode_literals
 import argparse
 
 from .. import api, utils
-from ..command import Command, CMD_SUCCESS, CMD_FAILURE
-from ..exceptions import InvalidDateError, NotFoundError
+from ..command import Command, CMD_SUCCESS
+from ..exceptions import InvalidDateError, NotFoundError, WrappedValueError
 
 
 class Log(Command):
@@ -85,7 +85,7 @@ class Log(Command):
             code = self.log(uuid, organization, from_date, to_date)
         except InvalidDateError as e:
             self.error(str(e))
-            return CMD_FAILURE
+            return e.code
 
         return code
 
@@ -114,8 +114,8 @@ class Log(Command):
             enrollments = api.enrollments(self.db, uuid, organization,
                                           from_date, to_date)
             self.display('log.tmpl', enrollments=enrollments)
-        except (NotFoundError, ValueError) as e:
+        except (NotFoundError, WrappedValueError) as e:
             self.error(str(e))
-            return CMD_FAILURE
+            return e.code
 
         return CMD_SUCCESS

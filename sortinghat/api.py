@@ -1196,12 +1196,12 @@ def enrollments(db, uuid=None, organization=None, from_date=None, to_date=None):
         to_date = MAX_PERIOD_DATE
 
     if from_date < MIN_PERIOD_DATE or from_date > MAX_PERIOD_DATE:
-        raise ValueError('start date %s is out of bounds' % str(from_date))
+        raise WrappedValueError('start date %s is out of bounds' % str(from_date))
     if to_date < MIN_PERIOD_DATE or to_date > MAX_PERIOD_DATE:
-        raise ValueError('end date %s is out of bounds' % str(to_date))
+        raise WrappedValueError('end date %s is out of bounds' % str(to_date))
 
     if from_date and to_date and from_date > to_date:
-        raise ValueError('start date %s cannot be greater than %s'
+        raise WrappedValueError('start date %s cannot be greater than %s'
                          % (from_date, to_date))
 
     enrollments = []
