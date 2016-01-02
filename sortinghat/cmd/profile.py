@@ -27,7 +27,7 @@ import argparse
 
 from .. import api
 from ..command import Command, CMD_SUCCESS, CMD_FAILURE
-from ..exceptions import NotFoundError
+from ..exceptions import NotFoundError, WrappedValueError
 
 
 PROFILE_COMMAND_USAGE_MSG = \
@@ -107,9 +107,9 @@ class Profile(Command):
             uid = api.unique_identities(self.db, uuid)[0]
 
             self.display('profile.tmpl', uid=uid)
-        except (NotFoundError, ValueError) as e:
+        except (NotFoundError, WrappedValueError) as e:
             self.error(str(e))
-            return CMD_FAILURE
+            return e.code
 
         return CMD_SUCCESS
 
