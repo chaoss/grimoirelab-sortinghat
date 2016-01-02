@@ -26,8 +26,8 @@ from __future__ import unicode_literals
 import argparse
 
 from .. import api
-from ..command import Command, CMD_SUCCESS, CMD_FAILURE
-from ..exceptions import NotFoundError
+from ..command import Command, CMD_SUCCESS
+from ..exceptions import NotFoundError, WrappedValueError, CODE_INVALID_FORMAT_ERROR
 
 
 class Countries(Command):
@@ -66,7 +66,7 @@ class Countries(Command):
 
         if ct and len(ct) < 2:
             self.error('Code country or term must have 2 or more characters length')
-            return CMD_FAILURE
+            return CODE_INVALID_FORMAT_ERROR
 
         code = ct if ct and len(ct) == 2 else None
         term = ct if ct and len(ct) > 2 else None
@@ -74,8 +74,8 @@ class Countries(Command):
         try:
             countries = api.countries(self.db, code=code, term=term)
             self.display('countries.tmpl', countries=countries)
-        except NotFoundError as e:
+        except (NotFoundError, WrappedValueError) as e:
             self.error(str(e))
-            return CMD_FAILURE
+            return e.code
 
         return CMD_SUCCESS

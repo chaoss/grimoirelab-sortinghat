@@ -1129,7 +1129,7 @@ def countries(db, code=None, term=None):
                 and code.isalpha()
 
     if code is not None and not _is_code_valid(code):
-        raise ValueError('country code must be a 2 length alpha string - %s given' \
+        raise WrappedValueError('country code must be a 2 length alpha string - %s given' \
                          % str(code))
 
     cs = []
