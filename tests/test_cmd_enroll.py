@@ -32,9 +32,10 @@ if not '..' in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat import api
-from sortinghat.command import CMD_SUCCESS, CMD_FAILURE
+from sortinghat.command import CMD_SUCCESS
 from sortinghat.cmd.enroll import Enroll
 from sortinghat.db.database import Database
+from sortinghat.exceptions import CODE_INVALID_DATE_ERROR, CODE_VALUE_ERROR, CODE_NOT_FOUND_ERROR, CODE_ALREADY_EXISTS_ERROR
 
 from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
@@ -175,25 +176,25 @@ class TestEnrollCommand(TestBaseCase):
 
         code = self.cmd.run('--from', '1999-13-01',
                             'John Smith', 'Example')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_INVALID_DATE_ERROR)
         output = sys.stderr.getvalue().strip('\n').split('\n')[0]
         self.assertEqual(output, ENROLL_INVALID_DATE_ERROR)
 
         code = self.cmd.run('--from', 'YYZYY',
                             'John Smith', 'Example')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_INVALID_DATE_ERROR)
         output = sys.stderr.getvalue().strip('\n').split('\n')[1]
         self.assertEqual(output, ENROLL_INVALID_FORMAT_DATE_ERROR)
 
         code = self.cmd.run('--to', '1999-13-01',
                             'John Smith', 'Example')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_INVALID_DATE_ERROR)
         output = sys.stderr.getvalue().strip('\n').split('\n')[2]
         self.assertEqual(output, ENROLL_INVALID_DATE_ERROR)
 
         code = self.cmd.run('--to', 'YYZYY',
                             'John Smith', 'Example')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_INVALID_DATE_ERROR)
         output = sys.stderr.getvalue().strip('\n').split('\n')[3]
         self.assertEqual(output, ENROLL_INVALID_FORMAT_DATE_ERROR)
 
@@ -300,7 +301,7 @@ class TestEnroll(TestBaseCase):
         code = self.cmd.enroll('John Smith', 'Example',
                                datetime.datetime(2001, 1, 1),
                                datetime.datetime(1999, 1, 1))
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_VALUE_ERROR)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, ENROLL_INVALID_PERIOD_ERROR)
 
@@ -308,7 +309,7 @@ class TestEnroll(TestBaseCase):
         """Check if it fails adding enrollments to unique identities that do not exist"""
 
         code = self.cmd.enroll('Jane Roe', 'Example')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_NOT_FOUND_ERROR)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, ENROLL_UUID_NOT_FOUND_ERROR)
 
@@ -316,7 +317,7 @@ class TestEnroll(TestBaseCase):
         """Check if it fails adding enrollments to organizations that do not exist"""
 
         code = self.cmd.enroll('John Smith', 'LibreSoft')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_NOT_FOUND_ERROR)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, ENROLL_ORG_NOT_FOUND_ERROR)
 
@@ -332,14 +333,14 @@ class TestEnroll(TestBaseCase):
         code2 = self.cmd.enroll('John Smith', 'Example',
                                 datetime.datetime(1900, 1, 1),
                                 datetime.datetime(2100, 1, 1))
-        self.assertEqual(code2, CMD_FAILURE)
+        self.assertEqual(code2, CODE_ALREADY_EXISTS_ERROR)
 
         output = sys.stderr.getvalue().strip().split('\n')[0]
         self.assertEqual(output, ENROLL_EXISTING_ERROR)
 
         # Test it without giving any period
         code = self.cmd.enroll('John Smith', 'Example')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_ALREADY_EXISTS_ERROR)
         output = sys.stderr.getvalue().strip().split('\n')[1]
         self.assertEqual(output, ENROLL_EXISTING_ERROR)
 
