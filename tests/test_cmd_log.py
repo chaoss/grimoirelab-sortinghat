@@ -32,9 +32,10 @@ if not '..' in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat import api
-from sortinghat.command import CMD_SUCCESS, CMD_FAILURE
+from sortinghat.command import CMD_SUCCESS
 from sortinghat.cmd.log import Log
 from sortinghat.db.database import Database
+from sortinghat.exceptions import CODE_INVALID_DATE_ERROR, CODE_VALUE_ERROR, CODE_NOT_FOUND_ERROR
 
 from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
@@ -169,22 +170,22 @@ class TestLogCommand(TestBaseCase):
         """Check whether it fails when invalid dates are given"""
 
         code = self.cmd.run('--from', '1999-13-01')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_INVALID_DATE_ERROR)
         output = sys.stderr.getvalue().strip('\n').split('\n')[0]
         self.assertEqual(output, LOG_INVALID_DATE_ERROR)
 
         code = self.cmd.run('--from', 'YYZYY')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_INVALID_DATE_ERROR)
         output = sys.stderr.getvalue().strip('\n').split('\n')[1]
         self.assertEqual(output, LOG_INVALID_FORMAT_DATE_ERROR)
 
         code = self.cmd.run('--to', '1999-13-01')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_INVALID_DATE_ERROR)
         output = sys.stderr.getvalue().strip('\n').split('\n')[2]
         self.assertEqual(output, LOG_INVALID_DATE_ERROR)
 
         code = self.cmd.run('--to', 'YYZYY')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_INVALID_DATE_ERROR)
         output = sys.stderr.getvalue().strip('\n').split('\n')[3]
         self.assertEqual(output, LOG_INVALID_FORMAT_DATE_ERROR)
 
@@ -231,7 +232,7 @@ class TestLog(TestBaseCase):
         code = self.cmd.log('John Smith', 'Example',
                             datetime.datetime(2001, 1, 1),
                             datetime.datetime(1999, 1, 1))
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_VALUE_ERROR)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, LOG_INVALID_PERIOD_ERROR)
 
@@ -239,7 +240,7 @@ class TestLog(TestBaseCase):
         """Check whether it raises an error when the uiid is not available"""
 
         code = self.cmd.log(uuid='Jane Roe')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_NOT_FOUND_ERROR)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, LOG_UUID_NOT_FOUND_ERROR)
 
@@ -247,7 +248,7 @@ class TestLog(TestBaseCase):
         """Check whether it raises an error when the organization is not available"""
 
         code = self.cmd.log(organization='LibreSoft')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_NOT_FOUND_ERROR)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, LOG_ORG_NOT_FOUND_ERROR)
 
