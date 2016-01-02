@@ -31,9 +31,10 @@ if not '..' in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat import api
-from sortinghat.command import CMD_SUCCESS, CMD_FAILURE
+from sortinghat.command import CMD_SUCCESS
 from sortinghat.cmd.move import Move
 from sortinghat.db.database import Database
+from sortinghat.exceptions import CODE_NOT_FOUND_ERROR
 
 from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
@@ -111,7 +112,7 @@ class TestMove(TestBaseCase):
         """Check if it fails moving an identity that does not exist"""
 
         code = self.cmd.move('FFFFFFFFFFF', 'John Smith')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_NOT_FOUND_ERROR)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, MOVE_FROM_ID_NOT_FOUND_ERROR)
 
@@ -119,7 +120,7 @@ class TestMove(TestBaseCase):
         """Check if it fails moving an identity to a unique identity that does not exist"""
 
         code = self.cmd.move('b4c250eaaf873a04093319f26ca13b02a9248251', 'Jane Rae')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_NOT_FOUND_ERROR)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, MOVE_TO_UUID_NOT_FOUND_ERROR)
 

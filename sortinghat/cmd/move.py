@@ -101,6 +101,6 @@ class Move(Command):
                          from_id=from_id, to_uuid=to_uuid)
         except NotFoundError as e:
             self.error(str(e))
-            return CMD_FAILURE
+            return e.code
 
         return CMD_SUCCESS
