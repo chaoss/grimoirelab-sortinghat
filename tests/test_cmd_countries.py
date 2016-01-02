@@ -30,10 +30,11 @@ import unittest
 if not '..' in sys.path:
     sys.path.insert(0, '..')
 
-from sortinghat.command import CMD_SUCCESS, CMD_FAILURE
+from sortinghat.command import CMD_SUCCESS
 from sortinghat.cmd.countries import Countries
 from sortinghat.db.database import Database
 from sortinghat.db.model import Country
+from sortinghat.exceptions import CODE_NOT_FOUND_ERROR, CODE_INVALID_FORMAT_ERROR
 
 from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
@@ -115,7 +116,7 @@ class TestCountriesCommand(TestBaseCase):
         """Check output error when a code or term is invalid"""
 
         retval = self.cmd.run('U')
-        self.assertEqual(retval, CMD_FAILURE)
+        self.assertEqual(retval, CODE_INVALID_FORMAT_ERROR)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, COUNTRIES_CODE_OR_TERM_ERROR)
 
@@ -123,7 +124,7 @@ class TestCountriesCommand(TestBaseCase):
         """Check output error when a country is not found"""
 
         retval = self.cmd.run('Uk')
-        self.assertEqual(retval, CMD_FAILURE)
+        self.assertEqual(retval, CODE_NOT_FOUND_ERROR)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, COUNTRIES_NOT_FOUND_ERROR)
 
