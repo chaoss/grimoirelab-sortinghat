@@ -356,9 +356,9 @@ def add_to_matching_blacklist(db, entity):
         in the registry.
     """
     if entity is None:
-        raise ValueError('entity to blacklist cannot be None')
+        raise WrappedValueError('entity to blacklist cannot be None')
     if entity == '':
-        raise ValueError('entity to blacklist cannot be an empty string')
+        raise WrappedValueError('entity to blacklist cannot be an empty string')
 
     with db.connect() as session:
         mb = session.query(MatchingBlacklist).\
