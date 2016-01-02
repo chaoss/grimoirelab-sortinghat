@@ -31,9 +31,10 @@ if not '..' in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat import api
-from sortinghat.command import CMD_SUCCESS, CMD_FAILURE
+from sortinghat.command import CMD_SUCCESS
 from sortinghat.cmd.remove import Remove
 from sortinghat.db.database import Database
+from sortinghat.exceptions import CODE_NOT_FOUND_ERROR
 
 from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
@@ -126,7 +127,7 @@ class TestRemove(TestBaseCase):
         # The given id is assigned to an identity, this test
         # should not remove anything
         code = self.cmd.remove('62cce16ac0a5c391b4e0c3ccb3e924d65de8c345')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_NOT_FOUND_ERROR)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, REMOVE_UUID_NOT_FOUND_ERROR)
 
@@ -136,7 +137,7 @@ class TestRemove(TestBaseCase):
         # The given id is assigned to a unique identity, this test
         # should not remove anything
         code = self.cmd.remove('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF', identity=True)
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_NOT_FOUND_ERROR)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, REMOVE_ID_NOT_FOUND_ERROR)
 
