@@ -32,10 +32,11 @@ if not '..' in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat import api
-from sortinghat.command import CMD_SUCCESS, CMD_FAILURE
+from sortinghat.command import CMD_SUCCESS
 from sortinghat.cmd.show import Show
 from sortinghat.db.database import Database
 from sortinghat.db.model import Country
+from sortinghat.exceptions import CODE_NOT_FOUND_ERROR
 
 from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
@@ -280,7 +281,7 @@ class TestShow(TestBaseCase):
         """Check whether it prints an error when the uiid is not available"""
 
         code = self.cmd.show(uuid='FFFFFFFFFFFFFFF')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_NOT_FOUND_ERROR)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, SHOW_UUID_NOT_FOUND_ERROR)
 
@@ -305,7 +306,7 @@ class TestShow(TestBaseCase):
         """Check whether it prints an error when the term is not found"""
 
         code = self.cmd.show(term='FFFFFFFFFFFFFFF')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_NOT_FOUND_ERROR)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, SHOW_UUID_NOT_FOUND_ERROR)
 
