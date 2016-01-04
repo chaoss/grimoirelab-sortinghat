@@ -33,9 +33,10 @@ if not '..' in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat import api
-from sortinghat.command import CMD_SUCCESS, CMD_FAILURE
+from sortinghat.command import CMD_SUCCESS
 from sortinghat.cmd.init import Init
 from sortinghat.db.database import Database
+from sortinghat.exceptions import CODE_DATABASE_ERROR
 
 from tests.config import DB_USER, DB_PASSWORD, DB_HOST, DB_PORT
 
@@ -96,7 +97,7 @@ class TestInitCommand(TestBaseCase):
 
         cmd = Init(**kwargs)
         code = cmd.run(self.name)
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_DATABASE_ERROR)
 
         with warnings.catch_warnings(record=True):
             output = sys.stderr.getvalue().strip()
@@ -110,7 +111,7 @@ class TestInitCommand(TestBaseCase):
         self.assertEqual(code1, CMD_SUCCESS)
 
         code2 = self.cmd.run(self.name)
-        self.assertEqual(code2, CMD_FAILURE)
+        self.assertEqual(code2, CODE_DATABASE_ERROR)
 
         # Context added to catch deprecation warnings raised on Python 3
         with warnings.catch_warnings(record=True):
@@ -147,7 +148,7 @@ class TestInitialize(TestBaseCase):
 
         cmd = Init(**kwargs)
         code = cmd.initialize(self.name)
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_DATABASE_ERROR)
 
         # Context added to catch deprecation warnings raised on Python 3
         with warnings.catch_warnings(record=True):
@@ -162,7 +163,7 @@ class TestInitialize(TestBaseCase):
         self.assertEqual(code1, CMD_SUCCESS)
 
         code2 = self.cmd.initialize(self.name)
-        self.assertEqual(code2, CMD_FAILURE)
+        self.assertEqual(code2, CODE_DATABASE_ERROR)
 
         # Context added to catch deprecation warnings raised on Python 3
         with warnings.catch_warnings(record=True):
