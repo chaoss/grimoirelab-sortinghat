@@ -24,7 +24,7 @@
 from __future__ import unicode_literals
 
 import argparse
-import os.path
+import os
 import sys
 
 try:
@@ -139,15 +139,15 @@ def create_common_arguments_parser(defaults):
     group = parser.add_argument_group('General options')
     group.add_argument('-h', '--help', action='help',
                        help=argparse.SUPPRESS)
-    group.add_argument('-u', '--user', dest='user', default='root',
+    group.add_argument('-u', '--user', dest='user', default=os.getenv('SORTINGHAT_DB_USER', 'root'),
                        help=argparse.SUPPRESS)
-    group.add_argument('-p', '--password', dest='password', default='',
+    group.add_argument('-p', '--password', dest='password', default=os.getenv('SORTINGHAT_DB_PASSWORD', ''),
                        help=argparse.SUPPRESS)
-    group.add_argument('-d', '--database', dest='database',
+    group.add_argument('-d', '--database', dest=os.getenv('SORTINGHAT_DB_DATABASE', 'database'),
                        help=argparse.SUPPRESS)
-    group.add_argument('--host', dest='host', default='localhost',
+    group.add_argument('--host', dest='host', default=os.getenv('SORTINGHAT_DB_HOST', 'localhost'),
                        help=argparse.SUPPRESS)
-    group.add_argument('--port', dest='port', default='3306',
+    group.add_argument('--port', dest='port', default=os.getenv('SORTINGHAT_DB_PORT', '3306'),
                        help=argparse.SUPPRESS)
 
     # Command arguments
