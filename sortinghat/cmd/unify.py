@@ -26,7 +26,7 @@ from __future__ import unicode_literals
 import argparse
 
 from .. import api
-from ..command import Command, CMD_SUCCESS
+from ..command import Command, CMD_SUCCESS, HELP_LIST
 from ..exceptions import MatcherNotSupportedError
 from ..matcher import create_identity_matcher, match
 from ..matching import SORTINGHAT_IDENTITIES_MATCHERS
@@ -44,10 +44,6 @@ class Unify(Command):
     def __init__(self, **kwargs):
         super(Unify, self).__init__(**kwargs)
 
-        self._set_database(**kwargs)
-        self.total = 0
-        self.matched = 0
-
         self.parser = argparse.ArgumentParser(description=self.description,
                                               usage=self.usage)
 
@@ -57,6 +53,14 @@ class Unify(Command):
                                  help="find similar unique identities using this type of matching")
         self.parser.add_argument('-i', '--interactive', action='store_true',
                                  help="run interactive mode while unifying")
+
+        # Exit early if help is requested
+        if 'cmd_args' in kwargs and [i for i in kwargs['cmd_args'] if i in HELP_LIST]:
+            return
+
+        self._set_database(**kwargs)
+        self.total = 0
+        self.matched = 0
 
     @property
     def description(self):

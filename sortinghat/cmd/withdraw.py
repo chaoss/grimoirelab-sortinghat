@@ -26,7 +26,7 @@ from __future__ import unicode_literals
 import argparse
 
 from .. import api, utils
-from ..command import Command, CMD_SUCCESS
+from ..command import Command, CMD_SUCCESS, HELP_LIST
 from ..exceptions import InvalidDateError, NotFoundError, WrappedValueError
 
 
@@ -47,8 +47,6 @@ class Withdraw(Command):
     def __init__(self, **kwargs):
         super(Withdraw, self).__init__(**kwargs)
 
-        self._set_database(**kwargs)
-
         self.parser = argparse.ArgumentParser(description=self.description,
                                               usage=self.usage)
 
@@ -63,6 +61,12 @@ class Withdraw(Command):
                                  help="unique identity to withdraw")
         self.parser.add_argument('organization', default=None,
                                  help="organization where the uuid is enrolled")
+
+        # Exit early if help is requested
+        if 'cmd_args' in kwargs and [i for i in kwargs['cmd_args'] if i in HELP_LIST]:
+            return
+
+        self._set_database(**kwargs)
 
     @property
     def description(self):

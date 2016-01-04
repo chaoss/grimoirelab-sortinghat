@@ -26,7 +26,7 @@ from __future__ import unicode_literals
 import argparse
 
 from .. import api
-from ..command import Command, CMD_SUCCESS, CMD_FAILURE
+from ..command import Command, CMD_SUCCESS, CMD_FAILURE, HELP_LIST
 from ..exceptions import NotFoundError
 
 
@@ -43,8 +43,6 @@ class Remove(Command):
     def __init__(self, **kwargs):
         super(Remove, self).__init__(**kwargs)
 
-        self._set_database(**kwargs)
-
         self.parser = argparse.ArgumentParser(description=self.description,
                                               usage=self.usage)
 
@@ -55,6 +53,12 @@ class Remove(Command):
         # Positional arguments
         self.parser.add_argument('identifier',
                                  help="identifier of the (unique) identity to remove")
+
+        # Exit early if help is requested
+        if 'cmd_args' in kwargs and [i for i in kwargs['cmd_args'] if i in HELP_LIST]:
+            return
+
+        self._set_database(**kwargs)
 
     @property
     def description(self):

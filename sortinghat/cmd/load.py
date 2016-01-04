@@ -27,7 +27,7 @@ import argparse
 import sys
 
 from .. import api
-from ..command import Command, CMD_SUCCESS
+from ..command import Command, CMD_SUCCESS, HELP_LIST
 from ..db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE
 from ..exceptions import AlreadyExistsError, NotFoundError,\
     InvalidFormatError, LoadError, MatcherNotSupportedError
@@ -62,9 +62,6 @@ class Load(Command):
     def __init__(self, **kwargs):
         super(Load, self).__init__(**kwargs)
 
-        self._set_database(**kwargs)
-        self.new_uids = set()
-
         self.parser = argparse.ArgumentParser(description=self.description,
                                               usage=self.usage)
 
@@ -93,6 +90,13 @@ class Load(Command):
         self.parser.add_argument('infile', nargs='?', type=argparse.FileType('r'),
                                  default=sys.stdin,
                                  help="input file")
+
+        # Exit early if help is requested
+        if 'cmd_args' in kwargs and [i for i in kwargs['cmd_args'] if i in HELP_LIST]:
+            return
+
+        self._set_database(**kwargs)
+        self.new_uids = set()
 
     @property
     def description(self):
