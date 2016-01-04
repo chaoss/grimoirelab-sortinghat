@@ -27,7 +27,7 @@ import argparse
 
 from .. import api
 from ..command import Command, CMD_SUCCESS, HELP_LIST
-from ..exceptions import NotFoundError
+from ..exceptions import NotFoundError, WrappedValueError
 
 
 class Affiliate(Command):
@@ -109,7 +109,8 @@ class Affiliate(Command):
 
                     self.display('affiliate.tmpl', id=uid.uuid,
                                  email=identity.email, organization=organization)
-        except (NotFoundError, ValueError) as e:
-            raise RuntimeError(str(e))
+        except (NotFoundError, WrappedValueError) as e:
+            self.error(str(e))
+            return e.code
 
         return CMD_SUCCESS

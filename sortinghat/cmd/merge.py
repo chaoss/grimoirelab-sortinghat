@@ -26,7 +26,7 @@ from __future__ import unicode_literals
 import argparse
 
 from .. import api
-from ..command import Command, CMD_SUCCESS, CMD_FAILURE, HELP_LIST
+from ..command import Command, CMD_SUCCESS, HELP_LIST
 from ..exceptions import NotFoundError
 
 
@@ -109,6 +109,6 @@ class Merge(Command):
                          from_uuid=from_uuid, to_uuid=to_uuid)
         except NotFoundError as e:
             self.error(str(e))
-            return CMD_FAILURE
+            return e.code
 
         return CMD_SUCCESS

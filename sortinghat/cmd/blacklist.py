@@ -26,8 +26,8 @@ from __future__ import unicode_literals
 import argparse
 
 from .. import api
-from ..command import Command, CMD_SUCCESS, CMD_FAILURE, HELP_LIST
-from ..exceptions import AlreadyExistsError, NotFoundError
+from ..command import Command, CMD_SUCCESS, HELP_LIST
+from ..exceptions import AlreadyExistsError, NotFoundError, WrappedValueError
 
 
 BLACKLIST_COMMAND_USAGE_MSG = \
@@ -112,13 +112,13 @@ class Blacklist(Command):
 
         try:
             api.add_to_matching_blacklist(self.db, entry)
-        except ValueError as e:
+        except WrappedValueError as e:
             # If the code reaches here, something really wrong has happened
             # because entry cannot be None or empty
             raise RuntimeError(str(e))
         except AlreadyExistsError as e:
             self.error(str(e))
-            return CMD_FAILURE
+            return e.code
 
         return CMD_SUCCESS
 
@@ -136,7 +136,7 @@ class Blacklist(Command):
             api.delete_from_matching_blacklist(self.db, entry)
         except NotFoundError as e:
             self.error(str(e))
-            return CMD_FAILURE
+            return e.code
 
         return CMD_SUCCESS
 
@@ -154,6 +154,6 @@ class Blacklist(Command):
             self.display('blacklist.tmpl', blacklist=bl)
         except NotFoundError as e:
             self.error(str(e))
-            return CMD_FAILURE
+            return e.code
 
         return CMD_SUCCESS

@@ -182,9 +182,9 @@ def add_organization(db, organization):
         in the registry.
     """
     if organization is None:
-        raise ValueError('organization cannot be None')
+        raise WrappedValueError('organization cannot be None')
     if organization == '':
-        raise ValueError('organization cannot be an empty string')
+        raise WrappedValueError('organization cannot be an empty string')
 
     with db.connect() as session:
         org = session.query(Organization).\
@@ -233,11 +233,11 @@ def add_domain(db, organization, domain, is_top_domain=False, overwrite=False):
         in the registry
     """
     if domain is None:
-        raise ValueError('domain cannot be None')
+        raise WrappedValueError('domain cannot be None')
     if domain == '':
-        raise ValueError('domain cannot be an empty string')
+        raise WrappedValueError('domain cannot be an empty string')
     if type(is_top_domain) != bool:
-        raise ValueError('top_domain must have a boolean value')
+        raise WrappedValueError('top_domain must have a boolean value')
 
     with db.connect() as session:
         org = session.query(Organization).\
@@ -289,13 +289,13 @@ def add_enrollment(db, uuid, organization, from_date=None, to_date=None):
         in the registry.
     """
     if uuid is None:
-        raise ValueError('uuid cannot be None')
+        raise WrappedValueError('uuid cannot be None')
     if uuid == '':
-        raise ValueError('uuid cannot be an empty string')
+        raise WrappedValueError('uuid cannot be an empty string')
     if organization is None:
-        raise ValueError('organization cannot be None')
+        raise WrappedValueError('organization cannot be None')
     if organization == '':
-        raise ValueError('organization cannot be an empty string')
+        raise WrappedValueError('organization cannot be an empty string')
 
     if not from_date:
         from_date = MIN_PERIOD_DATE
@@ -303,12 +303,12 @@ def add_enrollment(db, uuid, organization, from_date=None, to_date=None):
         to_date = MAX_PERIOD_DATE
 
     if from_date < MIN_PERIOD_DATE or from_date > MAX_PERIOD_DATE:
-        raise ValueError('start date %s is out of bounds' % str(from_date))
+        raise WrappedValueError('start date %s is out of bounds' % str(from_date))
     if to_date < MIN_PERIOD_DATE or to_date > MAX_PERIOD_DATE:
-        raise ValueError('end date %s is out of bounds' % str(to_date))
+        raise WrappedValueError('end date %s is out of bounds' % str(to_date))
 
     if from_date > to_date:
-        raise ValueError('start date %s cannot be greater than %s'
+        raise WrappedValueError('start date %s cannot be greater than %s'
                          % (from_date, to_date))
 
     with db.connect() as session:
@@ -356,9 +356,9 @@ def add_to_matching_blacklist(db, entity):
         in the registry.
     """
     if entity is None:
-        raise ValueError('entity to blacklist cannot be None')
+        raise WrappedValueError('entity to blacklist cannot be None')
     if entity == '':
-        raise ValueError('entity to blacklist cannot be an empty string')
+        raise WrappedValueError('entity to blacklist cannot be an empty string')
 
     with db.connect() as session:
         mb = session.query(MatchingBlacklist).\
@@ -410,7 +410,7 @@ def edit_profile(db, uuid, **kwargs):
             is_bot = kwargs['is_bot']
 
             if type(is_bot) != bool:
-                raise ValueError('is_bot must have a boolean value')
+                raise WrappedValueError('is_bot must have a boolean value')
 
             profile.is_bot = is_bot
 
@@ -580,12 +580,12 @@ def delete_enrollment(db, uuid, organization, from_date=None, to_date=None):
         to_date = MAX_PERIOD_DATE
 
     if from_date < MIN_PERIOD_DATE or from_date > MAX_PERIOD_DATE:
-        raise ValueError('start date %s is out of bounds' % str(from_date))
+        raise WrappedValueError('start date %s is out of bounds' % str(from_date))
     if to_date < MIN_PERIOD_DATE or to_date > MAX_PERIOD_DATE:
-        raise ValueError('end date %s is out of bounds' % str(to_date))
+        raise WrappedValueError('end date %s is out of bounds' % str(to_date))
 
     if from_date > to_date:
-        raise ValueError('start date %s cannot be greater than %s'
+        raise WrappedValueError('start date %s cannot be greater than %s'
                          % (from_date, to_date))
 
     with db.connect() as session:
@@ -1129,7 +1129,7 @@ def countries(db, code=None, term=None):
                 and code.isalpha()
 
     if code is not None and not _is_code_valid(code):
-        raise ValueError('country code must be a 2 length alpha string - %s given' \
+        raise WrappedValueError('country code must be a 2 length alpha string - %s given' \
                          % str(code))
 
     cs = []
@@ -1196,12 +1196,12 @@ def enrollments(db, uuid=None, organization=None, from_date=None, to_date=None):
         to_date = MAX_PERIOD_DATE
 
     if from_date < MIN_PERIOD_DATE or from_date > MAX_PERIOD_DATE:
-        raise ValueError('start date %s is out of bounds' % str(from_date))
+        raise WrappedValueError('start date %s is out of bounds' % str(from_date))
     if to_date < MIN_PERIOD_DATE or to_date > MAX_PERIOD_DATE:
-        raise ValueError('end date %s is out of bounds' % str(to_date))
+        raise WrappedValueError('end date %s is out of bounds' % str(to_date))
 
     if from_date and to_date and from_date > to_date:
-        raise ValueError('start date %s cannot be greater than %s'
+        raise WrappedValueError('start date %s cannot be greater than %s'
                          % (from_date, to_date))
 
     enrollments = []

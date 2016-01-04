@@ -27,7 +27,7 @@ import argparse
 import sys
 
 from .. import api
-from ..command import Command, CMD_SUCCESS, CMD_FAILURE, HELP_LIST
+from ..command import Command, CMD_SUCCESS, HELP_LIST
 from ..db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE
 from ..exceptions import AlreadyExistsError, NotFoundError,\
     InvalidFormatError, LoadError, MatcherNotSupportedError
@@ -133,7 +133,7 @@ class Load(Command):
                 parser = SortingHatParser(stream)
             except InvalidFormatError as e:
                 self.error(str(e))
-                return CMD_FAILURE
+                return e.code
             except (IOError, TypeError, AttributeError) as e:
                 raise RuntimeError(str(e))
 
@@ -238,7 +238,7 @@ class Load(Command):
                 matcher = create_identity_matcher(matching, blacklist)
             except MatcherNotSupportedError as e:
                 self.error(str(e))
-                return CMD_FAILURE
+                return e.code
 
         uidentities = parser.identities
 
@@ -247,7 +247,7 @@ class Load(Command):
                                           verbose)
         except LoadError as e:
             self.error(str(e))
-            return CMD_FAILURE
+            return e.code
 
         return CMD_SUCCESS
 

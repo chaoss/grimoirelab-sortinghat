@@ -25,7 +25,7 @@ from __future__ import unicode_literals
 
 import argparse
 
-from ..command import Command, CMD_SUCCESS, CMD_FAILURE
+from ..command import Command, CMD_SUCCESS
 from ..exceptions import DatabaseError, LoadError
 from ..db.database import Database
 from ..db.model import Country
@@ -92,11 +92,11 @@ class Init(Command):
             self.__load_countries(db)
         except DatabaseError as e:
             self.error(str(e))
-            return CMD_FAILURE
+            return e.code
         except LoadError as e:
             Database.drop(user, password, name, host, port)
             self.error(str(e))
-            return CMD_FAILURE
+            return e.code
 
         return CMD_SUCCESS
 

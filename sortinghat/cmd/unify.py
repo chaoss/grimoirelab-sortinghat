@@ -26,7 +26,7 @@ from __future__ import unicode_literals
 import argparse
 
 from .. import api
-from ..command import Command, CMD_SUCCESS, CMD_FAILURE, HELP_LIST
+from ..command import Command, CMD_SUCCESS, HELP_LIST
 from ..exceptions import MatcherNotSupportedError
 from ..matcher import create_identity_matcher, match
 from ..matching import SORTINGHAT_IDENTITIES_MATCHERS
@@ -105,7 +105,7 @@ class Unify(Command):
             matcher = create_identity_matcher(matching, blacklist)
         except MatcherNotSupportedError as e:
             self.error(str(e))
-            return CMD_FAILURE
+            return e.code
 
         uidentities = api.unique_identities(self.db)
 

@@ -113,6 +113,6 @@ class Show(Command):
             self.display('show.tmpl', uidentities=uidentities)
         except NotFoundError as e:
             self.error(str(e))
-            return CMD_FAILURE
+            return e.code
 
         return CMD_SUCCESS

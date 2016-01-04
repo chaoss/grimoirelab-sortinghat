@@ -109,6 +109,6 @@ class Remove(Command):
                          uuid_or_id=uuid_or_id, identity=identity)
         except NotFoundError as e:
             self.error(str(e))
-            return CMD_FAILURE
+            return e.code
 
         return CMD_SUCCESS

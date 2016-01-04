@@ -32,9 +32,10 @@ if not '..' in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat import api
-from sortinghat.command import CMD_SUCCESS, CMD_FAILURE
+from sortinghat.command import CMD_SUCCESS
 from sortinghat.cmd.withdraw import Withdraw
 from sortinghat.db.database import Database
+from sortinghat.exceptions import CODE_INVALID_DATE_ERROR, CODE_NOT_FOUND_ERROR, CODE_VALUE_ERROR
 
 from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
@@ -150,25 +151,25 @@ class TestWithdrawCommand(TestBaseCase):
 
         code = self.cmd.run('--from', '1999-13-01',
                             'John Smith', 'Example')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_INVALID_DATE_ERROR)
         output = sys.stderr.getvalue().strip('\n').split('\n')[0]
         self.assertEqual(output, WITHDRAW_INVALID_DATE_ERROR)
 
         code = self.cmd.run('--from', 'YYZYY',
                             'John Smith', 'Example')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_INVALID_DATE_ERROR)
         output = sys.stderr.getvalue().strip('\n').split('\n')[1]
         self.assertEqual(output, WITHDRAW_INVALID_FORMAT_DATE_ERROR)
 
         code = self.cmd.run('--to', '1999-13-01',
                             'John Smith', 'Example')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_INVALID_DATE_ERROR)
         output = sys.stderr.getvalue().strip('\n').split('\n')[2]
         self.assertEqual(output, WITHDRAW_INVALID_DATE_ERROR)
 
         code = self.cmd.run('--to', 'YYZYY',
                             'John Smith', 'Example')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_INVALID_DATE_ERROR)
         output = sys.stderr.getvalue().strip('\n').split('\n')[3]
         self.assertEqual(output, WITHDRAW_INVALID_FORMAT_DATE_ERROR)
 
@@ -237,7 +238,7 @@ class TestWithdraw(TestBaseCase):
         code = self.cmd.withdraw('John Smith', 'Example',
                                  datetime.datetime(2001, 1, 1),
                                  datetime.datetime(1999, 1, 1))
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_VALUE_ERROR)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, WITHDRAW_INVALID_PERIOD_ERROR)
 
@@ -245,7 +246,7 @@ class TestWithdraw(TestBaseCase):
         """Check if it fails removing enrollments from unique identities that do not exist"""
 
         code = self.cmd.withdraw('Jane Roe', 'Example')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_NOT_FOUND_ERROR)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, WITHDRAW_UUID_NOT_FOUND_ERROR)
 
@@ -253,7 +254,7 @@ class TestWithdraw(TestBaseCase):
         """Check if it fails removing enrollments from organizations that do not exist"""
 
         code = self.cmd.withdraw('John Smith', 'LibreSoft')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_NOT_FOUND_ERROR)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, WITHDRAW_ORG_NOT_FOUND_ERROR)
 
@@ -264,7 +265,7 @@ class TestWithdraw(TestBaseCase):
         code = self.cmd.withdraw('John Doe', 'Bitergia',
                                  datetime.datetime(2050, 1, 1),
                                  datetime.datetime(2070, 1, 1))
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_NOT_FOUND_ERROR)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, WITHDRAW_ENROLLMENT_NOT_FOUND_ERROR)
 

@@ -31,9 +31,10 @@ if not '..' in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat import api
-from sortinghat.command import CMD_SUCCESS, CMD_FAILURE
+from sortinghat.command import CMD_SUCCESS
 from sortinghat.cmd.unify import Unify
 from sortinghat.db.database import Database
+from sortinghat.exceptions import CODE_MATCHER_NOT_SUPPORTED_ERROR
 
 from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
@@ -233,7 +234,7 @@ class TestUnify(TestBaseCase):
         """Check if it fails when an invalid matching method is given"""
 
         code = self.cmd.unify(matching='mock')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_MATCHER_NOT_SUPPORTED_ERROR)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, UNIFY_MATCHING_ERROR)
 

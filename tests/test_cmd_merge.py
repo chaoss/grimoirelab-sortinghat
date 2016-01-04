@@ -32,10 +32,11 @@ if not '..' in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat import api
-from sortinghat.command import CMD_SUCCESS, CMD_FAILURE
+from sortinghat.command import CMD_SUCCESS
 from sortinghat.cmd.merge import Merge
 from sortinghat.db.database import Database
 from sortinghat.db.model import Country
+from sortinghat.exceptions import CODE_NOT_FOUND_ERROR
 
 from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 
@@ -133,12 +134,12 @@ class TestMerge(TestBaseCase):
         """Check if it fails merging unique identities that do not exist"""
 
         code = self.cmd.merge('Jane Rae', 'John Smith')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_NOT_FOUND_ERROR)
         output = sys.stderr.getvalue().strip().split('\n')[0]
         self.assertEqual(output, MERGE_FROM_UUID_NOT_FOUND_ERROR)
 
         code = self.cmd.merge('John Smith', 'Jane Doe')
-        self.assertEqual(code, CMD_FAILURE)
+        self.assertEqual(code, CODE_NOT_FOUND_ERROR)
         output = sys.stderr.getvalue().strip().split('\n')[1]
         self.assertEqual(output, MERGE_TO_UUID_NOT_FOUND_ERROR)
 
