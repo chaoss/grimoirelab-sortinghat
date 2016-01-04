@@ -410,7 +410,7 @@ def edit_profile(db, uuid, **kwargs):
             is_bot = kwargs['is_bot']
 
             if type(is_bot) != bool:
-                raise ValueError('is_bot must have a boolean value')
+                raise WrappedValueError('is_bot must have a boolean value')
 
             profile.is_bot = is_bot
 
