@@ -289,13 +289,13 @@ def add_enrollment(db, uuid, organization, from_date=None, to_date=None):
         in the registry.
     """
     if uuid is None:
-        raise ValueError('uuid cannot be None')
+        raise WrappedValueError('uuid cannot be None')
     if uuid == '':
-        raise ValueError('uuid cannot be an empty string')
+        raise WrappedValueError('uuid cannot be an empty string')
     if organization is None:
-        raise ValueError('organization cannot be None')
+        raise WrappedValueError('organization cannot be None')
     if organization == '':
-        raise ValueError('organization cannot be an empty string')
+        raise WrappedValueError('organization cannot be an empty string')
 
     if not from_date:
         from_date = MIN_PERIOD_DATE
@@ -303,12 +303,12 @@ def add_enrollment(db, uuid, organization, from_date=None, to_date=None):
         to_date = MAX_PERIOD_DATE
 
     if from_date < MIN_PERIOD_DATE or from_date > MAX_PERIOD_DATE:
-        raise ValueError('start date %s is out of bounds' % str(from_date))
+        raise WrappedValueError('start date %s is out of bounds' % str(from_date))
     if to_date < MIN_PERIOD_DATE or to_date > MAX_PERIOD_DATE:
-        raise ValueError('end date %s is out of bounds' % str(to_date))
+        raise WrappedValueError('end date %s is out of bounds' % str(to_date))
 
     if from_date > to_date:
-        raise ValueError('start date %s cannot be greater than %s'
+        raise WrappedValueError('start date %s cannot be greater than %s'
                          % (from_date, to_date))
 
     with db.connect() as session:
