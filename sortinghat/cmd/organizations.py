@@ -26,8 +26,8 @@ from __future__ import unicode_literals
 import argparse
 
 from .. import api
-from ..command import Command, CMD_SUCCESS, CMD_FAILURE
-from ..exceptions import AlreadyExistsError, NotFoundError
+from ..command import Command, CMD_SUCCESS
+from ..exceptions import AlreadyExistsError, NotFoundError, WrappedValueError
 
 
 ORGS_COMMAND_USAGE_MSG = \
@@ -160,24 +160,24 @@ class Organizations(Command):
         if not domain:
             try:
                 api.add_organization(self.db, organization)
-            except ValueError as e:
+            except WrappedValueError as e:
                 # If the code reaches here, something really wrong has happened
                 # because organization cannot be None or empty
                 raise RuntimeError(str(e))
             except AlreadyExistsError as e:
                 self.error(str(e))
-                return CMD_FAILURE
+                return e.code
         else:
             try:
                 api.add_domain(self.db, organization, domain,
                                is_top_domain=is_top_domain,
                                overwrite=overwrite)
-            except ValueError as e:
+            except WrappedValueError as e:
                 # Same as above, domains cannot be None or empty
                 raise RuntimeError(str(e))
             except (AlreadyExistsError, NotFoundError) as e:
                 self.error(str(e))
-                return CMD_FAILURE
+                return e.code
 
         return CMD_SUCCESS
 
@@ -203,13 +203,13 @@ class Organizations(Command):
                 api.delete_organization(self.db, organization)
             except NotFoundError as e:
                 self.error(str(e))
-                return CMD_FAILURE
+                return e.code
         else:
             try:
                 api.delete_domain(self.db, organization, domain)
             except NotFoundError as e:
                 self.error(str(e))
-                return CMD_FAILURE
+                return e.code
 
         return CMD_SUCCESS
 
@@ -227,6 +227,6 @@ class Organizations(Command):
             self.display('organizations.tmpl', organizations=orgs)
         except NotFoundError as e:
             self.error(str(e))
-            return CMD_FAILURE
+            return e.code
 
         return CMD_SUCCESS
