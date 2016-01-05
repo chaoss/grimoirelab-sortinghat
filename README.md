@@ -80,7 +80,7 @@ You can use our image from [DockerHub](https://hub.docker.com/r/metricsgrimoire/
 If you prefer to build the image yourself execute:
 
 ```sh
-$ docker build -t metricsgrimoire/sortinghat:latest .
+$ docker build -t metricsgrimoire/sortinghat .
 ```
 
 Next step would be to start a MySQL docker container for data storage:
@@ -97,7 +97,7 @@ Run the sortinghat docker container in interactive mode:
 
 ```sh
 $ docker run -i -t --rm \
-             --link mysql:mysql metricsgrimoire/sortinghat:latest \
+             --link mysql:mysql metricsgrimoire/sortinghat \
              /bin/bash
 ```
 
