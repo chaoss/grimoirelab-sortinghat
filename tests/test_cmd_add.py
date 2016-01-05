@@ -31,7 +31,7 @@ if not '..' in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat import api
-from sortinghat.command import CMD_SUCCESS, CMD_FAILURE
+from sortinghat.command import CMD_SUCCESS
 from sortinghat.cmd.add import Add
 from sortinghat.db.database import Database
 from sortinghat.exceptions import CODE_ALREADY_EXISTS_ERROR, CODE_MATCHER_NOT_SUPPORTED_ERROR, CODE_NOT_FOUND_ERROR, CODE_VALUE_ERROR
