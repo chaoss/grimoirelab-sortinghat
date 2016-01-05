@@ -76,7 +76,8 @@ You are ready to use sortinghat!
 
 ### Docker
 
-At first you need to build the image:
+You can use our image from [DockerHub](https://hub.docker.com/r/metricsgrimoire/sortinghat/) (`metricsgrimoire/sortinghat`) and skip the `docker build` step.
+If you prefer to build the image yourself execute:
 
 ```sh
 $ docker build -t metricsgrimoire/sortinghat:latest .
