@@ -76,18 +76,17 @@ You are ready to use sortinghat!
 
 ### Docker
 
-At first you need to build the image:
+You can use our image from [DockerHub](https://hub.docker.com/r/metricsgrimoire/sortinghat/) (`metricsgrimoire/sortinghat`) and skip the `docker build` step.
+If you prefer to build the image yourself execute:
 
 ```sh
-$ docker build -t metricsgrimoire/sortinghat:latest .
+$ docker build -t metricsgrimoire/sortinghat .
 ```
 
 Next step would be to start a MySQL docker container for data storage:
 
 ```sh
 $ docker run --name mysql \
-             -e MYSQL_USER=sortinghat \
-             -e MYSQL_PASSWORD=sortinghat \
              -e MYSQL_ROOT_PASSWORD=sortinghat \
              -d mysql
 ```
@@ -96,11 +95,22 @@ Run the sortinghat docker container in interactive mode:
 
 ```sh
 $ docker run -i -t --rm \
-             --link mysql:mysql metricsgrimoire/sortinghat:latest \
+             --link mysql:mysql \
+             -e SORTINGHAT_DB_HOST=mysql \
+             -e SORTINGHAT_DB_PASSWORD=sortinghat \
+             -e SORTINGHAT_DB_DATABASE=sortinghat \
+             metricsgrimoire/sortinghat \
              /bin/bash
 ```
 
-You are ready to use sortinghat!
+Now you can initialize sortinghat with the database name `sortinghat`:
+
+```
+$ sortinghat init sortinghat
+```
+
+You are ready to use sortinghat and explore the commands documented below. 
+Have fun!
 
 ## Configuration
 

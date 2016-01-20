@@ -143,8 +143,8 @@ def create_common_arguments_parser(defaults):
                        help=argparse.SUPPRESS)
     group.add_argument('-p', '--password', dest='password', default=os.getenv('SORTINGHAT_DB_PASSWORD', ''),
                        help=argparse.SUPPRESS)
-    group.add_argument('-d', '--database', dest=os.getenv('SORTINGHAT_DB_DATABASE', 'database'),
-                       help=argparse.SUPPRESS)
+    group.add_argument('-d', '--database', dest='database', default=os.getenv('SORTINGHAT_DB_DATABASE', ''),
+                         help=argparse.SUPPRESS)
     group.add_argument('--host', dest='host', default=os.getenv('SORTINGHAT_DB_HOST', 'localhost'),
                        help=argparse.SUPPRESS)
     group.add_argument('--port', dest='port', default=os.getenv('SORTINGHAT_DB_PORT', '3306'),
