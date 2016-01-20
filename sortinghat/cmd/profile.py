@@ -26,7 +26,7 @@ from __future__ import unicode_literals
 import argparse
 
 from .. import api
-from ..command import Command, CMD_SUCCESS, CMD_FAILURE
+from ..command import Command, CMD_SUCCESS
 from ..exceptions import NotFoundError, WrappedValueError
 
 
