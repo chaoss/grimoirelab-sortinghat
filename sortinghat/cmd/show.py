@@ -26,7 +26,7 @@ from __future__ import unicode_literals
 import argparse
 
 from .. import api
-from ..command import Command, CMD_SUCCESS
+from ..command import Command, CMD_SUCCESS, HELP_LIST
 from ..exceptions import NotFoundError
 
 
@@ -47,8 +47,6 @@ class Show(Command):
     def __init__(self, **kwargs):
         super(Show, self).__init__(**kwargs)
 
-        self._set_database(**kwargs)
-
         self.parser = argparse.ArgumentParser(description=self.description,
                                               usage=self.usage)
 
@@ -58,6 +56,12 @@ class Show(Command):
         # Positional arguments
         self.parser.add_argument('uuid', nargs='?', default=None,
                                  help="unique identifier of the identity to show")
+
+        # Exit early if help is requested
+        if 'cmd_args' in kwargs and [i for i in kwargs['cmd_args'] if i in HELP_LIST]:
+            return
+
+        self._set_database(**kwargs)
 
     @property
     def description(self):

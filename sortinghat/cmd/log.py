@@ -26,7 +26,7 @@ from __future__ import unicode_literals
 import argparse
 
 from .. import api, utils
-from ..command import Command, CMD_SUCCESS
+from ..command import Command, CMD_SUCCESS, HELP_LIST
 from ..exceptions import InvalidDateError, NotFoundError, WrappedValueError
 
 
@@ -47,8 +47,6 @@ class Log(Command):
     def __init__(self, **kwargs):
         super(Log, self).__init__(**kwargs)
 
-        self._set_database(**kwargs)
-
         self.parser = argparse.ArgumentParser(description=self.description,
                                               usage=self.usage)
 
@@ -61,6 +59,12 @@ class Log(Command):
                                  help="date (YYYY-MM-DD:hh:mm:ss) when the enrollment starts")
         self.parser.add_argument('--to', dest='to_date', default=None,
                                  help="date (YYYY-MM-DD:hh:mm:ss) when the enrollment ends")
+
+        # Exit early if help is requested
+        if 'cmd_args' in kwargs and [i for i in kwargs['cmd_args'] if i in HELP_LIST]:
+            return
+
+        self._set_database(**kwargs)
 
     @property
     def description(self):
