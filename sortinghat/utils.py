@@ -114,11 +114,10 @@ def to_unicode(x):
     else: # Python 2
         if type(x) is unicode:
             return x
-
-        if x is None:
+        elif type(x) != str:
             return unicode(x)
-
-        return unicode(x.decode('utf-8'))
+        else:
+            return unicode(x.decode('utf-8'))
 
 
 def uuid(source, email=None, name=None, username=None):

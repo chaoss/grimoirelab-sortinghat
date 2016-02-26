@@ -31,7 +31,8 @@ if not '..' in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat.exceptions import InvalidDateError
-from sortinghat.utils import merge_date_ranges, str_to_datetime, uuid
+from sortinghat.utils import merge_date_ranges, str_to_datetime, \
+    to_unicode, uuid
 
 DATE_OUT_OF_BOUNDS_ERROR = "%(type)s %(date)s is out of bounds"
 SOURCE_NONE_OR_EMPTY_ERROR = "source cannot be"
@@ -198,6 +199,28 @@ class TestStrToDatetime(unittest.TestCase):
 
         date = str_to_datetime('')
         self.assertEqual(date, None)
+
+
+class TestToUnicode(unittest.TestCase):
+    """Unit tests for to_unicode function"""
+
+    def test_to_unicode(self):
+        """Check unicode casting with several cases"""
+
+        result = to_unicode(u'abcdefghijk')
+        self.assertEqual(result, u'abcdefghijk')
+
+        result = to_unicode('abcdefghijk')
+        self.assertEqual(result, u'abcdefghijk')
+
+        result = to_unicode(None)
+        self.assertEqual(result, u'None')
+
+        result = to_unicode(1234)
+        self.assertEqual(result, '1234')
+
+        result = to_unicode(1234.4321)
+        self.assertEqual(result, '1234.4321')
 
 
 class TestUUID(unittest.TestCase):
