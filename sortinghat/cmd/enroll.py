@@ -62,7 +62,7 @@ class Enroll(Command):
 
         # Merge enrollment option
         self.parser.add_argument('--merge', action='store_true',
-                                 help="merge exiting enrollments")
+                                 help="merge existing enrollments")
 
         # Positional arguments
         self.parser.add_argument('uuid', default=None,

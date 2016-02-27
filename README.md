@@ -175,7 +175,7 @@ After this initialize a new database:
   Unique identity a7637bb1737bc2a83f3a3e25b9b441cba62d97c2 merged on 03e12d00e37fd45593c49a5a5a1652deca4cf302
 ```
 
-* Move an identiy into a unique identity
+* Move an identity into a unique identity
 ```
   $ sortinghat move a7637bb1737bc2a83f3a3e25b9b441cba62d97c2 a7637bb1737bc2a83f3a3e25b9b441cba62d97c2
   New unique identity a7637bb1737bc2a83f3a3e25b9b441cba62d97c2 created. Identity moved
