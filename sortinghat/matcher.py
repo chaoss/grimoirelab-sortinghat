@@ -142,49 +142,13 @@ def match(uidentities, matcher):
                 return True
         return False
 
-    def build_result(matches, uuids, no_filtered):
-        """Build a list with the matching subsets"""
-
-        result = []
-
-        for m in matches:
-            subset = [uuids[m[0].uuid]]
-
-            for id_ in m[1:]:
-                u = uuids[id_.uuid]
-
-                if u not in subset:
-                    subset.append(u)
-
-            result.append(subset)
-
-        result += no_filtered
-
-        result.sort(key=len, reverse=True)
-
-        return result
-
     # The algorithm used to find matches starts here
     if not isinstance(matcher, IdentityMatcher):
         raise TypeError("matcher is not an instance of IdentityMatcher")
 
-    uuids = {}
-    no_filtered = []
-
-    remaining = []
+    remaining, no_filtered, uuids = \
+        _filter_unique_identities(uidentities, matcher)
     matched = []
-
-    # Filter identities
-    for uidentity in uidentities:
-        n = len(remaining)
-
-        remaining += matcher.filter(uidentity)
-
-        if len(remaining) > n:
-            uuids[uidentity.uuid] = uidentity
-        else:
-            # This uidentity does not have identities to match
-            no_filtered.append([uidentity])
 
     # Find subsets of matches
     while remaining:
@@ -207,4 +171,51 @@ def match(uidentities, matcher):
         matched = [candidates] + no_match
 
     # All subsets were found, create a list and return it
-    return build_result(matched, uuids, no_filtered)
+    return _build_matches(matched, uuids, no_filtered)
+
+
+def _filter_unique_identities(uidentities, matcher):
+    """Filter a set of unique identities.
+
+    This function will use the `matcher`to generate a list
+    of `FilteredIdentity` objects. It will return a tuple
+    with the list of filtered objects, the unique identities
+    not filtered and a table mapping uuids with unique
+    identities.
+    """
+    filtered = []
+    no_filtered = []
+    uuids = {}
+
+    for uidentity in uidentities:
+        n = len(filtered)
+        filtered += matcher.filter(uidentity)
+
+        if len(filtered) > n:
+            uuids[uidentity.uuid] = uidentity
+        else:
+            no_filtered.append([uidentity])
+
+    return filtered, no_filtered, uuids
+
+
+def _build_matches(matches, uuids, no_filtered):
+    """Build a list with matching subsets"""
+
+    result = []
+
+    for m in matches:
+        subset = [uuids[m[0].uuid]]
+
+        for id_ in m[1:]:
+            u = uuids[id_.uuid]
+
+            if u not in subset:
+                subset.append(u)
+
+        result.append(subset)
+
+    result += no_filtered
+    result.sort(key=len, reverse=True)
+
+    return result
