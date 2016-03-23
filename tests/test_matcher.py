@@ -180,6 +180,17 @@ class TestMatch(unittest.TestCase):
                              [[self.js_alt, self.jsmith, self.john_smith],
                               [self.jane_rae, self.jrae]])
 
+    def test_match_fast_mode(self):
+        """Test matching in fast mode"""
+
+        uidentities = [self.jsmith, self.jrae, self.js_alt,
+                       self.john_smith, self.jane_rae]
+
+        matcher = EmailMatcher()
+
+        with self.assertRaises(NotImplementedError):
+            _ = match(uidentities, matcher, fastmode=True)
+
     def test_matcher_error(self):
         """Test if it raises an error when the matcher is not valid"""
 

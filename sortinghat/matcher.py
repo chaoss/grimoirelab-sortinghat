@@ -117,21 +117,45 @@ def create_identity_matcher(matcher='default', blacklist=[]):
     return klass(blacklist=blacklist)
 
 
-def match(uidentities, matcher):
+def match(uidentities, matcher, fastmode=False):
     """Find matches in a set of unique identities.
 
     This function looks for possible similar or equal identities from a set
     of unique identities. The result will be a list of subsets where each
     subset is a list of matching identities.
 
+    When `fastmode` is set a new and experimental matching algorithm
+    will be used. It consumes more resources (a big amount of memory)
+    but it is, at least, two orders of maginute faster than the
+    classic algorithm.
+
     :param uidentities: list of unique identities to match
     :param matcher: instance of the matcher
+    :param fastmode: use a faster algorithm
 
     :returns: a list of subsets with the matched unique identities
 
     :raises TypeError: when matcher is not an instance of
         IdentityMatcher class
     """
+    if not isinstance(matcher, IdentityMatcher):
+        raise TypeError("matcher is not an instance of IdentityMatcher")
+
+    filtered, no_filtered, uuids = \
+        _filter_unique_identities(uidentities, matcher)
+
+    if not fastmode:
+        matched = _match(filtered, matcher)
+    else:
+        matched = _match_with_pandas(filtered, matcher)
+
+    # All subsets were found, create a list and return it
+    return _build_matches(matched, uuids, no_filtered)
+
+
+def _match(filtered, matcher):
+    """Old method to find matches in a set of filtered identities."""
+
     def match_filtered_identities(x, ids, matcher):
         """Check if an identity matches a set of identities"""
 
@@ -142,20 +166,14 @@ def match(uidentities, matcher):
                 return True
         return False
 
-    # The algorithm used to find matches starts here
-    if not isinstance(matcher, IdentityMatcher):
-        raise TypeError("matcher is not an instance of IdentityMatcher")
-
-    remaining, no_filtered, uuids = \
-        _filter_unique_identities(uidentities, matcher)
+    # Find subsets of matches
     matched = []
 
-    # Find subsets of matches
-    while remaining:
+    while filtered:
         candidates = []
         no_match = []
 
-        x = remaining.pop(0)
+        x = filtered.pop(0)
 
         while matched:
             ids = matched.pop(0)
@@ -170,8 +188,13 @@ def match(uidentities, matcher):
         # Generate the new list of matched subsets
         matched = [candidates] + no_match
 
-    # All subsets were found, create a list and return it
-    return _build_matches(matched, uuids, no_filtered)
+    return matched
+
+
+def _match_with_pandas(filtered, matcher):
+    """Find matches in a set using Pandas' library."""
+
+    raise NotImplementedError
 
 
 def _filter_unique_identities(uidentities, matcher):
