@@ -111,6 +111,14 @@ class TestUnifyCommand(TestBaseCase):
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, UNIFY_DEFAULT_OUTPUT)
 
+    def test_unify_fast_matching(self):
+        """Test command with fast matching"""
+
+        code = self.cmd.run('--fast-matching')
+        self.assertEqual(code, CMD_SUCCESS)
+        output = sys.stdout.getvalue().strip()
+        self.assertEqual(output, UNIFY_DEFAULT_OUTPUT)
+
     def test_unify_email_name_matcher(self):
         """Test command using the email-name matcher"""
 
@@ -141,6 +149,38 @@ class TestUnify(TestBaseCase):
         self.assertEqual(len(before), 6)
 
         code = self.cmd.unify(matching='default')
+        self.assertEqual(code, CMD_SUCCESS)
+
+        after = api.unique_identities(self.db)
+        self.assertEqual(len(after), 5)
+
+        # jsmith identities with same email address
+        jsmith = after[1]
+        self.assertEqual(jsmith.uuid, '72ae225d363c83456d788da14eeb0718efe7a0fc')
+
+        identities = jsmith.identities
+        identities.sort(key=lambda x: x.id)
+
+        self.assertEqual(len(identities), 7)
+
+        id_ = identities[0]
+        self.assertEqual(id_.email, 'JSmith@example.com')
+        self.assertEqual(id_.source, 'mls')
+
+        id_ = identities[2]
+        self.assertEqual(id_.email, 'jsmith@example.com')
+        self.assertEqual(id_.source, 'scm')
+
+        output = sys.stdout.getvalue().strip()
+        self.assertEqual(output, UNIFY_DEFAULT_OUTPUT)
+
+    def test_unify_fast_matching(self):
+        """Test unify method using a default matcher and fast matching mode"""
+
+        before = api.unique_identities(self.db)
+        self.assertEqual(len(before), 6)
+
+        code = self.cmd.unify(matching='default', fast_matching=True)
         self.assertEqual(code, CMD_SUCCESS)
 
         after = api.unique_identities(self.db)

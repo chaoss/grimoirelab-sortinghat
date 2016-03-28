@@ -41,6 +41,14 @@ class EmailNameIdentity(FilteredIdentity):
         self.email = email
         self.name = name
 
+    def to_dict(self):
+        return {
+                'id'    : self.id,
+                'uuid'  : self.uuid,
+                'email' : self.email,
+                'name'  : self.name
+               }
+
 
 class EmailNameMatcher(IdentityMatcher):
     """
@@ -173,6 +181,14 @@ class EmailNameMatcher(IdentityMatcher):
                 filtered.append(fid)
 
         return filtered
+
+    @staticmethod
+    def matching_criteria():
+        """List of keys used during the matching phase.
+
+        returns: a list of keys
+        """
+        return ['email', 'name']
 
     def _check_pattern(self, pattern, value):
         if not value:

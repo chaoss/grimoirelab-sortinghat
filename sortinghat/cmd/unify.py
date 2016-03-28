@@ -51,6 +51,8 @@ class Unify(Command):
         self.parser.add_argument('-m', '--matching', dest='matching', default=None,
                                  choices=SORTINGHAT_IDENTITIES_MATCHERS,
                                  help="find similar unique identities using this type of matching")
+        self.parser.add_argument('--fast-matching', dest='fast_matching', action='store_true',
+                                 help="run fast matching")
         self.parser.add_argument('-i', '--interactive', action='store_true',
                                  help="run interactive mode while unifying")
 
@@ -68,18 +70,19 @@ class Unify(Command):
 
     @property
     def usage(self):
-        return """%(prog)s unify [--matching <matcher>] [--interactive]"""
+        return """%(prog)s unify [--matching <matcher>] [--fast-matching] [--interactive]"""
 
     def run(self, *args):
         """Merge unique identities using a matching algorithm."""
 
         params = self.parser.parse_args(args)
 
-        code = self.unify(params.matching, params.interactive)
+        code = self.unify(params.matching, params.fast_matching,
+                          params.interactive)
 
         return code
 
-    def unify(self, matching=None, interactive=False):
+    def unify(self, matching=None, fast_matching=False, interactive=False):
         """Merge unique identities using a matching algorithm.
 
         This method looks for sets of similar identities, merging those
@@ -87,6 +90,12 @@ class Unify(Command):
         identities are likely the same, a matching algorithm will be given
         using the parameter <matching>. When this parameter is not given,
         the default algorithm will be used.
+
+        When <fast_matching> is set, it runs a fast algorithm to find matches
+        between identities. This mode will consume more resources (i.e,
+        memory) but it is two orders of magnitude faster than the original.
+        Not every matcher can support this mode. When this happens, an
+        exception will be raised.
 
         When <interactive> parameter is set to True, the user will have to confirm
         whether these to identities should be merged into one. By default, the method
@@ -111,21 +120,25 @@ class Unify(Command):
 
         try:
             self.__unify_unique_identities(uidentities, matcher,
-                                           interactive)
+                                           fast_matching, interactive)
             self.__display_stats()
+        except MatcherNotSupportedError as e:
+            self.error(str(e))
+            return e.code
         except Exception as e:
             self.__display_stats()
             raise RuntimeError(unicode(e))
 
         return CMD_SUCCESS
 
-    def __unify_unique_identities(self, uidentities, matcher, interactive):
+    def __unify_unique_identities(self, uidentities, matcher,
+                                  fast_matching, interactive):
         """Unify unique identities looking for similar identities."""
 
         self.total = len(uidentities)
         self.matched = 0
 
-        matched = match(uidentities, matcher)
+        matched = match(uidentities, matcher, fastmode=fast_matching)
         self.__merge(matched, interactive)
 
     def __merge(self, matched, interactive):

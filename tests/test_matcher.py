@@ -180,11 +180,54 @@ class TestMatch(unittest.TestCase):
                              [[self.js_alt, self.jsmith, self.john_smith],
                               [self.jane_rae, self.jrae]])
 
+    def test_match_email_fast_mode(self):
+        """Test matching in fast mode using email matcher"""
+
+        uidentities = [self.jsmith, self.jrae, self.js_alt,
+                       self.john_smith, self.jane_rae]
+
+        matcher = EmailMatcher()
+
+        result = match([], matcher, fastmode=True)
+        self.assertEqual(len(result), 0)
+
+        result = match(uidentities, matcher, fastmode=True)
+        self.assertEqual(len(result), 4)
+        self.assertListEqual(result,
+                             [[self.john_smith, self.js_alt],
+                              [self.jane_rae], [self.jrae], [self.jsmith]])
+
+    def test_match_email_name_fast_mode(self):
+        """Test matching in fast mode using email-name matcher"""
+
+        uidentities = [self.jsmith, self.jrae, self.js_alt,
+                       self.john_smith, self.jane_rae]
+
+        matcher = EmailNameMatcher()
+
+        result = match([], matcher, fastmode=True)
+        self.assertEqual(len(result), 0)
+
+        result = match(uidentities, matcher, fastmode=True)
+
+        self.assertEqual(len(result), 2)
+        self.assertListEqual(result,
+                             [[self.jsmith, self.john_smith, self.js_alt],
+                              [self.jane_rae, self.jrae]])
+
     def test_matcher_error(self):
         """Test if it raises an error when the matcher is not valid"""
 
         self.assertRaises(TypeError, match, [], None)
         self.assertRaises(TypeError, match, [], "")
+
+    def test_matcher_not_supported_fast_mode(self):
+        """Test if it raises and error when a matcher does not supports the fast mode"""
+
+        matcher = IdentityMatcher()
+
+        self.assertRaises(MatcherNotSupportedError,
+                          match, [], matcher, True)
 
 
 if __name__ == "__main__":

@@ -109,7 +109,7 @@ Now you can initialize sortinghat with the database name `sortinghat`:
 $ sortinghat init sortinghat
 ```
 
-You are ready to use sortinghat and explore the commands documented below. 
+You are ready to use sortinghat and explore the commands documented below.
 Have fun!
 
 ## Configuration
@@ -308,6 +308,9 @@ You will also need a MySQL Python driver to connect with the database server. We
 * MySQLdb (only available for Python 2.7)
 * PyMySQL
 
+Optionally, you can install Pandas library to speed up the matching process:
+
+* python-pandas >= 0.15
 
 ## License
 

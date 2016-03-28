@@ -83,6 +83,17 @@ class IdentityMatcher(object):
         """
         raise NotImplementedError
 
+    @staticmethod
+    def matching_criteria():
+        """List of keys used during the matching phase.
+
+        This list is only required for matching using the fast mode
+        algorithm. Otherwise, raises a `NotImplemetedError` exception.
+
+        returns: a list of keys
+        """
+        raise NotImplementedError
+
 
 class FilteredIdentity(object):
     """Generic class to store filtered identities"""
@@ -91,6 +102,11 @@ class FilteredIdentity(object):
         self.id = id
         self.uuid = uuid
 
+    def to_dict(self):
+        return {
+                'id'   : self.id,
+                'uuid' : self.uuid
+               }
 
 def create_identity_matcher(matcher='default', blacklist=[]):
     """Create an identity matcher of the given type.
@@ -117,21 +133,55 @@ def create_identity_matcher(matcher='default', blacklist=[]):
     return klass(blacklist=blacklist)
 
 
-def match(uidentities, matcher):
+def match(uidentities, matcher, fastmode=False):
     """Find matches in a set of unique identities.
 
     This function looks for possible similar or equal identities from a set
     of unique identities. The result will be a list of subsets where each
     subset is a list of matching identities.
 
+    When `fastmode` is set a new and experimental matching algorithm
+    will be used. It consumes more resources (a big amount of memory)
+    but it is, at least, two orders of maginute faster than the
+    classic algorithm.
+
     :param uidentities: list of unique identities to match
     :param matcher: instance of the matcher
+    :param fastmode: use a faster algorithm
 
     :returns: a list of subsets with the matched unique identities
 
+    :raises MatcherNotSupportedError: when matcher does not support fast
+        mode matching
     :raises TypeError: when matcher is not an instance of
         IdentityMatcher class
     """
+    if not isinstance(matcher, IdentityMatcher):
+        raise TypeError("matcher is not an instance of IdentityMatcher")
+
+    if fastmode:
+        try:
+            matcher.matching_criteria()
+        except NotImplementedError:
+            name = "'%s (fast mode)'" % matcher.__class__.__name__.lower()
+            raise MatcherNotSupportedError(matcher=name)
+
+    filtered, no_filtered, uuids = \
+        _filter_unique_identities(uidentities, matcher)
+
+    if not fastmode:
+        matched = _match(filtered, matcher)
+    else:
+        matched = _match_with_pandas(filtered, matcher)
+
+    matched = _build_matches(matched, uuids, no_filtered, fastmode)
+
+    return matched
+
+
+def _match(filtered, matcher):
+    """Old method to find matches in a set of filtered identities."""
+
     def match_filtered_identities(x, ids, matcher):
         """Check if an identity matches a set of identities"""
 
@@ -142,56 +192,14 @@ def match(uidentities, matcher):
                 return True
         return False
 
-    def build_result(matches, uuids, no_filtered):
-        """Build a list with the matching subsets"""
-
-        result = []
-
-        for m in matches:
-            subset = [uuids[m[0].uuid]]
-
-            for id_ in m[1:]:
-                u = uuids[id_.uuid]
-
-                if u not in subset:
-                    subset.append(u)
-
-            result.append(subset)
-
-        result += no_filtered
-
-        result.sort(key=len, reverse=True)
-
-        return result
-
-    # The algorithm used to find matches starts here
-    if not isinstance(matcher, IdentityMatcher):
-        raise TypeError("matcher is not an instance of IdentityMatcher")
-
-    uuids = {}
-    no_filtered = []
-
-    remaining = []
+    # Find subsets of matches
     matched = []
 
-    # Filter identities
-    for uidentity in uidentities:
-        n = len(remaining)
-
-        remaining += matcher.filter(uidentity)
-
-        if len(remaining) > n:
-            uuids[uidentity.uuid] = uidentity
-        else:
-            # This uidentity does not have identities to match
-            no_filtered.append([uidentity])
-
-    # Find subsets of matches
-    while remaining:
+    while filtered:
         candidates = []
         no_match = []
 
-        x = remaining.pop(0)
+        x = filtered.pop(0)
 
         while matched:
             ids = matched.pop(0)
@@ -206,5 +214,125 @@ def match(uidentities, matcher):
         # Generate the new list of matched subsets
         matched = [candidates] + no_match
 
-    # All subsets were found, create a list and return it
-    return build_result(matched, uuids, no_filtered)
+    return matched
+
+
+def _match_with_pandas(filtered, matcher):
+    """Find matches in a set using Pandas' library."""
+
+    import pandas
+
+    data = [fl.to_dict() for fl in filtered]
+
+    if not data:
+        return []
+
+    df = pandas.DataFrame(data)
+    df = df.sort(['uuid'])
+
+    cdfs = []
+    criteria = matcher.matching_criteria()
+
+    for c in criteria:
+        cdf = df[['id', 'uuid', c]]
+        cdf = cdf.dropna(subset=[c])
+        cdf = pandas.merge(cdf, cdf, on=c, how='left')
+        cdf = cdf[['uuid_x', 'uuid_y']]
+        cdfs.append(cdf)
+
+    result = pandas.concat(cdfs)
+    result = result.drop_duplicates()
+    groups = result.groupby(by=['uuid_x'],
+                            as_index=True, sort=True)
+
+    matched = _calculate_matches_closures(groups)
+
+    return matched
+
+
+def _filter_unique_identities(uidentities, matcher):
+    """Filter a set of unique identities.
+
+    This function will use the `matcher` to generate a list
+    of `FilteredIdentity` objects. It will return a tuple
+    with the list of filtered objects, the unique identities
+    not filtered and a table mapping uuids with unique
+    identities.
+    """
+    filtered = []
+    no_filtered = []
+    uuids = {}
+
+    for uidentity in uidentities:
+        n = len(filtered)
+        filtered += matcher.filter(uidentity)
+
+        if len(filtered) > n:
+            uuids[uidentity.uuid] = uidentity
+        else:
+            no_filtered.append([uidentity])
+
+    return filtered, no_filtered, uuids
+
+
+def _build_matches(matches, uuids, no_filtered, fastmode=False):
+    """Build a list with matching subsets"""
+
+    result = []
+
+    for m in matches:
+        mk = m[0].uuid if not fastmode else m[0]
+        subset = [uuids[mk]]
+
+        for id_ in m[1:]:
+            uk = id_.uuid if not fastmode else id_
+            u = uuids[uk]
+
+            if u not in subset:
+                subset.append(u)
+
+        result.append(subset)
+
+    result += no_filtered
+    result.sort(key=len, reverse=True)
+
+    return result
+
+
+def _calculate_matches_closures(groups):
+    """Find the transitive closure of each unique identity.
+
+    This function uses a BFS algorithm to build set of matches.
+    For instance, given a list of matched unique identities like
+    A = {A, B}; B = {B,A,C}, C = {C,} and D = {D,} the output
+    will be A = {A, B, C} and D = {D,}.
+
+    :param groups: groups of unique identities
+    """
+    matches = []
+
+    ns = sorted(groups.groups.keys())
+
+    while ns:
+        n = ns.pop(0)
+        visited = [n]
+        vs = [v for v in groups.get_group(n)['uuid_y']]
+
+        while vs:
+           v = vs.pop(0)
+
+           if v in visited:
+               continue
+
+           nvs = [nv for nv in groups.get_group(v)['uuid_y']]
+           vs += nvs
+           visited.append(v)
+
+           try:
+               ns.remove(v)
+           except:
+               pass
+
+        matches.append(visited)
+
+    return matches
