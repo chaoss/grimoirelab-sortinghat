@@ -378,6 +378,13 @@ class TestEmailMatcher(unittest.TestCase):
         self.assertRaises(ValueError, matcher.filter, 'John Smith')
         self.assertRaises(ValueError, matcher.filter, None)
 
+    def test_matching_criteria(self):
+        """Test whether it returns the matching criteria keys"""
+
+        criteria = EmailMatcher.matching_criteria()
+
+        self.assertListEqual(criteria, ['email'])
+
 
 if __name__ == "__main__":
     unittest.main()

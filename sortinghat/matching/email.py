@@ -39,6 +39,13 @@ class EmailIdentity(FilteredIdentity):
         super(EmailIdentity, self).__init__(id, uuid)
         self.email = email
 
+    def to_dict(self):
+        return {
+                'id'    : self.id,
+                'uuid'  : self.uuid,
+                'email' : self.email
+               }
+
 
 class EmailMatcher(IdentityMatcher):
     """
@@ -153,6 +160,14 @@ class EmailMatcher(IdentityMatcher):
                 filtered.append(fid)
 
         return filtered
+
+    @staticmethod
+    def matching_criteria():
+        """List of keys used during the matching phase.
+
+        returns: a list of keys
+        """
+        return ['email']
 
     def _filter_emails(self, ids):
         return [id_.email.lower() for id_ in ids \
