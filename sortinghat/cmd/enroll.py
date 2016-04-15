@@ -56,9 +56,9 @@ class Enroll(Command):
 
         # Enrollment period options
         self.parser.add_argument('--from', dest='from_date', default=None,
-                                 help="date (YYYY-MM-DD:hh:mm:ss) when the enrollment starts")
+                                 help="date (YYYY-MM-DD hh:mm:ss) when the enrollment starts")
         self.parser.add_argument('--to', dest='to_date', default=None,
-                                 help="date (YYYY-MM-DD:hh:mm:ss) when the enrollment ends")
+                                 help="date (YYYY-MM-DD hh:mm:ss) when the enrollment ends")
 
         # Merge enrollment option
         self.parser.add_argument('--merge', action='store_true',
