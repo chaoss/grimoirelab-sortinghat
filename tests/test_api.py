@@ -241,6 +241,21 @@ class TestAddIdentity(TestBaseCase):
         self.assertEqual(uuid4, 'a2e6bd8f997635d02837c86a6fea98fa835baf2a')
         self.assertEqual(uuid5, 'd32f8895d998f2e8f83375d544e40a30737f09e5')
 
+    def test_duplicate_identities_with_truncated_values(self):
+        """Check if the same identiy with truncated values is not inserted twice"""
+
+        # Due database limitations, email will be truncated
+        source = 'scm'
+        email = 'averylongemailaddressthatexceedsthemaximumlengthsoitwillbetruncated' * 2
+        name = 'John Smith'
+        username = 'jsmith'
+
+        api.add_identity(self.db, source, email, name, username)
+
+        self.assertRaises(AlreadyExistsError, api.add_identity,
+                          self.db, source,
+                          email, name, username)
+
     def test_non_existing_uuid(self):
         """Check whether it fails adding identities to one uuid that does not exist"""
 

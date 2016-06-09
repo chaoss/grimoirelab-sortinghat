@@ -120,21 +120,18 @@ def add_identity(db, source, email=None, name=None, username=None, uuid=None):
         raise WrappedValueError('identity data cannot be None or empty')
 
     with db.connect() as session:
+        # Each identity needs a unique identifier
+        identity_id = utils.uuid(source, email=email,
+                                 name=name, username=username)
+
         identity = session.query(Identity).\
-            filter(Identity.name == name,
-                   Identity.email == email,
-                   Identity.username == username,
-                   Identity.source == source).first()
+            filter(Identity.id == identity_id).first()
 
         if identity:
             entity = '-'.join((utils.to_unicode(source), utils.to_unicode(email),
                                utils.to_unicode(name), utils.to_unicode(username)))
             raise AlreadyExistsError(entity=entity,
                                      uuid=identity.uuid)
-
-        # Each identity needs a unique identifier
-        identity_id = utils.uuid(source, email=email,
-                                 name=name, username=username)
 
         if not uuid:
             # Double check to prevent from cases where the values
