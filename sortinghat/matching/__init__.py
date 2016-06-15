@@ -25,10 +25,12 @@ from __future__ import unicode_literals
 
 from .email import EmailMatcher
 from .email_name import EmailNameMatcher
+from .username import UsernameMatcher
 
 
 SORTINGHAT_IDENTITIES_MATCHERS = {
                                   'default'    : EmailMatcher,
                                   'email'      : EmailMatcher,
                                   'email-name' : EmailNameMatcher,
+                                  'username'   : UsernameMatcher
                                   }
