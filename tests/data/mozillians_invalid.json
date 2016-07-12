@@ -1,0 +1,242 @@
+{
+    "results": [
+        {
+            "_url": "https://example.com/api/v2/users/1/",
+            "alternate_emails": [],
+            "bio": {
+                "html": "",
+                "privacy": "Public",
+                "value": ""
+            },
+            "city": {
+                "privacy": "Public",
+                "value": ""
+            },
+            "country": {
+                "code": "us",
+                "privacy": "Public",
+                "value": "United States"
+            },
+            "date_mozillian" {
+                "privacy": "Public",
+                "value": null
+            },
+            "email": {
+                "privacy": "Public",
+                "value": "jsmith@example.com"
+            },
+            "external_accounts": [
+            ],
+            "full_name": {
+                "privacy": "Public",
+                "value": "Jonh Smith"
+            },
+            "groups": {
+                "privacy": "Public",
+                "value": []
+            },
+            "ircname": {
+                "privacy": "Public",
+                "value": "jsmith"
+            },
+            "is_public": true,
+            "is_vouched": false,
+            "languages": {
+                "privacy": "Public",
+                "value": []
+            },
+            "photo": {
+                "150x150": "https://secure.gravatar.com/avatar/5?s=150x150&r=pg&d=https%3A%2F%2Fexample.com%2Fmedia%2Fimg%2Fdefault_avatar.png",
+                "300x300": "https://secure.gravatar.com/avatar/5?s=300x300&r=pg&d=https%3A%2F%2Fexample.com%2Fmedia%2Fimg%2Fdefault_avatar.png",
+                "500x500": "https://secure.gravatar.com/avatar/5?s=500x500&r=pg&d=https%3A%2F%2Fexample.com%2Fmedia%2Fimg%2Fdefault_avatar.png",
+                "privacy": "Public",
+                "value": "https://secure.gravatar.com/avatar/5?s=300x300&r=pg&d=https%3A%2F%2Fexample.com%2Fmedia%2Fimg%2Fdefault_avatar.png"
+            },
+            "region": {
+                "privacy": "Public",
+                "value": ""
+            },
+            "story_link": {
+                "privacy": "Public",
+                "value": ""
+            },
+            "timezone": {
+                "privacy": "Public",
+                "utc_offset": null,
+                "value": ""
+            },
+            "title": {
+                "privacy": "Public",
+                "value": ""
+            },
+            "tshirt": {
+                "english": null,
+                "privacy": "Privileged",
+                "value": null
+            },
+            "url": "https://example.com/en-US/u/1/",
+            "username": "jsmith",
+            "websites": []
+        },
+        {
+            "_url": "https://example.com/api/v2/users/2/",
+            "alternate_emails": [],
+            "bio": {
+                "html": "",
+                "privacy": "Mozillians",
+                "value": ""
+            },
+            "city": {
+                "privacy": "P\u00fablico",
+                "value": ""
+            },
+            "country": {
+                "code": "br",
+                "privacy": "P\u00fablico",
+                "value": "Brazil"
+            },
+            "date_mozillian": {
+                "privacy": "P\u00fablico",
+                "value": "2015-06-01"
+            },
+            "email": {
+                "privacy": "Mozillians",
+                "value": ""
+            },
+            "external_accounts": [],
+            "full_name": {
+                "privacy": "Mozillians",
+                "value": ""
+            },
+            "groups": {
+                "privacy": "Mozillians",
+                "value": []
+            },
+            "ircname": {
+                "privacy": "P\u00fablico",
+                "value": "jdoe"
+            },
+            "is_public": true,
+            "is_vouched": false,
+            "languages": {
+                "privacy": "P\u00fablico",
+                "value": [
+                    {
+                        "code": "pt_BR",
+                        "english": "Brazilian portuguese",
+                        "native": "Portugu\u00eas do brasil"
+                    }
+                ]
+            },
+            "photo": {
+                "150x150": "https://secure.gravatar.com/avatar/8?s=150x150&r=pg&d=https%3A%2F%2Fexample.com%2Fmedia%2Fimg%2Fdefault_avatar.png",
+                "300x300": "https://secure.gravatar.com/avatar/8?s=300x300&r=pg&d=https%3A%2F%2Fexample.com%2Fmedia%2Fimg%2Fdefault_avatar.png",
+                "500x500": "https://secure.gravatar.com/avatar/8?s=500x500&r=pg&d=https%3A%2F%2Fexample.com%2Fmedia%2Fimg%2Fdefault_avatar.png",
+                "privacy": "P\u00fablico",
+                "value": "https://secure.gravatar.com/avatar/8?s=300x300&r=pg&d=https%3A%2F%2Fexample.com%2Fmedia%2Fimg%2Fdefault_avatar.png"
+            },
+            "region": {
+                "privacy": "P\u00fablico",
+                "value": ""
+            },
+            "story_link": {
+                "privacy": "P\u00fablico",
+                "value": ""
+            },
+            "timezone": {
+                "privacy": "P\u00fablico",
+                "utc_offset": null,
+                "value": ""
+            },
+            "title": {
+                "privacy": "P\u00fablico",
+                "value": ""
+            },
+            "tshirt": {
+                "english": null,
+                "privacy": "Privilegiado",
+                "value": null
+            },
+            "url": "https://example.com/en-US/u/2/",
+            "username": "john_doe",
+            "websites": []
+        },
+        {
+            "_url": "https://example.com/api/v2/users/3/",
+            "alternate_emails": ["janerae@example.com", "jrae@example.org"],
+            "bio": {
+                "html": "",
+                "privacy": "Mozillians",
+                "value": ""
+            },
+            "city": {
+                "privacy": "Mozillians",
+                "value": ""
+            },
+            "country": {
+                "code": "",
+                "privacy": "Mozillians",
+                "value": ""
+            },
+            "date_mozillian": {
+                "privacy": "Mozillians",
+                "value": null
+            },
+            "email": {
+                "privacy": "Mozillians",
+                "value": ""
+            },
+            "external_accounts": [],
+            "full_name": {
+                "privacy": "Public",
+                "value": "Jane Rae"
+            },
+            "groups": {
+                "privacy": "Mozillians",
+                "value": []
+            },
+            "ircname": {
+                "privacy": "Mozillians",
+                "value": ""
+            },
+            "is_public": true,
+            "is_vouched": false,
+            "languages": {
+                "privacy": "Mozillians",
+                "value": []
+            },
+            "photo": {
+                "150x150": "https://example.com/media/uploads/sorl-cache/1.jpg",
+                "300x300": "https://example.com/media/uploads/sorl-cache/5.jpg",
+                "500x500": "https://example.com/media/uploads/sorl-cache/b.jpg",
+                "privacy": "Mozillians",
+                "value": "https://example.com/media/uploads/sorl-cache/54.jpg"
+            },
+            "region": {
+                "privacy": "Mozillians",
+                "value": ""
+            },
+            "story_link": {
+                "privacy": "Mozillians",
+                "value": ""
+            },
+            "timezone": {
+                "privacy": "Mozillians",
+                "utc_offset": null,
+                "value": ""
+            },
+            "title": {
+                "privacy": "Mozillians",
+                "value": ""
+            },
+            "tshirt": {
+                "english": null,
+                "privacy": "Privileged",
+                "value": null
+            },
+            "url": "https://example.com/en-US/u/3/",
+            "username": "jrae",
+            "websites": []
+        }
+    ]
+}
