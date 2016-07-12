@@ -1,0 +1,145 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2016 Bitergia
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+#
+# Authors:
+#     Santiago Dueñas <sduenas@bitergia.com>
+#
+
+from __future__ import unicode_literals
+
+import argparse
+import datetime
+import json
+import sys
+
+from sortinghat.exceptions import InvalidFormatError
+from sortinghat.parsing.mozilla import MozilliansParser
+
+
+MOZILLA2SH_DESC_MSG = \
+"""Export identities information from a Mozillians file to Sorting Hat JSON format."""
+
+
+def main():
+    """Export identities information from a Mozillians file"""
+
+    args = parse_args()
+
+    try:
+        parser = parse_mozillians_file(args.infile, args.source)
+    except (IOError, UnicodeDecodeError, InvalidFormatError) as e:
+        raise RuntimeError(str(e))
+
+    j = to_json(parser.identities, parser.organizations, args.source)
+
+    try:
+        args.outfile.write(j)
+        args.outfile.write('\n')
+    except IOError as e:
+        raise RuntimeError(str(e))
+
+
+def parse_args():
+    """Parse arguments from the command line"""
+
+    parser = argparse.ArgumentParser(description=MOZILLA2SH_DESC_MSG)
+
+    parser.add_argument('-s', '--source', dest='source', required=True,
+                        help='name of the source')
+    parser.add_argument('-o', '--outfile', nargs='?', type=argparse.FileType('w'),
+                        default=sys.stdout,
+                        help='Sorting Hat JSON output filename')
+    parser.add_argument('infile', nargs='?', type=argparse.FileType('r'),
+                        default=sys.stdin,
+                        help='Mozillians JSON file')
+
+    return parser.parse_args()
+
+
+def parse_mozillians_file(infile, source):
+    """Parse Mozillians JSON file"""
+
+    content = read_file(infile)
+
+    parser = MozilliansParser(content, source=source)
+
+    return parser
+
+
+def to_json(uidentities, organizations, source):
+    """Convert unique identities and organizations to Sorting Hat JSON format"""
+
+    uids = {}
+    orgs = {}
+
+    # Convert to dict objects
+    for uidentity in uidentities:
+        uuid = uidentity.uuid
+
+        uid = uidentity.to_dict()
+        uid['identities'].sort(key=lambda x: x['username'])
+
+        enrollments = [rol.to_dict() \
+                       for rol in uidentity.enrollments]
+        uid['enrollments'] = enrollments
+
+        uids[uuid] = uid
+
+    for organization in organizations:
+        orgs[organization.name] = {}
+
+    # Generate JSON file
+    obj = {'time' : str(datetime.datetime.now()),
+           'source' : source,
+           'blacklist' : [],
+           'organizations' : orgs,
+           'uidentities' : uids}
+
+    return json.dumps(obj, default=json_encoder,
+                      indent=4, sort_keys=True)
+
+
+def json_encoder(obj):
+    """Default JSON encoder"""
+
+    if isinstance(obj, datetime.datetime):
+        return obj.isoformat()
+    else:
+        return json.JSONEncoder.default(obj)
+
+
+def read_file(f):
+    if sys.version_info[0] >= 3: # Python 3
+        content = f.read()
+    else: # Python 2
+        content = f.read().decode('UTF-8')
+    return content
+
+
+if __name__ == '__main__':
+    try:
+        main()
+    except KeyboardInterrupt:
+        s = "\n\nReceived Ctrl-C or other break signal. Exiting.\n"
+        sys.stdout.write(s)
+        sys.exit(0)
+    except RuntimeError as e:
+        s = "Error: %s\n" % str(e)
+        sys.stderr.write(s)
+        sys.exit(1)
