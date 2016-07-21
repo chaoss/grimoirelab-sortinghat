@@ -70,26 +70,35 @@ REGISTRY_OUTPUT_EXAMPLE_ALT = """Example\texample.com
 Example\texample.net"""
 
 
-class TestOrgsCommand(unittest.TestCase):
-    """Organization command unit tests"""
+class TestBaseCase(unittest.TestCase):
+    """Defines common setup and teardown methods orgs unit tests"""
 
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         if not hasattr(sys.stdout, 'getvalue'):
-            self.fail('This test needs to be run in buffered mode')
+            cls.fail('This test needs to be run in buffered mode')
 
         # Create a connection to check the contents of the registry
-        self.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
+        cls.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
+
 
         # Create command
-        self.kwargs = {'user' : DB_USER,
+        cls.kwargs = {'user' : DB_USER,
                        'password' : DB_PASSWORD,
                        'database' :DB_NAME,
                        'host' : DB_HOST,
                        'port' : DB_PORT}
-        self.cmd = Organizations(**self.kwargs)
+        cls.cmd = Organizations(**cls.kwargs)
+
+    def setUp(self):
+        self.db.clear()
 
     def tearDown(self):
         self.db.clear()
+
+
+class TestOrgsCommand(TestBaseCase):
+    """Organization command unit tests"""
 
     def test_default_action(self):
         """Check whether when no action is given it runs --list"""
@@ -255,25 +264,7 @@ class TestOrgsCommand(unittest.TestCase):
         self.cmd.add('Example', 'example.net')
 
 
-class TestOrgsAdd(unittest.TestCase):
-
-    def setUp(self):
-        if not hasattr(sys.stdout, 'getvalue'):
-            self.fail('This test needs to be run in buffered mode')
-
-        # Create a connection to check the contents of the registry
-        self.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
-
-        # Create command
-        self.kwargs = {'user' : DB_USER,
-                       'password' : DB_PASSWORD,
-                       'database' :DB_NAME,
-                       'host' : DB_HOST,
-                       'port' : DB_PORT}
-        self.cmd = Organizations(**self.kwargs)
-
-    def tearDown(self):
-        self.db.clear()
+class TestOrgsAdd(TestBaseCase):
 
     def test_add(self):
         """Check whether everything works ok when adding organizations and domains"""
@@ -411,25 +402,7 @@ class TestOrgsAdd(unittest.TestCase):
         self.assertEqual(len(orgs), 0)
 
 
-class TestOrgsDelete(unittest.TestCase):
-
-    def setUp(self):
-        if not hasattr(sys.stdout, 'getvalue'):
-            self.fail('This test needs to be run in buffered mode')
-
-        # Create a connection to check the contents of the registry
-        self.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
-
-        # Create command
-        self.kwargs = {'user' : DB_USER,
-                       'password' : DB_PASSWORD,
-                       'database' :DB_NAME,
-                       'host' : DB_HOST,
-                       'port' : DB_PORT}
-        self.cmd = Organizations(**self.kwargs)
-
-    def tearDown(self):
-        self.db.clear()
+class TestOrgsDelete(TestBaseCase):
 
     def test_delete(self):
         """Check whether everything works ok when deleting organizations and domains"""
@@ -554,14 +527,10 @@ class TestOrgsDelete(unittest.TestCase):
         self.assertEqual(len(orgs[1].domains), 0)
 
 
-class TestOrgsRegistry(unittest.TestCase):
+class TestOrgsRegistry(TestBaseCase):
 
     def setUp(self):
-        if not hasattr(sys.stdout, 'getvalue'):
-            self.fail('This test needs to be run in buffered mode')
-
-        # Create a dataset to test the registry
-        self.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
+        super(TestOrgsRegistry, self).setUp()
 
         api.add_organization(self.db, 'Example')
         api.add_domain(self.db, 'Example', 'example.com')
@@ -573,17 +542,6 @@ class TestOrgsRegistry(unittest.TestCase):
         api.add_domain(self.db, 'Bitergia', 'bitergia.com', is_top_domain=True)
 
         api.add_organization(self.db, 'LibreSoft')
-
-        # Create command
-        self.kwargs = {'user' : DB_USER,
-                       'password' : DB_PASSWORD,
-                       'database' :DB_NAME,
-                       'host' : DB_HOST,
-                       'port' : DB_PORT}
-        self.cmd = Organizations(**self.kwargs)
-
-    def tearDown(self):
-        self.db.clear()
 
     def test_registry(self):
         """Check registry output list"""

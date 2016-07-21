@@ -62,26 +62,35 @@ BLACKLIST_OUTPUT_ALT = """John Smith
 root@example.com"""
 
 
-class TestBlacklistCommand(unittest.TestCase):
-    """Blacklist command unit tests"""
+class TestBaseCase(unittest.TestCase):
+    """Defines common setup and teardown methods on blacklist unit tests"""
 
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         if not hasattr(sys.stdout, 'getvalue'):
-            self.fail('This test needs to be run in buffered mode')
+            cls.fail('This test needs to be run in buffered mode')
 
         # Create a connection to check the contents of the registry
-        self.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
+        cls.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
+
 
         # Create command
-        self.kwargs = {'user' : DB_USER,
+        cls.kwargs = {'user' : DB_USER,
                        'password' : DB_PASSWORD,
                        'database' :DB_NAME,
                        'host' : DB_HOST,
                        'port' : DB_PORT}
-        self.cmd = Blacklist(**self.kwargs)
+        cls.cmd = Blacklist(**cls.kwargs)
+
+    def setUp(self):
+        self.db.clear()
 
     def tearDown(self):
         self.db.clear()
+
+
+class TestBlacklistCommand(TestBaseCase):
+    """Blacklist command unit tests"""
 
     def test_default_action(self):
         """Check whether when no action is given it runs --list"""
@@ -208,26 +217,8 @@ class TestBlacklistCommand(unittest.TestCase):
         self.cmd.add('John Doe')
 
 
-class TestAdd(unittest.TestCase):
+class TestAdd(TestBaseCase):
     """Blacklist add sub-command unit tests"""
-
-    def setUp(self):
-        if not hasattr(sys.stdout, 'getvalue'):
-            self.fail('This test needs to be run in buffered mode')
-
-        # Create a connection to check the contents of the registry
-        self.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
-
-        # Create command
-        self.kwargs = {'user' : DB_USER,
-                       'password' : DB_PASSWORD,
-                       'database' :DB_NAME,
-                       'host' : DB_HOST,
-                       'port' : DB_PORT}
-        self.cmd = Blacklist(**self.kwargs)
-
-    def tearDown(self):
-        self.db.clear()
 
     def test_add(self):
         """Check whether everything works ok when adding entries"""
@@ -282,26 +273,8 @@ class TestAdd(unittest.TestCase):
         self.assertEqual(len(bl), 0)
 
 
-class TestDelete(unittest.TestCase):
+class TestDelete(TestBaseCase):
     """Blacklist delete sub-command unit tests"""
-
-    def setUp(self):
-        if not hasattr(sys.stdout, 'getvalue'):
-            self.fail('This test needs to be run in buffered mode')
-
-        # Create a connection to check the contents of the registry
-        self.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
-
-        # Create command
-        self.kwargs = {'user' : DB_USER,
-                       'password' : DB_PASSWORD,
-                       'database' :DB_NAME,
-                       'host' : DB_HOST,
-                       'port' : DB_PORT}
-        self.cmd = Blacklist(**self.kwargs)
-
-    def tearDown(self):
-        self.db.clear()
 
     def test_delete(self):
         """Check whether everything works ok when deleting entries"""
@@ -361,30 +334,15 @@ class TestDelete(unittest.TestCase):
         self.assertEqual(len(bl), 2)
 
 
-class TestBlacklist(unittest.TestCase):
+class TestBlacklist(TestBaseCase):
 
     def setUp(self):
-        if not hasattr(sys.stdout, 'getvalue'):
-            self.fail('This test needs to be run in buffered mode')
-
-        self.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
+        super(TestBlacklist, self).setUp()
 
         api.add_to_matching_blacklist(self.db, 'root@example.com')
         api.add_to_matching_blacklist(self.db, 'John Smith')
         api.add_to_matching_blacklist(self.db, 'Bitergia')
         api.add_to_matching_blacklist(self.db, 'John Doe')
-
-        # Create command
-        self.kwargs = {'user' : DB_USER,
-                       'password' : DB_PASSWORD,
-                       'database' :DB_NAME,
-                       'host' : DB_HOST,
-                       'port' : DB_PORT}
-
-        self.cmd = Blacklist(**self.kwargs)
-
-    def tearDown(self):
-        self.db.clear()
 
     def test_blacklist(self):
         """Check blacklist output list"""

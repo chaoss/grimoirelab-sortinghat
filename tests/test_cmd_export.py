@@ -24,8 +24,10 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+import datetime
 import json
 import sys
+import tempfile
 import unittest
 
 if not '..' in sys.path:
@@ -44,28 +46,29 @@ from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
 class TestBaseCase(unittest.TestCase):
     """Defines common setup and teardown methods on show unit tests"""
 
-    def setUp(self):
-        import tempfile
-
+    @classmethod
+    def setUpClass(cls):
         if not hasattr(sys.stdout, 'getvalue'):
-            self.fail('This test needs to be run in buffered mode')
+            cls.fail('This test needs to be run in buffered mode')
 
         # Create a connection to check the contents of the registry
-        self.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
+        cls.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
 
-        # Import predefined dataset for testing
-        self._load_test_dataset()
-
-        # Temporary file for outputs
-        self.tmpfile = tempfile.mkstemp()[1]
 
         # Create command
-        self.kwargs = {'user' : DB_USER,
+        cls.kwargs = {'user' : DB_USER,
                        'password' : DB_PASSWORD,
                        'database' : DB_NAME,
                        'host' : DB_HOST,
                        'port' : DB_PORT}
-        self.cmd = Export(**self.kwargs)
+        cls.cmd = Export(**cls.kwargs)
+
+    def setUp(self):
+        self.db.clear()
+        self._load_test_dataset()
+
+        # Temporary file for outputs
+        self.tmpfile = tempfile.mkstemp()[1]
 
     def tearDown(self):
         import os
@@ -85,8 +88,6 @@ class TestBaseCase(unittest.TestCase):
         return obj
 
     def _load_test_dataset(self):
-        import datetime
-
         self.db.clear()
 
         # Add country

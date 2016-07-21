@@ -144,23 +144,25 @@ Enrollments:
 class TestBaseCase(unittest.TestCase):
     """Defines common setup and teardown methods on show unit tests"""
 
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         if not hasattr(sys.stdout, 'getvalue'):
-            self.fail('This test needs to be run in buffered mode')
+            cls.fail('This test needs to be run in buffered mode')
 
         # Create a connection to check the contents of the registry
-        self.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
-
-        # Import predefined dataset for testing
-        self._load_test_dataset()
+        cls.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
 
         # Create command
-        self.kwargs = {'user' : DB_USER,
-                       'password' : DB_PASSWORD,
-                       'database' :DB_NAME,
-                       'host' : DB_HOST,
-                       'port' : DB_PORT}
-        self.cmd = Show(**self.kwargs)
+        cls.kwargs = {'user' : DB_USER,
+                      'password' : DB_PASSWORD,
+                      'database' :DB_NAME,
+                      'host' : DB_HOST,
+                      'port' : DB_PORT}
+        cls.cmd = Show(**cls.kwargs)
+
+    def setUp(self):
+        self.db.clear()
+        self._load_test_dataset()
 
     def tearDown(self):
         self.db.clear()

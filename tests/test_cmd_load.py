@@ -104,29 +104,25 @@ LOAD_ORGS_OUTPUT_WARNING = """Warning: example.net (Bitergia) already exists in 
 class TestBaseCase(unittest.TestCase):
     """Defines common setup and teardown methods on show unit tests"""
 
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         if not hasattr(sys.stdout, 'getvalue'):
-            self.fail('This test needs to be run in buffered mode')
+            cls.fail('This test needs to be run in buffered mode')
 
         # Create a connection to check the contents of the registry
-        self.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
-
-        self._load_test_dataset()
+        cls.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
 
         # Create command
-        self.kwargs = {'user' : DB_USER,
+        cls.kwargs = {'user' : DB_USER,
                        'password' : DB_PASSWORD,
                        'database' : DB_NAME,
                        'host' : DB_HOST,
                        'port' : DB_PORT}
-        self.cmd = Load(**self.kwargs)
+        cls.cmd = Load(**cls.kwargs)
 
-    def _load_test_dataset(self):
-        # Add country
-        with self.db.connect() as session:
-            # Add a country
-            us = Country(code='US', name='United States of America', alpha3='USA')
-            session.add(us)
+    def setUp(self):
+        self.db.clear()
+        self._load_test_dataset()
 
     def tearDown(self):
         self.db.clear()
@@ -142,6 +138,13 @@ class TestBaseCase(unittest.TestCase):
 
     def sort_identities(self, ids):
         return sorted(ids, key=lambda x: x.id)
+
+    def _load_test_dataset(self):
+        # Add country
+        with self.db.connect() as session:
+            # Add a country
+            us = Country(code='US', name='United States of America', alpha3='USA')
+            session.add(us)
 
 
 class TestLoadCommand(TestBaseCase):

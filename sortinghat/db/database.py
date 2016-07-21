@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2015 Bitergia
+# Copyright (C) 2014-2016 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.exc import OperationalError, ProgrammingError
 from sqlalchemy.engine.url import URL
 from sqlalchemy.orm import mapper, sessionmaker
-from sqlalchemy.pool import NullPool
+from sqlalchemy.pool import QueuePool
 from sqlalchemy.schema import MetaData
 
 from sortinghat.exceptions import DatabaseError
@@ -112,7 +112,8 @@ def create_database_engine(user, password, database, host, port):
 
     url = URL(driver, user, password, host, port, database,
               query={'charset' : 'utf8'})
-    return create_engine(url, poolclass=NullPool, echo=False)
+    return create_engine(url, poolclass=QueuePool,
+                         pool_size=25, echo=False)
 
 
 def create_database_session(engine):
