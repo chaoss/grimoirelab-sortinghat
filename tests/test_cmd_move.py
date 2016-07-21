@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2015 Bitergia
+# Copyright (C) 2014-2016 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -33,10 +33,9 @@ if not '..' in sys.path:
 from sortinghat import api
 from sortinghat.command import CMD_SUCCESS
 from sortinghat.cmd.move import Move
-from sortinghat.db.database import Database
 from sortinghat.exceptions import CODE_NOT_FOUND_ERROR
 
-from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
+from tests.base import TestCommandCaseBase
 
 
 MOVE_FROM_ID_NOT_FOUND_ERROR = "Error: FFFFFFFFFFF not found in the registry"
@@ -47,33 +46,12 @@ MOVE_NEW_UID_OUTPUT = """New unique identity b4c250eaaf873a04093319f26ca13b02a92
 MOVE_EMPTY_OUTPUT = ""
 
 
-class TestBaseCase(unittest.TestCase):
+class TestMoveCaseBase(TestCommandCaseBase):
     """Defines common setup and teardown methods on move unit tests"""
 
-    @classmethod
-    def setUpClass(cls):
-        if not hasattr(sys.stdout, 'getvalue') and not hasattr(sys.stderr, 'getvalue'):
-            cls.fail('This test needs to be run in buffered mode')
+    cmd_klass = Move
 
-        # Create a connection to check the contents of the registry
-        cls.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
-
-        # Create command
-        cls.kwargs = {'user' : DB_USER,
-                      'password' : DB_PASSWORD,
-                      'database' :DB_NAME,
-                      'host' : DB_HOST,
-                      'port' : DB_PORT}
-        cls.cmd = Move(**cls.kwargs)
-
-    def setUp(self):
-        self.db.clear()
-        self._load_test_dataset()
-
-    def tearDown(self):
-        self.db.clear()
-
-    def _load_test_dataset(self):
+    def load_test_dataset(self):
         api.add_unique_identity(self.db, 'John Smith')
         api.add_identity(self.db, 'scm', 'jsmith@example.com',
                          uuid='John Smith')
@@ -85,7 +63,7 @@ class TestBaseCase(unittest.TestCase):
                          uuid='John Doe')
 
 
-class TestMoveCommand(TestBaseCase):
+class TestMoveCommand(TestMoveCaseBase):
     """Move command unit tests"""
 
     def test_move(self):
@@ -98,7 +76,7 @@ class TestMoveCommand(TestBaseCase):
         self.assertEqual(output, MOVE_OUTPUT)
 
 
-class TestMove(TestBaseCase):
+class TestMove(TestMoveCaseBase):
     """Unit tests for move"""
 
     def test_move(self):

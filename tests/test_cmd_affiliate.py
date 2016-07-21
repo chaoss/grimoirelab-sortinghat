@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2015 Bitergia
+# Copyright (C) 2014-2016 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -33,9 +33,8 @@ if not '..' in sys.path:
 from sortinghat import api
 from sortinghat.command import CMD_SUCCESS
 from sortinghat.cmd.affiliate import Affiliate
-from sortinghat.db.database import Database
 
-from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
+from tests.base import TestCommandCaseBase
 
 
 AFFILIATE_OUTPUT = """Unique identity 52e0aa0a14826627e633fd15332988686b730ab3 (jroe@example.com) affiliated to Example
@@ -52,33 +51,12 @@ AFFILIATE_EMPTY_OUTPUT = ""
 MULTIPLE_DOMAIN_WARNING = "Warning: multiple top domains for %(subdomain)s sub-domain. Domain %(domain)s selected."
 
 
-class TestBaseCase(unittest.TestCase):
+class TestAffiliateCaseBase(TestCommandCaseBase):
     """Defines common setup and teardown methods on affiliate unit tests"""
 
-    @classmethod
-    def setUpClass(cls):
-        if not hasattr(sys.stdout, 'getvalue') and not hasattr(sys.stderr, 'getvalue'):
-            cls.fail('This test needs to be run in buffered mode')
+    cmd_klass = Affiliate
 
-        # Create a connection to check the contents of the registry
-        cls.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
-
-        # Create command
-        cls.kwargs = {'user' : DB_USER,
-                       'password' : DB_PASSWORD,
-                       'database' :DB_NAME,
-                       'host' : DB_HOST,
-                       'port' : DB_PORT}
-        cls.cmd = Affiliate(**cls.kwargs)
-
-    def setUp(self):
-        self.db.clear()
-        self._load_test_dataset()
-
-    def tearDown(self):
-        self.db.clear()
-
-    def _load_test_dataset(self):
+    def load_test_dataset(self):
         # Add some domains
         api.add_organization(self.db, 'Example')
         api.add_domain(self.db, 'Example', 'example.com', is_top_domain=True)
@@ -115,7 +93,7 @@ class TestBaseCase(unittest.TestCase):
                          uuid=jroe_uuid)
 
 
-class TestAffiliateCommand(TestBaseCase):
+class TestAffiliateCommand(TestAffiliateCaseBase):
     """Unit tests for affiliate command"""
 
     def test_affiliate(self):
@@ -156,7 +134,7 @@ class TestAffiliateCommand(TestBaseCase):
         self.assertEqual(output, AFFILIATE_EMPTY_OUTPUT)
 
 
-class TestAffiliate(TestBaseCase):
+class TestAffiliate(TestAffiliateCaseBase):
     """Unit tests for affiliate"""
 
     def test_affiliate(self):

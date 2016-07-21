@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2015 Bitergia
+# Copyright (C) 2014-2016 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -33,10 +33,9 @@ if not '..' in sys.path:
 from sortinghat import api
 from sortinghat.command import CMD_SUCCESS
 from sortinghat.cmd.remove import Remove
-from sortinghat.db.database import Database
 from sortinghat.exceptions import CODE_NOT_FOUND_ERROR
 
-from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
+from tests.base import TestCommandCaseBase
 
 
 REMOVE_UUID_NOT_FOUND_ERROR = "Error: 62cce16ac0a5c391b4e0c3ccb3e924d65de8c345 not found in the registry"
@@ -47,33 +46,12 @@ REMOVE_ID_OUTPUT = """Identity 62cce16ac0a5c391b4e0c3ccb3e924d65de8c345 removed"
 REMOVE_EMPTY_OUTPUT = ""
 
 
-class TestBaseCase(unittest.TestCase):
+class TestRemoveCaseBase(TestCommandCaseBase):
     """Defines common setup and teardown methods on remove unit tests"""
 
-    @classmethod
-    def setUpClass(cls):
-        if not hasattr(sys.stdout, 'getvalue') and not hasattr(sys.stderr, 'getvalue'):
-            cls.fail('This test needs to be run in buffered mode')
+    cmd_klass = Remove
 
-        # Create a connection to check the contents of the registry
-        cls.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
-
-        # Create command
-        cls.kwargs = {'user' : DB_USER,
-                       'password' : DB_PASSWORD,
-                       'database' :DB_NAME,
-                       'host' : DB_HOST,
-                       'port' : DB_PORT}
-        cls.cmd = Remove(**cls.kwargs)
-
-    def setUp(self):
-        self.db.clear()
-        self._load_test_dataset()
-
-    def tearDown(self):
-        self.db.clear()
-
-    def _load_test_dataset(self):
+    def load_test_dataset(self):
         api.add_unique_identity(self.db, 'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF')
         api.add_identity(self.db, 'scm', 'jsmith@example.com',
                          'John Smith', uuid='FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF')
@@ -84,7 +62,7 @@ class TestBaseCase(unittest.TestCase):
                          'John Doe', 'jdoe')
 
 
-class TestRemoveCommand(TestBaseCase):
+class TestRemoveCommand(TestRemoveCaseBase):
     """Remove command unit tests"""
 
     def test_remove(self):
@@ -103,7 +81,7 @@ class TestRemoveCommand(TestBaseCase):
         self.assertEqual(output, REMOVE_UUID_OUTPUT)
 
 
-class TestRemove(TestBaseCase):
+class TestRemove(TestRemoveCaseBase):
     """Unit tests for remove"""
 
     def test_remove_unique_identity(self):

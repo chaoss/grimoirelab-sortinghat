@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2015 Bitergia
+# Copyright (C) 2014-2016 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -34,10 +34,9 @@ if not '..' in sys.path:
 from sortinghat import api
 from sortinghat.command import CMD_SUCCESS
 from sortinghat.cmd.withdraw import Withdraw
-from sortinghat.db.database import Database
 from sortinghat.exceptions import CODE_INVALID_DATE_ERROR, CODE_NOT_FOUND_ERROR, CODE_VALUE_ERROR
 
-from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
+from tests.base import TestCommandCaseBase
 
 
 WITHDRAW_UUID_NOT_FOUND_ERROR = "Error: Jane Roe not found in the registry"
@@ -49,33 +48,12 @@ WITHDRAW_INVALID_FORMAT_DATE_ERROR = "Error: YYZYY is not a valid date"
 WITHDRAW_EMPTY_OUTPUT = ""
 
 
-class TestBaseCase(unittest.TestCase):
+class TestWithdrawCaseBase(TestCommandCaseBase):
     """Defines common setup and teardown methods on withdraw unit tests"""
 
-    @classmethod
-    def setUpClass(cls):
-        if not hasattr(sys.stdout, 'getvalue'):
-            cls.fail('This test needs to be run in buffered mode')
+    cmd_klass = Withdraw
 
-        # Create a connection to check the contents of the registry
-        cls.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
-
-        # Create command
-        cls.kwargs = {'user' : DB_USER,
-                      'password' : DB_PASSWORD,
-                      'database' :DB_NAME,
-                      'host' : DB_HOST,
-                      'port' : DB_PORT}
-        cls.cmd = Withdraw(**cls.kwargs)
-
-    def setUp(self):
-        self.db.clear()
-        self._load_test_dataset()
-
-    def tearDown(self):
-        self.db.clear()
-
-    def _load_test_dataset(self):
+    def load_test_dataset(self):
         api.add_unique_identity(self.db, 'John Smith')
         api.add_unique_identity(self.db, 'John Doe')
 
@@ -99,7 +77,7 @@ class TestBaseCase(unittest.TestCase):
                            datetime.datetime(1993, 1, 1))
 
 
-class TestWithdrawCommand(TestBaseCase):
+class TestWithdrawCommand(TestWithdrawCaseBase):
     """Unit tests for withdraw command"""
 
     def test_withdraw(self):
@@ -176,7 +154,7 @@ class TestWithdrawCommand(TestBaseCase):
         self.assertEqual(output, WITHDRAW_INVALID_FORMAT_DATE_ERROR)
 
 
-class TestWithdraw(TestBaseCase):
+class TestWithdraw(TestWithdrawCaseBase):
     """Unit tests for withdraw"""
 
     def test_withdraw(self):

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2015 Bitergia
+# Copyright (C) 2014-2016 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@ from __future__ import unicode_literals
 
 import datetime
 import json
+import os
 import sys
 import tempfile
 import unittest
@@ -37,43 +38,23 @@ from sortinghat import api
 from sortinghat.command import CMD_SUCCESS
 from sortinghat.cmd.export import Export,\
     SortingHatIdentitiesExporter, SortingHatOrganizationsExporter
-from sortinghat.db.database import Database
 from sortinghat.db.model import Country
 
-from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
+from tests.base import TestCommandCaseBase
 
 
-class TestBaseCase(unittest.TestCase):
-    """Defines common setup and teardown methods on show unit tests"""
+class TestExportCaseBase(TestCommandCaseBase):
+    """Defines common setup and teardown methods on export unit tests"""
 
-    @classmethod
-    def setUpClass(cls):
-        if not hasattr(sys.stdout, 'getvalue'):
-            cls.fail('This test needs to be run in buffered mode')
-
-        # Create a connection to check the contents of the registry
-        cls.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
-
-
-        # Create command
-        cls.kwargs = {'user' : DB_USER,
-                       'password' : DB_PASSWORD,
-                       'database' : DB_NAME,
-                       'host' : DB_HOST,
-                       'port' : DB_PORT}
-        cls.cmd = Export(**cls.kwargs)
+    cmd_klass = Export
 
     def setUp(self):
-        self.db.clear()
-        self._load_test_dataset()
-
+        super(TestExportCaseBase, self).setUp()
         # Temporary file for outputs
         self.tmpfile = tempfile.mkstemp()[1]
 
     def tearDown(self):
-        import os
-
-        self.db.clear()
+        super(TestExportCaseBase, self).tearDown()
         os.remove(self.tmpfile)
 
     def read_json(self, filename):
@@ -87,9 +68,7 @@ class TestBaseCase(unittest.TestCase):
         obj = json.loads(content)
         return obj
 
-    def _load_test_dataset(self):
-        self.db.clear()
-
+    def load_test_dataset(self):
         # Add country
         with self.db.connect() as session:
             # Add a country
@@ -147,7 +126,7 @@ class TestBaseCase(unittest.TestCase):
         api.add_to_matching_blacklist(self.db, 'John Smith')
 
 
-class TestExportCommand(TestBaseCase):
+class TestExportCommand(TestExportCaseBase):
     """Export command unit tests"""
 
     def test_export_identities(self):
@@ -200,7 +179,7 @@ class TestExportCommand(TestBaseCase):
         self.assertEqual(a, b)
 
 
-class TestExportIdentities(TestBaseCase):
+class TestExportIdentities(TestExportCaseBase):
     """Test export_identities method with some inputs"""
 
     def test_export_identities(self):
@@ -239,6 +218,7 @@ class TestExportIdentities(TestBaseCase):
     def test_export_identities_empty_registry(self):
         """Check the output when registry is empty"""
 
+        # Remove pre-loaded test dataset
         self.db.clear()
 
         with open(self.tmpfile, 'w') as f:
@@ -252,7 +232,7 @@ class TestExportIdentities(TestBaseCase):
         self.assertEqual(len(a['uidentities']), 0)
 
 
-class TestSortingHatIdentitiesExporter(TestBaseCase):
+class TestSortingHatIdentitiesExporter(TestExportCaseBase):
     """Test Sorting Hat exporter"""
 
     def test_export(self):
@@ -424,6 +404,7 @@ class TestSortingHatIdentitiesExporter(TestBaseCase):
     def test_empty_registry(self):
         """Check output when the registry is empty"""
 
+        # Remove pre-loaded test dataset
         self.db.clear()
 
         exporter = SortingHatIdentitiesExporter(self.db)
@@ -436,7 +417,7 @@ class TestSortingHatIdentitiesExporter(TestBaseCase):
         self.assertEqual(len(obj['blacklist']), 0)
 
 
-class TestExportOrganizations(TestBaseCase):
+class TestExportOrganizations(TestExportCaseBase):
     """Test export_organizations method with some inputs"""
 
     def test_export_organizations(self):
@@ -459,6 +440,7 @@ class TestExportOrganizations(TestBaseCase):
     def test_export_organizations_empty_registry(self):
         """Check the output when registry is empty"""
 
+        # Remove pre-loaded test dataset
         self.db.clear()
 
         with open(self.tmpfile, 'w') as f:
@@ -470,7 +452,7 @@ class TestExportOrganizations(TestBaseCase):
         self.assertEqual(len(a['organizations']), 0)
 
 
-class TestSortingHatOrganizationsExporter(TestBaseCase):
+class TestSortingHatOrganizationsExporter(TestExportCaseBase):
     """Test Sorting Hat exporter"""
 
     def test_export(self):
@@ -527,6 +509,7 @@ class TestSortingHatOrganizationsExporter(TestBaseCase):
     def test_empty_registry(self):
         """Check output when the registry is empty"""
 
+        # Remove pre-loaded test dataset
         self.db.clear()
 
         exporter = SortingHatOrganizationsExporter(self.db)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2015 Bitergia
+# Copyright (C) 2014-2016 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -34,11 +34,10 @@ if not '..' in sys.path:
 from sortinghat import api
 from sortinghat.command import CMD_SUCCESS
 from sortinghat.cmd.show import Show
-from sortinghat.db.database import Database
 from sortinghat.db.model import Country
 from sortinghat.exceptions import CODE_NOT_FOUND_ERROR
 
-from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
+from tests.base import TestCommandCaseBase
 
 
 SHOW_UUID_NOT_FOUND_ERROR = "Error: FFFFFFFFFFFFFFF not found in the registry"
@@ -141,33 +140,12 @@ Enrollments:
   Example\t1900-01-01 00:00:00\t2100-01-01 00:00:00"""
 
 
-class TestBaseCase(unittest.TestCase):
+class TestShowCaseBase(TestCommandCaseBase):
     """Defines common setup and teardown methods on show unit tests"""
 
-    @classmethod
-    def setUpClass(cls):
-        if not hasattr(sys.stdout, 'getvalue'):
-            cls.fail('This test needs to be run in buffered mode')
+    cmd_klass = Show
 
-        # Create a connection to check the contents of the registry
-        cls.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
-
-        # Create command
-        cls.kwargs = {'user' : DB_USER,
-                      'password' : DB_PASSWORD,
-                      'database' :DB_NAME,
-                      'host' : DB_HOST,
-                      'port' : DB_PORT}
-        cls.cmd = Show(**cls.kwargs)
-
-    def setUp(self):
-        self.db.clear()
-        self._load_test_dataset()
-
-    def tearDown(self):
-        self.db.clear()
-
-    def _load_test_dataset(self):
+    def load_test_dataset(self):
         # Add country
         with self.db.connect() as session:
             # Add a country
@@ -212,7 +190,7 @@ class TestBaseCase(unittest.TestCase):
                            datetime.datetime(2008, 1, 1))
 
 
-class TestShowCommand(TestBaseCase):
+class TestShowCommand(TestShowCaseBase):
     """Unit tests for show command"""
 
     def test_show(self):
@@ -260,7 +238,7 @@ class TestShowCommand(TestBaseCase):
         self.assertEqual(output, SHOW_EMPTY_OUTPUT)
 
 
-class TestShow(TestBaseCase):
+class TestShow(TestShowCaseBase):
     """Unit tests for show"""
 
     def test_show(self):

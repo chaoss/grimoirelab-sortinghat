@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2015 Bitergia
+# Copyright (C) 2014-2016 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -32,11 +32,10 @@ if not '..' in sys.path:
 
 from sortinghat.command import CMD_SUCCESS
 from sortinghat.cmd.countries import Countries
-from sortinghat.db.database import Database
 from sortinghat.db.model import Country
 from sortinghat.exceptions import CODE_NOT_FOUND_ERROR, CODE_INVALID_FORMAT_ERROR
 
-from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
+from tests.base import TestCommandCaseBase
 
 
 COUNTRIES_OUTPUT = """ES\tSpain
@@ -52,33 +51,12 @@ COUNTRIES_CODE_OR_TERM_ERROR = "Error: Code country or term must have 2 or more 
 COUNTRIES_NOT_FOUND_ERROR = "Error: Uk not found in the registry"
 
 
-class TestBaseCase(unittest.TestCase):
+class TestCountriesCaseBase(TestCommandCaseBase):
     """Defines common setup and teardown methods on countries unit tests"""
 
-    @classmethod
-    def setUpClass(cls):
-        if not hasattr(sys.stdout, 'getvalue') and not hasattr(sys.stderr, 'getvalue'):
-            cls.fail('This test needs to be run in buffered mode')
+    cmd_klass = Countries
 
-        # Create a connection to check the contents of the registry
-        cls.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
-
-        # Create command
-        cls.kwargs = {'user' : DB_USER,
-                       'password' : DB_PASSWORD,
-                       'database' : DB_NAME,
-                       'host' : DB_HOST,
-                       'port' : DB_PORT}
-        cls.cmd = Countries(**cls.kwargs)
-
-    def setUp(self):
-        self.db.clear()
-        self._load_test_dataset()
-
-    def tearDown(self):
-        self.db.clear()
-
-    def _load_test_dataset(self):
+    def load_test_dataset(self):
         with self.db.connect() as session:
             us = Country(code='US', name='United States of America', alpha3='USA')
             es = Country(code='ES', name='Spain', alpha3='ESP')
@@ -89,7 +67,7 @@ class TestBaseCase(unittest.TestCase):
             session.add(gb)
 
 
-class TestCountriesCommand(TestBaseCase):
+class TestCountriesCommand(TestCountriesCaseBase):
     """Unit tests for countries command"""
 
     def test_countries(self):

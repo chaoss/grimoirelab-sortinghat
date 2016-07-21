@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2015 Bitergia
+# Copyright (C) 2014-2016 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -35,12 +35,11 @@ if not '..' in sys.path:
 from sortinghat import api
 from sortinghat.command import CMD_SUCCESS
 from sortinghat.cmd.load import Load
-from sortinghat.db.database import Database
 from sortinghat.db.model import Country
 from sortinghat.parsing.sh import SortingHatParser
 from sortinghat.exceptions import CODE_MATCHER_NOT_SUPPORTED_ERROR, CODE_INVALID_FORMAT_ERROR
 
-from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
+from tests.base import TestCommandCaseBase
 
 
 LOAD_BLACKLIST_EMPTY_STRINGS_ERROR = "Error: invalid json format. Blacklist entries cannot be null or empty"
@@ -101,31 +100,10 @@ Domain example.net added to organization Example"""
 LOAD_ORGS_OUTPUT_WARNING = """Warning: example.net (Bitergia) already exists in the registry. Not updated."""
 
 
-class TestBaseCase(unittest.TestCase):
-    """Defines common setup and teardown methods on show unit tests"""
+class TestLoadCaseBase(TestCommandCaseBase):
+    """Defines common setup and teardown methods on loadunit tests"""
 
-    @classmethod
-    def setUpClass(cls):
-        if not hasattr(sys.stdout, 'getvalue'):
-            cls.fail('This test needs to be run in buffered mode')
-
-        # Create a connection to check the contents of the registry
-        cls.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
-
-        # Create command
-        cls.kwargs = {'user' : DB_USER,
-                       'password' : DB_PASSWORD,
-                       'database' : DB_NAME,
-                       'host' : DB_HOST,
-                       'port' : DB_PORT}
-        cls.cmd = Load(**cls.kwargs)
-
-    def setUp(self):
-        self.db.clear()
-        self._load_test_dataset()
-
-    def tearDown(self):
-        self.db.clear()
+    cmd_klass = Load
 
     def get_parser(self, filename):
         if sys.version_info[0] >= 3: # Python 3
@@ -139,7 +117,7 @@ class TestBaseCase(unittest.TestCase):
     def sort_identities(self, ids):
         return sorted(ids, key=lambda x: x.id)
 
-    def _load_test_dataset(self):
+    def load_test_dataset(self):
         # Add country
         with self.db.connect() as session:
             # Add a country
@@ -147,7 +125,7 @@ class TestBaseCase(unittest.TestCase):
             session.add(us)
 
 
-class TestLoadCommand(TestBaseCase):
+class TestLoadCommand(TestLoadCaseBase):
     """Load command unit tests"""
 
     def test_load(self):
@@ -269,7 +247,7 @@ class TestLoadCommand(TestBaseCase):
         self.assertEqual(output, LOAD_BLACKLIST_EMPTY_STRINGS_ERROR)
 
 
-class TestLoadBlacklist(TestBaseCase):
+class TestLoadBlacklist(TestLoadCaseBase):
     """Test import_blacklist method with some Sorting Hat inputs"""
 
     def test_valid_file(self):
@@ -291,7 +269,7 @@ class TestLoadBlacklist(TestBaseCase):
         self.assertEqual(b.excluded, 'jroe@example.com')
 
 
-class TestLoadIdentities(TestBaseCase):
+class TestLoadIdentities(TestLoadCaseBase):
     """Test import_identities method with some Sorting Hat inputs"""
 
     def test_valid_identities_file(self):
@@ -721,7 +699,7 @@ class TestLoadIdentities(TestBaseCase):
         self.assertEqual(output, LOAD_IDENTITIES_MATCHING_ERROR)
 
 
-class TestLoadSortingHatImportOrganizations(TestBaseCase):
+class TestLoadSortingHatImportOrganizations(TestLoadCaseBase):
     """Test import_organizations method with some Sorting Hat inputs"""
 
     def test_valid_organizations_file(self):

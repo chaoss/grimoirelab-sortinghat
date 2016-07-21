@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2015 Bitergia
+# Copyright (C) 2014-2016 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -34,10 +34,9 @@ if not '..' in sys.path:
 from sortinghat import api
 from sortinghat.command import CMD_SUCCESS
 from sortinghat.cmd.log import Log
-from sortinghat.db.database import Database
 from sortinghat.exceptions import CODE_INVALID_DATE_ERROR, CODE_VALUE_ERROR, CODE_NOT_FOUND_ERROR
 
-from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
+from tests.base import TestCommandCaseBase
 
 
 LOG_UUID_NOT_FOUND_ERROR = "Error: Jane Roe not found in the registry"
@@ -63,33 +62,12 @@ John Smith\tBitergia\t2006-01-01 00:00:00\t2008-01-01 00:00:00"""
 LOG_TIME_PERIOD_OUTPUT = """John Smith\tBitergia\t1999-01-01 00:00:00\t2000-01-01 00:00:00"""
 
 
-class TestBaseCase(unittest.TestCase):
+class TestLogCaseBase(TestCommandCaseBase):
     """Defines common setup and teardown methods on log unit tests"""
 
-    @classmethod
-    def setUpClass(cls):
-        if not hasattr(sys.stdout, 'getvalue'):
-            cls.fail('This test needs to be run in buffered mode')
+    cmd_klass = Log
 
-        # Create a connection to check the contents of the registry
-        cls.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
-
-        # Create command
-        cls.kwargs = {'user' : DB_USER,
-                      'password' : DB_PASSWORD,
-                      'database' :DB_NAME,
-                      'host' : DB_HOST,
-                      'port' : DB_PORT}
-        cls.cmd = Log(**cls.kwargs)
-
-    def setUp(self):
-        self.db.clear()
-        self._load_test_dataset()
-
-    def tearDown(self):
-        self.db.clear()
-
-    def _load_test_dataset(self):
+    def load_test_dataset(self):
         self.db.clear()
 
         api.add_unique_identity(self.db, 'John Smith')
@@ -110,7 +88,7 @@ class TestBaseCase(unittest.TestCase):
                            datetime.datetime(2008, 1, 1))
 
 
-class TestLogCommand(TestBaseCase):
+class TestLogCommand(TestLogCaseBase):
     """Unit tests for log command"""
 
     def test_log(self):
@@ -192,7 +170,7 @@ class TestLogCommand(TestBaseCase):
         self.assertEqual(output, LOG_INVALID_FORMAT_DATE_ERROR)
 
 
-class TestLog(TestBaseCase):
+class TestLog(TestLogCaseBase):
     """Unit tests for log"""
 
     def test_log(self):

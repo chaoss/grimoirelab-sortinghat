@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2015 Bitergia
+# Copyright (C) 2014-2016 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -39,6 +39,8 @@ if not '..' in sys.path:
 from sortinghat.command import CMD_SUCCESS
 from sortinghat.cmd.config import Config
 
+from tests.base import TestCommandCaseBase
+
 
 MOCK_CONFIG_FILE = './data/mock_config_file.cfg'
 
@@ -48,12 +50,17 @@ GET_KEY_CONFIG_ERROR = "%(param)s parameter does not exists"
 NOT_FOUND_FILE_ERROR = "./data/invalid_config_file.cfg config file does not exist"
 
 
-class TestSetConfig(unittest.TestCase):
-    """Set method unit tests"""
+class TestConfigCaseBase(TestCommandCaseBase):
+    """Defines common setup and teardown methods on config unit tests"""
 
-    def setUp(self):
-        kwargs = {}
-        self.cmd = Config(**kwargs)
+    cmd_klass = Config
+
+    def load_test_dataset(self):
+        pass
+
+
+class TestSetConfig(TestConfigCaseBase):
+    """Set method unit tests"""
 
     def test_none_param_values(self):
         """Check it if raises exceptions when passing None params"""
@@ -146,12 +153,8 @@ class TestSetConfig(unittest.TestCase):
         shutil.rmtree(testpath)
 
 
-class TestGetConfig(unittest.TestCase):
+class TestGetConfig(TestConfigCaseBase):
     """Get method unit tests"""
-
-    def setUp(self):
-        kwargs = {}
-        self.cmd = Config(**kwargs)
 
     def test_none_param_values(self):
         """Check it if raises exceptions when passing None params"""

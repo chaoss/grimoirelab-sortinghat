@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2015 Bitergia
+# Copyright (C) 2014-2016 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -33,10 +33,12 @@ if not '..' in sys.path:
 from sortinghat import api
 from sortinghat.command import CMD_SUCCESS
 from sortinghat.cmd.add import Add
-from sortinghat.db.database import Database
-from sortinghat.exceptions import CODE_ALREADY_EXISTS_ERROR, CODE_MATCHER_NOT_SUPPORTED_ERROR, CODE_NOT_FOUND_ERROR, CODE_VALUE_ERROR
+from sortinghat.exceptions import (CODE_ALREADY_EXISTS_ERROR,
+                                   CODE_MATCHER_NOT_SUPPORTED_ERROR,
+                                   CODE_NOT_FOUND_ERROR,
+                                   CODE_VALUE_ERROR)
 
-from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
+from tests.base import TestCommandCaseBase
 
 
 ADD_EXISTING_ERROR = "Error: scm-jsmith@example.com-John Smith-jsmith already exists in the registry"
@@ -96,36 +98,19 @@ New identity 24769e96010fa84fd7af86586c3eb6090e66e319 added to 24769e96010fa84fd
 New identity 9ba1f605f3621fa10d98335ddad36b77b57fae99 added to 9ba1f605f3621fa10d98335ddad36b77b57fae99"""
 
 
-class TestBaseCase(unittest.TestCase):
+class TestAddCaseBase(TestCommandCaseBase):
     """Defines common setup and teardown methods on add unit tests"""
 
-    def setUp(self):
-        if not hasattr(sys.stdout, 'getvalue') and not hasattr(sys.stderr, 'getvalue'):
-            self.fail('This test needs to be run in buffered mode')
+    cmd_klass = Add
 
-        # Create a connection to check the contents of the registry
-        self.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
-
-        self._load_test_dataset()
-
-        # Create command
-        self.kwargs = {'user' : DB_USER,
-                       'password' : DB_PASSWORD,
-                       'database' :DB_NAME,
-                       'host' : DB_HOST,
-                       'port' : DB_PORT}
-        self.cmd = Add(**self.kwargs)
-
-    def tearDown(self):
-        self.db.clear()
-
-    def _load_test_dataset(self):
+    def load_test_dataset(self):
         api.add_identity(self.db, 'scm', 'jsmith@example.com',
                          'John Smith', 'jsmith')
         api.add_identity(self.db, 'scm', 'jsmith@example.com',
                          'John Smith')
 
-class TestAddCommand(TestBaseCase):
+
+class TestAddCommand(TestAddCaseBase):
     """Add command unit tests"""
 
     def test_add(self):
@@ -161,7 +146,7 @@ class TestAddCommand(TestBaseCase):
         self.assertEqual(output, ADD_OUTPUT_MATCHING)
 
 
-class TestAdd(TestBaseCase):
+class TestAdd(TestAddCaseBase):
     """Unit tests for add"""
 
     def test_add_new_identities(self):

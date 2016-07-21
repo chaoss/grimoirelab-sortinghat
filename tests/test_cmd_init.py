@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2015 Bitergia
+# Copyright (C) 2014-2016 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -45,7 +45,7 @@ DB_ACCESS_ERROR = r".+Access denied for user '%(user)s'@'localhost' \(using pass
 DB_EXISTS_ERROR = r".+Can't create database '%(database)s'; database exists \(err: 1007\)"
 
 
-class TestBaseCase(unittest.TestCase):
+class TestInitCaseBase(unittest.TestCase):
     """Defines common setup and teardown methods on init unit tests"""
 
     def setUp(self):
@@ -69,7 +69,7 @@ class TestBaseCase(unittest.TestCase):
                       self.kwargs['port'])
 
 
-class TestInitCommand(TestBaseCase):
+class TestInitCommand(TestInitCaseBase):
     """Unit tests for init command"""
 
     def test_init(self):
@@ -120,7 +120,7 @@ class TestInitCommand(TestBaseCase):
                                      DB_EXISTS_ERROR % {'database' : self.name})
 
 
-class TestInitialize(TestBaseCase):
+class TestInitialize(TestInitCaseBase):
     """Unit tests for init command"""
 
     def test_initialize(self):

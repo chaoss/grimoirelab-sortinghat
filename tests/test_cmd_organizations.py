@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2015 Bitergia
+# Copyright (C) 2014-2016 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -33,10 +33,9 @@ if not '..' in sys.path:
 from sortinghat import api
 from sortinghat.command import CMD_SUCCESS
 from sortinghat.cmd.organizations import Organizations
-from sortinghat.db.database import Database
 from sortinghat.exceptions import NotFoundError, CODE_ALREADY_EXISTS_ERROR, CODE_NOT_FOUND_ERROR
 
-from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
+from tests.base import TestCommandCaseBase
 
 
 REGISTRY_ORG_ALREADY_EXISTS_ERROR = "Error: Bitergium already exists in the registry"
@@ -70,38 +69,33 @@ REGISTRY_OUTPUT_EXAMPLE_ALT = """Example\texample.com
 Example\texample.net"""
 
 
-class TestBaseCase(unittest.TestCase):
+class TestOrgsCaseBase(TestCommandCaseBase):
     """Defines common setup and teardown methods orgs unit tests"""
 
-    @classmethod
-    def setUpClass(cls):
-        if not hasattr(sys.stdout, 'getvalue'):
-            cls.fail('This test needs to be run in buffered mode')
+    cmd_klass = Organizations
 
-        # Create a connection to check the contents of the registry
-        cls.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
+    def load_test_dataset(self):
+        pass
 
 
-        # Create command
-        cls.kwargs = {'user' : DB_USER,
-                       'password' : DB_PASSWORD,
-                       'database' :DB_NAME,
-                       'host' : DB_HOST,
-                       'port' : DB_PORT}
-        cls.cmd = Organizations(**cls.kwargs)
-
-    def setUp(self):
-        self.db.clear()
-
-    def tearDown(self):
-        self.db.clear()
-
-
-class TestOrgsCommand(TestBaseCase):
+class TestOrgsCommand(TestOrgsCaseBase):
     """Organization command unit tests"""
+
+    def load_test_dataset(self):
+        self.cmd.add('Example')
+        self.cmd.add('Example', 'example.com')
+        self.cmd.add('Bitergia')
+        self.cmd.add('Bitergia', 'bitergia.net')
+        self.cmd.add('Bitergia', 'bitergia.com', is_top_domain=True)
+        self.cmd.add('LibreSoft')
+        self.cmd.add('Example', 'example.org')
+        self.cmd.add('Example', 'example.net')
 
     def test_default_action(self):
         """Check whether when no action is given it runs --list"""
+
+        # Remove pre-loaded dataset
+        self.db.clear()
 
         # Add some contents first
         self.cmd.add('Example')
@@ -119,8 +113,6 @@ class TestOrgsCommand(TestBaseCase):
     def test_list_without_args(self):
         """Test list action with and without arguments"""
 
-        self.__load_test_dataset()
-
         code = self.cmd.run('-l')
         self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
@@ -128,8 +120,6 @@ class TestOrgsCommand(TestBaseCase):
 
     def test_list_with_args(self):
         """Test list action with arguments"""
-
-        self.__load_test_dataset()
 
         # Add an extra organization
         self.cmd.add('MyExample')
@@ -142,6 +132,9 @@ class TestOrgsCommand(TestBaseCase):
 
     def test_add_with_args(self):
         """Test add action"""
+
+        # Remove pre-loaded dataset
+        self.db.clear()
 
         code = self.cmd.run('--add', 'LibreSoft')
         self.assertEqual(code, CMD_SUCCESS)
@@ -174,6 +167,9 @@ class TestOrgsCommand(TestBaseCase):
     def test_add_without_args(self):
         """Check when calling --add without args, it does not do anything"""
 
+        # Remove pre-loaded dataset
+        self.db.clear()
+
         code = self.cmd.run('--add')
         self.assertEqual(code, CMD_SUCCESS)
 
@@ -183,8 +179,6 @@ class TestOrgsCommand(TestBaseCase):
 
     def test_add_with_overwrite_option(self):
         """Check whether it not fails running add with overwrite option"""
-
-        self.__load_test_dataset()
 
         code = self.cmd.run('--add', 'Example', 'bitergia.com')
         self.assertEqual(code, CODE_ALREADY_EXISTS_ERROR)
@@ -200,8 +194,6 @@ class TestOrgsCommand(TestBaseCase):
 
     def test_delete_with_args(self):
         """Test delete action"""
-
-        self.__load_test_dataset()
 
         # Delete contents
         code = self.cmd.run('--delete', 'Bitergia', 'bitergia.com')
@@ -223,8 +215,6 @@ class TestOrgsCommand(TestBaseCase):
     def test_delete_without_args(self):
         """Check when calling --delete without args, it does not do anything"""
 
-        self.__load_test_dataset()
-
         code = self.cmd.run('--delete')
         self.assertEqual(code, CMD_SUCCESS)
 
@@ -234,6 +224,9 @@ class TestOrgsCommand(TestBaseCase):
 
     def test_run_mixing_actions(self):
         """Check how it works when mixing actions"""
+
+        # Remove pre-loaded dataset
+        self.db.clear()
 
         self.cmd.run('--add', 'LibreSoft')
         self.cmd.run('-a', 'LibreSoft', 'libresoft.es')
@@ -253,18 +246,8 @@ class TestOrgsCommand(TestBaseCase):
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, REGISTRY_OUTPUT_EXAMPLE_ALT)
 
-    def __load_test_dataset(self):
-        self.cmd.add('Example')
-        self.cmd.add('Example', 'example.com')
-        self.cmd.add('Bitergia')
-        self.cmd.add('Bitergia', 'bitergia.net')
-        self.cmd.add('Bitergia', 'bitergia.com', is_top_domain=True)
-        self.cmd.add('LibreSoft')
-        self.cmd.add('Example', 'example.org')
-        self.cmd.add('Example', 'example.net')
 
-
-class TestOrgsAdd(TestBaseCase):
+class TestOrgsAdd(TestOrgsCaseBase):
 
     def test_add(self):
         """Check whether everything works ok when adding organizations and domains"""
@@ -402,7 +385,7 @@ class TestOrgsAdd(TestBaseCase):
         self.assertEqual(len(orgs), 0)
 
 
-class TestOrgsDelete(TestBaseCase):
+class TestOrgsDelete(TestOrgsCaseBase):
 
     def test_delete(self):
         """Check whether everything works ok when deleting organizations and domains"""
@@ -527,11 +510,9 @@ class TestOrgsDelete(TestBaseCase):
         self.assertEqual(len(orgs[1].domains), 0)
 
 
-class TestOrgsRegistry(TestBaseCase):
+class TestOrgsRegistry(TestOrgsCaseBase):
 
-    def setUp(self):
-        super(TestOrgsRegistry, self).setUp()
-
+    def load_test_dataset(self):
         api.add_organization(self.db, 'Example')
         api.add_domain(self.db, 'Example', 'example.com')
         api.add_domain(self.db, 'Example', 'example.org')

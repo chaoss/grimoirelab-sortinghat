@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2015 Bitergia
+# Copyright (C) 2014-2016 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -33,10 +33,9 @@ if not '..' in sys.path:
 from sortinghat import api
 from sortinghat.command import CMD_SUCCESS
 from sortinghat.cmd.unify import Unify
-from sortinghat.db.database import Database
 from sortinghat.exceptions import CODE_MATCHER_NOT_SUPPORTED_ERROR
 
-from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
+from tests.base import TestCommandCaseBase
 
 
 UNIFY_DEFAULT_OUTPUT = """Total unique identities processed: 6
@@ -52,33 +51,12 @@ Total unique identities after merging: 0"""
 UNIFY_MATCHING_ERROR = "Error: mock identity matcher is not supported"
 
 
-class TestBaseCase(unittest.TestCase):
+class TestUnifyCaseBase(TestCommandCaseBase):
     """Defines common setup and teardown methods on unify unit tests"""
 
-    @classmethod
-    def setUpClass(cls):
-        if not hasattr(sys.stdout, 'getvalue') and not hasattr(sys.stderr, 'getvalue'):
-            cls.fail('This test needs to be run in buffered mode')
+    cmd_klass = Unify
 
-        # Create a connection to check the contents of the registry
-        cls.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
-
-        # Create command
-        cls.kwargs = {'user' : DB_USER,
-                      'password' : DB_PASSWORD,
-                      'database' :DB_NAME,
-                      'host' : DB_HOST,
-                      'port' : DB_PORT}
-        cls.cmd = Unify(**cls.kwargs)
-
-    def setUp(self):
-        self.db.clear()
-        self._load_test_dataset()
-
-    def tearDown(self):
-        self.db.clear()
-
-    def _load_test_dataset(self):
+    def load_test_dataset(self):
         # Add some unique identities
 
         uuid = api.add_identity(self.db, source='scm', email='jsmith@example.com', name='John Smith')
@@ -103,7 +81,7 @@ class TestBaseCase(unittest.TestCase):
         uuid = api.add_identity(self.db, source='scm', name='jrae')
 
 
-class TestUnifyCommand(TestBaseCase):
+class TestUnifyCommand(TestUnifyCaseBase):
     """Unify command unit tests"""
 
     def test_unify(self):
@@ -142,7 +120,7 @@ class TestUnifyCommand(TestBaseCase):
         self.assertEqual(output, UNIFY_EMPTY_OUTPUT)
 
 
-class TestUnify(TestBaseCase):
+class TestUnify(TestUnifyCaseBase):
     """Unit tests for unify"""
 
     def test_unify(self):

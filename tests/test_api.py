@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2015 Bitergia
+# Copyright (C) 2014-2016 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -32,13 +32,12 @@ if not '..' in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat import api
-from sortinghat.db.database import Database
 from sortinghat.db.model import UniqueIdentity, Identity, Profile,\
     Organization, Domain, Country, Enrollment, MatchingBlacklist
 from sortinghat.exceptions import AlreadyExistsError, NotFoundError
 from sortinghat.matcher import create_identity_matcher
 
-from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
+from tests.base import TestDatabaseCaseBase
 
 
 UUID_NONE_OR_EMPTY_ERROR = "uuid cannot be"
@@ -55,21 +54,14 @@ ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR = "%(type)s %(date)s is out of bounds"
 NOT_FOUND_ERROR =  "%(entity)s not found in the registry"
 
 
-class TestBaseCase(unittest.TestCase):
-    """Defines common setup and teardown methods on api unit tests"""
+class TestAPICaseBase(TestDatabaseCaseBase):
+    """Test case base class for API tests"""
 
-    @classmethod
-    def setUpClass(cls):
-        cls.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
-
-    def setUp(self):
-        self.db.clear()
-
-    def tearDown(self):
-        self.db.clear()
+    def load_test_dataset(self):
+        pass
 
 
-class TestAddUniqueIdentity(TestBaseCase):
+class TestAddUniqueIdentity(TestAPICaseBase):
     """Unit tests for add_unique_identity"""
 
     def test_add_unique_identities(self):
@@ -118,7 +110,7 @@ class TestAddUniqueIdentity(TestBaseCase):
                                 api.add_unique_identity, self.db, '')
 
 
-class TestAddIdentity(TestBaseCase):
+class TestAddIdentity(TestAPICaseBase):
     """Unit tests for add_identity"""
 
     def test_add_new_identity(self):
@@ -312,7 +304,7 @@ class TestAddIdentity(TestBaseCase):
                                 api.add_identity, self.db, 'scm', '', '', '')
 
 
-class TestAddOrganization(TestBaseCase):
+class TestAddOrganization(TestAPICaseBase):
     """Unit tests for add_organization"""
 
     def test_add_organizations(self):
@@ -359,7 +351,7 @@ class TestAddOrganization(TestBaseCase):
                                 api.add_organization, self.db, '')
 
 
-class TestAddDomain(TestBaseCase):
+class TestAddDomain(TestAPICaseBase):
     """Unit tests for add_domain"""
 
     def test_add_domains(self):
@@ -517,7 +509,7 @@ class TestAddDomain(TestBaseCase):
                                 api.add_domain, self.db, 'Example', 'example.com', 'False')
 
 
-class TestAddEnrollment(TestBaseCase):
+class TestAddEnrollment(TestAPICaseBase):
     """Unit tests for add_enrollment"""
 
     def test_add_enrollment(self):
@@ -632,7 +624,7 @@ class TestAddEnrollment(TestBaseCase):
                           datetime.datetime(2000, 1, 1))
 
 
-class TestAddToMatchingBlacklist(TestBaseCase):
+class TestAddToMatchingBlacklist(TestAPICaseBase):
     """Unit tests for add_to_matching_blacklist"""
 
     def test_add_entity(self):
@@ -681,7 +673,7 @@ class TestAddToMatchingBlacklist(TestBaseCase):
                                 api.add_to_matching_blacklist, self.db, '')
 
 
-class TestEditProfile(TestBaseCase):
+class TestEditProfile(TestAPICaseBase):
     """Unit tests for edit_profile"""
 
     def test_edit_new_profile(self):
@@ -816,7 +808,7 @@ class TestEditProfile(TestBaseCase):
                                 **{'is_bot' : 'True'})
 
 
-class TestDeleteUniqueIdentity(TestBaseCase):
+class TestDeleteUniqueIdentity(TestAPICaseBase):
     """Unit tests for delete_unique_identity"""
 
     def test_delete_unique_identities(self):
@@ -913,7 +905,7 @@ class TestDeleteUniqueIdentity(TestBaseCase):
             self.assertEqual(len(enrollments), 1)
 
 
-class TestDeteleIdentity(TestBaseCase):
+class TestDeteleIdentity(TestAPICaseBase):
     """Unit tests for delete_identity"""
 
     def test_delete_identities(self):
@@ -1012,7 +1004,7 @@ class TestDeteleIdentity(TestBaseCase):
             self.assertEqual(ids[1].id, id2)
 
 
-class TestDeleteOrganization(TestBaseCase):
+class TestDeleteOrganization(TestAPICaseBase):
     """Unit tests for delete_organization"""
 
     def test_delete_organizations(self):
@@ -1098,7 +1090,7 @@ class TestDeleteOrganization(TestBaseCase):
             self.assertEqual(len(doms), 1)
 
 
-class TestDeleteDomain(TestBaseCase):
+class TestDeleteDomain(TestAPICaseBase):
     """Unit tests for delete_domain"""
 
     def test_delete_domains(self):
@@ -1180,7 +1172,7 @@ class TestDeleteDomain(TestBaseCase):
             self.assertEqual(len(doms), 1)
 
 
-class TestDeleteEnrollment(TestBaseCase):
+class TestDeleteEnrollment(TestAPICaseBase):
     """Unit tests for delete_enrollment"""
 
     def test_delete_enrollments(self):
@@ -1343,7 +1335,7 @@ class TestDeleteEnrollment(TestBaseCase):
             self.assertEqual(len(enrollments), 1)
 
 
-class TestDeleteFromMatchingBlacklist(TestBaseCase):
+class TestDeleteFromMatchingBlacklist(TestAPICaseBase):
     """Unit tests for delete_from_matching_blacklist"""
 
     def test_delete_blacklisted_entity(self):
@@ -1396,7 +1388,7 @@ class TestDeleteFromMatchingBlacklist(TestBaseCase):
             self.assertEqual(len(mbs), 2)
 
 
-class TestMergeEnrollments(TestBaseCase):
+class TestMergeEnrollments(TestAPICaseBase):
     """Unite tests for merge_enrollments"""
 
     def test_merge_enrollments(self):
@@ -1576,7 +1568,7 @@ class TestMergeEnrollments(TestBaseCase):
             self.assertEqual(len(enrollments), 2)
 
 
-class TestMergeUniqueIdentities(TestBaseCase):
+class TestMergeUniqueIdentities(TestAPICaseBase):
     """Unit tests for merge_unique_identities"""
 
     def test_merge_identitites(self):
@@ -1764,7 +1756,7 @@ class TestMergeUniqueIdentities(TestBaseCase):
                                 self.db, 'Jane Roe', 'Jane Roe')
 
 
-class TestMoveIdentity(TestBaseCase):
+class TestMoveIdentity(TestAPICaseBase):
     """Unit tests for move_identity"""
 
     def test_move_identity(self):
@@ -1894,7 +1886,7 @@ class TestMoveIdentity(TestBaseCase):
                                 self.db, from_id, 'Jane Roe')
 
 
-class TestMatchIdentities(TestBaseCase):
+class TestMatchIdentities(TestAPICaseBase):
     """Unit tests for match_identities"""
 
     def test_default_matcher(self):
@@ -2003,7 +1995,7 @@ class TestMatchIdentities(TestBaseCase):
                                 self.db, 'Jane Roe', matcher)
 
 
-class TestUniqueIdentities(TestBaseCase):
+class TestUniqueIdentities(TestAPICaseBase):
     """Unit tests for unique_identities"""
 
     def test_unique_identities(self):
@@ -2153,7 +2145,7 @@ class TestUniqueIdentities(TestBaseCase):
                           self.db, 'John Smith', 'scm')
 
 
-class TestSearchUniqueIdentities(TestBaseCase):
+class TestSearchUniqueIdentities(TestAPICaseBase):
     """Unit tests for search_unique_identities"""
 
     def test_search_unique_identities(self):
@@ -2219,7 +2211,7 @@ class TestSearchUniqueIdentities(TestBaseCase):
                           self.db, 'Jane Rae')
 
 
-class TestRegistry(TestBaseCase):
+class TestRegistry(TestAPICaseBase):
     """Unit tests for registry"""
 
     def test_get_registry(self):
@@ -2311,7 +2303,7 @@ class TestRegistry(TestBaseCase):
         self.assertRaises(NotFoundError, api.registry, self.db, 'LibreSoft')
 
 
-class TestDomains(TestBaseCase):
+class TestDomains(TestAPICaseBase):
     """Unit tests for domains"""
 
     def test_get_domains(self):
@@ -2477,7 +2469,7 @@ class TestDomains(TestBaseCase):
         self.assertRaises(NotFoundError, api.domains, self.db, '.myexample.com', True)
 
 
-class TestCountries(TestBaseCase):
+class TestCountries(TestAPICaseBase):
     """Unit tests for countries"""
 
     def test_get_countries(self):
@@ -2607,7 +2599,7 @@ class TestCountries(TestBaseCase):
                                 api.countries, self.db, 8)
 
 
-class TestEnrollments(TestBaseCase):
+class TestEnrollments(TestAPICaseBase):
     """Unit tests for enrollments"""
 
     def test_get_enrollments(self):
@@ -2894,7 +2886,7 @@ class TestEnrollments(TestBaseCase):
                                 'John Smith', 'LibreSoft')
 
 
-class TestBlacklist(TestBaseCase):
+class TestBlacklist(TestAPICaseBase):
     """Unit tests for blacklist"""
 
     def test_get_blacklist(self):
