@@ -163,7 +163,16 @@
         },
         {
             "_url": "https://example.com/api/v2/users/3/",
-            "alternate_emails": ["janerae@example.com", "jrae@example.org"],
+            "alternate_emails": [
+                {
+                     "email": "janerae@example.com",
+                     "privacy": "Public"
+                },
+                {
+                    "email": "jrae@example.org",
+                    "privacy": "Public"
+                }
+            ],
             "bio": {
                 "html": "",
                 "privacy": "Mozillians",

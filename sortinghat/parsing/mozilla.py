@@ -91,7 +91,10 @@ class MozilliansParser(object):
           "results" : [
               {
                "_url": "https://example.com/api/v2/users/1/",
-               "alternate_emails": [],
+               "alternate_emails": [{
+                   "email": "jsmith@example.net",
+                   "privacy": "Public"
+                }],
                "email": {
                    "privacy": "Public",
                    "value": "jsmith@example.com"
@@ -129,7 +132,7 @@ class MozilliansParser(object):
 
                 # Alternate emails
                 for alt_email in mozillian['alternate_emails']:
-                    alt_email = self.__encode(alt_email)
+                    alt_email = self.__encode(alt_email['email'])
 
                     if alt_email == email:
                         continue
