@@ -21,11 +21,23 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+import codecs
+import os
+import re
+
 from distutils.core import setup
 
 
+here = os.path.abspath(os.path.dirname(__file__))
+version_py = os.path.join(here, 'sortinghat', '_version.py')
+
+with codecs.open(version_py, 'r', encoding='utf-8') as fd:
+    version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
+                        fd.read(), re.MULTILINE).group(1)
+
+
 setup(name="sortinghat",
-      version="0.0.1",
+      version=version,
       author="Bitergia",
       author_email="metrics-grimoire@lists.libresoft.es",
       url="https://github.com/MetricsGrimoire/sortinghat",
