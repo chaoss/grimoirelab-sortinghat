@@ -25,32 +25,53 @@ import codecs
 import os
 import re
 
-from distutils.core import setup
-
+# Always prefer setuptools over distutils
+from setuptools import setup
 
 here = os.path.abspath(os.path.dirname(__file__))
+readme_md = os.path.join(here, 'README.md')
 version_py = os.path.join(here, 'sortinghat', '_version.py')
+
+# Pypi wants the description to be in reStrcuturedText, but
+# we have it in Markdown. So, let's convert formats.
+# Set up thinkgs so that if pypandoc is not installed, it
+# just issues a warning.
+try:
+    import pypandoc
+    long_description = pypandoc.convert(readme_md, 'rst')
+except (IOError, ImportError):
+    print("Warning: pypandoc module not found, or pandoc not installed. " \
+            + "Using md instead of rst")
+    with codecs.open(readme_md, encoding='utf-8') as f:
+        long_description = f.read()
 
 with codecs.open(version_py, 'r', encoding='utf-8') as fd:
     version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
                         fd.read(), re.MULTILINE).group(1)
 
-
 setup(name="sortinghat",
+      description="A tool to manage identities",
+      long_description=long_description,
+      url="https://github.com/MetricsGrimoire/sortinghat",
       version=version,
       author="Bitergia",
       author_email="metrics-grimoire@lists.libresoft.es",
-      url="https://github.com/MetricsGrimoire/sortinghat",
+      license="GPLv3",
+      classifiers=[
+        'Development Status :: 5 - Production/Stable',
+        'Intended Audience :: Developers',
+        'Topic :: Software Development',
+        'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.4'],
+      keywords="development repositories analytics",
       packages=['sortinghat', 'sortinghat.db', 'sortinghat.cmd', 'sortinghat.matching',
                 'sortinghat.parsing', 'sortinghat.templates', 'sortinghat.data'],
       package_data={'sortinghat.templates' : ['*.tmpl'],
                     'sortinghat.data' : ['*'],},
       scripts=["bin/sortinghat", "bin/mg2sh", "bin/sh2mg"],
-      requires=['sqlalchemy', 'jinja2'],
-      classifiers=[
-        'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4']
+      install_requires=['sqlalchemy', 'jinja2', 'python-dateutil'],
+      zip_safe=False
     )
