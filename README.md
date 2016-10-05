@@ -11,24 +11,25 @@ usage: sortinghat [--help] [-c <file>] [-u <user>] [-p <password>]
 
 The most commonly used sortinghat commands are:
 
-    add         Add identities
-    affiliate   Affiliate identities
-    blacklist   List, add or delete entries from the blacklist
-    config      Get and set configuration parameters
-    countries   List information about countries
-    enroll      Enroll identities into organizations
-    export      Export data (i.e identities) from the registry
-    init        Create an empty registry
-    load        Import data (i.e identities, organizations) on the registry
-    merge       Merge unique identities
-    mv          Move an identity into a unique identity
-    log         List enrollment information available in the registry
-    orgs        List, add or delete organizations and domains
-    profile     Edit profile
-    rm          Remove identities from the registry
-    show        Show information about a unique identity
-    unify       Merge identities using a matching algorithm
-    withdraw    Remove identities from organizations
+    add          Add identities
+    affiliate    Affiliate identities
+    autoprofile  Auto complete profiles
+    blacklist    List, add or delete entries from the blacklist
+    config       Get and set configuration parameters
+    countries    List information about countries
+    enroll       Enroll identities into organizations
+    export       Export data (i.e identities) from the registry
+    init         Create an empty registry
+    load         Import data (i.e identities, organizations) on the registry
+    merge        Merge unique identities
+    mv           Move an identity into a unique identity
+    log          List enrollment information available in the registry
+    orgs         List, add or delete organizations and domains
+    profile      Edit profile
+    rm           Remove identities from the registry
+    show         Show information about a unique identity
+    unify        Merge identities using a matching algorithm
+    withdraw     Remove identities from organizations
 
 General options:
   -h, --help            show this help message and exit

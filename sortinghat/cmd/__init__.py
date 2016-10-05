@@ -25,6 +25,7 @@ from __future__ import unicode_literals
 
 from .add import Add
 from .affiliate import Affiliate
+from .autoprofile import AutoProfile
 from .blacklist import Blacklist
 from .config import Config
 from .countries import Countries
@@ -44,22 +45,23 @@ from .withdraw import Withdraw
 
 
 SORTINGHAT_COMMANDS = {
-                       'add'       : Add,
-                       'affiliate' : Affiliate,
-                       'blacklist' : Blacklist,
-                       'config'    : Config,
-                       'countries' : Countries,
-                       'enroll'    : Enroll,
-                       'export'    : Export,
-                       'init'      : Init,
-                       'load'      : Load,
-                       'log'       : Log,
-                       'merge'     : Merge,
-                       'mv'        : Move,
-                       'orgs'      : Organizations,
-                       'profile'   : Profile,
-                       'rm'        : Remove,
-                       'show'      : Show,
-                       'unify'     : Unify,
-                       'withdraw'  : Withdraw,
+                       'add'         : Add,
+                       'affiliate'   : Affiliate,
+                       'autoprofile' : AutoProfile,
+                       'blacklist'   : Blacklist,
+                       'config'      : Config,
+                       'countries'   : Countries,
+                       'enroll'      : Enroll,
+                       'export'      : Export,
+                       'init'        : Init,
+                       'load'        : Load,
+                       'log'         : Log,
+                       'merge'       : Merge,
+                       'mv'          : Move,
+                       'orgs'        : Organizations,
+                       'profile'     : Profile,
+                       'rm'          : Remove,
+                       'show'        : Show,
+                       'unify'       : Unify,
+                       'withdraw'    : Withdraw,
                        }
