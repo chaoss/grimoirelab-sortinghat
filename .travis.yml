@@ -13,7 +13,7 @@ before_install:
     else
         pip install PyMySQL
     fi
-  - pip install SQLAlchemy
+  - pip install SQLAlchemy==1.0.8
   - pip install Jinja2
   - pip install python-dateutil
   - pip install pandas==0.18.1
