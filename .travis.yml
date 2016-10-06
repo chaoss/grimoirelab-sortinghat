@@ -16,7 +16,7 @@ before_install:
   - pip install SQLAlchemy
   - pip install Jinja2
   - pip install python-dateutil
-  - pip install pandas
+  - pip install pandas==0.18.1
   - pip install coveralls
 
 install:
