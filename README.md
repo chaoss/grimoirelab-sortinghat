@@ -178,7 +178,7 @@ After this initialize a new database:
 
 * Move an identity into a unique identity
 ```
-  $ sortinghat move a7637bb1737bc2a83f3a3e25b9b441cba62d97c2 a7637bb1737bc2a83f3a3e25b9b441cba62d97c2
+  $ sortinghat mv a7637bb1737bc2a83f3a3e25b9b441cba62d97c2 a7637bb1737bc2a83f3a3e25b9b441cba62d97c2
   New unique identity a7637bb1737bc2a83f3a3e25b9b441cba62d97c2 created. Identity moved
 ```
 
