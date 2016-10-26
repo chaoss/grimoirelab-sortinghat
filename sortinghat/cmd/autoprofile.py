@@ -24,6 +24,7 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import argparse
+import collections
 
 from .. import api
 from ..command import Command, CMD_SUCCESS, HELP_LIST
@@ -85,11 +86,25 @@ class AutoProfile(Command):
         """
         identities = self.__select_autocomplete_identities(sources)
 
-        for identity in identities:
-            uuid = identity.uuid
+        for uuid, ids in identities.items():
+            # Among the identities (with the same priority) selected
+            # to complete the profile, it will choose the longest 'name'.
+            # If no name is available, it will use the field 'username'.
+            name = None
+            email = None
+
+            for identity in ids:
+                if not name:
+                    name = identity.name or identity.username
+                elif identity.name and len(identity.name) > name:
+                    name = identity.name
+
+                if not email and identity.email:
+                    email = identity.email
+
             kw = {
-                'name' : identity.name if identity.name else identity.username,
-                'email' : identity.email
+                'name' : name,
+                'email' : email
             }
 
             try:
@@ -115,22 +130,24 @@ class AutoProfile(Command):
                 if uid.uuid in checked:
                     continue
 
-                max_prior = MIN_PRIORITY
-                selected = None
+                max_priority = MIN_PRIORITY
+                selected = []
 
                 for identity in sorted(uid.identities, key=lambda x: x.id):
                     try:
-                        pos = sources.index(identity.source)
+                        priority = sources.index(identity.source)
 
-                        if pos < max_prior:
-                            selected = identity
-                            max_prior = pos
+                        if priority < max_priority:
+                            selected = [identity]
+                            max_priority = priority
+                        elif priority == max_priority:
+                            selected.append(identity)
                     except ValueError:
                         continue
 
                 checked[uid.uuid] = selected
 
-        identities = [v for v in checked.values()]
-        identities.sort(key=lambda x: x.uuid)
+        identities = collections.OrderedDict(sorted(checked.items(),
+                                             key=lambda t: t[0]))
 
         return identities
