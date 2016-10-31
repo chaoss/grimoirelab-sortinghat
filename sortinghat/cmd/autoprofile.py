@@ -96,7 +96,7 @@ class AutoProfile(Command):
             for identity in ids:
                 if not name:
                     name = identity.name or identity.username
-                elif identity.name and len(identity.name) > name:
+                elif identity.name and len(identity.name) > len(name):
                     name = identity.name
 
                 if not email and identity.email:

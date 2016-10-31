@@ -65,6 +65,8 @@ class TestAutoProfileCaseBase(TestCommandCaseBase):
                          None, 'jsmith', uuid=jsmith_uuid)
         api.add_identity(self.db, 'mls', 'jsmith@example.com',
                          'John Smith', 'jsmith', uuid=jsmith_uuid)
+        api.add_identity(self.db, 'mls', 'jsmith@example.com',
+                         'J S', None, uuid=jsmith_uuid)
 
         jdoe_uuid = api.add_identity(self.db, 'scm', 'jdoe@example.com',
                                      None, 'jdoe')
@@ -107,7 +109,8 @@ class TestAutoProfileCommand(TestAutoProfileCaseBase):
 
         uids = api.unique_identities(self.db)
 
-        # It mixes the information of the identities with maximum priority
+        # It mixes the information of the identities with
+        # maximum priority, using the longest name value
         self.assertEqual(uids[0].uuid, '02f161840469eb5348dec798166a171b34f0bc8a')
         self.assertEqual(uids[0].profile.name, 'John Smith')
         self.assertEqual(uids[0].profile.email, 'jsmith@example.com')
