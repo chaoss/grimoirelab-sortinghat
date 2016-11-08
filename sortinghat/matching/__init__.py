@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2015 Bitergia
+# Copyright (C) 2014-2016 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@ from __future__ import unicode_literals
 
 from .email import EmailMatcher
 from .email_name import EmailNameMatcher
+from .github import GitHubMatcher
 from .username import UsernameMatcher
 
 
@@ -32,5 +33,6 @@ SORTINGHAT_IDENTITIES_MATCHERS = {
                                   'default'    : EmailMatcher,
                                   'email'      : EmailMatcher,
                                   'email-name' : EmailNameMatcher,
+                                  'github'     : GitHubMatcher,
                                   'username'   : UsernameMatcher
                                   }
