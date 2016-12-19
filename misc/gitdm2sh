@@ -42,7 +42,7 @@ def main():
     args = parse_args()
 
     try:
-        parser = parse_gitdm_files(args.email_aliases, args.email_employer,
+        parser = parse_gitdm_files(args.aliases, args.email_employer,
                                    args.domain_employer, args.source)
     except (IOError, UnicodeDecodeError, InvalidFormatError) as e:
         raise RuntimeError(str(e))
@@ -62,9 +62,9 @@ def parse_args():
 
     parser = argparse.ArgumentParser(description=GITDM2SH_DESC_MSG)
 
-    parser.add_argument('-a', '--email-aliases', dest='email_aliases',
+    parser.add_argument('-a', '--aliases', dest='aliases',
                         type=argparse.FileType('r'),
-                        help='Gitdm email aliases mapping file')
+                        help='Gitdm aliases mapping file')
     parser.add_argument('-e', '--email-employer', dest='email_employer',
                         type=argparse.FileType('r'),
                         help='Gitdm email to employer mapping file')
@@ -80,22 +80,22 @@ def parse_args():
     return parser.parse_args()
 
 
-def parse_gitdm_files(email_aliases, email_to_employer,
+def parse_gitdm_files(aliases, email_to_employer,
                       domain_to_employer, source):
     """Parse Gitdm files"""
 
-    ea = None
+    a = None
     ee = None
     de = None
 
-    if email_aliases:
-        ea = read_file(email_aliases)
+    if aliases:
+        a = read_file(aliases)
     if email_to_employer:
         ee = read_file(email_to_employer)
     if domain_to_employer:
         de = read_file(domain_to_employer)
 
-    parser = GitdmParser(email_aliases=ea,
+    parser = GitdmParser(aliases=a,
                          email_to_employer=ee,
                          domain_to_employer=de,
                          source=source)
@@ -113,7 +113,7 @@ def to_json(uidentities, organizations, source):
         uuid = uidentity.uuid
 
         uid = uidentity.to_dict()
-        uid['identities'].sort(key=lambda x: x['email'])
+        uid['identities'].sort(key=lambda x: x['email'] or x['username'])
 
         enrollments = [rol.to_dict() \
                        for rol in uidentity.enrollments]

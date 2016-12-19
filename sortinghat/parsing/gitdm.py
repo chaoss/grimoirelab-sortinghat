@@ -47,7 +47,7 @@ class GitdmParser(object):
     are the name of the organizations and each organization object is
     related to a list of domains.
 
-    :param email_aliases: aliases stream
+    :param aliases: aliases stream
     :param email_to_employer: enrollments stream
     :param domain_to_employer: organizations stream
 
@@ -63,7 +63,7 @@ class GitdmParser(object):
     ENROLLMENT_REGEX = r"^(?P<organization>[^#<\n\r\f\v]*[^#<\t\n\r\f\v\s])(?:[ \t]+<[ \t]+(?P<date>\d{4}\-\d{2}\-\d{2}))?$"
 
 
-    def __init__(self, email_aliases=None, email_to_employer=None,
+    def __init__(self, aliases=None, email_to_employer=None,
                  domain_to_employer=None, source='gitdm'):
         self._identities = {}
         self._organizations = {}
@@ -74,7 +74,7 @@ class GitdmParser(object):
         self.__raw_aliases = {}
         self.__raw_orgs = {}
 
-        self.__parse(email_aliases, email_to_employer,
+        self.__parse(aliases, email_to_employer,
                      domain_to_employer)
 
     @property
@@ -89,17 +89,17 @@ class GitdmParser(object):
         orgs.sort(key=lambda o: o.name)
         return orgs
 
-    def __parse(self, email_aliases, email_to_employer, domain_to_employer):
+    def __parse(self, aliases, email_to_employer, domain_to_employer):
         """Parse Gitdm streams"""
 
         self.__parse_organizations(domain_to_employer)
-        self.__parse_identities(email_aliases, email_to_employer)
+        self.__parse_identities(aliases, email_to_employer)
 
-    def __parse_identities(self, email_aliases, email_to_employer):
+    def __parse_identities(self, aliases, email_to_employer):
         """Parse Gitdm identities"""
 
         # Parse streams
-        self.__parse_email_aliases_stream(email_aliases)
+        self.__parse_aliases_stream(aliases)
         self.__parse_email_to_employer_stream(email_to_employer)
 
         # Create unique identities from aliases list
@@ -109,12 +109,22 @@ class GitdmParser(object):
             if not uid:
                 uid = UniqueIdentity(uuid=email)
 
-                identity = Identity(email=email, source=self.source)
+                e = re.match(self.EMAIL_ADDRESS_REGEX, email, re.UNICODE)
+                if e:
+                    identity = Identity(email=email, source=self.source)
+                else:
+                    identity = Identity(username=email, source=self.source)
+
                 uid.identities.append(identity)
 
                 self._identities[email] = uid
 
-            identity = Identity(email=alias, source=self.source)
+            e = re.match(self.EMAIL_ADDRESS_REGEX, alias, re.UNICODE)
+            if e:
+                identity = Identity(email=alias, source=self.source)
+            else:
+                identity = Identity(username=alias, source=self.source)
+
             uid.identities.append(identity)
 
         # Create unique identities from enrollments list
@@ -172,12 +182,12 @@ class GitdmParser(object):
 
             self._organizations[org] = o
 
-    def __parse_email_aliases_stream(self, stream):
+    def __parse_aliases_stream(self, stream):
         """Parse aliases stream.
 
-        The stream contains a list of email addresses and their email aliases.
-        Each line has an email address and an email alias separated by tabs.
-        Comment lines start with the hash character (#).
+        The stream contains a list of usernames (they can be email addresses
+        their username aliases. Each line has a username and an alias separated
+        by tabs. Comment lines start with the hash character (#).
 
         Example:
 
@@ -185,18 +195,18 @@ class GitdmParser(object):
         jsmith@example.com    jsmith@example.net
         jsmith@example.net    johnsmith@example.com
         jdoe@example.com      john_doe@example.com
-        jdoe@example.net      john_doe@example.com
+        jdoe@example          john_doe@example.com
         """
         if not stream:
             return
 
-        f = self.__parse_email_aliases_line
+        f = self.__parse_aliases_line
 
         for alias_entries in self.__parse_stream(stream, f):
             alias = alias_entries[0]
-            email = alias_entries[1]
+            username = alias_entries[1]
 
-            self.__raw_aliases[alias] = email
+            self.__raw_aliases[alias] = username
 
     def __parse_email_to_employer_stream(self, stream):
         """Parse email to employer stream.
@@ -291,27 +301,13 @@ class GitdmParser(object):
                 cause = "line %s: %s" % (str(nline), e)
                 raise InvalidFormatError(cause=cause)
 
-    def __parse_email_aliases_line(self, raw_alias, raw_email):
+    def __parse_aliases_line(self, raw_alias, raw_username):
         """Parse aliases lines"""
 
-        e = re.match(self.EMAIL_ADDRESS_REGEX, raw_alias, re.UNICODE)
-        if not e:
-            cause = "invalid email format: '%s'" % raw_alias
-            raise InvalidFormatError(cause=cause)
+        alias = self.__encode(raw_alias)
+        username = self.__encode(raw_username)
 
-        alias = e.group('email').strip()
-
-        e = re.match(self.EMAIL_ADDRESS_REGEX, raw_email, re.UNICODE)
-        if not e:
-            cause = "invalid email format: '%s'" % raw_email
-            raise InvalidFormatError(cause=cause)
-
-        email = e.group('email').strip()
-
-        alias = self.__encode(alias)
-        email = self.__encode(email)
-
-        return alias, email
+        return alias, username
 
     def __parse_email_to_employer_line(self, raw_email, raw_enrollment):
         """Parse email to employer lines"""

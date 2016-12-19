@@ -58,11 +58,11 @@ class TestGidmParser(TestBaseCase):
     def test_aliases_parser(self):
         aliases = self.read_file('data/gitdm_email_aliases_valid.txt')
 
-        parser = GitdmParser(email_aliases=aliases)
+        parser = GitdmParser(aliases=aliases)
 
         # Parsed unique identities
         uids = parser.identities
-        self.assertEqual(len(uids), 2)
+        self.assertEqual(len(uids), 3)
 
         # jdoe@example.com & john_doe@example.net
         uid = uids[0]
@@ -118,17 +118,43 @@ class TestGidmParser(TestBaseCase):
 
         self.assertEqual(len(uid.enrollments), 0)
 
+        # jrae@laptop & jrae@mylaptop
+        uid = uids[2]
+        self.assertIsInstance(uid, UniqueIdentity)
+        self.assertEqual(uid.uuid, 'jrae@mylaptop')
+
+        ids = uid.identities
+        self.assertEqual(len(ids), 2)
+
+        id0 = ids[0]
+        self.assertIsInstance(id0, Identity)
+        self.assertEqual(id0.name, None)
+        self.assertEqual(id0.email, None)
+        self.assertEqual(id0.username, 'jrae@mylaptop')
+        self.assertEqual(id0.source, 'gitdm')
+        self.assertEqual(id0.uuid, None)
+
+        id0 = ids[1]
+        self.assertIsInstance(id0, Identity)
+        self.assertEqual(id0.name, None)
+        self.assertEqual(id0.email, None)
+        self.assertEqual(id0.username, 'jrae@laptop')
+        self.assertEqual(id0.source, 'gitdm')
+        self.assertEqual(id0.uuid, None)
+
+        self.assertEqual(len(uid.enrollments), 0)
+
     def test_enrollments_parser(self):
         aliases = self.read_file('data/gitdm_email_aliases_valid.txt')
         email_to_employer = self.read_file('data/gitdm_email_to_employer_valid.txt')
 
-        parser = GitdmParser(email_aliases=aliases,
+        parser = GitdmParser(aliases=aliases,
                              email_to_employer=email_to_employer,
                              source='unknown')
 
         # Parsed unique identities
         uids = parser.identities
-        self.assertEqual(len(uids), 3)
+        self.assertEqual(len(uids), 4)
 
         # jdoe@example.com & john_doe@example.net
         uid = uids[0]
@@ -204,8 +230,34 @@ class TestGidmParser(TestBaseCase):
         self.assertEqual(rol.start, datetime.datetime(1900, 1, 1, 0, 0))
         self.assertEqual(rol.end, datetime.datetime(2100, 1, 1, 0, 0))
 
-        # jsmith@example.com
+        # jrae@laptop & jrae@mylaptop
         uid = uids[2]
+        self.assertIsInstance(uid, UniqueIdentity)
+        self.assertEqual(uid.uuid, 'jrae@mylaptop')
+
+        ids = uid.identities
+        self.assertEqual(len(ids), 2)
+
+        id0 = ids[0]
+        self.assertIsInstance(id0, Identity)
+        self.assertEqual(id0.name, None)
+        self.assertEqual(id0.email, None)
+        self.assertEqual(id0.username, 'jrae@mylaptop')
+        self.assertEqual(id0.source, 'unknown')
+        self.assertEqual(id0.uuid, None)
+
+        id0 = ids[1]
+        self.assertIsInstance(id0, Identity)
+        self.assertEqual(id0.name, None)
+        self.assertEqual(id0.email, None)
+        self.assertEqual(id0.username, 'jrae@laptop')
+        self.assertEqual(id0.source, 'unknown')
+        self.assertEqual(id0.uuid, None)
+
+        self.assertEqual(len(uid.enrollments), 0)
+
+        # jsmith@example.com
+        uid = uids[3]
         self.assertIsInstance(uid, UniqueIdentity)
         self.assertEqual(uid.uuid, 'jsmith@example.com')
 
