@@ -1,4 +1,4 @@
-# Sorting Hat [![Build Status](https://travis-ci.org/MetricsGrimoire/sortinghat.svg?branch=master)](https://travis-ci.org/MetricsGrimoire/sortinghat) [![Coverage Status](https://img.shields.io/coveralls/MetricsGrimoire/sortinghat.svg)](https://coveralls.io/r/MetricsGrimoire/sortinghat?branch=master)
+# Sorting Hat [![Build Status](https://travis-ci.org/grimoirelab/sortinghat.svg?branch=master)](https://travis-ci.org/grimoirelab/sortinghat) [![Coverage Status](https://img.shields.io/coveralls/grimoirelab/sortinghat.svg)](https://coveralls.io/r/grimoirelab/sortinghat?branch=master)
 
 A tool to manage identities.
 
@@ -77,11 +77,11 @@ You are ready to use sortinghat!
 
 ### Docker
 
-You can use our image from [DockerHub](https://hub.docker.com/r/metricsgrimoire/sortinghat/) (`metricsgrimoire/sortinghat`) and skip the `docker build` step.
+You can use our image from [DockerHub](https://hub.docker.com/r/grimoirelab/sortinghat/) (`grimoirelab/sortinghat`) and skip the `docker build` step.
 If you prefer to build the image yourself execute:
 
 ```sh
-$ docker build -t metricsgrimoire/sortinghat .
+$ docker build -t grimoirelab/sortinghat .
 ```
 
 Next step would be to start a MySQL docker container for data storage:
@@ -100,7 +100,7 @@ $ docker run -i -t --rm \
              -e SORTINGHAT_DB_HOST=mysql \
              -e SORTINGHAT_DB_PASSWORD=sortinghat \
              -e SORTINGHAT_DB_DATABASE=sortinghat \
-             metricsgrimoire/sortinghat \
+             grimoirelab/sortinghat \
              /bin/bash
 ```
 

@@ -52,10 +52,10 @@ with codecs.open(version_py, 'r', encoding='utf-8') as fd:
 setup(name="sortinghat",
       description="A tool to manage identities",
       long_description=long_description,
-      url="https://github.com/MetricsGrimoire/sortinghat",
+      url="https://github.com/grimoirelab/sortinghat",
       version=version,
       author="Bitergia",
-      author_email="metrics-grimoire@lists.libresoft.es",
+      author_email="sduenas@bitergia.com",
       license="GPLv3",
       classifiers=[
         'Development Status :: 5 - Production/Stable',
