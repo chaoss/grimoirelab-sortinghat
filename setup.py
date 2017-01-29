@@ -72,6 +72,6 @@ setup(name="sortinghat",
       package_data={'sortinghat.templates' : ['*.tmpl'],
                     'sortinghat.data' : ['*'],},
       scripts=["bin/sortinghat", "bin/mg2sh", "bin/sh2mg"],
-      install_requires=['sqlalchemy', 'jinja2', 'python-dateutil'],
+      install_requires=['PyMySQL', 'sqlalchemy', 'jinja2', 'python-dateutil'],
       zip_safe=False
     )
