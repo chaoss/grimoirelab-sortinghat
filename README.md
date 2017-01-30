@@ -1,6 +1,20 @@
 # Sorting Hat [![Build Status](https://travis-ci.org/grimoirelab/sortinghat.svg?branch=master)](https://travis-ci.org/grimoirelab/sortinghat) [![Coverage Status](https://img.shields.io/coveralls/grimoirelab/sortinghat.svg)](https://coveralls.io/r/grimoirelab/sortinghat?branch=master)
 
+## Description
+
 A tool to manage identities.
+
+Sorting Hat maintains an SQL database with identities coming (potentially) from different sources. Identities corresponding to the same real person can be merged in the same unique identity, with a unique uuid. For each unique identity, a profile can be defined, with the name and other data to show for the corresponding person by default.
+
+In addition, each unique identity can be related to one or more affiliations, for different time periods. This will usually correspond to different organizations in which the person was employed during those time periods.
+
+Sorting Hat is a part of the [GrimoireLab toolset](https://grimoirelab.github.io), which provides for Python modules and scripts to analyze data sources with information about software development, and allows to produce interactive dashboards to visualize that information.
+
+In the context of GrimoireLab, Sorting Hat is usually run after data is retrieved with [Perceval](https://github.com/grimmoirelab/perceval), to store the identities obtained into its database, and later merge them into unique identities (and maybe affiliate them).
+
+## Source code and contributions
+
+All the source code is available in the [Sorting Hat GitHub repository](https://github.com/grimoirelab/sortinghat). Please, upload pull requests if you have proposals to change the source code, and open an issue if you want to report a bug, ask for a new feature, or just comment something.
 
 ## Usage
 
@@ -47,6 +61,14 @@ Run 'sortinghat <command> --help' to get information about a specific command.
 ```
 
 ## Installation
+
+### From pypi
+
+You can install sortinghat as a package from the pypi repository:
+
+```
+$ pip install sortinghat
+```
 
 ### Native
 
