@@ -1,0 +1,26 @@
+# Releases
+
+## Sorting Hat 0.2 - (2017-02-01)
+
+** New features and improvements: **
+
+ * Auto complete profile information with `autoprofile` command.
+
+   This command autocompletes the profiles information related to a set of unique
+   identities. To update the profile, the command uses a list of sources ordered
+   by priority. Only those unique identities which have one or more identities
+   from any of these sources will be updated. The name of the profile will be
+   filled using the best name possible, normally the longest one.
+
+ * GiHub identities matching method.
+
+   This new method tries to find equal identities using those identities from
+   GitHub sources. The identities must come from a source starting with a `github`
+   label and the usernames must be equal.
+
+** Bugs fixed: **
+
+ * The parser for Gitdm files only accepted email addresses as valid aliases.
+   This has been modified to accept any type of aliases. Thus, the input file
+   passed to `gidm2sh` script will be a list of valid aliases instead of email
+   aliases.
