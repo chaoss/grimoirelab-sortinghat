@@ -23,10 +23,14 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import argparse
+import re
 
 from .. import api
 from ..command import Command, CMD_SUCCESS, HELP_LIST
 from ..exceptions import NotFoundError, WrappedValueError
+
+
+EMAIL_ADDRESS_PATTERN = re.compile(r"^(?P<email>[^\s@]+@[^\s@.]+\.[^\s@]+)$")
 
 
 class Affiliate(Command):
@@ -79,6 +83,8 @@ class Affiliate(Command):
                 for identity in uid.identities:
                     # Only check email address to find new affiliations
                     if not identity.email:
+                        continue
+                    if not EMAIL_ADDRESS_PATTERN.match(identity.email):
                         continue
 
                     domain = identity.email.split('@')[-1]

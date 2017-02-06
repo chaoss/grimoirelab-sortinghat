@@ -91,6 +91,9 @@ class TestAffiliateCaseBase(TestCommandCaseBase):
         api.add_identity(self.db, 'unknown', 'jroe@bitergia.com',
                          uuid=jroe_uuid)
 
+        # Add no valid email identity
+        api.add_identity(self.db, 'test', 'novalidemail@')
+
 
 class TestAffiliateCommand(TestAffiliateCaseBase):
     """Unit tests for affiliate command"""
@@ -105,7 +108,7 @@ class TestAffiliateCommand(TestAffiliateCaseBase):
         self.assertEqual(output, AFFILIATE_OUTPUT)
 
     def test_multiple_top_domains(self):
-        """Check if it choose the right domain when multiple top domains are available"""
+        """Check if it chooses the right domain when multiple top domains are available"""
 
         api.add_identity(self.db, 'scm', 'janedoe@it.u.example.com')
 
