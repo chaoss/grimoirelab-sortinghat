@@ -35,7 +35,7 @@ from sortinghat import api
 from sortinghat.command import CMD_SUCCESS
 from sortinghat.cmd.init import Init
 from sortinghat.db.database import Database
-from sortinghat.exceptions import CODE_DATABASE_ERROR
+from sortinghat.exceptions import CODE_DATABASE_ERROR, CODE_VALUE_ERROR
 
 from tests.config import DB_USER, DB_PASSWORD, DB_HOST, DB_PORT
 
@@ -169,6 +169,12 @@ class TestInitialize(TestInitCaseBase):
             output = sys.stderr.getvalue().strip()
             self.assertRegexpMatches(output,
                                      DB_EXISTS_ERROR % {'database' : self.name})
+
+    def test_invalid_name_error(self):
+        """Check if it returns an error when an invalid database name is given"""
+
+        code = self.cmd.initialize('invalid-name')
+        self.assertEqual(code, CODE_VALUE_ERROR)
 
 
 if __name__ == "__main__":

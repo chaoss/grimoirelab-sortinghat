@@ -25,7 +25,7 @@ from __future__ import unicode_literals
 import argparse
 
 from ..command import Command, CMD_SUCCESS
-from ..exceptions import DatabaseError, LoadError
+from ..exceptions import CODE_VALUE_ERROR, DatabaseError, LoadError
 from ..db.database import Database
 from ..db.model import Country
 
@@ -80,6 +80,10 @@ class Init(Command):
         password = self._kwargs['password']
         host = self._kwargs['host']
         port = self._kwargs['port']
+
+        if '-' in name:
+            self.error("dabase name '%s' cannot contain '-' characters" % name)
+            return CODE_VALUE_ERROR
 
         try:
             Database.create(user, password, name, host, port)
