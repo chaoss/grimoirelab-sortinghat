@@ -163,6 +163,27 @@ After this initialize a new database:
   $ sortinghat init <name>
 ```
 
+## Compatibility between versions
+
+SortingHat databases previous to 0.3.0dev1 are no longer compatible. The
+seed used to generate identities UUIDs changed and for that reason, these
+ids should be re-generated.
+
+The next steps will restore the database generating new UUIDs for each identity
+but keeping the data and relationships between them.
+
+1. Export data
+```
+$ sortinghat export --orgs orgs.json
+$ sortinghat export --identities identities.json
+```
+1. Remove the database and/or create a new one with `sortinghat init`
+1. Load data, this will regenerate the UUIDs
+```
+$ sortinghat load orgs.json
+$ sortinghat load identities.json
+```
+
 ## Basic commands
 
 * Add some unique identities
