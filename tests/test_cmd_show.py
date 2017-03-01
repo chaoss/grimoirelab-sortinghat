@@ -52,7 +52,26 @@ No identities
 No enrollments
 
 
-unique identity 03e12d00e37fd45593c49a5a5a1652deca4cf302
+unique identity 17ab00ed3825ec2f50483e33c88df223264182ba
+
+Profile:
+    * Name: Jane Roe
+    * E-Mail: jroe@example.com
+    * Bot: No
+    * Country: US - United States of America
+
+Identities:
+  17ab00ed3825ec2f50483e33c88df223264182ba\tJane Roe\tjroe@example.com\tjroe\tscm
+  22d1b20763c6f5822bdda8508957486c547bb9de\t-\tjroe@bitergia.com\t-\tunknown
+  322397ed782a798ffd9d0bc7e293df4292fe075d\t-\tjroe@example.com\t-\tscm
+
+Enrollments:
+  Bitergia\t1999-01-01 00:00:00\t2000-01-01 00:00:00
+  Bitergia\t2006-01-01 00:00:00\t2008-01-01 00:00:00
+  Example\t1900-01-01 00:00:00\t2100-01-01 00:00:00
+
+
+unique identity a9b403e150dd4af8953a52a4bb841051e4b705d9
 
 Profile:
     * Name: -
@@ -61,50 +80,50 @@ Profile:
     * Country: -
 
 Identities:
-  03e12d00e37fd45593c49a5a5a1652deca4cf302\tJohn Smith\tjsmith@example.com\tjsmith\tscm
-  75d95d6c8492fd36d24a18bd45d62161e05fbc97\tJohn Smith\tjsmith@example.com\t-\tscm
+  880b3dfcb3a08712e5831bddc3dfe81fc5d7b331\tJohn Smith\tjsmith@example.com\t-\tscm
+  a9b403e150dd4af8953a52a4bb841051e4b705d9\tJohn Smith\tjsmith@example.com\tjsmith\tscm
 
 Enrollments:
+  Example\t1900-01-01 00:00:00\t2100-01-01 00:00:00"""
+
+SHOW_UUID_OUTPUT = """unique identity 17ab00ed3825ec2f50483e33c88df223264182ba
+
+Profile:
+    * Name: Jane Roe
+    * E-Mail: jroe@example.com
+    * Bot: No
+    * Country: US - United States of America
+
+Identities:
+  17ab00ed3825ec2f50483e33c88df223264182ba\tJane Roe\tjroe@example.com\tjroe\tscm
+  22d1b20763c6f5822bdda8508957486c547bb9de\t-\tjroe@bitergia.com\t-\tunknown
+  322397ed782a798ffd9d0bc7e293df4292fe075d\t-\tjroe@example.com\t-\tscm
+
+Enrollments:
+  Bitergia\t1999-01-01 00:00:00\t2000-01-01 00:00:00
+  Bitergia\t2006-01-01 00:00:00\t2008-01-01 00:00:00
+  Example\t1900-01-01 00:00:00\t2100-01-01 00:00:00"""
+
+SHOW_TERM_OUTPUT = """unique identity 17ab00ed3825ec2f50483e33c88df223264182ba
+
+Profile:
+    * Name: Jane Roe
+    * E-Mail: jroe@example.com
+    * Bot: No
+    * Country: US - United States of America
+
+Identities:
+  17ab00ed3825ec2f50483e33c88df223264182ba\tJane Roe\tjroe@example.com\tjroe\tscm
+  22d1b20763c6f5822bdda8508957486c547bb9de\t-\tjroe@bitergia.com\t-\tunknown
+  322397ed782a798ffd9d0bc7e293df4292fe075d\t-\tjroe@example.com\t-\tscm
+
+Enrollments:
+  Bitergia\t1999-01-01 00:00:00\t2000-01-01 00:00:00
+  Bitergia\t2006-01-01 00:00:00\t2008-01-01 00:00:00
   Example\t1900-01-01 00:00:00\t2100-01-01 00:00:00
 
 
-unique identity 52e0aa0a14826627e633fd15332988686b730ab3
-
-Profile:
-    * Name: Jane Roe
-    * E-Mail: jroe@example.com
-    * Bot: No
-    * Country: US - United States of America
-
-Identities:
-  52e0aa0a14826627e633fd15332988686b730ab3\tJane Roe\tjroe@example.com\tjroe\tscm
-  cbfb7bd31d556322c640f5bc7b31d58a12b15904\t-\tjroe@bitergia.com\t-\tunknown
-  fef873c50a48cfc057f7aa19f423f81889a8907f\t-\tjroe@example.com\t-\tscm
-
-Enrollments:
-  Bitergia\t1999-01-01 00:00:00\t2000-01-01 00:00:00
-  Bitergia\t2006-01-01 00:00:00\t2008-01-01 00:00:00
-  Example\t1900-01-01 00:00:00\t2100-01-01 00:00:00"""
-
-SHOW_UUID_OUTPUT = """unique identity 52e0aa0a14826627e633fd15332988686b730ab3
-
-Profile:
-    * Name: Jane Roe
-    * E-Mail: jroe@example.com
-    * Bot: No
-    * Country: US - United States of America
-
-Identities:
-  52e0aa0a14826627e633fd15332988686b730ab3\tJane Roe\tjroe@example.com\tjroe\tscm
-  cbfb7bd31d556322c640f5bc7b31d58a12b15904\t-\tjroe@bitergia.com\t-\tunknown
-  fef873c50a48cfc057f7aa19f423f81889a8907f\t-\tjroe@example.com\t-\tscm
-
-Enrollments:
-  Bitergia\t1999-01-01 00:00:00\t2000-01-01 00:00:00
-  Bitergia\t2006-01-01 00:00:00\t2008-01-01 00:00:00
-  Example\t1900-01-01 00:00:00\t2100-01-01 00:00:00"""
-
-SHOW_TERM_OUTPUT = """unique identity 03e12d00e37fd45593c49a5a5a1652deca4cf302
+unique identity a9b403e150dd4af8953a52a4bb841051e4b705d9
 
 Profile:
     * Name: -
@@ -113,29 +132,10 @@ Profile:
     * Country: -
 
 Identities:
-  03e12d00e37fd45593c49a5a5a1652deca4cf302\tJohn Smith\tjsmith@example.com\tjsmith\tscm
-  75d95d6c8492fd36d24a18bd45d62161e05fbc97\tJohn Smith\tjsmith@example.com\t-\tscm
+  880b3dfcb3a08712e5831bddc3dfe81fc5d7b331\tJohn Smith\tjsmith@example.com\t-\tscm
+  a9b403e150dd4af8953a52a4bb841051e4b705d9\tJohn Smith\tjsmith@example.com\tjsmith\tscm
 
 Enrollments:
-  Example\t1900-01-01 00:00:00\t2100-01-01 00:00:00
-
-
-unique identity 52e0aa0a14826627e633fd15332988686b730ab3
-
-Profile:
-    * Name: Jane Roe
-    * E-Mail: jroe@example.com
-    * Bot: No
-    * Country: US - United States of America
-
-Identities:
-  52e0aa0a14826627e633fd15332988686b730ab3\tJane Roe\tjroe@example.com\tjroe\tscm
-  cbfb7bd31d556322c640f5bc7b31d58a12b15904\t-\tjroe@bitergia.com\t-\tunknown
-  fef873c50a48cfc057f7aa19f423f81889a8907f\t-\tjroe@example.com\t-\tscm
-
-Enrollments:
-  Bitergia\t1999-01-01 00:00:00\t2000-01-01 00:00:00
-  Bitergia\t2006-01-01 00:00:00\t2008-01-01 00:00:00
   Example\t1900-01-01 00:00:00\t2100-01-01 00:00:00"""
 
 
@@ -203,7 +203,7 @@ class TestShowCommand(TestShowCaseBase):
     def test_show_uuid(self):
         """Check show using a uuid"""
 
-        code = self.cmd.run('52e0aa0a14826627e633fd15332988686b730ab3')
+        code = self.cmd.run('17ab00ed3825ec2f50483e33c88df223264182ba')
         self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, SHOW_UUID_OUTPUT)
@@ -220,7 +220,7 @@ class TestShowCommand(TestShowCaseBase):
         """When the UUID is given, term parameter is ignored"""
 
         code = self.cmd.run('--term', 'jsmith',
-                            '52e0aa0a14826627e633fd15332988686b730ab3')
+                            '17ab00ed3825ec2f50483e33c88df223264182ba')
         self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, SHOW_UUID_OUTPUT)
@@ -251,7 +251,7 @@ class TestShow(TestShowCaseBase):
     def test_show_uuid(self):
         """Check show using a UUID"""
 
-        code = self.cmd.show(uuid='52e0aa0a14826627e633fd15332988686b730ab3')
+        code = self.cmd.show(uuid='17ab00ed3825ec2f50483e33c88df223264182ba')
         self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, SHOW_UUID_OUTPUT)
@@ -275,7 +275,7 @@ class TestShow(TestShowCaseBase):
     def test_show_uuid_with_term(self):
         """When the UUID is given, term parameter is ignored"""
 
-        code = self.cmd.show(uuid='52e0aa0a14826627e633fd15332988686b730ab3',
+        code = self.cmd.show(uuid='17ab00ed3825ec2f50483e33c88df223264182ba',
                              term='jsmith')
         self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()

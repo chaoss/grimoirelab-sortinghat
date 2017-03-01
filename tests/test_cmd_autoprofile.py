@@ -38,8 +38,8 @@ from sortinghat.exceptions import CODE_NOT_FOUND_ERROR
 from tests.base import TestCommandCaseBase
 
 
-PROFILE_AUTOCOMPLETE = """unique identity 02f161840469eb5348dec798166a171b34f0bc8a profile updated using mls source
-unique identity 65fa77134a2d0bb4ed9252b853d9074e4d4c2eb4 profile updated using its source"""
+PROFILE_AUTOCOMPLETE = """unique identity eb10fb9519d69d75a6cdcd76707943a513685c09 profile updated using its source
+unique identity ffefc2e3f2a255e9450ac9e2d36f37c28f51bd73 profile updated using mls source"""
 
 
 class TestAutoProfileCaseBase(TestCommandCaseBase):
@@ -108,21 +108,21 @@ class TestAutoProfileCommand(TestAutoProfileCaseBase):
 
         uids = api.unique_identities(self.db)
 
-        # It mixes the information of the identities with
-        # maximum priority, using the longest name value
-        self.assertEqual(uids[0].uuid, '02f161840469eb5348dec798166a171b34f0bc8a')
-        self.assertEqual(uids[0].profile.name, 'John Smith')
-        self.assertEqual(uids[0].profile.email, 'jsmith@example.com')
-
         # Unique identities without identities from
         # the given sources are not updated
-        self.assertEqual(uids[1].uuid, '52e0aa0a14826627e633fd15332988686b730ab3')
-        self.assertEqual(uids[1].profile, None)
+        self.assertEqual(uids[0].uuid, '17ab00ed3825ec2f50483e33c88df223264182ba')
+        self.assertEqual(uids[0].profile, None)
 
         # Only one source available
-        self.assertEqual(uids[2].uuid, '65fa77134a2d0bb4ed9252b853d9074e4d4c2eb4')
-        self.assertEqual(uids[2].profile.name, 'jdoe')
-        self.assertEqual(uids[2].profile.email, None)
+        self.assertEqual(uids[1].uuid, 'eb10fb9519d69d75a6cdcd76707943a513685c09')
+        self.assertEqual(uids[1].profile.name, 'jdoe')
+        self.assertEqual(uids[1].profile.email, None)
+
+        # It mixes the information of the identities with
+        # maximum priority, using the longest name value
+        self.assertEqual(uids[2].uuid, 'ffefc2e3f2a255e9450ac9e2d36f37c28f51bd73')
+        self.assertEqual(uids[2].profile.name, 'John Smith')
+        self.assertEqual(uids[2].profile.email, 'jsmith@example.com')
 
 
 if __name__ == "__main__":

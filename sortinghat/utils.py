@@ -124,15 +124,16 @@ def uuid(source, email=None, name=None, username=None):
 
     Based on the input data, the function will return the UUID associated
     to an identity. On this version, the UUID will be the SHA1 of
-    "source:email:name:username" string. Future versions will use UUID
-    standard.
+    "source:email:name:username" string. This string is case insensitive,
+    which means same values for the input parameters in upper or lower
+    case will produce the same UUID.
 
     :param source: data source
     :param email: email of the identity
     :param name: full name of the identity
     :param username: user name used by the identity
 
-    :returns: a universal an unique identifier
+    :returns: a universal unique identifier for Sorting Hat
 
     :raises ValueError: when source is None or empty; each one of the
         parameters is None; parameters are empty.
@@ -145,9 +146,9 @@ def uuid(source, email=None, name=None, username=None):
         raise ValueError("identity data cannot be None or empty")
 
     s = ':'.join((to_unicode(source), to_unicode(email),
-                  to_unicode(name), to_unicode(username)))
+                  to_unicode(name), to_unicode(username))).lower()
 
     sha1 = hashlib.sha1(s.encode('UTF-8'))
-    uuid = sha1.hexdigest()
+    uuid_ = sha1.hexdigest()
 
-    return uuid
+    return uuid_

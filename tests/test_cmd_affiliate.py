@@ -36,14 +36,14 @@ from sortinghat.cmd.affiliate import Affiliate
 from tests.base import TestCommandCaseBase
 
 
-AFFILIATE_OUTPUT = """Unique identity 52e0aa0a14826627e633fd15332988686b730ab3 (jroe@example.com) affiliated to Example
-Unique identity 52e0aa0a14826627e633fd15332988686b730ab3 (jroe@bitergia.com) affiliated to Bitergia
-Unique identity 5b59daf41755fa6f65c1c85b0a75ca138c1baaa6 (jsmith@us.example.com) affiliated to Example"""
+AFFILIATE_OUTPUT = """Unique identity 17ab00ed3825ec2f50483e33c88df223264182ba (jroe@example.com) affiliated to Example
+Unique identity 17ab00ed3825ec2f50483e33c88df223264182ba (jroe@bitergia.com) affiliated to Bitergia
+Unique identity dc31d2afbee88a6d1dbc1ef05ec827b878067744 (jsmith@us.example.com) affiliated to Example"""
 
-AFFILIATE_OUTPUT_ALT = """Unique identity 52e0aa0a14826627e633fd15332988686b730ab3 (jroe@example.com) affiliated to Example
-Unique identity 52e0aa0a14826627e633fd15332988686b730ab3 (jroe@bitergia.com) affiliated to Bitergia
-Unique identity 5b59daf41755fa6f65c1c85b0a75ca138c1baaa6 (jsmith@us.example.com) affiliated to Example
-Unique identity fcc708d84d4e948ea10e594a55652f5fcbd5a339 (janedoe@it.u.example.com) affiliated to Example Alt"""
+AFFILIATE_OUTPUT_ALT = """Unique identity 108f508fea9861d86c8d07a197489cc630bec446 (janedoe@it.u.example.com) affiliated to Example Alt
+Unique identity 17ab00ed3825ec2f50483e33c88df223264182ba (jroe@example.com) affiliated to Example
+Unique identity 17ab00ed3825ec2f50483e33c88df223264182ba (jroe@bitergia.com) affiliated to Bitergia
+Unique identity dc31d2afbee88a6d1dbc1ef05ec827b878067744 (jsmith@us.example.com) affiliated to Example"""
 
 AFFILIATE_EMPTY_OUTPUT = ""
 

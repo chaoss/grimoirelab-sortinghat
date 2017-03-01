@@ -230,27 +230,52 @@ class TestUUID(unittest.TestCase):
 
         result = uuid('scm', email='jsmith@example.com',
                       name='John Smith', username='jsmith')
-        self.assertEqual(result, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
+        self.assertEqual(result, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
 
         result = uuid('scm', email='jsmith@example.com')
-        self.assertEqual(result, 'a4d4845e1b1e0edb85e37b04553026a6b76fc4ac')
+        self.assertEqual(result, '334da68fcd3da4e799791f73dfada2afb22648c6')
 
         result= uuid('scm', email='', name='John Smith',
                      username='jsmith')
-        self.assertEqual(result, 'b63e8e4e67381271e67e55d46a63b63fc306119f')
+        self.assertEqual(result, 'a4b4591c3a2171710c157d7c278ea3cc03becf81')
 
         result = uuid('scm', email='', name='John Smith',
                       username='')
-        self.assertEqual(result, 'e2189be970c39c26b84d815f913b32ca953db940')
+        self.assertEqual(result, '76e3624e24aacae178d05352ad9a871dfaf81c13')
 
         result = uuid('scm', email='', name='', username='jsmith')
         self.assertEqual(result, '6e7ce2426673f8a23a72a343b1382dda84c0078b')
 
         result = uuid('scm', email='', name=u'John Ca\xf1as', username='jcanas')
-        self.assertEqual(result, 'ebc02af40a98d4ae76e61804cff6b383a1c7293e')
+        self.assertEqual(result, '3ff97085a174a1a0293829a8ef3a8dbccd9242cc')
 
         result = uuid('scm', email='', name="Max Müster", username='mmuester')
-        self.assertEqual(result, 'b16c494e93c791b4805ea0bdb4eca39ee033a759')
+        self.assertEqual(result, '3cd06c161dde3d84fde68d7c6638c1e40dc8e01b')
+
+    def test_case_insensitive(self):
+        """Check if same values in lower or upper case produce the same UUID"""
+
+        uuid_a = uuid('scm', email='jsmith@example.com',
+                      name='John Smith', username='jsmith')
+        uuid_b = uuid('SCM', email='jsmith@example.com',
+                      name='John Smith', username='jsmith')
+
+        self.assertEqual(uuid_a, uuid_b)
+
+        uuid_c = uuid('scm', email='jsmith@example.com',
+                      name='john smith', username='jsmith')
+
+        self.assertEqual(uuid_c, uuid_a)
+
+        uuid_d = uuid('scm', email='jsmith@example.com',
+                      name='John Smith', username='JSmith')
+
+        self.assertEqual(uuid_d, uuid_a)
+
+        uuid_e = uuid('scm', email='JSMITH@example.com',
+                      name='John Smith', username='jsmith')
+
+        self.assertEqual(uuid_e, uuid_a)
 
     def test_none_source(self):
         """Check whether uuid cannot be obtained giving a None source"""

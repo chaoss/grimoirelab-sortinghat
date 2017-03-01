@@ -62,8 +62,8 @@ Entry  added to the blacklist
 Entry  added to the blacklist
 2/2 blacklist entries loaded
 Loading unique identities...
-+ 03e12d00e37fd45593c49a5a5a1652deca4cf302 (old 03e12d00e37fd45593c49a5a5a1652deca4cf302) loaded
-+ 52e0aa0a14826627e633fd15332988686b730ab3 (old 52e0aa0a14826627e633fd15332988686b730ab3) loaded
++ a9b403e150dd4af8953a52a4bb841051e4b705d9 (old 03e12d00e37fd45593c49a5a5a1652deca4cf302) loaded
++ 17ab00ed3825ec2f50483e33c88df223264182ba (old 52e0aa0a14826627e633fd15332988686b730ab3) loaded
 2/3 unique identities loaded"""
 
 # Identities outputs
@@ -73,8 +73,8 @@ Entry  added to the blacklist
 Entry  added to the blacklist
 2/2 blacklist entries loaded
 Loading unique identities...
-+ 03e12d00e37fd45593c49a5a5a1652deca4cf302 (old 03e12d00e37fd45593c49a5a5a1652deca4cf302) loaded
-+ 52e0aa0a14826627e633fd15332988686b730ab3 (old 52e0aa0a14826627e633fd15332988686b730ab3) loaded
++ a9b403e150dd4af8953a52a4bb841051e4b705d9 (old 03e12d00e37fd45593c49a5a5a1652deca4cf302) loaded
++ 17ab00ed3825ec2f50483e33c88df223264182ba (old 52e0aa0a14826627e633fd15332988686b730ab3) loaded
 2/3 unique identities loaded"""
 
 LOAD_IDENTITIES_OUTPUT_ERROR = """Error: not enough info to load 0000000000000000000000000000000000000000 unique identity. Skipping."""
@@ -283,49 +283,12 @@ class TestLoadIdentities(TestLoadCaseBase):
         uids = api.unique_identities(self.db)
         self.assertEqual(len(uids), 2)
 
-        # John Smith
-        uid = uids[0]
-        self.assertEqual(uid.uuid, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
-
-        ids = self.sort_identities(uid.identities)
-        self.assertEqual(len(ids), 2)
-
-        prf = uid.profile
-        self.assertEqual(prf.uuid, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
-        self.assertEqual(prf.name, None)
-        self.assertEqual(prf.email, 'jsmith@example.com')
-        self.assertEqual(prf.is_bot, True)
-        self.assertEqual(prf.country_code, None)
-        self.assertEqual(prf.country, None)
-
-        id0 = ids[0]
-        self.assertEqual(id0.id, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
-        self.assertEqual(id0.name, 'John Smith')
-        self.assertEqual(id0.email, 'jsmith@example.com')
-        self.assertEqual(id0.username, 'jsmith')
-        self.assertEqual(id0.source, 'scm')
-
-        id1 = ids[1]
-        self.assertEqual(id1.id, '75d95d6c8492fd36d24a18bd45d62161e05fbc97')
-        self.assertEqual(id1.name, 'John Smith')
-        self.assertEqual(id1.email, 'jsmith@example.com')
-        self.assertEqual(id1.username, None)
-        self.assertEqual(id1.source, 'scm')
-
-        enrollments = api.enrollments(self.db, uid.uuid)
-        self.assertEqual(len(enrollments), 1)
-
-        rol0 = enrollments[0]
-        self.assertEqual(rol0.organization.name, 'Example')
-        self.assertEqual(rol0.start, datetime.datetime(1900, 1, 1, 0, 0))
-        self.assertEqual(rol0.end, datetime.datetime(2100, 1, 1, 0, 0))
-
         # Jane Roe
-        uid = uids[1]
-        self.assertEqual(uid.uuid, '52e0aa0a14826627e633fd15332988686b730ab3')
+        uid = uids[0]
+        self.assertEqual(uid.uuid, '17ab00ed3825ec2f50483e33c88df223264182ba')
 
         prf = uid.profile
-        self.assertEqual(prf.uuid, '52e0aa0a14826627e633fd15332988686b730ab3')
+        self.assertEqual(prf.uuid, '17ab00ed3825ec2f50483e33c88df223264182ba')
         self.assertEqual(prf.name, 'Jane Roe')
         self.assertEqual(prf.email, 'jroe@example.com')
         self.assertEqual(prf.is_bot, False)
@@ -338,21 +301,21 @@ class TestLoadIdentities(TestLoadCaseBase):
         self.assertEqual(len(ids), 3)
 
         id0 = ids[0]
-        self.assertEqual(id0.id, '52e0aa0a14826627e633fd15332988686b730ab3')
+        self.assertEqual(id0.id, '17ab00ed3825ec2f50483e33c88df223264182ba')
         self.assertEqual(id0.name, 'Jane Roe')
         self.assertEqual(id0.email, 'jroe@example.com')
         self.assertEqual(id0.username, 'jroe')
         self.assertEqual(id0.source, 'scm')
 
         id1 = ids[1]
-        self.assertEqual(id1.id, 'cbfb7bd31d556322c640f5bc7b31d58a12b15904')
+        self.assertEqual(id1.id, '22d1b20763c6f5822bdda8508957486c547bb9de')
         self.assertEqual(id1.name, None)
         self.assertEqual(id1.email, 'jroe@bitergia.com')
         self.assertEqual(id1.username, None)
         self.assertEqual(id1.source, 'unknown')
 
         id2 = ids[2]
-        self.assertEqual(id2.id, 'fef873c50a48cfc057f7aa19f423f81889a8907f')
+        self.assertEqual(id2.id, '322397ed782a798ffd9d0bc7e293df4292fe075d')
         self.assertEqual(id2.name, None)
         self.assertEqual(id2.email, 'jroe@example.com')
         self.assertEqual(id2.username, None)
@@ -376,6 +339,43 @@ class TestLoadIdentities(TestLoadCaseBase):
         self.assertEqual(rol2.start, datetime.datetime(1900, 1, 1, 0, 0))
         self.assertEqual(rol2.end, datetime.datetime(2100, 1, 1, 0, 0))
 
+        # John Smith
+        uid = uids[1]
+        self.assertEqual(uid.uuid, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+
+        ids = self.sort_identities(uid.identities)
+        self.assertEqual(len(ids), 2)
+
+        prf = uid.profile
+        self.assertEqual(prf.uuid, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        self.assertEqual(prf.name, None)
+        self.assertEqual(prf.email, 'jsmith@example.com')
+        self.assertEqual(prf.is_bot, True)
+        self.assertEqual(prf.country_code, None)
+        self.assertEqual(prf.country, None)
+
+        id0 = ids[0]
+        self.assertEqual(id0.id, '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
+        self.assertEqual(id0.name, 'John Smith')
+        self.assertEqual(id0.email, 'jsmith@example.com')
+        self.assertEqual(id0.username, None)
+        self.assertEqual(id0.source, 'scm')
+
+        id1 = ids[1]
+        self.assertEqual(id1.id, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        self.assertEqual(id1.name, 'John Smith')
+        self.assertEqual(id1.email, 'jsmith@example.com')
+        self.assertEqual(id1.username, 'jsmith')
+        self.assertEqual(id1.source, 'scm')
+
+        enrollments = api.enrollments(self.db, uid.uuid)
+        self.assertEqual(len(enrollments), 1)
+
+        rol0 = enrollments[0]
+        self.assertEqual(rol0.organization.name, 'Example')
+        self.assertEqual(rol0.start, datetime.datetime(1900, 1, 1, 0, 0))
+        self.assertEqual(rol0.end, datetime.datetime(2100, 1, 1, 0, 0))
+
     def test_valid_identities_with_default_matching(self):
         """Check insertion, matching and merging of valid data"""
 
@@ -398,59 +398,12 @@ class TestLoadIdentities(TestLoadCaseBase):
         uids = api.unique_identities(self.db)
         self.assertEqual(len(uids), 2)
 
-        # John Smith
-        uid = uids[0]
-        self.assertEqual(uid.uuid, '23fe3a011190a27a7c5cf6f8925de38ff0994d8d')
-
-        ids = self.sort_identities(uid.identities)
-        self.assertEqual(len(ids), 3)
-
-        # The profile was merged
-        prf = uid.profile
-        self.assertEqual(prf.uuid, '23fe3a011190a27a7c5cf6f8925de38ff0994d8d')
-        self.assertEqual(prf.name, 'John Smith')
-        self.assertEqual(prf.email, 'jsmith@example.com')
-        self.assertEqual(prf.is_bot, True)
-        self.assertEqual(prf.country_code, 'US')
-        self.assertEqual(prf.country.code, 'US')
-        self.assertEqual(prf.country.name, 'United States of America')
-
-        id0 = ids[0]
-        self.assertEqual(id0.id, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
-        self.assertEqual(id0.name, 'John Smith')
-        self.assertEqual(id0.email, 'jsmith@example.com')
-        self.assertEqual(id0.username, 'jsmith')
-        self.assertEqual(id0.source, 'scm')
-
-        id1 = ids[1]
-        self.assertEqual(id1.id, '23fe3a011190a27a7c5cf6f8925de38ff0994d8d')
-        self.assertEqual(id1.name, None)
-        self.assertEqual(id1.email, 'jsmith@example.com')
-        self.assertEqual(id1.username, None)
-        self.assertEqual(id1.source, 'unknown')
-
-        id2 = ids[2]
-        self.assertEqual(id2.id, '75d95d6c8492fd36d24a18bd45d62161e05fbc97')
-        self.assertEqual(id2.name, 'John Smith')
-        self.assertEqual(id2.email, 'jsmith@example.com')
-        self.assertEqual(id2.username, None)
-        self.assertEqual(id2.source, 'scm')
-
-        # Enrollments were merged
-        enrollments = api.enrollments(self.db, uid.uuid)
-        self.assertEqual(len(enrollments), 1)
-
-        rol0 = enrollments[0]
-        self.assertEqual(rol0.organization.name, 'Example')
-        self.assertEqual(rol0.start, datetime.datetime(2000, 1, 1, 0, 0))
-        self.assertEqual(rol0.end, datetime.datetime(2100, 1, 1, 0, 0))
-
         # Jane Roe
-        uid = uids[1]
-        self.assertEqual(uid.uuid, '52e0aa0a14826627e633fd15332988686b730ab3')
+        uid = uids[0]
+        self.assertEqual(uid.uuid, '17ab00ed3825ec2f50483e33c88df223264182ba')
 
         prf = uid.profile
-        self.assertEqual(prf.uuid, '52e0aa0a14826627e633fd15332988686b730ab3')
+        self.assertEqual(prf.uuid, '17ab00ed3825ec2f50483e33c88df223264182ba')
         self.assertEqual(prf.name, 'Jane Roe')
         self.assertEqual(prf.email, 'jroe@example.com')
         self.assertEqual(prf.is_bot, False)
@@ -463,21 +416,21 @@ class TestLoadIdentities(TestLoadCaseBase):
         self.assertEqual(len(ids), 3)
 
         id0 = ids[0]
-        self.assertEqual(id0.id, '52e0aa0a14826627e633fd15332988686b730ab3')
+        self.assertEqual(id0.id, '17ab00ed3825ec2f50483e33c88df223264182ba')
         self.assertEqual(id0.name, 'Jane Roe')
         self.assertEqual(id0.email, 'jroe@example.com')
         self.assertEqual(id0.username, 'jroe')
         self.assertEqual(id0.source, 'scm')
 
         id1 = ids[1]
-        self.assertEqual(id1.id, 'cbfb7bd31d556322c640f5bc7b31d58a12b15904')
+        self.assertEqual(id1.id, '22d1b20763c6f5822bdda8508957486c547bb9de')
         self.assertEqual(id1.name, None)
         self.assertEqual(id1.email, 'jroe@bitergia.com')
         self.assertEqual(id1.username, None)
         self.assertEqual(id1.source, 'unknown')
 
         id2 = ids[2]
-        self.assertEqual(id2.id, 'fef873c50a48cfc057f7aa19f423f81889a8907f')
+        self.assertEqual(id2.id, '322397ed782a798ffd9d0bc7e293df4292fe075d')
         self.assertEqual(id2.name, None)
         self.assertEqual(id2.email, 'jroe@example.com')
         self.assertEqual(id2.username, None)
@@ -485,6 +438,53 @@ class TestLoadIdentities(TestLoadCaseBase):
 
         enrollments = api.enrollments(self.db, uid.uuid)
         self.assertEqual(len(enrollments), 3)
+
+        # John Smith
+        uid = uids[1]
+        self.assertEqual(uid.uuid, '2371a34a0ac65fbd9d631464ee41d583ec0e1e88')
+
+        ids = self.sort_identities(uid.identities)
+        self.assertEqual(len(ids), 3)
+
+        # The profile was merged
+        prf = uid.profile
+        self.assertEqual(prf.uuid, '2371a34a0ac65fbd9d631464ee41d583ec0e1e88')
+        self.assertEqual(prf.name, 'John Smith')
+        self.assertEqual(prf.email, 'jsmith@example.com')
+        self.assertEqual(prf.is_bot, True)
+        self.assertEqual(prf.country_code, 'US')
+        self.assertEqual(prf.country.code, 'US')
+        self.assertEqual(prf.country.name, 'United States of America')
+
+        id0 = ids[0]
+        self.assertEqual(id0.id, '2371a34a0ac65fbd9d631464ee41d583ec0e1e88')
+        self.assertEqual(id0.name, None)
+        self.assertEqual(id0.email, 'jsmith@example.com')
+        self.assertEqual(id0.username, None)
+        self.assertEqual(id0.source, 'unknown')
+
+        id1 = ids[1]
+        self.assertEqual(id1.id, '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
+        self.assertEqual(id1.name, 'John Smith')
+        self.assertEqual(id1.email, 'jsmith@example.com')
+        self.assertEqual(id1.username, None)
+        self.assertEqual(id1.source, 'scm')
+
+        id2 = ids[2]
+        self.assertEqual(id2.id, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        self.assertEqual(id2.name, 'John Smith')
+        self.assertEqual(id2.email, 'jsmith@example.com')
+        self.assertEqual(id2.username, 'jsmith')
+        self.assertEqual(id2.source, 'scm')
+
+        # Enrollments were merged
+        enrollments = api.enrollments(self.db, uid.uuid)
+        self.assertEqual(len(enrollments), 1)
+
+        rol0 = enrollments[0]
+        self.assertEqual(rol0.organization.name, 'Example')
+        self.assertEqual(rol0.start, datetime.datetime(2000, 1, 1, 0, 0))
+        self.assertEqual(rol0.end, datetime.datetime(2100, 1, 1, 0, 0))
 
     def test_match_new_identities(self):
         """Check whether it matches only new identities"""
@@ -516,16 +516,16 @@ class TestLoadIdentities(TestLoadCaseBase):
         self.assertEqual(len(uids), 3)
 
         # Jane Roe
-        uid = uids[2]
-        self.assertEqual(uid.uuid, '52e0aa0a14826627e633fd15332988686b730ab3')
+        uid = uids[0]
+        self.assertEqual(uid.uuid, '17ab00ed3825ec2f50483e33c88df223264182ba')
 
         ids = self.sort_identities(uid.identities)
         self.assertEqual(len(ids), 4)
 
-        self.assertEqual(ids[0].id, '52e0aa0a14826627e633fd15332988686b730ab3')
-        self.assertEqual(ids[1].id, '684bb801b0ab02a8c0b6867711a994c695cbed4a')
-        self.assertEqual(ids[2].id, 'cbfb7bd31d556322c640f5bc7b31d58a12b15904')
-        self.assertEqual(ids[3].id, 'fef873c50a48cfc057f7aa19f423f81889a8907f')
+        self.assertEqual(ids[0].id, '17ab00ed3825ec2f50483e33c88df223264182ba')
+        self.assertEqual(ids[1].id, '22d1b20763c6f5822bdda8508957486c547bb9de')
+        self.assertEqual(ids[2].id, '322397ed782a798ffd9d0bc7e293df4292fe075d')
+        self.assertEqual(ids[3].id, '8ff87accaf518070bdb494b87f4d5a10e7605b47')
 
         # Now, if we reload again the file but setting 'match_new' to false,
         # the identity that we inserted before will match "John Smith"
@@ -538,16 +538,16 @@ class TestLoadIdentities(TestLoadCaseBase):
         self.assertEqual(len(uids), 2)
 
         # John Smith
-        uid = uids[0]
-        self.assertEqual(uid.uuid, '23fe3a011190a27a7c5cf6f8925de38ff0994d8d')
+        uid = uids[1]
+        self.assertEqual(uid.uuid, '2371a34a0ac65fbd9d631464ee41d583ec0e1e88')
 
         ids = self.sort_identities(uid.identities)
         self.assertEqual(len(ids), 3)
 
-        self.assertEqual(ids[0].id, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
-        self.assertEqual(ids[1].id, '23fe3a011190a27a7c5cf6f8925de38ff0994d8d')
-        self.assertEqual(ids[1].id, jsmith_uuid)
-        self.assertEqual(ids[2].id, '75d95d6c8492fd36d24a18bd45d62161e05fbc97')
+        self.assertEqual(ids[0].id, '2371a34a0ac65fbd9d631464ee41d583ec0e1e88')
+        self.assertEqual(ids[0].id, jsmith_uuid)
+        self.assertEqual(ids[1].id, '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
+        self.assertEqual(ids[2].id, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
 
     def test_valid_identities_already_exist(self):
         """Check method when an identity already exists but with distinct UUID"""
@@ -569,12 +569,12 @@ class TestLoadIdentities(TestLoadCaseBase):
         self.assertEqual(len(uids), 2)
 
         # John Smith
-        uid = uids[0]
-        self.assertEqual(uid.uuid, '23fe3a011190a27a7c5cf6f8925de38ff0994d8d')
+        uid = uids[1]
+        self.assertEqual(uid.uuid, '2371a34a0ac65fbd9d631464ee41d583ec0e1e88')
 
         # The profile was not updated because it was already available
         prf = uid.profile
-        self.assertEqual(prf.uuid, '23fe3a011190a27a7c5cf6f8925de38ff0994d8d')
+        self.assertEqual(prf.uuid, '2371a34a0ac65fbd9d631464ee41d583ec0e1e88')
         self.assertEqual(prf.name, 'John Smith')
         self.assertEqual(prf.email, None)
         self.assertEqual(prf.is_bot, False)
@@ -586,24 +586,24 @@ class TestLoadIdentities(TestLoadCaseBase):
         self.assertEqual(len(ids), 3)
 
         id0 = ids[0]
-        self.assertEqual(id0.id, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
-        self.assertEqual(id0.name, 'John Smith')
+        self.assertEqual(id0.id, '2371a34a0ac65fbd9d631464ee41d583ec0e1e88')
+        self.assertEqual(id0.name, None)
         self.assertEqual(id0.email, 'jsmith@example.com')
-        self.assertEqual(id0.username, 'jsmith')
-        self.assertEqual(id0.source, 'scm')
+        self.assertEqual(id0.username, None)
+        self.assertEqual(id0.source, 'unknown')
 
         id1 = ids[1]
-        self.assertEqual(id1.id, '23fe3a011190a27a7c5cf6f8925de38ff0994d8d')
-        self.assertEqual(id1.name, None)
+        self.assertEqual(id1.id, '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
+        self.assertEqual(id1.name, 'John Smith')
         self.assertEqual(id1.email, 'jsmith@example.com')
         self.assertEqual(id1.username, None)
-        self.assertEqual(id1.source, 'unknown')
+        self.assertEqual(id1.source, 'scm')
 
         id2 = ids[2]
-        self.assertEqual(id2.id, '75d95d6c8492fd36d24a18bd45d62161e05fbc97')
+        self.assertEqual(id2.id, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
         self.assertEqual(id2.name, 'John Smith')
         self.assertEqual(id2.email, 'jsmith@example.com')
-        self.assertEqual(id2.username, None)
+        self.assertEqual(id2.username, 'jsmith')
         self.assertEqual(id2.source, 'scm')
 
     def test_create_profile_from_identities(self):
@@ -618,12 +618,24 @@ class TestLoadIdentities(TestLoadCaseBase):
         uids = api.unique_identities(self.db)
         self.assertEqual(len(uids), 3)
 
-        # John Smith
+        # Jane Rae
         uid = uids[0]
-        self.assertEqual(uid.uuid, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
+        self.assertEqual(uid.uuid, '17ab00ed3825ec2f50483e33c88df223264182ba')
 
         prf = uid.profile
-        self.assertEqual(prf.uuid, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
+        self.assertEqual(prf.uuid, '17ab00ed3825ec2f50483e33c88df223264182ba')
+        self.assertEqual(prf.name, 'Jane Roe')
+        self.assertEqual(prf.email, 'jroe@example.com')
+        self.assertEqual(prf.is_bot, False)
+        self.assertEqual(prf.country_code, None)
+        self.assertEqual(prf.country, None)
+
+        # John Smith
+        uid = uids[1]
+        self.assertEqual(uid.uuid, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+
+        prf = uid.profile
+        self.assertEqual(prf.uuid, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
         self.assertEqual(prf.name, 'John Smith')
         self.assertEqual(prf.email, 'jsmith@example.com')
         self.assertEqual(prf.is_bot, False)
@@ -631,25 +643,13 @@ class TestLoadIdentities(TestLoadCaseBase):
         self.assertEqual(prf.country, None)
 
         # John Doe
-        uid = uids[1]
-        self.assertEqual(uid.uuid, '3c3c71c67952135eb92a9cace538ffbe6cb39d88')
+        uid = uids[2]
+        self.assertEqual(uid.uuid, 'c2f8c3d7b49cdbfb0af9fc9db2ca098ec6c06c2f')
 
         prf = uid.profile
-        self.assertEqual(prf.uuid, '3c3c71c67952135eb92a9cace538ffbe6cb39d88')
+        self.assertEqual(prf.uuid, 'c2f8c3d7b49cdbfb0af9fc9db2ca098ec6c06c2f')
         self.assertEqual(prf.name, 'jdoe')
         self.assertEqual(prf.email, 'jdoe@example.com')
-        self.assertEqual(prf.is_bot, False)
-        self.assertEqual(prf.country_code, None)
-        self.assertEqual(prf.country, None)
-
-        # Jane Rae
-        uid = uids[2]
-        self.assertEqual(uid.uuid, '52e0aa0a14826627e633fd15332988686b730ab3')
-
-        prf = uid.profile
-        self.assertEqual(prf.uuid, '52e0aa0a14826627e633fd15332988686b730ab3')
-        self.assertEqual(prf.name, 'Jane Roe')
-        self.assertEqual(prf.email, 'jroe@example.com')
         self.assertEqual(prf.is_bot, False)
         self.assertEqual(prf.country_code, None)
         self.assertEqual(prf.country, None)
@@ -669,7 +669,7 @@ class TestLoadIdentities(TestLoadCaseBase):
 
         # Jane Roe
         uid = uids[0]
-        self.assertEqual(uid.uuid, '52e0aa0a14826627e633fd15332988686b730ab3')
+        self.assertEqual(uid.uuid, '17ab00ed3825ec2f50483e33c88df223264182ba')
 
         enrollments = api.enrollments(self.db, uid.uuid)
         self.assertEqual(len(enrollments), 2)

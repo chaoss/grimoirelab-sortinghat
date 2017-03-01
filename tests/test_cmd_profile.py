@@ -41,14 +41,14 @@ from tests.base import TestCommandCaseBase
 PROFILE_UUID_NOT_FOUND_ERROR = "Error: FFFFFFFFFFFFFFF not found in the registry"
 PROFILE_COUNTRY_NOT_FOUND_ERROR = "Error: country code ES not found in the registry"
 
-PROFILE_OUTPUT = """unique identity 52e0aa0a14826627e633fd15332988686b730ab3
+PROFILE_OUTPUT = """unique identity 17ab00ed3825ec2f50483e33c88df223264182ba
 
 Profile:
     * Name: Jane Roe
     * E-Mail: jroe@example.com
     * Bot: Yes
     * Country: US - United States of America
-unique identity 52e0aa0a14826627e633fd15332988686b730ab3
+unique identity 17ab00ed3825ec2f50483e33c88df223264182ba
 
 Profile:
     * Name: Jane Roe
@@ -56,7 +56,7 @@ Profile:
     * Bot: No
     * Country: US - United States of America"""
 
-PROFILE_UUID_OUTPUT = """unique identity 52e0aa0a14826627e633fd15332988686b730ab3
+PROFILE_UUID_OUTPUT = """unique identity 17ab00ed3825ec2f50483e33c88df223264182ba
 
 Profile:
     * Name: -
@@ -88,12 +88,12 @@ class TestProfileCommand(TestProfileCaseBase):
     def test_profile(self):
         """Check profile output"""
 
-        code = self.cmd.run('52e0aa0a14826627e633fd15332988686b730ab3',
+        code = self.cmd.run('17ab00ed3825ec2f50483e33c88df223264182ba',
                             '--name', 'Jane Roe', '--email', 'jroe@example.com',
                             '--bot', '--country', 'US')
         self.assertEqual(code, CMD_SUCCESS)
 
-        code = self.cmd.run('52e0aa0a14826627e633fd15332988686b730ab3',
+        code = self.cmd.run('17ab00ed3825ec2f50483e33c88df223264182ba',
                             '--no-bot')
         self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
@@ -102,7 +102,7 @@ class TestProfileCommand(TestProfileCaseBase):
     def test_profile_uuid(self):
         """Check profile output using a uuid"""
 
-        code = self.cmd.run('52e0aa0a14826627e633fd15332988686b730ab3')
+        code = self.cmd.run('17ab00ed3825ec2f50483e33c88df223264182ba')
         self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, PROFILE_UUID_OUTPUT)
@@ -118,7 +118,7 @@ class TestProfileCommand(TestProfileCaseBase):
     def test_not_found_country(self):
         """Check whether it raises an error when the code country is not available"""
 
-        code = self.cmd.run('52e0aa0a14826627e633fd15332988686b730ab3', '--country', 'ES')
+        code = self.cmd.run('17ab00ed3825ec2f50483e33c88df223264182ba', '--country', 'ES')
         self.assertEqual(code, CODE_NOT_FOUND_ERROR)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, PROFILE_COUNTRY_NOT_FOUND_ERROR)

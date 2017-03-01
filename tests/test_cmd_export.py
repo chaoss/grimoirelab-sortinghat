@@ -256,10 +256,10 @@ class TestSortingHatIdentitiesExporter(TestExportCaseBase):
         self.assertEqual(len(uid0['identities']), 0)
 
         # Jane Roe
-        uid1 = uidentities['52e0aa0a14826627e633fd15332988686b730ab3']
-        self.assertEqual(uid1['uuid'], '52e0aa0a14826627e633fd15332988686b730ab3')
+        uid1 = uidentities['17ab00ed3825ec2f50483e33c88df223264182ba']
+        self.assertEqual(uid1['uuid'], '17ab00ed3825ec2f50483e33c88df223264182ba')
 
-        self.assertEqual(uid1['profile']['uuid'], '52e0aa0a14826627e633fd15332988686b730ab3')
+        self.assertEqual(uid1['profile']['uuid'], '17ab00ed3825ec2f50483e33c88df223264182ba')
         self.assertEqual(uid1['profile']['name'], 'Jane Roe')
         self.assertEqual(uid1['profile']['email'], 'jroe@example.com')
         self.assertEqual(uid1['profile']['is_bot'], False)
@@ -271,55 +271,55 @@ class TestSortingHatIdentitiesExporter(TestExportCaseBase):
         self.assertEqual(len(ids), 3)
 
         id0 = ids[0]
-        self.assertEqual(id0['id'], '52e0aa0a14826627e633fd15332988686b730ab3')
+        self.assertEqual(id0['id'], '17ab00ed3825ec2f50483e33c88df223264182ba')
         self.assertEqual(id0['name'], 'Jane Roe')
         self.assertEqual(id0['email'], 'jroe@example.com')
         self.assertEqual(id0['username'], 'jroe')
         self.assertEqual(id0['source'], 'scm')
-        self.assertEqual(id0['uuid'], '52e0aa0a14826627e633fd15332988686b730ab3')
+        self.assertEqual(id0['uuid'], '17ab00ed3825ec2f50483e33c88df223264182ba')
 
         id1 = ids[1]
-        self.assertEqual(id1['id'], 'cbfb7bd31d556322c640f5bc7b31d58a12b15904')
+        self.assertEqual(id1['id'], '22d1b20763c6f5822bdda8508957486c547bb9de')
         self.assertEqual(id1['name'], None)
         self.assertEqual(id1['email'], 'jroe@bitergia.com')
         self.assertEqual(id1['username'], None)
         self.assertEqual(id1['source'], 'unknown')
-        self.assertEqual(id1['uuid'], '52e0aa0a14826627e633fd15332988686b730ab3')
+        self.assertEqual(id1['uuid'], '17ab00ed3825ec2f50483e33c88df223264182ba')
 
         id2 = ids[2]
-        self.assertEqual(id2['id'], 'fef873c50a48cfc057f7aa19f423f81889a8907f')
+        self.assertEqual(id2['id'], '322397ed782a798ffd9d0bc7e293df4292fe075d')
         self.assertEqual(id2['name'], None)
         self.assertEqual(id2['email'], 'jroe@example.com')
         self.assertEqual(id2['username'], None)
         self.assertEqual(id2['source'], 'scm')
-        self.assertEqual(id2['uuid'], '52e0aa0a14826627e633fd15332988686b730ab3')
+        self.assertEqual(id2['uuid'], '17ab00ed3825ec2f50483e33c88df223264182ba')
 
         enrollments = uid1['enrollments']
         self.assertEqual(len(enrollments), 3)
 
         rol0 = enrollments[0]
-        self.assertEqual(rol0['uuid'], '52e0aa0a14826627e633fd15332988686b730ab3')
+        self.assertEqual(rol0['uuid'], '17ab00ed3825ec2f50483e33c88df223264182ba')
         self.assertEqual(rol0['organization'], 'Bitergia')
         self.assertEqual(rol0['start'], '1999-01-01T00:00:00')
         self.assertEqual(rol0['end'], '2000-01-01T00:00:00')
 
         rol1 = enrollments[1]
-        self.assertEqual(rol1['uuid'], '52e0aa0a14826627e633fd15332988686b730ab3')
+        self.assertEqual(rol1['uuid'], '17ab00ed3825ec2f50483e33c88df223264182ba')
         self.assertEqual(rol1['organization'], 'Bitergia')
         self.assertEqual(rol1['start'], '2006-01-01T00:00:00')
         self.assertEqual(rol1['end'], '2008-01-01T00:00:00')
 
         rol2 = enrollments[2]
-        self.assertEqual(rol2['uuid'], '52e0aa0a14826627e633fd15332988686b730ab3')
+        self.assertEqual(rol2['uuid'], '17ab00ed3825ec2f50483e33c88df223264182ba')
         self.assertEqual(rol2['organization'], 'Example')
         self.assertEqual(rol2['start'], '1900-01-01T00:00:00')
         self.assertEqual(rol2['end'], '2100-01-01T00:00:00')
 
         # John Smith
-        uid2 = uidentities['03e12d00e37fd45593c49a5a5a1652deca4cf302']
-        self.assertEqual(uid2['uuid'], '03e12d00e37fd45593c49a5a5a1652deca4cf302')
+        uid2 = uidentities['a9b403e150dd4af8953a52a4bb841051e4b705d9']
+        self.assertEqual(uid2['uuid'], 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
 
-        self.assertEqual(uid2['profile']['uuid'], '03e12d00e37fd45593c49a5a5a1652deca4cf302')
+        self.assertEqual(uid2['profile']['uuid'], 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
         self.assertEqual(uid2['profile']['name'], None)
         self.assertEqual(uid2['profile']['email'], 'jsmith@example.com')
         self.assertEqual(uid2['profile']['is_bot'], True)
@@ -328,26 +328,26 @@ class TestSortingHatIdentitiesExporter(TestExportCaseBase):
         self.assertEqual(len(ids), 2)
 
         id0 = ids[0]
-        self.assertEqual(id0['id'], '03e12d00e37fd45593c49a5a5a1652deca4cf302')
+        self.assertEqual(id0['id'], '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
         self.assertEqual(id0['name'], 'John Smith')
         self.assertEqual(id0['email'], 'jsmith@example.com')
-        self.assertEqual(id0['username'], 'jsmith')
+        self.assertEqual(id0['username'], None)
         self.assertEqual(id0['source'], 'scm')
-        self.assertEqual(id0['uuid'], '03e12d00e37fd45593c49a5a5a1652deca4cf302')
+        self.assertEqual(id0['uuid'], 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
 
         id1 = ids[1]
-        self.assertEqual(id1['id'], '75d95d6c8492fd36d24a18bd45d62161e05fbc97')
+        self.assertEqual(id1['id'], 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
         self.assertEqual(id1['name'], 'John Smith')
         self.assertEqual(id1['email'], 'jsmith@example.com')
-        self.assertEqual(id1['username'], None)
+        self.assertEqual(id1['username'], 'jsmith')
         self.assertEqual(id1['source'], 'scm')
-        self.assertEqual(id1['uuid'], '03e12d00e37fd45593c49a5a5a1652deca4cf302')
+        self.assertEqual(id1['uuid'], 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
 
         enrollments = uid2['enrollments']
         self.assertEqual(len(enrollments), 1)
 
         rol0 = enrollments[0]
-        self.assertEqual(rol0['uuid'], '03e12d00e37fd45593c49a5a5a1652deca4cf302')
+        self.assertEqual(rol0['uuid'], 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
         self.assertEqual(rol0['organization'], 'Example')
         self.assertEqual(rol0['start'], '1900-01-01T00:00:00')
         self.assertEqual(rol0['end'], '2100-01-01T00:00:00')
@@ -385,8 +385,8 @@ class TestSortingHatIdentitiesExporter(TestExportCaseBase):
         uidentities = obj['uidentities']
         self.assertEqual(len(uidentities), 1)
 
-        uid = uidentities['52e0aa0a14826627e633fd15332988686b730ab3']
-        self.assertEqual(uid['uuid'], '52e0aa0a14826627e633fd15332988686b730ab3')
+        uid = uidentities['17ab00ed3825ec2f50483e33c88df223264182ba']
+        self.assertEqual(uid['uuid'], '17ab00ed3825ec2f50483e33c88df223264182ba')
         self.assertEqual(len(uid['identities']), 3)
         self.assertEqual(len(uid['enrollments']), 3)
 

@@ -41,60 +41,61 @@ from tests.base import TestCommandCaseBase
 
 
 ADD_EXISTING_ERROR = "Error: scm-jsmith@example.com-John Smith-jsmith already exists in the registry"
+ADD_EXISTING_LOWERCASE_ERROR = "Error: scm-jsmith@example.com-john smith-jsmith already exists in the registry"
 ADD_IDENTITY_NONE_OR_EMPTY_ERROR = "Error: identity data cannot be None or empty"
 ADD_MATCHING_ERROR = "Error: mock identity matcher is not supported"
 ADD_SOURCE_NONE_ERROR = "Error: source cannot be None"
 ADD_SOURCE_EMPTY_ERROR = "Error: source cannot be an empty string"
 ADD_UUID_NOT_FOUND_ERROR = "Error: FFFFFFFFFFFFFFF not found in the registry"
 
-ADD_OUTPUT = """New identity 0b7c0ba5f9fc01e4799d684e0a1c3561b53d93d5 added to 0b7c0ba5f9fc01e4799d684e0a1c3561b53d93d5
-New identity fef873c50a48cfc057f7aa19f423f81889a8907f added to fef873c50a48cfc057f7aa19f423f81889a8907f
-New identity 7367d83759d7b12790d0a44bf615c5215aa867d4 added to 7367d83759d7b12790d0a44bf615c5215aa867d4
-New identity 02f161840469eb5348dec798166a171b34f0bc8a added to 03e12d00e37fd45593c49a5a5a1652deca4cf302"""
+ADD_OUTPUT = """New identity eda9f62ad321b1fbe5f283cc05e2484516203117 added to eda9f62ad321b1fbe5f283cc05e2484516203117
+New identity 322397ed782a798ffd9d0bc7e293df4292fe075d added to 322397ed782a798ffd9d0bc7e293df4292fe075d
+New identity d8647b37dc8f6c03936ec7f97a8c9a52bf6e01b7 added to d8647b37dc8f6c03936ec7f97a8c9a52bf6e01b7
+New identity ffefc2e3f2a255e9450ac9e2d36f37c28f51bd73 added to a9b403e150dd4af8953a52a4bb841051e4b705d9"""
 
-ADD_OUTPUT_MATCHING = """New identity 02f161840469eb5348dec798166a171b34f0bc8a added to 02f161840469eb5348dec798166a171b34f0bc8a
+ADD_OUTPUT_MATCHING = """New identity ffefc2e3f2a255e9450ac9e2d36f37c28f51bd73 added to ffefc2e3f2a255e9450ac9e2d36f37c28f51bd73
 
 New match found
 
-+ 02f161840469eb5348dec798166a171b34f0bc8a
++ ffefc2e3f2a255e9450ac9e2d36f37c28f51bd73
   * -\tjsmith@example.com\t-\tmls
 
-+ 03e12d00e37fd45593c49a5a5a1652deca4cf302
-  * John Smith\tjsmith@example.com\tjsmith\tscm
-Unique identity 02f161840469eb5348dec798166a171b34f0bc8a merged on 03e12d00e37fd45593c49a5a5a1652deca4cf302
++ 880b3dfcb3a08712e5831bddc3dfe81fc5d7b331
+  * John Smith\tjsmith@example.com\t-\tscm
+Unique identity ffefc2e3f2a255e9450ac9e2d36f37c28f51bd73 merged on 880b3dfcb3a08712e5831bddc3dfe81fc5d7b331
 
 New match found
 
-+ 03e12d00e37fd45593c49a5a5a1652deca4cf302
++ 880b3dfcb3a08712e5831bddc3dfe81fc5d7b331
+  * John Smith\tjsmith@example.com\t-\tscm
   * -\tjsmith@example.com\t-\tmls
+
++ a9b403e150dd4af8953a52a4bb841051e4b705d9
   * John Smith\tjsmith@example.com\tjsmith\tscm
+Unique identity 880b3dfcb3a08712e5831bddc3dfe81fc5d7b331 merged on a9b403e150dd4af8953a52a4bb841051e4b705d9"""
 
-+ 75d95d6c8492fd36d24a18bd45d62161e05fbc97
-  * John Smith\tjsmith@example.com\t-\tscm
-Unique identity 03e12d00e37fd45593c49a5a5a1652deca4cf302 merged on 75d95d6c8492fd36d24a18bd45d62161e05fbc97"""
-
-ADD_OUTPUT_BLACKLIST = """New identity 1be5376d8d87bc3a391459a18ec0b41d1c8080d5 added to 1be5376d8d87bc3a391459a18ec0b41d1c8080d5
+ADD_OUTPUT_BLACKLIST = """New identity c481adf086d486418e08e76bf9378db7573e25c9 added to c481adf086d486418e08e76bf9378db7573e25c9
 
 New match found
 
-+ 1be5376d8d87bc3a391459a18ec0b41d1c8080d5
++ c481adf086d486418e08e76bf9378db7573e25c9
   * John Smith\tjsmith@example.com\t-\tunknown
 
-+ 03e12d00e37fd45593c49a5a5a1652deca4cf302
-  * John Smith\tjsmith@example.com\tjsmith\tscm
-Unique identity 1be5376d8d87bc3a391459a18ec0b41d1c8080d5 merged on 03e12d00e37fd45593c49a5a5a1652deca4cf302
++ 880b3dfcb3a08712e5831bddc3dfe81fc5d7b331
+  * John Smith\tjsmith@example.com\t-\tscm
+Unique identity c481adf086d486418e08e76bf9378db7573e25c9 merged on 880b3dfcb3a08712e5831bddc3dfe81fc5d7b331
 
 New match found
 
-+ 03e12d00e37fd45593c49a5a5a1652deca4cf302
-  * John Smith\tjsmith@example.com\tjsmith\tscm
++ 880b3dfcb3a08712e5831bddc3dfe81fc5d7b331
+  * John Smith\tjsmith@example.com\t-\tscm
   * John Smith\tjsmith@example.com\t-\tunknown
 
-+ 75d95d6c8492fd36d24a18bd45d62161e05fbc97
-  * John Smith\tjsmith@example.com\t-\tscm
-Unique identity 03e12d00e37fd45593c49a5a5a1652deca4cf302 merged on 75d95d6c8492fd36d24a18bd45d62161e05fbc97
-New identity 24769e96010fa84fd7af86586c3eb6090e66e319 added to 24769e96010fa84fd7af86586c3eb6090e66e319
-New identity 9ba1f605f3621fa10d98335ddad36b77b57fae99 added to 9ba1f605f3621fa10d98335ddad36b77b57fae99"""
++ a9b403e150dd4af8953a52a4bb841051e4b705d9
+  * John Smith\tjsmith@example.com\tjsmith\tscm
+Unique identity 880b3dfcb3a08712e5831bddc3dfe81fc5d7b331 merged on a9b403e150dd4af8953a52a4bb841051e4b705d9
+New identity d53a33722a47de80cf7adcedcd4a50bc4a4a1639 added to d53a33722a47de80cf7adcedcd4a50bc4a4a1639
+New identity 18f8e6d693a2b71157bfa579cc623718b29e3240 added to 18f8e6d693a2b71157bfa579cc623718b29e3240"""
 
 
 class TestAddCaseBase(TestCommandCaseBase):
@@ -123,10 +124,10 @@ class TestAddCommand(TestAddCaseBase):
         # Source set to default value 'unknown'
         self.cmd.run('--email', 'jroe@example.com')
 
-        # Assign to John Smith - 03e12d00e37fd45593c49a5a5a1652deca4cf302
+        # Assign to John Smith - a9b403e150dd4af8953a52a4bb841051e4b705d9
         # unique identity
         code = self.cmd.run('--email', 'jsmith@example.com', '--source', 'mls',
-                            '--uuid', '03e12d00e37fd45593c49a5a5a1652deca4cf302')
+                            '--uuid', 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
         self.assertEqual(code, CMD_SUCCESS)
 
         # Check output
@@ -155,9 +156,9 @@ class TestAdd(TestAddCaseBase):
         self.cmd.add('scm', 'jroe@example.com')
         self.cmd.add('unknown', 'jroe@example.com')
 
-        # Add this identity to 'Jonh Smith' - 03e12d00e37fd45593c49a5a5a1652deca4cf302
+        # Add this identity to 'Jonh Smith' - a9b403e150dd4af8953a52a4bb841051e4b705d9
         code = self.cmd.add('mls', email='jsmith@example.com',
-                            uuid='03e12d00e37fd45593c49a5a5a1652deca4cf302')
+                            uuid='a9b403e150dd4af8953a52a4bb841051e4b705d9')
         self.assertEqual(code, CMD_SUCCESS)
 
         # Check output first
@@ -180,6 +181,12 @@ class TestAdd(TestAddCaseBase):
         self.assertEqual(code, CODE_ALREADY_EXISTS_ERROR)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, ADD_EXISTING_ERROR)
+
+        # Different case letters, but same identity
+        code = self.cmd.add('scm', 'jsmith@example.com', 'john smith', 'jsmith')
+        self.assertEqual(code, CODE_ALREADY_EXISTS_ERROR)
+        output = sys.stderr.getvalue().split('\n')[1]
+        self.assertEqual(output, ADD_EXISTING_LOWERCASE_ERROR)
 
     def test_none_or_empty_source(self):
         """Check whether new identities cannot be added when giving a None or empty source"""

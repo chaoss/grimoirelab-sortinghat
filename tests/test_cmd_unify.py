@@ -135,19 +135,19 @@ class TestUnify(TestUnifyCaseBase):
         self.assertEqual(len(after), 5)
 
         # jsmith identities with same email address
-        jsmith = after[1]
-        self.assertEqual(jsmith.uuid, '72ae225d363c83456d788da14eeb0718efe7a0fc')
+        jsmith = after[0]
+        self.assertEqual(jsmith.uuid, '178315df7941fc76a6ffb06fd5b00f6932ad9c41')
 
         identities = jsmith.identities
         identities.sort(key=lambda x: x.id)
 
         self.assertEqual(len(identities), 7)
 
-        id_ = identities[0]
+        id_ = identities[1]
         self.assertEqual(id_.email, 'JSmith@example.com')
         self.assertEqual(id_.source, 'mls')
 
-        id_ = identities[2]
+        id_ = identities[3]
         self.assertEqual(id_.email, 'jsmith@example.com')
         self.assertEqual(id_.source, 'scm')
 
@@ -167,19 +167,19 @@ class TestUnify(TestUnifyCaseBase):
         self.assertEqual(len(after), 5)
 
         # jsmith identities with same email address
-        jsmith = after[1]
-        self.assertEqual(jsmith.uuid, '72ae225d363c83456d788da14eeb0718efe7a0fc')
+        jsmith = after[0]
+        self.assertEqual(jsmith.uuid, '178315df7941fc76a6ffb06fd5b00f6932ad9c41')
 
         identities = jsmith.identities
         identities.sort(key=lambda x: x.id)
 
         self.assertEqual(len(identities), 7)
 
-        id_ = identities[0]
+        id_ = identities[1]
         self.assertEqual(id_.email, 'JSmith@example.com')
         self.assertEqual(id_.source, 'mls')
 
-        id_ = identities[2]
+        id_ = identities[3]
         self.assertEqual(id_.email, 'jsmith@example.com')
         self.assertEqual(id_.source, 'scm')
 
@@ -235,8 +235,12 @@ class TestUnify(TestUnifyCaseBase):
         self.assertEqual(len(after), 5)
 
         # Only two identities were merged due to the blacklist
-        jsmith = after[2]
-        self.assertEqual(jsmith.uuid, '75d95d6c8492fd36d24a18bd45d62161e05fbc97')
+        jsmith = after[0]
+        self.assertEqual(jsmith.uuid, '178315df7941fc76a6ffb06fd5b00f6932ad9c41')
+        self.assertEqual(len(jsmith.identities), 4)
+
+        jsmith = after[1]
+        self.assertEqual(jsmith.uuid, '400fdfaab5918d1b7e0e0efba4797abdc378bd7d')
         self.assertEqual(len(jsmith.identities), 6)
 
     def test_empty_registry(self):
