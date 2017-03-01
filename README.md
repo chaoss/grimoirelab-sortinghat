@@ -163,21 +163,42 @@ After this initialize a new database:
   $ sortinghat init <name>
 ```
 
+## Compatibility between versions
+
+SortingHat databases previous to 0.3.0dev1 are no longer compatible. The
+seed used to generate identities UUIDs changed and for that reason, these
+ids should be re-generated.
+
+The next steps will restore the database generating new UUIDs for each identity
+but keeping the data and relationships between them.
+
+1. Export data
+```
+$ sortinghat export --orgs orgs.json
+$ sortinghat export --identities identities.json
+```
+1. Remove the database and/or create a new one with `sortinghat init`
+1. Load data, this will regenerate the UUIDs
+```
+$ sortinghat load orgs.json
+$ sortinghat load identities.json
+```
+
 ## Basic commands
 
 * Add some unique identities
 ```
   $ sortinghat add --name "John Smith" --email "jsmith@example.com" --username "jsmith" --source scm
-  New identity 03e12d00e37fd45593c49a5a5a1652deca4cf302 added to 03e12d00e37fd45593c49a5a5a1652deca4cf302
+  New identity a9b403e150dd4af8953a52a4bb841051e4b705d9 to a9b403e150dd4af8953a52a4bb841051e4b705d9
 
   $ sortinghat add --name "John Doe" --email "jdoe@example.com" --source scm
-  New identity a7637bb1737bc2a83f3a3e25b9b441cba62d97c2 added to a7637bb1737bc2a83f3a3e25b9b441cba62d97c2  
+  New identity 3de180633322e853861f9ee5f50a87e007b51058 added to 3de180633322e853861f9ee5f50a87e007b51058
 ```
 
 * Set a profile
 ```
-  $ sortinghat profile --name "John Smith" --email "jsmith@example.com" --country US 03e12d00e37fd45593c49a5a5a1652deca4cf302
-  unique identity 03e12d00e37fd45593c49a5a5a1652deca4cf302
+  $ sortinghat profile --name "John Smith" --email "jsmith@example.com" --country US a9b403e150dd4af8953a52a4bb841051e4b705d9
+  unique identity a9b403e150dd4af8953a52a4bb841051e4b705d9
 
   Profile:
       * Name: John Smith
@@ -188,32 +209,32 @@ After this initialize a new database:
 
 * Add an identity to an existing unique identity
 ```
-  $ sortinghat add --username "jsmith" --source mls --uuid 03e12d00e37fd45593c49a5a5a1652deca4cf302
-  New identity 0dbc8c481b56df6da15398c83dde2f844030e978 added to 03e12d00e37fd45593c49a5a5a1652deca4cf302
+  $ sortinghat add --username "jsmith" --source mls --uuid a9b403e150dd4af8953a52a4bb841051e4b705d9
+  New identity 2612aad107cae121b45c1f46041650abc8e39421 added to a9b403e150dd4af8953a52a4bb841051e4b705d9
 ```
 
 * Merge two identities
 ```
-  $ sortinghat merge a7637bb1737bc2a83f3a3e25b9b441cba62d97c2 03e12d00e37fd45593c49a5a5a1652deca4cf302
-  Unique identity a7637bb1737bc2a83f3a3e25b9b441cba62d97c2 merged on 03e12d00e37fd45593c49a5a5a1652deca4cf302
+  $ sortinghat merge a7637bb1737bc2a83f3a3e25b9b441cba62d97c2 a9b403e150dd4af8953a52a4bb841051e4b705d9
+  Unique identity 3de180633322e853861f9ee5f50a87e007b51058 merged on a9b403e150dd4af8953a52a4bb841051e4b705d9
 ```
 
 * Move an identity into a unique identity
 ```
-  $ sortinghat mv a7637bb1737bc2a83f3a3e25b9b441cba62d97c2 a7637bb1737bc2a83f3a3e25b9b441cba62d97c2
-  New unique identity a7637bb1737bc2a83f3a3e25b9b441cba62d97c2 created. Identity moved
+  $ sortinghat mv 3de180633322e853861f9ee5f50a87e007b51058 3de180633322e853861f9ee5f50a87e007b51058
+  New unique identity 3de180633322e853861f9ee5f50a87e007b51058 created. Identity moved
 ```
 
 * Remove a unique identity
 ```
-  $ sortinghat rm a7637bb1737bc2a83f3a3e25b9b441cba62d97c2
-  Unique identity a7637bb1737bc2a83f3a3e25b9b441cba62d97c2 removed
+  $ sortinghat rm 3de180633322e853861f9ee5f50a87e007b51058
+  Unique identity 3de180633322e853861f9ee5f50a87e007b51058 removed
 ```
 
 * Show identities information
 ```
   $ sortinghat show
-  unique identity 03e12d00e37fd45593c49a5a5a1652deca4cf302
+  unique identity a9b403e150dd4af8953a52a4bb841051e4b705d9
 
   Profile:
       * Name: John Smith
@@ -222,8 +243,8 @@ After this initialize a new database:
       * Country: US - United States of America
 
   Identities:
-    03e12d00e37fd45593c49a5a5a1652deca4cf302	John Smith	jsmith@example.com	jsmith	scm
-    0dbc8c481b56df6da15398c83dde2f844030e978	-	-	jsmith	mls
+    2612aad107cae121b45c1f46041650abc8e39421	-	-	jsmith	mls
+    a9b403e150dd4af8953a52a4bb841051e4b705d9	John Smith	jsmith@example.com	jsmith	scm
 
   No enrollments
 ```
@@ -263,14 +284,14 @@ After this initialize a new database:
 
 * Enroll
 ```
-  $ sortinghat enroll --from 2014-06-01 --to 2015-09-01 03e12d00e37fd45593c49a5a5a1652deca4cf302 Example
-  $ sortinghat enroll --from 2015-09-01 03e12d00e37fd45593c49a5a5a1652deca4cf30 Individual
+  $ sortinghat enroll --from 2014-06-01 --to 2015-09-01 a9b403e150dd4af8953a52a4bb841051e4b705d9 Example
+  $ sortinghat enroll --from 2015-09-01 a9b403e150dd4af8953a52a4bb841051e4b705d9 Individual
 ```
 
 * Show enrollments information
 ```
-  $ sortinghat show 03e12d00e37fd45593c49a5a5a1652deca4cf302
-  unique identity 03e12d00e37fd45593c49a5a5a1652deca4cf302
+  $ sortinghat show a9b403e150dd4af8953a52a4bb841051e4b705d9
+  unique identity a9b403e150dd4af8953a52a4bb841051e4b705d9
 
   Profile:
       * Name: John Smith
@@ -279,8 +300,8 @@ After this initialize a new database:
       * Country: US - United States of America
 
   Identities:
-    03e12d00e37fd45593c49a5a5a1652deca4cf302	John Smith	jsmith@example.com	jsmith	scm
-    0dbc8c481b56df6da15398c83dde2f844030e978	-	-	jsmith	mls
+    2612aad107cae121b45c1f46041650abc8e39421	-	-	jsmith	mls
+    a9b403e150dd4af8953a52a4bb841051e4b705d9	John Smith	jsmith@example.com	jsmith	scm
 
   Enrollments:
     Example	2014-06-01 00:00:00	2015-09-01 00:00:00
@@ -289,7 +310,7 @@ After this initialize a new database:
 
 * Withdraw
 ```
-  $ sortinghat withdraw --from 2014-06-01 --to 2015-09-01 03e12d00e37fd45593c49a5a5a1652deca4cf302 Example
+  $ sortinghat withdraw --from 2014-06-01 --to 2015-09-01 a9b403e150dd4af8953a52a4bb841051e4b705d9 Example
 ```
 
 ## Import / Export

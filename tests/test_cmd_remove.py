@@ -37,11 +37,11 @@ from sortinghat.exceptions import CODE_NOT_FOUND_ERROR
 from tests.base import TestCommandCaseBase
 
 
-REMOVE_UUID_NOT_FOUND_ERROR = "Error: 62cce16ac0a5c391b4e0c3ccb3e924d65de8c345 not found in the registry"
+REMOVE_UUID_NOT_FOUND_ERROR = "Error: 25e1e0b7b9b154e7f3faffa95674a6ced22ddf6b not found in the registry"
 REMOVE_ID_NOT_FOUND_ERROR = "Error: FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF not found in the registry"
 
 REMOVE_UUID_OUTPUT = """Unique identity FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF removed"""
-REMOVE_ID_OUTPUT = """Identity 62cce16ac0a5c391b4e0c3ccb3e924d65de8c345 removed"""
+REMOVE_ID_OUTPUT = """Identity 25e1e0b7b9b154e7f3faffa95674a6ced22ddf6b removed"""
 REMOVE_EMPTY_OUTPUT = ""
 
 
@@ -67,8 +67,8 @@ class TestRemoveCommand(TestRemoveCaseBase):
     def test_remove(self):
         """Check how it works when removing unique identities and identities"""
 
-        # Remove an identity
-        code = self.cmd.run('--identity', '62cce16ac0a5c391b4e0c3ccb3e924d65de8c345')
+        # Remove an identity (jsmith@example.net)
+        code = self.cmd.run('--identity', '25e1e0b7b9b154e7f3faffa95674a6ced22ddf6b')
         self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip('\n').split('\n')[0]
         self.assertEqual(output, REMOVE_ID_OUTPUT)
@@ -94,7 +94,8 @@ class TestRemove(TestRemoveCaseBase):
     def test_remove_identity(self):
         """Check behavior removing an identity"""
 
-        code = self.cmd.remove('62cce16ac0a5c391b4e0c3ccb3e924d65de8c345', identity=True)
+        # Remove an identity (jsmith@example.net)
+        code = self.cmd.remove('25e1e0b7b9b154e7f3faffa95674a6ced22ddf6b', identity=True)
         self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, REMOVE_ID_OUTPUT)
@@ -104,7 +105,7 @@ class TestRemove(TestRemoveCaseBase):
 
         # The given id is assigned to an identity, this test
         # should not remove anything
-        code = self.cmd.remove('62cce16ac0a5c391b4e0c3ccb3e924d65de8c345')
+        code = self.cmd.remove('25e1e0b7b9b154e7f3faffa95674a6ced22ddf6b')
         self.assertEqual(code, CODE_NOT_FOUND_ERROR)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, REMOVE_UUID_NOT_FOUND_ERROR)

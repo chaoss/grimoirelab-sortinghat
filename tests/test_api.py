@@ -120,7 +120,7 @@ class TestAddIdentity(TestAPICaseBase):
 
         with self.db.connect() as session:
             uid = session.query(UniqueIdentity).\
-                    filter(UniqueIdentity.uuid == '03e12d00e37fd45593c49a5a5a1652deca4cf302').first()
+                    filter(UniqueIdentity.uuid == 'a9b403e150dd4af8953a52a4bb841051e4b705d9').first()
             self.assertEqual(uid.uuid, unique_id)
 
             identities = session.query(Identity).\
@@ -129,7 +129,7 @@ class TestAddIdentity(TestAPICaseBase):
 
             id1 = identities[0]
             self.assertEqual(id1.id, unique_id)
-            self.assertEqual(id1.id, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
+            self.assertEqual(id1.id, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
             self.assertEqual(id1.name, 'John Smith')
             self.assertEqual(id1.email, 'jsmith@example.com')
             self.assertEqual(id1.username, 'jsmith')
@@ -168,26 +168,26 @@ class TestAddIdentity(TestAPICaseBase):
             self.assertEqual(len(uid.identities), 3)
 
             id1 = uid.identities[0]
-            self.assertEqual(id1.id, jsmith_uuid)
+            self.assertEqual(id1.id, unique_id1)
             self.assertEqual(id1.name, 'John Smith')
             self.assertEqual(id1.email, 'jsmith@example.com')
             self.assertEqual(id1.username, 'jsmith')
-            self.assertEqual(id1.source, 'scm')
-            self.assertEqual(id1.uuid, jsmith_uuid)
+            self.assertEqual(id1.source, 'mls')
 
             id2 = uid.identities[1]
-            self.assertEqual(id2.id, unique_id1)
+            self.assertEqual(id2.id, unique_id2)
             self.assertEqual(id2.name, 'John Smith')
-            self.assertEqual(id2.email, 'jsmith@example.com')
+            self.assertEqual(id2.email, None)
             self.assertEqual(id2.username, 'jsmith')
             self.assertEqual(id2.source, 'mls')
 
             id3 = uid.identities[2]
-            self.assertEqual(id3.id, unique_id2)
+            self.assertEqual(id3.id, jsmith_uuid)
             self.assertEqual(id3.name, 'John Smith')
-            self.assertEqual(id3.email, None)
+            self.assertEqual(id3.email, 'jsmith@example.com')
             self.assertEqual(id3.username, 'jsmith')
-            self.assertEqual(id3.source, 'mls')
+            self.assertEqual(id3.source, 'scm')
+            self.assertEqual(id3.uuid, jsmith_uuid)
 
             # Next, John Doe
             uid = session.query(UniqueIdentity).\
@@ -196,18 +196,18 @@ class TestAddIdentity(TestAPICaseBase):
             self.assertEqual(len(uid.identities), 2)
 
             id1 = uid.identities[0]
-            self.assertEqual(id1.id, jdoe_uuid)
-            self.assertEqual(id1.name, 'John Doe')
+            self.assertEqual(id1.id, unique_id3)
+            self.assertEqual(id1.name, None)
             self.assertEqual(id1.email, 'jdoe@example.com')
-            self.assertEqual(id1.username, 'jdoe')
-            self.assertEqual(id1.source, 'scm')
+            self.assertEqual(id1.username, None)
+            self.assertEqual(id1.source, 'mls')
 
             id2 = uid.identities[1]
-            self.assertEqual(id2.id, unique_id3)
-            self.assertEqual(id2.name, None)
+            self.assertEqual(id2.id, jdoe_uuid)
+            self.assertEqual(id2.name, 'John Doe')
             self.assertEqual(id2.email, 'jdoe@example.com')
-            self.assertEqual(id2.username, None)
-            self.assertEqual(id2.source, 'mls')
+            self.assertEqual(id2.username, 'jdoe')
+            self.assertEqual(id2.source, 'scm')
 
     def test_similar_identities(self):
         """Check if it works when adding similar identities"""
@@ -226,11 +226,11 @@ class TestAddIdentity(TestAPICaseBase):
         uuid4 = api.add_identity(self.db, 'mls', name='John Smith')
         uuid5 = api.add_identity(self.db, 'scm', name='John Smith')
 
-        self.assertEqual(uuid1, '75d95d6c8492fd36d24a18bd45d62161e05fbc97')
-        self.assertEqual(uuid2, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
-        self.assertEqual(uuid3, '764deab5c5f065025cd5518581f45ffd18d1f3bd')
-        self.assertEqual(uuid4, 'a2e6bd8f997635d02837c86a6fea98fa835baf2a')
-        self.assertEqual(uuid5, 'd32f8895d998f2e8f83375d544e40a30737f09e5')
+        self.assertEqual(uuid1, '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
+        self.assertEqual(uuid2, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        self.assertEqual(uuid3, '539acca35c2e8502951a97d2d5af8b0857440b50')
+        self.assertEqual(uuid4, 'e7efdaf17ad2cbc0e239b9afd29f6fe054b3b0fe')
+        self.assertEqual(uuid5, 'c7acd177d107a0aefa6718e2ff0dec6ceba71660')
 
     def test_duplicate_identities_with_truncated_values(self):
         """Check if the same identiy with truncated values is not inserted twice"""
@@ -271,7 +271,15 @@ class TestAddIdentity(TestAPICaseBase):
             api.add_identity(self.db, 'scm', 'jsmith@example.com')
 
         self.assertEqual(context.exception.uuid,
-                         'a4d4845e1b1e0edb85e37b04553026a6b76fc4ac')
+                         '334da68fcd3da4e799791f73dfada2afb22648c6')
+
+        # Insert the same identity with upper case letters.
+        # It should raise AlreadyExistsError
+        with self.assertRaises(AlreadyExistsError) as context:
+            api.add_identity(self.db, 'scm', 'JSMITH@example.com')
+
+        self.assertEqual(context.exception.uuid,
+                         '334da68fcd3da4e799791f73dfada2afb22648c6')
 
         # "None" tuples also raise an exception
         api.add_identity(self.db, 'scm', "None", None, None)
@@ -280,7 +288,7 @@ class TestAddIdentity(TestAPICaseBase):
             api.add_identity(self.db, 'scm', None, "None", None)
 
         self.assertEqual(context.exception.uuid,
-                         'fd13313b1f565153e179b167b8a321eaddf29c7f')
+                         'f0999c4eed908d33365fa3435d9686d3add2412d')
 
     def test_none_source(self):
         """Check whether new identities cannot be added when giving a None source"""
@@ -1638,8 +1646,8 @@ class TestMergeUniqueIdentities(TestAPICaseBase):
             identities.sort(key=lambda x: x.id)
 
             id1 = identities[0]
-            self.assertEqual(id1.name, 'John Smith')
-            self.assertEqual(id1.email, 'jsmith@example.com')
+            self.assertEqual(id1.name, None)
+            self.assertEqual(id1.email, 'jdoe@example.com')
             self.assertEqual(id1.source, 'scm')
 
             id2 = identities[1]
@@ -1648,9 +1656,10 @@ class TestMergeUniqueIdentities(TestAPICaseBase):
             self.assertEqual(id2.source, 'scm')
 
             id3 = identities[2]
-            self.assertEqual(id3.name, None)
-            self.assertEqual(id3.email, 'jdoe@example.com')
+            self.assertEqual(id3.name, 'John Smith')
+            self.assertEqual(id3.email, 'jsmith@example.com')
             self.assertEqual(id3.source, 'scm')
+
 
             # Duplicate enrollments should had been removed
             # and overlaped enrollments shoud had been merged
@@ -1791,8 +1800,9 @@ class TestMoveIdentity(TestAPICaseBase):
             identities.sort(key=lambda x: x.id)
 
             id1 = identities[0]
-            self.assertEqual(id1.name, 'John Smith')
-            self.assertEqual(id1.email, 'jsmith@example.com')
+            self.assertEqual(id1.id, from_id)
+            self.assertEqual(id1.name, None)
+            self.assertEqual(id1.email, 'jdoe@example.com')
             self.assertEqual(id1.source, 'scm')
 
             id2 = identities[1]
@@ -1801,11 +1811,9 @@ class TestMoveIdentity(TestAPICaseBase):
             self.assertEqual(id2.source, 'scm')
 
             id3 = identities[2]
-            self.assertEqual(id3.id, from_id)
-            self.assertEqual(id3.name, None)
-            self.assertEqual(id3.email, 'jdoe@example.com')
+            self.assertEqual(id3.name, 'John Smith')
+            self.assertEqual(id3.email, 'jsmith@example.com')
             self.assertEqual(id3.source, 'scm')
-
 
     def test_equal_related_unique_identity(self):
         """Test that all remains the same when to_uuid is the unique identity related to 'from_id'"""
@@ -2024,9 +2032,9 @@ class TestUniqueIdentities(TestAPICaseBase):
 
         # Test John Smith unique identity
         uid = uidentities[0]
-        self.assertEqual(uid.uuid, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
+        self.assertEqual(uid.uuid, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
 
-        self.assertEqual(uid.profile.uuid, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
+        self.assertEqual(uid.profile.uuid, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
         self.assertEqual(uid.profile.name, None)
         self.assertEqual(uid.profile.email, 'jsmith@example.com')
         self.assertEqual(uid.profile.is_bot, True)
@@ -2044,15 +2052,15 @@ class TestUniqueIdentities(TestAPICaseBase):
 
         id2 = identities[1]
         self.assertEqual(id2.email, 'jsmith@bitergia.com')
-        self.assertEqual(id2.source, 'scm')
+        self.assertEqual(id2.source, 'mls')
 
         id3 = identities[2]
         self.assertEqual(id3.email, 'jsmith@bitergia.com')
-        self.assertEqual(id3.source, 'mls')
+        self.assertEqual(id3.source, 'scm')
 
         # Test John Doe unique identity
         uid = uidentities[1]
-        self.assertEqual(uid.uuid, '8e9eac4c6449d2661d66dc62c1752529f935f0b1')
+        self.assertEqual(uid.uuid, 'c6d2504fde0e34b78a185c4b709e5442d045451c')
         self.assertEqual(uid.profile, None)
 
         self.assertEqual(len(uid.identities), 2)
@@ -2084,7 +2092,7 @@ class TestUniqueIdentities(TestAPICaseBase):
         self.assertEqual(len(uidentities), 1)
 
         uid = uidentities[0]
-        self.assertEqual(uid.uuid, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
+        self.assertEqual(uid.uuid, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
 
         # No unique identities for 'its' source
         uidentities = api.unique_identities(self.db, source='its')
@@ -2100,11 +2108,11 @@ class TestUniqueIdentities(TestAPICaseBase):
                          'John Doe', 'jdoe')
 
         # Tests
-        uidentities = api.unique_identities(self.db, uuid='03e12d00e37fd45593c49a5a5a1652deca4cf302')
+        uidentities = api.unique_identities(self.db, uuid='a9b403e150dd4af8953a52a4bb841051e4b705d9')
         self.assertEqual(len(uidentities), 1)
 
         uid = uidentities[0]
-        self.assertEqual(uid.uuid, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
+        self.assertEqual(uid.uuid, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
         self.assertEqual(len(uid.identities), 1)
 
         id1 = uid.identities[0]
@@ -2112,12 +2120,12 @@ class TestUniqueIdentities(TestAPICaseBase):
 
         # Using the source parameter should return the same result
         uidentities = api.unique_identities(self.db,
-                                            uuid='03e12d00e37fd45593c49a5a5a1652deca4cf302',
+                                            uuid='a9b403e150dd4af8953a52a4bb841051e4b705d9',
                                             source='scm')
         self.assertEqual(len(uidentities), 1)
 
         uid = uidentities[0]
-        self.assertEqual(uid.uuid, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
+        self.assertEqual(uid.uuid, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
 
     def test_empty_registry(self):
         """Check whether it returns an empty list when the registry is empty"""
@@ -2171,20 +2179,20 @@ class TestSearchUniqueIdentities(TestAPICaseBase):
         # Tests
         uids = api.search_unique_identities(self.db, 'jsmith')
         self.assertEqual(len(uids), 1)
-        self.assertEqual(uids[0].uuid, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
+        self.assertEqual(uids[0].uuid, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
         self.assertEqual(len(uids[0].identities), 3)
 
         uids = api.search_unique_identities(self.db, 'john')
         self.assertEqual(len(uids), 2)
-        self.assertEqual(uids[0].uuid, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
+        self.assertEqual(uids[0].uuid, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
         self.assertEqual(len(uids[0].identities), 3)
-        self.assertEqual(uids[1].uuid, '8e9eac4c6449d2661d66dc62c1752529f935f0b1')
+        self.assertEqual(uids[1].uuid, 'c6d2504fde0e34b78a185c4b709e5442d045451c')
         self.assertEqual(len(uids[1].identities), 2)
 
         # None values can also be used
         uids = api.search_unique_identities(self.db, None)
         self.assertEqual(len(uids), 1)
-        self.assertEqual(uids[0].uuid, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
+        self.assertEqual(uids[0].uuid, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
         self.assertEqual(len(uids[0].identities), 3)
 
     def test_empty_registry(self):

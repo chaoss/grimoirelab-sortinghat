@@ -40,8 +40,8 @@ from tests.base import TestCommandCaseBase
 MOVE_FROM_ID_NOT_FOUND_ERROR = "Error: FFFFFFFFFFF not found in the registry"
 MOVE_TO_UUID_NOT_FOUND_ERROR = "Error: Jane Rae not found in the registry"
 
-MOVE_OUTPUT = """Identity b4c250eaaf873a04093319f26ca13b02a9248251 moved to unique identity John Smith"""
-MOVE_NEW_UID_OUTPUT = """New unique identity b4c250eaaf873a04093319f26ca13b02a9248251 created. Identity moved"""
+MOVE_OUTPUT = """Identity 03877f31261a6d1a1b3971d240e628259364b8ac moved to unique identity John Smith"""
+MOVE_NEW_UID_OUTPUT = """New unique identity 03877f31261a6d1a1b3971d240e628259364b8ac created. Identity moved"""
 MOVE_EMPTY_OUTPUT = ""
 
 
@@ -69,7 +69,7 @@ class TestMoveCommand(TestMoveCaseBase):
         """Check how it works when moving an identity"""
 
         # Move an identity
-        code = self.cmd.run('b4c250eaaf873a04093319f26ca13b02a9248251', 'John Smith')
+        code = self.cmd.run('03877f31261a6d1a1b3971d240e628259364b8ac', 'John Smith')
         self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, MOVE_OUTPUT)
@@ -81,7 +81,7 @@ class TestMove(TestMoveCaseBase):
     def test_move(self):
         """Check behaviour moving an identity"""
 
-        code = self.cmd.move('b4c250eaaf873a04093319f26ca13b02a9248251', 'John Smith')
+        code = self.cmd.move('03877f31261a6d1a1b3971d240e628259364b8ac', 'John Smith')
         self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, MOVE_OUTPUT)
@@ -97,7 +97,7 @@ class TestMove(TestMoveCaseBase):
     def test_not_found_to_uuid_unique_identity(self):
         """Check if it fails moving an identity to a unique identity that does not exist"""
 
-        code = self.cmd.move('b4c250eaaf873a04093319f26ca13b02a9248251', 'Jane Rae')
+        code = self.cmd.move('03877f31261a6d1a1b3971d240e628259364b8ac', 'Jane Rae')
         self.assertEqual(code, CODE_NOT_FOUND_ERROR)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, MOVE_TO_UUID_NOT_FOUND_ERROR)
@@ -105,7 +105,7 @@ class TestMove(TestMoveCaseBase):
     def test_create_new_unique_identity(self):
         """Check if a new unique identity is created when both uuids are equal"""
 
-        code = self.cmd.move('b4c250eaaf873a04093319f26ca13b02a9248251', 'b4c250eaaf873a04093319f26ca13b02a9248251')
+        code = self.cmd.move('03877f31261a6d1a1b3971d240e628259364b8ac', '03877f31261a6d1a1b3971d240e628259364b8ac')
         self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, MOVE_NEW_UID_OUTPUT)
@@ -116,7 +116,7 @@ class TestMove(TestMoveCaseBase):
         code = self.cmd.move(None, 'John Smith')
         self.assertEqual(code, CMD_SUCCESS)
 
-        code = self.cmd.move('b4c250eaaf873a04093319f26ca13b02a9248251', None)
+        code = self.cmd.move('03877f31261a6d1a1b3971d240e628259364b8ac', None)
         self.assertEqual(code, CMD_SUCCESS)
 
         output = sys.stdout.getvalue().strip()
@@ -131,7 +131,7 @@ class TestMove(TestMoveCaseBase):
         code = self.cmd.move('', 'John Smith')
         self.assertEqual(code, CMD_SUCCESS)
 
-        code = self.cmd.move('b4c250eaaf873a04093319f26ca13b02a9248251', '')
+        code = self.cmd.move('03877f31261a6d1a1b3971d240e628259364b8ac', '')
         self.assertEqual(code, CMD_SUCCESS)
 
         output = sys.stdout.getvalue().strip()
