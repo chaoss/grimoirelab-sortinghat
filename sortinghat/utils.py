@@ -24,6 +24,7 @@ from __future__ import unicode_literals
 
 import dateutil.parser
 import hashlib
+import unicodedata
 
 from .db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE
 from .exceptions import InvalidDateError
@@ -105,18 +106,25 @@ def str_to_datetime(ts):
         raise InvalidDateError(date=str(ts))
 
 
-def to_unicode(x):
+def to_unicode(x, unaccent=False):
     import sys
 
     if sys.version_info[0] >= 3: # Python 3
-        return str(x)
+        s = str(x)
     else: # Python 2
         if type(x) is unicode:
-            return x
+            s = x
         elif type(x) != str:
-            return unicode(x)
+            s = unicode(x)
         else:
-            return unicode(x.decode('utf-8'))
+            s = unicode(x.decode('utf-8'))
+
+    if unaccent:
+        cs = [c for c in unicodedata.normalize('NFD', s)
+              if unicodedata.category(c) != 'Mn']
+        s = ''.join(cs)
+
+    return s
 
 
 def uuid(source, email=None, name=None, username=None):

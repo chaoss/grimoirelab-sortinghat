@@ -221,6 +221,21 @@ class TestToUnicode(unittest.TestCase):
         result = to_unicode(1234.4321)
         self.assertEqual(result, '1234.4321')
 
+    def test_unaccent(self):
+        """Check unicode casting removing accents"""
+
+        result = to_unicode(u'Tomáš Čechvala', unaccent=True)
+        self.assertEqual(result, u'Tomas Cechvala')
+
+        result = to_unicode('Tomáš Čechvala', unaccent=True)
+        self.assertEqual(result, u'Tomas Cechvala')
+
+        result = to_unicode('Santiago Dueñas', unaccent=True)
+        self.assertEqual(result, u'Santiago Duenas')
+
+        result = to_unicode(1234, unaccent=True)
+        self.assertEqual(result, u'1234')
+
 
 class TestUUID(unittest.TestCase):
     """Unit tests for uuid function"""
