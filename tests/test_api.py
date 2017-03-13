@@ -290,6 +290,31 @@ class TestAddIdentity(TestAPICaseBase):
         self.assertEqual(context.exception.uuid,
                          'f0999c4eed908d33365fa3435d9686d3add2412d')
 
+    def test_unaccent_identities(self):
+        """Check if it fails adding an identity that already exists with accent values"""
+
+        # Add a pair of identities first
+        api.add_identity(self.db, 'scm', name='John Smith')
+        api.add_identity(self.db, 'scm', name='Jöhn Doe')
+
+        # Insert an accent identity again. It should raise AlreadyExistsError
+        with self.assertRaises(AlreadyExistsError) as context:
+            api.add_identity(self.db, 'scm', name='Jöhn Smith')
+
+        self.assertEqual(context.exception.uuid,
+                         'c7acd177d107a0aefa6718e2ff0dec6ceba71660')
+
+        # Insert an accent identity again. It should raise AlreadyExistsError
+        with self.assertRaises(AlreadyExistsError) as context:
+            api.add_identity(self.db, 'scm', name='John Döe')
+
+        # Insert an unaccent identity again. It should raise AlreadyExistsError
+        with self.assertRaises(AlreadyExistsError) as context:
+            api.add_identity(self.db, 'scm', name='John Doe')
+
+        self.assertEqual(context.exception.uuid,
+                         'a16659ea83d28c839ffae76ceebb3ca9fb8e8894')
+
     def test_none_source(self):
         """Check whether new identities cannot be added when giving a None source"""
 

@@ -165,7 +165,7 @@ After this initialize a new database:
 
 ## Compatibility between versions
 
-SortingHat databases previous to 0.3.0dev1 are no longer compatible. The
+SortingHat databases previous to 0.3.0dev2 are no longer compatible. The
 seed used to generate identities UUIDs changed and for that reason, these
 ids should be re-generated.
 

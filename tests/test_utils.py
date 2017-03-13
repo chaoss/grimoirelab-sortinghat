@@ -221,6 +221,21 @@ class TestToUnicode(unittest.TestCase):
         result = to_unicode(1234.4321)
         self.assertEqual(result, '1234.4321')
 
+    def test_unaccent(self):
+        """Check unicode casting removing accents"""
+
+        result = to_unicode(u'Tomáš Čechvala', unaccent=True)
+        self.assertEqual(result, u'Tomas Cechvala')
+
+        result = to_unicode('Tomáš Čechvala', unaccent=True)
+        self.assertEqual(result, u'Tomas Cechvala')
+
+        result = to_unicode('Santiago Dueñas', unaccent=True)
+        self.assertEqual(result, u'Santiago Duenas')
+
+        result = to_unicode(1234, unaccent=True)
+        self.assertEqual(result, u'1234')
+
 
 class TestUUID(unittest.TestCase):
     """Unit tests for uuid function"""
@@ -247,10 +262,10 @@ class TestUUID(unittest.TestCase):
         self.assertEqual(result, '6e7ce2426673f8a23a72a343b1382dda84c0078b')
 
         result = uuid('scm', email='', name=u'John Ca\xf1as', username='jcanas')
-        self.assertEqual(result, '3ff97085a174a1a0293829a8ef3a8dbccd9242cc')
+        self.assertEqual(result, 'c88e126749ff006eb1eea25e4bb4c1c125185ed2')
 
         result = uuid('scm', email='', name="Max Müster", username='mmuester')
-        self.assertEqual(result, '3cd06c161dde3d84fde68d7c6638c1e40dc8e01b')
+        self.assertEqual(result, '9a0498297d9f0b7e4baf3e6b3740d22d2257367c')
 
     def test_case_insensitive(self):
         """Check if same values in lower or upper case produce the same UUID"""
@@ -276,6 +291,25 @@ class TestUUID(unittest.TestCase):
                       name='John Smith', username='jsmith')
 
         self.assertEqual(uuid_e, uuid_a)
+
+    def test_case_unaccent_name(self):
+        """Check if same values accent or unaccent produce the same UUID"""
+
+        accent_result = uuid('scm', email='', name="Max Müster", username='mmuester')
+        unaccent_result = uuid('scm', email='', name="Max Muster", username='mmuester')
+        self.assertEqual(accent_result, unaccent_result)
+        self.assertEqual(accent_result, '9a0498297d9f0b7e4baf3e6b3740d22d2257367c')
+
+        accent_result = uuid('scm', email='', name="Santiago Dueñas", username='')
+        unaccent_result = uuid('scm', email='', name="Santiago Duenas", username='')
+        self.assertEqual(accent_result, unaccent_result)
+        self.assertEqual(accent_result, '0f1dd18839007ee8a11d02572ca0a0f4eedaf2cd')
+
+        accent_result = uuid('scm', email='', name="Tomáš Čechvala", username='')
+        partial_accent_result = uuid('scm', email='', name="Tomáš Cechvala", username='')
+        unaccent_result = uuid('scm', email='', name="Tomas Cechvala", username='')
+        self.assertEqual(accent_result, unaccent_result)
+        self.assertEqual(accent_result, partial_accent_result)
 
     def test_none_source(self):
         """Check whether uuid cannot be obtained giving a None source"""
