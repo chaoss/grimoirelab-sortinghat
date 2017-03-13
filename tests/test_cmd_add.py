@@ -42,6 +42,7 @@ from tests.base import TestCommandCaseBase
 
 ADD_EXISTING_ERROR = "Error: scm-jsmith@example.com-John Smith-jsmith already exists in the registry"
 ADD_EXISTING_LOWERCASE_ERROR = "Error: scm-jsmith@example.com-john smith-jsmith already exists in the registry"
+ADD_EXISTING_ACCENTS_ERROR = "Error: scm-jsmith@example.com-john smith-jsmith already exists in the registry"
 ADD_IDENTITY_NONE_OR_EMPTY_ERROR = "Error: identity data cannot be None or empty"
 ADD_MATCHING_ERROR = "Error: mock identity matcher is not supported"
 ADD_SOURCE_NONE_ERROR = "Error: source cannot be None"
@@ -187,6 +188,12 @@ class TestAdd(TestAddCaseBase):
         self.assertEqual(code, CODE_ALREADY_EXISTS_ERROR)
         output = sys.stderr.getvalue().split('\n')[1]
         self.assertEqual(output, ADD_EXISTING_LOWERCASE_ERROR)
+
+        # Different accents, but same identity
+        code = self.cmd.add('scm', 'jsmith@example.com', 'Jöhn Smith', 'jsmith')
+        self.assertEqual(code, CODE_ALREADY_EXISTS_ERROR)
+        output = sys.stderr.getvalue().split('\n')[1]
+        self.assertEqual(output, ADD_EXISTING_ACCENTS_ERROR)
 
     def test_none_or_empty_source(self):
         """Check whether new identities cannot be added when giving a None or empty source"""

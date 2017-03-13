@@ -133,8 +133,19 @@ def uuid(source, email=None, name=None, username=None):
     Based on the input data, the function will return the UUID associated
     to an identity. On this version, the UUID will be the SHA1 of
     "source:email:name:username" string. This string is case insensitive,
-    which means same values for the input parameters in upper or lower
-    case will produce the same UUID.
+    which means same values for the input parameters in upper
+    or lower case will produce the same UUID.
+
+    The value of 'name' will converted to its unaccent form which means
+    same values with accent or unnacent chars (i.e 'ö and o') will
+    generate the same UUID.
+
+    For instance, these combinations will produce the same UUID:
+
+        ('scm', 'jsmith@example.com', 'John Smith', 'jsmith'),
+        ('scm', 'jsmith@example,com', 'Jöhn Smith', 'jsmith'),
+        ('scm', 'jsmith@example.com', 'John Smith', 'JSMITH'),
+        ('scm', 'jsmith@example.com', 'john Smith', 'jsmith')
 
     :param source: data source
     :param email: email of the identity
@@ -153,8 +164,10 @@ def uuid(source, email=None, name=None, username=None):
     if not (email or name or username):
         raise ValueError("identity data cannot be None or empty")
 
-    s = ':'.join((to_unicode(source), to_unicode(email),
-                  to_unicode(name), to_unicode(username))).lower()
+    s = ':'.join((to_unicode(source),
+                  to_unicode(email),
+                  to_unicode(name, unaccent=True),
+                  to_unicode(username))).lower()
 
     sha1 = hashlib.sha1(s.encode('UTF-8'))
     uuid_ = sha1.hexdigest()
