@@ -1,0 +1,13 @@
+- organization: Bitergia
+  domains:
+    - bitergia.com
+    - bitergia.net
+- organization: Example
+  domains:
+    - example.com
+    - example.org
+    - example.net
+- organization: GSyC/LibreSoft
+  domains:
+    - libresoft.es
+    - gsyc.es
