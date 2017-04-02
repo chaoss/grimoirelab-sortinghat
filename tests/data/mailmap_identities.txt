@@ -1,0 +1,7 @@
+#
+# Identities map
+#
+Jane Rae <jrae@nomail.net> Jane R. Rae <jrae@example.net> Jane <jrae@example.net>
+John Smith <jsmith@example.com> John Smith <jsmith@example.net>
+John Doe <j@doe.com> John Doe <jdoe@example.net>
+John Doe <j@doe.com> Doe, J <jdoe@example.net>
