@@ -1,0 +1,8 @@
+#
+# Organizations - identities file
+#
+
+Bitergia <contact@bitergia.com> John Doe <jdoe@bitergia.com>
+Bitergia <contact@bitergia.com> John Smith <jsmith@example.com>
+Example, Inc. <contact@example.com> John Smith <jsmith@example.com>
+Unaffiliated <no@organization.net> Jane Rae <jrae@nomail.net>
