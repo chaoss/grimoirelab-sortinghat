@@ -169,7 +169,7 @@ def uuid(source, email=None, name=None, username=None):
                   to_unicode(name, unaccent=True),
                   to_unicode(username))).lower()
 
-    sha1 = hashlib.sha1(s.encode('UTF-8'))
+    sha1 = hashlib.sha1(s.encode('UTF-8', errors="surrogateescape"))
     uuid_ = sha1.hexdigest()
 
     return uuid_

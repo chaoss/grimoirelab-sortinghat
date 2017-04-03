@@ -311,6 +311,13 @@ class TestUUID(unittest.TestCase):
         self.assertEqual(accent_result, unaccent_result)
         self.assertEqual(accent_result, partial_accent_result)
 
+    def test_surrogate_escape(self):
+        """Check if no errors are raised for invalid UTF-8 chars"""
+
+        if sys.version_info[0] >= 3:
+            result = uuid('scm', name="Mishal\udcc5 Pytasz")
+            self.assertEqual(result, '625166bdc2c4f1a207d39eb8d25315010babd73b')
+
     def test_none_source(self):
         """Check whether uuid cannot be obtained giving a None source"""
 
