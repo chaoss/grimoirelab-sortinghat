@@ -6,6 +6,8 @@ python:
 
 sudo: false
 
+sudo: false
+
 before_install:
   - | # MySQLdb is not available in Python 3.x
     if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then
