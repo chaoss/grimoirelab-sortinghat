@@ -35,6 +35,12 @@ from sqlalchemy.ext.declarative import declarative_base
 MIN_PERIOD_DATE = datetime.datetime(1900, 1, 1, 0, 0, 0)
 MAX_PERIOD_DATE = datetime.datetime(2100, 1, 1, 0, 0, 0)
 
+# Default charset and collation
+MYSQL_CHARSET = {
+    'mysql_charset': 'utf8',
+    'mysql_collate': 'utf8_unicode_ci'
+}
+
 
 ModelBase = declarative_base()
 
@@ -53,7 +59,7 @@ class Organization(ModelBase):
     enrollments = association_proxy('enrollments', 'uidentities')
 
     __table_args__ = (UniqueConstraint('name', name='_name_unique'),
-                      {'mysql_charset': 'utf8'})
+                      MYSQL_CHARSET)
 
     def to_dict(self):
         return {
@@ -78,7 +84,7 @@ class Domain(ModelBase):
                                 lazy='joined')
 
     __table_args__ = (UniqueConstraint('domain', name='_domain_unique'),
-                      {'mysql_charset': 'utf8'})
+                      MYSQL_CHARSET)
 
     def to_dict(self):
         return {
@@ -99,7 +105,7 @@ class Country(ModelBase):
     alpha3 = Column(String(3), nullable=False)
 
     __table_args__ = (UniqueConstraint('alpha3', name='_alpha_unique'),
-                      {'mysql_charset': 'utf8'})
+                      MYSQL_CHARSET)
 
     def to_dict(self):
         return {
@@ -128,7 +134,7 @@ class UniqueIdentity(ModelBase):
     # Many-to-many association proxy
     organizations = association_proxy('enrollments', 'organizations')
 
-    __table_args__ = ({'mysql_charset': 'utf8'})
+    __table_args__ = (MYSQL_CHARSET)
 
     def __init__(self, uuid=None):
         self.uuid = uuid
@@ -163,7 +169,7 @@ class Identity(ModelBase):
 
     __table_args__ = (UniqueConstraint('name', 'email', 'username', 'source',
                                        name='_identity_unique'),
-                      {'mysql_charset': 'utf8'})
+                      MYSQL_CHARSET)
 
     def to_dict(self):
         return {
@@ -191,7 +197,7 @@ class Profile(ModelBase):
     country = relationship('Country', backref='profile_country',
                            lazy='joined')
 
-    __table_args__ = ({'mysql_charset': 'utf8'})
+    __table_args__ = (MYSQL_CHARSET)
 
     def to_dict(self):
         return {
@@ -235,7 +241,7 @@ class Enrollment(ModelBase):
     __table_args__ = (UniqueConstraint('uuid', 'organization_id',
                                        'start', 'end',
                                        name='_period_unique'),
-                      {'mysql_charset': 'utf8'})
+                      MYSQL_CHARSET)
 
     def to_dict(self):
         return {
@@ -251,7 +257,7 @@ class MatchingBlacklist(ModelBase):
 
     excluded = Column(String(128), primary_key=True)
 
-    __table_args__ = ({'mysql_charset': 'utf8'})
+    __table_args__ = (MYSQL_CHARSET)
 
 
 class MappedTable(object):

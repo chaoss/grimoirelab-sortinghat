@@ -116,6 +116,19 @@ class TestOrganization(TestCaseBase):
             self.session.add(org1)
             self.session.commit()
 
+    def test_charset(self):
+        """Check encoding charset"""
+
+        # With an invalid encoding both names wouldn't be inserted;
+        # In MySQL, chars 'ı' and 'i' are considered the same with a
+        # collation distinct to <charset>_unicode_ci
+        org1 = Organization(name='ıCompany'.encode('utf-8'))
+        org2 = Organization(name='iCompany')
+
+        self.session.add(org1)
+        self.session.add(org2)
+        self.session.commit()
+
     def test_to_dict(self):
         """Test output of to_dict() method"""
 
@@ -423,6 +436,23 @@ class TestIdentity(TestCaseBase):
         self.session.commit()
 
         self.assertNotEqual(id1.id, id2.id)
+
+    def test_charset(self):
+        """Check encoding charset"""
+
+        # With an invalid encoding both names wouldn't be inserted;
+        # In MySQL, chars 'ı' and 'i' are considered the same with a
+        # collation distinct to <charset>_unicode_ci
+        id1 = Identity(id='A', name='John Smıth'.encode('utf-8'),
+                       email='jsmith@example.com',
+                       username='jsmith', source='scm')
+        id2 = Identity(id='B', name='John Smith',
+                       email='jsmith@example.com',
+                       username='jsmith', source='scm')
+
+        self.session.add(id1)
+        self.session.add(id2)
+        self.session.commit()
 
     def test_to_dict(self):
         """Test output of to_dict() method"""

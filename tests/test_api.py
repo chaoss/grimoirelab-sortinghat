@@ -315,6 +315,20 @@ class TestAddIdentity(TestAPICaseBase):
         self.assertEqual(context.exception.uuid,
                          'a16659ea83d28c839ffae76ceebb3ca9fb8e8894')
 
+    def test_charset(self):
+        """Check if it adds two identities with different encoding"""
+
+        # With an invalid encoding both names wouldn't be inserted;
+        # In MySQL, chars 'ı' and 'i' are considered the same with a
+        # collation distinct to <charset>_unicode_ci
+        uuid1 = api.add_identity(self.db, 'scm', 'jsmith@example.com',
+                                 'John Smıth', 'jsmith')
+        uuid2 = api.add_identity(self.db, 'scm', 'jsmith@example.com',
+                                 'John Smith', 'jsmith')
+
+        self.assertEqual(uuid1, 'cf79edf008b7b2960a0be3972b256c65af449dc1')
+        self.assertEqual(uuid2, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+
     def test_none_source(self):
         """Check whether new identities cannot be added when giving a None source"""
 
