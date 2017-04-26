@@ -67,6 +67,21 @@ class TestCreateIdentityMatcher(unittest.TestCase):
         self.assertIsInstance(matcher, IdentityMatcher)
         self.assertEqual(len(matcher.blacklist), 5)
 
+    def test_identity_matcher_instance_with_sources_list(self):
+        """Test if the factory function adds a sources list to the matcher instance"""
+
+        # The sources list is None
+        matcher = create_identity_matcher('default')
+        self.assertIsInstance(matcher, IdentityMatcher)
+        self.assertEqual(matcher.sources, None)
+
+        # Create a matcher with a sources list
+        sources = ['git', 'jira', 'github']
+
+        matcher = create_identity_matcher('default', sources=sources)
+        self.assertIsInstance(matcher, IdentityMatcher)
+        self.assertEqual(len(matcher.sources), 3)
+
     def test_not_supported_matcher(self):
         """Check if an exception is raised when the given matcher type is not supported"""
 
@@ -97,6 +112,20 @@ class TestIdentityMatcher(unittest.TestCase):
         self.assertListEqual(m.blacklist, ['john smith', 'jrae@example.com',
                                            'jrae@example.net', 'jsmith@example.com',
                                            'root'])
+
+    def test_sources_list(self):
+        """Test sources list contents"""
+
+        m = IdentityMatcher()
+        self.assertEqual(m.sources, None)
+
+        m = IdentityMatcher(sourecs=[])
+        self.assertEqual(m.sources, None)
+
+        sources = ['git', 'Jira', 'GitHub']
+        m = IdentityMatcher(sources=sources)
+
+        self.assertListEqual(m.sources, ['git', 'github', 'jira'])
 
 
 class TestMatch(unittest.TestCase):

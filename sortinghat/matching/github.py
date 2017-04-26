@@ -56,9 +56,11 @@ class GitHubMatcher(IdentityMatcher):
          a 'GitHub' source; thouse sources start with the keyword 'github'
 
     :param blacklist: list of entries to ignore during the matching process
+    :param sources: only match the identities from these sources
     """
-    def __init__(self, blacklist=None):
-        super(GitHubMatcher, self).__init__(blacklist=blacklist or [])
+    def __init__(self, blacklist=None, sources=None):
+        super(GitHubMatcher, self).__init__(blacklist=blacklist,
+                                            sources=sources)
 
     def match(self, a, b):
         """Determine if two unique identities are the same.
@@ -151,6 +153,10 @@ class GitHubMatcher(IdentityMatcher):
         filtered = []
 
         for id_ in u.identities:
+
+            if self.sources and id_.source.lower() not in self.sources:
+                continue
+
             if self._check_blacklist(id_):
                 continue
 

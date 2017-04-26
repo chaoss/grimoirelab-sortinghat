@@ -32,17 +32,26 @@ class IdentityMatcher(object):
     keys are listed below (other keywords will be ignored):
 
        - 'blacklist' : list of entries to ignore during the matching process
+       - 'sources' : only match the identities from these sources
     """
     def __init__(self, **kwargs):
 
         self._kwargs = kwargs
+        blacklist = self._kwargs.get('blacklist', None)
+        sources = self._kwargs.get('sources', None)
 
-        if 'blacklist' in self._kwargs:
+        if blacklist:
             self.blacklist = [entry.excluded.lower() \
-                              for entry in self._kwargs['blacklist']]
+                              for entry in blacklist]
             self.blacklist.sort()
         else:
             self.blacklist = []
+
+        if sources:
+            self.sources = [source.lower() for source in sources]
+            self.sources.sort()
+        else:
+            self.sources = None
 
     def match(self, a, b):
         """Abstract method used to determine if both unique identities are the same.
@@ -107,7 +116,8 @@ class FilteredIdentity(object):
                 'uuid' : self.uuid
                }
 
-def create_identity_matcher(matcher='default', blacklist=None):
+
+def create_identity_matcher(matcher='default', blacklist=None, sources=None):
     """Create an identity matcher of the given type.
 
     Factory function that creates an identity matcher object of the type
@@ -116,7 +126,7 @@ def create_identity_matcher(matcher='default', blacklist=None):
 
     :param matcher: type of the matcher
     :param blacklist: list of entries to ignore while matching
-
+    :param sources: only match the identities from these sources
 
     :returns: a identity matcher object of the given type
 
@@ -130,7 +140,7 @@ def create_identity_matcher(matcher='default', blacklist=None):
 
     klass = matching.SORTINGHAT_IDENTITIES_MATCHERS[matcher]
 
-    return klass(blacklist=blacklist)
+    return klass(blacklist=blacklist, sources=sources)
 
 
 def match(uidentities, matcher, fastmode=False):

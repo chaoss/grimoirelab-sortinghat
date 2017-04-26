@@ -63,9 +63,11 @@ class EmailNameMatcher(IdentityMatcher):
          "jonhsmith" are "j.smith" not valid
 
     :param blacklist: list of entries to ignore during the matching process
+    :param sources: only match the identities from these sources
     """
-    def __init__(self, blacklist=None):
-        super(EmailNameMatcher, self).__init__(blacklist=blacklist or [])
+    def __init__(self, blacklist=None, sources=None):
+        super(EmailNameMatcher, self).__init__(blacklist=blacklist,
+                                               sources=sources)
         self.email_pattern = re.compile(EMAIL_ADDRESS_REGEX)
         self.name_pattern = re.compile(NAME_REGEX)
 
@@ -165,6 +167,9 @@ class EmailNameMatcher(IdentityMatcher):
         for id_ in u.identities:
             email = None
             name = None
+
+            if self.sources and id_.source.lower() not in self.sources:
+                continue
 
             if self._check_blacklist(id_):
                 continue
