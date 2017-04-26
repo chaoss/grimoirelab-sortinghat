@@ -40,6 +40,9 @@ from tests.base import TestCommandCaseBase
 UNIFY_DEFAULT_OUTPUT = """Total unique identities processed: 6
 Total matches: 1
 Total unique identities after merging: 5"""
+UNIFY_SOURCES_OUTPUT = """Total unique identities processed: 6
+Total matches: 1
+Total unique identities after merging: 5"""
 UNIFY_EMAIL_NAME_OUTPUT = """Total unique identities processed: 6
 Total matches: 3
 Total unique identities after merging: 3"""
@@ -98,6 +101,16 @@ class TestUnifyCommand(TestUnifyCaseBase):
         self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, UNIFY_DEFAULT_OUTPUT)
+
+    def test_unify_sources_list(self):
+        """Test command with a sources list"""
+
+        code = self.cmd.run('--matching', 'email-name',
+                            '--sources', 'mls', 'alt')
+        self.assertEqual(code, CMD_SUCCESS)
+        output = sys.stdout.getvalue().strip()
+        # Only jrae identities are merged
+        self.assertEqual(output, UNIFY_SOURCES_OUTPUT)
 
     def test_unify_email_name_matcher(self):
         """Test command using the email-name matcher"""
@@ -202,6 +215,24 @@ class TestUnify(TestUnifyCaseBase):
         # No match was found
         after = api.unique_identities(self.db)
         self.assertEqual(len(after), 6)
+
+    def test_unify_with_sources_list(self):
+        """Test unify method using a sources list"""
+
+        sources = ['mls', 'alt']
+
+        before = api.unique_identities(self.db)
+        self.assertEqual(len(before), 6)
+
+        code = self.cmd.unify(matching='email-name', sources=sources)
+        self.assertEqual(code, CMD_SUCCESS)
+
+        # Only jrae identities are merged
+        after = api.unique_identities(self.db)
+        self.assertEqual(len(after), 5)
+
+        output = sys.stdout.getvalue().strip()
+        self.assertEqual(output, UNIFY_SOURCES_OUTPUT)
 
     def test_unify_email_name_matcher(self):
         """Test unify method using the email-name matcher"""
