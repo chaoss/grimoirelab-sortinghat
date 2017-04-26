@@ -64,8 +64,8 @@ class EmailNameMatcher(IdentityMatcher):
 
     :param blacklist: list of entries to ignore during the matching process
     """
-    def __init__(self, blacklist=[]):
-        super(EmailNameMatcher, self).__init__(blacklist=blacklist)
+    def __init__(self, blacklist=None):
+        super(EmailNameMatcher, self).__init__(blacklist=blacklist or [])
         self.email_pattern = re.compile(EMAIL_ADDRESS_REGEX)
         self.name_pattern = re.compile(NAME_REGEX)
 

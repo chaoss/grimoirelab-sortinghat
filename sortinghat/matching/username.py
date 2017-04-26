@@ -54,8 +54,8 @@ class UsernameMatcher(IdentityMatcher):
 
     :param blacklist: list of entries to ignore during the matching process
     """
-    def __init__(self, blacklist=[]):
-        super(UsernameMatcher, self).__init__(blacklist=blacklist)
+    def __init__(self, blacklist=None):
+        super(UsernameMatcher, self).__init__(blacklist=blacklist or [])
 
     def match(self, a, b):
         """Determine if two unique identities are the same.

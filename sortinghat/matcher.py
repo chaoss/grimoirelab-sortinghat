@@ -107,7 +107,7 @@ class FilteredIdentity(object):
                 'uuid' : self.uuid
                }
 
-def create_identity_matcher(matcher='default', blacklist=[]):
+def create_identity_matcher(matcher='default', blacklist=None):
     """Create an identity matcher of the given type.
 
     Factory function that creates an identity matcher object of the type
@@ -116,6 +116,7 @@ def create_identity_matcher(matcher='default', blacklist=[]):
 
     :param matcher: type of the matcher
     :param blacklist: list of entries to ignore while matching
+
 
     :returns: a identity matcher object of the given type
 
