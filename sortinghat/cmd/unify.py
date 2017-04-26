@@ -50,6 +50,8 @@ class Unify(Command):
         self.parser.add_argument('-m', '--matching', dest='matching', default=None,
                                  choices=SORTINGHAT_IDENTITIES_MATCHERS,
                                  help="find similar unique identities using this type of matching")
+        self.parser.add_argument('--sources', dest='sources', nargs='*', default=None,
+                                 help="unify the unique identities from these sources only")
         self.parser.add_argument('--fast-matching', dest='fast_matching', action='store_true',
                                  help="run fast matching")
         self.parser.add_argument('-i', '--interactive', action='store_true',
@@ -69,19 +71,20 @@ class Unify(Command):
 
     @property
     def usage(self):
-        return """%(prog)s unify [--matching <matcher>] [--fast-matching] [--interactive]"""
+        return """%(prog)s unify [--matching <matcher>] [--sources <srcs>] [--fast-matching] [--interactive]"""
 
     def run(self, *args):
         """Merge unique identities using a matching algorithm."""
 
         params = self.parser.parse_args(args)
 
-        code = self.unify(params.matching, params.fast_matching,
-                          params.interactive)
+        code = self.unify(params.matching, params.sources,
+                          params.fast_matching, params.interactive)
 
         return code
 
-    def unify(self, matching=None, fast_matching=False, interactive=False):
+    def unify(self, matching=None, sources=None,
+              fast_matching=False, interactive=False):
         """Merge unique identities using a matching algorithm.
 
         This method looks for sets of similar identities, merging those
@@ -100,7 +103,12 @@ class Unify(Command):
         whether these to identities should be merged into one. By default, the method
         is set to False.
 
+        When a list of <sources> is given, only the unique identities from
+        those sources will be unified.
+
         :param matching: type of matching used to merge existing identities
+        :param sources: unify the unique identities from these sources only
+        :param fast_matching: use the fast mode
         :param interactive: interactive mode for merging identities
         """
         matcher = None
@@ -110,7 +118,7 @@ class Unify(Command):
 
         try:
             blacklist = api.blacklist(self.db)
-            matcher = create_identity_matcher(matching, blacklist)
+            matcher = create_identity_matcher(matching, blacklist, sources)
         except MatcherNotSupportedError as e:
             self.error(str(e))
             return e.code

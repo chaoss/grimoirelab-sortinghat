@@ -161,6 +161,35 @@ class TestGitHubMatcher(unittest.TestCase):
         result = matcher.match(jane_rae, jrae)
         self.assertEqual(result, False)
 
+    def test_match_with_sources_list(self):
+        """Test match when a list of sources to filter is given"""
+
+        jsmith = UniqueIdentity(uuid='jsmith')
+        jsmith.identities = [Identity(name='John Smith', email='jsmith@example.com', source='scm', uuid='jsmith'),
+                             Identity(name='John Smith', source='scm', uuid='jsmith'),
+                             Identity(username='jsmith', source='github', uuid='jsmith'),
+                             Identity(email='', source='scm', uuid='jsmith')]
+
+        john_smith = UniqueIdentity(uuid='js')
+        john_smith.identities = [Identity(name='J. Smith', username='john_smith', source='scm'),
+                                 Identity(username='jsmith', source='GitHub-API'),
+                                 Identity(name='Smith. J', source='mls'),
+                                 Identity(name='Smith. J', email='JSmith@example.com', source='mls')]
+
+        # With these lists there are not matches
+        matcher = GitHubMatcher(sources=['scm'])
+        result = matcher.match(jsmith, john_smith)
+        self.assertEqual(result, False)
+
+        matcher = GitHubMatcher(sources=['github'])
+        result = matcher.match(jsmith, john_smith)
+        self.assertEqual(result, False)
+
+        # Only when github-api and github are combined there is a match
+        matcher = GitHubMatcher(sources=['github-api', 'github'])
+        result = matcher.match(jsmith, john_smith)
+        self.assertEqual(result, True)
+
     def test_match_same_identity(self):
         """Test whether there is a match comparing the same identity"""
 
@@ -355,6 +384,37 @@ class TestGitHubMatcher(unittest.TestCase):
         self.assertEqual(fid.uuid, 'jrae')
         self.assertEqual(fid.username, 'janerae')
         self.assertEqual(fid.source, 'GitHub-API')
+
+    def test_filter_identities_with_sources_list(self):
+        """Test if identities are filtered when there is a sources list"""
+
+        # Let's define some identities first
+        jsmith = UniqueIdentity(uuid='jsmith')
+        jsmith.identities = [Identity(name='John Smith', email='jsmith@example.com', source='scm', uuid='jsmith'),
+                             Identity(name='John Smith', source='scm', uuid='jsmith'),
+                             Identity(username='jsmith', source='github', uuid='jsmith'),
+                             Identity(email='', source='scm', uuid='jsmith')]
+
+        jrae = UniqueIdentity(uuid='jrae')
+        jrae.identities = [Identity(username='janerae', source='GitHub-API', uuid='jrae'),
+                           Identity(username='jane_rae', source='GitHub', uuid='jrae'),
+                           Identity(name='Jane Rae Doe', email='jane.rae@example.net', source='mls', uuid='jrae'),
+                           Identity(username='jrae', source='github', uuid='jrae'),
+                           Identity(email='JRAE@example.net', source='scm', uuid='jrae')]
+
+        # Tests
+        matcher = GitHubMatcher(sources=['GitHub-API'])
+
+        result = matcher.filter(jsmith)
+        self.assertEqual(len(result), 0)
+
+        result = matcher.filter(jrae)
+        self.assertEqual(len(result), 1)
+
+        fid = result[0]
+        self.assertIsInstance(fid, GitHubUsernameIdentity)
+        self.assertEqual(fid.uuid, 'jrae')
+        self.assertEqual(fid.username, 'janerae')
 
     def test_filter_identities_instances(self):
         """Test whether it raises an error when id is not a UniqueIdentity"""

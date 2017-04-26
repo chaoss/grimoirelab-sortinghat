@@ -80,7 +80,6 @@ class TestUsernameMatcher(unittest.TestCase):
         result = matcher.match(jsmith_alt, john_smith)
         self.assertEqual(result, True)
 
-
     def test_match_with_blacklist(self):
         """Test match when there are entries in the blacklist"""
 
@@ -157,6 +156,35 @@ class TestUsernameMatcher(unittest.TestCase):
 
         result = matcher.match(jane_rae, jrae)
         self.assertEqual(result, False)
+
+    def test_match_with_sources_list(self):
+        """Test match when a list of sources to filter is given"""
+
+        jsmith = UniqueIdentity(uuid='jsmith')
+        jsmith.identities = [Identity(name='John Smith', email='jsmith@example.com', source='scm'),
+                             Identity(name='John Smith', source='scm'),
+                             Identity(username='jsmith', source='scm'),
+                             Identity(email='', source='scm')]
+
+        jsmith_alt = UniqueIdentity(uuid='J. Smith')
+        jsmith_alt.identities = [Identity(name='John Smith JR', email='jsmith@example.com', source='alt'),
+                                 Identity(name='John Smith', username='jsmith', source='alt'),
+                                 Identity(email='', source='alt'),
+                                 Identity(email='jsmith', source='alt')]
+
+        # With these lists there are not matches
+        matcher = UsernameMatcher(sources=['github'])
+        result = matcher.match(jsmith, jsmith_alt)
+        self.assertEqual(result, False)
+
+        matcher = UsernameMatcher(sources=['scm'])
+        result = matcher.match(jsmith, jsmith_alt)
+        self.assertEqual(result, False)
+
+        # Only when scm and alt are combined there is a match
+        matcher = UsernameMatcher(sources=['scm', 'alt'])
+        result = matcher.match(jsmith, jsmith_alt)
+        self.assertEqual(result, True)
 
     def test_match_same_identity(self):
         """Test whether there is a match comparing the same identity"""
@@ -351,6 +379,36 @@ class TestUsernameMatcher(unittest.TestCase):
         self.assertIsInstance(fid, UsernameIdentity)
         self.assertEqual(fid.uuid, 'jsmith')
         self.assertEqual(fid.username, 'jsmith')
+
+        result = matcher.filter(jrae)
+        self.assertEqual(len(result), 1)
+
+        fid = result[0]
+        self.assertIsInstance(fid, UsernameIdentity)
+        self.assertEqual(fid.uuid, 'jrae')
+        self.assertEqual(fid.username, 'jane.rae')
+
+    def test_filter_identities_with_sources_list(self):
+        """Test if identities are filtered when there is a sources list"""
+
+        # Let's define some identities first
+        jsmith = UniqueIdentity(uuid='jsmith')
+        jsmith.identities = [Identity(name='John Smith', username='jsmith', source='scm', uuid='jsmith'),
+                             Identity(name='John Smith', source='scm', uuid='jsmith'),
+                             Identity(email='jsmith@example.com', source='scm', uuid='jsmith'),
+                             Identity(email='', source='scm', uuid='jsmith')]
+
+        jrae = UniqueIdentity(uuid='jrae')
+        jrae.identities = [Identity(name='Jane Rae', source='scm', uuid='jrae'),
+                           Identity(name='Jane Rae Doe', username='jane.rae', source='mls', uuid='jrae'),
+                           Identity(name='jrae', source='scm', uuid='jrae'),
+                           Identity(username='JRAE', source='scm', uuid='jrae')]
+
+        # Tests
+        matcher = UsernameMatcher(sources=['mls', 'alt'])
+
+        result = matcher.filter(jsmith)
+        self.assertEqual(len(result), 0)
 
         result = matcher.filter(jrae)
         self.assertEqual(len(result), 1)

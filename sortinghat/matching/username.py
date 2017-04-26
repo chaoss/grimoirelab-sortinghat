@@ -53,9 +53,11 @@ class UsernameMatcher(IdentityMatcher):
     returns a positive match when the uuid on both unique identities is equal.
 
     :param blacklist: list of entries to ignore during the matching process
+    :param sources: only match the identities from these sources
     """
-    def __init__(self, blacklist=[]):
-        super(UsernameMatcher, self).__init__(blacklist=blacklist)
+    def __init__(self, blacklist=None, sources=None):
+        super(UsernameMatcher, self).__init__(blacklist=blacklist,
+                                              sources=sources)
 
     def match(self, a, b):
         """Determine if two unique identities are the same.
@@ -85,12 +87,13 @@ class UsernameMatcher(IdentityMatcher):
         if a.uuid and b.uuid and a.uuid == b.uuid:
             return True
 
-        usernames_a = self._filter_usernames(a.identities)
-        usernames_b = self._filter_usernames(b.identities)
+        filtered_a = self.filter(a)
+        filtered_b = self.filter(b)
 
-        for username in usernames_a:
-            if username in usernames_b:
-                return True
+        for fa in filtered_a:
+            for fb in filtered_b:
+                if self.match_filtered_identities(fa, fb):
+                    return True
         return False
 
     def match_filtered_identities(self, fa, fb):
@@ -147,6 +150,9 @@ class UsernameMatcher(IdentityMatcher):
 
         for id_ in u.identities:
             username = None
+
+            if self.sources and id_.source.lower() not in self.sources:
+                continue
 
             if self._check_username(id_.username):
                 username = id_.username.lower()

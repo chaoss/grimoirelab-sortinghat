@@ -55,9 +55,11 @@ class EmailMatcher(IdentityMatcher):
     returns a positive match when the uuid on both unique identities is equal.
 
     :param blacklist: list of entries to ignore during the matching process
+    :param sources: only match the identities from these sources
     """
-    def __init__(self, blacklist=[]):
-        super(EmailMatcher, self).__init__(blacklist=blacklist)
+    def __init__(self, blacklist=None, sources=None):
+        super(EmailMatcher, self).__init__(blacklist=blacklist,
+                                           sources=sources)
         self.email_pattern = re.compile(EMAIL_ADDRESS_REGEX)
 
     def match(self, a, b):
@@ -88,12 +90,13 @@ class EmailMatcher(IdentityMatcher):
         if a.uuid and b.uuid and a.uuid == b.uuid:
             return True
 
-        emails_a = self._filter_emails(a.identities)
-        emails_b = self._filter_emails(b.identities)
+        filtered_a = self.filter(a)
+        filtered_b = self.filter(b)
 
-        for email in emails_a:
-            if email in emails_b:
-                return True
+        for fa in filtered_a:
+            for fb in filtered_b:
+                if self.match_filtered_identities(fa, fb):
+                    return True
         return False
 
     def match_filtered_identities(self, fa, fb):
@@ -150,6 +153,9 @@ class EmailMatcher(IdentityMatcher):
 
         for id_ in u.identities:
             email = None
+
+            if self.sources and id_.source.lower() not in self.sources:
+                continue
 
             if self._check_email(id_.email):
                 email = id_.email.lower()
