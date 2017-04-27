@@ -1,0 +1,40 @@
+{
+    "users": [
+        {
+            "launchpad_id": "0-jsmith",
+            "gerrit_id": "jsmith",
+            "companies": [
+                {
+                    "company_name": "Example",
+                    "end_date": null
+                }
+            ],
+            "user_name": "John Smith",
+            "emails": ["jsmith@example.com"]
+        },
+        {
+            "companies": [
+                {
+                    "company_name": "Bitergia"
+                },
+                {
+                    "company_name": "Example",
+                    "end_date": "2010-Jan-01"
+                }
+            ],
+            "user_name": "John Doe",
+            "emails": ["jdoe@bitergia.com", "jdoe@example.com"]
+        }
+    ],
+    "companies": [
+        {
+            "domains": [],
+            "company_name": "Example",
+            "aliases": [""]
+        },
+        {
+            "domains": ["bitergia.net", "bitergia.com"],
+            "company_name": "Bitergia"
+        }
+    ]
+}
