@@ -2234,6 +2234,23 @@ class TestSearchUniqueIdentities(TestAPICaseBase):
         self.assertEqual(uids[0].uuid, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
         self.assertEqual(len(uids[0].identities), 3)
 
+    def test_filter_source(self):
+        """Check if it returns a set of identities linked to the given source"""
+
+        # Add some identities
+        api.add_identity(self.db, 'scm', 'jsmith@example.com',
+                         'John Smith', 'jsmith')
+        api.add_identity(self.db, 'mls', 'jsmith@bitergia.com')
+
+        # Tests
+        uids = api.search_unique_identities(self.db, 'jsmith')
+        self.assertEqual(len(uids), 2)
+
+        uids = api.search_unique_identities(self.db, 'jsmith', source='scm')
+        self.assertEqual(len(uids), 1)
+        self.assertEqual(uids[0].uuid, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        self.assertEqual(len(uids[0].identities), 1)
+
     def test_empty_registry(self):
         """Check whether it returns an exception when the registry is empty"""
 
@@ -2255,6 +2272,8 @@ class TestSearchUniqueIdentities(TestAPICaseBase):
 
         self.assertRaises(NotFoundError, api.search_unique_identities,
                           self.db, 'Jane Rae')
+
+
 
 
 class TestRegistry(TestAPICaseBase):

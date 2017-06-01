@@ -941,15 +941,17 @@ def unique_identities(db, uuid=None, source=None):
     return uidentities
 
 
-def search_unique_identities(db, term):
+def search_unique_identities(db, term, source=None):
     """Look for unique identities.
 
     This function returns those unique identities which match with the
     given 'term'. The term will be compated with name, email, username
-    and source values of each identity.
+    and source values of each identity. When `source` is given, this
+    search will be only performed on identities linked to this source.
 
     :param db: database manater
     :param term: term to match with unique identities data
+    :param source: search only on identities from this source
 
     :raises NotFoundError: raised when the given term is not found on
         any unique identity from the registry
@@ -961,6 +963,9 @@ def search_unique_identities(db, term):
         query = session.query(UniqueIdentity).\
             join(Identity).\
             filter(UniqueIdentity.uuid == Identity.uuid)
+
+        if source:
+            query = query.filter(Identity.source == source)
 
         if pattern:
             query = query.filter(Identity.name.like(pattern)
