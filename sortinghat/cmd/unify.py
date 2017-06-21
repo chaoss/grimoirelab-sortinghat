@@ -175,9 +175,8 @@ class Unify(Command):
 
         api.merge_unique_identities(self.db, from_uid.uuid, to_uid.uuid)
 
-        if interactive:
-            self.display('merge.tmpl', from_uuid=from_uid.uuid,
-                         to_uuid=to_uid.uuid)
+        self.display('merge.tmpl', from_uuid=from_uid.uuid,
+                     to_uuid=to_uid.uuid)
 
         return True
 

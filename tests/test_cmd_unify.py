@@ -37,13 +37,18 @@ from sortinghat.exceptions import CODE_MATCHER_NOT_SUPPORTED_ERROR
 from tests.base import TestCommandCaseBase
 
 
-UNIFY_DEFAULT_OUTPUT = """Total unique identities processed: 6
+UNIFY_DEFAULT_OUTPUT = """Unique identity 880b3dfcb3a08712e5831bddc3dfe81fc5d7b331 merged on 178315df7941fc76a6ffb06fd5b00f6932ad9c41
+Total unique identities processed: 6
 Total matches: 1
 Total unique identities after merging: 5"""
-UNIFY_SOURCES_OUTPUT = """Total unique identities processed: 6
+UNIFY_SOURCES_OUTPUT = """Unique identity f30dc6a71730e37f03c7e27379febb219f7918de merged on 9cb28b6fb034393bbe4749081e0da6cc5a715b85
+Total unique identities processed: 6
 Total matches: 1
 Total unique identities after merging: 5"""
-UNIFY_EMAIL_NAME_OUTPUT = """Total unique identities processed: 6
+UNIFY_EMAIL_NAME_OUTPUT = """Unique identity 178315df7941fc76a6ffb06fd5b00f6932ad9c41 merged on 400fdfaab5918d1b7e0e0efba4797abdc378bd7d
+Unique identity 880b3dfcb3a08712e5831bddc3dfe81fc5d7b331 merged on 400fdfaab5918d1b7e0e0efba4797abdc378bd7d
+Unique identity f30dc6a71730e37f03c7e27379febb219f7918de merged on 9cb28b6fb034393bbe4749081e0da6cc5a715b85
+Total unique identities processed: 6
 Total matches: 3
 Total unique identities after merging: 3"""
 UNIFY_EMPTY_OUTPUT = """Total unique identities processed: 0
