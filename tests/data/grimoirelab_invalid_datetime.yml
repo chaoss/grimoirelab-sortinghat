@@ -1,0 +1,30 @@
+- profile:
+    name: J. Manrique Lopez de la Fuente
+  # the enrollments below overlap
+  enrollments:
+    - organization: Example
+      start: 1980-01-01
+    - organization: Bitergia
+      start: 2011-01-01
+      end: 2015-06-01
+  github:
+    - jsmanrique
+  email:
+    - jsmanrique@bitergia.com
+
+# this is another entry
+- profile:
+    name: Luis Cañas-Díaz
+  enrollments:
+    - organization: Bitergia
+      start: 2012-01-01
+  github:
+    - sanacl
+  email:
+    - lcanas@bitergia.com
+
+# and another one for bots
+- profile:
+    is_bot: true
+  email:
+    - owlbot@bitergia.com
