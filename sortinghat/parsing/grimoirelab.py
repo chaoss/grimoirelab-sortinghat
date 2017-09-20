@@ -212,7 +212,7 @@ class GrimoireLabParser(object):
                 o = Organization(name=name)
 
                 if 'domains' in element:
-                    if no isinstance(element['domains'], list):
+                    if not isinstance(element['domains'], list):
                         msg = "invalid GrimoireLab yaml format. Empty domain name for organization %s" % name
                         raise InvalidFormatError(cause=msg)
 
