@@ -346,6 +346,7 @@ $ sortinghat load identities.json
 * SQLAlchemy >= 1.0.0
 * Jinja2 >= 2.7
 * python-dateutil >= 2.6
+* python-yaml >= 3.12
 
 You will also need a MySQL Python driver to connect with the database server. We recommend to use one these packages:
 

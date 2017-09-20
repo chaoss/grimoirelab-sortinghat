@@ -21,6 +21,7 @@
 
 # and another one for bots
 - profile:
+    name: Owl Bot
     is_bot: true
   email:
     - owlbot@bitergia.com

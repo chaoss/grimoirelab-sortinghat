@@ -18,6 +18,7 @@
 #
 # Authors:
 #     Luis Cañas-Díaz <lcanas@bitergia.com>
+#     Miguel Ángel Fernández Sánchez <mafesan@bitergia.com>
 #
 
 from __future__ import unicode_literals
@@ -41,7 +42,7 @@ def main():
     args = parse_args()
 
     try:
-        parser = parse_grimoirelab_file(args.identities, args.domain_employer,
+        parser = parse_grimoirelab_file(args.identities, args.organizations,
                                         args.source)
     except (IOError, UnicodeDecodeError, InvalidFormatError) as e:
         raise RuntimeError(str(e))
@@ -54,14 +55,15 @@ def main():
     except IOError as e:
         raise RuntimeError(str(e))
 
+
 def parse_args():
     """Parse arguments from the command line"""
 
     parser = argparse.ArgumentParser(description=GRIMOIRELAB2SH_DESC_MSG)
 
     parser.add_argument('-i', '--identities', type=argparse.FileType('r'),
-                         help='GrimoireLab profiles/identities mapping file')
-    parser.add_argument('-d', '--domain-employer', dest='domain_employer',
+                        help='GrimoireLab profiles/identities mapping file')
+    parser.add_argument('-d', '--organizations', dest='organizations',
                         type=argparse.FileType('r'),
                         help='GrimoireLab domain to employer mapping file')
     parser.add_argument('-s', '--source', dest='source', required=True,
@@ -72,24 +74,17 @@ def parse_args():
 
     args = parser.parse_args()
 
-    if not (args.identities or args.domain_employer):
+    if not (args.identities or args.organizations):
         parser.error('No input file passed, add --domain-employer or --identities')
 
     return args
 
 
-def parse_grimoirelab_file(identities, domain_employer, source):
+def parse_grimoirelab_file(identities, organizations, source):
     """Parse GrimoireLab JSON file"""
 
-    if identities:
-        content_id = read_file(identities)
-    else:
-        content_id = None
-
-    if domain_employer:
-        content_org = read_file(domain_employer)
-    else:
-        content_org = None
+    content_id = read_file(identities) if identities else None
+    content_org = read_file(organizations) if organizations else None
 
     try:
         parser = GrimoireLabParser(content_id, content_org, source=source)
@@ -112,9 +107,8 @@ def to_json(uidentities, organizations, source):
         uuid = uidentity.uuid
 
         uid = uidentity.to_dict()
-        #uid['identities'].sort(key=lambda x: x['email'])
 
-        enrollments = [rol.to_dict() \
+        enrollments = [rol.to_dict()
                        for rol in uidentity.enrollments]
         uid['enrollments'] = enrollments
 
@@ -122,21 +116,22 @@ def to_json(uidentities, organizations, source):
 
     for organization in organizations:
         domains = [{'domain': dom.domain,
-                    'is_top': dom.is_top_domain} \
+                    'is_top': dom.is_top_domain}
                    for dom in organization.domains]
         domains.sort(key=lambda x: x['domain'])
 
         orgs[organization.name] = domains
 
     # Generate JSON file
-    obj = {'time' : str(datetime.datetime.now()),
-           'source' : source,
-           'blacklist' : [],
-           'organizations' : orgs,
-           'uidentities' : uids}
+    obj = {'time': str(datetime.datetime.now()),
+           'source': source,
+           'blacklist': [],
+           'organizations': orgs,
+           'uidentities': uids}
 
     return json.dumps(obj, default=json_encoder,
                       indent=4, sort_keys=True)
+
 
 def json_encoder(obj):
     """Default JSON encoder"""
@@ -146,10 +141,11 @@ def json_encoder(obj):
     else:
         return json.JSONEncoder.default(obj)
 
+
 def read_file(f):
-    if sys.version_info[0] >= 3: # Python 3
+    if sys.version_info[0] >= 3:  # Python 3
         content = f.read()
-    else: # Python 2
+    else:  # Python 2
         content = f.read().decode('UTF-8')
     return content
 
