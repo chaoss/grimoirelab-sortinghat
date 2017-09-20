@@ -41,7 +41,7 @@ def main():
     args = parse_args()
 
     try:
-        parser = parse_grimoirelab_file(args.identities, args.domain_employer,
+        parser = parse_grimoirelab_file(args.identities, args.organizations,
                                         args.source)
     except (IOError, UnicodeDecodeError, InvalidFormatError) as e:
         raise RuntimeError(str(e))
@@ -61,7 +61,7 @@ def parse_args():
 
     parser.add_argument('-i', '--identities', type=argparse.FileType('r'),
                          help='GrimoireLab profiles/identities mapping file')
-    parser.add_argument('-d', '--domain-employer', dest='domain_employer',
+    parser.add_argument('-d', '--organizations', dest='organizations',
                         type=argparse.FileType('r'),
                         help='GrimoireLab domain to employer mapping file')
     parser.add_argument('-s', '--source', dest='source', required=True,
@@ -72,24 +72,18 @@ def parse_args():
 
     args = parser.parse_args()
 
-    if not (args.identities or args.domain_employer):
+    if not (args.identities or args.organizations):
         parser.error('No input file passed, add --domain-employer or --identities')
 
     return args
 
 
-def parse_grimoirelab_file(identities, domain_employer, source):
+def parse_grimoirelab_file(identities, organizations, source):
     """Parse GrimoireLab JSON file"""
 
-    if identities:
-        content_id = read_file(identities)
-    else:
-        content_id = None
+    content_id = read_file(identities) if identities else None
 
-    if domain_employer:
-        content_org = read_file(domain_employer)
-    else:
-        content_org = None
+    content_org = read_file(organizations) if organizations else None
 
     try:
         parser = GrimoireLabParser(content_id, content_org, source=source)
@@ -112,7 +106,7 @@ def to_json(uidentities, organizations, source):
         uuid = uidentity.uuid
 
         uid = uidentity.to_dict()
-        #uid['identities'].sort(key=lambda x: x['email'])
+        uid['identities'].sort(key=lambda x: x['email'])
 
         enrollments = [rol.to_dict() \
                        for rol in uidentity.enrollments]
@@ -138,6 +132,7 @@ def to_json(uidentities, organizations, source):
     return json.dumps(obj, default=json_encoder,
                       indent=4, sort_keys=True)
 
+
 def json_encoder(obj):
     """Default JSON encoder"""
 
@@ -145,6 +140,7 @@ def json_encoder(obj):
         return obj.isoformat()
     else:
         return json.JSONEncoder.default(obj)
+
 
 def read_file(f):
     if sys.version_info[0] >= 3: # Python 3

@@ -86,6 +86,7 @@ class GrimoireLabParser(object):
 
     def __parse(self, identities_stream, domain_employer_stream):
         """Parse GrimoireLab stream"""
+
         if domain_employer_stream:
             self.__parse_organizations(domain_employer_stream)
 
@@ -118,28 +119,29 @@ class GrimoireLabParser(object):
         """
         def __create_sh_identities(name, emails, yaml_entry):
             """Create SH identities based on name, emails and backens data in yaml_entry"""
-            my_ids = []
-            my_ids.append(Identity(name=name, source=self.source))
+
+            ids = []
+            ids.append(Identity(name=name, source=self.source))
 
             # FIXME we should encourage our users to add email or usernames
             # and if not returning at least a WARNING
             if emails:
                 for m in emails:
-                    my_ids.append(Identity(email=m, source=self.source))
+                    ids.append(Identity(email=m, source=self.source))
 
             for pb in PERCEVAL_BACKENDS:
-
                 if pb not in yaml_entry:
                     continue
 
                 for username in yaml_entry[pb]:
                     identity = Identity(username=username, source=pb)
-                    my_ids.append(identity)
+                    ids.append(identity)
 
-            return my_ids
+            return ids
 
 
         yaml = self.__load_yml(stream)
+        yid_counter = 0
 
         try:
             for yid in yaml:
@@ -154,10 +156,8 @@ class GrimoireLabParser(object):
                 emails = yid.get('email', None)
                 enrollments = yid.get('enrollments', None)
 
-                first_email, first_username = self.__first_email_username(yid)
-                uuid = self.__compose_uuid(name, first_email, first_username)
-
-                uid = UniqueIdentity(uuid=uuid)
+                uid = UniqueIdentity(uuid=str(yid_counter))
+                yid_counter += 1
 
                 prf = Profile(name=name, is_bot=is_bot)
                 uid.profile = prf
@@ -212,19 +212,16 @@ class GrimoireLabParser(object):
                 o = Organization(name=name)
 
                 if 'domains' in element:
-                    if isinstance(element['domains'], list):
-                        for dom in element['domains']:
-                            if dom:
-                                d = Domain(domain=dom, is_top_domain=False)
-                                o.domains.append(d)
-                            else:
-                                msg = "invalid GrimoireLab yaml format. Empty domain name for organization %s" % name
-                                raise InvalidFormatError(cause=msg)
-                    else:
-                        msg = "invalid GrimoireLab yaml format. List of elements expected for organization %s" % name
+                    if no isinstance(element['domains'], list):
+                        msg = "invalid GrimoireLab yaml format. Empty domain name for organization %s" % name
                         raise InvalidFormatError(cause=msg)
-                self._organizations[name] = o
 
+                    for dom in element['domains']:
+                        if dom:
+                            d = Domain(domain=dom, is_top_domain=False)
+                            o.domains.append(d)
+
+                self._organizations[name] = o
         except KeyError as e:
             msg = "invalid GrimoireLab yaml format. Attribute %s not found" % e.args
             raise InvalidFormatError(cause=msg)
@@ -301,35 +298,6 @@ class GrimoireLabParser(object):
             else:
                 return s
 
-    def __compose_uuid(self, name, email, username):
-        """Composes a uuid string as result of the concatenation of name and (email and/or username)"""
-        uuid = ''
-        uuid += name
-        if email:
-            uuid += email
-        if username:
-            uuid += username
-        return uuid
-
-    def __first_email_username(self, yaml_identity):
-        """Returns first email and first username found in the YAML identity"""
-        first_email = None
-        first_username = None
-        emails = yaml_identity.get('email', None)
-
-        if emails:
-            first_email = self.__validate_email(emails[0])
-
-        for pb in PERCEVAL_BACKENDS:
-            if pb in yaml_identity:
-                first_username = yaml_identity[pb][0]
-                break
-
-        #either first_email or first_username must exist
-        if (first_email is None) and (first_username is None):
-            msg = "invalid GrimoireLab yaml format. At least email or user account must be included"
-            raise InvalidFormatError(cause=msg)
-        return (first_email, first_username)
 
     def __validate_email(self, email):
         """Checks if a string looks like an email address"""

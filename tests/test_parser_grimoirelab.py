@@ -305,7 +305,7 @@ class TestGrimoreLabParser(TestBaseCase):
         """Check whether it parses invalid identities files"""
 
         stream_ids = self.read_file('data/grimoirelab_invalid_email.yml')
-        with self.assertRaises(InvalidFormatError):
+        with self.assertRaisesRegExp(InvalidFormatError):
             GrimoireLabParser(stream_ids)
 
         stream_ids = self.read_file('data/grimoirelab_invalid_structure.yml')
