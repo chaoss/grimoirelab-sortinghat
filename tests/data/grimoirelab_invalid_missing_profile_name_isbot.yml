@@ -1,0 +1,35 @@
+# wrong entry with profile without name and is_bot
+- profile:
+    country: Spain
+  enrollments:
+    - organization: Bitergia
+      start: 2013-01-01
+  github:
+    - jsmanrique
+  jira:
+    - jsm
+  email:
+    - jsmanrique@bitergia.com
+
+# valid entry
+- profile:
+    name: Luis Cañas-Díaz
+  enrollments:
+    - organization: GSyC/LibreSoft
+      start: 2003-01-01
+      end: 2011-12-31
+    - organization: Bitergia
+      start: 2012-01-01T00:00:00
+  github:
+    - sanacl
+  irc:
+    - lcanas
+  email:
+    - lcanas@bitergia.com
+
+# valid entry
+- profile:
+    name: Owl Bot
+    is_bot: true
+  email:
+    - owlbot@bitergia.com
