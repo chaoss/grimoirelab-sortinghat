@@ -274,8 +274,6 @@ class Load(Command):
             stored_uuid = self.__load_identities(uidentity.identities, stored_uuid,
                                                  verbose)
 
-            # The profile will be loaded when the stored unique identity
-            # does not have any one.
             try:
                 self.__load_profile(uidentity.profile, stored_uuid, verbose)
             except Exception as e:
@@ -368,14 +366,12 @@ class Load(Command):
 
         uid = api.unique_identities(self.db, uuid)[0]
 
-        if uid.profile:
-            self.log("-- profile already available for %s. Not updated" % uuid, verbose)
-            return
-
         if profile:
             self.__create_profile(profile, uuid, verbose)
-        else:
+        elif not uid.profile:
             self.__create_profile_from_identities(uid.identities, uuid, verbose)
+        else:
+            self.log("-- empty profile given for %s. Not updated" % uuid, verbose)
 
     def __create_profile(self, profile, uuid, verbose):
         """Create profile information from a profile object"""

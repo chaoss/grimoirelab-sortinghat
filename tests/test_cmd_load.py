@@ -572,15 +572,13 @@ class TestLoadIdentities(TestLoadCaseBase):
         uid = uids[1]
         self.assertEqual(uid.uuid, '2371a34a0ac65fbd9d631464ee41d583ec0e1e88')
 
-        # The profile was not updated because it was already available
+        # The profile is updated because a new one was given
         prf = uid.profile
         self.assertEqual(prf.uuid, '2371a34a0ac65fbd9d631464ee41d583ec0e1e88')
-        self.assertEqual(prf.name, 'John Smith')
-        self.assertEqual(prf.email, None)
-        self.assertEqual(prf.is_bot, False)
-        self.assertEqual(prf.country_code, 'US')
-        self.assertEqual(prf.country.code, 'US')
-        self.assertEqual(prf.country.name, 'United States of America')
+        self.assertEqual(prf.name, None)
+        self.assertEqual(prf.email, 'jsmith@example.com')
+        self.assertEqual(prf.is_bot, True)
+        self.assertEqual(prf.country, None)
 
         ids = self.sort_identities(uid.identities)
         self.assertEqual(len(ids), 3)
