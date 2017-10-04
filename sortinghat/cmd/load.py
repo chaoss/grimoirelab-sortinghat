@@ -27,7 +27,7 @@ import sys
 
 from .. import api
 from ..command import Command, CMD_SUCCESS, HELP_LIST
-from ..db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE
+from ..db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE, Enrollment
 from ..exceptions import AlreadyExistsError, NotFoundError,\
     InvalidFormatError, LoadError, MatcherNotSupportedError
 from ..matcher import create_identity_matcher
@@ -48,6 +48,9 @@ class Load(Command):
     matching engine is set with '--matching' option. By default, no matching
     engine is selected. The parameter '--match-new' can also be used to match
     only those identities that are new on the registry.
+
+    Previous relationships between identities and their enrollments will be
+    removed when the option '--reset' is set.
 
     Take into account that those organizations set on each identity enrollment
     will be loaded despite '--identities' option were set.
@@ -72,6 +75,8 @@ class Load(Command):
                            help="import organizations")
 
         # General options
+        self.parser.add_argument('--reset', action='store_true',
+                                 help="clear relationships and enrollments before loading")
         self.parser.add_argument('--overwrite', action='store_true',
                                  help="force to overwrite existing domain relationships")
 
@@ -103,7 +108,7 @@ class Load(Command):
 
     @property
     def usage(self):
-        return "%(prog)s load [-v] [--identities | --orgs] [-m matching] [-n] [--overwrite] [file]"
+        return "%(prog)s load [-v] [--reset] [--identities | --orgs] [-m matching] [-n] [--overwrite] [file]"
 
     def log(self, msg, debug=True):
         if debug:
@@ -139,7 +144,9 @@ class Load(Command):
         if params.identities:
             self.import_blacklist(parser)
             code = self.import_identities(parser, params.matching,
-                                          params.match_new, params.verbose)
+                                          params.match_new,
+                                          params.reset,
+                                          params.verbose)
         elif params.orgs:
             self.import_organizations(parser, params.overwrite)
             code = CMD_SUCCESS
@@ -147,7 +154,9 @@ class Load(Command):
             self.import_organizations(parser, params.overwrite)
             self.import_blacklist(parser)
             code = self.import_identities(parser, params.matching,
-                                          params.match_new, params.verbose)
+                                          params.match_new,
+                                          params.reset,
+                                          params.verbose)
 
         return code
 
@@ -212,7 +221,7 @@ class Load(Command):
                     self.warning(msg)
 
     def import_identities(self, parser, matching=None, match_new=False,
-                          verbose=False):
+                          reset=False, verbose=False):
         """Import identities information on the registry.
 
         New unique identities, organizations and enrollment data parsed
@@ -224,9 +233,13 @@ class Load(Command):
         would be merged into one. The 'match_new' parameter can be set to match
         and merge only new loaded identities.
 
+        When `reset` is set, relationships and enrollments will be removed
+        before loading any data.
+
         :param parser: sorting hat parser
         :param matching: type of matching used to merge existing identities
         :param match_new: match and merge only the new loaded identities
+        :param reset: remove relationships and enrollments before loading data
         :param verbose: run in verbose mode when matching is set
         """
         matcher = None
@@ -243,7 +256,7 @@ class Load(Command):
 
         try:
             self.__load_unique_identities(uidentities, matcher, match_new,
-                                          verbose)
+                                          reset, verbose)
         except LoadError as e:
             self.error(str(e))
             return e.code
@@ -251,12 +264,15 @@ class Load(Command):
         return CMD_SUCCESS
 
     def __load_unique_identities(self, uidentities, matcher, match_new,
-                                 verbose):
+                                 reset, verbose):
         """Load unique identities"""
 
         self.new_uids.clear()
 
         n = 0
+
+        if reset:
+            self.__reset_unique_identities()
 
         self.log("Loading unique identities...")
 
@@ -292,6 +308,33 @@ class Load(Command):
             n += 1
 
         self.log("%d/%d unique identities loaded" % (n, len(uidentities)))
+
+    def __reset_unique_identities(self):
+        """Clear identities relationships and enrollments data"""
+
+        self.log("Reseting unique identities...")
+
+        self.log("Clearing identities relationships")
+
+        nids = 0
+        uidentities = api.unique_identities(self.db)
+
+        for uidentity in uidentities:
+            for identity in uidentity.identities:
+                api.move_identity(self.db, identity.id, identity.id)
+                nids += 1
+
+        self.log("Relationships cleared for %s identities" % nids)
+
+        self.log("Clearing enrollments")
+
+        with self.db.connect() as session:
+            enrollments = session.query(Enrollment).all()
+
+            for enr in enrollments:
+                session.delete(enr)
+
+        self.log("Enrollments cleared")
 
     def __load_unique_identity(self, uidentity, verbose):
         """Seek or store unique identity"""
