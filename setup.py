@@ -71,7 +71,17 @@ setup(name="sortinghat",
                 'sortinghat.parsing', 'sortinghat.templates', 'sortinghat.data'],
       package_data={'sortinghat.templates' : ['*.tmpl'],
                     'sortinghat.data' : ['*'],},
-      scripts=["bin/sortinghat", "bin/mg2sh", "bin/sh2mg"],
+      scripts=[
+        "bin/sortinghat",
+        "bin/mg2sh",
+        "bin/sh2mg",
+        "misc/eclipse2sh",
+        "misc/gitdm2sh",
+        "misc/grimoirelab2sh",
+        "misc/mailmap2sh",
+        "misc/mozilla2sh",
+        "misc/stackalytics2sh"
+      ],
       install_requires=[
         'PyMySQL',
         'sqlalchemy>=1.0.0',
