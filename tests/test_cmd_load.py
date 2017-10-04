@@ -652,6 +652,86 @@ class TestLoadIdentities(TestLoadCaseBase):
         self.assertEqual(prf.country_code, None)
         self.assertEqual(prf.country, None)
 
+    def test_reset(self):
+        """Check if stored relationships and enrollments are removed before loading"""
+
+        # These identities will be split and enrollments removed
+        uuid = api.add_identity(self.db, 'unknown', email='jsmith@example.com')
+        api.add_identity(self.db, source='scm', email='jsmith@example.com',
+                         name='John Smith', username='jsmith', uuid=uuid)
+
+        api.add_organization(self.db, 'LibreSoft')
+        api.add_enrollment(self.db, uuid, 'LibreSoft',
+                           datetime.datetime(2000, 1, 1, 0, 0),
+                           datetime.datetime(2100, 1, 1, 0, 0))
+
+        parser = self.get_parser('data/sortinghat_valid.json')
+
+        code = self.cmd.import_identities(parser, reset=True)
+        self.assertEqual(code, CMD_SUCCESS)
+
+        # Check the contents of the registry
+        uids = api.unique_identities(self.db)
+        self.assertEqual(len(uids), 3)
+
+        # Jane Roe
+        uid = uids[0]
+        self.assertEqual(uid.uuid, '17ab00ed3825ec2f50483e33c88df223264182ba')
+
+        ids = self.sort_identities(uid.identities)
+        self.assertEqual(len(ids), 3)
+
+        id0 = ids[0]
+        self.assertEqual(id0.id, '17ab00ed3825ec2f50483e33c88df223264182ba')
+        self.assertEqual(id0.name, 'Jane Roe')
+        self.assertEqual(id0.email, 'jroe@example.com')
+        self.assertEqual(id0.username, 'jroe')
+        self.assertEqual(id0.source, 'scm')
+
+        enrollments = api.enrollments(self.db, uid.uuid)
+        self.assertEqual(len(enrollments), 3)
+
+        # jsmith@example.com
+        uid = uids[1]
+        self.assertEqual(uid.uuid, '2371a34a0ac65fbd9d631464ee41d583ec0e1e88')
+
+        ids = self.sort_identities(uid.identities)
+        self.assertEqual(len(ids), 1)
+
+        id0 = ids[0]
+        self.assertEqual(id0.id, '2371a34a0ac65fbd9d631464ee41d583ec0e1e88')
+        self.assertEqual(id0.name, None)
+        self.assertEqual(id0.email, 'jsmith@example.com')
+        self.assertEqual(id0.username, None)
+        self.assertEqual(id0.source, 'unknown')
+
+        enrollments = api.enrollments(self.db, uid.uuid)
+        self.assertEqual(len(enrollments), 0)
+
+        # John Smith
+        uid = uids[2]
+        self.assertEqual(uid.uuid, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+
+        ids = self.sort_identities(uid.identities)
+        self.assertEqual(len(ids), 2)
+
+        id1 = ids[0]
+        self.assertEqual(id1.id, '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
+        self.assertEqual(id1.name, 'John Smith')
+        self.assertEqual(id1.email, 'jsmith@example.com')
+        self.assertEqual(id1.username, None)
+        self.assertEqual(id1.source, 'scm')
+
+        id2 = ids[1]
+        self.assertEqual(id2.id, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        self.assertEqual(id2.name, 'John Smith')
+        self.assertEqual(id2.email, 'jsmith@example.com')
+        self.assertEqual(id2.username, 'jsmith')
+        self.assertEqual(id2.source, 'scm')
+
+        enrollments = api.enrollments(self.db, uid.uuid)
+        self.assertEqual(len(enrollments), 1)
+
     def test_dates_out_of_bounds(self):
         """Check dates when they are out of bounds"""
 
