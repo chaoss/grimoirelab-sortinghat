@@ -238,7 +238,7 @@ def _match_with_pandas(filtered, matcher):
         return []
 
     df = pandas.DataFrame(data)
-    df = df.sort(['uuid'])
+    df = df.sort_values(['uuid'])
 
     cdfs = []
     criteria = matcher.matching_criteria()
