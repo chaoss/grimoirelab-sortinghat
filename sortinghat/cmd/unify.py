@@ -134,7 +134,7 @@ class Unify(Command):
             return e.code
         except Exception as e:
             self.__display_stats()
-            raise RuntimeError(unicode(e))
+            raise RuntimeError(str(e))
 
         return CMD_SUCCESS
 
