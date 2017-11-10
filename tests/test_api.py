@@ -1457,7 +1457,8 @@ class TestDeleteEnrollment(TestAPICaseBase):
 
         with self.db.connect() as session:
             enrollments = session.query(Enrollment).join(Organization).\
-                    filter(Organization.name == 'Example').all()
+                    filter(Organization.name == 'Example').\
+                    order_by(Enrollment.start).all()
             self.assertEqual(len(enrollments), 2)
 
             self.assertEqual(enrollments[0].start, datetime.datetime(1900, 1, 1))

@@ -40,7 +40,7 @@ CODE_LOAD_ERROR = 7
 CODE_MATCHER_NOT_SUPPORTED_ERROR = 8
 CODE_NOT_FOUND_ERROR = 9
 CODE_VALUE_ERROR = 10
-
+CODE_DATABASE_EXISTS = 11
 
 class BaseError(Exception):
     """Base class error.
@@ -90,7 +90,14 @@ class DatabaseError(BaseError):
     """Exception raised when a database error occurs"""
 
     message = "%(error)s (err: %(code)s)"
-    code = CODE_DATABASE_ERROR
+    code = CODE_DATABASE_EXISTS
+
+
+class DatabaseExists(BaseError):
+    """Exception raised when trying to create a database and it already exists"""
+
+    message = "%(error)s (err: %(code)s)"
+    code = CODE_DATABASE_EXISTS
 
 
 class InvalidDateError(BaseError):

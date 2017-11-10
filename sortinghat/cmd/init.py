@@ -25,7 +25,8 @@ from __future__ import unicode_literals
 import argparse
 
 from ..command import Command, CMD_SUCCESS
-from ..exceptions import CODE_VALUE_ERROR, DatabaseError, LoadError
+from ..exceptions import CODE_VALUE_ERROR, CODE_DATABASE_ERROR, CODE_DATABASE_EXISTS, \
+                        DatabaseError, DatabaseExists, LoadError
 from ..db.database import Database
 from ..db.model import Country
 
@@ -35,7 +36,8 @@ class Init(Command):
 
     This command creates an empty registry creating a new database
     of <name> and its required tables. Any attempt to create
-    a new registry over an existing instance will make fail the command.
+    a new registry over an existing instance will make fail the command,
+    except if the --reuse flag is used.
     """
     def __init__(self, **kwargs):
         super(Init, self).__init__(**kwargs)
@@ -43,6 +45,9 @@ class Init(Command):
         self.parser = argparse.ArgumentParser(description=self.description,
                                               usage=self.usage)
 
+        # Named arguments
+        self.parser.add_argument('--reuse', action='store_true',
+                                 help="Reuse database if it already exists")
         # Positional arguments
         self.parser.add_argument('name',
                                  help="Name of the database to store the registry")
@@ -63,18 +68,21 @@ class Init(Command):
         """
         params = self.parser.parse_args(args)
 
-        code = self.initialize(params.name)
+        code = self.initialize(name=params.name, reuse=params.reuse)
 
         return code
 
-    def initialize(self, name):
+    def initialize(self, name, reuse=False):
         """Create an empty Sorting Hat registry.
 
         This method creates a new database including the schema of Sorting Hat.
         Any attempt to create a new registry over an existing instance will
-        procede an error.
+        produce an error, except if reuse=True. In that case, the
+        database will be reused, assuming the database schema is correct
+        (it won't be created in this case).
 
-        :param name: name of the database
+        :param  name: name of the database
+        :param reuse: reuse database if it already exists
         """
         user = self._kwargs['user']
         password = self._kwargs['password']
@@ -87,19 +95,22 @@ class Init(Command):
 
         try:
             Database.create(user, password, name, host, port)
-
             # Try to access and create schema
             db = Database(user, password, name, host, port)
-
+            self.error("db assigned")
             # Load countries list
             self.__load_countries(db)
+        except DatabaseExists as e:
+            if not reuse:
+                self.error(str(e))
+                return CODE_DATABASE_EXISTS
         except DatabaseError as e:
             self.error(str(e))
-            return e.code
+            return CODE_DATABASE_ERROR
         except LoadError as e:
             Database.drop(user, password, name, host, port)
             self.error(str(e))
-            return e.code
+            return CODE_LOAD_ERROR
 
         return CMD_SUCCESS
 

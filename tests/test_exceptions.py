@@ -28,9 +28,9 @@ import unittest
 if not '..' in sys.path:
     sys.path.insert(0, '..')
 
-from sortinghat.exceptions import BaseError, AlreadyExistsError, BadFileFormatError,\
-    DatabaseError, InvalidDateError, InvalidFormatError, LoadError,\
-    MatcherNotSupportedError, NotFoundError
+from sortinghat.exceptions import BaseError, AlreadyExistsError, \
+    BadFileFormatError, DatabaseError, DatabaseExists, InvalidDateError, \
+    InvalidFormatError, LoadError, MatcherNotSupportedError, NotFoundError
 
 
 # Mock classes to test BaseError class
@@ -129,6 +129,27 @@ class TestDatabaseError(unittest.TestCase):
 
         kwargs = {'code' : 1049}
         self.assertRaises(KeyError, DatabaseError, **kwargs)
+
+
+class TestDatabaseExists(unittest.TestCase):
+
+    def test_message(self):
+        """Make sure that prints the correct error"""
+
+        e = DatabaseExists(error="Database exists 'mydb'", code=1049)
+        self.assertEqual("Database exists 'mydb' (err: 1049)", str(e))
+
+    def test_no_args(self):
+        """Check whether it raises a KeyError exception when
+        required parameters are not given"""
+        kwargs = {}
+        self.assertRaises(KeyError, DatabaseExists, **kwargs)
+
+        kwargs = {'error' : "Database existis 'mydb'"}
+        self.assertRaises(KeyError, DatabaseExists, **kwargs)
+
+        kwargs = {'code' : 1049}
+        self.assertRaises(KeyError, DatabaseExists, **kwargs)
 
 
 class TestInvalidDateError(unittest.TestCase):
