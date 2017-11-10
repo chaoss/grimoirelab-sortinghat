@@ -25,7 +25,7 @@ from __future__ import unicode_literals
 from contextlib import contextmanager
 
 from sqlalchemy import create_engine
-from sqlalchemy.exc import OperationalError, ProgrammingError
+from sqlalchemy.exc import OperationalError, ProgrammingError, InternalError
 from sqlalchemy.engine.url import URL
 from sqlalchemy.orm import mapper, sessionmaker
 from sqlalchemy.pool import QueuePool
@@ -88,7 +88,7 @@ class Database(object):
         try:
             conn = engine.connect()
             conn.execute(query)
-        except (OperationalError, ProgrammingError) as e:
+        except (OperationalError, ProgrammingError, InternalError) as e:
             raise DatabaseError(error=e.orig.args[1], code=e.orig.args[0])
 
     @classmethod

@@ -45,23 +45,23 @@ REGISTRY_DOM_NOT_FOUND_ERROR = "Error: example.com not found in the registry"
 REGISTRY_DOM_NOT_FOUND_ERROR_ALT = "Error: bitergia.com not found in the registry"
 REGISTRY_EMPTY_OUTPUT = ""
 
-REGISTRY_OUTPUT = """Bitergia\tbitergia.net
-Bitergia\tbitergia.com *
+REGISTRY_OUTPUT = """Bitergia\tbitergia.com *
+Bitergia\tbitergia.net
 Example\texample.com
-Example\texample.org
 Example\texample.net
+Example\texample.org
 LibreSoft"""
 
 REGISTRY_OUTPUT_ALT = """Bitergia\tbitergia.net
-Example\texample.com
 Example\tbitergia.com
-Example\texample.org
+Example\texample.com
 Example\texample.net
+Example\texample.org
 LibreSoft"""
 
 REGISTRY_OUTPUT_EXAMPLE = """Example\texample.com
-Example\texample.org
 Example\texample.net
+Example\texample.org
 MyExample\tmyexample.com"""
 
 REGISTRY_OUTPUT_EXAMPLE_ALT = """Example\texample.com

@@ -60,9 +60,10 @@ def merge_date_ranges(dates):
     if not dates:
         return
 
-    saved = list(dates[0])
+    sorted_dates = sorted([sorted(t) for t in dates])
+    saved = list(sorted_dates[0])
 
-    for st, en in sorted([sorted(t) for t in dates]):
+    for st, en in sorted_dates:
         if st < MIN_PERIOD_DATE or st > MAX_PERIOD_DATE:
             raise ValueError("start date %s is out of bounds" % str(st))
         if en < MIN_PERIOD_DATE or en > MAX_PERIOD_DATE:
