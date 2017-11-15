@@ -51,15 +51,18 @@ class EmailMatcher(IdentityMatcher):
     Simple unique identities matcher.
 
     This matcher only produces a positive result when two identities
-    from each unique identity share the same email address. It also
-    returns a positive match when the uuid on both unique identities is equal.
+    from each unique identity share the same email address. When `strict`
+    is set, the email must be well-formed. It also returns a positive
+    match when the uuid on both unique identities is equal.
 
     :param blacklist: list of entries to ignore during the matching process
     :param sources: only match the identities from these sources
+    :param strict: strict matching with well-formed email addresses
     """
-    def __init__(self, blacklist=None, sources=None):
+    def __init__(self, blacklist=None, sources=None, strict=True):
         super(EmailMatcher, self).__init__(blacklist=blacklist,
-                                           sources=sources)
+                                           sources=sources,
+                                           strict=strict)
         self.email_pattern = re.compile(EMAIL_ADDRESS_REGEX)
 
     def match(self, a, b):
@@ -157,8 +160,11 @@ class EmailMatcher(IdentityMatcher):
             if self.sources and id_.source.lower() not in self.sources:
                 continue
 
-            if self._check_email(id_.email):
-                email = id_.email.lower()
+            if self.strict:
+                if self._check_email(id_.email):
+                    email = id_.email.lower()
+            else:
+                email = id_.email.lower() if id_.email else None
 
             if email:
                 fid = EmailIdentity(id_.id, id_.uuid, email)

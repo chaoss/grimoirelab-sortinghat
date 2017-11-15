@@ -60,14 +60,17 @@ class EmailNameMatcher(IdentityMatcher):
        - identities share the same email address
        - name field is composed by "firstname lastname" and both are
          equal; i.e: "John Smith" and "J Smith Rae" are valid name fields;
-         "jonhsmith" are "j.smith" not valid
+         "jonhsmith" are "j.smith" not valid. This rigorous validation is
+         only done when `strict` mode is set to `True`.
 
     :param blacklist: list of entries to ignore during the matching process
     :param sources: only match the identities from these sources
+    :param strict: strict matching with well-formed email addresses and names
     """
-    def __init__(self, blacklist=None, sources=None):
+    def __init__(self, blacklist=None, sources=None, strict=True):
         super(EmailNameMatcher, self).__init__(blacklist=blacklist,
-                                               sources=sources)
+                                               sources=sources,
+                                               strict=strict)
         self.email_pattern = re.compile(EMAIL_ADDRESS_REGEX)
         self.name_pattern = re.compile(NAME_REGEX)
 
@@ -174,10 +177,14 @@ class EmailNameMatcher(IdentityMatcher):
             if self._check_blacklist(id_):
                 continue
 
-            if self._check_pattern(self.email_pattern, id_.email):
-                email = id_.email.lower()
-            if self._check_pattern(self.name_pattern, id_.name):
-                name = id_.name.lower()
+            if self.strict:
+                if self._check_pattern(self.email_pattern, id_.email):
+                    email = id_.email.lower()
+                if self._check_pattern(self.name_pattern, id_.name):
+                    name = id_.name.lower()
+            else:
+                email = id_.email.lower() if id_.email else None
+                name = id_.name.lower() if id_.name else None
 
             if email or name:
                 fid = EmailNameIdentity(id_.id, id_.uuid,
