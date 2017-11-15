@@ -196,6 +196,33 @@ class TestEmailMatcher(unittest.TestCase):
         result = matcher.match(jsmith, jsmith_alt)
         self.assertEqual(result, True)
 
+    def test_match_strict(self):
+        """Test strict matching"""
+
+        # Let's define some identities first
+        jsmith_alt = UniqueIdentity(uuid='J. Smith')
+        jsmith_alt.identities = [Identity(name='J. Smith', username='john_smith', source='alt'),
+                                 Identity(name='John Smith', username='jsmith', source='alt'),
+                                 Identity(email='', source='alt'),
+                                 Identity(email='jsmith', source='alt')]
+
+        jsmith_not_email = UniqueIdentity(uuid='John Smith')
+        jsmith_not_email.identities = [Identity(email='jsmith', source='mls')]
+
+        # Tests
+        strict_matcher = EmailMatcher(strict=True)
+        no_strict_matcher = EmailMatcher(strict=False)
+
+        # This two unique identities have the same email address
+        # but due to 'jsmith' is not a valid email address, they
+        # do not match
+        result = strict_matcher.match(jsmith_alt, jsmith_not_email)
+        self.assertEqual(result, False)
+
+        # With strict mode set to False, both identities match
+        result = no_strict_matcher.match(jsmith_alt, jsmith_not_email)
+        self.assertEqual(result, True)
+
     def test_match_same_identity(self):
         """Test whether there is a match comparing the same identity"""
 
@@ -331,6 +358,7 @@ class TestEmailMatcher(unittest.TestCase):
         jsmith.identities = [Identity(name='John Smith', email='jsmith@example.com', source='scm', uuid='jsmith'),
                              Identity(name='John Smith', source='scm', uuid='jsmith'),
                              Identity(username='jsmith', source='scm', uuid='jsmith'),
+                             Identity(email='jsmith@test', uuid='jsmith'),
                              Identity(email='', source='scm', uuid='jsmith')]
 
         jrae = UniqueIdentity(uuid='jrae')
@@ -428,6 +456,51 @@ class TestEmailMatcher(unittest.TestCase):
         self.assertIsInstance(fid, EmailIdentity)
         self.assertEqual(fid.uuid, 'jrae')
         self.assertEqual(fid.email, 'jane.rae@example.net')
+
+    def test_filter_identities_no_strict(self):
+        """Test if identities are filtered in no strict mode"""
+
+        # Let's define some identities first
+        jsmith = UniqueIdentity(uuid='jsmith')
+        jsmith.identities = [Identity(name='John Smith', email='jsmith@example.com', source='scm', uuid='jsmith'),
+                             Identity(name='John Smith', source='scm', uuid='jsmith'),
+                             Identity(username='jsmith', source='scm', uuid='jsmith'),
+                             Identity(email='jsmith@test', uuid='jsmith'),
+                             Identity(email='', source='scm', uuid='jsmith')]
+
+        jrae = UniqueIdentity(uuid='jrae')
+        jrae.identities = [Identity(name='Jane Rae', source='scm', uuid='jrae'),
+                           Identity(name='Jane Rae Doe', email='jane.rae@example.net', source='mls', uuid='jrae'),
+                           Identity(name='jrae', source='scm', uuid='jrae'),
+                           Identity(email='JRAE@example.net', source='scm', uuid='jrae')]
+
+        matcher = EmailMatcher(strict=False)
+
+        result = matcher.filter(jsmith)
+        self.assertEqual(len(result), 2)
+
+        fid = result[0]
+        self.assertIsInstance(fid, EmailIdentity)
+        self.assertEqual(fid.uuid, 'jsmith')
+        self.assertEqual(fid.email, 'jsmith@example.com')
+
+        fid = result[1]
+        self.assertIsInstance(fid, EmailIdentity)
+        self.assertEqual(fid.uuid, 'jsmith')
+        self.assertEqual(fid.email, 'jsmith@test')
+
+        result = matcher.filter(jrae)
+        self.assertEqual(len(result), 2)
+
+        fid = result[0]
+        self.assertIsInstance(fid, EmailIdentity)
+        self.assertEqual(fid.uuid, 'jrae')
+        self.assertEqual(fid.email, 'jane.rae@example.net')
+
+        fid = result[1]
+        self.assertIsInstance(fid, EmailIdentity)
+        self.assertEqual(fid.uuid, 'jrae')
+        self.assertEqual(fid.email, 'jrae@example.net')
 
     def test_filter_identities_instances(self):
         """Test whether it raises an error when id is not a UniqueIdentity"""

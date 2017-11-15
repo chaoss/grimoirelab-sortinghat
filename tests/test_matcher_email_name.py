@@ -208,6 +208,54 @@ class TestEmailNameMatcher(unittest.TestCase):
         result = matcher.match(jsmith, jsmith_alt)
         self.assertEqual(result, True)
 
+    def test_match_strict(self):
+        """Test strict matching"""
+
+        # Let's define some identities first
+        jsmith_alt = UniqueIdentity(uuid='J. Smith')
+        jsmith_alt.identities = [Identity(name='J. Smith', username='john_smith', source='alt'),
+                                 Identity(name='John Smith', username='jsmith', source='alt'),
+                                 Identity(email='', source='alt'),
+                                 Identity(email='jsmith', source='alt')]
+
+        jsmith_not_email = UniqueIdentity(uuid='John Smith')
+        jsmith_not_email.identities = [Identity(email='jsmith', source='mls')]
+
+        jrae = UniqueIdentity(uuid='jrae')
+        jrae.identities = [Identity(name='Jane Rae', source='scm'),
+                           Identity(name='Jane Rae Doe', email='jane.rae@example.net', source='mls')]
+
+        jrae_doe = UniqueIdentity(uuid='jraedoe')
+        jrae_doe.identities = [Identity(name='Jane Rae Doe', email='jrae@example.com', source='mls'),
+                               Identity(name='jrae', source='scm')]
+
+        jrae_no_name = UniqueIdentity(uuid='Jane Rae')
+        jrae_no_name.identities = [Identity(name='jrae', source='scm')]
+
+        # Tests
+        strict_matcher = EmailNameMatcher(strict=True)
+        no_strict_matcher = EmailNameMatcher(strict=False)
+
+        # This two unique identities have the same email address
+        # but due to 'jsmith' is not a valid email address, they
+        # do not match
+        result = strict_matcher.match(jsmith_alt, jsmith_not_email)
+        self.assertEqual(result, False)
+
+        # But with strict mode off they do
+        result = no_strict_matcher.match(jsmith_alt, jsmith_not_email)
+        self.assertEqual(result, True)
+
+        # This two do not match although they share the same name.
+        # In this case the name is invalid because is not formed
+        # like "firstname lastname"
+        result = strict_matcher.match(jrae_doe, jrae_no_name)
+        self.assertEqual(result, False)
+
+        # But with strict mode off they do
+        result = no_strict_matcher.match(jrae_doe, jrae_no_name)
+        self.assertEqual(result, True)
+
     def test_match_same_identity(self):
         """Test whether there is a match comparing the same identity"""
 
@@ -404,39 +452,67 @@ class TestEmailNameMatcher(unittest.TestCase):
         self.assertEqual(fid.name, 'jane rae doe')
         self.assertEqual(fid.email, 'jane.rae@example.net')
 
-    def test_filter_identities_with_sources_list(self):
-        """Test if identities are filtered when there is a sources list"""
+    def test_filter_identities_no_strict(self):
+        """Test if identities are filtered in no strict mode"""
 
         # Let's define some identities first
         jsmith = UniqueIdentity(uuid='jsmith')
         jsmith.identities = [Identity(name='John Smith', email='jsmith@example.com', source='scm', uuid='jsmith'),
                              Identity(name='John Smith', source='scm', uuid='jsmith'),
-                             Identity(name='John Smith JR', source='scm', uuid='jsmith'),
-                             Identity(username='jsmith', source='mls', uuid='jsmith'),
+                             Identity(username='jsmith', source='scm', uuid='jsmith'),
+                             Identity(email='jsmith@test', source='scm', uuid='jsmith'),
                              Identity(email='', source='scm', uuid='jsmith')]
 
         jrae = UniqueIdentity(uuid='jrae')
         jrae.identities = [Identity(name='Jane Rae', source='scm', uuid='jrae'),
                            Identity(name='Jane Rae Doe', email='jane.rae@example.net', source='mls', uuid='jrae'),
                            Identity(name='jrae', source='scm', uuid='jrae'),
-                           Identity(email='JRAE@example.net', source='alt', uuid='jrae')]
+                           Identity(email='JRAE@example.net', source='scm', uuid='jrae')]
 
-        # Tests
-        matcher = EmailNameMatcher(sources=['mls', 'alt'])
+        matcher = EmailNameMatcher(strict=False)
 
         result = matcher.filter(jsmith)
-        self.assertEqual(len(result), 0)
-
-        result = matcher.filter(jrae)
-        self.assertEqual(len(result), 2)
+        self.assertEqual(len(result), 3)
 
         fid = result[0]
+        self.assertIsInstance(fid, EmailNameIdentity)
+        self.assertEqual(fid.uuid, 'jsmith')
+        self.assertEqual(fid.name, 'john smith')
+        self.assertEqual(fid.email, 'jsmith@example.com')
+
+        fid = result[1]
+        self.assertIsInstance(fid, EmailNameIdentity)
+        self.assertEqual(fid.uuid, 'jsmith')
+        self.assertEqual(fid.name, 'john smith')
+        self.assertEqual(fid.email, None)
+
+        fid = result[2]
+        self.assertIsInstance(fid, EmailNameIdentity)
+        self.assertEqual(fid.uuid, 'jsmith')
+        self.assertEqual(fid.email, 'jsmith@test')
+
+        result = matcher.filter(jrae)
+        self.assertEqual(len(result), 4)
+
+        fid = result[0]
+        self.assertIsInstance(fid, EmailNameIdentity)
+        self.assertEqual(fid.uuid, 'jrae')
+        self.assertEqual(fid.name, 'jane rae')
+        self.assertEqual(fid.email, None)
+
+        fid = result[1]
         self.assertIsInstance(fid, EmailNameIdentity)
         self.assertEqual(fid.uuid, 'jrae')
         self.assertEqual(fid.name, 'jane rae doe')
         self.assertEqual(fid.email, 'jane.rae@example.net')
 
-        fid = result[1]
+        fid = result[2]
+        self.assertIsInstance(fid, EmailNameIdentity)
+        self.assertEqual(fid.uuid, 'jrae')
+        self.assertEqual(fid.name, 'jrae')
+        self.assertEqual(fid.email, None)
+
+        fid = result[3]
         self.assertIsInstance(fid, EmailNameIdentity)
         self.assertEqual(fid.uuid, 'jrae')
         self.assertEqual(fid.name, None)
