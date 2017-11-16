@@ -82,6 +82,17 @@ class TestCreateIdentityMatcher(unittest.TestCase):
         self.assertIsInstance(matcher, IdentityMatcher)
         self.assertEqual(len(matcher.sources), 3)
 
+    def test_identity_matcher_instance_with_strict(self):
+        """Test if the factory function adds the strict mode to the matcher instance"""
+
+        matcher = create_identity_matcher('default')
+        self.assertIsInstance(matcher, IdentityMatcher)
+        self.assertEqual(matcher.strict, True)
+
+        matcher = create_identity_matcher('default', strict=False)
+        self.assertIsInstance(matcher, IdentityMatcher)
+        self.assertEqual(matcher.strict, False)
+
     def test_not_supported_matcher(self):
         """Check if an exception is raised when the given matcher type is not supported"""
 
@@ -126,6 +137,15 @@ class TestIdentityMatcher(unittest.TestCase):
         m = IdentityMatcher(sources=sources)
 
         self.assertListEqual(m.sources, ['git', 'github', 'jira'])
+
+    def test_strict_mode(self):
+        """Test strict mode value"""
+
+        m = IdentityMatcher()
+        self.assertEqual(m.strict, True)
+
+        m = IdentityMatcher(strict=False)
+        self.assertEqual(m.strict, False)
 
 
 class TestMatch(unittest.TestCase):
@@ -187,7 +207,7 @@ class TestMatch(unittest.TestCase):
 
         self.assertEqual(len(result), 4)
         self.assertListEqual(result,
-                             [[self.js_alt, self.john_smith],
+                             [[ self.john_smith, self.js_alt],
                               [self.jane_rae], [self.jrae], [self.jsmith]])
 
     def test_match_email_name(self):
@@ -205,7 +225,7 @@ class TestMatch(unittest.TestCase):
 
         self.assertEqual(len(result), 2)
         self.assertListEqual(result,
-                             [[self.js_alt, self.jsmith, self.john_smith],
+                             [[self.jsmith, self.john_smith, self.js_alt],
                               [self.jane_rae, self.jrae]])
 
     def test_match_email_fast_mode(self):

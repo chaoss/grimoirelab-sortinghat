@@ -33,9 +33,10 @@ class IdentityMatcher(object):
 
        - 'blacklist' : list of entries to ignore during the matching process
        - 'sources' : only match the identities from these sources
+       - 'strict' : strict matching (i.e, well-formed email addresses);
+          `True` by default
     """
     def __init__(self, **kwargs):
-
         self._kwargs = kwargs
         blacklist = self._kwargs.get('blacklist', None)
         sources = self._kwargs.get('sources', None)
@@ -52,6 +53,8 @@ class IdentityMatcher(object):
             self.sources.sort()
         else:
             self.sources = None
+
+        self.strict = self._kwargs.get('strict', True)
 
     def match(self, a, b):
         """Abstract method used to determine if both unique identities are the same.
@@ -117,7 +120,8 @@ class FilteredIdentity(object):
                }
 
 
-def create_identity_matcher(matcher='default', blacklist=None, sources=None):
+def create_identity_matcher(matcher='default', blacklist=None, sources=None,
+                            strict=True):
     """Create an identity matcher of the given type.
 
     Factory function that creates an identity matcher object of the type
@@ -127,6 +131,7 @@ def create_identity_matcher(matcher='default', blacklist=None, sources=None):
     :param matcher: type of the matcher
     :param blacklist: list of entries to ignore while matching
     :param sources: only match the identities from these sources
+    :param strict: strict matching (i.e, well-formed email addresses)
 
     :returns: a identity matcher object of the given type
 
@@ -140,7 +145,7 @@ def create_identity_matcher(matcher='default', blacklist=None, sources=None):
 
     klass = matching.SORTINGHAT_IDENTITIES_MATCHERS[matcher]
 
-    return klass(blacklist=blacklist, sources=sources)
+    return klass(blacklist=blacklist, sources=sources, strict=strict)
 
 
 def match(uidentities, matcher, fastmode=False):
@@ -306,7 +311,12 @@ def _build_matches(matches, uuids, no_filtered, fastmode=False):
     result += no_filtered
     result.sort(key=len, reverse=True)
 
-    return result
+    sresult = []
+    for r in result:
+        r.sort(key=lambda id_: id_.uuid)
+        sresult.append(r)
+
+    return sresult
 
 
 def _calculate_matches_closures(groups):
