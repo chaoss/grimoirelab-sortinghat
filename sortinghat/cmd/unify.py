@@ -54,6 +54,8 @@ class Unify(Command):
                                  help="unify the unique identities from these sources only")
         self.parser.add_argument('--fast-matching', dest='fast_matching', action='store_true',
                                  help="run fast matching")
+        self.parser.add_argument('--no-strict-matching', dest='no_strict', action='store_true',
+                                 help="do not rigorous check of values (i.e, well formed email addresses)")
         self.parser.add_argument('-i', '--interactive', action='store_true',
                                  help="run interactive mode while unifying")
 
@@ -71,7 +73,10 @@ class Unify(Command):
 
     @property
     def usage(self):
-        return """%(prog)s unify [--matching <matcher>] [--sources <srcs>] [--fast-matching] [--interactive]"""
+        usg = "%(prog)s unify"
+        usg += " [--matching <matcher>] [--sources <srcs>]"
+        usg += " [--fast-matching] [--no-strict-matching] [--interactive]"
+        return usg
 
     def run(self, *args):
         """Merge unique identities using a matching algorithm."""
@@ -79,19 +84,23 @@ class Unify(Command):
         params = self.parser.parse_args(args)
 
         code = self.unify(params.matching, params.sources,
-                          params.fast_matching, params.interactive)
+                          params.fast_matching, params.no_strict,
+                          params.interactive)
 
         return code
 
     def unify(self, matching=None, sources=None,
-              fast_matching=False, interactive=False):
+              fast_matching=False, no_strict_matching=False,
+              interactive=False):
         """Merge unique identities using a matching algorithm.
 
         This method looks for sets of similar identities, merging those
         identities into one unique identity. To determine when two unique
         identities are likely the same, a matching algorithm will be given
         using the parameter <matching>. When this parameter is not given,
-        the default algorithm will be used.
+        the default algorithm will be used. Rigorous validation of mathching
+        values (i.e, well formed email addresses) will be disabled when
+        <no_strict_matching> is set to to `True`.
 
         When <fast_matching> is set, it runs a fast algorithm to find matches
         between identities. This mode will consume more resources (i.e,
@@ -109,6 +118,7 @@ class Unify(Command):
         :param matching: type of matching used to merge existing identities
         :param sources: unify the unique identities from these sources only
         :param fast_matching: use the fast mode
+        :param no_strict_matching: disable strict matching (i.e, well-formed email addresses)
         :param interactive: interactive mode for merging identities
         """
         matcher = None
@@ -116,9 +126,12 @@ class Unify(Command):
         if not matching:
             matching = 'default'
 
+        strict = not no_strict_matching
+
         try:
             blacklist = api.blacklist(self.db)
-            matcher = create_identity_matcher(matching, blacklist, sources)
+            matcher = create_identity_matcher(matching, blacklist,
+                                              sources, strict)
         except MatcherNotSupportedError as e:
             self.error(str(e))
             return e.code
@@ -152,6 +165,9 @@ class Unify(Command):
         """Merge a lists of matched unique identities"""
 
         for m in matched:
+
+
+
             u = m[0]
 
             for c in m[1:]:
