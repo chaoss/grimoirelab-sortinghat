@@ -79,6 +79,12 @@ Loading unique identities...
 
 LOAD_IDENTITIES_OUTPUT_ERROR = """Error: not enough info to load 0000000000000000000000000000000000000000 unique identity. Skipping."""
 
+LOAD_IDENTITIES_NO_STRICT_OUTPUT = """Loading blacklist...
+0/0 blacklist entries loaded
+Loading unique identities...
++ 8253035bc847e70ddd13f7a721faf6f3dd159d7a (old e8284285566fdc1f41c8a22bb84a295fc3c4cbb3) loaded
+1/1 unique identities loaded"""
+
 # Organization outputs
 
 LOAD_SH_ORGS_OUTPUT = """Domain api.bitergia.com added to organization Bitergia
@@ -174,6 +180,21 @@ class TestLoadCommand(TestLoadCaseBase):
 
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, LOAD_IDENTITIES_OUTPUT_ERROR)
+
+    def test_load_identities_no_strict_matching(self):
+        """Test to load identities with no strict matching"""
+
+        # First, insert the identity that will match with one
+        # from the file
+        api.add_identity(self.db, 'unknown', email='jsmith@example')
+
+        code = self.cmd.run('--identities', '--matching', 'default',
+                            '--no-strict-matching',
+                            'data/sortinghat_no_strict_valid.json')
+        self.assertEqual(code, CMD_SUCCESS)
+
+        output = sys.stdout.getvalue().strip()
+        self.assertEqual(output, LOAD_IDENTITIES_NO_STRICT_OUTPUT)
 
     def test_load_identities_invalid_file(self):
         """Test whether it prints error messages while reading invalid files"""
@@ -548,6 +569,24 @@ class TestLoadIdentities(TestLoadCaseBase):
         self.assertEqual(ids[0].id, jsmith_uuid)
         self.assertEqual(ids[1].id, '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
         self.assertEqual(ids[2].id, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+
+    def test_matching_no_strict(self):
+        """Check if identities with no strict matching are merged"""
+
+        # First, insert the identity that will match with one
+        # from the file
+        uuid = api.add_identity(self.db, 'unknown', email='jsmith@example')
+
+        parser = self.get_parser('data/sortinghat_no_strict_valid.json')
+
+        code = self.cmd.import_identities(parser, matching='default',
+                                          no_strict_matching=True)
+        self.assertEqual(code, CMD_SUCCESS)
+
+        # Check whether identities were merged
+        uids = api.unique_identities(self.db)
+        self.assertEqual(len(uids), 1)
+        self.assertEqual(len(uids[0].identities), 2)
 
     def test_valid_identities_already_exist(self):
         """Check method when an identity already exists but with distinct UUID"""

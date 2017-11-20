@@ -87,6 +87,8 @@ class Load(Command):
                            help="match and merge using this type of matching")
         group.add_argument('-n', '--match-new', dest='match_new', action='store_true',
                            help="match and merge only new unique identities")
+        group.add_argument('--no-strict-matching', dest='no_strict', action='store_true',
+                           help="do not rigorous check of values (i.e, well formed email addresses)")
         group.add_argument('-v', '--verbose', dest='verbose', action='store_true',
                            help="run verbose mode while matching and merging")
 
@@ -108,7 +110,10 @@ class Load(Command):
 
     @property
     def usage(self):
-        return "%(prog)s load [-v] [--reset] [--identities | --orgs] [-m matching] [-n] [--overwrite] [file]"
+        usg = "%(prog)s load"
+        usg += " [-v] [--reset] [--identities | --orgs]"
+        usg += " [-m matching] [-n] [--no-strict-matching] [--overwrite] [file]"
+        return usg
 
     def log(self, msg, debug=True):
         if debug:
@@ -143,20 +148,23 @@ class Load(Command):
 
         if params.identities:
             self.import_blacklist(parser)
-            code = self.import_identities(parser, params.matching,
-                                          params.match_new,
-                                          params.reset,
-                                          params.verbose)
+            code = self.import_identities(parser,
+                                          matching=params.matching,
+                                          match_new=params.match_new,
+                                          no_strict_matching=params.no_strict,
+                                          reset=params.reset,
+                                          verbose=params.verbose)
         elif params.orgs:
             self.import_organizations(parser, params.overwrite)
             code = CMD_SUCCESS
         else:
             self.import_organizations(parser, params.overwrite)
             self.import_blacklist(parser)
-            code = self.import_identities(parser, params.matching,
-                                          params.match_new,
-                                          params.reset,
-                                          params.verbose)
+            code = self.import_identities(parser, matching=params.matching,
+                                          match_new=params.match_new,
+                                          no_strict_matching=params.no_strict,
+                                          reset=params.reset,
+                                          verbose=params.verbose)
 
         return code
 
@@ -221,6 +229,7 @@ class Load(Command):
                     self.warning(msg)
 
     def import_identities(self, parser, matching=None, match_new=False,
+                          no_strict_matching=False,
                           reset=False, verbose=False):
         """Import identities information on the registry.
 
@@ -231,7 +240,9 @@ class Load(Command):
         the new one to insert using 'matching' method. If a match is found,
         that means both identities are likely the same. Therefore, both identities
         would be merged into one. The 'match_new' parameter can be set to match
-        and merge only new loaded identities.
+        and merge only new loaded identities. Rigorous validation of mathching
+        values (i.e, well formed email addresses) will be disabled when
+        <no_strict_matching> is set to to `True`.
 
         When `reset` is set, relationships and enrollments will be removed
         before loading any data.
@@ -239,15 +250,18 @@ class Load(Command):
         :param parser: sorting hat parser
         :param matching: type of matching used to merge existing identities
         :param match_new: match and merge only the new loaded identities
+        :param no_strict_matching: disable strict matching (i.e, well-formed email addresses)
         :param reset: remove relationships and enrollments before loading data
         :param verbose: run in verbose mode when matching is set
         """
         matcher = None
 
         if matching:
+            strict = not no_strict_matching
+
             try:
                 blacklist = api.blacklist(self.db)
-                matcher = create_identity_matcher(matching, blacklist)
+                matcher = create_identity_matcher(matching, blacklist, strict=strict)
             except MatcherNotSupportedError as e:
                 self.error(str(e))
                 return e.code

@@ -45,8 +45,15 @@ UNIFY_SOURCES_OUTPUT = """Unique identity f30dc6a71730e37f03c7e27379febb219f7918
 Total unique identities processed: 6
 Total matches: 1
 Total unique identities after merging: 5"""
-UNIFY_EMAIL_NAME_OUTPUT = """Unique identity 178315df7941fc76a6ffb06fd5b00f6932ad9c41 merged on 400fdfaab5918d1b7e0e0efba4797abdc378bd7d
-Unique identity 880b3dfcb3a08712e5831bddc3dfe81fc5d7b331 merged on 400fdfaab5918d1b7e0e0efba4797abdc378bd7d
+UNIFY_NO_STRICT_OUTPUT = """Unique identity 9cb28b6fb034393bbe4749081e0da6cc5a715b85 merged on 54806f99212ac5de67684dabda6db139fc6507ee
+Unique identity f30dc6a71730e37f03c7e27379febb219f7918de merged on 54806f99212ac5de67684dabda6db139fc6507ee
+Unique identity 400fdfaab5918d1b7e0e0efba4797abdc378bd7d merged on 178315df7941fc76a6ffb06fd5b00f6932ad9c41
+Unique identity 880b3dfcb3a08712e5831bddc3dfe81fc5d7b331 merged on 178315df7941fc76a6ffb06fd5b00f6932ad9c41
+Total unique identities processed: 6
+Total matches: 4
+Total unique identities after merging: 2"""
+UNIFY_EMAIL_NAME_OUTPUT = """Unique identity 400fdfaab5918d1b7e0e0efba4797abdc378bd7d merged on 178315df7941fc76a6ffb06fd5b00f6932ad9c41
+Unique identity 880b3dfcb3a08712e5831bddc3dfe81fc5d7b331 merged on 178315df7941fc76a6ffb06fd5b00f6932ad9c41
 Unique identity f30dc6a71730e37f03c7e27379febb219f7918de merged on 9cb28b6fb034393bbe4749081e0da6cc5a715b85
 Total unique identities processed: 6
 Total matches: 3
@@ -54,6 +61,7 @@ Total unique identities after merging: 3"""
 UNIFY_EMPTY_OUTPUT = """Total unique identities processed: 0
 Total matches: 0
 Total unique identities after merging: 0"""
+
 
 UNIFY_MATCHING_ERROR = "Error: mock identity matcher is not supported"
 
@@ -106,6 +114,14 @@ class TestUnifyCommand(TestUnifyCaseBase):
         self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, UNIFY_DEFAULT_OUTPUT)
+
+    def test_unify_no_strict(self):
+        """Test command with no strict mode active"""
+
+        code = self.cmd.run('--no-strict-matching', '--matching', 'email-name')
+        self.assertEqual(code, CMD_SUCCESS)
+        output = sys.stdout.getvalue().strip()
+        self.assertEqual(output, UNIFY_NO_STRICT_OUTPUT)
 
     def test_unify_sources_list(self):
         """Test command with a sources list"""
@@ -203,6 +219,22 @@ class TestUnify(TestUnifyCaseBase):
 
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, UNIFY_DEFAULT_OUTPUT)
+
+    def test_unify_no_strict(self):
+        """Test unify method with no strict mode set"""
+
+        before = api.unique_identities(self.db)
+        self.assertEqual(len(before), 6)
+
+        code = self.cmd.unify(matching='email-name',
+                              no_strict_matching=True)
+        self.assertEqual(code, CMD_SUCCESS)
+
+        after = api.unique_identities(self.db)
+        self.assertEqual(len(after), 2)
+
+        output = sys.stdout.getvalue().strip()
+        self.assertEqual(output, UNIFY_NO_STRICT_OUTPUT)
 
     def test_unify_with_blacklist(self):
         """Test unify method using a blacklist"""
