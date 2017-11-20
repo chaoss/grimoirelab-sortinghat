@@ -24,9 +24,11 @@
 import codecs
 import os
 import re
+import sys
+import unittest
 
 # Always prefer setuptools over distutils
-from setuptools import setup
+from setuptools import setup, Command
 
 here = os.path.abspath(os.path.dirname(__file__))
 readme_md = os.path.join(here, 'README.md')
@@ -40,14 +42,34 @@ try:
     import pypandoc
     long_description = pypandoc.convert(readme_md, 'rst')
 except (IOError, ImportError):
-    print("Warning: pypandoc module not found, or pandoc not installed. " \
-            + "Using md instead of rst")
+    print("Warning: pypandoc module not found, or pandoc not installed. "
+          + "Using md instead of rst")
     with codecs.open(readme_md, encoding='utf-8') as f:
         long_description = f.read()
 
 with codecs.open(version_py, 'r', encoding='utf-8') as fd:
     version = re.search(r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
                         fd.read(), re.MULTILINE).group(1)
+
+
+class TestCommand(Command):
+
+    user_options = []
+    __dir__ = os.path.dirname(os.path.realpath(__file__))
+
+    def initialize_options(self):
+        os.chdir(os.path.join(self.__dir__, 'tests'))
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        test_suite = unittest.TestLoader().discover('.', pattern='test*.py')
+        result = unittest.TextTestRunner(buffer=True).run(test_suite)
+        sys.exit(not result.wasSuccessful())
+
+
+cmdclass = {'test': TestCommand}
 
 setup(name="sortinghat",
       description="A tool to manage identities",
@@ -61,16 +83,19 @@ setup(name="sortinghat",
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'Topic :: Software Development',
-        'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
+        'License :: OSI Approved :: '
+        'GNU General Public License v3 or later (GPLv3+)',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4'],
       keywords="development repositories analytics",
-      packages=['sortinghat', 'sortinghat.db', 'sortinghat.cmd', 'sortinghat.matching',
-                'sortinghat.parsing', 'sortinghat.templates', 'sortinghat.data'],
-      package_data={'sortinghat.templates' : ['*.tmpl'],
-                    'sortinghat.data' : ['*'],},
+      packages=['sortinghat', 'sortinghat.db', 'sortinghat.cmd',
+                'sortinghat.matching', 'sortinghat.parsing',
+                'sortinghat.templates', 'sortinghat.data'],
+      package_data={'sortinghat.templates': ['*.tmpl'],
+                    'sortinghat.data': ['*'],
+                    },
       scripts=[
         "bin/sortinghat",
         "bin/mg2sh",
@@ -90,5 +115,6 @@ setup(name="sortinghat",
         'pandas>=0.17',
         'pyyaml>=3.12'
       ],
+      cmdclass=cmdclass,
       zip_safe=False
-    )
+      )
