@@ -261,6 +261,10 @@ class TestGrimoreLabParser(TestBaseCase):
 
         # Luis Cañas-Díaz
         uid = uids[1]
+
+        # Unknown organization is ignored during the parsing process
+        self.assertEqual(len(uid.enrollments), 2)
+
         rol = uid.enrollments[0]
         self.assertIsInstance(rol, Enrollment)
         self.assertEqual(rol.organization.name, 'GSyC/LibreSoft')
@@ -272,6 +276,12 @@ class TestGrimoreLabParser(TestBaseCase):
         self.assertEqual(rol.organization.name, 'Bitergia')
         self.assertEqual(rol.start, datetime.datetime(2012, 1, 1, 0, 0))
         self.assertEqual(rol.end, datetime.datetime(2100, 1, 1, 0, 0))
+
+        # Owl Bot
+        uid = uids[2]
+
+        # Unknown organization is ignored during the parsing process
+        self.assertEqual(len(uid.enrollments), 0)
 
     def test_not_valid_organizations_stream(self):
         """Check whether it parses invalid organizations files"""

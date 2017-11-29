@@ -253,6 +253,8 @@ class GrimoireLabParser(object):
                 error = "Empty organization name"
                 msg = self.GRIMOIRELAB_INVALID_FORMAT % {'error': error}
                 raise InvalidFormatError(cause=msg)
+            elif name.lower() == 'unknown':
+                continue
 
             # we trust the Organization name included in the identities file
             org = Organization(name=name)
