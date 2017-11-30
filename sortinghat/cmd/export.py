@@ -201,7 +201,8 @@ class SortingHatIdentitiesExporter(IdentitiesExporter):
                'uidentities' : uidentities}
 
         return json.dumps(obj, default=self._json_encoder,
-                          indent=4, sort_keys=True)
+                          indent=4, separators=(',', ': '),
+                          sort_keys=True)
 
     def _json_encoder(self, obj):
         """Default JSON encoder"""
@@ -259,7 +260,8 @@ class SortingHatOrganizationsExporter(OrganizationsExporter):
                'uidentities' : {}}
 
         return json.dumps(obj, default=self._json_encoder,
-                          indent=4, sort_keys=True)
+                          indent=4, separators=(',', ': '),
+                          sort_keys=True)
 
     def _json_encoder(self, obj):
         """Default JSON encoder"""
