@@ -11,11 +11,11 @@ before_install:
     if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then
         pip install MYSQL-python
     else
-        pip install PyMySQL
+        pip install PyMySQL>=0.7.0
     fi
-  - pip install SQLAlchemy==1.0.8
+  - pip install SQLAlchemy>=1.1.15
   - pip install Jinja2
-  - pip install python-dateutil
+  - pip install python-dateutil>=2.6.0
   - pip install pandas==0.18.1
   - pip install coveralls
 
