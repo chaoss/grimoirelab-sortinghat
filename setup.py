@@ -108,11 +108,11 @@ setup(name="sortinghat",
         "misc/stackalytics2sh"
       ],
       install_requires=[
-        'PyMySQL',
-        'sqlalchemy>=1.0.0',
+        'PyMySQL>=0.7.0',
+        'sqlalchemy>=1.1.15',
         'jinja2',
         'python-dateutil>=2.6.0',
-        'pandas>=0.17',
+        'pandas==0.18.1',
         'pyyaml>=3.12'
       ],
       cmdclass=cmdclass,
