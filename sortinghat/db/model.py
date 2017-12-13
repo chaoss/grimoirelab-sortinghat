@@ -24,7 +24,7 @@ from __future__ import unicode_literals
 
 import datetime
 
-from sqlalchemy import Column, Boolean, Integer, String, DateTime,\
+from sqlalchemy import Column, Integer, String, DateTime,\
     ForeignKey, UniqueConstraint
 from sqlalchemy.orm import backref, relationship
 from sqlalchemy.ext.associationproxy import association_proxy
@@ -37,7 +37,7 @@ MAX_PERIOD_DATE = datetime.datetime(2100, 1, 1, 0, 0, 0)
 
 # Default charset and collation
 MYSQL_CHARSET = {
-    'mysql_charset': 'utf8',
+    'mysql_default_charset': 'utf8',
     'mysql_collate': 'utf8_unicode_ci'
 }
 

@@ -110,7 +110,7 @@ def create_database_engine(user, password, database, host, port):
         driver = 'mysql+pymysql'
 
     url = URL(driver, user, password, host, port, database,
-              query={'charset' : 'utf8'})
+              query={'charset': 'utf8'})
     return create_engine(url, poolclass=QueuePool,
                          pool_size=25, echo=False)
 
