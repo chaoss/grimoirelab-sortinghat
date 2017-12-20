@@ -22,6 +22,8 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+import datetime
+
 from . import utils
 from .db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE,\
     UniqueIdentity, Identity, Profile, Organization, Domain, Country, Enrollment,\
@@ -57,8 +59,11 @@ def add_unique_identity(db, uuid):
             raise AlreadyExistsError(entity=uuid, uuid=uuid)
 
         uidentity = UniqueIdentity(uuid=uuid)
-        session.add(uidentity)
 
+        last_modified = datetime.datetime.utcnow()
+        uidentity.last_modified = last_modified
+
+        session.add(uidentity)
 
 def add_identity(db, source, email=None, name=None, username=None, uuid=None):
     """Add an identity to the registry.
@@ -156,6 +161,11 @@ def add_identity(db, source, email=None, name=None, username=None, uuid=None):
         identity = Identity(id=identity_id, name=name, email=email,
                             username=username, source=source)
         identity.uidentity = uidentity
+
+        last_modified = datetime.datetime.utcnow()
+        identity.last_modified = last_modified
+        uidentity.last_modified = last_modified
+
         session.add(identity)
 
         return identity_id
@@ -333,6 +343,10 @@ def add_enrollment(db, uuid, organization, from_date=None, to_date=None):
 
         enrollment = Enrollment(uidentity=uidentity, organization=org,
                                 start=from_date, end=to_date)
+
+        last_modified = datetime.datetime.utcnow()
+        uidentity.last_modified = last_modified
+
         session.add(enrollment)
 
 
@@ -432,6 +446,9 @@ def edit_profile(db, uuid, **kwargs):
         if 'email' in kwargs:
             profile.email = to_none_if_empty(kwargs['email'])
 
+        last_modified = datetime.datetime.utcnow()
+        uidentity.last_modified = last_modified
+
         session.add(profile)
 
 
@@ -486,6 +503,9 @@ def delete_identity(db, identity_id):
 
         if not identity:
             raise NotFoundError(entity=identity_id)
+
+        last_modified = datetime.datetime.utcnow()
+        identity.uidentity.last_modified = last_modified
 
         session.delete(identity)
 
@@ -611,6 +631,9 @@ def delete_enrollment(db, uuid, organization, from_date=None, to_date=None):
         for enr in enrollments:
             session.delete(enr)
 
+        last_modified = datetime.datetime.utcnow()
+        identity.last_modified = last_modified
+
 
 def delete_from_matching_blacklist(db, entity):
     """Remove an blacklisted entity from the registry.
@@ -695,9 +718,13 @@ def merge_unique_identities(db, from_uuid, to_uuid):
             # Swap profiles
             fuid.profile.uuid = to_uuid
 
+        last_modified = datetime.datetime.utcnow()
+        tuid.last_modified = last_modified
+
         # Update identities
         for identity in fuid.identities:
             identity.uuid = to_uuid
+            identity.last_modified = last_modified
 
         # Update and remove duplicated enrollments
         for rol in fuid.enrollments:
@@ -805,6 +832,9 @@ def merge_enrollments(db, uuid, organization):
         for enr in disjoint:
             session.delete(enr)
 
+        last_modified = datetime.datetime.utcnow()
+        uidentity.last_modified = last_modified
+
 
 def move_identity(db, from_id, to_uuid):
     """Move an identity to a unique identity.
@@ -848,7 +878,15 @@ def move_identity(db, from_id, to_uuid):
         if fid.uuid == to_uuid:
             return
 
+        fuid = session.query(UniqueIdentity).\
+            filter(UniqueIdentity.uuid == fid.uuid).first()
+
+        last_modified = datetime.datetime.utcnow()
+
         fid.uuid = to_uuid
+        fuid.last_modified = last_modified
+        tuid.last_modified = last_modified
+        fid.last_modified = last_modified
 
 
 def match_identities(db, uuid, matcher):
