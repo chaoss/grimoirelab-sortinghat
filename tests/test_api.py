@@ -108,6 +108,20 @@ class TestAddUniqueIdentity(TestAPICaseBase):
         self.assertRaisesRegexp(ValueError, UUID_NONE_OR_EMPTY_ERROR,
                                 api.add_unique_identity, self.db, '')
 
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
+
+        before_dt = datetime.datetime.utcnow()
+        api.add_unique_identity(self.db, 'John Smith')
+        after_dt = datetime.datetime.utcnow()
+
+        with self.db.connect() as session:
+            uid = session.query(UniqueIdentity).\
+                    filter(UniqueIdentity.uuid == 'John Smith').first()
+
+            self.assertLessEqual(before_dt, uid.last_modified)
+            self.assertGreaterEqual(after_dt, uid.last_modified)
+
 
 class TestAddIdentity(TestAPICaseBase):
     """Unit tests for add_identity"""
@@ -208,6 +222,54 @@ class TestAddIdentity(TestAPICaseBase):
             self.assertEqual(id2.email, 'jdoe@example.com')
             self.assertEqual(id2.username, 'jdoe')
             self.assertEqual(id2.source, 'scm')
+
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
+
+        # First, insert the identity that will create the unique identity
+        before_dt = datetime.datetime.utcnow()
+        jsmith_uuid = api.add_identity(self.db, 'scm',
+                                       'jsmith@example.com', 'John Smith', 'jsmith')
+        after_dt = datetime.datetime.utcnow()
+
+        with self.db.connect() as session:
+            uid = session.query(UniqueIdentity).\
+                    filter(UniqueIdentity.uuid == jsmith_uuid).first()
+
+            # Check date on the unique identity
+            self.assertLessEqual(before_dt, uid.last_modified)
+            self.assertGreaterEqual(after_dt, uid.last_modified)
+
+            # Check date on the identity
+            self.assertLessEqual(before_dt, uid.identities[0].last_modified)
+            self.assertGreaterEqual(after_dt, uid.identities[0].last_modified)
+
+        # Check if a new identity added to the existing unique identity
+        # updates both modification dates
+        before_new_dt = datetime.datetime.utcnow()
+        api.add_identity(self.db, 'scm', 'jsmith@example.com', None, None,
+                         uuid=jsmith_uuid)
+        after_new_dt = datetime.datetime.utcnow()
+
+        with self.db.connect() as session:
+            uid = session.query(UniqueIdentity).\
+                    filter(UniqueIdentity.uuid == jsmith_uuid).first()
+
+            # Check date on the unique identity; it was updated
+            self.assertLessEqual(before_new_dt, uid.last_modified)
+            self.assertGreaterEqual(after_new_dt, uid.last_modified)
+
+            # Check date of the new identity
+            self.assertLessEqual(before_dt, uid.identities[0].last_modified)
+            self.assertLessEqual(after_dt, uid.identities[0].last_modified)
+            self.assertLessEqual(before_new_dt, uid.identities[0].last_modified)
+            self.assertGreaterEqual(after_new_dt, uid.identities[0].last_modified)
+
+            # Check date of the oldest identity; it wasn't modified
+            self.assertLessEqual(before_dt, uid.identities[1].last_modified)
+            self.assertGreaterEqual(after_dt, uid.identities[1].last_modified)
+            self.assertGreaterEqual(before_new_dt, uid.identities[1].last_modified)
+            self.assertGreaterEqual(after_new_dt, uid.identities[1].last_modified)
 
     def test_similar_identities(self):
         """Check if it works when adding similar identities"""
@@ -594,6 +656,37 @@ class TestAddEnrollment(TestAPICaseBase):
             self.assertEqual(enrollment.start, datetime.datetime(2013, 1, 1))
             self.assertEqual(enrollment.end, datetime.datetime(2014, 1, 1))
 
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
+
+        api.add_organization(self.db, 'Example')
+
+        before_dt = datetime.datetime.utcnow()
+        api.add_unique_identity(self.db, 'John Smith')
+        after_dt = datetime.datetime.utcnow()
+
+        with self.db.connect() as session:
+            uid = session.query(UniqueIdentity).\
+                                filter(UniqueIdentity.uuid == 'John Smith').first()
+            self.assertLessEqual(before_dt, uid.last_modified)
+            self.assertGreaterEqual(after_dt, uid.last_modified)
+
+        before_rol_dt = datetime.datetime.utcnow()
+        api.add_enrollment(self.db, 'John Smith', 'Example',
+                           datetime.datetime(1999, 1, 1),
+                           datetime.datetime(2000, 1, 1))
+        after_rol_dt = datetime.datetime.utcnow()
+
+        # After inserting a new enrollment, the modification date was udpated
+        with self.db.connect() as session:
+            uid = session.query(UniqueIdentity).\
+                                filter(UniqueIdentity.uuid == 'John Smith').first()
+
+            self.assertLessEqual(before_dt, uid.last_modified)
+            self.assertLessEqual(after_dt, uid.last_modified)
+            self.assertLessEqual(before_rol_dt, uid.last_modified)
+            self.assertGreaterEqual(after_rol_dt, uid.last_modified)
+
     def test_period_ranges(self):
         """Check whether enrollments cannot be added giving invalid period ranges"""
 
@@ -738,8 +831,10 @@ class TestEditProfile(TestAPICaseBase):
             self.assertEqual(prf, None)
 
         # Add the new profile
+        before_dt = datetime.datetime.utcnow()
         api.edit_profile(self.db, 'John Smith', name='Smith, J.', email='',
                          is_bot=True, country_code='US')
+        after_dt = datetime.datetime.utcnow()
 
         with self.db.connect() as session:
             uid = session.query(UniqueIdentity).\
@@ -755,6 +850,10 @@ class TestEditProfile(TestAPICaseBase):
             self.assertEqual(prf.country_code, 'US')
             self.assertEqual(prf.country.code, 'US')
             self.assertEqual(prf.country.name, 'United States of America')
+
+            # Modification time was updated
+            self.assertLessEqual(before_dt, uid.last_modified)
+            self.assertGreaterEqual(after_dt, uid.last_modified)
 
     def test_update_profile(self):
         """Check if it updates an existing profile"""
@@ -783,8 +882,10 @@ class TestEditProfile(TestAPICaseBase):
             self.assertEqual(prf.country, None)
 
         # Update some fields
+        before_dt = datetime.datetime.utcnow()
         api.edit_profile(self.db, 'John Smith', name='', email='jsmith@example.com',
                          is_bot=False, country_code='US')
+        after_dt = datetime.datetime.utcnow()
 
         with self.db.connect() as session:
             uid = session.query(UniqueIdentity).\
@@ -799,6 +900,10 @@ class TestEditProfile(TestAPICaseBase):
             self.assertEqual(prf.country_code, 'US')
             self.assertEqual(prf.country.code, 'US')
             self.assertEqual(prf.country.name, 'United States of America')
+
+            # Modification time was updated
+            self.assertLessEqual(before_dt, uid.last_modified)
+            self.assertGreaterEqual(after_dt, uid.last_modified)
 
         # Unset country data
         api.edit_profile(self.db, 'John Smith', country_code=None)
@@ -951,7 +1056,7 @@ class TestDeleteUniqueIdentity(TestAPICaseBase):
             self.assertEqual(len(enrollments), 1)
 
 
-class TestDeteleIdentity(TestAPICaseBase):
+class TestDeleteIdentity(TestAPICaseBase):
     """Unit tests for delete_identity"""
 
     def test_delete_identities(self):
@@ -1021,6 +1126,35 @@ class TestDeteleIdentity(TestAPICaseBase):
 
             orgs = session.query(Organization).all()
             self.assertEqual(len(orgs), 3)
+
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
+
+        # First, add a set of identities
+        before_dt = datetime.datetime.utcnow()
+        jsmith_uuid = api.add_identity(self.db, 'scm', 'jsmith@example')
+        jsmith = api.add_identity(self.db, 'scm', 'jsmith@example', 'John Smith',
+                                  uuid=jsmith_uuid)
+        after_dt = datetime.datetime.utcnow()
+
+        with self.db.connect() as session:
+            uid = session.query(UniqueIdentity).\
+                                filter(UniqueIdentity.uuid == jsmith_uuid).first()
+            self.assertLessEqual(before_dt, uid.last_modified)
+            self.assertGreaterEqual(after_dt, uid.last_modified)
+
+        # Delete an identity
+        before_del_dt = datetime.datetime.utcnow()
+        api.delete_identity(self.db, jsmith)
+        after_del_dt = datetime.datetime.utcnow()
+
+        with self.db.connect() as session:
+            uid = session.query(UniqueIdentity).\
+                                filter(UniqueIdentity.uuid == jsmith_uuid).first()
+            self.assertLessEqual(before_dt, uid.last_modified)
+            self.assertLessEqual(after_dt, uid.last_modified)
+            self.assertLessEqual(before_del_dt, uid.last_modified)
+            self.assertGreaterEqual(after_del_dt, uid.last_modified)
 
     def test_not_found_id(self):
         """Check if it fails removing an identity that does not exists"""
@@ -1263,6 +1397,38 @@ class TestDeleteEnrollment(TestAPICaseBase):
             enrollments = session.query(Enrollment).join(Organization).\
                     filter(Organization.name == 'Bitergia').all()
             self.assertEqual(len(enrollments), 0)
+
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
+
+        api.add_organization(self.db, 'Example')
+        api.add_organization(self.db, 'LibreSoft')
+
+        before_dt = datetime.datetime.utcnow()
+        api.add_unique_identity(self.db, 'John Doe')
+        api.add_enrollment(self.db, 'John Doe', 'Example')
+        api.add_enrollment(self.db, 'John Doe', 'LibreSoft')
+        after_dt = datetime.datetime.utcnow()
+
+        with self.db.connect() as session:
+            uid = session.query(UniqueIdentity).\
+                                filter(UniqueIdentity.uuid == 'John Doe').first()
+            self.assertLessEqual(before_dt, uid.last_modified)
+            self.assertGreaterEqual(after_dt, uid.last_modified)
+
+        # Delete some enrollments
+        before_del_dt = datetime.datetime.utcnow()
+        api.delete_enrollment(self.db, 'John Doe', 'LibreSoft')
+        api.delete_enrollment(self.db, 'John Doe', 'Example')
+        after_del_dt = datetime.datetime.utcnow()
+
+        with self.db.connect() as session:
+            uid = session.query(UniqueIdentity).\
+                                filter(UniqueIdentity.uuid == 'John Doe').first()
+            self.assertLessEqual(before_dt, uid.last_modified)
+            self.assertLessEqual(after_dt, uid.last_modified)
+            self.assertLessEqual(before_del_dt, uid.last_modified)
+            self.assertGreaterEqual(after_del_dt, uid.last_modified)
 
     def test_delete_with_period_ranges(self):
         """Check whether it deletes a set of enrollments using some periods"""
@@ -1542,6 +1708,40 @@ class TestMergeEnrollments(TestAPICaseBase):
             self.assertEqual(rol1.start, datetime.datetime(2010, 1, 2))
             self.assertEqual(rol1.end, datetime.datetime(2100, 1, 1))
 
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
+
+        api.add_organization(self.db, 'Example')
+
+        before_dt = datetime.datetime.utcnow()
+        api.add_unique_identity(self.db, 'John Smith')
+        api.add_enrollment(self.db, 'John Smith', 'Example',
+                           datetime.datetime(1900, 1, 1),
+                           datetime.datetime(2010, 1, 1))
+        api.add_enrollment(self.db, 'John Smith', 'Example',
+                           datetime.datetime(2008, 1, 1),
+                           datetime.datetime(2100, 1, 1))
+        after_dt = datetime.datetime.utcnow()
+
+        with self.db.connect() as session:
+            uid = session.query(UniqueIdentity).\
+                                filter(UniqueIdentity.uuid == 'John Smith').first()
+            self.assertLessEqual(before_dt, uid.last_modified)
+            self.assertGreaterEqual(after_dt, uid.last_modified)
+
+        # Merge enrollments
+        before_merge_dt = datetime.datetime.utcnow()
+        api.merge_enrollments(self.db, 'John Smith', 'Example')
+        after_merge_dt = datetime.datetime.utcnow()
+
+        with self.db.connect() as session:
+            uid = session.query(UniqueIdentity).\
+                                filter(UniqueIdentity.uuid == 'John Smith').first()
+            self.assertLessEqual(before_dt, uid.last_modified)
+            self.assertLessEqual(after_dt, uid.last_modified)
+            self.assertLessEqual(before_merge_dt, uid.last_modified)
+            self.assertGreaterEqual(after_merge_dt, uid.last_modified)
+
     def test_not_found_uuid(self):
         """Check if it fails merging enrollments from a unique identity
            that does not exists"""
@@ -1699,7 +1899,6 @@ class TestMergeUniqueIdentities(TestAPICaseBase):
             self.assertEqual(id3.email, 'jsmith@example.com')
             self.assertEqual(id3.source, 'scm')
 
-
             # Duplicate enrollments should had been removed
             # and overlaped enrollments shoud had been merged
             self.assertEqual(len(uid2.enrollments), 2)
@@ -1713,6 +1912,55 @@ class TestMergeUniqueIdentities(TestAPICaseBase):
             self.assertEqual(rol2.organization.name, 'Bitergia')
             self.assertEqual(rol2.start, datetime.datetime(1999, 1, 1))
             self.assertEqual(rol2.end, datetime.datetime(2000, 1, 1))
+
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
+
+        before_dt = datetime.datetime.utcnow()
+        api.add_unique_identity(self.db, 'John Smith')
+        api.add_identity(self.db, 'scm', 'jsmith@example.com',
+                         uuid='John Smith')
+        api.add_identity(self.db, 'scm', 'jsmith@example.com', 'John Smith',
+                         uuid='John Smith')
+
+        api.add_unique_identity(self.db, 'John Doe')
+        api.add_identity(self.db, 'scm', 'jdoe@example.com',
+                         uuid='John Doe')
+        after_dt = datetime.datetime.utcnow()
+
+        with self.db.connect() as session:
+            uid = session.query(UniqueIdentity).\
+                                filter(UniqueIdentity.uuid == 'John Smith').first()
+            self.assertLessEqual(before_dt, uid.last_modified)
+            self.assertGreaterEqual(after_dt, uid.last_modified)
+
+            uid = session.query(UniqueIdentity).\
+                                filter(UniqueIdentity.uuid == 'John Doe').first()
+            self.assertLessEqual(before_dt, uid.last_modified)
+            self.assertGreaterEqual(after_dt, uid.last_modified)
+
+        # Merge identities
+        before_merge_dt = datetime.datetime.utcnow()
+        api.merge_unique_identities(self.db, 'John Smith', 'John Doe')
+        after_merge_dt = datetime.datetime.utcnow()
+
+        with self.db.connect() as session:
+            uid = session.query(UniqueIdentity).\
+                                filter(UniqueIdentity.uuid == 'John Doe').first()
+            self.assertLessEqual(before_dt, uid.last_modified)
+            self.assertLessEqual(after_dt, uid.last_modified)
+            self.assertLessEqual(before_merge_dt, uid.last_modified)
+            self.assertGreaterEqual(after_merge_dt, uid.last_modified)
+
+            # Not merged identity were not modified
+            self.assertLessEqual(before_dt, uid.identities[0].last_modified)
+            self.assertGreaterEqual(after_dt, uid.identities[0].last_modified)
+            self.assertGreaterEqual(before_merge_dt, uid.identities[0].last_modified)
+            self.assertGreaterEqual(after_merge_dt, uid.identities[0].last_modified)
+
+            # Merged identities have the date updated
+            self.assertEqual(uid.identities[1].last_modified, uid.last_modified)
+            self.assertEqual(uid.identities[2].last_modified, uid.last_modified)
 
     def test_merge_identities_and_swap_profile(self):
         """Test swap of profiles when a unique identity does not have one"""
@@ -1853,6 +2101,62 @@ class TestMoveIdentity(TestAPICaseBase):
             self.assertEqual(id3.name, 'John Smith')
             self.assertEqual(id3.email, 'jsmith@example.com')
             self.assertEqual(id3.source, 'scm')
+
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
+
+        before_dt = datetime.datetime.utcnow()
+        api.add_unique_identity(self.db, 'John Smith')
+        api.add_identity(self.db, 'scm', 'jsmith@example.com',
+                         uuid='John Smith')
+
+        api.add_unique_identity(self.db, 'John Doe')
+        from_id = api.add_identity(self.db, 'scm', 'jdoe@example.com',
+                                   uuid='John Doe')
+        api.add_identity(self.db, 'scm', 'jdoe@example.com', 'Jon Doe',
+                         uuid='John Doe')
+        after_dt = datetime.datetime.utcnow()
+
+        with self.db.connect() as session:
+            uid = session.query(UniqueIdentity).\
+                                filter(UniqueIdentity.uuid == 'John Smith').first()
+            self.assertLessEqual(before_dt, uid.last_modified)
+            self.assertGreaterEqual(after_dt, uid.last_modified)
+
+            uid = session.query(UniqueIdentity).\
+                                filter(UniqueIdentity.uuid == 'John Doe').first()
+            self.assertLessEqual(before_dt, uid.last_modified)
+            self.assertGreaterEqual(after_dt, uid.last_modified)
+
+        # Move identities
+        before_move_dt = datetime.datetime.utcnow()
+        api.move_identity(self.db, from_id, 'John Smith')
+        after_move_dt = datetime.datetime.utcnow()
+
+        with self.db.connect() as session:
+            uid = session.query(UniqueIdentity).\
+                                filter(UniqueIdentity.uuid == 'John Smith').first()
+            self.assertLessEqual(before_dt, uid.last_modified)
+            self.assertLessEqual(after_dt, uid.last_modified)
+            self.assertLessEqual(before_move_dt, uid.last_modified)
+            self.assertGreaterEqual(after_move_dt, uid.last_modified)
+
+            # Moved identity have the date updated
+            self.assertEqual(uid.identities[0].last_modified, uid.last_modified)
+
+            # Identity not moved were not modified
+            self.assertLessEqual(before_dt, uid.identities[1].last_modified)
+            self.assertGreaterEqual(after_dt, uid.identities[1].last_modified)
+            self.assertGreaterEqual(before_move_dt, uid.identities[1].last_modified)
+            self.assertGreaterEqual(after_move_dt, uid.identities[1].last_modified)
+
+            # The origin of the moved identity was also updated
+            uid = session.query(UniqueIdentity).\
+                                filter(UniqueIdentity.uuid == 'John Doe').first()
+            self.assertLessEqual(before_dt, uid.last_modified)
+            self.assertLessEqual(after_dt, uid.last_modified)
+            self.assertLessEqual(before_move_dt, uid.last_modified)
+            self.assertGreaterEqual(after_move_dt, uid.last_modified)
 
     def test_equal_related_unique_identity(self):
         """Test that all remains the same when to_uuid is the unique identity related to 'from_id'"""
@@ -2274,6 +2578,60 @@ class TestSearchUniqueIdentities(TestAPICaseBase):
                           self.db, 'Jane Rae')
 
 
+class TestSearchLastModifiedIdentities(TestAPICaseBase):
+    """Unit tests for last_modified_identities"""
+
+    def test_search_last_modified_identities(self):
+        """Check if it returns the uuids of the modified entities"""
+
+        # Add identities
+        before_dt = datetime.datetime.utcnow()
+        api.add_unique_identity(self.db, 'John Smith')
+        jsmith_id = api.add_identity(self.db, 'scm', 'jsmith@example.com',
+                                     uuid='John Smith')
+
+        api.add_unique_identity(self.db, 'John Doe')
+        jdoe_id = api.add_identity(self.db, 'scm', 'jdoe@example.com',
+                                   uuid='John Doe')
+        jdoe_alt_id = api.add_identity(self.db, 'scm', 'jdoe@example.com', 'Jon Doe',
+                                       uuid='John Doe')
+
+        # Check if all uuids are returned
+        uuids, ids = api.search_last_modified_identities(self.db, before_dt)
+
+        self.assertListEqual(uuids, ['John Doe', 'John Smith'])
+        self.assertListEqual(ids, [jdoe_id, jsmith_id, jdoe_alt_id])
+
+        # Update identities
+        before_move_dt = datetime.datetime.utcnow()
+        api.move_identity(self.db, jdoe_id, 'John Smith')
+
+        # Check if only modified uuids are returned
+        uuids, ids = api.search_last_modified_identities(self.db, before_move_dt)
+        self.assertListEqual(uuids, ['John Doe', 'John Smith'])
+        self.assertListEqual(ids, [jdoe_id])
+
+    def test_empty_search(self):
+        """Check if the result is empty when identities are not modified"""
+
+        # Add identities
+        api.add_unique_identity(self.db, 'John Smith')
+        jsmith_id = api.add_identity(self.db, 'scm', 'jsmith@example.com',
+                                     uuid='John Smith')
+
+        api.add_unique_identity(self.db, 'John Doe')
+        jdoe_id = api.add_identity(self.db, 'scm', 'jdoe@example.com',
+                                   uuid='John Doe')
+        jdoe_alt_id = api.add_identity(self.db, 'scm', 'jdoe@example.com', 'Jon Doe',
+                                       uuid='John Doe')
+
+        after_dt = datetime.datetime.utcnow()
+
+        # Check if all uuids are returned
+        uuids, ids = api.search_last_modified_identities(self.db, after_dt)
+
+        self.assertListEqual(uuids, [])
+        self.assertListEqual(ids, [])
 
 
 class TestRegistry(TestAPICaseBase):
