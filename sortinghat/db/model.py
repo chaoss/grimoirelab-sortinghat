@@ -26,6 +26,7 @@ import datetime
 
 from sqlalchemy import Column, Integer, String, DateTime,\
     ForeignKey, UniqueConstraint
+from sqlalchemy.dialects.mysql import DATETIME
 from sqlalchemy.orm import backref, relationship
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declarative_base
@@ -137,6 +138,9 @@ class UniqueIdentity(ModelBase):
     __tablename__ = 'uidentities'
 
     uuid = Column(String(128), primary_key=True)
+    last_modified = Column(DATETIME(fsp=6),
+                           default=datetime.datetime.utcnow(),
+                           onupdate=datetime.datetime.utcnow())
 
     # One to one relationship
     profile = relationship('Profile', backref='uidentities', uselist=False,
@@ -177,6 +181,9 @@ class Identity(ModelBase):
     source = Column(String(32), nullable=False)
     uuid = Column(String(128),
                   ForeignKey('uidentities.uuid', ondelete='CASCADE'))
+    last_modified = Column(DATETIME(fsp=6),
+                           default=datetime.datetime.utcnow(),
+                           onupdate=datetime.datetime.utcnow())
 
     # Many-to-One relationship
     uidentity = relationship('UniqueIdentity', backref='uuid_identy',
