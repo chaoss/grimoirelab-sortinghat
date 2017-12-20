@@ -42,8 +42,9 @@ def main():
     args = parse_args()
 
     try:
+        email_validation = not args.no_email_validation
         parser = parse_grimoirelab_file(args.identities, args.organizations,
-                                        args.source)
+                                        args.source, email_validation)
     except (IOError, UnicodeDecodeError, InvalidFormatError) as e:
         raise RuntimeError(str(e))
 
@@ -71,6 +72,9 @@ def parse_args():
     parser.add_argument('-o', '--outfile', nargs='?', type=argparse.FileType('w'),
                         default=sys.stdout,
                         help='Sorting Hat JSON output filename')
+    parser.add_argument('--no-email-validation', dest='no_email_validation',
+                        action='store_true',
+                        help="do not email addresses validation")
 
     args = parser.parse_args()
 
@@ -80,14 +84,16 @@ def parse_args():
     return args
 
 
-def parse_grimoirelab_file(identities, organizations, source):
+def parse_grimoirelab_file(identities, organizations, source, email_validation):
     """Parse GrimoireLab JSON file"""
 
     content_id = read_file(identities) if identities else None
     content_org = read_file(organizations) if organizations else None
 
     try:
-        parser = GrimoireLabParser(content_id, content_org, source=source)
+        parser = GrimoireLabParser(content_id, content_org,
+                                   source=source,
+                                   email_validation=email_validation)
     except ValueError:
         s = "Error: Empty input file(s)\n"
         sys.stdout.write(s)
