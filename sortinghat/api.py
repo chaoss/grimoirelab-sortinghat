@@ -1027,6 +1027,32 @@ def search_unique_identities(db, term, source=None):
     return uidentities
 
 
+def search_last_modified_identities(db, after):
+    """Look for the uuids of identities modified on or after a given date.
+
+    This function returns the uuids of those unique identities and
+    identities that where modified on the given date or after it.
+    The result is a tuple containing two list of uuids: one with
+    unique identities and the other with identities.
+
+    :param db: database manater
+    :param after: look for identities modified on or after this date
+
+    :returns: a tuple containing the list of unique identities and the
+        identities modified
+    """
+    with db.connect() as session:
+        query = session.query(UniqueIdentity).\
+            filter(UniqueIdentity.last_modified >= after)
+        uids = [uid.uuid for uid in query.order_by(UniqueIdentity.uuid).all()]
+
+        query = session.query(Identity).\
+            filter(Identity.last_modified >= after)
+        ids = [id_.id for id_ in query.order_by(Identity.id).all()]
+
+    return uids, ids
+
+
 def registry(db, term=None):
     """List the organizations available in the registry.
 
