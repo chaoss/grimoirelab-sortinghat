@@ -165,6 +165,17 @@ After this initialize a new database:
 
 ## Compatibility between versions
 
+SortingHat databases previous to 0.5.0.dev are no longer compatible. The
+database schema changed in `uidentites` and `identities` tables to add the
+field `last_modified` to log when a record was updated.
+
+The next MySQL statements should be run to update the schema
+
+```
+mysql> ALTER TABLE uidentities ADD COLUMN last_modified DATETIME(6) DEFAULT NULL
+mysql> ALTER TABLE identities ADD COLUMN last_modified DATETIME(6) DEFAULT NULL
+```
+
 SortingHat databases previous to 0.3.0 are no longer compatible. The
 seed used to generate identities UUIDs changed and for that reason, these
 ids should be re-generated.
