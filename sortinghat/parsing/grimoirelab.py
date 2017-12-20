@@ -47,26 +47,30 @@ class GrimoireLabParser(object):
     The unique identities are stored in an object named 'uidentities'.
     The keys of this object are the UUID of the unique identities.
     Each unique identity object stores a list of identities and
-    enrollments.
+    enrollments. Email addresses will not be validated when `email_validation`
+    is set to `False`.
 
     Organizations are stored in 'organizations' object. Its keys
     are the name of the organizations and each organization object is
     related to a list of domains.
 
-    :param stream: stream to parse
+    :param identities: stream of identities to parse
+    :param organizations: stream of organizations to parse
+    :param source: source of the data
+    :param email_validation: validate email addresses; set to True by default
 
     :raises InvalidFormatError: raised when the format of the stream is
         not valid.
     """
-
     EMAIL_ADDRESS_REGEX = r"^(?P<email>[^\s@]+@[^\s@.]+\.[^\s@]+)$"
     GRIMOIRELAB_INVALID_FORMAT = "invalid GrimoireLab yaml format. %(error)s"
 
     def __init__(self, identities=None, organizations=None,
-                 source='grimoirelab'):
+                 source='grimoirelab', email_validation=True):
         self._identities = {}
         self._organizations = {}
         self.source = source
+        self.email_validation = email_validation
 
         if not (identities or organizations):
             raise ValueError('Null identities and organization streams')
@@ -155,7 +159,7 @@ class GrimoireLabParser(object):
 
                 emails = yid.get('email', None)
 
-                if emails:
+                if emails and self.email_validation:
                     self.__validate_email(emails[0])
 
                 enrollments = yid.get('enrollments', None)

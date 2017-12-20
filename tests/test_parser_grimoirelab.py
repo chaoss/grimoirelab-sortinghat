@@ -283,6 +283,37 @@ class TestGrimoreLabParser(TestBaseCase):
         # Unknown organization is ignored during the parsing process
         self.assertEqual(len(uid.enrollments), 0)
 
+    def test_email_validation(self):
+        """Check wheter it raises an error on invalid email addresses"""
+
+        stream_ids = self.read_file('data/grimoirelab_invalid_email.yml')
+
+        with self.assertRaisesRegexp(InvalidFormatError, '^.+Invalid email address: lcanas__at__bitergia.com$'):
+            GrimoireLabParser(stream_ids, email_validation=True)
+
+    def test_supress_email_validation(self):
+        """Check wheter it ignores invalid email addresses"""
+
+        stream_ids = self.read_file('data/grimoirelab_invalid_email.yml')
+        parser = GrimoireLabParser(stream_ids, email_validation=False)
+
+        uids = parser.identities
+        self.assertEqual(len(uids), 3)
+
+        uid = uids[1]
+        self.assertIsInstance(uid, UniqueIdentity)
+        self.assertFalse(uid.profile.is_bot)
+        self.assertEqual(uid.profile.name, 'Luis Cañas-Díaz')
+
+        # This identity has an invalid email address
+        id1 = uid.identities[1]
+        self.assertIsInstance(id1, Identity)
+        self.assertEqual(id1.name, None)
+        self.assertEqual(id1.email, 'lcanas__at__bitergia.com')
+        self.assertEqual(id1.username, None)
+        self.assertEqual(id1.source, 'grimoirelab')
+        self.assertEqual(id1.uuid, None)
+
     def test_not_valid_organizations_stream(self):
         """Check whether it parses invalid organizations files"""
 
