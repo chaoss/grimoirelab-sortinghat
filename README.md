@@ -165,7 +165,7 @@ After this initialize a new database:
 
 ## Compatibility between versions
 
-SortingHat databases previous to 0.5.0.dev are no longer compatible. The
+SortingHat databases previous to 0.5.0 are no longer compatible. The
 database schema changed in `uidentites` and `identities` tables to add the
 field `last_modified` to log when a record was updated.
 
