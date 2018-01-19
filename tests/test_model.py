@@ -23,6 +23,7 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+import configparser
 import datetime
 import sys
 import unittest
@@ -38,12 +39,12 @@ from sqlalchemy.orm import sessionmaker
 from sortinghat.db.model import ModelBase, Organization, Domain, Country,\
     UniqueIdentity, Identity, Profile, Enrollment, MatchingBlacklist
 
-from tests.config import DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT
-
 
 DUP_CHECK_ERROR = 'Duplicate entry'
 NULL_CHECK_ERROR = 'cannot be null'
 INVALID_DATATYPE_ERROR = 'ValueError'
+
+CONFIG_FILE = 'tests.conf'
 
 
 class MockDatabase(object):
@@ -73,7 +74,13 @@ class TestCaseBase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.db = MockDatabase(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
+        config = configparser.ConfigParser()
+        config.read(CONFIG_FILE)
+        cls.db = MockDatabase(config['Database']['user'],
+                              config['Database']['password'],
+                              config['Database']['name'],
+                              config['Database']['host'],
+                              config['Database']['port'])
 
     def setUp(self):
         self.session = self.db.session()

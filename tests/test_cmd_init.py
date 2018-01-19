@@ -23,6 +23,7 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+import configparser
 import sys
 import unittest
 import uuid
@@ -37,11 +38,11 @@ from sortinghat.cmd.init import Init
 from sortinghat.db.database import Database
 from sortinghat.exceptions import CODE_DATABASE_ERROR, CODE_VALUE_ERROR
 
-from tests.config import DB_USER, DB_PASSWORD, DB_HOST, DB_PORT
-
 
 DB_ACCESS_ERROR = r".+Access denied for user '%(user)s'@'localhost' \(using password: YES\)"
 DB_EXISTS_ERROR = r".+Can't create database '%(database)s'; database exists \(err: 1007\)"
+
+CONFIG_FILE = 'tests.conf'
 
 
 class TestInitCaseBase(unittest.TestCase):
@@ -54,12 +55,15 @@ class TestInitCaseBase(unittest.TestCase):
         # Create a temporal name for the registry
         self.name = 'tmp' + uuid.uuid4().hex
 
+        config = configparser.ConfigParser()
+        config.read(CONFIG_FILE)
+
         # Create command
-        self.kwargs = {'user' : DB_USER,
-                       'password' : DB_PASSWORD,
+        self.kwargs = {'user' : config['Database']['user'],
+                       'password' : config['Database']['password'],
                        'database' : self.name,
-                       'host' : DB_HOST,
-                       'port' : DB_PORT}
+                       'host' : config['Database']['host'],
+                       'port' : config['Database']['port']}
         self.cmd = Init(**self.kwargs)
 
     def tearDown(self):
