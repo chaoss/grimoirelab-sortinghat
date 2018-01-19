@@ -10,6 +10,7 @@ before_install:
   - | # MySQLdb is not available in Python 3.x
     if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then
         pip install MYSQL-python
+        pip install configparser
     else
         pip install PyMySQL>=0.7.0
     fi
@@ -24,6 +25,7 @@ install:
 
 before_script:
   - mysql -e 'create database testhat;'
+  - cp tests/tests.conf.sample tests/tests.conf
 
 script:
   - cd tests

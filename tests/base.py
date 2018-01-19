@@ -22,6 +22,7 @@
 from __future__ import absolute_import
 from __future__ import unicode_literals
 
+import configparser
 import sys
 import unittest
 
@@ -30,11 +31,7 @@ if not '..' in sys.path:
 
 from sortinghat.db.database import Database
 
-from tests.config import (DB_USER,
-                          DB_PASSWORD,
-                          DB_NAME,
-                          DB_HOST,
-                          DB_PORT)
+CONFIG_FILE = 'tests.conf'
 
 
 class TestDatabaseCaseBase(unittest.TestCase):
@@ -51,7 +48,14 @@ class TestDatabaseCaseBase(unittest.TestCase):
     """
     @classmethod
     def setUpClass(cls):
-        cls.db = Database(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT)
+        config = configparser.ConfigParser()
+        config.read(CONFIG_FILE)
+        cls.db_kwargs = {'user': config['Database']['user'],
+                  'password': config['Database']['password'],
+                  'database': config['Database']['name'],
+                  'host': config['Database']['host'],
+                  'port': config['Database']['port']}
+        cls.db = Database(**cls.db_kwargs)
         cls.db.clear()
 
     def setUp(self):
@@ -81,12 +85,7 @@ class TestCommandCaseBase(TestDatabaseCaseBase):
     def setUpClass(cls):
         super(TestCommandCaseBase, cls).setUpClass()
 
-        kwargs = {'user' : DB_USER,
-                  'password' : DB_PASSWORD,
-                  'database' :DB_NAME,
-                  'host' : DB_HOST,
-                  'port' : DB_PORT}
-        cls.cmd = cls.cmd_klass(**kwargs)
+        cls.cmd = cls.cmd_klass(**cls.db_kwargs)
 
     def setUp(self):
         if not hasattr(sys.stdout, 'getvalue') and not hasattr(sys.stderr, 'getvalue'):
