@@ -641,7 +641,7 @@ class TestAddEnrollment(TestAPICaseBase):
             enrollments = session.query(Enrollment).\
                 join(UniqueIdentity, Organization).\
                 filter(UniqueIdentity.uuid == 'John Smith',
-                       Organization.name == 'Example').all()
+                       Organization.name == 'Example').order_by(Enrollment.start).all()
             self.assertEqual(len(enrollments), 3)
 
             enrollment = enrollments[0]
@@ -1901,14 +1901,16 @@ class TestMergeUniqueIdentities(TestAPICaseBase):
 
             # Duplicate enrollments should had been removed
             # and overlaped enrollments shoud had been merged
-            self.assertEqual(len(uid2.enrollments), 2)
+            enrollments = uid2.enrollments
+            enrollments.sort(key=lambda x: x.start)
+            self.assertEqual(len(enrollments), 2)
 
-            rol1 = uid2.enrollments[0]
+            rol1 = enrollments[0]
             self.assertEqual(rol1.organization.name, 'Example')
             self.assertEqual(rol1.start, datetime.datetime(1900, 1, 1))
             self.assertEqual(rol1.end, datetime.datetime(2100, 1, 1))
 
-            rol2 = uid2.enrollments[1]
+            rol2 = enrollments[1]
             self.assertEqual(rol2.organization.name, 'Bitergia')
             self.assertEqual(rol2.start, datetime.datetime(1999, 1, 1))
             self.assertEqual(rol2.end, datetime.datetime(2000, 1, 1))

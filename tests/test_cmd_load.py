@@ -849,11 +849,11 @@ class TestLoadSortingHatImportOrganizations(TestLoadCaseBase):
         self.assertEqual(dom.is_top_domain, True)
 
         dom = doms[3]
-        self.assertEqual(dom.domain, 'test.bitergia.com')
+        self.assertEqual(dom.domain, 'example.net')
         self.assertEqual(dom.is_top_domain, False)
 
         dom = doms[4]
-        self.assertEqual(dom.domain, 'example.net')
+        self.assertEqual(dom.domain, 'test.bitergia.com')
         self.assertEqual(dom.is_top_domain, False)
 
         # Example
@@ -902,16 +902,16 @@ class TestLoadSortingHatImportOrganizations(TestLoadCaseBase):
         self.assertEqual(len(doms), 4)
 
         dom = doms[0]
-        self.assertEqual(dom.domain, 'bitergia.net')
-        self.assertEqual(dom.is_top_domain, True)
+        self.assertEqual(dom.domain, 'api.bitergia.com')
+        self.assertEqual(dom.is_top_domain, False)
 
         dom = doms[1]
         self.assertEqual(dom.domain, 'bitergia.com')
         self.assertEqual(dom.is_top_domain, True)
 
         dom = doms[2]
-        self.assertEqual(dom.domain, 'api.bitergia.com')
-        self.assertEqual(dom.is_top_domain, False)
+        self.assertEqual(dom.domain, 'bitergia.net')
+        self.assertEqual(dom.is_top_domain, True)
 
         dom = doms[3]
         self.assertEqual(dom.domain, 'test.bitergia.com')

@@ -30,6 +30,7 @@ from sqlalchemy.dialects.mysql import DATETIME
 from sqlalchemy.orm import backref, relationship
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.orderinglist import ordering_list
 from sqlalchemy.types import TypeDecorator, Boolean
 
 # Default dates for periods
@@ -69,6 +70,8 @@ class Organization(ModelBase):
 
     # One-to-Many relationship
     domains = relationship('Domain', backref='organizations',
+                           order_by='Domain.domain',
+                           collection_class=ordering_list('domain'),
                            lazy='joined', cascade="save-update, merge, delete")
 
     # Enrollment relationships
