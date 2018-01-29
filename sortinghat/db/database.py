@@ -31,7 +31,7 @@ from sqlalchemy.orm import mapper, sessionmaker
 from sqlalchemy.pool import QueuePool
 from sqlalchemy.schema import MetaData
 
-from sortinghat.exceptions import DatabaseError
+from sortinghat.exceptions import DatabaseError, DatabaseExists
 from sortinghat.db.model import ModelBase
 
 
@@ -89,7 +89,12 @@ class Database(object):
             conn = engine.connect()
             conn.execute(query)
         except (OperationalError, ProgrammingError, InternalError) as e:
-            raise DatabaseError(error=e.orig.args[1], code=e.orig.args[0])
+            code = e.orig.args[0]
+            if isinstance(e, ProgrammingError) and code == 1007:
+                # Query for creatiing database failed because it exists
+                raise DatabaseExists(error=e.orig.args[1], code=code)
+            else:
+                raise DatabaseError(error=e.orig.args[1], code=code)
 
     @classmethod
     def build_engine(cls, user, password, database, host='localhost', port='3306'):
