@@ -62,8 +62,35 @@ Entry  added to the blacklist
 Entry  added to the blacklist
 2/2 blacklist entries loaded
 Loading unique identities...
+
+=====
++ Processing 0000000000000000000000000000000000000000
+-- 0000000000000000000000000000000000000000 not found. Generating a new UUID.
+=====
+
+=====
++ Processing 03e12d00e37fd45593c49a5a5a1652deca4cf302
+-- 03e12d00e37fd45593c49a5a5a1652deca4cf302 not found. Generating a new UUID.
+-- using a9b403e150dd4af8953a52a4bb841051e4b705d9 for 03e12d00e37fd45593c49a5a5a1652deca4cf302 unique identity.
+-- loading identities
+-- identities loaded
+-- profile a9b403e150dd4af8953a52a4bb841051e4b705d9 updated
+-- loading enrollments
+-- enrollments loaded
 + a9b403e150dd4af8953a52a4bb841051e4b705d9 (old 03e12d00e37fd45593c49a5a5a1652deca4cf302) loaded
+=====
+
+=====
++ Processing 52e0aa0a14826627e633fd15332988686b730ab3
+-- 52e0aa0a14826627e633fd15332988686b730ab3 not found. Generating a new UUID.
+-- using 17ab00ed3825ec2f50483e33c88df223264182ba for 52e0aa0a14826627e633fd15332988686b730ab3 unique identity.
+-- loading identities
+-- identities loaded
+-- profile 17ab00ed3825ec2f50483e33c88df223264182ba updated
+-- loading enrollments
+-- enrollments loaded
 + 17ab00ed3825ec2f50483e33c88df223264182ba (old 52e0aa0a14826627e633fd15332988686b730ab3) loaded
+=====
 2/3 unique identities loaded"""
 
 # Identities outputs
@@ -73,16 +100,65 @@ Entry  added to the blacklist
 Entry  added to the blacklist
 2/2 blacklist entries loaded
 Loading unique identities...
+
+=====
++ Processing 0000000000000000000000000000000000000000
+-- 0000000000000000000000000000000000000000 not found. Generating a new UUID.
+=====
+
+=====
++ Processing 03e12d00e37fd45593c49a5a5a1652deca4cf302
+-- 03e12d00e37fd45593c49a5a5a1652deca4cf302 not found. Generating a new UUID.
+-- using a9b403e150dd4af8953a52a4bb841051e4b705d9 for 03e12d00e37fd45593c49a5a5a1652deca4cf302 unique identity.
+-- loading identities
+-- identities loaded
+-- profile a9b403e150dd4af8953a52a4bb841051e4b705d9 updated
+-- loading enrollments
+-- enrollments loaded
 + a9b403e150dd4af8953a52a4bb841051e4b705d9 (old 03e12d00e37fd45593c49a5a5a1652deca4cf302) loaded
+=====
+
+=====
++ Processing 52e0aa0a14826627e633fd15332988686b730ab3
+-- 52e0aa0a14826627e633fd15332988686b730ab3 not found. Generating a new UUID.
+-- using 17ab00ed3825ec2f50483e33c88df223264182ba for 52e0aa0a14826627e633fd15332988686b730ab3 unique identity.
+-- loading identities
+-- identities loaded
+-- profile 17ab00ed3825ec2f50483e33c88df223264182ba updated
+-- loading enrollments
+-- enrollments loaded
 + 17ab00ed3825ec2f50483e33c88df223264182ba (old 52e0aa0a14826627e633fd15332988686b730ab3) loaded
+=====
 2/3 unique identities loaded"""
 
-LOAD_IDENTITIES_OUTPUT_ERROR = """Error: not enough info to load 0000000000000000000000000000000000000000 unique identity. Skipping."""
+LOAD_IDENTITIES_OUTPUT_ERROR =  """Error: not enough info to load 0000000000000000000000000000000000000000 unique identity. Skipping.
+Warning: Bitergia already exists in the registry. Organization not updated.
+Warning: Example already exists in the registry. Organization not updated."""
 
 LOAD_IDENTITIES_NO_STRICT_OUTPUT = """Loading blacklist...
 0/0 blacklist entries loaded
 Loading unique identities...
+
+=====
++ Processing e8284285566fdc1f41c8a22bb84a295fc3c4cbb3
+-- e8284285566fdc1f41c8a22bb84a295fc3c4cbb3 not found. Generating a new UUID.
+-- using e8284285566fdc1f41c8a22bb84a295fc3c4cbb3 for e8284285566fdc1f41c8a22bb84a295fc3c4cbb3 unique identity.
+-- loading identities
+-- identities loaded
+-- profile e8284285566fdc1f41c8a22bb84a295fc3c4cbb3 updated
+-- loading enrollments
+-- enrollments loaded
+
+New match found
+
++ e8284285566fdc1f41c8a22bb84a295fc3c4cbb3
+  * -	jsmith@example	-	scm
+
++ 8253035bc847e70ddd13f7a721faf6f3dd159d7a
+  * -	jsmith@example	-	unknown
+Unique identity e8284285566fdc1f41c8a22bb84a295fc3c4cbb3 merged on 8253035bc847e70ddd13f7a721faf6f3dd159d7a
 + 8253035bc847e70ddd13f7a721faf6f3dd159d7a (old e8284285566fdc1f41c8a22bb84a295fc3c4cbb3) loaded
+=====
 1/1 unique identities loaded"""
 
 # Organization outputs
@@ -136,7 +212,7 @@ class TestLoadCommand(TestLoadCaseBase):
     def test_load(self):
         """Test to load identities and organizations from a file"""
 
-        code = self.cmd.run('data/sortinghat_valid.json')
+        code = self.cmd.run('data/sortinghat_valid.json', '--verbose')
         self.assertEqual(code, CMD_SUCCESS)
 
         uids = api.unique_identities(self.db)
@@ -151,7 +227,7 @@ class TestLoadCommand(TestLoadCaseBase):
     def test_load_identities(self):
         """Test to load identities from a file"""
 
-        code = self.cmd.run('--identities', 'data/sortinghat_valid.json')
+        code = self.cmd.run('--identities', 'data/sortinghat_valid.json', '--verbose')
         self.assertEqual(code, CMD_SUCCESS)
 
         uids = api.unique_identities(self.db)
@@ -172,7 +248,8 @@ class TestLoadCommand(TestLoadCaseBase):
         """Test to load identities from a file using default matching"""
 
         code = self.cmd.run('--identities', '--matching', 'default',
-                            'data/sortinghat_valid.json')
+                            'data/sortinghat_valid.json',
+                            '--verbose')
         self.assertEqual(code, CMD_SUCCESS)
 
         output = sys.stdout.getvalue().strip()
@@ -190,7 +267,8 @@ class TestLoadCommand(TestLoadCaseBase):
 
         code = self.cmd.run('--identities', '--matching', 'default',
                             '--no-strict-matching',
-                            'data/sortinghat_no_strict_valid.json')
+                            'data/sortinghat_no_strict_valid.json',
+                            '--verbose')
         self.assertEqual(code, CMD_SUCCESS)
 
         output = sys.stdout.getvalue().strip()

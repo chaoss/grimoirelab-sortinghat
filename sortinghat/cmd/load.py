@@ -317,7 +317,8 @@ class Load(Command):
                 stored_uuid = self._merge_on_matching(stored_uuid, matcher,
                                                       verbose)
 
-            self.log("+ %s (old %s) loaded" % (stored_uuid, uidentity.uuid))
+            self.log("+ %s (old %s) loaded" % (stored_uuid, uidentity.uuid),
+                     verbose)
             self.log("=====", verbose)
             n += 1
 
@@ -361,7 +362,8 @@ class Load(Command):
                 self.log("-- %s already exists." % uuid, verbose)
                 return uuid
             except NotFoundError as e:
-                self.log("-- %s not found. Generating a new UUID." % uuid, verbose)
+                self.log("-- %s not found. Generating a new UUID." % uuid,
+                         debug=verbose)
 
         # We don't have a unique identity, so we have to create
         # a new one.
@@ -379,7 +381,7 @@ class Load(Command):
             self.new_uids.add(stored_uuid)
         except AlreadyExistsError as e:
             stored_uuid = e.uuid
-            self.warning("-- " + str(e))
+            self.warning("-- " + str(e), debug=verbose)
         except ValueError as e:
             raise LoadError(cause=str(e))
 
