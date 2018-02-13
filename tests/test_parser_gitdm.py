@@ -143,6 +143,38 @@ class TestGidmParser(TestBaseCase):
 
         self.assertEqual(len(uid.enrollments), 0)
 
+    def test_email_validation(self):
+        aliases = self.read_file('data/gitdm_email_aliases_valid.txt')
+        email_to_employer = self.read_file('data/gitdm_email_to_employer_invalid.txt')
+
+        with self.assertRaises(InvalidFormatError):
+            GitdmParser(aliases=aliases,
+                        email_to_employer=email_to_employer,
+                        source='unknown', email_validation=True)
+
+    def test_supress_email_validation(self):
+        email_to_employer = self.read_file('data/gitdm_email_to_employer_invalid.txt')
+
+        parser = GitdmParser(email_to_employer=email_to_employer,
+                             source='unknown', email_validation=False)
+
+        uids = parser.identities
+        self.assertEqual(len(uids), 5)
+
+        expected_emails = ['jsmith.example.com', 'jdoe$example.com', 'jsmith!example.com',
+                           'jrae-example-net', 'john_doeexample']
+
+        for uid in uids:
+            id = uid.identities[0]
+            self.assertIsInstance(uid, UniqueIdentity)
+            self.assertIsInstance(id, Identity)
+            self.assertIn(uid.uuid, expected_emails)
+            self.assertEqual(uid.uuid, id.email)
+            self.assertEqual(id.name, None)
+            self.assertEqual(id.username, None)
+            self.assertEqual(id.source, 'unknown')
+            self.assertEqual(id.uuid, None)
+
     def test_enrollments_parser(self):
         aliases = self.read_file('data/gitdm_email_aliases_valid.txt')
         email_to_employer = self.read_file('data/gitdm_email_to_employer_valid.txt')

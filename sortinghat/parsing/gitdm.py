@@ -40,7 +40,8 @@ class GitdmParser(object):
     The unique identities are stored in an object named 'uidentities'.
     The keys of this object are the UUID of the unique identities.
     Each unique identity object stores a list of identities and
-    enrollments.
+    enrollments. Email addresses will not be validated when `email_validation`
+    is set to `False`.
 
     Organizations are stored in 'organizations' object. Its keys
     are the name of the organizations and each organization object is
@@ -49,10 +50,13 @@ class GitdmParser(object):
     :param aliases: aliases stream
     :param email_to_employer: enrollments stream
     :param domain_to_employer: organizations stream
+    :param source: source of the data
+    :param email_validation: validate email addresses; set to True by default
 
     :raises InvalidFormatError: raised when the format of any of the
         given streams is not valid.
     """
+    
     # Common Gitdm patterns
     VALID_LINE_REGEX = r"^(\S+)[ \t]+([^#\n\r\f\v]+[^#\s])(?:([ \t]+#.*)?|\s*)$"
     LINES_TO_IGNORE_REGEX = r"^\s*(?:#.*)?\s*$"
@@ -61,12 +65,12 @@ class GitdmParser(object):
     DOMAIN_REGEX = r"^(?P<domain>\w\S+)$"
     ENROLLMENT_REGEX = r"^(?P<organization>[^#<\n\r\f\v]*[^#<\t\n\r\f\v\s])(?:[ \t]+<[ \t]+(?P<date>\d{4}\-\d{2}\-\d{2}))?$"
 
-
     def __init__(self, aliases=None, email_to_employer=None,
-                 domain_to_employer=None, source='gitdm'):
+                 domain_to_employer=None, source='gitdm', email_validation=True):
         self._identities = {}
         self._organizations = {}
         self.source = source
+        self.email_validation = email_validation
 
         # Raw data
         self.__raw_identities = {}
@@ -312,11 +316,14 @@ class GitdmParser(object):
         """Parse email to employer lines"""
 
         e = re.match(self.EMAIL_ADDRESS_REGEX, raw_email, re.UNICODE)
-        if not e:
+        if not e and self.email_validation:
             cause = "invalid email format: '%s'" % raw_email
             raise InvalidFormatError(cause=cause)
 
-        email = e.group('email').strip()
+        if self.email_validation:
+            email = e.group('email').strip()
+        else:
+            email = raw_email
 
         r = re.match(self.ENROLLMENT_REGEX, raw_enrollment, re.UNICODE)
         if not r:

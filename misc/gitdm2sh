@@ -41,8 +41,9 @@ def main():
     args = parse_args()
 
     try:
+        email_validation = not args.no_email_validation
         parser = parse_gitdm_files(args.aliases, args.email_employer,
-                                   args.domain_employer, args.source)
+                                   args.domain_employer, args.source, email_validation)
     except (IOError, UnicodeDecodeError, InvalidFormatError) as e:
         raise RuntimeError(str(e))
 
@@ -75,12 +76,15 @@ def parse_args():
     parser.add_argument('-o', '--outfile', nargs='?', type=argparse.FileType('w'),
                         default=sys.stdout,
                         help='Sorting Hat JSON output filename')
+    parser.add_argument('--no-email-validation', dest='no_email_validation',
+                        action='store_true',
+                        help="do not email addresses validation")
 
     return parser.parse_args()
 
 
 def parse_gitdm_files(aliases, email_to_employer,
-                      domain_to_employer, source):
+                      domain_to_employer, source, email_validation):
     """Parse Gitdm files"""
 
     a = None
@@ -97,7 +101,8 @@ def parse_gitdm_files(aliases, email_to_employer,
     parser = GitdmParser(aliases=a,
                          email_to_employer=ee,
                          domain_to_employer=de,
-                         source=source)
+                         source=source,
+                         email_validation=email_validation)
     return parser
 
 
