@@ -97,7 +97,6 @@ class Init(Command):
             Database.create(user, password, name, host, port)
             # Try to access and create schema
             db = Database(user, password, name, host, port)
-            self.error("db assigned")
             # Load countries list
             self.__load_countries(db)
         except DatabaseExists as e:
