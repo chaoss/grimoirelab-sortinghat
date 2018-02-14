@@ -29,12 +29,15 @@ import unittest
 if not '..' in sys.path:
     sys.path.insert(0, '..')
 
-from sortinghat.db.database import Database
+from sortinghat.db.database import Database, DatabaseExists
 
 CONFIG_FILE = 'tests.conf'
 
 
 class TestDatabaseCaseBase(unittest.TestCase):
+
+    db_created = False
+
     """Defines common setup and teardown methods for database-based tests.
 
     When a class inherits from this one and it is instantiated,
@@ -42,6 +45,10 @@ class TestDatabaseCaseBase(unittest.TestCase):
     will be useful to check the contents of the registry during
     the tests. Any content of the database will be removed after
     the connection is reated and before and after of any unit test.
+
+    The setUpClass method for this class creates the testing database
+    only once for all the hierarchy of classes inheriting from it,
+    so that the same database is reused in all the tests.
 
     Classes that inherit from this must implement `load_test_dataset`
     method. This method is called before any unit test is run.
@@ -55,6 +62,12 @@ class TestDatabaseCaseBase(unittest.TestCase):
                   'database': config['Database']['name'],
                   'host': config['Database']['host'],
                   'port': config['Database']['port']}
+        if not TestDatabaseCaseBase.db_created:
+            try:
+                Database.create(**cls.db_kwargs)
+            except DatabaseExists as e:
+                pass
+            TestDatabaseCaseBase.db_created = True
         cls.db = Database(**cls.db_kwargs)
         cls.db.clear()
 

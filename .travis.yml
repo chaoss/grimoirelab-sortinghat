@@ -24,7 +24,6 @@ install:
   - ./setup.py install
 
 before_script:
-  - mysql -e 'create database testhat;'
   - cp tests/tests.conf.sample tests/tests.conf
 
 script:
