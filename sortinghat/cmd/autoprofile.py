@@ -112,6 +112,10 @@ class AutoProfile(Command):
             except (NotFoundError, WrappedValueError) as e:
                 self.error(str(e))
                 return e.code
+            except UnboundLocalError as e:
+                self.display('autoprofile.tmpl',
+                             identity={'uuid': uuid, 'source': 'Not Found'}
+                             )
 
         return CMD_SUCCESS
 
