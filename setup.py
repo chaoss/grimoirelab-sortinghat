@@ -112,7 +112,7 @@ setup(name="sortinghat",
         'sqlalchemy>=1.1.15',
         'jinja2',
         'python-dateutil>=2.6.0',
-        'pandas==0.18.1',
+        'pandas>=0.18.1',
         'pyyaml>=3.12'
       ],
       cmdclass=cmdclass,
