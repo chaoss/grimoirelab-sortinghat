@@ -39,6 +39,8 @@ SH_BL_EMPTY_STRING_ERROR = "invalid json format. Blacklist entries cannot be nul
 SH_IDS_MISSING_KEYS_ERROR = "Attribute uuid not found"
 SH_IDS_DATETIME_ERROR = "2100-01-32T00:00:00 is not a valid date"
 SH_IDS_IS_BOT_ERROR = "'is_bot' must have a bool value"
+SH_IDS_GENDER_ACC_TYPE_ERROR = "'gender_acc' must have an integer value"
+SH_IDS_GENDER_ACC_RANGE_ERROR = "'gender_acc' is not in range"
 SH_ORGS_MISSING_KEYS_ERROR = "Attribute is_top not found"
 SH_ORGS_IS_TOP_ERROR = "'is_top' must have a bool value"
 
@@ -111,6 +113,8 @@ class TestSortingHatParser(TestBaseCase):
         self.assertEqual(prf.uuid, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
         self.assertEqual(prf.name, None)
         self.assertEqual(prf.email, 'jsmith@example.com')
+        self.assertEqual(prf.gender, 'male')
+        self.assertEqual(prf.gender_acc, 100)
         self.assertEqual(prf.is_bot, True)
         self.assertEqual(prf.country_code, None)
         self.assertEqual(prf.country, None)
@@ -152,6 +156,8 @@ class TestSortingHatParser(TestBaseCase):
         self.assertEqual(prf.uuid, '52e0aa0a14826627e633fd15332988686b730ab3')
         self.assertEqual(prf.name, 'Jane Roe')
         self.assertEqual(prf.email, 'jroe@example.com')
+        self.assertEqual(prf.gender, None)
+        self.assertEqual(prf.gender_acc, None)
         self.assertEqual(prf.is_bot, False)
         self.assertEqual(prf.country_code, 'US')
         self.assertEqual(prf.country.alpha3, 'USA')
@@ -302,6 +308,16 @@ class TestSortingHatParser(TestBaseCase):
         with self.assertRaisesRegexp(InvalidFormatError,
                                      SH_IDS_IS_BOT_ERROR):
             s = self.read_file('data/sortinghat_ids_invalid_is_bot.json')
+            SortingHatParser(s)
+
+        with self.assertRaisesRegexp(InvalidFormatError,
+                                     SH_IDS_GENDER_ACC_TYPE_ERROR):
+            s = self.read_file('data/sortinghat_ids_invalid_type_gender_acc.json')
+            SortingHatParser(s)
+
+        with self.assertRaisesRegexp(InvalidFormatError,
+                                     SH_IDS_GENDER_ACC_RANGE_ERROR):
+            s = self.read_file('data/sortinghat_ids_invalid_range_gender_acc.json')
             SortingHatParser(s)
 
         with self.assertRaisesRegexp(InvalidFormatError,

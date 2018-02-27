@@ -176,6 +176,8 @@ class SortingHatParser(object):
                             "name": "United States of America"
                         },
                         "email": "jsmith@example.com",
+                        "gender": "male",
+                        "gender_acc": 100,
                         "name": null,
                         "is_bot": true,
                         "uuid": "03e12d00e37fd45593c49a5a5a1652deca4cf302"
@@ -205,10 +207,22 @@ class SortingHatParser(object):
 
                     is_bot = profile['is_bot']
 
+                    gender_acc = profile['gender_acc']
+
+                    if gender_acc is not None:
+                        if type(gender_acc) != int:
+                            msg = "invalid json format. 'gender_acc' must have an integer value"
+                            raise InvalidFormatError(cause=msg)
+                        elif not 0 <= gender_acc <= 100:
+                            msg = "invalid json format. 'gender_acc' is not in range (0,100)"
+                            raise InvalidFormatError(cause=msg)
+
                     name = self.__encode(profile['name'])
                     email = self.__encode(profile['email'])
+                    gender = self.__encode(profile['gender'])
 
                     prf = Profile(uuid=uuid, name=name, email=email,
+                                  gender=gender, gender_acc=gender_acc,
                                   is_bot=is_bot)
 
                     if profile['country']:

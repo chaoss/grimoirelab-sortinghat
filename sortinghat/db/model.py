@@ -215,6 +215,8 @@ class Profile(ModelBase):
                   primary_key=True)
     name = Column(String(128))
     email = Column(String(128))
+    gender = Column(String(32))
+    gender_acc = Column(Integer())
     is_bot = Column(CoerceToBool(name='is_bot_check'), default=False)
     country_code = Column(String(2),
                           ForeignKey('countries.code', ondelete='CASCADE'))
@@ -226,13 +228,15 @@ class Profile(ModelBase):
 
     def to_dict(self):
         return {
-                'uuid'     : self.uuid,
-                'name'     : self.name,
-                'email'    : self.email,
-                'is_bot'   : self.is_bot,
-                'country'  : self.country.to_dict() \
-                             if self.country else None
-                }
+            'uuid': self.uuid,
+            'name': self.name,
+            'email': self.email,
+            'gender': self.gender,
+            'gender_acc': self.gender_acc,
+            'is_bot': self.is_bot,
+            'country': self.country.to_dict() \
+                       if self.country else None
+        }
 
     def __repr__(self):
         return "%s - %s (%s)" % (self.uuid, self.name)

@@ -57,6 +57,7 @@ unique identity 17ab00ed3825ec2f50483e33c88df223264182ba
 Profile:
     * Name: Jane Roe
     * E-Mail: jroe@example.com
+    * Gender: -
     * Bot: No
     * Country: US - United States of America
 
@@ -76,6 +77,7 @@ unique identity a9b403e150dd4af8953a52a4bb841051e4b705d9
 Profile:
     * Name: -
     * E-Mail: jsmith@example.com
+    * Gender: male
     * Bot: Yes
     * Country: -
 
@@ -91,6 +93,7 @@ SHOW_UUID_OUTPUT = """unique identity 17ab00ed3825ec2f50483e33c88df223264182ba
 Profile:
     * Name: Jane Roe
     * E-Mail: jroe@example.com
+    * Gender: -
     * Bot: No
     * Country: US - United States of America
 
@@ -109,6 +112,7 @@ SHOW_TERM_OUTPUT = """unique identity 17ab00ed3825ec2f50483e33c88df223264182ba
 Profile:
     * Name: Jane Roe
     * E-Mail: jroe@example.com
+    * Gender: -
     * Bot: No
     * Country: US - United States of America
 
@@ -128,6 +132,7 @@ unique identity a9b403e150dd4af8953a52a4bb841051e4b705d9
 Profile:
     * Name: -
     * E-Mail: jsmith@example.com
+    * Gender: male
     * Bot: Yes
     * Country: -
 
@@ -160,7 +165,8 @@ class TestShowCaseBase(TestCommandCaseBase):
                                        'John Smith', 'jsmith')
         api.add_identity(self.db, 'scm', 'jsmith@example.com', 'John Smith',
                          uuid=jsmith_uuid)
-        api.edit_profile(self.db, jsmith_uuid, email='jsmith@example.com', is_bot=True)
+        api.edit_profile(self.db, jsmith_uuid, email='jsmith@example.com',
+                         gender='male', is_bot=True)
 
         # Add Joe Roe identity
         jroe_uuid = api.add_identity(self.db, 'scm', 'jroe@example.com',
