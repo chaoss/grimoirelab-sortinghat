@@ -1077,6 +1077,34 @@ def search_last_modified_identities(db, after):
     return uids, ids
 
 
+def search_profiles(db, no_gender=False):
+    """List unique identities profiles.
+
+    The function will return the list of profiles filtered by the
+    given parameters. When `no_gender` is set, only profiles without
+    gender values will be returned.
+
+    :param db: database manager
+    :param no_gender: return only those profiles without gender
+
+    :returns: a list of profile entities
+    """
+    profiles = []
+
+    with db.connect() as session:
+        query = session.query(Profile)
+
+        if no_gender:
+            query = query.filter(Profile.gender == None)
+
+        profiles = query.order_by(Profile.uuid).all()
+
+        # Detach objects from the session
+        session.expunge_all()
+
+    return profiles
+
+
 def registry(db, term=None):
     """List the organizations available in the registry.
 

@@ -2694,6 +2694,66 @@ class TestSearchLastModifiedIdentities(TestAPICaseBase):
         self.assertListEqual(ids, [])
 
 
+class TestSearchProfiles(TestAPICaseBase):
+    """Unit tests for search_profiles"""
+
+    def test_search_profiles(self):
+        """Check if it returns a list of profiles"""
+
+        # Add some identities
+        jsmith_uuid = api.add_identity(self.db, 'scm', 'jsmith@example.com',
+                                       'John Smith', 'jsmith')
+        api.add_identity(self.db, 'scm', 'jsmith@bitergia.com', uuid=jsmith_uuid)
+        api.add_identity(self.db, 'mls', 'jsmith@bitergia.com', uuid=jsmith_uuid)
+        api.edit_profile(self.db, jsmith_uuid, email='jsmith@example.com',
+                         is_bot=True, gender="male")
+
+        jdoe_uuid = api.add_identity(self.db, 'scm', 'jdoe@example.com',
+                                     'John Doe', 'jdoe')
+        api.add_identity(self.db, 'scm', 'jdoe@libresoft.es',
+                         'jdoe', 'jdoe', uuid=jdoe_uuid)
+        api.edit_profile(self.db, jdoe_uuid, email='jsmith@example.com',
+                         is_bot=False)
+
+        # Tests
+        profiles = api.search_profiles(self.db)
+        self.assertEqual(len(profiles), 2)
+
+        prf = profiles[0]
+        self.assertIsInstance(prf, Profile)
+        self.assertEqual(prf.uuid, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+
+        prf = profiles[1]
+        self.assertIsInstance(prf, Profile)
+        self.assertEqual(prf.uuid, 'c6d2504fde0e34b78a185c4b709e5442d045451c')
+
+    def test_filter_no_gender(self):
+        """Check if it returns a set of profiles which do not have gender"""
+
+        # Add some identities
+        jsmith_uuid = api.add_identity(self.db, 'scm', 'jsmith@example.com',
+                                       'John Smith', 'jsmith')
+        api.add_identity(self.db, 'scm', 'jsmith@bitergia.com', uuid=jsmith_uuid)
+        api.add_identity(self.db, 'mls', 'jsmith@bitergia.com', uuid=jsmith_uuid)
+        api.edit_profile(self.db, jsmith_uuid, email='jsmith@example.com',
+                         is_bot=True, gender="male")
+
+        jdoe_uuid = api.add_identity(self.db, 'scm', 'jdoe@example.com',
+                                     'John Doe', 'jdoe')
+        api.add_identity(self.db, 'scm', 'jdoe@libresoft.es',
+                         'jdoe', 'jdoe', uuid=jdoe_uuid)
+        api.edit_profile(self.db, jdoe_uuid, email='jsmith@example.com',
+                         is_bot=False)
+
+        # Tests
+        profiles = api.search_profiles(self.db, no_gender=True)
+        self.assertEqual(len(profiles), 1)
+
+        prf = profiles[0]
+        self.assertIsInstance(prf, Profile)
+        self.assertEqual(prf.uuid, 'c6d2504fde0e34b78a185c4b709e5442d045451c')
+
+
 class TestRegistry(TestAPICaseBase):
     """Unit tests for registry"""
 
