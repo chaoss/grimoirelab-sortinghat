@@ -24,6 +24,7 @@ from __future__ import unicode_literals
 
 from .add import Add
 from .affiliate import Affiliate
+from .autogender import AutoGender
 from .autoprofile import AutoProfile
 from .blacklist import Blacklist
 from .config import Config
@@ -46,6 +47,7 @@ from .withdraw import Withdraw
 SORTINGHAT_COMMANDS = {
                        'add'         : Add,
                        'affiliate'   : Affiliate,
+                       'autogender'  : AutoGender,
                        'autoprofile' : AutoProfile,
                        'blacklist'   : Blacklist,
                        'config'      : Config,
