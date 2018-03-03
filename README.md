@@ -27,6 +27,7 @@ The most commonly used sortinghat commands are:
 
     add          Add identities
     affiliate    Affiliate identities
+    autogender   Auto complete gender data
     autoprofile  Auto complete profiles
     blacklist    List, add or delete entries from the blacklist
     config       Get and set configuration parameters
@@ -164,6 +165,17 @@ After this initialize a new database:
 ```
 
 ## Compatibility between versions
+
+SortingHat databases previous to adding `autogender` command are no longer
+compatible. The database schema changed in `profiles` table to add the
+fields `gender` and `gender_acc`.
+
+The next MySQL statements should be run to update the schema
+
+```
+mysql> ALTER TABLE profiles ADD COLUMN gender VARCHAR(32) DEFAULT NULL
+mysql> ALTER TABLE profiles ADD COLUMN gender_acc INT(11) DEFAULT NULL
+```
 
 SortingHat databases previous to 0.5.0 are no longer compatible. The
 database schema changed in `uidentites` and `identities` tables to add the
@@ -358,6 +370,7 @@ $ sortinghat load identities.json
 * Jinja2 >= 2.7
 * python-dateutil >= 2.6
 * python-yaml >= 3.12
+* requests >= 2.9
 
 You will also need a MySQL Python driver to connect with the database server. We recommend to use one these packages:
 
