@@ -32,7 +32,7 @@ except ImportError:
     import ConfigParser as configparser
 
 from sortinghat.cmd import SORTINGHAT_COMMANDS
-
+import sortinghat
 
 SORTINGHAT_USAGE_MSG = \
 """%(prog)s [--help] [-c <file>] [-u <user>] [-p <password>]
@@ -73,11 +73,14 @@ General options:
                         name of the database where the registry will be stored
   --host HOST           name of the host where the database server is running
   --port PORT           port of the host where the database server is running
+  -v, --version         show version
 """
 
 SORTINGHAT_EPILOG_MSG = \
 """Run '%(prog)s <command> --help' to get information about a specific command."""
 
+SORTINGHAT_VERSION_MSG = \
+"""%(prog)s """  + sortinghat.__version__
 
 def main():
     args = parse_args()
@@ -149,7 +152,8 @@ def create_common_arguments_parser(defaults):
                        help=argparse.SUPPRESS)
     group.add_argument('--port', dest='port', default=os.getenv('SORTINGHAT_DB_PORT', '3306'),
                        help=argparse.SUPPRESS)
-
+    group.add_argument('-v', '--version', action='version',version=SORTINGHAT_VERSION_MSG,
+                       help=argparse.SUPPRESS)
     # Command arguments
     parser.add_argument('command', help=argparse.SUPPRESS)
     parser.add_argument('cmd_args', nargs=argparse.REMAINDER,
