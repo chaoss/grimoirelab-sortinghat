@@ -919,7 +919,9 @@ def match_identities(db, uuid, matcher):
             raise NotFoundError(entity=uuid)
 
         # Get all identities expect of the one requested one query above (uid)
-        candidates = session.query(UniqueIdentity).filter(UniqueIdentity.uuid != uuid).all()
+        candidates = session.query(UniqueIdentity).\
+            filter(UniqueIdentity.uuid != uuid).\
+            order_by(UniqueIdentity.uuid)
 
         for candidate in candidates:
             if not matcher.match(uid, candidate):
