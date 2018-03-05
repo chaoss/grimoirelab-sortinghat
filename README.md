@@ -1,4 +1,4 @@
-# Sorting Hat [![Build Status](https://travis-ci.org/grimoirelab/sortinghat.svg?branch=master)](https://travis-ci.org/grimoirelab/sortinghat) [![Coverage Status](https://img.shields.io/coveralls/grimoirelab/sortinghat.svg)](https://coveralls.io/r/grimoirelab/sortinghat?branch=master)
+# Sorting Hat [![Build Status](https://travis-ci.org/chaoss/grimoirelab-sortinghat.svg?branch=master)](https://travis-ci.org/chaoss/grimoirelab-sortinghat) [![Coverage Status](https://img.shields.io/coveralls/chaoss/grimoirelab-sortinghat.svg)](https://coveralls.io/r/chaoss/grimoirelab-sortinghat?branch=master)
 
 ## Description
 
@@ -10,11 +10,11 @@ In addition, each unique identity can be related to one or more affiliations, fo
 
 Sorting Hat is a part of the [GrimoireLab toolset](https://grimoirelab.github.io), which provides for Python modules and scripts to analyze data sources with information about software development, and allows to produce interactive dashboards to visualize that information.
 
-In the context of GrimoireLab, Sorting Hat is usually run after data is retrieved with [Perceval](https://github.com/grimmoirelab/perceval), to store the identities obtained into its database, and later merge them into unique identities (and maybe affiliate them).
+In the context of GrimoireLab, Sorting Hat is usually run after data is retrieved with [Perceval](https://github.com/chaoss/grimmoirelab-perceval), to store the identities obtained into its database, and later merge them into unique identities (and maybe affiliate them).
 
 ## Source code and contributions
 
-All the source code is available in the [Sorting Hat GitHub repository](https://github.com/grimoirelab/sortinghat). Please, upload pull requests if you have proposals to change the source code, and open an issue if you want to report a bug, ask for a new feature, or just comment something.
+All the source code is available in the [Sorting Hat GitHub repository](https://github.com/chaoss/grimoirelab-sortinghat). Please, upload pull requests if you have proposals to change the source code, and open an issue if you want to report a bug, ask for a new feature, or just comment something.
 
 ## Usage
 
