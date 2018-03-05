@@ -46,6 +46,7 @@ PROFILE_OUTPUT = """unique identity 17ab00ed3825ec2f50483e33c88df223264182ba
 Profile:
     * Name: Jane Roe
     * E-Mail: jroe@example.com
+    * Gender: female
     * Bot: Yes
     * Country: US - United States of America
 unique identity 17ab00ed3825ec2f50483e33c88df223264182ba
@@ -53,6 +54,7 @@ unique identity 17ab00ed3825ec2f50483e33c88df223264182ba
 Profile:
     * Name: Jane Roe
     * E-Mail: jroe@example.com
+    * Gender: female
     * Bot: No
     * Country: US - United States of America"""
 
@@ -61,6 +63,7 @@ PROFILE_UUID_OUTPUT = """unique identity 17ab00ed3825ec2f50483e33c88df223264182b
 Profile:
     * Name: -
     * E-Mail: -
+    * Gender: -
     * Bot: No
     * Country: -"""
 
@@ -90,7 +93,7 @@ class TestProfileCommand(TestProfileCaseBase):
 
         code = self.cmd.run('17ab00ed3825ec2f50483e33c88df223264182ba',
                             '--name', 'Jane Roe', '--email', 'jroe@example.com',
-                            '--bot', '--country', 'US')
+                            '--gender', 'female', '--bot', '--country', 'US')
         self.assertEqual(code, CMD_SUCCESS)
 
         code = self.cmd.run('17ab00ed3825ec2f50483e33c88df223264182ba',

@@ -67,6 +67,8 @@
                     "name": "United States of America"
                 },
                 "email": "jroe@example.com",
+                "gender": null,
+                "gender_acc": null,
                 "is_bot": false,
                 "name": "Jane Roe",
                 "uuid": "17ab00ed3825ec2f50483e33c88df223264182ba"
@@ -103,6 +105,8 @@
             "profile": {
                 "country": null,
                 "email": "jsmith@example.com",
+                "gender": "male",
+                "gender_acc": 100,
                 "is_bot": true,
                 "name": null,
                 "uuid": "a9b403e150dd4af8953a52a4bb841051e4b705d9"

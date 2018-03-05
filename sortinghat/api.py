@@ -393,6 +393,8 @@ def edit_profile(db, uuid, **kwargs):
 
        - 'name' : name of the unique identity
        - 'email' : email address of the unique identity
+       - 'gender' : gender of the unique identity
+       - 'gender_acc' : gender accuracy (range of 0 to 100; by default, set to 100)
        - 'is_bot' : boolean value to determine whether a unique identity is
              a bot or not. By default, this value is initialized to
              False.
@@ -445,6 +447,23 @@ def edit_profile(db, uuid, **kwargs):
             profile.name = to_none_if_empty(kwargs['name'])
         if 'email' in kwargs:
             profile.email = to_none_if_empty(kwargs['email'])
+
+        if 'gender' in kwargs:
+            profile.gender = to_none_if_empty(kwargs['gender'])
+
+            if not profile.gender:
+                gender_acc = None
+            else:
+                gender_acc = kwargs.get('gender_acc', 100)
+
+                if type(gender_acc) != int:
+                    raise WrappedValueError('gender_acc must have an integer value')
+                elif not 1 <= gender_acc <= 100:
+                    raise WrappedValueError('gender_acc is not in range (1,100)')
+
+            profile.gender_acc = gender_acc
+        elif 'gender_acc' in kwargs:
+            raise WrappedValueError('gender_acc is only set when gender is given')
 
         last_modified = datetime.datetime.utcnow()
         uidentity.last_modified = last_modified
@@ -708,6 +727,9 @@ def merge_unique_identities(db, from_uuid, to_uuid):
                 tuid.profile.name = fuid.profile.name
             if not tuid.profile.email:
                 tuid.profile.email = fuid.profile.email
+            if not tuid.profile.gender:
+                tuid.profile.gender = fuid.profile.gender
+                tuid.profile.gender_acc = fuid.profile.gender_acc
             if not tuid.profile.country_code:
                 tuid.profile.country_code = fuid.profile.country_code
 
@@ -1053,6 +1075,34 @@ def search_last_modified_identities(db, after):
         ids = [id_.id for id_ in query.order_by(Identity.id).all()]
 
     return uids, ids
+
+
+def search_profiles(db, no_gender=False):
+    """List unique identities profiles.
+
+    The function will return the list of profiles filtered by the
+    given parameters. When `no_gender` is set, only profiles without
+    gender values will be returned.
+
+    :param db: database manager
+    :param no_gender: return only those profiles without gender
+
+    :returns: a list of profile entities
+    """
+    profiles = []
+
+    with db.connect() as session:
+        query = session.query(Profile)
+
+        if no_gender:
+            query = query.filter(Profile.gender == None)
+
+        profiles = query.order_by(Profile.uuid).all()
+
+        # Detach objects from the session
+        session.expunge_all()
+
+    return profiles
 
 
 def registry(db, term=None):

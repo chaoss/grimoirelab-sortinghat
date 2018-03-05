@@ -22,6 +22,8 @@
             "profile": {
                 "country": null,
                 "email": "jsmith@example.com",
+                "gender": "male",
+                "gender_acc": 100,
                 "name": null,
                 "is_bot": true,
                 "uuid": "e8284285566fdc1f41c8a22bb84a295fc3c4cbb3"

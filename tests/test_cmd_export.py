@@ -92,9 +92,10 @@ class TestExportCaseBase(TestCommandCaseBase):
                                        'John Smith', 'jsmith')
         api.add_identity(self.db, 'scm', 'jsmith@example.com', 'John Smith',
                          uuid=jsmith_uuid)
-        api.edit_profile(self.db, jsmith_uuid, email='jsmith@example.com', is_bot=True)
+        api.edit_profile(self.db, jsmith_uuid, email='jsmith@example.com',
+                         gender="male", is_bot=True)
 
-        # Add Joe Roe identity
+        # Add Jane Roe identity
         jroe_uuid = api.add_identity(self.db, 'scm', 'jroe@example.com',
                                      'Jane Roe', 'jroe')
         api.add_identity(self.db, 'scm', 'jroe@example.com',
@@ -262,6 +263,8 @@ class TestSortingHatIdentitiesExporter(TestExportCaseBase):
         self.assertEqual(uid1['profile']['uuid'], '17ab00ed3825ec2f50483e33c88df223264182ba')
         self.assertEqual(uid1['profile']['name'], 'Jane Roe')
         self.assertEqual(uid1['profile']['email'], 'jroe@example.com')
+        self.assertEqual(uid1['profile']['gender'], None)
+        self.assertEqual(uid1['profile']['gender_acc'], None)
         self.assertEqual(uid1['profile']['is_bot'], False)
         self.assertEqual(uid1['profile']['country']['alpha3'], 'USA')
         self.assertEqual(uid1['profile']['country']['code'], 'US')
@@ -322,6 +325,8 @@ class TestSortingHatIdentitiesExporter(TestExportCaseBase):
         self.assertEqual(uid2['profile']['uuid'], 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
         self.assertEqual(uid2['profile']['name'], None)
         self.assertEqual(uid2['profile']['email'], 'jsmith@example.com')
+        self.assertEqual(uid2['profile']['gender'], 'male')
+        self.assertEqual(uid2['profile']['gender_acc'], 100)
         self.assertEqual(uid2['profile']['is_bot'], True)
 
         ids = uid2['identities']

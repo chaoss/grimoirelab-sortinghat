@@ -50,7 +50,10 @@ ENTITY_BLACKLIST_NONE_OR_EMPTY_ERROR = "entity to blacklist cannot be"
 COUNTRY_CODE_INVALID_ERROR = "country code must be a 2 length alpha string - %(code)s given"
 ENROLLMENT_PERIOD_INVALID_ERROR = "cannot be greater than "
 ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR = "%(type)s %(date)s is out of bounds"
-NOT_FOUND_ERROR =  "%(entity)s not found in the registry"
+NOT_FOUND_ERROR = "%(entity)s not found in the registry"
+GENDER_ACC_INVALID_ERROR = "gender_acc is only set when gender is given"
+GENDER_ACC_INVALID_TYPE_ERROR = "gender_acc must have an integer value"
+GENDER_ACC_INVALID_RANGE_ERROR = "gender_acc is not in range (1,100)"
 
 
 class TestAPICaseBase(TestDatabaseCaseBase):
@@ -834,7 +837,7 @@ class TestEditProfile(TestAPICaseBase):
         # Add the new profile
         before_dt = datetime.datetime.utcnow()
         api.edit_profile(self.db, 'John Smith', name='Smith, J.', email='',
-                         is_bot=True, country_code='US')
+                         gender='male', is_bot=True, country_code='US')
         after_dt = datetime.datetime.utcnow()
 
         with self.db.connect() as session:
@@ -847,6 +850,8 @@ class TestEditProfile(TestAPICaseBase):
             self.assertEqual(prf.name, 'Smith, J.')
             # This should be converted to None
             self.assertEqual(prf.email, None)
+            self.assertEqual(prf.gender, 'male')
+            self.assertEqual(prf.gender_acc, 100)
             self.assertEqual(prf.is_bot, True)
             self.assertEqual(prf.country_code, 'US')
             self.assertEqual(prf.country.code, 'US')
@@ -867,7 +872,7 @@ class TestEditProfile(TestAPICaseBase):
         # Add a unique identity with a profile
         api.add_unique_identity(self.db, 'John Smith')
         api.edit_profile(self.db, 'John Smith', name='Smith, J.',
-                         is_bot=True)
+                         gender='', is_bot=True)
 
         with self.db.connect() as session:
             uid = session.query(UniqueIdentity).\
@@ -878,6 +883,8 @@ class TestEditProfile(TestAPICaseBase):
             self.assertEqual(prf.uuid, 'John Smith')
             self.assertEqual(prf.name, 'Smith, J.')
             self.assertEqual(prf.email, None)
+            self.assertEqual(prf.gender, None)
+            self.assertEqual(prf.gender_acc, None)
             self.assertEqual(prf.is_bot, True)
             self.assertEqual(prf.country_code, None)
             self.assertEqual(prf.country, None)
@@ -885,7 +892,7 @@ class TestEditProfile(TestAPICaseBase):
         # Update some fields
         before_dt = datetime.datetime.utcnow()
         api.edit_profile(self.db, 'John Smith', name='', email='jsmith@example.com',
-                         is_bot=False, country_code='US')
+                         gender='male', gender_acc=89, is_bot=False, country_code='US')
         after_dt = datetime.datetime.utcnow()
 
         with self.db.connect() as session:
@@ -897,6 +904,8 @@ class TestEditProfile(TestAPICaseBase):
             self.assertEqual(prf.uuid, 'John Smith')
             self.assertEqual(prf.name, None)
             self.assertEqual(prf.email, 'jsmith@example.com')
+            self.assertEqual(prf.gender, 'male')
+            self.assertEqual(prf.gender_acc, 89)
             self.assertEqual(prf.is_bot, False)
             self.assertEqual(prf.country_code, 'US')
             self.assertEqual(prf.country.code, 'US')
@@ -958,6 +967,45 @@ class TestEditProfile(TestAPICaseBase):
         self.assertRaisesRegexp(ValueError, IS_BOT_VALUE_ERROR,
                                 api.edit_profile, self.db, 'John Smith',
                                 **{'is_bot' : 'True'})
+
+    def test_not_given_gender(self):
+        """Check if it fails when gender_acc is given but not the gender"""
+
+        api.add_unique_identity(self.db, 'John Smith')
+
+        self.assertRaisesRegexp(ValueError, GENDER_ACC_INVALID_ERROR,
+                                api.edit_profile, self.db, 'John Smith',
+                                **{'gender_acc' : 100})
+
+    def test_invalid_type_gender_acc(self):
+        """Check type values of gender_acc parameter"""
+
+        api.add_unique_identity(self.db, 'John Smith')
+
+        self.assertRaisesRegexp(ValueError, GENDER_ACC_INVALID_TYPE_ERROR,
+                                api.edit_profile, self.db, 'John Smith',
+                                **{'gender': 'male', 'gender_acc' : 10.0})
+
+        self.assertRaisesRegexp(ValueError, GENDER_ACC_INVALID_TYPE_ERROR,
+                                api.edit_profile, self.db, 'John Smith',
+                                **{'gender': 'male', 'gender_acc' : '100'})
+
+def test_invalid_range_gender_acc(self):
+    """Check if it fails when gender_acc is given but not the gender"""
+
+    api.add_unique_identity(self.db, 'John Smith')
+
+    self.assertRaisesRegexp(ValueError, GENDER_ACC_INVALID_RANGE_ERROR,
+                            api.edit_profile, self.db, 'John Smith',
+                            **{'gender': 'male', 'gender_acc' : -1})
+
+    self.assertRaisesRegexp(ValueError, GENDER_ACC_INVALID_RANGE_ERROR,
+                            api.edit_profile, self.db, 'John Smith',
+                            **{'gender': 'male', 'gender_acc' : 0})
+
+    self.assertRaisesRegexp(ValueError, GENDER_ACC_INVALID_RANGE_ERROR,
+                            api.edit_profile, self.db, 'John Smith',
+                            **{'gender': 'male', 'gender_acc' : 101})
 
 
 class TestDeleteUniqueIdentity(TestAPICaseBase):
@@ -1837,8 +1885,9 @@ class TestMergeUniqueIdentities(TestAPICaseBase):
                          uuid='John Smith')
         api.add_identity(self.db, 'scm', 'jsmith@example.com', 'John Smith',
                          uuid='John Smith')
-        api.edit_profile(self.db, 'John Smith', name='John Smith', is_bot=True,
-                         country_code='US')
+        api.edit_profile(self.db, 'John Smith', name='John Smith',
+                         gender='male', gender_acc=75,
+                         is_bot=True, country_code='US')
 
         api.add_unique_identity(self.db, 'John Doe')
         api.add_identity(self.db, 'scm', 'jdoe@example.com',
@@ -1879,6 +1928,8 @@ class TestMergeUniqueIdentities(TestAPICaseBase):
             self.assertEqual(uid2.profile.uuid, 'John Doe')
             self.assertEqual(uid2.profile.name, 'John Smith')
             self.assertEqual(uid2.profile.email, 'jdoe@example.com')
+            self.assertEqual(uid2.profile.gender, 'male')
+            self.assertEqual(uid2.profile.gender_acc, 75)
             self.assertEqual(uid2.profile.is_bot, True)
             self.assertEqual(uid2.profile.country_code, 'US')
             self.assertEqual(uid2.profile.country.code, 'US')
@@ -1999,6 +2050,8 @@ class TestMergeUniqueIdentities(TestAPICaseBase):
             self.assertEqual(uid1.profile.uuid, 'Jane Rae')
             self.assertEqual(uid1.profile.name, 'John Smith')
             self.assertEqual(uid1.profile.email, None)
+            self.assertEqual(uid1.profile.gender, None)
+            self.assertEqual(uid1.profile.gender_acc, None)
             self.assertEqual(uid1.profile.is_bot, True)
             self.assertEqual(uid1.profile.country_code, 'US')
             self.assertEqual(uid1.profile.country.code, 'US')
@@ -2639,6 +2692,66 @@ class TestSearchLastModifiedIdentities(TestAPICaseBase):
 
         self.assertListEqual(uuids, [])
         self.assertListEqual(ids, [])
+
+
+class TestSearchProfiles(TestAPICaseBase):
+    """Unit tests for search_profiles"""
+
+    def test_search_profiles(self):
+        """Check if it returns a list of profiles"""
+
+        # Add some identities
+        jsmith_uuid = api.add_identity(self.db, 'scm', 'jsmith@example.com',
+                                       'John Smith', 'jsmith')
+        api.add_identity(self.db, 'scm', 'jsmith@bitergia.com', uuid=jsmith_uuid)
+        api.add_identity(self.db, 'mls', 'jsmith@bitergia.com', uuid=jsmith_uuid)
+        api.edit_profile(self.db, jsmith_uuid, email='jsmith@example.com',
+                         is_bot=True, gender="male")
+
+        jdoe_uuid = api.add_identity(self.db, 'scm', 'jdoe@example.com',
+                                     'John Doe', 'jdoe')
+        api.add_identity(self.db, 'scm', 'jdoe@libresoft.es',
+                         'jdoe', 'jdoe', uuid=jdoe_uuid)
+        api.edit_profile(self.db, jdoe_uuid, email='jsmith@example.com',
+                         is_bot=False)
+
+        # Tests
+        profiles = api.search_profiles(self.db)
+        self.assertEqual(len(profiles), 2)
+
+        prf = profiles[0]
+        self.assertIsInstance(prf, Profile)
+        self.assertEqual(prf.uuid, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+
+        prf = profiles[1]
+        self.assertIsInstance(prf, Profile)
+        self.assertEqual(prf.uuid, 'c6d2504fde0e34b78a185c4b709e5442d045451c')
+
+    def test_filter_no_gender(self):
+        """Check if it returns a set of profiles which do not have gender"""
+
+        # Add some identities
+        jsmith_uuid = api.add_identity(self.db, 'scm', 'jsmith@example.com',
+                                       'John Smith', 'jsmith')
+        api.add_identity(self.db, 'scm', 'jsmith@bitergia.com', uuid=jsmith_uuid)
+        api.add_identity(self.db, 'mls', 'jsmith@bitergia.com', uuid=jsmith_uuid)
+        api.edit_profile(self.db, jsmith_uuid, email='jsmith@example.com',
+                         is_bot=True, gender="male")
+
+        jdoe_uuid = api.add_identity(self.db, 'scm', 'jdoe@example.com',
+                                     'John Doe', 'jdoe')
+        api.add_identity(self.db, 'scm', 'jdoe@libresoft.es',
+                         'jdoe', 'jdoe', uuid=jdoe_uuid)
+        api.edit_profile(self.db, jdoe_uuid, email='jsmith@example.com',
+                         is_bot=False)
+
+        # Tests
+        profiles = api.search_profiles(self.db, no_gender=True)
+        self.assertEqual(len(profiles), 1)
+
+        prf = profiles[0]
+        self.assertIsInstance(prf, Profile)
+        self.assertEqual(prf.uuid, 'c6d2504fde0e34b78a185c4b709e5442d045451c')
 
 
 class TestRegistry(TestAPICaseBase):

@@ -44,6 +44,7 @@ SORTINGHAT_DESC_MSG = \
 
     add          Add identities
     affiliate    Affiliate identities
+    autogender   Auto complete gender data
     autoprofile  Auto complete profiles
     blacklist    List, add or delete entries from the blacklist
     config       Get and set configuration parameters

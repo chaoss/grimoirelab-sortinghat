@@ -113,7 +113,8 @@ setup(name="sortinghat",
         'jinja2',
         'python-dateutil>=2.6.0',
         'pandas>=0.18.1',
-        'pyyaml>=3.12'
+        'pyyaml>=3.12',
+        'requests>=2.9'
       ],
       cmdclass=cmdclass,
       zip_safe=False

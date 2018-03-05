@@ -30,8 +30,8 @@ from ..exceptions import NotFoundError, WrappedValueError
 
 
 PROFILE_COMMAND_USAGE_MSG = \
-"""%(prog)s profile [--name <name>] [--email <email>] [--country <code>]
-                          [--bot | --no-bot] <uuid>"""
+"""%(prog)s profile [--name <name>] [--email <email>] [--gender <gender]
+                          [--country <code>] [--bot | --no-bot] <uuid>"""
 
 
 class Profile(Command):
@@ -56,6 +56,8 @@ class Profile(Command):
                                  help="name of the unique identity")
         self.parser.add_argument('--email', dest='email', default=None,
                                  help="email of the unique identity")
+        self.parser.add_argument('--gender', dest='gender', default=None,
+                                 help="gender of the unique identity")
         self.parser.add_argument('--country', dest='country', default=None,
                                  help="ISO_3166-1 country code")
 
@@ -129,6 +131,8 @@ class Profile(Command):
             kw['name'] = self.__decode(params.name)
         if params.email:
             kw['email'] = self.__decode(params.email)
+        if params.gender:
+            kw['gender'] = self.__decode(params.gender)
         if params.country:
             kw['country_code'] = self.__decode(params.country)
 

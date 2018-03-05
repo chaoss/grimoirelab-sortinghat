@@ -52,7 +52,7 @@
                     "organization": "Example",
                     "uuid": "03e12d00e37fd45593c49a5a5a1652deca4cf302"
                 }
-            ], 
+            ],
             "identities": [
                 {
                     "email": "jsmith@example.com",
@@ -74,6 +74,8 @@
             "profile": {
                 "country": null,
                 "email": "jsmith@example.com",
+                "gender": "male",
+                "gender_acc": 100,
                 "name": null,
                 "is_bot": true,
                 "uuid": "03e12d00e37fd45593c49a5a5a1652deca4cf302"
@@ -135,6 +137,8 @@
                 },
                 "email": "jroe@example.com",
                 "name": "Jane Roe",
+                "gender": null,
+                "gender_acc": null,
                 "is_bot": false,
                 "uuid": "52e0aa0a14826627e633fd15332988686b730ab3"
             },

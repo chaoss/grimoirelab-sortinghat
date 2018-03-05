@@ -8,9 +8,11 @@ sudo: false
 
 before_install:
   - | # MySQLdb is not available in Python 3.x
+    # See issue with coveralls/httpretty in https://github.com/QualiSystems/shellfoundry/issues/175
     if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then
         pip install MYSQL-python
         pip install configparser
+        pip install coveralls==1.1
     else
         pip install PyMySQL>=0.7.0
     fi
@@ -18,6 +20,8 @@ before_install:
   - pip install Jinja2
   - pip install python-dateutil>=2.6.0
   - pip install pandas==0.18.1
+  - pip install requests>=2.9
+  - pip install httpretty==0.8.6
   - pip install coveralls
 
 install:

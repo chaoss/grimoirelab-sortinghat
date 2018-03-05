@@ -61,6 +61,8 @@
                     "name": "United States of America"
                 },
                 "email": "jroe@example.com",
+                "gender": null,
+                "gender_acc": null,
                 "is_bot": false,
                 "name": "Jane Roe",
                 "uuid": "17ab00ed3825ec2f50483e33c88df223264182ba"
