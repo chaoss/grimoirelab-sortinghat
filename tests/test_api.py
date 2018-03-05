@@ -1682,7 +1682,8 @@ class TestMergeEnrollments(TestAPICaseBase):
             enrollments = session.query(Enrollment).\
                 join(UniqueIdentity, Organization).\
                 filter(UniqueIdentity.uuid == 'John Doe',
-                       Organization.name == 'Example').all()
+                       Organization.name == 'Example').\
+                order_by(Enrollment.start).all()
             self.assertEqual(len(enrollments), 2)
 
             rol0 = enrollments[0]
@@ -1700,7 +1701,8 @@ class TestMergeEnrollments(TestAPICaseBase):
             enrollments = session.query(Enrollment).\
                 join(UniqueIdentity, Organization).\
                 filter(UniqueIdentity.uuid == 'Jane Rae',
-                       Organization.name == 'Bitergia').all()
+                       Organization.name == 'Bitergia').\
+                order_by(Enrollment.start).all()
             self.assertEqual(len(enrollments), 2)
 
             rol0 = enrollments[0]
