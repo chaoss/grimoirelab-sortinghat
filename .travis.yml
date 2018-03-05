@@ -29,7 +29,6 @@ before_script:
 
 script:
   - cd tests
-  - ./run_tests.py
   - coverage run --source=sortinghat run_tests.py
 
 after_success:
