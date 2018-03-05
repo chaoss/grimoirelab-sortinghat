@@ -166,9 +166,9 @@ After this initialize a new database:
 
 ## Compatibility between versions
 
-SortingHat databases previous to adding `autogender` command are no longer
-compatible. The database schema changed in `profiles` table to add the
-fields `gender` and `gender_acc`.
+SortingHat databases previous to 0.6.0  are no longer compatible.
+The database schema changed in `profiles` table to add the fields `gender`
+and `gender_acc`.
 
 The next MySQL statements should be run to update the schema
 
