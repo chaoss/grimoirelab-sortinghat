@@ -60,7 +60,7 @@ class AutoGender(Command):
         self.parser.add_argument('--api-token', dest='api_token', default=None,
                                  help="genderize.io API token used for authentication")
         self.parser.add_argument('--all', dest='genderize_all', action='store_true',
-                                 help="export organizations")
+                                 help="overwrite gender data for all the unique identities")
 
         # Exit early if help is requested
         if 'cmd_args' in kwargs and [i for i in kwargs['cmd_args'] if i in HELP_LIST]:
