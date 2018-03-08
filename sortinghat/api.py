@@ -24,6 +24,8 @@ from __future__ import unicode_literals
 
 import datetime
 
+from sqlalchemy import distinct, func
+
 from . import utils
 from .db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE,\
     UniqueIdentity, Identity, Profile, Organization, Domain, Country, Enrollment,\
@@ -1049,6 +1051,64 @@ def search_unique_identities(db, term, source=None):
         session.expunge_all()
 
     return uidentities
+
+
+def search_unique_identities_slice(db, term, offset, limit):
+    """Look for unique identities using slicing.
+
+    This function returns those unique identities which match with the
+    given `term`. The term will be compared with name, email, username
+    and source values of each identity. When an empty term is given,
+    all unique identities will be returned. The results are limited
+    by `offset` (starting on 0) and `limit`.
+
+    Along with the list of unique identities, this function returns
+    the total number of unique identities that match the given `term`.
+
+    :param db: database manager
+    :param term: term to match with unique identities data
+    :param offset: return results starting on this position
+    :param limit: maximum number of unique identities to return
+
+    :raises WrappedValueError: raised when either the given value of
+        `offset` or `limit` is lower than zero
+    """
+    uidentities = []
+    pattern = '%' + term + '%' if term else None
+
+    if offset < 0:
+        raise WrappedValueError('offset must be greater than 0 - %s given' \
+                                % str(offset))
+    if limit < 0:
+        raise WrappedValueError('limit must be greater than 0 - %s given' \
+                                % str(limit))
+
+    with db.connect() as session:
+        query = session.query(UniqueIdentity).\
+            join(Identity).\
+            filter(UniqueIdentity.uuid == Identity.uuid)
+
+        if pattern:
+            query = query.filter(Identity.name.like(pattern)
+                                 | Identity.email.like(pattern)
+                                 | Identity.username.like(pattern)
+                                 | Identity.source.like(pattern))
+
+        query = query.order_by(UniqueIdentity.uuid)
+
+        # Get the total number of unique identities for that search
+        #nuids = session.query(func.count(query)).scalar()
+        nuids = query.from_self(func.count(distinct(UniqueIdentity.uuid))).scalar()
+
+        start = offset
+        end = offset + limit
+
+        uidentities = query.slice(start, end).all()
+
+        # Detach objects from the session
+        session.expunge_all()
+
+    return uidentities, nuids
 
 
 def search_last_modified_identities(db, after):
