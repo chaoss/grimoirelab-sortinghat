@@ -2638,6 +2638,117 @@ class TestSearchUniqueIdentities(TestAPICaseBase):
                           self.db, 'Jane Rae')
 
 
+class TestSearchUniqueIdentitiesSlice(TestAPICaseBase):
+    """Unit tests for search_unique_identitie_slice"""
+
+    def test_search_unique_identities_slice(self):
+        """Check if it returns a slice of unique identities that match with the criteria"""
+
+        # Add a country
+        with self.db.connect() as session:
+            us = Country(code='US', name='United States of America', alpha3='USA')
+            session.add(us)
+
+        # Add some identities
+        jsmith_uuid = api.add_identity(self.db, 'scm', 'jsmith@example.com',
+                                       'John Smith', 'jsmith')
+        api.add_identity(self.db, 'scm', 'jsmith@bitergia.com', uuid=jsmith_uuid)
+        api.add_identity(self.db, 'mls', 'jsmith@bitergia.com', uuid=jsmith_uuid)
+        api.edit_profile(self.db, jsmith_uuid, email='jsmith@example.com',
+                         is_bot=True, country_code='US')
+
+        api.add_identity(self.db, 'scm', 'jdoe@example.com',
+                         'John Doe', 'jdoe')
+        api.add_identity(self.db, 'scm', 'jdoe@libresoft.es',
+                         'John', 'jdoe')
+
+        # Tests
+        uids, ntotal = api.search_unique_identities_slice(self.db, 'jsmith', 0, 100)
+        self.assertEqual(len(uids), 1)
+        self.assertEqual(ntotal, 1)
+        self.assertEqual(uids[0].uuid, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+
+        uids, ntotal = api.search_unique_identities_slice(self.db, 'john', 0, 100)
+        self.assertEqual(len(uids), 3)
+        self.assertEqual(ntotal, 3)
+        self.assertEqual(uids[0].uuid, '56de4d86c1bed9979cd89d98bd2ea4a898f30cc6')
+        self.assertEqual(uids[1].uuid, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        self.assertEqual(uids[2].uuid, 'c6d2504fde0e34b78a185c4b709e5442d045451c')
+
+        # None values can also be used
+        uids, ntotal = api.search_unique_identities_slice(self.db, None, 0, 100)
+        self.assertEqual(len(uids), 3)
+        self.assertEqual(ntotal, 3)
+        self.assertEqual(uids[0].uuid, '56de4d86c1bed9979cd89d98bd2ea4a898f30cc6')
+        self.assertEqual(uids[1].uuid, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        self.assertEqual(uids[2].uuid, 'c6d2504fde0e34b78a185c4b709e5442d045451c')
+
+    def test_filter_by_slice(self):
+        """Check if it returns a set of identities filtered by slice"""
+
+        # Add some identities
+        api.add_identity(self.db, 'scm', 'jsmith@example.com',
+                         'John Smith', 'jsmith')
+        api.add_identity(self.db, 'scm', 'jsmith@bitergia.com')
+        api.add_identity(self.db, 'mls', 'jsmith@bitergia.com')
+        api.add_identity(self.db, 'scm', 'jdoe@example.com', 'John Doe', 'jdoe')
+
+        # Tests
+        uids, ntotal = api.search_unique_identities_slice(self.db, 'jsmith', 0, 2)
+        self.assertEqual(len(uids), 2)
+        self.assertEqual(ntotal, 3)
+        self.assertEqual(uids[0].uuid, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        self.assertEqual(uids[1].uuid, 'acced28b86278f00a21080d695ecb34b81a1828f')
+
+
+        uids, ntotal = api.search_unique_identities_slice(self.db, 'jsmith', 2, 2)
+        self.assertEqual(len(uids), 1)
+        self.assertEqual(ntotal, 3)
+        self.assertEqual(uids[0].uuid, 'ebcda394c978d50847d60015892f9ca0f0ccde65')
+
+        # No more results
+        uids, ntotal = api.search_unique_identities_slice(self.db, 'jsmith', 3, 2)
+        self.assertListEqual(uids, [])
+        self.assertEqual(ntotal, 3)
+
+    def test_empty_registry(self):
+        """Check whether it returns an empty list when the registry is empty"""
+
+        uids, ntotal = api.search_unique_identities_slice(self.db, None, 0, 100)
+        self.assertListEqual(uids, [])
+        self.assertEqual(ntotal, 0)
+
+    def test_term_not_found(self):
+        """Check whether it returns an empty list when the term is not found"""
+
+        # Empty registry
+        uids, ntotal = api.search_unique_identities_slice(self.db, 'Jane Rae', 0, 100)
+        self.assertListEqual(uids, [])
+        self.assertEqual(ntotal, 0)
+
+        # It should do the same when there are some identities available
+        api.add_identity(self.db, 'scm', 'jsmith@example.com',
+                         'John Smith', 'jsmith')
+        api.add_identity(self.db, 'scm', 'jdoe@example.com',
+                         'John Doe', 'jdoe')
+
+        uids, ntotal = api.search_unique_identities_slice(self.db, 'Jane Rae', 0, 100)
+        self.assertListEqual(uids, [])
+        self.assertEqual(ntotal, 0)
+
+    def test_invalid_offset(self):
+        """Check whether it raises an exception when offset value is invalid"""
+
+        self.assertRaises(ValueError, api.search_unique_identities_slice,
+                          self.db, None, -1, 100)
+
+    def test_invalid_limit(self):
+        """Check whether it raises an exception when limit value is invalid"""
+
+        self.assertRaises(ValueError, api.search_unique_identities_slice,
+                          self.db, None, 1, -1)
+
+
 class TestSearchLastModifiedIdentities(TestAPICaseBase):
     """Unit tests for last_modified_identities"""
 
