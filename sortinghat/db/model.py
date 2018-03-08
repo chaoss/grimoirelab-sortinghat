@@ -239,7 +239,7 @@ class Profile(ModelBase):
         }
 
     def __repr__(self):
-        return "%s - %s (%s)" % (self.uuid, self.name)
+        return "%s - %s (%s)" % (self.uuid, self.name, self.email)
 
 
 class Enrollment(ModelBase):
