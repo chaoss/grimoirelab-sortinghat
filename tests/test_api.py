@@ -2711,6 +2711,25 @@ class TestSearchUniqueIdentitiesSlice(TestAPICaseBase):
         self.assertListEqual(uids, [])
         self.assertEqual(ntotal, 3)
 
+    def test_unique_identities_slice(self):
+        """Test if a given number of unique identities is returned"""
+
+        uuid = api.add_identity(self.db, 'scm', 'jsmith@example.com',
+                                'John Smith', 'jsmith')
+        api.add_identity(self.db, 'scm', 'jsmith@bitergia.com', uuid=uuid)
+        api.add_identity(self.db, 'scm', None, None, 'jsmith', uuid=uuid)
+
+        uuid = api.add_identity(self.db, 'scm', 'jdoe@example.com', 'John Doe', 'jdoe')
+        api.add_identity(self.db, 'scm', None , 'John Doe', 'jdoe', uuid=uuid)
+
+        # This call should return 2 unique identities at most
+        # Even when all the identities match with the request
+        uids, ntotal = api.search_unique_identities_slice(self.db, None, 0, 2)
+        self.assertEqual(len(uids), 2)
+        self.assertEqual(ntotal, 2)
+        self.assertEqual(uids[0].uuid, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        self.assertEqual(uids[1].uuid, 'c6d2504fde0e34b78a185c4b709e5442d045451c')
+
     def test_empty_registry(self):
         """Check whether it returns an empty list when the registry is empty"""
 

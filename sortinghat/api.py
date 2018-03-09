@@ -1094,11 +1094,11 @@ def search_unique_identities_slice(db, term, offset, limit):
                                  | Identity.username.like(pattern)
                                  | Identity.source.like(pattern))
 
-        query = query.order_by(UniqueIdentity.uuid)
+        query = query.group_by(UniqueIdentity).\
+            order_by(UniqueIdentity.uuid)
 
         # Get the total number of unique identities for that search
-        #nuids = session.query(func.count(query)).scalar()
-        nuids = query.from_self(func.count(distinct(UniqueIdentity.uuid))).scalar()
+        nuids = query.count()
 
         start = offset
         end = offset + limit
