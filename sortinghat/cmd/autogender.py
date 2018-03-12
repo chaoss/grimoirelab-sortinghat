@@ -23,6 +23,7 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import argparse
+import re
 
 import requests
 
@@ -96,6 +97,7 @@ class AutoGender(Command):
         """
         name_cache = {}
         no_gender = not genderize_all
+        pattern = re.compile(r"(^\w+)\s\w+")
 
         profiles = api.search_profiles(self.db, no_gender=no_gender)
 
@@ -103,7 +105,13 @@ class AutoGender(Command):
             if not profile.name:
                 continue
 
-            firstname = profile.name.split(' ')[0]
+            name = profile.name.strip()
+            m = pattern.match(name)
+
+            if not m:
+                continue
+
+            firstname = m.group(1).lower()
 
             if firstname in name_cache:
                 gender_data = name_cache[firstname]
