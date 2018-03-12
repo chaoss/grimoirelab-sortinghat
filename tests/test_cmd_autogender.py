@@ -41,11 +41,11 @@ from tests.base import TestCommandCaseBase
 
 GENDERIZE_API_URL = "https://api.genderize.io/"
 
-PROFILE_AUTOGENDER = """unique identity 2a9ec221b8dd5d5a85ae0e3276b8b2c3618ee15e (Jane) gender profile updated to female (acc: 100)
+PROFILE_AUTOGENDER = """unique identity 2a9ec221b8dd5d5a85ae0e3276b8b2c3618ee15e (Jane Roe) gender profile updated to female (acc: 100)
 unique identity 539acca35c2e8502951a97d2d5af8b0857440b50 (John Smith) gender profile updated to male (acc: 99)
 unique identity a39ac334be9f17bfc7f9f21bbb25f389388f8e18 (John D) gender profile updated to male (acc: 99)"""
 
-PROFILE_AUTOGENDER_ALL = """unique identity 2a9ec221b8dd5d5a85ae0e3276b8b2c3618ee15e (Jane) gender profile updated to female (acc: 100)
+PROFILE_AUTOGENDER_ALL = """unique identity 2a9ec221b8dd5d5a85ae0e3276b8b2c3618ee15e (Jane Roe) gender profile updated to female (acc: 100)
 unique identity 3e1eccdb1e52ea56225f419d3e532fe9133c7821 (Jane R) gender profile updated to female (acc: 100)
 unique identity 539acca35c2e8502951a97d2d5af8b0857440b50 (John Smith) gender profile updated to male (acc: 99)
 unique identity a39ac334be9f17bfc7f9f21bbb25f389388f8e18 (John D) gender profile updated to male (acc: 99)"""
@@ -101,7 +101,7 @@ class TestAutoGenderCaseBase(TestCommandCaseBase):
         # Add identities
         jroe_uuid = api.add_identity(self.db, 'scm', 'jroe@example.com',
                                      'Jane', 'jroe')
-        api.edit_profile(self.db, jroe_uuid, name="Jane")
+        api.edit_profile(self.db, jroe_uuid, name="Jane Roe")
 
         jrae_uuid = api.add_identity(self.db, 'scm', 'jrae@example.com',
                                      'Jane', 'jrae')
@@ -145,7 +145,7 @@ class TestAutoGender(TestAutoGenderCaseBase):
         self.assertEqual(output, PROFILE_AUTOGENDER)
 
         expected = {
-            'name': ['John'],
+            'name': ['john'],
             'apikey': ['abcdefghi']
         }
 
@@ -198,11 +198,11 @@ class TestAutoGender(TestAutoGenderCaseBase):
         # Check requests
         expected = [
             {
-                'name': ['Jane'],
+                'name': ['jane'],
                 'apikey': ['abcdefghi']
             },
             {
-                'name': ['John'],
+                'name': ['john'],
                 'apikey': ['abcdefghi']
             },
         ]
@@ -245,11 +245,11 @@ class TestAutoGender(TestAutoGenderCaseBase):
         # Check requests
         expected = [
             {
-                'name': ['Jane'],
+                'name': ['jane'],
                 'apikey': ['abcdefghi']
             },
             {
-                'name': ['John'],
+                'name': ['john'],
                 'apikey': ['abcdefghi']
             },
         ]
@@ -268,7 +268,7 @@ class TestAutoGender(TestAutoGenderCaseBase):
         # This name won't be found
         uuid = api.add_identity(self.db, 'scm', 'random@example.com',
                                 'Random Name')
-        api.edit_profile(self.db, uuid, name="random")
+        api.edit_profile(self.db, uuid, name="Random Name")
 
         self.cmd.autogender(api_token='abcdefghi')
 
@@ -304,15 +304,84 @@ class TestAutoGender(TestAutoGenderCaseBase):
         # Check requests
         expected = [
             {
-                'name': ['Jane'],
+                'name': ['jane'],
                 'apikey': ['abcdefghi']
             },
             {
-                'name': ['John'],
+                'name': ['john'],
                 'apikey': ['abcdefghi']
             },
             {
                 'name': ['random'],
+                'apikey': ['abcdefghi']
+            },
+        ]
+
+        self.assertEqual(len(http_requests), len(expected))
+
+        for i in range(len(expected)):
+            self.assertDictEqual(http_requests[i].querystring, expected[i])
+
+    @httpretty.activate
+    def test_autogender_ignore_name_not_well_formed(self):
+        """Test if no gender is set when a name is invalid"""
+
+        http_requests = setup_genderize_server()
+
+        # These names are invalid so they will be ignored
+        uuid = api.add_identity(self.db, 'scm', 'random@example.com',
+                                'Random Name')
+        api.edit_profile(self.db, uuid, name="r4nd0m")
+
+        uuid = api.add_identity(self.db, 'mls', 'arandom@example.com',
+                                'Another Random Name')
+        api.edit_profile(self.db, uuid, name="ARadomName")
+
+        self.cmd.autogender(api_token='abcdefghi')
+
+        uids = api.unique_identities(self.db)
+
+        prf = uids[0].profile
+        self.assertEqual(prf.uuid, '2a9ec221b8dd5d5a85ae0e3276b8b2c3618ee15e')
+        self.assertEqual(prf.gender, 'female')
+        self.assertEqual(prf.gender_acc, 100)
+
+        # Jane Rae gender is not updated because it was already set
+        prf = uids[1].profile
+        self.assertEqual(prf.uuid, '3e1eccdb1e52ea56225f419d3e532fe9133c7821')
+        self.assertEqual(prf.gender, 'unknown')
+        self.assertEqual(prf.gender_acc, 100)
+
+        prf = uids[2].profile
+        self.assertEqual(prf.uuid, '539acca35c2e8502951a97d2d5af8b0857440b50')
+        self.assertEqual(prf.gender, 'male')
+        self.assertEqual(prf.gender_acc, 99)
+
+        prf = uids[3].profile
+        self.assertEqual(prf.uuid, 'a39ac334be9f17bfc7f9f21bbb25f389388f8e18')
+        self.assertEqual(prf.gender, 'male')
+        self.assertEqual(prf.gender_acc, 99)
+
+        # These names were ignored and their profile were not set either
+        prf = uids[4].profile
+        self.assertEqual(prf.uuid, 'cfa19ae04ce0c70902a31084fc75086b61ccfcf2')
+        self.assertEqual(prf.gender, None)
+        self.assertEqual(prf.gender_acc, None)
+
+        prf = uids[5].profile
+        self.assertEqual(prf.uuid, 'ee48da0af80479e81b846bec13fe238c06772701')
+        self.assertEqual(prf.gender, None)
+        self.assertEqual(prf.gender_acc, None)
+
+        # Check requests.
+        # Only two valid names were checked
+        expected = [
+            {
+                'name': ['jane'],
+                'apikey': ['abcdefghi']
+            },
+            {
+                'name': ['john'],
                 'apikey': ['abcdefghi']
             },
         ]
