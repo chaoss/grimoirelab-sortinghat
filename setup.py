@@ -114,7 +114,8 @@ setup(name="sortinghat",
         'python-dateutil>=2.6.0',
         'pandas>=0.18.1',
         'pyyaml>=3.12',
-        'requests>=2.9'
+        'requests>=2.9',
+        'urllib3>=1.22'
       ],
       cmdclass=cmdclass,
       zip_safe=False
