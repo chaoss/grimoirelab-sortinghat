@@ -23,8 +23,10 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import argparse
+import re
 
 import requests
+import urllib3.util
 
 from .. import api
 from ..command import Command, CMD_SUCCESS, HELP_LIST
@@ -96,6 +98,7 @@ class AutoGender(Command):
         """
         name_cache = {}
         no_gender = not genderize_all
+        pattern = re.compile(r"(^\w+)\s\w+")
 
         profiles = api.search_profiles(self.db, no_gender=no_gender)
 
@@ -103,12 +106,26 @@ class AutoGender(Command):
             if not profile.name:
                 continue
 
-            firstname = profile.name.split(' ')[0]
+            name = profile.name.strip()
+            m = pattern.match(name)
+
+            if not m:
+                continue
+
+            firstname = m.group(1).lower()
 
             if firstname in name_cache:
                 gender_data = name_cache[firstname]
             else:
-                gender, acc = genderize(firstname, api_token)
+                try:
+                    gender, acc = genderize(firstname, api_token)
+                except (requests.exceptions.RequestException,
+                        requests.exceptions.RetryError) as e:
+                    msg = "Skipping '%s' name (%s) due to a connection error. Error: %s"
+                    msg = msg  % (firstname, profile.uuid, str(e))
+                    self.warning(msg)
+                    continue
+
                 gender_data = {
                     'gender': gender,
                     'gender_acc': acc
@@ -134,6 +151,10 @@ def genderize(name, api_token=None):
     """Fetch gender from genderize.io"""
 
     GENDERIZE_API_URL = "https://api.genderize.io/"
+    TOTAL_RETRIES = 10
+    MAX_RETRIES = 5
+    SLEEP_TIME = 0.25
+    STATUS_FORCELIST = [502]
 
     params = {
         'name': name
@@ -142,7 +163,19 @@ def genderize(name, api_token=None):
     if api_token:
         params['apikey'] = api_token
 
-    r = requests.get(GENDERIZE_API_URL, params=params)
+    session = requests.Session()
+
+    retries = urllib3.util.Retry(total=TOTAL_RETRIES,
+                                 connect=MAX_RETRIES,
+                                 status=MAX_RETRIES,
+                                 status_forcelist=STATUS_FORCELIST,
+                                 backoff_factor=SLEEP_TIME,
+                                 raise_on_status=True)
+
+    session.mount('http://', requests.adapters.HTTPAdapter(max_retries=retries))
+    session.mount('https://', requests.adapters.HTTPAdapter(max_retries=retries))
+
+    r = session.get(GENDERIZE_API_URL, params=params)
     r.raise_for_status()
     result = r.json()
 

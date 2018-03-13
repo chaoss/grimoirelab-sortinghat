@@ -371,6 +371,7 @@ $ sortinghat load identities.json
 * python-dateutil >= 2.6
 * python-yaml >= 3.12
 * requests >= 2.9
+* urllib3 >= 1.22
 
 You will also need a MySQL Python driver to connect with the database server. We recommend to use one these packages:
 
