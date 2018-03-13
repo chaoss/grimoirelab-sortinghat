@@ -28,6 +28,7 @@ import sys
 import unittest
 
 import httpretty
+import requests
 
 if '..' not in sys.path:
     sys.path.insert(0, '..')
@@ -62,6 +63,9 @@ def setup_genderize_server():
 
         params = last_request.querystring
         name = params['name'][0].lower()
+
+        if name == 'error':
+            return (502, headers, 'Bad Gateway')
 
         if name == 'john':
             data = {
@@ -391,6 +395,80 @@ class TestAutoGender(TestAutoGenderCaseBase):
         for i in range(len(expected)):
             self.assertDictEqual(http_requests[i].querystring, expected[i])
 
+    @httpretty.activate
+    def test_retry(self):
+        """Test if a name is skipped when a connection error is returned"""
+
+        http_requests = setup_genderize_server()
+
+        # This profile won't be updated due to connection errors
+        # In this case, a 502 HTTP error
+        uuid = api.add_identity(self.db, 'scm', 'error@example.com',
+                                'Error Name')
+        api.edit_profile(self.db, uuid, name="Error Name")
+
+        # Tests
+        self.cmd.autogender(api_token='abcdefghi')
+
+        uids = api.unique_identities(self.db)
+
+        prf = uids[0].profile
+        self.assertEqual(prf.uuid, '2a9ec221b8dd5d5a85ae0e3276b8b2c3618ee15e')
+        self.assertEqual(prf.gender, 'female')
+        self.assertEqual(prf.gender_acc, 100)
+
+        # Error Name profile was not updated due to connection errors
+        prf = uids[1].profile
+        self.assertEqual(prf.uuid, '316b78ff088c2a825defacb802013fa670fccb48')
+        self.assertEqual(prf.gender, None)
+        self.assertEqual(prf.gender_acc, None)
+
+        # Jane Rae gender is not updated because it was already set
+        prf = uids[2].profile
+        self.assertEqual(prf.uuid, '3e1eccdb1e52ea56225f419d3e532fe9133c7821')
+        self.assertEqual(prf.gender, 'unknown')
+        self.assertEqual(prf.gender_acc, 100)
+
+        prf = uids[3].profile
+        self.assertEqual(prf.uuid, '539acca35c2e8502951a97d2d5af8b0857440b50')
+        self.assertEqual(prf.gender, 'male')
+        self.assertEqual(prf.gender_acc, 99)
+
+        prf = uids[4].profile
+        self.assertEqual(prf.uuid, 'a39ac334be9f17bfc7f9f21bbb25f389388f8e18')
+        self.assertEqual(prf.gender, 'male')
+        self.assertEqual(prf.gender_acc, 99)
+
+        expected = [
+            {
+                'name': ['jane'],
+                'apikey': ['abcdefghi']
+            },
+            {
+                'name': ['error'],
+                'apikey': [u'abcdefghi']
+            },
+            {
+                'name': ['john'],
+                'apikey': ['abcdefghi']
+            }
+        ]
+
+        self.assertEqual(len(http_requests), 8)
+
+        req = http_requests[0]
+        self.assertEqual(req.method, 'GET')
+        self.assertEqual(req.querystring, expected[0])
+
+        for i in range(1, 7):
+            req = http_requests[i]
+            self.assertEqual(req.method, 'GET')
+            self.assertEqual(req.querystring, expected[1])
+
+        req = http_requests[7]
+        self.assertEqual(req.method, 'GET')
+        self.assertEqual(req.querystring, expected[2])
+
 
 class TestGenderize(unittest.TestCase):
     """Genderize function tests"""
@@ -430,6 +508,26 @@ class TestGenderize(unittest.TestCase):
         req = httpretty.last_request()
         self.assertEqual(req.method, 'GET')
         self.assertEqual(req.querystring, expected)
+
+    @httpretty.activate
+    def test_retry(self):
+        """Test if the request is retried when an error is returned"""
+
+        http_requests = setup_genderize_server()
+
+        with self.assertRaises(requests.exceptions.RetryError):
+            _, _ = genderize('error')
+
+        expected = {
+            'name': ['error']
+        }
+
+        self.assertEqual(len(http_requests), 6)
+
+        for i in range(5):
+            req = http_requests[i]
+            self.assertEqual(req.method, 'GET')
+            self.assertEqual(req.querystring, expected)
 
     @httpretty.activate
     def test_api_token(self):
