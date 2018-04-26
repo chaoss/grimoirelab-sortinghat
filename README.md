@@ -382,6 +382,22 @@ Optionally, you can install Pandas library to speed up the matching process:
 
 * python-pandas >= 0.15
 
+## Troubleshooting
+
+Once SortingHat has been installed, some errors may pop up when running the test suite due to the underlying MySQL
+database configuration.
+
+MySQL command should be executed without superuser privilege (sudo):
+```
+mysql> GRANT ALL PRIVILEGES ON *.* TO 'root'@'localhost' WITH GRANT OPTION;
+mysql> FLUSH PRIVILEGES;
+```
+
+MySQL strict mode should be disabled:
+```
+mysql> SET @@global.sql_mode= '';
+```
+
 ## License
 
 Licensed under GNU General Public License (GPL), version 3 or later.
