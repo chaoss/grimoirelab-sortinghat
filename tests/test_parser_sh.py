@@ -212,6 +212,32 @@ class TestSortingHatParser(TestBaseCase):
         self.assertEqual(rol2.start, datetime.datetime(1900, 1, 1, 0, 0))
         self.assertEqual(rol2.end, datetime.datetime(2100, 1, 1, 0, 0))
 
+    def test_no_gender(self):
+        """Check whether if parses identidies without gender information"""
+
+        stream = self.read_file('data/sortinghat_valid_no_gender.json')
+
+        parser = SortingHatParser(stream)
+        uids = parser.identities
+
+        # Check parsed identities
+        self.assertEqual(len(uids), 1)
+
+        # John Smith
+        uid = uids[0]
+        self.assertIsInstance(uid, UniqueIdentity)
+        self.assertEqual(uid.uuid, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
+
+        prf = uid.profile
+        self.assertEqual(prf.uuid, '03e12d00e37fd45593c49a5a5a1652deca4cf302')
+        self.assertEqual(prf.name, None)
+        self.assertEqual(prf.email, 'jsmith@example.com')
+        self.assertEqual(prf.gender, None)
+        self.assertEqual(prf.gender_acc, None)
+        self.assertEqual(prf.is_bot, True)
+        self.assertEqual(prf.country_code, None)
+        self.assertEqual(prf.country, None)
+
     def test_valid_organizations_stream(self):
         """Check whether it parses organizations section from a valid stream"""
 

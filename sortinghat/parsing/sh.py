@@ -207,7 +207,12 @@ class SortingHatParser(object):
 
                     is_bot = profile['is_bot']
 
-                    gender_acc = profile['gender_acc']
+                    gender = profile.get('gender', None)
+
+                    if gender is not None:
+                        gender = self.__encode(gender)
+
+                    gender_acc = profile.get('gender_acc', None)
 
                     if gender_acc is not None:
                         if type(gender_acc) != int:
@@ -219,7 +224,6 @@ class SortingHatParser(object):
 
                     name = self.__encode(profile['name'])
                     email = self.__encode(profile['email'])
-                    gender = self.__encode(profile['gender'])
 
                     prf = Profile(uuid=uuid, name=name, email=email,
                                   gender=gender, gender_acc=gender_acc,
