@@ -1,0 +1,78 @@
+{
+    "source": null,
+    "time": "2015-01-14 13:31:19.507613",
+    "blacklist": [
+        "John Smith",
+        "jroe@example.com"
+    ],
+    "organizations": {
+        "Bitergia": [
+            {
+                "domain": "api.bitergia.com",
+                "is_top": false
+            },
+            {
+                "domain": "bitergia.com",
+                "is_top": true
+            },
+            {
+                "domain": "bitergia.net",
+                "is_top": true
+            },
+            {
+                "domain": "test.bitergia.com",
+                "is_top": false
+            }
+        ],
+        "Example": [
+            {
+                "domain": "example.com",
+                "is_top": true
+            },
+            {
+                "domain": "example.net",
+                "is_top": true
+            }
+        ],
+        "Unknown": [
+        ]
+    },
+    "uidentities": {
+        "03e12d00e37fd45593c49a5a5a1652deca4cf302": {
+            "enrollments": [
+                {
+                    "end": "2100-01-01T00:00:00",
+                    "start": "1900-01-01T00:00:00",
+                    "organization": "Example",
+                    "uuid": "03e12d00e37fd45593c49a5a5a1652deca4cf302"
+                }
+            ],
+            "identities": [
+                {
+                    "email": "jsmith@example.com",
+                    "id": "03e12d00e37fd45593c49a5a5a1652deca4cf302",
+                    "name": "John Smith",
+                    "source": "scm",
+                    "username": "jsmith",
+                    "uuid": "03e12d00e37fd45593c49a5a5a1652deca4cf302"
+                },
+                {
+                    "email": "jsmith@example.com",
+                    "id": "75d95d6c8492fd36d24a18bd45d62161e05fbc97",
+                    "name": "John Smith",
+                    "source": "scm",
+                    "username": null,
+                    "uuid": "03e12d00e37fd45593c49a5a5a1652deca4cf302"
+                }
+            ],
+            "profile": {
+                "country": null,
+                "email": "jsmith@example.com",
+                "name": null,
+                "is_bot": true,
+                "uuid": "03e12d00e37fd45593c49a5a5a1652deca4cf302"
+            },
+            "uuid": "03e12d00e37fd45593c49a5a5a1652deca4cf302"
+        }
+    }
+}
