@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2017 Bitergia
+# Copyright (C) 2014-2018 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,11 +24,10 @@ from __future__ import unicode_literals
 
 import datetime
 
-from sqlalchemy import distinct, func
-
 from . import utils
-from .db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE,\
-    UniqueIdentity, Identity, Profile, Organization, Domain, Country, Enrollment,\
+from .db.api import find_unique_identity, find_identity
+from .db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE, \
+    UniqueIdentity, Identity, Profile, Organization, Domain, Country, Enrollment, \
     MatchingBlacklist
 from .exceptions import AlreadyExistsError, NotFoundError, WrappedValueError
 
@@ -54,8 +53,7 @@ def add_unique_identity(db, uuid):
         raise ValueError('uuid cannot be an empty string')
 
     with db.connect() as session:
-        uidentity = session.query(UniqueIdentity).\
-            filter(UniqueIdentity.uuid == uuid).first()
+        uidentity = find_unique_identity(session, uuid)
 
         if uidentity:
             raise AlreadyExistsError(entity=uuid, uuid=uuid)
@@ -66,6 +64,7 @@ def add_unique_identity(db, uuid):
         uidentity.last_modified = last_modified
 
         session.add(uidentity)
+
 
 def add_identity(db, source, email=None, name=None, username=None, uuid=None):
     """Add an identity to the registry.
@@ -106,18 +105,6 @@ def add_identity(db, source, email=None, name=None, username=None, uuid=None):
     :raises NotFoundError: raised when the unique identity associated
         to the given 'uuid' is not in the registry.
     """
-    def _find_unique_identity(session, uuid):
-        """Find a unique identity.
-
-        :param session: database session
-        :param uuid: unique identity to find
-
-        :returns: a unique identity object
-        """
-        uidentity = session.query(UniqueIdentity).\
-            filter(UniqueIdentity.uuid == uuid).first()
-        return uidentity
-
     if source is None:
         raise WrappedValueError('source cannot be None')
     if source == '':
@@ -130,8 +117,7 @@ def add_identity(db, source, email=None, name=None, username=None, uuid=None):
         identity_id = utils.uuid(source, email=email,
                                  name=name, username=username)
 
-        identity = session.query(Identity).\
-            filter(Identity.id == identity_id).first()
+        identity = find_identity(session, identity_id)
 
         if identity:
             entity = '-'.join((utils.to_unicode(source), utils.to_unicode(email),
@@ -143,7 +129,7 @@ def add_identity(db, source, email=None, name=None, username=None, uuid=None):
             # Double check to prevent from cases where the values
             # of email, name and username are "None" strings. This
             # may return the same UUID.
-            uidentity = _find_unique_identity(session, identity_id)
+            uidentity = find_unique_identity(session, identity_id)
 
             if uidentity:
                 entity = '-'.join((utils.to_unicode(identity_id), utils.to_unicode(source),
@@ -155,7 +141,7 @@ def add_identity(db, source, email=None, name=None, username=None, uuid=None):
             uidentity = UniqueIdentity(uuid=identity_id)
             session.add(uidentity)
         else:
-            uidentity = _find_unique_identity(session, uuid)
+            uidentity = find_unique_identity(session, uuid)
 
         if not uidentity:
             raise NotFoundError(entity=uuid)
@@ -320,8 +306,7 @@ def add_enrollment(db, uuid, organization, from_date=None, to_date=None):
                          % (from_date, to_date))
 
     with db.connect() as session:
-        uidentity = session.query(UniqueIdentity).\
-            filter(UniqueIdentity.uuid == uuid).first()
+        uidentity = find_unique_identity(session, uuid)
 
         if not uidentity:
             raise NotFoundError(entity=uuid)
@@ -408,8 +393,7 @@ def edit_profile(db, uuid, **kwargs):
         value.
     """
     with db.connect() as session:
-        uidentity = session.query(UniqueIdentity).\
-            filter(UniqueIdentity.uuid == uuid).first()
+        uidentity = find_unique_identity(session, uuid)
 
         if not uidentity:
             raise NotFoundError(entity=uuid)
@@ -492,8 +476,7 @@ def delete_unique_identity(db, uuid):
         in the registry.
     """
     with db.connect() as session:
-        uidentity = session.query(UniqueIdentity).\
-            filter(UniqueIdentity.uuid == uuid).first()
+        uidentity = find_unique_identity(session, uuid)
 
         if not uidentity:
             raise NotFoundError(entity=uuid)
@@ -519,8 +502,7 @@ def delete_identity(db, identity_id):
         registry.
     """
     with db.connect() as session:
-        identity = session.query(Identity).\
-            filter(Identity.id == identity_id).first()
+        identity = find_identity(session, identity_id)
 
         if not identity:
             raise NotFoundError(entity=identity_id)
@@ -626,10 +608,9 @@ def delete_enrollment(db, uuid, organization, from_date=None, to_date=None):
                          % (from_date, to_date))
 
     with db.connect() as session:
-        identity = session.query(UniqueIdentity).\
-            filter(UniqueIdentity.uuid == uuid).first()
+        uidentity = find_unique_identity(session, uuid)
 
-        if not identity:
+        if not uidentity:
             raise NotFoundError(entity=uuid)
 
         org = session.query(Organization).\
@@ -638,8 +619,8 @@ def delete_enrollment(db, uuid, organization, from_date=None, to_date=None):
         if not org:
             raise NotFoundError(entity=organization)
 
-        enrollments = session.query(Enrollment).\
-            filter(Enrollment.uidentity == identity,
+        enrollments = session.query(Enrollment). \
+            filter(Enrollment.uidentity == uidentity,
                    Enrollment.organization == org,
                    from_date <= Enrollment.start,
                    Enrollment.end <= to_date).all()
@@ -653,7 +634,7 @@ def delete_enrollment(db, uuid, organization, from_date=None, to_date=None):
             session.delete(enr)
 
         last_modified = datetime.datetime.utcnow()
-        identity.last_modified = last_modified
+        uidentity.last_modified = last_modified
 
 
 def delete_from_matching_blacklist(db, entity):
@@ -708,10 +689,8 @@ def merge_unique_identities(db, from_uuid, to_uuid):
         do not exist in the registry
     """
     with db.connect() as session:
-        fuid = session.query(UniqueIdentity).\
-            filter(UniqueIdentity.uuid == from_uuid).first()
-        tuid = session.query(UniqueIdentity).\
-            filter(UniqueIdentity.uuid == to_uuid).first()
+        fuid = find_unique_identity(session, from_uuid)
+        tuid = find_unique_identity(session, to_uuid)
 
         if not fuid:
             raise NotFoundError(entity=from_uuid)
@@ -812,8 +791,7 @@ def merge_enrollments(db, uuid, organization):
     """
     # Merge enrollments
     with db.connect() as session:
-        uidentity = session.query(UniqueIdentity).\
-            filter(UniqueIdentity.uuid == uuid).first()
+        uidentity = find_unique_identity(session, uuid)
 
         if not uidentity:
             raise NotFoundError(entity=uuid)
@@ -884,10 +862,8 @@ def move_identity(db, from_id, to_uuid):
         do not exist in the registry
     """
     with db.connect() as session:
-        fid = session.query(Identity).\
-            filter(Identity.id == from_id).first()
-        tuid = session.query(UniqueIdentity).\
-            filter(UniqueIdentity.uuid == to_uuid).first()
+        fid =  find_identity(session, from_id)
+        tuid = find_unique_identity(session, to_uuid)
 
         if not fid:
             raise NotFoundError(entity=from_id)
@@ -902,8 +878,7 @@ def move_identity(db, from_id, to_uuid):
         if fid.uuid == to_uuid:
             return
 
-        fuid = session.query(UniqueIdentity).\
-            filter(UniqueIdentity.uuid == fid.uuid).first()
+        fuid = find_unique_identity(session, fid.uuid)
 
         last_modified = datetime.datetime.utcnow()
 
@@ -936,10 +911,9 @@ def match_identities(db, uuid, matcher):
     uidentities = []
 
     with db.connect() as session:
-        uid = session.query(UniqueIdentity).\
-            filter(UniqueIdentity.uuid == uuid).first()
+        uidentity = find_unique_identity(session, uuid)
 
-        if not uid:
+        if not uidentity:
             raise NotFoundError(entity=uuid)
 
         # Get all identities expect of the one requested one query above (uid)
@@ -948,7 +922,7 @@ def match_identities(db, uuid, matcher):
             order_by(UniqueIdentity.uuid)
 
         for candidate in candidates:
-            if not matcher.match(uid, candidate):
+            if not matcher.match(uidentity, candidate):
                 continue
             uidentities.append(candidate)
 
@@ -1391,8 +1365,7 @@ def enrollments(db, uuid=None, organization=None, from_date=None, to_date=None):
 
         # Filter by uuid
         if uuid:
-            uidentity = session.query(UniqueIdentity).\
-                filter(UniqueIdentity.uuid == uuid).first()
+            uidentity = find_unique_identity(session, uuid)
 
             if not uidentity:
                 raise NotFoundError(entity=uuid)
