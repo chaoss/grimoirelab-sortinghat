@@ -19,7 +19,7 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from .model import UniqueIdentity, Identity, Organization
+from .model import UniqueIdentity, Identity, Organization, Domain
 
 
 def find_unique_identity(session, uuid):
@@ -58,3 +58,41 @@ def find_identity(session, id_):
         filter(Identity.id == id_).first()
 
     return identity
+
+
+def find_organization(session, name):
+    """Find an organization.
+
+    Find an organization by its `name` using the given `session`.
+    When the organization does not exist the function will
+    return `None`.
+
+    :param session: database session
+    :param name: name of the organization to find
+
+    :returns: an organization object; `None` when the organization
+        does not exist
+    """
+    organization = session.query(Organization). \
+        filter(Organization.name == name).first()
+
+    return organization
+
+
+def find_domain(session, name):
+    """Find a domain.
+
+    Find a domain by its domain name using the given `session`.
+    When the domain does not exist the function will
+    return `None`.
+
+    :param session: database session
+    :param name: name of the domain to find
+
+    :returns: a domain object; `None` when the domain
+        does not exist
+    """
+    domain = session.query(Domain). \
+        filter(Domain.domain == name).first()
+
+    return domain

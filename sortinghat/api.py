@@ -25,7 +25,7 @@ from __future__ import unicode_literals
 import datetime
 
 from . import utils
-from .db.api import find_unique_identity, find_identity
+from .db.api import find_unique_identity, find_identity, find_organization, find_domain
 from .db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE, \
     UniqueIdentity, Identity, Profile, Organization, Domain, Country, Enrollment, \
     MatchingBlacklist
@@ -181,8 +181,7 @@ def add_organization(db, organization):
         raise WrappedValueError('organization cannot be an empty string')
 
     with db.connect() as session:
-        org = session.query(Organization).\
-            filter(Organization.name == organization).first()
+        org = find_organization(session, organization)
 
         if org:
             raise AlreadyExistsError(entity=organization)
@@ -234,14 +233,12 @@ def add_domain(db, organization, domain, is_top_domain=False, overwrite=False):
         raise WrappedValueError('top_domain must have a boolean value')
 
     with db.connect() as session:
-        org = session.query(Organization).\
-            filter(Organization.name == organization).first()
+        org = find_organization(session, organization)
 
         if not org:
             raise NotFoundError(entity=organization)
 
-        dom = session.query(Domain).\
-            filter(Domain.domain == domain).first()
+        dom = find_domain(session, domain)
 
         if dom and not overwrite:
             raise AlreadyExistsError(entity=dom)
@@ -311,8 +308,7 @@ def add_enrollment(db, uuid, organization, from_date=None, to_date=None):
         if not uidentity:
             raise NotFoundError(entity=uuid)
 
-        org = session.query(Organization).\
-            filter(Organization.name == organization).first()
+        org = find_organization(session, organization)
 
         if not org:
             raise NotFoundError(entity=organization)
@@ -529,8 +525,7 @@ def delete_organization(db, organization):
         in the registry.
     """
     with db.connect() as session:
-        org = session.query(Organization).\
-            filter(Organization.name == organization).first()
+        org = find_organization(session, organization)
 
         if not org:
             raise NotFoundError(entity=organization)
@@ -553,8 +548,7 @@ def delete_domain(db, organization, domain):
         do not exist in the registry.
     """
     with db.connect() as session:
-        org = session.query(Organization).\
-            filter(Organization.name == organization).first()
+        org = find_organization(session, organization)
 
         if not org:
             raise NotFoundError(entity=organization)
@@ -613,8 +607,7 @@ def delete_enrollment(db, uuid, organization, from_date=None, to_date=None):
         if not uidentity:
             raise NotFoundError(entity=uuid)
 
-        org = session.query(Organization).\
-            filter(Organization.name == organization).first()
+        org = find_organization(session, organization)
 
         if not org:
             raise NotFoundError(entity=organization)
@@ -796,8 +789,7 @@ def merge_enrollments(db, uuid, organization):
         if not uidentity:
             raise NotFoundError(entity=uuid)
 
-        org = session.query(Organization).\
-            filter(Organization.name == organization).first()
+        org = find_organization(session, organization)
 
         if not org:
             raise NotFoundError(entity=organization)
@@ -1201,8 +1193,7 @@ def domains(db, domain=None, top=False):
 
     with db.connect() as session:
         if domain:
-            dom = session.query(Domain).\
-                filter(Domain.domain == domain).first()
+            dom = find_domain(session, domain)
 
             if not dom:
                 if not top:
@@ -1374,8 +1365,7 @@ def enrollments(db, uuid=None, organization=None, from_date=None, to_date=None):
 
         # Filter by organization
         if organization:
-            org = session.query(Organization).\
-                filter(Organization.name == organization).first()
+            org = find_organization(session, organization)
 
             if not org:
                 raise NotFoundError(entity=organization)

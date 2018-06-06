@@ -22,7 +22,7 @@
 import unittest
 
 from sortinghat.db import api
-from sortinghat.db.model import UniqueIdentity, Identity
+from sortinghat.db.model import UniqueIdentity, Identity, Organization, Domain
 
 from tests.base import TestDatabaseCaseBase
 
@@ -90,6 +90,72 @@ class TestFindIdentity(TestDBAPICaseBase):
         with self.db.connect() as session:
             identity = api.find_identity(session, 'zyxwuv')
             self.assertEqual(identity, None)
+
+
+class TestFindOrganization(TestDBAPICaseBase):
+    """Unit tests for find_organization"""
+
+    def test_find_organization(self):
+        """Test if an organization is found by its name"""
+
+        with self.db.connect() as session:
+            name = 'Example'
+            organization = Organization(name=name)
+            session.add(organization)
+
+        with self.db.connect() as session:
+            organization = api.find_organization(session, name)
+            self.assertIsInstance(organization, Organization)
+            self.assertEqual(organization.name, name)
+
+    def test_organization_not_found(self):
+        """Test whether the function returns None when the organization is not found"""
+
+        with self.db.connect() as session:
+            name = 'Example'
+            organization = Organization(name=name)
+            session.add(organization)
+
+        with self.db.connect() as session:
+            organization = api.find_organization(session, 'Bitergia')
+            self.assertEqual(organization, None)
+
+
+class TestFindDomain(TestDBAPICaseBase):
+    """Unit tests for find_domain"""
+
+    def test_find_domain(self):
+        """Test if an domain is found by its name"""
+
+        with self.db.connect() as session:
+            orgname = 'Example'
+            organization = Organization(name=orgname)
+            session.add(organization)
+
+            domname = 'example.org'
+            domain = Domain(domain=domname, organization=organization)
+            session.add(domain)
+
+        with self.db.connect() as session:
+            domain = api.find_domain(session, domname)
+            self.assertIsInstance(domain, Domain)
+            self.assertEqual(domain.domain, domname)
+
+    def test_domain_not_found(self):
+        """Test whether the function returns None when the domain is not found"""
+
+        with self.db.connect() as session:
+            orgname = 'Example'
+            organization = Organization(name=orgname)
+            session.add(organization)
+
+            domname = 'example.org'
+            domain = Domain(domain=domname, organization=organization)
+            session.add(domain)
+
+        with self.db.connect() as session:
+            domain = api.find_domain(session, 'example.net')
+            self.assertEqual(domain, None)
 
 
 if __name__ == "__main__":
