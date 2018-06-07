@@ -41,7 +41,15 @@
         "0000000000000000000000000000000000000000": {
             "enrollments": [],
             "identities": [],
-            "profile": null,
+            "profile": {
+                "country": null,
+                "email": null,
+                "gender": null,
+                "gender_acc": null,
+                "is_bot": false,
+                "name": null,
+                "uuid": "0000000000000000000000000000000000000000"
+            },
             "uuid": "0000000000000000000000000000000000000000"
         },
         "03e12d00e37fd45593c49a5a5a1652deca4cf302": {

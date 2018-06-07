@@ -19,12 +19,21 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+import datetime
 import unittest
 
 from sortinghat.db import api
-from sortinghat.db.model import UniqueIdentity, Identity, Organization, Domain
+from sortinghat.db.model import (UniqueIdentity,
+                                 Identity,
+                                 Profile,
+                                 Organization,
+                                 Domain)
 
 from tests.base import TestDatabaseCaseBase
+
+
+UUID_NONE_ERROR = "'uuid' cannot be None"
+UUID_EMPTY_ERROR = "'uuid' cannot be an empty string"
 
 
 class TestDBAPICaseBase(TestDatabaseCaseBase):
@@ -156,6 +165,82 @@ class TestFindDomain(TestDBAPICaseBase):
         with self.db.connect() as session:
             domain = api.find_domain(session, 'example.net')
             self.assertEqual(domain, None)
+
+
+class TestAddUniqueIdentity(TestDBAPICaseBase):
+    """Unit tests for add_unique_identity"""
+
+    def test_add_unique_identity(self):
+        """Check whether it adds a unique identity"""
+
+        uuid = '1234567890ABCDFE'
+
+        with self.db.connect() as session:
+            uidentity = api.add_unique_identity(session, uuid)
+            self.assertIsInstance(uidentity, UniqueIdentity)
+            self.assertEqual(uidentity.uuid, uuid)
+
+        with self.db.connect() as session:
+            uidentity = api.find_unique_identity(session, uuid)
+            self.assertIsInstance(uidentity, UniqueIdentity)
+            self.assertEqual(uidentity.uuid, uuid)
+
+            self.assertIsInstance(uidentity.profile, Profile)
+            self.assertEqual(uidentity.profile.name, None)
+            self.assertEqual(uidentity.profile.email, None)
+            self.assertEqual(uidentity.profile.uuid, uuid)
+
+    def test_add_unique_identities(self):
+        """Check whether it adds a set of unique identities"""
+
+        uuids = ['AAAA', 'BBBB', 'CCCC']
+
+        with self.db.connect() as session:
+            for uuid in uuids:
+                api.add_unique_identity(session, uuid)
+
+        with self.db.connect() as session:
+            for uuid in uuids:
+                uidentity = api.find_unique_identity(session, uuid)
+                self.assertIsInstance(uidentity, UniqueIdentity)
+                self.assertEqual(uidentity.uuid, uuid)
+
+                self.assertIsInstance(uidentity.profile, Profile)
+                self.assertEqual(uidentity.profile.name, None)
+                self.assertEqual(uidentity.profile.email, None)
+                self.assertEqual(uidentity.profile.uuid, uuid)
+
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
+
+        uuid = '1234567890ABCDFE'
+
+        before_dt = datetime.datetime.utcnow()
+
+        with self.db.connect() as session:
+            api.add_unique_identity(session, uuid)
+
+        after_dt = datetime.datetime.utcnow()
+
+        with self.db.connect() as session:
+            uidentity = api.find_unique_identity(session, uuid)
+            self.assertIsInstance(uidentity.last_modified, datetime.datetime)
+            self.assertLessEqual(before_dt, uidentity.last_modified)
+            self.assertGreaterEqual(after_dt, uidentity.last_modified)
+
+    def test_uuid_none(self):
+        """Check whether a unique identity with None as UUID cannot be added"""
+
+        with self.db.connect() as session:
+            with self.assertRaisesRegex(ValueError, UUID_NONE_ERROR):
+                api.add_unique_identity(session, None)
+
+    def test_uuid_empty(self):
+        """Check whether a unique identity with empty UUID cannot be added"""
+
+        with self.db.connect() as session:
+            with self.assertRaisesRegex(ValueError, UUID_EMPTY_ERROR):
+                api.add_unique_identity(session, '')
 
 
 if __name__ == "__main__":

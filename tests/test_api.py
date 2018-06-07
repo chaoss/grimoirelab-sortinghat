@@ -39,7 +39,7 @@ from sortinghat.matcher import create_identity_matcher
 from tests.base import TestDatabaseCaseBase
 
 
-UUID_NONE_OR_EMPTY_ERROR = "uuid cannot be"
+UUID_NONE_OR_EMPTY_ERROR = "'uuid' cannot be"
 ORG_NONE_OR_EMPTY_ERROR = "organization cannot be"
 DOMAIN_NONE_OR_EMPTY_ERROR = "domain cannot be"
 TOP_DOMAIN_VALUE_ERROR = "top_domain must have a boolean value"
@@ -829,10 +829,12 @@ class TestEditProfile(TestAPICaseBase):
             us = Country(code='US', name='United States of America', alpha3='USA')
             session.add(us)
 
-            # There are not profiles for the given uuid yet
+            # The profile is empty for the given uuid
             prf = session.query(Profile).\
                 filter(Profile.uuid == 'John Smith').first()
-            self.assertEqual(prf, None)
+            self.assertIsInstance(prf, Profile)
+            self.assertEqual(prf.name, None)
+            self.assertEqual(prf.email, None)
 
         # Add the new profile
         before_dt = datetime.datetime.utcnow()

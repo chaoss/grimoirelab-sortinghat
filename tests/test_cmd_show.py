@@ -45,7 +45,12 @@ SHOW_EMPTY_OUTPUT = ""
 
 SHOW_OUTPUT = """unique identity 0000000000000000000000000000000000000000
 
-No profile
+Profile:
+    * Name: -
+    * E-Mail: -
+    * Gender: -
+    * Bot: No
+    * Country: -
 
 No identities
 

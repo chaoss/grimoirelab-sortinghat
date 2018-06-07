@@ -251,9 +251,15 @@ class TestSortingHatIdentitiesExporter(TestExportCaseBase):
         uidentities = obj['uidentities']
         self.assertEqual(len(uidentities), 3)
 
+        # Null identity
         uid0 = uidentities['0000000000000000000000000000000000000000']
         self.assertEqual(uid0['uuid'], '0000000000000000000000000000000000000000')
-        self.assertEqual(uid0['profile'], None)
+
+        self.assertEqual(uid0['profile']['name'], None)
+        self.assertEqual(uid0['profile']['email'], None)
+        self.assertEqual(uid0['profile']['gender'], None)
+        self.assertEqual(uid0['profile']['gender_acc'], None)
+        self.assertEqual(uid0['profile']['is_bot'], False)
         self.assertEqual(len(uid0['identities']), 0)
 
         # Jane Roe

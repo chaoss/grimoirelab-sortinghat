@@ -25,7 +25,11 @@ from __future__ import unicode_literals
 import datetime
 
 from . import utils
-from .db.api import find_unique_identity, find_identity, find_organization, find_domain
+from .db.api import (add_unique_identity as add_unique_identity_db,
+                     find_unique_identity,
+                     find_identity,
+                     find_organization,
+                     find_domain)
 from .db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE, \
     UniqueIdentity, Identity, Profile, Organization, Domain, Country, Enrollment, \
     MatchingBlacklist
@@ -47,23 +51,13 @@ def add_unique_identity(db, uuid):
     :raises AlreadyExistsError: when the identifier already exists
         in the registry.
     """
-    if uuid is None:
-        raise ValueError('uuid cannot be None')
-    if uuid == '':
-        raise ValueError('uuid cannot be an empty string')
-
     with db.connect() as session:
         uidentity = find_unique_identity(session, uuid)
 
         if uidentity:
             raise AlreadyExistsError(entity=uuid, uuid=uuid)
 
-        uidentity = UniqueIdentity(uuid=uuid)
-
-        last_modified = datetime.datetime.utcnow()
-        uidentity.last_modified = last_modified
-
-        session.add(uidentity)
+        add_unique_identity_db(session, uuid)
 
 
 def add_identity(db, source, email=None, name=None, username=None, uuid=None):

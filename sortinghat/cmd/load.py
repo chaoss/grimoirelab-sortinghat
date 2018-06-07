@@ -423,11 +423,16 @@ class Load(Command):
     def __load_profile(self, profile, uuid, verbose):
         """Create a new profile when the unique identity does not have any."""
 
+        def is_empty_profile(prf):
+            return not (prf.name or prf.email or
+                        prf.gender or prf.gender_acc or
+                        prf.is_bot or prf.country_code)
+
         uid = api.unique_identities(self.db, uuid)[0]
 
         if profile:
             self.__create_profile(profile, uuid, verbose)
-        elif not uid.profile:
+        elif is_empty_profile(uid.profile):
             self.__create_profile_from_identities(uid.identities, uuid, verbose)
         else:
             self.log("-- empty profile given for %s. Not updated" % uuid, verbose)

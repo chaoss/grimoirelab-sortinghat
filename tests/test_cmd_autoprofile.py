@@ -97,9 +97,13 @@ class TestAutoProfileCommand(TestAutoProfileCaseBase):
         # Unique identities remain without profiles
         uids = api.unique_identities(self.db)
 
-        self.assertEqual(uids[0].profile, None)
-        self.assertEqual(uids[1].profile, None)
-        self.assertEqual(uids[2].profile, None)
+        self.assertEqual(uids[0].profile.name, None)
+        self.assertEqual(uids[0].profile.email, None)
+        self.assertEqual(uids[1].profile.name, None)
+        self.assertEqual(uids[1].profile.email, None)
+        self.assertEqual(uids[2].profile.name, None)
+        self.assertEqual(uids[2].profile.email, None)
+
 
     def test_autocomplete_profiles(self):
         """Check whether it autocompletes the profiles based on a priority list"""
@@ -111,7 +115,8 @@ class TestAutoProfileCommand(TestAutoProfileCaseBase):
         # Unique identities without identities from
         # the given sources are not updated
         self.assertEqual(uids[0].uuid, '17ab00ed3825ec2f50483e33c88df223264182ba')
-        self.assertEqual(uids[0].profile, None)
+        self.assertEqual(uids[0].profile.name, None)
+        self.assertEqual(uids[0].profile.email, None)
 
         # Only one source available
         self.assertEqual(uids[1].uuid, 'eb10fb9519d69d75a6cdcd76707943a513685c09')

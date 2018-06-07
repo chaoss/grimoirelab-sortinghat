@@ -100,7 +100,17 @@ class TestSortingHatParser(TestBaseCase):
         uid = uids[0]
         self.assertIsInstance(uid, UniqueIdentity)
         self.assertEqual(uid.uuid, '0000000000000000000000000000000000000000')
-        self.assertEqual(uid.profile, None)
+
+        prf = uid.profile
+        self.assertEqual(prf.uuid, '0000000000000000000000000000000000000000')
+        self.assertEqual(prf.name, None)
+        self.assertEqual(prf.email, None)
+        self.assertEqual(prf.gender, None)
+        self.assertEqual(prf.gender_acc, None)
+        self.assertEqual(prf.is_bot, False)
+        self.assertEqual(prf.country_code, None)
+        self.assertEqual(prf.country, None)
+
         self.assertEqual(len(uid.identities), 0)
         self.assertEqual(len(uid.enrollments), 0)
 

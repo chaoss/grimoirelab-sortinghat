@@ -19,7 +19,13 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from .model import UniqueIdentity, Identity, Organization, Domain
+import datetime
+
+from .model import (UniqueIdentity,
+                    Identity,
+                    Profile,
+                    Organization,
+                    Domain)
 
 
 def find_unique_identity(session, uuid):
@@ -96,3 +102,37 @@ def find_domain(session, name):
         filter(Domain.domain == name).first()
 
     return domain
+
+
+def add_unique_identity(session, uuid):
+    """Add a unique identity to the session.
+
+    This function adds a unique identity to the session with
+    `uuid` string as unique identifier. This identifier cannot
+    be empty or `None`.
+
+    When the unique identity is added, a new empty profile for
+    this object is created too.
+
+    As a result, the function returns a new `UniqueIdentity`
+    object.
+
+    :param session: database session
+    :param uuid: unique identifier for the unique identity
+
+    :return: a new unique identity
+
+    :raises ValueError: when `uuid` is `None` or an empty string
+    """
+    if uuid is None:
+        raise ValueError("'uuid' cannot be None")
+    if uuid == '':
+        raise ValueError("'uuid' cannot be an empty string")
+
+    uidentity = UniqueIdentity(uuid=uuid)
+    uidentity.profile = Profile()
+    uidentity.last_modified = datetime.datetime.utcnow()
+
+    session.add(uidentity)
+
+    return uidentity
