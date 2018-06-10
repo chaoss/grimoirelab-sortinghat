@@ -2466,7 +2466,8 @@ class TestUniqueIdentities(TestAPICaseBase):
         # Test John Doe unique identity
         uid = uidentities[1]
         self.assertEqual(uid.uuid, 'c6d2504fde0e34b78a185c4b709e5442d045451c')
-        self.assertEqual(uid.profile, None)
+        self.assertEqual(uid.profile.name, None)
+        self.assertEqual(uid.profile.email, None)
 
         self.assertEqual(len(uid.identities), 2)
 

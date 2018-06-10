@@ -136,3 +136,52 @@ def add_unique_identity(session, uuid):
     session.add(uidentity)
 
     return uidentity
+
+
+def add_identity(session, uidentity, identity_id, source,
+                 name=None, email=None, username=None):
+    """Add an identity to the session.
+
+    This function adds a new identity to the session using
+    `identity_id` as its identifier. The new identity will
+    also be linked to the unique identity object of `uidentity`.
+
+    Neither the values given to `identity_id` nor to `source` can
+    be `None` or empty. Moreover, `name`, `email` or `username`
+    parameters need a non empty value.
+
+    As a result, the function returns a new `Identity` object.
+
+    :param session: database session
+    :param uidentity: links the new identity to this unique identity object
+    :param identity_id: identifier for the new identity
+    :param source: data source where this identity was found
+    :param name: full name of the identity
+    :param email: email of the identity
+    :param username: user name used by the identity
+
+    :return: a new identity
+
+    :raises ValueError: when `identity_id` and `source` are `None` or empty;
+        when all of the data parameters are `None` or empty.
+    """
+    if identity_id is None:
+        raise ValueError("'identity_id' cannot be None")
+    if identity_id == '':
+        raise ValueError("'identity_id' cannot be an empty string")
+    if source is None:
+        raise ValueError("'source' cannot be None")
+    if source == '':
+        raise ValueError("'source' cannot be an empty string")
+    if not (name or email or username):
+        raise ValueError("identity data cannot be None or empty")
+
+    identity = Identity(id=identity_id, name=name, email=email,
+                        username=username, source=source)
+    identity.last_modified = datetime.datetime.utcnow()
+    identity.uidentity = uidentity
+    identity.uidentity.last_modified = identity.last_modified
+
+    session.add(identity)
+
+    return identity

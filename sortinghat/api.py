@@ -26,6 +26,7 @@ import datetime
 
 from . import utils
 from .db.api import (add_unique_identity as add_unique_identity_db,
+                     add_identity as add_identity_db,
                      find_unique_identity,
                      find_identity,
                      find_organization,
@@ -99,13 +100,6 @@ def add_identity(db, source, email=None, name=None, username=None, uuid=None):
     :raises NotFoundError: raised when the unique identity associated
         to the given 'uuid' is not in the registry.
     """
-    if source is None:
-        raise WrappedValueError('source cannot be None')
-    if source == '':
-        raise WrappedValueError('source cannot be an empty string')
-    if not (email or name or username):
-        raise WrappedValueError('identity data cannot be None or empty')
-
     with db.connect() as session:
         # Each identity needs a unique identifier
         identity_id = utils.uuid(source, email=email,
@@ -132,23 +126,15 @@ def add_identity(db, source, email=None, name=None, username=None, uuid=None):
                 raise AlreadyExistsError(entity=entity,
                                          uuid=identity_id)
 
-            uidentity = UniqueIdentity(uuid=identity_id)
-            session.add(uidentity)
+            uidentity = add_unique_identity_db(session, identity_id)
         else:
             uidentity = find_unique_identity(session, uuid)
 
         if not uidentity:
             raise NotFoundError(entity=uuid)
 
-        identity = Identity(id=identity_id, name=name, email=email,
-                            username=username, source=source)
-        identity.uidentity = uidentity
-
-        last_modified = datetime.datetime.utcnow()
-        identity.last_modified = last_modified
-        uidentity.last_modified = last_modified
-
-        session.add(identity)
+        add_identity_db(session, uidentity, identity_id, source,
+                        name=name, email=email, username=username)
 
         return identity_id
 
@@ -856,8 +842,7 @@ def move_identity(db, from_id, to_uuid):
         if not tuid:
             # Move identity to a new one
             if from_id == to_uuid:
-                tuid = UniqueIdentity(uuid=to_uuid)
-                session.add(tuid)
+                tuid = add_unique_identity_db(session, to_uuid)
             else:
                 raise NotFoundError(entity=to_uuid)
 
