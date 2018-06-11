@@ -40,7 +40,7 @@ from tests.base import TestDatabaseCaseBase
 
 
 UUID_NONE_OR_EMPTY_ERROR = "'uuid' cannot be"
-ORG_NONE_OR_EMPTY_ERROR = "organization cannot be"
+ORG_NONE_OR_EMPTY_ERROR = "'name' cannot be"
 DOMAIN_NONE_OR_EMPTY_ERROR = "domain cannot be"
 TOP_DOMAIN_VALUE_ERROR = "top_domain must have a boolean value"
 IS_BOT_VALUE_ERROR = "is_bot must have a boolean value"

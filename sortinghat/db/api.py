@@ -185,3 +185,31 @@ def add_identity(session, uidentity, identity_id, source,
     session.add(identity)
 
     return identity
+
+
+def add_organization(session, name):
+    """Add an organization to the session.
+
+    This function adds a new organization to the session,
+    using the given `name` as an identifier. Name cannot be
+    empty or `None`.
+
+    It returns a new `Organization` object.
+
+    :param session: database session
+    :param name: name of the organization
+
+    :return: a new organization
+
+    :raises ValueError: when `name` is `None` or empty
+    """
+    if name is None:
+        raise ValueError("'name' cannot be None")
+    if name == '':
+        raise ValueError("'name' cannot be an empty string")
+
+    organization = Organization(name=name)
+
+    session.add(organization)
+
+    return organization

@@ -27,6 +27,7 @@ import datetime
 from . import utils
 from .db.api import (add_unique_identity as add_unique_identity_db,
                      add_identity as add_identity_db,
+                     add_organization as add_organization_db,
                      find_unique_identity,
                      find_identity,
                      find_organization,
@@ -155,19 +156,13 @@ def add_organization(db, organization):
     :raises AlreadyExistsError: raised when the organization already exists
         in the registry.
     """
-    if organization is None:
-        raise WrappedValueError('organization cannot be None')
-    if organization == '':
-        raise WrappedValueError('organization cannot be an empty string')
-
     with db.connect() as session:
         org = find_organization(session, organization)
 
         if org:
             raise AlreadyExistsError(entity=organization)
 
-        org = Organization(name=organization)
-        session.add(org)
+        add_organization_db(session, organization)
 
 
 def add_domain(db, organization, domain, is_top_domain=False, overwrite=False):

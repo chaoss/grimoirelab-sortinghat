@@ -39,6 +39,8 @@ IDENTITY_ID_EMPTY_ERROR = "'identity_id' cannot be an empty string"
 SOURCE_NONE_ERROR = "'source' cannot be None"
 SOURCE_EMPTY_ERROR = "'source' cannot be an empty string"
 IDENTITY_DATA_NONE_OR_EMPTY_ERROR = "identity data cannot be None or empty"
+NAME_NONE_ERROR = "'name' cannot be None"
+NAME_EMPTY_ERROR = "'name' cannot be an empty string"
 
 
 class TestDBAPICaseBase(TestDatabaseCaseBase):
@@ -426,6 +428,42 @@ class TestAddIdentity(TestDBAPICaseBase):
             with self.assertRaisesRegex(ValueError, IDENTITY_DATA_NONE_OR_EMPTY_ERROR):
                 api.add_identity(session, uidentity, '1234567890ABCDFE', 'git',
                                  name=None, email='', username=None)
+
+
+class TestAddOrganization(TestDBAPICaseBase):
+    """Unit tests for add_organization"""
+
+    def test_add_organization(self):
+        """Check if a new organization is added"""
+
+        name = 'Example'
+
+        with self.db.connect() as session:
+            org = api.add_organization(session, name)
+
+            self.assertIsInstance(org, Organization)
+            self.assertEqual(org.name, name)
+
+        with self.db.connect() as session:
+            org = api.find_organization(session, name)
+
+            self.assertIsInstance(org, Organization)
+            self.assertEqual(org.name, name)
+
+    def test_name_none(self):
+        """Check whether organizations with None as name cannot be added"""
+
+        with self.db.connect() as session:
+            with self.assertRaisesRegex(ValueError, NAME_NONE_ERROR):
+                api.add_organization(session, None)
+
+    def test_name_empty(self):
+        """Check whether organizations with empty names cannot be added"""
+
+        with self.db.connect() as session:
+            with self.assertRaisesRegex(ValueError, NAME_EMPTY_ERROR):
+                api.add_organization(session, '')
+
 
 
 if __name__ == "__main__":
