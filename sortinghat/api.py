@@ -28,6 +28,7 @@ from . import utils
 from .db.api import (add_unique_identity as add_unique_identity_db,
                      add_identity as add_identity_db,
                      add_organization as add_organization_db,
+                     add_domain as add_domain_db,
                      find_unique_identity,
                      find_identity,
                      find_organization,
@@ -200,13 +201,6 @@ def add_domain(db, organization, domain, is_top_domain=False, overwrite=False):
     :raises AlreadyExistsError: raised when the domain already exists
         in the registry
     """
-    if domain is None:
-        raise WrappedValueError('domain cannot be None')
-    if domain == '':
-        raise WrappedValueError('domain cannot be an empty string')
-    if type(is_top_domain) != bool:
-        raise WrappedValueError('top_domain must have a boolean value')
-
     with db.connect() as session:
         org = find_organization(session, organization)
 
@@ -217,12 +211,13 @@ def add_domain(db, organization, domain, is_top_domain=False, overwrite=False):
 
         if dom and not overwrite:
             raise AlreadyExistsError(entity=dom)
-        elif not dom:
-            dom = Domain(domain=domain)
-
-        dom.organization = org
-        dom.is_top_domain = is_top_domain
-        session.add(dom)
+        elif dom:
+            dom.organization = org
+            dom.is_top_domain = is_top_domain
+            session.add(dom)
+        else:
+            add_domain_db(session, org, domain,
+                          is_top_domain=is_top_domain)
 
 
 def add_enrollment(db, uuid, organization, from_date=None, to_date=None):

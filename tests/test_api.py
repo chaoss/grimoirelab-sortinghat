@@ -41,8 +41,8 @@ from tests.base import TestDatabaseCaseBase
 
 UUID_NONE_OR_EMPTY_ERROR = "'uuid' cannot be"
 ORG_NONE_OR_EMPTY_ERROR = "'name' cannot be"
-DOMAIN_NONE_OR_EMPTY_ERROR = "domain cannot be"
-TOP_DOMAIN_VALUE_ERROR = "top_domain must have a boolean value"
+DOMAIN_NONE_OR_EMPTY_ERROR = "'domain_name' cannot be"
+TOP_DOMAIN_VALUE_ERROR = "'is_top_domain' must have a boolean value"
 IS_BOT_VALUE_ERROR = "is_bot must have a boolean value"
 SOURCE_NONE_OR_EMPTY_ERROR = "source cannot be"
 IDENTITY_NONE_OR_EMPTY_ERROR = "identity data cannot be None or empty"
@@ -602,17 +602,23 @@ class TestAddDomain(TestAPICaseBase):
     def test_none_domain(self):
         """Check whether None domains cannot be added to the registry"""
 
+        api.add_organization(self.db, 'Example')
+
         self.assertRaisesRegexp(ValueError, DOMAIN_NONE_OR_EMPTY_ERROR,
                                 api.add_domain, self.db, 'Example', None)
 
     def test_empty_domain(self):
         """Check whether empty domains cannot be added to the registry"""
 
+        api.add_organization(self.db, 'Example')
+
         self.assertRaisesRegexp(ValueError, DOMAIN_NONE_OR_EMPTY_ERROR,
                                 api.add_domain, self.db, 'Example', '')
 
     def test_invalid_type_top_domain(self):
         """Check type values of top domain flag"""
+
+        api.add_organization(self.db, 'Example')
 
         self.assertRaisesRegexp(ValueError, TOP_DOMAIN_VALUE_ERROR,
                                 api.add_domain, self.db, 'Example', 'example.com', 1)

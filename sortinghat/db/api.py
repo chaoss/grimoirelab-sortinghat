@@ -213,3 +213,40 @@ def add_organization(session, name):
     session.add(organization)
 
     return organization
+
+
+def add_domain(session, organization, domain_name, is_top_domain=False):
+    """Add a domain to the session.
+
+    This function adds a new domain to the session using
+    `domain_name` as its identifier. The new domain will
+    also be linked to the organization object of `organization`.
+
+    Values assigned to `domain_name` cannot be `None` or empty.
+    The parameter `is_top_domain` only accepts `bool` values.
+
+    As a result, the function returns a new `Domain` object.
+
+    :param session: database session
+    :param organization: links the new domain to this organization object
+    :param domain_name: name of the domain
+    :param is_top_domain: set this domain as a top domain
+
+    :return: a new domain
+
+    :raises ValueError: raised when `domain_name` is `None` or an empty;
+        when `is_top_domain` does not have a `bool` value.
+    """
+    if domain_name is None:
+        raise ValueError("'domain_name' cannot be None")
+    if domain_name == '':
+        raise ValueError("'domain_name' cannot be an empty string")
+    if not isinstance(is_top_domain, bool):
+        raise ValueError("'is_top_domain' must have a boolean value")
+
+    dom = Domain(domain=domain_name, is_top_domain=is_top_domain)
+    dom.organization = organization
+
+    session.add(dom)
+
+    return dom
