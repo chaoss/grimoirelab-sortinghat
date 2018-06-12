@@ -23,11 +23,14 @@ import datetime
 import unittest
 
 from sortinghat.db import api
-from sortinghat.db.model import (UniqueIdentity,
+from sortinghat.db.model import (MAX_PERIOD_DATE,
+                                 MIN_PERIOD_DATE,
+                                 UniqueIdentity,
                                  Identity,
                                  Profile,
                                  Organization,
-                                 Domain)
+                                 Domain,
+                                 Enrollment)
 
 from tests.base import TestDatabaseCaseBase
 
@@ -44,6 +47,10 @@ NAME_EMPTY_ERROR = "'name' cannot be an empty string"
 DOMAIN_NAME_NONE_ERROR = "'domain_name' cannot be None"
 DOMAIN_NAME_EMPTY_ERROR = "'domain_name' cannot be an empty string"
 TOP_DOMAIN_VALUE_ERROR = "'is_top_domain' must have a boolean value"
+FROM_DATE_NONE_ERROR = "'from_date' cannot be None"
+TO_DATE_NONE_ERROR = "'to_date' cannot be None"
+PERIOD_INVALID_ERROR = "'from_date' %(from_date)s cannot be greater than %(to_date)s"
+PERIOD_OUT_OF_BOUNDS_ERROR = "'%(type)s' %(date)s is out of bounds"
 
 
 class TestDBAPICaseBase(TestDatabaseCaseBase):
@@ -557,6 +564,219 @@ class TestAddDomain(TestDBAPICaseBase):
 
             with self.assertRaisesRegex(ValueError, TOP_DOMAIN_VALUE_ERROR):
                 api.add_domain(session, org, 'example.net', is_top_domain='False')
+
+
+class TestEnroll(TestDBAPICaseBase):
+    """Unit tests for enroll"""
+
+    def test_enroll(self):
+        """Check if a new enrollment is added"""
+
+        uuid = '1234567890ABCDFE'
+        name = 'Example'
+        from_date = datetime.datetime(1999, 1, 1)
+        to_date = datetime.datetime(2000,1, 1)
+
+        with self.db.connect() as session:
+            uidentity = UniqueIdentity(uuid=uuid)
+            session.add(uidentity)
+            org = Organization(name=name)
+            session.add(org)
+
+            enrollment = api.enroll(session, uidentity, org,
+                                    from_date=from_date, to_date=to_date)
+            self.assertIsInstance(enrollment, Enrollment)
+            self.assertEqual(enrollment.start, from_date)
+            self.assertEqual(enrollment.end, to_date)
+            self.assertEqual(enrollment.uidentity, uidentity)
+            self.assertEqual(enrollment.organization, org)
+
+        with self.db.connect() as session:
+            enrollments = session.query(Enrollment).\
+                join(UniqueIdentity, Organization).\
+                filter(UniqueIdentity.uuid == uuid,
+                       Organization.name == name).\
+                order_by(Enrollment.start).all()
+            self.assertEqual(len(enrollments), 1)
+
+            enrollment = enrollments[0]
+            self.assertEqual(enrollment.start, from_date)
+            self.assertEqual(enrollment.end, to_date)
+            self.assertIsInstance(enrollment.uidentity, UniqueIdentity)
+            self.assertEqual(enrollment.uidentity.uuid, uuid)
+            self.assertIsInstance(enrollment.organization, Organization)
+            self.assertEqual(enrollment.organization.name, name)
+
+    def test_add_multiple_enrollments(self):
+        """Check if multiple enrollments can be added"""
+
+        uuid = '1234567890ABCDFE'
+        name = 'Example'
+
+        with self.db.connect() as session:
+            uidentity = UniqueIdentity(uuid=uuid)
+            session.add(uidentity)
+            org = Organization(name=name)
+            session.add(org)
+
+            api.enroll(session, uidentity, org,
+                       from_date=datetime.datetime(1999, 1, 1))
+            api.enroll(session, uidentity, org,
+                       to_date=datetime.datetime(2005, 1, 1))
+            api.enroll(session, uidentity, org,
+                       from_date=datetime.datetime(2013, 1, 1),
+                       to_date=datetime.datetime(2014, 1, 1))
+
+        with self.db.connect() as session:
+            enrollments = session.query(Enrollment).\
+                join(UniqueIdentity, Organization).\
+                filter(UniqueIdentity.uuid == uuid,
+                       Organization.name == name).\
+                order_by(Enrollment.start).all()
+            self.assertEqual(len(enrollments), 3)
+
+            enrollment = enrollments[0]
+            self.assertEqual(enrollment.start, MIN_PERIOD_DATE)
+            self.assertEqual(enrollment.end, datetime.datetime(2005, 1, 1))
+            self.assertIsInstance(enrollment.uidentity, UniqueIdentity)
+            self.assertEqual(enrollment.uidentity.uuid, uuid)
+            self.assertIsInstance(enrollment.organization, Organization)
+            self.assertEqual(enrollment.organization.name, name)
+
+            enrollment = enrollments[1]
+            self.assertEqual(enrollment.start, datetime.datetime(1999, 1, 1))
+            self.assertEqual(enrollment.end, MAX_PERIOD_DATE)
+            self.assertIsInstance(enrollment.uidentity, UniqueIdentity)
+            self.assertEqual(enrollment.uidentity.uuid, uuid)
+            self.assertIsInstance(enrollment.organization, Organization)
+            self.assertEqual(enrollment.organization.name, name)
+
+            enrollment = enrollments[2]
+            self.assertEqual(enrollment.start, datetime.datetime(2013, 1, 1))
+            self.assertEqual(enrollment.end, datetime.datetime(2014, 1, 1))
+            self.assertIsInstance(enrollment.uidentity, UniqueIdentity)
+            self.assertEqual(enrollment.uidentity.uuid, uuid)
+            self.assertIsInstance(enrollment.organization, Organization)
+            self.assertEqual(enrollment.organization.name, name)
+
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
+
+        uuid = '1234567890ABCDFE'
+        name = 'Example'
+        from_date = datetime.datetime(1999, 1, 1)
+        to_date = datetime.datetime(2000, 1, 1)
+
+        with self.db.connect() as session:
+            uidentity = UniqueIdentity(uuid=uuid)
+            session.add(uidentity)
+            org = Organization(name=name)
+            session.add(org)
+
+        before_dt = datetime.datetime.utcnow()
+
+        with self.db.connect() as session:
+            uidentity = api.find_unique_identity(session, uuid)
+            org = api.find_organization(session, name)
+            api.enroll(session, uidentity, org,
+                       from_date=from_date,
+                       to_date=to_date)
+
+        after_dt = datetime.datetime.utcnow()
+
+        with self.db.connect() as session:
+            uidentity = api.find_unique_identity(session, uuid)
+            self.assertIsInstance(uidentity.last_modified, datetime.datetime)
+            self.assertLessEqual(before_dt, uidentity.last_modified)
+            self.assertGreaterEqual(after_dt, uidentity.last_modified)
+
+    def test_from_date_none(self):
+        """Check if an enrollment cannot be added when from_date is None"""
+
+        with self.db.connect() as session:
+            uidentity = UniqueIdentity(uuid='1234567890ABCDFE')
+            session.add(uidentity)
+            org = Organization(name='Example')
+            session.add(org)
+
+            with self.assertRaisesRegex(ValueError, FROM_DATE_NONE_ERROR):
+                api.enroll(session, uidentity, org,
+                           from_date=None,
+                           to_date=datetime.datetime(1999, 1, 1))
+
+    def test_to_date_none(self):
+        """Check if an enrollment cannot be added when to_date is None"""
+
+        with self.db.connect() as session:
+            uidentity = UniqueIdentity(uuid='1234567890ABCDFE')
+            session.add(uidentity)
+            org = Organization(name='Example')
+            session.add(org)
+
+            with self.assertRaisesRegex(ValueError, TO_DATE_NONE_ERROR):
+                api.enroll(session, uidentity, org,
+                           from_date=datetime.datetime(2001, 1, 1),
+                           to_date=None)
+
+    def test_period_invalid(self):
+        """Check whether enrollments cannot be added giving invalid period ranges"""
+
+        with self.db.connect() as session:
+            uidentity = UniqueIdentity(uuid='1234567890ABCDFE')
+            session.add(uidentity)
+            org = Organization(name='Example')
+            session.add(org)
+
+            data = {
+                'from_date': '2001-01-01 00:00:00',
+                'to_date': '1999-01-01 00:00:00'
+            }
+            msg = PERIOD_INVALID_ERROR % data
+
+            with self.assertRaisesRegex(ValueError, msg):
+                api.enroll(session, uidentity, org,
+                           from_date=datetime.datetime(2001, 1, 1),
+                           to_date=datetime.datetime(1999, 1, 1))
+
+            data = {
+                'type': 'from_date',
+                'date': '1899-12-31 23:59:59'
+            }
+            msg = PERIOD_OUT_OF_BOUNDS_ERROR % data
+
+            with self.assertRaisesRegex(ValueError, msg):
+                api.enroll(session, uidentity, org,
+                           from_date=datetime.datetime(1899, 12, 31, 23, 59, 59))
+
+            data = {
+                'type': 'from_date',
+                'date': '2100-01-01 00:00:01'
+            }
+            msg = PERIOD_OUT_OF_BOUNDS_ERROR % data
+
+            with self.assertRaisesRegex(ValueError, msg):
+                api.enroll(session, uidentity, org,
+                           from_date=datetime.datetime(2100, 1, 1, 0, 0, 1))
+
+            data = {
+                'type': 'to_date',
+                'date': '2100-01-01 00:00:01'
+            }
+            msg = PERIOD_OUT_OF_BOUNDS_ERROR % data
+
+            with self.assertRaisesRegex(ValueError, msg):
+                api.enroll(session, uidentity, org,
+                           to_date=datetime.datetime(2100, 1, 1, 0, 0, 1))
+
+            data = {
+                'type': 'to_date',
+                'date': '1899-12-31 23:59:59'
+            }
+            msg = PERIOD_OUT_OF_BOUNDS_ERROR % data
+
+            with self.assertRaisesRegex(ValueError, msg):
+                api.enroll(session, uidentity, org,
+                           to_date=datetime.datetime(1899, 12, 31, 23, 59, 59))
 
 
 if __name__ == "__main__":

@@ -21,11 +21,14 @@
 
 import datetime
 
-from .model import (UniqueIdentity,
+from .model import (MAX_PERIOD_DATE,
+                    MIN_PERIOD_DATE,
+                    UniqueIdentity,
                     Identity,
                     Profile,
                     Organization,
-                    Domain)
+                    Domain,
+                    Enrollment)
 
 
 def find_unique_identity(session, uuid):
@@ -250,3 +253,53 @@ def add_domain(session, organization, domain_name, is_top_domain=False):
     session.add(dom)
 
     return dom
+
+
+def enroll(session, uidentity, organization,
+           from_date=MIN_PERIOD_DATE, to_date=MAX_PERIOD_DATE):
+    """Enroll a unique identity to an organization.
+
+    The function adds a new relationship between the unique
+    identity in `uidentity` and the given `organization` for
+    the current session.
+
+    The period of the enrollment can be given with the parameters
+    `from_date` and `to_date`, where `from_date <= to_date`.
+    Default values for these dates are `MIN_PERIOD_DATE` and
+    `MAX_PERIOD_DATE`. These dates cannot be `None`.
+
+    This function returns as result a new `Enrollment` object.
+
+    :param session: database session
+    :param uidentity: unique identity to enroll
+    :param organization: organization where the unique identity is enrolled
+    :param from_date: date when the enrollment starts
+    :param to_date: date when the enrollment ends
+
+    :return: a new enrollment
+
+    :raises ValeError: when either `from_date` or `to_date` are `None`;
+        when `from_date < MIN_PERIOD_DATE`; or `to_date > MAX_PERIOD_DATE`
+        or `from_date > to_date`.
+    """
+    if not from_date:
+        raise ValueError("'from_date' cannot be None")
+    if not to_date:
+        raise ValueError("'to_date' cannot be None")
+
+    if from_date < MIN_PERIOD_DATE or from_date > MAX_PERIOD_DATE:
+        raise ValueError("'from_date' %s is out of bounds" % str(from_date))
+    if to_date < MIN_PERIOD_DATE or to_date > MAX_PERIOD_DATE:
+        raise ValueError("'to_date' %s is out of bounds" % str(to_date))
+    if from_date > to_date:
+        raise ValueError("'from_date' %s cannot be greater than %s"
+                         % (from_date, to_date))
+
+    enrollment = Enrollment(uidentity=uidentity,
+                            organization=organization,
+                            start=from_date, end=to_date)
+    uidentity.last_modified = datetime.datetime.utcnow()
+
+    session.add(enrollment)
+
+    return enrollment

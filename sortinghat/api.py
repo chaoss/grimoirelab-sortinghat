@@ -29,6 +29,7 @@ from .db.api import (add_unique_identity as add_unique_identity_db,
                      add_identity as add_identity_db,
                      add_organization as add_organization_db,
                      add_domain as add_domain_db,
+                     enroll as enroll_db,
                      find_unique_identity,
                      find_identity,
                      find_organization,
@@ -263,15 +264,6 @@ def add_enrollment(db, uuid, organization, from_date=None, to_date=None):
     if not to_date:
         to_date = MAX_PERIOD_DATE
 
-    if from_date < MIN_PERIOD_DATE or from_date > MAX_PERIOD_DATE:
-        raise WrappedValueError('start date %s is out of bounds' % str(from_date))
-    if to_date < MIN_PERIOD_DATE or to_date > MAX_PERIOD_DATE:
-        raise WrappedValueError('end date %s is out of bounds' % str(to_date))
-
-    if from_date > to_date:
-        raise WrappedValueError('start date %s cannot be greater than %s'
-                         % (from_date, to_date))
-
     with db.connect() as session:
         uidentity = find_unique_identity(session, uuid)
 
@@ -294,13 +286,8 @@ def add_enrollment(db, uuid, organization, from_date=None, to_date=None):
                               str(enrollment.start), str(enrollment.end)))
             raise AlreadyExistsError(entity=entity)
 
-        enrollment = Enrollment(uidentity=uidentity, organization=org,
-                                start=from_date, end=to_date)
-
-        last_modified = datetime.datetime.utcnow()
-        uidentity.last_modified = last_modified
-
-        session.add(enrollment)
+        enroll_db(session, uidentity, org,
+                  from_date=from_date, to_date=to_date)
 
 
 def add_to_matching_blacklist(db, entity):
@@ -563,12 +550,12 @@ def delete_enrollment(db, uuid, organization, from_date=None, to_date=None):
         to_date = MAX_PERIOD_DATE
 
     if from_date < MIN_PERIOD_DATE or from_date > MAX_PERIOD_DATE:
-        raise WrappedValueError('start date %s is out of bounds' % str(from_date))
+        raise WrappedValueError("'start date' %s is out of bounds" % str(from_date))
     if to_date < MIN_PERIOD_DATE or to_date > MAX_PERIOD_DATE:
-        raise WrappedValueError('end date %s is out of bounds' % str(to_date))
+        raise WrappedValueError("'end date' %s is out of bounds" % str(to_date))
 
     if from_date > to_date:
-        raise WrappedValueError('start date %s cannot be greater than %s'
+        raise WrappedValueError("'start date' %s cannot be greater than %s"
                          % (from_date, to_date))
 
     with db.connect() as session:
@@ -788,9 +775,8 @@ def merge_enrollments(db, uuid, organization):
 
             # This means no dups where found so we need to add a
             # new enrollment
-            enr = Enrollment(uidentity=uidentity, organization=org,
-                             start=st, end=en)
-            session.add(enr)
+            enroll_db(session, uidentity, org,
+                      from_date=st, to_date=en)
 
         # Remove disjoint enrollments from the registry
         for enr in disjoint:
@@ -1307,12 +1293,12 @@ def enrollments(db, uuid=None, organization=None, from_date=None, to_date=None):
         to_date = MAX_PERIOD_DATE
 
     if from_date < MIN_PERIOD_DATE or from_date > MAX_PERIOD_DATE:
-        raise WrappedValueError('start date %s is out of bounds' % str(from_date))
+        raise WrappedValueError("'start date' %s is out of bounds" % str(from_date))
     if to_date < MIN_PERIOD_DATE or to_date > MAX_PERIOD_DATE:
-        raise WrappedValueError('end date %s is out of bounds' % str(to_date))
+        raise WrappedValueError("'end date' %s is out of bounds" % str(to_date))
 
     if from_date and to_date and from_date > to_date:
-        raise WrappedValueError('start date %s cannot be greater than %s'
+        raise WrappedValueError("'start date' %s cannot be greater than %s"
                          % (from_date, to_date))
 
     enrollments = []

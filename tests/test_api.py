@@ -49,7 +49,7 @@ IDENTITY_NONE_OR_EMPTY_ERROR = "identity data cannot be None or empty"
 ENTITY_BLACKLIST_NONE_OR_EMPTY_ERROR = "entity to blacklist cannot be"
 COUNTRY_CODE_INVALID_ERROR = "country code must be a 2 length alpha string - %(code)s given"
 ENROLLMENT_PERIOD_INVALID_ERROR = "cannot be greater than "
-ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR = "%(type)s %(date)s is out of bounds"
+ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR = "'%(type)s' %(date)s is out of bounds"
 NOT_FOUND_ERROR = "%(entity)s not found in the registry"
 GENDER_ACC_INVALID_ERROR = "gender_acc is only set when gender is given"
 GENDER_ACC_INVALID_TYPE_ERROR = "gender_acc must have an integer value"
@@ -700,31 +700,34 @@ class TestAddEnrollment(TestAPICaseBase):
     def test_period_ranges(self):
         """Check whether enrollments cannot be added giving invalid period ranges"""
 
+        api.add_organization(self.db, 'Example')
+        api.add_unique_identity(self.db, 'John Smith')
+
         self.assertRaisesRegexp(ValueError, ENROLLMENT_PERIOD_INVALID_ERROR,
                                 api.add_enrollment, self.db, 'John Smith', 'Example',
                                 datetime.datetime(2001, 1, 1),
                                 datetime.datetime(1999, 1, 1))
 
-        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'start date',
+        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'from_date',
                                                        'date' : '1899-12-31 23:59:59'}
         self.assertRaisesRegexp(ValueError, exc,
                                 api.add_enrollment, self.db, 'John Smith', 'Example',
                                 datetime.datetime(1899, 12, 31, 23, 59, 59))
 
-        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'start date',
+        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'from_date',
                                                        'date' : '2100-01-01 00:00:01'}
         self.assertRaisesRegexp(ValueError, exc,
                                 api.add_enrollment, self.db, 'John Smith', 'Example',
                                 datetime.datetime(2100, 1, 1, 0, 0, 1))
 
-        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'end date',
+        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'to_date',
                                                        'date' : '2100-01-01 00:00:01'}
         self.assertRaisesRegexp(ValueError, exc,
                                 api.add_enrollment, self.db, 'John Smith', 'Example',
                                 datetime.datetime(1900, 1, 1),
                                 datetime.datetime(2100, 1, 1, 0, 0, 1))
 
-        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'end date',
+        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'to_date',
                                                        'date' : '1899-12-31 23:59:59'}
         self.assertRaisesRegexp(ValueError, exc,
                                 api.add_enrollment, self.db, 'John Smith', 'Example',
