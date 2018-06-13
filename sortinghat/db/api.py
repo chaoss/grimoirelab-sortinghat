@@ -162,6 +162,19 @@ def add_unique_identity(session, uuid):
     return uidentity
 
 
+def delete_unique_identity(session, uidentity):
+    """Remove a unique identity from the session.
+
+    Function that removes from the session the unique identity
+    given in `uidentity`. Data related to this identity will be
+    also removed.
+
+    :param session: database session
+    :param uidentity: unique identifier to remove
+    """
+    session.delete(uidentity)
+
+
 def add_identity(session, uidentity, identity_id, source,
                  name=None, email=None, username=None):
     """Add an identity to the session.

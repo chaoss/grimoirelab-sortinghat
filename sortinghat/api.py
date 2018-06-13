@@ -32,6 +32,7 @@ from .db.api import (add_unique_identity as add_unique_identity_db,
                      enroll as enroll_db,
                      edit_profile as edit_profile_db,
                      move_identity as move_identity_db,
+                     delete_unique_identity as delete_unique_identity_db,
                      find_unique_identity,
                      find_identity,
                      find_organization,
@@ -382,7 +383,7 @@ def delete_unique_identity(db, uuid):
         if not uidentity:
             raise NotFoundError(entity=uuid)
 
-        session.delete(uidentity)
+        delete_unique_identity_db(session, uidentity)
 
 
 def delete_identity(db, identity_id):

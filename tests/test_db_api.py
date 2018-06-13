@@ -293,6 +293,66 @@ class TestAddUniqueIdentity(TestDBAPICaseBase):
                 api.add_unique_identity(session, '')
 
 
+class TestDeleteUniqueIdentity(TestDBAPICaseBase):
+    """Unit tests for delete_unique_identity"""
+
+    def test_delete_unique_identities(self):
+        """Check whether it deletes a set of unique identities"""
+
+        with self.db.connect() as session:
+            example_org = Organization(name='Example')
+            bitergia_org = Organization(name='Bitergia')
+            session.add(example_org)
+            session.add(bitergia_org)
+
+            jsmith = UniqueIdentity(uuid='AAAA')
+            jsmith.profile = Profile(name='John Smith', email='jsmith@example.net')
+            jsmith.identities.append(Identity(id='0001', name='John Smith', source='scm'))
+            jsmith.identities.append(Identity(id='0002', email='jsmith@example.net', source='mls'))
+            session.add(jsmith)
+
+            enrol = Enrollment(uidentity=jsmith, organization=example_org)
+            session.add(enrol)
+            enrol = Enrollment(uidentity=jsmith, organization=bitergia_org)
+            session.add(enrol)
+
+        with self.db.connect() as session:
+            # Check everything is in place and remove
+            jsmith = api.find_unique_identity(session, 'AAAA')
+            self.assertIsInstance(jsmith.profile, Profile)
+            self.assertEqual(len(jsmith.identities), 2)
+
+            enrollments = session.query(Enrollment).\
+                join(UniqueIdentity, Organization).\
+                filter(UniqueIdentity.uuid == 'AAAA').\
+                order_by(Enrollment.start).all()
+            self.assertEqual(len(enrollments), 2)
+
+            api.delete_unique_identity(session, jsmith)
+
+        with self.db.connect() as session:
+            jsmith = api.find_unique_identity(session, 'AAAA')
+            self.assertEqual(jsmith, None)
+
+            jsmith_id = api.find_identity(session, '0001')
+            self.assertEqual(jsmith_id, None)
+
+            jsmith_id = api.find_identity(session, '0002')
+            self.assertEqual(jsmith_id, None)
+
+            profile = session.query(Profile).\
+                join(UniqueIdentity).\
+                filter(UniqueIdentity.uuid == 'AAAA').\
+                first()
+            self.assertEqual(profile, None)
+
+            enrollments = session.query(Enrollment).\
+                join(UniqueIdentity, Organization).\
+                filter(UniqueIdentity.uuid == 'AAAA').\
+                order_by(Enrollment.start).all()
+            self.assertEqual(len(enrollments), 0)
+
+
 class TestAddIdentity(TestDBAPICaseBase):
     """Unit tests for add_identity"""
 
