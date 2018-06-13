@@ -33,7 +33,8 @@ from .db.api import (add_unique_identity as add_unique_identity_db,
                      find_unique_identity,
                      find_identity,
                      find_organization,
-                     find_domain)
+                     find_domain,
+                     find_country)
 from .db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE, \
     UniqueIdentity, Identity, Profile, Organization, Domain, Country, Enrollment, \
     MatchingBlacklist
@@ -369,8 +370,7 @@ def edit_profile(db, uuid, **kwargs):
             code = kwargs['country_code']
 
             if code:
-                country = session.query(Country).\
-                    filter(Country.code == code).first()
+                country = find_country(session, code)
 
                 if not country:
                     raise NotFoundError(entity='country code %s' % str(code))

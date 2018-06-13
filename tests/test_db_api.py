@@ -30,7 +30,8 @@ from sortinghat.db.model import (MAX_PERIOD_DATE,
                                  Profile,
                                  Organization,
                                  Domain,
-                                 Enrollment)
+                                 Enrollment,
+                                 Country)
 
 from tests.base import TestDatabaseCaseBase
 
@@ -182,6 +183,33 @@ class TestFindDomain(TestDBAPICaseBase):
         with self.db.connect() as session:
             domain = api.find_domain(session, 'example.net')
             self.assertEqual(domain, None)
+
+
+class TestFindCountry(TestDBAPICaseBase):
+    """Unit tests for find_country"""
+
+    def test_find_country(self):
+        """Test if a country is found by its code"""
+
+        with self.db.connect() as session:
+            country = Country(name='Spain', code='ES', alpha3='ESP')
+            session.add(country)
+
+        with self.db.connect() as session:
+            country = api.find_country(session, 'ES')
+            self.assertIsInstance(country, Country)
+            self.assertEqual(country.code, 'ES')
+
+    def test_find_country_not_found(self):
+        """Test whether the function returns None when the country is not found"""
+
+        with self.db.connect() as session:
+            country = Country(name='Spain', code='ES', alpha3='ESP')
+            session.add(country)
+
+        with self.db.connect() as session:
+            country = api.find_country(session, 'US')
+            self.assertEqual(country, None)
 
 
 class TestAddUniqueIdentity(TestDBAPICaseBase):

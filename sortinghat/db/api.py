@@ -28,7 +28,8 @@ from .model import (MAX_PERIOD_DATE,
                     Profile,
                     Organization,
                     Domain,
-                    Enrollment)
+                    Enrollment,
+                    Country)
 
 
 def find_unique_identity(session, uuid):
@@ -105,6 +106,26 @@ def find_domain(session, name):
         filter(Domain.domain == name).first()
 
     return domain
+
+
+def find_country(session, code):
+    """Find a country.
+
+    Find a country by its ISO-3166 `code` (i.e ES for Spain,
+    US for United States of America) using the given `session.
+    When the country does not exist the function will return
+    `None`.
+
+    :param session: database session
+    :param code: ISO-3166 code of the country to find
+
+    :return: a country object; `None` when the country
+        does not exist
+    """
+    country = session.query(Country).\
+        filter(Country.code == code).first()
+
+    return country
 
 
 def add_unique_identity(session, uuid):
