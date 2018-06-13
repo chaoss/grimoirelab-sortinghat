@@ -30,11 +30,11 @@ from .db.api import (add_unique_identity as add_unique_identity_db,
                      add_organization as add_organization_db,
                      add_domain as add_domain_db,
                      enroll as enroll_db,
+                     edit_profile as edit_profile_db,
                      find_unique_identity,
                      find_identity,
                      find_organization,
-                     find_domain,
-                     find_country)
+                     find_domain)
 from .db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE, \
     UniqueIdentity, Identity, Profile, Organization, Domain, Country, Enrollment, \
     MatchingBlacklist
@@ -351,63 +351,10 @@ def edit_profile(db, uuid, **kwargs):
 
         if not uidentity:
             raise NotFoundError(entity=uuid)
-
         if not uidentity.profile:
-            # Create a new profile
-            profile = Profile(uuid=uuid)
-        else:
-            profile = uidentity.profile
+            uidentity.profile = Profile()
 
-        if 'is_bot' in kwargs:
-            is_bot = kwargs['is_bot']
-
-            if type(is_bot) != bool:
-                raise WrappedValueError('is_bot must have a boolean value')
-
-            profile.is_bot = is_bot
-
-        if 'country_code' in kwargs:
-            code = kwargs['country_code']
-
-            if code:
-                country = find_country(session, code)
-
-                if not country:
-                    raise NotFoundError(entity='country code %s' % str(code))
-
-                profile.country_code = country.code
-            else:
-                profile.country_code = None
-
-        # Function to avoid empty strings on the database
-        to_none_if_empty = lambda x: None if not x else x
-
-        if 'name' in kwargs:
-            profile.name = to_none_if_empty(kwargs['name'])
-        if 'email' in kwargs:
-            profile.email = to_none_if_empty(kwargs['email'])
-
-        if 'gender' in kwargs:
-            profile.gender = to_none_if_empty(kwargs['gender'])
-
-            if not profile.gender:
-                gender_acc = None
-            else:
-                gender_acc = kwargs.get('gender_acc', 100)
-
-                if type(gender_acc) != int:
-                    raise WrappedValueError('gender_acc must have an integer value')
-                elif not 1 <= gender_acc <= 100:
-                    raise WrappedValueError('gender_acc is not in range (1,100)')
-
-            profile.gender_acc = gender_acc
-        elif 'gender_acc' in kwargs:
-            raise WrappedValueError('gender_acc is only set when gender is given')
-
-        last_modified = datetime.datetime.utcnow()
-        uidentity.last_modified = last_modified
-
-        session.add(profile)
+        edit_profile_db(session, uidentity, **kwargs)
 
 
 def delete_unique_identity(db, uuid):
@@ -653,20 +600,25 @@ def merge_unique_identities(db, from_uuid, to_uuid):
 
         # Update profile information
         if tuid.profile and fuid.profile:
-            # Update empty fields
-            if not tuid.profile.name:
-                tuid.profile.name = fuid.profile.name
-            if not tuid.profile.email:
-                tuid.profile.email = fuid.profile.email
-            if not tuid.profile.gender:
-                tuid.profile.gender = fuid.profile.gender
-                tuid.profile.gender_acc = fuid.profile.gender_acc
-            if not tuid.profile.country_code:
-                tuid.profile.country_code = fuid.profile.country_code
+            # Update data giving priority to 'to_uuid'.
+            # When 'is_bot' is set to True in any of the unique identities
+            # it will remain the same.
 
-            # If the from_uuid is a bot, set to_uuid as a bot
+            profile_data = {}
+
+            if not tuid.profile.name:
+                profile_data['name'] = fuid.profile.name
+            if not tuid.profile.email:
+                profile_data['email'] = fuid.profile.email
+            if not tuid.profile.country_code:
+                profile_data['country_code'] = fuid.profile.country_code
+            if not tuid.profile.gender:
+                profile_data['gender'] = fuid.profile.gender
+                profile_data['gender_acc'] = fuid.profile.gender_acc
             if fuid.profile.is_bot:
-                tuid.profile.is_bot = True
+                profile_data['is_bot'] = True
+
+            edit_profile_db(session, tuid, **profile_data)
         elif not tuid.profile and fuid.profile:
             # Swap profiles
             fuid.profile.uuid = to_uuid

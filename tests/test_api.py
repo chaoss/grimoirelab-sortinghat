@@ -51,9 +51,11 @@ COUNTRY_CODE_INVALID_ERROR = "country code must be a 2 length alpha string - %(c
 ENROLLMENT_PERIOD_INVALID_ERROR = "cannot be greater than "
 ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR = "'%(type)s' %(date)s is out of bounds"
 NOT_FOUND_ERROR = "%(entity)s not found in the registry"
-GENDER_ACC_INVALID_ERROR = "gender_acc is only set when gender is given"
-GENDER_ACC_INVALID_TYPE_ERROR = "gender_acc must have an integer value"
-GENDER_ACC_INVALID_RANGE_ERROR = "gender_acc is not in range (1,100)"
+IS_BOT_VALUE_ERROR = "'is_bot' must have a boolean value"
+COUNTRY_CODE_ERROR = "'country_code' \(%(code)s\) does not match with a valid code"
+GENDER_ACC_INVALID_ERROR = "'gender_acc' can only be set when 'gender' is given"
+GENDER_ACC_INVALID_TYPE_ERROR = "'gender_acc' must have an integer value"
+GENDER_ACC_INVALID_RANGE_ERROR = "'gender_acc' \(%(acc)s\) is not in range \(1,100\)"
 
 
 class TestAPICaseBase(TestDatabaseCaseBase):
@@ -962,8 +964,8 @@ class TestEditProfile(TestAPICaseBase):
             us = Country(code='US', name='United States of America', alpha3='USA')
             session.add(us)
 
-        self.assertRaisesRegexp(NotFoundError,
-                                NOT_FOUND_ERROR % {'entity' : 'country code ES'},
+        self.assertRaisesRegexp(ValueError,
+                                COUNTRY_CODE_ERROR % {'code': 'ES'},
                                 api.edit_profile, self.db, 'John Smith',
                                 **{'country_code' : 'ES'})
 
@@ -1001,22 +1003,22 @@ class TestEditProfile(TestAPICaseBase):
                                 api.edit_profile, self.db, 'John Smith',
                                 **{'gender': 'male', 'gender_acc' : '100'})
 
-def test_invalid_range_gender_acc(self):
-    """Check if it fails when gender_acc is given but not the gender"""
+    def test_invalid_range_gender_acc(self):
+        """Check if it fails when gender_acc is given but not the gender"""
 
-    api.add_unique_identity(self.db, 'John Smith')
+        api.add_unique_identity(self.db, 'John Smith')
 
-    self.assertRaisesRegexp(ValueError, GENDER_ACC_INVALID_RANGE_ERROR,
-                            api.edit_profile, self.db, 'John Smith',
-                            **{'gender': 'male', 'gender_acc' : -1})
+        self.assertRaisesRegexp(ValueError, GENDER_ACC_INVALID_RANGE_ERROR % {'acc': '-1'},
+                                api.edit_profile, self.db, 'John Smith',
+                                **{'gender': 'male', 'gender_acc' : -1})
 
-    self.assertRaisesRegexp(ValueError, GENDER_ACC_INVALID_RANGE_ERROR,
-                            api.edit_profile, self.db, 'John Smith',
-                            **{'gender': 'male', 'gender_acc' : 0})
+        self.assertRaisesRegexp(ValueError, GENDER_ACC_INVALID_RANGE_ERROR % {'acc': '0'},
+                                api.edit_profile, self.db, 'John Smith',
+                                **{'gender': 'male', 'gender_acc' : 0})
 
-    self.assertRaisesRegexp(ValueError, GENDER_ACC_INVALID_RANGE_ERROR,
-                            api.edit_profile, self.db, 'John Smith',
-                            **{'gender': 'male', 'gender_acc' : 101})
+        self.assertRaisesRegexp(ValueError, GENDER_ACC_INVALID_RANGE_ERROR % {'acc': '101'},
+                                api.edit_profile, self.db, 'John Smith',
+                                **{'gender': 'male', 'gender_acc' : 101})
 
 
 class TestDeleteUniqueIdentity(TestAPICaseBase):
@@ -3656,3 +3658,4 @@ class TestBlacklist(TestAPICaseBase):
 
 if __name__ == "__main__":
     unittest.main()
+

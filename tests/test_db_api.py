@@ -52,6 +52,11 @@ FROM_DATE_NONE_ERROR = "'from_date' cannot be None"
 TO_DATE_NONE_ERROR = "'to_date' cannot be None"
 PERIOD_INVALID_ERROR = "'from_date' %(from_date)s cannot be greater than %(to_date)s"
 PERIOD_OUT_OF_BOUNDS_ERROR = "'%(type)s' %(date)s is out of bounds"
+IS_BOT_VALUE_ERROR = "'is_bot' must have a boolean value"
+COUNTRY_CODE_ERROR = "'country_code' \(%(code)s\) does not match with a valid code"
+GENDER_ACC_INVALID_ERROR = "'gender_acc' can only be set when 'gender' is given"
+GENDER_ACC_INVALID_TYPE_ERROR = "'gender_acc' must have an integer value"
+GENDER_ACC_INVALID_RANGE_ERROR = "'gender_acc' \(%(acc)s\) is not in range \(1,100\)"
 
 
 class TestDBAPICaseBase(TestDatabaseCaseBase):
@@ -805,6 +810,177 @@ class TestEnroll(TestDBAPICaseBase):
             with self.assertRaisesRegex(ValueError, msg):
                 api.enroll(session, uidentity, org,
                            to_date=datetime.datetime(1899, 12, 31, 23, 59, 59))
+
+
+class TestEditProfile(TestDBAPICaseBase):
+    """Unit tests for edit_profile"""
+
+    def test_edit_profile(self):
+        """Check if it edits a profile"""
+
+        uuid = '1234567890ABCDFE'
+
+        with self.db.connect() as session:
+            us = Country(code='US',
+                         name='United States of America',
+                         alpha3='USA')
+            session.add(us)
+
+            uidentity = UniqueIdentity(uuid=uuid)
+            uidentity.profile = Profile()
+            session.add(uidentity)
+
+            profile = api.edit_profile(session, uidentity,
+                                       name='Smith, J.', email='jsmith@example.net',
+                                       is_bot=True, country_code='US',
+                                       gender='male', gender_acc=98)
+
+            self.assertIsInstance(profile, Profile)
+            self.assertEqual(profile.name, 'Smith, J.')
+            self.assertEqual(profile.email, 'jsmith@example.net')
+            self.assertEqual(profile.is_bot, True)
+            self.assertEqual(profile.country_code, 'US')
+            self.assertEqual(profile.gender, 'male')
+            self.assertEqual(profile.gender_acc, 98)
+
+        with self.db.connect() as session:
+            uidentity = api.find_unique_identity(session, uuid)
+
+            profile = uidentity.profile
+
+            self.assertEqual(profile.uuid, uuid)
+            self.assertEqual(profile.name, 'Smith, J.')
+            self.assertEqual(profile.email, 'jsmith@example.net')
+            self.assertEqual(profile.is_bot, True)
+            self.assertEqual(profile.country_code, 'US')
+            self.assertIsInstance(profile.country, Country)
+            self.assertEqual(profile.country.code, 'US')
+            self.assertEqual(profile.country.name, 'United States of America')
+            self.assertEqual(profile.gender, 'male')
+            self.assertEqual(profile.gender_acc, 98)
+
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
+
+        uuid = '1234567890ABCDFE'
+
+        with self.db.connect() as session:
+            uidentity = UniqueIdentity(uuid=uuid)
+            uidentity.profile = Profile()
+            session.add(uidentity)
+
+        before_dt = datetime.datetime.utcnow()
+
+        with self.db.connect() as session:
+            uidentity = api.find_unique_identity(session, uuid)
+            api.edit_profile(session, uidentity,
+                             name='John Smith', email='jsmith@example.net')
+
+        after_dt = datetime.datetime.utcnow()
+
+        with self.db.connect() as session:
+            uidentity = api.find_unique_identity(session, uuid)
+            self.assertIsInstance(uidentity.last_modified, datetime.datetime)
+            self.assertLessEqual(before_dt, uidentity.last_modified)
+            self.assertGreaterEqual(after_dt, uidentity.last_modified)
+
+    def test_name_email_empty(self):
+        """Check if name and email are set to None when an empty string is given"""
+
+        with self.db.connect() as session:
+            uidentity = UniqueIdentity(uuid='1234567890ABCDFE')
+            uidentity.profile = Profile()
+            session.add(uidentity)
+
+            profile = api.edit_profile(session, uidentity, nme='', email='')
+
+            self.assertEqual(profile.name, None)
+            self.assertEqual(profile.email, None)
+
+    def test_is_bot_invalid_type(self):
+        """Check type values of is_bot parameter"""
+
+        with self.db.connect() as session:
+            uidentity = UniqueIdentity(uuid='1234567890ABCDFE')
+            uidentity.profile = Profile()
+            session.add(uidentity)
+
+            with self.assertRaisesRegex(ValueError, IS_BOT_VALUE_ERROR):
+                api.edit_profile(session, uidentity, is_bot=1)
+
+            with self.assertRaisesRegex(ValueError, IS_BOT_VALUE_ERROR):
+                api.edit_profile(session, uidentity, is_bot='True')
+
+    def test_country_code_not_valid(self):
+        """Check if it fails when the given country is not valid"""
+
+        with self.db.connect() as session:
+            us = Country(code='US',
+                         name='United States of America',
+                         alpha3='USA')
+            session.add(us)
+
+            uidentity = UniqueIdentity(uuid='1234567890ABCDFE')
+            uidentity.profile = Profile()
+            session.add(uidentity)
+
+            msg = COUNTRY_CODE_ERROR %  {'code': 'JKL'}
+
+            with self.assertRaisesRegex(ValueError, msg):
+                api.edit_profile(session, uidentity, country_code='JKL')
+
+    def test_gender_not_given(self):
+        """Check if it fails when gender_acc is given but not the gender"""
+
+        with self.db.connect() as session:
+            uidentity = UniqueIdentity(uuid='1234567890ABCDFE')
+            uidentity.profile = Profile()
+            session.add(uidentity)
+
+            with self.assertRaisesRegex(ValueError, GENDER_ACC_INVALID_ERROR):
+                api.edit_profile(session, uidentity, gender_acc=100)
+
+    def test_gender_acc_invalid_type(self):
+        """Check type values of gender_acc parameter"""
+
+        with self.db.connect() as session:
+            uidentity = UniqueIdentity(uuid='1234567890ABCDFE')
+            uidentity.profile = Profile()
+            session.add(uidentity)
+
+            with self.assertRaisesRegex(ValueError, GENDER_ACC_INVALID_TYPE_ERROR):
+                api.edit_profile(session, uidentity,
+                                 gender='male', gender_acc=10.0)
+
+            with self.assertRaisesRegex(ValueError, GENDER_ACC_INVALID_TYPE_ERROR):
+                api.edit_profile(session, uidentity,
+                                 gender='male', gender_acc='100')
+
+    def test_gender_acc_invalid_range(self):
+        """Check if it fails when gender_acc is given but not the gender"""
+
+        with self.db.connect() as session:
+            uidentity = UniqueIdentity(uuid='1234567890ABCDFE')
+            uidentity.profile = Profile()
+            session.add(uidentity)
+
+            msg = GENDER_ACC_INVALID_RANGE_ERROR % {'acc': '-1'}
+
+            with self.assertRaisesRegex(ValueError, msg):
+                api.edit_profile(session, uidentity,
+                                 gender='male', gender_acc=-1)
+
+            msg = GENDER_ACC_INVALID_RANGE_ERROR % {'acc': '0'}
+
+            with self.assertRaisesRegex(ValueError, msg):
+                api.edit_profile(session, uidentity,
+                                 gender='male', gender_acc=0)
+
+            msg = GENDER_ACC_INVALID_RANGE_ERROR % {'acc': '101'}
+
+            with self.assertRaisesRegex(ValueError, msg):
+                api.edit_profile(session, uidentity,
+                                 gender='male', gender_acc=101)
 
 
 if __name__ == "__main__":

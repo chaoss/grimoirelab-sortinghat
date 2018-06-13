@@ -324,3 +324,89 @@ def enroll(session, uidentity, organization,
     session.add(enrollment)
 
     return enrollment
+
+
+def edit_profile(session, uidentity, **kwargs):
+    """Edit unique identity profile.
+
+    This function allows to edit or update the profile information
+    of the given unique identity. The values to update are given
+    as keyword arguments. The allowed keys are listed below
+    (other keywords will be ignored):
+
+       - `name`: name of the unique identity
+       - `email`: email address of the unique identity
+       - `gender`: gender of the unique identity
+       - `gender_acc`: gender accuracy (range of 1 to 100; by default, set to 100)
+       - `is_bot`: boolean value to determine whether a unique identity is
+             a bot or not. By default, this value is initialized to
+             `False`.
+       - `country_code`: ISO-3166 country code
+
+    As a result, it will return a `Profile` object with the updated data.
+
+    :param session: database session
+    :param uidentity: unique identity whose profile will be edited
+    :param kwargs: parameters to edit the profile
+
+    :return: the edited profile
+
+    :raises ValueError: raised when `is_bot` does not have a boolean value;
+        `gender_acc` is not an `int` or is not in range.
+    """
+    def to_none_if_empty(x):
+        return None if not x else x
+
+    profile = uidentity.profile
+
+    if 'name' in kwargs:
+        profile.name = to_none_if_empty(kwargs['name'])
+    if 'email' in kwargs:
+        profile.email = to_none_if_empty(kwargs['email'])
+
+    if 'is_bot' in kwargs:
+        is_bot = kwargs['is_bot']
+
+        if not isinstance(is_bot, bool):
+            raise ValueError("'is_bot' must have a boolean value")
+
+        profile.is_bot = is_bot
+
+    if 'country_code' in kwargs:
+        code = to_none_if_empty(kwargs['country_code'])
+        country_code = None
+
+        if code:
+            country = find_country(session, code)
+
+            if not country:
+                raise ValueError("'country_code' (%s) does not match with a valid code"
+                                 % str(code))
+
+            country_code = country.code
+
+        profile.country_code = country_code
+
+    if 'gender' in kwargs:
+        gender = to_none_if_empty(kwargs['gender'])
+        gender_acc = None
+
+        if gender:
+            gender_acc = kwargs.get('gender_acc', 100)
+
+            if not isinstance(gender_acc, int):
+                raise ValueError("'gender_acc' must have an integer value")
+            elif not 1 <= gender_acc <= 100:
+                raise ValueError("'gender_acc' (%d) is not in range (1,100)"
+                                 % gender_acc)
+
+        profile.gender = gender
+        profile.gender_acc = gender_acc
+    elif 'gender_acc' in kwargs:
+        raise ValueError("'gender_acc' can only be set when 'gender' is given")
+
+    uidentity.last_modified = datetime.datetime.utcnow()
+
+    session.add(profile)
+
+    return profile
