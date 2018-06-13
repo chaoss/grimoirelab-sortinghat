@@ -31,6 +31,7 @@ from .db.api import (add_unique_identity as add_unique_identity_db,
                      add_domain as add_domain_db,
                      enroll as enroll_db,
                      edit_profile as edit_profile_db,
+                     move_identity as move_identity_db,
                      find_unique_identity,
                      find_identity,
                      find_organization,
@@ -628,8 +629,7 @@ def merge_unique_identities(db, from_uuid, to_uuid):
 
         # Update identities
         for identity in fuid.identities:
-            identity.uuid = to_uuid
-            identity.last_modified = last_modified
+            move_identity_db(session, identity, tuid)
 
         # Update and remove duplicated enrollments
         for rol in fuid.enrollments:
@@ -762,7 +762,7 @@ def move_identity(db, from_id, to_uuid):
         do not exist in the registry
     """
     with db.connect() as session:
-        fid =  find_identity(session, from_id)
+        fid = find_identity(session, from_id)
         tuid = find_unique_identity(session, to_uuid)
 
         if not fid:
@@ -774,17 +774,8 @@ def move_identity(db, from_id, to_uuid):
             else:
                 raise NotFoundError(entity=to_uuid)
 
-        if fid.uuid == to_uuid:
-            return
+        move_identity_db(session, fid, tuid)
 
-        fuid = find_unique_identity(session, fid.uuid)
-
-        last_modified = datetime.datetime.utcnow()
-
-        fid.uuid = to_uuid
-        fuid.last_modified = last_modified
-        tuid.last_modified = last_modified
-        fid.last_modified = last_modified
 
 
 def match_identities(db, uuid, matcher):

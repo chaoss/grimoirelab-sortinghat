@@ -983,5 +983,112 @@ class TestEditProfile(TestDBAPICaseBase):
                                  gender='male', gender_acc=101)
 
 
+class TestMoveIdentity(TestDBAPICaseBase):
+    """Unit tests for move_identity"""
+
+    def test_move_identity(self):
+        """Test when an identity is moved to a unique identity"""
+
+        with self.db.connect() as session:
+            uidentity1 = UniqueIdentity(uuid='AAAA')
+            uidentity2 = UniqueIdentity(uuid='BBBB')
+
+            identity = Identity(id='1111', name='John Smith', source='scm')
+            uidentity1.identities.append(identity)
+
+            session.add(uidentity1)
+            session.add(uidentity2)
+
+        with self.db.connect() as session:
+            uidentity1 = api.find_unique_identity(session, 'AAAA')
+            uidentity2 = api.find_unique_identity(session, 'BBBB')
+
+            self.assertEqual(len(uidentity1.identities), 1)
+            self.assertEqual(len(uidentity2.identities), 0)
+
+            identity = uidentity1.identities[0]
+            self.assertEqual(identity.name, 'John Smith')
+            self.assertEqual(identity.uuid, 'AAAA')
+
+            result = api.move_identity(session, identity, uidentity2)
+
+            self.assertEqual(result, True)
+
+        with self.db.connect() as session:
+            uidentity1 = api.find_unique_identity(session, 'AAAA')
+            uidentity2 = api.find_unique_identity(session, 'BBBB')
+
+            self.assertEqual(len(uidentity1.identities), 0)
+            self.assertEqual(len(uidentity2.identities), 1)
+
+            identity = uidentity2.identities[0]
+            self.assertEqual(identity.name, 'John Smith')
+            self.assertEqual(identity.uuid, 'BBBB')
+
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
+
+        with self.db.connect() as session:
+            uidentity1 = UniqueIdentity(uuid='AAAA')
+            uidentity2 = UniqueIdentity(uuid='BBBB')
+
+            identity = Identity(id='1111', name='John Smith', source='scm')
+            uidentity1.identities.append(identity)
+
+            session.add(uidentity1)
+            session.add(uidentity2)
+
+        before_dt = datetime.datetime.utcnow()
+
+        with self.db.connect() as session:
+            uidentity = api.find_unique_identity(session, 'BBBB')
+            identity = api.find_identity(session, '1111')
+            api.move_identity(session, identity, uidentity)
+
+        after_dt = datetime.datetime.utcnow()
+
+        with self.db.connect() as session:
+            uidentity1 = api.find_unique_identity(session, 'AAAA')
+            uidentity2 = api.find_unique_identity(session, 'BBBB')
+            identity = uidentity2.identities[0]
+
+            self.assertIsInstance(uidentity1.last_modified, datetime.datetime)
+            self.assertLessEqual(before_dt, uidentity1.last_modified)
+            self.assertGreaterEqual(after_dt, uidentity1.last_modified)
+
+            self.assertIsInstance(uidentity2.last_modified, datetime.datetime)
+            self.assertLessEqual(before_dt, uidentity2.last_modified)
+            self.assertGreaterEqual(after_dt, uidentity2.last_modified)
+
+            self.assertIsInstance(identity.last_modified, datetime.datetime)
+            self.assertLessEqual(before_dt, identity.last_modified)
+            self.assertGreaterEqual(after_dt, identity.last_modified)
+
+    def test_equal_related_unique_identity(self):
+        """Test that all remains the same when uidentity is the unique identity related to identity'"""
+
+        with self.db.connect() as session:
+            uidentity = UniqueIdentity(uuid='AAAA')
+            identity = Identity(id='1111', name='John Smith', source='scm')
+            uidentity.identities.append(identity)
+            session.add(uidentity)
+
+        with self.db.connect() as session:
+            uidentity = api.find_unique_identity(session, 'AAAA')
+            identity = api.find_identity(session, '1111')
+
+            result = api.move_identity(session, uidentity, identity)
+
+            self.assertEqual(result, False)
+
+        with self.db.connect() as session:
+            uidentity = api.find_unique_identity(session, 'AAAA')
+            self.assertEqual(len(uidentity.identities), 1)
+
+            identity = uidentity.identities[0]
+            self.assertEqual(identity.id, '1111')
+            self.assertEqual(identity.uuid, 'AAAA')
+
+
 if __name__ == "__main__":
     unittest.main()

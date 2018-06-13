@@ -2029,10 +2029,6 @@ class TestMergeUniqueIdentities(TestAPICaseBase):
             self.assertGreaterEqual(before_merge_dt, uid.identities[0].last_modified)
             self.assertGreaterEqual(after_merge_dt, uid.identities[0].last_modified)
 
-            # Merged identities have the date updated
-            self.assertEqual(uid.identities[1].last_modified, uid.last_modified)
-            self.assertEqual(uid.identities[2].last_modified, uid.last_modified)
-
     def test_merge_identities_and_swap_profile(self):
         """Test swap of profiles when a unique identity does not have one"""
 

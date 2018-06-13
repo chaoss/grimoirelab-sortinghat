@@ -410,3 +410,39 @@ def edit_profile(session, uidentity, **kwargs):
     session.add(profile)
 
     return profile
+
+
+def move_identity(session, identity, uidentity):
+    """Move an identity to a unique identity.
+
+    Shifts `identity` to the unique identity given in
+    `uidentity`. The function returns whether the operation
+    was executed successfully.
+
+    When `uidentity` is the unique identity currently related
+    to `identity`, this operation does not have any effect and
+    `False` will be returned as result.
+
+    :param session: database session
+    :param identity: identity to be moved
+    :param uidentity: unique identity where `identity` will be moved
+
+    :return: `True` if the identity was moved; `False` in any other
+        case
+    """
+    if identity.uuid == uidentity.uuid:
+        return False
+
+    old_uidentity = identity.uidentity
+    identity.uidentity = uidentity
+
+    last_modified = datetime.datetime.utcnow()
+
+    old_uidentity.last_modified = last_modified
+    uidentity.last_modified = last_modified
+    identity.last_modified = last_modified
+
+    session.add(uidentity)
+    session.add(old_uidentity)
+
+    return True
