@@ -170,7 +170,7 @@ def delete_unique_identity(session, uidentity):
     also removed.
 
     :param session: database session
-    :param uidentity: unique identifier to remove
+    :param uidentity: unique identity to remove
     """
     session.delete(uidentity)
 
@@ -222,6 +222,22 @@ def add_identity(session, uidentity, identity_id, source,
     session.add(identity)
 
     return identity
+
+
+def delete_identity(session, identity):
+    """Remove an identity from the session.
+
+    This function removes from the session the identity given
+    in `identity`. Take into account this function does not
+    remove unique identities in the case they get empty.
+
+    :param session: database session
+    :param identity: identity to remove
+    """
+    uidentity = identity.uidentity
+    uidentity.last_modified = datetime.datetime.utcnow()
+
+    session.delete(identity)
 
 
 def add_organization(session, name):

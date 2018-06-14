@@ -533,6 +533,91 @@ class TestAddIdentity(TestDBAPICaseBase):
                                  name=None, email='', username=None)
 
 
+class TestDeleteIdentity(TestDBAPICaseBase):
+    """Unit tests for delete identity"""
+
+    def test_delete_identity(self):
+        """Check whether it deletes an identity"""
+
+        with self.db.connect() as session:
+            example_org = Organization(name='Example')
+            bitergia_org = Organization(name='Bitergia')
+            session.add(example_org)
+            session.add(bitergia_org)
+
+            jsmith = UniqueIdentity(uuid='AAAA')
+            jsmith.profile = Profile(name='John Smith', email='jsmith@example.net')
+            jsmith.identities.append(Identity(id='0001', name='John Smith', source='scm'))
+            jsmith.identities.append(Identity(id='0002', email='jsmith@example.net', source='mls'))
+            session.add(jsmith)
+
+            enrol = Enrollment(uidentity=jsmith, organization=example_org)
+            session.add(enrol)
+            enrol = Enrollment(uidentity=jsmith, organization=bitergia_org)
+            session.add(enrol)
+
+        with self.db.connect() as session:
+            # Check everything is in place and remove
+            jsmith = api.find_unique_identity(session, 'AAAA')
+            self.assertIsInstance(jsmith.profile, Profile)
+            self.assertEqual(len(jsmith.identities), 2)
+
+            enrollments = session.query(Enrollment). \
+                join(UniqueIdentity, Organization). \
+                filter(UniqueIdentity.uuid == 'AAAA'). \
+                order_by(Enrollment.start).all()
+            self.assertEqual(len(enrollments), 2)
+
+            identity = api.find_identity(session, '0001')
+            api.delete_identity(session, identity)
+
+        with self.db.connect() as session:
+            jsmith_id = api.find_identity(session, '0001')
+            self.assertEqual(jsmith_id, None)
+
+            jsmith = api.find_unique_identity(session, 'AAAA')
+            self.assertIsInstance(jsmith, UniqueIdentity)
+            self.assertIsInstance(jsmith.profile, Profile)
+            self.assertEqual(len(jsmith.identities), 1)
+
+            enrollments = session.query(Enrollment).\
+                join(UniqueIdentity, Organization).\
+                filter(UniqueIdentity.uuid == 'AAAA').\
+                order_by(Enrollment.start).all()
+            self.assertEqual(len(enrollments), 2)
+
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
+
+        uuid = 'AAAA'
+
+        with self.db.connect() as session:
+            jsmith = UniqueIdentity(uuid='AAAA')
+            jsmith.profile = Profile(name='John Smith', email='jsmith@example.net')
+            jsmith.identities.append(Identity(id='0001', name='John Smith', source='scm'))
+            jsmith.identities.append(Identity(id='0002', email='jsmith@example.net', source='mls'))
+            session.add(jsmith)
+
+        before_dt = datetime.datetime.utcnow()
+
+        with self.db.connect() as session:
+            identity = api.find_identity(session, '0001')
+            api.delete_identity(session, identity)
+
+        after_dt = datetime.datetime.utcnow()
+
+        with self.db.connect() as session:
+            uidentity = api.find_unique_identity(session, uuid)
+            self.assertIsInstance(uidentity.last_modified, datetime.datetime)
+            self.assertLessEqual(before_dt, uidentity.last_modified)
+            self.assertGreaterEqual(after_dt, uidentity.last_modified)
+
+            identity = api.find_identity(session, '0002')
+            self.assertIsInstance(identity.last_modified, datetime.datetime)
+            self.assertLessEqual(identity.last_modified, before_dt)
+            self.assertLessEqual(identity.last_modified, after_dt)
+
+
 class TestAddOrganization(TestDBAPICaseBase):
     """Unit tests for add_organization"""
 

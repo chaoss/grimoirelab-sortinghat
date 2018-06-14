@@ -33,6 +33,7 @@ from .db.api import (add_unique_identity as add_unique_identity_db,
                      edit_profile as edit_profile_db,
                      move_identity as move_identity_db,
                      delete_unique_identity as delete_unique_identity_db,
+                     delete_identity as delete_identity_db,
                      find_unique_identity,
                      find_identity,
                      find_organization,
@@ -409,11 +410,7 @@ def delete_identity(db, identity_id):
         if not identity:
             raise NotFoundError(entity=identity_id)
 
-        last_modified = datetime.datetime.utcnow()
-        identity.uidentity.last_modified = last_modified
-
-        session.delete(identity)
-
+        delete_identity_db(session, identity)
 
 def delete_organization(db, organization):
     """Remove an organization from the registry.
