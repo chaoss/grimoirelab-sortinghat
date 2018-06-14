@@ -34,6 +34,7 @@ from .db.api import (add_unique_identity as add_unique_identity_db,
                      move_identity as move_identity_db,
                      delete_unique_identity as delete_unique_identity_db,
                      delete_identity as delete_identity_db,
+                     delete_organization as delete_organization_db,
                      find_unique_identity,
                      find_identity,
                      find_organization,
@@ -412,6 +413,7 @@ def delete_identity(db, identity_id):
 
         delete_identity_db(session, identity)
 
+
 def delete_organization(db, organization):
     """Remove an organization from the registry.
 
@@ -433,7 +435,7 @@ def delete_organization(db, organization):
         if not org:
             raise NotFoundError(entity=organization)
 
-        session.delete(org)
+        delete_organization_db(session, org)
 
 
 def delete_domain(db, organization, domain):

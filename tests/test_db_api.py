@@ -653,6 +653,99 @@ class TestAddOrganization(TestDBAPICaseBase):
                 api.add_organization(session, '')
 
 
+class TestDeleteOrganization(TestDBAPICaseBase):
+    """Unit tests for delete_organization"""
+
+    def test_delete_organization(self):
+        """Check whether it deletes an organization and its related data"""
+
+        with self.db.connect() as session:
+            example_org = Organization(name='Example')
+            bitergia_org = Organization(name='Bitergia')
+            session.add(example_org)
+            session.add(bitergia_org)
+
+            jsmith = UniqueIdentity(uuid='AAAA')
+            jsmith.profile = Profile(name='John Smith', email='jsmith@example.net')
+
+            jdoe = UniqueIdentity(uuid='BBBB')
+            jdoe.profile = Profile(name='John Doe', email='jdoe@bitergia.com')
+
+            enrol = Enrollment(uidentity=jsmith, organization=example_org)
+            session.add(enrol)
+            enrol = Enrollment(uidentity=jdoe, organization=example_org)
+            session.add(enrol)
+            enrol = Enrollment(uidentity=jdoe, organization=bitergia_org)
+            session.add(enrol)
+
+        with self.db.connect() as session:
+            # Check everything is in place and remove
+            example_org = api.find_organization(session, 'Example')
+            self.assertEqual(len(example_org.enrollments), 2)
+
+            bitergia_org = api.find_organization(session, 'Bitergia')
+            self.assertEqual(len(bitergia_org.enrollments), 1)
+
+            api.delete_organization(session, example_org)
+
+        with self.db.connect() as session:
+            example_org = api.find_organization(session, 'Example')
+            self.assertEqual(example_org, None)
+
+            enrollments = session.query(Enrollment).\
+                join(Organization).\
+                filter(Organization.name == 'Example').\
+                order_by(Enrollment.start).all()
+            self.assertEqual(len(enrollments), 0)
+
+            enrollments = session.query(Enrollment).\
+                join(Organization).\
+                filter(Organization.name == 'Bitergia').\
+                order_by(Enrollment.start).all()
+            self.assertEqual(len(enrollments), 1)
+
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
+
+        with self.db.connect() as session:
+            example_org = Organization(name='Example')
+            bitergia_org = Organization(name='Bitergia')
+            session.add(example_org)
+            session.add(bitergia_org)
+
+            jsmith = UniqueIdentity(uuid='AAAA')
+            jsmith.profile = Profile(name='John Smith', email='jsmith@example.net')
+
+            jdoe = UniqueIdentity(uuid='BBBB')
+            jdoe.profile = Profile(name='John Doe', email='jdoe@bitergia.com')
+
+            enrol = Enrollment(uidentity=jsmith, organization=example_org)
+            session.add(enrol)
+            enrol = Enrollment(uidentity=jdoe, organization=example_org)
+            session.add(enrol)
+            enrol = Enrollment(uidentity=jdoe, organization=bitergia_org)
+            session.add(enrol)
+
+        before_dt = datetime.datetime.utcnow()
+
+        with self.db.connect() as session:
+            organization = api.find_organization(session, 'Example')
+            api.delete_organization(session, organization)
+
+        after_dt = datetime.datetime.utcnow()
+
+        with self.db.connect() as session:
+            jsmith = api.find_unique_identity(session, 'AAAA')
+            self.assertIsInstance(jsmith.last_modified, datetime.datetime)
+            self.assertLessEqual(before_dt, jsmith.last_modified)
+            self.assertGreaterEqual(after_dt, jsmith.last_modified)
+
+            jdoe = api.find_unique_identity(session, 'BBBB')
+            self.assertIsInstance(jdoe.last_modified, datetime.datetime)
+            self.assertLessEqual(before_dt, jdoe.last_modified)
+            self.assertGreaterEqual(after_dt, jdoe.last_modified)
+
+
 class TestAddDomain(TestDBAPICaseBase):
     """Unit tests for add_domain"""
 

@@ -268,6 +268,24 @@ def add_organization(session, name):
     return organization
 
 
+def delete_organization(session, organization):
+    """Remove an organization from the session.
+
+    Function that removes from the session the organization
+    given in `organization`. Data related such as domains
+    or enrollments are also removed.
+
+    :param session: database session
+    :param organization: organization to remove
+    """
+    last_modified = datetime.datetime.utcnow()
+
+    for enrollment in organization.enrollments:
+        enrollment.uidentity.last_modified = last_modified
+
+    session.delete(organization)
+
+
 def add_domain(session, organization, domain_name, is_top_domain=False):
     """Add a domain to the session.
 
