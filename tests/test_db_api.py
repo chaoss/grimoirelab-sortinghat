@@ -837,6 +837,38 @@ class TestAddDomain(TestDBAPICaseBase):
                 api.add_domain(session, org, 'example.net', is_top_domain='False')
 
 
+class TestDeleteDomain(TestDBAPICaseBase):
+    """Unit tests for delete_domain"""
+
+    def test_delete_domain(self):
+        """Check whether it deletes a domain"""
+
+        with self.db.connect() as session:
+            example_org = Organization(name='Example')
+            example_org.domains.append(Domain(domain='example.org'))
+            example_org.domains.append(Domain(domain='example.com'))
+
+            session.add(example_org)
+
+        with self.db.connect() as session:
+            # Check everything is in place and remove
+            example_org = api.find_organization(session, 'Example')
+            self.assertEqual(len(example_org.domains), 2)
+
+            domain = api.find_domain(session, 'example.org')
+            api.delete_domain(session, domain)
+
+        with self.db.connect() as session:
+            domain = api.find_domain(session, 'example.org')
+            self.assertEqual(domain, None)
+
+            domain = api.find_domain(session, 'example.com')
+            self.assertEqual(domain.domain, 'example.com')
+
+            example_org = api.find_organization(session, 'Example')
+            self.assertEqual(len(example_org.domains), 1)
+
+
 class TestEnroll(TestDBAPICaseBase):
     """Unit tests for enroll"""
 

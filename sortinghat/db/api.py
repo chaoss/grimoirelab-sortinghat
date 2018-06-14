@@ -323,6 +323,17 @@ def add_domain(session, organization, domain_name, is_top_domain=False):
     return dom
 
 
+def delete_domain(session, domain):
+    """Remove a domain from the session.
+
+    Deletes from the session the domain given in `domain`.
+
+    :param session: database session
+    :param domain: domain to remove
+    """
+    session.delete(domain)
+
+
 def enroll(session, uidentity, organization,
            from_date=MIN_PERIOD_DATE, to_date=MAX_PERIOD_DATE):
     """Enroll a unique identity to an organization.

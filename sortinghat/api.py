@@ -35,6 +35,7 @@ from .db.api import (add_unique_identity as add_unique_identity_db,
                      delete_unique_identity as delete_unique_identity_db,
                      delete_identity as delete_identity_db,
                      delete_organization as delete_organization_db,
+                     delete_domain as delete_domain_db,
                      find_unique_identity,
                      find_identity,
                      find_organization,
@@ -218,12 +219,10 @@ def add_domain(db, organization, domain, is_top_domain=False, overwrite=False):
         if dom and not overwrite:
             raise AlreadyExistsError(entity=dom)
         elif dom:
-            dom.organization = org
-            dom.is_top_domain = is_top_domain
-            session.add(dom)
-        else:
-            add_domain_db(session, org, domain,
-                          is_top_domain=is_top_domain)
+            delete_domain_db(session, dom)
+
+        add_domain_db(session, org, domain,
+                      is_top_domain=is_top_domain)
 
 
 def add_enrollment(db, uuid, organization, from_date=None, to_date=None):
@@ -465,7 +464,7 @@ def delete_domain(db, organization, domain):
         if not dom:
             raise NotFoundError(entity=domain)
 
-        session.delete(dom)
+        delete_domain_db(session, dom)
 
 
 def delete_enrollment(db, uuid, organization, from_date=None, to_date=None):
