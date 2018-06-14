@@ -1082,6 +1082,241 @@ class TestEnroll(TestDBAPICaseBase):
                            to_date=datetime.datetime(1899, 12, 31, 23, 59, 59))
 
 
+class TestWithdraw(TestDBAPICaseBase):
+    """Unit tests for withdraw"""
+
+    def test_delete_enrollments(self):
+        """Check whether it deletes a set of enrollments"""
+
+        with self.db.connect() as session:
+            jsmith = api.add_unique_identity(session, 'AAAA')
+            jdoe = api.add_unique_identity(session, 'BBBB')
+            jrae = api.add_unique_identity(session, 'CCCC')
+
+            example_org = api.add_organization(session, 'Example')
+            api.enroll(session, jsmith, example_org)
+            api.enroll(session, jdoe, example_org)
+
+            bitergia_org = api.add_organization(session, 'Bitergia')
+            api.enroll(session, jsmith, bitergia_org)
+            api.enroll(session, jsmith, bitergia_org,
+                       from_date=datetime.datetime(1999, 1, 1),
+                       to_date=datetime.datetime(2000, 1, 1))
+
+            libresoft_org = api.add_organization(session, 'LibreSoft')
+            api.enroll(session, jdoe, libresoft_org)
+            api.enroll(session, jrae, libresoft_org)
+
+        # Delete some enrollments
+        with self.db.connect() as session:
+            jdoe = api.find_unique_identity(session, 'BBBB')
+            example_org = api.find_organization(session, 'Example')
+            libresoft_org = api.find_organization(session, 'Libresoft')
+
+            deleted = api.withdraw(session, jdoe, libresoft_org)
+            self.assertEqual(deleted, 1)
+
+            deleted = api.withdraw(session, jdoe, example_org)
+            self.assertEqual(deleted, 1)
+
+        # Check results
+        with self.db.connect() as session:
+            enrollments = session.query(Enrollment).\
+                join(Organization).\
+                filter(Organization.name == 'LibreSoft').all()
+            self.assertEqual(len(enrollments), 1)
+            self.assertEqual(enrollments[0].uidentity.uuid, 'CCCC')
+
+            enrollments = session.query(Enrollment).\
+                join(Organization).\
+                filter(Organization.name == 'Example').all()
+            self.assertEqual(len(enrollments), 1)
+            self.assertEqual(enrollments[0].uidentity.uuid, 'AAAA')
+
+        # Delete enrollments from Bitergia
+        with self.db.connect() as session:
+            jsmith = api.find_unique_identity(session, 'AAAA')
+            bitergia_org = api.find_organization(session, 'Bitergia')
+
+            deleted = api.withdraw(session, jsmith, bitergia_org)
+            self.assertEqual(deleted, 2)
+
+        with self.db.connect() as session:
+            enrollments = session.query(Enrollment).\
+                join(Organization).\
+                filter(Organization.name == 'Bitergia').all()
+            self.assertEqual(len(enrollments), 0)
+
+    def test_delete_with_period_ranges(self):
+        """Check whether it deletes a set of enrollments using some periods"""
+
+        with self.db.connect() as session:
+            jsmith = api.add_unique_identity(session, 'AAAA')
+            example_org = api.add_organization(session, 'Example')
+            api.enroll(session, jsmith, example_org)
+            api.enroll(session, jsmith, example_org,
+                       from_date=datetime.datetime(1999, 1, 1),
+                       to_date=datetime.datetime(2010, 1, 1))
+            api.enroll(session, jsmith, example_org,
+                       from_date=datetime.datetime(1981, 1, 1),
+                       to_date=datetime.datetime(1990, 1, 1))
+            api.enroll(session, jsmith, example_org,
+                       from_date=datetime.datetime(1991, 1, 1),
+                       to_date=datetime.datetime(1993, 1, 1))
+
+        with self.db.connect() as session:
+            jsmith = api.find_unique_identity(session, 'AAAA')
+            example_org = api.find_organization(session, 'Example')
+
+            # This should delete two enrollments: 1981-1990 and 1991-1993
+            # but not the one from 1999-2010 nor 1900-2100
+            deleted = api.withdraw(session, jsmith, example_org,
+                                   from_date=datetime.datetime(1980, 1, 1),
+                                   to_date=datetime.datetime(1995, 1, 1))
+            self.assertEqual(deleted, 2)
+
+        with self.db.connect() as session:
+            enrollments = session.query(Enrollment).\
+                join(Organization).\
+                filter(Organization.name == 'Example').\
+                order_by(Enrollment.start).all()
+            self.assertEqual(len(enrollments), 2)
+
+            self.assertEqual(enrollments[0].start, datetime.datetime(1900, 1, 1))
+            self.assertEqual(enrollments[0].end, datetime.datetime(2100, 1, 1))
+
+            self.assertEqual(enrollments[1].start, datetime.datetime(1999, 1, 1))
+            self.assertEqual(enrollments[1].end, datetime.datetime(2010, 1, 1))
+
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
+
+        uuid = '1234567890ABCDFE'
+
+        with self.db.connect() as session:
+            uidentity = api.add_unique_identity(session, uuid)
+            org = api.add_organization(session, 'Example')
+            api.enroll(session, uidentity, org)
+
+        before_dt = datetime.datetime.utcnow()
+
+        with self.db.connect() as session:
+            uidentity = api.find_unique_identity(session, uuid)
+            org = api.find_organization(session, 'Example')
+            api.withdraw(session, uidentity, org)
+
+        after_dt = datetime.datetime.utcnow()
+
+        with self.db.connect() as session:
+            uidentity = api.find_unique_identity(session, uuid)
+            self.assertIsInstance(uidentity.last_modified, datetime.datetime)
+            self.assertLessEqual(before_dt, uidentity.last_modified)
+            self.assertGreaterEqual(after_dt, uidentity.last_modified)
+
+    def test_from_date_none(self):
+        """Check if an enrollment cannot be withdrawn when from_date is None"""
+
+        with self.db.connect() as session:
+            uidentity = api.add_unique_identity(session, '1234567890ABCDFE')
+            org = api.add_organization(session, 'Example')
+            api.enroll(session, uidentity, org,
+                       from_date=datetime.datetime(1999, 1, 1),
+                       to_date=datetime.datetime(2000, 1, 1))
+
+        with self.db.connect() as session:
+            uidentity = api.find_unique_identity(session, '1234567890ABCDFE')
+            org = api.find_organization(session, 'Example')
+
+            with self.assertRaisesRegex(ValueError, FROM_DATE_NONE_ERROR):
+                api.withdraw(session, uidentity, org,
+                             from_date=None,
+                             to_date=datetime.datetime(1999, 1, 1))
+
+    def test_to_date_none(self):
+        """Check if an enrollment cannot be withdrawn when to_date is None"""
+
+        with self.db.connect() as session:
+            uidentity = api.add_unique_identity(session, '1234567890ABCDFE')
+            org = api.add_organization(session, 'Example')
+            api.enroll(session, uidentity, org,
+                       from_date=datetime.datetime(1999, 1, 1),
+                       to_date=datetime.datetime(2000, 1, 1))
+
+        with self.db.connect() as session:
+            uidentity = api.find_unique_identity(session, '1234567890ABCDFE')
+            org = api.find_organization(session, 'Example')
+
+            with self.assertRaisesRegex(ValueError, TO_DATE_NONE_ERROR):
+                api.withdraw(session, uidentity, org,
+                             from_date=datetime.datetime(2001, 1, 1),
+                             to_date=None)
+
+    def test_period_invalid(self):
+        """Check whether enrollments cannot be removed giving invalid period ranges"""
+
+        with self.db.connect() as session:
+            uidentity = api.add_unique_identity(session, '1234567890ABCDFE')
+            org = api.add_organization(session, 'Example')
+            api.enroll(session, uidentity, org,
+                       from_date=datetime.datetime(1999, 1, 1),
+                       to_date=datetime.datetime(2000, 1, 1))
+
+        with self.db.connect() as session:
+            uidentity = api.find_unique_identity(session, '1234567890ABCDFE')
+            org = api.find_organization(session, 'Example')
+
+            data = {
+                'from_date': '2001-01-01 00:00:00',
+                'to_date': '1999-01-01 00:00:00'
+            }
+            msg = PERIOD_INVALID_ERROR % data
+
+            with self.assertRaisesRegex(ValueError, msg):
+                api.withdraw(session, uidentity, org,
+                             from_date=datetime.datetime(2001, 1, 1),
+                             to_date=datetime.datetime(1999, 1, 1))
+
+            data = {
+                'type': 'from_date',
+                'date': '1899-12-31 23:59:59'
+            }
+            msg = PERIOD_OUT_OF_BOUNDS_ERROR % data
+
+            with self.assertRaisesRegex(ValueError, msg):
+                api.withdraw(session, uidentity, org,
+                             from_date=datetime.datetime(1899, 12, 31, 23, 59, 59))
+
+            data = {
+                'type': 'from_date',
+                'date': '2100-01-01 00:00:01'
+            }
+            msg = PERIOD_OUT_OF_BOUNDS_ERROR % data
+
+            with self.assertRaisesRegex(ValueError, msg):
+                api.withdraw(session, uidentity, org,
+                             from_date=datetime.datetime(2100, 1, 1, 0, 0, 1))
+
+            data = {
+                'type': 'to_date',
+                'date': '2100-01-01 00:00:01'
+            }
+            msg = PERIOD_OUT_OF_BOUNDS_ERROR % data
+
+            with self.assertRaisesRegex(ValueError, msg):
+                api.withdraw(session, uidentity, org,
+                             to_date=datetime.datetime(2100, 1, 1, 0, 0, 1))
+
+            data = {
+                'type': 'to_date',
+                'date': '1899-12-31 23:59:59'
+            }
+            msg = PERIOD_OUT_OF_BOUNDS_ERROR % data
+
+            with self.assertRaisesRegex(ValueError, msg):
+                api.withdraw(session, uidentity, org,
+                             to_date=datetime.datetime(1899, 12, 31, 23, 59, 59))
+
+
 class TestEditProfile(TestDBAPICaseBase):
     """Unit tests for edit_profile"""
 

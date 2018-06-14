@@ -36,6 +36,7 @@ from .db.api import (add_unique_identity as add_unique_identity_db,
                      delete_identity as delete_identity_db,
                      delete_organization as delete_organization_db,
                      delete_domain as delete_domain_db,
+                     withdraw as withdraw_db,
                      find_unique_identity,
                      find_identity,
                      find_organization,
@@ -488,22 +489,23 @@ def delete_enrollment(db, uuid, organization, from_date=None, to_date=None):
 
     :raises NotFoundError: when either 'uuid' or 'organization' are not
         found in the registry.
-    :raises ValeError: it is raised in two cases, when "from_date" < 1900-01-01 or
-        "to_date" > 2100-01-01; when "from_date > to_date".
+    :raises ValeError: raised in three cases, when either identity or
+        organization are None or empty strings; when "from_date" < 1900-01-01 or
+        "to_date" > 2100-01-01; when "from_date > to_date"
     """
+    if uuid is None:
+        raise WrappedValueError('uuid cannot be None')
+    if uuid == '':
+        raise WrappedValueError('uuid cannot be an empty string')
+    if organization is None:
+        raise WrappedValueError('organization cannot be None')
+    if organization == '':
+        raise WrappedValueError('organization cannot be an empty string')
+
     if not from_date:
         from_date = MIN_PERIOD_DATE
     if not to_date:
         to_date = MAX_PERIOD_DATE
-
-    if from_date < MIN_PERIOD_DATE or from_date > MAX_PERIOD_DATE:
-        raise WrappedValueError("'start date' %s is out of bounds" % str(from_date))
-    if to_date < MIN_PERIOD_DATE or to_date > MAX_PERIOD_DATE:
-        raise WrappedValueError("'end date' %s is out of bounds" % str(to_date))
-
-    if from_date > to_date:
-        raise WrappedValueError("'start date' %s cannot be greater than %s"
-                         % (from_date, to_date))
 
     with db.connect() as session:
         uidentity = find_unique_identity(session, uuid)
@@ -516,22 +518,14 @@ def delete_enrollment(db, uuid, organization, from_date=None, to_date=None):
         if not org:
             raise NotFoundError(entity=organization)
 
-        enrollments = session.query(Enrollment). \
-            filter(Enrollment.uidentity == uidentity,
-                   Enrollment.organization == org,
-                   from_date <= Enrollment.start,
-                   Enrollment.end <= to_date).all()
+        deleted = withdraw_db(session, uidentity, org,
+                              from_date=from_date,
+                              to_date=to_date)
 
-        if not enrollments:
+        if deleted == 0:
             entity = '-'.join((uuid, organization,
                               str(from_date), str(to_date)))
             raise NotFoundError(entity=entity)
-
-        for enr in enrollments:
-            session.delete(enr)
-
-        last_modified = datetime.datetime.utcnow()
-        uidentity.last_modified = last_modified
 
 
 def delete_from_matching_blacklist(db, entity):

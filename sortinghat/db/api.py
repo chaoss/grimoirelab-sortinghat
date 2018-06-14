@@ -384,6 +384,62 @@ def enroll(session, uidentity, organization,
     return enrollment
 
 
+def withdraw(session, uidentity, organization,
+             from_date=MIN_PERIOD_DATE, to_date=MAX_PERIOD_DATE):
+    """Withdraw a unique identity from an organization.
+
+    Removes all the enrollments between the unique identity in
+    `uidentity` and the given 'organization'.
+
+    When a period of time is given using `from_date` and `to_date`
+    parameters, the function will remove those periods on which
+    `from_date` <= enrollment <= `to_date`. Default values for
+    these dates are `MIN_PERIOD_DATE` and `MAX_PERIOD_DATE`.
+    These dates cannot be `None`.
+
+    :param session: database session
+    :param uidentity: unique identity to withdraw
+    :param organization: organization where the unique identity is withdrawn
+    :param from_date: date when the enrollment starts
+    :param to_date: date when the enrollment ends
+
+    :return: number of removed enrollments
+
+    :raises ValeError: when either `from_date` or `to_date` are `None`;
+        when `from_date < MIN_PERIOD_DATE`; or `to_date > MAX_PERIOD_DATE`
+        or `from_date > to_date`.
+    """
+    if not from_date:
+        raise ValueError("'from_date' cannot be None")
+    if not to_date:
+        raise ValueError("'to_date' cannot be None")
+
+    if from_date < MIN_PERIOD_DATE or from_date > MAX_PERIOD_DATE:
+        raise ValueError("'from_date' %s is out of bounds" % str(from_date))
+    if to_date < MIN_PERIOD_DATE or to_date > MAX_PERIOD_DATE:
+        raise ValueError("'to_date' %s is out of bounds" % str(to_date))
+    if from_date > to_date:
+        raise ValueError("'from_date' %s cannot be greater than %s"
+                         % (from_date, to_date))
+
+    enrollments = session.query(Enrollment).\
+        filter(Enrollment.uidentity == uidentity,
+               Enrollment.organization == organization,
+               from_date <= Enrollment.start,
+               Enrollment.end <= to_date).all()
+
+    ndeleted = 0
+
+    for enrollment in enrollments:
+        session.delete(enrollment)
+        ndeleted += 1
+
+    if ndeleted > 0:
+        uidentity.last_modified = datetime.datetime.utcnow()
+
+    return ndeleted
+
+
 def edit_profile(session, uidentity, **kwargs):
     """Edit unique identity profile.
 
