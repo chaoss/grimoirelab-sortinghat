@@ -173,6 +173,7 @@ def delete_unique_identity(session, uidentity):
     :param uidentity: unique identity to remove
     """
     session.delete(uidentity)
+    session.flush()
 
 
 def add_identity(session, uidentity, identity_id, source,
@@ -238,6 +239,7 @@ def delete_identity(session, identity):
     uidentity.last_modified = datetime.datetime.utcnow()
 
     session.delete(identity)
+    session.flush()
 
 
 def add_organization(session, name):
@@ -284,6 +286,7 @@ def delete_organization(session, organization):
         enrollment.uidentity.last_modified = last_modified
 
     session.delete(organization)
+    session.flush()
 
 
 def add_domain(session, organization, domain_name, is_top_domain=False):
@@ -332,6 +335,7 @@ def delete_domain(session, domain):
     :param domain: domain to remove
     """
     session.delete(domain)
+    session.flush()
 
 
 def enroll(session, uidentity, organization,
@@ -436,6 +440,7 @@ def withdraw(session, uidentity, organization,
 
     if ndeleted > 0:
         uidentity.last_modified = datetime.datetime.utcnow()
+        session.flush()
 
     return ndeleted
 
