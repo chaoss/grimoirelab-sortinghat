@@ -32,6 +32,7 @@ from .db.api import (add_unique_identity as add_unique_identity_db,
                      enroll as enroll_db,
                      edit_profile as edit_profile_db,
                      move_identity as move_identity_db,
+                     move_enrollment as move_enrollment_db,
                      delete_unique_identity as delete_unique_identity_db,
                      delete_identity as delete_identity_db,
                      delete_organization as delete_organization_db,
@@ -613,18 +614,12 @@ def merge_unique_identities(db, from_uuid, to_uuid):
                 profile_data['is_bot'] = True
 
             edit_profile_db(session, tuid, **profile_data)
-        elif not tuid.profile and fuid.profile:
-            # Swap profiles
-            fuid.profile.uuid = to_uuid
-
-        last_modified = datetime.datetime.utcnow()
-        tuid.last_modified = last_modified
 
         # Update identities
         for identity in fuid.identities:
             move_identity_db(session, identity, tuid)
 
-        # Update and remove duplicated enrollments
+        # Move those enrollments that to_uid does not have
         for rol in fuid.enrollments:
             enrollment = session.query(Enrollment).\
                 filter(Enrollment.uidentity == tuid,
@@ -632,17 +627,15 @@ def merge_unique_identities(db, from_uuid, to_uuid):
                        Enrollment.start == rol.start,
                        Enrollment.end == rol.end).first()
 
-            if enrollment:
-                session.delete(rol)
-            else:
-                rol.uuid = to_uuid
+            if not enrollment:
+                move_enrollment_db(session, rol, tuid)
 
         # For some reason, uuid are not updated until changes are
         # committed (flush does nothing). Force to commit changes
         # to avoid deletion of identities when removing 'fuid'
         session.commit()
 
-        session.delete(fuid)
+        delete_unique_identity_db(session, fuid)
 
         # Retrieve of organizations to merge the enrollments,
         # before closing the session

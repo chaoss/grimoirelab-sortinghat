@@ -1595,5 +1595,96 @@ class TestMoveIdentity(TestDBAPICaseBase):
             self.assertEqual(identity.uuid, 'AAAA')
 
 
+class TestMoveEnrollment(TestDBAPICaseBase):
+    """Unit tests for move_enrollment"""
+
+    def test_move_enrollment(self):
+        """Test if an enrollment is moved to a unique identity"""
+
+        with self.db.connect() as session:
+            uidentity = api.add_unique_identity(session, 'AAAA')
+            api.add_unique_identity(session, 'BBBB')
+
+            org = api.add_organization(session, 'Example')
+            api.enroll(session, uidentity, org)
+
+        with self.db.connect() as session:
+            uidentity = api.find_unique_identity(session, 'BBBB')
+
+            enrollment = session.query(Enrollment).\
+                filter(Enrollment.uuid == 'AAAA').first()
+
+            result = api.move_enrollment(session, enrollment, uidentity)
+            self.assertEqual(result, True)
+
+        with self.db.connect() as session:
+            enrollments = session.query(Enrollment).\
+                join(UniqueIdentity).\
+                filter(UniqueIdentity.uuid == 'AAAA').all()
+            self.assertEqual(len(enrollments), 0)
+
+            enrollments = session.query(Enrollment). \
+                join(UniqueIdentity). \
+                filter(UniqueIdentity.uuid == 'BBBB').all()
+            self.assertEqual(len(enrollments), 1)
+
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
+
+        with self.db.connect() as session:
+            uidentity = api.add_unique_identity(session, 'AAAA')
+            api.add_unique_identity(session, 'BBBB')
+
+            org = api.add_organization(session, 'Example')
+            api.enroll(session, uidentity, org)
+
+        before_dt = datetime.datetime.utcnow()
+
+        with self.db.connect() as session:
+            uidentity = api.find_unique_identity(session, 'BBBB')
+
+            enrollment = session.query(Enrollment).\
+                filter(Enrollment.uuid == 'AAAA').first()
+
+            api.move_enrollment(session, enrollment, uidentity)
+
+        after_dt = datetime.datetime.utcnow()
+
+        with self.db.connect() as session:
+            uidentity1 = api.find_unique_identity(session, 'AAAA')
+            uidentity2 = api.find_unique_identity(session, 'BBBB')
+
+            self.assertIsInstance(uidentity1.last_modified, datetime.datetime)
+            self.assertLessEqual(before_dt, uidentity1.last_modified)
+            self.assertGreaterEqual(after_dt, uidentity1.last_modified)
+
+            self.assertIsInstance(uidentity2.last_modified, datetime.datetime)
+            self.assertLessEqual(before_dt, uidentity2.last_modified)
+            self.assertGreaterEqual(after_dt, uidentity2.last_modified)
+
+    def test_equal_related_unique_identity(self):
+        """Test that all remains the same when uidentity is already related to the enrollment'"""
+
+        with self.db.connect() as session:
+            uidentity = api.add_unique_identity(session, 'AAAA')
+            org = api.add_organization(session, 'Example')
+            api.enroll(session, uidentity, org)
+
+        with self.db.connect() as session:
+            uidentity = api.find_unique_identity(session, 'AAAA')
+
+            enrollment = session.query(Enrollment).\
+                filter(Enrollment.uuid == 'AAAA').first()
+
+            result = api.move_enrollment(session, enrollment, uidentity)
+
+            self.assertEqual(result, False)
+
+        with self.db.connect() as session:
+            enrollments = session.query(Enrollment).\
+                filter(Enrollment.uuid == 'AAAA').all()
+            self.assertEqual(len(enrollments), 1)
+
+
 if __name__ == "__main__":
     unittest.main()

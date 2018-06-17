@@ -565,3 +565,38 @@ def move_identity(session, identity, uidentity):
     session.add(old_uidentity)
 
     return True
+
+
+def move_enrollment(session, enrollment, uidentity):
+    """Move an enrollment to a unique identity.
+
+    Shifts `enrollment` to the unique identity given in
+    `uidentity`. The function returns whether the operation
+    was executed successfully.
+
+    When `uidentity` is the unique identity currently related
+    to `enrollment`, this operation does not have any effect and
+    `False` will be returned as result.
+
+    :param session: database session
+    :param enrollment: enrollment to be moved
+    :param uidentity: unique identity where `enrollment` will be moved
+
+    :return: `True` if the enrollment was moved; `False` in any other
+        case
+    """
+    if enrollment.uuid == uidentity.uuid:
+        return False
+
+    old_uidentity = enrollment.uidentity
+    enrollment.uidentity = uidentity
+
+    last_modified = datetime.datetime.utcnow()
+
+    old_uidentity.last_modified = last_modified
+    uidentity.last_modified = last_modified
+
+    session.add(uidentity)
+    session.add(old_uidentity)
+
+    return True
