@@ -445,6 +445,21 @@ def withdraw(session, uidentity, organization,
     return ndeleted
 
 
+def delete_enrollment(session, enrollment):
+    """Remove an enrollment from the session.
+
+    This function removes from the session the given enrollment.
+
+    :param session: database session
+    :param enrollment: enrollment to remove
+    """
+    uidentity = enrollment.uidentity
+    uidentity.last_modified = datetime.datetime.utcnow()
+
+    session.delete(enrollment)
+    session.flush()
+
+
 def edit_profile(session, uidentity, **kwargs):
     """Edit unique identity profile.
 

@@ -1317,6 +1317,72 @@ class TestWithdraw(TestDBAPICaseBase):
                              to_date=datetime.datetime(1899, 12, 31, 23, 59, 59))
 
 
+class TestDeleteEnrollment(TestDBAPICaseBase):
+    """Unit tests for delete_enrollment"""
+
+    def test_delete_enrollment(self):
+        """Check whether it deletes an enrollment"""
+
+        uuid = '1234567890ABCDFE'
+        from_date = datetime.datetime(1999, 1, 1)
+        to_date = datetime.datetime(2000, 1, 1)
+
+        with self.db.connect() as session:
+            jsmith = api.add_unique_identity(session, uuid)
+            example_org = api.add_organization(session, 'Example')
+            api.enroll(session, jsmith, example_org)
+            api.enroll(session, jsmith, example_org,
+                       from_date=from_date,
+                       to_date=to_date)
+
+        with self.db.connect() as session:
+            enrollment = session.query(Enrollment).\
+                join(Organization, UniqueIdentity).\
+                filter(Organization.name == 'Example',
+                       UniqueIdentity.uuid == uuid,
+                       Enrollment.start == from_date,
+                       Enrollment.end == to_date).first()
+
+            api.delete_enrollment(session, enrollment)
+
+        # Check results
+        with self.db.connect() as session:
+            enrollments = session.query(Enrollment).\
+                join(Organization, UniqueIdentity).\
+                filter(Organization.name == 'Example',
+                       UniqueIdentity.uuid == uuid).all()
+            self.assertEqual(len(enrollments), 1)
+            self.assertEqual(enrollments[0].start, MIN_PERIOD_DATE)
+            self.assertEqual(enrollments[0].end, MAX_PERIOD_DATE)
+
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
+
+        uuid = '1234567890ABCDFE'
+
+        with self.db.connect() as session:
+            uidentity = api.add_unique_identity(session, uuid)
+            org = api.add_organization(session, 'Example')
+            api.enroll(session, uidentity, org)
+
+        before_dt = datetime.datetime.utcnow()
+
+        with self.db.connect() as session:
+            enrollment = session.query(Enrollment).\
+                join(Organization, UniqueIdentity).\
+                filter(Organization.name == 'Example',
+                       UniqueIdentity.uuid == uuid).first()
+            api.delete_enrollment(session, enrollment)
+
+        after_dt = datetime.datetime.utcnow()
+
+        with self.db.connect() as session:
+            uidentity = api.find_unique_identity(session, uuid)
+            self.assertIsInstance(uidentity.last_modified, datetime.datetime)
+            self.assertLessEqual(before_dt, uidentity.last_modified)
+            self.assertGreaterEqual(after_dt, uidentity.last_modified)
+
+
 class TestEditProfile(TestDBAPICaseBase):
     """Unit tests for edit_profile"""
 

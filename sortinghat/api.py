@@ -37,6 +37,7 @@ from .db.api import (add_unique_identity as add_unique_identity_db,
                      delete_identity as delete_identity_db,
                      delete_organization as delete_organization_db,
                      delete_domain as delete_domain_db,
+                     delete_enrollment as delete_enrollment_db,
                      withdraw as withdraw_db,
                      find_unique_identity,
                      find_identity,
@@ -718,10 +719,7 @@ def merge_enrollments(db, uuid, organization):
 
         # Remove disjoint enrollments from the registry
         for enr in disjoint:
-            session.delete(enr)
-
-        last_modified = datetime.datetime.utcnow()
-        uidentity.last_modified = last_modified
+            delete_enrollment_db(session, enr)
 
 
 def move_identity(db, from_id, to_uuid):
