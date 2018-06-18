@@ -3507,27 +3507,27 @@ class TestEnrollments(TestAPICaseBase):
                                 datetime.datetime(2001, 1, 1),
                                 datetime.datetime(1999, 1, 1))
 
-        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'start date',
-                                                       'date' : '1899-12-31 23:59:59'}
+        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type': 'from_date',
+                                                       'date': '1899-12-31 23:59:59'}
         self.assertRaisesRegexp(ValueError, exc,
                                 api.enrollments, self.db, 'John Smith', 'Example',
                                 datetime.datetime(1899, 12, 31, 23, 59, 59))
 
-        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'start date',
-                                                       'date' : '2100-01-01 00:00:01'}
+        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type': 'from_date',
+                                                       'date': '2100-01-01 00:00:01'}
         self.assertRaisesRegexp(ValueError, exc,
                                 api.enrollments, self.db, 'John Smith', 'Example',
                                 datetime.datetime(2100, 1, 1, 0, 0, 1))
 
-        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'end date',
-                                                       'date' : '2100-01-01 00:00:01'}
+        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type': 'to_date',
+                                                       'date': '2100-01-01 00:00:01'}
         self.assertRaisesRegexp(ValueError, exc,
                                 api.enrollments, self.db, 'John Smith', 'Example',
                                 datetime.datetime(1900, 1, 1),
                                 datetime.datetime(2100, 1, 1, 0, 0, 1))
 
-        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'end date',
-                                                       'date' : '1899-12-31 23:59:59'}
+        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type': 'to_date',
+                                                       'date': '1899-12-31 23:59:59'}
         self.assertRaisesRegexp(ValueError, exc,
                                 api.enrollments, self.db, 'John Smith', 'Example',
                                 datetime.datetime(1900, 1, 1),

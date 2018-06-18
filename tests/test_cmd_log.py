@@ -40,7 +40,7 @@ from tests.base import TestCommandCaseBase
 
 LOG_UUID_NOT_FOUND_ERROR = "Error: Jane Roe not found in the registry"
 LOG_ORG_NOT_FOUND_ERROR = "Error: LibreSoft not found in the registry"
-LOG_INVALID_PERIOD_ERROR = "Error: start date 2001-01-01 00:00:00 cannot be greater than 1999-01-01 00:00:00"
+LOG_INVALID_PERIOD_ERROR = "Error: 'from_date' 2001-01-01 00:00:00 cannot be greater than 1999-01-01 00:00:00"
 LOG_INVALID_DATE_ERROR = "Error: 1999-13-01 is not a valid date"
 LOG_INVALID_FORMAT_DATE_ERROR = "Error: YYZYY is not a valid date"
 
