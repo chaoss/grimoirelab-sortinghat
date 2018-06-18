@@ -1786,5 +1786,25 @@ class TestAddToMatchingBlacklist(TestDBAPICaseBase):
                 api.add_to_matching_blacklist(session, '')
 
 
+class TestDeleteFromMatchingBlacklist(TestDBAPICaseBase):
+    """Unit tests for delete_from_matching_blacklist"""
+
+    def test_delete_term(self):
+        """Check whether it deletes a term"""
+
+        with self.db.connect() as session:
+            api.add_to_matching_blacklist(session, 'root@example.com')
+
+        with self.db.connect() as session:
+            mb = session.query(MatchingBlacklist). \
+                filter(MatchingBlacklist.excluded == 'root@example.com').first()
+            api.delete_from_matching_blacklist(session, mb)
+
+        with self.db.connect() as session:
+            mb = session.query(MatchingBlacklist).\
+                filter(MatchingBlacklist.excluded == 'root@example.com').first()
+            self.assertEqual(mb, None)
+
+
 if __name__ == "__main__":
     unittest.main()

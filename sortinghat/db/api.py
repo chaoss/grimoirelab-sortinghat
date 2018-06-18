@@ -641,3 +641,16 @@ def add_to_matching_blacklist(session, term):
     session.add(mb)
 
     return mb
+
+
+def delete_from_matching_blacklist(session, entry):
+    """Remove a blacklisted entry from the registry.
+
+    This function removes the given blacklisted term from
+    the registry.
+
+    :param session: database session
+    :param entry: blacklisted entry to remove
+    """
+    session.delete(entry)
+    session.flush()

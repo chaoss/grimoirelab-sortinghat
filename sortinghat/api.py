@@ -39,6 +39,7 @@ from .db.api import (add_unique_identity as add_unique_identity_db,
                      delete_organization as delete_organization_db,
                      delete_domain as delete_domain_db,
                      delete_enrollment as delete_enrollment_db,
+                     delete_from_matching_blacklist as delete_from_matching_blacklist_db,
                      withdraw as withdraw_db,
                      find_unique_identity,
                      find_identity,
@@ -573,7 +574,7 @@ def delete_from_matching_blacklist(db, entity):
         if not mb:
             raise NotFoundError(entity=entity)
 
-        session.delete(mb)
+        delete_from_matching_blacklist_db(session, mb)
 
 
 def merge_unique_identities(db, from_uuid, to_uuid):
