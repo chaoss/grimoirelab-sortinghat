@@ -29,7 +29,8 @@ from .model import (MAX_PERIOD_DATE,
                     Organization,
                     Domain,
                     Enrollment,
-                    Country)
+                    Country,
+                    MatchingBlacklist)
 
 
 def find_unique_identity(session, uuid):
@@ -615,3 +616,28 @@ def move_enrollment(session, enrollment, uidentity):
     session.add(old_uidentity)
 
     return True
+
+
+def add_to_matching_blacklist(session, term):
+    """Add term to the matching blacklist.
+
+    This function adds a `term` to the matching blacklist.
+    The term to add cannot have a `None` or empty value,
+    on this case an `ValueError` will be raised.
+
+    :param session: database session
+    :param term: term, word or value to blacklist
+
+    :return: a new entry in the blacklist
+
+    :raises ValueError: raised when `term` is `None` or an empty string
+    """
+    if term is None:
+        raise ValueError("'term' to blacklist cannot be None")
+    if term == '':
+        raise ValueError("'term' to blacklist cannot be an empty string")
+
+    mb = MatchingBlacklist(excluded=term)
+    session.add(mb)
+
+    return mb

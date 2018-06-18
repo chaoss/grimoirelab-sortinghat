@@ -31,7 +31,8 @@ from sortinghat.db.model import (MAX_PERIOD_DATE,
                                  Organization,
                                  Domain,
                                  Enrollment,
-                                 Country)
+                                 Country,
+                                 MatchingBlacklist)
 
 from tests.base import TestDatabaseCaseBase
 
@@ -57,6 +58,8 @@ COUNTRY_CODE_ERROR = "'country_code' \(%(code)s\) does not match with a valid co
 GENDER_ACC_INVALID_ERROR = "'gender_acc' can only be set when 'gender' is given"
 GENDER_ACC_INVALID_TYPE_ERROR = "'gender_acc' must have an integer value"
 GENDER_ACC_INVALID_RANGE_ERROR = "'gender_acc' \(%(acc)s\) is not in range \(1,100\)"
+TERM_BLACKLIST_NONE_ERROR = "'term' to blacklist cannot be None"
+TERM_BLACKLIST_EMPTY_ERROR = "'term' to blacklist cannot be an empty string"
 
 
 class TestDBAPICaseBase(TestDatabaseCaseBase):
@@ -1750,6 +1753,37 @@ class TestMoveEnrollment(TestDBAPICaseBase):
             enrollments = session.query(Enrollment).\
                 filter(Enrollment.uuid == 'AAAA').all()
             self.assertEqual(len(enrollments), 1)
+
+
+class TestAddToMatchingBlacklist(TestDBAPICaseBase):
+    """Unit tests for add_to_matching_blacklist"""
+
+    def test_add_term(self):
+        """Check whether it adds a term"""
+
+        with self.db.connect() as session:
+            mb = api.add_to_matching_blacklist(session, 'root@example.com')
+            self.assertIsInstance(mb, MatchingBlacklist)
+            self.assertEqual(mb.excluded, 'root@example.com')
+
+        with self.db.connect() as session:
+            mb = session.query(MatchingBlacklist).\
+                filter(MatchingBlacklist.excluded == 'root@example.com').first()
+            self.assertEqual(mb.excluded, 'root@example.com')
+
+    def test_term_none(self):
+        """Check whether None terms cannot be added"""
+
+        with self.db.connect() as session:
+            with self.assertRaisesRegex(ValueError, TERM_BLACKLIST_NONE_ERROR):
+                api.add_to_matching_blacklist(session, None)
+
+    def test_term_entity(self):
+        """Check whether emtpy terms cannot be added"""
+
+        with self.db.connect() as session:
+            with self.assertRaisesRegex(ValueError, TERM_BLACKLIST_EMPTY_ERROR):
+                api.add_to_matching_blacklist(session, '')
 
 
 if __name__ == "__main__":

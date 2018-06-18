@@ -29,6 +29,7 @@ from .db.api import (add_unique_identity as add_unique_identity_db,
                      add_identity as add_identity_db,
                      add_organization as add_organization_db,
                      add_domain as add_domain_db,
+                     add_to_matching_blacklist as add_to_matching_blacklist_db,
                      enroll as enroll_db,
                      edit_profile as edit_profile_db,
                      move_identity as move_identity_db,
@@ -330,11 +331,6 @@ def add_to_matching_blacklist(db, entity):
     :raises AlreadyExistsError: raised when the entity already exists
         in the registry.
     """
-    if entity is None:
-        raise InvalidValueError('entity to blacklist cannot be None')
-    if entity == '':
-        raise InvalidValueError('entity to blacklist cannot be an empty string')
-
     with db.connect() as session:
         mb = session.query(MatchingBlacklist).\
             filter(MatchingBlacklist.excluded == entity).first()
@@ -342,8 +338,10 @@ def add_to_matching_blacklist(db, entity):
         if mb:
             raise AlreadyExistsError(entity=entity)
 
-        mb = MatchingBlacklist(excluded=entity)
-        session.add(mb)
+        try:
+            add_to_matching_blacklist_db(session, entity)
+        except ValueError as e:
+            raise InvalidValueError(e)
 
 
 def edit_profile(db, uuid, **kwargs):
