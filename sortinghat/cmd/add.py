@@ -26,7 +26,7 @@ import argparse
 
 from .. import api
 from ..command import Command, CMD_SUCCESS, HELP_LIST
-from ..exceptions import AlreadyExistsError, MatcherNotSupportedError, NotFoundError, WrappedValueError
+from ..exceptions import AlreadyExistsError, MatcherNotSupportedError, NotFoundError, InvalidValueError
 from ..matcher import create_identity_matcher
 from ..matching import SORTINGHAT_IDENTITIES_MATCHERS
 
@@ -154,7 +154,7 @@ class Add(Command):
 
             if matcher:
                 self.__merge_on_matching(uuid, matcher, interactive)
-        except (AlreadyExistsError, NotFoundError, WrappedValueError) as e:
+        except (AlreadyExistsError, NotFoundError, InvalidValueError) as e:
             self.error(str(e))
             return e.code
 

@@ -27,7 +27,7 @@ import re
 
 from .. import api
 from ..command import Command, CMD_SUCCESS, HELP_LIST
-from ..exceptions import NotFoundError, WrappedValueError
+from ..exceptions import NotFoundError, InvalidValueError
 
 
 EMAIL_ADDRESS_PATTERN = re.compile(r"^(?P<email>[^\s@]+@[^\s@.]+\.[^\s@]+)$")
@@ -114,7 +114,7 @@ class Affiliate(Command):
 
                     self.display('affiliate.tmpl', id=uid.uuid,
                                  email=identity.email, organization=organization)
-        except (NotFoundError, WrappedValueError) as e:
+        except (NotFoundError, InvalidValueError) as e:
             self.error(str(e))
             return e.code
 

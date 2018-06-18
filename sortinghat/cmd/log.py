@@ -26,7 +26,7 @@ import argparse
 
 from .. import api, utils
 from ..command import Command, CMD_SUCCESS, HELP_LIST
-from ..exceptions import InvalidDateError, NotFoundError, WrappedValueError
+from ..exceptions import InvalidDateError, NotFoundError, InvalidValueError
 
 
 class Log(Command):
@@ -117,7 +117,7 @@ class Log(Command):
             enrollments = api.enrollments(self.db, uuid, organization,
                                           from_date, to_date)
             self.display('log.tmpl', enrollments=enrollments)
-        except (NotFoundError, WrappedValueError) as e:
+        except (NotFoundError, InvalidValueError) as e:
             self.error(str(e))
             return e.code
 

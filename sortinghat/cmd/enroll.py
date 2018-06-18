@@ -26,7 +26,7 @@ import argparse
 
 from .. import api, utils
 from ..command import Command, CMD_SUCCESS, HELP_LIST
-from ..exceptions import AlreadyExistsError, InvalidDateError, NotFoundError, WrappedValueError
+from ..exceptions import AlreadyExistsError, InvalidDateError, NotFoundError, InvalidValueError
 
 
 class Enroll(Command):
@@ -131,7 +131,7 @@ class Enroll(Command):
         try:
             api.add_enrollment(self.db, uuid, organization, from_date, to_date)
             code = CMD_SUCCESS
-        except (NotFoundError, WrappedValueError) as e:
+        except (NotFoundError, InvalidValueError) as e:
             self.error(str(e))
             code = e.code
         except AlreadyExistsError as e:
@@ -144,7 +144,7 @@ class Enroll(Command):
 
         try:
             api.merge_enrollments(self.db, uuid, organization)
-        except (NotFoundError, WrappedValueError) as e:
+        except (NotFoundError, InvalidValueError) as e:
             # These exceptions were checked above. If any of these raises
             # is due to something really wrong has happened
             raise RuntimeError(str(e))

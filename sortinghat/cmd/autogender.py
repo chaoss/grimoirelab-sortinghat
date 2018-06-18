@@ -30,7 +30,7 @@ import urllib3.util
 
 from .. import api
 from ..command import Command, CMD_SUCCESS, HELP_LIST
-from ..exceptions import NotFoundError, WrappedValueError
+from ..exceptions import NotFoundError, InvalidValueError
 
 
 AUTOGENDER_COMMAND_USAGE_MSG = \
@@ -140,7 +140,7 @@ class AutoGender(Command):
                 self.display('autogender.tmpl',
                              uuid=profile.uuid, name=profile.name,
                              gender_data=gender_data)
-            except (NotFoundError, WrappedValueError) as e:
+            except (NotFoundError, InvalidValueError) as e:
                 self.error(str(e))
                 return e.code
 
