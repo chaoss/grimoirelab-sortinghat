@@ -25,7 +25,7 @@ import datetime
 import sys
 import unittest
 
-if not '..' in sys.path:
+if '..' not in sys.path:
     sys.path.insert(0, '..')
 
 from sqlalchemy import create_engine
@@ -47,12 +47,7 @@ CONFIG_FILE = 'tests.conf'
 class MockDatabase(object):
 
     def __init__(self, user, password, database, host, port):
-        # Create an engine
-        try:
-            import MySQLdb
-            driver = 'mysql+mysqldb'
-        except ImportError:
-            driver = 'mysql+pymysql'
+        driver = 'mysql+pymysql'
 
         self.url = URL(driver, user, password, host, port, database)
         self._engine = create_engine(self.url, echo=True)
@@ -356,7 +351,6 @@ class TestUniqueIdentity(TestCaseBase):
         self.assertEqual(d1['username'], None)
         self.assertEqual(d1['source'], 'scm')
         self.assertEqual(d1['uuid'], 'John Smith')
-
 
         prf = Profile(uuid='John Smith', name='Smith, J.',
                       email='jsmith@example.com', is_bot=True,

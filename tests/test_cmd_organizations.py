@@ -23,7 +23,7 @@
 import sys
 import unittest
 
-if not '..' in sys.path:
+if '..' not in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat import api
@@ -263,7 +263,7 @@ class TestOrgsAdd(TestOrgsCaseBase):
         code = self.cmd.add('Bitergia', 'bitergia.com', is_top_domain=True)
         self.assertEqual(code, CMD_SUCCESS)
 
-        code = self.cmd.add('LibreSoft', '') # This will work like adding a organization
+        code = self.cmd.add('LibreSoft', '')  # This will work like adding a organization
         self.assertEqual(code, CMD_SUCCESS)
 
         code = self.cmd.add('Example', 'example.org')
@@ -346,7 +346,6 @@ class TestOrgsAdd(TestOrgsCaseBase):
         dom = doms1[1]
         self.assertEqual(dom.domain, 'example.com')
         self.assertEqual(dom.is_top_domain, True)
-
 
         org2 = orgs[1]
         self.assertEqual(org2.name, 'Example')

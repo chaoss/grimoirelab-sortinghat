@@ -329,7 +329,7 @@ class GrimoireLabParser(object):
 
             if max_start < min_end:
                 msg = "invalid GrimoireLab enrollment dates. " \
-                "Organization dates overlap."
+                      "Organization dates overlap."
                 raise InvalidFormatError(cause=msg)
 
         return enrollments

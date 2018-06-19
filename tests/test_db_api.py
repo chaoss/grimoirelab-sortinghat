@@ -881,7 +881,7 @@ class TestEnroll(TestDBAPICaseBase):
         uuid = '1234567890ABCDFE'
         name = 'Example'
         from_date = datetime.datetime(1999, 1, 1)
-        to_date = datetime.datetime(2000,1, 1)
+        to_date = datetime.datetime(2000, 1, 1)
 
         with self.db.connect() as session:
             uidentity = UniqueIdentity(uuid=uuid)
@@ -1498,7 +1498,7 @@ class TestEditProfile(TestDBAPICaseBase):
             uidentity.profile = Profile()
             session.add(uidentity)
 
-            msg = COUNTRY_CODE_ERROR %  {'code': 'JKL'}
+            msg = COUNTRY_CODE_ERROR % {'code': 'JKL'}
 
             with self.assertRaisesRegex(ValueError, msg):
                 api.edit_profile(session, uidentity, country_code='JKL')

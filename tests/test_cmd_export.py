@@ -27,7 +27,7 @@ import sys
 import tempfile
 import unittest
 
-if not '..' in sys.path:
+if '..' not in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat import api
@@ -143,7 +143,7 @@ class TestExportCommand(TestExportCaseBase):
         """Check the export indentities to a file filtering by source"""
 
         code = self.cmd.run('--identities', '--source', 'unknown',
-                           self.tmpfile)
+                            self.tmpfile)
         self.assertEqual(code, CMD_SUCCESS)
 
         a = self.read_json(self.tmpfile)

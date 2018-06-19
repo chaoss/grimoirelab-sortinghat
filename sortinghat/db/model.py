@@ -79,8 +79,8 @@ class Organization(ModelBase):
 
     def to_dict(self):
         return {
-                'name'    : self.name,
-                'domains' : [d.to_dict() for d in self.domains]
+                'name': self.name,
+                'domains': [d.to_dict() for d in self.domains]
                 }
 
 
@@ -104,9 +104,9 @@ class Domain(ModelBase):
 
     def to_dict(self):
         return {
-                'domain'       : self.domain,
-                'top_domain'   : self.is_top_domain,
-                'organization' : self.organization.name
+                'domain': self.domain,
+                'top_domain': self.is_top_domain,
+                'organization': self.organization.name
                 }
 
     def __repr__(self):
@@ -125,9 +125,9 @@ class Country(ModelBase):
 
     def to_dict(self):
         return {
-                'code'   : self.code,
-                'name'   : self.name,
-                'alpha3' : self.alpha3
+                'code': self.code,
+                'name': self.name,
+                'alpha3': self.alpha3
                 }
 
     def __repr__(self):
@@ -161,10 +161,9 @@ class UniqueIdentity(ModelBase):
 
     def to_dict(self):
         return {
-                'uuid'       : self.uuid,
-                'identities' : [i.to_dict() for i in self.identities],
-                'profile'    : self.profile.to_dict() \
-                               if self.profile else None,
+                'uuid': self.uuid,
+                'identities': [i.to_dict() for i in self.identities],
+                'profile': self.profile.to_dict() if self.profile else None,
                 }
 
     def __repr__(self):
@@ -195,12 +194,12 @@ class Identity(ModelBase):
 
     def to_dict(self):
         return {
-                'id'       : self.id,
-                'name'     : self.name,
-                'email'    : self.email,
-                'username' : self.username,
-                'source'   : self.source,
-                'uuid'     : self.uuid
+                'id': self.id,
+                'name': self.name,
+                'email': self.email,
+                'username': self.username,
+                'source': self.source,
+                'uuid': self.uuid
                 }
 
 
@@ -271,10 +270,10 @@ class Enrollment(ModelBase):
 
     def to_dict(self):
         return {
-                'start'        : self.start,
-                'end'          : self.end,
-                'uuid'         : self.uuid,
-                'organization' : self.organization.name
+                'start': self.start,
+                'end': self.end,
+                'uuid': self.uuid,
+                'organization': self.organization.name
                 }
 
 
@@ -366,9 +365,9 @@ class MetricsGrimoireIdentity(MappedTable):
         return cls.COLUMN_PREFIX
 
     def to_dict(self):
-        return {'name' : self.name,
-                'email' : self.email,
-                'username' : self.username}
+        return {'name': self.name,
+                'email': self.email,
+                'username': self.username}
 
     def __map_to_attr(self, m):
         for k in m:

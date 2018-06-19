@@ -26,7 +26,7 @@ import unittest
 import uuid
 import warnings
 
-if not '..' in sys.path:
+if '..' not in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat import api
@@ -58,16 +58,17 @@ class TestInitCaseBase(unittest.TestCase):
         config.read(CONFIG_FILE)
 
         # Create command
-        self.kwargs = {'user' : config['Database']['user'],
-                       'password' : config['Database']['password'],
-                       'host' : config['Database']['host'],
-                       'port' : config['Database']['port']}
+        self.kwargs = {'user': config['Database']['user'],
+                       'password': config['Database']['password'],
+                       'host': config['Database']['host'],
+                       'port': config['Database']['port']}
         self.cmd = Init(database=self.name, **self.kwargs)
         self.cmd_reuse = Init(database=self.name_reuse, **self.kwargs)
 
     def tearDown(self):
         Database.drop(database=self.name, **self.kwargs)
         Database.drop(database=self.name_reuse, **self.kwargs)
+
 
 class TestInitCommand(TestInitCaseBase):
     """Unit tests for init command"""
@@ -88,11 +89,11 @@ class TestInitCommand(TestInitCaseBase):
     def test_connection_error(self):
         """Check connection errors"""
 
-        kwargs = {'user' : 'nouser',
-                  'password' : 'nopassword',
-                  'database' : None,
-                  'host' : 'localhost',
-                  'port' : '3306'}
+        kwargs = {'user': 'nouser',
+                  'password': 'nopassword',
+                  'database': None,
+                  'host': 'localhost',
+                  'port': '3306'}
 
         cmd = Init(**kwargs)
         code = cmd.run(self.name)
@@ -101,7 +102,7 @@ class TestInitCommand(TestInitCaseBase):
         with warnings.catch_warnings(record=True):
             output = sys.stderr.getvalue().strip()
             self.assertRegexpMatches(output,
-                                     DB_ACCESS_ERROR % {'user' : 'nouser'})
+                                     DB_ACCESS_ERROR % {'user': 'nouser'})
 
     def test_existing_db_error(self):
         """Check if it returns an error when tries to create the registry twice"""
@@ -116,7 +117,7 @@ class TestInitCommand(TestInitCaseBase):
         with warnings.catch_warnings(record=True):
             output = sys.stderr.getvalue().strip()
             self.assertRegexpMatches(output,
-                                     DB_EXISTS_ERROR % {'database' : self.name})
+                                     DB_EXISTS_ERROR % {'database': self.name})
 
     def test_existing_db_reuse(self):
         """Check that no error is returned when creating the registry twice"""
@@ -148,11 +149,11 @@ class TestInitialize(TestInitCaseBase):
     def test_connection_error(self):
         """Check connection errors"""
 
-        kwargs = {'user' : 'nouser',
-                  'password' : 'nopassword',
-                  'database' : None,
-                  'host' : 'localhost',
-                  'port' : '3306',
+        kwargs = {'user': 'nouser',
+                  'password': 'nopassword',
+                  'database': None,
+                  'host': 'localhost',
+                  'port': '3306',
                   'reuse': False}
 
         cmd = Init(**kwargs)
@@ -163,7 +164,7 @@ class TestInitialize(TestInitCaseBase):
         with warnings.catch_warnings(record=True):
             output = sys.stderr.getvalue().strip()
             self.assertRegexpMatches(output,
-                                     DB_ACCESS_ERROR % {'user' : 'nouser'})
+                                     DB_ACCESS_ERROR % {'user': 'nouser'})
 
     def test_existing_db_error(self):
         """Check if it returns an error when tries to create the registry twice"""
@@ -178,7 +179,7 @@ class TestInitialize(TestInitCaseBase):
         with warnings.catch_warnings(record=True):
             output = sys.stderr.getvalue().strip()
             self.assertRegexpMatches(output,
-                                     DB_EXISTS_ERROR % {'database' : self.name})
+                                     DB_EXISTS_ERROR % {'database': self.name})
 
     def test_existing_db_reuse(self):
         """Check reusing works as intended when registriy is "created" twice"""

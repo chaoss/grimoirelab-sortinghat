@@ -70,13 +70,13 @@ class Database(object):
     @classmethod
     def create(cls, user, password, database, host='localhost', port='3306'):
         engine = cls.build_engine(user, password, None, host, port)
-        query = Database.MYSQL_CREATE_DB % {'database' : database}
+        query = Database.MYSQL_CREATE_DB % {'database': database}
         cls.execute(engine, query)
 
     @classmethod
     def drop(cls, user, password, database, host='localhost', port='3306'):
         engine = cls.build_engine(user, password, None, host, port)
-        query = Database.MYSQL_DROP_DB % {'database' : database}
+        query = Database.MYSQL_DROP_DB % {'database': database}
         cls.execute(engine, query)
 
     @classmethod

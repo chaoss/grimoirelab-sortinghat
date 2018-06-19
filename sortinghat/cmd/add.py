@@ -198,7 +198,7 @@ class Add(Command):
 
         while answer not in ['y', 'Y', 'n', 'N', '']:
             try:
-                answer = raw_input("Merge unique identities [Y/n]? ")
+                answer = input("Merge unique identities [Y/n]? ")
             except EOFError:
                 return False
 

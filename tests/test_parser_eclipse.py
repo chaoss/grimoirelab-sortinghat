@@ -24,7 +24,7 @@ import datetime
 import sys
 import unittest
 
-if not '..' in sys.path:
+if '..' not in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat.db.model import UniqueIdentity, Identity, Organization
@@ -185,22 +185,22 @@ class TestEclipseParser(TestBaseCase):
         """Check whether it prints an error when parsing invalid streams"""
 
         with self.assertRaisesRegex(InvalidFormatError,
-                                     ECLIPSE_INVALID_JSON_FORMAT_ERROR):
+                                    ECLIPSE_INVALID_JSON_FORMAT_ERROR):
             s = self.read_file('data/eclipse_invalid.json')
             EclipseParser(s)
 
         with self.assertRaisesRegex(InvalidFormatError,
-                                     ECLIPSE_IDS_MISSING_KEYS_ERROR):
+                                    ECLIPSE_IDS_MISSING_KEYS_ERROR):
             s = self.read_file('data/eclipse_ids_missing_keys.json')
             EclipseParser(s)
 
         with self.assertRaisesRegex(InvalidFormatError,
-                                     ECLIPSE_ORGS_MISSING_KEYS_ERROR):
+                                    ECLIPSE_ORGS_MISSING_KEYS_ERROR):
             s = self.read_file('data/eclipse_orgs_missing_keys.json')
             EclipseParser(s)
 
         with self.assertRaisesRegex(InvalidFormatError,
-                                     ECLIPSE_DATETIME_ERROR):
+                                    ECLIPSE_DATETIME_ERROR):
             s = self.read_file('data/eclipse_invalid_datetime.json')
             EclipseParser(s)
 
@@ -208,14 +208,14 @@ class TestEclipseParser(TestBaseCase):
         """Check whether it raises an exception when the stream is empty"""
 
         with self.assertRaisesRegex(InvalidFormatError,
-                                     ECLIPSE_STREAM_INVALID_ERROR):
+                                    ECLIPSE_STREAM_INVALID_ERROR):
             EclipseParser("")
 
     def test_none_stream(self):
         """Check whether it raises an exception when the stream is None"""
 
         with self.assertRaisesRegex(InvalidFormatError,
-                                     ECLIPSE_STREAM_INVALID_ERROR):
+                                    ECLIPSE_STREAM_INVALID_ERROR):
             EclipseParser(None)
 
 

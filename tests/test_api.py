@@ -24,7 +24,7 @@ import datetime
 import sys
 import unittest
 
-if not '..' in sys.path:
+if '..' not in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat import api
@@ -78,11 +78,11 @@ class TestAddUniqueIdentity(TestAPICaseBase):
             self.assertEqual(uid.uuid, 'John Smith')
 
             uid = session.query(UniqueIdentity).\
-                    filter(UniqueIdentity.uuid == 'John Doe').first()
+                filter(UniqueIdentity.uuid == 'John Doe').first()
             self.assertEqual(uid.uuid, 'John Doe')
 
             uid = session.query(UniqueIdentity).\
-                    filter(UniqueIdentity.uuid == 'Jane Roe').first()
+                filter(UniqueIdentity.uuid == 'Jane Roe').first()
             self.assertEqual(uid.uuid, 'Jane Roe')
 
     def test_existing_uuid(self):
@@ -102,13 +102,13 @@ class TestAddUniqueIdentity(TestAPICaseBase):
         """Check whether None identities cannot be added to the registry"""
 
         self.assertRaisesRegex(ValueError, UUID_NONE_OR_EMPTY_ERROR,
-                                api.add_unique_identity, self.db, None)
+                               api.add_unique_identity, self.db, None)
 
     def test_empty_uuid(self):
         """Check whether empty uuids cannot be added to the registry"""
 
         self.assertRaisesRegex(ValueError, UUID_NONE_OR_EMPTY_ERROR,
-                                api.add_unique_identity, self.db, '')
+                               api.add_unique_identity, self.db, '')
 
     def test_last_modified(self):
         """Check if last modification date is updated"""
@@ -140,7 +140,7 @@ class TestAddIdentity(TestAPICaseBase):
             self.assertEqual(uid.uuid, unique_id)
 
             identities = session.query(Identity).\
-                            filter(Identity.uuid == uid.uuid).all()
+                filter(Identity.uuid == uid.uuid).all()
             self.assertEqual(len(identities), 1)
 
             id1 = identities[0]
@@ -207,7 +207,7 @@ class TestAddIdentity(TestAPICaseBase):
 
             # Next, John Doe
             uid = session.query(UniqueIdentity).\
-                    filter(UniqueIdentity.uuid == jdoe_uuid).first()
+                filter(UniqueIdentity.uuid == jdoe_uuid).first()
 
             self.assertEqual(len(uid.identities), 2)
 
@@ -397,21 +397,21 @@ class TestAddIdentity(TestAPICaseBase):
         """Check whether new identities cannot be added when giving a None source"""
 
         self.assertRaisesRegex(ValueError, SOURCE_NONE_OR_EMPTY_ERROR,
-                                api.add_identity, self.db, None)
+                               api.add_identity, self.db, None)
 
     def test_empty_source(self):
         """Check whether new identities cannot be added when giving an empty source"""
 
         self.assertRaisesRegex(ValueError, SOURCE_NONE_OR_EMPTY_ERROR,
-                                api.add_identity, self.db, '')
+                               api.add_identity, self.db, '')
 
     def test_none_or_empty_data(self):
         """Check whether new identities cannot be added when identity data is None or empty"""
 
         self.assertRaisesRegex(ValueError, IDENTITY_NONE_OR_EMPTY_ERROR,
-                                api.add_identity, self.db, 'scm', None, '', None)
+                               api.add_identity, self.db, 'scm', None, '', None)
         self.assertRaisesRegex(ValueError, IDENTITY_NONE_OR_EMPTY_ERROR,
-                                api.add_identity, self.db, 'scm', '', '', '')
+                               api.add_identity, self.db, 'scm', '', '', '')
 
 
 class TestAddOrganization(TestAPICaseBase):
@@ -426,15 +426,15 @@ class TestAddOrganization(TestAPICaseBase):
 
         with self.db.connect() as session:
             org = session.query(Organization).\
-                    filter(Organization.name == 'Example').first()
+                filter(Organization.name == 'Example').first()
             self.assertEqual(org.name, 'Example')
 
             org = session.query(Organization).\
-                    filter(Organization.name == 'Bitergia').first()
+                filter(Organization.name == 'Bitergia').first()
             self.assertEqual(org.name, 'Bitergia')
 
             org = session.query(Organization).\
-                    filter(Organization.name == 'LibreSoft').first()
+                filter(Organization.name == 'LibreSoft').first()
             self.assertEqual(org.name, 'LibreSoft')
 
     def test_existing_organization(self):
@@ -452,13 +452,13 @@ class TestAddOrganization(TestAPICaseBase):
         """Check whether None organizations cannot be added to the registry"""
 
         self.assertRaisesRegex(ValueError, ORG_NONE_OR_EMPTY_ERROR,
-                                api.add_organization, self.db, None)
+                               api.add_organization, self.db, None)
 
     def test_empty_organization(self):
         """Check whether empty organizations cannot be added to the registry"""
 
         self.assertRaisesRegex(ValueError, ORG_NONE_OR_EMPTY_ERROR,
-                                api.add_organization, self.db, '')
+                               api.add_organization, self.db, '')
 
 
 class TestAddDomain(TestAPICaseBase):
@@ -604,7 +604,7 @@ class TestAddDomain(TestAPICaseBase):
         api.add_organization(self.db, 'Example')
 
         self.assertRaisesRegex(ValueError, DOMAIN_NONE_OR_EMPTY_ERROR,
-                                api.add_domain, self.db, 'Example', None)
+                               api.add_domain, self.db, 'Example', None)
 
     def test_empty_domain(self):
         """Check whether empty domains cannot be added to the registry"""
@@ -612,7 +612,7 @@ class TestAddDomain(TestAPICaseBase):
         api.add_organization(self.db, 'Example')
 
         self.assertRaisesRegex(ValueError, DOMAIN_NONE_OR_EMPTY_ERROR,
-                                api.add_domain, self.db, 'Example', '')
+                               api.add_domain, self.db, 'Example', '')
 
     def test_invalid_type_top_domain(self):
         """Check type values of top domain flag"""
@@ -620,9 +620,9 @@ class TestAddDomain(TestAPICaseBase):
         api.add_organization(self.db, 'Example')
 
         self.assertRaisesRegex(ValueError, TOP_DOMAIN_VALUE_ERROR,
-                                api.add_domain, self.db, 'Example', 'example.com', 1)
+                               api.add_domain, self.db, 'Example', 'example.com', 1)
         self.assertRaisesRegex(ValueError, TOP_DOMAIN_VALUE_ERROR,
-                                api.add_domain, self.db, 'Example', 'example.com', 'False')
+                               api.add_domain, self.db, 'Example', 'example.com', 'False')
 
 
 class TestAddEnrollment(TestAPICaseBase):
@@ -703,43 +703,43 @@ class TestAddEnrollment(TestAPICaseBase):
         api.add_unique_identity(self.db, 'John Smith')
 
         self.assertRaisesRegex(ValueError, ENROLLMENT_PERIOD_INVALID_ERROR,
-                                api.add_enrollment, self.db, 'John Smith', 'Example',
-                                datetime.datetime(2001, 1, 1),
-                                datetime.datetime(1999, 1, 1))
+                               api.add_enrollment, self.db, 'John Smith', 'Example',
+                               datetime.datetime(2001, 1, 1),
+                               datetime.datetime(1999, 1, 1))
 
-        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'from_date',
-                                                       'date' : '1899-12-31 23:59:59'}
+        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type': 'from_date',
+                                                       'date': '1899-12-31 23:59:59'}
         self.assertRaisesRegex(ValueError, exc,
-                                api.add_enrollment, self.db, 'John Smith', 'Example',
-                                datetime.datetime(1899, 12, 31, 23, 59, 59))
+                               api.add_enrollment, self.db, 'John Smith', 'Example',
+                               datetime.datetime(1899, 12, 31, 23, 59, 59))
 
-        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'from_date',
-                                                       'date' : '2100-01-01 00:00:01'}
+        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type': 'from_date',
+                                                       'date': '2100-01-01 00:00:01'}
         self.assertRaisesRegex(ValueError, exc,
-                                api.add_enrollment, self.db, 'John Smith', 'Example',
-                                datetime.datetime(2100, 1, 1, 0, 0, 1))
+                               api.add_enrollment, self.db, 'John Smith', 'Example',
+                               datetime.datetime(2100, 1, 1, 0, 0, 1))
 
-        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'to_date',
-                                                       'date' : '2100-01-01 00:00:01'}
+        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type': 'to_date',
+                                                       'date': '2100-01-01 00:00:01'}
         self.assertRaisesRegex(ValueError, exc,
-                                api.add_enrollment, self.db, 'John Smith', 'Example',
-                                datetime.datetime(1900, 1, 1),
-                                datetime.datetime(2100, 1, 1, 0, 0, 1))
+                               api.add_enrollment, self.db, 'John Smith', 'Example',
+                               datetime.datetime(1900, 1, 1),
+                               datetime.datetime(2100, 1, 1, 0, 0, 1))
 
-        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'to_date',
-                                                       'date' : '1899-12-31 23:59:59'}
+        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type': 'to_date',
+                                                       'date': '1899-12-31 23:59:59'}
         self.assertRaisesRegex(ValueError, exc,
-                                api.add_enrollment, self.db, 'John Smith', 'Example',
-                                datetime.datetime(1900, 1, 1),
-                                datetime.datetime(1899, 12, 31, 23, 59, 59))
+                               api.add_enrollment, self.db, 'John Smith', 'Example',
+                               datetime.datetime(1900, 1, 1),
+                               datetime.datetime(1899, 12, 31, 23, 59, 59))
 
     def test_non_existing_uuid(self):
         """Check if it fails adding enrollments to not existing unique identities"""
 
         self.assertRaisesRegex(NotFoundError,
-                                NOT_FOUND_ERROR % {'entity' : 'John Smith'},
-                                api.add_enrollment,
-                                self.db, 'John Smith', 'Example')
+                               NOT_FOUND_ERROR % {'entity': 'John Smith'},
+                               api.add_enrollment,
+                               self.db, 'John Smith', 'Example')
 
     def test_non_existing_organization(self):
         """Check if it fails adding enrollments to not existing organizations"""
@@ -748,9 +748,9 @@ class TestAddEnrollment(TestAPICaseBase):
         api.add_unique_identity(self.db, 'John Smith')
 
         self.assertRaisesRegex(NotFoundError,
-                                NOT_FOUND_ERROR % {'entity' : 'Example'},
-                                api.add_enrollment,
-                                self.db, 'John Smith', 'Example')
+                               NOT_FOUND_ERROR % {'entity': 'Example'},
+                               api.add_enrollment,
+                               self.db, 'John Smith', 'Example')
 
     def test_existing_enrollment(self):
         """Check if it fails adding enrollment data that already exists"""
@@ -813,15 +813,15 @@ class TestAddToMatchingBlacklist(TestAPICaseBase):
         """Check whether None entities cannot be added to the registry"""
 
         self.assertRaisesRegex(ValueError,
-                                ENTITY_BLACKLIST_NONE_OR_EMPTY_ERROR,
-                                api.add_to_matching_blacklist, self.db, None)
+                               ENTITY_BLACKLIST_NONE_OR_EMPTY_ERROR,
+                               api.add_to_matching_blacklist, self.db, None)
 
     def test_empty_entity(self):
         """Check whether empty entities cannot be added to the registry"""
 
         self.assertRaisesRegex(ValueError,
-                                ENTITY_BLACKLIST_NONE_OR_EMPTY_ERROR,
-                                api.add_to_matching_blacklist, self.db, '')
+                               ENTITY_BLACKLIST_NONE_OR_EMPTY_ERROR,
+                               api.add_to_matching_blacklist, self.db, '')
 
 
 class TestEditProfile(TestAPICaseBase):
@@ -962,9 +962,9 @@ class TestEditProfile(TestAPICaseBase):
             session.add(us)
 
         self.assertRaisesRegex(ValueError,
-                                COUNTRY_CODE_ERROR % {'code': 'ES'},
-                                api.edit_profile, self.db, 'John Smith',
-                                **{'country_code' : 'ES'})
+                               COUNTRY_CODE_ERROR % {'code': 'ES'},
+                               api.edit_profile, self.db, 'John Smith',
+                               **{'country_code': 'ES'})
 
     def test_invalid_type_is_bot(self):
         """Check type values of is_bot parameter"""
@@ -972,11 +972,11 @@ class TestEditProfile(TestAPICaseBase):
         api.add_unique_identity(self.db, 'John Smith')
 
         self.assertRaisesRegex(ValueError, IS_BOT_VALUE_ERROR,
-                                api.edit_profile, self.db, 'John Smith',
-                                **{'is_bot' : 1})
+                               api.edit_profile, self.db, 'John Smith',
+                               **{'is_bot': 1})
         self.assertRaisesRegex(ValueError, IS_BOT_VALUE_ERROR,
-                                api.edit_profile, self.db, 'John Smith',
-                                **{'is_bot' : 'True'})
+                               api.edit_profile, self.db, 'John Smith',
+                               **{'is_bot': 'True'})
 
     def test_not_given_gender(self):
         """Check if it fails when gender_acc is given but not the gender"""
@@ -984,8 +984,8 @@ class TestEditProfile(TestAPICaseBase):
         api.add_unique_identity(self.db, 'John Smith')
 
         self.assertRaisesRegex(ValueError, GENDER_ACC_INVALID_ERROR,
-                                api.edit_profile, self.db, 'John Smith',
-                                **{'gender_acc' : 100})
+                               api.edit_profile, self.db, 'John Smith',
+                               **{'gender_acc': 100})
 
     def test_invalid_type_gender_acc(self):
         """Check type values of gender_acc parameter"""
@@ -993,12 +993,12 @@ class TestEditProfile(TestAPICaseBase):
         api.add_unique_identity(self.db, 'John Smith')
 
         self.assertRaisesRegex(ValueError, GENDER_ACC_INVALID_TYPE_ERROR,
-                                api.edit_profile, self.db, 'John Smith',
-                                **{'gender': 'male', 'gender_acc' : 10.0})
+                               api.edit_profile, self.db, 'John Smith',
+                               **{'gender': 'male', 'gender_acc': 10.0})
 
         self.assertRaisesRegex(ValueError, GENDER_ACC_INVALID_TYPE_ERROR,
-                                api.edit_profile, self.db, 'John Smith',
-                                **{'gender': 'male', 'gender_acc' : '100'})
+                               api.edit_profile, self.db, 'John Smith',
+                               **{'gender': 'male', 'gender_acc': '100'})
 
     def test_invalid_range_gender_acc(self):
         """Check if it fails when gender_acc is given but not the gender"""
@@ -1006,16 +1006,16 @@ class TestEditProfile(TestAPICaseBase):
         api.add_unique_identity(self.db, 'John Smith')
 
         self.assertRaisesRegex(ValueError, GENDER_ACC_INVALID_RANGE_ERROR % {'acc': '-1'},
-                                api.edit_profile, self.db, 'John Smith',
-                                **{'gender': 'male', 'gender_acc' : -1})
+                               api.edit_profile, self.db, 'John Smith',
+                               **{'gender': 'male', 'gender_acc': -1})
 
         self.assertRaisesRegex(ValueError, GENDER_ACC_INVALID_RANGE_ERROR % {'acc': '0'},
-                                api.edit_profile, self.db, 'John Smith',
-                                **{'gender': 'male', 'gender_acc' : 0})
+                               api.edit_profile, self.db, 'John Smith',
+                               **{'gender': 'male', 'gender_acc': 0})
 
         self.assertRaisesRegex(ValueError, GENDER_ACC_INVALID_RANGE_ERROR % {'acc': '101'},
-                                api.edit_profile, self.db, 'John Smith',
-                                **{'gender': 'male', 'gender_acc' : 101})
+                               api.edit_profile, self.db, 'John Smith',
+                               **{'gender': 'male', 'gender_acc': 101})
 
 
 class TestDeleteUniqueIdentity(TestAPICaseBase):
@@ -1226,7 +1226,7 @@ class TestDeleteIdentity(TestAPICaseBase):
         id1 = api.add_identity(self.db, 'scm',
                                'jsmith@example.com', 'John Smith', 'jsmith')
         id2 = api.add_identity(self.db, 'scm',
-                         'jdoe@example.com', 'John Doe', 'jdoe')
+                               'jdoe@example.com', 'John Doe', 'jdoe')
 
         # The error should be the same
         self.assertRaises(NotFoundError, api.delete_identity,
@@ -1268,14 +1268,14 @@ class TestDeleteOrganization(TestAPICaseBase):
 
         with self.db.connect() as session:
             org1 = session.query(Organization).\
-                    filter(Organization.name == 'Example').first()
+                filter(Organization.name == 'Example').first()
             self.assertEqual(org1, None)
 
             dom1 = session.query(Domain).\
-                    filter(Domain.domain == 'example.com').first()
+                filter(Domain.domain == 'example.com').first()
             self.assertEqual(dom1, None)
             dom2 = session.query(Domain).\
-                    filter(Domain.domain == 'example.org').first()
+                filter(Domain.domain == 'example.org').first()
             self.assertEqual(dom2, None)
 
             enr1 = session.query(Enrollment).join(Organization).\
@@ -1354,7 +1354,7 @@ class TestDeleteDomain(TestAPICaseBase):
             self.assertEqual(doms1[0].domain, 'example.com')
 
             doms2 = session.query(Domain).join(Organization).\
-                    filter(Organization.name == 'Bitergia').all()
+                filter(Organization.name == 'Bitergia').all()
             self.assertEqual(len(doms2), 0)
 
         # Delete the last domain
@@ -1445,7 +1445,7 @@ class TestDeleteEnrollment(TestAPICaseBase):
             self.assertEqual(enrollments[0].uidentity.uuid, 'Jane Rae')
 
             enrollments = session.query(Enrollment).join(Organization).\
-                    filter(Organization.name == 'Example').all()
+                filter(Organization.name == 'Example').all()
             self.assertEqual(len(enrollments), 1)
             self.assertEqual(enrollments[0].uidentity.uuid, 'John Smith')
 
@@ -1533,35 +1533,35 @@ class TestDeleteEnrollment(TestAPICaseBase):
         api.add_organization(self.db, 'Example')
 
         self.assertRaisesRegex(ValueError, ENROLLMENT_PERIOD_INVALID_ERROR,
-                                api.delete_enrollment, self.db, 'John Smith', 'Example',
-                                datetime.datetime(2001, 1, 1),
-                                datetime.datetime(1999, 1, 1))
+                               api.delete_enrollment, self.db, 'John Smith', 'Example',
+                               datetime.datetime(2001, 1, 1),
+                               datetime.datetime(1999, 1, 1))
 
-        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'from_date',
-                                                       'date' : '1899-12-31 23:59:59'}
+        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type': 'from_date',
+                                                       'date': '1899-12-31 23:59:59'}
         self.assertRaisesRegex(ValueError, exc,
-                                api.delete_enrollment, self.db, 'John Smith', 'Example',
-                                datetime.datetime(1899, 12, 31, 23, 59, 59))
+                               api.delete_enrollment, self.db, 'John Smith', 'Example',
+                               datetime.datetime(1899, 12, 31, 23, 59, 59))
 
-        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'from_date',
-                                                       'date' : '2100-01-01 00:00:01'}
+        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type': 'from_date',
+                                                       'date': '2100-01-01 00:00:01'}
         self.assertRaisesRegex(ValueError, exc,
-                                api.delete_enrollment, self.db, 'John Smith', 'Example',
-                                datetime.datetime(2100, 1, 1, 0, 0, 1))
+                               api.delete_enrollment, self.db, 'John Smith', 'Example',
+                               datetime.datetime(2100, 1, 1, 0, 0, 1))
 
-        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'to_date',
-                                                       'date' : '2100-01-01 00:00:01'}
+        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type': 'to_date',
+                                                       'date': '2100-01-01 00:00:01'}
         self.assertRaisesRegex(ValueError, exc,
-                                api.delete_enrollment, self.db, 'John Smith', 'Example',
-                                datetime.datetime(1900, 1, 1),
-                                datetime.datetime(2100, 1, 1, 0, 0, 1))
+                               api.delete_enrollment, self.db, 'John Smith', 'Example',
+                               datetime.datetime(1900, 1, 1),
+                               datetime.datetime(2100, 1, 1, 0, 0, 1))
 
-        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'to_date',
-                                                       'date' : '1899-12-31 23:59:59'}
+        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type': 'to_date',
+                                                       'date': '1899-12-31 23:59:59'}
         self.assertRaisesRegex(ValueError, exc,
-                                api.delete_enrollment, self.db, 'John Smith', 'Example',
-                                datetime.datetime(1900, 1, 1),
-                                datetime.datetime(1899, 12, 31, 23, 59, 59))
+                               api.delete_enrollment, self.db, 'John Smith', 'Example',
+                               datetime.datetime(1900, 1, 1),
+                               datetime.datetime(1899, 12, 31, 23, 59, 59))
 
     def test_not_found_uuid(self):
         """Check if it fails removing enrollments from a unique identity
@@ -2006,7 +2006,7 @@ class TestMergeUniqueIdentities(TestAPICaseBase):
             self.assertGreaterEqual(after_dt, uid.last_modified)
 
             uid = session.query(UniqueIdentity).\
-                                filter(UniqueIdentity.uuid == 'John Doe').first()
+                filter(UniqueIdentity.uuid == 'John Doe').first()
             self.assertLessEqual(before_dt, uid.last_modified)
             self.assertGreaterEqual(after_dt, uid.last_modified)
 
@@ -2102,22 +2102,22 @@ class TestMergeUniqueIdentities(TestAPICaseBase):
 
         # Check 'from_uuid' parameter
         self.assertRaisesRegex(NotFoundError,
-                                NOT_FOUND_ERROR % {'entity' : 'Jane Roe'},
-                                api.merge_unique_identities,
-                                self.db, 'Jane Roe', 'John Smith')
+                               NOT_FOUND_ERROR % {'entity': 'Jane Roe'},
+                               api.merge_unique_identities,
+                               self.db, 'Jane Roe', 'John Smith')
 
         # Check 'to_uuid' parameter
         self.assertRaisesRegex(NotFoundError,
-                                NOT_FOUND_ERROR % {'entity' : 'Jane Roe'},
-                                api.merge_unique_identities,
-                                self.db, 'John Smith', 'Jane Roe')
+                               NOT_FOUND_ERROR % {'entity': 'Jane Roe'},
+                               api.merge_unique_identities,
+                               self.db, 'John Smith', 'Jane Roe')
 
         # Even if the identities are the same and do not exist, it still
         # raises the exception
         self.assertRaisesRegex(NotFoundError,
-                                NOT_FOUND_ERROR % {'entity' : 'Jane Roe'},
-                                api.merge_unique_identities,
-                                self.db, 'Jane Roe', 'Jane Roe')
+                               NOT_FOUND_ERROR % {'entity': 'Jane Roe'},
+                               api.merge_unique_identities,
+                               self.db, 'Jane Roe', 'Jane Roe')
 
 
 class TestMoveIdentity(TestAPICaseBase):
@@ -2193,7 +2193,7 @@ class TestMoveIdentity(TestAPICaseBase):
             self.assertGreaterEqual(after_dt, uid.last_modified)
 
             uid = session.query(UniqueIdentity).\
-                                filter(UniqueIdentity.uuid == 'John Doe').first()
+                filter(UniqueIdentity.uuid == 'John Doe').first()
             self.assertLessEqual(before_dt, uid.last_modified)
             self.assertGreaterEqual(after_dt, uid.last_modified)
 
@@ -2221,7 +2221,7 @@ class TestMoveIdentity(TestAPICaseBase):
 
             # The origin of the moved identity was also updated
             uid = session.query(UniqueIdentity).\
-                                filter(UniqueIdentity.uuid == 'John Doe').first()
+                filter(UniqueIdentity.uuid == 'John Doe').first()
             self.assertLessEqual(before_dt, uid.last_modified)
             self.assertLessEqual(after_dt, uid.last_modified)
             self.assertLessEqual(before_move_dt, uid.last_modified)
@@ -2294,15 +2294,15 @@ class TestMoveIdentity(TestAPICaseBase):
 
         # Check 'from_id' parameter
         self.assertRaisesRegex(NotFoundError,
-                                NOT_FOUND_ERROR % {'entity' : 'FFFFFFFFFFF'},
-                                api.move_identity,
-                                self.db, 'FFFFFFFFFFF', 'John Smith')
+                               NOT_FOUND_ERROR % {'entity': 'FFFFFFFFFFF'},
+                               api.move_identity,
+                               self.db, 'FFFFFFFFFFF', 'John Smith')
 
         # Check 'to_uuid' parameter
         self.assertRaisesRegex(NotFoundError,
-                                NOT_FOUND_ERROR % {'entity' : 'Jane Roe'},
-                                api.move_identity,
-                                self.db, from_id, 'Jane Roe')
+                               NOT_FOUND_ERROR % {'entity': 'Jane Roe'},
+                               api.move_identity,
+                               self.db, from_id, 'Jane Roe')
 
 
 class TestMatchIdentities(TestAPICaseBase):
@@ -2383,7 +2383,6 @@ class TestMatchIdentities(TestAPICaseBase):
 
         self.assertListEqual(uids, ['Jane Rae', 'JRae'])
 
-
     def test_empty_registry(self):
         """Test whether it fails when the registry is empty"""
 
@@ -2391,9 +2390,9 @@ class TestMatchIdentities(TestAPICaseBase):
 
         # This test must raise a NotFoundError
         self.assertRaisesRegex(NotFoundError,
-                                NOT_FOUND_ERROR % {'entity' : 'Jane Roe'},
-                                api.match_identities,
-                                self.db, 'Jane Roe', matcher)
+                               NOT_FOUND_ERROR % {'entity': 'Jane Roe'},
+                               api.match_identities,
+                               self.db, 'Jane Roe', matcher)
 
     def test_not_found_identities(self):
         """Test whether it fails when uuid is not found"""
@@ -2409,9 +2408,9 @@ class TestMatchIdentities(TestAPICaseBase):
         matcher = create_identity_matcher('default')
 
         self.assertRaisesRegex(NotFoundError,
-                                NOT_FOUND_ERROR % {'entity' : 'Jane Roe'},
-                                api.match_identities,
-                                self.db, 'Jane Roe', matcher)
+                               NOT_FOUND_ERROR % {'entity': 'Jane Roe'},
+                               api.match_identities,
+                               self.db, 'Jane Roe', matcher)
 
 
 class TestUniqueIdentities(TestAPICaseBase):
@@ -2432,7 +2431,6 @@ class TestUniqueIdentities(TestAPICaseBase):
         api.add_identity(self.db, 'mls', 'jsmith@bitergia.com', uuid=jsmith_uuid)
         api.edit_profile(self.db, jsmith_uuid, email='jsmith@example.com',
                          is_bot=True, country_code='US')
-
 
         jdoe_uuid = api.add_identity(self.db, 'scm', 'jdoe@example.com',
                                      'John Doe', 'jdoe')
@@ -2710,7 +2708,6 @@ class TestSearchUniqueIdentitiesSlice(TestAPICaseBase):
         self.assertEqual(uids[0].uuid, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
         self.assertEqual(uids[1].uuid, 'acced28b86278f00a21080d695ecb34b81a1828f')
 
-
         uids, ntotal = api.search_unique_identities_slice(self.db, 'jsmith', 2, 2)
         self.assertEqual(len(uids), 1)
         self.assertEqual(ntotal, 3)
@@ -2730,7 +2727,7 @@ class TestSearchUniqueIdentitiesSlice(TestAPICaseBase):
         api.add_identity(self.db, 'scm', None, None, 'jsmith', uuid=uuid)
 
         uuid = api.add_identity(self.db, 'scm', 'jdoe@example.com', 'John Doe', 'jdoe')
-        api.add_identity(self.db, 'scm', None , 'John Doe', 'jdoe', uuid=uuid)
+        api.add_identity(self.db, 'scm', None, 'John Doe', 'jdoe', uuid=uuid)
 
         # This call should return 2 unique identities at most
         # Even when all the identities match with the request
@@ -2816,14 +2813,14 @@ class TestSearchLastModifiedIdentities(TestAPICaseBase):
 
         # Add identities
         api.add_unique_identity(self.db, 'John Smith')
-        jsmith_id = api.add_identity(self.db, 'scm', 'jsmith@example.com',
-                                     uuid='John Smith')
+        api.add_identity(self.db, 'scm', 'jsmith@example.com',
+                         uuid='John Smith')
 
         api.add_unique_identity(self.db, 'John Doe')
-        jdoe_id = api.add_identity(self.db, 'scm', 'jdoe@example.com',
-                                   uuid='John Doe')
-        jdoe_alt_id = api.add_identity(self.db, 'scm', 'jdoe@example.com', 'Jon Doe',
-                                       uuid='John Doe')
+        api.add_identity(self.db, 'scm', 'jdoe@example.com',
+                         uuid='John Doe')
+        api.add_identity(self.db, 'scm', 'jdoe@example.com', 'Jon Doe',
+                         uuid='John Doe')
 
         after_dt = datetime.datetime.utcnow()
 
@@ -3265,21 +3262,21 @@ class TestCountries(TestAPICaseBase):
     def test_invalid_country_code(self):
         """Check whether it raises an error when the country code is not valid"""
 
-        exc = COUNTRY_CODE_INVALID_ERROR % {'code' : ''}
+        exc = COUNTRY_CODE_INVALID_ERROR % {'code': ''}
         self.assertRaisesRegex(ValueError, exc,
-                                api.countries, self.db, '')
+                               api.countries, self.db, '')
 
-        exc = COUNTRY_CODE_INVALID_ERROR % {'code' : 'AAA'}
+        exc = COUNTRY_CODE_INVALID_ERROR % {'code': 'AAA'}
         self.assertRaisesRegex(ValueError, exc,
-                                api.countries, self.db, 'AAA')
+                               api.countries, self.db, 'AAA')
 
-        exc = COUNTRY_CODE_INVALID_ERROR % {'code' : '2A'}
+        exc = COUNTRY_CODE_INVALID_ERROR % {'code': '2A'}
         self.assertRaisesRegex(ValueError, exc,
-                                api.countries, self.db, '2A')
+                               api.countries, self.db, '2A')
 
-        exc = COUNTRY_CODE_INVALID_ERROR % {'code' : '8'}
+        exc = COUNTRY_CODE_INVALID_ERROR % {'code': '8'}
         self.assertRaisesRegex(ValueError, exc,
-                                api.countries, self.db, 8)
+                               api.countries, self.db, 8)
 
 
 class TestEnrollments(TestAPICaseBase):
@@ -3447,7 +3444,7 @@ class TestEnrollments(TestAPICaseBase):
         self.assertEqual(len(enrollments), 1)
 
     def test_empty_results(self):
-        "Check cases when the result is empty"
+        """Check cases when the result is empty"""
 
         # First, add a set of uuids, organizations and enrollments
         api.add_unique_identity(self.db, 'John Smith')
@@ -3500,53 +3497,53 @@ class TestEnrollments(TestAPICaseBase):
         """Check whether enrollments cannot be listed giving invalid period ranges"""
 
         self.assertRaisesRegex(ValueError, ENROLLMENT_PERIOD_INVALID_ERROR,
-                                api.enrollments, self.db, 'John Smith', 'Example',
-                                datetime.datetime(2001, 1, 1),
-                                datetime.datetime(1999, 1, 1))
+                               api.enrollments, self.db, 'John Smith', 'Example',
+                               datetime.datetime(2001, 1, 1),
+                               datetime.datetime(1999, 1, 1))
 
         exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type': 'from_date',
                                                        'date': '1899-12-31 23:59:59'}
         self.assertRaisesRegex(ValueError, exc,
-                                api.enrollments, self.db, 'John Smith', 'Example',
-                                datetime.datetime(1899, 12, 31, 23, 59, 59))
+                               api.enrollments, self.db, 'John Smith', 'Example',
+                               datetime.datetime(1899, 12, 31, 23, 59, 59))
 
         exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type': 'from_date',
                                                        'date': '2100-01-01 00:00:01'}
         self.assertRaisesRegex(ValueError, exc,
-                                api.enrollments, self.db, 'John Smith', 'Example',
-                                datetime.datetime(2100, 1, 1, 0, 0, 1))
+                               api.enrollments, self.db, 'John Smith', 'Example',
+                               datetime.datetime(2100, 1, 1, 0, 0, 1))
 
         exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type': 'to_date',
                                                        'date': '2100-01-01 00:00:01'}
         self.assertRaisesRegex(ValueError, exc,
-                                api.enrollments, self.db, 'John Smith', 'Example',
-                                datetime.datetime(1900, 1, 1),
-                                datetime.datetime(2100, 1, 1, 0, 0, 1))
+                               api.enrollments, self.db, 'John Smith', 'Example',
+                               datetime.datetime(1900, 1, 1),
+                               datetime.datetime(2100, 1, 1, 0, 0, 1))
 
         exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type': 'to_date',
                                                        'date': '1899-12-31 23:59:59'}
         self.assertRaisesRegex(ValueError, exc,
-                                api.enrollments, self.db, 'John Smith', 'Example',
-                                datetime.datetime(1900, 1, 1),
-                                datetime.datetime(1899, 12, 31, 23, 59, 59))
+                               api.enrollments, self.db, 'John Smith', 'Example',
+                               datetime.datetime(1900, 1, 1),
+                               datetime.datetime(1899, 12, 31, 23, 59, 59))
 
     def test_not_found_uuid(self):
         """Check whether it raises an error when the uiid is not available"""
 
         # It should raise an error when the registry is empty
         self.assertRaisesRegex(NotFoundError,
-                                NOT_FOUND_ERROR % {'entity' : 'John Smith'},
-                                api.enrollments, self.db,
-                                'John Smith', 'Example')
+                               NOT_FOUND_ERROR % {'entity': 'John Smith'},
+                               api.enrollments, self.db,
+                               'John Smith', 'Example')
 
         # It should do the same when there are some identities available
         api.add_unique_identity(self.db, 'John Smith')
         api.add_unique_identity(self.db, 'John Doe')
 
         self.assertRaisesRegex(NotFoundError,
-                                NOT_FOUND_ERROR % {'entity' : 'Jane Rae'},
-                                api.enrollments, self.db,
-                                'Jane Rae', 'LibreSoft')
+                               NOT_FOUND_ERROR % {'entity': 'Jane Rae'},
+                               api.enrollments, self.db,
+                               'Jane Rae', 'LibreSoft')
 
     def test_not_found_organization(self):
         """Check whether it raises an error when the organization is not available"""
@@ -3555,18 +3552,18 @@ class TestEnrollments(TestAPICaseBase):
 
         # It should raise an error when the registry is empty
         self.assertRaisesRegex(NotFoundError,
-                                NOT_FOUND_ERROR % {'entity' : 'Example'},
-                                api.enrollments, self.db,
-                                'John Smith', 'Example')
+                               NOT_FOUND_ERROR % {'entity': 'Example'},
+                               api.enrollments, self.db,
+                               'John Smith', 'Example')
 
         # It should do the same when there are some orgs available
         api.add_organization(self.db, 'Example')
         api.add_organization(self.db, 'Bitergia')
 
         self.assertRaisesRegex(NotFoundError,
-                                NOT_FOUND_ERROR % {'entity' : 'LibreSoft'},
-                                api.enrollments, self.db,
-                                'John Smith', 'LibreSoft')
+                               NOT_FOUND_ERROR % {'entity': 'LibreSoft'},
+                               api.enrollments, self.db,
+                               'John Smith', 'LibreSoft')
 
 
 class TestBlacklist(TestAPICaseBase):
@@ -3654,4 +3651,3 @@ class TestBlacklist(TestAPICaseBase):
 
 if __name__ == "__main__":
     unittest.main()
-

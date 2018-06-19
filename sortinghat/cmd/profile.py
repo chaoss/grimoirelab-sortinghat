@@ -85,10 +85,7 @@ class Profile(Command):
     def run(self, *args):
         """Endit profile information."""
 
-        #params = self.parser.parse_args(args)
-
         uuid, kwargs = self.__parse_arguments(*args)
-
         code = self.edit_profile(uuid, **kwargs)
 
         return code

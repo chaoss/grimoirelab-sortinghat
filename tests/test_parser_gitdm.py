@@ -25,7 +25,7 @@ import re
 import sys
 import unittest
 
-if not '..' in sys.path:
+if '..' not in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat.db.model import UniqueIdentity, Identity, Enrollment, Organization, Domain
@@ -412,12 +412,12 @@ class TestGidmParser(TestBaseCase):
         """Check whether it raises an error when parsing invalid streams"""
 
         with self.assertRaisesRegex(InvalidFormatError,
-                                     DOMAINS_INVALID_FORMAT_ERROR % {'line' : '10'}):
+                                    DOMAINS_INVALID_FORMAT_ERROR % {'line': '10'}):
             stream = self.read_file('data/gitdm_orgs_invalid_comments.txt')
             GitdmParser(domain_to_employer=stream)
 
         with self.assertRaisesRegex(InvalidFormatError,
-                                     DOMAINS_INVALID_FORMAT_ERROR % {'line' : '8'}):
+                                    DOMAINS_INVALID_FORMAT_ERROR % {'line': '8'}):
             stream = self.read_file('data/gitdm_orgs_invalid_entries.txt')
             GitdmParser(domain_to_employer=stream)
 

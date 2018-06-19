@@ -23,7 +23,7 @@
 import sys
 import unittest
 
-if not '..' in sys.path:
+if '..' not in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat.command import CMD_SUCCESS

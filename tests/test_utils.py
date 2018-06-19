@@ -24,7 +24,7 @@ import datetime
 import sys
 import unittest
 
-if not '..' in sys.path:
+if '..' not in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat.exceptions import InvalidDateError
@@ -134,8 +134,8 @@ class TestMergeDateRanges(unittest.TestCase):
 
         with self.assertRaisesRegexp(ValueError,
                                      DATE_OUT_OF_BOUNDS_ERROR
-                                     % {'type' : 'start date',
-                                        'date' : '1800-01-01 00:00:00'}):
+                                     % {'type': 'start date',
+                                        'date': '1800-01-01 00:00:00'}):
             [r for r in merge_date_ranges(dates)]
 
         # Case 2
@@ -144,8 +144,8 @@ class TestMergeDateRanges(unittest.TestCase):
 
         with self.assertRaisesRegexp(ValueError,
                                      DATE_OUT_OF_BOUNDS_ERROR
-                                     % {'type' : 'end date',
-                                        'date' : '2100-02-01 00:00:00'}):
+                                     % {'type': 'end date',
+                                        'date': '2100-02-01 00:00:00'}):
             [r for r in merge_date_ranges(dates)]
 
     def test_none_list_of_dates(self):
@@ -252,8 +252,8 @@ class TestUUID(unittest.TestCase):
         result = uuid('scm', email='jsmith@example.com')
         self.assertEqual(result, '334da68fcd3da4e799791f73dfada2afb22648c6')
 
-        result= uuid('scm', email='', name='John Smith',
-                     username='jsmith')
+        result = uuid('scm', email='', name='John Smith',
+                      username='jsmith')
         self.assertEqual(result, 'a4b4591c3a2171710c157d7c278ea3cc03becf81')
 
         result = uuid('scm', email='', name='John Smith',
@@ -323,21 +323,21 @@ class TestUUID(unittest.TestCase):
         """Check whether uuid cannot be obtained giving a None source"""
 
         self.assertRaisesRegex(ValueError, SOURCE_NONE_OR_EMPTY_ERROR,
-                                uuid, None)
+                               uuid, None)
 
     def test_empty_source(self):
         """Check whether uuid cannot be obtained giving aadded to the registry"""
 
         self.assertRaisesRegex(ValueError, SOURCE_NONE_OR_EMPTY_ERROR,
-                                uuid, '')
+                               uuid, '')
 
     def test_none_or_empty_data(self):
         """Check whether uuid cannot be obtained when identity data is None or empty"""
 
         self.assertRaisesRegex(ValueError, IDENTITY_NONE_OR_EMPTY_ERROR,
-                                uuid, 'scm', None, '', None)
+                               uuid, 'scm', None, '', None)
         self.assertRaisesRegex(ValueError, IDENTITY_NONE_OR_EMPTY_ERROR,
-                                uuid, 'scm', '', '', '')
+                               uuid, 'scm', '', '', '')
 
 
 if __name__ == "__main__":

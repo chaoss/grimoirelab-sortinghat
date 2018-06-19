@@ -185,17 +185,17 @@ class TestStackalyticsParser(TestBaseCase):
         """Check whether it prints an error when parsing invalid streams"""
 
         with self.assertRaisesRegex(InvalidFormatError,
-                                     STACKALYTICS_INVALID_JSON_FORMAT_ERROR):
+                                    STACKALYTICS_INVALID_JSON_FORMAT_ERROR):
             s = self.read_file('data/stackalytics_invalid.json')
             StackalyticsParser(s)
 
         with self.assertRaisesRegex(InvalidFormatError,
-                                     STACKALYTICS_IDS_MISSING_KEYS_ERROR):
+                                    STACKALYTICS_IDS_MISSING_KEYS_ERROR):
             s = self.read_file('data/stackalytics_ids_missing_keys.json')
             StackalyticsParser(s)
 
         with self.assertRaisesRegex(InvalidFormatError,
-                                     STACKALYTICS_ORGS_MISSING_KEYS_ERROR):
+                                    STACKALYTICS_ORGS_MISSING_KEYS_ERROR):
             s = self.read_file('data/stackalytics_orgs_missing_keys.json')
             StackalyticsParser(s)
 
@@ -203,14 +203,14 @@ class TestStackalyticsParser(TestBaseCase):
         """Check whether it raises an exception when the stream is empty"""
 
         with self.assertRaisesRegex(InvalidFormatError,
-                                     STACKALYTICS_STREAM_INVALID_ERROR):
+                                    STACKALYTICS_STREAM_INVALID_ERROR):
             StackalyticsParser("")
 
     def test_none_stream(self):
         """Check whether it raises an exception when the stream is None"""
 
         with self.assertRaisesRegex(InvalidFormatError,
-                                     STACKALYTICS_STREAM_INVALID_ERROR):
+                                    STACKALYTICS_STREAM_INVALID_ERROR):
             StackalyticsParser(None)
 
 

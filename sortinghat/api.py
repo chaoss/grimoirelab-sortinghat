@@ -722,7 +722,7 @@ def merge_enrollments(db, uuid, organization):
             # We prefer this method to find duplicates
             # to avoid integrity exceptions when creating
             # enrollments that are already in the database
-            is_dup = lambda x, st, en : x.start == st and x.end == en
+            is_dup = lambda x, st, en: x.start == st and x.end == en
 
             filtered = [x for x in disjoint if not is_dup(x, st, en)]
 
@@ -780,7 +780,6 @@ def move_identity(db, from_id, to_uuid):
                 raise NotFoundError(entity=to_uuid)
 
         move_identity_db(session, fid, tuid)
-
 
 
 def match_identities(db, uuid, matcher):
@@ -946,10 +945,10 @@ def search_unique_identities_slice(db, term, offset, limit):
     pattern = '%' + term + '%' if term else None
 
     if offset < 0:
-        raise InvalidValueError('offset must be greater than 0 - %s given' \
+        raise InvalidValueError('offset must be greater than 0 - %s given'
                                 % str(offset))
     if limit < 0:
-        raise InvalidValueError('limit must be greater than 0 - %s given' \
+        raise InvalidValueError('limit must be greater than 0 - %s given'
                                 % str(limit))
 
     with db.connect() as session:
@@ -1112,7 +1111,7 @@ def domains(db, domain=None, top=False):
                     tops = session.query(Domain).\
                         filter(Domain.is_top_domain).order_by(Domain.domain).all()
 
-                    doms = [t for t in tops\
+                    doms = [t for t in tops
                             if d.endswith(add_dot(t.domain))]
 
                     if not doms:
@@ -1166,7 +1165,7 @@ def countries(db, code=None, term=None):
             and code.isalpha()
 
     if code is not None and not _is_code_valid(code):
-        raise InvalidValueError('country code must be a 2 length alpha string - %s given' \
+        raise InvalidValueError('country code must be a 2 length alpha string - %s given'
                                 % str(code))
 
     cs = []

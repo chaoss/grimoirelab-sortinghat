@@ -33,10 +33,10 @@ class GitHubUsernameIdentity(FilteredIdentity):
 
     def to_dict(self):
         return {
-                'id'    : self.id,
-                'uuid'  : self.uuid,
-                'username' : self.username,
-                'source'  : self.source
+                'id': self.id,
+                'uuid': self.uuid,
+                'username': self.username,
+                'source': self.source
                }
 
 

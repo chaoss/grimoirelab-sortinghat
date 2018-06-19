@@ -26,8 +26,7 @@ from ..command import Command, CMD_SUCCESS, HELP_LIST
 from ..exceptions import AlreadyExistsError, NotFoundError, InvalidValueError
 
 
-ORGS_COMMAND_USAGE_MSG = \
-"""%(prog)s orgs -l [term]
+ORGS_COMMAND_USAGE_MSG = """%(prog)s orgs -l [term]
    or: %(prog)s orgs -a <organization> [domain] [--top-domain] [--overwrite]"
    or: %(prog)s orgs -d <organization> [domain]"""
 
@@ -116,7 +115,6 @@ class Organizations(Command):
         domain = params.domain
         is_top_domain = params.top_domain
         overwrite = params.overwrite
-
 
         if params.add:
             code = self.add(organization, domain, is_top_domain, overwrite)

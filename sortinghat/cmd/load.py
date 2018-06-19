@@ -300,7 +300,7 @@ class Load(Command):
             try:
                 self.__load_profile(uidentity.profile, stored_uuid, verbose)
             except Exception as e:
-                self.error("%s. Loading %s profile. Skipping profile." % \
+                self.error("%s. Loading %s profile. Skipping profile." %
                            (str(e), stored_uuid))
 
             self.__load_enrollments(uidentity.enrollments, stored_uuid,
@@ -485,8 +485,8 @@ class Load(Command):
             else:
                 name = None
 
-        kw = {'name' : name,
-              'email' : email}
+        kw = {'name': name,
+              'email': email}
 
         api.edit_profile(self.db, uuid, **kw)
 

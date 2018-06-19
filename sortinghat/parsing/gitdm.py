@@ -53,7 +53,7 @@ class GitdmParser(object):
     :raises InvalidFormatError: raised when the format of any of the
         given streams is not valid.
     """
-    
+
     # Common Gitdm patterns
     VALID_LINE_REGEX = r"^(\S+)[ \t]+([^#\n\r\f\v]+[^#\s])(?:([ \t]+#.*)?|\s*)$"
     LINES_TO_IGNORE_REGEX = r"^\s*(?:#.*)?\s*$"

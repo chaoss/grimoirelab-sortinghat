@@ -39,7 +39,7 @@ class Config(Command):
     """
 
     CONFIG_OPTIONS = {
-                      'db' : ['user', 'password', 'database', 'host', 'port'],
+                      'db': ['user', 'password', 'database', 'host', 'port'],
                       }
 
     def __init__(self, **kwargs):
@@ -149,7 +149,7 @@ class Config(Command):
 
         section, option = key.split('.')
 
-        if not section in config.sections():
+        if section not in config.sections():
             config.add_section(section)
 
         try:

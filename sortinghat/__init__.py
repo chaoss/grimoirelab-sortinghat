@@ -20,7 +20,4 @@
 #     Alvaro del Castillo San Felix <acs@bitergia.com>
 #
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 from ._version import __version__

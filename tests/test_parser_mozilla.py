@@ -24,7 +24,7 @@ import datetime
 import sys
 import unittest
 
-if not '..' in sys.path:
+if '..' not in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat.db.model import UniqueIdentity, Identity, Organization
@@ -179,12 +179,12 @@ class TestMozilliansParser(TestBaseCase):
         """Check whether it prints an error when parsing invalid streams"""
 
         with self.assertRaisesRegex(InvalidFormatError,
-                                     MOZILLIANS_INVALID_JSON_FORMAT_ERROR):
+                                    MOZILLIANS_INVALID_JSON_FORMAT_ERROR):
             s = self.read_file('data/mozillians_invalid.json')
             MozilliansParser(s)
 
         with self.assertRaisesRegex(InvalidFormatError,
-                                     MOZILLIANS_IDS_MISSING_KEYS_ERROR):
+                                    MOZILLIANS_IDS_MISSING_KEYS_ERROR):
             s = self.read_file('data/mozillians_ids_missing_keys.json')
             MozilliansParser(s)
 
@@ -192,14 +192,14 @@ class TestMozilliansParser(TestBaseCase):
         """Check whether it raises an exception when the stream is empty"""
 
         with self.assertRaisesRegex(InvalidFormatError,
-                                     MOZILLIANS_STREAM_INVALID_ERROR):
+                                    MOZILLIANS_STREAM_INVALID_ERROR):
             MozilliansParser("")
 
     def test_none_stream(self):
         """Check whether it raises an exception when the stream is None"""
 
         with self.assertRaisesRegex(InvalidFormatError,
-                                     MOZILLIANS_STREAM_INVALID_ERROR):
+                                    MOZILLIANS_STREAM_INVALID_ERROR):
             MozilliansParser(None)
 
 

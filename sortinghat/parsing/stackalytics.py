@@ -16,7 +16,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 # Authors:
-#	 Santiago Dueñas <sduenas@bitergia.com>
+#     Santiago Dueñas <sduenas@bitergia.com>
 #
 
 from ..db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE, \
@@ -213,8 +213,8 @@ class StackalyticsParser(object):
             org = self._organizations.get(name, None)
 
             if not org:
-               org = Organization(name=name)
-               self._organizations[name] = org
+                org = Organization(name=name)
+                self._organizations[name] = org
 
             start_date = MIN_PERIOD_DATE
             end_date = MAX_PERIOD_DATE

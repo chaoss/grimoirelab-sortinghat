@@ -23,7 +23,7 @@ import configparser
 import sys
 import unittest
 
-if not '..' in sys.path:
+if '..' not in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat.db.database import Database
@@ -48,10 +48,10 @@ class TestDatabaseCaseBase(unittest.TestCase):
         config = configparser.ConfigParser()
         config.read(CONFIG_FILE)
         cls.db_kwargs = {'user': config['Database']['user'],
-                  'password': config['Database']['password'],
-                  'database': config['Database']['name'],
-                  'host': config['Database']['host'],
-                  'port': config['Database']['port']}
+                         'password': config['Database']['password'],
+                         'database': config['Database']['name'],
+                         'host': config['Database']['host'],
+                         'port': config['Database']['port']}
         cls.db = Database(**cls.db_kwargs)
         cls.db.clear()
 

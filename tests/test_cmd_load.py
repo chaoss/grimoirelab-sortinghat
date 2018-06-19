@@ -25,7 +25,7 @@ import sys
 import unittest
 import warnings
 
-if not '..' in sys.path:
+if '..' not in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat import api
@@ -128,7 +128,7 @@ Loading unique identities...
 =====
 2/3 unique identities loaded"""
 
-LOAD_IDENTITIES_OUTPUT_ERROR =  """Error: not enough info to load 0000000000000000000000000000000000000000 unique identity. Skipping.
+LOAD_IDENTITIES_OUTPUT_ERROR = """Error: not enough info to load 0000000000000000000000000000000000000000 unique identity. Skipping.
 Warning: Bitergia already exists in the registry. Organization not updated.
 Warning: Example already exists in the registry. Organization not updated."""
 
@@ -655,7 +655,7 @@ class TestLoadIdentities(TestLoadCaseBase):
 
         # First, insert the identity that will match with one
         # from the file
-        uuid = api.add_identity(self.db, 'unknown', email='jsmith@example')
+        api.add_identity(self.db, 'unknown', email='jsmith@example')
 
         parser = self.get_parser('data/sortinghat_no_strict_valid.json')
 

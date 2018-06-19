@@ -162,9 +162,6 @@ class Unify(Command):
         """Merge a lists of matched unique identities"""
 
         for m in matched:
-
-
-
             u = m[0]
 
             for c in m[1:]:
@@ -198,7 +195,7 @@ class Unify(Command):
 
         while answer not in ['y', 'Y', 'n', 'N', '']:
             try:
-                answer = raw_input("Merge unique identities [Y/n]? ")
+                answer = input("Merge unique identities [Y/n]? ")
             except EOFError:
                 return False
 

@@ -23,7 +23,7 @@
 import sys
 import unittest
 
-if not '..' in sys.path:
+if '..' not in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat import api
@@ -100,11 +100,10 @@ class TestAutoProfileCommand(TestAutoProfileCaseBase):
         self.assertEqual(uids[2].profile.name, None)
         self.assertEqual(uids[2].profile.email, None)
 
-
     def test_autocomplete_profiles(self):
         """Check whether it autocompletes the profiles based on a priority list"""
 
-        code = self.cmd.autocomplete(['mls', 'its'])
+        self.cmd.autocomplete(['mls', 'its'])
 
         uids = api.unique_identities(self.db)
 

@@ -24,7 +24,7 @@ import datetime
 import sys
 import unittest
 
-if not '..' in sys.path:
+if '..' not in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat import api
@@ -301,8 +301,8 @@ class TestEnroll(TestEnrollCaseBase):
 
         # Lets try again with the same period
         code1 = self.cmd.enroll('John Smith', 'Example',
-                               datetime.datetime(1900, 1, 1),
-                               datetime.datetime(2100, 1, 1))
+                                datetime.datetime(1900, 1, 1),
+                                datetime.datetime(2100, 1, 1))
         self.assertEqual(code1, CMD_SUCCESS)
 
         code2 = self.cmd.enroll('John Smith', 'Example',

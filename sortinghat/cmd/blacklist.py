@@ -26,8 +26,7 @@ from ..command import Command, CMD_SUCCESS, HELP_LIST
 from ..exceptions import AlreadyExistsError, NotFoundError, InvalidValueError
 
 
-BLACKLIST_COMMAND_USAGE_MSG = \
-"""%(prog)s blacklist -l [term]
+BLACKLIST_COMMAND_USAGE_MSG = """%(prog)s blacklist -l [term]
    or: %(prog)s blacklist -a <entry>
    or: %(prog)s blacklist -d <entry>"""
 
