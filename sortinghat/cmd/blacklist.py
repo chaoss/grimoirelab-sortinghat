@@ -26,7 +26,7 @@ import argparse
 
 from .. import api
 from ..command import Command, CMD_SUCCESS, HELP_LIST
-from ..exceptions import AlreadyExistsError, NotFoundError, WrappedValueError
+from ..exceptions import AlreadyExistsError, NotFoundError, InvalidValueError
 
 
 BLACKLIST_COMMAND_USAGE_MSG = \
@@ -111,7 +111,7 @@ class Blacklist(Command):
 
         try:
             api.add_to_matching_blacklist(self.db, entry)
-        except WrappedValueError as e:
+        except InvalidValueError as e:
             # If the code reaches here, something really wrong has happened
             # because entry cannot be None or empty
             raise RuntimeError(str(e))

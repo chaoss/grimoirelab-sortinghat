@@ -26,7 +26,7 @@ import argparse
 
 from .. import api, utils
 from ..command import Command, CMD_SUCCESS, HELP_LIST
-from ..exceptions import InvalidDateError, NotFoundError, WrappedValueError
+from ..exceptions import InvalidDateError, NotFoundError, InvalidValueError
 
 
 class Withdraw(Command):
@@ -118,7 +118,7 @@ class Withdraw(Command):
 
         try:
             api.delete_enrollment(self.db, uuid, organization, from_date, to_date)
-        except (NotFoundError, WrappedValueError) as e:
+        except (NotFoundError, InvalidValueError) as e:
             self.error(str(e))
             return e.code
 

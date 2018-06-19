@@ -33,13 +33,13 @@ from sortinghat import api
 from sortinghat.command import CMD_SUCCESS
 from sortinghat.cmd.profile import Profile
 from sortinghat.db.model import Country
-from sortinghat.exceptions import CODE_NOT_FOUND_ERROR
+from sortinghat.exceptions import CODE_NOT_FOUND_ERROR, CODE_VALUE_ERROR
 
 from tests.base import TestCommandCaseBase
 
 
 PROFILE_UUID_NOT_FOUND_ERROR = "Error: FFFFFFFFFFFFFFF not found in the registry"
-PROFILE_COUNTRY_NOT_FOUND_ERROR = "Error: country code ES not found in the registry"
+PROFILE_COUNTRY_NOT_FOUND_ERROR = "Error: 'country_code' (ES) does not match with a valid code"
 
 PROFILE_OUTPUT = """unique identity 17ab00ed3825ec2f50483e33c88df223264182ba
 
@@ -122,7 +122,7 @@ class TestProfileCommand(TestProfileCaseBase):
         """Check whether it raises an error when the code country is not available"""
 
         code = self.cmd.run('17ab00ed3825ec2f50483e33c88df223264182ba', '--country', 'ES')
-        self.assertEqual(code, CODE_NOT_FOUND_ERROR)
+        self.assertEqual(code, CODE_VALUE_ERROR)
         output = sys.stderr.getvalue().strip()
         self.assertEqual(output, PROFILE_COUNTRY_NOT_FOUND_ERROR)
 

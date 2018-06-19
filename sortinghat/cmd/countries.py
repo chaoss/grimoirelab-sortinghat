@@ -26,7 +26,7 @@ import argparse
 
 from .. import api
 from ..command import Command, CMD_SUCCESS, HELP_LIST
-from ..exceptions import NotFoundError, WrappedValueError, CODE_INVALID_FORMAT_ERROR
+from ..exceptions import NotFoundError, InvalidValueError, CODE_INVALID_FORMAT_ERROR
 
 
 class Countries(Command):
@@ -77,7 +77,7 @@ class Countries(Command):
         try:
             countries = api.countries(self.db, code=code, term=term)
             self.display('countries.tmpl', countries=countries)
-        except (NotFoundError, WrappedValueError) as e:
+        except (NotFoundError, InvalidValueError) as e:
             self.error(str(e))
             return e.code
 

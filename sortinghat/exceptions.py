@@ -135,7 +135,7 @@ class NotFoundError(BaseError):
     code = CODE_NOT_FOUND_ERROR
 
 
-class WrappedValueError(ValueError):
-    """Exception WrappedValueError is a normal ValueError with code support"""
+class InvalidValueError(ValueError):
+    """Exception InvalidValueError is a normal ValueError with code support"""
 
     code = CODE_VALUE_ERROR

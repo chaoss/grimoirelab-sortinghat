@@ -39,21 +39,23 @@ from sortinghat.matcher import create_identity_matcher
 from tests.base import TestDatabaseCaseBase
 
 
-UUID_NONE_OR_EMPTY_ERROR = "uuid cannot be"
-ORG_NONE_OR_EMPTY_ERROR = "organization cannot be"
-DOMAIN_NONE_OR_EMPTY_ERROR = "domain cannot be"
-TOP_DOMAIN_VALUE_ERROR = "top_domain must have a boolean value"
+UUID_NONE_OR_EMPTY_ERROR = "'uuid' cannot be"
+ORG_NONE_OR_EMPTY_ERROR = "'name' cannot be"
+DOMAIN_NONE_OR_EMPTY_ERROR = "'domain_name' cannot be"
+TOP_DOMAIN_VALUE_ERROR = "'is_top_domain' must have a boolean value"
 IS_BOT_VALUE_ERROR = "is_bot must have a boolean value"
 SOURCE_NONE_OR_EMPTY_ERROR = "source cannot be"
 IDENTITY_NONE_OR_EMPTY_ERROR = "identity data cannot be None or empty"
-ENTITY_BLACKLIST_NONE_OR_EMPTY_ERROR = "entity to blacklist cannot be"
+ENTITY_BLACKLIST_NONE_OR_EMPTY_ERROR = "'term' to blacklist cannot be"
 COUNTRY_CODE_INVALID_ERROR = "country code must be a 2 length alpha string - %(code)s given"
 ENROLLMENT_PERIOD_INVALID_ERROR = "cannot be greater than "
-ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR = "%(type)s %(date)s is out of bounds"
+ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR = "'%(type)s' %(date)s is out of bounds"
 NOT_FOUND_ERROR = "%(entity)s not found in the registry"
-GENDER_ACC_INVALID_ERROR = "gender_acc is only set when gender is given"
-GENDER_ACC_INVALID_TYPE_ERROR = "gender_acc must have an integer value"
-GENDER_ACC_INVALID_RANGE_ERROR = "gender_acc is not in range (1,100)"
+IS_BOT_VALUE_ERROR = "'is_bot' must have a boolean value"
+COUNTRY_CODE_ERROR = "'country_code' \(%(code)s\) does not match with a valid code"
+GENDER_ACC_INVALID_ERROR = "'gender_acc' can only be set when 'gender' is given"
+GENDER_ACC_INVALID_TYPE_ERROR = "'gender_acc' must have an integer value"
+GENDER_ACC_INVALID_RANGE_ERROR = "'gender_acc' \(%(acc)s\) is not in range \(1,100\)"
 
 
 class TestAPICaseBase(TestDatabaseCaseBase):
@@ -602,17 +604,23 @@ class TestAddDomain(TestAPICaseBase):
     def test_none_domain(self):
         """Check whether None domains cannot be added to the registry"""
 
+        api.add_organization(self.db, 'Example')
+
         self.assertRaisesRegexp(ValueError, DOMAIN_NONE_OR_EMPTY_ERROR,
                                 api.add_domain, self.db, 'Example', None)
 
     def test_empty_domain(self):
         """Check whether empty domains cannot be added to the registry"""
 
+        api.add_organization(self.db, 'Example')
+
         self.assertRaisesRegexp(ValueError, DOMAIN_NONE_OR_EMPTY_ERROR,
                                 api.add_domain, self.db, 'Example', '')
 
     def test_invalid_type_top_domain(self):
         """Check type values of top domain flag"""
+
+        api.add_organization(self.db, 'Example')
 
         self.assertRaisesRegexp(ValueError, TOP_DOMAIN_VALUE_ERROR,
                                 api.add_domain, self.db, 'Example', 'example.com', 1)
@@ -694,31 +702,34 @@ class TestAddEnrollment(TestAPICaseBase):
     def test_period_ranges(self):
         """Check whether enrollments cannot be added giving invalid period ranges"""
 
+        api.add_organization(self.db, 'Example')
+        api.add_unique_identity(self.db, 'John Smith')
+
         self.assertRaisesRegexp(ValueError, ENROLLMENT_PERIOD_INVALID_ERROR,
                                 api.add_enrollment, self.db, 'John Smith', 'Example',
                                 datetime.datetime(2001, 1, 1),
                                 datetime.datetime(1999, 1, 1))
 
-        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'start date',
+        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'from_date',
                                                        'date' : '1899-12-31 23:59:59'}
         self.assertRaisesRegexp(ValueError, exc,
                                 api.add_enrollment, self.db, 'John Smith', 'Example',
                                 datetime.datetime(1899, 12, 31, 23, 59, 59))
 
-        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'start date',
+        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'from_date',
                                                        'date' : '2100-01-01 00:00:01'}
         self.assertRaisesRegexp(ValueError, exc,
                                 api.add_enrollment, self.db, 'John Smith', 'Example',
                                 datetime.datetime(2100, 1, 1, 0, 0, 1))
 
-        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'end date',
+        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'to_date',
                                                        'date' : '2100-01-01 00:00:01'}
         self.assertRaisesRegexp(ValueError, exc,
                                 api.add_enrollment, self.db, 'John Smith', 'Example',
                                 datetime.datetime(1900, 1, 1),
                                 datetime.datetime(2100, 1, 1, 0, 0, 1))
 
-        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'end date',
+        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'to_date',
                                                        'date' : '1899-12-31 23:59:59'}
         self.assertRaisesRegexp(ValueError, exc,
                                 api.add_enrollment, self.db, 'John Smith', 'Example',
@@ -829,10 +840,12 @@ class TestEditProfile(TestAPICaseBase):
             us = Country(code='US', name='United States of America', alpha3='USA')
             session.add(us)
 
-            # There are not profiles for the given uuid yet
+            # The profile is empty for the given uuid
             prf = session.query(Profile).\
                 filter(Profile.uuid == 'John Smith').first()
-            self.assertEqual(prf, None)
+            self.assertIsInstance(prf, Profile)
+            self.assertEqual(prf.name, None)
+            self.assertEqual(prf.email, None)
 
         # Add the new profile
         before_dt = datetime.datetime.utcnow()
@@ -951,8 +964,8 @@ class TestEditProfile(TestAPICaseBase):
             us = Country(code='US', name='United States of America', alpha3='USA')
             session.add(us)
 
-        self.assertRaisesRegexp(NotFoundError,
-                                NOT_FOUND_ERROR % {'entity' : 'country code ES'},
+        self.assertRaisesRegexp(ValueError,
+                                COUNTRY_CODE_ERROR % {'code': 'ES'},
                                 api.edit_profile, self.db, 'John Smith',
                                 **{'country_code' : 'ES'})
 
@@ -990,22 +1003,22 @@ class TestEditProfile(TestAPICaseBase):
                                 api.edit_profile, self.db, 'John Smith',
                                 **{'gender': 'male', 'gender_acc' : '100'})
 
-def test_invalid_range_gender_acc(self):
-    """Check if it fails when gender_acc is given but not the gender"""
+    def test_invalid_range_gender_acc(self):
+        """Check if it fails when gender_acc is given but not the gender"""
 
-    api.add_unique_identity(self.db, 'John Smith')
+        api.add_unique_identity(self.db, 'John Smith')
 
-    self.assertRaisesRegexp(ValueError, GENDER_ACC_INVALID_RANGE_ERROR,
-                            api.edit_profile, self.db, 'John Smith',
-                            **{'gender': 'male', 'gender_acc' : -1})
+        self.assertRaisesRegexp(ValueError, GENDER_ACC_INVALID_RANGE_ERROR % {'acc': '-1'},
+                                api.edit_profile, self.db, 'John Smith',
+                                **{'gender': 'male', 'gender_acc' : -1})
 
-    self.assertRaisesRegexp(ValueError, GENDER_ACC_INVALID_RANGE_ERROR,
-                            api.edit_profile, self.db, 'John Smith',
-                            **{'gender': 'male', 'gender_acc' : 0})
+        self.assertRaisesRegexp(ValueError, GENDER_ACC_INVALID_RANGE_ERROR % {'acc': '0'},
+                                api.edit_profile, self.db, 'John Smith',
+                                **{'gender': 'male', 'gender_acc' : 0})
 
-    self.assertRaisesRegexp(ValueError, GENDER_ACC_INVALID_RANGE_ERROR,
-                            api.edit_profile, self.db, 'John Smith',
-                            **{'gender': 'male', 'gender_acc' : 101})
+        self.assertRaisesRegexp(ValueError, GENDER_ACC_INVALID_RANGE_ERROR % {'acc': '101'},
+                                api.edit_profile, self.db, 'John Smith',
+                                **{'gender': 'male', 'gender_acc' : 101})
 
 
 class TestDeleteUniqueIdentity(TestAPICaseBase):
@@ -1519,31 +1532,34 @@ class TestDeleteEnrollment(TestAPICaseBase):
     def test_period_ranges(self):
         """Check whether enrollments cannot be removed giving invalid period ranges"""
 
+        api.add_unique_identity(self.db, 'John Smith')
+        api.add_organization(self.db, 'Example')
+
         self.assertRaisesRegexp(ValueError, ENROLLMENT_PERIOD_INVALID_ERROR,
                                 api.delete_enrollment, self.db, 'John Smith', 'Example',
                                 datetime.datetime(2001, 1, 1),
                                 datetime.datetime(1999, 1, 1))
 
-        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'start date',
+        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'from_date',
                                                        'date' : '1899-12-31 23:59:59'}
         self.assertRaisesRegexp(ValueError, exc,
                                 api.delete_enrollment, self.db, 'John Smith', 'Example',
                                 datetime.datetime(1899, 12, 31, 23, 59, 59))
 
-        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'start date',
+        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'from_date',
                                                        'date' : '2100-01-01 00:00:01'}
         self.assertRaisesRegexp(ValueError, exc,
                                 api.delete_enrollment, self.db, 'John Smith', 'Example',
                                 datetime.datetime(2100, 1, 1, 0, 0, 1))
 
-        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'end date',
+        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'to_date',
                                                        'date' : '2100-01-01 00:00:01'}
         self.assertRaisesRegexp(ValueError, exc,
                                 api.delete_enrollment, self.db, 'John Smith', 'Example',
                                 datetime.datetime(1900, 1, 1),
                                 datetime.datetime(2100, 1, 1, 0, 0, 1))
 
-        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'end date',
+        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'to_date',
                                                        'date' : '1899-12-31 23:59:59'}
         self.assertRaisesRegexp(ValueError, exc,
                                 api.delete_enrollment, self.db, 'John Smith', 'Example',
@@ -2016,10 +2032,6 @@ class TestMergeUniqueIdentities(TestAPICaseBase):
             self.assertGreaterEqual(before_merge_dt, uid.identities[0].last_modified)
             self.assertGreaterEqual(after_merge_dt, uid.identities[0].last_modified)
 
-            # Merged identities have the date updated
-            self.assertEqual(uid.identities[1].last_modified, uid.last_modified)
-            self.assertEqual(uid.identities[2].last_modified, uid.last_modified)
-
     def test_merge_identities_and_swap_profile(self):
         """Test swap of profiles when a unique identity does not have one"""
 
@@ -2464,7 +2476,8 @@ class TestUniqueIdentities(TestAPICaseBase):
         # Test John Doe unique identity
         uid = uidentities[1]
         self.assertEqual(uid.uuid, 'c6d2504fde0e34b78a185c4b709e5442d045451c')
-        self.assertEqual(uid.profile, None)
+        self.assertEqual(uid.profile.name, None)
+        self.assertEqual(uid.profile.email, None)
 
         self.assertEqual(len(uid.identities), 2)
 
@@ -3494,29 +3507,29 @@ class TestEnrollments(TestAPICaseBase):
                                 datetime.datetime(2001, 1, 1),
                                 datetime.datetime(1999, 1, 1))
 
-        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'start date',
-                                                       'date' : '1899-12-31 23:59:59'}
+        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type': 'from_date',
+                                                       'date': '1899-12-31 23:59:59'}
         self.assertRaisesRegexp(ValueError, exc,
-                                api.delete_enrollment, self.db, 'John Smith', 'Example',
+                                api.enrollments, self.db, 'John Smith', 'Example',
                                 datetime.datetime(1899, 12, 31, 23, 59, 59))
 
-        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'start date',
-                                                       'date' : '2100-01-01 00:00:01'}
+        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type': 'from_date',
+                                                       'date': '2100-01-01 00:00:01'}
         self.assertRaisesRegexp(ValueError, exc,
-                                api.delete_enrollment, self.db, 'John Smith', 'Example',
+                                api.enrollments, self.db, 'John Smith', 'Example',
                                 datetime.datetime(2100, 1, 1, 0, 0, 1))
 
-        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'end date',
-                                                       'date' : '2100-01-01 00:00:01'}
+        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type': 'to_date',
+                                                       'date': '2100-01-01 00:00:01'}
         self.assertRaisesRegexp(ValueError, exc,
-                                api.delete_enrollment, self.db, 'John Smith', 'Example',
+                                api.enrollments, self.db, 'John Smith', 'Example',
                                 datetime.datetime(1900, 1, 1),
                                 datetime.datetime(2100, 1, 1, 0, 0, 1))
 
-        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type' : 'end date',
-                                                       'date' : '1899-12-31 23:59:59'}
+        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type': 'to_date',
+                                                       'date': '1899-12-31 23:59:59'}
         self.assertRaisesRegexp(ValueError, exc,
-                                api.delete_enrollment, self.db, 'John Smith', 'Example',
+                                api.enrollments, self.db, 'John Smith', 'Example',
                                 datetime.datetime(1900, 1, 1),
                                 datetime.datetime(1899, 12, 31, 23, 59, 59))
 
@@ -3644,3 +3657,4 @@ class TestBlacklist(TestAPICaseBase):
 
 if __name__ == "__main__":
     unittest.main()
+

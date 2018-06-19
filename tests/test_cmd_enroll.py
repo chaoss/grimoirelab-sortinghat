@@ -40,7 +40,7 @@ from tests.base import TestCommandCaseBase
 
 ENROLL_UUID_NOT_FOUND_ERROR = "Error: Jane Roe not found in the registry"
 ENROLL_ORG_NOT_FOUND_ERROR = "Error: LibreSoft not found in the registry"
-ENROLL_INVALID_PERIOD_ERROR = "Error: start date 2001-01-01 00:00:00 cannot be greater than 1999-01-01 00:00:00"
+ENROLL_INVALID_PERIOD_ERROR = "Error: 'from_date' 2001-01-01 00:00:00 cannot be greater than 1999-01-01 00:00:00"
 ENROLL_EXISTING_ERROR = "Error: John Smith-Example-1900-01-01 00:00:00-2100-01-01 00:00:00 already exists in the registry"
 ENROLL_INVALID_DATE_ERROR = "Error: 1999-13-01 is not a valid date"
 ENROLL_INVALID_FORMAT_DATE_ERROR = "Error: YYZYY is not a valid date"

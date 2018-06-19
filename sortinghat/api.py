@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2017 Bitergia
+# Copyright (C) 2014-2018 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,13 +24,31 @@ from __future__ import unicode_literals
 
 import datetime
 
-from sqlalchemy import distinct, func
-
 from . import utils
-from .db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE,\
-    UniqueIdentity, Identity, Profile, Organization, Domain, Country, Enrollment,\
+from .db.api import (add_unique_identity as add_unique_identity_db,
+                     add_identity as add_identity_db,
+                     add_organization as add_organization_db,
+                     add_domain as add_domain_db,
+                     add_to_matching_blacklist as add_to_matching_blacklist_db,
+                     enroll as enroll_db,
+                     edit_profile as edit_profile_db,
+                     move_identity as move_identity_db,
+                     move_enrollment as move_enrollment_db,
+                     delete_unique_identity as delete_unique_identity_db,
+                     delete_identity as delete_identity_db,
+                     delete_organization as delete_organization_db,
+                     delete_domain as delete_domain_db,
+                     delete_enrollment as delete_enrollment_db,
+                     delete_from_matching_blacklist as delete_from_matching_blacklist_db,
+                     withdraw as withdraw_db,
+                     find_unique_identity,
+                     find_identity,
+                     find_organization,
+                     find_domain)
+from .db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE, \
+    UniqueIdentity, Identity, Profile, Organization, Domain, Country, Enrollment, \
     MatchingBlacklist
-from .exceptions import AlreadyExistsError, NotFoundError, WrappedValueError
+from .exceptions import AlreadyExistsError, NotFoundError, InvalidValueError
 
 
 def add_unique_identity(db, uuid):
@@ -44,28 +62,21 @@ def add_unique_identity(db, uuid):
     :param db: database manager
     :param uuid: unique identifier for the identity
 
-    :raises ValueError: when uuid is None or an empty string
+    :raises InvalidValueError: when uuid is None or an empty string
     :raises AlreadyExistsError: when the identifier already exists
         in the registry.
     """
-    if uuid is None:
-        raise ValueError('uuid cannot be None')
-    if uuid == '':
-        raise ValueError('uuid cannot be an empty string')
-
     with db.connect() as session:
-        uidentity = session.query(UniqueIdentity).\
-            filter(UniqueIdentity.uuid == uuid).first()
+        uidentity = find_unique_identity(session, uuid)
 
         if uidentity:
             raise AlreadyExistsError(entity=uuid, uuid=uuid)
 
-        uidentity = UniqueIdentity(uuid=uuid)
+        try:
+            add_unique_identity_db(session, uuid)
+        except ValueError as e:
+            raise InvalidValueError(e)
 
-        last_modified = datetime.datetime.utcnow()
-        uidentity.last_modified = last_modified
-
-        session.add(uidentity)
 
 def add_identity(db, source, email=None, name=None, username=None, uuid=None):
     """Add an identity to the registry.
@@ -99,39 +110,22 @@ def add_identity(db, source, email=None, name=None, username=None, uuid=None):
 
     :returns: a universal unique identifier
 
-    :raises ValueError: when source is None or empty; each one of the
+    :raises InvalidValueError: when source is None or empty; each one of the
         parameters is None; parameters are empty.
     :raises AlreadyExistsError: raised when the identity already exists
         in the registry.
     :raises NotFoundError: raised when the unique identity associated
         to the given 'uuid' is not in the registry.
     """
-    def _find_unique_identity(session, uuid):
-        """Find a unique identity.
-
-        :param session: database session
-        :param uuid: unique identity to find
-
-        :returns: a unique identity object
-        """
-        uidentity = session.query(UniqueIdentity).\
-            filter(UniqueIdentity.uuid == uuid).first()
-        return uidentity
-
-    if source is None:
-        raise WrappedValueError('source cannot be None')
-    if source == '':
-        raise WrappedValueError('source cannot be an empty string')
-    if not (email or name or username):
-        raise WrappedValueError('identity data cannot be None or empty')
-
     with db.connect() as session:
         # Each identity needs a unique identifier
-        identity_id = utils.uuid(source, email=email,
-                                 name=name, username=username)
+        try:
+            identity_id = utils.uuid(source, email=email,
+                                     name=name, username=username)
+        except ValueError as e:
+            raise InvalidValueError(e)
 
-        identity = session.query(Identity).\
-            filter(Identity.id == identity_id).first()
+        identity = find_identity(session, identity_id)
 
         if identity:
             entity = '-'.join((utils.to_unicode(source), utils.to_unicode(email),
@@ -143,7 +137,7 @@ def add_identity(db, source, email=None, name=None, username=None, uuid=None):
             # Double check to prevent from cases where the values
             # of email, name and username are "None" strings. This
             # may return the same UUID.
-            uidentity = _find_unique_identity(session, identity_id)
+            uidentity = find_unique_identity(session, identity_id)
 
             if uidentity:
                 entity = '-'.join((utils.to_unicode(identity_id), utils.to_unicode(source),
@@ -152,23 +146,18 @@ def add_identity(db, source, email=None, name=None, username=None, uuid=None):
                 raise AlreadyExistsError(entity=entity,
                                          uuid=identity_id)
 
-            uidentity = UniqueIdentity(uuid=identity_id)
-            session.add(uidentity)
+            uidentity = add_unique_identity_db(session, identity_id)
         else:
-            uidentity = _find_unique_identity(session, uuid)
+            uidentity = find_unique_identity(session, uuid)
 
         if not uidentity:
             raise NotFoundError(entity=uuid)
 
-        identity = Identity(id=identity_id, name=name, email=email,
-                            username=username, source=source)
-        identity.uidentity = uidentity
-
-        last_modified = datetime.datetime.utcnow()
-        identity.last_modified = last_modified
-        uidentity.last_modified = last_modified
-
-        session.add(identity)
+        try:
+            add_identity_db(session, uidentity, identity_id, source,
+                            name=name, email=email, username=username)
+        except ValueError as e:
+            raise InvalidValueError(e)
 
         return identity_id
 
@@ -185,24 +174,20 @@ def add_organization(db, organization):
     :param db: database manager
     :param organization: name of the organization
 
-    :raises ValueError: raised when organization is None or an empty string
+    :raises InvalidValueError: raised when organization is None or an empty string
     :raises AlreadyExistsError: raised when the organization already exists
         in the registry.
     """
-    if organization is None:
-        raise WrappedValueError('organization cannot be None')
-    if organization == '':
-        raise WrappedValueError('organization cannot be an empty string')
-
     with db.connect() as session:
-        org = session.query(Organization).\
-            filter(Organization.name == organization).first()
+        org = find_organization(session, organization)
 
         if org:
             raise AlreadyExistsError(entity=organization)
 
-        org = Organization(name=organization)
-        session.add(org)
+        try:
+            add_organization_db(session, organization)
+        except ValueError as e:
+            raise InvalidValueError(e)
 
 
 def add_domain(db, organization, domain, is_top_domain=False, overwrite=False):
@@ -233,38 +218,31 @@ def add_domain(db, organization, domain, is_top_domain=False, overwrite=False):
     :param overwrite: force to reassign the domain to the given organization
         and to update top domain field
 
-    :raises ValueError: raised when domain is None or an empty string or
+    :raises InvalidValueError: raised when domain is None or an empty string or
         is_top_domain does not have a boolean value
     :raises NotFoundError: raised when the given organization is not found
         in the registry
     :raises AlreadyExistsError: raised when the domain already exists
         in the registry
     """
-    if domain is None:
-        raise WrappedValueError('domain cannot be None')
-    if domain == '':
-        raise WrappedValueError('domain cannot be an empty string')
-    if type(is_top_domain) != bool:
-        raise WrappedValueError('top_domain must have a boolean value')
-
     with db.connect() as session:
-        org = session.query(Organization).\
-            filter(Organization.name == organization).first()
+        org = find_organization(session, organization)
 
         if not org:
             raise NotFoundError(entity=organization)
 
-        dom = session.query(Domain).\
-            filter(Domain.domain == domain).first()
+        dom = find_domain(session, domain)
 
         if dom and not overwrite:
             raise AlreadyExistsError(entity=dom)
-        elif not dom:
-            dom = Domain(domain=domain)
+        elif dom:
+            delete_domain_db(session, dom)
 
-        dom.organization = org
-        dom.is_top_domain = is_top_domain
-        session.add(dom)
+        try:
+            add_domain_db(session, org, domain,
+                          is_top_domain=is_top_domain)
+        except ValueError as e:
+            raise InvalidValueError(e)
 
 
 def add_enrollment(db, uuid, organization, from_date=None, to_date=None):
@@ -290,44 +268,33 @@ def add_enrollment(db, uuid, organization, from_date=None, to_date=None):
 
     :raises NotFoundError: when either 'uuid' or 'organization' are not
         found in the registry.
-    :raises ValeError: raised in three cases, when either identity or
+    :raises InvalidValeError: raised in three cases, when either identity or
         organization are None or empty strings; when "from_date" < 1900-01-01 or
         "to_date" > 2100-01-01; when "from_date > to_date"
     :raises AlreadyExistsError: raised when given enrollment already exists
         in the registry.
     """
     if uuid is None:
-        raise WrappedValueError('uuid cannot be None')
+        raise InvalidValueError('uuid cannot be None')
     if uuid == '':
-        raise WrappedValueError('uuid cannot be an empty string')
+        raise InvalidValueError('uuid cannot be an empty string')
     if organization is None:
-        raise WrappedValueError('organization cannot be None')
+        raise InvalidValueError('organization cannot be None')
     if organization == '':
-        raise WrappedValueError('organization cannot be an empty string')
+        raise InvalidValueError('organization cannot be an empty string')
 
     if not from_date:
         from_date = MIN_PERIOD_DATE
     if not to_date:
         to_date = MAX_PERIOD_DATE
 
-    if from_date < MIN_PERIOD_DATE or from_date > MAX_PERIOD_DATE:
-        raise WrappedValueError('start date %s is out of bounds' % str(from_date))
-    if to_date < MIN_PERIOD_DATE or to_date > MAX_PERIOD_DATE:
-        raise WrappedValueError('end date %s is out of bounds' % str(to_date))
-
-    if from_date > to_date:
-        raise WrappedValueError('start date %s cannot be greater than %s'
-                         % (from_date, to_date))
-
     with db.connect() as session:
-        uidentity = session.query(UniqueIdentity).\
-            filter(UniqueIdentity.uuid == uuid).first()
+        uidentity = find_unique_identity(session, uuid)
 
         if not uidentity:
             raise NotFoundError(entity=uuid)
 
-        org = session.query(Organization).\
-            filter(Organization.name == organization).first()
+        org = find_organization(session, organization)
 
         if not org:
             raise NotFoundError(entity=organization)
@@ -343,13 +310,11 @@ def add_enrollment(db, uuid, organization, from_date=None, to_date=None):
                               str(enrollment.start), str(enrollment.end)))
             raise AlreadyExistsError(entity=entity)
 
-        enrollment = Enrollment(uidentity=uidentity, organization=org,
-                                start=from_date, end=to_date)
-
-        last_modified = datetime.datetime.utcnow()
-        uidentity.last_modified = last_modified
-
-        session.add(enrollment)
+        try:
+            enroll_db(session, uidentity, org,
+                      from_date=from_date, to_date=to_date)
+        except ValueError as e:
+            raise InvalidValueError(e)
 
 
 def add_to_matching_blacklist(db, entity):
@@ -357,21 +322,16 @@ def add_to_matching_blacklist(db, entity):
 
     This function adds an 'entity' o term to the matching blacklist.
     The term to add cannot have a None or empty value, in this case
-    a ValueError will be raised. If the given 'entity' exists in the
+    a InvalidValueError will be raised. If the given 'entity' exists in the
     registry, the function will raise an AlreadyExistsError exception.
 
     :param db: database manager
     :param entity: term, word or value to blacklist
 
-    :raises ValueError: raised when entity is None or an empty string
+    :raises InvalidValueError: raised when entity is None or an empty string
     :raises AlreadyExistsError: raised when the entity already exists
         in the registry.
     """
-    if entity is None:
-        raise WrappedValueError('entity to blacklist cannot be None')
-    if entity == '':
-        raise WrappedValueError('entity to blacklist cannot be an empty string')
-
     with db.connect() as session:
         mb = session.query(MatchingBlacklist).\
             filter(MatchingBlacklist.excluded == entity).first()
@@ -379,8 +339,10 @@ def add_to_matching_blacklist(db, entity):
         if mb:
             raise AlreadyExistsError(entity=entity)
 
-        mb = MatchingBlacklist(excluded=entity)
-        session.add(mb)
+        try:
+            add_to_matching_blacklist_db(session, entity)
+        except ValueError as e:
+            raise InvalidValueError(e)
 
 
 def edit_profile(db, uuid, **kwargs):
@@ -404,73 +366,21 @@ def edit_profile(db, uuid, **kwargs):
 
     :raises NotFoundError: raised when either the unique identity
         or the country code do not exist in the registry.
-    :raises ValueError: raised when is_bot does not have a boolean
+    :raises InvalidValueError: raised when is_bot does not have a boolean
         value.
     """
     with db.connect() as session:
-        uidentity = session.query(UniqueIdentity).\
-            filter(UniqueIdentity.uuid == uuid).first()
+        uidentity = find_unique_identity(session, uuid)
 
         if not uidentity:
             raise NotFoundError(entity=uuid)
-
         if not uidentity.profile:
-            # Create a new profile
-            profile = Profile(uuid=uuid)
-        else:
-            profile = uidentity.profile
+            uidentity.profile = Profile()
 
-        if 'is_bot' in kwargs:
-            is_bot = kwargs['is_bot']
-
-            if type(is_bot) != bool:
-                raise WrappedValueError('is_bot must have a boolean value')
-
-            profile.is_bot = is_bot
-
-        if 'country_code' in kwargs:
-            code = kwargs['country_code']
-
-            if code:
-                country = session.query(Country).\
-                    filter(Country.code == code).first()
-
-                if not country:
-                    raise NotFoundError(entity='country code %s' % str(code))
-
-                profile.country_code = country.code
-            else:
-                profile.country_code = None
-
-        # Function to avoid empty strings on the database
-        to_none_if_empty = lambda x: None if not x else x
-
-        if 'name' in kwargs:
-            profile.name = to_none_if_empty(kwargs['name'])
-        if 'email' in kwargs:
-            profile.email = to_none_if_empty(kwargs['email'])
-
-        if 'gender' in kwargs:
-            profile.gender = to_none_if_empty(kwargs['gender'])
-
-            if not profile.gender:
-                gender_acc = None
-            else:
-                gender_acc = kwargs.get('gender_acc', 100)
-
-                if type(gender_acc) != int:
-                    raise WrappedValueError('gender_acc must have an integer value')
-                elif not 1 <= gender_acc <= 100:
-                    raise WrappedValueError('gender_acc is not in range (1,100)')
-
-            profile.gender_acc = gender_acc
-        elif 'gender_acc' in kwargs:
-            raise WrappedValueError('gender_acc is only set when gender is given')
-
-        last_modified = datetime.datetime.utcnow()
-        uidentity.last_modified = last_modified
-
-        session.add(profile)
+        try:
+            edit_profile_db(session, uidentity, **kwargs)
+        except ValueError as e:
+            raise InvalidValueError(e)
 
 
 def delete_unique_identity(db, uuid):
@@ -492,13 +402,12 @@ def delete_unique_identity(db, uuid):
         in the registry.
     """
     with db.connect() as session:
-        uidentity = session.query(UniqueIdentity).\
-            filter(UniqueIdentity.uuid == uuid).first()
+        uidentity = find_unique_identity(session, uuid)
 
         if not uidentity:
             raise NotFoundError(entity=uuid)
 
-        session.delete(uidentity)
+        delete_unique_identity_db(session, uidentity)
 
 
 def delete_identity(db, identity_id):
@@ -519,16 +428,12 @@ def delete_identity(db, identity_id):
         registry.
     """
     with db.connect() as session:
-        identity = session.query(Identity).\
-            filter(Identity.id == identity_id).first()
+        identity = find_identity(session, identity_id)
 
         if not identity:
             raise NotFoundError(entity=identity_id)
 
-        last_modified = datetime.datetime.utcnow()
-        identity.uidentity.last_modified = last_modified
-
-        session.delete(identity)
+        delete_identity_db(session, identity)
 
 
 def delete_organization(db, organization):
@@ -547,13 +452,12 @@ def delete_organization(db, organization):
         in the registry.
     """
     with db.connect() as session:
-        org = session.query(Organization).\
-            filter(Organization.name == organization).first()
+        org = find_organization(session, organization)
 
         if not org:
             raise NotFoundError(entity=organization)
 
-        session.delete(org)
+        delete_organization_db(session, org)
 
 
 def delete_domain(db, organization, domain):
@@ -571,8 +475,7 @@ def delete_domain(db, organization, domain):
         do not exist in the registry.
     """
     with db.connect() as session:
-        org = session.query(Organization).\
-            filter(Organization.name == organization).first()
+        org = find_organization(session, organization)
 
         if not org:
             raise NotFoundError(entity=organization)
@@ -584,7 +487,7 @@ def delete_domain(db, organization, domain):
         if not dom:
             raise NotFoundError(entity=domain)
 
-        session.delete(dom)
+        delete_domain_db(session, dom)
 
 
 def delete_enrollment(db, uuid, organization, from_date=None, to_date=None):
@@ -608,52 +511,46 @@ def delete_enrollment(db, uuid, organization, from_date=None, to_date=None):
 
     :raises NotFoundError: when either 'uuid' or 'organization' are not
         found in the registry.
-    :raises ValeError: it is raised in two cases, when "from_date" < 1900-01-01 or
-        "to_date" > 2100-01-01; when "from_date > to_date".
+    :raises InvalidValeError: raised in three cases, when either identity or
+        organization are None or empty strings; when "from_date" < 1900-01-01 or
+        "to_date" > 2100-01-01; when "from_date > to_date"
     """
+    if uuid is None:
+        raise InvalidValueError('uuid cannot be None')
+    if uuid == '':
+        raise InvalidValueError('uuid cannot be an empty string')
+    if organization is None:
+        raise InvalidValueError('organization cannot be None')
+    if organization == '':
+        raise InvalidValueError('organization cannot be an empty string')
+
     if not from_date:
         from_date = MIN_PERIOD_DATE
     if not to_date:
         to_date = MAX_PERIOD_DATE
 
-    if from_date < MIN_PERIOD_DATE or from_date > MAX_PERIOD_DATE:
-        raise WrappedValueError('start date %s is out of bounds' % str(from_date))
-    if to_date < MIN_PERIOD_DATE or to_date > MAX_PERIOD_DATE:
-        raise WrappedValueError('end date %s is out of bounds' % str(to_date))
-
-    if from_date > to_date:
-        raise WrappedValueError('start date %s cannot be greater than %s'
-                         % (from_date, to_date))
-
     with db.connect() as session:
-        identity = session.query(UniqueIdentity).\
-            filter(UniqueIdentity.uuid == uuid).first()
+        uidentity = find_unique_identity(session, uuid)
 
-        if not identity:
+        if not uidentity:
             raise NotFoundError(entity=uuid)
 
-        org = session.query(Organization).\
-            filter(Organization.name == organization).first()
+        org = find_organization(session, organization)
 
         if not org:
             raise NotFoundError(entity=organization)
 
-        enrollments = session.query(Enrollment).\
-            filter(Enrollment.uidentity == identity,
-                   Enrollment.organization == org,
-                   from_date <= Enrollment.start,
-                   Enrollment.end <= to_date).all()
+        try:
+            deleted = withdraw_db(session, uidentity, org,
+                                  from_date=from_date,
+                                  to_date=to_date)
+        except ValueError as e:
+            raise InvalidValueError(e)
 
-        if not enrollments:
+        if deleted == 0:
             entity = '-'.join((uuid, organization,
                               str(from_date), str(to_date)))
             raise NotFoundError(entity=entity)
-
-        for enr in enrollments:
-            session.delete(enr)
-
-        last_modified = datetime.datetime.utcnow()
-        identity.last_modified = last_modified
 
 
 def delete_from_matching_blacklist(db, entity):
@@ -677,7 +574,7 @@ def delete_from_matching_blacklist(db, entity):
         if not mb:
             raise NotFoundError(entity=entity)
 
-        session.delete(mb)
+        delete_from_matching_blacklist_db(session, mb)
 
 
 def merge_unique_identities(db, from_uuid, to_uuid):
@@ -708,10 +605,8 @@ def merge_unique_identities(db, from_uuid, to_uuid):
         do not exist in the registry
     """
     with db.connect() as session:
-        fuid = session.query(UniqueIdentity).\
-            filter(UniqueIdentity.uuid == from_uuid).first()
-        tuid = session.query(UniqueIdentity).\
-            filter(UniqueIdentity.uuid == to_uuid).first()
+        fuid = find_unique_identity(session, from_uuid)
+        tuid = find_unique_identity(session, to_uuid)
 
         if not fuid:
             raise NotFoundError(entity=from_uuid)
@@ -724,33 +619,31 @@ def merge_unique_identities(db, from_uuid, to_uuid):
 
         # Update profile information
         if tuid.profile and fuid.profile:
-            # Update empty fields
+            # Update data giving priority to 'to_uuid'.
+            # When 'is_bot' is set to True in any of the unique identities
+            # it will remain the same.
+
+            profile_data = {}
+
             if not tuid.profile.name:
-                tuid.profile.name = fuid.profile.name
+                profile_data['name'] = fuid.profile.name
             if not tuid.profile.email:
-                tuid.profile.email = fuid.profile.email
-            if not tuid.profile.gender:
-                tuid.profile.gender = fuid.profile.gender
-                tuid.profile.gender_acc = fuid.profile.gender_acc
+                profile_data['email'] = fuid.profile.email
             if not tuid.profile.country_code:
-                tuid.profile.country_code = fuid.profile.country_code
-
-            # If the from_uuid is a bot, set to_uuid as a bot
+                profile_data['country_code'] = fuid.profile.country_code
+            if not tuid.profile.gender:
+                profile_data['gender'] = fuid.profile.gender
+                profile_data['gender_acc'] = fuid.profile.gender_acc
             if fuid.profile.is_bot:
-                tuid.profile.is_bot = True
-        elif not tuid.profile and fuid.profile:
-            # Swap profiles
-            fuid.profile.uuid = to_uuid
+                profile_data['is_bot'] = True
 
-        last_modified = datetime.datetime.utcnow()
-        tuid.last_modified = last_modified
+            edit_profile_db(session, tuid, **profile_data)
 
         # Update identities
         for identity in fuid.identities:
-            identity.uuid = to_uuid
-            identity.last_modified = last_modified
+            move_identity_db(session, identity, tuid)
 
-        # Update and remove duplicated enrollments
+        # Move those enrollments that to_uid does not have
         for rol in fuid.enrollments:
             enrollment = session.query(Enrollment).\
                 filter(Enrollment.uidentity == tuid,
@@ -758,17 +651,15 @@ def merge_unique_identities(db, from_uuid, to_uuid):
                        Enrollment.start == rol.start,
                        Enrollment.end == rol.end).first()
 
-            if enrollment:
-                session.delete(rol)
-            else:
-                rol.uuid = to_uuid
+            if not enrollment:
+                move_enrollment_db(session, rol, tuid)
 
         # For some reason, uuid are not updated until changes are
         # committed (flush does nothing). Force to commit changes
         # to avoid deletion of identities when removing 'fuid'
         session.commit()
 
-        session.delete(fuid)
+        delete_unique_identity_db(session, fuid)
 
         # Retrieve of organizations to merge the enrollments,
         # before closing the session
@@ -798,7 +689,7 @@ def merge_enrollments(db, uuid, organization):
      * [(1900-01-01, 2010-01-01), (2010-01-02, 2100-01-01)]
            --> (1900-01-01, 2010-01-01), (2010-01-02, 2100-01-01)
 
-    It may raise a ValueError when any date is out of bounds. In other words, when
+    It may raise a InvalidValueError when any date is out of bounds. In other words, when
     any date < 1900-01-01 or date > 2100-01-01.
 
     :param db: database manager
@@ -808,18 +699,16 @@ def merge_enrollments(db, uuid, organization):
     :raises NotFoundError: when either 'uuid' or 'organization' are not
         found in the registry. It is also raised when there are not enrollments
         related to 'uuid' and 'organization'
-    :raises ValueError: when any date is out of bounds
+    :raises InvalidValueError: when any date is out of bounds
     """
     # Merge enrollments
     with db.connect() as session:
-        uidentity = session.query(UniqueIdentity).\
-            filter(UniqueIdentity.uuid == uuid).first()
+        uidentity = find_unique_identity(session, uuid)
 
         if not uidentity:
             raise NotFoundError(entity=uuid)
 
-        org = session.query(Organization).\
-            filter(Organization.name == organization).first()
+        org = find_organization(session, organization)
 
         if not org:
             raise NotFoundError(entity=organization)
@@ -848,16 +737,15 @@ def merge_enrollments(db, uuid, organization):
 
             # This means no dups where found so we need to add a
             # new enrollment
-            enr = Enrollment(uidentity=uidentity, organization=org,
-                             start=st, end=en)
-            session.add(enr)
+            try:
+                enroll_db(session, uidentity, org,
+                          from_date=st, to_date=en)
+            except ValueError as e:
+                raise InvalidValueError(e)
 
         # Remove disjoint enrollments from the registry
         for enr in disjoint:
-            session.delete(enr)
-
-        last_modified = datetime.datetime.utcnow()
-        uidentity.last_modified = last_modified
+            delete_enrollment_db(session, enr)
 
 
 def move_identity(db, from_id, to_uuid):
@@ -884,33 +772,20 @@ def move_identity(db, from_id, to_uuid):
         do not exist in the registry
     """
     with db.connect() as session:
-        fid = session.query(Identity).\
-            filter(Identity.id == from_id).first()
-        tuid = session.query(UniqueIdentity).\
-            filter(UniqueIdentity.uuid == to_uuid).first()
+        fid = find_identity(session, from_id)
+        tuid = find_unique_identity(session, to_uuid)
 
         if not fid:
             raise NotFoundError(entity=from_id)
         if not tuid:
             # Move identity to a new one
             if from_id == to_uuid:
-                tuid = UniqueIdentity(uuid=to_uuid)
-                session.add(tuid)
+                tuid = add_unique_identity_db(session, to_uuid)
             else:
                 raise NotFoundError(entity=to_uuid)
 
-        if fid.uuid == to_uuid:
-            return
+        move_identity_db(session, fid, tuid)
 
-        fuid = session.query(UniqueIdentity).\
-            filter(UniqueIdentity.uuid == fid.uuid).first()
-
-        last_modified = datetime.datetime.utcnow()
-
-        fid.uuid = to_uuid
-        fuid.last_modified = last_modified
-        tuid.last_modified = last_modified
-        fid.last_modified = last_modified
 
 
 def match_identities(db, uuid, matcher):
@@ -936,10 +811,9 @@ def match_identities(db, uuid, matcher):
     uidentities = []
 
     with db.connect() as session:
-        uid = session.query(UniqueIdentity).\
-            filter(UniqueIdentity.uuid == uuid).first()
+        uidentity = find_unique_identity(session, uuid)
 
-        if not uid:
+        if not uidentity:
             raise NotFoundError(entity=uuid)
 
         # Get all identities expect of the one requested one query above (uid)
@@ -948,7 +822,7 @@ def match_identities(db, uuid, matcher):
             order_by(UniqueIdentity.uuid)
 
         for candidate in candidates:
-            if not matcher.match(uid, candidate):
+            if not matcher.match(uidentity, candidate):
                 continue
             uidentities.append(candidate)
 
@@ -1070,17 +944,17 @@ def search_unique_identities_slice(db, term, offset, limit):
     :param offset: return results starting on this position
     :param limit: maximum number of unique identities to return
 
-    :raises WrappedValueError: raised when either the given value of
+    :raises InvalidValueError: raised when either the given value of
         `offset` or `limit` is lower than zero
     """
     uidentities = []
     pattern = '%' + term + '%' if term else None
 
     if offset < 0:
-        raise WrappedValueError('offset must be greater than 0 - %s given' \
+        raise InvalidValueError('offset must be greater than 0 - %s given' \
                                 % str(offset))
     if limit < 0:
-        raise WrappedValueError('limit must be greater than 0 - %s given' \
+        raise InvalidValueError('limit must be greater than 0 - %s given' \
                                 % str(limit))
 
     with db.connect() as session:
@@ -1227,8 +1101,7 @@ def domains(db, domain=None, top=False):
 
     with db.connect() as session:
         if domain:
-            dom = session.query(Domain).\
-                filter(Domain.domain == domain).first()
+            dom = find_domain(session, domain)
 
             if not dom:
                 if not top:
@@ -1273,7 +1146,7 @@ def countries(db, code=None, term=None):
     those countries that match them.
 
     Take into account that 'code' is a country identifier composed by two
-    letters (i.e ES or US). A 'ValueError' exception will be raised when
+    letters (i.e ES or US). A 'InvalidValueError' exception will be raised when
     this identifier is not valid. If this value is valid, 'term' parameter
     will be ignored.
 
@@ -1286,7 +1159,7 @@ def countries(db, code=None, term=None):
 
     :returns: a list of countries sorted by their country id
 
-    :raises ValueError: raised when 'code' is not a string composed by
+    :raises InvalidValueError: raised when 'code' is not a string composed by
         two letters
     :raises NotFoundError: raised when the given 'code' or 'term' is not
         found for any country from the registry
@@ -1306,8 +1179,8 @@ def countries(db, code=None, term=None):
                 and code.isalpha()
 
     if code is not None and not _is_code_valid(code):
-        raise WrappedValueError('country code must be a 2 length alpha string - %s given' \
-                         % str(code))
+        raise InvalidValueError('country code must be a 2 length alpha string - %s given' \
+                                % str(code))
 
     cs = []
 
@@ -1364,7 +1237,7 @@ def enrollments(db, uuid=None, organization=None, from_date=None, to_date=None):
 
     :raises NotFoundError: when either 'uuid' or 'organization' are not
         found in the registry.
-    :raises ValeError: it is raised in two cases, when "from_date" < 1900-01-01 or
+    :raises InvalidValeError: it is raised in two cases, when "from_date" < 1900-01-01 or
         "to_date" > 2100-01-01; when "from_date > to_date".
     """
     if not from_date:
@@ -1373,13 +1246,13 @@ def enrollments(db, uuid=None, organization=None, from_date=None, to_date=None):
         to_date = MAX_PERIOD_DATE
 
     if from_date < MIN_PERIOD_DATE or from_date > MAX_PERIOD_DATE:
-        raise WrappedValueError('start date %s is out of bounds' % str(from_date))
+        raise InvalidValueError("'from_date' %s is out of bounds" % str(from_date))
     if to_date < MIN_PERIOD_DATE or to_date > MAX_PERIOD_DATE:
-        raise WrappedValueError('end date %s is out of bounds' % str(to_date))
+        raise InvalidValueError("'to_date' %s is out of bounds" % str(to_date))
 
     if from_date and to_date and from_date > to_date:
-        raise WrappedValueError('start date %s cannot be greater than %s'
-                         % (from_date, to_date))
+        raise InvalidValueError("'from_date' %s cannot be greater than %s"
+                                % (from_date, to_date))
 
     enrollments = []
 
@@ -1391,8 +1264,7 @@ def enrollments(db, uuid=None, organization=None, from_date=None, to_date=None):
 
         # Filter by uuid
         if uuid:
-            uidentity = session.query(UniqueIdentity).\
-                filter(UniqueIdentity.uuid == uuid).first()
+            uidentity = find_unique_identity(session, uuid)
 
             if not uidentity:
                 raise NotFoundError(entity=uuid)
@@ -1401,8 +1273,7 @@ def enrollments(db, uuid=None, organization=None, from_date=None, to_date=None):
 
         # Filter by organization
         if organization:
-            org = session.query(Organization).\
-                filter(Organization.name == organization).first()
+            org = find_organization(session, organization)
 
             if not org:
                 raise NotFoundError(entity=organization)

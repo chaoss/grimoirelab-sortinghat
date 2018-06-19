@@ -40,7 +40,7 @@ from tests.base import TestCommandCaseBase
 
 WITHDRAW_UUID_NOT_FOUND_ERROR = "Error: Jane Roe not found in the registry"
 WITHDRAW_ORG_NOT_FOUND_ERROR = "Error: LibreSoft not found in the registry"
-WITHDRAW_INVALID_PERIOD_ERROR = "Error: start date 2001-01-01 00:00:00 cannot be greater than 1999-01-01 00:00:00"
+WITHDRAW_INVALID_PERIOD_ERROR = "Error: 'from_date' 2001-01-01 00:00:00 cannot be greater than 1999-01-01 00:00:00"
 WITHDRAW_ENROLLMENT_NOT_FOUND_ERROR = "Error: John Doe-Bitergia-2050-01-01 00:00:00-2070-01-01 00:00:00 not found in the registry"
 WITHDRAW_INVALID_DATE_ERROR = "Error: 1999-13-01 is not a valid date"
 WITHDRAW_INVALID_FORMAT_DATE_ERROR = "Error: YYZYY is not a valid date"

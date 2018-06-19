@@ -27,7 +27,7 @@ import collections
 
 from .. import api
 from ..command import Command, CMD_SUCCESS, HELP_LIST
-from ..exceptions import NotFoundError, WrappedValueError
+from ..exceptions import NotFoundError, InvalidValueError
 
 
 AUTOPROFILE_COMMAND_USAGE_MSG = \
@@ -109,7 +109,7 @@ class AutoProfile(Command):
             try:
                 api.edit_profile(self.db, uuid, **kw)
                 self.display('autoprofile.tmpl', identity=identity)
-            except (NotFoundError, WrappedValueError) as e:
+            except (NotFoundError, InvalidValueError) as e:
                 self.error(str(e))
                 return e.code
 

@@ -21,7 +21,7 @@ before_install:
   - pip install python-dateutil>=2.6.0
   - pip install pandas==0.18.1
   - pip install requests>=2.9
-  - pip install httpretty==0.8.6
+  - pip install httpretty>=0.9.5
   - pip install coveralls
 
 install:
