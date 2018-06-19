@@ -21,8 +21,6 @@
 #     Miguel Ángel Fernández Sánchez <mafesan@bitergia.com>
 #
 
-from __future__ import unicode_literals
-
 import datetime
 import sys
 import unittest
@@ -39,12 +37,9 @@ class TestBaseCase(unittest.TestCase):
     """Defines common methods for unit tests"""
 
     def read_file(self, filename):
-        if sys.version_info[0] >= 3:  # Python 3
-            with open(filename, 'r', encoding='UTF-8') as f:
-                content = f.read()
-        else:  # Python 2
-            with open(filename, 'r') as f:
-                content = f.read().decode('UTF-8')
+        with open(filename, 'r', encoding='UTF-8') as f:
+            content = f.read()
+
         return content
 
 
@@ -288,7 +283,7 @@ class TestGrimoreLabParser(TestBaseCase):
 
         stream_ids = self.read_file('data/grimoirelab_invalid_email.yml')
 
-        with self.assertRaisesRegexp(InvalidFormatError, '^.+Invalid email address: lcanas__at__bitergia.com$'):
+        with self.assertRaisesRegex(InvalidFormatError, '^.+Invalid email address: lcanas__at__bitergia.com$'):
             GrimoireLabParser(stream_ids, email_validation=True)
 
     def test_supress_email_validation(self):
@@ -319,54 +314,54 @@ class TestGrimoreLabParser(TestBaseCase):
 
         # empty domains
         stream_orgs = self.read_file('data/grimoirelab_orgs_invalid_empty_domains.yml')
-        with self.assertRaisesRegexp(InvalidFormatError, '^.+List of elements expected for organization Bitergia$'):
+        with self.assertRaisesRegex(InvalidFormatError, '^.+List of elements expected for organization Bitergia$'):
             GrimoireLabParser(organizations=stream_orgs)
 
         # one of the domains is empty
         stream_orgs = self.read_file('data/grimoirelab_orgs_invalid_domains_list_with_empty_value.yml')
-        with self.assertRaisesRegexp(InvalidFormatError, '^.+Empty domain name for organization Bitergia$'):
+        with self.assertRaisesRegex(InvalidFormatError, '^.+Empty domain name for organization Bitergia$'):
             GrimoireLabParser(organizations=stream_orgs)
 
         # domains got a string instead of a list
         stream_orgs = self.read_file('data/grimoirelab_orgs_invalid_wrong_domains_type.yml')
-        with self.assertRaisesRegexp(InvalidFormatError, '^.+List of elements expected for organization Bitergia$'):
+        with self.assertRaisesRegex(InvalidFormatError, '^.+List of elements expected for organization Bitergia$'):
             GrimoireLabParser(organizations=stream_orgs)
 
         # organization key missing
         stream_orgs = self.read_file('data/grimoirelab_orgs_invalid_missing_key.yml')
-        with self.assertRaisesRegexp(InvalidFormatError, '^.+Attribute organization not found$'):
+        with self.assertRaisesRegex(InvalidFormatError, '^.+Attribute organization not found$'):
             GrimoireLabParser(organizations=stream_orgs)
 
         # organization key with empty value
         stream_orgs = self.read_file('data/grimoirelab_orgs_invalid_key_with_no_value.yml')
-        with self.assertRaisesRegexp(InvalidFormatError, '^.+Empty organization name$'):
+        with self.assertRaisesRegex(InvalidFormatError, '^.+Empty organization name$'):
             GrimoireLabParser(organizations=stream_orgs)
 
     def test_not_valid_identities_stream(self):
         """Check whether it parses invalid identities files"""
 
         stream_ids = self.read_file('data/grimoirelab_invalid_email.yml')
-        with self.assertRaisesRegexp(InvalidFormatError, '^.+Invalid email address: lcanas__at__bitergia.com$'):
+        with self.assertRaisesRegex(InvalidFormatError, '^.+Invalid email address: lcanas__at__bitergia.com$'):
             GrimoireLabParser(stream_ids)
 
         stream_ids = self.read_file('data/grimoirelab_invalid_structure.yml')
-        with self.assertRaisesRegexp(InvalidFormatError, '^.+Attribute profile not found$'):
+        with self.assertRaisesRegex(InvalidFormatError, '^.+Attribute profile not found$'):
             GrimoireLabParser(stream_ids)
 
         stream_ids = self.read_file('data/grimoirelab_invalid_missing_accounts.yml')
-        with self.assertRaisesRegexp(InvalidFormatError, '^.+Attribute name not found$'):
+        with self.assertRaisesRegex(InvalidFormatError, '^.+Attribute name not found$'):
             GrimoireLabParser(stream_ids)
 
         stream_ids = self.read_file('data/grimoirelab_invalid_missing_profile_name_isbot.yml')
-        with self.assertRaisesRegexp(InvalidFormatError, '^.+Attribute name not found$'):
+        with self.assertRaisesRegex(InvalidFormatError, '^.+Attribute name not found$'):
             GrimoireLabParser(stream_ids)
 
         stream_ids = self.read_file('data/grimoirelab_invalid_missing_profile.yml')
-        with self.assertRaisesRegexp(InvalidFormatError, '^.+Attribute profile not found$'):
+        with self.assertRaisesRegex(InvalidFormatError, '^.+Attribute profile not found$'):
             GrimoireLabParser(stream_ids)
 
         stream_ids = self.read_file('data/grimoirelab_invalid_missing_organization_name.yml')
-        with self.assertRaisesRegexp(InvalidFormatError, '^.+Empty organization name$'):
+        with self.assertRaisesRegex(InvalidFormatError, '^.+Empty organization name$'):
             GrimoireLabParser(stream_ids)
 
     def test_not_valid_enrollments_parser(self):

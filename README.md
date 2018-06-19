@@ -364,7 +364,7 @@ $ sortinghat load identities.json
 
 ## Requirements
 
-* Python 2.7 and >= 3.4
+* Python >= 3.4
 * MySQL >= 5.5
 * SQLAlchemy >= 1.0.0
 * Jinja2 >= 2.7
@@ -375,7 +375,6 @@ $ sortinghat load identities.json
 
 You will also need a MySQL Python driver to connect with the database server. We recommend to use one these packages:
 
-* MySQLdb (only available for Python 2.7)
 * PyMySQL
 
 Optionally, you can install Pandas library to speed up the matching process:

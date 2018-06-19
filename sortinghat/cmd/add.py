@@ -19,9 +19,6 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import argparse
 
 from .. import api
@@ -31,8 +28,8 @@ from ..matcher import create_identity_matcher
 from ..matching import SORTINGHAT_IDENTITIES_MATCHERS
 
 
-ADD_COMMAND_USAGE_MSG = \
-"""%(prog)s add [--name <name>] [--email <email>] [--username <user>] [--source <src>] [--uuid <uuid>]
+ADD_COMMAND_USAGE_MSG = """%(prog)s add [--name <name>] [--email <email>] [--username <user>]
+                      [--source <src>] [--uuid <uuid>]
                       [--matching <matcher>] [--interactive]"""
 
 

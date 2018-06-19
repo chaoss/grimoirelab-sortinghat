@@ -19,11 +19,6 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
-import datetime
-
 from . import utils
 from .db.api import (add_unique_identity as add_unique_identity_db,
                      add_identity as add_identity_db,
@@ -1164,19 +1159,11 @@ def countries(db, code=None, term=None):
     :raises NotFoundError: raised when the given 'code' or 'term' is not
         found for any country from the registry
     """
-    import sys
 
-    if sys.version_info[0] >= 3: # Python 3
-        def _is_code_valid(code):
-            return type(code) == str \
-                and len(code) == 2 \
-                and code.isalpha()
-    else: # Python 2
-        def _is_code_valid(code):
-            return (type(code) == str \
-                    or type(code) == unicode) \
-                and len(code) == 2 \
-                and code.isalpha()
+    def _is_code_valid(code):
+        return type(code) == str \
+            and len(code) == 2 \
+            and code.isalpha()
 
     if code is not None and not _is_code_valid(code):
         raise InvalidValueError('country code must be a 2 length alpha string - %s given' \

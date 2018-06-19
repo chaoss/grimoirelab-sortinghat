@@ -19,9 +19,6 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import argparse
 
 from .. import api
@@ -29,8 +26,8 @@ from ..command import Command, CMD_SUCCESS, HELP_LIST
 from ..exceptions import NotFoundError, InvalidValueError
 
 
-PROFILE_COMMAND_USAGE_MSG = \
-"""%(prog)s profile [--name <name>] [--email <email>] [--gender <gender]
+PROFILE_COMMAND_USAGE_MSG = """%(prog)s profile [--name <name>] [--email <email>] 
+                          [--gender <gender]
                           [--country <code>] [--bot | --no-bot] <uuid>"""
 
 
@@ -128,13 +125,13 @@ class Profile(Command):
         kw = {}
 
         if params.name:
-            kw['name'] = self.__decode(params.name)
+            kw['name'] = params.name
         if params.email:
-            kw['email'] = self.__decode(params.email)
+            kw['email'] = params.email
         if params.gender:
-            kw['gender'] = self.__decode(params.gender)
+            kw['gender'] = params.gender
         if params.country:
-            kw['country_code'] = self.__decode(params.country)
+            kw['country_code'] = params.country
 
         if params.is_bot:
             kw['is_bot'] = True
@@ -142,11 +139,3 @@ class Profile(Command):
             kw['is_bot'] = False
 
         return uuid, kw
-
-    def __decode(self, s):
-        import sys
-
-        if sys.version_info[0] >= 3: # Python 3
-            return s
-        else: # Python 2
-            return s.decode('UTF-8')

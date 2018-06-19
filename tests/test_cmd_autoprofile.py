@@ -20,9 +20,6 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import sys
 import unittest
 
@@ -33,7 +30,6 @@ from sortinghat import api
 from sortinghat.command import CMD_SUCCESS
 from sortinghat.cmd.autoprofile import AutoProfile
 from sortinghat.db.model import Country
-from sortinghat.exceptions import CODE_NOT_FOUND_ERROR
 
 from tests.base import TestCommandCaseBase
 

@@ -20,9 +20,6 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import json
 import sys
 import unittest
@@ -446,7 +443,7 @@ class TestAutoGender(TestAutoGenderCaseBase):
             },
             {
                 'name': ['error'],
-                'apikey': [u'abcdefghi']
+                'apikey': ['abcdefghi']
             },
             {
                 'name': ['john'],

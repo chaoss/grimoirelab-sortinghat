@@ -20,8 +20,6 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from __future__ import unicode_literals
-
 import sys
 import unittest
 
@@ -83,8 +81,7 @@ class TestAlreadyExistsError(unittest.TestCase):
         """Test that uuid attribute is set when given as argument"""
 
         e = AlreadyExistsError(uuid='FFFFFFFFFFF', entity='FFFFFFFFFFF')
-        self.assertEqual(str(e),
-                         u"FFFFFFFFFFF already exists in the registry")
+        self.assertEqual(str(e), "FFFFFFFFFFF already exists in the registry")
         self.assertEqual(e.uuid, 'FFFFFFFFFFF')
 
     def test_no_args(self):

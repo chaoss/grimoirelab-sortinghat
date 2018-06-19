@@ -20,11 +20,6 @@
 #     Alvaro del Castillo <acs@bitergia.com>
 #
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
-import re
-
 from ..db.model import UniqueIdentity
 from ..matcher import IdentityMatcher, FilteredIdentity
 

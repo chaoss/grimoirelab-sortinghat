@@ -20,9 +20,6 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import datetime
 import json
 import os
@@ -57,12 +54,8 @@ class TestExportCaseBase(TestCommandCaseBase):
         os.remove(self.tmpfile)
 
     def read_json(self, filename):
-        if sys.version_info[0] >= 3: # Python 3
-            with open(filename, 'r', encoding='UTF-8') as f:
-                content = f.read()
-        else: # Python 2
-            with open(filename, 'r') as f:
-                content = f.read().decode('UTF-8')
+        with open(filename, 'r', encoding='UTF-8') as f:
+            content = f.read()
 
         obj = json.loads(content)
         return obj

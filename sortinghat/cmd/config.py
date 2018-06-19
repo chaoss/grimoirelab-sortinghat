@@ -19,16 +19,10 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import argparse
 import os.path
 
-try:
-    import configparser
-except ImportError:
-    import ConfigParser as configparser
+import configparser
 
 from ..command import Command, CMD_SUCCESS
 

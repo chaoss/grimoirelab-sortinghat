@@ -21,8 +21,6 @@
 #     Alvaro del Castillo <acs@bitergia.com>
 #
 
-from __future__ import unicode_literals
-
 import sys
 import unittest
 

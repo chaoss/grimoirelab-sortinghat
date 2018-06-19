@@ -20,8 +20,6 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from __future__ import unicode_literals
-
 import datetime
 import sys
 import unittest
@@ -54,12 +52,9 @@ class TestBaseCase(unittest.TestCase):
     """Defines common methods for unit tests"""
 
     def read_file(self, filename):
-        if sys.version_info[0] >= 3: # Python 3
-            with open(filename, 'r', encoding='UTF-8') as f:
-                content = f.read()
-        else: # Python 2
-            with open(filename, 'r') as f:
-                content = f.read().decode('UTF-8')
+        with open(filename, 'r', encoding='UTF-8') as f:
+            content = f.read()
+
         return content
 
 
@@ -316,47 +311,47 @@ class TestSortingHatParser(TestBaseCase):
     def test_not_valid_stream(self):
         """Check whether it prints an error when parsing invalid streams"""
 
-        with self.assertRaisesRegexp(InvalidFormatError,
+        with self.assertRaisesRegex(InvalidFormatError,
                                      SH_INVALID_JSON_FORMAT_ERROR):
             s = self.read_file('data/sortinghat_invalid.json')
             SortingHatParser(s)
 
-        with self.assertRaisesRegexp(InvalidFormatError,
+        with self.assertRaisesRegex(InvalidFormatError,
                                      SH_BL_EMPTY_STRING_ERROR):
             s = self.read_file('data/sortinghat_blacklist_empty_strings.json')
             SortingHatParser(s)
 
-        with self.assertRaisesRegexp(InvalidFormatError,
+        with self.assertRaisesRegex(InvalidFormatError,
                                      SH_IDS_MISSING_KEYS_ERROR):
             s = self.read_file('data/sortinghat_ids_missing_keys.json')
             SortingHatParser(s)
 
-        with self.assertRaisesRegexp(InvalidFormatError,
+        with self.assertRaisesRegex(InvalidFormatError,
                                      SH_ORGS_MISSING_KEYS_ERROR):
             s = self.read_file('data/sortinghat_orgs_missing_keys.json')
             SortingHatParser(s)
 
-        with self.assertRaisesRegexp(InvalidFormatError,
+        with self.assertRaisesRegex(InvalidFormatError,
                                      SH_IDS_DATETIME_ERROR):
             s = self.read_file('data/sortinghat_ids_invalid_date.json')
             SortingHatParser(s)
 
-        with self.assertRaisesRegexp(InvalidFormatError,
+        with self.assertRaisesRegex(InvalidFormatError,
                                      SH_IDS_IS_BOT_ERROR):
             s = self.read_file('data/sortinghat_ids_invalid_is_bot.json')
             SortingHatParser(s)
 
-        with self.assertRaisesRegexp(InvalidFormatError,
+        with self.assertRaisesRegex(InvalidFormatError,
                                      SH_IDS_GENDER_ACC_TYPE_ERROR):
             s = self.read_file('data/sortinghat_ids_invalid_type_gender_acc.json')
             SortingHatParser(s)
 
-        with self.assertRaisesRegexp(InvalidFormatError,
+        with self.assertRaisesRegex(InvalidFormatError,
                                      SH_IDS_GENDER_ACC_RANGE_ERROR):
             s = self.read_file('data/sortinghat_ids_invalid_range_gender_acc.json')
             SortingHatParser(s)
 
-        with self.assertRaisesRegexp(InvalidFormatError,
+        with self.assertRaisesRegex(InvalidFormatError,
                                      SH_ORGS_IS_TOP_ERROR):
             s = self.read_file('data/sortinghat_orgs_invalid_top.json')
             SortingHatParser(s)
@@ -364,14 +359,14 @@ class TestSortingHatParser(TestBaseCase):
     def test_empty_stream(self):
         """Check whether it raises an exception when the stream is empty"""
 
-        with self.assertRaisesRegexp(InvalidFormatError,
+        with self.assertRaisesRegex(InvalidFormatError,
                                      ORGS_STREAM_INVALID_ERROR):
             SortingHatParser("")
 
     def test_none_stream(self):
         """Check whether it raises an exception when the stream is None"""
 
-        with self.assertRaisesRegexp(InvalidFormatError,
+        with self.assertRaisesRegex(InvalidFormatError,
                                      ORGS_STREAM_INVALID_ERROR):
             SortingHatParser(None)
 

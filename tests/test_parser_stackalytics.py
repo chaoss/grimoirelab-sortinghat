@@ -20,8 +20,6 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from __future__ import unicode_literals
-
 import datetime
 import sys
 import unittest
@@ -45,12 +43,9 @@ class TestBaseCase(unittest.TestCase):
     """Defines common methods for unit tests"""
 
     def read_file(self, filename):
-        if sys.version_info[0] >= 3: # Python 3
-            with open(filename, 'r', encoding='UTF-8') as f:
-                content = f.read()
-        else: # Python 2
-            with open(filename, 'r') as f:
-                content = f.read().decode('UTF-8')
+        with open(filename, 'r', encoding='UTF-8') as f:
+            content = f.read()
+
         return content
 
 
@@ -189,17 +184,17 @@ class TestStackalyticsParser(TestBaseCase):
     def test_not_valid_stream(self):
         """Check whether it prints an error when parsing invalid streams"""
 
-        with self.assertRaisesRegexp(InvalidFormatError,
+        with self.assertRaisesRegex(InvalidFormatError,
                                      STACKALYTICS_INVALID_JSON_FORMAT_ERROR):
             s = self.read_file('data/stackalytics_invalid.json')
             StackalyticsParser(s)
 
-        with self.assertRaisesRegexp(InvalidFormatError,
+        with self.assertRaisesRegex(InvalidFormatError,
                                      STACKALYTICS_IDS_MISSING_KEYS_ERROR):
             s = self.read_file('data/stackalytics_ids_missing_keys.json')
             StackalyticsParser(s)
 
-        with self.assertRaisesRegexp(InvalidFormatError,
+        with self.assertRaisesRegex(InvalidFormatError,
                                      STACKALYTICS_ORGS_MISSING_KEYS_ERROR):
             s = self.read_file('data/stackalytics_orgs_missing_keys.json')
             StackalyticsParser(s)
@@ -207,14 +202,14 @@ class TestStackalyticsParser(TestBaseCase):
     def test_empty_stream(self):
         """Check whether it raises an exception when the stream is empty"""
 
-        with self.assertRaisesRegexp(InvalidFormatError,
+        with self.assertRaisesRegex(InvalidFormatError,
                                      STACKALYTICS_STREAM_INVALID_ERROR):
             StackalyticsParser("")
 
     def test_none_stream(self):
         """Check whether it raises an exception when the stream is None"""
 
-        with self.assertRaisesRegexp(InvalidFormatError,
+        with self.assertRaisesRegex(InvalidFormatError,
                                      STACKALYTICS_STREAM_INVALID_ERROR):
             StackalyticsParser(None)
 

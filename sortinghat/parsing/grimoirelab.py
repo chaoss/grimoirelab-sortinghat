@@ -20,9 +20,6 @@
 #     Miguel Ángel Fernández Sánchez <mafesan@bitergia.com>
 #
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import itertools
 import re
 import datetime
@@ -309,15 +306,7 @@ class GrimoireLabParser(object):
             raise InvalidFormatError(cause=cause)
 
     def __encode(self, s):
-        import sys
-
-        if sys.version_info[0] >= 3:  # Python 3
-            return s if s else None
-        else:  # Python 2
-            if type(s) is str:
-                return s.encode('UTF-8') if s else None
-            else:
-                return s
+        return s if s else None
 
     def __validate_email(self, email):
         """Checks if a string looks like an email address"""

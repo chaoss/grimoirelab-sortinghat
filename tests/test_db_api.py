@@ -285,14 +285,14 @@ class TestAddUniqueIdentity(TestDBAPICaseBase):
         """Check whether a unique identity with None as UUID cannot be added"""
 
         with self.db.connect() as session:
-            with self.assertRaisesRegexp(ValueError, UUID_NONE_ERROR):
+            with self.assertRaisesRegex(ValueError, UUID_NONE_ERROR):
                 api.add_unique_identity(session, None)
 
     def test_uuid_empty(self):
         """Check whether a unique identity with empty UUID cannot be added"""
 
         with self.db.connect() as session:
-            with self.assertRaisesRegexp(ValueError, UUID_EMPTY_ERROR):
+            with self.assertRaisesRegex(ValueError, UUID_EMPTY_ERROR):
                 api.add_unique_identity(session, '')
 
 
@@ -483,7 +483,7 @@ class TestAddIdentity(TestDBAPICaseBase):
             uidentity = UniqueIdentity(uuid='1234567890ABCDFE')
             session.add(uidentity)
 
-            with self.assertRaisesRegexp(ValueError, IDENTITY_ID_NONE_ERROR):
+            with self.assertRaisesRegex(ValueError, IDENTITY_ID_NONE_ERROR):
                 api.add_identity(session, uidentity, None, 'scm')
 
     def test_identity_id_empty(self):
@@ -493,7 +493,7 @@ class TestAddIdentity(TestDBAPICaseBase):
             uidentity = UniqueIdentity(uuid='1234567890ABCDFE')
             session.add(uidentity)
 
-            with self.assertRaisesRegexp(ValueError, IDENTITY_ID_EMPTY_ERROR):
+            with self.assertRaisesRegex(ValueError, IDENTITY_ID_EMPTY_ERROR):
                 api.add_identity(session, uidentity, '', 'scm')
 
     def test_source_none(self):
@@ -503,7 +503,7 @@ class TestAddIdentity(TestDBAPICaseBase):
             uidentity = UniqueIdentity(uuid='1234567890ABCDFE')
             session.add(uidentity)
 
-            with self.assertRaisesRegexp(ValueError, SOURCE_NONE_ERROR):
+            with self.assertRaisesRegex(ValueError, SOURCE_NONE_ERROR):
                 api.add_identity(session, uidentity, '1234567890ABCDFE', None)
 
     def test_source_empty(self):
@@ -513,7 +513,7 @@ class TestAddIdentity(TestDBAPICaseBase):
             uidentity = UniqueIdentity(uuid='1234567890ABCDFE')
             session.add(uidentity)
 
-            with self.assertRaisesRegexp(ValueError, SOURCE_EMPTY_ERROR):
+            with self.assertRaisesRegex(ValueError, SOURCE_EMPTY_ERROR):
                 api.add_identity(session, uidentity, '1234567890ABCDFE', '')
 
     def test_data_none_or_empty(self):
@@ -523,15 +523,15 @@ class TestAddIdentity(TestDBAPICaseBase):
             uidentity = UniqueIdentity(uuid='1234567890ABCDFE')
             session.add(uidentity)
 
-            with self.assertRaisesRegexp(ValueError, IDENTITY_DATA_NONE_OR_EMPTY_ERROR):
+            with self.assertRaisesRegex(ValueError, IDENTITY_DATA_NONE_OR_EMPTY_ERROR):
                 api.add_identity(session, uidentity, '1234567890ABCDFE', 'git',
                                  name=None, email=None, username=None)
 
-            with self.assertRaisesRegexp(ValueError, IDENTITY_DATA_NONE_OR_EMPTY_ERROR):
+            with self.assertRaisesRegex(ValueError, IDENTITY_DATA_NONE_OR_EMPTY_ERROR):
                 api.add_identity(session, uidentity, '1234567890ABCDFE', 'git',
                                  name='', email='', username='')
 
-            with self.assertRaisesRegexp(ValueError, IDENTITY_DATA_NONE_OR_EMPTY_ERROR):
+            with self.assertRaisesRegex(ValueError, IDENTITY_DATA_NONE_OR_EMPTY_ERROR):
                 api.add_identity(session, uidentity, '1234567890ABCDFE', 'git',
                                  name=None, email='', username=None)
 
@@ -645,14 +645,14 @@ class TestAddOrganization(TestDBAPICaseBase):
         """Check whether organizations with None as name cannot be added"""
 
         with self.db.connect() as session:
-            with self.assertRaisesRegexp(ValueError, NAME_NONE_ERROR):
+            with self.assertRaisesRegex(ValueError, NAME_NONE_ERROR):
                 api.add_organization(session, None)
 
     def test_name_empty(self):
         """Check whether organizations with empty names cannot be added"""
 
         with self.db.connect() as session:
-            with self.assertRaisesRegexp(ValueError, NAME_EMPTY_ERROR):
+            with self.assertRaisesRegex(ValueError, NAME_EMPTY_ERROR):
                 api.add_organization(session, '')
 
 
@@ -813,7 +813,7 @@ class TestAddDomain(TestDBAPICaseBase):
             org = Organization(name='Example')
             session.add(org)
 
-            with self.assertRaisesRegexp(ValueError, DOMAIN_NAME_NONE_ERROR):
+            with self.assertRaisesRegex(ValueError, DOMAIN_NAME_NONE_ERROR):
                 api.add_domain(session, org, None)
 
     def test_domain_empty(self):
@@ -823,7 +823,7 @@ class TestAddDomain(TestDBAPICaseBase):
             org = Organization(name='Example')
             session.add(org)
 
-            with self.assertRaisesRegexp(ValueError, DOMAIN_NAME_EMPTY_ERROR):
+            with self.assertRaisesRegex(ValueError, DOMAIN_NAME_EMPTY_ERROR):
                 api.add_domain(session, org, '')
 
     def test_top_domain_invalid_type(self):
@@ -833,10 +833,10 @@ class TestAddDomain(TestDBAPICaseBase):
             org = Organization(name='Example')
             session.add(org)
 
-            with self.assertRaisesRegexp(ValueError, TOP_DOMAIN_VALUE_ERROR):
+            with self.assertRaisesRegex(ValueError, TOP_DOMAIN_VALUE_ERROR):
                 api.add_domain(session, org, 'example.net', is_top_domain=1)
 
-            with self.assertRaisesRegexp(ValueError, TOP_DOMAIN_VALUE_ERROR):
+            with self.assertRaisesRegex(ValueError, TOP_DOMAIN_VALUE_ERROR):
                 api.add_domain(session, org, 'example.net', is_top_domain='False')
 
 
@@ -1005,7 +1005,7 @@ class TestEnroll(TestDBAPICaseBase):
             org = Organization(name='Example')
             session.add(org)
 
-            with self.assertRaisesRegexp(ValueError, FROM_DATE_NONE_ERROR):
+            with self.assertRaisesRegex(ValueError, FROM_DATE_NONE_ERROR):
                 api.enroll(session, uidentity, org,
                            from_date=None,
                            to_date=datetime.datetime(1999, 1, 1))
@@ -1019,7 +1019,7 @@ class TestEnroll(TestDBAPICaseBase):
             org = Organization(name='Example')
             session.add(org)
 
-            with self.assertRaisesRegexp(ValueError, TO_DATE_NONE_ERROR):
+            with self.assertRaisesRegex(ValueError, TO_DATE_NONE_ERROR):
                 api.enroll(session, uidentity, org,
                            from_date=datetime.datetime(2001, 1, 1),
                            to_date=None)
@@ -1039,7 +1039,7 @@ class TestEnroll(TestDBAPICaseBase):
             }
             msg = PERIOD_INVALID_ERROR % data
 
-            with self.assertRaisesRegexp(ValueError, msg):
+            with self.assertRaisesRegex(ValueError, msg):
                 api.enroll(session, uidentity, org,
                            from_date=datetime.datetime(2001, 1, 1),
                            to_date=datetime.datetime(1999, 1, 1))
@@ -1050,7 +1050,7 @@ class TestEnroll(TestDBAPICaseBase):
             }
             msg = PERIOD_OUT_OF_BOUNDS_ERROR % data
 
-            with self.assertRaisesRegexp(ValueError, msg):
+            with self.assertRaisesRegex(ValueError, msg):
                 api.enroll(session, uidentity, org,
                            from_date=datetime.datetime(1899, 12, 31, 23, 59, 59))
 
@@ -1060,7 +1060,7 @@ class TestEnroll(TestDBAPICaseBase):
             }
             msg = PERIOD_OUT_OF_BOUNDS_ERROR % data
 
-            with self.assertRaisesRegexp(ValueError, msg):
+            with self.assertRaisesRegex(ValueError, msg):
                 api.enroll(session, uidentity, org,
                            from_date=datetime.datetime(2100, 1, 1, 0, 0, 1))
 
@@ -1070,7 +1070,7 @@ class TestEnroll(TestDBAPICaseBase):
             }
             msg = PERIOD_OUT_OF_BOUNDS_ERROR % data
 
-            with self.assertRaisesRegexp(ValueError, msg):
+            with self.assertRaisesRegex(ValueError, msg):
                 api.enroll(session, uidentity, org,
                            to_date=datetime.datetime(2100, 1, 1, 0, 0, 1))
 
@@ -1080,7 +1080,7 @@ class TestEnroll(TestDBAPICaseBase):
             }
             msg = PERIOD_OUT_OF_BOUNDS_ERROR % data
 
-            with self.assertRaisesRegexp(ValueError, msg):
+            with self.assertRaisesRegex(ValueError, msg):
                 api.enroll(session, uidentity, org,
                            to_date=datetime.datetime(1899, 12, 31, 23, 59, 59))
 
@@ -1230,7 +1230,7 @@ class TestWithdraw(TestDBAPICaseBase):
             uidentity = api.find_unique_identity(session, '1234567890ABCDFE')
             org = api.find_organization(session, 'Example')
 
-            with self.assertRaisesRegexp(ValueError, FROM_DATE_NONE_ERROR):
+            with self.assertRaisesRegex(ValueError, FROM_DATE_NONE_ERROR):
                 api.withdraw(session, uidentity, org,
                              from_date=None,
                              to_date=datetime.datetime(1999, 1, 1))
@@ -1249,7 +1249,7 @@ class TestWithdraw(TestDBAPICaseBase):
             uidentity = api.find_unique_identity(session, '1234567890ABCDFE')
             org = api.find_organization(session, 'Example')
 
-            with self.assertRaisesRegexp(ValueError, TO_DATE_NONE_ERROR):
+            with self.assertRaisesRegex(ValueError, TO_DATE_NONE_ERROR):
                 api.withdraw(session, uidentity, org,
                              from_date=datetime.datetime(2001, 1, 1),
                              to_date=None)
@@ -1274,7 +1274,7 @@ class TestWithdraw(TestDBAPICaseBase):
             }
             msg = PERIOD_INVALID_ERROR % data
 
-            with self.assertRaisesRegexp(ValueError, msg):
+            with self.assertRaisesRegex(ValueError, msg):
                 api.withdraw(session, uidentity, org,
                              from_date=datetime.datetime(2001, 1, 1),
                              to_date=datetime.datetime(1999, 1, 1))
@@ -1285,7 +1285,7 @@ class TestWithdraw(TestDBAPICaseBase):
             }
             msg = PERIOD_OUT_OF_BOUNDS_ERROR % data
 
-            with self.assertRaisesRegexp(ValueError, msg):
+            with self.assertRaisesRegex(ValueError, msg):
                 api.withdraw(session, uidentity, org,
                              from_date=datetime.datetime(1899, 12, 31, 23, 59, 59))
 
@@ -1295,7 +1295,7 @@ class TestWithdraw(TestDBAPICaseBase):
             }
             msg = PERIOD_OUT_OF_BOUNDS_ERROR % data
 
-            with self.assertRaisesRegexp(ValueError, msg):
+            with self.assertRaisesRegex(ValueError, msg):
                 api.withdraw(session, uidentity, org,
                              from_date=datetime.datetime(2100, 1, 1, 0, 0, 1))
 
@@ -1305,7 +1305,7 @@ class TestWithdraw(TestDBAPICaseBase):
             }
             msg = PERIOD_OUT_OF_BOUNDS_ERROR % data
 
-            with self.assertRaisesRegexp(ValueError, msg):
+            with self.assertRaisesRegex(ValueError, msg):
                 api.withdraw(session, uidentity, org,
                              to_date=datetime.datetime(2100, 1, 1, 0, 0, 1))
 
@@ -1315,7 +1315,7 @@ class TestWithdraw(TestDBAPICaseBase):
             }
             msg = PERIOD_OUT_OF_BOUNDS_ERROR % data
 
-            with self.assertRaisesRegexp(ValueError, msg):
+            with self.assertRaisesRegex(ValueError, msg):
                 api.withdraw(session, uidentity, org,
                              to_date=datetime.datetime(1899, 12, 31, 23, 59, 59))
 
@@ -1479,10 +1479,10 @@ class TestEditProfile(TestDBAPICaseBase):
             uidentity.profile = Profile()
             session.add(uidentity)
 
-            with self.assertRaisesRegexp(ValueError, IS_BOT_VALUE_ERROR):
+            with self.assertRaisesRegex(ValueError, IS_BOT_VALUE_ERROR):
                 api.edit_profile(session, uidentity, is_bot=1)
 
-            with self.assertRaisesRegexp(ValueError, IS_BOT_VALUE_ERROR):
+            with self.assertRaisesRegex(ValueError, IS_BOT_VALUE_ERROR):
                 api.edit_profile(session, uidentity, is_bot='True')
 
     def test_country_code_not_valid(self):
@@ -1500,7 +1500,7 @@ class TestEditProfile(TestDBAPICaseBase):
 
             msg = COUNTRY_CODE_ERROR %  {'code': 'JKL'}
 
-            with self.assertRaisesRegexp(ValueError, msg):
+            with self.assertRaisesRegex(ValueError, msg):
                 api.edit_profile(session, uidentity, country_code='JKL')
 
     def test_gender_not_given(self):
@@ -1511,7 +1511,7 @@ class TestEditProfile(TestDBAPICaseBase):
             uidentity.profile = Profile()
             session.add(uidentity)
 
-            with self.assertRaisesRegexp(ValueError, GENDER_ACC_INVALID_ERROR):
+            with self.assertRaisesRegex(ValueError, GENDER_ACC_INVALID_ERROR):
                 api.edit_profile(session, uidentity, gender_acc=100)
 
     def test_gender_acc_invalid_type(self):
@@ -1522,11 +1522,11 @@ class TestEditProfile(TestDBAPICaseBase):
             uidentity.profile = Profile()
             session.add(uidentity)
 
-            with self.assertRaisesRegexp(ValueError, GENDER_ACC_INVALID_TYPE_ERROR):
+            with self.assertRaisesRegex(ValueError, GENDER_ACC_INVALID_TYPE_ERROR):
                 api.edit_profile(session, uidentity,
                                  gender='male', gender_acc=10.0)
 
-            with self.assertRaisesRegexp(ValueError, GENDER_ACC_INVALID_TYPE_ERROR):
+            with self.assertRaisesRegex(ValueError, GENDER_ACC_INVALID_TYPE_ERROR):
                 api.edit_profile(session, uidentity,
                                  gender='male', gender_acc='100')
 
@@ -1540,19 +1540,19 @@ class TestEditProfile(TestDBAPICaseBase):
 
             msg = GENDER_ACC_INVALID_RANGE_ERROR % {'acc': '-1'}
 
-            with self.assertRaisesRegexp(ValueError, msg):
+            with self.assertRaisesRegex(ValueError, msg):
                 api.edit_profile(session, uidentity,
                                  gender='male', gender_acc=-1)
 
             msg = GENDER_ACC_INVALID_RANGE_ERROR % {'acc': '0'}
 
-            with self.assertRaisesRegexp(ValueError, msg):
+            with self.assertRaisesRegex(ValueError, msg):
                 api.edit_profile(session, uidentity,
                                  gender='male', gender_acc=0)
 
             msg = GENDER_ACC_INVALID_RANGE_ERROR % {'acc': '101'}
 
-            with self.assertRaisesRegexp(ValueError, msg):
+            with self.assertRaisesRegex(ValueError, msg):
                 api.edit_profile(session, uidentity,
                                  gender='male', gender_acc=101)
 
@@ -1775,14 +1775,14 @@ class TestAddToMatchingBlacklist(TestDBAPICaseBase):
         """Check whether None terms cannot be added"""
 
         with self.db.connect() as session:
-            with self.assertRaisesRegexp(ValueError, TERM_BLACKLIST_NONE_ERROR):
+            with self.assertRaisesRegex(ValueError, TERM_BLACKLIST_NONE_ERROR):
                 api.add_to_matching_blacklist(session, None)
 
     def test_term_entity(self):
         """Check whether emtpy terms cannot be added"""
 
         with self.db.connect() as session:
-            with self.assertRaisesRegexp(ValueError, TERM_BLACKLIST_EMPTY_ERROR):
+            with self.assertRaisesRegex(ValueError, TERM_BLACKLIST_EMPTY_ERROR):
                 api.add_to_matching_blacklist(session, '')
 
 

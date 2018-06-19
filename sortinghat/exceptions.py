@@ -19,16 +19,6 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from __future__ import unicode_literals
-
-# Only needed on Python 2.7 to encode to UTF-8
-try:
-    import sys
-    reload(sys)
-    sys.setdefaultencoding('utf8')
-except NameError:
-    pass
-
 
 CODE_BASE_ERROR = 1
 CODE_ALREADY_EXISTS_ERROR = 2
@@ -42,6 +32,7 @@ CODE_NOT_FOUND_ERROR = 9
 CODE_VALUE_ERROR = 10
 CODE_DATABASE_EXISTS = 11
 
+
 class BaseError(Exception):
     """Base class error.
 
@@ -54,18 +45,11 @@ class BaseError(Exception):
         super(BaseError, self).__init__(kwargs)
         self.msg = self.message % kwargs
 
-    if sys.version_info[0] >= 3: # Python 3
-        def __str__(self):
-            return self.__unicode__()
-    else: # Python 2
-        def __str__(self):
-            return self.__unicode__().encode('utf8')
+    def __str__(self):
+        return self.msg
 
     def __int__(self):
         return self.code
-
-    def __unicode__(self):
-        return self.msg
 
 
 class AlreadyExistsError(BaseError):

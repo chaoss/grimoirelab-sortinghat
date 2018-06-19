@@ -19,14 +19,11 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import sys
 
 import jinja2
 
-from .exceptions import DatabaseError, CODE_VALUE_ERROR
+from .exceptions import DatabaseError
 from .db.database import Database
 
 CMD_SUCCESS = 0
@@ -61,17 +58,14 @@ class Command(object):
         t = env.get_template(template)
         s = t.render(**kwargs)
 
-        s = self._encode(s)
         sys.stdout.write(s)
 
     def error(self, msg):
         s = "Error: %s\n" % msg
-        s = self._encode(s)
         sys.stderr.write(s)
 
     def warning(self, msg):
         s = "Warning: %s\n" % msg
-        s = self._encode(s)
         sys.stderr.write(s)
 
     def _set_database(self, **kwargs):
@@ -80,9 +74,3 @@ class Command(object):
                                kwargs['database'], kwargs['host'], kwargs['port'])
         except DatabaseError as e:
             raise RuntimeError(str(e))
-
-    def _encode(self, s):
-        if sys.version_info[0] >= 3: # Python 3
-            return s
-        else: # Python 2
-            return s.encode('UTF-8')

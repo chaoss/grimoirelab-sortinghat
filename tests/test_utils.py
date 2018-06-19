@@ -20,8 +20,6 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from __future__ import unicode_literals
-
 import datetime
 import sys
 import unittest
@@ -216,14 +214,11 @@ class TestToUnicode(unittest.TestCase):
     def test_to_unicode(self):
         """Check unicode casting with several cases"""
 
-        result = to_unicode(u'abcdefghijk')
-        self.assertEqual(result, u'abcdefghijk')
-
         result = to_unicode('abcdefghijk')
-        self.assertEqual(result, u'abcdefghijk')
+        self.assertEqual(result, 'abcdefghijk')
 
         result = to_unicode(None)
-        self.assertEqual(result, u'None')
+        self.assertEqual(result, 'None')
 
         result = to_unicode(1234)
         self.assertEqual(result, '1234')
@@ -234,17 +229,14 @@ class TestToUnicode(unittest.TestCase):
     def test_unaccent(self):
         """Check unicode casting removing accents"""
 
-        result = to_unicode(u'Tomáš Čechvala', unaccent=True)
-        self.assertEqual(result, u'Tomas Cechvala')
-
         result = to_unicode('Tomáš Čechvala', unaccent=True)
-        self.assertEqual(result, u'Tomas Cechvala')
+        self.assertEqual(result, 'Tomas Cechvala')
 
         result = to_unicode('Santiago Dueñas', unaccent=True)
-        self.assertEqual(result, u'Santiago Duenas')
+        self.assertEqual(result, 'Santiago Duenas')
 
         result = to_unicode(1234, unaccent=True)
-        self.assertEqual(result, u'1234')
+        self.assertEqual(result, '1234')
 
 
 class TestUUID(unittest.TestCase):
@@ -271,7 +263,7 @@ class TestUUID(unittest.TestCase):
         result = uuid('scm', email='', name='', username='jsmith')
         self.assertEqual(result, '6e7ce2426673f8a23a72a343b1382dda84c0078b')
 
-        result = uuid('scm', email='', name=u'John Ca\xf1as', username='jcanas')
+        result = uuid('scm', email='', name='John Ca\xf1as', username='jcanas')
         self.assertEqual(result, 'c88e126749ff006eb1eea25e4bb4c1c125185ed2')
 
         result = uuid('scm', email='', name="Max Müster", username='mmuester')
@@ -324,28 +316,27 @@ class TestUUID(unittest.TestCase):
     def test_surrogate_escape(self):
         """Check if no errors are raised for invalid UTF-8 chars"""
 
-        if sys.version_info[0] >= 3:
-            result = uuid('scm', name="Mishal\udcc5 Pytasz")
-            self.assertEqual(result, '625166bdc2c4f1a207d39eb8d25315010babd73b')
+        result = uuid('scm', name="Mishal\udcc5 Pytasz")
+        self.assertEqual(result, '625166bdc2c4f1a207d39eb8d25315010babd73b')
 
     def test_none_source(self):
         """Check whether uuid cannot be obtained giving a None source"""
 
-        self.assertRaisesRegexp(ValueError, SOURCE_NONE_OR_EMPTY_ERROR,
+        self.assertRaisesRegex(ValueError, SOURCE_NONE_OR_EMPTY_ERROR,
                                 uuid, None)
 
     def test_empty_source(self):
         """Check whether uuid cannot be obtained giving aadded to the registry"""
 
-        self.assertRaisesRegexp(ValueError, SOURCE_NONE_OR_EMPTY_ERROR,
+        self.assertRaisesRegex(ValueError, SOURCE_NONE_OR_EMPTY_ERROR,
                                 uuid, '')
 
     def test_none_or_empty_data(self):
         """Check whether uuid cannot be obtained when identity data is None or empty"""
 
-        self.assertRaisesRegexp(ValueError, IDENTITY_NONE_OR_EMPTY_ERROR,
+        self.assertRaisesRegex(ValueError, IDENTITY_NONE_OR_EMPTY_ERROR,
                                 uuid, 'scm', None, '', None)
-        self.assertRaisesRegexp(ValueError, IDENTITY_NONE_OR_EMPTY_ERROR,
+        self.assertRaisesRegex(ValueError, IDENTITY_NONE_OR_EMPTY_ERROR,
                                 uuid, 'scm', '', '', '')
 
 

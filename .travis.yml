@@ -1,21 +1,12 @@
 language: python
 
 python:
-  - "2.7"
   - "3.4"
 
 sudo: false
 
 before_install:
-  - | # MySQLdb is not available in Python 3.x
-    # See issue with coveralls/httpretty in https://github.com/QualiSystems/shellfoundry/issues/175
-    if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then
-        pip install MYSQL-python
-        pip install configparser
-        pip install coveralls==1.1
-    else
-        pip install PyMySQL>=0.7.0
-    fi
+  - pip install PyMySQL>=0.7.0
   - pip install SQLAlchemy>=1.1.15
   - pip install Jinja2
   - pip install python-dateutil>=2.6.0

@@ -19,9 +19,6 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 from .exceptions import MatcherNotSupportedError
 
 

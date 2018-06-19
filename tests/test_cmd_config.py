@@ -20,9 +20,6 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import os.path
 import sys
 import unittest
@@ -64,12 +61,12 @@ class TestSetConfig(TestConfigCaseBase):
     def test_none_param_values(self):
         """Check it if raises exceptions when passing None params"""
 
-        self.assertRaisesRegexp(RuntimeError,
+        self.assertRaisesRegex(RuntimeError,
                                 SET_KEY_CONFIG_ERROR % {'param' : 'None'},
                                 self.cmd.set, None, 'value',
                                 MOCK_CONFIG_FILE)
 
-        self.assertRaisesRegexp(RuntimeError,
+        self.assertRaisesRegex(RuntimeError,
                                 INVALID_CONFIG_FILE,
                                 self.cmd.set, 'db.user', 'value',
                                 None)
@@ -78,33 +75,33 @@ class TestSetConfig(TestConfigCaseBase):
         """Check if it raises an error when passing unsupported keys"""
 
         # Test not available keys
-        self.assertRaisesRegexp(RuntimeError,
+        self.assertRaisesRegex(RuntimeError,
                                 SET_KEY_CONFIG_ERROR % {'param' : 'section.option'},
                                 self.cmd.set, 'section.option', 'value',
                                 MOCK_CONFIG_FILE)
 
         # Test keys that do not follow '<section>.<option>' schema
-        self.assertRaisesRegexp(RuntimeError,
+        self.assertRaisesRegex(RuntimeError,
                                 SET_KEY_CONFIG_ERROR % {'param' : '1'},
                                 self.cmd.set, 1, 'value',
                                 MOCK_CONFIG_FILE)
-        self.assertRaisesRegexp(RuntimeError,
+        self.assertRaisesRegex(RuntimeError,
                                 SET_KEY_CONFIG_ERROR % {'param' : ''},
                                 self.cmd.set, '.', 'value',
                                 MOCK_CONFIG_FILE)
-        self.assertRaisesRegexp(RuntimeError,
+        self.assertRaisesRegex(RuntimeError,
                                 SET_KEY_CONFIG_ERROR % {'param' : '.'},
                                 self.cmd.set, '.', 'value',
                                 MOCK_CONFIG_FILE)
-        self.assertRaisesRegexp(RuntimeError,
+        self.assertRaisesRegex(RuntimeError,
                                 SET_KEY_CONFIG_ERROR % {'param' : 'section.'},
                                 self.cmd.set, 'section.', 'value',
                                 MOCK_CONFIG_FILE)
-        self.assertRaisesRegexp(RuntimeError,
+        self.assertRaisesRegex(RuntimeError,
                                 SET_KEY_CONFIG_ERROR % {'param' : '.option'},
                                 self.cmd.set, '.option', 'value',
                                 MOCK_CONFIG_FILE)
-        self.assertRaisesRegexp(RuntimeError,
+        self.assertRaisesRegex(RuntimeError,
                                 SET_KEY_CONFIG_ERROR % {'param' : 'section.option.suboption'},
                                 self.cmd.set, 'section.option.suboption', 'value',
                                 MOCK_CONFIG_FILE)
@@ -158,11 +155,11 @@ class TestGetConfig(TestConfigCaseBase):
     def test_none_param_values(self):
         """Check it if raises exceptions when passing None params"""
 
-        self.assertRaisesRegexp(RuntimeError,
+        self.assertRaisesRegex(RuntimeError,
                                 GET_KEY_CONFIG_ERROR % {'param' : 'None'},
                                 self.cmd.get, None, MOCK_CONFIG_FILE)
 
-        self.assertRaisesRegexp(RuntimeError,
+        self.assertRaisesRegex(RuntimeError,
                                 INVALID_CONFIG_FILE,
                                 self.cmd.get, 'db.user', None)
 
@@ -170,28 +167,28 @@ class TestGetConfig(TestConfigCaseBase):
         """Check if it raises an error when passing unsupported keys"""
 
         # Test not available keys
-        self.assertRaisesRegexp(RuntimeError,
+        self.assertRaisesRegex(RuntimeError,
                                 GET_KEY_CONFIG_ERROR % {'param' : 'section.option'},
                                 self.cmd.get, 'section.option',
                                 MOCK_CONFIG_FILE)
 
         # Test keys that do not follow '<section>.<option>' schema
-        self.assertRaisesRegexp(RuntimeError,
+        self.assertRaisesRegex(RuntimeError,
                                 GET_KEY_CONFIG_ERROR % {'param' : '1'},
                                 self.cmd.get, 1, MOCK_CONFIG_FILE)
-        self.assertRaisesRegexp(RuntimeError,
+        self.assertRaisesRegex(RuntimeError,
                                 GET_KEY_CONFIG_ERROR % {'param' : ''},
                                 self.cmd.get, '.', MOCK_CONFIG_FILE)
-        self.assertRaisesRegexp(RuntimeError,
+        self.assertRaisesRegex(RuntimeError,
                                 GET_KEY_CONFIG_ERROR % {'param' : '.'},
                                 self.cmd.get, '.', MOCK_CONFIG_FILE)
-        self.assertRaisesRegexp(RuntimeError,
+        self.assertRaisesRegex(RuntimeError,
                                 GET_KEY_CONFIG_ERROR % {'param' : 'section.'},
                                 self.cmd.get, 'section.', MOCK_CONFIG_FILE)
-        self.assertRaisesRegexp(RuntimeError,
+        self.assertRaisesRegex(RuntimeError,
                                 GET_KEY_CONFIG_ERROR % {'param' : '.option'},
                                 self.cmd.get, '.option', MOCK_CONFIG_FILE)
-        self.assertRaisesRegexp(RuntimeError,
+        self.assertRaisesRegex(RuntimeError,
                                 GET_KEY_CONFIG_ERROR % {'param' : 'section.option.suboption'},
                                 self.cmd.get, 'section.option.suboption',
                                 MOCK_CONFIG_FILE)
@@ -206,7 +203,7 @@ class TestGetConfig(TestConfigCaseBase):
                           'db.user', dirpath)
 
         # Test non existing file
-        self.assertRaisesRegexp(RuntimeError, NOT_FOUND_FILE_ERROR,
+        self.assertRaisesRegex(RuntimeError, NOT_FOUND_FILE_ERROR,
                                 self.cmd.get, 'db.user',
                                 './data/invalid_config_file.cfg')
 
