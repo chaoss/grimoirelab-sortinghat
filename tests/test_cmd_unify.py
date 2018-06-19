@@ -20,8 +20,13 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+import json
+import os
+import shutil
 import sys
+import tempfile
 import unittest
+import unittest.mock
 
 if '..' not in sys.path:
     sys.path.insert(0, '..')
@@ -34,6 +39,11 @@ from sortinghat.exceptions import CODE_MATCHER_NOT_SUPPORTED_ERROR
 from tests.base import TestCommandCaseBase
 
 
+UNIFY_DEFAULT_OUTPUT_RECOVERY = """Loading matches from recovery file:.*
+Unique identity 880b3dfcb3a08712e5831bddc3dfe81fc5d7b331 merged on 178315df7941fc76a6ffb06fd5b00f6932ad9c41
+Total unique identities processed: 6
+Total matches: 1
+Total unique identities after merging: 5"""
 UNIFY_DEFAULT_OUTPUT = """Unique identity 880b3dfcb3a08712e5831bddc3dfe81fc5d7b331 merged on 178315df7941fc76a6ffb06fd5b00f6932ad9c41
 Total unique identities processed: 6
 Total matches: 1
@@ -96,6 +106,14 @@ class TestUnifyCaseBase(TestCommandCaseBase):
 class TestUnifyCommand(TestUnifyCaseBase):
     """Unify command unit tests"""
 
+    def setUp(self):
+        super().setUp()
+        self.recovery_path = os.path.join('/tmp', next(tempfile._get_candidate_names()))
+
+    def tearDown(self):
+        if os.path.exists(self.recovery_path):
+            os.remove(self.recovery_path)
+
     def test_unify(self):
         """Test command"""
 
@@ -138,6 +156,83 @@ class TestUnifyCommand(TestUnifyCaseBase):
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, UNIFY_EMAIL_NAME_OUTPUT)
 
+    @unittest.mock.patch('os.path.expanduser')
+    def test_unify_load_matches_from_recovery_file(self, mock_expanduser):
+        """Test command when loading matches from the recovery file"""
+
+        original_log = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data/unify_matches.log')
+        shutil.copyfile(original_log, self.recovery_path)
+        mock_expanduser.return_value = self.recovery_path
+
+        self.assertTrue(os.path.exists(self.recovery_path))
+        code = self.cmd.run('--recovery')
+        self.assertEqual(code, CMD_SUCCESS)
+        output = sys.stdout.getvalue().strip()
+        self.assertRegex(output, UNIFY_DEFAULT_OUTPUT_RECOVERY)
+        self.assertFalse(os.path.exists(self.recovery_path))
+
+    @unittest.mock.patch('os.path.expanduser')
+    def test_unify_disabled_recovery(self, mock_expanduser):
+        """Test command when the recovery file exists but the recovery mode is not active"""
+
+        original_log = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data/unify_matches.log')
+        shutil.copyfile(original_log, self.recovery_path)
+        mock_expanduser.return_value = self.recovery_path
+
+        self.assertTrue(os.path.exists(self.recovery_path))
+        code = self.cmd.run()
+        self.assertEqual(code, CMD_SUCCESS)
+        output = sys.stdout.getvalue().strip()
+        self.assertEqual(output, UNIFY_DEFAULT_OUTPUT)
+        self.assertTrue(os.path.exists(self.recovery_path))
+
+    @unittest.mock.patch('os.path.expanduser')
+    def test_unify_success_no_recovery_file(self, mock_expanduser):
+        """Test command when the recovery file does not exist, the recovery mode is active and the execution is ok"""
+
+        mock_expanduser.return_value = self.recovery_path
+        self.assertFalse(os.path.exists(self.recovery_path))
+
+        self.assertFalse(os.path.exists(self.recovery_path))
+        self.cmd.run('--recovery')
+        self.assertFalse(os.path.exists(self.recovery_path))
+
+    @unittest.mock.patch('sortinghat.api.merge_unique_identities')
+    @unittest.mock.patch('os.path.expanduser')
+    def test_unify_no_success_no_recovery_file(self, mock_expanduser, mock_merge_unique_identities):
+        """Test command when the recovery file does not exist, the recovery mode is active and the execution isn't ok"""
+
+        mock_merge_unique_identities.side_effect = Exception
+        mock_expanduser.return_value = self.recovery_path
+
+        self.assertFalse(os.path.exists(self.recovery_path))
+        with self.assertRaises(Exception):
+            self.cmd.run('--recovery')
+        self.assertTrue(os.path.exists(self.recovery_path))
+
+        with open(self.recovery_path, 'r') as f:
+            count_objs = 0
+            for line in f.readlines():
+                matches_obj = json.loads(line.strip("\n"))
+                self.assertTrue(all([isinstance(m, str) for m in matches_obj['identities']]))
+                self.assertFalse(matches_obj['processed'])
+                count_objs += 1
+
+            self.assertEqual(count_objs, 1)
+
+    @unittest.mock.patch('sortinghat.api.merge_unique_identities')
+    @unittest.mock.patch('os.path.expanduser')
+    def test_unify_no_success_no_recovery(self, mock_expanduser, mock_merge_unique_identities):
+        """Test command when the the recovery mode is not active and the execution isn't ok"""
+
+        mock_merge_unique_identities.side_effect = Exception
+        mock_expanduser.return_value = self.recovery_path
+
+        self.assertFalse(os.path.exists(self.recovery_path))
+        with self.assertRaises(Exception):
+            self.cmd.run()
+        self.assertFalse(os.path.exists(self.recovery_path))
+
     def test_empty_registry(self):
         """Check output when the registry is empty"""
 
@@ -152,6 +247,14 @@ class TestUnifyCommand(TestUnifyCaseBase):
 
 class TestUnify(TestUnifyCaseBase):
     """Unit tests for unify"""
+
+    def setUp(self):
+        super().setUp()
+        self.recovery_path = os.path.join('/tmp', next(tempfile._get_candidate_names()))
+
+    def tearDown(self):
+        if os.path.exists(self.recovery_path):
+            os.remove(self.recovery_path)
 
     def test_unify(self):
         """Test unify method using a default matcher"""
@@ -184,6 +287,120 @@ class TestUnify(TestUnifyCaseBase):
 
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, UNIFY_DEFAULT_OUTPUT)
+
+    @unittest.mock.patch('os.path.expanduser')
+    def test_unify_from_recovery_file(self, mock_expanduser):
+        """Test unify method when reading matches from the recovery file"""
+
+        original_log = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data/unify_matches.log')
+        shutil.copyfile(original_log, self.recovery_path)
+        mock_expanduser.return_value = self.recovery_path
+
+        before = api.unique_identities(self.db)
+        self.assertEqual(len(before), 6)
+
+        self.assertTrue(os.path.exists(self.recovery_path))
+        code = self.cmd.unify(matching='default', recovery=True)
+        self.assertEqual(code, CMD_SUCCESS)
+
+        after = api.unique_identities(self.db)
+        self.assertEqual(len(after), 5)
+
+        # jsmith identities with same email address
+        jsmith = after[0]
+        self.assertEqual(jsmith.uuid, '178315df7941fc76a6ffb06fd5b00f6932ad9c41')
+
+        identities = jsmith.identities
+        identities.sort(key=lambda x: x.id)
+
+        self.assertEqual(len(identities), 7)
+
+        id_ = identities[1]
+        self.assertEqual(id_.email, 'JSmith@example.com')
+        self.assertEqual(id_.source, 'mls')
+
+        id_ = identities[3]
+        self.assertEqual(id_.email, 'jsmith@example.com')
+        self.assertEqual(id_.source, 'scm')
+
+        output = sys.stdout.getvalue().strip()
+        self.assertRegex(output, UNIFY_DEFAULT_OUTPUT_RECOVERY)
+        self.assertFalse(os.path.exists(self.recovery_path))
+
+    @unittest.mock.patch('os.path.expanduser')
+    def test_unify_success_no_recovery_mode(self, mock_expanduser):
+        """Test unify method when the recovery file exists but the recovery mode is not active"""
+
+        original_log = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data/unify_matches.log')
+        shutil.copyfile(original_log, self.recovery_path)
+        mock_expanduser.return_value = self.recovery_path
+
+        before = api.unique_identities(self.db)
+        self.assertEqual(len(before), 6)
+
+        self.assertTrue(os.path.exists(self.recovery_path))
+        code = self.cmd.unify(matching='default')
+        self.assertEqual(code, CMD_SUCCESS)
+
+        after = api.unique_identities(self.db)
+        self.assertEqual(len(after), 5)
+
+        # jsmith identities with same email address
+        jsmith = after[0]
+        self.assertEqual(jsmith.uuid, '178315df7941fc76a6ffb06fd5b00f6932ad9c41')
+
+        identities = jsmith.identities
+        identities.sort(key=lambda x: x.id)
+
+        self.assertEqual(len(identities), 7)
+
+        id_ = identities[1]
+        self.assertEqual(id_.email, 'JSmith@example.com')
+        self.assertEqual(id_.source, 'mls')
+
+        id_ = identities[3]
+        self.assertEqual(id_.email, 'jsmith@example.com')
+        self.assertEqual(id_.source, 'scm')
+
+        output = sys.stdout.getvalue().strip()
+        self.assertEqual(output, UNIFY_DEFAULT_OUTPUT)
+        self.assertTrue(os.path.exists(self.recovery_path))
+
+    @unittest.mock.patch('sortinghat.api.merge_unique_identities')
+    @unittest.mock.patch('os.path.expanduser')
+    def test_unify_no_success_no_recovery_file(self, mock_expanduser, mock_merge_unique_identities):
+        """Test command when the recovery file does not exist, the recovery mode is active and the execution isn't ok"""
+
+        mock_merge_unique_identities.side_effect = Exception
+        mock_expanduser.return_value = self.recovery_path
+
+        self.assertFalse(os.path.exists(self.recovery_path))
+        with self.assertRaises(Exception):
+            self.cmd.unify(matching='default', recovery=True)
+        self.assertTrue(os.path.exists(self.recovery_path))
+
+        with open(self.recovery_path, 'r') as f:
+            count_objs = 0
+            for line in f.readlines():
+                matches_obj = json.loads(line.strip("\n"))
+                self.assertTrue(all([isinstance(m, str) for m in matches_obj['identities']]))
+                self.assertFalse(matches_obj['processed'])
+                count_objs += 1
+
+            self.assertEqual(count_objs, 1)
+
+    @unittest.mock.patch('sortinghat.api.merge_unique_identities')
+    @unittest.mock.patch('os.path.expanduser')
+    def test_unify_no_success_no_recovery_mode(self, mock_expanduser, mock_merge_unique_identities):
+        """Test command when the the recovery mode is not active and the execution isn't ok"""
+
+        mock_merge_unique_identities.side_effect = Exception
+        mock_expanduser.return_value = self.recovery_path
+
+        self.assertFalse(os.path.exists(self.recovery_path))
+        with self.assertRaises(Exception):
+            self.cmd.unify(matching='default')
+        self.assertFalse(os.path.exists(self.recovery_path))
 
     def test_unify_fast_matching(self):
         """Test unify method using a default matcher and fast matching mode"""
