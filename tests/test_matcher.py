@@ -20,12 +20,10 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from __future__ import unicode_literals
-
 import sys
 import unittest
 
-if not '..' in sys.path:
+if '..' not in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat.db.model import UniqueIdentity, Identity, MatchingBlacklist
@@ -207,7 +205,7 @@ class TestMatch(unittest.TestCase):
 
         self.assertEqual(len(result), 4)
         self.assertListEqual(result,
-                             [[ self.john_smith, self.js_alt],
+                             [[self.john_smith, self.js_alt],
                               [self.jane_rae], [self.jrae], [self.jsmith]])
 
     def test_match_email_name(self):

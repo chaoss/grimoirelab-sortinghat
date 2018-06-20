@@ -20,9 +20,6 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import datetime
 import json
 import os
@@ -30,7 +27,7 @@ import sys
 import tempfile
 import unittest
 
-if not '..' in sys.path:
+if '..' not in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat import api
@@ -57,12 +54,8 @@ class TestExportCaseBase(TestCommandCaseBase):
         os.remove(self.tmpfile)
 
     def read_json(self, filename):
-        if sys.version_info[0] >= 3: # Python 3
-            with open(filename, 'r', encoding='UTF-8') as f:
-                content = f.read()
-        else: # Python 2
-            with open(filename, 'r') as f:
-                content = f.read().decode('UTF-8')
+        with open(filename, 'r', encoding='UTF-8') as f:
+            content = f.read()
 
         obj = json.loads(content)
         return obj
@@ -150,7 +143,7 @@ class TestExportCommand(TestExportCaseBase):
         """Check the export indentities to a file filtering by source"""
 
         code = self.cmd.run('--identities', '--source', 'unknown',
-                           self.tmpfile)
+                            self.tmpfile)
         self.assertEqual(code, CMD_SUCCESS)
 
         a = self.read_json(self.tmpfile)

@@ -19,9 +19,6 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import argparse
 import datetime
 import json
@@ -183,7 +180,7 @@ class SortingHatIdentitiesExporter(IdentitiesExporter):
         uids = api.unique_identities(self.db, source=source)
 
         for uid in uids:
-            enrollments = [rol.to_dict()\
+            enrollments = [rol.to_dict()
                            for rol in api.enrollments(self.db, uuid=uid.uuid)]
 
             u = uid.to_dict()
@@ -194,11 +191,11 @@ class SortingHatIdentitiesExporter(IdentitiesExporter):
 
         blacklist = [mb.excluded for mb in api.blacklist(self.db)]
 
-        obj = {'time' : str(datetime.datetime.now()),
-               'source' : source,
-               'blacklist' : blacklist,
-               'organizations' : {},
-               'uidentities' : uidentities}
+        obj = {'time': str(datetime.datetime.now()),
+               'source': source,
+               'blacklist': blacklist,
+               'organizations': {},
+               'uidentities': uidentities}
 
         return json.dumps(obj, default=self._json_encoder,
                           indent=4, separators=(',', ': '),
@@ -248,16 +245,16 @@ class SortingHatOrganizationsExporter(OrganizationsExporter):
 
         for org in orgs:
             domains = [{'domain': dom.domain,
-                        'is_top': dom.is_top_domain} \
+                        'is_top': dom.is_top_domain}
                        for dom in org.domains]
             domains.sort(key=lambda x: x['domain'])
 
             organizations[org.name] = domains
 
-        obj = {'time' : str(datetime.datetime.now()),
-               'blacklist' : [],
-               'organizations' : organizations,
-               'uidentities' : {}}
+        obj = {'time': str(datetime.datetime.now()),
+               'blacklist': [],
+               'organizations': organizations,
+               'uidentities': {}}
 
         return json.dumps(obj, default=self._json_encoder,
                           indent=4, separators=(',', ': '),

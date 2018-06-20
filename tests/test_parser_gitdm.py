@@ -20,14 +20,12 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from __future__ import unicode_literals
-
 import datetime
 import re
 import sys
 import unittest
 
-if not '..' in sys.path:
+if '..' not in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat.db.model import UniqueIdentity, Identity, Enrollment, Organization, Domain
@@ -42,12 +40,9 @@ class TestBaseCase(unittest.TestCase):
     """Defines common methods for unit tests"""
 
     def read_file(self, filename):
-        if sys.version_info[0] >= 3: # Python 3
-            with open(filename, 'r', encoding='UTF-8') as f:
-                content = f.read()
-        else: # Python 2
-            with open(filename, 'r') as f:
-                content = f.read().decode('UTF-8')
+        with open(filename, 'r', encoding='UTF-8') as f:
+            content = f.read()
+
         return content
 
 
@@ -416,13 +411,13 @@ class TestGidmParser(TestBaseCase):
     def test_not_valid_organizations_stream(self):
         """Check whether it raises an error when parsing invalid streams"""
 
-        with self.assertRaisesRegexp(InvalidFormatError,
-                                     DOMAINS_INVALID_FORMAT_ERROR % {'line' : '10'}):
+        with self.assertRaisesRegex(InvalidFormatError,
+                                    DOMAINS_INVALID_FORMAT_ERROR % {'line': '10'}):
             stream = self.read_file('data/gitdm_orgs_invalid_comments.txt')
             GitdmParser(domain_to_employer=stream)
 
-        with self.assertRaisesRegexp(InvalidFormatError,
-                                     DOMAINS_INVALID_FORMAT_ERROR % {'line' : '8'}):
+        with self.assertRaisesRegex(InvalidFormatError,
+                                    DOMAINS_INVALID_FORMAT_ERROR % {'line': '8'}):
             stream = self.read_file('data/gitdm_orgs_invalid_entries.txt')
             GitdmParser(domain_to_employer=stream)
 
@@ -464,7 +459,7 @@ class TestGitdmRegEx(unittest.TestCase):
         m = parser.match("domain\torganization\t#\tcomment #1\r\n")
         self.assertIsNotNone(m)
 
-        m = parser.match(u"example.org\tExamplé")
+        m = parser.match("example.org\tExamplé")
         self.assertIsNotNone(m)
 
         # It's weird but it's a valid line

@@ -19,9 +19,6 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 from .exceptions import MatcherNotSupportedError
 
 
@@ -42,7 +39,7 @@ class IdentityMatcher(object):
         sources = self._kwargs.get('sources', None)
 
         if blacklist:
-            self.blacklist = [entry.excluded.lower() \
+            self.blacklist = [entry.excluded.lower()
                               for entry in blacklist]
             self.blacklist.sort()
         else:
@@ -115,8 +112,8 @@ class FilteredIdentity(object):
 
     def to_dict(self):
         return {
-                'id'   : self.id,
-                'uuid' : self.uuid
+                'id': self.id,
+                'uuid': self.uuid
                }
 
 
@@ -339,19 +336,19 @@ def _calculate_matches_closures(groups):
         vs = [v for v in groups.get_group(n)['uuid_y']]
 
         while vs:
-           v = vs.pop(0)
+            v = vs.pop(0)
 
-           if v in visited:
-               continue
+            if v in visited:
+                continue
 
-           nvs = [nv for nv in groups.get_group(v)['uuid_y']]
-           vs += nvs
-           visited.append(v)
+            nvs = [nv for nv in groups.get_group(v)['uuid_y']]
+            vs += nvs
+            visited.append(v)
 
-           try:
-               ns.remove(v)
-           except:
-               pass
+            try:
+                ns.remove(v)
+            except:
+                pass
 
         matches.append(visited)
 

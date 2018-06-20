@@ -19,9 +19,6 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import dateutil.parser
 import hashlib
 import unicodedata
@@ -108,17 +105,8 @@ def str_to_datetime(ts):
 
 
 def to_unicode(x, unaccent=False):
-    import sys
-
-    if sys.version_info[0] >= 3: # Python 3
-        s = str(x)
-    else: # Python 2
-        if type(x) is unicode:
-            s = x
-        elif type(x) != str:
-            s = unicode(x)
-        else:
-            s = unicode(x.decode('utf-8'))
+    """Convert a string to unicode"""
+    s = str(x)
 
     if unaccent:
         cs = [c for c in unicodedata.normalize('NFD', s)

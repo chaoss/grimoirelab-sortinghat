@@ -19,9 +19,6 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import re
 
 from ..db.model import UniqueIdentity
@@ -40,9 +37,9 @@ class EmailIdentity(FilteredIdentity):
 
     def to_dict(self):
         return {
-                'id'    : self.id,
-                'uuid'  : self.uuid,
-                'email' : self.email
+                'id': self.id,
+                'uuid': self.uuid,
+                'email': self.email
                }
 
 
@@ -181,7 +178,7 @@ class EmailMatcher(IdentityMatcher):
         return ['email']
 
     def _filter_emails(self, ids):
-        return [id_.email.lower() for id_ in ids \
+        return [id_.email.lower() for id_ in ids
                 if self._check_email(id_.email)]
 
     def _check_email(self, email):

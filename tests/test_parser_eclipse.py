@@ -20,13 +20,11 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from __future__ import unicode_literals
-
 import datetime
 import sys
 import unittest
 
-if not '..' in sys.path:
+if '..' not in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat.db.model import UniqueIdentity, Identity, Organization
@@ -45,12 +43,9 @@ class TestBaseCase(unittest.TestCase):
     """Defines common methods for unit tests"""
 
     def read_file(self, filename):
-        if sys.version_info[0] >= 3: # Python 3
-            with open(filename, 'r', encoding='UTF-8') as f:
-                content = f.read()
-        else: # Python 2
-            with open(filename, 'r') as f:
-                content = f.read().decode('UTF-8')
+        with open(filename, 'r', encoding='UTF-8') as f:
+            content = f.read()
+
         return content
 
 
@@ -189,38 +184,38 @@ class TestEclipseParser(TestBaseCase):
     def test_not_valid_stream(self):
         """Check whether it prints an error when parsing invalid streams"""
 
-        with self.assertRaisesRegexp(InvalidFormatError,
-                                     ECLIPSE_INVALID_JSON_FORMAT_ERROR):
+        with self.assertRaisesRegex(InvalidFormatError,
+                                    ECLIPSE_INVALID_JSON_FORMAT_ERROR):
             s = self.read_file('data/eclipse_invalid.json')
             EclipseParser(s)
 
-        with self.assertRaisesRegexp(InvalidFormatError,
-                                     ECLIPSE_IDS_MISSING_KEYS_ERROR):
+        with self.assertRaisesRegex(InvalidFormatError,
+                                    ECLIPSE_IDS_MISSING_KEYS_ERROR):
             s = self.read_file('data/eclipse_ids_missing_keys.json')
             EclipseParser(s)
 
-        with self.assertRaisesRegexp(InvalidFormatError,
-                                     ECLIPSE_ORGS_MISSING_KEYS_ERROR):
+        with self.assertRaisesRegex(InvalidFormatError,
+                                    ECLIPSE_ORGS_MISSING_KEYS_ERROR):
             s = self.read_file('data/eclipse_orgs_missing_keys.json')
             EclipseParser(s)
 
-        with self.assertRaisesRegexp(InvalidFormatError,
-                                     ECLIPSE_DATETIME_ERROR):
+        with self.assertRaisesRegex(InvalidFormatError,
+                                    ECLIPSE_DATETIME_ERROR):
             s = self.read_file('data/eclipse_invalid_datetime.json')
             EclipseParser(s)
 
     def test_empty_stream(self):
         """Check whether it raises an exception when the stream is empty"""
 
-        with self.assertRaisesRegexp(InvalidFormatError,
-                                     ECLIPSE_STREAM_INVALID_ERROR):
+        with self.assertRaisesRegex(InvalidFormatError,
+                                    ECLIPSE_STREAM_INVALID_ERROR):
             EclipseParser("")
 
     def test_none_stream(self):
         """Check whether it raises an exception when the stream is None"""
 
-        with self.assertRaisesRegexp(InvalidFormatError,
-                                     ECLIPSE_STREAM_INVALID_ERROR):
+        with self.assertRaisesRegex(InvalidFormatError,
+                                    ECLIPSE_STREAM_INVALID_ERROR):
             EclipseParser(None)
 
 

@@ -19,9 +19,6 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import argparse
 import re
 
@@ -33,8 +30,7 @@ from ..command import Command, CMD_SUCCESS, HELP_LIST
 from ..exceptions import NotFoundError, InvalidValueError
 
 
-AUTOGENDER_COMMAND_USAGE_MSG = \
-"""%(prog)s autogender [--api-token] [--all]"""
+AUTOGENDER_COMMAND_USAGE_MSG = """%(prog)s autogender [--api-token] [--all]"""
 
 
 class AutoGender(Command):
@@ -122,7 +118,7 @@ class AutoGender(Command):
                 except (requests.exceptions.RequestException,
                         requests.exceptions.RetryError) as e:
                     msg = "Skipping '%s' name (%s) due to a connection error. Error: %s"
-                    msg = msg  % (firstname, profile.uuid, str(e))
+                    msg = msg % (firstname, profile.uuid, str(e))
                     self.warning(msg)
                     continue
 

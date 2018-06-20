@@ -19,9 +19,6 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import argparse
 import collections
 
@@ -30,8 +27,7 @@ from ..command import Command, CMD_SUCCESS, HELP_LIST
 from ..exceptions import NotFoundError, InvalidValueError
 
 
-AUTOPROFILE_COMMAND_USAGE_MSG = \
-"""%(prog)s autoprofile <source> ... <source>"""
+AUTOPROFILE_COMMAND_USAGE_MSG = """%(prog)s autoprofile <source> ... <source>"""
 
 
 class AutoProfile(Command):
@@ -102,8 +98,8 @@ class AutoProfile(Command):
                     email = identity.email
 
             kw = {
-                'name' : name,
-                'email' : email
+                'name': name,
+                'email': email
             }
 
             try:

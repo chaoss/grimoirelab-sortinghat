@@ -20,13 +20,10 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import sys
 import unittest
 
-if not '..' in sys.path:
+if '..' not in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat import api
@@ -254,9 +251,9 @@ class TestAdd(TestAddCaseBase):
 
         # These two will not match due to the blacklist
         code1 = self.cmd.add('scm', name='Jane Rae', email='jrae@example.com',
-                            matching='default')
+                             matching='default')
         code2 = self.cmd.add('mls', name='Jane Rae', email='jrae@example.com',
-                            matching='default')
+                             matching='default')
         self.assertEqual(code1, CMD_SUCCESS)
         self.assertEqual(code2, CMD_SUCCESS)
 

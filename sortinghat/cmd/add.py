@@ -19,9 +19,6 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import argparse
 
 from .. import api
@@ -31,8 +28,8 @@ from ..matcher import create_identity_matcher
 from ..matching import SORTINGHAT_IDENTITIES_MATCHERS
 
 
-ADD_COMMAND_USAGE_MSG = \
-"""%(prog)s add [--name <name>] [--email <email>] [--username <user>] [--source <src>] [--uuid <uuid>]
+ADD_COMMAND_USAGE_MSG = """%(prog)s add [--name <name>] [--email <email>] [--username <user>]
+                      [--source <src>] [--uuid <uuid>]
                       [--matching <matcher>] [--interactive]"""
 
 
@@ -201,7 +198,7 @@ class Add(Command):
 
         while answer not in ['y', 'Y', 'n', 'N', '']:
             try:
-                answer = raw_input("Merge unique identities [Y/n]? ")
+                answer = input("Merge unique identities [Y/n]? ")
             except EOFError:
                 return False
 

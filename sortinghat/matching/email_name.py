@@ -19,9 +19,6 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import re
 
 from ..db.model import UniqueIdentity
@@ -42,10 +39,10 @@ class EmailNameIdentity(FilteredIdentity):
 
     def to_dict(self):
         return {
-                'id'    : self.id,
-                'uuid'  : self.uuid,
-                'email' : self.email,
-                'name'  : self.name
+                'id': self.id,
+                'uuid': self.uuid,
+                'email': self.email,
+                'name': self.name
                }
 
 

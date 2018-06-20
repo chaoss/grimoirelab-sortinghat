@@ -19,9 +19,6 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import argparse
 import sys
 
@@ -118,10 +115,6 @@ class Load(Command):
     def log(self, msg, debug=True):
         if debug:
             s = msg + '\n'
-
-            if sys.version_info[0] < 3: # Python 2.7
-                s = s.encode('UTF-8')
-
             sys.stdout.write(s)
 
     def warning(self, msg, debug=True):
@@ -307,7 +300,7 @@ class Load(Command):
             try:
                 self.__load_profile(uidentity.profile, stored_uuid, verbose)
             except Exception as e:
-                self.error("%s. Loading %s profile. Skipping profile." % \
+                self.error("%s. Loading %s profile. Skipping profile." %
                            (str(e), stored_uuid))
 
             self.__load_enrollments(uidentity.enrollments, stored_uuid,
@@ -492,8 +485,8 @@ class Load(Command):
             else:
                 name = None
 
-        kw = {'name' : name,
-              'email' : email}
+        kw = {'name': name,
+              'email': email}
 
         api.edit_profile(self.db, uuid, **kw)
 
@@ -576,9 +569,5 @@ class Load(Command):
     def __read_file(self, infile):
         """Read a file into a str object"""
 
-        if sys.version_info[0] >= 3: # Python 3
-            content = infile.read()
-        else: # Python 2
-            content = infile.read().decode('UTF-8')
-
+        content = infile.read()
         return content

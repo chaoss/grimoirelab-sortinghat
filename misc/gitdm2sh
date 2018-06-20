@@ -20,8 +20,6 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from __future__ import unicode_literals
-
 import argparse
 import datetime
 import json
@@ -154,10 +152,7 @@ def json_encoder(obj):
 
 
 def read_file(f):
-    if sys.version_info[0] >= 3: # Python 3
-        content = f.read()
-    else: # Python 2
-        content = f.read().decode('UTF-8')
+    content = f.read()
     return content
 
 

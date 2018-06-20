@@ -20,12 +20,10 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from __future__ import unicode_literals
-
 import sys
 import unittest
 
-if not '..' in sys.path:
+if '..' not in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat.exceptions import BaseError, AlreadyExistsError, \
@@ -66,7 +64,7 @@ class TestBaseError(unittest.TestCase):
 
         When this happens, it raises a KeyError exception.
         """
-        kwargs = {'code' : 1, 'error' : 'Fatal error'}
+        kwargs = {'code': 1, 'error': 'Fatal error'}
         self.assertRaises(KeyError, MockErrorArgs, **kwargs)
 
 
@@ -83,8 +81,7 @@ class TestAlreadyExistsError(unittest.TestCase):
         """Test that uuid attribute is set when given as argument"""
 
         e = AlreadyExistsError(uuid='FFFFFFFFFFF', entity='FFFFFFFFFFF')
-        self.assertEqual(str(e),
-                         u"FFFFFFFFFFF already exists in the registry")
+        self.assertEqual(str(e), "FFFFFFFFFFF already exists in the registry")
         self.assertEqual(e.uuid, 'FFFFFFFFFFF')
 
     def test_no_args(self):
@@ -124,10 +121,10 @@ class TestDatabaseError(unittest.TestCase):
         kwargs = {}
         self.assertRaises(KeyError, DatabaseError, **kwargs)
 
-        kwargs = {'error' : "Unknown database 'mydb'"}
+        kwargs = {'error': "Unknown database 'mydb'"}
         self.assertRaises(KeyError, DatabaseError, **kwargs)
 
-        kwargs = {'code' : 1049}
+        kwargs = {'code': 1049}
         self.assertRaises(KeyError, DatabaseError, **kwargs)
 
 
@@ -145,10 +142,10 @@ class TestDatabaseExists(unittest.TestCase):
         kwargs = {}
         self.assertRaises(KeyError, DatabaseExists, **kwargs)
 
-        kwargs = {'error' : "Database existis 'mydb'"}
+        kwargs = {'error': "Database existis 'mydb'"}
         self.assertRaises(KeyError, DatabaseExists, **kwargs)
 
-        kwargs = {'code' : 1049}
+        kwargs = {'code': 1049}
         self.assertRaises(KeyError, DatabaseExists, **kwargs)
 
 

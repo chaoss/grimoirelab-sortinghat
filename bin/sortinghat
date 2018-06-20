@@ -20,16 +20,11 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from __future__ import unicode_literals
-
 import argparse
 import os
 import sys
 
-try:
-    import configparser
-except ImportError:
-    import ConfigParser as configparser
+import configparser
 
 from sortinghat.cmd import SORTINGHAT_COMMANDS
 import sortinghat

@@ -19,9 +19,6 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import re
 import dateutil.parser
 
@@ -56,7 +53,7 @@ class GitdmParser(object):
     :raises InvalidFormatError: raised when the format of any of the
         given streams is not valid.
     """
-    
+
     # Common Gitdm patterns
     VALID_LINE_REGEX = r"^(\S+)[ \t]+([^#\n\r\f\v]+[^#\s])(?:([ \t]+#.*)?|\s*)$"
     LINES_TO_IGNORE_REGEX = r"^\s*(?:#.*)?\s*$"
@@ -369,12 +366,4 @@ class GitdmParser(object):
         return org, dom
 
     def __encode(self, s):
-        import sys
-
-        if sys.version_info[0] >= 3: # Python 3
-            return s if s else None
-        else: # Python 2
-            if type(s) is str:
-                return s.encode('UTF-8') if s else None
-            else:
-                return s
+        return s if s else None

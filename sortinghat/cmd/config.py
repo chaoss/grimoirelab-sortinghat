@@ -19,16 +19,10 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import argparse
 import os.path
 
-try:
-    import configparser
-except ImportError:
-    import ConfigParser as configparser
+import configparser
 
 from ..command import Command, CMD_SUCCESS
 
@@ -45,7 +39,7 @@ class Config(Command):
     """
 
     CONFIG_OPTIONS = {
-                      'db' : ['user', 'password', 'database', 'host', 'port'],
+                      'db': ['user', 'password', 'database', 'host', 'port'],
                       }
 
     def __init__(self, **kwargs):
@@ -155,7 +149,7 @@ class Config(Command):
 
         section, option = key.split('.')
 
-        if not section in config.sections():
+        if section not in config.sections():
             config.add_section(section)
 
         try:

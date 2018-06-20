@@ -20,9 +20,6 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import json
 import sys
 import unittest
@@ -65,7 +62,7 @@ def setup_genderize_server():
         name = params['name'][0].lower()
 
         if name == 'error':
-            return (502, headers, 'Bad Gateway')
+            return 502, headers, 'Bad Gateway'
 
         if name == 'john':
             data = {
@@ -118,7 +115,6 @@ class TestAutoGenderCaseBase(TestCommandCaseBase):
         jdoe_uuid = api.add_identity(self.db, 'scm', 'jdoe@example.com',
                                      'John D', 'jdoe')
         api.edit_profile(self.db, jdoe_uuid, name="John D")
-
 
 
 class TestAutoGender(TestAutoGenderCaseBase):
@@ -446,7 +442,7 @@ class TestAutoGender(TestAutoGenderCaseBase):
             },
             {
                 'name': ['error'],
-                'apikey': [u'abcdefghi']
+                'apikey': ['abcdefghi']
             },
             {
                 'name': ['john'],

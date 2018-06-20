@@ -20,20 +20,17 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import configparser
 import datetime
 import sys
 import unittest
 
-if not '..' in sys.path:
+if '..' not in sys.path:
     sys.path.insert(0, '..')
 
 from sqlalchemy import create_engine
 from sqlalchemy.engine.url import URL
-from sqlalchemy.exc import IntegrityError, OperationalError, StatementError
+from sqlalchemy.exc import IntegrityError, StatementError
 from sqlalchemy.orm import sessionmaker
 
 from sortinghat.db.model import ModelBase, Organization, Domain, Country,\
@@ -50,12 +47,7 @@ CONFIG_FILE = 'tests.conf'
 class MockDatabase(object):
 
     def __init__(self, user, password, database, host, port):
-        # Create an engine
-        try:
-            import MySQLdb
-            driver = 'mysql+mysqldb'
-        except ImportError:
-            driver = 'mysql+pymysql'
+        driver = 'mysql+pymysql'
 
         self.url = URL(driver, user, password, host, port, database)
         self._engine = create_engine(self.url, echo=True)
@@ -112,12 +104,7 @@ class TestOrganization(TestCaseBase):
     def test_none_name_organizations(self):
         """Check whether organizations without name can be stored"""
 
-        if sys.version_info[0] >= 3: # Python 3
-            expected = IntegrityError
-        else: # Python 2
-            expected = OperationalError
-
-        with self.assertRaisesRegexp(expected, NULL_CHECK_ERROR):
+        with self.assertRaisesRegex(IntegrityError, NULL_CHECK_ERROR):
             org1 = Organization()
 
             self.session.add(org1)
@@ -178,7 +165,7 @@ class TestDomain(TestCaseBase):
     def test_unique_domains(self):
         """Check whether domains are unique"""
 
-        with self.assertRaisesRegexp(IntegrityError, DUP_CHECK_ERROR):
+        with self.assertRaisesRegex(IntegrityError, DUP_CHECK_ERROR):
             org1 = Organization(name='Example')
             self.session.add(org1)
 
@@ -194,12 +181,7 @@ class TestDomain(TestCaseBase):
     def test_not_null_organizations(self):
         """Check whether every domain is assigned to an organization"""
 
-        if sys.version_info[0] >= 3: # Python 3
-            expected = IntegrityError
-        else: # Python 2
-            expected = OperationalError
-
-        with self.assertRaisesRegexp(expected, NULL_CHECK_ERROR):
+        with self.assertRaisesRegex(IntegrityError, NULL_CHECK_ERROR):
             dom1 = Domain(domain='example.com')
             self.session.add(dom1)
             self.session.commit()
@@ -207,12 +189,7 @@ class TestDomain(TestCaseBase):
     def test_none_name_domains(self):
         """Check whether domains without name can be stored"""
 
-        if sys.version_info[0] >= 3: # Python 3
-            expected = IntegrityError
-        else: # Python 2
-            expected = OperationalError
-
-        with self.assertRaisesRegexp(expected, NULL_CHECK_ERROR):
+        with self.assertRaisesRegex(IntegrityError, NULL_CHECK_ERROR):
             org1 = Organization(name='Example')
             self.session.add(org1)
 
@@ -225,7 +202,7 @@ class TestDomain(TestCaseBase):
     def test_is_top_domain_invalid_type(self):
         """Check invalid values on top_domain bool collumn"""
 
-        with self.assertRaisesRegexp(StatementError, INVALID_DATATYPE_ERROR):
+        with self.assertRaisesRegex(StatementError, INVALID_DATATYPE_ERROR):
             org1 = Organization(name='Example')
             self.session.add(org1)
 
@@ -262,7 +239,7 @@ class TestCountry(TestCaseBase):
     def test_unique_countries(self):
         """Check whether countries are unique"""
 
-        with self.assertRaisesRegexp(IntegrityError, DUP_CHECK_ERROR):
+        with self.assertRaisesRegex(IntegrityError, DUP_CHECK_ERROR):
             c1 = Country(code='ES', name='Spain', alpha3='ESP')
             self.session.add(c1)
 
@@ -274,7 +251,7 @@ class TestCountry(TestCaseBase):
     def test_unique_alpha3(self):
         """Check whether alpha3 codes are unique"""
 
-        with self.assertRaisesRegexp(IntegrityError, DUP_CHECK_ERROR):
+        with self.assertRaisesRegex(IntegrityError, DUP_CHECK_ERROR):
             c1 = Country(code='ES', name='Spain', alpha3='ESP')
             self.session.add(c1)
 
@@ -286,12 +263,7 @@ class TestCountry(TestCaseBase):
     def test_none_name_country(self):
         """Check whether countries without name can be stored"""
 
-        if sys.version_info[0] >= 3: # Python 3
-            expected = IntegrityError
-        else: # Python 2
-            expected = OperationalError
-
-        with self.assertRaisesRegexp(expected, NULL_CHECK_ERROR):
+        with self.assertRaisesRegex(IntegrityError, NULL_CHECK_ERROR):
             c = Country(code='ES', alpha3='ESP')
             self.session.add(c)
 
@@ -300,12 +272,7 @@ class TestCountry(TestCaseBase):
     def test_none_alpha3_country(self):
         """Check whether countries without alpha3 code can be stored"""
 
-        if sys.version_info[0] >= 3: # Python 3
-            expected = IntegrityError
-        else: # Python 2
-            expected = OperationalError
-
-        with self.assertRaisesRegexp(expected, NULL_CHECK_ERROR):
+        with self.assertRaisesRegex(IntegrityError, NULL_CHECK_ERROR):
             c = Country(code='ES', name='Spain')
             self.session.add(c)
 
@@ -332,7 +299,7 @@ class TestUniqueIdentity(TestCaseBase):
     def test_unique_uuid(self):
         """Check whether the uuid is in fact unique"""
 
-        with self.assertRaisesRegexp(IntegrityError, DUP_CHECK_ERROR):
+        with self.assertRaisesRegex(IntegrityError, DUP_CHECK_ERROR):
             uid1 = UniqueIdentity(uuid='John Smith')
             uid2 = UniqueIdentity(uuid='John Smith')
 
@@ -385,7 +352,6 @@ class TestUniqueIdentity(TestCaseBase):
         self.assertEqual(d1['source'], 'scm')
         self.assertEqual(d1['uuid'], 'John Smith')
 
-
         prf = Profile(uuid='John Smith', name='Smith, J.',
                       email='jsmith@example.com', is_bot=True,
                       country_code='US')
@@ -411,12 +377,7 @@ class TestIdentity(TestCaseBase):
     def test_not_null_source(self):
         """Check whether every identity has a source"""
 
-        if sys.version_info[0] >= 3: # Python 3
-            expected = IntegrityError
-        else: # Python 2
-            expected = OperationalError
-
-        with self.assertRaisesRegexp(expected, NULL_CHECK_ERROR):
+        with self.assertRaisesRegex(IntegrityError, NULL_CHECK_ERROR):
             id1 = Identity()
             self.session.add(id1)
             self.session.commit()
@@ -429,7 +390,7 @@ class TestIdentity(TestCaseBase):
         id2 = Identity(id='B', name='John Smith', email='jsmith@example.com',
                        username='jsmith', source='scm')
 
-        with self.assertRaisesRegexp(IntegrityError, DUP_CHECK_ERROR):
+        with self.assertRaisesRegex(IntegrityError, DUP_CHECK_ERROR):
             self.session.add(id1)
             self.session.add(id2)
             self.session.commit()
@@ -497,7 +458,7 @@ class TestProfile(TestCaseBase):
         prf1 = Profile(uuid='John Smith', name='John Smith')
         prf2 = Profile(uuid='John Smith', name='Smith, J.')
 
-        with self.assertRaisesRegexp(IntegrityError, DUP_CHECK_ERROR):
+        with self.assertRaisesRegex(IntegrityError, DUP_CHECK_ERROR):
             self.session.add(prf1)
             self.session.add(prf2)
             self.session.commit()
@@ -505,7 +466,7 @@ class TestProfile(TestCaseBase):
     def test_is_bot_invalid_type(self):
         """Check invalid values on is_bot bool column"""
 
-        with self.assertRaisesRegexp(StatementError, INVALID_DATATYPE_ERROR):
+        with self.assertRaisesRegex(StatementError, INVALID_DATATYPE_ERROR):
             uid = UniqueIdentity(uuid='John Smith')
             self.session.add(uid)
 
@@ -556,19 +517,14 @@ class TestEnrollment(TestCaseBase):
     def test_not_null_relationships(self):
         """Check whether every enrollment is assigned organizations and unique identities"""
 
-        if sys.version_info[0] >= 3: # Python 3
-            expected = IntegrityError
-        else: # Python 2
-            expected = OperationalError
-
-        with self.assertRaisesRegexp(expected, NULL_CHECK_ERROR):
+        with self.assertRaisesRegex(IntegrityError, NULL_CHECK_ERROR):
             rol1 = Enrollment()
             self.session.add(rol1)
             self.session.commit()
 
         self.session.rollback()
 
-        with self.assertRaisesRegexp(expected, NULL_CHECK_ERROR):
+        with self.assertRaisesRegex(IntegrityError, NULL_CHECK_ERROR):
             uid = UniqueIdentity(uuid='John Smith')
             self.session.add(uid)
 
@@ -578,7 +534,7 @@ class TestEnrollment(TestCaseBase):
 
         self.session.rollback()
 
-        with self.assertRaisesRegexp(expected, NULL_CHECK_ERROR):
+        with self.assertRaisesRegex(IntegrityError, NULL_CHECK_ERROR):
             org = Organization(name='Example')
             self.session.add(org)
 
@@ -591,7 +547,7 @@ class TestEnrollment(TestCaseBase):
     def test_unique_enrollments(self):
         """Check if there is only one tuple with the same values"""
 
-        with self.assertRaisesRegexp(IntegrityError, DUP_CHECK_ERROR):
+        with self.assertRaisesRegex(IntegrityError, DUP_CHECK_ERROR):
             uid = UniqueIdentity(uuid='John Smith')
             self.session.add(uid)
 
@@ -670,7 +626,7 @@ class TestMatchingBlacklist(TestCaseBase):
     def test_unique_excluded(self):
         """Check whether the excluded term is in fact unique"""
 
-        with self.assertRaisesRegexp(IntegrityError, DUP_CHECK_ERROR):
+        with self.assertRaisesRegex(IntegrityError, DUP_CHECK_ERROR):
             mb1 = MatchingBlacklist(excluded='John Smith')
             mb2 = MatchingBlacklist(excluded='John Smith')
 

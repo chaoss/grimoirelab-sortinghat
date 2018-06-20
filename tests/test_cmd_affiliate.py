@@ -20,13 +20,10 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import sys
 import unittest
 
-if not '..' in sys.path:
+if '..' not in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat import api
@@ -120,8 +117,8 @@ class TestAffiliateCommand(TestAffiliateCaseBase):
 
         wrn = sys.stderr.getvalue().strip()
         self.assertEqual(wrn,
-                         MULTIPLE_DOMAIN_WARNING % {'subdomain' : 'it.u.example.com',
-                                                    'domain' : 'u.example.com'})
+                         MULTIPLE_DOMAIN_WARNING % {'subdomain': 'it.u.example.com',
+                                                    'domain': 'u.example.com'})
 
     def test_empty_registry(self):
         """Check output when the registry is empty"""
@@ -161,8 +158,8 @@ class TestAffiliate(TestAffiliateCaseBase):
 
         wrn = sys.stderr.getvalue().strip()
         self.assertEqual(wrn,
-                         MULTIPLE_DOMAIN_WARNING % {'subdomain' : 'it.u.example.com',
-                                                    'domain' : 'u.example.com'})
+                         MULTIPLE_DOMAIN_WARNING % {'subdomain': 'it.u.example.com',
+                                                    'domain': 'u.example.com'})
 
     def test_empty_registry(self):
         """Check output when the registry is empty"""

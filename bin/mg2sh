@@ -20,8 +20,6 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from __future__ import unicode_literals
-
 import argparse
 import sys
 
@@ -155,11 +153,11 @@ def to_json(identities, source):
 
         uids[uuid] = uid
 
-    obj = {'time' : str(datetime.datetime.now()),
-           'source' : source,
-           'blacklist' : [],
-           'organizations' : {},
-           'uidentities' : uids}
+    obj = {'time': str(datetime.datetime.now()),
+           'source': source,
+           'blacklist': [],
+           'organizations': {},
+           'uidentities': uids}
 
     return json.dumps(obj, indent=4, sort_keys=True)
 

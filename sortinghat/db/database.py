@@ -19,9 +19,6 @@
 #         Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 from contextlib import contextmanager
 
 from sqlalchemy import create_engine
@@ -39,7 +36,6 @@ class Database(object):
 
     MYSQL_CREATE_DB = "CREATE DATABASE %(database)s CHARACTER SET utf8 COLLATE utf8_unicode_ci"
     MYSQL_DROP_DB = "DROP DATABASE IF EXISTS %(database)s"
-
 
     def __init__(self, user, password, database, host='localhost', port='3306'):
         self._engine = self.build_engine(user, password, database, host, port)
@@ -74,13 +70,13 @@ class Database(object):
     @classmethod
     def create(cls, user, password, database, host='localhost', port='3306'):
         engine = cls.build_engine(user, password, None, host, port)
-        query = Database.MYSQL_CREATE_DB % {'database' : database}
+        query = Database.MYSQL_CREATE_DB % {'database': database}
         cls.execute(engine, query)
 
     @classmethod
     def drop(cls, user, password, database, host='localhost', port='3306'):
         engine = cls.build_engine(user, password, None, host, port)
-        query = Database.MYSQL_DROP_DB % {'database' : database}
+        query = Database.MYSQL_DROP_DB % {'database': database}
         cls.execute(engine, query)
 
     @classmethod
@@ -108,12 +104,7 @@ class Database(object):
 def create_database_engine(user, password, database, host, port):
     """Create a database engine"""
 
-    try:
-        import MySQLdb
-        driver = 'mysql+mysqldb'
-    except ImportError:
-        driver = 'mysql+pymysql'
-
+    driver = 'mysql+pymysql'
     url = URL(driver, user, password, host, port, database,
               query={'charset': 'utf8'})
     return create_engine(url, poolclass=QueuePool,

@@ -20,20 +20,16 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import sys
 import unittest
 
-if not '..' in sys.path:
+if '..' not in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat import api
 from sortinghat.command import CMD_SUCCESS
 from sortinghat.cmd.autoprofile import AutoProfile
 from sortinghat.db.model import Country
-from sortinghat.exceptions import CODE_NOT_FOUND_ERROR
 
 from tests.base import TestCommandCaseBase
 
@@ -104,11 +100,10 @@ class TestAutoProfileCommand(TestAutoProfileCaseBase):
         self.assertEqual(uids[2].profile.name, None)
         self.assertEqual(uids[2].profile.email, None)
 
-
     def test_autocomplete_profiles(self):
         """Check whether it autocompletes the profiles based on a priority list"""
 
-        code = self.cmd.autocomplete(['mls', 'its'])
+        self.cmd.autocomplete(['mls', 'its'])
 
         uids = api.unique_identities(self.db)
 

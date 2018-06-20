@@ -19,9 +19,6 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 from .add import Add
 from .affiliate import Affiliate
 from .autogender import AutoGender
@@ -45,24 +42,24 @@ from .withdraw import Withdraw
 
 
 SORTINGHAT_COMMANDS = {
-                       'add'         : Add,
-                       'affiliate'   : Affiliate,
-                       'autogender'  : AutoGender,
-                       'autoprofile' : AutoProfile,
-                       'blacklist'   : Blacklist,
-                       'config'      : Config,
-                       'countries'   : Countries,
-                       'enroll'      : Enroll,
-                       'export'      : Export,
-                       'init'        : Init,
-                       'load'        : Load,
-                       'log'         : Log,
-                       'merge'       : Merge,
-                       'mv'          : Move,
-                       'orgs'        : Organizations,
-                       'profile'     : Profile,
-                       'rm'          : Remove,
-                       'show'        : Show,
-                       'unify'       : Unify,
-                       'withdraw'    : Withdraw,
+                       'add': Add,
+                       'affiliate': Affiliate,
+                       'autogender': AutoGender,
+                       'autoprofile': AutoProfile,
+                       'blacklist': Blacklist,
+                       'config': Config,
+                       'countries': Countries,
+                       'enroll': Enroll,
+                       'export': Export,
+                       'init': Init,
+                       'load': Load,
+                       'log': Log,
+                       'merge': Merge,
+                       'mv': Move,
+                       'orgs': Organizations,
+                       'profile': Profile,
+                       'rm': Remove,
+                       'show': Show,
+                       'unify': Unify,
+                       'withdraw': Withdraw,
                        }
