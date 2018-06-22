@@ -128,25 +128,25 @@ class TestWithdrawCommand(TestWithdrawCaseBase):
         code = self.cmd.run('--from', '1999-13-01',
                             'John Smith', 'Example')
         self.assertEqual(code, CODE_INVALID_DATE_ERROR)
-        output = sys.stderr.getvalue().strip('\n').split('\n')[0]
+        output = sys.stderr.getvalue().strip('\n').split('\n')[-1]
         self.assertEqual(output, WITHDRAW_INVALID_DATE_ERROR)
 
         code = self.cmd.run('--from', 'YYZYY',
                             'John Smith', 'Example')
         self.assertEqual(code, CODE_INVALID_DATE_ERROR)
-        output = sys.stderr.getvalue().strip('\n').split('\n')[1]
+        output = sys.stderr.getvalue().strip('\n').split('\n')[-1]
         self.assertEqual(output, WITHDRAW_INVALID_FORMAT_DATE_ERROR)
 
         code = self.cmd.run('--to', '1999-13-01',
                             'John Smith', 'Example')
         self.assertEqual(code, CODE_INVALID_DATE_ERROR)
-        output = sys.stderr.getvalue().strip('\n').split('\n')[2]
+        output = sys.stderr.getvalue().strip('\n').split('\n')[-1]
         self.assertEqual(output, WITHDRAW_INVALID_DATE_ERROR)
 
         code = self.cmd.run('--to', 'YYZYY',
                             'John Smith', 'Example')
         self.assertEqual(code, CODE_INVALID_DATE_ERROR)
-        output = sys.stderr.getvalue().strip('\n').split('\n')[3]
+        output = sys.stderr.getvalue().strip('\n').split('\n')[-1]
         self.assertEqual(output, WITHDRAW_INVALID_FORMAT_DATE_ERROR)
 
 

@@ -304,7 +304,7 @@ class TestDelete(TestBlacklistCaseBase):
         # The error should be the same
         code = self.cmd.delete('root@example.net')
         self.assertEqual(code, CODE_NOT_FOUND_ERROR)
-        output = sys.stderr.getvalue().strip().split('\n')[1]
+        output = sys.stderr.getvalue().strip('\n').split('\n')[-1]
         self.assertEqual(output, BLACKLIST_NOT_FOUND_ERROR)
 
         # Nothing has been deleted from the registry

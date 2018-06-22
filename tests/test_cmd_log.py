@@ -147,22 +147,25 @@ class TestLogCommand(TestLogCaseBase):
 
         code = self.cmd.run('--from', '1999-13-01')
         self.assertEqual(code, CODE_INVALID_DATE_ERROR)
-        output = sys.stderr.getvalue().strip('\n').split('\n')[0]
+        output = sys.stderr.getvalue().strip().split('\n')[0]
         self.assertEqual(output, LOG_INVALID_DATE_ERROR)
 
         code = self.cmd.run('--from', 'YYZYY')
         self.assertEqual(code, CODE_INVALID_DATE_ERROR)
-        output = sys.stderr.getvalue().strip('\n').split('\n')[1]
+        x = sys.stderr.getvalue()
+        output = sys.stderr.getvalue().strip().split('\n')[-1]
         self.assertEqual(output, LOG_INVALID_FORMAT_DATE_ERROR)
 
         code = self.cmd.run('--to', '1999-13-01')
         self.assertEqual(code, CODE_INVALID_DATE_ERROR)
-        output = sys.stderr.getvalue().strip('\n').split('\n')[2]
+        x = sys.stderr.getvalue()
+        output = sys.stderr.getvalue().strip().split('\n')[-1]
         self.assertEqual(output, LOG_INVALID_DATE_ERROR)
 
         code = self.cmd.run('--to', 'YYZYY')
         self.assertEqual(code, CODE_INVALID_DATE_ERROR)
-        output = sys.stderr.getvalue().strip('\n').split('\n')[3]
+        x = sys.stderr.getvalue()
+        output = sys.stderr.getvalue().strip().split('\n')[-1]
         self.assertEqual(output, LOG_INVALID_FORMAT_DATE_ERROR)
 
 
@@ -236,7 +239,7 @@ class TestLog(TestLogCaseBase):
 
         code = self.cmd.log()
         self.assertEqual(code, CMD_SUCCESS)
-        output = sys.stderr.getvalue().strip()
+        output = sys.stderr.getvalue().strip('\n')
         self.assertEqual(output, LOG_EMPTY_OUTPUT)
 
 
