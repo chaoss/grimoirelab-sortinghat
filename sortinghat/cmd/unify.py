@@ -20,12 +20,16 @@
 #
 
 import argparse
+import json
+import os
 
 from .. import api
 from ..command import Command, CMD_SUCCESS, HELP_LIST
 from ..exceptions import MatcherNotSupportedError
 from ..matcher import create_identity_matcher, match
 from ..matching import SORTINGHAT_IDENTITIES_MATCHERS
+
+RECOVERY_FILE_PATH = '~/.sortinghat.d/unify.log'
 
 
 class Unify(Command):
@@ -55,6 +59,8 @@ class Unify(Command):
                                  help="do not rigorous check of values (i.e, well formed email addresses)")
         self.parser.add_argument('-i', '--interactive', action='store_true',
                                  help="run interactive mode while unifying")
+        self.parser.add_argument('-r', '--recovery', dest='recovery', action='store_true',
+                                 help="Enable recovery mode")
 
         # Exit early if help is requested
         if 'cmd_args' in kwargs and [i for i in kwargs['cmd_args'] if i in HELP_LIST]:
@@ -63,6 +69,7 @@ class Unify(Command):
         self._set_database(**kwargs)
         self.total = 0
         self.matched = 0
+        self.recovery = False
 
     @property
     def description(self):
@@ -72,7 +79,7 @@ class Unify(Command):
     def usage(self):
         usg = "%(prog)s unify"
         usg += " [--matching <matcher>] [--sources <srcs>]"
-        usg += " [--fast-matching] [--no-strict-matching] [--interactive]"
+        usg += " [--fast-matching] [--no-strict-matching] [--interactive] [--recovery]"
         return usg
 
     def run(self, *args):
@@ -82,13 +89,13 @@ class Unify(Command):
 
         code = self.unify(params.matching, params.sources,
                           params.fast_matching, params.no_strict,
-                          params.interactive)
+                          params.interactive, params.recovery)
 
         return code
 
     def unify(self, matching=None, sources=None,
               fast_matching=False, no_strict_matching=False,
-              interactive=False):
+              interactive=False, recovery=False):
         """Merge unique identities using a matching algorithm.
 
         This method looks for sets of similar identities, merging those
@@ -117,6 +124,8 @@ class Unify(Command):
         :param fast_matching: use the fast mode
         :param no_strict_matching: disable strict matching (i.e, well-formed email addresses)
         :param interactive: interactive mode for merging identities
+        :param recovery: if enabled, the unify will read the matching identities stored in
+           recovery file (RECOVERY_FILE_PATH) and process them
         """
         matcher = None
 
@@ -124,6 +133,7 @@ class Unify(Command):
             matching = 'default'
 
         strict = not no_strict_matching
+        self.recovery = recovery
 
         try:
             blacklist = api.blacklist(self.db)
@@ -155,8 +165,41 @@ class Unify(Command):
         self.total = len(uidentities)
         self.matched = 0
 
-        matched = match(uidentities, matcher, fastmode=fast_matching)
-        self.__merge(matched, interactive)
+        loaded_matched = None
+        if self.recovery and RecoveryFile.exists():
+            print("Loading matches from recovery file: %s" % RecoveryFile.location())
+            loaded_matched = RecoveryFile.load_matches()
+
+        if loaded_matched:
+            self.__merge_from_file(loaded_matched, interactive)
+        else:
+            matched = match(uidentities, matcher, fastmode=fast_matching)
+            self.__merge(matched, interactive)
+
+        if self.recovery:
+            RecoveryFile.delete()
+
+    def __merge_from_file(self, matched, interactive):
+        """Merge a lists of matched unique identities"""
+
+        for m in matched:
+            identities = m['identities']
+            uuid = identities[0]
+
+            try:
+                for c in identities[1:]:
+                    if self.__merge_unique_identities(c, uuid, interactive):
+                        self.matched += 1
+
+                        # Retrieve unique identity to show updated info
+                        if interactive:
+                            uuid = api.unique_identities(self.db, uuid=uuid)[0]
+            except Exception as e:
+                if self.recovery:
+                    RecoveryFile.save_matches(matched)
+                raise e
+
+            m['processed'] = True
 
     def __merge(self, matched, interactive):
         """Merge a lists of matched unique identities"""
@@ -164,13 +207,19 @@ class Unify(Command):
         for m in matched:
             u = m[0]
 
-            for c in m[1:]:
-                if self.__merge_unique_identities(c, u, interactive):
-                    self.matched += 1
+            try:
+                for c in m[1:]:
+                    if self.__merge_unique_identities(c.uuid, u.uuid, interactive):
+                        self.matched += 1
 
-                    # Retrieve unique identity to show updated info
-                    if interactive:
-                        u = api.unique_identities(self.db, uuid=u.uuid)[0]
+                        # Retrieve unique identity to show updated info
+                        if interactive:
+                            u = api.unique_identities(self.db, uuid=u.uuid)[0]
+            except Exception as e:
+                if self.recovery:
+                    matched = RecoveryFile.jsonize(matched)
+                    RecoveryFile.save_matches(matched)
+                raise e
 
     def __merge_unique_identities(self, from_uid, to_uid, interactive):
         # By default, always merge
@@ -183,10 +232,10 @@ class Unify(Command):
         if not merge:
             return False
 
-        api.merge_unique_identities(self.db, from_uid.uuid, to_uid.uuid)
+        api.merge_unique_identities(self.db, from_uid, to_uid)
 
-        self.display('merge.tmpl', from_uuid=from_uid.uuid,
-                     to_uuid=to_uid.uuid)
+        self.display('merge.tmpl', from_uuid=from_uid,
+                     to_uuid=to_uid)
 
         return True
 
@@ -210,3 +259,88 @@ class Unify(Command):
         self.display('unify.tmpl', processed=self.total,
                      matched=self.matched,
                      unified=self.total - self.matched)
+
+
+class RecoveryFile:
+    """A class to perform operation on the recovery file.
+
+    The class contains four static methods that check whether a recovery file exists,
+    allow to load the identity matches within it, convert the matches in a JSON
+    format and delete the file.
+    """
+    @staticmethod
+    def location():
+        """Return the recovery file path"""
+
+        return os.path.expanduser(RECOVERY_FILE_PATH)
+
+    @staticmethod
+    def exists():
+        """Check whether a recovery file exists"""
+
+        return os.path.exists(RecoveryFile.location())
+
+    @staticmethod
+    def load_matches():
+        """Load matches of the previous failed execution from the recovery file.
+
+        :returns matches: a list of matches in JSON format
+        """
+        if not RecoveryFile.exists():
+            return []
+
+        matches = []
+        with open(RecoveryFile.location(), 'r') as f:
+            for line in f.readlines():
+                match_obj = json.loads(line.strip("\n"))
+                if match_obj['processed']:
+                    continue
+
+                matches.append(match_obj)
+
+        return matches
+
+    @staticmethod
+    def jsonize(matched):
+        """Convert matches to JSON format.
+
+        :param matched: a list of matched identities
+
+        :returns json_matches: a list of matches in JSON format
+        """
+        json_matches = []
+        for m in matched:
+            identities = [i.uuid for i in m]
+
+            if len(identities) == 1:
+                continue
+
+            json_match = {
+                'identities': identities,
+                'processed': False
+            }
+            json_matches.append(json_match)
+
+        return json_matches
+
+    @staticmethod
+    def save_matches(matches):
+        """Save matches of a failed execution to the log.
+
+        :param matches: a list of matches in JSON format
+        """
+        if not os.path.dirname(RecoveryFile.location()):
+            os.makedirs(os.path.dirname(RecoveryFile.location()))
+
+        with open(RecoveryFile.location(), "w+") as f:
+            matches = [m for m in matches if not m['processed']]
+            for m in matches:
+                match_obj = json.dumps(m)
+                f.write(match_obj + "\n")
+
+    @staticmethod
+    def delete():
+        """Delete the recovery file."""
+
+        if RecoveryFile.exists():
+            os.remove(RecoveryFile.location())
