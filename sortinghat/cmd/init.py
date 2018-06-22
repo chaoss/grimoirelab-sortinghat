@@ -20,6 +20,7 @@
 #
 
 import argparse
+import logging
 
 from ..command import Command, CMD_SUCCESS
 from ..exceptions import CODE_VALUE_ERROR, CODE_DATABASE_ERROR, \
@@ -27,6 +28,9 @@ from ..exceptions import CODE_VALUE_ERROR, CODE_DATABASE_ERROR, \
                          DatabaseError, DatabaseExists, LoadError
 from ..db.database import Database
 from ..db.model import Country
+
+
+logger = logging.getLogger(__name__)
 
 
 class Init(Command):

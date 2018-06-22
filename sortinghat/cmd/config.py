@@ -20,11 +20,15 @@
 #
 
 import argparse
+import logging
 import os.path
 
 import configparser
 
 from ..command import Command, CMD_SUCCESS
+
+
+logger = logging.getLogger(__name__)
 
 
 class Config(Command):

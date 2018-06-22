@@ -20,6 +20,7 @@
 #
 
 import argparse
+import logging
 
 from .. import api
 from ..command import Command, CMD_SUCCESS, HELP_LIST
@@ -29,6 +30,9 @@ from ..exceptions import AlreadyExistsError, NotFoundError, InvalidValueError
 ORGS_COMMAND_USAGE_MSG = """%(prog)s orgs -l [term]
    or: %(prog)s orgs -a <organization> [domain] [--top-domain] [--overwrite]"
    or: %(prog)s orgs -d <organization> [domain]"""
+
+
+logger = logging.getLogger(__name__)
 
 
 class Organizations(Command):

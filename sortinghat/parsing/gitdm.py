@@ -19,12 +19,16 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-import re
 import dateutil.parser
+import logging
+import re
+
 
 from ..db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE, UniqueIdentity,\
     Identity, Enrollment, Organization, Domain
 from ..exceptions import InvalidFormatError
+
+logger = logging.getLogger(__name__)
 
 
 class GitdmParser(object):

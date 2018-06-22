@@ -20,12 +20,15 @@
 #
 
 import argparse
+import logging
 
 from .. import api
 from ..command import Command, CMD_SUCCESS, HELP_LIST
 from ..exceptions import MatcherNotSupportedError
 from ..matcher import create_identity_matcher, match
 from ..matching import SORTINGHAT_IDENTITIES_MATCHERS
+
+logger = logging.getLogger(__name__)
 
 
 class Unify(Command):

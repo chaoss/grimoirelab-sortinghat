@@ -20,6 +20,7 @@
 #
 
 import argparse
+import logging
 import re
 
 import requests
@@ -31,6 +32,8 @@ from ..exceptions import NotFoundError, InvalidValueError
 
 
 AUTOGENDER_COMMAND_USAGE_MSG = """%(prog)s autogender [--api-token] [--all]"""
+
+logger = logging.getLogger(__name__)
 
 
 class AutoGender(Command):

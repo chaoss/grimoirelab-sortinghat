@@ -22,10 +22,13 @@
 import argparse
 import datetime
 import json
+import logging
 import sys
 
 from .. import api
 from ..command import Command, CMD_SUCCESS, HELP_LIST
+
+logger = logging.getLogger(__name__)
 
 
 class Export(Command):
