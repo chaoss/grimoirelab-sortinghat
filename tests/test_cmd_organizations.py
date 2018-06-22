@@ -461,14 +461,14 @@ class TestOrgsDelete(TestOrgsCaseBase):
         # The error should be the same
         code = self.cmd.delete('Bitergium')
         self.assertEqual(code, CODE_NOT_FOUND_ERROR)
-        output = sys.stderr.getvalue().strip().split('\n')[1]
+        output = sys.stderr.getvalue().strip('\n').split('\n')[-1]
         self.assertEqual(output, REGISTRY_ORG_NOT_FOUND_ERROR)
 
         # It fails again, when trying to delete a domain from
         # a organization that does not exist
         code = self.cmd.delete('LibreSoft', 'bitergium.com')
         self.assertEqual(code, CODE_NOT_FOUND_ERROR)
-        output = sys.stderr.getvalue().strip().split('\n')[2]
+        output = sys.stderr.getvalue().strip('\n').split('\n')[-1]
         self.assertEqual(output, REGISTRY_ORG_NOT_FOUND_ERROR_ALT)
 
         # Nothing has been deleted from the registry
@@ -495,7 +495,7 @@ class TestOrgsDelete(TestOrgsCaseBase):
         # to other organization
         code = self.cmd.delete('Example', 'bitergia.com')
         self.assertEqual(code, CODE_NOT_FOUND_ERROR)
-        output = sys.stderr.getvalue().strip().split('\n')[1]
+        output = sys.stderr.getvalue().strip().split('\n')[-1]
         self.assertEqual(output, REGISTRY_DOM_NOT_FOUND_ERROR_ALT)
 
         # Nothing has been deleted from the registry
