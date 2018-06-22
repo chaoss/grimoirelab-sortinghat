@@ -19,8 +19,9 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-import re
 import email.utils
+import logging
+import re
 
 from ..db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE, \
     UniqueIdentity, Identity, Profile, Enrollment, Organization
@@ -28,6 +29,8 @@ from ..exceptions import InvalidFormatError
 
 # List of names not considered as organizations
 MAILMAP_NO_ORGS = ['Unaffiliated']
+
+logger = logging.getLogger(__name__)
 
 
 class MailmapParser(object):

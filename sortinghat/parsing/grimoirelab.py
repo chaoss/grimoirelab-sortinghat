@@ -20,9 +20,10 @@
 #     Miguel Ángel Fernández Sánchez <mafesan@bitergia.com>
 #
 
-import itertools
-import re
 import datetime
+import itertools
+import logging
+import re
 import yaml
 
 from ..db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE, \
@@ -33,6 +34,8 @@ PERCEVAL_BACKENDS = ['askbot', 'bugzilla', 'bugzillarest', 'confluence', 'discou
                      'dockerhub', 'gerrit', 'git', 'github', 'gmane', 'hyperkitty', 'jenkins',
                      'jira', 'mbox', 'mediawiki', 'meetup', 'nntp', 'phabricator', 'pipermail',
                      'redmine', 'rss', 'slack', 'stackexchange', 'supybot', 'telegram']
+
+logger = logging.getLogger(__name__)
 
 
 class GrimoireLabParser(object):

@@ -20,10 +20,14 @@
 #
 
 import argparse
+import logging
 
 from .. import api
 from ..command import Command, CMD_SUCCESS, HELP_LIST
 from ..exceptions import NotFoundError, InvalidValueError, CODE_INVALID_FORMAT_ERROR
+
+
+logger = logging.getLogger(__name__)
 
 
 class Countries(Command):

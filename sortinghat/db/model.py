@@ -20,6 +20,7 @@
 #
 
 import datetime
+import logging
 
 from sqlalchemy import Column, Integer, String, DateTime,\
     ForeignKey, UniqueConstraint
@@ -40,7 +41,7 @@ MYSQL_CHARSET = {
     'mysql_collate': 'utf8_unicode_ci'
 }
 
-
+logger = logging.getLogger(__name__)
 ModelBase = declarative_base()
 
 

@@ -19,6 +19,8 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+import logging
+
 
 CODE_BASE_ERROR = 1
 CODE_ALREADY_EXISTS_ERROR = 2
@@ -31,6 +33,9 @@ CODE_MATCHER_NOT_SUPPORTED_ERROR = 8
 CODE_NOT_FOUND_ERROR = 9
 CODE_VALUE_ERROR = 10
 CODE_DATABASE_EXISTS = 11
+
+
+logger = logging.getLogger(__name__)
 
 
 class BaseError(Exception):

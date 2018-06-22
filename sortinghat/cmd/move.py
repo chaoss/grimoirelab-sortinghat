@@ -20,10 +20,14 @@
 #
 
 import argparse
+import logging
 
 from .. import api
 from ..command import Command, CMD_SUCCESS, HELP_LIST
 from ..exceptions import NotFoundError
+
+
+logger = logging.getLogger(__name__)
 
 
 class Move(Command):

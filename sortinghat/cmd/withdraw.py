@@ -20,10 +20,13 @@
 #
 
 import argparse
+import logging
 
 from .. import api, utils
 from ..command import Command, CMD_SUCCESS, HELP_LIST
 from ..exceptions import InvalidDateError, NotFoundError, InvalidValueError
+
+logger = logging.getLogger(__name__)
 
 
 class Withdraw(Command):

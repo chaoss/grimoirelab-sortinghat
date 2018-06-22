@@ -19,10 +19,15 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+import logging
+
 from ..db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE, \
     UniqueIdentity, Identity, Enrollment, Organization
 from ..exceptions import InvalidDateError, InvalidFormatError
 from ..utils import str_to_datetime
+
+
+logger = logging.getLogger(__name__)
 
 
 class EclipseParser(object):

@@ -19,12 +19,15 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+import logging
 import sys
 
 import jinja2
 
 from .exceptions import DatabaseError
 from .db.database import Database
+
+logger = logging.getLogger(__name__)
 
 CMD_SUCCESS = 0
 CMD_FAILURE = 1
@@ -57,7 +60,6 @@ class Command(object):
 
         t = env.get_template(template)
         s = t.render(**kwargs)
-
         sys.stdout.write(s)
 
     def error(self, msg):
@@ -72,5 +74,6 @@ class Command(object):
         try:
             self.db = Database(kwargs['user'], kwargs['password'],
                                kwargs['database'], kwargs['host'], kwargs['port'])
+            logger.info("Database %s:%s %s set", kwargs['database'], kwargs['host'], kwargs['port'])
         except DatabaseError as e:
             raise RuntimeError(str(e))
