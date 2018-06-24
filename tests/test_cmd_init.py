@@ -40,7 +40,7 @@ from sortinghat.exceptions import CODE_DATABASE_ERROR, CODE_DATABASE_EXISTS, \
 DB_ACCESS_ERROR = r".+Access denied for user '%(user)s'@"
 DB_EXISTS_ERROR = r".+Can't create database '%(database)s'; database exists \(err: 1007\)"
 
-CONFIG_FILE = 'tests.conf'
+from tests.base import CONFIG_FILE
 
 
 class TestInitCaseBase(unittest.TestCase):

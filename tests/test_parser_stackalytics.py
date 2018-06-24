@@ -32,6 +32,8 @@ from sortinghat.db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE, \
 from sortinghat.exceptions import InvalidFormatError
 from sortinghat.parsing.stackalytics import StackalyticsParser
 
+from tests.base import TestCommandCaseBase, datadir
+
 
 STACKALYTICS_INVALID_JSON_FORMAT_ERROR = r"invalid json format\. Expecting ':' delimiter"
 STACKALYTICS_IDS_MISSING_KEYS_ERROR = "Attribute companies not found"
@@ -55,7 +57,7 @@ class TestStackalyticsParser(TestBaseCase):
     def test_valid_identities_stream(self):
         """Check insertion of valid data from a file"""
 
-        stream = self.read_file('data/stackalytics_valid.json')
+        stream = self.read_file(datadir('stackalytics_valid.json'))
 
         parser = StackalyticsParser(stream, source='unknown')
         uids = parser.identities
@@ -150,7 +152,7 @@ class TestStackalyticsParser(TestBaseCase):
     def test_valid_organizations_stream(self):
         """Check whether it parses organizations section from a valid stream"""
 
-        stream = self.read_file('data/stackalytics_valid.json')
+        stream = self.read_file(datadir('stackalytics_valid.json'))
 
         parser = StackalyticsParser(stream)
         orgs = parser.organizations
@@ -186,17 +188,17 @@ class TestStackalyticsParser(TestBaseCase):
 
         with self.assertRaisesRegex(InvalidFormatError,
                                     STACKALYTICS_INVALID_JSON_FORMAT_ERROR):
-            s = self.read_file('data/stackalytics_invalid.json')
+            s = self.read_file(datadir('stackalytics_invalid.json'))
             StackalyticsParser(s)
 
         with self.assertRaisesRegex(InvalidFormatError,
                                     STACKALYTICS_IDS_MISSING_KEYS_ERROR):
-            s = self.read_file('data/stackalytics_ids_missing_keys.json')
+            s = self.read_file(datadir('stackalytics_ids_missing_keys.json'))
             StackalyticsParser(s)
 
         with self.assertRaisesRegex(InvalidFormatError,
                                     STACKALYTICS_ORGS_MISSING_KEYS_ERROR):
-            s = self.read_file('data/stackalytics_orgs_missing_keys.json')
+            s = self.read_file(datadir('stackalytics_orgs_missing_keys.json'))
             StackalyticsParser(s)
 
     def test_empty_stream(self):

@@ -31,6 +31,8 @@ from sortinghat.db.model import UniqueIdentity, Identity, Organization
 from sortinghat.exceptions import InvalidFormatError
 from sortinghat.parsing.eclipse import EclipseParser
 
+from tests.base import TestCommandCaseBase, datadir
+
 
 ECLIPSE_INVALID_JSON_FORMAT_ERROR = r"invalid json format\. Expecting ':' delimiter"
 ECLIPSE_IDS_MISSING_KEYS_ERROR = "Attribute active not found"
@@ -55,7 +57,7 @@ class TestEclipseParser(TestBaseCase):
     def test_valid_identities_stream(self):
         """Check insertion of valid data from a file"""
 
-        stream = self.read_file('data/eclipse_valid.json')
+        stream = self.read_file(datadir('eclipse_valid.json'))
 
         parser = EclipseParser(stream, source='unknown')
         uids = parser.identities
@@ -155,7 +157,7 @@ class TestEclipseParser(TestBaseCase):
     def test_valid_organizations_stream(self):
         """Check whether it parses organizations section from a valid stream"""
 
-        stream = self.read_file('data/eclipse_valid.json')
+        stream = self.read_file(datadir('eclipse_valid.json'))
 
         parser = EclipseParser(stream)
         orgs = parser.organizations
@@ -186,22 +188,22 @@ class TestEclipseParser(TestBaseCase):
 
         with self.assertRaisesRegex(InvalidFormatError,
                                     ECLIPSE_INVALID_JSON_FORMAT_ERROR):
-            s = self.read_file('data/eclipse_invalid.json')
+            s = self.read_file(datadir('eclipse_invalid.json'))
             EclipseParser(s)
 
         with self.assertRaisesRegex(InvalidFormatError,
                                     ECLIPSE_IDS_MISSING_KEYS_ERROR):
-            s = self.read_file('data/eclipse_ids_missing_keys.json')
+            s = self.read_file(datadir('eclipse_ids_missing_keys.json'))
             EclipseParser(s)
 
         with self.assertRaisesRegex(InvalidFormatError,
                                     ECLIPSE_ORGS_MISSING_KEYS_ERROR):
-            s = self.read_file('data/eclipse_orgs_missing_keys.json')
+            s = self.read_file(datadir('eclipse_orgs_missing_keys.json'))
             EclipseParser(s)
 
         with self.assertRaisesRegex(InvalidFormatError,
                                     ECLIPSE_DATETIME_ERROR):
-            s = self.read_file('data/eclipse_invalid_datetime.json')
+            s = self.read_file(datadir('eclipse_invalid_datetime.json'))
             EclipseParser(s)
 
     def test_empty_stream(self):

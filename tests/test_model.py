@@ -36,12 +36,11 @@ from sqlalchemy.orm import sessionmaker
 from sortinghat.db.model import ModelBase, Organization, Domain, Country,\
     UniqueIdentity, Identity, Profile, Enrollment, MatchingBlacklist
 
+from tests.base import Database, CONFIG_FILE
 
 DUP_CHECK_ERROR = 'Duplicate entry'
 NULL_CHECK_ERROR = 'cannot be null'
 INVALID_DATATYPE_ERROR = 'ValueError'
-
-CONFIG_FILE = 'tests.conf'
 
 
 class MockDatabase(object):
@@ -67,12 +66,24 @@ class TestCaseBase(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         config = configparser.ConfigParser()
-        config.read(CONFIG_FILE)
-        cls.db = MockDatabase(config['Database']['user'],
-                              config['Database']['password'],
-                              config['Database']['name'],
-                              config['Database']['host'],
-                              config['Database']['port'])
+        config.read(config.read(CONFIG_FILE))
+        cls.db_kwargs = {'user': config['Database']['user'],
+                         'password': config['Database']['password'],
+                         'database': config['Database']['name'],
+                         'host': config['Database']['host'],
+                         'port': config['Database']['port']}
+        if 'create' in config['Database']:
+            cls.create = config['Database'].getboolean('create')
+        else:
+            cls.create = False
+        if cls.create:
+            Database.create(**cls.db_kwargs)
+        cls.db = MockDatabase(**cls.db_kwargs)
+
+    @classmethod
+    def tearDownClass(cls):
+        if cls.create:
+            Database.drop(**cls.db_kwargs)
 
     def setUp(self):
         self.session = self.db.session()
