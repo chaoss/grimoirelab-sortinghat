@@ -62,11 +62,6 @@ def add_unique_identity(db, uuid):
         in the registry.
     """
     with db.connect() as session:
-        uidentity = find_unique_identity(session, uuid)
-
-        if uidentity:
-            raise AlreadyExistsError(entity=uuid, uuid=uuid)
-
         try:
             add_unique_identity_db(session, uuid)
         except ValueError as e:
@@ -120,27 +115,7 @@ def add_identity(db, source, email=None, name=None, username=None, uuid=None):
         except ValueError as e:
             raise InvalidValueError(e)
 
-        identity = find_identity(session, identity_id)
-
-        if identity:
-            entity = '-'.join((utils.to_unicode(source), utils.to_unicode(email),
-                               utils.to_unicode(name), utils.to_unicode(username)))
-            raise AlreadyExistsError(entity=entity,
-                                     uuid=identity.uuid)
-
         if not uuid:
-            # Double check to prevent from cases where the values
-            # of email, name and username are "None" strings. This
-            # may return the same UUID.
-            uidentity = find_unique_identity(session, identity_id)
-
-            if uidentity:
-                entity = '-'.join((utils.to_unicode(identity_id), utils.to_unicode(source),
-                                   utils.to_unicode(email), utils.to_unicode(name),
-                                   utils.to_unicode(username)))
-                raise AlreadyExistsError(entity=entity,
-                                         uuid=identity_id)
-
             uidentity = add_unique_identity_db(session, identity_id)
         else:
             uidentity = find_unique_identity(session, uuid)
@@ -174,11 +149,6 @@ def add_organization(db, organization):
         in the registry.
     """
     with db.connect() as session:
-        org = find_organization(session, organization)
-
-        if org:
-            raise AlreadyExistsError(entity=organization)
-
         try:
             add_organization_db(session, organization)
         except ValueError as e:
@@ -229,7 +199,7 @@ def add_domain(db, organization, domain, is_top_domain=False, overwrite=False):
         dom = find_domain(session, domain)
 
         if dom and not overwrite:
-            raise AlreadyExistsError(entity=dom)
+            raise AlreadyExistsError(entity='Domain', eid=dom.domain)
         elif dom:
             delete_domain_db(session, dom)
 
@@ -294,17 +264,6 @@ def add_enrollment(db, uuid, organization, from_date=None, to_date=None):
         if not org:
             raise NotFoundError(entity=organization)
 
-        enrollment = session.query(Enrollment).\
-            filter(Enrollment.uidentity == uidentity,
-                   Enrollment.organization == org,
-                   Enrollment.start == from_date,
-                   Enrollment.end == to_date).first()
-
-        if enrollment:
-            entity = '-'.join((uuid, organization,
-                              str(enrollment.start), str(enrollment.end)))
-            raise AlreadyExistsError(entity=entity)
-
         try:
             enroll_db(session, uidentity, org,
                       from_date=from_date, to_date=to_date)
@@ -328,12 +287,6 @@ def add_to_matching_blacklist(db, entity):
         in the registry.
     """
     with db.connect() as session:
-        mb = session.query(MatchingBlacklist).\
-            filter(MatchingBlacklist.excluded == entity).first()
-
-        if mb:
-            raise AlreadyExistsError(entity=entity)
-
         try:
             add_to_matching_blacklist_db(session, entity)
         except ValueError as e:

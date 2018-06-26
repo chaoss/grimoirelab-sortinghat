@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2017 Bitergia
+# Copyright (C) 2014-2018 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -112,7 +112,8 @@ class Blacklist(Command):
             # because entry cannot be None or empty
             raise RuntimeError(str(e))
         except AlreadyExistsError as e:
-            self.error(str(e))
+            msg = "%s already exists in the registry" % entry
+            self.error(msg)
             return e.code
 
         return CMD_SUCCESS

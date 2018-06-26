@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2017 Bitergia
+# Copyright (C) 2014-2018 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -73,16 +73,17 @@ class TestAlreadyExistsError(unittest.TestCase):
     def test_message(self):
         """Make sure that prints the correct error"""
 
-        e = AlreadyExistsError(entity='example.com')
+        e = AlreadyExistsError(entity='Domain', eid='example.com')
         self.assertEqual(str(e),
-                         "example.com already exists in the registry")
+                         "Domain 'example.com' already exists in the registry")
 
-    def test_uuid_arg(self):
-        """Test that uuid attribute is set when given as argument"""
+    def test_args(self):
+        """Test whether attributes are set when given as arguments"""
 
-        e = AlreadyExistsError(uuid='FFFFFFFFFFF', entity='FFFFFFFFFFF')
-        self.assertEqual(str(e), "FFFFFFFFFFF already exists in the registry")
-        self.assertEqual(e.uuid, 'FFFFFFFFFFF')
+        e = AlreadyExistsError(entity='UniqueIdentity', eid='FFFFFFFFFFF')
+        self.assertEqual(str(e), "UniqueIdentity 'FFFFFFFFFFF' already exists in the registry")
+        self.assertEqual(e.entity, 'UniqueIdentity')
+        self.assertEqual(e.eid, 'FFFFFFFFFFF')
 
     def test_no_args(self):
         """Check whether it raises a KeyError exception when
