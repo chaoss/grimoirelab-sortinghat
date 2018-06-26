@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2017 Bitergia
+# Copyright (C) 2014-2018 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,16 +19,19 @@
 #         Santiago Dueñas <sduenas@bitergia.com>
 #
 
+import re
+
 from contextlib import contextmanager
 
 from sqlalchemy import create_engine
-from sqlalchemy.exc import OperationalError, ProgrammingError, InternalError
+from sqlalchemy.exc import OperationalError, ProgrammingError, InternalError, IntegrityError
 from sqlalchemy.engine.url import URL
 from sqlalchemy.orm import mapper, sessionmaker
+from sqlalchemy.orm.exc import FlushError
 from sqlalchemy.pool import QueuePool
 from sqlalchemy.schema import MetaData
 
-from sortinghat.exceptions import DatabaseError, DatabaseExists
+from sortinghat.exceptions import DatabaseError, DatabaseExists, AlreadyExistsError
 from sortinghat.db.model import ModelBase
 
 
@@ -36,6 +39,12 @@ class Database(object):
 
     MYSQL_CREATE_DB = "CREATE DATABASE %(database)s CHARACTER SET utf8 COLLATE utf8_unicode_ci"
     MYSQL_DROP_DB = "DROP DATABASE IF EXISTS %(database)s"
+
+    # Regular expressions for handling errors
+    MYSQL_INSERT_ERROR_REGEX = re.compile(r"INSERT INTO (?P<table>.+) \(.+\) VALUES")
+    MYSQL_DUPLICATE_ENTRY_ERROR_REGEX = re.compile(r"Duplicate entry '(?P<value>.+)' for key")
+    MYSQL_FLUSH_ERROR_REGEX = re.compile(
+        r"New instance <(?P<entity>.+) at .+<class '.+'>, \('(?P<eid>.+)',.+\)\sconflicts")
 
     def __init__(self, user, password, database, host='localhost', port='3306'):
         self._engine = self.build_engine(user, password, database, host, port)
@@ -53,9 +62,8 @@ class Database(object):
         try:
             yield session
             session.commit()
-        except:
-            session.rollback()
-            raise
+        except Exception as ex:
+            self.handle_database_error(session, ex)
         finally:
             session.close()
 
@@ -87,7 +95,7 @@ class Database(object):
         except (OperationalError, ProgrammingError, InternalError) as e:
             code = e.orig.args[0]
             if isinstance(e, ProgrammingError) and code == 1007:
-                # Query for creatiing database failed because it exists
+                # Query for creating database failed because it exists
                 raise DatabaseExists(error=e.orig.args[1], code=code)
             else:
                 raise DatabaseError(error=e.orig.args[1], code=code)
@@ -96,6 +104,60 @@ class Database(object):
     def build_engine(cls, user, password, database, host='localhost', port='3306'):
         return create_database_engine(user, password, database,
                                       host, port)
+
+    @classmethod
+    def handle_database_error(cls, session, exception):
+        """Rollback changes made and handle any type of error raised by the DBMS."""
+
+        session.rollback()
+
+        if isinstance(exception, IntegrityError):
+            cls.handle_integrity_error(exception)
+        elif isinstance(exception, FlushError):
+            cls.handle_flush_error(exception)
+        else:
+            raise exception
+
+    @classmethod
+    def handle_integrity_error(cls, exception):
+        """Handle integrity error exceptions."""
+
+        m = re.match(cls.MYSQL_INSERT_ERROR_REGEX,
+                     exception.statement)
+
+        if not m:
+            raise exception
+
+        model = find_model_by_table_name(m.group('table'))
+
+        if not model:
+            raise exception
+
+        m = re.match(cls.MYSQL_DUPLICATE_ENTRY_ERROR_REGEX,
+                     exception.orig.args[1])
+
+        if not m:
+            raise exception
+
+        entity = model.__name__
+        eid = m.group('value')
+
+        raise AlreadyExistsError(entity=entity, eid=eid)
+
+    @classmethod
+    def handle_flush_error(cls, exception):
+        """Handle flush error exceptions."""
+
+        trace = exception.args[0]
+        m = re.match(cls.MYSQL_FLUSH_ERROR_REGEX, trace)
+
+        if not m:
+            raise exception
+
+        entity = m.group('entity')
+        eid = m.group('eid')
+
+        raise AlreadyExistsError(entity=entity, eid=eid)
 
     def __create_schema(self, engine):
         ModelBase.metadata.create_all(engine)
@@ -156,3 +218,12 @@ def reflect_table(engine, klass):
            column_prefix=klass.column_prefix())
 
     return table
+
+
+def find_model_by_table_name(name):
+    """Find a model reference by its table name"""
+
+    for model in ModelBase._decl_class_registry.values():
+        if hasattr(model, '__table__') and model.__table__.fullname == name:
+            return model
+    return None

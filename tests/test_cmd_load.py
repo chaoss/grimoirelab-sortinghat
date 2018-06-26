@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2017 Bitergia
+# Copyright (C) 2014-2018 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -129,8 +129,8 @@ Loading unique identities...
 2/3 unique identities loaded"""
 
 LOAD_IDENTITIES_OUTPUT_ERROR = """Error: not enough info to load 0000000000000000000000000000000000000000 unique identity. Skipping.
-Warning: Bitergia already exists in the registry. Organization not updated.
-Warning: Example already exists in the registry. Organization not updated."""
+Warning: Organization 'Bitergia' already exists in the registry. Organization not updated.
+Warning: Organization 'Example' already exists in the registry. Organization not updated."""
 
 LOAD_IDENTITIES_NO_STRICT_OUTPUT = """Loading blacklist...
 0/0 blacklist entries loaded
@@ -175,7 +175,7 @@ Domain example.net added to organization Bitergia
 Domain example.com added to organization Example
 Domain example.net added to organization Example"""
 
-LOAD_ORGS_OUTPUT_WARNING = """Warning: example.net (Bitergia) already exists in the registry. Not updated."""
+LOAD_ORGS_OUTPUT_WARNING = """Warning: Domain 'example.net' already exists in the registry. Not updated."""
 
 
 class TestLoadCaseBase(TestCommandCaseBase):

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2017 Bitergia
+# Copyright (C) 2014-2018 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -37,9 +37,9 @@ from sortinghat.exceptions import (CODE_ALREADY_EXISTS_ERROR,
 from tests.base import TestCommandCaseBase
 
 
-ADD_EXISTING_ERROR = "Error: scm-jsmith@example.com-John Smith-jsmith already exists in the registry"
-ADD_EXISTING_LOWERCASE_ERROR = "Error: scm-jsmith@example.com-john smith-jsmith already exists in the registry"
-ADD_EXISTING_ACCENTS_ERROR = "Error: scm-jsmith@example.com-john smith-jsmith already exists in the registry"
+ADD_EXISTING_ERROR = "Error: unique identity 'a9b403e150dd4af8953a52a4bb841051e4b705d9' already exists in the registry"
+ADD_EXISTING_LOWERCASE_ERROR = "Error: unique identity 'a9b403e150dd4af8953a52a4bb841051e4b705d9' already exists in the registry"
+ADD_EXISTING_ACCENTS_ERROR = "Error: unique identity 'a9b403e150dd4af8953a52a4bb841051e4b705d9' already exists in the registry"
 ADD_IDENTITY_NONE_OR_EMPTY_ERROR = "Error: identity data cannot be None or empty"
 ADD_MATCHING_ERROR = "Error: mock identity matcher is not supported"
 ADD_SOURCE_NONE_ERROR = "Error: source cannot be None"

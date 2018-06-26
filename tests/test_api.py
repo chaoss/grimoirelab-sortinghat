@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2017 Bitergia
+# Copyright (C) 2014-2018 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -96,7 +96,8 @@ class TestAddUniqueIdentity(TestAPICaseBase):
         with self.assertRaises(AlreadyExistsError) as context:
             api.add_unique_identity(self.db, 'John Smith')
 
-        self.assertEqual(context.exception.uuid, 'John Smith')
+        self.assertEqual(context.exception.eid, 'John Smith')
+        print(context.exception)
 
     def test_none_uuid(self):
         """Check whether None identities cannot be added to the registry"""
@@ -334,7 +335,7 @@ class TestAddIdentity(TestAPICaseBase):
         with self.assertRaises(AlreadyExistsError) as context:
             api.add_identity(self.db, 'scm', 'jsmith@example.com')
 
-        self.assertEqual(context.exception.uuid,
+        self.assertEqual(context.exception.eid,
                          '334da68fcd3da4e799791f73dfada2afb22648c6')
 
         # Insert the same identity with upper case letters.
@@ -342,7 +343,7 @@ class TestAddIdentity(TestAPICaseBase):
         with self.assertRaises(AlreadyExistsError) as context:
             api.add_identity(self.db, 'scm', 'JSMITH@example.com')
 
-        self.assertEqual(context.exception.uuid,
+        self.assertEqual(context.exception.eid,
                          '334da68fcd3da4e799791f73dfada2afb22648c6')
 
         # "None" tuples also raise an exception
@@ -351,7 +352,7 @@ class TestAddIdentity(TestAPICaseBase):
         with self.assertRaises(AlreadyExistsError) as context:
             api.add_identity(self.db, 'scm', None, "None", None)
 
-        self.assertEqual(context.exception.uuid,
+        self.assertEqual(context.exception.eid,
                          'f0999c4eed908d33365fa3435d9686d3add2412d')
 
     def test_unaccent_identities(self):
@@ -365,7 +366,7 @@ class TestAddIdentity(TestAPICaseBase):
         with self.assertRaises(AlreadyExistsError) as context:
             api.add_identity(self.db, 'scm', name='Jöhn Smith')
 
-        self.assertEqual(context.exception.uuid,
+        self.assertEqual(context.exception.eid,
                          'c7acd177d107a0aefa6718e2ff0dec6ceba71660')
 
         # Insert an accent identity again. It should raise AlreadyExistsError
@@ -376,7 +377,7 @@ class TestAddIdentity(TestAPICaseBase):
         with self.assertRaises(AlreadyExistsError) as context:
             api.add_identity(self.db, 'scm', name='John Doe')
 
-        self.assertEqual(context.exception.uuid,
+        self.assertEqual(context.exception.eid,
                          'a16659ea83d28c839ffae76ceebb3ca9fb8e8894')
 
     def test_charset(self):

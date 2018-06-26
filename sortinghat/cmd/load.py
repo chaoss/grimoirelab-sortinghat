@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2017 Bitergia
+# Copyright (C) 2014-2018 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ import sys
 
 from .. import api
 from ..command import Command, CMD_SUCCESS, HELP_LIST
+from ..db.api import find_unique_identity, find_identity
 from ..db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE, Enrollment
 from ..exceptions import AlreadyExistsError, NotFoundError,\
     InvalidFormatError, LoadError, MatcherNotSupportedError
@@ -373,7 +374,9 @@ class Load(Command):
                                            identity.username)
             self.new_uids.add(stored_uuid)
         except AlreadyExistsError as e:
-            stored_uuid = e.uuid
+            with self.db.connect() as session:
+                stored_identity = find_identity(session, e.eid)
+                stored_uuid = stored_identity.uuid
             self.warning("-- " + str(e), debug=verbose)
         except ValueError as e:
             raise LoadError(cause=str(e))
@@ -395,7 +398,9 @@ class Load(Command):
             except AlreadyExistsError as e:
                 self.warning(str(e), verbose)
 
-                stored_uuid = e.uuid
+                with self.db.connect() as session:
+                    stored_identity = find_identity(session, e.eid)
+                    stored_uuid = stored_identity.uuid
 
                 if uuid != stored_uuid:
                     msg = "%s is already assigned to %s. Merging." % (uuid, stored_uuid)

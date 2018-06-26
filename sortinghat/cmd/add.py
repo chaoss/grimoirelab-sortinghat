@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2017 Bitergia
+# Copyright (C) 2014-2018 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -151,7 +151,11 @@ class Add(Command):
 
             if matcher:
                 self.__merge_on_matching(uuid, matcher, interactive)
-        except (AlreadyExistsError, NotFoundError, InvalidValueError) as e:
+        except AlreadyExistsError as e:
+            msg = "unique identity '%s' already exists in the registry" % e.eid
+            self.error(msg)
+            return e.code
+        except (NotFoundError, InvalidValueError) as e:
             self.error(str(e))
             return e.code
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2017 Bitergia
+# Copyright (C) 2014-2018 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -55,11 +55,12 @@ class BaseError(Exception):
 class AlreadyExistsError(BaseError):
     """Exception raised when an entity already exists in the registry"""
 
-    message = "%(entity)s already exists in the registry"
+    message = "%(entity)s '%(eid)s' already exists in the registry"
     code = CODE_ALREADY_EXISTS_ERROR
 
     def __init__(self, **kwargs):
-        self.uuid = kwargs.pop('uuid', None)
+        self.entity = kwargs['entity']
+        self.eid = kwargs['eid']
         super(AlreadyExistsError, self).__init__(**kwargs)
 
 
