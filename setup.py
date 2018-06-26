@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
 # Copyright (C) 2014-2015 Bitergia
@@ -22,13 +22,14 @@
 #
 
 import codecs
-import os
+import os.path
 import re
 import sys
 import unittest
 
 # Always prefer setuptools over distutils
-from setuptools import setup, Command
+from setuptools import setup
+from setuptools.command.test import test as TestClass
 
 here = os.path.abspath(os.path.dirname(__file__))
 readme_md = os.path.join(here, 'README.md')
@@ -52,18 +53,16 @@ with codecs.open(version_py, 'r', encoding='utf-8') as fd:
                         fd.read(), re.MULTILINE).group(1)
 
 
-class TestCommand(Command):
+class TestCommand(TestClass):
 
     user_options = []
     __dir__ = os.path.dirname(os.path.realpath(__file__))
 
     def initialize_options(self):
-        os.chdir(os.path.join(self.__dir__, 'tests'))
+        super().initialize_options()
+        sys.path.insert(0, os.path.join(self.__dir__, 'tests'))
 
-    def finalize_options(self):
-        pass
-
-    def run(self):
+    def run_tests(self):
         test_suite = unittest.TestLoader().discover('.', pattern='test*.py')
         result = unittest.TextTestRunner(buffer=True).run(test_suite)
         sys.exit(not result.wasSuccessful())
@@ -106,6 +105,12 @@ setup(name="sortinghat",
         "misc/mailmap2sh",
         "misc/mozilla2sh",
         "misc/stackalytics2sh"
+      ],
+      setup_requires=[
+        'wheel',
+        'pandoc'],
+      tests_require=[
+        'httpretty>=0.9.5'
       ],
       install_requires=[
         'PyMySQL>=0.7.0',

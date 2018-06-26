@@ -381,6 +381,26 @@ Optionally, you can install Pandas library to speed up the matching process:
 
 * python-pandas >= 0.15
 
+## Running tests
+
+SortingHat comes with a comprehensive list of unit tests.
+To run them, copy the file 'tests/tests.conf.sample' to 'tests/tests.conf'
+and edit it to suit your configuration:
+
+* `name`: Name of the database to use for testing
+* `host`, `port`: How to access the database server (MySQL, MariaDB)
+* `user`, `password`: Credentials for the database server
+* `create`: Whether the database for testing will be created (`True`)
+  or not (`False`, by default). If `True`, tests will fail if database
+  already exists. If `False`, tests will fail if database does not exist.
+
+You can run the tests through `setup.py` (no need to install dependencies
+  or something else, `setup.py` will take care of that):
+
+```
+$ python3 setup.py test
+```
+
 ## Troubleshooting
 
 Once SortingHat has been installed, some errors may pop up when running the test suite due to the underlying MySQL

@@ -31,6 +31,8 @@ from sortinghat.db.model import UniqueIdentity, Identity, Organization
 from sortinghat.exceptions import InvalidFormatError
 from sortinghat.parsing.mozilla import MOZILLIANS_ORG, MozilliansParser
 
+from tests.base import TestCommandCaseBase, datadir
+
 
 MOZILLIANS_INVALID_JSON_FORMAT_ERROR = r"invalid json format\. Expecting ':' delimiter"
 MOZILLIANS_IDS_MISSING_KEYS_ERROR = "Attribute full_name not found"
@@ -53,7 +55,7 @@ class TestMozilliansParser(TestBaseCase):
     def test_valid_identities_stream(self):
         """Check insertion of valid data from a file"""
 
-        stream = self.read_file('data/mozillians_valid.json')
+        stream = self.read_file(datadir('mozillians_valid.json'))
 
         parser = MozilliansParser(stream, source='unknown')
         uids = parser.identities
@@ -163,7 +165,7 @@ class TestMozilliansParser(TestBaseCase):
     def test_valid_organizations_stream(self):
         """Check whether it parses organizations section from a valid stream"""
 
-        stream = self.read_file('data/mozillians_valid.json')
+        stream = self.read_file(datadir('mozillians_valid.json'))
 
         parser = MozilliansParser(stream)
         orgs = parser.organizations
@@ -180,12 +182,12 @@ class TestMozilliansParser(TestBaseCase):
 
         with self.assertRaisesRegex(InvalidFormatError,
                                     MOZILLIANS_INVALID_JSON_FORMAT_ERROR):
-            s = self.read_file('data/mozillians_invalid.json')
+            s = self.read_file(datadir('mozillians_invalid.json'))
             MozilliansParser(s)
 
         with self.assertRaisesRegex(InvalidFormatError,
                                     MOZILLIANS_IDS_MISSING_KEYS_ERROR):
-            s = self.read_file('data/mozillians_ids_missing_keys.json')
+            s = self.read_file(datadir('mozillians_ids_missing_keys.json'))
             MozilliansParser(s)
 
     def test_empty_stream(self):

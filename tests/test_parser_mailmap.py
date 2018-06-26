@@ -31,6 +31,8 @@ from sortinghat.db.model import UniqueIdentity, Identity, Organization
 from sortinghat.exceptions import InvalidFormatError
 from sortinghat.parsing.mailmap import MailmapParser
 
+from tests.base import TestCommandCaseBase, datadir
+
 
 class TestBaseCase(unittest.TestCase):
     """Defines common methods for unit tests"""
@@ -48,7 +50,7 @@ class TestMailmapParser(TestBaseCase):
     def test_valid_identities_stream(self):
         """Check parsed identities from a valid file"""
 
-        stream = self.read_file('data/mailmap_identities.txt')
+        stream = self.read_file(datadir('mailmap_identities.txt'))
         parser = MailmapParser(stream, source='unknown')
 
         # Check parsed identities
@@ -157,7 +159,7 @@ class TestMailmapParser(TestBaseCase):
     def test_valid_organizations_stream(self):
         """Check parsed orgs and identities from a valid file"""
 
-        stream = self.read_file('data/mailmap_orgs.txt')
+        stream = self.read_file(datadir('mailmap_orgs.txt'))
         parser = MailmapParser(stream, has_orgs=True, source='unknown')
 
         # Check parsed organizations
@@ -258,7 +260,7 @@ class TestMailmapParser(TestBaseCase):
         """Check whether it prints an error when parsing invalid streams"""
 
         with self.assertRaises(InvalidFormatError):
-            s = self.read_file('data/mailmap_invalid.txt')
+            s = self.read_file(datadir('mailmap_invalid.txt'))
             MailmapParser(s)
 
 

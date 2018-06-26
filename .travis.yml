@@ -5,29 +5,18 @@ python:
 
 sudo: false
 
-before_install:
-  - pip install PyMySQL>=0.7.0
-  - pip install SQLAlchemy>=1.1.15
-  - pip install Jinja2
-  - pip install python-dateutil>=2.6.0
-  - pip install pandas==0.18.1
-  - pip install requests>=2.9
-  - pip install httpretty>=0.9.5
-  - pip install coveralls
-
 install:
-  - ./setup.py install
+  - pip install coveralls
 
 before_script:
   - mysql -e 'create database testhat;'
   - cp tests/tests.conf.sample tests/tests.conf
 
 script:
-  - cd tests
-  - coverage run --source=sortinghat run_tests.py
+  - coverage run --source=sortinghat setup.py test
 
 after_success:
   - coveralls
 
 notifications:
-  irc: "chat.freenode.net#metrics-grimoire"
+  irc: "chat.freenode.net#grimoirelab"

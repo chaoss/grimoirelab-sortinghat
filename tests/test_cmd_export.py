@@ -36,7 +36,7 @@ from sortinghat.cmd.export import Export,\
     SortingHatIdentitiesExporter, SortingHatOrganizationsExporter
 from sortinghat.db.model import Country
 
-from tests.base import TestCommandCaseBase
+from tests.base import TestCommandCaseBase, datadir
 
 
 class TestExportCaseBase(TestCommandCaseBase):
@@ -132,7 +132,7 @@ class TestExportCommand(TestExportCaseBase):
         # both are the same. To compare, we generate a dict object
         # removing 'time' key.
         a = self.read_json(self.tmpfile)
-        b = self.read_json('data/sortinghat_identities_valid.json')
+        b = self.read_json(datadir('sortinghat_identities_valid.json'))
 
         a.pop('time')
         b.pop('time')
@@ -147,7 +147,7 @@ class TestExportCommand(TestExportCaseBase):
         self.assertEqual(code, CMD_SUCCESS)
 
         a = self.read_json(self.tmpfile)
-        b = self.read_json('data/sortinghat_identities_source.json')
+        b = self.read_json(datadir('sortinghat_identities_source.json'))
 
         a.pop('time')
         b.pop('time')
@@ -164,7 +164,7 @@ class TestExportCommand(TestExportCaseBase):
         # both are the same. To compare, we generate a dict object
         # removing 'time' key.
         a = self.read_json(self.tmpfile)
-        b = self.read_json('data/sortinghat_orgs.json')
+        b = self.read_json(datadir('sortinghat_orgs.json'))
 
         a.pop('time')
         b.pop('time')
@@ -186,7 +186,7 @@ class TestExportIdentities(TestExportCaseBase):
         # both are the same. To compare, we generate a dict object
         # removing 'time' key.
         a = self.read_json(self.tmpfile)
-        b = self.read_json('data/sortinghat_identities_valid.json')
+        b = self.read_json(datadir('sortinghat_identities_valid.json'))
 
         a.pop('time')
         b.pop('time')
@@ -201,7 +201,7 @@ class TestExportIdentities(TestExportCaseBase):
             self.assertEqual(code, CMD_SUCCESS)
 
         a = self.read_json(self.tmpfile)
-        b = self.read_json('data/sortinghat_identities_source.json')
+        b = self.read_json(datadir('sortinghat_identities_source.json'))
 
         a.pop('time')
         b.pop('time')
@@ -433,7 +433,7 @@ class TestExportOrganizations(TestExportCaseBase):
         # both are the same. To compare, we generate a dict object
         # removing 'time' key.
         a = self.read_json(self.tmpfile)
-        b = self.read_json('data/sortinghat_orgs.json')
+        b = self.read_json(datadir('sortinghat_orgs.json'))
 
         a.pop('time')
         b.pop('time')

@@ -31,6 +31,8 @@ from sortinghat.db.model import UniqueIdentity, Organization, Domain, MatchingBl
 from sortinghat.exceptions import InvalidFormatError
 from sortinghat.parsing.sh import SortingHatParser
 
+from tests.base import TestCommandCaseBase, datadir
+
 
 SH_INVALID_JSON_FORMAT_ERROR = "invalid json format\. Expecting ',' delimiter"
 SH_BL_EMPTY_STRING_ERROR = "invalid json format. Blacklist entries cannot be null or empty"
@@ -64,7 +66,7 @@ class TestSortingHatParser(TestBaseCase):
     def test_valid_blacklist_stream(self):
         """Check whether it parsers blacklist section from a valid stream"""
 
-        stream = self.read_file('data/sortinghat_valid.json')
+        stream = self.read_file(datadir('sortinghat_valid.json'))
 
         parser = SortingHatParser(stream)
         bl = parser.blacklist
@@ -83,7 +85,7 @@ class TestSortingHatParser(TestBaseCase):
     def test_valid_identities_stream(self):
         """Check whether it parsers identities section from a valid stream"""
 
-        stream = self.read_file('data/sortinghat_valid.json')
+        stream = self.read_file(datadir('sortinghat_valid.json'))
 
         parser = SortingHatParser(stream)
         uids = parser.identities
@@ -220,7 +222,7 @@ class TestSortingHatParser(TestBaseCase):
     def test_no_gender(self):
         """Check whether if parses identidies without gender information"""
 
-        stream = self.read_file('data/sortinghat_valid_no_gender.json')
+        stream = self.read_file(datadir('sortinghat_valid_no_gender.json'))
 
         parser = SortingHatParser(stream)
         uids = parser.identities
@@ -246,7 +248,7 @@ class TestSortingHatParser(TestBaseCase):
     def test_valid_organizations_stream(self):
         """Check whether it parses organizations section from a valid stream"""
 
-        stream = self.read_file('data/sortinghat_valid.json')
+        stream = self.read_file(datadir('sortinghat_valid.json'))
 
         parser = SortingHatParser(stream)
         orgs = parser.organizations
@@ -313,47 +315,47 @@ class TestSortingHatParser(TestBaseCase):
 
         with self.assertRaisesRegex(InvalidFormatError,
                                     SH_INVALID_JSON_FORMAT_ERROR):
-            s = self.read_file('data/sortinghat_invalid.json')
+            s = self.read_file(datadir('sortinghat_invalid.json'))
             SortingHatParser(s)
 
         with self.assertRaisesRegex(InvalidFormatError,
                                     SH_BL_EMPTY_STRING_ERROR):
-            s = self.read_file('data/sortinghat_blacklist_empty_strings.json')
+            s = self.read_file(datadir('sortinghat_blacklist_empty_strings.json'))
             SortingHatParser(s)
 
         with self.assertRaisesRegex(InvalidFormatError,
                                     SH_IDS_MISSING_KEYS_ERROR):
-            s = self.read_file('data/sortinghat_ids_missing_keys.json')
+            s = self.read_file(datadir('sortinghat_ids_missing_keys.json'))
             SortingHatParser(s)
 
         with self.assertRaisesRegex(InvalidFormatError,
                                     SH_ORGS_MISSING_KEYS_ERROR):
-            s = self.read_file('data/sortinghat_orgs_missing_keys.json')
+            s = self.read_file(datadir('sortinghat_orgs_missing_keys.json'))
             SortingHatParser(s)
 
         with self.assertRaisesRegex(InvalidFormatError,
                                     SH_IDS_DATETIME_ERROR):
-            s = self.read_file('data/sortinghat_ids_invalid_date.json')
+            s = self.read_file(datadir('sortinghat_ids_invalid_date.json'))
             SortingHatParser(s)
 
         with self.assertRaisesRegex(InvalidFormatError,
                                     SH_IDS_IS_BOT_ERROR):
-            s = self.read_file('data/sortinghat_ids_invalid_is_bot.json')
+            s = self.read_file(datadir('sortinghat_ids_invalid_is_bot.json'))
             SortingHatParser(s)
 
         with self.assertRaisesRegex(InvalidFormatError,
                                     SH_IDS_GENDER_ACC_TYPE_ERROR):
-            s = self.read_file('data/sortinghat_ids_invalid_type_gender_acc.json')
+            s = self.read_file(datadir('sortinghat_ids_invalid_type_gender_acc.json'))
             SortingHatParser(s)
 
         with self.assertRaisesRegex(InvalidFormatError,
                                     SH_IDS_GENDER_ACC_RANGE_ERROR):
-            s = self.read_file('data/sortinghat_ids_invalid_range_gender_acc.json')
+            s = self.read_file(datadir('sortinghat_ids_invalid_range_gender_acc.json'))
             SortingHatParser(s)
 
         with self.assertRaisesRegex(InvalidFormatError,
                                     SH_ORGS_IS_TOP_ERROR):
-            s = self.read_file('data/sortinghat_orgs_invalid_top.json')
+            s = self.read_file(datadir('sortinghat_orgs_invalid_top.json'))
             SortingHatParser(s)
 
     def test_empty_stream(self):

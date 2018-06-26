@@ -32,10 +32,10 @@ if '..' not in sys.path:
 from sortinghat.command import CMD_SUCCESS
 from sortinghat.cmd.config import Config
 
-from tests.base import TestCommandCaseBase
+from tests.base import TestCommandCaseBase, datadir
 
 
-MOCK_CONFIG_FILE = './data/mock_config_file.cfg'
+MOCK_CONFIG_FILE = datadir('mock_config_file.cfg')
 
 INVALID_CONFIG_FILE = "Configuration file not given"
 SET_KEY_CONFIG_ERROR = "%(param)s parameter does not exists or cannot be set"
@@ -202,7 +202,7 @@ class TestGetConfig(TestConfigCaseBase):
         # Test non existing file
         self.assertRaisesRegex(RuntimeError, NOT_FOUND_FILE_ERROR,
                                self.cmd.get, 'db.user',
-                               './data/invalid_config_file.cfg')
+                               datadir('invalid_config_file.cfg'))
 
     def test_get_value(self):
         """Test get method"""

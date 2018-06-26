@@ -21,6 +21,7 @@
 #
 
 import datetime
+import os.path
 import sys
 import unittest
 import warnings
@@ -35,8 +36,7 @@ from sortinghat.db.model import Country
 from sortinghat.parsing.sh import SortingHatParser
 from sortinghat.exceptions import CODE_MATCHER_NOT_SUPPORTED_ERROR, CODE_INVALID_FORMAT_ERROR
 
-from tests.base import TestCommandCaseBase
-
+from tests.base import TestCommandCaseBase, datadir
 
 LOAD_BLACKLIST_EMPTY_STRINGS_ERROR = "Error: invalid json format. Blacklist entries cannot be null or empty"
 LOAD_IDENTITIES_INVALID_JSON_FORMAT_ERROR = "Error: invalid json format. Expecting ',' delimiter: line 86 column 17 (char 2821)"
@@ -206,7 +206,7 @@ class TestLoadCommand(TestLoadCaseBase):
     def test_load(self):
         """Test to load identities and organizations from a file"""
 
-        code = self.cmd.run('data/sortinghat_valid.json', '--verbose')
+        code = self.cmd.run(datadir('sortinghat_valid.json'), '--verbose')
         self.assertEqual(code, CMD_SUCCESS)
 
         uids = api.unique_identities(self.db)
@@ -221,7 +221,8 @@ class TestLoadCommand(TestLoadCaseBase):
     def test_load_identities(self):
         """Test to load identities from a file"""
 
-        code = self.cmd.run('--identities', 'data/sortinghat_valid.json', '--verbose')
+        code = self.cmd.run('--identities', datadir('sortinghat_valid.json'),
+                            '--verbose')
         self.assertEqual(code, CMD_SUCCESS)
 
         uids = api.unique_identities(self.db)
@@ -242,7 +243,7 @@ class TestLoadCommand(TestLoadCaseBase):
         """Test to load identities from a file using default matching"""
 
         code = self.cmd.run('--identities', '--matching', 'default',
-                            'data/sortinghat_valid.json',
+                            datadir('sortinghat_valid.json'),
                             '--verbose')
         self.assertEqual(code, CMD_SUCCESS)
 
@@ -261,7 +262,7 @@ class TestLoadCommand(TestLoadCaseBase):
 
         code = self.cmd.run('--identities', '--matching', 'default',
                             '--no-strict-matching',
-                            'data/sortinghat_no_strict_valid.json',
+                            datadir('sortinghat_no_strict_valid.json'),
                             '--verbose')
         self.assertEqual(code, CMD_SUCCESS)
 
@@ -271,7 +272,7 @@ class TestLoadCommand(TestLoadCaseBase):
     def test_load_identities_invalid_file(self):
         """Test whether it prints error messages while reading invalid files"""
 
-        code = self.cmd.run('--identities', 'data/sortinghat_invalid.json')
+        code = self.cmd.run('--identities', datadir('sortinghat_invalid.json'))
         self.assertEqual(code, CODE_INVALID_FORMAT_ERROR)
         output = sys.stderr.getvalue().strip().split('\n')[0]
         self.assertEqual(output, LOAD_IDENTITIES_INVALID_JSON_FORMAT_ERROR)
@@ -279,7 +280,7 @@ class TestLoadCommand(TestLoadCaseBase):
     def test_load_organizations(self):
         """Test to load organizations from a file"""
 
-        code = self.cmd.run('--orgs', 'data/sortinghat_orgs_valid.json')
+        code = self.cmd.run('--orgs', datadir('sortinghat_orgs_valid.json'))
         self.assertEqual(code, CMD_SUCCESS)
 
         uids = api.unique_identities(self.db)
@@ -298,7 +299,7 @@ class TestLoadCommand(TestLoadCaseBase):
         """Test to load organizations from a file with overwrite parameter set"""
 
         code = self.cmd.run('--orgs', '--overwrite',
-                            'data/sortinghat_orgs_valid.json')
+                            datadir('sortinghat_orgs_valid.json'))
         self.assertEqual(code, CMD_SUCCESS)
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, LOAD_ORGS_OVERWRITE_OUTPUT)
@@ -306,34 +307,34 @@ class TestLoadCommand(TestLoadCaseBase):
     def test_invalid_format(self):
         """Check whether it prints an error when parsing invalid files"""
 
-        code = self.cmd.run('data/sortinghat_invalid.json')
+        code = self.cmd.run(datadir('sortinghat_invalid.json'))
         self.assertEqual(code, CODE_INVALID_FORMAT_ERROR)
         output = sys.stderr.getvalue().strip().split('\n')[0]
         self.assertEqual(output, LOAD_IDENTITIES_INVALID_JSON_FORMAT_ERROR)
 
-        code = self.cmd.run('data/sortinghat_ids_missing_keys.json')
+        code = self.cmd.run(datadir('sortinghat_ids_missing_keys.json'))
         self.assertEqual(code, CODE_INVALID_FORMAT_ERROR)
         output = sys.stderr.getvalue().strip().split('\n')[1]
         self.assertEqual(output, LOAD_IDENTITIES_MISSING_KEYS_ERROR)
 
         # Context added to catch deprecation warnings raised on Python 3
         with warnings.catch_warnings(record=True):
-            code = self.cmd.run('data/sortinghat_orgs_invalid_json.json')
+            code = self.cmd.run(datadir('sortinghat_orgs_invalid_json.json'))
             self.assertEqual(code, CODE_INVALID_FORMAT_ERROR)
             output = sys.stderr.getvalue().strip().split('\n')[2]
             self.assertRegexpMatches(output, LOAD_ORGS_INVALID_FORMAT_ERROR)
 
-        code = self.cmd.run('data/sortinghat_orgs_missing_keys.json')
+        code = self.cmd.run(datadir('sortinghat_orgs_missing_keys.json'))
         self.assertEqual(code, CODE_INVALID_FORMAT_ERROR)
         output = sys.stderr.getvalue().strip().split('\n')[3]
         self.assertEqual(output, LOAD_ORGS_MISSING_KEYS_ERROR)
 
-        code = self.cmd.run('data/sortinghat_orgs_invalid_top.json')
+        code = self.cmd.run(datadir('sortinghat_orgs_invalid_top.json'))
         self.assertEqual(code, CODE_INVALID_FORMAT_ERROR)
         output = sys.stderr.getvalue().strip().split('\n')[4]
         self.assertEqual(output, LOAD_ORGS_IS_TOP_ERROR)
 
-        code = self.cmd.run('data/sortinghat_blacklist_empty_strings.json')
+        code = self.cmd.run(datadir('sortinghat_blacklist_empty_strings.json'))
         self.assertEqual(code, CODE_INVALID_FORMAT_ERROR)
         output = sys.stderr.getvalue().strip().split('\n')[5]
         self.assertEqual(output, LOAD_BLACKLIST_EMPTY_STRINGS_ERROR)
@@ -345,7 +346,7 @@ class TestLoadBlacklist(TestLoadCaseBase):
     def test_valid_file(self):
         """Check insertion of valid data from a file"""
 
-        parser = self.get_parser('data/sortinghat_valid.json')
+        parser = self.get_parser(datadir('sortinghat_valid.json'))
 
         self.cmd.import_blacklist(parser)
 
@@ -367,7 +368,7 @@ class TestLoadIdentities(TestLoadCaseBase):
     def test_valid_identities_file(self):
         """Check insertion of valid data from a file"""
 
-        parser = self.get_parser('data/sortinghat_valid.json')
+        parser = self.get_parser(datadir('sortinghat_valid.json'))
 
         code = self.cmd.import_identities(parser)
         self.assertEqual(code, CMD_SUCCESS)
@@ -486,7 +487,7 @@ class TestLoadIdentities(TestLoadCaseBase):
         api.edit_profile(self.db, uuid, name='John Smith', is_bot=False,
                          country_code='US')
 
-        parser = self.get_parser('data/sortinghat_valid.json')
+        parser = self.get_parser(datadir('sortinghat_valid.json'))
 
         code = self.cmd.import_identities(parser, matching='default')
         self.assertEqual(code, CMD_SUCCESS)
@@ -590,7 +591,7 @@ class TestLoadIdentities(TestLoadCaseBase):
     def test_match_new_identities(self):
         """Check whether it matches only new identities"""
 
-        parser = self.get_parser('data/sortinghat_valid.json')
+        parser = self.get_parser(datadir('sortinghat_valid.json'))
 
         code = self.cmd.import_identities(parser, matching='default')
         self.assertEqual(code, CMD_SUCCESS)
@@ -607,7 +608,7 @@ class TestLoadIdentities(TestLoadCaseBase):
         self.assertEqual(len(uids), 3)
 
         # This file has a new identity, only Jane Roe will match.
-        parser = self.get_parser('data/sortinghat_valid_updated.json')
+        parser = self.get_parser(datadir('sortinghat_valid_updated.json'))
 
         code = self.cmd.import_identities(parser, matching='default',
                                           match_new=True)
@@ -630,7 +631,7 @@ class TestLoadIdentities(TestLoadCaseBase):
 
         # Now, if we reload again the file but setting 'match_new' to false,
         # the identity that we inserted before will match "John Smith"
-        parser = self.get_parser('data/sortinghat_valid_updated.json')
+        parser = self.get_parser(datadir('sortinghat_valid_updated.json'))
 
         code = self.cmd.import_identities(parser, matching='default')
         self.assertEqual(code, CMD_SUCCESS)
@@ -657,7 +658,7 @@ class TestLoadIdentities(TestLoadCaseBase):
         # from the file
         api.add_identity(self.db, 'unknown', email='jsmith@example')
 
-        parser = self.get_parser('data/sortinghat_no_strict_valid.json')
+        parser = self.get_parser(datadir('sortinghat_no_strict_valid.json'))
 
         code = self.cmd.import_identities(parser, matching='default',
                                           no_strict_matching=True)
@@ -678,7 +679,7 @@ class TestLoadIdentities(TestLoadCaseBase):
         api.edit_profile(self.db, uuid, name='John Smith', is_bot=False,
                          country_code='US')
 
-        parser = self.get_parser('data/sortinghat_valid.json')
+        parser = self.get_parser(datadir('sortinghat_valid.json'))
 
         code = self.cmd.import_identities(parser)
         self.assertEqual(code, CMD_SUCCESS)
@@ -728,7 +729,7 @@ class TestLoadIdentities(TestLoadCaseBase):
     def test_create_profile_from_identities(self):
         """Check whether a profile is created using the data identities"""
 
-        parser = self.get_parser('data/sortinghat_identities_profiles.json')
+        parser = self.get_parser(datadir('sortinghat_identities_profiles.json'))
 
         code = self.cmd.import_identities(parser)
         self.assertEqual(code, CMD_SUCCESS)
@@ -792,7 +793,7 @@ class TestLoadIdentities(TestLoadCaseBase):
                            datetime.datetime(2000, 1, 1, 0, 0),
                            datetime.datetime(2100, 1, 1, 0, 0))
 
-        parser = self.get_parser('data/sortinghat_valid.json')
+        parser = self.get_parser(datadir('sortinghat_valid.json'))
 
         code = self.cmd.import_identities(parser, reset=True)
         self.assertEqual(code, CMD_SUCCESS)
@@ -862,7 +863,7 @@ class TestLoadIdentities(TestLoadCaseBase):
     def test_dates_out_of_bounds(self):
         """Check dates when they are out of bounds"""
 
-        parser = self.get_parser('data/sortinghat_ids_dates_out_of_bounds.json')
+        parser = self.get_parser(datadir('sortinghat_ids_dates_out_of_bounds.json'))
 
         # This command returns a success value even when some data is wrong
         code = self.cmd.import_identities(parser)
@@ -894,7 +895,7 @@ class TestLoadIdentities(TestLoadCaseBase):
     def test_invalid_matching_method(self):
         """Check if it fails when an invalid matching method is given"""
 
-        parser = self.get_parser('data/sortinghat_valid.json')
+        parser = self.get_parser(datadir('sortinghat_valid.json'))
 
         code = self.cmd.import_identities(parser, matching='mock')
         self.assertEqual(code, CODE_MATCHER_NOT_SUPPORTED_ERROR)
@@ -909,7 +910,7 @@ class TestLoadSortingHatImportOrganizations(TestLoadCaseBase):
     def test_valid_organizations_file(self):
         """Check insertion of valid data from a file"""
 
-        parser = self.get_parser('data/sortinghat_orgs_valid.json')
+        parser = self.get_parser(datadir('sortinghat_orgs_valid.json'))
 
         self.cmd.import_organizations(parser)
 
@@ -974,7 +975,7 @@ class TestLoadSortingHatImportOrganizations(TestLoadCaseBase):
         api.add_domain(self.db, 'Bitergia', 'bitergia.com')
 
         # Import new data, overwriting existing relationships
-        parser = self.get_parser('data/sortinghat_orgs_valid_alt.json')
+        parser = self.get_parser(datadir('sortinghat_orgs_valid_alt.json'))
 
         self.cmd.import_organizations(parser, True)
 

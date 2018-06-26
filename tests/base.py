@@ -20,6 +20,7 @@
 #
 
 import configparser
+import os.path
 import sys
 import unittest
 
@@ -28,7 +29,14 @@ if '..' not in sys.path:
 
 from sortinghat.db.database import Database
 
-CONFIG_FILE = 'tests.conf'
+__dir__ = os.path.dirname(os.path.realpath(__file__))
+__datadir__ = os.path.join(__dir__, 'data')
+CONFIG_FILE = os.path.join(__dir__, 'tests.conf')
+
+def datadir(filename):
+    """Return the path of the file in the tests data dir"""
+
+    return(os.path.join(__datadir__, filename))
 
 
 class TestDatabaseCaseBase(unittest.TestCase):
@@ -39,6 +47,8 @@ class TestDatabaseCaseBase(unittest.TestCase):
     will be useful to check the contents of the registry during
     the tests. Any content of the database will be removed after
     the connection is reated and before and after of any unit test.
+    Additionally, if 'create' is True in the configuration file,
+    a new database will be created, and dropped when the class is done.
 
     Classes that inherit from this must implement `load_test_dataset`
     method. This method is called before any unit test is run.
@@ -52,8 +62,19 @@ class TestDatabaseCaseBase(unittest.TestCase):
                          'database': config['Database']['name'],
                          'host': config['Database']['host'],
                          'port': config['Database']['port']}
+        if 'create' in config['Database']:
+            cls.create = config['Database'].getboolean('create')
+        else:
+            cls.create = False
+        if cls.create:
+            Database.create(**cls.db_kwargs)
         cls.db = Database(**cls.db_kwargs)
         cls.db.clear()
+
+    @classmethod
+    def tearDownClass(cls):
+        if cls.create:
+            Database.drop(**cls.db_kwargs)
 
     def setUp(self):
         self.db.clear()

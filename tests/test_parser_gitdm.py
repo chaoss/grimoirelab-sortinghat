@@ -32,6 +32,8 @@ from sortinghat.db.model import UniqueIdentity, Identity, Enrollment, Organizati
 from sortinghat.exceptions import InvalidFormatError
 from sortinghat.parsing.gitdm import GitdmParser
 
+from tests.base import TestCommandCaseBase, datadir
+
 
 DOMAINS_INVALID_FORMAT_ERROR = "line %(line)s: invalid format"
 
@@ -50,7 +52,7 @@ class TestGidmParser(TestBaseCase):
     """Test Gitdm parser"""
 
     def test_aliases_parser(self):
-        aliases = self.read_file('data/gitdm_email_aliases_valid.txt')
+        aliases = self.read_file(datadir('gitdm_email_aliases_valid.txt'))
 
         parser = GitdmParser(aliases=aliases)
 
@@ -139,8 +141,8 @@ class TestGidmParser(TestBaseCase):
         self.assertEqual(len(uid.enrollments), 0)
 
     def test_email_validation(self):
-        aliases = self.read_file('data/gitdm_email_aliases_valid.txt')
-        email_to_employer = self.read_file('data/gitdm_email_to_employer_invalid.txt')
+        aliases = self.read_file(datadir('gitdm_email_aliases_valid.txt'))
+        email_to_employer = self.read_file(datadir('gitdm_email_to_employer_invalid.txt'))
 
         with self.assertRaises(InvalidFormatError):
             GitdmParser(aliases=aliases,
@@ -148,7 +150,7 @@ class TestGidmParser(TestBaseCase):
                         source='unknown', email_validation=True)
 
     def test_supress_email_validation(self):
-        email_to_employer = self.read_file('data/gitdm_email_to_employer_invalid.txt')
+        email_to_employer = self.read_file(datadir('gitdm_email_to_employer_invalid.txt'))
 
         parser = GitdmParser(email_to_employer=email_to_employer,
                              source='unknown', email_validation=False)
@@ -171,8 +173,8 @@ class TestGidmParser(TestBaseCase):
             self.assertEqual(id.uuid, None)
 
     def test_enrollments_parser(self):
-        aliases = self.read_file('data/gitdm_email_aliases_valid.txt')
-        email_to_employer = self.read_file('data/gitdm_email_to_employer_valid.txt')
+        aliases = self.read_file(datadir('gitdm_email_aliases_valid.txt'))
+        email_to_employer = self.read_file(datadir('gitdm_email_to_employer_valid.txt'))
 
         parser = GitdmParser(aliases=aliases,
                              email_to_employer=email_to_employer,
@@ -331,7 +333,7 @@ class TestGidmParser(TestBaseCase):
     def test_organizations_parser(self):
         """Check whether it parses a valid organizations file"""
 
-        stream = self.read_file('data/gitdm_orgs_valid.txt')
+        stream = self.read_file(datadir('gitdm_orgs_valid.txt'))
 
         parser = GitdmParser(domain_to_employer=stream)
 
@@ -413,12 +415,12 @@ class TestGidmParser(TestBaseCase):
 
         with self.assertRaisesRegex(InvalidFormatError,
                                     DOMAINS_INVALID_FORMAT_ERROR % {'line': '10'}):
-            stream = self.read_file('data/gitdm_orgs_invalid_comments.txt')
+            stream = self.read_file(datadir('gitdm_orgs_invalid_comments.txt'))
             GitdmParser(domain_to_employer=stream)
 
         with self.assertRaisesRegex(InvalidFormatError,
                                     DOMAINS_INVALID_FORMAT_ERROR % {'line': '8'}):
-            stream = self.read_file('data/gitdm_orgs_invalid_entries.txt')
+            stream = self.read_file(datadir('gitdm_orgs_invalid_entries.txt'))
             GitdmParser(domain_to_employer=stream)
 
 
