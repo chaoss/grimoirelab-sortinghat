@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2017 Bitergia
+# Copyright (C) 2014-2018 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@ from tests.base import TestCommandCaseBase
 ENROLL_UUID_NOT_FOUND_ERROR = "Error: Jane Roe not found in the registry"
 ENROLL_ORG_NOT_FOUND_ERROR = "Error: LibreSoft not found in the registry"
 ENROLL_INVALID_PERIOD_ERROR = "Error: 'from_date' 2001-01-01 00:00:00 cannot be greater than 1999-01-01 00:00:00"
-ENROLL_EXISTING_ERROR = "Error: John Smith-Example-1900-01-01 00:00:00-2100-01-01 00:00:00 already exists in the registry"
+ENROLL_EXISTING_ERROR = "Error: enrollment for 'John Smith' at 'Example' (from: 1900-01-01 00:00:00, to: 2100-01-01 00:00:00) already exists in the registry"
 ENROLL_INVALID_DATE_ERROR = "Error: 1999-13-01 is not a valid date"
 ENROLL_INVALID_FORMAT_DATE_ERROR = "Error: YYZYY is not a valid date"
 ENROLL_EMPTY_OUTPUT = ""
