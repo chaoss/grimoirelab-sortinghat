@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2017 Bitergia
+# Copyright (C) 2014-2018 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,9 +21,12 @@
 
 import argparse
 
-from .. import api, utils
+from .. import api
 from ..command import Command, CMD_SUCCESS, HELP_LIST
 from ..exceptions import AlreadyExistsError, InvalidDateError, NotFoundError, InvalidValueError
+from ..utils import  (MAX_PERIOD_DATE,
+                      MIN_PERIOD_DATE,
+                      str_to_datetime)
 
 
 class Enroll(Command):
@@ -89,8 +92,8 @@ class Enroll(Command):
         organization = params.organization
 
         try:
-            from_date = utils.str_to_datetime(params.from_date)
-            to_date = utils.str_to_datetime(params.to_date)
+            from_date = str_to_datetime(params.from_date)
+            to_date = str_to_datetime(params.to_date)
             merge = params.merge
 
             code = self.enroll(uuid, organization, from_date, to_date, merge)
@@ -100,7 +103,8 @@ class Enroll(Command):
 
         return code
 
-    def enroll(self, uuid, organization, from_date=None, to_date=None, merge=False):
+    def enroll(self, uuid, organization, from_date=MIN_PERIOD_DATE, to_date=MAX_PERIOD_DATE,
+               merge=False):
         """Enroll a unique identity in an organization.
 
         This method adds a new relationship between the unique identity,
@@ -133,7 +137,15 @@ class Enroll(Command):
             code = e.code
         except AlreadyExistsError as e:
             if not merge:
-                self.error(str(e))
+                msg_data = {
+                    'uuid': uuid,
+                    'org': organization,
+                    'from_dt': str(from_date),
+                    'to_dt': str(to_date)
+                }
+                msg = "enrollment for '%(uuid)s' at '%(org)s' (from: %(from_dt)s, to: %(to_dt)s) already exists in the registry"
+                msg = msg % msg_data
+                self.error(msg)
                 code = e.code
 
         if not merge:

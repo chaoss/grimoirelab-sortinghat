@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2017 Bitergia
+# Copyright (C) 2014-2018 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -163,7 +163,8 @@ class Organizations(Command):
                 # because organization cannot be None or empty
                 raise RuntimeError(str(e))
             except AlreadyExistsError as e:
-                self.error(str(e))
+                msg = "organization '%s' already exists in the registry" % organization
+                self.error(msg)
                 return e.code
         else:
             try:
@@ -173,7 +174,11 @@ class Organizations(Command):
             except InvalidValueError as e:
                 # Same as above, domains cannot be None or empty
                 raise RuntimeError(str(e))
-            except (AlreadyExistsError, NotFoundError) as e:
+            except AlreadyExistsError as e:
+                msg = "domain '%s' already exists in the registry" % domain
+                self.error(msg)
+                return e.code
+            except NotFoundError as e:
                 self.error(str(e))
                 return e.code
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2017 Bitergia
+# Copyright (C) 2014-2018 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -34,8 +34,8 @@ from sortinghat.exceptions import NotFoundError, CODE_ALREADY_EXISTS_ERROR, CODE
 from tests.base import TestCommandCaseBase
 
 
-REGISTRY_ORG_ALREADY_EXISTS_ERROR = "Error: Bitergium already exists in the registry"
-REGISTRY_DOM_ALREADY_EXISTS_ERROR = "Error: bitergia.com (Bitergia) already exists in the registry"
+REGISTRY_ORG_ALREADY_EXISTS_ERROR = "Error: organization 'Bitergium' already exists in the registry"
+REGISTRY_DOM_ALREADY_EXISTS_ERROR = "Error: domain 'bitergia.com' already exists in the registry"
 REGISTRY_ORG_NOT_FOUND_ERROR = "Error: Bitergium not found in the registry"
 REGISTRY_ORG_NOT_FOUND_ERROR_ALT = "Error: LibreSoft not found in the registry"
 REGISTRY_DOM_NOT_FOUND_ERROR = "Error: example.com not found in the registry"
