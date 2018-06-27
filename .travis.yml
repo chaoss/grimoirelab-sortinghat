@@ -7,6 +7,7 @@ sudo: false
 
 install:
   - pip install coveralls
+  - pip install cryptography
 
 before_script:
   - mysql -e 'create database testhat;'
