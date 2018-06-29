@@ -20,6 +20,7 @@
 #
 
 import argparse
+import logging
 import re
 
 from .. import api
@@ -28,6 +29,8 @@ from ..exceptions import NotFoundError, InvalidValueError
 
 
 EMAIL_ADDRESS_PATTERN = re.compile(r"^(?P<email>[^\s@]+@[^\s@.]+\.[^\s@]+)$")
+
+logger = logging.getLogger(__name__)
 
 
 class Affiliate(Command):

@@ -19,8 +19,12 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+import logging
+
 from ..db.model import UniqueIdentity
 from ..matcher import IdentityMatcher, FilteredIdentity
+
+logger = logging.getLogger(__name__)
 
 
 class GitHubUsernameIdentity(FilteredIdentity):

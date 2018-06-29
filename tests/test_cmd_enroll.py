@@ -158,19 +158,19 @@ class TestEnrollCommand(TestEnrollCaseBase):
         code = self.cmd.run('--from', 'YYZYY',
                             'John Smith', 'Example')
         self.assertEqual(code, CODE_INVALID_DATE_ERROR)
-        output = sys.stderr.getvalue().strip('\n').split('\n')[1]
+        output = sys.stderr.getvalue().strip('\n').split('\n')[-1]
         self.assertEqual(output, ENROLL_INVALID_FORMAT_DATE_ERROR)
 
         code = self.cmd.run('--to', '1999-13-01',
                             'John Smith', 'Example')
         self.assertEqual(code, CODE_INVALID_DATE_ERROR)
-        output = sys.stderr.getvalue().strip('\n').split('\n')[2]
+        output = sys.stderr.getvalue().strip('\n').split('\n')[-1]
         self.assertEqual(output, ENROLL_INVALID_DATE_ERROR)
 
         code = self.cmd.run('--to', 'YYZYY',
                             'John Smith', 'Example')
         self.assertEqual(code, CODE_INVALID_DATE_ERROR)
-        output = sys.stderr.getvalue().strip('\n').split('\n')[3]
+        output = sys.stderr.getvalue().strip('\n').split('\n')[-1]
         self.assertEqual(output, ENROLL_INVALID_FORMAT_DATE_ERROR)
 
 
@@ -316,7 +316,7 @@ class TestEnroll(TestEnrollCaseBase):
         # Test it without giving any period
         code = self.cmd.enroll('John Smith', 'Example')
         self.assertEqual(code, CODE_ALREADY_EXISTS_ERROR)
-        output = sys.stderr.getvalue().strip().split('\n')[1]
+        output = sys.stderr.getvalue().strip().split('\n')[-1]
         self.assertEqual(output, ENROLL_EXISTING_ERROR)
 
     def test_existing_enrollment_with_merge(self):

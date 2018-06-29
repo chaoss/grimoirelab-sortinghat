@@ -21,10 +21,13 @@
 
 import dateutil.parser
 import hashlib
+import logging
 import unicodedata
 
 from .db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE
 from .exceptions import InvalidDateError
+
+logger = logging.getLogger(__name__)
 
 
 def merge_date_ranges(dates):

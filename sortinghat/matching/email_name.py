@@ -19,6 +19,7 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+import logging
 import re
 
 from ..db.model import UniqueIdentity
@@ -27,6 +28,8 @@ from ..matcher import IdentityMatcher, FilteredIdentity
 
 EMAIL_ADDRESS_REGEX = r"^(?P<email>[^\s@]+@[^\s@.]+\.[^\s@]+)$"
 NAME_REGEX = r"^\w+\s\w+"
+
+logger = logging.getLogger(__name__)
 
 
 class EmailNameIdentity(FilteredIdentity):

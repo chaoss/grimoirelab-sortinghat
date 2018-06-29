@@ -19,6 +19,8 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+import logging
+
 from . import utils
 from .db.api import (add_unique_identity as add_unique_identity_db,
                      add_identity as add_identity_db,
@@ -44,6 +46,9 @@ from .db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE, \
     UniqueIdentity, Identity, Profile, Organization, Domain, Country, Enrollment, \
     MatchingBlacklist
 from .exceptions import AlreadyExistsError, NotFoundError, InvalidValueError
+
+
+logger = logging.getLogger(__name__)
 
 
 def add_unique_identity(db, uuid):

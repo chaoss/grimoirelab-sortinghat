@@ -20,6 +20,7 @@
 #
 
 import datetime
+import logging
 
 from .model import (MAX_PERIOD_DATE,
                     MIN_PERIOD_DATE,
@@ -31,6 +32,9 @@ from .model import (MAX_PERIOD_DATE,
                     Enrollment,
                     Country,
                     MatchingBlacklist)
+
+
+logger = logging.getLogger(__name__)
 
 
 def find_unique_identity(session, uuid):

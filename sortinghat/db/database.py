@@ -22,6 +22,7 @@
 import re
 
 from contextlib import contextmanager
+import logging
 
 from sqlalchemy import create_engine
 from sqlalchemy.exc import OperationalError, ProgrammingError, InternalError, IntegrityError
@@ -33,6 +34,9 @@ from sqlalchemy.schema import MetaData
 
 from sortinghat.exceptions import DatabaseError, DatabaseExists, AlreadyExistsError
 from sortinghat.db.model import ModelBase
+
+
+logger = logging.getLogger(__name__)
 
 
 class Database(object):

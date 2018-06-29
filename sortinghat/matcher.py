@@ -19,7 +19,12 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+import logging
+
 from .exceptions import MatcherNotSupportedError
+
+
+logger = logging.getLogger(__name__)
 
 
 class IdentityMatcher(object):

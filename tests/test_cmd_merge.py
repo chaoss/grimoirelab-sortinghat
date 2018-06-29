@@ -115,7 +115,7 @@ class TestMerge(TestMergeCaseBase):
 
         code = self.cmd.merge('John Smith', 'Jane Doe')
         self.assertEqual(code, CODE_NOT_FOUND_ERROR)
-        output = sys.stderr.getvalue().strip().split('\n')[1]
+        output = sys.stderr.getvalue().strip().split('\n')[-1]
         self.assertEqual(output, MERGE_TO_UUID_NOT_FOUND_ERROR)
 
     def test_none_uuids(self):
