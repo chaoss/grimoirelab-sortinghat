@@ -309,34 +309,34 @@ class TestLoadCommand(TestLoadCaseBase):
 
         code = self.cmd.run(datadir('sortinghat_invalid.json'))
         self.assertEqual(code, CODE_INVALID_FORMAT_ERROR)
-        output = sys.stderr.getvalue().strip().split('\n')[0]
+        output = sys.stderr.getvalue().strip('\n').split('\n')[0]
         self.assertEqual(output, LOAD_IDENTITIES_INVALID_JSON_FORMAT_ERROR)
 
         code = self.cmd.run(datadir('sortinghat_ids_missing_keys.json'))
         self.assertEqual(code, CODE_INVALID_FORMAT_ERROR)
-        output = sys.stderr.getvalue().strip().split('\n')[1]
+        output = sys.stderr.getvalue().strip('\n').split('\n')[-1]
         self.assertEqual(output, LOAD_IDENTITIES_MISSING_KEYS_ERROR)
 
         # Context added to catch deprecation warnings raised on Python 3
         with warnings.catch_warnings(record=True):
             code = self.cmd.run(datadir('sortinghat_orgs_invalid_json.json'))
             self.assertEqual(code, CODE_INVALID_FORMAT_ERROR)
-            output = sys.stderr.getvalue().strip().split('\n')[2]
+            output = sys.stderr.getvalue().strip('\n').split('\n')[-1]
             self.assertRegexpMatches(output, LOAD_ORGS_INVALID_FORMAT_ERROR)
 
         code = self.cmd.run(datadir('sortinghat_orgs_missing_keys.json'))
         self.assertEqual(code, CODE_INVALID_FORMAT_ERROR)
-        output = sys.stderr.getvalue().strip().split('\n')[3]
+        output = sys.stderr.getvalue().strip('\n').split('\n')[-1]
         self.assertEqual(output, LOAD_ORGS_MISSING_KEYS_ERROR)
 
         code = self.cmd.run(datadir('sortinghat_orgs_invalid_top.json'))
         self.assertEqual(code, CODE_INVALID_FORMAT_ERROR)
-        output = sys.stderr.getvalue().strip().split('\n')[4]
+        output = sys.stderr.getvalue().strip('\n').split('\n')[-1]
         self.assertEqual(output, LOAD_ORGS_IS_TOP_ERROR)
 
         code = self.cmd.run(datadir('sortinghat_blacklist_empty_strings.json'))
         self.assertEqual(code, CODE_INVALID_FORMAT_ERROR)
-        output = sys.stderr.getvalue().strip().split('\n')[5]
+        output = sys.stderr.getvalue().strip('\n').split('\n')[-1]
         self.assertEqual(output, LOAD_BLACKLIST_EMPTY_STRINGS_ERROR)
 
 

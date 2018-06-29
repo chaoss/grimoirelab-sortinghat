@@ -21,6 +21,7 @@
 
 import argparse
 import collections
+import logging
 
 from .. import api
 from ..command import Command, CMD_SUCCESS, HELP_LIST
@@ -28,6 +29,8 @@ from ..exceptions import NotFoundError, InvalidValueError
 
 
 AUTOPROFILE_COMMAND_USAGE_MSG = """%(prog)s autoprofile <source> ... <source>"""
+
+logger = logging.getLogger(__name__)
 
 
 class AutoProfile(Command):

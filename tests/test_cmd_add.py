@@ -38,8 +38,6 @@ from tests.base import TestCommandCaseBase
 
 
 ADD_EXISTING_ERROR = "Error: unique identity 'a9b403e150dd4af8953a52a4bb841051e4b705d9' already exists in the registry"
-ADD_EXISTING_LOWERCASE_ERROR = "Error: unique identity 'a9b403e150dd4af8953a52a4bb841051e4b705d9' already exists in the registry"
-ADD_EXISTING_ACCENTS_ERROR = "Error: unique identity 'a9b403e150dd4af8953a52a4bb841051e4b705d9' already exists in the registry"
 ADD_IDENTITY_NONE_OR_EMPTY_ERROR = "Error: identity data cannot be None or empty"
 ADD_MATCHING_ERROR = "Error: mock identity matcher is not supported"
 ADD_SOURCE_NONE_ERROR = "Error: source cannot be None"
@@ -140,6 +138,7 @@ class TestAddCommand(TestAddCaseBase):
         self.assertEqual(code, CMD_SUCCESS)
 
         # Check output
+        x = sys.stdout.getvalue()
         output = sys.stdout.getvalue().strip()
         self.assertEqual(output, ADD_OUTPUT_MATCHING)
 
@@ -169,7 +168,7 @@ class TestAdd(TestAddCaseBase):
         code = self.cmd.add('scm', email='jroe@example.com', uuid='FFFFFFFFFFFFFFF')
         self.assertEqual(code, CODE_NOT_FOUND_ERROR)
 
-        output = sys.stderr.getvalue().strip()
+        output = sys.stderr.getvalue().strip('\n').strip()
         self.assertEqual(output, ADD_UUID_NOT_FOUND_ERROR)
 
     def test_existing_identity(self):
@@ -177,32 +176,32 @@ class TestAdd(TestAddCaseBase):
 
         code = self.cmd.add('scm', 'jsmith@example.com', 'John Smith', 'jsmith')
         self.assertEqual(code, CODE_ALREADY_EXISTS_ERROR)
-        output = sys.stderr.getvalue().strip()
+        output = sys.stderr.getvalue().strip('\n').strip()
         self.assertEqual(output, ADD_EXISTING_ERROR)
 
         # Different case letters, but same identity
         code = self.cmd.add('scm', 'jsmith@example.com', 'john smith', 'jsmith')
         self.assertEqual(code, CODE_ALREADY_EXISTS_ERROR)
-        output = sys.stderr.getvalue().split('\n')[1]
-        self.assertEqual(output, ADD_EXISTING_LOWERCASE_ERROR)
+        output = sys.stderr.getvalue().strip('\n').split('\n')[-1]
+        self.assertEqual(output, ADD_EXISTING_ERROR)
 
         # Different accents, but same identity
         code = self.cmd.add('scm', 'jsmith@example.com', 'Jöhn Smith', 'jsmith')
         self.assertEqual(code, CODE_ALREADY_EXISTS_ERROR)
-        output = sys.stderr.getvalue().split('\n')[1]
-        self.assertEqual(output, ADD_EXISTING_ACCENTS_ERROR)
+        output = sys.stderr.getvalue().strip('\n').split('\n')[-1]
+        self.assertEqual(output, ADD_EXISTING_ERROR)
 
     def test_none_or_empty_source(self):
         """Check whether new identities cannot be added when giving a None or empty source"""
 
         code = self.cmd.add(None)
         self.assertEqual(code, CODE_VALUE_ERROR)
-        output = sys.stderr.getvalue().strip().split('\n')[0]
+        output = sys.stderr.getvalue().strip()
         self.assertEqual(output, ADD_SOURCE_NONE_ERROR)
 
         code = self.cmd.add('')
         self.assertEqual(code, CODE_VALUE_ERROR)
-        output = sys.stderr.getvalue().strip().split('\n')[1]
+        output = sys.stderr.getvalue().strip().split('\n')[-1]
         self.assertEqual(output, ADD_SOURCE_EMPTY_ERROR)
 
     def test_none_or_empty_data(self):
@@ -210,12 +209,12 @@ class TestAdd(TestAddCaseBase):
 
         code = self.cmd.add('scm', None, '', None)
         self.assertEqual(code, CODE_VALUE_ERROR)
-        output = sys.stderr.getvalue().strip().split('\n')[0]
+        output = sys.stderr.getvalue().strip().split('\n')[-1]
         self.assertEqual(output, ADD_IDENTITY_NONE_OR_EMPTY_ERROR)
 
         code = self.cmd.add('scm', '', '', '')
         self.assertEqual(code, CODE_VALUE_ERROR)
-        output = sys.stderr.getvalue().strip().split('\n')[1]
+        output = sys.stderr.getvalue().strip().split('\n')[-1]
         self.assertEqual(output, ADD_IDENTITY_NONE_OR_EMPTY_ERROR)
 
     def test_invalid_matching_method(self):
@@ -223,7 +222,7 @@ class TestAdd(TestAddCaseBase):
 
         code = self.cmd.add('scm', 'jsmith@example.com', matching='mock')
         self.assertEqual(code, CODE_MATCHER_NOT_SUPPORTED_ERROR)
-        output = sys.stderr.getvalue().strip()
+        output = sys.stderr.getvalue().strip('\n').strip()
         self.assertEqual(output, ADD_MATCHING_ERROR)
 
     def test_default_matching_method(self):

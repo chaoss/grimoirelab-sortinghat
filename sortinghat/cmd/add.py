@@ -20,6 +20,7 @@
 #
 
 import argparse
+import logging
 
 from .. import api
 from ..command import Command, CMD_SUCCESS, HELP_LIST
@@ -31,6 +32,8 @@ from ..matching import SORTINGHAT_IDENTITIES_MATCHERS
 ADD_COMMAND_USAGE_MSG = """%(prog)s add [--name <name>] [--email <email>] [--username <user>]
                       [--source <src>] [--uuid <uuid>]
                       [--matching <matcher>] [--interactive]"""
+
+logger = logging.getLogger(__name__)
 
 
 class Add(Command):
@@ -148,7 +151,6 @@ class Add(Command):
             new_uuid = api.add_identity(self.db, source, email, name, username, uuid)
             uuid = uuid or new_uuid
             self.display('add.tmpl', id=new_uuid, uuid=uuid)
-
             if matcher:
                 self.__merge_on_matching(uuid, matcher, interactive)
         except AlreadyExistsError as e:

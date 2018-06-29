@@ -19,11 +19,14 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+import logging
 
 from .exceptions import InvalidFormatError
 
 
 INVALID_FORMAT_MSG = "organizations format not supported. Please check it."
+
+logger = logging.getLogger(__name__)
 
 
 class OrganizationsParser(object):

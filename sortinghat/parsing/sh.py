@@ -19,10 +19,14 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+import logging
+
 from ..db.model import UniqueIdentity, Identity, Profile,\
     Enrollment, Organization, Domain, Country, MatchingBlacklist
 from ..exceptions import InvalidFormatError, InvalidDateError
 from ..utils import str_to_datetime
+
+logger = logging.getLogger(__name__)
 
 
 class SortingHatParser(object):

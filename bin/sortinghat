@@ -21,6 +21,7 @@
 #
 
 import argparse
+import logging
 import os
 import sys
 
@@ -30,7 +31,7 @@ from sortinghat.cmd import SORTINGHAT_COMMANDS
 import sortinghat
 
 SORTINGHAT_USAGE_MSG = \
-"""%(prog)s [--help] [-c <file>] [-u <user>] [-p <password>]
+"""%(prog)s [--help] [--debug] [-c <file>] [-u <user>] [-p <password>]
                   [--host <host>] [--port <port>] [-d <name>]
                   command [<cmd_args>]"""
 
@@ -60,6 +61,7 @@ SORTINGHAT_DESC_MSG = \
 
 General options:
   -h, --help            show this help message and exit
+  -g, --debug           set debug mode on 
   -c FILE, --config FILE
                         set configuration file
   -u USER, --user USER  database user name
@@ -78,11 +80,18 @@ SORTINGHAT_EPILOG_MSG = \
 SORTINGHAT_VERSION_MSG = \
 """%(prog)s """  + sortinghat.__version__
 
+# Logging formats
+SORTINGHAT_LOG_FORMAT = "[%(asctime)s] - %(message)s"
+SORTINGHAT_DEBUG_LOG_FORMAT = "[%(asctime)s - %(name)s - %(levelname)s] - %(message)s"
+
+
 def main():
     args = parse_args()
 
     if args.command not in SORTINGHAT_COMMANDS:
         raise RuntimeError("Unknown command %s" % args.command)
+
+    configure_logging(args.debug)
 
     klass = SORTINGHAT_COMMANDS[args.command]
 
@@ -117,6 +126,20 @@ def parse_args():
     return parser.parse_args(args)
 
 
+def configure_logging(debug=False):
+    """Configure Sortinghat logging
+
+    The function configures the log messages produced by Sortinghat.
+    By default, log messages are sent to stderr. Set the parameter
+    `debug` to activate the debug mode.
+
+    :param debug: set the debug mode
+    """
+    if debug:
+        logging.basicConfig(level=logging.DEBUG,
+                            format=SORTINGHAT_DEBUG_LOG_FORMAT)
+
+
 def read_config_file(filepath):
     config = configparser.SafeConfigParser()
     config.read(filepath)
@@ -137,6 +160,9 @@ def create_common_arguments_parser(defaults):
     # Options
     group = parser.add_argument_group('General options')
     group.add_argument('-h', '--help', action='help',
+                       help=argparse.SUPPRESS)
+    group.add_argument('-g', '--debug', dest='debug',
+                       action='store_true',
                        help=argparse.SUPPRESS)
     group.add_argument('-u', '--user', dest='user', default=os.getenv('SORTINGHAT_DB_USER', 'root'),
                        help=argparse.SUPPRESS)

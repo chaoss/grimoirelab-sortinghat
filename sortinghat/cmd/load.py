@@ -20,6 +20,7 @@
 #
 
 import argparse
+import logging
 import sys
 
 from .. import api
@@ -31,6 +32,9 @@ from ..exceptions import AlreadyExistsError, NotFoundError,\
 from ..matcher import create_identity_matcher
 from ..matching import SORTINGHAT_IDENTITIES_MATCHERS
 from ..parsing.sh import SortingHatParser
+
+
+logger = logging.getLogger(__name__)
 
 
 class Load(Command):
