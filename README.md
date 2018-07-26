@@ -366,7 +366,7 @@ $ sortinghat load identities.json
 
 * Python >= 3.4
 * MySQL >= 5.5
-* SQLAlchemy >= 1.0.0
+* SQLAlchemy >= 1.2
 * Jinja2 >= 2.7
 * python-dateutil >= 2.6
 * python-yaml >= 3.12
