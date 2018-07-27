@@ -174,7 +174,8 @@ def create_database_engine(user, password, database, host, port):
     url = URL(driver, user, password, host, port, database,
               query={'charset': 'utf8'})
     return create_engine(url, poolclass=QueuePool,
-                         pool_size=25, echo=False)
+                         pool_size=25, pool_pre_ping=True,
+                         echo=False)
 
 
 def create_database_session(engine):
