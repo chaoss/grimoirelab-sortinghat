@@ -295,7 +295,7 @@ class Load(Command):
             try:
                 stored_uuid = self.__load_unique_identity(uidentity, verbose)
             except LoadError as e:
-                self.error("%s Skipping." % str(e))
+                self.error("%s Skipping %s." % (str(e), uidentity.uuid))
                 self.log("=====", verbose)
                 continue
 

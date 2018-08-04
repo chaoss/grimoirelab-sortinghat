@@ -150,11 +150,11 @@ def uuid(source, email=None, name=None, username=None):
         parameters is None; parameters are empty.
     """
     if source is None:
-        raise ValueError("source cannot be None")
+        raise ValueError("source cannot be None for source %s" % source)
     if source == '':
-        raise ValueError("source cannot be an empty string")
+        raise ValueError("source cannot be an empty string for source %s" % source)
     if not (email or name or username):
-        raise ValueError("identity data cannot be None or empty")
+        raise ValueError("identity data cannot be None or empty for source %s" % source)
 
     s = ':'.join((to_unicode(source),
                   to_unicode(email),
