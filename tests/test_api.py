@@ -1985,6 +1985,32 @@ class TestMergeUniqueIdentities(TestAPICaseBase):
             self.assertEqual(rol2.start, datetime.datetime(1999, 1, 1))
             self.assertEqual(rol2.end, datetime.datetime(2000, 1, 1))
 
+    def test_moved_enrollments(self):
+        """Test if enrollments are moved from one identity to another"""
+
+        api.add_unique_identity(self.db, 'John Smith')
+        api.add_identity(self.db, 'scm', 'jsmith@example.com',
+                         uuid='John Smith')
+
+        api.add_unique_identity(self.db, 'John Doe')
+        api.add_identity(self.db, 'scm', 'jdoe@example.com',
+                         uuid='John Doe')
+
+        api.add_organization(self.db, 'Example')
+        api.add_enrollment(self.db, 'John Smith', 'Example')
+
+        api.add_organization(self.db, 'Bitergia')
+        api.add_enrollment(self.db, 'John Smith', 'Bitergia')
+
+        api.merge_unique_identities(self.db, 'John Smith', 'John Doe')
+
+        with self.db.connect() as session:
+            uidentities = session.query(UniqueIdentity).\
+                order_by(UniqueIdentity.uuid).all()
+            self.assertEqual(len(uidentities), 1)
+            self.assertEqual(len(uidentities[0].enrollments), 2)
+
+
     def test_last_modified(self):
         """Check if last modification date is updated"""
 
