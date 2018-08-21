@@ -596,8 +596,10 @@ def merge_unique_identities(db, from_uuid, to_uuid):
         for identity in fuid.identities:
             move_identity_db(session, identity, tuid)
 
-        # Move those enrollments that to_uid does not have
-        for rol in fuid.enrollments:
+        # Move those enrollments that to_uid does not have.
+        # It is needed to copy the list in-place to avoid
+        # sync problems when enrollments are moved.
+        for rol in fuid.enrollments[:]:
             enrollment = session.query(Enrollment).\
                 filter(Enrollment.uidentity == tuid,
                        Enrollment.organization == rol.organization,
