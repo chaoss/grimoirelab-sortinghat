@@ -41,7 +41,7 @@ logger = logging.getLogger(__name__)
 
 class Database(object):
 
-    MYSQL_CREATE_DB = "CREATE DATABASE %(database)s CHARACTER SET utf8 COLLATE utf8_unicode_ci"
+    MYSQL_CREATE_DB = "CREATE DATABASE %(database)s CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_520_ci"
     MYSQL_DROP_DB = "DROP DATABASE IF EXISTS %(database)s"
 
     # Regular expressions for handling errors
@@ -172,7 +172,7 @@ def create_database_engine(user, password, database, host, port):
 
     driver = 'mysql+pymysql'
     url = URL(driver, user, password, host, port, database,
-              query={'charset': 'utf8'})
+              query={'charset': 'utf8mb4'})
     return create_engine(url, poolclass=QueuePool,
                          pool_size=25, pool_pre_ping=True,
                          echo=False)

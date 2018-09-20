@@ -37,9 +37,14 @@ MAX_PERIOD_DATE = datetime.datetime(2100, 1, 1, 0, 0, 0)
 
 # Default charset and collation
 MYSQL_CHARSET = {
-    'mysql_default_charset': 'utf8',
-    'mysql_collate': 'utf8_unicode_ci'
+    'mysql_default_charset': 'utf8mb4',
+    'mysql_collate': 'utf8mb4_unicode_520_ci'
 }
+
+# Innodb and utf8mb4 can only index 191 characters
+# See https://dev.mysql.com/doc/refman/5.5/en/charset-unicode-conversion.html
+# for more information.
+MAX_SIZE_CHAR_COLUMN = 191
 
 logger = logging.getLogger(__name__)
 ModelBase = declarative_base()
@@ -64,7 +69,7 @@ class Organization(ModelBase):
     __tablename__ = 'organizations'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(255), nullable=False)
+    name = Column(String(MAX_SIZE_CHAR_COLUMN), nullable=False)
 
     # One-to-Many relationship
     domains = relationship('Domain', backref='organizations',
@@ -118,7 +123,7 @@ class Country(ModelBase):
     __tablename__ = 'countries'
 
     code = Column(String(2), primary_key=True)
-    name = Column(String(255), nullable=False)
+    name = Column(String(MAX_SIZE_CHAR_COLUMN), nullable=False)
     alpha3 = Column(String(3), nullable=False)
 
     __table_args__ = (UniqueConstraint('alpha3', name='_alpha_unique'),
