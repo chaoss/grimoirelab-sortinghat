@@ -380,6 +380,31 @@ class TestAddIdentity(TestAPICaseBase):
         self.assertEqual(context.exception.eid,
                          'a16659ea83d28c839ffae76ceebb3ca9fb8e8894')
 
+    def test_utf8_4bytes_identities(self):
+        """Check if it inserts identities with 4bytes UTF-8 characters"""
+
+        # Emojis are 4bytes characters
+        unique_id = api.add_identity(self.db, 'scm', name='😂',
+                                     email='😂', username='😂')
+
+        with self.db.connect() as session:
+            uid = session.query(UniqueIdentity).\
+                    filter(UniqueIdentity.uuid == '843fcc3383ddfd6179bef87996fa761d88a43915').first()
+            self.assertEqual(uid.uuid, unique_id)
+
+            identities = session.query(Identity).\
+                filter(Identity.uuid == uid.uuid).all()
+            self.assertEqual(len(identities), 1)
+
+            id1 = identities[0]
+            self.assertEqual(id1.id, unique_id)
+            self.assertEqual(id1.id, '843fcc3383ddfd6179bef87996fa761d88a43915')
+            self.assertEqual(id1.name, '😂')
+            self.assertEqual(id1.email, '😂')
+            self.assertEqual(id1.username, '😂')
+            self.assertEqual(id1.source, 'scm')
+
+
     def test_charset(self):
         """Check if it adds two identities with different encoding"""
 
@@ -2633,6 +2658,29 @@ class TestSearchUniqueIdentities(TestAPICaseBase):
         self.assertEqual(uids[0].uuid, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
         self.assertEqual(len(uids[0].identities), 3)
 
+    def test_search_4bytes_utf8_identities(self):
+        """Check if it returns the unique identities which have 4 bytes UTF8-characters"""
+
+        # Add some identities
+        jsmith_uuid = api.add_identity(self.db, 'scm', 'jsmith@example.com',
+                                       'John Smith', 'jsmith')
+        api.add_identity(self.db, 'scm', 'jsmith@bitergia.com', uuid=jsmith_uuid)
+        api.add_identity(self.db, 'mls', 'jsmith@bitergia.com', uuid=jsmith_uuid)
+
+        jdoe_uuid = api.add_identity(self.db, 'scm', 'jdoe@example.com',
+                                     'John Doe', 'jdoe')
+        api.add_identity(self.db, 'scm', 'jdoe@libresoft.es',
+                         'jdoe', 'jdoe', uuid=jdoe_uuid)
+
+        emoji_uuid = api.add_identity(self.db, 'scm', name='😂',
+                                      email='😂', username='😂')
+
+        # An emoji is 4 bytes UTF-8 character
+        uids = api.search_unique_identities(self.db, '😂')
+        self.assertEqual(len(uids), 1)
+        self.assertEqual(uids[0].uuid, '843fcc3383ddfd6179bef87996fa761d88a43915')
+        self.assertEqual(len(uids[0].identities), 1)
+
     def test_filter_source(self):
         """Check if it returns a set of identities linked to the given source"""
 
@@ -2744,6 +2792,36 @@ class TestSearchUniqueIdentitiesSlice(TestAPICaseBase):
         uids, ntotal = api.search_unique_identities_slice(self.db, 'jsmith', 3, 2)
         self.assertListEqual(uids, [])
         self.assertEqual(ntotal, 3)
+
+    def test_search_4bytes_utf8_identities_by_slice(self):
+        """Check if it returns a slice of unique identities which have 4 bytes UTF8-characters filtered by slice"""
+
+        emoji_name = api.add_identity(self.db, 'scm', name='😂')
+        emoji_email = api.add_identity(self.db, 'scm', email='😂')
+        emoji_username = api.add_identity(self.db, 'scm', username='😂')
+        emoji = api.add_identity(self.db, 'scm', name='😂', email='😂', username='😂')
+
+        # Tests
+        uids, ntotal = api.search_unique_identities_slice(self.db, '😂', 0, 2)
+        self.assertEqual(len(uids), 2)
+        self.assertEqual(ntotal, 4)
+        self.assertEqual(uids[0].uuid, emoji_email)
+        self.assertEqual(len(uids[0].identities), 1)
+        self.assertEqual(uids[1].uuid, emoji)
+        self.assertEqual(len(uids[0].identities), 1)
+
+        uids, ntotal = api.search_unique_identities_slice(self.db, '😂', 2, 2)
+        self.assertEqual(len(uids), 2)
+        self.assertEqual(ntotal, 4)
+        self.assertEqual(uids[0].uuid, emoji_name)
+        self.assertEqual(len(uids[0].identities), 1)
+        self.assertEqual(uids[1].uuid, emoji_username)
+        self.assertEqual(len(uids[0].identities), 1)
+
+        # No more results
+        uids, ntotal = api.search_unique_identities_slice(self.db, '😂', 4, 2)
+        self.assertListEqual(uids, [])
+        self.assertEqual(ntotal, 4)
 
     def test_unique_identities_slice(self):
         """Test if a given number of unique identities is returned"""
