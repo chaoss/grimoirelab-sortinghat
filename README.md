@@ -166,7 +166,16 @@ After this initialize a new database:
 
 ## Compatibility between versions
 
-SortingHat databases previous to 0.6.0  are no longer compatible.
+Python 2.7 is no longer supported. Any code using this version will
+not work. Please update your code to 3.4 or newer versions.
+
+SortingHat databases previous to 0.7.0 are compatible but UTF-8 4-bytes
+characters will not be inserted in the database and causing errors. For this
+reason, it is recommendable to update its schema. The fastest way is to
+dump the data into a file, regenerate the database with `init` command
+and restore the data from the dump.
+
+SortingHat databases previous to 0.6.0 are no longer compatible.
 The database schema changed in `profiles` table to add the fields `gender`
 and `gender_acc`.
 
