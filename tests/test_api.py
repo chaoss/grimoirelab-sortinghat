@@ -2884,7 +2884,7 @@ class TestSearchLastModifiedIdentities(TestAPICaseBase):
     """Unit tests for last_modified_identities"""
 
     def test_search_last_modified_identities(self):
-        """Check if it returns the uuids of the modified entities"""
+        """Check if it returns the uuids of the modified identities"""
 
         # Add identities
         before_dt = datetime.datetime.utcnow()
@@ -2899,9 +2899,7 @@ class TestSearchLastModifiedIdentities(TestAPICaseBase):
                                        uuid='John Doe')
 
         # Check if all uuids are returned
-        uuids, ids = api.search_last_modified_identities(self.db, before_dt)
-
-        self.assertListEqual(uuids, ['John Doe', 'John Smith'])
+        ids = api.search_last_modified_identities(self.db, before_dt)
         self.assertListEqual(ids, [jdoe_id, jsmith_id, jdoe_alt_id])
 
         # Update identities
@@ -2909,11 +2907,37 @@ class TestSearchLastModifiedIdentities(TestAPICaseBase):
         api.move_identity(self.db, jdoe_id, 'John Smith')
 
         # Check if only modified uuids are returned
-        uuids, ids = api.search_last_modified_identities(self.db, before_move_dt)
-        self.assertListEqual(uuids, ['John Doe', 'John Smith'])
+        ids = api.search_last_modified_identities(self.db, before_move_dt)
         self.assertListEqual(ids, [jdoe_id])
 
-    def test_empty_search(self):
+    def test_search_last_modified_unique_identities(self):
+        """Check if it returns the uuids of the modified unique identities"""
+
+        # Add identities
+        before_dt = datetime.datetime.utcnow()
+        api.add_unique_identity(self.db, 'John Smith')
+        jsmith_id = api.add_identity(self.db, 'scm', 'jsmith@example.com',
+                                     uuid='John Smith')
+
+        api.add_unique_identity(self.db, 'John Doe')
+        jdoe_id = api.add_identity(self.db, 'scm', 'jdoe@example.com',
+                                   uuid='John Doe')
+        jdoe_alt_id = api.add_identity(self.db, 'scm', 'jdoe@example.com', 'Jon Doe',
+                                       uuid='John Doe')
+
+        # Check if all uuids are returned
+        uuids = api.search_last_modified_unique_identities(self.db, before_dt)
+        self.assertListEqual(uuids, ['John Doe', 'John Smith'])
+
+        # Update identities
+        before_move_dt = datetime.datetime.utcnow()
+        api.move_identity(self.db, jdoe_id, 'John Smith')
+
+        # Check if only modified uuids are returned
+        uuids = api.search_last_modified_unique_identities(self.db, before_move_dt)
+        self.assertListEqual(uuids, ['John Doe', 'John Smith'])
+
+    def test_empty_search_modified_identities(self):
         """Check if the result is empty when identities are not modified"""
 
         # Add identities
@@ -2930,10 +2954,28 @@ class TestSearchLastModifiedIdentities(TestAPICaseBase):
         after_dt = datetime.datetime.utcnow()
 
         # Check if all uuids are returned
-        uuids, ids = api.search_last_modified_identities(self.db, after_dt)
-
-        self.assertListEqual(uuids, [])
+        ids = api.search_last_modified_identities(self.db, after_dt)
         self.assertListEqual(ids, [])
+
+    def test_empty_search_modified_unique_identities(self):
+        """Check if the result is empty when unique identities are not modified"""
+
+        # Add identities
+        api.add_unique_identity(self.db, 'John Smith')
+        api.add_identity(self.db, 'scm', 'jsmith@example.com',
+                         uuid='John Smith')
+
+        api.add_unique_identity(self.db, 'John Doe')
+        api.add_identity(self.db, 'scm', 'jdoe@example.com',
+                         uuid='John Doe')
+        api.add_identity(self.db, 'scm', 'jdoe@example.com', 'Jon Doe',
+                         uuid='John Doe')
+
+        after_dt = datetime.datetime.utcnow()
+
+        # Check if all uuids are returned
+        uuids = api.search_last_modified_unique_identities(self.db, after_dt)
+        self.assertListEqual(uuids, [])
 
 
 class TestSearchProfiles(TestAPICaseBase):

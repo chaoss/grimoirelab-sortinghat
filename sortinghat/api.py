@@ -942,27 +942,42 @@ def search_unique_identities_slice(db, term, offset, limit):
 def search_last_modified_identities(db, after):
     """Look for the uuids of identities modified on or after a given date.
 
-    This function returns the uuids of those unique identities and
-    identities that where modified on the given date or after it.
-    The result is a tuple containing two list of uuids: one with
-    unique identities and the other with identities.
+    This function returns the uuids of identities modified on
+    the given date or after it. The result is a list of uuids
+    identities.
 
-    :param db: database manater
+    :param db: database manager
     :param after: look for identities modified on or after this date
 
-    :returns: a tuple containing the list of unique identities and the
-        identities modified
+    :returns: a list of uuids of identities modified
     """
     with db.connect() as session:
-        query = session.query(UniqueIdentity).\
-            filter(UniqueIdentity.last_modified >= after)
-        uids = [uid.uuid for uid in query.order_by(UniqueIdentity.uuid).all()]
-
-        query = session.query(Identity).\
+        query = session.query(Identity.id).\
             filter(Identity.last_modified >= after)
         ids = [id_.id for id_ in query.order_by(Identity.id).all()]
 
-    return uids, ids
+    return ids
+
+
+def search_last_modified_unique_identities(db, after):
+    """Look for the uuids of unique identities modified on or
+    after a given date.
+
+    This function returns the uuids of unique identities
+    modified on the given date or after it. The result is a
+    list of uuids unique identities.
+
+    :param db: database manager
+    :param after: look for identities modified on or after this date
+
+    :returns: a list of uuids of unique identities modified
+    """
+    with db.connect() as session:
+        query = session.query(UniqueIdentity.uuid).\
+            filter(UniqueIdentity.last_modified >= after)
+        uids = [uid.uuid for uid in query.order_by(UniqueIdentity.uuid).all()]
+
+    return uids
 
 
 def search_profiles(db, no_gender=False):
