@@ -22,6 +22,7 @@
 import argparse
 import collections
 import logging
+import re
 
 from .. import api
 from ..command import Command, CMD_SUCCESS, HELP_LIST
@@ -29,6 +30,7 @@ from ..exceptions import NotFoundError, InvalidValueError
 
 
 AUTOPROFILE_COMMAND_USAGE_MSG = """%(prog)s autoprofile <source> ... <source>"""
+EMAIL_ADDRESS_REGEX = r"^(?P<email>[^\s@]+@[^\s@.]+\.[^\s@]+)$"
 
 logger = logging.getLogger(__name__)
 
@@ -82,6 +84,8 @@ class AutoProfile(Command):
         of their identities. The selection of the data used to fill
         the profile is prioritized using a list of sources.
         """
+        email_pattern = re.compile(EMAIL_ADDRESS_REGEX)
+
         identities = self.__select_autocomplete_identities(sources)
 
         for uuid, ids in identities.items():
@@ -92,10 +96,15 @@ class AutoProfile(Command):
             email = None
 
             for identity in ids:
+                oldname = name
+
                 if not name:
                     name = identity.name or identity.username
                 elif identity.name and len(identity.name) > len(name):
                     name = identity.name
+                # Do not set email addresses on the name field
+                if email_pattern.match(name):
+                    name = oldname
 
                 if not email and identity.email:
                     email = identity.email

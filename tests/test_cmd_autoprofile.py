@@ -124,6 +124,28 @@ class TestAutoProfileCommand(TestAutoProfileCaseBase):
         self.assertEqual(uids[2].profile.name, 'John Smith')
         self.assertEqual(uids[2].profile.email, 'jsmith@example.com')
 
+    def test_no_email_on_name_field(self):
+        """Check whether an email address is not set as the name in the profile"""
+
+        # Email value as username
+        jrae_uuid = api.add_identity(self.db, 'mls', None,
+                                     None, 'jrae@example.com')
+        api.add_identity(self.db, 'mls', None,
+                         'jrae@example.com', None, uuid=jrae_uuid)
+        api.add_identity(self.db, 'mls', None,
+                         None, 'jrae', uuid=jrae_uuid)
+
+        self.cmd.autocomplete(['mls', 'its'])
+
+        uids = api.unique_identities(self.db, uuid=jrae_uuid)
+        uid = uids[0]
+
+        # Email values on name and username fields are ignored
+        # when the profile is set
+        self.assertEqual(uid.uuid, jrae_uuid)
+        self.assertEqual(uid.profile.name, 'jrae')
+        self.assertEqual(uid.profile.email, None)
+
 
 if __name__ == "__main__":
     unittest.main(buffer=True, exit=False)
