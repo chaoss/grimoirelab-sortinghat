@@ -21,3 +21,8 @@ after_success:
 
 notifications:
   irc: "chat.freenode.net#grimoirelab"
+
+branches:
+  except:
+  - muggle
+
