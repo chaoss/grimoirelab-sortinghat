@@ -1,4 +1,8 @@
-# Sorting Hat [![Build Status](https://travis-ci.org/chaoss/grimoirelab-sortinghat.svg?branch=master)](https://travis-ci.org/chaoss/grimoirelab-sortinghat) [![Coverage Status](https://img.shields.io/coveralls/chaoss/grimoirelab-sortinghat.svg)](https://coveralls.io/r/chaoss/grimoirelab-sortinghat?branch=master)
+# Sorting Hat
+
+**Warning**: This is the developing branch of the new version of Sorting Hat. We're moving Sorting Hat into a service.
+The documentation below would be totally incorrect or inaccurate. 
+
 
 ## Description
 
