@@ -1,0 +1,4 @@
+Django==2.1
+grimoirelab_toolkit>=0.1.8
+mysqlclient==1.3.13
+python-dateutil>=2.6.0
