@@ -102,8 +102,9 @@ class AutoProfile(Command):
                     name = identity.name or identity.username
                 elif identity.name and len(identity.name) > len(name):
                     name = identity.name
+
                 # Do not set email addresses on the name field
-                if email_pattern.match(name):
+                if name and email_pattern.match(name):
                     name = oldname
 
                 if not email and identity.email:

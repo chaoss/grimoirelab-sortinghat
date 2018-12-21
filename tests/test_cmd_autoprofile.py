@@ -146,6 +146,28 @@ class TestAutoProfileCommand(TestAutoProfileCaseBase):
         self.assertEqual(uid.profile.name, 'jrae')
         self.assertEqual(uid.profile.email, None)
 
+    def test_no_error_email_pattern_for_name_profile(self):
+        """Check if does not fail when email pattern is checked with empty values"""
+
+        # None values for name and username
+        jrae_uuid = api.add_identity(self.db, 'mls', 'jrae@example.com',
+                                     None, None)
+        api.add_identity(self.db, 'mls', 'jrae@example.net',
+                         None, '', uuid=jrae_uuid)
+        api.add_identity(self.db, 'mls', 'jrae@example.org',
+                         None, None, uuid=jrae_uuid)
+
+        # Empty values on name and username fields do not crash
+        # when email pattern is check
+        self.cmd.autocomplete(['mls', 'its'])
+
+        uids = api.unique_identities(self.db, uuid=jrae_uuid)
+        uid = uids[0]
+
+        self.assertEqual(uid.uuid, jrae_uuid)
+        self.assertEqual(uid.profile.name, None)
+        self.assertEqual(uid.profile.email, 'jrae@example.net')
+
 
 if __name__ == "__main__":
     unittest.main(buffer=True, exit=False)
