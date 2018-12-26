@@ -1,6 +1,7 @@
 SECRET_KEY = 'fake-key'
 
 INSTALLED_APPS = [
+    'graphene_django',
     'sortinghat.core',
 ]
 
