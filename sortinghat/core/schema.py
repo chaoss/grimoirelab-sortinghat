@@ -23,7 +23,12 @@ import graphene
 from graphene_django.types import DjangoObjectType
 
 from .models import (Organization,
-                     Domain)
+                     Domain,
+                     Country,
+                     UniqueIdentity,
+                     Identity,
+                     Profile,
+                     Enrollment)
 
 
 class OrganizationType(DjangoObjectType):
@@ -36,6 +41,31 @@ class DomainType(DjangoObjectType):
         model = Domain
 
 
+class CountryType(DjangoObjectType):
+    class Meta:
+        model = Country
+
+
+class UniqueIdentityType(DjangoObjectType):
+    class Meta:
+        model = UniqueIdentity
+
+
+class IdentityType(DjangoObjectType):
+    class Meta:
+        model = Identity
+
+
+class ProfileType(DjangoObjectType):
+    class Meta:
+        model = Profile
+
+
+class EnrollmentType(DjangoObjectType):
+    class Meta:
+        model = Enrollment
+
+
 class SortingHatQuery:
     organizations = graphene.List(OrganizationType)
     uidentities = graphene.List(UniqueIdentityType)
@@ -43,3 +73,5 @@ class SortingHatQuery:
     def resolve_organizations(self, info, **kwargs):
         return Organization.objects.order_by('name')
 
+    def resolve_uidentities(self, info, **kwargs):
+        return UniqueIdentity.objects.order_by('uuid')

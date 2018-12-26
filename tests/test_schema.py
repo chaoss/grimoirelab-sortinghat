@@ -29,7 +29,12 @@ import graphene
 import graphene.test
 
 from sortinghat.core.models import (Organization,
-                                    Domain)
+                                    Domain,
+                                    Country,
+                                    UniqueIdentity,
+                                    Identity,
+                                    Profile,
+                                    Enrollment)
 from sortinghat.core.schema import SortingHatQuery
 
 
@@ -40,6 +45,35 @@ SH_ORGS_QUERY = """{
     domains {
       domain
       isTopDomain
+    }
+  }
+}"""
+SH_UIDS_QUERY = """{
+  uidentities {
+    uuid
+    profile {
+      name
+      email
+      gender
+      isBot
+      country {
+        code
+        name
+      }
+    }
+    identities {
+      id
+      name
+      email
+      username
+      source
+    }
+    enrollments {
+      organization {
+        name
+      }
+      start
+      end
     }
   }
 }"""
@@ -93,3 +127,142 @@ class TestSQueryOrganizations(django.test.TestCase):
         orgs = executed['data']['organizations']
         self.assertListEqual(orgs, [])
 
+
+class TestUniqueIdentities(django.test.TestCase):
+    """Unit tests for unique identities queries"""
+
+    def test_unique_identities(self):
+        """Check if it returns the registry of unique identities"""
+
+        cn = Country.objects.create(code='US',
+                                    name='United States of America',
+                                    alpha3='USA')
+
+        org_ex = Organization.objects.create(name='Example')
+        org_bit = Organization.objects.create(name='Bitergia')
+
+        uid = UniqueIdentity.objects.create(uuid='a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        Profile.objects.create(name=None,
+                               email='jsmith@example.com',
+                               is_bot=True,
+                               gender='M',
+                               country=cn,
+                               uidentity=uid)
+        Identity.objects.create(id='A001',
+                                name='John Smith',
+                                email='jsmith@example.com',
+                                username='jsmith',
+                                source='scm',
+                                uidentity=uid)
+        Identity.objects.create(id='A002',
+                                name=None,
+                                email='jsmith@bitergia.com',
+                                username=None,
+                                source='scm',
+                                uidentity=uid)
+        Identity.objects.create(id='A003',
+                                name=None,
+                                email='jsmith@bitergia.com',
+                                username=None,
+                                source='mls',
+                                uidentity=uid)
+        Enrollment.objects.create(uidentity=uid, organization=org_ex)
+        Enrollment.objects.create(uidentity=uid, organization=org_bit,
+                                  start=datetime.datetime(1999, 1, 1, 0, 0, 0,
+                                                          tzinfo=dateutil.tz.tzutc()),
+                                  end=datetime.datetime(2000, 1, 1, 0, 0, 0,
+                                                        tzinfo=dateutil.tz.tzutc()))
+
+        uid = UniqueIdentity.objects.create(uuid='c6d2504fde0e34b78a185c4b709e5442d045451c')
+        Profile.objects.create(email=None,
+                               is_bot=False,
+                               gender='M',
+                               country=None,
+                               uidentity=uid)
+        Identity.objects.create(id='B001',
+                                name='John Doe',
+                                email='jdoe@example.com',
+                                username='jdoe',
+                                source='scm',
+                                uidentity=uid)
+        Identity.objects.create(id='B002',
+                                name=None,
+                                email='jdoe@libresoft.es',
+                                username=None,
+                                source='scm',
+                                uidentity=uid)
+
+        # Tests
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_UIDS_QUERY)
+
+        uidentities = executed['data']['uidentities']
+        self.assertEqual(len(uidentities), 2)
+
+        # Test John Smith unique identity
+        uid = uidentities[0]
+        self.assertEqual(uid['uuid'], 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+
+        self.assertEqual(uid['profile']['name'], None)
+        self.assertEqual(uid['profile']['email'], 'jsmith@example.com')
+        self.assertEqual(uid['profile']['isBot'], True)
+        self.assertEqual(uid['profile']['country']['code'], 'US')
+        self.assertEqual(uid['profile']['country']['name'], 'United States of America')
+
+        identities = uid['identities']
+        identities.sort(key=lambda x: x['id'])
+        self.assertEqual(len(identities), 3)
+
+        id1 = identities[0]
+        self.assertEqual(id1['email'], 'jsmith@example.com')
+
+        id2 = identities[1]
+        self.assertEqual(id2['email'], 'jsmith@bitergia.com')
+        self.assertEqual(id2['source'], 'scm')
+
+        id3 = identities[2]
+        self.assertEqual(id3['email'], 'jsmith@bitergia.com')
+        self.assertEqual(id3['source'], 'mls')
+
+        enrollments = uid['enrollments']
+        enrollments.sort(key=lambda x: x['organization']['name'])
+        self.assertEqual(len(enrollments), 2)
+
+        rol1 = enrollments[0]
+        self.assertEqual(rol1['organization']['name'], 'Bitergia')
+        self.assertEqual(rol1['start'], '1999-01-01T00:00:00+00:00')
+        self.assertEqual(rol1['end'], '2000-01-01T00:00:00+00:00')
+
+        rol2 = enrollments[1]
+        self.assertEqual(rol2['organization']['name'], 'Example')
+        self.assertEqual(rol2['start'], '1900-01-01T00:00:00+00:00')
+        self.assertEqual(rol2['end'], '2100-01-01T00:00:00+00:00')
+
+        # Test John Doe unique identity
+        uid = uidentities[1]
+        self.assertEqual(uid['uuid'], 'c6d2504fde0e34b78a185c4b709e5442d045451c')
+
+        self.assertEqual(uid['profile']['name'], None)
+        self.assertEqual(uid['profile']['email'], None)
+
+        identities = uid['identities']
+        identities.sort(key=lambda x: x['id'])
+        self.assertEqual(len(identities), 2)
+
+        id1 = identities[0]
+        self.assertEqual(id1['email'], 'jdoe@example.com')
+
+        id2 = identities[1]
+        self.assertEqual(id2['email'], 'jdoe@libresoft.es')
+
+        enrollments = uid['enrollments']
+        self.assertEqual(len(enrollments), 0)
+
+    def test_empty_registry(self):
+        """Check whether it returns an empty list when the registry is empty"""
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_UIDS_QUERY)
+
+        uids = executed['data']['uidentities']
+        self.assertListEqual(uids, [])
