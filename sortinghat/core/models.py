@@ -86,6 +86,9 @@ class Organization(ModelBase):
         db_table = 'organizations'
         unique_together = ('name',)
 
+    def __str__(self):
+        return self.name
+
 
 class Domain(ModelBase):
     domain = CharField(max_length=MAX_SIZE_CHAR_FIELD)
@@ -97,6 +100,9 @@ class Domain(ModelBase):
         unique_together = ('domain',)
         ordering = ('domain',)
 
+    def __str__(self):
+        return self.domain
+
 
 class Country(ModelBase):
     code = CharField(max_length=2, primary_key=True)
@@ -107,12 +113,18 @@ class Country(ModelBase):
         db_table = 'countries'
         unique_together = ('alpha3',)
 
+    def __str__(self):
+        return self.name
+
 
 class UniqueIdentity(ModelBase):
     uuid = CharField(max_length=MAX_SIZE_CHAR_FIELD, primary_key=True)
 
     class Meta:
         db_table = 'uidentities'
+
+    def __str__(self):
+        return self.uuid
 
 
 class Identity(ModelBase):
@@ -128,6 +140,9 @@ class Identity(ModelBase):
         db_table = 'identities'
         unique_together = ('name', 'email', 'username', 'source', )
 
+    def __str__(self):
+        return self.id
+
 
 class Profile(ModelBase):
     uidentity = OneToOneField(UniqueIdentity, related_name='profile',
@@ -142,6 +157,9 @@ class Profile(ModelBase):
     class Meta:
         db_table = 'profiles'
 
+    def __str__(self):
+        return self.uidentity.uuid
+
 
 class Enrollment(ModelBase):
     uidentity = ForeignKey(UniqueIdentity, related_name='enrollments',
@@ -154,6 +172,9 @@ class Enrollment(ModelBase):
     class Meta:
         db_table = 'enrollments'
         unique_together = ('uidentity', 'organization', 'start', 'end',)
+
+    def __str__(self):
+        return '%s - %s' % (self.uidentity.uuid, self.organization.name)
 
 
 class MatchingBlacklist(ModelBase):
