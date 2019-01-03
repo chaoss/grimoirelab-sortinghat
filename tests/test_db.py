@@ -34,9 +34,13 @@ from sortinghat.core.models import (Organization,
                                     Enrollment)
 
 
+DUPLICATED_ORG_ERROR = "Organization 'Example' already exists in the registry"
+DUPLICATED_DOM_ERROR = "Domain 'example.org' already exists in the registry"
 NAME_NONE_ERROR = "'name' cannot be None"
 NAME_EMPTY_ERROR = "'name' cannot be an empty string"
-DUPLICATED_ORG_ERROR = "Organization 'Example' already exists in the registry"
+DOMAIN_NAME_NONE_ERROR = "'domain_name' cannot be None"
+DOMAIN_NAME_EMPTY_ERROR = "'domain_name' cannot be an empty string"
+TOP_DOMAIN_VALUE_ERROR = "'is_top_domain' must have a boolean value"
 
 
 class TestAddOrganization(TestCase):
@@ -161,3 +165,91 @@ class TestDeleteOrganization(TestCase):
 
         # Both unique identities were modified at the same time
         self.assertEqual(jsmith.last_modified, jdoe.last_modified)
+
+
+class TestAddDomain(TestCase):
+    """"Unit tests for add_domain"""
+
+    def test_add_domain(self):
+        """Check if a new domain is added"""
+
+        name = 'Example'
+        domain_name = 'example.net'
+
+        org = Organization.objects.create(name=name)
+        dom = db.add_domain(org, domain_name,
+                            is_top_domain=True)
+        self.assertIsInstance(dom, Domain)
+        self.assertEqual(dom.domain, domain_name)
+        self.assertEqual(dom.organization, org)
+
+        org = Organization.objects.get(name='Example')
+        domains = org.domains.all()
+        self.assertEqual(len(domains), 1)
+
+        dom = domains[0]
+        self.assertIsInstance(dom, Domain)
+        self.assertEqual(dom.domain, domain_name)
+        self.assertEqual(dom.is_top_domain, True)
+
+    def test_add_multiple_domains(self):
+        """Check if multiple domains can be added"""
+
+        org = Organization.objects.create(name='Example')
+        db.add_domain(org, 'example.com',
+                      is_top_domain=True)
+        db.add_domain(org, 'my.example.net')
+
+        org = Organization.objects.get(name='Example')
+        domains = org.domains.all()
+        self.assertIsInstance(org, Organization)
+        self.assertEqual(org.name, 'Example')
+
+        self.assertEqual(len(domains), 2)
+
+        dom = domains[0]
+        self.assertIsInstance(dom, Domain)
+        self.assertEqual(dom.domain, 'example.com')
+        self.assertEqual(dom.is_top_domain, True)
+
+        dom = domains[1]
+        self.assertIsInstance(dom, Domain)
+        self.assertEqual(dom.domain, 'my.example.net')
+        self.assertEqual(dom.is_top_domain, False)
+
+    def test_domain_none(self):
+        """Check whether domains with None name cannot be added"""
+
+        org = Organization.objects.create(name='Example')
+
+        with self.assertRaisesRegex(ValueError, DOMAIN_NAME_NONE_ERROR):
+            db.add_domain(org, None)
+
+    def test_domain_empty(self):
+        """Check whether domains with empty names cannot be added"""
+
+        org = Organization.objects.create(name='Example')
+
+        with self.assertRaisesRegex(ValueError, DOMAIN_NAME_EMPTY_ERROR):
+            db.add_domain(org, '')
+
+    def test_top_domain_invalid_type(self):
+        """Check type values of top domain flag"""
+
+        org = Organization.objects.create(name='Example')
+
+        with self.assertRaisesRegex(ValueError, TOP_DOMAIN_VALUE_ERROR):
+            db.add_domain(org, 'example.net', is_top_domain=1)
+
+        with self.assertRaisesRegex(ValueError, TOP_DOMAIN_VALUE_ERROR):
+            db.add_domain(org, 'example.net', is_top_domain='False')
+
+    def test_integrity_error(self):
+        """Check whether domains with the same domain name cannot be inserted"""
+
+        org = Organization.objects.create(name='Example')
+        domain_name = 'example.org'
+
+        with self.assertRaisesRegex(AlreadyExistsError, DUPLICATED_DOM_ERROR):
+            db.add_domain(org, domain_name)
+            db.add_domain(org, domain_name)

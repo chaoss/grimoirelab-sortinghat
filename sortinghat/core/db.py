@@ -26,7 +26,7 @@ import django.db.utils
 from grimoirelab_toolkit.datetime import datetime_utcnow
 
 from .errors import AlreadyExistsError
-from .models import Organization, UniqueIdentity
+from .models import Organization, Domain, UniqueIdentity
 
 
 def add_organization(name):
@@ -39,6 +39,7 @@ def add_organization(name):
     It returns a new `Organization` object.
 
     :param name: name of the organization
+
     :returns: a new organization
 
     :raises ValueError: when `name` is `None` or empty.
@@ -74,6 +75,46 @@ def delete_organization(organization):
         update(last_modified=last_modified)
 
     organization.delete()
+
+
+def add_domain(organization, domain_name, is_top_domain=False):
+    """Add a domain to the database.
+
+    This function adds a new domain to the database using
+    `domain_name` as its identifier. The new domain will
+    also be linked to the organization object in `organization`.
+
+    Values assigned to `domain_name` cannot be `None` or empty.
+    The parameter `is_top_domain` only accepts `bool` values.
+
+    As a result, the function returns a new `Domain` object.
+
+    :param organization: links the new domain to this organization object
+    :param domain_name: name of the domain
+    :param is_top_domain: set this domain as a top domain
+
+    :returns: a new domain
+
+    :raises ValueError: raised when `domain_name` is `None` or an empty string;
+        when `is_top_domain` does not have a `bool` value.
+    """
+    if domain_name is None:
+        raise ValueError("'domain_name' cannot be None")
+    if domain_name == '':
+        raise ValueError("'domain_name' cannot be an empty string")
+    if not isinstance(is_top_domain, bool):
+        raise ValueError("'is_top_domain' must have a boolean value")
+
+    domain = Domain(domain=domain_name,
+                    is_top_domain=is_top_domain,
+                    organization=organization)
+
+    try:
+        domain.save()
+    except django.db.utils.IntegrityError as exc:
+        _handle_integrity_error(Domain, exc)
+
+    return domain
 
 
 _MYSQL_DUPLICATE_ENTRY_ERROR_REGEX = re.compile(r"Duplicate entry '(?P<value>.+)' for key")
