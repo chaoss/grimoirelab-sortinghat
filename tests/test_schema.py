@@ -35,7 +35,11 @@ from sortinghat.core.models import (Organization,
                                     Identity,
                                     Profile,
                                     Enrollment)
-from sortinghat.core.schema import SortingHatQuery
+from sortinghat.core.schema import SortingHatQuery, SortingHatMutations
+
+
+DUPLICATED_ORG_ERROR = "Organization 'Example' already exists in the registry"
+NAME_EMPTY_ERROR = "'name' cannot be an empty string"
 
 
 # Test queries
@@ -83,10 +87,15 @@ class TestQuery(SortingHatQuery, graphene.ObjectType):
     pass
 
 
-schema = graphene.Schema(query=TestQuery)
+class TestMutations(SortingHatMutations):
+    pass
 
 
-class TestSQueryOrganizations(django.test.TestCase):
+schema = graphene.Schema(query=TestQuery,
+                         mutation=TestMutations)
+
+
+class TestQueryOrganizations(django.test.TestCase):
     """Unit tests for organization queries"""
 
     def test_organizations(self):
@@ -266,3 +275,81 @@ class TestUniqueIdentities(django.test.TestCase):
 
         uids = executed['data']['uidentities']
         self.assertListEqual(uids, [])
+
+
+class TestAddOrganizationMutation(django.test.TestCase):
+    """Unit tests for mutation to add organizations"""
+
+    SH_ADD_ORG = """
+      mutation addOrg {
+        addOrganization(name: "Example") {
+          organization {
+            name
+            domains {
+              domain
+              isTopDomain
+            }
+          }
+        }
+      }
+    """
+
+    SH_ADD_ORG_NAME_EMPTY = """
+      mutation addOrg {
+        addOrganization(name: "") {
+          organization {
+            name
+            domains {
+              domain
+              isTopDomain
+            }
+          }
+        }
+      }
+    """
+
+    def test_add_organization(self):
+        """Check if a new organization is added"""
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_ADD_ORG)
+
+        # Check result
+        org = executed['data']['addOrganization']['organization']
+        self.assertEqual(org['name'], 'Example')
+        self.assertListEqual(org['domains'], [])
+
+        # Check database
+        org = Organization.objects.get(name='Example')
+        self.assertEqual(org.name, 'Example')
+
+    def test_name_empty(self):
+        """Check whether organizations with empty names cannot be added"""
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_ADD_ORG_NAME_EMPTY)
+
+        # Check error
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, NAME_EMPTY_ERROR)
+
+        # Check database
+        orgs = Organization.objects.all()
+        self.assertEqual(len(orgs), 0)
+
+    def test_integrity_error(self):
+        """Check whether organizations with the same name cannot be inserted"""
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_ADD_ORG)
+
+        # Check database
+        org = Organization.objects.get(name='Example')
+        self.assertEqual(org.name, 'Example')
+
+        # Try to insert it twice
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_ADD_ORG)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, DUPLICATED_ORG_ERROR)

@@ -22,6 +22,7 @@
 import graphene
 from graphene_django.types import DjangoObjectType
 
+from .db import add_organization
 from .models import (Organization,
                      Domain,
                      Country,
@@ -64,6 +65,24 @@ class ProfileType(DjangoObjectType):
 class EnrollmentType(DjangoObjectType):
     class Meta:
         model = Enrollment
+
+
+class AddOrganization(graphene.Mutation):
+    class Arguments:
+        name = graphene.String()
+
+    organization = graphene.Field(lambda: OrganizationType)
+
+    def mutate(self, info, name):
+        org = add_organization(name)
+
+        return AddOrganization(
+            organization=org
+        )
+
+
+class SortingHatMutations(graphene.ObjectType):
+    add_organization = AddOrganization.Field()
 
 
 class SortingHatQuery:

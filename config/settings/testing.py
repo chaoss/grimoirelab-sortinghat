@@ -1,3 +1,13 @@
+import sys
+import logging
+
+# Graphene logs SortingHat exceptions and Django pritns them
+# to the standard error output. This code prevents Django
+# kind of errors are not shown.
+if len(sys.argv) > 1 and sys.argv[1] == 'test':
+    logging.disable(logging.CRITICAL)
+
+
 SECRET_KEY = 'fake-key'
 
 INSTALLED_APPS = [
