@@ -253,3 +253,28 @@ class TestAddDomain(TestCase):
         with self.assertRaisesRegex(AlreadyExistsError, DUPLICATED_DOM_ERROR):
             db.add_domain(org, domain_name)
             db.add_domain(org, domain_name)
+
+
+class TestDeleteDomain(TestCase):
+    """Unit tests for delete_domain"""
+
+    def test_delete_domain(self):
+        """Check whether it deletes a domain"""
+
+        org = Organization.objects.create(name='Example')
+        dom = Domain.objects.create(domain='example.org', organization=org)
+        Domain.objects.create(domain='example.com', organization=org)
+
+        # Check data and remove domain
+        org.refresh_from_db()
+        self.assertEqual(len(org.domains.all()), 2)
+
+        dom.refresh_from_db()
+        db.delete_domain(dom)
+
+        # Tests
+        with self.assertRaises(ObjectDoesNotExist):
+            Domain.objects.get(domain='example.org')
+
+        org.refresh_from_db()
+        self.assertEqual(len(org.domains.all()), 1)

@@ -117,6 +117,16 @@ def add_domain(organization, domain_name, is_top_domain=False):
     return domain
 
 
+def delete_domain(domain):
+    """Remove a domain from the database.
+
+    Deletes from the database the domain given in `domain`.
+
+    :param domain: domain to remove
+    """
+    domain.delete()
+
+
 _MYSQL_DUPLICATE_ENTRY_ERROR_REGEX = re.compile(r"Duplicate entry '(?P<value>.+)' for key")
 
 
