@@ -23,8 +23,10 @@ import re
 
 import django.db.utils
 
+from grimoirelab_toolkit.datetime import datetime_utcnow
+
 from .errors import AlreadyExistsError
-from .models import Organization
+from .models import Organization, UniqueIdentity
 
 
 def add_organization(name):
@@ -57,6 +59,21 @@ def add_organization(name):
 
     return organization
 
+
+def delete_organization(organization):
+    """Remove an organization from the database.
+
+    Function that removes from the database the organization
+    given in `organization`. Data related such as domains
+    or enrollments are also removed.
+
+    :param organization: organization to remove
+    """
+    last_modified = datetime_utcnow()
+    UniqueIdentity.objects.filter(enrollments__organization=organization).\
+        update(last_modified=last_modified)
+
+    organization.delete()
 
 
 _MYSQL_DUPLICATE_ENTRY_ERROR_REGEX = re.compile(r"Duplicate entry '(?P<value>.+)' for key")

@@ -20,11 +20,18 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
+
+from grimoirelab_toolkit.datetime import datetime_utcnow
 
 from sortinghat.core import db
 from sortinghat.core.errors import AlreadyExistsError
-from sortinghat.core.models import Organization
+from sortinghat.core.models import (Organization,
+                                    Domain,
+                                    UniqueIdentity,
+                                    Profile,
+                                    Enrollment)
 
 
 NAME_NONE_ERROR = "'name' cannot be None"
@@ -69,3 +76,88 @@ class TestAddOrganization(TestCase):
             db.add_organization(name)
             db.add_organization(name)
 
+
+class TestDeleteOrganization(TestCase):
+    """Unit tests for delete_organization"""
+
+    def test_delete_organization(self):
+        """Check whether it deletes an organization and its related data"""
+
+        org_ex = Organization.objects.create(name='Example')
+        Domain.objects.create(domain='example.org',
+                              organization=org_ex)
+        org_bit = Organization.objects.create(name='Bitergia')
+
+        jsmith = UniqueIdentity.objects.create(uuid='AAAA')
+        Profile.objects.create(name='John Smith',
+                               email='jsmith@example.net',
+                               uidentity=jsmith)
+        Enrollment.objects.create(uidentity=jsmith, organization=org_ex)
+
+        jdoe = UniqueIdentity.objects.create(uuid='BBBB')
+        Profile.objects.create(name='John Doe',
+                               email='jdoe@bitergia.com',
+                               uidentity=jdoe)
+        Enrollment.objects.create(uidentity=jdoe, organization=org_ex)
+        Enrollment.objects.create(uidentity=jdoe, organization=org_bit)
+
+        # Check data and remove organization
+        org_ex.refresh_from_db()
+        self.assertEqual(len(org_ex.domains.all()), 1)
+        self.assertEqual(len(org_ex.enrollments.all()), 2)
+
+        org_bit.refresh_from_db()
+        self.assertEqual(len(org_bit.enrollments.all()), 1)
+
+        db.delete_organization(org_ex)
+
+        # Tests
+        with self.assertRaises(ObjectDoesNotExist):
+            Organization.objects.get(name='Example')
+
+        with self.assertRaises(ObjectDoesNotExist):
+            Domain.objects.get(domain='example.org')
+
+        enrollments = Enrollment.objects.filter(organization__name='Example')
+        self.assertEqual(len(enrollments), 0)
+
+        enrollments = Enrollment.objects.filter(organization__name='Bitergia')
+        self.assertEqual(len(enrollments), 1)
+
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
+
+        org_ex = Organization.objects.create(name='Example')
+        org_bit = Organization.objects.create(name='Bitergia')
+
+        jsmith = UniqueIdentity.objects.create(uuid='AAAA')
+        Profile.objects.create(name='John Smith',
+                               email='jsmith@example.net',
+                               uidentity=jsmith)
+        Enrollment.objects.create(uidentity=jsmith,
+                                  organization=org_ex)
+
+        jdoe = UniqueIdentity.objects.create(uuid='BBBB')
+        Profile.objects.create(name='John Doe',
+                               email='jdoe@bitergia.com',
+                               uidentity=jdoe)
+        Enrollment.objects.create(uidentity=jdoe,
+                                  organization=org_ex)
+        Enrollment.objects.create(uidentity=jdoe,
+                                  organization=org_bit)
+
+        # Tests
+        before_dt = datetime_utcnow()
+        db.delete_organization(org_ex)
+        after_dt = datetime_utcnow()
+
+        jsmith = UniqueIdentity.objects.get(uuid='AAAA')
+        self.assertLessEqual(before_dt, jsmith.last_modified)
+        self.assertGreaterEqual(after_dt, jsmith.last_modified)
+
+        jdoe = UniqueIdentity.objects.get(uuid='BBBB')
+        self.assertLessEqual(before_dt, jdoe.last_modified)
+        self.assertGreaterEqual(after_dt, jdoe.last_modified)
+
+        # Both unique identities were modified at the same time
+        self.assertEqual(jsmith.last_modified, jdoe.last_modified)
