@@ -22,7 +22,7 @@
 import graphene
 from graphene_django.types import DjangoObjectType
 
-from .db import add_organization
+from .db import add_organization, delete_organization
 from .models import (Organization,
                      Domain,
                      Country,
@@ -81,8 +81,24 @@ class AddOrganization(graphene.Mutation):
         )
 
 
+class DeleteOrganization(graphene.Mutation):
+    class Arguments:
+        name = graphene.String()
+
+    organization = graphene.Field(lambda: OrganizationType)
+
+    def mutate(self, info, name):
+        org = Organization.objects.get(name=name)
+        delete_organization(org)
+
+        return DeleteOrganization(
+            organization=org
+        )
+
+
 class SortingHatMutations(graphene.ObjectType):
     add_organization = AddOrganization.Field()
+    delete_organization = DeleteOrganization.Field()
 
 
 class SortingHatQuery:

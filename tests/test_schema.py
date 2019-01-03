@@ -24,6 +24,7 @@ import datetime
 
 import dateutil
 
+import django.core.exceptions
 import django.test
 import graphene
 import graphene.test
@@ -40,6 +41,7 @@ from sortinghat.core.schema import SortingHatQuery, SortingHatMutations
 
 DUPLICATED_ORG_ERROR = "Organization 'Example' already exists in the registry"
 NAME_EMPTY_ERROR = "'name' cannot be an empty string"
+ORG_DOES_NOT_EXIST_ERROR = "Organization matching query does not exist."
 
 
 # Test queries
@@ -353,3 +355,78 @@ class TestAddOrganizationMutation(django.test.TestCase):
 
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, DUPLICATED_ORG_ERROR)
+
+
+class TestDeleteOrganizationMutation(django.test.TestCase):
+    """Unit tests for mutation to delete organizations"""
+
+    SH_DELETE_ORG = """
+      mutation delOrg {
+        deleteOrganization(name: "Example") {
+          organization {
+            name
+          }
+        }
+      }
+    """
+
+    def test_delete_organization(self):
+        """Check whether it deletes an organization"""
+
+        org_ex = Organization.objects.create(name='Example')
+        Domain.objects.create(domain='example.org',
+                              organization=org_ex)
+        org_bit = Organization.objects.create(name='Bitergia')
+
+        jsmith = UniqueIdentity.objects.create(uuid='AAAA')
+        Profile.objects.create(name='John Smith',
+                               email='jsmith@example.net',
+                               uidentity=jsmith)
+        Enrollment.objects.create(uidentity=jsmith, organization=org_ex)
+
+        jdoe = UniqueIdentity.objects.create(uuid='BBBB')
+        Profile.objects.create(name='John Doe',
+                               email='jdoe@bitergia.com',
+                               uidentity=jdoe)
+        Enrollment.objects.create(uidentity=jdoe, organization=org_ex)
+        Enrollment.objects.create(uidentity=jdoe, organization=org_bit)
+
+        # Delete organization
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_DELETE_ORG)
+
+        # Check result
+        org = executed['data']['deleteOrganization']['organization']
+        self.assertEqual(org['name'], 'Example')
+
+        # Tests
+        with self.assertRaises(django.core.exceptions.ObjectDoesNotExist):
+            Organization.objects.get(name='Example')
+
+        with self.assertRaises(django.core.exceptions.ObjectDoesNotExist):
+            Domain.objects.get(domain='example.org')
+
+        enrollments = Enrollment.objects.filter(organization__name='Example')
+        self.assertEqual(len(enrollments), 0)
+
+        enrollments = Enrollment.objects.filter(organization__name='Bitergia')
+        self.assertEqual(len(enrollments), 1)
+
+    def test_not_found_organization(self):
+        """Check if it returns an error when an organization does not exist"""
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_DELETE_ORG)
+
+        # Check error
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, ORG_DOES_NOT_EXIST_ERROR)
+
+        # It should not remove anything
+        Organization.objects.create(name='Bitergia')
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, ORG_DOES_NOT_EXIST_ERROR)
+
+        orgs = Organization.objects.all()
+        self.assertEqual(len(orgs), 1)
