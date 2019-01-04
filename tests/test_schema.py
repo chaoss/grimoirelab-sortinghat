@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2018 Bitergia
+# Copyright (C) 2014-2019 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@ from sortinghat.core.models import (Organization,
                                     Identity,
                                     Profile,
                                     Enrollment)
-from sortinghat.core.schema import SortingHatQuery, SortingHatMutations
+from sortinghat.core.schema import SortingHatQuery, SortingHatMutation
 
 
 DUPLICATED_ORG_ERROR = "Organization 'Example' already exists in the registry"
@@ -44,6 +44,7 @@ DUPLICATED_DOM_ERROR = "Domain 'example.net' already exists in the registry"
 NAME_EMPTY_ERROR = "'name' cannot be an empty string"
 DOMAIN_NAME_EMPTY_ERROR = "'domain_name' cannot be an empty string"
 ORG_DOES_NOT_EXIST_ERROR = "Organization matching query does not exist."
+DOMAIN_DOES_NOT_EXIST_ERROR = "Domain matching query does not exist."
 
 
 # Test queries
@@ -91,7 +92,7 @@ class TestQuery(SortingHatQuery, graphene.ObjectType):
     pass
 
 
-class TestMutations(SortingHatMutations):
+class TestMutations(SortingHatMutation):
     pass
 
 
@@ -555,3 +556,60 @@ class TestAddDomainMutation(django.test.TestCase):
         # Check error
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, ORG_DOES_NOT_EXIST_ERROR)
+
+
+class TestDeleteDomainMutation(django.test.TestCase):
+    """Unit tests for mutation to delete domains"""
+
+    SH_DELETE_DOMAIN = """
+      mutation delDom {
+        deleteDomain(domain: "example.net") {
+          domain {
+            domain
+            isTopDomain
+          }
+        }
+      }
+    """
+
+    def test_delete_domain(self):
+        """Check whether it deletes a domain"""
+
+        org = Organization.objects.create(name='Example')
+        Domain.objects.create(domain='example.net', organization=org)
+        Domain.objects.create(domain='example.com', organization=org)
+
+        # Delete organization
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_DELETE_DOMAIN)
+
+        # Check result
+        dom = executed['data']['deleteDomain']['domain']
+        self.assertEqual(dom['domain'], 'example.net')
+
+        # Tests
+        with self.assertRaises(django.core.exceptions.ObjectDoesNotExist):
+            Domain.objects.get(domain='example.net')
+
+        domains = Domain.objects.all()
+        self.assertEqual(len(domains), 1)
+
+    def test_not_found_domain(self):
+        """Check if it returns an error when a domain does not exist"""
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_DELETE_DOMAIN)
+
+        # Check error
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, DOMAIN_DOES_NOT_EXIST_ERROR)
+
+        # It should not remove anything
+        org = Organization.objects.create(name='Bitergia')
+        Domain.objects.create(domain='example.com', organization=org)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, DOMAIN_DOES_NOT_EXIST_ERROR)
+
+        domains = Domain.objects.all()
+        self.assertEqual(len(domains), 1)

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2018 Bitergia
+# Copyright (C) 2014-2019 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,7 +24,8 @@ from graphene_django.types import DjangoObjectType
 
 from .db import (add_organization,
                  delete_organization,
-                 add_domain)
+                 add_domain,
+                 delete_domain)
 from .models import (Organization,
                      Domain,
                      Country,
@@ -115,10 +116,19 @@ class AddDomain(graphene.Mutation):
         )
 
 
-class SortingHatMutations(graphene.ObjectType):
-    add_organization = AddOrganization.Field()
-    delete_organization = DeleteOrganization.Field()
-    add_domain = AddDomain.Field()
+class DeleteDomain(graphene.Mutation):
+    class Arguments:
+        domain = graphene.String()
+
+    domain = graphene.Field(lambda: DomainType)
+
+    def mutate(self, info, domain):
+        dom = Domain.objects.get(domain=domain)
+        delete_domain(dom)
+
+        return DeleteDomain(
+            domain=dom
+        )
 
 
 class SortingHatQuery:
@@ -130,3 +140,10 @@ class SortingHatQuery:
 
     def resolve_uidentities(self, info, **kwargs):
         return UniqueIdentity.objects.order_by('uuid')
+
+
+class SortingHatMutation(graphene.ObjectType):
+    add_organization = AddOrganization.Field()
+    delete_organization = DeleteOrganization.Field()
+    add_domain = AddDomain.Field()
+    delete_domain = DeleteDomain.Field()
