@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2018 Bitergia
+# Copyright (C) 2014-2019 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -30,4 +30,5 @@ class Query(sortinghat.core.schema.SortingHatQuery, graphene.ObjectType):
     pass
 
 
-schema = graphene.Schema(query=Query)
+schema = graphene.Schema(query=Query,
+                         mutation=sortinghat.core.schema.SortingHatMutation)

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2018 Bitergia
+# Copyright (C) 2014-2019 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,6 +22,10 @@
 import graphene
 from graphene_django.types import DjangoObjectType
 
+from .db import (add_organization,
+                 delete_organization,
+                 add_domain,
+                 delete_domain)
 from .models import (Organization,
                      Domain,
                      Country,
@@ -66,6 +70,67 @@ class EnrollmentType(DjangoObjectType):
         model = Enrollment
 
 
+class AddOrganization(graphene.Mutation):
+    class Arguments:
+        name = graphene.String()
+
+    organization = graphene.Field(lambda: OrganizationType)
+
+    def mutate(self, info, name):
+        org = add_organization(name)
+
+        return AddOrganization(
+            organization=org
+        )
+
+
+class DeleteOrganization(graphene.Mutation):
+    class Arguments:
+        name = graphene.String()
+
+    organization = graphene.Field(lambda: OrganizationType)
+
+    def mutate(self, info, name):
+        org = Organization.objects.get(name=name)
+        delete_organization(org)
+
+        return DeleteOrganization(
+            organization=org
+        )
+
+
+class AddDomain(graphene.Mutation):
+    class Arguments:
+        organization = graphene.String()
+        domain = graphene.String()
+        is_top_domain = graphene.Boolean()
+
+    domain = graphene.Field(lambda: DomainType)
+
+    def mutate(self, info, organization, domain, is_top_domain=False):
+        org = Organization.objects.get(name=organization)
+        dom = add_domain(org, domain, is_top_domain=is_top_domain)
+
+        return AddDomain(
+            domain=dom
+        )
+
+
+class DeleteDomain(graphene.Mutation):
+    class Arguments:
+        domain = graphene.String()
+
+    domain = graphene.Field(lambda: DomainType)
+
+    def mutate(self, info, domain):
+        dom = Domain.objects.get(domain=domain)
+        delete_domain(dom)
+
+        return DeleteDomain(
+            domain=dom
+        )
+
+
 class SortingHatQuery:
     organizations = graphene.List(OrganizationType)
     uidentities = graphene.List(UniqueIdentityType)
@@ -75,3 +140,10 @@ class SortingHatQuery:
 
     def resolve_uidentities(self, info, **kwargs):
         return UniqueIdentity.objects.order_by('uuid')
+
+
+class SortingHatMutation(graphene.ObjectType):
+    add_organization = AddOrganization.Field()
+    delete_organization = DeleteOrganization.Field()
+    add_domain = AddDomain.Field()
+    delete_domain = DeleteDomain.Field()

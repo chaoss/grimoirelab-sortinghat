@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2018 Bitergia
+# Copyright (C) 2014-2019 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ import datetime
 
 import dateutil
 
+import django.core.exceptions
 import django.test
 import graphene
 import graphene.test
@@ -35,7 +36,15 @@ from sortinghat.core.models import (Organization,
                                     Identity,
                                     Profile,
                                     Enrollment)
-from sortinghat.core.schema import SortingHatQuery
+from sortinghat.core.schema import SortingHatQuery, SortingHatMutation
+
+
+DUPLICATED_ORG_ERROR = "Organization 'Example' already exists in the registry"
+DUPLICATED_DOM_ERROR = "Domain 'example.net' already exists in the registry"
+NAME_EMPTY_ERROR = "'name' cannot be an empty string"
+DOMAIN_NAME_EMPTY_ERROR = "'domain_name' cannot be an empty string"
+ORG_DOES_NOT_EXIST_ERROR = "Organization matching query does not exist."
+DOMAIN_DOES_NOT_EXIST_ERROR = "Domain matching query does not exist."
 
 
 # Test queries
@@ -83,10 +92,15 @@ class TestQuery(SortingHatQuery, graphene.ObjectType):
     pass
 
 
-schema = graphene.Schema(query=TestQuery)
+class TestMutations(SortingHatMutation):
+    pass
 
 
-class TestSQueryOrganizations(django.test.TestCase):
+schema = graphene.Schema(query=TestQuery,
+                         mutation=TestMutations)
+
+
+class TestQueryOrganizations(django.test.TestCase):
     """Unit tests for organization queries"""
 
     def test_organizations(self):
@@ -266,3 +280,336 @@ class TestUniqueIdentities(django.test.TestCase):
 
         uids = executed['data']['uidentities']
         self.assertListEqual(uids, [])
+
+
+class TestAddOrganizationMutation(django.test.TestCase):
+    """Unit tests for mutation to add organizations"""
+
+    SH_ADD_ORG = """
+      mutation addOrg {
+        addOrganization(name: "Example") {
+          organization {
+            name
+            domains {
+              domain
+              isTopDomain
+            }
+          }
+        }
+      }
+    """
+
+    SH_ADD_ORG_NAME_EMPTY = """
+      mutation addOrg {
+        addOrganization(name: "") {
+          organization {
+            name
+            domains {
+              domain
+              isTopDomain
+            }
+          }
+        }
+      }
+    """
+
+    def test_add_organization(self):
+        """Check if a new organization is added"""
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_ADD_ORG)
+
+        # Check result
+        org = executed['data']['addOrganization']['organization']
+        self.assertEqual(org['name'], 'Example')
+        self.assertListEqual(org['domains'], [])
+
+        # Check database
+        org = Organization.objects.get(name='Example')
+        self.assertEqual(org.name, 'Example')
+
+    def test_name_empty(self):
+        """Check whether organizations with empty names cannot be added"""
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_ADD_ORG_NAME_EMPTY)
+
+        # Check error
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, NAME_EMPTY_ERROR)
+
+        # Check database
+        orgs = Organization.objects.all()
+        self.assertEqual(len(orgs), 0)
+
+    def test_integrity_error(self):
+        """Check whether organizations with the same name cannot be inserted"""
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_ADD_ORG)
+
+        # Check database
+        org = Organization.objects.get(name='Example')
+        self.assertEqual(org.name, 'Example')
+
+        # Try to insert it twice
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_ADD_ORG)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, DUPLICATED_ORG_ERROR)
+
+
+class TestDeleteOrganizationMutation(django.test.TestCase):
+    """Unit tests for mutation to delete organizations"""
+
+    SH_DELETE_ORG = """
+      mutation delOrg {
+        deleteOrganization(name: "Example") {
+          organization {
+            name
+          }
+        }
+      }
+    """
+
+    def test_delete_organization(self):
+        """Check whether it deletes an organization"""
+
+        org_ex = Organization.objects.create(name='Example')
+        Domain.objects.create(domain='example.org',
+                              organization=org_ex)
+        org_bit = Organization.objects.create(name='Bitergia')
+
+        jsmith = UniqueIdentity.objects.create(uuid='AAAA')
+        Profile.objects.create(name='John Smith',
+                               email='jsmith@example.net',
+                               uidentity=jsmith)
+        Enrollment.objects.create(uidentity=jsmith, organization=org_ex)
+
+        jdoe = UniqueIdentity.objects.create(uuid='BBBB')
+        Profile.objects.create(name='John Doe',
+                               email='jdoe@bitergia.com',
+                               uidentity=jdoe)
+        Enrollment.objects.create(uidentity=jdoe, organization=org_ex)
+        Enrollment.objects.create(uidentity=jdoe, organization=org_bit)
+
+        # Delete organization
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_DELETE_ORG)
+
+        # Check result
+        org = executed['data']['deleteOrganization']['organization']
+        self.assertEqual(org['name'], 'Example')
+
+        # Tests
+        with self.assertRaises(django.core.exceptions.ObjectDoesNotExist):
+            Organization.objects.get(name='Example')
+
+        with self.assertRaises(django.core.exceptions.ObjectDoesNotExist):
+            Domain.objects.get(domain='example.org')
+
+        enrollments = Enrollment.objects.filter(organization__name='Example')
+        self.assertEqual(len(enrollments), 0)
+
+        enrollments = Enrollment.objects.filter(organization__name='Bitergia')
+        self.assertEqual(len(enrollments), 1)
+
+    def test_not_found_organization(self):
+        """Check if it returns an error when an organization does not exist"""
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_DELETE_ORG)
+
+        # Check error
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, ORG_DOES_NOT_EXIST_ERROR)
+
+        # It should not remove anything
+        Organization.objects.create(name='Bitergia')
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, ORG_DOES_NOT_EXIST_ERROR)
+
+        orgs = Organization.objects.all()
+        self.assertEqual(len(orgs), 1)
+
+
+class TestAddDomainMutation(django.test.TestCase):
+    """Unit tests for mutation to add domains"""
+
+    SH_ADD_DOMAIN = """
+      mutation addDom {
+        addDomain(organization: "Example",
+                  domain: "example.net"
+                  isTopDomain: true)
+        {
+          domain {
+            domain
+            isTopDomain
+            organization {
+              name
+            }
+          }
+        }
+      }
+    """
+
+    SH_ADD_DOMAIN_EMPTY = """
+      mutation addDom {
+        addDomain(organization: "Example",
+                  domain: ""
+                  isTopDomain: true)
+        {
+          domain {
+            domain
+            isTopDomain
+            organization {
+              name
+            }
+          }
+        }
+      }
+    """
+
+    def test_add_domain(self):
+        """Check if a new domain is added"""
+
+        Organization.objects.create(name='Example')
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_ADD_DOMAIN)
+
+        # Check result
+        dom = executed['data']['addDomain']['domain']
+        self.assertEqual(dom['domain'], 'example.net')
+        self.assertEqual(dom['isTopDomain'], True)
+        self.assertEqual(dom['organization']['name'], 'Example')
+
+        # Check database
+        org = Organization.objects.get(name='Example')
+        domains = org.domains.all()
+        self.assertEqual(len(domains), 1)
+
+        dom = domains[0]
+        self.assertEqual(dom.domain, 'example.net')
+        self.assertEqual(dom.is_top_domain, True)
+
+    def test_domain_empty(self):
+        """Check whether domains with empty names cannot be added"""
+
+        Organization.objects.create(name='Example')
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_ADD_DOMAIN_EMPTY)
+
+        # Check error
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, DOMAIN_NAME_EMPTY_ERROR)
+
+        # Check database
+        domains = Domain.objects.all()
+        self.assertEqual(len(domains), 0)
+
+    def test_integrity_error(self):
+        """Check whether domains with the same domain name cannot be inserted"""
+
+        client = graphene.test.Client(schema)
+        client.execute(self.SH_ADD_ORG)
+
+        # Check database
+        org = Organization.objects.get(name='Example')
+        self.assertEqual(org.name, 'Example')
+
+        # Try to insert it twice
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_ADD_ORG)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, DUPLICATED_ORG_ERROR)
+
+    def test_integrity_error(self):
+        """Check whether domains with the same domain name cannot be inserted"""
+
+        Organization.objects.create(name='Example')
+
+        client = graphene.test.Client(schema)
+        client.execute(self.SH_ADD_DOMAIN)
+
+        # Check database
+        dom = Domain.objects.get(domain='example.net')
+        self.assertEqual(dom.domain, 'example.net')
+
+        # Try to insert it twice
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_ADD_DOMAIN)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, DUPLICATED_DOM_ERROR)
+
+    def test_not_found_organization(self):
+        """Check if it returns an error when an organization does not exist"""
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_ADD_DOMAIN)
+
+        # Check error
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, ORG_DOES_NOT_EXIST_ERROR)
+
+
+class TestDeleteDomainMutation(django.test.TestCase):
+    """Unit tests for mutation to delete domains"""
+
+    SH_DELETE_DOMAIN = """
+      mutation delDom {
+        deleteDomain(domain: "example.net") {
+          domain {
+            domain
+            isTopDomain
+          }
+        }
+      }
+    """
+
+    def test_delete_domain(self):
+        """Check whether it deletes a domain"""
+
+        org = Organization.objects.create(name='Example')
+        Domain.objects.create(domain='example.net', organization=org)
+        Domain.objects.create(domain='example.com', organization=org)
+
+        # Delete organization
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_DELETE_DOMAIN)
+
+        # Check result
+        dom = executed['data']['deleteDomain']['domain']
+        self.assertEqual(dom['domain'], 'example.net')
+
+        # Tests
+        with self.assertRaises(django.core.exceptions.ObjectDoesNotExist):
+            Domain.objects.get(domain='example.net')
+
+        domains = Domain.objects.all()
+        self.assertEqual(len(domains), 1)
+
+    def test_not_found_domain(self):
+        """Check if it returns an error when a domain does not exist"""
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_DELETE_DOMAIN)
+
+        # Check error
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, DOMAIN_DOES_NOT_EXIST_ERROR)
+
+        # It should not remove anything
+        org = Organization.objects.create(name='Bitergia')
+        Domain.objects.create(domain='example.com', organization=org)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, DOMAIN_DOES_NOT_EXIST_ERROR)
+
+        domains = Domain.objects.all()
+        self.assertEqual(len(domains), 1)
