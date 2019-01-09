@@ -36,11 +36,14 @@ from sortinghat.core.models import (Organization,
 
 DUPLICATED_ORG_ERROR = "Organization 'Example' already exists in the registry"
 DUPLICATED_DOM_ERROR = "Domain 'example.org' already exists in the registry"
+DUPLICATED_UID_ERROR = "UniqueIdentity '1234567890ABCDFE' already exists in the registry"
 NAME_NONE_ERROR = "'name' cannot be None"
 NAME_EMPTY_ERROR = "'name' cannot be an empty string"
 DOMAIN_NAME_NONE_ERROR = "'domain_name' cannot be None"
 DOMAIN_NAME_EMPTY_ERROR = "'domain_name' cannot be an empty string"
 TOP_DOMAIN_VALUE_ERROR = "'is_top_domain' must have a boolean value"
+UUID_NONE_ERROR = "'uuid' cannot be None"
+UUID_EMPTY_ERROR = "'uuid' cannot be an empty string"
 
 
 class TestAddOrganization(TestCase):
@@ -278,3 +281,62 @@ class TestDeleteDomain(TestCase):
 
         org.refresh_from_db()
         self.assertEqual(len(org.domains.all()), 1)
+
+
+class TestAddUniqueIdentity(TestCase):
+    """Unit tests for add_unique_identity"""
+
+    def test_add_unique_identity(self):
+        """Check whether it adds a unique identity"""
+
+        uuid = '1234567890ABCDFE'
+
+        uidentity = db.add_unique_identity(uuid)
+        self.assertIsInstance(uidentity, UniqueIdentity)
+        self.assertEqual(uidentity.uuid, uuid)
+
+        uidentity = UniqueIdentity.objects.get(uuid=uuid)
+        self.assertIsInstance(uidentity, UniqueIdentity)
+        self.assertEqual(uidentity.uuid, uuid)
+
+        self.assertIsInstance(uidentity.profile, Profile)
+        self.assertEqual(uidentity.profile.name, None)
+        self.assertEqual(uidentity.profile.email, None)
+
+    def test_add_unique_identities(self):
+        """Check whether it adds a set of unique identities"""
+
+        uuids = ['AAAA', 'BBBB', 'CCCC']
+
+        for uuid in uuids:
+            db.add_unique_identity(uuid)
+
+        for uuid in uuids:
+            uidentity = UniqueIdentity.objects.get(uuid=uuid)
+            self.assertIsInstance(uidentity, UniqueIdentity)
+            self.assertEqual(uidentity.uuid, uuid)
+
+            self.assertIsInstance(uidentity.profile, Profile)
+            self.assertEqual(uidentity.profile.name, None)
+            self.assertEqual(uidentity.profile.email, None)
+
+    def test_uuid_none(self):
+        """Check whether a unique identity with None as UUID cannot be added"""
+
+        with self.assertRaisesRegex(ValueError, UUID_NONE_ERROR):
+            db.add_unique_identity(None)
+
+    def test_uuid_empty(self):
+        """Check whether a unique identity with empty UUID cannot be added"""
+
+        with self.assertRaisesRegex(ValueError, UUID_EMPTY_ERROR):
+            db.add_unique_identity('')
+
+    def test_integrity_error(self):
+        """Check whether unique identities with the same UUID cannot be inserted"""
+
+        uuid = '1234567890ABCDFE'
+
+        with self.assertRaisesRegex(AlreadyExistsError, DUPLICATED_UID_ERROR):
+            db.add_unique_identity(uuid)
+            db.add_unique_identity(uuid)

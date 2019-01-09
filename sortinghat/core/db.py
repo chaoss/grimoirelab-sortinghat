@@ -26,7 +26,7 @@ import django.db.utils
 from grimoirelab_toolkit.datetime import datetime_utcnow
 
 from .errors import AlreadyExistsError
-from .models import Organization, Domain, UniqueIdentity
+from .models import Organization, Domain, UniqueIdentity, Profile
 
 
 def add_organization(name):
@@ -125,6 +125,49 @@ def delete_domain(domain):
     :param domain: domain to remove
     """
     domain.delete()
+
+
+def add_unique_identity(uuid):
+    """Add a unique identity to the database.
+
+    This function adds a unique identity to the database with
+    `uuid` string as unique identifier. This identifier cannot
+    be empty or `None`.
+
+    When the unique identity is added, a new empty profile for
+    this object is created too.
+
+    As a result, the function returns a new `UniqueIdentity`
+    object.
+
+    :param uuid: unique identifier for the unique identity
+
+    :returns: a new unique identity
+
+    :raises ValueError: when `uuid` is `None` or an empty string
+    """
+    if uuid is None:
+        raise ValueError("'uuid' cannot be None")
+    if uuid == '':
+        raise ValueError("'uuid' cannot be an empty string")
+
+    uidentity = UniqueIdentity(uuid=uuid)
+
+    try:
+        uidentity.save(force_insert=True)
+    except django.db.utils.IntegrityError as exc:
+        _handle_integrity_error(UniqueIdentity, exc)
+
+    profile = Profile(uidentity=uidentity)
+
+    try:
+        profile.save()
+    except django.db.utils.IntegrityError as exc:
+        _handle_integrity_error(Profile, exc)
+
+    uidentity.refresh_from_db()
+
+    return uidentity
 
 
 _MYSQL_DUPLICATE_ENTRY_ERROR_REGEX = re.compile(r"Duplicate entry '(?P<value>.+)' for key")
