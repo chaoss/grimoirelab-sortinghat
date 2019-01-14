@@ -27,7 +27,6 @@ from sortinghat.core.utils import unaccent_string
 UNACCENT_TYPE_ERROR = "argument must be a string; int given"
 
 
-
 class TestUnnacentString(TestCase):
     """Unit tests for unaccent_string"""
 
@@ -48,4 +47,3 @@ class TestUnnacentString(TestCase):
 
         with self.assertRaisesRegex(TypeError, UNACCENT_TYPE_ERROR):
             unaccent_string(1234)
-
