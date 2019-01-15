@@ -21,6 +21,12 @@
 
 import hashlib
 
+import django.db.transaction
+
+from .db import (find_unique_identity,
+                 add_unique_identity as add_unique_identity_db,
+                 add_identity as add_identity_db)
+from .errors import InvalidValueError
 from .utils import unaccent_string
 
 
@@ -63,11 +69,11 @@ def generate_uuid(source, email=None, name=None, username=None):
             return s
 
     if source is None:
-        raise ValueError("source cannot be None")
+        raise ValueError("'source' cannot be None")
     if source == '':
-        raise ValueError("source cannot be an empty string")
+        raise ValueError("'source' cannot be an empty string")
     if not (email or name or username):
-        raise ValueError("identity data cannot be None or empty")
+        raise ValueError("identity data cannot be empty")
 
     s = ':'.join((to_str(source),
                   to_str(email),
@@ -79,3 +85,70 @@ def generate_uuid(source, email=None, name=None, username=None):
     uuid = sha1.hexdigest()
 
     return uuid
+
+
+@django.db.transaction.atomic
+def add_identity(source, name=None, email=None, username=None, uuid=None):
+    """Add an identity to the registry.
+
+    This function adds a new identity to the registry. By default,
+    a new unique identity will be also added and associated to
+    the new identity.
+
+    When `uuid` parameter is set, it creates a new identity that
+    will be associated to the unique identity defined by this
+    identifier. This identifier must exist on the registry.
+    If it does not exist, the function will raise a `NotFoundError`
+    exception.
+
+    When no `uuid` is given, both new unique identity and identity
+    will have the same identifier.
+
+    The registry considers that two identities are distinct when
+    any value of the tuple (source, email, name, username) is
+    different. Thus, the identities:
+
+        `id1:('scm', 'jsmith@example.com', 'John Smith', 'jsmith')`
+        `id2:('mls', 'jsmith@example.com', 'John Smith', 'jsmith')`
+
+    will be registered as different identities. An `AlreadyExistError`
+    exception will be raised when the function tries to insert a
+    tuple that exists in the registry.
+
+    The function returns the new identity associated to the new
+    registered identity.
+
+    :param source: data source
+    :param name: full name of the identity
+    :param email: email of the identity
+    :param username: user name used by the identity
+    :param uuid: associates the new identity to the unique identity
+        identified by this id
+
+    :returns: a universal unique identifier
+
+    :raises InvalidValueError: when `source` is `None` or empty;
+        when all the identity parameters are `None` or empty.
+    :raises AlreadyExistsError: raised when the identity already
+        exists in the registry.
+    :raises NotFoundError: raised when the unique identity
+        associated to the given `uuid` is not in the registry.
+    """
+    try:
+        id_ = generate_uuid(source, email=email,
+                            name=name, username=username)
+    except ValueError as e:
+        raise InvalidValueError(msg=str(e))
+
+    if not uuid:
+        uidentity = add_unique_identity_db(id_)
+    else:
+        uidentity = find_unique_identity(uuid)
+
+    try:
+        identity = add_identity_db(uidentity, id_, source,
+                                   name=name, email=email, username=username)
+    except ValueError as e:
+        raise InvalidValueError(msg=str(e))
+
+    return identity
