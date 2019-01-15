@@ -22,7 +22,10 @@
 
 from django.test import TestCase
 
-from sortinghat.core.errors import BaseError, AlreadyExistsError
+from sortinghat.core.errors import (BaseError,
+                                    AlreadyExistsError,
+                                    NotFoundError,
+                                    InvalidValueError)
 
 
 # Mock classes to test BaseError class
@@ -97,3 +100,40 @@ class TestAlreadyExistsError(TestCase):
 
         kwargs = {}
         self.assertRaises(KeyError, AlreadyExistsError, **kwargs)
+
+
+class TestNotFoundError(TestCase):
+    """Unit tests for NotFoundError"""
+
+    def test_message(self):
+        """Make sure that prints the right error"""
+
+        e = NotFoundError(entity='example.com')
+        self.assertEqual("example.com not found in the registry",
+                         str(e))
+
+    def test_no_args(self):
+        """Check when required arguments are not given.
+
+        When this happens, it raises a KeyError exception.
+        """
+        kwargs = {}
+        self.assertRaises(KeyError, NotFoundError, **kwargs)
+
+
+class TestInvalidValueError(TestCase):
+    """Unit tests for InvalidValueError"""
+
+    def test_message(self):
+        """Make sure that prints the right error"""
+
+        e = InvalidValueError(msg="invalid value")
+        self.assertEqual("invalid value", str(e))
+
+    def test_no_args(self):
+        """Check when required arguments are not given.
+
+        When this happens, it raises a KeyError exception.
+        """
+        kwargs = {}
+        self.assertRaises(KeyError, InvalidValueError, **kwargs)
