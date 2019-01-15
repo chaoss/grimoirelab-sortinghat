@@ -26,7 +26,7 @@ from django.test import TestCase
 from grimoirelab_toolkit.datetime import datetime_utcnow
 
 from sortinghat.core import db
-from sortinghat.core.errors import AlreadyExistsError
+from sortinghat.core.errors import AlreadyExistsError, NotFoundError
 from sortinghat.core.models import (Organization,
                                     Domain,
                                     UniqueIdentity,
@@ -52,6 +52,30 @@ IDENTITY_ID_EMPTY_ERROR = "'identity_id' cannot be an empty string"
 SOURCE_NONE_ERROR = "'source' cannot be None"
 SOURCE_EMPTY_ERROR = "'source' cannot be an empty string"
 IDENTITY_DATA_NONE_OR_EMPTY_ERROR = "identity data cannot be None or empty"
+UNIQUE_IDENTITY_NOT_FOUND_ERROR = "zyxwuv not found in the registry"
+
+
+class TestFindUniqueIdentity(TestCase):
+    """Unit tests for find_unique_identity"""
+
+    def test_find_unique_identity(self):
+        """Test if a unique identity is found by its UUID"""
+
+        uuid = 'abcdefghijklmnopqrstuvwxyz'
+        UniqueIdentity.objects.create(uuid=uuid)
+
+        uidentity = db.find_unique_identity(uuid)
+        self.assertIsInstance(uidentity, UniqueIdentity)
+        self.assertEqual(uidentity.uuid, uuid)
+
+    def test_unique_identity_not_found(self):
+        """Test whether it raises an exception when the unique identity is not found"""
+
+        uuid = 'abcdefghijklmnopqrstuvwxyz'
+        UniqueIdentity.objects.create(uuid=uuid)
+
+        with self.assertRaisesRegex(NotFoundError, UNIQUE_IDENTITY_NOT_FOUND_ERROR):
+            db.find_unique_identity('zyxwuv')
 
 
 class TestAddOrganization(TestCase):

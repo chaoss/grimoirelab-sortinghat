@@ -25,12 +25,34 @@ import django.db.utils
 
 from grimoirelab_toolkit.datetime import datetime_utcnow
 
-from .errors import AlreadyExistsError
+from .errors import AlreadyExistsError, NotFoundError
 from .models import (Organization,
                      Domain,
                      UniqueIdentity,
                      Identity,
                      Profile)
+
+
+def find_unique_identity(uuid):
+    """Find a unique identity.
+
+    Find a unique identity by its UUID in the database.
+    When the unique identity does not exist the function will
+    raise a `NotFoundException`.
+
+    :param uuid: id of the unique identity to find
+
+    :returns: a unique identity object
+
+    :raises NotFoundError: when the unique identity with
+        the given `uuid` does not exists.
+    """
+    try:
+        uidentity = UniqueIdentity.objects.get(uuid=uuid)
+    except UniqueIdentity.DoesNotExist:
+        raise NotFoundError(entity=uuid)
+    else:
+        return uidentity
 
 
 def add_organization(name):
