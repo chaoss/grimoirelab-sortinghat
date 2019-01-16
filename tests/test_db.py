@@ -374,6 +374,80 @@ class TestAddUniqueIdentity(TestCase):
             db.add_unique_identity(uuid)
 
 
+class TestDeleteUniqueIdentity(TestCase):
+    """Unit tests for delete_unique_identity"""
+
+    def test_delete_unique_identity(self):
+        """Check if it deletes a unique identity"""
+
+        org_ex = Organization.objects.create(name='Example')
+        org_bit = Organization.objects.create(name='Bitergia')
+
+        jsmith = UniqueIdentity.objects.create(uuid='AAAA')
+        Profile.objects.create(name='John Smith',
+                               email='jsmith@example.net',
+                               uidentity=jsmith)
+        Identity.objects.create(id='0001', name='John Smith',
+                                uidentity=jsmith)
+        Identity.objects.create(id='0002', email='jsmith@example.net',
+                                uidentity=jsmith)
+        Identity.objects.create(id='0003', email='jsmith@example.org',
+                                uidentity=jsmith)
+        Enrollment.objects.create(uidentity=jsmith, organization=org_ex)
+
+        jdoe = UniqueIdentity.objects.create(uuid='BBBB')
+        Profile.objects.create(name='John Doe',
+                               email='jdoe@bitergia.com',
+                               uidentity=jdoe)
+        Identity.objects.create(id='0004', name='John Doe',
+                                email='jdoe@bitergia.com',
+                                uidentity=jdoe)
+        Enrollment.objects.create(uidentity=jdoe, organization=org_ex)
+        Enrollment.objects.create(uidentity=jdoe, organization=org_bit)
+
+        # Check data and remove unique identity
+        jsmith.refresh_from_db()
+        self.assertEqual(len(jsmith.identities.all()), 3)
+        self.assertEqual(len(jsmith.enrollments.all()), 1)
+
+        jdoe.refresh_from_db()
+        self.assertEqual(len(jdoe.identities.all()), 1)
+        self.assertEqual(len(jdoe.enrollments.all()), 2)
+
+        db.delete_unique_identity(jsmith)
+
+        # Tests
+        with self.assertRaises(ObjectDoesNotExist):
+            UniqueIdentity.objects.get(uuid='AAAA')
+
+        self.assertEqual(len(Identity.objects.all()), 1)
+        self.assertEqual(len(Enrollment.objects.all()), 2)
+
+        jdoe.refresh_from_db()
+        self.assertEqual(len(jdoe.identities.all()), 1)
+        self.assertEqual(len(jdoe.enrollments.all()), 2)
+
+    def test_delete_unique_identities(self):
+        """Check if it deletes a set of unique identities"""
+
+        uuids = ['AAAA', 'BBBB', 'CCCC']
+
+        for uuid in uuids:
+            UniqueIdentity.objects.create(uuid=uuid)
+
+        self.assertEqual(len(UniqueIdentity.objects.all()), len(uuids))
+
+        for uuid in uuids:
+            uidentity = UniqueIdentity.objects.get(uuid=uuid)
+
+            db.delete_unique_identity(uidentity)
+
+            with self.assertRaises(ObjectDoesNotExist):
+                UniqueIdentity.objects.get(uuid=uuid)
+
+        self.assertEqual(len(UniqueIdentity.objects.all()), 0)
+
+
 class TestAddIdentity(TestCase):
     """Unit tests for add_identity"""
 

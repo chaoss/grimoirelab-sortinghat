@@ -196,6 +196,18 @@ def add_unique_identity(uuid):
     return uidentity
 
 
+def delete_unique_identity(uidentity):
+    """Remove a unique identity from the database.
+
+    Function that removes from the database the unique identity
+    given in `uidentity`. Data related to this identity will be
+    also removed.
+
+    :param uidentity: unique identity to remove
+    """
+    uidentity.delete()
+
+
 def add_identity(uidentity, identity_id, source,
                  name=None, email=None, username=None):
     """Add an identity to the database.
