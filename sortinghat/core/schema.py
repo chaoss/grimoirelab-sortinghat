@@ -22,6 +22,7 @@
 import graphene
 from graphene_django.types import DjangoObjectType
 
+from .api import add_identity
 from .db import (add_organization,
                  delete_organization,
                  add_domain,
@@ -131,6 +132,32 @@ class DeleteDomain(graphene.Mutation):
         )
 
 
+class AddIdentity(graphene.Mutation):
+    class Arguments:
+        source = graphene.String()
+        name = graphene.String()
+        email = graphene.String()
+        username = graphene.String()
+        uuid = graphene.String()
+
+    uuid = graphene.Field(lambda: graphene.String)
+    identity = graphene.Field(lambda: IdentityType)
+
+    def mutate(self, info, source,
+               name=None, email=None, username=None,
+               uuid=None):
+        identity = add_identity(source,
+                                name=name,
+                                email=email,
+                                username=username,
+                                uuid=uuid)
+
+        return AddIdentity(
+            uuid=identity.uidentity.uuid,
+            identity=identity
+        )
+
+
 class SortingHatQuery:
     organizations = graphene.List(OrganizationType)
     uidentities = graphene.List(UniqueIdentityType)
@@ -147,3 +174,4 @@ class SortingHatMutation(graphene.ObjectType):
     delete_organization = DeleteOrganization.Field()
     add_domain = AddDomain.Field()
     delete_domain = DeleteDomain.Field()
+    add_identity = AddIdentity.Field()

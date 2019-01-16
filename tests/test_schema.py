@@ -41,10 +41,14 @@ from sortinghat.core.schema import SortingHatQuery, SortingHatMutation
 
 DUPLICATED_ORG_ERROR = "Organization 'Example' already exists in the registry"
 DUPLICATED_DOM_ERROR = "Domain 'example.net' already exists in the registry"
+DUPLICATED_UNIQUE_IDENTITY = "UniqueIdentity 'eda9f62ad321b1fbe5f283cc05e2484516203117' already exists in the registry"
 NAME_EMPTY_ERROR = "'name' cannot be an empty string"
 DOMAIN_NAME_EMPTY_ERROR = "'domain_name' cannot be an empty string"
+SOURCE_EMPTY_ERROR = "'source' cannot be an empty string"
+IDENTITY_EMPTY_DATA_ERROR = 'identity data cannot be empty'
 ORG_DOES_NOT_EXIST_ERROR = "Organization matching query does not exist."
 DOMAIN_DOES_NOT_EXIST_ERROR = "Domain matching query does not exist."
+UID_DOES_NOT_EXIST_ERROR = "FFFFFFFFFFFFFFF not found in the registry"
 
 
 # Test queries
@@ -514,23 +518,6 @@ class TestAddDomainMutation(django.test.TestCase):
     def test_integrity_error(self):
         """Check whether domains with the same domain name cannot be inserted"""
 
-        client = graphene.test.Client(schema)
-        client.execute(self.SH_ADD_ORG)
-
-        # Check database
-        org = Organization.objects.get(name='Example')
-        self.assertEqual(org.name, 'Example')
-
-        # Try to insert it twice
-        client = graphene.test.Client(schema)
-        executed = client.execute(self.SH_ADD_ORG)
-
-        msg = executed['errors'][0]['message']
-        self.assertEqual(msg, DUPLICATED_ORG_ERROR)
-
-    def test_integrity_error(self):
-        """Check whether domains with the same domain name cannot be inserted"""
-
         Organization.objects.create(name='Example')
 
         client = graphene.test.Client(schema)
@@ -613,3 +600,197 @@ class TestDeleteDomainMutation(django.test.TestCase):
 
         domains = Domain.objects.all()
         self.assertEqual(len(domains), 1)
+
+
+class TestAddIdentityMutation(django.test.TestCase):
+    """Unit tests for mutation to add identities"""
+
+    SH_ADD_IDENTITY = """
+      mutation addId(
+        $source: String,
+        $name: String,
+        $email: String,
+        $username: String
+        $uuid: String) {
+          addIdentity(
+            source: $source
+            name: $name
+            email: $email
+            username: $username
+            uuid: $uuid) {
+              uuid
+              identity {
+                id
+                name
+                email
+                username
+                source
+            }
+          }
+        }
+    """
+
+    def test_add_new_identities(self):
+        """Check if everything goes OK when adding new identities"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'source': 'scm',
+            'name': 'Jane Roe',
+            'email': 'jroe@example.com',
+            'username': 'jrae',
+        }
+        executed = client.execute(self.SH_ADD_IDENTITY, variables=params)
+
+        # Check results
+        identity = executed['data']['addIdentity']['identity']
+        self.assertEqual(identity['id'], 'eda9f62ad321b1fbe5f283cc05e2484516203117')
+        self.assertEqual(identity['source'], 'scm')
+        self.assertEqual(identity['name'], 'Jane Roe')
+        self.assertEqual(identity['email'], 'jroe@example.com')
+        self.assertEqual(identity['username'], 'jrae')
+
+        uuid = executed['data']['addIdentity']['uuid']
+        self.assertEqual(uuid, 'eda9f62ad321b1fbe5f283cc05e2484516203117')
+
+        # Check database
+        uidentity = UniqueIdentity.objects.get(uuid='eda9f62ad321b1fbe5f283cc05e2484516203117')
+        self.assertEqual(uidentity.uuid, identity['id'])
+
+        identities = Identity.objects.filter(id=identity['id'])
+        self.assertEqual(len(identities), 1)
+
+        id0 = identities[0]
+        self.assertEqual(id0.source, identity['source'])
+        self.assertEqual(id0.name, identity['name'])
+        self.assertEqual(id0.email, identity['email'])
+        self.assertEqual(id0.username, identity['username'])
+
+    def test_add_existing_uuid(self):
+        """Check it it adds an identity to an existing unique identity"""
+
+        uidentity = UniqueIdentity.objects.create(uuid='eda9f62ad321b1fbe5f283cc05e2484516203117')
+        Identity.objects.create(id='eda9f62ad321b1fbe5f283cc05e2484516203117', source='scm',
+                                name='Jane Roe', email='jroe@example.com', username='jrae',
+                                uidentity=uidentity)
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'source': 'mls',
+            'name': 'Jane Roe',
+            'email': 'jroe@example.com',
+            'username': 'jrae',
+            'uuid': 'eda9f62ad321b1fbe5f283cc05e2484516203117'
+        }
+        executed = client.execute(self.SH_ADD_IDENTITY, variables=params)
+
+        # Check results
+        identity = executed['data']['addIdentity']['identity']
+        self.assertEqual(identity['id'], '55d88f85a41f3a9afa4dc9d4dfb6009c62f42fe3')
+        self.assertEqual(identity['source'], 'mls')
+        self.assertEqual(identity['name'], 'Jane Roe')
+        self.assertEqual(identity['email'], 'jroe@example.com')
+        self.assertEqual(identity['username'], 'jrae')
+
+        uuid = executed['data']['addIdentity']['uuid']
+        self.assertEqual(uuid, 'eda9f62ad321b1fbe5f283cc05e2484516203117')
+
+        # Check database
+        identities = Identity.objects.filter(uidentity__uuid='eda9f62ad321b1fbe5f283cc05e2484516203117')
+        self.assertEqual(len(identities), 2)
+
+    def test_non_existing_uuid(self):
+        """Check if it fails adding identities to unique identities that do not exist"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'source': 'mls',
+            'email': 'jroe@example.com',
+            'uuid': 'FFFFFFFFFFFFFFF'
+        }
+        executed = client.execute(self.SH_ADD_IDENTITY, variables=params)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, UID_DOES_NOT_EXIST_ERROR)
+
+    def test_integrity_error(self):
+        """Check if it fails adding an identity that already exists"""
+
+        uidentity = UniqueIdentity.objects.create(uuid='eda9f62ad321b1fbe5f283cc05e2484516203117')
+        Identity.objects.create(id='eda9f62ad321b1fbe5f283cc05e2484516203117', source='scm',
+                                name='Jane Roe', email='jroe@example.com', username='jrae',
+                                uidentity=uidentity)
+
+        client = graphene.test.Client(schema)
+
+        # Tests
+        params = {
+            'source': 'scm',
+            'name': 'Jane Roe',
+            'email': 'jroe@example.com',
+            'username': 'jrae',
+        }
+        executed = client.execute(self.SH_ADD_IDENTITY, variables=params)
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, DUPLICATED_UNIQUE_IDENTITY)
+
+        # Different case letters, but same identity
+        params = {
+            'source': 'scm',
+            'name': 'jane roe',
+            'email': 'jroe@example.com',
+            'username': 'jrae',
+        }
+        executed = client.execute(self.SH_ADD_IDENTITY, variables=params)
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, DUPLICATED_UNIQUE_IDENTITY)
+
+        # Different accents, but same identity
+        params = {
+            'source': 'scm',
+            'name': 'Jane Röe',
+            'email': 'jroe@example.com',
+            'username': 'jrae',
+        }
+        executed = client.execute(self.SH_ADD_IDENTITY, variables=params)
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, DUPLICATED_UNIQUE_IDENTITY)
+
+    def test_empty_source(self):
+        """Check whether new identities cannot be added when giving an empty source"""
+
+        client = graphene.test.Client(schema)
+
+        params = {'source': ''}
+        executed = client.execute(self.SH_ADD_IDENTITY, variables=params)
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, SOURCE_EMPTY_ERROR)
+
+    def test_none_or_empty_data(self):
+        """Check whether new identities cannot be added when identity data is None or empty"""
+
+        client = graphene.test.Client(schema)
+
+        # Tests
+        params = {
+            'source': 'scm',
+            'name': '',
+            'email': None,
+            'username': None,
+        }
+        executed = client.execute(self.SH_ADD_IDENTITY, variables=params)
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, IDENTITY_EMPTY_DATA_ERROR)
+
+        params = {
+            'source': 'scm',
+            'name': '',
+            'email': '',
+            'username': '',
+        }
+        executed = client.execute(self.SH_ADD_IDENTITY, variables=params)
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, IDENTITY_EMPTY_DATA_ERROR)
