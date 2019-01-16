@@ -25,8 +25,34 @@ import django.db.utils
 
 from grimoirelab_toolkit.datetime import datetime_utcnow
 
-from .errors import AlreadyExistsError
-from .models import Organization, Domain, UniqueIdentity
+from .errors import AlreadyExistsError, NotFoundError
+from .models import (Organization,
+                     Domain,
+                     UniqueIdentity,
+                     Identity,
+                     Profile)
+
+
+def find_unique_identity(uuid):
+    """Find a unique identity.
+
+    Find a unique identity by its UUID in the database.
+    When the unique identity does not exist the function will
+    raise a `NotFoundException`.
+
+    :param uuid: id of the unique identity to find
+
+    :returns: a unique identity object
+
+    :raises NotFoundError: when the unique identity with
+        the given `uuid` does not exists.
+    """
+    try:
+        uidentity = UniqueIdentity.objects.get(uuid=uuid)
+    except UniqueIdentity.DoesNotExist:
+        raise NotFoundError(entity=uuid)
+    else:
+        return uidentity
 
 
 def add_organization(name):
@@ -125,6 +151,98 @@ def delete_domain(domain):
     :param domain: domain to remove
     """
     domain.delete()
+
+
+def add_unique_identity(uuid):
+    """Add a unique identity to the database.
+
+    This function adds a unique identity to the database with
+    `uuid` string as unique identifier. This identifier cannot
+    be empty or `None`.
+
+    When the unique identity is added, a new empty profile for
+    this object is created too.
+
+    As a result, the function returns a new `UniqueIdentity`
+    object.
+
+    :param uuid: unique identifier for the unique identity
+
+    :returns: a new unique identity
+
+    :raises ValueError: when `uuid` is `None` or an empty string
+    """
+    if uuid is None:
+        raise ValueError("'uuid' cannot be None")
+    if uuid == '':
+        raise ValueError("'uuid' cannot be an empty string")
+
+    uidentity = UniqueIdentity(uuid=uuid)
+
+    try:
+        uidentity.save(force_insert=True)
+    except django.db.utils.IntegrityError as exc:
+        _handle_integrity_error(UniqueIdentity, exc)
+
+    profile = Profile(uidentity=uidentity)
+
+    try:
+        profile.save()
+    except django.db.utils.IntegrityError as exc:
+        _handle_integrity_error(Profile, exc)
+
+    uidentity.refresh_from_db()
+
+    return uidentity
+
+
+def add_identity(uidentity, identity_id, source,
+                 name=None, email=None, username=None):
+    """Add an identity to the database.
+
+    This function adds a new identity to the database using
+    `identity_id` as its identifier. The new identity will
+    also be linked to the unique identity object of `uidentity`.
+
+    Neither the values given to `identity_id` nor to `source` can
+    be `None` or empty. Moreover, `name`, `email` or `username`
+    parameters need a non empty value.
+
+    As a result, the function returns a new `Identity` object.
+
+    :param uidentity: links the new identity to this unique identity object
+    :param identity_id: identifier for the new identity
+    :param source: data source where this identity was found
+    :param name: full name of the identity
+    :param email: email of the identity
+    :param username: user name used by the identity
+
+    :returns: a new identity
+
+    :raises ValueError: when `identity_id` and `source` are `None` or empty;
+        when all of the data parameters are `None` or empty.
+    """
+    if identity_id is None:
+        raise ValueError("'identity_id' cannot be None")
+    if identity_id == '':
+        raise ValueError("'identity_id' cannot be an empty string")
+    if source is None:
+        raise ValueError("'source' cannot be None")
+    if source == '':
+        raise ValueError("'source' cannot be an empty string")
+    if not (name or email or username):
+        raise ValueError("identity data cannot be None or empty")
+
+    try:
+        identity = Identity(id=identity_id, name=name, email=email,
+                            username=username, source=source,
+                            uidentity=uidentity)
+        identity.save(force_insert=True)
+        uidentity.save()
+    except django.db.utils.IntegrityError as exc:
+        _handle_integrity_error(Identity, exc)
+
+    return identity
 
 
 _MYSQL_DUPLICATE_ENTRY_ERROR_REGEX = re.compile(r"Duplicate entry '(?P<value>.+)' for key")

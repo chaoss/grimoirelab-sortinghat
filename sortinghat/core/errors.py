@@ -22,6 +22,8 @@
 
 CODE_BASE_ERROR = 1
 CODE_ALREADY_EXISTS_ERROR = 2
+CODE_NOT_FOUND_ERROR = 9
+CODE_VALUE_ERROR = 10
 
 
 class BaseError(Exception):
@@ -54,3 +56,17 @@ class AlreadyExistsError(BaseError):
         super().__init__(**kwargs)
         self.entity = kwargs['entity']
         self.eid = kwargs['eid']
+
+
+class NotFoundError(BaseError):
+    """Exception raised when an entity is not found in the registry"""
+
+    message = "%(entity)s not found in the registry"
+    code = CODE_NOT_FOUND_ERROR
+
+
+class InvalidValueError(BaseError):
+    """Exception raised when a value is invalid"""
+
+    code = CODE_VALUE_ERROR
+    message = "%(msg)s"
