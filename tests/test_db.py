@@ -632,3 +632,58 @@ class TestAddIdentity(TestCase):
                             name='John Smith',
                             email='jsmith@example.org',
                             username='jsmith')
+
+
+class TestDeleteIdentity(TestCase):
+    """Unit tests for delete_identity"""
+
+    def test_delete_identity(self):
+        """Check whether it deletes an identity"""
+
+        jsmith = UniqueIdentity.objects.create(uuid='AAAA')
+        Identity.objects.create(id='0001', name='John Smith',
+                                uidentity=jsmith)
+        Identity.objects.create(id='0002', email='jsmith@example.net',
+                                uidentity=jsmith)
+        Identity.objects.create(id='0003', email='jsmith@example.org',
+                                uidentity=jsmith)
+
+        # Check data and remove identity
+        jsmith.refresh_from_db()
+        self.assertEqual(len(jsmith.identities.all()), 3)
+
+        identity = Identity.objects.get(id='0002')
+        db.delete_identity(identity)
+
+        # Tests
+        with self.assertRaises(ObjectDoesNotExist):
+            Identity.objects.get(id='0002')
+
+        jsmith.refresh_from_db()
+        self.assertEqual(len(jsmith.identities.all()), 2)
+
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
+
+        jsmith = UniqueIdentity.objects.create(uuid='AAAA')
+        Identity.objects.create(id='0001', name='John Smith',
+                                uidentity=jsmith)
+        Identity.objects.create(id='0002', email='jsmith@example.net',
+                                uidentity=jsmith)
+        Identity.objects.create(id='0003', email='jsmith@example.org',
+                                uidentity=jsmith)
+
+        before_dt = datetime_utcnow()
+        identity = Identity.objects.get(id='0001')
+        db.delete_identity(identity)
+        after_dt = datetime_utcnow()
+
+        # Tests
+        uidentity = UniqueIdentity.objects.get(uuid='AAAA')
+        self.assertEqual(len(uidentity.identities.all()), 2)
+        self.assertLessEqual(before_dt, uidentity.last_modified)
+        self.assertGreaterEqual(after_dt, uidentity.last_modified)
+
+        identity = Identity.objects.get(id='0002')
+        self.assertLessEqual(identity.last_modified, before_dt)
+        self.assertLessEqual(identity.last_modified, after_dt)

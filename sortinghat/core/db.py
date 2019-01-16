@@ -257,6 +257,19 @@ def add_identity(uidentity, identity_id, source,
     return identity
 
 
+def delete_identity(identity):
+    """Remove an identity from the database.
+
+    This function removes from the database the identity given
+    in `identity`. Take into account this function does not
+    remove unique identities in the case they get empty.
+
+    :param identity: identity to remove
+    """
+    identity.delete()
+    identity.uidentity.save()
+
+
 _MYSQL_DUPLICATE_ENTRY_ERROR_REGEX = re.compile(r"Duplicate entry '(?P<value>.+)' for key")
 
 
