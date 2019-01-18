@@ -171,7 +171,7 @@ not work. Please update your code to 3.4 or newer versions.
 
 SortingHat databases previous to 0.7.0 are compatible but UTF-8 4-bytes
 characters will not be inserted in the database and causing errors. For this
-reason, it is recommendable to update its schema. The fastest way is to
+reason, it is recommended to update its schema. The fastest way is to
 dump the data into a file, regenerate the database with `init` command
 and restore the data from the dump.
 
@@ -382,7 +382,7 @@ $ sortinghat load identities.json
 * requests >= 2.9
 * urllib3 >= 1.22
 
-You will also need a MySQL Python driver to connect with the database server. We recommend to use one these packages:
+You will also need a MySQL Python driver to connect with the database server. We recommend using one these packages:
 
 * PyMySQL
 
