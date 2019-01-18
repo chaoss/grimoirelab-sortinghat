@@ -382,7 +382,7 @@ $ sortinghat load identities.json
 * requests >= 2.9
 * urllib3 >= 1.22
 
-You will also need a MySQL Python driver to connect with the database server. We recommend to use one these packages:
+You will also need a MySQL Python driver to connect with the database server. We recommend using one these packages:
 
 * PyMySQL
 
