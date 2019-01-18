@@ -141,7 +141,7 @@ def configure_logging(debug=False):
 
 
 def read_config_file(filepath):
-    config = configparser.SafeConfigParser()
+    config = configparser.ConfigParser()
     config.read(filepath)
 
     if 'db' in config.sections():
