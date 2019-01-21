@@ -53,6 +53,7 @@ SOURCE_NONE_ERROR = "'source' cannot be None"
 SOURCE_EMPTY_ERROR = "'source' cannot be an empty string"
 IDENTITY_DATA_NONE_OR_EMPTY_ERROR = "identity data cannot be None or empty"
 UNIQUE_IDENTITY_NOT_FOUND_ERROR = "zyxwuv not found in the registry"
+IDENTITY_NOT_FOUND_ERROR = "zyxwuv not found in the registry"
 
 
 class TestFindUniqueIdentity(TestCase):
@@ -76,6 +77,31 @@ class TestFindUniqueIdentity(TestCase):
 
         with self.assertRaisesRegex(NotFoundError, UNIQUE_IDENTITY_NOT_FOUND_ERROR):
             db.find_unique_identity('zyxwuv')
+
+
+class TestFindIdentity(TestCase):
+    """Unit tests for find_identity"""
+
+    def test_find_identity(self):
+        """Test if an identity is found by its UUID"""
+
+        uuid = 'abcdefghijklmnopqrstuvwxyz'
+        uidentity = UniqueIdentity.objects.create(uuid=uuid)
+        Identity.objects.create(id=uuid, source='scm', uidentity=uidentity)
+
+        identity = db.find_identity(uuid)
+        self.assertIsInstance(identity, Identity)
+        self.assertEqual(identity.id, uuid)
+
+    def test_identity_not_found(self):
+        """Test whether it raises an exception when the identity is not found"""
+
+        uuid = 'abcdefghijklmnopqrstuvwxyz'
+        uidentity = UniqueIdentity.objects.create(uuid=uuid)
+        Identity.objects.create(id=uuid, source='scm', uidentity=uidentity)
+
+        with self.assertRaisesRegex(NotFoundError, IDENTITY_NOT_FOUND_ERROR):
+            db.find_identity('zyxwuv')
 
 
 class TestAddOrganization(TestCase):

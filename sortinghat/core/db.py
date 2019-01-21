@@ -38,7 +38,7 @@ def find_unique_identity(uuid):
 
     Find a unique identity by its UUID in the database.
     When the unique identity does not exist the function will
-    raise a `NotFoundException`.
+    raise a `NotFoundError`.
 
     :param uuid: id of the unique identity to find
 
@@ -53,6 +53,28 @@ def find_unique_identity(uuid):
         raise NotFoundError(entity=uuid)
     else:
         return uidentity
+
+
+def find_identity(uuid):
+    """Find an identity.
+
+    Find an identity by its UUID in the database. When the
+    identity does not exist the function will raise
+    a `NotFoundError`.
+
+    :param uuid: id of the identity to find
+
+    :returns: an identity object
+
+    :raises NotFoundError: when the identity with the
+        given `uuid` does not exists.
+    """
+    try:
+        identity = Identity.objects.get(id=uuid)
+    except Identity.DoesNotExist:
+        raise NotFoundError(entity=uuid)
+    else:
+        return identity
 
 
 def add_organization(name):
