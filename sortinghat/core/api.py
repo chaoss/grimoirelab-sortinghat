@@ -24,8 +24,11 @@ import hashlib
 import django.db.transaction
 
 from .db import (find_unique_identity,
+                 find_identity,
                  add_unique_identity as add_unique_identity_db,
-                 add_identity as add_identity_db)
+                 add_identity as add_identity_db,
+                 delete_unique_identity as delete_unique_identity_db,
+                 delete_identity as delete_identity_db)
 from .errors import InvalidValueError
 from .utils import unaccent_string
 
@@ -152,3 +155,49 @@ def add_identity(source, name=None, email=None, username=None, uuid=None):
         raise InvalidValueError(msg=str(e))
 
     return identity
+
+
+@django.db.transaction.atomic
+def delete_identity(uuid):
+    """Remove an identity from the registry.
+
+    This function removes from the registry the identity which
+    its identifier matches with `uuid`. When the `uuid` also
+    belongs to a unique identity, this entry and those identities
+    linked to it will be removed too. The value of this identifier
+    cannot be empty.
+
+    If the identifier is not found in the registry a 'NotFoundError'
+    exception is raised.
+
+    As a result, the function will return an updated version of the
+    unique identity with the identity removed. If the deleted entry
+    was a unique identity, the returned value will be `None` because
+    this object was wiped out.
+
+    :param uuid: identifier assigned to the identity or unique
+        identity that will be removed
+
+    :returns: a unique identity with the identity removed; `None` when
+        the unique identity was also removed.
+
+    :raises InvalidValueError: when `uuid` is `None` or empty.
+    :raises NotFoundError: when the identity does not exist in the
+        registry.
+    """
+    if uuid is None:
+        raise InvalidValueError(msg="'uuid' cannot be None")
+    if uuid == '':
+        raise InvalidValueError(msg="'uuid' cannot be an empty string")
+
+    identity = find_identity(uuid)
+    uidentity = identity.uidentity
+
+    if uidentity.uuid == uuid:
+        delete_unique_identity_db(identity.uidentity)
+        uidentity = None
+    else:
+        delete_identity_db(identity)
+        uidentity.refresh_from_db()
+
+    return uidentity

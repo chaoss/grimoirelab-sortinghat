@@ -53,6 +53,7 @@ SOURCE_NONE_ERROR = "'source' cannot be None"
 SOURCE_EMPTY_ERROR = "'source' cannot be an empty string"
 IDENTITY_DATA_NONE_OR_EMPTY_ERROR = "identity data cannot be None or empty"
 UNIQUE_IDENTITY_NOT_FOUND_ERROR = "zyxwuv not found in the registry"
+IDENTITY_NOT_FOUND_ERROR = "zyxwuv not found in the registry"
 
 
 class TestFindUniqueIdentity(TestCase):
@@ -76,6 +77,31 @@ class TestFindUniqueIdentity(TestCase):
 
         with self.assertRaisesRegex(NotFoundError, UNIQUE_IDENTITY_NOT_FOUND_ERROR):
             db.find_unique_identity('zyxwuv')
+
+
+class TestFindIdentity(TestCase):
+    """Unit tests for find_identity"""
+
+    def test_find_identity(self):
+        """Test if an identity is found by its UUID"""
+
+        uuid = 'abcdefghijklmnopqrstuvwxyz'
+        uidentity = UniqueIdentity.objects.create(uuid=uuid)
+        Identity.objects.create(id=uuid, source='scm', uidentity=uidentity)
+
+        identity = db.find_identity(uuid)
+        self.assertIsInstance(identity, Identity)
+        self.assertEqual(identity.id, uuid)
+
+    def test_identity_not_found(self):
+        """Test whether it raises an exception when the identity is not found"""
+
+        uuid = 'abcdefghijklmnopqrstuvwxyz'
+        uidentity = UniqueIdentity.objects.create(uuid=uuid)
+        Identity.objects.create(id=uuid, source='scm', uidentity=uidentity)
+
+        with self.assertRaisesRegex(NotFoundError, IDENTITY_NOT_FOUND_ERROR):
+            db.find_identity('zyxwuv')
 
 
 class TestAddOrganization(TestCase):
@@ -374,6 +400,80 @@ class TestAddUniqueIdentity(TestCase):
             db.add_unique_identity(uuid)
 
 
+class TestDeleteUniqueIdentity(TestCase):
+    """Unit tests for delete_unique_identity"""
+
+    def test_delete_unique_identity(self):
+        """Check if it deletes a unique identity"""
+
+        org_ex = Organization.objects.create(name='Example')
+        org_bit = Organization.objects.create(name='Bitergia')
+
+        jsmith = UniqueIdentity.objects.create(uuid='AAAA')
+        Profile.objects.create(name='John Smith',
+                               email='jsmith@example.net',
+                               uidentity=jsmith)
+        Identity.objects.create(id='0001', name='John Smith',
+                                uidentity=jsmith)
+        Identity.objects.create(id='0002', email='jsmith@example.net',
+                                uidentity=jsmith)
+        Identity.objects.create(id='0003', email='jsmith@example.org',
+                                uidentity=jsmith)
+        Enrollment.objects.create(uidentity=jsmith, organization=org_ex)
+
+        jdoe = UniqueIdentity.objects.create(uuid='BBBB')
+        Profile.objects.create(name='John Doe',
+                               email='jdoe@bitergia.com',
+                               uidentity=jdoe)
+        Identity.objects.create(id='0004', name='John Doe',
+                                email='jdoe@bitergia.com',
+                                uidentity=jdoe)
+        Enrollment.objects.create(uidentity=jdoe, organization=org_ex)
+        Enrollment.objects.create(uidentity=jdoe, organization=org_bit)
+
+        # Check data and remove unique identity
+        jsmith.refresh_from_db()
+        self.assertEqual(len(jsmith.identities.all()), 3)
+        self.assertEqual(len(jsmith.enrollments.all()), 1)
+
+        jdoe.refresh_from_db()
+        self.assertEqual(len(jdoe.identities.all()), 1)
+        self.assertEqual(len(jdoe.enrollments.all()), 2)
+
+        db.delete_unique_identity(jsmith)
+
+        # Tests
+        with self.assertRaises(ObjectDoesNotExist):
+            UniqueIdentity.objects.get(uuid='AAAA')
+
+        self.assertEqual(len(Identity.objects.all()), 1)
+        self.assertEqual(len(Enrollment.objects.all()), 2)
+
+        jdoe.refresh_from_db()
+        self.assertEqual(len(jdoe.identities.all()), 1)
+        self.assertEqual(len(jdoe.enrollments.all()), 2)
+
+    def test_delete_unique_identities(self):
+        """Check if it deletes a set of unique identities"""
+
+        uuids = ['AAAA', 'BBBB', 'CCCC']
+
+        for uuid in uuids:
+            UniqueIdentity.objects.create(uuid=uuid)
+
+        self.assertEqual(len(UniqueIdentity.objects.all()), len(uuids))
+
+        for uuid in uuids:
+            uidentity = UniqueIdentity.objects.get(uuid=uuid)
+
+            db.delete_unique_identity(uidentity)
+
+            with self.assertRaises(ObjectDoesNotExist):
+                UniqueIdentity.objects.get(uuid=uuid)
+
+        self.assertEqual(len(UniqueIdentity.objects.all()), 0)
+
+
 class TestAddIdentity(TestCase):
     """Unit tests for add_identity"""
 
@@ -558,3 +658,58 @@ class TestAddIdentity(TestCase):
                             name='John Smith',
                             email='jsmith@example.org',
                             username='jsmith')
+
+
+class TestDeleteIdentity(TestCase):
+    """Unit tests for delete_identity"""
+
+    def test_delete_identity(self):
+        """Check whether it deletes an identity"""
+
+        jsmith = UniqueIdentity.objects.create(uuid='AAAA')
+        Identity.objects.create(id='0001', name='John Smith',
+                                uidentity=jsmith)
+        Identity.objects.create(id='0002', email='jsmith@example.net',
+                                uidentity=jsmith)
+        Identity.objects.create(id='0003', email='jsmith@example.org',
+                                uidentity=jsmith)
+
+        # Check data and remove identity
+        jsmith.refresh_from_db()
+        self.assertEqual(len(jsmith.identities.all()), 3)
+
+        identity = Identity.objects.get(id='0002')
+        db.delete_identity(identity)
+
+        # Tests
+        with self.assertRaises(ObjectDoesNotExist):
+            Identity.objects.get(id='0002')
+
+        jsmith.refresh_from_db()
+        self.assertEqual(len(jsmith.identities.all()), 2)
+
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
+
+        jsmith = UniqueIdentity.objects.create(uuid='AAAA')
+        Identity.objects.create(id='0001', name='John Smith',
+                                uidentity=jsmith)
+        Identity.objects.create(id='0002', email='jsmith@example.net',
+                                uidentity=jsmith)
+        Identity.objects.create(id='0003', email='jsmith@example.org',
+                                uidentity=jsmith)
+
+        before_dt = datetime_utcnow()
+        identity = Identity.objects.get(id='0001')
+        db.delete_identity(identity)
+        after_dt = datetime_utcnow()
+
+        # Tests
+        uidentity = UniqueIdentity.objects.get(uuid='AAAA')
+        self.assertEqual(len(uidentity.identities.all()), 2)
+        self.assertLessEqual(before_dt, uidentity.last_modified)
+        self.assertGreaterEqual(after_dt, uidentity.last_modified)
+
+        identity = Identity.objects.get(id='0002')
+        self.assertLessEqual(identity.last_modified, before_dt)
+        self.assertLessEqual(identity.last_modified, after_dt)

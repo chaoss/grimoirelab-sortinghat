@@ -29,6 +29,8 @@ import django.test
 import graphene
 import graphene.test
 
+from sortinghat.core import api
+from sortinghat.core import db
 from sortinghat.core.models import (Organization,
                                     Domain,
                                     Country,
@@ -46,6 +48,7 @@ NAME_EMPTY_ERROR = "'name' cannot be an empty string"
 DOMAIN_NAME_EMPTY_ERROR = "'domain_name' cannot be an empty string"
 SOURCE_EMPTY_ERROR = "'source' cannot be an empty string"
 IDENTITY_EMPTY_DATA_ERROR = 'identity data cannot be empty'
+UUID_EMPTY_ERROR = "'uuid' cannot be an empty string"
 ORG_DOES_NOT_EXIST_ERROR = "Organization matching query does not exist."
 DOMAIN_DOES_NOT_EXIST_ERROR = "Domain matching query does not exist."
 UID_DOES_NOT_EXIST_ERROR = "FFFFFFFFFFFFFFF not found in the registry"
@@ -794,3 +797,138 @@ class TestAddIdentityMutation(django.test.TestCase):
         executed = client.execute(self.SH_ADD_IDENTITY, variables=params)
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, IDENTITY_EMPTY_DATA_ERROR)
+
+
+class TestDeleteIdentityMutation(django.test.TestCase):
+    """Unit tests for mutation to delete identities"""
+
+    SH_DELETE_IDENTITY = """
+      mutation delId($uuid: String) {
+        deleteIdentity(uuid: $uuid) {
+          uuid
+          uidentity {
+            uuid
+            identities {
+              id
+              name
+              email
+              username
+              source
+            }
+          }
+        }
+      }
+    """
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        # Organizations
+        example_org = db.add_organization('Example')
+        bitergia_org = db.add_organization('Bitergia')
+        libresoft_org = db.add_organization('LibreSoft')
+
+        # Identities
+        jsmith = api.add_identity('scm', email='jsmith@example')
+        api.add_identity('scm',
+                         name='John Smith',
+                         email='jsmith@example',
+                         uuid=jsmith.id)
+        Enrollment.objects.create(uidentity=jsmith.uidentity,
+                                  organization=example_org)
+        Enrollment.objects.create(uidentity=jsmith.uidentity,
+                                  organization=bitergia_org)
+
+        jdoe = api.add_identity('scm', email='jdoe@example')
+        Enrollment.objects.create(uidentity=jdoe.uidentity,
+                                  organization=example_org)
+
+        jrae = api.add_identity('scm',
+                                name='Jane Rae',
+                                email='jrae@example')
+        Enrollment.objects.create(uidentity=jrae.uidentity,
+                                  organization=libresoft_org)
+
+    def test_delete_identity(self):
+        """Check if everything goes OK when deleting identities"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuid': '1387b129ab751a3657312c09759caa41dfd8d07d',
+        }
+        executed = client.execute(self.SH_DELETE_IDENTITY, variables=params)
+
+        # Check results, only one identity remains
+        uidentity = executed['data']['deleteIdentity']['uidentity']
+        self.assertEqual(uidentity['uuid'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(len(uidentity['identities']), 1)
+
+        identity = uidentity['identities'][0]
+        self.assertEqual(identity['source'], 'scm')
+        self.assertEqual(identity['name'], None)
+        self.assertEqual(identity['email'], 'jsmith@example')
+        self.assertEqual(identity['username'], None)
+        self.assertEqual(identity['id'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        uuid = executed['data']['deleteIdentity']['uuid']
+        self.assertEqual(uuid, '1387b129ab751a3657312c09759caa41dfd8d07d')
+
+        # Check database
+        with self.assertRaises(django.core.exceptions.ObjectDoesNotExist):
+            uidentity = UniqueIdentity.objects.get(uuid='eda9f62ad321b1fbe5f283cc05e2484516203117')
+            self.assertEqual(uidentity.uuid, identity['id'])
+
+        identities = Identity.objects.filter(id=identity['id'])
+        self.assertEqual(len(identities), 1)
+
+        id0 = identities[0]
+        self.assertEqual(id0.source, identity['source'])
+        self.assertEqual(id0.name, identity['name'])
+        self.assertEqual(id0.email, identity['email'])
+        self.assertEqual(id0.username, identity['username'])
+
+    def test_delete_unique_identity(self):
+        """Check if everything goes OK when deleting unique identities"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuid': 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+        }
+        executed = client.execute(self.SH_DELETE_IDENTITY, variables=params)
+
+        # Check results
+        uidentity = executed['data']['deleteIdentity']['uidentity']
+        self.assertEqual(uidentity, None)
+
+        uuid = executed['data']['deleteIdentity']['uuid']
+        self.assertEqual(uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        # Check database
+        with self.assertRaises(django.core.exceptions.ObjectDoesNotExist):
+            UniqueIdentity.objects.get(uuid='eda9f62ad321b1fbe5f283cc05e2484516203117')
+
+    def test_non_existing_uuid(self):
+        """Check if it fails removing identities or unique identities that do not exist"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuid': 'FFFFFFFFFFFFFFF'
+        }
+        executed = client.execute(self.SH_DELETE_IDENTITY, variables=params)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, UID_DOES_NOT_EXIST_ERROR)
+
+    def test_empty_uuid(self):
+        """Check whether identities cannot be removed when giving an empty UUID"""
+
+        client = graphene.test.Client(schema)
+
+        params = {'uuid': ''}
+        executed = client.execute(self.SH_DELETE_IDENTITY, variables=params)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, UUID_EMPTY_ERROR)

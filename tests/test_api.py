@@ -19,20 +19,24 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 
 from grimoirelab_toolkit.datetime import datetime_utcnow
 
 from sortinghat.core import api
+from sortinghat.core import db
 from sortinghat.core.errors import (AlreadyExistsError,
                                     NotFoundError,
                                     InvalidValueError)
 from sortinghat.core.models import (UniqueIdentity,
-                                    Identity)
+                                    Identity,
+                                    Enrollment)
 
 
 SOURCE_NONE_OR_EMPTY_ERROR = "'source' cannot be"
 IDENTITY_NONE_OR_EMPTY_ERROR = "identity data cannot be empty"
+UUID_NONE_OR_EMPTY_ERROR = "'uuid' cannot be"
 
 
 class TestUUID(TestCase):
@@ -467,3 +471,146 @@ class TestAddIdentity(TestCase):
 
         with self.assertRaisesRegex(InvalidValueError, IDENTITY_NONE_OR_EMPTY_ERROR):
             api.add_identity('scm', name='', email='', username='')
+
+
+class TestDeleteIdentity(TestCase):
+    """Unit tests for delete_identity"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        # Organizations
+        example_org = db.add_organization('Example')
+        bitergia_org = db.add_organization('Bitergia')
+        libresoft_org = db.add_organization('LibreSoft')
+
+        # Identities
+        jsmith = api.add_identity('scm', email='jsmith@example')
+        api.add_identity('scm',
+                         name='John Smith',
+                         email='jsmith@example',
+                         uuid=jsmith.id)
+        Enrollment.objects.create(uidentity=jsmith.uidentity,
+                                  organization=example_org)
+        Enrollment.objects.create(uidentity=jsmith.uidentity,
+                                  organization=bitergia_org)
+
+        jdoe = api.add_identity('scm', email='jdoe@example')
+        Enrollment.objects.create(uidentity=jdoe.uidentity,
+                                  organization=example_org)
+
+        jrae = api.add_identity('scm',
+                                name='Jane Rae',
+                                email='jrae@example')
+        Enrollment.objects.create(uidentity=jrae.uidentity,
+                                  organization=libresoft_org)
+
+    def test_delete_identity(self):
+        """Check whether it deletes an identity"""
+
+        # Check initial status
+        uidentities = UniqueIdentity.objects.all()
+        self.assertEqual(len(uidentities), 3)
+
+        identities = Identity.objects.all()
+        self.assertEqual(len(identities), 4)
+
+        # Delete an identity (John Smith - jsmith@example.com)
+        uidentity = api.delete_identity('1387b129ab751a3657312c09759caa41dfd8d07d')
+
+        # Check result
+        self.assertIsInstance(uidentity, UniqueIdentity)
+        self.assertEqual(uidentity.uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        identities = uidentity.identities.all()
+        self.assertEqual(len(identities), 1)
+
+        identity = identities[0]
+        self.assertEqual(identity.id, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(identity.name, None)
+        self.assertEqual(identity.email, 'jsmith@example')
+        self.assertEqual(identity.username, None)
+
+        # Check remaining identities
+        uidentities = UniqueIdentity.objects.all()
+        self.assertEqual(len(uidentities), 3)
+
+        identities = Identity.objects.all()
+        self.assertEqual(len(identities), 3)
+
+        with self.assertRaises(ObjectDoesNotExist):
+            Identity.objects.get(id='1387b129ab751a3657312c09759caa41dfd8d07d')
+
+    def test_delete_unique_identity(self):
+        """Check whether it deletes a unique identity when its identifier is given"""
+
+        # Check initial status
+        uidentities = UniqueIdentity.objects.all()
+        self.assertEqual(len(uidentities), 3)
+
+        identities = Identity.objects.all()
+        self.assertEqual(len(identities), 4)
+
+        # Delete an unique identity (John Smith)
+        uidentity = api.delete_identity('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        # The unique identity was removed so the result is None
+        self.assertEqual(uidentity, None)
+
+        # Check remaining identities
+        uidentities = UniqueIdentity.objects.all()
+        self.assertEqual(len(uidentities), 2)
+
+        identities = Identity.objects.all()
+        self.assertEqual(len(identities), 2)
+
+        # Neither the unique identity nor its identities exist
+        with self.assertRaises(ObjectDoesNotExist):
+            UniqueIdentity.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        with self.assertRaises(ObjectDoesNotExist):
+            Identity.objects.get(id='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        with self.assertRaises(ObjectDoesNotExist):
+            Identity.objects.get(id='1387b129ab751a3657312c09759caa41dfd8d07d')
+
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
+
+        # Delete an identity (John Smith - jsmith@example.com)
+        before_dt = datetime_utcnow()
+        uidentity = api.delete_identity('1387b129ab751a3657312c09759caa41dfd8d07d')
+        after_dt = datetime_utcnow()
+
+        # Check date on the unique identity
+        self.assertLessEqual(before_dt, uidentity.last_modified)
+        self.assertGreaterEqual(after_dt, uidentity.last_modified)
+
+        # Other identities were not updated
+        identity = uidentity.identities.all()[0]
+        self.assertGreaterEqual(before_dt, identity.last_modified)
+
+    def test_non_existing_uuid(self):
+        """Check if it fails removing a identities that does not exists"""
+
+        with self.assertRaises(NotFoundError):
+            api.delete_identity('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF')
+
+        # It should raise an error when the registry is empty
+        UniqueIdentity.objects.all().delete()
+        self.assertEqual(len(UniqueIdentity.objects.all()), 0)
+
+        with self.assertRaises(NotFoundError):
+            api.delete_identity('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+    def test_none_uuid(self):
+        """Check whether identities cannot be removed when giving a None UUID"""
+
+        with self.assertRaisesRegex(InvalidValueError, UUID_NONE_OR_EMPTY_ERROR):
+            api.delete_identity(None)
+
+    def test_empty_uuid(self):
+        """Check whether identities cannot be removed when giving an empty UUID"""
+
+        with self.assertRaisesRegex(InvalidValueError, UUID_NONE_OR_EMPTY_ERROR):
+            api.delete_identity('')
