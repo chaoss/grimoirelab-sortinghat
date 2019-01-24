@@ -22,7 +22,9 @@
 import graphene
 from graphene_django.types import DjangoObjectType
 
-from .api import add_identity, delete_identity
+from .api import (add_identity,
+                  delete_identity,
+                  update_profile)
 from .db import (add_organization,
                  delete_organization,
                  add_domain,
@@ -69,6 +71,15 @@ class ProfileType(DjangoObjectType):
 class EnrollmentType(DjangoObjectType):
     class Meta:
         model = Enrollment
+
+
+class ProfileInputType(graphene.InputObjectType):
+    name = graphene.String(required=False)
+    email = graphene.String(required=False)
+    gender = graphene.String(required=False)
+    gender_acc = graphene.Int(required=False)
+    is_bot = graphene.Boolean(required=False)
+    country_code = graphene.String(required=False)
 
 
 class AddOrganization(graphene.Mutation):
@@ -175,6 +186,23 @@ class DeleteIdentity(graphene.Mutation):
         )
 
 
+class UpdateProfile(graphene.Mutation):
+    class Arguments:
+        uuid = graphene.String()
+        data = ProfileInputType()
+
+    uuid = graphene.Field(lambda: graphene.String)
+    uidentity = graphene.Field(lambda: UniqueIdentityType)
+
+    def mutate(self, info, uuid, data):
+        uidentity = update_profile(uuid, **data)
+
+        return UpdateProfile(
+            uuid=uidentity.uuid,
+            uidentity=uidentity
+        )
+
+
 class SortingHatQuery:
     organizations = graphene.List(OrganizationType)
     uidentities = graphene.List(UniqueIdentityType)
@@ -193,3 +221,4 @@ class SortingHatMutation(graphene.ObjectType):
     delete_domain = DeleteDomain.Field()
     add_identity = AddIdentity.Field()
     delete_identity = DeleteIdentity.Field()
+    update_profile = UpdateProfile.Field()
