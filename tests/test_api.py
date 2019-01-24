@@ -29,14 +29,21 @@ from sortinghat.core import db
 from sortinghat.core.errors import (AlreadyExistsError,
                                     NotFoundError,
                                     InvalidValueError)
-from sortinghat.core.models import (UniqueIdentity,
+from sortinghat.core.models import (Country,
+                                    UniqueIdentity,
                                     Identity,
+                                    Profile,
                                     Enrollment)
 
 
 SOURCE_NONE_OR_EMPTY_ERROR = "'source' cannot be"
 IDENTITY_NONE_OR_EMPTY_ERROR = "identity data cannot be empty"
 UUID_NONE_OR_EMPTY_ERROR = "'uuid' cannot be"
+IS_BOT_VALUE_ERROR = "'is_bot' must have a boolean value"
+COUNTRY_CODE_ERROR = r"'country_code' \({code}\) does not match with a valid code"
+GENDER_ACC_INVALID_ERROR = "'gender_acc' can only be set when 'gender' is given"
+GENDER_ACC_INVALID_TYPE_ERROR = "'gender_acc' must have an integer value"
+GENDER_ACC_INVALID_RANGE_ERROR = r"'gender_acc' \({acc}\) is not in range \(1,100\)"
 
 
 class TestUUID(TestCase):
@@ -614,3 +621,159 @@ class TestDeleteIdentity(TestCase):
 
         with self.assertRaisesRegex(InvalidValueError, UUID_NONE_OR_EMPTY_ERROR):
             api.delete_identity('')
+
+
+class TestUpdateProfile(TestCase):
+    """Unit tests for update_profile"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        Country.objects.create(code='US',
+                               name='United States of America',
+                               alpha3='USA')
+        api.add_identity('scm', email='jsmith@example')
+
+    def test_update_empty_profile(self):
+        """Check if it updates an empty profile"""
+
+        uidentity = api.update_profile('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+                                       name='Smith, J.', email='jsmith@example.net',
+                                       is_bot=True, country_code='US',
+                                       gender='male', gender_acc=98)
+
+        # Tests
+        self.assertIsInstance(uidentity, UniqueIdentity)
+        self.assertEqual(uidentity.uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        profile = uidentity.profile
+        self.assertEqual(profile.name, 'Smith, J.')
+        self.assertEqual(profile.email, 'jsmith@example.net')
+        self.assertEqual(profile.is_bot, True)
+        self.assertIsInstance(profile.country, Country)
+        self.assertEqual(profile.country.code, 'US')
+        self.assertEqual(profile.country.name, 'United States of America')
+        self.assertEqual(profile.gender, 'male')
+        self.assertEqual(profile.gender_acc, 98)
+
+        # Check database object
+        uidentity_db = UniqueIdentity.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(profile, uidentity_db.profile)
+
+    def test_update_profile(self):
+        """Check if it updates a profile"""
+
+        api.update_profile('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+                           name='Smith, J.', email='jsmith@example.net',
+                           is_bot=True, country_code='US',
+                           gender='male', gender_acc=98)
+
+        uidentity = api.update_profile('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+                                       name='', email='jsmith@example.net',
+                                       is_bot=False, country_code='US',
+                                       gender='male', gender_acc=89)
+
+        # Tests
+        self.assertIsInstance(uidentity, UniqueIdentity)
+
+        profile = uidentity.profile
+        self.assertEqual(profile.name, None)
+        self.assertEqual(profile.email, 'jsmith@example.net')
+        self.assertEqual(profile.is_bot, False)
+        self.assertIsInstance(profile.country, Country)
+        self.assertEqual(profile.country.code, 'US')
+        self.assertEqual(profile.country.name, 'United States of America')
+        self.assertEqual(profile.gender, 'male')
+        self.assertEqual(profile.gender_acc, 89)
+
+        # Check database object
+        uidentity_db = UniqueIdentity.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(profile, uidentity_db.profile)
+
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
+
+        before_dt = datetime_utcnow()
+        uidentity = api.update_profile('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+                                       name='John Smith',
+                                       email='jsmith@example.net')
+        after_dt = datetime_utcnow()
+
+        self.assertLessEqual(before_dt, uidentity.last_modified)
+        self.assertGreaterEqual(after_dt, uidentity.last_modified)
+
+    def test_non_existing_uuid(self):
+        """Check if it fails updating a unique identity that does not exist"""
+
+        with self.assertRaises(NotFoundError):
+            api.update_profile('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF',
+                               name='', email='')
+
+    def test_name_email_empty(self):
+        """Check if name and email are set to None when an empty string is given"""
+
+        uidentity = api.update_profile('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+                                       name='', email='')
+        profile = uidentity.profile
+        self.assertEqual(profile.name, None)
+        self.assertEqual(profile.email, None)
+
+    def test_is_bot_invalid_type(self):
+        """Check type values of is_bot parameter"""
+
+        uuid = 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'
+
+        with self.assertRaisesRegex(InvalidValueError, IS_BOT_VALUE_ERROR):
+            api.update_profile(uuid, is_bot=1)
+
+        with self.assertRaisesRegex(InvalidValueError, IS_BOT_VALUE_ERROR):
+            api.update_profile(uuid, is_bot='True')
+
+    def test_country_code_not_valid(self):
+        """Check if it fails when the given country is not valid"""
+
+        uuid = 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'
+
+        msg = COUNTRY_CODE_ERROR.format(code='JKL')
+
+        with self.assertRaisesRegex(InvalidValueError, msg):
+            api.update_profile(uuid, country_code='JKL')
+
+    def test_gender_not_given(self):
+        """Check if it fails when gender_acc is given but not the gender"""
+
+        uuid = 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'
+
+        with self.assertRaisesRegex(InvalidValueError, GENDER_ACC_INVALID_ERROR):
+            api.update_profile(uuid, gender_acc=100)
+
+    def test_gender_acc_invalid_type(self):
+        """Check type values of gender_acc parameter"""
+
+        uuid = 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'
+
+        with self.assertRaisesRegex(InvalidValueError, GENDER_ACC_INVALID_TYPE_ERROR):
+            api.update_profile(uuid, gender='male', gender_acc=10.0)
+
+        with self.assertRaisesRegex(InvalidValueError, GENDER_ACC_INVALID_TYPE_ERROR):
+            api.update_profile(uuid, gender='male', gender_acc='100')
+
+    def test_gender_acc_invalid_range(self):
+        """Check if it fails when gender_acc is given but not the gender"""
+
+        uuid = 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'
+
+        msg = GENDER_ACC_INVALID_RANGE_ERROR.format(acc='-1')
+
+        with self.assertRaisesRegex(InvalidValueError, msg):
+            api.update_profile(uuid, gender='male', gender_acc=-1)
+
+        msg = GENDER_ACC_INVALID_RANGE_ERROR.format(acc='0')
+
+        with self.assertRaisesRegex(InvalidValueError, msg):
+            api.update_profile(uuid, gender='male', gender_acc=0)
+
+        msg = GENDER_ACC_INVALID_RANGE_ERROR.format(acc='101')
+
+        with self.assertRaisesRegex(InvalidValueError, msg):
+            api.update_profile(uuid, gender='male', gender_acc=101)
