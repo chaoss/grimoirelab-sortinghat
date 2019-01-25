@@ -1,5 +1,8 @@
 Django==2.1
+django-filter>=2
 grimoirelab_toolkit>=0.1.8
 mysqlclient==1.3.13
 python-dateutil>=2.6.0
 graphene-django>=2.0
+graphene-django-extras==0.4.3
+

@@ -20,7 +20,7 @@
 #
 
 import graphene
-from graphene_django.types import DjangoObjectType
+from graphene_django_extras import DjangoObjectType, DjangoFilterListField
 
 from .api import add_identity, delete_identity
 from .db import (add_organization,
@@ -54,6 +54,7 @@ class CountryType(DjangoObjectType):
 class UniqueIdentityType(DjangoObjectType):
     class Meta:
         model = UniqueIdentity
+        filter_fields = ['uuid']
 
 
 class IdentityType(DjangoObjectType):
@@ -177,7 +178,7 @@ class DeleteIdentity(graphene.Mutation):
 
 class SortingHatQuery:
     organizations = graphene.List(OrganizationType)
-    uidentities = graphene.List(UniqueIdentityType)
+    uidentities = DjangoFilterListField(UniqueIdentityType)
 
     def resolve_organizations(self, info, **kwargs):
         return Organization.objects.order_by('name')
