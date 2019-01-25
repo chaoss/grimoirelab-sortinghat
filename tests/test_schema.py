@@ -932,3 +932,114 @@ class TestDeleteIdentityMutation(django.test.TestCase):
 
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, UUID_EMPTY_ERROR)
+
+
+class TestUpdateProfileMutation(django.test.TestCase):
+    """Unit tests for mutation to update profiles"""
+
+    SH_UPDATE_PROFILE = """
+      mutation editProfile($uuid: String, $data: ProfileInputType) {
+        updateProfile(uuid: $uuid, data: $data) {
+          uuid
+          uidentity {
+            uuid
+            profile {
+              name
+              email
+              gender
+              genderAcc
+              isBot
+              country {
+                name
+                code
+              }
+            }
+          }
+        }
+      }
+    """
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        Country.objects.create(code='US',
+                               name='United States of America',
+                               alpha3='USA')
+        jsmith = api.add_identity('scm', email='jsmith@example')
+        api.update_profile(jsmith.id, name='Smith J,', email='jsmith@example.com')
+
+    def test_update_profile(self):
+        """Check if it updates a profile"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuid': 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+            'data': {
+                'name': 'John Smith',
+                'email': 'jsmith@example.net',
+                'isBot': True,
+                'countryCode': 'US',
+                'gender': 'male',
+                'genderAcc': 89
+            }
+        }
+        executed = client.execute(self.SH_UPDATE_PROFILE, variables=params)
+
+        # Check results, profile was updated
+        profile = executed['data']['updateProfile']['uidentity']['profile']
+        self.assertEqual(profile['name'], 'John Smith')
+        self.assertEqual(profile['email'], 'jsmith@example.net')
+        self.assertEqual(profile['isBot'], True)
+        self.assertEqual(profile['gender'], 'male')
+        self.assertEqual(profile['genderAcc'], 89)
+        self.assertEqual(profile['country']['code'], 'US')
+        self.assertEqual(profile['country']['name'], 'United States of America')
+
+        uuid = executed['data']['updateProfile']['uuid']
+        self.assertEqual(uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        # Check database
+        uidentity = UniqueIdentity.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        profile = uidentity.profile
+        self.assertEqual(profile.name, 'John Smith')
+        self.assertEqual(profile.email, 'jsmith@example.net')
+        self.assertEqual(profile.is_bot, True)
+        self.assertEqual(profile.gender, 'male')
+        self.assertEqual(profile.gender_acc, 89)
+        self.assertEqual(profile.country.code, 'US')
+        self.assertEqual(profile.country.name, 'United States of America')
+
+    def test_non_existing_uuid(self):
+        """Check if it fails updating profiles of unique identities that do not exist"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuid': 'FFFFFFFFFFFFFFF',
+            'data': {
+                'name': 'John Smith',
+            }
+        }
+        executed = client.execute(self.SH_UPDATE_PROFILE, variables=params)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, UID_DOES_NOT_EXIST_ERROR)
+
+    def test_name_email_empty(self):
+        """Check if name and email are set to None when an empty string is given"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuid': 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+            'data': {
+                'name': '',
+                'email': ''
+            }
+        }
+        executed = client.execute(self.SH_UPDATE_PROFILE, variables=params)
+
+        profile = executed['data']['updateProfile']['uidentity']['profile']
+        self.assertEqual(profile['name'], None)
+        self.assertEqual(profile['email'], None)

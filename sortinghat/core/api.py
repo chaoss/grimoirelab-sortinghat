@@ -28,7 +28,8 @@ from .db import (find_unique_identity,
                  add_unique_identity as add_unique_identity_db,
                  add_identity as add_identity_db,
                  delete_unique_identity as delete_unique_identity_db,
-                 delete_identity as delete_identity_db)
+                 delete_identity as delete_identity_db,
+                 update_profile as update_profile_db)
 from .errors import InvalidValueError
 from .utils import unaccent_string
 
@@ -199,5 +200,49 @@ def delete_identity(uuid):
     else:
         delete_identity_db(identity)
         uidentity.refresh_from_db()
+
+    return uidentity
+
+
+@django.db.transaction.atomic
+def update_profile(uuid, **kwargs):
+    """Update unique identity profile.
+
+    This function allows to edit or update the profile information
+    of the unique identity identified by `uuid`.
+
+    The values to update are given as keyword arguments. The allowed
+    keys are listed below (other keywords will be ignored):
+
+       - 'name' : name of the unique identity
+       - 'email' : email address of the unique identity
+       - 'gender' : gender of the unique identity
+       - 'gender_acc' : gender accuracy (range of 1 to 100; by default,
+             set to 100)
+       - 'is_bot' : boolean value to determine whether a unique identity is
+             a bot or not. By default, this value is initialized to
+             `False`.
+       - 'country_code' : ISO-3166 country code
+
+    The result of calling this function will be the `UniqueIdentity`
+    object with an updated profile.
+
+    :param uuid: identifier of the unique identity which its project
+        will be updated
+    :param kwargs: keyword arguments with data to update the profile
+
+    :returns: a unique identity with its profile updated
+
+    :raises NotFoundError: raised when either the unique identity
+        or the country code do not exist in the registry.
+    :raises InvalidValueError: raised when any of the keyword arguments
+        has an invalid value.
+    """
+    uidentity = find_unique_identity(uuid)
+
+    try:
+        uidentity = update_profile_db(uidentity, **kwargs)
+    except ValueError as e:
+        raise InvalidValueError(msg=str(e))
 
     return uidentity
