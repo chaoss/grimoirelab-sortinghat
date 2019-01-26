@@ -622,13 +622,16 @@ class TestAddIdentityMutation(django.test.TestCase):
             username: $username
             uuid: $uuid) {
               uuid
-              identity {
-                id
-                name
-                email
-                username
-                source
-            }
+              uidentity {
+                uuid
+                identities {
+                  id
+                  name
+                  email
+                  username
+                  source
+                }
+              }
           }
         }
     """
@@ -647,7 +650,13 @@ class TestAddIdentityMutation(django.test.TestCase):
         executed = client.execute(self.SH_ADD_IDENTITY, variables=params)
 
         # Check results
-        identity = executed['data']['addIdentity']['identity']
+        uidentity = executed['data']['addIdentity']['uidentity']
+        self.assertEqual(uidentity['uuid'], 'eda9f62ad321b1fbe5f283cc05e2484516203117')
+
+        identities = uidentity['identities']
+        self.assertEqual(len(identities), 1)
+
+        identity = identities[0]
         self.assertEqual(identity['id'], 'eda9f62ad321b1fbe5f283cc05e2484516203117')
         self.assertEqual(identity['source'], 'scm')
         self.assertEqual(identity['name'], 'Jane Roe')
@@ -690,7 +699,13 @@ class TestAddIdentityMutation(django.test.TestCase):
         executed = client.execute(self.SH_ADD_IDENTITY, variables=params)
 
         # Check results
-        identity = executed['data']['addIdentity']['identity']
+        uidentity = executed['data']['addIdentity']['uidentity']
+        self.assertEqual(uidentity['uuid'], 'eda9f62ad321b1fbe5f283cc05e2484516203117')
+
+        identities = uidentity['identities']
+        self.assertEqual(len(identities), 2)
+
+        identity = identities[0]
         self.assertEqual(identity['id'], '55d88f85a41f3a9afa4dc9d4dfb6009c62f42fe3')
         self.assertEqual(identity['source'], 'mls')
         self.assertEqual(identity['name'], 'Jane Roe')
@@ -698,7 +713,7 @@ class TestAddIdentityMutation(django.test.TestCase):
         self.assertEqual(identity['username'], 'jrae')
 
         uuid = executed['data']['addIdentity']['uuid']
-        self.assertEqual(uuid, 'eda9f62ad321b1fbe5f283cc05e2484516203117')
+        self.assertEqual(uuid, '55d88f85a41f3a9afa4dc9d4dfb6009c62f42fe3')
 
         # Check database
         identities = Identity.objects.filter(uidentity__uuid='eda9f62ad321b1fbe5f283cc05e2484516203117')

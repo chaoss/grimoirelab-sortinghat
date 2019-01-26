@@ -152,7 +152,7 @@ class AddIdentity(graphene.Mutation):
         uuid = graphene.String()
 
     uuid = graphene.Field(lambda: graphene.String)
-    identity = graphene.Field(lambda: IdentityType)
+    uidentity = graphene.Field(lambda: UniqueIdentityType)
 
     def mutate(self, info, source,
                name=None, email=None, username=None,
@@ -162,10 +162,12 @@ class AddIdentity(graphene.Mutation):
                                 email=email,
                                 username=username,
                                 uuid=uuid)
+        id_ = identity.id
+        uidentity = identity.uidentity
 
         return AddIdentity(
-            uuid=identity.uidentity.uuid,
-            identity=identity
+            uuid=id_,
+            uidentity=uidentity
         )
 
 
