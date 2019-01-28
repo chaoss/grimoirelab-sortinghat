@@ -32,7 +32,6 @@ from sortinghat.core.errors import (AlreadyExistsError,
 from sortinghat.core.models import (Country,
                                     UniqueIdentity,
                                     Identity,
-                                    Profile,
                                     Enrollment)
 
 
