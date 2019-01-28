@@ -82,6 +82,10 @@ class ProfileInputType(graphene.InputObjectType):
     country_code = graphene.String(required=False)
 
 
+class IdentityFilterType(graphene.InputObjectType):
+    uuid = graphene.String(required=False)
+
+
 class AddOrganization(graphene.Mutation):
     class Arguments:
         name = graphene.String()
@@ -207,13 +211,20 @@ class UpdateProfile(graphene.Mutation):
 
 class SortingHatQuery:
     organizations = graphene.List(OrganizationType)
-    uidentities = graphene.List(UniqueIdentityType)
+    uidentities = graphene.Field(
+        graphene.List(UniqueIdentityType),
+        filters=IdentityFilterType(required=False)
+    )
 
     def resolve_organizations(self, info, **kwargs):
         return Organization.objects.order_by('name')
 
-    def resolve_uidentities(self, info, **kwargs):
-        return UniqueIdentity.objects.order_by('uuid')
+    def resolve_uidentities(self, info, filters=None, **kwargs):
+        query = UniqueIdentity.objects.order_by('uuid')
+
+        if filters and 'uuid' in filters:
+            query = query.filter(uuid=filters['uuid'])
+        return query
 
 
 class SortingHatMutation(graphene.ObjectType):
