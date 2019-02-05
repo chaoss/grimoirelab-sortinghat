@@ -24,15 +24,18 @@ import re
 import django.core.exceptions
 import django.db.utils
 
-from grimoirelab_toolkit.datetime import datetime_utcnow
+from grimoirelab_toolkit.datetime import datetime_utcnow, datetime_to_utc
 
 from .errors import AlreadyExistsError, NotFoundError
-from .models import (Organization,
+from .models import (MIN_PERIOD_DATE,
+                     MAX_PERIOD_DATE,
+                     Organization,
                      Domain,
                      Country,
                      UniqueIdentity,
                      Identity,
-                     Profile)
+                     Profile,
+                     Enrollment)
 
 
 def find_unique_identity(uuid):
@@ -376,6 +379,59 @@ def update_profile(uidentity, **kwargs):
     uidentity.save()
 
     return uidentity
+
+
+def add_enrollment(uidentity, organization,
+                   start=MIN_PERIOD_DATE, end=MAX_PERIOD_DATE):
+    """Enroll a unique identity to an organization in the database.
+
+    The function adds a new relationship between the unique
+    identity in `uidentity` and the given `organization` to
+    the database.
+
+    The period of the enrollment can be given with the parameters
+    `from_date` and `to_date`, where `from_date <= to_date`.
+    Default values for these dates are `MIN_PERIOD_DATE` and
+    `MAX_PERIOD_DATE`. These dates cannot be `None`.
+
+    This function returns as result a new `Enrollment` object.
+
+    :param uidentity: unique identity to enroll
+    :param organization: organization where the unique identity is enrolled
+    :param start: date when the enrollment starts
+    :param end: date when the enrollment ends
+
+    :returns: a new enrollment
+
+    :raises ValueError: when either `start` or `end` are `None`;
+        when `start < MIN_PERIOD_DATE`; or `end > MAX_PERIOD_DATE`
+        or `start > end`.
+    """
+    if not start:
+        raise ValueError("'start' date cannot be None")
+    if not end:
+        raise ValueError("'end' date cannot be None")
+
+    start = datetime_to_utc(start)
+    end = datetime_to_utc(end)
+
+    if start < MIN_PERIOD_DATE or start > MAX_PERIOD_DATE:
+        raise ValueError("'start' date {} is out of bounds".format(start))
+    if end < MIN_PERIOD_DATE or end > MAX_PERIOD_DATE:
+        raise ValueError("'end' date {} is out of bounds".format(end))
+    if start > end:
+        raise ValueError("'start' date {} cannot be greater than {}".format(start, end))
+
+    try:
+        enrollment = Enrollment(uidentity=uidentity,
+                                organization=organization,
+                                start=start, end=end)
+        enrollment.save()
+        uidentity.save()
+    except django.db.utils.IntegrityError as exc:
+        _handle_integrity_error(Identity, exc)
+
+    return enrollment
 
 
 _MYSQL_DUPLICATE_ENTRY_ERROR_REGEX = re.compile(r"Duplicate entry '(?P<value>.+)' for key")
