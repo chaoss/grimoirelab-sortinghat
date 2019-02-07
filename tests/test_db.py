@@ -921,7 +921,7 @@ class TestAddEnrollment(TestCase):
         self.assertEqual(len(enrollments), 3)
 
         enrollment = enrollments[0]
-        self.assertEqual(enrollment.start, datetime.datetime(1999, 1, 1, tzinfo=dateutil.tz.tzutc()))
+        self.assertEqual(enrollment.start, datetime.datetime(1999, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment.end, MAX_PERIOD_DATE)
         self.assertIsInstance(enrollment.uidentity, UniqueIdentity)
         self.assertEqual(enrollment.uidentity.uuid, uuid)
@@ -930,15 +930,15 @@ class TestAddEnrollment(TestCase):
 
         enrollment = enrollments[1]
         self.assertEqual(enrollment.start, MIN_PERIOD_DATE)
-        self.assertEqual(enrollment.end, datetime.datetime(2005, 1, 1, tzinfo=dateutil.tz.tzutc()))
+        self.assertEqual(enrollment.end, datetime.datetime(2005, 1, 1, tzinfo=UTC))
         self.assertIsInstance(enrollment.uidentity, UniqueIdentity)
         self.assertEqual(enrollment.uidentity.uuid, uuid)
         self.assertIsInstance(enrollment.organization, Organization)
         self.assertEqual(enrollment.organization.name, name)
 
         enrollment = enrollments[2]
-        self.assertEqual(enrollment.start, datetime.datetime(2013, 1, 1, tzinfo=dateutil.tz.tzutc()))
-        self.assertEqual(enrollment.end, datetime.datetime(2014, 1, 1, tzinfo=dateutil.tz.tzutc()))
+        self.assertEqual(enrollment.start, datetime.datetime(2013, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
         self.assertIsInstance(enrollment.uidentity, UniqueIdentity)
         self.assertEqual(enrollment.uidentity.uuid, uuid)
         self.assertIsInstance(enrollment.organization, Organization)
@@ -1042,3 +1042,70 @@ class TestAddEnrollment(TestCase):
             db.add_enrollment(uidentity, org,
                               end=datetime.datetime(1899, 12, 31, 23, 59, 59, tzinfo=UTC))
 
+
+class TestDeleteEnrollment(TestCase):
+    """Unit tests for delete_enrollment"""
+
+    def test_delete_enrollment(self):
+        """Check whether it deletes an enrollment"""
+
+        from_date = datetime.datetime(1999, 1, 1, tzinfo=UTC)
+        first_period = datetime.datetime(2000, 1, 1, tzinfo=UTC)
+        second_period = datetime.datetime(2010, 1, 1, tzinfo=UTC)
+        to_date = datetime.datetime(2010, 1, 1, tzinfo=UTC)
+
+        jsmith = UniqueIdentity.objects.create(uuid='AAAA')
+        Identity.objects.create(id='0001', name='John Smith',
+                                uidentity=jsmith)
+
+        example_org = Organization.objects.create(name='Example')
+        Enrollment.objects.create(uidentity=jsmith, organization=example_org,
+                                  start=from_date, end=first_period)
+        enrollment = Enrollment.objects.create(uidentity=jsmith, organization=example_org,
+                                               start=second_period, end=to_date)
+
+        bitergia_org = Organization.objects.create(name='Bitergia')
+        Enrollment.objects.create(uidentity=jsmith, organization=bitergia_org,
+                                  start=first_period, end=second_period)
+
+        # Check data and remove enrollment
+        jsmith.refresh_from_db()
+        self.assertEqual(len(jsmith.identities.all()), 1)
+        self.assertEqual(len(jsmith.enrollments.all()), 3)
+
+        db.delete_enrollment(enrollment)
+
+        # Tests
+        with self.assertRaises(ObjectDoesNotExist):
+            Enrollment.objects.get(uidentity=jsmith,
+                                   start=second_period,
+                                   end=to_date)
+
+        enrollments = Enrollment.objects.filter(organization__name='Example')
+        self.assertEqual(len(enrollments), 1)
+
+        enrollments = Enrollment.objects.filter(organization__name='Bitergia')
+        self.assertEqual(len(enrollments), 1)
+
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
+
+        from_date = datetime.datetime(1999, 1, 1, tzinfo=UTC)
+        to_date = datetime.datetime(2000, 1, 1, tzinfo=UTC)
+
+        jsmith = UniqueIdentity.objects.create(uuid='AAAA')
+        Identity.objects.create(id='0001', name='John Smith',
+                                uidentity=jsmith)
+
+        example_org = Organization.objects.create(name='Example')
+        enrollment = Enrollment.objects.create(uidentity=jsmith, organization=example_org,
+                                               start=from_date, end=to_date)
+
+        # Tests
+        before_dt = datetime_utcnow()
+        db.delete_enrollment(enrollment)
+        after_dt = datetime_utcnow()
+
+        jsmith = UniqueIdentity.objects.get(uuid='AAAA')
+        self.assertLessEqual(before_dt, jsmith.last_modified)
+        self.assertGreaterEqual(after_dt, jsmith.last_modified)

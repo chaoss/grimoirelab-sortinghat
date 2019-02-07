@@ -434,6 +434,18 @@ def add_enrollment(uidentity, organization,
     return enrollment
 
 
+def delete_enrollment(enrollment):
+    """Remove an enrollment from the database.
+
+    This function removes from the database the enrollment given
+    in `enrollment`.
+
+    :param enrollment: enrollment object to remove
+    """
+    enrollment.delete()
+    enrollment.uidentity.save()
+
+
 _MYSQL_DUPLICATE_ENTRY_ERROR_REGEX = re.compile(r"Duplicate entry '(?P<value>.+)' for key")
 
 
