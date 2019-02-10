@@ -61,6 +61,7 @@ SOURCE_EMPTY_ERROR = "'source' cannot be an empty string"
 IDENTITY_DATA_NONE_OR_EMPTY_ERROR = "identity data cannot be None or empty"
 UNIQUE_IDENTITY_NOT_FOUND_ERROR = "zyxwuv not found in the registry"
 IDENTITY_NOT_FOUND_ERROR = "zyxwuv not found in the registry"
+ORGANIZATION_NOT_FOUND_ERROR = "Bitergia not found in the registry"
 IS_BOT_VALUE_ERROR = "'is_bot' must have a boolean value"
 COUNTRY_CODE_ERROR = r"'country_code' \({code}\) does not match with a valid code"
 GENDER_ACC_INVALID_ERROR = "'gender_acc' can only be set when 'gender' is given"
@@ -118,6 +119,29 @@ class TestFindIdentity(TestCase):
 
         with self.assertRaisesRegex(NotFoundError, IDENTITY_NOT_FOUND_ERROR):
             db.find_identity('zyxwuv')
+
+
+class TestFindOrganization(TestCase):
+    """Unit tests for find_organization"""
+
+    def test_find_organization(self):
+        """Test if an organization is found by its name"""
+
+        name = 'Example'
+        Organization.objects.create(name=name)
+
+        organization = db.find_organization(name)
+        self.assertIsInstance(organization, Organization)
+        self.assertEqual(organization.name, name)
+
+    def test_organization_not_found(self):
+        """Test whether it raises an exception when the organization is not found"""
+
+        name = 'Example'
+        Organization.objects.create(name=name)
+
+        with self.assertRaisesRegex(NotFoundError, ORGANIZATION_NOT_FOUND_ERROR):
+            db.find_organization('Bitergia')
 
 
 class TestAddOrganization(TestCase):

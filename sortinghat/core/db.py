@@ -82,6 +82,28 @@ def find_identity(uuid):
         return identity
 
 
+def find_organization(name):
+    """Find an organization.
+
+    Find an organization by its name in the database. When the
+    organization does not exist the function will raise
+    a `NotFoundError`.
+
+    :param name: name of the organization to find
+
+    :returns: an organization object
+
+    :raises NotFoundError: when the organization with the
+        given `name` does not exists.
+    """
+    try:
+        organization = Organization.objects.get(name=name)
+    except Organization.DoesNotExist:
+        raise NotFoundError(entity=name)
+    else:
+        return organization
+
+
 def add_organization(name):
     """Add an organization to the database.
 
