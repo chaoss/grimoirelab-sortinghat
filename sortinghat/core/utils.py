@@ -21,6 +21,82 @@
 
 import unicodedata
 
+from .models import MIN_PERIOD_DATE, MAX_PERIOD_DATE
+
+
+def merge_datetime_ranges(dates, exclude_limits=False):
+    """Merge datetime ranges.
+
+    Generator that merges overlapped datetime ranges. For example,
+    assuming all dates where set to the same time and are in UTC
+    timezone, these are some expected results:
+
+        * [(1900-01-01, 2010-01-01), (2008-01-01, 2100-01-01)]
+          --> [(1900-01-01, 2100-01-01)]
+        * [(1900-01-01, 2010-01-01), (2008-01-01, 2010-01-01), (2010-01-02, 2100-01-01)]
+          --> [(1900-01-01, 2010-01-01), (2011-01-02, 2100-01-01)]
+        * [(1900-01-01, 2010-01-01), (2010-01-02, 2100-01-01)]
+          --> [(1900-01-01, 2010-01-01), (2010-01-02, 2100-01-01)]
+
+    Default init and end dates (1900-01-01 and 2100-01-01) are
+    considered range limits. These will be removed when a set of
+    ranges overlaps and `exclude_limits` is set. Compare the next
+    examples with the ones from above:
+
+        * [(1900-01-01, 2010-01-01), (2008-01-01, 2100-01-01)]
+          --> [(2008-01-01, 2010-01-01)]
+        * [(1900-01-01, 2010-01-01), (2008-01-01, 2010-01-01), (2010-01-02, 2100-01-01)]
+          --> [(2008-01-01, 2010-01-01), (2010-01-02, 2100-01-01)]
+        * [(1900-01-01, 2010-01-01), (2010-01-02, 2100-01-01)]
+          --> [(1900-01-01, 2010-01-01), (2010-01-02, 2100-01-01)]
+
+    The condition MIN_PERIOD_DATE <= dt <= MAX_PERIOD_DATE must be
+    true for each date. Otherwise, the generator will raise a
+    `ValueError` exception.
+
+    :param dates: sequence of datetime ranges where each range is a
+        (start_date, end_date) tuple
+    :param exclude_limits: remove MIN_PERIOD_DATE and MAX_PERIOD_DATE
+        from overlapped ranges
+    :returns: a generator of merged datetime ranges where each range
+        is a (start_date, end_date) tuple
+
+    :raises ValueError: when a value of the data range is out of bounds
+    :raises TypeError: when timezone info is not set in any datetime object
+    """
+    # This code is based on samplebias' answer to StackOverflow question
+    # "Merging a list of time-range tuples that have overlapping time-ranges"
+    # (http: // stackoverflow.com / questions / 5679638).
+
+    if not dates:
+        return
+
+    sorted_dates = sorted([sorted(t) for t in dates])
+    date_range = list(sorted_dates[0])
+
+    for start, end in sorted_dates:
+        if start < MIN_PERIOD_DATE or start > MAX_PERIOD_DATE:
+            raise ValueError("'start' date {} is out of bounds".format(start))
+        if end < MIN_PERIOD_DATE or end > MAX_PERIOD_DATE:
+            raise ValueError("'end' date {} is out of bounds".format(end))
+
+        if start <= date_range[1]:
+            if exclude_limits:
+                if date_range[0] == MIN_PERIOD_DATE:
+                    date_range[0] = start
+                if MAX_PERIOD_DATE in (end, date_range[1]):
+                    date_range[1] = min(date_range[1], end)
+                else:
+                    date_range[1] = max(date_range[1], end)
+            else:
+                date_range[1] = max(date_range[1], end)
+        else:
+            yield tuple(date_range)
+            date_range[0] = start
+            date_range[1] = end
+
+    yield tuple(date_range)
+
 
 def unaccent_string(unistr):
     """Convert a Unicode string to its canonical form without accents.

@@ -19,12 +19,360 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+import datetime
+
+from dateutil.tz import UTC
+
 from django.test import TestCase
 
-from sortinghat.core.utils import unaccent_string
+from sortinghat.core.utils import merge_datetime_ranges, unaccent_string
 
 
+CANT_COMPARE_DATES_ERROR = "can't compare offset-naive and offset-aware datetimes"
+DATE_OUT_OF_BOUNDS_ERROR = "'{type}' date {date} is out of bounds"
 UNACCENT_TYPE_ERROR = "argument must be a string; int given"
+
+
+class TestMergeDatetimeRanges(TestCase):
+    """Unit tests for merge_datetime_ranges function"""
+
+    def test_merge_datetime_ranges(self):
+        """Test function with several case scenarios"""
+
+        # Case 1: merge overlapped ranges
+        dates = [
+            (datetime.datetime(1900, 1, 1, tzinfo=UTC), datetime.datetime(2010, 1, 1, tzinfo=UTC)),
+            (datetime.datetime(2008, 1, 1, tzinfo=UTC), datetime.datetime(2100, 1, 1, tzinfo=UTC))
+        ]
+
+        ranges = [r for r in merge_datetime_ranges(dates)]
+        expected = [
+            (datetime.datetime(1900, 1, 1, tzinfo=UTC), datetime.datetime(2100, 1, 1, tzinfo=UTC))
+        ]
+        self.assertListEqual(ranges, expected)
+
+        # Case 2: merge a range contained within other ranges
+        dates = [
+            (datetime.datetime(1900, 1, 1, tzinfo=UTC), datetime.datetime(2010, 1, 1, tzinfo=UTC)),
+            (datetime.datetime(2010, 1, 2, tzinfo=UTC), datetime.datetime(2100, 1, 1, tzinfo=UTC)),
+            (datetime.datetime(2008, 1, 1, tzinfo=UTC), datetime.datetime(2010, 1, 1, tzinfo=UTC))
+        ]
+
+        ranges = [r for r in merge_datetime_ranges(dates)]
+        expected = [
+            (datetime.datetime(1900, 1, 1, tzinfo=UTC), datetime.datetime(2010, 1, 1, tzinfo=UTC)),
+            (datetime.datetime(2010, 1, 2, tzinfo=UTC), datetime.datetime(2100, 1, 1, tzinfo=UTC))
+        ]
+        self.assertListEqual(ranges, expected)
+
+        # Case 3: merge a set of ranges contained within another one
+        dates = [
+            (datetime.datetime(2006, 1, 1, tzinfo=UTC), datetime.datetime(2008, 1, 1, tzinfo=UTC)),
+            (datetime.datetime(1999, 1, 1, tzinfo=UTC), datetime.datetime(2000, 1, 1, tzinfo=UTC)),
+            (datetime.datetime(1900, 1, 1, tzinfo=UTC), datetime.datetime(2100, 1, 1, tzinfo=UTC))
+        ]
+
+        ranges = [r for r in merge_datetime_ranges(dates)]
+        expected = [
+            (datetime.datetime(1900, 1, 1, tzinfo=UTC), datetime.datetime(2100, 1, 1, tzinfo=UTC))
+        ]
+        self.assertListEqual(ranges, expected)
+
+        # Case 4: merge disjoint ranges
+        dates = [
+            (datetime.datetime(1900, 1, 1, tzinfo=UTC), datetime.datetime(2010, 1, 1, tzinfo=UTC)),
+            (datetime.datetime(2010, 1, 2, tzinfo=UTC), datetime.datetime(2100, 1, 1, tzinfo=UTC))
+        ]
+
+        ranges = [r for r in merge_datetime_ranges(dates)]
+        expected = [
+            (datetime.datetime(1900, 1, 1, tzinfo=UTC), datetime.datetime(2010, 1, 1, tzinfo=UTC)),
+            (datetime.datetime(2010, 1, 2, tzinfo=UTC), datetime.datetime(2100, 1, 1, tzinfo=UTC))
+        ]
+        self.assertListEqual(ranges, expected)
+
+        # Case 5: merge ranges where part of them are contained within others
+        dates = [
+            (datetime.datetime(2005, 1, 1, tzinfo=UTC), datetime.datetime(2008, 1, 1, tzinfo=UTC)),
+            (datetime.datetime(2005, 10, 15, tzinfo=UTC), datetime.datetime(2010, 1, 1, tzinfo=UTC)),
+            (datetime.datetime(2008, 1, 5, tzinfo=UTC), datetime.datetime(2009, 1, 1, tzinfo=UTC))
+        ]
+
+        ranges = [r for r in merge_datetime_ranges(dates)]
+        expected = [
+            (datetime.datetime(2005, 1, 1, tzinfo=UTC), datetime.datetime(2010, 1, 1, tzinfo=UTC))
+        ]
+        self.assertListEqual(ranges, expected)
+
+        # Case 6: min limit is not excluded but ranges are merged
+        dates = [
+            (datetime.datetime(2000, 1, 1, tzinfo=UTC), datetime.datetime(2100, 1, 1, tzinfo=UTC)),
+            (datetime.datetime(1900, 1, 1, tzinfo=UTC), datetime.datetime(2100, 1, 1, tzinfo=UTC))
+        ]
+
+        ranges = [r for r in merge_datetime_ranges(dates)]
+        expected = [
+            (datetime.datetime(1900, 1, 1, tzinfo=UTC), datetime.datetime(2100, 1, 1, tzinfo=UTC))
+        ]
+        self.assertListEqual(ranges, expected)
+
+        # Case 7: max limit is not excluded but ranges are merged
+        dates = [
+            (datetime.datetime(1900, 1, 1, tzinfo=UTC), datetime.datetime(2000, 1, 1, tzinfo=UTC)),
+            (datetime.datetime(1900, 1, 1, tzinfo=UTC), datetime.datetime(2100, 1, 1, tzinfo=UTC))
+        ]
+
+        ranges = [r for r in merge_datetime_ranges(dates)]
+        expected = [
+            (datetime.datetime(1900, 1, 1, tzinfo=UTC), datetime.datetime(2100, 1, 1, tzinfo=UTC))
+        ]
+        self.assertListEqual(ranges, expected)
+
+        # Case 8: limit ranges are not excluded
+        dates = [
+            (datetime.datetime(1900, 1, 1, tzinfo=UTC), datetime.datetime(2100, 1, 1, tzinfo=UTC))
+        ]
+
+        ranges = [r for r in merge_datetime_ranges(dates)]
+        expected = [
+            (datetime.datetime(1900, 1, 1, tzinfo=UTC), datetime.datetime(2100, 1, 1, tzinfo=UTC))
+        ]
+        self.assertListEqual(ranges, expected)
+
+        # Case 8a: min limit range is not excluded
+        dates = [
+            (datetime.datetime(1900, 1, 1, tzinfo=UTC), datetime.datetime(2005, 1, 1, tzinfo=UTC))
+        ]
+
+        ranges = [r for r in merge_datetime_ranges(dates)]
+        expected = [
+            (datetime.datetime(1900, 1, 1, tzinfo=UTC), datetime.datetime(2005, 1, 1, tzinfo=UTC))
+        ]
+        self.assertListEqual(ranges, expected)
+
+        # Case 8b: max limit range is not excluded
+        dates = [
+            (datetime.datetime(2005, 1, 1, tzinfo=UTC), datetime.datetime(2100, 1, 1, tzinfo=UTC))
+        ]
+
+        ranges = [r for r in merge_datetime_ranges(dates)]
+        expected = [
+            (datetime.datetime(2005, 1, 1, tzinfo=UTC), datetime.datetime(2100, 1, 1, tzinfo=UTC))
+        ]
+        self.assertListEqual(ranges, expected)
+
+    def test_merge_duplicated_ranges(self):
+        """Test if duplicated ranges are merged into one"""
+
+        dates = [
+            (datetime.datetime(1900, 1, 1, tzinfo=UTC), datetime.datetime(2100, 1, 1, tzinfo=UTC)),
+            (datetime.datetime(1900, 1, 1, tzinfo=UTC), datetime.datetime(2100, 1, 1, tzinfo=UTC))
+        ]
+
+        ranges = [r for r in merge_datetime_ranges(dates)]
+        expected = [
+            (datetime.datetime(1900, 1, 1, tzinfo=UTC), datetime.datetime(2100, 1, 1, tzinfo=UTC))
+        ]
+        self.assertListEqual(ranges, expected)
+
+    def test_merge_excluding_limits(self):
+        """Test function with several case inputs when exclude_limits is set"""
+
+        # Case 1: merge overlapped ranges excluding min and max limits
+        dates = [
+            (datetime.datetime(1900, 1, 1, tzinfo=UTC), datetime.datetime(2010, 1, 1, tzinfo=UTC)),
+            (datetime.datetime(2008, 1, 1, tzinfo=UTC), datetime.datetime(2100, 1, 1, tzinfo=UTC))
+        ]
+
+        ranges = [r for r in merge_datetime_ranges(dates, exclude_limits=True)]
+        expected = [
+            (datetime.datetime(2008, 1, 1, tzinfo=UTC), datetime.datetime(2010, 1, 1, tzinfo=UTC))
+        ]
+        self.assertListEqual(ranges, expected)
+
+        # Case 2: merge a range contained within other ranges excluding min and max limits
+        dates = [
+            (datetime.datetime(1900, 1, 1, tzinfo=UTC), datetime.datetime(2010, 1, 1, tzinfo=UTC)),
+            (datetime.datetime(2010, 1, 2, tzinfo=UTC), datetime.datetime(2100, 1, 1, tzinfo=UTC)),
+            (datetime.datetime(2008, 1, 1, tzinfo=UTC), datetime.datetime(2010, 1, 1, tzinfo=UTC))
+        ]
+
+        ranges = [r for r in merge_datetime_ranges(dates, exclude_limits=True)]
+        expected = [
+            (datetime.datetime(2008, 1, 1, tzinfo=UTC), datetime.datetime(2010, 1, 1, tzinfo=UTC)),
+            (datetime.datetime(2010, 1, 2, tzinfo=UTC), datetime.datetime(2100, 1, 1, tzinfo=UTC))
+        ]
+        self.assertListEqual(ranges, expected)
+
+        # Case 3: merge a set of ranges contained within another one excluding min and max limits
+        dates = [
+            (datetime.datetime(2006, 1, 1, tzinfo=UTC), datetime.datetime(2008, 1, 1, tzinfo=UTC)),
+            (datetime.datetime(1999, 1, 1, tzinfo=UTC), datetime.datetime(2000, 1, 1, tzinfo=UTC)),
+            (datetime.datetime(1900, 1, 1, tzinfo=UTC), datetime.datetime(2100, 1, 1, tzinfo=UTC))
+        ]
+
+        ranges = [r for r in merge_datetime_ranges(dates, exclude_limits=True)]
+        expected = [
+            (datetime.datetime(1999, 1, 1, tzinfo=UTC), datetime.datetime(2000, 1, 1, tzinfo=UTC)),
+            (datetime.datetime(2006, 1, 1, tzinfo=UTC), datetime.datetime(2008, 1, 1, tzinfo=UTC))
+        ]
+        self.assertListEqual(ranges, expected)
+
+        # Case 4: merge disjoint ranges; as they are disjoint, limits are not excluded
+        dates = [
+            (datetime.datetime(1900, 1, 1, tzinfo=UTC), datetime.datetime(2010, 1, 1, tzinfo=UTC)),
+            (datetime.datetime(2010, 1, 2, tzinfo=UTC), datetime.datetime(2100, 1, 1, tzinfo=UTC))
+        ]
+
+        ranges = [r for r in merge_datetime_ranges(dates, exclude_limits=True)]
+        expected = [
+            (datetime.datetime(1900, 1, 1, tzinfo=UTC), datetime.datetime(2010, 1, 1, tzinfo=UTC)),
+            (datetime.datetime(2010, 1, 2, tzinfo=UTC), datetime.datetime(2100, 1, 1, tzinfo=UTC))
+        ]
+        self.assertListEqual(ranges, expected)
+
+        # Case 5: merge ranges where part of them are contained within others
+        dates = [
+            (datetime.datetime(2005, 1, 1, tzinfo=UTC), datetime.datetime(2008, 1, 1, tzinfo=UTC)),
+            (datetime.datetime(2005, 10, 15, tzinfo=UTC), datetime.datetime(2010, 1, 1, tzinfo=UTC)),
+            (datetime.datetime(2008, 1, 5, tzinfo=UTC), datetime.datetime(2009, 1, 1, tzinfo=UTC))
+        ]
+
+        ranges = [r for r in merge_datetime_ranges(dates, exclude_limits=True)]
+        expected = [
+            (datetime.datetime(2005, 1, 1, tzinfo=UTC), datetime.datetime(2010, 1, 1, tzinfo=UTC))
+        ]
+        self.assertListEqual(ranges, expected)
+
+        # Case 6: min limit is excluded and ranges are merged
+        dates = [
+            (datetime.datetime(2000, 1, 1, tzinfo=UTC), datetime.datetime(2100, 1, 1, tzinfo=UTC)),
+            (datetime.datetime(1900, 1, 1, tzinfo=UTC), datetime.datetime(2100, 1, 1, tzinfo=UTC))
+        ]
+
+        ranges = [r for r in merge_datetime_ranges(dates, exclude_limits=True)]
+        expected = [
+            (datetime.datetime(2000, 1, 1, tzinfo=UTC), datetime.datetime(2100, 1, 1, tzinfo=UTC))
+        ]
+        self.assertListEqual(ranges, expected)
+
+        # Case 7: max limit is excluded and ranges are merged
+        dates = [
+            (datetime.datetime(1900, 1, 1, tzinfo=UTC), datetime.datetime(2000, 1, 1, tzinfo=UTC)),
+            (datetime.datetime(1900, 1, 1, tzinfo=UTC), datetime.datetime(2100, 1, 1, tzinfo=UTC))
+        ]
+
+        ranges = [r for r in merge_datetime_ranges(dates, exclude_limits=True)]
+        expected = [
+            (datetime.datetime(1900, 1, 1, tzinfo=UTC), datetime.datetime(2000, 1, 1, tzinfo=UTC))
+        ]
+        self.assertListEqual(ranges, expected)
+
+        # Case 8: limit ranges are not excluded
+        dates = [
+            (datetime.datetime(1900, 1, 1, tzinfo=UTC), datetime.datetime(2100, 1, 1, tzinfo=UTC))
+        ]
+
+        ranges = [r for r in merge_datetime_ranges(dates, exclude_limits=True)]
+        expected = [
+            (datetime.datetime(1900, 1, 1, tzinfo=UTC), datetime.datetime(2100, 1, 1, tzinfo=UTC))
+        ]
+        self.assertListEqual(ranges, expected)
+
+        # Case 8a: min limit range is not excluded
+        dates = [
+            (datetime.datetime(1900, 1, 1, tzinfo=UTC), datetime.datetime(2005, 1, 1, tzinfo=UTC))
+        ]
+
+        ranges = [r for r in merge_datetime_ranges(dates, exclude_limits=True)]
+        expected = [
+            (datetime.datetime(1900, 1, 1, tzinfo=UTC), datetime.datetime(2005, 1, 1, tzinfo=UTC))
+        ]
+        self.assertListEqual(ranges, expected)
+
+        # Case 8b: max limit range is not excluded
+        dates = [
+            (datetime.datetime(2005, 1, 1, tzinfo=UTC), datetime.datetime(2100, 1, 1, tzinfo=UTC))
+        ]
+
+        ranges = [r for r in merge_datetime_ranges(dates, exclude_limits=True)]
+        expected = [
+            (datetime.datetime(2005, 1, 1, tzinfo=UTC), datetime.datetime(2100, 1, 1, tzinfo=UTC))
+        ]
+        self.assertListEqual(ranges, expected)
+
+    def test_merge_duplicated_ranges_excluding_limits(self):
+        """Test if duplicated ranges are merged excluding limits"""
+
+        # On this case, limits will not be excluded due to there is only one range
+        dates = [
+            (datetime.datetime(1900, 1, 1, tzinfo=UTC), datetime.datetime(2100, 1, 1, tzinfo=UTC)),
+            (datetime.datetime(1900, 1, 1, tzinfo=UTC), datetime.datetime(2100, 1, 1, tzinfo=UTC))
+        ]
+
+        ranges = [r for r in merge_datetime_ranges(dates, exclude_limits=True)]
+        expected = [
+            (datetime.datetime(1900, 1, 1, tzinfo=UTC), datetime.datetime(2100, 1, 1, tzinfo=UTC))
+        ]
+        self.assertListEqual(ranges, expected)
+
+    def test_none_list_of_dates(self):
+        """Check if the result is empty when the list of ranges is None"""
+
+        ranges = [r for r in merge_datetime_ranges(None)]
+        self.assertEqual(ranges, [])
+
+    def test_empty_list_of_dates(self):
+        """Check if the result is empty when the list of ranges is empty"""
+
+        ranges = [r for r in merge_datetime_ranges([])]
+        self.assertEqual(ranges, [])
+
+    def test_dates_out_of_bounds(self):
+        """Check whether it raises an exception when dates are out of bounds"""
+
+        # Case 1
+        dates = [
+            (datetime.datetime(2008, 1, 1, tzinfo=UTC), datetime.datetime(2100, 1, 1, tzinfo=UTC)),
+            (datetime.datetime(1800, 1, 1, tzinfo=UTC), datetime.datetime(2010, 1, 1, tzinfo=UTC))
+        ]
+
+        expected = DATE_OUT_OF_BOUNDS_ERROR.format(type='start',
+                                                   date=r'1800-01-01 00:00:00\+00:00')
+        with self.assertRaisesRegexp(ValueError, expected):
+            _ = [r for r in merge_datetime_ranges(dates)]
+
+        # Case 2
+        dates = [
+            (datetime.datetime(2008, 1, 1, tzinfo=UTC), datetime.datetime(2100, 2, 1, tzinfo=UTC)),
+            (datetime.datetime(1900, 1, 1, tzinfo=UTC), datetime.datetime(2010, 1, 1, tzinfo=UTC))
+        ]
+
+        expected = DATE_OUT_OF_BOUNDS_ERROR.format(type='end',
+                                                   date=r'2100-02-01 00:00:00\+00:00')
+        with self.assertRaisesRegexp(ValueError, expected):
+            _ = [r for r in merge_datetime_ranges(dates)]
+
+    def test_dates_no_timezone(self):
+        """Check whether it raises an exception when dates without timezone are given"""
+
+        # Case 1
+        dates = [
+            (datetime.datetime(2008, 1, 1), datetime.datetime(2100, 1, 1, tzinfo=UTC)),
+            (datetime.datetime(1800, 1, 1, tzinfo=UTC), datetime.datetime(2010, 1, 1, tzinfo=UTC))
+        ]
+
+        with self.assertRaisesRegexp(TypeError, CANT_COMPARE_DATES_ERROR):
+            _ = [r for r in merge_datetime_ranges(dates)]
+
+        # Case 2
+        dates = [
+            (datetime.datetime(2008, 1, 1, tzinfo=UTC), datetime.datetime(2100, 2, 1, tzinfo=UTC)),
+            (datetime.datetime(1900, 1, 1, tzinfo=UTC), datetime.datetime(2010, 1, 1))
+        ]
+
+        with self.assertRaisesRegexp(TypeError, CANT_COMPARE_DATES_ERROR):
+            _ = [r for r in merge_datetime_ranges(dates)]
 
 
 class TestUnnacentString(TestCase):
