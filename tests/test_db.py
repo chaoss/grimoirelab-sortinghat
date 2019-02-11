@@ -144,6 +144,110 @@ class TestFindOrganization(TestCase):
             db.find_organization('Bitergia')
 
 
+class TestSearchEnrollmentsInPeriod(TestCase):
+    """Unit tests for search_enrollments_in_period"""
+
+    def test_search_enrollments(self):
+        """Test if a set of enrollments is returned"""
+
+        uidentity_a = UniqueIdentity.objects.create(uuid='AAAA')
+        uidentity_b = UniqueIdentity.objects.create(uuid='BBBB')
+
+        example_org = Organization.objects.create(name='Example')
+        bitergia_org = Organization.objects.create(name='Bitergia')
+
+        # Example enrollments
+        Enrollment.objects.create(uidentity=uidentity_a, organization=example_org,
+                                  start=datetime.datetime(1999, 1, 1, tzinfo=UTC),
+                                  end=datetime.datetime(2002, 1, 1, tzinfo=UTC))
+        Enrollment.objects.create(uidentity=uidentity_a, organization=example_org,
+                                  start=datetime.datetime(2003, 1, 1, tzinfo=UTC),
+                                  end=datetime.datetime(2005, 1, 1, tzinfo=UTC))
+        Enrollment.objects.create(uidentity=uidentity_a, organization=example_org,
+                                  start=datetime.datetime(2008, 1, 1, tzinfo=UTC),
+                                  end=datetime.datetime(2010, 1, 1, tzinfo=UTC))
+
+        Enrollment.objects.create(uidentity=uidentity_b, organization=example_org,
+                                  start=datetime.datetime(2000, 1, 1, tzinfo=UTC),
+                                  end=datetime.datetime(2015, 1, 1, tzinfo=UTC))
+
+        # Bitergia enrollments
+        Enrollment.objects.create(uidentity=uidentity_a, organization=bitergia_org,
+                                  start=datetime.datetime(2001, 1, 1, tzinfo=UTC),
+                                  end=datetime.datetime(2010, 1, 1, tzinfo=UTC))
+
+        # Tests
+        enrollments = db.search_enrollments_in_period('AAAA', 'Example',
+                                                      from_date=datetime.datetime(2004, 1, 1, tzinfo=UTC),
+                                                      to_date=datetime.datetime(2009, 1, 1, tzinfo=UTC))
+
+        # Only Example enrollments for this identity are returned,
+        # though there are others in the same range
+        self.assertEqual(len(enrollments), 2)
+
+        rol = enrollments[0]
+        self.assertIsInstance(rol, Enrollment)
+        self.assertEqual(rol.uidentity, uidentity_a)
+        self.assertEqual(rol.organization, example_org)
+        self.assertEqual(rol.start, datetime.datetime(2003, 1, 1, tzinfo=UTC))
+        self.assertEqual(rol.end, datetime.datetime(2005, 1, 1, tzinfo=UTC))
+
+        rol = enrollments[1]
+        self.assertIsInstance(rol, Enrollment)
+        self.assertEqual(rol.uidentity, uidentity_a)
+        self.assertEqual(rol.organization, example_org)
+        self.assertEqual(rol.start, datetime.datetime(2008, 1, 1, tzinfo=UTC))
+        self.assertEqual(rol.end, datetime.datetime(2010, 1, 1, tzinfo=UTC))
+
+    def test_no_enrollments_in_period(self):
+        """Test if an empty set is returned when there are not enrollments for a given period"""
+
+        uidentity_a = UniqueIdentity.objects.create(uuid='AAAA')
+        example_org = Organization.objects.create(name='Example')
+
+        Enrollment.objects.create(uidentity=uidentity_a, organization=example_org,
+                                  start=datetime.datetime(1999, 1, 1, tzinfo=UTC),
+                                  end=datetime.datetime(2000, 1, 1, tzinfo=UTC))
+
+        # Tests
+        enrollments = db.search_enrollments_in_period('AAAA', 'Example',
+                                                      from_date=datetime.datetime(2000, 2, 1, tzinfo=UTC),
+                                                      to_date=datetime.datetime(2009, 1, 1, tzinfo=UTC))
+        self.assertEqual(len(enrollments), 0)
+
+    def test_no_identity(self):
+        """Test if an empty set is returned when there identity does not exist"""
+
+        uidentity_a = UniqueIdentity.objects.create(uuid='AAAA')
+        example_org = Organization.objects.create(name='Example')
+
+        Enrollment.objects.create(uidentity=uidentity_a, organization=example_org,
+                                  start=datetime.datetime(1999, 1, 1, tzinfo=UTC),
+                                  end=datetime.datetime(2000, 1, 1, tzinfo=UTC))
+
+        # Tests
+        enrollments = db.search_enrollments_in_period('BBBB', 'Example',
+                                                      from_date=datetime.datetime(1999, 1, 1, tzinfo=UTC),
+                                                      to_date=datetime.datetime(2000, 1, 1, tzinfo=UTC))
+        self.assertEqual(len(enrollments), 0)
+
+    def test_no_organization(self):
+        """Test if an empty set is returned when there organization does not exist"""
+
+        uidentity_a = UniqueIdentity.objects.create(uuid='AAAA')
+        example_org = Organization.objects.create(name='Example')
+
+        Enrollment.objects.create(uidentity=uidentity_a, organization=example_org,
+                                  start=datetime.datetime(1999, 1, 1, tzinfo=UTC),
+                                  end=datetime.datetime(2000, 1, 1, tzinfo=UTC))
+
+        # Tests
+        enrollments = db.search_enrollments_in_period('AAAA', 'Bitergia',
+                                                      from_date=datetime.datetime(1999, 1, 1, tzinfo=UTC),
+                                                      to_date=datetime.datetime(2000, 1, 1, tzinfo=UTC))
+        self.assertEqual(len(enrollments), 0)
+
+
 class TestAddOrganization(TestCase):
     """Unit tests for add_organization"""
 

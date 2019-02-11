@@ -104,6 +104,30 @@ def find_organization(name):
         return organization
 
 
+def search_enrollments_in_period(uuid, org_name,
+                                 from_date=MIN_PERIOD_DATE,
+                                 to_date=MIN_PERIOD_DATE):
+    """Look for enrollments in a given period.
+
+    Returns the enrollments of a unique identity for a given
+    organization during period of time.
+
+    An empty list will be returned when no enrollments could be
+    found, due to the unique identity or the organization do not
+    exist, or there are not enrollments assigned on that period.
+
+    :param uuid: id of the unique identity
+    :param org_name: name of the organization
+    :param from_date: starting date for the period
+    :param to_date: ending date for the period
+
+    :returns: a list of enrollment objects
+    """
+    return Enrollment.objects.filter(uidentity__uuid=uuid,
+                                     organization__name=org_name,
+                                     start__lte=to_date, end__gte=from_date).order_by('start')
+
+
 def add_organization(name):
     """Add an organization to the database.
 
