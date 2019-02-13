@@ -23,15 +23,22 @@ import hashlib
 
 import django.db.transaction
 
+from grimoirelab_toolkit.datetime import datetime_to_utc
+
 from .db import (find_unique_identity,
                  find_identity,
+                 find_organization,
+                 search_enrollments_in_period,
                  add_unique_identity as add_unique_identity_db,
                  add_identity as add_identity_db,
                  delete_unique_identity as delete_unique_identity_db,
                  delete_identity as delete_identity_db,
-                 update_profile as update_profile_db)
-from .errors import InvalidValueError
-from .utils import unaccent_string
+                 update_profile as update_profile_db,
+                 add_enrollment,
+                 delete_enrollment)
+from .errors import InvalidValueError, AlreadyExistsError
+from .models import MIN_PERIOD_DATE, MAX_PERIOD_DATE
+from .utils import unaccent_string, merge_datetime_ranges
 
 
 def generate_uuid(source, email=None, name=None, username=None):
@@ -244,5 +251,95 @@ def update_profile(uuid, **kwargs):
         uidentity = update_profile_db(uidentity, **kwargs)
     except ValueError as e:
         raise InvalidValueError(msg=str(e))
+
+    return uidentity
+
+
+@django.db.transaction.atomic
+def enroll(uuid, organization, from_date=None, to_date=None):
+    """Enroll a unique identity in an organization.
+
+    The function enrolls a unique identity, identified by `uuid`,
+    in the given `organization`. Both identity and organization must
+    exist before adding this enrollment to the registry. Otherwise,
+    a `NotFoundError` exception will be raised.
+
+    The period of the enrollment can be given with the parameters
+    `from_date` and `to_date`, where `from_date <= to_date`. Default
+    values for these dates are `1900-01-01` and `2100-01-01`.
+
+    Existing enrollments for the same unique identity and organization
+    which overlap with the new period will be merged into a single
+    enrollment.
+
+    If the given period for that enrollment is enclosed by one already
+    stored, the function will raise an `AlreadyExistsError` exception.
+
+    The unique identity object with updated enrollment data is returned
+    as the result of calling this function.
+
+    :param uuid: unique identifier
+    :param organization: name of the organization
+    :param from_date: date when the enrollment starts
+    :param to_date: date when the enrollment ends
+
+    :returns: a unique identity with enrollment data updated
+
+    :raises NotFoundError: when either `uuid` or `organization` are not
+        found in the registry.
+    :raises InvalidValueError: raised in three cases, when either identity or
+        organization are None or empty strings; when "from_date" < 1900-01-01 or
+        "to_date" > 2100-01-01; when "from_date > to_date".
+    :raises AlreadyExistsError: raised when the given period for that enrollment
+        already exists in the registry.
+    """
+    if uuid is None:
+        raise InvalidValueError(msg="uuid cannot be None")
+    if uuid == '':
+        raise InvalidValueError(msg="uuid cannot be an empty string")
+    if organization is None:
+        raise InvalidValueError(msg="organization cannot be None")
+    if organization == '':
+        raise InvalidValueError(msg="organization cannot be an empty string")
+
+    from_date = datetime_to_utc(from_date) if from_date else MIN_PERIOD_DATE
+    to_date = datetime_to_utc(to_date) if to_date else MAX_PERIOD_DATE
+
+    if from_date > to_date:
+        msg = "'start' date {} cannot be greater than {}".format(from_date, to_date)
+        raise InvalidValueError(msg=msg)
+
+    # Find and check entities
+    uidentity = find_unique_identity(uuid)
+    org = find_organization(organization)
+
+    # Get the list of current ranges
+    # Check whether the new one already exist
+    enrollments_db = search_enrollments_in_period(uuid, organization,
+                                                  from_date=from_date,
+                                                  to_date=to_date)
+
+    periods = [[enr_db.start, enr_db.end] for enr_db in enrollments_db]
+
+    for period in periods:
+        if from_date >= period[0] and to_date <= period[1]:
+            eid = '{}-{}-{}-{}'.format(uuid, organization, from_date, to_date)
+            raise AlreadyExistsError(entity='Enrollment', eid=eid)
+        if to_date < period[0]:
+            break
+
+    periods.append([from_date, to_date])
+
+    # Remove old enrollments and add new ones based in the new ranges
+    for enrollment_db in enrollments_db:
+        delete_enrollment(enrollment_db)
+
+    try:
+        for start_dt, end_dt in merge_datetime_ranges(periods):
+            add_enrollment(uidentity, org, start=start_dt, end=end_dt)
+    except ValueError as e:
+        raise InvalidValueError(msg=str(e))
+
+    uidentity.refresh_from_db()
 
     return uidentity

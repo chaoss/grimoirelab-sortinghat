@@ -1049,16 +1049,16 @@ class TestAddEnrollment(TestCase):
         self.assertEqual(len(enrollments), 3)
 
         enrollment = enrollments[0]
-        self.assertEqual(enrollment.start, datetime.datetime(1999, 1, 1, tzinfo=UTC))
-        self.assertEqual(enrollment.end, MAX_PERIOD_DATE)
+        self.assertEqual(enrollment.start, MIN_PERIOD_DATE)
+        self.assertEqual(enrollment.end, datetime.datetime(2005, 1, 1, tzinfo=UTC))
         self.assertIsInstance(enrollment.uidentity, UniqueIdentity)
         self.assertEqual(enrollment.uidentity.uuid, uuid)
         self.assertIsInstance(enrollment.organization, Organization)
         self.assertEqual(enrollment.organization.name, name)
 
         enrollment = enrollments[1]
-        self.assertEqual(enrollment.start, MIN_PERIOD_DATE)
-        self.assertEqual(enrollment.end, datetime.datetime(2005, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.start, datetime.datetime(1999, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, MAX_PERIOD_DATE)
         self.assertIsInstance(enrollment.uidentity, UniqueIdentity)
         self.assertEqual(enrollment.uidentity.uuid, uuid)
         self.assertIsInstance(enrollment.organization, Organization)

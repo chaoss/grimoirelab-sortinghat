@@ -172,6 +172,7 @@ class Enrollment(ModelBase):
     class Meta:
         db_table = 'enrollments'
         unique_together = ('uidentity', 'organization', 'start', 'end',)
+        ordering = ('start', 'end', )
 
     def __str__(self):
         return '%s - %s' % (self.uidentity.uuid, self.organization.name)

@@ -19,6 +19,10 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+import datetime
+
+from dateutil.tz import UTC
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 
@@ -32,10 +36,10 @@ from sortinghat.core.errors import (AlreadyExistsError,
 from sortinghat.core.models import (Country,
                                     UniqueIdentity,
                                     Identity,
-                                    Profile,
                                     Enrollment)
 
 
+NOT_FOUND_ERROR = "{entity} not found in the registry"
 SOURCE_NONE_OR_EMPTY_ERROR = "'source' cannot be"
 IDENTITY_NONE_OR_EMPTY_ERROR = "identity data cannot be empty"
 UUID_NONE_OR_EMPTY_ERROR = "'uuid' cannot be"
@@ -44,6 +48,8 @@ COUNTRY_CODE_ERROR = r"'country_code' \({code}\) does not match with a valid cod
 GENDER_ACC_INVALID_ERROR = "'gender_acc' can only be set when 'gender' is given"
 GENDER_ACC_INVALID_TYPE_ERROR = "'gender_acc' must have an integer value"
 GENDER_ACC_INVALID_RANGE_ERROR = r"'gender_acc' \({acc}\) is not in range \(1,100\)"
+PERIOD_INVALID_ERROR = "'start' date {start} cannot be greater than {end}"
+PERIOD_OUT_OF_BOUNDS_ERROR = "'{type}' date {date} is out of bounds"
 
 
 class TestUUID(TestCase):
@@ -777,3 +783,314 @@ class TestUpdateProfile(TestCase):
 
         with self.assertRaisesRegex(InvalidValueError, msg):
             api.update_profile(uuid, gender='male', gender_acc=101)
+
+
+class TestEnroll(TestCase):
+    """Unit tests for enroll"""
+
+    def test_enroll(self):
+        """Check whether it adds an enrollments to a unique identity and an organization"""
+
+        jsmith = api.add_identity('scm', email='jsmith@example')
+        db.add_organization('Example')
+
+        uidentity = api.enroll(jsmith.id, 'Example',
+                               from_date=datetime.datetime(1999, 1, 1),
+                               to_date=datetime.datetime(2000, 1, 1))
+
+        # Tests
+        self.assertIsInstance(uidentity, UniqueIdentity)
+
+        enrollments = uidentity.enrollments.all()
+        self.assertEqual(len(enrollments), 1)
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.organization.name, 'Example')
+        self.assertEqual(enrollment.start, datetime.datetime(1999, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2000, 1, 1, tzinfo=UTC))
+
+        # Check database object
+        uidentity_db = UniqueIdentity.objects.get(uuid=jsmith.id)
+        enrollments_db = uidentity_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 1)
+
+        enrollment_db = enrollments_db[0]
+        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.start, datetime.datetime(1999, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2000, 1, 1, tzinfo=UTC))
+
+    def test_enroll_default_ranges(self):
+        """Check if it enrolls a unique identity using default ranges when they are not given"""
+
+        jsmith = api.add_identity('scm', email='jsmith@example')
+        db.add_organization('Example')
+
+        uidentity = api.enroll(jsmith.id, 'Example')
+
+        # Tests
+        self.assertIsInstance(uidentity, UniqueIdentity)
+
+        enrollments = uidentity.enrollments.all()
+        self.assertEqual(len(enrollments), 1)
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.organization.name, 'Example')
+        self.assertEqual(enrollment.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
+
+        # Check database object
+        uidentity_db = UniqueIdentity.objects.get(uuid=jsmith.id)
+        enrollments_db = uidentity_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 1)
+
+        enrollment_db = enrollments_db[0]
+        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
+
+    def test_enroll_multiple(self):
+        """Check if it enrolls different times a unique identity to an organization"""
+
+        jsmith = api.add_identity('scm', email='jsmith@example')
+        db.add_organization('Example')
+
+        api.enroll(jsmith.id, 'Example',
+                   from_date=datetime.datetime(2013, 1, 1),
+                   to_date=datetime.datetime(2014, 1, 1))
+        api.enroll(jsmith.id, 'Example',
+                   from_date=datetime.datetime(1999, 1, 1),
+                   to_date=datetime.datetime(2000, 1, 1))
+        api.enroll(jsmith.id, 'Example',
+                   from_date=datetime.datetime(2005, 1, 1),
+                   to_date=datetime.datetime(2006, 1, 1))
+
+        # Tests
+        uidentity_db = UniqueIdentity.objects.get(uuid=jsmith.id)
+
+        enrollments = uidentity_db.enrollments.all()
+        self.assertEqual(len(enrollments), 3)
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.organization.name, 'Example')
+        self.assertEqual(enrollment.start, datetime.datetime(1999, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2000, 1, 1, tzinfo=UTC))
+
+        enrollment = enrollments[1]
+        self.assertEqual(enrollment.organization.name, 'Example')
+        self.assertEqual(enrollment.start, datetime.datetime(2005, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2006, 1, 1, tzinfo=UTC))
+
+        enrollment = enrollments[2]
+        self.assertEqual(enrollment.organization.name, 'Example')
+        self.assertEqual(enrollment.start, datetime.datetime(2013, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+    def test_merge_enrollments_upper_bound(self):
+        """Check if enrollments are merged for overlapped ranges"""
+
+        jsmith = api.add_identity('scm', email='jsmith@example')
+        db.add_organization('Example')
+
+        api.enroll(jsmith.id, 'Example',
+                   from_date=datetime.datetime(1999, 1, 1),
+                   to_date=datetime.datetime(2000, 1, 1))
+        api.enroll(jsmith.id, 'Example',
+                   from_date=datetime.datetime(2004, 1, 1),
+                   to_date=datetime.datetime(2006, 1, 1))
+        api.enroll(jsmith.id, 'Example',
+                   from_date=datetime.datetime(2013, 1, 1),
+                   to_date=datetime.datetime(2014, 1, 1))
+
+        # Merge enrollments expanding ending date
+        api.enroll(jsmith.id, 'Example',
+                   from_date=datetime.datetime(2005, 1, 1),
+                   to_date=datetime.datetime(2007, 6, 1))
+
+        uidentity_db = UniqueIdentity.objects.get(uuid=jsmith.id)
+
+        enrollments = uidentity_db.enrollments.all()
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.start, datetime.datetime(1999, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2000, 1, 1, tzinfo=UTC))
+
+        enrollment = enrollments[1]
+        self.assertEqual(enrollment.start, datetime.datetime(2004, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2007, 6, 1, tzinfo=UTC))
+
+        enrollment = enrollments[2]
+        self.assertEqual(enrollment.start, datetime.datetime(2013, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+    def test_merge_enrollments_lower_bound(self):
+        """Check if enrollments are merged for overlapped ranges"""
+
+        jsmith = api.add_identity('scm', email='jsmith@example')
+        db.add_organization('Example')
+
+        api.enroll(jsmith.id, 'Example',
+                   from_date=datetime.datetime(1999, 1, 1),
+                   to_date=datetime.datetime(2000, 1, 1))
+        api.enroll(jsmith.id, 'Example',
+                   from_date=datetime.datetime(2004, 1, 1),
+                   to_date=datetime.datetime(2006, 1, 1))
+        api.enroll(jsmith.id, 'Example',
+                   from_date=datetime.datetime(2013, 1, 1),
+                   to_date=datetime.datetime(2014, 1, 1))
+
+        # Merge enrollments expanding starting date
+        api.enroll(jsmith.id, 'Example',
+                   from_date=datetime.datetime(2002, 1, 1),
+                   to_date=datetime.datetime(2013, 6, 1))
+
+        uidentity_db = UniqueIdentity.objects.get(uuid=jsmith.id)
+
+        enrollments = uidentity_db.enrollments.all()
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.start, datetime.datetime(1999, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2000, 1, 1, tzinfo=UTC))
+
+        enrollment = enrollments[1]
+        self.assertEqual(enrollment.start, datetime.datetime(2002, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+    def test_merge_enrollments_both_bounds(self):
+        """Check if enrollments are merged for overlapped ranges"""
+
+        jsmith = api.add_identity('scm', email='jsmith@example')
+        db.add_organization('Example')
+
+        api.enroll(jsmith.id, 'Example',
+                   from_date=datetime.datetime(1999, 1, 1),
+                   to_date=datetime.datetime(2000, 1, 1))
+        api.enroll(jsmith.id, 'Example',
+                   from_date=datetime.datetime(2004, 1, 1),
+                   to_date=datetime.datetime(2006, 1, 1))
+        api.enroll(jsmith.id, 'Example',
+                   from_date=datetime.datetime(2013, 1, 1),
+                   to_date=datetime.datetime(2014, 1, 1))
+
+        # Merge enrollments expending both bounds
+        api.enroll(jsmith.id, 'Example',
+                   from_date=datetime.datetime(1900, 1, 1),
+                   to_date=datetime.datetime(2100, 1, 1))
+
+        uidentity_db = UniqueIdentity.objects.get(uuid=jsmith.id)
+
+        enrollments = uidentity_db.enrollments.all()
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
+
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
+
+        jsmith = api.add_identity('scm', email='jsmith@example')
+        db.add_organization('Example')
+
+        before_dt = datetime_utcnow()
+        uidentity = api.enroll(jsmith.id, 'Example',
+                               from_date=datetime.datetime(2013, 1, 1),
+                               to_date=datetime.datetime(2014, 1, 1))
+        after_dt = datetime_utcnow()
+
+        self.assertLessEqual(before_dt, uidentity.last_modified)
+        self.assertGreaterEqual(after_dt, uidentity.last_modified)
+
+    def test_period_invalid(self):
+        """Check whether enrollments cannot be added giving invalid period ranges"""
+
+        jsmith = api.add_identity('scm', email='jsmith@example')
+        db.add_organization('Example')
+
+        data = {
+            'start': r'2001-01-01 00:00:00\+00:00',
+            'end': r'1999-01-01 00:00:00\+00:00'
+        }
+        msg = PERIOD_INVALID_ERROR.format(**data)
+
+        with self.assertRaisesRegex(InvalidValueError, msg):
+            api.enroll(jsmith.id, 'Example',
+                       from_date=datetime.datetime(2001, 1, 1),
+                       to_date=datetime.datetime(1999, 1, 1))
+
+    def test_period_out_of_bounds(self):
+        """Check whether enrollments cannot be added giving periods out of bounds"""
+
+        jsmith = api.add_identity('scm', email='jsmith@example')
+        db.add_organization('Example')
+
+        data = {
+            'type': 'start',
+            'date': r'1899-12-31 23:59:59\+00:00'
+        }
+        msg = PERIOD_OUT_OF_BOUNDS_ERROR.format(**data)
+
+        with self.assertRaisesRegex(InvalidValueError, msg):
+            api.enroll(jsmith.id, 'Example',
+                       from_date=datetime.datetime(1899, 12, 31, 23, 59, 59, tzinfo=UTC))
+
+        data = {
+            'type': 'end',
+            'date': r'2100-01-01 00:00:01\+00:00'
+        }
+        msg = PERIOD_OUT_OF_BOUNDS_ERROR.format(**data)
+
+        with self.assertRaisesRegex(InvalidValueError, msg):
+            api.enroll(jsmith.id, 'Example',
+                       to_date=datetime.datetime(2100, 1, 1, 0, 0, 1, tzinfo=UTC))
+
+        data = {
+            'type': 'start',
+            'date': r'1898-12-31 23:59:59\+00:00'
+        }
+        msg = PERIOD_OUT_OF_BOUNDS_ERROR.format(**data)
+
+        with self.assertRaisesRegex(InvalidValueError, msg):
+            api.enroll(jsmith.id, 'Example',
+                       from_date=datetime.datetime(1898, 12, 31, 23, 59, 59, tzinfo=UTC),
+                       to_date=datetime.datetime(1899, 12, 31, 23, 59, 59, tzinfo=UTC))
+
+    def test_non_existing_uuid(self):
+        """Check if it fails adding enrollments to not existing unique identities"""
+
+        api.add_identity('scm', email='jsmith@example')
+        db.add_organization('Example')
+
+        msg = NOT_FOUND_ERROR.format(entity='abcdefghijklmnopqrstuvwxyz')
+
+        with self.assertRaisesRegex(NotFoundError, msg):
+            api.enroll('abcdefghijklmnopqrstuvwxyz', 'Example')
+
+    def test_non_existing_organization(self):
+        """Check if it fails adding enrollments to not existing organizations"""
+
+        jsmith = api.add_identity('scm', email='jsmith@example')
+        db.add_organization('Example')
+
+        msg = NOT_FOUND_ERROR.format(entity='Bitergia')
+
+        with self.assertRaisesRegex(NotFoundError, msg):
+            api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Bitergia')
+
+    def test_already_exist_enrollment(self):
+        """Test if it raises an exception when the enrollment for the given range already exists"""
+
+        api.add_identity('scm', email='jsmith@example')
+        db.add_organization('Example')
+
+        api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                   from_date=datetime.datetime(1999, 1, 1),
+                   to_date=datetime.datetime(2010, 1, 1))
+
+        with self.assertRaises(AlreadyExistsError):
+            api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                       from_date=datetime.datetime(1999, 1, 1),
+                       to_date=datetime.datetime(2010, 1, 1))
+
+        with self.assertRaises(AlreadyExistsError):
+            api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                       from_date=datetime.datetime(2005, 1, 1),
+                       to_date=datetime.datetime(2009, 1, 1))
