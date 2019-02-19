@@ -44,6 +44,7 @@ from sortinghat.core.schema import SortingHatQuery, SortingHatMutation
 DUPLICATED_ORG_ERROR = "Organization 'Example' already exists in the registry"
 DUPLICATED_DOM_ERROR = "Domain 'example.net' already exists in the registry"
 DUPLICATED_UNIQUE_IDENTITY = "UniqueIdentity 'eda9f62ad321b1fbe5f283cc05e2484516203117' already exists in the registry"
+DUPLICATED_ENROLLMENT_ERROR = "Enrollment '{}' already exists in the registry"
 NAME_EMPTY_ERROR = "'name' cannot be an empty string"
 DOMAIN_NAME_EMPTY_ERROR = "'domain_name' cannot be an empty string"
 SOURCE_EMPTY_ERROR = "'source' cannot be an empty string"
@@ -52,6 +53,7 @@ UUID_EMPTY_ERROR = "'uuid' cannot be an empty string"
 ORG_DOES_NOT_EXIST_ERROR = "Organization matching query does not exist."
 DOMAIN_DOES_NOT_EXIST_ERROR = "Domain matching query does not exist."
 UID_DOES_NOT_EXIST_ERROR = "FFFFFFFFFFFFFFF not found in the registry"
+ORGANIZATION_DOES_NOT_EXIST_ERROR = "Bitergia not found in the registry"
 
 
 # Test queries
@@ -1222,3 +1224,164 @@ class TestUpdateProfileMutation(django.test.TestCase):
         profile = executed['data']['updateProfile']['uidentity']['profile']
         self.assertEqual(profile['name'], None)
         self.assertEqual(profile['email'], None)
+
+
+class TestEnrollMutation(django.test.TestCase):
+    """Unit tests for mutation to enroll identities"""
+
+    SH_ENROLL = """
+      mutation enrollId($uuid: String, $organization: String,
+                        $fromDate: DateTime, $toDate: DateTime) {
+        enroll(uuid: $uuid, organization: $organization
+               fromDate: $fromDate, toDate: $toDate) {
+          uuid
+          uidentity {
+            uuid
+            enrollments {
+              organization {
+                name
+              }
+            start
+            end
+            }
+          }
+        }
+      }
+    """
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        jsmith = api.add_identity('scm', email='jsmith@example')
+        db.add_organization('Example')
+
+        api.enroll(jsmith.id, 'Example',
+                   from_date=datetime.datetime(1999, 1, 1),
+                   to_date=datetime.datetime(2000, 1, 1))
+        api.enroll(jsmith.id, 'Example',
+                   from_date=datetime.datetime(2004, 1, 1),
+                   to_date=datetime.datetime(2006, 1, 1))
+
+    def test_enroll(self):
+        """Check if it enrolls a unique identity"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuid': 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+            'organization': 'Example',
+            'fromDate': '2008-01-01T00:00:00+0000',
+            'toDate': '2009-01-01T00:00:00+0000'
+        }
+        executed = client.execute(self.SH_ENROLL, variables=params)
+
+        # Check results, profile was updated
+        enrollments = executed['data']['enroll']['uidentity']['enrollments']
+
+        self.assertEqual(len(enrollments), 3)
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment['organization']['name'], 'Example')
+        self.assertEqual(enrollment['start'], '1999-01-01T00:00:00+00:00')
+        self.assertEqual(enrollment['end'], '2000-01-01T00:00:00+00:00')
+
+        enrollment = enrollments[1]
+        self.assertEqual(enrollment['organization']['name'], 'Example')
+        self.assertEqual(enrollment['start'], '2004-01-01T00:00:00+00:00')
+        self.assertEqual(enrollment['end'], '2006-01-01T00:00:00+00:00')
+
+        enrollment = enrollments[2]
+        self.assertEqual(enrollment['organization']['name'], 'Example')
+        self.assertEqual(enrollment['start'], '2008-01-01T00:00:00+00:00')
+        self.assertEqual(enrollment['end'], '2009-01-01T00:00:00+00:00')
+
+        uuid = executed['data']['enroll']['uuid']
+        self.assertEqual(uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        # Check database
+        uidentity = UniqueIdentity.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        enrollments_db = uidentity.enrollments.all()
+        self.assertEqual(len(enrollments_db), 3)
+
+    def test_merge_enrollments(self):
+        """Check if enrollments are merged for overlapped new entries"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuid': 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+            'organization': 'Example',
+            'fromDate': '1998-01-01T00:00:00+0000',
+            'toDate': '2009-01-01T00:00:00+0000'
+        }
+        executed = client.execute(self.SH_ENROLL, variables=params)
+
+        # Check results, profile was updated
+        enrollments = executed['data']['enroll']['uidentity']['enrollments']
+
+        self.assertEqual(len(enrollments), 1)
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment['organization']['name'], 'Example')
+        self.assertEqual(enrollment['start'], '1998-01-01T00:00:00+00:00')
+        self.assertEqual(enrollment['end'], '2009-01-01T00:00:00+00:00')
+
+        uuid = executed['data']['enroll']['uuid']
+        self.assertEqual(uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        # Check database
+        uidentity = UniqueIdentity.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        enrollments_db = uidentity.enrollments.all()
+        self.assertEqual(len(enrollments_db), 1)
+
+    def test_non_existing_uuid(self):
+        """Check if it fails when the unique identity does not exist"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuid': 'FFFFFFFFFFFFFFF',
+            'organization': 'Example',
+            'fromDate': '1998-01-01T00:00:00+0000',
+            'toDate': '2009-01-01T00:00:00+0000'
+        }
+        executed = client.execute(self.SH_ENROLL, variables=params)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, UID_DOES_NOT_EXIST_ERROR)
+
+    def test_non_existing_organization(self):
+        """Check if it fails when the organization does not exist"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuid': 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+            'organization': 'Bitergia',
+            'fromDate': '1998-01-01T00:00:00+0000',
+            'toDate': '2009-01-01T00:00:00+0000'
+        }
+        executed = client.execute(self.SH_ENROLL, variables=params)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, ORGANIZATION_DOES_NOT_EXIST_ERROR)
+
+    def test_integrity_error(self):
+        """Check whether enrollments in an existing period cannot be inserted"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuid': 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+            'organization': 'Example',
+            'fromDate': '2005-01-01T00:00:00+0000',
+            'toDate': '2005-06-01T00:00:00+0000'
+        }
+        executed = client.execute(self.SH_ENROLL, variables=params)
+
+        msg = executed['errors'][0]['message']
+        err = 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3-Example-2005-01-01 00:00:00+00:00-2005-06-01 00:00:00+00:00'
+        err = DUPLICATED_ENROLLMENT_ERROR.format(err)
+        self.assertEqual(msg, err)

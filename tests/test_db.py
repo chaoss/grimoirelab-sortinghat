@@ -20,6 +20,10 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+import datetime
+
+from dateutil.tz import UTC
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 
@@ -27,7 +31,9 @@ from grimoirelab_toolkit.datetime import datetime_utcnow
 
 from sortinghat.core import db
 from sortinghat.core.errors import AlreadyExistsError, NotFoundError
-from sortinghat.core.models import (Organization,
+from sortinghat.core.models import (MIN_PERIOD_DATE,
+                                    MAX_PERIOD_DATE,
+                                    Organization,
                                     Domain,
                                     Country,
                                     UniqueIdentity,
@@ -55,11 +61,16 @@ SOURCE_EMPTY_ERROR = "'source' cannot be an empty string"
 IDENTITY_DATA_NONE_OR_EMPTY_ERROR = "identity data cannot be None or empty"
 UNIQUE_IDENTITY_NOT_FOUND_ERROR = "zyxwuv not found in the registry"
 IDENTITY_NOT_FOUND_ERROR = "zyxwuv not found in the registry"
+ORGANIZATION_NOT_FOUND_ERROR = "Bitergia not found in the registry"
 IS_BOT_VALUE_ERROR = "'is_bot' must have a boolean value"
 COUNTRY_CODE_ERROR = r"'country_code' \({code}\) does not match with a valid code"
 GENDER_ACC_INVALID_ERROR = "'gender_acc' can only be set when 'gender' is given"
 GENDER_ACC_INVALID_TYPE_ERROR = "'gender_acc' must have an integer value"
 GENDER_ACC_INVALID_RANGE_ERROR = r"'gender_acc' \({acc}\) is not in range \(1,100\)"
+START_DATE_NONE_ERROR = "'start' date cannot be None"
+END_DATE_NONE_ERROR = "'end' date cannot be None"
+PERIOD_INVALID_ERROR = "'start' date {start} cannot be greater than {end}"
+PERIOD_OUT_OF_BOUNDS_ERROR = "'{type}' date {date} is out of bounds"
 
 
 class TestFindUniqueIdentity(TestCase):
@@ -108,6 +119,133 @@ class TestFindIdentity(TestCase):
 
         with self.assertRaisesRegex(NotFoundError, IDENTITY_NOT_FOUND_ERROR):
             db.find_identity('zyxwuv')
+
+
+class TestFindOrganization(TestCase):
+    """Unit tests for find_organization"""
+
+    def test_find_organization(self):
+        """Test if an organization is found by its name"""
+
+        name = 'Example'
+        Organization.objects.create(name=name)
+
+        organization = db.find_organization(name)
+        self.assertIsInstance(organization, Organization)
+        self.assertEqual(organization.name, name)
+
+    def test_organization_not_found(self):
+        """Test whether it raises an exception when the organization is not found"""
+
+        name = 'Example'
+        Organization.objects.create(name=name)
+
+        with self.assertRaisesRegex(NotFoundError, ORGANIZATION_NOT_FOUND_ERROR):
+            db.find_organization('Bitergia')
+
+
+class TestSearchEnrollmentsInPeriod(TestCase):
+    """Unit tests for search_enrollments_in_period"""
+
+    def test_search_enrollments(self):
+        """Test if a set of enrollments is returned"""
+
+        uidentity_a = UniqueIdentity.objects.create(uuid='AAAA')
+        uidentity_b = UniqueIdentity.objects.create(uuid='BBBB')
+
+        example_org = Organization.objects.create(name='Example')
+        bitergia_org = Organization.objects.create(name='Bitergia')
+
+        # Example enrollments
+        Enrollment.objects.create(uidentity=uidentity_a, organization=example_org,
+                                  start=datetime.datetime(1999, 1, 1, tzinfo=UTC),
+                                  end=datetime.datetime(2002, 1, 1, tzinfo=UTC))
+        Enrollment.objects.create(uidentity=uidentity_a, organization=example_org,
+                                  start=datetime.datetime(2003, 1, 1, tzinfo=UTC),
+                                  end=datetime.datetime(2005, 1, 1, tzinfo=UTC))
+        Enrollment.objects.create(uidentity=uidentity_a, organization=example_org,
+                                  start=datetime.datetime(2008, 1, 1, tzinfo=UTC),
+                                  end=datetime.datetime(2010, 1, 1, tzinfo=UTC))
+
+        Enrollment.objects.create(uidentity=uidentity_b, organization=example_org,
+                                  start=datetime.datetime(2000, 1, 1, tzinfo=UTC),
+                                  end=datetime.datetime(2015, 1, 1, tzinfo=UTC))
+
+        # Bitergia enrollments
+        Enrollment.objects.create(uidentity=uidentity_a, organization=bitergia_org,
+                                  start=datetime.datetime(2001, 1, 1, tzinfo=UTC),
+                                  end=datetime.datetime(2010, 1, 1, tzinfo=UTC))
+
+        # Tests
+        enrollments = db.search_enrollments_in_period('AAAA', 'Example',
+                                                      from_date=datetime.datetime(2004, 1, 1, tzinfo=UTC),
+                                                      to_date=datetime.datetime(2009, 1, 1, tzinfo=UTC))
+
+        # Only Example enrollments for this identity are returned,
+        # though there are others in the same range
+        self.assertEqual(len(enrollments), 2)
+
+        rol = enrollments[0]
+        self.assertIsInstance(rol, Enrollment)
+        self.assertEqual(rol.uidentity, uidentity_a)
+        self.assertEqual(rol.organization, example_org)
+        self.assertEqual(rol.start, datetime.datetime(2003, 1, 1, tzinfo=UTC))
+        self.assertEqual(rol.end, datetime.datetime(2005, 1, 1, tzinfo=UTC))
+
+        rol = enrollments[1]
+        self.assertIsInstance(rol, Enrollment)
+        self.assertEqual(rol.uidentity, uidentity_a)
+        self.assertEqual(rol.organization, example_org)
+        self.assertEqual(rol.start, datetime.datetime(2008, 1, 1, tzinfo=UTC))
+        self.assertEqual(rol.end, datetime.datetime(2010, 1, 1, tzinfo=UTC))
+
+    def test_no_enrollments_in_period(self):
+        """Test if an empty set is returned when there are not enrollments for a given period"""
+
+        uidentity_a = UniqueIdentity.objects.create(uuid='AAAA')
+        example_org = Organization.objects.create(name='Example')
+
+        Enrollment.objects.create(uidentity=uidentity_a, organization=example_org,
+                                  start=datetime.datetime(1999, 1, 1, tzinfo=UTC),
+                                  end=datetime.datetime(2000, 1, 1, tzinfo=UTC))
+
+        # Tests
+        enrollments = db.search_enrollments_in_period('AAAA', 'Example',
+                                                      from_date=datetime.datetime(2000, 2, 1, tzinfo=UTC),
+                                                      to_date=datetime.datetime(2009, 1, 1, tzinfo=UTC))
+        self.assertEqual(len(enrollments), 0)
+
+    def test_no_identity(self):
+        """Test if an empty set is returned when there identity does not exist"""
+
+        uidentity_a = UniqueIdentity.objects.create(uuid='AAAA')
+        example_org = Organization.objects.create(name='Example')
+
+        Enrollment.objects.create(uidentity=uidentity_a, organization=example_org,
+                                  start=datetime.datetime(1999, 1, 1, tzinfo=UTC),
+                                  end=datetime.datetime(2000, 1, 1, tzinfo=UTC))
+
+        # Tests
+        enrollments = db.search_enrollments_in_period('BBBB', 'Example',
+                                                      from_date=datetime.datetime(1999, 1, 1, tzinfo=UTC),
+                                                      to_date=datetime.datetime(2000, 1, 1, tzinfo=UTC))
+        self.assertEqual(len(enrollments), 0)
+
+    def test_no_organization(self):
+        """Test if an empty set is returned when there organization does not exist"""
+
+        uidentity_a = UniqueIdentity.objects.create(uuid='AAAA')
+        example_org = Organization.objects.create(name='Example')
+
+        Enrollment.objects.create(uidentity=uidentity_a, organization=example_org,
+                                  start=datetime.datetime(1999, 1, 1, tzinfo=UTC),
+                                  end=datetime.datetime(2000, 1, 1, tzinfo=UTC))
+
+        # Tests
+        enrollments = db.search_enrollments_in_period('AAAA', 'Bitergia',
+                                                      from_date=datetime.datetime(1999, 1, 1, tzinfo=UTC),
+                                                      to_date=datetime.datetime(2000, 1, 1, tzinfo=UTC))
+        self.assertEqual(len(enrollments), 0)
 
 
 class TestAddOrganization(TestCase):
@@ -858,3 +996,244 @@ class TestUpdateProfile(TestCase):
         with self.assertRaisesRegex(ValueError, msg):
             db.update_profile(uidentity,
                               gender='male', gender_acc=101)
+
+
+class TestAddEnrollment(TestCase):
+    """Unit tests for add_enrollment"""
+
+    def test_enroll(self):
+        """Check if a new enrollment is added"""
+
+        uuid = '1234567890ABCDFE'
+
+        uidentity = UniqueIdentity.objects.create(uuid=uuid)
+        org = Organization.objects.create(name='Example')
+
+        start = datetime.datetime(1999, 1, 1, tzinfo=UTC)
+        end = datetime.datetime(2000, 1, 1, tzinfo=UTC)
+
+        enrollment = db.add_enrollment(uidentity, org, start=start, end=end)
+
+        self.assertIsInstance(enrollment, Enrollment)
+        self.assertEqual(enrollment.start, start)
+        self.assertEqual(enrollment.end, end)
+        self.assertEqual(enrollment.uidentity, uidentity)
+        self.assertEqual(enrollment.organization, org)
+
+        uidentity = UniqueIdentity.objects.get(uuid=uuid)
+
+        enrollments = uidentity.enrollments.all()
+        self.assertEqual(len(enrollments), 1)
+
+        enrollment_db = enrollments[0]
+        self.assertEqual(enrollment, enrollment_db)
+
+    def test_add_multiple_enrollments(self):
+        """Check if multiple enrollments can be added"""
+
+        uuid = '1234567890ABCDFE'
+        name = 'Example'
+
+        uidentity = UniqueIdentity.objects.create(uuid='1234567890ABCDFE')
+        org = Organization.objects.create(name='Example')
+
+        db.add_enrollment(uidentity, org, start=datetime.datetime(1999, 1, 1, tzinfo=UTC))
+        db.add_enrollment(uidentity, org, end=datetime.datetime(2005, 1, 1, tzinfo=UTC))
+        db.add_enrollment(uidentity, org, start=datetime.datetime(2013, 1, 1, tzinfo=UTC),
+                          end=datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+        # Tests
+        uidentity = UniqueIdentity.objects.get(uuid=uuid)
+
+        enrollments = uidentity.enrollments.all()
+        self.assertEqual(len(enrollments), 3)
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.start, MIN_PERIOD_DATE)
+        self.assertEqual(enrollment.end, datetime.datetime(2005, 1, 1, tzinfo=UTC))
+        self.assertIsInstance(enrollment.uidentity, UniqueIdentity)
+        self.assertEqual(enrollment.uidentity.uuid, uuid)
+        self.assertIsInstance(enrollment.organization, Organization)
+        self.assertEqual(enrollment.organization.name, name)
+
+        enrollment = enrollments[1]
+        self.assertEqual(enrollment.start, datetime.datetime(1999, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, MAX_PERIOD_DATE)
+        self.assertIsInstance(enrollment.uidentity, UniqueIdentity)
+        self.assertEqual(enrollment.uidentity.uuid, uuid)
+        self.assertIsInstance(enrollment.organization, Organization)
+        self.assertEqual(enrollment.organization.name, name)
+
+        enrollment = enrollments[2]
+        self.assertEqual(enrollment.start, datetime.datetime(2013, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
+        self.assertIsInstance(enrollment.uidentity, UniqueIdentity)
+        self.assertEqual(enrollment.uidentity.uuid, uuid)
+        self.assertIsInstance(enrollment.organization, Organization)
+        self.assertEqual(enrollment.organization.name, name)
+
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
+
+        uidentity = UniqueIdentity.objects.create(uuid='1234567890ABCDFE')
+        org = Organization.objects.create(name='Example')
+
+        before_dt = datetime_utcnow()
+        db.add_enrollment(uidentity, org, start=MIN_PERIOD_DATE, end=MAX_PERIOD_DATE)
+        after_dt = datetime_utcnow()
+
+        # Tests
+        uidentity = UniqueIdentity.objects.get(uuid='1234567890ABCDFE')
+        self.assertLessEqual(before_dt, uidentity.last_modified)
+        self.assertGreaterEqual(after_dt, uidentity.last_modified)
+
+    def test_from_date_none(self):
+        """Check if an enrollment cannot be added when from_date is None"""
+
+        uidentity = UniqueIdentity.objects.create(uuid='1234567890ABCDFE')
+        org = Organization.objects.create(name='Example')
+
+        with self.assertRaisesRegex(ValueError, START_DATE_NONE_ERROR):
+            db.add_enrollment(uidentity, org,
+                              start=None, end=datetime.datetime(1999, 1, 1, tzinfo=UTC))
+
+    def test_to_date_none(self):
+        """Check if an enrollment cannot be added when to_date is None"""
+
+        uidentity = UniqueIdentity.objects.create(uuid='1234567890ABCDFE')
+        org = Organization.objects.create(name='Example')
+
+        with self.assertRaisesRegex(ValueError, END_DATE_NONE_ERROR):
+            db.add_enrollment(uidentity, org,
+                              start=datetime.datetime(2001, 1, 1, tzinfo=UTC), end=None)
+
+    def test_period_invalid(self):
+        """Check whether enrollments cannot be added giving invalid period ranges"""
+
+        uidentity = UniqueIdentity.objects.create(uuid='1234567890ABCDFE')
+        org = Organization.objects.create(name='Example')
+
+        data = {
+            'start': r'2001-01-01 00:00:00\+00:00',
+            'end': r'1999-01-01 00:00:00\+00:00'
+        }
+        msg = PERIOD_INVALID_ERROR.format(**data)
+
+        with self.assertRaisesRegex(ValueError, msg):
+            db.add_enrollment(uidentity, org,
+                              start=datetime.datetime(2001, 1, 1, tzinfo=UTC),
+                              end=datetime.datetime(1999, 1, 1, tzinfo=UTC))
+
+    def test_period_out_of_bounds(self):
+        """Check whether enrollments cannot be added giving a range out of bounds"""
+
+        uidentity = UniqueIdentity.objects.create(uuid='1234567890ABCDFE')
+        org = Organization.objects.create(name='Example')
+
+        data = {
+            'type': 'start',
+            'date': r'1899-12-31 23:59:59\+00:00'
+        }
+        msg = PERIOD_OUT_OF_BOUNDS_ERROR.format(**data)
+
+        with self.assertRaisesRegex(ValueError, msg):
+            db.add_enrollment(uidentity, org,
+                              start=datetime.datetime(1899, 12, 31, 23, 59, 59, tzinfo=UTC))
+
+        data = {
+            'type': 'start',
+            'date': r'2100-01-01 00:00:01\+00:00'
+        }
+        msg = PERIOD_OUT_OF_BOUNDS_ERROR.format(**data)
+
+        with self.assertRaisesRegex(ValueError, msg):
+            db.add_enrollment(uidentity, org,
+                              start=datetime.datetime(2100, 1, 1, 0, 0, 1, tzinfo=UTC))
+
+        data = {
+            'type': 'end',
+            'date': r'2100-01-01 00:00:01\+00:00'
+        }
+        msg = PERIOD_OUT_OF_BOUNDS_ERROR.format(**data)
+
+        with self.assertRaisesRegex(ValueError, msg):
+            db.add_enrollment(uidentity, org,
+                              end=datetime.datetime(2100, 1, 1, 0, 0, 1, tzinfo=UTC))
+
+        data = {
+            'type': 'end',
+            'date': r'1899-12-31 23:59:59\+00:00'
+        }
+        msg = PERIOD_OUT_OF_BOUNDS_ERROR.format(**data)
+
+        with self.assertRaisesRegex(ValueError, msg):
+            db.add_enrollment(uidentity, org,
+                              end=datetime.datetime(1899, 12, 31, 23, 59, 59, tzinfo=UTC))
+
+
+class TestDeleteEnrollment(TestCase):
+    """Unit tests for delete_enrollment"""
+
+    def test_delete_enrollment(self):
+        """Check whether it deletes an enrollment"""
+
+        from_date = datetime.datetime(1999, 1, 1, tzinfo=UTC)
+        first_period = datetime.datetime(2000, 1, 1, tzinfo=UTC)
+        second_period = datetime.datetime(2010, 1, 1, tzinfo=UTC)
+        to_date = datetime.datetime(2010, 1, 1, tzinfo=UTC)
+
+        jsmith = UniqueIdentity.objects.create(uuid='AAAA')
+        Identity.objects.create(id='0001', name='John Smith',
+                                uidentity=jsmith)
+
+        example_org = Organization.objects.create(name='Example')
+        Enrollment.objects.create(uidentity=jsmith, organization=example_org,
+                                  start=from_date, end=first_period)
+        enrollment = Enrollment.objects.create(uidentity=jsmith, organization=example_org,
+                                               start=second_period, end=to_date)
+
+        bitergia_org = Organization.objects.create(name='Bitergia')
+        Enrollment.objects.create(uidentity=jsmith, organization=bitergia_org,
+                                  start=first_period, end=second_period)
+
+        # Check data and remove enrollment
+        jsmith.refresh_from_db()
+        self.assertEqual(len(jsmith.identities.all()), 1)
+        self.assertEqual(len(jsmith.enrollments.all()), 3)
+
+        db.delete_enrollment(enrollment)
+
+        # Tests
+        with self.assertRaises(ObjectDoesNotExist):
+            Enrollment.objects.get(uidentity=jsmith,
+                                   start=second_period,
+                                   end=to_date)
+
+        enrollments = Enrollment.objects.filter(organization__name='Example')
+        self.assertEqual(len(enrollments), 1)
+
+        enrollments = Enrollment.objects.filter(organization__name='Bitergia')
+        self.assertEqual(len(enrollments), 1)
+
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
+
+        from_date = datetime.datetime(1999, 1, 1, tzinfo=UTC)
+        to_date = datetime.datetime(2000, 1, 1, tzinfo=UTC)
+
+        jsmith = UniqueIdentity.objects.create(uuid='AAAA')
+        Identity.objects.create(id='0001', name='John Smith',
+                                uidentity=jsmith)
+
+        example_org = Organization.objects.create(name='Example')
+        enrollment = Enrollment.objects.create(uidentity=jsmith, organization=example_org,
+                                               start=from_date, end=to_date)
+
+        # Tests
+        before_dt = datetime_utcnow()
+        db.delete_enrollment(enrollment)
+        after_dt = datetime_utcnow()
+
+        jsmith = UniqueIdentity.objects.get(uuid='AAAA')
+        self.assertLessEqual(before_dt, jsmith.last_modified)
+        self.assertGreaterEqual(after_dt, jsmith.last_modified)
