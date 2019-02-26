@@ -54,6 +54,7 @@ ORG_DOES_NOT_EXIST_ERROR = "Organization matching query does not exist."
 DOMAIN_DOES_NOT_EXIST_ERROR = "Domain matching query does not exist."
 UID_DOES_NOT_EXIST_ERROR = "FFFFFFFFFFFFFFF not found in the registry"
 ORGANIZATION_DOES_NOT_EXIST_ERROR = "Bitergia not found in the registry"
+ENROLLMENT_DOES_NOT_EXIST_ERROR = "'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3-Example-2050-01-01 00:00:00+00:00-2060-01-01 00:00:00+00:00' not found in the registry"
 
 
 # Test queries
@@ -1385,3 +1386,177 @@ class TestEnrollMutation(django.test.TestCase):
         err = 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3-Example-2005-01-01 00:00:00+00:00-2005-06-01 00:00:00+00:00'
         err = DUPLICATED_ENROLLMENT_ERROR.format(err)
         self.assertEqual(msg, err)
+
+
+class TestWithdrawMutation(django.test.TestCase):
+    """Unit tests for mutation to withdraw identities"""
+
+    SH_WITHDRAW = """
+      mutation withdrawId($uuid: String, $organization: String,
+                          $fromDate: DateTime, $toDate: DateTime) {
+        withdraw(uuid: $uuid, organization: $organization
+                 fromDate: $fromDate, toDate: $toDate) {
+          uuid
+          uidentity {
+            uuid
+            enrollments {
+              organization {
+                name
+              }
+            start
+            end
+            }
+          }
+        }
+      }
+    """
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        db.add_organization('Example')
+        db.add_organization('LibreSoft')
+
+        api.add_identity('scm', email='jsmith@example')
+        api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                   from_date=datetime.datetime(2006, 1, 1),
+                   to_date=datetime.datetime(2008, 1, 1))
+        api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                   from_date=datetime.datetime(2009, 1, 1),
+                   to_date=datetime.datetime(2011, 1, 1))
+        api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                   from_date=datetime.datetime(2012, 1, 1),
+                   to_date=datetime.datetime(2014, 1, 1))
+        api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'LibreSoft',
+                   from_date=datetime.datetime(2012, 1, 1),
+                   to_date=datetime.datetime(2014, 1, 1))
+
+        api.add_identity('scm', email='jrae@example')
+        api.enroll('3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                   from_date=datetime.datetime(2012, 1, 1),
+                   to_date=datetime.datetime(2014, 1, 1))
+
+    def test_withdraw(self):
+        """Check if it withdraws a unique identity from an organization"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuid': 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+            'organization': 'Example',
+            'fromDate': '2007-01-01T00:00:00+0000',
+            'toDate': '2013-01-01T00:00:00+0000'
+        }
+        executed = client.execute(self.SH_WITHDRAW, variables=params)
+
+        # Check results, enrollments were updated
+        enrollments = executed['data']['withdraw']['uidentity']['enrollments']
+
+        self.assertEqual(len(enrollments), 3)
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment['organization']['name'], 'Example')
+        self.assertEqual(enrollment['start'], '2006-01-01T00:00:00+00:00')
+        self.assertEqual(enrollment['end'], '2007-01-01T00:00:00+00:00')
+
+        enrollment = enrollments[1]
+        self.assertEqual(enrollment['organization']['name'], 'LibreSoft')
+        self.assertEqual(enrollment['start'], '2012-01-01T00:00:00+00:00')
+        self.assertEqual(enrollment['end'], '2014-01-01T00:00:00+00:00')
+
+        enrollment = enrollments[2]
+        self.assertEqual(enrollment['organization']['name'], 'Example')
+        self.assertEqual(enrollment['start'], '2013-01-01T00:00:00+00:00')
+        self.assertEqual(enrollment['end'], '2014-01-01T00:00:00+00:00')
+
+        uuid = executed['data']['withdraw']['uuid']
+        self.assertEqual(uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        # Check database
+        uidentity = UniqueIdentity.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        enrollments_db = uidentity.enrollments.all()
+        self.assertEqual(len(enrollments_db), 3)
+
+        # Other enrollments were not deleted
+        uidentity_db = UniqueIdentity.objects.get(uuid='3283e58cef2b80007aa1dfc16f6dd20ace1aee96')
+        enrollments_db = uidentity_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 1)
+
+    def test_withdraw_default_ranges(self):
+        """Check if it withdraws a unique identity using default ranges when they are not given"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuid': 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+            'organization': 'Example'
+        }
+        executed = client.execute(self.SH_WITHDRAW, variables=params)
+
+        # Check results, enrollments were updated
+        enrollments = executed['data']['withdraw']['uidentity']['enrollments']
+
+        self.assertEqual(len(enrollments), 1)
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment['organization']['name'], 'LibreSoft')
+        self.assertEqual(enrollment['start'], '2012-01-01T00:00:00+00:00')
+        self.assertEqual(enrollment['end'], '2014-01-01T00:00:00+00:00')
+
+        uuid = executed['data']['withdraw']['uuid']
+        self.assertEqual(uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        # Check database
+        uidentity = UniqueIdentity.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        enrollments_db = uidentity.enrollments.all()
+        self.assertEqual(len(enrollments_db), 1)
+
+    def test_non_existing_uuid(self):
+        """Check if it fails when the unique identity does not exist"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuid': 'FFFFFFFFFFFFFFF',
+            'organization': 'Example',
+            'fromDate': '1998-01-01T00:00:00+0000',
+            'toDate': '2009-01-01T00:00:00+0000'
+        }
+        executed = client.execute(self.SH_WITHDRAW, variables=params)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, UID_DOES_NOT_EXIST_ERROR)
+
+    def test_non_existing_organization(self):
+        """Check if it fails when the organization does not exist"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuid': 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+            'organization': 'Bitergia',
+            'fromDate': '1998-01-01T00:00:00+0000',
+            'toDate': '2009-01-01T00:00:00+0000'
+        }
+        executed = client.execute(self.SH_WITHDRAW, variables=params)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, ORGANIZATION_DOES_NOT_EXIST_ERROR)
+
+    def test_non_existing_enrollments(self):
+        """Check if it fails when the enrollments for a period do not exist"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuid': 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+            'organization': 'Example',
+            'fromDate': '2050-01-01T00:00:00+0000',
+            'toDate': '2060-01-01T00:00:00+0000'
+        }
+        executed = client.execute(self.SH_WITHDRAW, variables=params)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, ENROLLMENT_DOES_NOT_EXIST_ERROR)

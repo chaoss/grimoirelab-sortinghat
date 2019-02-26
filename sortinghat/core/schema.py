@@ -26,7 +26,8 @@ from graphene_django.types import DjangoObjectType
 from .api import (add_identity,
                   delete_identity,
                   update_profile,
-                  enroll)
+                  enroll,
+                  withdraw)
 from .db import (add_organization,
                  delete_organization,
                  add_domain,
@@ -230,6 +231,25 @@ class Enroll(graphene.Mutation):
         )
 
 
+class Withdraw(graphene.Mutation):
+    class Arguments:
+        uuid = graphene.String()
+        organization = graphene.String()
+        from_date = graphene.DateTime(required=False)
+        to_date = graphene.DateTime(required=False)
+
+    uuid = graphene.Field(lambda: graphene.String)
+    uidentity = graphene.Field(lambda: UniqueIdentityType)
+
+    def mutate(self, info, uuid, organization, from_date=None, to_date=None):
+        uidentity = withdraw(uuid, organization,
+                             from_date=from_date, to_date=to_date)
+        return Withdraw(
+            uuid=uidentity.uuid,
+            uidentity=uidentity
+        )
+
+
 class SortingHatQuery:
     organizations = graphene.List(OrganizationType)
     uidentities = graphene.Field(
@@ -257,3 +277,4 @@ class SortingHatMutation(graphene.ObjectType):
     delete_identity = DeleteIdentity.Field()
     update_profile = UpdateProfile.Field()
     enroll = Enroll.Field()
+    withdraw = Withdraw.Field()
