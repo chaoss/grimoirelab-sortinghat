@@ -50,6 +50,7 @@ GENDER_ACC_INVALID_TYPE_ERROR = "'gender_acc' must have an integer value"
 GENDER_ACC_INVALID_RANGE_ERROR = r"'gender_acc' \({acc}\) is not in range \(1,100\)"
 PERIOD_INVALID_ERROR = "'start' date {start} cannot be greater than {end}"
 PERIOD_OUT_OF_BOUNDS_ERROR = "'{type}' date {date} is out of bounds"
+WITHDRAW_PERIOD_INVALID_ERROR = "'from_date' date {from_date} cannot be greater than {to_date}"
 
 
 class TestUUID(TestCase):
@@ -1094,3 +1095,188 @@ class TestEnroll(TestCase):
             api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
                        from_date=datetime.datetime(2005, 1, 1),
                        to_date=datetime.datetime(2009, 1, 1))
+
+
+class TestWithdraw(TestCase):
+    """Unit tests for withdraw"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        db.add_organization('Example')
+        db.add_organization('Bitergia')
+
+        api.add_identity('scm', email='jsmith@example')
+        api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                   from_date=datetime.datetime(2006, 1, 1),
+                   to_date=datetime.datetime(2008, 1, 1))
+        api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                   from_date=datetime.datetime(2009, 1, 1),
+                   to_date=datetime.datetime(2011, 1, 1))
+        api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                   from_date=datetime.datetime(2012, 1, 1),
+                   to_date=datetime.datetime(2014, 1, 1))
+        api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Bitergia',
+                   from_date=datetime.datetime(2012, 1, 1),
+                   to_date=datetime.datetime(2014, 1, 1))
+
+        api.add_identity('scm', email='jrae@example')
+        api.enroll('3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                   from_date=datetime.datetime(2012, 1, 1),
+                   to_date=datetime.datetime(2014, 1, 1))
+
+    def test_withdraw(self):
+        """Check whether it withdraws a unique identity from an organization during the given period"""
+
+        uidentity = api.withdraw('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                                 from_date=datetime.datetime(2007, 1, 1),
+                                 to_date=datetime.datetime(2013, 1, 1))
+
+        # Tests
+        self.assertIsInstance(uidentity, UniqueIdentity)
+
+        enrollments = uidentity.enrollments.all()
+        self.assertEqual(len(enrollments), 3)
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.organization.name, 'Example')
+        self.assertEqual(enrollment.start, datetime.datetime(2006, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2007, 1, 1, tzinfo=UTC))
+
+        enrollment = enrollments[1]
+        self.assertEqual(enrollment.organization.name, 'Bitergia')
+        self.assertEqual(enrollment.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+        enrollment = enrollments[2]
+        self.assertEqual(enrollment.organization.name, 'Example')
+        self.assertEqual(enrollment.start, datetime.datetime(2013, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+        # Check database object
+        uidentity_db = UniqueIdentity.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        enrollments_db = uidentity_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 3)
+
+        enrollment_db = enrollments_db[0]
+        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2006, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2007, 1, 1, tzinfo=UTC))
+
+        enrollment_db = enrollments_db[1]
+        self.assertEqual(enrollment_db.organization.name, 'Bitergia')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+        enrollment_db = enrollments_db[2]
+        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2013, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+        # Other enrollments were not deleted
+        uidentity_db = UniqueIdentity.objects.get(uuid='3283e58cef2b80007aa1dfc16f6dd20ace1aee96')
+        enrollments_db = uidentity_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 1)
+
+        enrollment_db = enrollments_db[0]
+        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+    def test_withdraw_default_ranges(self):
+        """Check if it withdraws a unique identity using default ranges when they are not given"""
+
+        uidentity = api.withdraw('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example')
+
+        # Tests
+        self.assertIsInstance(uidentity, UniqueIdentity)
+
+        enrollments = uidentity.enrollments.all()
+        self.assertEqual(len(enrollments), 1)
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.organization.name, 'Bitergia')
+        self.assertEqual(enrollment.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+        # Check database object
+        uidentity_db = UniqueIdentity.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        enrollments_db = uidentity_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 1)
+
+        enrollment_db = enrollments_db[0]
+        self.assertEqual(enrollment_db.organization.name, 'Bitergia')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+    def test_period_invalid(self):
+        """Check whether enrollments cannot be withdrawn giving invalid period ranges"""
+
+        data = {
+            'from_date': r'2001-01-01 00:00:00\+00:00',
+            'to_date': r'1999-01-01 00:00:00\+00:00'
+        }
+        msg = WITHDRAW_PERIOD_INVALID_ERROR.format(**data)
+
+        with self.assertRaisesRegex(InvalidValueError, msg):
+            api.withdraw('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                         from_date=datetime.datetime(2001, 1, 1),
+                         to_date=datetime.datetime(1999, 1, 1))
+
+    def test_period_out_of_bounds(self):
+        """Check whether enrollments cannot be withdrawn giving periods out of bounds"""
+
+        data = {
+            'type': 'from_date',
+            'date': r'1899-12-31 23:59:59\+00:00'
+        }
+        msg = PERIOD_OUT_OF_BOUNDS_ERROR.format(**data)
+
+        with self.assertRaisesRegex(InvalidValueError, msg):
+            api.withdraw('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                         from_date=datetime.datetime(1899, 12, 31, 23, 59, 59))
+
+        data = {
+            'type': 'to_date',
+            'date': r'2100-01-01 00:00:01\+00:00'
+        }
+        msg = PERIOD_OUT_OF_BOUNDS_ERROR.format(**data)
+
+        with self.assertRaisesRegex(InvalidValueError, msg):
+            api.withdraw('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                         to_date=datetime.datetime(2100, 1, 1, 0, 0, 1))
+
+        data = {
+            'type': 'from_date',
+            'date': r'1898-12-31 23:59:59\+00:00'
+        }
+        msg = PERIOD_OUT_OF_BOUNDS_ERROR.format(**data)
+
+        with self.assertRaisesRegex(InvalidValueError, msg):
+            api.withdraw('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                         from_date=datetime.datetime(1898, 12, 31, 23, 59, 59),
+                         to_date=datetime.datetime(1899, 12, 31, 23, 59, 59))
+
+    def test_non_existing_uuid(self):
+        """Check if it fails withdrawing from not existing unique identities"""
+
+        msg = NOT_FOUND_ERROR.format(entity='abcdefghijklmnopqrstuvwxyz')
+
+        with self.assertRaisesRegex(NotFoundError, msg):
+            api.withdraw('abcdefghijklmnopqrstuvwxyz', 'Example')
+
+    def test_non_existing_organization(self):
+        """Check if it fails withdrawing from not existing organizations"""
+
+        msg = NOT_FOUND_ERROR.format(entity='LibreSoft')
+
+        with self.assertRaisesRegex(NotFoundError, msg):
+            api.withdraw('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'LibreSoft')
+
+    def test_non_existing_enrollment(self):
+        """Check if it fails withdrawing not existing enrollments"""
+
+        with self.assertRaises(NotFoundError):
+            api.withdraw('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                         from_date=datetime.datetime(2050, 1, 1),
+                         to_date=datetime.datetime(2060, 1, 1))

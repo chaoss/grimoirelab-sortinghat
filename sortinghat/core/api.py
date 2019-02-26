@@ -36,7 +36,7 @@ from .db import (find_unique_identity,
                  update_profile as update_profile_db,
                  add_enrollment,
                  delete_enrollment)
-from .errors import InvalidValueError, AlreadyExistsError
+from .errors import InvalidValueError, AlreadyExistsError, NotFoundError
 from .models import MIN_PERIOD_DATE, MAX_PERIOD_DATE
 from .utils import unaccent_string, merge_datetime_ranges
 
@@ -337,6 +337,104 @@ def enroll(uuid, organization, from_date=None, to_date=None):
     try:
         for start_dt, end_dt in merge_datetime_ranges(periods):
             add_enrollment(uidentity, org, start=start_dt, end=end_dt)
+    except ValueError as e:
+        raise InvalidValueError(msg=str(e))
+
+    uidentity.refresh_from_db()
+
+    return uidentity
+
+
+@django.db.transaction.atomic
+def withdraw(uuid, organization, from_date=None, to_date=None):
+    """Withdraw a unique identity from an organization.
+
+    This function withdraws a unique identity identified by `uuid`
+    from the given `organization` during the given period of time.
+
+    For example, if the unique identity `A` was enrolled from `2010-01-01`
+    to `2018-01-01` to the organization `Example`, the result of withdrawing
+    that identity from `2014-01-01` to `2016-01-01` will be two enrollments
+    for that identity: one for the period 2010-2014 and another one for
+    the period 2016-2018. If the period of withdrawing encloses minimum
+    and maximum dates, all the enrollments will be removed.
+
+    Both `uuid` and `organization` must exists before being deleted.
+    Moreover, an enrollment during the given period must exist.
+    Otherwise, it will raise a `NotFoundError` exception.
+
+    The period of the enrollment can be given with the parameters
+    `from_date` and `to_date`, where `from_date <= to_date`. Default
+    values for these dates are `1900-01-01` and `2100-01-01`.
+
+    The unique identity object with updated enrollment data is returned
+    as the result of calling this function.
+
+    :param uuid: unique identifier
+    :param organization: name of the organization
+    :param from_date: date when the enrollment starts
+    :param to_date: date when the enrollment ends
+
+    :returns: a unique identity with enrollment data updated
+
+    :raises NotFoundError: when either `uuid` or `organization` are not
+        found in the registry or when the identity is not enrolled
+        in that organization for the given period
+    :raises InvalidValeError: raised in three cases, when either identity or
+        organization are `None` or empty strings; when "from_date" < 1900-01-01 or
+        "to_date" > 2100-01-01; when "from_date > to_date"
+    """
+    if uuid is None:
+        raise InvalidValueError(msg="uuid cannot be None")
+    if uuid == '':
+        raise InvalidValueError(msg="uuid cannot be an empty string")
+    if organization is None:
+        raise InvalidValueError(msg="organization cannot be None")
+    if organization == '':
+        raise InvalidValueError(msg="organization cannot be an empty string")
+
+    from_date = datetime_to_utc(from_date) if from_date else MIN_PERIOD_DATE
+    to_date = datetime_to_utc(to_date) if to_date else MAX_PERIOD_DATE
+
+    if from_date < MIN_PERIOD_DATE or from_date > MAX_PERIOD_DATE:
+        raise InvalidValueError(msg="'from_date' date {} is out of bounds".format(from_date))
+    if to_date < MIN_PERIOD_DATE or to_date > MAX_PERIOD_DATE:
+        raise InvalidValueError(msg="'to_date' date {} is out of bounds".format(to_date))
+    if from_date > to_date:
+        msg = "'from_date' date {} cannot be greater than {}".format(from_date, to_date)
+        raise InvalidValueError(msg=msg)
+
+    # Find and check entities
+    uidentity = find_unique_identity(uuid)
+    org = find_organization(organization)
+
+    # Get the list of current ranges
+    # Check whether any enrollment for the given period exist
+    enrollments_db = search_enrollments_in_period(uuid, organization,
+                                                  from_date=from_date,
+                                                  to_date=to_date)
+
+    if not enrollments_db:
+        eid = "'{}-{}-{}-{}'".format(uuid, organization, from_date, to_date)
+        raise NotFoundError(entity=eid)
+
+    # Remove enrollments and generate new periods
+    mins = []
+    maxs = []
+
+    for enrollment_db in enrollments_db:
+        mins.append(enrollment_db.start)
+        maxs.append(enrollment_db.end)
+        delete_enrollment(enrollment_db)
+
+    min_range = min(mins)
+    max_range = max(maxs)
+
+    try:
+        if min_range < from_date:
+            add_enrollment(uidentity, org, start=min_range, end=from_date)
+        if max_range > to_date:
+            add_enrollment(uidentity, org, start=to_date, end=max_range)
     except ValueError as e:
         raise InvalidValueError(msg=str(e))
 
