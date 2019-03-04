@@ -1209,6 +1209,16 @@ class TestWithdraw(TestCase):
         self.assertEqual(enrollment_db.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
 
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
+
+        before_dt = datetime_utcnow()
+        uidentity = api.withdraw('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example')
+        after_dt = datetime_utcnow()
+
+        self.assertLessEqual(before_dt, uidentity.last_modified)
+        self.assertGreaterEqual(after_dt, uidentity.last_modified)
+
     def test_period_invalid(self):
         """Check whether enrollments cannot be withdrawn giving invalid period ranges"""
 
