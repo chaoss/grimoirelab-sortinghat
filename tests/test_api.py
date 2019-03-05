@@ -43,6 +43,8 @@ NOT_FOUND_ERROR = "{entity} not found in the registry"
 SOURCE_NONE_OR_EMPTY_ERROR = "'source' cannot be"
 IDENTITY_NONE_OR_EMPTY_ERROR = "identity data cannot be empty"
 UUID_NONE_OR_EMPTY_ERROR = "'uuid' cannot be"
+FROM_ID_NONE_OR_EMPTY_ERROR = "'from_id' cannot be"
+TO_UUID_NONE_OR_EMPTY_ERROR = "'to_uuid' cannot be"
 IS_BOT_VALUE_ERROR = "'is_bot' must have a boolean value"
 COUNTRY_CODE_ERROR = r"'country_code' \({code}\) does not match with a valid code"
 GENDER_ACC_INVALID_ERROR = "'gender_acc' can only be set when 'gender' is given"
@@ -784,6 +786,196 @@ class TestUpdateProfile(TestCase):
 
         with self.assertRaisesRegex(InvalidValueError, msg):
             api.update_profile(uuid, gender='male', gender_acc=101)
+
+
+class TestMoveIdentity(TestCase):
+    """Unit tests for move_identity"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        jsmith = api.add_identity('scm', email='jsmith@example.com')
+        api.add_identity('scm',
+                         name='John Smith',
+                         email='jsmith@example.com',
+                         uuid=jsmith.id)
+        api.add_identity('scm', email='jdoe@example.com')
+
+    def test_move_identity(self):
+        """Test whether an identity is moved to a unique identity"""
+
+        from_id = '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331'
+        to_uuid = '03877f31261a6d1a1b3971d240e628259364b8ac'
+
+        # Tests
+        uidentity = api.move_identity(from_id, to_uuid)
+
+        self.assertIsInstance(uidentity, UniqueIdentity)
+        self.assertEqual(uidentity.uuid, '03877f31261a6d1a1b3971d240e628259364b8ac')
+
+        identities = uidentity.identities.all()
+        self.assertEqual(len(identities), 2)
+
+        identity = identities[0]
+        self.assertEqual(identity.id, '03877f31261a6d1a1b3971d240e628259364b8ac')
+
+        identity = identities[1]
+        self.assertEqual(identity.id, '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
+
+        # Check database object
+        uidentity_db = UniqueIdentity.objects.get(uuid='334da68fcd3da4e799791f73dfada2afb22648c6')
+        identities_db = uidentity_db.identities.all()
+        self.assertEqual(len(identities_db), 1)
+
+        identity_db = identities_db[0]
+        self.assertEqual(identity_db.id, '334da68fcd3da4e799791f73dfada2afb22648c6')
+        self.assertEqual(identity_db.name, None)
+        self.assertEqual(identity_db.email, 'jsmith@example.com')
+
+        uidentity_db = UniqueIdentity.objects.get(uuid='03877f31261a6d1a1b3971d240e628259364b8ac')
+        identities_db = uidentity_db.identities.all()
+        self.assertEqual(len(identities_db), 2)
+
+        identity_db = identities_db[0]
+        self.assertEqual(identity_db.id, '03877f31261a6d1a1b3971d240e628259364b8ac')
+        self.assertEqual(identity_db.name, None)
+        self.assertEqual(identity_db.email, 'jdoe@example.com')
+
+        identity_db = identities_db[1]
+        self.assertEqual(identity_db.id, '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
+        self.assertEqual(identity_db.name, 'John Smith')
+        self.assertEqual(identity_db.email, 'jsmith@example.com')
+
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
+
+        from_id = '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331'
+        to_uuid = '03877f31261a6d1a1b3971d240e628259364b8ac'
+
+        # Tests
+        before_dt = datetime_utcnow()
+        uidentity = api.move_identity(from_id, to_uuid)
+        after_dt = datetime_utcnow()
+
+        # Check date on the unique identity
+        self.assertLessEqual(before_dt, uidentity.last_modified)
+        self.assertGreaterEqual(after_dt, uidentity.last_modified)
+
+    def test_equal_related_unique_identity(self):
+        """Check if identities are not moved when 'to_uuid' is the unique identity related to 'from_id'"""
+
+        from_id = '03877f31261a6d1a1b3971d240e628259364b8ac'
+
+        # Move the identity to the same unique identity
+        api.move_identity(from_id, from_id)
+
+        uidentity_db = UniqueIdentity.objects.get(uuid='334da68fcd3da4e799791f73dfada2afb22648c6')
+        identities_db = uidentity_db.identities.all()
+        self.assertEqual(len(identities_db), 2)
+
+        identity_db = identities_db[0]
+        self.assertEqual(identity_db.id, '334da68fcd3da4e799791f73dfada2afb22648c6')
+
+        identity_db = identities_db[1]
+        self.assertEqual(identity_db.id, '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
+
+        uidentity_db = UniqueIdentity.objects.get(uuid='03877f31261a6d1a1b3971d240e628259364b8ac')
+        identities_db = uidentity_db.identities.all()
+        self.assertEqual(len(identities_db), 1)
+
+        identity_db = identities_db[0]
+        self.assertEqual(identity_db.id, '03877f31261a6d1a1b3971d240e628259364b8ac')
+
+    def test_create_new_unique_identity(self):
+        """Check if a new unique identity is created when 'from_id' has the same value of 'to_uuid'"""
+
+        new_uuid = '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331'
+
+        # This will create a new unique identity,
+        # moving the identity to this new unique identity
+        uidentity = api.move_identity(new_uuid, new_uuid)
+
+        self.assertEqual(uidentity.uuid, new_uuid)
+
+        identities = uidentity.identities.all()
+        self.assertEqual(len(identities), 1)
+
+        identity = identities[0]
+        self.assertEqual(identity.id, new_uuid)
+        self.assertEqual(identity.name, 'John Smith')
+        self.assertEqual(identity.email, 'jsmith@example.com')
+
+        # Check database objects
+        uidentity_db = UniqueIdentity.objects.get(uuid='334da68fcd3da4e799791f73dfada2afb22648c6')
+        identities_db = uidentity_db.identities.all()
+        self.assertEqual(len(identities_db), 1)
+
+        identity_db = identities_db[0]
+        self.assertEqual(identity_db.id, '334da68fcd3da4e799791f73dfada2afb22648c6')
+        self.assertEqual(identity_db.name, None)
+        self.assertEqual(identity_db.email, 'jsmith@example.com')
+
+        uidentity_db = UniqueIdentity.objects.get(uuid='880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
+        identities_db = uidentity_db.identities.all()
+        self.assertEqual(len(identities_db), 1)
+
+        identity_db = identities_db[0]
+        self.assertEqual(identity_db.id, '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
+        self.assertEqual(identity_db.name, 'John Smith')
+        self.assertEqual(identity_db.email, 'jsmith@example.com')
+
+        uidentity_db = UniqueIdentity.objects.get(uuid='03877f31261a6d1a1b3971d240e628259364b8ac')
+        identities_db = uidentity_db.identities.all()
+        self.assertEqual(len(identities_db), 1)
+
+        identity_db = identities_db[0]
+        self.assertEqual(identity_db.id, '03877f31261a6d1a1b3971d240e628259364b8ac')
+        self.assertEqual(identity_db.name, None)
+        self.assertEqual(identity_db.email, 'jdoe@example.com')
+
+    def test_not_found_from_identity(self):
+        """Test whether it fails when 'from_id' identity is not found"""
+
+        msg = NOT_FOUND_ERROR.format(entity='FFFFFFFFFFF')
+
+        # Check 'from_id' parameter
+        with self.assertRaisesRegex(NotFoundError, msg):
+            api.move_identity('FFFFFFFFFFF',
+                              '03877f31261a6d1a1b3971d240e628259364b8ac')
+
+    def test_not_found_to_identity(self):
+        """Test whether it fails when 'to_uuid' unique identity is not found"""
+
+        msg = NOT_FOUND_ERROR.format(entity='FFFFFFFFFFF')
+
+        # Check 'to_uuid' parameter
+        with self.assertRaisesRegex(NotFoundError, msg):
+            api.move_identity('03877f31261a6d1a1b3971d240e628259364b8ac',
+                              'FFFFFFFFFFF')
+
+    def test_none_from_id(self):
+        """Check whether identities cannot be moved when giving a None id"""
+
+        with self.assertRaisesRegex(InvalidValueError, FROM_ID_NONE_OR_EMPTY_ERROR):
+            api.move_identity(None, '03877f31261a6d1a1b3971d240e628259364b8ac')
+
+    def test_empty_from_id(self):
+        """Check whether identities cannot be moved when giving an empty id"""
+
+        with self.assertRaisesRegex(InvalidValueError, FROM_ID_NONE_OR_EMPTY_ERROR):
+            api.move_identity('', '03877f31261a6d1a1b3971d240e628259364b8ac')
+
+    def test_none_to_uuid(self):
+        """Check whether identities cannot be moved when giving a None UUID"""
+
+        with self.assertRaisesRegex(InvalidValueError, TO_UUID_NONE_OR_EMPTY_ERROR):
+            api.move_identity('03877f31261a6d1a1b3971d240e628259364b8ac', None)
+
+    def test_empty_to_uuid(self):
+        """Check whether identities cannot be moved when giving an empty UUID"""
+
+        with self.assertRaisesRegex(InvalidValueError, TO_UUID_NONE_OR_EMPTY_ERROR):
+            api.move_identity('03877f31261a6d1a1b3971d240e628259364b8ac', '')
 
 
 class TestEnroll(TestCase):
