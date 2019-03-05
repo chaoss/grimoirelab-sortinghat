@@ -49,6 +49,8 @@ NAME_EMPTY_ERROR = "'name' cannot be an empty string"
 DOMAIN_NAME_EMPTY_ERROR = "'domain_name' cannot be an empty string"
 SOURCE_EMPTY_ERROR = "'source' cannot be an empty string"
 IDENTITY_EMPTY_DATA_ERROR = 'identity data cannot be empty'
+FROM_ID_EMPTY_ERROR = "'from_id' cannot be an empty string"
+TO_UUID_EMPTY_ERROR = "'to_uuid' cannot be an empty string"
 UUID_EMPTY_ERROR = "'uuid' cannot be an empty string"
 ORG_DOES_NOT_EXIST_ERROR = "Organization matching query does not exist."
 DOMAIN_DOES_NOT_EXIST_ERROR = "Domain matching query does not exist."
@@ -1225,6 +1227,242 @@ class TestUpdateProfileMutation(django.test.TestCase):
         profile = executed['data']['updateProfile']['uidentity']['profile']
         self.assertEqual(profile['name'], None)
         self.assertEqual(profile['email'], None)
+
+
+class TestMoveIdentityMutation(django.test.TestCase):
+    """Unit tests for mutation to move identities"""
+
+    SH_MOVE = """
+      mutation moveId($fromID: String, $toUUID: String) {
+        moveIdentity(fromId: $fromID, toUuid: $toUUID) {
+          uuid
+          uidentity {
+            uuid
+            identities {
+              id
+              name
+              email
+              username
+              source
+            }
+          }
+        }
+      }
+    """
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        jsmith = api.add_identity('scm', email='jsmith@example.com')
+        api.add_identity('scm',
+                         name='John Smith',
+                         email='jsmith@example.com',
+                         uuid=jsmith.id)
+        api.add_identity('scm', email='jdoe@example.com')
+
+    def test_move_identity(self):
+        """Test whether an identity is moved to a unique identity"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'fromID': '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331',
+            'toUUID': '03877f31261a6d1a1b3971d240e628259364b8ac'
+        }
+        executed = client.execute(self.SH_MOVE, variables=params)
+
+        # Check results, identity was moved
+        identities = executed['data']['moveIdentity']['uidentity']['identities']
+
+        self.assertEqual(len(identities), 2)
+
+        identity = identities[0]
+        self.assertEqual(identity['id'], '03877f31261a6d1a1b3971d240e628259364b8ac')
+        self.assertEqual(identity['name'], None)
+        self.assertEqual(identity['email'], 'jdoe@example.com')
+
+        identity = identities[1]
+        self.assertEqual(identity['id'], '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
+        self.assertEqual(identity['name'], 'John Smith')
+        self.assertEqual(identity['email'], 'jsmith@example.com')
+
+        uuid = executed['data']['moveIdentity']['uuid']
+        self.assertEqual(uuid, '03877f31261a6d1a1b3971d240e628259364b8ac')
+
+        # Check database objects
+        uidentity_db = UniqueIdentity.objects.get(uuid='334da68fcd3da4e799791f73dfada2afb22648c6')
+        identities_db = uidentity_db.identities.all()
+        self.assertEqual(len(identities_db), 1)
+
+        identity_db = identities_db[0]
+        self.assertEqual(identity_db.id, '334da68fcd3da4e799791f73dfada2afb22648c6')
+        self.assertEqual(identity_db.name, None)
+        self.assertEqual(identity_db.email, 'jsmith@example.com')
+
+        uidentity_db = UniqueIdentity.objects.get(uuid='03877f31261a6d1a1b3971d240e628259364b8ac')
+        identities_db = uidentity_db.identities.all()
+        self.assertEqual(len(identities_db), 2)
+
+        identity_db = identities_db[0]
+        self.assertEqual(identity_db.id, '03877f31261a6d1a1b3971d240e628259364b8ac')
+        self.assertEqual(identity_db.name, None)
+        self.assertEqual(identity_db.email, 'jdoe@example.com')
+
+        identity_db = identities_db[1]
+        self.assertEqual(identity_db.id, '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
+        self.assertEqual(identity_db.name, 'John Smith')
+        self.assertEqual(identity_db.email, 'jsmith@example.com')
+
+    def test_equal_related_unique_identity(self):
+        """Check if identities are not moved when 'to_uuid' is the unique identity related to 'from_id'"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'fromID': '03877f31261a6d1a1b3971d240e628259364b8ac',
+            'toUUID': '03877f31261a6d1a1b3971d240e628259364b8ac'
+        }
+        executed = client.execute(self.SH_MOVE, variables=params)
+
+        # Check results, identity was not moved
+        identities = executed['data']['moveIdentity']['uidentity']['identities']
+
+        self.assertEqual(len(identities), 1)
+
+        identity = identities[0]
+        self.assertEqual(identity['id'], '03877f31261a6d1a1b3971d240e628259364b8ac')
+        self.assertEqual(identity['name'], None)
+        self.assertEqual(identity['email'], 'jdoe@example.com')
+
+        uuid = executed['data']['moveIdentity']['uuid']
+        self.assertEqual(uuid, '03877f31261a6d1a1b3971d240e628259364b8ac')
+
+        # Check database objects
+        uidentity_db = UniqueIdentity.objects.get(uuid='334da68fcd3da4e799791f73dfada2afb22648c6')
+        identities_db = uidentity_db.identities.all()
+        self.assertEqual(len(identities_db), 2)
+
+        identity_db = identities_db[0]
+        self.assertEqual(identity_db.id, '334da68fcd3da4e799791f73dfada2afb22648c6')
+
+        identity_db = identities_db[1]
+        self.assertEqual(identity_db.id, '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
+
+        uidentity_db = UniqueIdentity.objects.get(uuid='03877f31261a6d1a1b3971d240e628259364b8ac')
+        identities_db = uidentity_db.identities.all()
+        self.assertEqual(len(identities_db), 1)
+
+        identity_db = identities_db[0]
+        self.assertEqual(identity_db.id, '03877f31261a6d1a1b3971d240e628259364b8ac')
+
+    def test_create_new_unique_identity(self):
+        """Check if a new unique identity is created when 'from_id' has the same value of 'to_uuid'"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'fromID': '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331',
+            'toUUID': '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331'
+        }
+        executed = client.execute(self.SH_MOVE, variables=params)
+
+        # This will create a new unique identity,
+        # moving the identity to this new unique identity
+        identities = executed['data']['moveIdentity']['uidentity']['identities']
+
+        self.assertEqual(len(identities), 1)
+
+        identity = identities[0]
+        self.assertEqual(identity['id'], '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
+        self.assertEqual(identity['name'], 'John Smith')
+        self.assertEqual(identity['email'], 'jsmith@example.com')
+
+        uuid = executed['data']['moveIdentity']['uuid']
+        self.assertEqual(uuid, '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
+
+        # Check database objects
+        uidentity_db = UniqueIdentity.objects.get(uuid='334da68fcd3da4e799791f73dfada2afb22648c6')
+        identities_db = uidentity_db.identities.all()
+        self.assertEqual(len(identities_db), 1)
+
+        identity_db = identities_db[0]
+        self.assertEqual(identity_db.id, '334da68fcd3da4e799791f73dfada2afb22648c6')
+        self.assertEqual(identity_db.name, None)
+        self.assertEqual(identity_db.email, 'jsmith@example.com')
+
+        uidentity_db = UniqueIdentity.objects.get(uuid='880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
+        identities_db = uidentity_db.identities.all()
+        self.assertEqual(len(identities_db), 1)
+
+        identity_db = identities_db[0]
+        self.assertEqual(identity_db.id, '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
+        self.assertEqual(identity_db.name, 'John Smith')
+        self.assertEqual(identity_db.email, 'jsmith@example.com')
+
+        uidentity_db = UniqueIdentity.objects.get(uuid='03877f31261a6d1a1b3971d240e628259364b8ac')
+        identities_db = uidentity_db.identities.all()
+        self.assertEqual(len(identities_db), 1)
+
+        identity_db = identities_db[0]
+        self.assertEqual(identity_db.id, '03877f31261a6d1a1b3971d240e628259364b8ac')
+        self.assertEqual(identity_db.name, None)
+        self.assertEqual(identity_db.email, 'jdoe@example.com')
+
+    def test_not_found_from_identity(self):
+        """Test whether it fails when 'from_id' identity is not found"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'fromID': 'FFFFFFFFFFFFFFF',
+            'toUUID': '03877f31261a6d1a1b3971d240e628259364b8ac'
+        }
+        executed = client.execute(self.SH_MOVE, variables=params)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, UID_DOES_NOT_EXIST_ERROR)
+
+    def test_not_found_to_identity(self):
+        """Test whether it fails when 'to_uuid' unique identity is not found"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'fromID': '03877f31261a6d1a1b3971d240e628259364b8ac',
+            'toUUID': 'FFFFFFFFFFFFFFF'
+        }
+        executed = client.execute(self.SH_MOVE, variables=params)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, UID_DOES_NOT_EXIST_ERROR)
+
+    def test_empty_from_id(self):
+        """Check whether identities cannot be moved when giving an empty id"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'fromID': '',
+            'toUUID': '03877f31261a6d1a1b3971d240e628259364b8ac'
+        }
+        executed = client.execute(self.SH_MOVE, variables=params)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, FROM_ID_EMPTY_ERROR)
+
+    def test_empty_to_uuid(self):
+        """Check whether identities cannot be moved when giving an empty UUID"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'fromID': '03877f31261a6d1a1b3971d240e628259364b8ac',
+            'toUUID': ''
+        }
+        executed = client.execute(self.SH_MOVE, variables=params)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, TO_UUID_EMPTY_ERROR)
 
 
 class TestEnrollMutation(django.test.TestCase):

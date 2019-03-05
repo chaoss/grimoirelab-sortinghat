@@ -26,6 +26,7 @@ from graphene_django.types import DjangoObjectType
 from .api import (add_identity,
                   delete_identity,
                   update_profile,
+                  move_identity,
                   enroll,
                   withdraw)
 from .db import (add_organization,
@@ -212,6 +213,23 @@ class UpdateProfile(graphene.Mutation):
         )
 
 
+class MoveIdentity(graphene.Mutation):
+    class Arguments:
+        from_id = graphene.String()
+        to_uuid = graphene.String()
+
+    uuid = graphene.Field(lambda: graphene.String)
+    uidentity = graphene.Field(lambda: UniqueIdentityType)
+
+    def mutate(self, info, from_id, to_uuid):
+        uidentity = move_identity(from_id, to_uuid)
+
+        return MoveIdentity(
+            uuid=uidentity.uuid,
+            uidentity=uidentity
+        )
+
+
 class Enroll(graphene.Mutation):
     class Arguments:
         uuid = graphene.String()
@@ -276,5 +294,6 @@ class SortingHatMutation(graphene.ObjectType):
     add_identity = AddIdentity.Field()
     delete_identity = DeleteIdentity.Field()
     update_profile = UpdateProfile.Field()
+    move_identity = MoveIdentity.Field()
     enroll = Enroll.Field()
     withdraw = Withdraw.Field()
