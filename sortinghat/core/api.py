@@ -34,6 +34,7 @@ from .db import (find_unique_identity,
                  delete_unique_identity as delete_unique_identity_db,
                  delete_identity as delete_identity_db,
                  update_profile as update_profile_db,
+                 move_identity as move_identity_db,
                  add_enrollment,
                  delete_enrollment)
 from .errors import InvalidValueError, AlreadyExistsError, NotFoundError
@@ -251,6 +252,67 @@ def update_profile(uuid, **kwargs):
         uidentity = update_profile_db(uidentity, **kwargs)
     except ValueError as e:
         raise InvalidValueError(msg=str(e))
+
+    return uidentity
+
+
+@django.db.transaction.atomic
+def move_identity(from_id, to_uuid):
+    """Move an identity to a unique identity.
+
+    This function shifts the identity identified by `from_id` to
+    the unique identity identified by `to_uuid`.
+
+    When `to_uuid` is the unique identity that is currently related
+    to `from_id`, the action does not have any effect.
+
+    In the case of `from_id` and `to_uuid` have equal values and the
+    unique identity does not exist, a new unique identity will be
+    created and the identity will be moved to it.
+
+    The function raises a `NotFoundError` exception when either `from_id`
+    or `to_uuid` do not exist in the registry and both identifiers are
+    not the same.
+
+    The unique identity object with updated identities data is returned
+    as the result of calling this function.
+
+    :param from_id: identifier of the identity set to be moved
+    :param to_uuid: identifier of the unique identity where 'from_id'
+        will be moved
+
+    :returns: a unique identity with identities data updated
+
+    :raises NotFoundError: raised when either `from_uuid` or `to_uuid`
+        do not exist in the registry.
+    :raises InvalidValueError: raised when either `from_id' or `to_uuid`
+        are `None` or empty strings,
+    """
+    if from_id is None:
+        raise InvalidValueError(msg="'from_id' cannot be None")
+    if from_id == '':
+        raise InvalidValueError(msg="'from_id' cannot be an empty string")
+    if to_uuid is None:
+        raise InvalidValueError(msg="'to_uuid' cannot be None")
+    if to_uuid == '':
+        raise InvalidValueError(msg="'to_uuid' cannot be an empty string")
+
+    identity = find_identity(from_id)
+
+    try:
+        to_uid = find_unique_identity(to_uuid)
+    except NotFoundError as exc:
+        # Move identity to a new one
+        if identity.id == to_uuid:
+            to_uid = add_unique_identity_db(identity.id)
+        else:
+            raise exc
+
+    try:
+        uidentity = move_identity_db(identity, to_uid)
+    except ValueError:
+        # Case when the identity is already assigned to the unique identity
+        uidentity = to_uid
 
     return uidentity
 

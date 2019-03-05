@@ -492,6 +492,37 @@ def delete_enrollment(enrollment):
     enrollment.uidentity.save()
 
 
+def move_identity(identity, uidentity):
+    """Move an identity to a unique identity.
+
+    Shifts `identity` to the unique identity given in `uidentity`.
+    As a result, it will return `uidentity` object with list of
+    identities updated.
+
+    When `identity` is already assigned to `uidentity`, the function
+    will raise an `ValueError` exception.
+
+    :param identity: identity to be moved
+    :param uidentity: unique identity where `identity` will be moved
+
+    :returns: the unique identity with related identities updated
+
+    :raises ValueError: when `identity` is already part of `uidentity`
+    """
+    if identity.uidentity == uidentity:
+        msg = "identity '{}' is already assigned to '{}'".format(identity.id, uidentity.uuid)
+        raise ValueError(msg)
+
+    old_uidentity = identity.uidentity
+    identity.uidentity = uidentity
+
+    identity.save()
+    old_uidentity.save()
+    uidentity.save()
+
+    return uidentity
+
+
 _MYSQL_DUPLICATE_ENTRY_ERROR_REGEX = re.compile(r"Duplicate entry '(?P<value>.+)' for key")
 
 

@@ -71,6 +71,7 @@ START_DATE_NONE_ERROR = "'start' date cannot be None"
 END_DATE_NONE_ERROR = "'end' date cannot be None"
 PERIOD_INVALID_ERROR = "'start' date {start} cannot be greater than {end}"
 PERIOD_OUT_OF_BOUNDS_ERROR = "'{type}' date {date} is out of bounds"
+MOVE_ERROR = "identity '0001' is already assigned to 'AAAA'"
 
 
 class TestFindUniqueIdentity(TestCase):
@@ -1237,3 +1238,81 @@ class TestDeleteEnrollment(TestCase):
         jsmith = UniqueIdentity.objects.get(uuid='AAAA')
         self.assertLessEqual(before_dt, jsmith.last_modified)
         self.assertGreaterEqual(after_dt, jsmith.last_modified)
+
+
+class TestMoveIdentity(TestCase):
+    """Unit tests for move_identity"""
+
+    def test_move_identity(self):
+        """Test when an identity is moved to a unique identity"""
+
+        from_uid = UniqueIdentity.objects.create(uuid='AAAA')
+        to_uid = UniqueIdentity.objects.create(uuid='BBBB')
+
+        identity = Identity.objects.create(id='0001', name='John Smith',
+                                           uidentity=from_uid)
+
+        # Move identity and check results
+        uidentity = db.move_identity(identity, to_uid)
+
+        self.assertIsInstance(uidentity, UniqueIdentity)
+        self.assertEqual(uidentity, to_uid)
+
+        identities = uidentity.identities.all()
+        self.assertEqual(len(identities), 1)
+
+        identity = identities[0]
+        self.assertEqual(identity.id, '0001')
+        self.assertEqual(identity.name, 'John Smith')
+
+        # Check if the database stored those changes
+        uidentity = UniqueIdentity.objects.get(uuid='AAAA')
+        self.assertEqual(len(uidentity.identities.all()), 0)
+
+        uidentity = UniqueIdentity.objects.get(uuid='BBBB')
+        identities = uidentity.identities.all()
+        self.assertEqual(len(identities), 1)
+
+        identity = identities[0]
+        self.assertEqual(identity.id, '0001')
+        self.assertEqual(identity.name, 'John Smith')
+
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
+
+        from_uid = UniqueIdentity.objects.create(uuid='AAAA')
+        to_uid = UniqueIdentity.objects.create(uuid='BBBB')
+
+        identity = Identity.objects.create(id='0001', name='John Smith',
+                                           uidentity=from_uid)
+
+        # Move identity and check results
+        before_dt = datetime_utcnow()
+        db.move_identity(identity, to_uid)
+        after_dt = datetime_utcnow()
+
+        # Tests
+        uidentity = UniqueIdentity.objects.get(uuid='AAAA')
+        self.assertLessEqual(before_dt, uidentity.last_modified)
+        self.assertGreaterEqual(after_dt, uidentity.last_modified)
+
+        uidentity = UniqueIdentity.objects.get(uuid='BBBB')
+        self.assertLessEqual(before_dt, uidentity.last_modified)
+        self.assertGreaterEqual(after_dt, uidentity.last_modified)
+
+        identity = Identity.objects.get(id='0001')
+        self.assertLessEqual(before_dt, identity.last_modified)
+        self.assertGreaterEqual(after_dt, identity.last_modified)
+
+    def test_equal_related_unique_identity(self):
+        """Test that all remains the same when uidentity is the unique identity related to identity'"""
+
+        from_uid = UniqueIdentity.objects.create(uuid='AAAA')
+        identity = Identity.objects.create(id='0001', name='John Smith',
+                                           uidentity=from_uid)
+        # Move identity and check results
+        with self.assertRaisesRegex(ValueError, MOVE_ERROR):
+            db.move_identity(identity, from_uid)
+
+        uidentity = UniqueIdentity.objects.get(uuid='AAAA')
+        self.assertEqual(len(uidentity.identities.all()), 1)
