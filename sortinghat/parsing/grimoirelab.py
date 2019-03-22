@@ -303,7 +303,7 @@ class GrimoireLabParser(object):
         """Load yml stream into a dict object """
 
         try:
-            return yaml.load(stream)
+            return yaml.load(stream, Loader=yaml.SafeLoader)
         except ValueError as e:
             cause = "invalid yml format. %s" % str(e)
             raise InvalidFormatError(cause=cause)
