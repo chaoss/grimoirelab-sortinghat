@@ -4,17 +4,17 @@
 
 A tool to manage identities.
 
-Sorting Hat maintains an SQL database with identities coming (potentially) from different sources. Identities corresponding to the same real person can be merged in the same unique identity, with a unique uuid. For each unique identity, a profile can be defined, with the name and other data to show for the corresponding person by default.
+Sorting Hat maintains an SQL database with identities coming (potentially) from different sources. Identities corresponding to the same real person can be merged in the same unique identity, with a unique uuid. For each unique identity, a profile can be defined, with the name and other data shown for the corresponding person by default.
 
 In addition, each unique identity can be related to one or more affiliations, for different time periods. This will usually correspond to different organizations in which the person was employed during those time periods.
 
-Sorting Hat is a part of the [GrimoireLab toolset](https://grimoirelab.github.io), which provides for Python modules and scripts to analyze data sources with information about software development, and allows to produce interactive dashboards to visualize that information.
+Sorting Hat is a part of the [GrimoireLab toolset](https://grimoirelab.github.io), which provides Python modules and scripts to analyze data sources with information about software development, and allows the production of interactive dashboards to visualize that information.
 
 In the context of GrimoireLab, Sorting Hat is usually run after data is retrieved with [Perceval](https://github.com/chaoss/grimmoirelab-perceval), to store the identities obtained into its database, and later merge them into unique identities (and maybe affiliate them).
 
 ## Source code and contributions
 
-All the source code is available in the [Sorting Hat GitHub repository](https://github.com/chaoss/grimoirelab-sortinghat). Please, upload pull requests if you have proposals to change the source code, and open an issue if you want to report a bug, ask for a new feature, or just comment something.
+All the source code is available in the [Sorting Hat GitHub repository](https://github.com/chaoss/grimoirelab-sortinghat). Please, submit pull requests if you have proposals to change the source code, and open an issue if you want to report a bug, ask for a new feature, or just provide feedback.
 
 ## Usage
 
@@ -90,7 +90,7 @@ Add to your `$PATH` the directory which contains the sortinghat executables:
 $ export PATH=$PATH:sortinghatdir/bin
 ```
 
-In `$PYHTONPATH`, you need to include sortinghat as well. If sortinghatdir is the path where sortinghat is installed:
+In `$PYTHONPATH`, you need to include sortinghat as well. If sortinghatdir is the path where sortinghat is installed:
 
 ```
 $ export PYTHONPATH=$PYTHONPATH:sortinghatdir
@@ -169,8 +169,8 @@ After this initialize a new database:
 Python 2.7 is no longer supported. Any code using this version will
 not work. Please update your code to 3.4 or newer versions.
 
-SortingHat databases previous to 0.7.0 are compatible but UTF-8 4-bytes
-characters will not be inserted in the database and causing errors. For this
+SortingHat databases previous to 0.7.0 are compatible but UTF-8 encoded 4-bytes
+characters will not be inserted in the database and will cause errors. For this
 reason, it is recommended to update its schema. The fastest way is to
 dump the data into a file, regenerate the database with `init` command
 and restore the data from the dump.
