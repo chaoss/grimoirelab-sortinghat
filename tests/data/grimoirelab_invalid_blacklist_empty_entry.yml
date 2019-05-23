@@ -1,4 +1,3 @@
-# valid entry
 - profile:
     name: J. Manrique Lopez de la Fuente
   enrollments:
@@ -11,7 +10,6 @@
   email:
     - jsmanrique@bitergia.com
 
-# valid entry
 - profile:
     name: Luis Cañas-Díaz
   enrollments:
@@ -28,7 +26,6 @@
   email:
     - lcanas@bitergia.com
 
-# valid entry
 - profile:
     name: Owl Bot
     is_bot: true
@@ -40,5 +37,5 @@
 
 - blacklist:
     - no-reply@example.com
-    - root
+    -
     - Generic Account

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2017 Bitergia
+# Copyright (C) 2017-2019 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,8 +16,9 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 # Authors:
-#     Luis Cañas-Díaz <sduenas@bitergia.com>
+#     Luis Cañas-Díaz <lcanas@bitergia.com>
 #     Miguel Ángel Fernández Sánchez <mafesan@bitergia.com>
+#     Santiago Dueñas <sduenas@bitergia.com>
 #
 
 import datetime
@@ -27,7 +28,8 @@ import re
 import yaml
 
 from ..db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE, \
-    UniqueIdentity, Identity, Enrollment, Organization, Domain, Profile
+    UniqueIdentity, Identity, Enrollment, Organization, Domain, Profile, \
+    MatchingBlacklist
 from ..exceptions import InvalidFormatError
 
 PERCEVAL_BACKENDS = ['askbot', 'bugzilla', 'bugzillarest', 'confluence', 'discourse',
@@ -50,6 +52,10 @@ class GrimoireLabParser(object):
     enrollments. Email addresses will not be validated when `email_validation`
     is set to `False`.
 
+    Those entries that will be considered blacklisted will be stored
+    in `blacklist` object. This object consists on a list of entries.
+    Blacklisted entries will be parsed from the identities stream.
+
     Organizations are stored in 'organizations' object. Its keys
     are the name of the organizations and each organization object is
     related to a list of domains.
@@ -67,6 +73,7 @@ class GrimoireLabParser(object):
 
     def __init__(self, identities=None, organizations=None,
                  source='grimoirelab', email_validation=True):
+        self._blacklist = set()
         self._identities = {}
         self._organizations = {}
         self.source = source
@@ -76,6 +83,12 @@ class GrimoireLabParser(object):
             raise ValueError('Null identities and organization streams')
 
         self.__parse(identities, organizations)
+
+    @property
+    def blacklist(self):
+        bl = list(self._blacklist)
+        bl.sort(key=lambda b: b.excluded)
+        return bl
 
     @property
     def identities(self):
@@ -97,6 +110,42 @@ class GrimoireLabParser(object):
 
         if identities_stream:
             self.__parse_identities(identities_stream)
+            self.__parse_blacklist(identities_stream)
+
+    def __parse_blacklist(self, stream):
+        """Parse blacklist entries using GrimoireLab format.
+
+        The GrimoireLab blacklist format is part of a YAML document
+        which follows the next schema:
+
+        - blacklist:
+          - no-reply@example.com
+          - root
+
+        :param stream: stream to parse
+
+        :raises InvalidFormatError: raised when the format of the stream is
+            not valid.
+        """
+        yaml_file = self.__load_yml(stream)
+
+        for element in yaml_file:
+            if 'blacklist' not in element:
+                continue
+
+            if not isinstance(element['blacklist'], list):
+                error = "List of elements expected for blacklist"
+                msg = self.GRIMOIRELAB_INVALID_FORMAT % {'error': error}
+                raise InvalidFormatError(cause=msg)
+
+            for excluded in element['blacklist']:
+                if not excluded:
+                    error = "Blacklist entries cannot be null or empty"
+                    msg = self.GRIMOIRELAB_INVALID_FORMAT % {'error': error}
+                    raise InvalidFormatError(cause=msg)
+
+                bl = MatchingBlacklist(excluded=excluded)
+                self._blacklist.add(bl)
 
     def __parse_identities(self, stream):
         """Parse identities using GrimoireLab format.
@@ -149,6 +198,9 @@ class GrimoireLabParser(object):
 
         try:
             for yid in yaml_file:
+                if 'blacklist' in yid:
+                    continue
+
                 profile = yid['profile']
                 if profile is None:
                     raise AttributeError('profile')
