@@ -19,6 +19,7 @@
 # Authors:
 #     Luis Cañas-Díaz <lcanas@bitergia.com>
 #     Miguel Ángel Fernández Sánchez <mafesan@bitergia.com>
+#     Santiago Dueñas <sduenas@bitergia.com>
 #
 
 import datetime
@@ -28,7 +29,12 @@ import unittest
 if '..' not in sys.path:
     sys.path.insert(0, '..')
 
-from sortinghat.db.model import UniqueIdentity, Identity, Enrollment, Organization, Domain
+from sortinghat.db.model import (UniqueIdentity,
+                                 Identity,
+                                 Enrollment,
+                                 Organization,
+                                 Domain,
+                                 MatchingBlacklist)
 from sortinghat.exceptions import InvalidFormatError
 from sortinghat.parsing.grimoirelab import GrimoireLabParser
 
@@ -53,6 +59,29 @@ class TestGrimoreLabParser(TestBaseCase):
 
         with self.assertRaises(ValueError):
             GrimoireLabParser(None, None)
+
+    def test_valid_blacklist_stream(self):
+        """Check whether it parsers blacklist section from a valid stream"""
+
+        stream = self.read_file(datadir('grimoirelab_valid.yml'))
+
+        parser = GrimoireLabParser(stream)
+        bl = parser.blacklist
+
+        # Check parsed blacklist
+        self.assertEqual(len(bl), 3)
+
+        b = bl[0]
+        self.assertIsInstance(b, MatchingBlacklist)
+        self.assertEqual(b.excluded, 'Generic Account')
+
+        b = bl[1]
+        self.assertIsInstance(b, MatchingBlacklist)
+        self.assertEqual(b.excluded, 'no-reply@example.com')
+
+        b = bl[2]
+        self.assertIsInstance(b, MatchingBlacklist)
+        self.assertEqual(b.excluded, 'root')
 
     def test_identities_parser(self):
         """Check whether it parses a valid identities file"""
@@ -364,6 +393,14 @@ class TestGrimoreLabParser(TestBaseCase):
 
         stream_ids = self.read_file(datadir('grimoirelab_invalid_missing_organization_name.yml'))
         with self.assertRaisesRegex(InvalidFormatError, '^.+Empty organization name$'):
+            GrimoireLabParser(stream_ids)
+
+        stream_ids = self.read_file(datadir('grimoirelab_invalid_blacklist_no_list.yml'))
+        with self.assertRaisesRegex(InvalidFormatError, '^.+List of elements expected for blacklist'):
+            GrimoireLabParser(stream_ids)
+
+        stream_ids = self.read_file(datadir('grimoirelab_invalid_blacklist_empty_entry.yml'))
+        with self.assertRaisesRegex(InvalidFormatError, '^.+Blacklist entries cannot be null or empty'):
             GrimoireLabParser(stream_ids)
 
     def test_not_valid_enrollments_parser(self):
