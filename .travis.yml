@@ -5,6 +5,9 @@ python:
 
 sudo: false
 
+services:
+  - mysql
+
 install:
   - pip install coveralls
   - pip install cryptography
