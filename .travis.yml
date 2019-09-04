@@ -13,6 +13,7 @@ install:
   - pip install cryptography
 
 before_script:
+  - mysql -e "SET GLOBAL sql_mode = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION'";
   - mysql -e 'create database testhat;'
   - cp tests/tests.conf.sample tests/tests.conf
 
