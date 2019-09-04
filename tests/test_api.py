@@ -438,6 +438,8 @@ class TestAddIdentity(TestAPICaseBase):
                                api.add_identity, self.db, 'scm', None, '', None)
         self.assertRaisesRegex(ValueError, IDENTITY_NONE_OR_EMPTY_ERROR,
                                api.add_identity, self.db, 'scm', '', '', '')
+        self.assertRaisesRegex(ValueError, IDENTITY_NONE_OR_EMPTY_ERROR,
+                               api.add_identity, self.db, 'scm', '  ', '  ', '  ')
 
 
 class TestAddOrganization(TestAPICaseBase):

@@ -149,17 +149,21 @@ def uuid(source, email=None, name=None, username=None):
     :raises ValueError: when source is None or empty; each one of the
         parameters is None; parameters are empty.
     """
+    _email = email.strip() if email else email
+    _name = name.strip() if name else name
+    _username = username.strip() if username else username
+
     if source is None:
         raise ValueError("source cannot be None")
     if source == '':
         raise ValueError("source cannot be an empty string")
-    if not (email or name or username):
+    if not (_email or _name or _username):
         raise ValueError("identity data cannot be None or empty")
 
     s = ':'.join((to_unicode(source),
-                  to_unicode(email),
-                  to_unicode(name, unaccent=True),
-                  to_unicode(username))).lower()
+                  to_unicode(_email),
+                  to_unicode(_name, unaccent=True),
+                  to_unicode(_username))).lower()
 
     sha1 = hashlib.sha1(s.encode('UTF-8', errors="surrogateescape"))
     uuid_ = sha1.hexdigest()
