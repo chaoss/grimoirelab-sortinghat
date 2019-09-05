@@ -17,6 +17,7 @@
 #
 # Authors:
 #     Santiago Dueñas <sduenas@bitergia.com>
+#     Miguel Ángel Fernández <mafesan@bitergia.com>
 #
 
 import hashlib
@@ -503,3 +504,116 @@ def withdraw(uuid, organization, from_date=None, to_date=None):
     uidentity.refresh_from_db()
 
     return uidentity
+
+
+@django.db.transaction.atomic
+def merge_identities(from_uuid, to_uuid):
+    """
+    Merge one unique identity into another.
+
+    Use this function to join `from_uuid` unique identity into
+    `to_uuid`. Identities and enrollments related to `from_uuid` will be
+    assigned to `to_uuid`. In addition, `from_uuid` will be removed
+    from the registry. Duplicated enrollments will be also removed from
+    the registry while overlapped enrollments will be merged.
+
+    This function also merges two profiles. When a field on `to_uuid`
+    profile is `None` or empty, it will be updated with the value on the
+    profile of `from_uuid`. If any of the two unique identities was set
+    as a bot, the new profile will also be set as a bot.
+
+    When `from_uuid` and `to_uuid` are equal, or any of this two fields
+    are `None` or empty, it raises an `InvalidValueError`.
+
+    The function raises a `NotFoundError` exception when either `from_uuid`
+    or `to_uuid` do not exist in the registry.
+
+    :param from_uuid: identifier of the unique identity set to merge
+    :param to_uuid: identifier of the unique identity where `from_uuid`
+        will be merged
+
+    :returns: a UniqueIdentity object as the result of the merged identities
+
+    :raises NotFoundError: raised when either `from_uuid` or `to_uuid`
+        do not exist in the registry
+    """
+    def _merge_enrollments(from_uid, to_uid):
+        """Merge enrollments from two `UniqueIdentity` objects"""
+        # Get current enrollments from both uidentities
+        enrollments_db = from_uid.enrollments.all() | to_uid.enrollments.all()
+        enrollments = {}
+
+        for enrollment in enrollments_db:
+            org = enrollment.organization
+            dates = enrollments.setdefault(org, [])
+            dates.append((enrollment.start, enrollment.end))
+            enrollments[org] = dates
+
+        # Remove old enrollments and add new ones based in the new ranges
+        for enrollment_db in enrollments_db:
+            delete_enrollment(enrollment_db)
+
+        # Add new enrollments merging datetime ranges
+        for org in enrollments.keys():
+            periods = enrollments[org]
+            try:
+                for start_dt, end_dt in merge_datetime_ranges(periods, exclude_limits=True):
+                    add_enrollment(to_uid, org, start=start_dt, end=end_dt)
+            except ValueError as e:
+                raise InvalidValueError(msg=str(e))
+
+        return to_uid
+
+    def _merge_profiles(from_uid, to_uid):
+        """Merge the profiles from two `UniqueIdentity` objects"""
+        if from_uid.profile.is_bot or to_uid.profile.is_bot:
+            to_uid.profile.is_bot = True
+        if not to_uid.profile.name:
+            to_uid.profile.name = from_uid.profile.name
+        if not to_uid.profile.email:
+            to_uid.profile.email = from_uid.profile.email
+        if not to_uid.profile.gender:
+            to_uid.profile.gender = from_uid.profile.gender
+        if not to_uid.profile.gender_acc:
+            to_uid.profile.gender_acc = from_uid.profile.gender_acc
+        if not to_uid.profile.country:
+            to_uid.profile.country = from_uid.profile.country
+
+        return to_uid
+
+    # Check input values
+    if from_uuid is None:
+        raise InvalidValueError(msg="'from_uuid' cannot be None")
+    if from_uuid == '':
+        raise InvalidValueError(msg="'from_uuid' cannot be an empty string")
+    if to_uuid is None:
+        raise InvalidValueError(msg="'to_uuid' cannot be None")
+    if to_uuid == '':
+        raise InvalidValueError(msg="'to_uuid' cannot be an empty string")
+    if from_uuid == to_uuid:
+        raise InvalidValueError(msg="'from_uuid' and 'to_uuid' cannot be equal")
+
+    try:
+        from_uid = find_unique_identity(from_uuid)
+        to_uid = find_unique_identity(to_uuid)
+    except NotFoundError as exc:
+        # Identities were not found, so they cannot be merged
+        raise exc
+
+    try:
+        identities = from_uid.identities.all()
+    except ValueError as e:
+        raise InvalidValueError(msg=str(e))
+
+    for identity in identities:
+        move_identity_db(identity, to_uid)
+
+    to_uid = _merge_enrollments(from_uid, to_uid)
+    to_uid.refresh_from_db()
+
+    to_uid = _merge_profiles(from_uid, to_uid)
+    update_profile_db(to_uid)
+
+    delete_unique_identity_db(from_uid)
+
+    return to_uid
