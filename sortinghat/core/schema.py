@@ -17,6 +17,7 @@
 #
 # Authors:
 #     Santiago Dueñas <sduenas@bitergia.com>
+#     Miguel Ángel Fernández <mafesan@bitergia.com>
 #
 
 import graphene
@@ -27,6 +28,7 @@ from .api import (add_identity,
                   delete_identity,
                   update_profile,
                   move_identity,
+                  merge_identities,
                   enroll,
                   withdraw)
 from .db import (add_organization,
@@ -230,6 +232,23 @@ class MoveIdentity(graphene.Mutation):
         )
 
 
+class MergeIdentities(graphene.Mutation):
+    class Arguments:
+        from_uuid = graphene.String()
+        to_uuid = graphene.String()
+
+    uuid = graphene.Field(lambda: graphene.String)
+    uidentity = graphene.Field(lambda: UniqueIdentityType)
+
+    def mutate(self, info, from_uuid, to_uuid):
+        uidentity = merge_identities(from_uuid, to_uuid)
+
+        return MergeIdentities(
+            uuid=uidentity.uuid,
+            uidentity=uidentity
+        )
+
+
 class Enroll(graphene.Mutation):
     class Arguments:
         uuid = graphene.String()
@@ -295,5 +314,6 @@ class SortingHatMutation(graphene.ObjectType):
     delete_identity = DeleteIdentity.Field()
     update_profile = UpdateProfile.Field()
     move_identity = MoveIdentity.Field()
+    merge_identities = MergeIdentities.Field()
     enroll = Enroll.Field()
     withdraw = Withdraw.Field()
