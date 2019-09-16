@@ -36,6 +36,7 @@ from .models import (MIN_PERIOD_DATE,
                      Identity,
                      Profile,
                      Enrollment)
+from .utils import validate_field
 
 
 def find_unique_identity(uuid):
@@ -145,10 +146,7 @@ def add_organization(name):
     :raises AlreadyExistsError: when an instance with the same name
         already exists in the database.
     """
-    if name is None:
-        raise ValueError("'name' cannot be None")
-    if name == '':
-        raise ValueError("'name' cannot be an empty string")
+    validate_field('name', name)
 
     organization = Organization(name=name)
 
@@ -197,10 +195,7 @@ def add_domain(organization, domain_name, is_top_domain=False):
     :raises ValueError: raised when `domain_name` is `None` or an empty string;
         when `is_top_domain` does not have a `bool` value.
     """
-    if domain_name is None:
-        raise ValueError("'domain_name' cannot be None")
-    if domain_name == '':
-        raise ValueError("'domain_name' cannot be an empty string")
+    validate_field('domain_name', domain_name)
     if not isinstance(is_top_domain, bool):
         raise ValueError("'is_top_domain' must have a boolean value")
 
@@ -245,10 +240,7 @@ def add_unique_identity(uuid):
 
     :raises ValueError: when `uuid` is `None` or an empty string
     """
-    if uuid is None:
-        raise ValueError("'uuid' cannot be None")
-    if uuid == '':
-        raise ValueError("'uuid' cannot be an empty string")
+    validate_field('uuid', uuid)
 
     uidentity = UniqueIdentity(uuid=uuid)
 
@@ -307,14 +299,12 @@ def add_identity(uidentity, identity_id, source,
     :raises ValueError: when `identity_id` and `source` are `None` or empty;
         when all of the data parameters are `None` or empty.
     """
-    if identity_id is None:
-        raise ValueError("'identity_id' cannot be None")
-    if identity_id == '':
-        raise ValueError("'identity_id' cannot be an empty string")
-    if source is None:
-        raise ValueError("'source' cannot be None")
-    if source == '':
-        raise ValueError("'source' cannot be an empty string")
+    validate_field('identity_id', identity_id)
+    validate_field('source', source)
+    validate_field('name', name, allow_none=True)
+    validate_field('email', email, allow_none=True)
+    validate_field('username', username, allow_none=True)
+
     if not (name or email or username):
         raise ValueError("identity data cannot be None or empty")
 

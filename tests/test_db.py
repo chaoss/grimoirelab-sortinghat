@@ -49,16 +49,24 @@ DUPLICATED_ID_ERROR = "Identity '1234567890ABCDFE' already exists in the registr
 DUPLICATED_ID_DATA_ERROR = "Identity 'John Smith-jsmith@example.org-jsmith-scm' already exists in the registry"
 NAME_NONE_ERROR = "'name' cannot be None"
 NAME_EMPTY_ERROR = "'name' cannot be an empty string"
+NAME_WHITESPACES_ERROR = "'name' cannot be composed by whitespaces only"
 DOMAIN_NAME_NONE_ERROR = "'domain_name' cannot be None"
 DOMAIN_NAME_EMPTY_ERROR = "'domain_name' cannot be an empty string"
+DOMAIN_NAME_WHITESPACES_ERROR = "'domain_name' cannot be composed by whitespaces only"
 TOP_DOMAIN_VALUE_ERROR = "'is_top_domain' must have a boolean value"
 UUID_NONE_ERROR = "'uuid' cannot be None"
 UUID_EMPTY_ERROR = "'uuid' cannot be an empty string"
+UUID_WHITESPACES_ERROR = "'uuid' cannot be composed by whitespaces only"
 IDENTITY_ID_NONE_ERROR = "'identity_id' cannot be None"
 IDENTITY_ID_EMPTY_ERROR = "'identity_id' cannot be an empty string"
+IDENTITY_ID_WHITESPACES_ERROR = "'identity_id' cannot be composed by whitespaces only"
 SOURCE_NONE_ERROR = "'source' cannot be None"
 SOURCE_EMPTY_ERROR = "'source' cannot be an empty string"
+SOURCE_WHITESPACES_ERROR = "'source' cannot be composed by whitespaces only"
 IDENTITY_DATA_NONE_OR_EMPTY_ERROR = "identity data cannot be None or empty"
+IDENTITY_DATA_EMPTY_ERROR = "'{name}' cannot be an empty string"
+IDENTITY_DATA_NONE_ERROR = "'{name}' cannot be None"
+IDENTITY_DATA_WHITESPACES_ERROR = "'{name}' cannot be composed by whitespaces only"
 UNIQUE_IDENTITY_NOT_FOUND_ERROR = "zyxwuv not found in the registry"
 IDENTITY_NOT_FOUND_ERROR = "zyxwuv not found in the registry"
 ORGANIZATION_NOT_FOUND_ERROR = "Bitergia not found in the registry"
@@ -277,6 +285,18 @@ class TestAddOrganization(TestCase):
         with self.assertRaisesRegex(ValueError, NAME_EMPTY_ERROR):
             db.add_organization('')
 
+    def test_name_whitespaces(self):
+        """Check whether organizations composed by whitespaces cannot be added"""
+
+        with self.assertRaisesRegex(ValueError, NAME_WHITESPACES_ERROR):
+            db.add_organization('  ')
+
+        with self.assertRaisesRegex(ValueError, NAME_WHITESPACES_ERROR):
+            db.add_organization('\t')
+
+        with self.assertRaisesRegex(ValueError, NAME_WHITESPACES_ERROR):
+            db.add_organization(' \t  ')
+
     def test_integrity_error(self):
         """Check whether organizations with the same name cannot be inserted"""
 
@@ -439,6 +459,20 @@ class TestAddDomain(TestCase):
         with self.assertRaisesRegex(ValueError, DOMAIN_NAME_EMPTY_ERROR):
             db.add_domain(org, '')
 
+    def test_domain_whitespaces(self):
+        """Check whether domains with names composed by whitespaces cannot be added"""
+
+        org = Organization.objects.create(name='Example')
+
+        with self.assertRaisesRegex(ValueError, DOMAIN_NAME_WHITESPACES_ERROR):
+            db.add_domain(org, ' ')
+
+        with self.assertRaisesRegex(ValueError, DOMAIN_NAME_WHITESPACES_ERROR):
+            db.add_domain(org, '\t')
+
+        with self.assertRaisesRegex(ValueError, DOMAIN_NAME_WHITESPACES_ERROR):
+            db.add_domain(org, ' \t ')
+
     def test_top_domain_invalid_type(self):
         """Check type values of top domain flag"""
 
@@ -534,6 +568,18 @@ class TestAddUniqueIdentity(TestCase):
 
         with self.assertRaisesRegex(ValueError, UUID_EMPTY_ERROR):
             db.add_unique_identity('')
+
+    def test_uuid_whitespaces(self):
+        """Check whether a unique identity with UUID composed by whitespaces cannot be added"""
+
+        with self.assertRaisesRegex(ValueError, UUID_WHITESPACES_ERROR):
+            db.add_unique_identity('   ')
+
+        with self.assertRaisesRegex(ValueError, UUID_WHITESPACES_ERROR):
+            db.add_unique_identity('\t')
+
+        with self.assertRaisesRegex(ValueError, UUID_WHITESPACES_ERROR):
+            db.add_unique_identity(' \t  ')
 
     def test_integrity_error(self):
         """Check whether unique identities with the same UUID cannot be inserted"""
@@ -740,6 +786,20 @@ class TestAddIdentity(TestCase):
         with self.assertRaisesRegex(ValueError, IDENTITY_ID_EMPTY_ERROR):
             db.add_identity(uidentity, '', 'scm')
 
+    def test_identity_id_whitespaces(self):
+        """Check whether an identity with an ID composed by whitespaces cannot be added"""
+
+        uidentity = UniqueIdentity.objects.create(uuid='1234567890ABCDFE')
+
+        with self.assertRaisesRegex(ValueError, IDENTITY_ID_WHITESPACES_ERROR):
+            db.add_identity(uidentity, '    ', 'scm')
+
+        with self.assertRaisesRegex(ValueError, IDENTITY_ID_WHITESPACES_ERROR):
+            db.add_identity(uidentity, '\t', 'scm')
+
+        with self.assertRaisesRegex(ValueError, IDENTITY_ID_WHITESPACES_ERROR):
+            db.add_identity(uidentity, '  \t', 'scm')
+
     def test_source_none(self):
         """Check whether an identity with None as source cannot be added"""
 
@@ -756,22 +816,74 @@ class TestAddIdentity(TestCase):
         with self.assertRaisesRegex(ValueError, SOURCE_EMPTY_ERROR):
             db.add_identity(uidentity, '1234567890ABCDFE', '')
 
-    def test_data_none_or_empty(self):
-        """Check whether new identities cannot be added when identity data is None or empty"""
+    def test_source_whitespaces(self):
+        """Check whether an identity with a source composed by whitespaces cannot be added"""
 
+        uidentity = UniqueIdentity.objects.create(uuid='1234567890ABCDFE')
+
+        with self.assertRaisesRegex(ValueError, SOURCE_WHITESPACES_ERROR):
+            db.add_identity(uidentity, '1234567890ABCDFE', '  ')
+
+        with self.assertRaisesRegex(ValueError, SOURCE_WHITESPACES_ERROR):
+            db.add_identity(uidentity, '1234567890ABCDFE', '\t')
+
+        with self.assertRaisesRegex(ValueError, SOURCE_WHITESPACES_ERROR):
+            db.add_identity(uidentity, '1234567890ABCDFE', ' \t ')
+
+    def test_data_none_or_empty(self):
+        """
+        Check whether new identities cannot be added when identity data is None, empty
+        or composed by whitespaces
+        """
         uidentity = UniqueIdentity.objects.create(uuid='1234567890ABCDFE')
 
         with self.assertRaisesRegex(ValueError, IDENTITY_DATA_NONE_OR_EMPTY_ERROR):
             db.add_identity(uidentity, '1234567890ABCDFE', 'git',
                             name=None, email=None, username=None)
 
-        with self.assertRaisesRegex(ValueError, IDENTITY_DATA_NONE_OR_EMPTY_ERROR):
+        expected = IDENTITY_DATA_EMPTY_ERROR.format(name='name')
+        with self.assertRaisesRegex(ValueError, expected):
             db.add_identity(uidentity, '1234567890ABCDFE', 'git',
                             name='', email='', username='')
 
-        with self.assertRaisesRegex(ValueError, IDENTITY_DATA_NONE_OR_EMPTY_ERROR):
+        expected = IDENTITY_DATA_EMPTY_ERROR.format(name='email')
+        with self.assertRaisesRegex(ValueError, expected):
             db.add_identity(uidentity, '1234567890ABCDFE', 'git',
                             name=None, email='', username=None)
+
+        expected = IDENTITY_DATA_WHITESPACES_ERROR.format(name='username')
+        with self.assertRaisesRegex(ValueError, expected):
+            db.add_identity(uidentity, '1234567890ABCDFE', 'git',
+                            name=None, email=None, username='  ')
+
+        expected = IDENTITY_DATA_WHITESPACES_ERROR.format(name='username')
+        with self.assertRaisesRegex(ValueError, expected):
+            db.add_identity(uidentity, '1234567890ABCDFE', 'git',
+                            name=None, email=None, username='\t')
+
+        expected = IDENTITY_DATA_EMPTY_ERROR.format(name='name')
+        with self.assertRaisesRegex(ValueError, expected):
+            db.add_identity(uidentity, '1234567890ABCDFE', 'git',
+                            name='', email=None, username='    ')
+
+        expected = IDENTITY_DATA_EMPTY_ERROR.format(name='name')
+        with self.assertRaisesRegex(ValueError, expected):
+            db.add_identity(uidentity, '1234567890ABCDFE', 'git',
+                            name='', email=None, username='\t')
+
+        expected = IDENTITY_DATA_WHITESPACES_ERROR.format(name='name')
+        with self.assertRaisesRegex(ValueError, expected):
+            db.add_identity(uidentity, '1234567890ABCDFE', 'git',
+                            name='   ', email=None, username='')
+
+        expected = IDENTITY_DATA_WHITESPACES_ERROR.format(name='name')
+        with self.assertRaisesRegex(ValueError, expected):
+            db.add_identity(uidentity, '1234567890ABCDFE', 'git',
+                            name='\t', email=None, username='')
+        expected = IDENTITY_DATA_WHITESPACES_ERROR.format(name='name')
+        with self.assertRaisesRegex(ValueError, expected):
+            db.add_identity(uidentity, '1234567890ABCDFE', 'git',
+                            name=' \t ', email=None, username='')
 
     def test_integrity_error_id(self):
         """Check whether identities with the same id cannot be inserted"""
