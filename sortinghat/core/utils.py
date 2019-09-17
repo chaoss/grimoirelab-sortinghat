@@ -19,6 +19,7 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+import re
 import unicodedata
 
 from .models import MIN_PERIOD_DATE, MAX_PERIOD_DATE
@@ -119,3 +120,35 @@ def unaccent_string(unistr):
     string = ''.join(cs)
 
     return string
+
+
+def validate_field(name, value, allow_none=False):
+    """Validate a given string field following a set of rules.
+
+    The conditions to validate `value` consists on checking if its value is `None`
+    and if this is allowed or not; if its value is not an empty string or if it is
+    not composed only by whitespaces and/or tabs.
+
+    :param name: name of the field to validate
+    :param value: value of the field to validate
+    :param allow_none: `True` if `None` values are permitted, `False` otherwise
+
+    :raises ValueError: when a condition to validate the string is not satisfied
+    :raises TypeError: when the input value is not a string and not `None`
+    """
+    if value is None:
+        if not allow_none:
+            raise ValueError("'{}' cannot be None".format(name))
+        else:
+            return
+
+    if not isinstance(value, str):
+        msg = "field value must be a string; {} given".format(value.__class__.__name__)
+        raise TypeError(msg)
+
+    if value == '':
+        raise ValueError("'{}' cannot be an empty string".format(name))
+
+    m = re.match(r"^\s+$", value)
+    if m:
+        raise ValueError("'{}' cannot be composed by whitespaces only".format(name))

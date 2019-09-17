@@ -25,12 +25,16 @@ from dateutil.tz import UTC
 
 from django.test import TestCase
 
-from sortinghat.core.utils import merge_datetime_ranges, unaccent_string
+from sortinghat.core.utils import merge_datetime_ranges, unaccent_string, validate_field
 
 
 CANT_COMPARE_DATES_ERROR = "can't compare offset-naive and offset-aware datetimes"
 DATE_OUT_OF_BOUNDS_ERROR = "'{type}' date {date} is out of bounds"
 UNACCENT_TYPE_ERROR = "argument must be a string; int given"
+FIELD_NONE_ERROR = "'{name}' cannot be None"
+FIELD_EMPTY_ERROR = "'{name}' cannot be an empty string"
+FIELD_WHITESPACES_ERROR = "'{name}' cannot be composed by whitespaces only"
+FIELD_TYPE_ERROR = "field value must be a string; int given"
 
 
 class TestMergeDatetimeRanges(TestCase):
@@ -395,3 +399,51 @@ class TestUnnacentString(TestCase):
 
         with self.assertRaisesRegex(TypeError, UNACCENT_TYPE_ERROR):
             unaccent_string(1234)
+
+
+class TestValidateField(TestCase):
+    """Unit tests for validate_field"""
+
+    def test_validate_string(self):
+        """Check valid fields"""
+
+        # If the field is valid, the method does not raise any exception
+        validate_field('test_field', 'Test')
+
+    def test_invalid_string(self):
+        """Check invalid string fields"""
+
+        expected = FIELD_EMPTY_ERROR.format(name='test_field')
+        with self.assertRaisesRegex(ValueError, expected):
+            validate_field('test_field', '')
+
+        expected = FIELD_WHITESPACES_ERROR.format(name='test_field')
+        with self.assertRaisesRegex(ValueError, expected):
+            validate_field('test_field', '\t')
+
+        expected = FIELD_WHITESPACES_ERROR.format(name='test_field')
+        with self.assertRaisesRegex(ValueError, expected):
+            validate_field('test_field', '  \t ')
+
+    def test_allow_none(self):
+        """Check valid and invalid fields allowing `None` values"""
+
+        validate_field('test_field', None, allow_none=True)
+
+        expected = FIELD_NONE_ERROR.format(name='test_field')
+        with self.assertRaisesRegex(ValueError, expected):
+            validate_field('test_field', None, allow_none=False)
+
+        expected = FIELD_EMPTY_ERROR.format(name='test_field')
+        with self.assertRaisesRegex(ValueError, expected):
+            validate_field('test_field', '', allow_none=True)
+
+        expected = FIELD_WHITESPACES_ERROR.format(name='test_field')
+        with self.assertRaisesRegex(ValueError, expected):
+            validate_field('test_field', ' \t ', allow_none=True)
+
+    def test_no_string(self):
+        """Check if an exception is raised when the value type is not a string"""
+
+        with self.assertRaisesRegex(TypeError, FIELD_TYPE_ERROR):
+            validate_field('test_field', 42)
