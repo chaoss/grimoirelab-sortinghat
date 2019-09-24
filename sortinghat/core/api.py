@@ -32,8 +32,10 @@ from .db import (find_unique_identity,
                  search_enrollments_in_period,
                  add_unique_identity as add_unique_identity_db,
                  add_identity as add_identity_db,
+                 add_organization as add_organization_db,
                  delete_unique_identity as delete_unique_identity_db,
                  delete_identity as delete_identity_db,
+                 delete_organization as delete_organization_db,
                  update_profile as update_profile_db,
                  move_identity as move_identity_db,
                  add_enrollment,
@@ -316,6 +318,70 @@ def move_identity(from_id, to_uuid):
         uidentity = to_uid
 
     return uidentity
+
+
+@django.db.transaction.atomic
+def add_organization(name):
+    """Add an organization to the registry.
+
+    This function adds an organization to the registry.
+    It checks first whether the organization is already on the registry.
+    When it is not found, the new organization is added. Otherwise,
+    it raises a 'AlreadyExistsError' exception to notify that the organization
+    already exists.
+
+    :param name: name of the organization
+
+    :raises InvalidValueError: raised when organization is None or an empty string
+    :raises AlreadyExistsError: raised when the organization already exists
+        in the registry
+    """
+    if name is None:
+        raise InvalidValueError(msg="'name' cannot be None")
+    if name == '':
+        raise InvalidValueError(msg="'name' cannot be an empty string")
+
+    try:
+        org = add_organization_db(name=name)
+    except ValueError as e:
+        raise InvalidValueError(msg=str(e))
+    except AlreadyExistsError as exc:
+        raise exc
+
+    return org
+
+
+@django.db.transaction.atomic
+def delete_organization(name):
+    """Remove an organization from the registry.
+
+    This function removes the given organization from the registry.
+    Related information such as domains or enrollments are also removed.
+    It checks first whether the organization is already on the registry.
+    When it is found, the organization is removed. Otherwise,
+    it will raise a 'NotFoundError'.
+
+    :param name: name of the organization to remove
+
+    :raises InvalidValueError: raised when organization is None or an empty string
+    :raises NotFoundError: raised when the organization does not exist
+        in the registry
+    """
+    if name is None:
+        raise InvalidValueError(msg="'name' cannot be None")
+    if name == '':
+        raise InvalidValueError(msg="'name' cannot be an empty string")
+
+    try:
+        org = find_organization(name)
+    except ValueError as e:
+        raise InvalidValueError(msg=str(e))
+    except NotFoundError as exc:
+        raise exc
+
+    delete_organization_db(organization=org)
+
+    return org
 
 
 @django.db.transaction.atomic
