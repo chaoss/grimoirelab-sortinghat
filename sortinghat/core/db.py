@@ -17,6 +17,7 @@
 #
 # Authors:
 #     Santiago Dueñas <sduenas@bitergia.com>
+#     Miguel Ángel Fernández <mafesan@bitergia.com>
 #
 
 import re
@@ -97,6 +98,8 @@ def find_organization(name):
     :raises NotFoundError: when the organization with the
         given `name` does not exists.
     """
+    validate_field('name', name)
+
     try:
         organization = Organization.objects.get(name=name)
     except Organization.DoesNotExist:

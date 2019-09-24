@@ -1028,6 +1028,26 @@ class TestAddOrganization(TestCase):
 
         with self.assertRaisesRegex(InvalidValueError, ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR):
             api.add_organization(name='')
+
+    def test_organization_name_whitespaces(self):
+        """Check if it fails when organization name is composed by whitespaces only"""
+
+        with self.assertRaisesRegex(InvalidValueError, ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR):
+            api.add_organization(name='   ')
+
+        with self.assertRaisesRegex(InvalidValueError, ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR):
+            api.add_organization(name='\t')
+
+        with self.assertRaisesRegex(InvalidValueError, ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR):
+            api.add_organization(name=' \t  ')
+
+    def test_organization_name_int(self):
+        """Check if it fails when organization name is an integer"""
+
+        with self.assertRaisesRegex(TypeError, ORGANIZATION_VALUE_ERROR):
+            api.add_organization(name=12345)
+
+
 class TestDeleteOrganization(TestCase):
     """Unit tests for delete_organization"""
 
@@ -1081,6 +1101,24 @@ class TestDeleteOrganization(TestCase):
 
         with self.assertRaisesRegex(InvalidValueError, ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR):
             api.delete_organization(name='')
+
+    def test_organization_name_whitespaces(self):
+        """Check if it fails when organization name is composed by whitespaces"""
+
+        with self.assertRaisesRegex(InvalidValueError, ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR):
+            api.delete_organization(name='   ')
+
+        with self.assertRaisesRegex(InvalidValueError, ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR):
+            api.delete_organization(name='\t')
+
+        with self.assertRaisesRegex(InvalidValueError, ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR):
+            api.delete_organization(name=' \t  ')
+
+    def test_organization_name_int(self):
+        """Check if it fails when organization name is an integer"""
+
+        with self.assertRaisesRegex(TypeError, ORGANIZATION_VALUE_ERROR):
+            api.delete_organization(name=12345)
 
 
 class TestEnroll(TestCase):
