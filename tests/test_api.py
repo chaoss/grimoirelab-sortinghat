@@ -30,17 +30,17 @@ from django.test import TestCase
 from grimoirelab_toolkit.datetime import datetime_utcnow
 
 from sortinghat.core import api
-from sortinghat.core import db
 from sortinghat.core.errors import (AlreadyExistsError,
                                     NotFoundError,
                                     InvalidValueError)
 from sortinghat.core.models import (Country,
                                     UniqueIdentity,
                                     Identity,
-                                    Enrollment)
-
+                                    Enrollment,
+                                    Organization)
 
 NOT_FOUND_ERROR = "{entity} not found in the registry"
+ALREADY_EXISTS_ERROR = "{entity} already exists in the registry"
 SOURCE_NONE_OR_EMPTY_ERROR = "'source' cannot be"
 IDENTITY_NONE_OR_EMPTY_ERROR = "identity data cannot be empty"
 UUID_NONE_OR_EMPTY_ERROR = "'uuid' cannot be"
@@ -56,6 +56,10 @@ GENDER_ACC_INVALID_RANGE_ERROR = r"'gender_acc' \({acc}\) is not in range \(1,10
 PERIOD_INVALID_ERROR = "'start' date {start} cannot be greater than {end}"
 PERIOD_OUT_OF_BOUNDS_ERROR = "'{type}' date {date} is out of bounds"
 WITHDRAW_PERIOD_INVALID_ERROR = "'from_date' date {from_date} cannot be greater than {to_date}"
+ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR = "'name' cannot be"
+ORGANIZATION_NOT_FOUND_ERROR = "{name} not found in the registry"
+ORGANIZATION_ALREADY_EXISTS_ERROR = "Organization '{name}' already exists in the registry"
+ORGANIZATION_VALUE_ERROR = "field value must be a string; int given"
 
 
 class TestUUID(TestCase):
@@ -499,9 +503,9 @@ class TestDeleteIdentity(TestCase):
         """Load initial dataset"""
 
         # Organizations
-        example_org = db.add_organization('Example')
-        bitergia_org = db.add_organization('Bitergia')
-        libresoft_org = db.add_organization('LibreSoft')
+        example_org = api.add_organization('Example')
+        bitergia_org = api.add_organization('Bitergia')
+        libresoft_org = api.add_organization('LibreSoft')
 
         # Identities
         jsmith = api.add_identity('scm', email='jsmith@example')
@@ -981,6 +985,104 @@ class TestMoveIdentity(TestCase):
             api.move_identity('03877f31261a6d1a1b3971d240e628259364b8ac', '')
 
 
+class TestAddOrganization(TestCase):
+    """Unit tests for add_organization"""
+
+    def test_add_new_organization(self):
+        """Check if everything goes OK when adding a new organization"""
+
+        organization = api.add_organization(name='Example')
+
+        # Tests
+        self.assertIsInstance(organization, Organization)
+        self.assertEqual(organization.name, 'Example')
+
+        organizations_db = Organization.objects.filter(name='Example')
+        self.assertEqual(len(organizations_db), 1)
+
+        org1 = organizations_db[0]
+        self.assertEqual(organization, org1)
+
+    def test_add_duplicate_organization(self):
+        """Check if it fails when adding a duplicate organization"""
+
+        org = api.add_organization(name='Example')
+
+        with self.assertRaisesRegex(AlreadyExistsError, ORGANIZATION_ALREADY_EXISTS_ERROR.format(name=org.name)):
+            org = api.add_organization(name=org.name)
+
+        organizations = Organization.objects.filter(name='Example')
+        self.assertEqual(len(organizations), 1)
+
+        organizations = Organization.objects.all()
+        self.assertEqual(len(organizations), 1)
+
+    def test_organization_name_none(self):
+        """Check if it fails when organization name is `None`"""
+
+        with self.assertRaisesRegex(InvalidValueError, ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR):
+            api.add_organization(name=None)
+
+    def test_organization_name_empty(self):
+        """Check if it fails when organization name is empty"""
+
+        with self.assertRaisesRegex(InvalidValueError, ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR):
+            api.add_organization(name='')
+class TestDeleteOrganization(TestCase):
+    """Unit tests for delete_organization"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        api.add_organization(name='Example')
+        api.add_organization(name='Bitergia')
+        api.add_organization(name='Libresoft')
+
+        jsmith = api.add_identity('scm', email='jsmith@example.com')
+        uidentity = api.enroll(jsmith.id, 'Example',
+                               from_date=datetime.datetime(1999, 1, 1),
+                               to_date=datetime.datetime(2000, 1, 1))
+
+    def test_delete_organization(self):
+        """Check if everything goes OK when deleting an organization"""
+
+        api.delete_organization(name='Example')
+
+        organizations = Organization.objects.filter(name='Example')
+        self.assertEqual(len(organizations), 0)
+
+        uidentity_db = UniqueIdentity.objects.get(uuid='334da68fcd3da4e799791f73dfada2afb22648c6')
+        enrollments = uidentity_db.enrollments.all()
+        self.assertEqual(len(enrollments), 0)
+
+        organizations = Organization.objects.all()
+        self.assertEqual(len(organizations), 2)
+
+        org1 = organizations[0]
+        self.assertEqual(org1.name, 'Bitergia')
+
+        org2 = organizations[1]
+        self.assertEqual(org2.name, 'Libresoft')
+
+    def test_delete_non_existing_organization(self):
+        """Check if it fails when deleting a non existing organization"""
+
+        with self.assertRaisesRegex(NotFoundError, ORGANIZATION_NOT_FOUND_ERROR.format(name='Ghost')):
+            api.delete_organization('Ghost')
+
+    def test_organization_name_none(self):
+        """Check if it fails when organization name is `None`"""
+
+        with self.assertRaisesRegex(InvalidValueError, ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR):
+            api.delete_organization(name=None)
+
+    def test_organization_name_empty(self):
+        """Check if it fails when organization name is empty"""
+
+        with self.assertRaisesRegex(InvalidValueError, ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR):
+            api.delete_organization(name='')
+
+
 class TestEnroll(TestCase):
     """Unit tests for enroll"""
 
@@ -988,7 +1090,7 @@ class TestEnroll(TestCase):
         """Check whether it adds an enrollments to a unique identity and an organization"""
 
         jsmith = api.add_identity('scm', email='jsmith@example')
-        db.add_organization('Example')
+        api.add_organization('Example')
 
         uidentity = api.enroll(jsmith.id, 'Example',
                                from_date=datetime.datetime(1999, 1, 1),
@@ -1019,7 +1121,7 @@ class TestEnroll(TestCase):
         """Check if it enrolls a unique identity using default ranges when they are not given"""
 
         jsmith = api.add_identity('scm', email='jsmith@example')
-        db.add_organization('Example')
+        api.add_organization('Example')
 
         uidentity = api.enroll(jsmith.id, 'Example')
 
@@ -1048,7 +1150,7 @@ class TestEnroll(TestCase):
         """Check if it enrolls different times a unique identity to an organization"""
 
         jsmith = api.add_identity('scm', email='jsmith@example')
-        db.add_organization('Example')
+        api.add_organization('Example')
 
         api.enroll(jsmith.id, 'Example',
                    from_date=datetime.datetime(2013, 1, 1),
@@ -1085,7 +1187,7 @@ class TestEnroll(TestCase):
         """Check if enrollments are merged for overlapped ranges"""
 
         jsmith = api.add_identity('scm', email='jsmith@example')
-        db.add_organization('Example')
+        api.add_organization('Example')
 
         api.enroll(jsmith.id, 'Example',
                    from_date=datetime.datetime(1999, 1, 1),
@@ -1122,7 +1224,7 @@ class TestEnroll(TestCase):
         """Check if enrollments are merged for overlapped ranges"""
 
         jsmith = api.add_identity('scm', email='jsmith@example')
-        db.add_organization('Example')
+        api.add_organization('Example')
 
         api.enroll(jsmith.id, 'Example',
                    from_date=datetime.datetime(1999, 1, 1),
@@ -1155,7 +1257,7 @@ class TestEnroll(TestCase):
         """Check if enrollments are merged for overlapped ranges"""
 
         jsmith = api.add_identity('scm', email='jsmith@example')
-        db.add_organization('Example')
+        api.add_organization('Example')
 
         api.enroll(jsmith.id, 'Example',
                    from_date=datetime.datetime(1999, 1, 1),
@@ -1184,7 +1286,7 @@ class TestEnroll(TestCase):
         """Check if last modification date is updated"""
 
         jsmith = api.add_identity('scm', email='jsmith@example')
-        db.add_organization('Example')
+        api.add_organization('Example')
 
         before_dt = datetime_utcnow()
         uidentity = api.enroll(jsmith.id, 'Example',
@@ -1199,7 +1301,7 @@ class TestEnroll(TestCase):
         """Check whether enrollments cannot be added giving invalid period ranges"""
 
         jsmith = api.add_identity('scm', email='jsmith@example')
-        db.add_organization('Example')
+        api.add_organization('Example')
 
         data = {
             'start': r'2001-01-01 00:00:00\+00:00',
@@ -1216,7 +1318,7 @@ class TestEnroll(TestCase):
         """Check whether enrollments cannot be added giving periods out of bounds"""
 
         jsmith = api.add_identity('scm', email='jsmith@example')
-        db.add_organization('Example')
+        api.add_organization('Example')
 
         data = {
             'type': 'start',
@@ -1253,7 +1355,7 @@ class TestEnroll(TestCase):
         """Check if it fails adding enrollments to not existing unique identities"""
 
         api.add_identity('scm', email='jsmith@example')
-        db.add_organization('Example')
+        api.add_organization('Example')
 
         msg = NOT_FOUND_ERROR.format(entity='abcdefghijklmnopqrstuvwxyz')
 
@@ -1264,7 +1366,7 @@ class TestEnroll(TestCase):
         """Check if it fails adding enrollments to not existing organizations"""
 
         jsmith = api.add_identity('scm', email='jsmith@example')
-        db.add_organization('Example')
+        api.add_organization('Example')
 
         msg = NOT_FOUND_ERROR.format(entity='Bitergia')
 
@@ -1275,7 +1377,7 @@ class TestEnroll(TestCase):
         """Test if it raises an exception when the enrollment for the given range already exists"""
 
         api.add_identity('scm', email='jsmith@example')
-        db.add_organization('Example')
+        api.add_organization('Example')
 
         api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
                    from_date=datetime.datetime(1999, 1, 1),
@@ -1298,8 +1400,8 @@ class TestWithdraw(TestCase):
     def setUp(self):
         """Load initial dataset"""
 
-        db.add_organization('Example')
-        db.add_organization('Bitergia')
+        api.add_organization('Example')
+        api.add_organization('Bitergia')
 
         api.add_identity('scm', email='jsmith@example')
         api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
@@ -1493,8 +1595,8 @@ class TestMergeIdentities(TestCase):
     def setUp(self):
         """Load initial dataset"""
 
-        db.add_organization('Example')
-        db.add_organization('Bitergia')
+        api.add_organization('Example')
+        api.add_organization('Bitergia')
 
         Country.objects.create(code='US',
                                name='United States of America',
