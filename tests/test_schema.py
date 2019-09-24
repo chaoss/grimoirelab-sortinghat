@@ -60,7 +60,8 @@ UUID_EMPTY_ERROR = "'uuid' cannot be an empty string"
 ORG_DOES_NOT_EXIST_ERROR = "Organization matching query does not exist."
 DOMAIN_DOES_NOT_EXIST_ERROR = "Domain matching query does not exist."
 UID_DOES_NOT_EXIST_ERROR = "FFFFFFFFFFFFFFF not found in the registry"
-ORGANIZATION_DOES_NOT_EXIST_ERROR = "Bitergia not found in the registry"
+ORGANIZATION_BITERGIA_DOES_NOT_EXIST_ERROR = "Bitergia not found in the registry"
+ORGANIZATION_EXAMPLE_DOES_NOT_EXIST_ERROR = "Example not found in the registry"
 ENROLLMENT_DOES_NOT_EXIST_ERROR = "'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3-Example-2050-01-01 00:00:00+00:00-2060-01-01 00:00:00+00:00' not found in the registry"
 
 
@@ -604,13 +605,13 @@ class TestDeleteOrganizationMutation(django.test.TestCase):
 
         # Check error
         msg = executed['errors'][0]['message']
-        self.assertEqual(msg, ORG_DOES_NOT_EXIST_ERROR)
+        self.assertEqual(msg, ORGANIZATION_EXAMPLE_DOES_NOT_EXIST_ERROR)
 
         # It should not remove anything
         Organization.objects.create(name='Bitergia')
 
         msg = executed['errors'][0]['message']
-        self.assertEqual(msg, ORG_DOES_NOT_EXIST_ERROR)
+        self.assertEqual(msg, ORGANIZATION_EXAMPLE_DOES_NOT_EXIST_ERROR)
 
         orgs = Organization.objects.all()
         self.assertEqual(len(orgs), 1)
@@ -1610,7 +1611,7 @@ class TestEnrollMutation(django.test.TestCase):
         executed = client.execute(self.SH_ENROLL, variables=params)
 
         msg = executed['errors'][0]['message']
-        self.assertEqual(msg, ORGANIZATION_DOES_NOT_EXIST_ERROR)
+        self.assertEqual(msg, ORGANIZATION_BITERGIA_DOES_NOT_EXIST_ERROR)
 
     def test_integrity_error(self):
         """Check whether enrollments in an existing period cannot be inserted"""
@@ -1786,7 +1787,7 @@ class TestWithdrawMutation(django.test.TestCase):
         executed = client.execute(self.SH_WITHDRAW, variables=params)
 
         msg = executed['errors'][0]['message']
-        self.assertEqual(msg, ORGANIZATION_DOES_NOT_EXIST_ERROR)
+        self.assertEqual(msg, ORGANIZATION_BITERGIA_DOES_NOT_EXIST_ERROR)
 
     def test_non_existing_enrollments(self):
         """Check if it fails when the enrollments for a period do not exist"""

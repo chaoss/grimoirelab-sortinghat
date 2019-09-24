@@ -29,11 +29,11 @@ from .api import (add_identity,
                   update_profile,
                   move_identity,
                   merge_identities,
+                  add_organization,
+                  delete_organization,
                   enroll,
                   withdraw)
-from .db import (add_organization,
-                 delete_organization,
-                 add_domain,
+from .db import (add_domain,
                  delete_domain)
 from .models import (Organization,
                      Domain,
@@ -113,8 +113,7 @@ class DeleteOrganization(graphene.Mutation):
     organization = graphene.Field(lambda: OrganizationType)
 
     def mutate(self, info, name):
-        org = Organization.objects.get(name=name)
-        delete_organization(org)
+        org = delete_organization(name)
 
         return DeleteOrganization(
             organization=org
