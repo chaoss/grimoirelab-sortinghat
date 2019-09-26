@@ -59,6 +59,7 @@ FROM_UUID_TO_UUID_EQUAL_ERROR = "'from_uuid' and 'to_uuid' cannot be equal"
 UUID_EMPTY_ERROR = "'uuid' cannot be an empty string"
 ORG_DOES_NOT_EXIST_ERROR = "Organization matching query does not exist."
 DOMAIN_DOES_NOT_EXIST_ERROR = "Domain matching query does not exist."
+DOMAIN_NOT_FOUND_ERROR = "example.net not found in the registry"
 UID_DOES_NOT_EXIST_ERROR = "FFFFFFFFFFFFFFF not found in the registry"
 ORGANIZATION_BITERGIA_DOES_NOT_EXIST_ERROR = "Bitergia not found in the registry"
 ORGANIZATION_EXAMPLE_DOES_NOT_EXIST_ERROR = "Example not found in the registry"
@@ -720,7 +721,7 @@ class TestAddDomainMutation(django.test.TestCase):
 
         # Check error
         msg = executed['errors'][0]['message']
-        self.assertEqual(msg, ORG_DOES_NOT_EXIST_ERROR)
+        self.assertEqual(msg, ORGANIZATION_EXAMPLE_DOES_NOT_EXIST_ERROR)
 
 
 class TestDeleteDomainMutation(django.test.TestCase):
@@ -767,14 +768,14 @@ class TestDeleteDomainMutation(django.test.TestCase):
 
         # Check error
         msg = executed['errors'][0]['message']
-        self.assertEqual(msg, DOMAIN_DOES_NOT_EXIST_ERROR)
+        self.assertEqual(msg, DOMAIN_NOT_FOUND_ERROR)
 
         # It should not remove anything
         org = Organization.objects.create(name='Bitergia')
         Domain.objects.create(domain='example.com', organization=org)
 
         msg = executed['errors'][0]['message']
-        self.assertEqual(msg, DOMAIN_DOES_NOT_EXIST_ERROR)
+        self.assertEqual(msg, DOMAIN_NOT_FOUND_ERROR)
 
         domains = Domain.objects.all()
         self.assertEqual(len(domains), 1)

@@ -384,7 +384,6 @@ def add_domain(organization, domain_name, is_top_domain=True):
     :raises AlreadyExistsError: raised when the domain already exists
         in the registry
     """
-
     if organization is None:
         raise InvalidValueError(msg="'org_name' cannot be None")
     if organization == '':
