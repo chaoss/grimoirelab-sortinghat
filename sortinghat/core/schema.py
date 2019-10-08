@@ -30,11 +30,11 @@ from .api import (add_identity,
                   move_identity,
                   merge_identities,
                   add_organization,
+                  add_domain,
                   delete_organization,
+                  delete_domain,
                   enroll,
                   withdraw)
-from .db import (add_domain,
-                 delete_domain)
 from .models import (Organization,
                      Domain,
                      Country,
@@ -129,8 +129,7 @@ class AddDomain(graphene.Mutation):
     domain = graphene.Field(lambda: DomainType)
 
     def mutate(self, info, organization, domain, is_top_domain=False):
-        org = Organization.objects.get(name=organization)
-        dom = add_domain(org, domain, is_top_domain=is_top_domain)
+        dom = add_domain(organization, domain, is_top_domain=is_top_domain)
 
         return AddDomain(
             domain=dom
@@ -144,8 +143,7 @@ class DeleteDomain(graphene.Mutation):
     domain = graphene.Field(lambda: DomainType)
 
     def mutate(self, info, domain):
-        dom = Domain.objects.get(domain=domain)
-        delete_domain(dom)
+        dom = delete_domain(domain)
 
         return DeleteDomain(
             domain=dom

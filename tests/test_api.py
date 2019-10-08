@@ -37,7 +37,8 @@ from sortinghat.core.models import (Country,
                                     UniqueIdentity,
                                     Identity,
                                     Enrollment,
-                                    Organization)
+                                    Organization,
+                                    Domain)
 
 NOT_FOUND_ERROR = "{entity} not found in the registry"
 ALREADY_EXISTS_ERROR = "{entity} already exists in the registry"
@@ -60,6 +61,11 @@ ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR = "'name' cannot be"
 ORGANIZATION_NOT_FOUND_ERROR = "{name} not found in the registry"
 ORGANIZATION_ALREADY_EXISTS_ERROR = "Organization '{name}' already exists in the registry"
 ORGANIZATION_VALUE_ERROR = "field value must be a string; int given"
+DOMAIN_NAME_NONE_OR_EMPTY_ERROR = "'domain_name' cannot be"
+DOMAIN_NOT_FOUND_ERROR = "{domain_name} not found in the registry"
+DOMAIN_ALREADY_EXISTS_ERROR = "'{domain_name}' already exists in the registry"
+DOMAIN_VALUE_ERROR = "field value must be a string; int given"
+DOMAIN_ORG_NAME_NONE_OR_EMPTY_ERROR = "'org_name' cannot be"
 
 
 class TestUUID(TestCase):
@@ -1048,6 +1054,208 @@ class TestAddOrganization(TestCase):
             api.add_organization(name=12345)
 
 
+class TestAddDomain(TestCase):
+    """Unit tests for add_domain"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        api.add_organization(name='Example')
+        api.add_organization(name='Bitergia')
+
+    def test_add_new_domain(self):
+        """Check if everything goes OK when adding a new domain"""
+
+        domain = api.add_domain(organization='Example',
+                                domain_name='example.com',
+                                is_top_domain=True)
+
+        # Tests
+        self.assertIsInstance(domain, Domain)
+        self.assertEqual(domain.organization.name, 'Example')
+        self.assertEqual(domain.domain, 'example.com')
+        self.assertEqual(domain.is_top_domain, True)
+
+        domains_db = Domain.objects.filter(domain='example.com')
+        self.assertEqual(len(domains_db), 1)
+
+        dom1 = domains_db[0]
+        self.assertEqual(domain, dom1)
+
+    def test_top_domain_default(self):
+        """Check if the domain is a top domain by default"""
+
+        domain = api.add_domain(organization='Example',
+                                domain_name='example.com')
+
+        # Tests
+        self.assertIsInstance(domain, Domain)
+        self.assertEqual(domain.organization.name, 'Example')
+        self.assertEqual(domain.domain, 'example.com')
+        self.assertEqual(domain.is_top_domain, True)
+
+        domains_db = Domain.objects.filter(domain='example.com')
+        self.assertEqual(len(domains_db), 1)
+
+        dom1 = domains_db[0]
+        self.assertEqual(domain, dom1)
+
+    def test_add_multiple_domains(self):
+        """Check if everything goes OK when adding a new domain"""
+
+        domain1 = api.add_domain(organization='Example',
+                                 domain_name='example.com',
+                                 is_top_domain=True)
+
+        domain2 = api.add_domain(organization='Example',
+                                 domain_name='example.net',
+                                 is_top_domain=False)
+
+        # Tests
+        self.assertEqual(domain1.organization.name, 'Example')
+        self.assertEqual(domain1.domain, 'example.com')
+        self.assertEqual(domain1.is_top_domain, True)
+
+        self.assertEqual(domain2.organization.name, 'Example')
+        self.assertEqual(domain2.domain, 'example.net')
+        self.assertEqual(domain2.is_top_domain, False)
+
+        domains_db = Domain.objects.filter(domain='example.com')
+        self.assertEqual(len(domains_db), 1)
+
+        dom1 = domains_db[0]
+        self.assertEqual(domain1, dom1)
+
+        domains_db = Domain.objects.filter(domain='example.net')
+        self.assertEqual(len(domains_db), 1)
+
+        dom2 = domains_db[0]
+        self.assertEqual(domain2, dom2)
+
+    def test_add_duplicate_domain(self):
+        """Check if it fails when adding a duplicate domain"""
+
+        domain = api.add_domain(organization='Example',
+                                domain_name='example.com',
+                                is_top_domain=True)
+
+        with self.assertRaisesRegex(AlreadyExistsError, DOMAIN_ALREADY_EXISTS_ERROR.format(domain_name='example.com')):
+            api.add_domain(organization='Example',
+                           domain_name='example.com')
+
+        domains = Domain.objects.filter(domain='example.com')
+        self.assertEqual(len(domains), 1)
+
+        dom1 = domains[0]
+        self.assertEqual(dom1, domain)
+
+        domains = Domain.objects.all()
+        self.assertEqual(len(domains), 1)
+
+    def test_add_domain_different_org(self):
+        """Check if it fails when adding the same domain to a different organization"""
+
+        domain = api.add_domain(organization='Example',
+                                domain_name='example.com',
+                                is_top_domain=True)
+
+        with self.assertRaisesRegex(AlreadyExistsError, DOMAIN_ALREADY_EXISTS_ERROR.format(domain_name='example.com')):
+            api.add_domain(organization='Bitergia',
+                           domain_name='example.com')
+
+        domains = Domain.objects.filter(domain='example.com')
+        self.assertEqual(len(domains), 1)
+
+        domains = Domain.objects.filter(domain='example.com')
+        self.assertEqual(len(domains), 1)
+
+        dom1 = domains[0]
+        self.assertEqual(dom1.organization.name, 'Example')
+        self.assertEqual(dom1.organization.name, domain.organization.name)
+
+        domains = Domain.objects.all()
+        self.assertEqual(len(domains), 1)
+
+    def test_organization_not_found(self):
+        """Check if it fails when the organization is not found"""
+
+        with self.assertRaisesRegex(NotFoundError, ORGANIZATION_NOT_FOUND_ERROR.format(name='Botergia')):
+            api.add_domain(organization='Botergia',
+                           domain_name='bitergia.com')
+
+    def test_domain_name_none(self):
+        """Check if it fails when domain name is `None`"""
+
+        with self.assertRaisesRegex(InvalidValueError, DOMAIN_NAME_NONE_OR_EMPTY_ERROR):
+            api.add_domain(organization='Example',
+                           domain_name=None)
+
+    def test_domain_name_empty(self):
+        """Check if it fails when domain name is empty"""
+
+        with self.assertRaisesRegex(InvalidValueError, DOMAIN_NAME_NONE_OR_EMPTY_ERROR):
+            api.add_domain(organization='Example',
+                           domain_name='')
+
+    def test_domain_name_whitespaces(self):
+        """Check if it fails when domain name is composed by whitespaces"""
+
+        with self.assertRaisesRegex(InvalidValueError, DOMAIN_NAME_NONE_OR_EMPTY_ERROR):
+            api.add_domain(organization='Example',
+                           domain_name='    ')
+
+        with self.assertRaisesRegex(InvalidValueError, DOMAIN_NAME_NONE_OR_EMPTY_ERROR):
+            api.add_domain(organization='Example',
+                           domain_name='\t')
+
+        with self.assertRaisesRegex(InvalidValueError, DOMAIN_NAME_NONE_OR_EMPTY_ERROR):
+            api.add_domain(organization='Example',
+                           domain_name='  \t  ')
+
+    def test_domain_name_int(self):
+        """Check if it fails when domain name is an integer"""
+
+        with self.assertRaisesRegex(TypeError, DOMAIN_VALUE_ERROR):
+            api.add_domain(organization='Example',
+                           domain_name=12345)
+
+    def test_organization_name_none(self):
+        """Check if it fails when organization name is `None`"""
+
+        with self.assertRaisesRegex(InvalidValueError, DOMAIN_ORG_NAME_NONE_OR_EMPTY_ERROR):
+            api.add_domain(organization=None,
+                           domain_name='example.com')
+
+    def test_organization_name_empty(self):
+        """Check if it fails when organization name is empty"""
+
+        with self.assertRaisesRegex(InvalidValueError, DOMAIN_ORG_NAME_NONE_OR_EMPTY_ERROR):
+            api.add_domain(organization='',
+                           domain_name='example.com')
+
+    def test_organization_name_whitespaces(self):
+        """Check if it fails when organization name is composed by whitespaces"""
+
+        with self.assertRaisesRegex(InvalidValueError, DOMAIN_ORG_NAME_NONE_OR_EMPTY_ERROR):
+            api.add_domain(organization=None,
+                           domain_name='    ')
+
+        with self.assertRaisesRegex(InvalidValueError, DOMAIN_ORG_NAME_NONE_OR_EMPTY_ERROR):
+            api.add_domain(organization=None,
+                           domain_name='\t')
+
+        with self.assertRaisesRegex(InvalidValueError, DOMAIN_ORG_NAME_NONE_OR_EMPTY_ERROR):
+            api.add_domain(organization=None,
+                           domain_name='  \t  ')
+
+    def test_organization_name_int(self):
+        """Check if it fails when organization name is an integer"""
+
+        with self.assertRaisesRegex(TypeError, ORGANIZATION_VALUE_ERROR):
+            api.add_domain(organization=12345,
+                           domain_name='example.com')
+
+
 class TestDeleteOrganization(TestCase):
     """Unit tests for delete_organization"""
 
@@ -1119,6 +1327,102 @@ class TestDeleteOrganization(TestCase):
 
         with self.assertRaisesRegex(TypeError, ORGANIZATION_VALUE_ERROR):
             api.delete_organization(name=12345)
+
+
+class TestDeleteDomain(TestCase):
+    """Unit tests for delete_domain"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        api.add_organization(name='Example')
+        api.add_domain(organization='Example',
+                       domain_name='example.com',
+                       is_top_domain=True)
+        api.add_domain(organization='Example',
+                       domain_name='example.net',
+                       is_top_domain=False)
+
+        api.add_organization(name='Bitergia')
+        api.add_domain(organization='Bitergia',
+                       domain_name='bitergia.com',
+                       is_top_domain=True)
+
+    def test_delete_domain(self):
+        """Check if everything goes OK when deleting a domain"""
+
+        domain = api.delete_domain('example.com')
+
+        # Tests
+        self.assertIsInstance(domain, Domain)
+        self.assertEqual(domain.organization.name, 'Example')
+        self.assertEqual(domain.domain, 'example.com')
+        self.assertEqual(domain.is_top_domain, True)
+
+        domains = Domain.objects.filter(domain='example.com')
+        self.assertEqual(len(domains), 0)
+
+        # Check if the rest of domains were not removed
+        domains = Domain.objects.all()
+        self.assertEqual(len(domains), 2)
+
+        dom1 = domains[0]
+        self.assertEqual(dom1.organization.name, 'Bitergia')
+        self.assertEqual(dom1.domain, 'bitergia.com')
+        self.assertEqual(dom1.is_top_domain, True)
+
+        dom2 = domains[1]
+        self.assertEqual(dom2.organization.name, 'Example')
+        self.assertEqual(dom2.domain, 'example.net')
+        self.assertEqual(dom2.is_top_domain, False)
+
+    def test_domain_not_found(self):
+        """Check if it fails when domain is not found"""
+
+        with self.assertRaisesRegex(NotFoundError, DOMAIN_NOT_FOUND_ERROR.format(domain_name='botergia.com')):
+            api.delete_domain('botergia.com')
+
+    def test_organization_not_found(self):
+        """Check if it fails when the domain's organization is not found"""
+
+        api.delete_organization('Bitergia')
+
+        # Tests
+        domains = Domain.objects.filter(domain='bitergia.com')
+        self.assertEqual(len(domains), 0)
+
+        with self.assertRaisesRegex(NotFoundError, DOMAIN_NOT_FOUND_ERROR.format(domain_name='bitergia.com')):
+            api.delete_domain('bitergia.com')
+
+    def test_domain_name_none(self):
+        """Check if it fails when domain name is `None`"""
+
+        with self.assertRaisesRegex(InvalidValueError, DOMAIN_NAME_NONE_OR_EMPTY_ERROR):
+            api.delete_domain(domain_name=None)
+
+    def test_domain_name_empty(self):
+        """Check if it fails when domain name is empty"""
+
+        with self.assertRaisesRegex(InvalidValueError, DOMAIN_NAME_NONE_OR_EMPTY_ERROR):
+            api.delete_domain(domain_name='')
+
+    def test_domain_name_whitespaces(self):
+        """Check if it fails when domain name is composed by whitespaces"""
+
+        with self.assertRaisesRegex(InvalidValueError, DOMAIN_NAME_NONE_OR_EMPTY_ERROR):
+            api.delete_domain(domain_name='    ')
+
+        with self.assertRaisesRegex(InvalidValueError, DOMAIN_NAME_NONE_OR_EMPTY_ERROR):
+            api.delete_domain(domain_name='\t')
+
+        with self.assertRaisesRegex(InvalidValueError, DOMAIN_NAME_NONE_OR_EMPTY_ERROR):
+            api.delete_domain(domain_name='  \t  ')
+
+    def test_domain_name_int(self):
+        """Check if it fails when domain name is an integer"""
+
+        with self.assertRaisesRegex(TypeError, DOMAIN_VALUE_ERROR):
+            api.delete_domain(domain_name=12345)
 
 
 class TestEnroll(TestCase):

@@ -108,6 +108,30 @@ def find_organization(name):
         return organization
 
 
+def find_domain(domain_name):
+    """Find a domain.
+
+    Find a domain by its name in the database. When the
+    domain does not exist the function will raise
+    a `NotFoundError`.
+
+    :param domain_name: name of the domain to find
+
+    :returns: a domain object
+
+    :raises NotFoundError: when the domain with the
+        given `name` does not exists.
+    """
+    validate_field('domain_name', domain_name)
+
+    try:
+        domain = Domain.objects.get(domain=domain_name)
+    except Domain.DoesNotExist:
+        raise NotFoundError(entity=domain_name)
+    else:
+        return domain
+
+
 def search_enrollments_in_period(uuid, org_name,
                                  from_date=MIN_PERIOD_DATE,
                                  to_date=MIN_PERIOD_DATE):

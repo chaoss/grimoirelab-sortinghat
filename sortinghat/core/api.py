@@ -29,13 +29,16 @@ from grimoirelab_toolkit.datetime import datetime_to_utc
 from .db import (find_unique_identity,
                  find_identity,
                  find_organization,
+                 find_domain,
                  search_enrollments_in_period,
                  add_unique_identity as add_unique_identity_db,
                  add_identity as add_identity_db,
                  add_organization as add_organization_db,
+                 add_domain as add_domain_db,
                  delete_unique_identity as delete_unique_identity_db,
                  delete_identity as delete_identity_db,
                  delete_organization as delete_organization_db,
+                 delete_domain as delete_domain_db,
                  update_profile as update_profile_db,
                  move_identity as move_identity_db,
                  add_enrollment,
@@ -352,6 +355,64 @@ def add_organization(name):
 
 
 @django.db.transaction.atomic
+def add_domain(organization, domain_name, is_top_domain=True):
+    """Add a domain to the registry.
+
+    This function adds a new domain to a given organization.
+    The organization must exist on the registry prior to insert the new
+    domain. Otherwise, it will raise a `NotFoundError` exception. Moreover,
+    if the given domain is already in the registry an `AlreadyExistsError`
+    exception will be raised.
+
+    The new domain is set as a top domain by default. That is useful to avoid
+    the insertion of sub-domains that belong to the same organization (i.e
+    eu.example.com, us.example.com).
+
+    Remember that a domain can only be assigned to one (and only one)
+    organization.
+
+    :param organization: name of the organization
+    :param domain_name: domain to add to the registry
+    :param is_top_domain: set this domain as a top domain
+
+    :returns the new domain object
+
+    :raises InvalidValueError: raised when domain is None or an empty string or
+        is_top_domain does not have a boolean value
+    :raises NotFoundError: raised when the given organization is not found
+        in the registry
+    :raises AlreadyExistsError: raised when the domain already exists
+        in the registry
+    """
+    if organization is None:
+        raise InvalidValueError(msg="'org_name' cannot be None")
+    if organization == '':
+        raise InvalidValueError(msg="'org_name' cannot be an empty string")
+    if domain_name is None:
+        raise InvalidValueError(msg="'domain_name' cannot be None")
+    if domain_name == '':
+        raise InvalidValueError(msg="'domain_name' cannot be an empty string")
+
+    try:
+        organization = find_organization(organization)
+    except ValueError as e:
+        raise InvalidValueError(msg=str(e))
+    except NotFoundError as exc:
+        raise exc
+
+    try:
+        domain = add_domain_db(organization=organization,
+                               domain_name=domain_name,
+                               is_top_domain=is_top_domain)
+    except ValueError as e:
+        raise InvalidValueError(msg=str(e))
+    except AlreadyExistsError as exc:
+        raise exc
+
+    return domain
+
+
+@django.db.transaction.atomic
 def delete_organization(name):
     """Remove an organization from the registry.
 
@@ -382,6 +443,38 @@ def delete_organization(name):
     delete_organization_db(organization=org)
 
     return org
+
+
+@django.db.transaction.atomic
+def delete_domain(domain_name):
+    """Remove a domain from the registry.
+
+    This function removes the given domain from the registry.
+    Domain must exist in the registry. Otherwise, it will raise
+    a `NotFoundError` exception.
+
+    :param domain_name: name of the domain to remove
+
+    :returns the removed domain object
+
+    :raises NotFoundError: raised when the domain
+        does not exist in the registry.
+    """
+    if domain_name is None:
+        raise InvalidValueError(msg="'domain_name' cannot be None")
+    if domain_name == '':
+        raise InvalidValueError(msg="'domain_name' cannot be an empty string")
+
+    try:
+        domain = find_domain(domain_name)
+    except ValueError as e:
+        raise InvalidValueError(msg=str(e))
+    except NotFoundError as exc:
+        raise exc
+
+    delete_domain_db(domain)
+
+    return domain
 
 
 @django.db.transaction.atomic

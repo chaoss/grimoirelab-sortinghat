@@ -18,6 +18,7 @@
 #
 # Authors:
 #     Santiago Dueñas <sduenas@bitergia.com>
+#     Miguel Ángel Fernández <mafesan@bitergia.com>
 #
 
 import datetime
@@ -53,6 +54,7 @@ NAME_WHITESPACES_ERROR = "'name' cannot be composed by whitespaces only"
 DOMAIN_NAME_NONE_ERROR = "'domain_name' cannot be None"
 DOMAIN_NAME_EMPTY_ERROR = "'domain_name' cannot be an empty string"
 DOMAIN_NAME_WHITESPACES_ERROR = "'domain_name' cannot be composed by whitespaces only"
+DOMAIN_VALUE_ERROR = "field value must be a string; int given"
 TOP_DOMAIN_VALUE_ERROR = "'is_top_domain' must have a boolean value"
 UUID_NONE_ERROR = "'uuid' cannot be None"
 UUID_EMPTY_ERROR = "'uuid' cannot be an empty string"
@@ -70,6 +72,7 @@ IDENTITY_DATA_WHITESPACES_ERROR = "'{name}' cannot be composed by whitespaces on
 UNIQUE_IDENTITY_NOT_FOUND_ERROR = "zyxwuv not found in the registry"
 IDENTITY_NOT_FOUND_ERROR = "zyxwuv not found in the registry"
 ORGANIZATION_NOT_FOUND_ERROR = "Bitergia not found in the registry"
+DOMAIN_NOT_FOUND_ERROR = "example.net not found in the registry"
 IS_BOT_VALUE_ERROR = "'is_bot' must have a boolean value"
 COUNTRY_CODE_ERROR = r"'country_code' \({code}\) does not match with a valid code"
 GENDER_ACC_INVALID_ERROR = "'gender_acc' can only be set when 'gender' is given"
@@ -151,6 +154,65 @@ class TestFindOrganization(TestCase):
 
         with self.assertRaisesRegex(NotFoundError, ORGANIZATION_NOT_FOUND_ERROR):
             db.find_organization('Bitergia')
+
+
+class TestFindDomain(TestCase):
+    """Unit tests for find_domain"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        org = Organization.objects.create(name='Example')
+        Domain.objects.create(domain='example.com',
+                              organization=org,
+                              is_top_domain=True)
+
+    def test_find_domain(self):
+        """Test if a domain is found by its name"""
+
+        domain = db.find_domain('example.com')
+
+        # Tests
+        self.assertIsInstance(domain, Domain)
+        self.assertEqual(domain.organization.name, 'Example')
+        self.assertEqual(domain.domain, 'example.com')
+        self.assertEqual(domain.is_top_domain, True)
+
+    def test_domain_not_found(self):
+        """Test whether it raises an exception when the domain is not found"""
+
+        with self.assertRaisesRegex(NotFoundError, DOMAIN_NOT_FOUND_ERROR):
+            db.find_domain('example.net')
+
+    def test_domain_name_none(self):
+        """Check if it fails when domain name is `None`"""
+
+        with self.assertRaisesRegex(ValueError, DOMAIN_NAME_NONE_ERROR):
+            db.find_domain(None)
+
+    def test_domain_name_empty(self):
+        """Check if it fails when domain name is empty"""
+
+        with self.assertRaisesRegex(ValueError, DOMAIN_NAME_EMPTY_ERROR):
+            db.find_domain('')
+
+    def test_domain_name_whitespaces(self):
+        """Check if it fails when domain name is composed by whitespaces"""
+
+        with self.assertRaisesRegex(ValueError, DOMAIN_NAME_WHITESPACES_ERROR):
+            db.find_domain('    ')
+
+        with self.assertRaisesRegex(ValueError, DOMAIN_NAME_WHITESPACES_ERROR):
+            db.find_domain('\t')
+
+        with self.assertRaisesRegex(ValueError, DOMAIN_NAME_WHITESPACES_ERROR):
+            db.find_domain('  \t  ')
+
+    def test_domain_name_int(self):
+        """Check if it fails when domain name is an integer"""
+
+        with self.assertRaisesRegex(TypeError, DOMAIN_VALUE_ERROR):
+            db.find_domain(12345)
 
 
 class TestSearchEnrollmentsInPeriod(TestCase):
