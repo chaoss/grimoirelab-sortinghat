@@ -17,6 +17,7 @@
 #
 # Authors:
 #     Santiago Dueñas <sduenas@bitergia.com>
+#     Miguel Ángel Fernández <mafesan@bitergia.com>
 #
 
 import datetime
@@ -32,6 +33,10 @@ from django.db.models import (CASCADE,
                               PositiveIntegerField,
                               ForeignKey,
                               OneToOneField)
+
+from django_mysql.models import JSONField
+
+from enum import Enum
 
 from grimoirelab_toolkit.datetime import datetime_utcnow
 
@@ -71,7 +76,7 @@ class LastModificationDateTimeField(DateTimeField):
         return value
 
 
-class ModelBase(Model):
+class EntityBase(Model):
     created_at = CreationDateTimeField()
     last_modified = LastModificationDateTimeField()
 
@@ -79,7 +84,51 @@ class ModelBase(Model):
         abstract = True
 
 
-class Organization(ModelBase):
+class Transaction(Model):
+    tuid = CharField(max_length=MAX_SIZE_CHAR_FIELD, primary_key=True)
+    name = CharField(max_length=MAX_SIZE_CHAR_FIELD)
+    created_at = DateTimeField()
+    closed_at = DateTimeField(null=True)
+    is_closed = BooleanField(default=False)
+
+    class Meta:
+        db_table = 'transactions'
+        ordering = ('created_at', 'tuid')
+
+    def __str__(self):
+        return '%s - %s' % (self.tuid, self.name)
+
+
+class Operation(Model):
+    class OpType(Enum):
+        ADD = 'ADD'
+        DELETE = 'DELETE'
+        UPDATE = 'UPDATE'
+
+        @classmethod
+        def choices(cls):
+            return ((item.name, item.value) for item in cls)
+
+        def __str__(self):
+            return self.value
+
+    ouid = CharField(max_length=MAX_SIZE_CHAR_FIELD, primary_key=True)
+    op_type = CharField(max_length=MAX_SIZE_CHAR_FIELD, choices=OpType.choices())
+    entity_type = CharField(max_length=MAX_SIZE_CHAR_FIELD)
+    target = CharField(max_length=MAX_SIZE_CHAR_FIELD)
+    trx = ForeignKey(Transaction, null=True, on_delete=CASCADE, db_column='tuid')
+    timestamp = DateTimeField()
+    args = JSONField()
+
+    class Meta:
+        db_table = 'operations'
+        ordering = ('timestamp', 'ouid', 'trx')
+
+    def __str__(self):
+        return '%s - %s - %s - %s - %s' % (self.ouid, self.trx, self.op_type, self.entity_type, self.target)
+
+
+class Organization(EntityBase):
     name = CharField(max_length=MAX_SIZE_CHAR_INDEX)
 
     class Meta:
@@ -90,7 +139,7 @@ class Organization(ModelBase):
         return self.name
 
 
-class Domain(ModelBase):
+class Domain(EntityBase):
     domain = CharField(max_length=MAX_SIZE_CHAR_FIELD)
     is_top_domain = BooleanField(default=False)
     organization = ForeignKey(Organization, related_name='domains', on_delete=CASCADE)
@@ -104,7 +153,7 @@ class Domain(ModelBase):
         return self.domain
 
 
-class Country(ModelBase):
+class Country(EntityBase):
     code = CharField(max_length=2, primary_key=True)
     name = CharField(max_length=MAX_SIZE_CHAR_INDEX)
     alpha3 = CharField(max_length=3)
@@ -117,7 +166,7 @@ class Country(ModelBase):
         return self.name
 
 
-class UniqueIdentity(ModelBase):
+class UniqueIdentity(EntityBase):
     uuid = CharField(max_length=MAX_SIZE_CHAR_FIELD, primary_key=True)
 
     class Meta:
@@ -127,7 +176,7 @@ class UniqueIdentity(ModelBase):
         return self.uuid
 
 
-class Identity(ModelBase):
+class Identity(EntityBase):
     id = CharField(max_length=MAX_SIZE_CHAR_FIELD, primary_key=True)
     name = CharField(max_length=MAX_SIZE_CHAR_FIELD, null=True)
     email = CharField(max_length=MAX_SIZE_CHAR_FIELD, null=True)
@@ -144,7 +193,7 @@ class Identity(ModelBase):
         return self.id
 
 
-class Profile(ModelBase):
+class Profile(EntityBase):
     uidentity = OneToOneField(UniqueIdentity, related_name='profile',
                               on_delete=CASCADE, db_column='uuid')
     name = CharField(max_length=MAX_SIZE_CHAR_FIELD, null=True)
@@ -161,7 +210,7 @@ class Profile(ModelBase):
         return self.uidentity.uuid
 
 
-class Enrollment(ModelBase):
+class Enrollment(EntityBase):
     uidentity = ForeignKey(UniqueIdentity, related_name='enrollments',
                            on_delete=CASCADE, db_column='uuid')
     organization = ForeignKey(Organization, related_name='enrollments',
@@ -178,7 +227,7 @@ class Enrollment(ModelBase):
         return '%s - %s' % (self.uidentity.uuid, self.organization.name)
 
 
-class MatchingBlacklist(ModelBase):
+class MatchingBlacklist(EntityBase):
     excluded = CharField(max_length=MAX_SIZE_CHAR_FIELD, primary_key=True)
 
     class Meta:

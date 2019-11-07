@@ -18,6 +18,7 @@
 #
 # Authors:
 #     Santiago Dueñas <sduenas@bitergia.com>
+#     Miguel Ángel Fernández <mafesan@bitergia.com>
 #
 
 from django.test import TestCase
@@ -25,7 +26,8 @@ from django.test import TestCase
 from sortinghat.core.errors import (BaseError,
                                     AlreadyExistsError,
                                     NotFoundError,
-                                    InvalidValueError)
+                                    InvalidValueError,
+                                    ClosedTransactionError)
 
 
 # Mock classes to test BaseError class
@@ -137,3 +139,21 @@ class TestInvalidValueError(TestCase):
         """
         kwargs = {}
         self.assertRaises(KeyError, InvalidValueError, **kwargs)
+
+
+class TestClosedTransactionError(TestCase):
+    """Unit tests for ClosedTransactionError"""
+
+    def test_message(self):
+        """Make sure that prints the right error"""
+
+        e = ClosedTransactionError(msg="transaction already closed")
+        self.assertEqual("transaction already closed", str(e))
+
+    def test_no_args(self):
+        """Check when required arguments are not given.
+
+        When this happens, it raises a KeyError exception.
+        """
+        kwargs = {}
+        self.assertRaises(KeyError, ClosedTransactionError, **kwargs)

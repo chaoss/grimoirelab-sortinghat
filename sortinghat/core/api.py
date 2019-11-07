@@ -44,6 +44,7 @@ from .db import (find_unique_identity,
                  add_enrollment,
                  delete_enrollment)
 from .errors import InvalidValueError, AlreadyExistsError, NotFoundError
+from .log import TransactionsLog
 from .models import MIN_PERIOD_DATE, MAX_PERIOD_DATE
 from .utils import unaccent_string, merge_datetime_ranges
 
@@ -152,6 +153,7 @@ def add_identity(source, name=None, email=None, username=None, uuid=None):
     :raises NotFoundError: raised when the unique identity
         associated to the given `uuid` is not in the registry.
     """
+    trxl = TransactionsLog.open(name='add_identity')
     try:
         id_ = generate_uuid(source, email=email,
                             name=name, username=username)
@@ -159,15 +161,26 @@ def add_identity(source, name=None, email=None, username=None, uuid=None):
         raise InvalidValueError(msg=str(e))
 
     if not uuid:
-        uidentity = add_unique_identity_db(id_)
+        uidentity = add_unique_identity_db(trxl, id_)
     else:
         uidentity = find_unique_identity(uuid)
 
+    args = {
+        'trxl': trxl,
+        'uidentity': uidentity,
+        'identity_id': id_,
+        'source': source,
+        'name': name,
+        'email': email,
+        'username': username
+    }
+
     try:
-        identity = add_identity_db(uidentity, id_, source,
-                                   name=name, email=email, username=username)
+        identity = add_identity_db(**args)
     except ValueError as e:
         raise InvalidValueError(msg=str(e))
+
+    trxl.close()
 
     return identity
 
@@ -205,15 +218,19 @@ def delete_identity(uuid):
     if uuid == '':
         raise InvalidValueError(msg="'uuid' cannot be an empty string")
 
+    trxl = TransactionsLog.open(name='delete_identity')
+
     identity = find_identity(uuid)
     uidentity = identity.uidentity
 
     if uidentity.uuid == uuid:
-        delete_unique_identity_db(identity.uidentity)
+        delete_unique_identity_db(trxl, identity.uidentity)
         uidentity = None
     else:
-        delete_identity_db(identity)
+        delete_identity_db(trxl, identity)
         uidentity.refresh_from_db()
+
+    trxl.close()
 
     return uidentity
 
@@ -252,12 +269,16 @@ def update_profile(uuid, **kwargs):
     :raises InvalidValueError: raised when any of the keyword arguments
         has an invalid value.
     """
+    trxl = TransactionsLog.open(name='update_profile')
+
     uidentity = find_unique_identity(uuid)
 
     try:
-        uidentity = update_profile_db(uidentity, **kwargs)
+        uidentity = update_profile_db(trxl, uidentity, **kwargs)
     except ValueError as e:
         raise InvalidValueError(msg=str(e))
+
+    trxl.close()
 
     return uidentity
 
@@ -303,6 +324,8 @@ def move_identity(from_id, to_uuid):
     if to_uuid == '':
         raise InvalidValueError(msg="'to_uuid' cannot be an empty string")
 
+    trxl = TransactionsLog.open(name='move_identity')
+
     identity = find_identity(from_id)
 
     try:
@@ -310,15 +333,17 @@ def move_identity(from_id, to_uuid):
     except NotFoundError as exc:
         # Move identity to a new one
         if identity.id == to_uuid:
-            to_uid = add_unique_identity_db(identity.id)
+            to_uid = add_unique_identity_db(trxl, identity.id)
         else:
             raise exc
 
     try:
-        uidentity = move_identity_db(identity, to_uid)
+        uidentity = move_identity_db(trxl, identity, to_uid)
     except ValueError:
         # Case when the identity is already assigned to the unique identity
         uidentity = to_uid
+
+    trxl.close()
 
     return uidentity
 
@@ -344,12 +369,15 @@ def add_organization(name):
     if name == '':
         raise InvalidValueError(msg="'name' cannot be an empty string")
 
+    trxl = TransactionsLog.open(name='add_organization')
     try:
-        org = add_organization_db(name=name)
+        org = add_organization_db(trxl, name=name)
     except ValueError as e:
         raise InvalidValueError(msg=str(e))
     except AlreadyExistsError as exc:
         raise exc
+
+    trxl.close()
 
     return org
 
@@ -393,6 +421,8 @@ def add_domain(organization, domain_name, is_top_domain=True):
     if domain_name == '':
         raise InvalidValueError(msg="'domain_name' cannot be an empty string")
 
+    trxl = TransactionsLog.open(name='add_domain')
+
     try:
         organization = find_organization(organization)
     except ValueError as e:
@@ -401,13 +431,15 @@ def add_domain(organization, domain_name, is_top_domain=True):
         raise exc
 
     try:
-        domain = add_domain_db(organization=organization,
+        domain = add_domain_db(trxl, organization=organization,
                                domain_name=domain_name,
                                is_top_domain=is_top_domain)
     except ValueError as e:
         raise InvalidValueError(msg=str(e))
     except AlreadyExistsError as exc:
         raise exc
+
+    trxl.close()
 
     return domain
 
@@ -433,6 +465,8 @@ def delete_organization(name):
     if name == '':
         raise InvalidValueError(msg="'name' cannot be an empty string")
 
+    trxl = TransactionsLog.open(name='delete_organization')
+
     try:
         org = find_organization(name)
     except ValueError as e:
@@ -440,7 +474,9 @@ def delete_organization(name):
     except NotFoundError as exc:
         raise exc
 
-    delete_organization_db(organization=org)
+    delete_organization_db(trxl, organization=org)
+
+    trxl.close()
 
     return org
 
@@ -465,6 +501,8 @@ def delete_domain(domain_name):
     if domain_name == '':
         raise InvalidValueError(msg="'domain_name' cannot be an empty string")
 
+    trxl = TransactionsLog.open(name='delete_domain')
+
     try:
         domain = find_domain(domain_name)
     except ValueError as e:
@@ -472,7 +510,9 @@ def delete_domain(domain_name):
     except NotFoundError as exc:
         raise exc
 
-    delete_domain_db(domain)
+    delete_domain_db(trxl, domain)
+
+    trxl.close()
 
     return domain
 
@@ -524,6 +564,8 @@ def enroll(uuid, organization, from_date=None, to_date=None):
     if organization == '':
         raise InvalidValueError(msg="organization cannot be an empty string")
 
+    trxl = TransactionsLog.open(name='enroll')
+
     from_date = datetime_to_utc(from_date) if from_date else MIN_PERIOD_DATE
     to_date = datetime_to_utc(to_date) if to_date else MAX_PERIOD_DATE
 
@@ -554,15 +596,17 @@ def enroll(uuid, organization, from_date=None, to_date=None):
 
     # Remove old enrollments and add new ones based in the new ranges
     for enrollment_db in enrollments_db:
-        delete_enrollment(enrollment_db)
+        delete_enrollment(trxl, enrollment_db)
 
     try:
         for start_dt, end_dt in merge_datetime_ranges(periods):
-            add_enrollment(uidentity, org, start=start_dt, end=end_dt)
+            add_enrollment(trxl, uidentity, org, start=start_dt, end=end_dt)
     except ValueError as e:
         raise InvalidValueError(msg=str(e))
 
     uidentity.refresh_from_db()
+
+    trxl.close()
 
     return uidentity
 
@@ -615,6 +659,8 @@ def withdraw(uuid, organization, from_date=None, to_date=None):
     if organization == '':
         raise InvalidValueError(msg="organization cannot be an empty string")
 
+    trxl = TransactionsLog.open(name='withdraw')
+
     from_date = datetime_to_utc(from_date) if from_date else MIN_PERIOD_DATE
     to_date = datetime_to_utc(to_date) if to_date else MAX_PERIOD_DATE
 
@@ -647,20 +693,22 @@ def withdraw(uuid, organization, from_date=None, to_date=None):
     for enrollment_db in enrollments_db:
         mins.append(enrollment_db.start)
         maxs.append(enrollment_db.end)
-        delete_enrollment(enrollment_db)
+        delete_enrollment(trxl, enrollment_db)
 
     min_range = min(mins)
     max_range = max(maxs)
 
     try:
         if min_range < from_date:
-            add_enrollment(uidentity, org, start=min_range, end=from_date)
+            add_enrollment(trxl, uidentity, org, start=min_range, end=from_date)
         if max_range > to_date:
-            add_enrollment(uidentity, org, start=to_date, end=max_range)
+            add_enrollment(trxl, uidentity, org, start=to_date, end=max_range)
     except ValueError as e:
         raise InvalidValueError(msg=str(e))
 
     uidentity.refresh_from_db()
+
+    trxl.close()
 
     return uidentity
 
@@ -696,7 +744,7 @@ def merge_identities(from_uuid, to_uuid):
     :raises NotFoundError: raised when either `from_uuid` or `to_uuid`
         do not exist in the registry
     """
-    def _merge_enrollments(from_uid, to_uid):
+    def _merge_enrollments(trxl, from_uid, to_uid):
         """Merge enrollments from two `UniqueIdentity` objects"""
         # Get current enrollments from both uidentities
         enrollments_db = from_uid.enrollments.all() | to_uid.enrollments.all()
@@ -710,14 +758,14 @@ def merge_identities(from_uuid, to_uuid):
 
         # Remove old enrollments and add new ones based in the new ranges
         for enrollment_db in enrollments_db:
-            delete_enrollment(enrollment_db)
+            delete_enrollment(trxl, enrollment_db)
 
         # Add new enrollments merging datetime ranges
         for org in enrollments.keys():
             periods = enrollments[org]
             try:
                 for start_dt, end_dt in merge_datetime_ranges(periods, exclude_limits=True):
-                    add_enrollment(to_uid, org, start=start_dt, end=end_dt)
+                    add_enrollment(trxl, to_uid, org, start=start_dt, end=end_dt)
             except ValueError as e:
                 raise InvalidValueError(msg=str(e))
 
@@ -752,6 +800,8 @@ def merge_identities(from_uuid, to_uuid):
     if from_uuid == to_uuid:
         raise InvalidValueError(msg="'from_uuid' and 'to_uuid' cannot be equal")
 
+    trxl = TransactionsLog.open(name='merge_identities')
+
     try:
         from_uid = find_unique_identity(from_uuid)
         to_uid = find_unique_identity(to_uuid)
@@ -765,14 +815,16 @@ def merge_identities(from_uuid, to_uuid):
         raise InvalidValueError(msg=str(e))
 
     for identity in identities:
-        move_identity_db(identity, to_uid)
+        move_identity_db(trxl, identity, to_uid)
 
-    to_uid = _merge_enrollments(from_uid, to_uid)
+    to_uid = _merge_enrollments(trxl, from_uid, to_uid)
     to_uid.refresh_from_db()
 
     to_uid = _merge_profiles(from_uid, to_uid)
-    update_profile_db(to_uid)
+    update_profile_db(trxl, to_uid)
 
-    delete_unique_identity_db(from_uid)
+    delete_unique_identity_db(trxl, from_uid)
+
+    trxl.close()
 
     return to_uid

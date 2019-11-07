@@ -18,11 +18,12 @@
 #
 # Authors:
 #     Santiago Dueñas <sduenas@bitergia.com>
+#     Miguel Ángel Fernández <mafesan@bitergia.com>
 #
 
 import datetime
-
 import dateutil
+import json
 
 from django.core.exceptions import ValidationError
 from django.db.utils import IntegrityError
@@ -37,7 +38,9 @@ from sortinghat.core.models import (Organization,
                                     Identity,
                                     Profile,
                                     Enrollment,
-                                    MatchingBlacklist)
+                                    MatchingBlacklist,
+                                    Transaction,
+                                    Operation)
 
 # Test check errors messages
 DUPLICATE_CHECK_ERROR = "Duplicate entry .+"
@@ -598,3 +601,101 @@ class TestMatchingBlacklist(TransactionTestCase):
         self.assertEqual(mb.excluded, 'J. Smith')
         self.assertGreaterEqual(mb.last_modified, before_modified_dt)
         self.assertLessEqual(mb.last_modified, after_modified_dt)
+
+
+class TestTransaction(TransactionTestCase):
+    """Unit tests for Transaction class"""
+
+    def test_unique_transactions(self):
+        """Check whether transactions are unique"""
+
+        with self.assertRaisesRegex(IntegrityError, DUPLICATE_CHECK_ERROR):
+            timestamp = datetime_utcnow()
+            Transaction.objects.create(tuid='12345abcd',
+                                       name='test', created_at=timestamp)
+            Transaction.objects.create(tuid='12345abcd',
+                                       name='test', created_at=timestamp)
+
+    def test_created_at(self):
+        """Check creation date is only set when the object is created"""
+
+        before_dt = datetime_utcnow()
+        trx = Transaction.objects.create(tuid='12345abcd',
+                                         name='test', created_at=datetime_utcnow())
+        after_dt = datetime_utcnow()
+
+        self.assertGreaterEqual(trx.created_at, before_dt)
+        self.assertLessEqual(trx.created_at, after_dt)
+
+        trx.save()
+
+        # Check if creation date does not change after saving the object
+        self.assertGreaterEqual(trx.created_at, before_dt)
+        self.assertLessEqual(trx.created_at, after_dt)
+
+
+class TestOperation(TransactionTestCase):
+    """Unit tests for Operation class"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        Transaction.objects.create(tuid='0123456789abcdef',
+                                   name='test', created_at=datetime_utcnow())
+
+    def test_unique_operation(self):
+        """Check whether contexts are unique"""
+
+        timestamp = datetime_utcnow()
+        trx = Transaction.objects.get(tuid='0123456789abcdef')
+        args = json.dumps({'test': 'test_value'})
+
+        with self.assertRaisesRegex(IntegrityError, DUPLICATE_CHECK_ERROR):
+            Operation.objects.create(ouid='12345abcd', op_type=Operation.OpType.ADD,
+                                     entity_type='unique_identity', target='test',
+                                     timestamp=timestamp, args=args, trx=trx)
+            Operation.objects.create(ouid='12345abcd', op_type=Operation.OpType.ADD,
+                                     entity_type='unique_identity', target='test',
+                                     timestamp=timestamp, args=args, trx=trx)
+
+    def test_created_at(self):
+        """Check creation date is only set when the object is created"""
+
+        trx = Transaction.objects.get(tuid='0123456789abcdef')
+        args = json.dumps({'test': 'test_value'})
+
+        before_dt = datetime_utcnow()
+        operation = Operation.objects.create(ouid='12345abcd', op_type=Operation.OpType.ADD,
+                                             entity_type='unique_identity', target='test',
+                                             timestamp=datetime_utcnow(), args=args, trx=trx)
+        after_dt = datetime_utcnow()
+
+        self.assertGreaterEqual(operation.timestamp, before_dt)
+        self.assertLessEqual(operation.timestamp, after_dt)
+
+        operation.save()
+
+        # Check if timestamp does not change after saving the object
+        self.assertGreaterEqual(operation.timestamp, before_dt)
+        self.assertLessEqual(operation.timestamp, after_dt)
+
+    def test_invalid_operation_type_none(self):
+        """Check if an error is raised when the operation type is `None`"""
+
+        trx = Transaction.objects.get(tuid='0123456789abcdef')
+        args = json.dumps({'test': 'test_value'})
+
+        with self.assertRaisesRegex(IntegrityError, NULL_VALUE_CHECK_ERROR):
+            Operation.objects.create(ouid='12345abcd', op_type=None,
+                                     entity_type='unique_identity', target='test-target',
+                                     timestamp=datetime_utcnow(), args=args, trx=trx)
+
+    def test_empty_args(self):
+        """Check if an error is raised when no args are set"""
+
+        trx = Transaction.objects.get(tuid='0123456789abcdef')
+
+        with self.assertRaisesRegex(IntegrityError, NULL_VALUE_CHECK_ERROR):
+            Operation.objects.create(ouid='12345abcd', op_type=Operation.OpType.ADD,
+                                     entity_type='unique_identity', target='test',
+                                     timestamp=datetime_utcnow(), args=None, trx=trx)

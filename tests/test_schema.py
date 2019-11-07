@@ -34,6 +34,7 @@ from dateutil.tz import UTC
 
 from sortinghat.core import api
 from sortinghat.core import db
+from sortinghat.core.log import TransactionsLog
 from sortinghat.core.models import (Organization,
                                     Domain,
                                     Country,
@@ -1014,10 +1015,13 @@ class TestDeleteIdentityMutation(django.test.TestCase):
     def setUp(self):
         """Load initial dataset"""
 
+        # Transaction
+        self.trxl = TransactionsLog.open(name='delete_identity')
+
         # Organizations
-        example_org = db.add_organization('Example')
-        bitergia_org = db.add_organization('Bitergia')
-        libresoft_org = db.add_organization('LibreSoft')
+        example_org = db.add_organization(self.trxl, 'Example')
+        bitergia_org = db.add_organization(self.trxl, 'Bitergia')
+        libresoft_org = db.add_organization(self.trxl, 'LibreSoft')
 
         # Identities
         jsmith = api.add_identity('scm', email='jsmith@example')
@@ -1498,8 +1502,11 @@ class TestEnrollMutation(django.test.TestCase):
     def setUp(self):
         """Load initial dataset"""
 
+        # Transaction
+        self.trxl = TransactionsLog.open(name='enroll')
+
         jsmith = api.add_identity('scm', email='jsmith@example')
-        db.add_organization('Example')
+        db.add_organization(self.trxl, 'Example')
 
         api.enroll(jsmith.id, 'Example',
                    from_date=datetime.datetime(1999, 1, 1),
@@ -1659,8 +1666,11 @@ class TestWithdrawMutation(django.test.TestCase):
     def setUp(self):
         """Load initial dataset"""
 
-        db.add_organization('Example')
-        db.add_organization('LibreSoft')
+        # Transaction
+        self.trxl = TransactionsLog.open(name='withdraw')
+
+        db.add_organization(self.trxl, 'Example')
+        db.add_organization(self.trxl, 'LibreSoft')
 
         api.add_identity('scm', email='jsmith@example')
         api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
@@ -1831,8 +1841,11 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
     def setUp(self):
         """Load initial dataset"""
 
-        db.add_organization('Example')
-        db.add_organization('Bitergia')
+        # Transaction
+        self.trxl = TransactionsLog.open(name='merge_identities')
+
+        db.add_organization(self.trxl, 'Example')
+        db.add_organization(self.trxl, 'Bitergia')
 
         Country.objects.create(code='US',
                                name='United States of America',
