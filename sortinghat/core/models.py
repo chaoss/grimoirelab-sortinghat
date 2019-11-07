@@ -34,6 +34,10 @@ from django.db.models import (CASCADE,
                               ForeignKey,
                               OneToOneField)
 
+from django_mysql.models import JSONField
+
+from enum import Enum
+
 from grimoirelab_toolkit.datetime import datetime_utcnow
 
 # Default dates for periods
@@ -78,6 +82,50 @@ class EntityBase(Model):
 
     class Meta:
         abstract = True
+
+
+class Transaction(Model):
+    tuid = CharField(max_length=MAX_SIZE_CHAR_FIELD, primary_key=True)
+    name = CharField(max_length=MAX_SIZE_CHAR_FIELD)
+    created_at = DateTimeField()
+    closed_at = DateTimeField(null=True)
+    is_closed = BooleanField(default=False)
+
+    class Meta:
+        db_table = 'transactions'
+        ordering = ('created_at', 'tuid')
+
+    def __str__(self):
+        return '%s - %s' % (self.tuid, self.name)
+
+
+class Operation(Model):
+    class OpType(Enum):
+        ADD = 'ADD'
+        DELETE = 'DELETE'
+        UPDATE = 'UPDATE'
+
+        @classmethod
+        def choices(cls):
+            return ((item.name, item.value) for item in cls)
+
+        def __str__(self):
+            return self.value
+
+    ouid = CharField(max_length=MAX_SIZE_CHAR_FIELD, primary_key=True)
+    op_type = CharField(max_length=MAX_SIZE_CHAR_FIELD, choices=OpType.choices())
+    entity_type = CharField(max_length=MAX_SIZE_CHAR_FIELD)
+    target = CharField(max_length=MAX_SIZE_CHAR_FIELD)
+    trx = ForeignKey(Transaction, null=True, on_delete=CASCADE, db_column='tuid')
+    timestamp = DateTimeField()
+    args = JSONField()
+
+    class Meta:
+        db_table = 'operations'
+        ordering = ('timestamp', 'ouid', 'trx')
+
+    def __str__(self):
+        return '%s - %s - %s - %s - %s' % (self.ouid, self.trx, self.op_type, self.entity_type, self.target)
 
 
 class Organization(EntityBase):
