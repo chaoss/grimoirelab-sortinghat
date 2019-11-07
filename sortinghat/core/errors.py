@@ -18,12 +18,14 @@
 #
 # Authors:
 #     Santiago Dueñas <sduenas@bitergia.com>
+#     Miguel Ángel Fernández <mafesan@bitergia.com>
 #
 
 CODE_BASE_ERROR = 1
 CODE_ALREADY_EXISTS_ERROR = 2
 CODE_NOT_FOUND_ERROR = 9
 CODE_VALUE_ERROR = 10
+CODE_CLOSED_TRANSACTION_ERROR = 12
 
 
 class BaseError(Exception):
@@ -69,4 +71,11 @@ class InvalidValueError(BaseError):
     """Exception raised when a value is invalid"""
 
     code = CODE_VALUE_ERROR
+    message = "%(msg)s"
+
+
+class ClosedTransactionError(BaseError):
+    """Exception raised when performing a change on a closed transaction"""
+
+    code = CODE_CLOSED_TRANSACTION_ERROR
     message = "%(msg)s"
