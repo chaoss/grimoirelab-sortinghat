@@ -20,6 +20,7 @@
 #     Miguel Ángel Fernández <mafesan@bitergia.com>
 #
 
+import copy
 import re
 
 import django.core.exceptions
@@ -36,7 +37,8 @@ from .models import (MIN_PERIOD_DATE,
                      UniqueIdentity,
                      Identity,
                      Profile,
-                     Enrollment)
+                     Enrollment,
+                     Operation)
 from .utils import validate_field
 
 
@@ -156,7 +158,7 @@ def search_enrollments_in_period(uuid, org_name,
                                      start__lte=to_date, end__gte=from_date).order_by('start')
 
 
-def add_organization(name):
+def add_organization(trxl, name):
     """Add an organization to the database.
 
     This function adds a new organization to the database,
@@ -165,6 +167,7 @@ def add_organization(name):
 
     It returns a new `Organization` object.
 
+    :param trxl: TransactionsLog object from the method calling this one
     :param name: name of the organization
 
     :returns: a new organization
@@ -173,6 +176,11 @@ def add_organization(name):
     :raises AlreadyExistsError: when an instance with the same name
         already exists in the database.
     """
+    # Setting operation arguments before they are modified
+    op_args = {
+        'name': name
+    }
+
     validate_field('name', name)
 
     organization = Organization(name=name)
@@ -182,26 +190,40 @@ def add_organization(name):
     except django.db.utils.IntegrityError as exc:
         _handle_integrity_error(Organization, exc)
 
+    trxl.log_operation(op_type=Operation.OpType.ADD, entity_type='organization',
+                       timestamp=datetime_utcnow(), args=op_args,
+                       target=op_args['name'])
+
     return organization
 
 
-def delete_organization(organization):
+def delete_organization(trxl, organization):
     """Remove an organization from the database.
 
     Function that removes from the database the organization
     given in `organization`. Data related such as domains
     or enrollments are also removed.
 
+    :param trxl: TransactionsLog object from the method calling this one
     :param organization: organization to remove
     """
+    # Setting operation arguments before they are modified
+    op_args = {
+        'organization': organization.name
+    }
+
     last_modified = datetime_utcnow()
     UniqueIdentity.objects.filter(enrollments__organization=organization).\
         update(last_modified=last_modified)
 
     organization.delete()
 
+    trxl.log_operation(op_type=Operation.OpType.DELETE, entity_type='organization',
+                       timestamp=datetime_utcnow(), args=op_args,
+                       target=op_args['organization'])
 
-def add_domain(organization, domain_name, is_top_domain=False):
+
+def add_domain(trxl, organization, domain_name, is_top_domain=True):
     """Add a domain to the database.
 
     This function adds a new domain to the database using
@@ -213,6 +235,7 @@ def add_domain(organization, domain_name, is_top_domain=False):
 
     As a result, the function returns a new `Domain` object.
 
+    :param trxl: TransactionsLog object from the method calling this one
     :param organization: links the new domain to this organization object
     :param domain_name: name of the domain
     :param is_top_domain: set this domain as a top domain
@@ -222,6 +245,13 @@ def add_domain(organization, domain_name, is_top_domain=False):
     :raises ValueError: raised when `domain_name` is `None` or an empty string;
         when `is_top_domain` does not have a `bool` value.
     """
+    # Setting operation arguments before they are modified
+    op_args = {
+        'organization': organization.name,
+        'domain_name': domain_name,
+        'is_top_domain': is_top_domain
+    }
+
     validate_field('domain_name', domain_name)
     if not isinstance(is_top_domain, bool):
         raise ValueError("'is_top_domain' must have a boolean value")
@@ -235,20 +265,34 @@ def add_domain(organization, domain_name, is_top_domain=False):
     except django.db.utils.IntegrityError as exc:
         _handle_integrity_error(Domain, exc)
 
+    trxl.log_operation(op_type=Operation.OpType.ADD, entity_type='domain',
+                       timestamp=datetime_utcnow(), args=op_args,
+                       target=op_args['organization'])
+
     return domain
 
 
-def delete_domain(domain):
+def delete_domain(trxl, domain):
     """Remove a domain from the database.
 
     Deletes from the database the domain given in `domain`.
 
+    :param trxl: TransactionsLog object from the method calling this one
     :param domain: domain to remove
     """
+    # Setting operation arguments before they are modified
+    op_args = {
+        'domain': domain.domain
+    }
+
     domain.delete()
 
+    trxl.log_operation(op_type=Operation.OpType.DELETE, entity_type='domain',
+                       timestamp=datetime_utcnow(), args=op_args,
+                       target=op_args['domain'])
 
-def add_unique_identity(uuid):
+
+def add_unique_identity(trxl, uuid):
     """Add a unique identity to the database.
 
     This function adds a unique identity to the database with
@@ -261,12 +305,18 @@ def add_unique_identity(uuid):
     As a result, the function returns a new `UniqueIdentity`
     object.
 
+    :param trxl: TransactionsLog object from the method calling this one
     :param uuid: unique identifier for the unique identity
 
     :returns: a new unique identity
 
     :raises ValueError: when `uuid` is `None` or an empty string
     """
+    # Setting operation arguments before they are modified
+    op_args = {
+        'uuid': uuid
+    }
+
     validate_field('uuid', uuid)
 
     uidentity = UniqueIdentity(uuid=uuid)
@@ -276,6 +326,10 @@ def add_unique_identity(uuid):
     except django.db.utils.IntegrityError as exc:
         _handle_integrity_error(UniqueIdentity, exc)
 
+    trxl.log_operation(op_type=Operation.OpType.ADD, entity_type='unique_identity',
+                       timestamp=datetime_utcnow(), args=op_args,
+                       target=op_args['uuid'])
+
     profile = Profile(uidentity=uidentity)
 
     try:
@@ -283,24 +337,38 @@ def add_unique_identity(uuid):
     except django.db.utils.IntegrityError as exc:
         _handle_integrity_error(Profile, exc)
 
+    trxl.log_operation(op_type=Operation.OpType.ADD, entity_type='profile',
+                       timestamp=datetime_utcnow(), args=op_args,
+                       target=op_args['uuid'])
+
     uidentity.refresh_from_db()
 
     return uidentity
 
 
-def delete_unique_identity(uidentity):
+def delete_unique_identity(trxl, uidentity):
     """Remove a unique identity from the database.
 
     Function that removes from the database the unique identity
     given in `uidentity`. Data related to this identity will be
     also removed.
 
+    :param trxl: TransactionsLog object from the method calling this one
     :param uidentity: unique identity to remove
     """
+    # Setting operation arguments before they are modified
+    op_args = {
+        'uidentity': uidentity.uuid
+    }
+
     uidentity.delete()
 
+    trxl.log_operation(op_type=Operation.OpType.DELETE, entity_type='unique_identity',
+                       timestamp=datetime_utcnow(), args=op_args,
+                       target=op_args['uidentity'])
 
-def add_identity(uidentity, identity_id, source,
+
+def add_identity(trxl, uidentity, identity_id, source,
                  name=None, email=None, username=None):
     """Add an identity to the database.
 
@@ -314,6 +382,7 @@ def add_identity(uidentity, identity_id, source,
 
     As a result, the function returns a new `Identity` object.
 
+    :param trxl: TransactionsLog object from the method calling this one
     :param uidentity: links the new identity to this unique identity object
     :param identity_id: identifier for the new identity
     :param source: data source where this identity was found
@@ -326,6 +395,16 @@ def add_identity(uidentity, identity_id, source,
     :raises ValueError: when `identity_id` and `source` are `None` or empty;
         when all of the data parameters are `None` or empty.
     """
+    # Setting operation arguments before they are modified
+    op_args = {
+        'uidentity': uidentity.uuid,
+        'identity_id': identity_id,
+        'source': source,
+        'name': name,
+        'email': email,
+        'username': username
+    }
+
     validate_field('identity_id', identity_id)
     validate_field('source', source)
     validate_field('name', name, allow_none=True)
@@ -344,23 +423,37 @@ def add_identity(uidentity, identity_id, source,
     except django.db.utils.IntegrityError as exc:
         _handle_integrity_error(Identity, exc)
 
+    trxl.log_operation(op_type=Operation.OpType.ADD, entity_type='identity',
+                       timestamp=datetime_utcnow(), args=op_args,
+                       target=op_args['uidentity'])
+
     return identity
 
 
-def delete_identity(identity):
+def delete_identity(trxl, identity):
     """Remove an identity from the database.
 
     This function removes from the database the identity given
     in `identity`. Take into account this function does not
     remove unique identities in the case they get empty.
 
+    :param trxl: TransactionsLog object from the method calling this one
     :param identity: identity to remove
     """
+    # Setting operation arguments before they are modified
+    op_args = {
+        'identity': identity.id
+    }
+
     identity.delete()
     identity.uidentity.save()
 
+    trxl.log_operation(op_type=Operation.OpType.DELETE, entity_type='identity',
+                       timestamp=datetime_utcnow(), args=op_args,
+                       target=op_args['identity'])
 
-def update_profile(uidentity, **kwargs):
+
+def update_profile(trxl, uidentity, **kwargs):
     """Update unique identity profile.
 
     This function allows to edit or update the profile information
@@ -380,6 +473,7 @@ def update_profile(uidentity, **kwargs):
     As a result, it will return the `UniqueIdentity` object with
     the updated data.
 
+    :param trxl: TransactionsLog object from the method calling this one
     :param uidentity: unique identity whose profile will be updated
     :param kwargs: parameters to edit the profile
 
@@ -388,8 +482,13 @@ def update_profile(uidentity, **kwargs):
     :raises ValueError: raised either when `is_bot` does not have a boolean value;
         `gender_acc` is not an `int` or is not in range.
     """
+
     def to_none_if_empty(x):
         return None if not x else x
+
+    # Setting operation arguments before they are modified
+    op_args = copy.deepcopy(kwargs)
+    op_args.update({'uidentity': uidentity.uuid})
 
     profile = uidentity.profile
 
@@ -441,10 +540,14 @@ def update_profile(uidentity, **kwargs):
     profile.save()
     uidentity.save()
 
+    trxl.log_operation(op_type=Operation.OpType.UPDATE, entity_type='profile',
+                       timestamp=datetime_utcnow(), args=op_args,
+                       target=op_args['uidentity'])
+
     return uidentity
 
 
-def add_enrollment(uidentity, organization,
+def add_enrollment(trxl, uidentity, organization,
                    start=MIN_PERIOD_DATE, end=MAX_PERIOD_DATE):
     """Enroll a unique identity to an organization in the database.
 
@@ -459,6 +562,7 @@ def add_enrollment(uidentity, organization,
 
     This function returns as result a new `Enrollment` object.
 
+    :param trxl: TransactionsLog object from the method calling this one
     :param uidentity: unique identity to enroll
     :param organization: organization where the unique identity is enrolled
     :param start: date when the enrollment starts
@@ -470,6 +574,14 @@ def add_enrollment(uidentity, organization,
         when `start < MIN_PERIOD_DATE`; or `end > MAX_PERIOD_DATE`
         or `start > end`.
     """
+    # Setting operation arguments before they are modified
+    op_args = {
+        'uidentity': uidentity.uuid,
+        'organization': organization.name,
+        'start': copy.deepcopy(str(start)),
+        'end': copy.deepcopy(str(end))
+    }
+
     if not start:
         raise ValueError("'start' date cannot be None")
     if not end:
@@ -494,22 +606,39 @@ def add_enrollment(uidentity, organization,
     except django.db.utils.IntegrityError as exc:
         _handle_integrity_error(Identity, exc)
 
+    trxl.log_operation(op_type=Operation.OpType.ADD, entity_type='enrollment',
+                       timestamp=datetime_utcnow(), args=op_args,
+                       target=op_args['uidentity'])
+
     return enrollment
 
 
-def delete_enrollment(enrollment):
+def delete_enrollment(trxl, enrollment):
     """Remove an enrollment from the database.
 
     This function removes from the database the enrollment given
     in `enrollment`.
 
+    :param trxl: TransactionsLog object from the method calling this one
     :param enrollment: enrollment object to remove
     """
+    # Setting operation arguments before they are modified
+    op_args = {
+        'uuid': enrollment.uidentity.uuid,
+        'organization': enrollment.organization.name,
+        'start': str(enrollment.start),
+        'end': str(enrollment.end)
+    }
+
     enrollment.delete()
     enrollment.uidentity.save()
 
+    trxl.log_operation(op_type=Operation.OpType.DELETE, entity_type='enrollment',
+                       timestamp=datetime_utcnow(), args=op_args,
+                       target=op_args['uuid'])
 
-def move_identity(identity, uidentity):
+
+def move_identity(trxl, identity, uidentity):
     """Move an identity to a unique identity.
 
     Shifts `identity` to the unique identity given in `uidentity`.
@@ -519,6 +648,7 @@ def move_identity(identity, uidentity):
     When `identity` is already assigned to `uidentity`, the function
     will raise an `ValueError` exception.
 
+    :param trxl: TransactionsLog object from the method calling this one
     :param identity: identity to be moved
     :param uidentity: unique identity where `identity` will be moved
 
@@ -526,6 +656,12 @@ def move_identity(identity, uidentity):
 
     :raises ValueError: when `identity` is already part of `uidentity`
     """
+    # Setting operation arguments before they are modified
+    op_args = {
+        'identity': identity.id,
+        'uidentity': uidentity.uuid
+    }
+
     if identity.uidentity == uidentity:
         msg = "identity '{}' is already assigned to '{}'".format(identity.id, uidentity.uuid)
         raise ValueError(msg)
@@ -536,6 +672,10 @@ def move_identity(identity, uidentity):
     identity.save()
     old_uidentity.save()
     uidentity.save()
+
+    trxl.log_operation(op_type=Operation.OpType.UPDATE, entity_type='identity',
+                       timestamp=datetime_utcnow(), args=op_args,
+                       target=op_args['identity'])
 
     return uidentity
 
