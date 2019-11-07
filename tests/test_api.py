@@ -21,13 +21,14 @@
 #
 
 import datetime
+import json
 
 from dateutil.tz import UTC
 
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 
-from grimoirelab_toolkit.datetime import datetime_utcnow
+from grimoirelab_toolkit.datetime import datetime_utcnow, datetime_to_utc
 
 from sortinghat.core import api
 from sortinghat.core.errors import (AlreadyExistsError,
@@ -38,7 +39,9 @@ from sortinghat.core.models import (Country,
                                     Identity,
                                     Enrollment,
                                     Organization,
-                                    Domain)
+                                    Domain,
+                                    Transaction,
+                                    Operation)
 
 NOT_FOUND_ERROR = "{entity} not found in the registry"
 ALREADY_EXISTS_ERROR = "{entity} already exists in the registry"
@@ -363,11 +366,17 @@ class TestAddIdentity(TestCase):
                          email=email,
                          username=username)
 
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
         with self.assertRaises(AlreadyExistsError):
             api.add_identity(source,
                              name=name,
                              email=email,
                              username=username)
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
 
     def test_non_existing_uuid(self):
         """Check whether it fails adding identities to one uuid that does not exist"""
@@ -376,12 +385,18 @@ class TestAddIdentity(TestCase):
         api.add_identity('scm', email='jsmith@example.com')
         api.add_identity('scm', email='jdoe@example.com')
 
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
         with self.assertRaises(NotFoundError):
             api.add_identity('mls',
                              name=None,
                              email='jsmith@example.com',
                              username=None,
                              uuid='FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
 
     def test_existing_identity(self):
         """Check if it fails adding an identity that already exists"""
@@ -408,11 +423,17 @@ class TestAddIdentity(TestCase):
         # "None" tuples also raise an exception
         api.add_identity('scm', name=None, email="None", username=None)
 
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
         with self.assertRaises(AlreadyExistsError) as context:
             api.add_identity('scm', name="None", email=None, username=None)
 
         self.assertEqual(context.exception.eid,
                          'f0999c4eed908d33365fa3435d9686d3add2412d')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
 
     def test_unaccent_identities(self):
         """Check if it fails adding an identity that already exists with accent values"""
@@ -420,6 +441,8 @@ class TestAddIdentity(TestCase):
         # Add a pair of identities first
         api.add_identity('scm', name='John Smith')
         api.add_identity('scm', name='Jöhn Doe')
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         # Insert an accent identity again. It should raise AlreadyExistsError
         with self.assertRaises(AlreadyExistsError) as context:
@@ -438,6 +461,10 @@ class TestAddIdentity(TestCase):
 
         self.assertEqual(context.exception.eid,
                          'a16659ea83d28c839ffae76ceebb3ca9fb8e8894')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
 
     def test_utf8_4bytes_identities(self):
         """Check if it inserts identities with 4bytes UTF-8 characters"""
@@ -486,11 +513,19 @@ class TestAddIdentity(TestCase):
         with self.assertRaisesRegex(InvalidValueError, SOURCE_NONE_OR_EMPTY_ERROR):
             api.add_identity(None)
 
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.all()
+        self.assertEqual(len(transactions), 0)
+
     def test_empty_source(self):
         """Check whether new identities cannot be added when giving an empty source"""
 
         with self.assertRaisesRegex(InvalidValueError, SOURCE_NONE_OR_EMPTY_ERROR):
             api.add_identity('')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.all()
+        self.assertEqual(len(transactions), 0)
 
     def test_none_or_empty_data(self):
         """Check whether new identities cannot be added when identity data is None or empty"""
@@ -500,6 +535,85 @@ class TestAddIdentity(TestCase):
 
         with self.assertRaisesRegex(InvalidValueError, IDENTITY_NONE_OR_EMPTY_ERROR):
             api.add_identity('scm', name='', email='', username='')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.all()
+        self.assertEqual(len(transactions), 0)
+
+    def test_transaction(self):
+        """Check if a transaction is created when adding a new identity"""
+
+        timestamp = datetime_utcnow()
+
+        api.add_identity('scm',
+                         name='John Smith',
+                         email='jsmith@example.com',
+                         username='jsmith')
+
+        transactions = Transaction.objects.all()
+        self.assertEqual(len(transactions), 1)
+
+        trx = transactions[0]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'add_identity')
+        self.assertGreater(trx.created_at, timestamp)
+
+    def test_operations(self):
+        """Check if the right operations are created when adding a new identity"""
+
+        timestamp = datetime_utcnow()
+
+        identity = api.add_identity('scm',
+                                    name='John Smith',
+                                    email='jsmith@example.com',
+                                    username='jsmith')
+
+        transactions = Transaction.objects.all()
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 3)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.ADD.value)
+        self.assertEqual(op1.entity_type, 'unique_identity')
+        self.assertEqual(op1.target, identity.uidentity.uuid)
+        self.assertEqual(op1.trx, trx)
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 1)
+        self.assertEqual(op1_args['uuid'], identity.uidentity.uuid)
+
+        op2 = operations[1]
+        self.assertIsInstance(op2, Operation)
+        self.assertEqual(op2.op_type, Operation.OpType.ADD.value)
+        self.assertEqual(op2.entity_type, 'profile')
+        self.assertEqual(op2.target, identity.uidentity.uuid)
+        self.assertEqual(op2.trx, trx)
+        self.assertGreater(op2.timestamp, timestamp)
+
+        op2_args = json.loads(op2.args)
+        self.assertEqual(len(op2_args), 1)
+        self.assertEqual(op2_args['uuid'], identity.uidentity.uuid)
+
+        op3 = operations[2]
+        self.assertIsInstance(op3, Operation)
+        self.assertEqual(op3.op_type, Operation.OpType.ADD.value)
+        self.assertEqual(op3.entity_type, 'identity')
+        self.assertEqual(op3.target, identity.id)
+        self.assertEqual(op3.trx, trx)
+        self.assertGreater(op3.timestamp, timestamp)
+
+        op3_args = json.loads(op3.args)
+        self.assertEqual(len(op3_args), 6)
+        self.assertEqual(op3_args['uidentity'], identity.uidentity.uuid)
+        self.assertEqual(op3_args['identity_id'], identity.id)
+        self.assertEqual(op3_args['source'], identity.source)
+        self.assertEqual(op3_args['name'], identity.name)
+        self.assertEqual(op3_args['email'], identity.email)
+        self.assertEqual(op3_args['username'], identity.username)
 
 
 class TestDeleteIdentity(TestCase):
@@ -622,6 +736,8 @@ class TestDeleteIdentity(TestCase):
     def test_non_existing_uuid(self):
         """Check if it fails removing a identities that does not exists"""
 
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
         with self.assertRaises(NotFoundError):
             api.delete_identity('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF')
 
@@ -632,17 +748,73 @@ class TestDeleteIdentity(TestCase):
         with self.assertRaises(NotFoundError):
             api.delete_identity('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
     def test_none_uuid(self):
         """Check whether identities cannot be removed when giving a None UUID"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(InvalidValueError, UUID_NONE_OR_EMPTY_ERROR):
             api.delete_identity(None)
 
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
     def test_empty_uuid(self):
         """Check whether identities cannot be removed when giving an empty UUID"""
 
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
         with self.assertRaisesRegex(InvalidValueError, UUID_NONE_OR_EMPTY_ERROR):
             api.delete_identity('')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_transaction(self):
+        """Check if a transaction is created when deleting an identity"""
+
+        timestamp = datetime_utcnow()
+
+        api.delete_identity('1387b129ab751a3657312c09759caa41dfd8d07d')
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        self.assertEqual(len(transactions), 1)
+
+        trx = transactions[0]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'delete_identity')
+        self.assertGreater(trx.created_at, timestamp)
+
+    def test_operations(self):
+        """Check if the right operations are created when deleting an identity"""
+
+        timestamp = datetime_utcnow()
+
+        api.delete_identity('1387b129ab751a3657312c09759caa41dfd8d07d')
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.DELETE.value)
+        self.assertEqual(op1.entity_type, 'identity')
+        self.assertEqual(op1.trx, trx)
+        self.assertEqual(op1.target, '1387b129ab751a3657312c09759caa41dfd8d07d')
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 1)
+        self.assertEqual(op1_args['identity'], '1387b129ab751a3657312c09759caa41dfd8d07d')
 
 
 class TestUpdateProfile(TestCase):
@@ -731,6 +903,10 @@ class TestUpdateProfile(TestCase):
             api.update_profile('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF',
                                name='', email='')
 
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.all()
+        self.assertEqual(len(transactions), 1)
+
     def test_name_email_empty(self):
         """Check if name and email are set to None when an empty string is given"""
 
@@ -751,6 +927,10 @@ class TestUpdateProfile(TestCase):
         with self.assertRaisesRegex(InvalidValueError, IS_BOT_VALUE_ERROR):
             api.update_profile(uuid, is_bot='True')
 
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.all()
+        self.assertEqual(len(transactions), 1)
+
     def test_country_code_not_valid(self):
         """Check if it fails when the given country is not valid"""
 
@@ -761,6 +941,10 @@ class TestUpdateProfile(TestCase):
         with self.assertRaisesRegex(InvalidValueError, msg):
             api.update_profile(uuid, country_code='JKL')
 
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.all()
+        self.assertEqual(len(transactions), 1)
+
     def test_gender_not_given(self):
         """Check if it fails when gender_acc is given but not the gender"""
 
@@ -768,6 +952,10 @@ class TestUpdateProfile(TestCase):
 
         with self.assertRaisesRegex(InvalidValueError, GENDER_ACC_INVALID_ERROR):
             api.update_profile(uuid, gender_acc=100)
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.all()
+        self.assertEqual(len(transactions), 1)
 
     def test_gender_acc_invalid_type(self):
         """Check type values of gender_acc parameter"""
@@ -779,6 +967,10 @@ class TestUpdateProfile(TestCase):
 
         with self.assertRaisesRegex(InvalidValueError, GENDER_ACC_INVALID_TYPE_ERROR):
             api.update_profile(uuid, gender='male', gender_acc='100')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.all()
+        self.assertEqual(len(transactions), 1)
 
     def test_gender_acc_invalid_range(self):
         """Check if it fails when gender_acc is given but not the gender"""
@@ -799,6 +991,62 @@ class TestUpdateProfile(TestCase):
 
         with self.assertRaisesRegex(InvalidValueError, msg):
             api.update_profile(uuid, gender='male', gender_acc=101)
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.all()
+        self.assertEqual(len(transactions), 1)
+
+    def test_transaction(self):
+        """Check if a transaction is created when updating a profile"""
+
+        timestamp = datetime_utcnow()
+
+        api.update_profile('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+                           name='Smith, J.', email='jsmith@example.net',
+                           is_bot=True, country_code='US',
+                           gender='male', gender_acc=98)
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        self.assertEqual(len(transactions), 1)
+
+        trx = transactions[0]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'update_profile')
+        self.assertGreater(trx.created_at, timestamp)
+
+    def test_operations(self):
+        """Check if the right operations are created when updating a profile"""
+
+        timestamp = datetime_utcnow()
+
+        uidentity = api.update_profile('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+                                       name='Smith, J.', email='jsmith@example.net',
+                                       is_bot=True, country_code='US',
+                                       gender='male', gender_acc=98)
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.UPDATE.value)
+        self.assertEqual(op1.entity_type, 'profile')
+        self.assertEqual(op1.target, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(op1.trx, trx)
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 7)
+        self.assertEqual(op1_args['uidentity'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(op1_args['name'], 'Smith, J.')
+        self.assertEqual(op1_args['email'], 'jsmith@example.net')
+        self.assertEqual(op1_args['is_bot'], True)
+        self.assertEqual(op1_args['country_code'], 'US')
+        self.assertEqual(op1_args['gender'], 'male')
+        self.assertEqual(op1_args['gender_acc'], 98)
 
 
 class TestMoveIdentity(TestCase):
@@ -949,6 +1197,8 @@ class TestMoveIdentity(TestCase):
     def test_not_found_from_identity(self):
         """Test whether it fails when 'from_id' identity is not found"""
 
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
         msg = NOT_FOUND_ERROR.format(entity='FFFFFFFFFFF')
 
         # Check 'from_id' parameter
@@ -956,8 +1206,14 @@ class TestMoveIdentity(TestCase):
             api.move_identity('FFFFFFFFFFF',
                               '03877f31261a6d1a1b3971d240e628259364b8ac')
 
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
     def test_not_found_to_identity(self):
         """Test whether it fails when 'to_uuid' unique identity is not found"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         msg = NOT_FOUND_ERROR.format(entity='FFFFFFFFFFF')
 
@@ -966,29 +1222,104 @@ class TestMoveIdentity(TestCase):
             api.move_identity('03877f31261a6d1a1b3971d240e628259364b8ac',
                               'FFFFFFFFFFF')
 
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
     def test_none_from_id(self):
         """Check whether identities cannot be moved when giving a None id"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(InvalidValueError, FROM_ID_NONE_OR_EMPTY_ERROR):
             api.move_identity(None, '03877f31261a6d1a1b3971d240e628259364b8ac')
 
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
     def test_empty_from_id(self):
         """Check whether identities cannot be moved when giving an empty id"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(InvalidValueError, FROM_ID_NONE_OR_EMPTY_ERROR):
             api.move_identity('', '03877f31261a6d1a1b3971d240e628259364b8ac')
 
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
     def test_none_to_uuid(self):
         """Check whether identities cannot be moved when giving a None UUID"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(InvalidValueError, TO_UUID_NONE_OR_EMPTY_ERROR):
             api.move_identity('03877f31261a6d1a1b3971d240e628259364b8ac', None)
 
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
     def test_empty_to_uuid(self):
         """Check whether identities cannot be moved when giving an empty UUID"""
 
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
         with self.assertRaisesRegex(InvalidValueError, TO_UUID_NONE_OR_EMPTY_ERROR):
             api.move_identity('03877f31261a6d1a1b3971d240e628259364b8ac', '')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_transaction(self):
+        """Check if a transaction is created when moving an identity"""
+
+        timestamp = datetime_utcnow()
+
+        from_id = '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331'
+        to_uuid = '03877f31261a6d1a1b3971d240e628259364b8ac'
+
+        api.move_identity(from_id, to_uuid)
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        self.assertEqual(len(transactions), 1)
+
+        trx = transactions[0]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'move_identity')
+        self.assertGreater(trx.created_at, timestamp)
+
+    def test_operations(self):
+        """Check if the right operations are created when moving an identity"""
+
+        timestamp = datetime_utcnow()
+
+        from_id = '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331'
+        to_uuid = '03877f31261a6d1a1b3971d240e628259364b8ac'
+
+        api.move_identity(from_id, to_uuid)
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.UPDATE.value)
+        self.assertEqual(op1.entity_type, 'identity')
+        self.assertEqual(op1.target, from_id)
+        self.assertEqual(op1.trx, trx)
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 2)
+        self.assertEqual(op1_args['identity'], from_id)
+        self.assertEqual(op1_args['uidentity'], to_uuid)
 
 
 class TestAddOrganization(TestCase):
@@ -1014,6 +1345,8 @@ class TestAddOrganization(TestCase):
 
         org = api.add_organization(name='Example')
 
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
         with self.assertRaisesRegex(AlreadyExistsError, ORGANIZATION_ALREADY_EXISTS_ERROR.format(name=org.name)):
             org = api.add_organization(name=org.name)
 
@@ -1023,17 +1356,29 @@ class TestAddOrganization(TestCase):
         organizations = Organization.objects.all()
         self.assertEqual(len(organizations), 1)
 
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
     def test_organization_name_none(self):
         """Check if it fails when organization name is `None`"""
 
         with self.assertRaisesRegex(InvalidValueError, ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR):
             api.add_organization(name=None)
 
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.all()
+        self.assertEqual(len(transactions), 0)
+
     def test_organization_name_empty(self):
         """Check if it fails when organization name is empty"""
 
         with self.assertRaisesRegex(InvalidValueError, ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR):
             api.add_organization(name='')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.all()
+        self.assertEqual(len(transactions), 0)
 
     def test_organization_name_whitespaces(self):
         """Check if it fails when organization name is composed by whitespaces only"""
@@ -1047,11 +1392,59 @@ class TestAddOrganization(TestCase):
         with self.assertRaisesRegex(InvalidValueError, ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR):
             api.add_organization(name=' \t  ')
 
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.all()
+        self.assertEqual(len(transactions), 0)
+
     def test_organization_name_int(self):
         """Check if it fails when organization name is an integer"""
 
         with self.assertRaisesRegex(TypeError, ORGANIZATION_VALUE_ERROR):
             api.add_organization(name=12345)
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.all()
+        self.assertEqual(len(transactions), 0)
+
+    def test_transaction(self):
+        """Check if a transaction is created when adding an organization"""
+
+        timestamp = datetime_utcnow()
+
+        api.add_organization(name='Example')
+
+        transactions = Transaction.objects.all()
+        self.assertEqual(len(transactions), 1)
+
+        trx = transactions[0]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'add_organization')
+        self.assertGreater(trx.created_at, timestamp)
+
+    def test_operations(self):
+        """Check if the right operations are created when adding an organization"""
+
+        timestamp = datetime_utcnow()
+
+        api.add_organization(name='Example')
+
+        transactions = Transaction.objects.all()
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.ADD.value)
+        self.assertEqual(op1.entity_type, 'organization')
+        self.assertEqual(op1.target, 'Example')
+        self.assertEqual(op1.trx, trx)
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 1)
+        self.assertEqual(op1_args['name'], 'Example')
 
 
 class TestAddDomain(TestCase):
@@ -1139,6 +1532,8 @@ class TestAddDomain(TestCase):
                                 domain_name='example.com',
                                 is_top_domain=True)
 
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
         with self.assertRaisesRegex(AlreadyExistsError, DOMAIN_ALREADY_EXISTS_ERROR.format(domain_name='example.com')):
             api.add_domain(organization='Example',
                            domain_name='example.com')
@@ -1152,12 +1547,18 @@ class TestAddDomain(TestCase):
         domains = Domain.objects.all()
         self.assertEqual(len(domains), 1)
 
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
     def test_add_domain_different_org(self):
         """Check if it fails when adding the same domain to a different organization"""
 
         domain = api.add_domain(organization='Example',
                                 domain_name='example.com',
                                 is_top_domain=True)
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(AlreadyExistsError, DOMAIN_ALREADY_EXISTS_ERROR.format(domain_name='example.com')):
             api.add_domain(organization='Bitergia',
@@ -1176,29 +1577,53 @@ class TestAddDomain(TestCase):
         domains = Domain.objects.all()
         self.assertEqual(len(domains), 1)
 
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
     def test_organization_not_found(self):
         """Check if it fails when the organization is not found"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(NotFoundError, ORGANIZATION_NOT_FOUND_ERROR.format(name='Botergia')):
             api.add_domain(organization='Botergia',
                            domain_name='bitergia.com')
 
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
     def test_domain_name_none(self):
         """Check if it fails when domain name is `None`"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(InvalidValueError, DOMAIN_NAME_NONE_OR_EMPTY_ERROR):
             api.add_domain(organization='Example',
                            domain_name=None)
 
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
     def test_domain_name_empty(self):
         """Check if it fails when domain name is empty"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(InvalidValueError, DOMAIN_NAME_NONE_OR_EMPTY_ERROR):
             api.add_domain(organization='Example',
                            domain_name='')
 
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
     def test_domain_name_whitespaces(self):
         """Check if it fails when domain name is composed by whitespaces"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(InvalidValueError, DOMAIN_NAME_NONE_OR_EMPTY_ERROR):
             api.add_domain(organization='Example',
@@ -1212,29 +1637,53 @@ class TestAddDomain(TestCase):
             api.add_domain(organization='Example',
                            domain_name='  \t  ')
 
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
     def test_domain_name_int(self):
         """Check if it fails when domain name is an integer"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(TypeError, DOMAIN_VALUE_ERROR):
             api.add_domain(organization='Example',
                            domain_name=12345)
 
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
     def test_organization_name_none(self):
         """Check if it fails when organization name is `None`"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(InvalidValueError, DOMAIN_ORG_NAME_NONE_OR_EMPTY_ERROR):
             api.add_domain(organization=None,
                            domain_name='example.com')
 
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
     def test_organization_name_empty(self):
         """Check if it fails when organization name is empty"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(InvalidValueError, DOMAIN_ORG_NAME_NONE_OR_EMPTY_ERROR):
             api.add_domain(organization='',
                            domain_name='example.com')
 
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
     def test_organization_name_whitespaces(self):
         """Check if it fails when organization name is composed by whitespaces"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(InvalidValueError, DOMAIN_ORG_NAME_NONE_OR_EMPTY_ERROR):
             api.add_domain(organization=None,
@@ -1248,12 +1697,68 @@ class TestAddDomain(TestCase):
             api.add_domain(organization=None,
                            domain_name='  \t  ')
 
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
     def test_organization_name_int(self):
         """Check if it fails when organization name is an integer"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(TypeError, ORGANIZATION_VALUE_ERROR):
             api.add_domain(organization=12345,
                            domain_name='example.com')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_transaction(self):
+        """Check if a transaction is created when adding a domain"""
+
+        timestamp = datetime_utcnow()
+
+        api.add_domain(organization='Example',
+                       domain_name='example.com',
+                       is_top_domain=True)
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        self.assertEqual(len(transactions), 1)
+
+        trx = transactions[0]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'add_domain')
+        self.assertGreater(trx.created_at, timestamp)
+
+    def test_operations(self):
+        """Check if the right operations are created when adding a domain"""
+
+        timestamp = datetime_utcnow()
+
+        api.add_domain(organization='Example',
+                       domain_name='example.com',
+                       is_top_domain=True)
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.ADD.value)
+        self.assertEqual(op1.entity_type, 'domain')
+        self.assertEqual(op1.target, 'Example')
+        self.assertEqual(op1.trx, trx)
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 3)
+        self.assertEqual(op1_args['organization'], 'Example')
+        self.assertEqual(op1_args['domain_name'], 'example.com')
+        self.assertEqual(op1_args['is_top_domain'], True)
 
 
 class TestDeleteOrganization(TestCase):
@@ -1295,23 +1800,43 @@ class TestDeleteOrganization(TestCase):
     def test_delete_non_existing_organization(self):
         """Check if it fails when deleting a non existing organization"""
 
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
         with self.assertRaisesRegex(NotFoundError, ORGANIZATION_NOT_FOUND_ERROR.format(name='Ghost')):
             api.delete_organization('Ghost')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
 
     def test_organization_name_none(self):
         """Check if it fails when organization name is `None`"""
 
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
         with self.assertRaisesRegex(InvalidValueError, ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR):
             api.delete_organization(name=None)
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
 
     def test_organization_name_empty(self):
         """Check if it fails when organization name is empty"""
 
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
         with self.assertRaisesRegex(InvalidValueError, ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR):
             api.delete_organization(name='')
 
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
     def test_organization_name_whitespaces(self):
         """Check if it fails when organization name is composed by whitespaces"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(InvalidValueError, ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR):
             api.delete_organization(name='   ')
@@ -1322,11 +1847,61 @@ class TestDeleteOrganization(TestCase):
         with self.assertRaisesRegex(InvalidValueError, ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR):
             api.delete_organization(name=' \t  ')
 
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
     def test_organization_name_int(self):
         """Check if it fails when organization name is an integer"""
 
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
         with self.assertRaisesRegex(TypeError, ORGANIZATION_VALUE_ERROR):
             api.delete_organization(name=12345)
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_transaction(self):
+        """Check if a transaction is created when deleting an organization"""
+
+        timestamp = datetime_utcnow()
+
+        api.delete_organization(name='Example')
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        self.assertEqual(len(transactions), 1)
+
+        trx = transactions[0]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'delete_organization')
+        self.assertGreater(trx.created_at, timestamp)
+
+    def test_operations(self):
+        """Check if the right operations are created when deleting an organization"""
+
+        timestamp = datetime_utcnow()
+
+        api.delete_organization(name='Example')
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.DELETE.value)
+        self.assertEqual(op1.entity_type, 'organization')
+        self.assertEqual(op1.target, 'Example')
+        self.assertEqual(op1.trx, trx)
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 1)
+        self.assertEqual(op1_args['organization'], 'Example')
 
 
 class TestDeleteDomain(TestCase):
@@ -1379,13 +1954,21 @@ class TestDeleteDomain(TestCase):
     def test_domain_not_found(self):
         """Check if it fails when domain is not found"""
 
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
         with self.assertRaisesRegex(NotFoundError, DOMAIN_NOT_FOUND_ERROR.format(domain_name='botergia.com')):
             api.delete_domain('botergia.com')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
 
     def test_organization_not_found(self):
         """Check if it fails when the domain's organization is not found"""
 
         api.delete_organization('Bitergia')
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         # Tests
         domains = Domain.objects.filter(domain='bitergia.com')
@@ -1394,20 +1977,38 @@ class TestDeleteDomain(TestCase):
         with self.assertRaisesRegex(NotFoundError, DOMAIN_NOT_FOUND_ERROR.format(domain_name='bitergia.com')):
             api.delete_domain('bitergia.com')
 
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
     def test_domain_name_none(self):
         """Check if it fails when domain name is `None`"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(InvalidValueError, DOMAIN_NAME_NONE_OR_EMPTY_ERROR):
             api.delete_domain(domain_name=None)
 
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
     def test_domain_name_empty(self):
         """Check if it fails when domain name is empty"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(InvalidValueError, DOMAIN_NAME_NONE_OR_EMPTY_ERROR):
             api.delete_domain(domain_name='')
 
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
     def test_domain_name_whitespaces(self):
         """Check if it fails when domain name is composed by whitespaces"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(InvalidValueError, DOMAIN_NAME_NONE_OR_EMPTY_ERROR):
             api.delete_domain(domain_name='    ')
@@ -1418,11 +2019,61 @@ class TestDeleteDomain(TestCase):
         with self.assertRaisesRegex(InvalidValueError, DOMAIN_NAME_NONE_OR_EMPTY_ERROR):
             api.delete_domain(domain_name='  \t  ')
 
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
     def test_domain_name_int(self):
         """Check if it fails when domain name is an integer"""
 
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
         with self.assertRaisesRegex(TypeError, DOMAIN_VALUE_ERROR):
             api.delete_domain(domain_name=12345)
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_transaction(self):
+        """Check if a transaction is created when deleting a domain"""
+
+        timestamp = datetime_utcnow()
+
+        api.delete_domain('example.com')
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        self.assertEqual(len(transactions), 1)
+
+        trx = transactions[0]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'delete_domain')
+        self.assertGreater(trx.created_at, timestamp)
+
+    def test_operations(self):
+        """Check if the right operations are created when deleting a domain"""
+
+        timestamp = datetime_utcnow()
+
+        domain = api.delete_domain('example.com')
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.DELETE.value)
+        self.assertEqual(op1.entity_type, 'domain')
+        self.assertEqual(op1.target, 'example.com')
+        self.assertEqual(op1.trx, trx)
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 1)
+        self.assertEqual(op1_args['domain'], 'example.com')
 
 
 class TestEnroll(TestCase):
@@ -1645,6 +2296,8 @@ class TestEnroll(TestCase):
         jsmith = api.add_identity('scm', email='jsmith@example')
         api.add_organization('Example')
 
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
         data = {
             'start': r'2001-01-01 00:00:00\+00:00',
             'end': r'1999-01-01 00:00:00\+00:00'
@@ -1656,11 +2309,17 @@ class TestEnroll(TestCase):
                        from_date=datetime.datetime(2001, 1, 1),
                        to_date=datetime.datetime(1999, 1, 1))
 
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
     def test_period_out_of_bounds(self):
         """Check whether enrollments cannot be added giving periods out of bounds"""
 
         jsmith = api.add_identity('scm', email='jsmith@example')
         api.add_organization('Example')
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         data = {
             'type': 'start',
@@ -1693,16 +2352,26 @@ class TestEnroll(TestCase):
                        from_date=datetime.datetime(1898, 12, 31, 23, 59, 59, tzinfo=UTC),
                        to_date=datetime.datetime(1899, 12, 31, 23, 59, 59, tzinfo=UTC))
 
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
     def test_non_existing_uuid(self):
         """Check if it fails adding enrollments to not existing unique identities"""
 
         api.add_identity('scm', email='jsmith@example')
         api.add_organization('Example')
 
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
         msg = NOT_FOUND_ERROR.format(entity='abcdefghijklmnopqrstuvwxyz')
 
         with self.assertRaisesRegex(NotFoundError, msg):
             api.enroll('abcdefghijklmnopqrstuvwxyz', 'Example')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
 
     def test_non_existing_organization(self):
         """Check if it fails adding enrollments to not existing organizations"""
@@ -1710,10 +2379,16 @@ class TestEnroll(TestCase):
         jsmith = api.add_identity('scm', email='jsmith@example')
         api.add_organization('Example')
 
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
         msg = NOT_FOUND_ERROR.format(entity='Bitergia')
 
         with self.assertRaisesRegex(NotFoundError, msg):
             api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Bitergia')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
 
     def test_already_exist_enrollment(self):
         """Test if it raises an exception when the enrollment for the given range already exists"""
@@ -1725,6 +2400,8 @@ class TestEnroll(TestCase):
                    from_date=datetime.datetime(1999, 1, 1),
                    to_date=datetime.datetime(2010, 1, 1))
 
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
         with self.assertRaises(AlreadyExistsError):
             api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
                        from_date=datetime.datetime(1999, 1, 1),
@@ -1734,6 +2411,68 @@ class TestEnroll(TestCase):
             api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
                        from_date=datetime.datetime(2005, 1, 1),
                        to_date=datetime.datetime(2009, 1, 1))
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_transaction(self):
+        """Check if a transaction is created when adding an enrollment"""
+
+        timestamp = datetime_utcnow()
+
+        jsmith = api.add_identity('scm', email='jsmith@example')
+        api.add_organization('Example')
+
+        trx_date = datetime_utcnow()  # Ingnoring the transactions before this datetime
+
+        api.enroll(jsmith.id, 'Example',
+                   from_date=datetime.datetime(1999, 1, 1),
+                   to_date=datetime.datetime(2000, 1, 1))
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 1)
+
+        trx = transactions[0]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'enroll')
+        self.assertGreater(trx.created_at, timestamp)
+
+    def test_operations(self):
+        """Check if the right operations are created when deleting a domain"""
+
+        timestamp = datetime_utcnow()
+
+        jsmith = api.add_identity('scm', email='jsmith@example')
+        org = api.add_organization('Example')
+
+        trx_date = datetime_utcnow()
+
+        api.enroll(jsmith.id, 'Example',
+                   from_date=datetime.datetime(1999, 1, 1),
+                   to_date=datetime.datetime(2000, 1, 1))
+
+        transactions = Transaction.objects.filter(created_at__gte=trx_date)
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.ADD.value)
+        self.assertEqual(op1.entity_type, 'enrollment')
+        self.assertEqual(op1.target, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(op1.trx, trx)
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 4)
+        self.assertEqual(op1_args['uidentity'], jsmith.uidentity.uuid)
+        self.assertEqual(op1_args['organization'], org.name)
+        self.assertEqual(op1_args['start'], str(datetime_to_utc(datetime.datetime(1999, 1, 1))))
+        self.assertEqual(op1_args['end'], str(datetime_to_utc(datetime.datetime(2000, 1, 1))))
 
 
 class TestWithdraw(TestCase):
@@ -1861,6 +2600,8 @@ class TestWithdraw(TestCase):
     def test_period_invalid(self):
         """Check whether enrollments cannot be withdrawn giving invalid period ranges"""
 
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
         data = {
             'from_date': r'2001-01-01 00:00:00\+00:00',
             'to_date': r'1999-01-01 00:00:00\+00:00'
@@ -1872,8 +2613,14 @@ class TestWithdraw(TestCase):
                          from_date=datetime.datetime(2001, 1, 1),
                          to_date=datetime.datetime(1999, 1, 1))
 
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
     def test_period_out_of_bounds(self):
         """Check whether enrollments cannot be withdrawn giving periods out of bounds"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         data = {
             'type': 'from_date',
@@ -1906,29 +2653,158 @@ class TestWithdraw(TestCase):
                          from_date=datetime.datetime(1898, 12, 31, 23, 59, 59),
                          to_date=datetime.datetime(1899, 12, 31, 23, 59, 59))
 
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
     def test_non_existing_uuid(self):
         """Check if it fails withdrawing from not existing unique identities"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         msg = NOT_FOUND_ERROR.format(entity='abcdefghijklmnopqrstuvwxyz')
 
         with self.assertRaisesRegex(NotFoundError, msg):
             api.withdraw('abcdefghijklmnopqrstuvwxyz', 'Example')
 
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
     def test_non_existing_organization(self):
         """Check if it fails withdrawing from not existing organizations"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         msg = NOT_FOUND_ERROR.format(entity='LibreSoft')
 
         with self.assertRaisesRegex(NotFoundError, msg):
             api.withdraw('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'LibreSoft')
 
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
     def test_non_existing_enrollment(self):
         """Check if it fails withdrawing not existing enrollments"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaises(NotFoundError):
             api.withdraw('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
                          from_date=datetime.datetime(2050, 1, 1),
                          to_date=datetime.datetime(2060, 1, 1))
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_transaction(self):
+        """Check if a transaction is created when deleting an enrollment"""
+
+        timestamp = datetime_utcnow()
+
+        api.withdraw('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                     from_date=datetime.datetime(2007, 1, 1),
+                     to_date=datetime.datetime(2013, 1, 1))
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        self.assertEqual(len(transactions), 1)
+
+        trx = transactions[0]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'withdraw')
+        self.assertGreater(trx.created_at, timestamp)
+
+    def test_operations(self):
+        """Check if the right operations are created when deleting an enrollment"""
+
+        timestamp = datetime_utcnow()
+
+        api.withdraw('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                     from_date=datetime.datetime(2007, 1, 1),
+                     to_date=datetime.datetime(2013, 1, 1))
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 5)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.DELETE.value)
+        self.assertEqual(op1.entity_type, 'enrollment')
+        self.assertEqual(op1.target, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(op1.trx, trx)
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 4)
+        self.assertEqual(op1_args['uuid'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(op1_args['organization'], 'Example')
+        self.assertEqual(op1_args['start'], str(datetime_to_utc(datetime.datetime(2006, 1, 1))))
+        self.assertEqual(op1_args['end'], str(datetime_to_utc(datetime.datetime(2008, 1, 1))))
+
+        op2 = operations[1]
+        self.assertIsInstance(op2, Operation)
+        self.assertEqual(op2.op_type, Operation.OpType.DELETE.value)
+        self.assertEqual(op2.entity_type, 'enrollment')
+        self.assertEqual(op2.target, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(op2.trx, trx)
+        self.assertGreater(op2.timestamp, timestamp)
+
+        op2_args = json.loads(op2.args)
+        self.assertEqual(len(op2_args), 4)
+        self.assertEqual(op2_args['uuid'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(op2_args['organization'], 'Example')
+        self.assertEqual(op2_args['start'], str(datetime_to_utc(datetime.datetime(2009, 1, 1))))
+        self.assertEqual(op2_args['end'], str(datetime_to_utc(datetime.datetime(2011, 1, 1))))
+
+        op3 = operations[2]
+        self.assertIsInstance(op3, Operation)
+        self.assertEqual(op3.op_type, Operation.OpType.DELETE.value)
+        self.assertEqual(op3.entity_type, 'enrollment')
+        self.assertEqual(op3.target, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(op3.trx, trx)
+        self.assertGreater(op3.timestamp, timestamp)
+
+        op3_args = json.loads(op3.args)
+        self.assertEqual(len(op3_args), 4)
+        self.assertEqual(op3_args['uuid'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(op3_args['organization'], 'Example')
+        self.assertEqual(op3_args['start'], str(datetime_to_utc(datetime.datetime(2012, 1, 1))))
+        self.assertEqual(op3_args['end'], str(datetime_to_utc(datetime.datetime(2014, 1, 1))))
+
+        op4 = operations[3]
+        self.assertIsInstance(op4, Operation)
+        self.assertEqual(op4.op_type, Operation.OpType.ADD.value)
+        self.assertEqual(op4.entity_type, 'enrollment')
+        self.assertEqual(op4.target, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(op4.trx, trx)
+        self.assertGreater(op4.timestamp, timestamp)
+
+        op4_args = json.loads(op4.args)
+        self.assertEqual(len(op4_args), 4)
+        self.assertEqual(op4_args['uidentity'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(op4_args['organization'], 'Example')
+        self.assertEqual(op4_args['start'], str(datetime_to_utc(datetime.datetime(2006, 1, 1))))
+        self.assertEqual(op4_args['end'], str(datetime_to_utc(datetime.datetime(2007, 1, 1))))
+
+        op5 = operations[4]
+        self.assertIsInstance(op5, Operation)
+        self.assertEqual(op5.op_type, Operation.OpType.ADD.value)
+        self.assertEqual(op5.entity_type, 'enrollment')
+        self.assertEqual(op5.target, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(op5.trx, trx)
+        self.assertGreater(op5.timestamp, timestamp)
+
+        op5_args = json.loads(op5.args)
+        self.assertEqual(len(op5_args), 4)
+        self.assertEqual(op5_args['uidentity'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(op5_args['organization'], 'Example')
+        self.assertEqual(op5_args['start'], str(datetime_to_utc(datetime.datetime(2013, 1, 1))))
+        self.assertEqual(op5_args['end'], str(datetime_to_utc(datetime.datetime(2014, 1, 1))))
 
 
 class TestMergeIdentities(TestCase):
@@ -2051,21 +2927,39 @@ class TestMergeIdentities(TestCase):
     def test_non_existing_from_uuid(self):
         """Check if it fails merging two unique identities when source uuid is `None` or empty"""
 
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
         with self.assertRaisesRegex(InvalidValueError, FROM_UUID_NONE_OR_EMPTY_ERROR):
             api.merge_identities(from_uuid='', to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
 
     def test_non_existing_to_uuid(self):
         """Check if it fails merging two unique identities when destination uuid is `None` or empty"""
 
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
         with self.assertRaisesRegex(InvalidValueError, TO_UUID_NONE_OR_EMPTY_ERROR):
             api.merge_identities(from_uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', to_uuid='')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
 
     def test_from_uuid_to_uuid_equal(self):
         """Check if it fails merging two unique identities when they are equal"""
 
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
         with self.assertRaisesRegex(InvalidValueError, FROM_UUID_TO_UUID_EQUAL_ERROR):
             api.merge_identities(from_uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
                                  to_uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
 
     def test_moved_enrollments(self):
         """Check whether it merges two unique identities, merging their enrollments with multiple periods"""
@@ -2270,3 +3164,143 @@ class TestMergeIdentities(TestCase):
         self.assertEqual(profile.gender, None)
         self.assertEqual(profile.country_id, None)
         self.assertEqual(profile.is_bot, False)
+
+    def test_transaction(self):
+        """Check if a transaction is created when merging identities"""
+
+        timestamp = datetime_utcnow()
+
+        api.merge_identities(from_uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+                             to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        self.assertEqual(len(transactions), 1)
+
+        trx = transactions[0]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'merge_identities')
+        self.assertGreater(trx.created_at, timestamp)
+
+    def test_operations(self):
+        """Check if the right operations are created when merging identities"""
+
+        timestamp = datetime_utcnow()
+
+        api.merge_identities(from_uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+                             to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 8)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.UPDATE.value)
+        self.assertEqual(op1.entity_type, 'identity')
+        self.assertEqual(op1.target, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(op1.trx, trx)
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 2)
+        self.assertEqual(op1_args['uidentity'], 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        self.assertEqual(op1_args['identity'], '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+
+        op2 = operations[1]
+        self.assertIsInstance(op2, Operation)
+        self.assertEqual(op2.op_type, Operation.OpType.UPDATE.value)
+        self.assertEqual(op2.entity_type, 'identity')
+        self.assertEqual(op2.target, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(op2.trx, trx)
+        self.assertGreater(op2.timestamp, timestamp)
+
+        op2_args = json.loads(op2.args)
+        self.assertEqual(len(op2_args), 2)
+        self.assertEqual(op2_args['uidentity'], 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        self.assertEqual(op2_args['identity'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        op3 = operations[2]
+        self.assertIsInstance(op3, Operation)
+        self.assertEqual(op3.op_type, Operation.OpType.DELETE.value)
+        self.assertEqual(op3.entity_type, 'enrollment')
+        self.assertEqual(op3.target, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(op3.trx, trx)
+        self.assertGreater(op3.timestamp, timestamp)
+
+        op3_args = json.loads(op3.args)
+        self.assertEqual(len(op3_args), 4)
+        self.assertEqual(op3_args['uuid'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(op3_args['organization'], 'Example')
+        self.assertEqual(op3_args['start'], str(datetime_to_utc(datetime.datetime(1900, 1, 1))))
+        self.assertEqual(op3_args['end'], str(datetime_to_utc(datetime.datetime(2017, 6, 1))))
+
+        op4 = operations[3]
+        self.assertIsInstance(op4, Operation)
+        self.assertEqual(op4.op_type, Operation.OpType.DELETE.value)
+        self.assertEqual(op4.entity_type, 'enrollment')
+        self.assertEqual(op4.target, 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        self.assertEqual(op4.trx, trx)
+        self.assertGreater(op4.timestamp, timestamp)
+
+        op4_args = json.loads(op4.args)
+        self.assertEqual(len(op4_args), 4)
+        self.assertEqual(op4_args['uuid'], 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        self.assertEqual(op4_args['organization'], 'Bitergia')
+        self.assertEqual(op4_args['start'], str(datetime_to_utc(datetime.datetime(2017, 6, 2))))
+        self.assertEqual(op4_args['end'], str(datetime_to_utc(datetime.datetime(2100, 1, 1))))
+
+        op5 = operations[4]
+        self.assertIsInstance(op5, Operation)
+        self.assertEqual(op5.op_type, Operation.OpType.ADD.value)
+        self.assertEqual(op5.entity_type, 'enrollment')
+        self.assertEqual(op5.target, 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        self.assertEqual(op5.trx, trx)
+        self.assertGreater(op5.timestamp, timestamp)
+
+        op5_args = json.loads(op5.args)
+        self.assertEqual(len(op5_args), 4)
+        self.assertEqual(op5_args['uidentity'], 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        self.assertEqual(op5_args['organization'], 'Example')
+        self.assertEqual(op5_args['start'], str(datetime_to_utc(datetime.datetime(1900, 1, 1))))
+        self.assertEqual(op5_args['end'], str(datetime_to_utc(datetime.datetime(2017, 6, 1))))
+
+        op6 = operations[5]
+        self.assertIsInstance(op6, Operation)
+        self.assertEqual(op6.op_type, Operation.OpType.ADD.value)
+        self.assertEqual(op6.entity_type, 'enrollment')
+        self.assertEqual(op6.target, 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        self.assertEqual(op6.trx, trx)
+        self.assertGreater(op6.timestamp, timestamp)
+
+        op6_args = json.loads(op6.args)
+        self.assertEqual(len(op6_args), 4)
+        self.assertEqual(op6_args['uidentity'], 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        self.assertEqual(op6_args['organization'], 'Bitergia')
+        self.assertEqual(op6_args['start'], str(datetime_to_utc(datetime.datetime(2017, 6, 2))))
+        self.assertEqual(op6_args['end'], str(datetime_to_utc(datetime.datetime(2100, 1, 1))))
+
+        op7 = operations[6]
+        self.assertIsInstance(op7, Operation)
+        self.assertEqual(op7.op_type, Operation.OpType.UPDATE.value)
+        self.assertEqual(op7.entity_type, 'profile')
+        self.assertEqual(op7.target, 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        self.assertEqual(op7.trx, trx)
+        self.assertGreater(op7.timestamp, timestamp)
+
+        op7_args = json.loads(op7.args)
+        self.assertEqual(len(op7_args), 1)
+        self.assertEqual(op7_args['uidentity'], 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+
+        op8 = operations[7]
+        self.assertIsInstance(op8, Operation)
+        self.assertEqual(op8.op_type, Operation.OpType.DELETE.value)
+        self.assertEqual(op8.entity_type, 'unique_identity')
+        self.assertEqual(op8.target, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(op8.trx, trx)
+        self.assertGreater(op8.timestamp, timestamp)
+
+        op8_args = json.loads(op8.args)
+        self.assertEqual(len(op8_args), 1)
+        self.assertEqual(op8_args['uidentity'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
