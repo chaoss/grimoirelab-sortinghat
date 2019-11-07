@@ -17,6 +17,7 @@
 #
 # Authors:
 #     Santiago Dueñas <sduenas@bitergia.com>
+#     Miguel Ángel Fernández <mafesan@bitergia.com>
 #
 
 import datetime
@@ -71,7 +72,7 @@ class LastModificationDateTimeField(DateTimeField):
         return value
 
 
-class ModelBase(Model):
+class EntityBase(Model):
     created_at = CreationDateTimeField()
     last_modified = LastModificationDateTimeField()
 
@@ -79,7 +80,7 @@ class ModelBase(Model):
         abstract = True
 
 
-class Organization(ModelBase):
+class Organization(EntityBase):
     name = CharField(max_length=MAX_SIZE_CHAR_INDEX)
 
     class Meta:
@@ -90,7 +91,7 @@ class Organization(ModelBase):
         return self.name
 
 
-class Domain(ModelBase):
+class Domain(EntityBase):
     domain = CharField(max_length=MAX_SIZE_CHAR_FIELD)
     is_top_domain = BooleanField(default=False)
     organization = ForeignKey(Organization, related_name='domains', on_delete=CASCADE)
@@ -104,7 +105,7 @@ class Domain(ModelBase):
         return self.domain
 
 
-class Country(ModelBase):
+class Country(EntityBase):
     code = CharField(max_length=2, primary_key=True)
     name = CharField(max_length=MAX_SIZE_CHAR_INDEX)
     alpha3 = CharField(max_length=3)
@@ -117,7 +118,7 @@ class Country(ModelBase):
         return self.name
 
 
-class UniqueIdentity(ModelBase):
+class UniqueIdentity(EntityBase):
     uuid = CharField(max_length=MAX_SIZE_CHAR_FIELD, primary_key=True)
 
     class Meta:
@@ -127,7 +128,7 @@ class UniqueIdentity(ModelBase):
         return self.uuid
 
 
-class Identity(ModelBase):
+class Identity(EntityBase):
     id = CharField(max_length=MAX_SIZE_CHAR_FIELD, primary_key=True)
     name = CharField(max_length=MAX_SIZE_CHAR_FIELD, null=True)
     email = CharField(max_length=MAX_SIZE_CHAR_FIELD, null=True)
@@ -144,7 +145,7 @@ class Identity(ModelBase):
         return self.id
 
 
-class Profile(ModelBase):
+class Profile(EntityBase):
     uidentity = OneToOneField(UniqueIdentity, related_name='profile',
                               on_delete=CASCADE, db_column='uuid')
     name = CharField(max_length=MAX_SIZE_CHAR_FIELD, null=True)
@@ -161,7 +162,7 @@ class Profile(ModelBase):
         return self.uidentity.uuid
 
 
-class Enrollment(ModelBase):
+class Enrollment(EntityBase):
     uidentity = ForeignKey(UniqueIdentity, related_name='enrollments',
                            on_delete=CASCADE, db_column='uuid')
     organization = ForeignKey(Organization, related_name='enrollments',
@@ -178,7 +179,7 @@ class Enrollment(ModelBase):
         return '%s - %s' % (self.uidentity.uuid, self.organization.name)
 
 
-class MatchingBlacklist(ModelBase):
+class MatchingBlacklist(EntityBase):
     excluded = CharField(max_length=MAX_SIZE_CHAR_FIELD, primary_key=True)
 
     class Meta:
