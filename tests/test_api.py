@@ -572,7 +572,7 @@ class TestAddIdentity(TestCase):
         trx = transactions[0]
 
         operations = Operation.objects.filter(trx=trx)
-        self.assertEqual(len(operations), 3)
+        self.assertEqual(len(operations), 2)
 
         op1 = operations[0]
         self.assertIsInstance(op1, Operation)
@@ -589,31 +589,19 @@ class TestAddIdentity(TestCase):
         op2 = operations[1]
         self.assertIsInstance(op2, Operation)
         self.assertEqual(op2.op_type, Operation.OpType.ADD.value)
-        self.assertEqual(op2.entity_type, 'profile')
-        self.assertEqual(op2.target, identity.uidentity.uuid)
+        self.assertEqual(op2.entity_type, 'identity')
+        self.assertEqual(op2.target, identity.id)
         self.assertEqual(op2.trx, trx)
         self.assertGreater(op2.timestamp, timestamp)
 
         op2_args = json.loads(op2.args)
-        self.assertEqual(len(op2_args), 1)
-        self.assertEqual(op2_args['uuid'], identity.uidentity.uuid)
-
-        op3 = operations[2]
-        self.assertIsInstance(op3, Operation)
-        self.assertEqual(op3.op_type, Operation.OpType.ADD.value)
-        self.assertEqual(op3.entity_type, 'identity')
-        self.assertEqual(op3.target, identity.id)
-        self.assertEqual(op3.trx, trx)
-        self.assertGreater(op3.timestamp, timestamp)
-
-        op3_args = json.loads(op3.args)
-        self.assertEqual(len(op3_args), 6)
-        self.assertEqual(op3_args['uidentity'], identity.uidentity.uuid)
-        self.assertEqual(op3_args['identity_id'], identity.id)
-        self.assertEqual(op3_args['source'], identity.source)
-        self.assertEqual(op3_args['name'], identity.name)
-        self.assertEqual(op3_args['email'], identity.email)
-        self.assertEqual(op3_args['username'], identity.username)
+        self.assertEqual(len(op2_args), 6)
+        self.assertEqual(op2_args['uidentity'], identity.uidentity.uuid)
+        self.assertEqual(op2_args['identity_id'], identity.id)
+        self.assertEqual(op2_args['source'], identity.source)
+        self.assertEqual(op2_args['name'], identity.name)
+        self.assertEqual(op2_args['email'], identity.email)
+        self.assertEqual(op2_args['username'], identity.username)
 
 
 class TestDeleteIdentity(TestCase):
