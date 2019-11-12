@@ -837,7 +837,7 @@ class TestAddUniqueIdentity(TestCase):
         trx = transactions[0]
 
         operations = Operation.objects.filter(trx=trx)
-        self.assertEqual(len(operations), 2)
+        self.assertEqual(len(operations), 1)
 
         op1 = operations[0]
         self.assertIsInstance(op1, Operation)
@@ -850,18 +850,6 @@ class TestAddUniqueIdentity(TestCase):
         op1_args = json.loads(op1.args)
         self.assertEqual(len(op1_args), 1)
         self.assertEqual(op1_args['uuid'], uidentity.uuid)
-
-        op2 = operations[1]
-        self.assertIsInstance(op2, Operation)
-        self.assertEqual(op2.op_type, Operation.OpType.ADD.value)
-        self.assertEqual(op2.entity_type, 'profile')
-        self.assertEqual(op2.trx, trx)
-        self.assertEqual(op2.target, '1234567890ABCDFE')
-        self.assertGreater(op2.timestamp, timestamp)
-
-        op2_args = json.loads(op2.args)
-        self.assertEqual(len(op2_args), 1)
-        self.assertEqual(op2_args['uuid'], uidentity.uuid)
 
 
 class TestDeleteUniqueIdentity(TestCase):

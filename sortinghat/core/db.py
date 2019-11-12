@@ -337,10 +337,6 @@ def add_unique_identity(trxl, uuid):
     except django.db.utils.IntegrityError as exc:
         _handle_integrity_error(Profile, exc)
 
-    trxl.log_operation(op_type=Operation.OpType.ADD, entity_type='profile',
-                       timestamp=datetime_utcnow(), args=op_args,
-                       target=op_args['uuid'])
-
     uidentity.refresh_from_db()
 
     return uidentity
