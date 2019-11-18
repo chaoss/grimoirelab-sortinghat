@@ -116,7 +116,8 @@ class Operation(Model):
     op_type = CharField(max_length=MAX_SIZE_CHAR_FIELD, choices=OpType.choices())
     entity_type = CharField(max_length=MAX_SIZE_CHAR_FIELD)
     target = CharField(max_length=MAX_SIZE_CHAR_FIELD)
-    trx = ForeignKey(Transaction, null=True, on_delete=CASCADE, db_column='tuid')
+    trx = ForeignKey(Transaction, related_name='operations',
+                     on_delete=CASCADE, db_column='tuid')
     timestamp = DateTimeField()
     args = JSONField()
 

@@ -32,6 +32,8 @@ import graphene.test
 
 from dateutil.tz import UTC
 
+from grimoirelab_toolkit.datetime import datetime_utcnow, str_to_datetime
+
 from sortinghat.core import api
 from sortinghat.core import db
 from sortinghat.core.log import TransactionsLog
@@ -41,7 +43,9 @@ from sortinghat.core.models import (Organization,
                                     UniqueIdentity,
                                     Identity,
                                     Profile,
-                                    Enrollment)
+                                    Enrollment,
+                                    Transaction,
+                                    Operation)
 from sortinghat.core.schema import SortingHatQuery, SortingHatMutation
 
 
@@ -132,6 +136,66 @@ SH_UIDS_UUID_FILTER = """{
       }
       start
       end
+    }
+  }
+}"""
+SH_TRANSACTIONS_QUERY = """{
+  transactions{
+    name
+    createdAt
+    tuid
+    isClosed
+    closedAt
+  }
+}"""
+SH_TRANSACTIONS_QUERY_FILTER = """{
+  transactions(
+    filters: {
+      tuid: "%s",
+      name: "%s",
+      fromDate: "%s"
+    }
+  ){
+    name
+    createdAt
+    tuid
+    isClosed
+    closedAt
+  }
+}"""
+SH_OPERATIONS_QUERY = """{
+  operations {
+    ouid
+    opType
+    entityType
+    target
+    timestamp
+    args
+    trx{
+      name
+      createdAt
+      tuid
+    }
+  }
+}"""
+SH_OPERATIONS_QUERY_FILTER = """{
+  operations(
+    filters:{
+      opType:"%s",
+      entityType:"%s",
+      fromDate:"%s"
+    }
+  ){
+    ouid
+    opType
+    entityType
+    target
+    timestamp
+    args
+    trx{
+      name
+      createdAt
+      tuid
     }
   }
 }"""
@@ -464,6 +528,227 @@ class TestUniqueIdentities(django.test.TestCase):
 
         uids = executed['data']['uidentities']
         self.assertListEqual(uids, [])
+
+
+class TestQueryTransactions(django.test.TestCase):
+    """Unit tests for transaction queries"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        api.add_organization('Example')
+
+        api.add_identity('scm', email='jsmith@example')
+        api.update_profile(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+                           name='J. Smith', email='jsmith@example',
+                           gender='male', gender_acc=75)
+        api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                   from_date=datetime.datetime(1900, 1, 1),
+                   to_date=datetime.datetime(2017, 6, 1))
+
+        # Create an additional transaction controlling input values
+        self.timestamp = datetime_utcnow()  # This will be used as a filter
+        self.trx = Transaction(name='test_trx',
+                               tuid='012345abcdef',
+                               created_at=datetime_utcnow())
+        self.trx.save()
+
+    def test_transaction(self):
+        """Check if it returns the registry of transactions"""
+
+        timestamp = datetime_utcnow()
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_TRANSACTIONS_QUERY)
+
+        transactions = executed['data']['transactions']
+        self.assertEqual(len(transactions), 5)
+
+        trx = transactions[0]
+        self.assertEqual(trx['name'], 'add_organization')
+        self.assertLess(str_to_datetime(trx['createdAt']), timestamp)
+        self.assertIsInstance(trx['tuid'], str)
+        self.assertLess(str_to_datetime(trx['closedAt']), timestamp)
+        self.assertTrue(trx['isClosed'])
+
+        trx = transactions[1]
+        self.assertEqual(trx['name'], 'add_identity')
+        self.assertLess(str_to_datetime(trx['createdAt']), timestamp)
+        self.assertIsInstance(trx['tuid'], str)
+        self.assertLess(str_to_datetime(trx['closedAt']), timestamp)
+        self.assertTrue(trx['isClosed'])
+
+        trx = transactions[2]
+        self.assertEqual(trx['name'], 'update_profile')
+        self.assertLess(str_to_datetime(trx['createdAt']), timestamp)
+        self.assertIsInstance(trx['tuid'], str)
+        self.assertLess(str_to_datetime(trx['closedAt']), timestamp)
+        self.assertTrue(trx['isClosed'])
+
+        trx = transactions[3]
+        self.assertEqual(trx['name'], 'enroll')
+        self.assertLess(str_to_datetime(trx['createdAt']), timestamp)
+        self.assertIsInstance(trx['tuid'], str)
+        self.assertLess(str_to_datetime(trx['closedAt']), timestamp)
+        self.assertTrue(trx['isClosed'])
+
+        trx = transactions[4]
+        self.assertEqual(trx['name'], self.trx.name)
+        self.assertEqual(str_to_datetime(trx['createdAt']), self.trx.created_at)
+        self.assertEqual(trx['tuid'], self.trx.tuid)
+        self.assertIsNone(trx['closedAt'])
+        self.assertFalse(trx['isClosed'])
+
+    def test_filter_registry(self):
+        """Check whether it returns the transaction searched when using filters"""
+
+        client = graphene.test.Client(schema)
+        test_query = SH_TRANSACTIONS_QUERY_FILTER % ('012345abcdef', 'test_trx',
+                                                     self.timestamp.isoformat())
+        executed = client.execute(test_query)
+
+        transactions = executed['data']['transactions']
+        self.assertEqual(len(transactions), 1)
+
+        trx = transactions[0]
+        self.assertEqual(trx['name'], self.trx.name)
+        self.assertEqual(str_to_datetime(trx['createdAt']), self.trx.created_at)
+        self.assertEqual(trx['tuid'], self.trx.tuid)
+        self.assertIsNone(trx['closedAt'])
+        self.assertFalse(trx['isClosed'])
+
+    def test_filter_non_existing_registry(self):
+        """Check whether it returns an empty list when searched with a non existing transaction"""
+
+        client = graphene.test.Client(schema)
+        test_query = SH_TRANSACTIONS_QUERY_FILTER % ('012345abcdefg', 'test_trx',
+                                                     self.timestamp.isoformat())
+        executed = client.execute(test_query)
+
+        transactions = executed['data']['transactions']
+        self.assertListEqual(transactions, [])
+
+    def test_empty_registry(self):
+        """Check whether it returns an empty list when the registry is empty"""
+
+        # Delete Transactions created in `setUp` method
+        Transaction.objects.all().delete()
+        transactions = Transaction.objects.all()
+
+        self.assertEqual(len(transactions), 0)
+
+        # Test query
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_TRANSACTIONS_QUERY)
+
+        q_transactions = executed['data']['transactions']
+        self.assertListEqual(q_transactions, [])
+
+
+class TestQueryOperations(django.test.TestCase):
+    """Unit tests for operation queries"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        api.add_organization('Example')
+
+        # Create an additional operation controlling input values
+        trx = Transaction(name='test_trx',
+                          tuid='012345abcdef',
+                          created_at=datetime_utcnow())
+        trx.save()
+
+        self.trxl = TransactionsLog(trx)
+        self.timestamp = datetime_utcnow()  # This will be used as a filter
+        self.trxl.log_operation(op_type=Operation.OpType.UPDATE,
+                                entity_type='test_entity',
+                                timestamp=datetime_utcnow(),
+                                args={'test_arg': 'test_value'},
+                                target='test_target')
+        self.trxl.close()
+
+    def test_operation(self):
+        """Check if it returns the registry of operations"""
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_OPERATIONS_QUERY)
+
+        operations = executed['data']['operations']
+        self.assertEqual(len(operations), 2)
+
+        op1 = operations[0]
+        self.assertEqual(op1['opType'], Operation.OpType.ADD.value)
+        self.assertEqual(op1['entityType'], 'organization')
+        self.assertLess(str_to_datetime(op1['timestamp']), self.timestamp)
+        self.assertEqual(op1['args'], {'name': 'Example'})
+
+        # Check if the query returns the associated transaction
+        trx1 = op1['trx']
+        self.assertEqual(trx1['name'], 'add_organization')
+        self.assertIsInstance(trx1['tuid'], str)
+        self.assertLess(str_to_datetime(trx1['createdAt']), self.timestamp)
+
+        op2 = operations[1]
+        self.assertEqual(op2['opType'], Operation.OpType.UPDATE.value)
+        self.assertEqual(op2['entityType'], 'test_entity')
+        self.assertGreater(str_to_datetime(op2['timestamp']), self.timestamp)
+        self.assertEqual(op2['args'], {'test_arg': 'test_value'})
+
+        # Check if the query returns the associated transaction
+        trx2 = op2['trx']
+        self.assertEqual(trx2['name'], self.trxl.trx.name)
+        self.assertEqual(trx2['tuid'], self.trxl.trx.tuid)
+        self.assertEqual(str_to_datetime(trx2['createdAt']), self.trxl.trx.created_at)
+
+    def test_filter_registry(self):
+        """Check whether it returns the operation searched when using filters"""
+
+        client = graphene.test.Client(schema)
+        test_query = SH_OPERATIONS_QUERY_FILTER % ('UPDATE', 'test_entity',
+                                                   self.timestamp.isoformat())
+        executed = client.execute(test_query)
+
+        operations = executed['data']['operations']
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertEqual(op1['opType'], Operation.OpType.UPDATE.value)
+        self.assertEqual(op1['entityType'], 'test_entity')
+        self.assertGreater(str_to_datetime(op1['timestamp']), self.timestamp)
+        self.assertEqual(op1['args'], {'test_arg': 'test_value'})
+
+        # Check if the query returns the associated transaction
+        trx1 = op1['trx']
+        self.assertEqual(trx1['name'], self.trxl.trx.name)
+        self.assertEqual(trx1['tuid'], self.trxl.trx.tuid)
+        self.assertEqual(str_to_datetime(trx1['createdAt']), self.trxl.trx.created_at)
+
+    def test_filter_non_existing_registry(self):
+        """Check whether it returns an empty list when searched with a non existing operation"""
+
+        client = graphene.test.Client(schema)
+        test_query = SH_OPERATIONS_QUERY_FILTER % ('DELETE', 'test_entity',
+                                                   self.timestamp.isoformat())
+        executed = client.execute(test_query)
+
+        operations = executed['data']['operations']
+        self.assertListEqual(operations, [])
+
+    def test_empty_registry(self):
+        """Check whether it returns an empty list when the registry is empty"""
+
+        # Delete Operations created in `setUp` method
+        Operation.objects.all().delete()
+        operations = Operation.objects.all()
+
+        self.assertEqual(len(operations), 0)
+
+        # Test query
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_OPERATIONS_QUERY)
+
+        q_operations = executed['data']['operations']
+        self.assertListEqual(q_operations, [])
 
 
 class TestAddOrganizationMutation(django.test.TestCase):

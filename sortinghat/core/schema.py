@@ -21,8 +21,14 @@
 #
 
 import graphene
-from graphene_django.types import DjangoObjectType
+import json
 
+from django_mysql.models import JSONField
+
+from graphene.types.generic import GenericScalar
+
+from graphene_django.converter import convert_django_field
+from graphene_django.types import DjangoObjectType
 
 from .api import (add_identity,
                   delete_identity,
@@ -41,7 +47,34 @@ from .models import (Organization,
                      UniqueIdentity,
                      Identity,
                      Profile,
-                     Enrollment)
+                     Enrollment,
+                     Transaction,
+                     Operation)
+
+
+@convert_django_field.register(JSONField)
+def convert_json_field_to_generic_scalar(field, registry=None):
+    """Convert the content of a `JSONField` loading it as an object"""
+
+    return OperationArgsType(description=field.help_text, required=not field.null)
+
+
+class OperationArgsType(GenericScalar):
+    @classmethod
+    def serialize(cls, value):
+        value = super().serialize(value)
+        value = json.loads(value)
+        return value
+
+
+class OperationType(DjangoObjectType):
+    class Meta:
+        model = Operation
+
+
+class TransactionType(DjangoObjectType):
+    class Meta:
+        model = Transaction
 
 
 class OrganizationType(DjangoObjectType):
@@ -90,6 +123,23 @@ class ProfileInputType(graphene.InputObjectType):
 
 class IdentityFilterType(graphene.InputObjectType):
     uuid = graphene.String(required=False)
+
+
+class TransactionFilterType(graphene.InputObjectType):
+    tuid = graphene.String(required=False)
+    name = graphene.String(required=False)
+    is_closed = graphene.Boolean(required=False)
+    from_date = graphene.DateTime(required=False)
+    to_date = graphene.DateTime(required=False)
+
+
+class OperationFilterType(graphene.InputObjectType):
+    ouid = graphene.String(required=False)
+    op_type = graphene.String(required=False)
+    entity_type = graphene.String(required=False)
+    target = graphene.String(required=False)
+    from_date = graphene.DateTime(required=False)
+    to_date = graphene.DateTime(required=False)
 
 
 class AddOrganization(graphene.Mutation):
@@ -290,6 +340,14 @@ class SortingHatQuery:
         graphene.List(UniqueIdentityType),
         filters=IdentityFilterType(required=False)
     )
+    transactions = graphene.Field(
+        graphene.List(TransactionType),
+        filters=TransactionFilterType(required=False)
+    )
+    operations = graphene.Field(
+        graphene.List(OperationType),
+        filters=OperationFilterType(required=False)
+    )
 
     def resolve_organizations(self, info, **kwargs):
         return Organization.objects.order_by('name')
@@ -299,6 +357,40 @@ class SortingHatQuery:
 
         if filters and 'uuid' in filters:
             query = query.filter(uuid=filters['uuid'])
+        return query
+
+    def resolve_transactions(self, info, filters=None, **kwargs):
+        query = Transaction.objects.order_by('created_at')
+
+        if filters and 'tuid' in filters:
+            query = query.filter(tuid=filters['tuid'])
+        if filters and 'name' in filters:
+            query = query.filter(name=filters['name'])
+        if filters and 'is_closed' in filters:
+            query = query.filter(is_closed=filters['isClosed'])
+        if filters and 'from_date' in filters:
+            query = query.filter(created_at__gte=filters['from_date'])
+        if filters and 'to_date' in filters:
+            query = query.filter(created_at__lte=filters['to_date'])
+
+        return query
+
+    def resolve_operations(self, info, filters=None, **kwargs):
+        query = Operation.objects.order_by('timestamp')
+
+        if filters and 'ouid' in filters:
+            query = query.filter(ouid=filters['ouid'])
+        if filters and 'op_type' in filters:
+            query = query.filter(op_type=filters['op_type'])
+        if filters and 'entity_type' in filters:
+            query = query.filter(entity_type=filters['entity_type'])
+        if filters and 'target' in filters:
+            query = query.filter(target=filters['target'])
+        if filters and 'from_date' in filters:
+            query = query.filter(timestamp__gte=filters['from_date'])
+        if filters and 'to_date' in filters:
+            query = query.filter(timestamp__lte=filters['to_date'])
+
         return query
 
 
