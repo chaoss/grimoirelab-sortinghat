@@ -89,11 +89,13 @@ class TestInitCommand(TestInitCaseBase):
     def test_connection_error(self):
         """Check connection errors"""
 
-        kwargs = {'user': 'nouser',
-                  'password': 'nopassword',
-                  'database': None,
-                  'host': 'localhost',
-                  'port': '3306'}
+        kwargs = {
+            'user': 'nouser',
+            'password': 'nopassword',
+            'database': None,
+            'host': self.kwargs['host'],
+            'port': self.kwargs['port']
+        }
 
         cmd = Init(**kwargs)
         code = cmd.run(self.name)
@@ -149,12 +151,14 @@ class TestInitialize(TestInitCaseBase):
     def test_connection_error(self):
         """Check connection errors"""
 
-        kwargs = {'user': 'nouser',
-                  'password': 'nopassword',
-                  'database': None,
-                  'host': 'localhost',
-                  'port': '3306',
-                  'reuse': False}
+        kwargs = {
+            'user': 'nouser',
+            'password': 'nopassword',
+            'database': None,
+            'host': self.kwargs['host'],
+            'port': self.kwargs['port'],
+            'reuse': False
+        }
 
         cmd = Init(**kwargs)
         code = cmd.initialize(self.name)
