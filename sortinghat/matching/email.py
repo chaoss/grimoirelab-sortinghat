@@ -183,11 +183,6 @@ class EmailMatcher(IdentityMatcher):
         """
         return ['email']
 
-    # not used
-    def _filter_emails(self, ids):
-        return [id_.email.lower() for id_ in ids
-                if self._check_email(id_.email)]
-
     def _check_blacklist(self, id_):
         if not id_.email:
             return False
