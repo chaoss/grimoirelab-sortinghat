@@ -165,6 +165,85 @@ class TestEmailMatcher(unittest.TestCase):
         result = matcher.match(jane_rae, jrae)
         self.assertEqual(result, False)
 
+    def test_match_with_blacklist_not_strict(self):
+        """Test match when there are entries in the blacklist and strict mode is False"""
+
+        # Let's define some identities first
+        jsmith = UniqueIdentity(uuid='jsmith')
+        jsmith.identities = [Identity(name='John Smith', email='jsmith_at_example.com', source='scm'),
+                             Identity(name='John Smith', source='scm'),
+                             Identity(username='jsmith', source='scm'),
+                             Identity(email='', source='scm')]
+
+        john_smith = UniqueIdentity(uuid='js')
+        john_smith.identities = [Identity(name='J. Smith', username='john_smith', source='scm'),
+                                 Identity(username='john_smith', source='scm'),
+                                 Identity(name='Smith. J', source='mls'),
+                                 Identity(name='Smith. J', email='JSmith_at_example.com', source='mls')]
+
+        jrae = UniqueIdentity(uuid='jrae')
+        jrae.identities = [Identity(name='Jane Rae', source='scm', uuid='jrae'),
+                           Identity(name='Jane Rae Doe', email='jane.rae_at_example.net', source='mls', uuid='jrae'),
+                           Identity(name='jrae', source='scm', uuid='jrae'),
+                           Identity(email='JRAE_at_example.net', source='scm', uuid='jrae')]
+
+        jane_rae = UniqueIdentity(uuid='Jane Rae')
+        jane_rae.identities = [Identity(name='Jane Rae', source='scm', uuid='Jane Rae'),
+                               Identity(email='jrae_at_example.net', source='mls', uuid='Jane Rae')]
+
+        # Check matching
+        matcher = EmailMatcher(strict=False)
+
+        # First two unique identities must match
+        result = matcher.match(jsmith, john_smith)
+        self.assertEqual(result, True)
+
+        result = matcher.match(john_smith, jsmith)
+        self.assertEqual(result, True)
+
+        result = matcher.match(jrae, jane_rae)
+        self.assertEqual(result, True)
+
+        result = matcher.match(jane_rae, jrae)
+        self.assertEqual(result, True)
+
+        # Add a blacklist
+        bl = [MatchingBlacklist(excluded='Jsmith_at_example.com'),
+              MatchingBlacklist(excluded='jrae_at_example.com')]
+
+        matcher = EmailMatcher(blacklist=bl, strict=False)
+
+        result = matcher.match(jsmith, john_smith)
+        self.assertEqual(result, False)
+
+        result = matcher.match(john_smith, jsmith)
+        self.assertEqual(result, False)
+
+        result = matcher.match(jrae, jane_rae)
+        self.assertEqual(result, True)
+
+        result = matcher.match(jane_rae, jrae)
+        self.assertEqual(result, True)
+
+        # In this case, no match will be found
+        bl = [MatchingBlacklist(excluded='Jsmith_at_example.com'),
+              MatchingBlacklist(excluded='jrae_at_example.com'),
+              MatchingBlacklist(excluded='jrae_at_example.net')]
+
+        matcher = EmailMatcher(blacklist=bl, strict=False)
+
+        result = matcher.match(jsmith, john_smith)
+        self.assertEqual(result, False)
+
+        result = matcher.match(john_smith, jsmith)
+        self.assertEqual(result, False)
+
+        result = matcher.match(jrae, jane_rae)
+        self.assertEqual(result, False)
+
+        result = matcher.match(jane_rae, jrae)
+        self.assertEqual(result, False)
+
     def test_match_with_sources_list(self):
         """Test match when a list of sources to filter is given"""
 
@@ -423,6 +502,42 @@ class TestEmailMatcher(unittest.TestCase):
         self.assertIsInstance(fid, EmailIdentity)
         self.assertEqual(fid.uuid, 'jrae')
         self.assertEqual(fid.email, 'jane.rae@example.net')
+
+    def test_filter_identities_with_blacklist_not_strict(self):
+        """Test if identities are filtered when there is a blacklist and strict mode is False"""
+
+        # Let's define some identities first
+        jsmith = UniqueIdentity(uuid='jsmith')
+        jsmith.identities = [Identity(name='John Smith', email='jsmith_at_example.com', source='scm', uuid='jsmith'),
+                             Identity(name='John Smith', source='scm', uuid='jsmith'),
+                             Identity(username='jsmith', source='scm', uuid='jsmith'),
+                             Identity(email='', source='scm', uuid='jsmith')]
+
+        jrae = UniqueIdentity(uuid='jrae')
+        jrae.identities = [Identity(name='Jane Rae', source='scm', uuid='jrae'),
+                           Identity(name='Jane Rae Doe', email='jane.rae_at_example.net', source='mls', uuid='jrae'),
+                           Identity(name='jrae', source='scm', uuid='jrae'),
+                           Identity(email='JRAE_at_example.net', source='scm', uuid='jrae')]
+
+        bl = [MatchingBlacklist(excluded='jrae_at_example.net')]
+
+        matcher = EmailMatcher(blacklist=bl, strict=False)
+
+        result = matcher.filter(jsmith)
+        self.assertEqual(len(result), 1)
+
+        fid = result[0]
+        self.assertIsInstance(fid, EmailIdentity)
+        self.assertEqual(fid.uuid, 'jsmith')
+        self.assertEqual(fid.email, 'jsmith_at_example.com')
+
+        result = matcher.filter(jrae)
+        self.assertEqual(len(result), 1)
+
+        fid = result[0]
+        self.assertIsInstance(fid, EmailIdentity)
+        self.assertEqual(fid.uuid, 'jrae')
+        self.assertEqual(fid.email, 'jane.rae_at_example.net')
 
     def test_filter_identities_with_sources_list(self):
         """Test if identities are filtered when there is a sources list"""
