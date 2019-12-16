@@ -23,6 +23,9 @@
 import graphene
 import json
 
+from django.conf import settings
+from django.core.paginator import Paginator
+
 from django_mysql.models import JSONField
 
 from graphene.types.generic import GenericScalar
@@ -57,6 +60,17 @@ def convert_json_field_to_generic_scalar(field, registry=None):
     """Convert the content of a `JSONField` loading it as an object"""
 
     return OperationArgsType(description=field.help_text, required=not field.null)
+
+
+class PaginationType(graphene.ObjectType):
+    page = graphene.Int()
+    page_size = graphene.Int()
+    num_pages = graphene.Int()
+    has_next = graphene.Boolean()
+    has_prev = graphene.Boolean()
+    start_index = graphene.Int()
+    end_index = graphene.Int()
+    total_results = graphene.Int()
 
 
 class OperationArgsType(GenericScalar):
@@ -140,6 +154,50 @@ class OperationFilterType(graphene.InputObjectType):
     target = graphene.String(required=False)
     from_date = graphene.DateTime(required=False)
     to_date = graphene.DateTime(required=False)
+
+
+class AbstractPaginatedType(graphene.ObjectType):
+
+    @classmethod
+    def create_paginated_result(cls, query, page=1,
+                                page_size=settings.DEFAULT_GRAPHQL_PAGE_SIZE):
+        paginator = Paginator(query, page_size)
+        result = paginator.page(page)
+
+        entities = result.object_list
+
+        page_info = PaginationType(
+            page=result.number,
+            page_size=page_size,
+            num_pages=paginator.num_pages,
+            has_next=result.has_next(),
+            has_prev=result.has_previous(),
+            start_index=result.start_index(),
+            end_index=result.end_index(),
+            total_results=len(query)
+        )
+
+        return cls(entities=entities, page_info=page_info)
+
+
+class OrganizationPaginatedType(AbstractPaginatedType):
+    entities = graphene.List(OrganizationType)
+    page_info = graphene.Field(PaginationType)
+
+
+class IdentityPaginatedType(AbstractPaginatedType):
+    entities = graphene.List(UniqueIdentityType)
+    page_info = graphene.Field(PaginationType)
+
+
+class TransactionPaginatedType(AbstractPaginatedType):
+    entities = graphene.List(TransactionType)
+    page_info = graphene.Field(PaginationType)
+
+
+class OperationPaginatedType(AbstractPaginatedType):
+    entities = graphene.List(OperationType)
+    page_info = graphene.Field(PaginationType)
 
 
 class AddOrganization(graphene.Mutation):
@@ -335,31 +393,58 @@ class Withdraw(graphene.Mutation):
 
 
 class SortingHatQuery:
-    organizations = graphene.List(OrganizationType)
+
+    organizations = graphene.Field(
+        OrganizationPaginatedType,
+        page_size=graphene.Int(),
+        page=graphene.Int()
+    )
     uidentities = graphene.Field(
-        graphene.List(UniqueIdentityType),
+        IdentityPaginatedType,
+        page_size=graphene.Int(),
+        page=graphene.Int(),
         filters=IdentityFilterType(required=False)
     )
     transactions = graphene.Field(
-        graphene.List(TransactionType),
+        TransactionPaginatedType,
+        page_size=graphene.Int(),
+        page=graphene.Int(),
         filters=TransactionFilterType(required=False)
     )
     operations = graphene.Field(
-        graphene.List(OperationType),
-        filters=OperationFilterType(required=False)
+        OperationPaginatedType,
+        page_size=graphene.Int(),
+        page=graphene.Int(),
+        filters=OperationFilterType(required=False),
     )
 
-    def resolve_organizations(self, info, **kwargs):
-        return Organization.objects.order_by('name')
+    def resolve_organizations(self, info,
+                              page=1,
+                              page_size=settings.DEFAULT_GRAPHQL_PAGE_SIZE,
+                              **kwargs):
+        query = Organization.objects.order_by('name')
 
-    def resolve_uidentities(self, info, filters=None, **kwargs):
+        return OrganizationPaginatedType.create_paginated_result(query,
+                                                                 page,
+                                                                 page_size=page_size)
+
+    def resolve_uidentities(self, info, filters=None,
+                            page=1,
+                            page_size=settings.DEFAULT_GRAPHQL_PAGE_SIZE,
+                            **kwargs):
         query = UniqueIdentity.objects.order_by('uuid')
 
         if filters and 'uuid' in filters:
             query = query.filter(uuid=filters['uuid'])
-        return query
 
-    def resolve_transactions(self, info, filters=None, **kwargs):
+        return IdentityPaginatedType.create_paginated_result(query,
+                                                             page,
+                                                             page_size=page_size)
+
+    def resolve_transactions(self, info, filters=None,
+                             page=1,
+                             page_size=settings.DEFAULT_GRAPHQL_PAGE_SIZE,
+                             **kwargs):
         query = Transaction.objects.order_by('created_at')
 
         if filters and 'tuid' in filters:
@@ -373,9 +458,14 @@ class SortingHatQuery:
         if filters and 'to_date' in filters:
             query = query.filter(created_at__lte=filters['to_date'])
 
-        return query
+        return TransactionPaginatedType.create_paginated_result(query,
+                                                                page,
+                                                                page_size=page_size)
 
-    def resolve_operations(self, info, filters=None, **kwargs):
+    def resolve_operations(self, info, filters=None,
+                           page=1,
+                           page_size=settings.DEFAULT_GRAPHQL_PAGE_SIZE,
+                           **kwargs):
         query = Operation.objects.order_by('timestamp')
 
         if filters and 'ouid' in filters:
@@ -391,7 +481,9 @@ class SortingHatQuery:
         if filters and 'to_date' in filters:
             query = query.filter(timestamp__lte=filters['to_date'])
 
-        return query
+        return OperationPaginatedType.create_paginated_result(query,
+                                                              page,
+                                                              page_size=page_size)
 
 
 class SortingHatMutation(graphene.ObjectType):
