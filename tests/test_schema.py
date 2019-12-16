@@ -89,6 +89,21 @@ SH_ORGS_QUERY = """{
     }
   }
 }"""
+SH_ORGS_QUERY_FILTER = """{
+  organizations (
+    filters:{
+      name:"%s"
+    }
+  ){
+    entities {
+      name
+      domains {
+        domain
+        isTopDomain
+      }
+    }
+  }
+}"""
 SH_ORGS_QUERY_PAGINATION = """{
   organizations (
     page: %d
@@ -579,6 +594,38 @@ class TestQueryOrganizations(django.test.TestCase):
 
         client = graphene.test.Client(schema)
         executed = client.execute(SH_ORGS_QUERY)
+
+        orgs = executed['data']['organizations']['entities']
+        self.assertListEqual(orgs, [])
+
+    def test_filter_registry(self):
+        """Check whether it returns the organization searched when using name filter"""
+
+        org1 = Organization.objects.create(name='Example')
+        org2 = Organization.objects.create(name='Bitergia')
+        org3 = Organization.objects.create(name='LibreSoft')
+
+        client = graphene.test.Client(schema)
+        test_query = SH_ORGS_QUERY_FILTER % 'Bitergia'
+        executed = client.execute(test_query)
+
+        orgs = executed['data']['organizations']['entities']
+        self.assertEqual(len(orgs), 1)
+
+        # As organizations are sorted by name, the first one will be org2
+        org = orgs[0]
+        self.assertEqual(org['name'], org2.name)
+
+    def test_filter_non_exist_registry(self):
+        """Check whether it returns an empty list when searched with a non existing organization"""
+
+        org1 = Organization.objects.create(name='Example')
+        org2 = Organization.objects.create(name='Bitergia')
+        org3 = Organization.objects.create(name='LibreSoft')
+
+        client = graphene.test.Client(schema)
+        test_query = SH_ORGS_QUERY_FILTER % 'Test'
+        executed = client.execute(test_query)
 
         orgs = executed['data']['organizations']['entities']
         self.assertListEqual(orgs, [])
