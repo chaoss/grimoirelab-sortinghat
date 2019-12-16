@@ -135,6 +135,10 @@ class ProfileInputType(graphene.InputObjectType):
     country_code = graphene.String(required=False)
 
 
+class OrganizationFilterType(graphene.InputObjectType):
+    name = graphene.String(required=False)
+
+
 class IdentityFilterType(graphene.InputObjectType):
     uuid = graphene.String(required=False)
 
@@ -397,7 +401,8 @@ class SortingHatQuery:
     organizations = graphene.Field(
         OrganizationPaginatedType,
         page_size=graphene.Int(),
-        page=graphene.Int()
+        page=graphene.Int(),
+        filters=OrganizationFilterType(required=False)
     )
     uidentities = graphene.Field(
         IdentityPaginatedType,
@@ -418,11 +423,14 @@ class SortingHatQuery:
         filters=OperationFilterType(required=False),
     )
 
-    def resolve_organizations(self, info,
+    def resolve_organizations(self, info, filters=None,
                               page=1,
                               page_size=settings.DEFAULT_GRAPHQL_PAGE_SIZE,
                               **kwargs):
         query = Organization.objects.order_by('name')
+
+        if filters and 'name' in filters:
+            query = query.filter(name=filters['name'])
 
         return OrganizationPaginatedType.create_paginated_result(query,
                                                                  page,
