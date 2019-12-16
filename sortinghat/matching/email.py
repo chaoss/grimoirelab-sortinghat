@@ -130,7 +130,7 @@ class EmailMatcher(IdentityMatcher):
         if fa.uuid and fb.uuid and fa.uuid == fb.uuid:
             return True
 
-        if fa.email in self.blacklist:
+        if self._check_blacklist(fa):
             return False
 
         # Compare email addresses first
@@ -160,6 +160,9 @@ class EmailMatcher(IdentityMatcher):
             if self.sources and id_.source.lower() not in self.sources:
                 continue
 
+            if self._check_blacklist(id_):
+                continue
+
             if self.strict:
                 if self._check_email(id_.email):
                     email = id_.email.lower()
@@ -180,13 +183,18 @@ class EmailMatcher(IdentityMatcher):
         """
         return ['email']
 
-    def _filter_emails(self, ids):
-        return [id_.email.lower() for id_ in ids
-                if self._check_email(id_.email)]
+    def _check_blacklist(self, id_):
+        if not id_.email:
+            return False
+
+        blacklisted = id_.email.lower() in self.blacklist
+
+        return blacklisted
 
     def _check_email(self, email):
         if not email:
             return False
-        elif email.lower() in self.blacklist:
-            return False
-        return self.email_pattern.match(email) is not None
+
+        checked = self.email_pattern.match(email) is not None
+
+        return checked
