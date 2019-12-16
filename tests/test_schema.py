@@ -32,6 +32,8 @@ import graphene.test
 
 from dateutil.tz import UTC
 
+from django.conf import settings
+
 from grimoirelab_toolkit.datetime import datetime_utcnow, str_to_datetime
 
 from sortinghat.core import api
@@ -69,83 +71,136 @@ UID_DOES_NOT_EXIST_ERROR = "FFFFFFFFFFFFFFF not found in the registry"
 ORGANIZATION_BITERGIA_DOES_NOT_EXIST_ERROR = "Bitergia not found in the registry"
 ORGANIZATION_EXAMPLE_DOES_NOT_EXIST_ERROR = "Example not found in the registry"
 ENROLLMENT_DOES_NOT_EXIST_ERROR = "'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3-Example-2050-01-01 00:00:00+00:00-2060-01-01 00:00:00+00:00' not found in the registry"
+PAGINATION_NO_RESULTS_ERROR = "That page contains no results"
+PAGINATION_PAGE_LESS_THAN_ONE_ERROR = "That page number is less than 1"
+PAGINATION_PAGE_SIZE_NEGATIVE_ERROR = "Negative indexing is not supported."
+PAGINATION_PAGE_SIZE_ZERO_ERROR = "division by zero"
 
 
 # Test queries
 SH_ORGS_QUERY = """{
   organizations {
-    name
-    domains {
-      domain
-      isTopDomain
+    entities {
+      name
+      domains {
+        domain
+        isTopDomain
+      }
+    }
+  }
+}"""
+SH_ORGS_QUERY_PAGINATION = """{
+  organizations (
+    page: %d
+    pageSize: %d
+  ){
+    entities {
+      name
+    }
+    pageInfo{
+      page
+      pageSize
+      numPages
+      hasNext
+      hasPrev
+      startIndex
+      endIndex
+      totalResults
     }
   }
 }"""
 SH_UIDS_QUERY = """{
   uidentities {
-    uuid
-    profile {
-      name
-      email
-      gender
-      isBot
-      country {
-        code
+    entities {
+      uuid
+      profile {
         name
+        email
+        gender
+        isBot
+        country {
+          code
+          name
+        }
       }
-    }
-    identities {
-      id
-      name
-      email
-      username
-      source
-    }
-    enrollments {
-      organization {
+      identities {
+        id
         name
+        email
+        username
+        source
       }
-      start
-      end
+      enrollments {
+        organization {
+          name
+        }
+        start
+        end
+      }
     }
   }
 }"""
 SH_UIDS_UUID_FILTER = """{
   uidentities(filters: {uuid: "a9b403e150dd4af8953a52a4bb841051e4b705d9"}) {
-    uuid
-    profile {
-      name
-      email
-      gender
-      isBot
-      country {
-        code
+    entities {
+      uuid
+      profile {
         name
+        email
+        gender
+        isBot
+        country {
+          code
+          name
+        }
       }
-    }
-    identities {
-      id
-      name
-      email
-      username
-      source
-    }
-    enrollments {
-      organization {
+      identities {
+        id
         name
+        email
+        username
+        source
       }
-      start
-      end
+      enrollments {
+        organization {
+          name
+        }
+        start
+        end
+      }
     }
   }
 }"""
+SH_UIDS_UUID_PAGINATION = """{
+  uidentities(
+    page: %d
+    pageSize: %d
+  ){
+    entities {
+      uuid
+    }
+    pageInfo{
+      page
+      pageSize
+      numPages
+      hasNext
+      hasPrev
+      startIndex
+      endIndex
+      totalResults
+    }
+  }
+}
+"""
 SH_TRANSACTIONS_QUERY = """{
-  transactions{
-    name
-    createdAt
-    tuid
-    isClosed
-    closedAt
+  transactions {
+    entities {
+      name
+      createdAt
+      tuid
+      isClosed
+      closedAt
+    }
   }
 }"""
 SH_TRANSACTIONS_QUERY_FILTER = """{
@@ -156,25 +211,53 @@ SH_TRANSACTIONS_QUERY_FILTER = """{
       fromDate: "%s"
     }
   ){
-    name
-    createdAt
-    tuid
-    isClosed
-    closedAt
+    entities {
+      name
+      createdAt
+      tuid
+      isClosed
+      closedAt
+    }
+  }
+}"""
+SH_TRANSACTIONS_QUERY_PAGINATION = """{
+  transactions(
+    page: %d
+    pageSize: %d
+  ){
+    entities {
+      name
+      createdAt
+      tuid
+      isClosed
+      closedAt
+    }
+    pageInfo{
+      page
+      pageSize
+      numPages
+      hasNext
+      hasPrev
+      startIndex
+      endIndex
+      totalResults
+    }
   }
 }"""
 SH_OPERATIONS_QUERY = """{
   operations {
-    ouid
-    opType
-    entityType
-    target
-    timestamp
-    args
-    trx{
-      name
-      createdAt
-      tuid
+    entities {
+      ouid
+      opType
+      entityType
+      target
+      timestamp
+      args
+      trx{
+        name
+        createdAt
+        tuid
+      }
     }
   }
 }"""
@@ -186,16 +269,106 @@ SH_OPERATIONS_QUERY_FILTER = """{
       fromDate:"%s"
     }
   ){
-    ouid
-    opType
-    entityType
-    target
-    timestamp
-    args
-    trx{
-      name
-      createdAt
-      tuid
+    entities {
+      ouid
+      opType
+      entityType
+      target
+      timestamp
+      args
+      trx{
+        name
+        createdAt
+        tuid
+      }
+    }
+  }
+}"""
+SH_OPERATIONS_QUERY_PAGINATION = """{
+  operations(
+    page: %d
+    pageSize: %d
+  ){
+    entities{
+      ouid
+      opType
+      entityType
+      target
+      timestamp
+      args
+      trx{
+        name
+        createdAt
+        tuid
+      }
+    }
+    pageInfo{
+      page
+      pageSize
+      numPages
+      hasNext
+      hasPrev
+      startIndex
+      endIndex
+      totalResults
+    }
+  }
+}"""
+SH_OPERATIONS_QUERY_PAGINATION_NO_PAGE = """{
+  operations(
+    pageSize: %d
+  ){
+    entities{
+      ouid
+      opType
+      entityType
+      target
+      timestamp
+      args
+      trx{
+        name
+        createdAt
+        tuid
+      }
+    }
+    pageInfo{
+      page
+      pageSize
+      numPages
+      hasNext
+      hasPrev
+      startIndex
+      endIndex
+      totalResults
+    }
+  }
+}"""
+SH_OPERATIONS_QUERY_PAGINATION_NO_PAGE_SIZE = """{
+  operations(
+    page: %d
+  ){
+    entities{
+      ouid
+      opType
+      entityType
+      target
+      timestamp
+      args
+      trx{
+        name
+        createdAt
+        tuid
+      }
+    }
+    pageInfo{
+      page
+      pageSize
+      numPages
+      hasNext
+      hasPrev
+      startIndex
+      endIndex
+      totalResults
     }
   }
 }"""
@@ -203,6 +376,162 @@ SH_OPERATIONS_QUERY_FILTER = """{
 
 class TestQuery(SortingHatQuery, graphene.ObjectType):
     pass
+
+
+class TestQueryPagination(django.test.TestCase):
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        api.add_organization('Example')
+
+        api.add_identity('scm', email='jsmith@example')
+        api.update_profile(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+                           name='J. Smith', email='jsmith@example',
+                           gender='male', gender_acc=75)
+        api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                   from_date=datetime.datetime(1900, 1, 1),
+                   to_date=datetime.datetime(2017, 6, 1))
+
+        # Create an additional transaction controlling input values
+        self.timestamp = datetime_utcnow()  # This will be used as a filter
+        self.trx = Transaction(name='test_trx',
+                               tuid='012345abcdef',
+                               created_at=datetime_utcnow())
+        self.trx.save()
+
+    def test_pagination(self):
+        """Check if the expected page and number of results is returned"""
+
+        client = graphene.test.Client(schema)
+        test_query = SH_OPERATIONS_QUERY_PAGINATION % (2, 2)
+        executed = client.execute(test_query)
+
+        entities = executed['data']['operations']['entities']
+        self.assertEqual(len(entities), 2)
+
+        op1 = entities[0]
+        self.assertEqual(op1['opType'], Operation.OpType.ADD.value)
+        self.assertEqual(op1['entityType'], 'identity')
+        self.assertEqual(op1['target'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        op2 = entities[1]
+        self.assertEqual(op2['opType'], Operation.OpType.UPDATE.value)
+        self.assertEqual(op2['entityType'], 'profile')
+        self.assertEqual(op2['target'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        pag_data = executed['data']['operations']['pageInfo']
+        self.assertEqual(len(pag_data), 8)
+        self.assertEqual(pag_data['page'], 2)
+        self.assertEqual(pag_data['pageSize'], 2)
+        self.assertEqual(pag_data['numPages'], 3)
+        self.assertTrue(pag_data['hasNext'])
+        self.assertTrue(pag_data['hasPrev'])
+        self.assertEqual(pag_data['startIndex'], 3)
+        self.assertEqual(pag_data['endIndex'], 4)
+        self.assertEqual(pag_data['totalResults'], 5)
+
+    def test_page_not_set(self):
+        """Check if returns the first page when `page` is not set"""
+
+        client = graphene.test.Client(schema)
+        test_query = SH_OPERATIONS_QUERY_PAGINATION_NO_PAGE % 2
+        executed = client.execute(test_query)
+
+        entities = executed['data']['operations']['entities']
+        self.assertEqual(len(entities), 2)
+
+        pag_data = executed['data']['operations']['pageInfo']
+        self.assertEqual(len(pag_data), 8)
+        self.assertEqual(pag_data['page'], 1)
+        self.assertEqual(pag_data['pageSize'], 2)
+        self.assertEqual(pag_data['numPages'], 3)
+        self.assertTrue(pag_data['hasNext'])
+        self.assertFalse(pag_data['hasPrev'])
+        self.assertEqual(pag_data['startIndex'], 1)
+        self.assertEqual(pag_data['endIndex'], 2)
+        self.assertEqual(pag_data['totalResults'], 5)
+
+    def test_page_exceeded(self):
+        """Check if it fails when `page` is greater than the number of pages"""
+
+        client = graphene.test.Client(schema)
+        test_query = SH_OPERATIONS_QUERY_PAGINATION % (30, 2)
+        executed = client.execute(test_query)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, PAGINATION_NO_RESULTS_ERROR)
+
+    def test_page_negative(self):
+        """Check if it fails when `page` is a negative number"""
+
+        client = graphene.test.Client(schema)
+        test_query = SH_OPERATIONS_QUERY_PAGINATION % (-1, 2)
+        executed = client.execute(test_query)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, PAGINATION_PAGE_LESS_THAN_ONE_ERROR)
+
+    def test_page_zero(self):
+        """Check if it fails when `page` is set to `0`"""
+
+        client = graphene.test.Client(schema)
+        test_query = SH_OPERATIONS_QUERY_PAGINATION % (0, 2)
+        executed = client.execute(test_query)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, PAGINATION_PAGE_LESS_THAN_ONE_ERROR)
+
+    def test_page_size_not_set(self):
+        """Check if it takes the default value from settings when `pageSize` is not set"""
+
+        client = graphene.test.Client(schema)
+        test_query = SH_OPERATIONS_QUERY_PAGINATION_NO_PAGE_SIZE % 1
+        executed = client.execute(test_query)
+
+        pag_data = executed['data']['operations']['pageInfo']
+        self.assertEqual(len(pag_data), 8)
+        self.assertEqual(pag_data['page'], 1)
+        self.assertEqual(pag_data['pageSize'], settings.DEFAULT_GRAPHQL_PAGE_SIZE)
+        self.assertEqual(pag_data['totalResults'], 5)
+
+    def test_page_size_exceeded(self):
+        """Check if returns all the elements when `pageSize` is greater than number of results"""
+
+        client = graphene.test.Client(schema)
+        test_query = SH_OPERATIONS_QUERY_PAGINATION % (1, 30)
+        executed = client.execute(test_query)
+
+        pag_data = executed['data']['operations']['pageInfo']
+        self.assertEqual(len(pag_data), 8)
+        self.assertEqual(pag_data['page'], 1)
+        self.assertEqual(pag_data['pageSize'], 30)
+        self.assertEqual(pag_data['numPages'], 1)
+        self.assertFalse(pag_data['hasNext'])
+        self.assertFalse(pag_data['hasPrev'])
+        self.assertEqual(pag_data['startIndex'], 1)
+        self.assertEqual(pag_data['endIndex'], 5)
+        self.assertEqual(pag_data['totalResults'], 5)
+
+    def test_page_size_negative(self):
+        """Check if it fails when `pageSize` is a negative number"""
+
+        client = graphene.test.Client(schema)
+        test_query = SH_OPERATIONS_QUERY_PAGINATION % (1, -2)
+        executed = client.execute(test_query)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, PAGINATION_PAGE_SIZE_NEGATIVE_ERROR)
+
+    def test_page_size_zero(self):
+        """Check if it fails when `pageSize` is set to `0`"""
+
+        client = graphene.test.Client(schema)
+        test_query = SH_OPERATIONS_QUERY_PAGINATION % (1, 0)
+        executed = client.execute(test_query)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, PAGINATION_PAGE_SIZE_ZERO_ERROR)
 
 
 class TestMutations(SortingHatMutation):
@@ -230,7 +559,7 @@ class TestQueryOrganizations(django.test.TestCase):
         client = graphene.test.Client(schema)
         executed = client.execute(SH_ORGS_QUERY)
 
-        orgs = executed['data']['organizations']
+        orgs = executed['data']['organizations']['entities']
         self.assertEqual(len(orgs), 3)
 
         org1 = orgs[0]
@@ -251,8 +580,40 @@ class TestQueryOrganizations(django.test.TestCase):
         client = graphene.test.Client(schema)
         executed = client.execute(SH_ORGS_QUERY)
 
-        orgs = executed['data']['organizations']
+        orgs = executed['data']['organizations']['entities']
         self.assertListEqual(orgs, [])
+
+    def test_pagination(self):
+        """Check whether it returns the organizations searched when using pagination"""
+
+        org1 = Organization.objects.create(name='Example')
+        org2 = Organization.objects.create(name='Bitergia')
+        org3 = Organization.objects.create(name='LibreSoft')
+
+        client = graphene.test.Client(schema)
+        test_query = SH_ORGS_QUERY_PAGINATION % (1, 2)
+        executed = client.execute(test_query)
+
+        orgs = executed['data']['organizations']['entities']
+        self.assertEqual(len(orgs), 2)
+
+        # As organizations are sorted by name, the first two will be org2 and org1
+        org = orgs[0]
+        self.assertEqual(org['name'], org2.name)
+
+        org = orgs[1]
+        self.assertEqual(org['name'], org1.name)
+
+        pag_data = executed['data']['organizations']['pageInfo']
+        self.assertEqual(len(pag_data), 8)
+        self.assertEqual(pag_data['page'], 1)
+        self.assertEqual(pag_data['pageSize'], 2)
+        self.assertEqual(pag_data['numPages'], 2)
+        self.assertTrue(pag_data['hasNext'])
+        self.assertFalse(pag_data['hasPrev'])
+        self.assertEqual(pag_data['startIndex'], 1)
+        self.assertEqual(pag_data['endIndex'], 2)
+        self.assertEqual(pag_data['totalResults'], 3)
 
 
 class TestUniqueIdentities(django.test.TestCase):
@@ -323,7 +684,7 @@ class TestUniqueIdentities(django.test.TestCase):
         client = graphene.test.Client(schema)
         executed = client.execute(SH_UIDS_QUERY)
 
-        uidentities = executed['data']['uidentities']
+        uidentities = executed['data']['uidentities']['entities']
         self.assertEqual(len(uidentities), 2)
 
         # Test John Smith unique identity
@@ -391,7 +752,7 @@ class TestUniqueIdentities(django.test.TestCase):
         client = graphene.test.Client(schema)
         executed = client.execute(SH_UIDS_QUERY)
 
-        uids = executed['data']['uidentities']
+        uids = executed['data']['uidentities']['entities']
         self.assertListEqual(uids, [])
 
     def test_filter_registry(self):
@@ -459,7 +820,7 @@ class TestUniqueIdentities(django.test.TestCase):
         client = graphene.test.Client(schema)
         executed = client.execute(SH_UIDS_UUID_FILTER)
 
-        uidentities = executed['data']['uidentities']
+        uidentities = executed['data']['uidentities']['entities']
         self.assertEqual(len(uidentities), 1)
 
         # Test John Smith unique identity
@@ -526,8 +887,39 @@ class TestUniqueIdentities(django.test.TestCase):
         client = graphene.test.Client(schema)
         executed = client.execute(SH_UIDS_UUID_FILTER)
 
-        uids = executed['data']['uidentities']
+        uids = executed['data']['uidentities']['entities']
         self.assertListEqual(uids, [])
+
+    def test_pagination(self):
+        """Check whether it returns the unique identities searched when using pagination"""
+
+        uid1 = UniqueIdentity.objects.create(uuid='185c4b709e5446d250b4fde0e34b78a2b4fde0e3')
+        uid2 = UniqueIdentity.objects.create(uuid='a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        uid3 = UniqueIdentity.objects.create(uuid='c6d2504fde0e34b78a185c4b709e5442d045451c')
+
+        client = graphene.test.Client(schema)
+        test_query = SH_UIDS_UUID_PAGINATION % (1, 2)
+        executed = client.execute(test_query)
+
+        uids = executed['data']['uidentities']['entities']
+        self.assertEqual(len(uids), 2)
+
+        uid = uids[0]
+        self.assertEqual(uid['uuid'], uid1.uuid)
+
+        uid = uids[1]
+        self.assertEqual(uid['uuid'], uid2.uuid)
+
+        pag_data = executed['data']['uidentities']['pageInfo']
+        self.assertEqual(len(pag_data), 8)
+        self.assertEqual(pag_data['page'], 1)
+        self.assertEqual(pag_data['pageSize'], 2)
+        self.assertEqual(pag_data['numPages'], 2)
+        self.assertTrue(pag_data['hasNext'])
+        self.assertFalse(pag_data['hasPrev'])
+        self.assertEqual(pag_data['startIndex'], 1)
+        self.assertEqual(pag_data['endIndex'], 2)
+        self.assertEqual(pag_data['totalResults'], 3)
 
 
 class TestQueryTransactions(django.test.TestCase):
@@ -560,7 +952,7 @@ class TestQueryTransactions(django.test.TestCase):
         client = graphene.test.Client(schema)
         executed = client.execute(SH_TRANSACTIONS_QUERY)
 
-        transactions = executed['data']['transactions']
+        transactions = executed['data']['transactions']['entities']
         self.assertEqual(len(transactions), 5)
 
         trx = transactions[0]
@@ -606,7 +998,7 @@ class TestQueryTransactions(django.test.TestCase):
                                                      self.timestamp.isoformat())
         executed = client.execute(test_query)
 
-        transactions = executed['data']['transactions']
+        transactions = executed['data']['transactions']['entities']
         self.assertEqual(len(transactions), 1)
 
         trx = transactions[0]
@@ -624,8 +1016,45 @@ class TestQueryTransactions(django.test.TestCase):
                                                      self.timestamp.isoformat())
         executed = client.execute(test_query)
 
-        transactions = executed['data']['transactions']
+        transactions = executed['data']['transactions']['entities']
         self.assertListEqual(transactions, [])
+
+    def test_pagination(self):
+        """Check whether it returns the transactions searched when using pagination"""
+
+        timestamp = datetime_utcnow()
+
+        client = graphene.test.Client(schema)
+        test_query = SH_TRANSACTIONS_QUERY_PAGINATION % (1, 2)
+        executed = client.execute(test_query)
+
+        transactions = executed['data']['transactions']['entities']
+        self.assertEqual(len(transactions), 2)
+
+        trx = transactions[0]
+        self.assertEqual(trx['name'], 'add_organization')
+        self.assertLess(str_to_datetime(trx['createdAt']), timestamp)
+        self.assertIsInstance(trx['tuid'], str)
+        self.assertLess(str_to_datetime(trx['closedAt']), timestamp)
+        self.assertTrue(trx['isClosed'])
+
+        trx = transactions[1]
+        self.assertEqual(trx['name'], 'add_identity')
+        self.assertLess(str_to_datetime(trx['createdAt']), timestamp)
+        self.assertIsInstance(trx['tuid'], str)
+        self.assertLess(str_to_datetime(trx['closedAt']), timestamp)
+        self.assertTrue(trx['isClosed'])
+
+        pag_data = executed['data']['transactions']['pageInfo']
+        self.assertEqual(len(pag_data), 8)
+        self.assertEqual(pag_data['page'], 1)
+        self.assertEqual(pag_data['pageSize'], 2)
+        self.assertEqual(pag_data['numPages'], 3)
+        self.assertTrue(pag_data['hasNext'])
+        self.assertFalse(pag_data['hasPrev'])
+        self.assertEqual(pag_data['startIndex'], 1)
+        self.assertEqual(pag_data['endIndex'], 2)
+        self.assertEqual(pag_data['totalResults'], 5)
 
     def test_empty_registry(self):
         """Check whether it returns an empty list when the registry is empty"""
@@ -640,7 +1069,7 @@ class TestQueryTransactions(django.test.TestCase):
         client = graphene.test.Client(schema)
         executed = client.execute(SH_TRANSACTIONS_QUERY)
 
-        q_transactions = executed['data']['transactions']
+        q_transactions = executed['data']['transactions']['entities']
         self.assertListEqual(q_transactions, [])
 
 
@@ -673,7 +1102,7 @@ class TestQueryOperations(django.test.TestCase):
         client = graphene.test.Client(schema)
         executed = client.execute(SH_OPERATIONS_QUERY)
 
-        operations = executed['data']['operations']
+        operations = executed['data']['operations']['entities']
         self.assertEqual(len(operations), 2)
 
         op1 = operations[0]
@@ -708,7 +1137,7 @@ class TestQueryOperations(django.test.TestCase):
                                                    self.timestamp.isoformat())
         executed = client.execute(test_query)
 
-        operations = executed['data']['operations']
+        operations = executed['data']['operations']['entities']
         self.assertEqual(len(operations), 1)
 
         op1 = operations[0]
@@ -731,8 +1160,45 @@ class TestQueryOperations(django.test.TestCase):
                                                    self.timestamp.isoformat())
         executed = client.execute(test_query)
 
-        operations = executed['data']['operations']
+        operations = executed['data']['operations']['entities']
         self.assertListEqual(operations, [])
+
+    def test_pagination(self):
+        """Check whether it returns the operations searched when using pagination"""
+
+        # Add an additional operation by calling an API method
+        api.add_domain(organization='Example', domain_name='example.com')
+
+        client = graphene.test.Client(schema)
+        test_query = SH_OPERATIONS_QUERY_PAGINATION % (1, 2)
+        executed = client.execute(test_query)
+
+        operations = executed['data']['operations']['entities']
+        self.assertEqual(len(operations), 2)
+
+        op1 = operations[0]
+        self.assertEqual(op1['opType'], Operation.OpType.ADD.value)
+        self.assertEqual(op1['entityType'], 'organization')
+        self.assertEqual(op1['target'], 'Example')
+        self.assertLess(str_to_datetime(op1['timestamp']), self.timestamp)
+        self.assertEqual(op1['args'], {'name': 'Example'})
+
+        op2 = operations[1]
+        self.assertEqual(op2['opType'], Operation.OpType.UPDATE.value)
+        self.assertEqual(op2['entityType'], 'test_entity')
+        self.assertGreater(str_to_datetime(op2['timestamp']), self.timestamp)
+        self.assertEqual(op2['args'], {'test_arg': 'test_value'})
+
+        pag_data = executed['data']['operations']['pageInfo']
+        self.assertEqual(len(pag_data), 8)
+        self.assertEqual(pag_data['page'], 1)
+        self.assertEqual(pag_data['pageSize'], 2)
+        self.assertEqual(pag_data['numPages'], 2)
+        self.assertTrue(pag_data['hasNext'])
+        self.assertFalse(pag_data['hasPrev'])
+        self.assertEqual(pag_data['startIndex'], 1)
+        self.assertEqual(pag_data['endIndex'], 2)
+        self.assertEqual(pag_data['totalResults'], 3)
 
     def test_empty_registry(self):
         """Check whether it returns an empty list when the registry is empty"""
@@ -747,7 +1213,7 @@ class TestQueryOperations(django.test.TestCase):
         client = graphene.test.Client(schema)
         executed = client.execute(SH_OPERATIONS_QUERY)
 
-        q_operations = executed['data']['operations']
+        q_operations = executed['data']['operations']['entities']
         self.assertListEqual(q_operations, [])
 
 
