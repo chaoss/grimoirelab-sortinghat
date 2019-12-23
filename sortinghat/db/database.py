@@ -106,8 +106,11 @@ class Database(object):
 
     @classmethod
     def build_engine(cls, user, password, database, host='localhost', port='3306'):
-        return create_database_engine(user, password, database,
-                                      host, port)
+        try:
+            return create_database_engine(user, password, database,
+                                          host, port)
+        except OperationalError as e:
+            raise DatabaseError(error=e.orig.args[1], code=e.orig.args[0])
 
     @classmethod
     def handle_database_error(cls, session, exception):
@@ -173,9 +176,36 @@ def create_database_engine(user, password, database, host, port):
     driver = 'mysql+pymysql'
     url = URL(driver, user, password, host, port, database,
               query={'charset': 'utf8mb4'})
-    return create_engine(url, poolclass=QueuePool,
-                         pool_size=25, pool_pre_ping=True,
-                         echo=False)
+
+    # Generic parameters for the engine.
+    #
+    # SSL param needs a non-empty dict to be activated in pymsql.
+    # That is why a fake parameter 'activate' is given but not
+    # used by the library.
+    #
+    engine_params = {
+        'poolclass': QueuePool,
+        'pool_size': 25,
+        'pool_pre_ping': True,
+        'echo': False,
+        'connect_args': {
+            'ssl': {
+                'activate': True
+            }
+        }
+    }
+
+    engine = create_engine(url, **engine_params)
+
+    try:
+        engine.connect().close()
+    except InternalError:
+        # Try non-SSL connection
+        engine_params['connect_args'].pop('ssl')
+        engine = create_engine(url, **engine_params)
+        engine.connect().close()
+
+    return engine
 
 
 def create_database_session(engine):

@@ -30,7 +30,7 @@ if '..' not in sys.path:
 
 from sqlalchemy import create_engine
 from sqlalchemy.engine.url import URL
-from sqlalchemy.exc import IntegrityError, StatementError
+from sqlalchemy.exc import IntegrityError, InternalError, StatementError
 from sqlalchemy.orm import sessionmaker
 
 from sortinghat.db.model import ModelBase, Organization, Domain, Country,\
@@ -49,7 +49,15 @@ class MockDatabase(object):
         driver = 'mysql+pymysql'
 
         self.url = URL(driver, user, password, host, port, database)
-        self._engine = create_engine(self.url, echo=True)
+
+        # Hack to establish SSL connection (see #231)
+        try:
+            self._engine = create_engine(self.url, echo=True,
+                                         connect_args={'ssl': {'activate': True}})
+            self._engine.connect().close()
+        except InternalError:
+            self._engine = create_engine(self.url, echo=True)
+
         self._Session = sessionmaker(bind=self._engine)
 
         # Create the schema on the database.
