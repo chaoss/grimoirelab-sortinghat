@@ -108,7 +108,7 @@ setup(name="sortinghat",
         'sqlalchemy>=1.2',
         'jinja2',
         'python-dateutil>=2.6.0',
-        'pandas==0.22.0',
+        'pandas>=0.22.0,<=0.25.3',
         'pyyaml>=3.12',
         'requests>=2.9',
         'urllib3>=1.22'
