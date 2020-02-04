@@ -20,8 +20,10 @@
 #     Miguel Ángel Fernández <mafesan@bitergia.com>
 #
 
-import graphene
 import json
+
+import graphene
+import graphql_jwt
 
 from django.conf import settings
 from django.core.paginator import Paginator
@@ -33,6 +35,7 @@ from graphene.types.generic import GenericScalar
 from graphene_django.converter import convert_django_field
 from graphene_django.types import DjangoObjectType
 
+from .decorators import check_auth
 from .api import (add_identity,
                   delete_identity,
                   update_profile,
@@ -210,6 +213,7 @@ class AddOrganization(graphene.Mutation):
 
     organization = graphene.Field(lambda: OrganizationType)
 
+    @check_auth
     def mutate(self, info, name):
         org = add_organization(name)
 
@@ -224,6 +228,7 @@ class DeleteOrganization(graphene.Mutation):
 
     organization = graphene.Field(lambda: OrganizationType)
 
+    @check_auth
     def mutate(self, info, name):
         org = delete_organization(name)
 
@@ -240,6 +245,7 @@ class AddDomain(graphene.Mutation):
 
     domain = graphene.Field(lambda: DomainType)
 
+    @check_auth
     def mutate(self, info, organization, domain, is_top_domain=False):
         dom = add_domain(organization, domain, is_top_domain=is_top_domain)
 
@@ -254,6 +260,7 @@ class DeleteDomain(graphene.Mutation):
 
     domain = graphene.Field(lambda: DomainType)
 
+    @check_auth
     def mutate(self, info, domain):
         dom = delete_domain(domain)
 
@@ -273,6 +280,7 @@ class AddIdentity(graphene.Mutation):
     uuid = graphene.Field(lambda: graphene.String)
     uidentity = graphene.Field(lambda: UniqueIdentityType)
 
+    @check_auth
     def mutate(self, info, source,
                name=None, email=None, username=None,
                uuid=None):
@@ -298,6 +306,7 @@ class DeleteIdentity(graphene.Mutation):
     uuid = graphene.Field(lambda: graphene.String)
     uidentity = graphene.Field(lambda: UniqueIdentityType)
 
+    @check_auth
     def mutate(self, info, uuid):
         uidentity = delete_identity(uuid)
 
@@ -315,6 +324,7 @@ class UpdateProfile(graphene.Mutation):
     uuid = graphene.Field(lambda: graphene.String)
     uidentity = graphene.Field(lambda: UniqueIdentityType)
 
+    @check_auth
     def mutate(self, info, uuid, data):
         uidentity = update_profile(uuid, **data)
 
@@ -332,6 +342,7 @@ class MoveIdentity(graphene.Mutation):
     uuid = graphene.Field(lambda: graphene.String)
     uidentity = graphene.Field(lambda: UniqueIdentityType)
 
+    @check_auth
     def mutate(self, info, from_id, to_uuid):
         uidentity = move_identity(from_id, to_uuid)
 
@@ -349,6 +360,7 @@ class MergeIdentities(graphene.Mutation):
     uuid = graphene.Field(lambda: graphene.String)
     uidentity = graphene.Field(lambda: UniqueIdentityType)
 
+    @check_auth
     def mutate(self, info, from_uuid, to_uuid):
         uidentity = merge_identities(from_uuid, to_uuid)
 
@@ -368,6 +380,7 @@ class Enroll(graphene.Mutation):
     uuid = graphene.Field(lambda: graphene.String)
     uidentity = graphene.Field(lambda: UniqueIdentityType)
 
+    @check_auth
     def mutate(self, info, uuid, organization, from_date=None, to_date=None):
         uidentity = enroll(uuid, organization,
                            from_date=from_date, to_date=to_date)
@@ -387,6 +400,7 @@ class Withdraw(graphene.Mutation):
     uuid = graphene.Field(lambda: graphene.String)
     uidentity = graphene.Field(lambda: UniqueIdentityType)
 
+    @check_auth
     def mutate(self, info, uuid, organization, from_date=None, to_date=None):
         uidentity = withdraw(uuid, organization,
                              from_date=from_date, to_date=to_date)
@@ -423,6 +437,7 @@ class SortingHatQuery:
         filters=OperationFilterType(required=False),
     )
 
+    @check_auth
     def resolve_organizations(self, info, filters=None,
                               page=1,
                               page_size=settings.DEFAULT_GRAPHQL_PAGE_SIZE,
@@ -436,6 +451,7 @@ class SortingHatQuery:
                                                                  page,
                                                                  page_size=page_size)
 
+    @check_auth
     def resolve_uidentities(self, info, filters=None,
                             page=1,
                             page_size=settings.DEFAULT_GRAPHQL_PAGE_SIZE,
@@ -449,6 +465,7 @@ class SortingHatQuery:
                                                              page,
                                                              page_size=page_size)
 
+    @check_auth
     def resolve_transactions(self, info, filters=None,
                              page=1,
                              page_size=settings.DEFAULT_GRAPHQL_PAGE_SIZE,
@@ -470,6 +487,7 @@ class SortingHatQuery:
                                                                 page,
                                                                 page_size=page_size)
 
+    @check_auth
     def resolve_operations(self, info, filters=None,
                            page=1,
                            page_size=settings.DEFAULT_GRAPHQL_PAGE_SIZE,
@@ -506,3 +524,8 @@ class SortingHatMutation(graphene.ObjectType):
     merge_identities = MergeIdentities.Field()
     enroll = Enroll.Field()
     withdraw = Withdraw.Field()
+
+    # JWT authentication
+    token_auth = graphql_jwt.ObtainJSONWebToken.Field()
+    verify_token = graphql_jwt.Verify.Field()
+    refresh_token = graphql_jwt.Refresh.Field()
