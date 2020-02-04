@@ -20,19 +20,13 @@
 #     Miguel Ángel Fernández <mafesan@bitergia.com>
 #
 
-import logging
-import graphene
-
-import sortinghat.core.schema
+from django.conf import settings
+from graphql_jwt.decorators import user_passes_test
 
 
-class Query(sortinghat.core.schema.SortingHatQuery, graphene.ObjectType):
-    # This class will inherit from multiple Queries
-    # as we begin to add more apps to our project
-    pass
-
-
-logging.getLogger("graphql.execution.utils").setLevel(logging.CRITICAL)
-
-schema = graphene.Schema(query=Query,
-                         mutation=sortinghat.core.schema.SortingHatMutation)
+# This custom decorator takes the `user` object from the request's
+# context and checks the value of the `is_authenticated` variable
+# and the `AUTHENTICATION_REQUIRED` variable from the config settings.
+check_auth = user_passes_test(
+    lambda u: u.is_authenticated or not settings.AUTHENTICATION_REQUIRED
+)

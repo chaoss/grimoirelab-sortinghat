@@ -33,6 +33,9 @@ import graphene.test
 from dateutil.tz import UTC
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AnonymousUser
+from django.test import RequestFactory
 
 from grimoirelab_toolkit.datetime import datetime_utcnow, str_to_datetime
 
@@ -75,6 +78,7 @@ PAGINATION_NO_RESULTS_ERROR = "That page contains no results"
 PAGINATION_PAGE_LESS_THAN_ONE_ERROR = "That page number is less than 1"
 PAGINATION_PAGE_SIZE_NEGATIVE_ERROR = "Negative indexing is not supported."
 PAGINATION_PAGE_SIZE_ZERO_ERROR = "division by zero"
+AUTHENTICATION_ERROR = "You do not have permission to perform this action"
 
 
 # Test queries
@@ -388,6 +392,9 @@ SH_OPERATIONS_QUERY_PAGINATION_NO_PAGE_SIZE = """{
   }
 }"""
 
+# API endpoint to obtain a context for executing queries
+GRAPHQL_ENDPOINT = '/graphql/'
+
 
 class TestQuery(SortingHatQuery, graphene.ObjectType):
     pass
@@ -396,7 +403,11 @@ class TestQuery(SortingHatQuery, graphene.ObjectType):
 class TestQueryPagination(django.test.TestCase):
 
     def setUp(self):
-        """Load initial dataset"""
+        """Load initial dataset and set queries context"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
 
         api.add_organization('Example')
 
@@ -420,7 +431,8 @@ class TestQueryPagination(django.test.TestCase):
 
         client = graphene.test.Client(schema)
         test_query = SH_OPERATIONS_QUERY_PAGINATION % (2, 2)
-        executed = client.execute(test_query)
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
 
         entities = executed['data']['operations']['entities']
         self.assertEqual(len(entities), 2)
@@ -451,7 +463,8 @@ class TestQueryPagination(django.test.TestCase):
 
         client = graphene.test.Client(schema)
         test_query = SH_OPERATIONS_QUERY_PAGINATION_NO_PAGE % 2
-        executed = client.execute(test_query)
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
 
         entities = executed['data']['operations']['entities']
         self.assertEqual(len(entities), 2)
@@ -472,7 +485,8 @@ class TestQueryPagination(django.test.TestCase):
 
         client = graphene.test.Client(schema)
         test_query = SH_OPERATIONS_QUERY_PAGINATION % (30, 2)
-        executed = client.execute(test_query)
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
 
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, PAGINATION_NO_RESULTS_ERROR)
@@ -482,7 +496,8 @@ class TestQueryPagination(django.test.TestCase):
 
         client = graphene.test.Client(schema)
         test_query = SH_OPERATIONS_QUERY_PAGINATION % (-1, 2)
-        executed = client.execute(test_query)
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
 
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, PAGINATION_PAGE_LESS_THAN_ONE_ERROR)
@@ -492,7 +507,8 @@ class TestQueryPagination(django.test.TestCase):
 
         client = graphene.test.Client(schema)
         test_query = SH_OPERATIONS_QUERY_PAGINATION % (0, 2)
-        executed = client.execute(test_query)
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
 
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, PAGINATION_PAGE_LESS_THAN_ONE_ERROR)
@@ -502,7 +518,8 @@ class TestQueryPagination(django.test.TestCase):
 
         client = graphene.test.Client(schema)
         test_query = SH_OPERATIONS_QUERY_PAGINATION_NO_PAGE_SIZE % 1
-        executed = client.execute(test_query)
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
 
         pag_data = executed['data']['operations']['pageInfo']
         self.assertEqual(len(pag_data), 8)
@@ -515,7 +532,8 @@ class TestQueryPagination(django.test.TestCase):
 
         client = graphene.test.Client(schema)
         test_query = SH_OPERATIONS_QUERY_PAGINATION % (1, 30)
-        executed = client.execute(test_query)
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
 
         pag_data = executed['data']['operations']['pageInfo']
         self.assertEqual(len(pag_data), 8)
@@ -533,7 +551,8 @@ class TestQueryPagination(django.test.TestCase):
 
         client = graphene.test.Client(schema)
         test_query = SH_OPERATIONS_QUERY_PAGINATION % (1, -2)
-        executed = client.execute(test_query)
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
 
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, PAGINATION_PAGE_SIZE_NEGATIVE_ERROR)
@@ -543,10 +562,26 @@ class TestQueryPagination(django.test.TestCase):
 
         client = graphene.test.Client(schema)
         test_query = SH_OPERATIONS_QUERY_PAGINATION % (1, 0)
-        executed = client.execute(test_query)
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
 
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, PAGINATION_PAGE_SIZE_ZERO_ERROR)
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the query"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        test_query = SH_OPERATIONS_QUERY_PAGINATION % (2, 2)
+        executed = client.execute(test_query,
+                                  context_value=context_value)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
 
 
 class TestMutations(SortingHatMutation):
@@ -560,6 +595,13 @@ schema = graphene.Schema(query=TestQuery,
 class TestQueryOrganizations(django.test.TestCase):
     """Unit tests for organization queries"""
 
+    def setUp(self):
+        """Set queries context"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
+
     def test_organizations(self):
         """Check if it returns the registry of organizations"""
 
@@ -572,7 +614,8 @@ class TestQueryOrganizations(django.test.TestCase):
 
         # Tests
         client = graphene.test.Client(schema)
-        executed = client.execute(SH_ORGS_QUERY)
+        executed = client.execute(SH_ORGS_QUERY,
+                                  context_value=self.context_value)
 
         orgs = executed['data']['organizations']['entities']
         self.assertEqual(len(orgs), 3)
@@ -593,7 +636,8 @@ class TestQueryOrganizations(django.test.TestCase):
         """Check whether it returns an empty list when the registry is empty"""
 
         client = graphene.test.Client(schema)
-        executed = client.execute(SH_ORGS_QUERY)
+        executed = client.execute(SH_ORGS_QUERY,
+                                  context_value=self.context_value)
 
         orgs = executed['data']['organizations']['entities']
         self.assertListEqual(orgs, [])
@@ -607,7 +651,8 @@ class TestQueryOrganizations(django.test.TestCase):
 
         client = graphene.test.Client(schema)
         test_query = SH_ORGS_QUERY_FILTER % 'Bitergia'
-        executed = client.execute(test_query)
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
 
         orgs = executed['data']['organizations']['entities']
         self.assertEqual(len(orgs), 1)
@@ -625,7 +670,8 @@ class TestQueryOrganizations(django.test.TestCase):
 
         client = graphene.test.Client(schema)
         test_query = SH_ORGS_QUERY_FILTER % 'Test'
-        executed = client.execute(test_query)
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
 
         orgs = executed['data']['organizations']['entities']
         self.assertListEqual(orgs, [])
@@ -639,7 +685,8 @@ class TestQueryOrganizations(django.test.TestCase):
 
         client = graphene.test.Client(schema)
         test_query = SH_ORGS_QUERY_PAGINATION % (1, 2)
-        executed = client.execute(test_query)
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
 
         orgs = executed['data']['organizations']['entities']
         self.assertEqual(len(orgs), 2)
@@ -662,9 +709,30 @@ class TestQueryOrganizations(django.test.TestCase):
         self.assertEqual(pag_data['endIndex'], 2)
         self.assertEqual(pag_data['totalResults'], 3)
 
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the query"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        executed = client.execute(SH_ORGS_QUERY,
+                                  context_value=context_value)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
+
 
 class TestUniqueIdentities(django.test.TestCase):
     """Unit tests for unique identities queries"""
+
+    def setUp(self):
+        """Set queries context"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
 
     def test_unique_identities(self):
         """Check if it returns the registry of unique identities"""
@@ -729,7 +797,8 @@ class TestUniqueIdentities(django.test.TestCase):
 
         # Tests
         client = graphene.test.Client(schema)
-        executed = client.execute(SH_UIDS_QUERY)
+        executed = client.execute(SH_UIDS_QUERY,
+                                  context_value=self.context_value)
 
         uidentities = executed['data']['uidentities']['entities']
         self.assertEqual(len(uidentities), 2)
@@ -797,7 +866,8 @@ class TestUniqueIdentities(django.test.TestCase):
         """Check whether it returns an empty list when the registry is empty"""
 
         client = graphene.test.Client(schema)
-        executed = client.execute(SH_UIDS_QUERY)
+        executed = client.execute(SH_UIDS_QUERY,
+                                  context_value=self.context_value)
 
         uids = executed['data']['uidentities']['entities']
         self.assertListEqual(uids, [])
@@ -865,7 +935,8 @@ class TestUniqueIdentities(django.test.TestCase):
 
         # Tests
         client = graphene.test.Client(schema)
-        executed = client.execute(SH_UIDS_UUID_FILTER)
+        executed = client.execute(SH_UIDS_UUID_FILTER,
+                                  context_value=self.context_value)
 
         uidentities = executed['data']['uidentities']['entities']
         self.assertEqual(len(uidentities), 1)
@@ -932,7 +1003,8 @@ class TestUniqueIdentities(django.test.TestCase):
                                 uidentity=uid)
 
         client = graphene.test.Client(schema)
-        executed = client.execute(SH_UIDS_UUID_FILTER)
+        executed = client.execute(SH_UIDS_UUID_FILTER,
+                                  context_value=self.context_value)
 
         uids = executed['data']['uidentities']['entities']
         self.assertListEqual(uids, [])
@@ -946,7 +1018,8 @@ class TestUniqueIdentities(django.test.TestCase):
 
         client = graphene.test.Client(schema)
         test_query = SH_UIDS_UUID_PAGINATION % (1, 2)
-        executed = client.execute(test_query)
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
 
         uids = executed['data']['uidentities']['entities']
         self.assertEqual(len(uids), 2)
@@ -968,12 +1041,30 @@ class TestUniqueIdentities(django.test.TestCase):
         self.assertEqual(pag_data['endIndex'], 2)
         self.assertEqual(pag_data['totalResults'], 3)
 
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the query"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        executed = client.execute(SH_UIDS_QUERY,
+                                  context_value=context_value)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
+
 
 class TestQueryTransactions(django.test.TestCase):
     """Unit tests for transaction queries"""
 
     def setUp(self):
-        """Load initial dataset"""
+        """Load initial dataset and set queries context"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
 
         api.add_organization('Example')
 
@@ -997,7 +1088,8 @@ class TestQueryTransactions(django.test.TestCase):
 
         timestamp = datetime_utcnow()
         client = graphene.test.Client(schema)
-        executed = client.execute(SH_TRANSACTIONS_QUERY)
+        executed = client.execute(SH_TRANSACTIONS_QUERY,
+                                  context_value=self.context_value)
 
         transactions = executed['data']['transactions']['entities']
         self.assertEqual(len(transactions), 5)
@@ -1043,7 +1135,8 @@ class TestQueryTransactions(django.test.TestCase):
         client = graphene.test.Client(schema)
         test_query = SH_TRANSACTIONS_QUERY_FILTER % ('012345abcdef', 'test_trx',
                                                      self.timestamp.isoformat())
-        executed = client.execute(test_query)
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
 
         transactions = executed['data']['transactions']['entities']
         self.assertEqual(len(transactions), 1)
@@ -1061,7 +1154,8 @@ class TestQueryTransactions(django.test.TestCase):
         client = graphene.test.Client(schema)
         test_query = SH_TRANSACTIONS_QUERY_FILTER % ('012345abcdefg', 'test_trx',
                                                      self.timestamp.isoformat())
-        executed = client.execute(test_query)
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
 
         transactions = executed['data']['transactions']['entities']
         self.assertListEqual(transactions, [])
@@ -1073,7 +1167,8 @@ class TestQueryTransactions(django.test.TestCase):
 
         client = graphene.test.Client(schema)
         test_query = SH_TRANSACTIONS_QUERY_PAGINATION % (1, 2)
-        executed = client.execute(test_query)
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
 
         transactions = executed['data']['transactions']['entities']
         self.assertEqual(len(transactions), 2)
@@ -1114,17 +1209,36 @@ class TestQueryTransactions(django.test.TestCase):
 
         # Test query
         client = graphene.test.Client(schema)
-        executed = client.execute(SH_TRANSACTIONS_QUERY)
+        executed = client.execute(SH_TRANSACTIONS_QUERY,
+                                  context_value=self.context_value)
 
         q_transactions = executed['data']['transactions']['entities']
         self.assertListEqual(q_transactions, [])
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the query"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        executed = client.execute(SH_TRANSACTIONS_QUERY,
+                                  context_value=context_value)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
 
 
 class TestQueryOperations(django.test.TestCase):
     """Unit tests for operation queries"""
 
     def setUp(self):
-        """Load initial dataset"""
+        """Load initial dataset and set queries context"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
 
         api.add_organization('Example')
 
@@ -1147,7 +1261,8 @@ class TestQueryOperations(django.test.TestCase):
         """Check if it returns the registry of operations"""
 
         client = graphene.test.Client(schema)
-        executed = client.execute(SH_OPERATIONS_QUERY)
+        executed = client.execute(SH_OPERATIONS_QUERY,
+                                  context_value=self.context_value)
 
         operations = executed['data']['operations']['entities']
         self.assertEqual(len(operations), 2)
@@ -1182,7 +1297,8 @@ class TestQueryOperations(django.test.TestCase):
         client = graphene.test.Client(schema)
         test_query = SH_OPERATIONS_QUERY_FILTER % ('UPDATE', 'test_entity',
                                                    self.timestamp.isoformat())
-        executed = client.execute(test_query)
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
 
         operations = executed['data']['operations']['entities']
         self.assertEqual(len(operations), 1)
@@ -1205,7 +1321,8 @@ class TestQueryOperations(django.test.TestCase):
         client = graphene.test.Client(schema)
         test_query = SH_OPERATIONS_QUERY_FILTER % ('DELETE', 'test_entity',
                                                    self.timestamp.isoformat())
-        executed = client.execute(test_query)
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
 
         operations = executed['data']['operations']['entities']
         self.assertListEqual(operations, [])
@@ -1218,7 +1335,8 @@ class TestQueryOperations(django.test.TestCase):
 
         client = graphene.test.Client(schema)
         test_query = SH_OPERATIONS_QUERY_PAGINATION % (1, 2)
-        executed = client.execute(test_query)
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
 
         operations = executed['data']['operations']['entities']
         self.assertEqual(len(operations), 2)
@@ -1258,10 +1376,25 @@ class TestQueryOperations(django.test.TestCase):
 
         # Test query
         client = graphene.test.Client(schema)
-        executed = client.execute(SH_OPERATIONS_QUERY)
+        executed = client.execute(SH_OPERATIONS_QUERY,
+                                  context_value=self.context_value)
 
         q_operations = executed['data']['operations']['entities']
         self.assertListEqual(q_operations, [])
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the query"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        executed = client.execute(SH_OPERATIONS_QUERY,
+                                  context_value=context_value)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
 
 
 class TestAddOrganizationMutation(django.test.TestCase):
@@ -1295,11 +1428,19 @@ class TestAddOrganizationMutation(django.test.TestCase):
       }
     """
 
+    def setUp(self):
+        """Set queries context"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
+
     def test_add_organization(self):
         """Check if a new organization is added"""
 
         client = graphene.test.Client(schema)
-        executed = client.execute(self.SH_ADD_ORG)
+        executed = client.execute(self.SH_ADD_ORG,
+                                  context_value=self.context_value)
 
         # Check result
         org = executed['data']['addOrganization']['organization']
@@ -1314,7 +1455,8 @@ class TestAddOrganizationMutation(django.test.TestCase):
         """Check whether organizations with empty names cannot be added"""
 
         client = graphene.test.Client(schema)
-        executed = client.execute(self.SH_ADD_ORG_NAME_EMPTY)
+        executed = client.execute(self.SH_ADD_ORG_NAME_EMPTY,
+                                  context_value=self.context_value)
 
         # Check error
         msg = executed['errors'][0]['message']
@@ -1328,7 +1470,8 @@ class TestAddOrganizationMutation(django.test.TestCase):
         """Check whether organizations with the same name cannot be inserted"""
 
         client = graphene.test.Client(schema)
-        executed = client.execute(self.SH_ADD_ORG)
+        executed = client.execute(self.SH_ADD_ORG,
+                                  context_value=self.context_value)
 
         # Check database
         org = Organization.objects.get(name='Example')
@@ -1336,10 +1479,25 @@ class TestAddOrganizationMutation(django.test.TestCase):
 
         # Try to insert it twice
         client = graphene.test.Client(schema)
-        executed = client.execute(self.SH_ADD_ORG)
+        executed = client.execute(self.SH_ADD_ORG,
+                                  context_value=self.context_value)
 
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, DUPLICATED_ORG_ERROR)
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the query"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        executed = client.execute(self.SH_ADD_ORG,
+                                  context_value=context_value)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
 
 
 class TestDeleteOrganizationMutation(django.test.TestCase):
@@ -1354,6 +1512,13 @@ class TestDeleteOrganizationMutation(django.test.TestCase):
         }
       }
     """
+
+    def setUp(self):
+        """Set queries context"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
 
     def test_delete_organization(self):
         """Check whether it deletes an organization"""
@@ -1378,7 +1543,8 @@ class TestDeleteOrganizationMutation(django.test.TestCase):
 
         # Delete organization
         client = graphene.test.Client(schema)
-        executed = client.execute(self.SH_DELETE_ORG)
+        executed = client.execute(self.SH_DELETE_ORG,
+                                  context_value=self.context_value)
 
         # Check result
         org = executed['data']['deleteOrganization']['organization']
@@ -1401,7 +1567,8 @@ class TestDeleteOrganizationMutation(django.test.TestCase):
         """Check if it returns an error when an organization does not exist"""
 
         client = graphene.test.Client(schema)
-        executed = client.execute(self.SH_DELETE_ORG)
+        executed = client.execute(self.SH_DELETE_ORG,
+                                  context_value=self.context_value)
 
         # Check error
         msg = executed['errors'][0]['message']
@@ -1415,6 +1582,20 @@ class TestDeleteOrganizationMutation(django.test.TestCase):
 
         orgs = Organization.objects.all()
         self.assertEqual(len(orgs), 1)
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the query"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        executed = client.execute(self.SH_DELETE_ORG,
+                                  context_value=context_value)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
 
 
 class TestAddDomainMutation(django.test.TestCase):
@@ -1454,13 +1635,21 @@ class TestAddDomainMutation(django.test.TestCase):
       }
     """
 
+    def setUp(self):
+        """Set queries context"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
+
     def test_add_domain(self):
         """Check if a new domain is added"""
 
         Organization.objects.create(name='Example')
 
         client = graphene.test.Client(schema)
-        executed = client.execute(self.SH_ADD_DOMAIN)
+        executed = client.execute(self.SH_ADD_DOMAIN,
+                                  context_value=self.context_value)
 
         # Check result
         dom = executed['data']['addDomain']['domain']
@@ -1483,7 +1672,8 @@ class TestAddDomainMutation(django.test.TestCase):
         Organization.objects.create(name='Example')
 
         client = graphene.test.Client(schema)
-        executed = client.execute(self.SH_ADD_DOMAIN_EMPTY)
+        executed = client.execute(self.SH_ADD_DOMAIN_EMPTY,
+                                  context_value=self.context_value)
 
         # Check error
         msg = executed['errors'][0]['message']
@@ -1499,7 +1689,7 @@ class TestAddDomainMutation(django.test.TestCase):
         Organization.objects.create(name='Example')
 
         client = graphene.test.Client(schema)
-        client.execute(self.SH_ADD_DOMAIN)
+        client.execute(self.SH_ADD_DOMAIN, context_value=self.context_value)
 
         # Check database
         dom = Domain.objects.get(domain='example.net')
@@ -1507,7 +1697,8 @@ class TestAddDomainMutation(django.test.TestCase):
 
         # Try to insert it twice
         client = graphene.test.Client(schema)
-        executed = client.execute(self.SH_ADD_DOMAIN)
+        executed = client.execute(self.SH_ADD_DOMAIN,
+                                  context_value=self.context_value)
 
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, DUPLICATED_DOM_ERROR)
@@ -1516,11 +1707,26 @@ class TestAddDomainMutation(django.test.TestCase):
         """Check if it returns an error when an organization does not exist"""
 
         client = graphene.test.Client(schema)
-        executed = client.execute(self.SH_ADD_DOMAIN)
+        executed = client.execute(self.SH_ADD_DOMAIN,
+                                  context_value=self.context_value)
 
         # Check error
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, ORGANIZATION_EXAMPLE_DOES_NOT_EXIST_ERROR)
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the query"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        executed = client.execute(self.SH_ADD_DOMAIN,
+                                  context_value=context_value)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
 
 
 class TestDeleteDomainMutation(django.test.TestCase):
@@ -1537,6 +1743,13 @@ class TestDeleteDomainMutation(django.test.TestCase):
       }
     """
 
+    def setUp(self):
+        """Set queries context"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
+
     def test_delete_domain(self):
         """Check whether it deletes a domain"""
 
@@ -1546,7 +1759,8 @@ class TestDeleteDomainMutation(django.test.TestCase):
 
         # Delete organization
         client = graphene.test.Client(schema)
-        executed = client.execute(self.SH_DELETE_DOMAIN)
+        executed = client.execute(self.SH_DELETE_DOMAIN,
+                                  context_value=self.context_value)
 
         # Check result
         dom = executed['data']['deleteDomain']['domain']
@@ -1563,7 +1777,8 @@ class TestDeleteDomainMutation(django.test.TestCase):
         """Check if it returns an error when a domain does not exist"""
 
         client = graphene.test.Client(schema)
-        executed = client.execute(self.SH_DELETE_DOMAIN)
+        executed = client.execute(self.SH_DELETE_DOMAIN,
+                                  context_value=self.context_value)
 
         # Check error
         msg = executed['errors'][0]['message']
@@ -1578,6 +1793,20 @@ class TestDeleteDomainMutation(django.test.TestCase):
 
         domains = Domain.objects.all()
         self.assertEqual(len(domains), 1)
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the query"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        executed = client.execute(self.SH_DELETE_DOMAIN,
+                                  context_value=context_value)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
 
 
 class TestAddIdentityMutation(django.test.TestCase):
@@ -1611,6 +1840,13 @@ class TestAddIdentityMutation(django.test.TestCase):
         }
     """
 
+    def setUp(self):
+        """Set queries context"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
+
     def test_add_new_identities(self):
         """Check if everything goes OK when adding new identities"""
 
@@ -1622,7 +1858,9 @@ class TestAddIdentityMutation(django.test.TestCase):
             'email': 'jroe@example.com',
             'username': 'jrae',
         }
-        executed = client.execute(self.SH_ADD_IDENTITY, variables=params)
+        executed = client.execute(self.SH_ADD_IDENTITY,
+                                  context_value=self.context_value,
+                                  variables=params)
 
         # Check results
         uidentity = executed['data']['addIdentity']['uidentity']
@@ -1671,7 +1909,9 @@ class TestAddIdentityMutation(django.test.TestCase):
             'username': 'jrae',
             'uuid': 'eda9f62ad321b1fbe5f283cc05e2484516203117'
         }
-        executed = client.execute(self.SH_ADD_IDENTITY, variables=params)
+        executed = client.execute(self.SH_ADD_IDENTITY,
+                                  context_value=self.context_value,
+                                  variables=params)
 
         # Check results
         uidentity = executed['data']['addIdentity']['uidentity']
@@ -1704,7 +1944,9 @@ class TestAddIdentityMutation(django.test.TestCase):
             'email': 'jroe@example.com',
             'uuid': 'FFFFFFFFFFFFFFF'
         }
-        executed = client.execute(self.SH_ADD_IDENTITY, variables=params)
+        executed = client.execute(self.SH_ADD_IDENTITY,
+                                  context_value=self.context_value,
+                                  variables=params)
 
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, UID_DOES_NOT_EXIST_ERROR)
@@ -1726,7 +1968,9 @@ class TestAddIdentityMutation(django.test.TestCase):
             'email': 'jroe@example.com',
             'username': 'jrae',
         }
-        executed = client.execute(self.SH_ADD_IDENTITY, variables=params)
+        executed = client.execute(self.SH_ADD_IDENTITY,
+                                  context_value=self.context_value,
+                                  variables=params)
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, DUPLICATED_UNIQUE_IDENTITY)
 
@@ -1737,7 +1981,9 @@ class TestAddIdentityMutation(django.test.TestCase):
             'email': 'jroe@example.com',
             'username': 'jrae',
         }
-        executed = client.execute(self.SH_ADD_IDENTITY, variables=params)
+        executed = client.execute(self.SH_ADD_IDENTITY,
+                                  context_value=self.context_value,
+                                  variables=params)
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, DUPLICATED_UNIQUE_IDENTITY)
 
@@ -1748,7 +1994,9 @@ class TestAddIdentityMutation(django.test.TestCase):
             'email': 'jroe@example.com',
             'username': 'jrae',
         }
-        executed = client.execute(self.SH_ADD_IDENTITY, variables=params)
+        executed = client.execute(self.SH_ADD_IDENTITY,
+                                  context_value=self.context_value,
+                                  variables=params)
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, DUPLICATED_UNIQUE_IDENTITY)
 
@@ -1758,7 +2006,9 @@ class TestAddIdentityMutation(django.test.TestCase):
         client = graphene.test.Client(schema)
 
         params = {'source': ''}
-        executed = client.execute(self.SH_ADD_IDENTITY, variables=params)
+        executed = client.execute(self.SH_ADD_IDENTITY,
+                                  context_value=self.context_value,
+                                  variables=params)
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, SOURCE_EMPTY_ERROR)
 
@@ -1774,7 +2024,9 @@ class TestAddIdentityMutation(django.test.TestCase):
             'email': None,
             'username': None,
         }
-        executed = client.execute(self.SH_ADD_IDENTITY, variables=params)
+        executed = client.execute(self.SH_ADD_IDENTITY,
+                                  context_value=self.context_value,
+                                  variables=params)
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, IDENTITY_EMPTY_DATA_ERROR)
 
@@ -1784,9 +2036,32 @@ class TestAddIdentityMutation(django.test.TestCase):
             'email': '',
             'username': '',
         }
-        executed = client.execute(self.SH_ADD_IDENTITY, variables=params)
+        executed = client.execute(self.SH_ADD_IDENTITY,
+                                  context_value=self.context_value,
+                                  variables=params)
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, IDENTITY_EMPTY_DATA_ERROR)
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the query"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'source': 'scm',
+            'name': 'Jane Roe',
+            'email': 'jroe@example.com',
+            'username': 'jrae',
+        }
+        executed = client.execute(self.SH_ADD_IDENTITY,
+                                  context_value=context_value,
+                                  variables=params)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
 
 
 class TestDeleteIdentityMutation(django.test.TestCase):
@@ -1811,7 +2086,11 @@ class TestDeleteIdentityMutation(django.test.TestCase):
     """
 
     def setUp(self):
-        """Load initial dataset"""
+        """Load initial dataset and set queries context"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
 
         # Transaction
         self.trxl = TransactionsLog.open(name='delete_identity')
@@ -1850,7 +2129,9 @@ class TestDeleteIdentityMutation(django.test.TestCase):
         params = {
             'uuid': '1387b129ab751a3657312c09759caa41dfd8d07d',
         }
-        executed = client.execute(self.SH_DELETE_IDENTITY, variables=params)
+        executed = client.execute(self.SH_DELETE_IDENTITY,
+                                  context_value=self.context_value,
+                                  variables=params)
 
         # Check results, only one identity remains
         uidentity = executed['data']['deleteIdentity']['uidentity']
@@ -1889,7 +2170,9 @@ class TestDeleteIdentityMutation(django.test.TestCase):
         params = {
             'uuid': 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
         }
-        executed = client.execute(self.SH_DELETE_IDENTITY, variables=params)
+        executed = client.execute(self.SH_DELETE_IDENTITY,
+                                  context_value=self.context_value,
+                                  variables=params)
 
         # Check results
         uidentity = executed['data']['deleteIdentity']['uidentity']
@@ -1910,7 +2193,9 @@ class TestDeleteIdentityMutation(django.test.TestCase):
         params = {
             'uuid': 'FFFFFFFFFFFFFFF'
         }
-        executed = client.execute(self.SH_DELETE_IDENTITY, variables=params)
+        executed = client.execute(self.SH_DELETE_IDENTITY,
+                                  context_value=self.context_value,
+                                  variables=params)
 
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, UID_DOES_NOT_EXIST_ERROR)
@@ -1921,10 +2206,30 @@ class TestDeleteIdentityMutation(django.test.TestCase):
         client = graphene.test.Client(schema)
 
         params = {'uuid': ''}
-        executed = client.execute(self.SH_DELETE_IDENTITY, variables=params)
+        executed = client.execute(self.SH_DELETE_IDENTITY,
+                                  context_value=self.context_value,
+                                  variables=params)
 
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, UUID_EMPTY_ERROR)
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the query"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuid': '1387b129ab751a3657312c09759caa41dfd8d07d',
+        }
+        executed = client.execute(self.SH_DELETE_IDENTITY,
+                                  context_value=context_value,
+                                  variables=params)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
 
 
 class TestUpdateProfileMutation(django.test.TestCase):
@@ -1953,7 +2258,11 @@ class TestUpdateProfileMutation(django.test.TestCase):
     """
 
     def setUp(self):
-        """Load initial dataset"""
+        """Load initial dataset and set queries context"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
 
         Country.objects.create(code='US',
                                name='United States of America',
@@ -1977,7 +2286,9 @@ class TestUpdateProfileMutation(django.test.TestCase):
                 'genderAcc': 89
             }
         }
-        executed = client.execute(self.SH_UPDATE_PROFILE, variables=params)
+        executed = client.execute(self.SH_UPDATE_PROFILE,
+                                  context_value=self.context_value,
+                                  variables=params)
 
         # Check results, profile was updated
         profile = executed['data']['updateProfile']['uidentity']['profile']
@@ -2014,7 +2325,9 @@ class TestUpdateProfileMutation(django.test.TestCase):
                 'name': 'John Smith',
             }
         }
-        executed = client.execute(self.SH_UPDATE_PROFILE, variables=params)
+        executed = client.execute(self.SH_UPDATE_PROFILE,
+                                  context_value=self.context_value,
+                                  variables=params)
 
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, UID_DOES_NOT_EXIST_ERROR)
@@ -2031,11 +2344,39 @@ class TestUpdateProfileMutation(django.test.TestCase):
                 'email': ''
             }
         }
-        executed = client.execute(self.SH_UPDATE_PROFILE, variables=params)
+        executed = client.execute(self.SH_UPDATE_PROFILE,
+                                  context_value=self.context_value,
+                                  variables=params)
 
         profile = executed['data']['updateProfile']['uidentity']['profile']
         self.assertEqual(profile['name'], None)
         self.assertEqual(profile['email'], None)
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the query"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuid': 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+            'data': {
+                'name': 'John Smith',
+                'email': 'jsmith@example.net',
+                'isBot': True,
+                'countryCode': 'US',
+                'gender': 'male',
+                'genderAcc': 89
+            }
+        }
+        executed = client.execute(self.SH_UPDATE_PROFILE,
+                                  context_value=context_value,
+                                  variables=params)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
 
 
 class TestMoveIdentityMutation(django.test.TestCase):
@@ -2060,7 +2401,11 @@ class TestMoveIdentityMutation(django.test.TestCase):
     """
 
     def setUp(self):
-        """Load initial dataset"""
+        """Load initial dataset and set queries context"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
 
         jsmith = api.add_identity('scm', email='jsmith@example.com')
         api.add_identity('scm',
@@ -2078,7 +2423,9 @@ class TestMoveIdentityMutation(django.test.TestCase):
             'fromID': '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331',
             'toUUID': '03877f31261a6d1a1b3971d240e628259364b8ac'
         }
-        executed = client.execute(self.SH_MOVE, variables=params)
+        executed = client.execute(self.SH_MOVE,
+                                  context_value=self.context_value,
+                                  variables=params)
 
         # Check results, identity was moved
         identities = executed['data']['moveIdentity']['uidentity']['identities']
@@ -2131,7 +2478,9 @@ class TestMoveIdentityMutation(django.test.TestCase):
             'fromID': '03877f31261a6d1a1b3971d240e628259364b8ac',
             'toUUID': '03877f31261a6d1a1b3971d240e628259364b8ac'
         }
-        executed = client.execute(self.SH_MOVE, variables=params)
+        executed = client.execute(self.SH_MOVE,
+                                  context_value=self.context_value,
+                                  variables=params)
 
         # Check results, identity was not moved
         identities = executed['data']['moveIdentity']['uidentity']['identities']
@@ -2173,7 +2522,9 @@ class TestMoveIdentityMutation(django.test.TestCase):
             'fromID': '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331',
             'toUUID': '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331'
         }
-        executed = client.execute(self.SH_MOVE, variables=params)
+        executed = client.execute(self.SH_MOVE,
+                                  context_value=self.context_value,
+                                  variables=params)
 
         # This will create a new unique identity,
         # moving the identity to this new unique identity
@@ -2226,7 +2577,9 @@ class TestMoveIdentityMutation(django.test.TestCase):
             'fromID': 'FFFFFFFFFFFFFFF',
             'toUUID': '03877f31261a6d1a1b3971d240e628259364b8ac'
         }
-        executed = client.execute(self.SH_MOVE, variables=params)
+        executed = client.execute(self.SH_MOVE,
+                                  context_value=self.context_value,
+                                  variables=params)
 
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, UID_DOES_NOT_EXIST_ERROR)
@@ -2240,7 +2593,9 @@ class TestMoveIdentityMutation(django.test.TestCase):
             'fromID': '03877f31261a6d1a1b3971d240e628259364b8ac',
             'toUUID': 'FFFFFFFFFFFFFFF'
         }
-        executed = client.execute(self.SH_MOVE, variables=params)
+        executed = client.execute(self.SH_MOVE,
+                                  context_value=self.context_value,
+                                  variables=params)
 
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, UID_DOES_NOT_EXIST_ERROR)
@@ -2254,7 +2609,9 @@ class TestMoveIdentityMutation(django.test.TestCase):
             'fromID': '',
             'toUUID': '03877f31261a6d1a1b3971d240e628259364b8ac'
         }
-        executed = client.execute(self.SH_MOVE, variables=params)
+        executed = client.execute(self.SH_MOVE,
+                                  context_value=self.context_value,
+                                  variables=params)
 
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, FROM_ID_EMPTY_ERROR)
@@ -2268,10 +2625,31 @@ class TestMoveIdentityMutation(django.test.TestCase):
             'fromID': '03877f31261a6d1a1b3971d240e628259364b8ac',
             'toUUID': ''
         }
-        executed = client.execute(self.SH_MOVE, variables=params)
+        executed = client.execute(self.SH_MOVE,
+                                  context_value=self.context_value,
+                                  variables=params)
 
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, TO_UUID_EMPTY_ERROR)
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the query"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'fromID': '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331',
+            'toUUID': '03877f31261a6d1a1b3971d240e628259364b8ac'
+        }
+        executed = client.execute(self.SH_MOVE,
+                                  context_value=context_value,
+                                  variables=params)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
 
 
 class TestEnrollMutation(django.test.TestCase):
@@ -2298,7 +2676,11 @@ class TestEnrollMutation(django.test.TestCase):
     """
 
     def setUp(self):
-        """Load initial dataset"""
+        """Load initial dataset and set queries context"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
 
         # Transaction
         self.trxl = TransactionsLog.open(name='enroll')
@@ -2324,7 +2706,9 @@ class TestEnrollMutation(django.test.TestCase):
             'fromDate': '2008-01-01T00:00:00+0000',
             'toDate': '2009-01-01T00:00:00+0000'
         }
-        executed = client.execute(self.SH_ENROLL, variables=params)
+        executed = client.execute(self.SH_ENROLL,
+                                  context_value=self.context_value,
+                                  variables=params)
 
         # Check results, profile was updated
         enrollments = executed['data']['enroll']['uidentity']['enrollments']
@@ -2366,7 +2750,9 @@ class TestEnrollMutation(django.test.TestCase):
             'fromDate': '1998-01-01T00:00:00+0000',
             'toDate': '2009-01-01T00:00:00+0000'
         }
-        executed = client.execute(self.SH_ENROLL, variables=params)
+        executed = client.execute(self.SH_ENROLL,
+                                  context_value=self.context_value,
+                                  variables=params)
 
         # Check results, profile was updated
         enrollments = executed['data']['enroll']['uidentity']['enrollments']
@@ -2398,7 +2784,9 @@ class TestEnrollMutation(django.test.TestCase):
             'fromDate': '1998-01-01T00:00:00+0000',
             'toDate': '2009-01-01T00:00:00+0000'
         }
-        executed = client.execute(self.SH_ENROLL, variables=params)
+        executed = client.execute(self.SH_ENROLL,
+                                  context_value=self.context_value,
+                                  variables=params)
 
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, UID_DOES_NOT_EXIST_ERROR)
@@ -2414,7 +2802,9 @@ class TestEnrollMutation(django.test.TestCase):
             'fromDate': '1998-01-01T00:00:00+0000',
             'toDate': '2009-01-01T00:00:00+0000'
         }
-        executed = client.execute(self.SH_ENROLL, variables=params)
+        executed = client.execute(self.SH_ENROLL,
+                                  context_value=self.context_value,
+                                  variables=params)
 
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, ORGANIZATION_BITERGIA_DOES_NOT_EXIST_ERROR)
@@ -2430,12 +2820,35 @@ class TestEnrollMutation(django.test.TestCase):
             'fromDate': '2005-01-01T00:00:00+0000',
             'toDate': '2005-06-01T00:00:00+0000'
         }
-        executed = client.execute(self.SH_ENROLL, variables=params)
+        executed = client.execute(self.SH_ENROLL,
+                                  context_value=self.context_value,
+                                  variables=params)
 
         msg = executed['errors'][0]['message']
         err = 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3-Example-2005-01-01 00:00:00+00:00-2005-06-01 00:00:00+00:00'
         err = DUPLICATED_ENROLLMENT_ERROR.format(err)
         self.assertEqual(msg, err)
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the query"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuid': 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+            'organization': 'Example',
+            'fromDate': '2008-01-01T00:00:00+0000',
+            'toDate': '2009-01-01T00:00:00+0000'
+        }
+        executed = client.execute(self.SH_ENROLL,
+                                  context_value=context_value,
+                                  variables=params)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
 
 
 class TestWithdrawMutation(django.test.TestCase):
@@ -2462,7 +2875,11 @@ class TestWithdrawMutation(django.test.TestCase):
     """
 
     def setUp(self):
-        """Load initial dataset"""
+        """Load initial dataset and set queries context"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
 
         # Transaction
         self.trxl = TransactionsLog.open(name='withdraw')
@@ -2500,7 +2917,9 @@ class TestWithdrawMutation(django.test.TestCase):
             'fromDate': '2007-01-01T00:00:00+0000',
             'toDate': '2013-01-01T00:00:00+0000'
         }
-        executed = client.execute(self.SH_WITHDRAW, variables=params)
+        executed = client.execute(self.SH_WITHDRAW,
+                                  context_value=self.context_value,
+                                  variables=params)
 
         # Check results, enrollments were updated
         enrollments = executed['data']['withdraw']['uidentity']['enrollments']
@@ -2545,7 +2964,9 @@ class TestWithdrawMutation(django.test.TestCase):
             'uuid': 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
             'organization': 'Example'
         }
-        executed = client.execute(self.SH_WITHDRAW, variables=params)
+        executed = client.execute(self.SH_WITHDRAW,
+                                  context_value=self.context_value,
+                                  variables=params)
 
         # Check results, enrollments were updated
         enrollments = executed['data']['withdraw']['uidentity']['enrollments']
@@ -2577,7 +2998,9 @@ class TestWithdrawMutation(django.test.TestCase):
             'fromDate': '1998-01-01T00:00:00+0000',
             'toDate': '2009-01-01T00:00:00+0000'
         }
-        executed = client.execute(self.SH_WITHDRAW, variables=params)
+        executed = client.execute(self.SH_WITHDRAW,
+                                  context_value=self.context_value,
+                                  variables=params)
 
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, UID_DOES_NOT_EXIST_ERROR)
@@ -2593,7 +3016,9 @@ class TestWithdrawMutation(django.test.TestCase):
             'fromDate': '1998-01-01T00:00:00+0000',
             'toDate': '2009-01-01T00:00:00+0000'
         }
-        executed = client.execute(self.SH_WITHDRAW, variables=params)
+        executed = client.execute(self.SH_WITHDRAW,
+                                  context_value=self.context_value,
+                                  variables=params)
 
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, ORGANIZATION_BITERGIA_DOES_NOT_EXIST_ERROR)
@@ -2609,10 +3034,33 @@ class TestWithdrawMutation(django.test.TestCase):
             'fromDate': '2050-01-01T00:00:00+0000',
             'toDate': '2060-01-01T00:00:00+0000'
         }
-        executed = client.execute(self.SH_WITHDRAW, variables=params)
+        executed = client.execute(self.SH_WITHDRAW,
+                                  context_value=self.context_value,
+                                  variables=params)
 
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, ENROLLMENT_DOES_NOT_EXIST_ERROR)
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the query"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuid': 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+            'organization': 'Example',
+            'fromDate': '2007-01-01T00:00:00+0000',
+            'toDate': '2013-01-01T00:00:00+0000',
+        }
+        executed = client.execute(self.SH_WITHDRAW,
+                                  context_value=context_value,
+                                  variables=params)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
 
 
 class TestMergeIdentitiesMutation(django.test.TestCase):
@@ -2637,7 +3085,11 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
         """
 
     def setUp(self):
-        """Load initial dataset"""
+        """Load initial dataset and set queries context"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
 
         # Transaction
         self.trxl = TransactionsLog.open(name='merge_identities')
@@ -2675,7 +3127,9 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
             'toUuid': 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed'
         }
 
-        executed = client.execute(self.SH_MERGE, variables=params)
+        executed = client.execute(self.SH_MERGE,
+                                  context_value=self.context_value,
+                                  variables=params)
 
         # Check results, identities were merged
         identities = executed['data']['mergeIdentities']['uidentity']['identities']
@@ -2773,7 +3227,9 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
             'toUuid': 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed'
         }
 
-        executed = client.execute(self.SH_MERGE, variables=params)
+        executed = client.execute(self.SH_MERGE,
+                                  context_value=self.context_value,
+                                  variables=params)
         msg = executed['errors'][0]['message']
 
         self.assertEqual(msg, FROM_UUID_EMPTY_ERROR)
@@ -2788,7 +3244,9 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
             'toUuid': ''
         }
 
-        executed = client.execute(self.SH_MERGE, variables=params)
+        executed = client.execute(self.SH_MERGE,
+                                  context_value=self.context_value,
+                                  variables=params)
         msg = executed['errors'][0]['message']
 
         self.assertEqual(msg, TO_UUID_EMPTY_ERROR)
@@ -2803,7 +3261,28 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
             'toUuid': 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'
         }
 
-        executed = client.execute(self.SH_MERGE, variables=params)
+        executed = client.execute(self.SH_MERGE,
+                                  context_value=self.context_value,
+                                  variables=params)
         msg = executed['errors'][0]['message']
 
         self.assertEqual(msg, FROM_UUID_TO_UUID_EQUAL_ERROR)
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the query"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'fromUuid': 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+            'toUuid': 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed'
+        }
+        executed = client.execute(self.SH_MERGE,
+                                  context_value=context_value,
+                                  variables=params)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
