@@ -17,8 +17,10 @@
 #
 # Authors:
 #     Santiago Dueñas <sduenas@bitergia.com>
+#     Miguel Ángel Fernández <mafesan@bitergia.com>
 #
 
+import logging
 import graphene
 
 import sortinghat.core.schema
@@ -29,6 +31,8 @@ class Query(sortinghat.core.schema.SortingHatQuery, graphene.ObjectType):
     # as we begin to add more apps to our project
     pass
 
+
+logging.getLogger("graphql.execution.utils").setLevel(logging.CRITICAL)
 
 schema = graphene.Schema(query=Query,
                          mutation=sortinghat.core.schema.SortingHatMutation)
