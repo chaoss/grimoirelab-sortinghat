@@ -64,6 +64,7 @@ SOURCE_EMPTY_ERROR = "'source' cannot be an empty string"
 IDENTITY_EMPTY_DATA_ERROR = 'identity data cannot be empty'
 FROM_ID_EMPTY_ERROR = "'from_id' cannot be an empty string"
 FROM_UUID_EMPTY_ERROR = "'from_uuid' cannot be an empty string"
+FROM_UUIDS_EMPTY_ERROR = "'from_uuids' cannot be an empty list"
 TO_UUID_EMPTY_ERROR = "'to_uuid' cannot be an empty string"
 FROM_UUID_TO_UUID_EQUAL_ERROR = "'from_uuid' and 'to_uuid' cannot be equal"
 UUID_EMPTY_ERROR = "'uuid' cannot be an empty string"
@@ -3067,8 +3068,8 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
     """Unit tests for mutation to merge unique identities"""
 
     SH_MERGE = """
-          mutation mergeIds($fromUuid: String, $toUuid: String) {
-            mergeIdentities(fromUuid: $fromUuid, toUuid: $toUuid) {
+          mutation mergeIds($fromUuids: [String], $toUuid: String) {
+            mergeIdentities(fromUuids: $fromUuids, toUuid: $toUuid) {
               uuid
               uidentity {
                 uuid
@@ -3117,13 +3118,19 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
                    from_date=datetime.datetime(2017, 6, 2),
                    to_date=datetime.datetime(2100, 1, 1))
 
+        api.add_identity('scm', email='jsmith@libresoft')
+        api.add_identity('phabricator', email='jsmith2@libresoft', uuid='1c13fec7a328201fc6a230fe43eb81df0e20626e')
+        api.add_identity('phabricator', email='jsmith3@libresoft', uuid='1c13fec7a328201fc6a230fe43eb81df0e20626e')
+        api.update_profile(uuid='1c13fec7a328201fc6a230fe43eb81df0e20626e', name='John Smith',
+                           email='jsmith@profile-email', is_bot=False, country_code='US')
+
     def test_merge_identities(self):
         """Check whether it merges two unique identities, merging their ids, enrollments and profiles"""
 
         client = graphene.test.Client(schema)
 
         params = {
-            'fromUuid': 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+            'fromUuids': ['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
             'toUuid': 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed'
         }
 
@@ -3217,13 +3224,164 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(rol2.start, datetime.datetime(2017, 6, 2, tzinfo=UTC))
         self.assertEqual(rol2.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
 
+    def test_merge_multiple_identities(self):
+        """Check whether it merges more than two unique identities, merging their ids, enrollments and profiles"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'fromUuids': ['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+                          '1c13fec7a328201fc6a230fe43eb81df0e20626e'],
+            'toUuid': 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed'
+        }
+
+        executed = client.execute(self.SH_MERGE,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        # Check results, identities were merged
+        identities = executed['data']['mergeIdentities']['uidentity']['identities']
+
+        self.assertEqual(len(identities), 7)
+
+        identity = identities[0]
+        self.assertEqual(identity['id'], '1c13fec7a328201fc6a230fe43eb81df0e20626e')
+        self.assertEqual(identity['name'], None)
+        self.assertEqual(identity['email'], 'jsmith@libresoft')
+        self.assertEqual(identity['source'], 'scm')
+
+        identity = identities[1]
+        self.assertEqual(identity['id'], '31581d7c6b039318e9048c4d8571666c26a5622b')
+        self.assertEqual(identity['name'], None)
+        self.assertEqual(identity['email'], 'jsmith3@libresoft')
+        self.assertEqual(identity['source'], 'phabricator')
+
+        identity = identities[2]
+        self.assertEqual(identity['id'], '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(identity['name'], None)
+        self.assertEqual(identity['email'], 'jsmith-git@example')
+        self.assertEqual(identity['source'], 'git')
+
+        identity = identities[3]
+        self.assertEqual(identity['id'], '9225e296be341c20c11c4bae76df4190a5c4a918')
+        self.assertEqual(identity['name'], None)
+        self.assertEqual(identity['email'], 'jsmith-phab@bitergia')
+        self.assertEqual(identity['source'], 'phabricator')
+
+        identity = identities[4]
+        self.assertEqual(identity['id'], 'c2f5aa44e920b4fbe3cd36894b18e80a2606deba')
+        self.assertEqual(identity['name'], None)
+        self.assertEqual(identity['email'], 'jsmith2@libresoft')
+        self.assertEqual(identity['source'], 'phabricator')
+
+        identity = identities[5]
+        self.assertEqual(identity['id'], 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        self.assertEqual(identity['name'], None)
+        self.assertEqual(identity['email'], 'jsmith@bitergia')
+        self.assertEqual(identity['source'], 'scm')
+
+        identity = identities[6]
+        self.assertEqual(identity['id'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(identity['name'], None)
+        self.assertEqual(identity['email'], 'jsmith@example')
+        self.assertEqual(identity['source'], 'scm')
+
+        uuid = executed['data']['mergeIdentities']['uuid']
+        self.assertEqual(uuid, 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+
+        # Check database objects
+        uidentity_db = UniqueIdentity.objects.get(uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+
+        self.assertIsInstance(uidentity_db, UniqueIdentity)
+        self.assertEqual(uidentity_db.uuid, 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+
+        profile = uidentity_db.profile
+        self.assertEqual(profile.name, 'John Smith')
+        self.assertEqual(profile.email, 'jsmith@profile-email')
+        self.assertEqual(profile.gender, 'male')
+        self.assertEqual(profile.gender_acc, 75)
+        self.assertEqual(profile.is_bot, True)
+        self.assertEqual(profile.country_id, 'US')
+
+        self.assertEqual(profile.country.name, 'United States of America')
+        self.assertEqual(profile.country.code, 'US')
+        self.assertEqual(profile.country.alpha3, 'USA')
+
+        identities = uidentity_db.identities.all()
+        self.assertEqual(len(identities), 7)
+
+        id1 = identities[0]
+        self.assertEqual(id1.id, '1c13fec7a328201fc6a230fe43eb81df0e20626e')
+        self.assertEqual(id1.email, 'jsmith@libresoft')
+        self.assertEqual(id1.source, 'scm')
+
+        id2 = identities[1]
+        self.assertEqual(id2.id, '31581d7c6b039318e9048c4d8571666c26a5622b')
+        self.assertEqual(id2.email, 'jsmith3@libresoft')
+        self.assertEqual(id2.source, 'phabricator')
+
+        id3 = identities[2]
+        self.assertEqual(id3.id, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(id3.email, 'jsmith-git@example')
+        self.assertEqual(id3.source, 'git')
+
+        id4 = identities[3]
+        self.assertEqual(id4.id, '9225e296be341c20c11c4bae76df4190a5c4a918')
+        self.assertEqual(id4.email, 'jsmith-phab@bitergia')
+        self.assertEqual(id4.source, 'phabricator')
+
+        id5 = identities[4]
+        self.assertEqual(id5.id, 'c2f5aa44e920b4fbe3cd36894b18e80a2606deba')
+        self.assertEqual(id5.email, 'jsmith2@libresoft')
+        self.assertEqual(id5.source, 'phabricator')
+
+        id6 = identities[5]
+        self.assertEqual(id6.id, 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        self.assertEqual(id6.email, 'jsmith@bitergia')
+        self.assertEqual(id6.source, 'scm')
+
+        id7 = identities[6]
+        self.assertEqual(id7.id, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(id7.email, 'jsmith@example')
+        self.assertEqual(id7.source, 'scm')
+
+        enrollments = uidentity_db.enrollments.all()
+        self.assertEqual(len(enrollments), 2)
+
+        rol1 = enrollments[0]
+        self.assertEqual(rol1.organization.name, 'Example')
+        self.assertEqual(rol1.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
+        self.assertEqual(rol1.end, datetime.datetime(2017, 6, 1, tzinfo=UTC))
+
+        rol2 = enrollments[1]
+        self.assertEqual(rol2.organization.name, 'Bitergia')
+        self.assertEqual(rol2.start, datetime.datetime(2017, 6, 2, tzinfo=UTC))
+        self.assertEqual(rol2.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
+
+    def test_non_existing_from_uuids(self):
+        """Check if it fails merging unique identities when source uuids field is `None` or empty"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'fromUuids': [],
+            'toUuid': 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed'
+        }
+
+        executed = client.execute(self.SH_MERGE,
+                                  context_value=self.context_value,
+                                  variables=params)
+        msg = executed['errors'][0]['message']
+
+        self.assertEqual(msg, FROM_UUIDS_EMPTY_ERROR)
+
     def test_non_existing_from_uuid(self):
         """Check if it fails merging two unique identities when source uuid is `None` or empty"""
 
         client = graphene.test.Client(schema)
 
         params = {
-            'fromUuid': '',
+            'fromUuids': [''],
             'toUuid': 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed'
         }
 
@@ -3240,7 +3398,7 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
         client = graphene.test.Client(schema)
 
         params = {
-            'fromUuid': 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+            'fromUuids': ['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
             'toUuid': ''
         }
 
@@ -3257,7 +3415,7 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
         client = graphene.test.Client(schema)
 
         params = {
-            'fromUuid': 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+            'fromUuids': ['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
             'toUuid': 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'
         }
 
@@ -3277,7 +3435,7 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
         client = graphene.test.Client(schema)
 
         params = {
-            'fromUuid': 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+            'fromUuids': ['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
             'toUuid': 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed'
         }
         executed = client.execute(self.SH_MERGE,
