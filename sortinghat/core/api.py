@@ -45,7 +45,7 @@ from .db import (find_unique_identity,
                  delete_enrollment)
 from .errors import InvalidValueError, AlreadyExistsError, NotFoundError
 from .log import TransactionsLog
-from .models import MIN_PERIOD_DATE, MAX_PERIOD_DATE
+from .models import Identity, MIN_PERIOD_DATE, MAX_PERIOD_DATE
 from .utils import unaccent_string, merge_datetime_ranges
 
 
@@ -714,42 +714,86 @@ def withdraw(uuid, organization, from_date=None, to_date=None):
 
 
 @django.db.transaction.atomic
-def merge_identities(from_uuid, to_uuid):
+def merge_identities(from_uuids, to_uuid):
     """
-    Merge one unique identity into another.
+    Merge one or more unique identities into another.
 
-    Use this function to join `from_uuid` unique identity into
-    `to_uuid`. Identities and enrollments related to `from_uuid` will be
-    assigned to `to_uuid`. In addition, `from_uuid` will be removed
+    Use this function to join a list of `from_uuid` unique identities into
+    `to_uuid`. Identities and enrollments related to each `from_uuid` will be
+    assigned to `to_uuid`. In addition, each `from_uuid` will be removed
     from the registry. Duplicated enrollments will be also removed from
     the registry while overlapped enrollments will be merged.
 
-    This function also merges two profiles. When a field on `to_uuid`
+    This function also merges two or more profiles. When a field on `to_uuid`
     profile is `None` or empty, it will be updated with the value on the
-    profile of `from_uuid`. If any of the two unique identities was set
+    profile of each `from_uuid`. If any of the unique identities was set
     as a bot, the new profile will also be set as a bot.
 
-    When `from_uuid` and `to_uuid` are equal, or any of this two fields
-    are `None` or empty, it raises an `InvalidValueError`.
+    When any of the `from_uuid` and `to_uuid` are equal, or any of this two
+    fields are `None` or empty, it raises an `InvalidValueError`.
 
-    The function raises a `NotFoundError` exception when either `from_uuid`
+    The function raises a `NotFoundError` exception when either any `from_uuid`
     or `to_uuid` do not exist in the registry.
 
-    :param from_uuid: identifier of the unique identity set to merge
-    :param to_uuid: identifier of the unique identity where `from_uuid`
+    :param from_uuids: List of identifiers of the unique identities set to merge
+    :param to_uuid: identifier of the unique identity where `from_uuids`
         will be merged
 
     :returns: a UniqueIdentity object as the result of the merged identities
 
-    :raises NotFoundError: raised when either `from_uuid` or `to_uuid`
-        do not exist in the registry
+    :raises NotFoundError: raised when either one of the `from_uuids` or
+        `to_uuid` do not exist in the registry
     """
-    def _merge_enrollments(trxl, from_uid, to_uid):
-        """Merge enrollments from two `UniqueIdentity` objects"""
-        # Get current enrollments from both uidentities
-        enrollments_db = from_uid.enrollments.all() | to_uid.enrollments.all()
-        enrollments = {}
 
+    def _find_unique_identities(from_uuids, to_uuid):
+        """Find the unique identities to be merged from their uuids"""
+
+        unique_identities = []
+        for from_uuid in from_uuids:
+            # Check whether input values are valid
+            if from_uuid is None:
+                raise InvalidValueError(msg="'from_uuid' cannot be None")
+            if from_uuid == '':
+                raise InvalidValueError(msg="'from_uuid' cannot be an empty string")
+            if from_uuid == to_uuid:
+                raise InvalidValueError(msg="'from_uuid' and 'to_uuid' cannot be equal")
+
+            try:
+                from_uid = find_unique_identity(from_uuid)
+                unique_identities.append(from_uid)
+            except NotFoundError as exc:
+                raise exc
+
+        return unique_identities
+
+    def _get_identities(from_uids):
+        """Get all the sub-identities from all the unique identities to be merged"""
+
+        identities = Identity.objects.none()  # Initialize empty QuerySet
+        for from_uid in from_uids:
+            try:
+                identities = identities | from_uid.identities.all()
+            except ValueError as e:
+                raise InvalidValueError(msg=str(e))
+
+        return identities
+
+    def _move_identities(trxl, from_uids, to_uid):
+        """Move individual sub-identities into the target unique identity"""
+
+        identities = _get_identities(from_uids)
+        for identity in identities:
+            move_identity_db(trxl, identity, to_uid)
+
+    def _merge_enrollments(trxl, from_uids, to_uid):
+        """Merge enrollments from `UniqueIdentity` objects"""
+
+        # Get current enrollments from all uidentities
+        enrollments_db = to_uid.enrollments.all()
+        for from_uid in from_uids:
+            enrollments_db = enrollments_db | from_uid.enrollments.all()
+
+        enrollments = {}
         for enrollment in enrollments_db:
             org = enrollment.organization
             dates = enrollments.setdefault(org, [])
@@ -771,59 +815,59 @@ def merge_identities(from_uuid, to_uuid):
 
         return to_uid
 
-    def _merge_profiles(from_uid, to_uid):
-        """Merge the profiles from two `UniqueIdentity` objects"""
-        if from_uid.profile.is_bot or to_uid.profile.is_bot:
-            to_uid.profile.is_bot = True
-        if not to_uid.profile.name:
-            to_uid.profile.name = from_uid.profile.name
-        if not to_uid.profile.email:
-            to_uid.profile.email = from_uid.profile.email
-        if not to_uid.profile.gender:
-            to_uid.profile.gender = from_uid.profile.gender
-        if not to_uid.profile.gender_acc:
-            to_uid.profile.gender_acc = from_uid.profile.gender_acc
-        if not to_uid.profile.country:
-            to_uid.profile.country = from_uid.profile.country
+    def _merge_profiles(from_uids, to_uid):
+        """Merge the profiles from `UniqueIdentity` objects"""
+
+        for from_uid in from_uids:
+            if not to_uid.profile.is_bot and from_uid.profile.is_bot:
+                to_uid.profile.is_bot = True
+            if not to_uid.profile.name:
+                to_uid.profile.name = from_uid.profile.name
+            if not to_uid.profile.email:
+                to_uid.profile.email = from_uid.profile.email
+            if not to_uid.profile.gender:
+                to_uid.profile.gender = from_uid.profile.gender
+            if not to_uid.profile.gender_acc:
+                to_uid.profile.gender_acc = from_uid.profile.gender_acc
+            if not to_uid.profile.country:
+                to_uid.profile.country = from_uid.profile.country
 
         return to_uid
 
+    def _delete_unique_identities(trxl, uids):
+        """Delete unique identities from the database"""
+
+        for uid in uids:
+            delete_unique_identity_db(trxl, uid)
+
     # Check input values
-    if from_uuid is None:
-        raise InvalidValueError(msg="'from_uuid' cannot be None")
-    if from_uuid == '':
-        raise InvalidValueError(msg="'from_uuid' cannot be an empty string")
+    if from_uuids is None:
+        raise InvalidValueError(msg="'from_uuids' cannot be None")
+    if from_uuids == []:
+        raise InvalidValueError(msg="'from_uuids' cannot be an empty list")
     if to_uuid is None:
         raise InvalidValueError(msg="'to_uuid' cannot be None")
     if to_uuid == '':
         raise InvalidValueError(msg="'to_uuid' cannot be an empty string")
-    if from_uuid == to_uuid:
-        raise InvalidValueError(msg="'from_uuid' and 'to_uuid' cannot be equal")
 
     trxl = TransactionsLog.open(name='merge_identities')
 
     try:
-        from_uid = find_unique_identity(from_uuid)
         to_uid = find_unique_identity(to_uuid)
+        from_uids = _find_unique_identities(from_uuids, to_uuid)
     except NotFoundError as exc:
-        # Identities were not found, so they cannot be merged
+        # At least one unique identity was not found, so they cannot be merged
         raise exc
 
-    try:
-        identities = from_uid.identities.all()
-    except ValueError as e:
-        raise InvalidValueError(msg=str(e))
+    _move_identities(trxl, from_uids, to_uid)
 
-    for identity in identities:
-        move_identity_db(trxl, identity, to_uid)
-
-    to_uid = _merge_enrollments(trxl, from_uid, to_uid)
+    to_uid = _merge_enrollments(trxl, from_uids, to_uid)
     to_uid.refresh_from_db()
 
-    to_uid = _merge_profiles(from_uid, to_uid)
+    to_uid = _merge_profiles(from_uids, to_uid)
     update_profile_db(trxl, to_uid)
 
-    delete_unique_identity_db(trxl, from_uid)
+    _delete_unique_identities(trxl, from_uids)
 
     trxl.close()
 
