@@ -354,15 +354,15 @@ class MoveIdentity(graphene.Mutation):
 
 class MergeIdentities(graphene.Mutation):
     class Arguments:
-        from_uuid = graphene.String()
+        from_uuids = graphene.List(graphene.String)
         to_uuid = graphene.String()
 
     uuid = graphene.Field(lambda: graphene.String)
     uidentity = graphene.Field(lambda: UniqueIdentityType)
 
     @check_auth
-    def mutate(self, info, from_uuid, to_uuid):
-        uidentity = merge_identities(from_uuid, to_uuid)
+    def mutate(self, info, from_uuids, to_uuid):
+        uidentity = merge_identities(from_uuids, to_uuid)
 
         return MergeIdentities(
             uuid=uidentity.uuid,

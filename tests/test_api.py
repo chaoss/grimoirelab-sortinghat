@@ -50,6 +50,7 @@ IDENTITY_NONE_OR_EMPTY_ERROR = "identity data cannot be empty"
 UUID_NONE_OR_EMPTY_ERROR = "'uuid' cannot be"
 FROM_ID_NONE_OR_EMPTY_ERROR = "'from_id' cannot be"
 FROM_UUID_NONE_OR_EMPTY_ERROR = "'from_uuid' cannot be"
+FROM_UUIDS_NONE_OR_EMPTY_ERROR = "'from_uuids' cannot be"
 TO_UUID_NONE_OR_EMPTY_ERROR = "'to_uuid' cannot be"
 FROM_UUID_TO_UUID_EQUAL_ERROR = "'from_uuid' and 'to_uuid' cannot be"
 IS_BOT_VALUE_ERROR = "'is_bot' must have a boolean value"
@@ -2849,6 +2850,12 @@ class TestMergeIdentities(TestCase):
                    from_date=datetime.datetime(1900, 1, 1),
                    to_date=datetime.datetime(2017, 6, 1))
 
+        api.add_identity('scm', email='jsmith@libresoft')
+        api.add_identity('phabricator', email='jsmith2@libresoft', uuid='1c13fec7a328201fc6a230fe43eb81df0e20626e')
+        api.add_identity('phabricator', email='jsmith3@libresoft', uuid='1c13fec7a328201fc6a230fe43eb81df0e20626e')
+        api.update_profile(uuid='1c13fec7a328201fc6a230fe43eb81df0e20626e', name='John Smith',
+                           email='jsmith@profile-email', is_bot=False, country_code='US')
+
     def test_merge_identities(self):
         """Check whether it merges two unique identities, merging their ids, enrollments and profiles"""
 
@@ -2858,7 +2865,7 @@ class TestMergeIdentities(TestCase):
         api.update_profile(uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed', name='John Smith',
                            email='jsmith@profile-email', is_bot=True, country_code='US')
 
-        uidentity = api.merge_identities(from_uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+        uidentity = api.merge_identities(from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
                                          to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
 
         # Tests
@@ -2912,13 +2919,104 @@ class TestMergeIdentities(TestCase):
         self.assertEqual(rol2.start, datetime.datetime(2017, 6, 2, tzinfo=UTC))
         self.assertEqual(rol2.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
 
+    def test_merge_multiple_identities(self):
+        """Check whether it merges more than two unique identities, merging their ids, enrollments and profiles"""
+
+        api.update_profile(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', name='J. Smith',
+                           email='jsmith@example', gender='male', gender_acc=75)
+
+        api.update_profile(uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed', name='John Smith',
+                           email='jsmith@profile-email', is_bot=True, country_code='US')
+
+        uidentity = api.merge_identities(from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+                                                     '1c13fec7a328201fc6a230fe43eb81df0e20626e'],
+                                         to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+
+        # Tests
+        self.assertIsInstance(uidentity, UniqueIdentity)
+        self.assertEqual(uidentity.uuid, 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+
+        profile = uidentity.profile
+        self.assertEqual(profile.name, 'John Smith')
+        self.assertEqual(profile.email, 'jsmith@profile-email')
+        self.assertEqual(profile.gender, 'male')
+        self.assertEqual(profile.gender_acc, 75)
+        self.assertEqual(profile.is_bot, True)
+        self.assertEqual(profile.country_id, 'US')
+        self.assertEqual(profile.country.name, 'United States of America')
+        self.assertEqual(profile.country.code, 'US')
+        self.assertEqual(profile.country.alpha3, 'USA')
+
+        identities = uidentity.identities.all()
+        self.assertEqual(len(identities), 7)
+
+        id1 = identities[0]
+        self.assertEqual(id1.id, '1c13fec7a328201fc6a230fe43eb81df0e20626e')
+        self.assertEqual(id1.email, 'jsmith@libresoft')
+        self.assertEqual(id1.source, 'scm')
+
+        id2 = identities[1]
+        self.assertEqual(id2.id, '31581d7c6b039318e9048c4d8571666c26a5622b')
+        self.assertEqual(id2.email, 'jsmith3@libresoft')
+        self.assertEqual(id2.source, 'phabricator')
+
+        id3 = identities[2]
+        self.assertEqual(id3.id, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(id3.email, 'jsmith-git@example')
+        self.assertEqual(id3.source, 'git')
+
+        id4 = identities[3]
+        self.assertEqual(id4.id, '9225e296be341c20c11c4bae76df4190a5c4a918')
+        self.assertEqual(id4.email, 'jsmith-phab@bitergia')
+        self.assertEqual(id4.source, 'phabricator')
+
+        id5 = identities[4]
+        self.assertEqual(id5.id, 'c2f5aa44e920b4fbe3cd36894b18e80a2606deba')
+        self.assertEqual(id5.email, 'jsmith2@libresoft')
+        self.assertEqual(id5.source, 'phabricator')
+
+        id6 = identities[5]
+        self.assertEqual(id6.id, 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        self.assertEqual(id6.email, 'jsmith@bitergia')
+        self.assertEqual(id6.source, 'scm')
+
+        id7 = identities[6]
+        self.assertEqual(id7.id, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(id7.email, 'jsmith@example')
+        self.assertEqual(id7.source, 'scm')
+
+        enrollments = uidentity.enrollments.all()
+        self.assertEqual(len(enrollments), 2)
+
+        rol1 = enrollments[0]
+        self.assertEqual(rol1.organization.name, 'Example')
+        self.assertEqual(rol1.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
+        self.assertEqual(rol1.end, datetime.datetime(2017, 6, 1, tzinfo=UTC))
+
+        rol2 = enrollments[1]
+        self.assertEqual(rol2.organization.name, 'Bitergia')
+        self.assertEqual(rol2.start, datetime.datetime(2017, 6, 2, tzinfo=UTC))
+        self.assertEqual(rol2.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
+
+    def test_non_existing_from_uuids(self):
+        """Check if it fails merging unique identities when source uuids is `None` or an empty list"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(InvalidValueError, FROM_UUIDS_NONE_OR_EMPTY_ERROR):
+            api.merge_identities(from_uuids=[], to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
     def test_non_existing_from_uuid(self):
-        """Check if it fails merging two unique identities when source uuid is `None` or empty"""
+        """Check if it fails merging unique identities when source uuid is `None` or empty"""
 
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(InvalidValueError, FROM_UUID_NONE_OR_EMPTY_ERROR):
-            api.merge_identities(from_uuid='', to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+            api.merge_identities(from_uuids=[''], to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
 
         # Check if there are no transactions created when there is an error
         transactions = Transaction.objects.filter(created_at__gt=trx_date)
@@ -2930,7 +3028,7 @@ class TestMergeIdentities(TestCase):
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(InvalidValueError, TO_UUID_NONE_OR_EMPTY_ERROR):
-            api.merge_identities(from_uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', to_uuid='')
+            api.merge_identities(from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'], to_uuid='')
 
         # Check if there are no transactions created when there is an error
         transactions = Transaction.objects.filter(created_at__gt=trx_date)
@@ -2942,7 +3040,7 @@ class TestMergeIdentities(TestCase):
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(InvalidValueError, FROM_UUID_TO_UUID_EQUAL_ERROR):
-            api.merge_identities(from_uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+            api.merge_identities(from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
                                  to_uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
         # Check if there are no transactions created when there is an error
@@ -2952,7 +3050,7 @@ class TestMergeIdentities(TestCase):
     def test_moved_enrollments(self):
         """Check whether it merges two unique identities, merging their enrollments with multiple periods"""
 
-        uidentity = api.merge_identities(from_uuid='ebe8f55d8988fce02997389d530579ad939f1698',
+        uidentity = api.merge_identities(from_uuids=['ebe8f55d8988fce02997389d530579ad939f1698'],
                                          to_uuid='437386d9d072320387d0c802f772a5401cddc3e6')
 
         enrollments = uidentity.enrollments.all()
@@ -2976,7 +3074,7 @@ class TestMergeIdentities(TestCase):
     def test_overlapping_enrollments(self):
         """Check whether it merges two unique identities having overlapping enrollments"""
 
-        uidentity = api.merge_identities(from_uuid='4dd0fdcd06a6be6f0b7893bf1afcef3e3191753a',
+        uidentity = api.merge_identities(from_uuids=['4dd0fdcd06a6be6f0b7893bf1afcef3e3191753a'],
                                          to_uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
         enrollments = uidentity.enrollments.all()
@@ -2990,7 +3088,7 @@ class TestMergeIdentities(TestCase):
     def test_overlapping_enrollments_different_orgs(self):
         """Check whether it merges two unique identities having overlapping periods in different organizations"""
 
-        uidentity = api.merge_identities(from_uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+        uidentity = api.merge_identities(from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
                                          to_uuid='a11604f983f8786913e6d1449f2eac1618b0b2ee')
 
         enrollments = uidentity.enrollments.all()
@@ -3009,7 +3107,7 @@ class TestMergeIdentities(TestCase):
     def test_duplicate_enrollments(self):
         """Check whether it merges two unique identities having duplicate enrollments"""
 
-        uidentity = api.merge_identities(from_uuid='f29b50520d35d046db0d53b301418ad9aa16e7e3',
+        uidentity = api.merge_identities(from_uuids=['f29b50520d35d046db0d53b301418ad9aa16e7e3'],
                                          to_uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
         enrollments = uidentity.enrollments.all()
@@ -3044,7 +3142,7 @@ class TestMergeIdentities(TestCase):
 
         # Merge identities
         before_merge_dt = datetime_utcnow()
-        uid = api.merge_identities(from_uuid='b6bee805956c03699b59e15175261f85a10d43f3',
+        uid = api.merge_identities(from_uuids=['b6bee805956c03699b59e15175261f85a10d43f3'],
                                    to_uuid='a033ed6d1498a58f7cf91bd56e3c746d7ddb9874')
         after_merge_dt = datetime_utcnow()
 
@@ -3093,7 +3191,7 @@ class TestMergeIdentities(TestCase):
         api.update_profile(uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed', name='John Smith',
                            email='jsmith@profile-email', is_bot=True, country_code='US')
 
-        uidentity = api.merge_identities(from_uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+        uidentity = api.merge_identities(from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
                                          to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
 
         profile = uidentity.profile
@@ -3114,7 +3212,7 @@ class TestMergeIdentities(TestCase):
         api.update_profile(uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed', name='John Smith',
                            email='jsmith@profile-email')
 
-        uidentity = api.merge_identities(from_uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+        uidentity = api.merge_identities(from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
                                          to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
 
         profile = uidentity.profile
@@ -3130,7 +3228,7 @@ class TestMergeIdentities(TestCase):
         api.update_profile(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', name='J. Smith',
                            email='jsmith@example', gender='male', country_code='US')
 
-        uidentity = api.merge_identities(from_uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+        uidentity = api.merge_identities(from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
                                          to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
 
         profile = uidentity.profile
@@ -3143,7 +3241,7 @@ class TestMergeIdentities(TestCase):
     def test_empty_profiles(self):
         """Check whether it merges two unique identities when both of their profiles are empty"""
 
-        uidentity = api.merge_identities(from_uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+        uidentity = api.merge_identities(from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
                                          to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
 
         profile = uidentity.profile
@@ -3158,7 +3256,7 @@ class TestMergeIdentities(TestCase):
 
         timestamp = datetime_utcnow()
 
-        api.merge_identities(from_uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+        api.merge_identities(from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
                              to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
 
         transactions = Transaction.objects.filter(created_at__gte=timestamp)
@@ -3174,7 +3272,7 @@ class TestMergeIdentities(TestCase):
 
         timestamp = datetime_utcnow()
 
-        api.merge_identities(from_uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+        api.merge_identities(from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
                              to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
 
         transactions = Transaction.objects.filter(created_at__gte=timestamp)
