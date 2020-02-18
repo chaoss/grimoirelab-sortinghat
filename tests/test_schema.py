@@ -411,13 +411,17 @@ class TestQueryPagination(django.test.TestCase):
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
-        api.add_organization('Example')
+        self.ctx = SortingHatContext(self.user)
 
-        api.add_identity('scm', email='jsmith@example')
-        api.update_profile(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+        api.add_organization(self.ctx, 'Example')
+
+        api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.update_profile(self.ctx,
+                           uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
                            name='J. Smith', email='jsmith@example',
                            gender='male', gender_acc=75)
-        api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
                    from_date=datetime.datetime(1900, 1, 1),
                    to_date=datetime.datetime(2017, 6, 1))
 
@@ -1068,13 +1072,17 @@ class TestQueryTransactions(django.test.TestCase):
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
-        api.add_organization('Example')
+        self.ctx = SortingHatContext(self.user)
 
-        api.add_identity('scm', email='jsmith@example')
-        api.update_profile(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+        api.add_organization(self.ctx, 'Example')
+
+        api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.update_profile(self.ctx,
+                           uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
                            name='J. Smith', email='jsmith@example',
                            gender='male', gender_acc=75)
-        api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
                    from_date=datetime.datetime(1900, 1, 1),
                    to_date=datetime.datetime(2017, 6, 1))
 
@@ -1243,7 +1251,9 @@ class TestQueryOperations(django.test.TestCase):
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
-        api.add_organization('Example')
+        self.ctx = SortingHatContext(self.user)
+
+        api.add_organization(self.ctx, 'Example')
 
         # Create an additional operation controlling input values
         trx = Transaction(name='test_trx',
@@ -1335,7 +1345,7 @@ class TestQueryOperations(django.test.TestCase):
         """Check whether it returns the operations searched when using pagination"""
 
         # Add an additional operation by calling an API method
-        api.add_domain(organization='Example', domain_name='example.com')
+        api.add_domain(self.ctx, organization='Example', domain_name='example.com')
 
         client = graphene.test.Client(schema)
         test_query = SH_OPERATIONS_QUERY_PAGINATION % (1, 2)
@@ -2107,8 +2117,9 @@ class TestDeleteIdentityMutation(django.test.TestCase):
         libresoft_org = db.add_organization(self.trxl, 'LibreSoft')
 
         # Identities
-        jsmith = api.add_identity('scm', email='jsmith@example')
-        api.add_identity('scm',
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_identity(self.ctx,
+                         'scm',
                          name='John Smith',
                          email='jsmith@example',
                          uuid=jsmith.id)
@@ -2117,11 +2128,12 @@ class TestDeleteIdentityMutation(django.test.TestCase):
         Enrollment.objects.create(uidentity=jsmith.uidentity,
                                   organization=bitergia_org)
 
-        jdoe = api.add_identity('scm', email='jdoe@example')
+        jdoe = api.add_identity(self.ctx, 'scm', email='jdoe@example')
         Enrollment.objects.create(uidentity=jdoe.uidentity,
                                   organization=example_org)
 
-        jrae = api.add_identity('scm',
+        jrae = api.add_identity(self.ctx,
+                                'scm',
                                 name='Jane Rae',
                                 email='jrae@example')
         Enrollment.objects.create(uidentity=jrae.uidentity,
@@ -2270,11 +2282,16 @@ class TestUpdateProfileMutation(django.test.TestCase):
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
+        self.ctx = SortingHatContext(self.user)
+
         Country.objects.create(code='US',
                                name='United States of America',
                                alpha3='USA')
-        jsmith = api.add_identity('scm', email='jsmith@example')
-        api.update_profile(jsmith.id, name='Smith J,', email='jsmith@example.com')
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.update_profile(self.ctx,
+                           jsmith.id,
+                           name='Smith J,',
+                           email='jsmith@example.com')
 
     def test_update_profile(self):
         """Check if it updates a profile"""
@@ -2413,12 +2430,15 @@ class TestMoveIdentityMutation(django.test.TestCase):
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
-        jsmith = api.add_identity('scm', email='jsmith@example.com')
-        api.add_identity('scm',
+        self.ctx = SortingHatContext(self.user)
+
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example.com')
+        api.add_identity(self.ctx,
+                         'scm',
                          name='John Smith',
                          email='jsmith@example.com',
                          uuid=jsmith.id)
-        api.add_identity('scm', email='jdoe@example.com')
+        api.add_identity(self.ctx, 'scm', email='jdoe@example.com')
 
     def test_move_identity(self):
         """Test whether an identity is moved to a unique identity"""
@@ -2693,13 +2713,13 @@ class TestEnrollMutation(django.test.TestCase):
         # Transaction
         self.trxl = TransactionsLog.open('enroll', self.ctx)
 
-        jsmith = api.add_identity('scm', email='jsmith@example')
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
         db.add_organization(self.trxl, 'Example')
 
-        api.enroll(jsmith.id, 'Example',
+        api.enroll(self.ctx, jsmith.id, 'Example',
                    from_date=datetime.datetime(1999, 1, 1),
                    to_date=datetime.datetime(2000, 1, 1))
-        api.enroll(jsmith.id, 'Example',
+        api.enroll(self.ctx, jsmith.id, 'Example',
                    from_date=datetime.datetime(2004, 1, 1),
                    to_date=datetime.datetime(2006, 1, 1))
 
@@ -2897,22 +2917,27 @@ class TestWithdrawMutation(django.test.TestCase):
         db.add_organization(self.trxl, 'Example')
         db.add_organization(self.trxl, 'LibreSoft')
 
-        api.add_identity('scm', email='jsmith@example')
-        api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+        api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
                    from_date=datetime.datetime(2006, 1, 1),
                    to_date=datetime.datetime(2008, 1, 1))
-        api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
                    from_date=datetime.datetime(2009, 1, 1),
                    to_date=datetime.datetime(2011, 1, 1))
-        api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
                    from_date=datetime.datetime(2012, 1, 1),
                    to_date=datetime.datetime(2014, 1, 1))
-        api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'LibreSoft',
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'LibreSoft',
                    from_date=datetime.datetime(2012, 1, 1),
                    to_date=datetime.datetime(2014, 1, 1))
 
-        api.add_identity('scm', email='jrae@example')
-        api.enroll('3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+        api.add_identity(self.ctx, 'scm', email='jrae@example')
+        api.enroll(self.ctx,
+                   '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
                    from_date=datetime.datetime(2012, 1, 1),
                    to_date=datetime.datetime(2014, 1, 1))
 
@@ -3113,26 +3138,43 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
                                name='United States of America',
                                alpha3='USA')
 
-        api.add_identity('scm', email='jsmith@example')
-        api.add_identity('git', email='jsmith-git@example', uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
-        api.update_profile(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', name='J. Smith',
+        api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_identity(self.ctx,
+                         'git',
+                         email='jsmith-git@example',
+                         uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        api.update_profile(self.ctx,
+                           uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', name='J. Smith',
                            email='jsmith@example', gender='male', gender_acc=75)
-        api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
                    from_date=datetime.datetime(1900, 1, 1),
                    to_date=datetime.datetime(2017, 6, 1))
 
-        api.add_identity('scm', email='jsmith@bitergia')
-        api.add_identity('phabricator', email='jsmith-phab@bitergia', uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
-        api.update_profile(uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed', name='John Smith',
+        api.add_identity(self.ctx, 'scm', email='jsmith@bitergia')
+        api.add_identity(self.ctx,
+                         'phabricator',
+                         email='jsmith-phab@bitergia',
+                         uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        api.update_profile(self.ctx,
+                           uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed', name='John Smith',
                            email='jsmith@profile-email', is_bot=True, country_code='US')
-        api.enroll('caa5ebfe833371e23f0a3566f2b7ef4a984c4fed', 'Bitergia',
+        api.enroll(self.ctx,
+                   'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed', 'Bitergia',
                    from_date=datetime.datetime(2017, 6, 2),
                    to_date=datetime.datetime(2100, 1, 1))
 
-        api.add_identity('scm', email='jsmith@libresoft')
-        api.add_identity('phabricator', email='jsmith2@libresoft', uuid='1c13fec7a328201fc6a230fe43eb81df0e20626e')
-        api.add_identity('phabricator', email='jsmith3@libresoft', uuid='1c13fec7a328201fc6a230fe43eb81df0e20626e')
-        api.update_profile(uuid='1c13fec7a328201fc6a230fe43eb81df0e20626e', name='John Smith',
+        api.add_identity(self.ctx, 'scm', email='jsmith@libresoft')
+        api.add_identity(self.ctx,
+                         'phabricator',
+                         email='jsmith2@libresoft',
+                         uuid='1c13fec7a328201fc6a230fe43eb81df0e20626e')
+        api.add_identity(self.ctx,
+                         'phabricator',
+                         email='jsmith3@libresoft',
+                         uuid='1c13fec7a328201fc6a230fe43eb81df0e20626e')
+        api.update_profile(self.ctx,
+                           uuid='1c13fec7a328201fc6a230fe43eb81df0e20626e', name='John Smith',
                            email='jsmith@profile-email', is_bot=False, country_code='US')
 
     def test_merge_identities(self):

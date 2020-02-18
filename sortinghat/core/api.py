@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2019 Bitergia
+# Copyright (C) 2014-2020 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -107,7 +107,7 @@ def generate_uuid(source, email=None, name=None, username=None):
 
 
 @django.db.transaction.atomic
-def add_identity(source, name=None, email=None, username=None, uuid=None):
+def add_identity(ctx, source, name=None, email=None, username=None, uuid=None):
     """Add an identity to the registry.
 
     This function adds a new identity to the registry. By default,
@@ -137,6 +137,7 @@ def add_identity(source, name=None, email=None, username=None, uuid=None):
     The function returns the new identity associated to the new
     registered identity.
 
+    :param ctx: context from where this method is called
     :param source: data source
     :param name: full name of the identity
     :param email: email of the identity
@@ -153,7 +154,7 @@ def add_identity(source, name=None, email=None, username=None, uuid=None):
     :raises NotFoundError: raised when the unique identity
         associated to the given `uuid` is not in the registry.
     """
-    trxl = TransactionsLog.open(name='add_identity')
+    trxl = TransactionsLog.open('add_identity', ctx)
     try:
         id_ = generate_uuid(source, email=email,
                             name=name, username=username)
@@ -186,7 +187,7 @@ def add_identity(source, name=None, email=None, username=None, uuid=None):
 
 
 @django.db.transaction.atomic
-def delete_identity(uuid):
+def delete_identity(ctx, uuid):
     """Remove an identity from the registry.
 
     This function removes from the registry the identity which
@@ -203,6 +204,7 @@ def delete_identity(uuid):
     was a unique identity, the returned value will be `None` because
     this object was wiped out.
 
+    :param ctx: context from where this method is called
     :param uuid: identifier assigned to the identity or unique
         identity that will be removed
 
@@ -218,7 +220,7 @@ def delete_identity(uuid):
     if uuid == '':
         raise InvalidValueError(msg="'uuid' cannot be an empty string")
 
-    trxl = TransactionsLog.open(name='delete_identity')
+    trxl = TransactionsLog.open('delete_identity', ctx)
 
     identity = find_identity(uuid)
     uidentity = identity.uidentity
@@ -236,7 +238,7 @@ def delete_identity(uuid):
 
 
 @django.db.transaction.atomic
-def update_profile(uuid, **kwargs):
+def update_profile(ctx, uuid, **kwargs):
     """Update unique identity profile.
 
     This function allows to edit or update the profile information
@@ -258,6 +260,7 @@ def update_profile(uuid, **kwargs):
     The result of calling this function will be the `UniqueIdentity`
     object with an updated profile.
 
+    :param ctx: context from where this method is called
     :param uuid: identifier of the unique identity which its project
         will be updated
     :param kwargs: keyword arguments with data to update the profile
@@ -269,7 +272,7 @@ def update_profile(uuid, **kwargs):
     :raises InvalidValueError: raised when any of the keyword arguments
         has an invalid value.
     """
-    trxl = TransactionsLog.open(name='update_profile')
+    trxl = TransactionsLog.open('update_profile', ctx)
 
     uidentity = find_unique_identity(uuid)
 
@@ -284,7 +287,7 @@ def update_profile(uuid, **kwargs):
 
 
 @django.db.transaction.atomic
-def move_identity(from_id, to_uuid):
+def move_identity(ctx, from_id, to_uuid):
     """Move an identity to a unique identity.
 
     This function shifts the identity identified by `from_id` to
@@ -304,6 +307,7 @@ def move_identity(from_id, to_uuid):
     The unique identity object with updated identities data is returned
     as the result of calling this function.
 
+    :param ctx: context from where this method is called
     :param from_id: identifier of the identity set to be moved
     :param to_uuid: identifier of the unique identity where 'from_id'
         will be moved
@@ -324,7 +328,7 @@ def move_identity(from_id, to_uuid):
     if to_uuid == '':
         raise InvalidValueError(msg="'to_uuid' cannot be an empty string")
 
-    trxl = TransactionsLog.open(name='move_identity')
+    trxl = TransactionsLog.open('move_identity', ctx)
 
     identity = find_identity(from_id)
 
@@ -349,7 +353,7 @@ def move_identity(from_id, to_uuid):
 
 
 @django.db.transaction.atomic
-def add_organization(name):
+def add_organization(ctx, name):
     """Add an organization to the registry.
 
     This function adds an organization to the registry.
@@ -358,6 +362,7 @@ def add_organization(name):
     it raises a 'AlreadyExistsError' exception to notify that the organization
     already exists.
 
+    :param ctx: context from where this method is called
     :param name: name of the organization
 
     :raises InvalidValueError: raised when organization is None or an empty string
@@ -369,7 +374,7 @@ def add_organization(name):
     if name == '':
         raise InvalidValueError(msg="'name' cannot be an empty string")
 
-    trxl = TransactionsLog.open(name='add_organization')
+    trxl = TransactionsLog.open('add_organization', ctx)
     try:
         org = add_organization_db(trxl, name=name)
     except ValueError as e:
@@ -383,7 +388,7 @@ def add_organization(name):
 
 
 @django.db.transaction.atomic
-def add_domain(organization, domain_name, is_top_domain=True):
+def add_domain(ctx, organization, domain_name, is_top_domain=True):
     """Add a domain to the registry.
 
     This function adds a new domain to a given organization.
@@ -399,6 +404,7 @@ def add_domain(organization, domain_name, is_top_domain=True):
     Remember that a domain can only be assigned to one (and only one)
     organization.
 
+    :param ctx: context from where this method is called
     :param organization: name of the organization
     :param domain_name: domain to add to the registry
     :param is_top_domain: set this domain as a top domain
@@ -421,7 +427,7 @@ def add_domain(organization, domain_name, is_top_domain=True):
     if domain_name == '':
         raise InvalidValueError(msg="'domain_name' cannot be an empty string")
 
-    trxl = TransactionsLog.open(name='add_domain')
+    trxl = TransactionsLog.open('add_domain', ctx)
 
     try:
         organization = find_organization(organization)
@@ -445,7 +451,7 @@ def add_domain(organization, domain_name, is_top_domain=True):
 
 
 @django.db.transaction.atomic
-def delete_organization(name):
+def delete_organization(ctx, name):
     """Remove an organization from the registry.
 
     This function removes the given organization from the registry.
@@ -454,6 +460,7 @@ def delete_organization(name):
     When it is found, the organization is removed. Otherwise,
     it will raise a 'NotFoundError'.
 
+    :param ctx: context from where this method is called
     :param name: name of the organization to remove
 
     :raises InvalidValueError: raised when organization is None or an empty string
@@ -465,7 +472,7 @@ def delete_organization(name):
     if name == '':
         raise InvalidValueError(msg="'name' cannot be an empty string")
 
-    trxl = TransactionsLog.open(name='delete_organization')
+    trxl = TransactionsLog.open('delete_organization', ctx)
 
     try:
         org = find_organization(name)
@@ -482,13 +489,14 @@ def delete_organization(name):
 
 
 @django.db.transaction.atomic
-def delete_domain(domain_name):
+def delete_domain(ctx, domain_name):
     """Remove a domain from the registry.
 
     This function removes the given domain from the registry.
     Domain must exist in the registry. Otherwise, it will raise
     a `NotFoundError` exception.
 
+    :param ctx: context from where this method is called
     :param domain_name: name of the domain to remove
 
     :returns the removed domain object
@@ -501,7 +509,7 @@ def delete_domain(domain_name):
     if domain_name == '':
         raise InvalidValueError(msg="'domain_name' cannot be an empty string")
 
-    trxl = TransactionsLog.open(name='delete_domain')
+    trxl = TransactionsLog.open('delete_domain', ctx)
 
     try:
         domain = find_domain(domain_name)
@@ -518,7 +526,7 @@ def delete_domain(domain_name):
 
 
 @django.db.transaction.atomic
-def enroll(uuid, organization, from_date=None, to_date=None):
+def enroll(ctx, uuid, organization, from_date=None, to_date=None):
     """Enroll a unique identity in an organization.
 
     The function enrolls a unique identity, identified by `uuid`,
@@ -540,6 +548,7 @@ def enroll(uuid, organization, from_date=None, to_date=None):
     The unique identity object with updated enrollment data is returned
     as the result of calling this function.
 
+    :param ctx: context from where this method is called
     :param uuid: unique identifier
     :param organization: name of the organization
     :param from_date: date when the enrollment starts
@@ -564,7 +573,7 @@ def enroll(uuid, organization, from_date=None, to_date=None):
     if organization == '':
         raise InvalidValueError(msg="organization cannot be an empty string")
 
-    trxl = TransactionsLog.open(name='enroll')
+    trxl = TransactionsLog.open('enroll', ctx)
 
     from_date = datetime_to_utc(from_date) if from_date else MIN_PERIOD_DATE
     to_date = datetime_to_utc(to_date) if to_date else MAX_PERIOD_DATE
@@ -612,7 +621,7 @@ def enroll(uuid, organization, from_date=None, to_date=None):
 
 
 @django.db.transaction.atomic
-def withdraw(uuid, organization, from_date=None, to_date=None):
+def withdraw(ctx, uuid, organization, from_date=None, to_date=None):
     """Withdraw a unique identity from an organization.
 
     This function withdraws a unique identity identified by `uuid`
@@ -636,6 +645,7 @@ def withdraw(uuid, organization, from_date=None, to_date=None):
     The unique identity object with updated enrollment data is returned
     as the result of calling this function.
 
+    :param ctx: context from where this method is called
     :param uuid: unique identifier
     :param organization: name of the organization
     :param from_date: date when the enrollment starts
@@ -659,7 +669,7 @@ def withdraw(uuid, organization, from_date=None, to_date=None):
     if organization == '':
         raise InvalidValueError(msg="organization cannot be an empty string")
 
-    trxl = TransactionsLog.open(name='withdraw')
+    trxl = TransactionsLog.open('withdraw', ctx)
 
     from_date = datetime_to_utc(from_date) if from_date else MIN_PERIOD_DATE
     to_date = datetime_to_utc(to_date) if to_date else MAX_PERIOD_DATE
@@ -714,7 +724,7 @@ def withdraw(uuid, organization, from_date=None, to_date=None):
 
 
 @django.db.transaction.atomic
-def merge_identities(from_uuids, to_uuid):
+def merge_identities(ctx, from_uuids, to_uuid):
     """
     Merge one or more unique identities into another.
 
@@ -735,6 +745,7 @@ def merge_identities(from_uuids, to_uuid):
     The function raises a `NotFoundError` exception when either any `from_uuid`
     or `to_uuid` do not exist in the registry.
 
+    :param ctx: context from where this method is called
     :param from_uuids: List of identifiers of the unique identities set to merge
     :param to_uuid: identifier of the unique identity where `from_uuids`
         will be merged
@@ -850,7 +861,7 @@ def merge_identities(from_uuids, to_uuid):
     if to_uuid == '':
         raise InvalidValueError(msg="'to_uuid' cannot be an empty string")
 
-    trxl = TransactionsLog.open(name='merge_identities')
+    trxl = TransactionsLog.open('merge_identities', ctx)
 
     try:
         to_uid = find_unique_identity(to_uuid)

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2019 Bitergia
+# Copyright (C) 2014-2020 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,12 +25,14 @@ import json
 
 from dateutil.tz import UTC
 
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 
 from grimoirelab_toolkit.datetime import datetime_utcnow, datetime_to_utc
 
 from sortinghat.core import api
+from sortinghat.core.context import SortingHatContext
 from sortinghat.core.errors import (AlreadyExistsError,
                                     NotFoundError,
                                     InvalidValueError)
@@ -171,10 +173,17 @@ class TestUUID(TestCase):
 class TestAddIdentity(TestCase):
     """Unit tests for add_identity"""
 
+    def setUp(self):
+        """Load initial values"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
     def test_add_new_identity(self):
         """Check if everything goes OK when adding a new identity"""
 
-        identity = api.add_identity('scm',
+        identity = api.add_identity(self.ctx,
+                                    'scm',
                                     name='John Smith',
                                     email='jsmith@example.com',
                                     username='jsmith')
@@ -197,29 +206,34 @@ class TestAddIdentity(TestCase):
         """Check if everything goes OK when adding new identities to an existing one"""
 
         # Insert identities that will create the unique identities
-        jsmith = api.add_identity('scm',
+        jsmith = api.add_identity(self.ctx,
+                                  'scm',
                                   name='John Smith',
                                   email='jsmith@example.com',
                                   username='jsmith')
-        jdoe = api.add_identity('scm',
+        jdoe = api.add_identity(self.ctx,
+                                'scm',
                                 name='John Doe',
                                 email='jdoe@example.com',
                                 username='jdoe')
 
         # Create new identities and assign them to John Smith id
-        identity1 = api.add_identity('mls',
+        identity1 = api.add_identity(self.ctx,
+                                     'mls',
                                      name='John Smith',
                                      email='jsmith@example.com',
                                      username='jsmith',
                                      uuid=jsmith.id)
 
-        identity2 = api.add_identity('mls',
+        identity2 = api.add_identity(self.ctx,
+                                     'mls',
                                      name='John Smith',
                                      username='jsmith',
                                      uuid=jsmith.id)
 
         # Create a new identity for John Doe
-        identity3 = api.add_identity('mls',
+        identity3 = api.add_identity(self.ctx,
+                                     'mls',
                                      email='jdoe@example.com',
                                      uuid=jdoe.id)
 
@@ -280,7 +294,8 @@ class TestAddIdentity(TestCase):
 
         # First, insert the identity that will create the unique identity
         before_dt = datetime_utcnow()
-        jsmith = api.add_identity('scm',
+        jsmith = api.add_identity(self.ctx,
+                                  'scm',
                                   name='John Smith',
                                   email='jsmith@example.com',
                                   username='jsmith')
@@ -299,7 +314,8 @@ class TestAddIdentity(TestCase):
         # Check if a new identity added to the existing unique identity
         # updates both modification dates
         before_new_dt = datetime_utcnow()
-        api.add_identity('scm',
+        api.add_identity(self.ctx,
+                         'scm',
                          name=None,
                          email='jsmith@example.com',
                          username=None,
@@ -328,24 +344,27 @@ class TestAddIdentity(TestCase):
     def test_similar_identities(self):
         """Check if it works when adding similar identities"""
 
-        api.add_identity('scm', email='jsmith@example.com')
+        api.add_identity(self.ctx, 'scm', email='jsmith@example.com')
 
         # Although, this identities belongs to the same unique identity,
         # the api will create different unique identities for each one of
         # them
-        uid1 = api.add_identity('scm',
+        uid1 = api.add_identity(self.ctx,
+                                'scm',
                                 name='John Smith',
                                 email='jsmith@example.com')
-        uid2 = api.add_identity('scm',
+        uid2 = api.add_identity(self.ctx,
+                                'scm',
                                 name='John Smith',
                                 email='jsmith@example.com',
                                 username='jsmith')
-        uid3 = api.add_identity('mls',
+        uid3 = api.add_identity(self.ctx,
+                                'mls',
                                 name='John Smith',
                                 email='jsmith@example.com',
                                 username='jsmith')
-        uid4 = api.add_identity('mls', name='John Smith')
-        uid5 = api.add_identity('scm', name='John Smith')
+        uid4 = api.add_identity(self.ctx, 'mls', name='John Smith')
+        uid5 = api.add_identity(self.ctx, 'scm', name='John Smith')
 
         self.assertEqual(uid1.id, '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
         self.assertEqual(uid2.id, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
@@ -362,7 +381,8 @@ class TestAddIdentity(TestCase):
         name = 'John Smith'
         username = 'jsmith'
 
-        api.add_identity(source,
+        api.add_identity(self.ctx,
+                         source,
                          name=name,
                          email=email,
                          username=username)
@@ -370,7 +390,8 @@ class TestAddIdentity(TestCase):
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaises(AlreadyExistsError):
-            api.add_identity(source,
+            api.add_identity(self.ctx,
+                             source,
                              name=name,
                              email=email,
                              username=username)
@@ -383,13 +404,14 @@ class TestAddIdentity(TestCase):
         """Check whether it fails adding identities to one uuid that does not exist"""
 
         # Add a pair of identities first
-        api.add_identity('scm', email='jsmith@example.com')
-        api.add_identity('scm', email='jdoe@example.com')
+        api.add_identity(self.ctx, 'scm', email='jsmith@example.com')
+        api.add_identity(self.ctx, 'scm', email='jdoe@example.com')
 
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaises(NotFoundError):
-            api.add_identity('mls',
+            api.add_identity(self.ctx,
+                             'mls',
                              name=None,
                              email='jsmith@example.com',
                              username=None,
@@ -403,12 +425,12 @@ class TestAddIdentity(TestCase):
         """Check if it fails adding an identity that already exists"""
 
         # Add a pair of identities first
-        api.add_identity('scm', email='jsmith@example.com')
-        api.add_identity('scm', email='jdoe@example.com')
+        api.add_identity(self.ctx, 'scm', email='jsmith@example.com')
+        api.add_identity(self.ctx, 'scm', email='jdoe@example.com')
 
         # Insert the first identity again. It should raise AlreadyExistsError
         with self.assertRaises(AlreadyExistsError) as context:
-            api.add_identity('scm', email='jsmith@example.com')
+            api.add_identity(self.ctx, 'scm', email='jsmith@example.com')
 
         self.assertEqual(context.exception.eid,
                          '334da68fcd3da4e799791f73dfada2afb22648c6')
@@ -416,18 +438,18 @@ class TestAddIdentity(TestCase):
         # Insert the same identity with upper case letters.
         # It should raise AlreadyExistsError
         with self.assertRaises(AlreadyExistsError) as context:
-            api.add_identity('scm', email='JSMITH@example.com')
+            api.add_identity(self.ctx, 'scm', email='JSMITH@example.com')
 
         self.assertEqual(context.exception.eid,
                          '334da68fcd3da4e799791f73dfada2afb22648c6')
 
         # "None" tuples also raise an exception
-        api.add_identity('scm', name=None, email="None", username=None)
+        api.add_identity(self.ctx, 'scm', name=None, email="None", username=None)
 
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaises(AlreadyExistsError) as context:
-            api.add_identity('scm', name="None", email=None, username=None)
+            api.add_identity(self.ctx, 'scm', name="None", email=None, username=None)
 
         self.assertEqual(context.exception.eid,
                          'f0999c4eed908d33365fa3435d9686d3add2412d')
@@ -440,25 +462,25 @@ class TestAddIdentity(TestCase):
         """Check if it fails adding an identity that already exists with accent values"""
 
         # Add a pair of identities first
-        api.add_identity('scm', name='John Smith')
-        api.add_identity('scm', name='Jöhn Doe')
+        api.add_identity(self.ctx, 'scm', name='John Smith')
+        api.add_identity(self.ctx, 'scm', name='Jöhn Doe')
 
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         # Insert an accent identity again. It should raise AlreadyExistsError
         with self.assertRaises(AlreadyExistsError) as context:
-            api.add_identity('scm', name='Jöhn Smith')
+            api.add_identity(self.ctx, 'scm', name='Jöhn Smith')
 
         self.assertEqual(context.exception.eid,
                          'c7acd177d107a0aefa6718e2ff0dec6ceba71660')
 
         # Insert an accent identity again. It should raise AlreadyExistsError
         with self.assertRaises(AlreadyExistsError) as context:
-            api.add_identity('scm', name='John Döe')
+            api.add_identity(self.ctx, 'scm', name='John Döe')
 
         # Insert an unaccent identity again. It should raise AlreadyExistsError
         with self.assertRaises(AlreadyExistsError) as context:
-            api.add_identity('scm', name='John Doe')
+            api.add_identity(self.ctx, 'scm', name='John Doe')
 
         self.assertEqual(context.exception.eid,
                          'a16659ea83d28c839ffae76ceebb3ca9fb8e8894')
@@ -471,7 +493,8 @@ class TestAddIdentity(TestCase):
         """Check if it inserts identities with 4bytes UTF-8 characters"""
 
         # Emojis are 4bytes characters
-        identity = api.add_identity('scm',
+        identity = api.add_identity(self.ctx,
+                                    'scm',
                                     name='😂',
                                     email='😂',
                                     username='😂')
@@ -496,11 +519,13 @@ class TestAddIdentity(TestCase):
         # With an invalid encoding both names wouldn't be inserted;
         # In MySQL, chars 'ı' and 'i' are considered the same with a
         # collation distinct to <charset>_unicode_ci
-        uidentity1 = api.add_identity('scm',
+        uidentity1 = api.add_identity(self.ctx,
+                                      'scm',
                                       name='John Smıth',
                                       email='jsmith@example.com',
                                       username='jsmith')
-        uidentity2 = api.add_identity('scm',
+        uidentity2 = api.add_identity(self.ctx,
+                                      'scm',
                                       name='John Smith',
                                       email='jsmith@example.com',
                                       username='jsmith')
@@ -512,7 +537,7 @@ class TestAddIdentity(TestCase):
         """Check whether new identities cannot be added when giving a None source"""
 
         with self.assertRaisesRegex(InvalidValueError, SOURCE_NONE_OR_EMPTY_ERROR):
-            api.add_identity(None)
+            api.add_identity(self.ctx, None)
 
         # Check if there are no transactions created when there is an error
         transactions = Transaction.objects.all()
@@ -522,7 +547,7 @@ class TestAddIdentity(TestCase):
         """Check whether new identities cannot be added when giving an empty source"""
 
         with self.assertRaisesRegex(InvalidValueError, SOURCE_NONE_OR_EMPTY_ERROR):
-            api.add_identity('')
+            api.add_identity(self.ctx, '')
 
         # Check if there are no transactions created when there is an error
         transactions = Transaction.objects.all()
@@ -532,10 +557,10 @@ class TestAddIdentity(TestCase):
         """Check whether new identities cannot be added when identity data is None or empty"""
 
         with self.assertRaisesRegex(InvalidValueError, IDENTITY_NONE_OR_EMPTY_ERROR):
-            api.add_identity('scm', name='', email=None, username=None)
+            api.add_identity(self.ctx, 'scm', name='', email=None, username=None)
 
         with self.assertRaisesRegex(InvalidValueError, IDENTITY_NONE_OR_EMPTY_ERROR):
-            api.add_identity('scm', name='', email='', username='')
+            api.add_identity(self.ctx, 'scm', name='', email='', username='')
 
         # Check if there are no transactions created when there is an error
         transactions = Transaction.objects.all()
@@ -546,7 +571,8 @@ class TestAddIdentity(TestCase):
 
         timestamp = datetime_utcnow()
 
-        api.add_identity('scm',
+        api.add_identity(self.ctx,
+                         'scm',
                          name='John Smith',
                          email='jsmith@example.com',
                          username='jsmith')
@@ -558,13 +584,15 @@ class TestAddIdentity(TestCase):
         self.assertIsInstance(trx, Transaction)
         self.assertEqual(trx.name, 'add_identity')
         self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, self.ctx.user.username)
 
     def test_operations(self):
         """Check if the right operations are created when adding a new identity"""
 
         timestamp = datetime_utcnow()
 
-        identity = api.add_identity('scm',
+        identity = api.add_identity(self.ctx,
+                                    'scm',
                                     name='John Smith',
                                     email='jsmith@example.com',
                                     username='jsmith')
@@ -611,14 +639,18 @@ class TestDeleteIdentity(TestCase):
     def setUp(self):
         """Load initial dataset"""
 
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
         # Organizations
-        example_org = api.add_organization('Example')
-        bitergia_org = api.add_organization('Bitergia')
-        libresoft_org = api.add_organization('LibreSoft')
+        example_org = api.add_organization(self.ctx, 'Example')
+        bitergia_org = api.add_organization(self.ctx, 'Bitergia')
+        libresoft_org = api.add_organization(self.ctx, 'LibreSoft')
 
         # Identities
-        jsmith = api.add_identity('scm', email='jsmith@example')
-        api.add_identity('scm',
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_identity(self.ctx,
+                         'scm',
                          name='John Smith',
                          email='jsmith@example',
                          uuid=jsmith.id)
@@ -627,11 +659,12 @@ class TestDeleteIdentity(TestCase):
         Enrollment.objects.create(uidentity=jsmith.uidentity,
                                   organization=bitergia_org)
 
-        jdoe = api.add_identity('scm', email='jdoe@example')
+        jdoe = api.add_identity(self.ctx, 'scm', email='jdoe@example')
         Enrollment.objects.create(uidentity=jdoe.uidentity,
                                   organization=example_org)
 
-        jrae = api.add_identity('scm',
+        jrae = api.add_identity(self.ctx,
+                                'scm',
                                 name='Jane Rae',
                                 email='jrae@example')
         Enrollment.objects.create(uidentity=jrae.uidentity,
@@ -648,7 +681,7 @@ class TestDeleteIdentity(TestCase):
         self.assertEqual(len(identities), 4)
 
         # Delete an identity (John Smith - jsmith@example.com)
-        uidentity = api.delete_identity('1387b129ab751a3657312c09759caa41dfd8d07d')
+        uidentity = api.delete_identity(self.ctx, '1387b129ab751a3657312c09759caa41dfd8d07d')
 
         # Check result
         self.assertIsInstance(uidentity, UniqueIdentity)
@@ -684,7 +717,7 @@ class TestDeleteIdentity(TestCase):
         self.assertEqual(len(identities), 4)
 
         # Delete an unique identity (John Smith)
-        uidentity = api.delete_identity('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        uidentity = api.delete_identity(self.ctx, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
         # The unique identity was removed so the result is None
         self.assertEqual(uidentity, None)
@@ -711,7 +744,7 @@ class TestDeleteIdentity(TestCase):
 
         # Delete an identity (John Smith - jsmith@example.com)
         before_dt = datetime_utcnow()
-        uidentity = api.delete_identity('1387b129ab751a3657312c09759caa41dfd8d07d')
+        uidentity = api.delete_identity(self.ctx, '1387b129ab751a3657312c09759caa41dfd8d07d')
         after_dt = datetime_utcnow()
 
         # Check date on the unique identity
@@ -728,14 +761,14 @@ class TestDeleteIdentity(TestCase):
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaises(NotFoundError):
-            api.delete_identity('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF')
+            api.delete_identity(self.ctx, 'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF')
 
         # It should raise an error when the registry is empty
         UniqueIdentity.objects.all().delete()
         self.assertEqual(len(UniqueIdentity.objects.all()), 0)
 
         with self.assertRaises(NotFoundError):
-            api.delete_identity('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+            api.delete_identity(self.ctx, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
         # Check if there are no transactions created when there is an error
         transactions = Transaction.objects.filter(created_at__gt=trx_date)
@@ -747,7 +780,7 @@ class TestDeleteIdentity(TestCase):
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(InvalidValueError, UUID_NONE_OR_EMPTY_ERROR):
-            api.delete_identity(None)
+            api.delete_identity(self.ctx, None)
 
         # Check if there are no transactions created when there is an error
         transactions = Transaction.objects.filter(created_at__gt=trx_date)
@@ -759,7 +792,7 @@ class TestDeleteIdentity(TestCase):
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(InvalidValueError, UUID_NONE_OR_EMPTY_ERROR):
-            api.delete_identity('')
+            api.delete_identity(self.ctx, '')
 
         # Check if there are no transactions created when there is an error
         transactions = Transaction.objects.filter(created_at__gt=trx_date)
@@ -770,7 +803,7 @@ class TestDeleteIdentity(TestCase):
 
         timestamp = datetime_utcnow()
 
-        api.delete_identity('1387b129ab751a3657312c09759caa41dfd8d07d')
+        api.delete_identity(self.ctx, '1387b129ab751a3657312c09759caa41dfd8d07d')
 
         transactions = Transaction.objects.filter(created_at__gte=timestamp)
         self.assertEqual(len(transactions), 1)
@@ -779,13 +812,14 @@ class TestDeleteIdentity(TestCase):
         self.assertIsInstance(trx, Transaction)
         self.assertEqual(trx.name, 'delete_identity')
         self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, self.ctx.user.username)
 
     def test_operations(self):
         """Check if the right operations are created when deleting an identity"""
 
         timestamp = datetime_utcnow()
 
-        api.delete_identity('1387b129ab751a3657312c09759caa41dfd8d07d')
+        api.delete_identity(self.ctx, '1387b129ab751a3657312c09759caa41dfd8d07d')
 
         transactions = Transaction.objects.filter(created_at__gte=timestamp)
         trx = transactions[0]
@@ -812,15 +846,19 @@ class TestUpdateProfile(TestCase):
     def setUp(self):
         """Load initial dataset"""
 
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
         Country.objects.create(code='US',
                                name='United States of America',
                                alpha3='USA')
-        api.add_identity('scm', email='jsmith@example')
+        api.add_identity(self.ctx, 'scm', email='jsmith@example')
 
     def test_update_empty_profile(self):
         """Check if it updates an empty profile"""
 
-        uidentity = api.update_profile('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+        uidentity = api.update_profile(self.ctx,
+                                       'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
                                        name='Smith, J.', email='jsmith@example.net',
                                        is_bot=True, country_code='US',
                                        gender='male', gender_acc=98)
@@ -846,12 +884,14 @@ class TestUpdateProfile(TestCase):
     def test_update_profile(self):
         """Check if it updates a profile"""
 
-        api.update_profile('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+        api.update_profile(self.ctx,
+                           'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
                            name='Smith, J.', email='jsmith@example.net',
                            is_bot=True, country_code='US',
                            gender='male', gender_acc=98)
 
-        uidentity = api.update_profile('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+        uidentity = api.update_profile(self.ctx,
+                                       'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
                                        name='', email='jsmith@example.net',
                                        is_bot=False, country_code='US',
                                        gender='male', gender_acc=89)
@@ -877,7 +917,8 @@ class TestUpdateProfile(TestCase):
         """Check if last modification date is updated"""
 
         before_dt = datetime_utcnow()
-        uidentity = api.update_profile('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+        uidentity = api.update_profile(self.ctx,
+                                       'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
                                        name='John Smith',
                                        email='jsmith@example.net')
         after_dt = datetime_utcnow()
@@ -889,7 +930,8 @@ class TestUpdateProfile(TestCase):
         """Check if it fails updating a unique identity that does not exist"""
 
         with self.assertRaises(NotFoundError):
-            api.update_profile('FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF',
+            api.update_profile(self.ctx,
+                               'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF',
                                name='', email='')
 
         # Check if there are no transactions created when there is an error
@@ -899,7 +941,8 @@ class TestUpdateProfile(TestCase):
     def test_name_email_empty(self):
         """Check if name and email are set to None when an empty string is given"""
 
-        uidentity = api.update_profile('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+        uidentity = api.update_profile(self.ctx,
+                                       'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
                                        name='', email='')
         profile = uidentity.profile
         self.assertEqual(profile.name, None)
@@ -911,10 +954,10 @@ class TestUpdateProfile(TestCase):
         uuid = 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'
 
         with self.assertRaisesRegex(InvalidValueError, IS_BOT_VALUE_ERROR):
-            api.update_profile(uuid, is_bot=1)
+            api.update_profile(self.ctx, uuid, is_bot=1)
 
         with self.assertRaisesRegex(InvalidValueError, IS_BOT_VALUE_ERROR):
-            api.update_profile(uuid, is_bot='True')
+            api.update_profile(self.ctx, uuid, is_bot='True')
 
         # Check if there are no transactions created when there is an error
         transactions = Transaction.objects.all()
@@ -928,7 +971,7 @@ class TestUpdateProfile(TestCase):
         msg = COUNTRY_CODE_ERROR.format(code='JKL')
 
         with self.assertRaisesRegex(InvalidValueError, msg):
-            api.update_profile(uuid, country_code='JKL')
+            api.update_profile(self.ctx, uuid, country_code='JKL')
 
         # Check if there are no transactions created when there is an error
         transactions = Transaction.objects.all()
@@ -940,7 +983,7 @@ class TestUpdateProfile(TestCase):
         uuid = 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'
 
         with self.assertRaisesRegex(InvalidValueError, GENDER_ACC_INVALID_ERROR):
-            api.update_profile(uuid, gender_acc=100)
+            api.update_profile(self.ctx, uuid, gender_acc=100)
 
         # Check if there are no transactions created when there is an error
         transactions = Transaction.objects.all()
@@ -952,10 +995,10 @@ class TestUpdateProfile(TestCase):
         uuid = 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'
 
         with self.assertRaisesRegex(InvalidValueError, GENDER_ACC_INVALID_TYPE_ERROR):
-            api.update_profile(uuid, gender='male', gender_acc=10.0)
+            api.update_profile(self.ctx, uuid, gender='male', gender_acc=10.0)
 
         with self.assertRaisesRegex(InvalidValueError, GENDER_ACC_INVALID_TYPE_ERROR):
-            api.update_profile(uuid, gender='male', gender_acc='100')
+            api.update_profile(self.ctx, uuid, gender='male', gender_acc='100')
 
         # Check if there are no transactions created when there is an error
         transactions = Transaction.objects.all()
@@ -969,17 +1012,17 @@ class TestUpdateProfile(TestCase):
         msg = GENDER_ACC_INVALID_RANGE_ERROR.format(acc='-1')
 
         with self.assertRaisesRegex(InvalidValueError, msg):
-            api.update_profile(uuid, gender='male', gender_acc=-1)
+            api.update_profile(self.ctx, uuid, gender='male', gender_acc=-1)
 
         msg = GENDER_ACC_INVALID_RANGE_ERROR.format(acc='0')
 
         with self.assertRaisesRegex(InvalidValueError, msg):
-            api.update_profile(uuid, gender='male', gender_acc=0)
+            api.update_profile(self.ctx, uuid, gender='male', gender_acc=0)
 
         msg = GENDER_ACC_INVALID_RANGE_ERROR.format(acc='101')
 
         with self.assertRaisesRegex(InvalidValueError, msg):
-            api.update_profile(uuid, gender='male', gender_acc=101)
+            api.update_profile(self.ctx, uuid, gender='male', gender_acc=101)
 
         # Check if there are no transactions created when there is an error
         transactions = Transaction.objects.all()
@@ -990,7 +1033,8 @@ class TestUpdateProfile(TestCase):
 
         timestamp = datetime_utcnow()
 
-        api.update_profile('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+        api.update_profile(self.ctx,
+                           'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
                            name='Smith, J.', email='jsmith@example.net',
                            is_bot=True, country_code='US',
                            gender='male', gender_acc=98)
@@ -1002,13 +1046,15 @@ class TestUpdateProfile(TestCase):
         self.assertIsInstance(trx, Transaction)
         self.assertEqual(trx.name, 'update_profile')
         self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, self.ctx.user.username)
 
     def test_operations(self):
         """Check if the right operations are created when updating a profile"""
 
         timestamp = datetime_utcnow()
 
-        uidentity = api.update_profile('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+        uidentity = api.update_profile(self.ctx,
+                                       'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
                                        name='Smith, J.', email='jsmith@example.net',
                                        is_bot=True, country_code='US',
                                        gender='male', gender_acc=98)
@@ -1044,12 +1090,16 @@ class TestMoveIdentity(TestCase):
     def setUp(self):
         """Load initial dataset"""
 
-        jsmith = api.add_identity('scm', email='jsmith@example.com')
-        api.add_identity('scm',
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example.com')
+        api.add_identity(self.ctx,
+                         'scm',
                          name='John Smith',
                          email='jsmith@example.com',
                          uuid=jsmith.id)
-        api.add_identity('scm', email='jdoe@example.com')
+        api.add_identity(self.ctx, 'scm', email='jdoe@example.com')
 
     def test_move_identity(self):
         """Test whether an identity is moved to a unique identity"""
@@ -1058,7 +1108,7 @@ class TestMoveIdentity(TestCase):
         to_uuid = '03877f31261a6d1a1b3971d240e628259364b8ac'
 
         # Tests
-        uidentity = api.move_identity(from_id, to_uuid)
+        uidentity = api.move_identity(self.ctx, from_id, to_uuid)
 
         self.assertIsInstance(uidentity, UniqueIdentity)
         self.assertEqual(uidentity.uuid, '03877f31261a6d1a1b3971d240e628259364b8ac')
@@ -1104,7 +1154,7 @@ class TestMoveIdentity(TestCase):
 
         # Tests
         before_dt = datetime_utcnow()
-        uidentity = api.move_identity(from_id, to_uuid)
+        uidentity = api.move_identity(self.ctx, from_id, to_uuid)
         after_dt = datetime_utcnow()
 
         # Check date on the unique identity
@@ -1117,7 +1167,7 @@ class TestMoveIdentity(TestCase):
         from_id = '03877f31261a6d1a1b3971d240e628259364b8ac'
 
         # Move the identity to the same unique identity
-        api.move_identity(from_id, from_id)
+        api.move_identity(self.ctx, from_id, from_id)
 
         uidentity_db = UniqueIdentity.objects.get(uuid='334da68fcd3da4e799791f73dfada2afb22648c6')
         identities_db = uidentity_db.identities.all()
@@ -1143,7 +1193,7 @@ class TestMoveIdentity(TestCase):
 
         # This will create a new unique identity,
         # moving the identity to this new unique identity
-        uidentity = api.move_identity(new_uuid, new_uuid)
+        uidentity = api.move_identity(self.ctx, new_uuid, new_uuid)
 
         self.assertEqual(uidentity.uuid, new_uuid)
 
@@ -1192,7 +1242,8 @@ class TestMoveIdentity(TestCase):
 
         # Check 'from_id' parameter
         with self.assertRaisesRegex(NotFoundError, msg):
-            api.move_identity('FFFFFFFFFFF',
+            api.move_identity(self.ctx,
+                              'FFFFFFFFFFF',
                               '03877f31261a6d1a1b3971d240e628259364b8ac')
 
         # Check if there are no transactions created when there is an error
@@ -1208,7 +1259,8 @@ class TestMoveIdentity(TestCase):
 
         # Check 'to_uuid' parameter
         with self.assertRaisesRegex(NotFoundError, msg):
-            api.move_identity('03877f31261a6d1a1b3971d240e628259364b8ac',
+            api.move_identity(self.ctx,
+                              '03877f31261a6d1a1b3971d240e628259364b8ac',
                               'FFFFFFFFFFF')
 
         # Check if there are no transactions created when there is an error
@@ -1221,7 +1273,9 @@ class TestMoveIdentity(TestCase):
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(InvalidValueError, FROM_ID_NONE_OR_EMPTY_ERROR):
-            api.move_identity(None, '03877f31261a6d1a1b3971d240e628259364b8ac')
+            api.move_identity(self.ctx,
+                              None,
+                              '03877f31261a6d1a1b3971d240e628259364b8ac')
 
         # Check if there are no transactions created when there is an error
         transactions = Transaction.objects.filter(created_at__gt=trx_date)
@@ -1233,7 +1287,9 @@ class TestMoveIdentity(TestCase):
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(InvalidValueError, FROM_ID_NONE_OR_EMPTY_ERROR):
-            api.move_identity('', '03877f31261a6d1a1b3971d240e628259364b8ac')
+            api.move_identity(self.ctx,
+                              '',
+                              '03877f31261a6d1a1b3971d240e628259364b8ac')
 
         # Check if there are no transactions created when there is an error
         transactions = Transaction.objects.filter(created_at__gt=trx_date)
@@ -1245,7 +1301,9 @@ class TestMoveIdentity(TestCase):
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(InvalidValueError, TO_UUID_NONE_OR_EMPTY_ERROR):
-            api.move_identity('03877f31261a6d1a1b3971d240e628259364b8ac', None)
+            api.move_identity(self.ctx,
+                              '03877f31261a6d1a1b3971d240e628259364b8ac',
+                              None)
 
         # Check if there are no transactions created when there is an error
         transactions = Transaction.objects.filter(created_at__gt=trx_date)
@@ -1257,7 +1315,9 @@ class TestMoveIdentity(TestCase):
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(InvalidValueError, TO_UUID_NONE_OR_EMPTY_ERROR):
-            api.move_identity('03877f31261a6d1a1b3971d240e628259364b8ac', '')
+            api.move_identity(self.ctx,
+                              '03877f31261a6d1a1b3971d240e628259364b8ac',
+                              '')
 
         # Check if there are no transactions created when there is an error
         transactions = Transaction.objects.filter(created_at__gt=trx_date)
@@ -1271,7 +1331,7 @@ class TestMoveIdentity(TestCase):
         from_id = '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331'
         to_uuid = '03877f31261a6d1a1b3971d240e628259364b8ac'
 
-        api.move_identity(from_id, to_uuid)
+        api.move_identity(self.ctx, from_id, to_uuid)
 
         transactions = Transaction.objects.filter(created_at__gte=timestamp)
         self.assertEqual(len(transactions), 1)
@@ -1280,6 +1340,7 @@ class TestMoveIdentity(TestCase):
         self.assertIsInstance(trx, Transaction)
         self.assertEqual(trx.name, 'move_identity')
         self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, self.ctx.user.username)
 
     def test_operations(self):
         """Check if the right operations are created when moving an identity"""
@@ -1289,7 +1350,7 @@ class TestMoveIdentity(TestCase):
         from_id = '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331'
         to_uuid = '03877f31261a6d1a1b3971d240e628259364b8ac'
 
-        api.move_identity(from_id, to_uuid)
+        api.move_identity(self.ctx, from_id, to_uuid)
 
         transactions = Transaction.objects.filter(created_at__gte=timestamp)
         trx = transactions[0]
@@ -1314,10 +1375,16 @@ class TestMoveIdentity(TestCase):
 class TestAddOrganization(TestCase):
     """Unit tests for add_organization"""
 
+    def setUp(self):
+        """Load initial values"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
     def test_add_new_organization(self):
         """Check if everything goes OK when adding a new organization"""
 
-        organization = api.add_organization(name='Example')
+        organization = api.add_organization(self.ctx, name='Example')
 
         # Tests
         self.assertIsInstance(organization, Organization)
@@ -1332,12 +1399,12 @@ class TestAddOrganization(TestCase):
     def test_add_duplicate_organization(self):
         """Check if it fails when adding a duplicate organization"""
 
-        org = api.add_organization(name='Example')
+        org = api.add_organization(self.ctx, name='Example')
 
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(AlreadyExistsError, ORGANIZATION_ALREADY_EXISTS_ERROR.format(name=org.name)):
-            org = api.add_organization(name=org.name)
+            org = api.add_organization(self.ctx, name=org.name)
 
         organizations = Organization.objects.filter(name='Example')
         self.assertEqual(len(organizations), 1)
@@ -1353,7 +1420,7 @@ class TestAddOrganization(TestCase):
         """Check if it fails when organization name is `None`"""
 
         with self.assertRaisesRegex(InvalidValueError, ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR):
-            api.add_organization(name=None)
+            api.add_organization(self.ctx, name=None)
 
         # Check if there are no transactions created when there is an error
         transactions = Transaction.objects.all()
@@ -1363,7 +1430,7 @@ class TestAddOrganization(TestCase):
         """Check if it fails when organization name is empty"""
 
         with self.assertRaisesRegex(InvalidValueError, ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR):
-            api.add_organization(name='')
+            api.add_organization(self.ctx, name='')
 
         # Check if there are no transactions created when there is an error
         transactions = Transaction.objects.all()
@@ -1373,13 +1440,13 @@ class TestAddOrganization(TestCase):
         """Check if it fails when organization name is composed by whitespaces only"""
 
         with self.assertRaisesRegex(InvalidValueError, ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR):
-            api.add_organization(name='   ')
+            api.add_organization(self.ctx, name='   ')
 
         with self.assertRaisesRegex(InvalidValueError, ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR):
-            api.add_organization(name='\t')
+            api.add_organization(self.ctx, name='\t')
 
         with self.assertRaisesRegex(InvalidValueError, ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR):
-            api.add_organization(name=' \t  ')
+            api.add_organization(self.ctx, name=' \t  ')
 
         # Check if there are no transactions created when there is an error
         transactions = Transaction.objects.all()
@@ -1389,7 +1456,7 @@ class TestAddOrganization(TestCase):
         """Check if it fails when organization name is an integer"""
 
         with self.assertRaisesRegex(TypeError, ORGANIZATION_VALUE_ERROR):
-            api.add_organization(name=12345)
+            api.add_organization(self.ctx, name=12345)
 
         # Check if there are no transactions created when there is an error
         transactions = Transaction.objects.all()
@@ -1400,7 +1467,7 @@ class TestAddOrganization(TestCase):
 
         timestamp = datetime_utcnow()
 
-        api.add_organization(name='Example')
+        api.add_organization(self.ctx, name='Example')
 
         transactions = Transaction.objects.all()
         self.assertEqual(len(transactions), 1)
@@ -1409,13 +1476,14 @@ class TestAddOrganization(TestCase):
         self.assertIsInstance(trx, Transaction)
         self.assertEqual(trx.name, 'add_organization')
         self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, self.ctx.user.username)
 
     def test_operations(self):
         """Check if the right operations are created when adding an organization"""
 
         timestamp = datetime_utcnow()
 
-        api.add_organization(name='Example')
+        api.add_organization(self.ctx, name='Example')
 
         transactions = Transaction.objects.all()
         trx = transactions[0]
@@ -1442,13 +1510,17 @@ class TestAddDomain(TestCase):
     def setUp(self):
         """Load initial dataset"""
 
-        api.add_organization(name='Example')
-        api.add_organization(name='Bitergia')
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        api.add_organization(self.ctx, name='Example')
+        api.add_organization(self.ctx, name='Bitergia')
 
     def test_add_new_domain(self):
         """Check if everything goes OK when adding a new domain"""
 
-        domain = api.add_domain(organization='Example',
+        domain = api.add_domain(self.ctx,
+                                organization='Example',
                                 domain_name='example.com',
                                 is_top_domain=True)
 
@@ -1467,7 +1539,8 @@ class TestAddDomain(TestCase):
     def test_top_domain_default(self):
         """Check if the domain is a top domain by default"""
 
-        domain = api.add_domain(organization='Example',
+        domain = api.add_domain(self.ctx,
+                                organization='Example',
                                 domain_name='example.com')
 
         # Tests
@@ -1485,11 +1558,13 @@ class TestAddDomain(TestCase):
     def test_add_multiple_domains(self):
         """Check if everything goes OK when adding a new domain"""
 
-        domain1 = api.add_domain(organization='Example',
+        domain1 = api.add_domain(self.ctx,
+                                 organization='Example',
                                  domain_name='example.com',
                                  is_top_domain=True)
 
-        domain2 = api.add_domain(organization='Example',
+        domain2 = api.add_domain(self.ctx,
+                                 organization='Example',
                                  domain_name='example.net',
                                  is_top_domain=False)
 
@@ -1517,14 +1592,16 @@ class TestAddDomain(TestCase):
     def test_add_duplicate_domain(self):
         """Check if it fails when adding a duplicate domain"""
 
-        domain = api.add_domain(organization='Example',
+        domain = api.add_domain(self.ctx,
+                                organization='Example',
                                 domain_name='example.com',
                                 is_top_domain=True)
 
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(AlreadyExistsError, DOMAIN_ALREADY_EXISTS_ERROR.format(domain_name='example.com')):
-            api.add_domain(organization='Example',
+            api.add_domain(self.ctx,
+                           organization='Example',
                            domain_name='example.com')
 
         domains = Domain.objects.filter(domain='example.com')
@@ -1543,14 +1620,16 @@ class TestAddDomain(TestCase):
     def test_add_domain_different_org(self):
         """Check if it fails when adding the same domain to a different organization"""
 
-        domain = api.add_domain(organization='Example',
+        domain = api.add_domain(self.ctx,
+                                organization='Example',
                                 domain_name='example.com',
                                 is_top_domain=True)
 
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(AlreadyExistsError, DOMAIN_ALREADY_EXISTS_ERROR.format(domain_name='example.com')):
-            api.add_domain(organization='Bitergia',
+            api.add_domain(self.ctx,
+                           organization='Bitergia',
                            domain_name='example.com')
 
         domains = Domain.objects.filter(domain='example.com')
@@ -1576,7 +1655,8 @@ class TestAddDomain(TestCase):
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(NotFoundError, ORGANIZATION_NOT_FOUND_ERROR.format(name='Botergia')):
-            api.add_domain(organization='Botergia',
+            api.add_domain(self.ctx,
+                           organization='Botergia',
                            domain_name='bitergia.com')
 
         # Check if there are no transactions created when there is an error
@@ -1589,7 +1669,8 @@ class TestAddDomain(TestCase):
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(InvalidValueError, DOMAIN_NAME_NONE_OR_EMPTY_ERROR):
-            api.add_domain(organization='Example',
+            api.add_domain(self.ctx,
+                           organization='Example',
                            domain_name=None)
 
         # Check if there are no transactions created when there is an error
@@ -1602,7 +1683,8 @@ class TestAddDomain(TestCase):
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(InvalidValueError, DOMAIN_NAME_NONE_OR_EMPTY_ERROR):
-            api.add_domain(organization='Example',
+            api.add_domain(self.ctx,
+                           organization='Example',
                            domain_name='')
 
         # Check if there are no transactions created when there is an error
@@ -1615,15 +1697,18 @@ class TestAddDomain(TestCase):
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(InvalidValueError, DOMAIN_NAME_NONE_OR_EMPTY_ERROR):
-            api.add_domain(organization='Example',
+            api.add_domain(self.ctx,
+                           organization='Example',
                            domain_name='    ')
 
         with self.assertRaisesRegex(InvalidValueError, DOMAIN_NAME_NONE_OR_EMPTY_ERROR):
-            api.add_domain(organization='Example',
+            api.add_domain(self.ctx,
+                           organization='Example',
                            domain_name='\t')
 
         with self.assertRaisesRegex(InvalidValueError, DOMAIN_NAME_NONE_OR_EMPTY_ERROR):
-            api.add_domain(organization='Example',
+            api.add_domain(self.ctx,
+                           organization='Example',
                            domain_name='  \t  ')
 
         # Check if there are no transactions created when there is an error
@@ -1636,7 +1721,8 @@ class TestAddDomain(TestCase):
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(TypeError, DOMAIN_VALUE_ERROR):
-            api.add_domain(organization='Example',
+            api.add_domain(self.ctx,
+                           organization='Example',
                            domain_name=12345)
 
         # Check if there are no transactions created when there is an error
@@ -1649,7 +1735,8 @@ class TestAddDomain(TestCase):
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(InvalidValueError, DOMAIN_ORG_NAME_NONE_OR_EMPTY_ERROR):
-            api.add_domain(organization=None,
+            api.add_domain(self.ctx,
+                           organization=None,
                            domain_name='example.com')
 
         # Check if there are no transactions created when there is an error
@@ -1662,7 +1749,8 @@ class TestAddDomain(TestCase):
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(InvalidValueError, DOMAIN_ORG_NAME_NONE_OR_EMPTY_ERROR):
-            api.add_domain(organization='',
+            api.add_domain(self.ctx,
+                           organization='',
                            domain_name='example.com')
 
         # Check if there are no transactions created when there is an error
@@ -1675,15 +1763,18 @@ class TestAddDomain(TestCase):
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(InvalidValueError, DOMAIN_ORG_NAME_NONE_OR_EMPTY_ERROR):
-            api.add_domain(organization=None,
+            api.add_domain(self.ctx,
+                           organization=None,
                            domain_name='    ')
 
         with self.assertRaisesRegex(InvalidValueError, DOMAIN_ORG_NAME_NONE_OR_EMPTY_ERROR):
-            api.add_domain(organization=None,
+            api.add_domain(self.ctx,
+                           organization=None,
                            domain_name='\t')
 
         with self.assertRaisesRegex(InvalidValueError, DOMAIN_ORG_NAME_NONE_OR_EMPTY_ERROR):
-            api.add_domain(organization=None,
+            api.add_domain(self.ctx,
+                           organization=None,
                            domain_name='  \t  ')
 
         # Check if there are no transactions created when there is an error
@@ -1696,7 +1787,8 @@ class TestAddDomain(TestCase):
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(TypeError, ORGANIZATION_VALUE_ERROR):
-            api.add_domain(organization=12345,
+            api.add_domain(self.ctx,
+                           organization=12345,
                            domain_name='example.com')
 
         # Check if there are no transactions created when there is an error
@@ -1708,7 +1800,8 @@ class TestAddDomain(TestCase):
 
         timestamp = datetime_utcnow()
 
-        api.add_domain(organization='Example',
+        api.add_domain(self.ctx,
+                       organization='Example',
                        domain_name='example.com',
                        is_top_domain=True)
 
@@ -1719,13 +1812,15 @@ class TestAddDomain(TestCase):
         self.assertIsInstance(trx, Transaction)
         self.assertEqual(trx.name, 'add_domain')
         self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, self.ctx.user.username)
 
     def test_operations(self):
         """Check if the right operations are created when adding a domain"""
 
         timestamp = datetime_utcnow()
 
-        api.add_domain(organization='Example',
+        api.add_domain(self.ctx,
+                       organization='Example',
                        domain_name='example.com',
                        is_top_domain=True)
 
@@ -1756,19 +1851,23 @@ class TestDeleteOrganization(TestCase):
     def setUp(self):
         """Load initial dataset"""
 
-        api.add_organization(name='Example')
-        api.add_organization(name='Bitergia')
-        api.add_organization(name='Libresoft')
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
 
-        jsmith = api.add_identity('scm', email='jsmith@example.com')
-        uidentity = api.enroll(jsmith.id, 'Example',
+        api.add_organization(self.ctx, name='Example')
+        api.add_organization(self.ctx, name='Bitergia')
+        api.add_organization(self.ctx, name='Libresoft')
+
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example.com')
+        uidentity = api.enroll(self.ctx,
+                               jsmith.id, 'Example',
                                from_date=datetime.datetime(1999, 1, 1),
                                to_date=datetime.datetime(2000, 1, 1))
 
     def test_delete_organization(self):
         """Check if everything goes OK when deleting an organization"""
 
-        api.delete_organization(name='Example')
+        api.delete_organization(self.ctx, name='Example')
 
         organizations = Organization.objects.filter(name='Example')
         self.assertEqual(len(organizations), 0)
@@ -1792,7 +1891,7 @@ class TestDeleteOrganization(TestCase):
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(NotFoundError, ORGANIZATION_NOT_FOUND_ERROR.format(name='Ghost')):
-            api.delete_organization('Ghost')
+            api.delete_organization(self.ctx, 'Ghost')
 
         # Check if there are no transactions created when there is an error
         transactions = Transaction.objects.filter(created_at__gt=trx_date)
@@ -1804,7 +1903,7 @@ class TestDeleteOrganization(TestCase):
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(InvalidValueError, ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR):
-            api.delete_organization(name=None)
+            api.delete_organization(self.ctx, name=None)
 
         # Check if there are no transactions created when there is an error
         transactions = Transaction.objects.filter(created_at__gt=trx_date)
@@ -1816,7 +1915,7 @@ class TestDeleteOrganization(TestCase):
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(InvalidValueError, ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR):
-            api.delete_organization(name='')
+            api.delete_organization(self.ctx, name='')
 
         # Check if there are no transactions created when there is an error
         transactions = Transaction.objects.filter(created_at__gt=trx_date)
@@ -1828,13 +1927,13 @@ class TestDeleteOrganization(TestCase):
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(InvalidValueError, ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR):
-            api.delete_organization(name='   ')
+            api.delete_organization(self.ctx, name='   ')
 
         with self.assertRaisesRegex(InvalidValueError, ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR):
-            api.delete_organization(name='\t')
+            api.delete_organization(self.ctx, name='\t')
 
         with self.assertRaisesRegex(InvalidValueError, ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR):
-            api.delete_organization(name=' \t  ')
+            api.delete_organization(self.ctx, name=' \t  ')
 
         # Check if there are no transactions created when there is an error
         transactions = Transaction.objects.filter(created_at__gt=trx_date)
@@ -1846,7 +1945,7 @@ class TestDeleteOrganization(TestCase):
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(TypeError, ORGANIZATION_VALUE_ERROR):
-            api.delete_organization(name=12345)
+            api.delete_organization(self.ctx, name=12345)
 
         # Check if there are no transactions created when there is an error
         transactions = Transaction.objects.filter(created_at__gt=trx_date)
@@ -1857,7 +1956,7 @@ class TestDeleteOrganization(TestCase):
 
         timestamp = datetime_utcnow()
 
-        api.delete_organization(name='Example')
+        api.delete_organization(self.ctx, name='Example')
 
         transactions = Transaction.objects.filter(created_at__gte=timestamp)
         self.assertEqual(len(transactions), 1)
@@ -1866,13 +1965,14 @@ class TestDeleteOrganization(TestCase):
         self.assertIsInstance(trx, Transaction)
         self.assertEqual(trx.name, 'delete_organization')
         self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, self.ctx.user.username)
 
     def test_operations(self):
         """Check if the right operations are created when deleting an organization"""
 
         timestamp = datetime_utcnow()
 
-        api.delete_organization(name='Example')
+        api.delete_organization(self.ctx, name='Example')
 
         transactions = Transaction.objects.filter(created_at__gte=timestamp)
         trx = transactions[0]
@@ -1899,23 +1999,29 @@ class TestDeleteDomain(TestCase):
     def setUp(self):
         """Load initial dataset"""
 
-        api.add_organization(name='Example')
-        api.add_domain(organization='Example',
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        api.add_organization(self.ctx, name='Example')
+        api.add_domain(self.ctx,
+                       organization='Example',
                        domain_name='example.com',
                        is_top_domain=True)
-        api.add_domain(organization='Example',
+        api.add_domain(self.ctx,
+                       organization='Example',
                        domain_name='example.net',
                        is_top_domain=False)
 
-        api.add_organization(name='Bitergia')
-        api.add_domain(organization='Bitergia',
+        api.add_organization(self.ctx, name='Bitergia')
+        api.add_domain(self.ctx,
+                       organization='Bitergia',
                        domain_name='bitergia.com',
                        is_top_domain=True)
 
     def test_delete_domain(self):
         """Check if everything goes OK when deleting a domain"""
 
-        domain = api.delete_domain('example.com')
+        domain = api.delete_domain(self.ctx, 'example.com')
 
         # Tests
         self.assertIsInstance(domain, Domain)
@@ -1946,7 +2052,7 @@ class TestDeleteDomain(TestCase):
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(NotFoundError, DOMAIN_NOT_FOUND_ERROR.format(domain_name='botergia.com')):
-            api.delete_domain('botergia.com')
+            api.delete_domain(self.ctx, 'botergia.com')
 
         # Check if there are no transactions created when there is an error
         transactions = Transaction.objects.filter(created_at__gt=trx_date)
@@ -1955,7 +2061,7 @@ class TestDeleteDomain(TestCase):
     def test_organization_not_found(self):
         """Check if it fails when the domain's organization is not found"""
 
-        api.delete_organization('Bitergia')
+        api.delete_organization(self.ctx, 'Bitergia')
 
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
@@ -1964,7 +2070,7 @@ class TestDeleteDomain(TestCase):
         self.assertEqual(len(domains), 0)
 
         with self.assertRaisesRegex(NotFoundError, DOMAIN_NOT_FOUND_ERROR.format(domain_name='bitergia.com')):
-            api.delete_domain('bitergia.com')
+            api.delete_domain(self.ctx, 'bitergia.com')
 
         # Check if there are no transactions created when there is an error
         transactions = Transaction.objects.filter(created_at__gt=trx_date)
@@ -1976,7 +2082,7 @@ class TestDeleteDomain(TestCase):
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(InvalidValueError, DOMAIN_NAME_NONE_OR_EMPTY_ERROR):
-            api.delete_domain(domain_name=None)
+            api.delete_domain(self.ctx, domain_name=None)
 
         # Check if there are no transactions created when there is an error
         transactions = Transaction.objects.filter(created_at__gt=trx_date)
@@ -1988,7 +2094,7 @@ class TestDeleteDomain(TestCase):
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(InvalidValueError, DOMAIN_NAME_NONE_OR_EMPTY_ERROR):
-            api.delete_domain(domain_name='')
+            api.delete_domain(self.ctx, domain_name='')
 
         # Check if there are no transactions created when there is an error
         transactions = Transaction.objects.filter(created_at__gt=trx_date)
@@ -2000,13 +2106,13 @@ class TestDeleteDomain(TestCase):
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(InvalidValueError, DOMAIN_NAME_NONE_OR_EMPTY_ERROR):
-            api.delete_domain(domain_name='    ')
+            api.delete_domain(self.ctx, domain_name='    ')
 
         with self.assertRaisesRegex(InvalidValueError, DOMAIN_NAME_NONE_OR_EMPTY_ERROR):
-            api.delete_domain(domain_name='\t')
+            api.delete_domain(self.ctx, domain_name='\t')
 
         with self.assertRaisesRegex(InvalidValueError, DOMAIN_NAME_NONE_OR_EMPTY_ERROR):
-            api.delete_domain(domain_name='  \t  ')
+            api.delete_domain(self.ctx, domain_name='  \t  ')
 
         # Check if there are no transactions created when there is an error
         transactions = Transaction.objects.filter(created_at__gt=trx_date)
@@ -2018,7 +2124,7 @@ class TestDeleteDomain(TestCase):
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(TypeError, DOMAIN_VALUE_ERROR):
-            api.delete_domain(domain_name=12345)
+            api.delete_domain(self.ctx, domain_name=12345)
 
         # Check if there are no transactions created when there is an error
         transactions = Transaction.objects.filter(created_at__gt=trx_date)
@@ -2029,7 +2135,7 @@ class TestDeleteDomain(TestCase):
 
         timestamp = datetime_utcnow()
 
-        api.delete_domain('example.com')
+        api.delete_domain(self.ctx, 'example.com')
 
         transactions = Transaction.objects.filter(created_at__gte=timestamp)
         self.assertEqual(len(transactions), 1)
@@ -2038,13 +2144,14 @@ class TestDeleteDomain(TestCase):
         self.assertIsInstance(trx, Transaction)
         self.assertEqual(trx.name, 'delete_domain')
         self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, self.ctx.user.username)
 
     def test_operations(self):
         """Check if the right operations are created when deleting a domain"""
 
         timestamp = datetime_utcnow()
 
-        domain = api.delete_domain('example.com')
+        domain = api.delete_domain(self.ctx, 'example.com')
 
         transactions = Transaction.objects.filter(created_at__gte=timestamp)
         trx = transactions[0]
@@ -2068,13 +2175,20 @@ class TestDeleteDomain(TestCase):
 class TestEnroll(TestCase):
     """Unit tests for enroll"""
 
+    def setUp(self):
+        """Load initial values"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
     def test_enroll(self):
         """Check whether it adds an enrollments to a unique identity and an organization"""
 
-        jsmith = api.add_identity('scm', email='jsmith@example')
-        api.add_organization('Example')
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_organization(self.ctx, 'Example')
 
-        uidentity = api.enroll(jsmith.id, 'Example',
+        uidentity = api.enroll(self.ctx,
+                               jsmith.id, 'Example',
                                from_date=datetime.datetime(1999, 1, 1),
                                to_date=datetime.datetime(2000, 1, 1))
 
@@ -2102,10 +2216,10 @@ class TestEnroll(TestCase):
     def test_enroll_default_ranges(self):
         """Check if it enrolls a unique identity using default ranges when they are not given"""
 
-        jsmith = api.add_identity('scm', email='jsmith@example')
-        api.add_organization('Example')
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_organization(self.ctx, 'Example')
 
-        uidentity = api.enroll(jsmith.id, 'Example')
+        uidentity = api.enroll(self.ctx, jsmith.id, 'Example')
 
         # Tests
         self.assertIsInstance(uidentity, UniqueIdentity)
@@ -2131,16 +2245,19 @@ class TestEnroll(TestCase):
     def test_enroll_multiple(self):
         """Check if it enrolls different times a unique identity to an organization"""
 
-        jsmith = api.add_identity('scm', email='jsmith@example')
-        api.add_organization('Example')
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_organization(self.ctx, 'Example')
 
-        api.enroll(jsmith.id, 'Example',
+        api.enroll(self.ctx,
+                   jsmith.id, 'Example',
                    from_date=datetime.datetime(2013, 1, 1),
                    to_date=datetime.datetime(2014, 1, 1))
-        api.enroll(jsmith.id, 'Example',
+        api.enroll(self.ctx,
+                   jsmith.id, 'Example',
                    from_date=datetime.datetime(1999, 1, 1),
                    to_date=datetime.datetime(2000, 1, 1))
-        api.enroll(jsmith.id, 'Example',
+        api.enroll(self.ctx,
+                   jsmith.id, 'Example',
                    from_date=datetime.datetime(2005, 1, 1),
                    to_date=datetime.datetime(2006, 1, 1))
 
@@ -2168,21 +2285,25 @@ class TestEnroll(TestCase):
     def test_merge_enrollments_upper_bound(self):
         """Check if enrollments are merged for overlapped ranges"""
 
-        jsmith = api.add_identity('scm', email='jsmith@example')
-        api.add_organization('Example')
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_organization(self.ctx, 'Example')
 
-        api.enroll(jsmith.id, 'Example',
+        api.enroll(self.ctx,
+                   jsmith.id, 'Example',
                    from_date=datetime.datetime(1999, 1, 1),
                    to_date=datetime.datetime(2000, 1, 1))
-        api.enroll(jsmith.id, 'Example',
+        api.enroll(self.ctx,
+                   jsmith.id, 'Example',
                    from_date=datetime.datetime(2004, 1, 1),
                    to_date=datetime.datetime(2006, 1, 1))
-        api.enroll(jsmith.id, 'Example',
+        api.enroll(self.ctx,
+                   jsmith.id, 'Example',
                    from_date=datetime.datetime(2013, 1, 1),
                    to_date=datetime.datetime(2014, 1, 1))
 
         # Merge enrollments expanding ending date
-        api.enroll(jsmith.id, 'Example',
+        api.enroll(self.ctx,
+                   jsmith.id, 'Example',
                    from_date=datetime.datetime(2005, 1, 1),
                    to_date=datetime.datetime(2007, 6, 1))
 
@@ -2205,21 +2326,25 @@ class TestEnroll(TestCase):
     def test_merge_enrollments_lower_bound(self):
         """Check if enrollments are merged for overlapped ranges"""
 
-        jsmith = api.add_identity('scm', email='jsmith@example')
-        api.add_organization('Example')
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_organization(self.ctx, 'Example')
 
-        api.enroll(jsmith.id, 'Example',
+        api.enroll(self.ctx,
+                   jsmith.id, 'Example',
                    from_date=datetime.datetime(1999, 1, 1),
                    to_date=datetime.datetime(2000, 1, 1))
-        api.enroll(jsmith.id, 'Example',
+        api.enroll(self.ctx,
+                   jsmith.id, 'Example',
                    from_date=datetime.datetime(2004, 1, 1),
                    to_date=datetime.datetime(2006, 1, 1))
-        api.enroll(jsmith.id, 'Example',
+        api.enroll(self.ctx,
+                   jsmith.id, 'Example',
                    from_date=datetime.datetime(2013, 1, 1),
                    to_date=datetime.datetime(2014, 1, 1))
 
         # Merge enrollments expanding starting date
-        api.enroll(jsmith.id, 'Example',
+        api.enroll(self.ctx,
+                   jsmith.id, 'Example',
                    from_date=datetime.datetime(2002, 1, 1),
                    to_date=datetime.datetime(2013, 6, 1))
 
@@ -2238,21 +2363,25 @@ class TestEnroll(TestCase):
     def test_merge_enrollments_both_bounds(self):
         """Check if enrollments are merged for overlapped ranges"""
 
-        jsmith = api.add_identity('scm', email='jsmith@example')
-        api.add_organization('Example')
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_organization(self.ctx, 'Example')
 
-        api.enroll(jsmith.id, 'Example',
+        api.enroll(self.ctx,
+                   jsmith.id, 'Example',
                    from_date=datetime.datetime(1999, 1, 1),
                    to_date=datetime.datetime(2000, 1, 1))
-        api.enroll(jsmith.id, 'Example',
+        api.enroll(self.ctx,
+                   jsmith.id, 'Example',
                    from_date=datetime.datetime(2004, 1, 1),
                    to_date=datetime.datetime(2006, 1, 1))
-        api.enroll(jsmith.id, 'Example',
+        api.enroll(self.ctx,
+                   jsmith.id, 'Example',
                    from_date=datetime.datetime(2013, 1, 1),
                    to_date=datetime.datetime(2014, 1, 1))
 
         # Merge enrollments expending both bounds
-        api.enroll(jsmith.id, 'Example',
+        api.enroll(self.ctx,
+                   jsmith.id, 'Example',
                    from_date=datetime.datetime(1900, 1, 1),
                    to_date=datetime.datetime(2100, 1, 1))
 
@@ -2267,11 +2396,12 @@ class TestEnroll(TestCase):
     def test_last_modified(self):
         """Check if last modification date is updated"""
 
-        jsmith = api.add_identity('scm', email='jsmith@example')
-        api.add_organization('Example')
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_organization(self.ctx, 'Example')
 
         before_dt = datetime_utcnow()
-        uidentity = api.enroll(jsmith.id, 'Example',
+        uidentity = api.enroll(self.ctx,
+                               jsmith.id, 'Example',
                                from_date=datetime.datetime(2013, 1, 1),
                                to_date=datetime.datetime(2014, 1, 1))
         after_dt = datetime_utcnow()
@@ -2282,8 +2412,8 @@ class TestEnroll(TestCase):
     def test_period_invalid(self):
         """Check whether enrollments cannot be added giving invalid period ranges"""
 
-        jsmith = api.add_identity('scm', email='jsmith@example')
-        api.add_organization('Example')
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_organization(self.ctx, 'Example')
 
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
@@ -2294,7 +2424,8 @@ class TestEnroll(TestCase):
         msg = PERIOD_INVALID_ERROR.format(**data)
 
         with self.assertRaisesRegex(InvalidValueError, msg):
-            api.enroll(jsmith.id, 'Example',
+            api.enroll(self.ctx,
+                       jsmith.id, 'Example',
                        from_date=datetime.datetime(2001, 1, 1),
                        to_date=datetime.datetime(1999, 1, 1))
 
@@ -2305,8 +2436,8 @@ class TestEnroll(TestCase):
     def test_period_out_of_bounds(self):
         """Check whether enrollments cannot be added giving periods out of bounds"""
 
-        jsmith = api.add_identity('scm', email='jsmith@example')
-        api.add_organization('Example')
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_organization(self.ctx, 'Example')
 
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
@@ -2317,7 +2448,8 @@ class TestEnroll(TestCase):
         msg = PERIOD_OUT_OF_BOUNDS_ERROR.format(**data)
 
         with self.assertRaisesRegex(InvalidValueError, msg):
-            api.enroll(jsmith.id, 'Example',
+            api.enroll(self.ctx,
+                       jsmith.id, 'Example',
                        from_date=datetime.datetime(1899, 12, 31, 23, 59, 59, tzinfo=UTC))
 
         data = {
@@ -2327,7 +2459,8 @@ class TestEnroll(TestCase):
         msg = PERIOD_OUT_OF_BOUNDS_ERROR.format(**data)
 
         with self.assertRaisesRegex(InvalidValueError, msg):
-            api.enroll(jsmith.id, 'Example',
+            api.enroll(self.ctx,
+                       jsmith.id, 'Example',
                        to_date=datetime.datetime(2100, 1, 1, 0, 0, 1, tzinfo=UTC))
 
         data = {
@@ -2337,7 +2470,8 @@ class TestEnroll(TestCase):
         msg = PERIOD_OUT_OF_BOUNDS_ERROR.format(**data)
 
         with self.assertRaisesRegex(InvalidValueError, msg):
-            api.enroll(jsmith.id, 'Example',
+            api.enroll(self.ctx,
+                       jsmith.id, 'Example',
                        from_date=datetime.datetime(1898, 12, 31, 23, 59, 59, tzinfo=UTC),
                        to_date=datetime.datetime(1899, 12, 31, 23, 59, 59, tzinfo=UTC))
 
@@ -2348,15 +2482,15 @@ class TestEnroll(TestCase):
     def test_non_existing_uuid(self):
         """Check if it fails adding enrollments to not existing unique identities"""
 
-        api.add_identity('scm', email='jsmith@example')
-        api.add_organization('Example')
+        api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_organization(self.ctx, 'Example')
 
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         msg = NOT_FOUND_ERROR.format(entity='abcdefghijklmnopqrstuvwxyz')
 
         with self.assertRaisesRegex(NotFoundError, msg):
-            api.enroll('abcdefghijklmnopqrstuvwxyz', 'Example')
+            api.enroll(self.ctx, 'abcdefghijklmnopqrstuvwxyz', 'Example')
 
         # Check if there are no transactions created when there is an error
         transactions = Transaction.objects.filter(created_at__gt=trx_date)
@@ -2365,15 +2499,15 @@ class TestEnroll(TestCase):
     def test_non_existing_organization(self):
         """Check if it fails adding enrollments to not existing organizations"""
 
-        jsmith = api.add_identity('scm', email='jsmith@example')
-        api.add_organization('Example')
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_organization(self.ctx, 'Example')
 
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         msg = NOT_FOUND_ERROR.format(entity='Bitergia')
 
         with self.assertRaisesRegex(NotFoundError, msg):
-            api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Bitergia')
+            api.enroll(self.ctx, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Bitergia')
 
         # Check if there are no transactions created when there is an error
         transactions = Transaction.objects.filter(created_at__gt=trx_date)
@@ -2382,22 +2516,25 @@ class TestEnroll(TestCase):
     def test_already_exist_enrollment(self):
         """Test if it raises an exception when the enrollment for the given range already exists"""
 
-        api.add_identity('scm', email='jsmith@example')
-        api.add_organization('Example')
+        api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_organization(self.ctx, 'Example')
 
-        api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
                    from_date=datetime.datetime(1999, 1, 1),
                    to_date=datetime.datetime(2010, 1, 1))
 
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaises(AlreadyExistsError):
-            api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+            api.enroll(self.ctx,
+                       'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
                        from_date=datetime.datetime(1999, 1, 1),
                        to_date=datetime.datetime(2010, 1, 1))
 
         with self.assertRaises(AlreadyExistsError):
-            api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+            api.enroll(self.ctx,
+                       'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
                        from_date=datetime.datetime(2005, 1, 1),
                        to_date=datetime.datetime(2009, 1, 1))
 
@@ -2410,12 +2547,13 @@ class TestEnroll(TestCase):
 
         timestamp = datetime_utcnow()
 
-        jsmith = api.add_identity('scm', email='jsmith@example')
-        api.add_organization('Example')
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_organization(self.ctx, 'Example')
 
         trx_date = datetime_utcnow()  # Ingnoring the transactions before this datetime
 
-        api.enroll(jsmith.id, 'Example',
+        api.enroll(self.ctx,
+                   jsmith.id, 'Example',
                    from_date=datetime.datetime(1999, 1, 1),
                    to_date=datetime.datetime(2000, 1, 1))
 
@@ -2427,18 +2565,20 @@ class TestEnroll(TestCase):
         self.assertIsInstance(trx, Transaction)
         self.assertEqual(trx.name, 'enroll')
         self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, self.ctx.user.username)
 
     def test_operations(self):
         """Check if the right operations are created when deleting a domain"""
 
         timestamp = datetime_utcnow()
 
-        jsmith = api.add_identity('scm', email='jsmith@example')
-        org = api.add_organization('Example')
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        org = api.add_organization(self.ctx, 'Example')
 
         trx_date = datetime_utcnow()
 
-        api.enroll(jsmith.id, 'Example',
+        api.enroll(self.ctx,
+                   jsmith.id, 'Example',
                    from_date=datetime.datetime(1999, 1, 1),
                    to_date=datetime.datetime(2000, 1, 1))
 
@@ -2470,32 +2610,41 @@ class TestWithdraw(TestCase):
     def setUp(self):
         """Load initial dataset"""
 
-        api.add_organization('Example')
-        api.add_organization('Bitergia')
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
 
-        api.add_identity('scm', email='jsmith@example')
-        api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+        api.add_organization(self.ctx, 'Example')
+        api.add_organization(self.ctx, 'Bitergia')
+
+        api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
                    from_date=datetime.datetime(2006, 1, 1),
                    to_date=datetime.datetime(2008, 1, 1))
-        api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
                    from_date=datetime.datetime(2009, 1, 1),
                    to_date=datetime.datetime(2011, 1, 1))
-        api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
                    from_date=datetime.datetime(2012, 1, 1),
                    to_date=datetime.datetime(2014, 1, 1))
-        api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Bitergia',
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Bitergia',
                    from_date=datetime.datetime(2012, 1, 1),
                    to_date=datetime.datetime(2014, 1, 1))
 
-        api.add_identity('scm', email='jrae@example')
-        api.enroll('3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+        api.add_identity(self.ctx, 'scm', email='jrae@example')
+        api.enroll(self.ctx,
+                   '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
                    from_date=datetime.datetime(2012, 1, 1),
                    to_date=datetime.datetime(2014, 1, 1))
 
     def test_withdraw(self):
         """Check whether it withdraws a unique identity from an organization during the given period"""
 
-        uidentity = api.withdraw('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+        uidentity = api.withdraw(self.ctx,
+                                 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
                                  from_date=datetime.datetime(2007, 1, 1),
                                  to_date=datetime.datetime(2013, 1, 1))
 
@@ -2553,7 +2702,7 @@ class TestWithdraw(TestCase):
     def test_withdraw_default_ranges(self):
         """Check if it withdraws a unique identity using default ranges when they are not given"""
 
-        uidentity = api.withdraw('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example')
+        uidentity = api.withdraw(self.ctx, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example')
 
         # Tests
         self.assertIsInstance(uidentity, UniqueIdentity)
@@ -2580,7 +2729,7 @@ class TestWithdraw(TestCase):
         """Check if last modification date is updated"""
 
         before_dt = datetime_utcnow()
-        uidentity = api.withdraw('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example')
+        uidentity = api.withdraw(self.ctx, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example')
         after_dt = datetime_utcnow()
 
         self.assertLessEqual(before_dt, uidentity.last_modified)
@@ -2598,7 +2747,8 @@ class TestWithdraw(TestCase):
         msg = WITHDRAW_PERIOD_INVALID_ERROR.format(**data)
 
         with self.assertRaisesRegex(InvalidValueError, msg):
-            api.withdraw('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+            api.withdraw(self.ctx,
+                         'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
                          from_date=datetime.datetime(2001, 1, 1),
                          to_date=datetime.datetime(1999, 1, 1))
 
@@ -2618,7 +2768,8 @@ class TestWithdraw(TestCase):
         msg = PERIOD_OUT_OF_BOUNDS_ERROR.format(**data)
 
         with self.assertRaisesRegex(InvalidValueError, msg):
-            api.withdraw('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+            api.withdraw(self.ctx,
+                         'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
                          from_date=datetime.datetime(1899, 12, 31, 23, 59, 59))
 
         data = {
@@ -2628,7 +2779,8 @@ class TestWithdraw(TestCase):
         msg = PERIOD_OUT_OF_BOUNDS_ERROR.format(**data)
 
         with self.assertRaisesRegex(InvalidValueError, msg):
-            api.withdraw('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+            api.withdraw(self.ctx,
+                         'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
                          to_date=datetime.datetime(2100, 1, 1, 0, 0, 1))
 
         data = {
@@ -2638,7 +2790,8 @@ class TestWithdraw(TestCase):
         msg = PERIOD_OUT_OF_BOUNDS_ERROR.format(**data)
 
         with self.assertRaisesRegex(InvalidValueError, msg):
-            api.withdraw('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+            api.withdraw(self.ctx,
+                         'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
                          from_date=datetime.datetime(1898, 12, 31, 23, 59, 59),
                          to_date=datetime.datetime(1899, 12, 31, 23, 59, 59))
 
@@ -2654,7 +2807,7 @@ class TestWithdraw(TestCase):
         msg = NOT_FOUND_ERROR.format(entity='abcdefghijklmnopqrstuvwxyz')
 
         with self.assertRaisesRegex(NotFoundError, msg):
-            api.withdraw('abcdefghijklmnopqrstuvwxyz', 'Example')
+            api.withdraw(self.ctx, 'abcdefghijklmnopqrstuvwxyz', 'Example')
 
         # Check if there are no transactions created when there is an error
         transactions = Transaction.objects.filter(created_at__gt=trx_date)
@@ -2668,7 +2821,7 @@ class TestWithdraw(TestCase):
         msg = NOT_FOUND_ERROR.format(entity='LibreSoft')
 
         with self.assertRaisesRegex(NotFoundError, msg):
-            api.withdraw('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'LibreSoft')
+            api.withdraw(self.ctx, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'LibreSoft')
 
         # Check if there are no transactions created when there is an error
         transactions = Transaction.objects.filter(created_at__gt=trx_date)
@@ -2680,7 +2833,8 @@ class TestWithdraw(TestCase):
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaises(NotFoundError):
-            api.withdraw('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+            api.withdraw(self.ctx,
+                         'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
                          from_date=datetime.datetime(2050, 1, 1),
                          to_date=datetime.datetime(2060, 1, 1))
 
@@ -2693,7 +2847,8 @@ class TestWithdraw(TestCase):
 
         timestamp = datetime_utcnow()
 
-        api.withdraw('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+        api.withdraw(self.ctx,
+                     'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
                      from_date=datetime.datetime(2007, 1, 1),
                      to_date=datetime.datetime(2013, 1, 1))
 
@@ -2704,13 +2859,15 @@ class TestWithdraw(TestCase):
         self.assertIsInstance(trx, Transaction)
         self.assertEqual(trx.name, 'withdraw')
         self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, self.ctx.user.username)
 
     def test_operations(self):
         """Check if the right operations are created when deleting an enrollment"""
 
         timestamp = datetime_utcnow()
 
-        api.withdraw('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+        api.withdraw(self.ctx,
+                     'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
                      from_date=datetime.datetime(2007, 1, 1),
                      to_date=datetime.datetime(2013, 1, 1))
 
@@ -2802,70 +2959,106 @@ class TestMergeIdentities(TestCase):
     def setUp(self):
         """Load initial dataset"""
 
-        api.add_organization('Example')
-        api.add_organization('Bitergia')
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        api.add_organization(self.ctx, 'Example')
+        api.add_organization(self.ctx, 'Bitergia')
 
         Country.objects.create(code='US',
                                name='United States of America',
                                alpha3='USA')
 
-        api.add_identity('scm', email='jsmith@example')
-        api.add_identity('git', email='jsmith-git@example', uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
-        api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+        api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_identity(self.ctx,
+                         'git',
+                         email='jsmith-git@example',
+                         uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
                    from_date=datetime.datetime(1900, 1, 1),
                    to_date=datetime.datetime(2017, 6, 1))
 
-        api.add_identity('scm', email='jsmith@bitergia')
-        api.add_identity('phabricator', email='jsmith-phab@bitergia', uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
-        api.enroll('caa5ebfe833371e23f0a3566f2b7ef4a984c4fed', 'Bitergia',
+        api.add_identity(self.ctx, 'scm', email='jsmith@bitergia')
+        api.add_identity(self.ctx,
+                         'phabricator',
+                         email='jsmith-phab@bitergia',
+                         uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        api.enroll(self.ctx,
+                   'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed', 'Bitergia',
                    from_date=datetime.datetime(2017, 6, 2),
                    to_date=datetime.datetime(2100, 1, 1))
 
-        api.add_identity('scm', email='jsmith-local@bitergia')
-        api.enroll('a11604f983f8786913e6d1449f2eac1618b0b2ee', 'Bitergia',
+        api.add_identity(self.ctx, 'scm', email='jsmith-local@bitergia')
+        api.enroll(self.ctx,
+                   'a11604f983f8786913e6d1449f2eac1618b0b2ee', 'Bitergia',
                    from_date=datetime.datetime(2017, 4, 1),
                    to_date=datetime.datetime(2100, 1, 1))
 
-        api.add_identity('scm', email='jsmith-internship@example')
-        api.enroll('4dd0fdcd06a6be6f0b7893bf1afcef3e3191753a', 'Example',
+        api.add_identity(self.ctx, 'scm', email='jsmith-internship@example')
+        api.enroll(self.ctx,
+                   '4dd0fdcd06a6be6f0b7893bf1afcef3e3191753a', 'Example',
                    from_date=datetime.datetime(2015, 1, 1),
                    to_date=datetime.datetime(2100, 1, 1))
 
-        api.add_identity('scm', email='john.doe@bitergia')
-        api.enroll('ebe8f55d8988fce02997389d530579ad939f1698', 'Bitergia',
+        api.add_identity(self.ctx, 'scm', email='john.doe@bitergia')
+        api.enroll(self.ctx,
+                   'ebe8f55d8988fce02997389d530579ad939f1698', 'Bitergia',
                    from_date=datetime.datetime(1900, 1, 1),
                    to_date=datetime.datetime(2015, 1, 1))
-        api.enroll('ebe8f55d8988fce02997389d530579ad939f1698', 'Example',
+        api.enroll(self.ctx,
+                   'ebe8f55d8988fce02997389d530579ad939f1698', 'Example',
                    from_date=datetime.datetime(2015, 1, 2),
                    to_date=datetime.datetime(2016, 12, 31))
-        api.enroll('ebe8f55d8988fce02997389d530579ad939f1698', 'Bitergia',
+        api.enroll(self.ctx,
+                   'ebe8f55d8988fce02997389d530579ad939f1698', 'Bitergia',
                    from_date=datetime.datetime(2017, 1, 1),
                    to_date=datetime.datetime(2100, 1, 1))
 
-        api.add_identity('scm', email='john.doe@biterg.io')
-        api.enroll('437386d9d072320387d0c802f772a5401cddc3e6', 'Bitergia')
+        api.add_identity(self.ctx, 'scm', email='john.doe@biterg.io')
+        api.enroll(self.ctx, '437386d9d072320387d0c802f772a5401cddc3e6', 'Bitergia')
 
-        api.add_identity('phabricator', email='jsmith@example-phab')
-        api.enroll('f29b50520d35d046db0d53b301418ad9aa16e7e3', 'Example',
+        api.add_identity(self.ctx, 'phabricator', email='jsmith@example-phab')
+        api.enroll(self.ctx,
+                   'f29b50520d35d046db0d53b301418ad9aa16e7e3', 'Example',
                    from_date=datetime.datetime(1900, 1, 1),
                    to_date=datetime.datetime(2017, 6, 1))
 
-        api.add_identity('scm', email='jsmith@libresoft')
-        api.add_identity('phabricator', email='jsmith2@libresoft', uuid='1c13fec7a328201fc6a230fe43eb81df0e20626e')
-        api.add_identity('phabricator', email='jsmith3@libresoft', uuid='1c13fec7a328201fc6a230fe43eb81df0e20626e')
-        api.update_profile(uuid='1c13fec7a328201fc6a230fe43eb81df0e20626e', name='John Smith',
-                           email='jsmith@profile-email', is_bot=False, country_code='US')
+        api.add_identity(self.ctx, 'scm', email='jsmith@libresoft')
+        api.add_identity(self.ctx,
+                         'phabricator',
+                         email='jsmith2@libresoft',
+                         uuid='1c13fec7a328201fc6a230fe43eb81df0e20626e')
+        api.add_identity(self.ctx,
+                         'phabricator',
+                         email='jsmith3@libresoft',
+                         uuid='1c13fec7a328201fc6a230fe43eb81df0e20626e')
+        api.update_profile(self.ctx,
+                           uuid='1c13fec7a328201fc6a230fe43eb81df0e20626e',
+                           name='John Smith',
+                           email='jsmith@profile-email',
+                           is_bot=False,
+                           country_code='US')
 
     def test_merge_identities(self):
         """Check whether it merges two unique identities, merging their ids, enrollments and profiles"""
 
-        api.update_profile(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', name='J. Smith',
-                           email='jsmith@example', gender='male', gender_acc=75)
+        api.update_profile(self.ctx,
+                           uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+                           name='J. Smith',
+                           email='jsmith@example',
+                           gender='male',
+                           gender_acc=75)
 
-        api.update_profile(uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed', name='John Smith',
-                           email='jsmith@profile-email', is_bot=True, country_code='US')
+        api.update_profile(self.ctx,
+                           uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed',
+                           name='John Smith',
+                           email='jsmith@profile-email',
+                           is_bot=True,
+                           country_code='US')
 
-        uidentity = api.merge_identities(from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
+        uidentity = api.merge_identities(self.ctx,
+                                         from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
                                          to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
 
         # Tests
@@ -2922,13 +3115,22 @@ class TestMergeIdentities(TestCase):
     def test_merge_multiple_identities(self):
         """Check whether it merges more than two unique identities, merging their ids, enrollments and profiles"""
 
-        api.update_profile(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', name='J. Smith',
-                           email='jsmith@example', gender='male', gender_acc=75)
+        api.update_profile(self.ctx,
+                           uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+                           name='J. Smith',
+                           email='jsmith@example',
+                           gender='male',
+                           gender_acc=75)
 
-        api.update_profile(uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed', name='John Smith',
-                           email='jsmith@profile-email', is_bot=True, country_code='US')
+        api.update_profile(self.ctx,
+                           uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed',
+                           name='John Smith',
+                           email='jsmith@profile-email',
+                           is_bot=True,
+                           country_code='US')
 
-        uidentity = api.merge_identities(from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+        uidentity = api.merge_identities(self.ctx,
+                                         from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
                                                      '1c13fec7a328201fc6a230fe43eb81df0e20626e'],
                                          to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
 
@@ -3004,7 +3206,9 @@ class TestMergeIdentities(TestCase):
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(InvalidValueError, FROM_UUIDS_NONE_OR_EMPTY_ERROR):
-            api.merge_identities(from_uuids=[], to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+            api.merge_identities(self.ctx,
+                                 from_uuids=[],
+                                 to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
 
         # Check if there are no transactions created when there is an error
         transactions = Transaction.objects.filter(created_at__gt=trx_date)
@@ -3016,7 +3220,9 @@ class TestMergeIdentities(TestCase):
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(InvalidValueError, FROM_UUID_NONE_OR_EMPTY_ERROR):
-            api.merge_identities(from_uuids=[''], to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+            api.merge_identities(self.ctx,
+                                 from_uuids=[''],
+                                 to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
 
         # Check if there are no transactions created when there is an error
         transactions = Transaction.objects.filter(created_at__gt=trx_date)
@@ -3028,7 +3234,9 @@ class TestMergeIdentities(TestCase):
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(InvalidValueError, TO_UUID_NONE_OR_EMPTY_ERROR):
-            api.merge_identities(from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'], to_uuid='')
+            api.merge_identities(self.ctx,
+                                 from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
+                                 to_uuid='')
 
         # Check if there are no transactions created when there is an error
         transactions = Transaction.objects.filter(created_at__gt=trx_date)
@@ -3040,7 +3248,8 @@ class TestMergeIdentities(TestCase):
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaisesRegex(InvalidValueError, FROM_UUID_TO_UUID_EQUAL_ERROR):
-            api.merge_identities(from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
+            api.merge_identities(self.ctx,
+                                 from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
                                  to_uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
         # Check if there are no transactions created when there is an error
@@ -3050,7 +3259,8 @@ class TestMergeIdentities(TestCase):
     def test_moved_enrollments(self):
         """Check whether it merges two unique identities, merging their enrollments with multiple periods"""
 
-        uidentity = api.merge_identities(from_uuids=['ebe8f55d8988fce02997389d530579ad939f1698'],
+        uidentity = api.merge_identities(self.ctx,
+                                         from_uuids=['ebe8f55d8988fce02997389d530579ad939f1698'],
                                          to_uuid='437386d9d072320387d0c802f772a5401cddc3e6')
 
         enrollments = uidentity.enrollments.all()
@@ -3074,7 +3284,8 @@ class TestMergeIdentities(TestCase):
     def test_overlapping_enrollments(self):
         """Check whether it merges two unique identities having overlapping enrollments"""
 
-        uidentity = api.merge_identities(from_uuids=['4dd0fdcd06a6be6f0b7893bf1afcef3e3191753a'],
+        uidentity = api.merge_identities(self.ctx,
+                                         from_uuids=['4dd0fdcd06a6be6f0b7893bf1afcef3e3191753a'],
                                          to_uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
         enrollments = uidentity.enrollments.all()
@@ -3088,7 +3299,8 @@ class TestMergeIdentities(TestCase):
     def test_overlapping_enrollments_different_orgs(self):
         """Check whether it merges two unique identities having overlapping periods in different organizations"""
 
-        uidentity = api.merge_identities(from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
+        uidentity = api.merge_identities(self.ctx,
+                                         from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
                                          to_uuid='a11604f983f8786913e6d1449f2eac1618b0b2ee')
 
         enrollments = uidentity.enrollments.all()
@@ -3107,7 +3319,8 @@ class TestMergeIdentities(TestCase):
     def test_duplicate_enrollments(self):
         """Check whether it merges two unique identities having duplicate enrollments"""
 
-        uidentity = api.merge_identities(from_uuids=['f29b50520d35d046db0d53b301418ad9aa16e7e3'],
+        uidentity = api.merge_identities(self.ctx,
+                                         from_uuids=['f29b50520d35d046db0d53b301418ad9aa16e7e3'],
                                          to_uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
         enrollments = uidentity.enrollments.all()
@@ -3123,11 +3336,21 @@ class TestMergeIdentities(TestCase):
 
         before_dt = datetime_utcnow()
 
-        uidentity1 = api.add_identity('scm', email='john.doe@example')
-        api.add_identity('git', email='john.doe@example', uuid='b6bee805956c03699b59e15175261f85a10d43f3')
+        uidentity1 = api.add_identity(self.ctx,
+                                      'scm',
+                                      email='john.doe@example')
+        api.add_identity(self.ctx,
+                         'git',
+                         email='john.doe@example',
+                         uuid='b6bee805956c03699b59e15175261f85a10d43f3')
 
-        uidentity2 = api.add_identity('scm', email='jdoe@example')
-        api.add_identity('git', email='jdoe@example', uuid='a033ed6d1498a58f7cf91bd56e3c746d7ddb9874')
+        uidentity2 = api.add_identity(self.ctx,
+                                      'scm',
+                                      email='jdoe@example')
+        api.add_identity(self.ctx,
+                         'git',
+                         email='jdoe@example',
+                         uuid='a033ed6d1498a58f7cf91bd56e3c746d7ddb9874')
 
         after_dt = datetime_utcnow()
 
@@ -3142,7 +3365,8 @@ class TestMergeIdentities(TestCase):
 
         # Merge identities
         before_merge_dt = datetime_utcnow()
-        uid = api.merge_identities(from_uuids=['b6bee805956c03699b59e15175261f85a10d43f3'],
+        uid = api.merge_identities(self.ctx,
+                                   from_uuids=['b6bee805956c03699b59e15175261f85a10d43f3'],
                                    to_uuid='a033ed6d1498a58f7cf91bd56e3c746d7ddb9874')
         after_merge_dt = datetime_utcnow()
 
@@ -3186,12 +3410,15 @@ class TestMergeIdentities(TestCase):
     def test_merge_identities_and_swap_profile(self):
         """Check whether it merges two unique identities, merging their profiles"""
 
-        api.update_profile(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', name='J. Smith',
+        api.update_profile(self.ctx,
+                           uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', name='J. Smith',
                            email='jsmith@example', gender='male', gender_acc=75)
-        api.update_profile(uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed', name='John Smith',
+        api.update_profile(self.ctx,
+                           uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed', name='John Smith',
                            email='jsmith@profile-email', is_bot=True, country_code='US')
 
-        uidentity = api.merge_identities(from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
+        uidentity = api.merge_identities(self.ctx,
+                                         from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
                                          to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
 
         profile = uidentity.profile
@@ -3209,10 +3436,12 @@ class TestMergeIdentities(TestCase):
     def test_empty_source_profile(self):
         """Check whether it merges two unique identities when the profile from the source identity is empty"""
 
-        api.update_profile(uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed', name='John Smith',
+        api.update_profile(self.ctx,
+                           uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed', name='John Smith',
                            email='jsmith@profile-email')
 
-        uidentity = api.merge_identities(from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
+        uidentity = api.merge_identities(self.ctx,
+                                         from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
                                          to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
 
         profile = uidentity.profile
@@ -3225,10 +3454,12 @@ class TestMergeIdentities(TestCase):
     def test_empty_destination_profile(self):
         """Check whether it merges two unique identities when the profile from the destination identity is empty"""
 
-        api.update_profile(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', name='J. Smith',
+        api.update_profile(self.ctx,
+                           uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', name='J. Smith',
                            email='jsmith@example', gender='male', country_code='US')
 
-        uidentity = api.merge_identities(from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
+        uidentity = api.merge_identities(self.ctx,
+                                         from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
                                          to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
 
         profile = uidentity.profile
@@ -3241,7 +3472,8 @@ class TestMergeIdentities(TestCase):
     def test_empty_profiles(self):
         """Check whether it merges two unique identities when both of their profiles are empty"""
 
-        uidentity = api.merge_identities(from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
+        uidentity = api.merge_identities(self.ctx,
+                                         from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
                                          to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
 
         profile = uidentity.profile
@@ -3256,7 +3488,8 @@ class TestMergeIdentities(TestCase):
 
         timestamp = datetime_utcnow()
 
-        api.merge_identities(from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
+        api.merge_identities(self.ctx,
+                             from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
                              to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
 
         transactions = Transaction.objects.filter(created_at__gte=timestamp)
@@ -3266,13 +3499,15 @@ class TestMergeIdentities(TestCase):
         self.assertIsInstance(trx, Transaction)
         self.assertEqual(trx.name, 'merge_identities')
         self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, self.ctx.user.username)
 
     def test_operations(self):
         """Check if the right operations are created when merging identities"""
 
         timestamp = datetime_utcnow()
 
-        api.merge_identities(from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
+        api.merge_identities(self.ctx,
+                             from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
                              to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
 
         transactions = Transaction.objects.filter(created_at__gte=timestamp)
