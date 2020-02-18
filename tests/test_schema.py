@@ -41,6 +41,7 @@ from grimoirelab_toolkit.datetime import datetime_utcnow, str_to_datetime
 
 from sortinghat.core import api
 from sortinghat.core import db
+from sortinghat.core.context import SortingHatContext
 from sortinghat.core.log import TransactionsLog
 from sortinghat.core.models import (Organization,
                                     Domain,
@@ -1251,7 +1252,7 @@ class TestQueryOperations(django.test.TestCase):
                           authored_by=self.user.username)
         trx.save()
 
-        self.trxl = TransactionsLog(trx)
+        self.trxl = TransactionsLog(trx, self.ctx)
         self.timestamp = datetime_utcnow()  # This will be used as a filter
         self.trxl.log_operation(op_type=Operation.OpType.UPDATE,
                                 entity_type='test_entity',
@@ -2095,8 +2096,10 @@ class TestDeleteIdentityMutation(django.test.TestCase):
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
+        self.ctx = SortingHatContext(self.user)
+
         # Transaction
-        self.trxl = TransactionsLog.open(name='delete_identity')
+        self.trxl = TransactionsLog.open('delete_identity', self.ctx)
 
         # Organizations
         example_org = db.add_organization(self.trxl, 'Example')
@@ -2685,8 +2688,10 @@ class TestEnrollMutation(django.test.TestCase):
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
+        self.ctx = SortingHatContext(self.user)
+
         # Transaction
-        self.trxl = TransactionsLog.open(name='enroll')
+        self.trxl = TransactionsLog.open('enroll', self.ctx)
 
         jsmith = api.add_identity('scm', email='jsmith@example')
         db.add_organization(self.trxl, 'Example')
@@ -2884,8 +2889,10 @@ class TestWithdrawMutation(django.test.TestCase):
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
+        self.ctx = SortingHatContext(self.user)
+
         # Transaction
-        self.trxl = TransactionsLog.open(name='withdraw')
+        self.trxl = TransactionsLog.open('withdraw', self.ctx)
 
         db.add_organization(self.trxl, 'Example')
         db.add_organization(self.trxl, 'LibreSoft')
@@ -3094,8 +3101,10 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
+        self.ctx = SortingHatContext(self.user)
+
         # Transaction
-        self.trxl = TransactionsLog.open(name='merge_identities')
+        self.trxl = TransactionsLog.open('merge_identities', self.ctx)
 
         db.add_organization(self.trxl, 'Example')
         db.add_organization(self.trxl, 'Bitergia')

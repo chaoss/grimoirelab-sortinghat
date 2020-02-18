@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2019 Bitergia
+# Copyright (C) 2014-2020 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,12 +20,16 @@
 #     Miguel Ángel Fernández <mafesan@bitergia.com>
 #
 
+import collections
 import json
 
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AnonymousUser
 from django.test import TestCase
 
 from grimoirelab_toolkit.datetime import datetime_utcnow
 
+from sortinghat.core.context import SortingHatContext
 from sortinghat.core.errors import ClosedTransactionError
 from sortinghat.core.log import TransactionsLog
 from sortinghat.core.models import (Transaction,
@@ -39,17 +43,28 @@ OPERATION_TRANSACTION_NONE_ERROR = "field trx must be a Transaction"
 OPERATION_TRANSACTION_CLOSED_ERROR = "Log operation not allowed, transaction {tuid} is already closed"
 TRANSACTION_NAME_EMPTY_ERROR = "'name' cannot be an empty string"
 TRANSACTION_NAME_NONE_ERROR = "'name' cannot be None"
+TRANSACTION_CTX_NONE_ERROR = "ctx value must be a SortingHatContext; NoneType given"
+TRANSACTION_CTX_INVALID_ERROR = "ctx value must be a SortingHatContext; TestTuple given"
+TRANSACTION_CTX_USER_EMPTY_ERROR = "ctx.user must be a Django User or AnonymousUser; SortingHatContext given"
+TRANSACTION_CTX_USER_NONE_ERROR = "ctx.user must be a Django User or AnonymousUser; SortingHatContext given"
+TRANSACTION_CTX_USER_INVALID_ERROR = "ctx.user must be a Django User or AnonymousUser; SortingHatContext given"
 
 
 class TestLogTransaction(TestCase):
     """Unit tests for add_transaction"""
+
+    def setUp(self):
+        """Load initial values"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
 
     def test_open_transaction(self):
         """Check if a new transaction is added"""
 
         timestamp = datetime_utcnow()
 
-        trxl = TransactionsLog.open(name='test')
+        trxl = TransactionsLog.open('test', self.ctx)
         self.assertIsInstance(trxl, TransactionsLog)
 
         trx_db = Transaction.objects.get(tuid=trxl.trx.tuid)
@@ -57,11 +72,12 @@ class TestLogTransaction(TestCase):
         self.assertEqual(trx_db.name, 'test')
         self.assertGreater(trx_db.created_at, timestamp)
         self.assertIsNone(trx_db.closed_at)
+        self.assertEqual(trx_db.authored_by, self.ctx.user.username)
 
     def test_close_transaction(self):
         """Check if the transaction gets closed"""
 
-        trxl = TransactionsLog.open(name='test')
+        trxl = TransactionsLog.open('test', self.ctx)
         timestamp = datetime_utcnow()
         trxl.close()
 
@@ -72,18 +88,74 @@ class TestLogTransaction(TestCase):
         """Check if it fails when `name` field is an empty string"""
 
         with self.assertRaisesRegex(ValueError, TRANSACTION_NAME_EMPTY_ERROR):
-            TransactionsLog.open(name='')
+            TransactionsLog.open('', self.ctx)
 
     def test_method_name_none(self):
         """Check if it fails when `method_name` field is `None`"""
 
         with self.assertRaisesRegex(ValueError, TRANSACTION_NAME_NONE_ERROR):
-            TransactionsLog.open(name=None)
+            TransactionsLog.open(None, self.ctx)
+
+    def test_context_none(self):
+        """Check if it fails when `ctx` field is `None`"""
+
+        with self.assertRaisesRegex(TypeError, TRANSACTION_CTX_NONE_ERROR):
+            TransactionsLog.open('test', None)
+
+    def test_context_invalid(self):
+        """Check if it fails when `ctx` field is not a SortingHatContext"""
+
+        TestTuple = collections.namedtuple('TestTuple', ['user'])
+        ctx = TestTuple(self.user)
+        with self.assertRaisesRegex(TypeError, TRANSACTION_CTX_INVALID_ERROR):
+            TransactionsLog.open('test', ctx)
+
+    def test_context_anonymous_user(self):
+        """Check if a new transaction is added when the user is anonymous"""
+
+        anon_user = AnonymousUser()
+        ctx = SortingHatContext(anon_user)
+
+        timestamp = datetime_utcnow()
+
+        trxl = TransactionsLog.open('test', ctx)
+        self.assertIsInstance(trxl, TransactionsLog)
+
+        trx_db = Transaction.objects.get(tuid=trxl.trx.tuid)
+        self.assertIsInstance(trx_db, Transaction)
+        self.assertEqual(trx_db.name, 'test')
+        self.assertGreater(trx_db.created_at, timestamp)
+        self.assertIsNone(trx_db.closed_at)
+        self.assertIsNone(trx_db.authored_by)
+
+    def test_context_user_none(self):
+        """Check if it fails when `user` field is `None`"""
+
+        ctx = SortingHatContext(None)
+        with self.assertRaisesRegex(TypeError, TRANSACTION_CTX_USER_NONE_ERROR):
+            TransactionsLog.open('test', ctx)
+
+    def test_context_user_empty(self):
+        """Check if it fails when `user` field is an empty string"""
+
+        ctx = SortingHatContext('')
+        with self.assertRaisesRegex(TypeError, TRANSACTION_CTX_USER_EMPTY_ERROR):
+            TransactionsLog.open('test', ctx)
+
+    def test_context_user_invalid(self):
+        """Check if it fails when `user` field is not an `User` Django object"""
+
+        UserTuple = collections.namedtuple('UserTuple', 'username')
+        user = UserTuple('test')
+
+        ctx = SortingHatContext(user)
+        with self.assertRaisesRegex(TypeError, TRANSACTION_CTX_USER_INVALID_ERROR):
+            TransactionsLog.open('test', ctx)
 
     def test_log_operation(self):
         """Check if a new operation is logged"""
 
-        trxl = TransactionsLog.open('test')
+        trxl = TransactionsLog.open('test', self.ctx)
         input_args = {'uuid': '12345abcd'}
 
         operation = trxl.log_operation(op_type=Operation.OpType.ADD, timestamp=datetime_utcnow(),
@@ -104,7 +176,7 @@ class TestLogTransaction(TestCase):
         """Check if multiple operations are logged properly"""
 
         # Load initial variables
-        trxl = TransactionsLog.open('test')
+        trxl = TransactionsLog.open('test', self.ctx)
         timestamp1 = datetime_utcnow()
         timestamp2 = datetime_utcnow()
         input_args1 = {'uuid': '12345abcd'}
@@ -152,7 +224,7 @@ class TestLogTransaction(TestCase):
         """Check if it fails when logging an operation on a closed transaction"""
 
         input_args = json.dumps({'uuid': '12345abcd'})
-        trxl = TransactionsLog.open('test')
+        trxl = TransactionsLog.open('test', self.ctx)
         tuid = trxl.trx.tuid
         trxl.close()
 
@@ -167,7 +239,7 @@ class TestLogTransaction(TestCase):
     def test_operation_type_empty(self):
         """Check if it fails when type field is an empty string"""
 
-        trxl = TransactionsLog.open('test')
+        trxl = TransactionsLog.open('test', self.ctx)
         input_args = json.dumps({'uuid': '12345abcd'})
 
         with self.assertRaisesRegex(TypeError, OPERATION_TYPE_EMPTY_ERROR):
@@ -177,7 +249,7 @@ class TestLogTransaction(TestCase):
     def test_operation_type_none(self):
         """Check if it fails when type field is `None`"""
 
-        trxl = TransactionsLog.open('test')
+        trxl = TransactionsLog.open('test', self.ctx)
         input_args = json.dumps({'uuid': '12345abcd'})
 
         with self.assertRaisesRegex(TypeError, OPERATION_TYPE_NONE_ERROR):
@@ -187,7 +259,7 @@ class TestLogTransaction(TestCase):
     def test_entity_empty(self):
         """Check if it fails when entity field is an empty string"""
 
-        trxl = TransactionsLog.open('test')
+        trxl = TransactionsLog.open('test', self.ctx)
         input_args = json.dumps({'uuid': '12345abcd'})
 
         with self.assertRaisesRegex(ValueError, OPERATION_ENTITY_EMPTY_ERROR):
@@ -197,7 +269,7 @@ class TestLogTransaction(TestCase):
     def test_entity_none(self):
         """Check if it fails when entity field is `None`"""
 
-        trxl = TransactionsLog.open('test')
+        trxl = TransactionsLog.open('test', self.ctx)
         input_args = json.dumps({'uuid': '12345abcd'})
 
         with self.assertRaisesRegex(ValueError, OPERATION_ENTITY_NONE_ERROR):
