@@ -221,6 +221,7 @@ SH_TRANSACTIONS_QUERY = """{
       tuid
       isClosed
       closedAt
+      authoredBy
     }
   }
 }"""
@@ -229,7 +230,8 @@ SH_TRANSACTIONS_QUERY_FILTER = """{
     filters: {
       tuid: "%s",
       name: "%s",
-      fromDate: "%s"
+      fromDate: "%s",
+      authoredBy: "%s"
     }
   ){
     entities {
@@ -238,6 +240,7 @@ SH_TRANSACTIONS_QUERY_FILTER = """{
       tuid
       isClosed
       closedAt
+      authoredBy
     }
   }
 }"""
@@ -252,6 +255,7 @@ SH_TRANSACTIONS_QUERY_PAGINATION = """{
       tuid
       isClosed
       closedAt
+      authoredBy
     }
     pageInfo{
       page
@@ -1111,6 +1115,7 @@ class TestQueryTransactions(django.test.TestCase):
         self.assertIsInstance(trx['tuid'], str)
         self.assertLess(str_to_datetime(trx['closedAt']), timestamp)
         self.assertTrue(trx['isClosed'])
+        self.assertEqual(trx['authoredBy'], 'test')
 
         trx = transactions[1]
         self.assertEqual(trx['name'], 'add_identity')
@@ -1118,6 +1123,7 @@ class TestQueryTransactions(django.test.TestCase):
         self.assertIsInstance(trx['tuid'], str)
         self.assertLess(str_to_datetime(trx['closedAt']), timestamp)
         self.assertTrue(trx['isClosed'])
+        self.assertEqual(trx['authoredBy'], 'test')
 
         trx = transactions[2]
         self.assertEqual(trx['name'], 'update_profile')
@@ -1125,6 +1131,7 @@ class TestQueryTransactions(django.test.TestCase):
         self.assertIsInstance(trx['tuid'], str)
         self.assertLess(str_to_datetime(trx['closedAt']), timestamp)
         self.assertTrue(trx['isClosed'])
+        self.assertEqual(trx['authoredBy'], 'test')
 
         trx = transactions[3]
         self.assertEqual(trx['name'], 'enroll')
@@ -1132,6 +1139,7 @@ class TestQueryTransactions(django.test.TestCase):
         self.assertIsInstance(trx['tuid'], str)
         self.assertLess(str_to_datetime(trx['closedAt']), timestamp)
         self.assertTrue(trx['isClosed'])
+        self.assertEqual(trx['authoredBy'], 'test')
 
         trx = transactions[4]
         self.assertEqual(trx['name'], self.trx.name)
@@ -1139,13 +1147,15 @@ class TestQueryTransactions(django.test.TestCase):
         self.assertEqual(trx['tuid'], self.trx.tuid)
         self.assertIsNone(trx['closedAt'])
         self.assertFalse(trx['isClosed'])
+        self.assertEqual(trx['authoredBy'], 'test')
 
     def test_filter_registry(self):
         """Check whether it returns the transaction searched when using filters"""
 
         client = graphene.test.Client(schema)
         test_query = SH_TRANSACTIONS_QUERY_FILTER % ('012345abcdef', 'test_trx',
-                                                     self.timestamp.isoformat())
+                                                     self.timestamp.isoformat(),
+                                                     'test')
         executed = client.execute(test_query,
                                   context_value=self.context_value)
 
@@ -1158,13 +1168,15 @@ class TestQueryTransactions(django.test.TestCase):
         self.assertEqual(trx['tuid'], self.trx.tuid)
         self.assertIsNone(trx['closedAt'])
         self.assertFalse(trx['isClosed'])
+        self.assertEqual(trx['authoredBy'], 'test')
 
     def test_filter_non_existing_registry(self):
         """Check whether it returns an empty list when searched with a non existing transaction"""
 
         client = graphene.test.Client(schema)
         test_query = SH_TRANSACTIONS_QUERY_FILTER % ('012345abcdefg', 'test_trx',
-                                                     self.timestamp.isoformat())
+                                                     self.timestamp.isoformat(),
+                                                     'test')
         executed = client.execute(test_query,
                                   context_value=self.context_value)
 
@@ -1190,6 +1202,7 @@ class TestQueryTransactions(django.test.TestCase):
         self.assertIsInstance(trx['tuid'], str)
         self.assertLess(str_to_datetime(trx['closedAt']), timestamp)
         self.assertTrue(trx['isClosed'])
+        self.assertEqual(trx['authoredBy'], 'test')
 
         trx = transactions[1]
         self.assertEqual(trx['name'], 'add_identity')
@@ -1197,6 +1210,7 @@ class TestQueryTransactions(django.test.TestCase):
         self.assertIsInstance(trx['tuid'], str)
         self.assertLess(str_to_datetime(trx['closedAt']), timestamp)
         self.assertTrue(trx['isClosed'])
+        self.assertEqual(trx['authoredBy'], 'test')
 
         pag_data = executed['data']['transactions']['pageInfo']
         self.assertEqual(len(pag_data), 8)

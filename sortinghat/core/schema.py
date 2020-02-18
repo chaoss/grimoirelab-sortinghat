@@ -153,6 +153,7 @@ class TransactionFilterType(graphene.InputObjectType):
     is_closed = graphene.Boolean(required=False)
     from_date = graphene.DateTime(required=False)
     to_date = graphene.DateTime(required=False)
+    authored_by = graphene.String(required=False)
 
 
 class OperationFilterType(graphene.InputObjectType):
@@ -520,6 +521,8 @@ class SortingHatQuery:
             query = query.filter(created_at__gte=filters['from_date'])
         if filters and 'to_date' in filters:
             query = query.filter(created_at__lte=filters['to_date'])
+        if filters and 'authored_by' in filters:
+            query = query.filter(authored_by=filters['authored_by'])
 
         return TransactionPaginatedType.create_paginated_result(query,
                                                                 page,
