@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2019 Bitergia
+# Copyright (C) 2014-2020 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -1081,7 +1081,8 @@ class TestQueryTransactions(django.test.TestCase):
         self.timestamp = datetime_utcnow()  # This will be used as a filter
         self.trx = Transaction(name='test_trx',
                                tuid='012345abcdef',
-                               created_at=datetime_utcnow())
+                               created_at=datetime_utcnow(),
+                               authored_by=self.user.username)
         self.trx.save()
 
     def test_transaction(self):
@@ -1246,7 +1247,8 @@ class TestQueryOperations(django.test.TestCase):
         # Create an additional operation controlling input values
         trx = Transaction(name='test_trx',
                           tuid='012345abcdef',
-                          created_at=datetime_utcnow())
+                          created_at=datetime_utcnow(),
+                          authored_by=self.user.username)
         trx.save()
 
         self.trxl = TransactionsLog(trx)

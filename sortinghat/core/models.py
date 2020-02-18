@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2018 Bitergia
+# Copyright (C) 2014-2020 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -85,11 +85,14 @@ class EntityBase(Model):
 
 
 class Transaction(Model):
-    tuid = CharField(max_length=MAX_SIZE_CHAR_FIELD, primary_key=True)
+    tuid = CharField(max_length=MAX_SIZE_CHAR_FIELD,
+                     primary_key=True)
     name = CharField(max_length=MAX_SIZE_CHAR_FIELD)
     created_at = DateTimeField()
     closed_at = DateTimeField(null=True)
     is_closed = BooleanField(default=False)
+    authored_by = CharField(max_length=MAX_SIZE_CHAR_FIELD,
+                            null=True)
 
     class Meta:
         db_table = 'transactions'
