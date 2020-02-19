@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2019 Bitergia
+# Copyright (C) 2014-2020 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,8 +27,11 @@ import uuid
 import django.core.exceptions
 import django.db.utils
 
+from django.contrib.auth.models import User, AnonymousUser
+
 from grimoirelab_toolkit.datetime import datetime_utcnow
 
+from .context import SortingHatContext
 from .errors import AlreadyExistsError, ClosedTransactionError
 from .models import (Operation,
                      Transaction)
@@ -58,29 +61,46 @@ class TransactionsLog:
     :raises ClosedTransactionError: When trying to log an operation on a closed transaction
     :raises TypeError: When the `op_type` is not an instance of `Operation.OpType` class
     """
-    def __init__(self, trx):
+    def __init__(self, trx, ctx):
         self.trx = trx
+        self.ctx = ctx
 
     @classmethod
-    def open(cls, name):
+    def open(cls, name, ctx):
         """Create a new transaction object and save it into the DB.
 
         :param name: Name of the method opening the transaction
+        :param ctx: Context from the method opening the transaction
 
         :returns: a new TransactionsLog object containing the generated Transaction object
         """
+        # Check if input values are valid
         validate_field('name', name)
+        if not isinstance(ctx, SortingHatContext):
+            msg = "ctx value must be a SortingHatContext; {} given".format(ctx.__class__.__name__)
+            raise TypeError(msg)
+        if not isinstance(ctx.user, (User, AnonymousUser)):
+            msg = "ctx.user must be a Django User or AnonymousUser; {} given".format(ctx.__class__.__name__)
+            raise TypeError(msg)
 
         tuid = uuid.uuid4().hex
 
-        trx = Transaction(tuid=tuid, name=name, created_at=datetime_utcnow())
+        username = None
+        if not isinstance(ctx.user, AnonymousUser):
+            username = ctx.user.username
+            validate_field('username', username)
+
+        trx = Transaction(tuid=tuid,
+                          name=name,
+                          created_at=datetime_utcnow(),
+                          authored_by=username)
 
         try:
             trx.save()
         except django.db.utils.IntegrityError as exc:
             _handle_integrity_error(Transaction, exc)
 
-        return cls(trx)
+        return cls(trx, ctx)
 
     def close(self):
         """Close a given transaction adding a timestamp as closing date and setting a flag"""

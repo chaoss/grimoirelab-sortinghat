@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2019 Bitergia
+# Copyright (C) 2014-2020 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -35,6 +35,7 @@ from graphene.types.generic import GenericScalar
 from graphene_django.converter import convert_django_field
 from graphene_django.types import DjangoObjectType
 
+from .context import SortingHatContext
 from .decorators import check_auth
 from .api import (add_identity,
                   delete_identity,
@@ -152,6 +153,7 @@ class TransactionFilterType(graphene.InputObjectType):
     is_closed = graphene.Boolean(required=False)
     from_date = graphene.DateTime(required=False)
     to_date = graphene.DateTime(required=False)
+    authored_by = graphene.String(required=False)
 
 
 class OperationFilterType(graphene.InputObjectType):
@@ -215,7 +217,10 @@ class AddOrganization(graphene.Mutation):
 
     @check_auth
     def mutate(self, info, name):
-        org = add_organization(name)
+        user = info.context.user
+        ctx = SortingHatContext(user)
+
+        org = add_organization(ctx, name)
 
         return AddOrganization(
             organization=org
@@ -230,7 +235,10 @@ class DeleteOrganization(graphene.Mutation):
 
     @check_auth
     def mutate(self, info, name):
-        org = delete_organization(name)
+        user = info.context.user
+        ctx = SortingHatContext(user)
+
+        org = delete_organization(ctx, name)
 
         return DeleteOrganization(
             organization=org
@@ -247,7 +255,13 @@ class AddDomain(graphene.Mutation):
 
     @check_auth
     def mutate(self, info, organization, domain, is_top_domain=False):
-        dom = add_domain(organization, domain, is_top_domain=is_top_domain)
+        user = info.context.user
+        ctx = SortingHatContext(user)
+
+        dom = add_domain(ctx,
+                         organization,
+                         domain,
+                         is_top_domain=is_top_domain)
 
         return AddDomain(
             domain=dom
@@ -262,7 +276,10 @@ class DeleteDomain(graphene.Mutation):
 
     @check_auth
     def mutate(self, info, domain):
-        dom = delete_domain(domain)
+        user = info.context.user
+        ctx = SortingHatContext(user)
+
+        dom = delete_domain(ctx, domain)
 
         return DeleteDomain(
             domain=dom
@@ -284,7 +301,11 @@ class AddIdentity(graphene.Mutation):
     def mutate(self, info, source,
                name=None, email=None, username=None,
                uuid=None):
-        identity = add_identity(source,
+        user = info.context.user
+        ctx = SortingHatContext(user)
+
+        identity = add_identity(ctx,
+                                source,
                                 name=name,
                                 email=email,
                                 username=username,
@@ -308,7 +329,10 @@ class DeleteIdentity(graphene.Mutation):
 
     @check_auth
     def mutate(self, info, uuid):
-        uidentity = delete_identity(uuid)
+        user = info.context.user
+        ctx = SortingHatContext(user)
+
+        uidentity = delete_identity(ctx, uuid)
 
         return DeleteIdentity(
             uuid=uuid,
@@ -326,7 +350,10 @@ class UpdateProfile(graphene.Mutation):
 
     @check_auth
     def mutate(self, info, uuid, data):
-        uidentity = update_profile(uuid, **data)
+        user = info.context.user
+        ctx = SortingHatContext(user)
+
+        uidentity = update_profile(ctx, uuid, **data)
 
         return UpdateProfile(
             uuid=uidentity.uuid,
@@ -344,7 +371,10 @@ class MoveIdentity(graphene.Mutation):
 
     @check_auth
     def mutate(self, info, from_id, to_uuid):
-        uidentity = move_identity(from_id, to_uuid)
+        user = info.context.user
+        ctx = SortingHatContext(user)
+
+        uidentity = move_identity(ctx, from_id, to_uuid)
 
         return MoveIdentity(
             uuid=uidentity.uuid,
@@ -362,7 +392,10 @@ class MergeIdentities(graphene.Mutation):
 
     @check_auth
     def mutate(self, info, from_uuids, to_uuid):
-        uidentity = merge_identities(from_uuids, to_uuid)
+        user = info.context.user
+        ctx = SortingHatContext(user)
+
+        uidentity = merge_identities(ctx, from_uuids, to_uuid)
 
         return MergeIdentities(
             uuid=uidentity.uuid,
@@ -382,7 +415,10 @@ class Enroll(graphene.Mutation):
 
     @check_auth
     def mutate(self, info, uuid, organization, from_date=None, to_date=None):
-        uidentity = enroll(uuid, organization,
+        user = info.context.user
+        ctx = SortingHatContext(user)
+
+        uidentity = enroll(ctx, uuid, organization,
                            from_date=from_date, to_date=to_date)
         return Enroll(
             uuid=uidentity.uuid,
@@ -402,7 +438,10 @@ class Withdraw(graphene.Mutation):
 
     @check_auth
     def mutate(self, info, uuid, organization, from_date=None, to_date=None):
-        uidentity = withdraw(uuid, organization,
+        user = info.context.user
+        ctx = SortingHatContext(user)
+
+        uidentity = withdraw(ctx, uuid, organization,
                              from_date=from_date, to_date=to_date)
         return Withdraw(
             uuid=uidentity.uuid,
@@ -482,6 +521,8 @@ class SortingHatQuery:
             query = query.filter(created_at__gte=filters['from_date'])
         if filters and 'to_date' in filters:
             query = query.filter(created_at__lte=filters['to_date'])
+        if filters and 'authored_by' in filters:
+            query = query.filter(authored_by=filters['authored_by'])
 
         return TransactionPaginatedType.create_paginated_result(query,
                                                                 page,

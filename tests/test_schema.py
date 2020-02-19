@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2019 Bitergia
+# Copyright (C) 2014-2020 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -41,6 +41,7 @@ from grimoirelab_toolkit.datetime import datetime_utcnow, str_to_datetime
 
 from sortinghat.core import api
 from sortinghat.core import db
+from sortinghat.core.context import SortingHatContext
 from sortinghat.core.log import TransactionsLog
 from sortinghat.core.models import (Organization,
                                     Domain,
@@ -220,6 +221,7 @@ SH_TRANSACTIONS_QUERY = """{
       tuid
       isClosed
       closedAt
+      authoredBy
     }
   }
 }"""
@@ -228,7 +230,8 @@ SH_TRANSACTIONS_QUERY_FILTER = """{
     filters: {
       tuid: "%s",
       name: "%s",
-      fromDate: "%s"
+      fromDate: "%s",
+      authoredBy: "%s"
     }
   ){
     entities {
@@ -237,6 +240,7 @@ SH_TRANSACTIONS_QUERY_FILTER = """{
       tuid
       isClosed
       closedAt
+      authoredBy
     }
   }
 }"""
@@ -251,6 +255,7 @@ SH_TRANSACTIONS_QUERY_PAGINATION = """{
       tuid
       isClosed
       closedAt
+      authoredBy
     }
     pageInfo{
       page
@@ -410,13 +415,17 @@ class TestQueryPagination(django.test.TestCase):
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
-        api.add_organization('Example')
+        self.ctx = SortingHatContext(self.user)
 
-        api.add_identity('scm', email='jsmith@example')
-        api.update_profile(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+        api.add_organization(self.ctx, 'Example')
+
+        api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.update_profile(self.ctx,
+                           uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
                            name='J. Smith', email='jsmith@example',
                            gender='male', gender_acc=75)
-        api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
                    from_date=datetime.datetime(1900, 1, 1),
                    to_date=datetime.datetime(2017, 6, 1))
 
@@ -1067,13 +1076,17 @@ class TestQueryTransactions(django.test.TestCase):
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
-        api.add_organization('Example')
+        self.ctx = SortingHatContext(self.user)
 
-        api.add_identity('scm', email='jsmith@example')
-        api.update_profile(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+        api.add_organization(self.ctx, 'Example')
+
+        api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.update_profile(self.ctx,
+                           uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
                            name='J. Smith', email='jsmith@example',
                            gender='male', gender_acc=75)
-        api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
                    from_date=datetime.datetime(1900, 1, 1),
                    to_date=datetime.datetime(2017, 6, 1))
 
@@ -1081,7 +1094,8 @@ class TestQueryTransactions(django.test.TestCase):
         self.timestamp = datetime_utcnow()  # This will be used as a filter
         self.trx = Transaction(name='test_trx',
                                tuid='012345abcdef',
-                               created_at=datetime_utcnow())
+                               created_at=datetime_utcnow(),
+                               authored_by=self.user.username)
         self.trx.save()
 
     def test_transaction(self):
@@ -1101,6 +1115,7 @@ class TestQueryTransactions(django.test.TestCase):
         self.assertIsInstance(trx['tuid'], str)
         self.assertLess(str_to_datetime(trx['closedAt']), timestamp)
         self.assertTrue(trx['isClosed'])
+        self.assertEqual(trx['authoredBy'], 'test')
 
         trx = transactions[1]
         self.assertEqual(trx['name'], 'add_identity')
@@ -1108,6 +1123,7 @@ class TestQueryTransactions(django.test.TestCase):
         self.assertIsInstance(trx['tuid'], str)
         self.assertLess(str_to_datetime(trx['closedAt']), timestamp)
         self.assertTrue(trx['isClosed'])
+        self.assertEqual(trx['authoredBy'], 'test')
 
         trx = transactions[2]
         self.assertEqual(trx['name'], 'update_profile')
@@ -1115,6 +1131,7 @@ class TestQueryTransactions(django.test.TestCase):
         self.assertIsInstance(trx['tuid'], str)
         self.assertLess(str_to_datetime(trx['closedAt']), timestamp)
         self.assertTrue(trx['isClosed'])
+        self.assertEqual(trx['authoredBy'], 'test')
 
         trx = transactions[3]
         self.assertEqual(trx['name'], 'enroll')
@@ -1122,6 +1139,7 @@ class TestQueryTransactions(django.test.TestCase):
         self.assertIsInstance(trx['tuid'], str)
         self.assertLess(str_to_datetime(trx['closedAt']), timestamp)
         self.assertTrue(trx['isClosed'])
+        self.assertEqual(trx['authoredBy'], 'test')
 
         trx = transactions[4]
         self.assertEqual(trx['name'], self.trx.name)
@@ -1129,13 +1147,15 @@ class TestQueryTransactions(django.test.TestCase):
         self.assertEqual(trx['tuid'], self.trx.tuid)
         self.assertIsNone(trx['closedAt'])
         self.assertFalse(trx['isClosed'])
+        self.assertEqual(trx['authoredBy'], 'test')
 
     def test_filter_registry(self):
         """Check whether it returns the transaction searched when using filters"""
 
         client = graphene.test.Client(schema)
         test_query = SH_TRANSACTIONS_QUERY_FILTER % ('012345abcdef', 'test_trx',
-                                                     self.timestamp.isoformat())
+                                                     self.timestamp.isoformat(),
+                                                     'test')
         executed = client.execute(test_query,
                                   context_value=self.context_value)
 
@@ -1148,13 +1168,15 @@ class TestQueryTransactions(django.test.TestCase):
         self.assertEqual(trx['tuid'], self.trx.tuid)
         self.assertIsNone(trx['closedAt'])
         self.assertFalse(trx['isClosed'])
+        self.assertEqual(trx['authoredBy'], 'test')
 
     def test_filter_non_existing_registry(self):
         """Check whether it returns an empty list when searched with a non existing transaction"""
 
         client = graphene.test.Client(schema)
         test_query = SH_TRANSACTIONS_QUERY_FILTER % ('012345abcdefg', 'test_trx',
-                                                     self.timestamp.isoformat())
+                                                     self.timestamp.isoformat(),
+                                                     'test')
         executed = client.execute(test_query,
                                   context_value=self.context_value)
 
@@ -1180,6 +1202,7 @@ class TestQueryTransactions(django.test.TestCase):
         self.assertIsInstance(trx['tuid'], str)
         self.assertLess(str_to_datetime(trx['closedAt']), timestamp)
         self.assertTrue(trx['isClosed'])
+        self.assertEqual(trx['authoredBy'], 'test')
 
         trx = transactions[1]
         self.assertEqual(trx['name'], 'add_identity')
@@ -1187,6 +1210,7 @@ class TestQueryTransactions(django.test.TestCase):
         self.assertIsInstance(trx['tuid'], str)
         self.assertLess(str_to_datetime(trx['closedAt']), timestamp)
         self.assertTrue(trx['isClosed'])
+        self.assertEqual(trx['authoredBy'], 'test')
 
         pag_data = executed['data']['transactions']['pageInfo']
         self.assertEqual(len(pag_data), 8)
@@ -1241,15 +1265,18 @@ class TestQueryOperations(django.test.TestCase):
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
-        api.add_organization('Example')
+        self.ctx = SortingHatContext(self.user)
+
+        api.add_organization(self.ctx, 'Example')
 
         # Create an additional operation controlling input values
         trx = Transaction(name='test_trx',
                           tuid='012345abcdef',
-                          created_at=datetime_utcnow())
+                          created_at=datetime_utcnow(),
+                          authored_by=self.user.username)
         trx.save()
 
-        self.trxl = TransactionsLog(trx)
+        self.trxl = TransactionsLog(trx, self.ctx)
         self.timestamp = datetime_utcnow()  # This will be used as a filter
         self.trxl.log_operation(op_type=Operation.OpType.UPDATE,
                                 entity_type='test_entity',
@@ -1332,7 +1359,7 @@ class TestQueryOperations(django.test.TestCase):
         """Check whether it returns the operations searched when using pagination"""
 
         # Add an additional operation by calling an API method
-        api.add_domain(organization='Example', domain_name='example.com')
+        api.add_domain(self.ctx, organization='Example', domain_name='example.com')
 
         client = graphene.test.Client(schema)
         test_query = SH_OPERATIONS_QUERY_PAGINATION % (1, 2)
@@ -2093,8 +2120,10 @@ class TestDeleteIdentityMutation(django.test.TestCase):
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
+        self.ctx = SortingHatContext(self.user)
+
         # Transaction
-        self.trxl = TransactionsLog.open(name='delete_identity')
+        self.trxl = TransactionsLog.open('delete_identity', self.ctx)
 
         # Organizations
         example_org = db.add_organization(self.trxl, 'Example')
@@ -2102,8 +2131,9 @@ class TestDeleteIdentityMutation(django.test.TestCase):
         libresoft_org = db.add_organization(self.trxl, 'LibreSoft')
 
         # Identities
-        jsmith = api.add_identity('scm', email='jsmith@example')
-        api.add_identity('scm',
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_identity(self.ctx,
+                         'scm',
                          name='John Smith',
                          email='jsmith@example',
                          uuid=jsmith.id)
@@ -2112,11 +2142,12 @@ class TestDeleteIdentityMutation(django.test.TestCase):
         Enrollment.objects.create(uidentity=jsmith.uidentity,
                                   organization=bitergia_org)
 
-        jdoe = api.add_identity('scm', email='jdoe@example')
+        jdoe = api.add_identity(self.ctx, 'scm', email='jdoe@example')
         Enrollment.objects.create(uidentity=jdoe.uidentity,
                                   organization=example_org)
 
-        jrae = api.add_identity('scm',
+        jrae = api.add_identity(self.ctx,
+                                'scm',
                                 name='Jane Rae',
                                 email='jrae@example')
         Enrollment.objects.create(uidentity=jrae.uidentity,
@@ -2265,11 +2296,16 @@ class TestUpdateProfileMutation(django.test.TestCase):
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
+        self.ctx = SortingHatContext(self.user)
+
         Country.objects.create(code='US',
                                name='United States of America',
                                alpha3='USA')
-        jsmith = api.add_identity('scm', email='jsmith@example')
-        api.update_profile(jsmith.id, name='Smith J,', email='jsmith@example.com')
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.update_profile(self.ctx,
+                           jsmith.id,
+                           name='Smith J,',
+                           email='jsmith@example.com')
 
     def test_update_profile(self):
         """Check if it updates a profile"""
@@ -2408,12 +2444,15 @@ class TestMoveIdentityMutation(django.test.TestCase):
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
-        jsmith = api.add_identity('scm', email='jsmith@example.com')
-        api.add_identity('scm',
+        self.ctx = SortingHatContext(self.user)
+
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example.com')
+        api.add_identity(self.ctx,
+                         'scm',
                          name='John Smith',
                          email='jsmith@example.com',
                          uuid=jsmith.id)
-        api.add_identity('scm', email='jdoe@example.com')
+        api.add_identity(self.ctx, 'scm', email='jdoe@example.com')
 
     def test_move_identity(self):
         """Test whether an identity is moved to a unique identity"""
@@ -2683,16 +2722,18 @@ class TestEnrollMutation(django.test.TestCase):
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
-        # Transaction
-        self.trxl = TransactionsLog.open(name='enroll')
+        self.ctx = SortingHatContext(self.user)
 
-        jsmith = api.add_identity('scm', email='jsmith@example')
+        # Transaction
+        self.trxl = TransactionsLog.open('enroll', self.ctx)
+
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
         db.add_organization(self.trxl, 'Example')
 
-        api.enroll(jsmith.id, 'Example',
+        api.enroll(self.ctx, jsmith.id, 'Example',
                    from_date=datetime.datetime(1999, 1, 1),
                    to_date=datetime.datetime(2000, 1, 1))
-        api.enroll(jsmith.id, 'Example',
+        api.enroll(self.ctx, jsmith.id, 'Example',
                    from_date=datetime.datetime(2004, 1, 1),
                    to_date=datetime.datetime(2006, 1, 1))
 
@@ -2882,28 +2923,35 @@ class TestWithdrawMutation(django.test.TestCase):
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
+        self.ctx = SortingHatContext(self.user)
+
         # Transaction
-        self.trxl = TransactionsLog.open(name='withdraw')
+        self.trxl = TransactionsLog.open('withdraw', self.ctx)
 
         db.add_organization(self.trxl, 'Example')
         db.add_organization(self.trxl, 'LibreSoft')
 
-        api.add_identity('scm', email='jsmith@example')
-        api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+        api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
                    from_date=datetime.datetime(2006, 1, 1),
                    to_date=datetime.datetime(2008, 1, 1))
-        api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
                    from_date=datetime.datetime(2009, 1, 1),
                    to_date=datetime.datetime(2011, 1, 1))
-        api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
                    from_date=datetime.datetime(2012, 1, 1),
                    to_date=datetime.datetime(2014, 1, 1))
-        api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'LibreSoft',
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'LibreSoft',
                    from_date=datetime.datetime(2012, 1, 1),
                    to_date=datetime.datetime(2014, 1, 1))
 
-        api.add_identity('scm', email='jrae@example')
-        api.enroll('3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+        api.add_identity(self.ctx, 'scm', email='jrae@example')
+        api.enroll(self.ctx,
+                   '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
                    from_date=datetime.datetime(2012, 1, 1),
                    to_date=datetime.datetime(2014, 1, 1))
 
@@ -3092,8 +3140,10 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
+        self.ctx = SortingHatContext(self.user)
+
         # Transaction
-        self.trxl = TransactionsLog.open(name='merge_identities')
+        self.trxl = TransactionsLog.open('merge_identities', self.ctx)
 
         db.add_organization(self.trxl, 'Example')
         db.add_organization(self.trxl, 'Bitergia')
@@ -3102,26 +3152,43 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
                                name='United States of America',
                                alpha3='USA')
 
-        api.add_identity('scm', email='jsmith@example')
-        api.add_identity('git', email='jsmith-git@example', uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
-        api.update_profile(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', name='J. Smith',
+        api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_identity(self.ctx,
+                         'git',
+                         email='jsmith-git@example',
+                         uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        api.update_profile(self.ctx,
+                           uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', name='J. Smith',
                            email='jsmith@example', gender='male', gender_acc=75)
-        api.enroll('e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
                    from_date=datetime.datetime(1900, 1, 1),
                    to_date=datetime.datetime(2017, 6, 1))
 
-        api.add_identity('scm', email='jsmith@bitergia')
-        api.add_identity('phabricator', email='jsmith-phab@bitergia', uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
-        api.update_profile(uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed', name='John Smith',
+        api.add_identity(self.ctx, 'scm', email='jsmith@bitergia')
+        api.add_identity(self.ctx,
+                         'phabricator',
+                         email='jsmith-phab@bitergia',
+                         uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        api.update_profile(self.ctx,
+                           uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed', name='John Smith',
                            email='jsmith@profile-email', is_bot=True, country_code='US')
-        api.enroll('caa5ebfe833371e23f0a3566f2b7ef4a984c4fed', 'Bitergia',
+        api.enroll(self.ctx,
+                   'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed', 'Bitergia',
                    from_date=datetime.datetime(2017, 6, 2),
                    to_date=datetime.datetime(2100, 1, 1))
 
-        api.add_identity('scm', email='jsmith@libresoft')
-        api.add_identity('phabricator', email='jsmith2@libresoft', uuid='1c13fec7a328201fc6a230fe43eb81df0e20626e')
-        api.add_identity('phabricator', email='jsmith3@libresoft', uuid='1c13fec7a328201fc6a230fe43eb81df0e20626e')
-        api.update_profile(uuid='1c13fec7a328201fc6a230fe43eb81df0e20626e', name='John Smith',
+        api.add_identity(self.ctx, 'scm', email='jsmith@libresoft')
+        api.add_identity(self.ctx,
+                         'phabricator',
+                         email='jsmith2@libresoft',
+                         uuid='1c13fec7a328201fc6a230fe43eb81df0e20626e')
+        api.add_identity(self.ctx,
+                         'phabricator',
+                         email='jsmith3@libresoft',
+                         uuid='1c13fec7a328201fc6a230fe43eb81df0e20626e')
+        api.update_profile(self.ctx,
+                           uuid='1c13fec7a328201fc6a230fe43eb81df0e20626e', name='John Smith',
                            email='jsmith@profile-email', is_bot=False, country_code='US')
 
     def test_merge_identities(self):

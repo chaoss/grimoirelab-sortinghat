@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2019 Bitergia
+# Copyright (C) 2014-2020 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,12 +26,14 @@ import json
 
 from dateutil.tz import UTC
 
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from django.test import TestCase
 
 from grimoirelab_toolkit.datetime import datetime_utcnow, datetime_to_utc
 
 from sortinghat.core import db
+from sortinghat.core.context import SortingHatContext
 from sortinghat.core.errors import AlreadyExistsError, NotFoundError
 from sortinghat.core.log import TransactionsLog
 from sortinghat.core.models import (MIN_PERIOD_DATE,
@@ -329,7 +331,10 @@ class TestAddOrganization(TestCase):
     def setUp(self):
         """Load initial dataset"""
 
-        self.trxl = TransactionsLog.open(name='add_organization')
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        self.trxl = TransactionsLog.open('add_organization', self.ctx)
 
     def test_add_organization(self):
         """Check if a new organization is added"""
@@ -418,7 +423,10 @@ class TestDeleteOrganization(TestCase):
     def setUp(self):
         """Load initial dataset"""
 
-        self.trxl = TransactionsLog.open(name='delete_organization')
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        self.trxl = TransactionsLog.open('delete_organization', self.ctx)
 
     def test_delete_organization(self):
         """Check whether it deletes an organization and its related data"""
@@ -535,7 +543,10 @@ class TestAddDomain(TestCase):
     def setUp(self):
         """Load initial dataset"""
 
-        self.trxl = TransactionsLog.open(name='add_domain')
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        self.trxl = TransactionsLog.open('add_domain', self.ctx)
 
     def test_add_domain(self):
         """Check if a new domain is added"""
@@ -687,7 +698,10 @@ class TestDeleteDomain(TestCase):
     def setUp(self):
         """Load initial dataset"""
 
-        self.trxl = TransactionsLog.open(name='delete_domain')
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        self.trxl = TransactionsLog.open('delete_domain', self.ctx)
 
     def test_delete_domain(self):
         """Check whether it deletes a domain"""
@@ -744,7 +758,10 @@ class TestAddUniqueIdentity(TestCase):
     def setUp(self):
         """Load initial dataset"""
 
-        self.trxl = TransactionsLog.open(name='add_unique_identity')
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        self.trxl = TransactionsLog.open('add_unique_identity', self.ctx)
 
     def test_add_unique_identity(self):
         """Check whether it adds a unique identity"""
@@ -858,7 +875,10 @@ class TestDeleteUniqueIdentity(TestCase):
     def setUp(self):
         """Load initial dataset"""
 
-        self.trxl = TransactionsLog.open(name='delete_identity')
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        self.trxl = TransactionsLog.open('delete_identity', self.ctx)
 
     def test_delete_unique_identity(self):
         """Check if it deletes a unique identity"""
@@ -963,7 +983,10 @@ class TestAddIdentity(TestCase):
     def setUp(self):
         """Load initial dataset"""
 
-        self.trxl = TransactionsLog.open(name='add_identity')
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        self.trxl = TransactionsLog.open('add_identity', self.ctx)
 
     def test_add_identity(self):
         """Check if a new identity is added"""
@@ -1283,7 +1306,10 @@ class TestDeleteIdentity(TestCase):
     def setUp(self):
         """Load initial dataset"""
 
-        self.trxl = TransactionsLog.open(name='delete_identity')
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        self.trxl = TransactionsLog.open('delete_identity', self.ctx)
 
     def test_delete_identity(self):
         """Check whether it deletes an identity"""
@@ -1379,7 +1405,10 @@ class TestUpdateProfile(TestCase):
     def setUp(self):
         """Load initial dataset"""
 
-        self.trxl = TransactionsLog.open(name='update_profile')
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        self.trxl = TransactionsLog.open('update_profile', self.ctx)
 
     def test_update_profile(self):
         """Check if it updates a profile"""
@@ -1586,7 +1615,10 @@ class TestAddEnrollment(TestCase):
     def setUp(self):
         """Load initial dataset"""
 
-        self.trxl = TransactionsLog.open(name='enroll')
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        self.trxl = TransactionsLog.open('enroll', self.ctx)
 
     def test_enroll(self):
         """Check if a new enrollment is added"""
@@ -1817,7 +1849,10 @@ class TestDeleteEnrollment(TestCase):
     def setUp(self):
         """Load initial dataset"""
 
-        self.trxl = TransactionsLog.open(name='withdraw')
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        self.trxl = TransactionsLog.open('withdraw', self.ctx)
 
     def test_delete_enrollment(self):
         """Check whether it deletes an enrollment"""
@@ -1940,7 +1975,10 @@ class TestMoveIdentity(TestCase):
     def setUp(self):
         """Load initial dataset"""
 
-        self.trxl = TransactionsLog.open(name='move_identity')
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        self.trxl = TransactionsLog.open('move_identity', self.ctx)
 
     def test_move_identity(self):
         """Test when an identity is moved to a unique identity"""

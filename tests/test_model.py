@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2018 Bitergia
+# Copyright (C) 2014-2020 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -612,16 +612,22 @@ class TestTransaction(TransactionTestCase):
         with self.assertRaisesRegex(IntegrityError, DUPLICATE_CHECK_ERROR):
             timestamp = datetime_utcnow()
             Transaction.objects.create(tuid='12345abcd',
-                                       name='test', created_at=timestamp)
+                                       name='test',
+                                       created_at=timestamp,
+                                       authored_by='username')
             Transaction.objects.create(tuid='12345abcd',
-                                       name='test', created_at=timestamp)
+                                       name='test',
+                                       created_at=timestamp,
+                                       authored_by='username')
 
     def test_created_at(self):
         """Check creation date is only set when the object is created"""
 
         before_dt = datetime_utcnow()
         trx = Transaction.objects.create(tuid='12345abcd',
-                                         name='test', created_at=datetime_utcnow())
+                                         name='test',
+                                         created_at=datetime_utcnow(),
+                                         authored_by='username')
         after_dt = datetime_utcnow()
 
         self.assertGreaterEqual(trx.created_at, before_dt)
