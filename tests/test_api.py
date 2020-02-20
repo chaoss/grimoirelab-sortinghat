@@ -196,6 +196,10 @@ class TestAddIdentity(TestCase):
         uidentity = UniqueIdentity.objects.get(uuid='a9b403e150dd4af8953a52a4bb841051e4b705d9')
         self.assertEqual(uidentity.uuid, identity.id)
 
+        profile = uidentity.profile
+        self.assertEqual(profile.name, identity.name)
+        self.assertEqual(profile.email, identity.email)
+
         identities = Identity.objects.filter(id=identity.id)
         self.assertEqual(len(identities), 1)
 
@@ -601,7 +605,7 @@ class TestAddIdentity(TestCase):
         trx = transactions[0]
 
         operations = Operation.objects.filter(trx=trx)
-        self.assertEqual(len(operations), 2)
+        self.assertEqual(len(operations), 3)
 
         op1 = operations[0]
         self.assertIsInstance(op1, Operation)
@@ -617,20 +621,34 @@ class TestAddIdentity(TestCase):
 
         op2 = operations[1]
         self.assertIsInstance(op2, Operation)
-        self.assertEqual(op2.op_type, Operation.OpType.ADD.value)
-        self.assertEqual(op2.entity_type, 'identity')
+        self.assertEqual(op2.op_type, Operation.OpType.UPDATE.value)
+        self.assertEqual(op2.entity_type, 'profile')
         self.assertEqual(op2.target, identity.id)
         self.assertEqual(op2.trx, trx)
         self.assertGreater(op2.timestamp, timestamp)
 
         op2_args = json.loads(op2.args)
-        self.assertEqual(len(op2_args), 6)
+        self.assertEqual(len(op2_args), 3)
         self.assertEqual(op2_args['uidentity'], identity.uidentity.uuid)
-        self.assertEqual(op2_args['identity_id'], identity.id)
-        self.assertEqual(op2_args['source'], identity.source)
         self.assertEqual(op2_args['name'], identity.name)
         self.assertEqual(op2_args['email'], identity.email)
-        self.assertEqual(op2_args['username'], identity.username)
+
+        op3 = operations[2]
+        self.assertIsInstance(op3, Operation)
+        self.assertEqual(op3.op_type, Operation.OpType.ADD.value)
+        self.assertEqual(op3.entity_type, 'identity')
+        self.assertEqual(op3.target, identity.id)
+        self.assertEqual(op3.trx, trx)
+        self.assertGreater(op3.timestamp, timestamp)
+
+        op3_args = json.loads(op3.args)
+        self.assertEqual(len(op3_args), 6)
+        self.assertEqual(op3_args['uidentity'], identity.uidentity.uuid)
+        self.assertEqual(op3_args['identity_id'], identity.id)
+        self.assertEqual(op3_args['source'], identity.source)
+        self.assertEqual(op3_args['name'], identity.name)
+        self.assertEqual(op3_args['email'], identity.email)
+        self.assertEqual(op3_args['username'], identity.username)
 
 
 class TestDeleteIdentity(TestCase):
@@ -1199,6 +1217,10 @@ class TestMoveIdentity(TestCase):
 
         identities = uidentity.identities.all()
         self.assertEqual(len(identities), 1)
+
+        profile = uidentity.profile
+        self.assertEqual(profile.name, 'John Smith')
+        self.assertEqual(profile.email, 'jsmith@example.com')
 
         identity = identities[0]
         self.assertEqual(identity.id, new_uuid)
@@ -3458,6 +3480,10 @@ class TestMergeIdentities(TestCase):
                            uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', name='J. Smith',
                            email='jsmith@example', gender='male', country_code='US')
 
+        api.update_profile(self.ctx,
+                           uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed',
+                           name='', email='', gender='', country_code='')
+
         uidentity = api.merge_identities(self.ctx,
                                          from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
                                          to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
@@ -3471,6 +3497,14 @@ class TestMergeIdentities(TestCase):
 
     def test_empty_profiles(self):
         """Check whether it merges two unique identities when both of their profiles are empty"""
+
+        api.update_profile(self.ctx,
+                           uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+                           name='', email='', gender='', country_code='')
+
+        api.update_profile(self.ctx,
+                           uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed',
+                           name='', email='', gender='', country_code='')
 
         uidentity = api.merge_identities(self.ctx,
                                          from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
