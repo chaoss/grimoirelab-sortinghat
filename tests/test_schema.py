@@ -448,13 +448,13 @@ class TestQueryPagination(django.test.TestCase):
         self.assertEqual(len(entities), 2)
 
         op1 = entities[0]
-        self.assertEqual(op1['opType'], Operation.OpType.ADD.value)
-        self.assertEqual(op1['entityType'], 'identity')
+        self.assertEqual(op1['opType'], Operation.OpType.UPDATE.value)
+        self.assertEqual(op1['entityType'], 'profile')
         self.assertEqual(op1['target'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
         op2 = entities[1]
-        self.assertEqual(op2['opType'], Operation.OpType.UPDATE.value)
-        self.assertEqual(op2['entityType'], 'profile')
+        self.assertEqual(op2['opType'], Operation.OpType.ADD.value)
+        self.assertEqual(op2['entityType'], 'identity')
         self.assertEqual(op2['target'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
         pag_data = executed['data']['operations']['pageInfo']
@@ -466,7 +466,7 @@ class TestQueryPagination(django.test.TestCase):
         self.assertTrue(pag_data['hasPrev'])
         self.assertEqual(pag_data['startIndex'], 3)
         self.assertEqual(pag_data['endIndex'], 4)
-        self.assertEqual(pag_data['totalResults'], 5)
+        self.assertEqual(pag_data['totalResults'], 6)
 
     def test_page_not_set(self):
         """Check if returns the first page when `page` is not set"""
@@ -488,7 +488,7 @@ class TestQueryPagination(django.test.TestCase):
         self.assertFalse(pag_data['hasPrev'])
         self.assertEqual(pag_data['startIndex'], 1)
         self.assertEqual(pag_data['endIndex'], 2)
-        self.assertEqual(pag_data['totalResults'], 5)
+        self.assertEqual(pag_data['totalResults'], 6)
 
     def test_page_exceeded(self):
         """Check if it fails when `page` is greater than the number of pages"""
@@ -535,7 +535,7 @@ class TestQueryPagination(django.test.TestCase):
         self.assertEqual(len(pag_data), 8)
         self.assertEqual(pag_data['page'], 1)
         self.assertEqual(pag_data['pageSize'], settings.DEFAULT_GRAPHQL_PAGE_SIZE)
-        self.assertEqual(pag_data['totalResults'], 5)
+        self.assertEqual(pag_data['totalResults'], 6)
 
     def test_page_size_exceeded(self):
         """Check if returns all the elements when `pageSize` is greater than number of results"""
@@ -553,8 +553,8 @@ class TestQueryPagination(django.test.TestCase):
         self.assertFalse(pag_data['hasNext'])
         self.assertFalse(pag_data['hasPrev'])
         self.assertEqual(pag_data['startIndex'], 1)
-        self.assertEqual(pag_data['endIndex'], 5)
-        self.assertEqual(pag_data['totalResults'], 5)
+        self.assertEqual(pag_data['endIndex'], 6)
+        self.assertEqual(pag_data['totalResults'], 6)
 
     def test_page_size_negative(self):
         """Check if it fails when `pageSize` is a negative number"""

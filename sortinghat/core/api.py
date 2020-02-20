@@ -163,6 +163,8 @@ def add_identity(ctx, source, name=None, email=None, username=None, uuid=None):
 
     if not uuid:
         uidentity = add_unique_identity_db(trxl, id_)
+        uidentity = update_profile_db(trxl, uidentity,
+                                      name=name, email=email)
     else:
         uidentity = find_unique_identity(uuid)
 
@@ -338,6 +340,9 @@ def move_identity(ctx, from_id, to_uuid):
         # Move identity to a new one
         if identity.id == to_uuid:
             to_uid = add_unique_identity_db(trxl, identity.id)
+            to_uid = update_profile_db(trxl, to_uid,
+                                       name=identity.name,
+                                       email=identity.email)
         else:
             raise exc
 
