@@ -397,7 +397,7 @@ class TestIdentity(TestCaseBase):
         """Check whether every identity has a source"""
 
         with self.assertRaisesRegex(IntegrityError, NULL_CHECK_ERROR):
-            id1 = Identity()
+            id1 = Identity(id='A')
             self.session.add(id1)
             self.session.commit()
 
