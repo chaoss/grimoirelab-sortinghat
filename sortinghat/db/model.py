@@ -29,7 +29,7 @@ from sqlalchemy.orm import backref, relationship
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.orderinglist import ordering_list
-from sqlalchemy.types import TypeDecorator, Boolean
+from sqlalchemy.types import Boolean
 
 # Default dates for periods
 MIN_PERIOD_DATE = datetime.datetime(1900, 1, 1, 0, 0, 0)
@@ -48,21 +48,6 @@ MAX_SIZE_CHAR_COLUMN = 191
 
 logger = logging.getLogger(__name__)
 ModelBase = declarative_base()
-
-
-class CoerceToBool(TypeDecorator):
-    impl = Boolean
-
-    def process_bind_param(self, value, dialect):
-        if type(value) == bool:
-            value = [False, True].index(value)
-        elif type(value) == int:
-            if value not in [0, 1]:
-                raise ValueError
-        else:
-            raise ValueError
-
-        return value
 
 
 class Organization(ModelBase):
@@ -95,7 +80,7 @@ class Domain(ModelBase):
 
     id = Column(Integer, primary_key=True)
     domain = Column(String(128), nullable=False)
-    is_top_domain = Column(CoerceToBool(name='top_domain_check'), default=False)
+    is_top_domain = Column(Boolean(name='top_domain_check'), default=False)
     organization_id = Column(Integer,
                              ForeignKey('organizations.id', ondelete='CASCADE',
                                         onupdate='CASCADE'),
@@ -219,7 +204,7 @@ class Profile(ModelBase):
     email = Column(String(128))
     gender = Column(String(32))
     gender_acc = Column(Integer())
-    is_bot = Column(CoerceToBool(name='is_bot_check'), default=False)
+    is_bot = Column(Boolean(name='is_bot_check'), default=False)
     country_code = Column(String(2),
                           ForeignKey('countries.code', ondelete='CASCADE'))
 

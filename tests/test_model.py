@@ -40,7 +40,7 @@ from tests.base import Database, CONFIG_FILE
 
 DUP_CHECK_ERROR = 'Duplicate entry'
 NULL_CHECK_ERROR = 'cannot be null'
-INVALID_DATATYPE_ERROR = 'ValueError'
+INVALID_DATATYPE_ERROR = 'TypeError'
 
 
 class MockDatabase(object):
@@ -219,7 +219,7 @@ class TestDomain(TestCaseBase):
             self.session.commit()
 
     def test_is_top_domain_invalid_type(self):
-        """Check invalid values on top_domain bool collumn"""
+        """Check invalid values on top_domain bool column"""
 
         with self.assertRaisesRegex(StatementError, INVALID_DATATYPE_ERROR):
             org1 = Organization(name='Example')
