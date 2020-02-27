@@ -888,3 +888,95 @@ def merge_identities(ctx, from_uuids, to_uuid):
     trxl.close()
 
     return to_uid
+
+
+@django.db.transaction.atomic
+def unmerge_identities(ctx, uuids):
+    """
+    Unmerge one or more identities from their corresponding unique identities.
+
+    Use this function to separate a list of `uuid` identities, creating a unique
+    identity for each one. A profile for each new unique identity will be created using
+    the `name` and `email` fields of the corresponding identity.
+    Nor the enrollments or the profile from any parent unique identity of the input
+    identities are modified.
+
+    When a given identity `uuid` is equal to the `uuid` from its parent unique
+    identity, there will be no effect.
+
+    The function raises a `NotFoundError` exception when either any `uuid` from
+    the list does not exist in the registry.
+
+    The function raises an `InvalidValueError` exception when either any `uuid`
+    from the list is `None` or an empty string.
+
+    :param ctx: context from where this method is called
+    :param uuids: list of identifiers of the identities set to be unmerged
+
+    :returns: a list of UniqueIdentity objects as the result of the unmerged identities
+
+    :raises NotFoundError: raised when either any `uuid` from the list
+        does not exist in the registry
+    :raises InvalidValueError: raised when either any `uuid` from the
+        list is `None` or an empty string
+    """
+    def _find_identities(uuids):
+        """Find the identities to be unmerged from their parent unique identities"""
+
+        identities = []
+        for uuid in uuids:
+            # Check whether input values are valid
+            if uuid is None:
+                raise InvalidValueError(msg="'uuid' cannot be None")
+            if uuid == '':
+                raise InvalidValueError(msg="'uuid' cannot be an empty string")
+
+            uid = find_identity(uuid)
+            identities.append(uid)
+
+        return identities
+
+    def _set_destination_identity(trxl, identity):
+        """Create the unique identity, if it does not exist, where the identity will be moved to."""
+
+        if identity.id != identity.uidentity_id:
+            uid = add_unique_identity_db(trxl, identity.id)
+            uid = update_profile_db(trxl, uid,
+                                    name=identity.name,
+                                    email=identity.email)
+        else:
+            # Case when the identity to be unmerged is the main one
+            uid = identity.uidentity
+
+        return uid
+
+    def _move_to_destination(trxl, identity, uid):
+        """Move the identity from the old unique identity to the new one"""
+
+        try:
+            uidentity = move_identity_db(trxl, identity, uid)
+        except ValueError:
+            # Case when the identity is already assigned to the unique identity
+            uidentity = uid
+
+        return uidentity
+
+    # Check input value
+    if uuids is None:
+        raise InvalidValueError(msg="'uuids' cannot be None")
+    if uuids == []:
+        raise InvalidValueError(msg="'uuids' cannot be an empty list")
+
+    trxl = TransactionsLog.open('unmerge_identities', ctx)
+
+    identities = _find_identities(uuids)
+
+    new_uidentities = []
+    for identity in identities:
+        uid = _set_destination_identity(trxl, identity)
+        uidentity = _move_to_destination(trxl, identity, uid)
+        new_uidentities.append(uidentity)
+
+    trxl.close()
+
+    return new_uidentities

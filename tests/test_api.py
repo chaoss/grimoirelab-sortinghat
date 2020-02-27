@@ -50,6 +50,7 @@ ALREADY_EXISTS_ERROR = "{entity} already exists in the registry"
 SOURCE_NONE_OR_EMPTY_ERROR = "'source' cannot be"
 IDENTITY_NONE_OR_EMPTY_ERROR = "identity data cannot be empty"
 UUID_NONE_OR_EMPTY_ERROR = "'uuid' cannot be"
+UUIDS_NONE_OR_EMPTY_ERROR = "'uuids' cannot be"
 FROM_ID_NONE_OR_EMPTY_ERROR = "'from_id' cannot be"
 FROM_UUID_NONE_OR_EMPTY_ERROR = "'from_uuid' cannot be"
 FROM_UUIDS_NONE_OR_EMPTY_ERROR = "'from_uuids' cannot be"
@@ -3659,3 +3660,456 @@ class TestMergeIdentities(TestCase):
         op8_args = json.loads(op8.args)
         self.assertEqual(len(op8_args), 1)
         self.assertEqual(op8_args['uidentity'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+
+class TestUnmergeIdentities(TestCase):
+    """Unit tests for unmerge_identities"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        api.add_organization(self.ctx, 'Example')
+        api.add_organization(self.ctx, 'Bitergia')
+
+        Country.objects.create(code='US',
+                               name='United States of America',
+                               alpha3='USA')
+
+        api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_identity(self.ctx,
+                         'git',
+                         email='jsmith-git@example',
+                         uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        api.update_profile(self.ctx,
+                           uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', name='John Smith',
+                           email='jsmith@profile-email', is_bot=False, country_code='US')
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                   from_date=datetime.datetime(1900, 1, 1),
+                   to_date=datetime.datetime(2017, 6, 1))
+
+        api.add_identity(self.ctx, 'scm', email='jsmith@bitergia')
+        api.add_identity(self.ctx,
+                         'phabricator',
+                         email='jsmith-phab@bitergia',
+                         uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Bitergia',
+                   from_date=datetime.datetime(2017, 6, 2),
+                   to_date=datetime.datetime(2100, 1, 1))
+
+        api.add_identity(self.ctx,
+                         'scm',
+                         email='jsmith@libresoft',
+                         uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        api.add_identity(self.ctx,
+                         'phabricator',
+                         email='jsmith2@libresoft',
+                         uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        api.add_identity(self.ctx,
+                         'phabricator',
+                         email='jsmith3@libresoft',
+                         uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+    def test_unmerge_identities(self):
+        """Check whether it unmerges one identity from its parent unique identity"""
+
+        uidentities = api.unmerge_identities(self.ctx,
+                                             uuids=['67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6'])
+
+        # Tests
+        self.assertEqual(len(uidentities), 1)
+
+        uidentity = uidentities[0]
+        self.assertIsInstance(uidentity, UniqueIdentity)
+        self.assertEqual(uidentity.uuid, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+
+        profile = uidentity.profile
+
+        self.assertEqual(profile.email, 'jsmith-git@example')
+        self.assertEqual(profile.is_bot, False)
+        self.assertIsNone(profile.name)
+        self.assertIsNone(profile.gender)
+        self.assertIsNone(profile.gender_acc)
+
+        self.assertIsNone(profile.country_id)
+        self.assertIsNone(profile.country)
+
+        identities = uidentity.identities.all()
+        self.assertEqual(len(identities), 1)
+
+        id1 = identities[0]
+        self.assertEqual(id1.id, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(id1.email, 'jsmith-git@example')
+        self.assertEqual(id1.source, 'git')
+
+        enrollments = uidentity.enrollments.all()
+        self.assertEqual(len(enrollments), 0)
+
+        # Testing everything remained the same in the old parent unique identity
+
+        former_uidentity = UniqueIdentity.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        self.assertIsInstance(former_uidentity, UniqueIdentity)
+        self.assertEqual(former_uidentity.uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        profile = former_uidentity.profile
+        self.assertEqual(profile.name, 'John Smith')
+        self.assertEqual(profile.email, 'jsmith@profile-email')
+        self.assertEqual(profile.is_bot, False)
+        self.assertIsNone(profile.gender)
+        self.assertIsNone(profile.gender_acc)
+
+        identities = former_uidentity.identities.all()
+        self.assertEqual(len(identities), 5)
+
+        id1 = identities[0]
+        self.assertEqual(id1.id, '1c13fec7a328201fc6a230fe43eb81df0e20626e')
+        self.assertEqual(id1.email, 'jsmith@libresoft')
+        self.assertEqual(id1.source, 'scm')
+
+        id2 = identities[1]
+        self.assertEqual(id2.id, '31581d7c6b039318e9048c4d8571666c26a5622b')
+        self.assertEqual(id2.email, 'jsmith3@libresoft')
+        self.assertEqual(id2.source, 'phabricator')
+
+        id3 = identities[2]
+        self.assertEqual(id3.id, '9225e296be341c20c11c4bae76df4190a5c4a918')
+        self.assertEqual(id3.email, 'jsmith-phab@bitergia')
+        self.assertEqual(id3.source, 'phabricator')
+
+        id4 = identities[3]
+        self.assertEqual(id4.id, 'c2f5aa44e920b4fbe3cd36894b18e80a2606deba')
+        self.assertEqual(id4.email, 'jsmith2@libresoft')
+        self.assertEqual(id4.source, 'phabricator')
+
+        id5 = identities[4]
+        self.assertEqual(id5.id, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(id5.email, 'jsmith@example')
+        self.assertEqual(id5.source, 'scm')
+
+        enrollments = former_uidentity.enrollments.all()
+        self.assertEqual(len(enrollments), 2)
+
+        rol1 = enrollments[0]
+        self.assertEqual(rol1.organization.name, 'Example')
+        self.assertEqual(rol1.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
+        self.assertEqual(rol1.end, datetime.datetime(2017, 6, 1, tzinfo=UTC))
+
+        rol2 = enrollments[1]
+        self.assertEqual(rol2.organization.name, 'Bitergia')
+        self.assertEqual(rol2.start, datetime.datetime(2017, 6, 2, tzinfo=UTC))
+        self.assertEqual(rol2.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
+
+    def test_unmerge_multiple_identities(self):
+        """Check whether it unmerges more than two identities"""
+
+        uidentities = api.unmerge_identities(self.ctx,
+                                             uuids=['67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6',
+                                                    '31581d7c6b039318e9048c4d8571666c26a5622b'])
+
+        # Tests
+        self.assertEqual(len(uidentities), 2)
+
+        uidentity = uidentities[0]
+        self.assertIsInstance(uidentity, UniqueIdentity)
+        self.assertEqual(uidentity.uuid, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+
+        profile = uidentity.profile
+        self.assertEqual(profile.email, 'jsmith-git@example')
+        self.assertEqual(profile.is_bot, False)
+        self.assertIsNone(profile.name)
+        self.assertIsNone(profile.gender)
+        self.assertIsNone(profile.gender_acc)
+
+        self.assertIsNone(profile.country_id)
+        self.assertIsNone(profile.country)
+
+        identities = uidentity.identities.all()
+        self.assertEqual(len(identities), 1)
+
+        id1 = identities[0]
+        self.assertEqual(id1.id, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(id1.email, 'jsmith-git@example')
+        self.assertEqual(id1.source, 'git')
+
+        enrollments = uidentity.enrollments.all()
+        self.assertEqual(len(enrollments), 0)
+
+        uidentity = uidentities[1]
+        self.assertIsInstance(uidentity, UniqueIdentity)
+        self.assertEqual(uidentity.uuid, '31581d7c6b039318e9048c4d8571666c26a5622b')
+
+        profile = uidentity.profile
+        self.assertEqual(profile.email, 'jsmith3@libresoft')
+        self.assertEqual(profile.is_bot, False)
+        self.assertIsNone(profile.name)
+        self.assertIsNone(profile.gender)
+        self.assertIsNone(profile.gender_acc)
+
+        self.assertIsNone(profile.country_id)
+        self.assertIsNone(profile.country)
+
+        identities = uidentity.identities.all()
+        self.assertEqual(len(identities), 1)
+
+        id1 = identities[0]
+        self.assertEqual(id1.id, '31581d7c6b039318e9048c4d8571666c26a5622b')
+        self.assertEqual(id1.email, 'jsmith3@libresoft')
+        self.assertEqual(id1.source, 'phabricator')
+
+        enrollments = uidentity.enrollments.all()
+        self.assertEqual(len(enrollments), 0)
+
+        # Testing everything remained the same in the old parent unique identity
+
+        former_uidentity = UniqueIdentity.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        self.assertIsInstance(former_uidentity, UniqueIdentity)
+        self.assertEqual(former_uidentity.uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        profile = former_uidentity.profile
+        self.assertEqual(profile.name, 'John Smith')
+        self.assertEqual(profile.email, 'jsmith@profile-email')
+        self.assertEqual(profile.is_bot, False)
+        self.assertIsNone(profile.gender)
+        self.assertIsNone(profile.gender_acc)
+
+        identities = former_uidentity.identities.all()
+        self.assertEqual(len(identities), 4)
+
+        id1 = identities[0]
+        self.assertEqual(id1.id, '1c13fec7a328201fc6a230fe43eb81df0e20626e')
+        self.assertEqual(id1.email, 'jsmith@libresoft')
+        self.assertEqual(id1.source, 'scm')
+
+        id2 = identities[1]
+        self.assertEqual(id2.id, '9225e296be341c20c11c4bae76df4190a5c4a918')
+        self.assertEqual(id2.email, 'jsmith-phab@bitergia')
+        self.assertEqual(id2.source, 'phabricator')
+
+        id3 = identities[2]
+        self.assertEqual(id3.id, 'c2f5aa44e920b4fbe3cd36894b18e80a2606deba')
+        self.assertEqual(id3.email, 'jsmith2@libresoft')
+        self.assertEqual(id3.source, 'phabricator')
+
+        id4 = identities[3]
+        self.assertEqual(id4.id, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(id4.email, 'jsmith@example')
+        self.assertEqual(id4.source, 'scm')
+
+        enrollments = former_uidentity.enrollments.all()
+        self.assertEqual(len(enrollments), 2)
+
+        rol1 = enrollments[0]
+        self.assertEqual(rol1.organization.name, 'Example')
+        self.assertEqual(rol1.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
+        self.assertEqual(rol1.end, datetime.datetime(2017, 6, 1, tzinfo=UTC))
+
+        rol2 = enrollments[1]
+        self.assertEqual(rol2.organization.name, 'Bitergia')
+        self.assertEqual(rol2.start, datetime.datetime(2017, 6, 2, tzinfo=UTC))
+        self.assertEqual(rol2.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
+
+    def test_uuid_from_unique_identity(self):
+        """Check if it ignores when the identity to unmerge is the same as the parent unique identity"""
+
+        uidentities = api.unmerge_identities(self.ctx,
+                                             uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'])
+
+        self.assertEqual(len(uidentities), 1)
+
+        uidentity = uidentities[0]
+        self.assertEqual(uidentity.uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        identities = uidentity.identities.all()
+        self.assertEqual(len(identities), 6)
+
+        id1 = identities[0]
+        self.assertEqual(id1.id, '1c13fec7a328201fc6a230fe43eb81df0e20626e')
+        self.assertEqual(id1.email, 'jsmith@libresoft')
+        self.assertEqual(id1.source, 'scm')
+
+        id2 = identities[1]
+        self.assertEqual(id2.id, '31581d7c6b039318e9048c4d8571666c26a5622b')
+        self.assertEqual(id2.email, 'jsmith3@libresoft')
+        self.assertEqual(id2.source, 'phabricator')
+
+        id3 = identities[2]
+        self.assertEqual(id3.id, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(id3.email, 'jsmith-git@example')
+        self.assertEqual(id3.source, 'git')
+
+        id4 = identities[3]
+        self.assertEqual(id4.id, '9225e296be341c20c11c4bae76df4190a5c4a918')
+        self.assertEqual(id4.email, 'jsmith-phab@bitergia')
+        self.assertEqual(id4.source, 'phabricator')
+
+        id5 = identities[4]
+        self.assertEqual(id5.id, 'c2f5aa44e920b4fbe3cd36894b18e80a2606deba')
+        self.assertEqual(id5.email, 'jsmith2@libresoft')
+        self.assertEqual(id5.source, 'phabricator')
+
+        id6 = identities[5]
+        self.assertEqual(id6.id, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(id6.email, 'jsmith@example')
+        self.assertEqual(id6.source, 'scm')
+
+    def test_non_existing_uuids(self):
+        """Check if it fails when source `uuids` field is `None` or an empty list"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(InvalidValueError, UUIDS_NONE_OR_EMPTY_ERROR):
+            api.unmerge_identities(self.ctx,
+                                   uuids=[])
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_non_existing_uuid(self):
+        """Check if it fails when any `uuid` is `None` or empty"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(InvalidValueError, UUID_NONE_OR_EMPTY_ERROR):
+            api.unmerge_identities(self.ctx,
+                                   uuids=[''])
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
+
+        before_dt = datetime_utcnow()
+
+        uidentity1 = api.add_identity(self.ctx,
+                                      'scm',
+                                      email='john.doe@example')
+        api.add_identity(self.ctx,
+                         'git',
+                         email='john.doe@example',
+                         uuid='b6bee805956c03699b59e15175261f85a10d43f3')
+
+        after_dt = datetime_utcnow()
+
+        uid1 = UniqueIdentity.objects.get(uuid=uidentity1.id)
+
+        self.assertLessEqual(before_dt, uid1.last_modified)
+        self.assertGreaterEqual(after_dt, uid1.last_modified)
+
+        # Unmerge identities
+        before_unmerge_dt = datetime_utcnow()
+        uids = api.unmerge_identities(self.ctx,
+                                      uuids=['df9af14b5aeb89d0b536a825039d3042eb4e4c27'])
+        after_unmerge_dt = datetime_utcnow()
+
+        # Check new uidentity
+        uid = uids[0]
+        self.assertLessEqual(before_dt, uid.last_modified)
+        self.assertLessEqual(after_dt, uid.last_modified)
+        self.assertLessEqual(before_unmerge_dt, uid.last_modified)
+        self.assertGreaterEqual(after_unmerge_dt, uid.last_modified)
+
+        identities = uid.identities.all()
+
+        id1 = identities[0]
+
+        # Unmerged (moved) identities were updated
+        self.assertLessEqual(before_dt, id1.last_modified)
+        self.assertLessEqual(after_dt, id1.last_modified)
+        self.assertLessEqual(before_unmerge_dt, id1.last_modified)
+        self.assertGreaterEqual(after_unmerge_dt, id1.last_modified)
+
+        # Check former parent unique identity
+        uid = UniqueIdentity.objects.get(uuid=uidentity1.id)
+        self.assertLessEqual(before_dt, uid.last_modified)
+        self.assertLessEqual(after_dt, uid.last_modified)
+        self.assertLessEqual(before_unmerge_dt, uid.last_modified)
+        self.assertGreaterEqual(after_unmerge_dt, uid.last_modified)
+
+        identities = uid.identities.all()
+
+        # Not unmerged (moved) identities were not modified
+        id1 = identities[0]
+
+        self.assertLessEqual(before_dt, id1.last_modified)
+        self.assertGreaterEqual(after_dt, id1.last_modified)
+        self.assertGreaterEqual(before_unmerge_dt, id1.last_modified)
+        self.assertGreaterEqual(after_unmerge_dt, id1.last_modified)
+
+    def test_transaction(self):
+        """Check if a transaction is created when unmerging identities"""
+
+        timestamp = datetime_utcnow()
+
+        api.unmerge_identities(self.ctx,
+                               uuids=['67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6'])
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        self.assertEqual(len(transactions), 1)
+
+        trx = transactions[0]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'unmerge_identities')
+        self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, self.ctx.user.username)
+
+    def test_operations(self):
+        """Check if the right operations are created when unmerging identities"""
+
+        timestamp = datetime_utcnow()
+
+        api.unmerge_identities(self.ctx,
+                               uuids=['67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6'])
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 3)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.ADD.value)
+        self.assertEqual(op1.entity_type, 'unique_identity')
+        self.assertEqual(op1.target, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(op1.trx, trx)
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 1)
+        self.assertEqual(op1_args['uuid'], '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+
+        op2 = operations[1]
+        self.assertIsInstance(op2, Operation)
+        self.assertEqual(op2.op_type, Operation.OpType.UPDATE.value)
+        self.assertEqual(op2.entity_type, 'profile')
+        self.assertEqual(op2.target, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(op2.trx, trx)
+        self.assertGreater(op2.timestamp, timestamp)
+
+        op2_args = json.loads(op2.args)
+        self.assertEqual(len(op2_args), 3)
+        self.assertEqual(op2_args['uidentity'], '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(op2_args['email'], 'jsmith-git@example')
+        self.assertIsNone(op2_args['name'])
+
+        op3 = operations[2]
+        self.assertIsInstance(op3, Operation)
+        self.assertEqual(op3.op_type, Operation.OpType.UPDATE.value)
+        self.assertEqual(op3.entity_type, 'identity')
+        self.assertEqual(op3.target, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(op3.trx, trx)
+        self.assertGreater(op3.timestamp, timestamp)
+
+        op3_args = json.loads(op3.args)
+        self.assertEqual(len(op3_args), 2)
+        self.assertEqual(op3_args['identity'], '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(op3_args['uidentity'], '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
