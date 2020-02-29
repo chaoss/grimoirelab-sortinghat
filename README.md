@@ -4,7 +4,7 @@
 
 A tool to manage identities.
 
-Sorting Hat maintains an SQL database with identities coming (potentially) from different sources. Identities corresponding to the same real person can be merged in the same unique identity, with a unique uuid. For each unique identity, a profile can be defined, with the name and other data shown for the corresponding person by default.
+Sorting Hat maintains an SQL database of unique identities of communities members across (potentially) many different sources. Identities corresponding to the same real person can be merged in the same unique identity with a unique uuid. For each unique identity, a profile can be defined, with the name and other data shown for the corresponding person by default.
 
 In addition, each unique identity can be related to one or more affiliations, for different time periods. This will usually correspond to different organizations in which the person was employed during those time periods.
 
