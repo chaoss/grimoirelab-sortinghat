@@ -42,6 +42,7 @@ from .api import (add_identity,
                   update_profile,
                   move_identity,
                   merge_identities,
+                  unmerge_identities,
                   add_organization,
                   add_domain,
                   delete_organization,
@@ -403,6 +404,27 @@ class MergeIdentities(graphene.Mutation):
         )
 
 
+class UnmergeIdentities(graphene.Mutation):
+    class Arguments:
+        uuids = graphene.List(graphene.String)
+
+    uuids = graphene.Field(lambda: graphene.List(graphene.String))
+    uidentities = graphene.Field(lambda: graphene.List(UniqueIdentityType))
+
+    @check_auth
+    def mutate(self, info, uuids):
+        user = info.context.user
+        ctx = SortingHatContext(user)
+
+        uidentities = unmerge_identities(ctx, uuids)
+        uuids = [uidentity.uuid for uidentity in uidentities]
+
+        return UnmergeIdentities(
+            uuids=uuids,
+            uidentities=uidentities
+        )
+
+
 class Enroll(graphene.Mutation):
     class Arguments:
         uuid = graphene.String()
@@ -563,6 +585,7 @@ class SortingHatMutation(graphene.ObjectType):
     update_profile = UpdateProfile.Field()
     move_identity = MoveIdentity.Field()
     merge_identities = MergeIdentities.Field()
+    unmerge_identities = UnmergeIdentities.Field()
     enroll = Enroll.Field()
     withdraw = Withdraw.Field()
 

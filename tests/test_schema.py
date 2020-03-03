@@ -69,6 +69,7 @@ FROM_UUIDS_EMPTY_ERROR = "'from_uuids' cannot be an empty list"
 TO_UUID_EMPTY_ERROR = "'to_uuid' cannot be an empty string"
 FROM_UUID_TO_UUID_EQUAL_ERROR = "'from_uuid' and 'to_uuid' cannot be equal"
 UUID_EMPTY_ERROR = "'uuid' cannot be an empty string"
+UUIDS_EMPTY_ERROR = "'uuids' cannot be an empty list"
 ORG_DOES_NOT_EXIST_ERROR = "Organization matching query does not exist."
 DOMAIN_DOES_NOT_EXIST_ERROR = "Domain matching query does not exist."
 DOMAIN_NOT_FOUND_ERROR = "example.net not found in the registry"
@@ -3510,4 +3511,338 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
                                   variables=params)
 
         msg = executed['errors'][0]['message']
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
+
+
+class TestUnmergeIdentitiesMutation(django.test.TestCase):
+    """Unit tests for mutation to unmerge unique identities"""
+
+    SH_UNMERGE = """
+          mutation unmergeIds($uuids: [String]) {
+            unmergeIdentities(uuids: $uuids) {
+              uuids
+              uidentities {
+                uuid
+                identities {
+                  id
+                  name
+                  email
+                  username
+                  source
+                }
+              }
+            }
+          }
+        """
+
+    def setUp(self):
+        """Load initial dataset and set queries context"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
+
+        self.ctx = SortingHatContext(self.user)
+
+        # Transaction
+        self.trxl = TransactionsLog.open('unmerge_identities', self.ctx)
+
+        db.add_organization(self.trxl, 'Example')
+        db.add_organization(self.trxl, 'Bitergia')
+
+        Country.objects.create(code='US',
+                               name='United States of America',
+                               alpha3='USA')
+
+        api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_identity(self.ctx,
+                         'git',
+                         email='jsmith-git@example',
+                         uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        api.update_profile(self.ctx,
+                           uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', name='John Smith',
+                           email='jsmith@profile-email', is_bot=False, country_code='US')
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                   from_date=datetime.datetime(1900, 1, 1),
+                   to_date=datetime.datetime(2017, 6, 1))
+
+        api.add_identity(self.ctx, 'scm', email='jsmith@bitergia')
+        api.add_identity(self.ctx,
+                         'phabricator',
+                         email='jsmith-phab@bitergia',
+                         uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Bitergia',
+                   from_date=datetime.datetime(2017, 6, 2),
+                   to_date=datetime.datetime(2100, 1, 1))
+
+        api.add_identity(self.ctx,
+                         'scm',
+                         email='jsmith@libresoft',
+                         uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        api.add_identity(self.ctx,
+                         'phabricator',
+                         email='jsmith2@libresoft',
+                         uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        api.add_identity(self.ctx,
+                         'phabricator',
+                         email='jsmith3@libresoft',
+                         uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+    def test_unmerge_identities(self):
+        """Check whether it unmerges one identity from its parent unique identity"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuids': ['67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6']
+        }
+
+        executed = client.execute(self.SH_UNMERGE,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        # Check results, identities were unmerged
+        uuids = executed['data']['unmergeIdentities']['uuids']
+        self.assertEqual(len(uuids), 1)
+
+        uuid1 = uuids[0]
+        self.assertEqual(uuid1, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+
+        uidentities = executed['data']['unmergeIdentities']['uidentities']
+        self.assertEqual(len(uidentities), 1)
+
+        uidentity = uidentities[0]
+        self.assertEqual(uidentity['uuid'], '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+
+        identities = uidentity['identities']
+        self.assertEqual(len(identities), 1)
+
+        identity = identities[0]
+        self.assertEqual(identity['id'], '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(identity['name'], None)
+        self.assertEqual(identity['email'], 'jsmith-git@example')
+        self.assertEqual(identity['source'], 'git')
+
+        # Check database objects
+        uidentity_db = UniqueIdentity.objects.get(uuid='67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+
+        self.assertIsInstance(uidentity_db, UniqueIdentity)
+        self.assertEqual(uidentity_db.uuid, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+
+        profile = uidentity_db.profile
+        self.assertIsNone(profile.name)
+        self.assertEqual(profile.email, 'jsmith-git@example')
+        self.assertEqual(profile.is_bot, False)
+
+        identities = uidentity_db.identities.all()
+        self.assertEqual(len(identities), 1)
+
+        id1 = identities[0]
+        self.assertEqual(id1.id, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(id1.email, 'jsmith-git@example')
+        self.assertEqual(id1.source, 'git')
+
+        enrollments = uidentity_db.enrollments.all()
+        self.assertEqual(len(enrollments), 0)
+
+    def test_unmerge_multiple_identities(self):
+        """Check whether it unmerges more than two identities"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuids': ['67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6',
+                      '31581d7c6b039318e9048c4d8571666c26a5622b']
+        }
+
+        executed = client.execute(self.SH_UNMERGE,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        # Check results, identities were unmerged
+        uuids = executed['data']['unmergeIdentities']['uuids']
+        self.assertEqual(len(uuids), 2)
+
+        uuid1 = uuids[0]
+        self.assertEqual(uuid1, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+
+        uuid2 = uuids[1]
+        self.assertEqual(uuid2, '31581d7c6b039318e9048c4d8571666c26a5622b')
+
+        uidentities = executed['data']['unmergeIdentities']['uidentities']
+        self.assertEqual(len(uidentities), 2)
+
+        uidentity = uidentities[0]
+        self.assertEqual(uidentity['uuid'], '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+
+        identities = uidentity['identities']
+        self.assertEqual(len(identities), 1)
+
+        identity = identities[0]
+        self.assertEqual(identity['id'], '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(identity['name'], None)
+        self.assertEqual(identity['email'], 'jsmith-git@example')
+        self.assertEqual(identity['source'], 'git')
+
+        uidentity = uidentities[1]
+        self.assertEqual(uidentity['uuid'], '31581d7c6b039318e9048c4d8571666c26a5622b')
+
+        identities = uidentity['identities']
+        self.assertEqual(len(identities), 1)
+
+        identity = identities[0]
+        self.assertEqual(identity['id'], '31581d7c6b039318e9048c4d8571666c26a5622b')
+        self.assertEqual(identity['name'], None)
+        self.assertEqual(identity['email'], 'jsmith3@libresoft')
+        self.assertEqual(identity['source'], 'phabricator')
+
+        # Check database objects
+        uidentity_db = UniqueIdentity.objects.get(uuid='67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+
+        self.assertIsInstance(uidentity_db, UniqueIdentity)
+        self.assertEqual(uidentity_db.uuid, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+
+        profile = uidentity_db.profile
+        self.assertIsNone(profile.name)
+        self.assertEqual(profile.email, 'jsmith-git@example')
+        self.assertEqual(profile.is_bot, False)
+
+        identities = uidentity_db.identities.all()
+        self.assertEqual(len(identities), 1)
+
+        id1 = identities[0]
+        self.assertEqual(id1.id, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(id1.email, 'jsmith-git@example')
+        self.assertEqual(id1.source, 'git')
+
+        enrollments = uidentity_db.enrollments.all()
+        self.assertEqual(len(enrollments), 0)
+
+        uidentity_db = UniqueIdentity.objects.get(uuid='31581d7c6b039318e9048c4d8571666c26a5622b')
+
+        self.assertIsInstance(uidentity_db, UniqueIdentity)
+        self.assertEqual(uidentity_db.uuid, '31581d7c6b039318e9048c4d8571666c26a5622b')
+
+        profile = uidentity_db.profile
+        self.assertIsNone(profile.name)
+        self.assertEqual(profile.email, 'jsmith3@libresoft')
+        self.assertEqual(profile.is_bot, False)
+
+        identities = uidentity_db.identities.all()
+        self.assertEqual(len(identities), 1)
+
+        id1 = identities[0]
+        self.assertEqual(id1.id, '31581d7c6b039318e9048c4d8571666c26a5622b')
+        self.assertEqual(id1.email, 'jsmith3@libresoft')
+        self.assertEqual(id1.source, 'phabricator')
+
+        enrollments = uidentity_db.enrollments.all()
+        self.assertEqual(len(enrollments), 0)
+
+    def test_unmerge_uuid_from_unique_identity(self):
+        """Check if it ignores when the identity to unmerge is the same as the parent unique identity"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuids': ['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3']
+        }
+
+        executed = client.execute(self.SH_UNMERGE,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        uidentities = executed['data']['unmergeIdentities']['uidentities']
+        self.assertEqual(len(uidentities), 1)
+
+        uidentity = uidentities[0]
+        self.assertEqual(uidentity['uuid'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        identities = uidentity['identities']
+        self.assertEqual(len(identities), 6)
+
+        id1 = identities[0]
+        self.assertEqual(id1['id'], '1c13fec7a328201fc6a230fe43eb81df0e20626e')
+        self.assertEqual(id1['email'], 'jsmith@libresoft')
+        self.assertEqual(id1['source'], 'scm')
+
+        id2 = identities[1]
+        self.assertEqual(id2['id'], '31581d7c6b039318e9048c4d8571666c26a5622b')
+        self.assertEqual(id2['email'], 'jsmith3@libresoft')
+        self.assertEqual(id2['source'], 'phabricator')
+
+        id3 = identities[2]
+        self.assertEqual(id3['id'], '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(id3['email'], 'jsmith-git@example')
+        self.assertEqual(id3['source'], 'git')
+
+        id4 = identities[3]
+        self.assertEqual(id4['id'], '9225e296be341c20c11c4bae76df4190a5c4a918')
+        self.assertEqual(id4['email'], 'jsmith-phab@bitergia')
+        self.assertEqual(id4['source'], 'phabricator')
+
+        id5 = identities[4]
+        self.assertEqual(id5['id'], 'c2f5aa44e920b4fbe3cd36894b18e80a2606deba')
+        self.assertEqual(id5['email'], 'jsmith2@libresoft')
+        self.assertEqual(id5['source'], 'phabricator')
+
+        id6 = identities[5]
+        self.assertEqual(id6['id'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(id6['email'], 'jsmith@example')
+        self.assertEqual(id6['source'], 'scm')
+
+    def test_non_existing_uuids(self):
+        """Check if it fails when source `uuids` field is `None` or an empty list"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuids': []
+        }
+
+        executed = client.execute(self.SH_UNMERGE,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        msg = executed['errors'][0]['message']
+
+        self.assertEqual(msg, UUIDS_EMPTY_ERROR)
+
+    def test_non_existing_uuid(self):
+        """Check if it fails when any `uuid` is `None` or empty"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuids': ['']
+        }
+
+        executed = client.execute(self.SH_UNMERGE,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        msg = executed['errors'][0]['message']
+
+        self.assertEqual(msg, UUID_EMPTY_ERROR)
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the query"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuids': ['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3']
+        }
+
+        executed = client.execute(self.SH_UNMERGE,
+                                  context_value=context_value,
+                                  variables=params)
+
+        msg = executed['errors'][0]['message']
+
         self.assertEqual(msg, AUTHENTICATION_ERROR)
