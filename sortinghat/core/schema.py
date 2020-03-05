@@ -41,6 +41,8 @@ from .api import (add_identity,
                   delete_identity,
                   update_profile,
                   move_identity,
+                  lock,
+                  unlock,
                   merge_identities,
                   unmerge_identities,
                   add_organization,
@@ -146,6 +148,7 @@ class OrganizationFilterType(graphene.InputObjectType):
 
 class IdentityFilterType(graphene.InputObjectType):
     uuid = graphene.String(required=False)
+    is_locked = graphene.Boolean(required=False)
 
 
 class TransactionFilterType(graphene.InputObjectType):
@@ -341,6 +344,46 @@ class DeleteIdentity(graphene.Mutation):
         )
 
 
+class LockIdentity(graphene.Mutation):
+    class Arguments:
+        uuid = graphene.String()
+
+    uuid = graphene.Field(lambda: graphene.String)
+    uidentity = graphene.Field(lambda: UniqueIdentityType)
+
+    @check_auth
+    def mutate(self, info, uuid):
+        user = info.context.user
+        ctx = SortingHatContext(user)
+
+        uidentity = lock(ctx, uuid)
+
+        return LockIdentity(
+            uuid=uuid,
+            uidentity=uidentity
+        )
+
+
+class UnlockIdentity(graphene.Mutation):
+    class Arguments:
+        uuid = graphene.String()
+
+    uuid = graphene.Field(lambda: graphene.String)
+    uidentity = graphene.Field(lambda: UniqueIdentityType)
+
+    @check_auth
+    def mutate(self, info, uuid):
+        user = info.context.user
+        ctx = SortingHatContext(user)
+
+        uidentity = unlock(ctx, uuid)
+
+        return UnlockIdentity(
+            uuid=uuid,
+            uidentity=uidentity
+        )
+
+
 class UpdateProfile(graphene.Mutation):
     class Arguments:
         uuid = graphene.String()
@@ -521,6 +564,8 @@ class SortingHatQuery:
 
         if filters and 'uuid' in filters:
             query = query.filter(uuid=filters['uuid'])
+        if filters and 'is_locked' in filters:
+            query = query.filter(is_locked=filters['is_locked'])
 
         return IdentityPaginatedType.create_paginated_result(query,
                                                              page,
@@ -584,6 +629,8 @@ class SortingHatMutation(graphene.ObjectType):
     delete_identity = DeleteIdentity.Field()
     update_profile = UpdateProfile.Field()
     move_identity = MoveIdentity.Field()
+    lock_identity = LockIdentity.Field()
+    unlock_identity = UnlockIdentity.Field()
     merge_identities = MergeIdentities.Field()
     unmerge_identities = UnmergeIdentities.Field()
     enroll = Enroll.Field()
