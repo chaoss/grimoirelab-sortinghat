@@ -34,7 +34,7 @@ from grimoirelab_toolkit.datetime import datetime_utcnow, datetime_to_utc
 
 from sortinghat.core import db
 from sortinghat.core.context import SortingHatContext
-from sortinghat.core.errors import AlreadyExistsError, NotFoundError
+from sortinghat.core.errors import AlreadyExistsError, NotFoundError, LockedIdentityError
 from sortinghat.core.log import TransactionsLog
 from sortinghat.core.models import (MIN_PERIOD_DATE,
                                     MAX_PERIOD_DATE,
@@ -89,6 +89,7 @@ END_DATE_NONE_ERROR = "'end' date cannot be None"
 PERIOD_INVALID_ERROR = "'start' date {start} cannot be greater than {end}"
 PERIOD_OUT_OF_BOUNDS_ERROR = "'{type}' date {date} is out of bounds"
 MOVE_ERROR = "identity '0001' is already assigned to 'AAAA'"
+UIDENTITY_LOCKED_ERROR = "UniqueIdentity {uuid} is locked"
 
 
 class TestFindUniqueIdentity(TestCase):
@@ -771,10 +772,12 @@ class TestAddUniqueIdentity(TestCase):
         uidentity = db.add_unique_identity(self.trxl, uuid)
         self.assertIsInstance(uidentity, UniqueIdentity)
         self.assertEqual(uidentity.uuid, uuid)
+        self.assertEqual(uidentity.is_locked, False)
 
         uidentity = UniqueIdentity.objects.get(uuid=uuid)
         self.assertIsInstance(uidentity, UniqueIdentity)
         self.assertEqual(uidentity.uuid, uuid)
+        self.assertEqual(uidentity.is_locked, False)
 
         self.assertIsInstance(uidentity.profile, Profile)
         self.assertEqual(uidentity.profile.name, None)
@@ -792,6 +795,7 @@ class TestAddUniqueIdentity(TestCase):
             uidentity = UniqueIdentity.objects.get(uuid=uuid)
             self.assertIsInstance(uidentity, UniqueIdentity)
             self.assertEqual(uidentity.uuid, uuid)
+            self.assertEqual(uidentity.is_locked, False)
 
             self.assertIsInstance(uidentity.profile, Profile)
             self.assertEqual(uidentity.profile.name, None)
@@ -949,6 +953,15 @@ class TestDeleteUniqueIdentity(TestCase):
                 UniqueIdentity.objects.get(uuid=uuid)
 
         self.assertEqual(len(UniqueIdentity.objects.all()), 0)
+
+    def test_locked_unique_identity(self):
+        """Check if if fails when the unique identity is locked"""
+
+        jsmith = UniqueIdentity.objects.create(uuid='AAAA', is_locked=True)
+
+        msg = UIDENTITY_LOCKED_ERROR.format(uuid='AAAA')
+        with self.assertRaisesRegex(LockedIdentityError, msg):
+            db.delete_unique_identity(self.trxl, jsmith)
 
     def test_operations(self):
         """Check if the right operations are created when deleting an identity"""
@@ -1264,6 +1277,18 @@ class TestAddIdentity(TestCase):
                             email='jsmith@example.org',
                             username='jsmith')
 
+    def test_locked_unique_identity(self):
+        """Check if if fails when the unique identity is locked"""
+
+        jsmith = UniqueIdentity.objects.create(uuid='AAAA', is_locked=True)
+
+        msg = UIDENTITY_LOCKED_ERROR.format(uuid='AAAA')
+        with self.assertRaisesRegex(LockedIdentityError, msg):
+            db.add_identity(self.trxl, jsmith, 'AAAA', 'scm',
+                            name='John Smith',
+                            email='jsmith@example.org',
+                            username='jsmith')
+
     def test_operations(self):
         """Check if the right operations are created when adding a new identity"""
 
@@ -1361,6 +1386,15 @@ class TestDeleteIdentity(TestCase):
         identity = Identity.objects.get(id='0002')
         self.assertLessEqual(identity.last_modified, before_dt)
         self.assertLessEqual(identity.last_modified, after_dt)
+
+    def test_locked_unique_identity(self):
+        """Check if if fails when the unique identity is locked"""
+
+        jsmith = UniqueIdentity.objects.create(uuid='AAAA', is_locked=True)
+
+        msg = UIDENTITY_LOCKED_ERROR.format(uuid='AAAA')
+        with self.assertRaisesRegex(LockedIdentityError, msg):
+            db.delete_unique_identity(self.trxl, jsmith)
 
     def test_operations(self):
         """Check if the right operations are created when deleting an identity"""
@@ -1564,6 +1598,19 @@ class TestUpdateProfile(TestCase):
         # Check if operations have not been generated after the failure
         operations = Operation.objects.all()
         self.assertEqual(len(operations), 0)
+
+    def test_locked_unique_identity(self):
+        """Check if if fails when the unique identity is locked"""
+
+        jsmith = UniqueIdentity.objects.create(uuid='AAAA', is_locked=True)
+        Profile.objects.create(uidentity=jsmith)
+
+        msg = UIDENTITY_LOCKED_ERROR.format(uuid='AAAA')
+        with self.assertRaisesRegex(LockedIdentityError, msg):
+            db.update_profile(self.trxl, jsmith,
+                              name='Smith, J.', email='jsmith@example.net',
+                              is_bot=True, country_code='US',
+                              gender='male', gender_acc=98)
 
     def test_operations(self):
         """Check if the right operations are created when updating a profile"""
@@ -1805,6 +1852,18 @@ class TestAddEnrollment(TestCase):
         operations = Operation.objects.all()
         self.assertEqual(len(operations), 0)
 
+    def test_locked_unique_identity(self):
+        """Check if if fails when the unique identity is locked"""
+
+        jsmith = UniqueIdentity.objects.create(uuid='AAAA', is_locked=True)
+        org = Organization.objects.create(name='Example')
+        start = datetime.datetime(1999, 1, 1, tzinfo=UTC)
+        end = datetime.datetime(2000, 1, 1, tzinfo=UTC)
+
+        msg = UIDENTITY_LOCKED_ERROR.format(uuid='AAAA')
+        with self.assertRaisesRegex(LockedIdentityError, msg):
+            db.add_enrollment(self.trxl, jsmith, org, start=start, end=end)
+
     def test_operations(self):
         """Check if the right operations are created when deleting a domain"""
 
@@ -1917,6 +1976,26 @@ class TestDeleteEnrollment(TestCase):
         jsmith = UniqueIdentity.objects.get(uuid='AAAA')
         self.assertLessEqual(before_dt, jsmith.last_modified)
         self.assertGreaterEqual(after_dt, jsmith.last_modified)
+
+    def test_locked_unique_identity(self):
+        """Check if if fails when the unique identity is locked"""
+
+        jsmith = UniqueIdentity.objects.create(uuid='AAAA', is_locked=True)
+
+        org = Organization.objects.create(name='Example')
+        start = datetime.datetime(1999, 1, 1, tzinfo=UTC)
+        end = datetime.datetime(2000, 1, 1, tzinfo=UTC)
+
+        enrollment = Enrollment.objects.create(uidentity=jsmith,
+                                               organization=org,
+                                               start=start,
+                                               end=end)
+
+        jsmith.refresh_from_db()
+
+        msg = UIDENTITY_LOCKED_ERROR.format(uuid='AAAA')
+        with self.assertRaisesRegex(LockedIdentityError, msg):
+            db.delete_enrollment(self.trxl, enrollment)
 
     def test_operations(self):
         """Check if the right operations are created when deleting an enrollment"""
@@ -2053,6 +2132,22 @@ class TestMoveIdentity(TestCase):
 
         uidentity = UniqueIdentity.objects.get(uuid='AAAA')
         self.assertEqual(len(uidentity.identities.all()), 1)
+
+    def test_locked_unique_identity(self):
+        """Check if if fails when the unique identity is locked"""
+
+        uid1 = UniqueIdentity.objects.create(uuid='AAAA')
+        uid2 = UniqueIdentity.objects.create(uuid='BBBB', is_locked=True)
+
+        id1 = Identity.objects.create(id='0001', name='John Smith', uidentity=uid1)
+        id2 = Identity.objects.create(id='0002', name='John Smith', uidentity=uid2)
+
+        msg = UIDENTITY_LOCKED_ERROR.format(uuid='BBBB')
+        with self.assertRaisesRegex(LockedIdentityError, msg):
+            db.move_identity(self.trxl, id1, uid2)
+
+        with self.assertRaisesRegex(LockedIdentityError, msg):
+            db.move_identity(self.trxl, id2, uid1)
 
     def test_operations(self):
         """Check if the right operations are created when moving an identity"""

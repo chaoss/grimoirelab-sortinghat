@@ -28,7 +28,7 @@ import django.db.utils
 
 from grimoirelab_toolkit.datetime import datetime_utcnow, datetime_to_utc
 
-from .errors import AlreadyExistsError, NotFoundError
+from .errors import AlreadyExistsError, NotFoundError, LockedIdentityError
 from .models import (MIN_PERIOD_DATE,
                      MAX_PERIOD_DATE,
                      Organization,
@@ -357,6 +357,9 @@ def delete_unique_identity(trxl, uidentity):
         'uidentity': uidentity.uuid
     }
 
+    if uidentity.is_locked:
+        raise LockedIdentityError(uuid=uidentity.uuid)
+
     uidentity.delete()
 
     trxl.log_operation(op_type=Operation.OpType.DELETE, entity_type='unique_identity',
@@ -401,6 +404,9 @@ def add_identity(trxl, uidentity, identity_id, source,
         'username': username
     }
 
+    if uidentity.is_locked:
+        raise LockedIdentityError(uuid=uidentity.uuid)
+
     validate_field('identity_id', identity_id)
     validate_field('source', source)
     validate_field('name', name, allow_none=True)
@@ -440,6 +446,9 @@ def delete_identity(trxl, identity):
     op_args = {
         'identity': identity.id
     }
+
+    if identity.uidentity.is_locked:
+        raise LockedIdentityError(uuid=identity.uidentity.uuid)
 
     identity.delete()
     identity.uidentity.save()
@@ -485,6 +494,9 @@ def update_profile(trxl, uidentity, **kwargs):
     # Setting operation arguments before they are modified
     op_args = copy.deepcopy(kwargs)
     op_args.update({'uidentity': uidentity.uuid})
+
+    if uidentity.is_locked:
+        raise LockedIdentityError(uuid=uidentity.uuid)
 
     profile = uidentity.profile
 
@@ -578,6 +590,9 @@ def add_enrollment(trxl, uidentity, organization,
         'end': copy.deepcopy(str(end))
     }
 
+    if uidentity.is_locked:
+        raise LockedIdentityError(uuid=uidentity.uuid)
+
     if not start:
         raise ValueError("'start' date cannot be None")
     if not end:
@@ -626,6 +641,9 @@ def delete_enrollment(trxl, enrollment):
         'end': str(enrollment.end)
     }
 
+    if enrollment.uidentity.is_locked:
+        raise LockedIdentityError(uuid=enrollment.uidentity.uuid)
+
     enrollment.delete()
     enrollment.uidentity.save()
 
@@ -658,6 +676,10 @@ def move_identity(trxl, identity, uidentity):
         'uidentity': uidentity.uuid
     }
 
+    if identity.uidentity.is_locked:
+        raise LockedIdentityError(uuid=identity.uidentity.uuid)
+    if uidentity.is_locked:
+        raise LockedIdentityError(uuid=uidentity.uuid)
     if identity.uidentity == uidentity:
         msg = "identity '{}' is already assigned to '{}'".format(identity.id, uidentity.uuid)
         raise ValueError(msg)
