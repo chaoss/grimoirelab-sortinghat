@@ -27,7 +27,8 @@ from sortinghat.core.errors import (BaseError,
                                     AlreadyExistsError,
                                     NotFoundError,
                                     InvalidValueError,
-                                    ClosedTransactionError)
+                                    ClosedTransactionError,
+                                    LockedIdentityError)
 
 
 # Mock classes to test BaseError class
@@ -157,3 +158,21 @@ class TestClosedTransactionError(TestCase):
         """
         kwargs = {}
         self.assertRaises(KeyError, ClosedTransactionError, **kwargs)
+
+
+class TestLockedIdentityError(TestCase):
+    """Unit tests for LockedIdentityError"""
+
+    def test_message(self):
+        """Make sure that prints the right error"""
+
+        e = LockedIdentityError(uuid='0123456789abcdef')
+        self.assertEqual("UniqueIdentity 0123456789abcdef is locked", str(e))
+
+    def test_no_args(self):
+        """Check when required arguments are not given.
+
+        When this happens, it raises a KeyError exception.
+        """
+        kwargs = {}
+        self.assertRaises(KeyError, LockedIdentityError, **kwargs)

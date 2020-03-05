@@ -26,6 +26,7 @@ CODE_ALREADY_EXISTS_ERROR = 2
 CODE_NOT_FOUND_ERROR = 9
 CODE_VALUE_ERROR = 10
 CODE_CLOSED_TRANSACTION_ERROR = 12
+CODE_LOCKED_IDENTITY_ERROR = 13
 
 
 class BaseError(Exception):
@@ -79,3 +80,10 @@ class ClosedTransactionError(BaseError):
 
     code = CODE_CLOSED_TRANSACTION_ERROR
     message = "%(msg)s"
+
+
+class LockedIdentityError(BaseError):
+    """Exception raised when performing a change on a locked unique identity"""
+
+    code = CODE_LOCKED_IDENTITY_ERROR
+    message = "UniqueIdentity %(uuid)s is locked"
