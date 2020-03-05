@@ -41,6 +41,8 @@ from .db import (find_unique_identity,
                  delete_domain as delete_domain_db,
                  update_profile as update_profile_db,
                  move_identity as move_identity_db,
+                 lock as lock_db,
+                 unlock as unlock_db,
                  add_enrollment,
                  delete_enrollment)
 from .errors import InvalidValueError, AlreadyExistsError, NotFoundError
@@ -351,6 +353,70 @@ def move_identity(ctx, from_id, to_uuid):
     except ValueError:
         # Case when the identity is already assigned to the unique identity
         uidentity = to_uid
+
+    trxl.close()
+
+    return uidentity
+
+
+@django.db.transaction.atomic
+def lock(ctx, uuid):
+    """Lock a unique identity so it cannot be modified.
+
+    This function locks the unique identity identified by `uuid`
+    so this object and its related objects such as identities,
+    enrollments or the profile cannot be modified.
+
+    :param ctx: context from where this method is called
+    :param uuid: identifier of the unique identity which will be locked
+
+    :returns: a unique identity with its locked value updated
+
+    :raises InvalidValueError: raised when `uuid` is `None` or an empty string
+    :raises NotFoundError: when the identity with the
+        given `uuid` does not exists.
+    """
+    if uuid is None:
+        raise InvalidValueError(msg="'uuid' cannot be None")
+    if uuid == '':
+        raise InvalidValueError(msg="'uuid' cannot be an empty string")
+
+    trxl = TransactionsLog.open('lock', ctx)
+
+    uidentity = find_unique_identity(uuid)
+    uidentity = lock_db(trxl, uidentity)
+
+    trxl.close()
+
+    return uidentity
+
+
+@django.db.transaction.atomic
+def unlock(ctx, uuid):
+    """Unlock a unique identity so it can be modified.
+
+    This function unlocks the unique identity identified by `uuid`
+    so this object and its related objects such as identities,
+    enrollments or the profile can be modified.
+
+    :param ctx: context from where this method is called
+    :param uuid: identifier of the unique identity which will be unlocked
+
+    :returns: a unique identity with its locked value updated
+
+    :raises InvalidValueError: raised when `uuid` is `None` or an empty string
+    :raises NotFoundError: when the identity with the
+        given `uuid` does not exists.
+    """
+    if uuid is None:
+        raise InvalidValueError(msg="'uuid' cannot be None")
+    if uuid == '':
+        raise InvalidValueError(msg="'uuid' cannot be an empty string")
+
+    trxl = TransactionsLog.open('unlock', ctx)
+
+    uidentity = find_unique_identity(uuid)
+    uidentity = unlock_db(trxl, uidentity)
 
     trxl.close()
 
