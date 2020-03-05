@@ -42,6 +42,23 @@ from .models import (MIN_PERIOD_DATE,
 from .utils import validate_field
 
 
+def _set_lock(uidentity, lock_flag):
+    """Set a lock value for a given unique identity.
+
+    Sets the `is_locked` field from a given `uidentity` object to the boolean
+    value from `lock` variable.
+
+    :param uidentity: unique identity which `is_locked` parameter will be set
+    :param lock_flag: Boolean value to be set to `is_locked` parameter from the `uidentity`
+
+    :returns: the unique identity with `is_locked` field updated
+    """
+    uidentity.is_locked = lock_flag
+    uidentity.save()
+
+    return uidentity
+
+
 def find_unique_identity(uuid):
     """Find a unique identity.
 
@@ -694,6 +711,56 @@ def move_identity(trxl, identity, uidentity):
     trxl.log_operation(op_type=Operation.OpType.UPDATE, entity_type='identity',
                        timestamp=datetime_utcnow(), args=op_args,
                        target=op_args['identity'])
+
+    return uidentity
+
+
+def lock(trxl, uidentity):
+    """Lock a given unique identity.
+
+    Locks a given `uidentity` object so this object and its related objects
+    such as identities, enrollments or its profile cannot be modified.
+
+    :param trxl: TransactionsLog object from the method calling this one
+    :param uidentity: unique identity which will be locked
+
+    :returns: the unique identity with lock parameter updated
+    """
+    op_args = {
+        'uuid': uidentity.uuid,
+        'is_locked': True
+    }
+
+    _set_lock(uidentity, True)
+
+    trxl.log_operation(op_type=Operation.OpType.UPDATE, entity_type='unique_identity',
+                       timestamp=datetime_utcnow(), args=op_args,
+                       target=op_args['uuid'])
+
+    return uidentity
+
+
+def unlock(trxl, uidentity):
+    """Unlock a given unique identity.
+
+    Unlocks a given `uidentity` object so this object and its related objects
+    such as identities, enrollments or its profile can be modified.
+
+    :param trxl: TransactionsLog object from the method calling this one
+    :param uidentity: unique identity which will be unlocked
+
+    :returns: the unique identity with lock parameter updated
+    """
+    op_args = {
+        'uuid': uidentity.uuid,
+        'is_locked': False
+    }
+
+    _set_lock(uidentity, False)
+
+    trxl.log_operation(op_type=Operation.OpType.UPDATE, entity_type='unique_identity',
+                       timestamp=datetime_utcnow(), args=op_args,
+                       target=op_args['uuid'])
 
     return uidentity
 

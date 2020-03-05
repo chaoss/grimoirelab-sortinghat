@@ -2181,3 +2181,112 @@ class TestMoveIdentity(TestCase):
         self.assertEqual(len(op1_args), 2)
         self.assertEqual(op1_args['identity'], '0001')
         self.assertEqual(op1_args['uidentity'], 'BBBB')
+
+
+class TestLock(TestCase):
+    """Unit tests for lock"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        self.trxl = TransactionsLog.open('lock', self.ctx)
+
+    def test_lock_identity(self):
+        """Test if a given unique identity is locked"""
+
+        jsmith = UniqueIdentity.objects.create(uuid='AAAA')
+
+        # Check value before calling the method
+        self.assertEqual(jsmith.is_locked, False)
+
+        db.lock(self.trxl, jsmith)
+
+        # Tests
+        uidentity = UniqueIdentity.objects.get(uuid='AAAA')
+        self.assertEqual(uidentity.is_locked, True)
+
+    def test_operations(self):
+        """Check if the right operations are created when locking a unique identity"""
+
+        timestamp = datetime_utcnow()
+
+        jsmith = UniqueIdentity.objects.create(uuid='AAAA')
+
+        jsmith = db.lock(self.trxl, jsmith)
+
+        transactions = Transaction.objects.all()
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.UPDATE.value)
+        self.assertEqual(op1.entity_type, 'unique_identity')
+        self.assertEqual(op1.trx, trx)
+        self.assertEqual(op1.target, 'AAAA')
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 2)
+        self.assertEqual(op1_args['uuid'], jsmith.uuid)
+        self.assertEqual(op1_args['is_locked'], jsmith.is_locked)
+
+
+class TestUnlock(TestCase):
+    """Unit tests for unlock"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        self.trxl = TransactionsLog.open('lock', self.ctx)
+
+    def test_unlock_identity(self):
+        """Test if a given unique identity is unlocked"""
+
+        jsmith = UniqueIdentity.objects.create(uuid='AAAA', is_locked=True)
+
+        # Check value before calling the method
+        self.assertEqual(jsmith.is_locked, True)
+
+        # Calling method
+        db.unlock(self.trxl, jsmith)
+
+        # Tests
+        uidentity = UniqueIdentity.objects.get(uuid='AAAA')
+        self.assertEqual(uidentity.is_locked, False)
+
+    def test_operations(self):
+        """Check if the right operations are created when unlocking a unique identity"""
+
+        timestamp = datetime_utcnow()
+
+        jsmith = UniqueIdentity.objects.create(uuid='AAAA')
+
+        jsmith = db.unlock(self.trxl, jsmith)
+
+        transactions = Transaction.objects.all()
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.UPDATE.value)
+        self.assertEqual(op1.entity_type, 'unique_identity')
+        self.assertEqual(op1.trx, trx)
+        self.assertEqual(op1.target, 'AAAA')
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 2)
+        self.assertEqual(op1_args['uuid'], jsmith.uuid)
+        self.assertEqual(op1_args['is_locked'], jsmith.is_locked)
