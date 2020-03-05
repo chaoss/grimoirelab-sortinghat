@@ -172,6 +172,7 @@ class Country(EntityBase):
 
 class UniqueIdentity(EntityBase):
     uuid = CharField(max_length=MAX_SIZE_CHAR_FIELD, primary_key=True)
+    is_locked = BooleanField(default=False)
 
     class Meta:
         db_table = 'uidentities'

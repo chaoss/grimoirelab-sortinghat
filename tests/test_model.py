@@ -272,6 +272,13 @@ class TestUniqueIdentity(TransactionTestCase):
         self.assertGreaterEqual(uid.last_modified, before_modified_dt)
         self.assertLessEqual(uid.last_modified, after_modified_dt)
 
+    def test_is_locked_default(self):
+        """Check if `is_locked` field is set to False by default"""
+
+        uid = UniqueIdentity.objects.create(uuid='AAAA')
+
+        self.assertEqual(uid.is_locked, False)
+
 
 class TestIdentity(TransactionTestCase):
     """Unit tests for Identity class"""
