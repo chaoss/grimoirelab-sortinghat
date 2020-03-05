@@ -10,7 +10,7 @@ In addition, each unique identity can be related to one or more affiliations, fo
 
 Sorting Hat is a part of the [GrimoireLab toolset](https://grimoirelab.github.io), which provides Python modules and scripts to analyze data sources with information about software development, and allows the production of interactive dashboards to visualize that information.
 
-In the context of GrimoireLab, Sorting Hat is usually run after data is retrieved with [Perceval](https://github.com/chaoss/grimmoirelab-perceval), to store the identities obtained into its database, and later merge them into unique identities (and maybe affiliate them).
+In the context of GrimoireLab, Sorting Hat is usually run after data is retrieved with [Perceval](https://github.com/chaoss/grimoirelab-perceval), to store the identities obtained into its database, and later merge them into unique identities (and maybe affiliate them).
 
 ## Source code and contributions
 
