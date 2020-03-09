@@ -28,7 +28,7 @@ import django.db.utils
 
 from grimoirelab_toolkit.datetime import datetime_utcnow, datetime_to_utc
 
-from .errors import AlreadyExistsError, NotFoundError
+from .errors import AlreadyExistsError, NotFoundError, LockedIdentityError
 from .models import (MIN_PERIOD_DATE,
                      MAX_PERIOD_DATE,
                      Organization,
@@ -40,6 +40,23 @@ from .models import (MIN_PERIOD_DATE,
                      Enrollment,
                      Operation)
 from .utils import validate_field
+
+
+def _set_lock(uidentity, lock_flag):
+    """Set a lock value for a given unique identity.
+
+    Sets the `is_locked` field from a given `uidentity` object to the boolean
+    value from `lock` variable.
+
+    :param uidentity: unique identity which `is_locked` parameter will be set
+    :param lock_flag: Boolean value to be set to `is_locked` parameter from the `uidentity`
+
+    :returns: the unique identity with `is_locked` field updated
+    """
+    uidentity.is_locked = lock_flag
+    uidentity.save()
+
+    return uidentity
 
 
 def find_unique_identity(uuid):
@@ -357,6 +374,9 @@ def delete_unique_identity(trxl, uidentity):
         'uidentity': uidentity.uuid
     }
 
+    if uidentity.is_locked:
+        raise LockedIdentityError(uuid=uidentity.uuid)
+
     uidentity.delete()
 
     trxl.log_operation(op_type=Operation.OpType.DELETE, entity_type='unique_identity',
@@ -401,6 +421,9 @@ def add_identity(trxl, uidentity, identity_id, source,
         'username': username
     }
 
+    if uidentity.is_locked:
+        raise LockedIdentityError(uuid=uidentity.uuid)
+
     validate_field('identity_id', identity_id)
     validate_field('source', source)
     validate_field('name', name, allow_none=True)
@@ -440,6 +463,9 @@ def delete_identity(trxl, identity):
     op_args = {
         'identity': identity.id
     }
+
+    if identity.uidentity.is_locked:
+        raise LockedIdentityError(uuid=identity.uidentity.uuid)
 
     identity.delete()
     identity.uidentity.save()
@@ -485,6 +511,9 @@ def update_profile(trxl, uidentity, **kwargs):
     # Setting operation arguments before they are modified
     op_args = copy.deepcopy(kwargs)
     op_args.update({'uidentity': uidentity.uuid})
+
+    if uidentity.is_locked:
+        raise LockedIdentityError(uuid=uidentity.uuid)
 
     profile = uidentity.profile
 
@@ -578,6 +607,9 @@ def add_enrollment(trxl, uidentity, organization,
         'end': copy.deepcopy(str(end))
     }
 
+    if uidentity.is_locked:
+        raise LockedIdentityError(uuid=uidentity.uuid)
+
     if not start:
         raise ValueError("'start' date cannot be None")
     if not end:
@@ -626,6 +658,9 @@ def delete_enrollment(trxl, enrollment):
         'end': str(enrollment.end)
     }
 
+    if enrollment.uidentity.is_locked:
+        raise LockedIdentityError(uuid=enrollment.uidentity.uuid)
+
     enrollment.delete()
     enrollment.uidentity.save()
 
@@ -658,6 +693,10 @@ def move_identity(trxl, identity, uidentity):
         'uidentity': uidentity.uuid
     }
 
+    if identity.uidentity.is_locked:
+        raise LockedIdentityError(uuid=identity.uidentity.uuid)
+    if uidentity.is_locked:
+        raise LockedIdentityError(uuid=uidentity.uuid)
     if identity.uidentity == uidentity:
         msg = "identity '{}' is already assigned to '{}'".format(identity.id, uidentity.uuid)
         raise ValueError(msg)
@@ -672,6 +711,56 @@ def move_identity(trxl, identity, uidentity):
     trxl.log_operation(op_type=Operation.OpType.UPDATE, entity_type='identity',
                        timestamp=datetime_utcnow(), args=op_args,
                        target=op_args['identity'])
+
+    return uidentity
+
+
+def lock(trxl, uidentity):
+    """Lock a given unique identity.
+
+    Locks a given `uidentity` object so this object and its related objects
+    such as identities, enrollments or its profile cannot be modified.
+
+    :param trxl: TransactionsLog object from the method calling this one
+    :param uidentity: unique identity which will be locked
+
+    :returns: the unique identity with lock parameter updated
+    """
+    op_args = {
+        'uuid': uidentity.uuid,
+        'is_locked': True
+    }
+
+    _set_lock(uidentity, True)
+
+    trxl.log_operation(op_type=Operation.OpType.UPDATE, entity_type='unique_identity',
+                       timestamp=datetime_utcnow(), args=op_args,
+                       target=op_args['uuid'])
+
+    return uidentity
+
+
+def unlock(trxl, uidentity):
+    """Unlock a given unique identity.
+
+    Unlocks a given `uidentity` object so this object and its related objects
+    such as identities, enrollments or its profile can be modified.
+
+    :param trxl: TransactionsLog object from the method calling this one
+    :param uidentity: unique identity which will be unlocked
+
+    :returns: the unique identity with lock parameter updated
+    """
+    op_args = {
+        'uuid': uidentity.uuid,
+        'is_locked': False
+    }
+
+    _set_lock(uidentity, False)
+
+    trxl.log_operation(op_type=Operation.OpType.UPDATE, entity_type='unique_identity',
+                       timestamp=datetime_utcnow(), args=op_args,
+                       target=op_args['uuid'])
 
     return uidentity
 

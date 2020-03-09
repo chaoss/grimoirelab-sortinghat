@@ -69,6 +69,7 @@ FROM_UUIDS_EMPTY_ERROR = "'from_uuids' cannot be an empty list"
 TO_UUID_EMPTY_ERROR = "'to_uuid' cannot be an empty string"
 FROM_UUID_TO_UUID_EQUAL_ERROR = "'from_uuid' and 'to_uuid' cannot be equal"
 UUID_EMPTY_ERROR = "'uuid' cannot be an empty string"
+UUID_LOCKED_ERROR = "UniqueIdentity e8284285566fdc1f41c8a22bb84a295fc3c4cbb3 is locked"
 UUIDS_EMPTY_ERROR = "'uuids' cannot be an empty list"
 ORG_DOES_NOT_EXIST_ERROR = "Organization matching query does not exist."
 DOMAIN_DOES_NOT_EXIST_ERROR = "Domain matching query does not exist."
@@ -135,6 +136,7 @@ SH_UIDS_QUERY = """{
   uidentities {
     entities {
       uuid
+      isLocked
       profile {
         name
         email
@@ -166,6 +168,39 @@ SH_UIDS_UUID_FILTER = """{
   uidentities(filters: {uuid: "a9b403e150dd4af8953a52a4bb841051e4b705d9"}) {
     entities {
       uuid
+      isLocked
+      profile {
+        name
+        email
+        gender
+        isBot
+        country {
+          code
+          name
+        }
+      }
+      identities {
+        id
+        name
+        email
+        username
+        source
+      }
+      enrollments {
+        organization {
+          name
+        }
+        start
+        end
+      }
+    }
+  }
+}"""
+SH_UIDS_LOCKED_FILTER = """{
+  uidentities(filters: {isLocked: true}) {
+    entities {
+      uuid
+      isLocked
       profile {
         name
         email
@@ -200,6 +235,7 @@ SH_UIDS_UUID_PAGINATION = """{
   ){
     entities {
       uuid
+      isLocked
     }
     pageInfo{
       page
@@ -817,6 +853,7 @@ class TestUniqueIdentities(django.test.TestCase):
         # Test John Smith unique identity
         uid = uidentities[0]
         self.assertEqual(uid['uuid'], 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        self.assertEqual(uid['isLocked'], False)
 
         self.assertEqual(uid['profile']['name'], None)
         self.assertEqual(uid['profile']['email'], 'jsmith@example.com')
@@ -856,6 +893,7 @@ class TestUniqueIdentities(django.test.TestCase):
         # Test John Doe unique identity
         uid = uidentities[1]
         self.assertEqual(uid['uuid'], 'c6d2504fde0e34b78a185c4b709e5442d045451c')
+        self.assertEqual(uid['isLocked'], False)
 
         self.assertEqual(uid['profile']['name'], None)
         self.assertEqual(uid['profile']['email'], None)
@@ -955,6 +993,115 @@ class TestUniqueIdentities(django.test.TestCase):
         # Test John Smith unique identity
         uid = uidentities[0]
         self.assertEqual(uid['uuid'], 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+
+        self.assertEqual(uid['profile']['name'], None)
+        self.assertEqual(uid['profile']['email'], 'jsmith@example.com')
+        self.assertEqual(uid['profile']['isBot'], True)
+        self.assertEqual(uid['profile']['country']['code'], 'US')
+        self.assertEqual(uid['profile']['country']['name'], 'United States of America')
+
+        identities = uid['identities']
+        identities.sort(key=lambda x: x['id'])
+        self.assertEqual(len(identities), 3)
+
+        id1 = identities[0]
+        self.assertEqual(id1['email'], 'jsmith@example.com')
+
+        id2 = identities[1]
+        self.assertEqual(id2['email'], 'jsmith@bitergia.com')
+        self.assertEqual(id2['source'], 'scm')
+
+        id3 = identities[2]
+        self.assertEqual(id3['email'], 'jsmith@bitergia.com')
+        self.assertEqual(id3['source'], 'mls')
+
+        enrollments = uid['enrollments']
+        enrollments.sort(key=lambda x: x['organization']['name'])
+        self.assertEqual(len(enrollments), 2)
+
+        rol1 = enrollments[0]
+        self.assertEqual(rol1['organization']['name'], 'Bitergia')
+        self.assertEqual(rol1['start'], '1999-01-01T00:00:00+00:00')
+        self.assertEqual(rol1['end'], '2000-01-01T00:00:00+00:00')
+
+        rol2 = enrollments[1]
+        self.assertEqual(rol2['organization']['name'], 'Example')
+        self.assertEqual(rol2['start'], '1900-01-01T00:00:00+00:00')
+        self.assertEqual(rol2['end'], '2100-01-01T00:00:00+00:00')
+
+    def test_filter_registry_is_locked(self):
+        """Check whether it returns the uuid searched when using isLocked filter"""
+
+        cn = Country.objects.create(code='US',
+                                    name='United States of America',
+                                    alpha3='USA')
+
+        org_ex = Organization.objects.create(name='Example')
+        org_bit = Organization.objects.create(name='Bitergia')
+
+        uid = UniqueIdentity.objects.create(uuid='a9b403e150dd4af8953a52a4bb841051e4b705d9', is_locked=True)
+        Profile.objects.create(name=None,
+                               email='jsmith@example.com',
+                               is_bot=True,
+                               gender='M',
+                               country=cn,
+                               uidentity=uid)
+        Identity.objects.create(id='A001',
+                                name='John Smith',
+                                email='jsmith@example.com',
+                                username='jsmith',
+                                source='scm',
+                                uidentity=uid)
+        Identity.objects.create(id='A002',
+                                name=None,
+                                email='jsmith@bitergia.com',
+                                username=None,
+                                source='scm',
+                                uidentity=uid)
+        Identity.objects.create(id='A003',
+                                name=None,
+                                email='jsmith@bitergia.com',
+                                username=None,
+                                source='mls',
+                                uidentity=uid)
+        Enrollment.objects.create(uidentity=uid, organization=org_ex)
+        Enrollment.objects.create(uidentity=uid, organization=org_bit,
+                                  start=datetime.datetime(1999, 1, 1, 0, 0, 0,
+                                                          tzinfo=dateutil.tz.tzutc()),
+                                  end=datetime.datetime(2000, 1, 1, 0, 0, 0,
+                                                        tzinfo=dateutil.tz.tzutc()))
+
+        uid = UniqueIdentity.objects.create(uuid='c6d2504fde0e34b78a185c4b709e5442d045451c')
+        Profile.objects.create(email=None,
+                               is_bot=False,
+                               gender='M',
+                               country=None,
+                               uidentity=uid)
+        Identity.objects.create(id='B001',
+                                name='John Doe',
+                                email='jdoe@example.com',
+                                username='jdoe',
+                                source='scm',
+                                uidentity=uid)
+        Identity.objects.create(id='B002',
+                                name=None,
+                                email='jdoe@libresoft.es',
+                                username=None,
+                                source='scm',
+                                uidentity=uid)
+
+        # Tests
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_UIDS_LOCKED_FILTER,
+                                  context_value=self.context_value)
+
+        uidentities = executed['data']['uidentities']['entities']
+        self.assertEqual(len(uidentities), 1)
+
+        # Test John Smith unique identity
+        uid = uidentities[0]
+        self.assertEqual(uid['uuid'], 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        self.assertEqual(uid['isLocked'], True)
 
         self.assertEqual(uid['profile']['name'], None)
         self.assertEqual(uid['profile']['email'], 'jsmith@example.com')
@@ -1876,6 +2023,8 @@ class TestAddIdentityMutation(django.test.TestCase):
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
+        self.ctx = SortingHatContext(self.user)
+
     def test_add_new_identities(self):
         """Check if everything goes OK when adding new identities"""
 
@@ -2071,6 +2220,26 @@ class TestAddIdentityMutation(django.test.TestCase):
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, IDENTITY_EMPTY_DATA_ERROR)
 
+    def test_locked_uuid(self):
+        """Check if it fails when the unique identity is locked"""
+
+        client = graphene.test.Client(schema)
+
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.lock(self.ctx, jsmith.id)
+
+        # Tests
+        params = {
+            'source': 'git',
+            'email': 'jsmith-git@example',
+            'uuid': jsmith.id
+        }
+        executed = client.execute(self.SH_ADD_IDENTITY,
+                                  context_value=self.context_value,
+                                  variables=params)
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, UUID_LOCKED_ERROR)
+
     def test_authentication(self):
         """Check if it fails when a non-authenticated user executes the query"""
 
@@ -2246,6 +2415,24 @@ class TestDeleteIdentityMutation(django.test.TestCase):
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, UUID_EMPTY_ERROR)
 
+    def test_locked_uuid(self):
+        """Check if it fails when the unique identity is locked"""
+
+        client = graphene.test.Client(schema)
+
+        uuid = 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'
+        api.lock(self.ctx, uuid)
+
+        # Tests
+        params = {
+            'uuid': uuid,
+        }
+        executed = client.execute(self.SH_DELETE_IDENTITY,
+                                  context_value=self.context_value,
+                                  variables=params)
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, UUID_LOCKED_ERROR)
+
     def test_authentication(self):
         """Check if it fails when a non-authenticated user executes the query"""
 
@@ -2258,6 +2445,214 @@ class TestDeleteIdentityMutation(django.test.TestCase):
             'uuid': '1387b129ab751a3657312c09759caa41dfd8d07d',
         }
         executed = client.execute(self.SH_DELETE_IDENTITY,
+                                  context_value=context_value,
+                                  variables=params)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
+
+
+class TestLockIdentityMutation(django.test.TestCase):
+    """Unit tests for mutation to lock identities"""
+
+    SH_LOCK_IDENTITY = """
+          mutation lockId($uuid: String) {
+            lockIdentity(uuid: $uuid) {
+              uuid
+              uidentity {
+                uuid
+                isLocked
+              }
+            }
+          }
+    """
+
+    def setUp(self):
+        """Load initial dataset and set queries context"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
+
+        self.ctx = SortingHatContext(self.user)
+
+        # Transaction
+        self.trxl = TransactionsLog.open('lock', self.ctx)
+
+    def test_lock(self):
+        """Check if everything goes OK when locking a unique identity"""
+
+        api.add_identity(self.ctx, 'scm', email='jsmith@example')
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuid': 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+        }
+        executed = client.execute(self.SH_LOCK_IDENTITY,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        # Check results
+        uuid = executed['data']['lockIdentity']['uuid']
+        self.assertEqual(uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        uidentity = executed['data']['lockIdentity']['uidentity']
+        self.assertEqual(uidentity['uuid'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(uidentity['isLocked'], True)
+
+    def test_non_existing_uuid(self):
+        """Check if it fails when the uuid does not exists"""
+
+        api.add_identity(self.ctx, 'scm', email='jsmith@example')
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuid': 'FFFFFFFFFFFFFFF',
+        }
+        executed = client.execute(self.SH_LOCK_IDENTITY,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, UID_DOES_NOT_EXIST_ERROR)
+
+    def test_empty_uuid(self):
+        """Check if it fails when the uuid is an empty string"""
+
+        api.add_identity(self.ctx, 'scm', email='jsmith@example')
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuid': '',
+        }
+        executed = client.execute(self.SH_LOCK_IDENTITY,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, UUID_EMPTY_ERROR)
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the query"""
+
+        api.add_identity(self.ctx, 'scm', email='jsmith@example')
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuid': '1387b129ab751a3657312c09759caa41dfd8d07d',
+        }
+        executed = client.execute(self.SH_LOCK_IDENTITY,
+                                  context_value=context_value,
+                                  variables=params)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
+
+
+class TestUnlockIdentityMutation(django.test.TestCase):
+    """Unit tests for mutation to unlock identities"""
+
+    SH_UNLOCK_IDENTITY = """
+          mutation unlockId($uuid: String) {
+            unlockIdentity(uuid: $uuid) {
+              uuid
+              uidentity {
+                uuid
+                isLocked
+              }
+            }
+          }
+    """
+
+    def setUp(self):
+        """Load initial dataset and set queries context"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
+
+        self.ctx = SortingHatContext(self.user)
+
+        # Transaction
+        self.trxl = TransactionsLog.open('lock', self.ctx)
+
+    def test_unlock(self):
+        """Check if everything goes OK when unlocking a unique identity"""
+
+        api.add_identity(self.ctx, 'scm', email='jsmith@example')
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuid': 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+        }
+        executed = client.execute(self.SH_UNLOCK_IDENTITY,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        # Check results
+        uuid = executed['data']['unlockIdentity']['uuid']
+        self.assertEqual(uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        uidentity = executed['data']['unlockIdentity']['uidentity']
+        self.assertEqual(uidentity['uuid'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(uidentity['isLocked'], False)
+
+    def test_non_existing_uuid(self):
+        """Check if it fails when the uuid does not exists"""
+
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuid': 'FFFFFFFFFFFFFFF',
+        }
+        executed = client.execute(self.SH_UNLOCK_IDENTITY,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, UID_DOES_NOT_EXIST_ERROR)
+
+    def test_empty_uuid(self):
+        """Check if it fails when the uuid is an empty string"""
+
+        api.add_identity(self.ctx, 'scm', email='jsmith@example')
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuid': '',
+        }
+        executed = client.execute(self.SH_UNLOCK_IDENTITY,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, UUID_EMPTY_ERROR)
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the query"""
+
+        api.add_identity(self.ctx, 'scm', email='jsmith@example')
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuid': 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+        }
+        executed = client.execute(self.SH_UNLOCK_IDENTITY,
                                   context_value=context_value,
                                   variables=params)
 
@@ -2389,6 +2784,32 @@ class TestUpdateProfileMutation(django.test.TestCase):
         profile = executed['data']['updateProfile']['uidentity']['profile']
         self.assertEqual(profile['name'], None)
         self.assertEqual(profile['email'], None)
+
+    def test_locked_uuid(self):
+        """Check if it fails when the unique identity is locked"""
+
+        client = graphene.test.Client(schema)
+
+        uuid = 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'
+        api.lock(self.ctx, uuid)
+
+        # Tests
+        params = {
+            'uuid': uuid,
+            'data': {
+                'name': 'John Smith',
+                'email': 'jsmith@example.net',
+                'isBot': True,
+                'countryCode': 'US',
+                'gender': 'male',
+                'genderAcc': 89
+            }
+        }
+        executed = client.execute(self.SH_UPDATE_PROFILE,
+                                  context_value=self.context_value,
+                                  variables=params)
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, UUID_LOCKED_ERROR)
 
     def test_authentication(self):
         """Check if it fails when a non-authenticated user executes the query"""
@@ -2673,6 +3094,25 @@ class TestMoveIdentityMutation(django.test.TestCase):
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, TO_UUID_EMPTY_ERROR)
 
+    def test_locked_uuid(self):
+        """Check if it fails when the unique identity is locked"""
+
+        client = graphene.test.Client(schema)
+
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.lock(self.ctx, jsmith.id)
+
+        # Tests
+        params = {
+            'fromID': '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331',
+            'toUUID': jsmith.id
+        }
+        executed = client.execute(self.SH_MOVE,
+                                  context_value=self.context_value,
+                                  variables=params)
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, UUID_LOCKED_ERROR)
+
     def test_authentication(self):
         """Check if it fails when a non-authenticated user executes the query"""
 
@@ -2871,6 +3311,27 @@ class TestEnrollMutation(django.test.TestCase):
         err = 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3-Example-2005-01-01 00:00:00+00:00-2005-06-01 00:00:00+00:00'
         err = DUPLICATED_ENROLLMENT_ERROR.format(err)
         self.assertEqual(msg, err)
+
+    def test_locked_uuid(self):
+        """Check if it fails when the unique identity is locked"""
+
+        client = graphene.test.Client(schema)
+
+        uuid = 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'
+        api.lock(self.ctx, uuid)
+
+        # Tests
+        params = {
+            'uuid': uuid,
+            'organization': 'Example',
+            'fromDate': '2008-01-01T00:00:00+0000',
+            'toDate': '2009-01-01T00:00:00+0000'
+        }
+        executed = client.execute(self.SH_ENROLL,
+                                  context_value=self.context_value,
+                                  variables=params)
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, UUID_LOCKED_ERROR)
 
     def test_authentication(self):
         """Check if it fails when a non-authenticated user executes the query"""
@@ -3090,6 +3551,27 @@ class TestWithdrawMutation(django.test.TestCase):
 
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, ENROLLMENT_DOES_NOT_EXIST_ERROR)
+
+    def test_locked_uuid(self):
+        """Check if it fails when the unique identity is locked"""
+
+        client = graphene.test.Client(schema)
+
+        uuid = 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'
+        api.lock(self.ctx, uuid)
+
+        # Tests
+        params = {
+            'uuid': uuid,
+            'organization': 'Example',
+            'fromDate': '2007-01-01T00:00:00+0000',
+            'toDate': '2013-01-01T00:00:00+0000'
+        }
+        executed = client.execute(self.SH_WITHDRAW,
+                                  context_value=self.context_value,
+                                  variables=params)
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, UUID_LOCKED_ERROR)
 
     def test_authentication(self):
         """Check if it fails when a non-authenticated user executes the query"""
@@ -3494,6 +3976,25 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
 
         self.assertEqual(msg, FROM_UUID_TO_UUID_EQUAL_ERROR)
 
+    def test_locked_uuid(self):
+        """Check if it fails when the unique identity is locked"""
+
+        client = graphene.test.Client(schema)
+
+        from_uuid = 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'
+        api.lock(self.ctx, from_uuid)
+
+        # Tests
+        params = {
+            'fromUuids': [from_uuid],
+            'toUuid': 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed'
+        }
+        executed = client.execute(self.SH_MERGE,
+                                  context_value=self.context_value,
+                                  variables=params)
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, UUID_LOCKED_ERROR)
+
     def test_authentication(self):
         """Check if it fails when a non-authenticated user executes the query"""
 
@@ -3826,6 +4327,24 @@ class TestUnmergeIdentitiesMutation(django.test.TestCase):
         msg = executed['errors'][0]['message']
 
         self.assertEqual(msg, UUID_EMPTY_ERROR)
+
+    def test_locked_uuid(self):
+        """Check if it fails when the unique identity is locked"""
+
+        client = graphene.test.Client(schema)
+
+        uuid = 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'
+        api.lock(self.ctx, uuid)
+
+        # Tests
+        params = {
+            'uuids': ['67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6']
+        }
+        executed = client.execute(self.SH_UNMERGE,
+                                  context_value=self.context_value,
+                                  variables=params)
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, UUID_LOCKED_ERROR)
 
     def test_authentication(self):
         """Check if it fails when a non-authenticated user executes the query"""

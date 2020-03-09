@@ -35,7 +35,8 @@ from sortinghat.core import api
 from sortinghat.core.context import SortingHatContext
 from sortinghat.core.errors import (AlreadyExistsError,
                                     NotFoundError,
-                                    InvalidValueError)
+                                    InvalidValueError,
+                                    LockedIdentityError)
 from sortinghat.core.models import (Country,
                                     UniqueIdentity,
                                     Identity,
@@ -50,6 +51,7 @@ ALREADY_EXISTS_ERROR = "{entity} already exists in the registry"
 SOURCE_NONE_OR_EMPTY_ERROR = "'source' cannot be"
 IDENTITY_NONE_OR_EMPTY_ERROR = "identity data cannot be empty"
 UUID_NONE_OR_EMPTY_ERROR = "'uuid' cannot be"
+UUID_LOCKED_ERROR = "UniqueIdentity {uuid} is locked"
 UUIDS_NONE_OR_EMPTY_ERROR = "'uuids' cannot be"
 FROM_ID_NONE_OR_EMPTY_ERROR = "'from_id' cannot be"
 FROM_UUID_NONE_OR_EMPTY_ERROR = "'from_uuid' cannot be"
@@ -571,6 +573,28 @@ class TestAddIdentity(TestCase):
         transactions = Transaction.objects.all()
         self.assertEqual(len(transactions), 0)
 
+    def test_locked_uuid(self):
+        """Check if it fails when the unique identity is locked"""
+
+        jsmith = api.add_identity(self.ctx,
+                                  'scm',
+                                  name='John Smith',
+                                  email='jsmith@example.com',
+                                  username='jsmith')
+
+        uidentity = UniqueIdentity.objects.get(uuid=jsmith.id)
+        uidentity.is_locked = True
+        uidentity.save()
+
+        msg = UUID_LOCKED_ERROR.format(uuid=jsmith.id)
+        with self.assertRaisesRegex(LockedIdentityError, msg):
+            api.add_identity(self.ctx,
+                             'mls',
+                             name='John Smith',
+                             email='jsmith@example.com',
+                             username='jsmith',
+                             uuid=jsmith.id)
+
     def test_transaction(self):
         """Check if a transaction is created when adding a new identity"""
 
@@ -817,6 +841,23 @@ class TestDeleteIdentity(TestCase):
         transactions = Transaction.objects.filter(created_at__gt=trx_date)
         self.assertEqual(len(transactions), 0)
 
+    def test_locked_uuid(self):
+        """Check if it fails when the unique identity is locked"""
+
+        jsmith = api.add_identity(self.ctx,
+                                  'scm',
+                                  name='John Smith',
+                                  email='jsmith@example.com',
+                                  username='jsmith')
+
+        uidentity = UniqueIdentity.objects.get(uuid=jsmith.id)
+        uidentity.is_locked = True
+        uidentity.save()
+
+        msg = UUID_LOCKED_ERROR.format(uuid=jsmith.id)
+        with self.assertRaisesRegex(LockedIdentityError, msg):
+            api.delete_identity(self.ctx, jsmith.id)
+
     def test_transaction(self):
         """Check if a transaction is created when deleting an identity"""
 
@@ -1046,6 +1087,27 @@ class TestUpdateProfile(TestCase):
         # Check if there are no transactions created when there is an error
         transactions = Transaction.objects.all()
         self.assertEqual(len(transactions), 1)
+
+    def test_locked_uuid(self):
+        """Check if it fails when the unique identity is locked"""
+
+        jsmith = api.add_identity(self.ctx,
+                                  'scm',
+                                  name='John Smith',
+                                  email='jsmith@example.com',
+                                  username='jsmith')
+
+        uidentity = UniqueIdentity.objects.get(uuid=jsmith.id)
+        uidentity.is_locked = True
+        uidentity.save()
+
+        msg = UUID_LOCKED_ERROR.format(uuid=jsmith.id)
+        with self.assertRaisesRegex(LockedIdentityError, msg):
+            api.update_profile(self.ctx,
+                               jsmith.id,
+                               name='', email='jsmith@example.net',
+                               is_bot=False, country_code='US',
+                               gender='male', gender_acc=89)
 
     def test_transaction(self):
         """Check if a transaction is created when updating a profile"""
@@ -1346,6 +1408,20 @@ class TestMoveIdentity(TestCase):
         transactions = Transaction.objects.filter(created_at__gt=trx_date)
         self.assertEqual(len(transactions), 0)
 
+    def test_locked_uuid(self):
+        """Check if it fails when the unique identity is locked"""
+
+        from_id = '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331'
+        to_uuid = '03877f31261a6d1a1b3971d240e628259364b8ac'
+
+        uidentity = UniqueIdentity.objects.get(uuid=to_uuid)
+        uidentity.is_locked = True
+        uidentity.save()
+
+        msg = UUID_LOCKED_ERROR.format(uuid=to_uuid)
+        with self.assertRaisesRegex(LockedIdentityError, msg):
+            api.move_identity(self.ctx, from_id, to_uuid)
+
     def test_transaction(self):
         """Check if a transaction is created when moving an identity"""
 
@@ -1393,6 +1469,158 @@ class TestMoveIdentity(TestCase):
         self.assertEqual(len(op1_args), 2)
         self.assertEqual(op1_args['identity'], from_id)
         self.assertEqual(op1_args['uidentity'], to_uuid)
+
+
+class TestLock(TestCase):
+    """Unit tests for lock"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+        self.jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example.com')
+
+    def test_lock(self):
+        """Test whether a unique identity is locked"""
+
+        jsmith = api.lock(self.ctx, self.jsmith.uidentity)
+
+        self.assertEqual(jsmith.is_locked, True)
+
+    def test_lock_uuid_none_or_empty(self):
+        """Check if it fails when the uuid is None or an empty string"""
+
+        with self.assertRaisesRegex(InvalidValueError, UUID_NONE_OR_EMPTY_ERROR):
+            api.lock(self.ctx, None)
+
+    def test_lock_uuid_not_exists(self):
+        """Check if it fails when the uuid does not exists"""
+
+        msg = NOT_FOUND_ERROR.format(entity='AAAA')
+        with self.assertRaisesRegex(NotFoundError, msg):
+            api.lock(self.ctx, 'AAAA')
+
+    def test_transaction(self):
+        """Check if a transaction is created when locking an identity"""
+
+        timestamp = datetime_utcnow()
+        uuid = self.jsmith.uidentity.uuid
+
+        api.lock(self.ctx, uuid)
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        self.assertEqual(len(transactions), 1)
+
+        trx = transactions[0]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'lock')
+        self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, self.ctx.user.username)
+
+    def test_operations(self):
+        """Check if the right operations are created when locking an identity"""
+
+        timestamp = datetime_utcnow()
+        uuid = self.jsmith.uidentity.uuid
+
+        api.lock(self.ctx, uuid)
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.UPDATE.value)
+        self.assertEqual(op1.entity_type, 'unique_identity')
+        self.assertEqual(op1.target, uuid)
+        self.assertEqual(op1.trx, trx)
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 2)
+        self.assertEqual(op1_args['uuid'], uuid)
+        self.assertEqual(op1_args['is_locked'], True)
+
+
+class TestUnlock(TestCase):
+    """Unit tests for unlock"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+        self.jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example.com')
+
+    def test_unlock(self):
+        """Test whether a unique identity is unlocked"""
+
+        uuid = self.jsmith.uidentity.uuid
+
+        jsmith = api.unlock(self.ctx, uuid)
+
+        self.assertEqual(jsmith.is_locked, False)
+
+    def test_unlock_uuid_none_or_empty(self):
+        """Check if it fails when the uuid is None or an empty string"""
+
+        with self.assertRaisesRegex(InvalidValueError, UUID_NONE_OR_EMPTY_ERROR):
+            api.unlock(self.ctx, None)
+
+    def test_unlock_uuid_not_exists(self):
+        """Check if it fails when the uuid does not exists"""
+
+        msg = NOT_FOUND_ERROR.format(entity='AAAA')
+        with self.assertRaisesRegex(NotFoundError, msg):
+            api.unlock(self.ctx, 'AAAA')
+
+    def test_transaction(self):
+        """Check if a transaction is created when unlocking an identity"""
+
+        timestamp = datetime_utcnow()
+        uuid = self.jsmith.uidentity.uuid
+
+        api.unlock(self.ctx, uuid)
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        self.assertEqual(len(transactions), 1)
+
+        trx = transactions[0]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'unlock')
+        self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, self.ctx.user.username)
+
+    def test_operations(self):
+        """Check if the right operations are created when unlocking an identity"""
+
+        timestamp = datetime_utcnow()
+        uuid = self.jsmith.uidentity.uuid
+
+        api.unlock(self.ctx, uuid)
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.UPDATE.value)
+        self.assertEqual(op1.entity_type, 'unique_identity')
+        self.assertEqual(op1.target, uuid)
+        self.assertEqual(op1.trx, trx)
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 2)
+        self.assertEqual(op1_args['uuid'], uuid)
+        self.assertEqual(op1_args['is_locked'], False)
 
 
 class TestAddOrganization(TestCase):
@@ -2565,6 +2793,23 @@ class TestEnroll(TestCase):
         transactions = Transaction.objects.filter(created_at__gt=trx_date)
         self.assertEqual(len(transactions), 0)
 
+    def test_locked_uuid(self):
+        """Check if it fails when the unique identity is locked"""
+
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_organization(self.ctx, 'Example')
+
+        uidentity = UniqueIdentity.objects.get(uuid=jsmith.id)
+        uidentity.is_locked = True
+        uidentity.save()
+
+        msg = UUID_LOCKED_ERROR.format(uuid=jsmith.id)
+        with self.assertRaisesRegex(LockedIdentityError, msg):
+            api.enroll(self.ctx,
+                       jsmith.id, 'Example',
+                       from_date=datetime.datetime(1999, 1, 1),
+                       to_date=datetime.datetime(2000, 1, 1))
+
     def test_transaction(self):
         """Check if a transaction is created when adding an enrollment"""
 
@@ -2864,6 +3109,22 @@ class TestWithdraw(TestCase):
         # Check if there are no transactions created when there is an error
         transactions = Transaction.objects.filter(created_at__gt=trx_date)
         self.assertEqual(len(transactions), 0)
+
+    def test_locked_uuid(self):
+        """Check if it fails when the unique identity is locked"""
+
+        uuid = 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'
+
+        uidentity = UniqueIdentity.objects.get(uuid=uuid)
+        uidentity.is_locked = True
+        uidentity.save()
+
+        msg = UUID_LOCKED_ERROR.format(uuid=uuid)
+        with self.assertRaisesRegex(LockedIdentityError, msg):
+            api.withdraw(self.ctx,
+                         'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                         from_date=datetime.datetime(2007, 1, 1),
+                         to_date=datetime.datetime(2013, 1, 1))
 
     def test_transaction(self):
         """Check if a transaction is created when deleting an enrollment"""
@@ -3518,6 +3779,22 @@ class TestMergeIdentities(TestCase):
         self.assertEqual(profile.country_id, None)
         self.assertEqual(profile.is_bot, False)
 
+    def test_locked_uuid(self):
+        """Check if it fails when the unique identity is locked"""
+
+        from_uuid = 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'
+        to_uuid = 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed'
+
+        uidentity = UniqueIdentity.objects.get(uuid=from_uuid)
+        uidentity.is_locked = True
+        uidentity.save()
+
+        msg = UUID_LOCKED_ERROR.format(uuid=from_uuid)
+        with self.assertRaisesRegex(LockedIdentityError, msg):
+            api.merge_identities(self.ctx,
+                                 from_uuids=[from_uuid],
+                                 to_uuid=to_uuid)
+
     def test_transaction(self):
         """Check if a transaction is created when merging identities"""
 
@@ -4043,6 +4320,21 @@ class TestUnmergeIdentities(TestCase):
         self.assertGreaterEqual(after_dt, id1.last_modified)
         self.assertGreaterEqual(before_unmerge_dt, id1.last_modified)
         self.assertGreaterEqual(after_unmerge_dt, id1.last_modified)
+
+    def test_locked_uuid(self):
+        """Check if it fails when the unique identity is locked"""
+
+        parent_uuid = 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'
+        uuid = '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6'
+
+        uidentity = UniqueIdentity.objects.get(uuid=parent_uuid)
+        uidentity.is_locked = True
+        uidentity.save()
+
+        msg = UUID_LOCKED_ERROR.format(uuid=parent_uuid)
+        with self.assertRaisesRegex(LockedIdentityError, msg):
+            api.unmerge_identities(self.ctx,
+                                   uuids=[uuid])
 
     def test_transaction(self):
         """Check if a transaction is created when unmerging identities"""
