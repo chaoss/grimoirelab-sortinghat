@@ -75,6 +75,5 @@ setup(name="sortinghat",
         'pandoc'],
       install_requires=[
       ],
-      cmdclass=cmdclass,
       zip_safe=False
       )
