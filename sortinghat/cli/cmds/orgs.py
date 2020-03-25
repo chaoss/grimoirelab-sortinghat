@@ -118,3 +118,108 @@ def _add_domain(client, **kwargs):
         raise new_exc
     else:
         return result['data']['addDomain']['domain']['domain']
+
+
+@orgs.command()
+@click.argument('organization')
+@click.argument('domain', required=False)
+@click.pass_obj
+def rm(client, organization, domain):
+    """Remove organizations and domains from the registry.
+
+    This command removes the given <organization> or <domain>
+    from the registry, but not both at the same time.
+
+    When <organization> is the only parameter given, it will be
+    removed from the registry, including those domains related
+    to it.
+
+    When both parameters are given, only <domain> will be
+    deleted. The <organization> must exist in the registry
+    before removing the domain.
+
+    ORGANIZATION: name of the organization to remove
+
+    DOMAIN: domain to remove
+    """
+    if domain is None:
+        _remove_organization(client, name=organization)
+    else:
+        _check_organization_domain(client, organization, domain)
+        _remove_domain(client, domain=domain)
+
+
+def _remove_organization(client, **kwargs):
+    """Run a server operation to remove an organization from the registry."""
+
+    args = {k: v for k, v in kwargs.items() if v is not None}
+
+    op = Operation(SortingHatSchema.SortingHatMutation)
+    op.delete_organization(**args)
+    op.delete_organization.organization.name()
+
+    try:
+        result = client.execute(op)
+    except SortingHatClientError as exc:
+        error = exc.errors[0]
+        new_exc = click.ClickException(error['message'])
+        new_exc.exit_code = error['extensions']['code']
+        raise new_exc
+    else:
+        return result['data']['deleteOrganization']['organization']['name']
+
+
+def _remove_domain(client, **kwargs):
+    """Run a server operation to remove a domain from the registry."""
+
+    args = {k: v for k, v in kwargs.items() if v is not None}
+
+    op = Operation(SortingHatSchema.SortingHatMutation)
+    op.delete_domain(**args)
+    op.delete_domain.domain.domain()
+
+    try:
+        result = client.execute(op)
+    except SortingHatClientError as exc:
+        error = exc.errors[0]
+        new_exc = click.ClickException(error['message'])
+        new_exc.exit_code = error['extensions']['code']
+        raise new_exc
+    else:
+        return result['data']['deleteDomain']['domain']['domain']
+
+
+def _check_organization_domain(client, organization, domain):
+    """Run a server operation to check if a domain belongs to an organization."""
+
+    op = Operation(SortingHatSchema.Query)
+    filters = SortingHatSchema.OrganizationFilterType(name=organization)
+    op.organizations(filters=filters)
+    op.organizations.page_info.total_results()
+    op.organizations.entities.domains.domain()
+
+    try:
+        result = client.execute(op)
+    except SortingHatClientError as exc:
+        error = exc.errors[0]
+        new_exc = click.ClickException(error['message'])
+        new_exc.exit_code = error['extensions']['code']
+        raise new_exc
+
+    data = op + result
+
+    total = data.organizations.page_info.total_results
+    if total == 0:
+        error = "{} not found in the registry".format(organization)
+        exc = click.ClickException(error)
+        exc.exit_code = 9
+        raise exc
+
+    org_domains = data.organizations.entities[0].domains
+    found_domains = [domain.domain for domain in org_domains]
+
+    if domain not in found_domains:
+        error = "{} not found in the registry".format(domain)
+        exc = click.ClickException(error)
+        exc.exit_code = 9
+        raise exc

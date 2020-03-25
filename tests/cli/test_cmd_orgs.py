@@ -25,7 +25,7 @@ import unittest
 import click.testing
 
 from sortinghat.cli.client import SortingHatClientError
-from sortinghat.cli.cmds.orgs import add
+from sortinghat.cli.cmds.orgs import add, rm
 
 
 ORGS_ADD_ORG_CMD_OP = """mutation {{
@@ -43,6 +43,23 @@ ORGS_ADD_DOM_CMD_OP = """mutation {{
     }}
   }}
 }}"""
+
+ORGS_RM_ORG_CMD_OP = """mutation {{
+  deleteOrganization(name: "{}") {{
+    organization {{
+      name
+    }}
+  }}
+}}"""
+
+ORGS_RM_DOM_CMD_OP = """mutation {{
+  deleteDomain(domain: "{}") {{
+    domain {{
+      domain
+    }}
+  }}
+}}"""
+
 
 ORG_ALREADY_EXISTS_ERROR = "Example already exists in the registry"
 DOM_ALREADY_EXISTS_ERROR = "example.org already exists in the registry"
@@ -172,15 +189,62 @@ class TestOrgsAdd(unittest.TestCase):
         self.assertEqual(str(mock_client.op), expected)
         self.assertEqual(result.exit_code, 2)
 
-    def test_empty_organization(self):
-        """Check if it fails adding empty organizations"""
+
+class TestOrgsRm(unittest.TestCase):
+    """Rm organizations and domains command unit tests"""
+
+    def test_remove_organization(self):
+        """Check if it runs a query to remove an organization"""
+
+        responses = [
+            {'data': {'deleteOrganization': {'organization': {'name': 'Example'}}}}
+        ]
+        mock_client = MockClient(responses)
+
+        runner = click.testing.CliRunner()
+
+        params = ['Example']
+        result = runner.invoke(rm, params, obj=mock_client)
+
+        expected = ORGS_RM_ORG_CMD_OP.format('Example')
+        self.assertEqual(str(mock_client.op), expected)
+        self.assertEqual(result.exit_code, 0)
+
+    def test_remove_domain(self):
+        """Check if it runs a query to remove a domain"""
+
+        responses = [
+            {
+                'data': {
+                    'organizations': {
+                        'pageInfo': {'totalResults': 1},
+                        'entities': [{'domains': [{'domain': 'example.org'}]}]
+                    }
+                }
+            },
+            {'data': {'deleteDomain': {'domain': {'domain': 'example.org'}}}}
+        ]
+        mock_client = MockClient(responses)
+
+        runner = click.testing.CliRunner()
+
+        params = ['Example', 'example.org']
+        result = runner.invoke(rm, params, obj=mock_client)
+
+        expected = ORGS_RM_DOM_CMD_OP.format('example.org')
+        self.assertEqual(str(mock_client.op), expected)
+        self.assertEqual(result.exit_code, 0)
+
+    def test_org_not_found_error(self):
+        """Check if fails when an organization does not exist"""
 
         error = {
-            'message': ORG_EMPTY_STRING_ERROR,
+            'message': ORG_DOES_NOT_EXIST_ERROR,
             'extensions': {
-                'code': 10
+                'code': 9
             }
         }
+
         responses = [
             SortingHatClientError(error['message'], errors=[error])
         ]
@@ -188,35 +252,88 @@ class TestOrgsAdd(unittest.TestCase):
 
         runner = click.testing.CliRunner()
 
-        params = ['']
-        result = runner.invoke(add, params, obj=mock_client)
+        params = ['Example']
+        result = runner.invoke(rm, params, obj=mock_client)
 
-        expected = ORGS_ADD_ORG_CMD_OP.format('')
+        expected = ORGS_RM_ORG_CMD_OP.format('Example')
         self.assertEqual(str(mock_client.op), expected)
-        self.assertEqual(result.exit_code, 10)
+        self.assertEqual(result.exit_code, 9)
 
-    def test_empty_domain(self):
-        """Check behavior adding empty organizations"""
+    def test_domain_not_found_error(self):
+        """Check if fails when a domain does not exist"""
+
+        responses = [
+            {
+                'data': {
+                    'organizations': {
+                        'pageInfo': {'totalResults': 1},
+                        'entities': [{'domains': [{'domain': 'example.net'}]}]
+                    }
+                }
+            }
+        ]
+        mock_client = MockClient(responses)
+
+        runner = click.testing.CliRunner()
+
+        params = ['Example', 'example.org']
+        result = runner.invoke(rm, params, obj=mock_client)
+
+        self.assertEqual(result.exit_code, 9)
+
+    def test_domain_not_found_after_find_it(self):
+        """Check if it fails when the domain was found but removed by other during this command"""
 
         error = {
-            'message': DOM_EMPTY_STRING_ERROR,
+            'message': DOM_DOES_NOT_EXIST_ERROR,
             'extensions': {
-                'code': 10
+                'code': 9
             }
         }
+
         responses = [
+            {
+                'data': {
+                    'organizations': {
+                        'pageInfo': {'totalResults': 1},
+                        'entities': [{'domains': [{'domain': 'example.org'}]}]
+                    }
+                }
+            },
             SortingHatClientError(error['message'], errors=[error])
         ]
         mock_client = MockClient(responses)
 
         runner = click.testing.CliRunner()
 
-        params = ['Example', '']
-        result = runner.invoke(add, params, obj=mock_client)
+        params = ['Example', 'example.org']
+        result = runner.invoke(rm, params, obj=mock_client)
 
-        expected = ORGS_ADD_DOM_CMD_OP.format('Example', '', 'false')
+        expected = ORGS_RM_DOM_CMD_OP.format('example.org')
         self.assertEqual(str(mock_client.op), expected)
-        self.assertEqual(result.exit_code, 10)
+        self.assertEqual(result.exit_code, 9)
+
+    def test_domain_not_found_organization(self):
+        """Check if it fails when the organization"""
+
+        responses = [
+            {
+                'data': {
+                    'organizations': {
+                        'pageInfo': {'totalResults': 0},
+                        'entities': []
+                    }
+                }
+            }
+        ]
+        mock_client = MockClient(responses)
+
+        runner = click.testing.CliRunner()
+
+        params = ['Example', 'example.org']
+        result = runner.invoke(rm, params, obj=mock_client)
+
+        self.assertEqual(result.exit_code, 9)
 
 
 if __name__ == '__main__':
