@@ -23,11 +23,11 @@ import click
 
 from sgqlc.operation import Operation
 
-from ..client import (SortingHatClientError,
-                      SortingHatSchema)
-from ..utils import (sh_client_cmd_options,
-                     sh_client,
-                     display)
+from ..client import SortingHatSchema
+from ..utils import (connect,
+                     display,
+                     sh_client_cmd_options,
+                     sh_client)
 
 
 @click.group()
@@ -70,15 +70,14 @@ def add(client, organization, domain, is_top_domain):
 
     DOMAIN: domain to be added to <organization>
     """
-    client.connect()
-
-    if domain is None:
-        _add_organization(client, name=organization)
-    else:
-        _add_domain(client,
-                    organization=organization,
-                    domain=domain,
-                    is_top_domain=is_top_domain)
+    with connect(client) as conn:
+        if domain is None:
+            _add_organization(conn, name=organization)
+        else:
+            _add_domain(conn,
+                        organization=organization,
+                        domain=domain,
+                        is_top_domain=is_top_domain)
 
 
 def _add_organization(client, **kwargs):
@@ -90,15 +89,9 @@ def _add_organization(client, **kwargs):
     op.add_organization(**args)
     op.add_organization.organization.name()
 
-    try:
-        result = client.execute(op)
-    except SortingHatClientError as exc:
-        error = exc.errors[0]
-        new_exc = click.ClickException(error['message'])
-        new_exc.exit_code = error['extensions']['code']
-        raise new_exc
-    else:
-        return result['data']['addOrganization']['organization']['name']
+    result = client.execute(op)
+
+    return result['data']['addOrganization']['organization']['name']
 
 
 def _add_domain(client, **kwargs):
@@ -110,15 +103,9 @@ def _add_domain(client, **kwargs):
     op.add_domain(**args)
     op.add_domain.domain.domain()
 
-    try:
-        result = client.execute(op)
-    except SortingHatClientError as exc:
-        error = exc.errors[0]
-        new_exc = click.ClickException(error['message'])
-        new_exc.exit_code = error['extensions']['code']
-        raise new_exc
-    else:
-        return result['data']['addDomain']['domain']['domain']
+    result = client.execute(op)
+
+    return result['data']['addDomain']['domain']['domain']
 
 
 @orgs.command()
@@ -143,13 +130,12 @@ def rm(client, organization, domain):
 
     DOMAIN: domain to remove
     """
-    client.connect()
-
-    if domain is None:
-        _remove_organization(client, name=organization)
-    else:
-        _check_organization_domain(client, organization, domain)
-        _remove_domain(client, domain=domain)
+    with connect(client) as conn:
+        if domain is None:
+            _remove_organization(conn, name=organization)
+        else:
+            _check_organization_domain(conn, organization, domain)
+            _remove_domain(client, domain=domain)
 
 
 def _remove_organization(client, **kwargs):
@@ -161,15 +147,9 @@ def _remove_organization(client, **kwargs):
     op.delete_organization(**args)
     op.delete_organization.organization.name()
 
-    try:
-        result = client.execute(op)
-    except SortingHatClientError as exc:
-        error = exc.errors[0]
-        new_exc = click.ClickException(error['message'])
-        new_exc.exit_code = error['extensions']['code']
-        raise new_exc
-    else:
-        return result['data']['deleteOrganization']['organization']['name']
+    result = client.execute(op)
+
+    return result['data']['deleteOrganization']['organization']['name']
 
 
 def _remove_domain(client, **kwargs):
@@ -181,15 +161,9 @@ def _remove_domain(client, **kwargs):
     op.delete_domain(**args)
     op.delete_domain.domain.domain()
 
-    try:
-        result = client.execute(op)
-    except SortingHatClientError as exc:
-        error = exc.errors[0]
-        new_exc = click.ClickException(error['message'])
-        new_exc.exit_code = error['extensions']['code']
-        raise new_exc
-    else:
-        return result['data']['deleteDomain']['domain']['domain']
+    result = client.execute(op)
+
+    return result['data']['deleteDomain']['domain']['domain']
 
 
 def _check_organization_domain(client, organization, domain):
@@ -201,13 +175,7 @@ def _check_organization_domain(client, organization, domain):
     op.organizations.page_info.total_results()
     op.organizations.entities.domains.domain()
 
-    try:
-        result = client.execute(op)
-    except SortingHatClientError as exc:
-        error = exc.errors[0]
-        new_exc = click.ClickException(error['message'])
-        new_exc.exit_code = error['extensions']['code']
-        raise new_exc
+    result = client.execute(op)
 
     data = op + result
 
@@ -237,11 +205,10 @@ def show(client):
     to the standard output. Next to each domain, a "*" character
     is displayed when the domain is a "top domain".
     """
-    client.connect()
-
-    for organizations in _fetch_organizations(client):
-        display('organizations.tmpl', nl=False,
-                organizations=organizations)
+    with connect(client) as conn:
+        for organizations in _fetch_organizations(conn):
+            display('organizations.tmpl', nl=False,
+                    organizations=organizations)
 
 
 def _fetch_organizations(client):
@@ -253,18 +220,12 @@ def _fetch_organizations(client):
     while paginate:
         op = _generate_orgs_operation(page)
 
-        try:
-            result = client.execute(op)
-        except SortingHatClientError as exc:
-            error = exc.errors[0]
-            new_exc = click.ClickException(error['message'])
-            new_exc.exit_code = error['extensions']['code']
-            raise new_exc
-        else:
-            data = op + result
-            paginate = data.organizations.page_info.has_next
-            page += 1
-            yield data.organizations.entities
+        result = client.execute(op)
+
+        data = op + result
+        paginate = data.organizations.page_info.has_next
+        page += 1
+        yield data.organizations.entities
 
 
 def _generate_orgs_operation(page):

@@ -112,6 +112,9 @@ class MockClient:
         else:
             return response
 
+    def disconnect(self):
+        pass
+
 
 class TestOrgsAdd(unittest.TestCase):
     """Add organizations and domains command unit tests"""

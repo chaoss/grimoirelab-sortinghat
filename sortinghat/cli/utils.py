@@ -19,14 +19,17 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+import contextlib
 import functools
+
 import os.path
 
 import click
 import jinja2
 
 
-from .client import SortingHatClient
+from .client import (SortingHatClient,
+                     SortingHatClientError)
 
 
 _conn_options = [
@@ -78,6 +81,31 @@ def sh_client(func):
 
         return ctx.invoke(func, ctx, *args, **kwargs)
     return functools.update_wrapper(initialize_client, func)
+
+
+@contextlib.contextmanager
+def connect(client):
+    """Context for commands to handle connections.
+
+    Creates a context that will initialize and dispose
+    a client connection. Client errors will be handled
+    and raised as `ClickException` instances.
+
+    :param client: an initialized client
+    """
+    try:
+        client.connect()
+        yield client
+    except SortingHatClientError as exc:
+        if exc.errors:
+            error = exc.errors[0]
+            new_exc = click.ClickException(error['message'])
+            new_exc.exit_code = error['extensions']['code']
+        else:
+            new_exc = click.ClickException(exc.msg)
+        raise new_exc
+    finally:
+        client.disconnect()
 
 
 def display(template, nl=True, **kwargs):
