@@ -199,7 +199,7 @@ class TestSortingHatClient(unittest.TestCase):
 
         # Connection was established and authorization was completed
         expected = {
-            'Authorization': '12345678',
+            'Authorization': 'JWT 12345678',
             'X-CSRFToken': 'ABCDEFGHIJK',
             'Cookie': 'csrftoken=ABCDEFGHIJK'
         }
