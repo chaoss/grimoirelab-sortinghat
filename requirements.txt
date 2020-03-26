@@ -10,3 +10,4 @@ grimoirelab_toolkit>=0.1.8
 requests>=2.7.0
 uri>=2.0.1
 httpretty==0.9.7
+jinja2==2.11.1

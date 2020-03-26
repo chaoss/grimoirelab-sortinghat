@@ -1,0 +1,9 @@
+{% for org in organizations %}
+{% if org.domains %}
+{% for dom in org.domains %}
+{{ org.name }}	{{ dom.domain }}{{ ' *' if dom.is_top_domain }}
+{% endfor %}
+{% else %}
+{{ org.name }}
+{% endif %}
+{% endfor %}

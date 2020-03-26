@@ -26,7 +26,8 @@ from sgqlc.operation import Operation
 from ..client import (SortingHatClientError,
                       SortingHatSchema)
 from ..utils import (sh_client_cmd_options,
-                     sh_client)
+                     sh_client,
+                     display)
 
 
 @click.group()
@@ -142,6 +143,8 @@ def rm(client, organization, domain):
 
     DOMAIN: domain to remove
     """
+    client.connect()
+
     if domain is None:
         _remove_organization(client, name=organization)
     else:
@@ -223,3 +226,53 @@ def _check_organization_domain(client, organization, domain):
         exc = click.ClickException(error)
         exc.exit_code = 9
         raise exc
+
+
+@orgs.command()
+@click.pass_obj
+def show(client):
+    """List information about organizations and domains on the registry.
+
+    The command shows the list of organizations and their domains
+    to the standard output. Next to each domain, a "*" character
+    is displayed when the domain is a "top domain".
+    """
+    client.connect()
+
+    for organizations in _fetch_organizations(client):
+        display('organizations.tmpl', nl=False,
+                organizations=organizations)
+
+
+def _fetch_organizations(client):
+    """Run a server operation to get the list of organizations."""
+
+    page = 1
+    paginate = True
+
+    while paginate:
+        op = _generate_orgs_operation(page)
+
+        try:
+            result = client.execute(op)
+        except SortingHatClientError as exc:
+            error = exc.errors[0]
+            new_exc = click.ClickException(error['message'])
+            new_exc.exit_code = error['extensions']['code']
+            raise new_exc
+        else:
+            data = op + result
+            paginate = data.organizations.page_info.has_next
+            page += 1
+            yield data.organizations.entities
+
+
+def _generate_orgs_operation(page):
+    """Define an operation to get the list of organizations."""
+
+    op = Operation(SortingHatSchema.Query)
+    op.organizations(page=page)
+    op.organizations().page_info.has_next()
+    op.organizations().entities().name()
+    op.organizations().entities().domains().__fields__('domain', 'is_top_domain')
+    return op

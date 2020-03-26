@@ -25,7 +25,7 @@ import unittest
 import click.testing
 
 from sortinghat.cli.client import SortingHatClientError
-from sortinghat.cli.cmds.orgs import add, rm
+from sortinghat.cli.cmds.orgs import add, rm, show
 
 
 ORGS_ADD_ORG_CMD_OP = """mutation {{
@@ -60,6 +60,21 @@ ORGS_RM_DOM_CMD_OP = """mutation {{
   }}
 }}"""
 
+ORGS_SHOW_ORGS_CMD_OP = """query {{
+  organizations(page: {}) {{
+    pageInfo {{
+      hasNext
+    }}
+    entities {{
+      name
+      domains {{
+        domain
+        isTopDomain
+      }}
+    }}
+  }}
+}}"""
+
 
 ORG_ALREADY_EXISTS_ERROR = "Example already exists in the registry"
 DOM_ALREADY_EXISTS_ERROR = "example.org already exists in the registry"
@@ -67,18 +82,29 @@ ORG_DOES_NOT_EXIST_ERROR = "Example not found in the registry"
 DOM_DOES_NOT_EXIST_ERROR = "example.org not found in the registry"
 
 
+SHOW_CMD_OUTPUT = """Bitergia\tbitergia.com *
+Bitergia\tbitergia.net
+Example\texample.com
+Example\texample.net
+Example\texample.org
+LibreSoft
+"""
+
+SHOW_EMPTY_CMD_OUTPUT = """"""
+
+
 class MockClient:
     """Mock client"""
 
     def __init__(self, responses):
         self.responses = responses
-        self.op = None
+        self.ops = []
 
     def connect(self):
         pass
 
     def execute(self, operation):
-        self.op = operation
+        self.ops.append(operation)
         response = self.responses.pop(0)
 
         if isinstance(response, SortingHatClientError):
@@ -104,7 +130,8 @@ class TestOrgsAdd(unittest.TestCase):
         result = runner.invoke(add, params, obj=mock_client)
 
         expected = ORGS_ADD_ORG_CMD_OP.format('Example')
-        self.assertEqual(str(mock_client.op), expected)
+        self.assertEqual(len(mock_client.ops), 1)
+        self.assertEqual(str(mock_client.ops[0]), expected)
         self.assertEqual(result.exit_code, 0)
 
     def test_add_domain(self):
@@ -121,7 +148,8 @@ class TestOrgsAdd(unittest.TestCase):
         result = runner.invoke(add, params, obj=mock_client)
 
         expected = ORGS_ADD_DOM_CMD_OP.format('Example', 'example.org', 'false')
-        self.assertEqual(str(mock_client.op), expected)
+        self.assertEqual(len(mock_client.ops), 1)
+        self.assertEqual(str(mock_client.ops[0]), expected)
         self.assertEqual(result.exit_code, 0)
 
     def test_add_domain_top_domain(self):
@@ -138,7 +166,8 @@ class TestOrgsAdd(unittest.TestCase):
         result = runner.invoke(add, params, obj=mock_client)
 
         expected = ORGS_ADD_DOM_CMD_OP.format('Example', 'example.org', 'true')
-        self.assertEqual(str(mock_client.op), expected)
+        self.assertEqual(len(mock_client.ops), 1)
+        self.assertEqual(str(mock_client.ops[0]), expected)
         self.assertEqual(result.exit_code, 0)
 
     def test_org_already_exists_error(self):
@@ -162,7 +191,8 @@ class TestOrgsAdd(unittest.TestCase):
         result = runner.invoke(add, params, obj=mock_client)
 
         expected = ORGS_ADD_ORG_CMD_OP.format('Example')
-        self.assertEqual(str(mock_client.op), expected)
+        self.assertEqual(len(mock_client.ops), 1)
+        self.assertEqual(str(mock_client.ops[0]), expected)
         self.assertEqual(result.exit_code, 2)
 
     def test_domain_already_exists_error(self):
@@ -186,7 +216,8 @@ class TestOrgsAdd(unittest.TestCase):
         result = runner.invoke(add, params, obj=mock_client)
 
         expected = ORGS_ADD_DOM_CMD_OP.format('Example', 'example.org', 'false')
-        self.assertEqual(str(mock_client.op), expected)
+        self.assertEqual(len(mock_client.ops), 1)
+        self.assertEqual(str(mock_client.ops[0]), expected)
         self.assertEqual(result.exit_code, 2)
 
 
@@ -207,7 +238,8 @@ class TestOrgsRm(unittest.TestCase):
         result = runner.invoke(rm, params, obj=mock_client)
 
         expected = ORGS_RM_ORG_CMD_OP.format('Example')
-        self.assertEqual(str(mock_client.op), expected)
+        self.assertEqual(len(mock_client.ops), 1)
+        self.assertEqual(str(mock_client.ops[0]), expected)
         self.assertEqual(result.exit_code, 0)
 
     def test_remove_domain(self):
@@ -232,7 +264,8 @@ class TestOrgsRm(unittest.TestCase):
         result = runner.invoke(rm, params, obj=mock_client)
 
         expected = ORGS_RM_DOM_CMD_OP.format('example.org')
-        self.assertEqual(str(mock_client.op), expected)
+        self.assertEqual(len(mock_client.ops), 2)
+        self.assertEqual(str(mock_client.ops[1]), expected)
         self.assertEqual(result.exit_code, 0)
 
     def test_org_not_found_error(self):
@@ -256,7 +289,8 @@ class TestOrgsRm(unittest.TestCase):
         result = runner.invoke(rm, params, obj=mock_client)
 
         expected = ORGS_RM_ORG_CMD_OP.format('Example')
-        self.assertEqual(str(mock_client.op), expected)
+        self.assertEqual(len(mock_client.ops), 1)
+        self.assertEqual(str(mock_client.ops[0]), expected)
         self.assertEqual(result.exit_code, 9)
 
     def test_domain_not_found_error(self):
@@ -278,7 +312,7 @@ class TestOrgsRm(unittest.TestCase):
 
         params = ['Example', 'example.org']
         result = runner.invoke(rm, params, obj=mock_client)
-
+        self.assertEqual(len(mock_client.ops), 1)
         self.assertEqual(result.exit_code, 9)
 
     def test_domain_not_found_after_find_it(self):
@@ -310,7 +344,8 @@ class TestOrgsRm(unittest.TestCase):
         result = runner.invoke(rm, params, obj=mock_client)
 
         expected = ORGS_RM_DOM_CMD_OP.format('example.org')
-        self.assertEqual(str(mock_client.op), expected)
+        self.assertEqual(len(mock_client.ops), 2)
+        self.assertEqual(str(mock_client.ops[1]), expected)
         self.assertEqual(result.exit_code, 9)
 
     def test_domain_not_found_organization(self):
@@ -332,8 +367,102 @@ class TestOrgsRm(unittest.TestCase):
 
         params = ['Example', 'example.org']
         result = runner.invoke(rm, params, obj=mock_client)
-
+        self.assertEqual(len(mock_client.ops), 1)
         self.assertEqual(result.exit_code, 9)
+
+
+class TestOrgsShow(unittest.TestCase):
+    """Show command unit tests"""
+
+    def test_show(self):
+        """Check if it runs a query to show the list of organizations"""
+
+        entities = [
+            {
+                'name': 'Bitergia',
+                'domains': [
+                    {'domain': 'bitergia.com', 'isTopDomain': True},
+                    {'domain': 'bitergia.net', 'isTopDomain': False}
+                ]
+            },
+            {
+                'name': 'Example',
+                'domains': [
+                    {'domain': 'example.com', 'isTopDomain': False},
+                    {'domain': 'example.net', 'isTopDomain': False},
+                    {'domain': 'example.org', 'isTopDomain': False},
+                ]
+            },
+            {
+                'name': 'LibreSoft',
+                'domains': []
+            }
+        ]
+
+        # Split entities into pages
+        responses = [
+            {
+                'data': {
+                    'organizations': {
+                        'pageInfo': {'hasNext': True},
+                        'entities': entities[0:2]
+                    }
+                }
+            },
+            {
+                'data': {
+                    'organizations': {
+                        'pageInfo': {'hasNext': False},
+                        'entities': entities[2:]
+                    }
+                }
+            }
+        ]
+
+        mock_client = MockClient(responses)
+
+        runner = click.testing.CliRunner()
+        result = runner.invoke(show, obj=mock_client)
+
+        self.assertEqual(len(mock_client.ops), 2)
+        expected = ORGS_SHOW_ORGS_CMD_OP.format('1')
+        op = str(mock_client.ops[0])
+        self.assertEqual(op, expected)
+
+        expected = ORGS_SHOW_ORGS_CMD_OP.format('2')
+        op = str(mock_client.ops[1])
+        self.assertEqual(op, expected)
+
+        self.assertEqual(result.stdout, SHOW_CMD_OUTPUT)
+        self.assertEqual(result.exit_code, 0)
+
+    def test_empty_show(self):
+        """Check if it runs a query to show an empty list of organizations"""
+
+        responses = [
+            {
+                'data': {
+                    'organizations': {
+                        'pageInfo': {'hasNext': False},
+                        'entities': []
+                    }
+                }
+            }
+        ]
+
+        mock_client = MockClient(responses)
+
+        runner = click.testing.CliRunner()
+        result = runner.invoke(show, obj=mock_client)
+
+        self.assertEqual(len(mock_client.ops), 1)
+
+        expected = ORGS_SHOW_ORGS_CMD_OP.format('1')
+        op = str(mock_client.ops[0])
+        self.assertEqual(op, expected)
+
+        self.assertEqual(result.stdout, SHOW_EMPTY_CMD_OUTPUT)
+        self.assertEqual(result.exit_code, 0)
 
 
 if __name__ == '__main__':
