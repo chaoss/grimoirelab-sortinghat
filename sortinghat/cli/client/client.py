@@ -117,7 +117,8 @@ class SortingHatClient:
                 msg = "Authentication error; cause: {}".format(cause)
                 raise SortingHatClientError(msg)
 
-            headers['Authorization'] = result['data']['tokenAuth']['token']
+            auth_token = result['data']['tokenAuth']['token']
+            headers['Authorization'] = "JWT {}".format(auth_token)
 
     def disconnect(self):
         """Disconnect the client from the server."""

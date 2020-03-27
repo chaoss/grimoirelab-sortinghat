@@ -75,5 +75,9 @@ setup(name="sortinghat",
         'pandoc'],
       install_requires=[
       ],
+      entry_points="""
+        [console_scripts]
+        sortinghat=sortinghat.cli.sortinghat:sortinghat
+      """,
       zip_safe=False
       )
