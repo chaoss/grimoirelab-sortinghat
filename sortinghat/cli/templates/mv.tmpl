@@ -1,0 +1,5 @@
+{% if from_id != to_uuid %}
+Identity {{ from_id }} moved to unique identity {{ to_uuid }}
+{%- else %}
+New unique identity {{ from_id }} created; identity moved
+{%- endif %}
