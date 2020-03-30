@@ -48,6 +48,9 @@ def mv(ctx, from_id, to_uuid, **extra):
     unique identity does not exist, a new unique identity will be
     created and the identity will be moved to it.
 
+    When <from_id> exists also as a unique identity, this command will
+    fail as this identity cannot be moved.
+
     FROM_ID: identifier of the identity to move
 
     TO_UUID: identifier of the unique identity where <from_id> will be moved
