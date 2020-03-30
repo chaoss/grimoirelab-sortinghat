@@ -22,6 +22,7 @@ import click
 
 from .cmds.add import add
 from .cmds.orgs import orgs
+from .cmds.rm import rm
 
 
 @click.group()
@@ -32,4 +33,5 @@ def sortinghat():
 
 
 sortinghat.add_command(add)
+sortinghat.add_command(rm)
 sortinghat.add_command(orgs)
