@@ -55,6 +55,7 @@ UUID_LOCKED_ERROR = "UniqueIdentity {uuid} is locked"
 UUIDS_NONE_OR_EMPTY_ERROR = "'uuids' cannot be"
 FROM_ID_NONE_OR_EMPTY_ERROR = "'from_id' cannot be"
 FROM_UUID_NONE_OR_EMPTY_ERROR = "'from_uuid' cannot be"
+FROM_ID_IS_UUID_ERROR = "'from_id' is a unique identity and it cannot be moved; use 'merge' instead"
 FROM_UUIDS_NONE_OR_EMPTY_ERROR = "'from_uuids' cannot be"
 TO_UUID_NONE_OR_EMPTY_ERROR = "'to_uuid' cannot be"
 FROM_UUID_TO_UUID_EQUAL_ERROR = "'from_uuid' and 'to_uuid' cannot be"
@@ -1180,7 +1181,12 @@ class TestMoveIdentity(TestCase):
                          name='John Smith',
                          email='jsmith@example.com',
                          uuid=jsmith.id)
-        api.add_identity(self.ctx, 'scm', email='jdoe@example.com')
+        jsmith2 = api.add_identity(self.ctx, 'scm', email='jdoe@example.com')
+        api.add_identity(self.ctx,
+                         'phab',
+                         name='J. Smith',
+                         email='jsmith@example.org',
+                         uuid=jsmith2.id)
 
     def test_move_identity(self):
         """Test whether an identity is moved to a unique identity"""
@@ -1195,12 +1201,15 @@ class TestMoveIdentity(TestCase):
         self.assertEqual(uidentity.uuid, '03877f31261a6d1a1b3971d240e628259364b8ac')
 
         identities = uidentity.identities.all()
-        self.assertEqual(len(identities), 2)
+        self.assertEqual(len(identities), 3)
 
         identity = identities[0]
         self.assertEqual(identity.id, '03877f31261a6d1a1b3971d240e628259364b8ac')
 
         identity = identities[1]
+        self.assertEqual(identity.id, '0880dc4e621877e8520cef1747d139dd4f9f110e')
+
+        identity = identities[2]
         self.assertEqual(identity.id, '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
 
         # Check database object
@@ -1215,7 +1224,7 @@ class TestMoveIdentity(TestCase):
 
         uidentity_db = UniqueIdentity.objects.get(uuid='03877f31261a6d1a1b3971d240e628259364b8ac')
         identities_db = uidentity_db.identities.all()
-        self.assertEqual(len(identities_db), 2)
+        self.assertEqual(len(identities_db), 3)
 
         identity_db = identities_db[0]
         self.assertEqual(identity_db.id, '03877f31261a6d1a1b3971d240e628259364b8ac')
@@ -1223,6 +1232,11 @@ class TestMoveIdentity(TestCase):
         self.assertEqual(identity_db.email, 'jdoe@example.com')
 
         identity_db = identities_db[1]
+        self.assertEqual(identity_db.id, '0880dc4e621877e8520cef1747d139dd4f9f110e')
+        self.assertEqual(identity_db.name, 'J. Smith')
+        self.assertEqual(identity_db.email, 'jsmith@example.org')
+
+        identity_db = identities_db[2]
         self.assertEqual(identity_db.id, '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
         self.assertEqual(identity_db.name, 'John Smith')
         self.assertEqual(identity_db.email, 'jsmith@example.com')
@@ -1245,10 +1259,11 @@ class TestMoveIdentity(TestCase):
     def test_equal_related_unique_identity(self):
         """Check if identities are not moved when 'to_uuid' is the unique identity related to 'from_id'"""
 
-        from_id = '03877f31261a6d1a1b3971d240e628259364b8ac'
+        from_id = '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331'
+        to_uuid = '334da68fcd3da4e799791f73dfada2afb22648c6'
 
         # Move the identity to the same unique identity
-        api.move_identity(self.ctx, from_id, from_id)
+        api.move_identity(self.ctx, from_id, to_uuid)
 
         uidentity_db = UniqueIdentity.objects.get(uuid='334da68fcd3da4e799791f73dfada2afb22648c6')
         identities_db = uidentity_db.identities.all()
@@ -1262,10 +1277,13 @@ class TestMoveIdentity(TestCase):
 
         uidentity_db = UniqueIdentity.objects.get(uuid='03877f31261a6d1a1b3971d240e628259364b8ac')
         identities_db = uidentity_db.identities.all()
-        self.assertEqual(len(identities_db), 1)
+        self.assertEqual(len(identities_db), 2)
 
         identity_db = identities_db[0]
         self.assertEqual(identity_db.id, '03877f31261a6d1a1b3971d240e628259364b8ac')
+
+        identity_db = identities_db[1]
+        self.assertEqual(identity_db.id, '0880dc4e621877e8520cef1747d139dd4f9f110e')
 
     def test_create_new_unique_identity(self):
         """Check if a new unique identity is created when 'from_id' has the same value of 'to_uuid'"""
@@ -1311,12 +1329,32 @@ class TestMoveIdentity(TestCase):
 
         uidentity_db = UniqueIdentity.objects.get(uuid='03877f31261a6d1a1b3971d240e628259364b8ac')
         identities_db = uidentity_db.identities.all()
-        self.assertEqual(len(identities_db), 1)
+        self.assertEqual(len(identities_db), 2)
 
         identity_db = identities_db[0]
         self.assertEqual(identity_db.id, '03877f31261a6d1a1b3971d240e628259364b8ac')
         self.assertEqual(identity_db.name, None)
         self.assertEqual(identity_db.email, 'jdoe@example.com')
+
+        identity_db = identities_db[1]
+        self.assertEqual(identity_db.id, '0880dc4e621877e8520cef1747d139dd4f9f110e')
+        self.assertEqual(identity_db.name, 'J. Smith')
+        self.assertEqual(identity_db.email, 'jsmith@example.org')
+
+    def test_from_id_is_unique_identity(self):
+        """Test whether it fails when 'from_id' is a unique identity"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        # Check 'from_id' parameter
+        with self.assertRaisesRegex(InvalidValueError, FROM_ID_IS_UUID_ERROR):
+            api.move_identity(self.ctx,
+                              '03877f31261a6d1a1b3971d240e628259364b8ac',
+                              '334da68fcd3da4e799791f73dfada2afb22648c6')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
 
     def test_not_found_from_identity(self):
         """Test whether it fails when 'from_id' identity is not found"""
@@ -1345,7 +1383,7 @@ class TestMoveIdentity(TestCase):
         # Check 'to_uuid' parameter
         with self.assertRaisesRegex(NotFoundError, msg):
             api.move_identity(self.ctx,
-                              '03877f31261a6d1a1b3971d240e628259364b8ac',
+                              '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331',
                               'FFFFFFFFFFF')
 
         # Check if there are no transactions created when there is an error

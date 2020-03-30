@@ -304,6 +304,9 @@ def move_identity(ctx, from_id, to_uuid):
     unique identity does not exist, a new unique identity will be
     created and the identity will be moved to it.
 
+    When `from_id` exists as a unique identity too, the function raises
+    an `InvalidValueError`, as this identity cannot be moved.
+
     The function raises a `NotFoundError` exception when either `from_id`
     or `to_uuid` do not exist in the registry and both identifiers are
     not the same.
@@ -335,6 +338,10 @@ def move_identity(ctx, from_id, to_uuid):
     trxl = TransactionsLog.open('move_identity', ctx)
 
     identity = find_identity(from_id)
+
+    if identity.id == identity.uidentity.uuid:
+        msg = "'from_id' is a unique identity and it cannot be moved; use 'merge' instead"
+        raise InvalidValueError(msg=msg)
 
     try:
         to_uid = find_unique_identity(to_uuid)
