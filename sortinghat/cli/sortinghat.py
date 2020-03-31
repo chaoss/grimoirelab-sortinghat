@@ -26,6 +26,7 @@ from .cmds.mv import mv
 from .cmds.orgs import orgs
 from .cmds.profile import profile
 from .cmds.rm import rm
+from .cmds.withdraw import withdraw
 
 
 @click.group()
@@ -40,4 +41,5 @@ sortinghat.add_command(rm)
 sortinghat.add_command(profile)
 sortinghat.add_command(mv)
 sortinghat.add_command(enroll)
+sortinghat.add_command(withdraw)
 sortinghat.add_command(orgs)
