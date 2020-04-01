@@ -22,6 +22,7 @@ import click
 
 from .cmds.add import add
 from .cmds.enroll import enroll
+from .cmds.lock import lock
 from .cmds.merge import merge
 from .cmds.mv import mv
 from .cmds.orgs import orgs
@@ -46,4 +47,5 @@ sortinghat.add_command(enroll)
 sortinghat.add_command(withdraw)
 sortinghat.add_command(merge)
 sortinghat.add_command(split)
+sortinghat.add_command(lock)
 sortinghat.add_command(orgs)
