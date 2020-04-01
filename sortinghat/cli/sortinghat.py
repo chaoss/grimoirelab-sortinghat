@@ -27,6 +27,7 @@ from .cmds.mv import mv
 from .cmds.orgs import orgs
 from .cmds.profile import profile
 from .cmds.rm import rm
+from .cmds.split import split
 from .cmds.withdraw import withdraw
 
 
@@ -44,4 +45,5 @@ sortinghat.add_command(mv)
 sortinghat.add_command(enroll)
 sortinghat.add_command(withdraw)
 sortinghat.add_command(merge)
+sortinghat.add_command(split)
 sortinghat.add_command(orgs)
