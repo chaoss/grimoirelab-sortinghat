@@ -430,6 +430,7 @@ class SortingHatMutation(sgqlc.types.Type):
     )
     enroll = sgqlc.types.Field(
         Enroll, graphql_name='enroll', args=sgqlc.types.ArgDict((
+            ('force', sgqlc.types.Arg(Boolean, graphql_name='force', default=None)),
             ('from_date', sgqlc.types.Arg(DateTime, graphql_name='fromDate', default=None)),
             ('organization', sgqlc.types.Arg(String, graphql_name='organization', default=None)),
             ('to_date', sgqlc.types.Arg(DateTime, graphql_name='toDate', default=None)),
