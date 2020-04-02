@@ -2684,6 +2684,137 @@ class TestEnroll(TestCase):
         self.assertEqual(enrollment.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
 
+    def test_merge_enrollments_overwrite_defaults(self):
+        """Check if enrollments are added ignoring default dates"""
+
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_organization(self.ctx, 'Example')
+
+        api.enroll(self.ctx, jsmith.id, 'Example')
+
+        uidentity_db = UniqueIdentity.objects.get(uuid=jsmith.id)
+
+        enrollments = uidentity_db.enrollments.all()
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
+
+        # Tests
+        # Add a new enrollment with non-default dates: upper bound
+        api.enroll(self.ctx,
+                   jsmith.id, 'Example',
+                   from_date=datetime.datetime(2004, 1, 1),
+                   force=True)
+
+        uidentity_db = UniqueIdentity.objects.get(uuid=jsmith.id)
+
+        enrollments = uidentity_db.enrollments.all()
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.start, datetime.datetime(2004, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
+
+        # Add a new enrollment with non-default dates: lower bound
+        api.enroll(self.ctx,
+                   jsmith.id, 'Example',
+                   to_date=datetime.datetime(2006, 1, 1),
+                   force=True)
+
+        uidentity_db = UniqueIdentity.objects.get(uuid=jsmith.id)
+
+        enrollments = uidentity_db.enrollments.all()
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.start, datetime.datetime(2004, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2006, 1, 1, tzinfo=UTC))
+
+        # Add a new enrollment with default dates with ignore flag
+        api.enroll(self.ctx,
+                   jsmith.id, 'Example',
+                   from_date=datetime.datetime(1900, 1, 1),
+                   to_date=datetime.datetime(2100, 1, 1),
+                   force=True)
+
+        uidentity_db = UniqueIdentity.objects.get(uuid=jsmith.id)
+
+        enrollments = uidentity_db.enrollments.all()
+
+        # Enrollment dates should not change
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.start, datetime.datetime(2004, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2006, 1, 1, tzinfo=UTC))
+
+    def test_merge_enrollments_not_overwrite_defaults(self):
+        """Check if enrollments are added with default dates after setting other dates"""
+
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_organization(self.ctx, 'Example')
+
+        start_date = datetime.datetime(2004, 1, 1, tzinfo=UTC)
+        end_date = datetime.datetime(2006, 1, 1, tzinfo=UTC)
+        api.enroll(self.ctx, jsmith.id, 'Example',
+                   from_date=start_date,
+                   to_date=end_date)
+
+        uidentity_db = UniqueIdentity.objects.get(uuid=jsmith.id)
+
+        enrollments = uidentity_db.enrollments.all()
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.start, start_date)
+        self.assertEqual(enrollment.end, end_date)
+
+        # Tests
+        # Add a new enrollment with a wider range (default dates) without ignore flag
+        api.enroll(self.ctx,
+                   jsmith.id, 'Example',
+                   from_date=datetime.datetime(1900, 1, 1),
+                   to_date=datetime.datetime(2100, 1, 1))
+
+        uidentity_db = UniqueIdentity.objects.get(uuid=jsmith.id)
+
+        enrollments = uidentity_db.enrollments.all()
+
+        # Enrollment dates should change
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
+
+    def test_merge_enrollments_overwrite_not_allowed(self):
+        """
+        Check if it fails when trying to set non-default values
+        and the `ignore_default` flag is not active.
+        """
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_organization(self.ctx, 'Example')
+
+        api.enroll(self.ctx, jsmith.id, 'Example')
+
+        uidentity_db = UniqueIdentity.objects.get(uuid=jsmith.id)
+
+        enrollments = uidentity_db.enrollments.all()
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        msg = ENROLLMENT_RANGE_INVALID.format(start=r'2004-01-01 00:00:00\+00:00',
+                                              end=r'2006-01-01 00:00:00\+00:00',
+                                              org='Example')
+
+        # Add a new enrollment with non-default dates
+        with self.assertRaisesRegex(DuplicateRangeError, msg):
+            api.enroll(self.ctx, jsmith.id, 'Example',
+                       from_date=datetime.datetime(2004, 1, 1),
+                       to_date=datetime.datetime(2006, 1, 1))
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
     def test_last_modified(self):
         """Check if last modification date is updated"""
 
