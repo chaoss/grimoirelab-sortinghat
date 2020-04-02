@@ -58,7 +58,7 @@ from sortinghat.core.schema import SortingHatQuery, SortingHatMutation
 DUPLICATED_ORG_ERROR = "Organization 'Example' already exists in the registry"
 DUPLICATED_DOM_ERROR = "Domain 'example.net' already exists in the registry"
 DUPLICATED_UNIQUE_IDENTITY = "UniqueIdentity 'eda9f62ad321b1fbe5f283cc05e2484516203117' already exists in the registry"
-DUPLICATED_ENROLLMENT_ERROR = "Enrollment '{}' already exists in the registry"
+DUPLICATED_ENROLLMENT_ERROR = "range date '{}'-'{}' is part of an existing range for {}"
 NAME_EMPTY_ERROR = "'name' cannot be an empty string"
 DOMAIN_NAME_EMPTY_ERROR = "'domain_name' cannot be an empty string"
 SOURCE_EMPTY_ERROR = "'source' cannot be an empty string"
@@ -78,7 +78,8 @@ DOMAIN_NOT_FOUND_ERROR = "example.net not found in the registry"
 UID_DOES_NOT_EXIST_ERROR = "FFFFFFFFFFFFFFF not found in the registry"
 ORGANIZATION_BITERGIA_DOES_NOT_EXIST_ERROR = "Bitergia not found in the registry"
 ORGANIZATION_EXAMPLE_DOES_NOT_EXIST_ERROR = "Example not found in the registry"
-ENROLLMENT_DOES_NOT_EXIST_ERROR = "'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3-Example-2050-01-01 00:00:00+00:00-2060-01-01 00:00:00+00:00' not found in the registry"
+ENROLLMENT_DOES_NOT_EXIST_ERROR = "enrollment with range '2050-01-01 00:00:00+00:00'-'2060-01-01 00:00:00+00:00'"\
+                                  " for Example not found in the registry"
 PAGINATION_NO_RESULTS_ERROR = "That page contains no results"
 PAGINATION_PAGE_LESS_THAN_ONE_ERROR = "That page number is less than 1"
 PAGINATION_PAGE_SIZE_NEGATIVE_ERROR = "Negative indexing is not supported."
@@ -3183,9 +3184,11 @@ class TestEnrollMutation(django.test.TestCase):
 
     SH_ENROLL = """
       mutation enrollId($uuid: String, $organization: String,
-                        $fromDate: DateTime, $toDate: DateTime) {
+                        $fromDate: DateTime, $toDate: DateTime,
+                        $force: Boolean) {
         enroll(uuid: $uuid, organization: $organization
-               fromDate: $fromDate, toDate: $toDate) {
+               fromDate: $fromDate, toDate: $toDate,
+               force: $force) {
           uuid
           uidentity {
             uuid
@@ -3255,6 +3258,90 @@ class TestEnrollMutation(django.test.TestCase):
 
         enrollment = enrollments[2]
         self.assertEqual(enrollment['organization']['name'], 'Example')
+        self.assertEqual(enrollment['start'], '2008-01-01T00:00:00+00:00')
+        self.assertEqual(enrollment['end'], '2009-01-01T00:00:00+00:00')
+
+        uuid = executed['data']['enroll']['uuid']
+        self.assertEqual(uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        # Check database
+        uidentity = UniqueIdentity.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        enrollments_db = uidentity.enrollments.all()
+        self.assertEqual(len(enrollments_db), 3)
+
+    def test_enroll_ignore_default(self):
+        """Check if it enrolls a unique identity ignoring default dates"""
+
+        client = graphene.test.Client(schema)
+
+        db.add_organization(self.trxl, 'Bitergia')
+
+        params = {
+            'uuid': 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+            'organization': 'Bitergia',
+        }
+        executed = client.execute(self.SH_ENROLL,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        # Checking results with default dates
+        enrollments = executed['data']['enroll']['uidentity']['enrollments']
+
+        self.assertEqual(len(enrollments), 3)
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment['organization']['name'], 'Bitergia')
+        self.assertEqual(enrollment['start'], '1900-01-01T00:00:00+00:00')
+        self.assertEqual(enrollment['end'], '2100-01-01T00:00:00+00:00')
+
+        enrollment = enrollments[1]
+        self.assertEqual(enrollment['organization']['name'], 'Example')
+        self.assertEqual(enrollment['start'], '1999-01-01T00:00:00+00:00')
+        self.assertEqual(enrollment['end'], '2000-01-01T00:00:00+00:00')
+
+        enrollment = enrollments[2]
+        self.assertEqual(enrollment['organization']['name'], 'Example')
+        self.assertEqual(enrollment['start'], '2004-01-01T00:00:00+00:00')
+        self.assertEqual(enrollment['end'], '2006-01-01T00:00:00+00:00')
+
+        uuid = executed['data']['enroll']['uuid']
+        self.assertEqual(uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        # Check database
+        uidentity = UniqueIdentity.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        enrollments_db = uidentity.enrollments.all()
+        self.assertEqual(len(enrollments_db), 3)
+
+        params = {
+            'uuid': 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+            'organization': 'Bitergia',
+            'fromDate': '2008-01-01T00:00:00+0000',
+            'toDate': '2009-01-01T00:00:00+0000',
+            'force': True
+        }
+        executed = client.execute(self.SH_ENROLL,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        # Checking results with updated dates
+        enrollments = executed['data']['enroll']['uidentity']['enrollments']
+
+        self.assertEqual(len(enrollments), 3)
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment['organization']['name'], 'Example')
+        self.assertEqual(enrollment['start'], '1999-01-01T00:00:00+00:00')
+        self.assertEqual(enrollment['end'], '2000-01-01T00:00:00+00:00')
+
+        enrollment = enrollments[1]
+        self.assertEqual(enrollment['organization']['name'], 'Example')
+        self.assertEqual(enrollment['start'], '2004-01-01T00:00:00+00:00')
+        self.assertEqual(enrollment['end'], '2006-01-01T00:00:00+00:00')
+
+        enrollment = enrollments[2]
+        self.assertEqual(enrollment['organization']['name'], 'Bitergia')
         self.assertEqual(enrollment['start'], '2008-01-01T00:00:00+00:00')
         self.assertEqual(enrollment['end'], '2009-01-01T00:00:00+00:00')
 
@@ -3337,6 +3424,61 @@ class TestEnrollMutation(django.test.TestCase):
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, ORGANIZATION_BITERGIA_DOES_NOT_EXIST_ERROR)
 
+    def test_error_ignore_default_false(self):
+        """Check whether enrollments in an existing default
+           period cannot be inserted when `ignore_default`
+           flag is not set
+        """
+        client = graphene.test.Client(schema)
+
+        db.add_organization(self.trxl, 'Bitergia')
+
+        params = {
+            'uuid': 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+            'organization': 'Bitergia'
+        }
+        executed = client.execute(self.SH_ENROLL,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        # Checking results with default dates
+        enrollments = executed['data']['enroll']['uidentity']['enrollments']
+
+        self.assertEqual(len(enrollments), 3)
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment['organization']['name'], 'Bitergia')
+        self.assertEqual(enrollment['start'], '1900-01-01T00:00:00+00:00')
+        self.assertEqual(enrollment['end'], '2100-01-01T00:00:00+00:00')
+
+        enrollment = enrollments[1]
+        self.assertEqual(enrollment['organization']['name'], 'Example')
+        self.assertEqual(enrollment['start'], '1999-01-01T00:00:00+00:00')
+        self.assertEqual(enrollment['end'], '2000-01-01T00:00:00+00:00')
+
+        enrollment = enrollments[2]
+        self.assertEqual(enrollment['organization']['name'], 'Example')
+        self.assertEqual(enrollment['start'], '2004-01-01T00:00:00+00:00')
+        self.assertEqual(enrollment['end'], '2006-01-01T00:00:00+00:00')
+
+        # Tests
+        params = {
+            'uuid': 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+            'organization': 'Bitergia',
+            'fromDate': '2005-01-01T00:00:00+0000',
+            'toDate': '2005-06-01T00:00:00+0000'
+        }
+        executed = client.execute(self.SH_ENROLL,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        msg = executed['errors'][0]['message']
+        start = '2005-01-01 00:00:00+00:00'
+        end = '2005-06-01 00:00:00+00:00'
+        org_name = 'Bitergia'
+        err = DUPLICATED_ENROLLMENT_ERROR.format(start, end, org_name)
+        self.assertEqual(msg, err)
+
     def test_integrity_error(self):
         """Check whether enrollments in an existing period cannot be inserted"""
 
@@ -3353,8 +3495,10 @@ class TestEnrollMutation(django.test.TestCase):
                                   variables=params)
 
         msg = executed['errors'][0]['message']
-        err = 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3-Example-2005-01-01 00:00:00+00:00-2005-06-01 00:00:00+00:00'
-        err = DUPLICATED_ENROLLMENT_ERROR.format(err)
+        start = '2005-01-01 00:00:00+00:00'
+        end = '2005-06-01 00:00:00+00:00'
+        org_name = 'Example'
+        err = DUPLICATED_ENROLLMENT_ERROR.format(start, end, org_name)
         self.assertEqual(msg, err)
 
     def test_locked_uuid(self):

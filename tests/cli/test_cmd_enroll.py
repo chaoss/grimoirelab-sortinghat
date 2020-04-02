@@ -35,13 +35,14 @@ ENROLL_CMD_OP = """mutation {{
       organization: "{}"
       fromDate: "{}"
       toDate: "{}"
+      force: {}
     ) {{
     uuid
   }}
 }}"""
 
 ENROLL_DEFAULT_CMD_OP = """mutation {{
-  enroll(uuid: "{}", organization: "{}") {{
+  enroll(uuid: "{}", organization: "{}", force: {}) {{
     uuid
   }}
 }}"""
@@ -99,14 +100,15 @@ class TestEnrollCommand(unittest.TestCase):
             '322397ed782a798ffd9d0bc7e293df4292fe075d',
             'Example',
             '--from-date', '2012-01-01',
-            '--to-date', '2013-01-01'
+            '--to-date', '2013-01-01',
         ]
         result = runner.invoke(enroll, params)
 
         expected = ENROLL_CMD_OP.format('322397ed782a798ffd9d0bc7e293df4292fe075d',
                                         'Example',
                                         '2012-01-01T00:00:00+00:00',
-                                        '2013-01-01T00:00:00+00:00')
+                                        '2013-01-01T00:00:00+00:00',
+                                        'false')
         self.assertEqual(len(client.ops), 1)
         self.assertEqual(str(client.ops[0]), expected)
 
@@ -132,7 +134,40 @@ class TestEnrollCommand(unittest.TestCase):
         result = runner.invoke(enroll, params)
 
         expected = ENROLL_DEFAULT_CMD_OP.format('322397ed782a798ffd9d0bc7e293df4292fe075d',
-                                                'Example')
+                                                'Example',
+                                                'false')
+        self.assertEqual(len(client.ops), 1)
+        self.assertEqual(str(client.ops[0]), expected)
+
+        self.assertEqual(result.exit_code, 0)
+
+    @unittest.mock.patch('sortinghat.cli.utils.SortingHatClient')
+    def test_enroll_force(self, mock_client):
+        """Check if force flag is set"""
+
+        responses = [
+            {'data': {'enroll': {'uuid': '322397ed782a798ffd9d0bc7e293df4292fe075d'}}}
+        ]
+        client = MockClient(responses)
+        mock_client.return_value = client
+
+        runner = click.testing.CliRunner()
+
+        # Create a new enrollment
+        params = [
+            '322397ed782a798ffd9d0bc7e293df4292fe075d',
+            'Example',
+            '--from-date', '2012-01-01',
+            '--to-date', '2013-01-01',
+            '--force'
+        ]
+        result = runner.invoke(enroll, params)
+
+        expected = ENROLL_CMD_OP.format('322397ed782a798ffd9d0bc7e293df4292fe075d',
+                                        'Example',
+                                        '2012-01-01T00:00:00+00:00',
+                                        '2013-01-01T00:00:00+00:00',
+                                        'true')
         self.assertEqual(len(client.ops), 1)
         self.assertEqual(str(client.ops[0]), expected)
 
@@ -199,7 +234,8 @@ class TestEnrollCommand(unittest.TestCase):
         result = runner.invoke(enroll, params)
 
         expected = ENROLL_DEFAULT_CMD_OP.format('322397ed782a798ffd9d0bc7e293df4292fe075d',
-                                                'FFFFFFFFFFFFFFF')
+                                                'FFFFFFFFFFFFFFF',
+                                                'false')
         self.assertEqual(len(client.ops), 1)
         self.assertEqual(str(client.ops[0]), expected)
 

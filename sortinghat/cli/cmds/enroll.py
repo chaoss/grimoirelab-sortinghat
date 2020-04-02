@@ -40,8 +40,11 @@ from ..utils import (connect,
               help="Date when the enrollment starts")
 @click.option('--to-date',
               help="Date when the enrollment ends")
+@click.option('--force', is_flag=True,
+              help="Overwrite default dates in case a more specific range is given")
 @sh_client
-def enroll(ctx, uuid, organization, from_date, to_date, **extra):
+def enroll(ctx, uuid, organization, from_date, to_date, force,
+           **extra):
     """Enroll a unique identity in an organization.
 
     This command enrolls the unique identity <uuid> in the
@@ -61,6 +64,10 @@ def enroll(ctx, uuid, organization, from_date, to_date, **extra):
 
     If the given period for that enrollment is enclosed by
     one already stored, the command will return an error.
+    This might happen when default values are already set
+    for an enrollment. In the case, instead of removing an
+    enrollment, use <force> flag, to overwrite enrollments
+    with a more specific range.
 
     UUID: unique identity to enroll
 
@@ -78,7 +85,8 @@ def enroll(ctx, uuid, organization, from_date, to_date, **extra):
         _enroll_identity(conn, uuid=uuid,
                          organization=organization,
                          from_date=from_date,
-                         to_date=to_date)
+                         to_date=to_date,
+                         force=force)
 
 
 def _enroll_identity(conn, **kwargs):

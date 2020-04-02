@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2019 Bitergia
+# Copyright (C) 2014-2020 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@ CODE_NOT_FOUND_ERROR = 9
 CODE_VALUE_ERROR = 10
 CODE_CLOSED_TRANSACTION_ERROR = 12
 CODE_LOCKED_IDENTITY_ERROR = 13
+CODE_DUPLICATE_RANGE_ERROR = 14
 CODE_TOKEN_EXPIRED = 126
 CODE_PERMISSION_DENIED = 127
 CODE_UNKNOWN_ERROR = 128
@@ -90,3 +91,10 @@ class LockedIdentityError(BaseError):
 
     code = CODE_LOCKED_IDENTITY_ERROR
     message = "UniqueIdentity %(uuid)s is locked"
+
+
+class DuplicateRangeError(BaseError):
+    """Exception raised when setting an enrollment with an existing date range"""
+
+    code = CODE_DUPLICATE_RANGE_ERROR
+    message = "range date '%(start)s'-'%(end)s' is part of an existing range for %(org)s"

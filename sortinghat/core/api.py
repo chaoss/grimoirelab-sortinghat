@@ -45,7 +45,10 @@ from .db import (find_unique_identity,
                  unlock as unlock_db,
                  add_enrollment,
                  delete_enrollment)
-from .errors import InvalidValueError, AlreadyExistsError, NotFoundError
+from .errors import (InvalidValueError,
+                     AlreadyExistsError,
+                     NotFoundError,
+                     DuplicateRangeError)
 from .log import TransactionsLog
 from .models import Identity, MIN_PERIOD_DATE, MAX_PERIOD_DATE
 from .utils import unaccent_string, merge_datetime_ranges
@@ -604,7 +607,7 @@ def delete_domain(ctx, domain_name):
 
 
 @django.db.transaction.atomic
-def enroll(ctx, uuid, organization, from_date=None, to_date=None):
+def enroll(ctx, uuid, organization, from_date=None, to_date=None, force=False):
     """Enroll a unique identity in an organization.
 
     The function enrolls a unique identity, identified by `uuid`,
@@ -621,7 +624,12 @@ def enroll(ctx, uuid, organization, from_date=None, to_date=None):
     enrollment.
 
     If the given period for that enrollment is enclosed by one already
-    stored, the function will raise an `AlreadyExistsError` exception.
+    stored, the function will raise an `DuplicateRangeError` exception.
+
+    In case the option `force` is set to `True`, and there is an
+    existing enrollment having a range composed by any of the default start
+    or end dates, the range will be overwritten with the new `from_date` and
+    `to_date` values.
 
     The unique identity object with updated enrollment data is returned
     as the result of calling this function.
@@ -631,6 +639,8 @@ def enroll(ctx, uuid, organization, from_date=None, to_date=None):
     :param organization: name of the organization
     :param from_date: date when the enrollment starts
     :param to_date: date when the enrollment ends
+    :param force: overwrite default dates in case a more specific date
+        is provided
 
     :returns: a unique identity with enrollment data updated
 
@@ -639,7 +649,7 @@ def enroll(ctx, uuid, organization, from_date=None, to_date=None):
     :raises InvalidValueError: raised in three cases, when either identity or
         organization are None or empty strings; when "from_date" < 1900-01-01 or
         "to_date" > 2100-01-01; when "from_date > to_date".
-    :raises AlreadyExistsError: raised when the given period for that enrollment
+    :raises DuplicateRangeError: raised when the given period for that enrollment
         already exists in the registry.
     """
     if uuid is None:
@@ -674,8 +684,12 @@ def enroll(ctx, uuid, organization, from_date=None, to_date=None):
 
     for period in periods:
         if from_date >= period[0] and to_date <= period[1]:
-            eid = '{}-{}-{}-{}'.format(uuid, organization, from_date, to_date)
-            raise AlreadyExistsError(entity='Enrollment', eid=eid)
+            # If any of the dates are the default ones
+            default_values = (period[0] == MIN_PERIOD_DATE) or (period[1] == MAX_PERIOD_DATE)
+            if default_values and force:
+                # Default values will be overwritten with input values
+                continue
+            raise DuplicateRangeError(start=from_date, end=to_date, org=organization)
         if to_date < period[0]:
             break
 
@@ -686,7 +700,8 @@ def enroll(ctx, uuid, organization, from_date=None, to_date=None):
         delete_enrollment(trxl, enrollment_db)
 
     try:
-        for start_dt, end_dt in merge_datetime_ranges(periods):
+        dt_ranges = merge_datetime_ranges(periods, exclude_limits=force)
+        for start_dt, end_dt in dt_ranges:
             add_enrollment(trxl, uidentity, org, start=start_dt, end=end_dt)
     except ValueError as e:
         raise InvalidValueError(msg=str(e))
@@ -771,7 +786,9 @@ def withdraw(ctx, uuid, organization, from_date=None, to_date=None):
                                                   to_date=to_date)
 
     if not enrollments_db:
-        eid = "'{}-{}-{}-{}'".format(uuid, organization, from_date, to_date)
+        eid = "enrollment with range '{}'-'{}' for {}".format(from_date,
+                                                              to_date,
+                                                              organization)
         raise NotFoundError(entity=eid)
 
     # Remove enrollments and generate new periods
