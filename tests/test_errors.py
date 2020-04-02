@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2019 Bitergia
+# Copyright (C) 2014-2020 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,7 +28,8 @@ from sortinghat.core.errors import (BaseError,
                                     NotFoundError,
                                     InvalidValueError,
                                     ClosedTransactionError,
-                                    LockedIdentityError)
+                                    LockedIdentityError,
+                                    DuplicateRangeError)
 
 
 # Mock classes to test BaseError class
@@ -176,3 +177,26 @@ class TestLockedIdentityError(TestCase):
         """
         kwargs = {}
         self.assertRaises(KeyError, LockedIdentityError, **kwargs)
+
+
+class TestEnrollmentRangeError(TestCase):
+    """Unit tests for EnrollmentRangeError"""
+
+    def test_message(self):
+        """Make sure that prints the right error"""
+
+        start = '2005-01-01 00:00:00+00:00'
+        end = '2006-01-01 00:00:00+00:00'
+        org = 'Example'
+        e = DuplicateRangeError(start=start, end=end, org=org)
+        msg = "range date '{}'-'{}' is part of an existing range for {}"
+        msg = msg.format(start, end, org)
+        self.assertEqual(msg, str(e))
+
+    def test_no_args(self):
+        """Check when required arguments are not given.
+
+        When this happens, it raises a KeyError exception.
+        """
+        kwargs = {}
+        self.assertRaises(KeyError, DuplicateRangeError, **kwargs)
