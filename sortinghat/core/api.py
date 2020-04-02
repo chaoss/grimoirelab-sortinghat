@@ -786,7 +786,9 @@ def withdraw(ctx, uuid, organization, from_date=None, to_date=None):
                                                   to_date=to_date)
 
     if not enrollments_db:
-        eid = "'{}-{}-{}-{}'".format(uuid, organization, from_date, to_date)
+        eid = "enrollment with range '{}'-'{}' for {}".format(from_date,
+                                                              to_date,
+                                                              organization)
         raise NotFoundError(entity=eid)
 
     # Remove enrollments and generate new periods
