@@ -474,17 +474,21 @@ class Enroll(graphene.Mutation):
         organization = graphene.String()
         from_date = graphene.DateTime(required=False)
         to_date = graphene.DateTime(required=False)
+        force = graphene.Boolean(required=False)
 
     uuid = graphene.Field(lambda: graphene.String)
     uidentity = graphene.Field(lambda: UniqueIdentityType)
 
     @check_auth
-    def mutate(self, info, uuid, organization, from_date=None, to_date=None):
+    def mutate(self, info, uuid, organization,
+               from_date=None, to_date=None,
+               force=False):
         user = info.context.user
         ctx = SortingHatContext(user)
 
         uidentity = enroll(ctx, uuid, organization,
-                           from_date=from_date, to_date=to_date)
+                           from_date=from_date, to_date=to_date,
+                           force=force)
         return Enroll(
             uuid=uidentity.uuid,
             uidentity=uidentity
