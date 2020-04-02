@@ -58,7 +58,7 @@ from sortinghat.core.schema import SortingHatQuery, SortingHatMutation
 DUPLICATED_ORG_ERROR = "Organization 'Example' already exists in the registry"
 DUPLICATED_DOM_ERROR = "Domain 'example.net' already exists in the registry"
 DUPLICATED_UNIQUE_IDENTITY = "UniqueIdentity 'eda9f62ad321b1fbe5f283cc05e2484516203117' already exists in the registry"
-DUPLICATED_ENROLLMENT_ERROR = "Enrollment '{}' already exists in the registry"
+DUPLICATED_ENROLLMENT_ERROR = "range date '{}'-'{}' is part of an existing range for {}"
 NAME_EMPTY_ERROR = "'name' cannot be an empty string"
 DOMAIN_NAME_EMPTY_ERROR = "'domain_name' cannot be an empty string"
 SOURCE_EMPTY_ERROR = "'source' cannot be an empty string"
@@ -3353,8 +3353,10 @@ class TestEnrollMutation(django.test.TestCase):
                                   variables=params)
 
         msg = executed['errors'][0]['message']
-        err = 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3-Example-2005-01-01 00:00:00+00:00-2005-06-01 00:00:00+00:00'
-        err = DUPLICATED_ENROLLMENT_ERROR.format(err)
+        start = '2005-01-01 00:00:00+00:00'
+        end = '2005-06-01 00:00:00+00:00'
+        org_name = 'Example'
+        err = DUPLICATED_ENROLLMENT_ERROR.format(start, end, org_name)
         self.assertEqual(msg, err)
 
     def test_locked_uuid(self):

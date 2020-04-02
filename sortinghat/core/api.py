@@ -45,7 +45,10 @@ from .db import (find_unique_identity,
                  unlock as unlock_db,
                  add_enrollment,
                  delete_enrollment)
-from .errors import InvalidValueError, AlreadyExistsError, NotFoundError
+from .errors import (InvalidValueError,
+                     AlreadyExistsError,
+                     NotFoundError,
+                     DuplicateRangeError)
 from .log import TransactionsLog
 from .models import Identity, MIN_PERIOD_DATE, MAX_PERIOD_DATE
 from .utils import unaccent_string, merge_datetime_ranges
@@ -621,7 +624,7 @@ def enroll(ctx, uuid, organization, from_date=None, to_date=None):
     enrollment.
 
     If the given period for that enrollment is enclosed by one already
-    stored, the function will raise an `AlreadyExistsError` exception.
+    stored, the function will raise an `DuplicateRangeError` exception.
 
     The unique identity object with updated enrollment data is returned
     as the result of calling this function.
@@ -639,7 +642,7 @@ def enroll(ctx, uuid, organization, from_date=None, to_date=None):
     :raises InvalidValueError: raised in three cases, when either identity or
         organization are None or empty strings; when "from_date" < 1900-01-01 or
         "to_date" > 2100-01-01; when "from_date > to_date".
-    :raises AlreadyExistsError: raised when the given period for that enrollment
+    :raises DuplicateRangeError: raised when the given period for that enrollment
         already exists in the registry.
     """
     if uuid is None:
@@ -674,8 +677,7 @@ def enroll(ctx, uuid, organization, from_date=None, to_date=None):
 
     for period in periods:
         if from_date >= period[0] and to_date <= period[1]:
-            eid = '{}-{}-{}-{}'.format(uuid, organization, from_date, to_date)
-            raise AlreadyExistsError(entity='Enrollment', eid=eid)
+            raise DuplicateRangeError(start=from_date, end=to_date, org=organization)
         if to_date < period[0]:
             break
 

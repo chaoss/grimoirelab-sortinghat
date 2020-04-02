@@ -36,7 +36,8 @@ from sortinghat.core.context import SortingHatContext
 from sortinghat.core.errors import (AlreadyExistsError,
                                     NotFoundError,
                                     InvalidValueError,
-                                    LockedIdentityError)
+                                    LockedIdentityError,
+                                    DuplicateRangeError)
 from sortinghat.core.models import (Country,
                                     UniqueIdentity,
                                     Identity,
@@ -47,6 +48,7 @@ from sortinghat.core.models import (Country,
                                     Operation)
 
 NOT_FOUND_ERROR = "{entity} not found in the registry"
+ENROLLMENT_RANGE_INVALID = "range date '{start}'-'{end}' is part of an existing range for {org}"
 ALREADY_EXISTS_ERROR = "{entity} already exists in the registry"
 SOURCE_NONE_OR_EMPTY_ERROR = "'source' cannot be"
 IDENTITY_NONE_OR_EMPTY_ERROR = "identity data cannot be empty"
@@ -2815,13 +2817,13 @@ class TestEnroll(TestCase):
 
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
-        with self.assertRaises(AlreadyExistsError):
+        with self.assertRaises(DuplicateRangeError):
             api.enroll(self.ctx,
                        'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
                        from_date=datetime.datetime(1999, 1, 1),
                        to_date=datetime.datetime(2010, 1, 1))
 
-        with self.assertRaises(AlreadyExistsError):
+        with self.assertRaises(DuplicateRangeError):
             api.enroll(self.ctx,
                        'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
                        from_date=datetime.datetime(2005, 1, 1),
