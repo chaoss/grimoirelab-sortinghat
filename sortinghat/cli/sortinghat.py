@@ -29,6 +29,7 @@ from .cmds.orgs import orgs
 from .cmds.profile import profile
 from .cmds.rm import rm
 from .cmds.split import split
+from .cmds.show import show
 from .cmds.withdraw import withdraw
 
 
@@ -48,4 +49,5 @@ sortinghat.add_command(withdraw)
 sortinghat.add_command(merge)
 sortinghat.add_command(split)
 sortinghat.add_command(lock)
+sortinghat.add_command(show)
 sortinghat.add_command(orgs)

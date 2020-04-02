@@ -1,0 +1,30 @@
+{% for uid in uidentities | sort(attribute='uuid') %}
+
+unique identity {{ uid.uuid }}{{'	(locked)' if uid.is_locked }}
+
+Profile:
+    * Name: {{ uid.profile.name|d('-', true) }}
+    * E-Mail: {{ uid.profile.email|d('-', true) }}
+    * Gender: {{ uid.profile.gender|d('-', true) }}
+    * Bot: {{ '%s' % 'Yes' if uid.profile.is_bot else 'No' }}
+    * Country: {{ '%s' % uid.profile.country.code + ' - ' + uid.profile.country.name if uid.profile.country else '-' }}
+
+{% if uid.identities %}
+Identities:
+{% for identity in uid.identities | sort(attribute='id') %}
+  {{ identity.id }}	{{ identity.name|d('-', true) }}	{{ identity.email|d('-', true) }}	{{ identity.username|d('-', true) }}	{{ identity.source }}
+{% endfor %}
+{% else %}
+No identities
+{% endif %}
+
+{% if uid.enrollments %}
+Enrollments:
+{% for rol in uid.enrollments %}
+  {{ rol.organization.name }}	{{ rol.start.strftime('%Y-%m-%d %H:%M:%S') }}	{{ rol.end.strftime('%Y-%m-%d %H:%M:%S') }}
+{% endfor %}
+{% else %}
+No enrollments
+{% endif %}
+
+{% endfor %}
