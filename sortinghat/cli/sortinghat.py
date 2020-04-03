@@ -21,6 +21,7 @@ import click
 
 
 from .cmds.add import add
+from .cmds.config import config
 from .cmds.enroll import enroll
 from .cmds.lock import lock
 from .cmds.merge import merge
@@ -40,6 +41,7 @@ def sortinghat():
     pass
 
 
+sortinghat.add_command(config)
 sortinghat.add_command(add)
 sortinghat.add_command(rm)
 sortinghat.add_command(profile)
