@@ -28,16 +28,15 @@ from ..utils import display
 
 
 CONFIG_OPTIONS = {
-    'endpoint': [
-        'user',
-        'password',
-        'host',
-        'port',
-        'server-path',
-        'disable-ssl'
-    ],
+    'endpoint': {
+        'user': '',
+        'password': '',
+        'host': 'localhost',
+        'port': '9314',
+        'path': '/',
+        'ssl': 'true',
+    }
 }
-
 
 SORTINGHAT_CFG_DIR_NAME = '~/.sortinghat'
 SORTINGHAT_CFG_FILE_NAME = 'sortinghat.cfg'
@@ -50,13 +49,52 @@ def config():
     This command gets or sets parameters from/to the client
     configuration file.
 
-    On Unix systems, configuration will be stored by deafult
+    On Unix systems, configuration will be stored by default
     under the file '~/.sortinghat/sortinghat.cfg'.
 
     Configuration parameters selected to get/set must follow
     the schema "<section>.<option>" (e.g 'endpoint.host').
     """
     pass
+
+
+@config.command()
+@click.option('--filepath',
+              help="Path to the configuration file.")
+@click.option('--overwrite', is_flag=True,
+              help="Force to replace an existing configuration file.")
+def init(filepath, overwrite):
+    """Create a configuration file with default parameters.
+
+    This command will create a configuration file under <filepath>
+    using default configuration parameters. When <filepath> is not
+    given the default location for the configuration file will be
+    used instead.
+
+    The configuration file must not exist. Otherwise the command
+    will return with an error. Use the option '--overwrite' to force
+    to replace the existing file.
+    """
+    if not filepath:
+        dirpath = os.path.expanduser(SORTINGHAT_CFG_DIR_NAME)
+        os.makedirs(dirpath, exist_ok=True)
+        config_file = os.path.join(dirpath, SORTINGHAT_CFG_FILE_NAME)
+    else:
+        config_file = filepath
+
+    if os.path.isfile(config_file) and not overwrite:
+        msg = ("Configuration file {} already exists. "
+               "Use '--overwrite' to replace it.").format(config_file)
+        raise click.ClickException(msg)
+
+    cfg = configparser.ConfigParser()
+    cfg.read_dict(CONFIG_OPTIONS)
+
+    try:
+        with open(config_file, 'w') as f:
+            cfg.write(f)
+    except IOError as e:
+        raise click.FileError(config_file, hint=str(e))
 
 
 @config.command()

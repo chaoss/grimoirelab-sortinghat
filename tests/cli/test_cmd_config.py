@@ -29,7 +29,8 @@ import configparser
 
 import click.testing
 
-from sortinghat.cli.cmds.config import (get,
+from sortinghat.cli.cmds.config import (init,
+                                        get,
                                         set,
                                         SORTINGHAT_CFG_FILE_NAME)
 
@@ -38,10 +39,127 @@ MOCK_CONFIG_FILE = 'config_file.cfg'
 MOCK_CONFIG_FILEPATH = os.path.join(os.path.abspath(os.path.dirname(__file__)),
                                     MOCK_CONFIG_FILE)
 
+
+CONFIG_FILE_EXISTS_ERROR = "Error: Configuration file {} already exists. Use '--overwrite' to replace it.\n"
 INVALID_CONFIG_FILE = "Error: Could not open file {}: [Errno 21] Is a directory: '{}'\n"
 SET_KEY_CONFIG_ERROR = "Error: {} config parameter is not supported\n"
 GET_KEY_CONFIG_ERROR = "Error: {} config parameter is not supported\n"
 NOT_FOUND_FILE_ERROR = "Error: Could not open file {}: file does not exist\n"
+
+
+class TestInitConfig(unittest.TestCase):
+    """Init command unit tests"""
+
+    def test_init(self):
+        """Check if it initializes a configuration file."""
+
+        runner = click.testing.CliRunner()
+
+        with runner.isolated_filesystem() as fs:
+            filepath = os.path.join(fs, MOCK_CONFIG_FILE)
+
+            params = [
+                '--filepath', filepath
+            ]
+            result = runner.invoke(init, params)
+
+            self.assertEqual(result.exit_code, 0)
+
+            # Check the new values
+            cfg = configparser.ConfigParser()
+            cfg.read(filepath)
+            self.assertEqual(cfg.get('endpoint', 'user'), '')
+            self.assertEqual(cfg.get('endpoint', 'password'), '')
+            self.assertEqual(cfg.get('endpoint', 'host'), 'localhost')
+            self.assertEqual(cfg.get('endpoint', 'port'), '9314')
+            self.assertEqual(cfg.get('endpoint', 'path'), '/')
+            self.assertEqual(cfg.get('endpoint', 'ssl'), 'true')
+
+    @unittest.mock.patch('os.path.expanduser')
+    def test_default_filename(self, mock_basepath):
+        """Check if it uses the default filename when filepath is not given"""
+
+        runner = click.testing.CliRunner()
+
+        with runner.isolated_filesystem() as fs:
+            dirpath = os.path.join(fs, '.sortinghat')
+            mock_basepath.return_value = dirpath
+            default_filepath = os.path.join(dirpath, SORTINGHAT_CFG_FILE_NAME)
+
+            params = []
+            result = runner.invoke(init, params)
+
+            self.assertEqual(result.exit_code, 0)
+
+            # Check the new values
+            cfg = configparser.ConfigParser()
+            cfg.read(default_filepath)
+            self.assertEqual(cfg.get('endpoint', 'user'), '')
+            self.assertEqual(cfg.get('endpoint', 'password'), '')
+            self.assertEqual(cfg.get('endpoint', 'host'), 'localhost')
+            self.assertEqual(cfg.get('endpoint', 'port'), '9314')
+            self.assertEqual(cfg.get('endpoint', 'path'), '/')
+            self.assertEqual(cfg.get('endpoint', 'ssl'), 'true')
+
+    def test_config_is_not_overwritten(self):
+        """Check whether an existing config file is not replaced"""
+
+        runner = click.testing.CliRunner(mix_stderr=False)
+
+        with runner.isolated_filesystem() as fs:
+            shutil.copy(MOCK_CONFIG_FILEPATH, fs)
+            filepath = os.path.join(fs, MOCK_CONFIG_FILE)
+
+            # Check initial values first
+            cfg = configparser.ConfigParser()
+            cfg.read(filepath)
+            self.assertEqual(cfg.get('endpoint', 'user'), 'root')
+            self.assertEqual(cfg.get('endpoint', 'host'), 'localhost')
+
+            params = [
+                '--filepath', filepath
+            ]
+            result = runner.invoke(init, params)
+
+            self.assertEqual(result.exit_code, 1)
+            self.assertEqual(result.stderr, CONFIG_FILE_EXISTS_ERROR.format(filepath))
+
+            # Values did not change
+            cfg.read(filepath)
+            self.assertEqual(cfg.get('endpoint', 'user'), 'root')
+            self.assertEqual(cfg.get('endpoint', 'host'), 'localhost')
+
+    def test_overwrite_config(self):
+        """Check whether an existing config file is overwritten"""
+
+        runner = click.testing.CliRunner(mix_stderr=False)
+
+        with runner.isolated_filesystem() as fs:
+            shutil.copy(MOCK_CONFIG_FILEPATH, fs)
+            filepath = os.path.join(fs, MOCK_CONFIG_FILE)
+
+            # Check initial values first
+            cfg = configparser.ConfigParser()
+            cfg.read(filepath)
+            self.assertEqual(cfg.get('endpoint', 'user'), 'root')
+            self.assertEqual(cfg.get('endpoint', 'host'), 'localhost')
+
+            params = [
+                '--filepath', filepath,
+                '--overwrite'
+            ]
+            result = runner.invoke(init, params)
+
+            self.assertEqual(result.exit_code, 0)
+
+            # New values are written
+            cfg.read(filepath)
+            self.assertEqual(cfg.get('endpoint', 'user'), '')
+            self.assertEqual(cfg.get('endpoint', 'password'), '')
+            self.assertEqual(cfg.get('endpoint', 'host'), 'localhost')
+            self.assertEqual(cfg.get('endpoint', 'port'), '9314')
+            self.assertEqual(cfg.get('endpoint', 'path'), '/')
+            self.assertEqual(cfg.get('endpoint', 'ssl'), 'true')
 
 
 class TestSetConfig(unittest.TestCase):
