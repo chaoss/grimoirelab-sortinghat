@@ -43,15 +43,15 @@ def _set_path_cb(ctx, param, value):
 
 
 _conn_options = [
-    click.option('-u', '--user',
+    click.option('-u', '--user', envvar='SORTINGHAT_CLIENT_USER',
                  help="Name of the user to authenticate on the server."),
-    click.option('-p', '--password',
+    click.option('-p', '--password', envvar='SORTINGHAT_CLIENT_PASSWORD',
                  help="Password to authenticate on the server."),
-    click.option('--host',
+    click.option('--host', envvar='SORTINGHAT_CLIENT_HOST',
                  help="Address to use for connection."),
-    click.option('--port',
+    click.option('--port', envvar='SORTINGHAT_CLIENT_PORT',
                  help="Port number to use for connection."),
-    click.option('--server-path',
+    click.option('--server-path', envvar='SORTINGHAT_CLIENT_PATH',
                  callback=_set_path_cb,
                  help="Path to the server API."),
     click.option('--disable-ssl',
