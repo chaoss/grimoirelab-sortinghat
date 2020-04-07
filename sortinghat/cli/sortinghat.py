@@ -17,11 +17,17 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+import configparser
+import os.path
+
 import click
 
 
 from .cmds.add import add
-from .cmds.config import config
+from .cmds.config import (config,
+                          CONFIG_OPTIONS,
+                          SORTINGHAT_CFG_FILE_NAME,
+                          SORTINGHAT_CFG_DIR_NAME)
 from .cmds.enroll import enroll
 from .cmds.lock import lock
 from .cmds.merge import merge
@@ -35,12 +41,28 @@ from .cmds.withdraw import withdraw
 
 
 @click.group()
-def sortinghat():
+@click.option('-c', '--config', 'config_file', type=click.Path(),
+              help="Use this configuration file.")
+@click.pass_context
+def sortinghat(ctx, config_file):
     """A tool to manage identities."""
 
-    pass
+    if not config_file:
+        config_file = os.path.expanduser(SORTINGHAT_CFG_DIR_NAME)
+        config_file = os.path.join(config_file, SORTINGHAT_CFG_FILE_NAME)
+        if not os.path.isfile(config_file):
+            config_file = None
+
+    if config_file:
+        try:
+            ctx.obj = _read_config_file(config_file)
+        except Exception as e:
+            raise click.ClickException(str(e))
+    else:
+        ctx.obj = {}
 
 
+# Add commands to the root command
 sortinghat.add_command(config)
 sortinghat.add_command(add)
 sortinghat.add_command(rm)
@@ -53,3 +75,23 @@ sortinghat.add_command(split)
 sortinghat.add_command(lock)
 sortinghat.add_command(show)
 sortinghat.add_command(orgs)
+
+
+def _read_config_file(filepath):
+    """Read SortingHat configuration file."""
+
+    cfg = configparser.ConfigParser()
+    cfg.read_dict(CONFIG_OPTIONS)
+    cfg.read(filepath)
+
+    opts = {}
+
+    for key in CONFIG_OPTIONS.keys():
+        # Set group defaults
+        opts = {**opts, **CONFIG_OPTIONS[key]}
+
+        # Set config file parameters
+        if key in cfg.sections():
+            opts = {**opts, **dict(cfg.items(key))}
+
+    return opts

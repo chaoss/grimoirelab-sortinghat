@@ -32,24 +32,32 @@ from .client import (SortingHatClient,
                      SortingHatClientError)
 
 
+def _set_ssl_cb(ctx, param, value):
+    ctx.params['ssl'] = None
+    if value is not None:
+        ctx.params['ssl'] = not value
+
+
+def _set_path_cb(ctx, param, value):
+    ctx.params['path'] = value
+
+
 _conn_options = [
     click.option('-u', '--user',
                  help="Name of the user to authenticate on the server."),
     click.option('-p', '--password',
                  help="Password to authenticate on the server."),
     click.option('--host',
-                 default='localhost',
-                 show_default=True,
                  help="Address to use for connection."),
     click.option('--port',
-                 default=9314,
-                 show_default=True,
                  help="Port number to use for connection."),
     click.option('--server-path',
-                 show_default=True,
+                 callback=_set_path_cb,
                  help="Path to the server API."),
     click.option('--disable-ssl',
                  is_flag=True,
+                 default=None,
+                 callback=_set_ssl_cb,
                  help="Disable SSL/TSL connection.")
 ]
 
@@ -68,18 +76,36 @@ def sh_client(func):
     This decorator initializes a client that will be
     available in the context object.
     """
+    def _choose_param(name, cfg, param):
+        """Choose between param or configuration value."""
+
+        if param is not None:
+            return param
+        elif not cfg:
+            return None
+        else:
+            if name == 'ssl':
+                value = cfg.get(name, 'true')
+                return value.lower() in ['true', '1']
+            else:
+                return cfg.get(name, None)
+
     @click.pass_context
     def initialize_client(ctx, *args, **kwargs):
-        use_ssl = not kwargs['disable_ssl']
+        client_params = [
+            'host', 'port', 'path', 'user', 'password', 'ssl'
+        ]
+
+        params = {
+            name: _choose_param(name, ctx.obj, kwargs.pop(name))
+            for name in client_params
+        }
 
         # Create a client object and remember it as as the context object.
-        client = SortingHatClient(kwargs['host'], port=kwargs['port'],
-                                  path=kwargs['server_path'],
-                                  user=kwargs['user'], password=kwargs['password'],
-                                  ssl=use_ssl)
+        client = SortingHatClient(**params)
         ctx.obj = client
-
         return ctx.invoke(func, ctx, *args, **kwargs)
+
     return functools.update_wrapper(initialize_client, func)
 
 
@@ -119,7 +145,8 @@ def display(template, nl=True, **kwargs):
     :param nl: if set to `True`, it renders a newline afterwards
     :param kwargs: list of attributes required to render the template
     """
-    templates_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "templates")
+    templates_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                                 "templates")
     loader = jinja2.FileSystemLoader(templates_dir)
     env = jinja2.Environment(loader=loader,
                              lstrip_blocks=True, trim_blocks=True)

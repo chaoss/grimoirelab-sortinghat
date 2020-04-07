@@ -33,7 +33,7 @@ from ..utils import (connect,
 @click.group()
 @sh_client_cmd_options
 @sh_client
-def orgs(ctx, user, password, host, port, server_path, disable_ssl):
+def orgs(ctx, **extra):
     """List, add or delete organizations and domains on the registry."""
 
     pass
