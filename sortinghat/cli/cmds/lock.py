@@ -33,7 +33,7 @@ from ..utils import (connect,
 @click.group()
 @sh_client_cmd_options
 @sh_client
-def lock(ctx, user, password, host, port, server_path, disable_ssl):
+def lock(ctx, **extra):
     """Lock and unlock unique identities on the registry."""
 
     pass
