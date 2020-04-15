@@ -28,6 +28,7 @@ from .cmds.config import (config,
                           CONFIG_OPTIONS,
                           SORTINGHAT_CFG_FILE_NAME,
                           SORTINGHAT_CFG_DIR_NAME)
+from .cmds.countries import countries
 from .cmds.enroll import enroll
 from .cmds.lock import lock
 from .cmds.merge import merge
@@ -75,6 +76,7 @@ sortinghat.add_command(split)
 sortinghat.add_command(lock)
 sortinghat.add_command(show)
 sortinghat.add_command(orgs)
+sortinghat.add_command(countries)
 
 
 def _read_config_file(filepath):
