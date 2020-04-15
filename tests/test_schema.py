@@ -88,6 +88,57 @@ AUTHENTICATION_ERROR = "You do not have permission to perform this action"
 
 
 # Test queries
+SH_COUNTRIES_QUERY = """{
+  countries {
+    entities {
+      code
+      name
+      alpha3
+    }
+  }
+}"""
+SH_COUNTRIES_CODE_QUERY_FILTER = """{
+  countries (
+    filters:{
+      code: "%s"
+    }
+  ){
+    entities {
+      name
+    }
+  }
+}"""
+SH_COUNTRIES_TERM_QUERY_FILTER = """{
+  countries (
+    filters:{
+      term: "%s"
+    }
+  ){
+    entities {
+      name
+    }
+  }
+}"""
+SH_COUNTRIES_QUERY_PAGINATION = """{
+  countries (
+    page: %d
+    pageSize: %d
+  ){
+    entities {
+      name
+    }
+    pageInfo{
+      page
+      pageSize
+      numPages
+      hasNext
+      hasPrev
+      startIndex
+      endIndex
+      totalResults
+    }
+  }
+}"""
 SH_ORGS_QUERY = """{
   organizations {
     entities {
@@ -639,6 +690,195 @@ class TestMutations(SortingHatMutation):
 
 schema = graphene.Schema(query=TestQuery,
                          mutation=TestMutations)
+
+
+class TestQueryCountries(django.test.TestCase):
+    """Unit tests for country queries"""
+
+    def setUp(self):
+        """Set queries context"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
+
+    def test_countries(self):
+        """Check if it returns the registry of countries"""
+
+        Country.objects.create(code='US',
+                               name='United States of America',
+                               alpha3='USA')
+        Country.objects.create(code='ES',
+                               name='Spain',
+                               alpha3='ESP')
+        Country.objects.create(code='GB',
+                               name='United Kingdom',
+                               alpha3='GBR')
+
+        # Tests
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_COUNTRIES_QUERY,
+                                  context_value=self.context_value)
+
+        cs = executed['data']['countries']['entities']
+        self.assertEqual(len(cs), 3)
+
+        country0 = cs[0]
+        self.assertEqual(country0['name'], 'Spain')
+        self.assertEqual(country0['code'], 'ES')
+        self.assertEqual(country0['alpha3'], 'ESP')
+
+        country1 = cs[1]
+        self.assertEqual(country1['name'], 'United Kingdom')
+        self.assertEqual(country1['code'], 'GB')
+        self.assertEqual(country1['alpha3'], 'GBR')
+
+        country2 = cs[2]
+        self.assertEqual(country2['name'], 'United States of America')
+        self.assertEqual(country2['code'], 'US')
+        self.assertEqual(country2['alpha3'], 'USA')
+
+    def test_empty_registry(self):
+        """Check whether it returns an empty list when the registry is empty"""
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_COUNTRIES_QUERY,
+                                  context_value=self.context_value)
+
+        cs = executed['data']['countries']['entities']
+        self.assertListEqual(cs, [])
+
+    def test_filter_code_registry(self):
+        """Check whether it returns the country searched when using code filter"""
+
+        Country.objects.create(code='US',
+                               name='United States of America',
+                               alpha3='USA')
+        Country.objects.create(code='ES',
+                               name='Spain',
+                               alpha3='ESP')
+        Country.objects.create(code='GB',
+                               name='United Kingdom',
+                               alpha3='GBR')
+
+        client = graphene.test.Client(schema)
+        test_query = SH_COUNTRIES_CODE_QUERY_FILTER % 'ES'
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
+
+        cs = executed['data']['countries']['entities']
+        self.assertEqual(len(cs), 1)
+
+        country = cs[0]
+        self.assertEqual(country['name'], 'Spain')
+
+        # No code found produces an empty response
+        test_query = SH_COUNTRIES_CODE_QUERY_FILTER % 'ABC'
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
+
+        cs = executed['data']['countries']['entities']
+        self.assertListEqual(cs, [])
+
+    def test_filter_term_registy(self):
+        """Check whether it returns the countries searched when using term filter"""
+
+        Country.objects.create(code='US',
+                               name='United States of America',
+                               alpha3='USA')
+        Country.objects.create(code='ES',
+                               name='Spain',
+                               alpha3='ESP')
+        Country.objects.create(code='GB',
+                               name='United Kingdom',
+                               alpha3='GBR')
+
+        client = graphene.test.Client(schema)
+        test_query = SH_COUNTRIES_TERM_QUERY_FILTER % 'ited'
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
+
+        cs = executed['data']['countries']['entities']
+        self.assertEqual(len(cs), 2)
+
+        country = cs[0]
+        self.assertEqual(country['name'], 'United Kingdom')
+
+        country = cs[1]
+        self.assertEqual(country['name'], 'United States of America')
+
+        # Queries are not case sensitive
+        client = graphene.test.Client(schema)
+        test_query = SH_COUNTRIES_TERM_QUERY_FILTER % 'spa'
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
+
+        cs = executed['data']['countries']['entities']
+        self.assertEqual(len(cs), 1)
+
+        country = cs[0]
+        self.assertEqual(country['name'], 'Spain')
+
+        # No term found produces an empty response
+        test_query = SH_COUNTRIES_TERM_QUERY_FILTER % 'ABCD'
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
+
+        cs = executed['data']['countries']['entities']
+        self.assertListEqual(cs, [])
+
+    def test_pagination(self):
+        """Check whether it returns the countries searched when using pagination"""
+
+        cs0 = Country.objects.create(code='US',
+                                     name='United States of America',
+                                     alpha3='USA')
+        cs1 = Country.objects.create(code='ES',
+                                     name='Spain',
+                                     alpha3='ESP')
+        cs2 = Country.objects.create(code='GB',
+                                     name='United Kingdom',
+                                     alpha3='GBR')
+
+        client = graphene.test.Client(schema)
+        test_query = SH_COUNTRIES_QUERY_PAGINATION % (1, 2)
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
+
+        cs = executed['data']['countries']['entities']
+        self.assertEqual(len(cs), 2)
+
+        # As countries are sorted by name, the first two will be cs1 and cs2
+        country = cs[0]
+        self.assertEqual(country['name'], cs1.name)
+
+        country = cs[1]
+        self.assertEqual(country['name'], cs2.name)
+
+        pag_data = executed['data']['countries']['pageInfo']
+        self.assertEqual(len(pag_data), 8)
+        self.assertEqual(pag_data['page'], 1)
+        self.assertEqual(pag_data['pageSize'], 2)
+        self.assertEqual(pag_data['numPages'], 2)
+        self.assertTrue(pag_data['hasNext'])
+        self.assertFalse(pag_data['hasPrev'])
+        self.assertEqual(pag_data['startIndex'], 1)
+        self.assertEqual(pag_data['endIndex'], 2)
+        self.assertEqual(pag_data['totalResults'], 3)
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the query"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        executed = client.execute(SH_COUNTRIES_QUERY,
+                                  context_value=context_value)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
 
 
 class TestQueryOrganizations(django.test.TestCase):

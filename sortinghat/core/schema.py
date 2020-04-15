@@ -142,6 +142,11 @@ class ProfileInputType(graphene.InputObjectType):
     country_code = graphene.String(required=False)
 
 
+class CountryFilterType(graphene.InputObjectType):
+    code = graphene.String(required=False)
+    term = graphene.String(required=False)
+
+
 class OrganizationFilterType(graphene.InputObjectType):
     name = graphene.String(required=False)
 
@@ -191,6 +196,11 @@ class AbstractPaginatedType(graphene.ObjectType):
         )
 
         return cls(entities=entities, page_info=page_info)
+
+
+class CountryPaginatedType(AbstractPaginatedType):
+    entities = graphene.List(CountryType)
+    page_info = graphene.Field(PaginationType)
 
 
 class OrganizationPaginatedType(AbstractPaginatedType):
@@ -520,6 +530,12 @@ class Withdraw(graphene.Mutation):
 
 class SortingHatQuery:
 
+    countries = graphene.Field(
+        CountryPaginatedType,
+        page_size=graphene.Int(),
+        page=graphene.Int(),
+        filters=CountryFilterType(required=False)
+    )
     organizations = graphene.Field(
         OrganizationPaginatedType,
         page_size=graphene.Int(),
@@ -544,6 +560,21 @@ class SortingHatQuery:
         page=graphene.Int(),
         filters=OperationFilterType(required=False),
     )
+
+    @check_auth
+    def resolve_countries(self, info, filters=None,
+                          page=1,
+                          page_size=settings.DEFAULT_GRAPHQL_PAGE_SIZE):
+        query = Country.objects.order_by('code')
+
+        if filters and 'code' in filters:
+            query = query.filter(code=filters['code'])
+        if filters and 'term' in filters:
+            query = query.filter(name__icontains=filters['term'])
+
+        return CountryPaginatedType.create_paginated_result(query,
+                                                            page,
+                                                            page_size=page_size)
 
     @check_auth
     def resolve_organizations(self, info, filters=None,
