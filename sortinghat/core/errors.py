@@ -87,10 +87,10 @@ class ClosedTransactionError(BaseError):
 
 
 class LockedIdentityError(BaseError):
-    """Exception raised when performing a change on a locked unique identity"""
+    """Exception raised when performing a change on a locked individual"""
 
     code = CODE_LOCKED_IDENTITY_ERROR
-    message = "UniqueIdentity %(uuid)s is locked"
+    message = "Individual %(uuid)s is locked"
 
 
 class DuplicateRangeError(BaseError):

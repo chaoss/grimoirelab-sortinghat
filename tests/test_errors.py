@@ -94,9 +94,9 @@ class TestAlreadyExistsError(TestCase):
     def test_args(self):
         """Test whether attributes are set when they are given as arguments"""
 
-        e = AlreadyExistsError(entity='UniqueIdentity', eid='FFFFFFFFFFF')
-        self.assertEqual(str(e), "UniqueIdentity 'FFFFFFFFFFF' already exists in the registry")
-        self.assertEqual(e.entity, 'UniqueIdentity')
+        e = AlreadyExistsError(entity='Individual', eid='FFFFFFFFFFF')
+        self.assertEqual(str(e), "Individual 'FFFFFFFFFFF' already exists in the registry")
+        self.assertEqual(e.entity, 'Individual')
         self.assertEqual(e.eid, 'FFFFFFFFFFF')
 
     def test_no_args(self):
@@ -168,7 +168,7 @@ class TestLockedIdentityError(TestCase):
         """Make sure that prints the right error"""
 
         e = LockedIdentityError(uuid='0123456789abcdef')
-        self.assertEqual("UniqueIdentity 0123456789abcdef is locked", str(e))
+        self.assertEqual("Individual 0123456789abcdef is locked", str(e))
 
     def test_no_args(self):
         """Check when required arguments are not given.

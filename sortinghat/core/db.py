@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2019 Bitergia
+# Copyright (C) 2014-2020 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ from .models import (MIN_PERIOD_DATE,
                      Organization,
                      Domain,
                      Country,
-                     UniqueIdentity,
+                     Individual,
                      Identity,
                      Profile,
                      Enrollment,
@@ -42,43 +42,43 @@ from .models import (MIN_PERIOD_DATE,
 from .utils import validate_field
 
 
-def _set_lock(uidentity, lock_flag):
-    """Set a lock value for a given unique identity.
+def _set_lock(individual, lock_flag):
+    """Set a lock value for a given individual.
 
-    Sets the `is_locked` field from a given `uidentity` object to the boolean
-    value from `lock` variable.
+    Sets the `is_locked` field from a given `individual`
+    object to the boolean value from `lock` variable.
 
-    :param uidentity: unique identity which `is_locked` parameter will be set
-    :param lock_flag: Boolean value to be set to `is_locked` parameter from the `uidentity`
+    :param individual: individual which `is_locked` parameter will be set
+    :param lock_flag: bool value to be set to `is_locked` parameter from the `individual`
 
-    :returns: the unique identity with `is_locked` field updated
+    :returns: the individual entity with `is_locked` field updated
     """
-    uidentity.is_locked = lock_flag
-    uidentity.save()
+    individual.is_locked = lock_flag
+    individual.save()
 
-    return uidentity
+    return individual
 
 
-def find_unique_identity(uuid):
-    """Find a unique identity.
+def find_individual(uuid):
+    """Find an individual entity.
 
-    Find a unique identity by its UUID in the database.
-    When the unique identity does not exist the function will
+    Find an individual by its UUID in the database.
+    When the individual does not exist the function will
     raise a `NotFoundError`.
 
-    :param uuid: id of the unique identity to find
+    :param uuid: id of the individual to find
 
-    :returns: a unique identity object
+    :returns: an individual object
 
-    :raises NotFoundError: when the unique identity with
+    :raises NotFoundError: when the individual with
         the given `uuid` does not exists.
     """
     try:
-        uidentity = UniqueIdentity.objects.get(uuid=uuid)
-    except UniqueIdentity.DoesNotExist:
+        individual = Individual.objects.get(uuid=uuid)
+    except Individual.DoesNotExist:
         raise NotFoundError(entity=uuid)
     else:
-        return uidentity
+        return individual
 
 
 def find_identity(uuid):
@@ -156,21 +156,21 @@ def search_enrollments_in_period(uuid, org_name,
                                  to_date=MIN_PERIOD_DATE):
     """Look for enrollments in a given period.
 
-    Returns the enrollments of a unique identity for a given
+    Returns the enrollments of an individual for a given
     organization during period of time.
 
     An empty list will be returned when no enrollments could be
-    found, due to the unique identity or the organization do not
-    exist, or there are not enrollments assigned on that period.
+    found, due to the individual or the organization do not
+    exist, or there are not enrollments assigned for that period.
 
-    :param uuid: id of the unique identity
+    :param uuid: id of the individual
     :param org_name: name of the organization
     :param from_date: starting date for the period
     :param to_date: ending date for the period
 
     :returns: a list of enrollment objects
     """
-    return Enrollment.objects.filter(uidentity__uuid=uuid,
+    return Enrollment.objects.filter(individual__uuid=uuid,
                                      organization__name=org_name,
                                      start__lte=to_date, end__gte=from_date).order_by('start')
 
@@ -230,7 +230,7 @@ def delete_organization(trxl, organization):
     }
 
     last_modified = datetime_utcnow()
-    UniqueIdentity.objects.filter(enrollments__organization=organization).\
+    Individual.objects.filter(enrollments__organization=organization).\
         update(last_modified=last_modified)
 
     organization.delete()
@@ -309,23 +309,23 @@ def delete_domain(trxl, domain):
                        target=op_args['domain'])
 
 
-def add_unique_identity(trxl, uuid):
-    """Add a unique identity to the database.
+def add_individual(trxl, uuid):
+    """Add an individual to the database.
 
-    This function adds a unique identity to the database with
+    This function adds an individual to the database with
     `uuid` string as unique identifier. This identifier cannot
     be empty or `None`.
 
-    When the unique identity is added, a new empty profile for
+    When the individual is added, a new empty profile for
     this object is created too.
 
-    As a result, the function returns a new `UniqueIdentity`
+    As a result, the function returns a new `Individual`
     object.
 
     :param trxl: TransactionsLog object from the method calling this one
-    :param uuid: unique identifier for the unique identity
+    :param uuid: unique identifier for the individual
 
-    :returns: a new unique identity
+    :returns: a new individual
 
     :raises ValueError: when `uuid` is `None` or an empty string
     """
@@ -336,61 +336,61 @@ def add_unique_identity(trxl, uuid):
 
     validate_field('uuid', uuid)
 
-    uidentity = UniqueIdentity(uuid=uuid)
+    individual = Individual(uuid=uuid)
 
     try:
-        uidentity.save(force_insert=True)
+        individual.save(force_insert=True)
     except django.db.utils.IntegrityError as exc:
-        _handle_integrity_error(UniqueIdentity, exc)
+        _handle_integrity_error(Individual, exc)
 
-    trxl.log_operation(op_type=Operation.OpType.ADD, entity_type='unique_identity',
+    trxl.log_operation(op_type=Operation.OpType.ADD, entity_type='individual',
                        timestamp=datetime_utcnow(), args=op_args,
                        target=op_args['uuid'])
 
-    profile = Profile(uidentity=uidentity)
+    profile = Profile(individual=individual)
 
     try:
         profile.save()
     except django.db.utils.IntegrityError as exc:
         _handle_integrity_error(Profile, exc)
 
-    uidentity.refresh_from_db()
+    individual.refresh_from_db()
 
-    return uidentity
+    return individual
 
 
-def delete_unique_identity(trxl, uidentity):
-    """Remove a unique identity from the database.
+def delete_individual(trxl, individual):
+    """Remove an individual from the database.
 
-    Function that removes from the database the unique identity
-    given in `uidentity`. Data related to this identity will be
-    also removed.
+    Function that removes from the database the individual
+    given in `individual`. Data related to it will be also
+    removed.
 
     :param trxl: TransactionsLog object from the method calling this one
-    :param uidentity: unique identity to remove
+    :param individual: individual to remove
     """
     # Setting operation arguments before they are modified
     op_args = {
-        'uidentity': uidentity.uuid
+        'individual': individual.uuid
     }
 
-    if uidentity.is_locked:
-        raise LockedIdentityError(uuid=uidentity.uuid)
+    if individual.is_locked:
+        raise LockedIdentityError(uuid=individual.uuid)
 
-    uidentity.delete()
+    individual.delete()
 
-    trxl.log_operation(op_type=Operation.OpType.DELETE, entity_type='unique_identity',
+    trxl.log_operation(op_type=Operation.OpType.DELETE, entity_type='individual',
                        timestamp=datetime_utcnow(), args=op_args,
-                       target=op_args['uidentity'])
+                       target=op_args['individual'])
 
 
-def add_identity(trxl, uidentity, identity_id, source,
+def add_identity(trxl, individual, identity_id, source,
                  name=None, email=None, username=None):
     """Add an identity to the database.
 
     This function adds a new identity to the database using
     `identity_id` as its identifier. The new identity will
-    also be linked to the unique identity object of `uidentity`.
+    also be linked to the individual object of `individual`.
 
     Neither the values given to `identity_id` nor to `source` can
     be `None` or empty. Moreover, `name`, `email` or `username`
@@ -399,7 +399,7 @@ def add_identity(trxl, uidentity, identity_id, source,
     As a result, the function returns a new `Identity` object.
 
     :param trxl: TransactionsLog object from the method calling this one
-    :param uidentity: links the new identity to this unique identity object
+    :param individual: links the new identity to this individual object
     :param identity_id: identifier for the new identity
     :param source: data source where this identity was found
     :param name: full name of the identity
@@ -413,7 +413,7 @@ def add_identity(trxl, uidentity, identity_id, source,
     """
     # Setting operation arguments before they are modified
     op_args = {
-        'uidentity': uidentity.uuid,
+        'individual': individual.uuid,
         'identity_id': identity_id,
         'source': source,
         'name': name,
@@ -421,8 +421,8 @@ def add_identity(trxl, uidentity, identity_id, source,
         'username': username
     }
 
-    if uidentity.is_locked:
-        raise LockedIdentityError(uuid=uidentity.uuid)
+    if individual.is_locked:
+        raise LockedIdentityError(uuid=individual.uuid)
 
     validate_field('identity_id', identity_id)
     validate_field('source', source)
@@ -436,15 +436,15 @@ def add_identity(trxl, uidentity, identity_id, source,
     try:
         identity = Identity(id=identity_id, name=name, email=email,
                             username=username, source=source,
-                            uidentity=uidentity)
+                            individual=individual)
         identity.save(force_insert=True)
-        uidentity.save()
+        individual.save()
     except django.db.utils.IntegrityError as exc:
         _handle_integrity_error(Identity, exc)
 
     trxl.log_operation(op_type=Operation.OpType.ADD, entity_type='identity',
                        timestamp=datetime_utcnow(), args=op_args,
-                       target=op_args['uidentity'])
+                       target=op_args['individual'])
 
     return identity
 
@@ -454,7 +454,7 @@ def delete_identity(trxl, identity):
 
     This function removes from the database the identity given
     in `identity`. Take into account this function does not
-    remove unique identities in the case they get empty.
+    remove individual in the case they get empty.
 
     :param trxl: TransactionsLog object from the method calling this one
     :param identity: identity to remove
@@ -464,42 +464,42 @@ def delete_identity(trxl, identity):
         'identity': identity.id
     }
 
-    if identity.uidentity.is_locked:
-        raise LockedIdentityError(uuid=identity.uidentity.uuid)
+    if identity.individual.is_locked:
+        raise LockedIdentityError(uuid=identity.individual.uuid)
 
     identity.delete()
-    identity.uidentity.save()
+    identity.individual.save()
 
     trxl.log_operation(op_type=Operation.OpType.DELETE, entity_type='identity',
                        timestamp=datetime_utcnow(), args=op_args,
                        target=op_args['identity'])
 
 
-def update_profile(trxl, uidentity, **kwargs):
-    """Update unique identity profile.
+def update_profile(trxl, individual, **kwargs):
+    """Update individual profile.
 
     This function allows to edit or update the profile information
-    of the given unique identity. The values to update are given
+    of the given individual. The values to update are given
     as keyword arguments. The allowed keys are listed below
     (other keywords will be ignored):
 
-       - `name`: name of the unique identity
-       - `email`: email address of the unique identity
-       - `gender`: gender of the unique identity
+       - `name`: name of the individual
+       - `email`: email address of the individual
+       - `gender`: gender of the individual
        - `gender_acc`: gender accuracy (range of 1 to 100; by default, set to 100)
-       - `is_bot`: boolean value to determine whether a unique identity is
+       - `is_bot`: boolean value to determine whether an individual is
              a bot or not. By default, this value is initialized to
              `False`.
        - `country_code`: ISO-3166 country code
 
-    As a result, it will return the `UniqueIdentity` object with
+    As a result, it will return the `Individual` object with
     the updated data.
 
     :param trxl: TransactionsLog object from the method calling this one
-    :param uidentity: unique identity whose profile will be updated
+    :param individual: individual whose profile will be updated
     :param kwargs: parameters to edit the profile
 
-    :returns: uidentity object with the updated profile
+    :returns: individual object with the updated profile
 
     :raises ValueError: raised either when `is_bot` does not have a boolean value;
         `gender_acc` is not an `int` or is not in range.
@@ -510,12 +510,12 @@ def update_profile(trxl, uidentity, **kwargs):
 
     # Setting operation arguments before they are modified
     op_args = copy.deepcopy(kwargs)
-    op_args.update({'uidentity': uidentity.uuid})
+    op_args.update({'individual': individual.uuid})
 
-    if uidentity.is_locked:
-        raise LockedIdentityError(uuid=uidentity.uuid)
+    if individual.is_locked:
+        raise LockedIdentityError(uuid=individual.uuid)
 
-    profile = uidentity.profile
+    profile = individual.profile
 
     if 'name' in kwargs:
         profile.name = to_none_if_empty(kwargs['name'])
@@ -563,22 +563,21 @@ def update_profile(trxl, uidentity, **kwargs):
         raise ValueError("'gender_acc' can only be set when 'gender' is given")
 
     profile.save()
-    uidentity.save()
+    individual.save()
 
     trxl.log_operation(op_type=Operation.OpType.UPDATE, entity_type='profile',
                        timestamp=datetime_utcnow(), args=op_args,
-                       target=op_args['uidentity'])
+                       target=op_args['individual'])
 
-    return uidentity
+    return individual
 
 
-def add_enrollment(trxl, uidentity, organization,
+def add_enrollment(trxl, individual, organization,
                    start=MIN_PERIOD_DATE, end=MAX_PERIOD_DATE):
-    """Enroll a unique identity to an organization in the database.
+    """Enroll an individual to an organization in the database.
 
-    The function adds a new relationship between the unique
-    identity in `uidentity` and the given `organization` to
-    the database.
+    The function adds a new relationship between the individual
+    in `individual` and the given `organization` to the database.
 
     The period of the enrollment can be given with the parameters
     `from_date` and `to_date`, where `from_date <= to_date`.
@@ -588,8 +587,8 @@ def add_enrollment(trxl, uidentity, organization,
     This function returns as result a new `Enrollment` object.
 
     :param trxl: TransactionsLog object from the method calling this one
-    :param uidentity: unique identity to enroll
-    :param organization: organization where the unique identity is enrolled
+    :param individual: individual to enroll
+    :param organization: organization where the individual is enrolled
     :param start: date when the enrollment starts
     :param end: date when the enrollment ends
 
@@ -601,14 +600,14 @@ def add_enrollment(trxl, uidentity, organization,
     """
     # Setting operation arguments before they are modified
     op_args = {
-        'uidentity': uidentity.uuid,
+        'individual': individual.uuid,
         'organization': organization.name,
         'start': copy.deepcopy(str(start)),
         'end': copy.deepcopy(str(end))
     }
 
-    if uidentity.is_locked:
-        raise LockedIdentityError(uuid=uidentity.uuid)
+    if individual.is_locked:
+        raise LockedIdentityError(uuid=individual.uuid)
 
     if not start:
         raise ValueError("'start' date cannot be None")
@@ -626,17 +625,17 @@ def add_enrollment(trxl, uidentity, organization,
         raise ValueError("'start' date {} cannot be greater than {}".format(start, end))
 
     try:
-        enrollment = Enrollment(uidentity=uidentity,
+        enrollment = Enrollment(individual=individual,
                                 organization=organization,
                                 start=start, end=end)
         enrollment.save()
-        uidentity.save()
+        individual.save()
     except django.db.utils.IntegrityError as exc:
         _handle_integrity_error(Identity, exc)
 
     trxl.log_operation(op_type=Operation.OpType.ADD, entity_type='enrollment',
                        timestamp=datetime_utcnow(), args=op_args,
-                       target=op_args['uidentity'])
+                       target=op_args['individual'])
 
     return enrollment
 
@@ -652,117 +651,117 @@ def delete_enrollment(trxl, enrollment):
     """
     # Setting operation arguments before they are modified
     op_args = {
-        'uuid': enrollment.uidentity.uuid,
+        'uuid': enrollment.individual.uuid,
         'organization': enrollment.organization.name,
         'start': str(enrollment.start),
         'end': str(enrollment.end)
     }
 
-    if enrollment.uidentity.is_locked:
-        raise LockedIdentityError(uuid=enrollment.uidentity.uuid)
+    if enrollment.individual.is_locked:
+        raise LockedIdentityError(uuid=enrollment.individual.uuid)
 
     enrollment.delete()
-    enrollment.uidentity.save()
+    enrollment.individual.save()
 
     trxl.log_operation(op_type=Operation.OpType.DELETE, entity_type='enrollment',
                        timestamp=datetime_utcnow(), args=op_args,
                        target=op_args['uuid'])
 
 
-def move_identity(trxl, identity, uidentity):
-    """Move an identity to a unique identity.
+def move_identity(trxl, identity, individual):
+    """Move an identity to an individual.
 
-    Shifts `identity` to the unique identity given in `uidentity`.
-    As a result, it will return `uidentity` object with list of
+    Shifts `identity` to the individual given in `individual`.
+    As a result, it will return `individual` object with list of
     identities updated.
 
-    When `identity` is already assigned to `uidentity`, the function
+    When `identity` is already assigned to `individual`, the function
     will raise an `ValueError` exception.
 
     :param trxl: TransactionsLog object from the method calling this one
     :param identity: identity to be moved
-    :param uidentity: unique identity where `identity` will be moved
+    :param individual: individual where `identity` will be moved
 
-    :returns: the unique identity with related identities updated
+    :returns: the individual with related identities updated
 
-    :raises ValueError: when `identity` is already part of `uidentity`
+    :raises ValueError: when `identity` is already part of `individual`
     """
     # Setting operation arguments before they are modified
     op_args = {
         'identity': identity.id,
-        'uidentity': uidentity.uuid
+        'individual': individual.uuid
     }
 
-    if identity.uidentity.is_locked:
-        raise LockedIdentityError(uuid=identity.uidentity.uuid)
-    if uidentity.is_locked:
-        raise LockedIdentityError(uuid=uidentity.uuid)
-    if identity.uidentity == uidentity:
-        msg = "identity '{}' is already assigned to '{}'".format(identity.id, uidentity.uuid)
+    if identity.individual.is_locked:
+        raise LockedIdentityError(uuid=identity.individual.uuid)
+    if individual.is_locked:
+        raise LockedIdentityError(uuid=individual.uuid)
+    if identity.individual == individual:
+        msg = "identity '{}' is already assigned to '{}'".format(identity.id, individual.uuid)
         raise ValueError(msg)
 
-    old_uidentity = identity.uidentity
-    identity.uidentity = uidentity
+    old_individual = identity.individual
+    identity.individual = individual
 
     identity.save()
-    old_uidentity.save()
-    uidentity.save()
+    old_individual.save()
+    individual.save()
 
     trxl.log_operation(op_type=Operation.OpType.UPDATE, entity_type='identity',
                        timestamp=datetime_utcnow(), args=op_args,
                        target=op_args['identity'])
 
-    return uidentity
+    return individual
 
 
-def lock(trxl, uidentity):
-    """Lock a given unique identity.
+def lock(trxl, individual):
+    """Lock a given individual.
 
-    Locks a given `uidentity` object so this object and its related objects
+    Locks a given `individual` object so this object and its related objects
     such as identities, enrollments or its profile cannot be modified.
 
     :param trxl: TransactionsLog object from the method calling this one
-    :param uidentity: unique identity which will be locked
+    :param individual: individual which will be locked
 
-    :returns: the unique identity with lock parameter updated
+    :returns: the individual with lock parameter updated
     """
     op_args = {
-        'uuid': uidentity.uuid,
+        'uuid': individual.uuid,
         'is_locked': True
     }
 
-    _set_lock(uidentity, True)
+    _set_lock(individual, True)
 
-    trxl.log_operation(op_type=Operation.OpType.UPDATE, entity_type='unique_identity',
+    trxl.log_operation(op_type=Operation.OpType.UPDATE, entity_type='individual',
                        timestamp=datetime_utcnow(), args=op_args,
                        target=op_args['uuid'])
 
-    return uidentity
+    return individual
 
 
-def unlock(trxl, uidentity):
-    """Unlock a given unique identity.
+def unlock(trxl, individual):
+    """Unlock a given individual.
 
-    Unlocks a given `uidentity` object so this object and its related objects
+    Unlocks a given `individual` object so this object and its related objects
     such as identities, enrollments or its profile can be modified.
 
     :param trxl: TransactionsLog object from the method calling this one
-    :param uidentity: unique identity which will be unlocked
+    :param individual: individual which will be unlocked
 
-    :returns: the unique identity with lock parameter updated
+    :returns: the individual with lock parameter updated
     """
     op_args = {
-        'uuid': uidentity.uuid,
+        'uuid': individual.uuid,
         'is_locked': False
     }
 
-    _set_lock(uidentity, False)
+    _set_lock(individual, False)
 
-    trxl.log_operation(op_type=Operation.OpType.UPDATE, entity_type='unique_identity',
+    trxl.log_operation(op_type=Operation.OpType.UPDATE, entity_type='individual',
                        timestamp=datetime_utcnow(), args=op_args,
                        target=op_args['uuid'])
 
-    return uidentity
+    return individual
 
 
 _MYSQL_DUPLICATE_ENTRY_ERROR_REGEX = re.compile(r"Duplicate entry '(?P<value>.+)' for key")
