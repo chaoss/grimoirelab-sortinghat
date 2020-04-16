@@ -65,6 +65,13 @@ String = sgqlc.types.String
 # Input Objects
 ########################################################################
 
+class CountryFilterType(sgqlc.types.Input):
+    __schema__ = sh_schema
+    __field_names__ = ('code', 'term',)
+    code = sgqlc.types.Field(String, graphql_name='code')
+    term = sgqlc.types.Field(String, graphql_name='term')
+
+
 class IdentityFilterType(sgqlc.types.Input):
     __schema__ = sh_schema
     __field_names__ = ('uuid', 'is_locked')
@@ -132,6 +139,13 @@ class AddOrganization(sgqlc.types.Type):
     __schema__ = sh_schema
     __field_names__ = ('organization',)
     organization = sgqlc.types.Field('OrganizationType', graphql_name='organization')
+
+
+class CountryPaginatedType(sgqlc.types.Type):
+    __schema__ = sh_schema
+    __field_names__ = ('entities', 'page_info')
+    entities = sgqlc.types.Field(sgqlc.types.list_of('CountryType'), graphql_name='entities')
+    page_info = sgqlc.types.Field('PaginationType', graphql_name='pageInfo')
 
 
 class CountryType(sgqlc.types.Type):
@@ -312,7 +326,14 @@ class ProfileType(sgqlc.types.Type):
 
 class Query(sgqlc.types.Type):
     __schema__ = sh_schema
-    __field_names__ = ('organizations', 'uidentities', 'transactions', 'operations')
+    __field_names__ = ('countries', 'organizations', 'uidentities', 'transactions', 'operations')
+    countries = sgqlc.types.Field(
+        CountryPaginatedType, graphql_name='countries', args=sgqlc.types.ArgDict((
+            ('page_size', sgqlc.types.Arg(Int, graphql_name='pageSize', default=None)),
+            ('page', sgqlc.types.Arg(Int, graphql_name='page', default=None)),
+            ('filters', sgqlc.types.Arg(CountryFilterType, graphql_name='filters', default=None)),
+        ))
+    )
     organizations = sgqlc.types.Field(
         OrganizationPaginatedType, graphql_name='organizations', args=sgqlc.types.ArgDict((
             ('page_size', sgqlc.types.Arg(Int, graphql_name='pageSize', default=None)),
