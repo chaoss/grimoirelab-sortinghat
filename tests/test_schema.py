@@ -46,7 +46,7 @@ from sortinghat.core.log import TransactionsLog
 from sortinghat.core.models import (Organization,
                                     Domain,
                                     Country,
-                                    UniqueIdentity,
+                                    Individual,
                                     Identity,
                                     Profile,
                                     Enrollment,
@@ -57,20 +57,20 @@ from sortinghat.core.schema import SortingHatQuery, SortingHatMutation
 
 DUPLICATED_ORG_ERROR = "Organization 'Example' already exists in the registry"
 DUPLICATED_DOM_ERROR = "Domain 'example.net' already exists in the registry"
-DUPLICATED_UNIQUE_IDENTITY = "UniqueIdentity 'eda9f62ad321b1fbe5f283cc05e2484516203117' already exists in the registry"
+DUPLICATED_INDIVIDUAL = "Individual 'eda9f62ad321b1fbe5f283cc05e2484516203117' already exists in the registry"
 DUPLICATED_ENROLLMENT_ERROR = "range date '{}'-'{}' is part of an existing range for {}"
 NAME_EMPTY_ERROR = "'name' cannot be an empty string"
 DOMAIN_NAME_EMPTY_ERROR = "'domain_name' cannot be an empty string"
 SOURCE_EMPTY_ERROR = "'source' cannot be an empty string"
 IDENTITY_EMPTY_DATA_ERROR = 'identity data cannot be empty'
 FROM_ID_EMPTY_ERROR = "'from_id' cannot be an empty string"
-FROM_ID_IS_UUID_ERROR = "'from_id' is a unique identity and it cannot be moved; use 'merge' instead"
+FROM_ID_IS_UUID_ERROR = "'from_id' is an individual and it cannot be moved; use 'merge' instead"
 FROM_UUID_EMPTY_ERROR = "'from_uuid' cannot be an empty string"
 FROM_UUIDS_EMPTY_ERROR = "'from_uuids' cannot be an empty list"
 TO_UUID_EMPTY_ERROR = "'to_uuid' cannot be an empty string"
 FROM_UUID_TO_UUID_EQUAL_ERROR = "'from_uuid' and 'to_uuid' cannot be equal"
 UUID_EMPTY_ERROR = "'uuid' cannot be an empty string"
-UUID_LOCKED_ERROR = "UniqueIdentity e8284285566fdc1f41c8a22bb84a295fc3c4cbb3 is locked"
+UUID_LOCKED_ERROR = "Individual e8284285566fdc1f41c8a22bb84a295fc3c4cbb3 is locked"
 UUIDS_EMPTY_ERROR = "'uuids' cannot be an empty list"
 ORG_DOES_NOT_EXIST_ERROR = "Organization matching query does not exist."
 DOMAIN_DOES_NOT_EXIST_ERROR = "Domain matching query does not exist."
@@ -185,8 +185,8 @@ SH_ORGS_QUERY_PAGINATION = """{
     }
   }
 }"""
-SH_UIDS_QUERY = """{
-  uidentities {
+SH_INDIVIDUALS_QUERY = """{
+  individuals {
     entities {
       uuid
       isLocked
@@ -217,8 +217,8 @@ SH_UIDS_QUERY = """{
     }
   }
 }"""
-SH_UIDS_UUID_FILTER = """{
-  uidentities(filters: {uuid: "a9b403e150dd4af8953a52a4bb841051e4b705d9"}) {
+SH_INDIVIDUALS_UUID_FILTER = """{
+  individuals(filters: {uuid: "a9b403e150dd4af8953a52a4bb841051e4b705d9"}) {
     entities {
       uuid
       isLocked
@@ -249,8 +249,8 @@ SH_UIDS_UUID_FILTER = """{
     }
   }
 }"""
-SH_UIDS_LOCKED_FILTER = """{
-  uidentities(filters: {isLocked: true}) {
+SH_INDIVIDUALS_LOCKED_FILTER = """{
+  individuals(filters: {isLocked: true}) {
     entities {
       uuid
       isLocked
@@ -281,8 +281,8 @@ SH_UIDS_LOCKED_FILTER = """{
     }
   }
 }"""
-SH_UIDS_UUID_PAGINATION = """{
-  uidentities(
+SH_INDIVIDUALS_UUID_PAGINATION = """{
+  individuals(
     page: %d
     pageSize: %d
   ){
@@ -1013,8 +1013,8 @@ class TestQueryOrganizations(django.test.TestCase):
         self.assertEqual(msg, AUTHENTICATION_ERROR)
 
 
-class TestUniqueIdentities(django.test.TestCase):
-    """Unit tests for unique identities queries"""
+class TestIndividuals(django.test.TestCase):
+    """Unit tests for individuals queries"""
 
     def setUp(self):
         """Set queries context"""
@@ -1023,8 +1023,8 @@ class TestUniqueIdentities(django.test.TestCase):
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
-    def test_unique_identities(self):
-        """Check if it returns the registry of unique identities"""
+    def test_individuals(self):
+        """Check if it returns the registry of individuals"""
 
         cn = Country.objects.create(code='US',
                                     name='United States of America',
@@ -1033,77 +1033,77 @@ class TestUniqueIdentities(django.test.TestCase):
         org_ex = Organization.objects.create(name='Example')
         org_bit = Organization.objects.create(name='Bitergia')
 
-        uid = UniqueIdentity.objects.create(uuid='a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        indv = Individual.objects.create(uuid='a9b403e150dd4af8953a52a4bb841051e4b705d9')
         Profile.objects.create(name=None,
                                email='jsmith@example.com',
                                is_bot=True,
                                gender='M',
                                country=cn,
-                               uidentity=uid)
+                               individual=indv)
         Identity.objects.create(id='A001',
                                 name='John Smith',
                                 email='jsmith@example.com',
                                 username='jsmith',
                                 source='scm',
-                                uidentity=uid)
+                                individual=indv)
         Identity.objects.create(id='A002',
                                 name=None,
                                 email='jsmith@bitergia.com',
                                 username=None,
                                 source='scm',
-                                uidentity=uid)
+                                individual=indv)
         Identity.objects.create(id='A003',
                                 name=None,
                                 email='jsmith@bitergia.com',
                                 username=None,
                                 source='mls',
-                                uidentity=uid)
-        Enrollment.objects.create(uidentity=uid, organization=org_ex)
-        Enrollment.objects.create(uidentity=uid, organization=org_bit,
+                                individual=indv)
+        Enrollment.objects.create(individual=indv, organization=org_ex)
+        Enrollment.objects.create(individual=indv, organization=org_bit,
                                   start=datetime.datetime(1999, 1, 1, 0, 0, 0,
                                                           tzinfo=dateutil.tz.tzutc()),
                                   end=datetime.datetime(2000, 1, 1, 0, 0, 0,
                                                         tzinfo=dateutil.tz.tzutc()))
 
-        uid = UniqueIdentity.objects.create(uuid='c6d2504fde0e34b78a185c4b709e5442d045451c')
+        indv = Individual.objects.create(uuid='c6d2504fde0e34b78a185c4b709e5442d045451c')
         Profile.objects.create(email=None,
                                is_bot=False,
                                gender='M',
                                country=None,
-                               uidentity=uid)
+                               individual=indv)
         Identity.objects.create(id='B001',
                                 name='John Doe',
                                 email='jdoe@example.com',
                                 username='jdoe',
                                 source='scm',
-                                uidentity=uid)
+                                individual=indv)
         Identity.objects.create(id='B002',
                                 name=None,
                                 email='jdoe@libresoft.es',
                                 username=None,
                                 source='scm',
-                                uidentity=uid)
+                                individual=indv)
 
         # Tests
         client = graphene.test.Client(schema)
-        executed = client.execute(SH_UIDS_QUERY,
+        executed = client.execute(SH_INDIVIDUALS_QUERY,
                                   context_value=self.context_value)
 
-        uidentities = executed['data']['uidentities']['entities']
-        self.assertEqual(len(uidentities), 2)
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 2)
 
-        # Test John Smith unique identity
-        uid = uidentities[0]
-        self.assertEqual(uid['uuid'], 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
-        self.assertEqual(uid['isLocked'], False)
+        # Test John Smith individual
+        indv = individuals[0]
+        self.assertEqual(indv['uuid'], 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        self.assertEqual(indv['isLocked'], False)
 
-        self.assertEqual(uid['profile']['name'], None)
-        self.assertEqual(uid['profile']['email'], 'jsmith@example.com')
-        self.assertEqual(uid['profile']['isBot'], True)
-        self.assertEqual(uid['profile']['country']['code'], 'US')
-        self.assertEqual(uid['profile']['country']['name'], 'United States of America')
+        self.assertEqual(indv['profile']['name'], None)
+        self.assertEqual(indv['profile']['email'], 'jsmith@example.com')
+        self.assertEqual(indv['profile']['isBot'], True)
+        self.assertEqual(indv['profile']['country']['code'], 'US')
+        self.assertEqual(indv['profile']['country']['name'], 'United States of America')
 
-        identities = uid['identities']
+        identities = indv['identities']
         identities.sort(key=lambda x: x['id'])
         self.assertEqual(len(identities), 3)
 
@@ -1118,7 +1118,7 @@ class TestUniqueIdentities(django.test.TestCase):
         self.assertEqual(id3['email'], 'jsmith@bitergia.com')
         self.assertEqual(id3['source'], 'mls')
 
-        enrollments = uid['enrollments']
+        enrollments = indv['enrollments']
         enrollments.sort(key=lambda x: x['organization']['name'])
         self.assertEqual(len(enrollments), 2)
 
@@ -1132,15 +1132,15 @@ class TestUniqueIdentities(django.test.TestCase):
         self.assertEqual(rol2['start'], '1900-01-01T00:00:00+00:00')
         self.assertEqual(rol2['end'], '2100-01-01T00:00:00+00:00')
 
-        # Test John Doe unique identity
-        uid = uidentities[1]
-        self.assertEqual(uid['uuid'], 'c6d2504fde0e34b78a185c4b709e5442d045451c')
-        self.assertEqual(uid['isLocked'], False)
+        # Test John Doe individual
+        indv = individuals[1]
+        self.assertEqual(indv['uuid'], 'c6d2504fde0e34b78a185c4b709e5442d045451c')
+        self.assertEqual(indv['isLocked'], False)
 
-        self.assertEqual(uid['profile']['name'], None)
-        self.assertEqual(uid['profile']['email'], None)
+        self.assertEqual(indv['profile']['name'], None)
+        self.assertEqual(indv['profile']['email'], None)
 
-        identities = uid['identities']
+        identities = indv['identities']
         identities.sort(key=lambda x: x['id'])
         self.assertEqual(len(identities), 2)
 
@@ -1150,18 +1150,18 @@ class TestUniqueIdentities(django.test.TestCase):
         id2 = identities[1]
         self.assertEqual(id2['email'], 'jdoe@libresoft.es')
 
-        enrollments = uid['enrollments']
+        enrollments = indv['enrollments']
         self.assertEqual(len(enrollments), 0)
 
     def test_empty_registry(self):
         """Check whether it returns an empty list when the registry is empty"""
 
         client = graphene.test.Client(schema)
-        executed = client.execute(SH_UIDS_QUERY,
+        executed = client.execute(SH_INDIVIDUALS_QUERY,
                                   context_value=self.context_value)
 
-        uids = executed['data']['uidentities']['entities']
-        self.assertListEqual(uids, [])
+        indvs = executed['data']['individuals']['entities']
+        self.assertListEqual(indvs, [])
 
     def test_filter_registry(self):
         """Check whether it returns the uuid searched when using uuid filter"""
@@ -1173,76 +1173,76 @@ class TestUniqueIdentities(django.test.TestCase):
         org_ex = Organization.objects.create(name='Example')
         org_bit = Organization.objects.create(name='Bitergia')
 
-        uid = UniqueIdentity.objects.create(uuid='a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        indv = Individual.objects.create(uuid='a9b403e150dd4af8953a52a4bb841051e4b705d9')
         Profile.objects.create(name=None,
                                email='jsmith@example.com',
                                is_bot=True,
                                gender='M',
                                country=cn,
-                               uidentity=uid)
+                               individual=indv)
         Identity.objects.create(id='A001',
                                 name='John Smith',
                                 email='jsmith@example.com',
                                 username='jsmith',
                                 source='scm',
-                                uidentity=uid)
+                                individual=indv)
         Identity.objects.create(id='A002',
                                 name=None,
                                 email='jsmith@bitergia.com',
                                 username=None,
                                 source='scm',
-                                uidentity=uid)
+                                individual=indv)
         Identity.objects.create(id='A003',
                                 name=None,
                                 email='jsmith@bitergia.com',
                                 username=None,
                                 source='mls',
-                                uidentity=uid)
-        Enrollment.objects.create(uidentity=uid, organization=org_ex)
-        Enrollment.objects.create(uidentity=uid, organization=org_bit,
+                                individual=indv)
+        Enrollment.objects.create(individual=indv, organization=org_ex)
+        Enrollment.objects.create(individual=indv, organization=org_bit,
                                   start=datetime.datetime(1999, 1, 1, 0, 0, 0,
                                                           tzinfo=dateutil.tz.tzutc()),
                                   end=datetime.datetime(2000, 1, 1, 0, 0, 0,
                                                         tzinfo=dateutil.tz.tzutc()))
 
-        uid = UniqueIdentity.objects.create(uuid='c6d2504fde0e34b78a185c4b709e5442d045451c')
+        indv = Individual.objects.create(uuid='c6d2504fde0e34b78a185c4b709e5442d045451c')
         Profile.objects.create(email=None,
                                is_bot=False,
                                gender='M',
                                country=None,
-                               uidentity=uid)
+                               individual=indv)
         Identity.objects.create(id='B001',
                                 name='John Doe',
                                 email='jdoe@example.com',
                                 username='jdoe',
                                 source='scm',
-                                uidentity=uid)
+                                individual=indv)
         Identity.objects.create(id='B002',
                                 name=None,
                                 email='jdoe@libresoft.es',
                                 username=None,
                                 source='scm',
-                                uidentity=uid)
+                                individual=indv)
 
         # Tests
         client = graphene.test.Client(schema)
-        executed = client.execute(SH_UIDS_UUID_FILTER,
+        executed = client.execute(SH_INDIVIDUALS_UUID_FILTER,
                                   context_value=self.context_value)
 
-        uidentities = executed['data']['uidentities']['entities']
-        self.assertEqual(len(uidentities), 1)
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 1)
 
-        # Test John Smith unique identity
-        uid = uidentities[0]
-        self.assertEqual(uid['uuid'], 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        # Test John Smith individual
+        indv = individuals[0]
+        self.assertEqual(indv['uuid'], 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
 
-        self.assertEqual(uid['profile']['name'], None)
-        self.assertEqual(uid['profile']['email'], 'jsmith@example.com')
-        self.assertEqual(uid['profile']['isBot'], True)
-        self.assertEqual(uid['profile']['country']['code'], 'US')
-        self.assertEqual(uid['profile']['country']['name'], 'United States of America')
+        self.assertEqual(indv['profile']['name'], None)
+        self.assertEqual(indv['profile']['email'], 'jsmith@example.com')
+        self.assertEqual(indv['profile']['isBot'], True)
+        self.assertEqual(indv['profile']['country']['code'], 'US')
+        self.assertEqual(indv['profile']['country']['name'], 'United States of America')
 
-        identities = uid['identities']
+        identities = indv['identities']
         identities.sort(key=lambda x: x['id'])
         self.assertEqual(len(identities), 3)
 
@@ -1257,7 +1257,7 @@ class TestUniqueIdentities(django.test.TestCase):
         self.assertEqual(id3['email'], 'jsmith@bitergia.com')
         self.assertEqual(id3['source'], 'mls')
 
-        enrollments = uid['enrollments']
+        enrollments = indv['enrollments']
         enrollments.sort(key=lambda x: x['organization']['name'])
         self.assertEqual(len(enrollments), 2)
 
@@ -1281,77 +1281,77 @@ class TestUniqueIdentities(django.test.TestCase):
         org_ex = Organization.objects.create(name='Example')
         org_bit = Organization.objects.create(name='Bitergia')
 
-        uid = UniqueIdentity.objects.create(uuid='a9b403e150dd4af8953a52a4bb841051e4b705d9', is_locked=True)
+        indv = Individual.objects.create(uuid='a9b403e150dd4af8953a52a4bb841051e4b705d9', is_locked=True)
         Profile.objects.create(name=None,
                                email='jsmith@example.com',
                                is_bot=True,
                                gender='M',
                                country=cn,
-                               uidentity=uid)
+                               individual=indv)
         Identity.objects.create(id='A001',
                                 name='John Smith',
                                 email='jsmith@example.com',
                                 username='jsmith',
                                 source='scm',
-                                uidentity=uid)
+                                individual=indv)
         Identity.objects.create(id='A002',
                                 name=None,
                                 email='jsmith@bitergia.com',
                                 username=None,
                                 source='scm',
-                                uidentity=uid)
+                                individual=indv)
         Identity.objects.create(id='A003',
                                 name=None,
                                 email='jsmith@bitergia.com',
                                 username=None,
                                 source='mls',
-                                uidentity=uid)
-        Enrollment.objects.create(uidentity=uid, organization=org_ex)
-        Enrollment.objects.create(uidentity=uid, organization=org_bit,
+                                individual=indv)
+        Enrollment.objects.create(individual=indv, organization=org_ex)
+        Enrollment.objects.create(individual=indv, organization=org_bit,
                                   start=datetime.datetime(1999, 1, 1, 0, 0, 0,
                                                           tzinfo=dateutil.tz.tzutc()),
                                   end=datetime.datetime(2000, 1, 1, 0, 0, 0,
                                                         tzinfo=dateutil.tz.tzutc()))
 
-        uid = UniqueIdentity.objects.create(uuid='c6d2504fde0e34b78a185c4b709e5442d045451c')
+        indv = Individual.objects.create(uuid='c6d2504fde0e34b78a185c4b709e5442d045451c')
         Profile.objects.create(email=None,
                                is_bot=False,
                                gender='M',
                                country=None,
-                               uidentity=uid)
+                               individual=indv)
         Identity.objects.create(id='B001',
                                 name='John Doe',
                                 email='jdoe@example.com',
                                 username='jdoe',
                                 source='scm',
-                                uidentity=uid)
+                                individual=indv)
         Identity.objects.create(id='B002',
                                 name=None,
                                 email='jdoe@libresoft.es',
                                 username=None,
                                 source='scm',
-                                uidentity=uid)
+                                individual=indv)
 
         # Tests
         client = graphene.test.Client(schema)
-        executed = client.execute(SH_UIDS_LOCKED_FILTER,
+        executed = client.execute(SH_INDIVIDUALS_LOCKED_FILTER,
                                   context_value=self.context_value)
 
-        uidentities = executed['data']['uidentities']['entities']
-        self.assertEqual(len(uidentities), 1)
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 1)
 
-        # Test John Smith unique identity
-        uid = uidentities[0]
-        self.assertEqual(uid['uuid'], 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
-        self.assertEqual(uid['isLocked'], True)
+        # Test John Smith individual
+        indv = individuals[0]
+        self.assertEqual(indv['uuid'], 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        self.assertEqual(indv['isLocked'], True)
 
-        self.assertEqual(uid['profile']['name'], None)
-        self.assertEqual(uid['profile']['email'], 'jsmith@example.com')
-        self.assertEqual(uid['profile']['isBot'], True)
-        self.assertEqual(uid['profile']['country']['code'], 'US')
-        self.assertEqual(uid['profile']['country']['name'], 'United States of America')
+        self.assertEqual(indv['profile']['name'], None)
+        self.assertEqual(indv['profile']['email'], 'jsmith@example.com')
+        self.assertEqual(indv['profile']['isBot'], True)
+        self.assertEqual(indv['profile']['country']['code'], 'US')
+        self.assertEqual(indv['profile']['country']['name'], 'United States of America')
 
-        identities = uid['identities']
+        identities = indv['identities']
         identities.sort(key=lambda x: x['id'])
         self.assertEqual(len(identities), 3)
 
@@ -1366,7 +1366,7 @@ class TestUniqueIdentities(django.test.TestCase):
         self.assertEqual(id3['email'], 'jsmith@bitergia.com')
         self.assertEqual(id3['source'], 'mls')
 
-        enrollments = uid['enrollments']
+        enrollments = indv['enrollments']
         enrollments.sort(key=lambda x: x['organization']['name'])
         self.assertEqual(len(enrollments), 2)
 
@@ -1383,54 +1383,54 @@ class TestUniqueIdentities(django.test.TestCase):
     def test_filter_non_exist_registry(self):
         """Check whether it returns an empty list when searched with a non existing uuid"""
 
-        uid = UniqueIdentity.objects.create(uuid='c6d2504fde0e34b78a185c4b709e5442d045451c')
+        indv = Individual.objects.create(uuid='c6d2504fde0e34b78a185c4b709e5442d045451c')
         Profile.objects.create(email=None,
                                is_bot=False,
                                gender='M',
                                country=None,
-                               uidentity=uid)
+                               individual=indv)
         Identity.objects.create(id='B001',
                                 name='John Doe',
                                 email='jdoe@example.com',
                                 username='jdoe',
                                 source='scm',
-                                uidentity=uid)
+                                individual=indv)
         Identity.objects.create(id='B002',
                                 name=None,
                                 email='jdoe@libresoft.es',
                                 username=None,
                                 source='scm',
-                                uidentity=uid)
+                                individual=indv)
 
         client = graphene.test.Client(schema)
-        executed = client.execute(SH_UIDS_UUID_FILTER,
+        executed = client.execute(SH_INDIVIDUALS_UUID_FILTER,
                                   context_value=self.context_value)
 
-        uids = executed['data']['uidentities']['entities']
-        self.assertListEqual(uids, [])
+        indvs = executed['data']['individuals']['entities']
+        self.assertListEqual(indvs, [])
 
     def test_pagination(self):
-        """Check whether it returns the unique identities searched when using pagination"""
+        """Check whether it returns the individuals searched when using pagination"""
 
-        uid1 = UniqueIdentity.objects.create(uuid='185c4b709e5446d250b4fde0e34b78a2b4fde0e3')
-        uid2 = UniqueIdentity.objects.create(uuid='a9b403e150dd4af8953a52a4bb841051e4b705d9')
-        uid3 = UniqueIdentity.objects.create(uuid='c6d2504fde0e34b78a185c4b709e5442d045451c')
+        indv1 = Individual.objects.create(uuid='185c4b709e5446d250b4fde0e34b78a2b4fde0e3')
+        indv2 = Individual.objects.create(uuid='a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        indv3 = Individual.objects.create(uuid='c6d2504fde0e34b78a185c4b709e5442d045451c')
 
         client = graphene.test.Client(schema)
-        test_query = SH_UIDS_UUID_PAGINATION % (1, 2)
+        test_query = SH_INDIVIDUALS_UUID_PAGINATION % (1, 2)
         executed = client.execute(test_query,
                                   context_value=self.context_value)
 
-        uids = executed['data']['uidentities']['entities']
-        self.assertEqual(len(uids), 2)
+        indvs = executed['data']['individuals']['entities']
+        self.assertEqual(len(indvs), 2)
 
-        uid = uids[0]
-        self.assertEqual(uid['uuid'], uid1.uuid)
+        indv = indvs[0]
+        self.assertEqual(indv['uuid'], indv1.uuid)
 
-        uid = uids[1]
-        self.assertEqual(uid['uuid'], uid2.uuid)
+        indv = indvs[1]
+        self.assertEqual(indv['uuid'], indv2.uuid)
 
-        pag_data = executed['data']['uidentities']['pageInfo']
+        pag_data = executed['data']['individuals']['pageInfo']
         self.assertEqual(len(pag_data), 8)
         self.assertEqual(pag_data['page'], 1)
         self.assertEqual(pag_data['pageSize'], 2)
@@ -1449,7 +1449,7 @@ class TestUniqueIdentities(django.test.TestCase):
 
         client = graphene.test.Client(schema)
 
-        executed = client.execute(SH_UIDS_QUERY,
+        executed = client.execute(SH_INDIVIDUALS_QUERY,
                                   context_value=context_value)
 
         msg = executed['errors'][0]['message']
@@ -1946,18 +1946,18 @@ class TestDeleteOrganizationMutation(django.test.TestCase):
                               organization=org_ex)
         org_bit = Organization.objects.create(name='Bitergia')
 
-        jsmith = UniqueIdentity.objects.create(uuid='AAAA')
+        jsmith = Individual.objects.create(uuid='AAAA')
         Profile.objects.create(name='John Smith',
                                email='jsmith@example.net',
-                               uidentity=jsmith)
-        Enrollment.objects.create(uidentity=jsmith, organization=org_ex)
+                               individual=jsmith)
+        Enrollment.objects.create(individual=jsmith, organization=org_ex)
 
-        jdoe = UniqueIdentity.objects.create(uuid='BBBB')
+        jdoe = Individual.objects.create(uuid='BBBB')
         Profile.objects.create(name='John Doe',
                                email='jdoe@bitergia.com',
-                               uidentity=jdoe)
-        Enrollment.objects.create(uidentity=jdoe, organization=org_ex)
-        Enrollment.objects.create(uidentity=jdoe, organization=org_bit)
+                               individual=jdoe)
+        Enrollment.objects.create(individual=jdoe, organization=org_ex)
+        Enrollment.objects.create(individual=jdoe, organization=org_bit)
 
         # Delete organization
         client = graphene.test.Client(schema)
@@ -2244,7 +2244,7 @@ class TestAddIdentityMutation(django.test.TestCase):
             username: $username
             uuid: $uuid) {
               uuid
-              uidentity {
+              individual {
                 uuid
                 identities {
                   id
@@ -2283,10 +2283,10 @@ class TestAddIdentityMutation(django.test.TestCase):
                                   variables=params)
 
         # Check results
-        uidentity = executed['data']['addIdentity']['uidentity']
-        self.assertEqual(uidentity['uuid'], 'eda9f62ad321b1fbe5f283cc05e2484516203117')
+        individual = executed['data']['addIdentity']['individual']
+        self.assertEqual(individual['uuid'], 'eda9f62ad321b1fbe5f283cc05e2484516203117')
 
-        identities = uidentity['identities']
+        identities = individual['identities']
         self.assertEqual(len(identities), 1)
 
         identity = identities[0]
@@ -2300,8 +2300,8 @@ class TestAddIdentityMutation(django.test.TestCase):
         self.assertEqual(uuid, 'eda9f62ad321b1fbe5f283cc05e2484516203117')
 
         # Check database
-        uidentity = UniqueIdentity.objects.get(uuid='eda9f62ad321b1fbe5f283cc05e2484516203117')
-        self.assertEqual(uidentity.uuid, identity['id'])
+        individual = Individual.objects.get(uuid='eda9f62ad321b1fbe5f283cc05e2484516203117')
+        self.assertEqual(individual.uuid, identity['id'])
 
         identities = Identity.objects.filter(id=identity['id'])
         self.assertEqual(len(identities), 1)
@@ -2313,12 +2313,12 @@ class TestAddIdentityMutation(django.test.TestCase):
         self.assertEqual(id0.username, identity['username'])
 
     def test_add_existing_uuid(self):
-        """Check it it adds an identity to an existing unique identity"""
+        """Check it it adds an identity to an existing individual"""
 
-        uidentity = UniqueIdentity.objects.create(uuid='eda9f62ad321b1fbe5f283cc05e2484516203117')
+        individual = Individual.objects.create(uuid='eda9f62ad321b1fbe5f283cc05e2484516203117')
         Identity.objects.create(id='eda9f62ad321b1fbe5f283cc05e2484516203117', source='scm',
                                 name='Jane Roe', email='jroe@example.com', username='jrae',
-                                uidentity=uidentity)
+                                individual=individual)
 
         client = graphene.test.Client(schema)
 
@@ -2334,10 +2334,10 @@ class TestAddIdentityMutation(django.test.TestCase):
                                   variables=params)
 
         # Check results
-        uidentity = executed['data']['addIdentity']['uidentity']
-        self.assertEqual(uidentity['uuid'], 'eda9f62ad321b1fbe5f283cc05e2484516203117')
+        individual = executed['data']['addIdentity']['individual']
+        self.assertEqual(individual['uuid'], 'eda9f62ad321b1fbe5f283cc05e2484516203117')
 
-        identities = uidentity['identities']
+        identities = individual['identities']
         self.assertEqual(len(identities), 2)
 
         identity = identities[0]
@@ -2351,11 +2351,11 @@ class TestAddIdentityMutation(django.test.TestCase):
         self.assertEqual(uuid, '55d88f85a41f3a9afa4dc9d4dfb6009c62f42fe3')
 
         # Check database
-        identities = Identity.objects.filter(uidentity__uuid='eda9f62ad321b1fbe5f283cc05e2484516203117')
+        identities = Identity.objects.filter(individual__uuid='eda9f62ad321b1fbe5f283cc05e2484516203117')
         self.assertEqual(len(identities), 2)
 
     def test_non_existing_uuid(self):
-        """Check if it fails adding identities to unique identities that do not exist"""
+        """Check if it fails adding identities to individuals that do not exist"""
 
         client = graphene.test.Client(schema)
 
@@ -2374,10 +2374,10 @@ class TestAddIdentityMutation(django.test.TestCase):
     def test_integrity_error(self):
         """Check if it fails adding an identity that already exists"""
 
-        uidentity = UniqueIdentity.objects.create(uuid='eda9f62ad321b1fbe5f283cc05e2484516203117')
+        individual = Individual.objects.create(uuid='eda9f62ad321b1fbe5f283cc05e2484516203117')
         Identity.objects.create(id='eda9f62ad321b1fbe5f283cc05e2484516203117', source='scm',
                                 name='Jane Roe', email='jroe@example.com', username='jrae',
-                                uidentity=uidentity)
+                                individual=individual)
 
         client = graphene.test.Client(schema)
 
@@ -2392,7 +2392,7 @@ class TestAddIdentityMutation(django.test.TestCase):
                                   context_value=self.context_value,
                                   variables=params)
         msg = executed['errors'][0]['message']
-        self.assertEqual(msg, DUPLICATED_UNIQUE_IDENTITY)
+        self.assertEqual(msg, DUPLICATED_INDIVIDUAL)
 
         # Different case letters, but same identity
         params = {
@@ -2405,7 +2405,7 @@ class TestAddIdentityMutation(django.test.TestCase):
                                   context_value=self.context_value,
                                   variables=params)
         msg = executed['errors'][0]['message']
-        self.assertEqual(msg, DUPLICATED_UNIQUE_IDENTITY)
+        self.assertEqual(msg, DUPLICATED_INDIVIDUAL)
 
         # Different accents, but same identity
         params = {
@@ -2418,7 +2418,7 @@ class TestAddIdentityMutation(django.test.TestCase):
                                   context_value=self.context_value,
                                   variables=params)
         msg = executed['errors'][0]['message']
-        self.assertEqual(msg, DUPLICATED_UNIQUE_IDENTITY)
+        self.assertEqual(msg, DUPLICATED_INDIVIDUAL)
 
     def test_empty_source(self):
         """Check whether new identities cannot be added when giving an empty source"""
@@ -2463,7 +2463,7 @@ class TestAddIdentityMutation(django.test.TestCase):
         self.assertEqual(msg, IDENTITY_EMPTY_DATA_ERROR)
 
     def test_locked_uuid(self):
-        """Check if it fails when the unique identity is locked"""
+        """Check if it fails when the individual is locked"""
 
         client = graphene.test.Client(schema)
 
@@ -2511,7 +2511,7 @@ class TestDeleteIdentityMutation(django.test.TestCase):
       mutation delId($uuid: String) {
         deleteIdentity(uuid: $uuid) {
           uuid
-          uidentity {
+          individual {
             uuid
             identities {
               id
@@ -2549,20 +2549,20 @@ class TestDeleteIdentityMutation(django.test.TestCase):
                          name='John Smith',
                          email='jsmith@example',
                          uuid=jsmith.id)
-        Enrollment.objects.create(uidentity=jsmith.uidentity,
+        Enrollment.objects.create(individual=jsmith.individual,
                                   organization=example_org)
-        Enrollment.objects.create(uidentity=jsmith.uidentity,
+        Enrollment.objects.create(individual=jsmith.individual,
                                   organization=bitergia_org)
 
         jdoe = api.add_identity(self.ctx, 'scm', email='jdoe@example')
-        Enrollment.objects.create(uidentity=jdoe.uidentity,
+        Enrollment.objects.create(individual=jdoe.individual,
                                   organization=example_org)
 
         jrae = api.add_identity(self.ctx,
                                 'scm',
                                 name='Jane Rae',
                                 email='jrae@example')
-        Enrollment.objects.create(uidentity=jrae.uidentity,
+        Enrollment.objects.create(individual=jrae.individual,
                                   organization=libresoft_org)
 
     def test_delete_identity(self):
@@ -2578,11 +2578,11 @@ class TestDeleteIdentityMutation(django.test.TestCase):
                                   variables=params)
 
         # Check results, only one identity remains
-        uidentity = executed['data']['deleteIdentity']['uidentity']
-        self.assertEqual(uidentity['uuid'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
-        self.assertEqual(len(uidentity['identities']), 1)
+        individual = executed['data']['deleteIdentity']['individual']
+        self.assertEqual(individual['uuid'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(len(individual['identities']), 1)
 
-        identity = uidentity['identities'][0]
+        identity = individual['identities'][0]
         self.assertEqual(identity['source'], 'scm')
         self.assertEqual(identity['name'], None)
         self.assertEqual(identity['email'], 'jsmith@example')
@@ -2594,8 +2594,8 @@ class TestDeleteIdentityMutation(django.test.TestCase):
 
         # Check database
         with self.assertRaises(django.core.exceptions.ObjectDoesNotExist):
-            uidentity = UniqueIdentity.objects.get(uuid='eda9f62ad321b1fbe5f283cc05e2484516203117')
-            self.assertEqual(uidentity.uuid, identity['id'])
+            individual = Individual.objects.get(uuid='eda9f62ad321b1fbe5f283cc05e2484516203117')
+            self.assertEqual(individual.uuid, identity['id'])
 
         identities = Identity.objects.filter(id=identity['id'])
         self.assertEqual(len(identities), 1)
@@ -2606,8 +2606,8 @@ class TestDeleteIdentityMutation(django.test.TestCase):
         self.assertEqual(id0.email, identity['email'])
         self.assertEqual(id0.username, identity['username'])
 
-    def test_delete_unique_identity(self):
-        """Check if everything goes OK when deleting unique identities"""
+    def test_delete_individual(self):
+        """Check if everything goes OK when deleting individuals"""
 
         client = graphene.test.Client(schema)
 
@@ -2619,18 +2619,18 @@ class TestDeleteIdentityMutation(django.test.TestCase):
                                   variables=params)
 
         # Check results
-        uidentity = executed['data']['deleteIdentity']['uidentity']
-        self.assertEqual(uidentity, None)
+        individual = executed['data']['deleteIdentity']['individual']
+        self.assertEqual(individual, None)
 
         uuid = executed['data']['deleteIdentity']['uuid']
         self.assertEqual(uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
         # Check database
         with self.assertRaises(django.core.exceptions.ObjectDoesNotExist):
-            UniqueIdentity.objects.get(uuid='eda9f62ad321b1fbe5f283cc05e2484516203117')
+            Individual.objects.get(uuid='eda9f62ad321b1fbe5f283cc05e2484516203117')
 
     def test_non_existing_uuid(self):
-        """Check if it fails removing identities or unique identities that do not exist"""
+        """Check if it fails removing identities or individuals that do not exist"""
 
         client = graphene.test.Client(schema)
 
@@ -2658,7 +2658,7 @@ class TestDeleteIdentityMutation(django.test.TestCase):
         self.assertEqual(msg, UUID_EMPTY_ERROR)
 
     def test_locked_uuid(self):
-        """Check if it fails when the unique identity is locked"""
+        """Check if it fails when the individual is locked"""
 
         client = graphene.test.Client(schema)
 
@@ -2701,7 +2701,7 @@ class TestLockIdentityMutation(django.test.TestCase):
           mutation lockId($uuid: String) {
             lockIdentity(uuid: $uuid) {
               uuid
-              uidentity {
+              individual {
                 uuid
                 isLocked
               }
@@ -2722,7 +2722,7 @@ class TestLockIdentityMutation(django.test.TestCase):
         self.trxl = TransactionsLog.open('lock', self.ctx)
 
     def test_lock(self):
-        """Check if everything goes OK when locking a unique identity"""
+        """Check if everything goes OK when locking an individual"""
 
         api.add_identity(self.ctx, 'scm', email='jsmith@example')
 
@@ -2739,9 +2739,9 @@ class TestLockIdentityMutation(django.test.TestCase):
         uuid = executed['data']['lockIdentity']['uuid']
         self.assertEqual(uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
-        uidentity = executed['data']['lockIdentity']['uidentity']
-        self.assertEqual(uidentity['uuid'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
-        self.assertEqual(uidentity['isLocked'], True)
+        individual = executed['data']['lockIdentity']['individual']
+        self.assertEqual(individual['uuid'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(individual['isLocked'], True)
 
     def test_non_existing_uuid(self):
         """Check if it fails when the uuid does not exists"""
@@ -2805,7 +2805,7 @@ class TestUnlockIdentityMutation(django.test.TestCase):
           mutation unlockId($uuid: String) {
             unlockIdentity(uuid: $uuid) {
               uuid
-              uidentity {
+              individual {
                 uuid
                 isLocked
               }
@@ -2826,7 +2826,7 @@ class TestUnlockIdentityMutation(django.test.TestCase):
         self.trxl = TransactionsLog.open('lock', self.ctx)
 
     def test_unlock(self):
-        """Check if everything goes OK when unlocking a unique identity"""
+        """Check if everything goes OK when unlocking an individual"""
 
         api.add_identity(self.ctx, 'scm', email='jsmith@example')
 
@@ -2843,9 +2843,9 @@ class TestUnlockIdentityMutation(django.test.TestCase):
         uuid = executed['data']['unlockIdentity']['uuid']
         self.assertEqual(uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
-        uidentity = executed['data']['unlockIdentity']['uidentity']
-        self.assertEqual(uidentity['uuid'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
-        self.assertEqual(uidentity['isLocked'], False)
+        individual = executed['data']['unlockIdentity']['individual']
+        self.assertEqual(individual['uuid'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(individual['isLocked'], False)
 
     def test_non_existing_uuid(self):
         """Check if it fails when the uuid does not exists"""
@@ -2909,7 +2909,7 @@ class TestUpdateProfileMutation(django.test.TestCase):
       mutation editProfile($uuid: String, $data: ProfileInputType) {
         updateProfile(uuid: $uuid, data: $data) {
           uuid
-          uidentity {
+          individual {
             uuid
             profile {
               name
@@ -2966,7 +2966,7 @@ class TestUpdateProfileMutation(django.test.TestCase):
                                   variables=params)
 
         # Check results, profile was updated
-        profile = executed['data']['updateProfile']['uidentity']['profile']
+        profile = executed['data']['updateProfile']['individual']['profile']
         self.assertEqual(profile['name'], 'John Smith')
         self.assertEqual(profile['email'], 'jsmith@example.net')
         self.assertEqual(profile['isBot'], True)
@@ -2979,8 +2979,8 @@ class TestUpdateProfileMutation(django.test.TestCase):
         self.assertEqual(uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
         # Check database
-        uidentity = UniqueIdentity.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
-        profile = uidentity.profile
+        individual = Individual.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        profile = individual.profile
         self.assertEqual(profile.name, 'John Smith')
         self.assertEqual(profile.email, 'jsmith@example.net')
         self.assertEqual(profile.is_bot, True)
@@ -2990,7 +2990,7 @@ class TestUpdateProfileMutation(django.test.TestCase):
         self.assertEqual(profile.country.name, 'United States of America')
 
     def test_non_existing_uuid(self):
-        """Check if it fails updating profiles of unique identities that do not exist"""
+        """Check if it fails updating profiles of individuals that do not exist"""
 
         client = graphene.test.Client(schema)
 
@@ -3023,12 +3023,12 @@ class TestUpdateProfileMutation(django.test.TestCase):
                                   context_value=self.context_value,
                                   variables=params)
 
-        profile = executed['data']['updateProfile']['uidentity']['profile']
+        profile = executed['data']['updateProfile']['individual']['profile']
         self.assertEqual(profile['name'], None)
         self.assertEqual(profile['email'], None)
 
     def test_locked_uuid(self):
-        """Check if it fails when the unique identity is locked"""
+        """Check if it fails when the individual is locked"""
 
         client = graphene.test.Client(schema)
 
@@ -3087,7 +3087,7 @@ class TestMoveIdentityMutation(django.test.TestCase):
       mutation moveId($fromID: String, $toUUID: String) {
         moveIdentity(fromId: $fromID, toUuid: $toUUID) {
           uuid
-          uidentity {
+          individual {
             uuid
             identities {
               id
@@ -3124,7 +3124,7 @@ class TestMoveIdentityMutation(django.test.TestCase):
                          uuid=jsmith2.id)
 
     def test_move_identity(self):
-        """Test whether an identity is moved to a unique identity"""
+        """Test whether an identity is moved to an individual"""
 
         client = graphene.test.Client(schema)
 
@@ -3137,7 +3137,7 @@ class TestMoveIdentityMutation(django.test.TestCase):
                                   variables=params)
 
         # Check results, identity was moved
-        identities = executed['data']['moveIdentity']['uidentity']['identities']
+        identities = executed['data']['moveIdentity']['individual']['identities']
 
         self.assertEqual(len(identities), 3)
 
@@ -3160,8 +3160,8 @@ class TestMoveIdentityMutation(django.test.TestCase):
         self.assertEqual(uuid, '03877f31261a6d1a1b3971d240e628259364b8ac')
 
         # Check database objects
-        uidentity_db = UniqueIdentity.objects.get(uuid='334da68fcd3da4e799791f73dfada2afb22648c6')
-        identities_db = uidentity_db.identities.all()
+        individual_db = Individual.objects.get(uuid='334da68fcd3da4e799791f73dfada2afb22648c6')
+        identities_db = individual_db.identities.all()
         self.assertEqual(len(identities_db), 1)
 
         identity_db = identities_db[0]
@@ -3169,8 +3169,8 @@ class TestMoveIdentityMutation(django.test.TestCase):
         self.assertEqual(identity_db.name, None)
         self.assertEqual(identity_db.email, 'jsmith@example.com')
 
-        uidentity_db = UniqueIdentity.objects.get(uuid='03877f31261a6d1a1b3971d240e628259364b8ac')
-        identities_db = uidentity_db.identities.all()
+        individual_db = Individual.objects.get(uuid='03877f31261a6d1a1b3971d240e628259364b8ac')
+        identities_db = individual_db.identities.all()
         self.assertEqual(len(identities_db), 3)
 
         identity_db = identities_db[0]
@@ -3188,8 +3188,8 @@ class TestMoveIdentityMutation(django.test.TestCase):
         self.assertEqual(identity_db.name, 'John Smith')
         self.assertEqual(identity_db.email, 'jsmith@example.com')
 
-    def test_equal_related_unique_identity(self):
-        """Check if identities are not moved when 'to_uuid' is the unique identity related to 'from_id'"""
+    def test_equal_related_individual(self):
+        """Check if identities are not moved when 'to_uuid' is the individual related to 'from_id'"""
 
         client = graphene.test.Client(schema)
 
@@ -3202,7 +3202,7 @@ class TestMoveIdentityMutation(django.test.TestCase):
                                   variables=params)
 
         # Check results, identity was not moved
-        identities = executed['data']['moveIdentity']['uidentity']['identities']
+        identities = executed['data']['moveIdentity']['individual']['identities']
 
         self.assertEqual(len(identities), 2)
 
@@ -3220,8 +3220,8 @@ class TestMoveIdentityMutation(django.test.TestCase):
         self.assertEqual(uuid, '334da68fcd3da4e799791f73dfada2afb22648c6')
 
         # Check database objects
-        uidentity_db = UniqueIdentity.objects.get(uuid='334da68fcd3da4e799791f73dfada2afb22648c6')
-        identities_db = uidentity_db.identities.all()
+        individual_db = Individual.objects.get(uuid='334da68fcd3da4e799791f73dfada2afb22648c6')
+        identities_db = individual_db.identities.all()
         self.assertEqual(len(identities_db), 2)
 
         identity_db = identities_db[0]
@@ -3230,8 +3230,8 @@ class TestMoveIdentityMutation(django.test.TestCase):
         identity_db = identities_db[1]
         self.assertEqual(identity_db.id, '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
 
-        uidentity_db = UniqueIdentity.objects.get(uuid='03877f31261a6d1a1b3971d240e628259364b8ac')
-        identities_db = uidentity_db.identities.all()
+        individual_db = Individual.objects.get(uuid='03877f31261a6d1a1b3971d240e628259364b8ac')
+        identities_db = individual_db.identities.all()
         self.assertEqual(len(identities_db), 2)
 
         identity_db = identities_db[0]
@@ -3240,8 +3240,8 @@ class TestMoveIdentityMutation(django.test.TestCase):
         identity_db = identities_db[1]
         self.assertEqual(identity_db.id, '0880dc4e621877e8520cef1747d139dd4f9f110e')
 
-    def test_create_new_unique_identity(self):
-        """Check if a new unique identity is created when 'from_id' has the same value of 'to_uuid'"""
+    def test_create_new_individual(self):
+        """Check if a new individual is created when 'from_id' has the same value of 'to_uuid'"""
 
         client = graphene.test.Client(schema)
 
@@ -3253,9 +3253,9 @@ class TestMoveIdentityMutation(django.test.TestCase):
                                   context_value=self.context_value,
                                   variables=params)
 
-        # This will create a new unique identity,
-        # moving the identity to this new unique identity
-        identities = executed['data']['moveIdentity']['uidentity']['identities']
+        # This will create a new individual,
+        # moving the identity to this new individual
+        identities = executed['data']['moveIdentity']['individual']['identities']
 
         self.assertEqual(len(identities), 1)
 
@@ -3268,8 +3268,8 @@ class TestMoveIdentityMutation(django.test.TestCase):
         self.assertEqual(uuid, '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
 
         # Check database objects
-        uidentity_db = UniqueIdentity.objects.get(uuid='334da68fcd3da4e799791f73dfada2afb22648c6')
-        identities_db = uidentity_db.identities.all()
+        individual_db = Individual.objects.get(uuid='334da68fcd3da4e799791f73dfada2afb22648c6')
+        identities_db = individual_db.identities.all()
         self.assertEqual(len(identities_db), 1)
 
         identity_db = identities_db[0]
@@ -3277,8 +3277,8 @@ class TestMoveIdentityMutation(django.test.TestCase):
         self.assertEqual(identity_db.name, None)
         self.assertEqual(identity_db.email, 'jsmith@example.com')
 
-        uidentity_db = UniqueIdentity.objects.get(uuid='880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
-        identities_db = uidentity_db.identities.all()
+        individual_db = Individual.objects.get(uuid='880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
+        identities_db = individual_db.identities.all()
         self.assertEqual(len(identities_db), 1)
 
         identity_db = identities_db[0]
@@ -3286,8 +3286,8 @@ class TestMoveIdentityMutation(django.test.TestCase):
         self.assertEqual(identity_db.name, 'John Smith')
         self.assertEqual(identity_db.email, 'jsmith@example.com')
 
-        uidentity_db = UniqueIdentity.objects.get(uuid='03877f31261a6d1a1b3971d240e628259364b8ac')
-        identities_db = uidentity_db.identities.all()
+        individual_db = Individual.objects.get(uuid='03877f31261a6d1a1b3971d240e628259364b8ac')
+        identities_db = individual_db.identities.all()
         self.assertEqual(len(identities_db), 2)
 
         identity_db = identities_db[0]
@@ -3300,8 +3300,8 @@ class TestMoveIdentityMutation(django.test.TestCase):
         self.assertEqual(identity_db.name, 'J. Smith')
         self.assertEqual(identity_db.email, 'jsmith@example.org')
 
-    def test_from_id_is_unique_identity(self):
-        """Test whether it fails when 'from_id' is a unique identity"""
+    def test_from_id_is_individual(self):
+        """Test whether it fails when 'from_id' is an individual"""
 
         client = graphene.test.Client(schema)
 
@@ -3333,7 +3333,7 @@ class TestMoveIdentityMutation(django.test.TestCase):
         self.assertEqual(msg, UID_DOES_NOT_EXIST_ERROR)
 
     def test_not_found_to_identity(self):
-        """Test whether it fails when 'to_uuid' unique identity is not found"""
+        """Test whether it fails when 'to_uuid' individual is not found"""
 
         client = graphene.test.Client(schema)
 
@@ -3381,7 +3381,7 @@ class TestMoveIdentityMutation(django.test.TestCase):
         self.assertEqual(msg, TO_UUID_EMPTY_ERROR)
 
     def test_locked_uuid(self):
-        """Check if it fails when the unique identity is locked"""
+        """Check if it fails when the individual is locked"""
 
         client = graphene.test.Client(schema)
 
@@ -3430,7 +3430,7 @@ class TestEnrollMutation(django.test.TestCase):
                fromDate: $fromDate, toDate: $toDate,
                force: $force) {
           uuid
-          uidentity {
+          individual {
             uuid
             enrollments {
               organization {
@@ -3467,7 +3467,7 @@ class TestEnrollMutation(django.test.TestCase):
                    to_date=datetime.datetime(2006, 1, 1))
 
     def test_enroll(self):
-        """Check if it enrolls a unique identity"""
+        """Check if it enrolls an individual"""
 
         client = graphene.test.Client(schema)
 
@@ -3482,7 +3482,7 @@ class TestEnrollMutation(django.test.TestCase):
                                   variables=params)
 
         # Check results, profile was updated
-        enrollments = executed['data']['enroll']['uidentity']['enrollments']
+        enrollments = executed['data']['enroll']['individual']['enrollments']
 
         self.assertEqual(len(enrollments), 3)
 
@@ -3505,13 +3505,13 @@ class TestEnrollMutation(django.test.TestCase):
         self.assertEqual(uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
         # Check database
-        uidentity = UniqueIdentity.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        individual = Individual.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
-        enrollments_db = uidentity.enrollments.all()
+        enrollments_db = individual.enrollments.all()
         self.assertEqual(len(enrollments_db), 3)
 
     def test_enroll_ignore_default(self):
-        """Check if it enrolls a unique identity ignoring default dates"""
+        """Check if it enrolls an individual ignoring default dates"""
 
         client = graphene.test.Client(schema)
 
@@ -3526,7 +3526,7 @@ class TestEnrollMutation(django.test.TestCase):
                                   variables=params)
 
         # Checking results with default dates
-        enrollments = executed['data']['enroll']['uidentity']['enrollments']
+        enrollments = executed['data']['enroll']['individual']['enrollments']
 
         self.assertEqual(len(enrollments), 3)
 
@@ -3549,9 +3549,9 @@ class TestEnrollMutation(django.test.TestCase):
         self.assertEqual(uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
         # Check database
-        uidentity = UniqueIdentity.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        individual = Individual.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
-        enrollments_db = uidentity.enrollments.all()
+        enrollments_db = individual.enrollments.all()
         self.assertEqual(len(enrollments_db), 3)
 
         params = {
@@ -3566,7 +3566,7 @@ class TestEnrollMutation(django.test.TestCase):
                                   variables=params)
 
         # Checking results with updated dates
-        enrollments = executed['data']['enroll']['uidentity']['enrollments']
+        enrollments = executed['data']['enroll']['individual']['enrollments']
 
         self.assertEqual(len(enrollments), 3)
 
@@ -3589,9 +3589,9 @@ class TestEnrollMutation(django.test.TestCase):
         self.assertEqual(uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
         # Check database
-        uidentity = UniqueIdentity.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        individual = Individual.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
-        enrollments_db = uidentity.enrollments.all()
+        enrollments_db = individual.enrollments.all()
         self.assertEqual(len(enrollments_db), 3)
 
     def test_merge_enrollments(self):
@@ -3610,7 +3610,7 @@ class TestEnrollMutation(django.test.TestCase):
                                   variables=params)
 
         # Check results, profile was updated
-        enrollments = executed['data']['enroll']['uidentity']['enrollments']
+        enrollments = executed['data']['enroll']['individual']['enrollments']
 
         self.assertEqual(len(enrollments), 1)
 
@@ -3623,13 +3623,13 @@ class TestEnrollMutation(django.test.TestCase):
         self.assertEqual(uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
         # Check database
-        uidentity = UniqueIdentity.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        individual = Individual.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
-        enrollments_db = uidentity.enrollments.all()
+        enrollments_db = individual.enrollments.all()
         self.assertEqual(len(enrollments_db), 1)
 
     def test_non_existing_uuid(self):
-        """Check if it fails when the unique identity does not exist"""
+        """Check if it fails when the individual does not exist"""
 
         client = graphene.test.Client(schema)
 
@@ -3682,7 +3682,7 @@ class TestEnrollMutation(django.test.TestCase):
                                   variables=params)
 
         # Checking results with default dates
-        enrollments = executed['data']['enroll']['uidentity']['enrollments']
+        enrollments = executed['data']['enroll']['individual']['enrollments']
 
         self.assertEqual(len(enrollments), 3)
 
@@ -3742,7 +3742,7 @@ class TestEnrollMutation(django.test.TestCase):
         self.assertEqual(msg, err)
 
     def test_locked_uuid(self):
-        """Check if it fails when the unique identity is locked"""
+        """Check if it fails when the individual is locked"""
 
         client = graphene.test.Client(schema)
 
@@ -3793,7 +3793,7 @@ class TestWithdrawMutation(django.test.TestCase):
         withdraw(uuid: $uuid, organization: $organization
                  fromDate: $fromDate, toDate: $toDate) {
           uuid
-          uidentity {
+          individual {
             uuid
             enrollments {
               organization {
@@ -3847,7 +3847,7 @@ class TestWithdrawMutation(django.test.TestCase):
                    to_date=datetime.datetime(2014, 1, 1))
 
     def test_withdraw(self):
-        """Check if it withdraws a unique identity from an organization"""
+        """Check if it withdraws an individual from an organization"""
 
         client = graphene.test.Client(schema)
 
@@ -3862,7 +3862,7 @@ class TestWithdrawMutation(django.test.TestCase):
                                   variables=params)
 
         # Check results, enrollments were updated
-        enrollments = executed['data']['withdraw']['uidentity']['enrollments']
+        enrollments = executed['data']['withdraw']['individual']['enrollments']
 
         self.assertEqual(len(enrollments), 3)
 
@@ -3885,18 +3885,18 @@ class TestWithdrawMutation(django.test.TestCase):
         self.assertEqual(uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
         # Check database
-        uidentity = UniqueIdentity.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        individual = Individual.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
-        enrollments_db = uidentity.enrollments.all()
+        enrollments_db = individual.enrollments.all()
         self.assertEqual(len(enrollments_db), 3)
 
         # Other enrollments were not deleted
-        uidentity_db = UniqueIdentity.objects.get(uuid='3283e58cef2b80007aa1dfc16f6dd20ace1aee96')
-        enrollments_db = uidentity_db.enrollments.all()
+        individual_db = Individual.objects.get(uuid='3283e58cef2b80007aa1dfc16f6dd20ace1aee96')
+        enrollments_db = individual_db.enrollments.all()
         self.assertEqual(len(enrollments_db), 1)
 
     def test_withdraw_default_ranges(self):
-        """Check if it withdraws a unique identity using default ranges when they are not given"""
+        """Check if it withdraws an individual using default ranges when they are not given"""
 
         client = graphene.test.Client(schema)
 
@@ -3909,7 +3909,7 @@ class TestWithdrawMutation(django.test.TestCase):
                                   variables=params)
 
         # Check results, enrollments were updated
-        enrollments = executed['data']['withdraw']['uidentity']['enrollments']
+        enrollments = executed['data']['withdraw']['individual']['enrollments']
 
         self.assertEqual(len(enrollments), 1)
 
@@ -3922,13 +3922,13 @@ class TestWithdrawMutation(django.test.TestCase):
         self.assertEqual(uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
         # Check database
-        uidentity = UniqueIdentity.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        individual = Individual.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
-        enrollments_db = uidentity.enrollments.all()
+        enrollments_db = individual.enrollments.all()
         self.assertEqual(len(enrollments_db), 1)
 
     def test_non_existing_uuid(self):
-        """Check if it fails when the unique identity does not exist"""
+        """Check if it fails when the individual does not exist"""
 
         client = graphene.test.Client(schema)
 
@@ -3982,7 +3982,7 @@ class TestWithdrawMutation(django.test.TestCase):
         self.assertEqual(msg, ENROLLMENT_DOES_NOT_EXIST_ERROR)
 
     def test_locked_uuid(self):
-        """Check if it fails when the unique identity is locked"""
+        """Check if it fails when the individual is locked"""
 
         client = graphene.test.Client(schema)
 
@@ -4025,13 +4025,13 @@ class TestWithdrawMutation(django.test.TestCase):
 
 
 class TestMergeIdentitiesMutation(django.test.TestCase):
-    """Unit tests for mutation to merge unique identities"""
+    """Unit tests for mutation to merge individuals"""
 
     SH_MERGE = """
           mutation mergeIds($fromUuids: [String], $toUuid: String) {
             mergeIdentities(fromUuids: $fromUuids, toUuid: $toUuid) {
               uuid
-              uidentity {
+              individual {
                 uuid
                 identities {
                   id
@@ -4104,7 +4104,7 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
                            email='jsmith@profile-email', is_bot=False, country_code='US')
 
     def test_merge_identities(self):
-        """Check whether it merges two unique identities, merging their ids, enrollments and profiles"""
+        """Check whether it merges two individuals, merging their ids, enrollments and profiles"""
 
         client = graphene.test.Client(schema)
 
@@ -4118,7 +4118,7 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
                                   variables=params)
 
         # Check results, identities were merged
-        identities = executed['data']['mergeIdentities']['uidentity']['identities']
+        identities = executed['data']['mergeIdentities']['individual']['identities']
 
         self.assertEqual(len(identities), 4)
 
@@ -4150,12 +4150,12 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(uuid, 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
 
         # Check database objects
-        uidentity_db = UniqueIdentity.objects.get(uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        individual_db = Individual.objects.get(uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
 
-        self.assertIsInstance(uidentity_db, UniqueIdentity)
-        self.assertEqual(uidentity_db.uuid, 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        self.assertIsInstance(individual_db, Individual)
+        self.assertEqual(individual_db.uuid, 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
 
-        profile = uidentity_db.profile
+        profile = individual_db.profile
         self.assertEqual(profile.name, 'John Smith')
         self.assertEqual(profile.email, 'jsmith@profile-email')
         self.assertEqual(profile.gender, 'male')
@@ -4167,7 +4167,7 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(profile.country.code, 'US')
         self.assertEqual(profile.country.alpha3, 'USA')
 
-        identities = uidentity_db.identities.all()
+        identities = individual_db.identities.all()
         self.assertEqual(len(identities), 4)
 
         id1 = identities[0]
@@ -4190,7 +4190,7 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(id4.email, 'jsmith@example')
         self.assertEqual(id4.source, 'scm')
 
-        enrollments = uidentity_db.enrollments.all()
+        enrollments = individual_db.enrollments.all()
         self.assertEqual(len(enrollments), 2)
 
         rol1 = enrollments[0]
@@ -4204,7 +4204,7 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(rol2.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
 
     def test_merge_multiple_identities(self):
-        """Check whether it merges more than two unique identities, merging their ids, enrollments and profiles"""
+        """Check whether it merges more than two individuals, merging their ids, enrollments and profiles"""
 
         client = graphene.test.Client(schema)
 
@@ -4219,7 +4219,7 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
                                   variables=params)
 
         # Check results, identities were merged
-        identities = executed['data']['mergeIdentities']['uidentity']['identities']
+        identities = executed['data']['mergeIdentities']['individual']['identities']
 
         self.assertEqual(len(identities), 7)
 
@@ -4269,12 +4269,12 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(uuid, 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
 
         # Check database objects
-        uidentity_db = UniqueIdentity.objects.get(uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        individual_db = Individual.objects.get(uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
 
-        self.assertIsInstance(uidentity_db, UniqueIdentity)
-        self.assertEqual(uidentity_db.uuid, 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        self.assertIsInstance(individual_db, Individual)
+        self.assertEqual(individual_db.uuid, 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
 
-        profile = uidentity_db.profile
+        profile = individual_db.profile
         self.assertEqual(profile.name, 'John Smith')
         self.assertEqual(profile.email, 'jsmith@profile-email')
         self.assertEqual(profile.gender, 'male')
@@ -4286,7 +4286,7 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(profile.country.code, 'US')
         self.assertEqual(profile.country.alpha3, 'USA')
 
-        identities = uidentity_db.identities.all()
+        identities = individual_db.identities.all()
         self.assertEqual(len(identities), 7)
 
         id1 = identities[0]
@@ -4324,7 +4324,7 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(id7.email, 'jsmith@example')
         self.assertEqual(id7.source, 'scm')
 
-        enrollments = uidentity_db.enrollments.all()
+        enrollments = individual_db.enrollments.all()
         self.assertEqual(len(enrollments), 2)
 
         rol1 = enrollments[0]
@@ -4338,7 +4338,7 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(rol2.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
 
     def test_non_existing_from_uuids(self):
-        """Check if it fails merging unique identities when source uuids field is `None` or empty"""
+        """Check if it fails merging individuals when source uuids field is `None` or empty"""
 
         client = graphene.test.Client(schema)
 
@@ -4355,7 +4355,7 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(msg, FROM_UUIDS_EMPTY_ERROR)
 
     def test_non_existing_from_uuid(self):
-        """Check if it fails merging two unique identities when source uuid is `None` or empty"""
+        """Check if it fails merging two individuals when source uuid is `None` or empty"""
 
         client = graphene.test.Client(schema)
 
@@ -4372,7 +4372,7 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(msg, FROM_UUID_EMPTY_ERROR)
 
     def test_non_existing_to_uuid(self):
-        """Check if it fails merging two unique identities when destination uuid is `None` or empty"""
+        """Check if it fails merging two individuals when destination uuid is `None` or empty"""
 
         client = graphene.test.Client(schema)
 
@@ -4389,7 +4389,7 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(msg, TO_UUID_EMPTY_ERROR)
 
     def test_from_uuid_to_uuid_equal(self):
-        """Check if it fails merging two unique identities when they are equal"""
+        """Check if it fails merging two individuals when they are equal"""
 
         client = graphene.test.Client(schema)
 
@@ -4406,7 +4406,7 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(msg, FROM_UUID_TO_UUID_EQUAL_ERROR)
 
     def test_locked_uuid(self):
-        """Check if it fails when the unique identity is locked"""
+        """Check if it fails when the individual is locked"""
 
         client = graphene.test.Client(schema)
 
@@ -4445,13 +4445,13 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
 
 
 class TestUnmergeIdentitiesMutation(django.test.TestCase):
-    """Unit tests for mutation to unmerge unique identities"""
+    """Unit tests for mutation to unmerge individuals"""
 
     SH_UNMERGE = """
           mutation unmergeIds($uuids: [String]) {
             unmergeIdentities(uuids: $uuids) {
               uuids
-              uidentities {
+              individuals {
                 uuid
                 identities {
                   id
@@ -4521,7 +4521,7 @@ class TestUnmergeIdentitiesMutation(django.test.TestCase):
                          uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
     def test_unmerge_identities(self):
-        """Check whether it unmerges one identity from its parent unique identity"""
+        """Check whether it unmerges one identity from its parent individual"""
 
         client = graphene.test.Client(schema)
 
@@ -4540,13 +4540,13 @@ class TestUnmergeIdentitiesMutation(django.test.TestCase):
         uuid1 = uuids[0]
         self.assertEqual(uuid1, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
 
-        uidentities = executed['data']['unmergeIdentities']['uidentities']
-        self.assertEqual(len(uidentities), 1)
+        individuals = executed['data']['unmergeIdentities']['individuals']
+        self.assertEqual(len(individuals), 1)
 
-        uidentity = uidentities[0]
-        self.assertEqual(uidentity['uuid'], '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        individual = individuals[0]
+        self.assertEqual(individual['uuid'], '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
 
-        identities = uidentity['identities']
+        identities = individual['identities']
         self.assertEqual(len(identities), 1)
 
         identity = identities[0]
@@ -4556,17 +4556,17 @@ class TestUnmergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(identity['source'], 'git')
 
         # Check database objects
-        uidentity_db = UniqueIdentity.objects.get(uuid='67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        individual_db = Individual.objects.get(uuid='67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
 
-        self.assertIsInstance(uidentity_db, UniqueIdentity)
-        self.assertEqual(uidentity_db.uuid, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertIsInstance(individual_db, Individual)
+        self.assertEqual(individual_db.uuid, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
 
-        profile = uidentity_db.profile
+        profile = individual_db.profile
         self.assertIsNone(profile.name)
         self.assertEqual(profile.email, 'jsmith-git@example')
         self.assertEqual(profile.is_bot, False)
 
-        identities = uidentity_db.identities.all()
+        identities = individual_db.identities.all()
         self.assertEqual(len(identities), 1)
 
         id1 = identities[0]
@@ -4574,7 +4574,7 @@ class TestUnmergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(id1.email, 'jsmith-git@example')
         self.assertEqual(id1.source, 'git')
 
-        enrollments = uidentity_db.enrollments.all()
+        enrollments = individual_db.enrollments.all()
         self.assertEqual(len(enrollments), 0)
 
     def test_unmerge_multiple_identities(self):
@@ -4601,13 +4601,13 @@ class TestUnmergeIdentitiesMutation(django.test.TestCase):
         uuid2 = uuids[1]
         self.assertEqual(uuid2, '31581d7c6b039318e9048c4d8571666c26a5622b')
 
-        uidentities = executed['data']['unmergeIdentities']['uidentities']
-        self.assertEqual(len(uidentities), 2)
+        individuals = executed['data']['unmergeIdentities']['individuals']
+        self.assertEqual(len(individuals), 2)
 
-        uidentity = uidentities[0]
-        self.assertEqual(uidentity['uuid'], '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        individual = individuals[0]
+        self.assertEqual(individual['uuid'], '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
 
-        identities = uidentity['identities']
+        identities = individual['identities']
         self.assertEqual(len(identities), 1)
 
         identity = identities[0]
@@ -4616,10 +4616,10 @@ class TestUnmergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(identity['email'], 'jsmith-git@example')
         self.assertEqual(identity['source'], 'git')
 
-        uidentity = uidentities[1]
-        self.assertEqual(uidentity['uuid'], '31581d7c6b039318e9048c4d8571666c26a5622b')
+        individual = individuals[1]
+        self.assertEqual(individual['uuid'], '31581d7c6b039318e9048c4d8571666c26a5622b')
 
-        identities = uidentity['identities']
+        identities = individual['identities']
         self.assertEqual(len(identities), 1)
 
         identity = identities[0]
@@ -4629,17 +4629,17 @@ class TestUnmergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(identity['source'], 'phabricator')
 
         # Check database objects
-        uidentity_db = UniqueIdentity.objects.get(uuid='67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        individual_db = Individual.objects.get(uuid='67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
 
-        self.assertIsInstance(uidentity_db, UniqueIdentity)
-        self.assertEqual(uidentity_db.uuid, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertIsInstance(individual_db, Individual)
+        self.assertEqual(individual_db.uuid, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
 
-        profile = uidentity_db.profile
+        profile = individual_db.profile
         self.assertIsNone(profile.name)
         self.assertEqual(profile.email, 'jsmith-git@example')
         self.assertEqual(profile.is_bot, False)
 
-        identities = uidentity_db.identities.all()
+        identities = individual_db.identities.all()
         self.assertEqual(len(identities), 1)
 
         id1 = identities[0]
@@ -4647,20 +4647,20 @@ class TestUnmergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(id1.email, 'jsmith-git@example')
         self.assertEqual(id1.source, 'git')
 
-        enrollments = uidentity_db.enrollments.all()
+        enrollments = individual_db.enrollments.all()
         self.assertEqual(len(enrollments), 0)
 
-        uidentity_db = UniqueIdentity.objects.get(uuid='31581d7c6b039318e9048c4d8571666c26a5622b')
+        individual_db = Individual.objects.get(uuid='31581d7c6b039318e9048c4d8571666c26a5622b')
 
-        self.assertIsInstance(uidentity_db, UniqueIdentity)
-        self.assertEqual(uidentity_db.uuid, '31581d7c6b039318e9048c4d8571666c26a5622b')
+        self.assertIsInstance(individual_db, Individual)
+        self.assertEqual(individual_db.uuid, '31581d7c6b039318e9048c4d8571666c26a5622b')
 
-        profile = uidentity_db.profile
+        profile = individual_db.profile
         self.assertIsNone(profile.name)
         self.assertEqual(profile.email, 'jsmith3@libresoft')
         self.assertEqual(profile.is_bot, False)
 
-        identities = uidentity_db.identities.all()
+        identities = individual_db.identities.all()
         self.assertEqual(len(identities), 1)
 
         id1 = identities[0]
@@ -4668,11 +4668,11 @@ class TestUnmergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(id1.email, 'jsmith3@libresoft')
         self.assertEqual(id1.source, 'phabricator')
 
-        enrollments = uidentity_db.enrollments.all()
+        enrollments = individual_db.enrollments.all()
         self.assertEqual(len(enrollments), 0)
 
-    def test_unmerge_uuid_from_unique_identity(self):
-        """Check if it ignores when the identity to unmerge is the same as the parent unique identity"""
+    def test_unmerge_uuid_from_individual(self):
+        """Check if it ignores when the identity to unmerge is the same as the parent individual"""
 
         client = graphene.test.Client(schema)
 
@@ -4684,13 +4684,13 @@ class TestUnmergeIdentitiesMutation(django.test.TestCase):
                                   context_value=self.context_value,
                                   variables=params)
 
-        uidentities = executed['data']['unmergeIdentities']['uidentities']
-        self.assertEqual(len(uidentities), 1)
+        individuals = executed['data']['unmergeIdentities']['individuals']
+        self.assertEqual(len(individuals), 1)
 
-        uidentity = uidentities[0]
-        self.assertEqual(uidentity['uuid'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        individual = individuals[0]
+        self.assertEqual(individual['uuid'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
-        identities = uidentity['identities']
+        identities = individual['identities']
         self.assertEqual(len(identities), 6)
 
         id1 = identities[0]
@@ -4758,7 +4758,7 @@ class TestUnmergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(msg, UUID_EMPTY_ERROR)
 
     def test_locked_uuid(self):
-        """Check if it fails when the unique identity is locked"""
+        """Check if it fails when the individual is locked"""
 
         client = graphene.test.Client(schema)
 

@@ -54,7 +54,7 @@ from .api import (add_identity,
 from .models import (Organization,
                      Domain,
                      Country,
-                     UniqueIdentity,
+                     Individual,
                      Identity,
                      Profile,
                      Enrollment,
@@ -113,9 +113,9 @@ class CountryType(DjangoObjectType):
         model = Country
 
 
-class UniqueIdentityType(DjangoObjectType):
+class IndividualType(DjangoObjectType):
     class Meta:
-        model = UniqueIdentity
+        model = Individual
 
 
 class IdentityType(DjangoObjectType):
@@ -209,7 +209,7 @@ class OrganizationPaginatedType(AbstractPaginatedType):
 
 
 class IdentityPaginatedType(AbstractPaginatedType):
-    entities = graphene.List(UniqueIdentityType)
+    entities = graphene.List(IndividualType)
     page_info = graphene.Field(PaginationType)
 
 
@@ -309,7 +309,7 @@ class AddIdentity(graphene.Mutation):
         uuid = graphene.String()
 
     uuid = graphene.Field(lambda: graphene.String)
-    uidentity = graphene.Field(lambda: UniqueIdentityType)
+    individual = graphene.Field(lambda: IndividualType)
 
     @check_auth
     def mutate(self, info, source,
@@ -325,32 +325,32 @@ class AddIdentity(graphene.Mutation):
                                 username=username,
                                 uuid=uuid)
         id_ = identity.id
-        uidentity = identity.uidentity
+        individual = identity.individual
 
         return AddIdentity(
             uuid=id_,
-            uidentity=uidentity
+            individual=individual
         )
 
 
 class DeleteIdentity(graphene.Mutation):
     class Arguments:
         uuid = graphene.String()
-        unique_identity = graphene.Boolean()
+        delete_individual = graphene.Boolean()
 
     uuid = graphene.Field(lambda: graphene.String)
-    uidentity = graphene.Field(lambda: UniqueIdentityType)
+    individual = graphene.Field(lambda: IndividualType)
 
     @check_auth
     def mutate(self, info, uuid):
         user = info.context.user
         ctx = SortingHatContext(user)
 
-        uidentity = delete_identity(ctx, uuid)
+        individual = delete_identity(ctx, uuid)
 
         return DeleteIdentity(
             uuid=uuid,
-            uidentity=uidentity
+            individual=individual
         )
 
 
@@ -359,18 +359,18 @@ class LockIdentity(graphene.Mutation):
         uuid = graphene.String()
 
     uuid = graphene.Field(lambda: graphene.String)
-    uidentity = graphene.Field(lambda: UniqueIdentityType)
+    individual = graphene.Field(lambda: IndividualType)
 
     @check_auth
     def mutate(self, info, uuid):
         user = info.context.user
         ctx = SortingHatContext(user)
 
-        uidentity = lock(ctx, uuid)
+        individual = lock(ctx, uuid)
 
         return LockIdentity(
             uuid=uuid,
-            uidentity=uidentity
+            individual=individual
         )
 
 
@@ -379,18 +379,18 @@ class UnlockIdentity(graphene.Mutation):
         uuid = graphene.String()
 
     uuid = graphene.Field(lambda: graphene.String)
-    uidentity = graphene.Field(lambda: UniqueIdentityType)
+    individual = graphene.Field(lambda: IndividualType)
 
     @check_auth
     def mutate(self, info, uuid):
         user = info.context.user
         ctx = SortingHatContext(user)
 
-        uidentity = unlock(ctx, uuid)
+        individual = unlock(ctx, uuid)
 
         return UnlockIdentity(
             uuid=uuid,
-            uidentity=uidentity
+            individual=individual
         )
 
 
@@ -400,18 +400,18 @@ class UpdateProfile(graphene.Mutation):
         data = ProfileInputType()
 
     uuid = graphene.Field(lambda: graphene.String)
-    uidentity = graphene.Field(lambda: UniqueIdentityType)
+    individual = graphene.Field(lambda: IndividualType)
 
     @check_auth
     def mutate(self, info, uuid, data):
         user = info.context.user
         ctx = SortingHatContext(user)
 
-        uidentity = update_profile(ctx, uuid, **data)
+        individual = update_profile(ctx, uuid, **data)
 
         return UpdateProfile(
-            uuid=uidentity.uuid,
-            uidentity=uidentity
+            uuid=individual.uuid,
+            individual=individual
         )
 
 
@@ -421,18 +421,18 @@ class MoveIdentity(graphene.Mutation):
         to_uuid = graphene.String()
 
     uuid = graphene.Field(lambda: graphene.String)
-    uidentity = graphene.Field(lambda: UniqueIdentityType)
+    individual = graphene.Field(lambda: IndividualType)
 
     @check_auth
     def mutate(self, info, from_id, to_uuid):
         user = info.context.user
         ctx = SortingHatContext(user)
 
-        uidentity = move_identity(ctx, from_id, to_uuid)
+        individual = move_identity(ctx, from_id, to_uuid)
 
         return MoveIdentity(
-            uuid=uidentity.uuid,
-            uidentity=uidentity
+            uuid=individual.uuid,
+            individual=individual
         )
 
 
@@ -442,18 +442,18 @@ class MergeIdentities(graphene.Mutation):
         to_uuid = graphene.String()
 
     uuid = graphene.Field(lambda: graphene.String)
-    uidentity = graphene.Field(lambda: UniqueIdentityType)
+    individual = graphene.Field(lambda: IndividualType)
 
     @check_auth
     def mutate(self, info, from_uuids, to_uuid):
         user = info.context.user
         ctx = SortingHatContext(user)
 
-        uidentity = merge_identities(ctx, from_uuids, to_uuid)
+        individual = merge_identities(ctx, from_uuids, to_uuid)
 
         return MergeIdentities(
-            uuid=uidentity.uuid,
-            uidentity=uidentity
+            uuid=individual.uuid,
+            individual=individual
         )
 
 
@@ -462,19 +462,19 @@ class UnmergeIdentities(graphene.Mutation):
         uuids = graphene.List(graphene.String)
 
     uuids = graphene.Field(lambda: graphene.List(graphene.String))
-    uidentities = graphene.Field(lambda: graphene.List(UniqueIdentityType))
+    individuals = graphene.Field(lambda: graphene.List(IndividualType))
 
     @check_auth
     def mutate(self, info, uuids):
         user = info.context.user
         ctx = SortingHatContext(user)
 
-        uidentities = unmerge_identities(ctx, uuids)
-        uuids = [uidentity.uuid for uidentity in uidentities]
+        individuals = unmerge_identities(ctx, uuids)
+        uuids = [individual.uuid for individual in individuals]
 
         return UnmergeIdentities(
             uuids=uuids,
-            uidentities=uidentities
+            individuals=individuals
         )
 
 
@@ -487,7 +487,7 @@ class Enroll(graphene.Mutation):
         force = graphene.Boolean(required=False)
 
     uuid = graphene.Field(lambda: graphene.String)
-    uidentity = graphene.Field(lambda: UniqueIdentityType)
+    individual = graphene.Field(lambda: IndividualType)
 
     @check_auth
     def mutate(self, info, uuid, organization,
@@ -496,12 +496,12 @@ class Enroll(graphene.Mutation):
         user = info.context.user
         ctx = SortingHatContext(user)
 
-        uidentity = enroll(ctx, uuid, organization,
-                           from_date=from_date, to_date=to_date,
-                           force=force)
+        individual = enroll(ctx, uuid, organization,
+                            from_date=from_date, to_date=to_date,
+                            force=force)
         return Enroll(
-            uuid=uidentity.uuid,
-            uidentity=uidentity
+            uuid=individual.uuid,
+            individual=individual
         )
 
 
@@ -513,18 +513,18 @@ class Withdraw(graphene.Mutation):
         to_date = graphene.DateTime(required=False)
 
     uuid = graphene.Field(lambda: graphene.String)
-    uidentity = graphene.Field(lambda: UniqueIdentityType)
+    individual = graphene.Field(lambda: IndividualType)
 
     @check_auth
     def mutate(self, info, uuid, organization, from_date=None, to_date=None):
         user = info.context.user
         ctx = SortingHatContext(user)
 
-        uidentity = withdraw(ctx, uuid, organization,
-                             from_date=from_date, to_date=to_date)
+        individual = withdraw(ctx, uuid, organization,
+                              from_date=from_date, to_date=to_date)
         return Withdraw(
-            uuid=uidentity.uuid,
-            uidentity=uidentity
+            uuid=individual.uuid,
+            individual=individual
         )
 
 
@@ -542,7 +542,7 @@ class SortingHatQuery:
         page=graphene.Int(),
         filters=OrganizationFilterType(required=False)
     )
-    uidentities = graphene.Field(
+    individuals = graphene.Field(
         IdentityPaginatedType,
         page_size=graphene.Int(),
         page=graphene.Int(),
@@ -591,11 +591,11 @@ class SortingHatQuery:
                                                                  page_size=page_size)
 
     @check_auth
-    def resolve_uidentities(self, info, filters=None,
+    def resolve_individuals(self, info, filters=None,
                             page=1,
                             page_size=settings.DEFAULT_GRAPHQL_PAGE_SIZE,
                             **kwargs):
-        query = UniqueIdentity.objects.order_by('uuid')
+        query = Individual.objects.order_by('uuid')
 
         if filters and 'uuid' in filters:
             query = query.filter(uuid=filters['uuid'])
