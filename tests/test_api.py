@@ -39,7 +39,7 @@ from sortinghat.core.errors import (AlreadyExistsError,
                                     LockedIdentityError,
                                     DuplicateRangeError)
 from sortinghat.core.models import (Country,
-                                    UniqueIdentity,
+                                    Individual,
                                     Identity,
                                     Enrollment,
                                     Organization,
@@ -53,11 +53,11 @@ ALREADY_EXISTS_ERROR = "{entity} already exists in the registry"
 SOURCE_NONE_OR_EMPTY_ERROR = "'source' cannot be"
 IDENTITY_NONE_OR_EMPTY_ERROR = "identity data cannot be empty"
 UUID_NONE_OR_EMPTY_ERROR = "'uuid' cannot be"
-UUID_LOCKED_ERROR = "UniqueIdentity {uuid} is locked"
+UUID_LOCKED_ERROR = "Individual {uuid} is locked"
 UUIDS_NONE_OR_EMPTY_ERROR = "'uuids' cannot be"
 FROM_ID_NONE_OR_EMPTY_ERROR = "'from_id' cannot be"
 FROM_UUID_NONE_OR_EMPTY_ERROR = "'from_uuid' cannot be"
-FROM_ID_IS_UUID_ERROR = "'from_id' is a unique identity and it cannot be moved; use 'merge' instead"
+FROM_ID_IS_UUID_ERROR = "'from_id' is an individual and it cannot be moved; use 'merge' instead"
 FROM_UUIDS_NONE_OR_EMPTY_ERROR = "'from_uuids' cannot be"
 TO_UUID_NONE_OR_EMPTY_ERROR = "'to_uuid' cannot be"
 FROM_UUID_TO_UUID_EQUAL_ERROR = "'from_uuid' and 'to_uuid' cannot be"
@@ -199,10 +199,10 @@ class TestAddIdentity(TestCase):
         self.assertEqual(identity.username, 'jsmith')
         self.assertEqual(identity.source, 'scm')
 
-        uidentity = UniqueIdentity.objects.get(uuid='a9b403e150dd4af8953a52a4bb841051e4b705d9')
-        self.assertEqual(uidentity.uuid, identity.id)
+        individual = Individual.objects.get(uuid='a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        self.assertEqual(individual.uuid, identity.id)
 
-        profile = uidentity.profile
+        profile = individual.profile
         self.assertEqual(profile.name, identity.name)
         self.assertEqual(profile.email, identity.email)
 
@@ -215,7 +215,7 @@ class TestAddIdentity(TestCase):
     def test_add_new_identities_to_uuid(self):
         """Check if everything goes OK when adding new identities to an existing one"""
 
-        # Insert identities that will create the unique identities
+        # Insert identities that will create the individuals
         jsmith = api.add_identity(self.ctx,
                                   'scm',
                                   name='John Smith',
@@ -248,15 +248,15 @@ class TestAddIdentity(TestCase):
                                      uuid=jdoe.id)
 
         # Check identities
-        uidentities = UniqueIdentity.objects.all()
-        self.assertEqual(len(uidentities), 2)
+        individuals = Individual.objects.all()
+        self.assertEqual(len(individuals), 2)
 
         identities = Identity.objects.all()
         self.assertEqual(len(identities), 5)
 
         # Check John Smith
-        uidentity = UniqueIdentity.objects.get(uuid=jsmith.id)
-        identities = uidentity.identities.all()
+        individual = Individual.objects.get(uuid=jsmith.id)
+        identities = individual.identities.all()
         self.assertEqual(len(identities), 3)
 
         id1 = identities[0]
@@ -281,8 +281,8 @@ class TestAddIdentity(TestCase):
         self.assertEqual(id3.source, 'scm')
 
         # Next, John Doe
-        uidentity = UniqueIdentity.objects.get(uuid=jdoe.id)
-        identities = uidentity.identities.all()
+        individual = Individual.objects.get(uuid=jdoe.id)
+        identities = individual.identities.all()
         self.assertEqual(len(identities), 2)
 
         id1 = identities[0]
@@ -302,7 +302,7 @@ class TestAddIdentity(TestCase):
     def test_last_modified(self):
         """Check if last modification date is updated"""
 
-        # First, insert the identity that will create the unique identity
+        # First, insert the identity that will create the individual
         before_dt = datetime_utcnow()
         jsmith = api.add_identity(self.ctx,
                                   'scm',
@@ -311,17 +311,17 @@ class TestAddIdentity(TestCase):
                                   username='jsmith')
         after_dt = datetime_utcnow()
 
-        # Check date on the unique identity
-        uidentity = UniqueIdentity.objects.get(uuid=jsmith.id)
-        self.assertLessEqual(before_dt, uidentity.last_modified)
-        self.assertGreaterEqual(after_dt, uidentity.last_modified)
+        # Check date on the individual
+        individual = Individual.objects.get(uuid=jsmith.id)
+        self.assertLessEqual(before_dt, individual.last_modified)
+        self.assertGreaterEqual(after_dt, individual.last_modified)
 
         # Check date on the identity
-        identity = uidentity.identities.all()[0]
+        identity = individual.identities.all()[0]
         self.assertLessEqual(before_dt, identity.last_modified)
         self.assertGreaterEqual(after_dt, identity.last_modified)
 
-        # Check if a new identity added to the existing unique identity
+        # Check if a new identity added to the existing individual
         # updates both modification dates
         before_new_dt = datetime_utcnow()
         api.add_identity(self.ctx,
@@ -332,14 +332,14 @@ class TestAddIdentity(TestCase):
                          uuid=jsmith.id)
         after_new_dt = datetime_utcnow()
 
-        uidentity = UniqueIdentity.objects.get(uuid=jsmith.id)
+        individual = Individual.objects.get(uuid=jsmith.id)
 
-        # Check date on the unique identity; it was updated
-        self.assertLessEqual(before_new_dt, uidentity.last_modified)
-        self.assertGreaterEqual(after_new_dt, uidentity.last_modified)
+        # Check date on the individual; it was updated
+        self.assertLessEqual(before_new_dt, individual.last_modified)
+        self.assertGreaterEqual(after_new_dt, individual.last_modified)
 
         # Check date of the new identity
-        identities = uidentity.identities.all()
+        identities = individual.identities.all()
         self.assertLessEqual(before_dt, identities[0].last_modified)
         self.assertLessEqual(after_dt, identities[0].last_modified)
         self.assertLessEqual(before_new_dt, identities[0].last_modified)
@@ -356,31 +356,31 @@ class TestAddIdentity(TestCase):
 
         api.add_identity(self.ctx, 'scm', email='jsmith@example.com')
 
-        # Although, this identities belongs to the same unique identity,
-        # the api will create different unique identities for each one of
+        # Although, this identities belongs to the same individual,
+        # the api will create different individuals for each one of
         # them
-        uid1 = api.add_identity(self.ctx,
-                                'scm',
-                                name='John Smith',
-                                email='jsmith@example.com')
-        uid2 = api.add_identity(self.ctx,
-                                'scm',
-                                name='John Smith',
-                                email='jsmith@example.com',
-                                username='jsmith')
-        uid3 = api.add_identity(self.ctx,
-                                'mls',
-                                name='John Smith',
-                                email='jsmith@example.com',
-                                username='jsmith')
-        uid4 = api.add_identity(self.ctx, 'mls', name='John Smith')
-        uid5 = api.add_identity(self.ctx, 'scm', name='John Smith')
+        indv1 = api.add_identity(self.ctx,
+                                 'scm',
+                                 name='John Smith',
+                                 email='jsmith@example.com')
+        indv2 = api.add_identity(self.ctx,
+                                 'scm',
+                                 name='John Smith',
+                                 email='jsmith@example.com',
+                                 username='jsmith')
+        indv3 = api.add_identity(self.ctx,
+                                 'mls',
+                                 name='John Smith',
+                                 email='jsmith@example.com',
+                                 username='jsmith')
+        indv4 = api.add_identity(self.ctx, 'mls', name='John Smith')
+        indv5 = api.add_identity(self.ctx, 'scm', name='John Smith')
 
-        self.assertEqual(uid1.id, '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
-        self.assertEqual(uid2.id, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
-        self.assertEqual(uid3.id, '539acca35c2e8502951a97d2d5af8b0857440b50')
-        self.assertEqual(uid4.id, 'e7efdaf17ad2cbc0e239b9afd29f6fe054b3b0fe')
-        self.assertEqual(uid5.id, 'c7acd177d107a0aefa6718e2ff0dec6ceba71660')
+        self.assertEqual(indv1.id, '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
+        self.assertEqual(indv2.id, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        self.assertEqual(indv3.id, '539acca35c2e8502951a97d2d5af8b0857440b50')
+        self.assertEqual(indv4.id, 'e7efdaf17ad2cbc0e239b9afd29f6fe054b3b0fe')
+        self.assertEqual(indv5.id, 'c7acd177d107a0aefa6718e2ff0dec6ceba71660')
 
     def test_duplicate_identities_with_truncated_values(self):
         """Check if the same identity with truncated values is not inserted twice"""
@@ -509,10 +509,10 @@ class TestAddIdentity(TestCase):
                                     email='😂',
                                     username='😂')
 
-        uidentity = UniqueIdentity.objects.get(uuid='843fcc3383ddfd6179bef87996fa761d88a43915')
-        self.assertEqual(uidentity.uuid, identity.id)
+        individual = Individual.objects.get(uuid='843fcc3383ddfd6179bef87996fa761d88a43915')
+        self.assertEqual(individual.uuid, identity.id)
 
-        identities = uidentity.identities.all()
+        identities = individual.identities.all()
         self.assertEqual(len(identities), 1)
 
         id1 = identities[0]
@@ -529,19 +529,19 @@ class TestAddIdentity(TestCase):
         # With an invalid encoding both names wouldn't be inserted;
         # In MySQL, chars 'ı' and 'i' are considered the same with a
         # collation distinct to <charset>_unicode_ci
-        uidentity1 = api.add_identity(self.ctx,
-                                      'scm',
-                                      name='John Smıth',
-                                      email='jsmith@example.com',
-                                      username='jsmith')
-        uidentity2 = api.add_identity(self.ctx,
-                                      'scm',
-                                      name='John Smith',
-                                      email='jsmith@example.com',
-                                      username='jsmith')
+        individual1 = api.add_identity(self.ctx,
+                                       'scm',
+                                       name='John Smıth',
+                                       email='jsmith@example.com',
+                                       username='jsmith')
+        individual2 = api.add_identity(self.ctx,
+                                       'scm',
+                                       name='John Smith',
+                                       email='jsmith@example.com',
+                                       username='jsmith')
 
-        self.assertEqual(uidentity1.id, 'cf79edf008b7b2960a0be3972b256c65af449dc1')
-        self.assertEqual(uidentity2.id, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        self.assertEqual(individual1.id, 'cf79edf008b7b2960a0be3972b256c65af449dc1')
+        self.assertEqual(individual2.id, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
 
     def test_none_source(self):
         """Check whether new identities cannot be added when giving a None source"""
@@ -577,7 +577,7 @@ class TestAddIdentity(TestCase):
         self.assertEqual(len(transactions), 0)
 
     def test_locked_uuid(self):
-        """Check if it fails when the unique identity is locked"""
+        """Check if it fails when the individual is locked"""
 
         jsmith = api.add_identity(self.ctx,
                                   'scm',
@@ -585,9 +585,9 @@ class TestAddIdentity(TestCase):
                                   email='jsmith@example.com',
                                   username='jsmith')
 
-        uidentity = UniqueIdentity.objects.get(uuid=jsmith.id)
-        uidentity.is_locked = True
-        uidentity.save()
+        individual = Individual.objects.get(uuid=jsmith.id)
+        individual.is_locked = True
+        individual.save()
 
         msg = UUID_LOCKED_ERROR.format(uuid=jsmith.id)
         with self.assertRaisesRegex(LockedIdentityError, msg):
@@ -638,14 +638,14 @@ class TestAddIdentity(TestCase):
         op1 = operations[0]
         self.assertIsInstance(op1, Operation)
         self.assertEqual(op1.op_type, Operation.OpType.ADD.value)
-        self.assertEqual(op1.entity_type, 'unique_identity')
-        self.assertEqual(op1.target, identity.uidentity.uuid)
+        self.assertEqual(op1.entity_type, 'individual')
+        self.assertEqual(op1.target, identity.individual.uuid)
         self.assertEqual(op1.trx, trx)
         self.assertGreater(op1.timestamp, timestamp)
 
         op1_args = json.loads(op1.args)
         self.assertEqual(len(op1_args), 1)
-        self.assertEqual(op1_args['uuid'], identity.uidentity.uuid)
+        self.assertEqual(op1_args['uuid'], identity.individual.uuid)
 
         op2 = operations[1]
         self.assertIsInstance(op2, Operation)
@@ -657,7 +657,7 @@ class TestAddIdentity(TestCase):
 
         op2_args = json.loads(op2.args)
         self.assertEqual(len(op2_args), 3)
-        self.assertEqual(op2_args['uidentity'], identity.uidentity.uuid)
+        self.assertEqual(op2_args['individual'], identity.individual.uuid)
         self.assertEqual(op2_args['name'], identity.name)
         self.assertEqual(op2_args['email'], identity.email)
 
@@ -671,7 +671,7 @@ class TestAddIdentity(TestCase):
 
         op3_args = json.loads(op3.args)
         self.assertEqual(len(op3_args), 6)
-        self.assertEqual(op3_args['uidentity'], identity.uidentity.uuid)
+        self.assertEqual(op3_args['individual'], identity.individual.uuid)
         self.assertEqual(op3_args['identity_id'], identity.id)
         self.assertEqual(op3_args['source'], identity.source)
         self.assertEqual(op3_args['name'], identity.name)
@@ -700,40 +700,40 @@ class TestDeleteIdentity(TestCase):
                          name='John Smith',
                          email='jsmith@example',
                          uuid=jsmith.id)
-        Enrollment.objects.create(uidentity=jsmith.uidentity,
+        Enrollment.objects.create(individual=jsmith.individual,
                                   organization=example_org)
-        Enrollment.objects.create(uidentity=jsmith.uidentity,
+        Enrollment.objects.create(individual=jsmith.individual,
                                   organization=bitergia_org)
 
         jdoe = api.add_identity(self.ctx, 'scm', email='jdoe@example')
-        Enrollment.objects.create(uidentity=jdoe.uidentity,
+        Enrollment.objects.create(individual=jdoe.individual,
                                   organization=example_org)
 
         jrae = api.add_identity(self.ctx,
                                 'scm',
                                 name='Jane Rae',
                                 email='jrae@example')
-        Enrollment.objects.create(uidentity=jrae.uidentity,
+        Enrollment.objects.create(individual=jrae.individual,
                                   organization=libresoft_org)
 
     def test_delete_identity(self):
         """Check whether it deletes an identity"""
 
         # Check initial status
-        uidentities = UniqueIdentity.objects.all()
-        self.assertEqual(len(uidentities), 3)
+        individuals = Individual.objects.all()
+        self.assertEqual(len(individuals), 3)
 
         identities = Identity.objects.all()
         self.assertEqual(len(identities), 4)
 
         # Delete an identity (John Smith - jsmith@example.com)
-        uidentity = api.delete_identity(self.ctx, '1387b129ab751a3657312c09759caa41dfd8d07d')
+        individual = api.delete_identity(self.ctx, '1387b129ab751a3657312c09759caa41dfd8d07d')
 
         # Check result
-        self.assertIsInstance(uidentity, UniqueIdentity)
-        self.assertEqual(uidentity.uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertIsInstance(individual, Individual)
+        self.assertEqual(individual.uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
-        identities = uidentity.identities.all()
+        identities = individual.identities.all()
         self.assertEqual(len(identities), 1)
 
         identity = identities[0]
@@ -743,8 +743,8 @@ class TestDeleteIdentity(TestCase):
         self.assertEqual(identity.username, None)
 
         # Check remaining identities
-        uidentities = UniqueIdentity.objects.all()
-        self.assertEqual(len(uidentities), 3)
+        individuals = Individual.objects.all()
+        self.assertEqual(len(individuals), 3)
 
         identities = Identity.objects.all()
         self.assertEqual(len(identities), 3)
@@ -752,32 +752,32 @@ class TestDeleteIdentity(TestCase):
         with self.assertRaises(ObjectDoesNotExist):
             Identity.objects.get(id='1387b129ab751a3657312c09759caa41dfd8d07d')
 
-    def test_delete_unique_identity(self):
-        """Check whether it deletes a unique identity when its identifier is given"""
+    def test_delete_individual(self):
+        """Check whether it deletes an individual when its identifier is given"""
 
         # Check initial status
-        uidentities = UniqueIdentity.objects.all()
-        self.assertEqual(len(uidentities), 3)
+        individuals = Individual.objects.all()
+        self.assertEqual(len(individuals), 3)
 
         identities = Identity.objects.all()
         self.assertEqual(len(identities), 4)
 
-        # Delete an unique identity (John Smith)
-        uidentity = api.delete_identity(self.ctx, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        # Delete an individual (John Smith)
+        individual = api.delete_identity(self.ctx, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
-        # The unique identity was removed so the result is None
-        self.assertEqual(uidentity, None)
+        # The individual was removed so the result is None
+        self.assertEqual(individual, None)
 
         # Check remaining identities
-        uidentities = UniqueIdentity.objects.all()
-        self.assertEqual(len(uidentities), 2)
+        individuals = Individual.objects.all()
+        self.assertEqual(len(individuals), 2)
 
         identities = Identity.objects.all()
         self.assertEqual(len(identities), 2)
 
-        # Neither the unique identity nor its identities exist
+        # Neither the individual nor its identities exist
         with self.assertRaises(ObjectDoesNotExist):
-            UniqueIdentity.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+            Individual.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
         with self.assertRaises(ObjectDoesNotExist):
             Identity.objects.get(id='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
@@ -790,15 +790,15 @@ class TestDeleteIdentity(TestCase):
 
         # Delete an identity (John Smith - jsmith@example.com)
         before_dt = datetime_utcnow()
-        uidentity = api.delete_identity(self.ctx, '1387b129ab751a3657312c09759caa41dfd8d07d')
+        individual = api.delete_identity(self.ctx, '1387b129ab751a3657312c09759caa41dfd8d07d')
         after_dt = datetime_utcnow()
 
-        # Check date on the unique identity
-        self.assertLessEqual(before_dt, uidentity.last_modified)
-        self.assertGreaterEqual(after_dt, uidentity.last_modified)
+        # Check date on the individual
+        self.assertLessEqual(before_dt, individual.last_modified)
+        self.assertGreaterEqual(after_dt, individual.last_modified)
 
         # Other identities were not updated
-        identity = uidentity.identities.all()[0]
+        identity = individual.identities.all()[0]
         self.assertGreaterEqual(before_dt, identity.last_modified)
 
     def test_non_existing_uuid(self):
@@ -810,8 +810,8 @@ class TestDeleteIdentity(TestCase):
             api.delete_identity(self.ctx, 'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF')
 
         # It should raise an error when the registry is empty
-        UniqueIdentity.objects.all().delete()
-        self.assertEqual(len(UniqueIdentity.objects.all()), 0)
+        Individual.objects.all().delete()
+        self.assertEqual(len(Individual.objects.all()), 0)
 
         with self.assertRaises(NotFoundError):
             api.delete_identity(self.ctx, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
@@ -845,7 +845,7 @@ class TestDeleteIdentity(TestCase):
         self.assertEqual(len(transactions), 0)
 
     def test_locked_uuid(self):
-        """Check if it fails when the unique identity is locked"""
+        """Check if it fails when the individual is locked"""
 
         jsmith = api.add_identity(self.ctx,
                                   'scm',
@@ -853,9 +853,9 @@ class TestDeleteIdentity(TestCase):
                                   email='jsmith@example.com',
                                   username='jsmith')
 
-        uidentity = UniqueIdentity.objects.get(uuid=jsmith.id)
-        uidentity.is_locked = True
-        uidentity.save()
+        individual = Individual.objects.get(uuid=jsmith.id)
+        individual.is_locked = True
+        individual.save()
 
         msg = UUID_LOCKED_ERROR.format(uuid=jsmith.id)
         with self.assertRaisesRegex(LockedIdentityError, msg):
@@ -920,17 +920,17 @@ class TestUpdateProfile(TestCase):
     def test_update_empty_profile(self):
         """Check if it updates an empty profile"""
 
-        uidentity = api.update_profile(self.ctx,
-                                       'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
-                                       name='Smith, J.', email='jsmith@example.net',
-                                       is_bot=True, country_code='US',
-                                       gender='male', gender_acc=98)
+        individual = api.update_profile(self.ctx,
+                                        'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+                                        name='Smith, J.', email='jsmith@example.net',
+                                        is_bot=True, country_code='US',
+                                        gender='male', gender_acc=98)
 
         # Tests
-        self.assertIsInstance(uidentity, UniqueIdentity)
-        self.assertEqual(uidentity.uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertIsInstance(individual, Individual)
+        self.assertEqual(individual.uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
-        profile = uidentity.profile
+        profile = individual.profile
         self.assertEqual(profile.name, 'Smith, J.')
         self.assertEqual(profile.email, 'jsmith@example.net')
         self.assertEqual(profile.is_bot, True)
@@ -941,8 +941,8 @@ class TestUpdateProfile(TestCase):
         self.assertEqual(profile.gender_acc, 98)
 
         # Check database object
-        uidentity_db = UniqueIdentity.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
-        self.assertEqual(profile, uidentity_db.profile)
+        individual_db = Individual.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(profile, individual_db.profile)
 
     def test_update_profile(self):
         """Check if it updates a profile"""
@@ -953,16 +953,16 @@ class TestUpdateProfile(TestCase):
                            is_bot=True, country_code='US',
                            gender='male', gender_acc=98)
 
-        uidentity = api.update_profile(self.ctx,
-                                       'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
-                                       name='', email='jsmith@example.net',
-                                       is_bot=False, country_code='US',
-                                       gender='male', gender_acc=89)
+        individual = api.update_profile(self.ctx,
+                                        'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+                                        name='', email='jsmith@example.net',
+                                        is_bot=False, country_code='US',
+                                        gender='male', gender_acc=89)
 
         # Tests
-        self.assertIsInstance(uidentity, UniqueIdentity)
+        self.assertIsInstance(individual, Individual)
 
-        profile = uidentity.profile
+        profile = individual.profile
         self.assertEqual(profile.name, None)
         self.assertEqual(profile.email, 'jsmith@example.net')
         self.assertEqual(profile.is_bot, False)
@@ -973,24 +973,24 @@ class TestUpdateProfile(TestCase):
         self.assertEqual(profile.gender_acc, 89)
 
         # Check database object
-        uidentity_db = UniqueIdentity.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
-        self.assertEqual(profile, uidentity_db.profile)
+        individual_db = Individual.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(profile, individual_db.profile)
 
     def test_last_modified(self):
         """Check if last modification date is updated"""
 
         before_dt = datetime_utcnow()
-        uidentity = api.update_profile(self.ctx,
-                                       'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
-                                       name='John Smith',
-                                       email='jsmith@example.net')
+        individual = api.update_profile(self.ctx,
+                                        'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+                                        name='John Smith',
+                                        email='jsmith@example.net')
         after_dt = datetime_utcnow()
 
-        self.assertLessEqual(before_dt, uidentity.last_modified)
-        self.assertGreaterEqual(after_dt, uidentity.last_modified)
+        self.assertLessEqual(before_dt, individual.last_modified)
+        self.assertGreaterEqual(after_dt, individual.last_modified)
 
     def test_non_existing_uuid(self):
-        """Check if it fails updating a unique identity that does not exist"""
+        """Check if it fails updating an individual that does not exist"""
 
         with self.assertRaises(NotFoundError):
             api.update_profile(self.ctx,
@@ -1004,10 +1004,10 @@ class TestUpdateProfile(TestCase):
     def test_name_email_empty(self):
         """Check if name and email are set to None when an empty string is given"""
 
-        uidentity = api.update_profile(self.ctx,
-                                       'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
-                                       name='', email='')
-        profile = uidentity.profile
+        individual = api.update_profile(self.ctx,
+                                        'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+                                        name='', email='')
+        profile = individual.profile
         self.assertEqual(profile.name, None)
         self.assertEqual(profile.email, None)
 
@@ -1092,7 +1092,7 @@ class TestUpdateProfile(TestCase):
         self.assertEqual(len(transactions), 1)
 
     def test_locked_uuid(self):
-        """Check if it fails when the unique identity is locked"""
+        """Check if it fails when the individual is locked"""
 
         jsmith = api.add_identity(self.ctx,
                                   'scm',
@@ -1100,9 +1100,9 @@ class TestUpdateProfile(TestCase):
                                   email='jsmith@example.com',
                                   username='jsmith')
 
-        uidentity = UniqueIdentity.objects.get(uuid=jsmith.id)
-        uidentity.is_locked = True
-        uidentity.save()
+        individual = Individual.objects.get(uuid=jsmith.id)
+        individual.is_locked = True
+        individual.save()
 
         msg = UUID_LOCKED_ERROR.format(uuid=jsmith.id)
         with self.assertRaisesRegex(LockedIdentityError, msg):
@@ -1137,11 +1137,11 @@ class TestUpdateProfile(TestCase):
 
         timestamp = datetime_utcnow()
 
-        uidentity = api.update_profile(self.ctx,
-                                       'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
-                                       name='Smith, J.', email='jsmith@example.net',
-                                       is_bot=True, country_code='US',
-                                       gender='male', gender_acc=98)
+        individual = api.update_profile(self.ctx,
+                                        'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+                                        name='Smith, J.', email='jsmith@example.net',
+                                        is_bot=True, country_code='US',
+                                        gender='male', gender_acc=98)
 
         transactions = Transaction.objects.filter(created_at__gte=timestamp)
         trx = transactions[0]
@@ -1159,7 +1159,7 @@ class TestUpdateProfile(TestCase):
 
         op1_args = json.loads(op1.args)
         self.assertEqual(len(op1_args), 7)
-        self.assertEqual(op1_args['uidentity'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(op1_args['individual'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
         self.assertEqual(op1_args['name'], 'Smith, J.')
         self.assertEqual(op1_args['email'], 'jsmith@example.net')
         self.assertEqual(op1_args['is_bot'], True)
@@ -1191,18 +1191,18 @@ class TestMoveIdentity(TestCase):
                          uuid=jsmith2.id)
 
     def test_move_identity(self):
-        """Test whether an identity is moved to a unique identity"""
+        """Test whether an identity is moved to an individual"""
 
         from_id = '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331'
         to_uuid = '03877f31261a6d1a1b3971d240e628259364b8ac'
 
         # Tests
-        uidentity = api.move_identity(self.ctx, from_id, to_uuid)
+        individual = api.move_identity(self.ctx, from_id, to_uuid)
 
-        self.assertIsInstance(uidentity, UniqueIdentity)
-        self.assertEqual(uidentity.uuid, '03877f31261a6d1a1b3971d240e628259364b8ac')
+        self.assertIsInstance(individual, Individual)
+        self.assertEqual(individual.uuid, '03877f31261a6d1a1b3971d240e628259364b8ac')
 
-        identities = uidentity.identities.all()
+        identities = individual.identities.all()
         self.assertEqual(len(identities), 3)
 
         identity = identities[0]
@@ -1215,8 +1215,8 @@ class TestMoveIdentity(TestCase):
         self.assertEqual(identity.id, '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
 
         # Check database object
-        uidentity_db = UniqueIdentity.objects.get(uuid='334da68fcd3da4e799791f73dfada2afb22648c6')
-        identities_db = uidentity_db.identities.all()
+        individual_db = Individual.objects.get(uuid='334da68fcd3da4e799791f73dfada2afb22648c6')
+        identities_db = individual_db.identities.all()
         self.assertEqual(len(identities_db), 1)
 
         identity_db = identities_db[0]
@@ -1224,8 +1224,8 @@ class TestMoveIdentity(TestCase):
         self.assertEqual(identity_db.name, None)
         self.assertEqual(identity_db.email, 'jsmith@example.com')
 
-        uidentity_db = UniqueIdentity.objects.get(uuid='03877f31261a6d1a1b3971d240e628259364b8ac')
-        identities_db = uidentity_db.identities.all()
+        individual_db = Individual.objects.get(uuid='03877f31261a6d1a1b3971d240e628259364b8ac')
+        identities_db = individual_db.identities.all()
         self.assertEqual(len(identities_db), 3)
 
         identity_db = identities_db[0]
@@ -1251,24 +1251,24 @@ class TestMoveIdentity(TestCase):
 
         # Tests
         before_dt = datetime_utcnow()
-        uidentity = api.move_identity(self.ctx, from_id, to_uuid)
+        individual = api.move_identity(self.ctx, from_id, to_uuid)
         after_dt = datetime_utcnow()
 
-        # Check date on the unique identity
-        self.assertLessEqual(before_dt, uidentity.last_modified)
-        self.assertGreaterEqual(after_dt, uidentity.last_modified)
+        # Check date on the individual
+        self.assertLessEqual(before_dt, individual.last_modified)
+        self.assertGreaterEqual(after_dt, individual.last_modified)
 
-    def test_equal_related_unique_identity(self):
-        """Check if identities are not moved when 'to_uuid' is the unique identity related to 'from_id'"""
+    def test_equal_related_individual(self):
+        """Check if identities are not moved when 'to_uuid' is the individual related to 'from_id'"""
 
         from_id = '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331'
         to_uuid = '334da68fcd3da4e799791f73dfada2afb22648c6'
 
-        # Move the identity to the same unique identity
+        # Move the identity to the same individual
         api.move_identity(self.ctx, from_id, to_uuid)
 
-        uidentity_db = UniqueIdentity.objects.get(uuid='334da68fcd3da4e799791f73dfada2afb22648c6')
-        identities_db = uidentity_db.identities.all()
+        individual_db = Individual.objects.get(uuid='334da68fcd3da4e799791f73dfada2afb22648c6')
+        identities_db = individual_db.identities.all()
         self.assertEqual(len(identities_db), 2)
 
         identity_db = identities_db[0]
@@ -1277,8 +1277,8 @@ class TestMoveIdentity(TestCase):
         identity_db = identities_db[1]
         self.assertEqual(identity_db.id, '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
 
-        uidentity_db = UniqueIdentity.objects.get(uuid='03877f31261a6d1a1b3971d240e628259364b8ac')
-        identities_db = uidentity_db.identities.all()
+        individual_db = Individual.objects.get(uuid='03877f31261a6d1a1b3971d240e628259364b8ac')
+        identities_db = individual_db.identities.all()
         self.assertEqual(len(identities_db), 2)
 
         identity_db = identities_db[0]
@@ -1287,21 +1287,21 @@ class TestMoveIdentity(TestCase):
         identity_db = identities_db[1]
         self.assertEqual(identity_db.id, '0880dc4e621877e8520cef1747d139dd4f9f110e')
 
-    def test_create_new_unique_identity(self):
-        """Check if a new unique identity is created when 'from_id' has the same value of 'to_uuid'"""
+    def test_create_new_individual(self):
+        """Check if a new individual is created when 'from_id' has the same value of 'to_uuid'"""
 
         new_uuid = '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331'
 
-        # This will create a new unique identity,
-        # moving the identity to this new unique identity
-        uidentity = api.move_identity(self.ctx, new_uuid, new_uuid)
+        # This will create a new individual,
+        # moving the identity to this new individual
+        individual = api.move_identity(self.ctx, new_uuid, new_uuid)
 
-        self.assertEqual(uidentity.uuid, new_uuid)
+        self.assertEqual(individual.uuid, new_uuid)
 
-        identities = uidentity.identities.all()
+        identities = individual.identities.all()
         self.assertEqual(len(identities), 1)
 
-        profile = uidentity.profile
+        profile = individual.profile
         self.assertEqual(profile.name, 'John Smith')
         self.assertEqual(profile.email, 'jsmith@example.com')
 
@@ -1311,8 +1311,8 @@ class TestMoveIdentity(TestCase):
         self.assertEqual(identity.email, 'jsmith@example.com')
 
         # Check database objects
-        uidentity_db = UniqueIdentity.objects.get(uuid='334da68fcd3da4e799791f73dfada2afb22648c6')
-        identities_db = uidentity_db.identities.all()
+        individual_db = Individual.objects.get(uuid='334da68fcd3da4e799791f73dfada2afb22648c6')
+        identities_db = individual_db.identities.all()
         self.assertEqual(len(identities_db), 1)
 
         identity_db = identities_db[0]
@@ -1320,8 +1320,8 @@ class TestMoveIdentity(TestCase):
         self.assertEqual(identity_db.name, None)
         self.assertEqual(identity_db.email, 'jsmith@example.com')
 
-        uidentity_db = UniqueIdentity.objects.get(uuid='880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
-        identities_db = uidentity_db.identities.all()
+        individual_db = Individual.objects.get(uuid='880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
+        identities_db = individual_db.identities.all()
         self.assertEqual(len(identities_db), 1)
 
         identity_db = identities_db[0]
@@ -1329,8 +1329,8 @@ class TestMoveIdentity(TestCase):
         self.assertEqual(identity_db.name, 'John Smith')
         self.assertEqual(identity_db.email, 'jsmith@example.com')
 
-        uidentity_db = UniqueIdentity.objects.get(uuid='03877f31261a6d1a1b3971d240e628259364b8ac')
-        identities_db = uidentity_db.identities.all()
+        individual_db = Individual.objects.get(uuid='03877f31261a6d1a1b3971d240e628259364b8ac')
+        identities_db = individual_db.identities.all()
         self.assertEqual(len(identities_db), 2)
 
         identity_db = identities_db[0]
@@ -1343,8 +1343,8 @@ class TestMoveIdentity(TestCase):
         self.assertEqual(identity_db.name, 'J. Smith')
         self.assertEqual(identity_db.email, 'jsmith@example.org')
 
-    def test_from_id_is_unique_identity(self):
-        """Test whether it fails when 'from_id' is a unique identity"""
+    def test_from_id_is_individual(self):
+        """Test whether it fails when 'from_id' is an individual"""
 
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
@@ -1376,7 +1376,7 @@ class TestMoveIdentity(TestCase):
         self.assertEqual(len(transactions), 0)
 
     def test_not_found_to_identity(self):
-        """Test whether it fails when 'to_uuid' unique identity is not found"""
+        """Test whether it fails when 'to_uuid' individual is not found"""
 
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
@@ -1449,14 +1449,14 @@ class TestMoveIdentity(TestCase):
         self.assertEqual(len(transactions), 0)
 
     def test_locked_uuid(self):
-        """Check if it fails when the unique identity is locked"""
+        """Check if it fails when the individual is locked"""
 
         from_id = '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331'
         to_uuid = '03877f31261a6d1a1b3971d240e628259364b8ac'
 
-        uidentity = UniqueIdentity.objects.get(uuid=to_uuid)
-        uidentity.is_locked = True
-        uidentity.save()
+        individual = Individual.objects.get(uuid=to_uuid)
+        individual.is_locked = True
+        individual.save()
 
         msg = UUID_LOCKED_ERROR.format(uuid=to_uuid)
         with self.assertRaisesRegex(LockedIdentityError, msg):
@@ -1508,7 +1508,7 @@ class TestMoveIdentity(TestCase):
         op1_args = json.loads(op1.args)
         self.assertEqual(len(op1_args), 2)
         self.assertEqual(op1_args['identity'], from_id)
-        self.assertEqual(op1_args['uidentity'], to_uuid)
+        self.assertEqual(op1_args['individual'], to_uuid)
 
 
 class TestLock(TestCase):
@@ -1522,9 +1522,9 @@ class TestLock(TestCase):
         self.jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example.com')
 
     def test_lock(self):
-        """Test whether a unique identity is locked"""
+        """Test whether an individual is locked"""
 
-        jsmith = api.lock(self.ctx, self.jsmith.uidentity)
+        jsmith = api.lock(self.ctx, self.jsmith.individual)
 
         self.assertEqual(jsmith.is_locked, True)
 
@@ -1542,10 +1542,10 @@ class TestLock(TestCase):
             api.lock(self.ctx, 'AAAA')
 
     def test_transaction(self):
-        """Check if a transaction is created when locking an identity"""
+        """Check if a transaction is created when locking an individual"""
 
         timestamp = datetime_utcnow()
-        uuid = self.jsmith.uidentity.uuid
+        uuid = self.jsmith.individual.uuid
 
         api.lock(self.ctx, uuid)
 
@@ -1559,10 +1559,10 @@ class TestLock(TestCase):
         self.assertEqual(trx.authored_by, self.ctx.user.username)
 
     def test_operations(self):
-        """Check if the right operations are created when locking an identity"""
+        """Check if the right operations are created when locking an individual"""
 
         timestamp = datetime_utcnow()
-        uuid = self.jsmith.uidentity.uuid
+        uuid = self.jsmith.individual.uuid
 
         api.lock(self.ctx, uuid)
 
@@ -1575,7 +1575,7 @@ class TestLock(TestCase):
         op1 = operations[0]
         self.assertIsInstance(op1, Operation)
         self.assertEqual(op1.op_type, Operation.OpType.UPDATE.value)
-        self.assertEqual(op1.entity_type, 'unique_identity')
+        self.assertEqual(op1.entity_type, 'individual')
         self.assertEqual(op1.target, uuid)
         self.assertEqual(op1.trx, trx)
         self.assertGreater(op1.timestamp, timestamp)
@@ -1597,9 +1597,9 @@ class TestUnlock(TestCase):
         self.jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example.com')
 
     def test_unlock(self):
-        """Test whether a unique identity is unlocked"""
+        """Test whether an individual is unlocked"""
 
-        uuid = self.jsmith.uidentity.uuid
+        uuid = self.jsmith.individual.uuid
 
         jsmith = api.unlock(self.ctx, uuid)
 
@@ -1622,7 +1622,7 @@ class TestUnlock(TestCase):
         """Check if a transaction is created when unlocking an identity"""
 
         timestamp = datetime_utcnow()
-        uuid = self.jsmith.uidentity.uuid
+        uuid = self.jsmith.individual.uuid
 
         api.unlock(self.ctx, uuid)
 
@@ -1639,7 +1639,7 @@ class TestUnlock(TestCase):
         """Check if the right operations are created when unlocking an identity"""
 
         timestamp = datetime_utcnow()
-        uuid = self.jsmith.uidentity.uuid
+        uuid = self.jsmith.individual.uuid
 
         api.unlock(self.ctx, uuid)
 
@@ -1652,7 +1652,7 @@ class TestUnlock(TestCase):
         op1 = operations[0]
         self.assertIsInstance(op1, Operation)
         self.assertEqual(op1.op_type, Operation.OpType.UPDATE.value)
-        self.assertEqual(op1.entity_type, 'unique_identity')
+        self.assertEqual(op1.entity_type, 'individual')
         self.assertEqual(op1.target, uuid)
         self.assertEqual(op1.trx, trx)
         self.assertGreater(op1.timestamp, timestamp)
@@ -2150,10 +2150,10 @@ class TestDeleteOrganization(TestCase):
         api.add_organization(self.ctx, name='Libresoft')
 
         jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example.com')
-        uidentity = api.enroll(self.ctx,
-                               jsmith.id, 'Example',
-                               from_date=datetime.datetime(1999, 1, 1),
-                               to_date=datetime.datetime(2000, 1, 1))
+        individual = api.enroll(self.ctx,
+                                jsmith.id, 'Example',
+                                from_date=datetime.datetime(1999, 1, 1),
+                                to_date=datetime.datetime(2000, 1, 1))
 
     def test_delete_organization(self):
         """Check if everything goes OK when deleting an organization"""
@@ -2163,8 +2163,8 @@ class TestDeleteOrganization(TestCase):
         organizations = Organization.objects.filter(name='Example')
         self.assertEqual(len(organizations), 0)
 
-        uidentity_db = UniqueIdentity.objects.get(uuid='334da68fcd3da4e799791f73dfada2afb22648c6')
-        enrollments = uidentity_db.enrollments.all()
+        individual_db = Individual.objects.get(uuid='334da68fcd3da4e799791f73dfada2afb22648c6')
+        enrollments = individual_db.enrollments.all()
         self.assertEqual(len(enrollments), 0)
 
         organizations = Organization.objects.all()
@@ -2473,20 +2473,20 @@ class TestEnroll(TestCase):
         self.ctx = SortingHatContext(self.user)
 
     def test_enroll(self):
-        """Check whether it adds an enrollments to a unique identity and an organization"""
+        """Check whether it adds an enrollment to an individual and an organization"""
 
         jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
         api.add_organization(self.ctx, 'Example')
 
-        uidentity = api.enroll(self.ctx,
-                               jsmith.id, 'Example',
-                               from_date=datetime.datetime(1999, 1, 1),
-                               to_date=datetime.datetime(2000, 1, 1))
+        individual = api.enroll(self.ctx,
+                                jsmith.id, 'Example',
+                                from_date=datetime.datetime(1999, 1, 1),
+                                to_date=datetime.datetime(2000, 1, 1))
 
         # Tests
-        self.assertIsInstance(uidentity, UniqueIdentity)
+        self.assertIsInstance(individual, Individual)
 
-        enrollments = uidentity.enrollments.all()
+        enrollments = individual.enrollments.all()
         self.assertEqual(len(enrollments), 1)
 
         enrollment = enrollments[0]
@@ -2495,8 +2495,8 @@ class TestEnroll(TestCase):
         self.assertEqual(enrollment.end, datetime.datetime(2000, 1, 1, tzinfo=UTC))
 
         # Check database object
-        uidentity_db = UniqueIdentity.objects.get(uuid=jsmith.id)
-        enrollments_db = uidentity_db.enrollments.all()
+        individual_db = Individual.objects.get(uuid=jsmith.id)
+        enrollments_db = individual_db.enrollments.all()
         self.assertEqual(len(enrollments_db), 1)
 
         enrollment_db = enrollments_db[0]
@@ -2505,17 +2505,17 @@ class TestEnroll(TestCase):
         self.assertEqual(enrollment_db.end, datetime.datetime(2000, 1, 1, tzinfo=UTC))
 
     def test_enroll_default_ranges(self):
-        """Check if it enrolls a unique identity using default ranges when they are not given"""
+        """Check if it enrolls an individual using default ranges when they are not given"""
 
         jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
         api.add_organization(self.ctx, 'Example')
 
-        uidentity = api.enroll(self.ctx, jsmith.id, 'Example')
+        individual = api.enroll(self.ctx, jsmith.id, 'Example')
 
         # Tests
-        self.assertIsInstance(uidentity, UniqueIdentity)
+        self.assertIsInstance(individual, Individual)
 
-        enrollments = uidentity.enrollments.all()
+        enrollments = individual.enrollments.all()
         self.assertEqual(len(enrollments), 1)
 
         enrollment = enrollments[0]
@@ -2524,8 +2524,8 @@ class TestEnroll(TestCase):
         self.assertEqual(enrollment.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
 
         # Check database object
-        uidentity_db = UniqueIdentity.objects.get(uuid=jsmith.id)
-        enrollments_db = uidentity_db.enrollments.all()
+        individual_db = Individual.objects.get(uuid=jsmith.id)
+        enrollments_db = individual_db.enrollments.all()
         self.assertEqual(len(enrollments_db), 1)
 
         enrollment_db = enrollments_db[0]
@@ -2534,7 +2534,7 @@ class TestEnroll(TestCase):
         self.assertEqual(enrollment_db.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
 
     def test_enroll_multiple(self):
-        """Check if it enrolls different times a unique identity to an organization"""
+        """Check if it enrolls different times an individual to an organization"""
 
         jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
         api.add_organization(self.ctx, 'Example')
@@ -2553,9 +2553,9 @@ class TestEnroll(TestCase):
                    to_date=datetime.datetime(2006, 1, 1))
 
         # Tests
-        uidentity_db = UniqueIdentity.objects.get(uuid=jsmith.id)
+        individual_db = Individual.objects.get(uuid=jsmith.id)
 
-        enrollments = uidentity_db.enrollments.all()
+        enrollments = individual_db.enrollments.all()
         self.assertEqual(len(enrollments), 3)
 
         enrollment = enrollments[0]
@@ -2598,9 +2598,9 @@ class TestEnroll(TestCase):
                    from_date=datetime.datetime(2005, 1, 1),
                    to_date=datetime.datetime(2007, 6, 1))
 
-        uidentity_db = UniqueIdentity.objects.get(uuid=jsmith.id)
+        individual_db = Individual.objects.get(uuid=jsmith.id)
 
-        enrollments = uidentity_db.enrollments.all()
+        enrollments = individual_db.enrollments.all()
 
         enrollment = enrollments[0]
         self.assertEqual(enrollment.start, datetime.datetime(1999, 1, 1, tzinfo=UTC))
@@ -2639,9 +2639,9 @@ class TestEnroll(TestCase):
                    from_date=datetime.datetime(2002, 1, 1),
                    to_date=datetime.datetime(2013, 6, 1))
 
-        uidentity_db = UniqueIdentity.objects.get(uuid=jsmith.id)
+        individual_db = Individual.objects.get(uuid=jsmith.id)
 
-        enrollments = uidentity_db.enrollments.all()
+        enrollments = individual_db.enrollments.all()
 
         enrollment = enrollments[0]
         self.assertEqual(enrollment.start, datetime.datetime(1999, 1, 1, tzinfo=UTC))
@@ -2676,9 +2676,9 @@ class TestEnroll(TestCase):
                    from_date=datetime.datetime(1900, 1, 1),
                    to_date=datetime.datetime(2100, 1, 1))
 
-        uidentity_db = UniqueIdentity.objects.get(uuid=jsmith.id)
+        individual_db = Individual.objects.get(uuid=jsmith.id)
 
-        enrollments = uidentity_db.enrollments.all()
+        enrollments = individual_db.enrollments.all()
 
         enrollment = enrollments[0]
         self.assertEqual(enrollment.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
@@ -2692,9 +2692,9 @@ class TestEnroll(TestCase):
 
         api.enroll(self.ctx, jsmith.id, 'Example')
 
-        uidentity_db = UniqueIdentity.objects.get(uuid=jsmith.id)
+        individual_db = Individual.objects.get(uuid=jsmith.id)
 
-        enrollments = uidentity_db.enrollments.all()
+        enrollments = individual_db.enrollments.all()
 
         enrollment = enrollments[0]
         self.assertEqual(enrollment.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
@@ -2707,9 +2707,9 @@ class TestEnroll(TestCase):
                    from_date=datetime.datetime(2004, 1, 1),
                    force=True)
 
-        uidentity_db = UniqueIdentity.objects.get(uuid=jsmith.id)
+        individual_db = Individual.objects.get(uuid=jsmith.id)
 
-        enrollments = uidentity_db.enrollments.all()
+        enrollments = individual_db.enrollments.all()
 
         enrollment = enrollments[0]
         self.assertEqual(enrollment.start, datetime.datetime(2004, 1, 1, tzinfo=UTC))
@@ -2721,9 +2721,9 @@ class TestEnroll(TestCase):
                    to_date=datetime.datetime(2006, 1, 1),
                    force=True)
 
-        uidentity_db = UniqueIdentity.objects.get(uuid=jsmith.id)
+        individual_db = Individual.objects.get(uuid=jsmith.id)
 
-        enrollments = uidentity_db.enrollments.all()
+        enrollments = individual_db.enrollments.all()
 
         enrollment = enrollments[0]
         self.assertEqual(enrollment.start, datetime.datetime(2004, 1, 1, tzinfo=UTC))
@@ -2736,9 +2736,9 @@ class TestEnroll(TestCase):
                    to_date=datetime.datetime(2100, 1, 1),
                    force=True)
 
-        uidentity_db = UniqueIdentity.objects.get(uuid=jsmith.id)
+        individual_db = Individual.objects.get(uuid=jsmith.id)
 
-        enrollments = uidentity_db.enrollments.all()
+        enrollments = individual_db.enrollments.all()
 
         # Enrollment dates should not change
         enrollment = enrollments[0]
@@ -2757,9 +2757,9 @@ class TestEnroll(TestCase):
                    from_date=start_date,
                    to_date=end_date)
 
-        uidentity_db = UniqueIdentity.objects.get(uuid=jsmith.id)
+        individual_db = Individual.objects.get(uuid=jsmith.id)
 
-        enrollments = uidentity_db.enrollments.all()
+        enrollments = individual_db.enrollments.all()
 
         enrollment = enrollments[0]
         self.assertEqual(enrollment.start, start_date)
@@ -2772,9 +2772,9 @@ class TestEnroll(TestCase):
                    from_date=datetime.datetime(1900, 1, 1),
                    to_date=datetime.datetime(2100, 1, 1))
 
-        uidentity_db = UniqueIdentity.objects.get(uuid=jsmith.id)
+        individual_db = Individual.objects.get(uuid=jsmith.id)
 
-        enrollments = uidentity_db.enrollments.all()
+        enrollments = individual_db.enrollments.all()
 
         # Enrollment dates should change
         enrollment = enrollments[0]
@@ -2791,9 +2791,9 @@ class TestEnroll(TestCase):
 
         api.enroll(self.ctx, jsmith.id, 'Example')
 
-        uidentity_db = UniqueIdentity.objects.get(uuid=jsmith.id)
+        individual_db = Individual.objects.get(uuid=jsmith.id)
 
-        enrollments = uidentity_db.enrollments.all()
+        enrollments = individual_db.enrollments.all()
 
         enrollment = enrollments[0]
         self.assertEqual(enrollment.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
@@ -2822,14 +2822,14 @@ class TestEnroll(TestCase):
         api.add_organization(self.ctx, 'Example')
 
         before_dt = datetime_utcnow()
-        uidentity = api.enroll(self.ctx,
-                               jsmith.id, 'Example',
-                               from_date=datetime.datetime(2013, 1, 1),
-                               to_date=datetime.datetime(2014, 1, 1))
+        individual = api.enroll(self.ctx,
+                                jsmith.id, 'Example',
+                                from_date=datetime.datetime(2013, 1, 1),
+                                to_date=datetime.datetime(2014, 1, 1))
         after_dt = datetime_utcnow()
 
-        self.assertLessEqual(before_dt, uidentity.last_modified)
-        self.assertGreaterEqual(after_dt, uidentity.last_modified)
+        self.assertLessEqual(before_dt, individual.last_modified)
+        self.assertGreaterEqual(after_dt, individual.last_modified)
 
     def test_period_invalid(self):
         """Check whether enrollments cannot be added giving invalid period ranges"""
@@ -2902,7 +2902,7 @@ class TestEnroll(TestCase):
         self.assertEqual(len(transactions), 0)
 
     def test_non_existing_uuid(self):
-        """Check if it fails adding enrollments to not existing unique identities"""
+        """Check if it fails adding enrollments to not existing individuals"""
 
         api.add_identity(self.ctx, 'scm', email='jsmith@example')
         api.add_organization(self.ctx, 'Example')
@@ -2965,14 +2965,14 @@ class TestEnroll(TestCase):
         self.assertEqual(len(transactions), 0)
 
     def test_locked_uuid(self):
-        """Check if it fails when the unique identity is locked"""
+        """Check if it fails when the individual is locked"""
 
         jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
         api.add_organization(self.ctx, 'Example')
 
-        uidentity = UniqueIdentity.objects.get(uuid=jsmith.id)
-        uidentity.is_locked = True
-        uidentity.save()
+        individual = Individual.objects.get(uuid=jsmith.id)
+        individual.is_locked = True
+        individual.save()
 
         msg = UUID_LOCKED_ERROR.format(uuid=jsmith.id)
         with self.assertRaisesRegex(LockedIdentityError, msg):
@@ -3037,7 +3037,7 @@ class TestEnroll(TestCase):
 
         op1_args = json.loads(op1.args)
         self.assertEqual(len(op1_args), 4)
-        self.assertEqual(op1_args['uidentity'], jsmith.uidentity.uuid)
+        self.assertEqual(op1_args['individual'], jsmith.individual.uuid)
         self.assertEqual(op1_args['organization'], org.name)
         self.assertEqual(op1_args['start'], str(datetime_to_utc(datetime.datetime(1999, 1, 1))))
         self.assertEqual(op1_args['end'], str(datetime_to_utc(datetime.datetime(2000, 1, 1))))
@@ -3080,17 +3080,17 @@ class TestWithdraw(TestCase):
                    to_date=datetime.datetime(2014, 1, 1))
 
     def test_withdraw(self):
-        """Check whether it withdraws a unique identity from an organization during the given period"""
+        """Check whether it withdraws an individual from an organization during the given period"""
 
-        uidentity = api.withdraw(self.ctx,
-                                 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
-                                 from_date=datetime.datetime(2007, 1, 1),
-                                 to_date=datetime.datetime(2013, 1, 1))
+        individual = api.withdraw(self.ctx,
+                                  'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                                  from_date=datetime.datetime(2007, 1, 1),
+                                  to_date=datetime.datetime(2013, 1, 1))
 
         # Tests
-        self.assertIsInstance(uidentity, UniqueIdentity)
+        self.assertIsInstance(individual, Individual)
 
-        enrollments = uidentity.enrollments.all()
+        enrollments = individual.enrollments.all()
         self.assertEqual(len(enrollments), 3)
 
         enrollment = enrollments[0]
@@ -3109,8 +3109,8 @@ class TestWithdraw(TestCase):
         self.assertEqual(enrollment.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
 
         # Check database object
-        uidentity_db = UniqueIdentity.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
-        enrollments_db = uidentity_db.enrollments.all()
+        individual_db = Individual.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        enrollments_db = individual_db.enrollments.all()
         self.assertEqual(len(enrollments_db), 3)
 
         enrollment_db = enrollments_db[0]
@@ -3129,8 +3129,8 @@ class TestWithdraw(TestCase):
         self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
 
         # Other enrollments were not deleted
-        uidentity_db = UniqueIdentity.objects.get(uuid='3283e58cef2b80007aa1dfc16f6dd20ace1aee96')
-        enrollments_db = uidentity_db.enrollments.all()
+        individual_db = Individual.objects.get(uuid='3283e58cef2b80007aa1dfc16f6dd20ace1aee96')
+        enrollments_db = individual_db.enrollments.all()
         self.assertEqual(len(enrollments_db), 1)
 
         enrollment_db = enrollments_db[0]
@@ -3139,14 +3139,14 @@ class TestWithdraw(TestCase):
         self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
 
     def test_withdraw_default_ranges(self):
-        """Check if it withdraws a unique identity using default ranges when they are not given"""
+        """Check if it withdraws an individual using default ranges when they are not given"""
 
-        uidentity = api.withdraw(self.ctx, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example')
+        individual = api.withdraw(self.ctx, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example')
 
         # Tests
-        self.assertIsInstance(uidentity, UniqueIdentity)
+        self.assertIsInstance(individual, Individual)
 
-        enrollments = uidentity.enrollments.all()
+        enrollments = individual.enrollments.all()
         self.assertEqual(len(enrollments), 1)
 
         enrollment = enrollments[0]
@@ -3155,8 +3155,8 @@ class TestWithdraw(TestCase):
         self.assertEqual(enrollment.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
 
         # Check database object
-        uidentity_db = UniqueIdentity.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
-        enrollments_db = uidentity_db.enrollments.all()
+        individual_db = Individual.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        enrollments_db = individual_db.enrollments.all()
         self.assertEqual(len(enrollments_db), 1)
 
         enrollment_db = enrollments_db[0]
@@ -3168,11 +3168,11 @@ class TestWithdraw(TestCase):
         """Check if last modification date is updated"""
 
         before_dt = datetime_utcnow()
-        uidentity = api.withdraw(self.ctx, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example')
+        individual = api.withdraw(self.ctx, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example')
         after_dt = datetime_utcnow()
 
-        self.assertLessEqual(before_dt, uidentity.last_modified)
-        self.assertGreaterEqual(after_dt, uidentity.last_modified)
+        self.assertLessEqual(before_dt, individual.last_modified)
+        self.assertGreaterEqual(after_dt, individual.last_modified)
 
     def test_period_invalid(self):
         """Check whether enrollments cannot be withdrawn giving invalid period ranges"""
@@ -3239,7 +3239,7 @@ class TestWithdraw(TestCase):
         self.assertEqual(len(transactions), 0)
 
     def test_non_existing_uuid(self):
-        """Check if it fails withdrawing from not existing unique identities"""
+        """Check if it fails withdrawing from not existing individuals"""
 
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
@@ -3282,13 +3282,13 @@ class TestWithdraw(TestCase):
         self.assertEqual(len(transactions), 0)
 
     def test_locked_uuid(self):
-        """Check if it fails when the unique identity is locked"""
+        """Check if it fails when the individual is locked"""
 
         uuid = 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'
 
-        uidentity = UniqueIdentity.objects.get(uuid=uuid)
-        uidentity.is_locked = True
-        uidentity.save()
+        individual = Individual.objects.get(uuid=uuid)
+        individual.is_locked = True
+        individual.save()
 
         msg = UUID_LOCKED_ERROR.format(uuid=uuid)
         with self.assertRaisesRegex(LockedIdentityError, msg):
@@ -3387,7 +3387,7 @@ class TestWithdraw(TestCase):
 
         op4_args = json.loads(op4.args)
         self.assertEqual(len(op4_args), 4)
-        self.assertEqual(op4_args['uidentity'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(op4_args['individual'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
         self.assertEqual(op4_args['organization'], 'Example')
         self.assertEqual(op4_args['start'], str(datetime_to_utc(datetime.datetime(2006, 1, 1))))
         self.assertEqual(op4_args['end'], str(datetime_to_utc(datetime.datetime(2007, 1, 1))))
@@ -3402,7 +3402,7 @@ class TestWithdraw(TestCase):
 
         op5_args = json.loads(op5.args)
         self.assertEqual(len(op5_args), 4)
-        self.assertEqual(op5_args['uidentity'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(op5_args['individual'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
         self.assertEqual(op5_args['organization'], 'Example')
         self.assertEqual(op5_args['start'], str(datetime_to_utc(datetime.datetime(2013, 1, 1))))
         self.assertEqual(op5_args['end'], str(datetime_to_utc(datetime.datetime(2014, 1, 1))))
@@ -3496,7 +3496,7 @@ class TestMergeIdentities(TestCase):
                            country_code='US')
 
     def test_merge_identities(self):
-        """Check whether it merges two unique identities, merging their ids, enrollments and profiles"""
+        """Check whether it merges two individuals, merging their ids, enrollments and profiles"""
 
         api.update_profile(self.ctx,
                            uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
@@ -3512,15 +3512,15 @@ class TestMergeIdentities(TestCase):
                            is_bot=True,
                            country_code='US')
 
-        uidentity = api.merge_identities(self.ctx,
-                                         from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
-                                         to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        individual = api.merge_identities(self.ctx,
+                                          from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
+                                          to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
 
         # Tests
-        self.assertIsInstance(uidentity, UniqueIdentity)
-        self.assertEqual(uidentity.uuid, 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        self.assertIsInstance(individual, Individual)
+        self.assertEqual(individual.uuid, 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
 
-        profile = uidentity.profile
+        profile = individual.profile
         self.assertEqual(profile.name, 'John Smith')
         self.assertEqual(profile.email, 'jsmith@profile-email')
         self.assertEqual(profile.gender, 'male')
@@ -3531,7 +3531,7 @@ class TestMergeIdentities(TestCase):
         self.assertEqual(profile.country.code, 'US')
         self.assertEqual(profile.country.alpha3, 'USA')
 
-        identities = uidentity.identities.all()
+        identities = individual.identities.all()
         self.assertEqual(len(identities), 4)
 
         id1 = identities[0]
@@ -3554,7 +3554,7 @@ class TestMergeIdentities(TestCase):
         self.assertEqual(id4.email, 'jsmith@example')
         self.assertEqual(id4.source, 'scm')
 
-        enrollments = uidentity.enrollments.all()
+        enrollments = individual.enrollments.all()
         self.assertEqual(len(enrollments), 2)
 
         rol1 = enrollments[0]
@@ -3568,7 +3568,7 @@ class TestMergeIdentities(TestCase):
         self.assertEqual(rol2.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
 
     def test_merge_multiple_identities(self):
-        """Check whether it merges more than two unique identities, merging their ids, enrollments and profiles"""
+        """Check whether it merges more than two individuals, merging their ids, enrollments and profiles"""
 
         api.update_profile(self.ctx,
                            uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
@@ -3584,16 +3584,16 @@ class TestMergeIdentities(TestCase):
                            is_bot=True,
                            country_code='US')
 
-        uidentity = api.merge_identities(self.ctx,
-                                         from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
-                                                     '1c13fec7a328201fc6a230fe43eb81df0e20626e'],
-                                         to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        individual = api.merge_identities(self.ctx,
+                                          from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+                                                      '1c13fec7a328201fc6a230fe43eb81df0e20626e'],
+                                          to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
 
         # Tests
-        self.assertIsInstance(uidentity, UniqueIdentity)
-        self.assertEqual(uidentity.uuid, 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        self.assertIsInstance(individual, Individual)
+        self.assertEqual(individual.uuid, 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
 
-        profile = uidentity.profile
+        profile = individual.profile
         self.assertEqual(profile.name, 'John Smith')
         self.assertEqual(profile.email, 'jsmith@profile-email')
         self.assertEqual(profile.gender, 'male')
@@ -3604,7 +3604,7 @@ class TestMergeIdentities(TestCase):
         self.assertEqual(profile.country.code, 'US')
         self.assertEqual(profile.country.alpha3, 'USA')
 
-        identities = uidentity.identities.all()
+        identities = individual.identities.all()
         self.assertEqual(len(identities), 7)
 
         id1 = identities[0]
@@ -3642,7 +3642,7 @@ class TestMergeIdentities(TestCase):
         self.assertEqual(id7.email, 'jsmith@example')
         self.assertEqual(id7.source, 'scm')
 
-        enrollments = uidentity.enrollments.all()
+        enrollments = individual.enrollments.all()
         self.assertEqual(len(enrollments), 2)
 
         rol1 = enrollments[0]
@@ -3656,7 +3656,7 @@ class TestMergeIdentities(TestCase):
         self.assertEqual(rol2.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
 
     def test_non_existing_from_uuids(self):
-        """Check if it fails merging unique identities when source uuids is `None` or an empty list"""
+        """Check if it fails merging individuals when source uuids is `None` or an empty list"""
 
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
@@ -3670,7 +3670,7 @@ class TestMergeIdentities(TestCase):
         self.assertEqual(len(transactions), 0)
 
     def test_non_existing_from_uuid(self):
-        """Check if it fails merging unique identities when source uuid is `None` or empty"""
+        """Check if it fails merging individuals when source uuid is `None` or empty"""
 
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
@@ -3684,7 +3684,7 @@ class TestMergeIdentities(TestCase):
         self.assertEqual(len(transactions), 0)
 
     def test_non_existing_to_uuid(self):
-        """Check if it fails merging two unique identities when destination uuid is `None` or empty"""
+        """Check if it fails merging two individuals when destination uuid is `None` or empty"""
 
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
@@ -3698,7 +3698,7 @@ class TestMergeIdentities(TestCase):
         self.assertEqual(len(transactions), 0)
 
     def test_from_uuid_to_uuid_equal(self):
-        """Check if it fails merging two unique identities when they are equal"""
+        """Check if it fails merging two individuals when they are equal"""
 
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
@@ -3712,13 +3712,13 @@ class TestMergeIdentities(TestCase):
         self.assertEqual(len(transactions), 0)
 
     def test_moved_enrollments(self):
-        """Check whether it merges two unique identities, merging their enrollments with multiple periods"""
+        """Check whether it merges two individuals, merging their enrollments with multiple periods"""
 
-        uidentity = api.merge_identities(self.ctx,
-                                         from_uuids=['ebe8f55d8988fce02997389d530579ad939f1698'],
-                                         to_uuid='437386d9d072320387d0c802f772a5401cddc3e6')
+        individual = api.merge_identities(self.ctx,
+                                          from_uuids=['ebe8f55d8988fce02997389d530579ad939f1698'],
+                                          to_uuid='437386d9d072320387d0c802f772a5401cddc3e6')
 
-        enrollments = uidentity.enrollments.all()
+        enrollments = individual.enrollments.all()
         self.assertEqual(len(enrollments), 3)
 
         rol1 = enrollments[0]
@@ -3737,13 +3737,13 @@ class TestMergeIdentities(TestCase):
         self.assertEqual(rol3.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
 
     def test_overlapping_enrollments(self):
-        """Check whether it merges two unique identities having overlapping enrollments"""
+        """Check whether it merges two individuals having overlapping enrollments"""
 
-        uidentity = api.merge_identities(self.ctx,
-                                         from_uuids=['4dd0fdcd06a6be6f0b7893bf1afcef3e3191753a'],
-                                         to_uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        individual = api.merge_identities(self.ctx,
+                                          from_uuids=['4dd0fdcd06a6be6f0b7893bf1afcef3e3191753a'],
+                                          to_uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
-        enrollments = uidentity.enrollments.all()
+        enrollments = individual.enrollments.all()
         self.assertEqual(len(enrollments), 1)
 
         rol = enrollments[0]
@@ -3752,13 +3752,13 @@ class TestMergeIdentities(TestCase):
         self.assertEqual(rol.end, datetime.datetime(2017, 6, 1, tzinfo=UTC))
 
     def test_overlapping_enrollments_different_orgs(self):
-        """Check whether it merges two unique identities having overlapping periods in different organizations"""
+        """Check whether it merges two individuals having overlapping periods in different organizations"""
 
-        uidentity = api.merge_identities(self.ctx,
-                                         from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
-                                         to_uuid='a11604f983f8786913e6d1449f2eac1618b0b2ee')
+        individual = api.merge_identities(self.ctx,
+                                          from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
+                                          to_uuid='a11604f983f8786913e6d1449f2eac1618b0b2ee')
 
-        enrollments = uidentity.enrollments.all()
+        enrollments = individual.enrollments.all()
         self.assertEqual(len(enrollments), 2)
 
         rol1 = enrollments[0]
@@ -3772,13 +3772,13 @@ class TestMergeIdentities(TestCase):
         self.assertEqual(rol2.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
 
     def test_duplicate_enrollments(self):
-        """Check whether it merges two unique identities having duplicate enrollments"""
+        """Check whether it merges two individuals having duplicate enrollments"""
 
-        uidentity = api.merge_identities(self.ctx,
-                                         from_uuids=['f29b50520d35d046db0d53b301418ad9aa16e7e3'],
-                                         to_uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        individual = api.merge_identities(self.ctx,
+                                          from_uuids=['f29b50520d35d046db0d53b301418ad9aa16e7e3'],
+                                          to_uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
-        enrollments = uidentity.enrollments.all()
+        enrollments = individual.enrollments.all()
         self.assertEqual(len(enrollments), 1)
 
         rol = enrollments[0]
@@ -3791,17 +3791,17 @@ class TestMergeIdentities(TestCase):
 
         before_dt = datetime_utcnow()
 
-        uidentity1 = api.add_identity(self.ctx,
-                                      'scm',
-                                      email='john.doe@example')
+        individual1 = api.add_identity(self.ctx,
+                                       'scm',
+                                       email='john.doe@example')
         api.add_identity(self.ctx,
                          'git',
                          email='john.doe@example',
                          uuid='b6bee805956c03699b59e15175261f85a10d43f3')
 
-        uidentity2 = api.add_identity(self.ctx,
-                                      'scm',
-                                      email='jdoe@example')
+        individual2 = api.add_identity(self.ctx,
+                                       'scm',
+                                       email='jdoe@example')
         api.add_identity(self.ctx,
                          'git',
                          email='jdoe@example',
@@ -3809,28 +3809,28 @@ class TestMergeIdentities(TestCase):
 
         after_dt = datetime_utcnow()
 
-        uid1 = UniqueIdentity.objects.get(uuid=uidentity1.id)
-        uid2 = UniqueIdentity.objects.get(uuid=uidentity2.id)
+        indv1 = Individual.objects.get(uuid=individual1.id)
+        indv2 = Individual.objects.get(uuid=individual2.id)
 
-        self.assertLessEqual(before_dt, uid1.last_modified)
-        self.assertGreaterEqual(after_dt, uid1.last_modified)
+        self.assertLessEqual(before_dt, indv1.last_modified)
+        self.assertGreaterEqual(after_dt, indv1.last_modified)
 
-        self.assertLessEqual(before_dt, uid2.last_modified)
-        self.assertGreaterEqual(after_dt, uid2.last_modified)
+        self.assertLessEqual(before_dt, indv2.last_modified)
+        self.assertGreaterEqual(after_dt, indv2.last_modified)
 
         # Merge identities
         before_merge_dt = datetime_utcnow()
-        uid = api.merge_identities(self.ctx,
-                                   from_uuids=['b6bee805956c03699b59e15175261f85a10d43f3'],
-                                   to_uuid='a033ed6d1498a58f7cf91bd56e3c746d7ddb9874')
+        indv = api.merge_identities(self.ctx,
+                                    from_uuids=['b6bee805956c03699b59e15175261f85a10d43f3'],
+                                    to_uuid='a033ed6d1498a58f7cf91bd56e3c746d7ddb9874')
         after_merge_dt = datetime_utcnow()
 
-        self.assertLessEqual(before_dt, uid.last_modified)
-        self.assertLessEqual(after_dt, uid.last_modified)
-        self.assertLessEqual(before_merge_dt, uid.last_modified)
-        self.assertGreaterEqual(after_merge_dt, uid.last_modified)
+        self.assertLessEqual(before_dt, indv.last_modified)
+        self.assertLessEqual(after_dt, indv.last_modified)
+        self.assertLessEqual(before_merge_dt, indv.last_modified)
+        self.assertGreaterEqual(after_merge_dt, indv.last_modified)
 
-        identities = uid.identities.all()
+        identities = indv.identities.all()
 
         # Not merged (moved) identities were not modified
         id1 = identities[0]
@@ -3863,7 +3863,7 @@ class TestMergeIdentities(TestCase):
         self.assertGreaterEqual(after_merge_dt, id4.last_modified)
 
     def test_merge_identities_and_swap_profile(self):
-        """Check whether it merges two unique identities, merging their profiles"""
+        """Check whether it merges two individuals, merging their profiles"""
 
         api.update_profile(self.ctx,
                            uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', name='J. Smith',
@@ -3872,11 +3872,11 @@ class TestMergeIdentities(TestCase):
                            uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed', name='John Smith',
                            email='jsmith@profile-email', is_bot=True, country_code='US')
 
-        uidentity = api.merge_identities(self.ctx,
-                                         from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
-                                         to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        individual = api.merge_identities(self.ctx,
+                                          from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
+                                          to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
 
-        profile = uidentity.profile
+        profile = individual.profile
         self.assertEqual(profile.name, 'John Smith')
         self.assertEqual(profile.email, 'jsmith@profile-email')
         self.assertEqual(profile.gender, 'male')
@@ -3889,17 +3889,17 @@ class TestMergeIdentities(TestCase):
         self.assertEqual(profile.country.alpha3, 'USA')
 
     def test_empty_source_profile(self):
-        """Check whether it merges two unique identities when the profile from the source identity is empty"""
+        """Check whether it merges two individuals when the profile from the source identity is empty"""
 
         api.update_profile(self.ctx,
                            uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed', name='John Smith',
                            email='jsmith@profile-email')
 
-        uidentity = api.merge_identities(self.ctx,
-                                         from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
-                                         to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        individual = api.merge_identities(self.ctx,
+                                          from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
+                                          to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
 
-        profile = uidentity.profile
+        profile = individual.profile
         self.assertEqual(profile.name, 'John Smith')
         self.assertEqual(profile.email, 'jsmith@profile-email')
         self.assertEqual(profile.gender, None)
@@ -3907,7 +3907,7 @@ class TestMergeIdentities(TestCase):
         self.assertEqual(profile.is_bot, False)
 
     def test_empty_destination_profile(self):
-        """Check whether it merges two unique identities when the profile from the destination identity is empty"""
+        """Check whether it merges two individuals when the profile from the destination identity is empty"""
 
         api.update_profile(self.ctx,
                            uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', name='J. Smith',
@@ -3917,11 +3917,11 @@ class TestMergeIdentities(TestCase):
                            uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed',
                            name='', email='', gender='', country_code='')
 
-        uidentity = api.merge_identities(self.ctx,
-                                         from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
-                                         to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        individual = api.merge_identities(self.ctx,
+                                          from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
+                                          to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
 
-        profile = uidentity.profile
+        profile = individual.profile
         self.assertEqual(profile.name, 'J. Smith')
         self.assertEqual(profile.email, 'jsmith@example')
         self.assertEqual(profile.gender, 'male')
@@ -3929,7 +3929,7 @@ class TestMergeIdentities(TestCase):
         self.assertEqual(profile.is_bot, False)
 
     def test_empty_profiles(self):
-        """Check whether it merges two unique identities when both of their profiles are empty"""
+        """Check whether it merges two individuals when both of their profiles are empty"""
 
         api.update_profile(self.ctx,
                            uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
@@ -3939,11 +3939,11 @@ class TestMergeIdentities(TestCase):
                            uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed',
                            name='', email='', gender='', country_code='')
 
-        uidentity = api.merge_identities(self.ctx,
-                                         from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
-                                         to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        individual = api.merge_identities(self.ctx,
+                                          from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
+                                          to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
 
-        profile = uidentity.profile
+        profile = individual.profile
         self.assertEqual(profile.name, None)
         self.assertEqual(profile.email, None)
         self.assertEqual(profile.gender, None)
@@ -3951,14 +3951,14 @@ class TestMergeIdentities(TestCase):
         self.assertEqual(profile.is_bot, False)
 
     def test_locked_uuid(self):
-        """Check if it fails when the unique identity is locked"""
+        """Check if it fails when the individual is locked"""
 
         from_uuid = 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'
         to_uuid = 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed'
 
-        uidentity = UniqueIdentity.objects.get(uuid=from_uuid)
-        uidentity.is_locked = True
-        uidentity.save()
+        individual = Individual.objects.get(uuid=from_uuid)
+        individual.is_locked = True
+        individual.save()
 
         msg = UUID_LOCKED_ERROR.format(uuid=from_uuid)
         with self.assertRaisesRegex(LockedIdentityError, msg):
@@ -4009,7 +4009,7 @@ class TestMergeIdentities(TestCase):
 
         op1_args = json.loads(op1.args)
         self.assertEqual(len(op1_args), 2)
-        self.assertEqual(op1_args['uidentity'], 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        self.assertEqual(op1_args['individual'], 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
         self.assertEqual(op1_args['identity'], '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
 
         op2 = operations[1]
@@ -4022,7 +4022,7 @@ class TestMergeIdentities(TestCase):
 
         op2_args = json.loads(op2.args)
         self.assertEqual(len(op2_args), 2)
-        self.assertEqual(op2_args['uidentity'], 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        self.assertEqual(op2_args['individual'], 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
         self.assertEqual(op2_args['identity'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
         op3 = operations[2]
@@ -4065,7 +4065,7 @@ class TestMergeIdentities(TestCase):
 
         op5_args = json.loads(op5.args)
         self.assertEqual(len(op5_args), 4)
-        self.assertEqual(op5_args['uidentity'], 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        self.assertEqual(op5_args['individual'], 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
         self.assertEqual(op5_args['organization'], 'Example')
         self.assertEqual(op5_args['start'], str(datetime_to_utc(datetime.datetime(1900, 1, 1))))
         self.assertEqual(op5_args['end'], str(datetime_to_utc(datetime.datetime(2017, 6, 1))))
@@ -4080,7 +4080,7 @@ class TestMergeIdentities(TestCase):
 
         op6_args = json.loads(op6.args)
         self.assertEqual(len(op6_args), 4)
-        self.assertEqual(op6_args['uidentity'], 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        self.assertEqual(op6_args['individual'], 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
         self.assertEqual(op6_args['organization'], 'Bitergia')
         self.assertEqual(op6_args['start'], str(datetime_to_utc(datetime.datetime(2017, 6, 2))))
         self.assertEqual(op6_args['end'], str(datetime_to_utc(datetime.datetime(2100, 1, 1))))
@@ -4095,19 +4095,19 @@ class TestMergeIdentities(TestCase):
 
         op7_args = json.loads(op7.args)
         self.assertEqual(len(op7_args), 1)
-        self.assertEqual(op7_args['uidentity'], 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        self.assertEqual(op7_args['individual'], 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
 
         op8 = operations[7]
         self.assertIsInstance(op8, Operation)
         self.assertEqual(op8.op_type, Operation.OpType.DELETE.value)
-        self.assertEqual(op8.entity_type, 'unique_identity')
+        self.assertEqual(op8.entity_type, 'individual')
         self.assertEqual(op8.target, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
         self.assertEqual(op8.trx, trx)
         self.assertGreater(op8.timestamp, timestamp)
 
         op8_args = json.loads(op8.args)
         self.assertEqual(len(op8_args), 1)
-        self.assertEqual(op8_args['uidentity'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(op8_args['individual'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
 
 class TestUnmergeIdentities(TestCase):
@@ -4163,19 +4163,19 @@ class TestUnmergeIdentities(TestCase):
                          uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
     def test_unmerge_identities(self):
-        """Check whether it unmerges one identity from its parent unique identity"""
+        """Check whether it unmerges one identity from its parent individual"""
 
-        uidentities = api.unmerge_identities(self.ctx,
+        individuals = api.unmerge_identities(self.ctx,
                                              uuids=['67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6'])
 
         # Tests
-        self.assertEqual(len(uidentities), 1)
+        self.assertEqual(len(individuals), 1)
 
-        uidentity = uidentities[0]
-        self.assertIsInstance(uidentity, UniqueIdentity)
-        self.assertEqual(uidentity.uuid, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        individual = individuals[0]
+        self.assertIsInstance(individual, Individual)
+        self.assertEqual(individual.uuid, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
 
-        profile = uidentity.profile
+        profile = individual.profile
 
         self.assertEqual(profile.email, 'jsmith-git@example')
         self.assertEqual(profile.is_bot, False)
@@ -4186,7 +4186,7 @@ class TestUnmergeIdentities(TestCase):
         self.assertIsNone(profile.country_id)
         self.assertIsNone(profile.country)
 
-        identities = uidentity.identities.all()
+        identities = individual.identities.all()
         self.assertEqual(len(identities), 1)
 
         id1 = identities[0]
@@ -4194,24 +4194,24 @@ class TestUnmergeIdentities(TestCase):
         self.assertEqual(id1.email, 'jsmith-git@example')
         self.assertEqual(id1.source, 'git')
 
-        enrollments = uidentity.enrollments.all()
+        enrollments = individual.enrollments.all()
         self.assertEqual(len(enrollments), 0)
 
-        # Testing everything remained the same in the old parent unique identity
+        # Testing everything remained the same in the old parent individual
 
-        former_uidentity = UniqueIdentity.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        former_individual = Individual.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
-        self.assertIsInstance(former_uidentity, UniqueIdentity)
-        self.assertEqual(former_uidentity.uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertIsInstance(former_individual, Individual)
+        self.assertEqual(former_individual.uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
-        profile = former_uidentity.profile
+        profile = former_individual.profile
         self.assertEqual(profile.name, 'John Smith')
         self.assertEqual(profile.email, 'jsmith@profile-email')
         self.assertEqual(profile.is_bot, False)
         self.assertIsNone(profile.gender)
         self.assertIsNone(profile.gender_acc)
 
-        identities = former_uidentity.identities.all()
+        identities = former_individual.identities.all()
         self.assertEqual(len(identities), 5)
 
         id1 = identities[0]
@@ -4239,7 +4239,7 @@ class TestUnmergeIdentities(TestCase):
         self.assertEqual(id5.email, 'jsmith@example')
         self.assertEqual(id5.source, 'scm')
 
-        enrollments = former_uidentity.enrollments.all()
+        enrollments = former_individual.enrollments.all()
         self.assertEqual(len(enrollments), 2)
 
         rol1 = enrollments[0]
@@ -4255,18 +4255,18 @@ class TestUnmergeIdentities(TestCase):
     def test_unmerge_multiple_identities(self):
         """Check whether it unmerges more than two identities"""
 
-        uidentities = api.unmerge_identities(self.ctx,
+        individuals = api.unmerge_identities(self.ctx,
                                              uuids=['67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6',
                                                     '31581d7c6b039318e9048c4d8571666c26a5622b'])
 
         # Tests
-        self.assertEqual(len(uidentities), 2)
+        self.assertEqual(len(individuals), 2)
 
-        uidentity = uidentities[0]
-        self.assertIsInstance(uidentity, UniqueIdentity)
-        self.assertEqual(uidentity.uuid, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        individual = individuals[0]
+        self.assertIsInstance(individual, Individual)
+        self.assertEqual(individual.uuid, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
 
-        profile = uidentity.profile
+        profile = individual.profile
         self.assertEqual(profile.email, 'jsmith-git@example')
         self.assertEqual(profile.is_bot, False)
         self.assertIsNone(profile.name)
@@ -4276,7 +4276,7 @@ class TestUnmergeIdentities(TestCase):
         self.assertIsNone(profile.country_id)
         self.assertIsNone(profile.country)
 
-        identities = uidentity.identities.all()
+        identities = individual.identities.all()
         self.assertEqual(len(identities), 1)
 
         id1 = identities[0]
@@ -4284,14 +4284,14 @@ class TestUnmergeIdentities(TestCase):
         self.assertEqual(id1.email, 'jsmith-git@example')
         self.assertEqual(id1.source, 'git')
 
-        enrollments = uidentity.enrollments.all()
+        enrollments = individual.enrollments.all()
         self.assertEqual(len(enrollments), 0)
 
-        uidentity = uidentities[1]
-        self.assertIsInstance(uidentity, UniqueIdentity)
-        self.assertEqual(uidentity.uuid, '31581d7c6b039318e9048c4d8571666c26a5622b')
+        individual = individuals[1]
+        self.assertIsInstance(individual, Individual)
+        self.assertEqual(individual.uuid, '31581d7c6b039318e9048c4d8571666c26a5622b')
 
-        profile = uidentity.profile
+        profile = individual.profile
         self.assertEqual(profile.email, 'jsmith3@libresoft')
         self.assertEqual(profile.is_bot, False)
         self.assertIsNone(profile.name)
@@ -4301,7 +4301,7 @@ class TestUnmergeIdentities(TestCase):
         self.assertIsNone(profile.country_id)
         self.assertIsNone(profile.country)
 
-        identities = uidentity.identities.all()
+        identities = individual.identities.all()
         self.assertEqual(len(identities), 1)
 
         id1 = identities[0]
@@ -4309,24 +4309,24 @@ class TestUnmergeIdentities(TestCase):
         self.assertEqual(id1.email, 'jsmith3@libresoft')
         self.assertEqual(id1.source, 'phabricator')
 
-        enrollments = uidentity.enrollments.all()
+        enrollments = individual.enrollments.all()
         self.assertEqual(len(enrollments), 0)
 
-        # Testing everything remained the same in the old parent unique identity
+        # Testing everything remained the same in the old parent individual
 
-        former_uidentity = UniqueIdentity.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        former_individual = Individual.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
-        self.assertIsInstance(former_uidentity, UniqueIdentity)
-        self.assertEqual(former_uidentity.uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertIsInstance(former_individual, Individual)
+        self.assertEqual(former_individual.uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
-        profile = former_uidentity.profile
+        profile = former_individual.profile
         self.assertEqual(profile.name, 'John Smith')
         self.assertEqual(profile.email, 'jsmith@profile-email')
         self.assertEqual(profile.is_bot, False)
         self.assertIsNone(profile.gender)
         self.assertIsNone(profile.gender_acc)
 
-        identities = former_uidentity.identities.all()
+        identities = former_individual.identities.all()
         self.assertEqual(len(identities), 4)
 
         id1 = identities[0]
@@ -4349,7 +4349,7 @@ class TestUnmergeIdentities(TestCase):
         self.assertEqual(id4.email, 'jsmith@example')
         self.assertEqual(id4.source, 'scm')
 
-        enrollments = former_uidentity.enrollments.all()
+        enrollments = former_individual.enrollments.all()
         self.assertEqual(len(enrollments), 2)
 
         rol1 = enrollments[0]
@@ -4362,18 +4362,18 @@ class TestUnmergeIdentities(TestCase):
         self.assertEqual(rol2.start, datetime.datetime(2017, 6, 2, tzinfo=UTC))
         self.assertEqual(rol2.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
 
-    def test_uuid_from_unique_identity(self):
-        """Check if it ignores when the identity to unmerge is the same as the parent unique identity"""
+    def test_uuid_from_individual(self):
+        """Check if it ignores when the identity to unmerge is the same as the parent individual"""
 
-        uidentities = api.unmerge_identities(self.ctx,
+        individuals = api.unmerge_identities(self.ctx,
                                              uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'])
 
-        self.assertEqual(len(uidentities), 1)
+        self.assertEqual(len(individuals), 1)
 
-        uidentity = uidentities[0]
-        self.assertEqual(uidentity.uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        individual = individuals[0]
+        self.assertEqual(individual.uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
-        identities = uidentity.identities.all()
+        identities = individual.identities.all()
         self.assertEqual(len(identities), 6)
 
         id1 = identities[0]
@@ -4437,9 +4437,9 @@ class TestUnmergeIdentities(TestCase):
 
         before_dt = datetime_utcnow()
 
-        uidentity1 = api.add_identity(self.ctx,
-                                      'scm',
-                                      email='john.doe@example')
+        individual1 = api.add_identity(self.ctx,
+                                       'scm',
+                                       email='john.doe@example')
         api.add_identity(self.ctx,
                          'git',
                          email='john.doe@example',
@@ -4447,25 +4447,25 @@ class TestUnmergeIdentities(TestCase):
 
         after_dt = datetime_utcnow()
 
-        uid1 = UniqueIdentity.objects.get(uuid=uidentity1.id)
+        indv1 = Individual.objects.get(uuid=individual1.id)
 
-        self.assertLessEqual(before_dt, uid1.last_modified)
-        self.assertGreaterEqual(after_dt, uid1.last_modified)
+        self.assertLessEqual(before_dt, indv1.last_modified)
+        self.assertGreaterEqual(after_dt, indv1.last_modified)
 
         # Unmerge identities
         before_unmerge_dt = datetime_utcnow()
-        uids = api.unmerge_identities(self.ctx,
-                                      uuids=['df9af14b5aeb89d0b536a825039d3042eb4e4c27'])
+        indvs = api.unmerge_identities(self.ctx,
+                                       uuids=['df9af14b5aeb89d0b536a825039d3042eb4e4c27'])
         after_unmerge_dt = datetime_utcnow()
 
-        # Check new uidentity
-        uid = uids[0]
-        self.assertLessEqual(before_dt, uid.last_modified)
-        self.assertLessEqual(after_dt, uid.last_modified)
-        self.assertLessEqual(before_unmerge_dt, uid.last_modified)
-        self.assertGreaterEqual(after_unmerge_dt, uid.last_modified)
+        # Check new individual
+        indv = indvs[0]
+        self.assertLessEqual(before_dt, indv.last_modified)
+        self.assertLessEqual(after_dt, indv.last_modified)
+        self.assertLessEqual(before_unmerge_dt, indv.last_modified)
+        self.assertGreaterEqual(after_unmerge_dt, indv.last_modified)
 
-        identities = uid.identities.all()
+        identities = indv.identities.all()
 
         id1 = identities[0]
 
@@ -4475,14 +4475,14 @@ class TestUnmergeIdentities(TestCase):
         self.assertLessEqual(before_unmerge_dt, id1.last_modified)
         self.assertGreaterEqual(after_unmerge_dt, id1.last_modified)
 
-        # Check former parent unique identity
-        uid = UniqueIdentity.objects.get(uuid=uidentity1.id)
-        self.assertLessEqual(before_dt, uid.last_modified)
-        self.assertLessEqual(after_dt, uid.last_modified)
-        self.assertLessEqual(before_unmerge_dt, uid.last_modified)
-        self.assertGreaterEqual(after_unmerge_dt, uid.last_modified)
+        # Check former parent individual
+        indv = Individual.objects.get(uuid=individual1.id)
+        self.assertLessEqual(before_dt, indv.last_modified)
+        self.assertLessEqual(after_dt, indv.last_modified)
+        self.assertLessEqual(before_unmerge_dt, indv.last_modified)
+        self.assertGreaterEqual(after_unmerge_dt, indv.last_modified)
 
-        identities = uid.identities.all()
+        identities = indv.identities.all()
 
         # Not unmerged (moved) identities were not modified
         id1 = identities[0]
@@ -4493,14 +4493,14 @@ class TestUnmergeIdentities(TestCase):
         self.assertGreaterEqual(after_unmerge_dt, id1.last_modified)
 
     def test_locked_uuid(self):
-        """Check if it fails when the unique identity is locked"""
+        """Check if it fails when the individual is locked"""
 
         parent_uuid = 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'
         uuid = '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6'
 
-        uidentity = UniqueIdentity.objects.get(uuid=parent_uuid)
-        uidentity.is_locked = True
-        uidentity.save()
+        individual = Individual.objects.get(uuid=parent_uuid)
+        individual.is_locked = True
+        individual.save()
 
         msg = UUID_LOCKED_ERROR.format(uuid=parent_uuid)
         with self.assertRaisesRegex(LockedIdentityError, msg):
@@ -4541,7 +4541,7 @@ class TestUnmergeIdentities(TestCase):
         op1 = operations[0]
         self.assertIsInstance(op1, Operation)
         self.assertEqual(op1.op_type, Operation.OpType.ADD.value)
-        self.assertEqual(op1.entity_type, 'unique_identity')
+        self.assertEqual(op1.entity_type, 'individual')
         self.assertEqual(op1.target, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
         self.assertEqual(op1.trx, trx)
         self.assertGreater(op1.timestamp, timestamp)
@@ -4560,7 +4560,7 @@ class TestUnmergeIdentities(TestCase):
 
         op2_args = json.loads(op2.args)
         self.assertEqual(len(op2_args), 3)
-        self.assertEqual(op2_args['uidentity'], '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(op2_args['individual'], '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
         self.assertEqual(op2_args['email'], 'jsmith-git@example')
         self.assertIsNone(op2_args['name'])
 
@@ -4575,4 +4575,4 @@ class TestUnmergeIdentities(TestCase):
         op3_args = json.loads(op3.args)
         self.assertEqual(len(op3_args), 2)
         self.assertEqual(op3_args['identity'], '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
-        self.assertEqual(op3_args['uidentity'], '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(op3_args['individual'], '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
