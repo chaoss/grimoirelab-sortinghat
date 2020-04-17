@@ -41,9 +41,9 @@ LOCK_RM_CMD_OP = """mutation {{
 }}"""
 
 
-LOCK_ADD_OUTPUT = """Unique identity {} is locked\n"""
+LOCK_ADD_OUTPUT = """Individual {} is locked\n"""
 
-LOCK_RM_OUTPUT = """Unique identity {} is unlocked\n"""
+LOCK_RM_OUTPUT = """Individual {} is unlocked\n"""
 
 
 LOCK_NOT_FOUND_ERROR = (
@@ -78,7 +78,7 @@ class TestLockAddCommand(unittest.TestCase):
     """Lock add command unit tests"""
 
     def test_lock_add(self):
-        """Check if it adds a lock to a unique identity"""
+        """Check if it adds a lock to an individual"""
 
         responses = [
             {'data': {'lockIdentity': {'uuid': '322397ed782a798ffd9d0bc7e293df4292fe075d'}}}
@@ -136,7 +136,7 @@ class TestLockRmCommand(unittest.TestCase):
     """Lock rm command unit tests"""
 
     def test_lock_rm(self):
-        """Check if it removes a lock from a unique identity"""
+        """Check if it removes a lock from an individual"""
 
         responses = [
             {'data': {'unlockIdentity': {'uuid': '322397ed782a798ffd9d0bc7e293df4292fe075d'}}}

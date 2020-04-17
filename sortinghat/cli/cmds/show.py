@@ -35,42 +35,42 @@ from ..utils import (connect,
 @click.argument('uuid', nargs=1, required=False)
 @sh_client
 def show(ctx, uuid, **extra):
-    """Show information about unique identities.
+    """Show information about individuals.
 
     This command displays, by default, information about all
-    the unique identities stored in the registry. The information
+    the individuals stored in the registry. The information
     shown includes identities and enrollments.
 
     When <uuid> is given, it will show information about the unique
     identity related to <uuid>.
 
-    UUID: unique identity to show
+    UUID: individual to show
     """
     with connect(ctx.obj) as conn:
-        for uidentities in _fetch_unique_identities(conn, uuid=uuid):
+        for individuals in _fetch_individuals(conn, uuid=uuid):
             display('show.tmpl', nl=False,
-                    uidentities=uidentities)
+                    individuals=individuals)
 
 
-def _fetch_unique_identities(client, uuid=None):
-    """Run a server operation to get the list of unique identities."""
+def _fetch_individuals(client, uuid=None):
+    """Run a server operation to get the list of individuals."""
 
     page = 1
     paginate = True
 
     while paginate:
-        op = _generate_uidentities_operation(page, uuid)
+        op = _generate_individuals_operation(page, uuid)
 
         result = client.execute(op)
 
         data = op + result
-        paginate = data.uidentities.page_info.has_next
+        paginate = data.individuals.page_info.has_next
         page += 1
-        yield data.uidentities.entities
+        yield data.individuals.entities
 
 
-def _generate_uidentities_operation(page, uuid):
-    """Define an operation to get the list of organizations."""
+def _generate_individuals_operation(page, uuid):
+    """Define an operation to get the list of individuals."""
 
     args = {
         'page': page
@@ -79,22 +79,22 @@ def _generate_uidentities_operation(page, uuid):
         args['filters'] = {'uuid': uuid}
 
     op = Operation(SortingHatSchema.Query)
-    op.uidentities(**args)
+    op.individuals(**args)
 
     # Select page information
-    op.uidentities().page_info.has_next()
+    op.individuals().page_info.has_next()
 
     # Select identities information
-    uidentity = op.uidentities().entities()
+    individual = op.individuals().entities()
 
-    uidentity.uuid()
-    uidentity.is_locked()
-    uidentity.profile().__fields__('name', 'email',
-                                   'gender', 'is_bot')
-    uidentity.profile().country().__fields__('code', 'name')
+    individual.uuid()
+    individual.is_locked()
+    individual.profile().__fields__('name', 'email',
+                                    'gender', 'is_bot')
+    individual.profile().country().__fields__('code', 'name')
 
-    uidentity.identities().__fields__('id', 'email', 'name', 'username', 'source')
-    uidentity.enrollments().__fields__('start', 'end')
-    uidentity.enrollments().organization().name()
+    individual.identities().__fields__('id', 'email', 'name', 'username', 'source')
+    individual.enrollments().__fields__('start', 'end')
+    individual.enrollments().organization().name()
 
     return op

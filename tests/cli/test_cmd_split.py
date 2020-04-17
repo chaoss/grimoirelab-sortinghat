@@ -36,10 +36,10 @@ SPLIT_CMD_OP = """mutation {{
 }}"""
 
 
-SPLIT_OUTPUT = """New unique identity 322397ed782a798ffd9d0bc7e293df4292fe075d split
-New unique identity a9b403e150dd4af8953a52a4bb841051e4b705d9 split
-New unique identity eda9f62ad321b1fbe5f283cc05e2484516203117 split
-New unique identity ffefc2e3f2a255e9450ac9e2d36f37c28f51bd73 split
+SPLIT_OUTPUT = """New individual 322397ed782a798ffd9d0bc7e293df4292fe075d split
+New individual a9b403e150dd4af8953a52a4bb841051e4b705d9 split
+New individual eda9f62ad321b1fbe5f283cc05e2484516203117 split
+New individual ffefc2e3f2a255e9450ac9e2d36f37c28f51bd73 split
 """
 
 
@@ -93,7 +93,7 @@ class TestSplitCommand(unittest.TestCase):
 
         runner = click.testing.CliRunner()
 
-        # Split into unique identities
+        # Split into individuals
         params = uuids
         result = runner.invoke(split, params)
 
@@ -126,7 +126,7 @@ class TestSplitCommand(unittest.TestCase):
 
         runner = click.testing.CliRunner()
 
-        # Split into unique identities
+        # Split into individuals
         params = uuids
         result = runner.invoke(split, params)
 

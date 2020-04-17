@@ -68,7 +68,7 @@ class TestMergeCommand(unittest.TestCase):
 
     @unittest.mock.patch('sortinghat.cli.utils.SortingHatClient')
     def test_merge(self, mock_client):
-        """Check if it merges a set of unique identities"""
+        """Check if it merges a set of individuals"""
 
         responses = [
             {'data': {'mergeIdentities': {'uuid': 'eda9f62ad321b1fbe5f283cc05e2484516203117'}}}
@@ -78,7 +78,7 @@ class TestMergeCommand(unittest.TestCase):
 
         runner = click.testing.CliRunner()
 
-        # Merge unique identities
+        # Merge individuals
         params = [
             'eda9f62ad321b1fbe5f283cc05e2484516203117',
             '322397ed782a798ffd9d0bc7e293df4292fe075d',

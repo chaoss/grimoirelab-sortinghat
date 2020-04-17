@@ -45,9 +45,9 @@ from ..utils import (connect,
 @sh_client
 def enroll(ctx, uuid, organization, from_date, to_date, force,
            **extra):
-    """Enroll a unique identity in an organization.
+    """Enroll an individual in an organization.
 
-    This command enrolls the unique identity <uuid> in the
+    This command enrolls the individual <uuid> in the
     given <organization>. Both identity and organization must
     exist before adding the new enrollment to the registry.
 
@@ -58,7 +58,7 @@ def enroll(ctx, uuid, organization, from_date, to_date, force,
     timestamps). The default values for these dates are
     '1900-01-01' and '2100-01-01' in UTC.
 
-    Existing enrollments for the same unique identity and
+    Existing enrollments for the same individual and
     organization which overlap with the new period will be
     automatically merged into a single enrollment.
 
@@ -69,7 +69,7 @@ def enroll(ctx, uuid, organization, from_date, to_date, force,
     enrollment, use <force> flag, to overwrite enrollments
     with a more specific range.
 
-    UUID: unique identity to enroll
+    UUID: individual to enroll
 
     ORGANIZATION: name of organization
     """

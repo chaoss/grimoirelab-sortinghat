@@ -42,12 +42,12 @@ from ..utils import (connect,
               help="Date when the enrollment ends")
 @sh_client
 def withdraw(ctx, uuid, organization, from_date, to_date, **extra):
-    """Withdraw a unique identity from an organization.
+    """Withdraw an individual from an organization.
 
-    This command withdraws the unique identity <uuid> from
+    This command withdraws the individual <uuid> from
     <organization> during the given period of time.
 
-    For example, if the unique identity 'A' was enrolled from
+    For example, if the individual 'A' was enrolled from
     '2010-01-01' to '2018-01-01' to the organization 'Example',
     the result of withdrawing that identity from '2014-01-01' to
     '2016-01-01' will be two enrollments for that identity: one
@@ -66,7 +66,7 @@ def withdraw(ctx, uuid, organization, from_date, to_date, **extra):
     deleted. Moreover, an enrollment during the given period
     must exist. Otherwise the command will return an error.
 
-    UUID: unique identity to withdraw
+    UUID: individual to withdraw
 
     ORGANIZATION: name of organization
     """

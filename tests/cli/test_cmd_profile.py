@@ -31,7 +31,7 @@ from sortinghat.cli.cmds.profile import profile
 
 PROFILE_CMD_OP = """mutation {{
   updateProfile(uuid: "{}", data: {{name: "{}", email: "{}", gender: "{}", countryCode: "{}"}}) {{
-    uidentity {{
+    individual {{
       uuid
       profile {{
         name
@@ -49,7 +49,7 @@ PROFILE_CMD_OP = """mutation {{
 
 PROFILE_UUID_CMD_OP = """mutation {{
   updateProfile(uuid: "{}", data: {{}}) {{
-    uidentity {{
+    individual {{
       uuid
       profile {{
         name
@@ -67,7 +67,7 @@ PROFILE_UUID_CMD_OP = """mutation {{
 
 PROFILE_BOT_CMD_OP = """mutation {{
   updateProfile(uuid: "{}", data: {{isBot: {}}}) {{
-    uidentity {{
+    individual {{
       uuid
       profile {{
         name
@@ -84,7 +84,7 @@ PROFILE_BOT_CMD_OP = """mutation {{
 }}"""
 
 
-PROFILE_OUTPUT = """unique identity 17ab00ed3825ec2f50483e33c88df223264182ba
+PROFILE_OUTPUT = """individual 17ab00ed3825ec2f50483e33c88df223264182ba
 
 Profile:
     * Name: Jane Roe
@@ -94,7 +94,7 @@ Profile:
     * Country: US - United States of America
 """
 
-PROFILE_EMPTY_OUTPUT = """unique identity 17ab00ed3825ec2f50483e33c88df223264182ba
+PROFILE_EMPTY_OUTPUT = """individual 17ab00ed3825ec2f50483e33c88df223264182ba
 
 Profile:
     * Name: -
@@ -153,7 +153,7 @@ class TestProfileCommand(unittest.TestCase):
             }
         }
         responses = [
-            {'data': {'updateProfile': {'uidentity': data}}}
+            {'data': {'updateProfile': {'individual': data}}}
         ]
         client = MockClient(responses)
         mock_client.return_value = client
@@ -197,7 +197,7 @@ class TestProfileCommand(unittest.TestCase):
             }
         }
         responses = [
-            {'data': {'updateProfile': {'uidentity': data}}}
+            {'data': {'updateProfile': {'individual': data}}}
         ]
         client = MockClient(responses)
         mock_client.return_value = client
@@ -237,7 +237,7 @@ class TestProfileCommand(unittest.TestCase):
             }
         }
         responses = [
-            {'data': {'updateProfile': {'uidentity': data}}}
+            {'data': {'updateProfile': {'individual': data}}}
         ]
         client = MockClient(responses)
         mock_client.return_value = client
@@ -273,7 +273,7 @@ class TestProfileCommand(unittest.TestCase):
         }
 
         responses = [
-            {'data': {'updateProfile': {'uidentity': data}}}
+            {'data': {'updateProfile': {'individual': data}}}
         ]
         client = MockClient(responses)
         mock_client.return_value = client

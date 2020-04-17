@@ -41,13 +41,13 @@ from ..utils import (connect,
 @click.option('--username',
               help="user name of the identity")
 @click.option('--uuid',
-              help="associates the new identity to this unique identity")
+              help="associates the new identity to this individual")
 @sh_client
 def add(ctx, source, email, name, username, uuid, **extra):
     """Add an identity to the registry.
 
     This command adds a new identity to the registry. By default,
-    a new unique identity will also be created and linked to the
+    a new individual will also be created and linked to the
     new identity.
 
     The registry considers that two identities are distinct when
@@ -61,7 +61,7 @@ def add(ctx, source, email, name, username, uuid, **extra):
     will be registered as different identities.
 
     When <uuid> parameter is set, it creates a new identity that
-    will be linked to the unique identity defined by <uuid>.
+    will be linked to the individual defined by <uuid>.
     Take into account <uuid> must exist before adding the new
     identity.
 
@@ -70,13 +70,13 @@ def add(ctx, source, email, name, username, uuid, **extra):
     is "unknown".
     """
     with connect(ctx.obj) as conn:
-        uid = _add_identity(conn,
+        id_ = _add_identity(conn,
                             source=source, email=email,
                             name=name, username=username,
                             uuid=uuid)
 
-        uuid = uuid or uid
-        display('add.tmpl', uid=uid, uuid=uuid)
+        uuid = uuid or id_
+        display('add.tmpl', id_=id_, uuid=uuid)
 
 
 def _add_identity(conn, **kwargs):
