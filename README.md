@@ -345,6 +345,251 @@ $ sortinghat load identities.json
   $ sortinghat withdraw --from 2014-06-01 --to 2015-09-01 a9b403e150dd4af8953a52a4bb841051e4b705d9 Example
 ```
 
+## Basic API calls
+
+Sortinghat can be integrated on your Python scripts by leveraging on its API. Each API call requires as a parameter
+the database in which the operations will be performed. A database object should thus be created by specifying
+the `user`, `password`, `database` and optional `host` and `port`.
+```
+from sortinghat import api
+from sortinghat.db.database import Database
+
+db = Database('root', '*****', 'test_db')
+```
+ 
+#### Key terms
+
+* `identity_id`: Identifier assigned to the identity.
+* `entity`:  Entity can be any term, word or value to blacklist.
+* `from_date`: Starting date which is a datetime objects. The method `str_to_datetime` can be used to convert the
+    string date and time parameter to datetime object. 
+* `matcher`: Criteria used to match identities.
+* `source`: Source of the identities.
+* `term`: Term to match with an attribute(e.g organization, country name). 
+* `to_date`: Ending date which is a datetime objects. The method `str_to_datetime` can be used to convert the
+    string date and time parameter to datetime object. 
+* `uuid`: Unique identifier for the identity.
+ 
+#### Usage
+ 
+* Add a unique identity to the registry
+```
+api.add_unique_identity(db=db, uuid='a9b403e150dd4af8953a52a4bb841051e4b705d9')
+```
+
+* Add an identity to the registry
+ ```
+source = 'git'
+email = 'jsmith@example.com'
+name = 'John Smith'
+username = 'jsmith'
+uuid = 'a9b403e150dd4af8953a52a4bb841051e4b705d9'
+    
+api.add_identity(db=db, source=source, email=email, name=name, username=username, uuid=uuid)
+```
+
+* Add an organization to the registry
+```
+api.add_organization(db=db, organization='ExampleOrg')
+```
+
+* Add a new domain to the given organization
+
+    To set the domain as the top domain pass `is_top_domain = True`. The domain for an organization can be updated by
+    passing `overwrite=True`. 
+```
+api.add_domain(db=db, organization='ExampleOrg', domain='example.com', is_top_domain=True, overwrite=False)
+```
+
+* Enroll a unique identity to an organization
+```
+from sortinghat.utils import str_to_datetime
+    
+uuid = 'a9b403e150dd4af8953a52a4bb841051e4b705d9'
+organization = 'ExampleOrg'
+from_date = str_to_datetime('2020-04-01')
+to_date = str_to_datetime('2020-04-05')
+    
+api.add_enrollment(db=db, uuid=uuid, organization=organization, from_date=from_date, to_date=to_date)
+```
+
+* Add entity to the matching blacklist
+```
+api.add_to_matching_blacklist(db=db, entity='example')
+```
+
+* List the blacklisted entities available in the registry
+
+    The API returns a list of blacklisted entities sorted by their name.
+```
+api.blacklist(db=db, term='example')
+```
+
+* List the countries available in the registry
+
+    The API returns a list of countries sorted by their country id.
+```
+api.countries(db=db, code='US', term='United States of America')
+```
+
+* Remove a unique identity from the registry
+```
+api.delete_unique_identity(db=db, uuid='a9b403e150dd4af8953a52a4bb841051e4b705d9')
+```
+
+* Remove an identity from the registry
+```
+api.delete_identity(db=db, identity_id='a9b403e150dd4af8953a52a4bb841051e4b705d9')
+```
+
+* Remove an organization from the registry
+```
+api.delete_organization(db=db, organization='ExampleOrg')
+```
+
+* Remove the given organization domain from the registry
+```
+api.delete_domain(db=db, organization='ExampleOrg', domain='example.com')
+```
+
+* Withdraw a unique identity from an organization
+```
+from sortinghat.utils import str_to_datetime
+    
+uuid = 'a9b403e150dd4af8953a52a4bb841051e4b705d9'
+organization = 'ExampleOrg'
+from_date = str_to_datetime('2020-04-01')
+to_date = str_to_datetime('2020-04-05')
+    
+api.delete_enrollment(db=db, uuid=uuid, organization=organization, from_date=from_date, to_date=to_date)
+```
+
+* Remove a blacklisted entity from the registry
+```
+api.delete_from_matching_blacklist(db=db, entity='example')
+```
+
+* List the domains available in the registry
+
+    The API returns a list of domains.
+```
+api.domains(db=db, domain='example.com')
+```
+
+* Edit unique identity profile
+
+    The allowed keywords are, `name`, `email`,`gender`, `gender_acc`, `is_bot` and `country_code`. Any other keyword will be
+    ignored.   
+```
+kwargs = {
+    'name': 'John Doe',
+    'email': 'doe@example.com',
+    'gender': 'Female',
+    'gender_acc': 50,
+    'is_bot': False,
+    'country_code': 'IN'
+}
+api.edit_profile(db=db, uuid='a9b403e150dd4af8953a52a4bb841051e4b705d9', **kwargs)
+```
+
+* List the enrollment information available in the registry
+
+    The API returns a list of enrollments sorted by uuid or by organization.
+```
+from sortinghat.utils import str_to_datetime
+    
+uuid = 'a9b403e150dd4af8953a52a4bb841051e4b705d9'
+organization = 'ExampleOrg'
+from_date = str_to_datetime('2020-04-01')
+to_date = str_to_datetime('2020-04-05')
+    
+api.enrollments(db=db, uuid=uuid, organization=organization, from_date=from_date, to_date=to_date)
+```
+
+* Search for similar unique identities
+
+    The API requires a Matcher object to be passed a parameter. The object can be created using the
+    `create_identity_matcher` method.
+```
+from sortinghat.matcher import create_identity_matcher
+
+matcher = create_identity_matcher()
+
+api.match_identities(db=db, uuid='a9b403e150dd4af8953a52a4bb841051e4b705d9', matcher=matcher)
+```
+
+* Merge one unique identity into another
+```
+from_uuid = 'a9b403e150dd4af8953a52a4bb841051e4b705d9'
+to_uuid = '3de180633322e853861f9ee5f50a87e007b51058'
+    
+api.merge_unique_identities(db=db, from_uuid=from_uuid, to_uuid=to_uuid)
+```
+
+* Merge overlapping enrollments
+```
+api.merge_enrollments(db=db, uuid='a9b403e150dd4af8953a52a4bb841051e4b705d9', organization='ExampleOrg')
+```
+
+* Move an identity to a unique identity
+```
+from_id = 'a9b403e150dd4af8953a52a4bb841051e4b705d9'
+to_uuid = 'a9b403e150dd4af8953a52a4bb841051e4b705d9'
+        
+api.move_identity(db=db, from_id=from_id, to_uuid=to_uuid )
+```
+
+* List the organizations available in the registry
+
+    The API returns a list of organizations sorted by their name.
+```
+api.registry(db=db, term='example')
+```
+
+* Search for the uuids of identities modified on or after a given date
+
+    The API returns a list of uuids of identities modified.
+```
+api.search_last_modified_identities(db=db, after='2020-04-01')
+```
+
+* Search for the uuids of unique identities modified on or after a given date
+
+    The API returns a list of uuids of unique identities modified.
+```
+api.search_last_modified_unique_identities(db=db, after='2020-04-01')
+```
+
+* List unique identities profiles
+    
+    The API returns a list of profile entities. To return only the entities having no gender set `no_gender=True`.
+```
+api.search_profiles(db, no_gender=False)
+```
+
+* Search for unique identities
+
+    The API returns a list of unique identities. The term will be compared with name, email, username and source values
+    of each identity. When `source` is given, this search will be only performed on identities linked to this source.
+```
+api.search_unique_identities(db=db, term='example', source='scm')
+```
+
+* Search for unique identities using slicing
+
+    The API returns a list of unique identities starting from `offset` and limiting a maximum number of identities specified by
+    `limit`. The term will be compared with name, email, username and source values of each identity.
+```
+api.search_unique_identities_slice(db=db, term='example', offset=4, limit=20)
+```
+
+* List the unique identities available in the registry
+
+    The function returns a list of unique identities.
+```
+api.unique_identities(db=db, uuid='a9b403e150dd4af8953a52a4bb841051e4b705d9', source='scm')
+```
+
 ## Import / Export
 
 * Import data from a Sorting Hat JSON file
