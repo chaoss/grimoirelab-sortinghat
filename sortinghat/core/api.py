@@ -232,7 +232,7 @@ def delete_identity(ctx, uuid):
     identity = find_identity(uuid)
     individual = identity.individual
 
-    if individual.uuid == uuid:
+    if individual.mk == uuid:
         delete_individual_db(trxl, identity.individual)
         individual = None
     else:
@@ -342,7 +342,7 @@ def move_identity(ctx, from_id, to_uuid):
 
     identity = find_identity(from_id)
 
-    if identity.id == identity.individual.uuid:
+    if identity.id == identity.individual.mk:
         msg = "'from_id' is an individual and it cannot be moved; use 'merge' instead"
         raise InvalidValueError(msg=msg)
 

@@ -32,7 +32,7 @@ from sortinghat.cli.cmds.profile import profile
 PROFILE_CMD_OP = """mutation {{
   updateProfile(uuid: "{}", data: {{name: "{}", email: "{}", gender: "{}", countryCode: "{}"}}) {{
     individual {{
-      uuid
+      mk
       profile {{
         name
         email
@@ -50,7 +50,7 @@ PROFILE_CMD_OP = """mutation {{
 PROFILE_UUID_CMD_OP = """mutation {{
   updateProfile(uuid: "{}", data: {{}}) {{
     individual {{
-      uuid
+      mk
       profile {{
         name
         email
@@ -68,7 +68,7 @@ PROFILE_UUID_CMD_OP = """mutation {{
 PROFILE_BOT_CMD_OP = """mutation {{
   updateProfile(uuid: "{}", data: {{isBot: {}}}) {{
     individual {{
-      uuid
+      mk
       profile {{
         name
         email
@@ -140,7 +140,7 @@ class TestProfileCommand(unittest.TestCase):
         """Check if it updates the profile"""
 
         data = {
-            'uuid': '17ab00ed3825ec2f50483e33c88df223264182ba',
+            'mk': '17ab00ed3825ec2f50483e33c88df223264182ba',
             'profile': {
                 'name': 'Jane Roe',
                 'email': 'jroe@example.com',
@@ -184,7 +184,7 @@ class TestProfileCommand(unittest.TestCase):
         """Check if it bot argument is set or unset"""
 
         data = {
-            'uuid': '17ab00ed3825ec2f50483e33c88df223264182ba',
+            'mk': '17ab00ed3825ec2f50483e33c88df223264182ba',
             'profile': {
                 'name': 'Jane Roe',
                 'email': 'jroe@example.com',
@@ -224,7 +224,7 @@ class TestProfileCommand(unittest.TestCase):
         """Check if it only displays a profile"""
 
         data = {
-            'uuid': '17ab00ed3825ec2f50483e33c88df223264182ba',
+            'mk': '17ab00ed3825ec2f50483e33c88df223264182ba',
             'profile': {
                 'name': 'Jane Roe',
                 'email': 'jroe@example.com',
@@ -262,7 +262,7 @@ class TestProfileCommand(unittest.TestCase):
         """Check if it displays an empty profile"""
 
         data = {
-            'uuid': '17ab00ed3825ec2f50483e33c88df223264182ba',
+            'mk': '17ab00ed3825ec2f50483e33c88df223264182ba',
             'profile': {
                 'name': None,
                 'email': None,

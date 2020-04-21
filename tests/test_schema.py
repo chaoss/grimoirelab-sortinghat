@@ -64,7 +64,7 @@ DOMAIN_NAME_EMPTY_ERROR = "'domain_name' cannot be an empty string"
 SOURCE_EMPTY_ERROR = "'source' cannot be an empty string"
 IDENTITY_EMPTY_DATA_ERROR = 'identity data cannot be empty'
 FROM_ID_EMPTY_ERROR = "'from_id' cannot be an empty string"
-FROM_ID_IS_UUID_ERROR = "'from_id' is an individual and it cannot be moved; use 'merge' instead"
+FROM_ID_IS_MK_ERROR = "'from_id' is an individual and it cannot be moved; use 'merge' instead"
 FROM_UUID_EMPTY_ERROR = "'from_uuid' cannot be an empty string"
 FROM_UUIDS_EMPTY_ERROR = "'from_uuids' cannot be an empty list"
 TO_UUID_EMPTY_ERROR = "'to_uuid' cannot be an empty string"
@@ -75,7 +75,7 @@ UUIDS_EMPTY_ERROR = "'uuids' cannot be an empty list"
 ORG_DOES_NOT_EXIST_ERROR = "Organization matching query does not exist."
 DOMAIN_DOES_NOT_EXIST_ERROR = "Domain matching query does not exist."
 DOMAIN_NOT_FOUND_ERROR = "example.net not found in the registry"
-UID_DOES_NOT_EXIST_ERROR = "FFFFFFFFFFFFFFF not found in the registry"
+INDIVIDUAL_DOES_NOT_EXIST_ERROR = "FFFFFFFFFFFFFFF not found in the registry"
 ORGANIZATION_BITERGIA_DOES_NOT_EXIST_ERROR = "Bitergia not found in the registry"
 ORGANIZATION_EXAMPLE_DOES_NOT_EXIST_ERROR = "Example not found in the registry"
 ENROLLMENT_DOES_NOT_EXIST_ERROR = "enrollment with range '2050-01-01 00:00:00+00:00'-'2060-01-01 00:00:00+00:00'"\
@@ -188,7 +188,7 @@ SH_ORGS_QUERY_PAGINATION = """{
 SH_INDIVIDUALS_QUERY = """{
   individuals {
     entities {
-      uuid
+      mk
       isLocked
       profile {
         name
@@ -220,7 +220,7 @@ SH_INDIVIDUALS_QUERY = """{
 SH_INDIVIDUALS_UUID_FILTER = """{
   individuals(filters: {uuid: "a9b403e150dd4af8953a52a4bb841051e4b705d9"}) {
     entities {
-      uuid
+      mk
       isLocked
       profile {
         name
@@ -252,7 +252,7 @@ SH_INDIVIDUALS_UUID_FILTER = """{
 SH_INDIVIDUALS_LOCKED_FILTER = """{
   individuals(filters: {isLocked: true}) {
     entities {
-      uuid
+      mk
       isLocked
       profile {
         name
@@ -287,7 +287,7 @@ SH_INDIVIDUALS_UUID_PAGINATION = """{
     pageSize: %d
   ){
     entities {
-      uuid
+      mk
       isLocked
     }
     pageInfo{
@@ -1033,7 +1033,7 @@ class TestIndividuals(django.test.TestCase):
         org_ex = Organization.objects.create(name='Example')
         org_bit = Organization.objects.create(name='Bitergia')
 
-        indv = Individual.objects.create(uuid='a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        indv = Individual.objects.create(mk='a9b403e150dd4af8953a52a4bb841051e4b705d9')
         Profile.objects.create(name=None,
                                email='jsmith@example.com',
                                is_bot=True,
@@ -1065,7 +1065,7 @@ class TestIndividuals(django.test.TestCase):
                                   end=datetime.datetime(2000, 1, 1, 0, 0, 0,
                                                         tzinfo=dateutil.tz.tzutc()))
 
-        indv = Individual.objects.create(uuid='c6d2504fde0e34b78a185c4b709e5442d045451c')
+        indv = Individual.objects.create(mk='c6d2504fde0e34b78a185c4b709e5442d045451c')
         Profile.objects.create(email=None,
                                is_bot=False,
                                gender='M',
@@ -1094,7 +1094,7 @@ class TestIndividuals(django.test.TestCase):
 
         # Test John Smith individual
         indv = individuals[0]
-        self.assertEqual(indv['uuid'], 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        self.assertEqual(indv['mk'], 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
         self.assertEqual(indv['isLocked'], False)
 
         self.assertEqual(indv['profile']['name'], None)
@@ -1134,7 +1134,7 @@ class TestIndividuals(django.test.TestCase):
 
         # Test John Doe individual
         indv = individuals[1]
-        self.assertEqual(indv['uuid'], 'c6d2504fde0e34b78a185c4b709e5442d045451c')
+        self.assertEqual(indv['mk'], 'c6d2504fde0e34b78a185c4b709e5442d045451c')
         self.assertEqual(indv['isLocked'], False)
 
         self.assertEqual(indv['profile']['name'], None)
@@ -1173,7 +1173,7 @@ class TestIndividuals(django.test.TestCase):
         org_ex = Organization.objects.create(name='Example')
         org_bit = Organization.objects.create(name='Bitergia')
 
-        indv = Individual.objects.create(uuid='a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        indv = Individual.objects.create(mk='a9b403e150dd4af8953a52a4bb841051e4b705d9')
         Profile.objects.create(name=None,
                                email='jsmith@example.com',
                                is_bot=True,
@@ -1205,7 +1205,7 @@ class TestIndividuals(django.test.TestCase):
                                   end=datetime.datetime(2000, 1, 1, 0, 0, 0,
                                                         tzinfo=dateutil.tz.tzutc()))
 
-        indv = Individual.objects.create(uuid='c6d2504fde0e34b78a185c4b709e5442d045451c')
+        indv = Individual.objects.create(mk='c6d2504fde0e34b78a185c4b709e5442d045451c')
         Profile.objects.create(email=None,
                                is_bot=False,
                                gender='M',
@@ -1234,7 +1234,7 @@ class TestIndividuals(django.test.TestCase):
 
         # Test John Smith individual
         indv = individuals[0]
-        self.assertEqual(indv['uuid'], 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        self.assertEqual(indv['mk'], 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
 
         self.assertEqual(indv['profile']['name'], None)
         self.assertEqual(indv['profile']['email'], 'jsmith@example.com')
@@ -1281,7 +1281,8 @@ class TestIndividuals(django.test.TestCase):
         org_ex = Organization.objects.create(name='Example')
         org_bit = Organization.objects.create(name='Bitergia')
 
-        indv = Individual.objects.create(uuid='a9b403e150dd4af8953a52a4bb841051e4b705d9', is_locked=True)
+        indv = Individual.objects.create(mk='a9b403e150dd4af8953a52a4bb841051e4b705d9',
+                                         is_locked=True)
         Profile.objects.create(name=None,
                                email='jsmith@example.com',
                                is_bot=True,
@@ -1313,7 +1314,7 @@ class TestIndividuals(django.test.TestCase):
                                   end=datetime.datetime(2000, 1, 1, 0, 0, 0,
                                                         tzinfo=dateutil.tz.tzutc()))
 
-        indv = Individual.objects.create(uuid='c6d2504fde0e34b78a185c4b709e5442d045451c')
+        indv = Individual.objects.create(mk='c6d2504fde0e34b78a185c4b709e5442d045451c')
         Profile.objects.create(email=None,
                                is_bot=False,
                                gender='M',
@@ -1342,7 +1343,7 @@ class TestIndividuals(django.test.TestCase):
 
         # Test John Smith individual
         indv = individuals[0]
-        self.assertEqual(indv['uuid'], 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        self.assertEqual(indv['mk'], 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
         self.assertEqual(indv['isLocked'], True)
 
         self.assertEqual(indv['profile']['name'], None)
@@ -1383,7 +1384,7 @@ class TestIndividuals(django.test.TestCase):
     def test_filter_non_exist_registry(self):
         """Check whether it returns an empty list when searched with a non existing uuid"""
 
-        indv = Individual.objects.create(uuid='c6d2504fde0e34b78a185c4b709e5442d045451c')
+        indv = Individual.objects.create(mk='c6d2504fde0e34b78a185c4b709e5442d045451c')
         Profile.objects.create(email=None,
                                is_bot=False,
                                gender='M',
@@ -1412,9 +1413,9 @@ class TestIndividuals(django.test.TestCase):
     def test_pagination(self):
         """Check whether it returns the individuals searched when using pagination"""
 
-        indv1 = Individual.objects.create(uuid='185c4b709e5446d250b4fde0e34b78a2b4fde0e3')
-        indv2 = Individual.objects.create(uuid='a9b403e150dd4af8953a52a4bb841051e4b705d9')
-        indv3 = Individual.objects.create(uuid='c6d2504fde0e34b78a185c4b709e5442d045451c')
+        indv1 = Individual.objects.create(mk='185c4b709e5446d250b4fde0e34b78a2b4fde0e3')
+        indv2 = Individual.objects.create(mk='a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        indv3 = Individual.objects.create(mk='c6d2504fde0e34b78a185c4b709e5442d045451c')
 
         client = graphene.test.Client(schema)
         test_query = SH_INDIVIDUALS_UUID_PAGINATION % (1, 2)
@@ -1425,10 +1426,10 @@ class TestIndividuals(django.test.TestCase):
         self.assertEqual(len(indvs), 2)
 
         indv = indvs[0]
-        self.assertEqual(indv['uuid'], indv1.uuid)
+        self.assertEqual(indv['mk'], indv1.mk)
 
         indv = indvs[1]
-        self.assertEqual(indv['uuid'], indv2.uuid)
+        self.assertEqual(indv['mk'], indv2.mk)
 
         pag_data = executed['data']['individuals']['pageInfo']
         self.assertEqual(len(pag_data), 8)
@@ -1946,13 +1947,13 @@ class TestDeleteOrganizationMutation(django.test.TestCase):
                               organization=org_ex)
         org_bit = Organization.objects.create(name='Bitergia')
 
-        jsmith = Individual.objects.create(uuid='AAAA')
+        jsmith = Individual.objects.create(mk='AAAA')
         Profile.objects.create(name='John Smith',
                                email='jsmith@example.net',
                                individual=jsmith)
         Enrollment.objects.create(individual=jsmith, organization=org_ex)
 
-        jdoe = Individual.objects.create(uuid='BBBB')
+        jdoe = Individual.objects.create(mk='BBBB')
         Profile.objects.create(name='John Doe',
                                email='jdoe@bitergia.com',
                                individual=jdoe)
@@ -2245,7 +2246,7 @@ class TestAddIdentityMutation(django.test.TestCase):
             uuid: $uuid) {
               uuid
               individual {
-                uuid
+                mk
                 identities {
                   id
                   name
@@ -2284,7 +2285,7 @@ class TestAddIdentityMutation(django.test.TestCase):
 
         # Check results
         individual = executed['data']['addIdentity']['individual']
-        self.assertEqual(individual['uuid'], 'eda9f62ad321b1fbe5f283cc05e2484516203117')
+        self.assertEqual(individual['mk'], 'eda9f62ad321b1fbe5f283cc05e2484516203117')
 
         identities = individual['identities']
         self.assertEqual(len(identities), 1)
@@ -2300,8 +2301,8 @@ class TestAddIdentityMutation(django.test.TestCase):
         self.assertEqual(uuid, 'eda9f62ad321b1fbe5f283cc05e2484516203117')
 
         # Check database
-        individual = Individual.objects.get(uuid='eda9f62ad321b1fbe5f283cc05e2484516203117')
-        self.assertEqual(individual.uuid, identity['id'])
+        individual = Individual.objects.get(mk='eda9f62ad321b1fbe5f283cc05e2484516203117')
+        self.assertEqual(individual.mk, identity['id'])
 
         identities = Identity.objects.filter(id=identity['id'])
         self.assertEqual(len(identities), 1)
@@ -2315,7 +2316,7 @@ class TestAddIdentityMutation(django.test.TestCase):
     def test_add_existing_uuid(self):
         """Check it it adds an identity to an existing individual"""
 
-        individual = Individual.objects.create(uuid='eda9f62ad321b1fbe5f283cc05e2484516203117')
+        individual = Individual.objects.create(mk='eda9f62ad321b1fbe5f283cc05e2484516203117')
         Identity.objects.create(id='eda9f62ad321b1fbe5f283cc05e2484516203117', source='scm',
                                 name='Jane Roe', email='jroe@example.com', username='jrae',
                                 individual=individual)
@@ -2335,7 +2336,7 @@ class TestAddIdentityMutation(django.test.TestCase):
 
         # Check results
         individual = executed['data']['addIdentity']['individual']
-        self.assertEqual(individual['uuid'], 'eda9f62ad321b1fbe5f283cc05e2484516203117')
+        self.assertEqual(individual['mk'], 'eda9f62ad321b1fbe5f283cc05e2484516203117')
 
         identities = individual['identities']
         self.assertEqual(len(identities), 2)
@@ -2351,7 +2352,7 @@ class TestAddIdentityMutation(django.test.TestCase):
         self.assertEqual(uuid, '55d88f85a41f3a9afa4dc9d4dfb6009c62f42fe3')
 
         # Check database
-        identities = Identity.objects.filter(individual__uuid='eda9f62ad321b1fbe5f283cc05e2484516203117')
+        identities = Identity.objects.filter(individual__mk='eda9f62ad321b1fbe5f283cc05e2484516203117')
         self.assertEqual(len(identities), 2)
 
     def test_non_existing_uuid(self):
@@ -2369,12 +2370,12 @@ class TestAddIdentityMutation(django.test.TestCase):
                                   variables=params)
 
         msg = executed['errors'][0]['message']
-        self.assertEqual(msg, UID_DOES_NOT_EXIST_ERROR)
+        self.assertEqual(msg, INDIVIDUAL_DOES_NOT_EXIST_ERROR)
 
     def test_integrity_error(self):
         """Check if it fails adding an identity that already exists"""
 
-        individual = Individual.objects.create(uuid='eda9f62ad321b1fbe5f283cc05e2484516203117')
+        individual = Individual.objects.create(mk='eda9f62ad321b1fbe5f283cc05e2484516203117')
         Identity.objects.create(id='eda9f62ad321b1fbe5f283cc05e2484516203117', source='scm',
                                 name='Jane Roe', email='jroe@example.com', username='jrae',
                                 individual=individual)
@@ -2512,7 +2513,7 @@ class TestDeleteIdentityMutation(django.test.TestCase):
         deleteIdentity(uuid: $uuid) {
           uuid
           individual {
-            uuid
+            mk
             identities {
               id
               name
@@ -2579,7 +2580,7 @@ class TestDeleteIdentityMutation(django.test.TestCase):
 
         # Check results, only one identity remains
         individual = executed['data']['deleteIdentity']['individual']
-        self.assertEqual(individual['uuid'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(individual['mk'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
         self.assertEqual(len(individual['identities']), 1)
 
         identity = individual['identities'][0]
@@ -2594,8 +2595,7 @@ class TestDeleteIdentityMutation(django.test.TestCase):
 
         # Check database
         with self.assertRaises(django.core.exceptions.ObjectDoesNotExist):
-            individual = Individual.objects.get(uuid='eda9f62ad321b1fbe5f283cc05e2484516203117')
-            self.assertEqual(individual.uuid, identity['id'])
+            individual = Individual.objects.get(mk='eda9f62ad321b1fbe5f283cc05e2484516203117')
 
         identities = Identity.objects.filter(id=identity['id'])
         self.assertEqual(len(identities), 1)
@@ -2627,7 +2627,7 @@ class TestDeleteIdentityMutation(django.test.TestCase):
 
         # Check database
         with self.assertRaises(django.core.exceptions.ObjectDoesNotExist):
-            Individual.objects.get(uuid='eda9f62ad321b1fbe5f283cc05e2484516203117')
+            Individual.objects.get(mk='eda9f62ad321b1fbe5f283cc05e2484516203117')
 
     def test_non_existing_uuid(self):
         """Check if it fails removing identities or individuals that do not exist"""
@@ -2642,7 +2642,7 @@ class TestDeleteIdentityMutation(django.test.TestCase):
                                   variables=params)
 
         msg = executed['errors'][0]['message']
-        self.assertEqual(msg, UID_DOES_NOT_EXIST_ERROR)
+        self.assertEqual(msg, INDIVIDUAL_DOES_NOT_EXIST_ERROR)
 
     def test_empty_uuid(self):
         """Check whether identities cannot be removed when giving an empty UUID"""
@@ -2702,7 +2702,7 @@ class TestLockIdentityMutation(django.test.TestCase):
             lockIdentity(uuid: $uuid) {
               uuid
               individual {
-                uuid
+                mk
                 isLocked
               }
             }
@@ -2740,7 +2740,7 @@ class TestLockIdentityMutation(django.test.TestCase):
         self.assertEqual(uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
         individual = executed['data']['lockIdentity']['individual']
-        self.assertEqual(individual['uuid'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(individual['mk'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
         self.assertEqual(individual['isLocked'], True)
 
     def test_non_existing_uuid(self):
@@ -2758,7 +2758,7 @@ class TestLockIdentityMutation(django.test.TestCase):
                                   variables=params)
 
         msg = executed['errors'][0]['message']
-        self.assertEqual(msg, UID_DOES_NOT_EXIST_ERROR)
+        self.assertEqual(msg, INDIVIDUAL_DOES_NOT_EXIST_ERROR)
 
     def test_empty_uuid(self):
         """Check if it fails when the uuid is an empty string"""
@@ -2806,7 +2806,7 @@ class TestUnlockIdentityMutation(django.test.TestCase):
             unlockIdentity(uuid: $uuid) {
               uuid
               individual {
-                uuid
+                mk
                 isLocked
               }
             }
@@ -2844,7 +2844,7 @@ class TestUnlockIdentityMutation(django.test.TestCase):
         self.assertEqual(uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
         individual = executed['data']['unlockIdentity']['individual']
-        self.assertEqual(individual['uuid'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(individual['mk'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
         self.assertEqual(individual['isLocked'], False)
 
     def test_non_existing_uuid(self):
@@ -2862,7 +2862,7 @@ class TestUnlockIdentityMutation(django.test.TestCase):
                                   variables=params)
 
         msg = executed['errors'][0]['message']
-        self.assertEqual(msg, UID_DOES_NOT_EXIST_ERROR)
+        self.assertEqual(msg, INDIVIDUAL_DOES_NOT_EXIST_ERROR)
 
     def test_empty_uuid(self):
         """Check if it fails when the uuid is an empty string"""
@@ -2910,7 +2910,7 @@ class TestUpdateProfileMutation(django.test.TestCase):
         updateProfile(uuid: $uuid, data: $data) {
           uuid
           individual {
-            uuid
+            mk
             profile {
               name
               email
@@ -2979,7 +2979,7 @@ class TestUpdateProfileMutation(django.test.TestCase):
         self.assertEqual(uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
         # Check database
-        individual = Individual.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        individual = Individual.objects.get(mk='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
         profile = individual.profile
         self.assertEqual(profile.name, 'John Smith')
         self.assertEqual(profile.email, 'jsmith@example.net')
@@ -3005,7 +3005,7 @@ class TestUpdateProfileMutation(django.test.TestCase):
                                   variables=params)
 
         msg = executed['errors'][0]['message']
-        self.assertEqual(msg, UID_DOES_NOT_EXIST_ERROR)
+        self.assertEqual(msg, INDIVIDUAL_DOES_NOT_EXIST_ERROR)
 
     def test_name_email_empty(self):
         """Check if name and email are set to None when an empty string is given"""
@@ -3088,7 +3088,7 @@ class TestMoveIdentityMutation(django.test.TestCase):
         moveIdentity(fromId: $fromID, toUuid: $toUUID) {
           uuid
           individual {
-            uuid
+            mk
             identities {
               id
               name
@@ -3160,7 +3160,7 @@ class TestMoveIdentityMutation(django.test.TestCase):
         self.assertEqual(uuid, '03877f31261a6d1a1b3971d240e628259364b8ac')
 
         # Check database objects
-        individual_db = Individual.objects.get(uuid='334da68fcd3da4e799791f73dfada2afb22648c6')
+        individual_db = Individual.objects.get(mk='334da68fcd3da4e799791f73dfada2afb22648c6')
         identities_db = individual_db.identities.all()
         self.assertEqual(len(identities_db), 1)
 
@@ -3169,7 +3169,7 @@ class TestMoveIdentityMutation(django.test.TestCase):
         self.assertEqual(identity_db.name, None)
         self.assertEqual(identity_db.email, 'jsmith@example.com')
 
-        individual_db = Individual.objects.get(uuid='03877f31261a6d1a1b3971d240e628259364b8ac')
+        individual_db = Individual.objects.get(mk='03877f31261a6d1a1b3971d240e628259364b8ac')
         identities_db = individual_db.identities.all()
         self.assertEqual(len(identities_db), 3)
 
@@ -3220,7 +3220,7 @@ class TestMoveIdentityMutation(django.test.TestCase):
         self.assertEqual(uuid, '334da68fcd3da4e799791f73dfada2afb22648c6')
 
         # Check database objects
-        individual_db = Individual.objects.get(uuid='334da68fcd3da4e799791f73dfada2afb22648c6')
+        individual_db = Individual.objects.get(mk='334da68fcd3da4e799791f73dfada2afb22648c6')
         identities_db = individual_db.identities.all()
         self.assertEqual(len(identities_db), 2)
 
@@ -3230,7 +3230,7 @@ class TestMoveIdentityMutation(django.test.TestCase):
         identity_db = identities_db[1]
         self.assertEqual(identity_db.id, '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
 
-        individual_db = Individual.objects.get(uuid='03877f31261a6d1a1b3971d240e628259364b8ac')
+        individual_db = Individual.objects.get(mk='03877f31261a6d1a1b3971d240e628259364b8ac')
         identities_db = individual_db.identities.all()
         self.assertEqual(len(identities_db), 2)
 
@@ -3268,7 +3268,7 @@ class TestMoveIdentityMutation(django.test.TestCase):
         self.assertEqual(uuid, '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
 
         # Check database objects
-        individual_db = Individual.objects.get(uuid='334da68fcd3da4e799791f73dfada2afb22648c6')
+        individual_db = Individual.objects.get(mk='334da68fcd3da4e799791f73dfada2afb22648c6')
         identities_db = individual_db.identities.all()
         self.assertEqual(len(identities_db), 1)
 
@@ -3277,7 +3277,7 @@ class TestMoveIdentityMutation(django.test.TestCase):
         self.assertEqual(identity_db.name, None)
         self.assertEqual(identity_db.email, 'jsmith@example.com')
 
-        individual_db = Individual.objects.get(uuid='880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
+        individual_db = Individual.objects.get(mk='880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
         identities_db = individual_db.identities.all()
         self.assertEqual(len(identities_db), 1)
 
@@ -3286,7 +3286,7 @@ class TestMoveIdentityMutation(django.test.TestCase):
         self.assertEqual(identity_db.name, 'John Smith')
         self.assertEqual(identity_db.email, 'jsmith@example.com')
 
-        individual_db = Individual.objects.get(uuid='03877f31261a6d1a1b3971d240e628259364b8ac')
+        individual_db = Individual.objects.get(mk='03877f31261a6d1a1b3971d240e628259364b8ac')
         identities_db = individual_db.identities.all()
         self.assertEqual(len(identities_db), 2)
 
@@ -3314,7 +3314,7 @@ class TestMoveIdentityMutation(django.test.TestCase):
                                   variables=params)
 
         msg = executed['errors'][0]['message']
-        self.assertEqual(msg, FROM_ID_IS_UUID_ERROR)
+        self.assertEqual(msg, FROM_ID_IS_MK_ERROR)
 
     def test_not_found_from_identity(self):
         """Test whether it fails when 'from_id' identity is not found"""
@@ -3330,7 +3330,7 @@ class TestMoveIdentityMutation(django.test.TestCase):
                                   variables=params)
 
         msg = executed['errors'][0]['message']
-        self.assertEqual(msg, UID_DOES_NOT_EXIST_ERROR)
+        self.assertEqual(msg, INDIVIDUAL_DOES_NOT_EXIST_ERROR)
 
     def test_not_found_to_identity(self):
         """Test whether it fails when 'to_uuid' individual is not found"""
@@ -3346,7 +3346,7 @@ class TestMoveIdentityMutation(django.test.TestCase):
                                   variables=params)
 
         msg = executed['errors'][0]['message']
-        self.assertEqual(msg, UID_DOES_NOT_EXIST_ERROR)
+        self.assertEqual(msg, INDIVIDUAL_DOES_NOT_EXIST_ERROR)
 
     def test_empty_from_id(self):
         """Check whether identities cannot be moved when giving an empty id"""
@@ -3431,7 +3431,7 @@ class TestEnrollMutation(django.test.TestCase):
                force: $force) {
           uuid
           individual {
-            uuid
+            mk
             enrollments {
               organization {
                 name
@@ -3505,7 +3505,7 @@ class TestEnrollMutation(django.test.TestCase):
         self.assertEqual(uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
         # Check database
-        individual = Individual.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        individual = Individual.objects.get(mk='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
         enrollments_db = individual.enrollments.all()
         self.assertEqual(len(enrollments_db), 3)
@@ -3549,7 +3549,7 @@ class TestEnrollMutation(django.test.TestCase):
         self.assertEqual(uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
         # Check database
-        individual = Individual.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        individual = Individual.objects.get(mk='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
         enrollments_db = individual.enrollments.all()
         self.assertEqual(len(enrollments_db), 3)
@@ -3589,7 +3589,7 @@ class TestEnrollMutation(django.test.TestCase):
         self.assertEqual(uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
         # Check database
-        individual = Individual.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        individual = Individual.objects.get(mk='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
         enrollments_db = individual.enrollments.all()
         self.assertEqual(len(enrollments_db), 3)
@@ -3623,7 +3623,7 @@ class TestEnrollMutation(django.test.TestCase):
         self.assertEqual(uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
         # Check database
-        individual = Individual.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        individual = Individual.objects.get(mk='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
         enrollments_db = individual.enrollments.all()
         self.assertEqual(len(enrollments_db), 1)
@@ -3644,7 +3644,7 @@ class TestEnrollMutation(django.test.TestCase):
                                   variables=params)
 
         msg = executed['errors'][0]['message']
-        self.assertEqual(msg, UID_DOES_NOT_EXIST_ERROR)
+        self.assertEqual(msg, INDIVIDUAL_DOES_NOT_EXIST_ERROR)
 
     def test_non_existing_organization(self):
         """Check if it fails when the organization does not exist"""
@@ -3794,7 +3794,7 @@ class TestWithdrawMutation(django.test.TestCase):
                  fromDate: $fromDate, toDate: $toDate) {
           uuid
           individual {
-            uuid
+            mk
             enrollments {
               organization {
                 name
@@ -3885,13 +3885,13 @@ class TestWithdrawMutation(django.test.TestCase):
         self.assertEqual(uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
         # Check database
-        individual = Individual.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        individual = Individual.objects.get(mk='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
         enrollments_db = individual.enrollments.all()
         self.assertEqual(len(enrollments_db), 3)
 
         # Other enrollments were not deleted
-        individual_db = Individual.objects.get(uuid='3283e58cef2b80007aa1dfc16f6dd20ace1aee96')
+        individual_db = Individual.objects.get(mk='3283e58cef2b80007aa1dfc16f6dd20ace1aee96')
         enrollments_db = individual_db.enrollments.all()
         self.assertEqual(len(enrollments_db), 1)
 
@@ -3922,7 +3922,7 @@ class TestWithdrawMutation(django.test.TestCase):
         self.assertEqual(uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
         # Check database
-        individual = Individual.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        individual = Individual.objects.get(mk='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
         enrollments_db = individual.enrollments.all()
         self.assertEqual(len(enrollments_db), 1)
@@ -3943,7 +3943,7 @@ class TestWithdrawMutation(django.test.TestCase):
                                   variables=params)
 
         msg = executed['errors'][0]['message']
-        self.assertEqual(msg, UID_DOES_NOT_EXIST_ERROR)
+        self.assertEqual(msg, INDIVIDUAL_DOES_NOT_EXIST_ERROR)
 
     def test_non_existing_organization(self):
         """Check if it fails when the organization does not exist"""
@@ -4032,7 +4032,7 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
             mergeIdentities(fromUuids: $fromUuids, toUuid: $toUuid) {
               uuid
               individual {
-                uuid
+                mk
                 identities {
                   id
                   name
@@ -4150,10 +4150,10 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(uuid, 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
 
         # Check database objects
-        individual_db = Individual.objects.get(uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        individual_db = Individual.objects.get(mk='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
 
         self.assertIsInstance(individual_db, Individual)
-        self.assertEqual(individual_db.uuid, 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        self.assertEqual(individual_db.mk, 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
 
         profile = individual_db.profile
         self.assertEqual(profile.name, 'John Smith')
@@ -4269,10 +4269,10 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(uuid, 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
 
         # Check database objects
-        individual_db = Individual.objects.get(uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        individual_db = Individual.objects.get(mk='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
 
         self.assertIsInstance(individual_db, Individual)
-        self.assertEqual(individual_db.uuid, 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        self.assertEqual(individual_db.mk, 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
 
         profile = individual_db.profile
         self.assertEqual(profile.name, 'John Smith')
@@ -4452,7 +4452,7 @@ class TestUnmergeIdentitiesMutation(django.test.TestCase):
             unmergeIdentities(uuids: $uuids) {
               uuids
               individuals {
-                uuid
+                mk
                 identities {
                   id
                   name
@@ -4544,7 +4544,7 @@ class TestUnmergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(len(individuals), 1)
 
         individual = individuals[0]
-        self.assertEqual(individual['uuid'], '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(individual['mk'], '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
 
         identities = individual['identities']
         self.assertEqual(len(identities), 1)
@@ -4556,10 +4556,10 @@ class TestUnmergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(identity['source'], 'git')
 
         # Check database objects
-        individual_db = Individual.objects.get(uuid='67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        individual_db = Individual.objects.get(mk='67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
 
         self.assertIsInstance(individual_db, Individual)
-        self.assertEqual(individual_db.uuid, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(individual_db.mk, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
 
         profile = individual_db.profile
         self.assertIsNone(profile.name)
@@ -4605,7 +4605,7 @@ class TestUnmergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(len(individuals), 2)
 
         individual = individuals[0]
-        self.assertEqual(individual['uuid'], '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(individual['mk'], '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
 
         identities = individual['identities']
         self.assertEqual(len(identities), 1)
@@ -4617,7 +4617,7 @@ class TestUnmergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(identity['source'], 'git')
 
         individual = individuals[1]
-        self.assertEqual(individual['uuid'], '31581d7c6b039318e9048c4d8571666c26a5622b')
+        self.assertEqual(individual['mk'], '31581d7c6b039318e9048c4d8571666c26a5622b')
 
         identities = individual['identities']
         self.assertEqual(len(identities), 1)
@@ -4629,10 +4629,10 @@ class TestUnmergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(identity['source'], 'phabricator')
 
         # Check database objects
-        individual_db = Individual.objects.get(uuid='67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        individual_db = Individual.objects.get(mk='67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
 
         self.assertIsInstance(individual_db, Individual)
-        self.assertEqual(individual_db.uuid, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(individual_db.mk, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
 
         profile = individual_db.profile
         self.assertIsNone(profile.name)
@@ -4650,10 +4650,10 @@ class TestUnmergeIdentitiesMutation(django.test.TestCase):
         enrollments = individual_db.enrollments.all()
         self.assertEqual(len(enrollments), 0)
 
-        individual_db = Individual.objects.get(uuid='31581d7c6b039318e9048c4d8571666c26a5622b')
+        individual_db = Individual.objects.get(mk='31581d7c6b039318e9048c4d8571666c26a5622b')
 
         self.assertIsInstance(individual_db, Individual)
-        self.assertEqual(individual_db.uuid, '31581d7c6b039318e9048c4d8571666c26a5622b')
+        self.assertEqual(individual_db.mk, '31581d7c6b039318e9048c4d8571666c26a5622b')
 
         profile = individual_db.profile
         self.assertIsNone(profile.name)
@@ -4688,7 +4688,7 @@ class TestUnmergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(len(individuals), 1)
 
         individual = individuals[0]
-        self.assertEqual(individual['uuid'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(individual['mk'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
         identities = individual['identities']
         self.assertEqual(len(identities), 6)

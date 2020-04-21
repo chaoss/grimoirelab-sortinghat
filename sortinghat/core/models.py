@@ -171,14 +171,14 @@ class Country(EntityBase):
 
 
 class Individual(EntityBase):
-    uuid = CharField(max_length=MAX_SIZE_CHAR_FIELD, primary_key=True)
+    mk = CharField(max_length=MAX_SIZE_CHAR_FIELD, primary_key=True)
     is_locked = BooleanField(default=False)
 
     class Meta:
         db_table = 'individuals'
 
     def __str__(self):
-        return self.uuid
+        return self.mk
 
 
 class Identity(EntityBase):
@@ -188,7 +188,7 @@ class Identity(EntityBase):
     username = CharField(max_length=MAX_SIZE_CHAR_FIELD, null=True)
     source = CharField(max_length=32)
     individual = ForeignKey(Individual, related_name='identities',
-                            on_delete=CASCADE, db_column='uuid')
+                            on_delete=CASCADE, db_column='mk')
 
     class Meta:
         db_table = 'identities'
@@ -200,7 +200,7 @@ class Identity(EntityBase):
 
 class Profile(EntityBase):
     individual = OneToOneField(Individual, related_name='profile',
-                               on_delete=CASCADE, db_column='uuid')
+                               on_delete=CASCADE, db_column='mk')
     name = CharField(max_length=MAX_SIZE_CHAR_FIELD, null=True)
     email = CharField(max_length=MAX_SIZE_CHAR_FIELD, null=True)
     gender = CharField(max_length=32, null=True)
@@ -212,12 +212,12 @@ class Profile(EntityBase):
         db_table = 'profiles'
 
     def __str__(self):
-        return self.individual.uuid
+        return self.individual.mk
 
 
 class Enrollment(EntityBase):
     individual = ForeignKey(Individual, related_name='enrollments',
-                            on_delete=CASCADE, db_column='uuid')
+                            on_delete=CASCADE, db_column='mk')
     organization = ForeignKey(Organization, related_name='enrollments',
                               on_delete=CASCADE)
     start = DateTimeField(default=MIN_PERIOD_DATE)
@@ -229,7 +229,7 @@ class Enrollment(EntityBase):
         ordering = ('start', 'end', )
 
     def __str__(self):
-        return '%s - %s' % (self.individual.uuid, self.organization.name)
+        return '%s - %s' % (self.individual.mk, self.organization.name)
 
 
 class MatchingBlacklist(EntityBase):

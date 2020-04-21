@@ -505,10 +505,10 @@ class TransactionType(sgqlc.types.Type):
 
 class IndividualType(sgqlc.types.Type):
     __schema__ = sh_schema
-    __field_names__ = ('created_at', 'last_modified', 'uuid', 'is_locked', 'identities', 'profile', 'enrollments')
+    __field_names__ = ('created_at', 'last_modified', 'mk', 'is_locked', 'identities', 'profile', 'enrollments')
     created_at = sgqlc.types.Field(sgqlc.types.non_null(DateTime), graphql_name='createdAt')
     last_modified = sgqlc.types.Field(sgqlc.types.non_null(DateTime), graphql_name='lastModified')
-    uuid = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='uuid')
+    mk = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='mk')
     is_locked = sgqlc.types.Field(sgqlc.types.non_null(Boolean), graphql_name='isLocked')
     identities = sgqlc.types.Field(sgqlc.types.list_of(IdentityType), graphql_name='identities')
     profile = sgqlc.types.Field(ProfileType, graphql_name='profile')

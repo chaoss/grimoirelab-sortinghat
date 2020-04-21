@@ -35,7 +35,7 @@ SHOW_CMD_OP = """query {{
       hasNext
     }}
     entities {{
-      uuid
+      mk
       isLocked
       profile {{
         name
@@ -248,21 +248,21 @@ JSMITH_ENROLLMENTS = [
 ]
 
 EMPTY_ID_DATA = {
-    'uuid': '0000000000000000000000000000000000000000',
+    'mk': '0000000000000000000000000000000000000000',
     'isLocked': True,
     'profile': EMPTY_ID_PROFILE,
     'identities': [],
     'enrollments': []
 }
 JANE_ROE_ID_DATA = {
-    'uuid': '17ab00ed3825ec2f50483e33c88df223264182ba',
+    'mk': '17ab00ed3825ec2f50483e33c88df223264182ba',
     'isLocked': False,
     'profile': JANE_ROE_PROFILE,
     'identities': JANE_ROE_IDENTITIES,
     'enrollments': JANE_ROE_ENROLLMENTS
 }
 JSMITH_ID_DATA = {
-    'uuid': 'a9b403e150dd4af8953a52a4bb841051e4b705d9',
+    'mk': 'a9b403e150dd4af8953a52a4bb841051e4b705d9',
     'isLocked': False,
     'profile': JSMITH_PROFILE,
     'identities': JSMITH_IDENTITIES,

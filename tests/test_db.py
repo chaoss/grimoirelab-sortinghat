@@ -62,9 +62,9 @@ DOMAIN_NAME_EMPTY_ERROR = "'domain_name' cannot be an empty string"
 DOMAIN_NAME_WHITESPACES_ERROR = "'domain_name' cannot be composed by whitespaces only"
 DOMAIN_VALUE_ERROR = "field value must be a string; int given"
 TOP_DOMAIN_VALUE_ERROR = "'is_top_domain' must have a boolean value"
-UUID_NONE_ERROR = "'uuid' cannot be None"
-UUID_EMPTY_ERROR = "'uuid' cannot be an empty string"
-UUID_WHITESPACES_ERROR = "'uuid' cannot be composed by whitespaces only"
+MK_NONE_ERROR = "'mk' cannot be None"
+MK_EMPTY_ERROR = "'mk' cannot be an empty string"
+MK_WHITESPACES_ERROR = "'mk' cannot be composed by whitespaces only"
 IDENTITY_ID_NONE_ERROR = "'identity_id' cannot be None"
 IDENTITY_ID_EMPTY_ERROR = "'identity_id' cannot be an empty string"
 IDENTITY_ID_WHITESPACES_ERROR = "'identity_id' cannot be composed by whitespaces only"
@@ -89,27 +89,27 @@ END_DATE_NONE_ERROR = "'end' date cannot be None"
 PERIOD_INVALID_ERROR = "'start' date {start} cannot be greater than {end}"
 PERIOD_OUT_OF_BOUNDS_ERROR = "'{type}' date {date} is out of bounds"
 MOVE_ERROR = "identity '0001' is already assigned to 'AAAA'"
-INDIVIDUAL_LOCKED_ERROR = "Individual {uuid} is locked"
+INDIVIDUAL_LOCKED_ERROR = "Individual {mk} is locked"
 
 
 class TestFindIndividual(TestCase):
     """Unit tests for find_individual"""
 
     def test_find_individual(self):
-        """Test if an individual is found by its UUID"""
+        """Test if an individual is found by its main key"""
 
-        uuid = 'abcdefghijklmnopqrstuvwxyz'
-        Individual.objects.create(uuid=uuid)
+        mk = 'abcdefghijklmnopqrstuvwxyz'
+        Individual.objects.create(mk=mk)
 
-        individual = db.find_individual(uuid)
+        individual = db.find_individual(mk)
         self.assertIsInstance(individual, Individual)
-        self.assertEqual(individual.uuid, uuid)
+        self.assertEqual(individual.mk, mk)
 
     def test_individual_not_found(self):
         """Test whether it raises an exception when the individual is not found"""
 
-        uuid = 'abcdefghijklmnopqrstuvwxyz'
-        Individual.objects.create(uuid=uuid)
+        mk = 'abcdefghijklmnopqrstuvwxyz'
+        Individual.objects.create(mk=mk)
 
         with self.assertRaisesRegex(NotFoundError, INDIVIDUAL_NOT_FOUND_ERROR):
             db.find_individual('zyxwuv')
@@ -121,20 +121,20 @@ class TestFindIdentity(TestCase):
     def test_find_identity(self):
         """Test if an identity is found by its UUID"""
 
-        uuid = 'abcdefghijklmnopqrstuvwxyz'
-        individual = Individual.objects.create(uuid=uuid)
-        Identity.objects.create(id=uuid, source='scm', individual=individual)
+        mk = 'abcdefghijklmnopqrstuvwxyz'
+        individual = Individual.objects.create(mk=mk)
+        Identity.objects.create(id=mk, source='scm', individual=individual)
 
-        identity = db.find_identity(uuid)
+        identity = db.find_identity(mk)
         self.assertIsInstance(identity, Identity)
-        self.assertEqual(identity.id, uuid)
+        self.assertEqual(identity.id, mk)
 
     def test_identity_not_found(self):
         """Test whether it raises an exception when the identity is not found"""
 
-        uuid = 'abcdefghijklmnopqrstuvwxyz'
-        individual = Individual.objects.create(uuid=uuid)
-        Identity.objects.create(id=uuid, source='scm', individual=individual)
+        mk = 'abcdefghijklmnopqrstuvwxyz'
+        individual = Individual.objects.create(mk=mk)
+        Identity.objects.create(id=mk, source='scm', individual=individual)
 
         with self.assertRaisesRegex(NotFoundError, IDENTITY_NOT_FOUND_ERROR):
             db.find_identity('zyxwuv')
@@ -228,8 +228,8 @@ class TestSearchEnrollmentsInPeriod(TestCase):
     def test_search_enrollments(self):
         """Test if a set of enrollments is returned"""
 
-        individual_a = Individual.objects.create(uuid='AAAA')
-        individual_b = Individual.objects.create(uuid='BBBB')
+        individual_a = Individual.objects.create(mk='AAAA')
+        individual_b = Individual.objects.create(mk='BBBB')
 
         example_org = Organization.objects.create(name='Example')
         bitergia_org = Organization.objects.create(name='Bitergia')
@@ -280,7 +280,7 @@ class TestSearchEnrollmentsInPeriod(TestCase):
     def test_no_enrollments_in_period(self):
         """Test if an empty set is returned when there are not enrollments for a given period"""
 
-        individual_a = Individual.objects.create(uuid='AAAA')
+        individual_a = Individual.objects.create(mk='AAAA')
         example_org = Organization.objects.create(name='Example')
 
         Enrollment.objects.create(individual=individual_a, organization=example_org,
@@ -296,7 +296,7 @@ class TestSearchEnrollmentsInPeriod(TestCase):
     def test_no_identity(self):
         """Test if an empty set is returned when there identity does not exist"""
 
-        individual_a = Individual.objects.create(uuid='AAAA')
+        individual_a = Individual.objects.create(mk='AAAA')
         example_org = Organization.objects.create(name='Example')
 
         Enrollment.objects.create(individual=individual_a, organization=example_org,
@@ -312,7 +312,7 @@ class TestSearchEnrollmentsInPeriod(TestCase):
     def test_no_organization(self):
         """Test if an empty set is returned when there organization does not exist"""
 
-        individual_a = Individual.objects.create(uuid='AAAA')
+        individual_a = Individual.objects.create(mk='AAAA')
         example_org = Organization.objects.create(name='Example')
 
         Enrollment.objects.create(individual=individual_a, organization=example_org,
@@ -437,13 +437,13 @@ class TestDeleteOrganization(TestCase):
                               organization=org_ex)
         org_bit = Organization.objects.create(name='Bitergia')
 
-        jsmith = Individual.objects.create(uuid='AAAA')
+        jsmith = Individual.objects.create(mk='AAAA')
         Profile.objects.create(name='John Smith',
                                email='jsmith@example.net',
                                individual=jsmith)
         Enrollment.objects.create(individual=jsmith, organization=org_ex)
 
-        jdoe = Individual.objects.create(uuid='BBBB')
+        jdoe = Individual.objects.create(mk='BBBB')
         Profile.objects.create(name='John Doe',
                                email='jdoe@bitergia.com',
                                individual=jdoe)
@@ -479,14 +479,14 @@ class TestDeleteOrganization(TestCase):
         org_ex = Organization.objects.create(name='Example')
         org_bit = Organization.objects.create(name='Bitergia')
 
-        jsmith = Individual.objects.create(uuid='AAAA')
+        jsmith = Individual.objects.create(mk='AAAA')
         Profile.objects.create(name='John Smith',
                                email='jsmith@example.net',
                                individual=jsmith)
         Enrollment.objects.create(individual=jsmith,
                                   organization=org_ex)
 
-        jdoe = Individual.objects.create(uuid='BBBB')
+        jdoe = Individual.objects.create(mk='BBBB')
         Profile.objects.create(name='John Doe',
                                email='jdoe@bitergia.com',
                                individual=jdoe)
@@ -500,11 +500,11 @@ class TestDeleteOrganization(TestCase):
         db.delete_organization(self.trxl, org_ex)
         after_dt = datetime_utcnow()
 
-        jsmith = Individual.objects.get(uuid='AAAA')
+        jsmith = Individual.objects.get(mk='AAAA')
         self.assertLessEqual(before_dt, jsmith.last_modified)
         self.assertGreaterEqual(after_dt, jsmith.last_modified)
 
-        jdoe = Individual.objects.get(uuid='BBBB')
+        jdoe = Individual.objects.get(mk='BBBB')
         self.assertLessEqual(before_dt, jdoe.last_modified)
         self.assertGreaterEqual(after_dt, jdoe.last_modified)
 
@@ -767,16 +767,16 @@ class TestAddIndividual(TestCase):
     def test_add_individual(self):
         """Check whether it adds an individual"""
 
-        uuid = '1234567890ABCDFE'
+        mk = '1234567890ABCDFE'
 
-        individual = db.add_individual(self.trxl, uuid)
+        individual = db.add_individual(self.trxl, mk)
         self.assertIsInstance(individual, Individual)
-        self.assertEqual(individual.uuid, uuid)
+        self.assertEqual(individual.mk, mk)
         self.assertEqual(individual.is_locked, False)
 
-        individual = Individual.objects.get(uuid=uuid)
+        individual = Individual.objects.get(mk=mk)
         self.assertIsInstance(individual, Individual)
-        self.assertEqual(individual.uuid, uuid)
+        self.assertEqual(individual.mk, mk)
         self.assertEqual(individual.is_locked, False)
 
         self.assertIsInstance(individual.profile, Profile)
@@ -786,15 +786,15 @@ class TestAddIndividual(TestCase):
     def test_add_individuals(self):
         """Check whether it adds a set of individuals"""
 
-        uuids = ['AAAA', 'BBBB', 'CCCC']
+        mks = ['AAAA', 'BBBB', 'CCCC']
 
-        for uuid in uuids:
-            db.add_individual(self.trxl, uuid)
+        for mk in mks:
+            db.add_individual(self.trxl, mk)
 
-        for uuid in uuids:
-            individual = Individual.objects.get(uuid=uuid)
+        for mk in mks:
+            individual = Individual.objects.get(mk=mk)
             self.assertIsInstance(individual, Individual)
-            self.assertEqual(individual.uuid, uuid)
+            self.assertEqual(individual.mk, mk)
             self.assertEqual(individual.is_locked, False)
 
             self.assertIsInstance(individual.profile, Profile)
@@ -804,33 +804,33 @@ class TestAddIndividual(TestCase):
     def test_uuid_none(self):
         """Check whether an individual with None as UUID cannot be added"""
 
-        with self.assertRaisesRegex(ValueError, UUID_NONE_ERROR):
+        with self.assertRaisesRegex(ValueError, MK_NONE_ERROR):
             db.add_individual(self.trxl, None)
 
         # Check if operations have not been generated after the failure
         operations = Operation.objects.all()
         self.assertEqual(len(operations), 0)
 
-    def test_uuid_empty(self):
-        """Check whether an individual with empty UUID cannot be added"""
+    def test_mk_empty(self):
+        """Check whether an individual with empty MK cannot be added"""
 
-        with self.assertRaisesRegex(ValueError, UUID_EMPTY_ERROR):
+        with self.assertRaisesRegex(ValueError, MK_EMPTY_ERROR):
             db.add_individual(self.trxl, '')
 
         # Check if operations have not been generated after the failure
         operations = Operation.objects.all()
         self.assertEqual(len(operations), 0)
 
-    def test_uuid_whitespaces(self):
-        """Check whether an individual with UUID composed by whitespaces cannot be added"""
+    def test_mk_whitespaces(self):
+        """Check whether an individual with MK composed by whitespaces cannot be added"""
 
-        with self.assertRaisesRegex(ValueError, UUID_WHITESPACES_ERROR):
+        with self.assertRaisesRegex(ValueError, MK_WHITESPACES_ERROR):
             db.add_individual(self.trxl, '   ')
 
-        with self.assertRaisesRegex(ValueError, UUID_WHITESPACES_ERROR):
+        with self.assertRaisesRegex(ValueError, MK_WHITESPACES_ERROR):
             db.add_individual(self.trxl, '\t')
 
-        with self.assertRaisesRegex(ValueError, UUID_WHITESPACES_ERROR):
+        with self.assertRaisesRegex(ValueError, MK_WHITESPACES_ERROR):
             db.add_individual(self.trxl, ' \t  ')
 
         # Check if operations have not been generated after the failure
@@ -838,21 +838,21 @@ class TestAddIndividual(TestCase):
         self.assertEqual(len(operations), 0)
 
     def test_integrity_error(self):
-        """Check whether individuals with the same UUID cannot be inserted"""
+        """Check whether individuals with the same MK cannot be inserted"""
 
-        uuid = '1234567890ABCDFE'
+        mk = '1234567890ABCDFE'
 
         with self.assertRaisesRegex(AlreadyExistsError, DUPLICATED_INDIVIDUAL_ERROR):
-            db.add_individual(self.trxl, uuid)
-            db.add_individual(self.trxl, uuid)
+            db.add_individual(self.trxl, mk)
+            db.add_individual(self.trxl, mk)
 
     def test_operations(self):
         """Check if the right operations are created when adding a new identity"""
 
         timestamp = datetime_utcnow()
-        uuid = '1234567890ABCDFE'
+        mk = '1234567890ABCDFE'
 
-        individual = db.add_individual(self.trxl, uuid)
+        individual = db.add_individual(self.trxl, mk)
 
         transactions = Transaction.objects.all()
         trx = transactions[0]
@@ -870,7 +870,7 @@ class TestAddIndividual(TestCase):
 
         op1_args = json.loads(op1.args)
         self.assertEqual(len(op1_args), 1)
-        self.assertEqual(op1_args['uuid'], individual.uuid)
+        self.assertEqual(op1_args['mk'], individual.mk)
 
 
 class TestDeleteIndividual(TestCase):
@@ -890,7 +890,7 @@ class TestDeleteIndividual(TestCase):
         org_ex = Organization.objects.create(name='Example')
         org_bit = Organization.objects.create(name='Bitergia')
 
-        jsmith = Individual.objects.create(uuid='AAAA')
+        jsmith = Individual.objects.create(mk='AAAA')
         Profile.objects.create(name='John Smith',
                                email='jsmith@example.net',
                                individual=jsmith)
@@ -902,7 +902,7 @@ class TestDeleteIndividual(TestCase):
                                 individual=jsmith)
         Enrollment.objects.create(individual=jsmith, organization=org_ex)
 
-        jdoe = Individual.objects.create(uuid='BBBB')
+        jdoe = Individual.objects.create(mk='BBBB')
         Profile.objects.create(name='John Doe',
                                email='jdoe@bitergia.com',
                                individual=jdoe)
@@ -925,7 +925,7 @@ class TestDeleteIndividual(TestCase):
 
         # Tests
         with self.assertRaises(ObjectDoesNotExist):
-            Individual.objects.get(uuid='AAAA')
+            Individual.objects.get(mk='AAAA')
 
         self.assertEqual(len(Identity.objects.all()), 1)
         self.assertEqual(len(Enrollment.objects.all()), 2)
@@ -937,29 +937,29 @@ class TestDeleteIndividual(TestCase):
     def test_delete_individuals(self):
         """Check if it deletes a set of individuals"""
 
-        uuids = ['AAAA', 'BBBB', 'CCCC']
+        mks = ['AAAA', 'BBBB', 'CCCC']
 
-        for uuid in uuids:
-            Individual.objects.create(uuid=uuid)
+        for mk in mks:
+            Individual.objects.create(mk=mk)
 
-        self.assertEqual(len(Individual.objects.all()), len(uuids))
+        self.assertEqual(len(Individual.objects.all()), len(mks))
 
-        for uuid in uuids:
-            individual = Individual.objects.get(uuid=uuid)
+        for mk in mks:
+            individual = Individual.objects.get(mk=mk)
 
             db.delete_individual(self.trxl, individual)
 
             with self.assertRaises(ObjectDoesNotExist):
-                Individual.objects.get(uuid=uuid)
+                Individual.objects.get(mk=mk)
 
         self.assertEqual(len(Individual.objects.all()), 0)
 
     def test_locked_individual(self):
         """Check if if fails when the individual is locked"""
 
-        jsmith = Individual.objects.create(uuid='AAAA', is_locked=True)
+        jsmith = Individual.objects.create(mk='AAAA', is_locked=True)
 
-        msg = INDIVIDUAL_LOCKED_ERROR.format(uuid='AAAA')
+        msg = INDIVIDUAL_LOCKED_ERROR.format(mk='AAAA')
         with self.assertRaisesRegex(LockedIdentityError, msg):
             db.delete_individual(self.trxl, jsmith)
 
@@ -967,7 +967,7 @@ class TestDeleteIndividual(TestCase):
         """Check if the right operations are created when deleting an individual"""
 
         timestamp = datetime_utcnow()
-        jsmith = Individual.objects.create(uuid='AAAA')
+        jsmith = Individual.objects.create(mk='AAAA')
 
         db.delete_individual(self.trxl, jsmith)
 
@@ -1004,28 +1004,28 @@ class TestAddIdentity(TestCase):
     def test_add_identity(self):
         """Check if a new identity is added"""
 
-        uuid = '1234567890ABCDFE'
+        mk = '1234567890ABCDFE'
 
-        individual = Individual.objects.create(uuid=uuid)
-        identity = db.add_identity(self.trxl, individual, uuid, 'scm',
+        individual = Individual.objects.create(mk=mk)
+        identity = db.add_identity(self.trxl, individual, mk, 'scm',
                                    name='John Smith',
                                    email='jsmith@example.org',
                                    username='jsmith')
 
         self.assertIsInstance(identity, Identity)
-        self.assertEqual(identity.id, uuid)
+        self.assertEqual(identity.id, mk)
         self.assertEqual(identity.individual, individual)
 
-        individual = Individual.objects.get(uuid=uuid)
-        self.assertEqual(individual.uuid, uuid)
+        individual = Individual.objects.get(mk=mk)
+        self.assertEqual(individual.mk, mk)
 
         identities = individual.identities.all()
         self.assertEqual(len(identities), 1)
 
         identity = identities[0]
         self.assertIsInstance(identity, Identity)
-        self.assertEqual(identity.id, uuid)
-        self.assertEqual(identity.individual.uuid, uuid)
+        self.assertEqual(identity.id, mk)
+        self.assertEqual(identity.individual.mk, mk)
         self.assertEqual(identity.source, 'scm')
         self.assertEqual(identity.name, 'John Smith')
         self.assertEqual(identity.email, 'jsmith@example.org')
@@ -1034,7 +1034,7 @@ class TestAddIdentity(TestCase):
     def test_add_multiple_identities(self):
         """Check if multiple identities can be added"""
 
-        individual = Individual.objects.create(uuid='AAAA')
+        individual = Individual.objects.create(mk='AAAA')
         db.add_identity(self.trxl, individual, 'AAAA', 'scm',
                         name='John Smith',
                         email=None,
@@ -1048,14 +1048,14 @@ class TestAddIdentity(TestCase):
                         email=None,
                         username='jsmith')
 
-        individual = Individual.objects.get(uuid='AAAA')
+        individual = Individual.objects.get(mk='AAAA')
         identities = individual.identities.all()
         self.assertEqual(len(identities), 3)
 
         identity = identities[0]
         self.assertIsInstance(identity, Identity)
         self.assertEqual(identity.id, 'AAAA')
-        self.assertEqual(identity.individual.uuid, 'AAAA')
+        self.assertEqual(identity.individual.mk, 'AAAA')
         self.assertEqual(identity.source, 'scm')
         self.assertEqual(identity.name, 'John Smith')
         self.assertEqual(identity.email, None)
@@ -1064,7 +1064,7 @@ class TestAddIdentity(TestCase):
         identity = identities[1]
         self.assertIsInstance(identity, Identity)
         self.assertEqual(identity.id, 'BBBB')
-        self.assertEqual(identity.individual.uuid, 'AAAA')
+        self.assertEqual(identity.individual.mk, 'AAAA')
         self.assertEqual(identity.source, 'its')
         self.assertEqual(identity.name, None)
         self.assertEqual(identity.email, 'jsmith@example.org')
@@ -1073,7 +1073,7 @@ class TestAddIdentity(TestCase):
         identity = identities[2]
         self.assertIsInstance(identity, Identity)
         self.assertEqual(identity.id, 'CCCC')
-        self.assertEqual(identity.individual.uuid, 'AAAA')
+        self.assertEqual(identity.individual.mk, 'AAAA')
         self.assertEqual(identity.source, 'mls')
         self.assertEqual(identity.name, None)
         self.assertEqual(identity.email, None)
@@ -1082,19 +1082,19 @@ class TestAddIdentity(TestCase):
     def test_last_modified(self):
         """Check if last modification date is updated"""
 
-        uuid = '1234567890ABCDFE'
-        individual = Individual.objects.create(uuid=uuid)
+        mk = '1234567890ABCDFE'
+        individual = Individual.objects.create(mk=mk)
 
         before_dt = datetime_utcnow()
-        db.add_identity(self.trxl, individual, uuid, 'scm',
+        db.add_identity(self.trxl, individual, mk, 'scm',
                         name='John Smith',
                         email='jsmith@example.org',
                         username='jsmith')
         after_dt = datetime_utcnow()
 
         # Tests
-        individual = Individual.objects.get(uuid=uuid)
-        identity = Identity.objects.get(id=uuid)
+        individual = Individual.objects.get(mk=mk)
+        identity = Identity.objects.get(id=mk)
 
         self.assertLessEqual(before_dt, individual.last_modified)
         self.assertGreaterEqual(after_dt, individual.last_modified)
@@ -1105,7 +1105,7 @@ class TestAddIdentity(TestCase):
     def test_identity_id_none(self):
         """Check whether an identity with None as ID cannot be added"""
 
-        individual = Individual.objects.create(uuid='1234567890ABCDFE')
+        individual = Individual.objects.create(mk='1234567890ABCDFE')
 
         with self.assertRaisesRegex(ValueError, IDENTITY_ID_NONE_ERROR):
             db.add_identity(self.trxl, individual, None, 'scm')
@@ -1117,7 +1117,7 @@ class TestAddIdentity(TestCase):
     def test_identity_id_empty(self):
         """Check whether an identity with empty ID cannot be added"""
 
-        individual = Individual.objects.create(uuid='1234567890ABCDFE')
+        individual = Individual.objects.create(mk='1234567890ABCDFE')
 
         with self.assertRaisesRegex(ValueError, IDENTITY_ID_EMPTY_ERROR):
             db.add_identity(self.trxl, individual, '', 'scm')
@@ -1129,7 +1129,7 @@ class TestAddIdentity(TestCase):
     def test_identity_id_whitespaces(self):
         """Check whether an identity with an ID composed by whitespaces cannot be added"""
 
-        individual = Individual.objects.create(uuid='1234567890ABCDFE')
+        individual = Individual.objects.create(mk='1234567890ABCDFE')
 
         with self.assertRaisesRegex(ValueError, IDENTITY_ID_WHITESPACES_ERROR):
             db.add_identity(self.trxl, individual, '    ', 'scm')
@@ -1147,7 +1147,7 @@ class TestAddIdentity(TestCase):
     def test_source_none(self):
         """Check whether an identity with None as source cannot be added"""
 
-        individual = Individual.objects.create(uuid='1234567890ABCDFE')
+        individual = Individual.objects.create(mk='1234567890ABCDFE')
 
         with self.assertRaisesRegex(ValueError, SOURCE_NONE_ERROR):
             db.add_identity(self.trxl, individual, '1234567890ABCDFE', None)
@@ -1159,7 +1159,7 @@ class TestAddIdentity(TestCase):
     def test_source_empty(self):
         """Check whether an identity with empty source cannot be added"""
 
-        individual = Individual.objects.create(uuid='1234567890ABCDFE')
+        individual = Individual.objects.create(mk='1234567890ABCDFE')
 
         with self.assertRaisesRegex(ValueError, SOURCE_EMPTY_ERROR):
             db.add_identity(self.trxl, individual, '1234567890ABCDFE', '')
@@ -1171,7 +1171,7 @@ class TestAddIdentity(TestCase):
     def test_source_whitespaces(self):
         """Check whether an identity with a source composed by whitespaces cannot be added"""
 
-        individual = Individual.objects.create(uuid='1234567890ABCDFE')
+        individual = Individual.objects.create(mk='1234567890ABCDFE')
 
         with self.assertRaisesRegex(ValueError, SOURCE_WHITESPACES_ERROR):
             db.add_identity(self.trxl, individual, '1234567890ABCDFE', '  ')
@@ -1191,7 +1191,7 @@ class TestAddIdentity(TestCase):
         Check whether new identities cannot be added when identity data is None, empty
         or composed by whitespaces
         """
-        individual = Individual.objects.create(uuid='1234567890ABCDFE')
+        individual = Individual.objects.create(mk='1234567890ABCDFE')
 
         with self.assertRaisesRegex(ValueError, IDENTITY_DATA_NONE_OR_EMPTY_ERROR):
             db.add_identity(self.trxl, individual, '1234567890ABCDFE', 'git',
@@ -1249,15 +1249,15 @@ class TestAddIdentity(TestCase):
     def test_integrity_error_id(self):
         """Check whether identities with the same id cannot be inserted"""
 
-        uuid = '1234567890ABCDFE'
-        individual = Individual.objects.create(uuid=uuid)
+        mk = '1234567890ABCDFE'
+        individual = Individual.objects.create(mk=mk)
 
         with self.assertRaisesRegex(AlreadyExistsError, DUPLICATED_ID_ERROR):
-            db.add_identity(self.trxl, individual, uuid, 'scm',
+            db.add_identity(self.trxl, individual, mk, 'scm',
                             name='John Smith',
                             email='jsmith@example.org',
                             username='jsmith')
-            db.add_identity(self.trxl, individual, uuid, 'scm',
+            db.add_identity(self.trxl, individual, mk, 'scm',
                             name='John Smith',
                             email='jsmith@example.net',
                             username='jonhsmith')
@@ -1265,7 +1265,7 @@ class TestAddIdentity(TestCase):
     def test_integrity_error_unique_data(self):
         """Check whether identities with the same data cannot be inserted"""
 
-        individual = Individual.objects.create(uuid='AAAA')
+        individual = Individual.objects.create(mk='AAAA')
 
         with self.assertRaisesRegex(AlreadyExistsError, DUPLICATED_ID_DATA_ERROR):
             db.add_identity(self.trxl, individual, 'AAAA', 'scm',
@@ -1280,9 +1280,9 @@ class TestAddIdentity(TestCase):
     def test_locked_individual(self):
         """Check if if fails when the individual is locked"""
 
-        jsmith = Individual.objects.create(uuid='AAAA', is_locked=True)
+        jsmith = Individual.objects.create(mk='AAAA', is_locked=True)
 
-        msg = INDIVIDUAL_LOCKED_ERROR.format(uuid='AAAA')
+        msg = INDIVIDUAL_LOCKED_ERROR.format(mk='AAAA')
         with self.assertRaisesRegex(LockedIdentityError, msg):
             db.add_identity(self.trxl, jsmith, 'AAAA', 'scm',
                             name='John Smith',
@@ -1293,10 +1293,10 @@ class TestAddIdentity(TestCase):
         """Check if the right operations are created when adding a new identity"""
 
         timestamp = datetime_utcnow()
-        uuid = '1234567890ABCDFE'
+        mk = '1234567890ABCDFE'
 
-        individual = Individual.objects.create(uuid=uuid)
-        identity = db.add_identity(self.trxl, individual, uuid, 'scm',
+        individual = Individual.objects.create(mk=mk)
+        identity = db.add_identity(self.trxl, individual, mk, 'scm',
                                    name='John Smith',
                                    email='jsmith@example.org',
                                    username='jsmith')
@@ -1317,7 +1317,7 @@ class TestAddIdentity(TestCase):
 
         op1_args = json.loads(op1.args)
         self.assertEqual(len(op1_args), 6)
-        self.assertEqual(op1_args['individual'], identity.individual.uuid)
+        self.assertEqual(op1_args['individual'], identity.individual.mk)
         self.assertEqual(op1_args['identity_id'], identity.id)
         self.assertEqual(op1_args['source'], identity.source)
         self.assertEqual(op1_args['name'], identity.name)
@@ -1339,7 +1339,7 @@ class TestDeleteIdentity(TestCase):
     def test_delete_identity(self):
         """Check whether it deletes an identity"""
 
-        jsmith = Individual.objects.create(uuid='AAAA')
+        jsmith = Individual.objects.create(mk='AAAA')
         Identity.objects.create(id='0001', name='John Smith',
                                 individual=jsmith)
         Identity.objects.create(id='0002', email='jsmith@example.net',
@@ -1364,7 +1364,7 @@ class TestDeleteIdentity(TestCase):
     def test_last_modified(self):
         """Check if last modification date is updated"""
 
-        jsmith = Individual.objects.create(uuid='AAAA')
+        jsmith = Individual.objects.create(mk='AAAA')
         Identity.objects.create(id='0001', name='John Smith',
                                 individual=jsmith)
         Identity.objects.create(id='0002', email='jsmith@example.net',
@@ -1378,7 +1378,7 @@ class TestDeleteIdentity(TestCase):
         after_dt = datetime_utcnow()
 
         # Tests
-        individual = Individual.objects.get(uuid='AAAA')
+        individual = Individual.objects.get(mk='AAAA')
         self.assertEqual(len(individual.identities.all()), 2)
         self.assertLessEqual(before_dt, individual.last_modified)
         self.assertGreaterEqual(after_dt, individual.last_modified)
@@ -1390,9 +1390,9 @@ class TestDeleteIdentity(TestCase):
     def test_locked_individual(self):
         """Check if if fails when the individual is locked"""
 
-        jsmith = Individual.objects.create(uuid='AAAA', is_locked=True)
+        jsmith = Individual.objects.create(mk='AAAA', is_locked=True)
 
-        msg = INDIVIDUAL_LOCKED_ERROR.format(uuid='AAAA')
+        msg = INDIVIDUAL_LOCKED_ERROR.format(mk='AAAA')
         with self.assertRaisesRegex(LockedIdentityError, msg):
             db.delete_individual(self.trxl, jsmith)
 
@@ -1401,7 +1401,7 @@ class TestDeleteIdentity(TestCase):
 
         # Set the initial dataset
         timestamp = datetime_utcnow()
-        jsmith = Individual.objects.create(uuid='AAAA')
+        jsmith = Individual.objects.create(mk='AAAA')
         Identity.objects.create(id='0001', name='John Smith',
                                 individual=jsmith)
         Identity.objects.create(id='0002', email='jsmith@example.net',
@@ -1447,12 +1447,12 @@ class TestUpdateProfile(TestCase):
     def test_update_profile(self):
         """Check if it updates a profile"""
 
-        uuid = '1234567890ABCDFE'
+        mk = '1234567890ABCDFE'
 
         country = Country.objects.create(code='US',
                                          name='United States of America',
                                          alpha3='USA')
-        jsmith = Individual.objects.create(uuid=uuid)
+        jsmith = Individual.objects.create(mk=mk)
         Profile.objects.create(individual=jsmith)
 
         individual = db.update_profile(self.trxl, jsmith,
@@ -1473,15 +1473,15 @@ class TestUpdateProfile(TestCase):
         self.assertEqual(profile.gender_acc, 98)
 
         # Check database object
-        individual_db = Individual.objects.get(uuid=uuid)
+        individual_db = Individual.objects.get(mk=mk)
         self.assertEqual(profile, individual_db.profile)
 
     def test_last_modified(self):
         """Check if last modification date is updated"""
 
-        uuid = '1234567890ABCDFE'
+        mk = '1234567890ABCDFE'
 
-        individual = Individual.objects.create(uuid=uuid)
+        individual = Individual.objects.create(mk=mk)
         Profile.objects.create(individual=individual)
 
         before_dt = datetime_utcnow()
@@ -1490,14 +1490,14 @@ class TestUpdateProfile(TestCase):
         after_dt = datetime_utcnow()
 
         # Tests
-        individual = Individual.objects.get(uuid=uuid)
+        individual = Individual.objects.get(mk=mk)
         self.assertLessEqual(before_dt, individual.last_modified)
         self.assertGreaterEqual(after_dt, individual.last_modified)
 
     def test_name_email_empty(self):
         """Check if name and email are set to None when an empty string is given"""
 
-        individual = Individual.objects.create(uuid='1234567890ABCDFE')
+        individual = Individual.objects.create(mk='1234567890ABCDFE')
         Profile.objects.create(individual=individual)
 
         individual = db.update_profile(self.trxl, individual, name='', email='')
@@ -1508,7 +1508,7 @@ class TestUpdateProfile(TestCase):
     def test_is_bot_invalid_type(self):
         """Check type values of is_bot parameter"""
 
-        individual = Individual.objects.create(uuid='1234567890ABCDFE')
+        individual = Individual.objects.create(mk='1234567890ABCDFE')
         Profile.objects.create(individual=individual)
 
         with self.assertRaisesRegex(ValueError, IS_BOT_VALUE_ERROR):
@@ -1528,7 +1528,7 @@ class TestUpdateProfile(TestCase):
                                name='United States of America',
                                alpha3='USA')
 
-        individual = Individual.objects.create(uuid='1234567890ABCDFE')
+        individual = Individual.objects.create(mk='1234567890ABCDFE')
         Profile.objects.create(individual=individual)
 
         msg = COUNTRY_CODE_ERROR.format(code='JKL')
@@ -1543,7 +1543,7 @@ class TestUpdateProfile(TestCase):
     def test_gender_not_given(self):
         """Check if it fails when gender_acc is given but not the gender"""
 
-        individual = Individual.objects.create(uuid='1234567890ABCDFE')
+        individual = Individual.objects.create(mk='1234567890ABCDFE')
         Profile.objects.create(individual=individual)
 
         with self.assertRaisesRegex(ValueError, GENDER_ACC_INVALID_ERROR):
@@ -1556,7 +1556,7 @@ class TestUpdateProfile(TestCase):
     def test_gender_acc_invalid_type(self):
         """Check type values of gender_acc parameter"""
 
-        individual = Individual.objects.create(uuid='1234567890ABCDFE')
+        individual = Individual.objects.create(mk='1234567890ABCDFE')
         Profile.objects.create(individual=individual)
 
         with self.assertRaisesRegex(ValueError, GENDER_ACC_INVALID_TYPE_ERROR):
@@ -1574,7 +1574,7 @@ class TestUpdateProfile(TestCase):
     def test_gender_acc_invalid_range(self):
         """Check if it fails when gender_acc is given but not the gender"""
 
-        individual = Individual.objects.create(uuid='1234567890ABCDFE')
+        individual = Individual.objects.create(mk='1234567890ABCDFE')
         Profile.objects.create(individual=individual)
 
         msg = GENDER_ACC_INVALID_RANGE_ERROR.format(acc='-1')
@@ -1602,10 +1602,10 @@ class TestUpdateProfile(TestCase):
     def test_locked_individual(self):
         """Check if if fails when the individual is locked"""
 
-        jsmith = Individual.objects.create(uuid='AAAA', is_locked=True)
+        jsmith = Individual.objects.create(mk='AAAA', is_locked=True)
         Profile.objects.create(individual=jsmith)
 
-        msg = INDIVIDUAL_LOCKED_ERROR.format(uuid='AAAA')
+        msg = INDIVIDUAL_LOCKED_ERROR.format(mk='AAAA')
         with self.assertRaisesRegex(LockedIdentityError, msg):
             db.update_profile(self.trxl, jsmith,
                               name='Smith, J.', email='jsmith@example.net',
@@ -1618,11 +1618,11 @@ class TestUpdateProfile(TestCase):
         timestamp = datetime_utcnow()
 
         # Load initial dataset
-        uuid = '1234567890ABCDFE'
+        mk = '1234567890ABCDFE'
         country = Country.objects.create(code='US',
                                          name='United States of America',
                                          alpha3='USA')
-        jsmith = Individual.objects.create(uuid=uuid)
+        jsmith = Individual.objects.create(mk=mk)
         Profile.objects.create(individual=jsmith)
 
         # Update the profile
@@ -1647,7 +1647,7 @@ class TestUpdateProfile(TestCase):
 
         op1_args = json.loads(op1.args)
         self.assertEqual(len(op1_args), 7)
-        self.assertEqual(op1_args['individual'], uuid)
+        self.assertEqual(op1_args['individual'], mk)
         self.assertEqual(op1_args['name'], 'Smith, J.')
         self.assertEqual(op1_args['email'], 'jsmith@example.net')
         self.assertEqual(op1_args['is_bot'], True)
@@ -1670,9 +1670,9 @@ class TestAddEnrollment(TestCase):
     def test_enroll(self):
         """Check if a new enrollment is added"""
 
-        uuid = '1234567890ABCDFE'
+        mk = '1234567890ABCDFE'
 
-        individual = Individual.objects.create(uuid=uuid)
+        individual = Individual.objects.create(mk=mk)
         org = Organization.objects.create(name='Example')
 
         start = datetime.datetime(1999, 1, 1, tzinfo=UTC)
@@ -1686,7 +1686,7 @@ class TestAddEnrollment(TestCase):
         self.assertEqual(enrollment.individual, individual)
         self.assertEqual(enrollment.organization, org)
 
-        individual = Individual.objects.get(uuid=uuid)
+        individual = Individual.objects.get(mk=mk)
 
         enrollments = individual.enrollments.all()
         self.assertEqual(len(enrollments), 1)
@@ -1697,10 +1697,10 @@ class TestAddEnrollment(TestCase):
     def test_add_multiple_enrollments(self):
         """Check if multiple enrollments can be added"""
 
-        uuid = '1234567890ABCDFE'
+        mk = '1234567890ABCDFE'
         name = 'Example'
 
-        individual = Individual.objects.create(uuid='1234567890ABCDFE')
+        individual = Individual.objects.create(mk='1234567890ABCDFE')
         org = Organization.objects.create(name='Example')
 
         db.add_enrollment(self.trxl, individual, org, start=datetime.datetime(1999, 1, 1, tzinfo=UTC))
@@ -1709,7 +1709,7 @@ class TestAddEnrollment(TestCase):
                           end=datetime.datetime(2014, 1, 1, tzinfo=UTC))
 
         # Tests
-        individual = Individual.objects.get(uuid=uuid)
+        individual = Individual.objects.get(mk=mk)
 
         enrollments = individual.enrollments.all()
         self.assertEqual(len(enrollments), 3)
@@ -1718,7 +1718,7 @@ class TestAddEnrollment(TestCase):
         self.assertEqual(enrollment.start, MIN_PERIOD_DATE)
         self.assertEqual(enrollment.end, datetime.datetime(2005, 1, 1, tzinfo=UTC))
         self.assertIsInstance(enrollment.individual, Individual)
-        self.assertEqual(enrollment.individual.uuid, uuid)
+        self.assertEqual(enrollment.individual.mk, mk)
         self.assertIsInstance(enrollment.organization, Organization)
         self.assertEqual(enrollment.organization.name, name)
 
@@ -1726,7 +1726,7 @@ class TestAddEnrollment(TestCase):
         self.assertEqual(enrollment.start, datetime.datetime(1999, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment.end, MAX_PERIOD_DATE)
         self.assertIsInstance(enrollment.individual, Individual)
-        self.assertEqual(enrollment.individual.uuid, uuid)
+        self.assertEqual(enrollment.individual.mk, mk)
         self.assertIsInstance(enrollment.organization, Organization)
         self.assertEqual(enrollment.organization.name, name)
 
@@ -1734,14 +1734,14 @@ class TestAddEnrollment(TestCase):
         self.assertEqual(enrollment.start, datetime.datetime(2013, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
         self.assertIsInstance(enrollment.individual, Individual)
-        self.assertEqual(enrollment.individual.uuid, uuid)
+        self.assertEqual(enrollment.individual.mk, mk)
         self.assertIsInstance(enrollment.organization, Organization)
         self.assertEqual(enrollment.organization.name, name)
 
     def test_last_modified(self):
         """Check if last modification date is updated"""
 
-        individual = Individual.objects.create(uuid='1234567890ABCDFE')
+        individual = Individual.objects.create(mk='1234567890ABCDFE')
         org = Organization.objects.create(name='Example')
 
         before_dt = datetime_utcnow()
@@ -1749,14 +1749,14 @@ class TestAddEnrollment(TestCase):
         after_dt = datetime_utcnow()
 
         # Tests
-        individual = Individual.objects.get(uuid='1234567890ABCDFE')
+        individual = Individual.objects.get(mk='1234567890ABCDFE')
         self.assertLessEqual(before_dt, individual.last_modified)
         self.assertGreaterEqual(after_dt, individual.last_modified)
 
     def test_from_date_none(self):
         """Check if an enrollment cannot be added when from_date is None"""
 
-        individual = Individual.objects.create(uuid='1234567890ABCDFE')
+        individual = Individual.objects.create(mk='1234567890ABCDFE')
         org = Organization.objects.create(name='Example')
 
         with self.assertRaisesRegex(ValueError, START_DATE_NONE_ERROR):
@@ -1770,7 +1770,7 @@ class TestAddEnrollment(TestCase):
     def test_to_date_none(self):
         """Check if an enrollment cannot be added when to_date is None"""
 
-        individual = Individual.objects.create(uuid='1234567890ABCDFE')
+        individual = Individual.objects.create(mk='1234567890ABCDFE')
         org = Organization.objects.create(name='Example')
 
         with self.assertRaisesRegex(ValueError, END_DATE_NONE_ERROR):
@@ -1784,7 +1784,7 @@ class TestAddEnrollment(TestCase):
     def test_period_invalid(self):
         """Check whether enrollments cannot be added giving invalid period ranges"""
 
-        individual = Individual.objects.create(uuid='1234567890ABCDFE')
+        individual = Individual.objects.create(mk='1234567890ABCDFE')
         org = Organization.objects.create(name='Example')
 
         data = {
@@ -1805,7 +1805,7 @@ class TestAddEnrollment(TestCase):
     def test_period_out_of_bounds(self):
         """Check whether enrollments cannot be added giving a range out of bounds"""
 
-        individual = Individual.objects.create(uuid='1234567890ABCDFE')
+        individual = Individual.objects.create(mk='1234567890ABCDFE')
         org = Organization.objects.create(name='Example')
 
         data = {
@@ -1855,12 +1855,12 @@ class TestAddEnrollment(TestCase):
     def test_locked_individual(self):
         """Check if if fails when the individual is locked"""
 
-        jsmith = Individual.objects.create(uuid='AAAA', is_locked=True)
+        jsmith = Individual.objects.create(mk='AAAA', is_locked=True)
         org = Organization.objects.create(name='Example')
         start = datetime.datetime(1999, 1, 1, tzinfo=UTC)
         end = datetime.datetime(2000, 1, 1, tzinfo=UTC)
 
-        msg = INDIVIDUAL_LOCKED_ERROR.format(uuid='AAAA')
+        msg = INDIVIDUAL_LOCKED_ERROR.format(mk='AAAA')
         with self.assertRaisesRegex(LockedIdentityError, msg):
             db.add_enrollment(self.trxl, jsmith, org, start=start, end=end)
 
@@ -1868,10 +1868,10 @@ class TestAddEnrollment(TestCase):
         """Check if the right operations are created when deleting a domain"""
 
         timestamp = datetime_utcnow()
-        uuid = '1234567890ABCDFE'
+        mk = '1234567890ABCDFE'
 
         # Load initial dataset
-        individual = Individual.objects.create(uuid=uuid)
+        individual = Individual.objects.create(mk=mk)
         org = Organization.objects.create(name='Example')
 
         start = datetime.datetime(1999, 1, 1, tzinfo=UTC)
@@ -1896,7 +1896,7 @@ class TestAddEnrollment(TestCase):
 
         op1_args = json.loads(op1.args)
         self.assertEqual(len(op1_args), 4)
-        self.assertEqual(op1_args['individual'], uuid)
+        self.assertEqual(op1_args['individual'], mk)
         self.assertEqual(op1_args['organization'], org.name)
         self.assertEqual(op1_args['start'], str(datetime_to_utc(datetime.datetime(1999, 1, 1))))
         self.assertEqual(op1_args['end'], str(datetime_to_utc(datetime.datetime(2000, 1, 1))))
@@ -1921,7 +1921,7 @@ class TestDeleteEnrollment(TestCase):
         second_period = datetime.datetime(2010, 1, 1, tzinfo=UTC)
         to_date = datetime.datetime(2010, 1, 1, tzinfo=UTC)
 
-        jsmith = Individual.objects.create(uuid='AAAA')
+        jsmith = Individual.objects.create(mk='AAAA')
         Identity.objects.create(id='0001', name='John Smith',
                                 individual=jsmith)
 
@@ -1960,7 +1960,7 @@ class TestDeleteEnrollment(TestCase):
         from_date = datetime.datetime(1999, 1, 1, tzinfo=UTC)
         to_date = datetime.datetime(2000, 1, 1, tzinfo=UTC)
 
-        jsmith = Individual.objects.create(uuid='AAAA')
+        jsmith = Individual.objects.create(mk='AAAA')
         Identity.objects.create(id='0001', name='John Smith',
                                 individual=jsmith)
 
@@ -1973,14 +1973,14 @@ class TestDeleteEnrollment(TestCase):
         db.delete_enrollment(self.trxl, enrollment)
         after_dt = datetime_utcnow()
 
-        jsmith = Individual.objects.get(uuid='AAAA')
+        jsmith = Individual.objects.get(mk='AAAA')
         self.assertLessEqual(before_dt, jsmith.last_modified)
         self.assertGreaterEqual(after_dt, jsmith.last_modified)
 
     def test_locked_individual(self):
         """Check if if fails when the individual is locked"""
 
-        jsmith = Individual.objects.create(uuid='AAAA', is_locked=True)
+        jsmith = Individual.objects.create(mk='AAAA', is_locked=True)
 
         org = Organization.objects.create(name='Example')
         start = datetime.datetime(1999, 1, 1, tzinfo=UTC)
@@ -1993,7 +1993,7 @@ class TestDeleteEnrollment(TestCase):
 
         jsmith.refresh_from_db()
 
-        msg = INDIVIDUAL_LOCKED_ERROR.format(uuid='AAAA')
+        msg = INDIVIDUAL_LOCKED_ERROR.format(mk='AAAA')
         with self.assertRaisesRegex(LockedIdentityError, msg):
             db.delete_enrollment(self.trxl, enrollment)
 
@@ -2008,7 +2008,7 @@ class TestDeleteEnrollment(TestCase):
         second_period = datetime.datetime(2010, 1, 1, tzinfo=UTC)
         to_date = datetime.datetime(2010, 1, 1, tzinfo=UTC)
 
-        jsmith = Individual.objects.create(uuid='AAAA')
+        jsmith = Individual.objects.create(mk='AAAA')
         Identity.objects.create(id='0001', name='John Smith',
                                 individual=jsmith)
 
@@ -2042,7 +2042,7 @@ class TestDeleteEnrollment(TestCase):
 
         op1_args = json.loads(op1.args)
         self.assertEqual(len(op1_args), 4)
-        self.assertEqual(op1_args['uuid'], 'AAAA')
+        self.assertEqual(op1_args['mk'], 'AAAA')
         self.assertEqual(op1_args['organization'], 'Example')
         self.assertEqual(op1_args['start'], str(datetime_to_utc(second_period)))
         self.assertEqual(op1_args['end'], str(datetime_to_utc(to_date)))
@@ -2062,8 +2062,8 @@ class TestMoveIdentity(TestCase):
     def test_move_identity(self):
         """Test when an identity is moved to an individual"""
 
-        from_indv = Individual.objects.create(uuid='AAAA')
-        to_indv = Individual.objects.create(uuid='BBBB')
+        from_indv = Individual.objects.create(mk='AAAA')
+        to_indv = Individual.objects.create(mk='BBBB')
 
         identity = Identity.objects.create(id='0001', name='John Smith',
                                            individual=from_indv)
@@ -2082,10 +2082,10 @@ class TestMoveIdentity(TestCase):
         self.assertEqual(identity.name, 'John Smith')
 
         # Check if the database stored those changes
-        individual = Individual.objects.get(uuid='AAAA')
+        individual = Individual.objects.get(mk='AAAA')
         self.assertEqual(len(individual.identities.all()), 0)
 
-        individual = Individual.objects.get(uuid='BBBB')
+        individual = Individual.objects.get(mk='BBBB')
         identities = individual.identities.all()
         self.assertEqual(len(identities), 1)
 
@@ -2096,8 +2096,8 @@ class TestMoveIdentity(TestCase):
     def test_last_modified(self):
         """Check if last modification date is updated"""
 
-        from_indv = Individual.objects.create(uuid='AAAA')
-        to_indv = Individual.objects.create(uuid='BBBB')
+        from_indv = Individual.objects.create(mk='AAAA')
+        to_indv = Individual.objects.create(mk='BBBB')
 
         identity = Identity.objects.create(id='0001', name='John Smith',
                                            individual=from_indv)
@@ -2108,11 +2108,11 @@ class TestMoveIdentity(TestCase):
         after_dt = datetime_utcnow()
 
         # Tests
-        individual = Individual.objects.get(uuid='AAAA')
+        individual = Individual.objects.get(mk='AAAA')
         self.assertLessEqual(before_dt, individual.last_modified)
         self.assertGreaterEqual(after_dt, individual.last_modified)
 
-        individual = Individual.objects.get(uuid='BBBB')
+        individual = Individual.objects.get(mk='BBBB')
         self.assertLessEqual(before_dt, individual.last_modified)
         self.assertGreaterEqual(after_dt, individual.last_modified)
 
@@ -2123,26 +2123,26 @@ class TestMoveIdentity(TestCase):
     def test_equal_related_individual(self):
         """Test that all remains the same when individual is the individual related to identity'"""
 
-        from_indv = Individual.objects.create(uuid='AAAA')
+        from_indv = Individual.objects.create(mk='AAAA')
         identity = Identity.objects.create(id='0001', name='John Smith',
                                            individual=from_indv)
         # Move identity and check results
         with self.assertRaisesRegex(ValueError, MOVE_ERROR):
             db.move_identity(self.trxl, identity, from_indv)
 
-        individual = Individual.objects.get(uuid='AAAA')
+        individual = Individual.objects.get(mk='AAAA')
         self.assertEqual(len(individual.identities.all()), 1)
 
     def test_locked_individual(self):
         """Check if if fails when the individual is locked"""
 
-        indv1 = Individual.objects.create(uuid='AAAA')
-        indv2 = Individual.objects.create(uuid='BBBB', is_locked=True)
+        indv1 = Individual.objects.create(mk='AAAA')
+        indv2 = Individual.objects.create(mk='BBBB', is_locked=True)
 
         id1 = Identity.objects.create(id='0001', name='John Smith', individual=indv1)
         id2 = Identity.objects.create(id='0002', name='John Smith', individual=indv2)
 
-        msg = INDIVIDUAL_LOCKED_ERROR.format(uuid='BBBB')
+        msg = INDIVIDUAL_LOCKED_ERROR.format(mk='BBBB')
         with self.assertRaisesRegex(LockedIdentityError, msg):
             db.move_identity(self.trxl, id1, indv2)
 
@@ -2154,8 +2154,8 @@ class TestMoveIdentity(TestCase):
 
         timestamp = datetime_utcnow()
 
-        from_indv = Individual.objects.create(uuid='AAAA')
-        to_indv = Individual.objects.create(uuid='BBBB')
+        from_indv = Individual.objects.create(mk='AAAA')
+        to_indv = Individual.objects.create(mk='BBBB')
 
         identity = Identity.objects.create(id='0001', name='John Smith',
                                            individual=from_indv)
@@ -2197,7 +2197,7 @@ class TestLock(TestCase):
     def test_lock_identity(self):
         """Test if a given individual is locked"""
 
-        jsmith = Individual.objects.create(uuid='AAAA')
+        jsmith = Individual.objects.create(mk='AAAA')
 
         # Check value before calling the method
         self.assertEqual(jsmith.is_locked, False)
@@ -2205,7 +2205,7 @@ class TestLock(TestCase):
         db.lock(self.trxl, jsmith)
 
         # Tests
-        individual = Individual.objects.get(uuid='AAAA')
+        individual = Individual.objects.get(mk='AAAA')
         self.assertEqual(individual.is_locked, True)
 
     def test_operations(self):
@@ -2213,7 +2213,7 @@ class TestLock(TestCase):
 
         timestamp = datetime_utcnow()
 
-        jsmith = Individual.objects.create(uuid='AAAA')
+        jsmith = Individual.objects.create(mk='AAAA')
 
         jsmith = db.lock(self.trxl, jsmith)
 
@@ -2233,7 +2233,7 @@ class TestLock(TestCase):
 
         op1_args = json.loads(op1.args)
         self.assertEqual(len(op1_args), 2)
-        self.assertEqual(op1_args['uuid'], jsmith.uuid)
+        self.assertEqual(op1_args['mk'], jsmith.mk)
         self.assertEqual(op1_args['is_locked'], jsmith.is_locked)
 
 
@@ -2251,7 +2251,7 @@ class TestUnlock(TestCase):
     def test_unlock_identity(self):
         """Test if a given individual is unlocked"""
 
-        jsmith = Individual.objects.create(uuid='AAAA', is_locked=True)
+        jsmith = Individual.objects.create(mk='AAAA', is_locked=True)
 
         # Check value before calling the method
         self.assertEqual(jsmith.is_locked, True)
@@ -2260,7 +2260,7 @@ class TestUnlock(TestCase):
         db.unlock(self.trxl, jsmith)
 
         # Tests
-        individual = Individual.objects.get(uuid='AAAA')
+        individual = Individual.objects.get(mk='AAAA')
         self.assertEqual(individual.is_locked, False)
 
     def test_operations(self):
@@ -2268,7 +2268,7 @@ class TestUnlock(TestCase):
 
         timestamp = datetime_utcnow()
 
-        jsmith = Individual.objects.create(uuid='AAAA')
+        jsmith = Individual.objects.create(mk='AAAA')
 
         jsmith = db.unlock(self.trxl, jsmith)
 
@@ -2288,5 +2288,5 @@ class TestUnlock(TestCase):
 
         op1_args = json.loads(op1.args)
         self.assertEqual(len(op1_args), 2)
-        self.assertEqual(op1_args['uuid'], jsmith.uuid)
+        self.assertEqual(op1_args['mk'], jsmith.mk)
         self.assertEqual(op1_args['is_locked'], jsmith.is_locked)

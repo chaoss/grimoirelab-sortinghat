@@ -73,7 +73,7 @@ def _update_profile(conn, uuid, **kwargs):
 
     op = Operation(SortingHatSchema.SortingHatMutation)
     op.update_profile(uuid=uuid, data=pd)
-    op.update_profile().individual().uuid()
+    op.update_profile().individual().mk()
     op.update_profile().individual().profile().__fields__('name', 'email',
                                                           'gender', 'is_bot')
     op.update_profile().individual().profile().country().__fields__('code', 'name')
