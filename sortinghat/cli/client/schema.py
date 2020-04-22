@@ -130,9 +130,9 @@ class AddDomain(sgqlc.types.Type):
 
 class AddIdentity(sgqlc.types.Type):
     __schema__ = sh_schema
-    __field_names__ = ('uuid', 'uidentity')
+    __field_names__ = ('uuid', 'individual')
     uuid = sgqlc.types.Field(String, graphql_name='uuid')
-    uidentity = sgqlc.types.Field('UniqueIdentityType', graphql_name='uidentity')
+    individual = sgqlc.types.Field('IndividualType', graphql_name='individual')
 
 
 class AddOrganization(sgqlc.types.Type):
@@ -167,9 +167,9 @@ class DeleteDomain(sgqlc.types.Type):
 
 class DeleteIdentity(sgqlc.types.Type):
     __schema__ = sh_schema
-    __field_names__ = ('uuid', 'uidentity')
+    __field_names__ = ('uuid', 'individual')
     uuid = sgqlc.types.Field(String, graphql_name='uuid')
-    uidentity = sgqlc.types.Field('UniqueIdentityType', graphql_name='uidentity')
+    individual = sgqlc.types.Field('IndividualType', graphql_name='individual')
 
 
 class DeleteOrganization(sgqlc.types.Type):
@@ -191,18 +191,18 @@ class DomainType(sgqlc.types.Type):
 
 class Enroll(sgqlc.types.Type):
     __schema__ = sh_schema
-    __field_names__ = ('uuid', 'uidentity')
+    __field_names__ = ('uuid', 'individual')
     uuid = sgqlc.types.Field(String, graphql_name='uuid')
-    uidentity = sgqlc.types.Field('UniqueIdentityType', graphql_name='uidentity')
+    individual = sgqlc.types.Field('IndividualType', graphql_name='individual')
 
 
 class EnrollmentType(sgqlc.types.Type):
     __schema__ = sh_schema
-    __field_names__ = ('created_at', 'last_modified', 'id', 'uidentity', 'organization', 'start', 'end')
+    __field_names__ = ('created_at', 'last_modified', 'id', 'individual', 'organization', 'start', 'end')
     created_at = sgqlc.types.Field(sgqlc.types.non_null(DateTime), graphql_name='createdAt')
     last_modified = sgqlc.types.Field(sgqlc.types.non_null(DateTime), graphql_name='lastModified')
     id = sgqlc.types.Field(sgqlc.types.non_null(ID), graphql_name='id')
-    uidentity = sgqlc.types.Field(sgqlc.types.non_null('UniqueIdentityType'), graphql_name='uidentity')
+    individual = sgqlc.types.Field(sgqlc.types.non_null('IndividualType'), graphql_name='individual')
     organization = sgqlc.types.Field(sgqlc.types.non_null('OrganizationType'), graphql_name='organization')
     start = sgqlc.types.Field(sgqlc.types.non_null(DateTime), graphql_name='start')
     end = sgqlc.types.Field(sgqlc.types.non_null(DateTime), graphql_name='end')
@@ -211,13 +211,13 @@ class EnrollmentType(sgqlc.types.Type):
 class IdentityPaginatedType(sgqlc.types.Type):
     __schema__ = sh_schema
     __field_names__ = ('entities', 'page_info')
-    entities = sgqlc.types.Field(sgqlc.types.list_of('UniqueIdentityType'), graphql_name='entities')
+    entities = sgqlc.types.Field(sgqlc.types.list_of('IndividualType'), graphql_name='entities')
     page_info = sgqlc.types.Field('PaginationType', graphql_name='pageInfo')
 
 
 class IdentityType(sgqlc.types.Type):
     __schema__ = sh_schema
-    __field_names__ = ('created_at', 'last_modified', 'id', 'name', 'email', 'username', 'source', 'uidentity')
+    __field_names__ = ('created_at', 'last_modified', 'id', 'name', 'email', 'username', 'source', 'individual')
     created_at = sgqlc.types.Field(sgqlc.types.non_null(DateTime), graphql_name='createdAt')
     last_modified = sgqlc.types.Field(sgqlc.types.non_null(DateTime), graphql_name='lastModified')
     id = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='id')
@@ -225,28 +225,28 @@ class IdentityType(sgqlc.types.Type):
     email = sgqlc.types.Field(String, graphql_name='email')
     username = sgqlc.types.Field(String, graphql_name='username')
     source = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='source')
-    uidentity = sgqlc.types.Field(sgqlc.types.non_null('UniqueIdentityType'), graphql_name='uidentity')
+    individual = sgqlc.types.Field(sgqlc.types.non_null('IndividualType'), graphql_name='individual')
 
 
 class LockIdentity(sgqlc.types.Type):
     __schema__ = sh_schema
-    __field_names__ = ('uuid', 'uidentity')
+    __field_names__ = ('uuid', 'individual')
     uuid = sgqlc.types.Field(String, graphql_name='uuid')
-    uidentity = sgqlc.types.Field('UniqueIdentityType', graphql_name='uidentity')
+    individual = sgqlc.types.Field('IndividualType', graphql_name='individual')
 
 
 class MergeIdentities(sgqlc.types.Type):
     __schema__ = sh_schema
-    __field_names__ = ('uuid', 'uidentity')
+    __field_names__ = ('uuid', 'individual')
     uuid = sgqlc.types.Field(String, graphql_name='uuid')
-    uidentity = sgqlc.types.Field('UniqueIdentityType', graphql_name='uidentity')
+    individual = sgqlc.types.Field('IndividualType', graphql_name='individual')
 
 
 class MoveIdentity(sgqlc.types.Type):
     __schema__ = sh_schema
-    __field_names__ = ('uuid', 'uidentity')
+    __field_names__ = ('uuid', 'individual')
     uuid = sgqlc.types.Field(String, graphql_name='uuid')
-    uidentity = sgqlc.types.Field('UniqueIdentityType', graphql_name='uidentity')
+    individual = sgqlc.types.Field('IndividualType', graphql_name='individual')
 
 
 class ObtainJSONWebToken(sgqlc.types.Type):
@@ -310,12 +310,12 @@ class PaginationType(sgqlc.types.Type):
 class ProfileType(sgqlc.types.Type):
     __schema__ = sh_schema
     __field_names__ = (
-        'created_at', 'last_modified', 'id', 'uidentity', 'name', 'email', 'gender', 'gender_acc', 'is_bot', 'country'
+        'created_at', 'last_modified', 'id', 'individual', 'name', 'email', 'gender', 'gender_acc', 'is_bot', 'country'
     )
     created_at = sgqlc.types.Field(sgqlc.types.non_null(DateTime), graphql_name='createdAt')
     last_modified = sgqlc.types.Field(sgqlc.types.non_null(DateTime), graphql_name='lastModified')
     id = sgqlc.types.Field(sgqlc.types.non_null(ID), graphql_name='id')
-    uidentity = sgqlc.types.Field(sgqlc.types.non_null('UniqueIdentityType'), graphql_name='uidentity')
+    individual = sgqlc.types.Field(sgqlc.types.non_null('IndividualType'), graphql_name='individual')
     name = sgqlc.types.Field(String, graphql_name='name')
     email = sgqlc.types.Field(String, graphql_name='email')
     gender = sgqlc.types.Field(String, graphql_name='gender')
@@ -326,7 +326,7 @@ class ProfileType(sgqlc.types.Type):
 
 class Query(sgqlc.types.Type):
     __schema__ = sh_schema
-    __field_names__ = ('countries', 'organizations', 'uidentities', 'transactions', 'operations')
+    __field_names__ = ('countries', 'organizations', 'individuals', 'transactions', 'operations')
     countries = sgqlc.types.Field(
         CountryPaginatedType, graphql_name='countries', args=sgqlc.types.ArgDict((
             ('page_size', sgqlc.types.Arg(Int, graphql_name='pageSize', default=None)),
@@ -341,8 +341,8 @@ class Query(sgqlc.types.Type):
             ('filters', sgqlc.types.Arg(OrganizationFilterType, graphql_name='filters', default=None)),
         ))
     )
-    uidentities = sgqlc.types.Field(
-        IdentityPaginatedType, graphql_name='uidentities', args=sgqlc.types.ArgDict((
+    individuals = sgqlc.types.Field(
+        IdentityPaginatedType, graphql_name='individuals', args=sgqlc.types.ArgDict((
             ('page_size', sgqlc.types.Arg(Int, graphql_name='pageSize', default=None)),
             ('page', sgqlc.types.Arg(Int, graphql_name='page', default=None)),
             ('filters', sgqlc.types.Arg(IdentityFilterType, graphql_name='filters', default=None)),
@@ -412,7 +412,7 @@ class SortingHatMutation(sgqlc.types.Type):
     )
     delete_identity = sgqlc.types.Field(
         DeleteIdentity, graphql_name='deleteIdentity', args=sgqlc.types.ArgDict((
-            ('unique_identity', sgqlc.types.Arg(Boolean, graphql_name='uniqueIdentity', default=None)),
+            ('delete_individual', sgqlc.types.Arg(Boolean, graphql_name='deleteIndividual', default=None)),
             ('uuid', sgqlc.types.Arg(String, graphql_name='uuid', default=None)),
         ))
     )
@@ -503,7 +503,7 @@ class TransactionType(sgqlc.types.Type):
     operations = sgqlc.types.Field(sgqlc.types.list_of(OperationType), graphql_name='operations')
 
 
-class UniqueIdentityType(sgqlc.types.Type):
+class IndividualType(sgqlc.types.Type):
     __schema__ = sh_schema
     __field_names__ = ('created_at', 'last_modified', 'uuid', 'is_locked', 'identities', 'profile', 'enrollments')
     created_at = sgqlc.types.Field(sgqlc.types.non_null(DateTime), graphql_name='createdAt')
@@ -517,23 +517,23 @@ class UniqueIdentityType(sgqlc.types.Type):
 
 class UnlockIdentity(sgqlc.types.Type):
     __schema__ = sh_schema
-    __field_names__ = ('uuid', 'uidentity')
+    __field_names__ = ('uuid', 'individual')
     uuid = sgqlc.types.Field(String, graphql_name='uuid')
-    uidentity = sgqlc.types.Field(UniqueIdentityType, graphql_name='uidentity')
+    individual = sgqlc.types.Field(IndividualType, graphql_name='individual')
 
 
 class UnmergeIdentities(sgqlc.types.Type):
     __schema__ = sh_schema
-    __field_names__ = ('uuids', 'uidentities')
+    __field_names__ = ('uuids', 'individuals')
     uuids = sgqlc.types.Field(sgqlc.types.list_of(String), graphql_name='uuids')
-    uidentities = sgqlc.types.Field(sgqlc.types.list_of(UniqueIdentityType), graphql_name='uidentities')
+    individuals = sgqlc.types.Field(sgqlc.types.list_of(IndividualType), graphql_name='individuals')
 
 
 class UpdateProfile(sgqlc.types.Type):
     __schema__ = sh_schema
-    __field_names__ = ('uuid', 'uidentity')
+    __field_names__ = ('uuid', 'individual')
     uuid = sgqlc.types.Field(String, graphql_name='uuid')
-    uidentity = sgqlc.types.Field(UniqueIdentityType, graphql_name='uidentity')
+    individual = sgqlc.types.Field(IndividualType, graphql_name='individual')
 
 
 class Verify(sgqlc.types.Type):
@@ -544,9 +544,9 @@ class Verify(sgqlc.types.Type):
 
 class Withdraw(sgqlc.types.Type):
     __schema__ = sh_schema
-    __field_names__ = ('uuid', 'uidentity')
+    __field_names__ = ('uuid', 'individual')
     uuid = sgqlc.types.Field(String, graphql_name='uuid')
-    uidentity = sgqlc.types.Field(UniqueIdentityType, graphql_name='uidentity')
+    individual = sgqlc.types.Field(IndividualType, graphql_name='individual')
 
 
 ########################################################################

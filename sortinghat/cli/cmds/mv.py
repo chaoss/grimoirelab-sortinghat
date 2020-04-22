@@ -36,24 +36,24 @@ from ..utils import (connect,
 @click.argument('to_uuid')
 @sh_client
 def mv(ctx, from_id, to_uuid, **extra):
-    """Move an identity to a unique identity.
+    """Move an identity to an individual.
 
     This command shifts the identity identified by <from_id> to
-    the unique identity identified by <to_uuid>.
+    the individual identified by <to_uuid>.
 
     When <to_uid> is already related to <from_id>, the command does
     not have any effect.
 
     In the case of <from_id> and <to_uuid> have equal values and the
-    unique identity does not exist, a new unique identity will be
+    individual does not exist, a new individual will be
     created and the identity will be moved to it.
 
-    When <from_id> exists also as a unique identity, this command will
+    When <from_id> exists also as an individual, this command will
     fail as this identity cannot be moved.
 
     FROM_ID: identifier of the identity to move
 
-    TO_UUID: identifier of the unique identity where <from_id> will be moved
+    TO_UUID: identifier of the individual where <from_id> will be moved
     """
     with connect(ctx.obj) as conn:
         _move_identity(conn, from_id=from_id,

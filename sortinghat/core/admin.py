@@ -24,7 +24,7 @@ from django.contrib import admin
 from .models import (Organization,
                      Domain,
                      Country,
-                     UniqueIdentity,
+                     Individual,
                      Identity,
                      Profile,
                      Enrollment)
@@ -33,7 +33,7 @@ from .models import (Organization,
 admin.site.register(Organization)
 admin.site.register(Domain)
 admin.site.register(Country)
-admin.site.register(UniqueIdentity)
+admin.site.register(Individual)
 admin.site.register(Identity)
 admin.site.register(Profile)
 admin.site.register(Enrollment)

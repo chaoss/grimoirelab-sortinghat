@@ -170,12 +170,12 @@ class Country(EntityBase):
         return self.name
 
 
-class UniqueIdentity(EntityBase):
+class Individual(EntityBase):
     uuid = CharField(max_length=MAX_SIZE_CHAR_FIELD, primary_key=True)
     is_locked = BooleanField(default=False)
 
     class Meta:
-        db_table = 'uidentities'
+        db_table = 'individuals'
 
     def __str__(self):
         return self.uuid
@@ -187,8 +187,8 @@ class Identity(EntityBase):
     email = CharField(max_length=MAX_SIZE_CHAR_FIELD, null=True)
     username = CharField(max_length=MAX_SIZE_CHAR_FIELD, null=True)
     source = CharField(max_length=32)
-    uidentity = ForeignKey(UniqueIdentity, related_name='identities',
-                           on_delete=CASCADE, db_column='uuid')
+    individual = ForeignKey(Individual, related_name='identities',
+                            on_delete=CASCADE, db_column='uuid')
 
     class Meta:
         db_table = 'identities'
@@ -199,8 +199,8 @@ class Identity(EntityBase):
 
 
 class Profile(EntityBase):
-    uidentity = OneToOneField(UniqueIdentity, related_name='profile',
-                              on_delete=CASCADE, db_column='uuid')
+    individual = OneToOneField(Individual, related_name='profile',
+                               on_delete=CASCADE, db_column='uuid')
     name = CharField(max_length=MAX_SIZE_CHAR_FIELD, null=True)
     email = CharField(max_length=MAX_SIZE_CHAR_FIELD, null=True)
     gender = CharField(max_length=32, null=True)
@@ -212,12 +212,12 @@ class Profile(EntityBase):
         db_table = 'profiles'
 
     def __str__(self):
-        return self.uidentity.uuid
+        return self.individual.uuid
 
 
 class Enrollment(EntityBase):
-    uidentity = ForeignKey(UniqueIdentity, related_name='enrollments',
-                           on_delete=CASCADE, db_column='uuid')
+    individual = ForeignKey(Individual, related_name='enrollments',
+                            on_delete=CASCADE, db_column='uuid')
     organization = ForeignKey(Organization, related_name='enrollments',
                               on_delete=CASCADE)
     start = DateTimeField(default=MIN_PERIOD_DATE)
@@ -225,11 +225,11 @@ class Enrollment(EntityBase):
 
     class Meta:
         db_table = 'enrollments'
-        unique_together = ('uidentity', 'organization', 'start', 'end',)
+        unique_together = ('individual', 'organization', 'start', 'end',)
         ordering = ('start', 'end', )
 
     def __str__(self):
-        return '%s - %s' % (self.uidentity.uuid, self.organization.name)
+        return '%s - %s' % (self.individual.uuid, self.organization.name)
 
 
 class MatchingBlacklist(EntityBase):

@@ -31,14 +31,14 @@ from sortinghat.cli.cmds.rm import rm
 
 RM_CMD_OP = """mutation {{
   deleteIdentity(uuid: "{}") {{
-    uidentity {{
+    individual {{
       uuid
     }}
   }}
 }}"""
 
 RM_UID_OUTPUT = (
-    "Unique identity eda9f62ad321b1fbe5f283cc05e2484516203117 removed\n"
+    "Individual eda9f62ad321b1fbe5f283cc05e2484516203117 removed\n"
 )
 RM_ID_OUTPUT = (
     "Identity eda9f62ad321b1fbe5f283cc05e2484516203117 removed\n"
@@ -80,7 +80,7 @@ class TestRmCommand(unittest.TestCase):
         """Check if it removes an identity"""
 
         responses = [
-            {'data': {'deleteIdentity': {'uidentity': None}}},
+            {'data': {'deleteIdentity': {'individual': None}}},
 
         ]
         client = MockClient(responses)
@@ -88,7 +88,7 @@ class TestRmCommand(unittest.TestCase):
 
         runner = click.testing.CliRunner()
 
-        # Remove a unique identity
+        # Remove an individual
         params = ['eda9f62ad321b1fbe5f283cc05e2484516203117']
         result = runner.invoke(rm, params)
 
@@ -107,7 +107,7 @@ class TestRmCommand(unittest.TestCase):
             {
                 'data': {
                     'deleteIdentity': {
-                        'uidentity': {'uuid': 'eda9f62ad321b1fbe5f283cc05e2484516203117'}
+                        'individual': {'uuid': 'eda9f62ad321b1fbe5f283cc05e2484516203117'}
                     }
                 }
             },

@@ -35,9 +35,9 @@ from ..utils import (connect,
 @click.argument('from_uuid', nargs=-1)
 @sh_client
 def merge(ctx, to_uuid, from_uuid, **extra):
-    """Merge one or more unique identities into another.
+    """Merge one or more individuals into another.
 
-    This command merges a list of unique identities into <to_uuid>.
+    This command merges a list of individuals into <to_uuid>.
     Identities and enrollments related to each <from_uuid> will be
     assigned to <to_uuid>.
 
@@ -49,12 +49,12 @@ def merge(ctx, to_uuid, from_uuid, **extra):
 
     Take into account all identities must exist before merging
     them. Also any identifier <from_uuid> must be different of
-    <to_uuid>. The same unique identity cannot be merged with
+    <to_uuid>. The same individual cannot be merged with
     itself. Otherwise, the command will abort the operation.
 
-    TO_UUID: unique identity where FROM_UUIDs will be merged
+    TO_UUID: individual where FROM_UUIDs will be merged
 
-    FROM_UUID: unique identity to merge
+    FROM_UUID: individual to merge
     """
     with connect(ctx.obj) as conn:
         _merge_identities(conn, from_uuids=list(from_uuid),

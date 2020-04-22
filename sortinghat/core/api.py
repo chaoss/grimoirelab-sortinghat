@@ -26,16 +26,16 @@ import django.db.transaction
 
 from grimoirelab_toolkit.datetime import datetime_to_utc
 
-from .db import (find_unique_identity,
+from .db import (find_individual,
                  find_identity,
                  find_organization,
                  find_domain,
                  search_enrollments_in_period,
-                 add_unique_identity as add_unique_identity_db,
+                 add_individual as add_individual_db,
                  add_identity as add_identity_db,
                  add_organization as add_organization_db,
                  add_domain as add_domain_db,
-                 delete_unique_identity as delete_unique_identity_db,
+                 delete_individual as delete_individual_db,
                  delete_identity as delete_identity_db,
                  delete_organization as delete_organization_db,
                  delete_domain as delete_domain_db,
@@ -116,16 +116,16 @@ def add_identity(ctx, source, name=None, email=None, username=None, uuid=None):
     """Add an identity to the registry.
 
     This function adds a new identity to the registry. By default,
-    a new unique identity will be also added and associated to
+    a new individual will be also added and associated to
     the new identity.
 
     When `uuid` parameter is set, it creates a new identity that
-    will be associated to the unique identity defined by this
+    will be associated to the individual defined by this
     identifier. This identifier must exist on the registry.
     If it does not exist, the function will raise a `NotFoundError`
     exception.
 
-    When no `uuid` is given, both new unique identity and identity
+    When no `uuid` is given, both new individual and identity
     will have the same identifier.
 
     The registry considers that two identities are distinct when
@@ -147,7 +147,7 @@ def add_identity(ctx, source, name=None, email=None, username=None, uuid=None):
     :param name: full name of the identity
     :param email: email of the identity
     :param username: user name used by the identity
-    :param uuid: associates the new identity to the unique identity
+    :param uuid: associates the new identity to the individual
         identified by this id
 
     :returns: a universal unique identifier
@@ -156,7 +156,7 @@ def add_identity(ctx, source, name=None, email=None, username=None, uuid=None):
         when all the identity parameters are `None` or empty.
     :raises AlreadyExistsError: raised when the identity already
         exists in the registry.
-    :raises NotFoundError: raised when the unique identity
+    :raises NotFoundError: raised when the individual
         associated to the given `uuid` is not in the registry.
     """
     trxl = TransactionsLog.open('add_identity', ctx)
@@ -167,15 +167,15 @@ def add_identity(ctx, source, name=None, email=None, username=None, uuid=None):
         raise InvalidValueError(msg=str(e))
 
     if not uuid:
-        uidentity = add_unique_identity_db(trxl, id_)
-        uidentity = update_profile_db(trxl, uidentity,
-                                      name=name, email=email)
+        individual = add_individual_db(trxl, id_)
+        individual = update_profile_db(trxl, individual,
+                                       name=name, email=email)
     else:
-        uidentity = find_unique_identity(uuid)
+        individual = find_individual(uuid)
 
     args = {
         'trxl': trxl,
-        'uidentity': uidentity,
+        'individual': individual,
         'identity_id': id_,
         'source': source,
         'name': name,
@@ -199,7 +199,7 @@ def delete_identity(ctx, uuid):
 
     This function removes from the registry the identity which
     its identifier matches with `uuid`. When the `uuid` also
-    belongs to a unique identity, this entry and those identities
+    belongs to an individual, this entry and those identities
     linked to it will be removed too. The value of this identifier
     cannot be empty.
 
@@ -207,16 +207,16 @@ def delete_identity(ctx, uuid):
     exception is raised.
 
     As a result, the function will return an updated version of the
-    unique identity with the identity removed. If the deleted entry
-    was a unique identity, the returned value will be `None` because
+    individual with the identity removed. If the deleted entry
+    was an individual, the returned value will be `None` because
     this object was wiped out.
 
     :param ctx: context from where this method is called
-    :param uuid: identifier assigned to the identity or unique
-        identity that will be removed
+    :param uuid: identifier assigned to the identity or individual
+        that will be removed
 
-    :returns: a unique identity with the identity removed; `None` when
-        the unique identity was also removed.
+    :returns: an individual with the identity removed; `None` when
+        the individual was also removed.
 
     :raises InvalidValueError: when `uuid` is `None` or empty.
     :raises NotFoundError: when the identity does not exist in the
@@ -230,99 +230,99 @@ def delete_identity(ctx, uuid):
     trxl = TransactionsLog.open('delete_identity', ctx)
 
     identity = find_identity(uuid)
-    uidentity = identity.uidentity
+    individual = identity.individual
 
-    if uidentity.uuid == uuid:
-        delete_unique_identity_db(trxl, identity.uidentity)
-        uidentity = None
+    if individual.uuid == uuid:
+        delete_individual_db(trxl, identity.individual)
+        individual = None
     else:
         delete_identity_db(trxl, identity)
-        uidentity.refresh_from_db()
+        individual.refresh_from_db()
 
     trxl.close()
 
-    return uidentity
+    return individual
 
 
 @django.db.transaction.atomic
 def update_profile(ctx, uuid, **kwargs):
-    """Update unique identity profile.
+    """Update individual profile.
 
     This function allows to edit or update the profile information
-    of the unique identity identified by `uuid`.
+    of the individual identified by `uuid`.
 
     The values to update are given as keyword arguments. The allowed
     keys are listed below (other keywords will be ignored):
 
-       - 'name' : name of the unique identity
-       - 'email' : email address of the unique identity
-       - 'gender' : gender of the unique identity
+       - 'name' : name of the individual
+       - 'email' : email address of the individual
+       - 'gender' : gender of the individual
        - 'gender_acc' : gender accuracy (range of 1 to 100; by default,
              set to 100)
-       - 'is_bot' : boolean value to determine whether a unique identity is
+       - 'is_bot' : boolean value to determine whether an individual is
              a bot or not. By default, this value is initialized to
              `False`.
        - 'country_code' : ISO-3166 country code
 
-    The result of calling this function will be the `UniqueIdentity`
+    The result of calling this function will be the `Individual`
     object with an updated profile.
 
     :param ctx: context from where this method is called
-    :param uuid: identifier of the unique identity which its project
+    :param uuid: identifier of the individual which its project
         will be updated
     :param kwargs: keyword arguments with data to update the profile
 
-    :returns: a unique identity with its profile updated
+    :returns: an individual with its profile updated
 
-    :raises NotFoundError: raised when either the unique identity
+    :raises NotFoundError: raised when either the individual
         or the country code do not exist in the registry.
     :raises InvalidValueError: raised when any of the keyword arguments
         has an invalid value.
     """
     trxl = TransactionsLog.open('update_profile', ctx)
 
-    uidentity = find_unique_identity(uuid)
+    individual = find_individual(uuid)
 
     try:
-        uidentity = update_profile_db(trxl, uidentity, **kwargs)
+        individual = update_profile_db(trxl, individual, **kwargs)
     except ValueError as e:
         raise InvalidValueError(msg=str(e))
 
     trxl.close()
 
-    return uidentity
+    return individual
 
 
 @django.db.transaction.atomic
 def move_identity(ctx, from_id, to_uuid):
-    """Move an identity to a unique identity.
+    """Move an identity to an individual.
 
     This function shifts the identity identified by `from_id` to
-    the unique identity identified by `to_uuid`.
+    the individual identified by `to_uuid`.
 
-    When `to_uuid` is the unique identity that is currently related
+    When `to_uuid` is the individual that is currently related
     to `from_id`, the action does not have any effect.
 
     In the case of `from_id` and `to_uuid` have equal values and the
-    unique identity does not exist, a new unique identity will be
+    individual does not exist, a new individual will be
     created and the identity will be moved to it.
 
-    When `from_id` exists as a unique identity too, the function raises
+    When `from_id` exists as an individual too, the function raises
     an `InvalidValueError`, as this identity cannot be moved.
 
     The function raises a `NotFoundError` exception when either `from_id`
     or `to_uuid` do not exist in the registry and both identifiers are
     not the same.
 
-    The unique identity object with updated identities data is returned
+    The individual object with updated identities data is returned
     as the result of calling this function.
 
     :param ctx: context from where this method is called
     :param from_id: identifier of the identity set to be moved
-    :param to_uuid: identifier of the unique identity where 'from_id'
+    :param to_uuid: identifier of the individual where 'from_id'
         will be moved
 
-    :returns: a unique identity with identities data updated
+    :returns: an individual with identities data updated
 
     :raises NotFoundError: raised when either `from_uuid` or `to_uuid`
         do not exist in the registry.
@@ -342,16 +342,16 @@ def move_identity(ctx, from_id, to_uuid):
 
     identity = find_identity(from_id)
 
-    if identity.id == identity.uidentity.uuid:
-        msg = "'from_id' is a unique identity and it cannot be moved; use 'merge' instead"
+    if identity.id == identity.individual.uuid:
+        msg = "'from_id' is an individual and it cannot be moved; use 'merge' instead"
         raise InvalidValueError(msg=msg)
 
     try:
-        to_uid = find_unique_identity(to_uuid)
+        to_uid = find_individual(to_uuid)
     except NotFoundError as exc:
         # Move identity to a new one
         if identity.id == to_uuid:
-            to_uid = add_unique_identity_db(trxl, identity.id)
+            to_uid = add_individual_db(trxl, identity.id)
             to_uid = update_profile_db(trxl, to_uid,
                                        name=identity.name,
                                        email=identity.email)
@@ -359,28 +359,28 @@ def move_identity(ctx, from_id, to_uuid):
             raise exc
 
     try:
-        uidentity = move_identity_db(trxl, identity, to_uid)
+        individual = move_identity_db(trxl, identity, to_uid)
     except ValueError:
-        # Case when the identity is already assigned to the unique identity
-        uidentity = to_uid
+        # Case when the identity is already assigned to the individual
+        individual = to_uid
 
     trxl.close()
 
-    return uidentity
+    return individual
 
 
 @django.db.transaction.atomic
 def lock(ctx, uuid):
-    """Lock a unique identity so it cannot be modified.
+    """Lock an individual so it cannot be modified.
 
-    This function locks the unique identity identified by `uuid`
+    This function locks the individual identified by `uuid`
     so this object and its related objects such as identities,
     enrollments or the profile cannot be modified.
 
     :param ctx: context from where this method is called
-    :param uuid: identifier of the unique identity which will be locked
+    :param uuid: identifier of the individual which will be locked
 
-    :returns: a unique identity with its locked value updated
+    :returns: an individual with its locked value updated
 
     :raises InvalidValueError: raised when `uuid` is `None` or an empty string
     :raises NotFoundError: when the identity with the
@@ -393,26 +393,26 @@ def lock(ctx, uuid):
 
     trxl = TransactionsLog.open('lock', ctx)
 
-    uidentity = find_unique_identity(uuid)
-    uidentity = lock_db(trxl, uidentity)
+    individual = find_individual(uuid)
+    individual = lock_db(trxl, individual)
 
     trxl.close()
 
-    return uidentity
+    return individual
 
 
 @django.db.transaction.atomic
 def unlock(ctx, uuid):
-    """Unlock a unique identity so it can be modified.
+    """Unlock an individual so it can be modified.
 
-    This function unlocks the unique identity identified by `uuid`
+    This function unlocks the individual identified by `uuid`
     so this object and its related objects such as identities,
     enrollments or the profile can be modified.
 
     :param ctx: context from where this method is called
-    :param uuid: identifier of the unique identity which will be unlocked
+    :param uuid: identifier of the individual which will be unlocked
 
-    :returns: a unique identity with its locked value updated
+    :returns: an individual with its locked value updated
 
     :raises InvalidValueError: raised when `uuid` is `None` or an empty string
     :raises NotFoundError: when the identity with the
@@ -425,12 +425,12 @@ def unlock(ctx, uuid):
 
     trxl = TransactionsLog.open('unlock', ctx)
 
-    uidentity = find_unique_identity(uuid)
-    uidentity = unlock_db(trxl, uidentity)
+    individual = find_individual(uuid)
+    individual = unlock_db(trxl, individual)
 
     trxl.close()
 
-    return uidentity
+    return individual
 
 
 @django.db.transaction.atomic
@@ -608,9 +608,9 @@ def delete_domain(ctx, domain_name):
 
 @django.db.transaction.atomic
 def enroll(ctx, uuid, organization, from_date=None, to_date=None, force=False):
-    """Enroll a unique identity in an organization.
+    """Enroll an individual in an organization.
 
-    The function enrolls a unique identity, identified by `uuid`,
+    The function enrolls an individual, identified by `uuid`,
     in the given `organization`. Both identity and organization must
     exist before adding this enrollment to the registry. Otherwise,
     a `NotFoundError` exception will be raised.
@@ -619,7 +619,7 @@ def enroll(ctx, uuid, organization, from_date=None, to_date=None, force=False):
     `from_date` and `to_date`, where `from_date <= to_date`. Default
     values for these dates are `1900-01-01` and `2100-01-01`.
 
-    Existing enrollments for the same unique identity and organization
+    Existing enrollments for the same individual and organization
     which overlap with the new period will be merged into a single
     enrollment.
 
@@ -631,7 +631,7 @@ def enroll(ctx, uuid, organization, from_date=None, to_date=None, force=False):
     or end dates, the range will be overwritten with the new `from_date` and
     `to_date` values.
 
-    The unique identity object with updated enrollment data is returned
+    The individual object with updated enrollment data is returned
     as the result of calling this function.
 
     :param ctx: context from where this method is called
@@ -642,7 +642,7 @@ def enroll(ctx, uuid, organization, from_date=None, to_date=None, force=False):
     :param force: overwrite default dates in case a more specific date
         is provided
 
-    :returns: a unique identity with enrollment data updated
+    :returns: an individual with enrollment data updated
 
     :raises NotFoundError: when either `uuid` or `organization` are not
         found in the registry.
@@ -671,7 +671,7 @@ def enroll(ctx, uuid, organization, from_date=None, to_date=None, force=False):
         raise InvalidValueError(msg=msg)
 
     # Find and check entities
-    uidentity = find_unique_identity(uuid)
+    individual = find_individual(uuid)
     org = find_organization(organization)
 
     # Get the list of current ranges
@@ -702,25 +702,25 @@ def enroll(ctx, uuid, organization, from_date=None, to_date=None, force=False):
     try:
         dt_ranges = merge_datetime_ranges(periods, exclude_limits=force)
         for start_dt, end_dt in dt_ranges:
-            add_enrollment(trxl, uidentity, org, start=start_dt, end=end_dt)
+            add_enrollment(trxl, individual, org, start=start_dt, end=end_dt)
     except ValueError as e:
         raise InvalidValueError(msg=str(e))
 
-    uidentity.refresh_from_db()
+    individual.refresh_from_db()
 
     trxl.close()
 
-    return uidentity
+    return individual
 
 
 @django.db.transaction.atomic
 def withdraw(ctx, uuid, organization, from_date=None, to_date=None):
-    """Withdraw a unique identity from an organization.
+    """Withdraw an individual from an organization.
 
-    This function withdraws a unique identity identified by `uuid`
+    This function withdraws an individual identified by `uuid`
     from the given `organization` during the given period of time.
 
-    For example, if the unique identity `A` was enrolled from `2010-01-01`
+    For example, if the individual `A` was enrolled from `2010-01-01`
     to `2018-01-01` to the organization `Example`, the result of withdrawing
     that identity from `2014-01-01` to `2016-01-01` will be two enrollments
     for that identity: one for the period 2010-2014 and another one for
@@ -735,7 +735,7 @@ def withdraw(ctx, uuid, organization, from_date=None, to_date=None):
     `from_date` and `to_date`, where `from_date <= to_date`. Default
     values for these dates are `1900-01-01` and `2100-01-01`.
 
-    The unique identity object with updated enrollment data is returned
+    The individual object with updated enrollment data is returned
     as the result of calling this function.
 
     :param ctx: context from where this method is called
@@ -744,7 +744,7 @@ def withdraw(ctx, uuid, organization, from_date=None, to_date=None):
     :param from_date: date when the enrollment starts
     :param to_date: date when the enrollment ends
 
-    :returns: a unique identity with enrollment data updated
+    :returns: an individual with enrollment data updated
 
     :raises NotFoundError: when either `uuid` or `organization` are not
         found in the registry or when the identity is not enrolled
@@ -776,7 +776,7 @@ def withdraw(ctx, uuid, organization, from_date=None, to_date=None):
         raise InvalidValueError(msg=msg)
 
     # Find and check entities
-    uidentity = find_unique_identity(uuid)
+    individual = find_individual(uuid)
     org = find_organization(organization)
 
     # Get the list of current ranges
@@ -805,25 +805,25 @@ def withdraw(ctx, uuid, organization, from_date=None, to_date=None):
 
     try:
         if min_range < from_date:
-            add_enrollment(trxl, uidentity, org, start=min_range, end=from_date)
+            add_enrollment(trxl, individual, org, start=min_range, end=from_date)
         if max_range > to_date:
-            add_enrollment(trxl, uidentity, org, start=to_date, end=max_range)
+            add_enrollment(trxl, individual, org, start=to_date, end=max_range)
     except ValueError as e:
         raise InvalidValueError(msg=str(e))
 
-    uidentity.refresh_from_db()
+    individual.refresh_from_db()
 
     trxl.close()
 
-    return uidentity
+    return individual
 
 
 @django.db.transaction.atomic
 def merge_identities(ctx, from_uuids, to_uuid):
     """
-    Merge one or more unique identities into another.
+    Merge one or more individual into another.
 
-    Use this function to join a list of `from_uuid` unique identities into
+    Use this function to join a list of `from_uuid` individuals into
     `to_uuid`. Identities and enrollments related to each `from_uuid` will be
     assigned to `to_uuid`. In addition, each `from_uuid` will be removed
     from the registry. Duplicated enrollments will be also removed from
@@ -831,8 +831,8 @@ def merge_identities(ctx, from_uuids, to_uuid):
 
     This function also merges two or more profiles. When a field on `to_uuid`
     profile is `None` or empty, it will be updated with the value on the
-    profile of each `from_uuid`. If any of the unique identities was set
-    as a bot, the new profile will also be set as a bot.
+    profile of each `from_uuid`. If any of the individuals was set as a bot,
+    the new profile will also be set as a bot.
 
     When any of the `from_uuid` and `to_uuid` are equal, or any of this two
     fields are `None` or empty, it raises an `InvalidValueError`.
@@ -841,20 +841,20 @@ def merge_identities(ctx, from_uuids, to_uuid):
     or `to_uuid` do not exist in the registry.
 
     :param ctx: context from where this method is called
-    :param from_uuids: List of identifiers of the unique identities set to merge
-    :param to_uuid: identifier of the unique identity where `from_uuids`
+    :param from_uuids: List of identifiers of the individuals set to merge
+    :param to_uuid: identifier of the individual where `from_uuids`
         will be merged
 
-    :returns: a UniqueIdentity object as the result of the merged identities
+    :returns: a Individual object as the result of the merged individuals
 
     :raises NotFoundError: raised when either one of the `from_uuids` or
         `to_uuid` do not exist in the registry
     """
 
-    def _find_unique_identities(from_uuids, to_uuid):
-        """Find the unique identities to be merged from their uuids"""
+    def _find_individuals(from_uuids, to_uuid):
+        """Find the individuals to be merged from their uuids"""
 
-        unique_identities = []
+        individuals = []
         for from_uuid in from_uuids:
             # Check whether input values are valid
             if from_uuid is None:
@@ -865,39 +865,39 @@ def merge_identities(ctx, from_uuids, to_uuid):
                 raise InvalidValueError(msg="'from_uuid' and 'to_uuid' cannot be equal")
 
             try:
-                from_uid = find_unique_identity(from_uuid)
-                unique_identities.append(from_uid)
+                from_indv = find_individual(from_uuid)
+                individuals.append(from_indv)
             except NotFoundError as exc:
                 raise exc
 
-        return unique_identities
+        return individuals
 
-    def _get_identities(from_uids):
-        """Get all the sub-identities from all the unique identities to be merged"""
+    def _get_identities(from_individuals):
+        """Get all the sub-identities from all the individuals to be merged"""
 
         identities = Identity.objects.none()  # Initialize empty QuerySet
-        for from_uid in from_uids:
+        for from_indv in from_individuals:
             try:
-                identities = identities | from_uid.identities.all()
+                identities = identities | from_indv.identities.all()
             except ValueError as e:
                 raise InvalidValueError(msg=str(e))
 
         return identities
 
-    def _move_identities(trxl, from_uids, to_uid):
-        """Move individual sub-identities into the target unique identity"""
+    def _move_identities(trxl, from_individuals, to_individual):
+        """Move single identities into the target individual"""
 
-        identities = _get_identities(from_uids)
+        identities = _get_identities(from_individuals)
         for identity in identities:
-            move_identity_db(trxl, identity, to_uid)
+            move_identity_db(trxl, identity, to_individual)
 
-    def _merge_enrollments(trxl, from_uids, to_uid):
-        """Merge enrollments from `UniqueIdentity` objects"""
+    def _merge_enrollments(trxl, from_individuals, to_individual):
+        """Merge enrollments from `Individual` objects"""
 
-        # Get current enrollments from all uidentities
-        enrollments_db = to_uid.enrollments.all()
-        for from_uid in from_uids:
-            enrollments_db = enrollments_db | from_uid.enrollments.all()
+        # Get current enrollments from all individuals
+        enrollments_db = to_individual.enrollments.all()
+        for from_indv in from_individuals:
+            enrollments_db = enrollments_db | from_indv.enrollments.all()
 
         enrollments = {}
         for enrollment in enrollments_db:
@@ -915,36 +915,36 @@ def merge_identities(ctx, from_uuids, to_uuid):
             periods = enrollments[org]
             try:
                 for start_dt, end_dt in merge_datetime_ranges(periods, exclude_limits=True):
-                    add_enrollment(trxl, to_uid, org, start=start_dt, end=end_dt)
+                    add_enrollment(trxl, to_individual, org, start=start_dt, end=end_dt)
             except ValueError as e:
                 raise InvalidValueError(msg=str(e))
 
-        return to_uid
+        return to_individual
 
-    def _merge_profiles(from_uids, to_uid):
-        """Merge the profiles from `UniqueIdentity` objects"""
+    def _merge_profiles(from_individuals, to_individual):
+        """Merge the profiles from `Individual` objects"""
 
-        for from_uid in from_uids:
-            if not to_uid.profile.is_bot and from_uid.profile.is_bot:
-                to_uid.profile.is_bot = True
-            if not to_uid.profile.name:
-                to_uid.profile.name = from_uid.profile.name
-            if not to_uid.profile.email:
-                to_uid.profile.email = from_uid.profile.email
-            if not to_uid.profile.gender:
-                to_uid.profile.gender = from_uid.profile.gender
-            if not to_uid.profile.gender_acc:
-                to_uid.profile.gender_acc = from_uid.profile.gender_acc
-            if not to_uid.profile.country:
-                to_uid.profile.country = from_uid.profile.country
+        for from_indv in from_individuals:
+            if not to_individual.profile.is_bot and from_indv.profile.is_bot:
+                to_individual.profile.is_bot = True
+            if not to_individual.profile.name:
+                to_individual.profile.name = from_indv.profile.name
+            if not to_individual.profile.email:
+                to_individual.profile.email = from_indv.profile.email
+            if not to_individual.profile.gender:
+                to_individual.profile.gender = from_indv.profile.gender
+            if not to_individual.profile.gender_acc:
+                to_individual.profile.gender_acc = from_indv.profile.gender_acc
+            if not to_individual.profile.country:
+                to_individual.profile.country = from_indv.profile.country
 
-        return to_uid
+        return to_individual
 
-    def _delete_unique_identities(trxl, uids):
-        """Delete unique identities from the database"""
+    def _delete_individuals(trxl, individuals):
+        """Delete individuals from the database"""
 
-        for uid in uids:
-            delete_unique_identity_db(trxl, uid)
+        for indv in individuals:
+            delete_individual_db(trxl, indv)
 
     # Check input values
     if from_uuids is None:
@@ -959,40 +959,40 @@ def merge_identities(ctx, from_uuids, to_uuid):
     trxl = TransactionsLog.open('merge_identities', ctx)
 
     try:
-        to_uid = find_unique_identity(to_uuid)
-        from_uids = _find_unique_identities(from_uuids, to_uuid)
+        to_individual = find_individual(to_uuid)
+        from_individuals = _find_individuals(from_uuids, to_uuid)
     except NotFoundError as exc:
-        # At least one unique identity was not found, so they cannot be merged
+        # At least one individual was not found, so they cannot be merged
         raise exc
 
-    _move_identities(trxl, from_uids, to_uid)
+    _move_identities(trxl, from_individuals, to_individual)
 
-    to_uid = _merge_enrollments(trxl, from_uids, to_uid)
-    to_uid.refresh_from_db()
+    to_individual = _merge_enrollments(trxl, from_individuals, to_individual)
+    to_individual.refresh_from_db()
 
-    to_uid = _merge_profiles(from_uids, to_uid)
-    update_profile_db(trxl, to_uid)
+    to_individual = _merge_profiles(from_individuals, to_individual)
+    update_profile_db(trxl, to_individual)
 
-    _delete_unique_identities(trxl, from_uids)
+    _delete_individuals(trxl, from_individuals)
 
     trxl.close()
 
-    return to_uid
+    return to_individual
 
 
 @django.db.transaction.atomic
 def unmerge_identities(ctx, uuids):
     """
-    Unmerge one or more identities from their corresponding unique identities.
+    Unmerge one or more identities from their corresponding individual.
 
-    Use this function to separate a list of `uuid` identities, creating a unique
-    identity for each one. A profile for each new unique identity will be created using
-    the `name` and `email` fields of the corresponding identity.
-    Nor the enrollments or the profile from any parent unique identity of the input
-    identities are modified.
+    Use this function to separate a list of `uuid` identities, creating
+    an individual for each one. A profile for each new individual will
+    be created using the `name` and `email` fields of the corresponding
+    identity. Nor the enrollments or the profile from any parent individual
+    of the input identities are modified.
 
-    When a given identity `uuid` is equal to the `uuid` from its parent unique
-    identity, there will be no effect.
+    When a given identity `uuid` is equal to the `uuid` from its parent
+    individual, there will be no effect.
 
     The function raises a `NotFoundError` exception when either any `uuid` from
     the list does not exist in the registry.
@@ -1001,9 +1001,11 @@ def unmerge_identities(ctx, uuids):
     from the list is `None` or an empty string.
 
     :param ctx: context from where this method is called
-    :param uuids: list of identifiers of the identities set to be unmerged
+    :param uuids: list of identifiers of the identities set to
+        be unmerged
 
-    :returns: a list of UniqueIdentity objects as the result of the unmerged identities
+    :returns: a list of `Individual` objects as the result of
+        unmerging the identities
 
     :raises NotFoundError: raised when either any `uuid` from the list
         does not exist in the registry
@@ -1011,7 +1013,7 @@ def unmerge_identities(ctx, uuids):
         list is `None` or an empty string
     """
     def _find_identities(uuids):
-        """Find the identities to be unmerged from their parent unique identities"""
+        """Find the identities to be unmerged from their parent individuals"""
 
         identities = []
         for uuid in uuids:
@@ -1021,35 +1023,35 @@ def unmerge_identities(ctx, uuids):
             if uuid == '':
                 raise InvalidValueError(msg="'uuid' cannot be an empty string")
 
-            uid = find_identity(uuid)
-            identities.append(uid)
+            identity = find_identity(uuid)
+            identities.append(identity)
 
         return identities
 
-    def _set_destination_identity(trxl, identity):
-        """Create the unique identity, if it does not exist, where the identity will be moved to."""
+    def _set_destination_for_identity(trxl, identity):
+        """Create the individual, if it does not exist, where the identity will be moved to."""
 
-        if identity.id != identity.uidentity_id:
-            uid = add_unique_identity_db(trxl, identity.id)
-            uid = update_profile_db(trxl, uid,
-                                    name=identity.name,
-                                    email=identity.email)
+        if identity.id != identity.individual_id:
+            individual = add_individual_db(trxl, identity.id)
+            individual = update_profile_db(trxl, individual,
+                                           name=identity.name,
+                                           email=identity.email)
         else:
             # Case when the identity to be unmerged is the main one
-            uid = identity.uidentity
+            individual = identity.individual
 
-        return uid
+        return individual
 
-    def _move_to_destination(trxl, identity, uid):
-        """Move the identity from the old unique identity to the new one"""
+    def _move_to_destination(trxl, identity, individual):
+        """Move the identity from the old individual to the new one"""
 
         try:
-            uidentity = move_identity_db(trxl, identity, uid)
+            indv = move_identity_db(trxl, identity, individual)
         except ValueError:
-            # Case when the identity is already assigned to the unique identity
-            uidentity = uid
+            # Case when the identity is already assigned to the individual
+            indv = individual
 
-        return uidentity
+        return indv
 
     # Check input value
     if uuids is None:
@@ -1061,12 +1063,12 @@ def unmerge_identities(ctx, uuids):
 
     identities = _find_identities(uuids)
 
-    new_uidentities = []
+    new_individuals = []
     for identity in identities:
-        uid = _set_destination_identity(trxl, identity)
-        uidentity = _move_to_destination(trxl, identity, uid)
-        new_uidentities.append(uidentity)
+        indv = _set_destination_for_identity(trxl, identity)
+        individual = _move_to_destination(trxl, identity, indv)
+        new_individuals.append(individual)
 
     trxl.close()
 
-    return new_uidentities
+    return new_individuals

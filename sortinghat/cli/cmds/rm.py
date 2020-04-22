@@ -40,7 +40,7 @@ def rm(ctx, uuid, **extra):
     This command removes from the registry the identity whose
     identifier matches with <uuid>.
 
-    When the <uuid> also belongs to a unique identity, this entry
+    When the <uuid> also belongs to an individual, this entry
     and those identities linked to it will be removed too.
 
     UUID: identifier of the identity to remove
@@ -57,10 +57,10 @@ def _remove_identity(conn, **kwargs):
 
     op = Operation(SortingHatSchema.SortingHatMutation)
     op.delete_identity(**args)
-    op.delete_identity.uidentity().uuid()
+    op.delete_identity.individual().uuid()
 
     result = conn.execute(op)
 
-    uidentity = result['data']['deleteIdentity']['uidentity']
+    individual = result['data']['deleteIdentity']['individual']
 
-    return uidentity is not None
+    return individual is not None

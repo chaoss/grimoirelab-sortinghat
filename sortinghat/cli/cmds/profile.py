@@ -33,15 +33,15 @@ from ..utils import (connect,
 @click.command()
 @sh_client_cmd_options
 @click.option('--name',
-              help="Name of the unique identity.")
+              help="Name of the individual.")
 @click.option('--email',
-              help="Email address of the unique identity.")
+              help="Email address of the individual.")
 @click.option('--gender',
-              help="Gender of the unique identity.")
+              help="Gender of the individual.")
 @click.option('--country',
               help="ISO_3166-1 country code.")
 @click.option('--bot/--no-bot', default=None,
-              help="Set/unset the unique identity as a bot.")
+              help="Set/unset the individual as a bot.")
 @click.argument('uuid')
 @sh_client
 def profile(ctx, uuid, name, email, gender, country, bot, **extra):
@@ -53,33 +53,33 @@ def profile(ctx, uuid, name, email, gender, country, bot, **extra):
     identity is a bot or not.
 
     When only <uuid> is provided, the command will display the
-    profile of that unique identity.
+    profile of that individual.
 
-    UUID: identifier of the unique identity
+    UUID: identifier of the individual
     """
     with connect(ctx.obj) as conn:
-        uid = _update_profile(conn, uuid, email=email,
-                              name=name, gender=gender,
-                              country_code=country,
-                              is_bot=bot)
-        display('profile.tmpl', uid=uid)
+        indv = _update_profile(conn, uuid, email=email,
+                               name=name, gender=gender,
+                               country_code=country,
+                               is_bot=bot)
+        display('profile.tmpl', indv=indv)
 
 
 def _update_profile(conn, uuid, **kwargs):
-    """Run a server operation to update the profile of a unique identity."""
+    """Run a server operation to update the profile of an individual."""
 
     args = {k: v for k, v in kwargs.items() if v is not None}
     pd = SortingHatSchema.ProfileInputType(**args)
 
     op = Operation(SortingHatSchema.SortingHatMutation)
     op.update_profile(uuid=uuid, data=pd)
-    op.update_profile().uidentity().uuid()
-    op.update_profile().uidentity().profile().__fields__('name', 'email',
-                                                         'gender', 'is_bot')
-    op.update_profile().uidentity().profile().country().__fields__('code', 'name')
+    op.update_profile().individual().uuid()
+    op.update_profile().individual().profile().__fields__('name', 'email',
+                                                          'gender', 'is_bot')
+    op.update_profile().individual().profile().country().__fields__('code', 'name')
 
     result = conn.execute(op)
 
     data = op + result
 
-    return data.update_profile.uidentity
+    return data.update_profile.individual

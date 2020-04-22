@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2019 Bitergia
+# Copyright (C) 2014-2020 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -165,7 +165,7 @@ class TestAddCommand(unittest.TestCase):
         runner = click.testing.CliRunner()
 
         # Assign to John Smith - a9b403e150dd4af8953a52a4bb841051e4b705d9
-        # unique identity
+        # individual
         params = [
             '--source', 'mls',
             '--email', 'jsmith@example.com',

@@ -35,19 +35,19 @@ from ..utils import (connect,
 @click.argument('uuid', nargs=-1, required=True)
 @sh_client
 def split(ctx, uuid, **extra):
-    """Separate one or more identities from their corresponding unique identities.
+    """Separate one or more identities from their corresponding individuals.
 
     This command separates a list of identities, creating a unique
     identity for each one.
 
-    A profile for each new unique identity will be created using
-    the 'name' and 'email' fields of the parent unique identity.
+    A profile for each new individual will be created using
+    the 'name' and 'email' fields of the parent individual.
 
     Nor the enrollments or the profile from any parent unique
     identity of the input identities are modified.
 
     When a given identity <uuid> is equal to the <uuid> of its
-    parent unique identity, there will be no effect. Also,
+    parent individual, there will be no effect. Also,
     take into account all identities must exist before splitting
     them. Otherwise, the command will abort the operation.
 

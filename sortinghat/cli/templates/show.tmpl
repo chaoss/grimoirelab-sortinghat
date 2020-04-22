@@ -1,26 +1,26 @@
-{% for uid in uidentities | sort(attribute='uuid') %}
+{% for indv in individuals | sort(attribute='uuid') %}
 
-unique identity {{ uid.uuid }}{{'	(locked)' if uid.is_locked }}
+individual {{ indv.uuid }}{{'	(locked)' if indv.is_locked }}
 
 Profile:
-    * Name: {{ uid.profile.name|d('-', true) }}
-    * E-Mail: {{ uid.profile.email|d('-', true) }}
-    * Gender: {{ uid.profile.gender|d('-', true) }}
-    * Bot: {{ '%s' % 'Yes' if uid.profile.is_bot else 'No' }}
-    * Country: {{ '%s' % uid.profile.country.code + ' - ' + uid.profile.country.name if uid.profile.country else '-' }}
+    * Name: {{ indv.profile.name|d('-', true) }}
+    * E-Mail: {{ indv.profile.email|d('-', true) }}
+    * Gender: {{ indv.profile.gender|d('-', true) }}
+    * Bot: {{ '%s' % 'Yes' if indv.profile.is_bot else 'No' }}
+    * Country: {{ '%s' % indv.profile.country.code + ' - ' + indv.profile.country.name if indv.profile.country else '-' }}
 
-{% if uid.identities %}
+{% if indv.identities %}
 Identities:
-{% for identity in uid.identities | sort(attribute='id') %}
+{% for identity in indv.identities | sort(attribute='id') %}
   {{ identity.id }}	{{ identity.name|d('-', true) }}	{{ identity.email|d('-', true) }}	{{ identity.username|d('-', true) }}	{{ identity.source }}
 {% endfor %}
 {% else %}
 No identities
 {% endif %}
 
-{% if uid.enrollments %}
+{% if indv.enrollments %}
 Enrollments:
-{% for rol in uid.enrollments %}
+{% for rol in indv.enrollments %}
   {{ rol.organization.name }}	{{ rol.start.strftime('%Y-%m-%d %H:%M:%S') }}	{{ rol.end.strftime('%Y-%m-%d %H:%M:%S') }}
 {% endfor %}
 {% else %}

@@ -30,7 +30,7 @@ from sortinghat.cli.cmds.show import show
 
 
 SHOW_CMD_OP = """query {{
-  uidentities({}) {{
+  individuals({}) {{
     pageInfo {{
       hasNext
     }}
@@ -67,7 +67,7 @@ SHOW_CMD_OP = """query {{
 
 
 SHOW_OUTPUT = """
-unique identity 0000000000000000000000000000000000000000\t(locked)
+individual 0000000000000000000000000000000000000000\t(locked)
 
 Profile:
     * Name: -
@@ -81,7 +81,7 @@ No identities
 No enrollments
 
 
-unique identity 17ab00ed3825ec2f50483e33c88df223264182ba
+individual 17ab00ed3825ec2f50483e33c88df223264182ba
 
 Profile:
     * Name: Jane Roe
@@ -101,7 +101,7 @@ Enrollments:
   Example\t1900-01-01 00:00:00\t2100-01-01 00:00:00
 
 
-unique identity a9b403e150dd4af8953a52a4bb841051e4b705d9
+individual a9b403e150dd4af8953a52a4bb841051e4b705d9
 
 Profile:
     * Name: -
@@ -120,7 +120,7 @@ Enrollments:
 """
 
 SHOW_UUID_OUTPUT = """
-unique identity 17ab00ed3825ec2f50483e33c88df223264182ba
+individual 17ab00ed3825ec2f50483e33c88df223264182ba
 
 Profile:
     * Name: Jane Roe
@@ -298,7 +298,7 @@ class TestShowCommand(unittest.TestCase):
 
     @unittest.mock.patch('sortinghat.cli.utils.SortingHatClient')
     def test_show(self, mock_client):
-        """Check if it displays information of unique identities"""
+        """Check if it displays information of individuals"""
 
         entities = [
             EMPTY_ID_DATA,
@@ -310,7 +310,7 @@ class TestShowCommand(unittest.TestCase):
         responses = [
             {
                 'data': {
-                    'uidentities': {
+                    'individuals': {
                         'pageInfo': {'hasNext': True},
                         'entities': entities[0:2]
                     }
@@ -318,7 +318,7 @@ class TestShowCommand(unittest.TestCase):
             },
             {
                 'data': {
-                    'uidentities': {
+                    'individuals': {
                         'pageInfo': {'hasNext': False},
                         'entities': entities[2:]
                     }
@@ -346,7 +346,7 @@ class TestShowCommand(unittest.TestCase):
 
     @unittest.mock.patch('sortinghat.cli.utils.SortingHatClient')
     def test_show_uuid(self, mock_client):
-        """Check if it displays information of the given unique identity"""
+        """Check if it displays information of the given individual"""
 
         entities = [
             JANE_ROE_ID_DATA
@@ -356,7 +356,7 @@ class TestShowCommand(unittest.TestCase):
         responses = [
             {
                 'data': {
-                    'uidentities': {
+                    'individuals': {
                         'pageInfo': {'hasNext': False},
                         'entities': entities
                     }
@@ -385,12 +385,12 @@ class TestShowCommand(unittest.TestCase):
 
     @unittest.mock.patch('sortinghat.cli.utils.SortingHatClient')
     def test_show_empty(self, mock_client):
-        """Check if it shows an empty list of unique identities"""
+        """Check if it shows an empty list of individuals"""
 
         responses = [
             {
                 'data': {
-                    'uidentities': {
+                    'individuals': {
                         'pageInfo': {'hasNext': False},
                         'entities': []
                     }
