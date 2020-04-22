@@ -115,6 +115,45 @@ class TestFindIndividual(TestCase):
             db.find_individual('zyxwuv')
 
 
+class TestFindIndividualbyUUID(TestCase):
+    """Unit tests for find_individual_by_uuid"""
+
+    def test_find_individual_with_mk(self):
+        """Test if it finds an individual giving its mk"""
+
+        mk = 'abcdefghijklmnopqrstuvwxyz'
+        Individual.objects.create(mk=mk)
+
+        individual = db.find_individual_by_uuid(mk)
+        self.assertIsInstance(individual, Individual)
+        self.assertEqual(individual.mk, mk)
+
+    def test_find_individual_with_uuid(self):
+        """Test if it finds an individual giving the uuid of one of its identities"""
+
+        mk = 'abcdefghijklmnopqrstuvwxyz'
+        uuid = '1234567890'
+        individual = Individual.objects.create(mk=mk)
+        Identity.objects.create(id=mk, source='scm', individual=individual)
+        Identity.objects.create(id=uuid, source='mls', individual=individual)
+
+        individual = db.find_individual_by_uuid(uuid)
+        self.assertIsInstance(individual, Individual)
+        self.assertEqual(individual.mk, mk)
+
+    def test_individual_not_found(self):
+        """Test whether it raises an exception when the individual is not found"""
+
+        mk = 'abcdefghijklmnopqrstuvwxyz'
+        uuid = '1234567890'
+        individual = Individual.objects.create(mk=mk)
+        Identity.objects.create(id=mk, source='scm', individual=individual)
+        Identity.objects.create(id=uuid, source='mls', individual=individual)
+
+        with self.assertRaisesRegex(NotFoundError, INDIVIDUAL_NOT_FOUND_ERROR):
+            db.find_individual_by_uuid('zyxwuv')
+
+
 class TestFindIdentity(TestCase):
     """Unit tests for find_identity"""
 

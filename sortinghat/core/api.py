@@ -26,7 +26,7 @@ import django.db.transaction
 
 from grimoirelab_toolkit.datetime import datetime_to_utc
 
-from .db import (find_individual,
+from .db import (find_individual_by_uuid,
                  find_identity,
                  find_organization,
                  find_domain,
@@ -121,9 +121,10 @@ def add_identity(ctx, source, name=None, email=None, username=None, uuid=None):
 
     When `uuid` parameter is set, it creates a new identity that
     will be associated to the individual defined by this
-    identifier. This identifier must exist on the registry.
-    If it does not exist, the function will raise a `NotFoundError`
-    exception.
+    identifier. Consider that any UUID of the identities of the
+    individual is a valid identifier. Also, this identifier must
+    exist on the registry. If it does not exist, the function will
+    raise a `NotFoundError` exception.
 
     When no `uuid` is given, both new individual and identity
     will have the same identifier.
@@ -171,7 +172,7 @@ def add_identity(ctx, source, name=None, email=None, username=None, uuid=None):
         individual = update_profile_db(trxl, individual,
                                        name=name, email=email)
     else:
-        individual = find_individual(uuid)
+        individual = find_individual_by_uuid(uuid)
 
     args = {
         'trxl': trxl,
@@ -249,7 +250,8 @@ def update_profile(ctx, uuid, **kwargs):
     """Update individual profile.
 
     This function allows to edit or update the profile information
-    of the individual identified by `uuid`.
+    of the individual identified by `uuid`. Take into account that
+    any UUID of the identities of the individual is a valid identifier.
 
     The values to update are given as keyword arguments. The allowed
     keys are listed below (other keywords will be ignored):
@@ -281,7 +283,7 @@ def update_profile(ctx, uuid, **kwargs):
     """
     trxl = TransactionsLog.open('update_profile', ctx)
 
-    individual = find_individual(uuid)
+    individual = find_individual_by_uuid(uuid)
 
     try:
         individual = update_profile_db(trxl, individual, **kwargs)
@@ -298,14 +300,16 @@ def move_identity(ctx, from_id, to_uuid):
     """Move an identity to an individual.
 
     This function shifts the identity identified by `from_id` to
-    the individual identified by `to_uuid`.
+    the individual identified by `to_uuid`. Take into account that
+    any UUID of the identities of the individual is a valid
+    identifier.
 
-    When `to_uuid` is the individual that is currently related
-    to `from_id`, the action does not have any effect.
+    When `to_uuid` is an UUID of the individual that is currently
+    related to `from_id`, the action does not have any effect.
 
     In the case of `from_id` and `to_uuid` have equal values and the
-    individual does not exist, a new individual will be
-    created and the identity will be moved to it.
+    individual does not exist, a new individual will be created
+    and the identity will be moved to it.
 
     When `from_id` exists as an individual too, the function raises
     an `InvalidValueError`, as this identity cannot be moved.
@@ -345,18 +349,13 @@ def move_identity(ctx, from_id, to_uuid):
     if identity.id == identity.individual.mk:
         msg = "'from_id' is an individual and it cannot be moved; use 'merge' instead"
         raise InvalidValueError(msg=msg)
-
-    try:
-        to_uid = find_individual(to_uuid)
-    except NotFoundError as exc:
-        # Move identity to a new one
-        if identity.id == to_uuid:
-            to_uid = add_individual_db(trxl, identity.id)
-            to_uid = update_profile_db(trxl, to_uid,
-                                       name=identity.name,
-                                       email=identity.email)
-        else:
-            raise exc
+    elif identity.id == to_uuid:
+        to_uid = add_individual_db(trxl, identity.id)
+        to_uid = update_profile_db(trxl, to_uid,
+                                   name=identity.name,
+                                   email=identity.email)
+    else:
+        to_uid = find_individual_by_uuid(to_uuid)
 
     try:
         individual = move_identity_db(trxl, identity, to_uid)
@@ -393,7 +392,7 @@ def lock(ctx, uuid):
 
     trxl = TransactionsLog.open('lock', ctx)
 
-    individual = find_individual(uuid)
+    individual = find_individual_by_uuid(uuid)
     individual = lock_db(trxl, individual)
 
     trxl.close()
@@ -425,7 +424,7 @@ def unlock(ctx, uuid):
 
     trxl = TransactionsLog.open('unlock', ctx)
 
-    individual = find_individual(uuid)
+    individual = find_individual_by_uuid(uuid)
     individual = unlock_db(trxl, individual)
 
     trxl.close()
@@ -613,7 +612,8 @@ def enroll(ctx, uuid, organization, from_date=None, to_date=None, force=False):
     The function enrolls an individual, identified by `uuid`,
     in the given `organization`. Both identity and organization must
     exist before adding this enrollment to the registry. Otherwise,
-    a `NotFoundError` exception will be raised.
+    a `NotFoundError` exception will be raised. As in other functions,
+    any UUID of the identities of the individual is a valid identifier.
 
     The period of the enrollment can be given with the parameters
     `from_date` and `to_date`, where `from_date <= to_date`. Default
@@ -671,12 +671,12 @@ def enroll(ctx, uuid, organization, from_date=None, to_date=None, force=False):
         raise InvalidValueError(msg=msg)
 
     # Find and check entities
-    individual = find_individual(uuid)
+    individual = find_individual_by_uuid(uuid)
     org = find_organization(organization)
 
     # Get the list of current ranges
     # Check whether the new one already exist
-    enrollments_db = search_enrollments_in_period(uuid, organization,
+    enrollments_db = search_enrollments_in_period(individual.mk, organization,
                                                   from_date=from_date,
                                                   to_date=to_date)
 
@@ -719,6 +719,8 @@ def withdraw(ctx, uuid, organization, from_date=None, to_date=None):
 
     This function withdraws an individual identified by `uuid`
     from the given `organization` during the given period of time.
+    As in other functions, any UUID of the identities of the individual
+    is a valid identifier.
 
     For example, if the individual `A` was enrolled from `2010-01-01`
     to `2018-01-01` to the organization `Example`, the result of withdrawing
@@ -776,12 +778,12 @@ def withdraw(ctx, uuid, organization, from_date=None, to_date=None):
         raise InvalidValueError(msg=msg)
 
     # Find and check entities
-    individual = find_individual(uuid)
+    individual = find_individual_by_uuid(uuid)
     org = find_organization(organization)
 
     # Get the list of current ranges
     # Check whether any enrollment for the given period exist
-    enrollments_db = search_enrollments_in_period(uuid, organization,
+    enrollments_db = search_enrollments_in_period(individual.mk, organization,
                                                   from_date=from_date,
                                                   to_date=to_date)
 
@@ -821,13 +823,16 @@ def withdraw(ctx, uuid, organization, from_date=None, to_date=None):
 @django.db.transaction.atomic
 def merge_identities(ctx, from_uuids, to_uuid):
     """
-    Merge one or more individual into another.
+    Merge one or more individuals into another.
 
     Use this function to join a list of `from_uuid` individuals into
     `to_uuid`. Identities and enrollments related to each `from_uuid` will be
     assigned to `to_uuid`. In addition, each `from_uuid` will be removed
     from the registry. Duplicated enrollments will be also removed from
     the registry while overlapped enrollments will be merged.
+
+    Take into account that individuals are identified by any of
+    UUIDs assigned to their identities.
 
     This function also merges two or more profiles. When a field on `to_uuid`
     profile is `None` or empty, it will be updated with the value on the
@@ -865,7 +870,7 @@ def merge_identities(ctx, from_uuids, to_uuid):
                 raise InvalidValueError(msg="'from_uuid' and 'to_uuid' cannot be equal")
 
             try:
-                from_indv = find_individual(from_uuid)
+                from_indv = find_individual_by_uuid(from_uuid)
                 individuals.append(from_indv)
             except NotFoundError as exc:
                 raise exc
@@ -959,8 +964,9 @@ def merge_identities(ctx, from_uuids, to_uuid):
     trxl = TransactionsLog.open('merge_identities', ctx)
 
     try:
-        to_individual = find_individual(to_uuid)
-        from_individuals = _find_individuals(from_uuids, to_uuid)
+        to_individual = find_individual_by_uuid(to_uuid)
+        from_individuals = _find_individuals(from_uuids,
+                                             to_individual.mk)
     except NotFoundError as exc:
         # At least one individual was not found, so they cannot be merged
         raise exc
@@ -976,6 +982,8 @@ def merge_identities(ctx, from_uuids, to_uuid):
     _delete_individuals(trxl, from_individuals)
 
     trxl.close()
+
+    to_individual.refresh_from_db()
 
     return to_individual
 

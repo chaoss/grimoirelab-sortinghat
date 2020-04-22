@@ -26,6 +26,8 @@ import re
 import django.core.exceptions
 import django.db.utils
 
+from django.db.models import Q
+
 from grimoirelab_toolkit.datetime import datetime_utcnow, datetime_to_utc
 
 from .errors import AlreadyExistsError, NotFoundError, LockedIdentityError
@@ -81,6 +83,30 @@ def find_individual(mk):
         return individual
 
 
+def find_individual_by_uuid(uuid):
+    """Find an individual by its identities UUIDs.
+
+    Find an individual which identities have the parameter
+    `uuid` as their identifier. When such individual does
+    not exists the function will raise a `NotFoundError`.
+
+    :param uuid: id to search the individual
+
+    :returns: an individual object
+
+    :raises NotFoundError: when the individual does
+        not exist.
+    """
+    try:
+        individual = Individual.objects.filter(
+            Q(mk=uuid) | Q(identities__id=uuid)
+        )[0]
+    except IndexError:
+        raise NotFoundError(entity=uuid)
+    else:
+        return individual
+
+
 def find_identity(uuid):
     """Find an identity.
 
@@ -93,7 +119,7 @@ def find_identity(uuid):
     :returns: an identity object
 
     :raises NotFoundError: when the identity with the
-        given `mk` does not exists.
+        given `uuid` does not exists.
     """
     try:
         identity = Identity.objects.get(id=uuid)
