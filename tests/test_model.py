@@ -294,7 +294,7 @@ class TestIdentity(TransactionTestCase):
         """Check if there is only one tuple with the same values"""
 
         indv = Individual.objects.create(mk='AAAA')
-        id1 = Identity.objects.create(id='A',
+        id1 = Identity.objects.create(uuid='A',
                                       name='John Smith',
                                       email='jsmith@example.com',
                                       username='jsmith',
@@ -302,7 +302,7 @@ class TestIdentity(TransactionTestCase):
                                       individual=indv)
 
         with self.assertRaisesRegex(IntegrityError, DUPLICATE_CHECK_ERROR):
-            Identity.objects.create(id='B',
+            Identity.objects.create(uuid='B',
                                     name='John Smith',
                                     email='jsmith@example.com',
                                     username='jsmith',
@@ -310,14 +310,14 @@ class TestIdentity(TransactionTestCase):
                                     individual=indv)
 
         # Changing an property should not raise any error
-        id2 = Identity.objects.create(id='B',
+        id2 = Identity.objects.create(uuid='B',
                                       name='John Smith',
                                       email='jsmith@example.com',
                                       username='jsmith',
                                       source='mls',
                                       individual=indv)
 
-        self.assertNotEqual(id1.id, id2.id)
+        self.assertNotEqual(id1.uuid, id2.uuid)
 
     def test_charset(self):
         """Check encoding charset"""
@@ -326,13 +326,13 @@ class TestIdentity(TransactionTestCase):
         # In MySQL, chars 'ı' and 'i' are considered the same with a
         # collation distinct to <charset>_unicode_ci
         indv = Individual.objects.create(mk='AAAA')
-        Identity.objects.create(id='A',
+        Identity.objects.create(uuid='A',
                                 name='John Smıth',
                                 email='jsmith@example.com',
                                 username='jsmith',
                                 source='scm',
                                 individual=indv)
-        Identity.objects.create(id='B',
+        Identity.objects.create(uuid='B',
                                 name='John Smith',
                                 email='jsmith@example.com',
                                 username='jsmith',
@@ -350,7 +350,7 @@ class TestIdentity(TransactionTestCase):
 
         before_dt = datetime_utcnow()
         indv = Individual.objects.create(mk='AAAA')
-        id1 = Identity.objects.create(id='A',
+        id1 = Identity.objects.create(uuid='A',
                                       name='John Smith',
                                       email='jsmith@example.com',
                                       username='jsmith',
@@ -374,7 +374,7 @@ class TestIdentity(TransactionTestCase):
 
         before_dt = datetime_utcnow()
         indv = Individual.objects.create(mk='AAAA')
-        id1 = Identity.objects.create(id='A',
+        id1 = Identity.objects.create(uuid='A',
                                       name='John Smith',
                                       email='jsmith@example.com',
                                       username='jsmith',
