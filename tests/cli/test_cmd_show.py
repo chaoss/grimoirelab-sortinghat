@@ -48,7 +48,7 @@ SHOW_CMD_OP = """query {{
         }}
       }}
       identities {{
-        id
+        uuid
         email
         name
         username
@@ -169,21 +169,21 @@ JANE_ROE_PROFILE = {
 }
 JANE_ROE_IDENTITIES = [
     {
-        'id': '17ab00ed3825ec2f50483e33c88df223264182ba',
+        'uuid': '17ab00ed3825ec2f50483e33c88df223264182ba',
         'email': 'jroe@example.com',
         'name': 'Jane Roe',
         'username': 'jroe',
         'source': 'scm'
     },
     {
-        'id': '22d1b20763c6f5822bdda8508957486c547bb9de',
+        'uuid': '22d1b20763c6f5822bdda8508957486c547bb9de',
         'email': 'jroe@bitergia.com',
         'name': None,
         'username': None,
         'source': 'unknown'
     },
     {
-        'id': '322397ed782a798ffd9d0bc7e293df4292fe075d',
+        'uuid': '322397ed782a798ffd9d0bc7e293df4292fe075d',
         'email': 'jroe@example.com',
         'name': None,
         'username': None,
@@ -223,14 +223,14 @@ JSMITH_PROFILE = {
 }
 JSMITH_IDENTITIES = [
     {
-        'id': '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331',
+        'uuid': '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331',
         'email': 'jsmith@example.com',
         'name': 'John Smith',
         'username': None,
         'source': 'scm'
     },
     {
-        'id': 'a9b403e150dd4af8953a52a4bb841051e4b705d9',
+        'uuid': 'a9b403e150dd4af8953a52a4bb841051e4b705d9',
         'email': 'jsmith@example.com',
         'name': 'John Smith',
         'username': 'jsmith',

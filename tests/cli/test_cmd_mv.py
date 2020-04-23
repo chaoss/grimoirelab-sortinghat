@@ -30,7 +30,7 @@ from sortinghat.cli.cmds.mv import mv
 
 
 MV_CMD_OP = """mutation {{
-  moveIdentity(fromId: "{}", toUuid: "{}") {{
+  moveIdentity(fromUuid: "{}", toUuid: "{}") {{
     uuid
   }}
 }}"""

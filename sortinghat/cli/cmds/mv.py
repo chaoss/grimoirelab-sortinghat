@@ -32,34 +32,34 @@ from ..utils import (connect,
 
 @click.command()
 @sh_client_cmd_options
-@click.argument('from_id')
+@click.argument('from_uuid')
 @click.argument('to_uuid')
 @sh_client
-def mv(ctx, from_id, to_uuid, **extra):
+def mv(ctx, from_uuid, to_uuid, **extra):
     """Move an identity to an individual.
 
-    This command shifts the identity identified by <from_id> to
+    This command shifts the identity identified by <from_uuid> to
     the individual identified by <to_uuid>.
 
-    When <to_uid> is already related to <from_id>, the command does
+    When <to_uuid> is already related to <from_uuid>, the command does
     not have any effect.
 
-    In the case of <from_id> and <to_uuid> have equal values and the
+    In the case of <from_uuid> and <to_uuid> have equal values and the
     individual does not exist, a new individual will be
     created and the identity will be moved to it.
 
-    When <from_id> exists also as an individual, this command will
+    When <from_uuid> exists also as an individual, this command will
     fail as this identity cannot be moved.
 
-    FROM_ID: identifier of the identity to move
+    FROM_UUID: identifier of the identity to move
 
-    TO_UUID: identifier of the individual where <from_id> will be moved
+    TO_UUID: identifier of the individual where <from_uuid> will be moved
     """
     with connect(ctx.obj) as conn:
-        _move_identity(conn, from_id=from_id,
+        _move_identity(conn, from_uuid=from_uuid,
                        to_uuid=to_uuid)
 
-        display('mv.tmpl', from_id=from_id, to_uuid=to_uuid)
+        display('mv.tmpl', from_uuid=from_uuid, to_uuid=to_uuid)
 
 
 def _move_identity(conn, **kwargs):
