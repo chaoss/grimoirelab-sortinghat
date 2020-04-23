@@ -177,7 +177,7 @@ def add_identity(ctx, source, name=None, email=None, username=None, uuid=None):
     args = {
         'trxl': trxl,
         'individual': individual,
-        'identity_id': id_,
+        'uuid': id_,
         'source': source,
         'name': name,
         'email': email,
@@ -296,25 +296,25 @@ def update_profile(ctx, uuid, **kwargs):
 
 
 @django.db.transaction.atomic
-def move_identity(ctx, from_id, to_uuid):
+def move_identity(ctx, from_uuid, to_uuid):
     """Move an identity to an individual.
 
-    This function shifts the identity identified by `from_id` to
+    This function shifts the identity identified by `from_uuid` to
     the individual identified by `to_uuid`. Take into account that
     any UUID of the identities of the individual is a valid
     identifier.
 
     When `to_uuid` is an UUID of the individual that is currently
-    related to `from_id`, the action does not have any effect.
+    related to `from_uuid`, the action does not have any effect.
 
-    In the case of `from_id` and `to_uuid` have equal values and the
+    In the case of `from_uuid` and `to_uuid` have equal values and the
     individual does not exist, a new individual will be created
     and the identity will be moved to it.
 
-    When `from_id` exists as an individual too, the function raises
+    When `from_uuid` exists as an individual too, the function raises
     an `InvalidValueError`, as this identity cannot be moved.
 
-    The function raises a `NotFoundError` exception when either `from_id`
+    The function raises a `NotFoundError` exception when either `from_uuid`
     or `to_uuid` do not exist in the registry and both identifiers are
     not the same.
 
@@ -322,21 +322,21 @@ def move_identity(ctx, from_id, to_uuid):
     as the result of calling this function.
 
     :param ctx: context from where this method is called
-    :param from_id: identifier of the identity set to be moved
-    :param to_uuid: identifier of the individual where 'from_id'
+    :param from_uuid: identifier of the identity set to be moved
+    :param to_uuid: identifier of the individual where 'from_uuid'
         will be moved
 
     :returns: an individual with identities data updated
 
     :raises NotFoundError: raised when either `from_uuid` or `to_uuid`
         do not exist in the registry.
-    :raises InvalidValueError: raised when either `from_id' or `to_uuid`
+    :raises InvalidValueError: raised when either `from_uuid' or `to_uuid`
         are `None` or empty strings,
     """
-    if from_id is None:
-        raise InvalidValueError(msg="'from_id' cannot be None")
-    if from_id == '':
-        raise InvalidValueError(msg="'from_id' cannot be an empty string")
+    if from_uuid is None:
+        raise InvalidValueError(msg="'from_uuid' cannot be None")
+    if from_uuid == '':
+        raise InvalidValueError(msg="'from_uuid' cannot be an empty string")
     if to_uuid is None:
         raise InvalidValueError(msg="'to_uuid' cannot be None")
     if to_uuid == '':
@@ -344,24 +344,24 @@ def move_identity(ctx, from_id, to_uuid):
 
     trxl = TransactionsLog.open('move_identity', ctx)
 
-    identity = find_identity(from_id)
+    identity = find_identity(from_uuid)
 
-    if identity.id == identity.individual.mk:
-        msg = "'from_id' is an individual and it cannot be moved; use 'merge' instead"
+    if identity.uuid == identity.individual.mk:
+        msg = "'from_uuid' is an individual and it cannot be moved; use 'merge' instead"
         raise InvalidValueError(msg=msg)
-    elif identity.id == to_uuid:
-        to_uid = add_individual_db(trxl, identity.id)
-        to_uid = update_profile_db(trxl, to_uid,
-                                   name=identity.name,
-                                   email=identity.email)
+    elif identity.uuid == to_uuid:
+        to_indv = add_individual_db(trxl, identity.uuid)
+        to_indv = update_profile_db(trxl, to_indv,
+                                    name=identity.name,
+                                    email=identity.email)
     else:
-        to_uid = find_individual_by_uuid(to_uuid)
+        to_indv = find_individual_by_uuid(to_uuid)
 
     try:
-        individual = move_identity_db(trxl, identity, to_uid)
+        individual = move_identity_db(trxl, identity, to_indv)
     except ValueError:
         # Case when the identity is already assigned to the individual
-        individual = to_uid
+        individual = to_indv
 
     trxl.close()
 
@@ -1039,8 +1039,8 @@ def unmerge_identities(ctx, uuids):
     def _set_destination_for_identity(trxl, identity):
         """Create the individual, if it does not exist, where the identity will be moved to."""
 
-        if identity.id != identity.individual_id:
-            individual = add_individual_db(trxl, identity.id)
+        if identity.uuid != identity.individual_id:
+            individual = add_individual_db(trxl, identity.uuid)
             individual = update_profile_db(trxl, individual,
                                            name=identity.name,
                                            email=identity.email)
