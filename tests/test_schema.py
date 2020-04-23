@@ -63,8 +63,7 @@ NAME_EMPTY_ERROR = "'name' cannot be an empty string"
 DOMAIN_NAME_EMPTY_ERROR = "'domain_name' cannot be an empty string"
 SOURCE_EMPTY_ERROR = "'source' cannot be an empty string"
 IDENTITY_EMPTY_DATA_ERROR = 'identity data cannot be empty'
-FROM_ID_EMPTY_ERROR = "'from_id' cannot be an empty string"
-FROM_ID_IS_MK_ERROR = "'from_id' is an individual and it cannot be moved; use 'merge' instead"
+FROM_UUID_IS_MK_ERROR = "'from_uuid' is an individual and it cannot be moved; use 'merge' instead"
 FROM_UUID_EMPTY_ERROR = "'from_uuid' cannot be an empty string"
 FROM_UUIDS_EMPTY_ERROR = "'from_uuids' cannot be an empty list"
 TO_UUID_EMPTY_ERROR = "'to_uuid' cannot be an empty string"
@@ -201,7 +200,7 @@ SH_INDIVIDUALS_QUERY = """{
         }
       }
       identities {
-        id
+        uuid
         name
         email
         username
@@ -233,7 +232,7 @@ SH_INDIVIDUALS_UUID_FILTER = """{
         }
       }
       identities {
-        id
+        uuid
         name
         email
         username
@@ -265,7 +264,7 @@ SH_INDIVIDUALS_LOCKED_FILTER = """{
         }
       }
       identities {
-        id
+        uuid
         name
         email
         username
@@ -1040,19 +1039,19 @@ class TestIndividuals(django.test.TestCase):
                                gender='M',
                                country=cn,
                                individual=indv)
-        Identity.objects.create(id='A001',
+        Identity.objects.create(uuid='A001',
                                 name='John Smith',
                                 email='jsmith@example.com',
                                 username='jsmith',
                                 source='scm',
                                 individual=indv)
-        Identity.objects.create(id='A002',
+        Identity.objects.create(uuid='A002',
                                 name=None,
                                 email='jsmith@bitergia.com',
                                 username=None,
                                 source='scm',
                                 individual=indv)
-        Identity.objects.create(id='A003',
+        Identity.objects.create(uuid='A003',
                                 name=None,
                                 email='jsmith@bitergia.com',
                                 username=None,
@@ -1071,13 +1070,13 @@ class TestIndividuals(django.test.TestCase):
                                gender='M',
                                country=None,
                                individual=indv)
-        Identity.objects.create(id='B001',
+        Identity.objects.create(uuid='B001',
                                 name='John Doe',
                                 email='jdoe@example.com',
                                 username='jdoe',
                                 source='scm',
                                 individual=indv)
-        Identity.objects.create(id='B002',
+        Identity.objects.create(uuid='B002',
                                 name=None,
                                 email='jdoe@libresoft.es',
                                 username=None,
@@ -1104,7 +1103,7 @@ class TestIndividuals(django.test.TestCase):
         self.assertEqual(indv['profile']['country']['name'], 'United States of America')
 
         identities = indv['identities']
-        identities.sort(key=lambda x: x['id'])
+        identities.sort(key=lambda x: x['uuid'])
         self.assertEqual(len(identities), 3)
 
         id1 = identities[0]
@@ -1141,7 +1140,7 @@ class TestIndividuals(django.test.TestCase):
         self.assertEqual(indv['profile']['email'], None)
 
         identities = indv['identities']
-        identities.sort(key=lambda x: x['id'])
+        identities.sort(key=lambda x: x['uuid'])
         self.assertEqual(len(identities), 2)
 
         id1 = identities[0]
@@ -1180,19 +1179,19 @@ class TestIndividuals(django.test.TestCase):
                                gender='M',
                                country=cn,
                                individual=indv)
-        Identity.objects.create(id='A001',
+        Identity.objects.create(uuid='A001',
                                 name='John Smith',
                                 email='jsmith@example.com',
                                 username='jsmith',
                                 source='scm',
                                 individual=indv)
-        Identity.objects.create(id='A002',
+        Identity.objects.create(uuid='A002',
                                 name=None,
                                 email='jsmith@bitergia.com',
                                 username=None,
                                 source='scm',
                                 individual=indv)
-        Identity.objects.create(id='A003',
+        Identity.objects.create(uuid='A003',
                                 name=None,
                                 email='jsmith@bitergia.com',
                                 username=None,
@@ -1211,13 +1210,13 @@ class TestIndividuals(django.test.TestCase):
                                gender='M',
                                country=None,
                                individual=indv)
-        Identity.objects.create(id='B001',
+        Identity.objects.create(uuid='B001',
                                 name='John Doe',
                                 email='jdoe@example.com',
                                 username='jdoe',
                                 source='scm',
                                 individual=indv)
-        Identity.objects.create(id='B002',
+        Identity.objects.create(uuid='B002',
                                 name=None,
                                 email='jdoe@libresoft.es',
                                 username=None,
@@ -1243,7 +1242,7 @@ class TestIndividuals(django.test.TestCase):
         self.assertEqual(indv['profile']['country']['name'], 'United States of America')
 
         identities = indv['identities']
-        identities.sort(key=lambda x: x['id'])
+        identities.sort(key=lambda x: x['uuid'])
         self.assertEqual(len(identities), 3)
 
         id1 = identities[0]
@@ -1289,19 +1288,19 @@ class TestIndividuals(django.test.TestCase):
                                gender='M',
                                country=cn,
                                individual=indv)
-        Identity.objects.create(id='A001',
+        Identity.objects.create(uuid='A001',
                                 name='John Smith',
                                 email='jsmith@example.com',
                                 username='jsmith',
                                 source='scm',
                                 individual=indv)
-        Identity.objects.create(id='A002',
+        Identity.objects.create(uuid='A002',
                                 name=None,
                                 email='jsmith@bitergia.com',
                                 username=None,
                                 source='scm',
                                 individual=indv)
-        Identity.objects.create(id='A003',
+        Identity.objects.create(uuid='A003',
                                 name=None,
                                 email='jsmith@bitergia.com',
                                 username=None,
@@ -1320,13 +1319,13 @@ class TestIndividuals(django.test.TestCase):
                                gender='M',
                                country=None,
                                individual=indv)
-        Identity.objects.create(id='B001',
+        Identity.objects.create(uuid='B001',
                                 name='John Doe',
                                 email='jdoe@example.com',
                                 username='jdoe',
                                 source='scm',
                                 individual=indv)
-        Identity.objects.create(id='B002',
+        Identity.objects.create(uuid='B002',
                                 name=None,
                                 email='jdoe@libresoft.es',
                                 username=None,
@@ -1353,7 +1352,7 @@ class TestIndividuals(django.test.TestCase):
         self.assertEqual(indv['profile']['country']['name'], 'United States of America')
 
         identities = indv['identities']
-        identities.sort(key=lambda x: x['id'])
+        identities.sort(key=lambda x: x['uuid'])
         self.assertEqual(len(identities), 3)
 
         id1 = identities[0]
@@ -1390,13 +1389,13 @@ class TestIndividuals(django.test.TestCase):
                                gender='M',
                                country=None,
                                individual=indv)
-        Identity.objects.create(id='B001',
+        Identity.objects.create(uuid='B001',
                                 name='John Doe',
                                 email='jdoe@example.com',
                                 username='jdoe',
                                 source='scm',
                                 individual=indv)
-        Identity.objects.create(id='B002',
+        Identity.objects.create(uuid='B002',
                                 name=None,
                                 email='jdoe@libresoft.es',
                                 username=None,
@@ -2248,7 +2247,7 @@ class TestAddIdentityMutation(django.test.TestCase):
               individual {
                 mk
                 identities {
-                  id
+                  uuid
                   name
                   email
                   username
@@ -2291,7 +2290,7 @@ class TestAddIdentityMutation(django.test.TestCase):
         self.assertEqual(len(identities), 1)
 
         identity = identities[0]
-        self.assertEqual(identity['id'], 'eda9f62ad321b1fbe5f283cc05e2484516203117')
+        self.assertEqual(identity['uuid'], 'eda9f62ad321b1fbe5f283cc05e2484516203117')
         self.assertEqual(identity['source'], 'scm')
         self.assertEqual(identity['name'], 'Jane Roe')
         self.assertEqual(identity['email'], 'jroe@example.com')
@@ -2302,9 +2301,9 @@ class TestAddIdentityMutation(django.test.TestCase):
 
         # Check database
         individual = Individual.objects.get(mk='eda9f62ad321b1fbe5f283cc05e2484516203117')
-        self.assertEqual(individual.mk, identity['id'])
+        self.assertEqual(individual.mk, identity['uuid'])
 
-        identities = Identity.objects.filter(id=identity['id'])
+        identities = Identity.objects.filter(uuid=identity['uuid'])
         self.assertEqual(len(identities), 1)
 
         id0 = identities[0]
@@ -2317,8 +2316,11 @@ class TestAddIdentityMutation(django.test.TestCase):
         """Check it it adds an identity to an existing individual"""
 
         individual = Individual.objects.create(mk='eda9f62ad321b1fbe5f283cc05e2484516203117')
-        Identity.objects.create(id='eda9f62ad321b1fbe5f283cc05e2484516203117', source='scm',
-                                name='Jane Roe', email='jroe@example.com', username='jrae',
+        Identity.objects.create(uuid='eda9f62ad321b1fbe5f283cc05e2484516203117',
+                                source='scm',
+                                name='Jane Roe',
+                                email='jroe@example.com',
+                                username='jrae',
                                 individual=individual)
 
         client = graphene.test.Client(schema)
@@ -2342,7 +2344,7 @@ class TestAddIdentityMutation(django.test.TestCase):
         self.assertEqual(len(identities), 2)
 
         identity = identities[0]
-        self.assertEqual(identity['id'], '55d88f85a41f3a9afa4dc9d4dfb6009c62f42fe3')
+        self.assertEqual(identity['uuid'], '55d88f85a41f3a9afa4dc9d4dfb6009c62f42fe3')
         self.assertEqual(identity['source'], 'mls')
         self.assertEqual(identity['name'], 'Jane Roe')
         self.assertEqual(identity['email'], 'jroe@example.com')
@@ -2376,8 +2378,11 @@ class TestAddIdentityMutation(django.test.TestCase):
         """Check if it fails adding an identity that already exists"""
 
         individual = Individual.objects.create(mk='eda9f62ad321b1fbe5f283cc05e2484516203117')
-        Identity.objects.create(id='eda9f62ad321b1fbe5f283cc05e2484516203117', source='scm',
-                                name='Jane Roe', email='jroe@example.com', username='jrae',
+        Identity.objects.create(uuid='eda9f62ad321b1fbe5f283cc05e2484516203117',
+                                source='scm',
+                                name='Jane Roe',
+                                email='jroe@example.com',
+                                username='jrae',
                                 individual=individual)
 
         client = graphene.test.Client(schema)
@@ -2469,13 +2474,13 @@ class TestAddIdentityMutation(django.test.TestCase):
         client = graphene.test.Client(schema)
 
         jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
-        api.lock(self.ctx, jsmith.id)
+        api.lock(self.ctx, jsmith.uuid)
 
         # Tests
         params = {
             'source': 'git',
             'email': 'jsmith-git@example',
-            'uuid': jsmith.id
+            'uuid': jsmith.uuid
         }
         executed = client.execute(self.SH_ADD_IDENTITY,
                                   context_value=self.context_value,
@@ -2515,7 +2520,7 @@ class TestDeleteIdentityMutation(django.test.TestCase):
           individual {
             mk
             identities {
-              id
+              uuid
               name
               email
               username
@@ -2549,7 +2554,7 @@ class TestDeleteIdentityMutation(django.test.TestCase):
                          'scm',
                          name='John Smith',
                          email='jsmith@example',
-                         uuid=jsmith.id)
+                         uuid=jsmith.uuid)
         Enrollment.objects.create(individual=jsmith.individual,
                                   organization=example_org)
         Enrollment.objects.create(individual=jsmith.individual,
@@ -2588,16 +2593,16 @@ class TestDeleteIdentityMutation(django.test.TestCase):
         self.assertEqual(identity['name'], None)
         self.assertEqual(identity['email'], 'jsmith@example')
         self.assertEqual(identity['username'], None)
-        self.assertEqual(identity['id'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(identity['uuid'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
         uuid = executed['data']['deleteIdentity']['uuid']
         self.assertEqual(uuid, '1387b129ab751a3657312c09759caa41dfd8d07d')
 
         # Check database
         with self.assertRaises(django.core.exceptions.ObjectDoesNotExist):
-            individual = Individual.objects.get(mk='eda9f62ad321b1fbe5f283cc05e2484516203117')
+            Individual.objects.get(mk='eda9f62ad321b1fbe5f283cc05e2484516203117')
 
-        identities = Identity.objects.filter(id=identity['id'])
+        identities = Identity.objects.filter(uuid=identity['uuid'])
         self.assertEqual(len(identities), 1)
 
         id0 = identities[0]
@@ -2941,7 +2946,7 @@ class TestUpdateProfileMutation(django.test.TestCase):
                                alpha3='USA')
         jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
         api.update_profile(self.ctx,
-                           jsmith.id,
+                           jsmith.uuid,
                            name='Smith J,',
                            email='jsmith@example.com')
 
@@ -3084,13 +3089,13 @@ class TestMoveIdentityMutation(django.test.TestCase):
     """Unit tests for mutation to move identities"""
 
     SH_MOVE = """
-      mutation moveId($fromID: String, $toUUID: String) {
-        moveIdentity(fromId: $fromID, toUuid: $toUUID) {
+      mutation moveId($fromUUID: String, $toUUID: String) {
+        moveIdentity(fromUuid: $fromUUID, toUuid: $toUUID) {
           uuid
           individual {
             mk
             identities {
-              id
+              uuid
               name
               email
               username
@@ -3115,13 +3120,13 @@ class TestMoveIdentityMutation(django.test.TestCase):
                          'scm',
                          name='John Smith',
                          email='jsmith@example.com',
-                         uuid=jsmith.id)
+                         uuid=jsmith.uuid)
         jsmith2 = api.add_identity(self.ctx, 'scm', email='jdoe@example.com')
         api.add_identity(self.ctx,
                          'phab',
                          name='J. Smith',
                          email='jsmith@example.org',
-                         uuid=jsmith2.id)
+                         uuid=jsmith2.uuid)
 
     def test_move_identity(self):
         """Test whether an identity is moved to an individual"""
@@ -3129,7 +3134,7 @@ class TestMoveIdentityMutation(django.test.TestCase):
         client = graphene.test.Client(schema)
 
         params = {
-            'fromID': '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331',
+            'fromUUID': '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331',
             'toUUID': '03877f31261a6d1a1b3971d240e628259364b8ac'
         }
         executed = client.execute(self.SH_MOVE,
@@ -3142,17 +3147,17 @@ class TestMoveIdentityMutation(django.test.TestCase):
         self.assertEqual(len(identities), 3)
 
         identity = identities[0]
-        self.assertEqual(identity['id'], '03877f31261a6d1a1b3971d240e628259364b8ac')
+        self.assertEqual(identity['uuid'], '03877f31261a6d1a1b3971d240e628259364b8ac')
         self.assertEqual(identity['name'], None)
         self.assertEqual(identity['email'], 'jdoe@example.com')
 
         identity = identities[1]
-        self.assertEqual(identity['id'], '0880dc4e621877e8520cef1747d139dd4f9f110e')
+        self.assertEqual(identity['uuid'], '0880dc4e621877e8520cef1747d139dd4f9f110e')
         self.assertEqual(identity['name'], 'J. Smith')
         self.assertEqual(identity['email'], 'jsmith@example.org')
 
         identity = identities[2]
-        self.assertEqual(identity['id'], '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
+        self.assertEqual(identity['uuid'], '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
         self.assertEqual(identity['name'], 'John Smith')
         self.assertEqual(identity['email'], 'jsmith@example.com')
 
@@ -3165,7 +3170,7 @@ class TestMoveIdentityMutation(django.test.TestCase):
         self.assertEqual(len(identities_db), 1)
 
         identity_db = identities_db[0]
-        self.assertEqual(identity_db.id, '334da68fcd3da4e799791f73dfada2afb22648c6')
+        self.assertEqual(identity_db.uuid, '334da68fcd3da4e799791f73dfada2afb22648c6')
         self.assertEqual(identity_db.name, None)
         self.assertEqual(identity_db.email, 'jsmith@example.com')
 
@@ -3174,27 +3179,27 @@ class TestMoveIdentityMutation(django.test.TestCase):
         self.assertEqual(len(identities_db), 3)
 
         identity_db = identities_db[0]
-        self.assertEqual(identity_db.id, '03877f31261a6d1a1b3971d240e628259364b8ac')
+        self.assertEqual(identity_db.uuid, '03877f31261a6d1a1b3971d240e628259364b8ac')
         self.assertEqual(identity_db.name, None)
         self.assertEqual(identity_db.email, 'jdoe@example.com')
 
         identity_db = identities_db[1]
-        self.assertEqual(identity_db.id, '0880dc4e621877e8520cef1747d139dd4f9f110e')
+        self.assertEqual(identity_db.uuid, '0880dc4e621877e8520cef1747d139dd4f9f110e')
         self.assertEqual(identity_db.name, 'J. Smith')
         self.assertEqual(identity_db.email, 'jsmith@example.org')
 
         identity_db = identities_db[2]
-        self.assertEqual(identity_db.id, '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
+        self.assertEqual(identity_db.uuid, '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
         self.assertEqual(identity_db.name, 'John Smith')
         self.assertEqual(identity_db.email, 'jsmith@example.com')
 
     def test_equal_related_individual(self):
-        """Check if identities are not moved when 'to_uuid' is the individual related to 'from_id'"""
+        """Check if identities are not moved when 'to_uuid' is the individual related to 'from_uuid'"""
 
         client = graphene.test.Client(schema)
 
         params = {
-            'fromID': '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331',
+            'fromUUID': '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331',
             'toUUID': '334da68fcd3da4e799791f73dfada2afb22648c6'
         }
         executed = client.execute(self.SH_MOVE,
@@ -3207,12 +3212,12 @@ class TestMoveIdentityMutation(django.test.TestCase):
         self.assertEqual(len(identities), 2)
 
         identity = identities[0]
-        self.assertEqual(identity['id'], '334da68fcd3da4e799791f73dfada2afb22648c6')
+        self.assertEqual(identity['uuid'], '334da68fcd3da4e799791f73dfada2afb22648c6')
         self.assertEqual(identity['name'], None)
         self.assertEqual(identity['email'], 'jsmith@example.com')
 
         identity = identities[1]
-        self.assertEqual(identity['id'], '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
+        self.assertEqual(identity['uuid'], '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
         self.assertEqual(identity['name'], 'John Smith')
         self.assertEqual(identity['email'], 'jsmith@example.com')
 
@@ -3225,28 +3230,28 @@ class TestMoveIdentityMutation(django.test.TestCase):
         self.assertEqual(len(identities_db), 2)
 
         identity_db = identities_db[0]
-        self.assertEqual(identity_db.id, '334da68fcd3da4e799791f73dfada2afb22648c6')
+        self.assertEqual(identity_db.uuid, '334da68fcd3da4e799791f73dfada2afb22648c6')
 
         identity_db = identities_db[1]
-        self.assertEqual(identity_db.id, '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
+        self.assertEqual(identity_db.uuid, '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
 
         individual_db = Individual.objects.get(mk='03877f31261a6d1a1b3971d240e628259364b8ac')
         identities_db = individual_db.identities.all()
         self.assertEqual(len(identities_db), 2)
 
         identity_db = identities_db[0]
-        self.assertEqual(identity_db.id, '03877f31261a6d1a1b3971d240e628259364b8ac')
+        self.assertEqual(identity_db.uuid, '03877f31261a6d1a1b3971d240e628259364b8ac')
 
         identity_db = identities_db[1]
-        self.assertEqual(identity_db.id, '0880dc4e621877e8520cef1747d139dd4f9f110e')
+        self.assertEqual(identity_db.uuid, '0880dc4e621877e8520cef1747d139dd4f9f110e')
 
     def test_create_new_individual(self):
-        """Check if a new individual is created when 'from_id' has the same value of 'to_uuid'"""
+        """Check if a new individual is created when 'from_uuid' has the same value of 'to_uuid'"""
 
         client = graphene.test.Client(schema)
 
         params = {
-            'fromID': '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331',
+            'fromUUID': '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331',
             'toUUID': '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331'
         }
         executed = client.execute(self.SH_MOVE,
@@ -3260,7 +3265,7 @@ class TestMoveIdentityMutation(django.test.TestCase):
         self.assertEqual(len(identities), 1)
 
         identity = identities[0]
-        self.assertEqual(identity['id'], '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
+        self.assertEqual(identity['uuid'], '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
         self.assertEqual(identity['name'], 'John Smith')
         self.assertEqual(identity['email'], 'jsmith@example.com')
 
@@ -3273,7 +3278,7 @@ class TestMoveIdentityMutation(django.test.TestCase):
         self.assertEqual(len(identities_db), 1)
 
         identity_db = identities_db[0]
-        self.assertEqual(identity_db.id, '334da68fcd3da4e799791f73dfada2afb22648c6')
+        self.assertEqual(identity_db.uuid, '334da68fcd3da4e799791f73dfada2afb22648c6')
         self.assertEqual(identity_db.name, None)
         self.assertEqual(identity_db.email, 'jsmith@example.com')
 
@@ -3282,7 +3287,7 @@ class TestMoveIdentityMutation(django.test.TestCase):
         self.assertEqual(len(identities_db), 1)
 
         identity_db = identities_db[0]
-        self.assertEqual(identity_db.id, '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
+        self.assertEqual(identity_db.uuid, '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
         self.assertEqual(identity_db.name, 'John Smith')
         self.assertEqual(identity_db.email, 'jsmith@example.com')
 
@@ -3291,22 +3296,22 @@ class TestMoveIdentityMutation(django.test.TestCase):
         self.assertEqual(len(identities_db), 2)
 
         identity_db = identities_db[0]
-        self.assertEqual(identity_db.id, '03877f31261a6d1a1b3971d240e628259364b8ac')
+        self.assertEqual(identity_db.uuid, '03877f31261a6d1a1b3971d240e628259364b8ac')
         self.assertEqual(identity_db.name, None)
         self.assertEqual(identity_db.email, 'jdoe@example.com')
 
         identity_db = identities_db[1]
-        self.assertEqual(identity_db.id, '0880dc4e621877e8520cef1747d139dd4f9f110e')
+        self.assertEqual(identity_db.uuid, '0880dc4e621877e8520cef1747d139dd4f9f110e')
         self.assertEqual(identity_db.name, 'J. Smith')
         self.assertEqual(identity_db.email, 'jsmith@example.org')
 
-    def test_from_id_is_individual(self):
-        """Test whether it fails when 'from_id' is an individual"""
+    def test_from_uuid_is_individual(self):
+        """Test whether it fails when 'from_uuid' is an individual"""
 
         client = graphene.test.Client(schema)
 
         params = {
-            'fromID': '03877f31261a6d1a1b3971d240e628259364b8ac',
+            'fromUUID': '03877f31261a6d1a1b3971d240e628259364b8ac',
             'toUUID': '334da68fcd3da4e799791f73dfada2afb22648c6'
         }
         executed = client.execute(self.SH_MOVE,
@@ -3314,15 +3319,15 @@ class TestMoveIdentityMutation(django.test.TestCase):
                                   variables=params)
 
         msg = executed['errors'][0]['message']
-        self.assertEqual(msg, FROM_ID_IS_MK_ERROR)
+        self.assertEqual(msg, FROM_UUID_IS_MK_ERROR)
 
     def test_not_found_from_identity(self):
-        """Test whether it fails when 'from_id' identity is not found"""
+        """Test whether it fails when 'from_uuid' identity is not found"""
 
         client = graphene.test.Client(schema)
 
         params = {
-            'fromID': 'FFFFFFFFFFFFFFF',
+            'fromUUID': 'FFFFFFFFFFFFFFF',
             'toUUID': '03877f31261a6d1a1b3971d240e628259364b8ac'
         }
         executed = client.execute(self.SH_MOVE,
@@ -3338,7 +3343,7 @@ class TestMoveIdentityMutation(django.test.TestCase):
         client = graphene.test.Client(schema)
 
         params = {
-            'fromID': '0880dc4e621877e8520cef1747d139dd4f9f110e',
+            'fromUUID': '0880dc4e621877e8520cef1747d139dd4f9f110e',
             'toUUID': 'FFFFFFFFFFFFFFF'
         }
         executed = client.execute(self.SH_MOVE,
@@ -3348,13 +3353,13 @@ class TestMoveIdentityMutation(django.test.TestCase):
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, INDIVIDUAL_DOES_NOT_EXIST_ERROR)
 
-    def test_empty_from_id(self):
-        """Check whether identities cannot be moved when giving an empty id"""
+    def test_empty_from_uuid(self):
+        """Check whether identities cannot be moved when giving an empty uuid"""
 
         client = graphene.test.Client(schema)
 
         params = {
-            'fromID': '',
+            'fromUUID': '',
             'toUUID': '03877f31261a6d1a1b3971d240e628259364b8ac'
         }
         executed = client.execute(self.SH_MOVE,
@@ -3362,7 +3367,7 @@ class TestMoveIdentityMutation(django.test.TestCase):
                                   variables=params)
 
         msg = executed['errors'][0]['message']
-        self.assertEqual(msg, FROM_ID_EMPTY_ERROR)
+        self.assertEqual(msg, FROM_UUID_EMPTY_ERROR)
 
     def test_empty_to_uuid(self):
         """Check whether identities cannot be moved when giving an empty UUID"""
@@ -3370,7 +3375,7 @@ class TestMoveIdentityMutation(django.test.TestCase):
         client = graphene.test.Client(schema)
 
         params = {
-            'fromID': '03877f31261a6d1a1b3971d240e628259364b8ac',
+            'fromUUID': '03877f31261a6d1a1b3971d240e628259364b8ac',
             'toUUID': ''
         }
         executed = client.execute(self.SH_MOVE,
@@ -3386,12 +3391,12 @@ class TestMoveIdentityMutation(django.test.TestCase):
         client = graphene.test.Client(schema)
 
         jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
-        api.lock(self.ctx, jsmith.id)
+        api.lock(self.ctx, jsmith.uuid)
 
         # Tests
         params = {
-            'fromID': '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331',
-            'toUUID': jsmith.id
+            'fromUUID': '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331',
+            'toUUID': jsmith.uuid
         }
         executed = client.execute(self.SH_MOVE,
                                   context_value=self.context_value,
@@ -3408,7 +3413,7 @@ class TestMoveIdentityMutation(django.test.TestCase):
         client = graphene.test.Client(schema)
 
         params = {
-            'fromID': '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331',
+            'fromUUID': '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331',
             'toUUID': '03877f31261a6d1a1b3971d240e628259364b8ac'
         }
         executed = client.execute(self.SH_MOVE,
@@ -3459,10 +3464,10 @@ class TestEnrollMutation(django.test.TestCase):
         jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
         db.add_organization(self.trxl, 'Example')
 
-        api.enroll(self.ctx, jsmith.id, 'Example',
+        api.enroll(self.ctx, jsmith.uuid, 'Example',
                    from_date=datetime.datetime(1999, 1, 1),
                    to_date=datetime.datetime(2000, 1, 1))
-        api.enroll(self.ctx, jsmith.id, 'Example',
+        api.enroll(self.ctx, jsmith.uuid, 'Example',
                    from_date=datetime.datetime(2004, 1, 1),
                    to_date=datetime.datetime(2006, 1, 1))
 
@@ -4034,7 +4039,7 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
               individual {
                 mk
                 identities {
-                  id
+                  uuid
                   name
                   email
                   username
@@ -4123,25 +4128,25 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(len(identities), 4)
 
         identity = identities[0]
-        self.assertEqual(identity['id'], '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(identity['uuid'], '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
         self.assertEqual(identity['name'], None)
         self.assertEqual(identity['email'], 'jsmith-git@example')
         self.assertEqual(identity['source'], 'git')
 
         identity = identities[1]
-        self.assertEqual(identity['id'], '9225e296be341c20c11c4bae76df4190a5c4a918')
+        self.assertEqual(identity['uuid'], '9225e296be341c20c11c4bae76df4190a5c4a918')
         self.assertEqual(identity['name'], None)
         self.assertEqual(identity['email'], 'jsmith-phab@bitergia')
         self.assertEqual(identity['source'], 'phabricator')
 
         identity = identities[2]
-        self.assertEqual(identity['id'], 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        self.assertEqual(identity['uuid'], 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
         self.assertEqual(identity['name'], None)
         self.assertEqual(identity['email'], 'jsmith@bitergia')
         self.assertEqual(identity['source'], 'scm')
 
         identity = identities[3]
-        self.assertEqual(identity['id'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(identity['uuid'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
         self.assertEqual(identity['name'], None)
         self.assertEqual(identity['email'], 'jsmith@example')
         self.assertEqual(identity['source'], 'scm')
@@ -4171,22 +4176,22 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(len(identities), 4)
 
         id1 = identities[0]
-        self.assertEqual(id1.id, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(id1.uuid, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
         self.assertEqual(id1.email, 'jsmith-git@example')
         self.assertEqual(id1.source, 'git')
 
         id2 = identities[1]
-        self.assertEqual(id2.id, '9225e296be341c20c11c4bae76df4190a5c4a918')
+        self.assertEqual(id2.uuid, '9225e296be341c20c11c4bae76df4190a5c4a918')
         self.assertEqual(id2.email, 'jsmith-phab@bitergia')
         self.assertEqual(id2.source, 'phabricator')
 
         id3 = identities[2]
-        self.assertEqual(id3.id, 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        self.assertEqual(id3.uuid, 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
         self.assertEqual(id3.email, 'jsmith@bitergia')
         self.assertEqual(id3.source, 'scm')
 
         id4 = identities[3]
-        self.assertEqual(id4.id, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(id4.uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
         self.assertEqual(id4.email, 'jsmith@example')
         self.assertEqual(id4.source, 'scm')
 
@@ -4224,43 +4229,43 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(len(identities), 7)
 
         identity = identities[0]
-        self.assertEqual(identity['id'], '1c13fec7a328201fc6a230fe43eb81df0e20626e')
+        self.assertEqual(identity['uuid'], '1c13fec7a328201fc6a230fe43eb81df0e20626e')
         self.assertEqual(identity['name'], None)
         self.assertEqual(identity['email'], 'jsmith@libresoft')
         self.assertEqual(identity['source'], 'scm')
 
         identity = identities[1]
-        self.assertEqual(identity['id'], '31581d7c6b039318e9048c4d8571666c26a5622b')
+        self.assertEqual(identity['uuid'], '31581d7c6b039318e9048c4d8571666c26a5622b')
         self.assertEqual(identity['name'], None)
         self.assertEqual(identity['email'], 'jsmith3@libresoft')
         self.assertEqual(identity['source'], 'phabricator')
 
         identity = identities[2]
-        self.assertEqual(identity['id'], '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(identity['uuid'], '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
         self.assertEqual(identity['name'], None)
         self.assertEqual(identity['email'], 'jsmith-git@example')
         self.assertEqual(identity['source'], 'git')
 
         identity = identities[3]
-        self.assertEqual(identity['id'], '9225e296be341c20c11c4bae76df4190a5c4a918')
+        self.assertEqual(identity['uuid'], '9225e296be341c20c11c4bae76df4190a5c4a918')
         self.assertEqual(identity['name'], None)
         self.assertEqual(identity['email'], 'jsmith-phab@bitergia')
         self.assertEqual(identity['source'], 'phabricator')
 
         identity = identities[4]
-        self.assertEqual(identity['id'], 'c2f5aa44e920b4fbe3cd36894b18e80a2606deba')
+        self.assertEqual(identity['uuid'], 'c2f5aa44e920b4fbe3cd36894b18e80a2606deba')
         self.assertEqual(identity['name'], None)
         self.assertEqual(identity['email'], 'jsmith2@libresoft')
         self.assertEqual(identity['source'], 'phabricator')
 
         identity = identities[5]
-        self.assertEqual(identity['id'], 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        self.assertEqual(identity['uuid'], 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
         self.assertEqual(identity['name'], None)
         self.assertEqual(identity['email'], 'jsmith@bitergia')
         self.assertEqual(identity['source'], 'scm')
 
         identity = identities[6]
-        self.assertEqual(identity['id'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(identity['uuid'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
         self.assertEqual(identity['name'], None)
         self.assertEqual(identity['email'], 'jsmith@example')
         self.assertEqual(identity['source'], 'scm')
@@ -4290,37 +4295,37 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(len(identities), 7)
 
         id1 = identities[0]
-        self.assertEqual(id1.id, '1c13fec7a328201fc6a230fe43eb81df0e20626e')
+        self.assertEqual(id1.uuid, '1c13fec7a328201fc6a230fe43eb81df0e20626e')
         self.assertEqual(id1.email, 'jsmith@libresoft')
         self.assertEqual(id1.source, 'scm')
 
         id2 = identities[1]
-        self.assertEqual(id2.id, '31581d7c6b039318e9048c4d8571666c26a5622b')
+        self.assertEqual(id2.uuid, '31581d7c6b039318e9048c4d8571666c26a5622b')
         self.assertEqual(id2.email, 'jsmith3@libresoft')
         self.assertEqual(id2.source, 'phabricator')
 
         id3 = identities[2]
-        self.assertEqual(id3.id, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(id3.uuid, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
         self.assertEqual(id3.email, 'jsmith-git@example')
         self.assertEqual(id3.source, 'git')
 
         id4 = identities[3]
-        self.assertEqual(id4.id, '9225e296be341c20c11c4bae76df4190a5c4a918')
+        self.assertEqual(id4.uuid, '9225e296be341c20c11c4bae76df4190a5c4a918')
         self.assertEqual(id4.email, 'jsmith-phab@bitergia')
         self.assertEqual(id4.source, 'phabricator')
 
         id5 = identities[4]
-        self.assertEqual(id5.id, 'c2f5aa44e920b4fbe3cd36894b18e80a2606deba')
+        self.assertEqual(id5.uuid, 'c2f5aa44e920b4fbe3cd36894b18e80a2606deba')
         self.assertEqual(id5.email, 'jsmith2@libresoft')
         self.assertEqual(id5.source, 'phabricator')
 
         id6 = identities[5]
-        self.assertEqual(id6.id, 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        self.assertEqual(id6.uuid, 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
         self.assertEqual(id6.email, 'jsmith@bitergia')
         self.assertEqual(id6.source, 'scm')
 
         id7 = identities[6]
-        self.assertEqual(id7.id, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(id7.uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
         self.assertEqual(id7.email, 'jsmith@example')
         self.assertEqual(id7.source, 'scm')
 
@@ -4454,7 +4459,7 @@ class TestUnmergeIdentitiesMutation(django.test.TestCase):
               individuals {
                 mk
                 identities {
-                  id
+                  uuid
                   name
                   email
                   username
@@ -4550,7 +4555,7 @@ class TestUnmergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(len(identities), 1)
 
         identity = identities[0]
-        self.assertEqual(identity['id'], '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(identity['uuid'], '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
         self.assertEqual(identity['name'], None)
         self.assertEqual(identity['email'], 'jsmith-git@example')
         self.assertEqual(identity['source'], 'git')
@@ -4570,7 +4575,7 @@ class TestUnmergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(len(identities), 1)
 
         id1 = identities[0]
-        self.assertEqual(id1.id, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(id1.uuid, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
         self.assertEqual(id1.email, 'jsmith-git@example')
         self.assertEqual(id1.source, 'git')
 
@@ -4611,7 +4616,7 @@ class TestUnmergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(len(identities), 1)
 
         identity = identities[0]
-        self.assertEqual(identity['id'], '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(identity['uuid'], '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
         self.assertEqual(identity['name'], None)
         self.assertEqual(identity['email'], 'jsmith-git@example')
         self.assertEqual(identity['source'], 'git')
@@ -4623,7 +4628,7 @@ class TestUnmergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(len(identities), 1)
 
         identity = identities[0]
-        self.assertEqual(identity['id'], '31581d7c6b039318e9048c4d8571666c26a5622b')
+        self.assertEqual(identity['uuid'], '31581d7c6b039318e9048c4d8571666c26a5622b')
         self.assertEqual(identity['name'], None)
         self.assertEqual(identity['email'], 'jsmith3@libresoft')
         self.assertEqual(identity['source'], 'phabricator')
@@ -4643,7 +4648,7 @@ class TestUnmergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(len(identities), 1)
 
         id1 = identities[0]
-        self.assertEqual(id1.id, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(id1.uuid, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
         self.assertEqual(id1.email, 'jsmith-git@example')
         self.assertEqual(id1.source, 'git')
 
@@ -4664,7 +4669,7 @@ class TestUnmergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(len(identities), 1)
 
         id1 = identities[0]
-        self.assertEqual(id1.id, '31581d7c6b039318e9048c4d8571666c26a5622b')
+        self.assertEqual(id1.uuid, '31581d7c6b039318e9048c4d8571666c26a5622b')
         self.assertEqual(id1.email, 'jsmith3@libresoft')
         self.assertEqual(id1.source, 'phabricator')
 
@@ -4694,32 +4699,32 @@ class TestUnmergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(len(identities), 6)
 
         id1 = identities[0]
-        self.assertEqual(id1['id'], '1c13fec7a328201fc6a230fe43eb81df0e20626e')
+        self.assertEqual(id1['uuid'], '1c13fec7a328201fc6a230fe43eb81df0e20626e')
         self.assertEqual(id1['email'], 'jsmith@libresoft')
         self.assertEqual(id1['source'], 'scm')
 
         id2 = identities[1]
-        self.assertEqual(id2['id'], '31581d7c6b039318e9048c4d8571666c26a5622b')
+        self.assertEqual(id2['uuid'], '31581d7c6b039318e9048c4d8571666c26a5622b')
         self.assertEqual(id2['email'], 'jsmith3@libresoft')
         self.assertEqual(id2['source'], 'phabricator')
 
         id3 = identities[2]
-        self.assertEqual(id3['id'], '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(id3['uuid'], '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
         self.assertEqual(id3['email'], 'jsmith-git@example')
         self.assertEqual(id3['source'], 'git')
 
         id4 = identities[3]
-        self.assertEqual(id4['id'], '9225e296be341c20c11c4bae76df4190a5c4a918')
+        self.assertEqual(id4['uuid'], '9225e296be341c20c11c4bae76df4190a5c4a918')
         self.assertEqual(id4['email'], 'jsmith-phab@bitergia')
         self.assertEqual(id4['source'], 'phabricator')
 
         id5 = identities[4]
-        self.assertEqual(id5['id'], 'c2f5aa44e920b4fbe3cd36894b18e80a2606deba')
+        self.assertEqual(id5['uuid'], 'c2f5aa44e920b4fbe3cd36894b18e80a2606deba')
         self.assertEqual(id5['email'], 'jsmith2@libresoft')
         self.assertEqual(id5['source'], 'phabricator')
 
         id6 = identities[5]
-        self.assertEqual(id6['id'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(id6['uuid'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
         self.assertEqual(id6['email'], 'jsmith@example')
         self.assertEqual(id6['source'], 'scm')
 
