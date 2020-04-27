@@ -410,7 +410,7 @@ class UpdateProfile(graphene.Mutation):
         individual = update_profile(ctx, uuid, **data)
 
         return UpdateProfile(
-            uuid=individual.uuid,
+            uuid=individual.mk,
             individual=individual
         )
 
@@ -431,7 +431,7 @@ class MoveIdentity(graphene.Mutation):
         individual = move_identity(ctx, from_id, to_uuid)
 
         return MoveIdentity(
-            uuid=individual.uuid,
+            uuid=individual.mk,
             individual=individual
         )
 
@@ -452,7 +452,7 @@ class MergeIdentities(graphene.Mutation):
         individual = merge_identities(ctx, from_uuids, to_uuid)
 
         return MergeIdentities(
-            uuid=individual.uuid,
+            uuid=individual.mk,
             individual=individual
         )
 
@@ -470,7 +470,7 @@ class UnmergeIdentities(graphene.Mutation):
         ctx = SortingHatContext(user)
 
         individuals = unmerge_identities(ctx, uuids)
-        uuids = [individual.uuid for individual in individuals]
+        uuids = [individual.mk for individual in individuals]
 
         return UnmergeIdentities(
             uuids=uuids,
@@ -500,7 +500,7 @@ class Enroll(graphene.Mutation):
                             from_date=from_date, to_date=to_date,
                             force=force)
         return Enroll(
-            uuid=individual.uuid,
+            uuid=individual.mk,
             individual=individual
         )
 
@@ -523,7 +523,7 @@ class Withdraw(graphene.Mutation):
         individual = withdraw(ctx, uuid, organization,
                               from_date=from_date, to_date=to_date)
         return Withdraw(
-            uuid=individual.uuid,
+            uuid=individual.mk,
             individual=individual
         )
 
@@ -595,10 +595,10 @@ class SortingHatQuery:
                             page=1,
                             page_size=settings.DEFAULT_GRAPHQL_PAGE_SIZE,
                             **kwargs):
-        query = Individual.objects.order_by('uuid')
+        query = Individual.objects.order_by('mk')
 
         if filters and 'uuid' in filters:
-            query = query.filter(uuid=filters['uuid'])
+            query = query.filter(mk=filters['uuid'])
         if filters and 'is_locked' in filters:
             query = query.filter(is_locked=filters['is_locked'])
 

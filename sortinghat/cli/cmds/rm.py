@@ -57,7 +57,7 @@ def _remove_identity(conn, **kwargs):
 
     op = Operation(SortingHatSchema.SortingHatMutation)
     op.delete_identity(**args)
-    op.delete_identity.individual().uuid()
+    op.delete_identity.individual().mk()
 
     result = conn.execute(op)
 

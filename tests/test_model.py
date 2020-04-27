@@ -233,18 +233,18 @@ class TestCountry(TransactionTestCase):
 class TestIndividual(TransactionTestCase):
     """Unit tests for Individual class"""
 
-    def test_unique_uuid(self):
-        """Check whether the uuid is in fact unique"""
+    def test_unique_main_key(self):
+        """Check whether the mk is in fact unique"""
 
         with self.assertRaisesRegex(IntegrityError, DUPLICATE_CHECK_ERROR):
-            Individual.objects.create(uuid='AAAA')
-            Individual.objects.create(uuid='AAAA')
+            Individual.objects.create(mk='AAAA')
+            Individual.objects.create(mk='AAAA')
 
     def test_created_at(self):
         """Check creation date is only set when the object is created"""
 
         before_dt = datetime_utcnow()
-        indv = Individual.objects.create(uuid='AAAA')
+        indv = Individual.objects.create(mk='AAAA')
         after_dt = datetime_utcnow()
 
         self.assertGreaterEqual(indv.created_at, before_dt)
@@ -259,7 +259,7 @@ class TestIndividual(TransactionTestCase):
         """Check last modification date is set when the object is updated"""
 
         before_dt = datetime_utcnow()
-        indv = Individual.objects.create(uuid='AAAA')
+        indv = Individual.objects.create(mk='AAAA')
         after_dt = datetime_utcnow()
 
         self.assertGreaterEqual(indv.last_modified, before_dt)
@@ -275,7 +275,7 @@ class TestIndividual(TransactionTestCase):
     def test_is_locked_default(self):
         """Check if `is_locked` field is set to False by default"""
 
-        indv = Individual.objects.create(uuid='AAAA')
+        indv = Individual.objects.create(mk='AAAA')
 
         self.assertEqual(indv.is_locked, False)
 
@@ -287,13 +287,13 @@ class TestIdentity(TransactionTestCase):
         """Check whether every identity has a source"""
 
         with self.assertRaisesRegex(IntegrityError, NULL_VALUE_CHECK_ERROR):
-            indv = Individual.objects.create(uuid='AAAA')
+            indv = Individual.objects.create(mk='AAAA')
             Identity.objects.create(individual=indv, source=None)
 
     def test_identities_are_unique(self):
         """Check if there is only one tuple with the same values"""
 
-        indv = Individual.objects.create(uuid='AAAA')
+        indv = Individual.objects.create(mk='AAAA')
         id1 = Identity.objects.create(id='A',
                                       name='John Smith',
                                       email='jsmith@example.com',
@@ -325,7 +325,7 @@ class TestIdentity(TransactionTestCase):
         # With an invalid encoding both names wouldn't be inserted;
         # In MySQL, chars 'ı' and 'i' are considered the same with a
         # collation distinct to <charset>_unicode_ci
-        indv = Individual.objects.create(uuid='AAAA')
+        indv = Individual.objects.create(mk='AAAA')
         Identity.objects.create(id='A',
                                 name='John Smıth',
                                 email='jsmith@example.com',
@@ -349,7 +349,7 @@ class TestIdentity(TransactionTestCase):
         """Check creation date is only set when the object is created"""
 
         before_dt = datetime_utcnow()
-        indv = Individual.objects.create(uuid='AAAA')
+        indv = Individual.objects.create(mk='AAAA')
         id1 = Identity.objects.create(id='A',
                                       name='John Smith',
                                       email='jsmith@example.com',
@@ -373,7 +373,7 @@ class TestIdentity(TransactionTestCase):
         """Check last modification date is set when the object is updated"""
 
         before_dt = datetime_utcnow()
-        indv = Individual.objects.create(uuid='AAAA')
+        indv = Individual.objects.create(mk='AAAA')
         id1 = Identity.objects.create(id='A',
                                       name='John Smith',
                                       email='jsmith@example.com',
@@ -402,7 +402,7 @@ class TestProfile(TransactionTestCase):
     def test_unique_profile(self):
         """Check if there is only one profile for each individual"""
 
-        indv = Individual.objects.create(uuid='AAAA')
+        indv = Individual.objects.create(mk='AAAA')
 
         with self.assertRaisesRegex(IntegrityError, DUPLICATE_CHECK_ERROR):
             Profile.objects.create(name='John Smith', individual=indv)
@@ -411,7 +411,7 @@ class TestProfile(TransactionTestCase):
     def test_is_bot_invalid_type(self):
         """Check invalid values on is_bot bool column."""
 
-        indv = Individual.objects.create(uuid='AAAA')
+        indv = Individual.objects.create(mk='AAAA')
 
         with self.assertRaisesRegex(ValidationError, INVALID_BOOLEAN_CHECK_ERROR):
             Profile.objects.create(is_bot='true', individual=indv)
@@ -420,7 +420,7 @@ class TestProfile(TransactionTestCase):
         """Check creation date is only set when the object is created"""
 
         before_dt = datetime_utcnow()
-        indv = Individual.objects.create(uuid='AAAA')
+        indv = Individual.objects.create(mk='AAAA')
         prf = Profile.objects.create(name='John Smith', individual=indv)
         after_dt = datetime_utcnow()
 
@@ -439,7 +439,7 @@ class TestProfile(TransactionTestCase):
         """Check last modification date is set when the object is updated"""
 
         before_dt = datetime_utcnow()
-        indv = Individual.objects.create(uuid='AAAA')
+        indv = Individual.objects.create(mk='AAAA')
         prf = Profile.objects.create(name='John Smith', individual=indv)
         after_dt = datetime_utcnow()
 
@@ -467,7 +467,7 @@ class TestEnrollment(TransactionTestCase):
             Enrollment.objects.create()
 
         with self.assertRaisesRegex(IntegrityError, NULL_VALUE_CHECK_ERROR):
-            indv = Individual.objects.create(uuid='AAAA')
+            indv = Individual.objects.create(mk='AAAA')
             Enrollment.objects.create(individual=indv)
 
         with self.assertRaisesRegex(IntegrityError, NULL_VALUE_CHECK_ERROR):
@@ -478,7 +478,7 @@ class TestEnrollment(TransactionTestCase):
         """Check if there is only one tuple with the same values"""
 
         with self.assertRaisesRegex(IntegrityError, DUPLICATE_CHECK_ERROR):
-            indv = Individual.objects.create(uuid='AAAA')
+            indv = Individual.objects.create(mk='AAAA')
             org = Organization.objects.create(name='Example')
 
             Enrollment.objects.create(individual=indv, organization=org)
@@ -487,7 +487,7 @@ class TestEnrollment(TransactionTestCase):
     def test_default_enrollment_period(self):
         """Check whether the default period is set when initializing the class"""
 
-        indv = Individual.objects.create(uuid='AAAA')
+        indv = Individual.objects.create(mk='AAAA')
         org = Organization.objects.create(name='Example')
 
         rol1 = Enrollment.objects.create(individual=indv, organization=org)
@@ -516,7 +516,7 @@ class TestEnrollment(TransactionTestCase):
         """Check creation date is only set when the object is created"""
 
         before_dt = datetime_utcnow()
-        indv = Individual.objects.create(uuid='AAAA')
+        indv = Individual.objects.create(mk='AAAA')
         org = Organization.objects.create(name='Example')
         rol = Enrollment.objects.create(individual=indv, organization=org)
         after_dt = datetime_utcnow()
@@ -539,7 +539,7 @@ class TestEnrollment(TransactionTestCase):
         """Check last modification date is set when the object is updated"""
 
         before_dt = datetime_utcnow()
-        indv = Individual.objects.create(uuid='AAAA')
+        indv = Individual.objects.create(mk='AAAA')
         org = Organization.objects.create(name='Example')
         rol = Enrollment.objects.create(individual=indv, organization=org)
         after_dt = datetime_utcnow()

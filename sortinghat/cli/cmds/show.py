@@ -87,7 +87,7 @@ def _generate_individuals_operation(page, uuid):
     # Select identities information
     individual = op.individuals().entities()
 
-    individual.uuid()
+    individual.mk()
     individual.is_locked()
     individual.profile().__fields__('name', 'email',
                                     'gender', 'is_bot')

@@ -1,6 +1,6 @@
 {% for indv in individuals | sort(attribute='uuid') %}
 
-individual {{ indv.uuid }}{{'	(locked)' if indv.is_locked }}
+individual {{ indv.mk }}{{'	(locked)' if indv.is_locked }}
 
 Profile:
     * Name: {{ indv.profile.name|d('-', true) }}

@@ -32,7 +32,7 @@ from sortinghat.cli.cmds.rm import rm
 RM_CMD_OP = """mutation {{
   deleteIdentity(uuid: "{}") {{
     individual {{
-      uuid
+      mk
     }}
   }}
 }}"""
@@ -107,7 +107,7 @@ class TestRmCommand(unittest.TestCase):
             {
                 'data': {
                     'deleteIdentity': {
-                        'individual': {'uuid': 'eda9f62ad321b1fbe5f283cc05e2484516203117'}
+                        'individual': {'mk': 'eda9f62ad321b1fbe5f283cc05e2484516203117'}
                     }
                 }
             },

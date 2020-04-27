@@ -26,6 +26,8 @@ import re
 import django.core.exceptions
 import django.db.utils
 
+from django.db.models import Q
+
 from grimoirelab_toolkit.datetime import datetime_utcnow, datetime_to_utc
 
 from .errors import AlreadyExistsError, NotFoundError, LockedIdentityError
@@ -59,23 +61,47 @@ def _set_lock(individual, lock_flag):
     return individual
 
 
-def find_individual(uuid):
+def find_individual(mk):
     """Find an individual entity.
 
-    Find an individual by its UUID in the database.
+    Find an individual by its main key (`mk`) in the database.
     When the individual does not exist the function will
     raise a `NotFoundError`.
 
-    :param uuid: id of the individual to find
+    :param mk: main key or id of the individual to find
 
     :returns: an individual object
 
     :raises NotFoundError: when the individual with
-        the given `uuid` does not exists.
+        the given `mk` does not exists.
     """
     try:
-        individual = Individual.objects.get(uuid=uuid)
+        individual = Individual.objects.get(mk=mk)
     except Individual.DoesNotExist:
+        raise NotFoundError(entity=mk)
+    else:
+        return individual
+
+
+def find_individual_by_uuid(uuid):
+    """Find an individual by its identities UUIDs.
+
+    Find an individual which identities have the parameter
+    `uuid` as their identifier. When such individual does
+    not exists the function will raise a `NotFoundError`.
+
+    :param uuid: id to search the individual
+
+    :returns: an individual object
+
+    :raises NotFoundError: when the individual does
+        not exist.
+    """
+    try:
+        individual = Individual.objects.filter(
+            Q(mk=uuid) | Q(identities__id=uuid)
+        )[0]
+    except IndexError:
         raise NotFoundError(entity=uuid)
     else:
         return individual
@@ -151,7 +177,7 @@ def find_domain(domain_name):
         return domain
 
 
-def search_enrollments_in_period(uuid, org_name,
+def search_enrollments_in_period(mk, org_name,
                                  from_date=MIN_PERIOD_DATE,
                                  to_date=MIN_PERIOD_DATE):
     """Look for enrollments in a given period.
@@ -163,14 +189,14 @@ def search_enrollments_in_period(uuid, org_name,
     found, due to the individual or the organization do not
     exist, or there are not enrollments assigned for that period.
 
-    :param uuid: id of the individual
+    :param mk: main key of the individual
     :param org_name: name of the organization
     :param from_date: starting date for the period
     :param to_date: ending date for the period
 
     :returns: a list of enrollment objects
     """
-    return Enrollment.objects.filter(individual__uuid=uuid,
+    return Enrollment.objects.filter(individual__mk=mk,
                                      organization__name=org_name,
                                      start__lte=to_date, end__gte=from_date).order_by('start')
 
@@ -309,12 +335,12 @@ def delete_domain(trxl, domain):
                        target=op_args['domain'])
 
 
-def add_individual(trxl, uuid):
+def add_individual(trxl, mk):
     """Add an individual to the database.
 
     This function adds an individual to the database with
-    `uuid` string as unique identifier. This identifier cannot
-    be empty or `None`.
+    `mk` string as its main key (i.e main identifier). This
+    identifier cannot be empty or `None`.
 
     When the individual is added, a new empty profile for
     this object is created too.
@@ -323,20 +349,20 @@ def add_individual(trxl, uuid):
     object.
 
     :param trxl: TransactionsLog object from the method calling this one
-    :param uuid: unique identifier for the individual
+    :param mk: main key for the individual
 
     :returns: a new individual
 
-    :raises ValueError: when `uuid` is `None` or an empty string
+    :raises ValueError: when `mk` is `None` or an empty string
     """
     # Setting operation arguments before they are modified
     op_args = {
-        'uuid': uuid
+        'mk': mk
     }
 
-    validate_field('uuid', uuid)
+    validate_field('mk', mk)
 
-    individual = Individual(uuid=uuid)
+    individual = Individual(mk=mk)
 
     try:
         individual.save(force_insert=True)
@@ -345,7 +371,7 @@ def add_individual(trxl, uuid):
 
     trxl.log_operation(op_type=Operation.OpType.ADD, entity_type='individual',
                        timestamp=datetime_utcnow(), args=op_args,
-                       target=op_args['uuid'])
+                       target=op_args['mk'])
 
     profile = Profile(individual=individual)
 
@@ -371,11 +397,11 @@ def delete_individual(trxl, individual):
     """
     # Setting operation arguments before they are modified
     op_args = {
-        'individual': individual.uuid
+        'individual': individual.mk
     }
 
     if individual.is_locked:
-        raise LockedIdentityError(uuid=individual.uuid)
+        raise LockedIdentityError(uuid=individual.mk)
 
     individual.delete()
 
@@ -413,7 +439,7 @@ def add_identity(trxl, individual, identity_id, source,
     """
     # Setting operation arguments before they are modified
     op_args = {
-        'individual': individual.uuid,
+        'individual': individual.mk,
         'identity_id': identity_id,
         'source': source,
         'name': name,
@@ -422,7 +448,7 @@ def add_identity(trxl, individual, identity_id, source,
     }
 
     if individual.is_locked:
-        raise LockedIdentityError(uuid=individual.uuid)
+        raise LockedIdentityError(uuid=individual.mk)
 
     validate_field('identity_id', identity_id)
     validate_field('source', source)
@@ -465,7 +491,7 @@ def delete_identity(trxl, identity):
     }
 
     if identity.individual.is_locked:
-        raise LockedIdentityError(uuid=identity.individual.uuid)
+        raise LockedIdentityError(uuid=identity.individual.mk)
 
     identity.delete()
     identity.individual.save()
@@ -510,10 +536,10 @@ def update_profile(trxl, individual, **kwargs):
 
     # Setting operation arguments before they are modified
     op_args = copy.deepcopy(kwargs)
-    op_args.update({'individual': individual.uuid})
+    op_args.update({'individual': individual.mk})
 
     if individual.is_locked:
-        raise LockedIdentityError(uuid=individual.uuid)
+        raise LockedIdentityError(uuid=individual.mk)
 
     profile = individual.profile
 
@@ -600,14 +626,14 @@ def add_enrollment(trxl, individual, organization,
     """
     # Setting operation arguments before they are modified
     op_args = {
-        'individual': individual.uuid,
+        'individual': individual.mk,
         'organization': organization.name,
         'start': copy.deepcopy(str(start)),
         'end': copy.deepcopy(str(end))
     }
 
     if individual.is_locked:
-        raise LockedIdentityError(uuid=individual.uuid)
+        raise LockedIdentityError(uuid=individual.mk)
 
     if not start:
         raise ValueError("'start' date cannot be None")
@@ -651,21 +677,21 @@ def delete_enrollment(trxl, enrollment):
     """
     # Setting operation arguments before they are modified
     op_args = {
-        'uuid': enrollment.individual.uuid,
+        'mk': enrollment.individual.mk,
         'organization': enrollment.organization.name,
         'start': str(enrollment.start),
         'end': str(enrollment.end)
     }
 
     if enrollment.individual.is_locked:
-        raise LockedIdentityError(uuid=enrollment.individual.uuid)
+        raise LockedIdentityError(uuid=enrollment.individual.mk)
 
     enrollment.delete()
     enrollment.individual.save()
 
     trxl.log_operation(op_type=Operation.OpType.DELETE, entity_type='enrollment',
                        timestamp=datetime_utcnow(), args=op_args,
-                       target=op_args['uuid'])
+                       target=op_args['mk'])
 
 
 def move_identity(trxl, identity, individual):
@@ -689,15 +715,15 @@ def move_identity(trxl, identity, individual):
     # Setting operation arguments before they are modified
     op_args = {
         'identity': identity.id,
-        'individual': individual.uuid
+        'individual': individual.mk
     }
 
     if identity.individual.is_locked:
-        raise LockedIdentityError(uuid=identity.individual.uuid)
+        raise LockedIdentityError(uuid=identity.individual.mk)
     if individual.is_locked:
-        raise LockedIdentityError(uuid=individual.uuid)
+        raise LockedIdentityError(uuid=individual.mk)
     if identity.individual == individual:
-        msg = "identity '{}' is already assigned to '{}'".format(identity.id, individual.uuid)
+        msg = "identity '{}' is already assigned to '{}'".format(identity.id, individual.mk)
         raise ValueError(msg)
 
     old_individual = identity.individual
@@ -726,7 +752,7 @@ def lock(trxl, individual):
     :returns: the individual with lock parameter updated
     """
     op_args = {
-        'uuid': individual.uuid,
+        'mk': individual.mk,
         'is_locked': True
     }
 
@@ -734,7 +760,7 @@ def lock(trxl, individual):
 
     trxl.log_operation(op_type=Operation.OpType.UPDATE, entity_type='individual',
                        timestamp=datetime_utcnow(), args=op_args,
-                       target=op_args['uuid'])
+                       target=op_args['mk'])
 
     return individual
 
@@ -751,7 +777,7 @@ def unlock(trxl, individual):
     :returns: the individual with lock parameter updated
     """
     op_args = {
-        'uuid': individual.uuid,
+        'mk': individual.mk,
         'is_locked': False
     }
 
@@ -759,7 +785,7 @@ def unlock(trxl, individual):
 
     trxl.log_operation(op_type=Operation.OpType.UPDATE, entity_type='individual',
                        timestamp=datetime_utcnow(), args=op_args,
-                       target=op_args['uuid'])
+                       target=op_args['mk'])
 
     return individual
 

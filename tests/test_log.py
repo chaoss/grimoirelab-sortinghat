@@ -156,7 +156,7 @@ class TestLogTransaction(TestCase):
         """Check if a new operation is logged"""
 
         trxl = TransactionsLog.open('test', self.ctx)
-        input_args = {'uuid': '12345abcd'}
+        input_args = {'mk': '12345abcd'}
 
         operation = trxl.log_operation(op_type=Operation.OpType.ADD, timestamp=datetime_utcnow(),
                                        entity_type='test_entity', target='test', args=input_args)
@@ -179,8 +179,8 @@ class TestLogTransaction(TestCase):
         trxl = TransactionsLog.open('test', self.ctx)
         timestamp1 = datetime_utcnow()
         timestamp2 = datetime_utcnow()
-        input_args1 = {'uuid': '12345abcd'}
-        input_args2 = {'uuid': '67890efgh'}
+        input_args1 = {'mk': '12345abcd'}
+        input_args2 = {'mk': '67890efgh'}
 
         # Add operations
         op1 = trxl.log_operation(op_type=Operation.OpType.ADD, timestamp=timestamp1,
@@ -223,7 +223,7 @@ class TestLogTransaction(TestCase):
     def test_log_operation_closed_transaction(self):
         """Check if it fails when logging an operation on a closed transaction"""
 
-        input_args = json.dumps({'uuid': '12345abcd'})
+        input_args = json.dumps({'mk': '12345abcd'})
         trxl = TransactionsLog.open('test', self.ctx)
         tuid = trxl.trx.tuid
         trxl.close()
@@ -240,7 +240,7 @@ class TestLogTransaction(TestCase):
         """Check if it fails when type field is an empty string"""
 
         trxl = TransactionsLog.open('test', self.ctx)
-        input_args = json.dumps({'uuid': '12345abcd'})
+        input_args = json.dumps({'mk': '12345abcd'})
 
         with self.assertRaisesRegex(TypeError, OPERATION_TYPE_EMPTY_ERROR):
             trxl.log_operation(op_type='', entity_type='test_entity',
@@ -250,7 +250,7 @@ class TestLogTransaction(TestCase):
         """Check if it fails when type field is `None`"""
 
         trxl = TransactionsLog.open('test', self.ctx)
-        input_args = json.dumps({'uuid': '12345abcd'})
+        input_args = json.dumps({'mk': '12345abcd'})
 
         with self.assertRaisesRegex(TypeError, OPERATION_TYPE_NONE_ERROR):
             trxl.log_operation(op_type=None, entity_type='test_entity',
@@ -260,7 +260,7 @@ class TestLogTransaction(TestCase):
         """Check if it fails when entity field is an empty string"""
 
         trxl = TransactionsLog.open('test', self.ctx)
-        input_args = json.dumps({'uuid': '12345abcd'})
+        input_args = json.dumps({'mk': '12345abcd'})
 
         with self.assertRaisesRegex(ValueError, OPERATION_ENTITY_EMPTY_ERROR):
             trxl.log_operation(op_type=Operation.OpType.ADD, entity_type='',
@@ -270,7 +270,7 @@ class TestLogTransaction(TestCase):
         """Check if it fails when entity field is `None`"""
 
         trxl = TransactionsLog.open('test', self.ctx)
-        input_args = json.dumps({'uuid': '12345abcd'})
+        input_args = json.dumps({'mk': '12345abcd'})
 
         with self.assertRaisesRegex(ValueError, OPERATION_ENTITY_NONE_ERROR):
             trxl.log_operation(op_type=Operation.OpType.ADD, entity_type=None,
