@@ -235,7 +235,7 @@ class LockIdentity(sgqlc.types.Type):
     individual = sgqlc.types.Field('IndividualType', graphql_name='individual')
 
 
-class MergeIdentities(sgqlc.types.Type):
+class Merge(sgqlc.types.Type):
     __schema__ = sh_schema
     __field_names__ = ('uuid', 'individual')
     uuid = sgqlc.types.Field(String, graphql_name='uuid')
@@ -376,7 +376,7 @@ class SortingHatMutation(sgqlc.types.Type):
     __field_names__ = (
         'add_organization', 'delete_organization', 'add_domain', 'delete_domain', 'add_identity',
         'delete_identity', 'update_profile', 'move_identity', 'lock_identity', 'unlock_identity',
-        'merge_identities', 'unmerge_identities', 'enroll', 'withdraw',
+        'merge', 'unmerge_identities', 'enroll', 'withdraw',
         'token_auth', 'verify_token', 'refresh_token'
     )
     add_organization = sgqlc.types.Field(
@@ -438,8 +438,8 @@ class SortingHatMutation(sgqlc.types.Type):
             ('uuid', sgqlc.types.Arg(String, graphql_name='uuid', default=None)),
         ))
     )
-    merge_identities = sgqlc.types.Field(
-        MergeIdentities, graphql_name='mergeIdentities', args=sgqlc.types.ArgDict((
+    merge = sgqlc.types.Field(
+        Merge, graphql_name='merge', args=sgqlc.types.ArgDict((
             ('from_uuids', sgqlc.types.Arg(sgqlc.types.list_of(String), graphql_name='fromUuids', default=None)),
             ('to_uuid', sgqlc.types.Arg(String, graphql_name='toUuid', default=None)),
         ))

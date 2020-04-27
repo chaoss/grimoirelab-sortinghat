@@ -4029,12 +4029,12 @@ class TestWithdrawMutation(django.test.TestCase):
         self.assertEqual(msg, AUTHENTICATION_ERROR)
 
 
-class TestMergeIdentitiesMutation(django.test.TestCase):
+class TestMergeMutation(django.test.TestCase):
     """Unit tests for mutation to merge individuals"""
 
     SH_MERGE = """
           mutation mergeIds($fromUuids: [String], $toUuid: String) {
-            mergeIdentities(fromUuids: $fromUuids, toUuid: $toUuid) {
+            merge(fromUuids: $fromUuids, toUuid: $toUuid) {
               uuid
               individual {
                 mk
@@ -4060,7 +4060,7 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
         self.ctx = SortingHatContext(self.user)
 
         # Transaction
-        self.trxl = TransactionsLog.open('merge_identities', self.ctx)
+        self.trxl = TransactionsLog.open('merge', self.ctx)
 
         db.add_organization(self.trxl, 'Example')
         db.add_organization(self.trxl, 'Bitergia')
@@ -4108,7 +4108,7 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
                            uuid='1c13fec7a328201fc6a230fe43eb81df0e20626e', name='John Smith',
                            email='jsmith@profile-email', is_bot=False, country_code='US')
 
-    def test_merge_identities(self):
+    def test_merge_individuals(self):
         """Check whether it merges two individuals, merging their ids, enrollments and profiles"""
 
         client = graphene.test.Client(schema)
@@ -4123,7 +4123,7 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
                                   variables=params)
 
         # Check results, identities were merged
-        identities = executed['data']['mergeIdentities']['individual']['identities']
+        identities = executed['data']['merge']['individual']['identities']
 
         self.assertEqual(len(identities), 4)
 
@@ -4151,7 +4151,7 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(identity['email'], 'jsmith@example')
         self.assertEqual(identity['source'], 'scm')
 
-        uuid = executed['data']['mergeIdentities']['uuid']
+        uuid = executed['data']['merge']['uuid']
         self.assertEqual(uuid, 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
 
         # Check database objects
@@ -4208,7 +4208,7 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(rol2.start, datetime.datetime(2017, 6, 2, tzinfo=UTC))
         self.assertEqual(rol2.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
 
-    def test_merge_multiple_identities(self):
+    def test_merge_multiple_individuals(self):
         """Check whether it merges more than two individuals, merging their ids, enrollments and profiles"""
 
         client = graphene.test.Client(schema)
@@ -4224,7 +4224,7 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
                                   variables=params)
 
         # Check results, identities were merged
-        identities = executed['data']['mergeIdentities']['individual']['identities']
+        identities = executed['data']['merge']['individual']['identities']
 
         self.assertEqual(len(identities), 7)
 
@@ -4270,7 +4270,7 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(identity['email'], 'jsmith@example')
         self.assertEqual(identity['source'], 'scm')
 
-        uuid = executed['data']['mergeIdentities']['uuid']
+        uuid = executed['data']['merge']['uuid']
         self.assertEqual(uuid, 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
 
         # Check database objects

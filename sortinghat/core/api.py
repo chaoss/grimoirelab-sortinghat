@@ -821,18 +821,19 @@ def withdraw(ctx, uuid, organization, from_date=None, to_date=None):
 
 
 @django.db.transaction.atomic
-def merge_identities(ctx, from_uuids, to_uuid):
+def merge(ctx, from_uuids, to_uuid):
     """
     Merge one or more individuals into another.
 
-    Use this function to join a list of `from_uuid` individuals into
-    `to_uuid`. Identities and enrollments related to each `from_uuid` will be
-    assigned to `to_uuid`. In addition, each `from_uuid` will be removed
-    from the registry. Duplicated enrollments will be also removed from
-    the registry while overlapped enrollments will be merged.
+    Use this function to join a list of individuals, defined in `from_uuid`
+    by any of their valid identities ids, into `to_uuid` individual.
+    Identities and enrollments related to each `from_uuid` will be assigned
+    to `to_uuid`. In addition, each `from_uuid` will be removed from the
+    registry. Duplicated enrollments will be also removed from the registry
+    while overlapped enrollments will be merged.
 
-    Take into account that individuals are identified by any of
-    UUIDs assigned to their identities.
+    Take into account that individuals are identified by any of the UUIDs
+    assigned to their identities.
 
     This function also merges two or more profiles. When a field on `to_uuid`
     profile is `None` or empty, it will be updated with the value on the
@@ -961,7 +962,7 @@ def merge_identities(ctx, from_uuids, to_uuid):
     if to_uuid == '':
         raise InvalidValueError(msg="'to_uuid' cannot be an empty string")
 
-    trxl = TransactionsLog.open('merge_identities', ctx)
+    trxl = TransactionsLog.open('merge', ctx)
 
     try:
         to_individual = find_individual_by_uuid(to_uuid)
