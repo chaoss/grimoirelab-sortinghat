@@ -228,7 +228,7 @@ class IdentityType(sgqlc.types.Type):
     individual = sgqlc.types.Field(sgqlc.types.non_null('IndividualType'), graphql_name='individual')
 
 
-class LockIdentity(sgqlc.types.Type):
+class Lock(sgqlc.types.Type):
     __schema__ = sh_schema
     __field_names__ = ('uuid', 'individual')
     uuid = sgqlc.types.Field(String, graphql_name='uuid')
@@ -375,7 +375,7 @@ class SortingHatMutation(sgqlc.types.Type):
     __schema__ = sh_schema
     __field_names__ = (
         'add_organization', 'delete_organization', 'add_domain', 'delete_domain', 'add_identity',
-        'delete_identity', 'update_profile', 'move_identity', 'lock_identity', 'unlock_identity',
+        'delete_identity', 'update_profile', 'move_identity', 'lock', 'unlock',
         'merge', 'unmerge_identities', 'enroll', 'withdraw',
         'token_auth', 'verify_token', 'refresh_token'
     )
@@ -428,13 +428,13 @@ class SortingHatMutation(sgqlc.types.Type):
             ('to_uuid', sgqlc.types.Arg(String, graphql_name='toUuid', default=None)),
         ))
     )
-    lock_identity = sgqlc.types.Field(
-        LockIdentity, graphql_name='lockIdentity', args=sgqlc.types.ArgDict((
+    lock = sgqlc.types.Field(
+        Lock, graphql_name='lock', args=sgqlc.types.ArgDict((
             ('uuid', sgqlc.types.Arg(String, graphql_name='uuid', default=None)),
         ))
     )
-    unlock_identity = sgqlc.types.Field(
-        'UnlockIdentity', graphql_name='unlockIdentity', args=sgqlc.types.ArgDict((
+    unlock = sgqlc.types.Field(
+        'Unlock', graphql_name='unlock', args=sgqlc.types.ArgDict((
             ('uuid', sgqlc.types.Arg(String, graphql_name='uuid', default=None)),
         ))
     )
@@ -515,7 +515,7 @@ class IndividualType(sgqlc.types.Type):
     enrollments = sgqlc.types.Field(sgqlc.types.list_of(EnrollmentType), graphql_name='enrollments')
 
 
-class UnlockIdentity(sgqlc.types.Type):
+class Unlock(sgqlc.types.Type):
     __schema__ = sh_schema
     __field_names__ = ('uuid', 'individual')
     uuid = sgqlc.types.Field(String, graphql_name='uuid')

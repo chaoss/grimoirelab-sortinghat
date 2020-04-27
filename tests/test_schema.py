@@ -2699,12 +2699,12 @@ class TestDeleteIdentityMutation(django.test.TestCase):
         self.assertEqual(msg, AUTHENTICATION_ERROR)
 
 
-class TestLockIdentityMutation(django.test.TestCase):
-    """Unit tests for mutation to lock identities"""
+class TestLockMutation(django.test.TestCase):
+    """Unit tests for mutation to lock individuals"""
 
-    SH_LOCK_IDENTITY = """
-          mutation lockId($uuid: String) {
-            lockIdentity(uuid: $uuid) {
+    SH_LOCK_INDIVIDUAL = """
+          mutation lockIndv($uuid: String) {
+            lock(uuid: $uuid) {
               uuid
               individual {
                 mk
@@ -2736,15 +2736,15 @@ class TestLockIdentityMutation(django.test.TestCase):
         params = {
             'uuid': 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
         }
-        executed = client.execute(self.SH_LOCK_IDENTITY,
+        executed = client.execute(self.SH_LOCK_INDIVIDUAL,
                                   context_value=self.context_value,
                                   variables=params)
 
         # Check results
-        uuid = executed['data']['lockIdentity']['uuid']
+        uuid = executed['data']['lock']['uuid']
         self.assertEqual(uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
-        individual = executed['data']['lockIdentity']['individual']
+        individual = executed['data']['lock']['individual']
         self.assertEqual(individual['mk'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
         self.assertEqual(individual['isLocked'], True)
 
@@ -2758,7 +2758,7 @@ class TestLockIdentityMutation(django.test.TestCase):
         params = {
             'uuid': 'FFFFFFFFFFFFFFF',
         }
-        executed = client.execute(self.SH_LOCK_IDENTITY,
+        executed = client.execute(self.SH_LOCK_INDIVIDUAL,
                                   context_value=self.context_value,
                                   variables=params)
 
@@ -2775,7 +2775,7 @@ class TestLockIdentityMutation(django.test.TestCase):
         params = {
             'uuid': '',
         }
-        executed = client.execute(self.SH_LOCK_IDENTITY,
+        executed = client.execute(self.SH_LOCK_INDIVIDUAL,
                                   context_value=self.context_value,
                                   variables=params)
 
@@ -2795,7 +2795,7 @@ class TestLockIdentityMutation(django.test.TestCase):
         params = {
             'uuid': '1387b129ab751a3657312c09759caa41dfd8d07d',
         }
-        executed = client.execute(self.SH_LOCK_IDENTITY,
+        executed = client.execute(self.SH_LOCK_INDIVIDUAL,
                                   context_value=context_value,
                                   variables=params)
 
@@ -2803,12 +2803,12 @@ class TestLockIdentityMutation(django.test.TestCase):
         self.assertEqual(msg, AUTHENTICATION_ERROR)
 
 
-class TestUnlockIdentityMutation(django.test.TestCase):
-    """Unit tests for mutation to unlock identities"""
+class TestUnlockMutation(django.test.TestCase):
+    """Unit tests for mutation to unlock individuals"""
 
-    SH_UNLOCK_IDENTITY = """
-          mutation unlockId($uuid: String) {
-            unlockIdentity(uuid: $uuid) {
+    SH_UNLOCK_INDIVIDUAL = """
+          mutation unlockIndv($uuid: String) {
+            unlock(uuid: $uuid) {
               uuid
               individual {
                 mk
@@ -2840,15 +2840,15 @@ class TestUnlockIdentityMutation(django.test.TestCase):
         params = {
             'uuid': 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
         }
-        executed = client.execute(self.SH_UNLOCK_IDENTITY,
+        executed = client.execute(self.SH_UNLOCK_INDIVIDUAL,
                                   context_value=self.context_value,
                                   variables=params)
 
         # Check results
-        uuid = executed['data']['unlockIdentity']['uuid']
+        uuid = executed['data']['unlock']['uuid']
         self.assertEqual(uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
-        individual = executed['data']['unlockIdentity']['individual']
+        individual = executed['data']['unlock']['individual']
         self.assertEqual(individual['mk'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
         self.assertEqual(individual['isLocked'], False)
 
@@ -2862,7 +2862,7 @@ class TestUnlockIdentityMutation(django.test.TestCase):
         params = {
             'uuid': 'FFFFFFFFFFFFFFF',
         }
-        executed = client.execute(self.SH_UNLOCK_IDENTITY,
+        executed = client.execute(self.SH_UNLOCK_INDIVIDUAL,
                                   context_value=self.context_value,
                                   variables=params)
 
@@ -2879,7 +2879,7 @@ class TestUnlockIdentityMutation(django.test.TestCase):
         params = {
             'uuid': '',
         }
-        executed = client.execute(self.SH_UNLOCK_IDENTITY,
+        executed = client.execute(self.SH_UNLOCK_INDIVIDUAL,
                                   context_value=self.context_value,
                                   variables=params)
 
@@ -2899,7 +2899,7 @@ class TestUnlockIdentityMutation(django.test.TestCase):
         params = {
             'uuid': 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
         }
-        executed = client.execute(self.SH_UNLOCK_IDENTITY,
+        executed = client.execute(self.SH_UNLOCK_INDIVIDUAL,
                                   context_value=context_value,
                                   variables=params)
 
