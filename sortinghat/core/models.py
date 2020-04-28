@@ -182,7 +182,7 @@ class Individual(EntityBase):
 
 
 class Identity(EntityBase):
-    id = CharField(max_length=MAX_SIZE_CHAR_FIELD, primary_key=True)
+    uuid = CharField(max_length=MAX_SIZE_CHAR_FIELD, primary_key=True)
     name = CharField(max_length=MAX_SIZE_CHAR_FIELD, null=True)
     email = CharField(max_length=MAX_SIZE_CHAR_FIELD, null=True)
     username = CharField(max_length=MAX_SIZE_CHAR_FIELD, null=True)
@@ -195,7 +195,7 @@ class Identity(EntityBase):
         unique_together = ('name', 'email', 'username', 'source', )
 
     def __str__(self):
-        return self.id
+        return self.uuid
 
 
 class Profile(EntityBase):

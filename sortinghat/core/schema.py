@@ -324,11 +324,10 @@ class AddIdentity(graphene.Mutation):
                                 email=email,
                                 username=username,
                                 uuid=uuid)
-        id_ = identity.id
         individual = identity.individual
 
         return AddIdentity(
-            uuid=id_,
+            uuid=identity.uuid,
             individual=individual
         )
 
@@ -417,18 +416,18 @@ class UpdateProfile(graphene.Mutation):
 
 class MoveIdentity(graphene.Mutation):
     class Arguments:
-        from_id = graphene.String()
+        from_uuid = graphene.String()
         to_uuid = graphene.String()
 
     uuid = graphene.Field(lambda: graphene.String)
     individual = graphene.Field(lambda: IndividualType)
 
     @check_auth
-    def mutate(self, info, from_id, to_uuid):
+    def mutate(self, info, from_uuid, to_uuid):
         user = info.context.user
         ctx = SortingHatContext(user)
 
-        individual = move_identity(ctx, from_id, to_uuid)
+        individual = move_identity(ctx, from_uuid, to_uuid)
 
         return MoveIdentity(
             uuid=individual.mk,

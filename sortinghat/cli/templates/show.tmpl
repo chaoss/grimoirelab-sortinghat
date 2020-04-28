@@ -11,8 +11,8 @@ Profile:
 
 {% if indv.identities %}
 Identities:
-{% for identity in indv.identities | sort(attribute='id') %}
-  {{ identity.id }}	{{ identity.name|d('-', true) }}	{{ identity.email|d('-', true) }}	{{ identity.username|d('-', true) }}	{{ identity.source }}
+{% for identity in indv.identities | sort(attribute='uuid') %}
+  {{ identity.uuid }}	{{ identity.name|d('-', true) }}	{{ identity.email|d('-', true) }}	{{ identity.username|d('-', true) }}	{{ identity.source }}
 {% endfor %}
 {% else %}
 No identities

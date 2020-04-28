@@ -65,9 +65,9 @@ TOP_DOMAIN_VALUE_ERROR = "'is_top_domain' must have a boolean value"
 MK_NONE_ERROR = "'mk' cannot be None"
 MK_EMPTY_ERROR = "'mk' cannot be an empty string"
 MK_WHITESPACES_ERROR = "'mk' cannot be composed by whitespaces only"
-IDENTITY_ID_NONE_ERROR = "'identity_id' cannot be None"
-IDENTITY_ID_EMPTY_ERROR = "'identity_id' cannot be an empty string"
-IDENTITY_ID_WHITESPACES_ERROR = "'identity_id' cannot be composed by whitespaces only"
+UUID_NONE_ERROR = "'uuid' cannot be None"
+UUID_EMPTY_ERROR = "'uuid' cannot be an empty string"
+UUID_WHITESPACES_ERROR = "'uuid' cannot be composed by whitespaces only"
 SOURCE_NONE_ERROR = "'source' cannot be None"
 SOURCE_EMPTY_ERROR = "'source' cannot be an empty string"
 SOURCE_WHITESPACES_ERROR = "'source' cannot be composed by whitespaces only"
@@ -134,8 +134,8 @@ class TestFindIndividualbyUUID(TestCase):
         mk = 'abcdefghijklmnopqrstuvwxyz'
         uuid = '1234567890'
         individual = Individual.objects.create(mk=mk)
-        Identity.objects.create(id=mk, source='scm', individual=individual)
-        Identity.objects.create(id=uuid, source='mls', individual=individual)
+        Identity.objects.create(uuid=mk, source='scm', individual=individual)
+        Identity.objects.create(uuid=uuid, source='mls', individual=individual)
 
         individual = db.find_individual_by_uuid(uuid)
         self.assertIsInstance(individual, Individual)
@@ -147,8 +147,8 @@ class TestFindIndividualbyUUID(TestCase):
         mk = 'abcdefghijklmnopqrstuvwxyz'
         uuid = '1234567890'
         individual = Individual.objects.create(mk=mk)
-        Identity.objects.create(id=mk, source='scm', individual=individual)
-        Identity.objects.create(id=uuid, source='mls', individual=individual)
+        Identity.objects.create(uuid=mk, source='scm', individual=individual)
+        Identity.objects.create(uuid=uuid, source='mls', individual=individual)
 
         with self.assertRaisesRegex(NotFoundError, INDIVIDUAL_NOT_FOUND_ERROR):
             db.find_individual_by_uuid('zyxwuv')
@@ -162,18 +162,18 @@ class TestFindIdentity(TestCase):
 
         mk = 'abcdefghijklmnopqrstuvwxyz'
         individual = Individual.objects.create(mk=mk)
-        Identity.objects.create(id=mk, source='scm', individual=individual)
+        Identity.objects.create(uuid=mk, source='scm', individual=individual)
 
         identity = db.find_identity(mk)
         self.assertIsInstance(identity, Identity)
-        self.assertEqual(identity.id, mk)
+        self.assertEqual(identity.uuid, mk)
 
     def test_identity_not_found(self):
         """Test whether it raises an exception when the identity is not found"""
 
         mk = 'abcdefghijklmnopqrstuvwxyz'
         individual = Individual.objects.create(mk=mk)
-        Identity.objects.create(id=mk, source='scm', individual=individual)
+        Identity.objects.create(uuid=mk, source='scm', individual=individual)
 
         with self.assertRaisesRegex(NotFoundError, IDENTITY_NOT_FOUND_ERROR):
             db.find_identity('zyxwuv')
@@ -933,11 +933,11 @@ class TestDeleteIndividual(TestCase):
         Profile.objects.create(name='John Smith',
                                email='jsmith@example.net',
                                individual=jsmith)
-        Identity.objects.create(id='0001', name='John Smith',
+        Identity.objects.create(uuid='0001', name='John Smith',
                                 individual=jsmith)
-        Identity.objects.create(id='0002', email='jsmith@example.net',
+        Identity.objects.create(uuid='0002', email='jsmith@example.net',
                                 individual=jsmith)
-        Identity.objects.create(id='0003', email='jsmith@example.org',
+        Identity.objects.create(uuid='0003', email='jsmith@example.org',
                                 individual=jsmith)
         Enrollment.objects.create(individual=jsmith, organization=org_ex)
 
@@ -945,7 +945,7 @@ class TestDeleteIndividual(TestCase):
         Profile.objects.create(name='John Doe',
                                email='jdoe@bitergia.com',
                                individual=jdoe)
-        Identity.objects.create(id='0004', name='John Doe',
+        Identity.objects.create(uuid='0004', name='John Doe',
                                 email='jdoe@bitergia.com',
                                 individual=jdoe)
         Enrollment.objects.create(individual=jdoe, organization=org_ex)
@@ -1052,7 +1052,7 @@ class TestAddIdentity(TestCase):
                                    username='jsmith')
 
         self.assertIsInstance(identity, Identity)
-        self.assertEqual(identity.id, mk)
+        self.assertEqual(identity.uuid, mk)
         self.assertEqual(identity.individual, individual)
 
         individual = Individual.objects.get(mk=mk)
@@ -1063,7 +1063,7 @@ class TestAddIdentity(TestCase):
 
         identity = identities[0]
         self.assertIsInstance(identity, Identity)
-        self.assertEqual(identity.id, mk)
+        self.assertEqual(identity.uuid, mk)
         self.assertEqual(identity.individual.mk, mk)
         self.assertEqual(identity.source, 'scm')
         self.assertEqual(identity.name, 'John Smith')
@@ -1093,7 +1093,7 @@ class TestAddIdentity(TestCase):
 
         identity = identities[0]
         self.assertIsInstance(identity, Identity)
-        self.assertEqual(identity.id, 'AAAA')
+        self.assertEqual(identity.uuid, 'AAAA')
         self.assertEqual(identity.individual.mk, 'AAAA')
         self.assertEqual(identity.source, 'scm')
         self.assertEqual(identity.name, 'John Smith')
@@ -1102,7 +1102,7 @@ class TestAddIdentity(TestCase):
 
         identity = identities[1]
         self.assertIsInstance(identity, Identity)
-        self.assertEqual(identity.id, 'BBBB')
+        self.assertEqual(identity.uuid, 'BBBB')
         self.assertEqual(identity.individual.mk, 'AAAA')
         self.assertEqual(identity.source, 'its')
         self.assertEqual(identity.name, None)
@@ -1111,7 +1111,7 @@ class TestAddIdentity(TestCase):
 
         identity = identities[2]
         self.assertIsInstance(identity, Identity)
-        self.assertEqual(identity.id, 'CCCC')
+        self.assertEqual(identity.uuid, 'CCCC')
         self.assertEqual(identity.individual.mk, 'AAAA')
         self.assertEqual(identity.source, 'mls')
         self.assertEqual(identity.name, None)
@@ -1133,7 +1133,7 @@ class TestAddIdentity(TestCase):
 
         # Tests
         individual = Individual.objects.get(mk=mk)
-        identity = Identity.objects.get(id=mk)
+        identity = Identity.objects.get(uuid=mk)
 
         self.assertLessEqual(before_dt, individual.last_modified)
         self.assertGreaterEqual(after_dt, individual.last_modified)
@@ -1146,7 +1146,7 @@ class TestAddIdentity(TestCase):
 
         individual = Individual.objects.create(mk='1234567890ABCDFE')
 
-        with self.assertRaisesRegex(ValueError, IDENTITY_ID_NONE_ERROR):
+        with self.assertRaisesRegex(ValueError, UUID_NONE_ERROR):
             db.add_identity(self.trxl, individual, None, 'scm')
 
         # Check if operations have not been generated after the failure
@@ -1158,7 +1158,7 @@ class TestAddIdentity(TestCase):
 
         individual = Individual.objects.create(mk='1234567890ABCDFE')
 
-        with self.assertRaisesRegex(ValueError, IDENTITY_ID_EMPTY_ERROR):
+        with self.assertRaisesRegex(ValueError, UUID_EMPTY_ERROR):
             db.add_identity(self.trxl, individual, '', 'scm')
 
         # Check if operations have not been generated after the failure
@@ -1170,13 +1170,13 @@ class TestAddIdentity(TestCase):
 
         individual = Individual.objects.create(mk='1234567890ABCDFE')
 
-        with self.assertRaisesRegex(ValueError, IDENTITY_ID_WHITESPACES_ERROR):
+        with self.assertRaisesRegex(ValueError, UUID_WHITESPACES_ERROR):
             db.add_identity(self.trxl, individual, '    ', 'scm')
 
-        with self.assertRaisesRegex(ValueError, IDENTITY_ID_WHITESPACES_ERROR):
+        with self.assertRaisesRegex(ValueError, UUID_WHITESPACES_ERROR):
             db.add_identity(self.trxl, individual, '\t', 'scm')
 
-        with self.assertRaisesRegex(ValueError, IDENTITY_ID_WHITESPACES_ERROR):
+        with self.assertRaisesRegex(ValueError, UUID_WHITESPACES_ERROR):
             db.add_identity(self.trxl, individual, '  \t', 'scm')
 
         # Check if operations have not been generated after the failure
@@ -1357,7 +1357,7 @@ class TestAddIdentity(TestCase):
         op1_args = json.loads(op1.args)
         self.assertEqual(len(op1_args), 6)
         self.assertEqual(op1_args['individual'], identity.individual.mk)
-        self.assertEqual(op1_args['identity_id'], identity.id)
+        self.assertEqual(op1_args['uuid'], identity.uuid)
         self.assertEqual(op1_args['source'], identity.source)
         self.assertEqual(op1_args['name'], identity.name)
         self.assertEqual(op1_args['email'], identity.email)
@@ -1379,23 +1379,23 @@ class TestDeleteIdentity(TestCase):
         """Check whether it deletes an identity"""
 
         jsmith = Individual.objects.create(mk='AAAA')
-        Identity.objects.create(id='0001', name='John Smith',
+        Identity.objects.create(uuid='0001', name='John Smith',
                                 individual=jsmith)
-        Identity.objects.create(id='0002', email='jsmith@example.net',
+        Identity.objects.create(uuid='0002', email='jsmith@example.net',
                                 individual=jsmith)
-        Identity.objects.create(id='0003', email='jsmith@example.org',
+        Identity.objects.create(uuid='0003', email='jsmith@example.org',
                                 individual=jsmith)
 
         # Check data and remove identity
         jsmith.refresh_from_db()
         self.assertEqual(len(jsmith.identities.all()), 3)
 
-        identity = Identity.objects.get(id='0002')
+        identity = Identity.objects.get(uuid='0002')
         db.delete_identity(self.trxl, identity)
 
         # Tests
         with self.assertRaises(ObjectDoesNotExist):
-            Identity.objects.get(id='0002')
+            Identity.objects.get(uuid='0002')
 
         jsmith.refresh_from_db()
         self.assertEqual(len(jsmith.identities.all()), 2)
@@ -1404,15 +1404,15 @@ class TestDeleteIdentity(TestCase):
         """Check if last modification date is updated"""
 
         jsmith = Individual.objects.create(mk='AAAA')
-        Identity.objects.create(id='0001', name='John Smith',
+        Identity.objects.create(uuid='0001', name='John Smith',
                                 individual=jsmith)
-        Identity.objects.create(id='0002', email='jsmith@example.net',
+        Identity.objects.create(uuid='0002', email='jsmith@example.net',
                                 individual=jsmith)
-        Identity.objects.create(id='0003', email='jsmith@example.org',
+        Identity.objects.create(uuid='0003', email='jsmith@example.org',
                                 individual=jsmith)
 
         before_dt = datetime_utcnow()
-        identity = Identity.objects.get(id='0001')
+        identity = Identity.objects.get(uuid='0001')
         db.delete_identity(self.trxl, identity)
         after_dt = datetime_utcnow()
 
@@ -1422,7 +1422,7 @@ class TestDeleteIdentity(TestCase):
         self.assertLessEqual(before_dt, individual.last_modified)
         self.assertGreaterEqual(after_dt, individual.last_modified)
 
-        identity = Identity.objects.get(id='0002')
+        identity = Identity.objects.get(uuid='0002')
         self.assertLessEqual(identity.last_modified, before_dt)
         self.assertLessEqual(identity.last_modified, after_dt)
 
@@ -1441,16 +1441,16 @@ class TestDeleteIdentity(TestCase):
         # Set the initial dataset
         timestamp = datetime_utcnow()
         jsmith = Individual.objects.create(mk='AAAA')
-        Identity.objects.create(id='0001', name='John Smith',
+        Identity.objects.create(uuid='0001', name='John Smith',
                                 individual=jsmith)
-        Identity.objects.create(id='0002', email='jsmith@example.net',
+        Identity.objects.create(uuid='0002', email='jsmith@example.net',
                                 individual=jsmith)
-        Identity.objects.create(id='0003', email='jsmith@example.org',
+        Identity.objects.create(uuid='0003', email='jsmith@example.org',
                                 individual=jsmith)
         jsmith.refresh_from_db()
 
         # Get the identity and delete it
-        identity = Identity.objects.get(id='0002')
+        identity = Identity.objects.get(uuid='0002')
         db.delete_identity(self.trxl, identity)
 
         transactions = Transaction.objects.filter(name='delete_identity')
@@ -1961,7 +1961,7 @@ class TestDeleteEnrollment(TestCase):
         to_date = datetime.datetime(2010, 1, 1, tzinfo=UTC)
 
         jsmith = Individual.objects.create(mk='AAAA')
-        Identity.objects.create(id='0001', name='John Smith',
+        Identity.objects.create(uuid='0001', name='John Smith',
                                 individual=jsmith)
 
         example_org = Organization.objects.create(name='Example')
@@ -2000,7 +2000,7 @@ class TestDeleteEnrollment(TestCase):
         to_date = datetime.datetime(2000, 1, 1, tzinfo=UTC)
 
         jsmith = Individual.objects.create(mk='AAAA')
-        Identity.objects.create(id='0001', name='John Smith',
+        Identity.objects.create(uuid='0001', name='John Smith',
                                 individual=jsmith)
 
         example_org = Organization.objects.create(name='Example')
@@ -2048,7 +2048,7 @@ class TestDeleteEnrollment(TestCase):
         to_date = datetime.datetime(2010, 1, 1, tzinfo=UTC)
 
         jsmith = Individual.objects.create(mk='AAAA')
-        Identity.objects.create(id='0001', name='John Smith',
+        Identity.objects.create(uuid='0001', name='John Smith',
                                 individual=jsmith)
 
         example_org = Organization.objects.create(name='Example')
@@ -2104,7 +2104,7 @@ class TestMoveIdentity(TestCase):
         from_indv = Individual.objects.create(mk='AAAA')
         to_indv = Individual.objects.create(mk='BBBB')
 
-        identity = Identity.objects.create(id='0001', name='John Smith',
+        identity = Identity.objects.create(uuid='0001', name='John Smith',
                                            individual=from_indv)
 
         # Move identity and check results
@@ -2117,7 +2117,7 @@ class TestMoveIdentity(TestCase):
         self.assertEqual(len(identities), 1)
 
         identity = identities[0]
-        self.assertEqual(identity.id, '0001')
+        self.assertEqual(identity.uuid, '0001')
         self.assertEqual(identity.name, 'John Smith')
 
         # Check if the database stored those changes
@@ -2129,7 +2129,7 @@ class TestMoveIdentity(TestCase):
         self.assertEqual(len(identities), 1)
 
         identity = identities[0]
-        self.assertEqual(identity.id, '0001')
+        self.assertEqual(identity.uuid, '0001')
         self.assertEqual(identity.name, 'John Smith')
 
     def test_last_modified(self):
@@ -2138,7 +2138,7 @@ class TestMoveIdentity(TestCase):
         from_indv = Individual.objects.create(mk='AAAA')
         to_indv = Individual.objects.create(mk='BBBB')
 
-        identity = Identity.objects.create(id='0001', name='John Smith',
+        identity = Identity.objects.create(uuid='0001', name='John Smith',
                                            individual=from_indv)
 
         # Move identity and check results
@@ -2155,7 +2155,7 @@ class TestMoveIdentity(TestCase):
         self.assertLessEqual(before_dt, individual.last_modified)
         self.assertGreaterEqual(after_dt, individual.last_modified)
 
-        identity = Identity.objects.get(id='0001')
+        identity = Identity.objects.get(uuid='0001')
         self.assertLessEqual(before_dt, identity.last_modified)
         self.assertGreaterEqual(after_dt, identity.last_modified)
 
@@ -2163,7 +2163,7 @@ class TestMoveIdentity(TestCase):
         """Test that all remains the same when individual is the individual related to identity'"""
 
         from_indv = Individual.objects.create(mk='AAAA')
-        identity = Identity.objects.create(id='0001', name='John Smith',
+        identity = Identity.objects.create(uuid='0001', name='John Smith',
                                            individual=from_indv)
         # Move identity and check results
         with self.assertRaisesRegex(ValueError, MOVE_ERROR):
@@ -2178,8 +2178,8 @@ class TestMoveIdentity(TestCase):
         indv1 = Individual.objects.create(mk='AAAA')
         indv2 = Individual.objects.create(mk='BBBB', is_locked=True)
 
-        id1 = Identity.objects.create(id='0001', name='John Smith', individual=indv1)
-        id2 = Identity.objects.create(id='0002', name='John Smith', individual=indv2)
+        id1 = Identity.objects.create(uuid='0001', name='John Smith', individual=indv1)
+        id2 = Identity.objects.create(uuid='0002', name='John Smith', individual=indv2)
 
         msg = INDIVIDUAL_LOCKED_ERROR.format(mk='BBBB')
         with self.assertRaisesRegex(LockedIdentityError, msg):
@@ -2196,7 +2196,7 @@ class TestMoveIdentity(TestCase):
         from_indv = Individual.objects.create(mk='AAAA')
         to_indv = Individual.objects.create(mk='BBBB')
 
-        identity = Identity.objects.create(id='0001', name='John Smith',
+        identity = Identity.objects.create(uuid='0001', name='John Smith',
                                            individual=from_indv)
 
         # Move identity

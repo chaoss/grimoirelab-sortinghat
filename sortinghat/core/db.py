@@ -99,7 +99,7 @@ def find_individual_by_uuid(uuid):
     """
     try:
         individual = Individual.objects.filter(
-            Q(mk=uuid) | Q(identities__id=uuid)
+            Q(mk=uuid) | Q(identities__uuid=uuid)
         )[0]
     except IndexError:
         raise NotFoundError(entity=uuid)
@@ -122,7 +122,7 @@ def find_identity(uuid):
         given `uuid` does not exists.
     """
     try:
-        identity = Identity.objects.get(id=uuid)
+        identity = Identity.objects.get(uuid=uuid)
     except Identity.DoesNotExist:
         raise NotFoundError(entity=uuid)
     else:
@@ -410,15 +410,15 @@ def delete_individual(trxl, individual):
                        target=op_args['individual'])
 
 
-def add_identity(trxl, individual, identity_id, source,
+def add_identity(trxl, individual, uuid, source,
                  name=None, email=None, username=None):
     """Add an identity to the database.
 
     This function adds a new identity to the database using
-    `identity_id` as its identifier. The new identity will
+    `uuid` as its identifier. The new identity will
     also be linked to the individual object of `individual`.
 
-    Neither the values given to `identity_id` nor to `source` can
+    Neither the values given to `uuid` nor to `source` can
     be `None` or empty. Moreover, `name`, `email` or `username`
     parameters need a non empty value.
 
@@ -426,7 +426,7 @@ def add_identity(trxl, individual, identity_id, source,
 
     :param trxl: TransactionsLog object from the method calling this one
     :param individual: links the new identity to this individual object
-    :param identity_id: identifier for the new identity
+    :param uuid: identifier for the new identity
     :param source: data source where this identity was found
     :param name: full name of the identity
     :param email: email of the identity
@@ -434,13 +434,13 @@ def add_identity(trxl, individual, identity_id, source,
 
     :returns: a new identity
 
-    :raises ValueError: when `identity_id` and `source` are `None` or empty;
+    :raises ValueError: when `uuid` and `source` are `None` or empty;
         when all of the data parameters are `None` or empty.
     """
     # Setting operation arguments before they are modified
     op_args = {
         'individual': individual.mk,
-        'identity_id': identity_id,
+        'uuid': uuid,
         'source': source,
         'name': name,
         'email': email,
@@ -450,7 +450,7 @@ def add_identity(trxl, individual, identity_id, source,
     if individual.is_locked:
         raise LockedIdentityError(uuid=individual.mk)
 
-    validate_field('identity_id', identity_id)
+    validate_field('uuid', uuid)
     validate_field('source', source)
     validate_field('name', name, allow_none=True)
     validate_field('email', email, allow_none=True)
@@ -460,7 +460,7 @@ def add_identity(trxl, individual, identity_id, source,
         raise ValueError("identity data cannot be None or empty")
 
     try:
-        identity = Identity(id=identity_id, name=name, email=email,
+        identity = Identity(uuid=uuid, name=name, email=email,
                             username=username, source=source,
                             individual=individual)
         identity.save(force_insert=True)
@@ -487,7 +487,7 @@ def delete_identity(trxl, identity):
     """
     # Setting operation arguments before they are modified
     op_args = {
-        'identity': identity.id
+        'identity': identity.uuid
     }
 
     if identity.individual.is_locked:
@@ -714,7 +714,7 @@ def move_identity(trxl, identity, individual):
     """
     # Setting operation arguments before they are modified
     op_args = {
-        'identity': identity.id,
+        'identity': identity.uuid,
         'individual': individual.mk
     }
 
@@ -723,7 +723,7 @@ def move_identity(trxl, identity, individual):
     if individual.is_locked:
         raise LockedIdentityError(uuid=individual.mk)
     if identity.individual == individual:
-        msg = "identity '{}' is already assigned to '{}'".format(identity.id, individual.mk)
+        msg = "identity '{}' is already assigned to '{}'".format(identity.uuid, individual.mk)
         raise ValueError(msg)
 
     old_individual = identity.individual

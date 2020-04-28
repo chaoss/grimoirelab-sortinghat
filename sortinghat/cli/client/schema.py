@@ -217,10 +217,10 @@ class IdentityPaginatedType(sgqlc.types.Type):
 
 class IdentityType(sgqlc.types.Type):
     __schema__ = sh_schema
-    __field_names__ = ('created_at', 'last_modified', 'id', 'name', 'email', 'username', 'source', 'individual')
+    __field_names__ = ('created_at', 'last_modified', 'uuid', 'name', 'email', 'username', 'source', 'individual')
     created_at = sgqlc.types.Field(sgqlc.types.non_null(DateTime), graphql_name='createdAt')
     last_modified = sgqlc.types.Field(sgqlc.types.non_null(DateTime), graphql_name='lastModified')
-    id = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='id')
+    uuid = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='uuid')
     name = sgqlc.types.Field(String, graphql_name='name')
     email = sgqlc.types.Field(String, graphql_name='email')
     username = sgqlc.types.Field(String, graphql_name='username')
@@ -424,7 +424,7 @@ class SortingHatMutation(sgqlc.types.Type):
     )
     move_identity = sgqlc.types.Field(
         MoveIdentity, graphql_name='moveIdentity', args=sgqlc.types.ArgDict((
-            ('from_id', sgqlc.types.Arg(String, graphql_name='fromId', default=None)),
+            ('from_uuid', sgqlc.types.Arg(String, graphql_name='fromUuid', default=None)),
             ('to_uuid', sgqlc.types.Arg(String, graphql_name='toUuid', default=None)),
         ))
     )

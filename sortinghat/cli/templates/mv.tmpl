@@ -1,5 +1,5 @@
-{% if from_id != to_uuid %}
-Identity {{ from_id }} moved to individual {{ to_uuid }}
+{% if from_uuid != to_uuid %}
+Identity {{ from_uuid }} moved to individual {{ to_uuid }}
 {%- else %}
-New individual {{ from_id }} created; identity moved
+New individual {{ from_uuid }} created; identity moved
 {%- endif %}

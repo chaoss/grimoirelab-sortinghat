@@ -93,7 +93,7 @@ def _generate_individuals_operation(page, uuid):
                                     'gender', 'is_bot')
     individual.profile().country().__fields__('code', 'name')
 
-    individual.identities().__fields__('id', 'email', 'name', 'username', 'source')
+    individual.identities().__fields__('uuid', 'email', 'name', 'username', 'source')
     individual.enrollments().__fields__('start', 'end')
     individual.enrollments().organization().name()
 
