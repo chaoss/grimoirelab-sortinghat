@@ -43,7 +43,7 @@ from .api import (add_identity,
                   move_identity,
                   lock,
                   unlock,
-                  merge_identities,
+                  merge,
                   unmerge_identities,
                   add_organization,
                   add_domain,
@@ -353,7 +353,7 @@ class DeleteIdentity(graphene.Mutation):
         )
 
 
-class LockIdentity(graphene.Mutation):
+class Lock(graphene.Mutation):
     class Arguments:
         uuid = graphene.String()
 
@@ -367,13 +367,13 @@ class LockIdentity(graphene.Mutation):
 
         individual = lock(ctx, uuid)
 
-        return LockIdentity(
+        return Lock(
             uuid=uuid,
             individual=individual
         )
 
 
-class UnlockIdentity(graphene.Mutation):
+class Unlock(graphene.Mutation):
     class Arguments:
         uuid = graphene.String()
 
@@ -387,7 +387,7 @@ class UnlockIdentity(graphene.Mutation):
 
         individual = unlock(ctx, uuid)
 
-        return UnlockIdentity(
+        return Unlock(
             uuid=uuid,
             individual=individual
         )
@@ -435,7 +435,7 @@ class MoveIdentity(graphene.Mutation):
         )
 
 
-class MergeIdentities(graphene.Mutation):
+class Merge(graphene.Mutation):
     class Arguments:
         from_uuids = graphene.List(graphene.String)
         to_uuid = graphene.String()
@@ -448,9 +448,9 @@ class MergeIdentities(graphene.Mutation):
         user = info.context.user
         ctx = SortingHatContext(user)
 
-        individual = merge_identities(ctx, from_uuids, to_uuid)
+        individual = merge(ctx, from_uuids, to_uuid)
 
-        return MergeIdentities(
+        return Merge(
             uuid=individual.mk,
             individual=individual
         )
@@ -663,9 +663,9 @@ class SortingHatMutation(graphene.ObjectType):
     delete_identity = DeleteIdentity.Field()
     update_profile = UpdateProfile.Field()
     move_identity = MoveIdentity.Field()
-    lock_identity = LockIdentity.Field()
-    unlock_identity = UnlockIdentity.Field()
-    merge_identities = MergeIdentities.Field()
+    lock = Lock.Field()
+    unlock = Unlock.Field()
+    merge = Merge.Field()
     unmerge_identities = UnmergeIdentities.Field()
     enroll = Enroll.Field()
     withdraw = Withdraw.Field()

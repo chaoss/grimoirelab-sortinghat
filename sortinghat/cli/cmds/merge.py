@@ -57,19 +57,19 @@ def merge(ctx, to_uuid, from_uuid, **extra):
     FROM_UUID: individual to merge
     """
     with connect(ctx.obj) as conn:
-        _merge_identities(conn, from_uuids=list(from_uuid),
-                          to_uuid=to_uuid)
+        _merge_individuals(conn, from_uuids=list(from_uuid),
+                           to_uuid=to_uuid)
 
 
-def _merge_identities(conn, **kwargs):
-    """Run a server operation to merge identities."""
+def _merge_individuals(conn, **kwargs):
+    """Run a server operation to merge individuals."""
 
     args = {k: v for k, v in kwargs.items() if v is not None}
 
     op = Operation(SortingHatSchema.SortingHatMutation)
-    op.merge_identities(**args)
-    op.merge_identities.uuid()
+    op.merge(**args)
+    op.merge.uuid()
 
     result = conn.execute(op)
 
-    return result['data']['mergeIdentities']['uuid']
+    return result['data']['merge']['uuid']

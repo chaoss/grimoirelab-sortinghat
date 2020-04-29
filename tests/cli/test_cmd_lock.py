@@ -29,13 +29,13 @@ from sortinghat.cli.cmds.lock import add, rm
 
 
 LOCK_ADD_CMD_OP = """mutation {{
-  lockIdentity(uuid: "{}") {{
+  lock(uuid: "{}") {{
     uuid
   }}
 }}"""
 
 LOCK_RM_CMD_OP = """mutation {{
-  unlockIdentity(uuid: "{}") {{
+  unlock(uuid: "{}") {{
     uuid
   }}
 }}"""
@@ -81,7 +81,7 @@ class TestLockAddCommand(unittest.TestCase):
         """Check if it adds a lock to an individual"""
 
         responses = [
-            {'data': {'lockIdentity': {'uuid': '322397ed782a798ffd9d0bc7e293df4292fe075d'}}}
+            {'data': {'lock': {'uuid': '322397ed782a798ffd9d0bc7e293df4292fe075d'}}}
         ]
         mock_client = MockClient(responses)
 
@@ -139,7 +139,7 @@ class TestLockRmCommand(unittest.TestCase):
         """Check if it removes a lock from an individual"""
 
         responses = [
-            {'data': {'unlockIdentity': {'uuid': '322397ed782a798ffd9d0bc7e293df4292fe075d'}}}
+            {'data': {'unlock': {'uuid': '322397ed782a798ffd9d0bc7e293df4292fe075d'}}}
         ]
         mock_client = MockClient(responses)
 

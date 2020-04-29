@@ -30,7 +30,7 @@ from sortinghat.cli.cmds.merge import merge
 
 
 MERGE_CMD_OP = """mutation {{
-  mergeIdentities(fromUuids: [{}], toUuid: "{}") {{
+  merge(fromUuids: [{}], toUuid: "{}") {{
     uuid
   }}
 }}"""
@@ -71,7 +71,7 @@ class TestMergeCommand(unittest.TestCase):
         """Check if it merges a set of individuals"""
 
         responses = [
-            {'data': {'mergeIdentities': {'uuid': 'eda9f62ad321b1fbe5f283cc05e2484516203117'}}}
+            {'data': {'merge': {'uuid': 'eda9f62ad321b1fbe5f283cc05e2484516203117'}}}
         ]
         client = MockClient(responses)
         mock_client.return_value = client

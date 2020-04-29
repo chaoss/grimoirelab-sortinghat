@@ -63,12 +63,12 @@ def _lock_identity(conn, **kwargs):
     args = {k: v for k, v in kwargs.items() if v is not None}
 
     op = Operation(SortingHatSchema.SortingHatMutation)
-    op.lock_identity(**args)
-    op.lock_identity.uuid()
+    op.lock(**args)
+    op.lock.uuid()
 
     result = conn.execute(op)
 
-    return result['data']['lockIdentity']['uuid']
+    return result['data']['lock']['uuid']
 
 
 @lock.command()
@@ -85,19 +85,19 @@ def rm(client, uuid):
     UUID: identifier of the individual which will be unlocked
     """
     with connect(client) as conn:
-        _unlock_identity(conn, uuid=uuid)
+        _unlock_individual(conn, uuid=uuid)
         display('lock.tmpl', uuid=uuid, unlocked=True)
 
 
-def _unlock_identity(conn, **kwargs):
+def _unlock_individual(conn, **kwargs):
     """Run a server operation to unlock an individual."""
 
     args = {k: v for k, v in kwargs.items() if v is not None}
 
     op = Operation(SortingHatSchema.SortingHatMutation)
-    op.unlock_identity(**args)
-    op.unlock_identity.uuid()
+    op.unlock(**args)
+    op.unlock.uuid()
 
     result = conn.execute(op)
 
-    return result['data']['unlockIdentity']['uuid']
+    return result['data']['unlock']['uuid']

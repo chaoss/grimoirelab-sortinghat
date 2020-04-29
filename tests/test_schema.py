@@ -2699,12 +2699,12 @@ class TestDeleteIdentityMutation(django.test.TestCase):
         self.assertEqual(msg, AUTHENTICATION_ERROR)
 
 
-class TestLockIdentityMutation(django.test.TestCase):
-    """Unit tests for mutation to lock identities"""
+class TestLockMutation(django.test.TestCase):
+    """Unit tests for mutation to lock individuals"""
 
-    SH_LOCK_IDENTITY = """
-          mutation lockId($uuid: String) {
-            lockIdentity(uuid: $uuid) {
+    SH_LOCK_INDIVIDUAL = """
+          mutation lockIndv($uuid: String) {
+            lock(uuid: $uuid) {
               uuid
               individual {
                 mk
@@ -2736,15 +2736,15 @@ class TestLockIdentityMutation(django.test.TestCase):
         params = {
             'uuid': 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
         }
-        executed = client.execute(self.SH_LOCK_IDENTITY,
+        executed = client.execute(self.SH_LOCK_INDIVIDUAL,
                                   context_value=self.context_value,
                                   variables=params)
 
         # Check results
-        uuid = executed['data']['lockIdentity']['uuid']
+        uuid = executed['data']['lock']['uuid']
         self.assertEqual(uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
-        individual = executed['data']['lockIdentity']['individual']
+        individual = executed['data']['lock']['individual']
         self.assertEqual(individual['mk'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
         self.assertEqual(individual['isLocked'], True)
 
@@ -2758,7 +2758,7 @@ class TestLockIdentityMutation(django.test.TestCase):
         params = {
             'uuid': 'FFFFFFFFFFFFFFF',
         }
-        executed = client.execute(self.SH_LOCK_IDENTITY,
+        executed = client.execute(self.SH_LOCK_INDIVIDUAL,
                                   context_value=self.context_value,
                                   variables=params)
 
@@ -2775,7 +2775,7 @@ class TestLockIdentityMutation(django.test.TestCase):
         params = {
             'uuid': '',
         }
-        executed = client.execute(self.SH_LOCK_IDENTITY,
+        executed = client.execute(self.SH_LOCK_INDIVIDUAL,
                                   context_value=self.context_value,
                                   variables=params)
 
@@ -2795,7 +2795,7 @@ class TestLockIdentityMutation(django.test.TestCase):
         params = {
             'uuid': '1387b129ab751a3657312c09759caa41dfd8d07d',
         }
-        executed = client.execute(self.SH_LOCK_IDENTITY,
+        executed = client.execute(self.SH_LOCK_INDIVIDUAL,
                                   context_value=context_value,
                                   variables=params)
 
@@ -2803,12 +2803,12 @@ class TestLockIdentityMutation(django.test.TestCase):
         self.assertEqual(msg, AUTHENTICATION_ERROR)
 
 
-class TestUnlockIdentityMutation(django.test.TestCase):
-    """Unit tests for mutation to unlock identities"""
+class TestUnlockMutation(django.test.TestCase):
+    """Unit tests for mutation to unlock individuals"""
 
-    SH_UNLOCK_IDENTITY = """
-          mutation unlockId($uuid: String) {
-            unlockIdentity(uuid: $uuid) {
+    SH_UNLOCK_INDIVIDUAL = """
+          mutation unlockIndv($uuid: String) {
+            unlock(uuid: $uuid) {
               uuid
               individual {
                 mk
@@ -2840,15 +2840,15 @@ class TestUnlockIdentityMutation(django.test.TestCase):
         params = {
             'uuid': 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
         }
-        executed = client.execute(self.SH_UNLOCK_IDENTITY,
+        executed = client.execute(self.SH_UNLOCK_INDIVIDUAL,
                                   context_value=self.context_value,
                                   variables=params)
 
         # Check results
-        uuid = executed['data']['unlockIdentity']['uuid']
+        uuid = executed['data']['unlock']['uuid']
         self.assertEqual(uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
-        individual = executed['data']['unlockIdentity']['individual']
+        individual = executed['data']['unlock']['individual']
         self.assertEqual(individual['mk'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
         self.assertEqual(individual['isLocked'], False)
 
@@ -2862,7 +2862,7 @@ class TestUnlockIdentityMutation(django.test.TestCase):
         params = {
             'uuid': 'FFFFFFFFFFFFFFF',
         }
-        executed = client.execute(self.SH_UNLOCK_IDENTITY,
+        executed = client.execute(self.SH_UNLOCK_INDIVIDUAL,
                                   context_value=self.context_value,
                                   variables=params)
 
@@ -2879,7 +2879,7 @@ class TestUnlockIdentityMutation(django.test.TestCase):
         params = {
             'uuid': '',
         }
-        executed = client.execute(self.SH_UNLOCK_IDENTITY,
+        executed = client.execute(self.SH_UNLOCK_INDIVIDUAL,
                                   context_value=self.context_value,
                                   variables=params)
 
@@ -2899,7 +2899,7 @@ class TestUnlockIdentityMutation(django.test.TestCase):
         params = {
             'uuid': 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
         }
-        executed = client.execute(self.SH_UNLOCK_IDENTITY,
+        executed = client.execute(self.SH_UNLOCK_INDIVIDUAL,
                                   context_value=context_value,
                                   variables=params)
 
@@ -4029,12 +4029,12 @@ class TestWithdrawMutation(django.test.TestCase):
         self.assertEqual(msg, AUTHENTICATION_ERROR)
 
 
-class TestMergeIdentitiesMutation(django.test.TestCase):
+class TestMergeMutation(django.test.TestCase):
     """Unit tests for mutation to merge individuals"""
 
     SH_MERGE = """
           mutation mergeIds($fromUuids: [String], $toUuid: String) {
-            mergeIdentities(fromUuids: $fromUuids, toUuid: $toUuid) {
+            merge(fromUuids: $fromUuids, toUuid: $toUuid) {
               uuid
               individual {
                 mk
@@ -4060,7 +4060,7 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
         self.ctx = SortingHatContext(self.user)
 
         # Transaction
-        self.trxl = TransactionsLog.open('merge_identities', self.ctx)
+        self.trxl = TransactionsLog.open('merge', self.ctx)
 
         db.add_organization(self.trxl, 'Example')
         db.add_organization(self.trxl, 'Bitergia')
@@ -4108,7 +4108,7 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
                            uuid='1c13fec7a328201fc6a230fe43eb81df0e20626e', name='John Smith',
                            email='jsmith@profile-email', is_bot=False, country_code='US')
 
-    def test_merge_identities(self):
+    def test_merge_individuals(self):
         """Check whether it merges two individuals, merging their ids, enrollments and profiles"""
 
         client = graphene.test.Client(schema)
@@ -4123,7 +4123,7 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
                                   variables=params)
 
         # Check results, identities were merged
-        identities = executed['data']['mergeIdentities']['individual']['identities']
+        identities = executed['data']['merge']['individual']['identities']
 
         self.assertEqual(len(identities), 4)
 
@@ -4151,7 +4151,7 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(identity['email'], 'jsmith@example')
         self.assertEqual(identity['source'], 'scm')
 
-        uuid = executed['data']['mergeIdentities']['uuid']
+        uuid = executed['data']['merge']['uuid']
         self.assertEqual(uuid, 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
 
         # Check database objects
@@ -4208,7 +4208,7 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(rol2.start, datetime.datetime(2017, 6, 2, tzinfo=UTC))
         self.assertEqual(rol2.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
 
-    def test_merge_multiple_identities(self):
+    def test_merge_multiple_individuals(self):
         """Check whether it merges more than two individuals, merging their ids, enrollments and profiles"""
 
         client = graphene.test.Client(schema)
@@ -4224,7 +4224,7 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
                                   variables=params)
 
         # Check results, identities were merged
-        identities = executed['data']['mergeIdentities']['individual']['identities']
+        identities = executed['data']['merge']['individual']['identities']
 
         self.assertEqual(len(identities), 7)
 
@@ -4270,7 +4270,7 @@ class TestMergeIdentitiesMutation(django.test.TestCase):
         self.assertEqual(identity['email'], 'jsmith@example')
         self.assertEqual(identity['source'], 'scm')
 
-        uuid = executed['data']['mergeIdentities']['uuid']
+        uuid = executed['data']['merge']['uuid']
         self.assertEqual(uuid, 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
 
         # Check database objects
