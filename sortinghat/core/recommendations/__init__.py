@@ -19,9 +19,9 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-from .affiliation import recommend_affiliations
+from .engine import RecommendationEngine
 
 
 __all__ = [
-    recommend_affiliations
+    RecommendationEngine
 ]
