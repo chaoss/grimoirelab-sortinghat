@@ -1,6 +1,10 @@
 import sys
 import logging
 
+import django_rq.queues
+
+from fakeredis import FakeRedis, FakeStrictRedis
+
 # Graphene logs SortingHat exceptions and Django pritns them
 # to the standard error output. This code prevents Django
 # kind of errors are not shown.
@@ -63,3 +67,24 @@ GRAPHENE = {
 }
 
 DEFAULT_GRAPHQL_PAGE_SIZE = 10
+
+
+# Configuration to pretend there is a Redis service
+# available. We need to set up the connection before
+# RQ Django reads the settings.
+
+def fake_redis_connection(_, strict):
+    return FakeStrictRedis() if strict else FakeRedis()
+
+
+django_rq.queues.get_redis_connection = fake_redis_connection
+
+
+RQ_QUEUES = {
+    'default': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'ASYNC': False,
+        'DB': 0
+    }
+}
