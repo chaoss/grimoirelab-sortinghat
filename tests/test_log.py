@@ -110,6 +110,18 @@ class TestLogTransaction(TestCase):
         with self.assertRaisesRegex(TypeError, TRANSACTION_CTX_INVALID_ERROR):
             TransactionsLog.open('test', ctx)
 
+    def test_name_job_id(self):
+        """Check if the job id is included in the name when was defined on the context"""
+
+        ctx = SortingHatContext(self.user, '1234-5678-ABCD-90EF')
+
+        trxl = TransactionsLog.open('test', ctx)
+        self.assertIsInstance(trxl, TransactionsLog)
+
+        trx_db = Transaction.objects.get(tuid=trxl.trx.tuid)
+        self.assertIsInstance(trx_db, Transaction)
+        self.assertEqual(trx_db.name, 'test-1234-5678-ABCD-90EF')
+
     def test_context_anonymous_user(self):
         """Check if a new transaction is added when the user is anonymous"""
 

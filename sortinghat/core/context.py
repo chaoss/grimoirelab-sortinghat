@@ -23,4 +23,7 @@
 import collections
 
 
-SortingHatContext = collections.namedtuple('SortingHatContext', ['user'])
+SortingHatContext = collections.namedtuple(
+    'SortingHatContext', ['user', 'job_id']
+)
+SortingHatContext.__new__.__defaults__ = (None, None)
