@@ -20,6 +20,7 @@
 #     Luis Cañas-Díaz <lcanas@bitergia.com>
 #     Miguel Ángel Fernández Sánchez <mafesan@bitergia.com>
 #     Santiago Dueñas <sduenas@bitergia.com>
+#     Quan Zhou <quan@bitergia.com>
 #
 
 import datetime
@@ -339,6 +340,48 @@ class TestGrimoreLabParser(TestBaseCase):
         self.assertEqual(id1.username, None)
         self.assertEqual(id1.source, 'grimoirelab')
         self.assertEqual(id1.uuid, None)
+
+    def test_enrollment_periods_validation(self):
+        """Check whether it raises an error on invalid enrollment periods"""
+
+        stream_ids = self.read_file(datadir('grimoirelab_invalid_enrollment_periods.yml'))
+
+        with self.assertRaisesRegex(InvalidFormatError, '^invalid GrimoireLab enrollment dates. Organization dates overlap.$'):
+            GrimoireLabParser(stream_ids, enrollment_periods_validation=True)
+
+    def test_supress_enrollment_periods_validation(self):
+        """Check whether it ignores invalid enrollment periods"""
+
+        stream_ids = self.read_file(datadir('grimoirelab_invalid_enrollment_periods.yml'))
+        parser = GrimoireLabParser(stream_ids, enrollment_periods_validation=False)
+
+        uids = parser.identities
+        self.assertEqual(len(uids), 2)
+
+        uid = uids[1]
+        self.assertIsInstance(uid, UniqueIdentity)
+        self.assertEqual(uid.profile.name, 'Quan Zhou')
+
+        # This identity has an invalid enrollment periods
+        id1 = uid.identities[1]
+        self.assertIsInstance(id1, Identity)
+        self.assertEqual(id1.name, None)
+        self.assertEqual(id1.email, 'quan@bitergia.com')
+        self.assertEqual(id1.username, None)
+        self.assertEqual(id1.source, 'grimoirelab')
+        self.assertEqual(id1.uuid, None)
+
+        enroll0 = uid.enrollments[0]
+        self.assertEqual(enroll0.organization.name, 'Bitergia')
+        self.assertEqual(enroll0.start, datetime.datetime(2012, 1, 1, 0, 0))
+        self.assertEqual(enroll0.end, datetime.datetime(2100, 1, 1, 0, 0))
+        self.assertEqual(enroll0.uuid, None)
+
+        enroll0 = uid.enrollments[1]
+        self.assertEqual(enroll0.organization.name, 'GrimoireLab')
+        self.assertEqual(enroll0.start, datetime.datetime(1900, 1, 1, 0, 0))
+        self.assertEqual(enroll0.end, datetime.datetime(2013, 1, 1, 0, 0))
+        self.assertEqual(enroll0.uuid, None)
 
     def test_not_valid_organizations_stream(self):
         """Check whether it parses invalid organizations files"""

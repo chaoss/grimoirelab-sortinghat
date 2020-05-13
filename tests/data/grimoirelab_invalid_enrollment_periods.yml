@@ -1,0 +1,22 @@
+- profile:
+    name: J. Manrique Lopez de la Fuente
+  enrollments:
+    - organization: Bitergia
+      start: 2013-01-01
+  github:
+    - jsmanrique
+  email:
+    - jsmanrique@bitergia.com
+
+# this is another entry
+- profile:
+    name: Quan Zhou
+  enrollments:
+    - organization: Bitergia
+      start: 2012-01-01
+    - organization: GrimoireLab
+      end: 2013-01-01
+  github:
+    - zhquan
+  email:
+    - quan@bitergia.com
