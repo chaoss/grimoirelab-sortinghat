@@ -20,6 +20,7 @@
 #     Luis Cañas-Díaz <lcanas@bitergia.com>
 #     Miguel Ángel Fernández Sánchez <mafesan@bitergia.com>
 #     Santiago Dueñas <sduenas@bitergia.com>
+#     Quan Zhou <quan@bitergia.com>
 #
 
 import argparse
@@ -42,8 +43,9 @@ def main():
 
     try:
         email_validation = not args.no_email_validation
+        enrollment_periods_valdation = not args.no_enrollment_periods_validation
         parser = parse_grimoirelab_file(args.identities, args.organizations,
-                                        args.source, email_validation)
+                                        args.source, email_validation, enrollment_periods_valdation)
     except (IOError, UnicodeDecodeError, InvalidFormatError) as e:
         raise RuntimeError(str(e))
 
@@ -77,6 +79,9 @@ def parse_args():
     parser.add_argument('--no-email-validation', dest='no_email_validation',
                         action='store_true',
                         help="do not email addresses validation")
+    parser.add_argument('--no-enrollment-periods-validation', dest='no_enrollment_periods_validation',
+                        action='store_true',
+                        help="do not enrollment periods validation")
 
     args = parser.parse_args()
 
@@ -86,7 +91,7 @@ def parse_args():
     return args
 
 
-def parse_grimoirelab_file(identities, organizations, source, email_validation):
+def parse_grimoirelab_file(identities, organizations, source, email_validation, enrollment_periods_validation):
     """Parse GrimoireLab JSON file"""
 
     content_id = read_file(identities) if identities else None
@@ -95,7 +100,8 @@ def parse_grimoirelab_file(identities, organizations, source, email_validation):
     try:
         parser = GrimoireLabParser(content_id, content_org,
                                    source=source,
-                                   email_validation=email_validation)
+                                   email_validation=email_validation,
+                                   enrollment_periods_validation=enrollment_periods_validation)
     except ValueError:
         s = "Error: Empty input file(s)\n"
         sys.stdout.write(s)

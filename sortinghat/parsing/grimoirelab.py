@@ -19,6 +19,7 @@
 #     Luis Cañas-Díaz <lcanas@bitergia.com>
 #     Miguel Ángel Fernández Sánchez <mafesan@bitergia.com>
 #     Santiago Dueñas <sduenas@bitergia.com>
+#     Quan Zhou <quan@bitergia.com>
 #
 
 import datetime
@@ -50,7 +51,8 @@ class GrimoireLabParser(object):
     The keys of this object are the UUID of the unique identities.
     Each unique identity object stores a list of identities and
     enrollments. Email addresses will not be validated when `email_validation`
-    is set to `False`.
+    is set to `False`. Enrollment periods will not be validated when
+    `enrollment_periods_validation` is set to `False`
 
     Those entries that will be considered blacklisted will be stored
     in `blacklist` object. This object consists on a list of entries.
@@ -64,6 +66,7 @@ class GrimoireLabParser(object):
     :param organizations: stream of organizations to parse
     :param source: source of the data
     :param email_validation: validate email addresses; set to True by default
+    :param enrollment_validation: validate enrollment periods; set to True by default
 
     :raises InvalidFormatError: raised when the format of the stream is
         not valid.
@@ -72,12 +75,14 @@ class GrimoireLabParser(object):
     GRIMOIRELAB_INVALID_FORMAT = "invalid GrimoireLab yaml format. %(error)s"
 
     def __init__(self, identities=None, organizations=None,
-                 source='grimoirelab', email_validation=True):
+                 source='grimoirelab', email_validation=True,
+                 enrollment_periods_validation=True):
         self._blacklist = set()
         self._identities = {}
         self._organizations = {}
         self.source = source
         self.email_validation = email_validation
+        self.enrollment_periods_validation = enrollment_periods_validation
 
         if not (identities or organizations):
             raise ValueError('Null identities and organization streams')
@@ -332,7 +337,8 @@ class GrimoireLabParser(object):
                                     organization=org)
             enrollments.append(enrollment)
 
-        self.__validate_enrollment_periods(enrollments)
+        if self.enrollment_periods_validation:
+            self.__validate_enrollment_periods(enrollments)
 
         return enrollments
 
