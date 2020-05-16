@@ -22,17 +22,40 @@
 import itertools
 
 import django_rq
+import django_rq.utils
 import rq
 
 from .api import enroll
 from .context import SortingHatContext
-from .errors import BaseError
+from .errors import BaseError, NotFoundError
 from .log import TransactionsLog
 from .models import Individual
 from .recommendations.engine import RecommendationEngine
 
 
 MAX_CHUNK_SIZE = 2000
+
+
+def find_job(job_id):
+    """Find a job in the jobs registry.
+
+    Search for a job using its identifier. When the job is
+    not found, a `NotFoundError` exception is raised.
+
+    :param job_id: job identifier
+
+    :returns: a Job instance
+
+    :raises NotFoundError: when the job identified by `job_id`
+        is not found.
+    """
+    queue = django_rq.get_queue()
+    jobs = django_rq.utils.get_jobs(queue, [job_id])
+
+    if not jobs:
+        raise NotFoundError(entity=job_id)
+
+    return jobs[0]
 
 
 @django_rq.job

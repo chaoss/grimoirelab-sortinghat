@@ -27,13 +27,43 @@ from dateutil.tz import UTC
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 
+from django_rq import enqueue
+
 from grimoirelab_toolkit.datetime import datetime_utcnow
 
 from sortinghat.core import api
 from sortinghat.core.context import SortingHatContext
 from sortinghat.core.errors import DuplicateRangeError, NotFoundError
-from sortinghat.core.jobs import affiliate
+from sortinghat.core.jobs import find_job, affiliate
 from sortinghat.core.models import Individual, Transaction
+
+
+JOB_NOT_FOUND_ERROR = "DEF not found in the registry"
+
+
+def job_echo(s):
+    """Function to test job queuing"""
+    return s
+
+
+class TestFindJob(TestCase):
+    """Unit tests for find_job"""
+
+    def test_find_job(self):
+        """Check if it finds a job in the registry"""
+
+        job = enqueue(job_echo, 'ABC')
+        qjob = find_job(job.id)
+        self.assertEqual(qjob, job)
+
+    def test_not_found_job(self):
+        """Check if it raises an exception when the job is not found"""
+
+        enqueue(job_echo, 'ABC')
+
+        with self.assertRaisesRegex(NotFoundError,
+                                    JOB_NOT_FOUND_ERROR):
+            find_job('DEF')
 
 
 class TestAffiliateIndividuals(TestCase):
