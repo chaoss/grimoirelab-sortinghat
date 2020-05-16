@@ -30,13 +30,13 @@ from django.core.paginator import Paginator
 
 from django_mysql.models import JSONField
 
+from django_rq import enqueue
+
 from graphene.types.generic import GenericScalar
 
 from graphene_django.converter import convert_django_field
 from graphene_django.types import DjangoObjectType
 
-from .context import SortingHatContext
-from .decorators import check_auth
 from .api import (add_identity,
                   delete_identity,
                   update_profile,
@@ -51,6 +51,9 @@ from .api import (add_identity,
                   delete_domain,
                   enroll,
                   withdraw)
+from .context import SortingHatContext
+from .decorators import check_auth
+from .jobs import affiliate
 from .models import (Organization,
                      Domain,
                      Country,
@@ -527,6 +530,25 @@ class Withdraw(graphene.Mutation):
         )
 
 
+class Affiliate(graphene.Mutation):
+    class Arguments:
+        uuids = graphene.List(graphene.String,
+                              required=False)
+
+    job_id = graphene.Field(lambda: graphene.String)
+
+    @check_auth
+    def mutate(self, info, uuids=None):
+        user = info.context.user
+        ctx = SortingHatContext(user)
+
+        job = enqueue(affiliate, ctx, uuids)
+
+        return Affiliate(
+            job_id=job.id
+        )
+
+
 class SortingHatQuery:
 
     countries = graphene.Field(
@@ -669,6 +691,7 @@ class SortingHatMutation(graphene.ObjectType):
     unmerge_identities = UnmergeIdentities.Field()
     enroll = Enroll.Field()
     withdraw = Withdraw.Field()
+    affiliate = Affiliate.Field()
 
     # JWT authentication
     token_auth = graphql_jwt.ObtainJSONWebToken.Field()
