@@ -53,7 +53,7 @@ from .api import (add_identity,
                   withdraw)
 from .context import SortingHatContext
 from .decorators import check_auth
-from .jobs import affiliate
+from .jobs import affiliate, find_job
 from .models import (Organization,
                      Domain,
                      Country,
@@ -134,6 +134,23 @@ class ProfileType(DjangoObjectType):
 class EnrollmentType(DjangoObjectType):
     class Meta:
         model = Enrollment
+
+
+class AffiliationResultType(graphene.ObjectType):
+    uuid = graphene.String()
+    organizations = graphene.List(graphene.String)
+
+
+class JobResultType(graphene.Union):
+    class Meta:
+        types = (AffiliationResultType,)
+
+
+class JobType(graphene.ObjectType):
+    job_id = graphene.String()
+    status = graphene.String()
+    result = graphene.List(JobResultType)
+    errors = graphene.List(graphene.String)
 
 
 class ProfileInputType(graphene.InputObjectType):
@@ -581,6 +598,10 @@ class SortingHatQuery:
         page=graphene.Int(),
         filters=OperationFilterType(required=False),
     )
+    job = graphene.Field(
+        JobType,
+        job_id=graphene.String()
+    )
 
     @check_auth
     def resolve_countries(self, info, filters=None,
@@ -626,6 +647,28 @@ class SortingHatQuery:
         return IdentityPaginatedType.create_paginated_result(query,
                                                              page,
                                                              page_size=page_size)
+
+    @check_auth
+    def resolve_job(self, info, job_id):
+        job = find_job(job_id)
+
+        status = job.get_status()
+        result = job.result
+
+        if job.result:
+            errors = result['errors']
+            affiliated = [
+                AffiliationResultType(uuid=uuid, organizations=orgs)
+                for uuid, orgs in result['results'].items()
+            ]
+        else:
+            errors = None
+            affiliated = None
+
+        return JobType(job_id=job_id,
+                       status=status,
+                       result=affiliated,
+                       errors=errors)
 
     @check_auth
     def resolve_transactions(self, info, filters=None,

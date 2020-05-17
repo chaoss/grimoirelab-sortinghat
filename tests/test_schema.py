@@ -488,6 +488,23 @@ SH_OPERATIONS_QUERY_PAGINATION_NO_PAGE_SIZE = """{
     }
   }
 }"""
+SH_JOB_QUERY = """{
+  job(
+    jobId:"%s"
+  ){
+    jobId
+    status
+    errors
+    result {
+      __typename
+      ... on AffiliationResultType {
+          uuid
+          organizations
+      }
+    }
+  }
+}
+"""
 
 # API endpoint to obtain a context for executing queries
 GRAPHQL_ENDPOINT = '/graphql/'
@@ -1811,6 +1828,158 @@ class TestQueryOperations(django.test.TestCase):
         client = graphene.test.Client(schema)
 
         executed = client.execute(SH_OPERATIONS_QUERY,
+                                  context_value=context_value)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
+
+
+class MockJob:
+    """Class mock job queries."""
+
+    def __init__(self, job_id, status, result):
+        self.id = job_id
+        self.status = status
+        self.result = result
+
+    def get_status(self):
+        return self.status
+
+
+class TestQueryJob(django.test.TestCase):
+    """Unit tests for job queries"""
+
+    def setUp(self):
+        """Set queries context"""
+
+        conn = django_rq.queues.get_redis_connection(None, True)
+        conn.flushall()
+
+        self.user = get_user_model().objects.create(username='test')
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
+
+    @unittest.mock.patch('sortinghat.core.schema.find_job')
+    def test_affiliate_job(self, mock_job):
+        """Check if it returns an affiliated result type"""
+
+        result = {
+            'results': {
+                '0c1e1701bc819495acf77ef731023b7d789a9c71': [],
+                '17ab00ed3825ec2f50483e33c88df223264182ba': ['Bitergia', 'Example'],
+                'dc31d2afbee88a6d1dbc1ef05ec827b878067744': ['Example']
+            },
+            'errors': None
+        }
+
+        job = MockJob('1234-5678-90AB-CDEF', 'finished', result)
+        mock_job.return_value = job
+
+        # Tests
+        client = graphene.test.Client(schema)
+
+        query = SH_JOB_QUERY % '1234-5678-90AB-CDEF'
+
+        executed = client.execute(query,
+                                  context_value=self.context_value)
+
+        job_data = executed['data']['job']
+        self.assertEqual(job_data['jobId'], '1234-5678-90AB-CDEF')
+        self.assertEqual(job_data['status'], 'finished')
+        self.assertEqual(job_data['errors'], None)
+
+        job_results = job_data['result']
+        self.assertEqual(len(job_results), 3)
+
+        res = job_results[0]
+        self.assertEqual(res['__typename'], 'AffiliationResultType')
+        self.assertEqual(res['uuid'], '0c1e1701bc819495acf77ef731023b7d789a9c71')
+        self.assertEqual(res['organizations'], [])
+
+        res = job_results[1]
+        self.assertEqual(res['__typename'], 'AffiliationResultType')
+        self.assertEqual(res['uuid'], '17ab00ed3825ec2f50483e33c88df223264182ba')
+        self.assertEqual(res['organizations'], ['Bitergia', 'Example'])
+
+        res = job_results[2]
+        self.assertEqual(res['__typename'], 'AffiliationResultType')
+        self.assertEqual(res['uuid'], 'dc31d2afbee88a6d1dbc1ef05ec827b878067744')
+        self.assertEqual(res['organizations'], ['Example'])
+
+    @unittest.mock.patch('sortinghat.core.schema.find_job')
+    def test_job_no_results(self, mock_job):
+        """Check if it does not fail when there are not results ready"""
+
+        job = MockJob('1234-5678-90AB-CDEF', 'queued', None)
+        mock_job.return_value = job
+
+        # Tests
+        client = graphene.test.Client(schema)
+
+        query = SH_JOB_QUERY % '1234-5678-90AB-CDEF'
+
+        executed = client.execute(query,
+                                  context_value=self.context_value)
+
+        job_data = executed['data']['job']
+        self.assertEqual(job_data['jobId'], '1234-5678-90AB-CDEF')
+        self.assertEqual(job_data['status'], 'queued')
+        self.assertEqual(job_data['errors'], None)
+        self.assertEqual(job_data['result'], None)
+
+    @unittest.mock.patch('sortinghat.core.schema.find_job')
+    def test_job_errors(self, mock_job):
+        """Check job errors field"""
+
+        errors = [
+            "dc31d2afbee88a6d1dbc1ef05ec827b878067744 not found in the registry"
+        ]
+        result = {
+            'results': {
+                'dc31d2afbee88a6d1dbc1ef05ec827b878067744': []
+            },
+            'errors': errors
+        }
+
+        job = MockJob('1234-5678-90AB-CDEF', 'finished', result)
+        mock_job.return_value = job
+
+        # Tests
+        client = graphene.test.Client(schema)
+
+        query = SH_JOB_QUERY % '1234-5678-90AB-CDEF'
+
+        executed = client.execute(query,
+                                  context_value=self.context_value)
+
+        job_data = executed['data']['job']
+        self.assertEqual(job_data['jobId'], '1234-5678-90AB-CDEF')
+        self.assertEqual(job_data['status'], 'finished')
+        self.assertEqual(job_data['errors'], errors)
+
+    def test_job_not_found(self):
+        """Check if it returns an error when the job is not found"""
+
+        # Tests
+        client = graphene.test.Client(schema)
+
+        query = SH_JOB_QUERY % '1234-5678-90AB-CDEF'
+
+        executed = client.execute(query,
+                                  context_value=self.context_value)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, "1234-5678-90AB-CDEF not found in the registry")
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the query"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        executed = client.execute(SH_ORGS_QUERY,
                                   context_value=context_value)
 
         msg = executed['errors'][0]['message']
