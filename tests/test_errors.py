@@ -29,7 +29,8 @@ from sortinghat.core.errors import (BaseError,
                                     InvalidValueError,
                                     ClosedTransactionError,
                                     LockedIdentityError,
-                                    DuplicateRangeError)
+                                    DuplicateRangeError,
+                                    RecommendationEngineError)
 
 
 # Mock classes to test BaseError class
@@ -200,3 +201,22 @@ class TestEnrollmentRangeError(TestCase):
         """
         kwargs = {}
         self.assertRaises(KeyError, DuplicateRangeError, **kwargs)
+
+
+class TestRecommendationEngineError(TestCase):
+    """Unit tests for RecommendationEngineError"""
+
+    def test_message(self):
+        """Make sure that prints the right error"""
+
+        e = RecommendationEngineError(msg="invalid engine")
+        self.assertEqual("invalid engine", str(e))
+
+    def test_no_args(self):
+        """Check when required arguments are not given.
+
+        When this happens, it raises a KeyError exception.
+        """
+        kwargs = {}
+        self.assertRaises(KeyError, RecommendationEngineError,
+                          **kwargs)

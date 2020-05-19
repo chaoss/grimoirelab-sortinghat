@@ -28,6 +28,7 @@ CODE_VALUE_ERROR = 10
 CODE_CLOSED_TRANSACTION_ERROR = 12
 CODE_LOCKED_IDENTITY_ERROR = 13
 CODE_DUPLICATE_RANGE_ERROR = 14
+CODE_RECOMMENDATION_ERROR = 100
 CODE_TOKEN_EXPIRED = 126
 CODE_PERMISSION_DENIED = 127
 CODE_UNKNOWN_ERROR = 128
@@ -98,3 +99,10 @@ class DuplicateRangeError(BaseError):
 
     code = CODE_DUPLICATE_RANGE_ERROR
     message = "range date '%(start)s'-'%(end)s' is part of an existing range for %(org)s"
+
+
+class RecommendationEngineError(BaseError):
+    """Exception raised when there is an error in the recommendation engine"""
+
+    code = CODE_RECOMMENDATION_ERROR
+    message = "%(msg)s"

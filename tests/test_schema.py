@@ -22,11 +22,13 @@
 #
 
 import datetime
+import unittest.mock
 
 import dateutil
 
 import django.core.exceptions
 import django.test
+import django_rq.queues
 import graphene
 import graphene.test
 
@@ -486,6 +488,23 @@ SH_OPERATIONS_QUERY_PAGINATION_NO_PAGE_SIZE = """{
     }
   }
 }"""
+SH_JOB_QUERY = """{
+  job(
+    jobId:"%s"
+  ){
+    jobId
+    status
+    errors
+    result {
+      __typename
+      ... on AffiliationResultType {
+          uuid
+          organizations
+      }
+    }
+  }
+}
+"""
 
 # API endpoint to obtain a context for executing queries
 GRAPHQL_ENDPOINT = '/graphql/'
@@ -1809,6 +1828,158 @@ class TestQueryOperations(django.test.TestCase):
         client = graphene.test.Client(schema)
 
         executed = client.execute(SH_OPERATIONS_QUERY,
+                                  context_value=context_value)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
+
+
+class MockJob:
+    """Class mock job queries."""
+
+    def __init__(self, job_id, status, result):
+        self.id = job_id
+        self.status = status
+        self.result = result
+
+    def get_status(self):
+        return self.status
+
+
+class TestQueryJob(django.test.TestCase):
+    """Unit tests for job queries"""
+
+    def setUp(self):
+        """Set queries context"""
+
+        conn = django_rq.queues.get_redis_connection(None, True)
+        conn.flushall()
+
+        self.user = get_user_model().objects.create(username='test')
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
+
+    @unittest.mock.patch('sortinghat.core.schema.find_job')
+    def test_affiliate_job(self, mock_job):
+        """Check if it returns an affiliated result type"""
+
+        result = {
+            'results': {
+                '0c1e1701bc819495acf77ef731023b7d789a9c71': [],
+                '17ab00ed3825ec2f50483e33c88df223264182ba': ['Bitergia', 'Example'],
+                'dc31d2afbee88a6d1dbc1ef05ec827b878067744': ['Example']
+            },
+            'errors': None
+        }
+
+        job = MockJob('1234-5678-90AB-CDEF', 'finished', result)
+        mock_job.return_value = job
+
+        # Tests
+        client = graphene.test.Client(schema)
+
+        query = SH_JOB_QUERY % '1234-5678-90AB-CDEF'
+
+        executed = client.execute(query,
+                                  context_value=self.context_value)
+
+        job_data = executed['data']['job']
+        self.assertEqual(job_data['jobId'], '1234-5678-90AB-CDEF')
+        self.assertEqual(job_data['status'], 'finished')
+        self.assertEqual(job_data['errors'], None)
+
+        job_results = job_data['result']
+        self.assertEqual(len(job_results), 3)
+
+        res = job_results[0]
+        self.assertEqual(res['__typename'], 'AffiliationResultType')
+        self.assertEqual(res['uuid'], '0c1e1701bc819495acf77ef731023b7d789a9c71')
+        self.assertEqual(res['organizations'], [])
+
+        res = job_results[1]
+        self.assertEqual(res['__typename'], 'AffiliationResultType')
+        self.assertEqual(res['uuid'], '17ab00ed3825ec2f50483e33c88df223264182ba')
+        self.assertEqual(res['organizations'], ['Bitergia', 'Example'])
+
+        res = job_results[2]
+        self.assertEqual(res['__typename'], 'AffiliationResultType')
+        self.assertEqual(res['uuid'], 'dc31d2afbee88a6d1dbc1ef05ec827b878067744')
+        self.assertEqual(res['organizations'], ['Example'])
+
+    @unittest.mock.patch('sortinghat.core.schema.find_job')
+    def test_job_no_results(self, mock_job):
+        """Check if it does not fail when there are not results ready"""
+
+        job = MockJob('1234-5678-90AB-CDEF', 'queued', None)
+        mock_job.return_value = job
+
+        # Tests
+        client = graphene.test.Client(schema)
+
+        query = SH_JOB_QUERY % '1234-5678-90AB-CDEF'
+
+        executed = client.execute(query,
+                                  context_value=self.context_value)
+
+        job_data = executed['data']['job']
+        self.assertEqual(job_data['jobId'], '1234-5678-90AB-CDEF')
+        self.assertEqual(job_data['status'], 'queued')
+        self.assertEqual(job_data['errors'], None)
+        self.assertEqual(job_data['result'], None)
+
+    @unittest.mock.patch('sortinghat.core.schema.find_job')
+    def test_job_errors(self, mock_job):
+        """Check job errors field"""
+
+        errors = [
+            "dc31d2afbee88a6d1dbc1ef05ec827b878067744 not found in the registry"
+        ]
+        result = {
+            'results': {
+                'dc31d2afbee88a6d1dbc1ef05ec827b878067744': []
+            },
+            'errors': errors
+        }
+
+        job = MockJob('1234-5678-90AB-CDEF', 'finished', result)
+        mock_job.return_value = job
+
+        # Tests
+        client = graphene.test.Client(schema)
+
+        query = SH_JOB_QUERY % '1234-5678-90AB-CDEF'
+
+        executed = client.execute(query,
+                                  context_value=self.context_value)
+
+        job_data = executed['data']['job']
+        self.assertEqual(job_data['jobId'], '1234-5678-90AB-CDEF')
+        self.assertEqual(job_data['status'], 'finished')
+        self.assertEqual(job_data['errors'], errors)
+
+    def test_job_not_found(self):
+        """Check if it returns an error when the job is not found"""
+
+        # Tests
+        client = graphene.test.Client(schema)
+
+        query = SH_JOB_QUERY % '1234-5678-90AB-CDEF'
+
+        executed = client.execute(query,
+                                  context_value=self.context_value)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, "1234-5678-90AB-CDEF not found in the registry")
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the query"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        executed = client.execute(SH_ORGS_QUERY,
                                   context_value=context_value)
 
         msg = executed['errors'][0]['message']
@@ -4795,6 +4966,180 @@ class TestUnmergeIdentitiesMutation(django.test.TestCase):
         executed = client.execute(self.SH_UNMERGE,
                                   context_value=context_value,
                                   variables=params)
+
+        msg = executed['errors'][0]['message']
+
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
+
+
+class TestAffiliateMutation(django.test.TestCase):
+    """Unit tests for mutation to affiliate individuals"""
+
+    SH_AFFILIATE = """
+        mutation affiliate($uuids: [String]) {
+            affiliate(uuids: $uuids) {
+                jobId
+            }
+        }
+    """
+
+    def setUp(self):
+        """Load initial dataset and set queries context"""
+
+        conn = django_rq.queues.get_redis_connection(None, True)
+        conn.flushall()
+
+        self.user = get_user_model().objects.create(username='test')
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
+
+        ctx = SortingHatContext(self.user)
+
+        # Organizations and domains
+        api.add_organization(ctx, 'Example')
+        api.add_domain(ctx, 'Example', 'example.com', is_top_domain=True)
+
+        api.add_organization(ctx, 'Example Int.')
+        api.add_domain(ctx, 'Example Int.', 'u.example.com',
+                       is_top_domain=True)
+        api.add_domain(ctx, 'Example Int.', 'es.u.example.com')
+        api.add_domain(ctx, 'Example Int.', 'en.u.example.com')
+
+        api.add_organization(ctx, 'Bitergia')
+        api.add_domain(ctx, 'Bitergia', 'bitergia.com')
+        api.add_domain(ctx, 'Bitergia', 'bitergia.org')
+
+        api.add_organization(ctx, 'LibreSoft')
+
+        # John Smith identity
+        self.jsmith = api.add_identity(ctx,
+                                       source='scm',
+                                       email='jsmith@us.example.com',
+                                       name='John Smith',
+                                       username='jsmith')
+        api.add_identity(ctx,
+                         source='scm',
+                         email='jsmith@example.net',
+                         name='John Smith',
+                         uuid=self.jsmith.uuid)
+
+        # Add John Doe identity
+        self.jdoe = api.add_identity(ctx,
+                                     source='unknown',
+                                     email=None,
+                                     name='John Doe',
+                                     username='jdoe')
+
+        # Jane Roe identity
+        self.jroe = api.add_identity(ctx,
+                                     source='scm',
+                                     email='jroe@example.com',
+                                     name='Jane Roe',
+                                     username='jroe')
+        api.add_identity(ctx,
+                         source='scm',
+                         email='jroe@example.com',
+                         uuid=self.jroe.uuid)
+        api.add_identity(ctx,
+                         source='unknown',
+                         email='jroe@bitergia.com',
+                         uuid=self.jroe.uuid)
+
+    @unittest.mock.patch('sortinghat.core.jobs.rq.job.uuid4')
+    def test_affiliate(self, mock_job_id_gen):
+        """Check if all the individuals stored in the registry are affiliated"""
+
+        mock_job_id_gen.return_value = "1234-5678-90AB-CDEF"
+
+        client = graphene.test.Client(schema)
+
+        executed = client.execute(self.SH_AFFILIATE,
+                                  context_value=self.context_value)
+
+        # Check if the job was run and individuals were affiliated
+        job_id = executed['data']['affiliate']['jobId']
+        self.assertEqual(job_id, "1234-5678-90AB-CDEF")
+
+        # Check database objects
+        individual_db = Individual.objects.get(mk=self.jroe.uuid)
+        enrollments_db = individual_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 2)
+
+        enrollment_db = enrollments_db[0]
+        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
+
+        enrollment_db = enrollments_db[1]
+        self.assertEqual(enrollment_db.organization.name, 'Bitergia')
+        self.assertEqual(enrollment_db.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
+
+        individual_db = Individual.objects.get(mk=self.jsmith.uuid)
+        enrollments_db = individual_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 1)
+
+        enrollment_db = enrollments_db[0]
+        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
+
+        # John Doe was not affiliated
+        individual_db = Individual.objects.get(mk=self.jdoe.uuid)
+        enrollments_db = individual_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 0)
+
+    @unittest.mock.patch('sortinghat.core.jobs.rq.job.uuid4')
+    def test_affiliate_uuid(self, mock_job_id_gen):
+        """Check if only the given individuals are affiliated"""
+
+        mock_job_id_gen.return_value = "1234-5678-90AB-CDEF"
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuids': ['dc31d2afbee88a6d1dbc1ef05ec827b878067744']
+        }
+
+        executed = client.execute(self.SH_AFFILIATE,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        # Check if the job was run and individuals were affiliated
+        job_id = executed['data']['affiliate']['jobId']
+        self.assertEqual(job_id, "1234-5678-90AB-CDEF")
+
+        # Check database objects
+
+        # Only John Smith was affiliated
+        individual_db = Individual.objects.get(mk=self.jsmith.uuid)
+        enrollments_db = individual_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 1)
+
+        enrollment_db = enrollments_db[0]
+        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
+
+        # Jane Roe and John Doe were not affiliated
+        individual_db = Individual.objects.get(mk=self.jroe.uuid)
+        enrollments_db = individual_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 0)
+
+        individual_db = Individual.objects.get(mk=self.jdoe.uuid)
+        enrollments_db = individual_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 0)
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the query"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        executed = client.execute(self.SH_AFFILIATE,
+                                  context_value=context_value)
 
         msg = executed['errors'][0]['message']
 

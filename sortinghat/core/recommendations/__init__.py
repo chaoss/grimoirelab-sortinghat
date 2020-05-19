@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2020 Bitergia
+# Copyright (C) 2014-2019 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,13 +17,11 @@
 #
 # Authors:
 #     Santiago Dueñas <sduenas@bitergia.com>
-#     Miguel Ángel Fernández <mafesan@bitergia.com>
 #
 
-import collections
+from .engine import RecommendationEngine
 
 
-SortingHatContext = collections.namedtuple(
-    'SortingHatContext', ['user', 'job_id']
-)
-SortingHatContext.__new__.__defaults__ = (None, None)
+__all__ = [
+    RecommendationEngine
+]

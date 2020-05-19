@@ -30,13 +30,13 @@ from django.core.paginator import Paginator
 
 from django_mysql.models import JSONField
 
+from django_rq import enqueue
+
 from graphene.types.generic import GenericScalar
 
 from graphene_django.converter import convert_django_field
 from graphene_django.types import DjangoObjectType
 
-from .context import SortingHatContext
-from .decorators import check_auth
 from .api import (add_identity,
                   delete_identity,
                   update_profile,
@@ -51,6 +51,9 @@ from .api import (add_identity,
                   delete_domain,
                   enroll,
                   withdraw)
+from .context import SortingHatContext
+from .decorators import check_auth
+from .jobs import affiliate, find_job
 from .models import (Organization,
                      Domain,
                      Country,
@@ -131,6 +134,23 @@ class ProfileType(DjangoObjectType):
 class EnrollmentType(DjangoObjectType):
     class Meta:
         model = Enrollment
+
+
+class AffiliationResultType(graphene.ObjectType):
+    uuid = graphene.String()
+    organizations = graphene.List(graphene.String)
+
+
+class JobResultType(graphene.Union):
+    class Meta:
+        types = (AffiliationResultType,)
+
+
+class JobType(graphene.ObjectType):
+    job_id = graphene.String()
+    status = graphene.String()
+    result = graphene.List(JobResultType)
+    errors = graphene.List(graphene.String)
 
 
 class ProfileInputType(graphene.InputObjectType):
@@ -527,6 +547,25 @@ class Withdraw(graphene.Mutation):
         )
 
 
+class Affiliate(graphene.Mutation):
+    class Arguments:
+        uuids = graphene.List(graphene.String,
+                              required=False)
+
+    job_id = graphene.Field(lambda: graphene.String)
+
+    @check_auth
+    def mutate(self, info, uuids=None):
+        user = info.context.user
+        ctx = SortingHatContext(user)
+
+        job = enqueue(affiliate, ctx, uuids)
+
+        return Affiliate(
+            job_id=job.id
+        )
+
+
 class SortingHatQuery:
 
     countries = graphene.Field(
@@ -558,6 +597,10 @@ class SortingHatQuery:
         page_size=graphene.Int(),
         page=graphene.Int(),
         filters=OperationFilterType(required=False),
+    )
+    job = graphene.Field(
+        JobType,
+        job_id=graphene.String()
     )
 
     @check_auth
@@ -604,6 +647,28 @@ class SortingHatQuery:
         return IdentityPaginatedType.create_paginated_result(query,
                                                              page,
                                                              page_size=page_size)
+
+    @check_auth
+    def resolve_job(self, info, job_id):
+        job = find_job(job_id)
+
+        status = job.get_status()
+        result = job.result
+
+        if job.result:
+            errors = result['errors']
+            affiliated = [
+                AffiliationResultType(uuid=uuid, organizations=orgs)
+                for uuid, orgs in result['results'].items()
+            ]
+        else:
+            errors = None
+            affiliated = None
+
+        return JobType(job_id=job_id,
+                       status=status,
+                       result=affiliated,
+                       errors=errors)
 
     @check_auth
     def resolve_transactions(self, info, filters=None,
@@ -669,6 +734,7 @@ class SortingHatMutation(graphene.ObjectType):
     unmerge_identities = UnmergeIdentities.Field()
     enroll = Enroll.Field()
     withdraw = Withdraw.Field()
+    affiliate = Affiliate.Field()
 
     # JWT authentication
     token_auth = graphql_jwt.ObtainJSONWebToken.Field()
