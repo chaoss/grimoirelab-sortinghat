@@ -34,19 +34,19 @@
     </v-app-bar>
 
     <v-content>
-      <HelloWorld />
+      <IndividualsGrid />
     </v-content>
   </v-app>
 </template>
 
 <script>
-import HelloWorld from "./components/HelloWorld";
+import IndividualsGrid from "./components/IndividualsGrid";
 
 export default {
   name: "App",
 
   components: {
-    HelloWorld
+    IndividualsGrid
   },
 
   data: () => ({
