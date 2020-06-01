@@ -488,16 +488,35 @@ SH_OPERATIONS_QUERY_PAGINATION_NO_PAGE_SIZE = """{
     }
   }
 }"""
-SH_JOB_QUERY = """{
+SH_JOB_QUERY_AFFILIATE = """{
   job(
     jobId:"%s"
   ){
     jobId
+    jobType
     status
     errors
     result {
       __typename
       ... on AffiliationResultType {
+          uuid
+          organizations
+      }
+    }
+  }
+}
+"""
+SH_JOB_QUERY_RECOMMEND_AFFILIATIONS = """{
+  job(
+    jobId:"%s"
+  ){
+    jobId
+    jobType
+    status
+    errors
+    result {
+      __typename
+      ... on AffiliationRecommendationType {
           uuid
           organizations
       }
@@ -1837,8 +1856,9 @@ class TestQueryOperations(django.test.TestCase):
 class MockJob:
     """Class mock job queries."""
 
-    def __init__(self, job_id, status, result):
+    def __init__(self, job_id, func_name, status, result):
         self.id = job_id
+        self.func_name = func_name
         self.status = status
         self.result = result
 
@@ -1872,19 +1892,20 @@ class TestQueryJob(django.test.TestCase):
             'errors': None
         }
 
-        job = MockJob('1234-5678-90AB-CDEF', 'finished', result)
+        job = MockJob('1234-5678-90AB-CDEF', 'affiliate', 'finished', result)
         mock_job.return_value = job
 
         # Tests
         client = graphene.test.Client(schema)
 
-        query = SH_JOB_QUERY % '1234-5678-90AB-CDEF'
+        query = SH_JOB_QUERY_AFFILIATE % '1234-5678-90AB-CDEF'
 
         executed = client.execute(query,
                                   context_value=self.context_value)
 
         job_data = executed['data']['job']
         self.assertEqual(job_data['jobId'], '1234-5678-90AB-CDEF')
+        self.assertEqual(job_data['jobType'], 'affiliate')
         self.assertEqual(job_data['status'], 'finished')
         self.assertEqual(job_data['errors'], None)
 
@@ -1907,28 +1928,29 @@ class TestQueryJob(django.test.TestCase):
         self.assertEqual(res['organizations'], ['Example'])
 
     @unittest.mock.patch('sortinghat.core.schema.find_job')
-    def test_job_no_results(self, mock_job):
+    def test_affiliate_job_no_results(self, mock_job):
         """Check if it does not fail when there are not results ready"""
 
-        job = MockJob('1234-5678-90AB-CDEF', 'queued', None)
+        job = MockJob('1234-5678-90AB-CDEF', 'affiliate', 'queued', None)
         mock_job.return_value = job
 
         # Tests
         client = graphene.test.Client(schema)
 
-        query = SH_JOB_QUERY % '1234-5678-90AB-CDEF'
+        query = SH_JOB_QUERY_AFFILIATE % '1234-5678-90AB-CDEF'
 
         executed = client.execute(query,
                                   context_value=self.context_value)
 
         job_data = executed['data']['job']
         self.assertEqual(job_data['jobId'], '1234-5678-90AB-CDEF')
+        self.assertEqual(job_data['jobType'], 'affiliate')
         self.assertEqual(job_data['status'], 'queued')
         self.assertEqual(job_data['errors'], None)
         self.assertEqual(job_data['result'], None)
 
     @unittest.mock.patch('sortinghat.core.schema.find_job')
-    def test_job_errors(self, mock_job):
+    def test_affiliate_job_errors(self, mock_job):
         """Check job errors field"""
 
         errors = [
@@ -1941,21 +1963,91 @@ class TestQueryJob(django.test.TestCase):
             'errors': errors
         }
 
-        job = MockJob('1234-5678-90AB-CDEF', 'finished', result)
+        job = MockJob('1234-5678-90AB-CDEF', 'affiliate', 'finished', result)
         mock_job.return_value = job
 
         # Tests
         client = graphene.test.Client(schema)
 
-        query = SH_JOB_QUERY % '1234-5678-90AB-CDEF'
+        query = SH_JOB_QUERY_AFFILIATE % '1234-5678-90AB-CDEF'
 
         executed = client.execute(query,
                                   context_value=self.context_value)
 
         job_data = executed['data']['job']
         self.assertEqual(job_data['jobId'], '1234-5678-90AB-CDEF')
+        self.assertEqual(job_data['jobType'], 'affiliate')
         self.assertEqual(job_data['status'], 'finished')
         self.assertEqual(job_data['errors'], errors)
+
+    @unittest.mock.patch('sortinghat.core.schema.find_job')
+    def test_recommend_affiliation_job(self, mock_job):
+        """Check if it returns an affiliation recommendation type"""
+
+        result = {
+            'results': {
+                '0c1e1701bc819495acf77ef731023b7d789a9c71': [],
+                '17ab00ed3825ec2f50483e33c88df223264182ba': ['Bitergia', 'Example'],
+                'dc31d2afbee88a6d1dbc1ef05ec827b878067744': ['Example']
+            }
+        }
+
+        job = MockJob('1234-5678-90AB-CDEF', 'recommend_affiliations', 'finished', result)
+        mock_job.return_value = job
+
+        # Tests
+        client = graphene.test.Client(schema)
+
+        query = SH_JOB_QUERY_RECOMMEND_AFFILIATIONS % '1234-5678-90AB-CDEF'
+
+        executed = client.execute(query,
+                                  context_value=self.context_value)
+
+        job_data = executed['data']['job']
+        self.assertEqual(job_data['jobId'], '1234-5678-90AB-CDEF')
+        self.assertEqual(job_data['jobType'], 'recommend_affiliations')
+        self.assertEqual(job_data['status'], 'finished')
+        self.assertEqual(job_data['errors'], None)
+
+        job_results = job_data['result']
+        self.assertEqual(len(job_results), 3)
+
+        res = job_results[0]
+        self.assertEqual(res['__typename'], 'AffiliationRecommendationType')
+        self.assertEqual(res['uuid'], '0c1e1701bc819495acf77ef731023b7d789a9c71')
+        self.assertEqual(res['organizations'], [])
+
+        res = job_results[1]
+        self.assertEqual(res['__typename'], 'AffiliationRecommendationType')
+        self.assertEqual(res['uuid'], '17ab00ed3825ec2f50483e33c88df223264182ba')
+        self.assertEqual(res['organizations'], ['Bitergia', 'Example'])
+
+        res = job_results[2]
+        self.assertEqual(res['__typename'], 'AffiliationRecommendationType')
+        self.assertEqual(res['uuid'], 'dc31d2afbee88a6d1dbc1ef05ec827b878067744')
+        self.assertEqual(res['organizations'], ['Example'])
+
+    @unittest.mock.patch('sortinghat.core.schema.find_job')
+    def test_recommend_affiliation_job_no_results(self, mock_job):
+        """Check if it does not fail when there are not results ready"""
+
+        job = MockJob('1234-5678-90AB-CDEF', 'recommend_affiliations', 'queued', None)
+        mock_job.return_value = job
+
+        # Tests
+        client = graphene.test.Client(schema)
+
+        query = SH_JOB_QUERY_RECOMMEND_AFFILIATIONS % '1234-5678-90AB-CDEF'
+
+        executed = client.execute(query,
+                                  context_value=self.context_value)
+
+        job_data = executed['data']['job']
+        self.assertEqual(job_data['jobId'], '1234-5678-90AB-CDEF')
+        self.assertEqual(job_data['jobType'], 'recommend_affiliations')
+        self.assertEqual(job_data['status'], 'queued')
+        self.assertEqual(job_data['errors'], None)
+        self.assertEqual(job_data['result'], None)
 
     def test_job_not_found(self):
         """Check if it returns an error when the job is not found"""
@@ -1963,7 +2055,7 @@ class TestQueryJob(django.test.TestCase):
         # Tests
         client = graphene.test.Client(schema)
 
-        query = SH_JOB_QUERY % '1234-5678-90AB-CDEF'
+        query = SH_JOB_QUERY_AFFILIATE % '1234-5678-90AB-CDEF'
 
         executed = client.execute(query,
                                   context_value=self.context_value)

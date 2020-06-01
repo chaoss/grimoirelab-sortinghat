@@ -59,6 +59,55 @@ def find_job(job_id):
 
 
 @django_rq.job
+def recommend_affiliations(ctx, uuids=None):
+    """Generate a list of affiliation recommendations from a set of individuals.
+
+    This function generates a list of recommendations which include the
+    organizations where individuals can be affiliated.
+    This job returns a dictionary with which individuals are recommended to be
+    affiliated to which organization.
+
+    Individuals are defined by any of their valid keys or UUIDs.
+    When the parameter `uuids` is empty, the job will take all
+    the individuals stored in the registry.
+
+    :param ctx: context where this job is run
+    :param uuids: list of individuals identifiers
+
+    :returns: a dictionary with which individuals are recommended to be
+        affiliated to which organization.
+    """
+    if not uuids:
+        uuids = Individual.objects.values_list('mk', flat=True).iterator()
+    else:
+        uuids = iter(uuids)
+
+    results = {}
+    job_result = {
+        'results': results
+    }
+
+    engine = RecommendationEngine()
+
+    # Create a new context to include the reference
+    # to the job id that will perform the transaction.
+    job = rq.get_current_job()
+    job_ctx = SortingHatContext(ctx.user, job.id)
+
+    # Create an empty transaction to log which job
+    # will generate the enroll transactions.
+    trxl = TransactionsLog.open('recommend_affiliations', job_ctx)
+
+    for chunk in _iter_split(uuids, size=MAX_CHUNK_SIZE):
+        for rec in engine.recommend('affiliation', chunk):
+            results[rec.key] = rec.options
+
+    trxl.close()
+
+    return job_result
+
+
+@django_rq.job
 def affiliate(ctx, uuids=None):
     """Affiliate a set of individuals using recommendations.
 

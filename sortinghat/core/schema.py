@@ -53,7 +53,9 @@ from .api import (add_identity,
                   withdraw)
 from .context import SortingHatContext
 from .decorators import check_auth
-from .jobs import affiliate, find_job
+from .jobs import (affiliate,
+                   find_job,
+                   recommend_affiliations)
 from .models import (Organization,
                      Domain,
                      Country,
@@ -136,6 +138,11 @@ class EnrollmentType(DjangoObjectType):
         model = Enrollment
 
 
+class AffiliationRecommendationType(graphene.ObjectType):
+    uuid = graphene.String()
+    organizations = graphene.List(graphene.String)
+
+
 class AffiliationResultType(graphene.ObjectType):
     uuid = graphene.String()
     organizations = graphene.List(graphene.String)
@@ -143,11 +150,12 @@ class AffiliationResultType(graphene.ObjectType):
 
 class JobResultType(graphene.Union):
     class Meta:
-        types = (AffiliationResultType,)
+        types = (AffiliationResultType, AffiliationRecommendationType,)
 
 
 class JobType(graphene.ObjectType):
     job_id = graphene.String()
+    job_type = graphene.String()
     status = graphene.String()
     result = graphene.List(JobResultType)
     errors = graphene.List(graphene.String)
@@ -547,6 +555,25 @@ class Withdraw(graphene.Mutation):
         )
 
 
+class RecommendAffiliations(graphene.Mutation):
+    class Arguments:
+        uuids = graphene.List(graphene.String,
+                              required=False)
+
+    job_id = graphene.Field(lambda: graphene.String)
+
+    @check_auth
+    def mutate(self, info, uuids=None):
+        user = info.context.user
+        ctx = SortingHatContext(user)
+
+        job = enqueue(recommend_affiliations, ctx, uuids)
+
+        return RecommendAffiliations(
+            job_id=job.id
+        )
+
+
 class Affiliate(graphene.Mutation):
     class Arguments:
         uuids = graphene.List(graphene.String,
@@ -653,21 +680,27 @@ class SortingHatQuery:
         job = find_job(job_id)
 
         status = job.get_status()
-        result = job.result
+        job_type = job.func_name.split('.')[-1]
 
-        if job.result:
-            errors = result['errors']
-            affiliated = [
+        result = None
+        errors = None
+
+        if (job.result) and (job_type == 'affiliate'):
+            errors = job.result['errors']
+            result = [
                 AffiliationResultType(uuid=uuid, organizations=orgs)
-                for uuid, orgs in result['results'].items()
+                for uuid, orgs in job.result['results'].items()
             ]
-        else:
-            errors = None
-            affiliated = None
+        elif (job.result) and (job_type == 'recommend_affiliations'):
+            result = [
+                AffiliationRecommendationType(uuid=uuid, organizations=orgs)
+                for uuid, orgs in job.result['results'].items()
+            ]
 
         return JobType(job_id=job_id,
+                       job_type=job_type,
                        status=status,
-                       result=affiliated,
+                       result=result,
                        errors=errors)
 
     @check_auth
@@ -734,6 +767,7 @@ class SortingHatMutation(graphene.ObjectType):
     unmerge_identities = UnmergeIdentities.Field()
     enroll = Enroll.Field()
     withdraw = Withdraw.Field()
+    recommend_affiliations = RecommendAffiliations.Field()
     affiliate = Affiliate.Field()
 
     # JWT authentication

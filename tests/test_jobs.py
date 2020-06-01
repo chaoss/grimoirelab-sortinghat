@@ -34,7 +34,9 @@ from grimoirelab_toolkit.datetime import datetime_utcnow
 from sortinghat.core import api
 from sortinghat.core.context import SortingHatContext
 from sortinghat.core.errors import DuplicateRangeError, NotFoundError
-from sortinghat.core.jobs import find_job, affiliate
+from sortinghat.core.jobs import (find_job,
+                                  affiliate,
+                                  recommend_affiliations)
 from sortinghat.core.models import Individual, Transaction
 
 
@@ -64,6 +66,142 @@ class TestFindJob(TestCase):
         with self.assertRaisesRegex(NotFoundError,
                                     JOB_NOT_FOUND_ERROR):
             find_job('DEF')
+
+
+class TestRecommendAffiliations(TestCase):
+    """Unit tests for recommend_affiliations"""
+
+    def setUp(self):
+        """Initialize database with a dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        ctx = SortingHatContext(self.user)
+
+        # Organizations and domains
+        api.add_organization(ctx, 'Example')
+        api.add_domain(ctx, 'Example', 'example.com', is_top_domain=True)
+
+        api.add_organization(ctx, 'Example Int.')
+        api.add_domain(ctx, 'Example Int.', 'u.example.com',
+                       is_top_domain=True)
+        api.add_domain(ctx, 'Example Int.', 'es.u.example.com')
+        api.add_domain(ctx, 'Example Int.', 'en.u.example.com')
+
+        api.add_organization(ctx, 'Bitergia')
+        api.add_domain(ctx, 'Bitergia', 'bitergia.com')
+        api.add_domain(ctx, 'Bitergia', 'bitergia.org')
+
+        api.add_organization(ctx, 'LibreSoft')
+
+        # John Smith identity
+        self.jsmith = api.add_identity(ctx,
+                                       source='scm',
+                                       email='jsmith@us.example.com',
+                                       name='John Smith',
+                                       username='jsmith')
+        api.add_identity(ctx,
+                         source='scm',
+                         email='jsmith@example.net',
+                         name='John Smith',
+                         uuid=self.jsmith.uuid)
+
+        # Add John Doe identity
+        self.jdoe = api.add_identity(ctx,
+                                     source='unknown',
+                                     email=None,
+                                     name='John Doe',
+                                     username='jdoe')
+
+        # Jane Roe identity
+        self.jroe = api.add_identity(ctx,
+                                     source='scm',
+                                     email='jroe@example.com',
+                                     name='Jane Roe',
+                                     username='jroe')
+        api.add_identity(ctx,
+                         source='scm',
+                         email='jroe@example.com',
+                         uuid=self.jroe.uuid)
+        api.add_identity(ctx,
+                         source='unknown',
+                         email='jroe@bitergia.com',
+                         uuid=self.jroe.uuid)
+
+    def test_recommend_affiliations(self):
+        """Check if recommendations are obtained for all the individuals stored in the registry"""
+
+        ctx = SortingHatContext(self.user)
+
+        # Test
+        expected = {
+            'results': {
+                '0c1e1701bc819495acf77ef731023b7d789a9c71': [],
+                '17ab00ed3825ec2f50483e33c88df223264182ba': ['Bitergia', 'Example'],
+                'dc31d2afbee88a6d1dbc1ef05ec827b878067744': ['Example']
+            }
+        }
+
+        job = recommend_affiliations.delay(ctx)
+        result = job.result
+
+        self.assertDictEqual(result, expected)
+
+    def test_recommend_affiliations_uuid(self):
+        """Check if recommendations are obtained only for the given individuals"""
+
+        ctx = SortingHatContext(self.user)
+
+        # Test
+        expected = {
+            'results': {
+                'dc31d2afbee88a6d1dbc1ef05ec827b878067744': ['Example']
+            }
+        }
+
+        uuids = ['dc31d2afbee88a6d1dbc1ef05ec827b878067744']
+        job = recommend_affiliations.delay(ctx, uuids=uuids)
+
+        result = job.result
+
+        self.assertDictEqual(result, expected)
+
+    @unittest.mock.patch('sortinghat.core.api.find_individual_by_uuid')
+    def test_not_found_uuid_error(self, mock_find_indv):
+        """Check if the recommendation process returns no results when an individual is not found"""
+
+        exc = NotFoundError(entity='1234567890abcdefg')
+        mock_find_indv.side_effect = exc
+
+        ctx = SortingHatContext(self.user)
+
+        # Test
+        expected = {
+            'results': {}
+        }
+
+        uuids = ['1234567890abcdefg']
+        job = recommend_affiliations.delay(ctx, uuids=uuids)
+        result = job.result
+
+        self.assertDictEqual(result, expected)
+
+    def test_transactions(self):
+        """Check if the right transactions were created"""
+
+        timestamp = datetime_utcnow()
+
+        ctx = SortingHatContext(self.user)
+
+        recommend_affiliations.delay(ctx, job_id='1234-5678-90AB-CDEF')
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        self.assertEqual(len(transactions), 1)
+
+        trx = transactions[0]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'recommend_affiliations-1234-5678-90AB-CDEF')
+        self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, ctx.user.username)
 
 
 class TestAffiliateIndividuals(TestCase):
