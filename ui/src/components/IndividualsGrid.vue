@@ -2,8 +2,8 @@
   <v-card class="mx-auto" max-width="750">
     <v-container fluid v-if="!noIndividuals">
       <v-row dense>
-        <v-col v-for="individual in individuals" :key="individual">
-          <individual-card :name="individual" />
+        <v-col v-for="individual in individuals" :key="individual.profile.id">
+          <individual-card :name="individual.profile.name" />
         </v-col>
       </v-row>
     </v-container>
