@@ -1,0 +1,74 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`App mock query for getIndividuals 1`] = `
+<v-app-stub
+  id="app"
+>
+  <v-app-bar-stub
+    app="true"
+    color="primary"
+    dark="true"
+    extensionheight="48"
+    src=""
+    tag="header"
+    tile="true"
+    value="true"
+  >
+    <div
+      class="d-flex align-center"
+    >
+      <v-img-stub
+        alt="Vuetify Logo"
+        class="shrink mr-2"
+        contain="true"
+        options="[object Object]"
+        position="center center"
+        src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png"
+        transition="scale-transition"
+        width="40"
+      />
+       
+      <v-img-stub
+        alt="Vuetify Name"
+        class="shrink mt-1 hidden-sm-and-down"
+        contain="true"
+        minwidth="100"
+        options="[object Object]"
+        position="center center"
+        src="https://cdn.vuetifyjs.com/images/logos/vuetify-name-dark.png"
+        transition="fade-transition"
+        width="100"
+      />
+    </div>
+     
+    <v-spacer-stub />
+     
+    <v-btn-stub
+      activeclass=""
+      href="https://github.com/vuetifyjs/vuetify/releases/latest"
+      tag="button"
+      target="_blank"
+      text="true"
+      type="button"
+    >
+      <span
+        class="mr-2"
+      >
+        Latest Release
+      </span>
+       
+      <v-icon-stub>
+        mdi-open-in-new
+      </v-icon-stub>
+    </v-btn-stub>
+  </v-app-bar-stub>
+   
+  <v-content-stub
+    tag="main"
+  >
+    <individualsgrid-stub
+      individuals="[object Object]"
+    />
+  </v-content-stub>
+</v-app-stub>
+`;
