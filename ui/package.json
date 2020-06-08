@@ -11,8 +11,15 @@
     "build-storybook": "build-storybook -s public"
   },
   "dependencies": {
+    "apollo-cache-inmemory": "^1.6.6",
+    "apollo-client": "^2.6.9",
+    "apollo-link": "^1.2.14",
+    "apollo-link-http": "^1.5.17",
     "core-js": "^3.6.4",
+    "graphql": "^15.0.0",
+    "graphql-tag": "^2.10.3",
     "vue": "^2.6.11",
+    "vue-apollo": "^3.0.3", 
     "vuetify": "^2.2.11",
     "vuex": "^3.1.3"
   },

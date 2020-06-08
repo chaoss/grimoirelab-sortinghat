@@ -16,14 +16,54 @@ export const Default = () => ({
   props: {
     individuals: {
       default: () => [
-        "Tom Marvolo Riddle",
-        "Harry Potter",
-        "Voldemort",
-        "Hermione Granger",
-        "Ambus Dumbledore",
-        "Ron Weasley",
-        "Severus Snape",
-        "Hagrid"
+        {
+          profile: {
+            id: "1",
+            name: "Tom Marvolo Riddle"
+          }
+        },
+        {
+          profile: {
+            id: "2",
+            name: "Harry Potter"
+          }
+        },
+        {
+          profile: {
+            id: "3",
+            name: "Voldemort"
+          }
+        },
+        {
+          profile: {
+            id: "4",
+            name: "Hermione Granger"
+          }
+        },
+        {
+          profile: {
+            id: "5",
+            name: "Ambus Dumbledore"
+          }
+        },
+        {
+          profile: {
+            id: "6",
+            name: "Ron Weasley"
+          }
+        },
+        {
+          profile: {
+            id: "7",
+            name: "Severus Snape"
+          }
+        },
+        {
+          profile: {
+            id: "8",
+            name: "Hagrid"
+          }
+        }
       ]
     }
   }
