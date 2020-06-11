@@ -1,5 +1,5 @@
 <template>
-  <v-card class="mx-auto" max-width="344" raised>
+  <v-card class="mx-auto" raised>
     <v-list-item class="grow">
       <v-list-item-avatar color="grey">
         {{ getNameInitials }}
@@ -9,6 +9,7 @@
         <v-list-item-title>{{ name }}</v-list-item-title>
       </v-list-item-content>
     </v-list-item>
+    <slot />
   </v-card>
 </template>
 
