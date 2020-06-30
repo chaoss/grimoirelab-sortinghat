@@ -24,6 +24,16 @@ describe("App", () => {
             }
           ],
           __typename: "IdentityPaginatedType"
+        },
+        pageInfo: {
+          page: 1,
+          pageSize: 10,
+          numPages: 1,
+          hasNext: false,
+          hasPrev: false,
+          startIndex: 1,
+          endIndex: 1,
+          totalResults: 1
         }
       }
     };
