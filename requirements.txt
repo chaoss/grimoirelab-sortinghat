@@ -14,3 +14,4 @@ jinja2==2.11.1
 rq>=1.4.0
 django-rq>=2.3.2
 fakeredis>=1.4.1
+pandas>=1.0.5

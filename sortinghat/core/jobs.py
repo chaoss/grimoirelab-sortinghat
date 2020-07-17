@@ -17,6 +17,7 @@
 #
 # Authors:
 #     Santiago Dueñas <sduenas@bitergia.com>
+#     Miguel Ángel Fernández <mafesan@bitergia.com>
 #
 
 import itertools
@@ -101,6 +102,57 @@ def recommend_affiliations(ctx, uuids=None):
     for chunk in _iter_split(uuids, size=MAX_CHUNK_SIZE):
         for rec in engine.recommend('affiliation', chunk):
             results[rec.key] = rec.options
+
+    trxl.close()
+
+    return job_result
+
+
+@django_rq.job
+def recommend_matches(ctx, source_uuids, target_uuids, criteria, verbose=False):
+    """Generate a list of affiliation recommendations from a set of individuals.
+
+    This function generates a list of recommendations which include the
+    matching identities from the individuals which can be merged with.
+    This job returns a dictionary with which individuals are recommended to be
+    merged to which individual (or which identities is `verbose` mode is activated).
+
+    Individuals both for `source_uuids` and `target_uuids` are defined by any of
+    their valid keys or UUIDs. When the parameter `target_uuids` is empty, the job
+    will take all the individuals stored in the registry, so matches will be found
+    comparing the identities from the individuals in `source_uuids` against all the
+    identities on the registry.
+
+    :param ctx: context where this job is run
+    :param source_uuids: list of individuals identifiers to look matches for
+    :param target_uuids: list of individuals identifiers where to look for matches
+    :param criteria: list of fields which the match will be based on
+        (`email`, `name` and/or `username`)
+    :param verbose: if set to `True`, the match results will be composed by individual
+        indentities (even belonging to the same individual).
+
+    :returns: a dictionary with which individuals are recommended to be
+        merged to which individual or which identities.
+    """
+    if not target_uuids:
+        target_uuids = Individual.objects.values_list('mk', flat=True).iterator()
+
+    results = {}
+    job_result = {
+        'results': results
+    }
+
+    engine = RecommendationEngine()
+
+    # Create a new context to include the reference
+    # to the job id that will perform the transaction.
+    job = rq.get_current_job()
+    job_ctx = SortingHatContext(ctx.user, job.id)
+
+    trxl = TransactionsLog.open('recommend_matches', job_ctx)
+
+    for rec in engine.recommend('matches', source_uuids, target_uuids, criteria, verbose):
+        results[rec.key] = list(rec.options)
 
     trxl.close()
 
