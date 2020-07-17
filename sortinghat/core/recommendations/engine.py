@@ -23,6 +23,7 @@ import collections
 
 from ..errors import RecommendationEngineError
 from .affiliation import recommend_affiliations
+from .matching import recommend_matches
 
 
 Recommendation = collections.namedtuple(
@@ -39,7 +40,8 @@ class RecommendationEngine:
     on the registry.
     """
     RECOMMENDATION_TYPES = {
-        'affiliation': recommend_affiliations
+        'affiliation': recommend_affiliations,
+        'matches': recommend_matches
     }
 
     def recommend(self, name, *args, **kwargs):

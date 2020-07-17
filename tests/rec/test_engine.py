@@ -95,4 +95,4 @@ class TestRecommendationEngine(TestCase):
         """Test the list of supported recommendation types"""
 
         types = RecommendationEngine.types()
-        self.assertListEqual(types, ['affiliation'])
+        self.assertListEqual(types, ['affiliation', 'matches'])
