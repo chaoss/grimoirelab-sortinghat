@@ -524,6 +524,24 @@ SH_JOB_QUERY_RECOMMEND_AFFILIATIONS = """{
   }
 }
 """
+SH_JOB_QUERY_RECOMMEND_MATCHES = """{
+  job(
+    jobId:"%s"
+  ){
+    jobId
+    jobType
+    status
+    errors
+    result {
+      __typename
+      ... on MatchesRecommendationType {
+          uuid
+          matches
+      }
+    }
+  }
+}
+"""
 
 # API endpoint to obtain a context for executing queries
 GRAPHQL_ENDPOINT = '/graphql/'
@@ -2045,6 +2063,84 @@ class TestQueryJob(django.test.TestCase):
         job_data = executed['data']['job']
         self.assertEqual(job_data['jobId'], '1234-5678-90AB-CDEF')
         self.assertEqual(job_data['jobType'], 'recommend_affiliations')
+        self.assertEqual(job_data['status'], 'queued')
+        self.assertEqual(job_data['errors'], None)
+        self.assertEqual(job_data['result'], None)
+
+    @unittest.mock.patch('sortinghat.core.schema.find_job')
+    def test_recommend_matches_job(self, mock_job):
+        """Check if it returns a matches recommendation type"""
+
+        result = {
+            'results': {
+                '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331':
+                    ['400fdfaab5918d1b7e0e0efba4797abdc378bd7d',
+                     '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331'],
+                '54806f99212ac5de67684dabda6db139fc6507ee':
+                    ['9cb28b6fb034393bbe4749081e0da6cc5a715b85',
+                     'bc02398823c5a8f3cb77fa77b183119a7d6685d8'],
+                'e00e8f2480021ce2b9e78fc8cfcab81be1f4d3a6':
+                    ['9cb28b6fb034393bbe4749081e0da6cc5a715b85',
+                     'bc02398823c5a8f3cb77fa77b183119a7d6685d8']
+            }
+        }
+
+        job = MockJob('1234-5678-90AB-CDEF', 'recommend_matches', 'finished', result)
+        mock_job.return_value = job
+
+        # Tests
+        client = graphene.test.Client(schema)
+
+        query = SH_JOB_QUERY_RECOMMEND_MATCHES % '1234-5678-90AB-CDEF'
+
+        executed = client.execute(query,
+                                  context_value=self.context_value)
+
+        job_data = executed['data']['job']
+        self.assertEqual(job_data['jobId'], '1234-5678-90AB-CDEF')
+        self.assertEqual(job_data['jobType'], 'recommend_matches')
+        self.assertEqual(job_data['status'], 'finished')
+        self.assertEqual(job_data['errors'], None)
+
+        job_results = job_data['result']
+        self.assertEqual(len(job_results), 3)
+
+        res = job_results[0]
+        self.assertEqual(res['__typename'], 'MatchesRecommendationType')
+        self.assertEqual(res['uuid'], '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
+        self.assertEqual(res['matches'], ['400fdfaab5918d1b7e0e0efba4797abdc378bd7d',
+                                          '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331'])
+
+        res = job_results[1]
+        self.assertEqual(res['__typename'], 'MatchesRecommendationType')
+        self.assertEqual(res['uuid'], '54806f99212ac5de67684dabda6db139fc6507ee')
+        self.assertEqual(res['matches'], ['9cb28b6fb034393bbe4749081e0da6cc5a715b85',
+                                          'bc02398823c5a8f3cb77fa77b183119a7d6685d8'])
+
+        res = job_results[2]
+        self.assertEqual(res['__typename'], 'MatchesRecommendationType')
+        self.assertEqual(res['uuid'], 'e00e8f2480021ce2b9e78fc8cfcab81be1f4d3a6')
+        self.assertEqual(res['matches'], ['9cb28b6fb034393bbe4749081e0da6cc5a715b85',
+                                          'bc02398823c5a8f3cb77fa77b183119a7d6685d8'])
+
+    @unittest.mock.patch('sortinghat.core.schema.find_job')
+    def test_recommend_matches_job_no_results(self, mock_job):
+        """Check if it does not fail when there are not results ready"""
+
+        job = MockJob('1234-5678-90AB-CDEF', 'recommend_matches', 'queued', None)
+        mock_job.return_value = job
+
+        # Tests
+        client = graphene.test.Client(schema)
+
+        query = SH_JOB_QUERY_RECOMMEND_MATCHES % '1234-5678-90AB-CDEF'
+
+        executed = client.execute(query,
+                                  context_value=self.context_value)
+
+        job_data = executed['data']['job']
+        self.assertEqual(job_data['jobId'], '1234-5678-90AB-CDEF')
+        self.assertEqual(job_data['jobType'], 'recommend_matches')
         self.assertEqual(job_data['status'], 'queued')
         self.assertEqual(job_data['errors'], None)
         self.assertEqual(job_data['result'], None)

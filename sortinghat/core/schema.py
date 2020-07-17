@@ -55,7 +55,8 @@ from .context import SortingHatContext
 from .decorators import check_auth
 from .jobs import (affiliate,
                    find_job,
-                   recommend_affiliations)
+                   recommend_affiliations,
+                   recommend_matches)
 from .models import (Organization,
                      Domain,
                      Country,
@@ -143,6 +144,11 @@ class AffiliationRecommendationType(graphene.ObjectType):
     organizations = graphene.List(graphene.String)
 
 
+class MatchesRecommendationType(graphene.ObjectType):
+    uuid = graphene.String()
+    matches = graphene.List(graphene.String)
+
+
 class AffiliationResultType(graphene.ObjectType):
     uuid = graphene.String()
     organizations = graphene.List(graphene.String)
@@ -150,7 +156,9 @@ class AffiliationResultType(graphene.ObjectType):
 
 class JobResultType(graphene.Union):
     class Meta:
-        types = (AffiliationResultType, AffiliationRecommendationType,)
+        types = (AffiliationResultType,
+                 AffiliationRecommendationType,
+                 MatchesRecommendationType)
 
 
 class JobType(graphene.ObjectType):
@@ -574,6 +582,29 @@ class RecommendAffiliations(graphene.Mutation):
         )
 
 
+class RecommendMatches(graphene.Mutation):
+    class Arguments:
+        source_uuids = graphene.List(graphene.String,
+                                     required=True)
+        target_uuids = graphene.List(graphene.String,
+                                     required=False)
+        criteria = graphene.List(graphene.String)
+        verbose = graphene.Boolean(required=False)
+
+    job_id = graphene.Field(lambda: graphene.String)
+
+    @check_auth
+    def mutate(self, info, source_uuids, criteria, target_uuids=None, verbose=False):
+        user = info.context.user
+        ctx = SortingHatContext(user)
+
+        job = enqueue(recommend_matches, ctx, source_uuids, target_uuids, criteria, verbose)
+
+        return RecommendMatches(
+            job_id=job.id
+        )
+
+
 class Affiliate(graphene.Mutation):
     class Arguments:
         uuids = graphene.List(graphene.String,
@@ -696,6 +727,11 @@ class SortingHatQuery:
                 AffiliationRecommendationType(uuid=uuid, organizations=orgs)
                 for uuid, orgs in job.result['results'].items()
             ]
+        elif (job.result) and (job_type == 'recommend_matches'):
+            result = [
+                MatchesRecommendationType(uuid=uuid, matches=matches)
+                for uuid, matches in job.result['results'].items()
+            ]
 
         return JobType(job_id=job_id,
                        job_type=job_type,
@@ -768,6 +804,7 @@ class SortingHatMutation(graphene.ObjectType):
     enroll = Enroll.Field()
     withdraw = Withdraw.Field()
     recommend_affiliations = RecommendAffiliations.Field()
+    recommend_matches = RecommendMatches.Field()
     affiliate = Affiliate.Field()
 
     # JWT authentication
