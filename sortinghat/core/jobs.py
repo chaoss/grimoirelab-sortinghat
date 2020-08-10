@@ -118,10 +118,10 @@ def recommend_matches(ctx, source_uuids, target_uuids, criteria, verbose=False):
     merged to which individual (or which identities is `verbose` mode is activated).
 
     Individuals both for `source_uuids` and `target_uuids` are defined by any of
-    their valid keys or UUIDs. When the parameter `target_uuids` is empty, the job
-    will take all the individuals stored in the registry, so matches will be found
-    comparing the identities from the individuals in `source_uuids` against all the
-    identities on the registry.
+    their valid keys or UUIDs. When the parameter `target_uuids` is empty, the
+    recommendation engine will take all the individuals stored in the registry,
+    so matches will be found comparing the identities from the individuals in
+    `source_uuids` against all the identities on the registry.
 
     :param ctx: context where this job is run
     :param source_uuids: list of individuals identifiers to look matches for
@@ -134,8 +134,6 @@ def recommend_matches(ctx, source_uuids, target_uuids, criteria, verbose=False):
     :returns: a dictionary with which individuals are recommended to be
         merged to which individual or which identities.
     """
-    if not target_uuids:
-        target_uuids = Individual.objects.values_list('mk', flat=True).iterator()
 
     results = {}
     job_result = {
