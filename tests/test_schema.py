@@ -542,6 +542,22 @@ SH_JOB_QUERY_RECOMMEND_MATCHES = """{
   }
 }
 """
+SH_JOB_QUERY_UNIFY = """{
+  job(
+    jobId:"%s"
+  ){
+    jobId
+    jobType
+    status
+    errors
+    result {
+      __typename
+      ... on UnifyResultType {
+          merged
+      }
+    }
+  }
+}"""
 
 # API endpoint to obtain a context for executing queries
 GRAPHQL_ENDPOINT = '/graphql/'
@@ -2141,6 +2157,61 @@ class TestQueryJob(django.test.TestCase):
         job_data = executed['data']['job']
         self.assertEqual(job_data['jobId'], '1234-5678-90AB-CDEF')
         self.assertEqual(job_data['jobType'], 'recommend_matches')
+        self.assertEqual(job_data['status'], 'queued')
+        self.assertEqual(job_data['errors'], None)
+        self.assertEqual(job_data['result'], None)
+
+    @unittest.mock.patch('sortinghat.core.schema.find_job')
+    def test_unify_job(self, mock_job):
+        """Check if it returns a unify result type"""
+
+        result = {
+            'results': ['880b3dfcb3a08712e5831bddc3dfe81fc5d7b331'],
+            'errors': None
+        }
+
+        job = MockJob('90AB-CD12-3456-78EF', 'unify', 'finished', result)
+        mock_job.return_value = job
+
+        # Tests
+        client = graphene.test.Client(schema)
+
+        query = SH_JOB_QUERY_UNIFY % '90AB-CD12-3456-78EF'
+
+        executed = client.execute(query,
+                                  context_value=self.context_value)
+
+        job_data = executed['data']['job']
+        self.assertEqual(job_data['jobId'], '90AB-CD12-3456-78EF')
+        self.assertEqual(job_data['jobType'], 'unify')
+        self.assertEqual(job_data['status'], 'finished')
+        self.assertEqual(job_data['errors'], None)
+
+        job_results = job_data['result']
+        self.assertEqual(len(job_results), 1)
+
+        res = job_results[0]
+        self.assertEqual(res['__typename'], 'UnifyResultType')
+        self.assertEqual(res['merged'], ['880b3dfcb3a08712e5831bddc3dfe81fc5d7b331'])
+
+    @unittest.mock.patch('sortinghat.core.schema.find_job')
+    def test_unify_job_no_results(self, mock_job):
+        """Check if it does not fail when there are not results ready"""
+
+        job = MockJob('90AB-CD12-3456-78EF', 'unify', 'queued', None)
+        mock_job.return_value = job
+
+        # Tests
+        client = graphene.test.Client(schema)
+
+        query = SH_JOB_QUERY_UNIFY % '90AB-CD12-3456-78EF'
+
+        executed = client.execute(query,
+                                  context_value=self.context_value)
+
+        job_data = executed['data']['job']
+        self.assertEqual(job_data['jobId'], '90AB-CD12-3456-78EF')
+        self.assertEqual(job_data['jobType'], 'unify')
         self.assertEqual(job_data['status'], 'queued')
         self.assertEqual(job_data['errors'], None)
         self.assertEqual(job_data['result'], None)
@@ -5327,6 +5398,198 @@ class TestAffiliateMutation(django.test.TestCase):
         client = graphene.test.Client(schema)
 
         executed = client.execute(self.SH_AFFILIATE,
+                                  context_value=context_value)
+
+        msg = executed['errors'][0]['message']
+
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
+
+
+class TestUnifyMutation(django.test.TestCase):
+    """Unit tests for mutation to unify individuals"""
+
+    SH_UNIFY = """
+        mutation unify($sourceUuids: [String],
+                       $targetUuids: [String],
+                       $criteria: [String]) {
+            unify(sourceUuids: $sourceUuids,
+                  targetUuids: $targetUuids,
+                  criteria: $criteria) {
+                jobId
+            }
+        }
+    """
+
+    def setUp(self):
+        """Load initial dataset and set queries context"""
+
+        conn = django_rq.queues.get_redis_connection(None, True)
+        conn.flushall()
+
+        self.user = get_user_model().objects.create(username='test')
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
+
+        ctx = SortingHatContext(self.user)
+
+        # Individual 1
+        self.john_smith = api.add_identity(ctx,
+                                           email='jsmith@example.com',
+                                           name='John Smith',
+                                           source='scm')
+        self.js2 = api.add_identity(ctx,
+                                    name='John Smith',
+                                    source='scm',
+                                    uuid=self.john_smith.uuid)
+        self.js3 = api.add_identity(ctx,
+                                    username='jsmith',
+                                    source='scm',
+                                    uuid=self.john_smith.uuid)
+
+        # Individual 2
+        self.jsmith = api.add_identity(ctx,
+                                       name='J. Smith',
+                                       username='john_smith',
+                                       source='alt')
+        self.jsm2 = api.add_identity(ctx,
+                                     name='John Smith',
+                                     username='jsmith',
+                                     source='alt',
+                                     uuid=self.jsmith.uuid)
+        self.jsm3 = api.add_identity(ctx,
+                                     email='jsmith@example.com',
+                                     source='alt',
+                                     uuid=self.jsmith.uuid)
+
+        # Individual 3
+        self.jane_rae = api.add_identity(ctx,
+                                         name='Janer Rae',
+                                         source='mls')
+        self.jr2 = api.add_identity(ctx,
+                                    email='jane.rae@example.net',
+                                    name='Jane Rae Doe',
+                                    source='mls',
+                                    uuid=self.jane_rae.uuid)
+
+        # Individual 4
+        self.js_alt = api.add_identity(ctx,
+                                       name='J. Smith',
+                                       username='john_smith',
+                                       source='scm')
+        self.js_alt2 = api.add_identity(ctx,
+                                        email='JSmith@example.com',
+                                        username='john_smith',
+                                        source='mls',
+                                        uuid=self.js_alt.uuid)
+        self.js_alt3 = api.add_identity(ctx,
+                                        username='Smith. J',
+                                        source='mls',
+                                        uuid=self.js_alt.uuid)
+        self.js_alt4 = api.add_identity(ctx,
+                                        email='JSmith@example.com',
+                                        name='Smith. J',
+                                        source='mls',
+                                        uuid=self.js_alt.uuid)
+
+        # Individual 5
+        self.jrae = api.add_identity(ctx,
+                                     email='jrae@example.net',
+                                     name='Jane Rae Doe',
+                                     source='mls')
+        self.jrae2 = api.add_identity(ctx,
+                                      name='jrae',
+                                      source='mls',
+                                      uuid=self.jrae.uuid)
+        self.jrae3 = api.add_identity(ctx,
+                                      name='jrae',
+                                      source='scm',
+                                      uuid=self.jrae.uuid)
+
+    @unittest.mock.patch('sortinghat.core.jobs.rq.job.uuid4')
+    def test_unify(self, mock_job_id_gen):
+        """Check if unify is applied for the specified individuals"""
+
+        mock_job_id_gen.return_value = "1234-5678-90AB-CDEF"
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'sourceUuids': [self.john_smith.uuid, self.jrae3.uuid, self.jr2.uuid],
+            'targetUuids': [self.john_smith.uuid, self.js2.uuid, self.js3.uuid,
+                            self.jsmith.uuid, self.jsm2.uuid, self.jsm3.uuid,
+                            self.jane_rae.uuid, self.jr2.uuid,
+                            self.js_alt.uuid, self.js_alt2.uuid,
+                            self.js_alt3.uuid, self.js_alt4.uuid,
+                            self.jrae.uuid, self.jrae2.uuid, self.jrae3.uuid],
+            'criteria': ['email', 'name', 'username']
+        }
+
+        executed = client.execute(self.SH_UNIFY,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        # Check if the job was run and individuals were merged
+        job_id = executed['data']['unify']['jobId']
+        self.assertEqual(job_id, "1234-5678-90AB-CDEF")
+
+        # Checking if the identities have been merged
+        # Individual 1
+        individual_db_1 = Individual.objects.get(mk=self.jsmith.uuid)
+        identities = individual_db_1.identities.all()
+        self.assertEqual(len(identities), 6)
+
+        id1 = identities[0]
+        self.assertEqual(id1, self.jsm2)
+
+        id2 = identities[1]
+        self.assertEqual(id2, self.jsmith)
+
+        id3 = identities[2]
+        self.assertEqual(id3, self.jsm3)
+
+        id4 = identities[3]
+        self.assertEqual(id4, self.john_smith)
+
+        id5 = identities[4]
+        self.assertEqual(id5, self.js2)
+
+        id6 = identities[5]
+        self.assertEqual(id6, self.js3)
+
+        # Individual 2
+        individual_db_2 = Individual.objects.get(mk=self.jrae.uuid)
+        identities = individual_db_2.identities.all()
+        self.assertEqual(len(identities), 5)
+
+        id1 = identities[0]
+        self.assertEqual(id1, self.jrae2)
+
+        id2 = identities[1]
+        self.assertEqual(id2, self.jrae3)
+
+        id3 = identities[2]
+        self.assertEqual(id3, self.jrae)
+
+        id4 = identities[3]
+        self.assertEqual(id4, self.jane_rae)
+
+        id5 = identities[4]
+        self.assertEqual(id5, self.jr2)
+
+    @unittest.mock.patch('sortinghat.core.jobs.rq.job.uuid4')
+    def test_unify_source_not_mk(self, mock_job_id_gen):
+        """Check if unify works when the provided uuid is not an Individual's main key"""
+        pass
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the query"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        executed = client.execute(self.SH_UNIFY,
                                   context_value=context_value)
 
         msg = executed['errors'][0]['message']
