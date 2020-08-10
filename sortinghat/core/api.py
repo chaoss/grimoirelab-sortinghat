@@ -48,7 +48,8 @@ from .db import (find_individual_by_uuid,
 from .errors import (InvalidValueError,
                      AlreadyExistsError,
                      NotFoundError,
-                     DuplicateRangeError)
+                     DuplicateRangeError,
+                     EqualIndividualError)
 from .log import TransactionsLog
 from .models import Identity, MIN_PERIOD_DATE, MAX_PERIOD_DATE
 from .utils import unaccent_string, merge_datetime_ranges
@@ -855,6 +856,7 @@ def merge(ctx, from_uuids, to_uuid):
 
     :raises NotFoundError: raised when either one of the `from_uuids` or
         `to_uuid` do not exist in the registry
+    :raises EqualIndividualError: raised when `to_uuid` is part of `from_uuids`
     """
 
     def _find_individuals(from_uuids, to_uuid):
@@ -868,7 +870,8 @@ def merge(ctx, from_uuids, to_uuid):
             if from_uuid == '':
                 raise InvalidValueError(msg="'from_uuid' cannot be an empty string")
             if from_uuid == to_uuid:
-                raise InvalidValueError(msg="'from_uuid' and 'to_uuid' cannot be equal")
+                msg = "'to_uuid' {} cannot be part of 'from_uuids'".format(to_uuid)
+                raise EqualIndividualError(msg=msg)
 
             try:
                 from_indv = find_individual_by_uuid(from_uuid)

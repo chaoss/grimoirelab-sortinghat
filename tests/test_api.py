@@ -37,7 +37,8 @@ from sortinghat.core.errors import (AlreadyExistsError,
                                     NotFoundError,
                                     InvalidValueError,
                                     LockedIdentityError,
-                                    DuplicateRangeError)
+                                    DuplicateRangeError,
+                                    EqualIndividualError)
 from sortinghat.core.models import (Country,
                                     Individual,
                                     Identity,
@@ -59,7 +60,7 @@ FROM_UUID_NONE_OR_EMPTY_ERROR = "'from_uuid' cannot be"
 FROM_UUID_IS_INDIVIDUAL_ERROR = "'from_uuid' is an individual and it cannot be moved; use 'merge' instead"
 FROM_UUIDS_NONE_OR_EMPTY_ERROR = "'from_uuids' cannot be"
 TO_UUID_NONE_OR_EMPTY_ERROR = "'to_uuid' cannot be"
-FROM_UUID_TO_UUID_EQUAL_ERROR = "'from_uuid' and 'to_uuid' cannot be"
+FROM_UUID_TO_UUID_EQUAL_ERROR = "'to_uuid' {to_uuid} cannot be part of 'from_uuids'"
 IS_BOT_VALUE_ERROR = "'is_bot' must have a boolean value"
 COUNTRY_CODE_ERROR = r"'country_code' \({code}\) does not match with a valid code"
 GENDER_ACC_INVALID_ERROR = "'gender_acc' can only be set when 'gender' is given"
@@ -4091,7 +4092,8 @@ class TestMergeIndividuals(TestCase):
 
         trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
-        with self.assertRaisesRegex(InvalidValueError, FROM_UUID_TO_UUID_EQUAL_ERROR):
+        error = FROM_UUID_TO_UUID_EQUAL_ERROR.format(to_uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        with self.assertRaisesRegex(EqualIndividualError, error):
             api.merge(self.ctx,
                       from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
                       to_uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')

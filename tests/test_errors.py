@@ -27,6 +27,7 @@ from sortinghat.core.errors import (BaseError,
                                     AlreadyExistsError,
                                     NotFoundError,
                                     InvalidValueError,
+                                    EqualIndividualError,
                                     ClosedTransactionError,
                                     LockedIdentityError,
                                     DuplicateRangeError,
@@ -142,6 +143,24 @@ class TestInvalidValueError(TestCase):
         """
         kwargs = {}
         self.assertRaises(KeyError, InvalidValueError, **kwargs)
+
+
+class TestEqualIndividualError(TestCase):
+    """Unit tests for EqualIndividualError"""
+
+    def test_message(self):
+        """Make sure that prints the right error"""
+
+        e = EqualIndividualError(msg="'from_uuid' and 'to_uuid' cannot be equal")
+        self.assertEqual("'from_uuid' and 'to_uuid' cannot be equal", str(e))
+
+    def test_no_args(self):
+        """Check when required arguments are not given.
+
+        When this happens, it raises a KeyError exception.
+        """
+        kwargs = {}
+        self.assertRaises(KeyError, EqualIndividualError, **kwargs)
 
 
 class TestClosedTransactionError(TestCase):
