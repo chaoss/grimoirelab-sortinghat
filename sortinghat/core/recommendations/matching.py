@@ -86,14 +86,19 @@ def recommend_matches(source_uuids, target_uuids, criteria, verbose=False):
     matched = _find_matches(input_set, target_set, criteria, verbose=verbose)
     # Return filtered results
     for uuid in source_uuids:
-        result = []
+        result = set()
         if uuid in matched.keys():
             result = matched[uuid]
         else:
             for alias in aliases[uuid]:
                 if alias in matched.keys():
                     result = matched[alias]
-        yield uuid, result
+        # Remove input uuid from results if needed
+        try:
+            result.remove(uuid)
+        except KeyError:
+            pass
+        yield uuid, list(result)
 
 
 def _find_matches(set_x, set_y, criteria, verbose):
