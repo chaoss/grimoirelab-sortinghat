@@ -114,7 +114,7 @@ def recommend_matches(source_uuids, target_uuids, criteria, verbose=False):
 def _find_matches(set_x, set_y, criteria, verbose):
     """Find identities matches between two sets using Pandas' library.
 
-    This method find matches for the indentities in `set_x` looking at
+    This method find matches for the identities in `set_x` looking at
     the identities from `set_y` given a list of criteria.
 
     The identities sets are transformed into Pandas dataframes and

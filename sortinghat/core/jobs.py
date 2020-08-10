@@ -129,7 +129,7 @@ def recommend_matches(ctx, source_uuids, target_uuids, criteria, verbose=False):
     :param criteria: list of fields which the match will be based on
         (`email`, `name` and/or `username`)
     :param verbose: if set to `True`, the match results will be composed by individual
-        indentities (even belonging to the same individual).
+        identities (even belonging to the same individual).
 
     :returns: a dictionary with which individuals are recommended to be
         merged to which individual or which identities.
