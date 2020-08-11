@@ -24,11 +24,12 @@ import itertools
 
 import django_rq
 import django_rq.utils
+import pandas
 import rq
 
-from .api import enroll
+from .api import enroll, merge
 from .context import SortingHatContext
-from .errors import BaseError, NotFoundError
+from .errors import BaseError, NotFoundError, EqualIndividualError
 from .log import TransactionsLog
 from .models import Individual
 from .recommendations.engine import RecommendationEngine
@@ -118,10 +119,10 @@ def recommend_matches(ctx, source_uuids, target_uuids, criteria, verbose=False):
     merged to which individual (or which identities is `verbose` mode is activated).
 
     Individuals both for `source_uuids` and `target_uuids` are defined by any of
-    their valid keys or UUIDs. When the parameter `target_uuids` is empty, the job
-    will take all the individuals stored in the registry, so matches will be found
-    comparing the identities from the individuals in `source_uuids` against all the
-    identities on the registry.
+    their valid keys or UUIDs. When the parameter `target_uuids` is empty, the
+    recommendation engine will take all the individuals stored in the registry,
+    so matches will be found comparing the identities from the individuals in
+    `source_uuids` against all the identities on the registry.
 
     :param ctx: context where this job is run
     :param source_uuids: list of individuals identifiers to look matches for
@@ -129,13 +130,11 @@ def recommend_matches(ctx, source_uuids, target_uuids, criteria, verbose=False):
     :param criteria: list of fields which the match will be based on
         (`email`, `name` and/or `username`)
     :param verbose: if set to `True`, the match results will be composed by individual
-        indentities (even belonging to the same individual).
+        identities (even belonging to the same individual).
 
     :returns: a dictionary with which individuals are recommended to be
         merged to which individual or which identities.
     """
-    if not target_uuids:
-        target_uuids = Individual.objects.values_list('mk', flat=True).iterator()
 
     results = {}
     job_result = {
@@ -211,6 +210,121 @@ def affiliate(ctx, uuids=None):
     trxl.close()
 
     return job_result
+
+
+@django_rq.job
+def unify(ctx, source_uuids, target_uuids, criteria):
+    """Unify a set of individuals by merging them using matching recommendations.
+
+    This function automates the identities unify process obtaining
+    a list of recommendations where matching individuals can be merged.
+    After that, matching individuals are merged.
+    This job returns a list with the individuals which have been merged
+    and the errors generated during this process.
+
+    Individuals both for `source_uuids` and `target_uuids` are defined by
+    any of their valid keys or UUIDs. When the parameter `target_uuids` is empty,
+    the matches and the later merges will take place comparing the identities
+    from the individuals in `source_uuids` against all the identities on the registry.
+
+    :param ctx: context where this job is run
+    :param source_uuids: list of individuals identifiers to look matches for
+    :param target_uuids: list of individuals identifiers where to look for matches
+    :param criteria: list of fields which the unify will be based on
+        (`email`, `name` and/or `username`)
+
+    :returns: a list with the individuals resulting from merge operations
+        and the errors found running the job
+    """
+    def _group_recommendations(recs):
+        """Calculate unique sets of identities from matching recommendations.
+
+        For instance, given a list of matching groups like
+        A = {A, B}; B = {B,A,C}, C = {C,} and D = {D,} the output
+        for keys A, B and C will be the group {A, B, C}. As D has no matches,
+        it won't be included in any group and it won't be returned.
+
+        :param recs: recommendations of matching identities
+
+        :returns: a list including unique groups of matches
+        """
+        groups = []
+        for group_key in recs:
+            g_uuids = pandas.Series(recs[group_key])
+            g_uuids = g_uuids.append(pandas.Series([group_key]))
+            g_uuids = list(g_uuids.sort_values().unique())
+            if (len(g_uuids) > 1) and (g_uuids not in groups):
+                groups.append(g_uuids)
+        return groups
+
+    results = []
+    errors = []
+
+    job_result = {
+        'results': results,
+        'errors': errors
+    }
+
+    engine = RecommendationEngine()
+
+    # Create a new context to include the reference
+    # to the job id that will perform the transaction.
+    job = rq.get_current_job()
+    job_ctx = SortingHatContext(ctx.user, job.id)
+
+    trxl = TransactionsLog.open('unify', job_ctx)
+
+    match_recs = {}
+    for rec in engine.recommend('matches', source_uuids, target_uuids, criteria):
+        match_recs[rec.key] = list(rec.options)
+
+    match_groups = _group_recommendations(match_recs)
+
+    # Apply the merge of the matching identities
+    for group in match_groups:
+        uuid = group[0]
+        result = group[1:]
+        merged_to, errs = _merge_individuals(job_ctx, uuid, result)
+        if merged_to:
+            results.append(merged_to)
+        errors.extend(errs)
+
+    trxl.close()
+
+    return job_result
+
+
+def _merge_individuals(job_ctx, source_indv, target_indvs):
+    """Merge a set of individuals.
+
+    Returns a tuple with two elements: list of the uuids from
+    the individuals who were merged; list of errors found
+    during the process.
+
+    :param job_ctx: job context
+    :param source_indv: valid individual identifier where
+        the rest of individuals will be merged to
+    :param target_indvs: list of identifiers of the individuals
+        who will be merged with the source individual
+
+    :returns: tuple with the uuid from the individual resulting from the merge
+     operation (if any), and list of errors found during the process
+    """
+    errors = []
+
+    try:
+        to_indv = merge(job_ctx, target_indvs, source_indv)
+    except EqualIndividualError:
+        # When source identity is already part of the destination, the merge is not applied
+        to_indv = None
+        pass
+    except BaseError as exc:
+        to_indv = None
+        errors.append(str(exc))
+
+    to_indv = to_indv.mk if to_indv else None
+
+    return to_indv, errors
 
 
 def _affiliate_individual(job_ctx, uuid, organizations):

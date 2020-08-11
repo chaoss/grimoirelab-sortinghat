@@ -115,8 +115,7 @@ class TestRecommendMatches(TestCase):
 
         # Test
         expected = {
-            self.john_smith.uuid: sorted([self.john_smith.uuid,
-                                          self.jsmith.uuid]),
+            self.john_smith.uuid: sorted([self.jsmith.uuid]),
             self.jrae3.uuid: sorted([self.jrae.uuid,
                                      self.jane_rae.uuid]),
             self.jr2.uuid: sorted([self.jrae.uuid,
@@ -151,15 +150,12 @@ class TestRecommendMatches(TestCase):
 
         # Test
         expected = {
-            self.john_smith.uuid: sorted([self.john_smith.uuid,
-                                          self.jsm2.uuid,
+            self.john_smith.uuid: sorted([self.jsm2.uuid,
                                           self.jsm3.uuid,
                                           self.js2.uuid,
                                           self.js3.uuid]),
-            self.jrae3.uuid: sorted([self.jrae2.uuid,
-                                     self.jrae3.uuid]),
-            self.jr2.uuid: sorted([self.jrae.uuid,
-                                   self.jr2.uuid])
+            self.jrae3.uuid: sorted([self.jrae2.uuid]),
+            self.jr2.uuid: sorted([self.jrae.uuid])
         }
 
         source_uuids = [self.john_smith.uuid, self.jrae3.uuid, self.jr2.uuid]

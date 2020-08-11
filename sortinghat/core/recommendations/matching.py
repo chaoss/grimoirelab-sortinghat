@@ -27,6 +27,7 @@ from django.forms.models import model_to_dict
 
 from ..db import (find_individual_by_uuid)
 from ..errors import NotFoundError
+from ..models import Identity
 
 
 def recommend_matches(source_uuids, target_uuids, criteria, verbose=False):
@@ -51,11 +52,15 @@ def recommend_matches(source_uuids, target_uuids, criteria, verbose=False):
     When no matching is found for a given individual, an empty
     list is returned.
 
+    When there are no `target_uuids`, the recommendations will
+    be returned for each `source_uuids` against all identities
+    on the registry.
+
     :param source_uuids: list of individual keys to find matches for
     :param target_uuids: list of individual keys where to find matches
-    :param criteria: list of matching criteria (`email`, `name`, `username`).
+    :param criteria: list of matching criteria (`email`, `name`, `username`)
     :param verbose: if set to `True`, the list of results will include individual
-    identities. Otherwise, results will include main keys from individuals.
+    identities. Otherwise, results will include main keys from individuals
 
     :returns: a generator of recommendations
     """
@@ -79,27 +84,37 @@ def recommend_matches(source_uuids, target_uuids, criteria, verbose=False):
         identities = _get_identities(uuid)
         aliases[uuid] = [identity.uuid for identity in identities]
         input_set.update(identities)
-    for uuid in target_uuids:
-        identities = _get_identities(uuid)
+
+    if target_uuids:
+        for uuid in target_uuids:
+            identities = _get_identities(uuid)
+            target_set.update(identities)
+    else:
+        identities = Identity.objects.all()
         target_set.update(identities)
 
     matched = _find_matches(input_set, target_set, criteria, verbose=verbose)
     # Return filtered results
     for uuid in source_uuids:
-        result = []
+        result = set()
         if uuid in matched.keys():
             result = matched[uuid]
         else:
             for alias in aliases[uuid]:
                 if alias in matched.keys():
                     result = matched[alias]
-        yield uuid, result
+        # Remove input uuid from results if needed
+        try:
+            result.remove(uuid)
+        except KeyError:
+            pass
+        yield uuid, list(result)
 
 
 def _find_matches(set_x, set_y, criteria, verbose):
     """Find identities matches between two sets using Pandas' library.
 
-    This method find matches for the indentities in `set_x` looking at
+    This method find matches for the identities in `set_x` looking at
     the identities from `set_y` given a list of criteria.
 
     The identities sets are transformed into Pandas dataframes and

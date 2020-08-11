@@ -37,6 +37,7 @@ from sortinghat.core.context import SortingHatContext
 from sortinghat.core.errors import DuplicateRangeError, NotFoundError
 from sortinghat.core.jobs import (find_job,
                                   affiliate,
+                                  unify,
                                   recommend_affiliations,
                                   recommend_matches)
 from sortinghat.core.models import Individual, Transaction
@@ -523,8 +524,7 @@ class TestRecommendMatches(TestCase):
         # Test
         expected = {
             'results': {
-                self.john_smith.uuid: sorted([self.john_smith.uuid,
-                                              self.jsmith.uuid]),
+                self.john_smith.uuid: sorted([self.jsmith.uuid]),
                 self.jrae3.uuid: sorted([self.jrae.uuid,
                                          self.jane_rae.uuid]),
                 self.jr2.uuid: sorted([self.jrae.uuid,
@@ -562,15 +562,12 @@ class TestRecommendMatches(TestCase):
         # Test
         expected = {
             'results': {
-                self.john_smith.uuid: sorted([self.john_smith.uuid,
-                                              self.jsm2.uuid,
+                self.john_smith.uuid: sorted([self.jsm2.uuid,
                                               self.jsm3.uuid,
                                               self.js2.uuid,
                                               self.js3.uuid]),
-                self.jrae3.uuid: sorted([self.jrae2.uuid,
-                                         self.jrae3.uuid]),
-                self.jr2.uuid: sorted([self.jrae.uuid,
-                                       self.jr2.uuid])
+                self.jrae3.uuid: sorted([self.jrae2.uuid]),
+                self.jr2.uuid: sorted([self.jrae.uuid])
             }
         }
 
@@ -628,8 +625,7 @@ class TestRecommendMatches(TestCase):
         # Test
         expected = {
             'results': {
-                self.john_smith.uuid: [self.jsmith.uuid,
-                                       self.john_smith.uuid]
+                self.john_smith.uuid: [self.jsmith.uuid]
             }
         }
 
@@ -722,5 +718,348 @@ class TestRecommendMatches(TestCase):
         trx = transactions[0]
         self.assertIsInstance(trx, Transaction)
         self.assertEqual(trx.name, 'recommend_matches-ABCD-EF12-3456-7890')
+        self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, ctx.user.username)
+
+
+class TestUnify(TestCase):
+    """Unit tests for unify"""
+
+    def setUp(self):
+        """Initialize database with a dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        # Individual 1
+        self.john_smith = api.add_identity(self.ctx,
+                                           email='jsmith@example.com',
+                                           name='John Smith',
+                                           source='scm')
+        self.js2 = api.add_identity(self.ctx,
+                                    name='John Smith',
+                                    source='scm',
+                                    uuid=self.john_smith.uuid)
+        self.js3 = api.add_identity(self.ctx,
+                                    username='jsmith',
+                                    source='scm',
+                                    uuid=self.john_smith.uuid)
+
+        # Individual 2
+        self.jsmith = api.add_identity(self.ctx,
+                                       name='J. Smith',
+                                       username='john_smith',
+                                       source='alt')
+        self.jsm2 = api.add_identity(self.ctx,
+                                     name='John Smith',
+                                     username='jsmith',
+                                     source='alt',
+                                     uuid=self.jsmith.uuid)
+        self.jsm3 = api.add_identity(self.ctx,
+                                     email='jsmith@example.com',
+                                     source='alt',
+                                     uuid=self.jsmith.uuid)
+
+        # Individual 3
+        self.jane_rae = api.add_identity(self.ctx,
+                                         name='Janer Rae',
+                                         source='mls')
+        self.jr2 = api.add_identity(self.ctx,
+                                    email='jane.rae@example.net',
+                                    name='Jane Rae Doe',
+                                    source='mls',
+                                    uuid=self.jane_rae.uuid)
+
+        # Individual 4
+        self.js_alt = api.add_identity(self.ctx,
+                                       name='J. Smith',
+                                       username='john_smith',
+                                       source='scm')
+        self.js_alt2 = api.add_identity(self.ctx,
+                                        email='JSmith@example.com',
+                                        username='john_smith',
+                                        source='mls',
+                                        uuid=self.js_alt.uuid)
+        self.js_alt3 = api.add_identity(self.ctx,
+                                        username='Smith. J',
+                                        source='mls',
+                                        uuid=self.js_alt.uuid)
+        self.js_alt4 = api.add_identity(self.ctx,
+                                        email='JSmith@example.com',
+                                        name='Smith. J',
+                                        source='mls',
+                                        uuid=self.js_alt.uuid)
+
+        # Individual 5
+        self.jrae = api.add_identity(self.ctx,
+                                     email='jrae@example.net',
+                                     name='Jane Rae Doe',
+                                     source='mls')
+        self.jrae2 = api.add_identity(self.ctx,
+                                      name='jrae',
+                                      source='mls',
+                                      uuid=self.jrae.uuid)
+        self.jrae3 = api.add_identity(self.ctx,
+                                      name='jrae',
+                                      source='scm',
+                                      uuid=self.jrae.uuid)
+
+    def test_unify(self):
+        """Check if unify is applied for the specified individuals"""
+
+        ctx = SortingHatContext(self.user)
+
+        # Test
+        expected = {
+            'results': [self.jsmith.uuid,
+                        self.jrae.uuid],
+            'errors': []
+        }
+
+        source_uuids = [self.john_smith.uuid, self.jrae3.uuid, self.jr2.uuid]
+        target_uuids = [self.john_smith.uuid, self.js2.uuid, self.js3.uuid,
+                        self.jsmith.uuid, self.jsm2.uuid, self.jsm3.uuid,
+                        self.jane_rae.uuid, self.jr2.uuid,
+                        self.js_alt.uuid, self.js_alt2.uuid,
+                        self.js_alt3.uuid, self.js_alt4.uuid,
+                        self.jrae.uuid, self.jrae2.uuid, self.jrae3.uuid]
+
+        criteria = ['email', 'name', 'username']
+
+        # Identities which don't have the fields in `criteria` or no matches won't be returned
+        job = unify.delay(ctx,
+                          source_uuids,
+                          target_uuids,
+                          criteria)
+
+        result = job.result
+
+        self.assertDictEqual(result, expected)
+
+        # Checking if the identities have been merged
+        # Individual 1
+        individual_1 = Individual.objects.get(mk=self.jsmith.uuid)
+        identities = individual_1.identities.all()
+        self.assertEqual(len(identities), 6)
+
+        id1 = identities[0]
+        self.assertEqual(id1, self.jsm2)
+
+        id2 = identities[1]
+        self.assertEqual(id2, self.jsmith)
+
+        id3 = identities[2]
+        self.assertEqual(id3, self.jsm3)
+
+        id4 = identities[3]
+        self.assertEqual(id4, self.john_smith)
+
+        id5 = identities[4]
+        self.assertEqual(id5, self.js2)
+
+        id6 = identities[5]
+        self.assertEqual(id6, self.js3)
+
+        # Individual 2
+        individual_2 = Individual.objects.get(mk=self.jrae.uuid)
+        identities = individual_2.identities.all()
+        self.assertEqual(len(identities), 5)
+
+        id1 = identities[0]
+        self.assertEqual(id1, self.jrae2)
+
+        id2 = identities[1]
+        self.assertEqual(id2, self.jrae3)
+
+        id3 = identities[2]
+        self.assertEqual(id3, self.jrae)
+
+        id4 = identities[3]
+        self.assertEqual(id4, self.jane_rae)
+
+        id5 = identities[4]
+        self.assertEqual(id5, self.jr2)
+
+    def test_unify_source_not_mk(self):
+        """Check if unify works when the provided uuid is not an Individual's main key"""
+
+        ctx = SortingHatContext(self.user)
+
+        # Test
+        expected = {
+            'results': [
+                self.js_alt.uuid
+            ],
+            'errors': []
+        }
+
+        source_uuids = [self.js_alt3.uuid]
+        target_uuids = [self.jsmith.uuid]
+        criteria = ['email', 'name', 'username']
+
+        job = unify.delay(ctx,
+                          source_uuids,
+                          target_uuids,
+                          criteria)
+        result = job.result
+
+        self.assertDictEqual(result, expected)
+
+        # Checking if the identities have been merged
+        individual = Individual.objects.get(mk=self.js_alt.uuid)
+        identities = individual.identities.all()
+        self.assertEqual(len(identities), 7)
+
+        id1 = identities[0]
+        self.assertEqual(id1, self.jsm2)
+
+        id2 = identities[1]
+        self.assertEqual(id2, self.js_alt)
+
+        id3 = identities[2]
+        self.assertEqual(id3, self.js_alt4)
+
+        id4 = identities[3]
+        self.assertEqual(id4, self.js_alt3)
+
+        id5 = identities[4]
+        self.assertEqual(id5, self.jsmith)
+
+        id6 = identities[5]
+        self.assertEqual(id6, self.jsm3)
+
+        id7 = identities[6]
+        self.assertEqual(id7, self.js_alt2)
+
+    def test_unify_empty_target(self):
+        """Check if unify is applied for the given individuals against the whole registry"""
+
+        ctx = SortingHatContext(self.user)
+
+        # Test
+        expected = {
+            'results': [
+                self.jsmith.uuid
+            ],
+            'errors': []
+        }
+
+        source_uuids = [self.john_smith.uuid]
+        target_uuids = None
+        criteria = ['email', 'name']
+
+        job = unify.delay(ctx,
+                          source_uuids,
+                          target_uuids,
+                          criteria)
+
+        result = job.result
+
+        self.assertDictEqual(result, expected)
+
+        # Checking if the identities have been merged
+        individual = Individual.objects.get(mk=self.jsmith.uuid)
+        identities = individual.identities.all()
+        self.assertEqual(len(identities), 6)
+
+        id1 = identities[0]
+        self.assertEqual(id1, self.jsm2)
+
+        id2 = identities[1]
+        self.assertEqual(id2, self.jsmith)
+
+        id3 = identities[2]
+        self.assertEqual(id3, self.jsm3)
+
+        id4 = identities[3]
+        self.assertEqual(id4, self.john_smith)
+
+        id5 = identities[4]
+        self.assertEqual(id5, self.js2)
+
+        id6 = identities[5]
+        self.assertEqual(id6, self.js3)
+
+    def test_no_matches_found(self):
+        """Check whether it returns no results when there is no matches for the input identity"""
+
+        ctx = SortingHatContext(self.user)
+
+        # Test
+        expected = {
+            'results': [],
+            'errors': []
+        }
+
+        source_uuids = [self.john_smith.uuid]
+        target_uuids = [self.jrae.uuid]
+        criteria = ['email', 'name']
+
+        job = unify.delay(ctx,
+                          source_uuids,
+                          target_uuids,
+                          criteria)
+
+        result = job.result
+
+        self.assertDictEqual(result, expected)
+
+    @unittest.mock.patch('sortinghat.core.api.find_individual_by_uuid')
+    def test_not_found_uuid_error(self, mock_find_indv):
+        """Check if the unify process returns no results when an individual is not found"""
+
+        exc = NotFoundError(entity='1234567890abcdefg')
+        mock_find_indv.side_effect = exc
+
+        ctx = SortingHatContext(self.user)
+
+        # Test
+        expected = {
+            'results': [],
+            'errors': []
+        }
+
+        source_uuids = ['1234567890abcdefg']
+        target_uuids = [self.john_smith.uuid]
+        criteria = ['email', 'name']
+
+        job = unify.delay(ctx,
+                          source_uuids,
+                          target_uuids,
+                          criteria)
+        result = job.result
+
+        self.assertDictEqual(result, expected)
+
+    def test_transactions(self):
+        """Check if the right transactions were created"""
+
+        timestamp = datetime_utcnow()
+
+        ctx = SortingHatContext(self.user)
+
+        source_uuids = [self.john_smith.uuid]
+        target_uuids = [self.jsmith.uuid]
+        criteria = ['email', 'name']
+
+        # Identities which don't have the fields in `criteria` or no matches won't be returned
+        unify.delay(ctx,
+                    source_uuids,
+                    target_uuids,
+                    criteria,
+                    job_id='ABCD-EF12-3456-7890')
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        self.assertEqual(len(transactions), 2)
+
+        trx = transactions[0]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'unify-ABCD-EF12-3456-7890')
+        self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, ctx.user.username)
+
+        trx = transactions[1]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'merge-ABCD-EF12-3456-7890')
         self.assertGreater(trx.created_at, timestamp)
         self.assertEqual(trx.authored_by, ctx.user.username)

@@ -28,6 +28,7 @@ CODE_VALUE_ERROR = 10
 CODE_CLOSED_TRANSACTION_ERROR = 12
 CODE_LOCKED_IDENTITY_ERROR = 13
 CODE_DUPLICATE_RANGE_ERROR = 14
+CODE_EQUAL_INDIVIDUAL_ERROR = 15
 CODE_RECOMMENDATION_ERROR = 100
 CODE_TOKEN_EXPIRED = 126
 CODE_PERMISSION_DENIED = 127
@@ -77,6 +78,13 @@ class InvalidValueError(BaseError):
     """Exception raised when a value is invalid"""
 
     code = CODE_VALUE_ERROR
+    message = "%(msg)s"
+
+
+class EqualIndividualError(BaseError):
+    """Exception raised when the source and destination individual are the same"""
+
+    code = CODE_EQUAL_INDIVIDUAL_ERROR
     message = "%(msg)s"
 
 
