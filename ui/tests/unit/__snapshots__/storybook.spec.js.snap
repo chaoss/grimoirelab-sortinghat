@@ -1,5 +1,129 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Storyshots Identity Default 1`] = `
+<div
+  class="v-application v-application--is-ltr theme--light"
+  data-app="true"
+  id="app"
+>
+  <div
+    class="v-application--wrap"
+  >
+    <div
+      class="row no-gutters"
+    >
+      <div
+        class="col col-2"
+      >
+        <span
+          class="text-center v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
+          tile=""
+        >
+          <span
+            class="v-chip__content"
+          >
+            
+      10f546
+    
+          </span>
+        </span>
+      </div>
+       
+      <div
+        class="ma-2 text-center col"
+      >
+        <span>
+          Tom Marvolo Riddle
+        </span>
+      </div>
+       
+      <div
+        class="ma-2 text-center col"
+      >
+        <span>
+          triddle@example.net
+        </span>
+      </div>
+       
+      <div
+        class="ma-2 text-center col"
+      >
+        <span>
+          triddle
+        </span>
+      </div>
+       
+      <!---->
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Storyshots Identity Source 1`] = `
+<div
+  class="v-application v-application--is-ltr theme--light"
+  data-app="true"
+  id="app"
+>
+  <div
+    class="v-application--wrap"
+  >
+    <div
+      class="row no-gutters"
+    >
+      <div
+        class="col col-2"
+      >
+        <span
+          class="text-center v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
+          tile=""
+        >
+          <span
+            class="v-chip__content"
+          >
+            
+      10f546
+    
+          </span>
+        </span>
+      </div>
+       
+      <div
+        class="ma-2 text-center col"
+      >
+        <span>
+          Tom Marvolo Riddle
+        </span>
+      </div>
+       
+      <div
+        class="ma-2 text-center col"
+      >
+        <span>
+          triddle@example.net
+        </span>
+      </div>
+       
+      <div
+        class="ma-2 text-center col"
+      >
+        <span>
+          triddle
+        </span>
+      </div>
+       
+      <div
+        class="ma-2 text-center col"
+      >
+        <span>
+          github
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
 exports[`Storyshots IndividualCard Default 1`] = `
 <div
   class="v-application v-application--is-ltr theme--light"
@@ -11,7 +135,6 @@ exports[`Storyshots IndividualCard Default 1`] = `
   >
     <div
       class="mx-auto v-card v-card--raised v-sheet theme--light"
-      style="max-width: 344px;"
     >
       <div
         class="grow v-list-item theme--light"
@@ -36,6 +159,7 @@ exports[`Storyshots IndividualCard Default 1`] = `
           </div>
         </div>
       </div>
+       
     </div>
   </div>
 </div>
@@ -52,7 +176,6 @@ exports[`Storyshots IndividualCard Single Initial 1`] = `
   >
     <div
       class="mx-auto v-card v-card--raised v-sheet theme--light"
-      style="max-width: 344px;"
     >
       <div
         class="grow v-list-item theme--light"
@@ -77,6 +200,7 @@ exports[`Storyshots IndividualCard Single Initial 1`] = `
           </div>
         </div>
       </div>
+       
     </div>
   </div>
 </div>
@@ -106,7 +230,6 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
           >
             <div
               class="mx-auto v-card v-card--raised v-sheet theme--light"
-              style="max-width: 344px;"
             >
               <div
                 class="grow v-list-item theme--light"
@@ -131,6 +254,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   </div>
                 </div>
               </div>
+               
             </div>
           </div>
           <div
@@ -138,7 +262,6 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
           >
             <div
               class="mx-auto v-card v-card--raised v-sheet theme--light"
-              style="max-width: 344px;"
             >
               <div
                 class="grow v-list-item theme--light"
@@ -163,6 +286,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   </div>
                 </div>
               </div>
+               
             </div>
           </div>
           <div
@@ -170,7 +294,6 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
           >
             <div
               class="mx-auto v-card v-card--raised v-sheet theme--light"
-              style="max-width: 344px;"
             >
               <div
                 class="grow v-list-item theme--light"
@@ -195,6 +318,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   </div>
                 </div>
               </div>
+               
             </div>
           </div>
           <div
@@ -202,7 +326,6 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
           >
             <div
               class="mx-auto v-card v-card--raised v-sheet theme--light"
-              style="max-width: 344px;"
             >
               <div
                 class="grow v-list-item theme--light"
@@ -227,6 +350,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   </div>
                 </div>
               </div>
+               
             </div>
           </div>
           <div
@@ -234,7 +358,6 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
           >
             <div
               class="mx-auto v-card v-card--raised v-sheet theme--light"
-              style="max-width: 344px;"
             >
               <div
                 class="grow v-list-item theme--light"
@@ -259,6 +382,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   </div>
                 </div>
               </div>
+               
             </div>
           </div>
           <div
@@ -266,7 +390,6 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
           >
             <div
               class="mx-auto v-card v-card--raised v-sheet theme--light"
-              style="max-width: 344px;"
             >
               <div
                 class="grow v-list-item theme--light"
@@ -291,6 +414,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   </div>
                 </div>
               </div>
+               
             </div>
           </div>
           <div
@@ -298,7 +422,6 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
           >
             <div
               class="mx-auto v-card v-card--raised v-sheet theme--light"
-              style="max-width: 344px;"
             >
               <div
                 class="grow v-list-item theme--light"
@@ -323,6 +446,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   </div>
                 </div>
               </div>
+               
             </div>
           </div>
           <div
@@ -330,7 +454,6 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
           >
             <div
               class="mx-auto v-card v-card--raised v-sheet theme--light"
-              style="max-width: 344px;"
             >
               <div
                 class="grow v-list-item theme--light"
@@ -355,6 +478,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   </div>
                 </div>
               </div>
+               
             </div>
           </div>
         </div>
@@ -381,6 +505,489 @@ exports[`Storyshots IndividualsGrid Empty 1`] = `
         class="v-card__text"
       >
         No individuals found
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Storyshots ProfileCard Default 1`] = `
+<div
+  class="v-application v-application--is-ltr theme--light"
+  data-app="true"
+  id="app"
+>
+  <div
+    class="v-application--wrap"
+  >
+    <div
+      class="mx-auto v-card v-card--raised v-sheet theme--light"
+      style="width: 600px;"
+    >
+      <div
+        class="grow v-list-item theme--light"
+        tabindex="-1"
+      >
+        <div
+          class="v-avatar v-list-item__avatar grey"
+          style="height: 40px; min-width: 40px; width: 40px;"
+        >
+          
+      TR
+    
+        </div>
+         
+        <div
+          class="v-list-item__content"
+        >
+          <div
+            class="v-list-item__title"
+          >
+            Tom Marvolo Riddle
+          </div>
+        </div>
+      </div>
+       
+      <div
+        class="v-subheader theme--light"
+      >
+        Identities
+      </div>
+       
+      <div
+        class="v-list-group v-list-group--active primary--text"
+      >
+        <div
+          aria-expanded="true"
+          class="v-list-group__header v-list-item v-list-item--active v-list-item--link theme--light"
+          role="button"
+          tabindex="0"
+        >
+          <div
+            class="v-list-item__icon v-list-group__header__prepend-icon"
+          >
+            <i
+              aria-hidden="true"
+              class="v-icon notranslate mdi mdi-github theme--light"
+            />
+          </div>
+          <div
+            class="v-list-item__content"
+          >
+            <div
+              class="v-list-item__title"
+            >
+              GitHub
+            </div>
+          </div>
+          <div
+            class="v-list-item__icon v-list-group__header__append-icon"
+          >
+            <i
+              aria-hidden="true"
+              class="v-icon notranslate mdi mdi-chevron-down theme--light"
+            />
+          </div>
+        </div>
+        <div
+          class="v-list-group__items"
+        >
+           
+          <div
+            class="v-list-item v-list-item--link theme--light"
+            tabindex="0"
+          >
+            <div
+              class="v-list-item__content"
+            >
+              <div
+                class="row no-gutters"
+              >
+                <div
+                  class="col col-2"
+                >
+                  <span
+                    class="text-center v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
+                    tile=""
+                  >
+                    <span
+                      class="v-chip__content"
+                    >
+                      
+      006afa
+    
+                    </span>
+                  </span>
+                </div>
+                 
+                <div
+                  class="ma-2 text-center col"
+                >
+                  <span>
+                    Tom Marvolo Riddle
+                  </span>
+                </div>
+                 
+                <div
+                  class="ma-2 text-center col"
+                >
+                  <span>
+                    triddle@example.net
+                  </span>
+                </div>
+                 
+                <div
+                  class="ma-2 text-center col"
+                >
+                  <span>
+                    triddle
+                  </span>
+                </div>
+                 
+                <!---->
+              </div>
+            </div>
+          </div>
+          <div
+            class="v-list-item v-list-item--link theme--light"
+            tabindex="0"
+          >
+            <div
+              class="v-list-item__content"
+            >
+              <div
+                class="row no-gutters"
+              >
+                <div
+                  class="col col-2"
+                >
+                  <span
+                    class="text-center v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
+                    tile=""
+                  >
+                    <span
+                      class="v-chip__content"
+                    >
+                      
+      808b18
+    
+                    </span>
+                  </span>
+                </div>
+                 
+                <div
+                  class="ma-2 text-center col"
+                >
+                  <span>
+                    Voldemort
+                  </span>
+                </div>
+                 
+                <div
+                  class="ma-2 text-center col"
+                >
+                  <span>
+                    -
+                  </span>
+                </div>
+                 
+                <div
+                  class="ma-2 text-center col"
+                >
+                  <span>
+                    voldemort
+                  </span>
+                </div>
+                 
+                <!---->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="v-list-group v-list-group--active primary--text"
+      >
+        <div
+          aria-expanded="true"
+          class="v-list-group__header v-list-item v-list-item--active v-list-item--link theme--light"
+          role="button"
+          tabindex="0"
+        >
+          <div
+            class="v-list-item__icon v-list-group__header__prepend-icon"
+          >
+            <i
+              aria-hidden="true"
+              class="v-icon notranslate mdi mdi-git theme--light"
+            />
+          </div>
+          <div
+            class="v-list-item__content"
+          >
+            <div
+              class="v-list-item__title"
+            >
+              Git
+            </div>
+          </div>
+          <div
+            class="v-list-item__icon v-list-group__header__append-icon"
+          >
+            <i
+              aria-hidden="true"
+              class="v-icon notranslate mdi mdi-chevron-down theme--light"
+            />
+          </div>
+        </div>
+        <div
+          class="v-list-group__items"
+        >
+           
+          <div
+            class="v-list-item v-list-item--link theme--light"
+            tabindex="0"
+          >
+            <div
+              class="v-list-item__content"
+            >
+              <div
+                class="row no-gutters"
+              >
+                <div
+                  class="col col-2"
+                >
+                  <span
+                    class="text-center v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
+                    tile=""
+                  >
+                    <span
+                      class="v-chip__content"
+                    >
+                      
+      abce32
+    
+                    </span>
+                  </span>
+                </div>
+                 
+                <div
+                  class="ma-2 text-center col"
+                >
+                  <span>
+                    voldemort
+                  </span>
+                </div>
+                 
+                <div
+                  class="ma-2 text-center col"
+                >
+                  <span>
+                    voldemort@example.net
+                  </span>
+                </div>
+                 
+                <div
+                  class="ma-2 text-center col"
+                >
+                  <span>
+                    voldemort
+                  </span>
+                </div>
+                 
+                <!---->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="v-list-group v-list-group--active primary--text"
+      >
+        <div
+          aria-expanded="true"
+          class="v-list-group__header v-list-item v-list-item--active v-list-item--link theme--light"
+          role="button"
+          tabindex="0"
+        >
+          <div
+            class="v-list-item__icon v-list-group__header__prepend-icon"
+          >
+            <i
+              aria-hidden="true"
+              class="v-icon notranslate mdi mdi-account-multiple theme--light"
+            />
+          </div>
+          <div
+            class="v-list-item__content"
+          >
+            <div
+              class="v-list-item__title"
+            >
+              Others
+            </div>
+          </div>
+          <div
+            class="v-list-item__icon v-list-group__header__append-icon"
+          >
+            <i
+              aria-hidden="true"
+              class="v-icon notranslate mdi mdi-chevron-down theme--light"
+            />
+          </div>
+        </div>
+        <div
+          class="v-list-group__items"
+        >
+           
+          <div
+            class="v-list-item v-list-item--link theme--light"
+            tabindex="0"
+          >
+            <div
+              class="v-list-item__content"
+            >
+              <div
+                class="row no-gutters"
+              >
+                <div
+                  class="col col-2"
+                >
+                  <span
+                    class="text-center v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
+                    tile=""
+                  >
+                    <span
+                      class="v-chip__content"
+                    >
+                      
+      4ce562
+    
+                    </span>
+                  </span>
+                </div>
+                 
+                <div
+                  class="ma-2 text-center col"
+                >
+                  <span>
+                    -
+                  </span>
+                </div>
+                 
+                <div
+                  class="ma-2 text-center col"
+                >
+                  <span>
+                    -
+                  </span>
+                </div>
+                 
+                <div
+                  class="ma-2 text-center col"
+                >
+                  <span>
+                    voldemort
+                  </span>
+                </div>
+                 
+                <div
+                  class="ma-2 text-center col"
+                >
+                  <span>
+                    irc
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+       
+      <div
+        class="v-subheader theme--light"
+      >
+        Organizations (2)
+      </div>
+       
+      <div
+        class="v-list v-sheet v-sheet--tile theme--light"
+        role="list"
+      >
+        <div
+          class="v-list-item theme--light"
+          role="listitem"
+          tabindex="-1"
+        >
+          <div
+            class="v-list-item__content"
+          >
+            <div
+              class="row no-gutters"
+            >
+              <div
+                class="ma-2 text-center col"
+              >
+                <span>
+                  Hogwarts School of Witchcraft and Wizardry
+                </span>
+              </div>
+               
+              <div
+                class="col-3 ma-2 text-center col"
+              >
+                <span>
+                  1938-09-01
+                </span>
+              </div>
+               
+              <div
+                class="col-3 ma-2 text-center col"
+              >
+                <span>
+                  1945-06-02
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          class="v-list-item theme--light"
+          role="listitem"
+          tabindex="-1"
+        >
+          <div
+            class="v-list-item__content"
+          >
+            <div
+              class="row no-gutters"
+            >
+              <div
+                class="ma-2 text-center col"
+              >
+                <span>
+                  Slytherin House
+                </span>
+              </div>
+               
+              <div
+                class="col-3 ma-2 text-center col"
+              >
+                <span>
+                  1938-09-01
+                </span>
+              </div>
+               
+              <div
+                class="col-3 ma-2 text-center col"
+              >
+                <span>
+                  1998-05-02
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
