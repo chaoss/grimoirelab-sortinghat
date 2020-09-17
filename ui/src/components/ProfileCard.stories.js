@@ -8,7 +8,7 @@ export default {
 };
 
 const profileCardTemplate =
-  '<profile-card :name="name" :identities="identities" />';
+  '<profile-card :name="name" :identities="identities" :enrollments="enrollments" />';
 
 export const Default = () => ({
   components: { ProfileCard },
@@ -58,6 +58,26 @@ export const Default = () => ({
               source: "irc"
             }
           ]
+        }
+      ]
+    },
+    enrollments: {
+      default: () => [
+        {
+          organization: {
+            name: "Hogwarts School of Witchcraft and Wizardry",
+            id: "1"
+          },
+          start: "1938-09-01",
+          end: "1945-06-02T00:00:00+00:00"
+        },
+        {
+          organization: {
+            name: "Slytherin House",
+            id: "2"
+          },
+          start: "1938-09-01T00:00:00+00:00",
+          end: "1998-05-02T00:00:00+00:00"
         }
       ]
     }

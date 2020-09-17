@@ -38,6 +38,29 @@
         </v-list-item-content>
       </v-list-item>
     </v-list-group>
+
+    <v-subheader>Organizations ({{ enrollments.length }})</v-subheader>
+
+    <v-list>
+      <v-list-item
+        v-for="enrollment in enrollments"
+        :key="enrollment.organization.id"
+      >
+        <v-list-item-content>
+          <v-row no-gutters>
+            <v-col class="ma-2 text-center">
+              <span>{{ enrollment.organization.name }}</span>
+            </v-col>
+            <v-col class="col-3 ma-2 text-center">
+              <span>{{ formatDate(enrollment.start) }}</span>
+            </v-col>
+            <v-col class="col-3 ma-2 text-center">
+              <span>{{ formatDate(enrollment.end) }}</span>
+            </v-col>
+          </v-row>
+        </v-list-item-content>
+      </v-list-item>
+    </v-list>
   </individual-card>
 </template>
 
@@ -59,6 +82,10 @@ export default {
     identities: {
       type: Array,
       required: true
+    },
+    enrollments: {
+      type: Array,
+      required: true
     }
   },
   methods: {
@@ -74,6 +101,9 @@ export default {
       } else if (datasource === "others") {
         return "mdi-account-multiple";
       }
+    },
+    formatDate(dateTime) {
+      return dateTime.split('T')[0]
     }
   }
 };
