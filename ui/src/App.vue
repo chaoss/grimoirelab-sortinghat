@@ -55,7 +55,9 @@ export default {
   }),
   async created() {
     let response = await getIndividuals(this.$apollo);
-    this.individuals = response.data.individuals;
+    if (response) {
+      this.individuals = response.data.individuals;
+    }
   }
 };
 </script>
