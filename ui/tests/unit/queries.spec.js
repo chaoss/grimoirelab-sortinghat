@@ -45,6 +45,11 @@ describe("App", () => {
         $apollo: {
           query
         }
+      },
+      data() {
+        return {
+          individuals_mocked: null
+        }
       }
     });
     let response = await Queries.getIndividuals(wrapper.vm.$apollo);
@@ -60,7 +65,7 @@ describe("App", () => {
 
   test("getIndividuals with arguments", async () => {
     const getIndividualsSpied = spyOn(Queries, "getIndividuals");
-    
+
     let response = await Queries.getIndividuals(undefined, 10, 100);
     expect(getIndividualsSpied).toHaveBeenLastCalledWith(undefined, 10, 100);
   });
