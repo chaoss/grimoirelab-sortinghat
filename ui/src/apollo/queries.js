@@ -54,21 +54,29 @@ const getIndividualByUuid = (apollo, uuid) => {
   return response;
 };
 
-const getIndividuals = (apollo, page, pageSize) => {
-  if (!page) {
-    page = 1;
-  }
-  if (!pageSize) {
-    pageSize = 10;
-  }
-  let response = apollo.query({
-    query: GET_INDIVIDUALS,
-    variables: {
-      page: page,
-      pageSize: pageSize
+const getIndividuals = {
+  currentPage: 1,
+  numPages: 1,
+  pageSize: 10,
+  query: async function(apollo, pageSize) {
+    let self = this;
+    if (pageSize) {
+      self.pageSize = pageSize;
     }
-  });
-  return response;
+    let response = await apollo.query({
+      query: GET_INDIVIDUALS,
+      variables: {
+        page: self.currentPage,
+        pageSize: pageSize
+      }
+    });
+    self.numPages = response.data.individuals.pageInfo.numPages;
+    if (self.currentPage > self.numPages) {
+      return undefined;
+    }
+    self.currentPage++;
+    return response;
+  }
 };
 
 export { getIndividuals, getIndividualByUuid };

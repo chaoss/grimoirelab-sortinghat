@@ -1,7 +1,7 @@
-import { shallowMount } from "@vue/test-utils";
+import { shallowMount, mount } from "@vue/test-utils";
 import Vue from "vue";
 import Vuetify from "vuetify";
-import App from "@/App";
+import IndividualsData from "@/components/IndividualsData";
 import * as Queries from "@/apollo/queries";
 
 Vue.use(Vuetify);
@@ -21,25 +21,25 @@ const responseMocked = {
           __typename: "IndividualType"
         }
       ],
+      pageInfo: {
+        page: 1,
+        pageSize: 10,
+        numPages: 1,
+        hasNext: false,
+        hasPrev: false,
+        startIndex: 1,
+        endIndex: 1,
+        totalResults: 1
+      },
       __typename: "IdentityPaginatedType"
-    },
-    pageInfo: {
-      page: 1,
-      pageSize: 10,
-      numPages: 1,
-      hasNext: false,
-      hasPrev: false,
-      startIndex: 1,
-      endIndex: 1,
-      totalResults: 1
     }
   }
 };
 
-describe("App", () => {
+describe("IndividualsData", () => {
   test("mock query for getIndividuals", async () => {
     const query = jest.fn(() => Promise.resolve(responseMocked));
-    const wrapper = shallowMount(App, {
+    const wrapper = shallowMount(IndividualsData, {
       Vue,
       mocks: {
         $apollo: {
@@ -52,37 +52,62 @@ describe("App", () => {
         }
       }
     });
-    let response = await Queries.getIndividuals(wrapper.vm.$apollo);
+    let response = await Queries.getIndividuals.query(wrapper.vm.$apollo);
     let individuals_mocked = response.data;
     await wrapper.setData({
       individuals_mocked
     });
-
     expect(query).toBeCalled();
     expect(wrapper.element).toMatchSnapshot();
-    expect(wrapper.vm.individuals).toBe(responseMocked.data.individuals);
   });
 
   test("getIndividuals with arguments", async () => {
-    const getIndividualsSpied = spyOn(Queries, "getIndividuals");
+    const getIndividualsSpied = spyOn(Queries.getIndividuals, "query");
 
-    let response = await Queries.getIndividuals(undefined, 10, 100);
+    let response = await Queries.getIndividuals.query(undefined, 10, 100);
     expect(getIndividualsSpied).toHaveBeenLastCalledWith(undefined, 10, 100);
   });
 
-  test("getIndividuals without arguments in the App component", async () => {
-    const getIndividualsSpied = spyOn(Queries, "getIndividuals");
+  test("getIndividuals with default arguments in the IndividualsData component", async () => {
+    const getIndividualsSpied = spyOn(Queries.getIndividuals, "query");
     const query = jest.fn(() => Promise.resolve(responseMocked));
-    const wrapper = shallowMount(App, {
+    const wrapper = mount(IndividualsData, {
       Vue,
       mocks: {
         $apollo: {
           query
         }
+      },
+      propsData: {
+        getindividuals: {
+          query: Queries.getIndividuals.query
+        }
       }
     });
 
     expect(getIndividualsSpied).toBeCalled();
-    expect(getIndividualsSpied).toHaveBeenCalledWith(wrapper.vm.$apollo);
+    expect(getIndividualsSpied).toHaveBeenCalledWith(wrapper.vm.$apollo, 50);
+  });
+
+  test("infinite scroll won't call for more individuals if the page is not at the bottom", async () => {
+    const getIndividualsSpied = spyOn(Queries.getIndividuals, "query");
+    const query = jest.fn(() => Promise.resolve(responseMocked));
+    const wrapper = mount(IndividualsData, {
+      Vue,
+      mocks: {
+        $apollo: {
+          query
+        }
+      },
+      propsData: {
+        getindividuals: {
+          query: Queries.getIndividuals.query
+        }
+      }
+    });
+    wrapper.vm.scroll();
+
+    expect(getIndividualsSpied).toBeCalled();
+    expect(getIndividualsSpied).toHaveBeenCalledTimes(1);
   });
 });

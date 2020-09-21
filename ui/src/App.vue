@@ -34,30 +34,22 @@
     </v-app-bar>
 
     <v-content>
-      <IndividualsGrid :individuals="individuals.entities" />
+      <IndividualsData :getindividuals="individualsQuery" />
     </v-content>
   </v-app>
 </template>
 
 <script>
 import { getIndividuals } from "./apollo/queries";
-import IndividualsGrid from "./components/IndividualsGrid";
+import IndividualsData from "./components/IndividualsData";
 
 export default {
   name: "App",
   components: {
-    IndividualsGrid
+    IndividualsData
   },
   data: () => ({
-    individuals: {
-      entities: []
-    }
-  }),
-  async created() {
-    let response = await getIndividuals(this.$apollo);
-    if (response) {
-      this.individuals = response.data.individuals;
-    }
-  }
+    individualsQuery: getIndividuals
+  })
 };
 </script>
