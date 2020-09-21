@@ -1,47 +1,61 @@
 <template>
   <individual-card :name="name" style="width: 600px">
-    <v-subheader>Identities</v-subheader>
+    <v-list-group>
+      <template v-slot:activator>
+        <v-list-item-title>Identities ({{ identitiesCount }})</v-list-item-title>
+      </template>
 
-    <v-list-group
-      :prepend-icon="selectSourceIcon(source.name)"
-      :key="source.name"
-      v-for="source in identities"
-      value="true"
-    >
+      <v-list-group
+        sub-group
+        :key="source.name"
+        v-for="source in identities"
+        value="true"
+      >
+        <template v-slot:activator>
+          <v-list-item-icon>
+            <v-icon
+              v-text="selectSourceIcon(source.name)"
+              left
+            />
+          </v-list-item-icon>
+          <v-list-item-content>
+            <v-list-item-title>{{ source.name }}</v-list-item-title>
+          </v-list-item-content>
+        </template>
+
+        <v-list-item
+          v-for="identity in source.identities"
+          :key="identity.uuid"
+          @click=""
+        >
+          <v-list-item-content>
+            <identity
+              v-if="source.name.toLowerCase() !== 'others'"
+              :uuid="identity.uuid"
+              :name="identity.name"
+              :email="identity.email"
+              :username="identity.username"
+            />
+            <identity
+              v-else
+              :uuid="identity.uuid"
+              :name="identity.name"
+              :email="identity.email"
+              :username="identity.username"
+              :source="identity.source"
+            />
+          </v-list-item-content>
+        </v-list-item>
+      </v-list-group>
+    </v-list-group>
+
+    <v-list-group>
       <template v-slot:activator>
         <v-list-item-content>
-          <v-list-item-title>{{ source.name }}</v-list-item-title>
+          <v-list-item-title>Organizations ({{ enrollments.length }})</v-list-item-title>
         </v-list-item-content>
       </template>
 
-      <v-list-item
-        v-for="identity in source.identities"
-        :key="identity.uuid"
-        @click=""
-      >
-        <v-list-item-content>
-          <identity
-            v-if="source.name.toLowerCase() !== 'others'"
-            :uuid="identity.uuid"
-            :name="identity.name"
-            :email="identity.email"
-            :username="identity.username"
-          />
-          <identity
-            v-else
-            :uuid="identity.uuid"
-            :name="identity.name"
-            :email="identity.email"
-            :username="identity.username"
-            :source="identity.source"
-          />
-        </v-list-item-content>
-      </v-list-item>
-    </v-list-group>
-
-    <v-subheader>Organizations ({{ enrollments.length }})</v-subheader>
-
-    <v-list>
       <v-list-item
         v-for="enrollment in enrollments"
         :key="enrollment.organization.id"
@@ -60,7 +74,7 @@
           </v-row>
         </v-list-item-content>
       </v-list-item>
-    </v-list>
+    </v-list-group>
   </individual-card>
 </template>
 
@@ -104,6 +118,11 @@ export default {
     },
     formatDate(dateTime) {
       return dateTime.split('T')[0]
+    }
+  },
+  computed: {
+    identitiesCount() {
+      return this.identities.reduce((a,b) => a + b.identities.length, 0)
     }
   }
 };
