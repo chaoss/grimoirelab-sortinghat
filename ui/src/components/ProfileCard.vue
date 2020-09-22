@@ -1,5 +1,5 @@
 <template>
-  <individual-card :name="name" style="width: 600px">
+  <individual-card :name="name" :sources="sources" style="width: 600px">
     <v-list-group>
       <template v-slot:activator>
         <v-list-item-title>Identities ({{ identitiesCount }})</v-list-item-title>
@@ -123,6 +123,9 @@ export default {
   computed: {
     identitiesCount() {
       return this.identities.reduce((a,b) => a + b.identities.length, 0)
+    },
+    sources() {
+      return this.identities.map(identity => identity.name)
     }
   }
 };

@@ -7,7 +7,7 @@ export default {
   excludeStories: /.*Data$/
 };
 
-const individualCardTemplate = '<individual-card :name="name" />';
+const individualCardTemplate = '<individual-card :name="name" :sources="sources" />';
 
 export const Default = () => ({
   components: { IndividualCard },
@@ -15,6 +15,9 @@ export const Default = () => ({
   props: {
     name: {
       default: "Tom Marvolo Riddle"
+    },
+    sources: {
+      default: () => []
     }
   }
 });
@@ -24,6 +27,26 @@ export const SingleInitial = () => ({
   props: {
     name: {
       default: "Voldemort"
+    },
+    sources: {
+      default: () => []
+    }
+  }
+});
+export const Sources = () => ({
+  components: { IndividualCard },
+  template: individualCardTemplate,
+  props: {
+    name: {
+      default: "Tom Marvolo Riddle"
+    },
+    sources: {
+      default: () => [
+        'git',
+        'github',
+        'gitlab',
+        'others'
+      ]
     }
   }
 });

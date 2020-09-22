@@ -7,6 +7,14 @@
 
       <v-list-item-content>
         <v-list-item-title>{{ name }}</v-list-item-title>
+        <v-list-item-subtitle>
+          <v-icon
+            v-for="source in sources"
+            :key="source.name"
+            v-text="selectSourceIcon(source)"
+            small
+          />
+        </v-list-item-subtitle>
       </v-list-item-content>
     </v-list-item>
     <slot />
@@ -20,6 +28,11 @@ export default {
     name: {
       type: String,
       required: true
+    },
+    sources: {
+      type: Array,
+      required: false,
+      default: () => []
     }
   },
   computed: {
@@ -32,6 +45,17 @@ export default {
       }
 
       return initials;
+    }
+  },
+  methods: {
+    selectSourceIcon(source) {
+      const datasource = source.toLowerCase();
+
+      if (datasource === "others") {
+        return "mdi-account-multiple";
+      } else {
+        return `mdi-${datasource}`;
+      }
     }
   }
 };

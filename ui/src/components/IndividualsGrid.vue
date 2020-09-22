@@ -3,7 +3,7 @@
     <v-container fluid v-if="!noIndividuals">
       <v-row dense>
         <v-col v-for="individual in individuals" :key="individual.profile.id">
-          <individual-card :name="individual.profile.name" />
+          <individual-card :name="individual.profile.name" :sources="getSources(individual.identities)"/>
         </v-col>
       </v-row>
     </v-container>
@@ -27,6 +27,20 @@ export default {
   computed: {
     noIndividuals: function() {
       return this.individuals.length === 0;
+    }
+  },
+  methods: {
+    getSources(identities) {
+      const icons = ['git', 'github', 'gitlab'];
+      const sources = identities.map(identity => {
+        if (icons.find(icon => icon === identity.source.toLowerCase())) {
+          return identity.source
+        } else {
+          return 'Others'
+        }
+      });
+
+      return [...new Set(sources)]
     }
   }
 };
