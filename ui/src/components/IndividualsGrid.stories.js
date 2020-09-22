@@ -17,6 +17,7 @@ export const Default = () => ({
     individuals: {
       default: () => [
         {
+          isLocked: true,
           profile: {
             id: "1",
             name: "Tom Marvolo Riddle"
@@ -28,6 +29,7 @@ export const Default = () => ({
           ]
         },
         {
+          isLocked: false,
           profile: {
             id: "2",
             name: "Harry Potter"
@@ -45,6 +47,7 @@ export const Default = () => ({
           ]
         },
         {
+          isLocked: false,
           profile: {
             id: "3",
             name: "Voldemort"
@@ -56,6 +59,7 @@ export const Default = () => ({
           ]
         },
         {
+          isLocked: false,
           profile: {
             id: "4",
             name: "Hermione Granger"
@@ -73,6 +77,7 @@ export const Default = () => ({
           ]
         },
         {
+          isLocked: false,
           profile: {
             id: "5",
             name: "Ambus Dumbledore"
@@ -87,6 +92,7 @@ export const Default = () => ({
           ]
         },
         {
+          isLocked: false,
           profile: {
             id: "6",
             name: "Ron Weasley"
@@ -104,6 +110,7 @@ export const Default = () => ({
           ]
         },
         {
+          isLocked: false,
           profile: {
             id: "7",
             name: "Severus Snape"
@@ -121,6 +128,7 @@ export const Default = () => ({
           ]
         },
         {
+          isLocked: false,
           profile: {
             id: "8",
             name: "Hagrid"

@@ -3,7 +3,11 @@
     <v-container fluid v-if="!noIndividuals">
       <v-row dense>
         <v-col v-for="individual in individuals" :key="individual.profile.id">
-          <individual-card :name="individual.profile.name" :sources="getSources(individual.identities)"/>
+          <individual-card
+            :name="individual.profile.name"
+            :sources="getSources(individual.identities)"
+            :is-locked="individual.isLocked"
+          />
         </v-col>
       </v-row>
     </v-container>
@@ -31,16 +35,16 @@ export default {
   },
   methods: {
     getSources(identities) {
-      const icons = ['git', 'github', 'gitlab'];
+      const icons = ["git", "github", "gitlab"];
       const sources = identities.map(identity => {
         if (icons.find(icon => icon === identity.source.toLowerCase())) {
-          return identity.source
+          return identity.source;
         } else {
-          return 'Others'
+          return "Others";
         }
       });
 
-      return [...new Set(sources)]
+      return [...new Set(sources)];
     }
   }
 };

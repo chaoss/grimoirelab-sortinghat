@@ -7,7 +7,7 @@ export default {
   excludeStories: /.*Data$/
 };
 
-const individualCardTemplate = '<individual-card :name="name" :sources="sources" />';
+const individualCardTemplate = '<individual-card :name="name" :sources="sources" :is-locked="isLocked" />';
 
 export const Default = () => ({
   components: { IndividualCard },
@@ -18,6 +18,9 @@ export const Default = () => ({
     },
     sources: {
       default: () => []
+    },
+    isLocked: {
+      default: false
     }
   }
 });
@@ -30,6 +33,9 @@ export const SingleInitial = () => ({
     },
     sources: {
       default: () => []
+    },
+    isLocked: {
+      default: false
     }
   }
 });
@@ -47,6 +53,24 @@ export const Sources = () => ({
         'gitlab',
         'others'
       ]
+    },
+    isLocked: {
+      default: false
+    }
+  }
+});
+export const Locked = () => ({
+  components: { IndividualCard },
+  template: individualCardTemplate,
+  props: {
+    name: {
+      default: "Tom Marvolo Riddle"
+    },
+    sources: {
+      default: () => []
+    },
+    isLocked: {
+      default: true
     }
   }
 });
