@@ -16,6 +16,14 @@
           />
         </v-list-item-subtitle>
       </v-list-item-content>
+
+      <v-list-item-icon>
+        <v-btn text icon>
+          <v-icon small>
+            {{ isLocked ? "mdi-lock" : "mdi-lock-open-outline" }}
+          </v-icon>
+        </v-btn>
+      </v-list-item-icon>
     </v-list-item>
     <slot />
   </v-card>
@@ -33,6 +41,11 @@ export default {
       type: Array,
       required: false,
       default: () => []
+    },
+    isLocked: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
   computed: {

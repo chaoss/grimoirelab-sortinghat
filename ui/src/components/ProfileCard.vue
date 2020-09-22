@@ -1,5 +1,5 @@
 <template>
-  <individual-card :name="name" :sources="sources" style="width: 600px">
+  <individual-card :name="name" :sources="sources" :is-locked="isLocked" style="width: 600px">
     <v-list-group>
       <template v-slot:activator>
         <v-list-item-title>Identities ({{ identitiesCount }})</v-list-item-title>
@@ -100,6 +100,11 @@ export default {
     enrollments: {
       type: Array,
       required: true
+    },
+    isLocked: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
   methods: {

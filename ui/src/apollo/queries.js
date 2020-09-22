@@ -22,8 +22,10 @@ const GET_INDIVIDUALS = gql`
     individuals(page: $page, pageSize: $pageSize) {
       entities {
         mk
+        isLocked
         identities {
           name
+          source
         }
         profile {
           id
