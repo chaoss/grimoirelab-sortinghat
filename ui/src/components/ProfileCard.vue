@@ -1,5 +1,11 @@
 <template>
-  <individual-card :name="name" :sources="sources" :is-locked="isLocked" style="width: 600px">
+  <individual-card
+    :name="name"
+    :sources="sources"
+    :is-locked="isLocked"
+    :uuid="identities[0].identities[0].uuid"
+    style="width: 600px"
+  >
     <v-list-group>
       <template v-slot:activator>
         <v-list-item-title>Identities ({{ identitiesCount }})</v-list-item-title>

@@ -19,17 +19,21 @@
 
       <v-list-item-icon>
         <v-btn text icon>
-          <v-icon small>
-            {{ isLocked ? "mdi-lock" : "mdi-lock-open-outline" }}
+          <v-icon small @click="toggleLockedStatus">
+            {{ locked ? "mdi-lock" : "mdi-lock-open-outline" }}
           </v-icon>
         </v-btn>
       </v-list-item-icon>
     </v-list-item>
-    <slot />
+    <v-snackbar v-model="snackbar.value" color="error">
+      {{ snackbar.text || "Error" }}
+    </v-snackbar>
   </v-card>
 </template>
 
 <script>
+import { lockIndividual, unlockIndividual } from "../apollo/mutations";
+
 export default {
   name: "individualcard",
   props: {
@@ -46,7 +50,20 @@ export default {
       type: Boolean,
       required: false,
       default: false
+    },
+    uuid: {
+      type: String,
+      required: true
     }
+  },
+  data() {
+    return {
+      locked: this.isLocked,
+      snackbar: {
+        value: false,
+        text: ""
+      }
+    };
   },
   computed: {
     getNameInitials: function() {
@@ -68,6 +85,25 @@ export default {
         return "mdi-account-multiple";
       } else {
         return `mdi-${datasource}`;
+      }
+    },
+    async toggleLockedStatus() {
+      if (this.$apollo) {
+        try {
+          const mutation = this.locked
+            ? unlockIndividual(this.$apollo, this.uuid)
+            : lockIndividual(this.$apollo, this.uuid);
+          const response = await mutation;
+
+          if (response) {
+            this.locked = !this.locked;
+          }
+        } catch (error) {
+          this.snackbar = {
+            value: true,
+            text: error.toString()
+          };
+        }
       }
     }
   }

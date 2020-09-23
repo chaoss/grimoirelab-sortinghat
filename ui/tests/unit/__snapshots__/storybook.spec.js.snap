@@ -173,16 +173,17 @@ exports[`Storyshots IndividualCard Default 1`] = `
             <span
               class="v-btn__content"
             >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
+              <button
+                class="v-icon notranslate v-icon--link mdi mdi-lock-open-outline theme--light"
                 style="font-size: 16px;"
+                type="button"
               />
             </span>
           </button>
         </div>
       </div>
        
+      <!---->
     </div>
   </div>
 </div>
@@ -237,16 +238,17 @@ exports[`Storyshots IndividualCard Locked 1`] = `
             <span
               class="v-btn__content"
             >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-lock theme--light"
+              <button
+                class="v-icon notranslate v-icon--link mdi mdi-lock theme--light"
                 style="font-size: 16px;"
+                type="button"
               />
             </span>
           </button>
         </div>
       </div>
        
+      <!---->
     </div>
   </div>
 </div>
@@ -301,16 +303,17 @@ exports[`Storyshots IndividualCard Single Initial 1`] = `
             <span
               class="v-btn__content"
             >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
+              <button
+                class="v-icon notranslate v-icon--link mdi mdi-lock-open-outline theme--light"
                 style="font-size: 16px;"
+                type="button"
               />
             </span>
           </button>
         </div>
       </div>
        
+      <!---->
     </div>
   </div>
 </div>
@@ -386,16 +389,17 @@ exports[`Storyshots IndividualCard Sources 1`] = `
             <span
               class="v-btn__content"
             >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
+              <button
+                class="v-icon notranslate v-icon--link mdi mdi-lock-open-outline theme--light"
                 style="font-size: 16px;"
+                type="button"
               />
             </span>
           </button>
         </div>
       </div>
        
+      <!---->
     </div>
   </div>
 </div>
@@ -469,16 +473,17 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                     <span
                       class="v-btn__content"
                     >
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-lock theme--light"
+                      <button
+                        class="v-icon notranslate v-icon--link mdi mdi-lock theme--light"
                         style="font-size: 16px;"
+                        type="button"
                       />
                     </span>
                   </button>
                 </div>
               </div>
                
+              <!---->
             </div>
           </div>
           <div
@@ -540,16 +545,17 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                     <span
                       class="v-btn__content"
                     >
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
+                      <button
+                        class="v-icon notranslate v-icon--link mdi mdi-lock-open-outline theme--light"
                         style="font-size: 16px;"
+                        type="button"
                       />
                     </span>
                   </button>
                 </div>
               </div>
                
+              <!---->
             </div>
           </div>
           <div
@@ -601,16 +607,17 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                     <span
                       class="v-btn__content"
                     >
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
+                      <button
+                        class="v-icon notranslate v-icon--link mdi mdi-lock-open-outline theme--light"
                         style="font-size: 16px;"
+                        type="button"
                       />
                     </span>
                   </button>
                 </div>
               </div>
                
+              <!---->
             </div>
           </div>
           <div
@@ -672,16 +679,17 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                     <span
                       class="v-btn__content"
                     >
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
+                      <button
+                        class="v-icon notranslate v-icon--link mdi mdi-lock-open-outline theme--light"
                         style="font-size: 16px;"
+                        type="button"
                       />
                     </span>
                   </button>
                 </div>
               </div>
                
+              <!---->
             </div>
           </div>
           <div
@@ -738,16 +746,17 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                     <span
                       class="v-btn__content"
                     >
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
+                      <button
+                        class="v-icon notranslate v-icon--link mdi mdi-lock-open-outline theme--light"
                         style="font-size: 16px;"
+                        type="button"
                       />
                     </span>
                   </button>
                 </div>
               </div>
                
+              <!---->
             </div>
           </div>
           <div
@@ -809,16 +818,17 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                     <span
                       class="v-btn__content"
                     >
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
+                      <button
+                        class="v-icon notranslate v-icon--link mdi mdi-lock-open-outline theme--light"
                         style="font-size: 16px;"
+                        type="button"
                       />
                     </span>
                   </button>
                 </div>
               </div>
                
+              <!---->
             </div>
           </div>
           <div
@@ -880,16 +890,17 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                     <span
                       class="v-btn__content"
                     >
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
+                      <button
+                        class="v-icon notranslate v-icon--link mdi mdi-lock-open-outline theme--light"
                         style="font-size: 16px;"
+                        type="button"
                       />
                     </span>
                   </button>
                 </div>
               </div>
                
+              <!---->
             </div>
           </div>
           <div
@@ -946,16 +957,17 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                     <span
                       class="v-btn__content"
                     >
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
+                      <button
+                        class="v-icon notranslate v-icon--link mdi mdi-lock-open-outline theme--light"
                         style="font-size: 16px;"
+                        type="button"
                       />
                     </span>
                   </button>
                 </div>
               </div>
                
+              <!---->
             </div>
           </div>
         </div>
@@ -1054,71 +1066,17 @@ exports[`Storyshots ProfileCard Default 1`] = `
             <span
               class="v-btn__content"
             >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
+              <button
+                class="v-icon notranslate v-icon--link mdi mdi-lock-open-outline theme--light"
                 style="font-size: 16px;"
+                type="button"
               />
             </span>
           </button>
         </div>
       </div>
        
-      <div
-        class="v-list-group"
-      >
-        <div
-          aria-expanded="false"
-          class="v-list-group__header v-list-item v-list-item--link theme--light"
-          role="button"
-          tabindex="0"
-        >
-          <div
-            class="v-list-item__title"
-          >
-            Identities (4)
-          </div>
-          <div
-            class="v-list-item__icon v-list-group__header__append-icon"
-          >
-            <i
-              aria-hidden="true"
-              class="v-icon notranslate mdi mdi-chevron-down theme--light"
-            />
-          </div>
-        </div>
-        <!---->
-      </div>
-       
-      <div
-        class="v-list-group"
-      >
-        <div
-          aria-expanded="false"
-          class="v-list-group__header v-list-item v-list-item--link theme--light"
-          role="button"
-          tabindex="0"
-        >
-          <div
-            class="v-list-item__content"
-          >
-            <div
-              class="v-list-item__title"
-            >
-              Organizations (2)
-            </div>
-          </div>
-          <div
-            class="v-list-item__icon v-list-group__header__append-icon"
-          >
-            <i
-              aria-hidden="true"
-              class="v-icon notranslate mdi mdi-chevron-down theme--light"
-            />
-          </div>
-        </div>
-        <!---->
-      </div>
+      <!---->
     </div>
   </div>
 </div>

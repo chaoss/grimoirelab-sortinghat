@@ -7,7 +7,7 @@ export default {
   excludeStories: /.*Data$/
 };
 
-const individualCardTemplate = '<individual-card :name="name" :sources="sources" :is-locked="isLocked" />';
+const individualCardTemplate = '<individual-card :name="name" :sources="sources" :is-locked="isLocked" :uuid="uuid" />';
 
 export const Default = () => ({
   components: { IndividualCard },
@@ -21,6 +21,9 @@ export const Default = () => ({
     },
     isLocked: {
       default: false
+    },
+    uuid: {
+      default: "10f546"
     }
   }
 });
@@ -36,6 +39,9 @@ export const SingleInitial = () => ({
     },
     isLocked: {
       default: false
+    },
+    uuid: {
+      default: "10f546"
     }
   }
 });
@@ -56,6 +62,9 @@ export const Sources = () => ({
     },
     isLocked: {
       default: false
+    },
+    uuid: {
+      default: "10f546"
     }
   }
 });
@@ -71,6 +80,9 @@ export const Locked = () => ({
     },
     isLocked: {
       default: true
+    },
+    uuid: {
+      default: "10f546"
     }
   }
 });
