@@ -25,6 +25,7 @@
         </v-btn>
       </v-list-item-icon>
     </v-list-item>
+    <slot />
     <v-snackbar v-model="snackbar.value" color="error">
       {{ snackbar.text || "Error" }}
     </v-snackbar>
@@ -95,8 +96,13 @@ export default {
             : lockIndividual(this.$apollo, this.uuid);
           const response = await mutation;
 
-          if (response) {
+          if (response && !response.errors) {
             this.locked = !this.locked;
+          } else {
+            this.snackbar = {
+              value: true,
+              text: response.errors[0].message
+            };
           }
         } catch (error) {
           this.snackbar = {
