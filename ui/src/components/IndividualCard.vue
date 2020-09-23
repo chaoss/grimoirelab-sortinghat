@@ -18,8 +18,8 @@
       </v-list-item-content>
 
       <v-list-item-icon>
-        <v-btn text icon>
-          <v-icon small @click="toggleLockedStatus">
+        <v-btn text icon @click="toggleLockedStatus">
+          <v-icon small>
             {{ locked ? "mdi-lock" : "mdi-lock-open-outline" }}
           </v-icon>
         </v-btn>
@@ -104,7 +104,14 @@ export default {
             text: error.toString()
           };
         }
+      } else if (this.$root.STORYBOOK_COMPONENT) {
+        this.locked = !this.locked;
       }
+    }
+  },
+  watch: {
+    isLocked(value) {
+      this.locked = value;
     }
   }
 };
