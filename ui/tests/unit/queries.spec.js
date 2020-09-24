@@ -46,6 +46,11 @@ describe("IndividualsData", () => {
           query
         }
       },
+      propsData: {
+        getindividuals: {
+          query: Queries.getIndividuals.query
+        }
+      },
       data() {
         return {
           individuals_mocked: null
