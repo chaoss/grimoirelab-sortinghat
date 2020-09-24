@@ -22,7 +22,9 @@ export default {
   },
   async created() {
     let response = await this.getindividuals.query(this.$apollo, 50);
-    this.individuals = response.data.individuals;
+    if (response) {
+      this.individuals = response.data.individuals;
+    }
   },
   mounted() {
     this.scroll();
