@@ -7,6 +7,7 @@
             :name="individual.profile.name"
             :sources="getSources(individual.identities)"
             :is-locked="individual.isLocked"
+            :uuid="individual.identities[0].uuid"
           />
         </v-col>
       </v-row>

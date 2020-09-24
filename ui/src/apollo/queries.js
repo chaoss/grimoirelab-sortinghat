@@ -26,6 +26,7 @@ const GET_INDIVIDUALS = gql`
         identities {
           name
           source
+          uuid
         }
         profile {
           id

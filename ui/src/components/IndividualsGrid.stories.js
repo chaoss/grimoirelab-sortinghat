@@ -24,7 +24,8 @@ export const Default = () => ({
           },
           identities: [
             {
-              source: "GitLab"
+              source: "GitLab",
+              uuid: "10f546"
             },
           ]
         },
@@ -36,13 +37,16 @@ export const Default = () => ({
           },
           identities: [
             {
-              source: "GitHub"
+              source: "GitHub",
+              uuid: "10f546"
             },
             {
-              source: "git"
+              source: "git",
+              uuid: "10f546"
             },
             {
-              source: "Others"
+              source: "Others",
+              uuid: "10f546"
             }
           ]
         },
@@ -54,7 +58,8 @@ export const Default = () => ({
           },
           identities: [
             {
-              source: "GitLab"
+              source: "GitLab",
+              uuid: "10f546"
             },
           ]
         },
@@ -66,13 +71,16 @@ export const Default = () => ({
           },
           identities: [
             {
-              source: "GitHub"
+              source: "GitHub",
+              uuid: "10f546"
             },
             {
-              source: "git"
+              source: "git",
+              uuid: "10f546"
             },
             {
-              source: "Others"
+              source: "Others",
+              uuid: "10f546"
             }
           ]
         },
@@ -84,10 +92,12 @@ export const Default = () => ({
           },
           identities: [
             {
-              source: "GitHub"
+              source: "GitHub",
+              uuid: "10f546"
             },
             {
-              source: "git"
+              source: "git",
+              uuid: "10f546"
             }
           ]
         },
@@ -99,13 +109,16 @@ export const Default = () => ({
           },
           identities: [
             {
-              source: "GitHub"
+              source: "GitHub",
+              uuid: "10f546"
             },
             {
-              source: "git"
+              source: "git",
+              uuid: "10f546"
             },
             {
-              source: "Others"
+              source: "Others",
+              uuid: "10f546"
             }
           ]
         },
@@ -117,13 +130,16 @@ export const Default = () => ({
           },
           identities: [
             {
-              source: "GitLab"
+              source: "GitLab",
+              uuid: "10f546"
             },
             {
-              source: "GitHub"
+              source: "GitHub",
+              uuid: "10f546"
             },
             {
-              source: "git"
+              source: "git",
+              uuid: "10f546"
             }
           ]
         },
@@ -135,10 +151,12 @@ export const Default = () => ({
           },
           identities: [
             {
-              source: "Git"
+              source: "Git",
+              uuid: "10f546"
             },
             {
-              source: "Others"
+              source: "Others",
+              uuid: "10f546"
             }
           ]
         }
