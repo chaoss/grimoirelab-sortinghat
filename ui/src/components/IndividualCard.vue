@@ -1,5 +1,5 @@
 <template>
-  <v-card class="mx-auto" raised>
+  <v-card class="mx-auto" raised v-on="$listeners">
     <v-list-item class="grow">
       <v-list-item-avatar color="grey">
         {{ getNameInitials }}
@@ -18,7 +18,7 @@
       </v-list-item-content>
 
       <v-list-item-icon>
-        <v-btn text icon @click="toggleLockedStatus">
+        <v-btn text icon @click.stop="toggleLockedStatus">
           <v-icon small>
             {{ locked ? "mdi-lock" : "mdi-lock-open-outline" }}
           </v-icon>
@@ -122,3 +122,11 @@ export default {
   }
 };
 </script>
+<style scoped>
+.selected {
+  outline: rgba(25, 118, 210, 0.42) solid 2px;
+  box-shadow: 0px 5px 5px -3px rgba(25, 118, 210, 0.2),
+    0px 8px 10px 1px rgba(25, 118, 210, 0.14),
+    0px 3px 14px 2px rgba(25, 118, 210, 0.12);
+}
+</style>

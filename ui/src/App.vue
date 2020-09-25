@@ -34,7 +34,10 @@
     </v-app-bar>
 
     <v-content>
-      <IndividualsData :getindividuals="individualsQuery" />
+      <v-row class="justify-end">
+        <IndividualsData :getindividuals="individualsQuery" />
+        <ProfileList />
+      </v-row>
     </v-content>
   </v-app>
 </template>
@@ -42,11 +45,13 @@
 <script>
 import { getIndividuals } from "./apollo/queries";
 import IndividualsData from "./components/IndividualsData";
+import ProfileList from "./components/ProfileList";
 
 export default {
   name: "App",
   components: {
-    IndividualsData
+    IndividualsData,
+    ProfileList
   },
   data: () => ({
     individualsQuery: getIndividuals

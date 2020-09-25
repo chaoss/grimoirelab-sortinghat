@@ -32,7 +32,6 @@
         <v-list-item
           v-for="identity in source.identities"
           :key="identity.uuid"
-          @click=""
         >
           <v-list-item-content>
             <identity
