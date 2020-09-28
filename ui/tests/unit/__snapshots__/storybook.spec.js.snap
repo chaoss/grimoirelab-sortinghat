@@ -1096,7 +1096,9 @@ exports[`Storyshots ProfileCard Default 1`] = `
           <div
             class="v-list-item__title"
           >
-            Identities (4)
+            
+        Identities (4)
+      
           </div>
           <div
             class="v-list-item__icon v-list-group__header__append-icon"
@@ -1125,7 +1127,9 @@ exports[`Storyshots ProfileCard Default 1`] = `
             <div
               class="v-list-item__title"
             >
-              Organizations (2)
+              
+          Organizations (2)
+        
             </div>
           </div>
           <div

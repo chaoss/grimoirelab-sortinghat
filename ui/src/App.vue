@@ -34,10 +34,8 @@
     </v-app-bar>
 
     <v-content>
-      <v-row class="justify-end">
-        <IndividualsData :getindividuals="individualsQuery" />
-        <ProfileList />
-      </v-row>
+      <IndividualsData :getindividuals="individualsQuery" class="grid" />
+      <ProfileList />
     </v-content>
   </v-app>
 </template>
@@ -58,3 +56,15 @@ export default {
   })
 };
 </script>
+<style scoped>
+.grid {
+  margin-left: auto;
+  margin-right: 630px;
+}
+
+@media (min-width: 2000px) {
+  .grid {
+    margin-right: auto;
+  }
+}
+</style>

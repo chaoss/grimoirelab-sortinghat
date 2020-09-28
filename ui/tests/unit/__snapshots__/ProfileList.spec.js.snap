@@ -3,11 +3,14 @@
 exports[`ProfileList Mock query for getProfileByUuid 1`] = `
 <v-navigation-drawer-stub
   color="#eceff1"
-  height="calc(100vh - 66px)"
+  fixed="true"
+  height="100%"
+  min-height="calc(100vh - 66px)"
   minivariantwidth="56"
   mobilebreakpoint="1264"
   right="true"
   src=""
+  style="top: 64px; z-index: 1;"
   tag="aside"
   width="626"
 >
@@ -17,8 +20,9 @@ exports[`ProfileList Mock query for getProfileByUuid 1`] = `
 
 exports[`ProfileList Shows selected profile 1`] = `
 <aside
-  class="v-navigation-drawer v-navigation-drawer--is-mobile v-navigation-drawer--open v-navigation-drawer--right theme--light"
-  style="height: calc(100vh - 66px); top: 0px; transform: translateX(0%); width: 626px; background-color: rgb(236, 239, 241); border-color: #eceff1;"
+  class="v-navigation-drawer v-navigation-drawer--fixed v-navigation-drawer--is-mobile v-navigation-drawer--open v-navigation-drawer--right theme--light"
+  min-height="calc(100vh - 66px)"
+  style="height: 100%; top: 64px; transform: translateX(0%); width: 626px; background-color: rgb(236, 239, 241); border-color: #eceff1; z-index: 1;"
 >
   <div
     class="v-navigation-drawer__prepend"
@@ -121,7 +125,9 @@ exports[`ProfileList Shows selected profile 1`] = `
             <div
               class="v-list-item__title"
             >
-              Identities (1)
+              
+        Identities (1)
+      
             </div>
             <div
               class="v-list-item__icon v-list-group__header__append-icon"
@@ -150,7 +156,9 @@ exports[`ProfileList Shows selected profile 1`] = `
               <div
                 class="v-list-item__title"
               >
-                Organizations (0)
+                
+          Organizations (0)
+        
               </div>
             </div>
             <div

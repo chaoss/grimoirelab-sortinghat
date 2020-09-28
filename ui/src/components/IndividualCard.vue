@@ -18,7 +18,7 @@
       </v-list-item-content>
 
       <v-list-item-icon>
-        <v-btn text icon @click.stop="toggleLockedStatus">
+        <v-btn text icon @click.stop="toggleLockedStatus" @mousedown.stop>
           <v-icon small>
             {{ locked ? "mdi-lock" : "mdi-lock-open-outline" }}
           </v-icon>

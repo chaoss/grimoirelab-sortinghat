@@ -1,10 +1,12 @@
 <template>
   <v-navigation-drawer
     v-model="showDrawer"
+    fixed
     right
     width="626"
-    height="calc(100vh - 66px)"
+    min-height="calc(100vh - 66px)"
     color="#eceff1"
+    style="top:64px;z-index:1"
   >
     <template v-slot:prepend>
       <v-list-item>

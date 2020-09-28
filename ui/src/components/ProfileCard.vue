@@ -8,7 +8,9 @@
   >
     <v-list-group>
       <template v-slot:activator>
-        <v-list-item-title>Identities ({{ identitiesCount }})</v-list-item-title>
+        <v-list-item-title>
+          Identities ({{ identitiesCount }})
+        </v-list-item-title>
       </template>
 
       <v-list-group
@@ -19,20 +21,14 @@
       >
         <template v-slot:activator>
           <v-list-item-icon>
-            <v-icon
-              v-text="selectSourceIcon(source.name)"
-              left
-            />
+            <v-icon v-text="selectSourceIcon(source.name)" left />
           </v-list-item-icon>
           <v-list-item-content>
             <v-list-item-title>{{ source.name }}</v-list-item-title>
           </v-list-item-content>
         </template>
 
-        <v-list-item
-          v-for="identity in source.identities"
-          :key="identity.uuid"
-        >
+        <v-list-item v-for="identity in source.identities" :key="identity.uuid">
           <v-list-item-content>
             <identity
               v-if="source.name.toLowerCase() !== 'others'"
@@ -57,7 +53,9 @@
     <v-list-group>
       <template v-slot:activator>
         <v-list-item-content>
-          <v-list-item-title>Organizations ({{ enrollments.length }})</v-list-item-title>
+          <v-list-item-title>
+            Organizations ({{ enrollments.length }})
+          </v-list-item-title>
         </v-list-item-content>
       </template>
 
@@ -127,15 +125,15 @@ export default {
       }
     },
     formatDate(dateTime) {
-      return dateTime.split('T')[0]
+      return dateTime.split("T")[0];
     }
   },
   computed: {
     identitiesCount() {
-      return this.identities.reduce((a,b) => a + b.identities.length, 0)
+      return this.identities.reduce((a, b) => a + b.identities.length, 0);
     },
     sources() {
-      return this.identities.map(identity => identity.name)
+      return this.identities.map(identity => identity.name);
     }
   }
 };
