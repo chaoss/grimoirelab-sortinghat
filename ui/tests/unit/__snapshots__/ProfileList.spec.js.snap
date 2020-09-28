@@ -1,0 +1,176 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ProfileList Mock query for getProfileByUuid 1`] = `
+<v-navigation-drawer-stub
+  color="#eceff1"
+  height="calc(100vh - 66px)"
+  minivariantwidth="56"
+  mobilebreakpoint="1264"
+  right="true"
+  src=""
+  tag="aside"
+  width="626"
+>
+   
+</v-navigation-drawer-stub>
+`;
+
+exports[`ProfileList Shows selected profile 1`] = `
+<aside
+  class="v-navigation-drawer v-navigation-drawer--is-mobile v-navigation-drawer--open v-navigation-drawer--right theme--light"
+  style="height: calc(100vh - 66px); top: 0px; transform: translateX(0%); width: 626px; background-color: rgb(236, 239, 241); border-color: #eceff1;"
+>
+  <div
+    class="v-navigation-drawer__prepend"
+  >
+    <div
+      class="v-list-item theme--light"
+      tabindex="-1"
+    >
+      <div
+        class="v-list-item__content"
+      >
+        <div
+          class="v-list-item__title"
+        >
+          Selected profiles
+        </div>
+      </div>
+    </div>
+     
+    <hr
+      aria-orientation="horizontal"
+      class="v-divider theme--light"
+      role="separator"
+    />
+  </div>
+  <div
+    class="v-navigation-drawer__content"
+  >
+     
+    <div
+      class="row"
+      style="padding: 10px 0px;"
+    >
+      <div
+        class="mx-auto v-card v-card--raised v-sheet theme--light"
+        style="width: 600px;"
+      >
+        <div
+          class="grow v-list-item theme--light"
+          tabindex="-1"
+        >
+          <div
+            class="v-avatar v-list-item__avatar grey"
+            style="height: 40px; min-width: 40px; width: 40px;"
+          >
+            
+      TN
+    
+          </div>
+           
+          <div
+            class="v-list-item__content"
+          >
+            <div
+              class="v-list-item__title"
+            >
+              Test Name
+            </div>
+             
+            <div
+              class="v-list-item__subtitle"
+            >
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate mdi mdi-github theme--light"
+                style="font-size: 16px;"
+              />
+            </div>
+          </div>
+           
+          <div
+            class="v-list-item__icon"
+          >
+            <button
+              class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
+              type="button"
+            >
+              <span
+                class="v-btn__content"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
+                  style="font-size: 16px;"
+                />
+              </span>
+            </button>
+          </div>
+        </div>
+         
+        <div
+          class="v-list-group"
+        >
+          <div
+            aria-expanded="false"
+            class="v-list-group__header v-list-item v-list-item--link theme--light"
+            role="button"
+            tabindex="0"
+          >
+            <div
+              class="v-list-item__title"
+            >
+              Identities (1)
+            </div>
+            <div
+              class="v-list-item__icon v-list-group__header__append-icon"
+            >
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate mdi mdi-chevron-down theme--light"
+              />
+            </div>
+          </div>
+          <!---->
+        </div>
+         
+        <div
+          class="v-list-group"
+        >
+          <div
+            aria-expanded="false"
+            class="v-list-group__header v-list-item v-list-item--link theme--light"
+            role="button"
+            tabindex="0"
+          >
+            <div
+              class="v-list-item__content"
+            >
+              <div
+                class="v-list-item__title"
+              >
+                Organizations (0)
+              </div>
+            </div>
+            <div
+              class="v-list-item__icon v-list-group__header__append-icon"
+            >
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate mdi mdi-chevron-down theme--light"
+              />
+            </div>
+          </div>
+          <!---->
+        </div>
+         
+        <!---->
+      </div>
+    </div>
+  </div>
+  <div
+    class="v-navigation-drawer__border"
+  />
+</aside>
+`;

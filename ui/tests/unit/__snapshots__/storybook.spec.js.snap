@@ -415,7 +415,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
     class="v-application--wrap"
   >
     <div
-      class="mx-auto v-card v-sheet theme--light"
+      class="v-card v-sheet theme--light"
       style="max-width: 750px;"
     >
       <div
@@ -428,7 +428,8 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
             class="col"
           >
             <div
-              class="mx-auto v-card v-card--raised v-sheet theme--light"
+              class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light"
+              tabindex="0"
             >
               <div
                 class="grow v-list-item theme--light"
@@ -490,7 +491,8 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
             class="col"
           >
             <div
-              class="mx-auto v-card v-card--raised v-sheet theme--light"
+              class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light"
+              tabindex="0"
             >
               <div
                 class="grow v-list-item theme--light"
@@ -562,7 +564,8 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
             class="col"
           >
             <div
-              class="mx-auto v-card v-card--raised v-sheet theme--light"
+              class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light"
+              tabindex="0"
             >
               <div
                 class="grow v-list-item theme--light"
@@ -624,7 +627,8 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
             class="col"
           >
             <div
-              class="mx-auto v-card v-card--raised v-sheet theme--light"
+              class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light"
+              tabindex="0"
             >
               <div
                 class="grow v-list-item theme--light"
@@ -696,7 +700,8 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
             class="col"
           >
             <div
-              class="mx-auto v-card v-card--raised v-sheet theme--light"
+              class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light"
+              tabindex="0"
             >
               <div
                 class="grow v-list-item theme--light"
@@ -763,7 +768,8 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
             class="col"
           >
             <div
-              class="mx-auto v-card v-card--raised v-sheet theme--light"
+              class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light"
+              tabindex="0"
             >
               <div
                 class="grow v-list-item theme--light"
@@ -835,7 +841,8 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
             class="col"
           >
             <div
-              class="mx-auto v-card v-card--raised v-sheet theme--light"
+              class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light"
+              tabindex="0"
             >
               <div
                 class="grow v-list-item theme--light"
@@ -907,7 +914,8 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
             class="col"
           >
             <div
-              class="mx-auto v-card v-card--raised v-sheet theme--light"
+              class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light"
+              tabindex="0"
             >
               <div
                 class="grow v-list-item theme--light"
@@ -987,7 +995,7 @@ exports[`Storyshots IndividualsGrid Empty 1`] = `
     class="v-application--wrap"
   >
     <div
-      class="mx-auto v-card v-sheet theme--light"
+      class="v-card v-sheet theme--light"
       style="max-width: 750px;"
     >
       <div

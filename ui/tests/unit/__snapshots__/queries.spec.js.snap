@@ -2,6 +2,7 @@
 
 exports[`IndividualsData mock query for getIndividuals 1`] = `
 <individualsgrid-stub
+  class="grid"
   individuals="[object Object]"
 />
 `;

@@ -52,39 +52,41 @@ export default {
   methods: {
     async addProfile(uuid) {
       const response = await getProfileByUuid(this.$apollo, uuid);
-      const individual = response.data.individuals.entities[0];
-      const icons = ["git", "github", "gitlab"];
+      if (response) {
+        const individual = response.data.individuals.entities[0];
+        const icons = ["git", "github", "gitlab"];
 
-      const identities = individual.identities.reduce((result, val) => {
-        if (icons.find(icon => icon === val.source)) {
-          if (result[val.source]) {
-            result[val.source].identities.push(val);
+        const identities = individual.identities.reduce((result, val) => {
+          if (icons.find(icon => icon === val.source)) {
+            if (result[val.source]) {
+              result[val.source].identities.push(val);
+            } else {
+              result[val.source] = {
+                name: val.source,
+                identities: [val]
+              };
+            }
           } else {
-            result[val.source] = {
-              name: val.source,
-              identities: [val]
-            };
+            if (result.others) {
+              result.others.identities.push(val);
+            } else {
+              result.others = {
+                name: "Others",
+                identities: [val]
+              };
+            }
           }
-        } else {
-          if (result.others) {
-            result.others.identities.push(val);
-          } else {
-            result.others = {
-              name: "Others",
-              identities: [val]
-            };
-          }
-        }
-        return result;
-      }, {});
-      const formattedProfile = {
-        uuid: uuid,
-        name: individual.profile.name,
-        enrollments: individual.enrollments,
-        identities: Object.values(identities)
-      };
+          return result;
+        }, {});
+        const formattedProfile = {
+          uuid: uuid,
+          name: individual.profile.name,
+          enrollments: individual.enrollments,
+          identities: Object.values(identities)
+        };
 
-      this.profiles.push(formattedProfile);
+        this.profiles.push(formattedProfile);
+      }
     }
   },
   watch: {
