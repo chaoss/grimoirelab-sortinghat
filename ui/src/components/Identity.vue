@@ -38,7 +38,7 @@ export default {
     },
     username: {
       type: String,
-      required: true
+      required: false
     },
     source: {
       type: String,

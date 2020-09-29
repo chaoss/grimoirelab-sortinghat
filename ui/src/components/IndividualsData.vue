@@ -1,5 +1,5 @@
 <template>
-  <IndividualsGrid :individuals="individuals.entities" />
+  <IndividualsGrid :individuals="individuals.entities" class="grid" />
 </template>
 
 <script>
@@ -50,3 +50,10 @@ export default {
   }
 };
 </script>
+<style scoped>
+.grid {
+  align-self: start;
+  margin-right: 5px;
+  margin-top: 64px;
+}
+</style>

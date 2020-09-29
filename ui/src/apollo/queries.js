@@ -47,6 +47,33 @@ const GET_INDIVIDUALS = gql`
   }
 `;
 
+const GET_PROFILE_BYUUID = gql`
+  query GetProfileByUuid($uuid: String!) {
+    individuals(filters: { uuid: $uuid }) {
+      entities {
+        isLocked
+        profile {
+          name
+        }
+        identities {
+          name
+          source
+          email
+          uuid
+          username
+        }
+        enrollments {
+          start
+          end
+          organization {
+            name
+          }
+        }
+      }
+    }
+  }
+`;
+
 const getIndividualByUuid = (apollo, uuid) => {
   let response = apollo.query({
     query: GET_INDIVIDUAL_BYUUID,
@@ -82,4 +109,14 @@ const getIndividuals = {
   }
 };
 
-export { getIndividuals, getIndividualByUuid };
+const getProfileByUuid = (apollo, uuid) => {
+  let response = apollo.query({
+    query: GET_PROFILE_BYUUID,
+    variables: {
+      uuid: uuid
+    }
+  });
+  return response;
+};
+
+export { getIndividuals, getIndividualByUuid, getProfileByUuid };
