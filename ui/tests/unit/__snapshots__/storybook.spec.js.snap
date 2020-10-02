@@ -405,6 +405,458 @@ exports[`Storyshots IndividualCard Sources 1`] = `
 </div>
 `;
 
+exports[`Storyshots IndividualEntry Default 1`] = `
+<div
+  class="v-application v-application--is-ltr theme--light"
+  data-app="true"
+  id="app"
+>
+  <div
+    class="v-application--wrap"
+  >
+    <div
+      class="v-data-table theme--light"
+    >
+      <div
+        class="v-data-table__wrapper"
+      >
+        <table>
+          <colgroup>
+            <col
+              class=""
+            />
+            <col
+              class=""
+            />
+            <col
+              class=""
+            />
+            <col
+              class=""
+            />
+          </colgroup>
+          <tbody>
+            <tr>
+              <td
+                width="25%"
+              >
+                <div
+                  class="v-list-item theme--light"
+                  tabindex="-1"
+                >
+                  <div
+                    class="v-avatar v-list-item__avatar grey"
+                    style="height: 40px; min-width: 40px; width: 40px;"
+                  >
+                    
+        TR
+      
+                  </div>
+                   
+                  <div
+                    class="v-list-item__content"
+                  >
+                    <div
+                      class="v-list-item__title"
+                    >
+                      Tom Marvolo Riddle
+                    </div>
+                     
+                    <div
+                      class="v-list-item__subtitle"
+                    >
+                      Slytherin
+                    </div>
+                  </div>
+                </div>
+              </td>
+               
+              <td
+                class="text-center"
+              >
+                
+    triddle@example.com
+  
+              </td>
+               
+              <td
+                class="text-right"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-git theme--light"
+                />
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-account-multiple theme--light"
+                />
+              </td>
+               
+              <td
+                width="50"
+              >
+                <button
+                  class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                  type="button"
+                >
+                  <span
+                    class="v-btn__content"
+                  >
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate mdi mdi-chevron-down theme--light"
+                    />
+                  </span>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Storyshots IndividualEntry No Email 1`] = `
+<div
+  class="v-application v-application--is-ltr theme--light"
+  data-app="true"
+  id="app"
+>
+  <div
+    class="v-application--wrap"
+  >
+    <div
+      class="v-data-table theme--light"
+    >
+      <div
+        class="v-data-table__wrapper"
+      >
+        <table>
+          <colgroup>
+            <col
+              class=""
+            />
+            <col
+              class=""
+            />
+            <col
+              class=""
+            />
+            <col
+              class=""
+            />
+          </colgroup>
+          <tbody>
+            <tr>
+              <td
+                width="25%"
+              >
+                <div
+                  class="v-list-item theme--light"
+                  tabindex="-1"
+                >
+                  <div
+                    class="v-avatar v-list-item__avatar grey"
+                    style="height: 40px; min-width: 40px; width: 40px;"
+                  >
+                    
+        TR
+      
+                  </div>
+                   
+                  <div
+                    class="v-list-item__content"
+                  >
+                    <div
+                      class="v-list-item__title"
+                    >
+                      Tom Marvolo Riddle
+                    </div>
+                     
+                    <div
+                      class="v-list-item__subtitle"
+                    >
+                      Slytherin
+                    </div>
+                  </div>
+                </div>
+              </td>
+               
+              <td
+                class="text-center"
+              >
+                
+    
+  
+              </td>
+               
+              <td
+                class="text-right"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-git theme--light"
+                />
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-account-multiple theme--light"
+                />
+              </td>
+               
+              <td
+                width="50"
+              >
+                <button
+                  class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                  type="button"
+                >
+                  <span
+                    class="v-btn__content"
+                  >
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate mdi mdi-chevron-down theme--light"
+                    />
+                  </span>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Storyshots IndividualEntry No Organization 1`] = `
+<div
+  class="v-application v-application--is-ltr theme--light"
+  data-app="true"
+  id="app"
+>
+  <div
+    class="v-application--wrap"
+  >
+    <div
+      class="v-data-table theme--light"
+    >
+      <div
+        class="v-data-table__wrapper"
+      >
+        <table>
+          <colgroup>
+            <col
+              class=""
+            />
+            <col
+              class=""
+            />
+            <col
+              class=""
+            />
+            <col
+              class=""
+            />
+          </colgroup>
+          <tbody>
+            <tr>
+              <td
+                width="25%"
+              >
+                <div
+                  class="v-list-item theme--light"
+                  tabindex="-1"
+                >
+                  <div
+                    class="v-avatar v-list-item__avatar grey"
+                    style="height: 40px; min-width: 40px; width: 40px;"
+                  >
+                    
+        TR
+      
+                  </div>
+                   
+                  <div
+                    class="v-list-item__content"
+                  >
+                    <div
+                      class="v-list-item__title"
+                    >
+                      Tom Marvolo Riddle
+                    </div>
+                     
+                    <div
+                      class="v-list-item__subtitle"
+                    >
+                      
+                    </div>
+                  </div>
+                </div>
+              </td>
+               
+              <td
+                class="text-center"
+              >
+                
+    triddle@example.com
+  
+              </td>
+               
+              <td
+                class="text-right"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-git theme--light"
+                />
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-account-multiple theme--light"
+                />
+              </td>
+               
+              <td
+                width="50"
+              >
+                <button
+                  class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                  type="button"
+                >
+                  <span
+                    class="v-btn__content"
+                  >
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate mdi mdi-chevron-down theme--light"
+                    />
+                  </span>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Storyshots IndividualEntry Single Inital 1`] = `
+<div
+  class="v-application v-application--is-ltr theme--light"
+  data-app="true"
+  id="app"
+>
+  <div
+    class="v-application--wrap"
+  >
+    <div
+      class="v-data-table theme--light"
+    >
+      <div
+        class="v-data-table__wrapper"
+      >
+        <table>
+          <colgroup>
+            <col
+              class=""
+            />
+            <col
+              class=""
+            />
+            <col
+              class=""
+            />
+            <col
+              class=""
+            />
+          </colgroup>
+          <tbody>
+            <tr>
+              <td
+                width="25%"
+              >
+                <div
+                  class="v-list-item theme--light"
+                  tabindex="-1"
+                >
+                  <div
+                    class="v-avatar v-list-item__avatar grey"
+                    style="height: 40px; min-width: 40px; width: 40px;"
+                  >
+                    
+        V
+      
+                  </div>
+                   
+                  <div
+                    class="v-list-item__content"
+                  >
+                    <div
+                      class="v-list-item__title"
+                    >
+                      Voldemort
+                    </div>
+                     
+                    <div
+                      class="v-list-item__subtitle"
+                    >
+                      Death Eaters
+                    </div>
+                  </div>
+                </div>
+              </td>
+               
+              <td
+                class="text-center"
+              >
+                
+    lord.voldemort@example.com
+  
+              </td>
+               
+              <td
+                class="text-right"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-git theme--light"
+                />
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-account-multiple theme--light"
+                />
+              </td>
+               
+              <td
+                width="50"
+              >
+                <button
+                  class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                  type="button"
+                >
+                  <span
+                    class="v-btn__content"
+                  >
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate mdi mdi-chevron-down theme--light"
+                    />
+                  </span>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
 exports[`Storyshots IndividualsGrid Default 1`] = `
 <div
   class="v-application v-application--is-ltr theme--light"
@@ -1002,6 +1454,685 @@ exports[`Storyshots IndividualsGrid Empty 1`] = `
         class="v-card__text"
       >
         No individuals found
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Storyshots IndividualsTable Default 1`] = `
+<div
+  class="v-application v-application--is-ltr theme--light"
+  data-app="true"
+  id="app"
+>
+  <div
+    class="v-application--wrap"
+  >
+    <div
+      class="v-data-table theme--light"
+    >
+      <div
+        class="v-data-table__wrapper"
+      >
+        <table>
+          <colgroup>
+            <col
+              class=""
+            />
+            <col
+              class=""
+            />
+            <col
+              class=""
+            />
+            <col
+              class=""
+            />
+          </colgroup>
+          <tbody>
+            <tr>
+              <td
+                width="25%"
+              >
+                <div
+                  class="v-list-item theme--light"
+                  tabindex="-1"
+                >
+                  <div
+                    class="v-avatar v-list-item__avatar grey"
+                    style="height: 40px; min-width: 40px; width: 40px;"
+                  >
+                    
+        TR
+      
+                  </div>
+                   
+                  <div
+                    class="v-list-item__content"
+                  >
+                    <div
+                      class="v-list-item__title"
+                    >
+                      Tom Marvolo Riddle
+                    </div>
+                     
+                    <div
+                      class="v-list-item__subtitle"
+                    >
+                      Slytherin
+                    </div>
+                  </div>
+                </div>
+              </td>
+               
+              <td
+                class="text-center"
+              >
+                
+    triddle@example.com
+  
+              </td>
+               
+              <td
+                class="text-right"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-github theme--light"
+                />
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-git theme--light"
+                />
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-account-multiple theme--light"
+                />
+              </td>
+               
+              <td
+                width="50"
+              >
+                <button
+                  class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                  type="button"
+                >
+                  <span
+                    class="v-btn__content"
+                  >
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate mdi mdi-chevron-down theme--light"
+                    />
+                  </span>
+                </button>
+              </td>
+            </tr>
+            <tr>
+              <td
+                width="25%"
+              >
+                <div
+                  class="v-list-item theme--light"
+                  tabindex="-1"
+                >
+                  <div
+                    class="v-avatar v-list-item__avatar grey"
+                    style="height: 40px; min-width: 40px; width: 40px;"
+                  >
+                    
+        HP
+      
+                  </div>
+                   
+                  <div
+                    class="v-list-item__content"
+                  >
+                    <div
+                      class="v-list-item__title"
+                    >
+                      Harry Potter
+                    </div>
+                     
+                    <div
+                      class="v-list-item__subtitle"
+                    >
+                      Griffyndor
+                    </div>
+                  </div>
+                </div>
+              </td>
+               
+              <td
+                class="text-center"
+              >
+                
+    hpotter@example.com
+  
+              </td>
+               
+              <td
+                class="text-right"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-git theme--light"
+                />
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-gitlab theme--light"
+                />
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-github theme--light"
+                />
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-account-multiple theme--light"
+                />
+              </td>
+               
+              <td
+                width="50"
+              >
+                <button
+                  class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                  type="button"
+                >
+                  <span
+                    class="v-btn__content"
+                  >
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate mdi mdi-chevron-down theme--light"
+                    />
+                  </span>
+                </button>
+              </td>
+            </tr>
+            <tr>
+              <td
+                width="25%"
+              >
+                <div
+                  class="v-list-item theme--light"
+                  tabindex="-1"
+                >
+                  <div
+                    class="v-avatar v-list-item__avatar grey"
+                    style="height: 40px; min-width: 40px; width: 40px;"
+                  >
+                    
+        V
+      
+                  </div>
+                   
+                  <div
+                    class="v-list-item__content"
+                  >
+                    <div
+                      class="v-list-item__title"
+                    >
+                      Voldemort
+                    </div>
+                     
+                    <div
+                      class="v-list-item__subtitle"
+                    >
+                      Death Eaters
+                    </div>
+                  </div>
+                </div>
+              </td>
+               
+              <td
+                class="text-center"
+              >
+                
+    
+  
+              </td>
+               
+              <td
+                class="text-right"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-account-multiple theme--light"
+                />
+              </td>
+               
+              <td
+                width="50"
+              >
+                <button
+                  class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                  type="button"
+                >
+                  <span
+                    class="v-btn__content"
+                  >
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate mdi mdi-chevron-down theme--light"
+                    />
+                  </span>
+                </button>
+              </td>
+            </tr>
+            <tr>
+              <td
+                width="25%"
+              >
+                <div
+                  class="v-list-item theme--light"
+                  tabindex="-1"
+                >
+                  <div
+                    class="v-avatar v-list-item__avatar grey"
+                    style="height: 40px; min-width: 40px; width: 40px;"
+                  >
+                    
+        SS
+      
+                  </div>
+                   
+                  <div
+                    class="v-list-item__content"
+                  >
+                    <div
+                      class="v-list-item__title"
+                    >
+                      Severus Snape
+                    </div>
+                     
+                    <div
+                      class="v-list-item__subtitle"
+                    >
+                      Slytherin
+                    </div>
+                  </div>
+                </div>
+              </td>
+               
+              <td
+                class="text-center"
+              >
+                
+    snape@example.com
+  
+              </td>
+               
+              <td
+                class="text-right"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-git theme--light"
+                />
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-github theme--light"
+                />
+              </td>
+               
+              <td
+                width="50"
+              >
+                <button
+                  class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                  type="button"
+                >
+                  <span
+                    class="v-btn__content"
+                  >
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate mdi mdi-chevron-down theme--light"
+                    />
+                  </span>
+                </button>
+              </td>
+            </tr>
+            <tr>
+              <td
+                width="25%"
+              >
+                <div
+                  class="v-list-item theme--light"
+                  tabindex="-1"
+                >
+                  <div
+                    class="v-avatar v-list-item__avatar grey"
+                    style="height: 40px; min-width: 40px; width: 40px;"
+                  >
+                    
+        HG
+      
+                  </div>
+                   
+                  <div
+                    class="v-list-item__content"
+                  >
+                    <div
+                      class="v-list-item__title"
+                    >
+                      Hermione Granger
+                    </div>
+                     
+                    <div
+                      class="v-list-item__subtitle"
+                    >
+                      Gryffindor
+                    </div>
+                  </div>
+                </div>
+              </td>
+               
+              <td
+                class="text-center"
+              >
+                
+    hermionegranger@example.com
+  
+              </td>
+               
+              <td
+                class="text-right"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-git theme--light"
+                />
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-gitlab theme--light"
+                />
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-github theme--light"
+                />
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-account-multiple theme--light"
+                />
+              </td>
+               
+              <td
+                width="50"
+              >
+                <button
+                  class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                  type="button"
+                >
+                  <span
+                    class="v-btn__content"
+                  >
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate mdi mdi-chevron-down theme--light"
+                    />
+                  </span>
+                </button>
+              </td>
+            </tr>
+            <tr>
+              <td
+                width="25%"
+              >
+                <div
+                  class="v-list-item theme--light"
+                  tabindex="-1"
+                >
+                  <div
+                    class="v-avatar v-list-item__avatar grey"
+                    style="height: 40px; min-width: 40px; width: 40px;"
+                  >
+                    
+        RW
+      
+                  </div>
+                   
+                  <div
+                    class="v-list-item__content"
+                  >
+                    <div
+                      class="v-list-item__title"
+                    >
+                      Ron Weasley
+                    </div>
+                     
+                    <div
+                      class="v-list-item__subtitle"
+                    >
+                      Gryffindor
+                    </div>
+                  </div>
+                </div>
+              </td>
+               
+              <td
+                class="text-center"
+              >
+                
+    ron@example.com
+  
+              </td>
+               
+              <td
+                class="text-right"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-git theme--light"
+                />
+              </td>
+               
+              <td
+                width="50"
+              >
+                <button
+                  class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                  type="button"
+                >
+                  <span
+                    class="v-btn__content"
+                  >
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate mdi mdi-chevron-down theme--light"
+                    />
+                  </span>
+                </button>
+              </td>
+            </tr>
+            <tr>
+              <td
+                width="25%"
+              >
+                <div
+                  class="v-list-item theme--light"
+                  tabindex="-1"
+                >
+                  <div
+                    class="v-avatar v-list-item__avatar grey"
+                    style="height: 40px; min-width: 40px; width: 40px;"
+                  >
+                    
+        AD
+      
+                  </div>
+                   
+                  <div
+                    class="v-list-item__content"
+                  >
+                    <div
+                      class="v-list-item__title"
+                    >
+                      Albus Dumbledore
+                    </div>
+                     
+                    <div
+                      class="v-list-item__subtitle"
+                    >
+                      Order of the Phoenix
+                    </div>
+                  </div>
+                </div>
+              </td>
+               
+              <td
+                class="text-center"
+              >
+                
+    albus.dumbledore@example.com
+  
+              </td>
+               
+              <td
+                class="text-right"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-gitlab theme--light"
+                />
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-account-multiple theme--light"
+                />
+              </td>
+               
+              <td
+                width="50"
+              >
+                <button
+                  class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                  type="button"
+                >
+                  <span
+                    class="v-btn__content"
+                  >
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate mdi mdi-chevron-down theme--light"
+                    />
+                  </span>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div
+        class="v-data-footer"
+      >
+        <div
+          class="v-data-footer__select"
+        >
+          Rows per page:
+          <div
+            class="v-input v-input--hide-details v-input--is-label-active v-input--is-dirty theme--light v-text-field v-select"
+          >
+            <div
+              class="v-input__control"
+            >
+              <div
+                aria-expanded="false"
+                aria-haspopup="listbox"
+                aria-owns="list-289"
+                class="v-input__slot"
+                role="button"
+              >
+                <div
+                  class="v-select__slot"
+                >
+                  <div
+                    class="v-select__selections"
+                  >
+                    <div
+                      class="v-select__selection v-select__selection--comma"
+                    >
+                      10
+                    </div>
+                    <input
+                      aria-label="$vuetify.dataTable.itemsPerPageText"
+                      aria-readonly="false"
+                      autocomplete="off"
+                      id="input-289"
+                      readonly="readonly"
+                      type="text"
+                    />
+                  </div>
+                  <div
+                    class="v-input__append-inner"
+                  >
+                    <div
+                      class="v-input__icon v-input__icon--append"
+                    >
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate mdi mdi-menu-down theme--light"
+                      />
+                    </div>
+                  </div>
+                  <input
+                    type="hidden"
+                    value="10"
+                  />
+                </div>
+                <div
+                  class="v-menu"
+                >
+                  <!---->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          class="v-data-footer__pagination"
+        >
+          1-7 of 7
+        </div>
+        <div
+          class="v-data-footer__icons-before"
+        >
+          <button
+            aria-label="Previous page"
+            class="v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
+            disabled="disabled"
+            type="button"
+          >
+            <span
+              class="v-btn__content"
+            >
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate mdi mdi-chevron-left theme--light"
+              />
+            </span>
+          </button>
+        </div>
+        <div
+          class="v-data-footer__icons-after"
+        >
+          <button
+            aria-label="Next page"
+            class="v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
+            disabled="disabled"
+            type="button"
+          >
+            <span
+              class="v-btn__content"
+            >
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate mdi mdi-chevron-right theme--light"
+              />
+            </span>
+          </button>
+        </div>
       </div>
     </div>
   </div>
