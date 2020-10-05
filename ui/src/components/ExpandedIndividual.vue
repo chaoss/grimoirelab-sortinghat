@@ -1,27 +1,34 @@
 <template>
   <td colspan="3">
     <v-subheader>Identities ({{ identitiesCount }})</v-subheader>
-    <v-list v-for="(source, sourceIndex) in identities" :key="source.name" class="indented">
-        <v-list-item v-for="(identity, index) in source.identities" :key="identity.uuid">
-          <v-list-item-icon v-if="index === 0">
-            <v-icon>
-              {{ selectSourceIcon(source.name) }}
-            </v-icon>
-          </v-list-item-icon>
+    <v-list
+      v-for="(source, sourceIndex) in identities"
+      :key="source.name"
+      class="indented"
+    >
+      <v-list-item
+        v-for="(identity, index) in source.identities"
+        :key="identity.uuid"
+      >
+        <v-list-item-icon v-if="index === 0">
+          <v-icon>
+            {{ selectSourceIcon(source.name) }}
+          </v-icon>
+        </v-list-item-icon>
 
-          <v-list-item-action v-else></v-list-item-action>
+        <v-list-item-action v-else></v-list-item-action>
 
-          <v-list-item-content>
-            <identity
-              :uuid="identity.uuid"
-              :name="identity.name"
-              :email="identity.email"
-              :username="identity.username"
-              :source="identity.source || source.name"
-            />
-          </v-list-item-content>
-        </v-list-item>
-        <v-divider inset v-if="sourceIndex !== identities.length - 1"></v-divider>
+        <v-list-item-content>
+          <identity
+            :uuid="identity.uuid"
+            :name="identity.name"
+            :email="identity.email"
+            :username="identity.username"
+            :source="identity.source || source.name"
+          />
+        </v-list-item-content>
+      </v-list-item>
+      <v-divider inset v-if="sourceIndex !== identities.length - 1"></v-divider>
     </v-list>
 
     <v-divider inset class="divider"></v-divider>
