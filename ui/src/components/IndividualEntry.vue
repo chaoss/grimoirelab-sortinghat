@@ -1,5 +1,5 @@
 <template>
-  <tr>
+  <tr :class="{ 'expanded': isExpanded }">
     <td width="25%">
       <v-list-item>
         <v-list-item-avatar color="grey">
@@ -81,3 +81,8 @@ export default {
   }
 }
 </script>
+<style scoped>
+.theme--light.v-data-table tbody .expanded td:not(.v-data-table__mobile-row){
+  border: 0;
+}
+</style>
