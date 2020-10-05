@@ -60,10 +60,6 @@ export default {
     Identity
   },
   props: {
-    name: {
-      type: String,
-      required: true
-    },
     identities: {
       type: Array,
       required: true

@@ -21,7 +21,6 @@
       <expanded-individual
         :enrollments="item.enrollments"
         :identities="item.identities"
-        :name="item.name"
       />
     </template>
   </v-data-table>
