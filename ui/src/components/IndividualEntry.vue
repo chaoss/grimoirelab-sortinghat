@@ -1,5 +1,5 @@
 <template>
-  <tr :class="{ 'expanded': isExpanded }">
+  <tr :class="{ expanded: isExpanded }">
     <td width="25%">
       <v-list-item>
         <v-list-item-avatar color="grey">
@@ -26,7 +26,9 @@
     </td>
     <td width="50">
       <v-btn icon @click="$emit('expand')">
-        <v-icon>{{ isExpanded ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
+        <v-icon>
+          {{ isExpanded ? "mdi-chevron-up" : "mdi-chevron-down" }}
+        </v-icon>
       </v-btn>
     </td>
   </tr>
@@ -79,10 +81,10 @@ export default {
       }
     }
   }
-}
+};
 </script>
 <style scoped>
-.theme--light.v-data-table tbody .expanded td:not(.v-data-table__mobile-row){
+.theme--light.v-data-table tbody .expanded td:not(.v-data-table__mobile-row) {
   border: 0;
 }
 </style>

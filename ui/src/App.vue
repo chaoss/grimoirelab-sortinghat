@@ -34,37 +34,27 @@
     </v-app-bar>
 
     <v-content>
-      <IndividualsData :getindividuals="individualsQuery" class="grid" />
-      <ProfileList />
+      <v-container max-width="900">
+        <individuals-table :fetch-page="getIndividualsPage" />
+      </v-container>
     </v-content>
   </v-app>
 </template>
 
 <script>
-import { getIndividuals } from "./apollo/queries";
-import IndividualsData from "./components/IndividualsData";
-import ProfileList from "./components/ProfileList";
+import { getPaginatedIndividuals } from "./apollo/queries";
+import IndividualsTable from "./components/IndividualsTable";
 
 export default {
   name: "App",
   components: {
-    IndividualsData,
-    ProfileList
+    IndividualsTable
   },
-  data: () => ({
-    individualsQuery: getIndividuals
-  })
+  methods: {
+    async getIndividualsPage(page, items) {
+      const response = await getPaginatedIndividuals(this.$apollo, page, items);
+      return response;
+    }
+  }
 };
 </script>
-<style scoped>
-.grid {
-  margin-left: auto;
-  margin-right: 630px;
-}
-
-@media (min-width: 2000px) {
-  .grid {
-    margin-right: auto;
-  }
-}
-</style>

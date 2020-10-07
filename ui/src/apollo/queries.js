@@ -74,6 +74,41 @@ const GET_PROFILE_BYUUID = gql`
   }
 `;
 
+const GET_PAGINATED_INDIVIDUALS = gql`
+  query GetIndividuals($page: Int!, $pageSize: Int!) {
+    individuals(page: $page, pageSize: $pageSize) {
+      entities {
+        isLocked
+        profile {
+          name
+          id
+          email
+        }
+        identities {
+          name
+          source
+          email
+          uuid
+          username
+        }
+        enrollments {
+          start
+          end
+          organization {
+            name
+          }
+        }
+      }
+      pageInfo {
+        page
+        pageSize
+        numPages
+        totalResults
+      }
+    }
+  }
+`;
+
 const getIndividualByUuid = (apollo, uuid) => {
   let response = apollo.query({
     query: GET_INDIVIDUAL_BYUUID,
@@ -109,6 +144,17 @@ const getIndividuals = {
   }
 };
 
+const getPaginatedIndividuals = (apollo, currentPage, pageSize) => {
+  let response = apollo.query({
+    query: GET_PAGINATED_INDIVIDUALS,
+    variables: {
+      page: currentPage,
+      pageSize: pageSize
+    }
+  });
+  return response;
+};
+
 const getProfileByUuid = (apollo, uuid) => {
   let response = apollo.query({
     query: GET_PROFILE_BYUUID,
@@ -119,4 +165,9 @@ const getProfileByUuid = (apollo, uuid) => {
   return response;
 };
 
-export { getIndividuals, getIndividualByUuid, getProfileByUuid };
+export {
+  getIndividuals,
+  getIndividualByUuid,
+  getProfileByUuid,
+  getPaginatedIndividuals
+};
