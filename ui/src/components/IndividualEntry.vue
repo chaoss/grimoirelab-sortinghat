@@ -7,7 +7,22 @@
         </v-list-item-avatar>
 
         <v-list-item-content>
-          <v-list-item-title>{{ name }}</v-list-item-title>
+          <v-list-item-title>
+            {{ name }}
+            <v-tooltip
+              v-if="isLocked"
+              bottom
+              transition="expand-y-transition"
+              open-delay="200"
+            >
+              <template v-slot:activator="{ on }">
+                <v-icon v-on="on" class="aligned" small right>
+                  mdi-lock
+                </v-icon>
+              </template>
+              <span>Locked profile</span>
+            </v-tooltip>
+          </v-list-item-title>
           <v-list-item-subtitle>{{ organization }}</v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
@@ -56,6 +71,10 @@ export default {
     isExpanded: {
       type: Boolean,
       required: true
+    },
+    isLocked: {
+      type: Boolean,
+      required: true
     }
   },
   computed: {
@@ -86,5 +105,11 @@ export default {
 <style scoped>
 .theme--light.v-data-table tbody .expanded td:not(.v-data-table__mobile-row) {
   border: 0;
+}
+.v-list-item__title {
+  text-overflow: inherit;
+}
+.aligned {
+  margin-bottom: 4px;
 }
 </style>

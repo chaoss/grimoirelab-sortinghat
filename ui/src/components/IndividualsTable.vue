@@ -16,6 +16,7 @@
           :email="item.email"
           :sources="item.sources"
           :is-expanded="isExpanded"
+          :is-locked="item.isLocked"
           @expand="expand(!isExpanded)"
         />
       </template>
@@ -99,7 +100,8 @@ export default {
             identity => identity.name
           ),
           identities: this.groupIdentities(item.identities),
-          enrollments: item.enrollments
+          enrollments: item.enrollments,
+          isLocked: item.isLocked
         };
       });
 
