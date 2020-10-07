@@ -23,6 +23,7 @@ const individualEntryTemplate = `
         :email="item.email"
         :sources="item.sources"
         :is-expanded="isExpanded"
+        :is-locked="item.isLocked"
         @expand="expand(!isExpanded)"
       />
     </template>
@@ -47,7 +48,8 @@ export const Default = () => ({
         name: "Tom Marvolo Riddle",
         organization: "Slytherin",
         email: "triddle@example.com",
-        sources: [ "git", "others" ]
+        sources: [ "git", "others" ],
+        isLocked: false
       }
     ],
     expanded: []
@@ -69,7 +71,8 @@ export const NoEmail = () => ({
         name: "Tom Marvolo Riddle",
         organization: "Slytherin",
         email: "",
-        sources: [ "git", "others" ]
+        sources: [ "git", "others" ],
+        isLocked: false
       }
     ],
     expanded: []
@@ -91,7 +94,8 @@ export const NoOrganization = () => ({
         name: "Tom Marvolo Riddle",
         organization: "",
         email: "triddle@example.com",
-        sources: [ "git", "others" ]
+        sources: [ "git", "others" ],
+        isLocked: false
       }
     ],
     expanded: []
@@ -113,7 +117,31 @@ export const SingleInital = () => ({
         name: "Voldemort",
         organization: "Death Eaters",
         email: "lord.voldemort@example.com",
-        sources: [ "git", "others" ]
+        sources: [ "git", "others" ],
+        isLocked: false
+      }
+    ],
+    expanded: []
+  })
+});
+
+export const Locked = () => ({
+  components: { IndividualEntry },
+  template: individualEntryTemplate,
+  data: () => ({
+    headers: [
+      { value: 'name' },
+      { value: 'email' },
+      { value: 'sources' },
+      { value: 'actions' }
+    ],
+    items: [
+      {
+        name: "Tom Marvolo Riddle",
+        organization: "Slytherin",
+        email: "triddle@example.com",
+        sources: [ "git", "others" ],
+        isLocked: true
       }
     ],
     expanded: []

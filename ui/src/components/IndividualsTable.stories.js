@@ -129,7 +129,7 @@ export const Default = () => ({
                 ]
               },
               {
-                isLocked: false,
+                isLocked: true,
                 profile: {
                   name: "Voldemort",
                   id: "3",
