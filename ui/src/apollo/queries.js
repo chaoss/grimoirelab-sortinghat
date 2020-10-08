@@ -83,6 +83,7 @@ const GET_PAGINATED_INDIVIDUALS = gql`
           name
           id
           email
+          isBot
         }
         identities {
           name
