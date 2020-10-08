@@ -17,6 +17,7 @@
           :sources="item.sources"
           :is-expanded="isExpanded"
           :is-locked="item.isLocked"
+          :is-bot="item.isBot"
           @expand="expand(!isExpanded)"
         />
       </template>
@@ -101,7 +102,8 @@ export default {
           ),
           identities: this.groupIdentities(item.identities),
           enrollments: item.enrollments,
-          isLocked: item.isLocked
+          isLocked: item.isLocked,
+          isBot: item.profile.isBot
         };
       });
 

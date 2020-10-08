@@ -24,6 +24,7 @@ const individualEntryTemplate = `
         :sources="item.sources"
         :is-expanded="isExpanded"
         :is-locked="item.isLocked"
+        :is-bot="item.isBot"
         @expand="expand(!isExpanded)"
       />
     </template>
@@ -49,7 +50,8 @@ export const Default = () => ({
         organization: "Slytherin",
         email: "triddle@example.com",
         sources: [ "git", "others" ],
-        isLocked: false
+        isLocked: false,
+        isBot: false
       }
     ],
     expanded: []
@@ -72,7 +74,8 @@ export const NoEmail = () => ({
         organization: "Slytherin",
         email: "",
         sources: [ "git", "others" ],
-        isLocked: false
+        isLocked: false,
+        isBot: false
       }
     ],
     expanded: []
@@ -95,7 +98,8 @@ export const NoOrganization = () => ({
         organization: "",
         email: "triddle@example.com",
         sources: [ "git", "others" ],
-        isLocked: false
+        isLocked: false,
+        isBot: false
       }
     ],
     expanded: []
@@ -118,7 +122,8 @@ export const SingleInital = () => ({
         organization: "Death Eaters",
         email: "lord.voldemort@example.com",
         sources: [ "git", "others" ],
-        isLocked: false
+        isLocked: false,
+        isBot: false
       }
     ],
     expanded: []
@@ -141,7 +146,56 @@ export const Locked = () => ({
         organization: "Slytherin",
         email: "triddle@example.com",
         sources: [ "git", "others" ],
-        isLocked: true
+        isLocked: true,
+        isBot: false
+      }
+    ],
+    expanded: []
+  })
+});
+
+export const Bot = () => ({
+  components: { IndividualEntry },
+  template: individualEntryTemplate,
+  data: () => ({
+    headers: [
+      { value: 'name' },
+      { value: 'email' },
+      { value: 'sources' },
+      { value: 'actions' }
+    ],
+    items: [
+      {
+        name: "Tom Marvolo Riddle",
+        organization: "Slytherin",
+        email: "triddle@example.com",
+        sources: [ "git", "others" ],
+        isLocked: false,
+        isBot: true
+      }
+    ],
+    expanded: []
+  })
+});
+
+export const BotAndLocked = () => ({
+  components: { IndividualEntry },
+  template: individualEntryTemplate,
+  data: () => ({
+    headers: [
+      { value: 'name' },
+      { value: 'email' },
+      { value: 'sources' },
+      { value: 'actions' }
+    ],
+    items: [
+      {
+        name: "Tom Marvolo Riddle",
+        organization: "Slytherin",
+        email: "triddle@example.com",
+        sources: [ "git", "others" ],
+        isLocked: true,
+        isBot: true
       }
     ],
     expanded: []

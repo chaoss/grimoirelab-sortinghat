@@ -10,6 +10,19 @@
           <v-list-item-title>
             {{ name }}
             <v-tooltip
+              v-if="isBot"
+              bottom
+              transition="expand-y-transition"
+              open-delay="200"
+            >
+              <template v-slot:activator="{ on }">
+                <v-icon v-on="on" class="aligned" small right>
+                  mdi-robot
+                </v-icon>
+              </template>
+              <span>Bot</span>
+            </v-tooltip>
+            <v-tooltip
               v-if="isLocked"
               bottom
               transition="expand-y-transition"
@@ -73,6 +86,10 @@ export default {
       required: true
     },
     isLocked: {
+      type: Boolean,
+      required: true
+    },
+    isBot: {
       type: Boolean,
       required: true
     }

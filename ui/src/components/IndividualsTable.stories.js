@@ -28,7 +28,8 @@ export const Default = () => ({
                 profile: {
                   name: "Tom Marvolo Riddle",
                   id: "1",
-                  email: "triddle@example.com"
+                  email: "triddle@example.com",
+                  isBot: false
                 },
                 identities: [
                   {
@@ -84,7 +85,8 @@ export const Default = () => ({
                 profile: {
                   name: "Harry Potter",
                   id: "2",
-                  email: "hpotter@example.com"
+                  email: "hpotter@example.com",
+                  isBot: false
                 },
                 identities: [
                   {
@@ -133,7 +135,8 @@ export const Default = () => ({
                 profile: {
                   name: "Voldemort",
                   id: "3",
-                  email: ""
+                  email: "",
+                  isBot: false
                 },
                 identities: [
                   {
@@ -160,7 +163,8 @@ export const Default = () => ({
                 profile: {
                   name: "Ron Weasley",
                   id: "4",
-                  email: "rweasley@example.com"
+                  email: "rweasley@example.com",
+                  isBot: false
                 },
                 identities: [
                   {
@@ -202,7 +206,8 @@ export const Default = () => ({
                 profile: {
                   name: "Hermione Granger",
                   id: "5",
-                  email: "hgranger@example.com"
+                  email: "hgranger@example.com",
+                  isBot: true
                 },
                 identities: [
                   {
@@ -258,7 +263,8 @@ export const Default = () => ({
                 profile: {
                   name: "Albus Dumbledore",
                   id: "6",
-                  email: "albus.dumbledore@example.com"
+                  email: "albus.dumbledore@example.com",
+                  isBot: false
                 },
                 identities: [
                   {
@@ -315,7 +321,8 @@ export const Default = () => ({
                 profile: {
                   name: "Hagrid",
                   id: "7",
-                  email: "hagrid@example.com"
+                  email: "hagrid@example.com",
+                  isBot: false
                 },
                 identities: [
                   {
