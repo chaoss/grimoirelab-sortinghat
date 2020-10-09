@@ -2726,6 +2726,52 @@ exports[`Storyshots IndividualsTable Default 1`] = `
 </div>
 `;
 
+exports[`Storyshots OrganizationEntry Default 1`] = `
+<div
+  class="v-application v-application--is-ltr theme--light"
+  data-app="true"
+  id="app"
+>
+  <div
+    class="v-application--wrap"
+  >
+    <div
+      class="v-data-table theme--light"
+    >
+      <div
+        class="v-data-table__wrapper"
+      >
+        <table>
+          <colgroup>
+            <col
+              class=""
+            />
+            <col
+              class=""
+            />
+          </colgroup>
+          <tbody>
+            <tr>
+              <td
+                class="text--body-1"
+              >
+                Hogwarts School of Witchcraft and Wizardry
+              </td>
+               
+              <td
+                class="text-right text--secondary"
+              >
+                280
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
 exports[`Storyshots ProfileCard Default 1`] = `
 <div
   class="v-application v-application--is-ltr theme--light"
