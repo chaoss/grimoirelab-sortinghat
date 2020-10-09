@@ -25,6 +25,7 @@ const individualEntryTemplate = `
         :is-expanded="isExpanded"
         :is-locked="item.isLocked"
         :is-bot="item.isBot"
+        :uuid="item.uuid"
         @expand="expand(!isExpanded)"
       />
     </template>
@@ -51,7 +52,8 @@ export const Default = () => ({
         email: "triddle@example.com",
         sources: [ "git", "others" ],
         isLocked: false,
-        isBot: false
+        isBot: false,
+        uuid: "03b3428ee"
       }
     ],
     expanded: []
@@ -75,7 +77,8 @@ export const NoEmail = () => ({
         email: "",
         sources: [ "git", "others" ],
         isLocked: false,
-        isBot: false
+        isBot: false,
+        uuid: "03b3428ee"
       }
     ],
     expanded: []
@@ -99,7 +102,8 @@ export const NoOrganization = () => ({
         email: "triddle@example.com",
         sources: [ "git", "others" ],
         isLocked: false,
-        isBot: false
+        isBot: false,
+        uuid: "03b3428ee"
       }
     ],
     expanded: []
@@ -123,7 +127,8 @@ export const SingleInital = () => ({
         email: "lord.voldemort@example.com",
         sources: [ "git", "others" ],
         isLocked: false,
-        isBot: false
+        isBot: false,
+        uuid: "03b3428ee"
       }
     ],
     expanded: []
@@ -147,7 +152,8 @@ export const Locked = () => ({
         email: "triddle@example.com",
         sources: [ "git", "others" ],
         isLocked: true,
-        isBot: false
+        isBot: false,
+        uuid: "03b3428ee"
       }
     ],
     expanded: []
@@ -171,7 +177,8 @@ export const Bot = () => ({
         email: "triddle@example.com",
         sources: [ "git", "others" ],
         isLocked: false,
-        isBot: true
+        isBot: true,
+        uuid: "03b3428ee"
       }
     ],
     expanded: []
@@ -195,7 +202,8 @@ export const BotAndLocked = () => ({
         email: "triddle@example.com",
         sources: [ "git", "others" ],
         isLocked: true,
-        isBot: true
+        isBot: true,
+        uuid: "03b3428ee"
       }
     ],
     expanded: []

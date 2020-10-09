@@ -19,6 +19,10 @@
           :is-locked="item.isLocked"
           :is-bot="item.isBot"
           @expand="expand(!isExpanded)"
+          @saveIndividual="$emit('saveIndividual', item)"
+          draggable
+          @dragstart.native="startDrag(item, $event)"
+          @dragend.native="removeClass(item, $event)"
         />
       </template>
       <template v-slot:expanded-item="{ item }">
@@ -103,7 +107,8 @@ export default {
           identities: this.groupIdentities(item.identities),
           enrollments: item.enrollments,
           isLocked: item.isLocked,
-          isBot: item.profile.isBot
+          isBot: item.profile.isBot,
+          uuid: item.identities[0].uuid
         };
       });
 
@@ -128,6 +133,14 @@ export default {
       }, {});
 
       return Object.values(groupedIdentities);
+    },
+    startDrag(item, event) {
+      event.dataTransfer.dropEffect = "move";
+      event.dataTransfer.setData("uuid", JSON.stringify(item));
+      event.target.classList.add("dragging");
+    },
+    removeClass(item, event) {
+      event.target.classList.remove("dragging");
     }
   }
 };
@@ -139,5 +152,19 @@ export default {
 }
 ::v-deep button.v-pagination__item {
   transition: none;
+}
+::v-deep table {
+  border-collapse: collapse;
+}
+::v-deep .v-data-table__wrapper {
+  overflow-x: hidden;
+}
+.theme--light.v-data-table
+  tbody
+  .dragging:hover:not(.v-data-table__expanded__content):not(.v-data-table__empty-wrapper),
+.dragging {
+  background-color: #e3f2fd;
+  border: solid #bbdefb;
+  border-width: 2px 3px;
 }
 </style>

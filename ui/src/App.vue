@@ -34,9 +34,19 @@
     </v-app-bar>
 
     <v-content>
+      <work-space
+        :individuals="savedIndividuals"
+        @clearSpace="savedIndividuals = []"
+      />
       <v-container max-width="900">
-        <individuals-table :fetch-page="getIndividualsPage" />
+        <individuals-table
+          :fetch-page="getIndividualsPage"
+          @saveIndividual="addSavedIndividual"
+        />
       </v-container>
+      <v-snackbar v-model="snackbar">
+        Individual already in work space
+      </v-snackbar>
     </v-content>
   </v-app>
 </template>
@@ -44,16 +54,34 @@
 <script>
 import { getPaginatedIndividuals } from "./apollo/queries";
 import IndividualsTable from "./components/IndividualsTable";
+import WorkSpace from "./components/WorkSpace";
 
 export default {
   name: "App",
   components: {
-    IndividualsTable
+    IndividualsTable,
+    WorkSpace
+  },
+  data() {
+    return {
+      savedIndividuals: [],
+      snackbar: false
+    };
   },
   methods: {
     async getIndividualsPage(page, items) {
       const response = await getPaginatedIndividuals(this.$apollo, page, items);
       return response;
+    },
+    addSavedIndividual(individual) {
+      const isSaved = this.savedIndividuals.find(savedIndividual => {
+        return individual.uuid === savedIndividual.uuid;
+      });
+      if (isSaved) {
+        this.snackbar = true;
+        return;
+      }
+      this.savedIndividuals.push(individual);
     }
   }
 };

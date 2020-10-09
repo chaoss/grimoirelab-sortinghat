@@ -52,12 +52,26 @@
         right
       />
     </td>
-    <td width="50">
+    <td width="140">
+      <v-tooltip bottom transition="expand-y-transition" open-delay="200">
+        <template v-slot:activator="{ on }">
+          <v-btn icon @click="$emit('saveIndividual', $event)" v-on="on">
+            <v-icon>mdi-pin</v-icon>
+          </v-btn>
+        </template>
+        <span>Save to work space</span>
+      </v-tooltip>
       <v-btn icon @click="$emit('expand')">
         <v-icon>
           {{ isExpanded ? "mdi-chevron-up" : "mdi-chevron-down" }}
         </v-icon>
       </v-btn>
+      <v-tooltip bottom transition="expand-y-transition" open-delay="200">
+        <template v-slot:activator="{ on }">
+          <v-icon v-on="on" style="cursor: pointer">mdi-drag-vertical</v-icon>
+        </template>
+        <span>Drag individual</span>
+      </v-tooltip>
     </td>
   </tr>
 </template>
