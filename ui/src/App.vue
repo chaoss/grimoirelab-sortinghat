@@ -38,12 +38,19 @@
         :individuals="savedIndividuals"
         @clearSpace="savedIndividuals = []"
       />
-      <v-container max-width="900">
-        <individuals-table
-          :fetch-page="getIndividualsPage"
-          @saveIndividual="addSavedIndividual"
-        />
-      </v-container>
+      <v-row>
+        <v-col class="individuals elevation-2">
+          <h4 class="title">Individuals</h4>
+          <individuals-table
+            :fetch-page="getIndividualsPage"
+            @saveIndividual="addSavedIndividual"
+          />
+        </v-col>
+        <v-col class="organizations elevation-2">
+          <h4 class="title">Organizations</h4>
+          <organizations-table :fetch-page="getOrganizationsPage" />
+        </v-col>
+      </v-row>
       <v-snackbar v-model="snackbar">
         Individual already in work space
       </v-snackbar>
@@ -52,14 +59,19 @@
 </template>
 
 <script>
-import { getPaginatedIndividuals } from "./apollo/queries";
+import {
+  getPaginatedIndividuals,
+  getPaginatedOrganizations
+} from "./apollo/queries";
 import IndividualsTable from "./components/IndividualsTable";
+import OrganizationsTable from "./components/OrganizationsTable";
 import WorkSpace from "./components/WorkSpace";
 
 export default {
   name: "App",
   components: {
     IndividualsTable,
+    OrganizationsTable,
     WorkSpace
   },
   data() {
@@ -71,6 +83,14 @@ export default {
   methods: {
     async getIndividualsPage(page, items) {
       const response = await getPaginatedIndividuals(this.$apollo, page, items);
+      return response;
+    },
+    async getOrganizationsPage(page, items) {
+      const response = await getPaginatedOrganizations(
+        this.$apollo,
+        page,
+        items
+      );
       return response;
     },
     addSavedIndividual(individual) {
@@ -86,3 +106,22 @@ export default {
   }
 };
 </script>
+<style scoped>
+.row {
+  justify-content: space-between;
+  margin: 32px;
+}
+.individuals {
+  max-width: 1200px;
+  width: 70%;
+}
+.organizations {
+  width: 25%;
+  max-width: 500px;
+  align-self: flex-start;
+  margin-left: 32px;
+}
+h4 {
+  padding: 12px 26px;
+}
+</style>

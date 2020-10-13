@@ -3,6 +3,7 @@ import Vue from "vue";
 import Vuetify from "vuetify";
 import IndividualsData from "@/components/IndividualsData";
 import IndividualsTable from "@/components/IndividualsTable";
+import OrganizationsTable from "@/components/OrganizationsTable";
 import * as Queries from "@/apollo/queries";
 
 Vue.use(Vuetify);
@@ -74,6 +75,39 @@ const paginatedResponse = {
     }
   }
 };
+
+const paginatedOrganizations = {
+  data: {
+    organizations: {
+      entities: [
+        {
+          name: "Test 1",
+          enrollments: [
+            { id: 1, __typename: "EnrollmentType" },
+            { id: 2, __typename: "EnrollmentType" }
+          ],
+          __typename:	"OrganizationType"
+        },
+        {
+          name: "Test 2",
+          enrollments: [
+            { id: 3, __typename:	"EnrollmentType" },
+            { id: 4, __typename:	"EnrollmentType" }
+          ],
+          __typename:	"OrganizationType"
+        },
+        ],
+        pageInfo: {
+          page: 1,
+          pageSize: 10,
+          numPages: 1,
+          totalResults: 2,
+          __typename:	"PaginationType"
+        },
+        __typename:	"OrganizationPaginatedType"
+      }
+    }
+  };
 
 describe("IndividualsData", () => {
   test("mock query for getIndividuals", async () => {
@@ -171,6 +205,27 @@ describe("IndividualsTable", () => {
       }
     });
     const response = await Queries.getPaginatedIndividuals(wrapper.vm.$apollo, 1, 1);
+
+    expect(query).toBeCalled();
+    expect(wrapper.element).toMatchSnapshot();
+  });
+});
+
+describe("OrganizationsTable", () => {
+  test("Mock query for getPaginatedOrganizations", async () => {
+    const query = jest.fn(() => Promise.resolve(paginatedOrganizations));
+    const wrapper = shallowMount(OrganizationsTable, {
+      Vue,
+      mocks: {
+        $apollo: {
+          query
+        }
+      },
+      propsData: {
+        fetchPage: query
+      }
+    });
+    const response = await Queries.getPaginatedOrganizations(wrapper.vm.$apollo, 1, 1);
 
     expect(query).toBeCalled();
     expect(wrapper.element).toMatchSnapshot();
