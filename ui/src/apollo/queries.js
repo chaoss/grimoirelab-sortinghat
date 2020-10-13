@@ -110,6 +110,25 @@ const GET_PAGINATED_INDIVIDUALS = gql`
   }
 `;
 
+const GET_PAGINATED_ORGANIZATIONS = gql`
+  query GetOrganizations($page: Int!, $pageSize: Int!) {
+    organizations(page: $page, pageSize: $pageSize) {
+      entities {
+        name
+        enrollments {
+          id
+        }
+      }
+      pageInfo {
+        page
+        pageSize
+        numPages
+        totalResults
+      }
+    }
+  }
+`;
+
 const getIndividualByUuid = (apollo, uuid) => {
   let response = apollo.query({
     query: GET_INDIVIDUAL_BYUUID,
@@ -166,9 +185,21 @@ const getProfileByUuid = (apollo, uuid) => {
   return response;
 };
 
+const getPaginatedOrganizations = (apollo, currentPage, pageSize) => {
+  let response = apollo.query({
+    query: GET_PAGINATED_ORGANIZATIONS,
+    variables: {
+      page: currentPage,
+      pageSize: pageSize
+    }
+  });
+  return response;
+};
+
 export {
   getIndividuals,
   getIndividualByUuid,
   getProfileByUuid,
-  getPaginatedIndividuals
+  getPaginatedIndividuals,
+  getPaginatedOrganizations
 };

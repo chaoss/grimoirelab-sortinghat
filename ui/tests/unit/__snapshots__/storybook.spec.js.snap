@@ -2772,6 +2772,83 @@ exports[`Storyshots OrganizationEntry Default 1`] = `
 </div>
 `;
 
+exports[`Storyshots OrganizationsTable Default 1`] = `
+<div
+  class="v-application v-application--is-ltr theme--light"
+  data-app="true"
+  id="app"
+>
+  <div
+    class="v-application--wrap"
+  >
+    <div
+      class="container"
+    >
+      <div
+        class="v-data-table theme--light"
+      >
+        <div
+          class="v-data-table__wrapper"
+        >
+          <table>
+            <colgroup>
+              <col
+                class=""
+              />
+              <col
+                class=""
+              />
+            </colgroup>
+            <tbody>
+              <tr
+                class="v-data-table__empty-wrapper"
+              >
+                <td
+                  colspan="2"
+                >
+                  No data available
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+       
+      <div
+        class="text-center pt-2"
+      >
+        <ul
+          class="v-pagination theme--light"
+        >
+          <li>
+            <button
+              class="v-pagination__navigation v-pagination__navigation--disabled"
+              type="button"
+            >
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate mdi mdi-chevron-left theme--light"
+              />
+            </button>
+          </li>
+          <li>
+            <button
+              class="v-pagination__navigation v-pagination__navigation--disabled"
+              type="button"
+            >
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate mdi mdi-chevron-right theme--light"
+              />
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
 exports[`Storyshots ProfileCard Default 1`] = `
 <div
   class="v-application v-application--is-ltr theme--light"
