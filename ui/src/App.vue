@@ -40,9 +40,9 @@
       />
       <v-row>
         <v-col class="individuals elevation-2">
-          <h4 class="title">Individuals</h4>
           <individuals-table
             :fetch-page="getIndividualsPage"
+            :delete-item="deleteItem"
             @saveIndividual="addSavedIndividual"
           />
         </v-col>
@@ -63,6 +63,7 @@ import {
   getPaginatedIndividuals,
   getPaginatedOrganizations
 } from "./apollo/queries";
+import { deleteIdentity } from "./apollo/mutations";
 import IndividualsTable from "./components/IndividualsTable";
 import OrganizationsTable from "./components/OrganizationsTable";
 import WorkSpace from "./components/WorkSpace";
@@ -102,6 +103,10 @@ export default {
         return;
       }
       this.savedIndividuals.push(individual);
+    },
+    async deleteItem(uuid) {
+      const response = await deleteIdentity(this.$apollo, uuid);
+      return response;
     }
   }
 };

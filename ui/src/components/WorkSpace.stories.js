@@ -14,7 +14,7 @@ const workSpaceTemplate =
 const dragAndDropTemplate = `
   <div>
   <work-space :individuals="individuals"/>
-  <individuals-table :fetch-page="queryIndividuals.bind(this)" />
+  <individuals-table :fetch-page="queryIndividuals.bind(this)" :delete-item="deleteItem" />
   </div>
 `;
 
@@ -183,6 +183,7 @@ export const DragAndDrop = () => ({
   },
   data: () => ({
     individuals: [],
+    deleteItem: () => {},
     query: [
       {
         data: {
