@@ -10,7 +10,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
     class="v-application--wrap"
   >
     <td
-      colspan="3"
+      colspan="4"
     >
       <div
         class="v-subheader theme--light"
@@ -433,7 +433,7 @@ exports[`Storyshots ExpandedIndividual No Organizations 1`] = `
     class="v-application--wrap"
   >
     <td
-      colspan="3"
+      colspan="4"
     >
       <div
         class="v-subheader theme--light"
@@ -980,7 +980,6 @@ exports[`Storyshots IndividualEntry Bot 1`] = `
           <tbody>
             <tr
               class=""
-              uuid="03b3428ee"
             >
               <td
                 width="25%"
@@ -1142,7 +1141,6 @@ exports[`Storyshots IndividualEntry Bot And Locked 1`] = `
           <tbody>
             <tr
               class=""
-              uuid="03b3428ee"
             >
               <td
                 width="25%"
@@ -1267,7 +1265,7 @@ exports[`Storyshots IndividualEntry Bot And Locked 1`] = `
                   <!---->
                   <i
                     aria-hidden="true"
-                    class="v-icon notranslate mdi mdi-drag-vertical theme--light"
+                    class="v-icon notranslate v-icon--disabled mdi mdi-drag-vertical theme--light"
                   />
                 </span>
               </td>
@@ -1313,7 +1311,6 @@ exports[`Storyshots IndividualEntry Default 1`] = `
           <tbody>
             <tr
               class=""
-              uuid="03b3428ee"
             >
               <td
                 width="25%"
@@ -1466,7 +1463,6 @@ exports[`Storyshots IndividualEntry Locked 1`] = `
           <tbody>
             <tr
               class=""
-              uuid="03b3428ee"
             >
               <td
                 width="25%"
@@ -1582,7 +1578,7 @@ exports[`Storyshots IndividualEntry Locked 1`] = `
                   <!---->
                   <i
                     aria-hidden="true"
-                    class="v-icon notranslate mdi mdi-drag-vertical theme--light"
+                    class="v-icon notranslate v-icon--disabled mdi mdi-drag-vertical theme--light"
                   />
                 </span>
               </td>
@@ -1628,7 +1624,6 @@ exports[`Storyshots IndividualEntry No Email 1`] = `
           <tbody>
             <tr
               class=""
-              uuid="03b3428ee"
             >
               <td
                 width="25%"
@@ -1781,7 +1776,6 @@ exports[`Storyshots IndividualEntry No Organization 1`] = `
           <tbody>
             <tr
               class=""
-              uuid="03b3428ee"
             >
               <td
                 width="25%"
@@ -1934,7 +1928,6 @@ exports[`Storyshots IndividualEntry Single Inital 1`] = `
           <tbody>
             <tr
               class=""
-              uuid="03b3428ee"
             >
               <td
                 width="25%"
@@ -2678,25 +2671,47 @@ exports[`Storyshots IndividualsTable Default 1`] = `
           Individuals
         </h4>
          
-        <span
-          class="v-tooltip v-tooltip--bottom"
-        >
-          <!---->
-          <button
-            class="v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
-            disabled="disabled"
-            type="button"
+        <div>
+          <span
+            class="v-tooltip v-tooltip--bottom"
           >
-            <span
-              class="v-btn__content"
+            <!---->
+            <button
+              class="v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+              disabled="disabled"
+              type="button"
             >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-delete theme--light"
-              />
-            </span>
-          </button>
-        </span>
+              <span
+                class="v-btn__content"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate mdi mdi-call-merge theme--light"
+                />
+              </span>
+            </button>
+          </span>
+           
+          <span
+            class="v-tooltip v-tooltip--bottom"
+          >
+            <!---->
+            <button
+              class="v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+              disabled="disabled"
+              type="button"
+            >
+              <span
+                class="v-btn__content"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate mdi mdi-delete theme--light"
+                />
+              </span>
+            </button>
+          </span>
+        </div>
       </div>
        
       <div
@@ -3304,25 +3319,47 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
             Individuals
           </h4>
            
-          <span
-            class="v-tooltip v-tooltip--bottom"
-          >
-            <!---->
-            <button
-              class="v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
-              disabled="disabled"
-              type="button"
+          <div>
+            <span
+              class="v-tooltip v-tooltip--bottom"
             >
-              <span
-                class="v-btn__content"
+              <!---->
+              <button
+                class="v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                disabled="disabled"
+                type="button"
               >
-                <i
-                  aria-hidden="true"
-                  class="v-icon notranslate mdi mdi-delete theme--light"
-                />
-              </span>
-            </button>
-          </span>
+                <span
+                  class="v-btn__content"
+                >
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate mdi mdi-call-merge theme--light"
+                  />
+                </span>
+              </button>
+            </span>
+             
+            <span
+              class="v-tooltip v-tooltip--bottom"
+            >
+              <!---->
+              <button
+                class="v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                disabled="disabled"
+                type="button"
+              >
+                <span
+                  class="v-btn__content"
+                >
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate mdi mdi-delete theme--light"
+                  />
+                </span>
+              </button>
+            </span>
+          </div>
         </div>
          
         <div

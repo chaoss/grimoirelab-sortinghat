@@ -202,6 +202,7 @@ describe("IndividualsTable", () => {
       },
       propsData: {
         fetchPage: query,
+        mergeItems: () => {},
         deleteItem: () => {}
       }
     });

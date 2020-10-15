@@ -76,7 +76,9 @@ export default {
       this.$emit("clearSpace");
     },
     onDrop(evt) {
-      const droppedIndividual = JSON.parse(evt.dataTransfer.getData("uuid"));
+      const droppedIndividual = JSON.parse(
+        evt.dataTransfer.getData("individual")
+      );
       const isSaved = this.savedIndividuals.find(individual => {
         return individual.uuid === droppedIndividual.uuid;
       });

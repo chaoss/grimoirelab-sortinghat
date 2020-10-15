@@ -1,5 +1,5 @@
 <template>
-  <td colspan="3">
+  <td colspan="4">
     <v-subheader>Identities ({{ identitiesCount }})</v-subheader>
     <v-list
       v-for="(source, sourceIndex) in identities"

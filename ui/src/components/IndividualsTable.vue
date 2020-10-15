@@ -2,19 +2,34 @@
   <v-container>
     <v-row class="actions">
       <h4 class="title">Individuals</h4>
-      <v-tooltip bottom transition="expand-y-transition" open-delay="200">
-        <template v-slot:activator="{ on }">
-          <v-btn
-            icon
-            v-on="on"
-            :disabled="disabledActions"
-            @click="confirmDelete(selectedIndividuals)"
-          >
-            <v-icon>mdi-delete</v-icon>
-          </v-btn>
-        </template>
-        <span>Delete selected</span>
-      </v-tooltip>
+      <div>
+        <v-tooltip bottom transition="expand-y-transition" open-delay="200">
+          <template v-slot:activator="{ on }">
+            <v-btn
+              icon
+              v-on="on"
+              :disabled="disabledMerge"
+              @click="mergeSelected"
+            >
+              <v-icon>mdi-call-merge</v-icon>
+            </v-btn>
+          </template>
+          <span>Merge selected</span>
+        </v-tooltip>
+        <v-tooltip bottom transition="expand-y-transition" open-delay="200">
+          <template v-slot:activator="{ on }">
+            <v-btn
+              icon
+              v-on="on"
+              :disabled="disabledActions"
+              @click="confirmDelete(selectedIndividuals)"
+            >
+              <v-icon>mdi-delete</v-icon>
+            </v-btn>
+          </template>
+          <span>Delete selected</span>
+        </v-tooltip>
+      </div>
     </v-row>
 
     <v-data-table
@@ -32,17 +47,19 @@
           :organization="item.organization"
           :email="item.email"
           :sources="item.sources"
+          :uuid="item.uuid"
           :is-expanded="isExpanded"
           :is-locked="item.isLocked"
           :is-bot="item.isBot"
           :is-selected="item.isSelected"
           @expand="expand(!isExpanded)"
           @saveIndividual="$emit('saveIndividual', item)"
-          draggable
+          :draggable="!item.isLocked"
           @dragstart.native="startDrag(item, $event)"
           @dragend.native="removeClass(item, $event)"
           @select="selectIndividual(item)"
           @delete="confirmDelete([item])"
+          @merge="confirmMerge([$event], item.uuid)"
         />
       </template>
       <template v-slot:expanded-item="{ item }">
@@ -99,6 +116,10 @@ export default {
       type: Function,
       required: true
     },
+    mergeItems: {
+      type: Function,
+      required: true
+    },
     itemsPerPage: {
       type: Number,
       required: false,
@@ -128,6 +149,9 @@ export default {
   computed: {
     disabledActions() {
       return this.selectedIndividuals.length === 0;
+    },
+    disabledMerge() {
+      return this.selectedIndividuals.length < 2;
     },
     selectedIndividuals() {
       return this.individuals.filter(individual => individual.isSelected);
@@ -192,7 +216,7 @@ export default {
     },
     startDrag(item, event) {
       event.dataTransfer.dropEffect = "move";
-      event.dataTransfer.setData("uuid", JSON.stringify(item));
+      event.dataTransfer.setData("individual", JSON.stringify(item));
       event.target.classList.add("dragging");
     },
     removeClass(item, event) {
@@ -218,6 +242,26 @@ export default {
         text: names,
         action: () => this.deleteIndividuals(individuals)
       });
+    },
+    async merge(fromUuids, toUuid) {
+      const response = await this.mergeItems(fromUuids, toUuid);
+      if (response) {
+        this.queryIndividuals(this.page);
+        this.dialog.open = false;
+      }
+    },
+    confirmMerge(fromUuids, toUuid) {
+      Object.assign(this.dialog, {
+        open: true,
+        title: "Merge the selected items?",
+        text: "",
+        action: () => this.merge(fromUuids, toUuid)
+      });
+    },
+    mergeSelected() {
+      const [toIndividual, ...rest] = this.selectedIndividuals;
+      const fromIndividuals = rest.map(individual => individual.uuid);
+      this.confirmMerge(fromIndividuals, toIndividual.uuid);
     }
   }
 };
@@ -235,14 +279,6 @@ export default {
 }
 ::v-deep .v-data-table__wrapper {
   overflow-x: hidden;
-}
-.theme--light.v-data-table
-  tbody
-  .dragging:hover:not(.v-data-table__expanded__content):not(.v-data-table__empty-wrapper),
-.dragging {
-  background-color: #e3f2fd;
-  border: solid #bbdefb;
-  border-width: 2px 3px;
 }
 .actions {
   justify-content: space-between;

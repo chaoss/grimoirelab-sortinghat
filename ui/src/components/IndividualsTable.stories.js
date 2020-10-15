@@ -10,7 +10,8 @@ export default {
 const IndividualsTableTemplate = `
   <individuals-table
     :fetch-page="queryIndividuals.bind(this)"
-    :delete-item="deleteIndividual.bind(this)"
+    :delete-item="deleteIndividual"
+    :merge-items="deleteIndividual"
   />
 `;
 
