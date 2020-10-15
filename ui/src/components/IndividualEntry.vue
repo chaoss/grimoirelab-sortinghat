@@ -1,5 +1,8 @@
 <template>
-  <tr :class="{ expanded: isExpanded }">
+  <tr
+    :class="{ expanded: isExpanded, selected: isSelected }"
+    @click="selectEntry"
+  >
     <td width="25%">
       <v-list-item>
         <v-list-item-avatar color="grey">
@@ -53,22 +56,29 @@
       />
     </td>
     <td width="140">
-      <v-tooltip bottom transition="expand-y-transition" open-delay="200">
-        <template v-slot:activator="{ on }">
-          <v-btn icon @click="$emit('saveIndividual', $event)" v-on="on">
-            <v-icon>mdi-pin</v-icon>
-          </v-btn>
-        </template>
-        <span>Save to work space</span>
-      </v-tooltip>
-      <v-btn icon @click="$emit('expand')">
+      <v-btn icon @click.stop="$emit('expand')">
         <v-icon>
           {{ isExpanded ? "mdi-chevron-up" : "mdi-chevron-down" }}
         </v-icon>
       </v-btn>
+      <v-menu right nudge-right="35">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn icon v-bind="attrs" v-on="on">
+            <v-icon>mdi-dots-vertical</v-icon>
+          </v-btn>
+        </template>
+        <v-list>
+          <v-list-item @click="$emit('saveIndividual', $event)">
+            <v-list-item-title>Save in workspace</v-list-item-title>
+          </v-list-item>
+          <v-list-item @click="$emit('delete', $event)" :disabled="isLocked">
+            <v-list-item-title>Delete profile</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
       <v-tooltip bottom transition="expand-y-transition" open-delay="200">
         <template v-slot:activator="{ on }">
-          <v-icon v-on="on" style="cursor: pointer">mdi-drag-vertical</v-icon>
+          <v-icon v-on="on">mdi-drag-vertical</v-icon>
         </template>
         <span>Drag individual</span>
       </v-tooltip>
@@ -106,6 +116,11 @@ export default {
     isBot: {
       type: Boolean,
       required: true
+    },
+    isSelected: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
   computed: {
@@ -129,6 +144,12 @@ export default {
       } else {
         return `mdi-${datasource}`;
       }
+    },
+    selectEntry() {
+      if (this.isLocked) {
+        return;
+      }
+      this.$emit("select");
     }
   }
 };
@@ -142,5 +163,21 @@ export default {
 }
 .aligned {
   margin-bottom: 4px;
+}
+.selected {
+  background-color: #e3f2fd;
+  outline: thin solid #bbdefb;
+}
+.theme--light.v-data-table
+  tbody
+  tr.selected:hover:not(.v-data-table__expanded__content):not(.v-data-table__empty-wrapper) {
+  background-color: #bbdefb;
+  transition: background-color 30ms linear;
+}
+.theme--light.v-data-table tbody tr:not(:last-child).selected td {
+  border-bottom: 0;
+}
+tr {
+  cursor: pointer;
 }
 </style>

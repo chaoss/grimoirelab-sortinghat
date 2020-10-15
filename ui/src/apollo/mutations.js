@@ -22,6 +22,14 @@ const UNLOCK_INDIVIDUAL = gql`
   }
 `;
 
+const DELETE_IDENTITY = gql`
+  mutation DeleteIdentity($uuid: String!) {
+    deleteIdentity(uuid: $uuid) {
+      uuid
+    }
+  }
+`;
+
 const lockIndividual = (apollo, uuid) => {
   let response = apollo.mutate({
     mutation: LOCK_INDIVIDUAL,
@@ -42,4 +50,14 @@ const unlockIndividual = (apollo, uuid) => {
   return response;
 };
 
-export { lockIndividual, unlockIndividual };
+const deleteIdentity = (apollo, uuid) => {
+  let response = apollo.mutate({
+    mutation: DELETE_IDENTITY,
+    variables: {
+      uuid: uuid
+    }
+  });
+  return response;
+};
+
+export { lockIndividual, unlockIndividual, deleteIdentity };

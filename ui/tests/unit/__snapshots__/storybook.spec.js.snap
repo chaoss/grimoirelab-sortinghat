@@ -1054,25 +1054,6 @@ exports[`Storyshots IndividualEntry Bot 1`] = `
               <td
                 width="140"
               >
-                <span
-                  class="v-tooltip v-tooltip--bottom"
-                >
-                  <!---->
-                  <button
-                    class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
-                    type="button"
-                  >
-                    <span
-                      class="v-btn__content"
-                    >
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-pin theme--light"
-                      />
-                    </span>
-                  </button>
-                </span>
-                 
                 <button
                   class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
                   type="button"
@@ -1087,6 +1068,28 @@ exports[`Storyshots IndividualEntry Bot 1`] = `
                   </span>
                 </button>
                  
+                <div
+                  class="v-menu"
+                >
+                  <button
+                    aria-expanded="false"
+                    aria-haspopup="true"
+                    class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                    role="button"
+                    type="button"
+                  >
+                    <span
+                      class="v-btn__content"
+                    >
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate mdi mdi-dots-vertical theme--light"
+                      />
+                    </span>
+                  </button>
+                  <!---->
+                </div>
+                 
                 <span
                   class="v-tooltip v-tooltip--bottom"
                 >
@@ -1094,7 +1097,6 @@ exports[`Storyshots IndividualEntry Bot 1`] = `
                   <i
                     aria-hidden="true"
                     class="v-icon notranslate mdi mdi-drag-vertical theme--light"
-                    style="cursor: pointer;"
                   />
                 </span>
               </td>
@@ -1223,25 +1225,6 @@ exports[`Storyshots IndividualEntry Bot And Locked 1`] = `
               <td
                 width="140"
               >
-                <span
-                  class="v-tooltip v-tooltip--bottom"
-                >
-                  <!---->
-                  <button
-                    class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
-                    type="button"
-                  >
-                    <span
-                      class="v-btn__content"
-                    >
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-pin theme--light"
-                      />
-                    </span>
-                  </button>
-                </span>
-                 
                 <button
                   class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
                   type="button"
@@ -1256,6 +1239,28 @@ exports[`Storyshots IndividualEntry Bot And Locked 1`] = `
                   </span>
                 </button>
                  
+                <div
+                  class="v-menu"
+                >
+                  <button
+                    aria-expanded="false"
+                    aria-haspopup="true"
+                    class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                    role="button"
+                    type="button"
+                  >
+                    <span
+                      class="v-btn__content"
+                    >
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate mdi mdi-dots-vertical theme--light"
+                      />
+                    </span>
+                  </button>
+                  <!---->
+                </div>
+                 
                 <span
                   class="v-tooltip v-tooltip--bottom"
                 >
@@ -1263,7 +1268,6 @@ exports[`Storyshots IndividualEntry Bot And Locked 1`] = `
                   <i
                     aria-hidden="true"
                     class="v-icon notranslate mdi mdi-drag-vertical theme--light"
-                    style="cursor: pointer;"
                   />
                 </span>
               </td>
@@ -1374,25 +1378,6 @@ exports[`Storyshots IndividualEntry Default 1`] = `
               <td
                 width="140"
               >
-                <span
-                  class="v-tooltip v-tooltip--bottom"
-                >
-                  <!---->
-                  <button
-                    class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
-                    type="button"
-                  >
-                    <span
-                      class="v-btn__content"
-                    >
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-pin theme--light"
-                      />
-                    </span>
-                  </button>
-                </span>
-                 
                 <button
                   class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
                   type="button"
@@ -1407,6 +1392,28 @@ exports[`Storyshots IndividualEntry Default 1`] = `
                   </span>
                 </button>
                  
+                <div
+                  class="v-menu"
+                >
+                  <button
+                    aria-expanded="false"
+                    aria-haspopup="true"
+                    class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                    role="button"
+                    type="button"
+                  >
+                    <span
+                      class="v-btn__content"
+                    >
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate mdi mdi-dots-vertical theme--light"
+                      />
+                    </span>
+                  </button>
+                  <!---->
+                </div>
+                 
                 <span
                   class="v-tooltip v-tooltip--bottom"
                 >
@@ -1414,7 +1421,6 @@ exports[`Storyshots IndividualEntry Default 1`] = `
                   <i
                     aria-hidden="true"
                     class="v-icon notranslate mdi mdi-drag-vertical theme--light"
-                    style="cursor: pointer;"
                   />
                 </span>
               </td>
@@ -1534,25 +1540,6 @@ exports[`Storyshots IndividualEntry Locked 1`] = `
               <td
                 width="140"
               >
-                <span
-                  class="v-tooltip v-tooltip--bottom"
-                >
-                  <!---->
-                  <button
-                    class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
-                    type="button"
-                  >
-                    <span
-                      class="v-btn__content"
-                    >
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-pin theme--light"
-                      />
-                    </span>
-                  </button>
-                </span>
-                 
                 <button
                   class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
                   type="button"
@@ -1567,6 +1554,28 @@ exports[`Storyshots IndividualEntry Locked 1`] = `
                   </span>
                 </button>
                  
+                <div
+                  class="v-menu"
+                >
+                  <button
+                    aria-expanded="false"
+                    aria-haspopup="true"
+                    class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                    role="button"
+                    type="button"
+                  >
+                    <span
+                      class="v-btn__content"
+                    >
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate mdi mdi-dots-vertical theme--light"
+                      />
+                    </span>
+                  </button>
+                  <!---->
+                </div>
+                 
                 <span
                   class="v-tooltip v-tooltip--bottom"
                 >
@@ -1574,7 +1583,6 @@ exports[`Storyshots IndividualEntry Locked 1`] = `
                   <i
                     aria-hidden="true"
                     class="v-icon notranslate mdi mdi-drag-vertical theme--light"
-                    style="cursor: pointer;"
                   />
                 </span>
               </td>
@@ -1685,25 +1693,6 @@ exports[`Storyshots IndividualEntry No Email 1`] = `
               <td
                 width="140"
               >
-                <span
-                  class="v-tooltip v-tooltip--bottom"
-                >
-                  <!---->
-                  <button
-                    class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
-                    type="button"
-                  >
-                    <span
-                      class="v-btn__content"
-                    >
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-pin theme--light"
-                      />
-                    </span>
-                  </button>
-                </span>
-                 
                 <button
                   class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
                   type="button"
@@ -1718,6 +1707,28 @@ exports[`Storyshots IndividualEntry No Email 1`] = `
                   </span>
                 </button>
                  
+                <div
+                  class="v-menu"
+                >
+                  <button
+                    aria-expanded="false"
+                    aria-haspopup="true"
+                    class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                    role="button"
+                    type="button"
+                  >
+                    <span
+                      class="v-btn__content"
+                    >
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate mdi mdi-dots-vertical theme--light"
+                      />
+                    </span>
+                  </button>
+                  <!---->
+                </div>
+                 
                 <span
                   class="v-tooltip v-tooltip--bottom"
                 >
@@ -1725,7 +1736,6 @@ exports[`Storyshots IndividualEntry No Email 1`] = `
                   <i
                     aria-hidden="true"
                     class="v-icon notranslate mdi mdi-drag-vertical theme--light"
-                    style="cursor: pointer;"
                   />
                 </span>
               </td>
@@ -1836,25 +1846,6 @@ exports[`Storyshots IndividualEntry No Organization 1`] = `
               <td
                 width="140"
               >
-                <span
-                  class="v-tooltip v-tooltip--bottom"
-                >
-                  <!---->
-                  <button
-                    class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
-                    type="button"
-                  >
-                    <span
-                      class="v-btn__content"
-                    >
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-pin theme--light"
-                      />
-                    </span>
-                  </button>
-                </span>
-                 
                 <button
                   class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
                   type="button"
@@ -1869,6 +1860,28 @@ exports[`Storyshots IndividualEntry No Organization 1`] = `
                   </span>
                 </button>
                  
+                <div
+                  class="v-menu"
+                >
+                  <button
+                    aria-expanded="false"
+                    aria-haspopup="true"
+                    class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                    role="button"
+                    type="button"
+                  >
+                    <span
+                      class="v-btn__content"
+                    >
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate mdi mdi-dots-vertical theme--light"
+                      />
+                    </span>
+                  </button>
+                  <!---->
+                </div>
+                 
                 <span
                   class="v-tooltip v-tooltip--bottom"
                 >
@@ -1876,7 +1889,6 @@ exports[`Storyshots IndividualEntry No Organization 1`] = `
                   <i
                     aria-hidden="true"
                     class="v-icon notranslate mdi mdi-drag-vertical theme--light"
-                    style="cursor: pointer;"
                   />
                 </span>
               </td>
@@ -1987,25 +1999,6 @@ exports[`Storyshots IndividualEntry Single Inital 1`] = `
               <td
                 width="140"
               >
-                <span
-                  class="v-tooltip v-tooltip--bottom"
-                >
-                  <!---->
-                  <button
-                    class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
-                    type="button"
-                  >
-                    <span
-                      class="v-btn__content"
-                    >
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-pin theme--light"
-                      />
-                    </span>
-                  </button>
-                </span>
-                 
                 <button
                   class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
                   type="button"
@@ -2020,6 +2013,28 @@ exports[`Storyshots IndividualEntry Single Inital 1`] = `
                   </span>
                 </button>
                  
+                <div
+                  class="v-menu"
+                >
+                  <button
+                    aria-expanded="false"
+                    aria-haspopup="true"
+                    class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                    role="button"
+                    type="button"
+                  >
+                    <span
+                      class="v-btn__content"
+                    >
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate mdi mdi-dots-vertical theme--light"
+                      />
+                    </span>
+                  </button>
+                  <!---->
+                </div>
+                 
                 <span
                   class="v-tooltip v-tooltip--bottom"
                 >
@@ -2027,7 +2042,6 @@ exports[`Storyshots IndividualEntry Single Inital 1`] = `
                   <i
                     aria-hidden="true"
                     class="v-icon notranslate mdi mdi-drag-vertical theme--light"
-                    style="cursor: pointer;"
                   />
                 </span>
               </td>
@@ -2656,6 +2670,36 @@ exports[`Storyshots IndividualsTable Default 1`] = `
       class="container"
     >
       <div
+        class="row actions"
+      >
+        <h4
+          class="title"
+        >
+          Individuals
+        </h4>
+         
+        <span
+          class="v-tooltip v-tooltip--bottom"
+        >
+          <!---->
+          <button
+            class="v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+            disabled="disabled"
+            type="button"
+          >
+            <span
+              class="v-btn__content"
+            >
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate mdi mdi-delete theme--light"
+              />
+            </span>
+          </button>
+        </span>
+      </div>
+       
+      <div
         class="v-data-table theme--light"
       >
         <div
@@ -2720,6 +2764,13 @@ exports[`Storyshots IndividualsTable Default 1`] = `
             </button>
           </li>
         </ul>
+      </div>
+       
+      <div
+        class="v-dialog__container"
+        role="dialog"
+      >
+        <!---->
       </div>
     </div>
   </div>
@@ -3245,6 +3296,36 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
         class="container"
       >
         <div
+          class="row actions"
+        >
+          <h4
+            class="title"
+          >
+            Individuals
+          </h4>
+           
+          <span
+            class="v-tooltip v-tooltip--bottom"
+          >
+            <!---->
+            <button
+              class="v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+              disabled="disabled"
+              type="button"
+            >
+              <span
+                class="v-btn__content"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate mdi mdi-delete theme--light"
+                />
+              </span>
+            </button>
+          </span>
+        </div>
+         
+        <div
           class="v-data-table theme--light"
         >
           <div
@@ -3309,6 +3390,13 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
               </button>
             </li>
           </ul>
+        </div>
+         
+        <div
+          class="v-dialog__container"
+          role="dialog"
+        >
+          <!---->
         </div>
       </div>
     </div>

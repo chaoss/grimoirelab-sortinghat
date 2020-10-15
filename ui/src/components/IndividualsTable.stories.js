@@ -7,7 +7,12 @@ export default {
   excludeStories: /.*Data$/
 };
 
-const IndividualsTableTemplate = '<individuals-table :fetch-page="queryIndividuals.bind(this)" />';
+const IndividualsTableTemplate = `
+  <individuals-table
+    :fetch-page="queryIndividuals.bind(this)"
+    :delete-item="deleteIndividual.bind(this)"
+  />
+`;
 
 export const Default = () => ({
   components: { IndividualsTable },
@@ -15,6 +20,9 @@ export const Default = () => ({
   methods: {
     queryIndividuals(page) {
       return this.query[page - 1];
+    },
+    deleteIndividual() {
+      return true;
     }
   },
   data: () => ({
@@ -36,25 +44,25 @@ export const Default = () => ({
                     name: "Tom Marvolo Riddle",
                     source: "GitLab",
                     email: "triddle@example.net",
-                    uuid: "03b3428ee",
+                    uuid: "03b3428ee1",
                     username: "triddle"
                   },
                   {
-                    uuid: "808b18",
+                    uuid: "808b182",
                     name: "Voldemort",
                     email: "-",
                     username: "voldemort",
                     source: "github"
                   },
                   {
-                    uuid: "006afa",
+                    uuid: "006afa3",
                     name: "Tom Marvolo Riddle",
                     email: "triddle@example.net",
                     username: "triddle",
                     source: "git"
                   },
                   {
-                    uuid: "abce32",
+                    uuid: "abce324",
                     name: "voldemort",
                     email: "voldemort@example.net",
                     username: "-",
@@ -93,18 +101,18 @@ export const Default = () => ({
                     name: "Harry Potter",
                     source: "GitHub",
                     email: "hpotter@example.net",
-                    uuid: "03b3428ee",
+                    uuid: "03b3428ee5",
                     username: "-"
                   },
                   {
-                    uuid: "4ce562",
+                    uuid: "4ce5626",
                     name: "H. Potter",
                     email: "hpotter@example.net",
                     username: "potter",
                     source: "git"
                   },
                   {
-                    uuid: "4ce562",
+                    uuid: "4ce5627",
                     name: "Harry Potter",
                     email: "hpotter@example.net",
                     username: "-",
@@ -140,7 +148,7 @@ export const Default = () => ({
                 },
                 identities: [
                   {
-                    uuid: "4ce562",
+                    uuid: "4ce5628",
                     name: "-",
                     email: "voldemort@example.net",
                     username: "voldemort",
@@ -168,14 +176,14 @@ export const Default = () => ({
                 },
                 identities: [
                   {
-                    uuid: "4ce565",
+                    uuid: "4ce5659",
                     name: "Ron Weasley",
                     email: "rweasley@example.net",
                     username: "",
                     source: "git"
                   },
                   {
-                    uuid: "4ce562",
+                    uuid: "4ce56210",
                     name: "Ron Weasley",
                     email: "ron@example.net",
                     username: "ronweasley",
@@ -211,14 +219,14 @@ export const Default = () => ({
                 },
                 identities: [
                   {
-                    uuid: "4ce562",
+                    uuid: "4ce56211",
                     name: "Hermione Granger",
                     email: "hgranger@example.net",
                     username: "hermione",
                     source: "gitlab"
                   },
                   {
-                    uuid: "4ce562",
+                    uuid: "4ce56212",
                     name: "Hermione Granger",
                     email: "hgranger@example.net",
                     username: "h.granger",

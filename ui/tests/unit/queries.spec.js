@@ -201,7 +201,8 @@ describe("IndividualsTable", () => {
         }
       },
       propsData: {
-        fetchPage: query
+        fetchPage: query,
+        deleteItem: () => {}
       }
     });
     const response = await Queries.getPaginatedIndividuals(wrapper.vm.$apollo, 1, 1);

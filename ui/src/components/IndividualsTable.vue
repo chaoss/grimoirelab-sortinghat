@@ -1,12 +1,29 @@
 <template>
   <v-container>
+    <v-row class="actions">
+      <h4 class="title">Individuals</h4>
+      <v-tooltip bottom transition="expand-y-transition" open-delay="200">
+        <template v-slot:activator="{ on }">
+          <v-btn
+            icon
+            v-on="on"
+            :disabled="disabledActions"
+            @click="confirmDelete(selectedIndividuals)"
+          >
+            <v-icon>mdi-delete</v-icon>
+          </v-btn>
+        </template>
+        <span>Delete selected</span>
+      </v-tooltip>
+    </v-row>
+
     <v-data-table
       hide-default-header
       hide-default-footer
       :headers="headers"
       :items="individuals"
       :expanded.sync="expandedItems"
-      item-key="id"
+      item-key="uuid"
       :page.sync="page"
     >
       <template v-slot:item="{ item, expand, isExpanded }">
@@ -18,11 +35,14 @@
           :is-expanded="isExpanded"
           :is-locked="item.isLocked"
           :is-bot="item.isBot"
+          :is-selected="item.isSelected"
           @expand="expand(!isExpanded)"
           @saveIndividual="$emit('saveIndividual', item)"
           draggable
           @dragstart.native="startDrag(item, $event)"
           @dragend.native="removeClass(item, $event)"
+          @select="selectIndividual(item)"
+          @delete="confirmDelete([item])"
         />
       </template>
       <template v-slot:expanded-item="{ item }">
@@ -32,6 +52,7 @@
         />
       </template>
     </v-data-table>
+
     <div class="text-center pt-2">
       <v-pagination
         v-model="page"
@@ -40,6 +61,22 @@
         @input="queryIndividuals($event)"
       ></v-pagination>
     </div>
+
+    <v-dialog v-model="dialog.open" max-width="400">
+      <v-card>
+        <v-card-title class="headline">{{ dialog.title }}</v-card-title>
+        <v-card-text>{{ dialog.text }}</v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn text @click="dialog.open = false">
+            Cancel
+          </v-btn>
+          <v-btn color="blue darken-4" text @click.stop="dialog.action">
+            Confirm
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -55,6 +92,10 @@ export default {
   },
   props: {
     fetchPage: {
+      type: Function,
+      required: true
+    },
+    deleteItem: {
       type: Function,
       required: true
     },
@@ -75,8 +116,22 @@ export default {
       individuals: [],
       expandedItems: [],
       pageCount: 0,
-      page: 0
+      page: 0,
+      dialog: {
+        open: false,
+        title: "",
+        text: "",
+        action: ""
+      }
     };
+  },
+  computed: {
+    disabledActions() {
+      return this.selectedIndividuals.length === 0;
+    },
+    selectedIndividuals() {
+      return this.individuals.filter(individual => individual.isSelected);
+    }
   },
   created() {
     this.queryIndividuals(1);
@@ -108,7 +163,8 @@ export default {
           enrollments: item.enrollments,
           isLocked: item.isLocked,
           isBot: item.profile.isBot,
-          uuid: item.identities[0].uuid
+          uuid: item.identities[0].uuid,
+          isSelected: false
         };
       });
 
@@ -141,6 +197,27 @@ export default {
     },
     removeClass(item, event) {
       event.target.classList.remove("dragging");
+    },
+    selectIndividual(individual) {
+      individual.isSelected = !individual.isSelected;
+    },
+    async deleteIndividuals(individuals) {
+      const response = await Promise.all(
+        individuals.map(individual => this.deleteItem(individual.uuid))
+      );
+      if (response) {
+        this.queryIndividuals(this.page);
+        this.dialog.open = false;
+      }
+    },
+    confirmDelete(individuals) {
+      const names = individuals.map(individual => individual.name).toString();
+      Object.assign(this.dialog, {
+        open: true,
+        title: "Delete the selected items?",
+        text: names,
+        action: () => this.deleteIndividuals(individuals)
+      });
     }
   }
 };
@@ -166,5 +243,9 @@ export default {
   background-color: #e3f2fd;
   border: solid #bbdefb;
   border-width: 2px 3px;
+}
+.actions {
+  justify-content: space-between;
+  padding: 0 26px 24px 26px;
 }
 </style>
