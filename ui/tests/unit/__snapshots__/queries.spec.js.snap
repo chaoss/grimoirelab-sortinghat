@@ -21,27 +21,51 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
       Individuals
     </h4>
      
-    <v-tooltip-stub
-      bottom="true"
-      closedelay="0"
-      contentclass=""
-      fixed="true"
-      maxwidth="auto"
-      nudgebottom="0"
-      nudgeleft="0"
-      nudgeright="0"
-      nudgetop="0"
-      nudgewidth="0"
-      opendelay="200"
-      openonhover="true"
-      tag="span"
-      transition="expand-y-transition"
-    >
+    <div>
+      <v-tooltip-stub
+        bottom="true"
+        closedelay="0"
+        contentclass=""
+        fixed="true"
+        maxwidth="auto"
+        nudgebottom="0"
+        nudgeleft="0"
+        nudgeright="0"
+        nudgetop="0"
+        nudgewidth="0"
+        opendelay="200"
+        openonhover="true"
+        tag="span"
+        transition="expand-y-transition"
+      >
+         
+        <span>
+          Merge selected
+        </span>
+      </v-tooltip-stub>
        
-      <span>
-        Delete selected
-      </span>
-    </v-tooltip-stub>
+      <v-tooltip-stub
+        bottom="true"
+        closedelay="0"
+        contentclass=""
+        fixed="true"
+        maxwidth="auto"
+        nudgebottom="0"
+        nudgeleft="0"
+        nudgeright="0"
+        nudgetop="0"
+        nudgewidth="0"
+        opendelay="200"
+        openonhover="true"
+        tag="span"
+        transition="expand-y-transition"
+      >
+         
+        <span>
+          Delete selected
+        </span>
+      </v-tooltip-stub>
+    </div>
   </v-row-stub>
    
   <v-data-table-stub

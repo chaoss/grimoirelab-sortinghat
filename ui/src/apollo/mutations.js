@@ -30,6 +30,14 @@ const DELETE_IDENTITY = gql`
   }
 `;
 
+const MERGE = gql`
+  mutation Merge($fromUuids: [String!], $toUuid: String!) {
+    merge(fromUuids: $fromUuids, toUuid: $toUuid) {
+      uuid
+    }
+  }
+`;
+
 const lockIndividual = (apollo, uuid) => {
   let response = apollo.mutate({
     mutation: LOCK_INDIVIDUAL,
@@ -60,4 +68,15 @@ const deleteIdentity = (apollo, uuid) => {
   return response;
 };
 
-export { lockIndividual, unlockIndividual, deleteIdentity };
+const merge = (apollo, fromUuids, toUuid) => {
+  let response = apollo.mutate({
+    mutation: MERGE,
+    variables: {
+      fromUuids: fromUuids,
+      toUuid: toUuid
+    }
+  });
+  return response;
+};
+
+export { lockIndividual, unlockIndividual, deleteIdentity, merge };

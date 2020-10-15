@@ -1,7 +1,15 @@
 <template>
   <tr
-    :class="{ expanded: isExpanded, selected: isSelected }"
+    :class="{
+      expanded: isExpanded,
+      selected: isSelected,
+      dropzone: isDropZone
+    }"
     @click="selectEntry"
+    @drop.stop="onDrop($event)"
+    @dragover.prevent="isDragging = true"
+    @dragenter.prevent="isDragging = true"
+    @dragleave.prevent="isDragging = false"
   >
     <td width="25%">
       <v-list-item>
@@ -78,7 +86,7 @@
       </v-menu>
       <v-tooltip bottom transition="expand-y-transition" open-delay="200">
         <template v-slot:activator="{ on }">
-          <v-icon v-on="on">mdi-drag-vertical</v-icon>
+          <v-icon :disabled="isLocked" v-on="on">mdi-drag-vertical</v-icon>
         </template>
         <span>Drag individual</span>
       </v-tooltip>
@@ -105,6 +113,10 @@ export default {
       type: Array,
       required: false
     },
+    uuid: {
+      type: String,
+      required: true
+    },
     isExpanded: {
       type: Boolean,
       required: true
@@ -123,6 +135,9 @@ export default {
       default: false
     }
   },
+  data: () => ({
+    isDragging: false
+  }),
   computed: {
     getNameInitials: function() {
       var names = this.name.split(" ");
@@ -133,6 +148,9 @@ export default {
       }
 
       return initials;
+    },
+    isDropZone: function() {
+      return this.isDragging && !this.isLocked;
     }
   },
   methods: {
@@ -150,6 +168,20 @@ export default {
         return;
       }
       this.$emit("select");
+    },
+    onDrop(event) {
+      this.isDragging = false;
+      const droppedIndividual = JSON.parse(
+        event.dataTransfer.getData("individual")
+      );
+      if (
+        droppedIndividual.isLocked ||
+        this.isLocked ||
+        droppedIndividual.uuid === this.uuid
+      ) {
+        return;
+      }
+      this.$emit("merge", droppedIndividual.uuid);
     }
   }
 };
@@ -179,5 +211,20 @@ export default {
 }
 tr {
   cursor: pointer;
+}
+.theme--light.v-data-table
+  tbody
+  .dropzone:hover:not(.v-data-table__expanded__content):not(.v-data-table__empty-wrapper),
+.dropzone {
+  background: #e8f5e9;
+  border: 2px dashed #c8e6c9;
+}
+.theme--light.v-data-table
+  tbody
+  .dragging:hover:not(.v-data-table__expanded__content):not(.v-data-table__empty-wrapper),
+.dragging {
+  background-color: #e3f2fd;
+  border: solid #bbdefb;
+  border-width: 2px 3px;
 }
 </style>
