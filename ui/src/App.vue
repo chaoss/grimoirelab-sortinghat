@@ -43,6 +43,7 @@
           <individuals-table
             :fetch-page="getIndividualsPage"
             :delete-item="deleteItem"
+            :merge-items="mergeItems"
             @saveIndividual="addSavedIndividual"
           />
         </v-col>
@@ -63,7 +64,7 @@ import {
   getPaginatedIndividuals,
   getPaginatedOrganizations
 } from "./apollo/queries";
-import { deleteIdentity } from "./apollo/mutations";
+import { deleteIdentity, merge } from "./apollo/mutations";
 import IndividualsTable from "./components/IndividualsTable";
 import OrganizationsTable from "./components/OrganizationsTable";
 import WorkSpace from "./components/WorkSpace";
@@ -106,6 +107,10 @@ export default {
     },
     async deleteItem(uuid) {
       const response = await deleteIdentity(this.$apollo, uuid);
+      return response;
+    },
+    async mergeItems(fromUuids, toUuid) {
+      const response = await merge(this.$apollo, fromUuids, toUuid);
       return response;
     }
   }
