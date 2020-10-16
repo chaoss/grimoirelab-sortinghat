@@ -1,7 +1,14 @@
 const mergeIndividuals = (individuals, action, dialog) => {
   const [toIndividual, ...rest] = individuals;
-  const fromIndividuals = rest.map(individual => individual.uuid);
-  confirmMerge(dialog, action, fromIndividuals, toIndividual.uuid);
+  const fromIndividuals = rest.map(individual =>
+    individual.uuid ? individual.uuid : individual
+  );
+  confirmMerge(
+    dialog,
+    action,
+    fromIndividuals,
+    toIndividual.uuid || toIndividual
+  );
 };
 
 const confirmMerge = (dialog, action, fromUuids, toUuid) => {

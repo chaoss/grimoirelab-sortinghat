@@ -162,7 +162,7 @@ export default {
     this.queryIndividuals(1);
   },
   methods: {
-    async queryIndividuals(page) {
+    async queryIndividuals(page = this.page) {
       let response = await this.fetchPage(page, this.itemsPerPage);
       if (response) {
         this.individuals = this.formatIndividuals(
@@ -252,6 +252,7 @@ export default {
       }
     },
     mergeSelected(individuals) {
+      console.log(individuals);
       mergeIndividuals(individuals, this.merge, this.dialog);
     }
   }

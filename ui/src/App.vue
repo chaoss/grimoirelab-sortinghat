@@ -36,7 +36,9 @@
     <v-content>
       <work-space
         :individuals="savedIndividuals"
+        :merge-items="mergeItems"
         @clearSpace="savedIndividuals = []"
+        @updateIndividuals="updateTable"
       />
       <v-row>
         <v-col class="individuals elevation-2">
@@ -45,6 +47,7 @@
             :delete-item="deleteItem"
             :merge-items="mergeItems"
             @saveIndividual="addSavedIndividual"
+            ref="table"
           />
         </v-col>
         <v-col class="organizations elevation-2">
@@ -112,6 +115,9 @@ export default {
     async mergeItems(fromUuids, toUuid) {
       const response = await merge(this.$apollo, fromUuids, toUuid);
       return response;
+    },
+    updateTable() {
+      this.$refs.table.queryIndividuals();
     }
   }
 };

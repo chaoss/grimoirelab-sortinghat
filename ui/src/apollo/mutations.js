@@ -34,6 +34,20 @@ const MERGE = gql`
   mutation Merge($fromUuids: [String!], $toUuid: String!) {
     merge(fromUuids: $fromUuids, toUuid: $toUuid) {
       uuid
+      individual {
+        isLocked
+        identities {
+          source
+        }
+        profile {
+          name
+        }
+        enrollments {
+          organization {
+            name
+          }
+        }
+      }
     }
   }
 `;
