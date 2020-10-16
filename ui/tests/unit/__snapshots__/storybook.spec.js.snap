@@ -3078,24 +3078,45 @@ exports[`Storyshots WorkSpace Default 1`] = `
           Work Space
         </h3>
          
-        <span
-          class="v-tooltip v-tooltip--left"
-        >
-          <!---->
-          <button
-            class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
-            type="button"
+        <div>
+          <span
+            class="v-tooltip v-tooltip--bottom"
           >
-            <span
-              class="v-btn__content"
+            <!---->
+            <button
+              class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+              type="button"
             >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-delete-sweep theme--light"
-              />
-            </span>
-          </button>
-        </span>
+              <span
+                class="v-btn__content"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate mdi mdi-call-merge theme--light"
+                />
+              </span>
+            </button>
+          </span>
+           
+          <span
+            class="v-tooltip v-tooltip--left"
+          >
+            <!---->
+            <button
+              class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+              type="button"
+            >
+              <span
+                class="v-btn__content"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate mdi mdi-delete-sweep theme--light"
+                />
+              </span>
+            </button>
+          </span>
+        </div>
       </div>
        
       <div
@@ -3248,6 +3269,13 @@ exports[`Storyshots WorkSpace Default 1`] = `
       </div>
        
       <!---->
+       
+      <div
+        class="v-dialog__container"
+        role="dialog"
+      >
+        <!---->
+      </div>
     </div>
   </div>
 </div>
@@ -3275,25 +3303,47 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
             Work Space
           </h3>
            
-          <span
-            class="v-tooltip v-tooltip--left"
-          >
-            <!---->
-            <button
-              class="v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
-              disabled="disabled"
-              type="button"
+          <div>
+            <span
+              class="v-tooltip v-tooltip--bottom"
             >
-              <span
-                class="v-btn__content"
+              <!---->
+              <button
+                class="v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                disabled="disabled"
+                type="button"
               >
-                <i
-                  aria-hidden="true"
-                  class="v-icon notranslate mdi mdi-delete-sweep theme--light"
-                />
-              </span>
-            </button>
-          </span>
+                <span
+                  class="v-btn__content"
+                >
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate mdi mdi-call-merge theme--light"
+                  />
+                </span>
+              </button>
+            </span>
+             
+            <span
+              class="v-tooltip v-tooltip--left"
+            >
+              <!---->
+              <button
+                class="v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                disabled="disabled"
+                type="button"
+              >
+                <span
+                  class="v-btn__content"
+                >
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate mdi mdi-delete-sweep theme--light"
+                  />
+                </span>
+              </button>
+            </span>
+          </div>
         </div>
          
         <p
@@ -3305,6 +3355,13 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
         </p>
          
         <!---->
+         
+        <div
+          class="v-dialog__container"
+          role="dialog"
+        >
+          <!---->
+        </div>
       </div>
        
       <div
@@ -3462,25 +3519,47 @@ exports[`Storyshots WorkSpace Empty 1`] = `
           Work Space
         </h3>
          
-        <span
-          class="v-tooltip v-tooltip--left"
-        >
-          <!---->
-          <button
-            class="v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
-            disabled="disabled"
-            type="button"
+        <div>
+          <span
+            class="v-tooltip v-tooltip--bottom"
           >
-            <span
-              class="v-btn__content"
+            <!---->
+            <button
+              class="v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+              disabled="disabled"
+              type="button"
             >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-delete-sweep theme--light"
-              />
-            </span>
-          </button>
-        </span>
+              <span
+                class="v-btn__content"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate mdi mdi-call-merge theme--light"
+                />
+              </span>
+            </button>
+          </span>
+           
+          <span
+            class="v-tooltip v-tooltip--left"
+          >
+            <!---->
+            <button
+              class="v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+              disabled="disabled"
+              type="button"
+            >
+              <span
+                class="v-btn__content"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate mdi mdi-delete-sweep theme--light"
+                />
+              </span>
+            </button>
+          </span>
+        </div>
       </div>
        
       <p
@@ -3492,6 +3571,13 @@ exports[`Storyshots WorkSpace Empty 1`] = `
       </p>
        
       <!---->
+       
+      <div
+        class="v-dialog__container"
+        role="dialog"
+      >
+        <!---->
+      </div>
     </div>
   </div>
 </div>

@@ -139,8 +139,8 @@ export default {
           this.updateMergedIndividual(response.data.merge)
         ];
         this.$emit("updateIndividuals");
-        this.dialog.open = false;
       }
+      this.dialog.open = false;
     },
     mergeSelected() {
       mergeIndividuals(this.savedIndividuals, this.merge, this.dialog);

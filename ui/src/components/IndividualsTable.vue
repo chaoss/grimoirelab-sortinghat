@@ -252,7 +252,6 @@ export default {
       }
     },
     mergeSelected(individuals) {
-      console.log(individuals);
       mergeIndividuals(individuals, this.merge, this.dialog);
     }
   }
