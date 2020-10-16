@@ -9,7 +9,7 @@
               icon
               v-on="on"
               :disabled="disabledMerge"
-              @click="mergeSelected"
+              @click="mergeSelected(selectedIndividuals)"
             >
               <v-icon>mdi-call-merge</v-icon>
             </v-btn>
@@ -59,7 +59,7 @@
           @dragend.native="removeClass(item, $event)"
           @select="selectIndividual(item)"
           @delete="confirmDelete([item])"
-          @merge="confirmMerge([$event], item.uuid)"
+          @merge="mergeSelected([item.uuid, $event])"
         />
       </template>
       <template v-slot:expanded-item="{ item }">
@@ -98,6 +98,7 @@
 </template>
 
 <script>
+import { mergeIndividuals } from "../utils/actions";
 import IndividualEntry from "./IndividualEntry.vue";
 import ExpandedIndividual from "./ExpandedIndividual.vue";
 
@@ -161,7 +162,7 @@ export default {
     this.queryIndividuals(1);
   },
   methods: {
-    async queryIndividuals(page) {
+    async queryIndividuals(page = this.page) {
       let response = await this.fetchPage(page, this.itemsPerPage);
       if (response) {
         this.individuals = this.formatIndividuals(
@@ -250,18 +251,8 @@ export default {
         this.dialog.open = false;
       }
     },
-    confirmMerge(fromUuids, toUuid) {
-      Object.assign(this.dialog, {
-        open: true,
-        title: "Merge the selected items?",
-        text: "",
-        action: () => this.merge(fromUuids, toUuid)
-      });
-    },
-    mergeSelected() {
-      const [toIndividual, ...rest] = this.selectedIndividuals;
-      const fromIndividuals = rest.map(individual => individual.uuid);
-      this.confirmMerge(fromIndividuals, toIndividual.uuid);
+    mergeSelected(individuals) {
+      mergeIndividuals(individuals, this.merge, this.dialog);
     }
   }
 };

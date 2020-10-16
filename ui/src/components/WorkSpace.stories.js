@@ -9,11 +9,11 @@ export default {
 };
 
 const workSpaceTemplate =
-  '<work-space :individuals="individuals"/>';
+  '<work-space :individuals="individuals" :merge-items="mergeItems"/>';
 
 const dragAndDropTemplate = `
   <div>
-  <work-space :individuals="individuals"/>
+  <work-space :individuals="individuals" :merge-items="mergeItems"/>
   <individuals-table :fetch-page="queryIndividuals.bind(this)" :delete-item="deleteItem" :merge-items="deleteItem" />
   </div>
 `;
@@ -162,7 +162,12 @@ export const Default = () => ({
         ]
       }
     ]
-  })
+  }),
+  methods: {
+    mergeItems() {
+      this.individuals.pop();
+    }
+  }
 });
 
 export const Empty = () => ({
@@ -170,7 +175,12 @@ export const Empty = () => ({
   template: workSpaceTemplate,
   data: () => ({
     individuals: []
-  })
+  }),
+  methods: {
+    mergeItems() {
+      this.individuals.pop();
+    }
+  }
 });
 
 export const DragAndDrop = () => ({
@@ -179,6 +189,9 @@ export const DragAndDrop = () => ({
   methods: {
     queryIndividuals(page) {
       return this.query[page - 1];
+    },
+    mergeItems() {
+      this.individuals = [this.individuals.shift()];
     }
   },
   data: () => ({
