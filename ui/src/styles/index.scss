@@ -1,0 +1,31 @@
+$active-color: #c8e6c9;
+$selected-color: #bbdefb;
+
+.theme--light.v-data-table
+  tbody
+  .dropzone:hover:not(.v-data-table__expanded__content):not(.v-data-table__empty-wrapper),
+.dropzone {
+  background: lighten($active-color, 10%);
+  border: 2px dashed $active-color;
+}
+
+.selected {
+  background-color: lighten($selected-color, 10%);
+  outline: thin solid $selected-color;
+}
+
+.theme--light.v-data-table
+  tbody
+  tr.selected:hover:not(.v-data-table__expanded__content):not(.v-data-table__empty-wrapper) {
+  background-color: $selected-color;
+  transition: background-color 30ms linear;
+}
+
+.theme--light.v-data-table
+  tbody
+  .dragging:hover:not(.v-data-table__expanded__content):not(.v-data-table__empty-wrapper),
+.dragging {
+  background-color: lighten($selected-color, 10%);
+  border: solid $selected-color;
+  border-width: 2px 3px;
+}

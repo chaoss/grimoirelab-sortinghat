@@ -186,7 +186,9 @@ export default {
   }
 };
 </script>
-<style scoped>
+<style lang="scss" scoped>
+@import "../styles/index.scss";
+
 .theme--light.v-data-table tbody .expanded td:not(.v-data-table__mobile-row) {
   border: 0;
 }
@@ -196,35 +198,10 @@ export default {
 .aligned {
   margin-bottom: 4px;
 }
-.selected {
-  background-color: #e3f2fd;
-  outline: thin solid #bbdefb;
-}
-.theme--light.v-data-table
-  tbody
-  tr.selected:hover:not(.v-data-table__expanded__content):not(.v-data-table__empty-wrapper) {
-  background-color: #bbdefb;
-  transition: background-color 30ms linear;
-}
 .theme--light.v-data-table tbody tr:not(:last-child).selected td {
   border-bottom: 0;
 }
 tr {
   cursor: pointer;
-}
-.theme--light.v-data-table
-  tbody
-  .dropzone:hover:not(.v-data-table__expanded__content):not(.v-data-table__empty-wrapper),
-.dropzone {
-  background: #e8f5e9;
-  border: 2px dashed #c8e6c9;
-}
-.theme--light.v-data-table
-  tbody
-  .dragging:hover:not(.v-data-table__expanded__content):not(.v-data-table__empty-wrapper),
-.dragging {
-  background-color: #e3f2fd;
-  border: solid #bbdefb;
-  border-width: 2px 3px;
 }
 </style>
