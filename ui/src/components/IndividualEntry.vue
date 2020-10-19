@@ -171,17 +171,16 @@ export default {
     },
     onDrop(event) {
       this.isDragging = false;
-      const droppedIndividual = JSON.parse(
-        event.dataTransfer.getData("individual")
+      const droppedIndividuals = JSON.parse(
+        event.dataTransfer.getData("individuals")
       );
-      if (
-        droppedIndividual.isLocked ||
-        this.isLocked ||
-        droppedIndividual.uuid === this.uuid
-      ) {
+      if (this.isLocked) {
         return;
       }
-      this.$emit("merge", droppedIndividual.uuid);
+      this.$emit(
+        "merge",
+        droppedIndividuals.map(individual => individual.uuid)
+      );
     }
   }
 };

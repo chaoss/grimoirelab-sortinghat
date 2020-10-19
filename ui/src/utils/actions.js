@@ -1,4 +1,7 @@
 const mergeIndividuals = (individuals, action, dialog) => {
+  if (individuals.length !== new Set(individuals).size) {
+    return;
+  }
   const [toIndividual, ...rest] = individuals;
   const fromIndividuals = rest.map(individual =>
     individual.uuid ? individual.uuid : individual

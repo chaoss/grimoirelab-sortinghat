@@ -125,13 +125,11 @@ export default {
       }
     },
     onDrop(event) {
-      const droppedIndividual = JSON.parse(
-        event.dataTransfer.getData("individual")
+      const droppedIndividuals = JSON.parse(
+        event.dataTransfer.getData("individuals")
       );
-      if (this.uuid === droppedIndividual.uuid) {
-        return;
-      }
-      this.$emit("merge", [this.uuid, droppedIndividual.uuid]);
+      const uuids = droppedIndividuals.map(individual => individual.uuid);
+      this.$emit("merge", [this.uuid, ...uuids]);
       this.isDragging = false;
     }
   },

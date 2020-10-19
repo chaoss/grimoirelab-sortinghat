@@ -224,6 +224,20 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
       </v-card-actions-stub>
     </v-card-stub>
   </v-dialog-stub>
+   
+  <v-card-stub
+    class="dragged-item"
+    color="primary"
+    dark="true"
+    loaderheight="4"
+    tag="div"
+  >
+    <v-card-title-stub>
+      
+      Moving 0
+    
+    </v-card-title-stub>
+  </v-card-stub>
 </v-container-stub>
 `;
 

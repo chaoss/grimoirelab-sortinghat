@@ -121,17 +121,16 @@ export default {
       this.$emit("clearSpace");
     },
     onDrop(evt) {
-      const droppedIndividual = JSON.parse(
-        evt.dataTransfer.getData("individual")
+      const droppedIndividuals = JSON.parse(
+        evt.dataTransfer.getData("individuals")
       );
-      const isSaved = this.savedIndividuals.find(individual => {
-        return individual.uuid === droppedIndividual.uuid;
-      });
-      if (isSaved) {
-        this.showSnackbar = true;
-        return;
-      }
-      this.savedIndividuals.push(droppedIndividual);
+      const newIndividuals = droppedIndividuals.filter(
+        dropped =>
+          !this.savedIndividuals.some(
+            individual => individual.id === dropped.id
+          )
+      );
+      this.savedIndividuals.push(...newIndividuals);
       this.isDragging = false;
     },
     async merge(fromUuids, toUuid) {

@@ -2787,6 +2787,18 @@ exports[`Storyshots IndividualsTable Default 1`] = `
       >
         <!---->
       </div>
+       
+      <div
+        class="dragged-item v-card v-sheet theme--dark primary"
+      >
+        <div
+          class="v-card__title"
+        >
+          
+      Moving 0
+    
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -3491,6 +3503,18 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
           role="dialog"
         >
           <!---->
+        </div>
+         
+        <div
+          class="dragged-item v-card v-sheet theme--dark primary"
+        >
+          <div
+            class="v-card__title"
+          >
+            
+      Moving 0
+    
+          </div>
         </div>
       </div>
     </div>
