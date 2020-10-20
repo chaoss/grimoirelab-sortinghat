@@ -35,6 +35,8 @@ exports[`IndividualCard Lock individual on click 1`] = `
     <div
       class="v-list-item__icon"
     >
+      <!---->
+       
       <button
         class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
         type="button"
@@ -86,6 +88,8 @@ exports[`IndividualCard Mock query for lockIndividual 1`] = `
     </v-list-item-content-stub>
      
     <v-list-item-icon-stub>
+      <!---->
+       
       <v-btn-stub
         activeclass=""
         icon="true"
@@ -145,6 +149,8 @@ exports[`IndividualCard Mock query for unlockIndividual 1`] = `
     </v-list-item-content-stub>
      
     <v-list-item-icon-stub>
+      <!---->
+       
       <v-btn-stub
         activeclass=""
         icon="true"
@@ -209,6 +215,8 @@ exports[`IndividualCard Show snackbar on error 1`] = `
     <div
       class="v-list-item__icon"
     >
+      <!---->
+       
       <button
         class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
         type="button"
@@ -280,6 +288,8 @@ exports[`IndividualCard Unlock individual on click 1`] = `
     <div
       class="v-list-item__icon"
     >
+      <!---->
+       
       <button
         class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
         type="button"

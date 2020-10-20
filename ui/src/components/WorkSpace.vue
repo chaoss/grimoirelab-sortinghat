@@ -55,6 +55,8 @@
           :is-locked="individual.isLocked"
           :is-selected="individual.isSelected"
           :uuid="individual.uuid"
+          :identities="individual.identities"
+          :enrollments="individual.enrollments"
           @merge="mergeSelected($event)"
           @select="selectIndividual(individual)"
         />
@@ -205,5 +207,8 @@ export default {
 }
 .dragging .drag-zone {
   outline: 2px dashed #bdbdbd;
+}
+.col-2 {
+  min-width: 300px;
 }
 </style>

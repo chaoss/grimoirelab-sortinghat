@@ -97,6 +97,8 @@ exports[`ProfileList Shows selected profile 1`] = `
           <div
             class="v-list-item__icon"
           >
+            <!---->
+             
             <button
               class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
               type="button"

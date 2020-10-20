@@ -1,5 +1,394 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Storyshots ExpandedIndividual Compact 1`] = `
+<div
+  class="v-application v-application--is-ltr theme--light"
+  data-app="true"
+  id="app"
+>
+  <div
+    class="v-application--wrap"
+  >
+    <td
+      class="compact"
+      colspan="4"
+    >
+      <div
+        class="v-subheader theme--light"
+      >
+        Identities (4)
+      </div>
+       
+      <div
+        class="v-list indented v-sheet v-sheet--tile theme--light"
+        role="list"
+      >
+        <div
+          class="v-list-item theme--light"
+          role="listitem"
+          tabindex="-1"
+        >
+          <!---->
+           
+          <div
+            class="v-list-item__content"
+          >
+            <div
+              class="row no-gutters"
+            >
+              <div
+                class="uuid col col-2"
+              >
+                <span
+                  class="text-center v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
+                  tile=""
+                >
+                  <span
+                    class="v-chip__content"
+                  >
+                    
+      006afa
+    
+                  </span>
+                </span>
+              </div>
+               
+              <div
+                class="ma-2 text-center col"
+              >
+                <span>
+                  Tom Marvolo Riddle
+                </span>
+              </div>
+               
+              <div
+                class="ma-2 text-center col"
+              >
+                <span>
+                  triddle@example.net
+                </span>
+              </div>
+               
+              <div
+                class="ma-2 text-center col"
+              >
+                <span>
+                  triddle
+                </span>
+              </div>
+               
+              <div
+                class="ma-2 text-center col"
+              >
+                <span>
+                  GitHub
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          class="v-list-item theme--light"
+          role="listitem"
+          tabindex="-1"
+        >
+          <!---->
+           
+          <div
+            class="v-list-item__content"
+          >
+            <div
+              class="row no-gutters"
+            >
+              <div
+                class="uuid col col-2"
+              >
+                <span
+                  class="text-center v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
+                  tile=""
+                >
+                  <span
+                    class="v-chip__content"
+                  >
+                    
+      808b18
+    
+                  </span>
+                </span>
+              </div>
+               
+              <div
+                class="ma-2 text-center col"
+              >
+                <span>
+                  Voldemort
+                </span>
+              </div>
+               
+              <div
+                class="ma-2 text-center col"
+              >
+                <span>
+                  -
+                </span>
+              </div>
+               
+              <div
+                class="ma-2 text-center col"
+              >
+                <span>
+                  voldemort
+                </span>
+              </div>
+               
+              <div
+                class="ma-2 text-center col"
+              >
+                <span>
+                  GitHub
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+         
+        <!---->
+      </div>
+      <div
+        class="v-list indented v-sheet v-sheet--tile theme--light"
+        role="list"
+      >
+        <div
+          class="v-list-item theme--light"
+          role="listitem"
+          tabindex="-1"
+        >
+          <!---->
+           
+          <div
+            class="v-list-item__content"
+          >
+            <div
+              class="row no-gutters"
+            >
+              <div
+                class="uuid col col-2"
+              >
+                <span
+                  class="text-center v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
+                  tile=""
+                >
+                  <span
+                    class="v-chip__content"
+                  >
+                    
+      abce32
+    
+                  </span>
+                </span>
+              </div>
+               
+              <div
+                class="ma-2 text-center col"
+              >
+                <span>
+                  voldemort
+                </span>
+              </div>
+               
+              <div
+                class="ma-2 text-center col"
+              >
+                <span>
+                  voldemort@example.net
+                </span>
+              </div>
+               
+              <div
+                class="ma-2 text-center col"
+              >
+                <span>
+                  -
+                </span>
+              </div>
+               
+              <div
+                class="ma-2 text-center col"
+              >
+                <span>
+                  Git
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+         
+        <!---->
+      </div>
+      <div
+        class="v-list indented v-sheet v-sheet--tile theme--light"
+        role="list"
+      >
+        <div
+          class="v-list-item theme--light"
+          role="listitem"
+          tabindex="-1"
+        >
+          <!---->
+           
+          <div
+            class="v-list-item__content"
+          >
+            <div
+              class="row no-gutters"
+            >
+              <div
+                class="uuid col col-2"
+              >
+                <span
+                  class="text-center v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
+                  tile=""
+                >
+                  <span
+                    class="v-chip__content"
+                  >
+                    
+      4ce562
+    
+                  </span>
+                </span>
+              </div>
+               
+              <div
+                class="ma-2 text-center col"
+              >
+                <span>
+                  -
+                </span>
+              </div>
+               
+              <div
+                class="ma-2 text-center col"
+              >
+                <span>
+                  -
+                </span>
+              </div>
+               
+              <div
+                class="ma-2 text-center col"
+              >
+                <span>
+                  voldemort
+                </span>
+              </div>
+               
+              <div
+                class="ma-2 text-center col"
+              >
+                <span>
+                  irc
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+         
+        <!---->
+      </div>
+       
+      <!---->
+       
+      <div
+        class="v-list v-sheet v-sheet--tile theme--light"
+        role="list"
+      >
+        <div
+          class="v-subheader theme--light"
+        >
+          Organizations (2)
+        </div>
+         
+        <div
+          class="v-list-item theme--light"
+          role="listitem"
+          tabindex="-1"
+        >
+          <div
+            class="v-list-item__content"
+          >
+            <div
+              class="row no-gutters"
+            >
+              <div
+                class="ma-2 text-center col"
+              >
+                <span>
+                  Slytherin
+                </span>
+              </div>
+               
+              <div
+                class="col-3 ma-2 text-center col"
+              >
+                <span>
+                  1938-09-01
+                </span>
+              </div>
+               
+              <div
+                class="col-3 ma-2 text-center col"
+              >
+                <span>
+                  1998-05-02
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          class="v-list-item theme--light"
+          role="listitem"
+          tabindex="-1"
+        >
+          <div
+            class="v-list-item__content"
+          >
+            <div
+              class="row no-gutters"
+            >
+              <div
+                class="ma-2 text-center col"
+              >
+                <span>
+                  Hogwarts School of Witchcraft and Wizardry
+                </span>
+              </div>
+               
+              <div
+                class="col-3 ma-2 text-center col"
+              >
+                <span>
+                  1938-09-01
+                </span>
+              </div>
+               
+              <div
+                class="col-3 ma-2 text-center col"
+              >
+                <span>
+                  1945-06-02
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </td>
+  </div>
+</div>
+`;
+
 exports[`Storyshots ExpandedIndividual Default 1`] = `
 <div
   class="v-application v-application--is-ltr theme--light"
@@ -10,6 +399,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
     class="v-application--wrap"
   >
     <td
+      class=""
       colspan="4"
     >
       <div
@@ -43,7 +433,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
               class="row no-gutters"
             >
               <div
-                class="col col-2"
+                class="uuid col col-2"
               >
                 <span
                   class="text-center v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
@@ -109,7 +499,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
               class="row no-gutters"
             >
               <div
-                class="col col-2"
+                class="uuid col col-2"
               >
                 <span
                   class="text-center v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
@@ -191,7 +581,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
               class="row no-gutters"
             >
               <div
-                class="col col-2"
+                class="uuid col col-2"
               >
                 <span
                   class="text-center v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
@@ -273,7 +663,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
               class="row no-gutters"
             >
               <div
-                class="col col-2"
+                class="uuid col col-2"
               >
                 <span
                   class="text-center v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
@@ -433,6 +823,7 @@ exports[`Storyshots ExpandedIndividual No Organizations 1`] = `
     class="v-application--wrap"
   >
     <td
+      class=""
       colspan="4"
     >
       <div
@@ -466,7 +857,7 @@ exports[`Storyshots ExpandedIndividual No Organizations 1`] = `
               class="row no-gutters"
             >
               <div
-                class="col col-2"
+                class="uuid col col-2"
               >
                 <span
                   class="text-center v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
@@ -555,7 +946,7 @@ exports[`Storyshots Identity Default 1`] = `
       class="row no-gutters"
     >
       <div
-        class="col col-2"
+        class="uuid col col-2"
       >
         <span
           class="text-center v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
@@ -614,7 +1005,7 @@ exports[`Storyshots Identity Source 1`] = `
       class="row no-gutters"
     >
       <div
-        class="col col-2"
+        class="uuid col col-2"
       >
         <span
           class="text-center v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
@@ -709,6 +1100,8 @@ exports[`Storyshots IndividualCard Default 1`] = `
         <div
           class="v-list-item__icon"
         >
+          <!---->
+           
           <button
             class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
             type="button"
@@ -775,6 +1168,8 @@ exports[`Storyshots IndividualCard Locked 1`] = `
         <div
           class="v-list-item__icon"
         >
+          <!---->
+           
           <button
             class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
             type="button"
@@ -841,6 +1236,8 @@ exports[`Storyshots IndividualCard Single Initial 1`] = `
         <div
           class="v-list-item__icon"
         >
+          <!---->
+           
           <button
             class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
             type="button"
@@ -928,6 +1325,26 @@ exports[`Storyshots IndividualCard Sources 1`] = `
         <div
           class="v-list-item__icon"
         >
+          <div
+            class="v-menu"
+          >
+            <button
+              class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+              type="button"
+            >
+              <span
+                class="v-btn__content"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate mdi mdi-magnify-plus-outline theme--light"
+                  style="font-size: 16px;"
+                />
+              </span>
+            </button>
+            <!---->
+          </div>
+           
           <button
             class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
             type="button"
@@ -2113,6 +2530,8 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                 <div
                   class="v-list-item__icon"
                 >
+                  <!---->
+                   
                   <button
                     class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
                     type="button"
@@ -2186,6 +2605,8 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                 <div
                   class="v-list-item__icon"
                 >
+                  <!---->
+                   
                   <button
                     class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
                     type="button"
@@ -2249,6 +2670,8 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                 <div
                   class="v-list-item__icon"
                 >
+                  <!---->
+                   
                   <button
                     class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
                     type="button"
@@ -2322,6 +2745,8 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                 <div
                   class="v-list-item__icon"
                 >
+                  <!---->
+                   
                   <button
                     class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
                     type="button"
@@ -2390,6 +2815,8 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                 <div
                   class="v-list-item__icon"
                 >
+                  <!---->
+                   
                   <button
                     class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
                     type="button"
@@ -2463,6 +2890,8 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                 <div
                   class="v-list-item__icon"
                 >
+                  <!---->
+                   
                   <button
                     class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
                     type="button"
@@ -2536,6 +2965,8 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                 <div
                   class="v-list-item__icon"
                 >
+                  <!---->
+                   
                   <button
                     class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
                     type="button"
@@ -2604,6 +3035,8 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                 <div
                   class="v-list-item__icon"
                 >
+                  <!---->
+                   
                   <button
                     class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
                     type="button"
@@ -2991,6 +3424,8 @@ exports[`Storyshots ProfileCard Default 1`] = `
         <div
           class="v-list-item__icon"
         >
+          <!---->
+           
           <button
             class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
             type="button"
@@ -3193,6 +3628,26 @@ exports[`Storyshots WorkSpace Default 1`] = `
               <div
                 class="v-list-item__icon"
               >
+                <div
+                  class="v-menu"
+                >
+                  <button
+                    class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                    type="button"
+                  >
+                    <span
+                      class="v-btn__content"
+                    >
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate mdi mdi-magnify-plus-outline theme--light"
+                        style="font-size: 16px;"
+                      />
+                    </span>
+                  </button>
+                  <!---->
+                </div>
+                 
                 <button
                   class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
                   type="button"
@@ -3266,6 +3721,26 @@ exports[`Storyshots WorkSpace Default 1`] = `
               <div
                 class="v-list-item__icon"
               >
+                <div
+                  class="v-menu"
+                >
+                  <button
+                    class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                    type="button"
+                  >
+                    <span
+                      class="v-btn__content"
+                    >
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate mdi mdi-magnify-plus-outline theme--light"
+                        style="font-size: 16px;"
+                      />
+                    </span>
+                  </button>
+                  <!---->
+                </div>
+                 
                 <button
                   class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
                   type="button"

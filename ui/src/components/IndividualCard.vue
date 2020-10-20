@@ -28,6 +28,25 @@
       </v-list-item-content>
 
       <v-list-item-icon>
+        <v-menu
+          v-if="identities && enrollments"
+          offset-y
+          offset-x
+          :close-on-content-click="false"
+        >
+          <template v-slot:activator="{ on }">
+            <v-btn icon v-on.stop="on" @mousedown.stop>
+              <v-icon small>
+                mdi-magnify-plus-outline
+              </v-icon>
+            </v-btn>
+          </template>
+          <expanded-individual
+            compact
+            :enrollments="enrollments"
+            :identities="identities"
+          />
+        </v-menu>
         <v-btn text icon @click.stop="toggleLockedStatus" @mousedown.stop>
           <v-icon small>
             {{ locked ? "mdi-lock" : "mdi-lock-open-outline" }}
@@ -44,9 +63,13 @@
 
 <script>
 import { lockIndividual, unlockIndividual } from "../apollo/mutations";
+import ExpandedIndividual from "./ExpandedIndividual";
 
 export default {
   name: "individualcard",
+  components: {
+    ExpandedIndividual
+  },
   props: {
     name: {
       type: String,
@@ -70,6 +93,14 @@ export default {
     uuid: {
       type: String,
       required: true
+    },
+    identities: {
+      type: Array,
+      required: false
+    },
+    enrollments: {
+      type: Array,
+      required: false
     }
   },
   data() {
