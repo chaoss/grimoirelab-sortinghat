@@ -57,8 +57,9 @@ exports[`ProfileList Shows selected profile 1`] = `
       style="padding: 10px 0px;"
     >
       <div
-        class="mx-auto v-card v-card--raised v-sheet theme--light"
+        class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light"
         style="width: 600px;"
+        tabindex="0"
       >
         <div
           class="grow v-list-item theme--light"

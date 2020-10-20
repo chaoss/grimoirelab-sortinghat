@@ -1,13 +1,14 @@
 <template>
   <v-card
     class="mx-auto"
-    :class="{ dropzone: isDragging }"
+    :class="{ dropzone: isDragging, selected: isSelected }"
     raised
     v-on="$listeners"
     @drop.native.prevent.stop="onDrop($event)"
     @dragover.prevent.stop="isDragging = true"
     @dragenter.prevent.stop="isDragging = true"
     @dragleave="isDragging = false"
+    @click="selectIndividual"
   >
     <v-list-item class="grow">
       <v-list-item-avatar color="grey">
@@ -57,6 +58,11 @@ export default {
       default: () => []
     },
     isLocked: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+    isSelected: {
       type: Boolean,
       required: false,
       default: false
@@ -131,6 +137,9 @@ export default {
       const uuids = droppedIndividuals.map(individual => individual.uuid);
       this.$emit("merge", [this.uuid, ...uuids]);
       this.isDragging = false;
+    },
+    selectIndividual() {
+      this.$emit("select");
     }
   },
   watch: {
@@ -142,10 +151,4 @@ export default {
 </script>
 <style lang="scss" scoped>
 @import "../styles/index.scss";
-.selected {
-  outline: rgba(25, 118, 210, 0.42) solid 2px;
-  box-shadow: 0px 5px 5px -3px rgba(25, 118, 210, 0.2),
-    0px 8px 10px 1px rgba(25, 118, 210, 0.14),
-    0px 3px 14px 2px rgba(25, 118, 210, 0.12);
-}
 </style>

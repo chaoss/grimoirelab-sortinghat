@@ -676,7 +676,8 @@ exports[`Storyshots IndividualCard Default 1`] = `
     class="v-application--wrap"
   >
     <div
-      class="mx-auto v-card v-card--raised v-sheet theme--light"
+      class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light"
+      tabindex="0"
     >
       <div
         class="grow v-list-item theme--light"
@@ -741,7 +742,8 @@ exports[`Storyshots IndividualCard Locked 1`] = `
     class="v-application--wrap"
   >
     <div
-      class="mx-auto v-card v-card--raised v-sheet theme--light"
+      class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light"
+      tabindex="0"
     >
       <div
         class="grow v-list-item theme--light"
@@ -806,7 +808,8 @@ exports[`Storyshots IndividualCard Single Initial 1`] = `
     class="v-application--wrap"
   >
     <div
-      class="mx-auto v-card v-card--raised v-sheet theme--light"
+      class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light"
+      tabindex="0"
     >
       <div
         class="grow v-list-item theme--light"
@@ -871,7 +874,8 @@ exports[`Storyshots IndividualCard Sources 1`] = `
     class="v-application--wrap"
   >
     <div
-      class="mx-auto v-card v-card--raised v-sheet theme--light"
+      class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light"
+      tabindex="0"
     >
       <div
         class="grow v-list-item theme--light"
@@ -2937,8 +2941,9 @@ exports[`Storyshots ProfileCard Default 1`] = `
     class="v-application--wrap"
   >
     <div
-      class="mx-auto v-card v-card--raised v-sheet theme--light"
+      class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light"
       style="width: 600px;"
+      tabindex="0"
     >
       <div
         class="grow v-list-item theme--light"
@@ -3096,7 +3101,8 @@ exports[`Storyshots WorkSpace Default 1`] = `
           >
             <!---->
             <button
-              class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+              class="v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+              disabled="disabled"
               type="button"
             >
               <span
@@ -3138,7 +3144,8 @@ exports[`Storyshots WorkSpace Default 1`] = `
           class="col col-2"
         >
           <div
-            class="mx-auto v-card v-card--raised v-sheet theme--light"
+            class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light"
+            tabindex="0"
           >
             <div
               class="grow v-list-item theme--light"
@@ -3210,7 +3217,8 @@ exports[`Storyshots WorkSpace Default 1`] = `
           class="col col-2"
         >
           <div
-            class="mx-auto v-card v-card--raised v-sheet theme--light"
+            class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light"
+            tabindex="0"
           >
             <div
               class="grow v-list-item theme--light"
