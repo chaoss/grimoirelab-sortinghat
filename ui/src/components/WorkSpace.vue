@@ -16,8 +16,8 @@
             <v-btn
               icon
               v-on="on"
-              :disabled="savedIndividuals.length < 2"
-              @click="mergeSelected(savedIndividuals)"
+              :disabled="selectedIndividuals.length < 2"
+              @click="mergeSelected(selectedIndividuals)"
             >
               <v-icon>mdi-call-merge</v-icon>
             </v-btn>
@@ -53,8 +53,10 @@
           :name="individual.name"
           :sources="individual.sources"
           :is-locked="individual.isLocked"
+          :is-selected="individual.isSelected"
           :uuid="individual.uuid"
           @merge="mergeSelected($event)"
+          @select="selectIndividual(individual)"
         />
       </v-col>
     </v-row>
@@ -115,6 +117,11 @@ export default {
       }
     };
   },
+  computed: {
+    selectedIndividuals() {
+      return this.savedIndividuals.filter(individual => individual.isSelected);
+    }
+  },
   methods: {
     clearSpace() {
       this.savedIndividuals = [];
@@ -124,12 +131,14 @@ export default {
       const droppedIndividuals = JSON.parse(
         evt.dataTransfer.getData("individuals")
       );
-      const newIndividuals = droppedIndividuals.filter(
-        dropped =>
-          !this.savedIndividuals.some(
-            individual => individual.id === dropped.id
-          )
-      );
+      const newIndividuals = droppedIndividuals
+        .filter(
+          dropped =>
+            !this.savedIndividuals.some(
+              individual => individual.id === dropped.id
+            )
+        )
+        .map(individual => Object.assign(individual, { isSelected: false }));
       this.savedIndividuals.push(...newIndividuals);
       this.isDragging = false;
     },
@@ -153,7 +162,8 @@ export default {
         isLocked: updated.individual.isLocked,
         uuid: updated.uuid,
         id: updated.individual.profile.id,
-        sources: this.getSourceIcons(updated.individual.identities)
+        sources: this.getSourceIcons(updated.individual.identities),
+        isSelected: false
       };
       const updatedIndex = this.savedIndividuals.findIndex(
         individual => individual.id === updatedIndividual.id
@@ -175,6 +185,9 @@ export default {
           })
         )
       ];
+    },
+    selectIndividual(individual) {
+      individual.isSelected = !individual.isSelected;
     }
   },
   watch: {

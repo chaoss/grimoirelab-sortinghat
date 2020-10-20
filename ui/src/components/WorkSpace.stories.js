@@ -31,6 +31,7 @@ export const Default = () => ({
         isBot: false,
         isLocked: false,
         organization: "Slytherin",
+        isSelected: false,
         sources: ["gitlab", "GitHub", "git"],
         identities: [
           {
@@ -102,6 +103,7 @@ export const Default = () => ({
         id: "2",
         email: "hpotter@example.com",
         isLocked: false,
+        isSelected: false,
         organization: "Griffyndor",
         sources: ["GitHub", "git", "others"],
         identities: [

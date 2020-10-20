@@ -2,7 +2,8 @@
 
 exports[`IndividualCard Lock individual on click 1`] = `
 <div
-  class="mx-auto v-card v-card--raised v-sheet theme--light"
+  class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light"
+  tabindex="0"
 >
   <div
     class="grow v-list-item theme--light"
@@ -175,7 +176,8 @@ exports[`IndividualCard Mock query for unlockIndividual 1`] = `
 
 exports[`IndividualCard Show snackbar on error 1`] = `
 <div
-  class="mx-auto v-card v-card--raised v-sheet theme--light"
+  class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light"
+  tabindex="0"
 >
   <div
     class="grow v-list-item theme--light"
@@ -245,7 +247,8 @@ exports[`IndividualCard Show snackbar on error 1`] = `
 
 exports[`IndividualCard Unlock individual on click 1`] = `
 <div
-  class="mx-auto v-card v-card--raised v-sheet theme--light"
+  class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light"
+  tabindex="0"
 >
   <div
     class="grow v-list-item theme--light"
