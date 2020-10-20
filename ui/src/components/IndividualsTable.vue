@@ -59,7 +59,7 @@
           @dragend.native="removeClass(item, $event)"
           @select="selectIndividual(item)"
           @delete="confirmDelete([item])"
-          @merge="mergeSelected([item.uuid, $event])"
+          @merge="mergeSelected([item.uuid, ...$event])"
         />
       </template>
       <template v-slot:expanded-item="{ item }">
@@ -94,6 +94,12 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-card class="dragged-item" color="primary" dark>
+      <v-card-title>
+        Moving {{ this.selectedIndividuals.length }}
+      </v-card-title>
+    </v-card>
   </v-container>
 </template>
 
@@ -216,9 +222,14 @@ export default {
       return Object.values(groupedIdentities);
     },
     startDrag(item, event) {
+      item.isSelected = true;
       event.dataTransfer.dropEffect = "move";
-      event.dataTransfer.setData("individual", JSON.stringify(item));
-      event.target.classList.add("dragging");
+      event.dataTransfer.setData(
+        "individuals",
+        JSON.stringify(this.selectedIndividuals)
+      );
+      const dragImage = document.querySelector(".dragged-item");
+      event.dataTransfer.setDragImage(dragImage, 0, 0);
     },
     removeClass(item, event) {
       event.target.classList.remove("dragging");
@@ -274,5 +285,10 @@ export default {
 .actions {
   justify-content: space-between;
   padding: 0 26px 24px 26px;
+}
+.dragged-item {
+  max-width: 300px;
+  position: absolute;
+  top: -300px;
 }
 </style>

@@ -1,5 +1,14 @@
 <template>
-  <v-card class="mx-auto" raised v-on="$listeners">
+  <v-card
+    class="mx-auto"
+    :class="{ dropzone: isDragging }"
+    raised
+    v-on="$listeners"
+    @drop.native.prevent.stop="onDrop($event)"
+    @dragover.prevent.stop="isDragging = true"
+    @dragenter.prevent.stop="isDragging = true"
+    @dragleave="isDragging = false"
+  >
     <v-list-item class="grow">
       <v-list-item-avatar color="grey">
         {{ getNameInitials }}
@@ -63,7 +72,8 @@ export default {
       snackbar: {
         value: false,
         text: ""
-      }
+      },
+      isDragging: false
     };
   },
   computed: {
@@ -113,6 +123,14 @@ export default {
       } else if (this.$root.STORYBOOK_COMPONENT) {
         this.locked = !this.locked;
       }
+    },
+    onDrop(event) {
+      const droppedIndividuals = JSON.parse(
+        event.dataTransfer.getData("individuals")
+      );
+      const uuids = droppedIndividuals.map(individual => individual.uuid);
+      this.$emit("merge", [this.uuid, ...uuids]);
+      this.isDragging = false;
     }
   },
   watch: {
@@ -122,7 +140,8 @@ export default {
   }
 };
 </script>
-<style scoped>
+<style lang="scss" scoped>
+@import "../styles/index.scss";
 .selected {
   outline: rgba(25, 118, 210, 0.42) solid 2px;
   box-shadow: 0px 5px 5px -3px rgba(25, 118, 210, 0.2),

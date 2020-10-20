@@ -6,6 +6,7 @@
     @drop.native="onDrop($event)"
     @dragover.prevent="isDragging = true"
     @dragenter.prevent="isDragging = true"
+    @dragleave.prevent="isDragging = false"
   >
     <v-row class="ma-md-0 pt-md-4 pl-md-4 pr-md-4 justify-space-between">
       <h3 class="text-h3">Work Space</h3>
@@ -16,7 +17,7 @@
               icon
               v-on="on"
               :disabled="savedIndividuals.length < 2"
-              @click="mergeSelected"
+              @click="mergeSelected(savedIndividuals)"
             >
               <v-icon>mdi-call-merge</v-icon>
             </v-btn>
@@ -53,6 +54,7 @@
           :sources="individual.sources"
           :is-locked="individual.isLocked"
           :uuid="individual.uuid"
+          @merge="mergeSelected($event)"
         />
       </v-col>
     </v-row>
@@ -119,39 +121,48 @@ export default {
       this.$emit("clearSpace");
     },
     onDrop(evt) {
-      const droppedIndividual = JSON.parse(
-        evt.dataTransfer.getData("individual")
+      const droppedIndividuals = JSON.parse(
+        evt.dataTransfer.getData("individuals")
       );
-      const isSaved = this.savedIndividuals.find(individual => {
-        return individual.uuid === droppedIndividual.uuid;
-      });
-      if (isSaved) {
-        this.showSnackbar = true;
-        return;
-      }
-      this.savedIndividuals.push(droppedIndividual);
+      const newIndividuals = droppedIndividuals.filter(
+        dropped =>
+          !this.savedIndividuals.some(
+            individual => individual.id === dropped.id
+          )
+      );
+      this.savedIndividuals.push(...newIndividuals);
       this.isDragging = false;
     },
     async merge(fromUuids, toUuid) {
       const response = await this.mergeItems(fromUuids, toUuid);
       if (response) {
-        this.savedIndividuals = [
-          this.updateMergedIndividual(response.data.merge)
-        ];
+        this.savedIndividuals = this.updateMergedIndividuals(
+          response.data.merge,
+          fromUuids
+        );
         this.$emit("updateIndividuals");
       }
       this.dialog.open = false;
     },
-    mergeSelected() {
-      mergeIndividuals(this.savedIndividuals, this.merge, this.dialog);
+    mergeSelected(individuals) {
+      mergeIndividuals(individuals, this.merge, this.dialog);
     },
-    updateMergedIndividual(individual) {
-      return {
-        name: individual.individual.profile.name,
-        isLocked: individual.individual.isLocked,
-        uuid: individual.uuid,
-        sources: this.getSourceIcons(individual.individual.identities)
+    updateMergedIndividuals(updated, mergedIndividuals) {
+      const updatedIndividual = {
+        name: updated.individual.profile.name,
+        isLocked: updated.individual.isLocked,
+        uuid: updated.uuid,
+        id: updated.individual.profile.id,
+        sources: this.getSourceIcons(updated.individual.identities)
       };
+      const updatedIndex = this.savedIndividuals.findIndex(
+        individual => individual.id === updatedIndividual.id
+      );
+      Object.assign(this.savedIndividuals[updatedIndex], updatedIndividual);
+      const individuals = this.savedIndividuals.filter(
+        individual => !mergedIndividuals.includes(individual.uuid)
+      );
+      return individuals;
     },
     getSourceIcons(identities) {
       const icons = ["git", "github", "gitlab"];

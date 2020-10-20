@@ -41,6 +41,7 @@ const MERGE = gql`
         }
         profile {
           name
+          id
         }
         enrollments {
           organization {
