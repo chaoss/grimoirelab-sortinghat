@@ -1,5 +1,5 @@
 <template>
-  <td colspan="4">
+  <td :class="{ compact: compact }" colspan="4">
     <v-subheader>Identities ({{ identitiesCount }})</v-subheader>
     <v-list
       v-for="(source, sourceIndex) in identities"
@@ -10,13 +10,13 @@
         v-for="(identity, index) in source.identities"
         :key="identity.uuid"
       >
-        <v-list-item-icon v-if="index === 0">
+        <v-list-item-icon v-if="index === 0 && !compact">
           <v-icon>
             {{ selectSourceIcon(source.name) }}
           </v-icon>
         </v-list-item-icon>
 
-        <v-list-item-action v-else></v-list-item-action>
+        <v-list-item-action v-else-if="!compact"></v-list-item-action>
 
         <v-list-item-content>
           <identity
@@ -28,10 +28,13 @@
           />
         </v-list-item-content>
       </v-list-item>
-      <v-divider inset v-if="sourceIndex !== identities.length - 1"></v-divider>
+      <v-divider
+        inset
+        v-if="sourceIndex !== identities.length - 1 && !compact"
+      ></v-divider>
     </v-list>
 
-    <v-divider inset class="divider"></v-divider>
+    <v-divider v-if="!compact" inset class="divider"></v-divider>
 
     <v-list>
       <v-subheader>Organizations ({{ enrollments.length }})</v-subheader>
@@ -74,6 +77,11 @@ export default {
     enrollments: {
       type: Array,
       required: true
+    },
+    compact: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
   methods: {
@@ -104,7 +112,7 @@ export default {
   }
 };
 </script>
-<style scoped>
+<style lang="scss" scoped>
 td {
   padding-left: 75px;
   border-bottom: thin solid rgba(0, 0, 0, 0.12);
@@ -118,5 +126,28 @@ td {
   width: calc(100% - 30px);
   max-width: calc(100% - 30px);
   margin-left: 30px;
+}
+
+.compact {
+  padding-left: 0;
+  border-bottom: 0;
+  background-color: #ffffff;
+  font-size: 0.9rem;
+  line-height: 1rem;
+  padding: 0;
+
+  .v-list-item__content,
+  .v-sheet--tile {
+    padding: 0;
+  }
+
+  ::v-deep .uuid {
+    display: none;
+  }
+
+  ::v-deep .indented {
+    padding: 0;
+    margin-left: 0;
+  }
 }
 </style>

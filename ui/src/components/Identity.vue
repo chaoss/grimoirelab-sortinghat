@@ -1,6 +1,6 @@
 <template>
   <v-row no-gutters>
-    <v-col cols="2">
+    <v-col class="uuid" cols="2">
       <v-chip class="text-center" outlined tile>
         {{ uuid }}
       </v-chip>
