@@ -9,7 +9,12 @@
     @dragleave.prevent="isDragging = false"
   >
     <v-row class="ma-md-0 pt-md-4 pl-md-4 pr-md-4 justify-space-between">
-      <h3 class="text-h3">Work Space</h3>
+      <h3 class="text-h3">
+        <v-icon color="primary" left>
+          mdi-pin
+        </v-icon>
+        Workspace
+      </h3>
       <div>
         <v-tooltip bottom transition="expand-y-transition" open-delay="200">
           <template v-slot:activator="{ on }">
@@ -57,8 +62,11 @@
           :uuid="individual.uuid"
           :identities="individual.identities"
           :enrollments="individual.enrollments"
+          :is-highlighted="individual.uuid === highlightIndividual"
           @merge="mergeSelected($event)"
           @select="selectIndividual(individual)"
+          @mouseenter="$emit('highlight', individual)"
+          @mouseleave="$emit('stopHighlight', individual)"
         />
       </v-col>
     </v-row>
@@ -104,6 +112,10 @@ export default {
     mergeItems: {
       type: Function,
       required: true
+    },
+    highlightIndividual: {
+      type: String,
+      required: false
     }
   },
   data() {

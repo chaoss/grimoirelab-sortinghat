@@ -1,7 +1,11 @@
 <template>
   <v-card
     class="mx-auto"
-    :class="{ dropzone: isDragging, selected: isSelected }"
+    :class="{
+      dropzone: isDragging,
+      selected: isSelected,
+      highlighted: isHighlighted
+    }"
     raised
     v-on="$listeners"
     @drop.native.prevent.stop="onDrop($event)"
@@ -27,32 +31,34 @@
         </v-list-item-subtitle>
       </v-list-item-content>
 
-      <v-list-item-icon>
-        <v-menu
-          v-if="identities && enrollments"
-          offset-y
-          offset-x
-          :close-on-content-click="false"
-        >
-          <template v-slot:activator="{ on }">
-            <v-btn icon v-on.stop="on" @mousedown.stop>
-              <v-icon small>
-                mdi-magnify-plus-outline
-              </v-icon>
-            </v-btn>
-          </template>
-          <expanded-individual
-            compact
-            :enrollments="enrollments"
-            :identities="identities"
-          />
-        </v-menu>
-        <v-btn text icon @click.stop="toggleLockedStatus" @mousedown.stop>
-          <v-icon small>
-            {{ locked ? "mdi-lock" : "mdi-lock-open-outline" }}
-          </v-icon>
-        </v-btn>
-      </v-list-item-icon>
+      <v-list-item-action>
+        <v-list-item-action-text>
+          <v-menu
+            v-if="identities && enrollments"
+            offset-y
+            offset-x
+            :close-on-content-click="false"
+          >
+            <template v-slot:activator="{ on }">
+              <v-btn icon v-on.stop="on" @mousedown.stop>
+                <v-icon small>
+                  mdi-magnify-plus-outline
+                </v-icon>
+              </v-btn>
+            </template>
+            <expanded-individual
+              compact
+              :enrollments="enrollments"
+              :identities="identities"
+            />
+          </v-menu>
+          <v-btn text icon @click.stop="toggleLockedStatus" @mousedown.stop>
+            <v-icon small>
+              {{ locked ? "mdi-lock" : "mdi-lock-open-outline" }}
+            </v-icon>
+          </v-btn>
+        </v-list-item-action-text>
+      </v-list-item-action>
     </v-list-item>
     <slot />
     <v-snackbar v-model="snackbar.value" color="error">
@@ -101,6 +107,11 @@ export default {
     enrollments: {
       type: Array,
       required: false
+    },
+    isHighlighted: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
   data() {

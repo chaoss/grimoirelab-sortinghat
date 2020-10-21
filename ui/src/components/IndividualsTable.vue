@@ -1,7 +1,12 @@
 <template>
   <v-container>
     <v-row class="actions">
-      <h4 class="title">Individuals</h4>
+      <h4 class="title">
+        <v-icon color="primary" left>
+          mdi-account-multiple
+        </v-icon>
+        Individuals
+      </h4>
       <div>
         <v-tooltip bottom transition="expand-y-transition" open-delay="200">
           <template v-slot:activator="{ on }">
@@ -52,6 +57,7 @@
           :is-locked="item.isLocked"
           :is-bot="item.isBot"
           :is-selected="item.isSelected"
+          :is-highlighted="item.uuid === highlightIndividual"
           @expand="expand(!isExpanded)"
           @saveIndividual="$emit('saveIndividual', item)"
           :draggable="!item.isLocked"
@@ -60,6 +66,8 @@
           @select="selectIndividual(item)"
           @delete="confirmDelete([item])"
           @merge="mergeSelected([item.uuid, ...$event])"
+          @highlight="$emit('highlight', item)"
+          @stopHighlight="$emit('stopHighlight', item)"
         />
       </template>
       <template v-slot:expanded-item="{ item }">
@@ -131,6 +139,10 @@ export default {
       type: Number,
       required: false,
       default: 10
+    },
+    highlightIndividual: {
+      type: String,
+      required: false
     }
   },
   data() {
@@ -176,6 +188,7 @@ export default {
         );
         this.pageCount = response.data.individuals.pageInfo.numPages;
         this.page = response.data.individuals.pageInfo.page;
+        this.$emit("updateIndividuals", this.individuals);
       }
     },
     formatIndividuals(individuals) {
