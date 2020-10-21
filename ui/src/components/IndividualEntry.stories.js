@@ -26,6 +26,7 @@ const individualEntryTemplate = `
         :is-locked="item.isLocked"
         :is-bot="item.isBot"
         :uuid="item.uuid"
+        :is-highlighted="item.isHighlighted"
         @expand="expand(!isExpanded)"
       />
     </template>
@@ -53,7 +54,8 @@ export const Default = () => ({
         sources: [ "git", "others" ],
         isLocked: false,
         isBot: false,
-        uuid: "03b3428ee"
+        uuid: "03b3428ee",
+        isHighlighted: false
       }
     ],
     expanded: []
@@ -78,7 +80,8 @@ export const NoEmail = () => ({
         sources: [ "git", "others" ],
         isLocked: false,
         isBot: false,
-        uuid: "03b3428ee"
+        uuid: "03b3428ee",
+        isHighlighted: false
       }
     ],
     expanded: []
@@ -103,7 +106,8 @@ export const NoOrganization = () => ({
         sources: [ "git", "others" ],
         isLocked: false,
         isBot: false,
-        uuid: "03b3428ee"
+        uuid: "03b3428ee",
+        isHighlighted: false
       }
     ],
     expanded: []
@@ -128,7 +132,8 @@ export const SingleInital = () => ({
         sources: [ "git", "others" ],
         isLocked: false,
         isBot: false,
-        uuid: "03b3428ee"
+        uuid: "03b3428ee",
+        isHighlighted: false
       }
     ],
     expanded: []
@@ -153,7 +158,8 @@ export const Locked = () => ({
         sources: [ "git", "others" ],
         isLocked: true,
         isBot: false,
-        uuid: "03b3428ee"
+        uuid: "03b3428ee",
+        isHighlighted: false
       }
     ],
     expanded: []
@@ -178,7 +184,8 @@ export const Bot = () => ({
         sources: [ "git", "others" ],
         isLocked: false,
         isBot: true,
-        uuid: "03b3428ee"
+        uuid: "03b3428ee",
+        isHighlighted: false
       }
     ],
     expanded: []
@@ -203,7 +210,34 @@ export const BotAndLocked = () => ({
         sources: [ "git", "others" ],
         isLocked: true,
         isBot: true,
-        uuid: "03b3428ee"
+        uuid: "03b3428ee",
+        isHighlighted: false
+      }
+    ],
+    expanded: []
+  })
+});
+
+export const Highlighted = () => ({
+  components: { IndividualEntry },
+  template: individualEntryTemplate,
+  data: () => ({
+    headers: [
+      { value: 'name' },
+      { value: 'email' },
+      { value: 'sources' },
+      { value: 'actions' }
+    ],
+    items: [
+      {
+        name: "Tom Marvolo Riddle",
+        organization: "Slytherin",
+        email: "triddle@example.com",
+        sources: [ "git", "others" ],
+        isLocked: false,
+        isBot: false,
+        uuid: "03b3428ee",
+        isHighlighted: true
       }
     ],
     expanded: []

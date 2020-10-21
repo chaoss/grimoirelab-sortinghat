@@ -33,24 +33,28 @@ exports[`IndividualCard Lock individual on click 1`] = `
     </div>
      
     <div
-      class="v-list-item__icon"
+      class="v-list-item__action"
     >
-      <!---->
-       
-      <button
-        class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
-        type="button"
+      <span
+        class="v-list-item__action-text"
       >
-        <span
-          class="v-btn__content"
+        <!---->
+         
+        <button
+          class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
+          type="button"
         >
-          <i
-            aria-hidden="true"
-            class="v-icon notranslate mdi mdi-lock theme--light"
-            style="font-size: 16px;"
-          />
-        </span>
-      </button>
+          <span
+            class="v-btn__content"
+          >
+            <i
+              aria-hidden="true"
+              class="v-icon notranslate mdi mdi-lock theme--light"
+              style="font-size: 16px;"
+            />
+          </span>
+        </button>
+      </span>
     </div>
   </div>
     
@@ -87,25 +91,27 @@ exports[`IndividualCard Mock query for lockIndividual 1`] = `
       <v-list-item-subtitle-stub />
     </v-list-item-content-stub>
      
-    <v-list-item-icon-stub>
-      <!---->
-       
-      <v-btn-stub
-        activeclass=""
-        icon="true"
-        tag="button"
-        text="true"
-        type="button"
-      >
-        <v-icon-stub
-          small=""
+    <v-list-item-action-stub>
+      <v-list-item-action-text-stub>
+        <!---->
+         
+        <v-btn-stub
+          activeclass=""
+          icon="true"
+          tag="button"
+          text="true"
+          type="button"
         >
+          <v-icon-stub
+            small=""
+          >
+            
+            mdi-lock-open-outline
           
-          mdi-lock-open-outline
-        
-        </v-icon-stub>
-      </v-btn-stub>
-    </v-list-item-icon-stub>
+          </v-icon-stub>
+        </v-btn-stub>
+      </v-list-item-action-text-stub>
+    </v-list-item-action-stub>
   </v-list-item-stub>
     
   <v-snackbar-stub
@@ -148,25 +154,27 @@ exports[`IndividualCard Mock query for unlockIndividual 1`] = `
       <v-list-item-subtitle-stub />
     </v-list-item-content-stub>
      
-    <v-list-item-icon-stub>
-      <!---->
-       
-      <v-btn-stub
-        activeclass=""
-        icon="true"
-        tag="button"
-        text="true"
-        type="button"
-      >
-        <v-icon-stub
-          small=""
+    <v-list-item-action-stub>
+      <v-list-item-action-text-stub>
+        <!---->
+         
+        <v-btn-stub
+          activeclass=""
+          icon="true"
+          tag="button"
+          text="true"
+          type="button"
         >
+          <v-icon-stub
+            small=""
+          >
+            
+            mdi-lock
           
-          mdi-lock
-        
-        </v-icon-stub>
-      </v-btn-stub>
-    </v-list-item-icon-stub>
+          </v-icon-stub>
+        </v-btn-stub>
+      </v-list-item-action-text-stub>
+    </v-list-item-action-stub>
   </v-list-item-stub>
     
   <v-snackbar-stub
@@ -213,24 +221,28 @@ exports[`IndividualCard Show snackbar on error 1`] = `
     </div>
      
     <div
-      class="v-list-item__icon"
+      class="v-list-item__action"
     >
-      <!---->
-       
-      <button
-        class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
-        type="button"
+      <span
+        class="v-list-item__action-text"
       >
-        <span
-          class="v-btn__content"
+        <!---->
+         
+        <button
+          class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
+          type="button"
         >
-          <i
-            aria-hidden="true"
-            class="v-icon notranslate mdi mdi-lock theme--light"
-            style="font-size: 16px;"
-          />
-        </span>
-      </button>
+          <span
+            class="v-btn__content"
+          >
+            <i
+              aria-hidden="true"
+              class="v-icon notranslate mdi mdi-lock theme--light"
+              style="font-size: 16px;"
+            />
+          </span>
+        </button>
+      </span>
     </div>
   </div>
     
@@ -286,24 +298,28 @@ exports[`IndividualCard Unlock individual on click 1`] = `
     </div>
      
     <div
-      class="v-list-item__icon"
+      class="v-list-item__action"
     >
-      <!---->
-       
-      <button
-        class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
-        type="button"
+      <span
+        class="v-list-item__action-text"
       >
-        <span
-          class="v-btn__content"
+        <!---->
+         
+        <button
+          class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
+          type="button"
         >
-          <i
-            aria-hidden="true"
-            class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
-            style="font-size: 16px;"
-          />
-        </span>
-      </button>
+          <span
+            class="v-btn__content"
+          >
+            <i
+              aria-hidden="true"
+              class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
+              style="font-size: 16px;"
+            />
+          </span>
+        </button>
+      </span>
     </div>
   </div>
     

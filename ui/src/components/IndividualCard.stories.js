@@ -15,6 +15,7 @@ const individualCardTemplate = `
     :uuid="uuid"
     :identities="identities"
     :enrollments="enrollments"
+    :is-highlighted="isHighlighted"
     />`;
 
 export const Default = () => ({
@@ -32,6 +33,9 @@ export const Default = () => ({
     },
     uuid: {
       default: "10f546"
+    },
+    isHighlighted: {
+      default: false
     },
     identities: [],
     enrollments: []
@@ -52,6 +56,9 @@ export const SingleInitial = () => ({
     },
     uuid: {
       default: "10f546"
+    },
+    isHighlighted: {
+      default: false
     },
     identities: [],
     enrollments: []
@@ -77,6 +84,9 @@ export const Sources = () => ({
     },
     uuid: {
       default: "10f546"
+    },
+    isHighlighted: {
+      default: false
     },
     identities: {
       default: () => [
@@ -162,6 +172,32 @@ export const Locked = () => ({
     },
     uuid: {
       default: "10f546"
+    },
+    isHighlighted: {
+      default: false
+    },
+    identities: [],
+    enrollments: []
+  }
+});
+export const Highlighted = () => ({
+  components: { IndividualCard },
+  template: individualCardTemplate,
+  props: {
+    name: {
+      default: "Tom Marvolo Riddle"
+    },
+    sources: {
+      default: () => []
+    },
+    isLocked: {
+      default: false
+    },
+    uuid: {
+      default: "10f546"
+    },
+    isHighlighted: {
+      default: true
     },
     identities: [],
     enrollments: []

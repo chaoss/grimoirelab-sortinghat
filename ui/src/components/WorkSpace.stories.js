@@ -13,8 +13,21 @@ const workSpaceTemplate =
 
 const dragAndDropTemplate = `
   <div>
-  <work-space :individuals="individuals" :merge-items="mergeItems"/>
-  <individuals-table :fetch-page="queryIndividuals.bind(this)" :delete-item="deleteItem" :merge-items="deleteItem" />
+  <work-space
+    :individuals="individuals"
+    :merge-items="mergeItems"
+    :highlight-individual="highlightInWorkspace"
+    @highlight="highlightIndividual($event, 'highlightInTable', true)"
+    @stopHighlight="highlightIndividual($event, 'highlightInTable', false)"
+  />
+  <individuals-table
+    :fetch-page="queryIndividuals.bind(this)"
+    :delete-item="deleteItem"
+    :merge-items="deleteItem"
+    :highlight-individual="highlightInTable"
+    @highlight="highlightIndividual($event, 'highlightInWorkspace', true)"
+    @stopHighlight="highlightIndividual($event, 'highlightInWorkspace', false)"
+  />
   </div>
 `;
 
@@ -194,10 +207,15 @@ export const DragAndDrop = () => ({
     },
     mergeItems() {
       this.individuals = [this.individuals.shift()];
+    },
+    highlightIndividual(individual, component, highlight) {
+      this[component] = highlight ? individual.uuid : undefined;
     }
   },
   data: () => ({
     individuals: [],
+    highlightInTable: undefined,
+    highlightInWorkspace: undefined,
     deleteItem: () => {},
     query: [
       {
@@ -274,7 +292,7 @@ export const DragAndDrop = () => ({
                     name: "Harry Potter",
                     source: "GitHub",
                     email: "hpotter@example.net",
-                    uuid: "03b3428ee",
+                    uuid: "03b3428eeq",
                     username: "-"
                   },
                   {
@@ -321,7 +339,7 @@ export const DragAndDrop = () => ({
                 },
                 identities: [
                   {
-                    uuid: "4ce562",
+                    uuid: "4ce562p",
                     name: "-",
                     email: "voldemort@example.net",
                     username: "voldemort",
@@ -349,7 +367,7 @@ export const DragAndDrop = () => ({
                 },
                 identities: [
                   {
-                    uuid: "4ce565",
+                    uuid: "4ce565v",
                     name: "Ron Weasley",
                     email: "rweasley@example.net",
                     username: "",
@@ -392,7 +410,7 @@ export const DragAndDrop = () => ({
                 },
                 identities: [
                   {
-                    uuid: "4ce562",
+                    uuid: "4ce562k",
                     name: "Hermione Granger",
                     email: "hgranger@example.net",
                     username: "hermione",
