@@ -163,6 +163,9 @@ export const Organization = () => ({
     uuid: {
       default: "10f546"
     },
+    isHighlighted: {
+      default: false
+    },
     identities: {
       default: () => []
     },
