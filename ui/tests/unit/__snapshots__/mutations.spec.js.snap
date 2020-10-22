@@ -11,7 +11,17 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
     <h4
       class="title"
     >
+      <v-icon-stub
+        color="primary"
+        left=""
+      >
+        
+        mdi-account-multiple
+      
+      </v-icon-stub>
+      
       Individuals
+    
     </h4>
      
     <div>
@@ -245,7 +255,17 @@ exports[`IndividualsTable Mock query for merge 1`] = `
     <h4
       class="title"
     >
+      <v-icon-stub
+        color="primary"
+        left=""
+      >
+        
+        mdi-account-multiple
+      
+      </v-icon-stub>
+      
       Individuals
+    
     </h4>
      
     <div>

@@ -18,7 +18,17 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
     <h4
       class="title"
     >
+      <v-icon-stub
+        color="primary"
+        left=""
+      >
+        
+        mdi-account-multiple
+      
+      </v-icon-stub>
+      
       Individuals
+    
     </h4>
      
     <div>

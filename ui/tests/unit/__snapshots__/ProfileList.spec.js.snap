@@ -95,24 +95,28 @@ exports[`ProfileList Shows selected profile 1`] = `
           </div>
            
           <div
-            class="v-list-item__icon"
+            class="v-list-item__action"
           >
-            <!---->
-             
-            <button
-              class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
-              type="button"
+            <span
+              class="v-list-item__action-text"
             >
-              <span
-                class="v-btn__content"
+              <!---->
+               
+              <button
+                class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
+                type="button"
               >
-                <i
-                  aria-hidden="true"
-                  class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
-                  style="font-size: 16px;"
-                />
-              </span>
-            </button>
+                <span
+                  class="v-btn__content"
+                >
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
+                    style="font-size: 16px;"
+                  />
+                </span>
+              </button>
+            </span>
           </div>
         </div>
          

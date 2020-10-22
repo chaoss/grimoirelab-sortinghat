@@ -1098,24 +1098,100 @@ exports[`Storyshots IndividualCard Default 1`] = `
         </div>
          
         <div
-          class="v-list-item__icon"
+          class="v-list-item__action"
         >
-          <!---->
-           
-          <button
-            class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
-            type="button"
+          <span
+            class="v-list-item__action-text"
           >
-            <span
-              class="v-btn__content"
+            <!---->
+             
+            <button
+              class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
+              type="button"
             >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
-                style="font-size: 16px;"
-              />
-            </span>
-          </button>
+              <span
+                class="v-btn__content"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
+                  style="font-size: 16px;"
+                />
+              </span>
+            </button>
+          </span>
+        </div>
+      </div>
+        
+      <!---->
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Storyshots IndividualCard Highlighted 1`] = `
+<div
+  class="v-application v-application--is-ltr theme--light"
+  data-app="true"
+  id="app"
+>
+  <div
+    class="v-application--wrap"
+  >
+    <div
+      class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light highlighted"
+      tabindex="0"
+    >
+      <div
+        class="grow v-list-item theme--light"
+        tabindex="-1"
+      >
+        <div
+          class="v-avatar v-list-item__avatar grey"
+          style="height: 40px; min-width: 40px; width: 40px;"
+        >
+          
+      TR
+    
+        </div>
+         
+        <div
+          class="v-list-item__content"
+        >
+          <div
+            class="v-list-item__title"
+          >
+            Tom Marvolo Riddle
+          </div>
+           
+          <div
+            class="v-list-item__subtitle"
+          />
+        </div>
+         
+        <div
+          class="v-list-item__action"
+        >
+          <span
+            class="v-list-item__action-text"
+          >
+            <!---->
+             
+            <button
+              class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
+              type="button"
+            >
+              <span
+                class="v-btn__content"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
+                  style="font-size: 16px;"
+                />
+              </span>
+            </button>
+          </span>
         </div>
       </div>
         
@@ -1166,24 +1242,28 @@ exports[`Storyshots IndividualCard Locked 1`] = `
         </div>
          
         <div
-          class="v-list-item__icon"
+          class="v-list-item__action"
         >
-          <!---->
-           
-          <button
-            class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
-            type="button"
+          <span
+            class="v-list-item__action-text"
           >
-            <span
-              class="v-btn__content"
+            <!---->
+             
+            <button
+              class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
+              type="button"
             >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-lock theme--light"
-                style="font-size: 16px;"
-              />
-            </span>
-          </button>
+              <span
+                class="v-btn__content"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate mdi mdi-lock theme--light"
+                  style="font-size: 16px;"
+                />
+              </span>
+            </button>
+          </span>
         </div>
       </div>
         
@@ -1234,24 +1314,28 @@ exports[`Storyshots IndividualCard Single Initial 1`] = `
         </div>
          
         <div
-          class="v-list-item__icon"
+          class="v-list-item__action"
         >
-          <!---->
-           
-          <button
-            class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
-            type="button"
+          <span
+            class="v-list-item__action-text"
           >
-            <span
-              class="v-btn__content"
+            <!---->
+             
+            <button
+              class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
+              type="button"
             >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
-                style="font-size: 16px;"
-              />
-            </span>
-          </button>
+              <span
+                class="v-btn__content"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
+                  style="font-size: 16px;"
+                />
+              </span>
+            </button>
+          </span>
         </div>
       </div>
         
@@ -1323,13 +1407,33 @@ exports[`Storyshots IndividualCard Sources 1`] = `
         </div>
          
         <div
-          class="v-list-item__icon"
+          class="v-list-item__action"
         >
-          <div
-            class="v-menu"
+          <span
+            class="v-list-item__action-text"
           >
+            <div
+              class="v-menu"
+            >
+              <button
+                class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                type="button"
+              >
+                <span
+                  class="v-btn__content"
+                >
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate mdi mdi-magnify-plus-outline theme--light"
+                    style="font-size: 16px;"
+                  />
+                </span>
+              </button>
+              <!---->
+            </div>
+             
             <button
-              class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+              class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
               type="button"
             >
               <span
@@ -1337,28 +1441,12 @@ exports[`Storyshots IndividualCard Sources 1`] = `
               >
                 <i
                   aria-hidden="true"
-                  class="v-icon notranslate mdi mdi-magnify-plus-outline theme--light"
+                  class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
                   style="font-size: 16px;"
                 />
               </span>
             </button>
-            <!---->
-          </div>
-           
-          <button
-            class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
-            type="button"
-          >
-            <span
-              class="v-btn__content"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
-                style="font-size: 16px;"
-              />
-            </span>
-          </button>
+          </span>
         </div>
       </div>
         
@@ -1732,6 +1820,158 @@ exports[`Storyshots IndividualEntry Default 1`] = `
           <tbody>
             <tr
               class=""
+            >
+              <td
+                width="25%"
+              >
+                <div
+                  class="v-list-item theme--light"
+                  tabindex="-1"
+                >
+                  <div
+                    class="v-avatar v-list-item__avatar grey"
+                    style="height: 40px; min-width: 40px; width: 40px;"
+                  >
+                    
+        TR
+      
+                  </div>
+                   
+                  <div
+                    class="v-list-item__content"
+                  >
+                    <div
+                      class="v-list-item__title"
+                    >
+                      
+          Tom Marvolo Riddle
+          
+                      <!---->
+                       
+                      <!---->
+                    </div>
+                     
+                    <div
+                      class="v-list-item__subtitle"
+                    >
+                      Slytherin
+                    </div>
+                  </div>
+                </div>
+              </td>
+               
+              <td
+                class="text-center"
+              >
+                
+    triddle@example.com
+  
+              </td>
+               
+              <td
+                class="text-right"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-git theme--light"
+                />
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-account-multiple theme--light"
+                />
+              </td>
+               
+              <td
+                width="140"
+              >
+                <button
+                  class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                  type="button"
+                >
+                  <span
+                    class="v-btn__content"
+                  >
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate mdi mdi-chevron-down theme--light"
+                    />
+                  </span>
+                </button>
+                 
+                <div
+                  class="v-menu"
+                >
+                  <button
+                    aria-expanded="false"
+                    aria-haspopup="true"
+                    class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                    role="button"
+                    type="button"
+                  >
+                    <span
+                      class="v-btn__content"
+                    >
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate mdi mdi-dots-vertical theme--light"
+                      />
+                    </span>
+                  </button>
+                  <!---->
+                </div>
+                 
+                <span
+                  class="v-tooltip v-tooltip--bottom"
+                >
+                  <!---->
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate mdi mdi-drag-vertical theme--light"
+                  />
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Storyshots IndividualEntry Highlighted 1`] = `
+<div
+  class="v-application v-application--is-ltr theme--light"
+  data-app="true"
+  id="app"
+>
+  <div
+    class="v-application--wrap"
+  >
+    <div
+      class="v-data-table theme--light"
+    >
+      <div
+        class="v-data-table__wrapper"
+      >
+        <table>
+          <colgroup>
+            <col
+              class=""
+            />
+            <col
+              class=""
+            />
+            <col
+              class=""
+            />
+            <col
+              class=""
+            />
+          </colgroup>
+          <tbody>
+            <tr
+              class="highlighted"
             >
               <td
                 width="25%"
@@ -2528,24 +2768,28 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                 </div>
                  
                 <div
-                  class="v-list-item__icon"
+                  class="v-list-item__action"
                 >
-                  <!---->
-                   
-                  <button
-                    class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
-                    type="button"
+                  <span
+                    class="v-list-item__action-text"
                   >
-                    <span
-                      class="v-btn__content"
+                    <!---->
+                     
+                    <button
+                      class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
+                      type="button"
                     >
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-lock theme--light"
-                        style="font-size: 16px;"
-                      />
-                    </span>
-                  </button>
+                      <span
+                        class="v-btn__content"
+                      >
+                        <i
+                          aria-hidden="true"
+                          class="v-icon notranslate mdi mdi-lock theme--light"
+                          style="font-size: 16px;"
+                        />
+                      </span>
+                    </button>
+                  </span>
                 </div>
               </div>
                 
@@ -2603,24 +2847,28 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                 </div>
                  
                 <div
-                  class="v-list-item__icon"
+                  class="v-list-item__action"
                 >
-                  <!---->
-                   
-                  <button
-                    class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
-                    type="button"
+                  <span
+                    class="v-list-item__action-text"
                   >
-                    <span
-                      class="v-btn__content"
+                    <!---->
+                     
+                    <button
+                      class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
+                      type="button"
                     >
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
-                        style="font-size: 16px;"
-                      />
-                    </span>
-                  </button>
+                      <span
+                        class="v-btn__content"
+                      >
+                        <i
+                          aria-hidden="true"
+                          class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
+                          style="font-size: 16px;"
+                        />
+                      </span>
+                    </button>
+                  </span>
                 </div>
               </div>
                 
@@ -2668,24 +2916,28 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                 </div>
                  
                 <div
-                  class="v-list-item__icon"
+                  class="v-list-item__action"
                 >
-                  <!---->
-                   
-                  <button
-                    class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
-                    type="button"
+                  <span
+                    class="v-list-item__action-text"
                   >
-                    <span
-                      class="v-btn__content"
+                    <!---->
+                     
+                    <button
+                      class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
+                      type="button"
                     >
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
-                        style="font-size: 16px;"
-                      />
-                    </span>
-                  </button>
+                      <span
+                        class="v-btn__content"
+                      >
+                        <i
+                          aria-hidden="true"
+                          class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
+                          style="font-size: 16px;"
+                        />
+                      </span>
+                    </button>
+                  </span>
                 </div>
               </div>
                 
@@ -2743,24 +2995,28 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                 </div>
                  
                 <div
-                  class="v-list-item__icon"
+                  class="v-list-item__action"
                 >
-                  <!---->
-                   
-                  <button
-                    class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
-                    type="button"
+                  <span
+                    class="v-list-item__action-text"
                   >
-                    <span
-                      class="v-btn__content"
+                    <!---->
+                     
+                    <button
+                      class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
+                      type="button"
                     >
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
-                        style="font-size: 16px;"
-                      />
-                    </span>
-                  </button>
+                      <span
+                        class="v-btn__content"
+                      >
+                        <i
+                          aria-hidden="true"
+                          class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
+                          style="font-size: 16px;"
+                        />
+                      </span>
+                    </button>
+                  </span>
                 </div>
               </div>
                 
@@ -2813,24 +3069,28 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                 </div>
                  
                 <div
-                  class="v-list-item__icon"
+                  class="v-list-item__action"
                 >
-                  <!---->
-                   
-                  <button
-                    class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
-                    type="button"
+                  <span
+                    class="v-list-item__action-text"
                   >
-                    <span
-                      class="v-btn__content"
+                    <!---->
+                     
+                    <button
+                      class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
+                      type="button"
                     >
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
-                        style="font-size: 16px;"
-                      />
-                    </span>
-                  </button>
+                      <span
+                        class="v-btn__content"
+                      >
+                        <i
+                          aria-hidden="true"
+                          class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
+                          style="font-size: 16px;"
+                        />
+                      </span>
+                    </button>
+                  </span>
                 </div>
               </div>
                 
@@ -2888,24 +3148,28 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                 </div>
                  
                 <div
-                  class="v-list-item__icon"
+                  class="v-list-item__action"
                 >
-                  <!---->
-                   
-                  <button
-                    class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
-                    type="button"
+                  <span
+                    class="v-list-item__action-text"
                   >
-                    <span
-                      class="v-btn__content"
+                    <!---->
+                     
+                    <button
+                      class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
+                      type="button"
                     >
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
-                        style="font-size: 16px;"
-                      />
-                    </span>
-                  </button>
+                      <span
+                        class="v-btn__content"
+                      >
+                        <i
+                          aria-hidden="true"
+                          class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
+                          style="font-size: 16px;"
+                        />
+                      </span>
+                    </button>
+                  </span>
                 </div>
               </div>
                 
@@ -2963,24 +3227,28 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                 </div>
                  
                 <div
-                  class="v-list-item__icon"
+                  class="v-list-item__action"
                 >
-                  <!---->
-                   
-                  <button
-                    class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
-                    type="button"
+                  <span
+                    class="v-list-item__action-text"
                   >
-                    <span
-                      class="v-btn__content"
+                    <!---->
+                     
+                    <button
+                      class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
+                      type="button"
                     >
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
-                        style="font-size: 16px;"
-                      />
-                    </span>
-                  </button>
+                      <span
+                        class="v-btn__content"
+                      >
+                        <i
+                          aria-hidden="true"
+                          class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
+                          style="font-size: 16px;"
+                        />
+                      </span>
+                    </button>
+                  </span>
                 </div>
               </div>
                 
@@ -3033,24 +3301,28 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                 </div>
                  
                 <div
-                  class="v-list-item__icon"
+                  class="v-list-item__action"
                 >
-                  <!---->
-                   
-                  <button
-                    class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
-                    type="button"
+                  <span
+                    class="v-list-item__action-text"
                   >
-                    <span
-                      class="v-btn__content"
+                    <!---->
+                     
+                    <button
+                      class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
+                      type="button"
                     >
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
-                        style="font-size: 16px;"
-                      />
-                    </span>
-                  </button>
+                      <span
+                        class="v-btn__content"
+                      >
+                        <i
+                          aria-hidden="true"
+                          class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
+                          style="font-size: 16px;"
+                        />
+                      </span>
+                    </button>
+                  </span>
                 </div>
               </div>
                 
@@ -3105,7 +3377,13 @@ exports[`Storyshots IndividualsTable Default 1`] = `
         <h4
           class="title"
         >
-          Individuals
+          <i
+            aria-hidden="true"
+            class="v-icon notranslate v-icon--left mdi mdi-account-multiple theme--light primary--text"
+          />
+          
+      Individuals
+    
         </h4>
          
         <div>
@@ -3422,24 +3700,28 @@ exports[`Storyshots ProfileCard Default 1`] = `
         </div>
          
         <div
-          class="v-list-item__icon"
+          class="v-list-item__action"
         >
-          <!---->
-           
-          <button
-            class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
-            type="button"
+          <span
+            class="v-list-item__action-text"
           >
-            <span
-              class="v-btn__content"
+            <!---->
+             
+            <button
+              class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
+              type="button"
             >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
-                style="font-size: 16px;"
-              />
-            </span>
-          </button>
+              <span
+                class="v-btn__content"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
+                  style="font-size: 16px;"
+                />
+              </span>
+            </button>
+          </span>
         </div>
       </div>
        
@@ -3527,7 +3809,13 @@ exports[`Storyshots WorkSpace Default 1`] = `
         <h3
           class="text-h3"
         >
-          Work Space
+          <i
+            aria-hidden="true"
+            class="v-icon notranslate v-icon--left mdi mdi-pin theme--light primary--text"
+          />
+          
+      Workspace
+    
         </h3>
          
         <div>
@@ -3626,13 +3914,33 @@ exports[`Storyshots WorkSpace Default 1`] = `
               </div>
                
               <div
-                class="v-list-item__icon"
+                class="v-list-item__action"
               >
-                <div
-                  class="v-menu"
+                <span
+                  class="v-list-item__action-text"
                 >
+                  <div
+                    class="v-menu"
+                  >
+                    <button
+                      class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                      type="button"
+                    >
+                      <span
+                        class="v-btn__content"
+                      >
+                        <i
+                          aria-hidden="true"
+                          class="v-icon notranslate mdi mdi-magnify-plus-outline theme--light"
+                          style="font-size: 16px;"
+                        />
+                      </span>
+                    </button>
+                    <!---->
+                  </div>
+                   
                   <button
-                    class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                    class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
                     type="button"
                   >
                     <span
@@ -3640,28 +3948,12 @@ exports[`Storyshots WorkSpace Default 1`] = `
                     >
                       <i
                         aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-magnify-plus-outline theme--light"
+                        class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
                         style="font-size: 16px;"
                       />
                     </span>
                   </button>
-                  <!---->
-                </div>
-                 
-                <button
-                  class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
-                  type="button"
-                >
-                  <span
-                    class="v-btn__content"
-                  >
-                    <i
-                      aria-hidden="true"
-                      class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
-                      style="font-size: 16px;"
-                    />
-                  </span>
-                </button>
+                </span>
               </div>
             </div>
               
@@ -3719,13 +4011,33 @@ exports[`Storyshots WorkSpace Default 1`] = `
               </div>
                
               <div
-                class="v-list-item__icon"
+                class="v-list-item__action"
               >
-                <div
-                  class="v-menu"
+                <span
+                  class="v-list-item__action-text"
                 >
+                  <div
+                    class="v-menu"
+                  >
+                    <button
+                      class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                      type="button"
+                    >
+                      <span
+                        class="v-btn__content"
+                      >
+                        <i
+                          aria-hidden="true"
+                          class="v-icon notranslate mdi mdi-magnify-plus-outline theme--light"
+                          style="font-size: 16px;"
+                        />
+                      </span>
+                    </button>
+                    <!---->
+                  </div>
+                   
                   <button
-                    class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                    class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
                     type="button"
                   >
                     <span
@@ -3733,28 +4045,12 @@ exports[`Storyshots WorkSpace Default 1`] = `
                     >
                       <i
                         aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-magnify-plus-outline theme--light"
+                        class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
                         style="font-size: 16px;"
                       />
                     </span>
                   </button>
-                  <!---->
-                </div>
-                 
-                <button
-                  class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
-                  type="button"
-                >
-                  <span
-                    class="v-btn__content"
-                  >
-                    <i
-                      aria-hidden="true"
-                      class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
-                      style="font-size: 16px;"
-                    />
-                  </span>
-                </button>
+                </span>
               </div>
             </div>
               
@@ -3795,7 +4091,13 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
           <h3
             class="text-h3"
           >
-            Work Space
+            <i
+              aria-hidden="true"
+              class="v-icon notranslate v-icon--left mdi mdi-pin theme--light primary--text"
+            />
+            
+      Workspace
+    
           </h3>
            
           <div>
@@ -3868,7 +4170,13 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
           <h4
             class="title"
           >
-            Individuals
+            <i
+              aria-hidden="true"
+              class="v-icon notranslate v-icon--left mdi mdi-account-multiple theme--light primary--text"
+            />
+            
+      Individuals
+    
           </h4>
            
           <div>
@@ -4023,7 +4331,13 @@ exports[`Storyshots WorkSpace Empty 1`] = `
         <h3
           class="text-h3"
         >
-          Work Space
+          <i
+            aria-hidden="true"
+            class="v-icon notranslate v-icon--left mdi mdi-pin theme--light primary--text"
+          />
+          
+      Workspace
+    
         </h3>
          
         <div>

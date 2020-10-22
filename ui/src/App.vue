@@ -37,8 +37,11 @@
       <work-space
         :individuals="savedIndividuals"
         :merge-items="mergeItems"
+        :highlight-individual="highlightInWorkspace"
         @clearSpace="savedIndividuals = []"
         @updateIndividuals="updateTable"
+        @highlight="highlightIndividual($event, 'highlightInTable', true)"
+        @stopHighlight="highlightIndividual($event, 'highlightInTable', false)"
       />
       <v-row>
         <v-col class="individuals elevation-2">
@@ -46,7 +49,14 @@
             :fetch-page="getIndividualsPage"
             :delete-item="deleteItem"
             :merge-items="mergeItems"
+            :highlight-individual="highlightInTable"
             @saveIndividual="addSavedIndividual"
+            @highlight="
+              highlightIndividual($event, 'highlightInWorkspace', true)
+            "
+            @stopHighlight="
+              highlightIndividual($event, 'highlightInWorkspace', false)
+            "
             ref="table"
           />
         </v-col>
@@ -81,6 +91,8 @@ export default {
   },
   data() {
     return {
+      highlightInTable: undefined,
+      highlightInWorkspace: undefined,
       savedIndividuals: [],
       snackbar: false
     };
@@ -118,6 +130,9 @@ export default {
     },
     updateTable() {
       this.$refs.table.queryIndividuals();
+    },
+    highlightIndividual(individual, component, highlight) {
+      this[component] = highlight ? individual.uuid : undefined;
     }
   }
 };

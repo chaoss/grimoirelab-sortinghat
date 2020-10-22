@@ -3,13 +3,16 @@
     :class="{
       expanded: isExpanded,
       selected: isSelected,
-      dropzone: isDropZone
+      dropzone: isDropZone,
+      highlighted: isHighlighted
     }"
     @click="selectEntry"
     @drop.stop="onDrop($event)"
     @dragover.prevent="isDragging = true"
     @dragenter.prevent="isDragging = true"
     @dragleave.prevent="isDragging = false"
+    @mouseenter="$emit('highlight')"
+    @mouseleave="$emit('stopHighlight')"
   >
     <td width="25%">
       <v-list-item>
@@ -130,6 +133,11 @@ export default {
       required: true
     },
     isSelected: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+    isHighlighted: {
       type: Boolean,
       required: false,
       default: false
