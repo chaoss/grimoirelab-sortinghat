@@ -15,7 +15,7 @@ export const Default = () => ({
   template: identityTemplate,
   props: {
     uuid: {
-      default: "10f546"
+      default: "1f1a9e56dedb45f5969413eeb4442d982e33f0f6"
     },
     name: {
       default: "Tom Marvolo Riddle"
@@ -37,7 +37,7 @@ export const Source = () => ({
   template: identityTemplate,
   props: {
     uuid: {
-      default: "10f546"
+      default: "1f1a9e56dedb45f5969413eeb4442d982e33f0f6"
     },
     name: {
       default: "Tom Marvolo Riddle"

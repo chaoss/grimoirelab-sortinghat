@@ -20,13 +20,13 @@ export const Default = () => ({
       name: "GitHub",
       identities: [
         {
-          uuid: "006afa",
+          uuid: "06e6903c91180835b6ee91dd56782c6ca72bc562",
           name: "Tom Marvolo Riddle",
           email: "triddle@example.net",
           username: "triddle"
         },
         {
-          uuid: "808b18",
+          uuid: "164e41c60c28698ac30b0d17176d3e720e036918",
           name: "Voldemort",
           email: "-",
           username: "voldemort"
@@ -37,7 +37,7 @@ export const Default = () => ({
       name: "Git",
       identities: [
         {
-          uuid: "abce32",
+          uuid: "10982379421b80e13266db011d6e5131dd519016",
           name: "voldemort",
           email: "voldemort@example.net",
           username: "-"
@@ -48,7 +48,7 @@ export const Default = () => ({
       name: "Others",
       identities: [
         {
-          uuid: "4ce562",
+          uuid: "1f1a9e56dedb45f5969413eeb4442d982e33f0f6",
           name: "-",
           email: "-",
           username: "voldemort",
@@ -155,7 +155,7 @@ export const NoOrganizations = () => ({
         name: "Git",
         identities: [
           {
-            uuid: "4ce562",
+            uuid: "164e41c60c28698ac30b0d17176d3e720e036918",
             name: "Hagrid",
             email: "hagrid@example.com",
             username: "hagrid"

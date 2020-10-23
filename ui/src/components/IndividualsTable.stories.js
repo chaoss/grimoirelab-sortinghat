@@ -45,25 +45,25 @@ export const Default = () => ({
                     name: "Tom Marvolo Riddle",
                     source: "GitLab",
                     email: "triddle@example.net",
-                    uuid: "03b3428ee1",
+                    uuid: "1f1a9e56dedb45f5969413eeb4442d982e33f0f6",
                     username: "triddle"
                   },
                   {
-                    uuid: "808b182",
+                    uuid: "33697bad47122a2093d9edbbe179a72298971fd1",
                     name: "Voldemort",
                     email: "-",
                     username: "voldemort",
                     source: "github"
                   },
                   {
-                    uuid: "006afa3",
+                    uuid: "e5ad332e1c29f907ebd10aeac6b757f501786b69",
                     name: "Tom Marvolo Riddle",
                     email: "triddle@example.net",
                     username: "triddle",
                     source: "git"
                   },
                   {
-                    uuid: "abce324",
+                    uuid: "10982379421b80e13266db011d6e5131dd519016",
                     name: "voldemort",
                     email: "voldemort@example.net",
                     username: "-",
@@ -102,18 +102,18 @@ export const Default = () => ({
                     name: "Harry Potter",
                     source: "GitHub",
                     email: "hpotter@example.net",
-                    uuid: "03b3428ee5",
+                    uuid: "164e41c60c28698ac30b0d17176d3e720e036918",
                     username: "-"
                   },
                   {
-                    uuid: "4ce5626",
+                    uuid: "06e6903c91180835b6ee91dd56782c6ca72bc562",
                     name: "H. Potter",
                     email: "hpotter@example.net",
                     username: "potter",
                     source: "git"
                   },
                   {
-                    uuid: "4ce5627",
+                    uuid: "06e6903c91180835b6ee91dd56782c6ca72bc562",
                     name: "Harry Potter",
                     email: "hpotter@example.net",
                     username: "-",
@@ -149,7 +149,7 @@ export const Default = () => ({
                 },
                 identities: [
                   {
-                    uuid: "4ce5628",
+                    uuid: "375458370ac0323bfb2e5a153e086551ef628d53",
                     name: "-",
                     email: "voldemort@example.net",
                     username: "voldemort",
@@ -177,14 +177,14 @@ export const Default = () => ({
                 },
                 identities: [
                   {
-                    uuid: "4ce5659",
+                    uuid: "66bc656d28a1522b650d537c9142be2e5c9e3b55",
                     name: "Ron Weasley",
                     email: "rweasley@example.net",
                     username: "",
                     source: "git"
                   },
                   {
-                    uuid: "4ce56210",
+                    uuid: "85cffeb0ae25e2b36e1acec1b79a2219c9f057ce",
                     name: "Ron Weasley",
                     email: "ron@example.net",
                     username: "ronweasley",
@@ -220,14 +220,14 @@ export const Default = () => ({
                 },
                 identities: [
                   {
-                    uuid: "4ce56211",
+                    uuid: "e4135c5c747dc69262cd4120a5c5ee51d07a9904",
                     name: "Hermione Granger",
                     email: "hgranger@example.net",
                     username: "hermione",
                     source: "gitlab"
                   },
                   {
-                    uuid: "4ce56212",
+                    uuid: "3db176be6859adac3a454c5377af81b1b7e3f8d8",
                     name: "Hermione Granger",
                     email: "hgranger@example.net",
                     username: "h.granger",
@@ -277,21 +277,21 @@ export const Default = () => ({
                 },
                 identities: [
                   {
-                    uuid: "4ce562",
+                    uuid: "4df20c13824ce60c2249a9b947d6c55dc0ba26a4",
                     name: "Albus Dumbledore",
                     email: "headmaster@hogwarts.net",
                     username: "albus",
                     source: "GitLab"
                   },
                   {
-                    uuid: "4ce562",
+                    uuid: "de85900c79d5dbe782f65ce0e04f269c4cd2f7fb",
                     name: "Albus Dumbledore",
                     email: "adumbledore@example.net",
                     username: "albus",
                     source: "Jira"
                   },
                   {
-                    uuid: "808b18",
+                    uuid: "de85900c79d5dbe782f65ce0e04f269c4cd2f7fb",
                     name: "Albus Dumbledore",
                     email: "adumbledore@example.net",
                     username: "albus",
@@ -335,7 +335,7 @@ export const Default = () => ({
                 },
                 identities: [
                   {
-                    uuid: "4ce562",
+                    uuid: "7a727227226daae693c61ddf7040e51c97ac638d",
                     name: "hagrid",
                     email: "hagrid@example.com",
                     username: "hagrid",
