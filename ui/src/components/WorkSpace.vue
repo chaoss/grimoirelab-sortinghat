@@ -57,7 +57,6 @@
         <individual-card
           :name="individual.name"
           :sources="individual.sources"
-          :is-locked="individual.isLocked"
           :is-selected="individual.isSelected"
           :uuid="individual.uuid"
           :identities="individual.identities"
@@ -67,6 +66,7 @@
           @select="selectIndividual(individual)"
           @mouseenter="$emit('highlight', individual)"
           @mouseleave="$emit('stopHighlight', individual)"
+          @remove="removeIndividual(individual)"
         />
       </v-col>
     </v-row>
@@ -202,6 +202,11 @@ export default {
     },
     selectIndividual(individual) {
       individual.isSelected = !individual.isSelected;
+    },
+    removeIndividual(individual) {
+      this.savedIndividuals = this.savedIndividuals.filter(
+        savedIndividual => savedIndividual.uuid !== individual.uuid
+      );
     }
   },
   watch: {

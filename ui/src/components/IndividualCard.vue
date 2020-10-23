@@ -14,61 +14,56 @@
     @dragleave="isDragging = false"
     @click="selectIndividual"
   >
-    <v-list-item class="grow">
-      <v-list-item-avatar color="grey">
+    <v-list-item class="grow" three-line>
+      <v-list-item-avatar color="grey" size="30px">
         {{ getNameInitials }}
       </v-list-item-avatar>
 
       <v-list-item-content>
-        <v-list-item-title>{{ name }}</v-list-item-title>
+        <v-list-item-title class="font-weight-medium">
+          {{ name }}
+        </v-list-item-title>
+        <v-list-item-subtitle v-if="enrollments && enrollments.length > 0">
+          {{ enrollments[0].organization.name }}
+        </v-list-item-subtitle>
         <v-list-item-subtitle>
           <v-icon
             v-for="source in sources"
             :key="source.name"
             v-text="selectSourceIcon(source)"
             small
+            left
           />
         </v-list-item-subtitle>
       </v-list-item-content>
 
-      <v-list-item-action>
-        <v-list-item-action-text>
-          <v-menu
-            v-if="identities && enrollments"
-            offset-y
-            offset-x
-            :close-on-content-click="false"
-          >
-            <template v-slot:activator="{ on }">
-              <v-btn icon v-on.stop="on" @mousedown.stop>
-                <v-icon small>
-                  mdi-magnify-plus-outline
-                </v-icon>
-              </v-btn>
-            </template>
-            <expanded-individual
-              compact
-              :enrollments="enrollments"
-              :identities="identities"
-            />
-          </v-menu>
-          <v-btn text icon @click.stop="toggleLockedStatus" @mousedown.stop>
-            <v-icon small>
-              {{ locked ? "mdi-lock" : "mdi-lock-open-outline" }}
-            </v-icon>
-          </v-btn>
-        </v-list-item-action-text>
-      </v-list-item-action>
+      <v-list-item-icon>
+        <v-menu offset-y offset-x :close-on-content-click="false">
+          <template v-slot:activator="{ on }">
+            <v-btn icon v-on="on" @mousedown.stop>
+              <v-icon small>
+                mdi-magnify-plus-outline
+              </v-icon>
+            </v-btn>
+          </template>
+          <expanded-individual
+            compact
+            :enrollments="enrollments"
+            :identities="identities"
+          />
+        </v-menu>
+        <v-btn text icon @click.stop="$emit('remove')" @mousedown.stop>
+          <v-icon small>
+            mdi-close
+          </v-icon>
+        </v-btn>
+      </v-list-item-icon>
     </v-list-item>
     <slot />
-    <v-snackbar v-model="snackbar.value" color="error">
-      {{ snackbar.text || "Error" }}
-    </v-snackbar>
   </v-card>
 </template>
 
 <script>
-import { lockIndividual, unlockIndividual } from "../apollo/mutations";
 import ExpandedIndividual from "./ExpandedIndividual";
 
 export default {
@@ -85,11 +80,6 @@ export default {
       type: Array,
       required: false,
       default: () => []
-    },
-    isLocked: {
-      type: Boolean,
-      required: false,
-      default: false
     },
     isSelected: {
       type: Boolean,
@@ -116,11 +106,6 @@ export default {
   },
   data() {
     return {
-      locked: this.isLocked,
-      snackbar: {
-        value: false,
-        text: ""
-      },
       isDragging: false
     };
   },
@@ -146,32 +131,6 @@ export default {
         return `mdi-${datasource}`;
       }
     },
-    async toggleLockedStatus() {
-      if (this.$apollo) {
-        try {
-          const mutation = this.locked
-            ? unlockIndividual(this.$apollo, this.uuid)
-            : lockIndividual(this.$apollo, this.uuid);
-          const response = await mutation;
-
-          if (response && !response.errors) {
-            this.locked = !this.locked;
-          } else {
-            this.snackbar = {
-              value: true,
-              text: response.errors[0].message
-            };
-          }
-        } catch (error) {
-          this.snackbar = {
-            value: true,
-            text: error.toString()
-          };
-        }
-      } else if (this.$root.STORYBOOK_COMPONENT) {
-        this.locked = !this.locked;
-      }
-    },
     onDrop(event) {
       const droppedIndividuals = JSON.parse(
         event.dataTransfer.getData("individuals")
@@ -183,14 +142,13 @@ export default {
     selectIndividual() {
       this.$emit("select");
     }
-  },
-  watch: {
-    isLocked(value) {
-      this.locked = value;
-    }
   }
 };
 </script>
 <style lang="scss" scoped>
 @import "../styles/index.scss";
+
+.v-list-item--three-line .v-list-item__avatar {
+  font-size: 0.8rem;
+}
 </style>

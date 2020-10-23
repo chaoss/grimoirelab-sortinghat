@@ -62,12 +62,12 @@ exports[`ProfileList Shows selected profile 1`] = `
         tabindex="0"
       >
         <div
-          class="grow v-list-item theme--light"
+          class="grow v-list-item v-list-item--three-line theme--light"
           tabindex="-1"
         >
           <div
             class="v-avatar v-list-item__avatar grey"
-            style="height: 40px; min-width: 40px; width: 40px;"
+            style="height: 30px; min-width: 30px; width: 30px;"
           >
             
       TN
@@ -78,45 +78,63 @@ exports[`ProfileList Shows selected profile 1`] = `
             class="v-list-item__content"
           >
             <div
-              class="v-list-item__title"
+              class="v-list-item__title font-weight-medium"
             >
-              Test Name
+              
+        Test Name
+      
             </div>
+             
+            <!---->
              
             <div
               class="v-list-item__subtitle"
             >
               <i
                 aria-hidden="true"
-                class="v-icon notranslate mdi mdi-github theme--light"
+                class="v-icon notranslate v-icon--left mdi mdi-github theme--light"
                 style="font-size: 16px;"
               />
             </div>
           </div>
            
           <div
-            class="v-list-item__action"
+            class="v-list-item__icon"
           >
-            <span
-              class="v-list-item__action-text"
+            <button
+              class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+              type="button"
+            >
+              <span
+                class="v-btn__content"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate mdi mdi-magnify-plus-outline theme--light"
+                  style="font-size: 16px;"
+                />
+              </span>
+            </button>
+            <div
+              class="v-menu"
             >
               <!---->
-               
-              <button
-                class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
-                type="button"
+            </div>
+             
+            <button
+              class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
+              type="button"
+            >
+              <span
+                class="v-btn__content"
               >
-                <span
-                  class="v-btn__content"
-                >
-                  <i
-                    aria-hidden="true"
-                    class="v-icon notranslate mdi mdi-lock-open-outline theme--light"
-                    style="font-size: 16px;"
-                  />
-                </span>
-              </button>
-            </span>
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate mdi mdi-close theme--light"
+                  style="font-size: 16px;"
+                />
+              </span>
+            </button>
           </div>
         </div>
          
@@ -179,8 +197,6 @@ exports[`ProfileList Shows selected profile 1`] = `
           </div>
           <!---->
         </div>
-         
-        <!---->
       </div>
     </div>
   </div>
