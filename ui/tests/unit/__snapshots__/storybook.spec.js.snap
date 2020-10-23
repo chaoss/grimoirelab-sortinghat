@@ -37,18 +37,23 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
               class="row no-gutters"
             >
               <div
-                class="uuid col col-2"
+                class="uuid col"
               >
                 <span
-                  class="text-center v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
-                  tile=""
+                  class="v-tooltip v-tooltip--bottom"
                 >
+                  <!---->
                   <span
-                    class="v-chip__content"
+                    class="text-center clip v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
+                    tile=""
                   >
-                    
-      006afa
-    
+                    <span
+                      class="v-chip__content"
+                    >
+                      
+          006afa
+        
+                    </span>
                   </span>
                 </span>
               </div>
@@ -101,18 +106,23 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
               class="row no-gutters"
             >
               <div
-                class="uuid col col-2"
+                class="uuid col"
               >
                 <span
-                  class="text-center v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
-                  tile=""
+                  class="v-tooltip v-tooltip--bottom"
                 >
+                  <!---->
                   <span
-                    class="v-chip__content"
+                    class="text-center clip v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
+                    tile=""
                   >
-                    
-      808b18
-    
+                    <span
+                      class="v-chip__content"
+                    >
+                      
+          808b18
+        
+                    </span>
                   </span>
                 </span>
               </div>
@@ -172,18 +182,23 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
               class="row no-gutters"
             >
               <div
-                class="uuid col col-2"
+                class="uuid col"
               >
                 <span
-                  class="text-center v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
-                  tile=""
+                  class="v-tooltip v-tooltip--bottom"
                 >
+                  <!---->
                   <span
-                    class="v-chip__content"
+                    class="text-center clip v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
+                    tile=""
                   >
-                    
-      abce32
-    
+                    <span
+                      class="v-chip__content"
+                    >
+                      
+          abce32
+        
+                    </span>
                   </span>
                 </span>
               </div>
@@ -243,18 +258,23 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
               class="row no-gutters"
             >
               <div
-                class="uuid col col-2"
+                class="uuid col"
               >
                 <span
-                  class="text-center v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
-                  tile=""
+                  class="v-tooltip v-tooltip--bottom"
                 >
+                  <!---->
                   <span
-                    class="v-chip__content"
+                    class="text-center clip v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
+                    tile=""
                   >
-                    
-      4ce562
-    
+                    <span
+                      class="v-chip__content"
+                    >
+                      
+          4ce562
+        
+                    </span>
                   </span>
                 </span>
               </div>
@@ -433,18 +453,23 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
               class="row no-gutters"
             >
               <div
-                class="uuid col col-2"
+                class="uuid col"
               >
                 <span
-                  class="text-center v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
-                  tile=""
+                  class="v-tooltip v-tooltip--bottom"
                 >
+                  <!---->
                   <span
-                    class="v-chip__content"
+                    class="text-center clip v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
+                    tile=""
                   >
-                    
-      006afa
-    
+                    <span
+                      class="v-chip__content"
+                    >
+                      
+          06e6903c91180835b6ee91dd56782c6ca72bc562
+        
+                    </span>
                   </span>
                 </span>
               </div>
@@ -499,18 +524,23 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
               class="row no-gutters"
             >
               <div
-                class="uuid col col-2"
+                class="uuid col"
               >
                 <span
-                  class="text-center v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
-                  tile=""
+                  class="v-tooltip v-tooltip--bottom"
                 >
+                  <!---->
                   <span
-                    class="v-chip__content"
+                    class="text-center clip v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
+                    tile=""
                   >
-                    
-      808b18
-    
+                    <span
+                      class="v-chip__content"
+                    >
+                      
+          164e41c60c28698ac30b0d17176d3e720e036918
+        
+                    </span>
                   </span>
                 </span>
               </div>
@@ -581,18 +611,23 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
               class="row no-gutters"
             >
               <div
-                class="uuid col col-2"
+                class="uuid col"
               >
                 <span
-                  class="text-center v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
-                  tile=""
+                  class="v-tooltip v-tooltip--bottom"
                 >
+                  <!---->
                   <span
-                    class="v-chip__content"
+                    class="text-center clip v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
+                    tile=""
                   >
-                    
-      abce32
-    
+                    <span
+                      class="v-chip__content"
+                    >
+                      
+          10982379421b80e13266db011d6e5131dd519016
+        
+                    </span>
                   </span>
                 </span>
               </div>
@@ -663,18 +698,23 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
               class="row no-gutters"
             >
               <div
-                class="uuid col col-2"
+                class="uuid col"
               >
                 <span
-                  class="text-center v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
-                  tile=""
+                  class="v-tooltip v-tooltip--bottom"
                 >
+                  <!---->
                   <span
-                    class="v-chip__content"
+                    class="text-center clip v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
+                    tile=""
                   >
-                    
-      4ce562
-    
+                    <span
+                      class="v-chip__content"
+                    >
+                      
+          1f1a9e56dedb45f5969413eeb4442d982e33f0f6
+        
+                    </span>
                   </span>
                 </span>
               </div>
@@ -857,18 +897,23 @@ exports[`Storyshots ExpandedIndividual No Organizations 1`] = `
               class="row no-gutters"
             >
               <div
-                class="uuid col col-2"
+                class="uuid col"
               >
                 <span
-                  class="text-center v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
-                  tile=""
+                  class="v-tooltip v-tooltip--bottom"
                 >
+                  <!---->
                   <span
-                    class="v-chip__content"
+                    class="text-center clip v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
+                    tile=""
                   >
-                    
-      4ce562
-    
+                    <span
+                      class="v-chip__content"
+                    >
+                      
+          164e41c60c28698ac30b0d17176d3e720e036918
+        
+                    </span>
                   </span>
                 </span>
               </div>
@@ -946,18 +991,23 @@ exports[`Storyshots Identity Default 1`] = `
       class="row no-gutters"
     >
       <div
-        class="uuid col col-2"
+        class="uuid col"
       >
         <span
-          class="text-center v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
-          tile=""
+          class="v-tooltip v-tooltip--bottom"
         >
+          <!---->
           <span
-            class="v-chip__content"
+            class="text-center clip v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
+            tile=""
           >
-            
-      10f546
-    
+            <span
+              class="v-chip__content"
+            >
+              
+          1f1a9e56dedb45f5969413eeb4442d982e33f0f6
+        
+            </span>
           </span>
         </span>
       </div>
@@ -1005,18 +1055,23 @@ exports[`Storyshots Identity Source 1`] = `
       class="row no-gutters"
     >
       <div
-        class="uuid col col-2"
+        class="uuid col"
       >
         <span
-          class="text-center v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
-          tile=""
+          class="v-tooltip v-tooltip--bottom"
         >
+          <!---->
           <span
-            class="v-chip__content"
+            class="text-center clip v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
+            tile=""
           >
-            
-      10f546
-    
+            <span
+              class="v-chip__content"
+            >
+              
+          1f1a9e56dedb45f5969413eeb4442d982e33f0f6
+        
+            </span>
           </span>
         </span>
       </div>
