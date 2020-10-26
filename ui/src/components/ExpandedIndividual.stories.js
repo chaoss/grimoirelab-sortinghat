@@ -23,13 +23,15 @@ export const Default = () => ({
           uuid: "06e6903c91180835b6ee91dd56782c6ca72bc562",
           name: "Tom Marvolo Riddle",
           email: "triddle@example.net",
-          username: "triddle"
+          username: "triddle",
+          source: "GitHub"
         },
         {
           uuid: "164e41c60c28698ac30b0d17176d3e720e036918",
           name: "Voldemort",
           email: "-",
-          username: "voldemort"
+          username: "voldemort",
+          source: "GitHub"
         }
       ]
     },
@@ -40,7 +42,8 @@ export const Default = () => ({
           uuid: "10982379421b80e13266db011d6e5131dd519016",
           name: "voldemort",
           email: "voldemort@example.net",
-          username: "-"
+          username: "-",
+          source: "git"
         }
       ]
     },
@@ -91,13 +94,15 @@ export const Compact = () => ({
           uuid: "006afa",
           name: "Tom Marvolo Riddle",
           email: "triddle@example.net",
-          username: "triddle"
+          username: "triddle",
+          source: "GitHub"
         },
         {
           uuid: "808b18",
           name: "Voldemort",
           email: "-",
-          username: "voldemort"
+          username: "voldemort",
+          source: "GitHub"
         }
       ]
     },
@@ -108,7 +113,8 @@ export const Compact = () => ({
           uuid: "abce32",
           name: "voldemort",
           email: "voldemort@example.net",
-          username: "-"
+          username: "-",
+          source: "git"
         }
       ]
     },

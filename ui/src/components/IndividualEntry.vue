@@ -59,7 +59,7 @@
     </td>
     <td class="text-right">
       <v-icon
-        v-for="source in sources"
+        v-for="source in sortedSources"
         :key="source.name"
         v-text="selectSourceIcon(source)"
         left
@@ -159,6 +159,9 @@ export default {
     },
     isDropZone: function() {
       return this.isDragging && !this.isLocked;
+    },
+    sortedSources: function() {
+      return this.sources.slice().sort();
     }
   },
   methods: {
