@@ -51,6 +51,82 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
                       class="v-chip__content"
                     >
                       
+          abce32
+        
+                    </span>
+                  </span>
+                </span>
+              </div>
+               
+              <div
+                class="ma-2 text-center col"
+              >
+                <span>
+                  voldemort
+                </span>
+              </div>
+               
+              <div
+                class="ma-2 text-center col"
+              >
+                <span>
+                  voldemort@example.net
+                </span>
+              </div>
+               
+              <div
+                class="ma-2 text-center col"
+              >
+                <span>
+                  -
+                </span>
+              </div>
+               
+              <div
+                class="ma-2 text-center col"
+              >
+                <span>
+                  git
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+         
+        <!---->
+      </div>
+      <div
+        class="v-list indented v-sheet v-sheet--tile theme--light"
+        role="list"
+      >
+        <div
+          class="v-list-item theme--light"
+          role="listitem"
+          tabindex="-1"
+        >
+          <!---->
+           
+          <div
+            class="v-list-item__content"
+          >
+            <div
+              class="row no-gutters"
+            >
+              <div
+                class="uuid col"
+              >
+                <span
+                  class="v-tooltip v-tooltip--bottom"
+                >
+                  <!---->
+                  <span
+                    class="text-center clip v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
+                    tile=""
+                  >
+                    <span
+                      class="v-chip__content"
+                    >
+                      
           006afa
         
                     </span>
@@ -156,82 +232,6 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
               >
                 <span>
                   GitHub
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-         
-        <!---->
-      </div>
-      <div
-        class="v-list indented v-sheet v-sheet--tile theme--light"
-        role="list"
-      >
-        <div
-          class="v-list-item theme--light"
-          role="listitem"
-          tabindex="-1"
-        >
-          <!---->
-           
-          <div
-            class="v-list-item__content"
-          >
-            <div
-              class="row no-gutters"
-            >
-              <div
-                class="uuid col"
-              >
-                <span
-                  class="v-tooltip v-tooltip--bottom"
-                >
-                  <!---->
-                  <span
-                    class="text-center clip v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
-                    tile=""
-                  >
-                    <span
-                      class="v-chip__content"
-                    >
-                      
-          abce32
-        
-                    </span>
-                  </span>
-                </span>
-              </div>
-               
-              <div
-                class="ma-2 text-center col"
-              >
-                <span>
-                  voldemort
-                </span>
-              </div>
-               
-              <div
-                class="ma-2 text-center col"
-              >
-                <span>
-                  voldemort@example.net
-                </span>
-              </div>
-               
-              <div
-                class="ma-2 text-center col"
-              >
-                <span>
-                  -
-                </span>
-              </div>
-               
-              <div
-                class="ma-2 text-center col"
-              >
-                <span>
-                  Git
                 </span>
               </div>
             </div>
@@ -442,6 +442,93 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
           >
             <i
               aria-hidden="true"
+              class="v-icon notranslate mdi mdi-git theme--light"
+            />
+          </div>
+           
+          <div
+            class="v-list-item__content"
+          >
+            <div
+              class="row no-gutters"
+            >
+              <div
+                class="uuid col"
+              >
+                <span
+                  class="v-tooltip v-tooltip--bottom"
+                >
+                  <!---->
+                  <span
+                    class="text-center clip v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
+                    tile=""
+                  >
+                    <span
+                      class="v-chip__content"
+                    >
+                      
+          10982379421b80e13266db011d6e5131dd519016
+        
+                    </span>
+                  </span>
+                </span>
+              </div>
+               
+              <div
+                class="ma-2 text-center col"
+              >
+                <span>
+                  voldemort
+                </span>
+              </div>
+               
+              <div
+                class="ma-2 text-center col"
+              >
+                <span>
+                  voldemort@example.net
+                </span>
+              </div>
+               
+              <div
+                class="ma-2 text-center col"
+              >
+                <span>
+                  -
+                </span>
+              </div>
+               
+              <div
+                class="ma-2 text-center col"
+              >
+                <span>
+                  git
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+         
+        <hr
+          aria-orientation="horizontal"
+          class="v-divider v-divider--inset theme--light"
+          role="separator"
+        />
+      </div>
+      <div
+        class="v-list indented v-sheet v-sheet--tile theme--light"
+        role="list"
+      >
+        <div
+          class="v-list-item theme--light"
+          role="listitem"
+          tabindex="-1"
+        >
+          <div
+            class="v-list-item__icon"
+          >
+            <i
+              aria-hidden="true"
               class="v-icon notranslate mdi mdi-github theme--light"
             />
           </div>
@@ -574,93 +661,6 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
               >
                 <span>
                   GitHub
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-         
-        <hr
-          aria-orientation="horizontal"
-          class="v-divider v-divider--inset theme--light"
-          role="separator"
-        />
-      </div>
-      <div
-        class="v-list indented v-sheet v-sheet--tile theme--light"
-        role="list"
-      >
-        <div
-          class="v-list-item theme--light"
-          role="listitem"
-          tabindex="-1"
-        >
-          <div
-            class="v-list-item__icon"
-          >
-            <i
-              aria-hidden="true"
-              class="v-icon notranslate mdi mdi-git theme--light"
-            />
-          </div>
-           
-          <div
-            class="v-list-item__content"
-          >
-            <div
-              class="row no-gutters"
-            >
-              <div
-                class="uuid col"
-              >
-                <span
-                  class="v-tooltip v-tooltip--bottom"
-                >
-                  <!---->
-                  <span
-                    class="text-center clip v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
-                    tile=""
-                  >
-                    <span
-                      class="v-chip__content"
-                    >
-                      
-          10982379421b80e13266db011d6e5131dd519016
-        
-                    </span>
-                  </span>
-                </span>
-              </div>
-               
-              <div
-                class="ma-2 text-center col"
-              >
-                <span>
-                  voldemort
-                </span>
-              </div>
-               
-              <div
-                class="ma-2 text-center col"
-              >
-                <span>
-                  voldemort@example.net
-                </span>
-              </div>
-               
-              <div
-                class="ma-2 text-center col"
-              >
-                <span>
-                  -
-                </span>
-              </div>
-               
-              <div
-                class="ma-2 text-center col"
-              >
-                <span>
-                  Git
                 </span>
               </div>
             </div>

@@ -2,12 +2,12 @@
   <td :class="{ compact: compact }" colspan="4">
     <v-subheader>Identities ({{ identitiesCount }})</v-subheader>
     <v-list
-      v-for="(source, sourceIndex) in identities"
+      v-for="(source, sourceIndex) in sortSources(identities, 'name')"
       :key="source.name"
       class="indented"
     >
       <v-list-item
-        v-for="(identity, index) in source.identities"
+        v-for="(identity, index) in sortSources(source.identities, 'source')"
         :key="identity.uuid"
       >
         <v-list-item-icon v-if="index === 0 && !compact">
@@ -100,6 +100,14 @@ export default {
     },
     formatDate(dateTime) {
       return dateTime.split("T")[0];
+    },
+    sortSources(identities, property) {
+      return identities.slice().sort((a, b) => {
+        const sourceA = a[property].toLowerCase();
+        const sourceB = b[property].toLowerCase();
+
+        return sourceA.localeCompare(sourceB);
+      });
     }
   },
   computed: {
