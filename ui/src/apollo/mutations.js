@@ -53,6 +53,35 @@ const MERGE = gql`
   }
 `;
 
+const UNMERGE = gql`
+  mutation unmerge($uuids: [String!]) {
+    unmergeIdentities(uuids: $uuids) {
+      uuids
+      individuals {
+        profile {
+          name
+          id
+          isBot
+        }
+        identities {
+          name
+          source
+          email
+          uuid
+          username
+        }
+        enrollments {
+          start
+          end
+          organization {
+            name
+          }
+        }
+      }
+    }
+  }
+`;
+
 const lockIndividual = (apollo, uuid) => {
   let response = apollo.mutate({
     mutation: LOCK_INDIVIDUAL,
@@ -94,4 +123,14 @@ const merge = (apollo, fromUuids, toUuid) => {
   return response;
 };
 
-export { lockIndividual, unlockIndividual, deleteIdentity, merge };
+const unmerge = (apollo, uuids) => {
+  let response = apollo.mutate({
+    mutation: UNMERGE,
+    variables: {
+      uuids: uuids,
+    }
+  });
+  return response;
+};
+
+export { lockIndividual, unlockIndividual, deleteIdentity, merge, unmerge };
