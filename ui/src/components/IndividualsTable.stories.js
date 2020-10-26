@@ -12,6 +12,7 @@ const IndividualsTableTemplate = `
     :fetch-page="queryIndividuals.bind(this)"
     :delete-item="deleteIndividual"
     :merge-items="deleteIndividual"
+    :unmerge-items="deleteIndividual"
   />
 `;
 

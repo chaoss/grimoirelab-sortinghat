@@ -50,6 +50,7 @@
             compact
             :enrollments="enrollments"
             :identities="identities"
+            :uuid="uuid"
           />
         </v-menu>
         <v-btn text icon @click.stop="$emit('remove')" @mousedown.stop>

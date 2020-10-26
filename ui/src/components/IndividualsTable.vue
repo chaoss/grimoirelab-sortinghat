@@ -72,8 +72,10 @@
       </template>
       <template v-slot:expanded-item="{ item }">
         <expanded-individual
+          :uuid="item.uuid"
           :enrollments="item.enrollments"
           :identities="item.identities"
+          @unmerge="unmerge($event)"
         />
       </template>
     </v-data-table>
@@ -132,6 +134,10 @@ export default {
       required: true
     },
     mergeItems: {
+      type: Function,
+      required: true
+    },
+    unmergeItems: {
       type: Function,
       required: true
     },
@@ -277,6 +283,14 @@ export default {
     },
     mergeSelected(individuals) {
       mergeIndividuals(individuals, this.merge, this.dialog);
+    },
+    async unmerge(uuids) {
+      const response = await this.unmergeItems(uuids);
+      if (response && response.data) {
+        const unmergedItems = this.formatIndividuals(response.data.unmergeIdentities.individuals);
+        this.$emit('saveIndividual', unmergedItems[0])
+        this.queryIndividuals(this.page);
+      }
     }
   }
 };

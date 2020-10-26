@@ -27,6 +27,29 @@
             :source="identity.source || source.name"
           />
         </v-list-item-content>
+
+        <v-list-item-action v-if="!compact">
+          <v-tooltip
+            bottom
+            transition="expand-y-transition"
+            open-delay="200"
+          >
+            <template v-slot:activator="{ on }">
+              <v-btn
+                icon
+                :disabled="identity.uuid === uuid"
+                v-on="on"
+                @click="$emit('unmerge', [identity.uuid, uuid])"
+              >
+                <v-icon>
+                  mdi-call-split
+                </v-icon>
+              </v-btn>
+            </template>
+            <span>Split identity</span>
+          </v-tooltip>
+        </v-list-item-action>
+
       </v-list-item>
       <v-divider
         inset
@@ -65,7 +88,7 @@
 import Identity from "./Identity.vue";
 
 export default {
-  name: "profilecard",
+  name: "ExpandedIndividual",
   components: {
     Identity
   },
@@ -82,6 +105,10 @@ export default {
       type: Boolean,
       required: false,
       default: false
+    },
+    uuid: {
+      type: String,
+      required: true
     }
   },
   methods: {
@@ -127,7 +154,7 @@ td {
 }
 
 .indented {
-  margin-left: 40px;
+  margin: 0 40px;
 }
 
 .v-application--is-ltr .v-divider--inset:not(.v-divider--vertical).divider {
@@ -155,7 +182,7 @@ td {
 
   ::v-deep .indented {
     padding: 0;
-    margin-left: 0;
+    margin: 0;
   }
 }
 </style>
