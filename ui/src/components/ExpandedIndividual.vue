@@ -8,7 +8,11 @@
     >
       <v-list-item
         v-for="(identity, index) in sortSources(source.identities, 'source')"
+        :class="{ draggable: !compact }"
         :key="identity.uuid"
+        :draggable="!compact"
+        @dragstart.native="startDrag(identity, $event)"
+        @dragend.native="dragEnd($event)"
       >
         <v-list-item-icon v-if="index === 0 && !compact">
           <v-icon>
@@ -44,6 +48,12 @@
             </template>
             <span>Split identity</span>
           </v-tooltip>
+          <v-tooltip bottom transition="expand-y-transition" open-delay="200">
+            <template v-slot:activator="{ on }">
+              <v-icon v-on="on">mdi-drag-vertical</v-icon>
+            </template>
+            <span>Move identity</span>
+          </v-tooltip>
         </v-list-item-action>
       </v-list-item>
       <v-divider
@@ -76,6 +86,10 @@
         </v-list-item-content>
       </v-list-item>
     </v-list>
+
+    <v-card class="dragged-item" color="primary" dark>
+      <v-card-title> Moving 1</v-card-title>
+    </v-card>
   </td>
 </template>
 
@@ -130,6 +144,17 @@ export default {
 
         return sourceA.localeCompare(sourceB);
       });
+    },
+    startDrag(identity, event) {
+      const dragImage = document.querySelector(".dragged-item");
+      event.dataTransfer.setDragImage(dragImage, 0, 0);
+      event.dataTransfer.effectAllowed = "move";
+      event.dataTransfer.setData("type", "move");
+      event.dataTransfer.setData("uuid", identity.uuid);
+      event.target.classList.add("dragging");
+    },
+    dragEnd(event) {
+      event.target.classList.remove("dragging");
     }
   },
   computed: {
@@ -143,6 +168,7 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
+@import "../styles/index.scss";
 td {
   padding-left: 75px;
   border-bottom: thin solid rgba(0, 0, 0, 0.12);
@@ -156,6 +182,16 @@ td {
   width: calc(100% - 30px);
   max-width: calc(100% - 30px);
   margin-left: 30px;
+}
+
+.draggable {
+  cursor: pointer;
+}
+
+.dragged-item {
+  max-width: 300px;
+  position: absolute;
+  top: -300px;
 }
 
 .compact {

@@ -35,9 +35,10 @@
 
     <v-content>
       <work-space
+        :highlight-individual="highlightInWorkspace"
         :individuals="savedIndividuals"
         :merge-items="mergeItems"
-        :highlight-individual="highlightInWorkspace"
+        :move-item="moveItem"
         @clearSpace="savedIndividuals = []"
         @updateIndividuals="updateTable"
         @highlight="highlightIndividual($event, 'highlightInTable', true)"
@@ -78,7 +79,7 @@ import {
   getPaginatedIndividuals,
   getPaginatedOrganizations
 } from "./apollo/queries";
-import { deleteIdentity, merge, unmerge } from "./apollo/mutations";
+import { deleteIdentity, merge, unmerge, moveIdentity } from "./apollo/mutations";
 import IndividualsTable from "./components/IndividualsTable";
 import OrganizationsTable from "./components/OrganizationsTable";
 import WorkSpace from "./components/WorkSpace";
@@ -138,7 +139,11 @@ export default {
     async unmergeItems(uuids) {
       const response = await unmerge(this.$apollo, uuids);
       return response;
-    }
+    },
+    async moveItem(fromUuid, toUuid) {
+      const response = await moveIdentity(this.$apollo, fromUuid, toUuid);
+      return response;
+    },
   }
 };
 </script>

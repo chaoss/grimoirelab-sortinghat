@@ -23,4 +23,16 @@ const confirmMerge = (dialog, action, fromUuids, toUuid) => {
   });
 };
 
-export { mergeIndividuals };
+const moveIdentity = (fromUuid, toUuid, action, dialog) => {
+  if (fromUuid === toUuid) {
+    return;
+  }
+  Object.assign(dialog, {
+    open: true,
+    title: "Move identity to this individual?",
+    text: "",
+    action: () => action(fromUuid, toUuid)
+  });
+};
+
+export { mergeIndividuals, moveIdentity };

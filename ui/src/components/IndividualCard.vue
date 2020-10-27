@@ -133,15 +133,27 @@ export default {
       }
     },
     onDrop(event) {
+      const type = event.dataTransfer.getData("type");
+      if (type === "move") {
+        this.moveIndividual(event);
+      } else {
+        this.mergeIndividuals(event);
+      }
+      this.isDragging = false;
+    },
+    selectIndividual() {
+      this.$emit("select");
+    },
+    moveIndividual(event) {
+      const uuid = event.dataTransfer.getData("uuid");
+      this.$emit("move", { fromUuid: uuid, toUuid: this.uuid });
+    },
+    mergeIndividuals(event) {
       const droppedIndividuals = JSON.parse(
         event.dataTransfer.getData("individuals")
       );
       const uuids = droppedIndividuals.map(individual => individual.uuid);
       this.$emit("merge", [this.uuid, ...uuids]);
-      this.isDragging = false;
-    },
-    selectIndividual() {
-      this.$emit("select");
     }
   }
 };

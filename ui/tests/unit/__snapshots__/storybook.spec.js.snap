@@ -18,18 +18,19 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
       >
         Identities (4)
       </div>
-       
+
       <div
         class="v-list indented v-sheet v-sheet--tile theme--light"
         role="list"
       >
         <div
           class="v-list-item theme--light"
+          draggable="false"
           role="listitem"
           tabindex="-1"
         >
           <!---->
-           
+
           <div
             class="v-list-item__content"
           >
@@ -50,14 +51,14 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
                     <span
                       class="v-chip__content"
                     >
-                      
+
           abce32
-        
+
                     </span>
                   </span>
                 </span>
               </div>
-               
+
               <div
                 class="ma-2 text-center col"
               >
@@ -65,7 +66,7 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
                   voldemort
                 </span>
               </div>
-               
+
               <div
                 class="ma-2 text-center col"
               >
@@ -73,7 +74,7 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
                   voldemort@example.net
                 </span>
               </div>
-               
+
               <div
                 class="ma-2 text-center col"
               >
@@ -81,7 +82,7 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
                   -
                 </span>
               </div>
-               
+
               <div
                 class="ma-2 text-center col"
               >
@@ -91,10 +92,10 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
               </div>
             </div>
           </div>
-           
+
           <!---->
         </div>
-         
+
         <!---->
       </div>
       <div
@@ -103,11 +104,12 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
       >
         <div
           class="v-list-item theme--light"
+          draggable="false"
           role="listitem"
           tabindex="-1"
         >
           <!---->
-           
+
           <div
             class="v-list-item__content"
           >
@@ -128,9 +130,9 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
                     <span
                       class="v-chip__content"
                     >
-                      
+
           006afa
-        
+
                     </span>
                   </span>
                 </span>
@@ -143,7 +145,7 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
                   Tom Marvolo Riddle
                 </span>
               </div>
-               
+
               <div
                 class="ma-2 text-center col"
               >
@@ -151,7 +153,7 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
                   triddle@example.net
                 </span>
               </div>
-               
+
               <div
                 class="ma-2 text-center col"
               >
@@ -159,7 +161,7 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
                   triddle
                 </span>
               </div>
-               
+
               <div
                 class="ma-2 text-center col"
               >
@@ -169,16 +171,17 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
               </div>
             </div>
           </div>
-           
+
           <!---->
         </div>
         <div
           class="v-list-item theme--light"
+          draggable="false"
           role="listitem"
           tabindex="-1"
         >
           <!---->
-           
+
           <div
             class="v-list-item__content"
           >
@@ -199,14 +202,14 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
                     <span
                       class="v-chip__content"
                     >
-                      
+
           808b18
-        
+
                     </span>
                   </span>
                 </span>
               </div>
-               
+
               <div
                 class="ma-2 text-center col"
               >
@@ -214,7 +217,7 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
                   Voldemort
                 </span>
               </div>
-               
+
               <div
                 class="ma-2 text-center col"
               >
@@ -222,7 +225,7 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
                   -
                 </span>
               </div>
-               
+
               <div
                 class="ma-2 text-center col"
               >
@@ -230,7 +233,7 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
                   voldemort
                 </span>
               </div>
-               
+
               <div
                 class="ma-2 text-center col"
               >
@@ -240,10 +243,10 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
               </div>
             </div>
           </div>
-           
+
           <!---->
         </div>
-         
+
         <!---->
       </div>
       <div
@@ -252,11 +255,12 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
       >
         <div
           class="v-list-item theme--light"
+          draggable="false"
           role="listitem"
           tabindex="-1"
         >
           <!---->
-           
+
           <div
             class="v-list-item__content"
           >
@@ -277,14 +281,14 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
                     <span
                       class="v-chip__content"
                     >
-                      
+
           4ce562
-        
+
                     </span>
                   </span>
                 </span>
               </div>
-               
+
               <div
                 class="ma-2 text-center col"
               >
@@ -292,7 +296,7 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
                   -
                 </span>
               </div>
-               
+
               <div
                 class="ma-2 text-center col"
               >
@@ -300,7 +304,7 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
                   -
                 </span>
               </div>
-               
+
               <div
                 class="ma-2 text-center col"
               >
@@ -308,7 +312,7 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
                   voldemort
                 </span>
               </div>
-               
+
               <div
                 class="ma-2 text-center col"
               >
@@ -318,15 +322,15 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
               </div>
             </div>
           </div>
-           
+
           <!---->
         </div>
-         
+
         <!---->
       </div>
-       
+
       <!---->
-       
+
       <div
         class="v-list v-sheet v-sheet--tile theme--light"
         role="list"
@@ -336,7 +340,7 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
         >
           Organizations (2)
         </div>
-         
+
         <div
           class="v-list-item theme--light"
           role="listitem"
@@ -355,7 +359,7 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
                   Slytherin
                 </span>
               </div>
-               
+
               <div
                 class="col-3 ma-2 text-center col"
               >
@@ -363,7 +367,7 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
                   1938-09-01
                 </span>
               </div>
-               
+
               <div
                 class="col-3 ma-2 text-center col"
               >
@@ -392,7 +396,7 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
                   Hogwarts School of Witchcraft and Wizardry
                 </span>
               </div>
-               
+
               <div
                 class="col-3 ma-2 text-center col"
               >
@@ -400,7 +404,7 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
                   1938-09-01
                 </span>
               </div>
-               
+
               <div
                 class="col-3 ma-2 text-center col"
               >
@@ -410,6 +414,16 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div
+        class="dragged-item v-card v-sheet theme--dark primary"
+      >
+        <div
+          class="v-card__title"
+        >
+           Moving 1
         </div>
       </div>
     </td>
@@ -435,13 +449,14 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
       >
         Identities (4)
       </div>
-       
+
       <div
         class="v-list indented v-sheet v-sheet--tile theme--light"
         role="list"
       >
         <div
-          class="v-list-item theme--light"
+          class="v-list-item theme--light draggable"
+          draggable="true"
           role="listitem"
           tabindex="-1"
         >
@@ -453,7 +468,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
               class="v-icon notranslate mdi mdi-git theme--light"
             />
           </div>
-           
+
           <div
             class="v-list-item__content"
           >
@@ -474,14 +489,14 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
                     <span
                       class="v-chip__content"
                     >
-                      
+
           10982379421b80e13266db011d6e5131dd519016
-        
+
                     </span>
                   </span>
                 </span>
               </div>
-               
+
               <div
                 class="ma-2 text-center col"
               >
@@ -489,7 +504,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
                   voldemort
                 </span>
               </div>
-               
+
               <div
                 class="ma-2 text-center col"
               >
@@ -497,7 +512,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
                   voldemort@example.net
                 </span>
               </div>
-               
+
               <div
                 class="ma-2 text-center col"
               >
@@ -505,7 +520,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
                   -
                 </span>
               </div>
-               
+
               <div
                 class="ma-2 text-center col"
               >
@@ -515,7 +530,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
               </div>
             </div>
           </div>
-           
+
           <div
             class="v-list-item__action"
           >
@@ -539,7 +554,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
             </span>
           </div>
         </div>
-         
+
         <hr
           aria-orientation="horizontal"
           class="v-divider v-divider--inset theme--light"
@@ -551,7 +566,8 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
         role="list"
       >
         <div
-          class="v-list-item theme--light"
+          class="v-list-item theme--light draggable"
+          draggable="true"
           role="listitem"
           tabindex="-1"
         >
@@ -563,7 +579,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
               class="v-icon notranslate mdi mdi-github theme--light"
             />
           </div>
-           
+
           <div
             class="v-list-item__content"
           >
@@ -584,14 +600,14 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
                     <span
                       class="v-chip__content"
                     >
-                      
+
           06e6903c91180835b6ee91dd56782c6ca72bc562
-        
+
                     </span>
                   </span>
                 </span>
               </div>
-               
+
               <div
                 class="ma-2 text-center col"
               >
@@ -599,7 +615,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
                   Tom Marvolo Riddle
                 </span>
               </div>
-               
+
               <div
                 class="ma-2 text-center col"
               >
@@ -607,7 +623,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
                   triddle@example.net
                 </span>
               </div>
-               
+
               <div
                 class="ma-2 text-center col"
               >
@@ -615,7 +631,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
                   triddle
                 </span>
               </div>
-               
+
               <div
                 class="ma-2 text-center col"
               >
@@ -625,7 +641,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
               </div>
             </div>
           </div>
-           
+
           <div
             class="v-list-item__action"
           >
@@ -651,14 +667,15 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
           </div>
         </div>
         <div
-          class="v-list-item theme--light"
+          class="v-list-item theme--light draggable"
+          draggable="true"
           role="listitem"
           tabindex="-1"
         >
           <div
             class="v-list-item__action"
           />
-           
+
           <div
             class="v-list-item__content"
           >
@@ -679,14 +696,14 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
                     <span
                       class="v-chip__content"
                     >
-                      
+
           164e41c60c28698ac30b0d17176d3e720e036918
-        
+
                     </span>
                   </span>
                 </span>
               </div>
-               
+
               <div
                 class="ma-2 text-center col"
               >
@@ -694,7 +711,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
                   Voldemort
                 </span>
               </div>
-               
+
               <div
                 class="ma-2 text-center col"
               >
@@ -702,7 +719,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
                   -
                 </span>
               </div>
-               
+
               <div
                 class="ma-2 text-center col"
               >
@@ -710,7 +727,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
                   voldemort
                 </span>
               </div>
-               
+
               <div
                 class="ma-2 text-center col"
               >
@@ -720,7 +737,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
               </div>
             </div>
           </div>
-           
+
           <div
             class="v-list-item__action"
           >
@@ -744,7 +761,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
             </span>
           </div>
         </div>
-         
+
         <hr
           aria-orientation="horizontal"
           class="v-divider v-divider--inset theme--light"
@@ -756,7 +773,8 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
         role="list"
       >
         <div
-          class="v-list-item theme--light"
+          class="v-list-item theme--light draggable"
+          draggable="true"
           role="listitem"
           tabindex="-1"
         >
@@ -768,7 +786,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
               class="v-icon notranslate mdi mdi-account-multiple theme--light"
             />
           </div>
-           
+
           <div
             class="v-list-item__content"
           >
@@ -789,14 +807,14 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
                     <span
                       class="v-chip__content"
                     >
-                      
+
           1f1a9e56dedb45f5969413eeb4442d982e33f0f6
-        
+
                     </span>
                   </span>
                 </span>
               </div>
-               
+
               <div
                 class="ma-2 text-center col"
               >
@@ -804,7 +822,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
                   -
                 </span>
               </div>
-               
+
               <div
                 class="ma-2 text-center col"
               >
@@ -812,7 +830,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
                   -
                 </span>
               </div>
-               
+
               <div
                 class="ma-2 text-center col"
               >
@@ -820,7 +838,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
                   voldemort
                 </span>
               </div>
-               
+
               <div
                 class="ma-2 text-center col"
               >
@@ -830,7 +848,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
               </div>
             </div>
           </div>
-           
+
           <div
             class="v-list-item__action"
           >
@@ -854,16 +872,16 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
             </span>
           </div>
         </div>
-         
+
         <!---->
       </div>
-       
+
       <hr
         aria-orientation="horizontal"
         class="divider v-divider v-divider--inset theme--light"
         role="separator"
       />
-       
+
       <div
         class="v-list v-sheet v-sheet--tile theme--light"
         role="list"
@@ -873,7 +891,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
         >
           Organizations (2)
         </div>
-         
+
         <div
           class="v-list-item theme--light"
           role="listitem"
@@ -892,7 +910,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
                   Slytherin
                 </span>
               </div>
-               
+
               <div
                 class="col-3 ma-2 text-center col"
               >
@@ -900,7 +918,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
                   1938-09-01
                 </span>
               </div>
-               
+
               <div
                 class="col-3 ma-2 text-center col"
               >
@@ -929,7 +947,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
                   Hogwarts School of Witchcraft and Wizardry
                 </span>
               </div>
-               
+
               <div
                 class="col-3 ma-2 text-center col"
               >
@@ -937,7 +955,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
                   1938-09-01
                 </span>
               </div>
-               
+
               <div
                 class="col-3 ma-2 text-center col"
               >
@@ -947,6 +965,16 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
               </div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div
+        class="dragged-item v-card v-sheet theme--dark primary"
+      >
+        <div
+          class="v-card__title"
+        >
+           Moving 1
         </div>
       </div>
     </td>
@@ -972,13 +1000,14 @@ exports[`Storyshots ExpandedIndividual No Organizations 1`] = `
       >
         Identities (1)
       </div>
-       
+
       <div
         class="v-list indented v-sheet v-sheet--tile theme--light"
         role="list"
       >
         <div
-          class="v-list-item theme--light"
+          class="v-list-item theme--light draggable"
+          draggable="true"
           role="listitem"
           tabindex="-1"
         >
@@ -990,7 +1019,7 @@ exports[`Storyshots ExpandedIndividual No Organizations 1`] = `
               class="v-icon notranslate mdi mdi-git theme--light"
             />
           </div>
-           
+
           <div
             class="v-list-item__content"
           >
@@ -1011,14 +1040,14 @@ exports[`Storyshots ExpandedIndividual No Organizations 1`] = `
                     <span
                       class="v-chip__content"
                     >
-                      
+
           164e41c60c28698ac30b0d17176d3e720e036918
-        
+
                     </span>
                   </span>
                 </span>
               </div>
-               
+
               <div
                 class="ma-2 text-center col"
               >
@@ -1026,7 +1055,7 @@ exports[`Storyshots ExpandedIndividual No Organizations 1`] = `
                   Hagrid
                 </span>
               </div>
-               
+
               <div
                 class="ma-2 text-center col"
               >
@@ -1034,7 +1063,7 @@ exports[`Storyshots ExpandedIndividual No Organizations 1`] = `
                   hagrid@example.com
                 </span>
               </div>
-               
+
               <div
                 class="ma-2 text-center col"
               >
@@ -1042,7 +1071,7 @@ exports[`Storyshots ExpandedIndividual No Organizations 1`] = `
                   hagrid
                 </span>
               </div>
-               
+
               <div
                 class="ma-2 text-center col"
               >
@@ -1052,7 +1081,7 @@ exports[`Storyshots ExpandedIndividual No Organizations 1`] = `
               </div>
             </div>
           </div>
-           
+
           <div
             class="v-list-item__action"
           >
@@ -1077,16 +1106,16 @@ exports[`Storyshots ExpandedIndividual No Organizations 1`] = `
             </span>
           </div>
         </div>
-         
+
         <!---->
       </div>
-       
+
       <hr
         aria-orientation="horizontal"
         class="divider v-divider v-divider--inset theme--light"
         role="separator"
       />
-       
+
       <div
         class="v-list v-sheet v-sheet--tile theme--light"
         role="list"
@@ -1096,7 +1125,17 @@ exports[`Storyshots ExpandedIndividual No Organizations 1`] = `
         >
           Organizations (0)
         </div>
-         
+
+      </div>
+
+      <div
+        class="dragged-item v-card v-sheet theme--dark primary"
+      >
+        <div
+          class="v-card__title"
+        >
+           Moving 1
+        </div>
       </div>
     </td>
   </div>
@@ -1129,14 +1168,14 @@ exports[`Storyshots Identity Default 1`] = `
             <span
               class="v-chip__content"
             >
-              
+
           1f1a9e56dedb45f5969413eeb4442d982e33f0f6
-        
+
             </span>
           </span>
         </span>
       </div>
-       
+
       <div
         class="ma-2 text-center col"
       >
@@ -1144,7 +1183,7 @@ exports[`Storyshots Identity Default 1`] = `
           Tom Marvolo Riddle
         </span>
       </div>
-       
+
       <div
         class="ma-2 text-center col"
       >
@@ -1152,7 +1191,7 @@ exports[`Storyshots Identity Default 1`] = `
           triddle@example.net
         </span>
       </div>
-       
+
       <div
         class="ma-2 text-center col"
       >
@@ -1160,7 +1199,7 @@ exports[`Storyshots Identity Default 1`] = `
           triddle
         </span>
       </div>
-       
+
       <!---->
     </div>
   </div>
@@ -1193,14 +1232,14 @@ exports[`Storyshots Identity Source 1`] = `
             <span
               class="v-chip__content"
             >
-              
+
           1f1a9e56dedb45f5969413eeb4442d982e33f0f6
-        
+
             </span>
           </span>
         </span>
       </div>
-       
+
       <div
         class="ma-2 text-center col"
       >
@@ -1208,7 +1247,7 @@ exports[`Storyshots Identity Source 1`] = `
           Tom Marvolo Riddle
         </span>
       </div>
-       
+
       <div
         class="ma-2 text-center col"
       >
@@ -1216,7 +1255,7 @@ exports[`Storyshots Identity Source 1`] = `
           triddle@example.net
         </span>
       </div>
-       
+
       <div
         class="ma-2 text-center col"
       >
@@ -1224,7 +1263,7 @@ exports[`Storyshots Identity Source 1`] = `
           triddle
         </span>
       </div>
-       
+
       <div
         class="ma-2 text-center col"
       >
@@ -1258,29 +1297,29 @@ exports[`Storyshots IndividualCard Default 1`] = `
           class="v-avatar v-list-item__avatar grey"
           style="height: 30px; min-width: 30px; width: 30px;"
         >
-          
+
       TR
-    
+
         </div>
-         
+
         <div
           class="v-list-item__content"
         >
           <div
             class="v-list-item__title font-weight-medium"
           >
-            
+
         Tom Marvolo Riddle
-      
+
           </div>
-           
+
           <!---->
-           
+
           <div
             class="v-list-item__subtitle"
           />
         </div>
-         
+
         <div
           class="v-list-item__icon"
         >
@@ -1303,7 +1342,7 @@ exports[`Storyshots IndividualCard Default 1`] = `
             </button>
             <!---->
           </div>
-           
+
           <button
             class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
             type="button"
@@ -1320,7 +1359,7 @@ exports[`Storyshots IndividualCard Default 1`] = `
           </button>
         </div>
       </div>
-       
+
     </div>
   </div>
 </div>
@@ -1347,29 +1386,29 @@ exports[`Storyshots IndividualCard Highlighted 1`] = `
           class="v-avatar v-list-item__avatar grey"
           style="height: 30px; min-width: 30px; width: 30px;"
         >
-          
+
       TR
-    
+
         </div>
-         
+
         <div
           class="v-list-item__content"
         >
           <div
             class="v-list-item__title font-weight-medium"
           >
-            
+
         Tom Marvolo Riddle
-      
+
           </div>
-           
+
           <!---->
-           
+
           <div
             class="v-list-item__subtitle"
           />
         </div>
-         
+
         <div
           class="v-list-item__icon"
         >
@@ -1392,7 +1431,7 @@ exports[`Storyshots IndividualCard Highlighted 1`] = `
             </button>
             <!---->
           </div>
-           
+
           <button
             class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
             type="button"
@@ -1409,7 +1448,7 @@ exports[`Storyshots IndividualCard Highlighted 1`] = `
           </button>
         </div>
       </div>
-       
+
     </div>
   </div>
 </div>
@@ -1436,35 +1475,35 @@ exports[`Storyshots IndividualCard Organization 1`] = `
           class="v-avatar v-list-item__avatar grey"
           style="height: 30px; min-width: 30px; width: 30px;"
         >
-          
+
       TR
-    
+
         </div>
-         
+
         <div
           class="v-list-item__content"
         >
           <div
             class="v-list-item__title font-weight-medium"
           >
-            
+
         Tom Marvolo Riddle
-      
+
           </div>
-           
+
           <div
             class="v-list-item__subtitle"
           >
-            
+
         Slytherin
-      
+
           </div>
-           
+
           <div
             class="v-list-item__subtitle"
           />
         </div>
-         
+
         <div
           class="v-list-item__icon"
         >
@@ -1487,7 +1526,7 @@ exports[`Storyshots IndividualCard Organization 1`] = `
             </button>
             <!---->
           </div>
-           
+
           <button
             class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
             type="button"
@@ -1504,7 +1543,7 @@ exports[`Storyshots IndividualCard Organization 1`] = `
           </button>
         </div>
       </div>
-       
+
     </div>
   </div>
 </div>
@@ -1531,29 +1570,29 @@ exports[`Storyshots IndividualCard Single Initial 1`] = `
           class="v-avatar v-list-item__avatar grey"
           style="height: 30px; min-width: 30px; width: 30px;"
         >
-          
+
       V
-    
+
         </div>
-         
+
         <div
           class="v-list-item__content"
         >
           <div
             class="v-list-item__title font-weight-medium"
           >
-            
+
         Voldemort
-      
+
           </div>
-           
+
           <!---->
-           
+
           <div
             class="v-list-item__subtitle"
           />
         </div>
-         
+
         <div
           class="v-list-item__icon"
         >
@@ -1576,7 +1615,7 @@ exports[`Storyshots IndividualCard Single Initial 1`] = `
             </button>
             <!---->
           </div>
-           
+
           <button
             class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
             type="button"
@@ -1593,7 +1632,7 @@ exports[`Storyshots IndividualCard Single Initial 1`] = `
           </button>
         </div>
       </div>
-       
+
     </div>
   </div>
 </div>
@@ -1620,24 +1659,24 @@ exports[`Storyshots IndividualCard Sources 1`] = `
           class="v-avatar v-list-item__avatar grey"
           style="height: 30px; min-width: 30px; width: 30px;"
         >
-          
+
       TR
-    
+
         </div>
-         
+
         <div
           class="v-list-item__content"
         >
           <div
             class="v-list-item__title font-weight-medium"
           >
-            
+
         Tom Marvolo Riddle
-      
+
           </div>
-           
+
           <!---->
-           
+
           <div
             class="v-list-item__subtitle"
           >
@@ -1663,7 +1702,7 @@ exports[`Storyshots IndividualCard Sources 1`] = `
             />
           </div>
         </div>
-         
+
         <div
           class="v-list-item__icon"
         >
@@ -1686,7 +1725,7 @@ exports[`Storyshots IndividualCard Sources 1`] = `
             </button>
             <!---->
           </div>
-           
+
           <button
             class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
             type="button"
@@ -1703,7 +1742,7 @@ exports[`Storyshots IndividualCard Sources 1`] = `
           </button>
         </div>
       </div>
-       
+
     </div>
   </div>
 </div>
@@ -1730,30 +1769,30 @@ exports[`Storyshots IndividualCard Sources And Organization 1`] = `
           class="v-avatar v-list-item__avatar grey"
           style="height: 30px; min-width: 30px; width: 30px;"
         >
-          
+
       TR
-    
+
         </div>
-         
+
         <div
           class="v-list-item__content"
         >
           <div
             class="v-list-item__title font-weight-medium"
           >
-            
+
         Tom Marvolo Riddle
-      
+
           </div>
-           
+
           <div
             class="v-list-item__subtitle"
           >
-            
+
         Slytherin
-      
+
           </div>
-           
+
           <div
             class="v-list-item__subtitle"
           >
@@ -1779,7 +1818,7 @@ exports[`Storyshots IndividualCard Sources And Organization 1`] = `
             />
           </div>
         </div>
-         
+
         <div
           class="v-list-item__icon"
         >
@@ -1802,7 +1841,7 @@ exports[`Storyshots IndividualCard Sources And Organization 1`] = `
             </button>
             <!---->
           </div>
-           
+
           <button
             class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
             type="button"
@@ -1819,7 +1858,7 @@ exports[`Storyshots IndividualCard Sources And Organization 1`] = `
           </button>
         </div>
       </div>
-       
+
     </div>
   </div>
 </div>
@@ -1870,20 +1909,20 @@ exports[`Storyshots IndividualEntry Bot 1`] = `
                     class="v-avatar v-list-item__avatar grey"
                     style="height: 40px; min-width: 40px; width: 40px;"
                   >
-                    
+
         TR
-      
+
                   </div>
-                   
+
                   <div
                     class="v-list-item__content"
                   >
                     <div
                       class="v-list-item__title"
                     >
-                      
+
           Tom Marvolo Riddle
-          
+
                       <span
                         class="v-tooltip v-tooltip--bottom"
                       >
@@ -1894,10 +1933,10 @@ exports[`Storyshots IndividualEntry Bot 1`] = `
                           style="font-size: 16px;"
                         />
                       </span>
-                       
+
                       <!---->
                     </div>
-                     
+
                     <div
                       class="v-list-item__subtitle"
                     >
@@ -1906,15 +1945,15 @@ exports[`Storyshots IndividualEntry Bot 1`] = `
                   </div>
                 </div>
               </td>
-               
+
               <td
                 class="text-center"
               >
-                
+
     triddle@example.com
-  
+
               </td>
-               
+
               <td
                 class="text-right"
               >
@@ -1927,7 +1966,7 @@ exports[`Storyshots IndividualEntry Bot 1`] = `
                   class="v-icon notranslate v-icon--left v-icon--right mdi mdi-account-multiple theme--light"
                 />
               </td>
-               
+
               <td
                 width="140"
               >
@@ -1944,7 +1983,7 @@ exports[`Storyshots IndividualEntry Bot 1`] = `
                     />
                   </span>
                 </button>
-                 
+
                 <div
                   class="v-menu"
                 >
@@ -1966,7 +2005,7 @@ exports[`Storyshots IndividualEntry Bot 1`] = `
                   </button>
                   <!---->
                 </div>
-                 
+
                 <span
                   class="v-tooltip v-tooltip--bottom"
                 >
@@ -2031,20 +2070,20 @@ exports[`Storyshots IndividualEntry Bot And Locked 1`] = `
                     class="v-avatar v-list-item__avatar grey"
                     style="height: 40px; min-width: 40px; width: 40px;"
                   >
-                    
+
         TR
-      
+
                   </div>
-                   
+
                   <div
                     class="v-list-item__content"
                   >
                     <div
                       class="v-list-item__title"
                     >
-                      
+
           Tom Marvolo Riddle
-          
+
                       <span
                         class="v-tooltip v-tooltip--bottom"
                       >
@@ -2055,7 +2094,7 @@ exports[`Storyshots IndividualEntry Bot And Locked 1`] = `
                           style="font-size: 16px;"
                         />
                       </span>
-                       
+
                       <span
                         class="v-tooltip v-tooltip--bottom"
                       >
@@ -2067,7 +2106,7 @@ exports[`Storyshots IndividualEntry Bot And Locked 1`] = `
                         />
                       </span>
                     </div>
-                     
+
                     <div
                       class="v-list-item__subtitle"
                     >
@@ -2076,15 +2115,15 @@ exports[`Storyshots IndividualEntry Bot And Locked 1`] = `
                   </div>
                 </div>
               </td>
-               
+
               <td
                 class="text-center"
               >
-                
+
     triddle@example.com
-  
+
               </td>
-               
+
               <td
                 class="text-right"
               >
@@ -2097,7 +2136,7 @@ exports[`Storyshots IndividualEntry Bot And Locked 1`] = `
                   class="v-icon notranslate v-icon--left v-icon--right mdi mdi-account-multiple theme--light"
                 />
               </td>
-               
+
               <td
                 width="140"
               >
@@ -2114,7 +2153,7 @@ exports[`Storyshots IndividualEntry Bot And Locked 1`] = `
                     />
                   </span>
                 </button>
-                 
+
                 <div
                   class="v-menu"
                 >
@@ -2136,7 +2175,7 @@ exports[`Storyshots IndividualEntry Bot And Locked 1`] = `
                   </button>
                   <!---->
                 </div>
-                 
+
                 <span
                   class="v-tooltip v-tooltip--bottom"
                 >
@@ -2201,25 +2240,25 @@ exports[`Storyshots IndividualEntry Default 1`] = `
                     class="v-avatar v-list-item__avatar grey"
                     style="height: 40px; min-width: 40px; width: 40px;"
                   >
-                    
+
         TR
-      
+
                   </div>
-                   
+
                   <div
                     class="v-list-item__content"
                   >
                     <div
                       class="v-list-item__title"
                     >
-                      
+
           Tom Marvolo Riddle
-          
+
                       <!---->
-                       
+
                       <!---->
                     </div>
-                     
+
                     <div
                       class="v-list-item__subtitle"
                     >
@@ -2228,15 +2267,15 @@ exports[`Storyshots IndividualEntry Default 1`] = `
                   </div>
                 </div>
               </td>
-               
+
               <td
                 class="text-center"
               >
-                
+
     triddle@example.com
-  
+
               </td>
-               
+
               <td
                 class="text-right"
               >
@@ -2249,7 +2288,7 @@ exports[`Storyshots IndividualEntry Default 1`] = `
                   class="v-icon notranslate v-icon--left v-icon--right mdi mdi-account-multiple theme--light"
                 />
               </td>
-               
+
               <td
                 width="140"
               >
@@ -2266,7 +2305,7 @@ exports[`Storyshots IndividualEntry Default 1`] = `
                     />
                   </span>
                 </button>
-                 
+
                 <div
                   class="v-menu"
                 >
@@ -2288,7 +2327,7 @@ exports[`Storyshots IndividualEntry Default 1`] = `
                   </button>
                   <!---->
                 </div>
-                 
+
                 <span
                   class="v-tooltip v-tooltip--bottom"
                 >
@@ -2353,25 +2392,25 @@ exports[`Storyshots IndividualEntry Highlighted 1`] = `
                     class="v-avatar v-list-item__avatar grey"
                     style="height: 40px; min-width: 40px; width: 40px;"
                   >
-                    
+
         TR
-      
+
                   </div>
-                   
+
                   <div
                     class="v-list-item__content"
                   >
                     <div
                       class="v-list-item__title"
                     >
-                      
+
           Tom Marvolo Riddle
-          
+
                       <!---->
-                       
+
                       <!---->
                     </div>
-                     
+
                     <div
                       class="v-list-item__subtitle"
                     >
@@ -2380,15 +2419,15 @@ exports[`Storyshots IndividualEntry Highlighted 1`] = `
                   </div>
                 </div>
               </td>
-               
+
               <td
                 class="text-center"
               >
-                
+
     triddle@example.com
-  
+
               </td>
-               
+
               <td
                 class="text-right"
               >
@@ -2401,7 +2440,7 @@ exports[`Storyshots IndividualEntry Highlighted 1`] = `
                   class="v-icon notranslate v-icon--left v-icon--right mdi mdi-account-multiple theme--light"
                 />
               </td>
-               
+
               <td
                 width="140"
               >
@@ -2418,7 +2457,7 @@ exports[`Storyshots IndividualEntry Highlighted 1`] = `
                     />
                   </span>
                 </button>
-                 
+
                 <div
                   class="v-menu"
                 >
@@ -2440,7 +2479,7 @@ exports[`Storyshots IndividualEntry Highlighted 1`] = `
                   </button>
                   <!---->
                 </div>
-                 
+
                 <span
                   class="v-tooltip v-tooltip--bottom"
                 >
@@ -2505,22 +2544,22 @@ exports[`Storyshots IndividualEntry Locked 1`] = `
                     class="v-avatar v-list-item__avatar grey"
                     style="height: 40px; min-width: 40px; width: 40px;"
                   >
-                    
+
         TR
-      
+
                   </div>
-                   
+
                   <div
                     class="v-list-item__content"
                   >
                     <div
                       class="v-list-item__title"
                     >
-                      
+
           Tom Marvolo Riddle
-          
+
                       <!---->
-                       
+
                       <span
                         class="v-tooltip v-tooltip--bottom"
                       >
@@ -2532,7 +2571,7 @@ exports[`Storyshots IndividualEntry Locked 1`] = `
                         />
                       </span>
                     </div>
-                     
+
                     <div
                       class="v-list-item__subtitle"
                     >
@@ -2541,15 +2580,15 @@ exports[`Storyshots IndividualEntry Locked 1`] = `
                   </div>
                 </div>
               </td>
-               
+
               <td
                 class="text-center"
               >
-                
+
     triddle@example.com
-  
+
               </td>
-               
+
               <td
                 class="text-right"
               >
@@ -2562,7 +2601,7 @@ exports[`Storyshots IndividualEntry Locked 1`] = `
                   class="v-icon notranslate v-icon--left v-icon--right mdi mdi-account-multiple theme--light"
                 />
               </td>
-               
+
               <td
                 width="140"
               >
@@ -2579,7 +2618,7 @@ exports[`Storyshots IndividualEntry Locked 1`] = `
                     />
                   </span>
                 </button>
-                 
+
                 <div
                   class="v-menu"
                 >
@@ -2601,7 +2640,7 @@ exports[`Storyshots IndividualEntry Locked 1`] = `
                   </button>
                   <!---->
                 </div>
-                 
+
                 <span
                   class="v-tooltip v-tooltip--bottom"
                 >
@@ -2666,25 +2705,25 @@ exports[`Storyshots IndividualEntry No Email 1`] = `
                     class="v-avatar v-list-item__avatar grey"
                     style="height: 40px; min-width: 40px; width: 40px;"
                   >
-                    
+
         TR
-      
+
                   </div>
-                   
+
                   <div
                     class="v-list-item__content"
                   >
                     <div
                       class="v-list-item__title"
                     >
-                      
+
           Tom Marvolo Riddle
-          
+
                       <!---->
-                       
+
                       <!---->
                     </div>
-                     
+
                     <div
                       class="v-list-item__subtitle"
                     >
@@ -2693,15 +2732,15 @@ exports[`Storyshots IndividualEntry No Email 1`] = `
                   </div>
                 </div>
               </td>
-               
+
               <td
                 class="text-center"
               >
-                
-    
-  
+
+
+
               </td>
-               
+
               <td
                 class="text-right"
               >
@@ -2714,7 +2753,7 @@ exports[`Storyshots IndividualEntry No Email 1`] = `
                   class="v-icon notranslate v-icon--left v-icon--right mdi mdi-account-multiple theme--light"
                 />
               </td>
-               
+
               <td
                 width="140"
               >
@@ -2731,7 +2770,7 @@ exports[`Storyshots IndividualEntry No Email 1`] = `
                     />
                   </span>
                 </button>
-                 
+
                 <div
                   class="v-menu"
                 >
@@ -2753,7 +2792,7 @@ exports[`Storyshots IndividualEntry No Email 1`] = `
                   </button>
                   <!---->
                 </div>
-                 
+
                 <span
                   class="v-tooltip v-tooltip--bottom"
                 >
@@ -2818,42 +2857,42 @@ exports[`Storyshots IndividualEntry No Organization 1`] = `
                     class="v-avatar v-list-item__avatar grey"
                     style="height: 40px; min-width: 40px; width: 40px;"
                   >
-                    
+
         TR
-      
+
                   </div>
-                   
+
                   <div
                     class="v-list-item__content"
                   >
                     <div
                       class="v-list-item__title"
                     >
-                      
+
           Tom Marvolo Riddle
-          
+
                       <!---->
-                       
+
                       <!---->
                     </div>
-                     
+
                     <div
                       class="v-list-item__subtitle"
                     >
-                      
+
                     </div>
                   </div>
                 </div>
               </td>
-               
+
               <td
                 class="text-center"
               >
-                
+
     triddle@example.com
-  
+
               </td>
-               
+
               <td
                 class="text-right"
               >
@@ -2866,7 +2905,7 @@ exports[`Storyshots IndividualEntry No Organization 1`] = `
                   class="v-icon notranslate v-icon--left v-icon--right mdi mdi-account-multiple theme--light"
                 />
               </td>
-               
+
               <td
                 width="140"
               >
@@ -2883,7 +2922,7 @@ exports[`Storyshots IndividualEntry No Organization 1`] = `
                     />
                   </span>
                 </button>
-                 
+
                 <div
                   class="v-menu"
                 >
@@ -2905,7 +2944,7 @@ exports[`Storyshots IndividualEntry No Organization 1`] = `
                   </button>
                   <!---->
                 </div>
-                 
+
                 <span
                   class="v-tooltip v-tooltip--bottom"
                 >
@@ -2970,25 +3009,25 @@ exports[`Storyshots IndividualEntry Single Inital 1`] = `
                     class="v-avatar v-list-item__avatar grey"
                     style="height: 40px; min-width: 40px; width: 40px;"
                   >
-                    
+
         V
-      
+
                   </div>
-                   
+
                   <div
                     class="v-list-item__content"
                   >
                     <div
                       class="v-list-item__title"
                     >
-                      
+
           Voldemort
-          
+
                       <!---->
-                       
+
                       <!---->
                     </div>
-                     
+
                     <div
                       class="v-list-item__subtitle"
                     >
@@ -2997,15 +3036,15 @@ exports[`Storyshots IndividualEntry Single Inital 1`] = `
                   </div>
                 </div>
               </td>
-               
+
               <td
                 class="text-center"
               >
-                
+
     lord.voldemort@example.com
-  
+
               </td>
-               
+
               <td
                 class="text-right"
               >
@@ -3018,7 +3057,7 @@ exports[`Storyshots IndividualEntry Single Inital 1`] = `
                   class="v-icon notranslate v-icon--left v-icon--right mdi mdi-account-multiple theme--light"
                 />
               </td>
-               
+
               <td
                 width="140"
               >
@@ -3035,7 +3074,7 @@ exports[`Storyshots IndividualEntry Single Inital 1`] = `
                     />
                   </span>
                 </button>
-                 
+
                 <div
                   class="v-menu"
                 >
@@ -3057,7 +3096,7 @@ exports[`Storyshots IndividualEntry Single Inital 1`] = `
                   </button>
                   <!---->
                 </div>
-                 
+
                 <span
                   class="v-tooltip v-tooltip--bottom"
                 >
@@ -3112,24 +3151,24 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   class="v-avatar v-list-item__avatar grey"
                   style="height: 30px; min-width: 30px; width: 30px;"
                 >
-                  
+
       TR
-    
+
                 </div>
-                 
+
                 <div
                   class="v-list-item__content"
                 >
                   <div
                     class="v-list-item__title font-weight-medium"
                   >
-                    
+
         Tom Marvolo Riddle
-      
+
                   </div>
-                   
+
                   <!---->
-                   
+
                   <div
                     class="v-list-item__subtitle"
                   >
@@ -3140,7 +3179,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                     />
                   </div>
                 </div>
-                 
+
                 <div
                   class="v-list-item__icon"
                 >
@@ -3163,7 +3202,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                     </button>
                     <!---->
                   </div>
-                   
+
                   <button
                     class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
                     type="button"
@@ -3180,7 +3219,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   </button>
                 </div>
               </div>
-               
+
             </div>
           </div>
           <div
@@ -3198,24 +3237,24 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   class="v-avatar v-list-item__avatar grey"
                   style="height: 30px; min-width: 30px; width: 30px;"
                 >
-                  
+
       HP
-    
+
                 </div>
-                 
+
                 <div
                   class="v-list-item__content"
                 >
                   <div
                     class="v-list-item__title font-weight-medium"
                   >
-                    
+
         Harry Potter
-      
+
                   </div>
-                   
+
                   <!---->
-                   
+
                   <div
                     class="v-list-item__subtitle"
                   >
@@ -3236,7 +3275,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                     />
                   </div>
                 </div>
-                 
+
                 <div
                   class="v-list-item__icon"
                 >
@@ -3259,7 +3298,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                     </button>
                     <!---->
                   </div>
-                   
+
                   <button
                     class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
                     type="button"
@@ -3276,7 +3315,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   </button>
                 </div>
               </div>
-               
+
             </div>
           </div>
           <div
@@ -3294,24 +3333,24 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   class="v-avatar v-list-item__avatar grey"
                   style="height: 30px; min-width: 30px; width: 30px;"
                 >
-                  
+
       V
-    
+
                 </div>
-                 
+
                 <div
                   class="v-list-item__content"
                 >
                   <div
                     class="v-list-item__title font-weight-medium"
                   >
-                    
+
         Voldemort
-      
+
                   </div>
-                   
+
                   <!---->
-                   
+
                   <div
                     class="v-list-item__subtitle"
                   >
@@ -3322,7 +3361,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                     />
                   </div>
                 </div>
-                 
+
                 <div
                   class="v-list-item__icon"
                 >
@@ -3345,7 +3384,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                     </button>
                     <!---->
                   </div>
-                   
+
                   <button
                     class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
                     type="button"
@@ -3362,7 +3401,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   </button>
                 </div>
               </div>
-               
+
             </div>
           </div>
           <div
@@ -3380,24 +3419,24 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   class="v-avatar v-list-item__avatar grey"
                   style="height: 30px; min-width: 30px; width: 30px;"
                 >
-                  
+
       HG
-    
+
                 </div>
-                 
+
                 <div
                   class="v-list-item__content"
                 >
                   <div
                     class="v-list-item__title font-weight-medium"
                   >
-                    
+
         Hermione Granger
-      
+
                   </div>
-                   
+
                   <!---->
-                   
+
                   <div
                     class="v-list-item__subtitle"
                   >
@@ -3418,7 +3457,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                     />
                   </div>
                 </div>
-                 
+
                 <div
                   class="v-list-item__icon"
                 >
@@ -3441,7 +3480,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                     </button>
                     <!---->
                   </div>
-                   
+
                   <button
                     class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
                     type="button"
@@ -3458,7 +3497,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   </button>
                 </div>
               </div>
-               
+
             </div>
           </div>
           <div
@@ -3476,24 +3515,24 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   class="v-avatar v-list-item__avatar grey"
                   style="height: 30px; min-width: 30px; width: 30px;"
                 >
-                  
+
       AD
-    
+
                 </div>
-                 
+
                 <div
                   class="v-list-item__content"
                 >
                   <div
                     class="v-list-item__title font-weight-medium"
                   >
-                    
+
         Ambus Dumbledore
-      
+
                   </div>
-                   
+
                   <!---->
-                   
+
                   <div
                     class="v-list-item__subtitle"
                   >
@@ -3509,7 +3548,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                     />
                   </div>
                 </div>
-                 
+
                 <div
                   class="v-list-item__icon"
                 >
@@ -3532,7 +3571,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                     </button>
                     <!---->
                   </div>
-                   
+
                   <button
                     class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
                     type="button"
@@ -3549,7 +3588,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   </button>
                 </div>
               </div>
-               
+
             </div>
           </div>
           <div
@@ -3567,24 +3606,24 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   class="v-avatar v-list-item__avatar grey"
                   style="height: 30px; min-width: 30px; width: 30px;"
                 >
-                  
+
       RW
-    
+
                 </div>
-                 
+
                 <div
                   class="v-list-item__content"
                 >
                   <div
                     class="v-list-item__title font-weight-medium"
                   >
-                    
+
         Ron Weasley
-      
+
                   </div>
-                   
+
                   <!---->
-                   
+
                   <div
                     class="v-list-item__subtitle"
                   >
@@ -3605,7 +3644,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                     />
                   </div>
                 </div>
-                 
+
                 <div
                   class="v-list-item__icon"
                 >
@@ -3628,7 +3667,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                     </button>
                     <!---->
                   </div>
-                   
+
                   <button
                     class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
                     type="button"
@@ -3645,7 +3684,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   </button>
                 </div>
               </div>
-               
+
             </div>
           </div>
           <div
@@ -3663,24 +3702,24 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   class="v-avatar v-list-item__avatar grey"
                   style="height: 30px; min-width: 30px; width: 30px;"
                 >
-                  
+
       SS
-    
+
                 </div>
-                 
+
                 <div
                   class="v-list-item__content"
                 >
                   <div
                     class="v-list-item__title font-weight-medium"
                   >
-                    
+
         Severus Snape
-      
+
                   </div>
-                   
+
                   <!---->
-                   
+
                   <div
                     class="v-list-item__subtitle"
                   >
@@ -3701,7 +3740,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                     />
                   </div>
                 </div>
-                 
+
                 <div
                   class="v-list-item__icon"
                 >
@@ -3724,7 +3763,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                     </button>
                     <!---->
                   </div>
-                   
+
                   <button
                     class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
                     type="button"
@@ -3741,7 +3780,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   </button>
                 </div>
               </div>
-               
+
             </div>
           </div>
           <div
@@ -3759,24 +3798,24 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   class="v-avatar v-list-item__avatar grey"
                   style="height: 30px; min-width: 30px; width: 30px;"
                 >
-                  
+
       H
-    
+
                 </div>
-                 
+
                 <div
                   class="v-list-item__content"
                 >
                   <div
                     class="v-list-item__title font-weight-medium"
                   >
-                    
+
         Hagrid
-      
+
                   </div>
-                   
+
                   <!---->
-                   
+
                   <div
                     class="v-list-item__subtitle"
                   >
@@ -3792,7 +3831,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                     />
                   </div>
                 </div>
-                 
+
                 <div
                   class="v-list-item__icon"
                 >
@@ -3815,7 +3854,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                     </button>
                     <!---->
                   </div>
-                   
+
                   <button
                     class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
                     type="button"
@@ -3832,7 +3871,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   </button>
                 </div>
               </div>
-               
+
             </div>
           </div>
         </div>
@@ -3887,11 +3926,11 @@ exports[`Storyshots IndividualsTable Default 1`] = `
             aria-hidden="true"
             class="v-icon notranslate v-icon--left mdi mdi-account-multiple theme--light primary--text"
           />
-          
+
       Individuals
-    
+
         </h4>
-         
+
         <div>
           <span
             class="v-tooltip v-tooltip--bottom"
@@ -3912,7 +3951,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
               </span>
             </button>
           </span>
-           
+
           <span
             class="v-tooltip v-tooltip--bottom"
           >
@@ -3934,7 +3973,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
           </span>
         </div>
       </div>
-       
+
       <div
         class="v-data-table theme--light"
       >
@@ -3970,7 +4009,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
           </table>
         </div>
       </div>
-       
+
       <div
         class="text-center pt-2"
       >
@@ -4001,23 +4040,23 @@ exports[`Storyshots IndividualsTable Default 1`] = `
           </li>
         </ul>
       </div>
-       
+
       <div
         class="v-dialog__container"
         role="dialog"
       >
         <!---->
       </div>
-       
+
       <div
         class="dragged-item v-card v-sheet theme--dark primary"
       >
         <div
           class="v-card__title"
         >
-          
+
       Moving 0
-    
+
         </div>
       </div>
     </div>
@@ -4056,7 +4095,7 @@ exports[`Storyshots OrganizationEntry Default 1`] = `
               >
                 Hogwarts School of Witchcraft and Wizardry
               </td>
-               
+
               <td
                 class="text-right text--secondary"
               >
@@ -4112,7 +4151,7 @@ exports[`Storyshots OrganizationsTable Default 1`] = `
           </table>
         </div>
       </div>
-       
+
       <div
         class="text-center pt-2"
       >
@@ -4170,24 +4209,24 @@ exports[`Storyshots ProfileCard Default 1`] = `
           class="v-avatar v-list-item__avatar grey"
           style="height: 30px; min-width: 30px; width: 30px;"
         >
-          
+
       TR
-    
+
         </div>
-         
+
         <div
           class="v-list-item__content"
         >
           <div
             class="v-list-item__title font-weight-medium"
           >
-            
+
         Tom Marvolo Riddle
-      
+
           </div>
-           
+
           <!---->
-           
+
           <div
             class="v-list-item__subtitle"
           >
@@ -4208,7 +4247,7 @@ exports[`Storyshots ProfileCard Default 1`] = `
             />
           </div>
         </div>
-         
+
         <div
           class="v-list-item__icon"
         >
@@ -4231,7 +4270,7 @@ exports[`Storyshots ProfileCard Default 1`] = `
             </button>
             <!---->
           </div>
-           
+
           <button
             class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
             type="button"
@@ -4248,7 +4287,7 @@ exports[`Storyshots ProfileCard Default 1`] = `
           </button>
         </div>
       </div>
-       
+
       <div
         class="v-list-group"
       >
@@ -4261,9 +4300,9 @@ exports[`Storyshots ProfileCard Default 1`] = `
           <div
             class="v-list-item__title"
           >
-            
+
         Identities (4)
-      
+
           </div>
           <div
             class="v-list-item__icon v-list-group__header__append-icon"
@@ -4276,7 +4315,7 @@ exports[`Storyshots ProfileCard Default 1`] = `
         </div>
         <!---->
       </div>
-       
+
       <div
         class="v-list-group"
       >
@@ -4292,9 +4331,9 @@ exports[`Storyshots ProfileCard Default 1`] = `
             <div
               class="v-list-item__title"
             >
-              
+
           Organizations (2)
-        
+
             </div>
           </div>
           <div
@@ -4335,11 +4374,11 @@ exports[`Storyshots WorkSpace Default 1`] = `
             aria-hidden="true"
             class="v-icon notranslate v-icon--left mdi mdi-pin theme--light primary--text"
           />
-          
+
       Workspace
-    
+
         </h3>
-         
+
         <div>
           <span
             class="v-tooltip v-tooltip--bottom"
@@ -4360,7 +4399,7 @@ exports[`Storyshots WorkSpace Default 1`] = `
               </span>
             </button>
           </span>
-           
+
           <span
             class="v-tooltip v-tooltip--left"
           >
@@ -4381,7 +4420,7 @@ exports[`Storyshots WorkSpace Default 1`] = `
           </span>
         </div>
       </div>
-       
+
       <div
         class="row pa-md-4 ma-md-0 drag-zone row--dense"
       >
@@ -4400,30 +4439,30 @@ exports[`Storyshots WorkSpace Default 1`] = `
                 class="v-avatar v-list-item__avatar grey"
                 style="height: 30px; min-width: 30px; width: 30px;"
               >
-                
+
       TR
-    
+
               </div>
-               
+
               <div
                 class="v-list-item__content"
               >
                 <div
                   class="v-list-item__title font-weight-medium"
                 >
-                  
+
         Tom Marvolo Riddle
-      
+
                 </div>
-                 
+
                 <div
                   class="v-list-item__subtitle"
                 >
-                  
+
         Slytherin
-      
+
                 </div>
-                 
+
                 <div
                   class="v-list-item__subtitle"
                 >
@@ -4444,7 +4483,7 @@ exports[`Storyshots WorkSpace Default 1`] = `
                   />
                 </div>
               </div>
-               
+
               <div
                 class="v-list-item__icon"
               >
@@ -4467,7 +4506,7 @@ exports[`Storyshots WorkSpace Default 1`] = `
                   </button>
                   <!---->
                 </div>
-                 
+
                 <button
                   class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
                   type="button"
@@ -4484,7 +4523,7 @@ exports[`Storyshots WorkSpace Default 1`] = `
                 </button>
               </div>
             </div>
-             
+
           </div>
         </div>
         <div
@@ -4502,30 +4541,30 @@ exports[`Storyshots WorkSpace Default 1`] = `
                 class="v-avatar v-list-item__avatar grey"
                 style="height: 30px; min-width: 30px; width: 30px;"
               >
-                
+
       HP
-    
+
               </div>
-               
+
               <div
                 class="v-list-item__content"
               >
                 <div
                   class="v-list-item__title font-weight-medium"
                 >
-                  
+
         Harry Potter
-      
+
                 </div>
-                 
+
                 <div
                   class="v-list-item__subtitle"
                 >
-                  
+
         Griffyndor
-      
+
                 </div>
-                 
+
                 <div
                   class="v-list-item__subtitle"
                 >
@@ -4546,7 +4585,7 @@ exports[`Storyshots WorkSpace Default 1`] = `
                   />
                 </div>
               </div>
-               
+
               <div
                 class="v-list-item__icon"
               >
@@ -4569,7 +4608,7 @@ exports[`Storyshots WorkSpace Default 1`] = `
                   </button>
                   <!---->
                 </div>
-                 
+
                 <button
                   class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
                   type="button"
@@ -4586,13 +4625,13 @@ exports[`Storyshots WorkSpace Default 1`] = `
                 </button>
               </div>
             </div>
-             
+
           </div>
         </div>
       </div>
-       
+
       <!---->
-       
+
       <div
         class="v-dialog__container"
         role="dialog"
@@ -4627,11 +4666,11 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
               aria-hidden="true"
               class="v-icon notranslate v-icon--left mdi mdi-pin theme--light primary--text"
             />
-            
+
       Workspace
-    
+
           </h3>
-           
+
           <div>
             <span
               class="v-tooltip v-tooltip--bottom"
@@ -4652,7 +4691,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 </span>
               </button>
             </span>
-             
+
             <span
               class="v-tooltip v-tooltip--left"
             >
@@ -4674,17 +4713,17 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
             </span>
           </div>
         </div>
-         
+
         <p
           class="text--disabled pa-md-4 drag-zone"
         >
-          
+
     Save individuals in your work space to perform actions on them.
-  
+
         </p>
-         
+
         <!---->
-         
+
         <div
           class="v-dialog__container"
           role="dialog"
@@ -4692,7 +4731,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
           <!---->
         </div>
       </div>
-       
+
       <div
         class="container"
       >
@@ -4706,11 +4745,11 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
               aria-hidden="true"
               class="v-icon notranslate v-icon--left mdi mdi-account-multiple theme--light primary--text"
             />
-            
+
       Individuals
-    
+
           </h4>
-           
+
           <div>
             <span
               class="v-tooltip v-tooltip--bottom"
@@ -4731,7 +4770,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 </span>
               </button>
             </span>
-             
+
             <span
               class="v-tooltip v-tooltip--bottom"
             >
@@ -4753,7 +4792,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
             </span>
           </div>
         </div>
-         
+
         <div
           class="v-data-table theme--light"
         >
@@ -4789,7 +4828,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
             </table>
           </div>
         </div>
-         
+
         <div
           class="text-center pt-2"
         >
@@ -4820,23 +4859,23 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
             </li>
           </ul>
         </div>
-         
+
         <div
           class="v-dialog__container"
           role="dialog"
         >
           <!---->
         </div>
-         
+
         <div
           class="dragged-item v-card v-sheet theme--dark primary"
         >
           <div
             class="v-card__title"
           >
-            
+
       Moving 0
-    
+
           </div>
         </div>
       </div>
@@ -4867,11 +4906,11 @@ exports[`Storyshots WorkSpace Empty 1`] = `
             aria-hidden="true"
             class="v-icon notranslate v-icon--left mdi mdi-pin theme--light primary--text"
           />
-          
+
       Workspace
-    
+
         </h3>
-         
+
         <div>
           <span
             class="v-tooltip v-tooltip--bottom"
@@ -4892,7 +4931,7 @@ exports[`Storyshots WorkSpace Empty 1`] = `
               </span>
             </button>
           </span>
-           
+
           <span
             class="v-tooltip v-tooltip--left"
           >
@@ -4914,17 +4953,17 @@ exports[`Storyshots WorkSpace Empty 1`] = `
           </span>
         </div>
       </div>
-       
+
       <p
         class="text--disabled pa-md-4 drag-zone"
       >
-        
+
     Save individuals in your work space to perform actions on them.
-  
+
       </p>
-       
+
       <!---->
-       
+
       <div
         class="v-dialog__container"
         role="dialog"

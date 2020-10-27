@@ -9,13 +9,14 @@ export default {
 };
 
 const workSpaceTemplate =
-  '<work-space :individuals="individuals" :merge-items="mergeItems"/>';
+  '<work-space :individuals="individuals" :merge-items="mergeItems" :move-item="moveItem"/>';
 
 const dragAndDropTemplate = `
   <div>
   <work-space
     :individuals="individuals"
     :merge-items="mergeItems"
+    :move-item="moveItem"
     :highlight-individual="highlightInWorkspace"
     @highlight="highlightIndividual($event, 'highlightInTable', true)"
     @stopHighlight="highlightIndividual($event, 'highlightInTable', false)"
@@ -182,6 +183,9 @@ export const Default = () => ({
   methods: {
     mergeItems() {
       this.individuals.pop();
+    },
+    moveItem() {
+      return true;
     }
   }
 });
@@ -195,6 +199,9 @@ export const Empty = () => ({
   methods: {
     mergeItems() {
       this.individuals.pop();
+    },
+    moveItem() {
+      return true;
     }
   }
 });
@@ -211,6 +218,9 @@ export const DragAndDrop = () => ({
     },
     highlightIndividual(individual, component, highlight) {
       this[component] = highlight ? individual.uuid : undefined;
+    },
+    moveItem() {
+      return true;
     }
   },
   data: () => ({

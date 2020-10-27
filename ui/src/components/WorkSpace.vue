@@ -4,8 +4,8 @@
     class="pa-md-4"
     :class="{ dragging: isDragging }"
     @drop.native="onDrop($event)"
-    @dragover.prevent="isDragging = true"
-    @dragenter.prevent="isDragging = true"
+    @dragover.prevent="onDrag($event)"
+    @dragenter.prevent="onDrag($event)"
     @dragleave.prevent="isDragging = false"
   >
     <v-row class="ma-md-0 pt-md-4 pl-md-4 pr-md-4 justify-space-between">
@@ -63,10 +63,11 @@
           :enrollments="individual.enrollments"
           :is-highlighted="individual.uuid === highlightIndividual"
           @merge="mergeSelected($event)"
-          @select="selectIndividual(individual)"
           @mouseenter="$emit('highlight', individual)"
           @mouseleave="$emit('stopHighlight', individual)"
+          @move="move($event)"
           @remove="removeIndividual(individual)"
+          @select="selectIndividual(individual)"
         />
       </v-col>
     </v-row>
@@ -74,8 +75,8 @@
       Save individuals in your work space to perform actions on them.
     </p>
 
-    <v-snackbar v-model="showSnackbar">
-      Individual already in work space
+    <v-snackbar v-model="snackbar.open">
+      {{ snackbar.text }}
     </v-snackbar>
 
     <v-dialog v-model="dialog.open" max-width="400">
@@ -97,7 +98,7 @@
 </template>
 
 <script>
-import { mergeIndividuals } from "../utils/actions";
+import { mergeIndividuals, moveIdentity } from "../utils/actions";
 import IndividualCard from "./IndividualCard.vue";
 export default {
   name: "WorkSpace",
@@ -105,6 +106,10 @@ export default {
     IndividualCard
   },
   props: {
+    highlightIndividual: {
+      type: String,
+      required: false
+    },
     individuals: {
       type: Array,
       required: true
@@ -113,21 +118,24 @@ export default {
       type: Function,
       required: true
     },
-    highlightIndividual: {
-      type: String,
-      required: false
+    moveItem: {
+      type: Function,
+      required: true
     }
   },
   data() {
     return {
       savedIndividuals: this.individuals,
       isDragging: false,
-      showSnackbar: false,
       dialog: {
         open: false,
         title: "",
         text: "",
         action: ""
+      },
+      snackbar: {
+        open: false,
+        text: ""
       }
     };
   },
@@ -142,6 +150,9 @@ export default {
       this.$emit("clearSpace");
     },
     onDrop(evt) {
+      if (event.dataTransfer.getData("type") === "move") {
+        return;
+      }
       const droppedIndividuals = JSON.parse(
         evt.dataTransfer.getData("individuals")
       );
@@ -208,6 +219,33 @@ export default {
         savedIndividual => savedIndividual.uuid !== individual.uuid
       );
       this.$emit("stopHighlight", individual);
+    },
+    move(event) {
+      moveIdentity(event.fromUuid, event.toUuid, this.moveAction, this.dialog);
+    },
+    async moveAction(fromUuid, toUuid) {
+      this.dialog.open = false;
+      try {
+        const response = await this.moveItem(fromUuid, toUuid);
+        if (response) {
+          this.savedIndividuals = this.updateMergedIndividuals(
+            response.data.moveIdentity,
+            [fromUuid]
+          );
+          this.$emit("updateIndividuals");
+        }
+      } catch (error) {
+        Object.assign(this.snackbar, {
+          open: true,
+          text: error
+        });
+      }
+    },
+    onDrag(event) {
+      if (event.dataTransfer.getData("type") === "move") {
+        return;
+      }
+      this.isDragging = true;
     }
   },
   watch: {
