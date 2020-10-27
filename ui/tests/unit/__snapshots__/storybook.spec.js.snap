@@ -91,6 +91,8 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
               </div>
             </div>
           </div>
+           
+          <!---->
         </div>
          
         <!---->
@@ -167,6 +169,8 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
               </div>
             </div>
           </div>
+           
+          <!---->
         </div>
         <div
           class="v-list-item theme--light"
@@ -236,6 +240,8 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
               </div>
             </div>
           </div>
+           
+          <!---->
         </div>
          
         <!---->
@@ -312,6 +318,8 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
               </div>
             </div>
           </div>
+           
+          <!---->
         </div>
          
         <!---->
@@ -507,6 +515,29 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
               </div>
             </div>
           </div>
+           
+          <div
+            class="v-list-item__action"
+          >
+            <span
+              class="v-tooltip v-tooltip--bottom"
+            >
+              <!---->
+              <button
+                class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                type="button"
+              >
+                <span
+                  class="v-btn__content"
+                >
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate mdi mdi-call-split theme--light"
+                  />
+                </span>
+              </button>
+            </span>
+          </div>
         </div>
          
         <hr
@@ -594,6 +625,30 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
               </div>
             </div>
           </div>
+           
+          <div
+            class="v-list-item__action"
+          >
+            <span
+              class="v-tooltip v-tooltip--bottom"
+            >
+              <!---->
+              <button
+                class="v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                disabled="disabled"
+                type="button"
+              >
+                <span
+                  class="v-btn__content"
+                >
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate mdi mdi-call-split theme--light"
+                  />
+                </span>
+              </button>
+            </span>
+          </div>
         </div>
         <div
           class="v-list-item theme--light"
@@ -664,6 +719,29 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
                 </span>
               </div>
             </div>
+          </div>
+           
+          <div
+            class="v-list-item__action"
+          >
+            <span
+              class="v-tooltip v-tooltip--bottom"
+            >
+              <!---->
+              <button
+                class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                type="button"
+              >
+                <span
+                  class="v-btn__content"
+                >
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate mdi mdi-call-split theme--light"
+                  />
+                </span>
+              </button>
+            </span>
           </div>
         </div>
          
@@ -751,6 +829,29 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
                 </span>
               </div>
             </div>
+          </div>
+           
+          <div
+            class="v-list-item__action"
+          >
+            <span
+              class="v-tooltip v-tooltip--bottom"
+            >
+              <!---->
+              <button
+                class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                type="button"
+              >
+                <span
+                  class="v-btn__content"
+                >
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate mdi mdi-call-split theme--light"
+                  />
+                </span>
+              </button>
+            </span>
           </div>
         </div>
          
@@ -950,6 +1051,30 @@ exports[`Storyshots ExpandedIndividual No Organizations 1`] = `
                 </span>
               </div>
             </div>
+          </div>
+           
+          <div
+            class="v-list-item__action"
+          >
+            <span
+              class="v-tooltip v-tooltip--bottom"
+            >
+              <!---->
+              <button
+                class="v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                disabled="disabled"
+                type="button"
+              >
+                <span
+                  class="v-btn__content"
+                >
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate mdi mdi-call-split theme--light"
+                  />
+                </span>
+              </button>
+            </span>
           </div>
         </div>
          

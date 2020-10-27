@@ -7,12 +7,13 @@ export default {
   excludeStories: /.*Data$/
 };
 
-const expandedIndividualTemplate = '<expanded-individual :enrollments="enrollments" :identities="identities" :compact="compact" />';
+const expandedIndividualTemplate = '<expanded-individual :enrollments="enrollments" :identities="identities" :compact="compact" :uuid="uuid" />';
 
 export const Default = () => ({
   components: { ExpandedIndividual },
   template: expandedIndividualTemplate,
   data: () => ({
+    uuid: "06e6903c91180835b6ee91dd56782c6ca72bc562",
     compact: false,
     name: "Tom Marvolo Riddle",
     identities: [
@@ -84,6 +85,7 @@ export const Compact = () => ({
   components: { ExpandedIndividual },
   template: expandedIndividualTemplate,
   data: () => ({
+    uuid: "006afa",
     compact: true,
     name: "Tom Marvolo Riddle",
     identities: [
@@ -155,6 +157,7 @@ export const NoOrganizations = () => ({
   components: { ExpandedIndividual },
   template: expandedIndividualTemplate,
   data: () => ({
+    uuid: "164e41c60c28698ac30b0d17176d3e720e036918",
     compact: false,
     identities: [
       {

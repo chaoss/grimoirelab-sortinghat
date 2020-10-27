@@ -49,6 +49,7 @@
             :fetch-page="getIndividualsPage"
             :delete-item="deleteItem"
             :merge-items="mergeItems"
+            :unmerge-items="unmergeItems"
             :highlight-individual="highlightInTable"
             @saveIndividual="addSavedIndividual"
             @highlight="
@@ -77,7 +78,7 @@ import {
   getPaginatedIndividuals,
   getPaginatedOrganizations
 } from "./apollo/queries";
-import { deleteIdentity, merge } from "./apollo/mutations";
+import { deleteIdentity, merge, unmerge } from "./apollo/mutations";
 import IndividualsTable from "./components/IndividualsTable";
 import OrganizationsTable from "./components/OrganizationsTable";
 import WorkSpace from "./components/WorkSpace";
@@ -133,6 +134,10 @@ export default {
     },
     highlightIndividual(individual, component, highlight) {
       this[component] = highlight ? individual.uuid : undefined;
+    },
+    async unmergeItems(uuids) {
+      const response = await unmerge(this.$apollo, uuids);
+      return response;
     }
   }
 };

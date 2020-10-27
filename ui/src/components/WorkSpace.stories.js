@@ -24,6 +24,7 @@ const dragAndDropTemplate = `
     :fetch-page="queryIndividuals.bind(this)"
     :delete-item="deleteItem"
     :merge-items="deleteItem"
+    :unmerge-items="deleteItem"
     :highlight-individual="highlightInTable"
     @highlight="highlightIndividual($event, 'highlightInWorkspace', true)"
     @stopHighlight="highlightIndividual($event, 'highlightInWorkspace', false)"
