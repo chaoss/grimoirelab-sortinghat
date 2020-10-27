@@ -8,9 +8,9 @@
     >
       <v-list-item
         v-for="(identity, index) in sortSources(source.identities, 'source')"
-        :class="{ draggable: !compact }"
+        :class="{ draggable: !compact && identity.uuid !== uuid }"
         :key="identity.uuid"
-        :draggable="!compact"
+        :draggable="!compact && identity.uuid !== uuid"
         @dragstart.native="startDrag(identity, $event)"
         @dragend.native="dragEnd($event)"
       >
@@ -32,7 +32,7 @@
           />
         </v-list-item-content>
 
-        <v-list-item-action v-if="!compact">
+        <div v-if="!compact">
           <v-tooltip bottom transition="expand-y-transition" open-delay="200">
             <template v-slot:activator="{ on }">
               <v-btn
@@ -50,11 +50,13 @@
           </v-tooltip>
           <v-tooltip bottom transition="expand-y-transition" open-delay="200">
             <template v-slot:activator="{ on }">
-              <v-icon v-on="on">mdi-drag-vertical</v-icon>
+              <v-icon :disabled="identity.uuid === uuid" v-on="on">
+                mdi-drag-vertical
+              </v-icon>
             </template>
             <span>Move identity</span>
           </v-tooltip>
-        </v-list-item-action>
+        </div>
       </v-list-item>
       <v-divider
         inset
@@ -186,6 +188,10 @@ td {
 
 .draggable {
   cursor: pointer;
+
+  &:hover {
+    background: #eeeeee;
+  }
 }
 
 .dragged-item {

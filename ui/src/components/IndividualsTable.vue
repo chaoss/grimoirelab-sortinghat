@@ -66,6 +66,7 @@
           @select="selectIndividual(item)"
           @delete="confirmDelete([item])"
           @merge="mergeSelected([item.uuid, ...$event])"
+          @move="move($event)"
           @highlight="$emit('highlight', item)"
           @stopHighlight="$emit('stopHighlight', item)"
         />
@@ -114,7 +115,7 @@
 </template>
 
 <script>
-import { mergeIndividuals } from "../utils/actions";
+import { mergeIndividuals, moveIdentity } from "../utils/actions";
 import IndividualEntry from "./IndividualEntry.vue";
 import ExpandedIndividual from "./ExpandedIndividual.vue";
 
@@ -149,6 +150,10 @@ export default {
     highlightIndividual: {
       type: String,
       required: false
+    },
+    moveItem: {
+      type: Function,
+      required: true
     }
   },
   data() {
@@ -291,6 +296,16 @@ export default {
           response.data.unmergeIdentities.individuals
         );
         this.$emit("saveIndividual", unmergedItems[0]);
+        this.queryIndividuals(this.page);
+      }
+    },
+    move(event) {
+      moveIdentity(event.fromUuid, event.toUuid, this.moveAction, this.dialog);
+    },
+    async moveAction(fromUuid, toUuid) {
+      this.dialog.open = false;
+      const response = await this.moveItem(fromUuid, toUuid);
+      if (response) {
         this.queryIndividuals(this.page);
       }
     }

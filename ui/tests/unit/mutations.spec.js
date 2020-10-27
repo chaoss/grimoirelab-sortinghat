@@ -105,7 +105,7 @@ describe("IndividualsTable", () => {
         deleteItem: mutate,
         mergeItems: () => {},
         unmergeItems: () => {},
-        moveItems: () => {},
+        moveItem: () => {},
         fetchPage: () => {}
       }
     });
@@ -127,7 +127,7 @@ describe("IndividualsTable", () => {
       propsData: {
         mergeItems: mutate,
         unmergeItems: () => {},
-        moveItems: () => {},
+        moveItem: () => {},
         deleteItem: () => {},
         fetchPage: () => {}
       }
@@ -151,7 +151,7 @@ describe("IndividualsTable", () => {
         unmergeItems: mutate,
         mergeItems: () => {},
         deleteItem: () => {},
-        moveItems: () => {},
+        moveItem: () => {},
         fetchPage: () => {}
       }
     });
@@ -174,7 +174,7 @@ describe("IndividualsTable", () => {
         }
       },
       propsData: {
-        moveItems: mutate,
+        moveItem: mutate,
         mergeItems: () => {},
         deleteItem: () => {},
         fetchPage: () => {},

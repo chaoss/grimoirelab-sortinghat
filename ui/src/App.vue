@@ -51,6 +51,7 @@
             :delete-item="deleteItem"
             :merge-items="mergeItems"
             :unmerge-items="unmergeItems"
+            :move-item="moveItem"
             :highlight-individual="highlightInTable"
             @saveIndividual="addSavedIndividual"
             @highlight="
@@ -79,7 +80,12 @@ import {
   getPaginatedIndividuals,
   getPaginatedOrganizations
 } from "./apollo/queries";
-import { deleteIdentity, merge, unmerge, moveIdentity } from "./apollo/mutations";
+import {
+  deleteIdentity,
+  merge,
+  unmerge,
+  moveIdentity
+} from "./apollo/mutations";
 import IndividualsTable from "./components/IndividualsTable";
 import OrganizationsTable from "./components/OrganizationsTable";
 import WorkSpace from "./components/WorkSpace";
@@ -143,7 +149,7 @@ export default {
     async moveItem(fromUuid, toUuid) {
       const response = await moveIdentity(this.$apollo, fromUuid, toUuid);
       return response;
-    },
+    }
   }
 };
 </script>

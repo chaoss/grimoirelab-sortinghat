@@ -26,6 +26,7 @@ const dragAndDropTemplate = `
     :delete-item="deleteItem"
     :merge-items="deleteItem"
     :unmerge-items="deleteItem"
+    :move-item="moveItem"
     :highlight-individual="highlightInTable"
     @highlight="highlightIndividual($event, 'highlightInWorkspace', true)"
     @stopHighlight="highlightIndividual($event, 'highlightInWorkspace', false)"

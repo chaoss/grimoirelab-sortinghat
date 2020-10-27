@@ -2,7 +2,6 @@
 
 exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
 <v-container-stub
-  moveitems="() => {}"
   tag="div"
 >
   <v-row-stub
@@ -247,7 +246,6 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
 
 exports[`IndividualsTable Mock query for merge 1`] = `
 <v-container-stub
-  moveitems="() => {}"
   tag="div"
 >
   <v-row-stub
@@ -492,9 +490,6 @@ exports[`IndividualsTable Mock query for merge 1`] = `
 
 exports[`IndividualsTable Mock query for moveIdentity 1`] = `
 <v-container-stub
-  moveitems="function mockConstructor() {
-        return fn.apply(this, arguments);
-      }"
   tag="div"
 >
   <v-row-stub

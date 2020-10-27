@@ -182,16 +182,28 @@ export default {
     },
     onDrop(event) {
       this.isDragging = false;
-      const droppedIndividuals = JSON.parse(
-        event.dataTransfer.getData("individuals")
-      );
       if (this.isLocked) {
         return;
       }
+      const type = event.dataTransfer.getData("type");
+      if (type === "move") {
+        this.moveIndividual(event);
+      } else {
+        this.mergeIndividuals(event);
+      }
+    },
+    mergeIndividuals(event) {
+      const droppedIndividuals = JSON.parse(
+        event.dataTransfer.getData("individuals")
+      );
       this.$emit(
         "merge",
         droppedIndividuals.map(individual => individual.uuid)
       );
+    },
+    moveIndividual(event) {
+      const uuid = event.dataTransfer.getData("uuid");
+      this.$emit("move", { fromUuid: uuid, toUuid: this.uuid });
     }
   }
 };
