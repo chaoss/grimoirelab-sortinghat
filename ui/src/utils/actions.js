@@ -35,4 +35,25 @@ const moveIdentity = (fromUuid, toUuid, action, dialog) => {
   });
 };
 
-export { mergeIndividuals, moveIdentity };
+const groupIdentities = identities => {
+  const icons = ["git", "github", "gitlab"];
+  const groupedIdentities = identities.reduce((result, val) => {
+    let source = val.source.toLowerCase();
+    if (!icons.find(icon => icon === source)) {
+      source = "others";
+    }
+    if (result[source]) {
+      result[source].identities.push(val);
+    } else {
+      result[source] = {
+        name: source,
+        identities: [val]
+      };
+    }
+    return result;
+  }, {});
+
+  return Object.values(groupedIdentities);
+};
+
+export { mergeIndividuals, moveIdentity, groupIdentities };

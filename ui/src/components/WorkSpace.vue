@@ -98,7 +98,11 @@
 </template>
 
 <script>
-import { mergeIndividuals, moveIdentity } from "../utils/actions";
+import {
+  mergeIndividuals,
+  moveIdentity,
+  groupIdentities
+} from "../utils/actions";
 import IndividualCard from "./IndividualCard.vue";
 export default {
   name: "WorkSpace",
@@ -188,7 +192,8 @@ export default {
         uuid: updated.uuid,
         id: updated.individual.profile.id,
         sources: this.getSourceIcons(updated.individual.identities),
-        isSelected: false
+        isSelected: false,
+        identities: groupIdentities(updated.individual.identities)
       };
       const updatedIndex = this.savedIndividuals.findIndex(
         individual => individual.id === updatedIndividual.id

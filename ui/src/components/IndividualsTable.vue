@@ -115,7 +115,11 @@
 </template>
 
 <script>
-import { mergeIndividuals, moveIdentity } from "../utils/actions";
+import {
+  mergeIndividuals,
+  moveIdentity,
+  groupIdentities
+} from "../utils/actions";
 import IndividualEntry from "./IndividualEntry.vue";
 import ExpandedIndividual from "./ExpandedIndividual.vue";
 
@@ -211,10 +215,10 @@ export default {
           organization: item.enrollments[0]
             ? item.enrollments[0].organization.name
             : "",
-          sources: this.groupIdentities(item.identities).map(
+          sources: groupIdentities(item.identities).map(
             identity => identity.name
           ),
-          identities: this.groupIdentities(item.identities),
+          identities: groupIdentities(item.identities),
           enrollments: item.enrollments,
           isLocked: item.isLocked,
           isBot: item.profile.isBot,
@@ -224,26 +228,6 @@ export default {
       });
 
       return formattedList;
-    },
-    groupIdentities(identities) {
-      const icons = ["git", "github", "gitlab"];
-      const groupedIdentities = identities.reduce((result, val) => {
-        let source = val.source.toLowerCase();
-        if (!icons.find(icon => icon === source)) {
-          source = "others";
-        }
-        if (result[source]) {
-          result[source].identities.push(val);
-        } else {
-          result[source] = {
-            name: source,
-            identities: [val]
-          };
-        }
-        return result;
-      }, {});
-
-      return Object.values(groupedIdentities);
     },
     startDrag(item, event) {
       item.isSelected = true;
@@ -284,6 +268,10 @@ export default {
       if (response) {
         this.queryIndividuals(this.page);
         this.dialog.open = false;
+        this.$emit("updateWorkspace", {
+          update: this.formatIndividuals([response.data.merge.individual]),
+          remove: fromUuids
+        });
       }
     },
     mergeSelected(individuals) {
@@ -307,6 +295,11 @@ export default {
       const response = await this.moveItem(fromUuid, toUuid);
       if (response) {
         this.queryIndividuals(this.page);
+        this.$emit("updateWorkspace", {
+          update: this.formatIndividuals([
+            response.data.moveIdentity.individual
+          ])
+        });
       }
     }
   }

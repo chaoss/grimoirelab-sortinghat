@@ -54,6 +54,7 @@
             :move-item="moveItem"
             :highlight-individual="highlightInTable"
             @saveIndividual="addSavedIndividual"
+            @updateWorkspace="updateWorkspace"
             @highlight="
               highlightIndividual($event, 'highlightInWorkspace', true)
             "
@@ -138,6 +139,28 @@ export default {
     },
     updateTable() {
       this.$refs.table.queryIndividuals();
+    },
+    updateWorkspace(event) {
+      if (event.remove) {
+        event.remove.forEach(removedItem => {
+          const removedIndex = this.savedIndividuals.findIndex(
+            individual => individual.uuid == removedItem
+          );
+          if (removedIndex !== -1) {
+            this.savedIndividuals.splice(removedIndex, 1);
+          }
+        });
+      }
+      if (event.update) {
+        event.update.forEach(updatedItem => {
+          const updatedIndex = this.savedIndividuals.findIndex(
+            individual => individual.uuid == updatedItem.uuid
+          );
+          if (updatedIndex !== -1) {
+            Object.assign(this.savedIndividuals[updatedIndex], updatedItem);
+          }
+        });
+      }
     },
     highlightIndividual(individual, component, highlight) {
       this[component] = highlight ? individual.uuid : undefined;

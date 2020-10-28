@@ -37,7 +37,11 @@ const MERGE = gql`
       individual {
         isLocked
         identities {
+          name
           source
+          email
+          uuid
+          username
         }
         profile {
           name
@@ -89,7 +93,11 @@ const MOVE_IDENTITY = gql`
       individual {
         isLocked
         identities {
+          name
           source
+          email
+          uuid
+          username
         }
         profile {
           name
