@@ -287,8 +287,10 @@ export default {
     async unmerge(uuids) {
       const response = await this.unmergeItems(uuids);
       if (response && response.data) {
-        const unmergedItems = this.formatIndividuals(response.data.unmergeIdentities.individuals);
-        this.$emit('saveIndividual', unmergedItems[0])
+        const unmergedItems = this.formatIndividuals(
+          response.data.unmergeIdentities.individuals
+        );
+        this.$emit("saveIndividual", unmergedItems[0]);
         this.queryIndividuals(this.page);
       }
     }

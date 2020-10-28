@@ -127,7 +127,7 @@ const unmerge = (apollo, uuids) => {
   let response = apollo.mutate({
     mutation: UNMERGE,
     variables: {
-      uuids: uuids,
+      uuids: uuids
     }
   });
   return response;
