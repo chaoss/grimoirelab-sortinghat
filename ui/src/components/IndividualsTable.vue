@@ -245,6 +245,9 @@ export default {
     selectIndividual(individual) {
       individual.isSelected = !individual.isSelected;
     },
+    deselectIndividuals() {
+      this.individuals.forEach(individual => individual.isSelected = false);
+    },
     async deleteIndividuals(individuals) {
       const response = await Promise.all(
         individuals.map(individual => this.deleteItem(individual.uuid))
