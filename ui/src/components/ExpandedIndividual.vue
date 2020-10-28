@@ -29,11 +29,7 @@
         </v-list-item-content>
 
         <v-list-item-action v-if="!compact">
-          <v-tooltip
-            bottom
-            transition="expand-y-transition"
-            open-delay="200"
-          >
+          <v-tooltip bottom transition="expand-y-transition" open-delay="200">
             <template v-slot:activator="{ on }">
               <v-btn
                 icon
@@ -49,7 +45,6 @@
             <span>Split identity</span>
           </v-tooltip>
         </v-list-item-action>
-
       </v-list-item>
       <v-divider
         inset
