@@ -35,9 +35,10 @@
 
     <v-content>
       <work-space
+        :highlight-individual="highlightInWorkspace"
         :individuals="savedIndividuals"
         :merge-items="mergeItems"
-        :highlight-individual="highlightInWorkspace"
+        :move-item="moveItem"
         @clearSpace="savedIndividuals = []"
         @updateIndividuals="updateTable"
         @highlight="highlightIndividual($event, 'highlightInTable', true)"
@@ -50,8 +51,10 @@
             :delete-item="deleteItem"
             :merge-items="mergeItems"
             :unmerge-items="unmergeItems"
+            :move-item="moveItem"
             :highlight-individual="highlightInTable"
             @saveIndividual="addSavedIndividual"
+            @updateWorkspace="updateWorkspace"
             @highlight="
               highlightIndividual($event, 'highlightInWorkspace', true)
             "
@@ -78,7 +81,12 @@ import {
   getPaginatedIndividuals,
   getPaginatedOrganizations
 } from "./apollo/queries";
-import { deleteIdentity, merge, unmerge } from "./apollo/mutations";
+import {
+  deleteIdentity,
+  merge,
+  unmerge,
+  moveIdentity
+} from "./apollo/mutations";
 import IndividualsTable from "./components/IndividualsTable";
 import OrganizationsTable from "./components/OrganizationsTable";
 import WorkSpace from "./components/WorkSpace";
@@ -132,11 +140,37 @@ export default {
     updateTable() {
       this.$refs.table.queryIndividuals();
     },
+    updateWorkspace(event) {
+      if (event.remove) {
+        event.remove.forEach(removedItem => {
+          const removedIndex = this.savedIndividuals.findIndex(
+            individual => individual.uuid == removedItem
+          );
+          if (removedIndex !== -1) {
+            this.savedIndividuals.splice(removedIndex, 1);
+          }
+        });
+      }
+      if (event.update) {
+        event.update.forEach(updatedItem => {
+          const updatedIndex = this.savedIndividuals.findIndex(
+            individual => individual.uuid == updatedItem.uuid
+          );
+          if (updatedIndex !== -1) {
+            Object.assign(this.savedIndividuals[updatedIndex], updatedItem);
+          }
+        });
+      }
+    },
     highlightIndividual(individual, component, highlight) {
       this[component] = highlight ? individual.uuid : undefined;
     },
     async unmergeItems(uuids) {
       const response = await unmerge(this.$apollo, uuids);
+      return response;
+    },
+    async moveItem(fromUuid, toUuid) {
+      const response = await moveIdentity(this.$apollo, fromUuid, toUuid);
       return response;
     }
   }

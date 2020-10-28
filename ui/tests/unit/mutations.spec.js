@@ -71,6 +71,26 @@ const unmergeResponse = {
   }
 };
 
+const moveResponse = {
+  data: {
+    moveIdentity: {
+      uuid: "7eb22d2a28e3f450ad4fbe171f156a9fab1d3971",
+      individual: {
+        isLocked: false,
+        identities: [
+          { source: "git" },
+          { source: "gitlab" }
+        ],
+        profile: {
+          name: "Test",
+          id: "254"
+        },
+        enrollments: []
+      }
+    }
+  }
+};
+
 describe("IndividualsTable", () => {
   test("Mock query for deleteIdentity", async () => {
     const mutate = jest.fn(() => Promise.resolve(deleteResponse));
@@ -85,6 +105,7 @@ describe("IndividualsTable", () => {
         deleteItem: mutate,
         mergeItems: () => {},
         unmergeItems: () => {},
+        moveItem: () => {},
         fetchPage: () => {}
       }
     });
@@ -106,6 +127,7 @@ describe("IndividualsTable", () => {
       propsData: {
         mergeItems: mutate,
         unmergeItems: () => {},
+        moveItem: () => {},
         deleteItem: () => {},
         fetchPage: () => {}
       }
@@ -129,6 +151,7 @@ describe("IndividualsTable", () => {
         unmergeItems: mutate,
         mergeItems: () => {},
         deleteItem: () => {},
+        moveItem: () => {},
         fetchPage: () => {}
       }
     });
@@ -136,6 +159,33 @@ describe("IndividualsTable", () => {
       "3db176be6859adac3a454c5377af81b1b7e3f8d8",
       "10982379421b80e13266db011d6e5131dd519016"
     ]);
+
+    expect(mutate).toBeCalled();
+    expect(wrapper.element).toMatchSnapshot();
+  });
+
+  test("Mock query for moveIdentity", async () => {
+    const mutate = jest.fn(() => Promise.resolve(moveResponse));
+    const wrapper = shallowMount(IndividualsTable, {
+      Vue,
+      mocks: {
+        $apollo: {
+          mutate
+        }
+      },
+      propsData: {
+        moveItem: mutate,
+        mergeItems: () => {},
+        deleteItem: () => {},
+        fetchPage: () => {},
+        unmergeItems: mutate
+      }
+    });
+    const response = await Mutations.moveIdentity(
+      wrapper.vm.$apollo,
+      "5f06473815dc415c9861680de8101813d9eb18e8",
+      "7eb22d2a28e3f450ad4fbe171f156a9fab1d3971"
+    );
 
     expect(mutate).toBeCalled();
     expect(wrapper.element).toMatchSnapshot();

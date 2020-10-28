@@ -37,7 +37,11 @@ const MERGE = gql`
       individual {
         isLocked
         identities {
+          name
           source
+          email
+          uuid
+          username
         }
         profile {
           name
@@ -73,6 +77,33 @@ const UNMERGE = gql`
         enrollments {
           start
           end
+          organization {
+            name
+          }
+        }
+      }
+    }
+  }
+`;
+
+const MOVE_IDENTITY = gql`
+  mutation moveIdentity($fromUuid: String!, $toUuid: String!) {
+    moveIdentity(fromUuid: $fromUuid, toUuid: $toUuid) {
+      uuid
+      individual {
+        isLocked
+        identities {
+          name
+          source
+          email
+          uuid
+          username
+        }
+        profile {
+          name
+          id
+        }
+        enrollments {
           organization {
             name
           }
@@ -133,4 +164,22 @@ const unmerge = (apollo, uuids) => {
   return response;
 };
 
-export { lockIndividual, unlockIndividual, deleteIdentity, merge, unmerge };
+const moveIdentity = (apollo, fromUuid, toUuid) => {
+  let response = apollo.mutate({
+    mutation: MOVE_IDENTITY,
+    variables: {
+      fromUuid: fromUuid,
+      toUuid: toUuid
+    }
+  });
+  return response;
+};
+
+export {
+  lockIndividual,
+  unlockIndividual,
+  deleteIdentity,
+  merge,
+  unmerge,
+  moveIdentity
+};

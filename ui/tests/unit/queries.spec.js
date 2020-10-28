@@ -204,6 +204,7 @@ describe("IndividualsTable", () => {
         fetchPage: query,
         mergeItems: () => {},
         unmergeItems: () => {},
+        moveItem: () => {},
         deleteItem: () => {}
       }
     });

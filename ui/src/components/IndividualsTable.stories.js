@@ -13,6 +13,7 @@ const IndividualsTableTemplate = `
     :delete-item="deleteIndividual"
     :merge-items="deleteIndividual"
     :unmerge-items="deleteIndividual"
+    :move-item="deleteIndividual"
   />
 `;
 

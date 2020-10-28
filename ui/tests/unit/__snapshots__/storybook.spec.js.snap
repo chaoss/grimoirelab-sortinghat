@@ -25,6 +25,7 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
       >
         <div
           class="v-list-item theme--light"
+          draggable="false"
           role="listitem"
           tabindex="-1"
         >
@@ -103,6 +104,7 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
       >
         <div
           class="v-list-item theme--light"
+          draggable="false"
           role="listitem"
           tabindex="-1"
         >
@@ -174,6 +176,7 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
         </div>
         <div
           class="v-list-item theme--light"
+          draggable="false"
           role="listitem"
           tabindex="-1"
         >
@@ -252,6 +255,7 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
       >
         <div
           class="v-list-item theme--light"
+          draggable="false"
           role="listitem"
           tabindex="-1"
         >
@@ -412,6 +416,16 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
           </div>
         </div>
       </div>
+       
+      <div
+        class="dragged-item v-card v-sheet theme--dark primary"
+      >
+        <div
+          class="v-card__title"
+        >
+           Moving 1
+        </div>
+      </div>
     </td>
   </div>
 </div>
@@ -441,7 +455,8 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
         role="list"
       >
         <div
-          class="v-list-item theme--light"
+          class="v-list-item theme--light draggable"
+          draggable="true"
           role="listitem"
           tabindex="-1"
         >
@@ -516,9 +531,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
             </div>
           </div>
            
-          <div
-            class="v-list-item__action"
-          >
+          <div>
             <span
               class="v-tooltip v-tooltip--bottom"
             >
@@ -537,6 +550,16 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
                 </span>
               </button>
             </span>
+             
+            <span
+              class="v-tooltip v-tooltip--bottom"
+            >
+              <!---->
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate mdi mdi-drag-vertical theme--light"
+              />
+            </span>
           </div>
         </div>
          
@@ -552,6 +575,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
       >
         <div
           class="v-list-item theme--light"
+          draggable="false"
           role="listitem"
           tabindex="-1"
         >
@@ -626,9 +650,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
             </div>
           </div>
            
-          <div
-            class="v-list-item__action"
-          >
+          <div>
             <span
               class="v-tooltip v-tooltip--bottom"
             >
@@ -648,10 +670,21 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
                 </span>
               </button>
             </span>
+             
+            <span
+              class="v-tooltip v-tooltip--bottom"
+            >
+              <!---->
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate v-icon--disabled mdi mdi-drag-vertical theme--light"
+              />
+            </span>
           </div>
         </div>
         <div
-          class="v-list-item theme--light"
+          class="v-list-item theme--light draggable"
+          draggable="true"
           role="listitem"
           tabindex="-1"
         >
@@ -721,9 +754,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
             </div>
           </div>
            
-          <div
-            class="v-list-item__action"
-          >
+          <div>
             <span
               class="v-tooltip v-tooltip--bottom"
             >
@@ -742,6 +773,16 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
                 </span>
               </button>
             </span>
+             
+            <span
+              class="v-tooltip v-tooltip--bottom"
+            >
+              <!---->
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate mdi mdi-drag-vertical theme--light"
+              />
+            </span>
           </div>
         </div>
          
@@ -756,7 +797,8 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
         role="list"
       >
         <div
-          class="v-list-item theme--light"
+          class="v-list-item theme--light draggable"
+          draggable="true"
           role="listitem"
           tabindex="-1"
         >
@@ -831,9 +873,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
             </div>
           </div>
            
-          <div
-            class="v-list-item__action"
-          >
+          <div>
             <span
               class="v-tooltip v-tooltip--bottom"
             >
@@ -851,6 +891,16 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
                   />
                 </span>
               </button>
+            </span>
+             
+            <span
+              class="v-tooltip v-tooltip--bottom"
+            >
+              <!---->
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate mdi mdi-drag-vertical theme--light"
+              />
             </span>
           </div>
         </div>
@@ -949,6 +999,16 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
           </div>
         </div>
       </div>
+       
+      <div
+        class="dragged-item v-card v-sheet theme--dark primary"
+      >
+        <div
+          class="v-card__title"
+        >
+           Moving 1
+        </div>
+      </div>
     </td>
   </div>
 </div>
@@ -979,6 +1039,7 @@ exports[`Storyshots ExpandedIndividual No Organizations 1`] = `
       >
         <div
           class="v-list-item theme--light"
+          draggable="false"
           role="listitem"
           tabindex="-1"
         >
@@ -1053,9 +1114,7 @@ exports[`Storyshots ExpandedIndividual No Organizations 1`] = `
             </div>
           </div>
            
-          <div
-            class="v-list-item__action"
-          >
+          <div>
             <span
               class="v-tooltip v-tooltip--bottom"
             >
@@ -1074,6 +1133,16 @@ exports[`Storyshots ExpandedIndividual No Organizations 1`] = `
                   />
                 </span>
               </button>
+            </span>
+             
+            <span
+              class="v-tooltip v-tooltip--bottom"
+            >
+              <!---->
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate v-icon--disabled mdi mdi-drag-vertical theme--light"
+              />
             </span>
           </div>
         </div>
@@ -1097,6 +1166,16 @@ exports[`Storyshots ExpandedIndividual No Organizations 1`] = `
           Organizations (0)
         </div>
          
+      </div>
+       
+      <div
+        class="dragged-item v-card v-sheet theme--dark primary"
+      >
+        <div
+          class="v-card__title"
+        >
+           Moving 1
+        </div>
       </div>
     </td>
   </div>
