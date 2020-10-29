@@ -170,6 +170,7 @@ export default {
         .map(individual => Object.assign(individual, { isSelected: false }));
       this.savedIndividuals.push(...newIndividuals);
       this.isDragging = false;
+      this.$emit("deselect");
     },
     async merge(fromUuids, toUuid) {
       const response = await this.mergeItems(fromUuids, toUuid);

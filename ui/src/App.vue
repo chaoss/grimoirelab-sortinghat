@@ -43,6 +43,7 @@
         @updateIndividuals="updateTable"
         @highlight="highlightIndividual($event, 'highlightInTable', true)"
         @stopHighlight="highlightIndividual($event, 'highlightInTable', false)"
+        @deselect="deselectIndividuals"
       />
       <v-row>
         <v-col class="individuals elevation-2">
@@ -172,6 +173,9 @@ export default {
     async moveItem(fromUuid, toUuid) {
       const response = await moveIdentity(this.$apollo, fromUuid, toUuid);
       return response;
+    },
+    deselectIndividuals() {
+      this.$refs.table.deselectIndividuals();
     }
   }
 };

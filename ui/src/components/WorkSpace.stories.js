@@ -20,6 +20,7 @@ const dragAndDropTemplate = `
     :highlight-individual="highlightInWorkspace"
     @highlight="highlightIndividual($event, 'highlightInTable', true)"
     @stopHighlight="highlightIndividual($event, 'highlightInTable', false)"
+    @deselect="deselectIndividuals"
   />
   <individuals-table
     :fetch-page="queryIndividuals.bind(this)"
@@ -30,6 +31,7 @@ const dragAndDropTemplate = `
     :highlight-individual="highlightInTable"
     @highlight="highlightIndividual($event, 'highlightInWorkspace', true)"
     @stopHighlight="highlightIndividual($event, 'highlightInWorkspace', false)"
+    ref="table"
   />
   </div>
 `;
@@ -222,6 +224,9 @@ export const DragAndDrop = () => ({
     },
     moveItem() {
       return true;
+    },
+    deselectIndividuals() {
+      this.$refs.table.deselectIndividuals();
     }
   },
   data: () => ({
