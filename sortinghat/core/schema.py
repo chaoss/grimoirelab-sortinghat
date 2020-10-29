@@ -27,6 +27,7 @@ import graphql_jwt
 
 from django.conf import settings
 from django.core.paginator import Paginator
+from django.db.models import Q, Subquery
 
 from django_mysql.models import JSONField
 
@@ -195,6 +196,7 @@ class OrganizationFilterType(graphene.InputObjectType):
 
 class IdentityFilterType(graphene.InputObjectType):
     uuid = graphene.String(required=False)
+    term = graphene.String(required=False)
     is_locked = graphene.Boolean(required=False)
 
 
@@ -725,6 +727,16 @@ class SortingHatQuery:
 
         if filters and 'uuid' in filters:
             query = query.filter(mk=filters['uuid'])
+        if filters and 'term' in filters:
+            search_term = filters['term']
+            # Filter matching individuals by their mk and their identities
+            query = query.filter(mk__in=Subquery(Identity.objects
+                                                 .filter(Q(name__icontains=search_term) |
+                                                         Q(email__icontains=search_term) |
+                                                         Q(username__icontains=search_term) |
+                                                         Q(individual__profile__name__icontains=search_term) |
+                                                         Q(individual__profile__email__icontains=search_term))
+                                                 .values_list('individual__mk')))
         if filters and 'is_locked' in filters:
             query = query.filter(is_locked=filters['is_locked'])
 
