@@ -7,7 +7,7 @@ export default {
   excludeStories: /.*Data$/
 };
 
-const OrganizationsTableTemplate = '<organizations-table :fetch-page="getOrganizations.bind(this)" />';
+const OrganizationsTableTemplate = '<organizations-table :fetch-page="getOrganizations.bind(this)" :enroll="enroll" />';
 
 export const Default = () => ({
   components: { OrganizationsTable },
@@ -15,6 +15,9 @@ export const Default = () => ({
   methods: {
     getOrganizations(page) {
       return this.query[page - 1];
+    },
+    enroll() {
+      return true;
     }
   },
   data: () => ({

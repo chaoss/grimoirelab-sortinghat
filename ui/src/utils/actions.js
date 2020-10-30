@@ -56,4 +56,26 @@ const groupIdentities = identities => {
   return Object.values(groupedIdentities);
 };
 
-export { mergeIndividuals, moveIdentity, groupIdentities };
+const formatIndividuals = individuals => {
+  const formattedList = individuals.map(item => {
+    return {
+      name: item.profile.name,
+      id: item.profile.id,
+      email: item.profile.email,
+      organization: item.enrollments[0]
+        ? item.enrollments[0].organization.name
+        : "",
+      sources: groupIdentities(item.identities).map(identity => identity.name),
+      identities: groupIdentities(item.identities),
+      enrollments: item.enrollments,
+      isLocked: item.isLocked,
+      isBot: item.profile.isBot,
+      uuid: item.identities[0].uuid,
+      isSelected: false
+    };
+  });
+
+  return formattedList;
+};
+
+export { mergeIndividuals, moveIdentity, groupIdentities, formatIndividuals };

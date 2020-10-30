@@ -4211,7 +4211,9 @@ exports[`Storyshots OrganizationEntry Default 1`] = `
             />
           </colgroup>
           <tbody>
-            <tr>
+            <tr
+              class=""
+            >
               <td
                 class="text--body-1"
               >
@@ -4326,6 +4328,15 @@ exports[`Storyshots OrganizationsTable Default 1`] = `
           </li>
         </ul>
       </div>
+       
+      <div
+        class="v-dialog__container"
+        role="dialog"
+      >
+        <!---->
+      </div>
+       
+      <!---->
     </div>
   </div>
 </div>
