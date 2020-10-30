@@ -118,7 +118,7 @@
 import {
   mergeIndividuals,
   moveIdentity,
-  groupIdentities
+  formatIndividuals
 } from "../utils/actions";
 import IndividualEntry from "./IndividualEntry.vue";
 import ExpandedIndividual from "./ExpandedIndividual.vue";
@@ -198,36 +198,13 @@ export default {
     async queryIndividuals(page = this.page) {
       let response = await this.fetchPage(page, this.itemsPerPage);
       if (response) {
-        this.individuals = this.formatIndividuals(
+        this.individuals = formatIndividuals(
           response.data.individuals.entities
         );
         this.pageCount = response.data.individuals.pageInfo.numPages;
         this.page = response.data.individuals.pageInfo.page;
         this.$emit("updateIndividuals", this.individuals);
       }
-    },
-    formatIndividuals(individuals) {
-      const formattedList = individuals.map(item => {
-        return {
-          name: item.profile.name,
-          id: item.profile.id,
-          email: item.profile.email,
-          organization: item.enrollments[0]
-            ? item.enrollments[0].organization.name
-            : "",
-          sources: groupIdentities(item.identities).map(
-            identity => identity.name
-          ),
-          identities: groupIdentities(item.identities),
-          enrollments: item.enrollments,
-          isLocked: item.isLocked,
-          isBot: item.profile.isBot,
-          uuid: item.identities[0].uuid,
-          isSelected: false
-        };
-      });
-
-      return formattedList;
     },
     startDrag(item, event) {
       item.isSelected = true;
@@ -246,7 +223,7 @@ export default {
       individual.isSelected = !individual.isSelected;
     },
     deselectIndividuals() {
-      this.individuals.forEach(individual => individual.isSelected = false);
+      this.individuals.forEach(individual => (individual.isSelected = false));
     },
     async deleteIndividuals(individuals) {
       const response = await Promise.all(
@@ -272,7 +249,7 @@ export default {
         this.queryIndividuals(this.page);
         this.dialog.open = false;
         this.$emit("updateWorkspace", {
-          update: this.formatIndividuals([response.data.merge.individual]),
+          update: formatIndividuals([response.data.merge.individual]),
           remove: fromUuids
         });
       }
@@ -283,7 +260,7 @@ export default {
     async unmerge(uuids) {
       const response = await this.unmergeItems(uuids);
       if (response && response.data) {
-        const unmergedItems = this.formatIndividuals(
+        const unmergedItems = formatIndividuals(
           response.data.unmergeIdentities.individuals
         );
         this.$emit("saveIndividual", unmergedItems[0]);
@@ -299,9 +276,7 @@ export default {
       if (response) {
         this.queryIndividuals(this.page);
         this.$emit("updateWorkspace", {
-          update: this.formatIndividuals([
-            response.data.moveIdentity.individual
-          ])
+          update: formatIndividuals([response.data.moveIdentity.individual])
         });
       }
     }

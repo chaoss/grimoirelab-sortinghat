@@ -113,6 +113,35 @@ const MOVE_IDENTITY = gql`
   }
 `;
 
+const ENROLL = gql`
+  mutation enroll($uuid: String!, $organization: String!) {
+    enroll(uuid: $uuid, organization: $organization) {
+      uuid
+      individual {
+        isLocked
+        identities {
+          name
+          source
+          email
+          uuid
+          username
+        }
+        profile {
+          name
+          id
+        }
+        enrollments {
+          start
+          end
+          organization {
+            name
+          }
+        }
+      }
+    }
+  }
+`;
+
 const lockIndividual = (apollo, uuid) => {
   let response = apollo.mutate({
     mutation: LOCK_INDIVIDUAL,
@@ -175,11 +204,23 @@ const moveIdentity = (apollo, fromUuid, toUuid) => {
   return response;
 };
 
+const enroll = (apollo, uuid, organization) => {
+  let response = apollo.mutate({
+    mutation: ENROLL,
+    variables: {
+      uuid: uuid,
+      organization: organization
+    }
+  });
+  return response;
+};
+
 export {
   lockIndividual,
   unlockIndividual,
   deleteIdentity,
   merge,
   unmerge,
-  moveIdentity
+  moveIdentity,
+  enroll
 };

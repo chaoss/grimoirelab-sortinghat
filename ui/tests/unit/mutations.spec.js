@@ -2,6 +2,7 @@ import { shallowMount, mount } from "@vue/test-utils";
 import Vue from "vue";
 import Vuetify from "vuetify";
 import IndividualsTable from "@/components/IndividualsTable";
+import OrganizationsTable from "@/components/OrganizationsTable";
 import * as Mutations from "@/apollo/mutations";
 
 Vue.use(Vuetify);
@@ -86,6 +87,39 @@ const moveResponse = {
           id: "254"
         },
         enrollments: []
+      }
+    }
+  }
+};
+
+const enrollResponse = {
+  "data": {
+    "enroll": {
+      "uuid": "4df20c13824ce60c2249a9b947d6c55dc0ba26a4",
+      "individual": {
+        "isLocked": false,
+        "identities": [
+          {
+            "name": "Test",
+            "source": "git",
+            "email": "teste@example.net",
+            "uuid": "4df20c13824ce60c2249a9b947d6c55dc0ba26a4",
+            "username": "test"
+          }
+        ],
+        "profile": {
+          "name": "Test",
+          "id": "7"
+        },
+        "enrollments": [
+          {
+            "start": "1900-01-01T00:00:00+00:00",
+            "end": "2100-01-01T00:00:00+00:00",
+            "organization": {
+              "name": "Organization"
+            }
+          }
+        ]
       }
     }
   }
@@ -191,3 +225,30 @@ describe("IndividualsTable", () => {
     expect(wrapper.element).toMatchSnapshot();
   });
 });
+
+describe("OrganizationsTable", () => {
+  test("Mock mutation for enroll", async () => {
+    const mutate = jest.fn(() => Promise.resolve(enrollResponse));
+    const wrapper = shallowMount(OrganizationsTable, {
+      Vue,
+      mocks: {
+        $apollo: {
+          mutate
+        }
+      },
+      propsData: {
+        enroll: mutate,
+        fetchPage: () => {}
+      }
+    });
+
+    const response = await Mutations.enroll(
+      wrapper.vm.$apollo,
+      "4df20c13824ce60c2249a9b947d6c55dc0ba26a4",
+      "Organization"
+    );
+
+    expect(mutate).toBeCalled();
+    expect(wrapper.element).toMatchSnapshot();
+  })
+})

@@ -358,5 +358,66 @@ exports[`OrganizationsTable Mock query for getPaginatedOrganizations 1`] = `
       value="0"
     />
   </div>
+   
+  <v-dialog-stub
+    closedelay="0"
+    contentclass=""
+    maxwidth="400"
+    opendelay="0"
+    origin="center center"
+    retainfocus="true"
+    transition="dialog-transition"
+    width="auto"
+  >
+    <v-card-stub
+      loaderheight="4"
+      tag="div"
+    >
+      <v-card-title-stub
+        class="headline"
+      >
+        
+      </v-card-title-stub>
+       
+      <v-card-text-stub>
+        
+      </v-card-text-stub>
+       
+      <v-card-actions-stub>
+        <v-spacer-stub />
+         
+        <v-btn-stub
+          activeclass=""
+          tag="button"
+          text="true"
+          type="button"
+        >
+          
+          Cancel
+        
+        </v-btn-stub>
+         
+        <v-btn-stub
+          activeclass=""
+          color="blue darken-4"
+          tag="button"
+          text="true"
+          type="button"
+        >
+          
+          Confirm
+        
+        </v-btn-stub>
+      </v-card-actions-stub>
+    </v-card-stub>
+  </v-dialog-stub>
+   
+  <v-snackbar-stub
+    timeout="6000"
+  >
+    
+    
+  
+  </v-snackbar-stub>
 </v-container-stub>
 `;

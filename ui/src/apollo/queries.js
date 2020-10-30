@@ -196,7 +196,8 @@ const getPaginatedOrganizations = (apollo, currentPage, pageSize) => {
     variables: {
       page: currentPage,
       pageSize: pageSize
-    }
+    },
+    fetchPolicy: "no-cache"
   });
   return response;
 };

@@ -66,8 +66,18 @@
           />
         </v-col>
         <v-col class="organizations elevation-2">
-          <h4 class="title">Organizations</h4>
-          <organizations-table :fetch-page="getOrganizationsPage" />
+          <h4 class="title">
+            <v-icon color="primary" left>
+              mdi-sitemap
+            </v-icon>
+            Organizations
+          </h4>
+          <organizations-table
+            :fetch-page="getOrganizationsPage"
+            :enroll="enroll"
+            @updateIndividuals="updateTable"
+            @updateWorkspace="updateWorkspace"
+          />
         </v-col>
       </v-row>
       <v-snackbar v-model="snackbar">
@@ -86,7 +96,8 @@ import {
   deleteIdentity,
   merge,
   unmerge,
-  moveIdentity
+  moveIdentity,
+  enroll
 } from "./apollo/mutations";
 import IndividualsTable from "./components/IndividualsTable";
 import OrganizationsTable from "./components/OrganizationsTable";
@@ -176,6 +187,10 @@ export default {
     },
     deselectIndividuals() {
       this.$refs.table.deselectIndividuals();
+    },
+    async enroll(uuid, organization) {
+      const response = await enroll(this.$apollo, uuid, organization);
+      return response;
     }
   }
 };
