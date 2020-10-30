@@ -114,9 +114,13 @@ const GET_PAGINATED_ORGANIZATIONS = gql`
   query GetOrganizations($page: Int!, $pageSize: Int!) {
     organizations(page: $page, pageSize: $pageSize) {
       entities {
+        id
         name
         enrollments {
           id
+        }
+        domains {
+          domain
         }
       }
       pageInfo {

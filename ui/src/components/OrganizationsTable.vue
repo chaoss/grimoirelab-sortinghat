@@ -5,14 +5,22 @@
       hide-default-footer
       :headers="headers"
       :items="organizations"
+      :expanded.sync="expandedItems"
       item-key="id"
       :page.sync="page"
     >
-      <template v-slot:item="{ item }">
+      <template v-slot:item="{ item, expand, isExpanded }">
         <organization-entry
           :name="item.name"
           :enrollments="item.enrollments.length"
+          :domains="item.domains"
+          :is-expanded="isExpanded"
+          v-on:dblclick.native="expand(!isExpanded)"
+          @expand="expand(!isExpanded)"
         />
+      </template>
+      <template v-slot:expanded-item="{ item }">
+        <expanded-organization :domains="item.domains" />
       </template>
     </v-data-table>
     <div class="text-center pt-2">
@@ -27,11 +35,12 @@
 </template>
 
 <script>
+import ExpandedOrganization from "./ExpandedOrganization.vue";
 import OrganizationEntry from "./OrganizationEntry.vue";
 
 export default {
   name: "OrganizationsTable",
-  components: { OrganizationEntry },
+  components: { OrganizationEntry, ExpandedOrganization },
   props: {
     fetchPage: {
       type: Function,
@@ -45,7 +54,12 @@ export default {
   },
   data() {
     return {
-      headers: [{ value: "name" }, { value: "enrollments" }],
+      headers: [
+        { value: "name" },
+        { value: "enrollments" },
+        { value: "actions" }
+      ],
+      expandedItems: [],
       organizations: [],
       pageCount: 0,
       page: 0

@@ -24,6 +24,7 @@ export const Default = () => ({
           organizations: {
             entities: [
               {
+                id: 1,
                 name: "Griffyndor",
                 enrollments: [
                   { id: 1 },
@@ -31,21 +32,32 @@ export const Default = () => ({
                   { id: 3 },
                   { id: 4 },
                   { id: 5 }
+                ],
+                domains: [
+                  { domain: "griffyndor.hogwarts.edu" }
                 ]
               },
               {
+                id: 2,
                 name: "Slytherin",
                 enrollments: [
                   { id: 1 },
                   { id: 2 }
+                ],
+                domains: [
+                  { domain: "slytherin.hogwarts.edu" }
                 ]
               },
               {
+                id: 3,
                 name: "Ravenclaw",
                 enrollments: [
                   { id: 1 },
                   { id: 2 },
                   { id: 3 }
+                ],
+                domains: [
+                  { domain: "ravenclaw.hogwarts.edu" }
                 ]
               },
               ],
@@ -63,12 +75,16 @@ export const Default = () => ({
             organizations: {
               entities: [
                 {
+                  id: 4,
                   name: "Hufflepuff",
                   enrollments: [
                     { id: 1 },
                     { id: 2 },
                     { id: 3 },
                     { id: 4 }
+                  ],
+                  domains: [
+                    { domain: "hufflepuff.hogwarts.edu" }
                   ]
                 },
                 ],

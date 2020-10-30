@@ -15,8 +15,16 @@ const organizationEntryTemplate = `
   :items="items"
   item-key="name"
 >
-  <template v-slot:item="{ item }">
-    <organization-entry :name="item.name" :enrollments="item.enrollments" />
+  <template v-slot:item="{ item, expand, isExpanded }">
+    <organization-entry
+      :name="item.name"
+      :enrollments="item.enrollments"
+      :is-expanded="isExpanded"
+      v-on:dblclick.native="expand(!isExpanded)"
+      @expand="expand(!isExpanded)" />
+  </template>
+  <template v-slot:expanded-item="{ item }">
+    Expanded content
   </template>
 </v-data-table>
 `;
