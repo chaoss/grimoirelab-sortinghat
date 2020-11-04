@@ -263,7 +263,9 @@ describe("OrganizationsTable", () => {
       },
       propsData: {
         enroll: mutate,
-        fetchPage: () => {}
+        fetchPage: () => {},
+        addDomain: () => {},
+        addOrganization: () => {}
       }
     });
 
@@ -288,7 +290,9 @@ describe("OrganizationsTable", () => {
       },
       propsData: {
         enroll: mutate,
-        fetchPage: () => {}
+        fetchPage: () => {},
+        addOrganization: mutate,
+        addDomain: () => {}
       }
     });
 
@@ -309,8 +313,10 @@ describe("OrganizationsTable", () => {
         }
       },
       propsData: {
-        enroll: mutate,
-        fetchPage: () => {}
+        enroll: () => {},
+        fetchPage: () => {},
+        addDomain: mutate,
+        addOrganization: () => {}
       }
     });
 

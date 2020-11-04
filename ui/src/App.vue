@@ -66,15 +66,11 @@
           />
         </v-col>
         <v-col class="organizations elevation-2">
-          <h4 class="title">
-            <v-icon color="primary" left>
-              mdi-sitemap
-            </v-icon>
-            Organizations
-          </h4>
           <organizations-table
             :fetch-page="getOrganizationsPage"
             :enroll="enroll"
+            :add-organization="addOrganization"
+            :add-domain="addDomain"
             @updateIndividuals="updateTable"
             @updateWorkspace="updateWorkspace"
           />
@@ -97,7 +93,9 @@ import {
   merge,
   unmerge,
   moveIdentity,
-  enroll
+  enroll,
+  addOrganization,
+  addDomain
 } from "./apollo/mutations";
 import IndividualsTable from "./components/IndividualsTable";
 import OrganizationsTable from "./components/OrganizationsTable";
@@ -190,6 +188,14 @@ export default {
     },
     async enroll(uuid, organization) {
       const response = await enroll(this.$apollo, uuid, organization);
+      return response;
+    },
+    async addOrganization(organization) {
+      const response = await addOrganization(this.$apollo, organization);
+      return response;
+    },
+    async addDomain(domain, organization) {
+      const response = await addDomain(this.$apollo, domain, organization);
       return response;
     }
   }
