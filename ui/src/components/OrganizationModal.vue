@@ -8,7 +8,12 @@
         <v-card-text>
           <v-row>
             <v-col cols="12">
-              <v-text-field label="Name" v-model="form.name" filled required />
+              <v-text-field
+                label="Name"
+                v-model="form.name"
+                :disabled="!!savedData.name"
+                filled
+              />
             </v-col>
           </v-row>
           <v-row class="pl-4">
@@ -53,7 +58,7 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" text @click.prevent="onCancel">
+          <v-btn color="blue darken-1" text @click.prevent="closeModal">
             Cancel
           </v-btn>
           <v-btn
@@ -95,7 +100,11 @@ export default {
         domains: []
       },
       activeDomain: "",
-      errorMessage: ""
+      errorMessage: "",
+      savedData: {
+        name: undefined,
+        domains: []
+      }
     };
   },
   methods: {
@@ -107,45 +116,54 @@ export default {
       this.form.domains.splice(index, 1);
     },
     async onSave() {
+      if (!this.savedData.name) {
+        try {
+          const response = await this.addOrganization(this.form.name);
+          if (response && !response.error) {
+            this.savedData.name = this.form.name;
+            if (this.form.domains.length === 0) {
+              this.closeModal();
+              this.$emit("updateOrganizations");
+              return;
+            } else {
+              this.handleDomains();
+            }
+          }
+        } catch (error) {
+          this.errorMessage = error;
+        }
+      } else {
+        this.handleDomains();
+      }
+    },
+    closeModal() {
+      Object.assign(this.form, { name: "", domains: [] });
+      this.errorMessage = "";
+      this.$emit("update:isOpen", false);
+    },
+    async handleDomains() {
+      const newDomains = this.form.domains.filter(
+        domain => !this.savedData.domains.includes(domain)
+      );
       try {
-        const response = await this.addOrganization(this.form.name);
+        const response = await Promise.all(
+          newDomains.map(domain =>
+            this.addOrganizationDomain(domain, this.form.name)
+          )
+        );
         if (response) {
-          if (this.form.domains.length === 0) {
-            this.errorMessage = "";
-            Object.assign(this.form, { name: "", domains: [] });
-            this.$emit("update:isOpen", false);
-            this.$emit("updateOrganizations");
-            return;
-          }
-          const domainsResponse = await Promise.all(
-            this.form.domains.map(domain =>
-              this.addOrganizationDomain(domain, this.form.name)
-            )
-          );
-          if (domainsResponse) {
-            Object.assign(this.form, { name: "", domains: [] });
-            this.errorMessage = "";
-            this.$emit("update:isOpen", false);
-            this.$emit("updateOrganizations");
-          }
+          this.closeModal();
+          this.$emit("updateOrganizations");
         }
       } catch (error) {
         this.errorMessage = error;
       }
     },
-    onCancel() {
-      Object.assign(this.form, { name: "", domains: [] });
-      this.errorMessage = "";
-      this.$emit("update:isOpen", false);
-    },
     async addOrganizationDomain(domain, organization) {
-      try {
-        const response = await this.addDomain(domain, organization);
-        if (response) {
-          return response;
-        }
-      } catch (error) {
-        this.errorMessage = error;
+      const response = await this.addDomain(domain, organization);
+      if (response && !response.error) {
+        this.savedData.domains.push(domain);
+        return response;
       }
     }
   }
