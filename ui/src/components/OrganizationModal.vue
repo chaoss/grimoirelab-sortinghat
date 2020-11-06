@@ -19,36 +19,26 @@
           <v-row class="pl-4">
             <span class="title font-weight-regular pl-16">Domains</span>
           </v-row>
-          <v-list>
-            <v-list-item v-for="(domain, index) in form.domains" :key="index">
-              <v-list-item-content>
-                <v-list-item-title v-text="domain" />
-              </v-list-item-content>
-              <v-list-item-action>
-                <v-btn icon @click="removeDomain(index)">
-                  <v-icon small color="primary">mdi-delete</v-icon>
-                </v-btn>
-              </v-list-item-action>
-            </v-list-item>
-          </v-list>
-          <v-row class="flex-row align-center">
-            <v-col cols="9">
+          <v-row v-for="(domain, index) in form.domains" :key="index">
+            <v-col cols="10">
               <v-text-field
-                v-model="activeDomain"
+                v-model="form.domains[index]"
                 label="Domain"
                 filled
-                @keyup.enter="saveDomain"
               />
             </v-col>
-            <v-col cols="2">
+            <v-col cols="2" class="pt-6">
               <v-btn
-                block
-                text
+                v-if="index === form.domains.length - 1"
+                icon
                 color="primary"
-                :disabled="activeDomain.length === 0"
-                @click="saveDomain"
+                :disabled="domain.length === 0"
+                @click="addInput"
               >
-                Add
+                <v-icon color="primary">mdi-plus-circle-outline</v-icon>
+              </v-btn>
+              <v-btn v-else icon color="primary" @click="removeDomain(index)">
+                <v-icon color="primary">mdi-delete</v-icon>
               </v-btn>
             </v-col>
           </v-row>
@@ -97,9 +87,8 @@ export default {
     return {
       form: {
         name: "",
-        domains: []
+        domains: [""]
       },
-      activeDomain: "",
       errorMessage: "",
       savedData: {
         name: undefined,
@@ -108,10 +97,6 @@ export default {
     };
   },
   methods: {
-    saveDomain() {
-      this.form.domains.push(this.activeDomain);
-      this.activeDomain = "";
-    },
     removeDomain(index) {
       this.form.domains.splice(index, 1);
     },
@@ -137,13 +122,14 @@ export default {
       }
     },
     closeModal() {
-      Object.assign(this.form, { name: "", domains: [] });
+      Object.assign(this.form, { name: "", domains: [""] });
+      Object.assign(this.savedData, { name: undefined, domains: [] });
       this.errorMessage = "";
       this.$emit("update:isOpen", false);
     },
     async handleDomains() {
       const newDomains = this.form.domains.filter(
-        domain => !this.savedData.domains.includes(domain)
+        domain => domain.length > 0 && !this.savedData.domains.includes(domain)
       );
       try {
         const response = await Promise.all(
@@ -165,6 +151,9 @@ export default {
         this.savedData.domains.push(domain);
         return response;
       }
+    },
+    addInput() {
+      this.form.domains.push("");
     }
   }
 };
