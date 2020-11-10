@@ -142,6 +142,29 @@ const ENROLL = gql`
   }
 `;
 
+const ADD_ORGANIZATION = gql`
+  mutation addOrganization($name: String!) {
+    addOrganization(name: $name) {
+      organization {
+        name
+      }
+    }
+  }
+`;
+
+const ADD_DOMAIN = gql`
+  mutation addDomain($domain: String!, $organization: String!) {
+    addDomain(domain: $domain, organization: $organization) {
+      domain {
+        domain
+        organization {
+          name
+        }
+      }
+    }
+  }
+`;
+
 const lockIndividual = (apollo, uuid) => {
   let response = apollo.mutate({
     mutation: LOCK_INDIVIDUAL,
@@ -215,6 +238,27 @@ const enroll = (apollo, uuid, organization) => {
   return response;
 };
 
+const addOrganization = (apollo, name) => {
+  let response = apollo.mutate({
+    mutation: ADD_ORGANIZATION,
+    variables: {
+      name: name
+    }
+  });
+  return response;
+};
+
+const addDomain = (apollo, domain, organization) => {
+  let response = apollo.mutate({
+    mutation: ADD_DOMAIN,
+    variables: {
+      domain: domain,
+      organization: organization
+    }
+  });
+  return response;
+};
+
 export {
   lockIndividual,
   unlockIndividual,
@@ -222,5 +266,7 @@ export {
   merge,
   unmerge,
   moveIdentity,
-  enroll
+  enroll,
+  addOrganization,
+  addDomain
 };

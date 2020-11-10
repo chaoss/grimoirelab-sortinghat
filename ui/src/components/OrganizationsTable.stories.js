@@ -7,7 +7,14 @@ export default {
   excludeStories: /.*Data$/
 };
 
-const OrganizationsTableTemplate = '<organizations-table :fetch-page="getOrganizations.bind(this)" :enroll="enroll" />';
+const OrganizationsTableTemplate = `
+  <organizations-table
+    :fetch-page="getOrganizations.bind(this)"
+    :enroll="enroll"
+    :add-organization="addOrganization.bind(this)"
+    :add-domain="addDomain"
+  />
+`;
 
 export const Default = () => ({
   components: { OrganizationsTable },
@@ -17,6 +24,24 @@ export const Default = () => ({
       return this.query[page - 1];
     },
     enroll() {
+      return true;
+    },
+    addOrganization(organization) {
+      this.query[0].data.organizations.entities.push({
+        id: organization,
+        name: organization,
+        enrollments: [],
+        domains: []
+      });
+      return true;
+    },
+    addDomain(domain, organization) {
+      const index = this.query[0].data.organizations.entities.findIndex(
+        entity => entity.name === organization
+      );
+      this.query[0].data.organizations.entities[index].domains.push({
+        domain: domain
+      });
       return true;
     }
   },

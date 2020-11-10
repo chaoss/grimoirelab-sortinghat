@@ -255,6 +255,40 @@ exports[`OrganizationsTable Mock query for getPaginatedOrganizations 1`] = `
 <v-container-stub
   tag="div"
 >
+  <v-row-stub
+    class="actions"
+    tag="div"
+  >
+    <h4
+      class="title"
+    >
+      <v-icon-stub
+        color="primary"
+        left=""
+      >
+        
+        mdi-sitemap
+      
+      </v-icon-stub>
+      
+      Organizations
+    
+    </h4>
+     
+    <v-btn-stub
+      activeclass=""
+      class="primary--text"
+      color="blue lighten-5"
+      depressed="true"
+      tag="button"
+      type="button"
+    >
+      
+      Add
+    
+    </v-btn-stub>
+  </v-row-stub>
+   
   <v-data-table-stub
     customfilter="function defaultFilter(value, search, item) {
           return value != null && search != null && typeof value !== 'boolean' && value.toString().toLocaleLowerCase().indexOf(search.toLocaleLowerCase()) !== -1;
@@ -358,6 +392,11 @@ exports[`OrganizationsTable Mock query for getPaginatedOrganizations 1`] = `
       value="0"
     />
   </div>
+   
+  <organization-modal-stub
+    adddomain="() => {}"
+    addorganization="() => {}"
+  />
    
   <v-dialog-stub
     closedelay="0"

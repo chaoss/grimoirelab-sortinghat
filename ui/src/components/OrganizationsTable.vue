@@ -1,5 +1,21 @@
 <template>
   <v-container>
+    <v-row class="actions">
+      <h4 class="title">
+        <v-icon color="primary" left>
+          mdi-sitemap
+        </v-icon>
+        Organizations
+      </h4>
+      <v-btn
+        depressed
+        color="blue lighten-5"
+        class="primary--text"
+        @click.stop="openModal = true"
+      >
+        Add
+      </v-btn>
+    </v-row>
     <v-data-table
       hide-default-header
       hide-default-footer
@@ -34,6 +50,13 @@
       ></v-pagination>
     </div>
 
+    <organization-modal
+      :is-open.sync="openModal"
+      :add-organization="addOrganization"
+      :add-domain="addDomain"
+      @updateOrganizations="getOrganizations(page)"
+    />
+
     <v-dialog v-model="dialog.open" max-width="400">
       <v-card>
         <v-card-title class="headline">{{ dialog.title }}</v-card-title>
@@ -60,10 +83,11 @@
 import { formatIndividuals } from "../utils/actions";
 import ExpandedOrganization from "./ExpandedOrganization.vue";
 import OrganizationEntry from "./OrganizationEntry.vue";
+import OrganizationModal from "./OrganizationModal.vue";
 
 export default {
   name: "OrganizationsTable",
-  components: { OrganizationEntry, ExpandedOrganization },
+  components: { OrganizationEntry, ExpandedOrganization, OrganizationModal },
   props: {
     enroll: {
       type: Function,
@@ -77,6 +101,14 @@ export default {
       type: Number,
       required: false,
       default: 10
+    },
+    addOrganization: {
+      type: Function,
+      required: true
+    },
+    addDomain: {
+      type: Function,
+      required: true
     }
   },
   data() {
@@ -99,7 +131,8 @@ export default {
       snackbar: {
         open: false,
         text: ""
-      }
+      },
+      openModal: false
     };
   },
   created() {
@@ -151,5 +184,10 @@ export default {
 }
 ::v-deep button.v-pagination__item {
   transition: none;
+}
+
+.actions {
+  justify-content: space-between;
+  padding: 0 26px 24px 26px;
 }
 </style>

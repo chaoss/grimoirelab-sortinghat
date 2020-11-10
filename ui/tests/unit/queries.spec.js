@@ -227,7 +227,9 @@ describe("OrganizationsTable", () => {
       },
       propsData: {
         fetchPage: query,
-        enroll: () => {}
+        enroll: () => {},
+        addDomain: () => {},
+        addOrganization: () => {}
       }
     });
     const response = await Queries.getPaginatedOrganizations(wrapper.vm.$apollo, 1, 1);

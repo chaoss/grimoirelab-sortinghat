@@ -125,6 +125,31 @@ const enrollResponse = {
   }
 };
 
+const addOrganizationResponse = {
+  data: {
+    addOrganization: {
+      organization: {
+        name: "Name",
+        __typename: "OrganizationType"
+      },
+      __typename: "AddOrganization"
+    }
+  }
+};
+
+const addDomainResponse = {
+  data: {
+    addDomain: {
+      domain: {
+        domain: "domain.com",
+        organization: {
+          name: "Organization"
+        }
+      }
+    }
+  }
+};
+
 describe("IndividualsTable", () => {
   test("Mock query for deleteIdentity", async () => {
     const mutate = jest.fn(() => Promise.resolve(deleteResponse));
@@ -238,7 +263,9 @@ describe("OrganizationsTable", () => {
       },
       propsData: {
         enroll: mutate,
-        fetchPage: () => {}
+        fetchPage: () => {},
+        addDomain: () => {},
+        addOrganization: () => {}
       }
     });
 
@@ -250,5 +277,54 @@ describe("OrganizationsTable", () => {
 
     expect(mutate).toBeCalled();
     expect(wrapper.element).toMatchSnapshot();
-  })
-})
+  });
+
+  test("Mock mutation for addOrganization", async () => {
+    const mutate = jest.fn(() => Promise.resolve(addOrganizationResponse));
+    const wrapper = shallowMount(OrganizationsTable, {
+      Vue,
+      mocks: {
+        $apollo: {
+          mutate
+        }
+      },
+      propsData: {
+        enroll: mutate,
+        fetchPage: () => {},
+        addOrganization: mutate,
+        addDomain: () => {}
+      }
+    });
+
+    const response = await Mutations.addOrganization(
+      wrapper.vm.$apollo, "Name");
+
+    expect(mutate).toBeCalled();
+    expect(wrapper.element).toMatchSnapshot();
+  });
+
+  test("Mock mutation for addDomain", async () => {
+    const mutate = jest.fn(() => Promise.resolve(addDomainResponse));
+    const wrapper = shallowMount(OrganizationsTable, {
+      Vue,
+      mocks: {
+        $apollo: {
+          mutate
+        }
+      },
+      propsData: {
+        enroll: () => {},
+        fetchPage: () => {},
+        addDomain: mutate,
+        addOrganization: () => {}
+      }
+    });
+
+    const response = await Mutations.addDomain(
+      wrapper.vm.$apollo, "domain.com", "Organization"
+    );
+
+    expect(mutate).toBeCalled();
+    expect(wrapper.element).toMatchSnapshot();
+  });
+});
