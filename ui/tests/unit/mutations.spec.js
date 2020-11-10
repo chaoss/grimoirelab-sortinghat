@@ -3,6 +3,7 @@ import Vue from "vue";
 import Vuetify from "vuetify";
 import IndividualsTable from "@/components/IndividualsTable";
 import OrganizationsTable from "@/components/OrganizationsTable";
+import ProfileModal from "@/components/ProfileModal";
 import * as Mutations from "@/apollo/mutations";
 
 Vue.use(Vuetify);
@@ -125,27 +126,39 @@ const enrollResponse = {
   }
 };
 
-const addOrganizationResponse = {
+const addIdentityResponse = {
   data: {
-    addOrganization: {
-      organization: {
-        name: "Name",
-        __typename: "OrganizationType"
-      },
-      __typename: "AddOrganization"
+    addIdentity: {
+      uuid: "002bad315c34120cdfa2b1e26b3ca88ce36bc183",
+      __typename: "AddIdentity"
     }
   }
 };
 
-const addDomainResponse = {
+const updateProfileResponse = {
   data: {
-    addDomain: {
-      domain: {
-        domain: "domain.com",
-        organization: {
-          name: "Organization"
-        }
-      }
+    updateProfile: {
+      uuid: "002bad315c34120cdfa2b1e26b3ca88ce36bc183",
+      individual: {
+        isLocked: false,
+        identities: [
+          {
+            uuid: "002bad315c34120cdfa2b1e26b3ca88ce36bc183",
+            __typename: "IdentityType"
+          }
+        ],
+        profile: {
+          name: "Name",
+          email: "email@email.com",
+          gender: "gender",
+          isBot: true,
+          country: null,
+          __typename: "ProfileType"
+        },
+        enrollments:[],
+        __typename: "IndividualType"
+      },
+      __typename: "UpdateProfile"
     }
   }
 };
@@ -165,7 +178,10 @@ describe("IndividualsTable", () => {
         mergeItems: () => {},
         unmergeItems: () => {},
         moveItem: () => {},
-        fetchPage: () => {}
+        fetchPage: () => {},
+        addIdentity: () => {},
+        updateProfile: () => {},
+        enroll: () => {}
       }
     });
     const response = await Mutations.deleteIdentity(wrapper.vm.$apollo, "5f06473815dc415c9861680de8101813d9eb18e8");
@@ -188,7 +204,10 @@ describe("IndividualsTable", () => {
         unmergeItems: () => {},
         moveItem: () => {},
         deleteItem: () => {},
-        fetchPage: () => {}
+        fetchPage: () => {},
+        addIdentity: () => {},
+        updateProfile: () => {},
+        enroll: () => {}
       }
     });
     const response = await Mutations.deleteIdentity(wrapper.vm.$apollo, "5f06473815dc415c9861680de8101813d9eb18e8");
@@ -211,7 +230,10 @@ describe("IndividualsTable", () => {
         mergeItems: () => {},
         deleteItem: () => {},
         moveItem: () => {},
-        fetchPage: () => {}
+        fetchPage: () => {},
+        addIdentity: () => {},
+        updateProfile: () => {},
+        enroll: () => {}
       }
     });
     const response = await Mutations.unmerge(wrapper.vm.$apollo, [
@@ -237,7 +259,10 @@ describe("IndividualsTable", () => {
         mergeItems: () => {},
         deleteItem: () => {},
         fetchPage: () => {},
-        unmergeItems: mutate
+        unmergeItems: mutate,
+        addIdentity: () => {},
+        updateProfile: () => {},
+        enroll: () => {}
       }
     });
     const response = await Mutations.moveIdentity(
@@ -322,6 +347,64 @@ describe("OrganizationsTable", () => {
 
     const response = await Mutations.addDomain(
       wrapper.vm.$apollo, "domain.com", "Organization"
+    );
+    expect(mutate).toBeCalled();
+    expect(wrapper.element).toMatchSnapshot();
+  })
+});
+
+describe("ProfileModal", () => {
+  test("Mock mutation for addIdentity", async () => {
+    const mutate = jest.fn(() => Promise.resolve(addIdentityResponse));
+    const wrapper = shallowMount(ProfileModal, {
+      Vue,
+      mocks: {
+        $apollo: {
+          mutate
+        }
+      },
+      propsData: {
+        addIdentity: mutate,
+        updateProfile: () => {},
+        enroll: () => {}
+      }
+    });
+
+    const response = await Mutations.addIdentity(
+      wrapper.vm.$apollo,
+      "email@email.com",
+      "Name",
+      "source",
+      "username"
+    );
+
+    expect(mutate).toBeCalled();
+    expect(wrapper.element).toMatchSnapshot();
+  });
+
+  test("Mock mutation for updateProfile", async () => {
+    const mutate = jest.fn(() => Promise.resolve(addIdentityResponse));
+    const wrapper = shallowMount(ProfileModal, {
+      Vue,
+      mocks: {
+        $apollo: {
+          mutate
+        }
+      },
+      propsData: {
+        addIdentity: () => {},
+        updateProfile: mutate,
+        enroll: () => {}
+      }
+    });
+
+    const response = await Mutations.addIdentity(
+      wrapper.vm.$apollo,
+      {
+        gender: "gender",
+        isBot: true
+      },
+      "002bad315c34120cdfa2b1e26b3ca88ce36bc183"
     );
 
     expect(mutate).toBeCalled();
