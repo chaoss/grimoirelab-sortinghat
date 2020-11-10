@@ -205,7 +205,10 @@ describe("IndividualsTable", () => {
         mergeItems: () => {},
         unmergeItems: () => {},
         moveItem: () => {},
-        deleteItem: () => {}
+        deleteItem: () => {},
+        addIdentity: () => {},
+        updateProfile: () => {},
+        enroll: () => {}
       }
     });
     const response = await Queries.getPaginatedIndividuals(wrapper.vm.$apollo, 1, 1);

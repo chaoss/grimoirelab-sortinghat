@@ -75,6 +75,19 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
           Delete selected
         </span>
       </v-tooltip-stub>
+       
+      <v-btn-stub
+        activeclass=""
+        class="primary--text"
+        color="blue lighten-5"
+        depressed="true"
+        tag="button"
+        type="button"
+      >
+        
+        Add
+      
+      </v-btn-stub>
     </div>
   </v-row-stub>
    
@@ -234,6 +247,12 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
       </v-card-actions-stub>
     </v-card-stub>
   </v-dialog-stub>
+   
+  <profile-modal-stub
+    addidentity="() => {}"
+    enroll="() => {}"
+    updateprofile="() => {}"
+  />
    
   <v-card-stub
     class="dragged-item"

@@ -29,11 +29,19 @@
               :disabled="disabledActions"
               @click="confirmDelete(selectedIndividuals)"
             >
-              <v-icon>mdi-delete</v-icon>
+              <v-icon left>mdi-delete</v-icon>
             </v-btn>
           </template>
           <span>Delete selected</span>
         </v-tooltip>
+        <v-btn
+          depressed
+          color="blue lighten-5"
+          class="primary--text"
+          @click.stop="openModal = true"
+        >
+          Add
+        </v-btn>
       </div>
     </v-row>
 
@@ -106,6 +114,14 @@
       </v-card>
     </v-dialog>
 
+    <profile-modal
+      :is-open.sync="openModal"
+      :add-identity="addIdentity"
+      :updateProfile="updateProfile"
+      :enroll="enroll"
+      @updateTable="queryIndividuals"
+    />
+
     <v-card class="dragged-item" color="primary" dark>
       <v-card-title>
         Moving {{ this.selectedIndividuals.length }}
@@ -122,12 +138,14 @@ import {
 } from "../utils/actions";
 import IndividualEntry from "./IndividualEntry.vue";
 import ExpandedIndividual from "./ExpandedIndividual.vue";
+import ProfileModal from "./ProfileModal.vue";
 
 export default {
   name: "IndividualsTable",
   components: {
     IndividualEntry,
-    ExpandedIndividual
+    ExpandedIndividual,
+    ProfileModal
   },
   props: {
     fetchPage: {
@@ -158,6 +176,18 @@ export default {
     moveItem: {
       type: Function,
       required: true
+    },
+    addIdentity: {
+      type: Function,
+      required: true
+    },
+    updateProfile: {
+      type: Function,
+      required: true
+    },
+    enroll: {
+      type: Function,
+      required: true
     }
   },
   data() {
@@ -177,7 +207,8 @@ export default {
         title: "",
         text: "",
         action: ""
-      }
+      },
+      openModal: false
     };
   },
   computed: {

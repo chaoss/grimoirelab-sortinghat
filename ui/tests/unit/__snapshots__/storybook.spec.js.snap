@@ -4088,11 +4088,24 @@ exports[`Storyshots IndividualsTable Default 1`] = `
               >
                 <i
                   aria-hidden="true"
-                  class="v-icon notranslate mdi mdi-delete theme--light"
+                  class="v-icon notranslate v-icon--left mdi mdi-delete theme--light"
                 />
               </span>
             </button>
           </span>
+           
+          <button
+            class="primary--text v-btn v-btn--depressed theme--light v-size--default blue lighten-5"
+            type="button"
+          >
+            <span
+              class="v-btn__content"
+            >
+              
+        Add
+      
+            </span>
+          </button>
         </div>
       </div>
        
@@ -4161,6 +4174,13 @@ exports[`Storyshots IndividualsTable Default 1`] = `
             </button>
           </li>
         </ul>
+      </div>
+       
+      <div
+        class="v-dialog__container"
+        role="dialog"
+      >
+        <!---->
       </div>
        
       <div
@@ -4615,6 +4635,42 @@ exports[`Storyshots ProfileCard Default 1`] = `
 </div>
 `;
 
+exports[`Storyshots ProfileModal Default 1`] = `
+<div
+  class="v-application v-application--is-ltr theme--light"
+  data-app="true"
+  id="app"
+>
+  <div
+    class="v-application--wrap"
+  >
+    <div
+      class="ma-auto"
+    >
+      <button
+        class="v-btn v-btn--contained theme--dark v-size--default primary"
+        type="button"
+      >
+        <span
+          class="v-btn__content"
+        >
+          
+      Open Dialog
+    
+        </span>
+      </button>
+       
+      <div
+        class="v-dialog__container"
+        role="dialog"
+      >
+        <!---->
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
 exports[`Storyshots WorkSpace Default 1`] = `
 <div
   class="v-application v-application--is-ltr theme--light"
@@ -5048,11 +5104,24 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 >
                   <i
                     aria-hidden="true"
-                    class="v-icon notranslate mdi mdi-delete theme--light"
+                    class="v-icon notranslate v-icon--left mdi mdi-delete theme--light"
                   />
                 </span>
               </button>
             </span>
+             
+            <button
+              class="primary--text v-btn v-btn--depressed theme--light v-size--default blue lighten-5"
+              type="button"
+            >
+              <span
+                class="v-btn__content"
+              >
+                
+        Add
+      
+              </span>
+            </button>
           </div>
         </div>
          
@@ -5121,6 +5190,13 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
               </button>
             </li>
           </ul>
+        </div>
+         
+        <div
+          class="v-dialog__container"
+          role="dialog"
+        >
+          <!---->
         </div>
          
         <div

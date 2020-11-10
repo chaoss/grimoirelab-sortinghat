@@ -199,6 +199,18 @@ export default {
       this.$emit("update:isOpen", false);
       this.$emit("updateTable");
       this.$refs.form.reset();
+      this.enrollmentsForm = [
+        {
+          organization: "",
+          fromDate: "",
+          toDate: ""
+        }
+      ];
+      this.savedData = {
+        individual: undefined,
+        profile: undefined,
+        enrollments: undefined
+      };
       this.errorMessage = "";
     },
     async onSave() {

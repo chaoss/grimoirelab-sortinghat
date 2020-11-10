@@ -126,6 +126,31 @@ const enrollResponse = {
   }
 };
 
+const addOrganizationResponse = {
+  data: {
+    addOrganization: {
+      organization: {
+        name: "Name",
+        __typename: "OrganizationType"
+      },
+      __typename: "AddOrganization"
+    }
+  }
+};
+
+const addDomainResponse = {
+  data: {
+    addDomain: {
+      domain: {
+        domain: "domain.com",
+        organization: {
+          name: "Organization"
+        }
+      }
+    }
+  }
+};
+
 const addIdentityResponse = {
   data: {
     addIdentity: {

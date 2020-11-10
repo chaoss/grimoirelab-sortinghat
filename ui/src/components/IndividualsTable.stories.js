@@ -14,6 +14,9 @@ const IndividualsTableTemplate = `
     :merge-items="deleteIndividual"
     :unmerge-items="deleteIndividual"
     :move-item="deleteIndividual"
+    :add-identity="deleteIndividual"
+    :update-profile="deleteIndividual"
+    :enroll="deleteIndividual"
   />
 `;
 
