@@ -37,13 +37,7 @@
             </v-col>
           </v-row>
           <v-row>
-            <v-btn
-              text
-              small
-              left
-              color="primary"
-              @click="addInput"
-            >
+            <v-btn text small left color="primary" @click="addInput">
               <v-icon small color="primary">mdi-plus-circle-outline</v-icon>
               Add domain
             </v-btn>

@@ -8,7 +8,12 @@
   >
     <td class="text--body-1">{{ name }}</td>
     <td class="text-right text--secondary">{{ enrollments }}</td>
-    <td class="text-right" width="40">
+    <td class="text-right" width="109">
+      <v-btn icon @click.stop="$emit('edit')">
+        <v-icon small>
+          mdi-lead-pencil
+        </v-icon>
+      </v-btn>
       <v-btn icon @click.stop="$emit('expand')">
         <v-icon>
           {{ isExpanded ? "mdi-chevron-up" : "mdi-chevron-down" }}

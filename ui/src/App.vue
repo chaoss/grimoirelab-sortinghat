@@ -75,6 +75,7 @@
             :enroll="enroll"
             :add-organization="addOrganization"
             :add-domain="addDomain"
+            :delete-domain="deleteDomain"
             @updateIndividuals="updateTable"
             @updateWorkspace="updateWorkspace"
           />
@@ -102,6 +103,7 @@ import {
   enroll,
   addOrganization,
   addDomain,
+  deleteDomain,
   updateProfile
 } from "./apollo/mutations";
 import IndividualsTable from "./components/IndividualsTable";
@@ -223,6 +225,10 @@ export default {
     },
     async addDomain(domain, organization) {
       const response = await addDomain(this.$apollo, domain, organization);
+      return response;
+    },
+    async deleteDomain(domain) {
+      const response = await deleteDomain(this.$apollo, domain);
       return response;
     },
     async getCountries() {
