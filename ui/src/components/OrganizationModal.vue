@@ -2,7 +2,9 @@
   <v-dialog v-model="isOpen" persistent max-width="450px">
     <v-card class="pa-6">
       <v-card-title>
-        <span class="headline">Add organization</span>
+        <span class="headline">
+          {{ organization ? "Edit" : "Add" }} organization
+        </span>
       </v-card-title>
       <form>
         <v-card-text>
@@ -24,23 +26,27 @@
               <v-text-field
                 v-model="form.domains[index]"
                 label="Domain"
+                hide-details
                 filled
               />
             </v-col>
             <v-col cols="2" class="pt-6">
-              <v-btn
-                v-if="index === form.domains.length - 1"
-                icon
-                color="primary"
-                :disabled="domain.length === 0"
-                @click="addInput"
-              >
-                <v-icon color="primary">mdi-plus-circle-outline</v-icon>
-              </v-btn>
-              <v-btn v-else icon color="primary" @click="removeDomain(index)">
+              <v-btn icon color="primary" @click="removeDomain(index)">
                 <v-icon color="primary">mdi-delete</v-icon>
               </v-btn>
             </v-col>
+          </v-row>
+          <v-row>
+            <v-btn
+              text
+              small
+              left
+              color="primary"
+              @click="addInput"
+            >
+              <v-icon small color="primary">mdi-plus-circle-outline</v-icon>
+              Add domain
+            </v-btn>
           </v-row>
           <v-alert v-if="errorMessage" text type="error">
             {{ errorMessage }}
@@ -73,6 +79,10 @@ export default {
       type: Function,
       required: true
     },
+    deleteDomain: {
+      type: Function,
+      required: true
+    },
     addOrganization: {
       type: Function,
       required: true
@@ -81,6 +91,15 @@ export default {
       type: Boolean,
       required: false,
       default: false
+    },
+    organization: {
+      type: String,
+      required: false
+    },
+    domains: {
+      type: Array,
+      required: false,
+      default: () => [""]
     }
   },
   data() {
@@ -106,7 +125,10 @@ export default {
           const response = await this.addOrganization(this.form.name);
           if (response && !response.error) {
             this.savedData.name = this.form.name;
-            if (this.form.domains.length === 0) {
+            if (
+              this.form.domains.length === 0 &&
+              this.savedData.domains.length === 0
+            ) {
               this.closeModal();
               this.$emit("updateOrganizations");
               return;
@@ -122,8 +144,6 @@ export default {
       }
     },
     closeModal() {
-      Object.assign(this.form, { name: "", domains: [""] });
-      Object.assign(this.savedData, { name: undefined, domains: [] });
       this.errorMessage = "";
       this.$emit("update:isOpen", false);
     },
@@ -131,13 +151,19 @@ export default {
       const newDomains = this.form.domains.filter(
         domain => domain.length > 0 && !this.savedData.domains.includes(domain)
       );
+      const deletedDomains = this.savedData.domains.filter(
+        domain => domain.length > 0 && !this.form.domains.includes(domain)
+      );
       try {
-        const response = await Promise.all(
+        const responseNew = await Promise.all(
           newDomains.map(domain =>
             this.addOrganizationDomain(domain, this.form.name)
           )
         );
-        if (response) {
+        const responseDeleted = await Promise.all(
+          deletedDomains.map(domain => this.deleteOrganizationDomain(domain))
+        );
+        if (responseNew || responseDeleted) {
           this.closeModal();
           this.$emit("updateOrganizations");
         }
@@ -152,8 +178,31 @@ export default {
         return response;
       }
     },
+    async deleteOrganizationDomain(domain) {
+      const response = await this.deleteDomain(domain);
+      if (response) {
+        return response;
+      }
+    },
     addInput() {
       this.form.domains.push("");
+    }
+  },
+  watch: {
+    isOpen(value) {
+      if (value) {
+        Object.assign(this.savedData, {
+          name: this.organization,
+          domains: this.domains.map(domain => domain)
+        });
+        Object.assign(this.form, {
+          name: this.organization || "",
+          domains: this.domains.map(domain => domain)
+        });
+      } else {
+        Object.assign(this.form, { name: "", domains: [""] });
+        Object.assign(this.savedData, { name: undefined, domains: [""] });
+      }
     }
   }
 };
