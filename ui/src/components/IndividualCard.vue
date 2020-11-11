@@ -15,13 +15,13 @@
     @click="selectIndividual"
   >
     <v-list-item class="grow" three-line>
-      <v-list-item-avatar color="grey" size="30px">
-        {{ getNameInitials }}
+      <v-list-item-avatar color="grey lighten-2" size="30px">
+        <span class="grey--text text--darken-3">{{ getNameInitials }}</span>
       </v-list-item-avatar>
 
       <v-list-item-content>
         <v-list-item-title class="font-weight-medium">
-          {{ name }}
+          {{ name || identities[0].identities[0].email }}
         </v-list-item-title>
         <v-list-item-subtitle v-if="enrollments && enrollments.length > 0">
           {{ enrollments[0].organization.name }}
@@ -75,7 +75,8 @@ export default {
   props: {
     name: {
       type: String,
-      required: true
+      required: false,
+      default: null
     },
     sources: {
       type: Array,
@@ -112,8 +113,9 @@ export default {
   },
   computed: {
     getNameInitials: function() {
-      var names = this.name.split(" ");
-      var initials = names[0].substring(0, 1).toUpperCase();
+      const name = this.name || this.identities[0].identities[0].email || "";
+      const names = name.split(" ");
+      let initials = names[0].substring(0, 1).toUpperCase();
 
       if (names.length > 1) {
         initials += names[names.length - 1].substring(0, 1).toUpperCase();

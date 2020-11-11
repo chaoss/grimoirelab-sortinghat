@@ -8,12 +8,7 @@
         <v-form ref="form">
           <v-row>
             <v-col cols="6">
-              <v-text-field
-                label="Name"
-                :rules="validations.required"
-                v-model="profileForm.name"
-                filled
-              />
+              <v-text-field label="Name" v-model="profileForm.name" filled />
             </v-col>
             <v-col cols="6">
               <v-text-field
@@ -29,7 +24,6 @@
               <v-text-field
                 label="Username"
                 v-model="profileForm.username"
-                :rules="validations.required"
                 filled
               />
             </v-col>
@@ -91,7 +85,7 @@
             <v-text-field
               label="Date to"
               v-model="enrollmentsForm[index].toDate"
-              hint="MM/DD/YYYY"
+              hint="YYYY/MM/DD"
               filled
             />
           </v-col>
@@ -121,7 +115,12 @@
         <v-btn color="blue darken-1" text @click.prevent="closeModal">
           Cancel
         </v-btn>
-        <v-btn depressed color="primary" @click.prevent="onSave">
+        <v-btn
+          depressed
+          color="primary"
+          :disabled="disableSave"
+          @click.prevent="onSave"
+        >
           Save
         </v-btn>
       </v-card-actions>
@@ -177,12 +176,21 @@ export default {
       validations: {
         required: [value => !!value || "Required"],
         email: [
-          value => !!value || "Required",
-          value => /\S+@\S+\.\S+/.test(value) || "Invalid email"
+          value =>
+            (value ? /\S+@\S+\.\S+/.test(value) : true) || "Invalid email"
         ]
       },
       errorMessage: ""
     };
+  },
+  computed: {
+    disableSave() {
+      return [
+        this.profileForm.name,
+        this.profileForm.email,
+        this.profileForm.username
+      ].every(value => value === "");
+    }
   },
   methods: {
     addInput() {
@@ -242,10 +250,10 @@ export default {
     async createIndividual() {
       try {
         const response = await this.addIdentity(
-          this.profileForm.email,
-          this.profileForm.name,
+          this.profileForm.email === "" ? null : this.profileForm.email,
+          this.profileForm.name === "" ? null : this.profileForm.name,
           this.profileForm.source,
-          this.profileForm.username
+          this.profileForm.username === "" ? null : this.profileForm.username
         );
         if (response && response.data.addIdentity) {
           this.savedData.individual = response.data.addIdentity.uuid;

@@ -62,6 +62,7 @@ const formatIndividuals = individuals => {
       name: item.profile.name,
       id: item.profile.id,
       email: item.profile.email,
+      username: item.identities[0].username,
       organization: item.enrollments[0]
         ? item.enrollments[0].organization.name
         : "",

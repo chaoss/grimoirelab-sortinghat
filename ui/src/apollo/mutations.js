@@ -163,10 +163,10 @@ const ADD_ORGANIZATION = gql`
 `;
 const ADD_IDENTITY = gql`
   mutation addIdentity(
-    $email: String!
-    $name: String!
+    $email: String
+    $name: String
     $source: String!
-    $username: String!
+    $username: String
   ) {
     addIdentity(
       email: $email

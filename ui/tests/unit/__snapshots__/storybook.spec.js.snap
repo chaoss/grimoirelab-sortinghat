@@ -1416,12 +1416,16 @@ exports[`Storyshots IndividualCard Default 1`] = `
         tabindex="-1"
       >
         <div
-          class="v-avatar v-list-item__avatar grey"
+          class="v-avatar v-list-item__avatar grey lighten-2"
           style="height: 30px; min-width: 30px; width: 30px;"
         >
-          
-      TR
-    
+          <span
+            class="grey--text text--darken-3"
+          >
+            TR
+          </span>
+           
+          <!---->
         </div>
          
         <div
@@ -1505,12 +1509,16 @@ exports[`Storyshots IndividualCard Highlighted 1`] = `
         tabindex="-1"
       >
         <div
-          class="v-avatar v-list-item__avatar grey"
+          class="v-avatar v-list-item__avatar grey lighten-2"
           style="height: 30px; min-width: 30px; width: 30px;"
         >
-          
-      TR
-    
+          <span
+            class="grey--text text--darken-3"
+          >
+            TR
+          </span>
+           
+          <!---->
         </div>
          
         <div
@@ -1521,6 +1529,99 @@ exports[`Storyshots IndividualCard Highlighted 1`] = `
           >
             
         Tom Marvolo Riddle
+      
+          </div>
+           
+          <!---->
+           
+          <div
+            class="v-list-item__subtitle"
+          />
+        </div>
+         
+        <div
+          class="v-list-item__icon"
+        >
+          <div
+            class="v-menu"
+          >
+            <button
+              class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+              type="button"
+            >
+              <span
+                class="v-btn__content"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate mdi mdi-magnify-plus-outline theme--light"
+                  style="font-size: 16px;"
+                />
+              </span>
+            </button>
+            <!---->
+          </div>
+           
+          <button
+            class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
+            type="button"
+          >
+            <span
+              class="v-btn__content"
+            >
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate mdi mdi-close theme--light"
+                style="font-size: 16px;"
+              />
+            </span>
+          </button>
+        </div>
+      </div>
+       
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Storyshots IndividualCard No Name 1`] = `
+<div
+  class="v-application v-application--is-ltr theme--light"
+  data-app="true"
+  id="app"
+>
+  <div
+    class="v-application--wrap"
+  >
+    <div
+      class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light"
+      tabindex="0"
+    >
+      <div
+        class="grow v-list-item v-list-item--three-line theme--light"
+        tabindex="-1"
+      >
+        <div
+          class="v-avatar v-list-item__avatar grey lighten-2"
+          style="height: 30px; min-width: 30px; width: 30px;"
+        >
+          <span
+            class="grey--text text--darken-3"
+          >
+            T
+          </span>
+           
+          <!---->
+        </div>
+         
+        <div
+          class="v-list-item__content"
+        >
+          <div
+            class="v-list-item__title font-weight-medium"
+          >
+            
+        triddle@example.net
       
           </div>
            
@@ -1594,12 +1695,16 @@ exports[`Storyshots IndividualCard Organization 1`] = `
         tabindex="-1"
       >
         <div
-          class="v-avatar v-list-item__avatar grey"
+          class="v-avatar v-list-item__avatar grey lighten-2"
           style="height: 30px; min-width: 30px; width: 30px;"
         >
-          
-      TR
-    
+          <span
+            class="grey--text text--darken-3"
+          >
+            TR
+          </span>
+           
+          <!---->
         </div>
          
         <div
@@ -1689,12 +1794,16 @@ exports[`Storyshots IndividualCard Single Initial 1`] = `
         tabindex="-1"
       >
         <div
-          class="v-avatar v-list-item__avatar grey"
+          class="v-avatar v-list-item__avatar grey lighten-2"
           style="height: 30px; min-width: 30px; width: 30px;"
         >
-          
-      V
-    
+          <span
+            class="grey--text text--darken-3"
+          >
+            V
+          </span>
+           
+          <!---->
         </div>
          
         <div
@@ -1778,12 +1887,16 @@ exports[`Storyshots IndividualCard Sources 1`] = `
         tabindex="-1"
       >
         <div
-          class="v-avatar v-list-item__avatar grey"
+          class="v-avatar v-list-item__avatar grey lighten-2"
           style="height: 30px; min-width: 30px; width: 30px;"
         >
-          
-      TR
-    
+          <span
+            class="grey--text text--darken-3"
+          >
+            TR
+          </span>
+           
+          <!---->
         </div>
          
         <div
@@ -1888,12 +2001,16 @@ exports[`Storyshots IndividualCard Sources And Organization 1`] = `
         tabindex="-1"
       >
         <div
-          class="v-avatar v-list-item__avatar grey"
+          class="v-avatar v-list-item__avatar grey lighten-2"
           style="height: 30px; min-width: 30px; width: 30px;"
         >
-          
-      TR
-    
+          <span
+            class="grey--text text--darken-3"
+          >
+            TR
+          </span>
+           
+          <!---->
         </div>
          
         <div
@@ -2028,12 +2145,14 @@ exports[`Storyshots IndividualEntry Bot 1`] = `
                   tabindex="-1"
                 >
                   <div
-                    class="v-avatar v-list-item__avatar grey"
+                    class="v-avatar v-list-item__avatar grey lighten-2"
                     style="height: 40px; min-width: 40px; width: 40px;"
                   >
-                    
-        TR
-      
+                    <span
+                      class="grey--text text--darken-3"
+                    >
+                      TR
+                    </span>
                   </div>
                    
                   <div
@@ -2189,12 +2308,14 @@ exports[`Storyshots IndividualEntry Bot And Locked 1`] = `
                   tabindex="-1"
                 >
                   <div
-                    class="v-avatar v-list-item__avatar grey"
+                    class="v-avatar v-list-item__avatar grey lighten-2"
                     style="height: 40px; min-width: 40px; width: 40px;"
                   >
-                    
-        TR
-      
+                    <span
+                      class="grey--text text--darken-3"
+                    >
+                      TR
+                    </span>
                   </div>
                    
                   <div
@@ -2359,12 +2480,14 @@ exports[`Storyshots IndividualEntry Default 1`] = `
                   tabindex="-1"
                 >
                   <div
-                    class="v-avatar v-list-item__avatar grey"
+                    class="v-avatar v-list-item__avatar grey lighten-2"
                     style="height: 40px; min-width: 40px; width: 40px;"
                   >
-                    
-        TR
-      
+                    <span
+                      class="grey--text text--darken-3"
+                    >
+                      TR
+                    </span>
                   </div>
                    
                   <div
@@ -2511,12 +2634,14 @@ exports[`Storyshots IndividualEntry Highlighted 1`] = `
                   tabindex="-1"
                 >
                   <div
-                    class="v-avatar v-list-item__avatar grey"
+                    class="v-avatar v-list-item__avatar grey lighten-2"
                     style="height: 40px; min-width: 40px; width: 40px;"
                   >
-                    
-        TR
-      
+                    <span
+                      class="grey--text text--darken-3"
+                    >
+                      TR
+                    </span>
                   </div>
                    
                   <div
@@ -2663,12 +2788,14 @@ exports[`Storyshots IndividualEntry Locked 1`] = `
                   tabindex="-1"
                 >
                   <div
-                    class="v-avatar v-list-item__avatar grey"
+                    class="v-avatar v-list-item__avatar grey lighten-2"
                     style="height: 40px; min-width: 40px; width: 40px;"
                   >
-                    
-        TR
-      
+                    <span
+                      class="grey--text text--darken-3"
+                    >
+                      TR
+                    </span>
                   </div>
                    
                   <div
@@ -2824,12 +2951,14 @@ exports[`Storyshots IndividualEntry No Email 1`] = `
                   tabindex="-1"
                 >
                   <div
-                    class="v-avatar v-list-item__avatar grey"
+                    class="v-avatar v-list-item__avatar grey lighten-2"
                     style="height: 40px; min-width: 40px; width: 40px;"
                   >
-                    
-        TR
-      
+                    <span
+                      class="grey--text text--darken-3"
+                    >
+                      TR
+                    </span>
                   </div>
                    
                   <div
@@ -2860,6 +2989,160 @@ exports[`Storyshots IndividualEntry No Email 1`] = `
               >
                 
     
+  
+              </td>
+               
+              <td
+                class="text-right"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-git theme--light"
+                />
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-account-multiple theme--light"
+                />
+              </td>
+               
+              <td
+                width="140"
+              >
+                <button
+                  class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                  type="button"
+                >
+                  <span
+                    class="v-btn__content"
+                  >
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate mdi mdi-chevron-down theme--light"
+                    />
+                  </span>
+                </button>
+                 
+                <div
+                  class="v-menu"
+                >
+                  <button
+                    aria-expanded="false"
+                    aria-haspopup="true"
+                    class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                    role="button"
+                    type="button"
+                  >
+                    <span
+                      class="v-btn__content"
+                    >
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate mdi mdi-dots-vertical theme--light"
+                      />
+                    </span>
+                  </button>
+                  <!---->
+                </div>
+                 
+                <span
+                  class="v-tooltip v-tooltip--bottom"
+                >
+                  <!---->
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate mdi mdi-drag-vertical theme--light"
+                  />
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Storyshots IndividualEntry No Name 1`] = `
+<div
+  class="v-application v-application--is-ltr theme--light"
+  data-app="true"
+  id="app"
+>
+  <div
+    class="v-application--wrap"
+  >
+    <div
+      class="v-data-table theme--light"
+    >
+      <div
+        class="v-data-table__wrapper"
+      >
+        <table>
+          <colgroup>
+            <col
+              class=""
+            />
+            <col
+              class=""
+            />
+            <col
+              class=""
+            />
+            <col
+              class=""
+            />
+          </colgroup>
+          <tbody>
+            <tr
+              class=""
+            >
+              <td
+                width="25%"
+              >
+                <div
+                  class="v-list-item theme--light"
+                  tabindex="-1"
+                >
+                  <div
+                    class="v-avatar v-list-item__avatar grey lighten-2"
+                    style="height: 40px; min-width: 40px; width: 40px;"
+                  >
+                    <span
+                      class="grey--text text--darken-3"
+                    >
+                      T
+                    </span>
+                  </div>
+                   
+                  <div
+                    class="v-list-item__content"
+                  >
+                    <div
+                      class="v-list-item__title"
+                    >
+                      
+          
+          
+                      <!---->
+                       
+                      <!---->
+                    </div>
+                     
+                    <div
+                      class="v-list-item__subtitle"
+                    >
+                      
+                    </div>
+                  </div>
+                </div>
+              </td>
+               
+              <td
+                class="text-center"
+              >
+                
+    triddle@example.com
   
               </td>
                
@@ -2976,12 +3259,14 @@ exports[`Storyshots IndividualEntry No Organization 1`] = `
                   tabindex="-1"
                 >
                   <div
-                    class="v-avatar v-list-item__avatar grey"
+                    class="v-avatar v-list-item__avatar grey lighten-2"
                     style="height: 40px; min-width: 40px; width: 40px;"
                   >
-                    
-        TR
-      
+                    <span
+                      class="grey--text text--darken-3"
+                    >
+                      TR
+                    </span>
                   </div>
                    
                   <div
@@ -3128,12 +3413,14 @@ exports[`Storyshots IndividualEntry Single Inital 1`] = `
                   tabindex="-1"
                 >
                   <div
-                    class="v-avatar v-list-item__avatar grey"
+                    class="v-avatar v-list-item__avatar grey lighten-2"
                     style="height: 40px; min-width: 40px; width: 40px;"
                   >
-                    
-        V
-      
+                    <span
+                      class="grey--text text--darken-3"
+                    >
+                      V
+                    </span>
                   </div>
                    
                   <div
@@ -3270,12 +3557,16 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                 tabindex="-1"
               >
                 <div
-                  class="v-avatar v-list-item__avatar grey"
+                  class="v-avatar v-list-item__avatar grey lighten-2"
                   style="height: 30px; min-width: 30px; width: 30px;"
                 >
-                  
-      TR
-    
+                  <span
+                    class="grey--text text--darken-3"
+                  >
+                    TR
+                  </span>
+                   
+                  <!---->
                 </div>
                  
                 <div
@@ -3356,12 +3647,16 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                 tabindex="-1"
               >
                 <div
-                  class="v-avatar v-list-item__avatar grey"
+                  class="v-avatar v-list-item__avatar grey lighten-2"
                   style="height: 30px; min-width: 30px; width: 30px;"
                 >
-                  
-      HP
-    
+                  <span
+                    class="grey--text text--darken-3"
+                  >
+                    HP
+                  </span>
+                   
+                  <!---->
                 </div>
                  
                 <div
@@ -3452,12 +3747,16 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                 tabindex="-1"
               >
                 <div
-                  class="v-avatar v-list-item__avatar grey"
+                  class="v-avatar v-list-item__avatar grey lighten-2"
                   style="height: 30px; min-width: 30px; width: 30px;"
                 >
-                  
-      V
-    
+                  <span
+                    class="grey--text text--darken-3"
+                  >
+                    V
+                  </span>
+                   
+                  <!---->
                 </div>
                  
                 <div
@@ -3538,12 +3837,16 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                 tabindex="-1"
               >
                 <div
-                  class="v-avatar v-list-item__avatar grey"
+                  class="v-avatar v-list-item__avatar grey lighten-2"
                   style="height: 30px; min-width: 30px; width: 30px;"
                 >
-                  
-      HG
-    
+                  <span
+                    class="grey--text text--darken-3"
+                  >
+                    HG
+                  </span>
+                   
+                  <!---->
                 </div>
                  
                 <div
@@ -3634,12 +3937,16 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                 tabindex="-1"
               >
                 <div
-                  class="v-avatar v-list-item__avatar grey"
+                  class="v-avatar v-list-item__avatar grey lighten-2"
                   style="height: 30px; min-width: 30px; width: 30px;"
                 >
-                  
-      AD
-    
+                  <span
+                    class="grey--text text--darken-3"
+                  >
+                    AD
+                  </span>
+                   
+                  <!---->
                 </div>
                  
                 <div
@@ -3725,12 +4032,16 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                 tabindex="-1"
               >
                 <div
-                  class="v-avatar v-list-item__avatar grey"
+                  class="v-avatar v-list-item__avatar grey lighten-2"
                   style="height: 30px; min-width: 30px; width: 30px;"
                 >
-                  
-      RW
-    
+                  <span
+                    class="grey--text text--darken-3"
+                  >
+                    RW
+                  </span>
+                   
+                  <!---->
                 </div>
                  
                 <div
@@ -3821,12 +4132,16 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                 tabindex="-1"
               >
                 <div
-                  class="v-avatar v-list-item__avatar grey"
+                  class="v-avatar v-list-item__avatar grey lighten-2"
                   style="height: 30px; min-width: 30px; width: 30px;"
                 >
-                  
-      SS
-    
+                  <span
+                    class="grey--text text--darken-3"
+                  >
+                    SS
+                  </span>
+                   
+                  <!---->
                 </div>
                  
                 <div
@@ -3917,12 +4232,16 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                 tabindex="-1"
               >
                 <div
-                  class="v-avatar v-list-item__avatar grey"
+                  class="v-avatar v-list-item__avatar grey lighten-2"
                   style="height: 30px; min-width: 30px; width: 30px;"
                 >
-                  
-      H
-    
+                  <span
+                    class="grey--text text--darken-3"
+                  >
+                    H
+                  </span>
+                   
+                  <!---->
                 </div>
                  
                 <div
@@ -4489,12 +4808,16 @@ exports[`Storyshots ProfileCard Default 1`] = `
         tabindex="-1"
       >
         <div
-          class="v-avatar v-list-item__avatar grey"
+          class="v-avatar v-list-item__avatar grey lighten-2"
           style="height: 30px; min-width: 30px; width: 30px;"
         >
-          
-      TR
-    
+          <span
+            class="grey--text text--darken-3"
+          >
+            TR
+          </span>
+           
+          <!---->
         </div>
          
         <div
@@ -4755,12 +5078,16 @@ exports[`Storyshots WorkSpace Default 1`] = `
               tabindex="-1"
             >
               <div
-                class="v-avatar v-list-item__avatar grey"
+                class="v-avatar v-list-item__avatar grey lighten-2"
                 style="height: 30px; min-width: 30px; width: 30px;"
               >
-                
-      TR
-    
+                <span
+                  class="grey--text text--darken-3"
+                >
+                  TR
+                </span>
+                 
+                <!---->
               </div>
                
               <div
@@ -4857,12 +5184,16 @@ exports[`Storyshots WorkSpace Default 1`] = `
               tabindex="-1"
             >
               <div
-                class="v-avatar v-list-item__avatar grey"
+                class="v-avatar v-list-item__avatar grey lighten-2"
                 style="height: 30px; min-width: 30px; width: 30px;"
               >
-                
-      HP
-    
+                <span
+                  class="grey--text text--darken-3"
+                >
+                  HP
+                </span>
+                 
+                <!---->
               </div>
                
               <div

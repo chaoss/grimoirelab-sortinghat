@@ -59,6 +59,7 @@
           :name="item.name"
           :organization="item.organization"
           :email="item.email"
+          :username="item.username"
           :sources="item.sources"
           :uuid="item.uuid"
           :is-expanded="isExpanded"

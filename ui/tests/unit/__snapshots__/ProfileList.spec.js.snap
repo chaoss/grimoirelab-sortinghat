@@ -66,12 +66,16 @@ exports[`ProfileList Shows selected profile 1`] = `
           tabindex="-1"
         >
           <div
-            class="v-avatar v-list-item__avatar grey"
+            class="v-avatar v-list-item__avatar grey lighten-2"
             style="height: 30px; min-width: 30px; width: 30px;"
           >
-            
-      TN
-    
+            <span
+              class="grey--text text--darken-3"
+            >
+              TN
+            </span>
+             
+            <!---->
           </div>
            
           <div
