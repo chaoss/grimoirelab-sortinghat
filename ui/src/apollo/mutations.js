@@ -227,6 +227,16 @@ const UPDATE_PROFILE = gql`
   }
 `;
 
+const DELETE_DOMAIN = gql`
+  mutation deleteDomain($domain: String!) {
+    deleteDomain(domain: $domain) {
+      domain {
+        domain
+      }
+    }
+  }
+`;
+
 const lockIndividual = (apollo, uuid) => {
   let response = apollo.mutate({
     mutation: LOCK_INDIVIDUAL,
@@ -347,6 +357,14 @@ const addDomain = (apollo, domain, organization) => {
   return response;
 };
 
+const deleteDomain = (apollo, domain) => {
+  let response = apollo.mutate({
+    mutation: DELETE_DOMAIN,
+    variables: { domain: domain }
+  });
+  return response;
+};
+
 export {
   lockIndividual,
   unlockIndividual,
@@ -357,6 +375,7 @@ export {
   enroll,
   addOrganization,
   addDomain,
+  deleteDomain,
   addIdentity,
   updateProfile
 };

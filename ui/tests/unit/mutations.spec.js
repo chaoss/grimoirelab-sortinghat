@@ -188,6 +188,18 @@ const updateProfileResponse = {
   }
 };
 
+const deleteDomainResponse = {
+  data: {
+    deleteDomain: {
+      domain: {
+        domain: "Name",
+        __typename: "DomainType"
+      },
+      __typename: "DeleteDomain"
+    }
+  }
+};
+
 describe("IndividualsTable", () => {
   test("Mock query for deleteIdentity", async () => {
     const mutate = jest.fn(() => Promise.resolve(deleteResponse));
@@ -319,7 +331,8 @@ describe("OrganizationsTable", () => {
         enroll: mutate,
         fetchPage: () => {},
         addDomain: () => {},
-        addOrganization: () => {}
+        addOrganization: () => {},
+        deleteDomain: () => {}
       }
     });
 
@@ -346,7 +359,8 @@ describe("OrganizationsTable", () => {
         enroll: mutate,
         fetchPage: () => {},
         addOrganization: mutate,
-        addDomain: () => {}
+        addDomain: () => {},
+        deleteDomain: () => {}
       }
     });
 
@@ -370,6 +384,33 @@ describe("OrganizationsTable", () => {
         enroll: () => {},
         fetchPage: () => {},
         addDomain: mutate,
+        deleteDomain: () => {},
+        addOrganization: () => {}
+      }
+    });
+
+    const response = await Mutations.addDomain(
+      wrapper.vm.$apollo, "domain.com", "Organization"
+    );
+
+    expect(mutate).toBeCalled();
+    expect(wrapper.element).toMatchSnapshot();
+  });
+
+  test("Mock mutation for deleteDomain", async () => {
+    const mutate = jest.fn(() => Promise.resolve(addDomainResponse));
+    const wrapper = shallowMount(OrganizationsTable, {
+      Vue,
+      mocks: {
+        $apollo: {
+          mutate
+        }
+      },
+      propsData: {
+        enroll: () => {},
+        fetchPage: () => {},
+        addDomain: () => {},
+        deleteDomain: mutate,
         addOrganization: () => {}
       }
     });
