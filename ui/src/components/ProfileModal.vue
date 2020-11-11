@@ -74,20 +74,57 @@
             />
           </v-col>
           <v-col cols="3">
-            <v-text-field
-              label="Date from"
-              v-model="enrollmentsForm[index].fromDate"
-              hint="MM/DD/YYYY"
-              filled
-            />
+            <v-menu
+              v-model="enrollmentsForm[index].fromDateMenu"
+              :close-on-content-click="false"
+              transition="scale-transition"
+              offset-y
+              min-width="290px"
+            >
+              <template v-slot:activator="{ on }">
+                <v-text-field
+                  v-model="enrollmentsForm[index].fromDate"
+                  label="Date from"
+                  filled
+                  readonly
+                  v-on="on"
+                ></v-text-field>
+              </template>
+              <v-date-picker
+                v-model="enrollmentsForm[index].fromDate"
+                @input="enrollmentsForm[index].fromDateMenu = false"
+                no-title
+                scrollable
+              >
+              </v-date-picker>
+            </v-menu>
           </v-col>
           <v-col cols="3">
-            <v-text-field
-              label="Date to"
-              v-model="enrollmentsForm[index].toDate"
-              hint="YYYY/MM/DD"
-              filled
-            />
+            <v-menu
+              v-model="enrollmentsForm[index].toDateMenu"
+              :close-on-content-click="false"
+              transition="scale-transition"
+              offset-y
+              min-width="290px"
+            >
+              <template v-slot:activator="{ on }">
+                <v-text-field
+                  v-model="enrollmentsForm[index].toDate"
+                  label="Date to"
+                  filled
+                  readonly
+                  v-on="on"
+                ></v-text-field>
+              </template>
+              <v-date-picker
+                v-model="enrollmentsForm[index].toDate"
+                :min="enrollmentsForm[index].fromDate"
+                @input="enrollmentsForm[index].toDateMenu = false"
+                no-title
+                scrollable
+              >
+              </v-date-picker>
+            </v-menu>
           </v-col>
           <v-col cols="1" class="pt-6">
             <v-btn
@@ -165,7 +202,9 @@ export default {
         {
           organization: "",
           fromDate: "",
-          toDate: ""
+          fromDateMenu: false,
+          toDate: "",
+          toDateMenu: false
         }
       ],
       savedData: {
@@ -197,7 +236,8 @@ export default {
       this.enrollmentsForm.push({
         organization: "",
         fromDate: "",
-        toDate: ""
+        toDate: "",
+        menu: false
       });
     },
     removeEnrollment(index) {

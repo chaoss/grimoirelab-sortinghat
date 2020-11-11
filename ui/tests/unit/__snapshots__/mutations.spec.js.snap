@@ -1927,42 +1927,81 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
           cols="3"
           tag="div"
         >
-          <v-text-field-stub
-            backgroundcolor=""
-            clearicon="$clear"
-            errorcount="1"
-            errormessages=""
-            filled="true"
-            hint="MM/DD/YYYY"
-            label="Date from"
-            loaderheight="2"
-            messages=""
-            rules=""
-            successmessages=""
-            type="text"
-            value=""
-          />
+          <v-menu-stub
+            closedelay="0"
+            closeonclick="true"
+            contentclass=""
+            maxheight="auto"
+            maxwidth="auto"
+            minwidth="290px"
+            nudgebottom="0"
+            nudgeleft="0"
+            nudgeright="0"
+            nudgetop="0"
+            nudgewidth="0"
+            offsety="true"
+            opendelay="0"
+            openonclick="true"
+            origin="top left"
+            transition="scale-transition"
+          >
+             
+            <v-date-picker-stub
+              eventcolor="warning"
+              firstdayofweek="0"
+              localefirstdayofyear="0"
+              nexticon="$next"
+              notitle="true"
+              previcon="$prev"
+              scrollable="true"
+              selecteditemstext="$vuetify.datePicker.itemsSelected"
+              showcurrent="true"
+              type="date"
+              value=""
+              width="290"
+            />
+          </v-menu-stub>
         </v-col-stub>
          
         <v-col-stub
           cols="3"
           tag="div"
         >
-          <v-text-field-stub
-            backgroundcolor=""
-            clearicon="$clear"
-            errorcount="1"
-            errormessages=""
-            filled="true"
-            hint="MM/DD/YYYY"
-            label="Date to"
-            loaderheight="2"
-            messages=""
-            rules=""
-            successmessages=""
-            type="text"
-            value=""
-          />
+          <v-menu-stub
+            closedelay="0"
+            closeonclick="true"
+            contentclass=""
+            maxheight="auto"
+            maxwidth="auto"
+            minwidth="290px"
+            nudgebottom="0"
+            nudgeleft="0"
+            nudgeright="0"
+            nudgetop="0"
+            nudgewidth="0"
+            offsety="true"
+            opendelay="0"
+            openonclick="true"
+            origin="top left"
+            transition="scale-transition"
+          >
+             
+            <v-date-picker-stub
+              eventcolor="warning"
+              firstdayofweek="0"
+              localefirstdayofyear="0"
+              min=""
+              nexticon="$next"
+              notitle="true"
+              previcon="$prev"
+              scrollable="true"
+              selecteditemstext="$vuetify.datePicker.itemsSelected"
+              showcurrent="true"
+              type="date"
+              value=""
+              width="290"
+            />
+          </v-menu-stub>
         </v-col-stub>
          
         <v-col-stub
@@ -2262,42 +2301,81 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
           cols="3"
           tag="div"
         >
-          <v-text-field-stub
-            backgroundcolor=""
-            clearicon="$clear"
-            errorcount="1"
-            errormessages=""
-            filled="true"
-            hint="MM/DD/YYYY"
-            label="Date from"
-            loaderheight="2"
-            messages=""
-            rules=""
-            successmessages=""
-            type="text"
-            value=""
-          />
+          <v-menu-stub
+            closedelay="0"
+            closeonclick="true"
+            contentclass=""
+            maxheight="auto"
+            maxwidth="auto"
+            minwidth="290px"
+            nudgebottom="0"
+            nudgeleft="0"
+            nudgeright="0"
+            nudgetop="0"
+            nudgewidth="0"
+            offsety="true"
+            opendelay="0"
+            openonclick="true"
+            origin="top left"
+            transition="scale-transition"
+          >
+             
+            <v-date-picker-stub
+              eventcolor="warning"
+              firstdayofweek="0"
+              localefirstdayofyear="0"
+              nexticon="$next"
+              notitle="true"
+              previcon="$prev"
+              scrollable="true"
+              selecteditemstext="$vuetify.datePicker.itemsSelected"
+              showcurrent="true"
+              type="date"
+              value=""
+              width="290"
+            />
+          </v-menu-stub>
         </v-col-stub>
          
         <v-col-stub
           cols="3"
           tag="div"
         >
-          <v-text-field-stub
-            backgroundcolor=""
-            clearicon="$clear"
-            errorcount="1"
-            errormessages=""
-            filled="true"
-            hint="MM/DD/YYYY"
-            label="Date to"
-            loaderheight="2"
-            messages=""
-            rules=""
-            successmessages=""
-            type="text"
-            value=""
-          />
+          <v-menu-stub
+            closedelay="0"
+            closeonclick="true"
+            contentclass=""
+            maxheight="auto"
+            maxwidth="auto"
+            minwidth="290px"
+            nudgebottom="0"
+            nudgeleft="0"
+            nudgeright="0"
+            nudgetop="0"
+            nudgewidth="0"
+            offsety="true"
+            opendelay="0"
+            openonclick="true"
+            origin="top left"
+            transition="scale-transition"
+          >
+             
+            <v-date-picker-stub
+              eventcolor="warning"
+              firstdayofweek="0"
+              localefirstdayofyear="0"
+              min=""
+              nexticon="$next"
+              notitle="true"
+              previcon="$prev"
+              scrollable="true"
+              selecteditemstext="$vuetify.datePicker.itemsSelected"
+              showcurrent="true"
+              type="date"
+              value=""
+              width="290"
+            />
+          </v-menu-stub>
         </v-col-stub>
          
         <v-col-stub
