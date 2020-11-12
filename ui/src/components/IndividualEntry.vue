@@ -16,8 +16,8 @@
   >
     <td width="25%">
       <v-list-item>
-        <v-list-item-avatar color="grey">
-          {{ getNameInitials }}
+        <v-list-item-avatar color="grey lighten-2">
+          <span class="grey--text text--darken-3">{{ getNameInitials }}</span>
         </v-list-item-avatar>
 
         <v-list-item-content>
@@ -102,7 +102,7 @@ export default {
   props: {
     name: {
       type: String,
-      required: true
+      required: false
     },
     organization: {
       type: String,
@@ -110,7 +110,7 @@ export default {
     },
     email: {
       type: String,
-      required: true
+      required: false
     },
     sources: {
       type: Array,
@@ -148,8 +148,9 @@ export default {
   }),
   computed: {
     getNameInitials: function() {
-      var names = this.name.split(" ");
-      var initials = names[0].substring(0, 1).toUpperCase();
+      const name = this.name || this.email || "";
+      const names = name.split(" ");
+      let initials = names[0].substring(0, 1).toUpperCase();
 
       if (names.length > 1) {
         initials += names[names.length - 1].substring(0, 1).toUpperCase();

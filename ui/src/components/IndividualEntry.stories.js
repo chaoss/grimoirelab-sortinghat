@@ -114,6 +114,32 @@ export const NoOrganization = () => ({
   })
 });
 
+export const NoName = () => ({
+  components: { IndividualEntry },
+  template: individualEntryTemplate,
+  data: () => ({
+    headers: [
+      { value: 'name' },
+      { value: 'email' },
+      { value: 'sources' },
+      { value: 'actions' }
+    ],
+    items: [
+      {
+        name: "",
+        organization: "",
+        email: "triddle@example.com",
+        sources: [ "git", "others" ],
+        isLocked: false,
+        isBot: false,
+        uuid: "03b3428ee",
+        isHighlighted: false
+      }
+    ],
+    expanded: []
+  })
+});
+
 export const SingleInital = () => ({
   components: { IndividualEntry },
   template: individualEntryTemplate,

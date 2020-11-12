@@ -54,6 +54,10 @@
             :unmerge-items="unmergeItems"
             :move-item="moveItem"
             :highlight-individual="highlightInTable"
+            :add-identity="addIdentity"
+            :updateProfile="updateProfile"
+            :enroll="enroll"
+            :get-countries="getCountries"
             @saveIndividual="addSavedIndividual"
             @updateWorkspace="updateWorkspace"
             @highlight="
@@ -85,17 +89,20 @@
 
 <script>
 import {
+  getCountries,
   getPaginatedIndividuals,
   getPaginatedOrganizations
 } from "./apollo/queries";
 import {
+  addIdentity,
   deleteIdentity,
   merge,
   unmerge,
   moveIdentity,
   enroll,
   addOrganization,
-  addDomain
+  addDomain,
+  updateProfile
 } from "./apollo/mutations";
 import IndividualsTable from "./components/IndividualsTable";
 import OrganizationsTable from "./components/OrganizationsTable";
@@ -186,8 +193,28 @@ export default {
     deselectIndividuals() {
       this.$refs.table.deselectIndividuals();
     },
-    async enroll(uuid, organization) {
-      const response = await enroll(this.$apollo, uuid, organization);
+    async enroll(uuid, organization, fromDate, toDate) {
+      const response = await enroll(
+        this.$apollo,
+        uuid,
+        organization,
+        fromDate,
+        toDate
+      );
+      return response;
+    },
+    async addIdentity(email, name, source, username) {
+      const response = await addIdentity(
+        this.$apollo,
+        email,
+        name,
+        source,
+        username
+      );
+      return response;
+    },
+    async updateProfile(data, uuid) {
+      const response = updateProfile(this.$apollo, data, uuid);
       return response;
     },
     async addOrganization(organization) {
@@ -197,6 +224,10 @@ export default {
     async addDomain(domain, organization) {
       const response = await addDomain(this.$apollo, domain, organization);
       return response;
+    },
+    async getCountries() {
+      const response = await getCountries(this.$apollo);
+      return response.data.countries.entities;
     }
   }
 };

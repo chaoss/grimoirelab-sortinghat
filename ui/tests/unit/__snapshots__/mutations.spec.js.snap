@@ -68,6 +68,19 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
           Delete selected
         </span>
       </v-tooltip-stub>
+       
+      <v-btn-stub
+        activeclass=""
+        class="primary--text"
+        color="blue lighten-5"
+        depressed="true"
+        tag="button"
+        type="button"
+      >
+        
+        Add
+      
+      </v-btn-stub>
     </div>
   </v-row-stub>
    
@@ -227,6 +240,13 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
       </v-card-actions-stub>
     </v-card-stub>
   </v-dialog-stub>
+   
+  <profile-modal-stub
+    addidentity="() => {}"
+    enroll="() => {}"
+    getcountries="() => {}"
+    updateprofile="() => {}"
+  />
    
   <v-card-stub
     class="dragged-item"
@@ -312,6 +332,19 @@ exports[`IndividualsTable Mock query for merge 1`] = `
           Delete selected
         </span>
       </v-tooltip-stub>
+       
+      <v-btn-stub
+        activeclass=""
+        class="primary--text"
+        color="blue lighten-5"
+        depressed="true"
+        tag="button"
+        type="button"
+      >
+        
+        Add
+      
+      </v-btn-stub>
     </div>
   </v-row-stub>
    
@@ -471,6 +504,13 @@ exports[`IndividualsTable Mock query for merge 1`] = `
       </v-card-actions-stub>
     </v-card-stub>
   </v-dialog-stub>
+   
+  <profile-modal-stub
+    addidentity="() => {}"
+    enroll="() => {}"
+    getcountries="() => {}"
+    updateprofile="() => {}"
+  />
    
   <v-card-stub
     class="dragged-item"
@@ -556,6 +596,19 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
           Delete selected
         </span>
       </v-tooltip-stub>
+       
+      <v-btn-stub
+        activeclass=""
+        class="primary--text"
+        color="blue lighten-5"
+        depressed="true"
+        tag="button"
+        type="button"
+      >
+        
+        Add
+      
+      </v-btn-stub>
     </div>
   </v-row-stub>
    
@@ -715,6 +768,13 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
       </v-card-actions-stub>
     </v-card-stub>
   </v-dialog-stub>
+   
+  <profile-modal-stub
+    addidentity="() => {}"
+    enroll="() => {}"
+    getcountries="() => {}"
+    updateprofile="() => {}"
+  />
    
   <v-card-stub
     class="dragged-item"
@@ -800,6 +860,19 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
           Delete selected
         </span>
       </v-tooltip-stub>
+       
+      <v-btn-stub
+        activeclass=""
+        class="primary--text"
+        color="blue lighten-5"
+        depressed="true"
+        tag="button"
+        type="button"
+      >
+        
+        Add
+      
+      </v-btn-stub>
     </div>
   </v-row-stub>
    
@@ -959,6 +1032,13 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
       </v-card-actions-stub>
     </v-card-stub>
   </v-dialog-stub>
+   
+  <profile-modal-stub
+    addidentity="() => {}"
+    enroll="() => {}"
+    getcountries="() => {}"
+    updateprofile="() => {}"
+  />
    
   <v-card-stub
     class="dragged-item"
@@ -1608,4 +1688,828 @@ exports[`OrganizationsTable Mock mutation for enroll 1`] = `
   
   </v-snackbar-stub>
 </v-container-stub>
+`;
+
+exports[`ProfileModal Mock mutation for addIdentity 1`] = `
+<v-dialog-stub
+  closedelay="0"
+  contentclass=""
+  maxwidth="650"
+  opendelay="0"
+  origin="center center"
+  persistent="true"
+  retainfocus="true"
+  transition="dialog-transition"
+  width="auto"
+>
+  <v-card-stub
+    class="pa-6"
+    loaderheight="4"
+    tag="div"
+  >
+    <v-card-title-stub>
+      <span
+        class="headline"
+      >
+        Add individual
+      </span>
+    </v-card-title-stub>
+     
+    <v-card-text-stub>
+      <v-form-stub>
+        <v-row-stub
+          tag="div"
+        >
+          <v-col-stub
+            cols="6"
+            tag="div"
+          >
+            <v-text-field-stub
+              backgroundcolor=""
+              clearicon="$clear"
+              errorcount="1"
+              errormessages=""
+              filled="true"
+              label="Name"
+              loaderheight="2"
+              messages=""
+              rules=""
+              successmessages=""
+              type="text"
+              value=""
+            />
+          </v-col-stub>
+           
+          <v-col-stub
+            cols="6"
+            tag="div"
+          >
+            <v-text-field-stub
+              backgroundcolor=""
+              clearicon="$clear"
+              errorcount="1"
+              errormessages=""
+              filled="true"
+              label="Email"
+              loaderheight="2"
+              messages=""
+              rules="value => (value ? /\\\\S+@\\\\S+\\\\.\\\\S+/.test(value) : true) || \\"Invalid email\\""
+              successmessages=""
+              type="text"
+              value=""
+            />
+          </v-col-stub>
+        </v-row-stub>
+         
+        <v-row-stub
+          tag="div"
+        >
+          <v-col-stub
+            cols="6"
+            tag="div"
+          >
+            <v-text-field-stub
+              backgroundcolor=""
+              clearicon="$clear"
+              errorcount="1"
+              errormessages=""
+              filled="true"
+              label="Username"
+              loaderheight="2"
+              messages=""
+              rules=""
+              successmessages=""
+              type="text"
+              value=""
+            />
+          </v-col-stub>
+           
+          <v-col-stub
+            cols="6"
+            tag="div"
+          >
+            <v-text-field-stub
+              backgroundcolor=""
+              clearicon="$clear"
+              errorcount="1"
+              errormessages=""
+              filled="true"
+              label="Source"
+              loaderheight="2"
+              messages=""
+              rules="value => !!value || \\"Required\\""
+              successmessages=""
+              type="text"
+              value=""
+            />
+          </v-col-stub>
+        </v-row-stub>
+         
+        <v-row-stub
+          tag="div"
+        >
+          <v-col-stub
+            cols="6"
+            tag="div"
+          >
+            <v-text-field-stub
+              backgroundcolor=""
+              clearicon="$clear"
+              errorcount="1"
+              errormessages=""
+              filled="true"
+              label="Gender"
+              loaderheight="2"
+              messages=""
+              rules=""
+              successmessages=""
+              type="text"
+              value=""
+            />
+          </v-col-stub>
+           
+          <v-col-stub
+            cols="4"
+            tag="div"
+          >
+            <v-combobox-stub
+              allowoverflow="true"
+              appendicon="$dropdown"
+              backgroundcolor=""
+              clearicon="$clear"
+              delimiters=""
+              errorcount="1"
+              errormessages=""
+              filled="true"
+              filter="function _default(item, queryText, itemText) {
+                return itemText.toLocaleLowerCase().indexOf(queryText.toLocaleLowerCase()) > -1;
+              }"
+              itemcolor="primary"
+              itemdisabled="disabled"
+              items=""
+              itemtext="name"
+              itemvalue="value"
+              label="Country"
+              loaderheight="2"
+              menuprops="[object Object]"
+              messages=""
+              nodatatext="$vuetify.noDataText"
+              returnobject="true"
+              rules=""
+              successmessages=""
+              type="text"
+              valuecomparator="function deepEqual(a, b) {
+          if (a === b) return true;
+
+          if (a instanceof Date && b instanceof Date) {
+            // If the values are Date, they were convert to timestamp with getTime and compare it
+            if (a.getTime() !== b.getTime()) return false;
+          }
+
+          if (a !== Object(a) || b !== Object(b)) {
+            // If the values aren't objects, they were already checked for equality
+            return false;
+          }
+
+          var props = Object.keys(a);
+
+          if (props.length !== Object.keys(b).length) {
+            // Different number of props, don't bother to check
+            return false;
+          }
+
+          return props.every(function (p) {
+            return deepEqual(a[p], b[p]);
+          });
+        }"
+            />
+          </v-col-stub>
+           
+          <v-col-stub
+            cols="2"
+            tag="div"
+          >
+            <v-checkbox-stub
+              backgroundcolor=""
+              color="primary"
+              errorcount="1"
+              errormessages=""
+              indeterminateicon="$checkboxIndeterminate"
+              label="Bot"
+              messages=""
+              officon="$checkboxOff"
+              onicon="$checkboxOn"
+              ripple="true"
+              rules=""
+              successmessages=""
+              valuecomparator="function deepEqual(a, b) {
+          if (a === b) return true;
+
+          if (a instanceof Date && b instanceof Date) {
+            // If the values are Date, they were convert to timestamp with getTime and compare it
+            if (a.getTime() !== b.getTime()) return false;
+          }
+
+          if (a !== Object(a) || b !== Object(b)) {
+            // If the values aren't objects, they were already checked for equality
+            return false;
+          }
+
+          var props = Object.keys(a);
+
+          if (props.length !== Object.keys(b).length) {
+            // Different number of props, don't bother to check
+            return false;
+          }
+
+          return props.every(function (p) {
+            return deepEqual(a[p], b[p]);
+          });
+        }"
+            />
+          </v-col-stub>
+        </v-row-stub>
+      </v-form-stub>
+       
+      <v-row-stub
+        class="pl-4"
+        tag="div"
+      >
+        <span
+          class="title font-weight-regular pl-16"
+        >
+          Organizations
+        </span>
+      </v-row-stub>
+       
+      <v-row-stub
+        tag="div"
+      >
+        <v-col-stub
+          cols="4"
+          tag="div"
+        >
+          <v-text-field-stub
+            backgroundcolor=""
+            clearicon="$clear"
+            errorcount="1"
+            errormessages=""
+            filled="true"
+            label="Organization"
+            loaderheight="2"
+            messages=""
+            rules=""
+            successmessages=""
+            type="text"
+            value=""
+          />
+        </v-col-stub>
+         
+        <v-col-stub
+          cols="3"
+          tag="div"
+        >
+          <v-menu-stub
+            closedelay="0"
+            closeonclick="true"
+            contentclass=""
+            maxheight="auto"
+            maxwidth="auto"
+            minwidth="290px"
+            nudgebottom="0"
+            nudgeleft="0"
+            nudgeright="0"
+            nudgetop="0"
+            nudgewidth="0"
+            offsety="true"
+            opendelay="0"
+            openonclick="true"
+            origin="top left"
+            transition="scale-transition"
+          >
+             
+            <v-date-picker-stub
+              eventcolor="warning"
+              firstdayofweek="0"
+              localefirstdayofyear="0"
+              nexticon="$next"
+              notitle="true"
+              previcon="$prev"
+              scrollable="true"
+              selecteditemstext="$vuetify.datePicker.itemsSelected"
+              showcurrent="true"
+              type="date"
+              value=""
+              width="290"
+            />
+          </v-menu-stub>
+        </v-col-stub>
+         
+        <v-col-stub
+          cols="3"
+          tag="div"
+        >
+          <v-menu-stub
+            closedelay="0"
+            closeonclick="true"
+            contentclass=""
+            maxheight="auto"
+            maxwidth="auto"
+            minwidth="290px"
+            nudgebottom="0"
+            nudgeleft="0"
+            nudgeright="0"
+            nudgetop="0"
+            nudgewidth="0"
+            offsety="true"
+            opendelay="0"
+            openonclick="true"
+            origin="top left"
+            transition="scale-transition"
+          >
+             
+            <v-date-picker-stub
+              eventcolor="warning"
+              firstdayofweek="0"
+              localefirstdayofyear="0"
+              min=""
+              nexticon="$next"
+              notitle="true"
+              previcon="$prev"
+              scrollable="true"
+              selecteditemstext="$vuetify.datePicker.itemsSelected"
+              showcurrent="true"
+              type="date"
+              value=""
+              width="290"
+            />
+          </v-menu-stub>
+        </v-col-stub>
+         
+        <v-col-stub
+          class="pt-6"
+          cols="1"
+          tag="div"
+        >
+          <v-btn-stub
+            activeclass=""
+            color="primary"
+            icon="true"
+            tag="button"
+            type="button"
+          >
+            <v-icon-stub
+              color="primary"
+            >
+              mdi-plus-circle-outline
+            </v-icon-stub>
+          </v-btn-stub>
+        </v-col-stub>
+      </v-row-stub>
+    </v-card-text-stub>
+     
+    <!---->
+     
+    <v-card-actions-stub>
+      <v-spacer-stub />
+       
+      <v-btn-stub
+        activeclass=""
+        color="blue darken-1"
+        tag="button"
+        text="true"
+        type="button"
+      >
+        
+        Cancel
+      
+      </v-btn-stub>
+       
+      <v-btn-stub
+        activeclass=""
+        color="primary"
+        depressed="true"
+        disabled="true"
+        tag="button"
+        type="button"
+      >
+        
+        Save
+      
+      </v-btn-stub>
+    </v-card-actions-stub>
+  </v-card-stub>
+</v-dialog-stub>
+`;
+
+exports[`ProfileModal Mock mutation for updateProfile 1`] = `
+<v-dialog-stub
+  closedelay="0"
+  contentclass=""
+  maxwidth="650"
+  opendelay="0"
+  origin="center center"
+  persistent="true"
+  retainfocus="true"
+  transition="dialog-transition"
+  width="auto"
+>
+  <v-card-stub
+    class="pa-6"
+    loaderheight="4"
+    tag="div"
+  >
+    <v-card-title-stub>
+      <span
+        class="headline"
+      >
+        Add individual
+      </span>
+    </v-card-title-stub>
+     
+    <v-card-text-stub>
+      <v-form-stub>
+        <v-row-stub
+          tag="div"
+        >
+          <v-col-stub
+            cols="6"
+            tag="div"
+          >
+            <v-text-field-stub
+              backgroundcolor=""
+              clearicon="$clear"
+              errorcount="1"
+              errormessages=""
+              filled="true"
+              label="Name"
+              loaderheight="2"
+              messages=""
+              rules=""
+              successmessages=""
+              type="text"
+              value=""
+            />
+          </v-col-stub>
+           
+          <v-col-stub
+            cols="6"
+            tag="div"
+          >
+            <v-text-field-stub
+              backgroundcolor=""
+              clearicon="$clear"
+              errorcount="1"
+              errormessages=""
+              filled="true"
+              label="Email"
+              loaderheight="2"
+              messages=""
+              rules="value => (value ? /\\\\S+@\\\\S+\\\\.\\\\S+/.test(value) : true) || \\"Invalid email\\""
+              successmessages=""
+              type="text"
+              value=""
+            />
+          </v-col-stub>
+        </v-row-stub>
+         
+        <v-row-stub
+          tag="div"
+        >
+          <v-col-stub
+            cols="6"
+            tag="div"
+          >
+            <v-text-field-stub
+              backgroundcolor=""
+              clearicon="$clear"
+              errorcount="1"
+              errormessages=""
+              filled="true"
+              label="Username"
+              loaderheight="2"
+              messages=""
+              rules=""
+              successmessages=""
+              type="text"
+              value=""
+            />
+          </v-col-stub>
+           
+          <v-col-stub
+            cols="6"
+            tag="div"
+          >
+            <v-text-field-stub
+              backgroundcolor=""
+              clearicon="$clear"
+              errorcount="1"
+              errormessages=""
+              filled="true"
+              label="Source"
+              loaderheight="2"
+              messages=""
+              rules="value => !!value || \\"Required\\""
+              successmessages=""
+              type="text"
+              value=""
+            />
+          </v-col-stub>
+        </v-row-stub>
+         
+        <v-row-stub
+          tag="div"
+        >
+          <v-col-stub
+            cols="6"
+            tag="div"
+          >
+            <v-text-field-stub
+              backgroundcolor=""
+              clearicon="$clear"
+              errorcount="1"
+              errormessages=""
+              filled="true"
+              label="Gender"
+              loaderheight="2"
+              messages=""
+              rules=""
+              successmessages=""
+              type="text"
+              value=""
+            />
+          </v-col-stub>
+           
+          <v-col-stub
+            cols="4"
+            tag="div"
+          >
+            <v-combobox-stub
+              allowoverflow="true"
+              appendicon="$dropdown"
+              backgroundcolor=""
+              clearicon="$clear"
+              delimiters=""
+              errorcount="1"
+              errormessages=""
+              filled="true"
+              filter="function _default(item, queryText, itemText) {
+                return itemText.toLocaleLowerCase().indexOf(queryText.toLocaleLowerCase()) > -1;
+              }"
+              itemcolor="primary"
+              itemdisabled="disabled"
+              items=""
+              itemtext="name"
+              itemvalue="value"
+              label="Country"
+              loaderheight="2"
+              menuprops="[object Object]"
+              messages=""
+              nodatatext="$vuetify.noDataText"
+              returnobject="true"
+              rules=""
+              successmessages=""
+              type="text"
+              valuecomparator="function deepEqual(a, b) {
+          if (a === b) return true;
+
+          if (a instanceof Date && b instanceof Date) {
+            // If the values are Date, they were convert to timestamp with getTime and compare it
+            if (a.getTime() !== b.getTime()) return false;
+          }
+
+          if (a !== Object(a) || b !== Object(b)) {
+            // If the values aren't objects, they were already checked for equality
+            return false;
+          }
+
+          var props = Object.keys(a);
+
+          if (props.length !== Object.keys(b).length) {
+            // Different number of props, don't bother to check
+            return false;
+          }
+
+          return props.every(function (p) {
+            return deepEqual(a[p], b[p]);
+          });
+        }"
+            />
+          </v-col-stub>
+           
+          <v-col-stub
+            cols="2"
+            tag="div"
+          >
+            <v-checkbox-stub
+              backgroundcolor=""
+              color="primary"
+              errorcount="1"
+              errormessages=""
+              indeterminateicon="$checkboxIndeterminate"
+              label="Bot"
+              messages=""
+              officon="$checkboxOff"
+              onicon="$checkboxOn"
+              ripple="true"
+              rules=""
+              successmessages=""
+              valuecomparator="function deepEqual(a, b) {
+          if (a === b) return true;
+
+          if (a instanceof Date && b instanceof Date) {
+            // If the values are Date, they were convert to timestamp with getTime and compare it
+            if (a.getTime() !== b.getTime()) return false;
+          }
+
+          if (a !== Object(a) || b !== Object(b)) {
+            // If the values aren't objects, they were already checked for equality
+            return false;
+          }
+
+          var props = Object.keys(a);
+
+          if (props.length !== Object.keys(b).length) {
+            // Different number of props, don't bother to check
+            return false;
+          }
+
+          return props.every(function (p) {
+            return deepEqual(a[p], b[p]);
+          });
+        }"
+            />
+          </v-col-stub>
+        </v-row-stub>
+      </v-form-stub>
+       
+      <v-row-stub
+        class="pl-4"
+        tag="div"
+      >
+        <span
+          class="title font-weight-regular pl-16"
+        >
+          Organizations
+        </span>
+      </v-row-stub>
+       
+      <v-row-stub
+        tag="div"
+      >
+        <v-col-stub
+          cols="4"
+          tag="div"
+        >
+          <v-text-field-stub
+            backgroundcolor=""
+            clearicon="$clear"
+            errorcount="1"
+            errormessages=""
+            filled="true"
+            label="Organization"
+            loaderheight="2"
+            messages=""
+            rules=""
+            successmessages=""
+            type="text"
+            value=""
+          />
+        </v-col-stub>
+         
+        <v-col-stub
+          cols="3"
+          tag="div"
+        >
+          <v-menu-stub
+            closedelay="0"
+            closeonclick="true"
+            contentclass=""
+            maxheight="auto"
+            maxwidth="auto"
+            minwidth="290px"
+            nudgebottom="0"
+            nudgeleft="0"
+            nudgeright="0"
+            nudgetop="0"
+            nudgewidth="0"
+            offsety="true"
+            opendelay="0"
+            openonclick="true"
+            origin="top left"
+            transition="scale-transition"
+          >
+             
+            <v-date-picker-stub
+              eventcolor="warning"
+              firstdayofweek="0"
+              localefirstdayofyear="0"
+              nexticon="$next"
+              notitle="true"
+              previcon="$prev"
+              scrollable="true"
+              selecteditemstext="$vuetify.datePicker.itemsSelected"
+              showcurrent="true"
+              type="date"
+              value=""
+              width="290"
+            />
+          </v-menu-stub>
+        </v-col-stub>
+         
+        <v-col-stub
+          cols="3"
+          tag="div"
+        >
+          <v-menu-stub
+            closedelay="0"
+            closeonclick="true"
+            contentclass=""
+            maxheight="auto"
+            maxwidth="auto"
+            minwidth="290px"
+            nudgebottom="0"
+            nudgeleft="0"
+            nudgeright="0"
+            nudgetop="0"
+            nudgewidth="0"
+            offsety="true"
+            opendelay="0"
+            openonclick="true"
+            origin="top left"
+            transition="scale-transition"
+          >
+             
+            <v-date-picker-stub
+              eventcolor="warning"
+              firstdayofweek="0"
+              localefirstdayofyear="0"
+              min=""
+              nexticon="$next"
+              notitle="true"
+              previcon="$prev"
+              scrollable="true"
+              selecteditemstext="$vuetify.datePicker.itemsSelected"
+              showcurrent="true"
+              type="date"
+              value=""
+              width="290"
+            />
+          </v-menu-stub>
+        </v-col-stub>
+         
+        <v-col-stub
+          class="pt-6"
+          cols="1"
+          tag="div"
+        >
+          <v-btn-stub
+            activeclass=""
+            color="primary"
+            icon="true"
+            tag="button"
+            type="button"
+          >
+            <v-icon-stub
+              color="primary"
+            >
+              mdi-plus-circle-outline
+            </v-icon-stub>
+          </v-btn-stub>
+        </v-col-stub>
+      </v-row-stub>
+    </v-card-text-stub>
+     
+    <!---->
+     
+    <v-card-actions-stub>
+      <v-spacer-stub />
+       
+      <v-btn-stub
+        activeclass=""
+        color="blue darken-1"
+        tag="button"
+        text="true"
+        type="button"
+      >
+        
+        Cancel
+      
+      </v-btn-stub>
+       
+      <v-btn-stub
+        activeclass=""
+        color="primary"
+        depressed="true"
+        disabled="true"
+        tag="button"
+        type="button"
+      >
+        
+        Save
+      
+      </v-btn-stub>
+    </v-card-actions-stub>
+  </v-card-stub>
+</v-dialog-stub>
 `;

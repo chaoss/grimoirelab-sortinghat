@@ -84,6 +84,11 @@ const GET_PAGINATED_INDIVIDUALS = gql`
           id
           email
           isBot
+          gender
+          country {
+            code
+            name
+          }
         }
         identities {
           name
@@ -128,6 +133,17 @@ const GET_PAGINATED_ORGANIZATIONS = gql`
         pageSize
         numPages
         totalResults
+      }
+    }
+  }
+`;
+
+const GET_COUNTRIES = gql`
+  query getCountries {
+    countries(pageSize: 500) {
+      entities {
+        code
+        name
       }
     }
   }
@@ -202,7 +218,15 @@ const getPaginatedOrganizations = (apollo, currentPage, pageSize) => {
   return response;
 };
 
+const getCountries = apollo => {
+  let response = apollo.query({
+    query: GET_COUNTRIES
+  });
+  return response;
+};
+
 export {
+  getCountries,
   getIndividuals,
   getIndividualByUuid,
   getProfileByUuid,

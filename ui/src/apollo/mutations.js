@@ -114,8 +114,18 @@ const MOVE_IDENTITY = gql`
 `;
 
 const ENROLL = gql`
-  mutation enroll($uuid: String!, $organization: String!) {
-    enroll(uuid: $uuid, organization: $organization) {
+  mutation enroll(
+    $uuid: String!
+    $organization: String!
+    $fromDate: DateTime
+    $toDate: DateTime
+  ) {
+    enroll(
+      uuid: $uuid
+      organization: $organization
+      fromDate: $fromDate
+      toDate: $toDate
+    ) {
       uuid
       individual {
         isLocked
@@ -151,6 +161,23 @@ const ADD_ORGANIZATION = gql`
     }
   }
 `;
+const ADD_IDENTITY = gql`
+  mutation addIdentity(
+    $email: String
+    $name: String
+    $source: String!
+    $username: String
+  ) {
+    addIdentity(
+      email: $email
+      name: $name
+      source: $source
+      username: $username
+    ) {
+      uuid
+    }
+  }
+`;
 
 const ADD_DOMAIN = gql`
   mutation addDomain($domain: String!, $organization: String!) {
@@ -159,6 +186,41 @@ const ADD_DOMAIN = gql`
         domain
         organization {
           name
+        }
+      }
+    }
+  }
+`;
+
+const UPDATE_PROFILE = gql`
+  mutation updateProfile($data: ProfileInputType!, $uuid: String) {
+    updateProfile(data: $data, uuid: $uuid) {
+      uuid
+      individual {
+        isLocked
+        identities {
+          uuid
+          name
+          email
+          username
+          source
+        }
+        profile {
+          name
+          email
+          gender
+          isBot
+          country {
+            code
+            name
+          }
+        }
+        enrollments {
+          start
+          end
+          organization {
+            name
+          }
         }
       }
     }
@@ -227,12 +289,38 @@ const moveIdentity = (apollo, fromUuid, toUuid) => {
   return response;
 };
 
-const enroll = (apollo, uuid, organization) => {
+const enroll = (apollo, uuid, organization, fromDate, toDate) => {
   let response = apollo.mutate({
     mutation: ENROLL,
     variables: {
       uuid: uuid,
-      organization: organization
+      organization: organization,
+      fromDate: fromDate,
+      toDate: toDate
+    }
+  });
+  return response;
+};
+
+const addIdentity = (apollo, email, name, source, username) => {
+  let response = apollo.mutate({
+    mutation: ADD_IDENTITY,
+    variables: {
+      email: email,
+      name: name,
+      source: source,
+      username: username
+    }
+  });
+  return response;
+};
+
+const updateProfile = (apollo, data, uuid) => {
+  let response = apollo.mutate({
+    mutation: UPDATE_PROFILE,
+    variables: {
+      data: data,
+      uuid: uuid
     }
   });
   return response;
@@ -268,5 +356,7 @@ export {
   moveIdentity,
   enroll,
   addOrganization,
-  addDomain
+  addDomain,
+  addIdentity,
+  updateProfile
 };

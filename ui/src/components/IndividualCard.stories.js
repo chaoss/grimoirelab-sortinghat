@@ -71,6 +71,44 @@ export const SingleInitial = () => ({
     },
   }
 });
+export const NoName = () => ({
+  components: { IndividualCard },
+  template: individualCardTemplate,
+  props: {
+    name: {
+      default: ""
+    },
+    sources: {
+      default: () => []
+    },
+    isLocked: {
+      default: false
+    },
+    uuid: {
+      default: "10f546"
+    },
+    identities: {
+      default: () => [{
+        name: "GitLab",
+        identities: [
+          {
+            name: "",
+            source: "GitLab",
+            email: "triddle@example.net",
+            uuid: "03b3428ee",
+            username: "triddle"
+          }
+        ]
+      }]
+    },
+    enrollments: {
+      default: () => []
+    },
+    isHighlighted: {
+      default: false
+    },
+  }
+});
 export const Sources = () => ({
   components: { IndividualCard },
   template: individualCardTemplate,
