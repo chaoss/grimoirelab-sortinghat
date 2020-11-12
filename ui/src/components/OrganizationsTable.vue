@@ -11,7 +11,7 @@
         depressed
         color="blue lighten-5"
         class="primary--text"
-        @click.stop="openModal = true"
+        @click.stop="openModal"
       >
         Add
       </v-btn>
@@ -34,6 +34,7 @@
           v-on:dblclick.native="expand(!isExpanded)"
           @expand="expand(!isExpanded)"
           @enroll="confirmEnroll"
+          @edit="openModal(item)"
         />
       </template>
       <template v-slot:expanded-item="{ item }">
@@ -51,9 +52,12 @@
     </div>
 
     <organization-modal
-      :is-open.sync="openModal"
+      :is-open.sync="modal.open"
       :add-organization="addOrganization"
       :add-domain="addDomain"
+      :delete-domain="deleteDomain"
+      :organization="modal.organization"
+      :domains="modal.domains"
       @updateOrganizations="getOrganizations(page)"
     />
 
@@ -109,6 +113,10 @@ export default {
     addDomain: {
       type: Function,
       required: true
+    },
+    deleteDomain: {
+      type: Function,
+      required: true
     }
   },
   data() {
@@ -132,7 +140,11 @@ export default {
         open: false,
         text: ""
       },
-      openModal: false
+      modal: {
+        open: false,
+        organization: undefined,
+        domains: []
+      }
     };
   },
   created() {
@@ -173,6 +185,17 @@ export default {
       } catch (error) {
         Object.assign(this.snackbar, { open: true, text: error });
       }
+    },
+    openModal(organization) {
+      const domains =
+        organization.domains && organization.domains.length > 0
+          ? organization.domains.map(domain => domain.domain)
+          : [""];
+      Object.assign(this.modal, {
+        open: true,
+        organization: organization ? organization.name : "",
+        domains: domains
+      });
     }
   }
 };

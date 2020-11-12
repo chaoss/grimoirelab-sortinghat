@@ -13,6 +13,7 @@ const OrganizationsTableTemplate = `
     :enroll="enroll"
     :add-organization="addOrganization.bind(this)"
     :add-domain="addDomain"
+    :delete-domain="deleteDomain"
   />
 `;
 
@@ -43,6 +44,13 @@ export const Default = () => ({
         domain: domain
       });
       return true;
+    },
+    deleteDomain(domain) {
+      this.query[0].data.organizations.entities.find(entity => {
+        const index = entity.domains.findIndex(item => item.domain === domain);
+        entity.domains.splice(index, 1);
+      }
+      );
     }
   },
   data: () => ({

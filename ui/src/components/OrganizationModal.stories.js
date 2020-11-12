@@ -16,6 +16,7 @@ const OrganizationModalTemplate = `
       :is-open.sync="isOpen"
       :add-domain="addDomain"
       :add-organization="addDomain"
+      :delete-domain="addDomain"                           l
     />
   </div>
 `;

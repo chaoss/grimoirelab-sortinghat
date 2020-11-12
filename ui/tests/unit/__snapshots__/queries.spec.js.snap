@@ -682,6 +682,8 @@ exports[`OrganizationsTable Mock query for getPaginatedOrganizations 1`] = `
   <organization-modal-stub
     adddomain="() => {}"
     addorganization="() => {}"
+    deletedomain="() => {}"
+    domains=""
   />
    
   <v-dialog-stub
