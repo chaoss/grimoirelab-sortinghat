@@ -130,19 +130,16 @@
             </v-menu>
           </v-col>
           <v-col cols="1" class="pt-6">
-            <v-btn
-              v-if="index === enrollmentsForm.length - 1"
-              icon
-              color="primary"
-              :disabled="enrollment.length === 0"
-              @click="addInput"
-            >
-              <v-icon color="primary">mdi-plus-circle-outline</v-icon>
-            </v-btn>
-            <v-btn v-else icon color="primary" @click="removeEnrollment(index)">
+            <v-btn icon color="primary" @click="removeEnrollment(index)">
               <v-icon color="primary">mdi-delete</v-icon>
             </v-btn>
           </v-col>
+        </v-row>
+        <v-row>
+          <v-btn text small color="primary" @click="addInput">
+            <v-icon left small color="primary">mdi-plus-circle-outline</v-icon>
+            Add organization
+          </v-btn>
         </v-row>
       </v-card-text>
 

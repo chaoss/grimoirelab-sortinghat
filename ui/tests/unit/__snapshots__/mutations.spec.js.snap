@@ -2281,10 +2281,34 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
             <v-icon-stub
               color="primary"
             >
-              mdi-plus-circle-outline
+              mdi-delete
             </v-icon-stub>
           </v-btn-stub>
         </v-col-stub>
+      </v-row-stub>
+       
+      <v-row-stub
+        tag="div"
+      >
+        <v-btn-stub
+          activeclass=""
+          color="primary"
+          small="true"
+          tag="button"
+          text="true"
+          type="button"
+        >
+          <v-icon-stub
+            color="primary"
+            left=""
+            small=""
+          >
+            mdi-plus-circle-outline
+          </v-icon-stub>
+          
+          Add organization
+        
+        </v-btn-stub>
       </v-row-stub>
     </v-card-text-stub>
      
@@ -2693,10 +2717,34 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
             <v-icon-stub
               color="primary"
             >
-              mdi-plus-circle-outline
+              mdi-delete
             </v-icon-stub>
           </v-btn-stub>
         </v-col-stub>
+      </v-row-stub>
+       
+      <v-row-stub
+        tag="div"
+      >
+        <v-btn-stub
+          activeclass=""
+          color="primary"
+          small="true"
+          tag="button"
+          text="true"
+          type="button"
+        >
+          <v-icon-stub
+            color="primary"
+            left=""
+            small=""
+          >
+            mdi-plus-circle-outline
+          </v-icon-stub>
+          
+          Add organization
+        
+        </v-btn-stub>
       </v-row-stub>
     </v-card-text-stub>
      
