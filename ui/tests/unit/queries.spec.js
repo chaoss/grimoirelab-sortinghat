@@ -109,6 +109,23 @@ const paginatedOrganizations = {
     }
   };
 
+const countriesMocked = {
+  data: {
+    countries: {
+      entities: [
+        { code: "AD", name: "Andorra" },
+        { code: "AE", name: "United Arab Emirates" },
+        { code: "AF", name: "Afghanistan" },
+        { code: "AG", name: "Antigua and Barbuda" },
+        { code: "AI", name: "Anguilla" },
+        { code: "AL", name: "Albania" },
+        { code: "AM", name: "Armenia" }
+      ],
+      __typename:	"CountryPaginatedType"
+    }
+  }
+};
+
 describe("IndividualsData", () => {
   test("mock query for getIndividuals", async () => {
     const query = jest.fn(() => Promise.resolve(responseMocked));
@@ -208,10 +225,38 @@ describe("IndividualsTable", () => {
         deleteItem: () => {},
         addIdentity: () => {},
         updateProfile: () => {},
-        enroll: () => {}
+        enroll: () => {},
+        getCountries: () => {}
       }
     });
     const response = await Queries.getPaginatedIndividuals(wrapper.vm.$apollo, 1, 1);
+
+    expect(query).toBeCalled();
+    expect(wrapper.element).toMatchSnapshot();
+  });
+
+  test("Mock query for getCountries", async () => {
+    const query = jest.fn(() => Promise.resolve(countriesMocked));
+    const wrapper = shallowMount(IndividualsTable, {
+      Vue,
+      mocks: {
+        $apollo: {
+          query
+        }
+      },
+      propsData: {
+        fetchPage: () => {},
+        mergeItems: () => {},
+        unmergeItems: () => {},
+        moveItem: () => {},
+        deleteItem: () => {},
+        addIdentity: () => {},
+        updateProfile: () => {},
+        enroll: () => {},
+        getCountries: query
+      }
+    });
+    const response = await Queries.getCountries(wrapper.vm.$apollo);
 
     expect(query).toBeCalled();
     expect(wrapper.element).toMatchSnapshot();

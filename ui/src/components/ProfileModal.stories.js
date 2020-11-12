@@ -17,6 +17,7 @@ const ProfileModalTemplate = `
       :add-identity="mockFunction"
       :update-profile="mockFunction"
       :enroll="mockFunction"
+      :get-countries="getCountries.bind(this)"
     />
   </div>
 `;
@@ -25,11 +26,23 @@ export const Default = () => ({
   components: { ProfileModal },
   template: ProfileModalTemplate,
   data: () => ({
-    isOpen: false
+    isOpen: false,
+    countries: [
+      { code: "AD", name: "Andorra" },
+      { code: "AE", name: "United Arab Emirates" },
+      { code: "AF", name: "Afghanistan" },
+      { code: "AG", name: "Antigua and Barbuda" },
+      { code: "AI", name: "Anguilla" },
+      { code: "AL", name: "Albania" },
+      { code: "AM", name: "Armenia" }
+    ]
   }),
   methods: {
     mockFunction() {
       return true;
+    },
+    getCountries() {
+      return this.countries;
     }
   }
 });

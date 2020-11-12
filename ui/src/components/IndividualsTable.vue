@@ -120,6 +120,7 @@
       :add-identity="addIdentity"
       :updateProfile="updateProfile"
       :enroll="enroll"
+      :get-countries="getCountries"
       @updateTable="queryIndividuals"
     />
 
@@ -187,6 +188,10 @@ export default {
       required: true
     },
     enroll: {
+      type: Function,
+      required: true
+    },
+    getCountries: {
       type: Function,
       required: true
     }

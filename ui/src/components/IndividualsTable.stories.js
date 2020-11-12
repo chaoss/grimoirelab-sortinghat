@@ -17,6 +17,7 @@ const IndividualsTableTemplate = `
     :add-identity="deleteIndividual"
     :update-profile="deleteIndividual"
     :enroll="deleteIndividual"
+    :get-countries="getCountries.bind(this)"
   />
 `;
 
@@ -29,6 +30,9 @@ export const Default = () => ({
     },
     deleteIndividual() {
       return true;
+    },
+    getCountries() {
+      return this.countries;
     }
   },
   data: () => ({
@@ -359,6 +363,15 @@ export const Default = () => ({
           }
         }
       }
+    ],
+    countries: [
+      { code: "AD", name: "Andorra" },
+      { code: "AE", name: "United Arab Emirates" },
+      { code: "AF", name: "Afghanistan" },
+      { code: "AG", name: "Antigua and Barbuda" },
+      { code: "AI", name: "Anguilla" },
+      { code: "AL", name: "Albania" },
+      { code: "AM", name: "Armenia" }
     ]
   })
 });

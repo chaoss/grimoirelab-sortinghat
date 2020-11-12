@@ -32,6 +32,7 @@ const dragAndDropTemplate = `
     :add-identity="deleteItem"
     :enroll="deleteItem"
     :update-profile="deleteItem"
+    :get-countries="getCountries.bind(this)"
     @highlight="highlightIndividual($event, 'highlightInWorkspace', true)"
     @stopHighlight="highlightIndividual($event, 'highlightInWorkspace', false)"
     ref="table"
@@ -230,6 +231,9 @@ export const DragAndDrop = () => ({
     },
     deselectIndividuals() {
       this.$refs.table.deselectIndividuals();
+    },
+    getCountries() {
+      return this.countries;
     }
   },
   data: () => ({
@@ -473,6 +477,15 @@ export const DragAndDrop = () => ({
           }
         }
       }
+    ],
+    countries: [
+      { code: "AD", name: "Andorra" },
+      { code: "AE", name: "United Arab Emirates" },
+      { code: "AF", name: "Afghanistan" },
+      { code: "AG", name: "Antigua and Barbuda" },
+      { code: "AI", name: "Anguilla" },
+      { code: "AL", name: "Albania" },
+      { code: "AM", name: "Armenia" }
     ]
   })
 })

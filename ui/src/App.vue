@@ -57,6 +57,7 @@
             :add-identity="addIdentity"
             :updateProfile="updateProfile"
             :enroll="enroll"
+            :get-countries="getCountries"
             @saveIndividual="addSavedIndividual"
             @updateWorkspace="updateWorkspace"
             @highlight="
@@ -88,6 +89,7 @@
 
 <script>
 import {
+  getCountries,
   getPaginatedIndividuals,
   getPaginatedOrganizations
 } from "./apollo/queries";
@@ -222,6 +224,10 @@ export default {
     async addDomain(domain, organization) {
       const response = await addDomain(this.$apollo, domain, organization);
       return response;
+    },
+    async getCountries() {
+      const response = await getCountries(this.$apollo);
+      return response.data.countries.entities;
     }
   }
 };

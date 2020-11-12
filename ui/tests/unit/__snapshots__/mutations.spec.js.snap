@@ -244,6 +244,7 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
   <profile-modal-stub
     addidentity="() => {}"
     enroll="() => {}"
+    getcountries="() => {}"
     updateprofile="() => {}"
   />
    
@@ -507,6 +508,7 @@ exports[`IndividualsTable Mock query for merge 1`] = `
   <profile-modal-stub
     addidentity="() => {}"
     enroll="() => {}"
+    getcountries="() => {}"
     updateprofile="() => {}"
   />
    
@@ -770,6 +772,7 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
   <profile-modal-stub
     addidentity="() => {}"
     enroll="() => {}"
+    getcountries="() => {}"
     updateprofile="() => {}"
   />
    
@@ -1033,6 +1036,7 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
   <profile-modal-stub
     addidentity="() => {}"
     enroll="() => {}"
+    getcountries="() => {}"
     updateprofile="() => {}"
   />
    
@@ -1828,18 +1832,56 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
             cols="4"
             tag="div"
           >
-            <v-text-field-stub
+            <v-combobox-stub
+              allowoverflow="true"
+              appendicon="$dropdown"
               backgroundcolor=""
               clearicon="$clear"
+              delimiters=""
               errorcount="1"
               errormessages=""
               filled="true"
-              label="Country code"
+              filter="function _default(item, queryText, itemText) {
+                return itemText.toLocaleLowerCase().indexOf(queryText.toLocaleLowerCase()) > -1;
+              }"
+              itemcolor="primary"
+              itemdisabled="disabled"
+              items=""
+              itemtext="name"
+              itemvalue="value"
+              label="Country"
               loaderheight="2"
+              menuprops="[object Object]"
               messages=""
+              nodatatext="$vuetify.noDataText"
+              returnobject="true"
               rules=""
               successmessages=""
               type="text"
+              valuecomparator="function deepEqual(a, b) {
+          if (a === b) return true;
+
+          if (a instanceof Date && b instanceof Date) {
+            // If the values are Date, they were convert to timestamp with getTime and compare it
+            if (a.getTime() !== b.getTime()) return false;
+          }
+
+          if (a !== Object(a) || b !== Object(b)) {
+            // If the values aren't objects, they were already checked for equality
+            return false;
+          }
+
+          var props = Object.keys(a);
+
+          if (props.length !== Object.keys(b).length) {
+            // Different number of props, don't bother to check
+            return false;
+          }
+
+          return props.every(function (p) {
+            return deepEqual(a[p], b[p]);
+          });
+        }"
             />
           </v-col-stub>
            
@@ -2202,18 +2244,56 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
             cols="4"
             tag="div"
           >
-            <v-text-field-stub
+            <v-combobox-stub
+              allowoverflow="true"
+              appendicon="$dropdown"
               backgroundcolor=""
               clearicon="$clear"
+              delimiters=""
               errorcount="1"
               errormessages=""
               filled="true"
-              label="Country code"
+              filter="function _default(item, queryText, itemText) {
+                return itemText.toLocaleLowerCase().indexOf(queryText.toLocaleLowerCase()) > -1;
+              }"
+              itemcolor="primary"
+              itemdisabled="disabled"
+              items=""
+              itemtext="name"
+              itemvalue="value"
+              label="Country"
               loaderheight="2"
+              menuprops="[object Object]"
               messages=""
+              nodatatext="$vuetify.noDataText"
+              returnobject="true"
               rules=""
               successmessages=""
               type="text"
+              valuecomparator="function deepEqual(a, b) {
+          if (a === b) return true;
+
+          if (a instanceof Date && b instanceof Date) {
+            // If the values are Date, they were convert to timestamp with getTime and compare it
+            if (a.getTime() !== b.getTime()) return false;
+          }
+
+          if (a !== Object(a) || b !== Object(b)) {
+            // If the values aren't objects, they were already checked for equality
+            return false;
+          }
+
+          var props = Object.keys(a);
+
+          if (props.length !== Object.keys(b).length) {
+            // Different number of props, don't bother to check
+            return false;
+          }
+
+          return props.every(function (p) {
+            return deepEqual(a[p], b[p]);
+          });
+        }"
             />
           </v-col-stub>
            

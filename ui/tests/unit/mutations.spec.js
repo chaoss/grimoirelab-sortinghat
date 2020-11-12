@@ -206,7 +206,8 @@ describe("IndividualsTable", () => {
         fetchPage: () => {},
         addIdentity: () => {},
         updateProfile: () => {},
-        enroll: () => {}
+        enroll: () => {},
+        getCountries: () => {}
       }
     });
     const response = await Mutations.deleteIdentity(wrapper.vm.$apollo, "5f06473815dc415c9861680de8101813d9eb18e8");
@@ -232,7 +233,8 @@ describe("IndividualsTable", () => {
         fetchPage: () => {},
         addIdentity: () => {},
         updateProfile: () => {},
-        enroll: () => {}
+        enroll: () => {},
+        getCountries: () => {}
       }
     });
     const response = await Mutations.deleteIdentity(wrapper.vm.$apollo, "5f06473815dc415c9861680de8101813d9eb18e8");
@@ -258,7 +260,8 @@ describe("IndividualsTable", () => {
         fetchPage: () => {},
         addIdentity: () => {},
         updateProfile: () => {},
-        enroll: () => {}
+        enroll: () => {},
+        getCountries: () => {}
       }
     });
     const response = await Mutations.unmerge(wrapper.vm.$apollo, [
@@ -287,7 +290,8 @@ describe("IndividualsTable", () => {
         unmergeItems: mutate,
         addIdentity: () => {},
         updateProfile: () => {},
-        enroll: () => {}
+        enroll: () => {},
+        getCountries: () => {}
       }
     });
     const response = await Mutations.moveIdentity(
@@ -391,7 +395,8 @@ describe("ProfileModal", () => {
       propsData: {
         addIdentity: mutate,
         updateProfile: () => {},
-        enroll: () => {}
+        enroll: () => {},
+        getCountries: () => {}
       }
     });
 
@@ -419,7 +424,8 @@ describe("ProfileModal", () => {
       propsData: {
         addIdentity: () => {},
         updateProfile: mutate,
-        enroll: () => {}
+        enroll: () => {},
+        getCountries: () => {}
       }
     });
 

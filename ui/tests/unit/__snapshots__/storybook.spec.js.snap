@@ -1424,8 +1424,6 @@ exports[`Storyshots IndividualCard Default 1`] = `
           >
             TR
           </span>
-           
-          <!---->
         </div>
          
         <div
@@ -1517,8 +1515,6 @@ exports[`Storyshots IndividualCard Highlighted 1`] = `
           >
             TR
           </span>
-           
-          <!---->
         </div>
          
         <div
@@ -1610,8 +1606,6 @@ exports[`Storyshots IndividualCard No Name 1`] = `
           >
             T
           </span>
-           
-          <!---->
         </div>
          
         <div
@@ -1703,8 +1697,6 @@ exports[`Storyshots IndividualCard Organization 1`] = `
           >
             TR
           </span>
-           
-          <!---->
         </div>
          
         <div
@@ -1802,8 +1794,6 @@ exports[`Storyshots IndividualCard Single Initial 1`] = `
           >
             V
           </span>
-           
-          <!---->
         </div>
          
         <div
@@ -1895,8 +1885,6 @@ exports[`Storyshots IndividualCard Sources 1`] = `
           >
             TR
           </span>
-           
-          <!---->
         </div>
          
         <div
@@ -2009,8 +1997,6 @@ exports[`Storyshots IndividualCard Sources And Organization 1`] = `
           >
             TR
           </span>
-           
-          <!---->
         </div>
          
         <div
@@ -3565,8 +3551,6 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   >
                     TR
                   </span>
-                   
-                  <!---->
                 </div>
                  
                 <div
@@ -3655,8 +3639,6 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   >
                     HP
                   </span>
-                   
-                  <!---->
                 </div>
                  
                 <div
@@ -3755,8 +3737,6 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   >
                     V
                   </span>
-                   
-                  <!---->
                 </div>
                  
                 <div
@@ -3845,8 +3825,6 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   >
                     HG
                   </span>
-                   
-                  <!---->
                 </div>
                  
                 <div
@@ -3945,8 +3923,6 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   >
                     AD
                   </span>
-                   
-                  <!---->
                 </div>
                  
                 <div
@@ -4040,8 +4016,6 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   >
                     RW
                   </span>
-                   
-                  <!---->
                 </div>
                  
                 <div
@@ -4140,8 +4114,6 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   >
                     SS
                   </span>
-                   
-                  <!---->
                 </div>
                  
                 <div
@@ -4240,8 +4212,6 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   >
                     H
                   </span>
-                   
-                  <!---->
                 </div>
                  
                 <div
@@ -4816,8 +4786,6 @@ exports[`Storyshots ProfileCard Default 1`] = `
           >
             TR
           </span>
-           
-          <!---->
         </div>
          
         <div
@@ -5086,8 +5054,6 @@ exports[`Storyshots WorkSpace Default 1`] = `
                 >
                   TR
                 </span>
-                 
-                <!---->
               </div>
                
               <div
@@ -5192,8 +5158,6 @@ exports[`Storyshots WorkSpace Default 1`] = `
                 >
                   HP
                 </span>
-                 
-                <!---->
               </div>
                
               <div

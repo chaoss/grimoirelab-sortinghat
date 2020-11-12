@@ -45,10 +45,13 @@
               />
             </v-col>
             <v-col cols="4">
-              <v-text-field
-                label="Country code"
+              <v-combobox
                 v-model="profileForm.country"
+                :items="countries"
+                label="Country"
+                item-text="name"
                 filled
+                @click.once="getCountryList"
               />
             </v-col>
             <v-col cols="2">
@@ -185,6 +188,10 @@ export default {
     enroll: {
       type: Function,
       required: true
+    },
+    getCountries: {
+      type: Function,
+      required: true
     }
   },
   data() {
@@ -196,7 +203,8 @@ export default {
         source: "",
         nationality: "",
         gender: "",
-        isBot: false
+        isBot: false,
+        countries: []
       },
       enrollmentsForm: [
         {
@@ -219,7 +227,8 @@ export default {
             (value ? /\S+@\S+\.\S+/.test(value) : true) || "Invalid email"
         ]
       },
-      errorMessage: ""
+      errorMessage: "",
+      countries: []
     };
   },
   computed: {
@@ -307,7 +316,9 @@ export default {
       try {
         const data = {
           gender: this.profileForm.gender,
-          countryCode: this.profileForm.country,
+          countryCode: this.profileForm.country
+            ? this.profileForm.country.code
+            : null,
           isBot: this.profileForm.isBot
         };
         const response = await this.updateProfile(data, uuid);
@@ -345,6 +356,12 @@ export default {
         }
       } catch (error) {
         this.errorMessage = error;
+      }
+    },
+    async getCountryList() {
+      const response = await this.getCountries();
+      if (response) {
+        this.countries = response;
       }
     }
   }
