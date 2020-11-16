@@ -24,6 +24,11 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
     
     </h4>
      
+    <v-hover-stub
+      closedelay="0"
+      opendelay="0"
+    />
+     
     <div>
       <v-tooltip-stub
         bottom="true"
@@ -287,6 +292,11 @@ exports[`IndividualsTable Mock query for merge 1`] = `
       Individuals
     
     </h4>
+     
+    <v-hover-stub
+      closedelay="0"
+      opendelay="0"
+    />
      
     <div>
       <v-tooltip-stub
@@ -552,6 +562,11 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
     
     </h4>
      
+    <v-hover-stub
+      closedelay="0"
+      opendelay="0"
+    />
+     
     <div>
       <v-tooltip-stub
         bottom="true"
@@ -815,6 +830,11 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
       Individuals
     
     </h4>
+     
+    <v-hover-stub
+      closedelay="0"
+      opendelay="0"
+    />
      
     <div>
       <v-tooltip-stub

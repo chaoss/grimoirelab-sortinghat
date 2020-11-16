@@ -235,6 +235,73 @@ describe("IndividualsTable", () => {
     expect(wrapper.element).toMatchSnapshot();
   });
 
+  test.each([
+    "",
+    "abc",
+    "abcd",
+    "123"
+  ])("Searches by term %p", async (term) => {
+    const querySpy = spyOn(Queries, "getPaginatedIndividuals");
+    const query = jest.fn(() => Promise.resolve(paginatedResponse));
+    const wrapper = shallowMount(IndividualsTable, {
+      Vue,
+      mocks: {
+        $apollo: {
+          query
+        }
+      },
+      propsData: {
+        fetchPage: Queries.getPaginatedIndividuals,
+        mergeItems: () => {},
+        unmergeItems: () => {},
+        moveItem: () => {},
+        deleteItem: () => {},
+        addIdentity: () => {},
+        updateProfile: () => {},
+        enroll: () => {},
+        getCountries: () => {}
+      }
+    });
+
+    wrapper.setData({ filters: { term: term } });
+
+    const response = await wrapper.vm.queryIndividuals(1);
+
+    expect(querySpy).toHaveBeenCalledWith(1, 10, { term: term });
+  });
+
+  test.each([
+    "a",
+    "ab",
+    "1",
+    "12"
+  ])("Search is disabled if term is %p", async (term) => {
+    const query = jest.fn(() => Promise.resolve(paginatedResponse));
+    const wrapper = shallowMount(IndividualsTable, {
+      Vue,
+      mocks: {
+        $apollo: {
+          query
+        }
+      },
+      propsData: {
+        fetchPage: query,
+        mergeItems: () => {},
+        unmergeItems: () => {},
+        moveItem: () => {},
+        deleteItem: () => {},
+        addIdentity: () => {},
+        updateProfile: () => {},
+        enroll: () => {},
+        getCountries: () => {}
+      }
+    });
+
+    await wrapper.setData({ filters: { term: term } });
+
+    expect(wrapper.vm.disabledSearch).toBe(true);
+  });
+
   test("Mock query for getCountries", async () => {
     const query = jest.fn(() => Promise.resolve(countriesMocked));
     const wrapper = shallowMount(IndividualsTable, {

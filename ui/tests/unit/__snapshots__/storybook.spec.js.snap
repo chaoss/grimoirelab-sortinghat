@@ -4342,6 +4342,78 @@ exports[`Storyshots IndividualsTable Default 1`] = `
     
         </h4>
          
+        <div
+          class="v-input search ma-0 ml-auto pa-0 flex-grow-0 theme--light v-text-field search--hidden"
+        >
+          <div
+            class="v-input__control"
+          >
+            <div
+              class="v-input__slot"
+            >
+              <div
+                class="v-text-field__slot"
+              >
+                <label
+                  class="v-label theme--light"
+                  for="input-551"
+                  style="left: 0px; position: absolute;"
+                >
+                  Search
+                </label>
+                <input
+                  id="input-551"
+                  type="text"
+                />
+              </div>
+              <div
+                class="v-input__append-inner"
+              >
+                <div
+                  class="v-input__icon v-input__icon--clear"
+                >
+                  <button
+                    aria-label="clear icon"
+                    class="v-icon notranslate v-icon--disabled v-icon--link mdi mdi-close theme--light"
+                    disabled="disabled"
+                    type="button"
+                  />
+                </div>
+              </div>
+            </div>
+            <div
+              class="v-text-field__details"
+            >
+              <div
+                class="v-messages theme--light"
+              >
+                <div
+                  class="v-messages__wrapper"
+                >
+                  <div
+                    class="v-messages__message"
+                  >
+                    min. 3 characters
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            class="v-input__append-outer"
+          >
+            <div
+              class="v-input__icon v-input__icon--append-outer"
+            >
+              <button
+                aria-label="append icon"
+                class="v-icon notranslate v-icon--link mdi mdi-magnify theme--light"
+                type="button"
+              />
+            </div>
+          </div>
+        </div>
+         
         <div>
           <span
             class="v-tooltip v-tooltip--bottom"
@@ -5380,6 +5452,78 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
       Individuals
     
           </h4>
+           
+          <div
+            class="v-input search ma-0 ml-auto pa-0 flex-grow-0 theme--light v-text-field search--hidden"
+          >
+            <div
+              class="v-input__control"
+            >
+              <div
+                class="v-input__slot"
+              >
+                <div
+                  class="v-text-field__slot"
+                >
+                  <label
+                    class="v-label theme--light"
+                    for="input-812"
+                    style="left: 0px; position: absolute;"
+                  >
+                    Search
+                  </label>
+                  <input
+                    id="input-812"
+                    type="text"
+                  />
+                </div>
+                <div
+                  class="v-input__append-inner"
+                >
+                  <div
+                    class="v-input__icon v-input__icon--clear"
+                  >
+                    <button
+                      aria-label="clear icon"
+                      class="v-icon notranslate v-icon--disabled v-icon--link mdi mdi-close theme--light"
+                      disabled="disabled"
+                      type="button"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div
+                class="v-text-field__details"
+              >
+                <div
+                  class="v-messages theme--light"
+                >
+                  <div
+                    class="v-messages__wrapper"
+                  >
+                    <div
+                      class="v-messages__message"
+                    >
+                      min. 3 characters
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div
+              class="v-input__append-outer"
+            >
+              <div
+                class="v-input__icon v-input__icon--append-outer"
+              >
+                <button
+                  aria-label="append icon"
+                  class="v-icon notranslate v-icon--link mdi mdi-magnify theme--light"
+                  type="button"
+                />
+              </div>
+            </div>
+          </div>
            
           <div>
             <span

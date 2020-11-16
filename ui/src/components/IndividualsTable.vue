@@ -7,6 +7,23 @@
         </v-icon>
         Individuals
       </h4>
+      <v-hover v-slot="{ hover }">
+        <v-text-field
+          v-model.trim="filters.term"
+          append-outer-icon="mdi-magnify"
+          class="search ma-0 ml-auto pa-0 flex-grow-0"
+          :class="{ 'search--hover': hover, 'search--hidden': !filters.term }"
+          clearable
+          :error="disabledSearch"
+          hint="min. 3 characters"
+          label="Search"
+          persistent-hint
+          type="text"
+          @click:append-outer="queryIndividuals(1)"
+          @keyup.enter="queryIndividuals(1)"
+          @click:clear="clearSearch"
+        />
+      </v-hover>
       <div>
         <v-tooltip bottom transition="expand-y-transition" open-delay="200">
           <template v-slot:activator="{ on }">
@@ -198,6 +215,9 @@ export default {
   },
   data() {
     return {
+      filters: {
+        term: ""
+      },
       headers: [
         { value: "name" },
         { value: "email" },
@@ -224,6 +244,9 @@ export default {
     disabledMerge() {
       return this.selectedIndividuals.length < 2;
     },
+    disabledSearch() {
+      return this.filters.term.length !== 0 && this.filters.term.length < 3;
+    },
     selectedIndividuals() {
       return this.individuals.filter(individual => individual.isSelected);
     }
@@ -232,8 +255,9 @@ export default {
     this.queryIndividuals(1);
   },
   methods: {
-    async queryIndividuals(page = this.page) {
-      let response = await this.fetchPage(page, this.itemsPerPage);
+    async queryIndividuals(page = this.page, filters = this.filters) {
+      if (this.disabledSearch) return;
+      let response = await this.fetchPage(page, this.itemsPerPage, filters);
       if (response) {
         this.individuals = formatIndividuals(
           response.data.individuals.entities
@@ -316,11 +340,20 @@ export default {
           update: formatIndividuals([response.data.moveIdentity.individual])
         });
       }
+    },
+    clearSearch() {
+      this.$set(this.filters, "term", "");
+      this.queryIndividuals(1);
+    }
+  },
+  watch: {
+    "filters.term"(value) {
+      this.$set(this.filters, "term", value || "");
     }
   }
 };
 </script>
-<style scoped>
+<style lang="scss" scoped>
 ::v-deep .theme--light.v-pagination .v-pagination__item,
 ::v-deep .theme--light.v-pagination .v-pagination__navigation {
   box-shadow: none;
@@ -335,6 +368,7 @@ export default {
   overflow-x: hidden;
 }
 .actions {
+  align-items: baseline;
   justify-content: space-between;
   padding: 0 26px 24px 26px;
 }
@@ -342,5 +376,21 @@ export default {
   max-width: 300px;
   position: absolute;
   top: -300px;
+}
+
+.search {
+  max-width: 256px;
+  &--hidden {
+    width: 33px;
+    transition: width 0.5s;
+
+    ::v-deep .v-text-field__details {
+      max-width: 0;
+      height: 14px;
+    }
+  }
+  &--hover {
+    width: 256px;
+  }
 }
 </style>

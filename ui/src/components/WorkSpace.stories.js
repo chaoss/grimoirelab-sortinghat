@@ -217,8 +217,14 @@ export const DragAndDrop = () => ({
   components: { WorkSpace, IndividualsTable },
   template: dragAndDropTemplate,
   methods: {
-    queryIndividuals(page) {
-      return this.query[page - 1];
+    queryIndividuals(page, items, filters) {
+      const results =  JSON.parse(JSON.stringify(this.query[page - 1]));
+      results.data.individuals.entities = results.data.individuals.entities
+      .filter(individual => individual.profile.name
+        .toUpperCase()
+        .includes(filters.term.toUpperCase())
+      );
+      return results;
     },
     mergeItems() {
       this.individuals = [this.individuals.shift()];
