@@ -219,7 +219,7 @@ SH_INDIVIDUALS_QUERY = """{
   }
 }"""
 SH_INDIVIDUALS_UUID_FILTER = """{
-  individuals(filters: {uuid: "a9b403e150dd4af8953a52a4bb841051e4b705d9"}) {
+  individuals(filters: {uuid: "%s"}) {
     entities {
       mk
       isLocked
@@ -1329,7 +1329,55 @@ class TestQueryIndividuals(django.test.TestCase):
 
         # Tests
         client = graphene.test.Client(schema)
-        executed = client.execute(SH_INDIVIDUALS_UUID_FILTER,
+        indv_mk = 'a9b403e150dd4af8953a52a4bb841051e4b705d9'
+        executed = client.execute(SH_INDIVIDUALS_UUID_FILTER % indv_mk,
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 1)
+
+        # Test John Smith individual
+        indv = individuals[0]
+        self.assertEqual(indv['mk'], 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+
+        self.assertEqual(indv['profile']['name'], None)
+        self.assertEqual(indv['profile']['email'], 'jsmith@example.com')
+        self.assertEqual(indv['profile']['isBot'], True)
+        self.assertEqual(indv['profile']['country']['code'], 'US')
+        self.assertEqual(indv['profile']['country']['name'], 'United States of America')
+
+        identities = indv['identities']
+        identities.sort(key=lambda x: x['uuid'])
+        self.assertEqual(len(identities), 3)
+
+        id1 = identities[0]
+        self.assertEqual(id1['email'], 'jsmith@example.com')
+
+        id2 = identities[1]
+        self.assertEqual(id2['email'], 'jsmith@bitergia.com')
+        self.assertEqual(id2['source'], 'scm')
+
+        id3 = identities[2]
+        self.assertEqual(id3['email'], 'jsmith@bitergia.com')
+        self.assertEqual(id3['source'], 'mls')
+
+        enrollments = indv['enrollments']
+        enrollments.sort(key=lambda x: x['organization']['name'])
+        self.assertEqual(len(enrollments), 2)
+
+        rol1 = enrollments[0]
+        self.assertEqual(rol1['organization']['name'], 'Bitergia')
+        self.assertEqual(rol1['start'], '1999-01-01T00:00:00+00:00')
+        self.assertEqual(rol1['end'], '2000-01-01T00:00:00+00:00')
+
+        rol2 = enrollments[1]
+        self.assertEqual(rol2['organization']['name'], 'Example')
+        self.assertEqual(rol2['start'], '1900-01-01T00:00:00+00:00')
+        self.assertEqual(rol2['end'], '2100-01-01T00:00:00+00:00')
+
+        # Test if it works when asking for any of the UUIDs
+        indv_uuid = 'A002'
+        executed = client.execute(SH_INDIVIDUALS_UUID_FILTER % indv_uuid,
                                   context_value=self.context_value)
 
         individuals = executed['data']['individuals']['entities']

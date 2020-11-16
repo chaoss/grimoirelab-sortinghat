@@ -726,7 +726,12 @@ class SortingHatQuery:
         query = Individual.objects.order_by('mk')
 
         if filters and 'uuid' in filters:
-            query = query.filter(mk=filters['uuid'])
+            indv_uuid = filters['uuid']
+            # Search among all the individuals and their identities
+            query = query.filter(mk__in=Subquery(Identity.objects
+                                                 .filter(Q(uuid=indv_uuid) |
+                                                         Q(individual__mk=indv_uuid))
+                                                 .values_list('individual__mk')))
         if filters and 'term' in filters:
             search_term = filters['term']
             # Filter matching individuals by their mk and their identities
