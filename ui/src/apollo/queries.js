@@ -75,8 +75,12 @@ const GET_PROFILE_BYUUID = gql`
 `;
 
 const GET_PAGINATED_INDIVIDUALS = gql`
-  query GetIndividuals($page: Int!, $pageSize: Int!) {
-    individuals(page: $page, pageSize: $pageSize) {
+  query GetIndividuals(
+    $page: Int!
+    $pageSize: Int!
+    $filters: IdentityFilterType
+  ) {
+    individuals(page: $page, pageSize: $pageSize, filters: $filters) {
       entities {
         isLocked
         profile {
@@ -184,12 +188,13 @@ const getIndividuals = {
   }
 };
 
-const getPaginatedIndividuals = (apollo, currentPage, pageSize) => {
+const getPaginatedIndividuals = (apollo, currentPage, pageSize, filters) => {
   let response = apollo.query({
     query: GET_PAGINATED_INDIVIDUALS,
     variables: {
       page: currentPage,
-      pageSize: pageSize
+      pageSize: pageSize,
+      filters: filters
     },
     fetchPolicy: "no-cache"
   });

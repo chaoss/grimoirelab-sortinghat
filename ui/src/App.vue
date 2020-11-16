@@ -126,8 +126,13 @@ export default {
     };
   },
   methods: {
-    async getIndividualsPage(page, items) {
-      const response = await getPaginatedIndividuals(this.$apollo, page, items);
+    async getIndividualsPage(page, items, filters) {
+      const response = await getPaginatedIndividuals(
+        this.$apollo,
+        page,
+        items,
+        filters
+      );
       return response;
     },
     async getOrganizationsPage(page, items) {

@@ -31,6 +31,11 @@ exports[`IndividualsTable Mock query for getCountries 1`] = `
     
     </h4>
      
+    <v-hover-stub
+      closedelay="0"
+      opendelay="0"
+    />
+     
     <div>
       <v-tooltip-stub
         bottom="true"
@@ -296,6 +301,11 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
       Individuals
     
     </h4>
+     
+    <v-hover-stub
+      closedelay="0"
+      opendelay="0"
+    />
      
     <div>
       <v-tooltip-stub
