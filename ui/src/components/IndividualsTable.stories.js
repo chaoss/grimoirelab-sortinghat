@@ -25,8 +25,14 @@ export const Default = () => ({
   components: { IndividualsTable },
   template: IndividualsTableTemplate,
   methods: {
-    queryIndividuals(page) {
-      return this.query[page - 1];
+    queryIndividuals(page, items, filters) {
+      const results =  JSON.parse(JSON.stringify(this.query[page - 1]));
+      results.data.individuals.entities = results.data.individuals.entities
+      .filter(individual => individual.profile.name
+        .toUpperCase()
+        .includes(filters.term.toUpperCase())
+      );
+      return results;
     },
     deleteIndividual() {
       return true;
