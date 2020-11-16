@@ -250,6 +250,38 @@ SH_INDIVIDUALS_UUID_FILTER = """{
     }
   }
 }"""
+SH_INDIVIDUALS_TERM_FILTER = """{
+  individuals(filters: {term: "%s"}) {
+    entities {
+      mk
+      isLocked
+      profile {
+        name
+        email
+        gender
+        isBot
+        country {
+          code
+          name
+        }
+      }
+      identities {
+        uuid
+        name
+        email
+        username
+        source
+      }
+      enrollments {
+        organization {
+          name
+        }
+        start
+        end
+      }
+    }
+  }
+}"""
 SH_INDIVIDUALS_LOCKED_FILTER = """{
   individuals(filters: {isLocked: true}) {
     entities {
@@ -1084,7 +1116,7 @@ class TestQueryOrganizations(django.test.TestCase):
         self.assertEqual(msg, AUTHENTICATION_ERROR)
 
 
-class TestIndividuals(django.test.TestCase):
+class TestQueryIndividuals(django.test.TestCase):
     """Unit tests for individuals queries"""
 
     def setUp(self):
@@ -1341,6 +1373,330 @@ class TestIndividuals(django.test.TestCase):
         self.assertEqual(rol2['organization']['name'], 'Example')
         self.assertEqual(rol2['start'], '1900-01-01T00:00:00+00:00')
         self.assertEqual(rol2['end'], '2100-01-01T00:00:00+00:00')
+
+    def test_filter_term(self):
+        """Check whether it returns the uuids searched when using a search term"""
+
+        cn = Country.objects.create(code='US',
+                                    name='United States of America',
+                                    alpha3='USA')
+
+        org_ex = Organization.objects.create(name='Example')
+        org_bit = Organization.objects.create(name='Bitergia')
+
+        indv = Individual.objects.create(mk='a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        Profile.objects.create(name=None,
+                               email='jsmith@example.com',
+                               is_bot=True,
+                               gender='M',
+                               country=cn,
+                               individual=indv)
+        Identity.objects.create(uuid='A001',
+                                name='John Smith',
+                                email='jsmith@example.com',
+                                username='jsmith',
+                                source='scm',
+                                individual=indv)
+        Identity.objects.create(uuid='A002',
+                                name=None,
+                                email='jsmith@bitergia.com',
+                                username=None,
+                                source='scm',
+                                individual=indv)
+        Identity.objects.create(uuid='A003',
+                                name=None,
+                                email='jsmith@bitergia.com',
+                                username=None,
+                                source='mls',
+                                individual=indv)
+        Enrollment.objects.create(individual=indv, organization=org_ex)
+        Enrollment.objects.create(individual=indv, organization=org_bit,
+                                  start=datetime.datetime(1999, 1, 1, 0, 0, 0,
+                                                          tzinfo=dateutil.tz.tzutc()),
+                                  end=datetime.datetime(2000, 1, 1, 0, 0, 0,
+                                                        tzinfo=dateutil.tz.tzutc()))
+
+        indv = Individual.objects.create(mk='c6d2504fde0e34b78a185c4b709e5442d045451c')
+        Profile.objects.create(name='John Doe (profile)',
+                               email=None,
+                               is_bot=False,
+                               gender='M',
+                               country=None,
+                               individual=indv)
+        Identity.objects.create(uuid='B001',
+                                name='John Doe',
+                                email='jdoe@example.com',
+                                username='jdoe',
+                                source='scm',
+                                individual=indv)
+        Identity.objects.create(uuid='B002',
+                                name=None,
+                                email='jdoe@libresoft.es',
+                                username=None,
+                                source='scm',
+                                individual=indv)
+
+        # Tests
+
+        # Test "jsmith", it should return one of the individuals
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_INDIVIDUALS_TERM_FILTER % 'jsmith',
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 1)
+
+        # Test John Smith individual
+        indv = individuals[0]
+        self.assertEqual(indv['mk'], 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+
+        self.assertEqual(indv['profile']['name'], None)
+        self.assertEqual(indv['profile']['email'], 'jsmith@example.com')
+        self.assertEqual(indv['profile']['isBot'], True)
+        self.assertEqual(indv['profile']['country']['code'], 'US')
+        self.assertEqual(indv['profile']['country']['name'], 'United States of America')
+
+        identities = indv['identities']
+        identities.sort(key=lambda x: x['uuid'])
+        self.assertEqual(len(identities), 3)
+
+        id1 = identities[0]
+        self.assertEqual(id1['email'], 'jsmith@example.com')
+
+        id2 = identities[1]
+        self.assertEqual(id2['email'], 'jsmith@bitergia.com')
+        self.assertEqual(id2['source'], 'scm')
+
+        id3 = identities[2]
+        self.assertEqual(id3['email'], 'jsmith@bitergia.com')
+        self.assertEqual(id3['source'], 'mls')
+
+        # Test "jdoe@libresoft.es", it should return one of the individuals
+        executed = client.execute(SH_INDIVIDUALS_TERM_FILTER % 'jdoe@libresoft.es',
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 1)
+
+        # Test John Doe individual
+        indv = individuals[0]
+        self.assertEqual(indv['mk'], 'c6d2504fde0e34b78a185c4b709e5442d045451c')
+
+        self.assertEqual(indv['profile']['name'], 'John Doe (profile)')
+        self.assertEqual(indv['profile']['email'], None)
+        self.assertEqual(indv['profile']['isBot'], False)
+        self.assertEqual(indv['profile']['gender'], 'M')
+        self.assertEqual(indv['profile']['country'], None)
+
+        identities = indv['identities']
+        identities.sort(key=lambda x: x['uuid'])
+        self.assertEqual(len(identities), 2)
+
+        id1 = identities[0]
+        self.assertEqual(id1['uuid'], 'B001')
+        self.assertEqual(id1['name'], 'John Doe')
+        self.assertEqual(id1['email'], 'jdoe@example.com')
+        self.assertEqual(id1['username'], 'jdoe')
+        self.assertEqual(id1['source'], 'scm')
+
+        id2 = identities[1]
+        self.assertEqual(id2['uuid'], 'B002')
+        self.assertEqual(id2['name'], None)
+        self.assertEqual(id2['email'], 'jdoe@libresoft.es')
+        self.assertEqual(id2['username'], None)
+        self.assertEqual(id2['source'], 'scm')
+
+        # Test "John", it should return both individuals
+        executed = client.execute(SH_INDIVIDUALS_TERM_FILTER % 'John',
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 2)
+
+        # Test John Smith individual
+        indv = individuals[0]
+        self.assertEqual(indv['mk'], 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+
+        self.assertEqual(indv['profile']['name'], None)
+        self.assertEqual(indv['profile']['email'], 'jsmith@example.com')
+        self.assertEqual(indv['profile']['isBot'], True)
+        self.assertEqual(indv['profile']['country']['code'], 'US')
+        self.assertEqual(indv['profile']['country']['name'], 'United States of America')
+
+        identities = indv['identities']
+        identities.sort(key=lambda x: x['uuid'])
+        self.assertEqual(len(identities), 3)
+
+        id1 = identities[0]
+        self.assertEqual(id1['email'], 'jsmith@example.com')
+
+        id2 = identities[1]
+        self.assertEqual(id2['email'], 'jsmith@bitergia.com')
+        self.assertEqual(id2['source'], 'scm')
+
+        id3 = identities[2]
+        self.assertEqual(id3['email'], 'jsmith@bitergia.com')
+        self.assertEqual(id3['source'], 'mls')
+
+        # Test John Doe individual
+        indv = individuals[1]
+        self.assertEqual(indv['mk'], 'c6d2504fde0e34b78a185c4b709e5442d045451c')
+
+        self.assertEqual(indv['profile']['name'], 'John Doe (profile)')
+        self.assertEqual(indv['profile']['email'], None)
+        self.assertEqual(indv['profile']['isBot'], False)
+        self.assertEqual(indv['profile']['gender'], 'M')
+        self.assertEqual(indv['profile']['country'], None)
+
+        identities = indv['identities']
+        identities.sort(key=lambda x: x['uuid'])
+        self.assertEqual(len(identities), 2)
+
+        id1 = identities[0]
+        self.assertEqual(id1['uuid'], 'B001')
+        self.assertEqual(id1['name'], 'John Doe')
+        self.assertEqual(id1['email'], 'jdoe@example.com')
+        self.assertEqual(id1['username'], 'jdoe')
+        self.assertEqual(id1['source'], 'scm')
+
+        id2 = identities[1]
+        self.assertEqual(id2['uuid'], 'B002')
+        self.assertEqual(id2['name'], None)
+        self.assertEqual(id2['email'], 'jdoe@libresoft.es')
+        self.assertEqual(id2['username'], None)
+        self.assertEqual(id2['source'], 'scm')
+
+        # Test if John Doe is found looking within its profile
+        executed = client.execute(SH_INDIVIDUALS_TERM_FILTER % 'Doe (profile)',
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 1)
+
+        # Test John Doe individual
+        indv = individuals[0]
+        self.assertEqual(indv['mk'], 'c6d2504fde0e34b78a185c4b709e5442d045451c')
+
+        self.assertEqual(indv['profile']['name'], 'John Doe (profile)')
+        self.assertEqual(indv['profile']['email'], None)
+        self.assertEqual(indv['profile']['isBot'], False)
+        self.assertEqual(indv['profile']['gender'], 'M')
+        self.assertEqual(indv['profile']['country'], None)
+
+        identities = indv['identities']
+        identities.sort(key=lambda x: x['uuid'])
+        self.assertEqual(len(identities), 2)
+
+        id1 = identities[0]
+        self.assertEqual(id1['uuid'], 'B001')
+        self.assertEqual(id1['name'], 'John Doe')
+        self.assertEqual(id1['email'], 'jdoe@example.com')
+        self.assertEqual(id1['username'], 'jdoe')
+        self.assertEqual(id1['source'], 'scm')
+
+        id2 = identities[1]
+        self.assertEqual(id2['uuid'], 'B002')
+        self.assertEqual(id2['name'], None)
+        self.assertEqual(id2['email'], 'jdoe@libresoft.es')
+        self.assertEqual(id2['username'], None)
+        self.assertEqual(id2['source'], 'scm')
+
+    def test_filter_search_4bytes_utf8_identities(self):
+        """Check if it returns the unique identities which have 4 bytes UTF8-characters"""
+
+        # Add some identities
+        indv = Individual.objects.create(mk='a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        Profile.objects.create(name=None,
+                               email='jsmith@example.com',
+                               is_bot=True,
+                               gender='M',
+                               individual=indv)
+        Identity.objects.create(uuid='A001',
+                                name='John Smith',
+                                email='jsmith@example.com',
+                                username='jsmith',
+                                source='scm',
+                                individual=indv)
+        emoji_id = Identity.objects.create(uuid='A002',
+                                           name='😂',
+                                           email='😂',
+                                           username='😂',
+                                           source='scm',
+                                           individual=indv)
+
+        # Add another individual
+        indv2 = Individual.objects.create(mk='c6d2504fde0e34b78a185c4b709e5442d045451c')
+        Profile.objects.create(email=None,
+                               is_bot=False,
+                               gender='M',
+                               country=None,
+                               individual=indv2)
+        Identity.objects.create(uuid='B001',
+                                name='John Doe',
+                                email='jdoe@example.com',
+                                username='jdoe',
+                                source='scm',
+                                individual=indv2)
+
+        # An emoji is 4 bytes UTF-8 character
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_INDIVIDUALS_TERM_FILTER % '😂',
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 1)
+
+        # Test John Doe individual
+        indv = individuals[0]
+        self.assertEqual(indv['profile']['name'], None)
+        self.assertEqual(indv['profile']['email'], 'jsmith@example.com')
+        self.assertEqual(indv['profile']['isBot'], True)
+        self.assertEqual(indv['profile']['gender'], 'M')
+
+        identities = indv['identities']
+        identities.sort(key=lambda x: x['uuid'])
+        self.assertEqual(len(identities), 2)
+
+        id1 = identities[0]
+        self.assertEqual(id1['name'], 'John Smith')
+        self.assertEqual(id1['email'], 'jsmith@example.com')
+        self.assertEqual(id1['username'], 'jsmith')
+        self.assertEqual(id1['source'], 'scm')
+
+        id2 = identities[1]
+        self.assertEqual(id2['name'], '😂')
+        self.assertEqual(id2['email'], '😂')
+        self.assertEqual(id2['username'], '😂')
+        self.assertEqual(id2['source'], 'scm')
+
+    def test_filter_term_non_exist_registry(self):
+        """Check whether it returns an empty list when searched with a non existing term"""
+
+        indv = Individual.objects.create(mk='c6d2504fde0e34b78a185c4b709e5442d045451c')
+        Profile.objects.create(email=None,
+                               is_bot=False,
+                               gender='M',
+                               country=None,
+                               individual=indv)
+        Identity.objects.create(uuid='B001',
+                                name='John Doe',
+                                email='jdoe@example.com',
+                                username='jdoe',
+                                source='scm',
+                                individual=indv)
+        Identity.objects.create(uuid='B002',
+                                name=None,
+                                email='jdoe@libresoft.es',
+                                username=None,
+                                source='scm',
+                                individual=indv)
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_INDIVIDUALS_TERM_FILTER % 'owl',
+                                  context_value=self.context_value)
+
+        indvs = executed['data']['individuals']['entities']
+        self.assertListEqual(indvs, [])
 
     def test_filter_registry_is_locked(self):
         """Check whether it returns the uuid searched when using isLocked filter"""
