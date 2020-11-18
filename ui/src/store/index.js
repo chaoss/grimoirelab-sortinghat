@@ -1,10 +1,14 @@
 import Vue from "vue";
 import Vuex from "vuex";
+import Cookies from "js-cookie";
+import { tokenAuth } from "../apollo/mutations";
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
+    token: Cookies.get("sh_authtoken"),
+    user: Cookies.get("sh_user"),
     selectedIndividuals: [],
     selectedIndividual: {
       uuid: undefined,
@@ -12,6 +16,12 @@ export default new Vuex.Store({
     }
   },
   mutations: {
+    setToken(state, token) {
+      state.token = token;
+    },
+    loginUser(state, user) {
+      state.user = user;
+    },
     addIndividual(state, individual) {
       const selectedIndex = state.selectedIndividuals.findIndex(
         selectedIndividual => selectedIndividual === individual
@@ -33,6 +43,8 @@ export default new Vuex.Store({
     }
   },
   getters: {
+    isAuthenticated: state => !!state.token,
+    user: state => state.user,
     selectedIndividual(state) {
       return state.selectedIndividual;
     },
@@ -40,6 +52,23 @@ export default new Vuex.Store({
       return state.selectedIndividuals;
     }
   },
-  actions: {},
+  actions: {
+    async login({ commit }, authDetails) {
+      const response = await tokenAuth(
+        authDetails.apollo,
+        authDetails.username,
+        authDetails.password
+      );
+      if (response && !response.errors) {
+        const token = response.data.tokenAuth.token;
+        commit("setToken", token);
+        Cookies.set("sh_authtoken", token, { secure: true });
+        commit("loginUser", authDetails.username);
+        Cookies.set("sh_user", authDetails.username, { secure: true });
+        return token;
+      }
+      return response;
+    }
+  },
   modules: {}
 });
