@@ -170,8 +170,10 @@ def add_identity(ctx, source, name=None, email=None, username=None, uuid=None):
 
     if not uuid:
         individual = add_individual_db(trxl, id_)
+        # In case there is no name, set `username` as profile name
+        profile_name = name if name else username
         individual = update_profile_db(trxl, individual,
-                                       name=name, email=email)
+                                       name=profile_name, email=email)
     else:
         individual = find_individual_by_uuid(uuid)
 

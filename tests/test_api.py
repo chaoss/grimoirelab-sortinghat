@@ -459,6 +459,34 @@ class TestAddIdentity(TestCase):
         transactions = Transaction.objects.filter(created_at__gt=trx_date)
         self.assertEqual(len(transactions), 0)
 
+    def test_add_identity_name_none(self):
+        """Check if the username is set to the profile when no name is provided"""
+
+        identity = api.add_identity(self.ctx,
+                                    'scm',
+                                    name=None,
+                                    email='jsmith@example.com',
+                                    username='jsmith')
+        self.assertEqual(identity.uuid, '18f652547d666701fcf1ddb59867bc88bb6e6b86')
+        self.assertEqual(identity.name, None)
+        self.assertEqual(identity.email, 'jsmith@example.com')
+        self.assertEqual(identity.username, 'jsmith')
+        self.assertEqual(identity.source, 'scm')
+
+        individual = Individual.objects.get(mk='18f652547d666701fcf1ddb59867bc88bb6e6b86')
+        self.assertEqual(individual.mk, identity.uuid)
+
+        profile = individual.profile
+        # The profile name must match with the username, as no name was provided
+        self.assertEqual(profile.name, 'jsmith')
+        self.assertEqual(profile.email, 'jsmith@example.com')
+
+        identities = Identity.objects.filter(uuid=identity.uuid)
+        self.assertEqual(len(identities), 1)
+
+        id1 = identities[0]
+        self.assertEqual(id1, identity)
+
     def test_non_existing_uuid(self):
         """Check whether it fails adding identities to one uuid that does not exist"""
 

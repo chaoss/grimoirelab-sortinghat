@@ -3087,6 +3087,10 @@ class TestAddIdentityMutation(django.test.TestCase):
                   username
                   source
                 }
+                profile {
+                  name
+                  email
+                }
               }
           }
         }
@@ -3207,6 +3211,59 @@ class TestAddIdentityMutation(django.test.TestCase):
 
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, INDIVIDUAL_DOES_NOT_EXIST_ERROR)
+
+    def test_add_identity_name_none(self):
+        """Check if the username is set to the profile when no name is provided"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'source': 'scm',
+            'email': 'jroe@example.com',
+            'username': 'jrae',
+        }
+        executed = client.execute(self.SH_ADD_IDENTITY,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        # Check results
+        individual = executed['data']['addIdentity']['individual']
+        self.assertEqual(individual['mk'], '23dbd01fd319999965e95115ba8e59d9502e13ba')
+
+        profile = individual['profile']
+        # The profile name must match with the username, as no name was provided
+        self.assertEqual(profile['name'], 'jrae')
+        self.assertEqual(profile['email'], 'jroe@example.com')
+
+        identities = individual['identities']
+        self.assertEqual(len(identities), 1)
+
+        identity = identities[0]
+        self.assertEqual(identity['uuid'], '23dbd01fd319999965e95115ba8e59d9502e13ba')
+        self.assertEqual(identity['source'], 'scm')
+        self.assertEqual(identity['name'], None)
+        self.assertEqual(identity['email'], 'jroe@example.com')
+        self.assertEqual(identity['username'], 'jrae')
+
+        uuid = executed['data']['addIdentity']['uuid']
+        self.assertEqual(uuid, '23dbd01fd319999965e95115ba8e59d9502e13ba')
+
+        # Check database
+        individual = Individual.objects.get(mk='23dbd01fd319999965e95115ba8e59d9502e13ba')
+        self.assertEqual(individual.mk, identity['uuid'])
+
+        profile = Profile.objects.get(individual=individual)
+        self.assertEqual(profile.name, 'jrae')
+        self.assertEqual(profile.email, 'jroe@example.com')
+
+        identities = Identity.objects.filter(uuid=identity['uuid'])
+        self.assertEqual(len(identities), 1)
+
+        id0 = identities[0]
+        self.assertEqual(id0.source, identity['source'])
+        self.assertEqual(id0.name, identity['name'])
+        self.assertEqual(id0.email, identity['email'])
+        self.assertEqual(id0.username, identity['username'])
 
     def test_integrity_error(self):
         """Check if it fails adding an identity that already exists"""
