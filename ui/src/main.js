@@ -1,8 +1,10 @@
 import Vue from "vue";
 import App from "./App.vue";
+import router from "./router";
 import store from "./store";
 import vuetify from "./plugins/vuetify";
 import VueApollo from "vue-apollo";
+import VueRouter from "vue-router";
 import { ApolloClient } from "apollo-client";
 import { createHttpLink } from "apollo-link-http";
 import { InMemoryCache } from "apollo-cache-inmemory";
@@ -28,11 +30,13 @@ const cache = new InMemoryCache();
 
 const AuthLink = (operation, next) => {
   const token = csrftoken;
+  const authtoken = Cookies.get("sh_authtoken");
   operation.setContext(context => ({
     ...context,
     headers: {
       ...context.headers,
-      "X-CSRFToken": token
+      "X-CSRFToken": token,
+      Authorization: authtoken ? `JWT ${authtoken}` : ""
     }
   }));
   return next(operation);
@@ -47,6 +51,7 @@ const apolloClient = new ApolloClient({
 });
 
 Vue.use(VueApollo);
+Vue.use(VueRouter);
 
 const apolloProvider = new VueApollo({
   defaultClient: apolloClient
@@ -55,6 +60,7 @@ const apolloProvider = new VueApollo({
 Vue.config.productionTip = false;
 
 new Vue({
+  router,
   store,
   vuetify,
   apolloProvider,

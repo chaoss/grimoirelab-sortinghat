@@ -1,264 +1,58 @@
 <template>
   <v-app>
     <v-app-bar app color="primary" dark>
-      <div class="d-flex align-center">
-        <v-img
-          alt="Vuetify Logo"
-          class="shrink mr-2"
-          contain
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png"
-          transition="scale-transition"
-          width="40"
-        />
-
-        <v-img
-          alt="Vuetify Name"
-          class="shrink mt-1 hidden-sm-and-down"
-          contain
-          min-width="100"
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-name-dark.png"
-          width="100"
-        />
-      </div>
-
+      <h1 class="headline font-weight-light">Sorting Hat</h1>
       <v-spacer></v-spacer>
-
-      <v-btn
-        href="https://github.com/vuetifyjs/vuetify/releases/latest"
-        target="_blank"
-        text
-      >
-        <span class="mr-2">Latest Release</span>
-        <v-icon>mdi-open-in-new</v-icon>
-      </v-btn>
+      <v-menu v-if="user && $route.name !== 'Login'" offset-y>
+        <template v-slot:activator="{ on }">
+          <v-btn depressed small color="primary" v-on="on">
+            <v-icon small left>
+              mdi-account-circle
+            </v-icon>
+            {{ user }}
+          </v-btn>
+        </template>
+        <v-list>
+          <v-list-item @click="logOut">
+            <v-list-item-title>Log out</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
     </v-app-bar>
-
-    <v-content>
-      <work-space
-        :highlight-individual="highlightInWorkspace"
-        :individuals="savedIndividuals"
-        :merge-items="mergeItems"
-        :move-item="moveItem"
-        @clearSpace="savedIndividuals = []"
-        @updateIndividuals="updateTable"
-        @highlight="highlightIndividual($event, 'highlightInTable', true)"
-        @stopHighlight="highlightIndividual($event, 'highlightInTable', false)"
-        @deselect="deselectIndividuals"
-      />
-      <v-row>
-        <v-col class="individuals elevation-2">
-          <individuals-table
-            :fetch-page="getIndividualsPage"
-            :delete-item="deleteItem"
-            :merge-items="mergeItems"
-            :unmerge-items="unmergeItems"
-            :move-item="moveItem"
-            :highlight-individual="highlightInTable"
-            :add-identity="addIdentity"
-            :updateProfile="updateProfile"
-            :enroll="enroll"
-            :get-countries="getCountries"
-            @saveIndividual="addSavedIndividual"
-            @updateWorkspace="updateWorkspace"
-            @highlight="
-              highlightIndividual($event, 'highlightInWorkspace', true)
-            "
-            @stopHighlight="
-              highlightIndividual($event, 'highlightInWorkspace', false)
-            "
-            ref="table"
-          />
-        </v-col>
-        <v-col class="organizations elevation-2">
-          <organizations-table
-            :fetch-page="getOrganizationsPage"
-            :enroll="enroll"
-            :add-organization="addOrganization"
-            :add-domain="addDomain"
-            :delete-domain="deleteDomain"
-            @updateIndividuals="updateTable"
-            @updateWorkspace="updateWorkspace"
-          />
-        </v-col>
-      </v-row>
-      <v-snackbar v-model="snackbar">
-        Individual already in work space
-      </v-snackbar>
-    </v-content>
+    <transition name="fade" mode="out-in">
+      <router-view />
+    </transition>
   </v-app>
 </template>
 
 <script>
-import {
-  getCountries,
-  getPaginatedIndividuals,
-  getPaginatedOrganizations
-} from "./apollo/queries";
-import {
-  addIdentity,
-  deleteIdentity,
-  merge,
-  unmerge,
-  moveIdentity,
-  enroll,
-  addOrganization,
-  addDomain,
-  deleteDomain,
-  updateProfile
-} from "./apollo/mutations";
-import IndividualsTable from "./components/IndividualsTable";
-import OrganizationsTable from "./components/OrganizationsTable";
-import WorkSpace from "./components/WorkSpace";
-
+import Cookies from "js-cookie";
 export default {
   name: "App",
-  components: {
-    IndividualsTable,
-    OrganizationsTable,
-    WorkSpace
-  },
-  data() {
-    return {
-      highlightInTable: undefined,
-      highlightInWorkspace: undefined,
-      savedIndividuals: [],
-      snackbar: false
-    };
+  computed: {
+    user() {
+      return this.$store.state.user;
+    }
   },
   methods: {
-    async getIndividualsPage(page, items, filters) {
-      const response = await getPaginatedIndividuals(
-        this.$apollo,
-        page,
-        items,
-        filters
-      );
-      return response;
-    },
-    async getOrganizationsPage(page, items) {
-      const response = await getPaginatedOrganizations(
-        this.$apollo,
-        page,
-        items
-      );
-      return response;
-    },
-    addSavedIndividual(individual) {
-      const isSaved = this.savedIndividuals.find(savedIndividual => {
-        return individual.uuid === savedIndividual.uuid;
-      });
-      if (isSaved) {
-        this.snackbar = true;
-        return;
-      }
-      this.savedIndividuals.push(individual);
-    },
-    async deleteItem(uuid) {
-      const response = await deleteIdentity(this.$apollo, uuid);
-      return response;
-    },
-    async mergeItems(fromUuids, toUuid) {
-      const response = await merge(this.$apollo, fromUuids, toUuid);
-      return response;
-    },
-    updateTable() {
-      this.$refs.table.queryIndividuals();
-    },
-    updateWorkspace(event) {
-      if (event.remove) {
-        event.remove.forEach(removedItem => {
-          const removedIndex = this.savedIndividuals.findIndex(
-            individual => individual.uuid == removedItem
-          );
-          if (removedIndex !== -1) {
-            this.savedIndividuals.splice(removedIndex, 1);
-          }
-        });
-      }
-      if (event.update) {
-        event.update.forEach(updatedItem => {
-          const updatedIndex = this.savedIndividuals.findIndex(
-            individual => individual.uuid == updatedItem.uuid
-          );
-          if (updatedIndex !== -1) {
-            Object.assign(this.savedIndividuals[updatedIndex], updatedItem);
-          }
-        });
-      }
-    },
-    highlightIndividual(individual, component, highlight) {
-      this[component] = highlight ? individual.uuid : undefined;
-    },
-    async unmergeItems(uuids) {
-      const response = await unmerge(this.$apollo, uuids);
-      return response;
-    },
-    async moveItem(fromUuid, toUuid) {
-      const response = await moveIdentity(this.$apollo, fromUuid, toUuid);
-      return response;
-    },
-    deselectIndividuals() {
-      this.$refs.table.deselectIndividuals();
-    },
-    async enroll(uuid, organization, fromDate, toDate) {
-      const response = await enroll(
-        this.$apollo,
-        uuid,
-        organization,
-        fromDate,
-        toDate
-      );
-      return response;
-    },
-    async addIdentity(email, name, source, username) {
-      const response = await addIdentity(
-        this.$apollo,
-        email,
-        name,
-        source,
-        username
-      );
-      return response;
-    },
-    async updateProfile(data, uuid) {
-      const response = updateProfile(this.$apollo, data, uuid);
-      return response;
-    },
-    async addOrganization(organization) {
-      const response = await addOrganization(this.$apollo, organization);
-      return response;
-    },
-    async addDomain(domain, organization) {
-      const response = await addDomain(this.$apollo, domain, organization);
-      return response;
-    },
-    async deleteDomain(domain) {
-      const response = await deleteDomain(this.$apollo, domain);
-      return response;
-    },
-    async getCountries() {
-      const response = await getCountries(this.$apollo);
-      return response.data.countries.entities;
+    logOut() {
+      Cookies.remove("sh_authtoken");
+      Cookies.remove("sh_user");
+      this.$router.push("/login");
     }
   }
 };
 </script>
 <style scoped>
-.row {
-  justify-content: space-between;
-  margin: 32px;
+.fade-enter-active,
+.fade-leave-active {
+  transition-duration: 0.3s;
+  transition-property: opacity;
+  transition-timing-function: ease;
 }
-.individuals {
-  max-width: 1200px;
-  width: 70%;
-}
-.organizations {
-  width: 25%;
-  max-width: 500px;
-  align-self: flex-start;
-  margin-left: 32px;
-}
-h4 {
-  padding: 12px 26px;
+
+.fade-enter,
+.fade-leave-active {
+  opacity: 0;
 }
 </style>
