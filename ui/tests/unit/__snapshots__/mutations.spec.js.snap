@@ -1076,6 +1076,83 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
 </v-container-stub>
 `;
 
+exports[`Login Mock mutation for tokenAuth 1`] = `
+<v-content-stub
+  class="align-center"
+  tag="main"
+>
+  <v-card-stub
+    class="mx-auto pa-7"
+    loaderheight="4"
+    maxwidth="500"
+    tag="div"
+  >
+    <v-card-title-stub
+      class="display-1 mb-2"
+    >
+      Welcome
+    </v-card-title-stub>
+     
+    <v-card-subtitle-stub
+      class="mb-3"
+    >
+      Please log in to continue
+    </v-card-subtitle-stub>
+     
+    <v-card-text-stub>
+      <v-form-stub>
+        <v-text-field-stub
+          backgroundcolor=""
+          clearicon="$clear"
+          errorcount="1"
+          errormessages=""
+          filled="true"
+          label="Username"
+          loaderheight="2"
+          messages=""
+          rules=""
+          successmessages=""
+          type="text"
+          value=""
+        />
+         
+        <v-text-field-stub
+          appendicon="mdi-eye-off"
+          backgroundcolor=""
+          clearicon="$clear"
+          errorcount="1"
+          errormessages=""
+          filled="true"
+          label="Password"
+          loaderheight="2"
+          messages=""
+          rules=""
+          successmessages=""
+          type="password"
+          value=""
+        />
+         
+        <!---->
+         
+        <v-btn-stub
+          activeclass=""
+          block="true"
+          color="primary"
+          depressed="true"
+          disabled="true"
+          tag="button"
+          type="button"
+        >
+          
+          Log in
+        
+        </v-btn-stub>
+      </v-form-stub>
+    </v-card-text-stub>
+  </v-card-stub>
+</v-content-stub>
+`;
+
 exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
 <v-container-stub
   tag="div"

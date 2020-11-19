@@ -1,5 +1,13 @@
 import gql from "graphql-tag";
 
+const TOKEN_AUTH = gql`
+  mutation tokenAuth($username: String!, $password: String!) {
+    tokenAuth(username: $username, password: $password) {
+      token
+    }
+  }
+`;
+
 const LOCK_INDIVIDUAL = gql`
   mutation LockIndividual($uuid: String!) {
     lock(uuid: $uuid) {
@@ -237,6 +245,17 @@ const DELETE_DOMAIN = gql`
   }
 `;
 
+const tokenAuth = (apollo, username, password) => {
+  const response = apollo.mutate({
+    mutation: TOKEN_AUTH,
+    variables: {
+      username: username,
+      password: password
+    }
+  });
+  return response;
+};
+
 const lockIndividual = (apollo, uuid) => {
   let response = apollo.mutate({
     mutation: LOCK_INDIVIDUAL,
@@ -366,6 +385,7 @@ const deleteDomain = (apollo, domain) => {
 };
 
 export {
+  tokenAuth,
   lockIndividual,
   unlockIndividual,
   deleteIdentity,

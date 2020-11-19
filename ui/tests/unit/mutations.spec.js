@@ -2,6 +2,7 @@ import { shallowMount, mount } from "@vue/test-utils";
 import Vue from "vue";
 import Vuetify from "vuetify";
 import IndividualsTable from "@/components/IndividualsTable";
+import Login from "@/components/Login";
 import OrganizationsTable from "@/components/OrganizationsTable";
 import ProfileModal from "@/components/ProfileModal";
 import * as Mutations from "@/apollo/mutations";
@@ -196,6 +197,14 @@ const deleteDomainResponse = {
         __typename: "DomainType"
       },
       __typename: "DeleteDomain"
+    }
+  }
+};
+
+const tokenResponse = {
+  data: {
+    tokenAuth: {
+      token: "eyJ0eXAiOiJKV1QiL"
     }
   }
 };
@@ -477,6 +486,29 @@ describe("ProfileModal", () => {
         isBot: true
       },
       "002bad315c34120cdfa2b1e26b3ca88ce36bc183"
+    );
+
+    expect(mutate).toBeCalled();
+    expect(wrapper.element).toMatchSnapshot();
+  });
+});
+
+describe("Login", () => {
+  test("Mock mutation for tokenAuth", async () => {
+    const mutate = jest.fn(() => Promise.resolve(tokenResponse));
+    const wrapper = shallowMount(Login, {
+      Vue,
+      mocks: {
+        $apollo: {
+          mutate
+        }
+      }
+    });
+    
+    const response = await Mutations.tokenAuth(
+      wrapper.vm.$apollo,
+      "username",
+      "password"
     );
 
     expect(mutate).toBeCalled();
