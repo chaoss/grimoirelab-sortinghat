@@ -85,6 +85,7 @@
           :is-selected="item.isSelected"
           :is-highlighted="item.uuid === highlightIndividual"
           @expand="expand(!isExpanded)"
+          @edit="updateProfileInfo($event, item.uuid)"
           @saveIndividual="$emit('saveIndividual', item)"
           :draggable="!item.isLocked"
           @dragstart.native="startDrag(item, $event)"
@@ -95,13 +96,20 @@
           @move="move($event)"
           @highlight="$emit('highlight', item)"
           @stopHighlight="$emit('stopHighlight', item)"
+          @lock="handleLock(item.uuid, $event)"
         />
       </template>
       <template v-slot:expanded-item="{ item }">
         <expanded-individual
           :uuid="item.uuid"
+          :gender="item.gender"
+          :country="item.country"
+          :is-bot="item.isBot"
+          :is-locked="item.isLocked"
           :enrollments="item.enrollments"
           :identities="item.identities"
+          :get-countries="getCountries"
+          @edit="updateProfileInfo($event, item.uuid)"
           @unmerge="unmerge($event)"
         />
       </template>
@@ -146,6 +154,10 @@
         Moving {{ this.selectedIndividuals.length }}
       </v-card-title>
     </v-card>
+
+    <v-snackbar v-model="snackbar.open">
+      {{ snackbar.text }}
+    </v-snackbar>
   </v-container>
 </template>
 
@@ -211,6 +223,14 @@ export default {
     getCountries: {
       type: Function,
       required: true
+    },
+    lockIndividual: {
+      type: Function,
+      required: true
+    },
+    unlockIndividual: {
+      type: Function,
+      required: true
     }
   },
   data() {
@@ -234,7 +254,11 @@ export default {
         text: "",
         action: ""
       },
-      openModal: false
+      openModal: false,
+      snackbar: {
+        open: false,
+        text: ""
+      }
     };
   },
   computed: {
@@ -344,6 +368,40 @@ export default {
     clearSearch() {
       this.$set(this.filters, "term", "");
       this.queryIndividuals(1);
+    },
+    async updateProfileInfo(data, uuid) {
+      try {
+        const response = await this.updateProfile(data, uuid);
+        if (response && response.data.updateProfile) {
+          this.queryIndividuals();
+          this.$emit("updateWorkspace", {
+            update: formatIndividuals([response.data.updateProfile.individual])
+          });
+        }
+      } catch (error) {
+        Object.assign(this.snackbar, { open: true, text: error });
+      }
+    },
+    async handleLock(uuid, lock) {
+      if (lock) {
+        try {
+          const response = await this.lockIndividual(uuid);
+          if (response) {
+            this.queryIndividuals();
+          }
+        } catch (error) {
+          Object.assign(this.snackbar, { open: true, text: error });
+        }
+      } else {
+        try {
+          const response = await this.unlockIndividual(uuid);
+          if (response) {
+            this.queryIndividuals();
+          }
+        } catch (error) {
+          Object.assign(this.snackbar, { open: true, text: error });
+        }
+      }
     }
   },
   watch: {

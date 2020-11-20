@@ -275,6 +275,14 @@ exports[`IndividualsTable Mock query for getCountries 1`] = `
     
     </v-card-title-stub>
   </v-card-stub>
+   
+  <v-snackbar-stub
+    timeout="6000"
+  >
+    
+    
+  
+  </v-snackbar-stub>
 </v-container-stub>
 `;
 
@@ -544,6 +552,14 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
     
     </v-card-title-stub>
   </v-card-stub>
+   
+  <v-snackbar-stub
+    timeout="6000"
+  >
+    
+    
+  
+  </v-snackbar-stub>
 </v-container-stub>
 `;
 

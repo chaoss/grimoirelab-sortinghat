@@ -7,7 +7,14 @@ export default {
   excludeStories: /.*Data$/
 };
 
-const expandedIndividualTemplate = '<expanded-individual :enrollments="enrollments" :identities="identities" :compact="compact" :uuid="uuid" />';
+const expandedIndividualTemplate = `
+  <expanded-individual
+    :enrollments="enrollments"
+    :identities="identities"
+    :compact="compact"
+    :uuid="uuid"
+    :get-countries="getCountries.bind(this)"
+  />`;
 
 export const Default = () => ({
   components: { ExpandedIndividual },
@@ -16,6 +23,15 @@ export const Default = () => ({
     uuid: "06e6903c91180835b6ee91dd56782c6ca72bc562",
     compact: false,
     name: "Tom Marvolo Riddle",
+    countries: [
+      { code: "AD", name: "Andorra" },
+      { code: "AE", name: "United Arab Emirates" },
+      { code: "AF", name: "Afghanistan" },
+      { code: "AG", name: "Antigua and Barbuda" },
+      { code: "AI", name: "Anguilla" },
+      { code: "AL", name: "Albania" },
+      { code: "AM", name: "Armenia" }
+    ],
     identities: [
     {
       name: "GitHub",
@@ -78,7 +94,12 @@ export const Default = () => ({
         end: "1945-06-02T00:00:00+00:00"
       }
     ]
-  })
+  }),
+  methods: {
+    getCountries() {
+      return this.countries;
+    }
+  }
 });
 
 export const Compact = () => ({
@@ -150,7 +171,12 @@ export const Compact = () => ({
         end: "1945-06-02T00:00:00+00:00"
       }
     ]
-  })
+  }),
+  methods: {
+    getCountries() {
+      return true;
+    }
+  }
 });
 
 export const NoOrganizations = () => ({
@@ -172,6 +198,20 @@ export const NoOrganizations = () => ({
         ]
       },
     ],
-    enrollments: []
-  })
+    enrollments: [],
+    countries: [
+      { code: "AD", name: "Andorra" },
+      { code: "AE", name: "United Arab Emirates" },
+      { code: "AF", name: "Afghanistan" },
+      { code: "AG", name: "Antigua and Barbuda" },
+      { code: "AI", name: "Anguilla" },
+      { code: "AL", name: "Albania" },
+      { code: "AM", name: "Armenia" }
+    ],
+  }),
+  methods: {
+    getCountries() {
+      return this.countries;
+    }
+  }
 });

@@ -18,6 +18,8 @@ const IndividualsTableTemplate = `
     :update-profile="deleteIndividual"
     :enroll="deleteIndividual"
     :get-countries="getCountries.bind(this)"
+    :lock-individual="deleteIndividual"
+    :unlock-individual="deleteIndividual"
   />
 `;
 

@@ -22,41 +22,87 @@
 
         <v-list-item-content>
           <v-list-item-title>
-            {{ name }}
-            <v-tooltip
-              v-if="isBot"
-              bottom
-              transition="expand-y-transition"
-              open-delay="200"
-            >
+            <span v-if="isLocked">{{ name }}</span>
+            <v-edit-dialog v-else @save="$emit('edit', { name: form.name })">
+              {{ name }}
+              <v-icon class="icon--hidden" small>
+                mdi-lead-pencil
+              </v-icon>
+              <template v-slot:input>
+                <v-text-field
+                  v-model="form.name"
+                  label="Edit name"
+                  maxlength="30"
+                  single-line
+                ></v-text-field>
+              </template>
+            </v-edit-dialog>
+
+            <v-tooltip bottom transition="expand-y-transition" open-delay="200">
               <template v-slot:activator="{ on }">
-                <v-icon v-on="on" class="aligned" small right>
+                <v-icon
+                  v-show="!isLocked"
+                  v-on="on"
+                  class="aligned"
+                  :class="{ 'icon--hidden': !isBot }"
+                  small
+                  right
+                  @click.stop="$emit('edit', { isBot: !isBot })"
+                >
+                  mdi-robot
+                </v-icon>
+                <v-icon
+                  v-show="isLocked && isBot"
+                  v-on="on"
+                  class="aligned"
+                  small
+                  right
+                >
                   mdi-robot
                 </v-icon>
               </template>
               <span>Bot</span>
             </v-tooltip>
-            <v-tooltip
-              v-if="isLocked"
-              bottom
-              transition="expand-y-transition"
-              open-delay="200"
-            >
+
+            <v-tooltip bottom transition="expand-y-transition" open-delay="200">
               <template v-slot:activator="{ on }">
-                <v-icon v-on="on" class="aligned" small right>
+                <v-icon
+                  v-on="on"
+                  class="aligned"
+                  :class="{ 'icon--hidden': !isLocked }"
+                  small
+                  right
+                  @click.stop="$emit('lock', !isLocked)"
+                >
                   mdi-lock
                 </v-icon>
               </template>
-              <span>Locked profile</span>
+              <span>{{ isLocked ? "Unlock profile" : "Lock profile" }}</span>
             </v-tooltip>
           </v-list-item-title>
           <v-list-item-subtitle>{{ organization }}</v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
     </td>
+
     <td class="text-center">
-      {{ email }}
+      <span v-if="isLocked" class="mr-7">{{ email }}</span>
+      <v-edit-dialog v-else @save="$emit('edit', { email: form.email })">
+        {{ email }}
+        <v-icon small right>
+          mdi-lead-pencil
+        </v-icon>
+        <template v-slot:input>
+          <v-text-field
+            v-model="form.email"
+            label="Edit email"
+            maxlength="30"
+            single-line
+          ></v-text-field>
+        </template>
+      </v-edit-dialog>
     </td>
+
     <td class="text-right">
       <v-icon
         v-for="source in sortedSources"
@@ -66,6 +112,7 @@
         right
       />
     </td>
+
     <td width="140">
       <v-btn icon @click.stop="$emit('expand')">
         <v-icon>
@@ -143,9 +190,15 @@ export default {
       default: false
     }
   },
-  data: () => ({
-    isDragging: false
-  }),
+  data() {
+    return {
+      isDragging: false,
+      form: {
+        name: this.name,
+        email: this.email
+      }
+    };
+  },
   computed: {
     getNameInitials: function() {
       const name = this.name || this.email || "";
@@ -206,6 +259,14 @@ export default {
       const uuid = event.dataTransfer.getData("uuid");
       this.$emit("move", { fromUuid: uuid, toUuid: this.uuid });
     }
+  },
+  watch: {
+    name(value) {
+      this.form.name = value;
+    },
+    email(value) {
+      this.form.email = value;
+    }
   }
 };
 </script>
@@ -226,5 +287,32 @@ export default {
 }
 tr {
   cursor: pointer;
+}
+::v-deep .v-small-dialog__activator,
+.v-small-dialog {
+  display: inline-block;
+}
+.v-small-dialog__activator {
+  .v-icon {
+    opacity: 0;
+    padding-bottom: 2px;
+  }
+
+  &:hover {
+    .v-icon {
+      opacity: 1;
+    }
+  }
+}
+.v-list-item__title {
+  ::v-deep .icon--hidden {
+    opacity: 0;
+    padding-bottom: 2px;
+  }
+  &:hover {
+    ::v-deep .icon--hidden {
+      opacity: 1;
+    }
+  }
 }
 </style>

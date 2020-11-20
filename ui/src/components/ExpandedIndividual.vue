@@ -1,5 +1,52 @@
 <template>
   <td :class="{ compact: compact }" colspan="4">
+    <v-subheader v-if="!compact">Profile</v-subheader>
+    <v-row v-if="!compact" class="ml-12">
+      <p class="ml-2">
+        <span class="grey--text text--darken-2">Gender: </span>
+        <span v-if="isLocked">{{ gender || " -" }}</span>
+        <v-edit-dialog v-else @save="$emit('edit', { gender: form.gender })">
+          {{ gender || " -" }}
+          <v-icon small right>
+            mdi-lead-pencil
+          </v-icon>
+          <template v-slot:input>
+            <v-text-field
+              v-model="form.gender"
+              label="Edit gender"
+              maxlength="30"
+              single-line
+            ></v-text-field>
+          </template>
+        </v-edit-dialog>
+      </p>
+      <p class="ml-6">
+        <span class="grey--text text--darken-2">Country: </span>
+        <span v-if="isLocked">{{ country ? country.name : "-" }}</span>
+        <v-edit-dialog
+          v-else
+          @close="
+            $emit('edit', {
+              countryCode: form.country ? form.country.code : ''
+            })
+          "
+        >
+          <span class="black--text">{{ country ? country.name : "-" }}</span>
+          <v-icon small right>
+            mdi-lead-pencil
+          </v-icon>
+          <template v-slot:input>
+            <v-combobox
+              v-model="form.country"
+              :items="countries"
+              label="Country"
+              item-text="name"
+              @click.once="getCountryList"
+            />
+          </template>
+        </v-edit-dialog>
+      </p>
+    </v-row>
     <v-subheader>Identities ({{ identitiesCount }})</v-subheader>
     <v-list
       v-for="(source, sourceIndex) in sortSources(identities, 'name')"
@@ -104,6 +151,22 @@ export default {
     Identity
   },
   props: {
+    gender: {
+      type: String,
+      required: false
+    },
+    country: {
+      type: Object,
+      required: false
+    },
+    isBot: {
+      type: Boolean,
+      required: false
+    },
+    isLocked: {
+      type: Boolean,
+      required: false
+    },
     identities: {
       type: Array,
       required: true
@@ -120,7 +183,21 @@ export default {
     uuid: {
       type: String,
       required: true
+    },
+    getCountries: {
+      type: Function,
+      required: false
     }
+  },
+  data() {
+    return {
+      countries: [],
+      form: {
+        gender: this.gender,
+        country: this.country,
+        isBot: this.isBot
+      }
+    };
   },
   methods: {
     selectSourceIcon(source) {
@@ -157,6 +234,12 @@ export default {
     },
     dragEnd(event) {
       event.target.classList.remove("dragging");
+    },
+    async getCountryList() {
+      const response = await this.getCountries();
+      if (response) {
+        this.countries = response;
+      }
     }
   },
   computed: {
@@ -221,5 +304,22 @@ td {
     padding: 0;
     margin: 0;
   }
+}
+
+.v-small-dialog__activator {
+  .v-icon {
+    opacity: 0;
+    padding-bottom: 2px;
+  }
+
+  &:hover {
+    .v-icon {
+      opacity: 1;
+    }
+  }
+}
+.v-small-dialog,
+::v-deep .v-small-dialog__activator {
+  display: inline-block;
 }
 </style>
