@@ -67,6 +67,8 @@ const formatIndividuals = individuals => {
         ? item.enrollments[0].organization.name
         : "",
       sources: groupIdentities(item.identities).map(identity => identity.name),
+      gender: item.profile.gender,
+      country: item.profile.country,
       identities: groupIdentities(item.identities),
       enrollments: item.enrollments,
       isLocked: item.isLocked,

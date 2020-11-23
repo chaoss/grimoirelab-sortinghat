@@ -13,6 +13,10 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
       class="compact"
       colspan="4"
     >
+      <!---->
+       
+      <!---->
+       
       <div
         class="v-subheader theme--light"
       >
@@ -444,6 +448,83 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
       class=""
       colspan="4"
     >
+      <div
+        class="v-subheader theme--light"
+      >
+        Profile
+      </div>
+       
+      <div
+        class="row ml-12"
+      >
+        <p
+          class="ml-2"
+        >
+          <span
+            class="grey--text text--darken-2"
+          >
+            Gender: 
+          </span>
+           
+          <div
+            class="v-menu v-small-dialog theme--light"
+          >
+            <div
+              class="v-small-dialog__activator"
+            >
+              <span
+                class="v-small-dialog__activator__content"
+              >
+                
+         -
+        
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
+                  style="font-size: 16px;"
+                />
+              </span>
+            </div>
+            <!---->
+          </div>
+        </p>
+         
+        <p
+          class="ml-6"
+        >
+          <span
+            class="grey--text text--darken-2"
+          >
+            Country: 
+          </span>
+           
+          <div
+            class="v-menu v-small-dialog theme--light"
+          >
+            <div
+              class="v-small-dialog__activator"
+            >
+              <span
+                class="v-small-dialog__activator__content"
+              >
+                <span
+                  class="black--text"
+                >
+                  -
+                </span>
+                 
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
+                  style="font-size: 16px;"
+                />
+              </span>
+            </div>
+            <!---->
+          </div>
+        </p>
+      </div>
+       
       <div
         class="v-subheader theme--light"
       >
@@ -1027,6 +1108,83 @@ exports[`Storyshots ExpandedIndividual No Organizations 1`] = `
       class=""
       colspan="4"
     >
+      <div
+        class="v-subheader theme--light"
+      >
+        Profile
+      </div>
+       
+      <div
+        class="row ml-12"
+      >
+        <p
+          class="ml-2"
+        >
+          <span
+            class="grey--text text--darken-2"
+          >
+            Gender: 
+          </span>
+           
+          <div
+            class="v-menu v-small-dialog theme--light"
+          >
+            <div
+              class="v-small-dialog__activator"
+            >
+              <span
+                class="v-small-dialog__activator__content"
+              >
+                
+         -
+        
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
+                  style="font-size: 16px;"
+                />
+              </span>
+            </div>
+            <!---->
+          </div>
+        </p>
+         
+        <p
+          class="ml-6"
+        >
+          <span
+            class="grey--text text--darken-2"
+          >
+            Country: 
+          </span>
+           
+          <div
+            class="v-menu v-small-dialog theme--light"
+          >
+            <div
+              class="v-small-dialog__activator"
+            >
+              <span
+                class="v-small-dialog__activator__content"
+              >
+                <span
+                  class="black--text"
+                >
+                  -
+                </span>
+                 
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
+                  style="font-size: 16px;"
+                />
+              </span>
+            </div>
+            <!---->
+          </div>
+        </p>
+      </div>
+       
       <div
         class="v-subheader theme--light"
       >
@@ -2147,21 +2305,55 @@ exports[`Storyshots IndividualEntry Bot 1`] = `
                     <div
                       class="v-list-item__title"
                     >
-                      
-          Tom Marvolo Riddle
-          
+                      <div
+                        class="v-menu v-small-dialog theme--light"
+                      >
+                        <div
+                          class="v-small-dialog__activator"
+                        >
+                          <span
+                            class="v-small-dialog__activator__content"
+                          >
+                            
+            Tom Marvolo Riddle
+            
+                            <i
+                              aria-hidden="true"
+                              class="v-icon notranslate icon--hidden mdi mdi-lead-pencil theme--light"
+                              style="font-size: 16px;"
+                            />
+                          </span>
+                        </div>
+                        <!---->
+                      </div>
+                       
                       <span
                         class="v-tooltip v-tooltip--bottom"
                       >
                         <!---->
+                        <button
+                          class="v-icon notranslate aligned v-icon--link v-icon--right mdi mdi-robot theme--light"
+                          style="font-size: 16px;"
+                          type="button"
+                        />
+                         
                         <i
                           aria-hidden="true"
                           class="v-icon notranslate aligned v-icon--right mdi mdi-robot theme--light"
-                          style="font-size: 16px;"
+                          style="font-size: 16px; display: none;"
                         />
                       </span>
                        
-                      <!---->
+                      <span
+                        class="v-tooltip v-tooltip--bottom"
+                      >
+                        <!---->
+                        <button
+                          class="v-icon notranslate aligned v-icon--link v-icon--right mdi mdi-lock theme--light icon--hidden"
+                          style="font-size: 16px;"
+                          type="button"
+                        />
+                      </span>
                     </div>
                      
                     <div
@@ -2176,9 +2368,27 @@ exports[`Storyshots IndividualEntry Bot 1`] = `
               <td
                 class="text-center"
               >
-                
-    triddle@example.com
-  
+                <div
+                  class="v-menu v-small-dialog theme--light"
+                >
+                  <div
+                    class="v-small-dialog__activator"
+                  >
+                    <span
+                      class="v-small-dialog__activator__content"
+                    >
+                      
+      triddle@example.com
+      
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
+                        style="font-size: 16px;"
+                      />
+                    </span>
+                  </div>
+                  <!---->
+                </div>
               </td>
                
               <td
@@ -2310,13 +2520,20 @@ exports[`Storyshots IndividualEntry Bot And Locked 1`] = `
                     <div
                       class="v-list-item__title"
                     >
-                      
-          Tom Marvolo Riddle
-          
+                      <span>
+                        Tom Marvolo Riddle
+                      </span>
+                       
                       <span
                         class="v-tooltip v-tooltip--bottom"
                       >
                         <!---->
+                        <button
+                          class="v-icon notranslate aligned v-icon--link v-icon--right mdi mdi-robot theme--light"
+                          style="font-size: 16px; display: none;"
+                          type="button"
+                        />
+                         
                         <i
                           aria-hidden="true"
                           class="v-icon notranslate aligned v-icon--right mdi mdi-robot theme--light"
@@ -2328,10 +2545,10 @@ exports[`Storyshots IndividualEntry Bot And Locked 1`] = `
                         class="v-tooltip v-tooltip--bottom"
                       >
                         <!---->
-                        <i
-                          aria-hidden="true"
-                          class="v-icon notranslate aligned v-icon--right mdi mdi-lock theme--light"
+                        <button
+                          class="v-icon notranslate aligned v-icon--link v-icon--right mdi mdi-lock theme--light"
                           style="font-size: 16px;"
+                          type="button"
                         />
                       </span>
                     </div>
@@ -2348,9 +2565,11 @@ exports[`Storyshots IndividualEntry Bot And Locked 1`] = `
               <td
                 class="text-center"
               >
-                
-    triddle@example.com
-  
+                <span
+                  class="mr-7"
+                >
+                  triddle@example.com
+                </span>
               </td>
                
               <td
@@ -2482,12 +2701,55 @@ exports[`Storyshots IndividualEntry Default 1`] = `
                     <div
                       class="v-list-item__title"
                     >
-                      
-          Tom Marvolo Riddle
-          
-                      <!---->
+                      <div
+                        class="v-menu v-small-dialog theme--light"
+                      >
+                        <div
+                          class="v-small-dialog__activator"
+                        >
+                          <span
+                            class="v-small-dialog__activator__content"
+                          >
+                            
+            Tom Marvolo Riddle
+            
+                            <i
+                              aria-hidden="true"
+                              class="v-icon notranslate icon--hidden mdi mdi-lead-pencil theme--light"
+                              style="font-size: 16px;"
+                            />
+                          </span>
+                        </div>
+                        <!---->
+                      </div>
                        
-                      <!---->
+                      <span
+                        class="v-tooltip v-tooltip--bottom"
+                      >
+                        <!---->
+                        <button
+                          class="v-icon notranslate aligned v-icon--link v-icon--right mdi mdi-robot theme--light icon--hidden"
+                          style="font-size: 16px;"
+                          type="button"
+                        />
+                         
+                        <i
+                          aria-hidden="true"
+                          class="v-icon notranslate aligned v-icon--right mdi mdi-robot theme--light"
+                          style="font-size: 16px; display: none;"
+                        />
+                      </span>
+                       
+                      <span
+                        class="v-tooltip v-tooltip--bottom"
+                      >
+                        <!---->
+                        <button
+                          class="v-icon notranslate aligned v-icon--link v-icon--right mdi mdi-lock theme--light icon--hidden"
+                          style="font-size: 16px;"
+                          type="button"
+                        />
+                      </span>
                     </div>
                      
                     <div
@@ -2502,9 +2764,27 @@ exports[`Storyshots IndividualEntry Default 1`] = `
               <td
                 class="text-center"
               >
-                
-    triddle@example.com
-  
+                <div
+                  class="v-menu v-small-dialog theme--light"
+                >
+                  <div
+                    class="v-small-dialog__activator"
+                  >
+                    <span
+                      class="v-small-dialog__activator__content"
+                    >
+                      
+      triddle@example.com
+      
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
+                        style="font-size: 16px;"
+                      />
+                    </span>
+                  </div>
+                  <!---->
+                </div>
               </td>
                
               <td
@@ -2636,12 +2916,55 @@ exports[`Storyshots IndividualEntry Highlighted 1`] = `
                     <div
                       class="v-list-item__title"
                     >
-                      
-          Tom Marvolo Riddle
-          
-                      <!---->
+                      <div
+                        class="v-menu v-small-dialog theme--light"
+                      >
+                        <div
+                          class="v-small-dialog__activator"
+                        >
+                          <span
+                            class="v-small-dialog__activator__content"
+                          >
+                            
+            Tom Marvolo Riddle
+            
+                            <i
+                              aria-hidden="true"
+                              class="v-icon notranslate icon--hidden mdi mdi-lead-pencil theme--light"
+                              style="font-size: 16px;"
+                            />
+                          </span>
+                        </div>
+                        <!---->
+                      </div>
                        
-                      <!---->
+                      <span
+                        class="v-tooltip v-tooltip--bottom"
+                      >
+                        <!---->
+                        <button
+                          class="v-icon notranslate aligned v-icon--link v-icon--right mdi mdi-robot theme--light icon--hidden"
+                          style="font-size: 16px;"
+                          type="button"
+                        />
+                         
+                        <i
+                          aria-hidden="true"
+                          class="v-icon notranslate aligned v-icon--right mdi mdi-robot theme--light"
+                          style="font-size: 16px; display: none;"
+                        />
+                      </span>
+                       
+                      <span
+                        class="v-tooltip v-tooltip--bottom"
+                      >
+                        <!---->
+                        <button
+                          class="v-icon notranslate aligned v-icon--link v-icon--right mdi mdi-lock theme--light icon--hidden"
+                          style="font-size: 16px;"
+                          type="button"
+                        />
+                      </span>
                     </div>
                      
                     <div
@@ -2656,9 +2979,27 @@ exports[`Storyshots IndividualEntry Highlighted 1`] = `
               <td
                 class="text-center"
               >
-                
-    triddle@example.com
-  
+                <div
+                  class="v-menu v-small-dialog theme--light"
+                >
+                  <div
+                    class="v-small-dialog__activator"
+                  >
+                    <span
+                      class="v-small-dialog__activator__content"
+                    >
+                      
+      triddle@example.com
+      
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
+                        style="font-size: 16px;"
+                      />
+                    </span>
+                  </div>
+                  <!---->
+                </div>
               </td>
                
               <td
@@ -2790,19 +3131,35 @@ exports[`Storyshots IndividualEntry Locked 1`] = `
                     <div
                       class="v-list-item__title"
                     >
-                      
-          Tom Marvolo Riddle
-          
-                      <!---->
+                      <span>
+                        Tom Marvolo Riddle
+                      </span>
                        
                       <span
                         class="v-tooltip v-tooltip--bottom"
                       >
                         <!---->
+                        <button
+                          class="v-icon notranslate aligned v-icon--link v-icon--right mdi mdi-robot theme--light icon--hidden"
+                          style="font-size: 16px; display: none;"
+                          type="button"
+                        />
+                         
                         <i
                           aria-hidden="true"
-                          class="v-icon notranslate aligned v-icon--right mdi mdi-lock theme--light"
+                          class="v-icon notranslate aligned v-icon--right mdi mdi-robot theme--light"
+                          style="font-size: 16px; display: none;"
+                        />
+                      </span>
+                       
+                      <span
+                        class="v-tooltip v-tooltip--bottom"
+                      >
+                        <!---->
+                        <button
+                          class="v-icon notranslate aligned v-icon--link v-icon--right mdi mdi-lock theme--light"
                           style="font-size: 16px;"
+                          type="button"
                         />
                       </span>
                     </div>
@@ -2819,9 +3176,11 @@ exports[`Storyshots IndividualEntry Locked 1`] = `
               <td
                 class="text-center"
               >
-                
-    triddle@example.com
-  
+                <span
+                  class="mr-7"
+                >
+                  triddle@example.com
+                </span>
               </td>
                
               <td
@@ -2953,12 +3312,55 @@ exports[`Storyshots IndividualEntry No Email 1`] = `
                     <div
                       class="v-list-item__title"
                     >
-                      
-          Tom Marvolo Riddle
-          
-                      <!---->
+                      <div
+                        class="v-menu v-small-dialog theme--light"
+                      >
+                        <div
+                          class="v-small-dialog__activator"
+                        >
+                          <span
+                            class="v-small-dialog__activator__content"
+                          >
+                            
+            Tom Marvolo Riddle
+            
+                            <i
+                              aria-hidden="true"
+                              class="v-icon notranslate icon--hidden mdi mdi-lead-pencil theme--light"
+                              style="font-size: 16px;"
+                            />
+                          </span>
+                        </div>
+                        <!---->
+                      </div>
                        
-                      <!---->
+                      <span
+                        class="v-tooltip v-tooltip--bottom"
+                      >
+                        <!---->
+                        <button
+                          class="v-icon notranslate aligned v-icon--link v-icon--right mdi mdi-robot theme--light icon--hidden"
+                          style="font-size: 16px;"
+                          type="button"
+                        />
+                         
+                        <i
+                          aria-hidden="true"
+                          class="v-icon notranslate aligned v-icon--right mdi mdi-robot theme--light"
+                          style="font-size: 16px; display: none;"
+                        />
+                      </span>
+                       
+                      <span
+                        class="v-tooltip v-tooltip--bottom"
+                      >
+                        <!---->
+                        <button
+                          class="v-icon notranslate aligned v-icon--link v-icon--right mdi mdi-lock theme--light icon--hidden"
+                          style="font-size: 16px;"
+                          type="button"
+                        />
+                      </span>
                     </div>
                      
                     <div
@@ -2973,9 +3375,27 @@ exports[`Storyshots IndividualEntry No Email 1`] = `
               <td
                 class="text-center"
               >
-                
-    
-  
+                <div
+                  class="v-menu v-small-dialog theme--light"
+                >
+                  <div
+                    class="v-small-dialog__activator"
+                  >
+                    <span
+                      class="v-small-dialog__activator__content"
+                    >
+                      
+      
+      
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
+                        style="font-size: 16px;"
+                      />
+                    </span>
+                  </div>
+                  <!---->
+                </div>
               </td>
                
               <td
@@ -3107,12 +3527,55 @@ exports[`Storyshots IndividualEntry No Name 1`] = `
                     <div
                       class="v-list-item__title"
                     >
-                      
-          
-          
-                      <!---->
+                      <div
+                        class="v-menu v-small-dialog theme--light"
+                      >
+                        <div
+                          class="v-small-dialog__activator"
+                        >
+                          <span
+                            class="v-small-dialog__activator__content"
+                          >
+                            
+            
+            
+                            <i
+                              aria-hidden="true"
+                              class="v-icon notranslate icon--hidden mdi mdi-lead-pencil theme--light"
+                              style="font-size: 16px;"
+                            />
+                          </span>
+                        </div>
+                        <!---->
+                      </div>
                        
-                      <!---->
+                      <span
+                        class="v-tooltip v-tooltip--bottom"
+                      >
+                        <!---->
+                        <button
+                          class="v-icon notranslate aligned v-icon--link v-icon--right mdi mdi-robot theme--light icon--hidden"
+                          style="font-size: 16px;"
+                          type="button"
+                        />
+                         
+                        <i
+                          aria-hidden="true"
+                          class="v-icon notranslate aligned v-icon--right mdi mdi-robot theme--light"
+                          style="font-size: 16px; display: none;"
+                        />
+                      </span>
+                       
+                      <span
+                        class="v-tooltip v-tooltip--bottom"
+                      >
+                        <!---->
+                        <button
+                          class="v-icon notranslate aligned v-icon--link v-icon--right mdi mdi-lock theme--light icon--hidden"
+                          style="font-size: 16px;"
+                          type="button"
+                        />
+                      </span>
                     </div>
                      
                     <div
@@ -3127,9 +3590,27 @@ exports[`Storyshots IndividualEntry No Name 1`] = `
               <td
                 class="text-center"
               >
-                
-    triddle@example.com
-  
+                <div
+                  class="v-menu v-small-dialog theme--light"
+                >
+                  <div
+                    class="v-small-dialog__activator"
+                  >
+                    <span
+                      class="v-small-dialog__activator__content"
+                    >
+                      
+      triddle@example.com
+      
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
+                        style="font-size: 16px;"
+                      />
+                    </span>
+                  </div>
+                  <!---->
+                </div>
               </td>
                
               <td
@@ -3261,12 +3742,55 @@ exports[`Storyshots IndividualEntry No Organization 1`] = `
                     <div
                       class="v-list-item__title"
                     >
-                      
-          Tom Marvolo Riddle
-          
-                      <!---->
+                      <div
+                        class="v-menu v-small-dialog theme--light"
+                      >
+                        <div
+                          class="v-small-dialog__activator"
+                        >
+                          <span
+                            class="v-small-dialog__activator__content"
+                          >
+                            
+            Tom Marvolo Riddle
+            
+                            <i
+                              aria-hidden="true"
+                              class="v-icon notranslate icon--hidden mdi mdi-lead-pencil theme--light"
+                              style="font-size: 16px;"
+                            />
+                          </span>
+                        </div>
+                        <!---->
+                      </div>
                        
-                      <!---->
+                      <span
+                        class="v-tooltip v-tooltip--bottom"
+                      >
+                        <!---->
+                        <button
+                          class="v-icon notranslate aligned v-icon--link v-icon--right mdi mdi-robot theme--light icon--hidden"
+                          style="font-size: 16px;"
+                          type="button"
+                        />
+                         
+                        <i
+                          aria-hidden="true"
+                          class="v-icon notranslate aligned v-icon--right mdi mdi-robot theme--light"
+                          style="font-size: 16px; display: none;"
+                        />
+                      </span>
+                       
+                      <span
+                        class="v-tooltip v-tooltip--bottom"
+                      >
+                        <!---->
+                        <button
+                          class="v-icon notranslate aligned v-icon--link v-icon--right mdi mdi-lock theme--light icon--hidden"
+                          style="font-size: 16px;"
+                          type="button"
+                        />
+                      </span>
                     </div>
                      
                     <div
@@ -3281,9 +3805,27 @@ exports[`Storyshots IndividualEntry No Organization 1`] = `
               <td
                 class="text-center"
               >
-                
-    triddle@example.com
-  
+                <div
+                  class="v-menu v-small-dialog theme--light"
+                >
+                  <div
+                    class="v-small-dialog__activator"
+                  >
+                    <span
+                      class="v-small-dialog__activator__content"
+                    >
+                      
+      triddle@example.com
+      
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
+                        style="font-size: 16px;"
+                      />
+                    </span>
+                  </div>
+                  <!---->
+                </div>
               </td>
                
               <td
@@ -3415,12 +3957,55 @@ exports[`Storyshots IndividualEntry Single Inital 1`] = `
                     <div
                       class="v-list-item__title"
                     >
-                      
-          Voldemort
-          
-                      <!---->
+                      <div
+                        class="v-menu v-small-dialog theme--light"
+                      >
+                        <div
+                          class="v-small-dialog__activator"
+                        >
+                          <span
+                            class="v-small-dialog__activator__content"
+                          >
+                            
+            Voldemort
+            
+                            <i
+                              aria-hidden="true"
+                              class="v-icon notranslate icon--hidden mdi mdi-lead-pencil theme--light"
+                              style="font-size: 16px;"
+                            />
+                          </span>
+                        </div>
+                        <!---->
+                      </div>
                        
-                      <!---->
+                      <span
+                        class="v-tooltip v-tooltip--bottom"
+                      >
+                        <!---->
+                        <button
+                          class="v-icon notranslate aligned v-icon--link v-icon--right mdi mdi-robot theme--light icon--hidden"
+                          style="font-size: 16px;"
+                          type="button"
+                        />
+                         
+                        <i
+                          aria-hidden="true"
+                          class="v-icon notranslate aligned v-icon--right mdi mdi-robot theme--light"
+                          style="font-size: 16px; display: none;"
+                        />
+                      </span>
+                       
+                      <span
+                        class="v-tooltip v-tooltip--bottom"
+                      >
+                        <!---->
+                        <button
+                          class="v-icon notranslate aligned v-icon--link v-icon--right mdi mdi-lock theme--light icon--hidden"
+                          style="font-size: 16px;"
+                          type="button"
+                        />
+                      </span>
                     </div>
                      
                     <div
@@ -3435,9 +4020,27 @@ exports[`Storyshots IndividualEntry Single Inital 1`] = `
               <td
                 class="text-center"
               >
-                
-    lord.voldemort@example.com
-  
+                <div
+                  class="v-menu v-small-dialog theme--light"
+                >
+                  <div
+                    class="v-small-dialog__activator"
+                  >
+                    <span
+                      class="v-small-dialog__activator__content"
+                    >
+                      
+      lord.voldemort@example.com
+      
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
+                        style="font-size: 16px;"
+                      />
+                    </span>
+                  </div>
+                  <!---->
+                </div>
               </td>
                
               <td
@@ -4356,13 +4959,13 @@ exports[`Storyshots IndividualsTable Default 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-551"
+                  for="input-644"
                   style="left: 0px; position: absolute;"
                 >
                   Search
                 </label>
                 <input
-                  id="input-551"
+                  id="input-644"
                   type="text"
                 />
               </div>
@@ -4562,6 +5165,8 @@ exports[`Storyshots IndividualsTable Default 1`] = `
     
         </div>
       </div>
+       
+      <!---->
     </div>
   </div>
 </div>
@@ -5467,13 +6072,13 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-812"
+                    for="input-952"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-812"
+                    id="input-952"
                     type="text"
                   />
                 </div>
@@ -5673,6 +6278,8 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
     
           </div>
         </div>
+         
+        <!---->
       </div>
     </div>
   </div>

@@ -228,7 +228,9 @@ describe("IndividualsTable", () => {
         addIdentity: () => {},
         updateProfile: () => {},
         enroll: () => {},
-        getCountries: () => {}
+        getCountries: () => {},
+        lockIndividual: () => {},
+        unlockIndividual: () => {}
       }
     });
     const response = await Mutations.deleteIdentity(wrapper.vm.$apollo, "5f06473815dc415c9861680de8101813d9eb18e8");
@@ -255,7 +257,9 @@ describe("IndividualsTable", () => {
         addIdentity: () => {},
         updateProfile: () => {},
         enroll: () => {},
-        getCountries: () => {}
+        getCountries: () => {},
+        lockIndividual: () => {},
+        unlockIndividual: () => {}
       }
     });
     const response = await Mutations.deleteIdentity(wrapper.vm.$apollo, "5f06473815dc415c9861680de8101813d9eb18e8");
@@ -282,7 +286,9 @@ describe("IndividualsTable", () => {
         addIdentity: () => {},
         updateProfile: () => {},
         enroll: () => {},
-        getCountries: () => {}
+        getCountries: () => {},
+        lockIndividual: () => {},
+        unlockIndividual: () => {}
       }
     });
     const response = await Mutations.unmerge(wrapper.vm.$apollo, [
@@ -312,7 +318,9 @@ describe("IndividualsTable", () => {
         addIdentity: () => {},
         updateProfile: () => {},
         enroll: () => {},
-        getCountries: () => {}
+        getCountries: () => {},
+        lockIndividual: () => {},
+        unlockIndividual: () => {}
       }
     });
     const response = await Mutations.moveIdentity(
@@ -504,7 +512,7 @@ describe("Login", () => {
         }
       }
     });
-    
+
     const response = await Mutations.tokenAuth(
       wrapper.vm.$apollo,
       "username",
