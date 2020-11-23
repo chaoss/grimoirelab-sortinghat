@@ -209,6 +209,14 @@ const tokenResponse = {
   }
 };
 
+const withdrawResponse = {
+  data: {
+    withdraw: {
+      uuid: "4df20c13824ce60c2249a9b947d6c55dc0ba26a4"
+    }
+  }
+};
+
 describe("IndividualsTable", () => {
   test("Mock query for deleteIdentity", async () => {
     const mutate = jest.fn(() => Promise.resolve(deleteResponse));
@@ -230,7 +238,8 @@ describe("IndividualsTable", () => {
         enroll: () => {},
         getCountries: () => {},
         lockIndividual: () => {},
-        unlockIndividual: () => {}
+        unlockIndividual: () => {},
+        withdraw: () => {}
       }
     });
     const response = await Mutations.deleteIdentity(wrapper.vm.$apollo, "5f06473815dc415c9861680de8101813d9eb18e8");
@@ -259,7 +268,8 @@ describe("IndividualsTable", () => {
         enroll: () => {},
         getCountries: () => {},
         lockIndividual: () => {},
-        unlockIndividual: () => {}
+        unlockIndividual: () => {},
+        withdraw: () => {}
       }
     });
     const response = await Mutations.deleteIdentity(wrapper.vm.$apollo, "5f06473815dc415c9861680de8101813d9eb18e8");
@@ -288,7 +298,8 @@ describe("IndividualsTable", () => {
         enroll: () => {},
         getCountries: () => {},
         lockIndividual: () => {},
-        unlockIndividual: () => {}
+        unlockIndividual: () => {},
+        withdraw: () => {}
       }
     });
     const response = await Mutations.unmerge(wrapper.vm.$apollo, [
@@ -320,13 +331,48 @@ describe("IndividualsTable", () => {
         enroll: () => {},
         getCountries: () => {},
         lockIndividual: () => {},
-        unlockIndividual: () => {}
+        unlockIndividual: () => {},
+        withdraw: () => {}
       }
     });
     const response = await Mutations.moveIdentity(
       wrapper.vm.$apollo,
       "5f06473815dc415c9861680de8101813d9eb18e8",
       "7eb22d2a28e3f450ad4fbe171f156a9fab1d3971"
+    );
+
+    expect(mutate).toBeCalled();
+    expect(wrapper.element).toMatchSnapshot();
+  });
+
+  test("Mock query for withdraw", async () => {
+    const mutate = jest.fn(() => Promise.resolve(withdrawResponse));
+    const wrapper = shallowMount(IndividualsTable, {
+      Vue,
+      mocks: {
+        $apollo: {
+          mutate
+        }
+      },
+      propsData: {
+        moveItem: () => {},
+        mergeItems: () => {},
+        deleteItem: () => {},
+        fetchPage: () => {},
+        unmergeItems: () => {},
+        addIdentity: () => {},
+        updateProfile: () => {},
+        enroll: () => {},
+        getCountries: () => {},
+        lockIndividual: () => {},
+        unlockIndividual: () => {},
+        withdraw: mutate
+      }
+    });
+    const response = await Mutations.withdraw(
+      wrapper.vm.$apollo,
+       "4df20c13824ce60c2249a9b947d6c55dc0ba26a4",
+      "Organization"
     );
 
     expect(mutate).toBeCalled();

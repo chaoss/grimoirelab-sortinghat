@@ -228,7 +228,8 @@ describe("IndividualsTable", () => {
         enroll: () => {},
         getCountries: () => {},
         lockIndividual: () => {},
-        unlockIndividual: () => {}
+        unlockIndividual: () => {},
+        withdraw: () => {}
       }
     });
     const response = await Queries.getPaginatedIndividuals(wrapper.vm.$apollo, 1, 1);
@@ -263,7 +264,8 @@ describe("IndividualsTable", () => {
         enroll: () => {},
         getCountries: () => {},
         lockIndividual: () => {},
-        unlockIndividual: () => {}
+        unlockIndividual: () => {},
+        withdraw: () => {}
       }
     });
 
@@ -299,7 +301,8 @@ describe("IndividualsTable", () => {
         enroll: () => {},
         getCountries: () => {},
         lockIndividual: () => {},
-        unlockIndividual: () => {}
+        unlockIndividual: () => {},
+        withdraw: () => {}
       }
     });
 
@@ -328,7 +331,8 @@ describe("IndividualsTable", () => {
         enroll: () => {},
         getCountries: query,
         lockIndividual: () => {},
-        unlockIndividual: () => {}
+        unlockIndividual: () => {},
+        withdraw: () => {}
       }
     });
     const response = await Queries.getCountries(wrapper.vm.$apollo);

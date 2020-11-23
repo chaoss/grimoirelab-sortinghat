@@ -121,7 +121,7 @@
         :key="enrollment.organization.id"
       >
         <v-list-item-content>
-          <v-row no-gutters>
+          <v-row no-gutters class="flex align-center">
             <v-col class="ma-2 text-center">
               <span>{{ enrollment.organization.name }}</span>
             </v-col>
@@ -130,6 +130,32 @@
             </v-col>
             <v-col class="col-3 ma-2 text-center">
               <span>{{ formatDate(enrollment.end) }}</span>
+            </v-col>
+            <v-col v-if="!compact">
+              <v-tooltip
+                bottom
+                transition="expand-y-transition"
+                open-delay="200"
+              >
+                <template v-slot:activator="{ on }">
+                  <v-btn
+                    icon
+                    v-on="on"
+                    @click="
+                      $emit('withdraw', {
+                        name: enrollment.organization.name,
+                        fromDate: enrollment.start,
+                        toDate: enrollment.end
+                      })
+                    "
+                  >
+                    <v-icon>
+                      mdi-delete
+                    </v-icon>
+                  </v-btn>
+                </template>
+                <span>Remove affiliation</span>
+              </v-tooltip>
             </v-col>
           </v-row>
         </v-list-item-content>
