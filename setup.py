@@ -105,7 +105,7 @@ setup(name="sortinghat",
       ],
       install_requires=[
         'PyMySQL>=0.7.0',
-        'sqlalchemy>=1.2',
+        'sqlalchemy>=1.2,<1.4',
         'jinja2==2.11.1',
         'python-dateutil>=2.6.0',
         'pandas>=0.22.0,<=0.25.3',
