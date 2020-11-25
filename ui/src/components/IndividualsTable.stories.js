@@ -20,6 +20,7 @@ const IndividualsTableTemplate = `
     :get-countries="getCountries.bind(this)"
     :lock-individual="deleteIndividual"
     :unlock-individual="deleteIndividual"
+    :update-enrollment="deleteIndividual"
     :withdraw="deleteIndividual"
   />
 `;

@@ -97,6 +97,7 @@
           @edit="updateProfileInfo($event, item.uuid)"
           @unmerge="unmerge($event)"
           @withdraw="removeAffiliation($event, item.uuid)"
+          @updateEnrollment="updateEnrollmentDate"
         />
       </template>
     </v-data-table>
@@ -223,6 +224,10 @@ export default {
     unlockIndividual: {
       type: Function,
       required: true
+    },
+    updateEnrollment: {
+      type: Function,
+      required: false
     },
     withdraw: {
       type: Function,
@@ -403,6 +408,21 @@ export default {
           this.$emit("updateWorkspace", {
             update: formatIndividuals([response.data.withdraw.individual])
           });
+        }
+      } catch (error) {
+        Object.assign(this.snackbar, { open: true, text: error });
+      }
+    },
+    async updateEnrollmentDate(data) {
+      try {
+        const response = await this.updateEnrollment(data);
+        if (response && response.data.updateEnrollment) {
+          this.$emit("updateWorkspace", {
+            update: formatIndividuals([
+              response.data.updateEnrollment.individual
+            ])
+          });
+          this.queryIndividuals();
         }
       } catch (error) {
         Object.assign(this.snackbar, { open: true, text: error });
