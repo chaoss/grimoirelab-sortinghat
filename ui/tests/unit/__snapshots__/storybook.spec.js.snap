@@ -354,7 +354,7 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
             class="v-list-item__content"
           >
             <div
-              class="row no-gutters"
+              class="row flex align-center no-gutters"
             >
               <div
                 class="ma-2 text-center col"
@@ -379,6 +379,8 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
                   1998-05-02
                 </span>
               </div>
+               
+              <!---->
             </div>
           </div>
         </div>
@@ -391,7 +393,7 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
             class="v-list-item__content"
           >
             <div
-              class="row no-gutters"
+              class="row flex align-center no-gutters"
             >
               <div
                 class="ma-2 text-center col"
@@ -416,6 +418,8 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
                   1945-06-02
                 </span>
               </div>
+               
+              <!---->
             </div>
           </div>
         </div>
@@ -1014,7 +1018,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
             class="v-list-item__content"
           >
             <div
-              class="row no-gutters"
+              class="row flex align-center no-gutters"
             >
               <div
                 class="ma-2 text-center col"
@@ -1039,6 +1043,29 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
                   1998-05-02
                 </span>
               </div>
+               
+              <div
+                class="col"
+              >
+                <span
+                  class="v-tooltip v-tooltip--bottom"
+                >
+                  <!---->
+                  <button
+                    class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                    type="button"
+                  >
+                    <span
+                      class="v-btn__content"
+                    >
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate mdi mdi-delete theme--light"
+                      />
+                    </span>
+                  </button>
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -1051,7 +1078,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
             class="v-list-item__content"
           >
             <div
-              class="row no-gutters"
+              class="row flex align-center no-gutters"
             >
               <div
                 class="ma-2 text-center col"
@@ -1074,6 +1101,29 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
               >
                 <span>
                   1945-06-02
+                </span>
+              </div>
+               
+              <div
+                class="col"
+              >
+                <span
+                  class="v-tooltip v-tooltip--bottom"
+                >
+                  <!---->
+                  <button
+                    class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                    type="button"
+                  >
+                    <span
+                      class="v-btn__content"
+                    >
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate mdi mdi-delete theme--light"
+                      />
+                    </span>
+                  </button>
                 </span>
               </div>
             </div>
@@ -4959,13 +5009,13 @@ exports[`Storyshots IndividualsTable Default 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-644"
+                  for="input-650"
                   style="left: 0px; position: absolute;"
                 >
                   Search
                 </label>
                 <input
-                  id="input-644"
+                  id="input-650"
                   type="text"
                 />
               </div>
@@ -6072,13 +6122,13 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-952"
+                    for="input-958"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-952"
+                    id="input-958"
                     type="text"
                   />
                 </div>

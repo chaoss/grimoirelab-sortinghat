@@ -26,6 +26,7 @@
           :get-countries="getCountries"
           :lock-individual="lockIndividual"
           :unlock-individual="unlockIndividual"
+          :withdraw="withdraw"
           @saveIndividual="addSavedIndividual"
           @updateWorkspace="updateWorkspace"
           @highlight="highlightIndividual($event, 'highlightInWorkspace', true)"
@@ -71,7 +72,8 @@ import {
   deleteDomain,
   updateProfile,
   lockIndividual,
-  unlockIndividual
+  unlockIndividual,
+  withdraw
 } from "../apollo/mutations";
 import IndividualsTable from "../components/IndividualsTable";
 import OrganizationsTable from "../components/OrganizationsTable";
@@ -213,6 +215,16 @@ export default {
     },
     async unlockIndividual(uuid) {
       const response = await unlockIndividual(this.$apollo, uuid);
+      return response;
+    },
+    async withdraw(uuid, organization, fromDate, toDate) {
+      const response = await withdraw(
+        this.$apollo,
+        uuid,
+        organization,
+        fromDate,
+        toDate
+      );
       return response;
     }
   }

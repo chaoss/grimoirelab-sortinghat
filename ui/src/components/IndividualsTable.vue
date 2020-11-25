@@ -111,6 +111,7 @@
           :get-countries="getCountries"
           @edit="updateProfileInfo($event, item.uuid)"
           @unmerge="unmerge($event)"
+          @withdraw="removeAffiliation($event, item.uuid)"
         />
       </template>
     </v-data-table>
@@ -229,6 +230,10 @@ export default {
       required: true
     },
     unlockIndividual: {
+      type: Function,
+      required: true
+    },
+    withdraw: {
       type: Function,
       required: true
     }
@@ -401,6 +406,24 @@ export default {
         } catch (error) {
           Object.assign(this.snackbar, { open: true, text: error });
         }
+      }
+    },
+    async removeAffiliation(organization, uuid) {
+      try {
+        const response = await this.withdraw(
+          uuid,
+          organization.name,
+          organization.fromDate,
+          organization.toDate
+        );
+        if (response && response.data.withdraw) {
+          this.queryIndividuals();
+          this.$emit("updateWorkspace", {
+            update: formatIndividuals([response.data.withdraw.individual])
+          });
+        }
+      } catch (error) {
+        Object.assign(this.snackbar, { open: true, text: error });
       }
     }
   },

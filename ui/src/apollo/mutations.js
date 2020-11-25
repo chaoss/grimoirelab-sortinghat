@@ -245,6 +245,51 @@ const DELETE_DOMAIN = gql`
   }
 `;
 
+const WITHDRAW = gql`
+  mutation withdraw(
+    $uuid: String!
+    $organization: String!
+    $fromDate: DateTime
+    $toDate: DateTime
+  ) {
+    withdraw(
+      uuid: $uuid
+      organization: $organization
+      fromDate: $fromDate
+      toDate: $toDate
+    ) {
+      uuid
+      individual {
+        isLocked
+        identities {
+          uuid
+          name
+          email
+          username
+          source
+        }
+        profile {
+          name
+          email
+          gender
+          isBot
+          country {
+            code
+            name
+          }
+        }
+        enrollments {
+          start
+          end
+          organization {
+            name
+          }
+        }
+      }
+    }
+  }
+`;
+
 const tokenAuth = (apollo, username, password) => {
   const response = apollo.mutate({
     mutation: TOKEN_AUTH,
@@ -384,6 +429,19 @@ const deleteDomain = (apollo, domain) => {
   return response;
 };
 
+const withdraw = (apollo, uuid, organization, fromDate, toDate) => {
+  let response = apollo.mutate({
+    mutation: WITHDRAW,
+    variables: {
+      uuid: uuid,
+      organization: organization,
+      fromDate: fromDate,
+      toDate: toDate
+    }
+  });
+  return response;
+};
+
 export {
   tokenAuth,
   lockIndividual,
@@ -397,5 +455,6 @@ export {
   addDomain,
   deleteDomain,
   addIdentity,
-  updateProfile
+  updateProfile,
+  withdraw
 };
