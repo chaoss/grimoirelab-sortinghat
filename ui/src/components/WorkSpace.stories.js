@@ -35,6 +35,7 @@ const dragAndDropTemplate = `
     :get-countries="getCountries.bind(this)"
     :lock-individual="deleteItem"
     :unlock-individual="deleteItem"
+    :update-enrollment="deleteItem"
     @highlight="highlightIndividual($event, 'highlightInWorkspace', true)"
     @stopHighlight="highlightIndividual($event, 'highlightInWorkspace', false)"
     ref="table"

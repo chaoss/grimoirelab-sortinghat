@@ -111,6 +111,7 @@
           :get-countries="getCountries"
           @edit="updateProfileInfo($event, item.uuid)"
           @unmerge="unmerge($event)"
+          @updateEnrollment="updateEnrollmentDate"
         />
       </template>
     </v-data-table>
@@ -231,6 +232,10 @@ export default {
     unlockIndividual: {
       type: Function,
       required: true
+    },
+    updateEnrollment: {
+      type: Function,
+      required: false
     }
   },
   data() {
@@ -401,6 +406,16 @@ export default {
         } catch (error) {
           Object.assign(this.snackbar, { open: true, text: error });
         }
+      }
+    },
+    async updateEnrollmentDate(data) {
+      try {
+        const response = this.updateEnrollment(data);
+        if (response) {
+          this.queryIndividuals();
+        }
+      } catch (error) {
+        Object.assign(this.snackbar, { open: true, text: error });
       }
     }
   },

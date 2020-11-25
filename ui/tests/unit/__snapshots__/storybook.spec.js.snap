@@ -1027,17 +1027,53 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
               <div
                 class="col-3 ma-2 text-center col"
               >
-                <span>
-                  1938-09-01
-                </span>
+                <div
+                  class="v-menu v-small-dialog theme--light"
+                >
+                  <div
+                    class="v-small-dialog__activator"
+                  >
+                    <span
+                      class="v-small-dialog__activator__content"
+                    >
+                      
+              1938-09-01
+              
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
+                        style="font-size: 16px;"
+                      />
+                    </span>
+                  </div>
+                  <!---->
+                </div>
               </div>
                
               <div
                 class="col-3 ma-2 text-center col"
               >
-                <span>
-                  1998-05-02
-                </span>
+                <div
+                  class="v-menu v-small-dialog theme--light"
+                >
+                  <div
+                    class="v-small-dialog__activator"
+                  >
+                    <span
+                      class="v-small-dialog__activator__content"
+                    >
+                      
+              1998-05-02
+              
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
+                        style="font-size: 16px;"
+                      />
+                    </span>
+                  </div>
+                  <!---->
+                </div>
               </div>
             </div>
           </div>
@@ -1064,17 +1100,53 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
               <div
                 class="col-3 ma-2 text-center col"
               >
-                <span>
-                  1938-09-01
-                </span>
+                <div
+                  class="v-menu v-small-dialog theme--light"
+                >
+                  <div
+                    class="v-small-dialog__activator"
+                  >
+                    <span
+                      class="v-small-dialog__activator__content"
+                    >
+                      
+              1938-09-01
+              
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
+                        style="font-size: 16px;"
+                      />
+                    </span>
+                  </div>
+                  <!---->
+                </div>
               </div>
                
               <div
                 class="col-3 ma-2 text-center col"
               >
-                <span>
-                  1945-06-02
-                </span>
+                <div
+                  class="v-menu v-small-dialog theme--light"
+                >
+                  <div
+                    class="v-small-dialog__activator"
+                  >
+                    <span
+                      class="v-small-dialog__activator__content"
+                    >
+                      
+              1945-06-02
+              
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
+                        style="font-size: 16px;"
+                      />
+                    </span>
+                  </div>
+                  <!---->
+                </div>
               </div>
             </div>
           </div>
@@ -4959,13 +5031,13 @@ exports[`Storyshots IndividualsTable Default 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-644"
+                  for="input-656"
                   style="left: 0px; position: absolute;"
                 >
                   Search
                 </label>
                 <input
-                  id="input-644"
+                  id="input-656"
                   type="text"
                 />
               </div>
@@ -6072,13 +6144,13 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-952"
+                    for="input-964"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-952"
+                    id="input-964"
                     type="text"
                   />
                 </div>

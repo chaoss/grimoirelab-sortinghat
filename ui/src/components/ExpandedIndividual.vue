@@ -117,7 +117,7 @@
       <v-subheader>Organizations ({{ enrollments.length }})</v-subheader>
 
       <v-list-item
-        v-for="enrollment in enrollments"
+        v-for="(enrollment, index) in enrollments"
         :key="enrollment.organization.id"
       >
         <v-list-item-content>
@@ -126,10 +126,100 @@
               <span>{{ enrollment.organization.name }}</span>
             </v-col>
             <v-col class="col-3 ma-2 text-center">
-              <span>{{ formatDate(enrollment.start) }}</span>
+              <span v-if="isLocked || compact">
+                {{ formatDate(enrollment.start) }}
+              </span>
+              <v-edit-dialog
+                v-else
+                @close="
+                  $emit('updateEnrollment', {
+                    fromDate: enrollment.start,
+                    toDate: enrollment.end,
+                    newFromDate: new Date(
+                      enrollmentsForm[index].fromDate
+                    ).toISOString(),
+                    organization: enrollment.organization.name,
+                    uuid: uuid
+                  })
+                "
+              >
+                {{ formatDate(enrollment.start) }}
+                <v-icon small right>
+                  mdi-lead-pencil
+                </v-icon>
+                <template v-slot:input>
+                  <v-menu
+                    v-model="enrollmentsForm[index].fromDateMenu"
+                    :close-on-content-click="false"
+                    transition="scale-transition"
+                    offset-y
+                    min-width="290px"
+                  >
+                    <template v-slot:activator="{ on }">
+                      <v-text-field
+                        v-model="enrollmentsForm[index].fromDate"
+                        readonly
+                        v-on="on"
+                      ></v-text-field>
+                    </template>
+                    <v-date-picker
+                      v-model="enrollmentsForm[index].fromDate"
+                      @input="enrollmentsForm[index].fromDateMenu = false"
+                      no-title
+                      scrollable
+                    >
+                    </v-date-picker>
+                  </v-menu>
+                </template>
+              </v-edit-dialog>
             </v-col>
             <v-col class="col-3 ma-2 text-center">
-              <span>{{ formatDate(enrollment.end) }}</span>
+              <span v-if="isLocked || compact">
+                {{ formatDate(enrollment.end) }}
+              </span>
+              <v-edit-dialog
+                v-else
+                @close="
+                  $emit('updateEnrollment', {
+                    fromDate: enrollment.start,
+                    toDate: enrollment.end,
+                    newToDate: new Date(
+                      enrollmentsForm[index].toDate
+                    ).toISOString(),
+                    organization: enrollment.organization.name,
+                    uuid: uuid
+                  })
+                "
+              >
+                {{ formatDate(enrollment.end) }}
+                <v-icon small right>
+                  mdi-lead-pencil
+                </v-icon>
+                <template v-slot:input>
+                  <v-menu
+                    v-model="enrollmentsForm[index].toDateMenu"
+                    :close-on-content-click="false"
+                    transition="scale-transition"
+                    offset-y
+                    min-width="290px"
+                  >
+                    <template v-slot:activator="{ on }">
+                      <v-text-field
+                        v-model="enrollmentsForm[index].toDate"
+                        readonly
+                        v-on="on"
+                      ></v-text-field>
+                    </template>
+                    <v-date-picker
+                      v-model="enrollmentsForm[index].toDate"
+                      @input="enrollmentsForm[index].toDateMenu = false"
+                      no-title
+                      scrollable
+                    >
+                    </v-date-picker>
+                  </v-menu>
+                </template>
+              </v-edit-dialog>
             </v-col>
           </v-row>
         </v-list-item-content>
@@ -196,7 +286,8 @@ export default {
         gender: this.gender,
         country: this.country,
         isBot: this.isBot
-      }
+      },
+      enrollmentsForm: []
     };
   },
   methods: {
@@ -249,6 +340,16 @@ export default {
     sources() {
       return this.identities.map(identity => identity.name);
     }
+  },
+  created() {
+    this.enrollments.forEach(enrollment => {
+      this.enrollmentsForm.push({
+        fromDate: this.formatDate(enrollment.start),
+        fromDateMenu: false,
+        toDate: this.formatDate(enrollment.end),
+        toDateMenu: false
+      });
+    });
   }
 };
 </script>
