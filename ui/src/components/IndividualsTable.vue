@@ -7,23 +7,7 @@
         </v-icon>
         Individuals
       </h4>
-      <v-hover v-slot="{ hover }">
-        <v-text-field
-          v-model.trim="filters.term"
-          append-outer-icon="mdi-magnify"
-          class="search ma-0 ml-auto pa-0 flex-grow-0"
-          :class="{ 'search--hover': hover, 'search--hidden': !filters.term }"
-          clearable
-          :error="disabledSearch"
-          hint="min. 3 characters"
-          label="Search"
-          persistent-hint
-          type="text"
-          @click:append-outer="queryIndividuals(1)"
-          @keyup.enter="queryIndividuals(1)"
-          @click:clear="clearSearch"
-        />
-      </v-hover>
+      <search class="ma-0 ml-auto pa-0 flex-grow-0" @search="filterSearch" />
       <div>
         <v-tooltip bottom transition="expand-y-transition" open-delay="200">
           <template v-slot:activator="{ on }">
@@ -171,13 +155,15 @@ import {
 import IndividualEntry from "./IndividualEntry.vue";
 import ExpandedIndividual from "./ExpandedIndividual.vue";
 import ProfileModal from "./ProfileModal.vue";
+import Search from "./Search.vue";
 
 export default {
   name: "IndividualsTable",
   components: {
     IndividualEntry,
     ExpandedIndividual,
-    ProfileModal
+    ProfileModal,
+    Search
   },
   props: {
     fetchPage: {
@@ -240,9 +226,7 @@ export default {
   },
   data() {
     return {
-      filters: {
-        term: ""
-      },
+      filters: {},
       headers: [
         { value: "name" },
         { value: "email" },
@@ -272,9 +256,6 @@ export default {
     },
     disabledMerge() {
       return this.selectedIndividuals.length < 2;
-    },
-    disabledSearch() {
-      return this.filters.term.length !== 0 && this.filters.term.length < 3;
     },
     selectedIndividuals() {
       return this.individuals.filter(individual => individual.isSelected);
@@ -370,10 +351,6 @@ export default {
         });
       }
     },
-    clearSearch() {
-      this.$set(this.filters, "term", "");
-      this.queryIndividuals(1);
-    },
     async updateProfileInfo(data, uuid) {
       try {
         const response = await this.updateProfile(data, uuid);
@@ -425,11 +402,10 @@ export default {
       } catch (error) {
         Object.assign(this.snackbar, { open: true, text: error });
       }
-    }
-  },
-  watch: {
-    "filters.term"(value) {
-      this.$set(this.filters, "term", value || "");
+    },
+    filterSearch(filters) {
+      this.filters = filters;
+      this.queryIndividuals(1);
     }
   }
 };
@@ -457,21 +433,5 @@ export default {
   max-width: 300px;
   position: absolute;
   top: -300px;
-}
-
-.search {
-  max-width: 256px;
-  &--hidden {
-    width: 33px;
-    transition: width 0.5s;
-
-    ::v-deep .v-text-field__details {
-      max-width: 0;
-      height: 14px;
-    }
-  }
-  &--hover {
-    width: 256px;
-  }
 }
 </style>

@@ -24,9 +24,8 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
     
     </h4>
      
-    <v-hover-stub
-      closedelay="0"
-      opendelay="0"
+    <search-stub
+      class="ma-0 ml-auto pa-0 flex-grow-0"
     />
      
     <div>
@@ -164,9 +163,11 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
     headers="[object Object],[object Object],[object Object],[object Object]"
     hidedefaultfooter="true"
     hidedefaultheader="true"
+    itemclass=""
     itemkey="uuid"
     items=""
     itemsperpage="10"
+    loaderheight="4"
     loadingtext="$vuetify.dataIterator.loadingText"
     locale="en-US"
     mobilebreakpoint="600"
@@ -185,11 +186,16 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
     class="text-center pt-2"
   >
     <v-pagination-stub
+      currentpagearialabel="$vuetify.pagination.ariaLabel.currentPage"
       length="0"
+      nextarialabel="$vuetify.pagination.ariaLabel.next"
       nexticon="$next"
+      pagearialabel="$vuetify.pagination.ariaLabel.page"
       previcon="$prev"
+      previousarialabel="$vuetify.pagination.ariaLabel.previous"
       totalvisible="7"
       value="0"
+      wrapperarialabel="$vuetify.pagination.ariaLabel.wrapper"
     />
   </div>
    
@@ -268,7 +274,10 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
   </v-card-stub>
    
   <v-snackbar-stub
-    timeout="6000"
+    contentclass=""
+    tag="div"
+    timeout="5000"
+    transition="v-snack-transition"
   >
     
     
@@ -301,9 +310,8 @@ exports[`IndividualsTable Mock query for merge 1`] = `
     
     </h4>
      
-    <v-hover-stub
-      closedelay="0"
-      opendelay="0"
+    <search-stub
+      class="ma-0 ml-auto pa-0 flex-grow-0"
     />
      
     <div>
@@ -441,9 +449,11 @@ exports[`IndividualsTable Mock query for merge 1`] = `
     headers="[object Object],[object Object],[object Object],[object Object]"
     hidedefaultfooter="true"
     hidedefaultheader="true"
+    itemclass=""
     itemkey="uuid"
     items=""
     itemsperpage="10"
+    loaderheight="4"
     loadingtext="$vuetify.dataIterator.loadingText"
     locale="en-US"
     mobilebreakpoint="600"
@@ -462,11 +472,16 @@ exports[`IndividualsTable Mock query for merge 1`] = `
     class="text-center pt-2"
   >
     <v-pagination-stub
+      currentpagearialabel="$vuetify.pagination.ariaLabel.currentPage"
       length="0"
+      nextarialabel="$vuetify.pagination.ariaLabel.next"
       nexticon="$next"
+      pagearialabel="$vuetify.pagination.ariaLabel.page"
       previcon="$prev"
+      previousarialabel="$vuetify.pagination.ariaLabel.previous"
       totalvisible="7"
       value="0"
+      wrapperarialabel="$vuetify.pagination.ariaLabel.wrapper"
     />
   </div>
    
@@ -545,7 +560,10 @@ exports[`IndividualsTable Mock query for merge 1`] = `
   </v-card-stub>
    
   <v-snackbar-stub
-    timeout="6000"
+    contentclass=""
+    tag="div"
+    timeout="5000"
+    transition="v-snack-transition"
   >
     
     
@@ -578,9 +596,8 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
     
     </h4>
      
-    <v-hover-stub
-      closedelay="0"
-      opendelay="0"
+    <search-stub
+      class="ma-0 ml-auto pa-0 flex-grow-0"
     />
      
     <div>
@@ -718,9 +735,11 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
     headers="[object Object],[object Object],[object Object],[object Object]"
     hidedefaultfooter="true"
     hidedefaultheader="true"
+    itemclass=""
     itemkey="uuid"
     items=""
     itemsperpage="10"
+    loaderheight="4"
     loadingtext="$vuetify.dataIterator.loadingText"
     locale="en-US"
     mobilebreakpoint="600"
@@ -739,11 +758,16 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
     class="text-center pt-2"
   >
     <v-pagination-stub
+      currentpagearialabel="$vuetify.pagination.ariaLabel.currentPage"
       length="0"
+      nextarialabel="$vuetify.pagination.ariaLabel.next"
       nexticon="$next"
+      pagearialabel="$vuetify.pagination.ariaLabel.page"
       previcon="$prev"
+      previousarialabel="$vuetify.pagination.ariaLabel.previous"
       totalvisible="7"
       value="0"
+      wrapperarialabel="$vuetify.pagination.ariaLabel.wrapper"
     />
   </div>
    
@@ -822,7 +846,10 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
   </v-card-stub>
    
   <v-snackbar-stub
-    timeout="6000"
+    contentclass=""
+    tag="div"
+    timeout="5000"
+    transition="v-snack-transition"
   >
     
     
@@ -855,9 +882,8 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
     
     </h4>
      
-    <v-hover-stub
-      closedelay="0"
-      opendelay="0"
+    <search-stub
+      class="ma-0 ml-auto pa-0 flex-grow-0"
     />
      
     <div>
@@ -995,9 +1021,11 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
     headers="[object Object],[object Object],[object Object],[object Object]"
     hidedefaultfooter="true"
     hidedefaultheader="true"
+    itemclass=""
     itemkey="uuid"
     items=""
     itemsperpage="10"
+    loaderheight="4"
     loadingtext="$vuetify.dataIterator.loadingText"
     locale="en-US"
     mobilebreakpoint="600"
@@ -1016,11 +1044,16 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
     class="text-center pt-2"
   >
     <v-pagination-stub
+      currentpagearialabel="$vuetify.pagination.ariaLabel.currentPage"
       length="0"
+      nextarialabel="$vuetify.pagination.ariaLabel.next"
       nexticon="$next"
+      pagearialabel="$vuetify.pagination.ariaLabel.page"
       previcon="$prev"
+      previousarialabel="$vuetify.pagination.ariaLabel.previous"
       totalvisible="7"
       value="0"
+      wrapperarialabel="$vuetify.pagination.ariaLabel.wrapper"
     />
   </div>
    
@@ -1099,7 +1132,10 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
   </v-card-stub>
    
   <v-snackbar-stub
-    timeout="6000"
+    contentclass=""
+    tag="div"
+    timeout="5000"
+    transition="v-snack-transition"
   >
     
     
@@ -1386,7 +1422,7 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
 `;
 
 exports[`Login Mock mutation for tokenAuth 1`] = `
-<v-content-stub
+<v-main-stub
   class="align-center"
   tag="main"
 >
@@ -1459,7 +1495,7 @@ exports[`Login Mock mutation for tokenAuth 1`] = `
       </v-form-stub>
     </v-card-text-stub>
   </v-card-stub>
-</v-content-stub>
+</v-main-stub>
 `;
 
 exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
@@ -1575,9 +1611,11 @@ exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
     headers="[object Object],[object Object],[object Object]"
     hidedefaultfooter="true"
     hidedefaultheader="true"
+    itemclass=""
     itemkey="id"
     items=""
     itemsperpage="10"
+    loaderheight="4"
     loadingtext="$vuetify.dataIterator.loadingText"
     locale="en-US"
     mobilebreakpoint="600"
@@ -1596,11 +1634,16 @@ exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
     class="text-center pt-2"
   >
     <v-pagination-stub
+      currentpagearialabel="$vuetify.pagination.ariaLabel.currentPage"
       length="0"
+      nextarialabel="$vuetify.pagination.ariaLabel.next"
       nexticon="$next"
+      pagearialabel="$vuetify.pagination.ariaLabel.page"
       previcon="$prev"
+      previousarialabel="$vuetify.pagination.ariaLabel.previous"
       totalvisible="5"
       value="0"
+      wrapperarialabel="$vuetify.pagination.ariaLabel.wrapper"
     />
   </div>
    
@@ -1667,7 +1710,10 @@ exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
   </v-dialog-stub>
    
   <v-snackbar-stub
-    timeout="6000"
+    contentclass=""
+    tag="div"
+    timeout="5000"
+    transition="v-snack-transition"
   >
     
     
@@ -1789,9 +1835,11 @@ exports[`OrganizationsTable Mock mutation for addOrganization 1`] = `
     headers="[object Object],[object Object],[object Object]"
     hidedefaultfooter="true"
     hidedefaultheader="true"
+    itemclass=""
     itemkey="id"
     items=""
     itemsperpage="10"
+    loaderheight="4"
     loadingtext="$vuetify.dataIterator.loadingText"
     locale="en-US"
     mobilebreakpoint="600"
@@ -1810,11 +1858,16 @@ exports[`OrganizationsTable Mock mutation for addOrganization 1`] = `
     class="text-center pt-2"
   >
     <v-pagination-stub
+      currentpagearialabel="$vuetify.pagination.ariaLabel.currentPage"
       length="0"
+      nextarialabel="$vuetify.pagination.ariaLabel.next"
       nexticon="$next"
+      pagearialabel="$vuetify.pagination.ariaLabel.page"
       previcon="$prev"
+      previousarialabel="$vuetify.pagination.ariaLabel.previous"
       totalvisible="5"
       value="0"
+      wrapperarialabel="$vuetify.pagination.ariaLabel.wrapper"
     />
   </div>
    
@@ -1881,7 +1934,10 @@ exports[`OrganizationsTable Mock mutation for addOrganization 1`] = `
   </v-dialog-stub>
    
   <v-snackbar-stub
-    timeout="6000"
+    contentclass=""
+    tag="div"
+    timeout="5000"
+    transition="v-snack-transition"
   >
     
     
@@ -2003,9 +2059,11 @@ exports[`OrganizationsTable Mock mutation for deleteDomain 1`] = `
     headers="[object Object],[object Object],[object Object]"
     hidedefaultfooter="true"
     hidedefaultheader="true"
+    itemclass=""
     itemkey="id"
     items=""
     itemsperpage="10"
+    loaderheight="4"
     loadingtext="$vuetify.dataIterator.loadingText"
     locale="en-US"
     mobilebreakpoint="600"
@@ -2024,11 +2082,16 @@ exports[`OrganizationsTable Mock mutation for deleteDomain 1`] = `
     class="text-center pt-2"
   >
     <v-pagination-stub
+      currentpagearialabel="$vuetify.pagination.ariaLabel.currentPage"
       length="0"
+      nextarialabel="$vuetify.pagination.ariaLabel.next"
       nexticon="$next"
+      pagearialabel="$vuetify.pagination.ariaLabel.page"
       previcon="$prev"
+      previousarialabel="$vuetify.pagination.ariaLabel.previous"
       totalvisible="5"
       value="0"
+      wrapperarialabel="$vuetify.pagination.ariaLabel.wrapper"
     />
   </div>
    
@@ -2095,7 +2158,10 @@ exports[`OrganizationsTable Mock mutation for deleteDomain 1`] = `
   </v-dialog-stub>
    
   <v-snackbar-stub
-    timeout="6000"
+    contentclass=""
+    tag="div"
+    timeout="5000"
+    transition="v-snack-transition"
   >
     
     
@@ -2217,9 +2283,11 @@ exports[`OrganizationsTable Mock mutation for enroll 1`] = `
     headers="[object Object],[object Object],[object Object]"
     hidedefaultfooter="true"
     hidedefaultheader="true"
+    itemclass=""
     itemkey="id"
     items=""
     itemsperpage="10"
+    loaderheight="4"
     loadingtext="$vuetify.dataIterator.loadingText"
     locale="en-US"
     mobilebreakpoint="600"
@@ -2238,11 +2306,16 @@ exports[`OrganizationsTable Mock mutation for enroll 1`] = `
     class="text-center pt-2"
   >
     <v-pagination-stub
+      currentpagearialabel="$vuetify.pagination.ariaLabel.currentPage"
       length="0"
+      nextarialabel="$vuetify.pagination.ariaLabel.next"
       nexticon="$next"
+      pagearialabel="$vuetify.pagination.ariaLabel.page"
       previcon="$prev"
+      previousarialabel="$vuetify.pagination.ariaLabel.previous"
       totalvisible="5"
       value="0"
+      wrapperarialabel="$vuetify.pagination.ariaLabel.wrapper"
     />
   </div>
    
@@ -2307,7 +2380,10 @@ exports[`OrganizationsTable Mock mutation for enroll 1`] = `
   </v-dialog-stub>
    
   <v-snackbar-stub
-    timeout="6000"
+    contentclass=""
+    tag="div"
+    timeout="5000"
+    transition="v-snack-transition"
   >
     
     
@@ -2487,9 +2563,9 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
               valuecomparator="function deepEqual(a, b) {
           if (a === b) return true;
 
-          if (a instanceof Date && b instanceof Date) {
-            // If the values are Date, they were convert to timestamp with getTime and compare it
-            if (a.getTime() !== b.getTime()) return false;
+          if (a instanceof Date && b instanceof Date && a.getTime() !== b.getTime()) {
+            // If the values are Date, compare them as timestamps
+            return false;
           }
 
           if (a !== Object(a) || b !== Object(b)) {
@@ -2531,9 +2607,9 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
               valuecomparator="function deepEqual(a, b) {
           if (a === b) return true;
 
-          if (a instanceof Date && b instanceof Date) {
-            // If the values are Date, they were convert to timestamp with getTime and compare it
-            if (a.getTime() !== b.getTime()) return false;
+          if (a instanceof Date && b instanceof Date && a.getTime() !== b.getTime()) {
+            // If the values are Date, compare them as timestamps
+            return false;
           }
 
           if (a !== Object(a) || b !== Object(b)) {
@@ -2562,7 +2638,7 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
         tag="div"
       >
         <span
-          class="title font-weight-regular pl-16"
+          class="text-h6 font-weight-regular"
         >
           Organizations
         </span>
@@ -2619,8 +2695,12 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
               firstdayofweek="0"
               localefirstdayofyear="0"
               nexticon="$next"
+              nextmontharialabel="$vuetify.datePicker.nextMonthAriaLabel"
+              nextyeararialabel="$vuetify.datePicker.nextYearAriaLabel"
               notitle="true"
               previcon="$prev"
+              prevmontharialabel="$vuetify.datePicker.prevMonthAriaLabel"
+              prevyeararialabel="$vuetify.datePicker.prevYearAriaLabel"
               scrollable="true"
               selecteditemstext="$vuetify.datePicker.itemsSelected"
               showcurrent="true"
@@ -2660,8 +2740,12 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
               localefirstdayofyear="0"
               min=""
               nexticon="$next"
+              nextmontharialabel="$vuetify.datePicker.nextMonthAriaLabel"
+              nextyeararialabel="$vuetify.datePicker.nextYearAriaLabel"
               notitle="true"
               previcon="$prev"
+              prevmontharialabel="$vuetify.datePicker.prevMonthAriaLabel"
+              prevyeararialabel="$vuetify.datePicker.prevYearAriaLabel"
               scrollable="true"
               selecteditemstext="$vuetify.datePicker.itemsSelected"
               showcurrent="true"
@@ -2923,9 +3007,9 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
               valuecomparator="function deepEqual(a, b) {
           if (a === b) return true;
 
-          if (a instanceof Date && b instanceof Date) {
-            // If the values are Date, they were convert to timestamp with getTime and compare it
-            if (a.getTime() !== b.getTime()) return false;
+          if (a instanceof Date && b instanceof Date && a.getTime() !== b.getTime()) {
+            // If the values are Date, compare them as timestamps
+            return false;
           }
 
           if (a !== Object(a) || b !== Object(b)) {
@@ -2967,9 +3051,9 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
               valuecomparator="function deepEqual(a, b) {
           if (a === b) return true;
 
-          if (a instanceof Date && b instanceof Date) {
-            // If the values are Date, they were convert to timestamp with getTime and compare it
-            if (a.getTime() !== b.getTime()) return false;
+          if (a instanceof Date && b instanceof Date && a.getTime() !== b.getTime()) {
+            // If the values are Date, compare them as timestamps
+            return false;
           }
 
           if (a !== Object(a) || b !== Object(b)) {
@@ -2998,7 +3082,7 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
         tag="div"
       >
         <span
-          class="title font-weight-regular pl-16"
+          class="text-h6 font-weight-regular"
         >
           Organizations
         </span>
@@ -3055,8 +3139,12 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
               firstdayofweek="0"
               localefirstdayofyear="0"
               nexticon="$next"
+              nextmontharialabel="$vuetify.datePicker.nextMonthAriaLabel"
+              nextyeararialabel="$vuetify.datePicker.nextYearAriaLabel"
               notitle="true"
               previcon="$prev"
+              prevmontharialabel="$vuetify.datePicker.prevMonthAriaLabel"
+              prevyeararialabel="$vuetify.datePicker.prevYearAriaLabel"
               scrollable="true"
               selecteditemstext="$vuetify.datePicker.itemsSelected"
               showcurrent="true"
@@ -3096,8 +3184,12 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
               localefirstdayofyear="0"
               min=""
               nexticon="$next"
+              nextmontharialabel="$vuetify.datePicker.nextMonthAriaLabel"
+              nextyeararialabel="$vuetify.datePicker.nextYearAriaLabel"
               notitle="true"
               previcon="$prev"
+              prevmontharialabel="$vuetify.datePicker.prevMonthAriaLabel"
+              prevyeararialabel="$vuetify.datePicker.prevYearAriaLabel"
               scrollable="true"
               selecteditemstext="$vuetify.datePicker.itemsSelected"
               showcurrent="true"

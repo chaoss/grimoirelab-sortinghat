@@ -30,11 +30,13 @@ export const Default = () => ({
   methods: {
     queryIndividuals(page, items, filters) {
       const results =  JSON.parse(JSON.stringify(this.query[page - 1]));
-      results.data.individuals.entities = results.data.individuals.entities
-      .filter(individual => individual.profile.name
-        .toUpperCase()
-        .includes(filters.term.toUpperCase())
-      );
+      if (filters.term) {
+        results.data.individuals.entities = results.data.individuals.entities
+        .filter(individual => individual.profile.name
+          .toUpperCase()
+          .includes(filters.term.toUpperCase())
+        );
+      }
       return results;
     },
     deleteIndividual() {
