@@ -19,7 +19,7 @@
             </v-col>
           </v-row>
           <v-row class="pl-4">
-            <span class="title font-weight-regular pl-16">Domains</span>
+            <span class="text-h6 font-weight-regular">Domains</span>
           </v-row>
           <v-row v-for="(domain, index) in form.domains" :key="index">
             <v-col cols="10">

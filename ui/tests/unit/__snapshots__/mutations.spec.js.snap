@@ -1168,9 +1168,8 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
     
     </h4>
      
-    <v-hover-stub
-      closedelay="0"
-      opendelay="0"
+    <search-stub
+      class="ma-0 ml-auto pa-0 flex-grow-0"
     />
      
     <div>
@@ -1308,9 +1307,11 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
     headers="[object Object],[object Object],[object Object],[object Object]"
     hidedefaultfooter="true"
     hidedefaultheader="true"
+    itemclass=""
     itemkey="uuid"
     items=""
     itemsperpage="10"
+    loaderheight="4"
     loadingtext="$vuetify.dataIterator.loadingText"
     locale="en-US"
     mobilebreakpoint="600"
@@ -1329,11 +1330,16 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
     class="text-center pt-2"
   >
     <v-pagination-stub
+      currentpagearialabel="$vuetify.pagination.ariaLabel.currentPage"
       length="0"
+      nextarialabel="$vuetify.pagination.ariaLabel.next"
       nexticon="$next"
+      pagearialabel="$vuetify.pagination.ariaLabel.page"
       previcon="$prev"
+      previousarialabel="$vuetify.pagination.ariaLabel.previous"
       totalvisible="7"
       value="0"
+      wrapperarialabel="$vuetify.pagination.ariaLabel.wrapper"
     />
   </div>
    
@@ -1412,7 +1418,10 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
   </v-card-stub>
    
   <v-snackbar-stub
-    timeout="6000"
+    contentclass=""
+    tag="div"
+    timeout="5000"
+    transition="v-snack-transition"
   >
     
     

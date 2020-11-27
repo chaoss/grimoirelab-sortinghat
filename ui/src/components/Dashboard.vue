@@ -1,5 +1,5 @@
 <template>
-  <v-content>
+  <v-main>
     <work-space
       :highlight-individual="highlightInWorkspace"
       :individuals="savedIndividuals"
@@ -51,7 +51,7 @@
     <v-snackbar v-model="snackbar">
       Individual already in work space
     </v-snackbar>
-  </v-content>
+  </v-main>
 </template>
 
 <script>
