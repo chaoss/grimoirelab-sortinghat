@@ -4,6 +4,7 @@ import Vuetify from "vuetify";
 import IndividualsData from "@/components/IndividualsData";
 import IndividualsTable from "@/components/IndividualsTable";
 import OrganizationsTable from "@/components/OrganizationsTable";
+import Search from "@/components/Search";
 import * as Queries from "@/apollo/queries";
 
 Vue.use(Vuetify);
@@ -208,83 +209,9 @@ describe("IndividualsData", () => {
 });
 
 describe("IndividualsTable", () => {
-  test("Mock query for getPaginatedIndividuals", async () => {
-    const query = jest.fn(() => Promise.resolve(paginatedResponse));
-    const wrapper = shallowMount(IndividualsTable, {
+  const mountFunction = options => {
+    return shallowMount(IndividualsTable, {
       Vue,
-      mocks: {
-        $apollo: {
-          query
-        }
-      },
-      propsData: {
-        fetchPage: query,
-        mergeItems: () => {},
-        unmergeItems: () => {},
-        moveItem: () => {},
-        deleteItem: () => {},
-        addIdentity: () => {},
-        updateProfile: () => {},
-        enroll: () => {},
-        getCountries: () => {},
-        lockIndividual: () => {},
-        unlockIndividual: () => {},
-        withdraw: () => {}
-      }
-    });
-    const response = await Queries.getPaginatedIndividuals(wrapper.vm.$apollo, 1, 1);
-
-    expect(query).toBeCalled();
-    expect(wrapper.element).toMatchSnapshot();
-  });
-
-  test.each([
-    "",
-    "abc",
-    "abcd",
-    "123"
-  ])("Searches by term %p", async (term) => {
-    const querySpy = spyOn(Queries, "getPaginatedIndividuals");
-    const query = jest.fn(() => Promise.resolve(paginatedResponse));
-    const wrapper = shallowMount(IndividualsTable, {
-      Vue,
-      mocks: {
-        $apollo: {
-          query
-        }
-      },
-      propsData: {
-        fetchPage: Queries.getPaginatedIndividuals,
-        mergeItems: () => {},
-        unmergeItems: () => {},
-        moveItem: () => {},
-        deleteItem: () => {},
-        addIdentity: () => {},
-        updateProfile: () => {},
-        enroll: () => {},
-        getCountries: () => {},
-        lockIndividual: () => {},
-        unlockIndividual: () => {},
-        withdraw: () => {}
-      }
-    });
-
-    wrapper.setData({ filters: { term: term } });
-
-    const response = await wrapper.vm.queryIndividuals(1);
-
-    expect(querySpy).toHaveBeenCalledWith(1, 10, { term: term });
-  });
-
-  test("Mock query for getCountries", async () => {
-    const query = jest.fn(() => Promise.resolve(countriesMocked));
-    const wrapper = shallowMount(IndividualsTable, {
-      Vue,
-      mocks: {
-        $apollo: {
-          query
-        }
-      },
       propsData: {
         fetchPage: () => {},
         mergeItems: () => {},
@@ -294,12 +221,77 @@ describe("IndividualsTable", () => {
         addIdentity: () => {},
         updateProfile: () => {},
         enroll: () => {},
-        getCountries: query,
+        getCountries: () => {},
         lockIndividual: () => {},
         unlockIndividual: () => {},
         withdraw: () => {}
+      },
+      ...options
+    })
+  };
+
+  test("Mock query for getPaginatedIndividuals", async () => {
+    const query = jest.fn(() => Promise.resolve(paginatedResponse));
+    const wrapper = mountFunction({
+      mocks: {
+        $apollo: {
+          query
+        }
       }
     });
+    await wrapper.setProps({ fetchPage: query });
+    const response = await Queries.getPaginatedIndividuals(wrapper.vm.$apollo, 1, 1);
+
+    expect(query).toBeCalled();
+    expect(wrapper.element).toMatchSnapshot();
+  });
+
+  test("Searches by term", async () => {
+    const querySpy = spyOn(Queries, "getPaginatedIndividuals");
+    const query = jest.fn(() => Promise.resolve(paginatedResponse));
+    const wrapper = mountFunction({
+      mocks: {
+        $apollo: {
+          query
+        }
+      }
+    });
+    await wrapper.setProps({ fetchPage: Queries.getPaginatedIndividuals });
+    await wrapper.setData({ filters: { term: "test" } });
+
+    const response = await wrapper.vm.queryIndividuals(1);
+
+    expect(querySpy).toHaveBeenCalledWith(1, 10, { term: "test" });
+  });
+
+  test("Searches by lastUpdated", async () => {
+    const querySpy = spyOn(Queries, "getPaginatedIndividuals");
+    const query = jest.fn(() => Promise.resolve(paginatedResponse));
+    const wrapper = mountFunction({
+      mocks: {
+        $apollo: {
+          query
+        }
+      }
+    });
+    await wrapper.setProps({ fetchPage: Queries.getPaginatedIndividuals });
+    await wrapper.setData({ filters: { lastUpdated: "<2000-01-01T00:00:00.000Z" } });
+
+    const response = await wrapper.vm.queryIndividuals(1);
+
+    expect(querySpy).toHaveBeenCalledWith(1, 10, { lastUpdated: "<2000-01-01T00:00:00.000Z" });
+  });
+
+  test("Mock query for getCountries", async () => {
+    const query = jest.fn(() => Promise.resolve(countriesMocked));
+    const wrapper = mountFunction({
+      mocks: {
+        $apollo: {
+          query
+        }
+      }
+    });
+    await wrapper.setProps({ getCountries: query });
     const response = await Queries.getCountries(wrapper.vm.$apollo);
 
     expect(query).toBeCalled();
@@ -329,5 +321,76 @@ describe("OrganizationsTable", () => {
 
     expect(query).toBeCalled();
     expect(wrapper.element).toMatchSnapshot();
+  });
+});
+
+describe("Search", () => {
+  const vuetify = new Vuetify();
+  const mountFunction = options => {
+    return mount(Search, {
+      Vue,
+      vuetify,
+      ...options,
+    })
+  };
+
+  test.each([
+    ["test"],
+    ["term", "test"],
+    ["term", " test "],
+    ["lastUpdated", "<", "2000", "term", "test"],
+    ["term", "test", "lastUpdated", "<", "2000"]
+  ])("Given %p parses term", async (...args) => {
+    const wrapper = mountFunction({
+      data: () => ({ value: args })
+    });
+
+    const input = wrapper.find(".v-select__selections > input");
+    await input.trigger("change");
+
+    expect(wrapper.vm.searchFilters.term).toBe("test");
+  });
+
+  test.each([
+    [["lastUpdated", "<", "2000"], "<2000-01-01T00:00:00.000Z"],
+    [["lastUpdated", "<", "2000-10-01"], "<2000-10-01T00:00:00.000Z"],
+    [["lastUpdated", "<=", "2000-08-10"], "<=2000-08-10T00:00:00.000Z"],
+    [["lastUpdated", ">", "2000"], ">2000-01-01T00:00:00.000Z"],
+    [["lastUpdated", ">=", "2000-02-03"], ">=2000-02-03T00:00:00.000Z"],
+    [
+      ["lastUpdated", "range", "2000..2001"],
+      "2000-01-01T00:00:00.000Z..2001-01-01T00:00:00.000Z"
+    ],
+    [["term", "test", "lastUpdated", "<", "2000"], "<2000-01-01T00:00:00.000Z"]
+  ])("Given %p parses lastUpdated filter", async (values, expected) => {
+    const wrapper = mountFunction({
+      data: () => ({ value: values })
+    });
+
+    const input = wrapper.find(".v-select__selections > input");
+    await input.trigger("change");
+
+    expect(wrapper.vm.searchFilters.lastUpdated).toBe(expected);
+  });
+
+  test.each([
+    ["lastUpdated", "abc"],
+    ["lastUpdated", "<", "abc"],
+    ["lastUpdated", "<", "2000-23-01"],
+    ["lastUpdated", ">=", "2000-01-49"],
+    ["lastUpdated", ">", "@"],
+    ["lastUpdated", "range", "2000"],
+    ["lastUpdated", "range", "2000-2001"],
+    ["lastUpdated", "range", "2001-2000"]
+  ])("Given an invalid value renders an error", async (...args) => {
+    const wrapper = mountFunction({
+      data: () => ({ value: args })
+    });
+
+    const input = wrapper.find(".v-select__selections > input");
+    await input.trigger("change");
+    const errorMessage = wrapper.find(".v-messages__message");
+
+    expect(errorMessage.exists()).toBe(true);
   });
 });
