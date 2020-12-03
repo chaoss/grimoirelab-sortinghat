@@ -21,6 +21,7 @@
 #
 
 import json
+import re
 
 import graphene
 import graphql_jwt
@@ -38,6 +39,9 @@ from graphene.types.generic import GenericScalar
 from graphene_django.converter import convert_django_field
 from graphene_django.types import DjangoObjectType
 
+from grimoirelab_toolkit.datetime import (str_to_datetime,
+                                          InvalidDateError)
+
 from .api import (add_identity,
                   delete_identity,
                   update_profile,
@@ -54,6 +58,7 @@ from .api import (add_identity,
                   withdraw)
 from .context import SortingHatContext
 from .decorators import check_auth
+from .errors import InvalidFilterError
 from .jobs import (affiliate,
                    unify,
                    find_job,
@@ -75,6 +80,56 @@ def convert_json_field_to_generic_scalar(field, registry=None):
     """Convert the content of a `JSONField` loading it as an object"""
 
     return OperationArgsType(description=field.help_text, required=not field.null)
+
+
+def parse_date_filter(filter_value):
+    """Extract the filter terms from a date filter
+
+    The accepted formats are controlled by regular expressions
+    matching two patterns: a comparison operator (>, >=, <, <=) and a date
+    OR a range operator (..) between two dates.
+
+    The accepted date format is ISO 8601, YYYY-MM-DDTHH:MM:SSZ, also
+    accepting microseconds and time zone offset (YYYY-MM-DDTHH:MM:SS.ms+HH:HH).
+
+    :param filter_value: String containing the filter value
+
+    :returns: A dictionary including an operator and the datetime values
+    """
+    # Accepted date format is ISO 8601, YYYY-MM-DDTHH:MM:SSZ (no `Z` is accepted too)
+    filter_data = {
+        "operator": None,
+        "date1": None,
+        "date2": None
+    }
+
+    iso_date_group = r"(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|\+\d{2}:\d{2})?)"
+    # Filter with a comparison operator (>, >=, <, <=) and a date (e.g. `>=YYYY-MM-DDTHH:MM:SS`)
+    oper_comparison = r"^(<=?|>=?)%s$" % iso_date_group
+    # Filter with a range operator (..) between two dates
+    # (e.g. YYYY-MM-DDTHH:MM:SSZ..YYYY-MM-DDTHH:MM:SSZ)
+    range_comparison = r"^%s\.{2}%s$" % (iso_date_group, iso_date_group)
+
+    oper_result = re.match(oper_comparison, filter_value)
+    range_result = re.match(range_comparison, filter_value)
+
+    if not oper_result and not range_result:
+        raise ValueError('Filter format is not valid')
+
+    if oper_result:
+        filter_data['operator'] = oper_result.group(1)
+        filter_data['date1'] = str_to_datetime(oper_result.group(2))
+
+    if range_result:
+        filter_data['operator'] = '..'
+        filter_data['date1'] = str_to_datetime(range_result.group(1))
+        filter_data['date2'] = str_to_datetime(range_result.group(4))
+
+        if filter_data['date1'] > filter_data['date2']:
+            range_msg = 'Date range is invalid. Upper bound must be greater than the lower bound'
+            raise ValueError(range_msg)
+
+    return filter_data
 
 
 class PaginationType(graphene.ObjectType):
@@ -198,6 +253,12 @@ class IdentityFilterType(graphene.InputObjectType):
     uuid = graphene.String(required=False)
     term = graphene.String(required=False)
     is_locked = graphene.Boolean(required=False)
+    last_updated = graphene.String(
+        required=False,
+        description='Filter with a comparison operator (>, >=, <, <=) and a date OR with a range operator (..) between\
+                     two dates, following ISO-8601 format. Examples:\n* `>=2020-10-12T09:35:06.13045+01:00` \
+                     \n * `2020-10-12T00:00:00..2020-11-22T00:00:00`.'
+    )
 
 
 class TransactionFilterType(graphene.InputObjectType):
@@ -744,6 +805,29 @@ class SortingHatQuery:
                                                  .values_list('individual__mk')))
         if filters and 'is_locked' in filters:
             query = query.filter(is_locked=filters['is_locked'])
+        if filters and 'last_updated' in filters:
+            # Accepted date format is ISO 8601, YYYY-MM-DDTHH:MM:SS
+            try:
+                filter_data = parse_date_filter(filters['last_updated'])
+            except ValueError as e:
+                raise InvalidFilterError(filter_name='last_updated', msg=e)
+            except InvalidDateError as e:
+                raise InvalidFilterError(filter_name='last_updated', msg=e)
+
+            date1 = filter_data['date1']
+            date2 = filter_data['date2']
+            if filter_data['operator']:
+                operator = filter_data['operator']
+                if operator == '<':
+                    query = query.filter(last_modified__lt=date1)
+                elif operator == '<=':
+                    query = query.filter(last_modified__lte=date1)
+                elif operator == '>':
+                    query = query.filter(last_modified__gt=date1)
+                elif operator == '>=':
+                    query = query.filter(last_modified__gte=date1)
+                elif operator == '..':
+                    query = query.filter(last_modified__range=(date1, date2))
 
         return IdentityPaginatedType.create_paginated_result(query,
                                                              page,

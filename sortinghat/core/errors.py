@@ -29,6 +29,7 @@ CODE_CLOSED_TRANSACTION_ERROR = 12
 CODE_LOCKED_IDENTITY_ERROR = 13
 CODE_DUPLICATE_RANGE_ERROR = 14
 CODE_EQUAL_INDIVIDUAL_ERROR = 15
+CODE_FILTER_ERROR = 16
 CODE_RECOMMENDATION_ERROR = 100
 CODE_TOKEN_EXPIRED = 126
 CODE_PERMISSION_DENIED = 127
@@ -79,6 +80,13 @@ class InvalidValueError(BaseError):
 
     code = CODE_VALUE_ERROR
     message = "%(msg)s"
+
+
+class InvalidFilterError(BaseError):
+    """Exception raised when a filter is invalid"""
+
+    code = CODE_FILTER_ERROR
+    message = "Error in %(filter_name)s filter: %(msg)s"
 
 
 class EqualIndividualError(BaseError):

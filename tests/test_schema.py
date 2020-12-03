@@ -39,7 +39,9 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.test import RequestFactory
 
-from grimoirelab_toolkit.datetime import datetime_utcnow, str_to_datetime
+from grimoirelab_toolkit.datetime import (datetime_utcnow,
+                                          str_to_datetime,
+                                          InvalidDateError)
 
 from sortinghat.core import api
 from sortinghat.core import db
@@ -54,7 +56,9 @@ from sortinghat.core.models import (Organization,
                                     Enrollment,
                                     Transaction,
                                     Operation)
-from sortinghat.core.schema import SortingHatQuery, SortingHatMutation
+from sortinghat.core.schema import (SortingHatQuery,
+                                    SortingHatMutation,
+                                    parse_date_filter)
 
 
 DUPLICATED_ORG_ERROR = "Organization 'Example' already exists in the registry"
@@ -86,6 +90,11 @@ PAGINATION_PAGE_LESS_THAN_ONE_ERROR = "That page number is less than 1"
 PAGINATION_PAGE_SIZE_NEGATIVE_ERROR = "Negative indexing is not supported."
 PAGINATION_PAGE_SIZE_ZERO_ERROR = "division by zero"
 AUTHENTICATION_ERROR = "You do not have permission to perform this action"
+PARSE_DATE_INVALID_DATE_ERROR = "{} is not a valid date"
+PARSE_DATE_INVALID_FORMAT_ERROR = "Filter format is not valid"
+INVALID_FILTER_DATE_ERROR = "Error in {} filter: {} is not a valid date"
+INVALID_FILTER_FORMAT_ERROR = "Error in {} filter: Filter format is not valid"
+INVALID_FILTER_RANGE_ERROR = "Error in {} filter: Date range is invalid. {}"
 
 
 # Test queries
@@ -284,6 +293,38 @@ SH_INDIVIDUALS_TERM_FILTER = """{
 }"""
 SH_INDIVIDUALS_LOCKED_FILTER = """{
   individuals(filters: {isLocked: true}) {
+    entities {
+      mk
+      isLocked
+      profile {
+        name
+        email
+        gender
+        isBot
+        country {
+          code
+          name
+        }
+      }
+      identities {
+        uuid
+        name
+        email
+        username
+        source
+      }
+      enrollments {
+        organization {
+          name
+        }
+        start
+        end
+      }
+    }
+  }
+}"""
+SH_INDIVIDUALS_LAST_UPDATED_FILTER = """{
+  individuals(filters: {lastUpdated: "%s"}) {
     entities {
       mk
       isLocked
@@ -1885,6 +1926,190 @@ class TestQueryIndividuals(django.test.TestCase):
         indvs = executed['data']['individuals']['entities']
         self.assertListEqual(indvs, [])
 
+    def test_filter_last_updated(self):
+        """Check whether it returns the uuids searched when using a date filter"""
+
+        timestamp_1 = datetime_utcnow()
+        Individual.objects.create(mk='a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        Individual.objects.create(mk='c6d2504fde0e34b78a185c4b709e5442d045451c')
+
+        timestamp_2 = datetime_utcnow()
+        Individual.objects.create(mk='e0e34b7c6d2504fd8a1842d045451c5c4b709e54')
+
+        timestamp_3 = datetime_utcnow()
+
+        # Tests
+
+        ts_1 = timestamp_1.strftime("%Y-%m-%dT%H:%M:%S.%f")
+        ts_2 = timestamp_2.strftime("%Y-%m-%dT%H:%M:%S.%f")
+        ts_3 = timestamp_3.strftime("%Y-%m-%dT%H:%M:%S.%f")
+
+        # Test individuals last_updated before first timestamp, it should return none
+        filter_no_indvs = '<={}'.format(ts_1)
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_INDIVIDUALS_LAST_UPDATED_FILTER % filter_no_indvs,
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 0)
+
+        # Test individuals last_updated between first and second timestamp, it should return two
+        filter_first_indv = "{}..{}".format(ts_1, ts_2)
+
+        executed = client.execute(SH_INDIVIDUALS_LAST_UPDATED_FILTER % filter_first_indv,
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 2)
+
+        indv = individuals[0]
+        self.assertEqual(indv['mk'], 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+
+        indv = individuals[1]
+        self.assertEqual(indv['mk'], 'c6d2504fde0e34b78a185c4b709e5442d045451c')
+
+        # Test individuals last_updated after the first timestamp, it should return all
+        filter_all_indv = ">{}".format(ts_1)
+
+        executed = client.execute(SH_INDIVIDUALS_LAST_UPDATED_FILTER % filter_all_indv,
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 3)
+
+        indv = individuals[0]
+        self.assertEqual(indv['mk'], 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+
+        indv = individuals[1]
+        self.assertEqual(indv['mk'], 'c6d2504fde0e34b78a185c4b709e5442d045451c')
+
+        indv = individuals[2]
+        self.assertEqual(indv['mk'], 'e0e34b7c6d2504fd8a1842d045451c5c4b709e54')
+
+        # Test individuals last_updated after last timestamp, it should return none
+        filter_last_ts = '>{}'.format(ts_3)
+
+        executed = client.execute(SH_INDIVIDUALS_LAST_UPDATED_FILTER % filter_last_ts,
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 0)
+
+    def test_filter_last_updated_invalid_date(self):
+        """Check whether it fails when the filter has an invalid date"""
+
+        client = graphene.test.Client(schema)
+
+        invalid_date_filter = "2020-86-32T28:72:99..2020-08-06T10:25:15"
+        executed = client.execute(SH_INDIVIDUALS_LAST_UPDATED_FILTER % invalid_date_filter,
+                                  context_value=self.context_value)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, INVALID_FILTER_DATE_ERROR.format('last_updated', '2020-86-32T28:72:99'))
+
+        zero_date_filter = "0000-00-00T00:00:00..0000-00-00T00:00:00"
+        executed = client.execute(SH_INDIVIDUALS_LAST_UPDATED_FILTER % zero_date_filter,
+                                  context_value=self.context_value)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, INVALID_FILTER_DATE_ERROR.format('last_updated', '0000-00-00T00:00:00'))
+
+    def test_filter_last_updated_invalid_format_operator(self):
+        """Check whether it fails when the filter has an invalid operator"""
+
+        timestamp_1 = datetime_utcnow()
+
+        Individual.objects.create(mk='a9b403e150dd4af8953a52a4bb841051e4b705d9')
+
+        timestamp_2 = datetime_utcnow()
+
+        Individual.objects.create(mk='c6d2504fde0e34b78a185c4b709e5442d045451c')
+
+        ts_1 = timestamp_1.strftime("%Y-%m-%dT%H:%M:%S.%f")
+
+        # Test invalid format (wrong operator)
+        filter_invalid_format = '<<={}'.format(ts_1)
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_INDIVIDUALS_LAST_UPDATED_FILTER % filter_invalid_format,
+                                  context_value=self.context_value)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, INVALID_FILTER_FORMAT_ERROR.format('last_updated'))
+
+    def test_filter_last_updated_invalid_format_range_operator(self):
+        """Check whether it fails when the filter has an invalid range operator"""
+
+        timestamp_1 = datetime_utcnow()
+
+        Individual.objects.create(mk='a9b403e150dd4af8953a52a4bb841051e4b705d9')
+
+        timestamp_2 = datetime_utcnow()
+
+        Individual.objects.create(mk='c6d2504fde0e34b78a185c4b709e5442d045451c')
+
+        ts_1 = timestamp_1.strftime("%Y-%m-%dT%H:%M:%S.%f")
+        ts_2 = timestamp_2.strftime("%Y-%m-%dT%H:%M:%S.%f")
+
+        # Test invalid format (wrong operator)
+        filter_invalid_format_2 = "{}...{}".format(ts_1, ts_2)
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_INDIVIDUALS_LAST_UPDATED_FILTER % filter_invalid_format_2,
+                                  context_value=self.context_value)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, INVALID_FILTER_FORMAT_ERROR.format('last_updated'))
+
+    def test_filter_last_updated_invalid_format_iso_date(self):
+        """Check whether it fails when the filter has an invalid date format"""
+
+        timestamp_1 = datetime_utcnow()
+
+        Individual.objects.create(mk='a9b403e150dd4af8953a52a4bb841051e4b705d9')
+
+        timestamp_2 = datetime_utcnow()
+
+        Individual.objects.create(mk='c6d2504fde0e34b78a185c4b709e5442d045451c')
+
+        # Test wrong ISO 8601 format (%Y-%m-%dT%H:%M:%S), with a missing "T" between date and time
+        invalid_format_filter = "2020-06-16 10:34:29..2020-08-06T10:25:15"
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_INDIVIDUALS_LAST_UPDATED_FILTER % invalid_format_filter,
+                                  context_value=self.context_value)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, INVALID_FILTER_FORMAT_ERROR.format('last_updated'))
+
+    def test_filter_last_updated_invalid_range(self):
+        """Check whether it fails when the filter has an invalid date range"""
+
+        timestamp_1 = datetime_utcnow()
+
+        Individual.objects.create(mk='a9b403e150dd4af8953a52a4bb841051e4b705d9')
+
+        timestamp_2 = datetime_utcnow()
+
+        Individual.objects.create(mk='c6d2504fde0e34b78a185c4b709e5442d045451c')
+
+        # Tests
+        ts_1 = timestamp_1.strftime("%Y-%m-%dT%H:%M:%S.%f")
+        ts_2 = timestamp_2.strftime("%Y-%m-%dT%H:%M:%S.%f")
+
+        # Test invalid range
+        filter_invalid_format_2 = "{}..{}".format(ts_2, ts_1)
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_INDIVIDUALS_LAST_UPDATED_FILTER % filter_invalid_format_2,
+                                  context_value=self.context_value)
+
+        expected_error = 'Upper bound must be greater than the lower bound'
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, INVALID_FILTER_RANGE_ERROR.format('last_updated', expected_error))
+
     def test_pagination(self):
         """Check whether it returns the individuals searched when using pagination"""
 
@@ -2289,6 +2514,67 @@ class TestQueryOperations(django.test.TestCase):
 
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, AUTHENTICATION_ERROR)
+
+
+class TestParseDateFilter(django.test.TestCase):
+    """Unit tests for parse_date_filter method"""
+
+    def test_parse_date_filter(self):
+        """Test if the method extracts the fields from the filter correctly"""
+
+        # Test a comparison operator and a complete date (microseconds and time offset)
+        expected_result = {
+            'operator': '>=',
+            'date1': str_to_datetime('2020-11-22T12:26:41.740227+00:00'),
+            'date2': None
+        }
+
+        filter_string = '>=2020-11-22T12:26:41.740227+00:00'
+        result = parse_date_filter(filter_string)
+        self.assertDictEqual(result, expected_result)
+
+        # Test range operator
+        expected_result = {
+            'operator': '..',
+            'date1': str_to_datetime('2020-10-12T00:00:00'),
+            'date2': str_to_datetime('2020-11-22T12:26:41.740227+00:00')
+        }
+
+        filter_string = '2020-10-12T00:00:00..2020-11-22T12:26:41.740227+00:00'
+        result = parse_date_filter(filter_string)
+        self.assertDictEqual(result, expected_result)
+
+        # Test ISO date format from Javascript's method `toISOString` (web interface)
+        expected_result = {
+            'operator': '..',
+            'date1': str_to_datetime('2020-10-12T00:00:00Z'),
+            'date2': str_to_datetime('2020-11-22T12:26:41.740227Z')
+        }
+
+        filter_string = '2020-10-12T00:00:00Z..2020-11-22T12:26:41.740227Z'
+        result = parse_date_filter(filter_string)
+        self.assertDictEqual(result, expected_result)
+
+    def test_invalid_date(self):
+        """Test if the method fails when it receives a wrong date"""
+
+        # Test range operator
+        date_1 = '2020-10-12T00:00:00'
+        date_2 = '2020-41-22T12:26:41.740227+00:00'
+        filter_string = '{}..{}'.format(date_1, date_2)
+        with self.assertRaisesRegex(InvalidDateError, PARSE_DATE_INVALID_DATE_ERROR.format('')):
+            parse_date_filter(filter_string)
+
+    def test_invalid_format(self):
+        """Test if the method raises an exception with invalid filter formats"""
+
+        # Test range operator
+        date_1 = '2020-10-12T00:00:00'
+        date_2 = '2020-11-22T12:26:41.740227+00:00'
+        filter_string = '-{}..{}'.format(date_1, date_2)
+
+        with self.assertRaisesRegex(ValueError, PARSE_DATE_INVALID_FORMAT_ERROR):
+            parse_date_filter(filter_string)
 
 
 class MockJob:
