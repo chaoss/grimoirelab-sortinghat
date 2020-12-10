@@ -4996,65 +4996,42 @@ exports[`Storyshots IndividualsTable Default 1`] = `
         </h4>
          
         <div
-          class="v-input search ma-0 ml-auto pa-0 flex-grow-0 v-input--dense theme--light v-text-field v-text-field--placeholder v-select v-select--chips v-select--chips--small v-select--is-multi v-autocomplete search--hidden"
+          class="v-input search ma-0 ml-auto pa-0 flex-grow-0 ma-0 ml-auto pa-0 flex-grow-0 theme--light v-text-field search--hidden"
         >
           <div
             class="v-input__control"
           >
             <div
-              aria-expanded="false"
-              aria-haspopup="listbox"
-              aria-owns="list-625"
               class="v-input__slot"
-              role="combobox"
             >
               <div
-                class="v-select__slot"
+                class="v-text-field__slot"
               >
-                <div
-                  class="v-select__selections"
+                <label
+                  class="v-label theme--light"
+                  for="input-625"
+                  style="left: 0px; position: absolute;"
                 >
-                  <input
-                    autocomplete="off"
-                    id="input-625"
-                    placeholder="Search or filter results"
-                    type="text"
-                  />
-                </div>
-                <div
-                  class="v-input__append-inner"
-                >
-                  <div
-                    class="v-input__icon v-input__icon--clear"
-                  >
-                    <button
-                      aria-label="clear icon"
-                      class="v-icon notranslate v-icon--disabled v-icon--link mdi mdi-close theme--light"
-                      disabled="disabled"
-                      type="button"
-                    />
-                  </div>
-                </div>
-                <div
-                  class="v-input__append-inner"
-                >
-                  <div
-                    class="v-input__icon v-input__icon--append"
-                  >
-                    <i
-                      aria-hidden="true"
-                      class="v-icon notranslate mdi mdi-menu-down theme--light"
-                    />
-                  </div>
-                </div>
+                  Search
+                </label>
                 <input
-                  type="hidden"
+                  id="input-625"
+                  type="text"
                 />
               </div>
               <div
-                class="v-menu"
+                class="v-input__append-inner"
               >
-                <!---->
+                <div
+                  class="v-input__icon v-input__icon--clear"
+                >
+                  <button
+                    aria-label="clear icon"
+                    class="v-icon notranslate v-icon--disabled v-icon--link mdi mdi-close theme--light"
+                    disabled="disabled"
+                    type="button"
+                  />
+                </div>
               </div>
             </div>
             <div
@@ -5793,65 +5770,42 @@ exports[`Storyshots Search Default 1`] = `
       width="380"
     >
       <div
-        class="v-input search v-input--dense theme--light v-text-field v-text-field--placeholder v-select v-select--chips v-select--chips--small v-select--is-multi v-autocomplete search--hidden"
+        class="v-input search ma-0 ml-auto pa-0 flex-grow-0 theme--light v-text-field search--hidden"
       >
         <div
           class="v-input__control"
         >
           <div
-            aria-expanded="false"
-            aria-haspopup="listbox"
-            aria-owns="list-857"
             class="v-input__slot"
-            role="combobox"
           >
             <div
-              class="v-select__slot"
+              class="v-text-field__slot"
             >
-              <div
-                class="v-select__selections"
+              <label
+                class="v-label theme--light"
+                for="input-855"
+                style="left: 0px; position: absolute;"
               >
-                <input
-                  autocomplete="off"
-                  id="input-857"
-                  placeholder="Search or filter results"
-                  type="text"
-                />
-              </div>
-              <div
-                class="v-input__append-inner"
-              >
-                <div
-                  class="v-input__icon v-input__icon--clear"
-                >
-                  <button
-                    aria-label="clear icon"
-                    class="v-icon notranslate v-icon--disabled v-icon--link mdi mdi-close theme--light"
-                    disabled="disabled"
-                    type="button"
-                  />
-                </div>
-              </div>
-              <div
-                class="v-input__append-inner"
-              >
-                <div
-                  class="v-input__icon v-input__icon--append"
-                >
-                  <i
-                    aria-hidden="true"
-                    class="v-icon notranslate mdi mdi-menu-down theme--light"
-                  />
-                </div>
-              </div>
+                Search
+              </label>
               <input
-                type="hidden"
+                id="input-855"
+                type="text"
               />
             </div>
             <div
-              class="v-menu"
+              class="v-input__append-inner"
             >
-              <!---->
+              <div
+                class="v-input__icon v-input__icon--clear"
+              >
+                <button
+                  aria-label="clear icon"
+                  class="v-icon notranslate v-icon--disabled v-icon--link mdi mdi-close theme--light"
+                  disabled="disabled"
+                  type="button"
+                />
+              </div>
             </div>
           </div>
           <div
@@ -6330,65 +6284,42 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
           </h4>
            
           <div
-            class="v-input search ma-0 ml-auto pa-0 flex-grow-0 v-input--dense theme--light v-text-field v-text-field--placeholder v-select v-select--chips v-select--chips--small v-select--is-multi v-autocomplete search--hidden"
+            class="v-input search ma-0 ml-auto pa-0 flex-grow-0 ma-0 ml-auto pa-0 flex-grow-0 theme--light v-text-field search--hidden"
           >
             <div
               class="v-input__control"
             >
               <div
-                aria-expanded="false"
-                aria-haspopup="listbox"
-                aria-owns="list-940"
                 class="v-input__slot"
-                role="combobox"
               >
                 <div
-                  class="v-select__slot"
+                  class="v-text-field__slot"
                 >
-                  <div
-                    class="v-select__selections"
+                  <label
+                    class="v-label theme--light"
+                    for="input-936"
+                    style="left: 0px; position: absolute;"
                   >
-                    <input
-                      autocomplete="off"
-                      id="input-940"
-                      placeholder="Search or filter results"
-                      type="text"
-                    />
-                  </div>
-                  <div
-                    class="v-input__append-inner"
-                  >
-                    <div
-                      class="v-input__icon v-input__icon--clear"
-                    >
-                      <button
-                        aria-label="clear icon"
-                        class="v-icon notranslate v-icon--disabled v-icon--link mdi mdi-close theme--light"
-                        disabled="disabled"
-                        type="button"
-                      />
-                    </div>
-                  </div>
-                  <div
-                    class="v-input__append-inner"
-                  >
-                    <div
-                      class="v-input__icon v-input__icon--append"
-                    >
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-menu-down theme--light"
-                      />
-                    </div>
-                  </div>
+                    Search
+                  </label>
                   <input
-                    type="hidden"
+                    id="input-936"
+                    type="text"
                   />
                 </div>
                 <div
-                  class="v-menu"
+                  class="v-input__append-inner"
                 >
-                  <!---->
+                  <div
+                    class="v-input__icon v-input__icon--clear"
+                  >
+                    <button
+                      aria-label="clear icon"
+                      class="v-icon notranslate v-icon--disabled v-icon--link mdi mdi-close theme--light"
+                      disabled="disabled"
+                      type="button"
+                    />
+                  </div>
                 </div>
               </div>
               <div

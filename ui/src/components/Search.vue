@@ -1,57 +1,23 @@
 <template>
   <v-hover v-slot="{ hover }">
-    <v-combobox
-      v-model="value"
-      :items="options"
-      :error-messages="errorMessage"
-      :return-object="false"
-      :hide-no-data="!text"
-      :search-input.sync="searchInput"
-      :class="{
-        'search--hover': hover || focused,
-        'search--hidden': value.length === 0
-      }"
-      class="search"
+    <v-text-field
+      v-model.trim="inputValue"
       append-outer-icon="mdi-magnify"
-      placeholder="Search or filter results"
+      class="search ma-0 ml-auto pa-0 flex-grow-0"
+      :class="{
+        'search--hover': hover,
+        'search--hidden': !inputValue && !isFocused && !errorMessage
+      }"
+      :error-messages="errorMessage"
       clearable
-      hide-selected
-      multiple
-      dense
-      small-chips
-      @keydown.enter="handleEnter"
-      @change="onFilterChange"
-      @update:search-input="onFilterChange"
-      @click:append-outer="$emit('search', searchFilters)"
+      label="Search"
+      type="text"
+      @click:append-outer="search"
       @click:clear="clear"
-      @focus="focused = true"
-      @blur="focused = false"
-    >
-      <template v-slot:item="{ item, on }">
-        <v-list-item v-on="on">
-          <v-list-item-content>
-            <v-list-item-title>
-              {{ item.text }}
-            </v-list-item-title>
-          </v-list-item-content>
-          <v-list-item-action>
-            <v-chip small>
-              {{ item.value }}
-            </v-chip>
-          </v-list-item-action>
-        </v-list-item>
-      </template>
-
-      <template v-slot:no-data>
-        <v-list-item>
-          <v-list-item-content>
-            <v-list-item-title>
-              {{ text }}
-            </v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-      </template>
-    </v-combobox>
+      @keyup.enter="search"
+      @focus="isFocused = true"
+      @blur="isFocused = false"
+    />
   </v-hover>
 </template>
 
@@ -60,137 +26,72 @@ export default {
   name: "Search",
   data() {
     return {
-      searchFilters: {},
-      filters: [
-        { value: "term", text: "Term" },
-        { value: "lastUpdated", text: "Last updated" }
-      ],
-      lastUpdated: [
-        { value: "<", text: "before" },
-        { value: "<=", text: "before and including" },
-        { value: ">", text: "after" },
-        { value: ">=", text: "after and including" },
-        { value: "range", text: "range" }
-      ],
-      options: [],
-      value: [],
-      searchInput: null,
-      text: "",
-      errorMessage: "",
-      focused: false
+      inputValue: "",
+      filters: {},
+      isFocused: false,
+      errorMessage: undefined
     };
   },
   methods: {
-    onFilterChange() {
-      const lastTerm = this.value[this.value.length - 1];
-      switch (lastTerm) {
-        case "term":
-          this.options = [];
-          this.text = "Enter a search term";
-          break;
-        case "lastUpdated":
-          this.options = this.lastUpdated;
-          break;
-        case "<":
-        case "<=":
-        case ">=":
-        case ">":
-          this.options = [];
-          this.text = "Enter a YYYY-MM-DD date";
-          break;
-        case "range":
-          this.options = [];
-          this.text = "YYYY-MM-DD..YYYY-MM-DD format";
-          break;
-        default:
-          this.options = this.filters;
-          this.text = "";
-      }
-      this.parseSearchValues();
+    search() {
+      this.parseFilters();
+      this.$emit("search", this.filters);
     },
-    parseSearchValues() {
-      const hasFilters = this.value.some(value =>
-        this.filters.some(filter => filter.value === value)
-      );
+    parseFilters() {
+      const terms = [];
+      this.filters = {};
+      this.errorMessage = undefined;
 
-      if (this.value[0] && !hasFilters) {
-        this.value.unshift("term");
-      }
+      if (!this.inputValue) return;
 
-      Object.assign(this.searchFilters, {
-        term: this.parseTerm(),
-        lastUpdated: this.parseLastUpdated()
+      this.inputValue.split(" ").forEach(value => {
+        if (value.includes(":")) {
+          const [filter, text] = value.split(":");
+          if (filter === "lastUpdated") {
+            this.parseLastUpdated(text);
+          } else {
+            this.filters[filter] = text;
+          }
+        } else {
+          terms.push(value);
+        }
       });
-    },
-    parseTerm() {
-      const termIndex = this.value.findIndex(value => value === "term");
-      let value;
 
-      if (termIndex !== -1) {
-        value = this.value[termIndex + 1]
-          ? this.value[termIndex + 1].trim()
-          : undefined;
+      if (terms.length > 0) {
+        this.filters.term = terms.join(" ");
       }
-
-      return value;
     },
-    parseLastUpdated() {
-      const lastUpdatedIndex = this.value.findIndex(
-        value => value === "lastUpdated"
+    parseLastUpdated(inputValue) {
+      const operator = ["<=", ">=", "<", ">", ".."].find(value =>
+        inputValue.includes(value)
       );
-      let result;
 
-      if (lastUpdatedIndex !== -1) {
-        const operator = this.value[lastUpdatedIndex + 1];
-        const validOperator = this.lastUpdated.some(
-          valid => valid.value === operator
-        );
-        const value = this.value[lastUpdatedIndex + 2];
-
-        if (operator && !validOperator) {
-          this.errorMessage = "Invalid operator";
-          return;
-        }
-
-        if (operator === "range" && value) {
-          try {
-            const dates = value.split("..");
-            if (dates.length !== 2 || dates[0] > dates[1]) throw new Error();
-            result = dates.map(date => new Date(date).toISOString()).join("..");
-            this.errorMessage = "";
-          } catch {
-            this.errorMessage = "Invalid date";
-          }
-        } else if (value) {
-          try {
-            const date = new Date(value).toISOString();
-            result = `${operator}${date}`;
-            this.errorMessage = "";
-          } catch {
-            this.errorMessage = "Invalid date";
-          }
-        }
-      } else {
-        this.errorMessage = "";
+      if (!operator) {
+        return (this.errorMessage = "Invalid operator");
       }
-      return result;
+
+      const values = inputValue.replace(operator, ` ${operator} `).split(" ");
+
+      try {
+        this.filters.lastUpdated = values
+          .map(value => {
+            if (value) {
+              return value === operator
+                ? operator
+                : new Date(value).toISOString();
+            }
+          })
+          .join("");
+      } catch (error) {
+        this.errorMessage = "Invalid date";
+      }
     },
     clear() {
-      Object.keys(this.searchFilters).forEach(key =>
-        this.$set(this.searchFilters, key, undefined)
-      );
-      this.value = [];
-      this.errorMessage = "";
-      this.$emit("search", this.searchFilters);
-    },
-    handleEnter() {
-      if (!this.searchInput) {
-        this.$emit("search", this.searchFilters);
-      }
+      this.inputValue = "";
+      this.filters = {};
+      this.errorMessage = undefined;
+      this.$emit("search", {});
     }
-  },
-  created() {
-    this.options = this.filters;
   }
 };
 </script>

@@ -4,7 +4,6 @@ import Vuetify from "vuetify";
 import IndividualsData from "@/components/IndividualsData";
 import IndividualsTable from "@/components/IndividualsTable";
 import OrganizationsTable from "@/components/OrganizationsTable";
-import Search from "@/components/Search";
 import * as Queries from "@/apollo/queries";
 
 Vue.use(Vuetify);
@@ -321,76 +320,5 @@ describe("OrganizationsTable", () => {
 
     expect(query).toBeCalled();
     expect(wrapper.element).toMatchSnapshot();
-  });
-});
-
-describe("Search", () => {
-  const vuetify = new Vuetify();
-  const mountFunction = options => {
-    return mount(Search, {
-      Vue,
-      vuetify,
-      ...options,
-    })
-  };
-
-  test.each([
-    ["test"],
-    ["term", "test"],
-    ["term", " test "],
-    ["lastUpdated", "<", "2000", "term", "test"],
-    ["term", "test", "lastUpdated", "<", "2000"]
-  ])("Given %p parses term", async (...args) => {
-    const wrapper = mountFunction({
-      data: () => ({ value: args })
-    });
-
-    const input = wrapper.find(".v-select__selections > input");
-    await input.trigger("change");
-
-    expect(wrapper.vm.searchFilters.term).toBe("test");
-  });
-
-  test.each([
-    [["lastUpdated", "<", "2000"], "<2000-01-01T00:00:00.000Z"],
-    [["lastUpdated", "<", "2000-10-01"], "<2000-10-01T00:00:00.000Z"],
-    [["lastUpdated", "<=", "2000-08-10"], "<=2000-08-10T00:00:00.000Z"],
-    [["lastUpdated", ">", "2000"], ">2000-01-01T00:00:00.000Z"],
-    [["lastUpdated", ">=", "2000-02-03"], ">=2000-02-03T00:00:00.000Z"],
-    [
-      ["lastUpdated", "range", "2000..2001"],
-      "2000-01-01T00:00:00.000Z..2001-01-01T00:00:00.000Z"
-    ],
-    [["term", "test", "lastUpdated", "<", "2000"], "<2000-01-01T00:00:00.000Z"]
-  ])("Given %p parses lastUpdated filter", async (values, expected) => {
-    const wrapper = mountFunction({
-      data: () => ({ value: values })
-    });
-
-    const input = wrapper.find(".v-select__selections > input");
-    await input.trigger("change");
-
-    expect(wrapper.vm.searchFilters.lastUpdated).toBe(expected);
-  });
-
-  test.each([
-    ["lastUpdated", "abc"],
-    ["lastUpdated", "<", "abc"],
-    ["lastUpdated", "<", "2000-23-01"],
-    ["lastUpdated", ">=", "2000-01-49"],
-    ["lastUpdated", ">", "@"],
-    ["lastUpdated", "range", "2000"],
-    ["lastUpdated", "range", "2000-2001"],
-    ["lastUpdated", "range", "2001-2000"]
-  ])("Given an invalid value renders an error", async (...args) => {
-    const wrapper = mountFunction({
-      data: () => ({ value: args })
-    });
-
-    const input = wrapper.find(".v-select__selections > input");
-    await input.trigger("change");
-    const errorMessage = wrapper.find(".v-messages__message");
-
-    expect(errorMessage.exists()).toBe(true);
   });
 });
