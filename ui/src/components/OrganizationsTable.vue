@@ -35,6 +35,7 @@
           @expand="expand(!isExpanded)"
           @enroll="confirmEnroll"
           @edit="openModal(item)"
+          @delete="confirmDelete(item.name)"
         />
       </template>
       <template v-slot:expanded-item="{ item }">
@@ -107,6 +108,10 @@ export default {
       default: 10
     },
     addOrganization: {
+      type: Function,
+      required: true
+    },
+    deleteOrganization: {
       type: Function,
       required: true
     },
@@ -196,6 +201,26 @@ export default {
         organization: organization ? organization.name : "",
         domains: domains
       });
+    },
+    confirmDelete(organization) {
+      Object.assign(this.dialog, {
+        open: true,
+        title: "Delete this organization?",
+        text: organization,
+        action: () => this.deleteOrg(organization)
+      });
+    },
+    async deleteOrg(organization) {
+      this.dialog.open = false;
+      try {
+        const response = await this.deleteOrganization(organization);
+        if (response) {
+          this.getOrganizations(this.page);
+          this.$emit("updateIndividuals");
+        }
+      } catch (error) {
+        Object.assign(this.snackbar, { open: true, text: error });
+      }
     }
   }
 };

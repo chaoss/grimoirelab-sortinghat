@@ -15,19 +15,19 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
         color="primary"
         left=""
       >
-        
+
         mdi-account-multiple
-      
+
       </v-icon-stub>
-      
+
       Individuals
-    
+
     </h4>
-     
+
     <search-stub
       class="ma-0 ml-auto pa-0 flex-grow-0"
     />
-     
+
     <div>
       <v-tooltip-stub
         bottom="true"
@@ -45,12 +45,12 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
         tag="span"
         transition="expand-y-transition"
       >
-         
+
         <span>
           Merge selected
         </span>
       </v-tooltip-stub>
-       
+
       <v-tooltip-stub
         bottom="true"
         closedelay="0"
@@ -67,12 +67,12 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
         tag="span"
         transition="expand-y-transition"
       >
-         
+
         <span>
           Delete selected
         </span>
       </v-tooltip-stub>
-       
+
       <v-btn-stub
         activeclass=""
         class="primary--text"
@@ -81,13 +81,13 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
         tag="button"
         type="button"
       >
-        
+
         Add
-      
+
       </v-btn-stub>
     </div>
   </v-row-stub>
-   
+
   <v-data-table-stub
     customfilter="function defaultFilter(value, search, item) {
           return value != null && search != null && typeof value !== 'boolean' && value.toString().toLocaleLowerCase().indexOf(search.toLocaleLowerCase()) !== -1;
@@ -181,7 +181,7 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
     sortdesc=""
     value=""
   />
-   
+
   <div
     class="text-center pt-2"
   >
@@ -198,7 +198,7 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
       wrapperarialabel="$vuetify.pagination.ariaLabel.wrapper"
     />
   </div>
-   
+
   <v-dialog-stub
     closedelay="0"
     contentclass=""
@@ -216,27 +216,27 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
       <v-card-title-stub
         class="headline"
       >
-        
+
       </v-card-title-stub>
-       
+
       <v-card-text-stub>
-        
+
       </v-card-text-stub>
-       
+
       <v-card-actions-stub>
         <v-spacer-stub />
-         
+
         <v-btn-stub
           activeclass=""
           tag="button"
           text="true"
           type="button"
         >
-          
+
           Cancel
-        
+
         </v-btn-stub>
-         
+
         <v-btn-stub
           activeclass=""
           color="blue darken-4"
@@ -244,21 +244,21 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
           text="true"
           type="button"
         >
-          
+
           Confirm
-        
+
         </v-btn-stub>
       </v-card-actions-stub>
     </v-card-stub>
   </v-dialog-stub>
-   
+
   <profile-modal-stub
     addidentity="() => {}"
     enroll="() => {}"
     getcountries="() => {}"
     updateprofile="() => {}"
   />
-   
+
   <v-card-stub
     class="dragged-item"
     color="primary"
@@ -267,21 +267,21 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
     tag="div"
   >
     <v-card-title-stub>
-      
+
       Moving 0
-    
+
     </v-card-title-stub>
   </v-card-stub>
-   
+
   <v-snackbar-stub
     contentclass=""
     tag="div"
     timeout="5000"
     transition="v-snack-transition"
   >
-    
-    
-  
+
+
+
   </v-snackbar-stub>
 </v-container-stub>
 `;
@@ -301,19 +301,19 @@ exports[`IndividualsTable Mock query for merge 1`] = `
         color="primary"
         left=""
       >
-        
+
         mdi-account-multiple
-      
+
       </v-icon-stub>
-      
+
       Individuals
-    
+
     </h4>
-     
+
     <search-stub
       class="ma-0 ml-auto pa-0 flex-grow-0"
     />
-     
+
     <div>
       <v-tooltip-stub
         bottom="true"
@@ -331,12 +331,12 @@ exports[`IndividualsTable Mock query for merge 1`] = `
         tag="span"
         transition="expand-y-transition"
       >
-         
+
         <span>
           Merge selected
         </span>
       </v-tooltip-stub>
-       
+
       <v-tooltip-stub
         bottom="true"
         closedelay="0"
@@ -353,12 +353,12 @@ exports[`IndividualsTable Mock query for merge 1`] = `
         tag="span"
         transition="expand-y-transition"
       >
-         
+
         <span>
           Delete selected
         </span>
       </v-tooltip-stub>
-       
+
       <v-btn-stub
         activeclass=""
         class="primary--text"
@@ -367,13 +367,13 @@ exports[`IndividualsTable Mock query for merge 1`] = `
         tag="button"
         type="button"
       >
-        
+
         Add
-      
+
       </v-btn-stub>
     </div>
   </v-row-stub>
-   
+
   <v-data-table-stub
     customfilter="function defaultFilter(value, search, item) {
           return value != null && search != null && typeof value !== 'boolean' && value.toString().toLocaleLowerCase().indexOf(search.toLocaleLowerCase()) !== -1;
@@ -467,7 +467,7 @@ exports[`IndividualsTable Mock query for merge 1`] = `
     sortdesc=""
     value=""
   />
-   
+
   <div
     class="text-center pt-2"
   >
@@ -484,7 +484,7 @@ exports[`IndividualsTable Mock query for merge 1`] = `
       wrapperarialabel="$vuetify.pagination.ariaLabel.wrapper"
     />
   </div>
-   
+
   <v-dialog-stub
     closedelay="0"
     contentclass=""
@@ -502,27 +502,27 @@ exports[`IndividualsTable Mock query for merge 1`] = `
       <v-card-title-stub
         class="headline"
       >
-        
+
       </v-card-title-stub>
-       
+
       <v-card-text-stub>
-        
+
       </v-card-text-stub>
-       
+
       <v-card-actions-stub>
         <v-spacer-stub />
-         
+
         <v-btn-stub
           activeclass=""
           tag="button"
           text="true"
           type="button"
         >
-          
+
           Cancel
-        
+
         </v-btn-stub>
-         
+
         <v-btn-stub
           activeclass=""
           color="blue darken-4"
@@ -530,21 +530,21 @@ exports[`IndividualsTable Mock query for merge 1`] = `
           text="true"
           type="button"
         >
-          
+
           Confirm
-        
+
         </v-btn-stub>
       </v-card-actions-stub>
     </v-card-stub>
   </v-dialog-stub>
-   
+
   <profile-modal-stub
     addidentity="() => {}"
     enroll="() => {}"
     getcountries="() => {}"
     updateprofile="() => {}"
   />
-   
+
   <v-card-stub
     class="dragged-item"
     color="primary"
@@ -553,21 +553,21 @@ exports[`IndividualsTable Mock query for merge 1`] = `
     tag="div"
   >
     <v-card-title-stub>
-      
+
       Moving 0
-    
+
     </v-card-title-stub>
   </v-card-stub>
-   
+
   <v-snackbar-stub
     contentclass=""
     tag="div"
     timeout="5000"
     transition="v-snack-transition"
   >
-    
-    
-  
+
+
+
   </v-snackbar-stub>
 </v-container-stub>
 `;
@@ -587,19 +587,19 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
         color="primary"
         left=""
       >
-        
+
         mdi-account-multiple
-      
+
       </v-icon-stub>
-      
+
       Individuals
-    
+
     </h4>
-     
+
     <search-stub
       class="ma-0 ml-auto pa-0 flex-grow-0"
     />
-     
+
     <div>
       <v-tooltip-stub
         bottom="true"
@@ -617,12 +617,12 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
         tag="span"
         transition="expand-y-transition"
       >
-         
+
         <span>
           Merge selected
         </span>
       </v-tooltip-stub>
-       
+
       <v-tooltip-stub
         bottom="true"
         closedelay="0"
@@ -639,12 +639,12 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
         tag="span"
         transition="expand-y-transition"
       >
-         
+
         <span>
           Delete selected
         </span>
       </v-tooltip-stub>
-       
+
       <v-btn-stub
         activeclass=""
         class="primary--text"
@@ -653,13 +653,13 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
         tag="button"
         type="button"
       >
-        
+
         Add
-      
+
       </v-btn-stub>
     </div>
   </v-row-stub>
-   
+
   <v-data-table-stub
     customfilter="function defaultFilter(value, search, item) {
           return value != null && search != null && typeof value !== 'boolean' && value.toString().toLocaleLowerCase().indexOf(search.toLocaleLowerCase()) !== -1;
@@ -753,7 +753,7 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
     sortdesc=""
     value=""
   />
-   
+
   <div
     class="text-center pt-2"
   >
@@ -770,7 +770,7 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
       wrapperarialabel="$vuetify.pagination.ariaLabel.wrapper"
     />
   </div>
-   
+
   <v-dialog-stub
     closedelay="0"
     contentclass=""
@@ -788,27 +788,27 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
       <v-card-title-stub
         class="headline"
       >
-        
+
       </v-card-title-stub>
-       
+
       <v-card-text-stub>
-        
+
       </v-card-text-stub>
-       
+
       <v-card-actions-stub>
         <v-spacer-stub />
-         
+
         <v-btn-stub
           activeclass=""
           tag="button"
           text="true"
           type="button"
         >
-          
+
           Cancel
-        
+
         </v-btn-stub>
-         
+
         <v-btn-stub
           activeclass=""
           color="blue darken-4"
@@ -816,21 +816,21 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
           text="true"
           type="button"
         >
-          
+
           Confirm
-        
+
         </v-btn-stub>
       </v-card-actions-stub>
     </v-card-stub>
   </v-dialog-stub>
-   
+
   <profile-modal-stub
     addidentity="() => {}"
     enroll="() => {}"
     getcountries="() => {}"
     updateprofile="() => {}"
   />
-   
+
   <v-card-stub
     class="dragged-item"
     color="primary"
@@ -839,21 +839,21 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
     tag="div"
   >
     <v-card-title-stub>
-      
+
       Moving 0
-    
+
     </v-card-title-stub>
   </v-card-stub>
-   
+
   <v-snackbar-stub
     contentclass=""
     tag="div"
     timeout="5000"
     transition="v-snack-transition"
   >
-    
-    
-  
+
+
+
   </v-snackbar-stub>
 </v-container-stub>
 `;
@@ -873,19 +873,19 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
         color="primary"
         left=""
       >
-        
+
         mdi-account-multiple
-      
+
       </v-icon-stub>
-      
+
       Individuals
-    
+
     </h4>
-     
+
     <search-stub
       class="ma-0 ml-auto pa-0 flex-grow-0"
     />
-     
+
     <div>
       <v-tooltip-stub
         bottom="true"
@@ -903,12 +903,12 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
         tag="span"
         transition="expand-y-transition"
       >
-         
+
         <span>
           Merge selected
         </span>
       </v-tooltip-stub>
-       
+
       <v-tooltip-stub
         bottom="true"
         closedelay="0"
@@ -925,12 +925,12 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
         tag="span"
         transition="expand-y-transition"
       >
-         
+
         <span>
           Delete selected
         </span>
       </v-tooltip-stub>
-       
+
       <v-btn-stub
         activeclass=""
         class="primary--text"
@@ -939,13 +939,13 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
         tag="button"
         type="button"
       >
-        
+
         Add
-      
+
       </v-btn-stub>
     </div>
   </v-row-stub>
-   
+
   <v-data-table-stub
     customfilter="function defaultFilter(value, search, item) {
           return value != null && search != null && typeof value !== 'boolean' && value.toString().toLocaleLowerCase().indexOf(search.toLocaleLowerCase()) !== -1;
@@ -1039,7 +1039,7 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
     sortdesc=""
     value=""
   />
-   
+
   <div
     class="text-center pt-2"
   >
@@ -1056,7 +1056,7 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
       wrapperarialabel="$vuetify.pagination.ariaLabel.wrapper"
     />
   </div>
-   
+
   <v-dialog-stub
     closedelay="0"
     contentclass=""
@@ -1074,27 +1074,27 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
       <v-card-title-stub
         class="headline"
       >
-        
+
       </v-card-title-stub>
-       
+
       <v-card-text-stub>
-        
+
       </v-card-text-stub>
-       
+
       <v-card-actions-stub>
         <v-spacer-stub />
-         
+
         <v-btn-stub
           activeclass=""
           tag="button"
           text="true"
           type="button"
         >
-          
+
           Cancel
-        
+
         </v-btn-stub>
-         
+
         <v-btn-stub
           activeclass=""
           color="blue darken-4"
@@ -1102,21 +1102,21 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
           text="true"
           type="button"
         >
-          
+
           Confirm
-        
+
         </v-btn-stub>
       </v-card-actions-stub>
     </v-card-stub>
   </v-dialog-stub>
-   
+
   <profile-modal-stub
     addidentity="() => {}"
     enroll="() => {}"
     getcountries="() => {}"
     updateprofile="() => {}"
   />
-   
+
   <v-card-stub
     class="dragged-item"
     color="primary"
@@ -1125,21 +1125,21 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
     tag="div"
   >
     <v-card-title-stub>
-      
+
       Moving 0
-    
+
     </v-card-title-stub>
   </v-card-stub>
-   
+
   <v-snackbar-stub
     contentclass=""
     tag="div"
     timeout="5000"
     transition="v-snack-transition"
   >
-    
-    
-  
+
+
+
   </v-snackbar-stub>
 </v-container-stub>
 `;
@@ -1159,19 +1159,19 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
         color="primary"
         left=""
       >
-        
+
         mdi-account-multiple
-      
+
       </v-icon-stub>
-      
+
       Individuals
-    
+
     </h4>
-     
+
     <search-stub
       class="ma-0 ml-auto pa-0 flex-grow-0"
     />
-     
+
     <div>
       <v-tooltip-stub
         bottom="true"
@@ -1189,12 +1189,12 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
         tag="span"
         transition="expand-y-transition"
       >
-         
+
         <span>
           Merge selected
         </span>
       </v-tooltip-stub>
-       
+
       <v-tooltip-stub
         bottom="true"
         closedelay="0"
@@ -1211,12 +1211,12 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
         tag="span"
         transition="expand-y-transition"
       >
-         
+
         <span>
           Delete selected
         </span>
       </v-tooltip-stub>
-       
+
       <v-btn-stub
         activeclass=""
         class="primary--text"
@@ -1225,13 +1225,13 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
         tag="button"
         type="button"
       >
-        
+
         Add
-      
+
       </v-btn-stub>
     </div>
   </v-row-stub>
-   
+
   <v-data-table-stub
     customfilter="function defaultFilter(value, search, item) {
           return value != null && search != null && typeof value !== 'boolean' && value.toString().toLocaleLowerCase().indexOf(search.toLocaleLowerCase()) !== -1;
@@ -1325,7 +1325,7 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
     sortdesc=""
     value=""
   />
-   
+
   <div
     class="text-center pt-2"
   >
@@ -1342,7 +1342,7 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
       wrapperarialabel="$vuetify.pagination.ariaLabel.wrapper"
     />
   </div>
-   
+
   <v-dialog-stub
     closedelay="0"
     contentclass=""
@@ -1360,27 +1360,27 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
       <v-card-title-stub
         class="headline"
       >
-        
+
       </v-card-title-stub>
-       
+
       <v-card-text-stub>
-        
+
       </v-card-text-stub>
-       
+
       <v-card-actions-stub>
         <v-spacer-stub />
-         
+
         <v-btn-stub
           activeclass=""
           tag="button"
           text="true"
           type="button"
         >
-          
+
           Cancel
-        
+
         </v-btn-stub>
-         
+
         <v-btn-stub
           activeclass=""
           color="blue darken-4"
@@ -1388,21 +1388,21 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
           text="true"
           type="button"
         >
-          
+
           Confirm
-        
+
         </v-btn-stub>
       </v-card-actions-stub>
     </v-card-stub>
   </v-dialog-stub>
-   
+
   <profile-modal-stub
     addidentity="() => {}"
     enroll="() => {}"
     getcountries="() => {}"
     updateprofile="() => {}"
   />
-   
+
   <v-card-stub
     class="dragged-item"
     color="primary"
@@ -1411,21 +1411,21 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
     tag="div"
   >
     <v-card-title-stub>
-      
+
       Moving 0
-    
+
     </v-card-title-stub>
   </v-card-stub>
-   
+
   <v-snackbar-stub
     contentclass=""
     tag="div"
     timeout="5000"
     transition="v-snack-transition"
   >
-    
-    
-  
+
+
+
   </v-snackbar-stub>
 </v-container-stub>
 `;
@@ -1446,13 +1446,13 @@ exports[`Login Mock mutation for tokenAuth 1`] = `
     >
       Welcome
     </v-card-title-stub>
-     
+
     <v-card-subtitle-stub
       class="mb-3"
     >
       Please log in to continue
     </v-card-subtitle-stub>
-     
+
     <v-card-text-stub>
       <v-form-stub>
         <v-text-field-stub
@@ -1469,7 +1469,7 @@ exports[`Login Mock mutation for tokenAuth 1`] = `
           type="text"
           value=""
         />
-         
+
         <v-text-field-stub
           appendicon="mdi-eye-off"
           backgroundcolor=""
@@ -1485,9 +1485,9 @@ exports[`Login Mock mutation for tokenAuth 1`] = `
           type="password"
           value=""
         />
-         
+
         <!---->
-         
+
         <v-btn-stub
           activeclass=""
           block="true"
@@ -1497,9 +1497,9 @@ exports[`Login Mock mutation for tokenAuth 1`] = `
           tag="button"
           type="button"
         >
-          
+
           Log in
-        
+
         </v-btn-stub>
       </v-form-stub>
     </v-card-text-stub>
@@ -1522,15 +1522,15 @@ exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
         color="primary"
         left=""
       >
-        
+
         mdi-sitemap
-      
+
       </v-icon-stub>
-      
+
       Organizations
-    
+
     </h4>
-     
+
     <v-btn-stub
       activeclass=""
       class="primary--text"
@@ -1539,12 +1539,12 @@ exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
       tag="button"
       type="button"
     >
-      
+
       Add
-    
+
     </v-btn-stub>
   </v-row-stub>
-   
+
   <v-data-table-stub
     customfilter="function defaultFilter(value, search, item) {
           return value != null && search != null && typeof value !== 'boolean' && value.toString().toLocaleLowerCase().indexOf(search.toLocaleLowerCase()) !== -1;
@@ -1638,7 +1638,7 @@ exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
     sortdesc=""
     value=""
   />
-   
+
   <div
     class="text-center pt-2"
   >
@@ -1655,7 +1655,7 @@ exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
       wrapperarialabel="$vuetify.pagination.ariaLabel.wrapper"
     />
   </div>
-   
+
   <organization-modal-stub
     adddomain="function mockConstructor() {
         return fn.apply(this, arguments);
@@ -1664,7 +1664,7 @@ exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
     deletedomain="() => {}"
     domains=""
   />
-   
+
   <v-dialog-stub
     closedelay="0"
     contentclass=""
@@ -1682,27 +1682,27 @@ exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
       <v-card-title-stub
         class="headline"
       >
-        
+
       </v-card-title-stub>
-       
+
       <v-card-text-stub>
-        
+
       </v-card-text-stub>
-       
+
       <v-card-actions-stub>
         <v-spacer-stub />
-         
+
         <v-btn-stub
           activeclass=""
           tag="button"
           text="true"
           type="button"
         >
-          
+
           Cancel
-        
+
         </v-btn-stub>
-         
+
         <v-btn-stub
           activeclass=""
           color="blue darken-4"
@@ -1710,23 +1710,23 @@ exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
           text="true"
           type="button"
         >
-          
+
           Confirm
-        
+
         </v-btn-stub>
       </v-card-actions-stub>
     </v-card-stub>
   </v-dialog-stub>
-   
+
   <v-snackbar-stub
     contentclass=""
     tag="div"
     timeout="5000"
     transition="v-snack-transition"
   >
-    
-    
-  
+
+
+
   </v-snackbar-stub>
 </v-container-stub>
 `;
@@ -1746,15 +1746,15 @@ exports[`OrganizationsTable Mock mutation for addOrganization 1`] = `
         color="primary"
         left=""
       >
-        
+
         mdi-sitemap
-      
+
       </v-icon-stub>
-      
+
       Organizations
-    
+
     </h4>
-     
+
     <v-btn-stub
       activeclass=""
       class="primary--text"
@@ -1763,12 +1763,12 @@ exports[`OrganizationsTable Mock mutation for addOrganization 1`] = `
       tag="button"
       type="button"
     >
-      
+
       Add
-    
+
     </v-btn-stub>
   </v-row-stub>
-   
+
   <v-data-table-stub
     customfilter="function defaultFilter(value, search, item) {
           return value != null && search != null && typeof value !== 'boolean' && value.toString().toLocaleLowerCase().indexOf(search.toLocaleLowerCase()) !== -1;
@@ -1862,7 +1862,7 @@ exports[`OrganizationsTable Mock mutation for addOrganization 1`] = `
     sortdesc=""
     value=""
   />
-   
+
   <div
     class="text-center pt-2"
   >
@@ -1879,7 +1879,7 @@ exports[`OrganizationsTable Mock mutation for addOrganization 1`] = `
       wrapperarialabel="$vuetify.pagination.ariaLabel.wrapper"
     />
   </div>
-   
+
   <organization-modal-stub
     adddomain="() => {}"
     addorganization="function mockConstructor() {
@@ -1888,7 +1888,7 @@ exports[`OrganizationsTable Mock mutation for addOrganization 1`] = `
     deletedomain="() => {}"
     domains=""
   />
-   
+
   <v-dialog-stub
     closedelay="0"
     contentclass=""
@@ -1906,27 +1906,27 @@ exports[`OrganizationsTable Mock mutation for addOrganization 1`] = `
       <v-card-title-stub
         class="headline"
       >
-        
+
       </v-card-title-stub>
-       
+
       <v-card-text-stub>
-        
+
       </v-card-text-stub>
-       
+
       <v-card-actions-stub>
         <v-spacer-stub />
-         
+
         <v-btn-stub
           activeclass=""
           tag="button"
           text="true"
           type="button"
         >
-          
+
           Cancel
-        
+
         </v-btn-stub>
-         
+
         <v-btn-stub
           activeclass=""
           color="blue darken-4"
@@ -1934,23 +1934,23 @@ exports[`OrganizationsTable Mock mutation for addOrganization 1`] = `
           text="true"
           type="button"
         >
-          
+
           Confirm
-        
+
         </v-btn-stub>
       </v-card-actions-stub>
     </v-card-stub>
   </v-dialog-stub>
-   
+
   <v-snackbar-stub
     contentclass=""
     tag="div"
     timeout="5000"
     transition="v-snack-transition"
   >
-    
-    
-  
+
+
+
   </v-snackbar-stub>
 </v-container-stub>
 `;
@@ -1970,15 +1970,15 @@ exports[`OrganizationsTable Mock mutation for deleteDomain 1`] = `
         color="primary"
         left=""
       >
-        
+
         mdi-sitemap
-      
+
       </v-icon-stub>
-      
+
       Organizations
-    
+
     </h4>
-     
+
     <v-btn-stub
       activeclass=""
       class="primary--text"
@@ -1987,12 +1987,12 @@ exports[`OrganizationsTable Mock mutation for deleteDomain 1`] = `
       tag="button"
       type="button"
     >
-      
+
       Add
-    
+
     </v-btn-stub>
   </v-row-stub>
-   
+
   <v-data-table-stub
     customfilter="function defaultFilter(value, search, item) {
           return value != null && search != null && typeof value !== 'boolean' && value.toString().toLocaleLowerCase().indexOf(search.toLocaleLowerCase()) !== -1;
@@ -2086,7 +2086,7 @@ exports[`OrganizationsTable Mock mutation for deleteDomain 1`] = `
     sortdesc=""
     value=""
   />
-   
+
   <div
     class="text-center pt-2"
   >
@@ -2103,7 +2103,7 @@ exports[`OrganizationsTable Mock mutation for deleteDomain 1`] = `
       wrapperarialabel="$vuetify.pagination.ariaLabel.wrapper"
     />
   </div>
-   
+
   <organization-modal-stub
     adddomain="() => {}"
     addorganization="() => {}"
@@ -2112,7 +2112,7 @@ exports[`OrganizationsTable Mock mutation for deleteDomain 1`] = `
       }"
     domains=""
   />
-   
+
   <v-dialog-stub
     closedelay="0"
     contentclass=""
@@ -2130,27 +2130,27 @@ exports[`OrganizationsTable Mock mutation for deleteDomain 1`] = `
       <v-card-title-stub
         class="headline"
       >
-        
+
       </v-card-title-stub>
-       
+
       <v-card-text-stub>
-        
+
       </v-card-text-stub>
-       
+
       <v-card-actions-stub>
         <v-spacer-stub />
-         
+
         <v-btn-stub
           activeclass=""
           tag="button"
           text="true"
           type="button"
         >
-          
+
           Cancel
-        
+
         </v-btn-stub>
-         
+
         <v-btn-stub
           activeclass=""
           color="blue darken-4"
@@ -2158,23 +2158,23 @@ exports[`OrganizationsTable Mock mutation for deleteDomain 1`] = `
           text="true"
           type="button"
         >
-          
+
           Confirm
-        
+
         </v-btn-stub>
       </v-card-actions-stub>
     </v-card-stub>
   </v-dialog-stub>
-   
+
   <v-snackbar-stub
     contentclass=""
     tag="div"
     timeout="5000"
     transition="v-snack-transition"
   >
-    
-    
-  
+
+
+
   </v-snackbar-stub>
 </v-container-stub>
 `;
@@ -2194,15 +2194,15 @@ exports[`OrganizationsTable Mock mutation for enroll 1`] = `
         color="primary"
         left=""
       >
-        
+
         mdi-sitemap
-      
+
       </v-icon-stub>
-      
+
       Organizations
-    
+
     </h4>
-     
+
     <v-btn-stub
       activeclass=""
       class="primary--text"
@@ -2211,12 +2211,12 @@ exports[`OrganizationsTable Mock mutation for enroll 1`] = `
       tag="button"
       type="button"
     >
-      
+
       Add
-    
+
     </v-btn-stub>
   </v-row-stub>
-   
+
   <v-data-table-stub
     customfilter="function defaultFilter(value, search, item) {
           return value != null && search != null && typeof value !== 'boolean' && value.toString().toLocaleLowerCase().indexOf(search.toLocaleLowerCase()) !== -1;
@@ -2310,7 +2310,7 @@ exports[`OrganizationsTable Mock mutation for enroll 1`] = `
     sortdesc=""
     value=""
   />
-   
+
   <div
     class="text-center pt-2"
   >
@@ -2327,14 +2327,14 @@ exports[`OrganizationsTable Mock mutation for enroll 1`] = `
       wrapperarialabel="$vuetify.pagination.ariaLabel.wrapper"
     />
   </div>
-   
+
   <organization-modal-stub
     adddomain="() => {}"
     addorganization="() => {}"
     deletedomain="() => {}"
     domains=""
   />
-   
+
   <v-dialog-stub
     closedelay="0"
     contentclass=""
@@ -2352,27 +2352,27 @@ exports[`OrganizationsTable Mock mutation for enroll 1`] = `
       <v-card-title-stub
         class="headline"
       >
-        
+
       </v-card-title-stub>
-       
+
       <v-card-text-stub>
-        
+
       </v-card-text-stub>
-       
+
       <v-card-actions-stub>
         <v-spacer-stub />
-         
+
         <v-btn-stub
           activeclass=""
           tag="button"
           text="true"
           type="button"
         >
-          
+
           Cancel
-        
+
         </v-btn-stub>
-         
+
         <v-btn-stub
           activeclass=""
           color="blue darken-4"
@@ -2380,23 +2380,245 @@ exports[`OrganizationsTable Mock mutation for enroll 1`] = `
           text="true"
           type="button"
         >
-          
+
           Confirm
-        
+
         </v-btn-stub>
       </v-card-actions-stub>
     </v-card-stub>
   </v-dialog-stub>
-   
+
   <v-snackbar-stub
     contentclass=""
     tag="div"
     timeout="5000"
     transition="v-snack-transition"
   >
-    
-    
-  
+
+
+
+  </v-snackbar-stub>
+</v-container-stub>
+`;
+
+exports[`OrganizationsTable Mock mutation for enroll 1`] = `
+<v-container-stub
+  tag="div"
+>
+  <v-row-stub
+    class="actions"
+    tag="div"
+  >
+    <h4
+      class="title"
+    >
+      <v-icon-stub
+        color="primary"
+        left=""
+      >
+
+        mdi-sitemap
+
+      </v-icon-stub>
+
+      Organizations
+
+    </h4>
+
+    <v-btn-stub
+      activeclass=""
+      class="primary--text"
+      color="blue lighten-5"
+      depressed="true"
+      tag="button"
+      type="button"
+    >
+
+      Add
+
+    </v-btn-stub>
+  </v-row-stub>
+
+  <v-data-table-stub
+    customfilter="function defaultFilter(value, search, item) {
+          return value != null && search != null && typeof value !== 'boolean' && value.toString().toLocaleLowerCase().indexOf(search.toLocaleLowerCase()) !== -1;
+        }"
+    customgroup="function groupItems(items, groupBy, groupDesc) {
+          var key = groupBy[0];
+          var groups = [];
+          var current = null;
+
+          for (var i = 0; i < items.length; i++) {
+            var item = items[i];
+            var val = getObjectValueByPath(item, key);
+
+            if (current !== val) {
+              current = val;
+              groups.push({
+                name: val,
+                items: []
+              });
+            }
+
+            groups[groups.length - 1].items.push(item);
+          }
+
+          return groups;
+        }"
+    customsort="function sortItems(items, sortBy, sortDesc, locale, customSorters) {
+          if (sortBy === null || !sortBy.length) return items;
+          var stringCollator = new Intl.Collator(locale, {
+            sensitivity: 'accent',
+            usage: 'sort'
+          });
+          return items.sort(function (a, b) {
+            var _a, _b;
+
+            for (var i = 0; i < sortBy.length; i++) {
+              var sortKey = sortBy[i];
+              var sortA = getObjectValueByPath(a, sortKey);
+              var sortB = getObjectValueByPath(b, sortKey);
+
+              if (sortDesc[i]) {
+                _a = __read([sortB, sortA], 2), sortA = _a[0], sortB = _a[1];
+              }
+
+              if (customSorters && customSorters[sortKey]) {
+                var customResult = customSorters[sortKey](sortA, sortB);
+                if (!customResult) continue;
+                return customResult;
+              } // Check if both cannot be evaluated
+
+
+              if (sortA === null && sortB === null) {
+                continue;
+              }
+
+              _b = __read([sortA, sortB].map(function (s) {
+                return (s || '').toString().toLocaleLowerCase();
+              }), 2), sortA = _b[0], sortB = _b[1];
+
+              if (sortA !== sortB) {
+                if (!isNaN(sortA) && !isNaN(sortB)) return Number(sortA) - Number(sortB);
+                return stringCollator.compare(sortA, sortB);
+              }
+            }
+
+            return 0;
+          });
+        }"
+    expanded=""
+    expandicon="$expand"
+    groupby=""
+    groupdesc=""
+    headers="[object Object],[object Object],[object Object]"
+    hidedefaultfooter="true"
+    hidedefaultheader="true"
+    itemclass=""
+    itemkey="id"
+    items=""
+    itemsperpage="10"
+    loaderheight="4"
+    loadingtext="$vuetify.dataIterator.loadingText"
+    locale="en-US"
+    mobilebreakpoint="600"
+    nodatatext="$vuetify.noDataText"
+    noresultstext="$vuetify.dataIterator.noResultsText"
+    options="[object Object]"
+    page="0"
+    selectablekey="isSelectable"
+    serveritemslength="-1"
+    sortby=""
+    sortdesc=""
+    value=""
+  />
+
+  <div
+    class="text-center pt-2"
+  >
+    <v-pagination-stub
+      currentpagearialabel="$vuetify.pagination.ariaLabel.currentPage"
+      length="0"
+      nextarialabel="$vuetify.pagination.ariaLabel.next"
+      nexticon="$next"
+      pagearialabel="$vuetify.pagination.ariaLabel.page"
+      previcon="$prev"
+      previousarialabel="$vuetify.pagination.ariaLabel.previous"
+      totalvisible="5"
+      value="0"
+      wrapperarialabel="$vuetify.pagination.ariaLabel.wrapper"
+    />
+  </div>
+
+  <organization-modal-stub
+    adddomain="() => {}"
+    addorganization="() => {}"
+    deletedomain="() => {}"
+    domains=""
+  />
+
+  <v-dialog-stub
+    closedelay="0"
+    contentclass=""
+    maxwidth="400"
+    opendelay="0"
+    origin="center center"
+    retainfocus="true"
+    transition="dialog-transition"
+    width="auto"
+  >
+    <v-card-stub
+      loaderheight="4"
+      tag="div"
+    >
+      <v-card-title-stub
+        class="headline"
+      >
+
+      </v-card-title-stub>
+
+      <v-card-text-stub>
+
+      </v-card-text-stub>
+
+      <v-card-actions-stub>
+        <v-spacer-stub />
+
+        <v-btn-stub
+          activeclass=""
+          tag="button"
+          text="true"
+          type="button"
+        >
+
+          Cancel
+
+        </v-btn-stub>
+
+        <v-btn-stub
+          activeclass=""
+          color="blue darken-4"
+          tag="button"
+          text="true"
+          type="button"
+        >
+
+          Confirm
+
+        </v-btn-stub>
+      </v-card-actions-stub>
+    </v-card-stub>
+  </v-dialog-stub>
+
+  <v-snackbar-stub
+    contentclass=""
+    tag="div"
+    timeout="5000"
+    transition="v-snack-transition"
+  >
+
+
+
   </v-snackbar-stub>
 </v-container-stub>
 `;
@@ -2425,7 +2647,7 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
         Add individual
       </span>
     </v-card-title-stub>
-     
+
     <v-card-text-stub>
       <v-form-stub>
         <v-row-stub
@@ -2450,7 +2672,7 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
               value=""
             />
           </v-col-stub>
-           
+
           <v-col-stub
             cols="6"
             tag="div"
@@ -2471,7 +2693,7 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
             />
           </v-col-stub>
         </v-row-stub>
-         
+
         <v-row-stub
           tag="div"
         >
@@ -2494,7 +2716,7 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
               value=""
             />
           </v-col-stub>
-           
+
           <v-col-stub
             cols="6"
             tag="div"
@@ -2515,7 +2737,7 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
             />
           </v-col-stub>
         </v-row-stub>
-         
+
         <v-row-stub
           tag="div"
         >
@@ -2538,7 +2760,7 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
               value=""
             />
           </v-col-stub>
-           
+
           <v-col-stub
             cols="4"
             tag="div"
@@ -2595,7 +2817,7 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
         }"
             />
           </v-col-stub>
-           
+
           <v-col-stub
             cols="2"
             tag="div"
@@ -2641,7 +2863,7 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
           </v-col-stub>
         </v-row-stub>
       </v-form-stub>
-       
+
       <v-row-stub
         class="pl-4"
         tag="div"
@@ -2652,7 +2874,7 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
           Organizations
         </span>
       </v-row-stub>
-       
+
       <v-row-stub
         tag="div"
       >
@@ -2675,7 +2897,7 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
             value=""
           />
         </v-col-stub>
-         
+
         <v-col-stub
           cols="3"
           tag="div"
@@ -2698,7 +2920,7 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
             origin="top left"
             transition="scale-transition"
           >
-             
+
             <v-date-picker-stub
               eventcolor="warning"
               firstdayofweek="0"
@@ -2719,7 +2941,7 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
             />
           </v-menu-stub>
         </v-col-stub>
-         
+
         <v-col-stub
           cols="3"
           tag="div"
@@ -2742,7 +2964,7 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
             origin="top left"
             transition="scale-transition"
           >
-             
+
             <v-date-picker-stub
               eventcolor="warning"
               firstdayofweek="0"
@@ -2764,7 +2986,7 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
             />
           </v-menu-stub>
         </v-col-stub>
-         
+
         <v-col-stub
           class="pt-6"
           cols="1"
@@ -2785,7 +3007,7 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
           </v-btn-stub>
         </v-col-stub>
       </v-row-stub>
-       
+
       <v-row-stub
         tag="div"
       >
@@ -2804,18 +3026,18 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
           >
             mdi-plus-circle-outline
           </v-icon-stub>
-          
+
           Add organization
-        
+
         </v-btn-stub>
       </v-row-stub>
     </v-card-text-stub>
-     
+
     <!---->
-     
+
     <v-card-actions-stub>
       <v-spacer-stub />
-       
+
       <v-btn-stub
         activeclass=""
         color="blue darken-1"
@@ -2823,11 +3045,11 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
         text="true"
         type="button"
       >
-        
+
         Cancel
-      
+
       </v-btn-stub>
-       
+
       <v-btn-stub
         activeclass=""
         color="primary"
@@ -2836,9 +3058,9 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
         tag="button"
         type="button"
       >
-        
+
         Save
-      
+
       </v-btn-stub>
     </v-card-actions-stub>
   </v-card-stub>
@@ -2869,7 +3091,7 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
         Add individual
       </span>
     </v-card-title-stub>
-     
+
     <v-card-text-stub>
       <v-form-stub>
         <v-row-stub
@@ -2894,7 +3116,7 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
               value=""
             />
           </v-col-stub>
-           
+
           <v-col-stub
             cols="6"
             tag="div"
@@ -2915,7 +3137,7 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
             />
           </v-col-stub>
         </v-row-stub>
-         
+
         <v-row-stub
           tag="div"
         >
@@ -2938,7 +3160,7 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
               value=""
             />
           </v-col-stub>
-           
+
           <v-col-stub
             cols="6"
             tag="div"
@@ -2959,7 +3181,7 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
             />
           </v-col-stub>
         </v-row-stub>
-         
+
         <v-row-stub
           tag="div"
         >
@@ -2982,7 +3204,7 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
               value=""
             />
           </v-col-stub>
-           
+
           <v-col-stub
             cols="4"
             tag="div"
@@ -3039,7 +3261,7 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
         }"
             />
           </v-col-stub>
-           
+
           <v-col-stub
             cols="2"
             tag="div"
@@ -3085,7 +3307,7 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
           </v-col-stub>
         </v-row-stub>
       </v-form-stub>
-       
+
       <v-row-stub
         class="pl-4"
         tag="div"
@@ -3096,7 +3318,7 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
           Organizations
         </span>
       </v-row-stub>
-       
+
       <v-row-stub
         tag="div"
       >
@@ -3119,7 +3341,7 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
             value=""
           />
         </v-col-stub>
-         
+
         <v-col-stub
           cols="3"
           tag="div"
@@ -3142,7 +3364,7 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
             origin="top left"
             transition="scale-transition"
           >
-             
+
             <v-date-picker-stub
               eventcolor="warning"
               firstdayofweek="0"
@@ -3163,7 +3385,7 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
             />
           </v-menu-stub>
         </v-col-stub>
-         
+
         <v-col-stub
           cols="3"
           tag="div"
@@ -3186,7 +3408,7 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
             origin="top left"
             transition="scale-transition"
           >
-             
+
             <v-date-picker-stub
               eventcolor="warning"
               firstdayofweek="0"
@@ -3208,7 +3430,7 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
             />
           </v-menu-stub>
         </v-col-stub>
-         
+
         <v-col-stub
           class="pt-6"
           cols="1"
@@ -3229,7 +3451,7 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
           </v-btn-stub>
         </v-col-stub>
       </v-row-stub>
-       
+
       <v-row-stub
         tag="div"
       >
@@ -3248,18 +3470,18 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
           >
             mdi-plus-circle-outline
           </v-icon-stub>
-          
+
           Add organization
-        
+
         </v-btn-stub>
       </v-row-stub>
     </v-card-text-stub>
-     
+
     <!---->
-     
+
     <v-card-actions-stub>
       <v-spacer-stub />
-       
+
       <v-btn-stub
         activeclass=""
         color="blue darken-1"
@@ -3267,11 +3489,11 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
         text="true"
         type="button"
       >
-        
+
         Cancel
-      
+
       </v-btn-stub>
-       
+
       <v-btn-stub
         activeclass=""
         color="primary"
@@ -3280,9 +3502,9 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
         tag="button"
         type="button"
       >
-        
+
         Save
-      
+
       </v-btn-stub>
     </v-card-actions-stub>
   </v-card-stub>
