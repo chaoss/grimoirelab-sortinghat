@@ -217,6 +217,18 @@ const withdrawResponse = {
   }
 };
 
+const deleteOrganizationResponse = {
+  data: {
+    deleteOrganization: {
+      organization: {
+        name: "Organization",
+        __typename: "OrganizationType"
+      },
+      __typename: "DeleteOrganization"
+    }
+  }
+};
+
 describe("IndividualsTable", () => {
   test("Mock query for deleteIdentity", async () => {
     const mutate = jest.fn(() => Promise.resolve(deleteResponse));
@@ -395,7 +407,8 @@ describe("OrganizationsTable", () => {
         fetchPage: () => {},
         addDomain: () => {},
         addOrganization: () => {},
-        deleteDomain: () => {}
+        deleteDomain: () => {},
+        deleteOrganization: () => {}
       }
     });
 
@@ -423,7 +436,8 @@ describe("OrganizationsTable", () => {
         fetchPage: () => {},
         addOrganization: mutate,
         addDomain: () => {},
-        deleteDomain: () => {}
+        deleteDomain: () => {},
+        deleteOrganization: () => {}
       }
     });
 
@@ -448,7 +462,8 @@ describe("OrganizationsTable", () => {
         fetchPage: () => {},
         addDomain: mutate,
         deleteDomain: () => {},
-        addOrganization: () => {}
+        addOrganization: () => {},
+        deleteOrganization: () => {}
       }
     });
 
@@ -474,7 +489,8 @@ describe("OrganizationsTable", () => {
         fetchPage: () => {},
         addDomain: () => {},
         deleteDomain: mutate,
-        addOrganization: () => {}
+        addOrganization: () => {},
+        deleteOrganization: () => {}
       }
     });
 
@@ -483,7 +499,33 @@ describe("OrganizationsTable", () => {
     );
     expect(mutate).toBeCalled();
     expect(wrapper.element).toMatchSnapshot();
-  })
+  });
+
+  test("Mock mutation for deleteOrganization", async () => {
+    const mutate = jest.fn(() => Promise.resolve(deleteOrganizationResponse));
+    const wrapper = shallowMount(OrganizationsTable, {
+      Vue,
+      mocks: {
+        $apollo: {
+          mutate
+        }
+      },
+      propsData: {
+        enroll: () => {},
+        fetchPage: () => {},
+        addDomain: () => {},
+        deleteDomain: () => {},
+        addOrganization: () => {},
+        deleteOrganization: mutate
+      }
+    });
+
+    const response = await Mutations.deleteOrganization(
+      wrapper.vm.$apollo, "Organization"
+    );
+    expect(mutate).toBeCalled();
+    expect(wrapper.element).toMatchSnapshot();
+  });
 });
 
 describe("ProfileModal", () => {
