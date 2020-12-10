@@ -9,7 +9,7 @@
     @dragleave.prevent="isDragging = false"
   >
     <v-row class="ma-md-0 pt-md-4 pl-md-4 pr-md-4 justify-space-between">
-      <h3 class="text-h3">
+      <h3 class="text-h6">
         <v-icon color="primary" left>
           mdi-pin
         </v-icon>

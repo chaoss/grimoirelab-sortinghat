@@ -66,7 +66,7 @@
         </v-form>
 
         <v-row class="pl-4">
-          <span class="title font-weight-regular pl-16">Organizations</span>
+          <span class="text-h6 font-weight-regular">Organizations</span>
         </v-row>
         <v-row v-for="(enrollment, index) in enrollmentsForm" :key="index">
           <v-col cols="4">

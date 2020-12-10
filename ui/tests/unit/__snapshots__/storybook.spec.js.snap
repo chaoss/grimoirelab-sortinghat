@@ -24,7 +24,7 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
       </div>
        
       <div
-        class="v-list indented v-sheet v-sheet--tile theme--light"
+        class="v-list indented v-sheet theme--light"
         role="list"
       >
         <div
@@ -103,7 +103,7 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
         <!---->
       </div>
       <div
-        class="v-list indented v-sheet v-sheet--tile theme--light"
+        class="v-list indented v-sheet theme--light"
         role="list"
       >
         <div
@@ -254,7 +254,7 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
         <!---->
       </div>
       <div
-        class="v-list indented v-sheet v-sheet--tile theme--light"
+        class="v-list indented v-sheet theme--light"
         role="list"
       >
         <div
@@ -336,7 +336,7 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
       <!---->
        
       <div
-        class="v-list v-sheet v-sheet--tile theme--light"
+        class="v-list v-sheet theme--light"
         role="list"
       >
         <div
@@ -536,7 +536,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
       </div>
        
       <div
-        class="v-list indented v-sheet v-sheet--tile theme--light"
+        class="v-list indented v-sheet theme--light"
         role="list"
       >
         <div
@@ -655,7 +655,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
         />
       </div>
       <div
-        class="v-list indented v-sheet v-sheet--tile theme--light"
+        class="v-list indented v-sheet theme--light"
         role="list"
       >
         <div
@@ -878,7 +878,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
         />
       </div>
       <div
-        class="v-list indented v-sheet v-sheet--tile theme--light"
+        class="v-list indented v-sheet theme--light"
         role="list"
       >
         <div
@@ -1000,7 +1000,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
       />
        
       <div
-        class="v-list v-sheet v-sheet--tile theme--light"
+        class="v-list v-sheet theme--light"
         role="list"
       >
         <div
@@ -1242,7 +1242,7 @@ exports[`Storyshots ExpandedIndividual No Organizations 1`] = `
       </div>
        
       <div
-        class="v-list indented v-sheet v-sheet--tile theme--light"
+        class="v-list indented v-sheet theme--light"
         role="list"
       >
         <div
@@ -1365,7 +1365,7 @@ exports[`Storyshots ExpandedIndividual No Organizations 1`] = `
       />
        
       <div
-        class="v-list v-sheet v-sheet--tile theme--light"
+        class="v-list v-sheet theme--light"
         role="list"
       >
         <div
@@ -1401,7 +1401,7 @@ exports[`Storyshots ExpandedOrganization Default 1`] = `
   >
     <td>
       <div
-        class="v-list v-sheet v-sheet--tile theme--light v-list--dense"
+        class="v-list v-sheet theme--light v-list--dense"
         role="list"
       >
         <div
@@ -1457,7 +1457,7 @@ exports[`Storyshots ExpandedOrganization Empty 1`] = `
   >
     <td>
       <div
-        class="v-list v-sheet v-sheet--tile theme--light v-list--dense"
+        class="v-list v-sheet theme--light v-list--dense"
         role="list"
       >
         <div
@@ -4996,7 +4996,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
         </h4>
          
         <div
-          class="v-input search ma-0 ml-auto pa-0 flex-grow-0 theme--light v-text-field search--hidden"
+          class="v-input search ma-0 ml-auto pa-0 flex-grow-0 ma-0 ml-auto pa-0 flex-grow-0 theme--light v-text-field search--hidden"
         >
           <div
             class="v-input__control"
@@ -5009,13 +5009,13 @@ exports[`Storyshots IndividualsTable Default 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-650"
+                  for="input-625"
                   style="left: 0px; position: absolute;"
                 >
                   Search
                 </label>
                 <input
-                  id="input-650"
+                  id="input-625"
                   type="text"
                 />
               </div>
@@ -5042,13 +5042,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
               >
                 <div
                   class="v-messages__wrapper"
-                >
-                  <div
-                    class="v-messages__message"
-                  >
-                    min. 3 characters
-                  </div>
-                </div>
+                />
               </div>
             </div>
           </div>
@@ -5162,32 +5156,39 @@ exports[`Storyshots IndividualsTable Default 1`] = `
       <div
         class="text-center pt-2"
       >
-        <ul
-          class="v-pagination theme--light"
+        <nav
+          aria-label="Pagination Navigation"
+          role="navigation"
         >
-          <li>
-            <button
-              class="v-pagination__navigation v-pagination__navigation--disabled"
-              type="button"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-chevron-left theme--light"
-              />
-            </button>
-          </li>
-          <li>
-            <button
-              class="v-pagination__navigation v-pagination__navigation--disabled"
-              type="button"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-chevron-right theme--light"
-              />
-            </button>
-          </li>
-        </ul>
+          <ul
+            class="v-pagination theme--light"
+          >
+            <li>
+              <button
+                aria-label="Previous page"
+                class="v-pagination__navigation v-pagination__navigation--disabled"
+                type="button"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate mdi mdi-chevron-left theme--light"
+                />
+              </button>
+            </li>
+            <li>
+              <button
+                aria-label="Next page"
+                class="v-pagination__navigation v-pagination__navigation--disabled"
+                type="button"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate mdi mdi-chevron-right theme--light"
+                />
+              </button>
+            </li>
+          </ul>
+        </nav>
       </div>
        
       <div
@@ -5216,7 +5217,28 @@ exports[`Storyshots IndividualsTable Default 1`] = `
         </div>
       </div>
        
-      <!---->
+      <div
+        class="v-snack v-snack--bottom v-snack--has-background"
+        style="padding-bottom: 0px; padding-top: 0px;"
+      >
+        <div
+          class="v-snack__wrapper v-sheet theme--dark"
+          style="display: none;"
+        >
+          <div
+            aria-live="polite"
+            class="v-snack__content"
+            role="status"
+          >
+            
+    
+  
+          </div>
+          <div
+            class="v-snack__action "
+          />
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -5455,32 +5477,39 @@ exports[`Storyshots OrganizationsTable Default 1`] = `
       <div
         class="text-center pt-2"
       >
-        <ul
-          class="v-pagination theme--light"
+        <nav
+          aria-label="Pagination Navigation"
+          role="navigation"
         >
-          <li>
-            <button
-              class="v-pagination__navigation v-pagination__navigation--disabled"
-              type="button"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-chevron-left theme--light"
-              />
-            </button>
-          </li>
-          <li>
-            <button
-              class="v-pagination__navigation v-pagination__navigation--disabled"
-              type="button"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-chevron-right theme--light"
-              />
-            </button>
-          </li>
-        </ul>
+          <ul
+            class="v-pagination theme--light"
+          >
+            <li>
+              <button
+                aria-label="Previous page"
+                class="v-pagination__navigation v-pagination__navigation--disabled"
+                type="button"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate mdi mdi-chevron-left theme--light"
+                />
+              </button>
+            </li>
+            <li>
+              <button
+                aria-label="Next page"
+                class="v-pagination__navigation v-pagination__navigation--disabled"
+                type="button"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate mdi mdi-chevron-right theme--light"
+                />
+              </button>
+            </li>
+          </ul>
+        </nav>
       </div>
        
       <div
@@ -5497,7 +5526,28 @@ exports[`Storyshots OrganizationsTable Default 1`] = `
         <!---->
       </div>
        
-      <!---->
+      <div
+        class="v-snack v-snack--bottom v-snack--has-background"
+        style="padding-bottom: 0px; padding-top: 0px;"
+      >
+        <div
+          class="v-snack__wrapper v-sheet theme--dark"
+          style="display: none;"
+        >
+          <div
+            aria-live="polite"
+            class="v-snack__content"
+            role="status"
+          >
+            
+    
+  
+          </div>
+          <div
+            class="v-snack__action "
+          />
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -5706,6 +5756,89 @@ exports[`Storyshots ProfileModal Default 1`] = `
 </div>
 `;
 
+exports[`Storyshots Search Default 1`] = `
+<div
+  class="v-application v-application--is-ltr theme--light"
+  data-app="true"
+  id="app"
+>
+  <div
+    class="v-application--wrap"
+  >
+    <div
+      class="mx-auto"
+      width="380"
+    >
+      <div
+        class="v-input search ma-0 ml-auto pa-0 flex-grow-0 theme--light v-text-field search--hidden"
+      >
+        <div
+          class="v-input__control"
+        >
+          <div
+            class="v-input__slot"
+          >
+            <div
+              class="v-text-field__slot"
+            >
+              <label
+                class="v-label theme--light"
+                for="input-855"
+                style="left: 0px; position: absolute;"
+              >
+                Search
+              </label>
+              <input
+                id="input-855"
+                type="text"
+              />
+            </div>
+            <div
+              class="v-input__append-inner"
+            >
+              <div
+                class="v-input__icon v-input__icon--clear"
+              >
+                <button
+                  aria-label="clear icon"
+                  class="v-icon notranslate v-icon--disabled v-icon--link mdi mdi-close theme--light"
+                  disabled="disabled"
+                  type="button"
+                />
+              </div>
+            </div>
+          </div>
+          <div
+            class="v-text-field__details"
+          >
+            <div
+              class="v-messages theme--light"
+            >
+              <div
+                class="v-messages__wrapper"
+              />
+            </div>
+          </div>
+        </div>
+        <div
+          class="v-input__append-outer"
+        >
+          <div
+            class="v-input__icon v-input__icon--append-outer"
+          >
+            <button
+              aria-label="append icon"
+              class="v-icon notranslate v-icon--link mdi mdi-magnify theme--light"
+              type="button"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
 exports[`Storyshots WorkSpace Default 1`] = `
 <div
   class="v-application v-application--is-ltr theme--light"
@@ -5722,7 +5855,7 @@ exports[`Storyshots WorkSpace Default 1`] = `
         class="row ma-md-0 pt-md-4 pl-md-4 pr-md-4 justify-space-between"
       >
         <h3
-          class="text-h3"
+          class="text-h6"
         >
           <i
             aria-hidden="true"
@@ -5988,7 +6121,28 @@ exports[`Storyshots WorkSpace Default 1`] = `
         </div>
       </div>
        
-      <!---->
+      <div
+        class="v-snack v-snack--bottom v-snack--has-background"
+        style="padding-bottom: 0px; padding-top: 0px;"
+      >
+        <div
+          class="v-snack__wrapper v-sheet theme--dark"
+          style="display: none;"
+        >
+          <div
+            aria-live="polite"
+            class="v-snack__content"
+            role="status"
+          >
+            
+    
+  
+          </div>
+          <div
+            class="v-snack__action "
+          />
+        </div>
+      </div>
        
       <div
         class="v-dialog__container"
@@ -6018,7 +6172,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
           class="row ma-md-0 pt-md-4 pl-md-4 pr-md-4 justify-space-between"
         >
           <h3
-            class="text-h3"
+            class="text-h6"
           >
             <i
               aria-hidden="true"
@@ -6080,7 +6234,28 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
   
         </p>
          
-        <!---->
+        <div
+          class="v-snack v-snack--bottom v-snack--has-background"
+          style="padding-bottom: 0px; padding-top: 0px;"
+        >
+          <div
+            class="v-snack__wrapper v-sheet theme--dark"
+            style="display: none;"
+          >
+            <div
+              aria-live="polite"
+              class="v-snack__content"
+              role="status"
+            >
+              
+    
+  
+            </div>
+            <div
+              class="v-snack__action "
+            />
+          </div>
+        </div>
          
         <div
           class="v-dialog__container"
@@ -6109,7 +6284,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
           </h4>
            
           <div
-            class="v-input search ma-0 ml-auto pa-0 flex-grow-0 theme--light v-text-field search--hidden"
+            class="v-input search ma-0 ml-auto pa-0 flex-grow-0 ma-0 ml-auto pa-0 flex-grow-0 theme--light v-text-field search--hidden"
           >
             <div
               class="v-input__control"
@@ -6122,13 +6297,13 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-958"
+                    for="input-936"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-958"
+                    id="input-936"
                     type="text"
                   />
                 </div>
@@ -6155,13 +6330,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 >
                   <div
                     class="v-messages__wrapper"
-                  >
-                    <div
-                      class="v-messages__message"
-                    >
-                      min. 3 characters
-                    </div>
-                  </div>
+                  />
                 </div>
               </div>
             </div>
@@ -6275,32 +6444,39 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
         <div
           class="text-center pt-2"
         >
-          <ul
-            class="v-pagination theme--light"
+          <nav
+            aria-label="Pagination Navigation"
+            role="navigation"
           >
-            <li>
-              <button
-                class="v-pagination__navigation v-pagination__navigation--disabled"
-                type="button"
-              >
-                <i
-                  aria-hidden="true"
-                  class="v-icon notranslate mdi mdi-chevron-left theme--light"
-                />
-              </button>
-            </li>
-            <li>
-              <button
-                class="v-pagination__navigation v-pagination__navigation--disabled"
-                type="button"
-              >
-                <i
-                  aria-hidden="true"
-                  class="v-icon notranslate mdi mdi-chevron-right theme--light"
-                />
-              </button>
-            </li>
-          </ul>
+            <ul
+              class="v-pagination theme--light"
+            >
+              <li>
+                <button
+                  aria-label="Previous page"
+                  class="v-pagination__navigation v-pagination__navigation--disabled"
+                  type="button"
+                >
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate mdi mdi-chevron-left theme--light"
+                  />
+                </button>
+              </li>
+              <li>
+                <button
+                  aria-label="Next page"
+                  class="v-pagination__navigation v-pagination__navigation--disabled"
+                  type="button"
+                >
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate mdi mdi-chevron-right theme--light"
+                  />
+                </button>
+              </li>
+            </ul>
+          </nav>
         </div>
          
         <div
@@ -6329,7 +6505,28 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
           </div>
         </div>
          
-        <!---->
+        <div
+          class="v-snack v-snack--bottom v-snack--has-background"
+          style="padding-bottom: 0px; padding-top: 0px;"
+        >
+          <div
+            class="v-snack__wrapper v-sheet theme--dark"
+            style="display: none;"
+          >
+            <div
+              aria-live="polite"
+              class="v-snack__content"
+              role="status"
+            >
+              
+    
+  
+            </div>
+            <div
+              class="v-snack__action "
+            />
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -6352,7 +6549,7 @@ exports[`Storyshots WorkSpace Empty 1`] = `
         class="row ma-md-0 pt-md-4 pl-md-4 pr-md-4 justify-space-between"
       >
         <h3
-          class="text-h3"
+          class="text-h6"
         >
           <i
             aria-hidden="true"
@@ -6414,7 +6611,28 @@ exports[`Storyshots WorkSpace Empty 1`] = `
   
       </p>
        
-      <!---->
+      <div
+        class="v-snack v-snack--bottom v-snack--has-background"
+        style="padding-bottom: 0px; padding-top: 0px;"
+      >
+        <div
+          class="v-snack__wrapper v-sheet theme--dark"
+          style="display: none;"
+        >
+          <div
+            aria-live="polite"
+            class="v-snack__content"
+            role="status"
+          >
+            
+    
+  
+          </div>
+          <div
+            class="v-snack__action "
+          />
+        </div>
+      </div>
        
       <div
         class="v-dialog__container"
