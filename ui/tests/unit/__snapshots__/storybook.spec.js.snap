@@ -5286,7 +5286,6 @@ exports[`Storyshots OrganizationEntry Default 1`] = `
                
               <td
                 class="text-right"
-                width="109"
               >
                 <button
                   class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
@@ -5298,6 +5297,21 @@ exports[`Storyshots OrganizationEntry Default 1`] = `
                     <i
                       aria-hidden="true"
                       class="v-icon notranslate mdi mdi-lead-pencil theme--light"
+                      style="font-size: 16px;"
+                    />
+                  </span>
+                </button>
+                 
+                <button
+                  class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                  type="button"
+                >
+                  <span
+                    class="v-btn__content"
+                  >
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate mdi mdi-delete theme--light"
                       style="font-size: 16px;"
                     />
                   </span>
@@ -5783,13 +5797,13 @@ exports[`Storyshots Search Default 1`] = `
             >
               <label
                 class="v-label theme--light"
-                for="input-855"
+                for="input-863"
                 style="left: 0px; position: absolute;"
               >
                 Search
               </label>
               <input
-                id="input-855"
+                id="input-863"
                 type="text"
               />
             </div>
@@ -6297,13 +6311,13 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-936"
+                    for="input-944"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-936"
+                    id="input-944"
                     type="text"
                   />
                 </div>

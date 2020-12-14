@@ -290,6 +290,16 @@ const WITHDRAW = gql`
   }
 `;
 
+const DELETE_ORGANIZATION = gql`
+  mutation deleteOrganization($name: String!) {
+    deleteOrganization(name: $name) {
+      organization {
+        name
+      }
+    }
+  }
+`;
+
 const tokenAuth = (apollo, username, password) => {
   const response = apollo.mutate({
     mutation: TOKEN_AUTH,
@@ -442,6 +452,14 @@ const withdraw = (apollo, uuid, organization, fromDate, toDate) => {
   return response;
 };
 
+const deleteOrganization = (apollo, name) => {
+  let response = apollo.mutate({
+    mutation: DELETE_ORGANIZATION,
+    variables: { name: name }
+  });
+  return response;
+};
+
 export {
   tokenAuth,
   lockIndividual,
@@ -452,6 +470,7 @@ export {
   moveIdentity,
   enroll,
   addOrganization,
+  deleteOrganization,
   addDomain,
   deleteDomain,
   addIdentity,

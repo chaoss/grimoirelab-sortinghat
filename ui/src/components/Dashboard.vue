@@ -43,6 +43,7 @@
           :add-organization="addOrganization"
           :add-domain="addDomain"
           :delete-domain="deleteDomain"
+          :delete-organization="deleteOrganization"
           @updateIndividuals="updateTable"
           @updateWorkspace="updateWorkspace"
         />
@@ -68,6 +69,7 @@ import {
   moveIdentity,
   enroll,
   addOrganization,
+  deleteOrganization,
   addDomain,
   deleteDomain,
   updateProfile,
@@ -195,6 +197,10 @@ export default {
     },
     async addOrganization(organization) {
       const response = await addOrganization(this.$apollo, organization);
+      return response;
+    },
+    async deleteOrganization(organization) {
+      const response = await deleteOrganization(this.$apollo, organization);
       return response;
     },
     async addDomain(domain, organization) {

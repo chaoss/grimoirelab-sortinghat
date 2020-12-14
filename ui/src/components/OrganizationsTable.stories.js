@@ -14,6 +14,7 @@ const OrganizationsTableTemplate = `
     :add-organization="addOrganization.bind(this)"
     :add-domain="addDomain"
     :delete-domain="deleteDomain"
+    :delete-organization="deleteOrganization"
   />
 `;
 
@@ -51,6 +52,10 @@ export const Default = () => ({
         entity.domains.splice(index, 1);
       }
       );
+    },
+    deleteOrganization(name) {
+      const index = this.query[0].data.organizations.entities.findIndex(entity => entity.name === name);
+      this.query[0].data.organizations.entities.splice(index, 1);
     }
   },
   data: () => ({

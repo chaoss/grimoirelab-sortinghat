@@ -8,10 +8,15 @@
   >
     <td class="text--body-1">{{ name }}</td>
     <td class="text-right text--secondary">{{ enrollments }}</td>
-    <td class="text-right" width="109">
+    <td class="text-right">
       <v-btn icon @click.stop="$emit('edit')">
         <v-icon small>
           mdi-lead-pencil
+        </v-icon>
+      </v-btn>
+      <v-btn icon @click.stop="$emit('delete')">
+        <v-icon small>
+          mdi-delete
         </v-icon>
       </v-btn>
       <v-btn icon @click.stop="$emit('expand')">
