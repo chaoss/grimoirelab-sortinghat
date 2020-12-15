@@ -1,6 +1,7 @@
 <template>
   <v-main>
     <work-space
+      :enroll="enroll"
       :highlight-individual="highlightInWorkspace"
       :individuals="savedIndividuals"
       :merge-items="mergeItems"
@@ -10,6 +11,8 @@
       @highlight="highlightIndividual($event, 'highlightInTable', true)"
       @stopHighlight="highlightIndividual($event, 'highlightInTable', false)"
       @deselect="deselectIndividuals"
+      @updateOrganizations="updateOrganizations"
+      @updateWorkspace="updateWorkspace"
     />
     <v-row>
       <v-col class="individuals elevation-2">
@@ -28,6 +31,7 @@
           :unlock-individual="unlockIndividual"
           :withdraw="withdraw"
           @saveIndividual="addSavedIndividual"
+          @updateOrganizations="updateOrganizations"
           @updateWorkspace="updateWorkspace"
           @highlight="highlightIndividual($event, 'highlightInWorkspace', true)"
           @stopHighlight="
@@ -46,6 +50,7 @@
           :delete-organization="deleteOrganization"
           @updateIndividuals="updateTable"
           @updateWorkspace="updateWorkspace"
+          ref="organizations"
         />
       </v-col>
     </v-row>
@@ -131,6 +136,9 @@ export default {
     async mergeItems(fromUuids, toUuid) {
       const response = await merge(this.$apollo, fromUuids, toUuid);
       return response;
+    },
+    updateOrganizations() {
+      this.$refs.organizations.getOrganizations();
     },
     updateTable() {
       this.$refs.table.queryIndividuals();

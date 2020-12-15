@@ -81,6 +81,7 @@
           @highlight="$emit('highlight', item)"
           @stopHighlight="$emit('stopHighlight', item)"
           @lock="handleLock(item.uuid, $event)"
+          @enroll="confirmEnroll(item.uuid, $event)"
         />
       </template>
       <template v-slot:expanded-item="{ item }">
@@ -109,7 +110,7 @@
       ></v-pagination>
     </div>
 
-    <v-dialog v-model="dialog.open" max-width="400">
+    <v-dialog v-model="dialog.open" max-width="500px">
       <v-card>
         <v-card-title class="headline">{{ dialog.title }}</v-card-title>
         <v-card-text>{{ dialog.text }}</v-card-text>
@@ -135,9 +136,9 @@
     />
 
     <v-card class="dragged-item" color="primary" dark>
-      <v-card-title>
+      <v-card-subtitle>
         Moving {{ this.selectedIndividuals.length }}
-      </v-card-title>
+      </v-card-subtitle>
     </v-card>
 
     <v-snackbar v-model="snackbar.open">
@@ -152,6 +153,7 @@ import {
   moveIdentity,
   formatIndividuals
 } from "../utils/actions";
+import { enrollMixin } from "../mixins/enroll";
 import IndividualEntry from "./IndividualEntry.vue";
 import ExpandedIndividual from "./ExpandedIndividual.vue";
 import ProfileModal from "./ProfileModal.vue";
@@ -165,6 +167,7 @@ export default {
     ProfileModal,
     Search
   },
+  mixins: [enrollMixin],
   props: {
     fetchPage: {
       type: Function,

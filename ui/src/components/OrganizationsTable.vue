@@ -237,7 +237,7 @@ export default {
     startDrag(item, event) {
       this.selectedOrganization = item.name;
       event.dataTransfer.dropEffect = "move";
-      event.dataTransfer.setData("type", "enroll");
+      event.dataTransfer.setData("type", "enrollFromOrganization");
       event.dataTransfer.setData("organization", item.name);
       const dragImage = document.querySelector(".dragged-organization");
       event.dataTransfer.setDragImage(dragImage, 0, 0);

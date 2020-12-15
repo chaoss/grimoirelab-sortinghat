@@ -62,6 +62,7 @@
           :identities="individual.identities"
           :enrollments="individual.enrollments"
           :is-highlighted="individual.uuid === highlightIndividual"
+          @enroll="confirmEnroll(individual.uuid, $event)"
           @merge="mergeSelected($event)"
           @mouseenter="$emit('highlight', individual)"
           @mouseleave="$emit('stopHighlight', individual)"
@@ -103,12 +104,14 @@ import {
   moveIdentity,
   groupIdentities
 } from "../utils/actions";
+import { enrollMixin } from "../mixins/enroll";
 import IndividualCard from "./IndividualCard.vue";
 export default {
   name: "WorkSpace",
   components: {
     IndividualCard
   },
+  mixins: [enrollMixin],
   props: {
     highlightIndividual: {
       type: String,
@@ -123,6 +126,10 @@ export default {
       required: true
     },
     moveItem: {
+      type: Function,
+      required: true
+    },
+    enroll: {
       type: Function,
       required: true
     }
@@ -154,7 +161,8 @@ export default {
       this.$emit("clearSpace");
     },
     onDrop(evt) {
-      if (event.dataTransfer.getData("type") === "move") {
+      const type = evt.dataTransfer.getData("type");
+      if (type === "move" || type === "enrollFromOrganization") {
         return;
       }
       const droppedIndividuals = JSON.parse(
@@ -248,7 +256,13 @@ export default {
       }
     },
     onDrag(event) {
-      if (event.dataTransfer.getData("type") === "move") {
+      const type = event.dataTransfer.getData("type");
+      const types = event.dataTransfer.types;
+      if (
+        type === "move" ||
+        type === "enrollFromOrganization" ||
+        types.includes("organization")
+      ) {
         return;
       }
       this.isDragging = true;

@@ -54,7 +54,7 @@ export default {
     onDrop(event) {
       this.dropZone = false;
       const type = event.dataTransfer.getData("type");
-      if (type === "enroll") {
+      if (type === "enrollFromOrganization") {
         return;
       }
       const droppedIndividuals = JSON.parse(
