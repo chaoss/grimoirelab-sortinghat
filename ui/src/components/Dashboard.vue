@@ -6,7 +6,7 @@
       :individuals="savedIndividuals"
       :merge-items="mergeItems"
       :move-item="moveItem"
-      @clearSpace="savedIndividuals = []"
+      @clearSpace="clearWorkspace"
       @updateIndividuals="updateTable"
       @highlight="highlightIndividual($event, 'highlightInTable', true)"
       @stopHighlight="highlightIndividual($event, 'highlightInTable', false)"
@@ -240,6 +240,9 @@ export default {
         toDate
       );
       return response;
+    },
+    clearWorkspace() {
+      this.savedIndividuals = [];
     }
   }
 };

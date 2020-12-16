@@ -59,6 +59,8 @@ const MERGE = gql`
           organization {
             name
           }
+          start
+          end
         }
       }
     }

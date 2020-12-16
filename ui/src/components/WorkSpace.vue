@@ -232,6 +232,7 @@ export default {
       this.savedIndividuals = this.savedIndividuals.filter(
         savedIndividual => savedIndividual.uuid !== individual.uuid
       );
+      this.$emit("updateWorkspace", { remove: [individual.uuid] });
       this.$emit("stopHighlight", individual);
     },
     move(event) {
