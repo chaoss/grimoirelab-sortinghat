@@ -548,10 +548,15 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
           <div
             class="v-list-item__icon"
           >
-            <i
-              aria-hidden="true"
-              class="v-icon notranslate mdi mdi-git theme--light"
-            />
+            <span
+              class="v-tooltip v-tooltip--bottom"
+            >
+              <!---->
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate mdi mdi-git theme--light"
+              />
+            </span>
           </div>
            
           <div
@@ -667,10 +672,15 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
           <div
             class="v-list-item__icon"
           >
-            <i
-              aria-hidden="true"
-              class="v-icon notranslate mdi mdi-github theme--light"
-            />
+            <span
+              class="v-tooltip v-tooltip--bottom"
+            >
+              <!---->
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate mdi mdi-github theme--light"
+              />
+            </span>
           </div>
            
           <div
@@ -890,10 +900,15 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
           <div
             class="v-list-item__icon"
           >
-            <i
-              aria-hidden="true"
-              class="v-icon notranslate mdi mdi-account-multiple theme--light"
-            />
+            <span
+              class="v-tooltip v-tooltip--bottom"
+            >
+              <!---->
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate mdi mdi-account-multiple theme--light"
+              />
+            </span>
           </div>
            
           <div
@@ -1254,10 +1269,15 @@ exports[`Storyshots ExpandedIndividual No Organizations 1`] = `
           <div
             class="v-list-item__icon"
           >
-            <i
-              aria-hidden="true"
-              class="v-icon notranslate mdi mdi-git theme--light"
-            />
+            <span
+              class="v-tooltip v-tooltip--bottom"
+            >
+              <!---->
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate mdi mdi-git theme--light"
+              />
+            </span>
           </div>
            
           <div
@@ -2111,26 +2131,46 @@ exports[`Storyshots IndividualCard Sources 1`] = `
           <div
             class="v-list-item__subtitle"
           >
-            <i
-              aria-hidden="true"
-              class="v-icon notranslate v-icon--left mdi mdi-git theme--light"
-              style="font-size: 16px;"
-            />
-            <i
-              aria-hidden="true"
-              class="v-icon notranslate v-icon--left mdi mdi-github theme--light"
-              style="font-size: 16px;"
-            />
-            <i
-              aria-hidden="true"
-              class="v-icon notranslate v-icon--left mdi mdi-gitlab theme--light"
-              style="font-size: 16px;"
-            />
-            <i
-              aria-hidden="true"
-              class="v-icon notranslate v-icon--left mdi mdi-account-multiple theme--light"
-              style="font-size: 16px;"
-            />
+            <span
+              class="v-tooltip v-tooltip--bottom"
+            >
+              <!---->
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate v-icon--left mdi mdi-git theme--light"
+                style="font-size: 16px;"
+              />
+            </span>
+            <span
+              class="v-tooltip v-tooltip--bottom"
+            >
+              <!---->
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate v-icon--left mdi mdi-github theme--light"
+                style="font-size: 16px;"
+              />
+            </span>
+            <span
+              class="v-tooltip v-tooltip--bottom"
+            >
+              <!---->
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate v-icon--left mdi mdi-gitlab theme--light"
+                style="font-size: 16px;"
+              />
+            </span>
+            <span
+              class="v-tooltip v-tooltip--bottom"
+            >
+              <!---->
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate v-icon--left mdi mdi-account-multiple theme--light"
+                style="font-size: 16px;"
+              />
+            </span>
           </div>
         </div>
          
@@ -2229,26 +2269,46 @@ exports[`Storyshots IndividualCard Sources And Organization 1`] = `
           <div
             class="v-list-item__subtitle"
           >
-            <i
-              aria-hidden="true"
-              class="v-icon notranslate v-icon--left mdi mdi-git theme--light"
-              style="font-size: 16px;"
-            />
-            <i
-              aria-hidden="true"
-              class="v-icon notranslate v-icon--left mdi mdi-github theme--light"
-              style="font-size: 16px;"
-            />
-            <i
-              aria-hidden="true"
-              class="v-icon notranslate v-icon--left mdi mdi-gitlab theme--light"
-              style="font-size: 16px;"
-            />
-            <i
-              aria-hidden="true"
-              class="v-icon notranslate v-icon--left mdi mdi-account-multiple theme--light"
-              style="font-size: 16px;"
-            />
+            <span
+              class="v-tooltip v-tooltip--bottom"
+            >
+              <!---->
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate v-icon--left mdi mdi-git theme--light"
+                style="font-size: 16px;"
+              />
+            </span>
+            <span
+              class="v-tooltip v-tooltip--bottom"
+            >
+              <!---->
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate v-icon--left mdi mdi-github theme--light"
+                style="font-size: 16px;"
+              />
+            </span>
+            <span
+              class="v-tooltip v-tooltip--bottom"
+            >
+              <!---->
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate v-icon--left mdi mdi-gitlab theme--light"
+                style="font-size: 16px;"
+              />
+            </span>
+            <span
+              class="v-tooltip v-tooltip--bottom"
+            >
+              <!---->
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate v-icon--left mdi mdi-account-multiple theme--light"
+                style="font-size: 16px;"
+              />
+            </span>
           </div>
         </div>
          
@@ -2444,14 +2504,24 @@ exports[`Storyshots IndividualEntry Bot 1`] = `
               <td
                 class="text-right"
               >
-                <i
-                  aria-hidden="true"
-                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-git theme--light"
-                />
-                <i
-                  aria-hidden="true"
-                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-account-multiple theme--light"
-                />
+                <span
+                  class="v-tooltip v-tooltip--bottom"
+                >
+                  <!---->
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate v-icon--left v-icon--right mdi mdi-git theme--light"
+                  />
+                </span>
+                <span
+                  class="v-tooltip v-tooltip--bottom"
+                >
+                  <!---->
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate v-icon--left v-icon--right mdi mdi-account-multiple theme--light"
+                  />
+                </span>
               </td>
                
               <td
@@ -2625,14 +2695,24 @@ exports[`Storyshots IndividualEntry Bot And Locked 1`] = `
               <td
                 class="text-right"
               >
-                <i
-                  aria-hidden="true"
-                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-git theme--light"
-                />
-                <i
-                  aria-hidden="true"
-                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-account-multiple theme--light"
-                />
+                <span
+                  class="v-tooltip v-tooltip--bottom"
+                >
+                  <!---->
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate v-icon--left v-icon--right mdi mdi-git theme--light"
+                  />
+                </span>
+                <span
+                  class="v-tooltip v-tooltip--bottom"
+                >
+                  <!---->
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate v-icon--left v-icon--right mdi mdi-account-multiple theme--light"
+                  />
+                </span>
               </td>
                
               <td
@@ -2840,14 +2920,24 @@ exports[`Storyshots IndividualEntry Default 1`] = `
               <td
                 class="text-right"
               >
-                <i
-                  aria-hidden="true"
-                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-git theme--light"
-                />
-                <i
-                  aria-hidden="true"
-                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-account-multiple theme--light"
-                />
+                <span
+                  class="v-tooltip v-tooltip--bottom"
+                >
+                  <!---->
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate v-icon--left v-icon--right mdi mdi-git theme--light"
+                  />
+                </span>
+                <span
+                  class="v-tooltip v-tooltip--bottom"
+                >
+                  <!---->
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate v-icon--left v-icon--right mdi mdi-account-multiple theme--light"
+                  />
+                </span>
               </td>
                
               <td
@@ -3055,14 +3145,24 @@ exports[`Storyshots IndividualEntry Highlighted 1`] = `
               <td
                 class="text-right"
               >
-                <i
-                  aria-hidden="true"
-                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-git theme--light"
-                />
-                <i
-                  aria-hidden="true"
-                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-account-multiple theme--light"
-                />
+                <span
+                  class="v-tooltip v-tooltip--bottom"
+                >
+                  <!---->
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate v-icon--left v-icon--right mdi mdi-git theme--light"
+                  />
+                </span>
+                <span
+                  class="v-tooltip v-tooltip--bottom"
+                >
+                  <!---->
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate v-icon--left v-icon--right mdi mdi-account-multiple theme--light"
+                  />
+                </span>
               </td>
                
               <td
@@ -3236,14 +3336,24 @@ exports[`Storyshots IndividualEntry Locked 1`] = `
               <td
                 class="text-right"
               >
-                <i
-                  aria-hidden="true"
-                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-git theme--light"
-                />
-                <i
-                  aria-hidden="true"
-                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-account-multiple theme--light"
-                />
+                <span
+                  class="v-tooltip v-tooltip--bottom"
+                >
+                  <!---->
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate v-icon--left v-icon--right mdi mdi-git theme--light"
+                  />
+                </span>
+                <span
+                  class="v-tooltip v-tooltip--bottom"
+                >
+                  <!---->
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate v-icon--left v-icon--right mdi mdi-account-multiple theme--light"
+                  />
+                </span>
               </td>
                
               <td
@@ -3451,14 +3561,24 @@ exports[`Storyshots IndividualEntry No Email 1`] = `
               <td
                 class="text-right"
               >
-                <i
-                  aria-hidden="true"
-                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-git theme--light"
-                />
-                <i
-                  aria-hidden="true"
-                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-account-multiple theme--light"
-                />
+                <span
+                  class="v-tooltip v-tooltip--bottom"
+                >
+                  <!---->
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate v-icon--left v-icon--right mdi mdi-git theme--light"
+                  />
+                </span>
+                <span
+                  class="v-tooltip v-tooltip--bottom"
+                >
+                  <!---->
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate v-icon--left v-icon--right mdi mdi-account-multiple theme--light"
+                  />
+                </span>
               </td>
                
               <td
@@ -3666,14 +3786,24 @@ exports[`Storyshots IndividualEntry No Name 1`] = `
               <td
                 class="text-right"
               >
-                <i
-                  aria-hidden="true"
-                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-git theme--light"
-                />
-                <i
-                  aria-hidden="true"
-                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-account-multiple theme--light"
-                />
+                <span
+                  class="v-tooltip v-tooltip--bottom"
+                >
+                  <!---->
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate v-icon--left v-icon--right mdi mdi-git theme--light"
+                  />
+                </span>
+                <span
+                  class="v-tooltip v-tooltip--bottom"
+                >
+                  <!---->
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate v-icon--left v-icon--right mdi mdi-account-multiple theme--light"
+                  />
+                </span>
               </td>
                
               <td
@@ -3881,14 +4011,24 @@ exports[`Storyshots IndividualEntry No Organization 1`] = `
               <td
                 class="text-right"
               >
-                <i
-                  aria-hidden="true"
-                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-git theme--light"
-                />
-                <i
-                  aria-hidden="true"
-                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-account-multiple theme--light"
-                />
+                <span
+                  class="v-tooltip v-tooltip--bottom"
+                >
+                  <!---->
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate v-icon--left v-icon--right mdi mdi-git theme--light"
+                  />
+                </span>
+                <span
+                  class="v-tooltip v-tooltip--bottom"
+                >
+                  <!---->
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate v-icon--left v-icon--right mdi mdi-account-multiple theme--light"
+                  />
+                </span>
               </td>
                
               <td
@@ -4096,14 +4236,24 @@ exports[`Storyshots IndividualEntry Single Inital 1`] = `
               <td
                 class="text-right"
               >
-                <i
-                  aria-hidden="true"
-                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-git theme--light"
-                />
-                <i
-                  aria-hidden="true"
-                  class="v-icon notranslate v-icon--left v-icon--right mdi mdi-account-multiple theme--light"
-                />
+                <span
+                  class="v-tooltip v-tooltip--bottom"
+                >
+                  <!---->
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate v-icon--left v-icon--right mdi mdi-git theme--light"
+                  />
+                </span>
+                <span
+                  class="v-tooltip v-tooltip--bottom"
+                >
+                  <!---->
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate v-icon--left v-icon--right mdi mdi-account-multiple theme--light"
+                  />
+                </span>
               </td>
                
               <td
@@ -4222,11 +4372,16 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   <div
                     class="v-list-item__subtitle"
                   >
-                    <i
-                      aria-hidden="true"
-                      class="v-icon notranslate v-icon--left mdi mdi-gitlab theme--light"
-                      style="font-size: 16px;"
-                    />
+                    <span
+                      class="v-tooltip v-tooltip--bottom"
+                    >
+                      <!---->
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate v-icon--left mdi mdi-gitlab theme--light"
+                        style="font-size: 16px;"
+                      />
+                    </span>
                   </div>
                 </div>
                  
@@ -4310,21 +4465,36 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   <div
                     class="v-list-item__subtitle"
                   >
-                    <i
-                      aria-hidden="true"
-                      class="v-icon notranslate v-icon--left mdi mdi-github theme--light"
-                      style="font-size: 16px;"
-                    />
-                    <i
-                      aria-hidden="true"
-                      class="v-icon notranslate v-icon--left mdi mdi-git theme--light"
-                      style="font-size: 16px;"
-                    />
-                    <i
-                      aria-hidden="true"
-                      class="v-icon notranslate v-icon--left mdi mdi-account-multiple theme--light"
-                      style="font-size: 16px;"
-                    />
+                    <span
+                      class="v-tooltip v-tooltip--bottom"
+                    >
+                      <!---->
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate v-icon--left mdi mdi-github theme--light"
+                        style="font-size: 16px;"
+                      />
+                    </span>
+                    <span
+                      class="v-tooltip v-tooltip--bottom"
+                    >
+                      <!---->
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate v-icon--left mdi mdi-git theme--light"
+                        style="font-size: 16px;"
+                      />
+                    </span>
+                    <span
+                      class="v-tooltip v-tooltip--bottom"
+                    >
+                      <!---->
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate v-icon--left mdi mdi-account-multiple theme--light"
+                        style="font-size: 16px;"
+                      />
+                    </span>
                   </div>
                 </div>
                  
@@ -4408,11 +4578,16 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   <div
                     class="v-list-item__subtitle"
                   >
-                    <i
-                      aria-hidden="true"
-                      class="v-icon notranslate v-icon--left mdi mdi-gitlab theme--light"
-                      style="font-size: 16px;"
-                    />
+                    <span
+                      class="v-tooltip v-tooltip--bottom"
+                    >
+                      <!---->
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate v-icon--left mdi mdi-gitlab theme--light"
+                        style="font-size: 16px;"
+                      />
+                    </span>
                   </div>
                 </div>
                  
@@ -4496,21 +4671,36 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   <div
                     class="v-list-item__subtitle"
                   >
-                    <i
-                      aria-hidden="true"
-                      class="v-icon notranslate v-icon--left mdi mdi-github theme--light"
-                      style="font-size: 16px;"
-                    />
-                    <i
-                      aria-hidden="true"
-                      class="v-icon notranslate v-icon--left mdi mdi-git theme--light"
-                      style="font-size: 16px;"
-                    />
-                    <i
-                      aria-hidden="true"
-                      class="v-icon notranslate v-icon--left mdi mdi-account-multiple theme--light"
-                      style="font-size: 16px;"
-                    />
+                    <span
+                      class="v-tooltip v-tooltip--bottom"
+                    >
+                      <!---->
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate v-icon--left mdi mdi-github theme--light"
+                        style="font-size: 16px;"
+                      />
+                    </span>
+                    <span
+                      class="v-tooltip v-tooltip--bottom"
+                    >
+                      <!---->
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate v-icon--left mdi mdi-git theme--light"
+                        style="font-size: 16px;"
+                      />
+                    </span>
+                    <span
+                      class="v-tooltip v-tooltip--bottom"
+                    >
+                      <!---->
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate v-icon--left mdi mdi-account-multiple theme--light"
+                        style="font-size: 16px;"
+                      />
+                    </span>
                   </div>
                 </div>
                  
@@ -4594,16 +4784,26 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   <div
                     class="v-list-item__subtitle"
                   >
-                    <i
-                      aria-hidden="true"
-                      class="v-icon notranslate v-icon--left mdi mdi-github theme--light"
-                      style="font-size: 16px;"
-                    />
-                    <i
-                      aria-hidden="true"
-                      class="v-icon notranslate v-icon--left mdi mdi-git theme--light"
-                      style="font-size: 16px;"
-                    />
+                    <span
+                      class="v-tooltip v-tooltip--bottom"
+                    >
+                      <!---->
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate v-icon--left mdi mdi-github theme--light"
+                        style="font-size: 16px;"
+                      />
+                    </span>
+                    <span
+                      class="v-tooltip v-tooltip--bottom"
+                    >
+                      <!---->
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate v-icon--left mdi mdi-git theme--light"
+                        style="font-size: 16px;"
+                      />
+                    </span>
                   </div>
                 </div>
                  
@@ -4687,21 +4887,36 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   <div
                     class="v-list-item__subtitle"
                   >
-                    <i
-                      aria-hidden="true"
-                      class="v-icon notranslate v-icon--left mdi mdi-github theme--light"
-                      style="font-size: 16px;"
-                    />
-                    <i
-                      aria-hidden="true"
-                      class="v-icon notranslate v-icon--left mdi mdi-git theme--light"
-                      style="font-size: 16px;"
-                    />
-                    <i
-                      aria-hidden="true"
-                      class="v-icon notranslate v-icon--left mdi mdi-account-multiple theme--light"
-                      style="font-size: 16px;"
-                    />
+                    <span
+                      class="v-tooltip v-tooltip--bottom"
+                    >
+                      <!---->
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate v-icon--left mdi mdi-github theme--light"
+                        style="font-size: 16px;"
+                      />
+                    </span>
+                    <span
+                      class="v-tooltip v-tooltip--bottom"
+                    >
+                      <!---->
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate v-icon--left mdi mdi-git theme--light"
+                        style="font-size: 16px;"
+                      />
+                    </span>
+                    <span
+                      class="v-tooltip v-tooltip--bottom"
+                    >
+                      <!---->
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate v-icon--left mdi mdi-account-multiple theme--light"
+                        style="font-size: 16px;"
+                      />
+                    </span>
                   </div>
                 </div>
                  
@@ -4785,21 +5000,36 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   <div
                     class="v-list-item__subtitle"
                   >
-                    <i
-                      aria-hidden="true"
-                      class="v-icon notranslate v-icon--left mdi mdi-gitlab theme--light"
-                      style="font-size: 16px;"
-                    />
-                    <i
-                      aria-hidden="true"
-                      class="v-icon notranslate v-icon--left mdi mdi-github theme--light"
-                      style="font-size: 16px;"
-                    />
-                    <i
-                      aria-hidden="true"
-                      class="v-icon notranslate v-icon--left mdi mdi-git theme--light"
-                      style="font-size: 16px;"
-                    />
+                    <span
+                      class="v-tooltip v-tooltip--bottom"
+                    >
+                      <!---->
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate v-icon--left mdi mdi-gitlab theme--light"
+                        style="font-size: 16px;"
+                      />
+                    </span>
+                    <span
+                      class="v-tooltip v-tooltip--bottom"
+                    >
+                      <!---->
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate v-icon--left mdi mdi-github theme--light"
+                        style="font-size: 16px;"
+                      />
+                    </span>
+                    <span
+                      class="v-tooltip v-tooltip--bottom"
+                    >
+                      <!---->
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate v-icon--left mdi mdi-git theme--light"
+                        style="font-size: 16px;"
+                      />
+                    </span>
                   </div>
                 </div>
                  
@@ -4883,16 +5113,26 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   <div
                     class="v-list-item__subtitle"
                   >
-                    <i
-                      aria-hidden="true"
-                      class="v-icon notranslate v-icon--left mdi mdi-git theme--light"
-                      style="font-size: 16px;"
-                    />
-                    <i
-                      aria-hidden="true"
-                      class="v-icon notranslate v-icon--left mdi mdi-account-multiple theme--light"
-                      style="font-size: 16px;"
-                    />
+                    <span
+                      class="v-tooltip v-tooltip--bottom"
+                    >
+                      <!---->
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate v-icon--left mdi mdi-git theme--light"
+                        style="font-size: 16px;"
+                      />
+                    </span>
+                    <span
+                      class="v-tooltip v-tooltip--bottom"
+                    >
+                      <!---->
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate v-icon--left mdi mdi-account-multiple theme--light"
+                        style="font-size: 16px;"
+                      />
+                    </span>
                   </div>
                 </div>
                  
@@ -5009,13 +5249,13 @@ exports[`Storyshots IndividualsTable Default 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-625"
+                  for="input-673"
                   style="left: 0px; position: absolute;"
                 >
                   Search
                 </label>
                 <input
-                  id="input-625"
+                  id="input-673"
                   type="text"
                 />
               </div>
@@ -5632,21 +5872,36 @@ exports[`Storyshots ProfileCard Default 1`] = `
           <div
             class="v-list-item__subtitle"
           >
-            <i
-              aria-hidden="true"
-              class="v-icon notranslate v-icon--left mdi mdi-github theme--light"
-              style="font-size: 16px;"
-            />
-            <i
-              aria-hidden="true"
-              class="v-icon notranslate v-icon--left mdi mdi-git theme--light"
-              style="font-size: 16px;"
-            />
-            <i
-              aria-hidden="true"
-              class="v-icon notranslate v-icon--left mdi mdi-account-multiple theme--light"
-              style="font-size: 16px;"
-            />
+            <span
+              class="v-tooltip v-tooltip--bottom"
+            >
+              <!---->
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate v-icon--left mdi mdi-github theme--light"
+                style="font-size: 16px;"
+              />
+            </span>
+            <span
+              class="v-tooltip v-tooltip--bottom"
+            >
+              <!---->
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate v-icon--left mdi mdi-git theme--light"
+                style="font-size: 16px;"
+              />
+            </span>
+            <span
+              class="v-tooltip v-tooltip--bottom"
+            >
+              <!---->
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate v-icon--left mdi mdi-account-multiple theme--light"
+                style="font-size: 16px;"
+              />
+            </span>
           </div>
         </div>
          
@@ -5817,13 +6072,13 @@ exports[`Storyshots Search Default 1`] = `
             >
               <label
                 class="v-label theme--light"
-                for="input-864"
+                for="input-925"
                 style="left: 0px; position: absolute;"
               >
                 Search
               </label>
               <input
-                id="input-864"
+                id="input-925"
                 type="text"
               />
             </div>
@@ -5989,21 +6244,36 @@ exports[`Storyshots WorkSpace Default 1`] = `
                 <div
                   class="v-list-item__subtitle"
                 >
-                  <i
-                    aria-hidden="true"
-                    class="v-icon notranslate v-icon--left mdi mdi-gitlab theme--light"
-                    style="font-size: 16px;"
-                  />
-                  <i
-                    aria-hidden="true"
-                    class="v-icon notranslate v-icon--left mdi mdi-github theme--light"
-                    style="font-size: 16px;"
-                  />
-                  <i
-                    aria-hidden="true"
-                    class="v-icon notranslate v-icon--left mdi mdi-git theme--light"
-                    style="font-size: 16px;"
-                  />
+                  <span
+                    class="v-tooltip v-tooltip--bottom"
+                  >
+                    <!---->
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate v-icon--left mdi mdi-gitlab theme--light"
+                      style="font-size: 16px;"
+                    />
+                  </span>
+                  <span
+                    class="v-tooltip v-tooltip--bottom"
+                  >
+                    <!---->
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate v-icon--left mdi mdi-github theme--light"
+                      style="font-size: 16px;"
+                    />
+                  </span>
+                  <span
+                    class="v-tooltip v-tooltip--bottom"
+                  >
+                    <!---->
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate v-icon--left mdi mdi-git theme--light"
+                      style="font-size: 16px;"
+                    />
+                  </span>
                 </div>
               </div>
                
@@ -6093,21 +6363,36 @@ exports[`Storyshots WorkSpace Default 1`] = `
                 <div
                   class="v-list-item__subtitle"
                 >
-                  <i
-                    aria-hidden="true"
-                    class="v-icon notranslate v-icon--left mdi mdi-github theme--light"
-                    style="font-size: 16px;"
-                  />
-                  <i
-                    aria-hidden="true"
-                    class="v-icon notranslate v-icon--left mdi mdi-git theme--light"
-                    style="font-size: 16px;"
-                  />
-                  <i
-                    aria-hidden="true"
-                    class="v-icon notranslate v-icon--left mdi mdi-account-multiple theme--light"
-                    style="font-size: 16px;"
-                  />
+                  <span
+                    class="v-tooltip v-tooltip--bottom"
+                  >
+                    <!---->
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate v-icon--left mdi mdi-github theme--light"
+                      style="font-size: 16px;"
+                    />
+                  </span>
+                  <span
+                    class="v-tooltip v-tooltip--bottom"
+                  >
+                    <!---->
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate v-icon--left mdi mdi-git theme--light"
+                      style="font-size: 16px;"
+                    />
+                  </span>
+                  <span
+                    class="v-tooltip v-tooltip--bottom"
+                  >
+                    <!---->
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate v-icon--left mdi mdi-account-multiple theme--light"
+                      style="font-size: 16px;"
+                    />
+                  </span>
                 </div>
               </div>
                
@@ -6331,13 +6616,13 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-945"
+                    for="input-1012"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-945"
+                    id="input-1012"
                     type="text"
                   />
                 </div>

@@ -62,9 +62,16 @@
         @dragend.native="dragEnd($event)"
       >
         <v-list-item-icon v-if="index === 0 && !compact">
-          <v-icon>
-            {{ selectSourceIcon(source.name) }}
-          </v-icon>
+          <v-tooltip bottom transition="expand-y-transition" open-delay="300">
+            <template v-slot:activator="{ on }">
+              <v-icon v-on="on">
+                {{ selectSourceIcon(source.name) }}
+              </v-icon>
+            </template>
+            <span>
+              {{ source.name === "others" ? "Other sources" : source.name }}
+            </span>
+          </v-tooltip>
         </v-list-item-icon>
 
         <v-list-item-action v-else-if="!compact"></v-list-item-action>
