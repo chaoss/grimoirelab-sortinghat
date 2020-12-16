@@ -1,10 +1,10 @@
 <template>
   <tr
-    :class="{ dropzone: isDragging }"
+    :class="{ dropzone: dropZone }"
     @drop.stop="onDrop($event)"
-    @dragover.prevent="isDragging = true"
-    @dragenter.prevent="isDragging = true"
-    @dragleave.prevent="isDragging = false"
+    @dragover.prevent="isDropZone($event, true)"
+    @dragenter.prevent="isDropZone($event, true)"
+    @dragleave.prevent="isDropZone($event, false)"
   >
     <td class="text--body-1">{{ name }}</td>
     <td class="text-right text--secondary">{{ enrollments }}</td>
@@ -47,12 +47,16 @@ export default {
   },
   data() {
     return {
-      isDragging: false
+      dropZone: false
     };
   },
   methods: {
     onDrop(event) {
-      this.isDragging = false;
+      this.dropZone = false;
+      const type = event.dataTransfer.getData("type");
+      if (type === "enrollFromOrganization") {
+        return;
+      }
       const droppedIndividuals = JSON.parse(
         event.dataTransfer.getData("individuals")
       );
@@ -60,10 +64,29 @@ export default {
         uuids: droppedIndividuals.map(individual => individual.uuid),
         organization: this.name
       });
+    },
+    isDropZone(event, isDragging) {
+      const type = event.dataTransfer.getData("type");
+      // Can't use 'getData' while dragging on Chrome
+      const types = event.dataTransfer.types;
+
+      // Prevents an organization from being drag&dropped into another one
+      if (
+        isDragging &&
+        type !== "enrollFromOrganization" &&
+        !types.includes("organization")
+      ) {
+        this.dropZone = true;
+      } else {
+        this.dropZone = false;
+      }
     }
   }
 };
 </script>
 <style lang="scss" scoped>
 @import "../styles/index.scss";
+tr {
+  cursor: pointer;
+}
 </style>

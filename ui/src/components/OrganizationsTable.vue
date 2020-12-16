@@ -31,7 +31,9 @@
           :enrollments="item.enrollments.length"
           :domains="item.domains"
           :is-expanded="isExpanded"
+          draggable
           v-on:dblclick.native="expand(!isExpanded)"
+          @dragstart.native="startDrag(item, $event)"
           @expand="expand(!isExpanded)"
           @enroll="confirmEnroll"
           @edit="openModal(item)"
@@ -62,7 +64,7 @@
       @updateOrganizations="getOrganizations(page)"
     />
 
-    <v-dialog v-model="dialog.open" max-width="400">
+    <v-dialog v-model="dialog.open" max-width="500px">
       <v-card>
         <v-card-title class="headline">{{ dialog.title }}</v-card-title>
         <v-card-text>{{ dialog.text }}</v-card-text>
@@ -81,6 +83,15 @@
     <v-snackbar v-model="snackbar.open">
       {{ snackbar.text }}
     </v-snackbar>
+
+    <v-card class="dragged-organization" color="primary" dark>
+      <v-card-title>
+        {{ selectedOrganization }}
+      </v-card-title>
+      <v-card-subtitle>
+        Drag and drop on an individual to affiliate
+      </v-card-subtitle>
+    </v-card>
   </v-container>
 </template>
 
@@ -149,14 +160,15 @@ export default {
         open: false,
         organization: undefined,
         domains: []
-      }
+      },
+      selectedOrganization: ""
     };
   },
   created() {
     this.getOrganizations(1);
   },
   methods: {
-    async getOrganizations(page) {
+    async getOrganizations(page = this.page) {
       let response = await this.fetchPage(page, this.itemsPerPage);
       if (response) {
         this.organizations = response.data.organizations.entities;
@@ -221,6 +233,14 @@ export default {
       } catch (error) {
         Object.assign(this.snackbar, { open: true, text: error });
       }
+    },
+    startDrag(item, event) {
+      this.selectedOrganization = item.name;
+      event.dataTransfer.dropEffect = "move";
+      event.dataTransfer.setData("type", "enrollFromOrganization");
+      event.dataTransfer.setData("organization", item.name);
+      const dragImage = document.querySelector(".dragged-organization");
+      event.dataTransfer.setDragImage(dragImage, 0, 0);
     }
   }
 };
@@ -237,5 +257,11 @@ export default {
 .actions {
   justify-content: space-between;
   padding: 0 26px 24px 26px;
+}
+
+.dragged-organization {
+  max-width: 400px;
+  position: absolute;
+  top: -400px;
 }
 </style>

@@ -202,7 +202,7 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
   <v-dialog-stub
     closedelay="0"
     contentclass=""
-    maxwidth="400"
+    maxwidth="500px"
     opendelay="0"
     origin="center center"
     retainfocus="true"
@@ -266,11 +266,11 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
     loaderheight="4"
     tag="div"
   >
-    <v-card-title-stub>
+    <v-card-subtitle-stub>
       
       Moving 0
     
-    </v-card-title-stub>
+    </v-card-subtitle-stub>
   </v-card-stub>
    
   <v-snackbar-stub
@@ -488,7 +488,7 @@ exports[`IndividualsTable Mock query for merge 1`] = `
   <v-dialog-stub
     closedelay="0"
     contentclass=""
-    maxwidth="400"
+    maxwidth="500px"
     opendelay="0"
     origin="center center"
     retainfocus="true"
@@ -552,11 +552,11 @@ exports[`IndividualsTable Mock query for merge 1`] = `
     loaderheight="4"
     tag="div"
   >
-    <v-card-title-stub>
+    <v-card-subtitle-stub>
       
       Moving 0
     
-    </v-card-title-stub>
+    </v-card-subtitle-stub>
   </v-card-stub>
    
   <v-snackbar-stub
@@ -774,7 +774,7 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
   <v-dialog-stub
     closedelay="0"
     contentclass=""
-    maxwidth="400"
+    maxwidth="500px"
     opendelay="0"
     origin="center center"
     retainfocus="true"
@@ -838,11 +838,11 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
     loaderheight="4"
     tag="div"
   >
-    <v-card-title-stub>
+    <v-card-subtitle-stub>
       
       Moving 0
     
-    </v-card-title-stub>
+    </v-card-subtitle-stub>
   </v-card-stub>
    
   <v-snackbar-stub
@@ -1060,7 +1060,7 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
   <v-dialog-stub
     closedelay="0"
     contentclass=""
-    maxwidth="400"
+    maxwidth="500px"
     opendelay="0"
     origin="center center"
     retainfocus="true"
@@ -1124,11 +1124,11 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
     loaderheight="4"
     tag="div"
   >
-    <v-card-title-stub>
+    <v-card-subtitle-stub>
       
       Moving 0
     
-    </v-card-title-stub>
+    </v-card-subtitle-stub>
   </v-card-stub>
    
   <v-snackbar-stub
@@ -1346,7 +1346,7 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
   <v-dialog-stub
     closedelay="0"
     contentclass=""
-    maxwidth="400"
+    maxwidth="500px"
     opendelay="0"
     origin="center center"
     retainfocus="true"
@@ -1410,11 +1410,11 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
     loaderheight="4"
     tag="div"
   >
-    <v-card-title-stub>
+    <v-card-subtitle-stub>
       
       Moving 0
     
-    </v-card-title-stub>
+    </v-card-subtitle-stub>
   </v-card-stub>
    
   <v-snackbar-stub
@@ -1668,7 +1668,7 @@ exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
   <v-dialog-stub
     closedelay="0"
     contentclass=""
-    maxwidth="400"
+    maxwidth="500px"
     opendelay="0"
     origin="center center"
     retainfocus="true"
@@ -1728,6 +1728,26 @@ exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
     
   
   </v-snackbar-stub>
+   
+  <v-card-stub
+    class="dragged-organization"
+    color="primary"
+    dark="true"
+    loaderheight="4"
+    tag="div"
+  >
+    <v-card-title-stub>
+      
+      
+    
+    </v-card-title-stub>
+     
+    <v-card-subtitle-stub>
+      
+      Drag and drop on an individual to affiliate
+    
+    </v-card-subtitle-stub>
+  </v-card-stub>
 </v-container-stub>
 `;
 
@@ -1892,7 +1912,7 @@ exports[`OrganizationsTable Mock mutation for addOrganization 1`] = `
   <v-dialog-stub
     closedelay="0"
     contentclass=""
-    maxwidth="400"
+    maxwidth="500px"
     opendelay="0"
     origin="center center"
     retainfocus="true"
@@ -1952,6 +1972,26 @@ exports[`OrganizationsTable Mock mutation for addOrganization 1`] = `
     
   
   </v-snackbar-stub>
+   
+  <v-card-stub
+    class="dragged-organization"
+    color="primary"
+    dark="true"
+    loaderheight="4"
+    tag="div"
+  >
+    <v-card-title-stub>
+      
+      
+    
+    </v-card-title-stub>
+     
+    <v-card-subtitle-stub>
+      
+      Drag and drop on an individual to affiliate
+    
+    </v-card-subtitle-stub>
+  </v-card-stub>
 </v-container-stub>
 `;
 
@@ -2116,7 +2156,7 @@ exports[`OrganizationsTable Mock mutation for deleteDomain 1`] = `
   <v-dialog-stub
     closedelay="0"
     contentclass=""
-    maxwidth="400"
+    maxwidth="500px"
     opendelay="0"
     origin="center center"
     retainfocus="true"
@@ -2176,6 +2216,26 @@ exports[`OrganizationsTable Mock mutation for deleteDomain 1`] = `
     
   
   </v-snackbar-stub>
+   
+  <v-card-stub
+    class="dragged-organization"
+    color="primary"
+    dark="true"
+    loaderheight="4"
+    tag="div"
+  >
+    <v-card-title-stub>
+      
+      
+    
+    </v-card-title-stub>
+     
+    <v-card-subtitle-stub>
+      
+      Drag and drop on an individual to affiliate
+    
+    </v-card-subtitle-stub>
+  </v-card-stub>
 </v-container-stub>
 `;
 
@@ -2338,7 +2398,7 @@ exports[`OrganizationsTable Mock mutation for deleteOrganization 1`] = `
   <v-dialog-stub
     closedelay="0"
     contentclass=""
-    maxwidth="400"
+    maxwidth="500px"
     opendelay="0"
     origin="center center"
     retainfocus="true"
@@ -2398,6 +2458,26 @@ exports[`OrganizationsTable Mock mutation for deleteOrganization 1`] = `
     
   
   </v-snackbar-stub>
+   
+  <v-card-stub
+    class="dragged-organization"
+    color="primary"
+    dark="true"
+    loaderheight="4"
+    tag="div"
+  >
+    <v-card-title-stub>
+      
+      
+    
+    </v-card-title-stub>
+     
+    <v-card-subtitle-stub>
+      
+      Drag and drop on an individual to affiliate
+    
+    </v-card-subtitle-stub>
+  </v-card-stub>
 </v-container-stub>
 `;
 
@@ -2560,7 +2640,7 @@ exports[`OrganizationsTable Mock mutation for enroll 1`] = `
   <v-dialog-stub
     closedelay="0"
     contentclass=""
-    maxwidth="400"
+    maxwidth="500px"
     opendelay="0"
     origin="center center"
     retainfocus="true"
@@ -2620,6 +2700,26 @@ exports[`OrganizationsTable Mock mutation for enroll 1`] = `
     
   
   </v-snackbar-stub>
+   
+  <v-card-stub
+    class="dragged-organization"
+    color="primary"
+    dark="true"
+    loaderheight="4"
+    tag="div"
+  >
+    <v-card-title-stub>
+      
+      
+    
+    </v-card-title-stub>
+     
+    <v-card-subtitle-stub>
+      
+      Drag and drop on an individual to affiliate
+    
+    </v-card-subtitle-stub>
+  </v-card-stub>
 </v-container-stub>
 `;
 

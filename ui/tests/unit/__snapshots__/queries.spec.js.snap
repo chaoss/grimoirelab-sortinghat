@@ -209,7 +209,7 @@ exports[`IndividualsTable Mock query for getCountries 1`] = `
   <v-dialog-stub
     closedelay="0"
     contentclass=""
-    maxwidth="400"
+    maxwidth="500px"
     opendelay="0"
     origin="center center"
     retainfocus="true"
@@ -275,11 +275,11 @@ exports[`IndividualsTable Mock query for getCountries 1`] = `
     loaderheight="4"
     tag="div"
   >
-    <v-card-title-stub>
+    <v-card-subtitle-stub>
       
       Moving 0
     
-    </v-card-title-stub>
+    </v-card-subtitle-stub>
   </v-card-stub>
    
   <v-snackbar-stub
@@ -497,7 +497,7 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
   <v-dialog-stub
     closedelay="0"
     contentclass=""
-    maxwidth="400"
+    maxwidth="500px"
     opendelay="0"
     origin="center center"
     retainfocus="true"
@@ -561,11 +561,11 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
     loaderheight="4"
     tag="div"
   >
-    <v-card-title-stub>
+    <v-card-subtitle-stub>
       
       Moving 0
     
-    </v-card-title-stub>
+    </v-card-subtitle-stub>
   </v-card-stub>
    
   <v-snackbar-stub
@@ -740,7 +740,7 @@ exports[`OrganizationsTable Mock query for getPaginatedOrganizations 1`] = `
   <v-dialog-stub
     closedelay="0"
     contentclass=""
-    maxwidth="400"
+    maxwidth="500px"
     opendelay="0"
     origin="center center"
     retainfocus="true"
@@ -800,5 +800,25 @@ exports[`OrganizationsTable Mock query for getPaginatedOrganizations 1`] = `
     
   
   </v-snackbar-stub>
+   
+  <v-card-stub
+    class="dragged-organization"
+    color="primary"
+    dark="true"
+    loaderheight="4"
+    tag="div"
+  >
+    <v-card-title-stub>
+      
+      
+    
+    </v-card-title-stub>
+     
+    <v-card-subtitle-stub>
+      
+      Drag and drop on an individual to affiliate
+    
+    </v-card-subtitle-stub>
+  </v-card-stub>
 </v-container-stub>
 `;

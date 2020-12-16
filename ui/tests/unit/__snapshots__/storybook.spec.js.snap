@@ -5209,7 +5209,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
         class="dragged-item v-card v-sheet theme--dark primary"
       >
         <div
-          class="v-card__title"
+          class="v-card__subtitle"
         >
           
       Moving 0
@@ -5562,6 +5562,26 @@ exports[`Storyshots OrganizationsTable Default 1`] = `
           />
         </div>
       </div>
+       
+      <div
+        class="dragged-organization v-card v-sheet theme--dark primary"
+      >
+        <div
+          class="v-card__title"
+        >
+          
+      
+    
+        </div>
+         
+        <div
+          class="v-card__subtitle"
+        >
+          
+      Drag and drop on an individual to affiliate
+    
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -5797,13 +5817,13 @@ exports[`Storyshots Search Default 1`] = `
             >
               <label
                 class="v-label theme--light"
-                for="input-863"
+                for="input-864"
                 style="left: 0px; position: absolute;"
               >
                 Search
               </label>
               <input
-                id="input-863"
+                id="input-864"
                 type="text"
               />
             </div>
@@ -6311,13 +6331,13 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-944"
+                    for="input-945"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-944"
+                    id="input-945"
                     type="text"
                   />
                 </div>
@@ -6511,7 +6531,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
           class="dragged-item v-card v-sheet theme--dark primary"
         >
           <div
-            class="v-card__title"
+            class="v-card__subtitle"
           >
             
       Moving 0

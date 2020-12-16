@@ -242,6 +242,8 @@ export default {
       const type = event.dataTransfer.getData("type");
       if (type === "move") {
         this.moveIndividual(event);
+      } else if (type === "enrollFromOrganization") {
+        this.enrollIndividual(event);
       } else {
         this.mergeIndividuals(event);
       }
@@ -258,6 +260,10 @@ export default {
     moveIndividual(event) {
       const uuid = event.dataTransfer.getData("uuid");
       this.$emit("move", { fromUuid: uuid, toUuid: this.uuid });
+    },
+    enrollIndividual(event) {
+      const organization = event.dataTransfer.getData("organization");
+      this.$emit("enroll", organization);
     }
   },
   watch: {
