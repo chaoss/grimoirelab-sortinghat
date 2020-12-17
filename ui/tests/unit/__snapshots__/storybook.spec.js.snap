@@ -5521,7 +5521,19 @@ exports[`Storyshots OrganizationEntry Default 1`] = `
               <td
                 class="text-right text--secondary"
               >
-                280
+                
+    280
+    
+                <span
+                  class="v-tooltip v-tooltip--bottom"
+                >
+                  <!---->
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate v-icon--right mdi mdi-account-multiple theme--light"
+                    style="font-size: 16px;"
+                  />
+                </span>
               </td>
                
               <td
@@ -6072,13 +6084,13 @@ exports[`Storyshots Search Default 1`] = `
             >
               <label
                 class="v-label theme--light"
-                for="input-925"
+                for="input-933"
                 style="left: 0px; position: absolute;"
               >
                 Search
               </label>
               <input
-                id="input-925"
+                id="input-933"
                 type="text"
               />
             </div>
@@ -6616,13 +6628,13 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-1012"
+                    for="input-1020"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-1012"
+                    id="input-1020"
                     type="text"
                   />
                 </div>
