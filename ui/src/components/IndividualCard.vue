@@ -27,13 +27,18 @@
           {{ enrollments[0].organization.name }}
         </v-list-item-subtitle>
         <v-list-item-subtitle>
-          <v-icon
+          <v-tooltip
             v-for="source in sources"
             :key="source.name"
-            v-text="selectSourceIcon(source)"
-            small
-            left
-          />
+            bottom
+            transition="expand-y-transition"
+            open-delay="300"
+          >
+            <template v-slot:activator="{ on }">
+              <v-icon v-on="on" v-text="selectSourceIcon(source)" small left />
+            </template>
+            <span>{{ source === "others" ? "Other sources" : source }}</span>
+          </v-tooltip>
         </v-list-item-subtitle>
       </v-list-item-content>
 

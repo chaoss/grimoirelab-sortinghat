@@ -104,13 +104,18 @@
     </td>
 
     <td class="text-right">
-      <v-icon
-        v-for="source in sortedSources"
-        :key="source.name"
-        v-text="selectSourceIcon(source)"
-        left
-        right
-      />
+      <v-tooltip
+        v-for="(source, index) in sortedSources"
+        :key="index"
+        bottom
+        transition="expand-y-transition"
+        open-delay="300"
+      >
+        <template v-slot:activator="{ on }">
+          <v-icon v-on="on" v-text="selectSourceIcon(source)" left right />
+        </template>
+        <span>{{ source === "others" ? "Other sources" : source }}</span>
+      </v-tooltip>
     </td>
 
     <td width="140">
