@@ -7,7 +7,17 @@
     @dragleave.prevent="isDropZone($event, false)"
   >
     <td class="text--body-1">{{ name }}</td>
-    <td class="text-right text--secondary">{{ enrollments }}</td>
+    <td class="text-right text--secondary">
+      {{ enrollments }}
+      <v-tooltip bottom transition="expand-y-transition" open-delay="200">
+        <template v-slot:activator="{ on }">
+          <v-icon v-on="on" small right>
+            mdi-account-multiple
+          </v-icon>
+        </template>
+        <span>Enrollments</span>
+      </v-tooltip>
+    </td>
     <td class="text-right">
       <v-btn icon @click.stop="$emit('edit')">
         <v-icon small>
