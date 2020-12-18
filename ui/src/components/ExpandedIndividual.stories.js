@@ -35,6 +35,7 @@ export const Default = () => ({
     identities: [
     {
       name: "GitHub",
+      icon: "mdi-github",
       identities: [
         {
           uuid: "06e6903c91180835b6ee91dd56782c6ca72bc562",
@@ -54,6 +55,7 @@ export const Default = () => ({
     },
     {
       name: "Git",
+      icon: "mdi-git",
       identities: [
         {
           uuid: "10982379421b80e13266db011d6e5131dd519016",
@@ -66,6 +68,7 @@ export const Default = () => ({
     },
     {
       name: "Others",
+      icon: "mdi-account-multiple",
       identities: [
         {
           uuid: "1f1a9e56dedb45f5969413eeb4442d982e33f0f6",
@@ -188,6 +191,7 @@ export const NoOrganizations = () => ({
     identities: [
       {
         name: "Git",
+        icon: "mdi-github",
         identities: [
           {
             uuid: "164e41c60c28698ac30b0d17176d3e720e036918",

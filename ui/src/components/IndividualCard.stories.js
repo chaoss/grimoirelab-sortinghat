@@ -118,10 +118,10 @@ export const Sources = () => ({
     },
     sources: {
       default: () => [
-        'git',
-        'github',
-        'gitlab',
-        'others'
+        { name: "git", icon: "mdi-git" },
+        { name: "github", icon: "mdi-github" },
+        { name: "gitlab", icon: "mdi-gitlab" },
+        { name: "Other sources", icon: "mdi-account-multiple" }
       ]
     },
     isLocked: {
@@ -267,10 +267,10 @@ export const SourcesAndOrganization = () => ({
     },
     sources: {
       default: () => [
-        'git',
-        'github',
-        'gitlab',
-        'others'
+        { name: "git", icon: "mdi-git" },
+        { name: "github", icon: "mdi-github" },
+        { name: "gitlab", icon: "mdi-gitlab" },
+        { name: "Other sources", icon: "mdi-account-multiple" }
       ]
     },
     isLocked: {

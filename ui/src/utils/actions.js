@@ -48,12 +48,13 @@ const groupIdentities = identities => {
     { source: "telegram", icon: "mdi-telegram" },
     { source: "twitter", icon: "mdi-twitter" }
   ];
+  const otherSources = "Other sources";
   // Group identities by data source
   const groupedIdentities = identities.reduce((result, val) => {
     let source = val.source.toLowerCase().replace(/\s+/g, "");
     const sourceIcon = icons.find(icon => icon.source === source);
     if (!sourceIcon) {
-      source = "Other sources";
+      source = otherSources;
     }
     if (result[source]) {
       result[source].identities.push(val);
@@ -75,7 +76,7 @@ const groupIdentities = identities => {
   // Move "other" identities to end of list
   sortedIdentities.push(
     ...sortedIdentities.splice(
-      sortedIdentities.findIndex(identity => identity.name == "Other sources"),
+      sortedIdentities.findIndex(identity => identity.name == otherSources),
       1
     )
   );

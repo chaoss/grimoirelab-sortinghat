@@ -9,7 +9,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
+SILENCED_SYSTEM_CHECKS = ["django_mysql.E016"]
 ALLOWED_HOSTS = []
 
 CORS_ORIGIN_ALLOW_ALL = True
