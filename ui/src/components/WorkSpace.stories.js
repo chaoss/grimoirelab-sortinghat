@@ -58,7 +58,11 @@ export const Default = () => ({
         isLocked: false,
         organization: "Slytherin",
         isSelected: false,
-        sources: ["gitlab", "GitHub", "git"],
+        sources: [
+          { name: "git", icon: "mdi-git" },
+          { name: "github", icon: "mdi-github" },
+          { name: "gitlab", icon: "mdi-gitlab" }
+        ],
         identities: [
           {
             name: "GitLab",
@@ -131,7 +135,11 @@ export const Default = () => ({
         isLocked: false,
         isSelected: false,
         organization: "Griffyndor",
-        sources: ["GitHub", "git", "others"],
+        sources: [
+          { name: "git", icon: "mdi-git" },
+          { name: "github", icon: "mdi-github" },
+          { name: "Other sources", icon: "mdi-account-multiple" }
+        ],
         identities: [
           {
             name: "GitHub",

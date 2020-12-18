@@ -105,16 +105,16 @@
 
     <td class="text-right">
       <v-tooltip
-        v-for="(source, index) in sortedSources"
+        v-for="(source, index) in sources"
         :key="index"
         bottom
         transition="expand-y-transition"
         open-delay="300"
       >
         <template v-slot:activator="{ on }">
-          <v-icon v-on="on" v-text="selectSourceIcon(source)" left right />
+          <v-icon v-on="on" v-text="source.icon" left right />
         </template>
-        <span>{{ source === "others" ? "Other sources" : source }}</span>
+        <span>{{ source.name }}</span>
       </v-tooltip>
     </td>
 
@@ -218,21 +218,9 @@ export default {
     },
     isDropZone: function() {
       return this.isDragging && !this.isLocked;
-    },
-    sortedSources: function() {
-      return this.sources.slice().sort();
     }
   },
   methods: {
-    selectSourceIcon(source) {
-      const datasource = source.toLowerCase();
-
-      if (datasource === "others") {
-        return "mdi-account-multiple";
-      } else {
-        return `mdi-${datasource}`;
-      }
-    },
     selectEntry() {
       if (this.isLocked) {
         return;
