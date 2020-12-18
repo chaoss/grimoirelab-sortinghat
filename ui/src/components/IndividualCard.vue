@@ -35,9 +35,9 @@
             open-delay="300"
           >
             <template v-slot:activator="{ on }">
-              <v-icon v-on="on" v-text="selectSourceIcon(source)" small left />
+              <v-icon v-on="on" v-text="source.icon" small left />
             </template>
-            <span>{{ source === "others" ? "Other sources" : source }}</span>
+            <span>{{ source.name }}</span>
           </v-tooltip>
         </v-list-item-subtitle>
       </v-list-item-content>

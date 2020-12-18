@@ -49,7 +49,7 @@
     </v-row>
     <v-subheader>Identities ({{ identitiesCount }})</v-subheader>
     <v-list
-      v-for="(source, sourceIndex) in sortSources(identities, 'name')"
+      v-for="(source, sourceIndex) in identities"
       :key="source.name"
       class="indented"
     >
@@ -65,11 +65,11 @@
           <v-tooltip bottom transition="expand-y-transition" open-delay="300">
             <template v-slot:activator="{ on }">
               <v-icon v-on="on">
-                {{ selectSourceIcon(source.name) }}
+                {{ source.icon }}
               </v-icon>
             </template>
             <span>
-              {{ source.name === "others" ? "Other sources" : source.name }}
+              {{ source.name }}
             </span>
           </v-tooltip>
         </v-list-item-icon>
@@ -233,19 +233,6 @@ export default {
     };
   },
   methods: {
-    selectSourceIcon(source) {
-      var datasource = source.toLowerCase();
-
-      if (datasource === "github") {
-        return "mdi-github";
-      } else if (datasource === "git") {
-        return "mdi-git";
-      } else if (datasource === "gitlab") {
-        return "mdi-gitlab";
-      } else if (datasource === "others") {
-        return "mdi-account-multiple";
-      }
-    },
     formatDate(dateTime) {
       return dateTime.split("T")[0];
     },

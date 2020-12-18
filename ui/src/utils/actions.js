@@ -36,24 +36,51 @@ const moveIdentity = (fromUuid, toUuid, action, dialog) => {
 };
 
 const groupIdentities = identities => {
-  const icons = ["git", "github", "gitlab"];
+  const icons = [
+    { source: "git", icon: "mdi-git" },
+    { source: "github", icon: "mdi-github" },
+    { source: "gitlab", icon: "mdi-gitlab" },
+    { source: "dockerhub", icon: "mdi-docker" },
+    { source: "jira", icon: "mdi-jira" },
+    { source: "rss", icon: "mdi-rss" },
+    { source: "slack", icon: "mdi-slack" },
+    { source: "stackexchange", icon: "mdi-stack-exchange" },
+    { source: "telegram", icon: "mdi-telegram" },
+    { source: "twitter", icon: "mdi-twitter" }
+  ];
+  // Group identities by data source
   const groupedIdentities = identities.reduce((result, val) => {
-    let source = val.source.toLowerCase();
-    if (!icons.find(icon => icon === source)) {
-      source = "others";
+    let source = val.source.toLowerCase().replace(/\s+/g, "");
+    const sourceIcon = icons.find(icon => icon.source === source);
+    if (!sourceIcon) {
+      source = "Other sources";
     }
     if (result[source]) {
       result[source].identities.push(val);
     } else {
       result[source] = {
         name: source,
-        identities: [val]
+        identities: [val],
+        icon: sourceIcon ? sourceIcon.icon : "mdi-account-multiple"
       };
     }
     return result;
   }, {});
 
-  return Object.values(groupedIdentities);
+  // Sort identities by alphabetical order
+  let sortedIdentities = Object.values(groupedIdentities).sort((a, b) =>
+    a.name.localeCompare(b.name)
+  );
+
+  // Move "other" identities to end of list
+  sortedIdentities.push(
+    ...sortedIdentities.splice(
+      sortedIdentities.findIndex(identity => identity.name == "Other sources"),
+      1
+    )
+  );
+
+  return sortedIdentities;
 };
 
 const formatIndividuals = individuals => {
@@ -66,7 +93,9 @@ const formatIndividuals = individuals => {
       organization: item.enrollments[0]
         ? item.enrollments[0].organization.name
         : "",
-      sources: groupIdentities(item.identities).map(identity => identity.name),
+      sources: groupIdentities(item.identities).map(identity => {
+        return { name: identity.name, icon: identity.icon };
+      }),
       gender: item.profile.gender,
       country: item.profile.country,
       identities: groupIdentities(item.identities),

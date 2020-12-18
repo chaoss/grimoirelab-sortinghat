@@ -102,7 +102,7 @@
 import {
   mergeIndividuals,
   moveIdentity,
-  groupIdentities
+  formatIndividuals
 } from "../utils/actions";
 import { enrollMixin } from "../mixins/enroll";
 import IndividualCard from "./IndividualCard.vue";
@@ -195,15 +195,7 @@ export default {
       mergeIndividuals(individuals, this.merge, this.dialog);
     },
     updateMergedIndividuals(updated, mergedIndividuals) {
-      const updatedIndividual = {
-        name: updated.individual.profile.name,
-        isLocked: updated.individual.isLocked,
-        uuid: updated.uuid,
-        id: updated.individual.profile.id,
-        sources: this.getSourceIcons(updated.individual.identities),
-        isSelected: false,
-        identities: groupIdentities(updated.individual.identities)
-      };
+      const updatedIndividual = formatIndividuals([updated.individual])[0];
       const updatedIndex = this.savedIndividuals.findIndex(
         individual => individual.id === updatedIndividual.id
       );
@@ -212,18 +204,6 @@ export default {
         individual => !mergedIndividuals.includes(individual.uuid)
       );
       return individuals;
-    },
-    getSourceIcons(identities) {
-      const icons = ["git", "github", "gitlab"];
-      return [
-        ...new Set(
-          identities.map(item => {
-            return icons.find(icon => icon === item.source.toLowerCase())
-              ? item.source.toLowerCase()
-              : "others";
-          })
-        )
-      ];
     },
     selectIndividual(individual) {
       individual.isSelected = !individual.isSelected;
