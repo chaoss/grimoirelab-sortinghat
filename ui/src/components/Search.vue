@@ -12,12 +12,24 @@
       clearable
       label="Search"
       type="text"
+      hint=" "
+      persistent-hint
       @click:append-outer="search"
       @click:clear="clear"
       @keyup.enter="search"
       @focus="isFocused = true"
       @blur="isFocused = false"
-    />
+    >
+      <template v-slot:message="{ key, message }">
+        <span>{{ message }}</span>
+        <v-btn href="/search-help" target="_blank" color="primary" text x-small>
+          View search syntax
+          <v-icon x-small right>
+            mdi-help-circle-outline
+          </v-icon>
+        </v-btn>
+      </template>
+    </v-text-field>
   </v-hover>
 </template>
 
@@ -29,7 +41,8 @@ export default {
       inputValue: "",
       filters: {},
       isFocused: false,
-      errorMessage: undefined
+      errorMessage: undefined,
+      dialog: false
     };
   },
   methods: {
@@ -116,8 +129,14 @@ export default {
     width: 400px;
   }
 
-  .v-input__icon--append {
-    display: none;
+  .v-messages__message {
+    display: flex;
+    justify-content: space-between;
+
+    .v-btn__content {
+      text-transform: none;
+      font-weight: normal;
+    }
   }
 }
 </style>

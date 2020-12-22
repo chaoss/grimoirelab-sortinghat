@@ -2,7 +2,7 @@ import { shallowMount, mount } from "@vue/test-utils";
 import Vue from "vue";
 import Vuetify from "vuetify";
 import IndividualsTable from "@/components/IndividualsTable";
-import Login from "@/components/Login";
+import Login from "@/views/Login";
 import OrganizationsTable from "@/components/OrganizationsTable";
 import ProfileModal from "@/components/ProfileModal";
 import * as Mutations from "@/apollo/mutations";
