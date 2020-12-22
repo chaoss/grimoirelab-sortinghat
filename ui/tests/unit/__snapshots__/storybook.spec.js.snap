@@ -5201,7 +5201,34 @@ exports[`Storyshots IndividualsTable Default 1`] = `
               >
                 <div
                   class="v-messages__wrapper"
-                />
+                >
+                  <div
+                    class="v-messages__message"
+                  >
+                    <span>
+                       
+                    </span>
+                     
+                    <a
+                      class="v-btn v-btn--flat v-btn--text theme--light v-size--x-small primary--text"
+                      href="/search-help"
+                      target="_blank"
+                    >
+                      <span
+                        class="v-btn__content"
+                      >
+                        
+        View search syntax
+        
+                        <i
+                          aria-hidden="true"
+                          class="v-icon notranslate v-icon--right mdi mdi-help-circle-outline theme--light"
+                          style="font-size: 12px;"
+                        />
+                      </span>
+                    </a>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -6003,13 +6030,13 @@ exports[`Storyshots Search Default 1`] = `
             >
               <label
                 class="v-label theme--light"
-                for="input-915"
+                for="input-917"
                 style="left: 0px; position: absolute;"
               >
                 Search
               </label>
               <input
-                id="input-915"
+                id="input-917"
                 type="text"
               />
             </div>
@@ -6036,7 +6063,34 @@ exports[`Storyshots Search Default 1`] = `
             >
               <div
                 class="v-messages__wrapper"
-              />
+              >
+                <div
+                  class="v-messages__message"
+                >
+                  <span>
+                     
+                  </span>
+                   
+                  <a
+                    class="v-btn v-btn--flat v-btn--text theme--light v-size--x-small primary--text"
+                    href="/search-help"
+                    target="_blank"
+                  >
+                    <span
+                      class="v-btn__content"
+                    >
+                      
+        View search syntax
+        
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate v-icon--right mdi mdi-help-circle-outline theme--light"
+                        style="font-size: 12px;"
+                      />
+                    </span>
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -6547,13 +6601,13 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-1002"
+                    for="input-1006"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-1002"
+                    id="input-1006"
                     type="text"
                   />
                 </div>
@@ -6580,7 +6634,34 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 >
                   <div
                     class="v-messages__wrapper"
-                  />
+                  >
+                    <div
+                      class="v-messages__message"
+                    >
+                      <span>
+                         
+                      </span>
+                       
+                      <a
+                        class="v-btn v-btn--flat v-btn--text theme--light v-size--x-small primary--text"
+                        href="/search-help"
+                        target="_blank"
+                      >
+                        <span
+                          class="v-btn__content"
+                        >
+                          
+        View search syntax
+        
+                          <i
+                            aria-hidden="true"
+                            class="v-icon notranslate v-icon--right mdi mdi-help-circle-outline theme--light"
+                            style="font-size: 12px;"
+                          />
+                        </span>
+                      </a>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

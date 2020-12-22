@@ -1,19 +1,17 @@
 import Router from "vue-router";
 import store from "../store";
-import Dashboard from "../components/Dashboard";
-import Login from "../components/Login";
 
 const routes = [
   {
     path: "/",
     name: "Dashboard",
-    component: Dashboard,
+    component: () => import("../views/Dashboard"),
     meta: { requiresAuth: true }
   },
   {
     path: "/login",
     name: "Login",
-    component: Login
+    component: () => import("../views/Login")
   },
   {
     path: "/search-help",
