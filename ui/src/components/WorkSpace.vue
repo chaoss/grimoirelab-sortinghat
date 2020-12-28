@@ -1,16 +1,16 @@
 <template>
   <v-sheet
-    color="grey lighten-5"
+    color="#F5F5F6"
     class="pa-md-4"
-    :class="{ dragging: isDragging }"
+    :class="{ 'is-dragging': isDragging }"
     @drop.native="onDrop($event)"
     @dragover.prevent="onDrag($event)"
     @dragenter.prevent="onDrag($event)"
     @dragleave.prevent="isDragging = false"
   >
     <v-row class="ma-md-0 pt-md-4 pl-md-4 pr-md-4 justify-space-between">
-      <h3 class="text-h6">
-        <v-icon color="primary" left>
+      <h3 class="title">
+        <v-icon color="black" left>
           mdi-pin
         </v-icon>
         Workspace
@@ -257,13 +257,8 @@ export default {
 };
 </script>
 <style scoped>
-.text-h3 {
-  font-size: 1.25rem;
-  line-height: 2rem;
-  font-weight: 500;
-}
-.dragging .drag-zone {
-  outline: 2px dashed #bdbdbd;
+.is-dragging .drag-zone {
+  outline: 2px dashed #003756;
 }
 .col-2 {
   min-width: 300px;

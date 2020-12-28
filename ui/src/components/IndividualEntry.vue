@@ -1,5 +1,6 @@
 <template>
   <tr
+    :aria-selected="isSelected"
     :class="{
       expanded: isExpanded,
       selected: isSelected,
@@ -21,7 +22,7 @@
         </v-list-item-avatar>
 
         <v-list-item-content>
-          <v-list-item-title>
+          <v-list-item-title class="font-weight-medium">
             <span v-if="isLocked">{{ name }}</span>
             <v-edit-dialog v-else @save="$emit('edit', { name: form.name })">
               {{ name }}

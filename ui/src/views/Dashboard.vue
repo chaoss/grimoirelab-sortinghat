@@ -15,7 +15,7 @@
       @updateWorkspace="updateWorkspace"
     />
     <v-row>
-      <v-col class="individuals elevation-2">
+      <v-col class="individuals elevation-1">
         <individuals-table
           :fetch-page="getIndividualsPage"
           :delete-item="deleteItem"
@@ -40,7 +40,7 @@
           ref="table"
         />
       </v-col>
-      <v-col class="organizations elevation-2">
+      <v-col class="organizations elevation-1">
         <organizations-table
           :fetch-page="getOrganizationsPage"
           :enroll="enroll"
