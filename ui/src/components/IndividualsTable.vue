@@ -2,7 +2,7 @@
   <v-container>
     <v-row class="actions">
       <h4 class="title">
-        <v-icon color="primary" left>
+        <v-icon color="black" left>
           mdi-account-multiple
         </v-icon>
         Individuals
@@ -37,8 +37,8 @@
         </v-tooltip>
         <v-btn
           depressed
-          color="blue lighten-5"
-          class="primary--text"
+          color="secondary"
+          class="black--text"
           @click.stop="openModal = true"
         >
           Add
@@ -414,16 +414,6 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-::v-deep .theme--light.v-pagination .v-pagination__item,
-::v-deep .theme--light.v-pagination .v-pagination__navigation {
-  box-shadow: none;
-}
-::v-deep button.v-pagination__item {
-  transition: none;
-}
-::v-deep table {
-  border-collapse: collapse;
-}
 ::v-deep .v-data-table__wrapper {
   overflow-x: hidden;
 }

@@ -43,7 +43,8 @@ export default {
   }
 };
 </script>
-<style scoped>
+<style lang="scss">
+@import "styles/index.scss";
 .fade-enter-active,
 .fade-leave-active {
   transition-duration: 0.3s;

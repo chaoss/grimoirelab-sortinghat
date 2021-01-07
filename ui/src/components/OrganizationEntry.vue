@@ -6,7 +6,7 @@
     @dragenter.prevent="isDropZone($event, true)"
     @dragleave.prevent="isDropZone($event, false)"
   >
-    <td class="text--body-1">{{ name }}</td>
+    <td class="font-weight-medium">{{ name }}</td>
     <td class="text-right text--secondary">
       {{ enrollments }}
       <v-tooltip bottom transition="expand-y-transition" open-delay="200">

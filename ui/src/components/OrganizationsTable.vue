@@ -2,15 +2,15 @@
   <v-container>
     <v-row class="actions">
       <h4 class="title">
-        <v-icon color="primary" left>
+        <v-icon color="black" left>
           mdi-sitemap
         </v-icon>
         Organizations
       </h4>
       <v-btn
         depressed
-        color="blue lighten-5"
-        class="primary--text"
+        color="secondary"
+        class="black--text"
         @click.stop="openModal"
       >
         Add
@@ -65,7 +65,7 @@
     />
 
     <v-dialog v-model="dialog.open" max-width="500px">
-      <v-card>
+      <v-card class="pa-3">
         <v-card-title class="headline">{{ dialog.title }}</v-card-title>
         <v-card-text>{{ dialog.text }}</v-card-text>
         <v-card-actions>
@@ -73,7 +73,7 @@
           <v-btn text @click="dialog.open = false">
             Cancel
           </v-btn>
-          <v-btn color="blue darken-4" text @click.stop="dialog.action">
+          <v-btn color="primary" depressed @click.stop="dialog.action">
             Confirm
           </v-btn>
         </v-card-actions>
@@ -246,14 +246,7 @@ export default {
 };
 </script>
 <style scoped>
-::v-deep .theme--light.v-pagination .v-pagination__item,
-::v-deep .theme--light.v-pagination .v-pagination__navigation {
-  box-shadow: none;
-}
-::v-deep button.v-pagination__item {
-  transition: none;
-}
-
+@import "../styles/index.scss";
 .actions {
   justify-content: space-between;
   padding: 0 26px 24px 26px;

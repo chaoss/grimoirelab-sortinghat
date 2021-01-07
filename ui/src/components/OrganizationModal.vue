@@ -48,7 +48,7 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="blue darken-1" text @click.prevent="closeModal">
+          <v-btn color="primary darken-1" text @click.prevent="closeModal">
             Cancel
           </v-btn>
           <v-btn
