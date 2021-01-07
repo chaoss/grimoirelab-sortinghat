@@ -1,15 +1,64 @@
 $selected-color: #003756;
 $active-color: #f4bc00;
+$border-color: rgba(0, 0, 0, 0.12);
 
-.selected {
+// Expanded table item
+.expanded:not(.selected) {
+  box-shadow: inset 1px 0 0 $border-color,
+  inset -2px 0px 1px -1px $border-color;
+}
+
+.expanded.selected {
+  box-shadow: inset 4px 0 0 $selected-color,
+  inset -1px 0px 1px -1px rgba(0, 0, 0, 0.45);
+}
+
+.row-border:not(:last-child) {
+  border-bottom: thin solid $border-color;
+}
+
+.theme--light.v-data-table > .v-data-table__wrapper > table > tbody >
+  tr.expanded > td:not(.v-data-table__mobile-row) {
+  border-bottom: 0;
+}
+
+.theme--light.v-data-table > .v-data-table__wrapper > table > tbody > tr:hover + td {
+  background-color: #eeeeee;
+}
+
+.theme--light.v-data-table .v-list--dense {
+  background-color: transparent;
+}
+
+.v-data-table__wrapper tr + td {
+  font-size: 0.875rem;
+  padding: 0 75px 4px 75px;
+  border: thin solid $border-color;
+  border-top: 0;
+}
+
+.v-data-table__wrapper tr:not(.expanded) + td {
+  padding-left: 2rem;
+}
+
+.theme--light.v-data-table tbody tr:first-child.expanded td {
+  border-top: thin solid $border-color;
+}
+
+// Selected table item
+.selected,
+.expanded.selected + td {
   box-shadow: inset 4px 0 0 $selected-color;
   background-color: lighten($selected-color, 80%);
+  border-left: 0;
 }
 
 .theme--light.v-data-table
   tbody
-  tr.selected:hover:not(.v-data-table__expanded__content):not(.v-data-table__empty-wrapper) {
-  background-color: desaturate(lighten($selected-color, 75%), 30%) !important;
+  tr.selected:hover:not(.v-data-table__expanded__content):not(.v-data-table__empty-wrapper),
+.theme--light.v-data-table > .v-data-table__wrapper > table > tbody > tr.selected:hover + td,
+.selected + td .v-list-item.theme--light.draggable:hover {
+  background-color: desaturate(lighten($selected-color, 75%), 30%);
   transition: background-color 30ms linear;
 }
 
@@ -17,11 +66,11 @@ $active-color: #f4bc00;
   tbody
   .dragging:hover:not(.v-data-table__expanded__content):not(.v-data-table__empty-wrapper),
 .dragging {
-  background-color: lighten($selected-color, 10%);
-  border: solid $selected-color;
-  border-width: 2px 3px;
+  background-color: desaturate(lighten($selected-color, 75%), 30%);
+  box-shadow: inset 4px 0 0 $selected-color;
 }
 
+// Highlighted item
 .highlighted:not(.v-card) {
   box-shadow: inset 0px 0px 0px 2px $selected-color;
 }
@@ -41,6 +90,8 @@ $active-color: #f4bc00;
   transition-duration: 0s;
 }
 
+
+// Drop zones
 .theme--light.v-data-table
   tbody
   .dropzone:hover:not(.v-data-table__expanded__content):not(.v-data-table__empty-wrapper),
@@ -48,6 +99,8 @@ $active-color: #f4bc00;
   background: desaturate(lighten($active-color, 40%), 20%);
 }
 
+
+// Table pagination
 .theme--light.v-pagination .v-pagination__item,
 .theme--light.v-pagination .v-pagination__navigation {
   box-shadow: none;
@@ -64,4 +117,9 @@ button.v-pagination__item {
 .theme--light.v-icon,
 .v-btn--round .v-btn__content .v-icon {
   color: rgba(0, 0, 0, 0.62);
+}
+
+.v-subheader {
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.87);
 }
