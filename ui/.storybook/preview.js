@@ -15,15 +15,26 @@ const VComponents = Object.keys(_Vuetify).reduce((acc, key) => {
 }, {});
 
 Vue.use(Vuetify, {
-  icons: {
-    iconfont: "mdi"
-  },
   components: {
     ...VComponents
   }
 });
 
+const VuetifyConfig = new Vuetify({
+  icons: {
+    iconfont: "mdi"
+  },
+  theme: {
+    themes: {
+      light: {
+        primary: "#003756",
+        secondary: "#f4bc00"
+      }
+    }
+  }
+});
+
 addDecorator(() => ({
-  vuetify: new Vuetify(),
+  vuetify: VuetifyConfig,
   template: "<v-app><story/></v-app>"
 }));
