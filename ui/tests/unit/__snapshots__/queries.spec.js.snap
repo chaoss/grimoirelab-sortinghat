@@ -19,7 +19,7 @@ exports[`IndividualsTable Mock query for getCountries 1`] = `
       class="title"
     >
       <v-icon-stub
-        color="primary"
+        color="black"
         left=""
       >
         
@@ -82,8 +82,8 @@ exports[`IndividualsTable Mock query for getCountries 1`] = `
        
       <v-btn-stub
         activeclass=""
-        class="primary--text"
-        color="blue lighten-5"
+        class="black--text"
+        color="secondary"
         depressed="true"
         tag="button"
         type="button"
@@ -277,7 +277,9 @@ exports[`IndividualsTable Mock query for getCountries 1`] = `
   >
     <v-card-subtitle-stub>
       
-      Moving 0
+      Moving
+      0
+      individual
     
     </v-card-subtitle-stub>
   </v-card-stub>
@@ -307,7 +309,7 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
       class="title"
     >
       <v-icon-stub
-        color="primary"
+        color="black"
         left=""
       >
         
@@ -370,8 +372,8 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
        
       <v-btn-stub
         activeclass=""
-        class="primary--text"
-        color="blue lighten-5"
+        class="black--text"
+        color="secondary"
         depressed="true"
         tag="button"
         type="button"
@@ -563,7 +565,9 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
   >
     <v-card-subtitle-stub>
       
-      Moving 0
+      Moving
+      0
+      individual
     
     </v-card-subtitle-stub>
   </v-card-stub>
@@ -593,7 +597,7 @@ exports[`OrganizationsTable Mock query for getPaginatedOrganizations 1`] = `
       class="title"
     >
       <v-icon-stub
-        color="primary"
+        color="black"
         left=""
       >
         
@@ -607,8 +611,8 @@ exports[`OrganizationsTable Mock query for getPaginatedOrganizations 1`] = `
      
     <v-btn-stub
       activeclass=""
-      class="primary--text"
-      color="blue lighten-5"
+      class="black--text"
+      color="secondary"
       depressed="true"
       tag="button"
       type="button"
@@ -748,6 +752,7 @@ exports[`OrganizationsTable Mock query for getPaginatedOrganizations 1`] = `
     width="auto"
   >
     <v-card-stub
+      class="pa-3"
       loaderheight="4"
       tag="div"
     >
@@ -777,9 +782,9 @@ exports[`OrganizationsTable Mock query for getPaginatedOrganizations 1`] = `
          
         <v-btn-stub
           activeclass=""
-          color="blue darken-4"
+          color="primary"
+          depressed="true"
           tag="button"
-          text="true"
           type="button"
         >
           

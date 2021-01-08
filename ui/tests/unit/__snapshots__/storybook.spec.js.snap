@@ -24,7 +24,7 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
       </div>
        
       <div
-        class="v-list indented v-sheet theme--light"
+        class="v-list indented v-sheet theme--light v-list--dense"
         role="list"
       >
         <div
@@ -171,11 +171,9 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
            
           <!---->
         </div>
-         
-        <!---->
       </div>
       <div
-        class="v-list indented v-sheet theme--light"
+        class="v-list indented v-sheet theme--light v-list--dense"
         role="list"
       >
         <div
@@ -250,11 +248,9 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
            
           <!---->
         </div>
-         
-        <!---->
       </div>
       <div
-        class="v-list indented v-sheet theme--light"
+        class="v-list indented v-sheet theme--light v-list--dense"
         role="list"
       >
         <div
@@ -329,24 +325,20 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
            
           <!---->
         </div>
-         
-        <!---->
       </div>
        
-      <!---->
+      <div
+        class="v-subheader theme--light"
+      >
+        Organizations (2)
+      </div>
        
       <div
-        class="v-list v-sheet theme--light"
+        class="v-list indented v-sheet theme--light v-list--dense"
         role="list"
       >
         <div
-          class="v-subheader theme--light"
-        >
-          Organizations (2)
-        </div>
-         
-        <div
-          class="v-list-item theme--light"
+          class="row-border v-list-item theme--light"
           role="listitem"
           tabindex="-1"
         >
@@ -357,7 +349,7 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
               class="row flex align-center no-gutters"
             >
               <div
-                class="ma-2 text-center col"
+                class="col"
               >
                 <span>
                   Slytherin
@@ -385,7 +377,7 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
           </div>
         </div>
         <div
-          class="v-list-item theme--light"
+          class="row-border v-list-item theme--light"
           role="listitem"
           tabindex="-1"
         >
@@ -396,7 +388,7 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
               class="row flex align-center no-gutters"
             >
               <div
-                class="ma-2 text-center col"
+                class="col"
               >
                 <span>
                   Hogwarts School of Witchcraft and Wizardry
@@ -426,12 +418,12 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
       </div>
        
       <div
-        class="dragged-item v-card v-sheet theme--dark primary"
+        class="dragged-identity v-card v-sheet theme--dark primary"
       >
         <div
-          class="v-card__title"
+          class="v-card__subtitle"
         >
-           Moving 1
+           Moving 1 identity
         </div>
       </div>
     </td>
@@ -459,10 +451,10 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
       </div>
        
       <div
-        class="row ml-12"
+        class="row indented mb-2 mt"
       >
-        <p
-          class="ml-2"
+        <div
+          class="ml-4"
         >
           <span
             class="grey--text text--darken-2"
@@ -491,9 +483,9 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
             </div>
             <!---->
           </div>
-        </p>
+        </div>
          
-        <p
+        <div
           class="ml-6"
         >
           <span
@@ -526,7 +518,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
             </div>
             <!---->
           </div>
-        </p>
+        </div>
       </div>
        
       <div
@@ -536,7 +528,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
       </div>
        
       <div
-        class="v-list indented v-sheet theme--light"
+        class="v-list indented v-sheet theme--light v-list--dense row-border"
         role="list"
       >
         <div
@@ -756,15 +748,9 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
             </span>
           </div>
         </div>
-         
-        <hr
-          aria-orientation="horizontal"
-          class="v-divider v-divider--inset theme--light"
-          role="separator"
-        />
       </div>
       <div
-        class="v-list indented v-sheet theme--light"
+        class="v-list indented v-sheet theme--light v-list--dense row-border"
         role="list"
       >
         <div
@@ -880,15 +866,9 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
             </span>
           </div>
         </div>
-         
-        <hr
-          aria-orientation="horizontal"
-          class="v-divider v-divider--inset theme--light"
-          role="separator"
-        />
       </div>
       <div
-        class="v-list indented v-sheet theme--light"
+        class="v-list indented v-sheet theme--light v-list--dense"
         role="list"
       >
         <div
@@ -1004,28 +984,20 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
             </span>
           </div>
         </div>
-         
-        <!---->
       </div>
        
-      <hr
-        aria-orientation="horizontal"
-        class="divider v-divider v-divider--inset theme--light"
-        role="separator"
-      />
+      <div
+        class="v-subheader theme--light"
+      >
+        Organizations (2)
+      </div>
        
       <div
-        class="v-list v-sheet theme--light"
+        class="v-list indented v-sheet theme--light v-list--dense"
         role="list"
       >
         <div
-          class="v-subheader theme--light"
-        >
-          Organizations (2)
-        </div>
-         
-        <div
-          class="v-list-item theme--light"
+          class="row-border v-list-item theme--light"
           role="listitem"
           tabindex="-1"
         >
@@ -1036,7 +1008,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
               class="row flex align-center no-gutters"
             >
               <div
-                class="ma-2 text-center col"
+                class="col"
               >
                 <span>
                   Slytherin
@@ -1060,7 +1032,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
               </div>
                
               <div
-                class="col"
+                class="text-end col-2 col"
               >
                 <span
                   class="v-tooltip v-tooltip--bottom"
@@ -1085,7 +1057,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
           </div>
         </div>
         <div
-          class="v-list-item theme--light"
+          class="row-border v-list-item theme--light"
           role="listitem"
           tabindex="-1"
         >
@@ -1096,7 +1068,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
               class="row flex align-center no-gutters"
             >
               <div
-                class="ma-2 text-center col"
+                class="col"
               >
                 <span>
                   Hogwarts School of Witchcraft and Wizardry
@@ -1120,7 +1092,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
               </div>
                
               <div
-                class="col"
+                class="text-end col-2 col"
               >
                 <span
                   class="v-tooltip v-tooltip--bottom"
@@ -1147,12 +1119,12 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
       </div>
        
       <div
-        class="dragged-item v-card v-sheet theme--dark primary"
+        class="dragged-identity v-card v-sheet theme--dark primary"
       >
         <div
-          class="v-card__title"
+          class="v-card__subtitle"
         >
-           Moving 1
+           Moving 1 identity
         </div>
       </div>
     </td>
@@ -1180,10 +1152,10 @@ exports[`Storyshots ExpandedIndividual No Organizations 1`] = `
       </div>
        
       <div
-        class="row ml-12"
+        class="row indented mb-2 mt"
       >
-        <p
-          class="ml-2"
+        <div
+          class="ml-4"
         >
           <span
             class="grey--text text--darken-2"
@@ -1212,9 +1184,9 @@ exports[`Storyshots ExpandedIndividual No Organizations 1`] = `
             </div>
             <!---->
           </div>
-        </p>
+        </div>
          
-        <p
+        <div
           class="ml-6"
         >
           <span
@@ -1247,7 +1219,7 @@ exports[`Storyshots ExpandedIndividual No Organizations 1`] = `
             </div>
             <!---->
           </div>
-        </p>
+        </div>
       </div>
        
       <div
@@ -1257,7 +1229,7 @@ exports[`Storyshots ExpandedIndividual No Organizations 1`] = `
       </div>
        
       <div
-        class="v-list indented v-sheet theme--light"
+        class="v-list indented v-sheet theme--light v-list--dense"
         role="list"
       >
         <div
@@ -1374,35 +1346,26 @@ exports[`Storyshots ExpandedIndividual No Organizations 1`] = `
             </span>
           </div>
         </div>
-         
-        <!---->
       </div>
        
-      <hr
-        aria-orientation="horizontal"
-        class="divider v-divider v-divider--inset theme--light"
-        role="separator"
+      <div
+        class="v-subheader theme--light"
+      >
+        Organizations (0)
+      </div>
+       
+      <div
+        class="v-list indented v-sheet theme--light v-list--dense"
+        role="list"
       />
        
       <div
-        class="v-list v-sheet theme--light"
-        role="list"
+        class="dragged-identity v-card v-sheet theme--dark primary"
       >
         <div
-          class="v-subheader theme--light"
+          class="v-card__subtitle"
         >
-          Organizations (0)
-        </div>
-         
-      </div>
-       
-      <div
-        class="dragged-item v-card v-sheet theme--dark primary"
-      >
-        <div
-          class="v-card__title"
-        >
-           Moving 1
+           Moving 1 identity
         </div>
       </div>
     </td>
@@ -1419,7 +1382,9 @@ exports[`Storyshots ExpandedOrganization Default 1`] = `
   <div
     class="v-application--wrap"
   >
-    <td>
+    <td
+      colspan="3"
+    >
       <div
         class="v-list v-sheet theme--light v-list--dense"
         role="list"
@@ -1475,7 +1440,9 @@ exports[`Storyshots ExpandedOrganization Empty 1`] = `
   <div
     class="v-application--wrap"
   >
-    <td>
+    <td
+      colspan="3"
+    >
       <div
         class="v-list v-sheet theme--light v-list--dense"
         role="list"
@@ -2413,7 +2380,7 @@ exports[`Storyshots IndividualEntry Bot 1`] = `
                     class="v-list-item__content"
                   >
                     <div
-                      class="v-list-item__title"
+                      class="v-list-item__title font-weight-medium"
                     >
                       <div
                         class="v-menu v-small-dialog theme--light"
@@ -2629,7 +2596,7 @@ exports[`Storyshots IndividualEntry Bot And Locked 1`] = `
                     class="v-list-item__content"
                   >
                     <div
-                      class="v-list-item__title"
+                      class="v-list-item__title font-weight-medium"
                     >
                       <span>
                         Tom Marvolo Riddle
@@ -2811,7 +2778,7 @@ exports[`Storyshots IndividualEntry Default 1`] = `
                     class="v-list-item__content"
                   >
                     <div
-                      class="v-list-item__title"
+                      class="v-list-item__title font-weight-medium"
                     >
                       <div
                         class="v-menu v-small-dialog theme--light"
@@ -3027,7 +2994,7 @@ exports[`Storyshots IndividualEntry Highlighted 1`] = `
                     class="v-list-item__content"
                   >
                     <div
-                      class="v-list-item__title"
+                      class="v-list-item__title font-weight-medium"
                     >
                       <div
                         class="v-menu v-small-dialog theme--light"
@@ -3243,7 +3210,7 @@ exports[`Storyshots IndividualEntry Locked 1`] = `
                     class="v-list-item__content"
                   >
                     <div
-                      class="v-list-item__title"
+                      class="v-list-item__title font-weight-medium"
                     >
                       <span>
                         Tom Marvolo Riddle
@@ -3425,7 +3392,7 @@ exports[`Storyshots IndividualEntry No Email 1`] = `
                     class="v-list-item__content"
                   >
                     <div
-                      class="v-list-item__title"
+                      class="v-list-item__title font-weight-medium"
                     >
                       <div
                         class="v-menu v-small-dialog theme--light"
@@ -3641,7 +3608,7 @@ exports[`Storyshots IndividualEntry No Name 1`] = `
                     class="v-list-item__content"
                   >
                     <div
-                      class="v-list-item__title"
+                      class="v-list-item__title font-weight-medium"
                     >
                       <div
                         class="v-menu v-small-dialog theme--light"
@@ -3857,7 +3824,7 @@ exports[`Storyshots IndividualEntry No Organization 1`] = `
                     class="v-list-item__content"
                   >
                     <div
-                      class="v-list-item__title"
+                      class="v-list-item__title font-weight-medium"
                     >
                       <div
                         class="v-menu v-small-dialog theme--light"
@@ -4073,7 +4040,7 @@ exports[`Storyshots IndividualEntry Single Inital 1`] = `
                     class="v-list-item__content"
                   >
                     <div
-                      class="v-list-item__title"
+                      class="v-list-item__title font-weight-medium"
                     >
                       <div
                         class="v-menu v-small-dialog theme--light"
@@ -5147,7 +5114,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
         >
           <i
             aria-hidden="true"
-            class="v-icon notranslate v-icon--left mdi mdi-account-multiple theme--light primary--text"
+            class="v-icon notranslate v-icon--left mdi mdi-account-multiple theme--light black--text"
           />
           
       Individuals
@@ -5168,13 +5135,13 @@ exports[`Storyshots IndividualsTable Default 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-655"
+                  for="input-651"
                   style="left: 0px; position: absolute;"
                 >
                   Search
                 </label>
                 <input
-                  id="input-655"
+                  id="input-651"
                   type="text"
                 />
               </div>
@@ -5289,7 +5256,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
           </span>
            
           <button
-            class="primary--text v-btn v-btn--depressed theme--light v-size--default blue lighten-5"
+            class="black--text v-btn v-btn--depressed theme--light v-size--default secondary"
             type="button"
           >
             <span
@@ -5398,7 +5365,9 @@ exports[`Storyshots IndividualsTable Default 1`] = `
           class="v-card__subtitle"
         >
           
-      Moving 0
+      Moving
+      0
+      individual
     
         </div>
       </div>
@@ -5459,7 +5428,7 @@ exports[`Storyshots OrganizationEntry Default 1`] = `
               class=""
             >
               <td
-                class="text--body-1"
+                class="font-weight-medium"
               >
                 Hogwarts School of Witchcraft and Wizardry
               </td>
@@ -5632,7 +5601,7 @@ exports[`Storyshots OrganizationsTable Default 1`] = `
         >
           <i
             aria-hidden="true"
-            class="v-icon notranslate v-icon--left mdi mdi-sitemap theme--light primary--text"
+            class="v-icon notranslate v-icon--left mdi mdi-sitemap theme--light black--text"
           />
           
       Organizations
@@ -5640,7 +5609,7 @@ exports[`Storyshots OrganizationsTable Default 1`] = `
         </h4>
          
         <button
-          class="primary--text v-btn v-btn--depressed theme--light v-size--default blue lighten-5"
+          class="black--text v-btn v-btn--depressed theme--light v-size--default secondary"
           type="button"
         >
           <span
@@ -6030,13 +5999,13 @@ exports[`Storyshots Search Default 1`] = `
             >
               <label
                 class="v-label theme--light"
-                for="input-917"
+                for="input-913"
                 style="left: 0px; position: absolute;"
               >
                 Search
               </label>
               <input
-                id="input-917"
+                id="input-913"
                 type="text"
               />
             </div>
@@ -6123,17 +6092,18 @@ exports[`Storyshots WorkSpace Default 1`] = `
     class="v-application--wrap"
   >
     <div
-      class="pa-md-4 v-sheet theme--light grey lighten-5"
+      class="pa-md-4 v-sheet theme--light"
+      style="background-color: rgb(245, 245, 246); border-color: #f5f5f6;"
     >
       <div
         class="row ma-md-0 pt-md-4 pl-md-4 pr-md-4 justify-space-between"
       >
         <h3
-          class="text-h6"
+          class="title"
         >
           <i
             aria-hidden="true"
-            class="v-icon notranslate v-icon--left mdi mdi-pin theme--light primary--text"
+            class="v-icon notranslate v-icon--left mdi mdi-pin theme--light black--text"
           />
           
       Workspace
@@ -6470,17 +6440,18 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
   >
     <div>
       <div
-        class="pa-md-4 v-sheet theme--light grey lighten-5"
+        class="pa-md-4 v-sheet theme--light"
+        style="background-color: rgb(245, 245, 246); border-color: #f5f5f6;"
       >
         <div
           class="row ma-md-0 pt-md-4 pl-md-4 pr-md-4 justify-space-between"
         >
           <h3
-            class="text-h6"
+            class="title"
           >
             <i
               aria-hidden="true"
-              class="v-icon notranslate v-icon--left mdi mdi-pin theme--light primary--text"
+              class="v-icon notranslate v-icon--left mdi mdi-pin theme--light black--text"
             />
             
       Workspace
@@ -6580,7 +6551,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
           >
             <i
               aria-hidden="true"
-              class="v-icon notranslate v-icon--left mdi mdi-account-multiple theme--light primary--text"
+              class="v-icon notranslate v-icon--left mdi mdi-account-multiple theme--light black--text"
             />
             
       Individuals
@@ -6601,13 +6572,13 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-1006"
+                    for="input-1002"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-1006"
+                    id="input-1002"
                     type="text"
                   />
                 </div>
@@ -6722,7 +6693,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
             </span>
              
             <button
-              class="primary--text v-btn v-btn--depressed theme--light v-size--default blue lighten-5"
+              class="black--text v-btn v-btn--depressed theme--light v-size--default secondary"
               type="button"
             >
               <span
@@ -6831,7 +6802,9 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
             class="v-card__subtitle"
           >
             
-      Moving 0
+      Moving
+      0
+      individual
     
           </div>
         </div>
@@ -6874,17 +6847,18 @@ exports[`Storyshots WorkSpace Empty 1`] = `
     class="v-application--wrap"
   >
     <div
-      class="pa-md-4 v-sheet theme--light grey lighten-5"
+      class="pa-md-4 v-sheet theme--light"
+      style="background-color: rgb(245, 245, 246); border-color: #f5f5f6;"
     >
       <div
         class="row ma-md-0 pt-md-4 pl-md-4 pr-md-4 justify-space-between"
       >
         <h3
-          class="text-h6"
+          class="title"
         >
           <i
             aria-hidden="true"
-            class="v-icon notranslate v-icon--left mdi mdi-pin theme--light primary--text"
+            class="v-icon notranslate v-icon--left mdi mdi-pin theme--light black--text"
           />
           
       Workspace

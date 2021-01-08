@@ -12,7 +12,7 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
       class="title"
     >
       <v-icon-stub
-        color="primary"
+        color="black"
         left=""
       >
         
@@ -75,8 +75,8 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
        
       <v-btn-stub
         activeclass=""
-        class="primary--text"
-        color="blue lighten-5"
+        class="black--text"
+        color="secondary"
         depressed="true"
         tag="button"
         type="button"
@@ -268,7 +268,9 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
   >
     <v-card-subtitle-stub>
       
-      Moving 0
+      Moving
+      0
+      individual
     
     </v-card-subtitle-stub>
   </v-card-stub>
@@ -298,7 +300,7 @@ exports[`IndividualsTable Mock query for merge 1`] = `
       class="title"
     >
       <v-icon-stub
-        color="primary"
+        color="black"
         left=""
       >
         
@@ -361,8 +363,8 @@ exports[`IndividualsTable Mock query for merge 1`] = `
        
       <v-btn-stub
         activeclass=""
-        class="primary--text"
-        color="blue lighten-5"
+        class="black--text"
+        color="secondary"
         depressed="true"
         tag="button"
         type="button"
@@ -554,7 +556,9 @@ exports[`IndividualsTable Mock query for merge 1`] = `
   >
     <v-card-subtitle-stub>
       
-      Moving 0
+      Moving
+      0
+      individual
     
     </v-card-subtitle-stub>
   </v-card-stub>
@@ -584,7 +588,7 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
       class="title"
     >
       <v-icon-stub
-        color="primary"
+        color="black"
         left=""
       >
         
@@ -647,8 +651,8 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
        
       <v-btn-stub
         activeclass=""
-        class="primary--text"
-        color="blue lighten-5"
+        class="black--text"
+        color="secondary"
         depressed="true"
         tag="button"
         type="button"
@@ -840,7 +844,9 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
   >
     <v-card-subtitle-stub>
       
-      Moving 0
+      Moving
+      0
+      individual
     
     </v-card-subtitle-stub>
   </v-card-stub>
@@ -870,7 +876,7 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
       class="title"
     >
       <v-icon-stub
-        color="primary"
+        color="black"
         left=""
       >
         
@@ -933,8 +939,8 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
        
       <v-btn-stub
         activeclass=""
-        class="primary--text"
-        color="blue lighten-5"
+        class="black--text"
+        color="secondary"
         depressed="true"
         tag="button"
         type="button"
@@ -1126,7 +1132,9 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
   >
     <v-card-subtitle-stub>
       
-      Moving 0
+      Moving
+      0
+      individual
     
     </v-card-subtitle-stub>
   </v-card-stub>
@@ -1156,7 +1164,7 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
       class="title"
     >
       <v-icon-stub
-        color="primary"
+        color="black"
         left=""
       >
         
@@ -1219,8 +1227,8 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
        
       <v-btn-stub
         activeclass=""
-        class="primary--text"
-        color="blue lighten-5"
+        class="black--text"
+        color="secondary"
         depressed="true"
         tag="button"
         type="button"
@@ -1412,7 +1420,9 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
   >
     <v-card-subtitle-stub>
       
-      Moving 0
+      Moving
+      0
+      individual
     
     </v-card-subtitle-stub>
   </v-card-stub>
@@ -1519,7 +1529,7 @@ exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
       class="title"
     >
       <v-icon-stub
-        color="primary"
+        color="black"
         left=""
       >
         
@@ -1533,8 +1543,8 @@ exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
      
     <v-btn-stub
       activeclass=""
-      class="primary--text"
-      color="blue lighten-5"
+      class="black--text"
+      color="secondary"
       depressed="true"
       tag="button"
       type="button"
@@ -1676,6 +1686,7 @@ exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
     width="auto"
   >
     <v-card-stub
+      class="pa-3"
       loaderheight="4"
       tag="div"
     >
@@ -1705,9 +1716,9 @@ exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
          
         <v-btn-stub
           activeclass=""
-          color="blue darken-4"
+          color="primary"
+          depressed="true"
           tag="button"
-          text="true"
           type="button"
         >
           
@@ -1763,7 +1774,7 @@ exports[`OrganizationsTable Mock mutation for addOrganization 1`] = `
       class="title"
     >
       <v-icon-stub
-        color="primary"
+        color="black"
         left=""
       >
         
@@ -1777,8 +1788,8 @@ exports[`OrganizationsTable Mock mutation for addOrganization 1`] = `
      
     <v-btn-stub
       activeclass=""
-      class="primary--text"
-      color="blue lighten-5"
+      class="black--text"
+      color="secondary"
       depressed="true"
       tag="button"
       type="button"
@@ -1920,6 +1931,7 @@ exports[`OrganizationsTable Mock mutation for addOrganization 1`] = `
     width="auto"
   >
     <v-card-stub
+      class="pa-3"
       loaderheight="4"
       tag="div"
     >
@@ -1949,9 +1961,9 @@ exports[`OrganizationsTable Mock mutation for addOrganization 1`] = `
          
         <v-btn-stub
           activeclass=""
-          color="blue darken-4"
+          color="primary"
+          depressed="true"
           tag="button"
-          text="true"
           type="button"
         >
           
@@ -2007,7 +2019,7 @@ exports[`OrganizationsTable Mock mutation for deleteDomain 1`] = `
       class="title"
     >
       <v-icon-stub
-        color="primary"
+        color="black"
         left=""
       >
         
@@ -2021,8 +2033,8 @@ exports[`OrganizationsTable Mock mutation for deleteDomain 1`] = `
      
     <v-btn-stub
       activeclass=""
-      class="primary--text"
-      color="blue lighten-5"
+      class="black--text"
+      color="secondary"
       depressed="true"
       tag="button"
       type="button"
@@ -2164,6 +2176,7 @@ exports[`OrganizationsTable Mock mutation for deleteDomain 1`] = `
     width="auto"
   >
     <v-card-stub
+      class="pa-3"
       loaderheight="4"
       tag="div"
     >
@@ -2193,9 +2206,9 @@ exports[`OrganizationsTable Mock mutation for deleteDomain 1`] = `
          
         <v-btn-stub
           activeclass=""
-          color="blue darken-4"
+          color="primary"
+          depressed="true"
           tag="button"
-          text="true"
           type="button"
         >
           
@@ -2251,7 +2264,7 @@ exports[`OrganizationsTable Mock mutation for deleteOrganization 1`] = `
       class="title"
     >
       <v-icon-stub
-        color="primary"
+        color="black"
         left=""
       >
         
@@ -2265,8 +2278,8 @@ exports[`OrganizationsTable Mock mutation for deleteOrganization 1`] = `
      
     <v-btn-stub
       activeclass=""
-      class="primary--text"
-      color="blue lighten-5"
+      class="black--text"
+      color="secondary"
       depressed="true"
       tag="button"
       type="button"
@@ -2406,6 +2419,7 @@ exports[`OrganizationsTable Mock mutation for deleteOrganization 1`] = `
     width="auto"
   >
     <v-card-stub
+      class="pa-3"
       loaderheight="4"
       tag="div"
     >
@@ -2435,9 +2449,9 @@ exports[`OrganizationsTable Mock mutation for deleteOrganization 1`] = `
          
         <v-btn-stub
           activeclass=""
-          color="blue darken-4"
+          color="primary"
+          depressed="true"
           tag="button"
-          text="true"
           type="button"
         >
           
@@ -2493,7 +2507,7 @@ exports[`OrganizationsTable Mock mutation for enroll 1`] = `
       class="title"
     >
       <v-icon-stub
-        color="primary"
+        color="black"
         left=""
       >
         
@@ -2507,8 +2521,8 @@ exports[`OrganizationsTable Mock mutation for enroll 1`] = `
      
     <v-btn-stub
       activeclass=""
-      class="primary--text"
-      color="blue lighten-5"
+      class="black--text"
+      color="secondary"
       depressed="true"
       tag="button"
       type="button"
@@ -2648,6 +2662,7 @@ exports[`OrganizationsTable Mock mutation for enroll 1`] = `
     width="auto"
   >
     <v-card-stub
+      class="pa-3"
       loaderheight="4"
       tag="div"
     >
@@ -2677,9 +2692,9 @@ exports[`OrganizationsTable Mock mutation for enroll 1`] = `
          
         <v-btn-stub
           activeclass=""
-          color="blue darken-4"
+          color="primary"
+          depressed="true"
           tag="button"
-          text="true"
           type="button"
         >
           
@@ -3140,7 +3155,7 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
        
       <v-btn-stub
         activeclass=""
-        color="blue darken-1"
+        color="primary darken-1"
         tag="button"
         text="true"
         type="button"
@@ -3584,7 +3599,7 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
        
       <v-btn-stub
         activeclass=""
-        color="blue darken-1"
+        color="primary darken-1"
         tag="button"
         text="true"
         type="button"

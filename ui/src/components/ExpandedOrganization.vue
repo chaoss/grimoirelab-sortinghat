@@ -1,5 +1,5 @@
 <template>
-  <td>
+  <td colspan="3">
     <v-list dense>
       <v-subheader>Domains ({{ domains.length }})</v-subheader>
       <v-list-item v-for="(item, index) in domains" :key="index">

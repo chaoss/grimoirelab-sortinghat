@@ -137,7 +137,9 @@
 
     <v-card class="dragged-item" color="primary" dark>
       <v-card-subtitle>
-        Moving {{ this.selectedIndividuals.length }}
+        Moving
+        {{ this.selectedIndividuals.length }}
+        {{ this.selectedIndividuals.length > 1 ? "individuals" : "individual" }}
       </v-card-subtitle>
     </v-card>
 

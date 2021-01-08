@@ -1,8 +1,8 @@
 <template>
   <td :class="{ compact: compact }" colspan="4">
     <v-subheader v-if="!compact">Profile</v-subheader>
-    <v-row v-if="!compact" class="ml-12">
-      <p class="ml-2">
+    <v-row v-if="!compact" class="indented mb-2 mt">
+      <div class="ml-4">
         <span class="grey--text text--darken-2">Gender: </span>
         <span v-if="isLocked">{{ gender || " -" }}</span>
         <v-edit-dialog v-else @save="$emit('edit', { gender: form.gender })">
@@ -19,8 +19,8 @@
             ></v-text-field>
           </template>
         </v-edit-dialog>
-      </p>
-      <p class="ml-6">
+      </div>
+      <div class="ml-6">
         <span class="grey--text text--darken-2">Country: </span>
         <span v-if="isLocked">{{ country ? country.name : "-" }}</span>
         <v-edit-dialog
@@ -45,13 +45,17 @@
             />
           </template>
         </v-edit-dialog>
-      </p>
+      </div>
     </v-row>
     <v-subheader>Identities ({{ identitiesCount }})</v-subheader>
     <v-list
       v-for="(source, sourceIndex) in identities"
       :key="source.name"
+      :class="{
+        'row-border': sourceIndex !== identities.length - 1 && !compact
+      }"
       class="indented"
+      dense
     >
       <v-list-item
         v-for="(identity, index) in sortSources(source.identities, 'source')"
@@ -112,24 +116,18 @@
           </v-tooltip>
         </div>
       </v-list-item>
-      <v-divider
-        inset
-        v-if="sourceIndex !== identities.length - 1 && !compact"
-      ></v-divider>
     </v-list>
 
-    <v-divider v-if="!compact" inset class="divider"></v-divider>
-
-    <v-list>
-      <v-subheader>Organizations ({{ enrollments.length }})</v-subheader>
-
+    <v-subheader>Organizations ({{ enrollments.length }})</v-subheader>
+    <v-list class="indented" dense>
       <v-list-item
         v-for="enrollment in enrollments"
         :key="enrollment.organization.id"
+        class="row-border"
       >
         <v-list-item-content>
           <v-row no-gutters class="flex align-center">
-            <v-col class="ma-2 text-center">
+            <v-col>
               <span>{{ enrollment.organization.name }}</span>
             </v-col>
             <v-col class="col-3 ma-2 text-center">
@@ -138,7 +136,7 @@
             <v-col class="col-3 ma-2 text-center">
               <span>{{ formatDate(enrollment.end) }}</span>
             </v-col>
-            <v-col v-if="!compact">
+            <v-col class="text-end col-2" v-if="!compact">
               <v-tooltip
                 bottom
                 transition="expand-y-transition"
@@ -169,8 +167,8 @@
       </v-list-item>
     </v-list>
 
-    <v-card class="dragged-item" color="primary" dark>
-      <v-card-title> Moving 1</v-card-title>
+    <v-card class="dragged-identity" color="primary" dark>
+      <v-card-subtitle> Moving 1 identity</v-card-subtitle>
     </v-card>
   </td>
 </template>
@@ -245,7 +243,7 @@ export default {
       });
     },
     startDrag(identity, event) {
-      const dragImage = document.querySelector(".dragged-item");
+      const dragImage = document.querySelector(".dragged-identity");
       event.dataTransfer.setDragImage(dragImage, 0, 0);
       event.dataTransfer.effectAllowed = "move";
       event.dataTransfer.setData("type", "move");
@@ -274,19 +272,9 @@ export default {
 </script>
 <style lang="scss" scoped>
 @import "../styles/index.scss";
-td {
-  padding-left: 75px;
-  border-bottom: thin solid rgba(0, 0, 0, 0.12);
-}
-
 .indented {
-  margin: 0 40px;
-}
-
-.v-application--is-ltr .v-divider--inset:not(.v-divider--vertical).divider {
-  width: calc(100% - 30px);
-  max-width: calc(100% - 30px);
-  margin-left: 30px;
+  margin-left: 40px;
+  background-color: transparent;
 }
 
 .draggable {
@@ -297,7 +285,7 @@ td {
   }
 }
 
-.dragged-item {
+.dragged-identity {
   max-width: 300px;
   position: absolute;
   top: -300px;
@@ -323,6 +311,11 @@ td {
   ::v-deep .indented {
     padding: 0;
     margin: 0;
+    text-align: center;
+  }
+
+  .row-border:not(:last-child) {
+    border: 0;
   }
 }
 
