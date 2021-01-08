@@ -82,6 +82,7 @@ const GET_PAGINATED_INDIVIDUALS = gql`
   ) {
     individuals(page: $page, pageSize: $pageSize, filters: $filters) {
       entities {
+        mk
         isLocked
         profile {
           name
