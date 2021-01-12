@@ -57,9 +57,12 @@ UUID_NONE_OR_EMPTY_ERROR = "'uuid' cannot be"
 UUID_LOCKED_ERROR = "Individual {uuid} is locked"
 UUIDS_NONE_OR_EMPTY_ERROR = "'uuids' cannot be"
 FROM_UUID_NONE_OR_EMPTY_ERROR = "'from_uuid' cannot be"
+FROM_DATE_NONE_OR_EMPTY_ERROR = "'from_date' cannot be"
 FROM_UUID_IS_INDIVIDUAL_ERROR = "'from_uuid' is an individual and it cannot be moved; use 'merge' instead"
 FROM_UUIDS_NONE_OR_EMPTY_ERROR = "'from_uuids' cannot be"
 TO_UUID_NONE_OR_EMPTY_ERROR = "'to_uuid' cannot be"
+TO_DATE_NONE_OR_EMPTY_ERROR = "'to_date' cannot be"
+BOTH_NEW_DATES_NONE_OR_EMPTY_ERROR = "'new_from_date' and 'to_from_date' cannot be"
 FROM_UUID_TO_UUID_EQUAL_ERROR = "'to_uuid' {to_uuid} cannot be part of 'from_uuids'"
 IS_BOT_VALUE_ERROR = "'is_bot' must have a boolean value"
 COUNTRY_CODE_ERROR = r"'country_code' \({code}\) does not match with a valid code"
@@ -69,6 +72,8 @@ GENDER_ACC_INVALID_RANGE_ERROR = r"'gender_acc' \({acc}\) is not in range \(1,10
 PERIOD_INVALID_ERROR = "'start' date {start} cannot be greater than {end}"
 PERIOD_OUT_OF_BOUNDS_ERROR = "'{type}' date {date} is out of bounds"
 WITHDRAW_PERIOD_INVALID_ERROR = "'from_date' date {from_date} cannot be greater than {to_date}"
+UPDATE_ENROLLMENT_PERIOD_INVALID_ERROR = "'from_date' date {from_date} cannot be greater than {to_date}"
+UPDATE_ENROLLMENT_NEW_PERIOD_INVALID_ERROR = "'new_from_date' date {from_date} cannot be greater than {to_date}"
 ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR = "'name' cannot be"
 ORGANIZATION_NOT_FOUND_ERROR = "{name} not found in the registry"
 ORGANIZATION_ALREADY_EXISTS_ERROR = "Organization '{name}' already exists in the registry"
@@ -3734,6 +3739,572 @@ class TestWithdraw(TestCase):
         self.assertEqual(op5_args['organization'], 'Example')
         self.assertEqual(op5_args['start'], str(datetime_to_utc(datetime.datetime(2013, 1, 1))))
         self.assertEqual(op5_args['end'], str(datetime_to_utc(datetime.datetime(2014, 1, 1))))
+
+
+class TestUpdateEnrollment(TestCase):
+    """Unit tests for update_enrollment"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        api.add_organization(self.ctx, 'Example')
+        api.add_organization(self.ctx, 'Bitergia')
+
+        api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                   from_date=datetime.datetime(2006, 1, 1),
+                   to_date=datetime.datetime(2008, 1, 1))
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                   from_date=datetime.datetime(2009, 1, 1),
+                   to_date=datetime.datetime(2011, 1, 1))
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                   from_date=datetime.datetime(2012, 1, 1),
+                   to_date=datetime.datetime(2014, 1, 1))
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Bitergia',
+                   from_date=datetime.datetime(2012, 1, 1),
+                   to_date=datetime.datetime(2014, 1, 1))
+
+        api.add_identity(self.ctx, 'scm', email='jrae@example')
+        api.enroll(self.ctx,
+                   '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                   from_date=datetime.datetime(2012, 1, 1),
+                   to_date=datetime.datetime(2014, 1, 1))
+
+    def test_update_enrollment(self):
+        """Check whether it updates an individual's enrollment from an organization during the given period"""
+
+        individual = api.update_enrollment(self.ctx,
+                                           '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                                           datetime.datetime(2012, 1, 1),
+                                           datetime.datetime(2014, 1, 1),
+                                           new_from_date=datetime.datetime(2012, 1, 2),
+                                           new_to_date=datetime.datetime(2013, 12, 31))
+
+        # Tests
+        self.assertIsInstance(individual, Individual)
+
+        enrollments = individual.enrollments.all()
+        self.assertEqual(len(enrollments), 1)
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.organization.name, 'Example')
+        self.assertEqual(enrollment.start, datetime.datetime(2012, 1, 2, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2013, 12, 31, tzinfo=UTC))
+
+        # Check database objects
+        individual_db = Individual.objects.get(mk='3283e58cef2b80007aa1dfc16f6dd20ace1aee96')
+        enrollments_db = individual_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 1)
+
+        enrollment_db = enrollments_db[0]
+        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment.start, datetime.datetime(2012, 1, 2, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2013, 12, 31, tzinfo=UTC))
+
+        # Other enrollments were not modified
+        individual_db = Individual.objects.get(mk='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        enrollments_db = individual_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 4)
+
+        enrollment_db = enrollments_db[0]
+        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2006, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2008, 1, 1, tzinfo=UTC))
+
+        enrollment_db = enrollments_db[1]
+        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2009, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2011, 1, 1, tzinfo=UTC))
+
+        enrollment_db = enrollments_db[2]
+        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+        enrollment_db = enrollments_db[3]
+        self.assertEqual(enrollment_db.organization.name, 'Bitergia')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+    def test_update_using_any_identity_uuid(self):
+        """
+        Check whether it updates an enrollment from an individual
+        during the given period using any valid identity uuid
+        """
+        api.add_identity(self.ctx, 'mls', email='jsmith@example',
+                         uuid='3283e58cef2b80007aa1dfc16f6dd20ace1aee96')
+
+        individual = api.update_enrollment(self.ctx,
+                                           'de176236636bc488d31e9f91952ecfc6d976a69e', 'Example',
+                                           datetime.datetime(2012, 1, 1),
+                                           datetime.datetime(2014, 1, 1),
+                                           new_from_date=datetime.datetime(2012, 1, 2),
+                                           new_to_date=datetime.datetime(2013, 12, 31))
+
+        # Tests
+        self.assertIsInstance(individual, Individual)
+
+        enrollments = individual.enrollments.all()
+        self.assertEqual(len(enrollments), 1)
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.organization.name, 'Example')
+        self.assertEqual(enrollment.start, datetime.datetime(2012, 1, 2, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2013, 12, 31, tzinfo=UTC))
+
+        # Check database objects
+        individual_db = Individual.objects.get(mk='3283e58cef2b80007aa1dfc16f6dd20ace1aee96')
+        enrollments_db = individual_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 1)
+
+        enrollment_db = enrollments_db[0]
+        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment.start, datetime.datetime(2012, 1, 2, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2013, 12, 31, tzinfo=UTC))
+
+        # Other enrollments were not modified
+        individual_db = Individual.objects.get(mk='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        enrollments_db = individual_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 4)
+
+        enrollment_db = enrollments_db[0]
+        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2006, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2008, 1, 1, tzinfo=UTC))
+
+        enrollment_db = enrollments_db[1]
+        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2009, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2011, 1, 1, tzinfo=UTC))
+
+        enrollment_db = enrollments_db[2]
+        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+        enrollment_db = enrollments_db[3]
+        self.assertEqual(enrollment_db.organization.name, 'Bitergia')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+    def test_update_no_new_to_date(self):
+        """Check if the enrollment is updated as expected when one of the new dates is not provided"""
+
+        # Test only with 'newFromDate' date, missing 'newToDate'
+        individual = api.update_enrollment(self.ctx,
+                                           '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                                           datetime.datetime(2012, 1, 1),
+                                           datetime.datetime(2014, 1, 1),
+                                           new_from_date=datetime.datetime(2012, 1, 2))
+
+        # Tests
+        self.assertIsInstance(individual, Individual)
+
+        enrollments = individual.enrollments.all()
+        self.assertEqual(len(enrollments), 1)
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.organization.name, 'Example')
+        self.assertEqual(enrollment.start, datetime.datetime(2012, 1, 2, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+        # Check database objects
+        individual_db = Individual.objects.get(mk='3283e58cef2b80007aa1dfc16f6dd20ace1aee96')
+        enrollments_db = individual_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 1)
+
+        enrollment_db = enrollments_db[0]
+        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment.start, datetime.datetime(2012, 1, 2, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+    def test_update_no_new_from_date(self):
+        """Check if the enrollment is updated as expected when one of the new dates is not provided"""
+
+        # Test only with 'newToDate' date, missing 'newFromDate'
+        individual = api.update_enrollment(self.ctx,
+                                           '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                                           datetime.datetime(2012, 1, 1),
+                                           datetime.datetime(2014, 1, 1),
+                                           new_to_date=datetime.datetime(2013, 12, 31))
+
+        # Tests
+        self.assertIsInstance(individual, Individual)
+
+        enrollments = individual.enrollments.all()
+        self.assertEqual(len(enrollments), 1)
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.organization.name, 'Example')
+        self.assertEqual(enrollment.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2013, 12, 31, tzinfo=UTC))
+
+        # Check database objects
+        individual_db = Individual.objects.get(mk='3283e58cef2b80007aa1dfc16f6dd20ace1aee96')
+        enrollments_db = individual_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 1)
+
+        enrollment_db = enrollments_db[0]
+        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2013, 12, 31, tzinfo=UTC))
+
+    def test_update_both_new_dates_none(self):
+        """Check if it fails when no new dates are provided (None)"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(InvalidValueError, BOTH_NEW_DATES_NONE_OR_EMPTY_ERROR):
+            api.update_enrollment(self.ctx,
+                                  '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                                  datetime.datetime(2012, 1, 1),
+                                  datetime.datetime(2014, 1, 1))
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_update_both_new_dates_empty(self):
+        """Check if it fails when no new dates are provided (empty)"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(InvalidValueError, BOTH_NEW_DATES_NONE_OR_EMPTY_ERROR):
+            api.update_enrollment(self.ctx,
+                                  '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                                  datetime.datetime(2012, 1, 1),
+                                  datetime.datetime(2014, 1, 1),
+                                  new_from_date='', new_to_date='')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_update_empty_former_dates(self):
+        """Check if it fails when former dates are empty"""
+
+        # Empty from_date
+        with self.assertRaisesRegex(InvalidValueError, FROM_DATE_NONE_OR_EMPTY_ERROR):
+            api.update_enrollment(self.ctx,
+                                  '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                                  '', datetime.datetime(2014, 1, 1),
+                                  new_from_date=datetime.datetime(2012, 1, 2),
+                                  new_to_date=datetime.datetime(2013, 12, 31))
+
+        # Empty to_date
+        with self.assertRaisesRegex(InvalidValueError, TO_DATE_NONE_OR_EMPTY_ERROR):
+            api.update_enrollment(self.ctx,
+                                  '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                                  datetime.datetime(2014, 1, 1), '',
+                                  new_from_date=datetime.datetime(2012, 1, 2),
+                                  new_to_date=datetime.datetime(2013, 12, 31))
+
+        # Both dates empty
+        with self.assertRaisesRegex(InvalidValueError, FROM_DATE_NONE_OR_EMPTY_ERROR):
+            api.update_enrollment(self.ctx,
+                                  '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                                  '', '',
+                                  new_from_date=datetime.datetime(2012, 1, 2),
+                                  new_to_date=datetime.datetime(2013, 12, 31))
+
+    def test_update_none_former_from_date(self):
+        """Check if it fails when former from_date is None"""
+
+        with self.assertRaisesRegex(InvalidValueError, FROM_DATE_NONE_OR_EMPTY_ERROR):
+            api.update_enrollment(self.ctx,
+                                  '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                                  None, datetime.datetime(2014, 1, 1),
+                                  new_from_date=datetime.datetime(2012, 1, 2),
+                                  new_to_date=datetime.datetime(2013, 12, 31))
+
+    def test_update_none_former_to_date(self):
+        """Check if it fails when former to_date is None"""
+
+        with self.assertRaisesRegex(InvalidValueError, TO_DATE_NONE_OR_EMPTY_ERROR):
+            api.update_enrollment(self.ctx,
+                                  '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                                  datetime.datetime(2014, 1, 1), None,
+                                  new_from_date=datetime.datetime(2012, 1, 2),
+                                  new_to_date=datetime.datetime(2013, 12, 31))
+
+    def test_update_none_former_dates(self):
+        """Check if it fails when both former dates are None"""
+
+        with self.assertRaisesRegex(InvalidValueError, FROM_DATE_NONE_OR_EMPTY_ERROR):
+            api.update_enrollment(self.ctx,
+                                  '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                                  None, None,
+                                  new_from_date=datetime.datetime(2012, 1, 2),
+                                  new_to_date=datetime.datetime(2013, 12, 31))
+
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
+
+        before_dt = datetime_utcnow()
+        individual = api.update_enrollment(self.ctx,
+                                           '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                                           datetime.datetime(2012, 1, 1),
+                                           datetime.datetime(2014, 1, 1),
+                                           new_from_date=datetime.datetime(2012, 1, 2),
+                                           new_to_date=datetime.datetime(2013, 12, 31))
+        after_dt = datetime_utcnow()
+
+        self.assertLessEqual(before_dt, individual.last_modified)
+        self.assertGreaterEqual(after_dt, individual.last_modified)
+
+    def test_period_invalid(self):
+        """Check whether enrollments cannot be updated giving invalid period ranges"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        data = {
+            'from_date': r'2001-01-01 00:00:00',
+            'to_date': r'1999-01-01 00:00:00'
+        }
+        msg = UPDATE_ENROLLMENT_PERIOD_INVALID_ERROR.format(**data)
+
+        with self.assertRaisesRegex(InvalidValueError, msg):
+            api.update_enrollment(self.ctx,
+                                  '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                                  datetime.datetime(2001, 1, 1),
+                                  datetime.datetime(1999, 1, 1),
+                                  new_from_date=datetime.datetime(2012, 1, 2),
+                                  new_to_date=datetime.datetime(2013, 12, 31))
+
+        msg = UPDATE_ENROLLMENT_NEW_PERIOD_INVALID_ERROR.format(**data)
+
+        with self.assertRaisesRegex(InvalidValueError, msg):
+            api.update_enrollment(self.ctx,
+                                  '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                                  datetime.datetime(2012, 1, 1),
+                                  datetime.datetime(2014, 1, 1),
+                                  new_from_date=datetime.datetime(2001, 1, 1),
+                                  new_to_date=datetime.datetime(1999, 1, 1))
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_period_out_of_bounds(self):
+        """Check whether enrollments cannot be updated giving periods out of bounds"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        data = {
+            'type': 'from_date',
+            'date': r'1899-12-31 23:59:59\+00:00'
+        }
+        msg = PERIOD_OUT_OF_BOUNDS_ERROR.format(**data)
+
+        with self.assertRaisesRegex(InvalidValueError, msg):
+            api.update_enrollment(self.ctx,
+                                  '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                                  datetime.datetime(1899, 12, 31, 23, 59, 59),
+                                  datetime.datetime(2014, 1, 1),
+                                  new_from_date=datetime.datetime(2012, 1, 2),
+                                  new_to_date=datetime.datetime(2013, 12, 31))
+
+        data = {
+            'type': 'to_date',
+            'date': r'2100-01-01 00:00:01\+00:00'
+        }
+        msg = PERIOD_OUT_OF_BOUNDS_ERROR.format(**data)
+
+        with self.assertRaisesRegex(InvalidValueError, msg):
+            api.update_enrollment(self.ctx,
+                                  '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                                  datetime.datetime(2012, 1, 1),
+                                  datetime.datetime(2100, 1, 1, 0, 0, 1),
+                                  new_from_date=datetime.datetime(2012, 1, 2),
+                                  new_to_date=datetime.datetime(2013, 12, 31))
+
+        data = {
+            'type': 'from_date',
+            'date': r'1898-12-31 23:59:59\+00:00'
+        }
+        msg = PERIOD_OUT_OF_BOUNDS_ERROR.format(**data)
+
+        with self.assertRaisesRegex(InvalidValueError, msg):
+            individual = api.update_enrollment(self.ctx,
+                                               '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                                               datetime.datetime(1898, 12, 31, 23, 59, 59),
+                                               datetime.datetime(1899, 12, 31, 23, 59, 59),
+                                               new_from_date=datetime.datetime(2012, 1, 2),
+                                               new_to_date=datetime.datetime(2013, 12, 31))
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_non_existing_uuid(self):
+        """Check if it fails updating from not existing individuals"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        msg = NOT_FOUND_ERROR.format(entity='abcdefghijklmnopqrstuvwxyz')
+
+        with self.assertRaisesRegex(NotFoundError, msg):
+            api.update_enrollment(self.ctx,
+                                  'abcdefghijklmnopqrstuvwxyz', 'Example',
+                                  datetime.datetime(2012, 1, 1),
+                                  datetime.datetime(2014, 1, 1),
+                                  new_from_date=datetime.datetime(2012, 1, 2),
+                                  new_to_date=datetime.datetime(2013, 12, 31))
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_non_existing_organization(self):
+        """Check if it fails updating from not existing organizations"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        msg = NOT_FOUND_ERROR.format(entity='LibreSoft')
+
+        with self.assertRaisesRegex(NotFoundError, msg):
+            api.update_enrollment(self.ctx,
+                                  '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'LibreSoft',
+                                  datetime.datetime(2012, 1, 1),
+                                  datetime.datetime(2014, 1, 1),
+                                  new_from_date=datetime.datetime(2012, 1, 2),
+                                  new_to_date=datetime.datetime(2013, 12, 31))
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_non_existing_enrollment(self):
+        """Check if it fails updating not existing enrollments"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaises(NotFoundError):
+            api.update_enrollment(self.ctx,
+                                  '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                                  datetime.datetime(2050, 1, 1),
+                                  datetime.datetime(2060, 1, 1),
+                                  new_from_date=datetime.datetime(2012, 1, 2),
+                                  new_to_date=datetime.datetime(2013, 12, 31))
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_locked_uuid(self):
+        """Check if it fails when the individual is locked"""
+
+        uuid = '3283e58cef2b80007aa1dfc16f6dd20ace1aee96'
+
+        individual = Individual.objects.get(mk=uuid)
+        individual.is_locked = True
+        individual.save()
+
+        msg = UUID_LOCKED_ERROR.format(uuid=uuid)
+        with self.assertRaisesRegex(LockedIdentityError, msg):
+            api.update_enrollment(self.ctx,
+                                  '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                                  datetime.datetime(2012, 1, 1),
+                                  datetime.datetime(2014, 1, 1),
+                                  new_from_date=datetime.datetime(2012, 1, 2),
+                                  new_to_date=datetime.datetime(2013, 12, 31))
+
+    def test_transaction(self):
+        """Check if a transaction is created when updating an enrollment"""
+
+        timestamp = datetime_utcnow()
+
+        api.update_enrollment(self.ctx,
+                              '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                              datetime.datetime(2012, 1, 1),
+                              datetime.datetime(2014, 1, 1),
+                              new_from_date=datetime.datetime(2012, 1, 2),
+                              new_to_date=datetime.datetime(2013, 12, 31))
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        self.assertEqual(len(transactions), 3)
+
+        trx = transactions[0]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'update_enrollment')
+        self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, self.ctx.user.username)
+
+        trx = transactions[1]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'withdraw')
+        self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, self.ctx.user.username)
+
+        trx = transactions[2]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'enroll')
+        self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, self.ctx.user.username)
+
+    def test_operations(self):
+        """Check if the right operations are created when updating an enrollment"""
+
+        timestamp = datetime_utcnow()
+
+        api.update_enrollment(self.ctx,
+                              '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                              datetime.datetime(2012, 1, 1),
+                              datetime.datetime(2014, 1, 1),
+                              new_from_date=datetime.datetime(2012, 1, 2),
+                              new_to_date=datetime.datetime(2013, 12, 31))
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        self.assertEqual(len(transactions), 3)
+
+        trx = transactions[0]
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 0)
+
+        trx = transactions[1]
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.DELETE.value)
+        self.assertEqual(op1.entity_type, 'enrollment')
+        self.assertEqual(op1.target, '3283e58cef2b80007aa1dfc16f6dd20ace1aee96')
+        self.assertEqual(op1.trx, trx)
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 4)
+        self.assertEqual(op1_args['mk'], '3283e58cef2b80007aa1dfc16f6dd20ace1aee96')
+        self.assertEqual(op1_args['organization'], 'Example')
+        self.assertEqual(op1_args['start'], str(datetime_to_utc(datetime.datetime(2012, 1, 1))))
+        self.assertEqual(op1_args['end'], str(datetime_to_utc(datetime.datetime(2014, 1, 1))))
+
+        trx = transactions[2]
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op2 = operations[0]
+        self.assertIsInstance(op2, Operation)
+        self.assertEqual(op2.op_type, Operation.OpType.ADD.value)
+        self.assertEqual(op2.entity_type, 'enrollment')
+        self.assertEqual(op2.target, '3283e58cef2b80007aa1dfc16f6dd20ace1aee96')
+        self.assertEqual(op2.trx, trx)
+        self.assertGreater(op2.timestamp, timestamp)
+
+        op2_args = json.loads(op2.args)
+        self.assertEqual(len(op2_args), 4)
+        self.assertEqual(op2_args['individual'], '3283e58cef2b80007aa1dfc16f6dd20ace1aee96')
+        self.assertEqual(op2_args['organization'], 'Example')
+        self.assertEqual(op2_args['start'], str(datetime_to_utc(datetime.datetime(2012, 1, 2))))
+        self.assertEqual(op2_args['end'], str(datetime_to_utc(datetime.datetime(2013, 12, 31))))
 
 
 class TestMergeIndividuals(TestCase):
