@@ -656,13 +656,13 @@ def enroll(ctx, uuid, organization, from_date=None, to_date=None, force=False):
         already exists in the registry.
     """
     if uuid is None:
-        raise InvalidValueError(msg="uuid cannot be None")
+        raise InvalidValueError(msg="'uuid' cannot be None")
     if uuid == '':
-        raise InvalidValueError(msg="uuid cannot be an empty string")
+        raise InvalidValueError(msg="'uuid' cannot be an empty string")
     if organization is None:
-        raise InvalidValueError(msg="organization cannot be None")
+        raise InvalidValueError(msg="'organization' cannot be None")
     if organization == '':
-        raise InvalidValueError(msg="organization cannot be an empty string")
+        raise InvalidValueError(msg="'organization' cannot be an empty string")
 
     trxl = TransactionsLog.open('enroll', ctx)
 
@@ -759,13 +759,13 @@ def withdraw(ctx, uuid, organization, from_date=None, to_date=None):
         "to_date" > 2100-01-01; when "from_date > to_date"
     """
     if uuid is None:
-        raise InvalidValueError(msg="uuid cannot be None")
+        raise InvalidValueError(msg="'uuid' cannot be None")
     if uuid == '':
-        raise InvalidValueError(msg="uuid cannot be an empty string")
+        raise InvalidValueError(msg="'uuid' cannot be an empty string")
     if organization is None:
-        raise InvalidValueError(msg="organization cannot be None")
+        raise InvalidValueError(msg="'organization' cannot be None")
     if organization == '':
-        raise InvalidValueError(msg="organization cannot be an empty string")
+        raise InvalidValueError(msg="'organization' cannot be an empty string")
 
     trxl = TransactionsLog.open('withdraw', ctx)
 
