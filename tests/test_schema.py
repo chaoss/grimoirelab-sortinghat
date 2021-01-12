@@ -83,6 +83,7 @@ DOMAIN_NOT_FOUND_ERROR = "example.net not found in the registry"
 INDIVIDUAL_DOES_NOT_EXIST_ERROR = "FFFFFFFFFFFFFFF not found in the registry"
 ORGANIZATION_BITERGIA_DOES_NOT_EXIST_ERROR = "Bitergia not found in the registry"
 ORGANIZATION_EXAMPLE_DOES_NOT_EXIST_ERROR = "Example not found in the registry"
+ORGANIZATION_LIBRESOFT_DOES_NOT_EXIST_ERROR = "LibreSoft not found in the registry"
 ENROLLMENT_DOES_NOT_EXIST_ERROR = "enrollment with range '2050-01-01 00:00:00+00:00'-'2060-01-01 00:00:00+00:00'"\
                                   " for Example not found in the registry"
 PAGINATION_NO_RESULTS_ERROR = "That page contains no results"
@@ -95,6 +96,9 @@ PARSE_DATE_INVALID_FORMAT_ERROR = "Filter format is not valid"
 INVALID_FILTER_DATE_ERROR = "Error in {} filter: {} is not a valid date"
 INVALID_FILTER_FORMAT_ERROR = "Error in {} filter: Filter format is not valid"
 INVALID_FILTER_RANGE_ERROR = "Error in {} filter: Date range is invalid. {}"
+FROM_DATE_EMPTY_ERROR = "'from_date' cannot be empty"
+TO_DATE_EMPTY_ERROR = "'to_date' cannot be empty"
+BOTH_NEW_DATES_NONE_ERROR = "'new_from_date' and 'to_from_date' cannot be None at the same time"
 
 
 # Test queries
@@ -5199,6 +5203,413 @@ class TestWithdrawMutation(django.test.TestCase):
             'toDate': '2013-01-01T00:00:00+0000',
         }
         executed = client.execute(self.SH_WITHDRAW,
+                                  context_value=context_value,
+                                  variables=params)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
+
+
+class TestUpdateEnrollmentMutation(django.test.TestCase):
+    """Unit tests for mutation to update enrollments from identities"""
+
+    SH_UPDATE_ENROLLMENT = """
+      mutation updateEnrollmentId($uuid: String, $organization: String,
+                                  $fromDate: DateTime, $toDate: DateTime,
+                                  $newFromDate: DateTime, $newToDate: DateTime,
+                                  $force: Boolean) {
+        updateEnrollment(uuid: $uuid, organization: $organization,
+                 fromDate: $fromDate, toDate: $toDate,
+                 newFromDate: $newFromDate, newToDate: $newToDate,
+                 force: $force) {
+          uuid
+          individual {
+            mk
+            enrollments {
+              organization {
+                name
+              }
+            start
+            end
+            }
+          }
+        }
+      }
+    """
+
+    def setUp(self):
+        """Load initial dataset and set queries context"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
+
+        self.ctx = SortingHatContext(self.user)
+
+        api.add_organization(self.ctx, 'Example')
+        api.add_organization(self.ctx, 'Bitergia')
+
+        api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                   from_date=datetime.datetime(2006, 1, 1),
+                   to_date=datetime.datetime(2008, 1, 1))
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                   from_date=datetime.datetime(2009, 1, 1),
+                   to_date=datetime.datetime(2011, 1, 1))
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                   from_date=datetime.datetime(2012, 1, 1),
+                   to_date=datetime.datetime(2014, 1, 1))
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Bitergia',
+                   from_date=datetime.datetime(2012, 1, 1),
+                   to_date=datetime.datetime(2014, 1, 1))
+
+        api.add_identity(self.ctx, 'scm', email='jrae@example')
+        api.enroll(self.ctx,
+                   '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                   from_date=datetime.datetime(2012, 1, 1),
+                   to_date=datetime.datetime(2014, 1, 1))
+
+    def test_update_enrollment(self):
+        """Check whether it updates an individual's enrollment from an organization during the given period"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuid': '3283e58cef2b80007aa1dfc16f6dd20ace1aee96',
+            'organization': 'Example',
+            'fromDate': '2012-01-01T00:00:00+0000',
+            'toDate': '2014-01-01T00:00:00+0000',
+            'newFromDate': '2012-01-02T00:00:00+0000',
+            'newToDate': '2013-12-31T00:00:00+0000'
+        }
+        executed = client.execute(self.SH_UPDATE_ENROLLMENT,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        # Check results, enrollments were updated
+        enrollments = executed['data']['updateEnrollment']['individual']['enrollments']
+
+        self.assertEqual(len(enrollments), 1)
+
+        enrollment = enrollments[0]
+
+        self.assertEqual(enrollment['organization']['name'], 'Example')
+        self.assertEqual(enrollment['start'], '2012-01-02T00:00:00+00:00')
+        self.assertEqual(enrollment['end'], '2013-12-31T00:00:00+00:00')
+
+        uuid = executed['data']['updateEnrollment']['uuid']
+        self.assertEqual(uuid, '3283e58cef2b80007aa1dfc16f6dd20ace1aee96')
+
+        # Check database
+        individual = Individual.objects.get(mk='3283e58cef2b80007aa1dfc16f6dd20ace1aee96')
+
+        enrollments_db = individual.enrollments.all()
+        self.assertEqual(len(enrollments_db), 1)
+
+        # Other enrollments were not updated
+        individual_db = Individual.objects.get(mk='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        enrollments_db = individual_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 4)
+
+        enrollment_db = enrollments_db[0]
+        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2006, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2008, 1, 1, tzinfo=UTC))
+
+        enrollment_db = enrollments_db[1]
+        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2009, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2011, 1, 1, tzinfo=UTC))
+
+        enrollment_db = enrollments_db[2]
+        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+        enrollment_db = enrollments_db[3]
+        self.assertEqual(enrollment_db.organization.name, 'Bitergia')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+    def test_update_using_any_identity_uuid(self):
+        """
+        Check whether it updates an enrollment from an individual
+        during the given period using any valid identity uuid
+        """
+
+        api.add_identity(self.ctx, 'mls', email='jsmith@example',
+                         uuid='3283e58cef2b80007aa1dfc16f6dd20ace1aee96')
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuid': 'de176236636bc488d31e9f91952ecfc6d976a69e',
+            'organization': 'Example',
+            'fromDate': '2012-01-01T00:00:00+0000',
+            'toDate': '2014-01-01T00:00:00+0000',
+            'newFromDate': '2012-01-02T00:00:00+0000',
+            'newToDate': '2013-12-31T00:00:00+0000'
+        }
+        executed = client.execute(self.SH_UPDATE_ENROLLMENT,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        # Check results, enrollment was updated
+        enrollments = executed['data']['updateEnrollment']['individual']['enrollments']
+
+        self.assertEqual(len(enrollments), 1)
+
+        enrollment = enrollments[0]
+
+        self.assertEqual(enrollment['organization']['name'], 'Example')
+        self.assertEqual(enrollment['start'], '2012-01-02T00:00:00+00:00')
+        self.assertEqual(enrollment['end'], '2013-12-31T00:00:00+00:00')
+
+        uuid = executed['data']['updateEnrollment']['uuid']
+        self.assertEqual(uuid, '3283e58cef2b80007aa1dfc16f6dd20ace1aee96')
+
+        # Check database
+        individual = Individual.objects.get(mk='3283e58cef2b80007aa1dfc16f6dd20ace1aee96')
+
+        enrollments_db = individual.enrollments.all()
+        self.assertEqual(len(enrollments_db), 1)
+
+        enrollment_db = enrollments_db[0]
+        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2012, 1, 2, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2013, 12, 31, tzinfo=UTC))
+
+        # Other enrollments were not updated
+        individual_db = Individual.objects.get(mk='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        enrollments_db = individual_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 4)
+
+        enrollment_db = enrollments_db[0]
+        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2006, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2008, 1, 1, tzinfo=UTC))
+
+        enrollment_db = enrollments_db[1]
+        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2009, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2011, 1, 1, tzinfo=UTC))
+
+        enrollment_db = enrollments_db[2]
+        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+        enrollment_db = enrollments_db[3]
+        self.assertEqual(enrollment_db.organization.name, 'Bitergia')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+    def test_update_no_new_to_date(self):
+        """Check if the enrollment is updated as expected when new to_date is not provided"""
+
+        client = graphene.test.Client(schema)
+
+        # Test only with 'newFromDate' date
+        params = {
+            'uuid': '3283e58cef2b80007aa1dfc16f6dd20ace1aee96',
+            'organization': 'Example',
+            'fromDate': '2012-01-01T00:00:00+0000',
+            'toDate': '2014-01-01T00:00:00+0000',
+            'newFromDate': '2012-01-02T00:00:00+0000'
+        }
+        executed = client.execute(self.SH_UPDATE_ENROLLMENT,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        # Check results, enrollment was not updated
+        enrollments = executed['data']['updateEnrollment']['individual']['enrollments']
+
+        self.assertEqual(len(enrollments), 1)
+
+        enrollment = enrollments[0]
+
+        self.assertEqual(enrollment['organization']['name'], 'Example')
+        self.assertEqual(enrollment['start'], '2012-01-02T00:00:00+00:00')
+        self.assertEqual(enrollment['end'], '2014-01-01T00:00:00+00:00')
+
+        uuid = executed['data']['updateEnrollment']['uuid']
+        self.assertEqual(uuid, '3283e58cef2b80007aa1dfc16f6dd20ace1aee96')
+
+        # Check database
+        individual = Individual.objects.get(mk='3283e58cef2b80007aa1dfc16f6dd20ace1aee96')
+
+        enrollments_db = individual.enrollments.all()
+        self.assertEqual(len(enrollments_db), 1)
+
+        enrollment_db = enrollments_db[0]
+        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2012, 1, 2, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+    def test_update_no_new_from_date(self):
+        """Check if the enrollment is updated as expected when new from_date is not provided"""
+
+        client = graphene.test.Client(schema)
+
+        # Test only with 'newToDate' date
+        params = {
+            'uuid': '3283e58cef2b80007aa1dfc16f6dd20ace1aee96',
+            'organization': 'Example',
+            'fromDate': '2012-01-01T00:00:00+0000',
+            'toDate': '2014-01-01T00:00:00+0000',
+            'newToDate': '2013-12-31T00:00:00+0000'
+        }
+        executed = client.execute(self.SH_UPDATE_ENROLLMENT,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        # Check results, enrollment was not updated
+        enrollments = executed['data']['updateEnrollment']['individual']['enrollments']
+
+        self.assertEqual(len(enrollments), 1)
+
+        enrollment = enrollments[0]
+
+        self.assertEqual(enrollment['organization']['name'], 'Example')
+        self.assertEqual(enrollment['start'], '2012-01-01T00:00:00+00:00')
+        self.assertEqual(enrollment['end'], '2013-12-31T00:00:00+00:00')
+
+        uuid = executed['data']['updateEnrollment']['uuid']
+        self.assertEqual(uuid, '3283e58cef2b80007aa1dfc16f6dd20ace1aee96')
+
+        # Check database
+        individual = Individual.objects.get(mk='3283e58cef2b80007aa1dfc16f6dd20ace1aee96')
+
+        enrollments_db = individual.enrollments.all()
+        self.assertEqual(len(enrollments_db), 1)
+
+        enrollment_db = enrollments_db[0]
+        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2013, 12, 31, tzinfo=UTC))
+
+    def test_update_both_new_dates_none(self):
+        """Check if it fails when no new dates are provided (None)"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuid': '3283e58cef2b80007aa1dfc16f6dd20ace1aee96',
+            'organization': 'Example',
+            'fromDate': '2012-01-01T00:00:00+0000',
+            'toDate': '2014-01-01T00:00:00+0000'
+        }
+        executed = client.execute(self.SH_UPDATE_ENROLLMENT,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, BOTH_NEW_DATES_NONE_ERROR)
+
+    def test_non_existing_uuid(self):
+        """Check if it fails when the individual does not exist"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuid': 'FFFFFFFFFFFFFFF',
+            'organization': 'Example',
+            'fromDate': '2012-01-01T00:00:00+0000',
+            'toDate': '2014-01-01T00:00:00+0000',
+            'newFromDate': '2012-01-02T00:00:00+0000',
+            'newToDate': '2013-12-31T00:00:00+0000'
+        }
+        executed = client.execute(self.SH_UPDATE_ENROLLMENT,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, INDIVIDUAL_DOES_NOT_EXIST_ERROR)
+
+    def test_non_existing_organization(self):
+        """Check if it fails when the organization does not exist"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuid': '3283e58cef2b80007aa1dfc16f6dd20ace1aee96',
+            'organization': 'LibreSoft',
+            'fromDate': '2012-01-01T00:00:00+0000',
+            'toDate': '2014-01-01T00:00:00+0000',
+            'newFromDate': '2012-01-02T00:00:00+0000',
+            'newToDate': '2013-12-31T00:00:00+0000'
+        }
+        executed = client.execute(self.SH_UPDATE_ENROLLMENT,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, ORGANIZATION_LIBRESOFT_DOES_NOT_EXIST_ERROR)
+
+    def test_non_existing_enrollments(self):
+        """Check if it fails when the enrollments for a period do not exist"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuid': '3283e58cef2b80007aa1dfc16f6dd20ace1aee96',
+            'organization': 'Example',
+            'fromDate': '2050-01-01T00:00:00+0000',
+            'toDate': '2060-01-01T00:00:00+0000',
+            'newFromDate': '2012-01-02T00:00:00+0000',
+            'newToDate': '2013-12-31T00:00:00+0000'
+        }
+        executed = client.execute(self.SH_UPDATE_ENROLLMENT,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, ENROLLMENT_DOES_NOT_EXIST_ERROR)
+
+    def test_locked_uuid(self):
+        """Check if it fails when the individual is locked"""
+
+        client = graphene.test.Client(schema)
+
+        uuid = 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'
+        api.lock(self.ctx, uuid)
+
+        # Tests
+        params = {
+            'uuid': uuid,
+            'organization': 'Example',
+            'fromDate': '2006-01-01T00:00:00+0000',
+            'toDate': '2008-01-01T00:00:00+0000',
+            'newFromDate': '2012-01-02T00:00:00+0000',
+            'newToDate': '2013-12-31T00:00:00+0000'
+        }
+        executed = client.execute(self.SH_UPDATE_ENROLLMENT,
+                                  context_value=self.context_value,
+                                  variables=params)
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, UUID_LOCKED_ERROR)
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the query"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuid': '3283e58cef2b80007aa1dfc16f6dd20ace1aee96',
+            'organization': 'Example',
+            'fromDate': '2012-01-01T00:00:00+0000',
+            'toDate': '2014-01-01T00:00:00+0000',
+            'newFromDate': '2012-01-02T00:00:00+0000',
+            'newToDate': '2013-12-31T00:00:00+0000'
+        }
+        executed = client.execute(self.SH_UPDATE_ENROLLMENT,
                                   context_value=context_value,
                                   variables=params)
 

@@ -55,7 +55,8 @@ from .api import (add_identity,
                   delete_organization,
                   delete_domain,
                   enroll,
-                  withdraw)
+                  withdraw,
+                  update_enrollment)
 from .context import SortingHatContext
 from .decorators import check_auth
 from .errors import InvalidFilterError
@@ -632,6 +633,39 @@ class Withdraw(graphene.Mutation):
         )
 
 
+class UpdateEnrollment(graphene.Mutation):
+    class Arguments:
+        uuid = graphene.String()
+        organization = graphene.String()
+        from_date = graphene.DateTime()
+        to_date = graphene.DateTime()
+        new_from_date = graphene.DateTime(required=False)
+        new_to_date = graphene.DateTime(required=False)
+        force = graphene.Boolean(required=False)
+
+    uuid = graphene.Field(lambda: graphene.String)
+    individual = graphene.Field(lambda: IndividualType)
+
+    @check_auth
+    def mutate(self, info, uuid, organization,
+               from_date, to_date,
+               new_from_date=None, new_to_date=None,
+               force=True):
+        user = info.context.user
+        ctx = SortingHatContext(user)
+
+        individual = update_enrollment(ctx, uuid, organization,
+                                       from_date=from_date,
+                                       to_date=to_date,
+                                       new_from_date=new_from_date,
+                                       new_to_date=new_to_date,
+                                       force=force)
+        return UpdateEnrollment(
+            uuid=individual.mk,
+            individual=individual
+        )
+
+
 class RecommendAffiliations(graphene.Mutation):
     class Arguments:
         uuids = graphene.List(graphene.String,
@@ -935,6 +969,7 @@ class SortingHatMutation(graphene.ObjectType):
     unmerge_identities = UnmergeIdentities.Field()
     enroll = Enroll.Field()
     withdraw = Withdraw.Field()
+    update_enrollment = UpdateEnrollment.Field()
     recommend_affiliations = RecommendAffiliations.Field()
     recommend_matches = RecommendMatches.Field()
     affiliate = Affiliate.Field()
