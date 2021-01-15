@@ -227,7 +227,7 @@ export default {
     },
     updateEnrollment: {
       type: Function,
-      required: false
+      required: true
     },
     withdraw: {
       type: Function,

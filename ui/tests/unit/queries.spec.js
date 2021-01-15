@@ -223,7 +223,8 @@ describe("IndividualsTable", () => {
         getCountries: () => {},
         lockIndividual: () => {},
         unlockIndividual: () => {},
-        withdraw: () => {}
+        withdraw: () => {},
+        updateEnrollment: () => {}
       },
       ...options
     })

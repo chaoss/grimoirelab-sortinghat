@@ -229,31 +229,60 @@ const deleteOrganizationResponse = {
   }
 };
 
-describe("IndividualsTable", () => {
-  test("Mock query for deleteIdentity", async () => {
-    const mutate = jest.fn(() => Promise.resolve(deleteResponse));
-    const wrapper = shallowMount(IndividualsTable, {
-      Vue,
-      mocks: {
-        $apollo: {
-          mutate
-        }
+const updateEnrollmentResponse = {
+  data: {
+    updateEnrollment: {
+      uuid: "06e6903c91180835b6ee91dd56782c6ca72bc562",
+      individual: {
+        enrollments: [{
+          start: "2020-11-01T00:00:00+00:00",
+          end: "2020-12-24T00:00:00+00:00",
+          organization: {
+            name: "Organization",
+            __typename: "OrganizationType"
+          },
+          __typename: "EnrollmentType"
+        }],
+        __typename: "IndividualType"
       },
+      __typename: "UpdateEnrollment"
+    }
+  }
+};
+
+describe("IndividualsTable", () => {
+  const mountFunction = options => {
+    return shallowMount(IndividualsTable, {
+      Vue,
       propsData: {
-        deleteItem: mutate,
+        fetchPage: () => {},
         mergeItems: () => {},
         unmergeItems: () => {},
         moveItem: () => {},
-        fetchPage: () => {},
+        deleteItem: () => {},
         addIdentity: () => {},
         updateProfile: () => {},
         enroll: () => {},
         getCountries: () => {},
         lockIndividual: () => {},
         unlockIndividual: () => {},
-        withdraw: () => {}
+        withdraw: () => {},
+        updateEnrollment: () => {}
+      },
+      ...options
+    })
+  };
+
+  test("Mock query for deleteIdentity", async () => {
+    const mutate = jest.fn(() => Promise.resolve(deleteResponse));
+    const wrapper = mountFunction({
+      mocks: {
+        $apollo: {
+          mutate
+        }
       }
     });
+    await wrapper.setProps({ deleteItem: mutate });
     const response = await Mutations.deleteIdentity(wrapper.vm.$apollo, "5f06473815dc415c9861680de8101813d9eb18e8");
 
     expect(mutate).toBeCalled();
@@ -262,28 +291,14 @@ describe("IndividualsTable", () => {
 
   test("Mock query for merge", async () => {
     const mutate = jest.fn(() => Promise.resolve(mergeResponse));
-    const wrapper = shallowMount(IndividualsTable, {
-      Vue,
+    const wrapper = mountFunction({
       mocks: {
         $apollo: {
           mutate
         }
-      },
-      propsData: {
-        mergeItems: mutate,
-        unmergeItems: () => {},
-        moveItem: () => {},
-        deleteItem: () => {},
-        fetchPage: () => {},
-        addIdentity: () => {},
-        updateProfile: () => {},
-        enroll: () => {},
-        getCountries: () => {},
-        lockIndividual: () => {},
-        unlockIndividual: () => {},
-        withdraw: () => {}
       }
     });
+    await wrapper.setProps({ mergeItems: mutate });
     const response = await Mutations.deleteIdentity(wrapper.vm.$apollo, "5f06473815dc415c9861680de8101813d9eb18e8");
 
     expect(mutate).toBeCalled();
@@ -292,28 +307,14 @@ describe("IndividualsTable", () => {
 
   test("Mock query for unmerge", async () => {
     const mutate = jest.fn(() => Promise.resolve(unmergeResponse));
-    const wrapper = shallowMount(IndividualsTable, {
-      Vue,
+    const wrapper = mountFunction({
       mocks: {
         $apollo: {
           mutate
         }
-      },
-      propsData: {
-        unmergeItems: mutate,
-        mergeItems: () => {},
-        deleteItem: () => {},
-        moveItem: () => {},
-        fetchPage: () => {},
-        addIdentity: () => {},
-        updateProfile: () => {},
-        enroll: () => {},
-        getCountries: () => {},
-        lockIndividual: () => {},
-        unlockIndividual: () => {},
-        withdraw: () => {}
       }
     });
+    await wrapper.setProps({ unmergeItems: mutate });
     const response = await Mutations.unmerge(wrapper.vm.$apollo, [
       "3db176be6859adac3a454c5377af81b1b7e3f8d8",
       "10982379421b80e13266db011d6e5131dd519016"
@@ -325,28 +326,14 @@ describe("IndividualsTable", () => {
 
   test("Mock query for moveIdentity", async () => {
     const mutate = jest.fn(() => Promise.resolve(moveResponse));
-    const wrapper = shallowMount(IndividualsTable, {
-      Vue,
+    const wrapper = mountFunction({
       mocks: {
         $apollo: {
           mutate
         }
-      },
-      propsData: {
-        moveItem: mutate,
-        mergeItems: () => {},
-        deleteItem: () => {},
-        fetchPage: () => {},
-        unmergeItems: mutate,
-        addIdentity: () => {},
-        updateProfile: () => {},
-        enroll: () => {},
-        getCountries: () => {},
-        lockIndividual: () => {},
-        unlockIndividual: () => {},
-        withdraw: () => {}
       }
     });
+    await wrapper.setProps({ moveItem: mutate });
     const response = await Mutations.moveIdentity(
       wrapper.vm.$apollo,
       "5f06473815dc415c9861680de8101813d9eb18e8",
@@ -359,33 +346,43 @@ describe("IndividualsTable", () => {
 
   test("Mock query for withdraw", async () => {
     const mutate = jest.fn(() => Promise.resolve(withdrawResponse));
-    const wrapper = shallowMount(IndividualsTable, {
-      Vue,
+    const wrapper = mountFunction({
       mocks: {
         $apollo: {
           mutate
         }
-      },
-      propsData: {
-        moveItem: () => {},
-        mergeItems: () => {},
-        deleteItem: () => {},
-        fetchPage: () => {},
-        unmergeItems: () => {},
-        addIdentity: () => {},
-        updateProfile: () => {},
-        enroll: () => {},
-        getCountries: () => {},
-        lockIndividual: () => {},
-        unlockIndividual: () => {},
-        withdraw: mutate
       }
     });
+    await wrapper.setProps({ withdraw: mutate });
     const response = await Mutations.withdraw(
       wrapper.vm.$apollo,
        "4df20c13824ce60c2249a9b947d6c55dc0ba26a4",
       "Organization"
     );
+
+    expect(mutate).toBeCalled();
+    expect(wrapper.element).toMatchSnapshot();
+  });
+
+  test("Mock query for updateEnrollment", async () => {
+    const mutate = jest.fn(() => Promise.resolve(updateEnrollmentResponse));
+    const wrapper = mountFunction({
+      mocks: {
+        $apollo: {
+          mutate
+        }
+      }
+    });
+    await wrapper.setProps({ updateEnrollment: mutate });
+    const enrollment = {
+      fromDate: "2020-12-03T00:00:00+00:00",
+      newFromDate:	"2020-11-01T00:00:00.000Z",
+      organization: "Organization",
+      toDate:	"2020-12-24T00:00:00+00:00",
+      newToDate: "2020-12-24T00:00:00+00:00",
+      uuid:	"06e6903c91180835b6ee91dd56782c6ca72bc562"
+    };
+    const response = await Mutations.updateEnrollment(wrapper.vm.$apollo, enrollment);
 
     expect(mutate).toBeCalled();
     expect(wrapper.element).toMatchSnapshot();
