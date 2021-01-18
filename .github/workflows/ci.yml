@@ -1,0 +1,69 @@
+name: build
+
+on: 
+  push:
+    branches-ignore: 
+      - muggle
+  pull_request:
+    branches-ignore: 
+      - muggle
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    services:
+      # How to use MySQL
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+    
+    name: Python ${{ matrix.python-version }}
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7, 3.8]
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+      
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip==18.1
+        pip install --upgrade setuptools==49.6.0
+        pip install --upgrade wheel
+        pip install flake8 coveralls cryptography
+      
+    - name: Verify MySQL connection from host
+      run: |
+        sudo apt-get install -y mysql-client libmysqlclient-dev
+        mysql --host 127.0.0.1 --port ${{ job.services.mysql.ports[3306] }} -uroot -proot -e "SHOW GRANTS FOR 'root'@'localhost'"
+        mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql --host 127.0.0.1 --port ${{ job.services.mysql.ports[3306] }} -uroot -proot mysql
+      
+    - name: Setup MySQL Database and table
+      env:
+        DB_HOST: 127.0.0.1
+        DB_PORT: ${{ job.services.mysql.ports[3306] }} 
+      run: |
+        mysql --host $DB_HOST --port $DB_PORT -uroot -proot -e "SHOW DATABASES"
+        mysql --host $DB_HOST --port $DB_PORT -uroot -proot -e "SET GLOBAL sql_mode = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION'";
+        mysql --host $DB_HOST --port $DB_PORT -uroot -proot -e "CREATE DATABASE testhat"
+        mysql --host $DB_HOST --port $DB_PORT -uroot -proot -e "SHOW DATABASES"
+        cp tests/tests.conf.sample tests/tests.conf
+      
+    - name: Tests and Coverage
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        coverage run --source=sortinghat setup.py test
+        # --service=github is a workaround for bug
+        # https://github.com/coveralls-clients/coveralls-python/issues/251
+        coveralls --service=github
