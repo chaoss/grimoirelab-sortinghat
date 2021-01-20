@@ -302,6 +302,55 @@ const DELETE_ORGANIZATION = gql`
   }
 `;
 
+const UPDATE_ENROLLMENT = gql`
+  mutation updateEnrollment(
+    $fromDate: DateTime!
+    $newFromDate: DateTime
+    $newToDate: DateTime
+    $organization: String!
+    $toDate: DateTime!
+    $uuid: String!
+  ) {
+    updateEnrollment(
+      fromDate: $fromDate
+      newFromDate: $newFromDate
+      newToDate: $newToDate
+      organization: $organization
+      toDate: $toDate
+      uuid: $uuid
+    ) {
+      uuid
+      individual {
+        isLocked
+        identities {
+          uuid
+          name
+          email
+          username
+          source
+        }
+        profile {
+          name
+          email
+          gender
+          isBot
+          country {
+            code
+            name
+          }
+        }
+        enrollments {
+          start
+          end
+          organization {
+            name
+          }
+        }
+      }
+    }
+  }
+`;
+
 const tokenAuth = (apollo, username, password) => {
   const response = apollo.mutate({
     mutation: TOKEN_AUTH,
@@ -462,6 +511,21 @@ const deleteOrganization = (apollo, name) => {
   return response;
 };
 
+const updateEnrollment = (apollo, data) => {
+  let response = apollo.mutate({
+    mutation: UPDATE_ENROLLMENT,
+    variables: {
+      fromDate: data.fromDate,
+      newFromDate: data.newFromDate,
+      newToDate: data.newToDate,
+      organization: data.organization,
+      toDate: data.toDate,
+      uuid: data.uuid
+    }
+  });
+  return response;
+};
+
 export {
   tokenAuth,
   lockIndividual,
@@ -477,5 +541,6 @@ export {
   deleteDomain,
   addIdentity,
   updateProfile,
-  withdraw
+  withdraw,
+  updateEnrollment
 };

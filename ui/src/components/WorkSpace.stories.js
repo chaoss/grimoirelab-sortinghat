@@ -37,6 +37,7 @@ const dragAndDropTemplate = `
     :lock-individual="deleteItem"
     :unlock-individual="deleteItem"
     :withdraw="deleteItem"
+    :update-enrollment="deleteItem"
     @highlight="highlightIndividual($event, 'highlightInWorkspace', true)"
     @stopHighlight="highlightIndividual($event, 'highlightInWorkspace', false)"
     ref="table"

@@ -360,7 +360,9 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
                 class="col-3 ma-2 text-center col"
               >
                 <span>
-                  1938-09-01
+                  
+              1938-09-01
+            
                 </span>
               </div>
                
@@ -368,7 +370,9 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
                 class="col-3 ma-2 text-center col"
               >
                 <span>
-                  1998-05-02
+                  
+              1998-05-02
+            
                 </span>
               </div>
                
@@ -399,7 +403,9 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
                 class="col-3 ma-2 text-center col"
               >
                 <span>
-                  1938-09-01
+                  
+              1938-09-01
+            
                 </span>
               </div>
                
@@ -407,7 +413,9 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
                 class="col-3 ma-2 text-center col"
               >
                 <span>
-                  1945-06-02
+                  
+              1945-06-02
+            
                 </span>
               </div>
                
@@ -1018,17 +1026,51 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
               <div
                 class="col-3 ma-2 text-center col"
               >
-                <span>
+                <div
+                  class="v-menu"
+                >
+                  <button
+                    aria-expanded="false"
+                    aria-haspopup="true"
+                    class="v-small-dialog__activator"
+                    role="button"
+                  >
+                    
                   1938-09-01
-                </span>
+                  
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
+                      style="font-size: 16px;"
+                    />
+                  </button>
+                  <!---->
+                </div>
               </div>
                
               <div
                 class="col-3 ma-2 text-center col"
               >
-                <span>
+                <div
+                  class="v-menu"
+                >
+                  <button
+                    aria-expanded="false"
+                    aria-haspopup="true"
+                    class="v-small-dialog__activator"
+                    role="button"
+                  >
+                    
                   1998-05-02
-                </span>
+                  
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
+                      style="font-size: 16px;"
+                    />
+                  </button>
+                  <!---->
+                </div>
               </div>
                
               <div
@@ -1078,17 +1120,51 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
               <div
                 class="col-3 ma-2 text-center col"
               >
-                <span>
+                <div
+                  class="v-menu"
+                >
+                  <button
+                    aria-expanded="false"
+                    aria-haspopup="true"
+                    class="v-small-dialog__activator"
+                    role="button"
+                  >
+                    
                   1938-09-01
-                </span>
+                  
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
+                      style="font-size: 16px;"
+                    />
+                  </button>
+                  <!---->
+                </div>
               </div>
                
               <div
                 class="col-3 ma-2 text-center col"
               >
-                <span>
+                <div
+                  class="v-menu"
+                >
+                  <button
+                    aria-expanded="false"
+                    aria-haspopup="true"
+                    class="v-small-dialog__activator"
+                    role="button"
+                  >
+                    
                   1945-06-02
-                </span>
+                  
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
+                      style="font-size: 16px;"
+                    />
+                  </button>
+                  <!---->
+                </div>
               </div>
                
               <div
@@ -5135,13 +5211,13 @@ exports[`Storyshots IndividualsTable Default 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-651"
+                  for="input-659"
                   style="left: 0px; position: absolute;"
                 >
                   Search
                 </label>
                 <input
-                  id="input-651"
+                  id="input-659"
                   type="text"
                 />
               </div>
@@ -5999,13 +6075,13 @@ exports[`Storyshots Search Default 1`] = `
             >
               <label
                 class="v-label theme--light"
-                for="input-913"
+                for="input-921"
                 style="left: 0px; position: absolute;"
               >
                 Search
               </label>
               <input
-                id="input-913"
+                id="input-921"
                 type="text"
               />
             </div>
@@ -6572,13 +6648,13 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-1002"
+                    for="input-1010"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-1002"
+                    id="input-1010"
                     type="text"
                   />
                 </div>

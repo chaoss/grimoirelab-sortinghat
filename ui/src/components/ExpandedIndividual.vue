@@ -121,7 +121,7 @@
     <v-subheader>Organizations ({{ enrollments.length }})</v-subheader>
     <v-list class="indented" dense>
       <v-list-item
-        v-for="enrollment in enrollments"
+        v-for="(enrollment, index) in enrollments"
         :key="enrollment.organization.id"
         class="row-border"
       >
@@ -131,10 +131,126 @@
               <span>{{ enrollment.organization.name }}</span>
             </v-col>
             <v-col class="col-3 ma-2 text-center">
-              <span>{{ formatDate(enrollment.start) }}</span>
+              <span v-if="isLocked || compact">
+                {{ formatDate(enrollment.start) }}
+              </span>
+              <v-menu
+                v-else
+                v-model="enrollmentsForm[index].fromDateMenu"
+                :close-on-content-click="false"
+                :return-value.sync="enrollmentsForm[index].fromDate"
+                transition="scale-transition"
+                offset-y
+                min-width="290px"
+              >
+                <template v-slot:activator="{ on, attrs }">
+                  <button
+                    v-on="on"
+                    v-bind="attrs"
+                    class="v-small-dialog__activator"
+                  >
+                    {{ formatDate(enrollment.start) }}
+                    <v-icon small right>
+                      mdi-lead-pencil
+                    </v-icon>
+                  </button>
+                </template>
+                <v-date-picker
+                  v-model="enrollmentsForm[index].fromDate"
+                  :max="enrollment.end"
+                  color="primary"
+                  no-title
+                  scrollable
+                >
+                  <v-spacer></v-spacer>
+                  <v-btn
+                    text
+                    color="primary"
+                    @click="enrollmentsForm[index].fromDateMenu = false"
+                  >
+                    Cancel
+                  </v-btn>
+                  <v-btn
+                    text
+                    color="primary"
+                    @click="
+                      $emit('updateEnrollment', {
+                        fromDate: enrollment.start,
+                        toDate: enrollment.end,
+                        newFromDate: new Date(
+                          enrollmentsForm[index].fromDate
+                        ).toISOString(),
+                        organization: enrollment.organization.name,
+                        uuid: uuid
+                      });
+                      enrollmentsForm[index].fromDateMenu = false;
+                    "
+                  >
+                    Save
+                  </v-btn>
+                </v-date-picker>
+              </v-menu>
             </v-col>
             <v-col class="col-3 ma-2 text-center">
-              <span>{{ formatDate(enrollment.end) }}</span>
+              <span v-if="isLocked || compact">
+                {{ formatDate(enrollment.end) }}
+              </span>
+              <v-menu
+                v-else
+                v-model="enrollmentsForm[index].toDateMenu"
+                :close-on-content-click="false"
+                :return-value.sync="enrollmentsForm[index].toate"
+                transition="scale-transition"
+                offset-y
+                min-width="290px"
+              >
+                <template v-slot:activator="{ on, attrs }">
+                  <button
+                    v-on="on"
+                    v-bind="attrs"
+                    class="v-small-dialog__activator"
+                  >
+                    {{ formatDate(enrollment.end) }}
+                    <v-icon small right>
+                      mdi-lead-pencil
+                    </v-icon>
+                  </button>
+                </template>
+                <v-date-picker
+                  v-model="enrollmentsForm[index].toDate"
+                  :min="enrollment.start"
+                  color="primary"
+                  no-title
+                  scrollable
+                >
+                  <v-spacer></v-spacer>
+                  <v-btn
+                    text
+                    color="primary"
+                    @click="enrollmentsForm[index].toDateMenu = false"
+                  >
+                    Cancel
+                  </v-btn>
+                  <v-btn
+                    text
+                    color="primary"
+                    @click="
+                      $emit('updateEnrollment', {
+                        fromDate: enrollment.start,
+                        toDate: enrollment.end,
+                        newToDate: new Date(
+                          enrollmentsForm[index].toDate
+                        ).toISOString(),
+                        organization: enrollment.organization.name,
+                        uuid: uuid
+                      });
+                      enrollmentsForm[index].toDateMenu = false;
+                    "
+                  >
+                    Save
+                  </v-btn>
+                </v-date-picker>
+              </v-menu>
             </v-col>
             <v-col class="text-end col-2" v-if="!compact">
               <v-tooltip
@@ -227,7 +343,8 @@ export default {
         gender: this.gender,
         country: this.country,
         isBot: this.isBot
-      }
+      },
+      enrollmentsForm: []
     };
   },
   methods: {
@@ -267,6 +384,16 @@ export default {
     sources() {
       return this.identities.map(identity => identity.name);
     }
+  },
+  created() {
+    this.enrollments.forEach(enrollment => {
+      this.enrollmentsForm.push({
+        fromDate: this.formatDate(enrollment.start),
+        fromDateMenu: false,
+        toDate: this.formatDate(enrollment.end),
+        toDateMenu: false
+      });
+    });
   }
 };
 </script>

@@ -30,6 +30,7 @@
           :lock-individual="lockIndividual"
           :unlock-individual="unlockIndividual"
           :withdraw="withdraw"
+          :update-enrollment="updateEnrollment"
           @saveIndividual="addSavedIndividual"
           @updateOrganizations="updateOrganizations"
           @updateWorkspace="updateWorkspace"
@@ -80,7 +81,8 @@ import {
   updateProfile,
   lockIndividual,
   unlockIndividual,
-  withdraw
+  withdraw,
+  updateEnrollment
 } from "../apollo/mutations";
 import IndividualsTable from "../components/IndividualsTable";
 import OrganizationsTable from "../components/OrganizationsTable";
@@ -239,6 +241,10 @@ export default {
         fromDate,
         toDate
       );
+      return response;
+    },
+    async updateEnrollment(data) {
+      const response = await updateEnrollment(this.$apollo, data);
       return response;
     },
     clearWorkspace() {
