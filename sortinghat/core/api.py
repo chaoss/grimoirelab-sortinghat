@@ -656,13 +656,13 @@ def enroll(ctx, uuid, organization, from_date=None, to_date=None, force=False):
         already exists in the registry.
     """
     if uuid is None:
-        raise InvalidValueError(msg="uuid cannot be None")
+        raise InvalidValueError(msg="'uuid' cannot be None")
     if uuid == '':
-        raise InvalidValueError(msg="uuid cannot be an empty string")
+        raise InvalidValueError(msg="'uuid' cannot be an empty string")
     if organization is None:
-        raise InvalidValueError(msg="organization cannot be None")
+        raise InvalidValueError(msg="'organization' cannot be None")
     if organization == '':
-        raise InvalidValueError(msg="organization cannot be an empty string")
+        raise InvalidValueError(msg="'organization' cannot be an empty string")
 
     trxl = TransactionsLog.open('enroll', ctx)
 
@@ -759,13 +759,13 @@ def withdraw(ctx, uuid, organization, from_date=None, to_date=None):
         "to_date" > 2100-01-01; when "from_date > to_date"
     """
     if uuid is None:
-        raise InvalidValueError(msg="uuid cannot be None")
+        raise InvalidValueError(msg="'uuid' cannot be None")
     if uuid == '':
-        raise InvalidValueError(msg="uuid cannot be an empty string")
+        raise InvalidValueError(msg="'uuid' cannot be an empty string")
     if organization is None:
-        raise InvalidValueError(msg="organization cannot be None")
+        raise InvalidValueError(msg="'organization' cannot be None")
     if organization == '':
-        raise InvalidValueError(msg="organization cannot be an empty string")
+        raise InvalidValueError(msg="'organization' cannot be an empty string")
 
     trxl = TransactionsLog.open('withdraw', ctx)
 
@@ -821,6 +821,89 @@ def withdraw(ctx, uuid, organization, from_date=None, to_date=None):
     trxl.close()
 
     return individual
+
+
+@django.db.transaction.atomic
+def update_enrollment(ctx, uuid, organization, from_date, to_date,
+                      new_from_date=None, new_to_date=None, force=True):
+    """
+    Update one or more enrollments from an individual given a new date range
+
+    Use this method to update atomically an individual's enrollment or set
+    of enrollments defined by the initial date range to a new date range.
+
+    As in the enroll method wider date ranges get merged into the wider one,
+    this method withdraws the enrollments from the old date range and
+    set a new enrollment with the new date range. By default, the `force`
+    parameter is set to `True`, as it overwrites default dates in case a more
+    specific date is provided when the updated enrollment is added.
+
+    In case any of the new dates are missing, the former value for that date
+    will be preserved.
+
+    :param ctx: context from where this method is called
+    :param uuid: unique identifier
+    :param organization: name of the organization
+    :param from_date: date when the enrollment(s) to be updated starts
+    :param to_date: date when the enrollment(s) to be updated ends
+    :param new_from_date: date when the new enrollment starts
+    :param new_to_date: date when the new enrollment ends
+    :param force: overwrite default dates in case a more specific date
+        is provided
+
+    :returns: an individual with enrollment data updated
+
+    :raises NotFoundError: when either `uuid` or `organization` are not
+        found in the registry or when the identity is not enrolled
+        in that organization for the given period
+    :raises InvalidValeError: raised in three cases, when either identity or
+        organization are `None` or empty strings; when "from_date" < 1900-01-01 or
+        "to_date" > 2100-01-01; when "from_date > to_date"
+    """
+    if uuid is None:
+        raise InvalidValueError(msg="'uuid' cannot be None")
+    if uuid == '':
+        raise InvalidValueError(msg="'uuid' cannot be an empty string")
+    if organization is None:
+        raise InvalidValueError(msg="'organization' cannot be None")
+    if organization == '':
+        raise InvalidValueError(msg="'organization' cannot be an empty string")
+    if from_date is None:
+        raise InvalidValueError(msg="'from_date' cannot be None")
+    if from_date is '':
+        raise InvalidValueError(msg="'from_date' cannot be empty")
+    if to_date is None:
+        raise InvalidValueError(msg="'to_date' cannot be None")
+    if to_date is '':
+        raise InvalidValueError(msg="'to_date' cannot be empty")
+    if (not new_from_date) and (not new_to_date):
+        raise InvalidValueError(msg="'new_from_date' and 'to_from_date' cannot be None at the same time")
+    if (new_from_date is '') and (new_to_date is ''):
+        raise InvalidValueError(msg="'new_from_date' and 'to_from_date' cannot be empty at the same time")
+
+    # If any of the new dates is not provided, its value will be set as the former date values
+    new_from_date = new_from_date if new_from_date else from_date
+    new_to_date = new_to_date if new_to_date else to_date
+
+    if from_date > to_date:
+        msg = "'from_date' date {} cannot be greater than {}".format(from_date, to_date)
+        raise InvalidValueError(msg=msg)
+
+    if new_from_date > new_to_date:
+        msg = "'new_from_date' date {} cannot be greater than {}".format(new_from_date, new_to_date)
+        raise InvalidValueError(msg=msg)
+
+    trxl = TransactionsLog.open('update_enrollment', ctx)
+
+    # Remove the enrollment(s) associated with the old dates
+    withdraw(ctx, uuid, organization, from_date=from_date, to_date=to_date)
+
+    # Add the enrollment with the new dates
+    indv = enroll(ctx, uuid, organization, from_date=new_from_date, to_date=new_to_date, force=force)
+
+    trxl.close()
+
+    return indv
 
 
 @django.db.transaction.atomic
