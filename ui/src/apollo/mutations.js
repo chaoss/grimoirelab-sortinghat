@@ -43,6 +43,7 @@ const MERGE = gql`
     merge(fromUuids: $fromUuids, toUuid: $toUuid) {
       uuid
       individual {
+        mk
         isLocked
         identities {
           name
@@ -72,6 +73,7 @@ const UNMERGE = gql`
     unmergeIdentities(uuids: $uuids) {
       uuids
       individuals {
+        mk
         profile {
           name
           id
@@ -101,6 +103,7 @@ const MOVE_IDENTITY = gql`
     moveIdentity(fromUuid: $fromUuid, toUuid: $toUuid) {
       uuid
       individual {
+        mk
         isLocked
         identities {
           name

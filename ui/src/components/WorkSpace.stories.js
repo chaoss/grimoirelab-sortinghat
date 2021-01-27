@@ -269,6 +269,7 @@ export const DragAndDrop = () => ({
           individuals: {
             entities: [
               {
+                mk: "1f1a9e56dedb45f5969413eeb4442d982e33f0f6",
                 isLocked: false,
                 profile: {
                   name: "Tom Marvolo Riddle",
@@ -326,6 +327,7 @@ export const DragAndDrop = () => ({
                 ]
               },
               {
+                mk: "164e41c60c28698ac30b0d17176d3e720e036918",
                 isLocked: false,
                 profile: {
                   name: "Harry Potter",
@@ -376,6 +378,7 @@ export const DragAndDrop = () => ({
                 ]
               },
               {
+                mk: "375458370ac0323bfb2e5a153e086551ef628d53",
                 isLocked: true,
                 profile: {
                   name: "Voldemort",
@@ -404,6 +407,7 @@ export const DragAndDrop = () => ({
                 ]
               },
               {
+                mk: "66bc656d28a1522b650d537c9142be2e5c9e3b55",
                 isLocked: false,
                 profile: {
                   name: "Ron Weasley",
@@ -447,6 +451,7 @@ export const DragAndDrop = () => ({
                 ]
               },
               {
+                mk: "e4135c5c747dc69262cd4120a5c5ee51d07a9904",
                 isLocked: false,
                 profile: {
                   name: "Hermione Granger",

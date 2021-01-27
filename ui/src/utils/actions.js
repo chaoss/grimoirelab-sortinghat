@@ -103,7 +103,7 @@ const formatIndividuals = individuals => {
       enrollments: item.enrollments,
       isLocked: item.isLocked,
       isBot: item.profile.isBot,
-      uuid: item.identities[0].uuid,
+      uuid: item.mk,
       isSelected: false
     };
   });
