@@ -253,20 +253,28 @@ export default {
   }
 };
 </script>
-<style scoped>
+<style lang="scss" scoped>
 .row {
   justify-content: space-between;
   margin: 32px;
 }
 .individuals {
-  max-width: 1200px;
   width: 70%;
+
+  .container {
+    max-width: 100%;
+  }
 }
 .organizations {
-  width: 25%;
-  max-width: 500px;
+  max-width: 30%;
+  min-width: 420px;
   align-self: flex-start;
   margin-left: 32px;
+
+  @media (max-width: 960px) {
+    max-width: 100%;
+    margin: 32px 0 0 0;
+  }
 }
 h4 {
   padding: 12px 26px;
