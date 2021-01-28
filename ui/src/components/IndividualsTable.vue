@@ -68,6 +68,7 @@
           :is-bot="item.isBot"
           :is-selected="item.isSelected"
           :is-highlighted="item.uuid === highlightIndividual"
+          @dblclick.native="expand(!isExpanded)"
           @expand="expand(!isExpanded)"
           @edit="updateProfileInfo($event, item.uuid)"
           @saveIndividual="$emit('saveIndividual', item)"

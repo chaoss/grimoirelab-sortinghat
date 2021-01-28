@@ -7,7 +7,8 @@
       dropzone: isDropZone,
       highlighted: isHighlighted
     }"
-    @click="selectEntry"
+    @click.prevent="selectEntry"
+    @dblclick="onDoubleClick"
     @drop.stop="onDrop($event)"
     @dragover.prevent="isDragging = true"
     @dragenter.prevent="isDragging = true"
@@ -202,7 +203,8 @@ export default {
       form: {
         name: this.name,
         email: this.email
-      }
+      },
+      timeout: null
     };
   },
   computed: {
@@ -223,10 +225,17 @@ export default {
   },
   methods: {
     selectEntry() {
-      if (this.isLocked) {
-        return;
+      const delay = 350;
+      if (!this.isLocked && !this.timeout) {
+        this.timeout = window.setTimeout(() => {
+          this.timeout = null;
+          this.$emit("select");
+        }, delay);
       }
-      this.$emit("select");
+    },
+    onDoubleClick() {
+      window.clearTimeout(this.timeout);
+      this.timeout = null;
     },
     onDrop(event) {
       this.isDragging = false;
