@@ -18,8 +18,8 @@
   >
     <td width="25%">
       <v-list-item>
-        <v-list-item-avatar color="grey lighten-2">
-          <span class="grey--text text--darken-3">{{ getNameInitials }}</span>
+        <v-list-item-avatar :color="getAvatarColor">
+          <span class="white--text">{{ getNameInitials }}</span>
         </v-list-item-avatar>
 
         <v-list-item-content>
@@ -151,8 +151,10 @@
   </tr>
 </template>
 <script>
+import { avatarMixin } from "../mixins/avatar";
 export default {
   name: "IndividualEntry",
+  mixins: [avatarMixin],
   props: {
     name: {
       type: String,

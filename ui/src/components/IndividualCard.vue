@@ -15,8 +15,8 @@
     @click="selectIndividual"
   >
     <v-list-item class="grow" three-line>
-      <v-list-item-avatar color="grey lighten-2" size="30px">
-        <span class="grey--text text--darken-3">{{ getNameInitials }}</span>
+      <v-list-item-avatar :color="getAvatarColor" size="30px">
+        <span class="white--text">{{ getNameInitials }}</span>
       </v-list-item-avatar>
 
       <v-list-item-content>
@@ -70,6 +70,7 @@
 </template>
 
 <script>
+import { avatarMixin } from "../mixins/avatar";
 import ExpandedIndividual from "./ExpandedIndividual";
 
 export default {
@@ -77,6 +78,7 @@ export default {
   components: {
     ExpandedIndividual
   },
+  mixins: [avatarMixin],
   props: {
     name: {
       type: String,
