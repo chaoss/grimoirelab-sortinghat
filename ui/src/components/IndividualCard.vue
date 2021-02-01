@@ -15,7 +15,7 @@
     @click="selectIndividual"
   >
     <v-list-item class="grow" three-line>
-      <avatar :name="name" :email="email" />
+      <avatar :name="name" :email="email" :size="30" />
 
       <v-list-item-content>
         <v-list-item-title class="font-weight-medium">

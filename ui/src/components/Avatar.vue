@@ -1,10 +1,17 @@
 <template>
-  <v-list-item-avatar :color="getAvatarColor">
+  <v-list-item-avatar :color="getAvatarColor" :size="size">
+    <img
+      v-if="email"
+      :src="getGravatar"
+      :style="{ width: `${size + 2}px`, height: `${size + 2}px` }"
+      aria-hidden="true"
+    />
     <span class="white--text">{{ getNameInitials }}</span>
   </v-list-item-avatar>
 </template>
 
 <script>
+import md5 from "md5";
 const colors = [
   "#f41900",
   "#E35017",
@@ -32,6 +39,11 @@ export default {
     email: {
       type: String,
       required: false
+    },
+    size: {
+      type: Number,
+      required: false,
+      default: 40
     }
   },
   computed: {
@@ -43,6 +55,13 @@ export default {
       const index = charCodes % colors.length;
 
       return colors[index];
+    },
+    getGravatar() {
+      if (this.email) {
+        const hash = md5(this.email.trim().toLowerCase());
+        return `https://www.gravatar.com/avatar/${hash}.jpg?d=blank&s=40`;
+      }
+      return null;
     },
     getNameInitials: function() {
       const name = this.name || this.email || "";
@@ -56,11 +75,15 @@ export default {
       return initials;
     }
   }
-}
+};
 </script>
 
-<style scoped>
-.v-avatar img {
-  position: absolute;
+<style lang="scss" scoped>
+.v-avatar {
+  overflow: unset;
+
+  img {
+    position: absolute;
+  }
 }
 </style>
