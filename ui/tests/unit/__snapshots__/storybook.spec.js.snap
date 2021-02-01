@@ -1687,11 +1687,11 @@ exports[`Storyshots IndividualCard Default 1`] = `
         tabindex="-1"
       >
         <div
-          class="v-avatar v-list-item__avatar grey lighten-2"
-          style="height: 30px; min-width: 30px; width: 30px;"
+          class="v-avatar v-list-item__avatar"
+          style="height: 30px; min-width: 30px; width: 30px; background-color: rgb(245, 142, 12); border-color: #f58e0c;"
         >
           <span
-            class="grey--text text--darken-3"
+            class="white--text"
           >
             TR
           </span>
@@ -1778,11 +1778,11 @@ exports[`Storyshots IndividualCard Highlighted 1`] = `
         tabindex="-1"
       >
         <div
-          class="v-avatar v-list-item__avatar grey lighten-2"
-          style="height: 30px; min-width: 30px; width: 30px;"
+          class="v-avatar v-list-item__avatar"
+          style="height: 30px; min-width: 30px; width: 30px; background-color: rgb(245, 142, 12); border-color: #f58e0c;"
         >
           <span
-            class="grey--text text--darken-3"
+            class="white--text"
           >
             TR
           </span>
@@ -1869,11 +1869,11 @@ exports[`Storyshots IndividualCard No Name 1`] = `
         tabindex="-1"
       >
         <div
-          class="v-avatar v-list-item__avatar grey lighten-2"
-          style="height: 30px; min-width: 30px; width: 30px;"
+          class="v-avatar v-list-item__avatar"
+          style="height: 30px; min-width: 30px; width: 30px; background-color: rgb(63, 165, 0); border-color: #3fa500;"
         >
           <span
-            class="grey--text text--darken-3"
+            class="white--text"
           >
             T
           </span>
@@ -1960,11 +1960,11 @@ exports[`Storyshots IndividualCard Organization 1`] = `
         tabindex="-1"
       >
         <div
-          class="v-avatar v-list-item__avatar grey lighten-2"
-          style="height: 30px; min-width: 30px; width: 30px;"
+          class="v-avatar v-list-item__avatar"
+          style="height: 30px; min-width: 30px; width: 30px; background-color: rgb(245, 142, 12); border-color: #f58e0c;"
         >
           <span
-            class="grey--text text--darken-3"
+            class="white--text"
           >
             TR
           </span>
@@ -2057,11 +2057,11 @@ exports[`Storyshots IndividualCard Single Initial 1`] = `
         tabindex="-1"
       >
         <div
-          class="v-avatar v-list-item__avatar grey lighten-2"
-          style="height: 30px; min-width: 30px; width: 30px;"
+          class="v-avatar v-list-item__avatar"
+          style="height: 30px; min-width: 30px; width: 30px; background-color: rgb(0, 161, 86); border-color: #00a156;"
         >
           <span
-            class="grey--text text--darken-3"
+            class="white--text"
           >
             V
           </span>
@@ -2148,11 +2148,11 @@ exports[`Storyshots IndividualCard Sources 1`] = `
         tabindex="-1"
       >
         <div
-          class="v-avatar v-list-item__avatar grey lighten-2"
-          style="height: 30px; min-width: 30px; width: 30px;"
+          class="v-avatar v-list-item__avatar"
+          style="height: 30px; min-width: 30px; width: 30px; background-color: rgb(245, 142, 12); border-color: #f58e0c;"
         >
           <span
-            class="grey--text text--darken-3"
+            class="white--text"
           >
             TR
           </span>
@@ -2280,11 +2280,11 @@ exports[`Storyshots IndividualCard Sources And Organization 1`] = `
         tabindex="-1"
       >
         <div
-          class="v-avatar v-list-item__avatar grey lighten-2"
-          style="height: 30px; min-width: 30px; width: 30px;"
+          class="v-avatar v-list-item__avatar"
+          style="height: 30px; min-width: 30px; width: 30px; background-color: rgb(245, 142, 12); border-color: #f58e0c;"
         >
           <span
-            class="grey--text text--darken-3"
+            class="white--text"
           >
             TR
           </span>
@@ -2442,11 +2442,11 @@ exports[`Storyshots IndividualEntry Bot 1`] = `
                   tabindex="-1"
                 >
                   <div
-                    class="v-avatar v-list-item__avatar grey lighten-2"
-                    style="height: 40px; min-width: 40px; width: 40px;"
+                    class="v-avatar v-list-item__avatar"
+                    style="height: 40px; min-width: 40px; width: 40px; background-color: rgb(245, 142, 12); border-color: #f58e0c;"
                   >
                     <span
-                      class="grey--text text--darken-3"
+                      class="white--text"
                     >
                       TR
                     </span>
@@ -2658,11 +2658,11 @@ exports[`Storyshots IndividualEntry Bot And Locked 1`] = `
                   tabindex="-1"
                 >
                   <div
-                    class="v-avatar v-list-item__avatar grey lighten-2"
-                    style="height: 40px; min-width: 40px; width: 40px;"
+                    class="v-avatar v-list-item__avatar"
+                    style="height: 40px; min-width: 40px; width: 40px; background-color: rgb(245, 142, 12); border-color: #f58e0c;"
                   >
                     <span
-                      class="grey--text text--darken-3"
+                      class="white--text"
                     >
                       TR
                     </span>
@@ -2840,11 +2840,11 @@ exports[`Storyshots IndividualEntry Default 1`] = `
                   tabindex="-1"
                 >
                   <div
-                    class="v-avatar v-list-item__avatar grey lighten-2"
-                    style="height: 40px; min-width: 40px; width: 40px;"
+                    class="v-avatar v-list-item__avatar"
+                    style="height: 40px; min-width: 40px; width: 40px; background-color: rgb(245, 142, 12); border-color: #f58e0c;"
                   >
                     <span
-                      class="grey--text text--darken-3"
+                      class="white--text"
                     >
                       TR
                     </span>
@@ -3056,11 +3056,11 @@ exports[`Storyshots IndividualEntry Highlighted 1`] = `
                   tabindex="-1"
                 >
                   <div
-                    class="v-avatar v-list-item__avatar grey lighten-2"
-                    style="height: 40px; min-width: 40px; width: 40px;"
+                    class="v-avatar v-list-item__avatar"
+                    style="height: 40px; min-width: 40px; width: 40px; background-color: rgb(245, 142, 12); border-color: #f58e0c;"
                   >
                     <span
-                      class="grey--text text--darken-3"
+                      class="white--text"
                     >
                       TR
                     </span>
@@ -3272,11 +3272,11 @@ exports[`Storyshots IndividualEntry Locked 1`] = `
                   tabindex="-1"
                 >
                   <div
-                    class="v-avatar v-list-item__avatar grey lighten-2"
-                    style="height: 40px; min-width: 40px; width: 40px;"
+                    class="v-avatar v-list-item__avatar"
+                    style="height: 40px; min-width: 40px; width: 40px; background-color: rgb(245, 142, 12); border-color: #f58e0c;"
                   >
                     <span
-                      class="grey--text text--darken-3"
+                      class="white--text"
                     >
                       TR
                     </span>
@@ -3454,11 +3454,11 @@ exports[`Storyshots IndividualEntry No Email 1`] = `
                   tabindex="-1"
                 >
                   <div
-                    class="v-avatar v-list-item__avatar grey lighten-2"
-                    style="height: 40px; min-width: 40px; width: 40px;"
+                    class="v-avatar v-list-item__avatar"
+                    style="height: 40px; min-width: 40px; width: 40px; background-color: rgb(245, 142, 12); border-color: #f58e0c;"
                   >
                     <span
-                      class="grey--text text--darken-3"
+                      class="white--text"
                     >
                       TR
                     </span>
@@ -3670,11 +3670,11 @@ exports[`Storyshots IndividualEntry No Name 1`] = `
                   tabindex="-1"
                 >
                   <div
-                    class="v-avatar v-list-item__avatar grey lighten-2"
-                    style="height: 40px; min-width: 40px; width: 40px;"
+                    class="v-avatar v-list-item__avatar"
+                    style="height: 40px; min-width: 40px; width: 40px; background-color: rgb(63, 165, 0); border-color: #3fa500;"
                   >
                     <span
-                      class="grey--text text--darken-3"
+                      class="white--text"
                     >
                       T
                     </span>
@@ -3886,11 +3886,11 @@ exports[`Storyshots IndividualEntry No Organization 1`] = `
                   tabindex="-1"
                 >
                   <div
-                    class="v-avatar v-list-item__avatar grey lighten-2"
-                    style="height: 40px; min-width: 40px; width: 40px;"
+                    class="v-avatar v-list-item__avatar"
+                    style="height: 40px; min-width: 40px; width: 40px; background-color: rgb(245, 142, 12); border-color: #f58e0c;"
                   >
                     <span
-                      class="grey--text text--darken-3"
+                      class="white--text"
                     >
                       TR
                     </span>
@@ -4102,11 +4102,11 @@ exports[`Storyshots IndividualEntry Single Inital 1`] = `
                   tabindex="-1"
                 >
                   <div
-                    class="v-avatar v-list-item__avatar grey lighten-2"
-                    style="height: 40px; min-width: 40px; width: 40px;"
+                    class="v-avatar v-list-item__avatar"
+                    style="height: 40px; min-width: 40px; width: 40px; background-color: rgb(0, 161, 86); border-color: #00a156;"
                   >
                     <span
-                      class="grey--text text--darken-3"
+                      class="white--text"
                     >
                       V
                     </span>
@@ -4308,11 +4308,11 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                 tabindex="-1"
               >
                 <div
-                  class="v-avatar v-list-item__avatar grey lighten-2"
-                  style="height: 30px; min-width: 30px; width: 30px;"
+                  class="v-avatar v-list-item__avatar"
+                  style="height: 30px; min-width: 30px; width: 30px; background-color: rgb(245, 142, 12); border-color: #f58e0c;"
                 >
                   <span
-                    class="grey--text text--darken-3"
+                    class="white--text"
                   >
                     TR
                   </span>
@@ -4401,11 +4401,11 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                 tabindex="-1"
               >
                 <div
-                  class="v-avatar v-list-item__avatar grey lighten-2"
-                  style="height: 30px; min-width: 30px; width: 30px;"
+                  class="v-avatar v-list-item__avatar"
+                  style="height: 30px; min-width: 30px; width: 30px; background-color: rgb(244, 25, 0); border-color: #f41900;"
                 >
                   <span
-                    class="grey--text text--darken-3"
+                    class="white--text"
                   >
                     HP
                   </span>
@@ -4514,11 +4514,11 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                 tabindex="-1"
               >
                 <div
-                  class="v-avatar v-list-item__avatar grey lighten-2"
-                  style="height: 30px; min-width: 30px; width: 30px;"
+                  class="v-avatar v-list-item__avatar"
+                  style="height: 30px; min-width: 30px; width: 30px; background-color: rgb(0, 161, 86); border-color: #00a156;"
                 >
                   <span
-                    class="grey--text text--darken-3"
+                    class="white--text"
                   >
                     V
                   </span>
@@ -4607,11 +4607,11 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                 tabindex="-1"
               >
                 <div
-                  class="v-avatar v-list-item__avatar grey lighten-2"
-                  style="height: 30px; min-width: 30px; width: 30px;"
+                  class="v-avatar v-list-item__avatar"
+                  style="height: 30px; min-width: 30px; width: 30px; background-color: rgb(0, 55, 86); border-color: #003756;"
                 >
                   <span
-                    class="grey--text text--darken-3"
+                    class="white--text"
                   >
                     HG
                   </span>
@@ -4720,11 +4720,11 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                 tabindex="-1"
               >
                 <div
-                  class="v-avatar v-list-item__avatar grey lighten-2"
-                  style="height: 30px; min-width: 30px; width: 30px;"
+                  class="v-avatar v-list-item__avatar"
+                  style="height: 30px; min-width: 30px; width: 30px; background-color: rgb(0, 144, 227); border-color: #0090e3;"
                 >
                   <span
-                    class="grey--text text--darken-3"
+                    class="white--text"
                   >
                     AD
                   </span>
@@ -4823,11 +4823,11 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                 tabindex="-1"
               >
                 <div
-                  class="v-avatar v-list-item__avatar grey lighten-2"
-                  style="height: 30px; min-width: 30px; width: 30px;"
+                  class="v-avatar v-list-item__avatar"
+                  style="height: 30px; min-width: 30px; width: 30px; background-color: rgb(245, 37, 55); border-color: #f52537;"
                 >
                   <span
-                    class="grey--text text--darken-3"
+                    class="white--text"
                   >
                     RW
                   </span>
@@ -4936,11 +4936,11 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                 tabindex="-1"
               >
                 <div
-                  class="v-avatar v-list-item__avatar grey lighten-2"
-                  style="height: 30px; min-width: 30px; width: 30px;"
+                  class="v-avatar v-list-item__avatar"
+                  style="height: 30px; min-width: 30px; width: 30px; background-color: rgb(245, 37, 55); border-color: #f52537;"
                 >
                   <span
-                    class="grey--text text--darken-3"
+                    class="white--text"
                   >
                     SS
                   </span>
@@ -5049,11 +5049,11 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                 tabindex="-1"
               >
                 <div
-                  class="v-avatar v-list-item__avatar grey lighten-2"
-                  style="height: 30px; min-width: 30px; width: 30px;"
+                  class="v-avatar v-list-item__avatar"
+                  style="height: 30px; min-width: 30px; width: 30px; background-color: rgb(0, 144, 227); border-color: #0090e3;"
                 >
                   <span
-                    class="grey--text text--darken-3"
+                    class="white--text"
                   >
                     H
                   </span>
@@ -5849,11 +5849,11 @@ exports[`Storyshots ProfileCard Default 1`] = `
         tabindex="-1"
       >
         <div
-          class="v-avatar v-list-item__avatar grey lighten-2"
-          style="height: 30px; min-width: 30px; width: 30px;"
+          class="v-avatar v-list-item__avatar"
+          style="height: 30px; min-width: 30px; width: 30px; background-color: rgb(245, 142, 12); border-color: #f58e0c;"
         >
           <span
-            class="grey--text text--darken-3"
+            class="white--text"
           >
             TR
           </span>
@@ -6243,11 +6243,11 @@ exports[`Storyshots WorkSpace Default 1`] = `
               tabindex="-1"
             >
               <div
-                class="v-avatar v-list-item__avatar grey lighten-2"
-                style="height: 30px; min-width: 30px; width: 30px;"
+                class="v-avatar v-list-item__avatar"
+                style="height: 30px; min-width: 30px; width: 30px; background-color: rgb(245, 142, 12); border-color: #f58e0c;"
               >
                 <span
-                  class="grey--text text--darken-3"
+                  class="white--text"
                 >
                   TR
                 </span>
@@ -6362,11 +6362,11 @@ exports[`Storyshots WorkSpace Default 1`] = `
               tabindex="-1"
             >
               <div
-                class="v-avatar v-list-item__avatar grey lighten-2"
-                style="height: 30px; min-width: 30px; width: 30px;"
+                class="v-avatar v-list-item__avatar"
+                style="height: 30px; min-width: 30px; width: 30px; background-color: rgb(244, 25, 0); border-color: #f41900;"
               >
                 <span
-                  class="grey--text text--darken-3"
+                  class="white--text"
                 >
                   HP
                 </span>
