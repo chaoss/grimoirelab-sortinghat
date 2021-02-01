@@ -40,10 +40,10 @@ export const Gravatar = () => ({
   template: avatarTemplate,
   props: {
     name: {
-      default: "Example"
+      default: "Santiago Dueñas"
     },
     email: {
-      default: "beau@automattic.com"
+      default: "sduenas@bitergia.com"
     }
   }
 });

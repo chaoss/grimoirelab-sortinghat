@@ -269,3 +269,28 @@ export const Highlighted = () => ({
     expanded: []
   })
 });
+
+export const Gravatar = () => ({
+  components: { IndividualEntry },
+  template: individualEntryTemplate,
+  data: () => ({
+    headers: [
+      { value: 'name' },
+      { value: 'email' },
+      { value: 'sources' },
+      { value: 'actions' }
+    ],
+    items: [
+      {
+        name: "Santiago Dueñas",
+        email: "sduenas@bitergia.com",
+        sources: [{ name: "git", icon: "mdi-git" }],
+        isLocked: false,
+        isBot: false,
+        uuid: "03b3428ee",
+        isHighlighted: false
+      }
+    ],
+    expanded: []
+  })
+});
