@@ -56,6 +56,7 @@
       >
         <individual-card
           :name="individual.name"
+          :email="individual.email"
           :sources="individual.sources"
           :is-selected="individual.isSelected"
           :uuid="individual.uuid"

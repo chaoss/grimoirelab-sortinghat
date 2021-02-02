@@ -15,13 +15,11 @@
     @click="selectIndividual"
   >
     <v-list-item class="grow" three-line>
-      <v-list-item-avatar :color="getAvatarColor" size="30px">
-        <span class="white--text">{{ getNameInitials }}</span>
-      </v-list-item-avatar>
+      <avatar :name="name" :email="email" :size="30" />
 
       <v-list-item-content>
         <v-list-item-title class="font-weight-medium">
-          {{ name || identities[0].identities[0].email }}
+          {{ name || email }}
         </v-list-item-title>
         <v-list-item-subtitle v-if="enrollments && enrollments.length > 0">
           {{ enrollments[0].organization.name }}
@@ -70,17 +68,22 @@
 </template>
 
 <script>
-import { avatarMixin } from "../mixins/avatar";
+import Avatar from "./Avatar";
 import ExpandedIndividual from "./ExpandedIndividual";
 
 export default {
   name: "individualcard",
   components: {
+    Avatar,
     ExpandedIndividual
   },
-  mixins: [avatarMixin],
   props: {
     name: {
+      type: String,
+      required: false,
+      default: null
+    },
+    email: {
       type: String,
       required: false,
       default: null
@@ -117,19 +120,6 @@ export default {
     return {
       isDragging: false
     };
-  },
-  computed: {
-    getNameInitials: function() {
-      const name = this.name || this.identities[0].identities[0].email || "";
-      const names = name.split(" ");
-      let initials = names[0].substring(0, 1).toUpperCase();
-
-      if (names.length > 1) {
-        initials += names[names.length - 1].substring(0, 1).toUpperCase();
-      }
-
-      return initials;
-    }
   },
   methods: {
     selectSourceIcon(source) {

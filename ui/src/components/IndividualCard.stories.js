@@ -10,6 +10,7 @@ export default {
 const individualCardTemplate = `
   <individual-card
     :name="name"
+    :email="email"
     :sources="sources"
     :uuid="uuid"
     :identities="identities"
@@ -32,6 +33,9 @@ export const Default = () => ({
     },
     uuid: {
       default: "10f546"
+    },
+    email: {
+      default: "triddle@example.net"
     },
     identities: {
       default: () => []
@@ -60,6 +64,9 @@ export const SingleInitial = () => ({
     uuid: {
       default: "10f546"
     },
+    email: {
+      default: "voldemort@example.net"
+    },
     identities: {
       default: () => []
     },
@@ -86,6 +93,9 @@ export const NoName = () => ({
     },
     uuid: {
       default: "10f546"
+    },
+    email: {
+      default: "triddle@example.net"
     },
     identities: {
       default: () => [{
@@ -129,6 +139,9 @@ export const Sources = () => ({
     },
     uuid: {
       default: "10f546"
+    },
+    email: {
+      default: "triddle@example.net"
     },
     isHighlighted: {
       default: false
@@ -201,6 +214,9 @@ export const Organization = () => ({
     uuid: {
       default: "10f546"
     },
+    email: {
+      default: "triddle@example.net"
+    },
     isHighlighted: {
       default: false
     },
@@ -246,6 +262,9 @@ export const Highlighted = () => ({
     uuid: {
       default: "10f546"
     },
+    email: {
+      default: "triddle@example.net"
+    },
     isHighlighted: {
       default: true
     },
@@ -278,6 +297,9 @@ export const SourcesAndOrganization = () => ({
     },
     uuid: {
       default: "10f546"
+    },
+    email: {
+      default: "triddle@example.net"
     },
     identities: {
       default: () => [
@@ -349,5 +371,36 @@ export const SourcesAndOrganization = () => ({
     isHighlighted: {
       default: false
     }
+  }
+});
+
+export const Gravatar = () => ({
+  components: { IndividualCard },
+  template: individualCardTemplate,
+  props: {
+    name: {
+      default: "Santiago Dueñas"
+    },
+    sources: {
+      default: () => []
+    },
+    isLocked: {
+      default: false
+    },
+    uuid: {
+      default: "10f546"
+    },
+    email: {
+      default: "sduenas@bitergia.com"
+    },
+    identities: {
+      default: () => []
+    },
+    enrollments: {
+      default: () => []
+    },
+    isHighlighted: {
+      default: false
+    },
   }
 });

@@ -18,9 +18,7 @@
   >
     <td width="25%">
       <v-list-item>
-        <v-list-item-avatar :color="getAvatarColor">
-          <span class="white--text">{{ getNameInitials }}</span>
-        </v-list-item-avatar>
+        <avatar :name="name" :email="email" />
 
         <v-list-item-content>
           <v-list-item-title class="font-weight-medium">
@@ -151,10 +149,12 @@
   </tr>
 </template>
 <script>
-import { avatarMixin } from "../mixins/avatar";
+import Avatar from "./Avatar.vue";
 export default {
   name: "IndividualEntry",
-  mixins: [avatarMixin],
+  components: {
+    Avatar
+  },
   props: {
     name: {
       type: String,
@@ -210,17 +210,6 @@ export default {
     };
   },
   computed: {
-    getNameInitials: function() {
-      const name = this.name || this.email || "";
-      const names = name.split(" ");
-      let initials = names[0].substring(0, 1).toUpperCase();
-
-      if (names.length > 1) {
-        initials += names[names.length - 1].substring(0, 1).toUpperCase();
-      }
-
-      return initials;
-    },
     isDropZone: function() {
       return this.isDragging && !this.isLocked;
     }
