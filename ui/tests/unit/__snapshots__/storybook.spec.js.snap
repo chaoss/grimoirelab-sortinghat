@@ -7097,13 +7097,17 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
           </div>
         </div>
          
-        <p
-          class="text--disabled pa-md-4 drag-zone"
+        <div
+          class="row pa-md-5 ma-md-0 d-flex align-center drag-zone row--dense"
         >
-          
-    Save individuals in your work space to perform actions on them.
-  
-        </p>
+          <p
+            class="text--disabled"
+          >
+            
+      Save individuals in your work space to perform actions on them.
+    
+          </p>
+        </div>
          
         <div
           class="v-snack v-snack--bottom v-snack--has-background"
@@ -7504,13 +7508,17 @@ exports[`Storyshots WorkSpace Empty 1`] = `
         </div>
       </div>
        
-      <p
-        class="text--disabled pa-md-4 drag-zone"
+      <div
+        class="row pa-md-5 ma-md-0 d-flex align-center drag-zone row--dense"
       >
-        
-    Save individuals in your work space to perform actions on them.
-  
-      </p>
+        <p
+          class="text--disabled"
+        >
+          
+      Save individuals in your work space to perform actions on them.
+    
+        </p>
+      </div>
        
       <div
         class="v-snack v-snack--bottom v-snack--has-background"

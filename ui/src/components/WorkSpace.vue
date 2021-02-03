@@ -73,9 +73,11 @@
         />
       </v-col>
     </v-row>
-    <p v-else class="text--disabled pa-md-4 drag-zone">
-      Save individuals in your work space to perform actions on them.
-    </p>
+    <v-row v-else dense class="pa-md-5 ma-md-0 d-flex align-center drag-zone">
+      <p class="text--disabled">
+        Save individuals in your work space to perform actions on them.
+      </p>
+    </v-row>
 
     <v-snackbar v-model="snackbar.open">
       {{ snackbar.text }}
@@ -258,6 +260,9 @@ export default {
 };
 </script>
 <style scoped>
+.drag-zone {
+  min-height: 128px;
+}
 .is-dragging .drag-zone {
   outline: 2px dashed #003756;
 }
