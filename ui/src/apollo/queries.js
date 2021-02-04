@@ -121,8 +121,12 @@ const GET_PAGINATED_INDIVIDUALS = gql`
 `;
 
 const GET_PAGINATED_ORGANIZATIONS = gql`
-  query GetOrganizations($page: Int!, $pageSize: Int!) {
-    organizations(page: $page, pageSize: $pageSize) {
+  query GetOrganizations(
+    $page: Int!
+    $pageSize: Int!
+    $filters: OrganizationFilterType
+  ) {
+    organizations(page: $page, pageSize: $pageSize, filters: $filters) {
       entities {
         id
         name
@@ -212,12 +216,13 @@ const getProfileByUuid = (apollo, uuid) => {
   return response;
 };
 
-const getPaginatedOrganizations = (apollo, currentPage, pageSize) => {
+const getPaginatedOrganizations = (apollo, currentPage, pageSize, filters) => {
   let response = apollo.query({
     query: GET_PAGINATED_ORGANIZATIONS,
     variables: {
       page: currentPage,
-      pageSize: pageSize
+      pageSize: pageSize,
+      filters: filters
     },
     fetchPolicy: "no-cache"
   });

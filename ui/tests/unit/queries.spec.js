@@ -109,6 +109,29 @@ const paginatedOrganizations = {
     }
   };
 
+const filteredOrganizations = {
+  data: {
+    organizations: {
+      entities: [
+        {
+          id: "1",
+          name: "Bitergia",
+          enrollments: [{ id: "274", __typename: "EnrollmentType"}],
+          domains: [],
+          __typename: "OrganizationType"
+        }],
+        pageInfo: {
+          page: 1,
+          pageSize: 10,
+          numPages: 1,
+          totalResults: 1,
+          __typename: "PaginationType"
+        },
+        __typename: "OrganizationPaginatedType"
+    }
+  }
+};
+
 const countriesMocked = {
   data: {
     countries: {
@@ -322,5 +345,35 @@ describe("OrganizationsTable", () => {
 
     expect(query).toBeCalled();
     expect(wrapper.element).toMatchSnapshot();
+  });
+
+  test("Mock search by term", async () => {
+    const querySpy = spyOn(Queries, "getPaginatedOrganizations");
+    const query = jest.fn(() => Promise.resolve(paginatedResponse));
+    const wrapper = shallowMount(OrganizationsTable, {
+      Vue,
+      mocks: {
+        $apollo: {
+          query
+        }
+      },
+      propsData: {
+        fetchPage: Queries.getPaginatedOrganizations,
+        enroll: () => {},
+        addDomain: () => {},
+        addOrganization: () => {},
+        deleteDomain: () => {},
+        deleteOrganization: () => {}
+      },
+      data() {
+        return {
+          filters: { term: "Bitergia" }
+        }
+      }
+    });
+
+    const response = await wrapper.vm.getOrganizations();
+
+    expect(querySpy).toHaveBeenCalledWith(1, 10, { term: "Bitergia" });
   });
 });
