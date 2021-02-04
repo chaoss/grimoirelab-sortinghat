@@ -1829,6 +1829,10 @@ exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
     
     </h4>
      
+    <search-stub
+      class="ma-0 ml-auto mr-3 pa-0 flex-grow-0"
+    />
+     
     <v-btn-stub
       activeclass=""
       class="black--text"
@@ -2073,6 +2077,10 @@ exports[`OrganizationsTable Mock mutation for addOrganization 1`] = `
       Organizations
     
     </h4>
+     
+    <search-stub
+      class="ma-0 ml-auto mr-3 pa-0 flex-grow-0"
+    />
      
     <v-btn-stub
       activeclass=""
@@ -2319,6 +2327,10 @@ exports[`OrganizationsTable Mock mutation for deleteDomain 1`] = `
     
     </h4>
      
+    <search-stub
+      class="ma-0 ml-auto mr-3 pa-0 flex-grow-0"
+    />
+     
     <v-btn-stub
       activeclass=""
       class="black--text"
@@ -2564,6 +2576,10 @@ exports[`OrganizationsTable Mock mutation for deleteOrganization 1`] = `
     
     </h4>
      
+    <search-stub
+      class="ma-0 ml-auto mr-3 pa-0 flex-grow-0"
+    />
+     
     <v-btn-stub
       activeclass=""
       class="black--text"
@@ -2806,6 +2822,10 @@ exports[`OrganizationsTable Mock mutation for enroll 1`] = `
       Organizations
     
     </h4>
+     
+    <search-stub
+      class="ma-0 ml-auto mr-3 pa-0 flex-grow-0"
+    />
      
     <v-btn-stub
       activeclass=""
