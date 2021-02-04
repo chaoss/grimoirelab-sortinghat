@@ -179,6 +179,21 @@ SH_ORGS_QUERY_FILTER = """{
     }
   }
 }"""
+SH_ORGS_QUERY_TERM_FILTER = """{
+  organizations (
+    filters:{
+      term:"%s"
+    }
+  ){
+    entities {
+      name
+      domains {
+        domain
+        isTopDomain
+      }
+    }
+  }
+}"""
 SH_ORGS_QUERY_PAGINATION = """{
   organizations (
     page: %d
@@ -1112,6 +1127,44 @@ class TestQueryOrganizations(django.test.TestCase):
 
         orgs = executed['data']['organizations']['entities']
         self.assertListEqual(orgs, [])
+
+    def test_filter_term(self):
+        """Check whether it returns the organization searched when using term filter"""
+
+        org1 = Organization.objects.create(name='Example')
+        org2 = Organization.objects.create(name='Bitergia')
+        org3 = Organization.objects.create(name='LibreSoft')
+        Domain.objects.create(domain='domain1.com', organization=org1)
+        Domain.objects.create(domain='domain2.com', organization=org2)
+        Domain.objects.create(domain='domain3.com', organization=org3)
+
+        # Tests
+
+        # Test 'Bitergia' should return one of the organizations
+        client = graphene.test.Client(schema)
+        test_query = SH_ORGS_QUERY_TERM_FILTER % 'Bitergia'
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
+
+        orgs = executed['data']['organizations']['entities']
+        self.assertEqual(len(orgs), 1)
+
+        org = orgs[0]
+        self.assertEqual(org['name'], org2.name)
+
+        # Test 'domain' should return all 3 organizations
+        test_query = SH_ORGS_QUERY_TERM_FILTER % 'domain'
+        executed = client.execute(test_query, context_value=self.context_value)
+
+        orgs = executed['data']['organizations']['entities']
+        self.assertEqual(len(orgs), 3)
+
+        # Test '123' shouldn't return any organizations
+        test_query = SH_ORGS_QUERY_TERM_FILTER % '123'
+        executed = client.execute(test_query, context_value=self.context_value)
+
+        orgs = executed['data']['organizations']['entities']
+        self.assertEqual(len(orgs), 0)
 
     def test_pagination(self):
         """Check whether it returns the organizations searched when using pagination"""

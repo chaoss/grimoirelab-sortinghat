@@ -248,6 +248,7 @@ class CountryFilterType(graphene.InputObjectType):
 
 class OrganizationFilterType(graphene.InputObjectType):
     name = graphene.String(required=False)
+    term = graphene.String(required=False)
 
 
 class IdentityFilterType(graphene.InputObjectType):
@@ -808,6 +809,12 @@ class SortingHatQuery:
 
         if filters and 'name' in filters:
             query = query.filter(name=filters['name'])
+        if filters and 'term' in filters:
+            search_term = filters['term']
+            query = query.filter(Q(name__icontains=search_term) |
+                                 Q(name__in=Subquery(Domain.objects
+                                                    .filter(domain__icontains=search_term)
+                                                    .values_list('organization__name'))))
 
         return OrganizationPaginatedType.create_paginated_result(query,
                                                                  page,
