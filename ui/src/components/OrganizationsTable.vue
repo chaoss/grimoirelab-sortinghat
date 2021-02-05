@@ -7,6 +7,10 @@
         </v-icon>
         Organizations
       </h4>
+      <search
+        class="ma-0 ml-auto mr-3 pa-0 flex-grow-0"
+        @search="filterSearch"
+      />
       <v-btn
         depressed
         color="secondary"
@@ -100,10 +104,16 @@ import { formatIndividuals } from "../utils/actions";
 import ExpandedOrganization from "./ExpandedOrganization.vue";
 import OrganizationEntry from "./OrganizationEntry.vue";
 import OrganizationModal from "./OrganizationModal.vue";
+import Search from "./Search.vue";
 
 export default {
   name: "OrganizationsTable",
-  components: { OrganizationEntry, ExpandedOrganization, OrganizationModal },
+  components: {
+    OrganizationEntry,
+    ExpandedOrganization,
+    OrganizationModal,
+    Search
+  },
   props: {
     enroll: {
       type: Function,
@@ -161,15 +171,16 @@ export default {
         organization: undefined,
         domains: []
       },
-      selectedOrganization: ""
+      selectedOrganization: "",
+      filters: {}
     };
   },
   created() {
     this.getOrganizations(1);
   },
   methods: {
-    async getOrganizations(page = this.page) {
-      let response = await this.fetchPage(page, this.itemsPerPage);
+    async getOrganizations(page = this.page, filters = this.filters) {
+      let response = await this.fetchPage(page, this.itemsPerPage, filters);
       if (response) {
         this.organizations = response.data.organizations.entities;
         this.pageCount = response.data.organizations.pageInfo.numPages;
@@ -241,15 +252,36 @@ export default {
       event.dataTransfer.setData("organization", item.name);
       const dragImage = document.querySelector(".dragged-organization");
       event.dataTransfer.setDragImage(dragImage, 0, 0);
+    },
+    filterSearch(filters) {
+      this.filters = filters;
+      this.getOrganizations(1);
     }
   }
 };
 </script>
-<style scoped>
+<style lang="scss" scoped>
 @import "../styles/index.scss";
 .actions {
+  align-items: baseline;
   justify-content: space-between;
   padding: 0 26px 24px 26px;
+
+  .search {
+    width: 200px;
+    &:hover {
+      width: 200px;
+    }
+    &--hidden {
+      width: 33px;
+    }
+  }
+  .title {
+    @media (max-width: 1818px) {
+      flex-basis: 100%;
+      margin-bottom: 8px;
+    }
+  }
 }
 
 .dragged-organization {

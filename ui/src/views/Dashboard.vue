@@ -113,11 +113,12 @@ export default {
       );
       return response;
     },
-    async getOrganizationsPage(page, items) {
+    async getOrganizationsPage(page, items, filters) {
       const response = await getPaginatedOrganizations(
         this.$apollo,
         page,
-        items
+        items,
+        filters
       );
       return response;
     },
@@ -267,7 +268,7 @@ export default {
 }
 .organizations {
   max-width: 30%;
-  min-width: 420px;
+  min-width: 450px;
   align-self: flex-start;
   margin-left: 32px;
 
