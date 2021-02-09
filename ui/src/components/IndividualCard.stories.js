@@ -100,6 +100,7 @@ export const NoName = () => ({
     identities: {
       default: () => [{
         name: "GitLab",
+        icon: "mdi-gitlab",
         identities: [
           {
             name: "",
@@ -150,6 +151,7 @@ export const Sources = () => ({
       default: () => [
         {
           name: "GitLab",
+          icon: "mdi-gitlab",
           identities: [
             {
               name: "Tom Marvolo Riddle",
@@ -162,6 +164,7 @@ export const Sources = () => ({
         },
         {
           name: "GitHub",
+          icon: "mdi-github",
           identities: [
             {
               uuid: "808b18",
@@ -174,6 +177,7 @@ export const Sources = () => ({
         },
         {
           name: "git",
+          icon: "mdi-git",
           identities: [
             {
               uuid: "006afa",
@@ -305,6 +309,7 @@ export const SourcesAndOrganization = () => ({
       default: () => [
         {
           name: "GitLab",
+          icon: "mdi-gitlab",
           identities: [
             {
               name: "Tom Marvolo Riddle",
@@ -317,6 +322,7 @@ export const SourcesAndOrganization = () => ({
         },
         {
           name: "GitHub",
+          icon: "mdi-github",
           identities: [
             {
               uuid: "808b18",
@@ -329,6 +335,7 @@ export const SourcesAndOrganization = () => ({
         },
         {
           name: "git",
+          icon: "mdi-git",
           identities: [
             {
               uuid: "006afa",
