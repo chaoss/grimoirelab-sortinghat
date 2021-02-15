@@ -152,11 +152,16 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
                 </td>
                  
                 <td>
-                  <i
-                    aria-hidden="true"
-                    class="v-icon notranslate v-icon--left mdi mdi-github theme--light"
-                    style="font-size: 16px;"
-                  />
+                  <span
+                    class="v-tooltip v-tooltip--bottom"
+                  >
+                    <!---->
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate v-icon--left mdi mdi-github theme--light"
+                      style="font-size: 16px;"
+                    />
+                  </span>
                 </td>
               </tr>
               <tr>
@@ -173,11 +178,16 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
                 </td>
                  
                 <td>
-                  <i
-                    aria-hidden="true"
-                    class="v-icon notranslate v-icon--left mdi mdi-github theme--light"
-                    style="font-size: 16px;"
-                  />
+                  <span
+                    class="v-tooltip v-tooltip--bottom"
+                  >
+                    <!---->
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate v-icon--left mdi mdi-github theme--light"
+                      style="font-size: 16px;"
+                    />
+                  </span>
                 </td>
               </tr>
               <tr>
@@ -194,11 +204,16 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
                 </td>
                  
                 <td>
-                  <i
-                    aria-hidden="true"
-                    class="v-icon notranslate v-icon--left mdi mdi-git theme--light"
-                    style="font-size: 16px;"
-                  />
+                  <span
+                    class="v-tooltip v-tooltip--bottom"
+                  >
+                    <!---->
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate v-icon--left mdi mdi-git theme--light"
+                      style="font-size: 16px;"
+                    />
+                  </span>
                 </td>
               </tr>
               <tr>
@@ -215,11 +230,16 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
                 </td>
                  
                 <td>
-                  <i
-                    aria-hidden="true"
-                    class="v-icon notranslate v-icon--left mdi mdi-account-multiple theme--light"
-                    style="font-size: 16px;"
-                  />
+                  <span
+                    class="v-tooltip v-tooltip--bottom"
+                  >
+                    <!---->
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate v-icon--left mdi mdi-account-multiple theme--light"
+                      style="font-size: 16px;"
+                    />
+                  </span>
                 </td>
               </tr>
             </tbody>
@@ -5497,13 +5517,13 @@ exports[`Storyshots IndividualsTable Default 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-730"
+                  for="input-734"
                   style="left: 0px; position: absolute;"
                 >
                   Search
                 </label>
                 <input
-                  id="input-730"
+                  id="input-734"
                   type="text"
                 />
               </div>
@@ -5984,13 +6004,13 @@ exports[`Storyshots OrganizationsTable Default 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-918"
+                  for="input-922"
                   style="left: 0px; position: absolute;"
                 >
                   Search
                 </label>
                 <input
-                  id="input-918"
+                  id="input-922"
                   type="text"
                 />
               </div>
@@ -6456,13 +6476,13 @@ exports[`Storyshots Search Default 1`] = `
             >
               <label
                 class="v-label theme--light"
-                for="input-1007"
+                for="input-1011"
                 style="left: 0px; position: absolute;"
               >
                 Search
               </label>
               <input
-                id="input-1007"
+                id="input-1011"
                 type="text"
               />
             </div>
@@ -7045,13 +7065,13 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-1098"
+                    for="input-1102"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-1098"
+                    id="input-1102"
                     type="text"
                   />
                 </div>

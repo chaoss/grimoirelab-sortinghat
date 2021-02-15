@@ -63,7 +63,18 @@
             <td>{{ item.name || "-" }}</td>
             <td>{{ item.email || "-" }}</td>
             <td>{{ item.username || "-" }}</td>
-            <td><v-icon v-text="item.icon" small left /></td>
+            <td>
+              <v-tooltip
+                bottom
+                transition="expand-y-transition"
+                open-delay="300"
+              >
+                <template v-slot:activator="{ on }">
+                  <v-icon v-on="on" v-text="item.icon" small left />
+                </template>
+                <span>{{ item.source.toLowerCase() }}</span>
+              </v-tooltip>
+            </td>
           </tr>
         </tbody>
       </template>
