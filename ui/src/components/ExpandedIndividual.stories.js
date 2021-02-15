@@ -115,6 +115,7 @@ export const Compact = () => ({
     identities: [
     {
       name: "GitHub",
+      icon: "mdi-github",
       identities: [
         {
           uuid: "006afa",
@@ -134,6 +135,7 @@ export const Compact = () => ({
     },
     {
       name: "Git",
+      icon: "mdi-git",
       identities: [
         {
           uuid: "abce32",
@@ -146,6 +148,7 @@ export const Compact = () => ({
     },
     {
       name: "Others",
+      icon: "mdi-account-multiple",
       identities: [
         {
           uuid: "4ce562",

@@ -48,24 +48,56 @@
       </div>
     </v-row>
     <v-subheader>Identities ({{ identitiesCount }})</v-subheader>
+    <v-simple-table v-if="compact" dense>
+      <template v-slot:default>
+        <thead v-if="identitiesCount > 0">
+          <tr>
+            <th class="text-left">Name</th>
+            <th class="text-left">Email</th>
+            <th class="text-left">Username</th>
+            <th class="text-left">Source</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="item in flatIdentities" :key="item.uuid">
+            <td>{{ item.name || "-" }}</td>
+            <td>{{ item.email || "-" }}</td>
+            <td>{{ item.username || "-" }}</td>
+            <td>
+              <v-tooltip
+                bottom
+                transition="expand-y-transition"
+                open-delay="300"
+              >
+                <template v-slot:activator="{ on }">
+                  <v-icon v-on="on" v-text="item.icon" small left />
+                </template>
+                <span>{{ item.source.toLowerCase() }}</span>
+              </v-tooltip>
+            </td>
+          </tr>
+        </tbody>
+      </template>
+    </v-simple-table>
     <v-list
+      v-else
       v-for="(source, sourceIndex) in identities"
       :key="source.name"
       :class="{
-        'row-border': sourceIndex !== identities.length - 1 && !compact
+        'row-border': sourceIndex !== identities.length - 1
       }"
       class="indented"
       dense
     >
       <v-list-item
         v-for="(identity, index) in sortSources(source.identities, 'source')"
-        :class="{ draggable: !compact && identity.uuid !== uuid }"
+        :class="{ draggable: identity.uuid !== uuid }"
         :key="identity.uuid"
-        :draggable="!compact && identity.uuid !== uuid"
+        :draggable="identity.uuid !== uuid"
         @dragstart.native="startDrag(identity, $event)"
         @dragend.native="dragEnd($event)"
       >
-        <v-list-item-icon v-if="index === 0 && !compact">
+        <v-list-item-icon v-if="index === 0">
           <v-tooltip bottom transition="expand-y-transition" open-delay="300">
             <template v-slot:activator="{ on }">
               <v-icon v-on="on">
@@ -78,7 +110,7 @@
           </v-tooltip>
         </v-list-item-icon>
 
-        <v-list-item-action v-else-if="!compact"></v-list-item-action>
+        <v-list-item-action v-else></v-list-item-action>
 
         <v-list-item-content>
           <identity
@@ -90,36 +122,52 @@
           />
         </v-list-item-content>
 
-        <div v-if="!compact">
-          <v-tooltip bottom transition="expand-y-transition" open-delay="200">
-            <template v-slot:activator="{ on }">
-              <v-btn
-                icon
-                :disabled="identity.uuid === uuid"
-                v-on="on"
-                @click="$emit('unmerge', [identity.uuid, uuid])"
-              >
-                <v-icon>
-                  mdi-call-split
-                </v-icon>
-              </v-btn>
-            </template>
-            <span>Split identity</span>
-          </v-tooltip>
-          <v-tooltip bottom transition="expand-y-transition" open-delay="200">
-            <template v-slot:activator="{ on }">
-              <v-icon :disabled="identity.uuid === uuid" v-on="on">
-                mdi-drag-vertical
+        <v-tooltip bottom transition="expand-y-transition" open-delay="200">
+          <template v-slot:activator="{ on }">
+            <v-btn
+              icon
+              :disabled="identity.uuid === uuid"
+              v-on="on"
+              @click="$emit('unmerge', [identity.uuid, uuid])"
+            >
+              <v-icon>
+                mdi-call-split
               </v-icon>
-            </template>
-            <span>Move identity</span>
-          </v-tooltip>
-        </div>
+            </v-btn>
+          </template>
+          <span>Split identity</span>
+        </v-tooltip>
+        <v-tooltip bottom transition="expand-y-transition" open-delay="200">
+          <template v-slot:activator="{ on }">
+            <v-icon :disabled="identity.uuid === uuid" v-on="on">
+              mdi-drag-vertical
+            </v-icon>
+          </template>
+          <span>Move identity</span>
+        </v-tooltip>
       </v-list-item>
     </v-list>
 
     <v-subheader>Organizations ({{ enrollments.length }})</v-subheader>
-    <v-list class="indented" dense>
+    <v-simple-table v-if="compact" dense>
+      <template v-slot:default>
+        <thead v-if="enrollments.length > 0">
+          <tr>
+            <th class="text-left">Name</th>
+            <th class="text-left">From</th>
+            <th class="text-left">To</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="enrollment in enrollments" :key="enrollment.name">
+            <td>{{ enrollment.organization.name }}</td>
+            <td>{{ formatDate(enrollment.start) }}</td>
+            <td>{{ formatDate(enrollment.end) }}</td>
+          </tr>
+        </tbody>
+      </template>
+    </v-simple-table>
+    <v-list v-else class="indented" dense>
       <v-list-item
         v-for="(enrollment, index) in enrollments"
         :key="enrollment.organization.id"
@@ -131,7 +179,7 @@
               <span>{{ enrollment.organization.name }}</span>
             </v-col>
             <v-col class="col-3 ma-2 text-center">
-              <span v-if="isLocked || compact">
+              <span v-if="isLocked">
                 {{ formatDate(enrollment.start) }}
               </span>
               <v-menu
@@ -192,7 +240,7 @@
               </v-menu>
             </v-col>
             <v-col class="col-3 ma-2 text-center">
-              <span v-if="isLocked || compact">
+              <span v-if="isLocked">
                 {{ formatDate(enrollment.end) }}
               </span>
               <v-menu
@@ -252,7 +300,7 @@
                 </v-date-picker>
               </v-menu>
             </v-col>
-            <v-col class="text-end col-2" v-if="!compact">
+            <v-col class="text-end col-2">
               <v-tooltip
                 bottom
                 transition="expand-y-transition"
@@ -383,6 +431,15 @@ export default {
     },
     sources() {
       return this.identities.map(identity => identity.name);
+    },
+    flatIdentities() {
+      return this.identities
+        .map(source =>
+          source.identities.map(identity =>
+            Object.assign({ icon: source.icon }, identity)
+          )
+        )
+        .flat();
     }
   },
   created() {
@@ -419,12 +476,11 @@ export default {
 }
 
 .compact {
-  padding-left: 0;
   border-bottom: 0;
   background-color: #ffffff;
   font-size: 0.9rem;
   line-height: 1rem;
-  padding: 0;
+  padding: 0.5rem;
 
   .v-list-item__content,
   .v-sheet--tile {
