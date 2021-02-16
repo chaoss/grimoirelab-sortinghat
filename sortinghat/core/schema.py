@@ -63,6 +63,7 @@ from .errors import InvalidFilterError
 from .jobs import (affiliate,
                    unify,
                    find_job,
+                   get_jobs,
                    recommend_affiliations,
                    recommend_matches)
 from .models import (Organization,
@@ -327,6 +328,10 @@ class TransactionPaginatedType(AbstractPaginatedType):
 
 class OperationPaginatedType(AbstractPaginatedType):
     entities = graphene.List(OperationType)
+    page_info = graphene.Field(PaginationType)
+
+class JobPaginatedType(AbstractPaginatedType):
+    entities = graphene.List(JobType)
     page_info = graphene.Field(PaginationType)
 
 
@@ -784,6 +789,11 @@ class SortingHatQuery:
         JobType,
         job_id=graphene.String()
     )
+    jobs = graphene.Field(
+        JobPaginatedType,
+        page_size=graphene.Int(),
+        page=graphene.Int()
+    )
 
     @check_auth
     def resolve_countries(self, info, filters=None,
@@ -911,6 +921,26 @@ class SortingHatQuery:
                        status=status,
                        result=result,
                        errors=errors)
+
+    @check_auth
+    def resolve_jobs(self, info, page=1, page_size=settings.DEFAULT_GRAPHQL_PAGE_SIZE):
+        jobs = get_jobs()
+        result = []
+
+        for job in jobs:
+            job_id = job.get_id()
+            status = job.get_status()
+            job_type = job.func_name.split('.')[-1]
+
+            result.append(JobType(job_id=job_id,
+                                  job_type=job_type,
+                                  status=status,
+                                  result=[],
+                                  errors=[]))
+
+        return JobPaginatedType.create_paginated_result(result,
+                                                        page,
+                                                        page_size=page_size)
 
     @check_auth
     def resolve_transactions(self, info, filters=None,
