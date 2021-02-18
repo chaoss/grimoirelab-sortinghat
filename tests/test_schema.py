@@ -650,6 +650,43 @@ SH_JOB_QUERY_UNIFY = """{
     }
   }
 }"""
+SH_JOBS_QUERY = """{
+  jobs(page: 1) {
+    entities {
+      jobId
+      jobType
+      status
+      errors
+      result {
+        ... on AffiliationRecommendationType {
+            uuid
+        }
+      }
+    }
+  }
+}
+"""
+SH_JOBS_QUERY_PAGINATION = """{
+  jobs(page: %d, pageSize: %d) {
+    entities {
+      jobId
+      jobType
+      status
+      errors
+    }
+    pageInfo{
+      page
+      pageSize
+      numPages
+      hasNext
+      hasPrev
+      startIndex
+      endIndex
+      totalResults
+    }
+  }
+}
+"""
 
 # API endpoint to obtain a context for executing queries
 GRAPHQL_ENDPOINT = '/graphql/'
@@ -2645,6 +2682,8 @@ class MockJob:
 
     def get_status(self):
         return self.status
+    def get_id(self):
+        return self.id
 
 
 class TestQueryJob(django.test.TestCase):
@@ -2990,6 +3029,70 @@ class TestQueryJob(django.test.TestCase):
 
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, AUTHENTICATION_ERROR)
+
+    @unittest.mock.patch('sortinghat.core.schema.get_jobs')
+    def test_jobs(self, mock_jobs):
+        """Check if it returns a list of jobs"""
+
+        job = MockJob('1234-5678-90AB-CDEF', 'affiliate', 'queued', None)
+        mock_jobs.return_value = [job]
+
+        # Tests
+        client = graphene.test.Client(schema)
+
+        executed = client.execute(SH_JOBS_QUERY,
+                                  context_value=self.context_value)
+
+        jobs_entities = executed['data']['jobs']['entities']
+        self.assertEqual(len(jobs_entities), 1)
+        self.assertEqual(jobs_entities[0]['jobId'], '1234-5678-90AB-CDEF')
+        self.assertEqual(jobs_entities[0]['jobType'], 'affiliate')
+        self.assertEqual(jobs_entities[0]['status'], 'queued')
+        self.assertEqual(jobs_entities[0]['errors'], [])
+        self.assertEqual(jobs_entities[0]['result'], [])
+
+    def test_jobs_no_results(self):
+        """Check if it returns an empty list when no jobs are found"""
+
+        client = graphene.test.Client(schema)
+
+        executed = client.execute(SH_JOBS_QUERY,
+                                  context_value=self.context_value)
+
+        jobs_entities = executed['data']['jobs']['entities']
+        self.assertEqual(len(jobs_entities), 0)
+
+    @unittest.mock.patch('sortinghat.core.schema.get_jobs')
+    def test_jobs_pagination(self, mock_jobs):
+        """Check if it returns a paginated list of jobs"""
+
+        job1 = MockJob('1234-5678-90AB-CDEF', 'affiliate', 'queued', None)
+        job2 = MockJob('5678-5678-90EF-GHIJ', 'unify', 'queued', None)
+        job3 = MockJob('9123-5678-90IJ-KLMN', 'recommend_matches', 'queued', None)
+        mock_jobs.return_value = [job1, job2, job3]
+
+        # Tests
+        client = graphene.test.Client(schema)
+        test_query = SH_JOBS_QUERY_PAGINATION % (2, 2)
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
+
+        jobs_entities = executed['data']['jobs']['entities']
+        self.assertEqual(len(jobs_entities), 1)
+        self.assertEqual(jobs_entities[0]['jobId'], '9123-5678-90IJ-KLMN')
+        self.assertEqual(jobs_entities[0]['jobType'], 'recommend_matches')
+        self.assertEqual(jobs_entities[0]['status'], 'queued')
+        self.assertEqual(jobs_entities[0]['errors'], [])
+
+        jobs_pagination = executed['data']['jobs']['pageInfo']
+        self.assertEqual(jobs_pagination['page'], 2)
+        self.assertEqual(jobs_pagination['pageSize'], 2)
+        self.assertEqual(jobs_pagination['numPages'], 2)
+        self.assertFalse(jobs_pagination['hasNext'])
+        self.assertTrue(jobs_pagination['hasPrev'])
+        self.assertEqual(jobs_pagination['startIndex'], 3)
+        self.assertEqual(jobs_pagination['endIndex'], 3)
+        self.assertEqual(jobs_pagination['totalResults'], 3)
 
 
 class TestAddOrganizationMutation(django.test.TestCase):
