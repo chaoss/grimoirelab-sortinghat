@@ -158,6 +158,24 @@ const GET_COUNTRIES = gql`
   }
 `;
 
+const GET_JOBS = gql`
+  query getJobs($page: Int!, $pageSize: Int!) {
+    jobs(page: $page, pageSize: $pageSize) {
+      entities {
+        jobId
+        status
+        jobType
+        errors
+      }
+      pageInfo {
+        page
+        numPages
+        totalResults
+      }
+    }
+  }
+`;
+
 const getIndividualByUuid = (apollo, uuid) => {
   let response = apollo.query({
     query: GET_INDIVIDUAL_BYUUID,
@@ -236,11 +254,23 @@ const getCountries = apollo => {
   return response;
 };
 
+const getJobs = (apollo, page, pageSize) => {
+  let response = apollo.query({
+    query: GET_JOBS,
+    variables: {
+      page: page,
+      pageSize: pageSize
+    }
+  });
+  return response;
+};
+
 export {
   getCountries,
   getIndividuals,
   getIndividualByUuid,
   getProfileByUuid,
   getPaginatedIndividuals,
-  getPaginatedOrganizations
+  getPaginatedOrganizations,
+  getJobs
 };

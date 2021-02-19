@@ -585,6 +585,36 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
 </v-container-stub>
 `;
 
+exports[`JobsTable Mock query for getJobs 1`] = `
+<v-container-stub
+  tag="div"
+>
+  <h4
+    class="title mt-5 mb-5"
+  >
+    <v-icon-stub
+      color="black"
+      left=""
+    >
+      
+      mdi-tray-full
+    
+    </v-icon-stub>
+    
+    Jobs
+  
+  </h4>
+   
+  <!---->
+   
+  <p
+    class="text-subtitle-1"
+  >
+    There are no jobs in the queue.
+  </p>
+</v-container-stub>
+`;
+
 exports[`OrganizationsTable Mock query for getPaginatedOrganizations 1`] = `
 <v-container-stub
   tag="div"
