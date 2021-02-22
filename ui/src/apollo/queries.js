@@ -5,12 +5,31 @@ const GET_INDIVIDUAL_BYUUID = gql`
     individuals(filters: { uuid: $uuid }) {
       entities {
         mk
+        isLocked
+        profile {
+          name
+          id
+          email
+          isBot
+          gender
+          country {
+            code
+            name
+          }
+        }
         identities {
           name
+          source
+          email
+          uuid
+          username
         }
-        profile {
-          id
-          name
+        enrollments {
+          start
+          end
+          organization {
+            name
+          }
         }
       }
     }
