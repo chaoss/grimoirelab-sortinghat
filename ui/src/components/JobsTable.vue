@@ -16,6 +16,9 @@
             <th class="text-left">
               Type
             </th>
+            <th class="text-left">
+              Date
+            </th>
             <th class="text-center">
               Status
             </th>
@@ -34,6 +37,7 @@
               </v-tooltip>
             </td>
             <td class="capitalize">{{ job.jobType.replace("_", " ") }}</td>
+            <td>{{ formatDate(job.enqueuedAt) }}</td>
             <td class="text-center">
               <v-chip
                 class="ma-2"
@@ -98,6 +102,9 @@ export default {
       } else {
         return "rgba(0, 0, 0, 0.42)";
       }
+    },
+    formatDate(dateTime) {
+      return new Date(dateTime).toLocaleString();
     }
   }
 };

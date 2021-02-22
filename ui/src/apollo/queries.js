@@ -166,6 +166,7 @@ const GET_JOBS = gql`
         status
         jobType
         errors
+        enqueuedAt
       }
       pageInfo {
         page
