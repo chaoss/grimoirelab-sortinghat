@@ -255,6 +255,11 @@ export default {
   watch: {
     individuals(value) {
       this.savedIndividuals = value;
+    },
+    savedIndividuals(value) {
+      if (value) {
+        this.$emit("updateStore", value);
+      }
     }
   }
 };

@@ -13,6 +13,7 @@
       @deselect="deselectIndividuals"
       @updateOrganizations="updateOrganizations"
       @updateWorkspace="updateWorkspace"
+      @updateStore="saveWorkspace($event)"
     />
     <v-row>
       <v-col class="individuals elevation-1">
@@ -64,6 +65,7 @@
 <script>
 import {
   getCountries,
+  getIndividualByUuid,
   getPaginatedIndividuals,
   getPaginatedOrganizations
 } from "../apollo/queries";
@@ -87,6 +89,8 @@ import {
 import IndividualsTable from "../components/IndividualsTable";
 import OrganizationsTable from "../components/OrganizationsTable";
 import WorkSpace from "../components/WorkSpace";
+import { mapActions, mapGetters } from "vuex";
+import { formatIndividuals } from "../utils/actions";
 
 export default {
   name: "Dashboard",
@@ -103,7 +107,11 @@ export default {
       snackbar: false
     };
   },
+  computed: {
+    ...mapGetters(["workspace"])
+  },
   methods: {
+    ...mapActions(["saveWorkspace", "emptyWorkspace"]),
     async getIndividualsPage(page, items, filters) {
       const response = await getPaginatedIndividuals(
         this.$apollo,
@@ -249,7 +257,17 @@ export default {
       return response;
     },
     clearWorkspace() {
+      this.emptyWorkspace();
       this.savedIndividuals = [];
+    }
+  },
+  async mounted() {
+    if (this.workspace.length > 0) {
+      const response = await Promise.all(
+        this.workspace.map(uuid => getIndividualByUuid(this.$apollo, uuid))
+      );
+      const individuals = response.map(res => res.data.individuals.entities[0]);
+      this.savedIndividuals = formatIndividuals(individuals);
     }
   }
 };

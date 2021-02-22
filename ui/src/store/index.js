@@ -9,11 +9,7 @@ export default new Vuex.Store({
   state: {
     token: Cookies.get("sh_authtoken"),
     user: Cookies.get("sh_user"),
-    selectedIndividuals: [],
-    selectedIndividual: {
-      uuid: undefined,
-      selected: undefined
-    }
+    workspace: JSON.parse(localStorage.getItem("sh_workspace"))
   },
   mutations: {
     setToken(state, token) {
@@ -22,35 +18,14 @@ export default new Vuex.Store({
     loginUser(state, user) {
       state.user = user;
     },
-    addIndividual(state, individual) {
-      const selectedIndex = state.selectedIndividuals.findIndex(
-        selectedIndividual => selectedIndividual === individual
-      );
-
-      if (selectedIndex !== -1) {
-        state.selectedIndividuals.splice(selectedIndex, 1);
-        state.selectedIndividual = state.selectedIndividual = {
-          uuid: individual,
-          selected: false
-        };
-      } else {
-        state.selectedIndividuals.push(individual);
-        state.selectedIndividual = {
-          uuid: individual,
-          selected: true
-        };
-      }
+    setWorkspace(state, workspaceData) {
+      state.workspace = workspaceData;
     }
   },
   getters: {
     isAuthenticated: state => !!state.token,
     user: state => state.user,
-    selectedIndividual(state) {
-      return state.selectedIndividual;
-    },
-    selectedIndividuals(state) {
-      return state.selectedIndividuals;
-    }
+    workspace: state => state.workspace
   },
   actions: {
     async login({ commit }, authDetails) {
@@ -62,12 +37,21 @@ export default new Vuex.Store({
       if (response && !response.errors) {
         const token = response.data.tokenAuth.token;
         commit("setToken", token);
-        Cookies.set("sh_authtoken", token, { secure: true });
+        Cookies.set("sh_authtoken", token, { sameSite: "strict" });
         commit("loginUser", authDetails.username);
-        Cookies.set("sh_user", authDetails.username, { secure: true });
+        Cookies.set("sh_user", authDetails.username, { sameSite: "strict" });
         return token;
       }
       return response;
+    },
+    saveWorkspace({ commit }, workspaceData) {
+      const uuids = workspaceData.map(individual => individual.uuid);
+      localStorage.setItem("sh_workspace", JSON.stringify(uuids));
+      commit("setWorkspace", uuids);
+    },
+    emptyWorkspace({ commit }) {
+      localStorage.setItem("sh_workspace", JSON.stringify([]));
+      commit("setWorkspace", []);
     }
   },
   modules: {}
