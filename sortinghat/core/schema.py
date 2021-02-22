@@ -231,6 +231,7 @@ class JobType(graphene.ObjectType):
     status = graphene.String()
     result = graphene.List(JobResultType)
     errors = graphene.List(graphene.String)
+    enqueued_at = graphene.DateTime()
 
 
 class ProfileInputType(graphene.InputObjectType):
@@ -890,6 +891,7 @@ class SortingHatQuery:
 
         status = job.get_status()
         job_type = job.func_name.split('.')[-1]
+        enqueued_at = job.enqueued_at
 
         result = None
         errors = None
@@ -920,7 +922,8 @@ class SortingHatQuery:
                        job_type=job_type,
                        status=status,
                        result=result,
-                       errors=errors)
+                       errors=errors,
+                       enqueued_at=enqueued_at)
 
     @check_auth
     def resolve_jobs(self, info, page=1, page_size=settings.DEFAULT_GRAPHQL_PAGE_SIZE):
@@ -931,12 +934,14 @@ class SortingHatQuery:
             job_id = job.get_id()
             status = job.get_status()
             job_type = job.func_name.split('.')[-1]
+            enqueued_at = job.enqueued_at
 
             result.append(JobType(job_id=job_id,
                                   job_type=job_type,
                                   status=status,
                                   result=[],
-                                  errors=[]))
+                                  errors=[],
+                                  enqueued_at=enqueued_at))
 
         return JobPaginatedType.create_paginated_result(result,
                                                         page,

@@ -2679,6 +2679,7 @@ class MockJob:
         self.func_name = func_name
         self.status = status
         self.result = result
+        self.enqueued_at = datetime_utcnow()
 
     def get_status(self):
         return self.status

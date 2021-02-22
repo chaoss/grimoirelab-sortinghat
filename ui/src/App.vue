@@ -1,7 +1,16 @@
 <template>
   <v-app>
     <v-app-bar app color="primary" dark>
-      <h1 class="headline font-weight-light">Sorting Hat</h1>
+      <router-link to="/" v-slot="{ href, navigate }">
+        <h1
+          :href="href"
+          @click="navigate"
+          class="headline font-weight-light pointer"
+        >
+          Sorting Hat
+        </h1>
+      </router-link>
+
       <v-spacer></v-spacer>
       <v-menu v-if="user && $route.name !== 'Login'" offset-y>
         <template v-slot:activator="{ on }">
@@ -13,6 +22,9 @@
           </v-btn>
         </template>
         <v-list>
+          <v-list-item to="/jobs">
+            <v-list-item-title>Jobs</v-list-item-title>
+          </v-list-item>
           <v-list-item @click="logOut">
             <v-list-item-title>Log out</v-list-item-title>
           </v-list-item>
@@ -55,5 +67,8 @@ export default {
 .fade-enter,
 .fade-leave-active {
   opacity: 0;
+}
+.pointer {
+  cursor: pointer;
 }
 </style>

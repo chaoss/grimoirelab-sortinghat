@@ -4,6 +4,7 @@ import Vuetify from "vuetify";
 import IndividualsData from "@/components/IndividualsData";
 import IndividualsTable from "@/components/IndividualsTable";
 import OrganizationsTable from "@/components/OrganizationsTable";
+import JobsTable from "@/components/JobsTable";
 import * as Queries from "@/apollo/queries";
 
 Vue.use(Vuetify);
@@ -148,6 +149,29 @@ const countriesMocked = {
     }
   }
 };
+
+const jobsMocked = {
+  data: {
+    jobs: {
+      entities: [
+        {
+          jobId: "41f813e5-6701-41d2-bfac-ac13e04d4858",
+          status: "queued",
+          jobType: "unify",
+          errors: [],
+          result: []
+        }
+      ],
+      pageInfo: {
+        page: 2,
+        numPages: 2,
+        totalResults: 11,
+        hasNext: false,
+        hasPrev: true
+      }
+    }
+  }
+}
 
 describe("IndividualsData", () => {
   test("mock query for getIndividuals", async () => {
@@ -375,5 +399,29 @@ describe("OrganizationsTable", () => {
     const response = await wrapper.vm.getOrganizations();
 
     expect(querySpy).toHaveBeenCalledWith(1, 10, { term: "Bitergia" });
+  });
+});
+
+describe("JobsTable", () => {
+  test("Mock query for getJobs", async () => {
+    const query = jest.fn(() => Promise.resolve(jobsMocked));
+    const wrapper = shallowMount(JobsTable, {
+      Vue,
+      mocks: {
+        $apollo: {
+          query
+        }
+      },
+      propsData: {
+        getJobs: query,
+      }
+    });
+    const response = await Queries.getJobs(wrapper.vm.$apollo, 2, 10);
+
+    expect(query).toBeCalled();
+    expect(wrapper.element).toMatchSnapshot();
+    expect(wrapper.vm.jobs.length).toBe(1);
+    expect(wrapper.vm.page).toBe(2);
+    expect(wrapper.vm.pageCount).toBe(2);
   });
 });

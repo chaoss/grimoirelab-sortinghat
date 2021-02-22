@@ -5781,6 +5781,78 @@ exports[`Storyshots IndividualsTable Default 1`] = `
 </div>
 `;
 
+exports[`Storyshots JobsTable Default 1`] = `
+<div
+  class="v-application v-application--is-ltr theme--light"
+  data-app="true"
+  id="app"
+>
+  <div
+    class="v-application--wrap"
+  >
+    <div
+      class="container"
+    >
+      <h4
+        class="title mt-5 mb-5"
+      >
+        <i
+          aria-hidden="true"
+          class="v-icon notranslate v-icon--left mdi mdi-tray-full theme--light black--text"
+        />
+        
+    Jobs
+  
+      </h4>
+       
+      <!---->
+       
+      <p
+        class="text-subtitle-1"
+      >
+        There are no jobs in the queue.
+      </p>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Storyshots JobsTable Empty 1`] = `
+<div
+  class="v-application v-application--is-ltr theme--light"
+  data-app="true"
+  id="app"
+>
+  <div
+    class="v-application--wrap"
+  >
+    <div
+      class="container"
+    >
+      <h4
+        class="title mt-5 mb-5"
+      >
+        <i
+          aria-hidden="true"
+          class="v-icon notranslate v-icon--left mdi mdi-tray-full theme--light black--text"
+        />
+        
+    Jobs
+  
+      </h4>
+       
+      <!---->
+       
+      <p
+        class="text-subtitle-1"
+      >
+        There are no jobs in the queue.
+      </p>
+    </div>
+  </div>
+</div>
+`;
+
 exports[`Storyshots OrganizationEntry Default 1`] = `
 <div
   class="v-application v-application--is-ltr theme--light"
@@ -6004,13 +6076,13 @@ exports[`Storyshots OrganizationsTable Default 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-922"
+                  for="input-953"
                   style="left: 0px; position: absolute;"
                 >
                   Search
                 </label>
                 <input
-                  id="input-922"
+                  id="input-953"
                   type="text"
                 />
               </div>
@@ -6476,13 +6548,13 @@ exports[`Storyshots Search Default 1`] = `
             >
               <label
                 class="v-label theme--light"
-                for="input-1011"
+                for="input-1042"
                 style="left: 0px; position: absolute;"
               >
                 Search
               </label>
               <input
-                id="input-1011"
+                id="input-1042"
                 type="text"
               />
             </div>
@@ -7065,13 +7137,13 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-1102"
+                    for="input-1133"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-1102"
+                    id="input-1133"
                     type="text"
                   />
                 </div>
