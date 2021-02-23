@@ -27,7 +27,7 @@ exports[`IndividualsTable Mock query for getCountries 1`] = `
       
       </v-icon-stub>
       
-      Individuals
+      Individuals (0)
     
     </h4>
      
@@ -317,7 +317,7 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
       
       </v-icon-stub>
       
-      Individuals
+      Individuals (0)
     
     </h4>
      
