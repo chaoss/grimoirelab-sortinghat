@@ -22,8 +22,17 @@ export const Default = () => ({
   components: { OrganizationsTable },
   template: OrganizationsTableTemplate,
   methods: {
-    getOrganizations(page) {
-      return this.query[page - 1];
+    getOrganizations(page, items, filters) {
+      const results =  JSON.parse(JSON.stringify(this.query[page - 1]));
+      if (filters.term) {
+        results.data.organizations.entities = results.data.organizations.entities
+        .filter(organization => organization.name
+          .toUpperCase()
+          .includes(filters.term.toUpperCase())
+        );
+        results.data.organizations.pageInfo.totalResults = results.data.organizations.entities.length;
+      }
+      return results;
     },
     enroll() {
       return true;
