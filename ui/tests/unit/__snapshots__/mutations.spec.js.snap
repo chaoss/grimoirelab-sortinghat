@@ -1825,7 +1825,7 @@ exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
       
       </v-icon-stub>
       
-      Organizations
+      Organizations (0)
     
     </h4>
      
@@ -2074,7 +2074,7 @@ exports[`OrganizationsTable Mock mutation for addOrganization 1`] = `
       
       </v-icon-stub>
       
-      Organizations
+      Organizations (0)
     
     </h4>
      
@@ -2323,7 +2323,7 @@ exports[`OrganizationsTable Mock mutation for deleteDomain 1`] = `
       
       </v-icon-stub>
       
-      Organizations
+      Organizations (0)
     
     </h4>
      
@@ -2572,7 +2572,7 @@ exports[`OrganizationsTable Mock mutation for deleteOrganization 1`] = `
       
       </v-icon-stub>
       
-      Organizations
+      Organizations (0)
     
     </h4>
      
@@ -2819,7 +2819,7 @@ exports[`OrganizationsTable Mock mutation for enroll 1`] = `
       
       </v-icon-stub>
       
-      Organizations
+      Organizations (0)
     
     </h4>
      

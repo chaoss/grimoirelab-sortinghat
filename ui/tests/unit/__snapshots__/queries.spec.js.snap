@@ -635,7 +635,7 @@ exports[`OrganizationsTable Mock query for getPaginatedOrganizations 1`] = `
       
       </v-icon-stub>
       
-      Organizations
+      Organizations (0)
     
     </h4>
      

@@ -5,7 +5,7 @@
         <v-icon color="black" left>
           mdi-sitemap
         </v-icon>
-        Organizations
+        Organizations ({{ totalResults }})
       </h4>
       <search
         class="ma-0 ml-auto mr-3 pa-0 flex-grow-0"
@@ -172,7 +172,8 @@ export default {
         domains: []
       },
       selectedOrganization: "",
-      filters: {}
+      filters: {},
+      totalResults: 0
     };
   },
   created() {
@@ -185,6 +186,7 @@ export default {
         this.organizations = response.data.organizations.entities;
         this.pageCount = response.data.organizations.pageInfo.numPages;
         this.page = response.data.organizations.pageInfo.page;
+        this.totalResults = response.data.organizations.pageInfo.totalResults;
       }
     },
     confirmEnroll(event) {
@@ -268,9 +270,9 @@ export default {
   padding: 0 26px 24px 26px;
 
   .search {
-    width: 200px;
+    width: 155px;
     &:hover {
-      width: 200px;
+      width: 155px;
     }
     &--hidden {
       width: 33px;
