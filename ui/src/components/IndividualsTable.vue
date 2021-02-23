@@ -5,7 +5,7 @@
         <v-icon color="black" left>
           mdi-account-multiple
         </v-icon>
-        Individuals
+        Individuals ({{ totalResults }})
       </h4>
       <search class="ma-0 ml-auto pa-0 flex-grow-0" @search="filterSearch" />
       <div>
@@ -258,7 +258,8 @@ export default {
       snackbar: {
         open: false,
         text: ""
-      }
+      },
+      totalResults: 0
     };
   },
   computed: {
@@ -285,6 +286,7 @@ export default {
         );
         this.pageCount = response.data.individuals.pageInfo.numPages;
         this.page = response.data.individuals.pageInfo.page;
+        this.totalResults = response.data.individuals.pageInfo.totalResults;
         this.$emit("updateIndividuals", this.individuals);
       }
     },

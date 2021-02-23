@@ -239,6 +239,7 @@ export const DragAndDrop = () => ({
           .toUpperCase()
           .includes(filters.term.toUpperCase())
         );
+        results.data.individuals.pageInfo.totalResults = results.data.individuals.entities.length;
       }
       return results;
     },

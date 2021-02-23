@@ -5499,7 +5499,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
             class="v-icon notranslate v-icon--left mdi mdi-account-multiple theme--light black--text"
           />
           
-      Individuals
+      Individuals (0)
     
         </h4>
          
@@ -7119,7 +7119,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
               class="v-icon notranslate v-icon--left mdi mdi-account-multiple theme--light black--text"
             />
             
-      Individuals
+      Individuals (0)
     
           </h4>
            
