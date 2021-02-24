@@ -62,6 +62,10 @@ export default {
           const [filter, text] = value.split(":");
           if (filter === "lastUpdated") {
             this.parseLastUpdated(text);
+          } else if (text === "true") {
+            this.filters[filter] = true;
+          } else if (text === "false") {
+            this.filters[filter] = false;
           } else {
             this.filters[filter] = text;
           }
