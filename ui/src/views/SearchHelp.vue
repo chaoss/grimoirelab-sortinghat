@@ -85,6 +85,44 @@
           wrapped in double quotes. For example:
           <code>gender:"non binary"</code>.
         </p>
+
+        <p class="subtitle-2 mt-6">Filter by country</p>
+        <p>
+          You can filter individuals based on their country using the
+          <code>country</code> filter.
+        </p>
+        <v-simple-table>
+          <template v-slot:default>
+            <thead>
+              <tr>
+                <th class="text-left" width="30%">
+                  Filter
+                </th>
+                <th class="text-left">
+                  Explanation
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td width="30%"><code>country:name</code></td>
+                <td>
+                  Matches individuals from the given country. Country names that
+                  include spaces should be wrapped in double quotes. For
+                  example: <code>country:"Dominican Republic"</code>
+                </td>
+              </tr>
+              <tr>
+                <td width="30%"><code>country:code</code></td>
+                <td>
+                  Matches individuals from a given country using ISO (Alpha-2
+                  and Alpha-3) country codes. For example:
+                  <code>country:USA</code>.
+                </td>
+              </tr>
+            </tbody>
+          </template>
+        </v-simple-table>
       </v-card-text>
     </v-card>
   </v-main>
