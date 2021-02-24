@@ -342,6 +342,16 @@ SH_INDIVIDUALS_LOCKED_FILTER = """{
     }
   }
 }"""
+SH_INDIVIDUALS_BOT_FILTER = """{
+  individuals(filters: {isBot: true}) {
+    entities {
+      mk
+      profile {
+        isBot
+      }
+    }
+  }
+}"""
 SH_INDIVIDUALS_LAST_UPDATED_FILTER = """{
   individuals(filters: {lastUpdated: "%s"}) {
     entities {
@@ -1990,6 +2000,44 @@ class TestQueryIndividuals(django.test.TestCase):
         self.assertEqual(rol2['organization']['name'], 'Example')
         self.assertEqual(rol2['start'], '1900-01-01T00:00:00+00:00')
         self.assertEqual(rol2['end'], '2100-01-01T00:00:00+00:00')
+
+    def test_filter_registry_is_bot(self):
+        """Check whether it returns the uuid searched when using isBot filter"""
+
+        indv = Individual.objects.create(mk='a9b403e150dd4af8953a52a4bb841051e4b705d9',
+                                         is_locked=True)
+        Profile.objects.create(name=None,
+                               email='jsmith@example.com',
+                               is_bot=True,
+                               individual=indv)
+        Identity.objects.create(uuid='A001',
+                                name='John Smith',
+                                email='jsmith@example.com',
+                                source='scm',
+                                individual=indv)
+
+        indv = Individual.objects.create(mk='c6d2504fde0e34b78a185c4b709e5442d045451c')
+        Profile.objects.create(email=None,
+                               is_bot=False,
+                               individual=indv)
+        Identity.objects.create(uuid='B001',
+                                name='John Doe',
+                                email='jdoe@example.com',
+                                source='scm',
+                                individual=indv)
+
+        # Tests
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_INDIVIDUALS_BOT_FILTER,
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 1)
+
+        indv = individuals[0]
+        self.assertEqual(indv['mk'], 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        self.assertEqual(indv['profile']['isBot'], True)
+
 
     def test_filter_non_exist_registry(self):
         """Check whether it returns an empty list when searched with a non existing uuid"""
