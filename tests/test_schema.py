@@ -352,6 +352,16 @@ SH_INDIVIDUALS_BOT_FILTER = """{
     }
   }
 }"""
+SH_INDIVIDUALS_BOT_FILTER_FALSE = """{
+  individuals(filters: {isBot: false}) {
+    entities {
+      mk
+      profile {
+        isBot
+      }
+    }
+  }
+}"""
 SH_INDIVIDUALS_LAST_UPDATED_FILTER = """{
   individuals(filters: {lastUpdated: "%s"}) {
     entities {
@@ -2037,6 +2047,18 @@ class TestQueryIndividuals(django.test.TestCase):
         indv = individuals[0]
         self.assertEqual(indv['mk'], 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
         self.assertEqual(indv['profile']['isBot'], True)
+
+        # Test isBot: false
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_INDIVIDUALS_BOT_FILTER_FALSE,
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 1)
+
+        indv = individuals[0]
+        self.assertEqual(indv['mk'], 'c6d2504fde0e34b78a185c4b709e5442d045451c')
+        self.assertEqual(indv['profile']['isBot'], False)
 
 
     def test_filter_non_exist_registry(self):
