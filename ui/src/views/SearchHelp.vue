@@ -78,6 +78,13 @@
           bots, using the <code>isBot:true</code> and <code>isBot:false</code>
           filters.
         </p>
+        <p class="subtitle-2 mt-8">Filter by gender</p>
+        <p>
+          You can search for individuals based on their gender, using the
+          <code>gender</code> filter. Genders that include spaces should be
+          wrapped in double quotes. For example:
+          <code>gender:"non binary"</code>.
+        </p>
       </v-card-text>
     </v-card>
   </v-main>

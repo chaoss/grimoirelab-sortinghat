@@ -311,6 +311,24 @@ describe("IndividualsTable", () => {
     expect(querySpy).toHaveBeenCalledWith(1, 10, { term: "test" });
   });
 
+  test("Searches by gender", async () => {
+    const querySpy = spyOn(Queries, "getPaginatedIndividuals");
+    const query = jest.fn(() => Promise.resolve(paginatedResponse));
+    const wrapper = mountFunction({
+      mocks: {
+        $apollo: {
+          query
+        }
+      }
+    });
+    await wrapper.setProps({ fetchPage: Queries.getPaginatedIndividuals });
+    await wrapper.setData({ filters: { gender: "gender" } });
+
+    const response = await wrapper.vm.queryIndividuals(1);
+
+    expect(querySpy).toHaveBeenCalledWith(1, 10, { gender: "gender" });
+  });
+
   test("Searches by lastUpdated", async () => {
     const querySpy = spyOn(Queries, "getPaginatedIndividuals");
     const query = jest.fn(() => Promise.resolve(paginatedResponse));
