@@ -71,6 +71,13 @@
             </tbody>
           </template>
         </v-simple-table>
+
+        <p class="subtitle-2 mt-8">Search for bots</p>
+        <p>
+          You can search for individuals based on whether they are marked as
+          bots, using the <code>isBot:true</code> and <code>isBot:false</code>
+          filters.
+        </p>
       </v-card-text>
     </v-card>
   </v-main>

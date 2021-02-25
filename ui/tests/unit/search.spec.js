@@ -60,7 +60,9 @@ describe("Search", () => {
     "lastUpdated:>@",
     "lastUpdated:2000-2001",
     "lastUpdated:===2000-01-01",
-    "lastUpdated:<=2000-01-01>=2000-01-01"
+    "lastUpdated:<=2000-01-01>=2000-01-01",
+    "isBot:1",
+    "isBot:falsee"
   ])("Given an invalid value %p renders an error", async (value) => {
     const wrapper = mountFunction({
       data: () => ({ inputValue: value })
@@ -68,7 +70,7 @@ describe("Search", () => {
 
     const button = wrapper.find("button.mdi-magnify");
     await button.trigger("click");
-    const errorMessage = wrapper.find(".v-messages__message");
+    const errorMessage = wrapper.find(".error--text");
 
     expect(errorMessage.exists()).toBe(true);
   });

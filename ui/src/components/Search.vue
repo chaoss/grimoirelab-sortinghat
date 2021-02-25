@@ -48,9 +48,11 @@ export default {
   methods: {
     search() {
       this.parseFilters();
+      if (this.errorMessage) return;
       this.$emit("search", this.filters);
     },
     parseFilters() {
+      const booleanFilters = ["isLocked", "isBot"];
       const terms = [];
       this.filters = {};
       this.errorMessage = undefined;
@@ -62,6 +64,8 @@ export default {
           const [filter, text] = value.split(":");
           if (filter === "lastUpdated") {
             this.parseLastUpdated(text);
+          } else if (booleanFilters.find(bfilter => bfilter === filter)) {
+            this.parseBooleanFilter(filter, text);
           } else {
             this.filters[filter] = text;
           }
@@ -97,6 +101,15 @@ export default {
           .join("");
       } catch (error) {
         this.errorMessage = "Invalid date";
+      }
+    },
+    parseBooleanFilter(filter, value) {
+      if (value === "true") {
+        this.filters[filter] = true;
+      } else if (value === "false") {
+        this.filters[filter] = false;
+      } else {
+        this.errorMessage = "Accepted values are true and false";
       }
     },
     clear() {

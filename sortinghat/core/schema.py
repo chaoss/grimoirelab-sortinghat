@@ -257,6 +257,7 @@ class IdentityFilterType(graphene.InputObjectType):
     uuid = graphene.String(required=False)
     term = graphene.String(required=False)
     is_locked = graphene.Boolean(required=False)
+    is_bot = graphene.Boolean(required=False)
     last_updated = graphene.String(
         required=False,
         description='Filter with a comparison operator (>, >=, <, <=) and a date OR with a range operator (..) between\
@@ -857,6 +858,10 @@ class SortingHatQuery:
                                                  .values_list('individual__mk')))
         if filters and 'is_locked' in filters:
             query = query.filter(is_locked=filters['is_locked'])
+        if filters and 'is_bot' in filters:
+            query = query.filter(mk__in=Subquery(Profile.objects
+                                                 .filter(is_bot=filters['is_bot'])
+                                                 .values_list('individual__mk')))
         if filters and 'last_updated' in filters:
             # Accepted date format is ISO 8601, YYYY-MM-DDTHH:MM:SS
             try:
