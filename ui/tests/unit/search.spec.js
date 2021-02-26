@@ -104,4 +104,20 @@ describe("Search", () => {
 
     expect(wrapper.vm.filters.country).toBe(expected);
   });
+
+  test.each([
+    ["source:git", "git"],
+    [`source:"git"`, "git"],
+    [`source:"docker hub"`, "docker hub"],
+    [`test source:"docker hub"`, "docker hub"]
+  ])("Given %p parses source", async (value, expected) => {
+    const wrapper = mountFunction({
+      data: () => ({ inputValue: value })
+    });
+
+    const button = wrapper.find("button.mdi-magnify");
+    await button.trigger("click");
+
+    expect(wrapper.vm.filters.source).toBe(expected);
+  });
 });

@@ -123,6 +123,14 @@
             </tbody>
           </template>
         </v-simple-table>
+
+        <p class="subtitle-2 mt-8">Filter by data source</p>
+        <p>
+          You can search for individuals based on the data source of their
+          identities, using the <code>source</code> filter. Source names that
+          include spaces should be wrapped between double quotes. For example:
+          <code>source:"Stack Exchange"</code>.
+        </p>
       </v-card-text>
     </v-card>
   </v-main>
