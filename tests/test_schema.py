@@ -373,6 +373,19 @@ SH_INDIVIDUALS_GENDER_FILTER = """{
   }
 }
 """
+SH_INDIVIDUALS_COUNTRY_FILTER = """{
+  individuals(filters: {country: "%s"}) {
+    entities {
+      profile {
+        country {
+          code
+          name
+          alpha3
+        }
+      }
+    }
+  }
+}"""
 SH_INDIVIDUALS_LAST_UPDATED_FILTER = """{
   individuals(filters: {lastUpdated: "%s"}) {
     entities {
@@ -2329,6 +2342,53 @@ class TestQueryIndividuals(django.test.TestCase):
 
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, INVALID_FILTER_RANGE_ERROR.format('last_updated', expected_error))
+
+    def test_filter_country(self):
+        """Check whether it returns the uuid searched when using the country filter"""
+
+        cn = Country.objects.create(code='US',
+                                    name='United States of America',
+                                    alpha3='USA')
+
+        indv = Individual.objects.create(mk='c6d2504fde0e34b78a185c4b709e5442d045451c')
+        Profile.objects.create(email=None,
+                               country=cn,
+                               individual=indv)
+        Identity.objects.create(uuid='B001',
+                                name='John Doe',
+                                source='scm',
+                                individual=indv)
+
+        # Test filter by country code
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_INDIVIDUALS_COUNTRY_FILTER % 'US',
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 1)
+
+        indv = individuals[0]
+        self.assertEqual(indv['profile']['country']['code'], 'US')
+
+        # Test filter by alpha3 code
+        executed = client.execute(SH_INDIVIDUALS_COUNTRY_FILTER % 'USA',
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 1)
+
+        indv = individuals[0]
+        self.assertEqual(indv['profile']['country']['alpha3'], 'USA')
+
+        # Test filter by country name
+        executed = client.execute(SH_INDIVIDUALS_COUNTRY_FILTER % 'United States',
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 1)
+
+        indv = individuals[0]
+        self.assertEqual(indv['profile']['country']['name'], 'United States of America')
 
     def test_pagination(self):
         """Check whether it returns the individuals searched when using pagination"""

@@ -88,4 +88,20 @@ describe("Search", () => {
 
     expect(wrapper.vm.filters.gender).toBe(expected);
   });
+
+  test.each([
+    [`country:"United Kingdom"`, "United Kingdom"],
+    [`country:"United States of America"`, "United States of America"],
+    ["country:Spain", "Spain"],
+    [`country:"UK"`, "UK"]
+  ])("Given %p parses country filter", async (value, expected) => {
+    const wrapper = mountFunction({
+      data: () => ({ inputValue: value })
+    });
+
+    const button = wrapper.find("button.mdi-magnify");
+    await button.trigger("click");
+
+    expect(wrapper.vm.filters.country).toBe(expected);
+  });
 });

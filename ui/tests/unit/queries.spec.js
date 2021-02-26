@@ -365,6 +365,24 @@ describe("IndividualsTable", () => {
     expect(querySpy).toHaveBeenCalledWith(1, 10, { isBot: true });
   });
 
+  test("Searches by country", async () => {
+    const querySpy = spyOn(Queries, "getPaginatedIndividuals");
+    const query = jest.fn(() => Promise.resolve(paginatedResponse));
+    const wrapper = mountFunction({
+      mocks: {
+        $apollo: {
+          query
+        }
+      }
+    });
+    await wrapper.setProps({ fetchPage: Queries.getPaginatedIndividuals });
+    await wrapper.setData({ filters: { country: "Spain" } });
+
+    const response = await wrapper.vm.queryIndividuals(1);
+
+    expect(querySpy).toHaveBeenCalledWith(1, 10, { country: "Spain" });
+  });
+
   test("Mock query for getCountries", async () => {
     const query = jest.fn(() => Promise.resolve(countriesMocked));
     const wrapper = mountFunction({
