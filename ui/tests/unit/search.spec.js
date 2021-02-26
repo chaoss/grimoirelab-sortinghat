@@ -74,4 +74,18 @@ describe("Search", () => {
 
     expect(errorMessage.exists()).toBe(true);
   });
+
+  test.each([
+    ["gender:test", "test"],
+    [`gender:"two words"`, "two words"]
+  ])("Given %p parses gender", async (value, expected) => {
+    const wrapper = mountFunction({
+      data: () => ({ inputValue: value })
+    });
+
+    const button = wrapper.find("button.mdi-magnify");
+    await button.trigger("click");
+
+    expect(wrapper.vm.filters.gender).toBe(expected);
+  });
 });

@@ -362,6 +362,17 @@ SH_INDIVIDUALS_BOT_FILTER_FALSE = """{
     }
   }
 }"""
+SH_INDIVIDUALS_GENDER_FILTER = """{
+  individuals(filters: {gender: "%s"}) {
+    entities {
+      mk
+      profile {
+        gender
+      }
+    }
+  }
+}
+"""
 SH_INDIVIDUALS_LAST_UPDATED_FILTER = """{
   individuals(filters: {lastUpdated: "%s"}) {
     entities {
@@ -2089,6 +2100,51 @@ class TestQueryIndividuals(django.test.TestCase):
 
         indvs = executed['data']['individuals']['entities']
         self.assertListEqual(indvs, [])
+
+
+    def test_filter_gender(self):
+        """Check whether it returns the individual searched when using the gender filter"""
+
+        indv = Individual.objects.create(mk='c6d2504fde0e34b78a185c4b709e5442d045451c')
+        Profile.objects.create(email=None,
+                               gender='NB',
+                               individual=indv)
+        Identity.objects.create(uuid='B001',
+                                name='John Doe',
+                                source='scm',
+                                individual=indv)
+
+        # Tests
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_INDIVIDUALS_GENDER_FILTER % 'NB',
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 1)
+
+        indv = individuals[0]
+        self.assertEqual(indv['mk'], 'c6d2504fde0e34b78a185c4b709e5442d045451c')
+        self.assertEqual(indv['profile']['gender'], 'NB')
+
+    def test_filter_gender_non_exist_registry(self):
+        """Check whether it returns an empty list when searched with a non existing gender"""
+
+        indv = Individual.objects.create(mk='c6d2504fde0e34b78a185c4b709e5442d045451c')
+        Profile.objects.create(email=None,
+                               gender='NB',
+                               individual=indv)
+        Identity.objects.create(uuid='B001',
+                                name='John Doe',
+                                source='scm',
+                                individual=indv)
+
+        # Tests
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_INDIVIDUALS_GENDER_FILTER % 'gender',
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 0)
 
     def test_filter_last_updated(self):
         """Check whether it returns the uuids searched when using a date filter"""

@@ -59,7 +59,8 @@ export default {
 
       if (!this.inputValue) return;
 
-      this.inputValue.split(" ").forEach(value => {
+      const input = this.parseQuotes(this.inputValue);
+      input.split(" ").forEach(value => {
         if (value.includes(":")) {
           const [filter, text] = value.split(":");
           if (filter === "lastUpdated") {
@@ -75,7 +76,7 @@ export default {
       });
 
       if (terms.length > 0) {
-        this.filters.term = terms.join(" ");
+        this.filters.term = terms.join(" ").trim();
       }
     },
     parseLastUpdated(inputValue) {
@@ -111,6 +112,17 @@ export default {
       } else {
         this.errorMessage = "Accepted values are true and false";
       }
+    },
+    parseQuotes(input) {
+      const regexp = /(\w*):"(.*?)"/gm;
+      const matches = [...input.matchAll(regexp)];
+
+      matches.forEach(match => {
+        this.filters[match[1]] = match[2];
+        input = input.replace(match[0], "");
+      });
+
+      return input;
     },
     clear() {
       this.inputValue = "";
