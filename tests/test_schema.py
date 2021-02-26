@@ -386,6 +386,16 @@ SH_INDIVIDUALS_COUNTRY_FILTER = """{
     }
   }
 }"""
+SH_INDIVIDUALS_SOURCE_FILTER = """{
+    individuals(filters: {source: "%s"}) {
+      entities {
+        mk
+        identities {
+          source
+        }
+      }
+    }
+}"""
 SH_INDIVIDUALS_LAST_UPDATED_FILTER = """{
   individuals(filters: {lastUpdated: "%s"}) {
     entities {
@@ -2154,6 +2164,45 @@ class TestQueryIndividuals(django.test.TestCase):
         # Tests
         client = graphene.test.Client(schema)
         executed = client.execute(SH_INDIVIDUALS_GENDER_FILTER % 'gender',
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 0)
+
+    def test_filter_source(self):
+        """Check whether it returns the individual searched when using the source filter"""
+
+        indv = Individual.objects.create(mk='c6d2504fde0e34b78a185c4b709e5442d045451c')
+        Profile.objects.create(email=None,
+                               individual=indv)
+        Identity.objects.create(uuid='B001',
+                                name='John Doe',
+                                source='git',
+                                individual=indv)
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_INDIVIDUALS_SOURCE_FILTER % 'git',
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 1)
+
+        indv = individuals[0]
+        self.assertEqual(indv['mk'], 'c6d2504fde0e34b78a185c4b709e5442d045451c')
+
+    def test_filter_source_non_exist_registry(self):
+        """Check whether it returns an empty list when searched with a non existing source"""
+
+        indv = Individual.objects.create(mk='c6d2504fde0e34b78a185c4b709e5442d045451c')
+        Profile.objects.create(email=None,
+                               individual=indv)
+        Identity.objects.create(uuid='B001',
+                                name='John Doe',
+                                source='git',
+                                individual=indv)
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_INDIVIDUALS_SOURCE_FILTER % 'slack',
                                   context_value=self.context_value)
 
         individuals = executed['data']['individuals']['entities']

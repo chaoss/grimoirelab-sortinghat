@@ -260,6 +260,7 @@ class IdentityFilterType(graphene.InputObjectType):
     is_bot = graphene.Boolean(required=False)
     gender = graphene.String(required=False)
     country = graphene.String(required=False)
+    source = graphene.String(required=False)
     last_updated = graphene.String(
         required=False,
         description='Filter with a comparison operator (>, >=, <, <=) and a date OR with a range operator (..) between\
@@ -873,6 +874,8 @@ class SortingHatQuery:
                                                          Q(country__code=country) |
                                                          Q(country__alpha3=country))
                                                  .values_list('individual__mk')))
+        if filters and 'source' in filters:
+            query = query.filter(identities__source=filters['source'])
         if filters and 'last_updated' in filters:
             # Accepted date format is ISO 8601, YYYY-MM-DDTHH:MM:SS
             try:
