@@ -7,10 +7,6 @@
         </v-icon>
         Organizations ({{ totalResults }})
       </h4>
-      <search
-        class="ma-0 ml-auto mr-3 pa-0 flex-grow-0"
-        @search="filterSearch"
-      />
       <v-btn
         depressed
         color="secondary"
@@ -19,6 +15,9 @@
       >
         Add
       </v-btn>
+    </v-row>
+    <v-row class="actions">
+      <search class="ma-0 mr-3 pa-0 flex-grow-0" @search="filterSearch" />
     </v-row>
     <v-data-table
       hide-default-header
@@ -268,15 +267,8 @@ export default {
   align-items: baseline;
   justify-content: space-between;
   padding: 0 26px 24px 26px;
-
   .search {
-    width: 155px;
-    &:hover {
-      width: 155px;
-    }
-    &--hidden {
-      width: 33px;
-    }
+    width: 60%;
   }
   .title {
     @media (max-width: 1818px) {
