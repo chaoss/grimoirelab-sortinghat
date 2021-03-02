@@ -47,7 +47,20 @@
         </v-edit-dialog>
       </div>
     </v-row>
-    <v-subheader>Identities ({{ identitiesCount }})</v-subheader>
+    <v-subheader class="d-flex justify-space-between">
+      <span>Identities ({{ identitiesCount }})</span>
+      <v-btn
+        v-if="!compact"
+        text
+        small
+        outlined
+        :disabled="identitiesCount === 1 || isLocked"
+        @click="splitAll"
+      >
+        <v-icon small left>mdi-call-split</v-icon>
+        Split all
+      </v-btn>
+    </v-subheader>
     <v-simple-table v-if="compact" dense>
       <template v-slot:default>
         <thead v-if="identitiesCount > 0">
@@ -126,7 +139,7 @@
           <template v-slot:activator="{ on }">
             <v-btn
               icon
-              :disabled="identity.uuid === uuid"
+              :disabled="identity.uuid === uuid || isLocked"
               v-on="on"
               @click="$emit('unmerge', [identity.uuid, uuid])"
             >
@@ -148,7 +161,20 @@
       </v-list-item>
     </v-list>
 
-    <v-subheader>Organizations ({{ enrollments.length }})</v-subheader>
+    <v-subheader class="d-flex justify-space-between">
+      Organizations ({{ enrollments.length }})
+      <v-btn
+        v-if="!compact"
+        text
+        small
+        outlined
+        :disabled="enrollments.length < 1 || isLocked"
+        @click="withdrawAll"
+      >
+        <v-icon small left>mdi-delete</v-icon>
+        Remove all
+      </v-btn>
+    </v-subheader>
     <v-simple-table v-if="compact" dense>
       <template v-slot:default>
         <thead v-if="enrollments.length > 0">
@@ -310,6 +336,7 @@
                   <v-btn
                     icon
                     v-on="on"
+                    :disabled="isLocked"
                     @click="
                       $emit('withdraw', {
                         name: enrollment.organization.name,
@@ -423,6 +450,19 @@ export default {
       if (response) {
         this.countries = response;
       }
+    },
+    splitAll() {
+      const uuids = this.flatIdentities.map(identity => identity.uuid);
+      this.$emit("unmerge", uuids);
+    },
+    withdrawAll() {
+      this.enrollments.forEach(enrollment => {
+        this.$emit("withdraw", {
+          name: enrollment.organization.name,
+          fromDate: enrollment.start,
+          toDate: enrollment.end
+        });
+      });
     }
   },
   computed: {
