@@ -57,6 +57,7 @@
     >
       <template v-slot:item="{ item, expand, isExpanded }">
         <individual-entry
+          draggable
           :name="item.name"
           :organization="item.organization"
           :email="item.email"
@@ -72,7 +73,6 @@
           @expand="expand(!isExpanded)"
           @edit="updateProfileInfo($event, item.uuid)"
           @saveIndividual="$emit('saveIndividual', item)"
-          :draggable="!item.isLocked"
           @dragstart.native="startDrag(item, $event)"
           @dragend.native="removeClass(item, $event)"
           @select="selectIndividual(item)"
@@ -264,10 +264,16 @@ export default {
   },
   computed: {
     disabledActions() {
-      return this.selectedIndividuals.length === 0;
+      return (
+        this.selectedIndividuals.filter(individual => !individual.isLocked)
+          .length === 0
+      );
     },
     disabledMerge() {
-      return this.selectedIndividuals.length < 2;
+      return (
+        this.selectedIndividuals.filter(individual => !individual.isLocked)
+          .length < 2
+      );
     },
     selectedIndividuals() {
       return this.individuals.filter(individual => individual.isSelected);
@@ -299,6 +305,12 @@ export default {
       );
       const dragImage = document.querySelector(".dragged-item");
       event.dataTransfer.setDragImage(dragImage, 0, 0);
+      const lockedIndividuals = this.selectedIndividuals.filter(
+        individual => individual.isLocked
+      );
+      if (lockedIndividuals.length === this.selectedIndividuals.length) {
+        event.dataTransfer.setData("lockActions", true);
+      }
     },
     removeClass(item, event) {
       event.target.classList.remove("dragging");
@@ -319,6 +331,7 @@ export default {
       }
     },
     confirmDelete(individuals) {
+      individuals = individuals.filter(individual => !individual.isLocked);
       const names = individuals.map(individual => individual.name).toString();
       Object.assign(this.dialog, {
         open: true,
@@ -339,7 +352,9 @@ export default {
       }
     },
     mergeSelected(individuals) {
-      mergeIndividuals(individuals, this.merge, this.dialog);
+      if (individuals.length > 1) {
+        mergeIndividuals(individuals, this.merge, this.dialog);
+      }
     },
     async unmerge(uuids) {
       const response = await this.unmergeItems(uuids);

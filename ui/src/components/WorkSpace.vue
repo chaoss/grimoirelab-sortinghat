@@ -21,7 +21,7 @@
             <v-btn
               icon
               v-on="on"
-              :disabled="selectedIndividuals.length < 2"
+              :disabled="isDisabled"
               @click="mergeSelected(selectedIndividuals)"
             >
               <v-icon>mdi-call-merge</v-icon>
@@ -63,6 +63,7 @@
           :identities="individual.identities"
           :enrollments="individual.enrollments"
           :is-highlighted="individual.uuid === highlightIndividual"
+          :is-locked="individual.isLocked"
           @enroll="confirmEnroll(individual.uuid, $event)"
           @merge="mergeSelected($event)"
           @mouseenter="$emit('highlight', individual)"
@@ -156,6 +157,12 @@ export default {
   computed: {
     selectedIndividuals() {
       return this.savedIndividuals.filter(individual => individual.isSelected);
+    },
+    isDisabled() {
+      return (
+        this.selectedIndividuals.filter(individual => !individual.isLocked)
+          .length < 2
+      );
     }
   },
   methods: {
@@ -195,6 +202,7 @@ export default {
       this.dialog.open = false;
     },
     mergeSelected(individuals) {
+      individuals = individuals.filter(individual => !individual.isLocked);
       mergeIndividuals(individuals, this.merge, this.dialog);
     },
     updateMergedIndividuals(updated, mergedIndividuals) {
