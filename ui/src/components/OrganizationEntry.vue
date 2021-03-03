@@ -69,11 +69,13 @@ export default {
       }
       const droppedIndividuals = JSON.parse(
         event.dataTransfer.getData("individuals")
-      );
-      this.$emit("enroll", {
-        uuids: droppedIndividuals.map(individual => individual.uuid),
-        organization: this.name
-      });
+      ).filter(individual => !individual.isLocked);
+      if (droppedIndividuals.length > 0) {
+        this.$emit("enroll", {
+          uuids: droppedIndividuals.map(individual => individual.uuid),
+          organization: this.name
+        });
+      }
     },
     isDropZone(event, isDragging) {
       const type = event.dataTransfer.getData("type");
@@ -84,7 +86,8 @@ export default {
       if (
         isDragging &&
         type !== "enrollFromOrganization" &&
-        !types.includes("organization")
+        !types.includes("organization") &&
+        !types.includes("lockactions")
       ) {
         this.dropZone = true;
       } else {

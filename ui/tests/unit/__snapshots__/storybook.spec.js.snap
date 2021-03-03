@@ -1590,7 +1590,8 @@ exports[`Storyshots IndividualCard Default 1`] = `
           >
             
         Tom Marvolo Riddle
-      
+        
+            <!---->
           </div>
            
           <!---->
@@ -1687,7 +1688,8 @@ exports[`Storyshots IndividualCard Gravatar 1`] = `
           >
             
         Santiago Dueñas
-      
+        
+            <!---->
           </div>
            
           <!---->
@@ -1784,7 +1786,8 @@ exports[`Storyshots IndividualCard Highlighted 1`] = `
           >
             
         Tom Marvolo Riddle
-      
+        
+            <!---->
           </div>
            
           <!---->
@@ -1881,7 +1884,8 @@ exports[`Storyshots IndividualCard No Name 1`] = `
           >
             
         triddle@example.net
-      
+        
+            <!---->
           </div>
            
           <!---->
@@ -1946,7 +1950,7 @@ exports[`Storyshots IndividualCard Organization 1`] = `
     class="v-application--wrap"
   >
     <div
-      class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light"
+      class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light locked"
       tabindex="0"
     >
       <div
@@ -1978,7 +1982,12 @@ exports[`Storyshots IndividualCard Organization 1`] = `
           >
             
         Tom Marvolo Riddle
-      
+        
+            <i
+              aria-hidden="true"
+              class="v-icon notranslate mb-1 v-icon--right mdi mdi-lock theme--light"
+              style="font-size: 16px;"
+            />
           </div>
            
           <div
@@ -2081,7 +2090,8 @@ exports[`Storyshots IndividualCard Single Initial 1`] = `
           >
             
         Voldemort
-      
+        
+            <!---->
           </div>
            
           <!---->
@@ -2178,7 +2188,8 @@ exports[`Storyshots IndividualCard Sources 1`] = `
           >
             
         Tom Marvolo Riddle
-      
+        
+            <!---->
           </div>
            
           <!---->
@@ -2284,7 +2295,7 @@ exports[`Storyshots IndividualCard Sources And Organization 1`] = `
     class="v-application--wrap"
   >
     <div
-      class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light"
+      class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light locked"
       tabindex="0"
     >
       <div
@@ -2316,7 +2327,12 @@ exports[`Storyshots IndividualCard Sources And Organization 1`] = `
           >
             
         Tom Marvolo Riddle
-      
+        
+            <i
+              aria-hidden="true"
+              class="v-icon notranslate mb-1 v-icon--right mdi mdi-lock theme--light"
+              style="font-size: 16px;"
+            />
           </div>
            
           <div
@@ -4589,8 +4605,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
             class="col"
           >
             <div
-              class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light"
-              is-locked="true"
+              class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light locked"
               tabindex="0"
             >
               <div
@@ -4618,7 +4633,12 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   >
                     
         Tom Marvolo Riddle
-      
+        
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate mb-1 v-icon--right mdi mdi-lock theme--light"
+                      style="font-size: 16px;"
+                    />
                   </div>
                    
                   <!---->
@@ -4713,7 +4733,8 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   >
                     
         Harry Potter
-      
+        
+                    <!---->
                   </div>
                    
                   <!---->
@@ -4828,7 +4849,8 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   >
                     
         Voldemort
-      
+        
+                    <!---->
                   </div>
                    
                   <!---->
@@ -4923,7 +4945,8 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   >
                     
         Hermione Granger
-      
+        
+                    <!---->
                   </div>
                    
                   <!---->
@@ -5038,7 +5061,8 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   >
                     
         Ambus Dumbledore
-      
+        
+                    <!---->
                   </div>
                    
                   <!---->
@@ -5143,7 +5167,8 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   >
                     
         Ron Weasley
-      
+        
+                    <!---->
                   </div>
                    
                   <!---->
@@ -5258,7 +5283,8 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   >
                     
         Severus Snape
-      
+        
+                    <!---->
                   </div>
                    
                   <!---->
@@ -5373,7 +5399,8 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   >
                     
         Hagrid
-      
+        
+                    <!---->
                   </div>
                    
                   <!---->
@@ -5517,13 +5544,13 @@ exports[`Storyshots IndividualsTable Default 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-734"
+                  for="input-737"
                   style="left: 0px; position: absolute;"
                 >
                   Search
                 </label>
                 <input
-                  id="input-734"
+                  id="input-737"
                   type="text"
                 />
               </div>
@@ -6076,13 +6103,13 @@ exports[`Storyshots OrganizationsTable Default 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-953"
+                  for="input-956"
                   style="left: 0px; position: absolute;"
                 >
                   Search
                 </label>
                 <input
-                  id="input-953"
+                  id="input-956"
                   type="text"
                 />
               </div>
@@ -6340,7 +6367,8 @@ exports[`Storyshots ProfileCard Default 1`] = `
           >
             
         Tom Marvolo Riddle
-      
+        
+            <!---->
           </div>
            
           <!---->
@@ -6548,13 +6576,13 @@ exports[`Storyshots Search Default 1`] = `
             >
               <label
                 class="v-label theme--light"
-                for="input-1042"
+                for="input-1045"
                 style="left: 0px; position: absolute;"
               >
                 Search
               </label>
               <input
-                id="input-1042"
+                id="input-1045"
                 type="text"
               />
             </div>
@@ -6740,7 +6768,8 @@ exports[`Storyshots WorkSpace Default 1`] = `
                 >
                   
         Tom Marvolo Riddle
-      
+        
+                  <!---->
                 </div>
                  
                 <div
@@ -6865,7 +6894,8 @@ exports[`Storyshots WorkSpace Default 1`] = `
                 >
                   
         Harry Potter
-      
+        
+                  <!---->
                 </div>
                  
                 <div
@@ -7137,13 +7167,13 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-1133"
+                    for="input-1136"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-1133"
+                    id="input-1136"
                     type="text"
                   />
                 </div>

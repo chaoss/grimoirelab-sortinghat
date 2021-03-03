@@ -2,6 +2,7 @@
   <v-card
     class="mx-auto"
     :class="{
+      locked: isLocked,
       dropzone: isDragging,
       selected: isSelected,
       highlighted: isHighlighted
@@ -9,9 +10,9 @@
     raised
     v-on="$listeners"
     @drop.native.prevent.stop="onDrop($event)"
-    @dragover.prevent.stop="isDragging = true"
-    @dragenter.prevent.stop="isDragging = true"
-    @dragleave="isDragging = false"
+    @dragover.prevent.stop="isDropZone($event, true)"
+    @dragenter.prevent.stop="isDropZone($event, true)"
+    @dragleave="isDropZone($event, false)"
     @click="selectIndividual"
   >
     <v-list-item class="grow" three-line>
@@ -20,6 +21,7 @@
       <v-list-item-content>
         <v-list-item-title class="font-weight-medium">
           {{ name || email }}
+          <v-icon v-if="isLocked" small right class="mb-1">mdi-lock</v-icon>
         </v-list-item-title>
         <v-list-item-subtitle v-if="enrollments && enrollments.length > 0">
           {{ enrollments[0].organization.name }}
@@ -114,6 +116,10 @@ export default {
       type: Boolean,
       required: false,
       default: false
+    },
+    isLocked: {
+      type: Boolean,
+      required: true
     }
   },
   data() {
@@ -132,6 +138,10 @@ export default {
       }
     },
     onDrop(event) {
+      this.isDragging = false;
+      if (this.isLocked) {
+        return;
+      }
       const type = event.dataTransfer.getData("type");
       if (type === "move") {
         this.moveIndividual(event);
@@ -140,7 +150,6 @@ export default {
       } else {
         this.mergeIndividuals(event);
       }
-      this.isDragging = false;
     },
     selectIndividual() {
       this.$emit("select");
@@ -153,12 +162,25 @@ export default {
       const droppedIndividuals = JSON.parse(
         event.dataTransfer.getData("individuals")
       );
-      const uuids = droppedIndividuals.map(individual => individual.uuid);
-      this.$emit("merge", [this.uuid, ...uuids]);
+      const uuids = droppedIndividuals
+        .filter(individual => !individual.isLocked)
+        .map(individual => individual.uuid);
+      if (uuids.length > 0) {
+        this.$emit("merge", [this.uuid, ...uuids]);
+      }
     },
     enrollIndividual(event) {
       const organization = event.dataTransfer.getData("organization");
       this.$emit("enroll", organization);
+    },
+    isDropZone(event, isDragging) {
+      const types = event.dataTransfer.types;
+
+      if (isDragging && !types.includes("lockactions")) {
+        this.isDragging = true;
+      } else {
+        this.isDragging = false;
+      }
     }
   }
 };
