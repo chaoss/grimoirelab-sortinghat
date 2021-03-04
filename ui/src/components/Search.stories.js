@@ -8,12 +8,15 @@ export default {
 };
 
 const searchTemplate = `
-  <div class="mx-auto mt-5">
-    <search />
+  <div class="ma-5">
+    <search :valid-filters="validFilters" />
   </div>
 `;
 
 export const Default = () => ({
   components: { Search },
-  template: searchTemplate
+  template: searchTemplate,
+  data: () => ({
+    validFilters: []
+  })
 });

@@ -30,6 +30,38 @@
 <script>
 export default {
   name: "Search",
+  props: {
+    validFilters: {
+      type: Array,
+      required: false,
+      default: () => [
+        {
+          filter: "country",
+          type: "string"
+        },
+        {
+          filter: "isBot",
+          type: "boolean"
+        },
+        {
+          filter: "isLocked",
+          type: "boolean"
+        },
+        {
+          filter: "gender",
+          type: "string"
+        },
+        {
+          filter: "lastUpdated",
+          type: "string"
+        },
+        {
+          filter: "source",
+          type: "string"
+        }
+      ]
+    }
+  },
   data() {
     return {
       inputValue: "",
@@ -46,7 +78,6 @@ export default {
       this.$emit("search", this.filters);
     },
     parseFilters() {
-      const booleanFilters = ["isLocked", "isBot"];
       const terms = [];
       this.filters = {};
       this.errorMessage = undefined;
@@ -57,9 +88,14 @@ export default {
       input.split(" ").forEach(value => {
         if (value.includes(":")) {
           const [filter, text] = value.split(":");
-          if (filter === "lastUpdated") {
+          if (
+            this.validFilters.length === 0 ||
+            !this.validFilters.find(vfilter => vfilter.filter === filter)
+          ) {
+            this.errorMessage = `Invalid filter "${filter}"`;
+          } else if (filter === "lastUpdated") {
             this.parseLastUpdated(text);
-          } else if (booleanFilters.find(bfilter => bfilter === filter)) {
+          } else if (this.isBooleanFilter(filter)) {
             this.parseBooleanFilter(filter, text);
           } else {
             this.filters[filter] = text;
@@ -112,8 +148,18 @@ export default {
       const matches = [...input.matchAll(regexp)];
 
       matches.forEach(match => {
-        this.filters[match[1]] = match[2];
-        input = input.replace(match[0], "");
+        const filter = match[1];
+        const value = match[2];
+        if (this.validFilters.find(vfilter => vfilter.filter === filter)) {
+          if (this.isBooleanFilter(filter)) {
+            this.parseBooleanFilter(filter, value);
+          } else {
+            this.filters[filter] = value;
+          }
+          input = input.replace(match[0], "");
+        } else {
+          this.errorMessage = `Invalid filter "${filter}"`;
+        }
       });
 
       return input;
@@ -123,6 +169,12 @@ export default {
       this.filters = {};
       this.errorMessage = undefined;
       this.$emit("search", {});
+    },
+    isBooleanFilter(filter) {
+      const validFilter = this.validFilters.find(
+        vfilter => vfilter.filter === filter
+      );
+      return validFilter.type === "boolean";
     }
   }
 };

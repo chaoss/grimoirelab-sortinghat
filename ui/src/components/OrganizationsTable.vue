@@ -16,9 +16,15 @@
         Add
       </v-btn>
     </v-row>
+
     <v-row class="actions">
-      <search class="ma-0 mr-3 pa-0 flex-grow-0" @search="filterSearch" />
+      <search
+        class="ma-0 mr-3 pa-0 flex-grow-0"
+        :valid-filters="[]"
+        @search="filterSearch"
+      />
     </v-row>
+
     <v-data-table
       hide-default-header
       hide-default-footer

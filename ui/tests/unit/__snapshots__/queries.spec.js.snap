@@ -90,6 +90,7 @@ exports[`IndividualsTable Mock query for getCountries 1`] = `
      
     <search-stub
       class="ma-0 ml-auto pa-0 flex-grow-0"
+      validfilters="[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]"
     />
      
     <v-tooltip-stub
@@ -449,6 +450,7 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
      
     <search-stub
       class="ma-0 ml-auto pa-0 flex-grow-0"
+      validfilters="[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]"
     />
      
     <v-tooltip-stub
@@ -797,6 +799,7 @@ exports[`OrganizationsTable Mock query for getPaginatedOrganizations 1`] = `
   >
     <search-stub
       class="ma-0 mr-3 pa-0 flex-grow-0"
+      validfilters=""
     />
   </v-row-stub>
    
