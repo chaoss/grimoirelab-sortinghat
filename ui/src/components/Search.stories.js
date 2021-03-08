@@ -1,5 +1,3 @@
-import { storiesOf } from "@storybook/vue";
-
 import Search from "./Search.vue";
 
 export default {

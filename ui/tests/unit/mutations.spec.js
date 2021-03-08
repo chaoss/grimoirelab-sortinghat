@@ -1,4 +1,4 @@
-import { shallowMount, mount } from "@vue/test-utils";
+import { shallowMount } from "@vue/test-utils";
 import Vue from "vue";
 import Vuetify from "vuetify";
 import IndividualsTable from "@/components/IndividualsTable";
@@ -28,46 +28,46 @@ const mergeResponse = {
 };
 
 const unmergeResponse = {
-  "data": {
-    "unmergeIdentities": {
-      "uuids": [
+  data: {
+    unmergeIdentities: {
+      uuids: [
         "3db176be6859adac3a454c5377af81b1b7e3f8d8",
         "10982379421b80e13266db011d6e5131dd519016"
       ],
-      "individuals": [
+      individuals: [
         {
-          "profile": {
-            "name": "Test 11",
-            "id": "260",
-            "isBot": false
+          profile: {
+            name: "Test 11",
+            id: "260",
+            isBot: false
           },
-          "identities": [
+          identities: [
             {
-              "name": "Test 11",
-              "source": "git",
-              "email": "test11@example.net",
-              "uuid": "3db176be6859adac3a454c5377af81b1b7e3f8d8",
-              "username": "tes39"
+              name: "Test 11",
+              source: "git",
+              email: "test11@example.net",
+              uuid: "3db176be6859adac3a454c5377af81b1b7e3f8d8",
+              username: "tes39"
             }
           ],
-          "enrollments": []
+          enrollments: []
         },
         {
-          "profile": {
-            "name": "Test 4",
-            "id": "255",
-            "isBot": false
+          profile: {
+            name: "Test 4",
+            id: "255",
+            isBot: false
           },
-          "identities": [
+          identities: [
             {
-              "name": "Test 4",
-              "source": "test",
-              "email": "test4@example.net",
-              "uuid": "10982379421b80e13266db011d6e5131dd519016",
-              "username": "test4"
+              name: "Test 4",
+              source: "test",
+              email: "test4@example.net",
+              uuid: "10982379421b80e13266db011d6e5131dd519016",
+              username: "test4"
             }
           ],
-          "enrollments": []
+          enrollments: []
         }
       ]
     }
@@ -80,10 +80,7 @@ const moveResponse = {
       uuid: "7eb22d2a28e3f450ad4fbe171f156a9fab1d3971",
       individual: {
         isLocked: false,
-        identities: [
-          { source: "git" },
-          { source: "gitlab" }
-        ],
+        identities: [{ source: "git" }, { source: "gitlab" }],
         profile: {
           name: "Test",
           id: "254"
@@ -95,30 +92,30 @@ const moveResponse = {
 };
 
 const enrollResponse = {
-  "data": {
-    "enroll": {
-      "uuid": "4df20c13824ce60c2249a9b947d6c55dc0ba26a4",
-      "individual": {
-        "isLocked": false,
-        "identities": [
+  data: {
+    enroll: {
+      uuid: "4df20c13824ce60c2249a9b947d6c55dc0ba26a4",
+      individual: {
+        isLocked: false,
+        identities: [
           {
-            "name": "Test",
-            "source": "git",
-            "email": "teste@example.net",
-            "uuid": "4df20c13824ce60c2249a9b947d6c55dc0ba26a4",
-            "username": "test"
+            name: "Test",
+            source: "git",
+            email: "teste@example.net",
+            uuid: "4df20c13824ce60c2249a9b947d6c55dc0ba26a4",
+            username: "test"
           }
         ],
-        "profile": {
-          "name": "Test",
-          "id": "7"
+        profile: {
+          name: "Test",
+          id: "7"
         },
-        "enrollments": [
+        enrollments: [
           {
-            "start": "1900-01-01T00:00:00+00:00",
-            "end": "2100-01-01T00:00:00+00:00",
-            "organization": {
-              "name": "Organization"
+            start: "1900-01-01T00:00:00+00:00",
+            end: "2100-01-01T00:00:00+00:00",
+            organization: {
+              name: "Organization"
             }
           }
         ]
@@ -161,46 +158,6 @@ const addIdentityResponse = {
   }
 };
 
-const updateProfileResponse = {
-  data: {
-    updateProfile: {
-      uuid: "002bad315c34120cdfa2b1e26b3ca88ce36bc183",
-      individual: {
-        isLocked: false,
-        identities: [
-          {
-            uuid: "002bad315c34120cdfa2b1e26b3ca88ce36bc183",
-            __typename: "IdentityType"
-          }
-        ],
-        profile: {
-          name: "Name",
-          email: "email@email.com",
-          gender: "gender",
-          isBot: true,
-          country: null,
-          __typename: "ProfileType"
-        },
-        enrollments:[],
-        __typename: "IndividualType"
-      },
-      __typename: "UpdateProfile"
-    }
-  }
-};
-
-const deleteDomainResponse = {
-  data: {
-    deleteDomain: {
-      domain: {
-        domain: "Name",
-        __typename: "DomainType"
-      },
-      __typename: "DeleteDomain"
-    }
-  }
-};
-
 const tokenResponse = {
   data: {
     tokenAuth: {
@@ -234,15 +191,17 @@ const updateEnrollmentResponse = {
     updateEnrollment: {
       uuid: "06e6903c91180835b6ee91dd56782c6ca72bc562",
       individual: {
-        enrollments: [{
-          start: "2020-11-01T00:00:00+00:00",
-          end: "2020-12-24T00:00:00+00:00",
-          organization: {
-            name: "Organization",
-            __typename: "OrganizationType"
-          },
-          __typename: "EnrollmentType"
-        }],
+        enrollments: [
+          {
+            start: "2020-11-01T00:00:00+00:00",
+            end: "2020-12-24T00:00:00+00:00",
+            organization: {
+              name: "Organization",
+              __typename: "OrganizationType"
+            },
+            __typename: "EnrollmentType"
+          }
+        ],
         __typename: "IndividualType"
       },
       __typename: "UpdateEnrollment"
@@ -270,7 +229,7 @@ describe("IndividualsTable", () => {
         updateEnrollment: () => {}
       },
       ...options
-    })
+    });
   };
 
   test("Mock query for deleteIdentity", async () => {
@@ -283,7 +242,10 @@ describe("IndividualsTable", () => {
       }
     });
     await wrapper.setProps({ deleteItem: mutate });
-    const response = await Mutations.deleteIdentity(wrapper.vm.$apollo, "5f06473815dc415c9861680de8101813d9eb18e8");
+    const response = await Mutations.deleteIdentity(
+      wrapper.vm.$apollo,
+      "5f06473815dc415c9861680de8101813d9eb18e8"
+    );
 
     expect(mutate).toBeCalled();
     expect(wrapper.element).toMatchSnapshot();
@@ -299,7 +261,10 @@ describe("IndividualsTable", () => {
       }
     });
     await wrapper.setProps({ mergeItems: mutate });
-    const response = await Mutations.deleteIdentity(wrapper.vm.$apollo, "5f06473815dc415c9861680de8101813d9eb18e8");
+    const response = await Mutations.deleteIdentity(
+      wrapper.vm.$apollo,
+      "5f06473815dc415c9861680de8101813d9eb18e8"
+    );
 
     expect(mutate).toBeCalled();
     expect(wrapper.element).toMatchSnapshot();
@@ -356,7 +321,7 @@ describe("IndividualsTable", () => {
     await wrapper.setProps({ withdraw: mutate });
     const response = await Mutations.withdraw(
       wrapper.vm.$apollo,
-       "4df20c13824ce60c2249a9b947d6c55dc0ba26a4",
+      "4df20c13824ce60c2249a9b947d6c55dc0ba26a4",
       "Organization"
     );
 
@@ -376,13 +341,16 @@ describe("IndividualsTable", () => {
     await wrapper.setProps({ updateEnrollment: mutate });
     const enrollment = {
       fromDate: "2020-12-03T00:00:00+00:00",
-      newFromDate:	"2020-11-01T00:00:00.000Z",
+      newFromDate: "2020-11-01T00:00:00.000Z",
       organization: "Organization",
-      toDate:	"2020-12-24T00:00:00+00:00",
+      toDate: "2020-12-24T00:00:00+00:00",
       newToDate: "2020-12-24T00:00:00+00:00",
-      uuid:	"06e6903c91180835b6ee91dd56782c6ca72bc562"
+      uuid: "06e6903c91180835b6ee91dd56782c6ca72bc562"
     };
-    const response = await Mutations.updateEnrollment(wrapper.vm.$apollo, enrollment);
+    const response = await Mutations.updateEnrollment(
+      wrapper.vm.$apollo,
+      enrollment
+    );
 
     expect(mutate).toBeCalled();
     expect(wrapper.element).toMatchSnapshot();
@@ -439,7 +407,9 @@ describe("OrganizationsTable", () => {
     });
 
     const response = await Mutations.addOrganization(
-      wrapper.vm.$apollo, "Name");
+      wrapper.vm.$apollo,
+      "Name"
+    );
 
     expect(mutate).toBeCalled();
     expect(wrapper.element).toMatchSnapshot();
@@ -465,7 +435,9 @@ describe("OrganizationsTable", () => {
     });
 
     const response = await Mutations.addDomain(
-      wrapper.vm.$apollo, "domain.com", "Organization"
+      wrapper.vm.$apollo,
+      "domain.com",
+      "Organization"
     );
 
     expect(mutate).toBeCalled();
@@ -492,7 +464,9 @@ describe("OrganizationsTable", () => {
     });
 
     const response = await Mutations.addDomain(
-      wrapper.vm.$apollo, "domain.com", "Organization"
+      wrapper.vm.$apollo,
+      "domain.com",
+      "Organization"
     );
     expect(mutate).toBeCalled();
     expect(wrapper.element).toMatchSnapshot();
@@ -518,7 +492,8 @@ describe("OrganizationsTable", () => {
     });
 
     const response = await Mutations.deleteOrganization(
-      wrapper.vm.$apollo, "Organization"
+      wrapper.vm.$apollo,
+      "Organization"
     );
     expect(mutate).toBeCalled();
     expect(wrapper.element).toMatchSnapshot();

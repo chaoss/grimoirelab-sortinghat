@@ -1,5 +1,3 @@
-import { storiesOf } from "@storybook/vue";
-
 import IndividualCard from "./IndividualCard.vue";
 
 export default {
@@ -46,7 +44,7 @@ export const Default = () => ({
     },
     isHighlighted: {
       default: false
-    },
+    }
   }
 });
 export const SingleInitial = () => ({
@@ -76,7 +74,7 @@ export const SingleInitial = () => ({
     },
     isHighlighted: {
       default: false
-    },
+    }
   }
 });
 export const NoName = () => ({
@@ -99,26 +97,28 @@ export const NoName = () => ({
       default: "triddle@example.net"
     },
     identities: {
-      default: () => [{
-        name: "GitLab",
-        icon: "mdi-gitlab",
-        identities: [
-          {
-            name: "",
-            source: "GitLab",
-            email: "triddle@example.net",
-            uuid: "03b3428ee",
-            username: "triddle"
-          }
-        ]
-      }]
+      default: () => [
+        {
+          name: "GitLab",
+          icon: "mdi-gitlab",
+          identities: [
+            {
+              name: "",
+              source: "GitLab",
+              email: "triddle@example.net",
+              uuid: "03b3428ee",
+              username: "triddle"
+            }
+          ]
+        }
+      ]
     },
     enrollments: {
       default: () => []
     },
     isHighlighted: {
       default: false
-    },
+    }
   }
 });
 export const Sources = () => ({
@@ -409,6 +409,6 @@ export const Gravatar = () => ({
     },
     isHighlighted: {
       default: false
-    },
+    }
   }
 });

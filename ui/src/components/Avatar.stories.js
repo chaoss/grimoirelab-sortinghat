@@ -1,5 +1,3 @@
-import { storiesOf } from "@storybook/vue";
-
 import Avatar from "./Avatar.vue";
 
 export default {

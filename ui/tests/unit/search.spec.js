@@ -11,8 +11,8 @@ describe("Search", () => {
     return mount(Search, {
       Vue,
       vuetify,
-      ...options,
-    })
+      ...options
+    });
   };
 
   test.each([
@@ -63,7 +63,7 @@ describe("Search", () => {
     "lastUpdated:<=2000-01-01>=2000-01-01",
     "isBot:1",
     "isBot:falsee"
-  ])("Given an invalid value %p renders an error", async (value) => {
+  ])("Given an invalid value %p renders an error", async value => {
     const wrapper = mountFunction({
       data: () => ({ inputValue: value })
     });
@@ -121,39 +121,43 @@ describe("Search", () => {
     expect(wrapper.vm.filters.source).toBe(expected);
   });
 
-  test.each([
-    "invalidFilter:value",
-    `invalidFilter:"value"`
-  ])("Given an invalid filter %p shows an error", async(value) => {
-    const wrapper = mountFunction({
-      propsData: {
-        validFilters: [{
-          filter: "validFilter",
-          type: "string"
-        }]
-      },
-      data: () => ({ inputValue: value })
-    });
+  test.each(["invalidFilter:value", `invalidFilter:"value"`])(
+    "Given an invalid filter %p shows an error",
+    async value => {
+      const wrapper = mountFunction({
+        propsData: {
+          validFilters: [
+            {
+              filter: "validFilter",
+              type: "string"
+            }
+          ]
+        },
+        data: () => ({ inputValue: value })
+      });
 
-    const button = wrapper.find("button.mdi-magnify");
-    await button.trigger("click");
-    const errorMessage = wrapper.find(".error--text");
+      const button = wrapper.find("button.mdi-magnify");
+      await button.trigger("click");
+      const errorMessage = wrapper.find(".error--text");
 
-    expect(errorMessage.exists()).toBe(true);
-  });
+      expect(errorMessage.exists()).toBe(true);
+    }
+  );
 
   test.each([
     ["booleanFilter:true", true],
     ["booleanFilter:false", false],
     [`booleanFilter:"true"`, true],
     [`booleanFilter:"false"`, false]
-  ])("Parses a boolean filter %p", async(value, expected) => {
+  ])("Parses a boolean filter %p", async (value, expected) => {
     const wrapper = mountFunction({
       propsData: {
-        validFilters: [{
-          filter: "booleanFilter",
-          type: "boolean"
-        }]
+        validFilters: [
+          {
+            filter: "booleanFilter",
+            type: "boolean"
+          }
+        ]
       },
       data: () => ({ inputValue: value })
     });
@@ -168,13 +172,15 @@ describe("Search", () => {
     "booleanFilter:falsee",
     "booleanFilter:123",
     `booleanFilter:"trueeee"`
-  ])("Shows an error for an invalid boolean filter value %p", async(value) => {
+  ])("Shows an error for an invalid boolean filter value %p", async value => {
     const wrapper = mountFunction({
       propsData: {
-        validFilters: [{
-          filter: "booleanFilter",
-          type: "boolean"
-        }]
+        validFilters: [
+          {
+            filter: "booleanFilter",
+            type: "boolean"
+          }
+        ]
       },
       data: () => ({ inputValue: value })
     });

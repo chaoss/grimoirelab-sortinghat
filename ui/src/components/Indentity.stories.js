@@ -1,5 +1,3 @@
-import { storiesOf } from "@storybook/vue";
-
 import Identity from "./Identity.vue";
 
 export default {
