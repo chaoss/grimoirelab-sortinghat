@@ -48,13 +48,21 @@
       </template>
     </v-data-table>
 
-    <div class="text-center pt-2">
+    <div class="pagination d-flex align-baseline text-center pt-2">
       <v-pagination
         v-model="page"
         :length="pageCount"
         :total-visible="5"
         @input="getOrganizations($event)"
       ></v-pagination>
+      <v-text-field
+        :value="itemsPerPage"
+        label="Items per page"
+        type="number"
+        min="1"
+        :max="totalResults"
+        @change="changeItemsPerPage($event)"
+      ></v-text-field>
     </div>
 
     <organization-modal
@@ -122,11 +130,6 @@ export default {
       type: Function,
       required: true
     },
-    itemsPerPage: {
-      type: Number,
-      required: false,
-      default: 10
-    },
     addOrganization: {
       type: Function,
       required: true
@@ -172,7 +175,8 @@ export default {
       },
       selectedOrganization: "",
       filters: {},
-      totalResults: 0
+      totalResults: 0,
+      itemsPerPage: 10
     };
   },
   created() {
@@ -257,6 +261,12 @@ export default {
     filterSearch(filters) {
       this.filters = filters;
       this.getOrganizations(1);
+    },
+    changeItemsPerPage(value) {
+      if (value) {
+        this.itemsPerPage = parseInt(value, 10);
+        this.getOrganizations(1);
+      }
     }
   }
 };
@@ -282,5 +292,16 @@ export default {
   max-width: 400px;
   position: absolute;
   top: -400px;
+}
+
+.pagination {
+  nav {
+    margin-left: 17%;
+    flex-grow: 1;
+  }
+  .v-input {
+    min-width: 17%;
+    max-width: 17%;
+  }
 }
 </style>

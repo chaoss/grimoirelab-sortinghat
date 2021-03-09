@@ -5850,41 +5850,90 @@ exports[`Storyshots IndividualsTable Default 1`] = `
       </div>
        
       <div
-        class="text-center pt-2"
+        class="d-flex align-baseline text-center pt-2"
       >
-        <nav
-          aria-label="Pagination Navigation"
-          role="navigation"
+        <div
+          class="ml-auto col col-8"
         >
-          <ul
-            class="v-pagination theme--light"
+          <nav
+            aria-label="Pagination Navigation"
+            role="navigation"
           >
-            <li>
-              <button
-                aria-label="Previous page"
-                class="v-pagination__navigation v-pagination__navigation--disabled"
-                type="button"
+            <ul
+              class="v-pagination theme--light"
+            >
+              <li>
+                <button
+                  aria-label="Previous page"
+                  class="v-pagination__navigation v-pagination__navigation--disabled"
+                  type="button"
+                >
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate mdi mdi-chevron-left theme--light"
+                  />
+                </button>
+              </li>
+              <li>
+                <button
+                  aria-label="Next page"
+                  class="v-pagination__navigation v-pagination__navigation--disabled"
+                  type="button"
+                >
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate mdi mdi-chevron-right theme--light"
+                  />
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+         
+        <div
+          class="col col-2"
+        >
+          <div
+            class="v-input v-input--is-label-active v-input--is-dirty theme--light v-text-field"
+          >
+            <div
+              class="v-input__control"
+            >
+              <div
+                class="v-input__slot"
               >
-                <i
-                  aria-hidden="true"
-                  class="v-icon notranslate mdi mdi-chevron-left theme--light"
-                />
-              </button>
-            </li>
-            <li>
-              <button
-                aria-label="Next page"
-                class="v-pagination__navigation v-pagination__navigation--disabled"
-                type="button"
+                <div
+                  class="v-text-field__slot"
+                >
+                  <label
+                    class="v-label v-label--active theme--light"
+                    for="input-768"
+                    style="left: 0px; position: absolute;"
+                  >
+                    Items per page
+                  </label>
+                  <input
+                    id="input-768"
+                    max="0"
+                    min="1"
+                    type="number"
+                  />
+                </div>
+              </div>
+              <div
+                class="v-text-field__details"
               >
-                <i
-                  aria-hidden="true"
-                  class="v-icon notranslate mdi mdi-chevron-right theme--light"
-                />
-              </button>
-            </li>
-          </ul>
-        </nav>
+                <div
+                  class="v-messages theme--light"
+                >
+                  <div
+                    class="v-messages__wrapper"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
        
       <div
@@ -6254,13 +6303,13 @@ exports[`Storyshots OrganizationsTable Default 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-967"
+                  for="input-970"
                   style="left: 0px; position: absolute;"
                 >
                   Search
                 </label>
                 <input
-                  id="input-967"
+                  id="input-970"
                   type="text"
                 />
               </div>
@@ -6368,7 +6417,7 @@ exports[`Storyshots OrganizationsTable Default 1`] = `
       </div>
        
       <div
-        class="text-center pt-2"
+        class="pagination d-flex align-baseline text-center pt-2"
       >
         <nav
           aria-label="Pagination Navigation"
@@ -6403,6 +6452,47 @@ exports[`Storyshots OrganizationsTable Default 1`] = `
             </li>
           </ul>
         </nav>
+         
+        <div
+          class="v-input v-input--is-label-active v-input--is-dirty theme--light v-text-field"
+        >
+          <div
+            class="v-input__control"
+          >
+            <div
+              class="v-input__slot"
+            >
+              <div
+                class="v-text-field__slot"
+              >
+                <label
+                  class="v-label v-label--active theme--light"
+                  for="input-983"
+                  style="left: 0px; position: absolute;"
+                >
+                  Items per page
+                </label>
+                <input
+                  id="input-983"
+                  max="0"
+                  min="1"
+                  type="number"
+                />
+              </div>
+            </div>
+            <div
+              class="v-text-field__details"
+            >
+              <div
+                class="v-messages theme--light"
+              >
+                <div
+                  class="v-messages__wrapper"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
        
       <div
@@ -6713,13 +6803,13 @@ exports[`Storyshots Search Default 1`] = `
             >
               <label
                 class="v-label theme--light"
-                for="input-1054"
+                for="input-1060"
                 style="left: 0px; position: absolute;"
               >
                 Search
               </label>
               <input
-                id="input-1054"
+                id="input-1060"
                 type="text"
               />
             </div>
@@ -7325,7 +7415,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   />
                   <input
                     aria-checked="false"
-                    id="input-1144"
+                    id="input-1150"
                     role="checkbox"
                     type="checkbox"
                     value=""
@@ -7336,7 +7426,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 </div>
                 <label
                   class="v-label theme--light"
-                  for="input-1144"
+                  for="input-1150"
                   style="left: 0px; position: relative;"
                 >
                   Select all
@@ -7366,13 +7456,13 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-1149"
+                    for="input-1155"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-1149"
+                    id="input-1155"
                     type="text"
                   />
                 </div>
@@ -7523,41 +7613,90 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
         </div>
          
         <div
-          class="text-center pt-2"
+          class="d-flex align-baseline text-center pt-2"
         >
-          <nav
-            aria-label="Pagination Navigation"
-            role="navigation"
+          <div
+            class="ml-auto col col-8"
           >
-            <ul
-              class="v-pagination theme--light"
+            <nav
+              aria-label="Pagination Navigation"
+              role="navigation"
             >
-              <li>
-                <button
-                  aria-label="Previous page"
-                  class="v-pagination__navigation v-pagination__navigation--disabled"
-                  type="button"
+              <ul
+                class="v-pagination theme--light"
+              >
+                <li>
+                  <button
+                    aria-label="Previous page"
+                    class="v-pagination__navigation v-pagination__navigation--disabled"
+                    type="button"
+                  >
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate mdi mdi-chevron-left theme--light"
+                    />
+                  </button>
+                </li>
+                <li>
+                  <button
+                    aria-label="Next page"
+                    class="v-pagination__navigation v-pagination__navigation--disabled"
+                    type="button"
+                  >
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate mdi mdi-chevron-right theme--light"
+                    />
+                  </button>
+                </li>
+              </ul>
+            </nav>
+          </div>
+           
+          <div
+            class="col col-2"
+          >
+            <div
+              class="v-input v-input--is-label-active v-input--is-dirty theme--light v-text-field"
+            >
+              <div
+                class="v-input__control"
+              >
+                <div
+                  class="v-input__slot"
                 >
-                  <i
-                    aria-hidden="true"
-                    class="v-icon notranslate mdi mdi-chevron-left theme--light"
-                  />
-                </button>
-              </li>
-              <li>
-                <button
-                  aria-label="Next page"
-                  class="v-pagination__navigation v-pagination__navigation--disabled"
-                  type="button"
+                  <div
+                    class="v-text-field__slot"
+                  >
+                    <label
+                      class="v-label v-label--active theme--light"
+                      for="input-1174"
+                      style="left: 0px; position: absolute;"
+                    >
+                      Items per page
+                    </label>
+                    <input
+                      id="input-1174"
+                      max="0"
+                      min="1"
+                      type="number"
+                    />
+                  </div>
+                </div>
+                <div
+                  class="v-text-field__details"
                 >
-                  <i
-                    aria-hidden="true"
-                    class="v-icon notranslate mdi mdi-chevron-right theme--light"
-                  />
-                </button>
-              </li>
-            </ul>
-          </nav>
+                  <div
+                    class="v-messages theme--light"
+                  >
+                    <div
+                      class="v-messages__wrapper"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
          
         <div

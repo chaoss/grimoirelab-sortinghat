@@ -67,6 +67,7 @@
       :expanded.sync="expandedItems"
       item-key="uuid"
       :page.sync="page"
+      :items-per-page="itemsPerPage"
     >
       <template v-slot:item="{ item, expand, isExpanded }">
         <individual-entry
@@ -116,13 +117,25 @@
       </template>
     </v-data-table>
 
-    <div class="text-center pt-2">
-      <v-pagination
-        v-model="page"
-        :length="pageCount"
-        :total-visible="7"
-        @input="queryIndividuals($event)"
-      ></v-pagination>
+    <div class="d-flex align-baseline text-center pt-2">
+      <v-col cols="8" class="ml-auto">
+        <v-pagination
+          v-model="page"
+          :length="pageCount"
+          :total-visible="7"
+          @input="queryIndividuals($event)"
+        ></v-pagination>
+      </v-col>
+      <v-col cols="2">
+        <v-text-field
+          :value="itemsPerPage"
+          label="Items per page"
+          type="number"
+          min="1"
+          :max="totalResults"
+          @change="changeItemsPerPage($event)"
+        ></v-text-field>
+      </v-col>
     </div>
 
     <v-dialog v-model="dialog.open" max-width="500px">
@@ -202,11 +215,6 @@ export default {
       type: Function,
       required: true
     },
-    itemsPerPage: {
-      type: Number,
-      required: false,
-      default: 10
-    },
     highlightIndividual: {
       type: String,
       required: false
@@ -273,6 +281,7 @@ export default {
         text: ""
       },
       totalResults: 0,
+      itemsPerPage: 10,
       allSelected: false
     };
   },
@@ -476,6 +485,12 @@ export default {
     },
     selectAll(value) {
       this.individuals.forEach(individual => (individual.isSelected = value));
+    },
+    changeItemsPerPage(value) {
+      if (value) {
+        this.itemsPerPage = parseInt(value, 10);
+        this.queryIndividuals(1);
+      }
     }
   }
 };
