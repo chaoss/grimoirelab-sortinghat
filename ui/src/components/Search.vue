@@ -1,36 +1,30 @@
 <template>
-  <v-hover v-slot="{ hover }">
-    <v-text-field
-      v-model.trim="inputValue"
-      append-outer-icon="mdi-magnify"
-      class="search ma-0 ml-auto pa-0 flex-grow-0"
-      :class="{
-        'search--hover': hover,
-        'search--hidden': !inputValue && !isFocused && !errorMessage
-      }"
-      :error-messages="errorMessage"
-      clearable
-      label="Search"
-      type="text"
-      hint=" "
-      persistent-hint
-      @click:append-outer="search"
-      @click:clear="clear"
-      @keyup.enter="search"
-      @focus="isFocused = true"
-      @blur="isFocused = false"
-    >
-      <template v-slot:message="{ key, message }">
-        <span>{{ message }}</span>
-        <v-btn href="/search-help" target="_blank" color="primary" text x-small>
-          View search syntax
-          <v-icon x-small right>
-            mdi-help-circle-outline
-          </v-icon>
-        </v-btn>
-      </template>
-    </v-text-field>
-  </v-hover>
+  <v-text-field
+    v-model.trim="inputValue"
+    append-outer-icon="mdi-magnify"
+    class="search ma-0 pa-0 flex-grow-0"
+    :error-messages="errorMessage"
+    clearable
+    label="Search"
+    type="text"
+    hint=" "
+    persistent-hint
+    @click:append-outer="search"
+    @click:clear="clear"
+    @keyup.enter="search"
+    @focus="isFocused = true"
+    @blur="isFocused = false"
+  >
+    <template v-slot:message="{ key, message }">
+      <span>{{ message }}</span>
+      <v-btn href="/search-help" target="_blank" color="primary" text x-small>
+        View search syntax
+        <v-icon x-small right>
+          mdi-help-circle-outline
+        </v-icon>
+      </v-btn>
+    </template>
+  </v-text-field>
 </template>
 
 <script>
@@ -133,28 +127,12 @@ export default {
   }
 };
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
 .search {
-  width: 400px;
+  width: 100%;
+  max-width: 500px;
 
-  &--hidden {
-    width: 33px;
-    transition: width 0.5s;
-
-    ::v-deep .v-text-field__details {
-      max-width: 0;
-      height: 14px;
-    }
-    .v-menu__content {
-      display: none;
-    }
-  }
-
-  &--hover {
-    width: 400px;
-  }
-
-  .v-messages__message {
+  ::v-deep .v-messages__message {
     display: flex;
     justify-content: space-between;
 

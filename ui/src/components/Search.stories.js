@@ -8,7 +8,7 @@ export default {
 };
 
 const searchTemplate = `
-  <div width="380" class="mx-auto">
+  <div class="mx-auto mt-5">
     <search />
   </div>
 `;

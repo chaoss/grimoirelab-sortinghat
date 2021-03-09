@@ -7,43 +7,56 @@
         </v-icon>
         Individuals ({{ totalResults }})
       </h4>
+      <v-btn
+        depressed
+        color="secondary"
+        class="black--text"
+        @click.stop="openModal = true"
+      >
+        Add
+      </v-btn>
+    </v-row>
+
+    <v-row class="actions">
+      <v-checkbox
+        v-model="allSelected"
+        value
+        :indeterminate="isIndeterminate"
+        :label="
+          selectedIndividuals.length === 0
+            ? 'Select all'
+            : `${selectedIndividuals.length} selected`
+        "
+        @change="selectAll($event)"
+      >
+      </v-checkbox>
       <search class="ma-0 ml-auto pa-0 flex-grow-0" @search="filterSearch" />
-      <div>
-        <v-tooltip bottom transition="expand-y-transition" open-delay="200">
-          <template v-slot:activator="{ on }">
-            <v-btn
-              icon
-              v-on="on"
-              :disabled="disabledMerge"
-              @click="mergeSelected(selectedIndividuals)"
-            >
-              <v-icon>mdi-call-merge</v-icon>
-            </v-btn>
-          </template>
-          <span>Merge selected</span>
-        </v-tooltip>
-        <v-tooltip bottom transition="expand-y-transition" open-delay="200">
-          <template v-slot:activator="{ on }">
-            <v-btn
-              icon
-              v-on="on"
-              :disabled="disabledActions"
-              @click="confirmDelete(selectedIndividuals)"
-            >
-              <v-icon left>mdi-delete</v-icon>
-            </v-btn>
-          </template>
-          <span>Delete selected</span>
-        </v-tooltip>
-        <v-btn
-          depressed
-          color="secondary"
-          class="black--text"
-          @click.stop="openModal = true"
-        >
-          Add
-        </v-btn>
-      </div>
+      <v-tooltip bottom transition="expand-y-transition" open-delay="200">
+        <template v-slot:activator="{ on }">
+          <v-btn
+            icon
+            v-on="on"
+            :disabled="disabledMerge"
+            @click="mergeSelected(selectedIndividuals)"
+          >
+            <v-icon>mdi-call-merge</v-icon>
+          </v-btn>
+        </template>
+        <span>Merge selected</span>
+      </v-tooltip>
+      <v-tooltip bottom transition="expand-y-transition" open-delay="200">
+        <template v-slot:activator="{ on }">
+          <v-btn
+            icon
+            v-on="on"
+            :disabled="disabledActions"
+            @click="confirmDelete(selectedIndividuals)"
+          >
+            <v-icon>mdi-delete</v-icon>
+          </v-btn>
+        </template>
+        <span>Delete selected</span>
+      </v-tooltip>
     </v-row>
 
     <v-data-table
@@ -259,7 +272,8 @@ export default {
         open: false,
         text: ""
       },
-      totalResults: 0
+      totalResults: 0,
+      allSelected: false
     };
   },
   computed: {
@@ -277,6 +291,12 @@ export default {
     },
     selectedIndividuals() {
       return this.individuals.filter(individual => individual.isSelected);
+    },
+    isIndeterminate() {
+      return (
+        this.selectedIndividuals.length < this.individuals.length &&
+        this.selectedIndividuals.length !== 0
+      );
     }
   },
   created() {
@@ -293,6 +313,7 @@ export default {
         this.pageCount = response.data.individuals.pageInfo.numPages;
         this.page = response.data.individuals.pageInfo.page;
         this.totalResults = response.data.individuals.pageInfo.totalResults;
+        this.allSelected = false;
         this.$emit("updateIndividuals", this.individuals);
       }
     },
@@ -317,9 +338,12 @@ export default {
     },
     selectIndividual(individual) {
       individual.isSelected = !individual.isSelected;
+      this.allSelected =
+        this.selectedIndividuals.length === this.individuals.length;
     },
     deselectIndividuals() {
       this.individuals.forEach(individual => (individual.isSelected = false));
+      this.allSelected = false;
     },
     async deleteIndividuals(individuals) {
       const response = await Promise.all(
@@ -332,7 +356,7 @@ export default {
     },
     confirmDelete(individuals) {
       individuals = individuals.filter(individual => !individual.isLocked);
-      const names = individuals.map(individual => individual.name).toString();
+      const names = individuals.map(individual => individual.name).join(", ");
       Object.assign(this.dialog, {
         open: true,
         title: "Delete the selected items?",
@@ -449,6 +473,9 @@ export default {
     filterSearch(filters) {
       this.filters = filters;
       this.queryIndividuals(1);
+    },
+    selectAll(value) {
+      this.individuals.forEach(individual => (individual.isSelected = value));
     }
   }
 };
@@ -460,7 +487,7 @@ export default {
 .actions {
   align-items: baseline;
   justify-content: space-between;
-  padding: 0 26px 24px 26px;
+  padding: 0 26px 10px 26px;
 }
 .dragged-item {
   max-width: 300px;

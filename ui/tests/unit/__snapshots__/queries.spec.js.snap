@@ -31,68 +31,110 @@ exports[`IndividualsTable Mock query for getCountries 1`] = `
     
     </h4>
      
+    <v-btn-stub
+      activeclass=""
+      class="black--text"
+      color="secondary"
+      depressed="true"
+      tag="button"
+      type="button"
+    >
+      
+      Add
+    
+    </v-btn-stub>
+  </v-row-stub>
+   
+  <v-row-stub
+    class="actions"
+    tag="div"
+  >
+    <v-checkbox-stub
+      backgroundcolor=""
+      errorcount="1"
+      errormessages=""
+      indeterminateicon="$checkboxIndeterminate"
+      label="Select all"
+      messages=""
+      officon="$checkboxOff"
+      onicon="$checkboxOn"
+      ripple="true"
+      rules=""
+      successmessages=""
+      value=""
+      valuecomparator="function deepEqual(a, b) {
+          if (a === b) return true;
+
+          if (a instanceof Date && b instanceof Date && a.getTime() !== b.getTime()) {
+            // If the values are Date, compare them as timestamps
+            return false;
+          }
+
+          if (a !== Object(a) || b !== Object(b)) {
+            // If the values aren't objects, they were already checked for equality
+            return false;
+          }
+
+          var props = Object.keys(a);
+
+          if (props.length !== Object.keys(b).length) {
+            // Different number of props, don't bother to check
+            return false;
+          }
+
+          return props.every(function (p) {
+            return deepEqual(a[p], b[p]);
+          });
+        }"
+    />
+     
     <search-stub
       class="ma-0 ml-auto pa-0 flex-grow-0"
     />
      
-    <div>
-      <v-tooltip-stub
-        bottom="true"
-        closedelay="0"
-        contentclass=""
-        fixed="true"
-        maxwidth="auto"
-        nudgebottom="0"
-        nudgeleft="0"
-        nudgeright="0"
-        nudgetop="0"
-        nudgewidth="0"
-        opendelay="200"
-        openonhover="true"
-        tag="span"
-        transition="expand-y-transition"
-      >
-         
-        <span>
-          Merge selected
-        </span>
-      </v-tooltip-stub>
+    <v-tooltip-stub
+      bottom="true"
+      closedelay="0"
+      contentclass=""
+      fixed="true"
+      maxwidth="auto"
+      nudgebottom="0"
+      nudgeleft="0"
+      nudgeright="0"
+      nudgetop="0"
+      nudgewidth="0"
+      opendelay="200"
+      openonhover="true"
+      tag="span"
+      transition="expand-y-transition"
+    >
        
-      <v-tooltip-stub
-        bottom="true"
-        closedelay="0"
-        contentclass=""
-        fixed="true"
-        maxwidth="auto"
-        nudgebottom="0"
-        nudgeleft="0"
-        nudgeright="0"
-        nudgetop="0"
-        nudgewidth="0"
-        opendelay="200"
-        openonhover="true"
-        tag="span"
-        transition="expand-y-transition"
-      >
-         
-        <span>
-          Delete selected
-        </span>
-      </v-tooltip-stub>
+      <span>
+        Merge selected
+      </span>
+    </v-tooltip-stub>
+     
+    <v-tooltip-stub
+      bottom="true"
+      closedelay="0"
+      contentclass=""
+      fixed="true"
+      maxwidth="auto"
+      nudgebottom="0"
+      nudgeleft="0"
+      nudgeright="0"
+      nudgetop="0"
+      nudgewidth="0"
+      opendelay="200"
+      openonhover="true"
+      tag="span"
+      transition="expand-y-transition"
+    >
        
-      <v-btn-stub
-        activeclass=""
-        class="black--text"
-        color="secondary"
-        depressed="true"
-        tag="button"
-        type="button"
-      >
-        
-        Add
-      
-      </v-btn-stub>
-    </div>
+      <span>
+        Delete selected
+      </span>
+    </v-tooltip-stub>
   </v-row-stub>
    
   <v-data-table-stub
@@ -321,68 +363,110 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
     
     </h4>
      
+    <v-btn-stub
+      activeclass=""
+      class="black--text"
+      color="secondary"
+      depressed="true"
+      tag="button"
+      type="button"
+    >
+      
+      Add
+    
+    </v-btn-stub>
+  </v-row-stub>
+   
+  <v-row-stub
+    class="actions"
+    tag="div"
+  >
+    <v-checkbox-stub
+      backgroundcolor=""
+      errorcount="1"
+      errormessages=""
+      indeterminateicon="$checkboxIndeterminate"
+      label="Select all"
+      messages=""
+      officon="$checkboxOff"
+      onicon="$checkboxOn"
+      ripple="true"
+      rules=""
+      successmessages=""
+      value=""
+      valuecomparator="function deepEqual(a, b) {
+          if (a === b) return true;
+
+          if (a instanceof Date && b instanceof Date && a.getTime() !== b.getTime()) {
+            // If the values are Date, compare them as timestamps
+            return false;
+          }
+
+          if (a !== Object(a) || b !== Object(b)) {
+            // If the values aren't objects, they were already checked for equality
+            return false;
+          }
+
+          var props = Object.keys(a);
+
+          if (props.length !== Object.keys(b).length) {
+            // Different number of props, don't bother to check
+            return false;
+          }
+
+          return props.every(function (p) {
+            return deepEqual(a[p], b[p]);
+          });
+        }"
+    />
+     
     <search-stub
       class="ma-0 ml-auto pa-0 flex-grow-0"
     />
      
-    <div>
-      <v-tooltip-stub
-        bottom="true"
-        closedelay="0"
-        contentclass=""
-        fixed="true"
-        maxwidth="auto"
-        nudgebottom="0"
-        nudgeleft="0"
-        nudgeright="0"
-        nudgetop="0"
-        nudgewidth="0"
-        opendelay="200"
-        openonhover="true"
-        tag="span"
-        transition="expand-y-transition"
-      >
-         
-        <span>
-          Merge selected
-        </span>
-      </v-tooltip-stub>
+    <v-tooltip-stub
+      bottom="true"
+      closedelay="0"
+      contentclass=""
+      fixed="true"
+      maxwidth="auto"
+      nudgebottom="0"
+      nudgeleft="0"
+      nudgeright="0"
+      nudgetop="0"
+      nudgewidth="0"
+      opendelay="200"
+      openonhover="true"
+      tag="span"
+      transition="expand-y-transition"
+    >
        
-      <v-tooltip-stub
-        bottom="true"
-        closedelay="0"
-        contentclass=""
-        fixed="true"
-        maxwidth="auto"
-        nudgebottom="0"
-        nudgeleft="0"
-        nudgeright="0"
-        nudgetop="0"
-        nudgewidth="0"
-        opendelay="200"
-        openonhover="true"
-        tag="span"
-        transition="expand-y-transition"
-      >
-         
-        <span>
-          Delete selected
-        </span>
-      </v-tooltip-stub>
+      <span>
+        Merge selected
+      </span>
+    </v-tooltip-stub>
+     
+    <v-tooltip-stub
+      bottom="true"
+      closedelay="0"
+      contentclass=""
+      fixed="true"
+      maxwidth="auto"
+      nudgebottom="0"
+      nudgeleft="0"
+      nudgeright="0"
+      nudgetop="0"
+      nudgewidth="0"
+      opendelay="200"
+      openonhover="true"
+      tag="span"
+      transition="expand-y-transition"
+    >
        
-      <v-btn-stub
-        activeclass=""
-        class="black--text"
-        color="secondary"
-        depressed="true"
-        tag="button"
-        type="button"
-      >
-        
-        Add
-      
-      </v-btn-stub>
-    </div>
+      <span>
+        Delete selected
+      </span>
+    </v-tooltip-stub>
   </v-row-stub>
    
   <v-data-table-stub
@@ -639,10 +723,6 @@ exports[`OrganizationsTable Mock query for getPaginatedOrganizations 1`] = `
     
     </h4>
      
-    <search-stub
-      class="ma-0 ml-auto mr-3 pa-0 flex-grow-0"
-    />
-     
     <v-btn-stub
       activeclass=""
       class="black--text"
@@ -655,6 +735,15 @@ exports[`OrganizationsTable Mock query for getPaginatedOrganizations 1`] = `
       Add
     
     </v-btn-stub>
+  </v-row-stub>
+   
+  <v-row-stub
+    class="actions"
+    tag="div"
+  >
+    <search-stub
+      class="ma-0 mr-3 pa-0 flex-grow-0"
+    />
   </v-row-stub>
    
   <v-data-table-stub

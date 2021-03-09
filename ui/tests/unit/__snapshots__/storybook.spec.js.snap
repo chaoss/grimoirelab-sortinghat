@@ -97,9 +97,13 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
       <!---->
        
       <div
-        class="v-subheader theme--light"
+        class="v-subheader d-flex justify-space-between theme--light"
       >
-        Identities (4)
+        <span>
+          Identities (4)
+        </span>
+         
+        <!---->
       </div>
        
       <div
@@ -248,9 +252,12 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
       </div>
        
       <div
-        class="v-subheader theme--light"
+        class="v-subheader d-flex justify-space-between theme--light"
       >
-        Organizations (2)
+        
+    Organizations (2)
+    
+        <!---->
       </div>
        
       <div
@@ -419,9 +426,29 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
       </div>
        
       <div
-        class="v-subheader theme--light"
+        class="v-subheader d-flex justify-space-between theme--light"
       >
-        Identities (4)
+        <span>
+          Identities (4)
+        </span>
+         
+        <button
+          class="v-btn v-btn--depressed v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
+          type="button"
+        >
+          <span
+            class="v-btn__content"
+          >
+            <i
+              aria-hidden="true"
+              class="v-icon notranslate v-icon--left mdi mdi-call-split theme--light"
+              style="font-size: 16px;"
+            />
+            
+      Split all
+    
+          </span>
+        </button>
       </div>
        
       <div
@@ -876,9 +903,28 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
       </div>
        
       <div
-        class="v-subheader theme--light"
+        class="v-subheader d-flex justify-space-between theme--light"
       >
-        Organizations (2)
+        
+    Organizations (2)
+    
+        <button
+          class="v-btn v-btn--depressed v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
+          type="button"
+        >
+          <span
+            class="v-btn__content"
+          >
+            <i
+              aria-hidden="true"
+              class="v-icon notranslate v-icon--left mdi mdi-delete theme--light"
+              style="font-size: 16px;"
+            />
+            
+      Remove all
+    
+          </span>
+        </button>
       </div>
        
       <div
@@ -1180,9 +1226,30 @@ exports[`Storyshots ExpandedIndividual No Organizations 1`] = `
       </div>
        
       <div
-        class="v-subheader theme--light"
+        class="v-subheader d-flex justify-space-between theme--light"
       >
-        Identities (1)
+        <span>
+          Identities (1)
+        </span>
+         
+        <button
+          class="v-btn v-btn--depressed v-btn--disabled v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
+          disabled="disabled"
+          type="button"
+        >
+          <span
+            class="v-btn__content"
+          >
+            <i
+              aria-hidden="true"
+              class="v-icon notranslate v-icon--left mdi mdi-call-split theme--light"
+              style="font-size: 16px;"
+            />
+            
+      Split all
+    
+          </span>
+        </button>
       </div>
        
       <div
@@ -1304,9 +1371,29 @@ exports[`Storyshots ExpandedIndividual No Organizations 1`] = `
       </div>
        
       <div
-        class="v-subheader theme--light"
+        class="v-subheader d-flex justify-space-between theme--light"
       >
-        Organizations (0)
+        
+    Organizations (0)
+    
+        <button
+          class="v-btn v-btn--depressed v-btn--disabled v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
+          disabled="disabled"
+          type="button"
+        >
+          <span
+            class="v-btn__content"
+          >
+            <i
+              aria-hidden="true"
+              class="v-icon notranslate v-icon--left mdi mdi-delete theme--light"
+              style="font-size: 16px;"
+            />
+            
+      Remove all
+    
+          </span>
+        </button>
       </div>
        
       <div
@@ -5530,8 +5617,70 @@ exports[`Storyshots IndividualsTable Default 1`] = `
     
         </h4>
          
+        <button
+          class="black--text v-btn v-btn--depressed theme--light v-size--default secondary"
+          type="button"
+        >
+          <span
+            class="v-btn__content"
+          >
+            
+      Add
+    
+          </span>
+        </button>
+      </div>
+       
+      <div
+        class="row actions"
+      >
         <div
-          class="v-input search ma-0 ml-auto pa-0 flex-grow-0 ma-0 ml-auto pa-0 flex-grow-0 theme--light v-text-field search--hidden"
+          class="v-input theme--light v-input--selection-controls v-input--checkbox"
+        >
+          <div
+            class="v-input__control"
+          >
+            <div
+              class="v-input__slot"
+            >
+              <div
+                class="v-input--selection-controls__input"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate mdi mdi-checkbox-blank-outline theme--light"
+                />
+                <input
+                  aria-checked="false"
+                  id="input-744"
+                  role="checkbox"
+                  type="checkbox"
+                  value=""
+                />
+                <div
+                  class="v-input--selection-controls__ripple"
+                />
+              </div>
+              <label
+                class="v-label theme--light"
+                for="input-744"
+                style="left: 0px; position: relative;"
+              >
+                Select all
+              </label>
+            </div>
+            <div
+              class="v-messages theme--light"
+            >
+              <div
+                class="v-messages__wrapper"
+              />
+            </div>
+          </div>
+        </div>
+         
+        <div
+          class="v-input search ma-0 pa-0 flex-grow-0 ma-0 ml-auto pa-0 flex-grow-0 theme--light v-text-field"
         >
           <div
             class="v-input__control"
@@ -5544,13 +5693,13 @@ exports[`Storyshots IndividualsTable Default 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-737"
+                  for="input-749"
                   style="left: 0px; position: absolute;"
                 >
                   Search
                 </label>
                 <input
-                  id="input-737"
+                  id="input-749"
                   type="text"
                 />
               </div>
@@ -5594,8 +5743,8 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                         class="v-btn__content"
                       >
                         
-        View search syntax
-        
+      View search syntax
+      
                         <i
                           aria-hidden="true"
                           class="v-icon notranslate v-icon--right mdi mdi-help-circle-outline theme--light"
@@ -5623,60 +5772,45 @@ exports[`Storyshots IndividualsTable Default 1`] = `
           </div>
         </div>
          
-        <div>
-          <span
-            class="v-tooltip v-tooltip--bottom"
-          >
-            <!---->
-            <button
-              class="v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
-              disabled="disabled"
-              type="button"
-            >
-              <span
-                class="v-btn__content"
-              >
-                <i
-                  aria-hidden="true"
-                  class="v-icon notranslate mdi mdi-call-merge theme--light"
-                />
-              </span>
-            </button>
-          </span>
-           
-          <span
-            class="v-tooltip v-tooltip--bottom"
-          >
-            <!---->
-            <button
-              class="v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
-              disabled="disabled"
-              type="button"
-            >
-              <span
-                class="v-btn__content"
-              >
-                <i
-                  aria-hidden="true"
-                  class="v-icon notranslate v-icon--left mdi mdi-delete theme--light"
-                />
-              </span>
-            </button>
-          </span>
-           
+        <span
+          class="v-tooltip v-tooltip--bottom"
+        >
+          <!---->
           <button
-            class="black--text v-btn v-btn--depressed theme--light v-size--default secondary"
+            class="v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+            disabled="disabled"
             type="button"
           >
             <span
               class="v-btn__content"
             >
-              
-        Add
-      
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate mdi mdi-call-merge theme--light"
+              />
             </span>
           </button>
-        </div>
+        </span>
+         
+        <span
+          class="v-tooltip v-tooltip--bottom"
+        >
+          <!---->
+          <button
+            class="v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+            disabled="disabled"
+            type="button"
+          >
+            <span
+              class="v-btn__content"
+            >
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate mdi mdi-delete theme--light"
+              />
+            </span>
+          </button>
+        </span>
       </div>
        
       <div
@@ -6089,8 +6223,25 @@ exports[`Storyshots OrganizationsTable Default 1`] = `
     
         </h4>
          
+        <button
+          class="black--text v-btn v-btn--depressed theme--light v-size--default secondary"
+          type="button"
+        >
+          <span
+            class="v-btn__content"
+          >
+            
+      Add
+    
+          </span>
+        </button>
+      </div>
+       
+      <div
+        class="row actions"
+      >
         <div
-          class="v-input search ma-0 ml-auto pa-0 flex-grow-0 ma-0 ml-auto mr-3 pa-0 flex-grow-0 theme--light v-text-field search--hidden"
+          class="v-input search ma-0 pa-0 flex-grow-0 ma-0 mr-3 pa-0 flex-grow-0 theme--light v-text-field"
         >
           <div
             class="v-input__control"
@@ -6103,13 +6254,13 @@ exports[`Storyshots OrganizationsTable Default 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-956"
+                  for="input-967"
                   style="left: 0px; position: absolute;"
                 >
                   Search
                 </label>
                 <input
-                  id="input-956"
+                  id="input-967"
                   type="text"
                 />
               </div>
@@ -6153,8 +6304,8 @@ exports[`Storyshots OrganizationsTable Default 1`] = `
                         class="v-btn__content"
                       >
                         
-        View search syntax
-        
+      View search syntax
+      
                         <i
                           aria-hidden="true"
                           class="v-icon notranslate v-icon--right mdi mdi-help-circle-outline theme--light"
@@ -6181,19 +6332,6 @@ exports[`Storyshots OrganizationsTable Default 1`] = `
             </div>
           </div>
         </div>
-         
-        <button
-          class="black--text v-btn v-btn--depressed theme--light v-size--default secondary"
-          type="button"
-        >
-          <span
-            class="v-btn__content"
-          >
-            
-      Add
-    
-          </span>
-        </button>
       </div>
        
       <div
@@ -6559,11 +6697,10 @@ exports[`Storyshots Search Default 1`] = `
     class="v-application--wrap"
   >
     <div
-      class="mx-auto"
-      width="380"
+      class="mx-auto mt-5"
     >
       <div
-        class="v-input search ma-0 ml-auto pa-0 flex-grow-0 theme--light v-text-field search--hidden"
+        class="v-input search ma-0 pa-0 flex-grow-0 theme--light v-text-field"
       >
         <div
           class="v-input__control"
@@ -6576,13 +6713,13 @@ exports[`Storyshots Search Default 1`] = `
             >
               <label
                 class="v-label theme--light"
-                for="input-1045"
+                for="input-1054"
                 style="left: 0px; position: absolute;"
               >
                 Search
               </label>
               <input
-                id="input-1045"
+                id="input-1054"
                 type="text"
               />
             </div>
@@ -6626,8 +6763,8 @@ exports[`Storyshots Search Default 1`] = `
                       class="v-btn__content"
                     >
                       
-        View search syntax
-        
+      View search syntax
+      
                       <i
                         aria-hidden="true"
                         class="v-icon notranslate v-icon--right mdi mdi-help-circle-outline theme--light"
@@ -7153,8 +7290,70 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
     
           </h4>
            
+          <button
+            class="black--text v-btn v-btn--depressed theme--light v-size--default secondary"
+            type="button"
+          >
+            <span
+              class="v-btn__content"
+            >
+              
+      Add
+    
+            </span>
+          </button>
+        </div>
+         
+        <div
+          class="row actions"
+        >
           <div
-            class="v-input search ma-0 ml-auto pa-0 flex-grow-0 ma-0 ml-auto pa-0 flex-grow-0 theme--light v-text-field search--hidden"
+            class="v-input theme--light v-input--selection-controls v-input--checkbox"
+          >
+            <div
+              class="v-input__control"
+            >
+              <div
+                class="v-input__slot"
+              >
+                <div
+                  class="v-input--selection-controls__input"
+                >
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate mdi mdi-checkbox-blank-outline theme--light"
+                  />
+                  <input
+                    aria-checked="false"
+                    id="input-1144"
+                    role="checkbox"
+                    type="checkbox"
+                    value=""
+                  />
+                  <div
+                    class="v-input--selection-controls__ripple"
+                  />
+                </div>
+                <label
+                  class="v-label theme--light"
+                  for="input-1144"
+                  style="left: 0px; position: relative;"
+                >
+                  Select all
+                </label>
+              </div>
+              <div
+                class="v-messages theme--light"
+              >
+                <div
+                  class="v-messages__wrapper"
+                />
+              </div>
+            </div>
+          </div>
+           
+          <div
+            class="v-input search ma-0 pa-0 flex-grow-0 ma-0 ml-auto pa-0 flex-grow-0 theme--light v-text-field"
           >
             <div
               class="v-input__control"
@@ -7167,13 +7366,13 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-1136"
+                    for="input-1149"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-1136"
+                    id="input-1149"
                     type="text"
                   />
                 </div>
@@ -7217,8 +7416,8 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                           class="v-btn__content"
                         >
                           
-        View search syntax
-        
+      View search syntax
+      
                           <i
                             aria-hidden="true"
                             class="v-icon notranslate v-icon--right mdi mdi-help-circle-outline theme--light"
@@ -7246,60 +7445,45 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
             </div>
           </div>
            
-          <div>
-            <span
-              class="v-tooltip v-tooltip--bottom"
-            >
-              <!---->
-              <button
-                class="v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
-                disabled="disabled"
-                type="button"
-              >
-                <span
-                  class="v-btn__content"
-                >
-                  <i
-                    aria-hidden="true"
-                    class="v-icon notranslate mdi mdi-call-merge theme--light"
-                  />
-                </span>
-              </button>
-            </span>
-             
-            <span
-              class="v-tooltip v-tooltip--bottom"
-            >
-              <!---->
-              <button
-                class="v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
-                disabled="disabled"
-                type="button"
-              >
-                <span
-                  class="v-btn__content"
-                >
-                  <i
-                    aria-hidden="true"
-                    class="v-icon notranslate v-icon--left mdi mdi-delete theme--light"
-                  />
-                </span>
-              </button>
-            </span>
-             
+          <span
+            class="v-tooltip v-tooltip--bottom"
+          >
+            <!---->
             <button
-              class="black--text v-btn v-btn--depressed theme--light v-size--default secondary"
+              class="v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+              disabled="disabled"
               type="button"
             >
               <span
                 class="v-btn__content"
               >
-                
-        Add
-      
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate mdi mdi-call-merge theme--light"
+                />
               </span>
             </button>
-          </div>
+          </span>
+           
+          <span
+            class="v-tooltip v-tooltip--bottom"
+          >
+            <!---->
+            <button
+              class="v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+              disabled="disabled"
+              type="button"
+            >
+              <span
+                class="v-btn__content"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate mdi mdi-delete theme--light"
+                />
+              </span>
+            </button>
+          </span>
         </div>
          
         <div

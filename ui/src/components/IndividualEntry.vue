@@ -131,6 +131,11 @@
           </v-btn>
         </template>
         <v-list>
+          <v-list-item @click="$emit('select', $event)">
+            <v-list-item-title>
+              {{ isSelected ? "Deselect individual" : "Select individual" }}
+            </v-list-item-title>
+          </v-list-item>
           <v-list-item @click="$emit('saveIndividual', $event)">
             <v-list-item-title>Save in workspace</v-list-item-title>
           </v-list-item>
