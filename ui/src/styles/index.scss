@@ -97,7 +97,7 @@ $border-color: rgba(0, 0, 0, 0.12);
 .theme--light.v-data-table
   tbody
   .dropzone:hover:not(.v-data-table__expanded__content):not(.v-data-table__empty-wrapper),
-.dropzone {
+.dropzone:not(.locked) {
   background: desaturate(lighten($active-color, 40%), 20%);
 }
 

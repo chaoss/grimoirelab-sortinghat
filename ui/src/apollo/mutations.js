@@ -74,6 +74,7 @@ const UNMERGE = gql`
       uuids
       individuals {
         mk
+        isLocked
         profile {
           name
           id

@@ -16,6 +16,7 @@ const individualCardTemplate = `
     :identities="identities"
     :enrollments="enrollments"
     :is-highlighted="isHighlighted"
+    :is-locked="isLocked"
     />`;
 
 export const Default = () => ({

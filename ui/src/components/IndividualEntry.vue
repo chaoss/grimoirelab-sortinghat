@@ -10,9 +10,9 @@
     @click.prevent="selectEntry"
     @dblclick="onDoubleClick"
     @drop.stop="onDrop($event)"
-    @dragover.prevent="isDragging = true"
-    @dragenter.prevent="isDragging = true"
-    @dragleave.prevent="isDragging = false"
+    @dragover.prevent="handleDrag($event, true)"
+    @dragenter.prevent="handleDrag($event, true)"
+    @dragleave.prevent="handleDrag($event, false)"
     @mouseenter="$emit('highlight')"
     @mouseleave="$emit('stopHighlight')"
   >
@@ -217,7 +217,7 @@ export default {
   methods: {
     selectEntry() {
       const delay = 350;
-      if (!this.isLocked && !this.timeout) {
+      if (!this.timeout) {
         this.timeout = window.setTimeout(() => {
           this.timeout = null;
           this.$emit("select");
@@ -248,7 +248,9 @@ export default {
       );
       this.$emit(
         "merge",
-        droppedIndividuals.map(individual => individual.uuid)
+        droppedIndividuals
+          .filter(individual => !individual.isLocked)
+          .map(individual => individual.uuid)
       );
     },
     moveIndividual(event) {
@@ -258,6 +260,15 @@ export default {
     enrollIndividual(event) {
       const organization = event.dataTransfer.getData("organization");
       this.$emit("enroll", organization);
+    },
+    handleDrag(event, isDragging) {
+      const types = event.dataTransfer.types;
+
+      if (isDragging && !types.includes("lockactions")) {
+        this.isDragging = true;
+      } else {
+        this.isDragging = false;
+      }
     }
   },
   watch: {
