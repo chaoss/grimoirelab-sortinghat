@@ -19,6 +19,7 @@
 
     <v-row class="actions">
       <v-checkbox
+        v-model="allSelected"
         value
         :indeterminate="isIndeterminate"
         :label="
@@ -271,7 +272,8 @@ export default {
         open: false,
         text: ""
       },
-      totalResults: 0
+      totalResults: 0,
+      allSelected: false
     };
   },
   computed: {
@@ -311,6 +313,7 @@ export default {
         this.pageCount = response.data.individuals.pageInfo.numPages;
         this.page = response.data.individuals.pageInfo.page;
         this.totalResults = response.data.individuals.pageInfo.totalResults;
+        this.allSelected = false;
         this.$emit("updateIndividuals", this.individuals);
       }
     },
@@ -335,9 +338,12 @@ export default {
     },
     selectIndividual(individual) {
       individual.isSelected = !individual.isSelected;
+      this.allSelected =
+        this.selectedIndividuals.length === this.individuals.length;
     },
     deselectIndividuals() {
       this.individuals.forEach(individual => (individual.isSelected = false));
+      this.allSelected = false;
     },
     async deleteIndividuals(individuals) {
       const response = await Promise.all(
