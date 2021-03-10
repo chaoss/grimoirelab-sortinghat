@@ -232,20 +232,47 @@ exports[`IndividualsTable Mock query for getCountries 1`] = `
   />
    
   <div
-    class="text-center pt-2"
+    class="d-flex align-baseline text-center pt-2"
   >
-    <v-pagination-stub
-      currentpagearialabel="$vuetify.pagination.ariaLabel.currentPage"
-      length="0"
-      nextarialabel="$vuetify.pagination.ariaLabel.next"
-      nexticon="$next"
-      pagearialabel="$vuetify.pagination.ariaLabel.page"
-      previcon="$prev"
-      previousarialabel="$vuetify.pagination.ariaLabel.previous"
-      totalvisible="7"
-      value="0"
-      wrapperarialabel="$vuetify.pagination.ariaLabel.wrapper"
-    />
+    <v-col-stub
+      class="ml-auto"
+      cols="8"
+      tag="div"
+    >
+      <v-pagination-stub
+        currentpagearialabel="$vuetify.pagination.ariaLabel.currentPage"
+        length="0"
+        nextarialabel="$vuetify.pagination.ariaLabel.next"
+        nexticon="$next"
+        pagearialabel="$vuetify.pagination.ariaLabel.page"
+        previcon="$prev"
+        previousarialabel="$vuetify.pagination.ariaLabel.previous"
+        totalvisible="7"
+        value="0"
+        wrapperarialabel="$vuetify.pagination.ariaLabel.wrapper"
+      />
+    </v-col-stub>
+     
+    <v-col-stub
+      cols="2"
+      tag="div"
+    >
+      <v-text-field-stub
+        backgroundcolor=""
+        clearicon="$clear"
+        errorcount="1"
+        errormessages=""
+        label="Items per page"
+        loaderheight="2"
+        max="0"
+        messages=""
+        min="1"
+        rules=""
+        successmessages=""
+        type="number"
+        value="10"
+      />
+    </v-col-stub>
   </div>
    
   <v-dialog-stub
@@ -564,20 +591,47 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
   />
    
   <div
-    class="text-center pt-2"
+    class="d-flex align-baseline text-center pt-2"
   >
-    <v-pagination-stub
-      currentpagearialabel="$vuetify.pagination.ariaLabel.currentPage"
-      length="0"
-      nextarialabel="$vuetify.pagination.ariaLabel.next"
-      nexticon="$next"
-      pagearialabel="$vuetify.pagination.ariaLabel.page"
-      previcon="$prev"
-      previousarialabel="$vuetify.pagination.ariaLabel.previous"
-      totalvisible="7"
-      value="0"
-      wrapperarialabel="$vuetify.pagination.ariaLabel.wrapper"
-    />
+    <v-col-stub
+      class="ml-auto"
+      cols="8"
+      tag="div"
+    >
+      <v-pagination-stub
+        currentpagearialabel="$vuetify.pagination.ariaLabel.currentPage"
+        length="0"
+        nextarialabel="$vuetify.pagination.ariaLabel.next"
+        nexticon="$next"
+        pagearialabel="$vuetify.pagination.ariaLabel.page"
+        previcon="$prev"
+        previousarialabel="$vuetify.pagination.ariaLabel.previous"
+        totalvisible="7"
+        value="0"
+        wrapperarialabel="$vuetify.pagination.ariaLabel.wrapper"
+      />
+    </v-col-stub>
+     
+    <v-col-stub
+      cols="2"
+      tag="div"
+    >
+      <v-text-field-stub
+        backgroundcolor=""
+        clearicon="$clear"
+        errorcount="1"
+        errormessages=""
+        label="Items per page"
+        loaderheight="2"
+        max="0"
+        messages=""
+        min="1"
+        rules=""
+        successmessages=""
+        type="number"
+        value="10"
+      />
+    </v-col-stub>
   </div>
    
   <v-dialog-stub
@@ -841,7 +895,7 @@ exports[`OrganizationsTable Mock query for getPaginatedOrganizations 1`] = `
   />
    
   <div
-    class="text-center pt-2"
+    class="pagination d-flex align-baseline text-center pt-2"
   >
     <v-pagination-stub
       currentpagearialabel="$vuetify.pagination.ariaLabel.currentPage"
@@ -854,6 +908,22 @@ exports[`OrganizationsTable Mock query for getPaginatedOrganizations 1`] = `
       totalvisible="5"
       value="0"
       wrapperarialabel="$vuetify.pagination.ariaLabel.wrapper"
+    />
+     
+    <v-text-field-stub
+      backgroundcolor=""
+      clearicon="$clear"
+      errorcount="1"
+      errormessages=""
+      label="Items per page"
+      loaderheight="2"
+      max="0"
+      messages=""
+      min="1"
+      rules=""
+      successmessages=""
+      type="number"
+      value="10"
     />
   </div>
    
