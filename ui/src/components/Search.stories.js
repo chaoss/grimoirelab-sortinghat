@@ -7,7 +7,7 @@ export default {
 
 const searchTemplate = `
   <div class="ma-5">
-    <search :valid-filters="validFilters" />
+    <search :valid-filters="validFilters" :filter-selector="filterSelector" />
   </div>
 `;
 
@@ -15,6 +15,25 @@ export const Default = () => ({
   components: { Search },
   template: searchTemplate,
   data: () => ({
-    validFilters: []
+    validFilters: [],
+    filterSelector: false
+  })
+});
+
+export const filterSelector = () => ({
+  components: { Search },
+  template: searchTemplate,
+  data: () => ({
+    validFilters: [
+      {
+        filter: "country",
+        type: "string"
+      },
+      {
+        filter: "isBot",
+        type: "boolean"
+      }
+    ],
+    filterSelector: true
   })
 });

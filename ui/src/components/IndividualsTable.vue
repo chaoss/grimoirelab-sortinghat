@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <v-row class="actions">
+    <v-row class="d-flex justify-space-between ml-4 mr-4 mb-6">
       <h4 class="title">
         <v-icon color="black" left>
           mdi-account-multiple
@@ -21,6 +21,7 @@
       <v-checkbox
         v-model="allSelected"
         value
+        class="mt-0"
         :indeterminate="isIndeterminate"
         :label="
           selectedIndividuals.length === 0
@@ -30,7 +31,11 @@
         @change="selectAll($event)"
       >
       </v-checkbox>
-      <search class="ma-0 ml-auto pa-0 flex-grow-0" @search="filterSearch" />
+      <search
+        class="ml-auto pa-0 flex-grow-0"
+        @search="filterSearch"
+        filter-selector
+      />
       <v-tooltip bottom transition="expand-y-transition" open-delay="200">
         <template v-slot:activator="{ on }">
           <v-btn
@@ -500,9 +505,17 @@ export default {
   overflow-x: hidden;
 }
 .actions {
-  align-items: baseline;
+  align-items: flex-start;
   justify-content: space-between;
-  padding: 0 26px 10px 26px;
+  padding: 0 26px;
+
+  ::v-deep .v-label {
+    font-size: 0.9rem;
+  }
+
+  ::v-deep .v-input--checkbox {
+    padding-top: 6px;
+  }
 }
 .dragged-item {
   max-width: 300px;
