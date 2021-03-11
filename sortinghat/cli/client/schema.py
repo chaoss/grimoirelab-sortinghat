@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2020 Bitergia
+# Copyright (C) 2014-2021 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 #
 # Authors:
 #     Santiago Dueñas <sduenas@bitergia.com>
+#     Quan Zhou <quan@bitergia.com>
 #
 
 """
@@ -64,19 +65,24 @@ String = sgqlc.types.String
 ########################################################################
 # Input Objects
 ########################################################################
-
 class CountryFilterType(sgqlc.types.Input):
     __schema__ = sh_schema
-    __field_names__ = ('code', 'term',)
+    __field_names__ = ('code', 'term')
     code = sgqlc.types.Field(String, graphql_name='code')
     term = sgqlc.types.Field(String, graphql_name='term')
 
 
 class IdentityFilterType(sgqlc.types.Input):
     __schema__ = sh_schema
-    __field_names__ = ('uuid', 'is_locked')
+    __field_names__ = ('uuid', 'term', 'is_locked', 'is_bot', 'gender', 'country', 'source', 'last_updated')
     uuid = sgqlc.types.Field(String, graphql_name='uuid')
+    term = sgqlc.types.Field(String, graphql_name='term')
     is_locked = sgqlc.types.Field(Boolean, graphql_name='isLocked')
+    is_bot = sgqlc.types.Field(Boolean, graphql_name='isBot')
+    gender = sgqlc.types.Field(String, graphql_name='gender')
+    country = sgqlc.types.Field(String, graphql_name='country')
+    source = sgqlc.types.Field(String, graphql_name='source')
+    last_updated = sgqlc.types.Field(String, graphql_name='lastUpdated')
 
 
 class OperationFilterType(sgqlc.types.Input):
@@ -92,8 +98,9 @@ class OperationFilterType(sgqlc.types.Input):
 
 class OrganizationFilterType(sgqlc.types.Input):
     __schema__ = sh_schema
-    __field_names__ = ('name',)
+    __field_names__ = ('name', 'term')
     name = sgqlc.types.Field(String, graphql_name='name')
+    term = sgqlc.types.Field(String, graphql_name='term')
 
 
 class ProfileInputType(sgqlc.types.Input):
@@ -141,6 +148,26 @@ class AddOrganization(sgqlc.types.Type):
     organization = sgqlc.types.Field('OrganizationType', graphql_name='organization')
 
 
+class Affiliate(sgqlc.types.Type):
+    __schema__ = sh_schema
+    __field_names__ = ('job_id',)
+    job_id = sgqlc.types.Field(String, graphql_name='jobId')
+
+
+class AffiliationRecommendationType(sgqlc.types.Type):
+    __schema__ = sh_schema
+    __field_names__ = ('uuid', 'organizations')
+    uuid = sgqlc.types.Field(String, graphql_name='uuid')
+    organizations = sgqlc.types.Field(sgqlc.types.list_of(String), graphql_name='organizations')
+
+
+class AffiliationResultType(sgqlc.types.Type):
+    __schema__ = sh_schema
+    __field_names__ = ('uuid', 'organizations')
+    uuid = sgqlc.types.Field(String, graphql_name='uuid')
+    organizations = sgqlc.types.Field(sgqlc.types.list_of(String), graphql_name='organizations')
+
+
 class CountryPaginatedType(sgqlc.types.Type):
     __schema__ = sh_schema
     __field_names__ = ('entities', 'page_info')
@@ -156,7 +183,7 @@ class CountryType(sgqlc.types.Type):
     code = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='code')
     name = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='name')
     alpha3 = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='alpha3')
-    profile_set = sgqlc.types.Field(sgqlc.types.list_of('ProfileType'), graphql_name='profileSet')
+    profile_set = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of(sgqlc.types.non_null('ProfileType'))), graphql_name='profileSet')
 
 
 class DeleteDomain(sgqlc.types.Type):
@@ -228,25 +255,62 @@ class IdentityType(sgqlc.types.Type):
     individual = sgqlc.types.Field(sgqlc.types.non_null('IndividualType'), graphql_name='individual')
 
 
+class IndividualType(sgqlc.types.Type):
+    __schema__ = sh_schema
+    __field_names__ = ('created_at', 'last_modified', 'mk', 'is_locked', 'identities', 'profile', 'enrollments')
+    created_at = sgqlc.types.Field(sgqlc.types.non_null(DateTime), graphql_name='createdAt')
+    last_modified = sgqlc.types.Field(sgqlc.types.non_null(DateTime), graphql_name='lastModified')
+    mk = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='mk')
+    is_locked = sgqlc.types.Field(sgqlc.types.non_null(Boolean), graphql_name='isLocked')
+    identities = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of(sgqlc.types.non_null(IdentityType))), graphql_name='identities')
+    profile = sgqlc.types.Field('ProfileType', graphql_name='profile')
+    enrollments = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of(sgqlc.types.non_null(EnrollmentType))), graphql_name='enrollments')
+
+
+class JobPaginatedType(sgqlc.types.Type):
+    __schema__ = sh_schema
+    __field_names__ = ('entities', 'page_info')
+    entities = sgqlc.types.Field(sgqlc.types.list_of('JobType'), graphql_name='entities')
+    page_info = sgqlc.types.Field('PaginationType', graphql_name='pageInfo')
+
+
+class JobType(sgqlc.types.Type):
+    __schema__ = sh_schema
+    __field_names__ = ('job_id', 'job_type', 'status', 'result', 'errors', 'enqueued_at')
+    job_id = sgqlc.types.Field(String, graphql_name='jobId')
+    job_type = sgqlc.types.Field(String, graphql_name='jobType')
+    status = sgqlc.types.Field(String, graphql_name='status')
+    result = sgqlc.types.Field(sgqlc.types.list_of('JobResultType'), graphql_name='result')
+    errors = sgqlc.types.Field(sgqlc.types.list_of(String), graphql_name='errors')
+    enqueued_at = sgqlc.types.Field(DateTime, graphql_name='enqueuedAt')
+
+
 class Lock(sgqlc.types.Type):
     __schema__ = sh_schema
     __field_names__ = ('uuid', 'individual')
     uuid = sgqlc.types.Field(String, graphql_name='uuid')
-    individual = sgqlc.types.Field('IndividualType', graphql_name='individual')
+    individual = sgqlc.types.Field(IndividualType, graphql_name='individual')
+
+
+class MatchesRecommendationType(sgqlc.types.Type):
+    __schema__ = sh_schema
+    __field_names__ = ('uuid', 'matches')
+    uuid = sgqlc.types.Field(String, graphql_name='uuid')
+    matches = sgqlc.types.Field(sgqlc.types.list_of(String), graphql_name='matches')
 
 
 class Merge(sgqlc.types.Type):
     __schema__ = sh_schema
     __field_names__ = ('uuid', 'individual')
     uuid = sgqlc.types.Field(String, graphql_name='uuid')
-    individual = sgqlc.types.Field('IndividualType', graphql_name='individual')
+    individual = sgqlc.types.Field(IndividualType, graphql_name='individual')
 
 
 class MoveIdentity(sgqlc.types.Type):
     __schema__ = sh_schema
     __field_names__ = ('uuid', 'individual')
     uuid = sgqlc.types.Field(String, graphql_name='uuid')
-    individual = sgqlc.types.Field('IndividualType', graphql_name='individual')
+    individual = sgqlc.types.Field(IndividualType, graphql_name='individual')
 
 
 class ObtainJSONWebToken(sgqlc.types.Type):
@@ -288,15 +352,13 @@ class OrganizationType(sgqlc.types.Type):
     created_at = sgqlc.types.Field(sgqlc.types.non_null(DateTime), graphql_name='createdAt')
     last_modified = sgqlc.types.Field(sgqlc.types.non_null(DateTime), graphql_name='lastModified')
     name = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='name')
-    domains = sgqlc.types.Field(sgqlc.types.list_of(DomainType), graphql_name='domains')
-    enrollments = sgqlc.types.Field(sgqlc.types.list_of(EnrollmentType), graphql_name='enrollments')
+    domains = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of(sgqlc.types.non_null(DomainType))), graphql_name='domains')
+    enrollments = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of(sgqlc.types.non_null(EnrollmentType))), graphql_name='enrollments')
 
 
 class PaginationType(sgqlc.types.Type):
     __schema__ = sh_schema
-    __field_names__ = (
-        'page', 'page_size', 'num_pages', 'has_next', 'has_prev', 'start_index', 'end_index', 'total_results'
-    )
+    __field_names__ = ('page', 'page_size', 'num_pages', 'has_next', 'has_prev', 'start_index', 'end_index', 'total_results')
     page = sgqlc.types.Field(Int, graphql_name='page')
     page_size = sgqlc.types.Field(Int, graphql_name='pageSize')
     num_pages = sgqlc.types.Field(Int, graphql_name='numPages')
@@ -309,13 +371,11 @@ class PaginationType(sgqlc.types.Type):
 
 class ProfileType(sgqlc.types.Type):
     __schema__ = sh_schema
-    __field_names__ = (
-        'created_at', 'last_modified', 'id', 'individual', 'name', 'email', 'gender', 'gender_acc', 'is_bot', 'country'
-    )
+    __field_names__ = ('created_at', 'last_modified', 'id', 'individual', 'name', 'email', 'gender', 'gender_acc', 'is_bot', 'country')
     created_at = sgqlc.types.Field(sgqlc.types.non_null(DateTime), graphql_name='createdAt')
     last_modified = sgqlc.types.Field(sgqlc.types.non_null(DateTime), graphql_name='lastModified')
     id = sgqlc.types.Field(sgqlc.types.non_null(ID), graphql_name='id')
-    individual = sgqlc.types.Field(sgqlc.types.non_null('IndividualType'), graphql_name='individual')
+    individual = sgqlc.types.Field(sgqlc.types.non_null(IndividualType), graphql_name='individual')
     name = sgqlc.types.Field(String, graphql_name='name')
     email = sgqlc.types.Field(String, graphql_name='email')
     gender = sgqlc.types.Field(String, graphql_name='gender')
@@ -326,7 +386,7 @@ class ProfileType(sgqlc.types.Type):
 
 class Query(sgqlc.types.Type):
     __schema__ = sh_schema
-    __field_names__ = ('countries', 'organizations', 'individuals', 'transactions', 'operations')
+    __field_names__ = ('countries', 'organizations', 'individuals', 'transactions', 'operations', 'job', 'jobs')
     countries = sgqlc.types.Field(
         CountryPaginatedType, graphql_name='countries', args=sgqlc.types.ArgDict((
             ('page_size', sgqlc.types.Arg(Int, graphql_name='pageSize', default=None)),
@@ -362,6 +422,29 @@ class Query(sgqlc.types.Type):
             ('filters', sgqlc.types.Arg(OperationFilterType, graphql_name='filters', default=None)),
         ))
     )
+    job = sgqlc.types.Field(
+        JobType, graphql_name='job', args=sgqlc.types.ArgDict((
+            ('job_id', sgqlc.types.Arg(String, graphql_name='jobId', default=None)),
+        ))
+    )
+    jobs = sgqlc.types.Field(
+        JobPaginatedType, graphql_name='jobs', args=sgqlc.types.ArgDict((
+            ('page_size', sgqlc.types.Arg(Int, graphql_name='pageSize', default=None)),
+            ('page', sgqlc.types.Arg(Int, graphql_name='page', default=None)),
+        ))
+    )
+
+
+class RecommendAffiliations(sgqlc.types.Type):
+    __schema__ = sh_schema
+    __field_names__ = ('job_id',)
+    job_id = sgqlc.types.Field(String, graphql_name='jobId')
+
+
+class RecommendMatches(sgqlc.types.Type):
+    __schema__ = sh_schema
+    __field_names__ = ('job_id',)
+    job_id = sgqlc.types.Field(String, graphql_name='jobId')
 
 
 class Refresh(sgqlc.types.Type):
@@ -373,12 +456,7 @@ class Refresh(sgqlc.types.Type):
 
 class SortingHatMutation(sgqlc.types.Type):
     __schema__ = sh_schema
-    __field_names__ = (
-        'add_organization', 'delete_organization', 'add_domain', 'delete_domain', 'add_identity',
-        'delete_identity', 'update_profile', 'move_identity', 'lock', 'unlock',
-        'merge', 'unmerge_identities', 'enroll', 'withdraw',
-        'token_auth', 'verify_token', 'refresh_token'
-    )
+    __field_names__ = ('add_organization', 'delete_organization', 'add_domain', 'delete_domain', 'add_identity', 'delete_identity', 'update_profile', 'move_identity', 'lock', 'unlock', 'merge', 'unmerge_identities', 'enroll', 'withdraw', 'update_enrollment', 'recommend_affiliations', 'recommend_matches', 'affiliate', 'unify', 'token_auth', 'verify_token', 'refresh_token')
     add_organization = sgqlc.types.Field(
         AddOrganization, graphql_name='addOrganization', args=sgqlc.types.ArgDict((
             ('name', sgqlc.types.Arg(String, graphql_name='name', default=None)),
@@ -466,6 +544,42 @@ class SortingHatMutation(sgqlc.types.Type):
             ('uuid', sgqlc.types.Arg(String, graphql_name='uuid', default=None)),
         ))
     )
+    update_enrollment = sgqlc.types.Field(
+        'UpdateEnrollment', graphql_name='updateEnrollment', args=sgqlc.types.ArgDict((
+            ('force', sgqlc.types.Arg(Boolean, graphql_name='force', default=None)),
+            ('from_date', sgqlc.types.Arg(DateTime, graphql_name='fromDate', default=None)),
+            ('new_from_date', sgqlc.types.Arg(DateTime, graphql_name='newFromDate', default=None)),
+            ('new_to_date', sgqlc.types.Arg(DateTime, graphql_name='newToDate', default=None)),
+            ('organization', sgqlc.types.Arg(String, graphql_name='organization', default=None)),
+            ('to_date', sgqlc.types.Arg(DateTime, graphql_name='toDate', default=None)),
+            ('uuid', sgqlc.types.Arg(String, graphql_name='uuid', default=None)),
+        ))
+    )
+    recommend_affiliations = sgqlc.types.Field(
+        RecommendAffiliations, graphql_name='recommendAffiliations', args=sgqlc.types.ArgDict((
+            ('uuids', sgqlc.types.Arg(sgqlc.types.list_of(String), graphql_name='uuids', default=None)),
+        ))
+    )
+    recommend_matches = sgqlc.types.Field(
+        RecommendMatches, graphql_name='recommendMatches', args=sgqlc.types.ArgDict((
+            ('criteria', sgqlc.types.Arg(sgqlc.types.list_of(String), graphql_name='criteria', default=None)),
+            ('source_uuids', sgqlc.types.Arg(sgqlc.types.list_of(String), graphql_name='sourceUuids', default=None)),
+            ('target_uuids', sgqlc.types.Arg(sgqlc.types.list_of(String), graphql_name='targetUuids', default=None)),
+            ('verbose', sgqlc.types.Arg(Boolean, graphql_name='verbose', default=None)),
+        ))
+    )
+    affiliate = sgqlc.types.Field(
+        Affiliate, graphql_name='affiliate', args=sgqlc.types.ArgDict((
+            ('uuids', sgqlc.types.Arg(sgqlc.types.list_of(String), graphql_name='uuids', default=None)),
+        ))
+    )
+    unify = sgqlc.types.Field(
+        'Unify', graphql_name='unify', args=sgqlc.types.ArgDict((
+            ('criteria', sgqlc.types.Arg(sgqlc.types.list_of(String), graphql_name='criteria', default=None)),
+            ('source_uuids', sgqlc.types.Arg(sgqlc.types.list_of(String), graphql_name='sourceUuids', default=None)),
+            ('target_uuids', sgqlc.types.Arg(sgqlc.types.list_of(String), graphql_name='targetUuids', default=None)),
+        ))
+    )
     token_auth = sgqlc.types.Field(
         ObtainJSONWebToken, graphql_name='tokenAuth', args=sgqlc.types.ArgDict((
             ('username', sgqlc.types.Arg(sgqlc.types.non_null(String), graphql_name='username', default=None)),
@@ -500,19 +614,19 @@ class TransactionType(sgqlc.types.Type):
     closed_at = sgqlc.types.Field(DateTime, graphql_name='closedAt')
     is_closed = sgqlc.types.Field(sgqlc.types.non_null(Boolean), graphql_name='isClosed')
     authored_by = sgqlc.types.Field(String, graphql_name='authoredBy')
-    operations = sgqlc.types.Field(sgqlc.types.list_of(OperationType), graphql_name='operations')
+    operations = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of(sgqlc.types.non_null(OperationType))), graphql_name='operations')
 
 
-class IndividualType(sgqlc.types.Type):
+class Unify(sgqlc.types.Type):
     __schema__ = sh_schema
-    __field_names__ = ('created_at', 'last_modified', 'mk', 'is_locked', 'identities', 'profile', 'enrollments')
-    created_at = sgqlc.types.Field(sgqlc.types.non_null(DateTime), graphql_name='createdAt')
-    last_modified = sgqlc.types.Field(sgqlc.types.non_null(DateTime), graphql_name='lastModified')
-    mk = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='mk')
-    is_locked = sgqlc.types.Field(sgqlc.types.non_null(Boolean), graphql_name='isLocked')
-    identities = sgqlc.types.Field(sgqlc.types.list_of(IdentityType), graphql_name='identities')
-    profile = sgqlc.types.Field(ProfileType, graphql_name='profile')
-    enrollments = sgqlc.types.Field(sgqlc.types.list_of(EnrollmentType), graphql_name='enrollments')
+    __field_names__ = ('job_id',)
+    job_id = sgqlc.types.Field(String, graphql_name='jobId')
+
+
+class UnifyResultType(sgqlc.types.Type):
+    __schema__ = sh_schema
+    __field_names__ = ('merged',)
+    merged = sgqlc.types.Field(sgqlc.types.list_of(String), graphql_name='merged')
 
 
 class Unlock(sgqlc.types.Type):
@@ -527,6 +641,13 @@ class UnmergeIdentities(sgqlc.types.Type):
     __field_names__ = ('uuids', 'individuals')
     uuids = sgqlc.types.Field(sgqlc.types.list_of(String), graphql_name='uuids')
     individuals = sgqlc.types.Field(sgqlc.types.list_of(IndividualType), graphql_name='individuals')
+
+
+class UpdateEnrollment(sgqlc.types.Type):
+    __schema__ = sh_schema
+    __field_names__ = ('uuid', 'individual')
+    uuid = sgqlc.types.Field(String, graphql_name='uuid')
+    individual = sgqlc.types.Field(IndividualType, graphql_name='individual')
 
 
 class UpdateProfile(sgqlc.types.Type):
@@ -553,9 +674,15 @@ class Withdraw(sgqlc.types.Type):
 # Unions
 ########################################################################
 
+class JobResultType(sgqlc.types.Union):
+    __schema__ = sh_schema
+    __types__ = (AffiliationResultType, AffiliationRecommendationType, MatchesRecommendationType, UnifyResultType)
+
+
 ########################################################################
 # Schema Entry Points
 ########################################################################
+
 sh_schema.query_type = Query
 sh_schema.mutation_type = SortingHatMutation
 sh_schema.subscription_type = None
