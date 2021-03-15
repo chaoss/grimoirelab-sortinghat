@@ -2094,7 +2094,6 @@ class TestQueryIndividuals(django.test.TestCase):
         self.assertEqual(indv['mk'], 'c6d2504fde0e34b78a185c4b709e5442d045451c')
         self.assertEqual(indv['profile']['isBot'], False)
 
-
     def test_filter_non_exist_registry(self):
         """Check whether it returns an empty list when searched with a non existing uuid"""
 
@@ -2123,7 +2122,6 @@ class TestQueryIndividuals(django.test.TestCase):
 
         indvs = executed['data']['individuals']['entities']
         self.assertListEqual(indvs, [])
-
 
     def test_filter_gender(self):
         """Check whether it returns the individual searched when using the gender filter"""
@@ -2918,6 +2916,7 @@ class MockJob:
 
     def get_status(self):
         return self.status
+
     def get_id(self):
         return self.id
 
