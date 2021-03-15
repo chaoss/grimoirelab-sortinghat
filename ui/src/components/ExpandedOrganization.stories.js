@@ -1,5 +1,3 @@
-import { storiesOf } from "@storybook/vue";
-
 import ExpandedOrganization from "./ExpandedOrganization.vue";
 
 export default {
@@ -7,17 +5,13 @@ export default {
   excludeStories: /.*Data$/
 };
 
-
 const ExpandedOrganizationTemplate = `<expanded-organization :domains="domains" />`;
 
 export const Default = () => ({
   components: { ExpandedOrganization },
   template: ExpandedOrganizationTemplate,
   data: () => ({
-    domains: [
-      { domain: "hogwarts.edu" },
-      { domain: "hogwarts.com" }
-    ]
+    domains: [{ domain: "hogwarts.edu" }, { domain: "hogwarts.com" }]
   })
 });
 

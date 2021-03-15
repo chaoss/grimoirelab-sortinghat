@@ -1,5 +1,3 @@
-import { storiesOf } from "@storybook/vue";
-
 import OrganizationEntry from "./OrganizationEntry.vue";
 
 export default {
@@ -33,10 +31,7 @@ export const Default = () => ({
   components: { OrganizationEntry },
   template: organizationEntryTemplate,
   data: () => ({
-    headers: [
-      { value: 'name' },
-      { value: 'enrollments' }
-    ],
+    headers: [{ value: "name" }, { value: "enrollments" }],
     items: [
       {
         name: "Hogwarts School of Witchcraft and Wizardry",

@@ -1,5 +1,3 @@
-import { storiesOf } from "@storybook/vue";
-
 import IndividualsTable from "./IndividualsTable.vue";
 
 export default {
@@ -30,14 +28,16 @@ export const Default = () => ({
   template: IndividualsTableTemplate,
   methods: {
     queryIndividuals(page, items, filters) {
-      const results =  JSON.parse(JSON.stringify(this.query[page - 1]));
+      const results = JSON.parse(JSON.stringify(this.query[page - 1]));
       if (filters.term) {
-        results.data.individuals.entities = results.data.individuals.entities
-        .filter(individual => individual.profile.name
-          .toUpperCase()
-          .includes(filters.term.toUpperCase())
+        results.data.individuals.entities = results.data.individuals.entities.filter(
+          individual =>
+            individual.profile.name
+              .toUpperCase()
+              .includes(filters.term.toUpperCase())
         );
-        results.data.individuals.pageInfo.totalResults = results.data.individuals.entities.length;
+        results.data.individuals.pageInfo.totalResults =
+          results.data.individuals.entities.length;
       }
       return results;
     },

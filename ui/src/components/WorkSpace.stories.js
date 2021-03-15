@@ -1,5 +1,3 @@
-import { storiesOf } from "@storybook/vue";
-
 import WorkSpace from "./WorkSpace.vue";
 import IndividualsTable from "./IndividualsTable.vue";
 
@@ -217,7 +215,6 @@ export const Empty = () => ({
     individuals: []
   }),
   methods: {
-
     mergeItems() {
       this.individuals.pop();
     },
@@ -232,14 +229,16 @@ export const DragAndDrop = () => ({
   template: dragAndDropTemplate,
   methods: {
     queryIndividuals(page, items, filters) {
-      const results =  JSON.parse(JSON.stringify(this.query[page - 1]));
+      const results = JSON.parse(JSON.stringify(this.query[page - 1]));
       if (filters.term) {
-        results.data.individuals.entities = results.data.individuals.entities
-        .filter(individual => individual.profile.name
-          .toUpperCase()
-          .includes(filters.term.toUpperCase())
+        results.data.individuals.entities = results.data.individuals.entities.filter(
+          individual =>
+            individual.profile.name
+              .toUpperCase()
+              .includes(filters.term.toUpperCase())
         );
-        results.data.individuals.pageInfo.totalResults = results.data.individuals.entities.length;
+        results.data.individuals.pageInfo.totalResults =
+          results.data.individuals.entities.length;
       }
       return results;
     },
@@ -516,4 +515,4 @@ export const DragAndDrop = () => ({
       { code: "AM", name: "Armenia" }
     ]
   })
-})
+});

@@ -1,5 +1,3 @@
-import { storiesOf } from "@storybook/vue";
-
 import IndividualEntry from "./IndividualEntry.vue";
 
 export default {
@@ -41,10 +39,10 @@ export const Default = () => ({
   template: individualEntryTemplate,
   data: () => ({
     headers: [
-      { value: 'name' },
-      { value: 'email' },
-      { value: 'sources' },
-      { value: 'actions' }
+      { value: "name" },
+      { value: "email" },
+      { value: "sources" },
+      { value: "actions" }
     ],
     items: [
       {
@@ -67,10 +65,10 @@ export const NoEmail = () => ({
   template: individualEntryTemplate,
   data: () => ({
     headers: [
-      { value: 'name' },
-      { value: 'email' },
-      { value: 'sources' },
-      { value: 'actions' }
+      { value: "name" },
+      { value: "email" },
+      { value: "sources" },
+      { value: "actions" }
     ],
     items: [
       {
@@ -93,10 +91,10 @@ export const NoOrganization = () => ({
   template: individualEntryTemplate,
   data: () => ({
     headers: [
-      { value: 'name' },
-      { value: 'email' },
-      { value: 'sources' },
-      { value: 'actions' }
+      { value: "name" },
+      { value: "email" },
+      { value: "sources" },
+      { value: "actions" }
     ],
     items: [
       {
@@ -119,10 +117,10 @@ export const NoName = () => ({
   template: individualEntryTemplate,
   data: () => ({
     headers: [
-      { value: 'name' },
-      { value: 'email' },
-      { value: 'sources' },
-      { value: 'actions' }
+      { value: "name" },
+      { value: "email" },
+      { value: "sources" },
+      { value: "actions" }
     ],
     items: [
       {
@@ -145,10 +143,10 @@ export const SingleInital = () => ({
   template: individualEntryTemplate,
   data: () => ({
     headers: [
-      { value: 'name' },
-      { value: 'email' },
-      { value: 'sources' },
-      { value: 'actions' }
+      { value: "name" },
+      { value: "email" },
+      { value: "sources" },
+      { value: "actions" }
     ],
     items: [
       {
@@ -171,10 +169,10 @@ export const Locked = () => ({
   template: individualEntryTemplate,
   data: () => ({
     headers: [
-      { value: 'name' },
-      { value: 'email' },
-      { value: 'sources' },
-      { value: 'actions' }
+      { value: "name" },
+      { value: "email" },
+      { value: "sources" },
+      { value: "actions" }
     ],
     items: [
       {
@@ -197,10 +195,10 @@ export const Bot = () => ({
   template: individualEntryTemplate,
   data: () => ({
     headers: [
-      { value: 'name' },
-      { value: 'email' },
-      { value: 'sources' },
-      { value: 'actions' }
+      { value: "name" },
+      { value: "email" },
+      { value: "sources" },
+      { value: "actions" }
     ],
     items: [
       {
@@ -223,10 +221,10 @@ export const BotAndLocked = () => ({
   template: individualEntryTemplate,
   data: () => ({
     headers: [
-      { value: 'name' },
-      { value: 'email' },
-      { value: 'sources' },
-      { value: 'actions' }
+      { value: "name" },
+      { value: "email" },
+      { value: "sources" },
+      { value: "actions" }
     ],
     items: [
       {
@@ -249,17 +247,17 @@ export const Highlighted = () => ({
   template: individualEntryTemplate,
   data: () => ({
     headers: [
-      { value: 'name' },
-      { value: 'email' },
-      { value: 'sources' },
-      { value: 'actions' }
+      { value: "name" },
+      { value: "email" },
+      { value: "sources" },
+      { value: "actions" }
     ],
     items: [
       {
         name: "Tom Marvolo Riddle",
         organization: "Slytherin",
         email: "triddle@example.com",
-        sources: [ { name: "git", icon: "mdi-git" } ],
+        sources: [{ name: "git", icon: "mdi-git" }],
         isLocked: false,
         isBot: false,
         uuid: "03b3428ee",
@@ -275,10 +273,10 @@ export const Gravatar = () => ({
   template: individualEntryTemplate,
   data: () => ({
     headers: [
-      { value: 'name' },
-      { value: 'email' },
-      { value: 'sources' },
-      { value: 'actions' }
+      { value: "name" },
+      { value: "email" },
+      { value: "sources" },
+      { value: "actions" }
     ],
     items: [
       {

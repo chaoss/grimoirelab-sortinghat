@@ -1,5 +1,3 @@
-import { storiesOf } from "@storybook/vue";
-
 import JobsTable from "./JobsTable.vue";
 
 export default {
@@ -100,7 +98,7 @@ export const Empty = () => ({
   components: { JobsTable },
   template: JobsTableTemplate,
   methods: {
-    getJobs(page) {
+    getJobs() {
       return this.query;
     }
   },
@@ -113,6 +111,9 @@ export const Empty = () => ({
             page: 1,
             numPages: 1,
             totalResults: 0
-          }}}}
+          }
+        }
+      }
+    }
   })
 });

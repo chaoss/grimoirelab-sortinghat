@@ -1,5 +1,3 @@
-import { storiesOf } from "@storybook/vue";
-
 import IndividualsGrid from "./IndividualsGrid.vue";
 
 export default {
@@ -26,7 +24,7 @@ export const Default = () => ({
             {
               source: "GitLab",
               uuid: "10f546"
-            },
+            }
           ]
         },
         {
@@ -60,7 +58,7 @@ export const Default = () => ({
             {
               source: "GitLab",
               uuid: "10f546"
-            },
+            }
           ]
         },
         {

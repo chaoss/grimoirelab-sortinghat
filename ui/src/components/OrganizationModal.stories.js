@@ -1,5 +1,3 @@
-import { storiesOf } from "@storybook/vue";
-
 import OrganizationModal from "./OrganizationModal.vue";
 
 export default {

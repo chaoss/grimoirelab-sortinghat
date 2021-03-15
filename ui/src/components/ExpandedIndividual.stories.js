@@ -1,5 +1,3 @@
-import { storiesOf } from "@storybook/vue";
-
 import ExpandedIndividual from "./ExpandedIndividual.vue";
 
 export default {
@@ -33,52 +31,53 @@ export const Default = () => ({
       { code: "AM", name: "Armenia" }
     ],
     identities: [
-    {
-      name: "GitHub",
-      icon: "mdi-github",
-      identities: [
-        {
-          uuid: "06e6903c91180835b6ee91dd56782c6ca72bc562",
-          name: "Tom Marvolo Riddle",
-          email: "triddle@example.net",
-          username: "triddle",
-          source: "GitHub"
-        },
-        {
-          uuid: "164e41c60c28698ac30b0d17176d3e720e036918",
-          name: "Voldemort",
-          email: "-",
-          username: "voldemort",
-          source: "GitHub"
-        }
-      ]
-    },
-    {
-      name: "Git",
-      icon: "mdi-git",
-      identities: [
-        {
-          uuid: "10982379421b80e13266db011d6e5131dd519016",
-          name: "voldemort",
-          email: "voldemort@example.net",
-          username: "-",
-          source: "git"
-        }
-      ]
-    },
-    {
-      name: "Others",
-      icon: "mdi-account-multiple",
-      identities: [
-        {
-          uuid: "1f1a9e56dedb45f5969413eeb4442d982e33f0f6",
-          name: "-",
-          email: "-",
-          username: "voldemort",
-          source: "irc"
-        }
-      ]
-    }],
+      {
+        name: "GitHub",
+        icon: "mdi-github",
+        identities: [
+          {
+            uuid: "06e6903c91180835b6ee91dd56782c6ca72bc562",
+            name: "Tom Marvolo Riddle",
+            email: "triddle@example.net",
+            username: "triddle",
+            source: "GitHub"
+          },
+          {
+            uuid: "164e41c60c28698ac30b0d17176d3e720e036918",
+            name: "Voldemort",
+            email: "-",
+            username: "voldemort",
+            source: "GitHub"
+          }
+        ]
+      },
+      {
+        name: "Git",
+        icon: "mdi-git",
+        identities: [
+          {
+            uuid: "10982379421b80e13266db011d6e5131dd519016",
+            name: "voldemort",
+            email: "voldemort@example.net",
+            username: "-",
+            source: "git"
+          }
+        ]
+      },
+      {
+        name: "Others",
+        icon: "mdi-account-multiple",
+        identities: [
+          {
+            uuid: "1f1a9e56dedb45f5969413eeb4442d982e33f0f6",
+            name: "-",
+            email: "-",
+            username: "voldemort",
+            source: "irc"
+          }
+        ]
+      }
+    ],
     enrollments: [
       {
         organization: {
@@ -113,52 +112,53 @@ export const Compact = () => ({
     compact: true,
     name: "Tom Marvolo Riddle",
     identities: [
-    {
-      name: "GitHub",
-      icon: "mdi-github",
-      identities: [
-        {
-          uuid: "006afa",
-          name: "Tom Marvolo Riddle",
-          email: "triddle@example.net",
-          username: "triddle",
-          source: "GitHub"
-        },
-        {
-          uuid: "808b18",
-          name: "Voldemort",
-          email: "-",
-          username: "voldemort",
-          source: "GitHub"
-        }
-      ]
-    },
-    {
-      name: "Git",
-      icon: "mdi-git",
-      identities: [
-        {
-          uuid: "abce32",
-          name: "voldemort",
-          email: "voldemort@example.net",
-          username: "-",
-          source: "git"
-        }
-      ]
-    },
-    {
-      name: "Others",
-      icon: "mdi-account-multiple",
-      identities: [
-        {
-          uuid: "4ce562",
-          name: "-",
-          email: "-",
-          username: "voldemort",
-          source: "irc"
-        }
-      ]
-    }],
+      {
+        name: "GitHub",
+        icon: "mdi-github",
+        identities: [
+          {
+            uuid: "006afa",
+            name: "Tom Marvolo Riddle",
+            email: "triddle@example.net",
+            username: "triddle",
+            source: "GitHub"
+          },
+          {
+            uuid: "808b18",
+            name: "Voldemort",
+            email: "-",
+            username: "voldemort",
+            source: "GitHub"
+          }
+        ]
+      },
+      {
+        name: "Git",
+        icon: "mdi-git",
+        identities: [
+          {
+            uuid: "abce32",
+            name: "voldemort",
+            email: "voldemort@example.net",
+            username: "-",
+            source: "git"
+          }
+        ]
+      },
+      {
+        name: "Others",
+        icon: "mdi-account-multiple",
+        identities: [
+          {
+            uuid: "4ce562",
+            name: "-",
+            email: "-",
+            username: "voldemort",
+            source: "irc"
+          }
+        ]
+      }
+    ],
     enrollments: [
       {
         organization: {
@@ -203,7 +203,7 @@ export const NoOrganizations = () => ({
             username: "hagrid"
           }
         ]
-      },
+      }
     ],
     enrollments: [],
     countries: [
@@ -214,7 +214,7 @@ export const NoOrganizations = () => ({
       { code: "AI", name: "Anguilla" },
       { code: "AL", name: "Albania" },
       { code: "AM", name: "Armenia" }
-    ],
+    ]
   }),
   methods: {
     getCountries() {

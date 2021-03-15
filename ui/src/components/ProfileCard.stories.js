@@ -1,5 +1,3 @@
-import { storiesOf } from "@storybook/vue";
-
 import ProfileCard from "./ProfileCard.vue";
 
 export default {

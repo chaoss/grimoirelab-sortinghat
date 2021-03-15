@@ -9,7 +9,13 @@ module.exports = {
   },
   rules: {
     "no-console": process.env.NODE_ENV === "production" ? "warn" : "off",
-    "no-debugger": process.env.NODE_ENV === "production" ? "warn" : "off"
+    "no-debugger": process.env.NODE_ENV === "production" ? "warn" : "off",
+    "no-unused-vars": [
+      "warn",
+      {
+        varsIgnorePattern: "'response' is assigned a value but never used"
+      }
+    ]
   },
   overrides: [
     {
@@ -18,7 +24,8 @@ module.exports = {
         "**/tests/unit/**/*.spec.{j,t}s?(x)"
       ],
       env: {
-        jest: true
+        jest: true,
+        jasmine: true
       }
     }
   ]

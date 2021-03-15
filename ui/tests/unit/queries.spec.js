@@ -62,7 +62,7 @@ const paginatedResponse = {
             }
           ],
           enrollments: [],
-          __typename:"IndividualType"
+          __typename: "IndividualType"
         }
       ],
       pageInfo: {
@@ -87,48 +87,25 @@ const paginatedOrganizations = {
             { id: 1, __typename: "EnrollmentType" },
             { id: 2, __typename: "EnrollmentType" }
           ],
-          __typename:	"OrganizationType"
+          __typename: "OrganizationType"
         },
         {
           name: "Test 2",
           enrollments: [
-            { id: 3, __typename:	"EnrollmentType" },
-            { id: 4, __typename:	"EnrollmentType" }
+            { id: 3, __typename: "EnrollmentType" },
+            { id: 4, __typename: "EnrollmentType" }
           ],
-          __typename:	"OrganizationType"
-        },
-        ],
-        pageInfo: {
-          page: 1,
-          pageSize: 10,
-          numPages: 1,
-          totalResults: 2,
-          __typename:	"PaginationType"
-        },
-        __typename:	"OrganizationPaginatedType"
-      }
-    }
-  };
-
-const filteredOrganizations = {
-  data: {
-    organizations: {
-      entities: [
-        {
-          id: "1",
-          name: "Bitergia",
-          enrollments: [{ id: "274", __typename: "EnrollmentType"}],
-          domains: [],
           __typename: "OrganizationType"
-        }],
-        pageInfo: {
-          page: 1,
-          pageSize: 10,
-          numPages: 1,
-          totalResults: 1,
-          __typename: "PaginationType"
-        },
-        __typename: "OrganizationPaginatedType"
+        }
+      ],
+      pageInfo: {
+        page: 1,
+        pageSize: 10,
+        numPages: 1,
+        totalResults: 2,
+        __typename: "PaginationType"
+      },
+      __typename: "OrganizationPaginatedType"
     }
   }
 };
@@ -145,7 +122,7 @@ const countriesMocked = {
         { code: "AL", name: "Albania" },
         { code: "AM", name: "Armenia" }
       ],
-      __typename:	"CountryPaginatedType"
+      __typename: "CountryPaginatedType"
     }
   }
 };
@@ -171,7 +148,7 @@ const jobsMocked = {
       }
     }
   }
-}
+};
 
 describe("IndividualsData", () => {
   test("mock query for getIndividuals", async () => {
@@ -191,7 +168,7 @@ describe("IndividualsData", () => {
       data() {
         return {
           individuals_mocked: null
-        }
+        };
       }
     });
     let response = await Queries.getIndividuals.query(wrapper.vm.$apollo);
@@ -274,7 +251,7 @@ describe("IndividualsTable", () => {
         updateEnrollment: () => {}
       },
       ...options
-    })
+    });
   };
 
   test("Mock query for getPaginatedIndividuals", async () => {
@@ -287,7 +264,11 @@ describe("IndividualsTable", () => {
       }
     });
     await wrapper.setProps({ fetchPage: query });
-    const response = await Queries.getPaginatedIndividuals(wrapper.vm.$apollo, 1, 1);
+    const response = await Queries.getPaginatedIndividuals(
+      wrapper.vm.$apollo,
+      1,
+      1
+    );
 
     expect(query).toBeCalled();
     expect(wrapper.element).toMatchSnapshot();
@@ -340,11 +321,15 @@ describe("IndividualsTable", () => {
       }
     });
     await wrapper.setProps({ fetchPage: Queries.getPaginatedIndividuals });
-    await wrapper.setData({ filters: { lastUpdated: "<2000-01-01T00:00:00.000Z" } });
+    await wrapper.setData({
+      filters: { lastUpdated: "<2000-01-01T00:00:00.000Z" }
+    });
 
     const response = await wrapper.vm.queryIndividuals(1);
 
-    expect(querySpy).toHaveBeenCalledWith(1, 10, { lastUpdated: "<2000-01-01T00:00:00.000Z" });
+    expect(querySpy).toHaveBeenCalledWith(1, 10, {
+      lastUpdated: "<2000-01-01T00:00:00.000Z"
+    });
   });
 
   test("Searches by isBot", async () => {
@@ -419,7 +404,11 @@ describe("OrganizationsTable", () => {
         deleteOrganization: () => {}
       }
     });
-    const response = await Queries.getPaginatedOrganizations(wrapper.vm.$apollo, 1, 1);
+    const response = await Queries.getPaginatedOrganizations(
+      wrapper.vm.$apollo,
+      1,
+      1
+    );
 
     expect(query).toBeCalled();
     expect(wrapper.element).toMatchSnapshot();
@@ -446,7 +435,7 @@ describe("OrganizationsTable", () => {
       data() {
         return {
           filters: { term: "Bitergia" }
-        }
+        };
       }
     });
 
@@ -467,7 +456,7 @@ describe("JobsTable", () => {
         }
       },
       propsData: {
-        getJobs: query,
+        getJobs: query
       }
     });
     const response = await Queries.getJobs(wrapper.vm.$apollo, 2, 10);
