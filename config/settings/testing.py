@@ -12,6 +12,8 @@ if len(sys.argv) > 1 and sys.argv[1] == 'test':
     logging.disable(logging.CRITICAL)
 
 
+SILENCED_SYSTEM_CHECKS = ["django_mysql.E016"]
+
 SECRET_KEY = 'fake-key'
 
 INSTALLED_APPS = [
@@ -34,7 +36,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'USER': 'root',
-        'PASSWORD': '',
+        'PASSWORD': 'root',
         'NAME': 'sortinghat_db',
         'OPTIONS': {
             'charset': 'utf8mb4',
@@ -44,7 +46,9 @@ DATABASES = {
             'NAME': 'testhat',
             'CHARSET': 'utf8mb4',
             'COLLATION': 'utf8mb4_unicode_520_ci',
-        }
+        },
+        'HOST': '127.0.0.1',
+        'PORT': 3306
     }
 }
 
