@@ -335,6 +335,7 @@ class OperationPaginatedType(AbstractPaginatedType):
     entities = graphene.List(OperationType)
     page_info = graphene.Field(PaginationType)
 
+
 class JobPaginatedType(AbstractPaginatedType):
     entities = graphene.List(JobType)
     page_info = graphene.Field(PaginationType)

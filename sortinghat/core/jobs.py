@@ -59,6 +59,7 @@ def find_job(job_id):
 
     return jobs[0]
 
+
 def get_jobs():
     """Get a list of all jobs
 
@@ -72,23 +73,18 @@ def get_jobs():
                     for id
                     in queue.started_job_registry.get_job_ids()]
     deferred_jobs = [find_job(id)
-                    for id
-                    in queue.deferred_job_registry.get_job_ids()]
-    finished_jobs = [find_job(id)
-                    for id
-                    in queue.finished_job_registry.get_job_ids()]
-    failed_jobs = [find_job(id)
-                  for id
-                  in queue.failed_job_registry.get_job_ids()]
-    scheduled_jobs = [find_job(id)
                      for id
-                     in queue.scheduled_job_registry.get_job_ids()]
-    jobs = (queue.jobs
-           + started_jobs
-           + deferred_jobs
-           + finished_jobs
-           + failed_jobs
-           + scheduled_jobs)
+                     in queue.deferred_job_registry.get_job_ids()]
+    finished_jobs = [find_job(id)
+                     for id
+                     in queue.finished_job_registry.get_job_ids()]
+    failed_jobs = [find_job(id)
+                   for id
+                   in queue.failed_job_registry.get_job_ids()]
+    scheduled_jobs = [find_job(id)
+                      for id
+                      in queue.scheduled_job_registry.get_job_ids()]
+    jobs = (queue.jobs + started_jobs + deferred_jobs + finished_jobs + failed_jobs + scheduled_jobs)
 
     sorted_jobs = sorted(jobs, key=lambda x: x.enqueued_at)
 

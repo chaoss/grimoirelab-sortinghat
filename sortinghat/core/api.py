@@ -870,15 +870,15 @@ def update_enrollment(ctx, uuid, organization, from_date, to_date,
         raise InvalidValueError(msg="'organization' cannot be an empty string")
     if from_date is None:
         raise InvalidValueError(msg="'from_date' cannot be None")
-    if from_date is '':
+    if from_date == '':
         raise InvalidValueError(msg="'from_date' cannot be empty")
     if to_date is None:
         raise InvalidValueError(msg="'to_date' cannot be None")
-    if to_date is '':
+    if to_date == '':
         raise InvalidValueError(msg="'to_date' cannot be empty")
     if (not new_from_date) and (not new_to_date):
         raise InvalidValueError(msg="'new_from_date' and 'to_from_date' cannot be None at the same time")
-    if (new_from_date is '') and (new_to_date is ''):
+    if (new_from_date == '') and (new_to_date == ''):
         raise InvalidValueError(msg="'new_from_date' and 'to_from_date' cannot be empty at the same time")
 
     # If any of the new dates is not provided, its value will be set as the former date values

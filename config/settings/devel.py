@@ -114,7 +114,7 @@ DATABASES = {
     }
 }
 
-#FIXTURE_DIRS = "sortinghat/core/fixtures/"
+# FIXTURE_DIRS = "sortinghat/core/fixtures/"
 
 USE_TZ = True
 
