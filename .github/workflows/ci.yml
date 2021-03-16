@@ -34,11 +34,12 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
+    - name: Install and set up Poetry
+      run: curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
     - name: Install dependencies
       run: |
-        pip install --upgrade pip==18.1 setuptools==49.6.0 wheel
-        pip install -r requirements.txt
-        pip install flake8
+        source $HOME/.poetry/env
+        poetry install -vvv
     - name: Set MySQL mode
       env:
         DB_HOST: 127.0.0.1
@@ -46,9 +47,13 @@ jobs:
       run: |
         mysql --host $DB_HOST --port $DB_PORT -uroot -proot -e "SET GLOBAL sql_mode = 'NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION'";
     - name: Lint with flake8
-      run: flake8 .
+      run: |
+        source $HOME/.poetry/env
+        poetry run flake8
     - name: Tests
-      run: python manage.py test --settings=config.settings.testing
+      run: |
+        source $HOME/.poetry/env
+        poetry run python manage.py test --settings=config.settings.testing
 
   frontend:
 
