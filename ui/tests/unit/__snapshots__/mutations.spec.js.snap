@@ -44,7 +44,7 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
   >
     <v-checkbox-stub
       backgroundcolor=""
-      class="mt-1"
+      class="mt-0"
       errorcount="1"
       errormessages=""
       indeterminateicon="$checkboxIndeterminate"
@@ -83,7 +83,7 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
     />
      
     <search-stub
-      class="ma-0 ml-auto pa-0 flex-grow-0"
+      class="ml-auto pa-0 flex-grow-0"
       filterselector="true"
       validfilters="[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]"
     />
@@ -404,7 +404,7 @@ exports[`IndividualsTable Mock query for merge 1`] = `
   >
     <v-checkbox-stub
       backgroundcolor=""
-      class="mt-1"
+      class="mt-0"
       errorcount="1"
       errormessages=""
       indeterminateicon="$checkboxIndeterminate"
@@ -443,7 +443,7 @@ exports[`IndividualsTable Mock query for merge 1`] = `
     />
      
     <search-stub
-      class="ma-0 ml-auto pa-0 flex-grow-0"
+      class="ml-auto pa-0 flex-grow-0"
       filterselector="true"
       validfilters="[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]"
     />
@@ -764,7 +764,7 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
   >
     <v-checkbox-stub
       backgroundcolor=""
-      class="mt-1"
+      class="mt-0"
       errorcount="1"
       errormessages=""
       indeterminateicon="$checkboxIndeterminate"
@@ -803,7 +803,7 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
     />
      
     <search-stub
-      class="ma-0 ml-auto pa-0 flex-grow-0"
+      class="ml-auto pa-0 flex-grow-0"
       filterselector="true"
       validfilters="[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]"
     />
@@ -1124,7 +1124,7 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
   >
     <v-checkbox-stub
       backgroundcolor=""
-      class="mt-1"
+      class="mt-0"
       errorcount="1"
       errormessages=""
       indeterminateicon="$checkboxIndeterminate"
@@ -1163,7 +1163,7 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
     />
      
     <search-stub
-      class="ma-0 ml-auto pa-0 flex-grow-0"
+      class="ml-auto pa-0 flex-grow-0"
       filterselector="true"
       validfilters="[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]"
     />
@@ -1484,7 +1484,7 @@ exports[`IndividualsTable Mock query for updateEnrollment 1`] = `
   >
     <v-checkbox-stub
       backgroundcolor=""
-      class="mt-1"
+      class="mt-0"
       errorcount="1"
       errormessages=""
       indeterminateicon="$checkboxIndeterminate"
@@ -1523,7 +1523,7 @@ exports[`IndividualsTable Mock query for updateEnrollment 1`] = `
     />
      
     <search-stub
-      class="ma-0 ml-auto pa-0 flex-grow-0"
+      class="ml-auto pa-0 flex-grow-0"
       filterselector="true"
       validfilters="[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]"
     />
@@ -1844,7 +1844,7 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
   >
     <v-checkbox-stub
       backgroundcolor=""
-      class="mt-1"
+      class="mt-0"
       errorcount="1"
       errormessages=""
       indeterminateicon="$checkboxIndeterminate"
@@ -1883,7 +1883,7 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
     />
      
     <search-stub
-      class="ma-0 ml-auto pa-0 flex-grow-0"
+      class="ml-auto pa-0 flex-grow-0"
       filterselector="true"
       validfilters="[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]"
     />
@@ -2280,7 +2280,7 @@ exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
     tag="div"
   >
     <search-stub
-      class="ma-0 mr-3 pa-0 flex-grow-0"
+      class="mr-3 pa-0 flex-grow-0"
       validfilters=""
     />
   </v-row-stub>
@@ -2551,7 +2551,7 @@ exports[`OrganizationsTable Mock mutation for addOrganization 1`] = `
     tag="div"
   >
     <search-stub
-      class="ma-0 mr-3 pa-0 flex-grow-0"
+      class="mr-3 pa-0 flex-grow-0"
       validfilters=""
     />
   </v-row-stub>
@@ -2822,7 +2822,7 @@ exports[`OrganizationsTable Mock mutation for deleteDomain 1`] = `
     tag="div"
   >
     <search-stub
-      class="ma-0 mr-3 pa-0 flex-grow-0"
+      class="mr-3 pa-0 flex-grow-0"
       validfilters=""
     />
   </v-row-stub>
@@ -3093,7 +3093,7 @@ exports[`OrganizationsTable Mock mutation for deleteOrganization 1`] = `
     tag="div"
   >
     <search-stub
-      class="ma-0 mr-3 pa-0 flex-grow-0"
+      class="mr-3 pa-0 flex-grow-0"
       validfilters=""
     />
   </v-row-stub>
@@ -3362,7 +3362,7 @@ exports[`OrganizationsTable Mock mutation for enroll 1`] = `
     tag="div"
   >
     <search-stub
-      class="ma-0 mr-3 pa-0 flex-grow-0"
+      class="mr-3 pa-0 flex-grow-0"
       validfilters=""
     />
   </v-row-stub>
