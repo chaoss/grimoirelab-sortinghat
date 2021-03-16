@@ -190,4 +190,28 @@ describe("Search", () => {
 
     expect(errorMessage.exists()).toBe(true);
   });
+
+  test.each([
+    [{filter: "booleanFilter", type: "boolean"}, "booleanFilter:true"],
+    [{filter: "stringFilter", type: "string"}, `stringFilter:"search value"`]
+  ])("Shows selected filter on the search box", async(validFilters, expected) => {
+    const wrapper = mountFunction({
+      propsData: {
+        filterSelector: true,
+        validFilters: [validFilters]
+      }
+    });
+    // Set an element data-app to avoid Vuetify warnings
+    // https://github.com/vuetifyjs/vuetify/issues/3456
+    const el = document.createElement('div');
+    el.setAttribute('data-app', true);
+    document.body.appendChild(el);
+
+    const button = wrapper.find(".v-input__prepend-outer .v-btn");
+    await button.trigger("click");
+    const filter = wrapper.find(".v-list-item");
+    await filter.trigger("click");
+
+    expect(wrapper.vm.inputValue).toContain(expected);
+  });
 });

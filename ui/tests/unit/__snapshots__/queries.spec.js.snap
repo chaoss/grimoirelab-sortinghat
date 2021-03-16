@@ -12,7 +12,7 @@ exports[`IndividualsTable Mock query for getCountries 1`] = `
   tag="div"
 >
   <v-row-stub
-    class="actions"
+    class="d-flex justify-space-between ml-4 mr-4 mb-6"
     tag="div"
   >
     <h4
@@ -51,6 +51,7 @@ exports[`IndividualsTable Mock query for getCountries 1`] = `
   >
     <v-checkbox-stub
       backgroundcolor=""
+      class="mt-0"
       errorcount="1"
       errormessages=""
       indeterminateicon="$checkboxIndeterminate"
@@ -89,7 +90,8 @@ exports[`IndividualsTable Mock query for getCountries 1`] = `
     />
      
     <search-stub
-      class="ma-0 ml-auto pa-0 flex-grow-0"
+      class="ml-auto pa-0 flex-grow-0"
+      filterselector="true"
       validfilters="[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]"
     />
      
@@ -372,7 +374,7 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
   tag="div"
 >
   <v-row-stub
-    class="actions"
+    class="d-flex justify-space-between ml-4 mr-4 mb-6"
     tag="div"
   >
     <h4
@@ -411,6 +413,7 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
   >
     <v-checkbox-stub
       backgroundcolor=""
+      class="mt-0"
       errorcount="1"
       errormessages=""
       indeterminateicon="$checkboxIndeterminate"
@@ -449,7 +452,8 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
     />
      
     <search-stub
-      class="ma-0 ml-auto pa-0 flex-grow-0"
+      class="ml-auto pa-0 flex-grow-0"
+      filterselector="true"
       validfilters="[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]"
     />
      
@@ -760,7 +764,7 @@ exports[`OrganizationsTable Mock query for getPaginatedOrganizations 1`] = `
   tag="div"
 >
   <v-row-stub
-    class="actions"
+    class="d-flex justify-space-between ml-4 mr-4 mb-6"
     tag="div"
   >
     <h4
@@ -798,7 +802,7 @@ exports[`OrganizationsTable Mock query for getPaginatedOrganizations 1`] = `
     tag="div"
   >
     <search-stub
-      class="ma-0 mr-3 pa-0 flex-grow-0"
+      class="mr-3 pa-0 flex-grow-0"
       validfilters=""
     />
   </v-row-stub>

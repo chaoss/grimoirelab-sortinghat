@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <v-row class="actions">
+    <v-row class="d-flex justify-space-between ml-4 mr-4 mb-6">
       <h4 class="title">
         <v-icon color="black" left>
           mdi-sitemap
@@ -19,7 +19,7 @@
 
     <v-row class="actions">
       <search
-        class="ma-0 mr-3 pa-0 flex-grow-0"
+        class="mr-3 pa-0 flex-grow-0"
         :valid-filters="[]"
         @search="filterSearch"
       />
@@ -282,7 +282,7 @@ export default {
 .actions {
   align-items: baseline;
   justify-content: space-between;
-  padding: 0 26px 24px 26px;
+  padding: 0 26px 15px 26px;
   .search {
     width: 60%;
   }
