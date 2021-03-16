@@ -1,0 +1,60 @@
+[tool.poetry]
+name = "sortinghat"
+version = "0.8.0-dev"
+description = "A tool to manage identities."
+authors = [
+    "GrimoireLab Developers"
+]
+license = "GPL-3.0+"
+
+readme = "README.md"
+
+homepage = "https://chaoss.github.io/grimoirelab/"
+repository = "https://github.com/chaoss/grimoirelab-sortinghat"
+
+keywords = [
+    "development",
+    "grimoirelab"
+]
+
+packages = [
+    { include = "sortinghat" },
+    { include = "tests", format = "sdist" },
+]
+
+classifiers = [
+   "Development Status :: 4 - Beta",
+   "Intended Audience :: Developers",
+   "Topic :: Software Development",
+   "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+   "Programming Language :: Python :: 3"
+]
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://github.com/chaoss/grimoirelab-sortinghat/issues"
+
+[tool.poetry.dependencies]
+python = "^3.6.1"
+
+click = "7.1.1"
+Django = "2.1"
+django-mysql = "^3.2.0"
+django-graphql-jwt = "^0.3.0"
+graphene-django = "^2.0"
+sgqlc = "^10.1"
+mysqlclient = "1.3.13"
+python-dateutil = "^2.8.0"
+requests = "^2.7.0"
+uri = "^2.0.1"
+jinja2 = "2.11.1"
+rq = "^1.4.0"
+django-rq = "^2.3.2"
+pandas = "^1.0.5"
+grimoirelab_toolkit = "^0.1.8"
+
+[tool.poetry.dev-dependencies]
+fakeredis = "^1.4.1"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
