@@ -198,6 +198,7 @@ export default {
           fromUuids
         );
         this.$emit("updateIndividuals");
+        this.$logger.debug("Merged individuals", { fromUuids, toUuid });
       }
       this.dialog.open = false;
     },
@@ -239,12 +240,14 @@ export default {
             [fromUuid]
           );
           this.$emit("updateIndividuals");
+          this.$logger.debug("Moved identity", { fromUuid, toUuid });
         }
       } catch (error) {
         Object.assign(this.snackbar, {
           open: true,
           text: error
         });
+        this.$logger.error("Error merging individuals", { fromUuid, toUuid });
       }
     },
     onDrag(event) {

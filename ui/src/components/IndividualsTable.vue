@@ -364,6 +364,10 @@ export default {
         individuals.map(individual => this.deleteItem(individual.uuid))
       );
       if (response) {
+        this.$logger.debug(
+          "Deleted individuals",
+          individuals.map(individual => individual.uuid)
+        );
         this.queryIndividuals(this.page);
         this.dialog.open = false;
       }
@@ -387,6 +391,7 @@ export default {
           update: formatIndividuals([response.data.merge.individual]),
           remove: fromUuids
         });
+        this.$logger.debug("Merged individuals", { fromUuids, toUuid });
       }
     },
     mergeSelected(individuals) {
@@ -402,6 +407,7 @@ export default {
         );
         this.$emit("saveIndividual", unmergedItems[0]);
         this.queryIndividuals(this.page);
+        this.$logger.debug("Unmerged individuals", uuids);
       }
     },
     move(event) {
@@ -415,6 +421,7 @@ export default {
         this.$emit("updateWorkspace", {
           update: formatIndividuals([response.data.moveIdentity.individual])
         });
+        this.$logger.debug("Moved identity", { fromUuid, toUuid });
       }
     },
     async updateProfileInfo(data, uuid) {
@@ -425,6 +432,7 @@ export default {
           this.$emit("updateWorkspace", {
             update: formatIndividuals([response.data.updateProfile.individual])
           });
+          this.$logger.debug(`Updated profile ${uuid}`, data);
         }
       } catch (error) {
         Object.assign(this.snackbar, { open: true, text: error });
@@ -436,18 +444,22 @@ export default {
           const response = await this.lockIndividual(uuid);
           if (response) {
             this.queryIndividuals();
+            this.$logger.debug(`Locked individual ${uuid}`);
           }
         } catch (error) {
           Object.assign(this.snackbar, { open: true, text: error });
+          this.$logger.error(`Error locking individual ${uuid}: ${error}`);
         }
       } else {
         try {
           const response = await this.unlockIndividual(uuid);
           if (response) {
             this.queryIndividuals();
+            this.$logger.debug(`Unlocked individual ${uuid}`);
           }
         } catch (error) {
           Object.assign(this.snackbar, { open: true, text: error });
+          this.$logger.error(`Error unlocking individual ${uuid}: ${error}`);
         }
       }
     },
@@ -464,9 +476,14 @@ export default {
           this.$emit("updateWorkspace", {
             update: formatIndividuals([response.data.withdraw.individual])
           });
+          this.$logger.debug("Removed affiliation", { uuid, ...organization });
         }
       } catch (error) {
         Object.assign(this.snackbar, { open: true, text: error });
+        this.$logger.error(`Error removing affiliation: ${error}`, {
+          uuid,
+          ...organization
+        });
       }
     },
     async updateEnrollmentDate(data) {
@@ -479,9 +496,11 @@ export default {
             ])
           });
           this.queryIndividuals();
+          this.$logger.debug("Updated enrollment", data);
         }
       } catch (error) {
         Object.assign(this.snackbar, { open: true, text: error });
+        this.$logger.error(`Error updating enrollment: ${error}`, data);
       }
     },
     filterSearch(filters) {

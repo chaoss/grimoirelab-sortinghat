@@ -1,7 +1,7 @@
 export default {
   install(Vue) {
     function log(type, message, ...args) {
-      if (process.env.NODE_ENV === "production") {
+      if (process.env.NODE_ENV === "production" && type === "debug") {
         return;
       }
       console[type](message, ...args);

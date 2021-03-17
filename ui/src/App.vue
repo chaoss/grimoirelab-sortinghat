@@ -51,6 +51,7 @@ export default {
       Cookies.remove("sh_authtoken");
       Cookies.remove("sh_user");
       this.$router.push("/login");
+      this.$logger.info(`Log out user ${this.user}`);
     }
   }
 };

@@ -294,37 +294,48 @@ export default {
       }
     },
     async createIndividual() {
+      const data = {
+        email: this.profileForm.email === "" ? null : this.profileForm.email,
+        name: this.profileForm.name === "" ? null : this.profileForm.name,
+        source: this.profileForm.source,
+        username:
+          this.profileForm.username === "" ? null : this.profileForm.username
+      };
       try {
         const response = await this.addIdentity(
-          this.profileForm.email === "" ? null : this.profileForm.email,
-          this.profileForm.name === "" ? null : this.profileForm.name,
-          this.profileForm.source,
-          this.profileForm.username === "" ? null : this.profileForm.username
+          data.email,
+          data.name,
+          data.source,
+          data.username
         );
         if (response && response.data.addIdentity) {
           this.savedData.individual = response.data.addIdentity.uuid;
+          this.$logger.debug("Added identity", data);
           return this.savedData.individual;
         }
       } catch (error) {
         this.errorMessage = error;
+        this.$logger.error(`Error adding identity: ${error}`, data);
       }
     },
     async addProfileInfo(uuid) {
+      const data = {
+        gender: this.profileForm.gender,
+        countryCode: this.profileForm.country
+          ? this.profileForm.country.code
+          : null,
+        isBot: this.profileForm.isBot
+      };
       try {
-        const data = {
-          gender: this.profileForm.gender,
-          countryCode: this.profileForm.country
-            ? this.profileForm.country.code
-            : null,
-          isBot: this.profileForm.isBot
-        };
         const response = await this.updateProfile(data, uuid);
         if (response && response.data.updateProfile) {
           this.savedData.profile = response.data.updateProfile;
+          this.$logger.debug(`Updated individual ${uuid} profile`, data);
           return this.savedData.profile;
         }
       } catch (error) {
         this.errorMessage = error;
+        this.$logger.error(`Error updating profile ${uuid}: ${error}`, data);
       }
     },
     async addEnrollments() {
@@ -344,6 +355,15 @@ export default {
                 fromDate,
                 toDate
               );
+              this.$logger.debug(
+                `Enrolled individual ${this.savedData.individual}`,
+                {
+                  uuid: this.savedData.individual,
+                  organization: enrollment.organization,
+                  fromDate,
+                  toDate
+                }
+              );
               return response;
             }
           })
@@ -353,6 +373,10 @@ export default {
         }
       } catch (error) {
         this.errorMessage = error;
+        this.$logger.error(
+          `Error enrolling individual ${this.savedData.individual}: ${error}`,
+          this.enrollmentsForm
+        );
       }
     },
     async getCountryList() {
