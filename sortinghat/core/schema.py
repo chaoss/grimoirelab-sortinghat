@@ -937,6 +937,8 @@ class SortingHatQuery:
             result = [
                 UnifyResultType(merged=job.result['results'])
             ]
+        elif status == 'failed':
+            errors = [job.exc_info]
 
         return JobType(job_id=job_id,
                        job_type=job_type,
