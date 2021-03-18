@@ -119,6 +119,7 @@ export default {
           const response = await this.addOrganization(this.form.name);
           if (response && !response.error) {
             this.savedData.name = this.form.name;
+            this.$logger.debug(`Added organization ${this.form.name}`);
             if (
               this.form.domains.length === 0 &&
               this.savedData.domains.length === 0
@@ -163,18 +164,30 @@ export default {
         }
       } catch (error) {
         this.errorMessage = error;
+        this.$logger.error(`Error updating domains: ${error}`, {
+          organization: this.form.name,
+          newDomains,
+          deletedDomains
+        });
       }
     },
     async addOrganizationDomain(domain, organization) {
       const response = await this.addDomain(domain, organization);
       if (response && !response.error) {
         this.savedData.domains.push(domain);
+        this.$logger.debug("Added domain", { domain, organization });
         return response;
+      } else if (response.errors) {
+        this.$logger.error(
+          `Error adding domain: ${response.errors[0].message}`,
+          { domain, organization }
+        );
       }
     },
     async deleteOrganizationDomain(domain) {
       const response = await this.deleteDomain(domain);
       if (response) {
+        this.$logger.debug(`Deleted domain ${domain}`);
         return response;
       }
     },

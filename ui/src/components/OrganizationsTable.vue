@@ -220,9 +220,14 @@ export default {
             });
           });
           this.$emit("updateIndividuals");
+          this.$logger.debug("Enrolled individuals", { organization, uuids });
         }
       } catch (error) {
         Object.assign(this.snackbar, { open: true, text: error });
+        this.$logger.error(`Error enrolling individuals: ${error}`, {
+          organization,
+          uuids
+        });
       }
     },
     openModal(organization) {
@@ -251,9 +256,13 @@ export default {
         if (response) {
           this.getOrganizations(this.page);
           this.$emit("updateIndividuals");
+          this.$logger.debug(`Deleted organization ${organization}`);
         }
       } catch (error) {
         Object.assign(this.snackbar, { open: true, text: error });
+        this.$logger.error(
+          `Error deleting organization ${organization}: ${error}`
+        );
       }
     },
     startDrag(item, event) {

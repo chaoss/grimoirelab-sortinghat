@@ -10,6 +10,7 @@ import { createHttpLink } from "apollo-link-http";
 import { InMemoryCache } from "apollo-cache-inmemory";
 import Cookies from "js-cookie";
 import { ApolloLink } from "apollo-link";
+import Logger from "./plugins/logger";
 
 // Force HTTP GET to the Django Server for getting the csrf token
 let xmlHttp = new XMLHttpRequest();
@@ -52,6 +53,7 @@ const apolloClient = new ApolloClient({
 
 Vue.use(VueApollo);
 Vue.use(VueRouter);
+Vue.use(Logger);
 
 const apolloProvider = new VueApollo({
   defaultClient: apolloClient

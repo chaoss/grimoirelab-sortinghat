@@ -2,6 +2,7 @@ import "@mdi/font/css/materialdesignicons.css";
 import Vue from "vue";
 import * as _Vuetify from "vuetify/lib";
 import { configure, addDecorator } from "@storybook/vue";
+import Logger from "../src/plugins/logger";
 
 const Vuetify = _Vuetify.default;
 
@@ -19,6 +20,7 @@ Vue.use(Vuetify, {
     ...VComponents
   }
 });
+Vue.use(Logger);
 
 const VuetifyConfig = new Vuetify({
   icons: {
