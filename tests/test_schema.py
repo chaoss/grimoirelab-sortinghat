@@ -2907,11 +2907,12 @@ class TestParseDateFilter(django.test.TestCase):
 class MockJob:
     """Class mock job queries."""
 
-    def __init__(self, job_id, func_name, status, result):
+    def __init__(self, job_id, func_name, status, result, error=None):
         self.id = job_id
         self.func_name = func_name
         self.status = status
         self.result = result
+        self.exc_info = error
         self.enqueued_at = datetime_utcnow()
 
     def get_status(self):
@@ -3250,6 +3251,25 @@ class TestQueryJob(django.test.TestCase):
 
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, "1234-5678-90AB-CDEF not found in the registry")
+
+    @unittest.mock.patch('sortinghat.core.schema.find_job')
+    def test_failed_job(self, mock_job):
+        """Check if it returns an error when the job has failed"""
+
+        job = MockJob('90AB-CD12-3456-78EF', 'unify', 'failed', None, 'Error')
+        mock_job.return_value = job
+
+        # Tests
+        client = graphene.test.Client(schema)
+
+        query = SH_JOB_QUERY_UNIFY % '90AB-CD12-3456-78EF'
+
+        executed = client.execute(query,
+                                  context_value=self.context_value)
+
+        job_data = executed['data']['job']
+        self.assertEqual(job_data['status'], 'failed')
+        self.assertEqual(job_data['errors'], ['Error'])
 
     def test_authentication(self):
         """Check if it fails when a non-authenticated user executes the query"""
