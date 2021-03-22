@@ -35,6 +35,7 @@ from django_mysql.models import JSONField
 from django_rq import enqueue
 
 from graphene.types.generic import GenericScalar
+from graphene.utils.str_converters import to_snake_case
 
 from graphene_django.converter import convert_django_field
 from graphene_django.types import DjangoObjectType
@@ -776,7 +777,8 @@ class SortingHatQuery:
         IdentityPaginatedType,
         page_size=graphene.Int(),
         page=graphene.Int(),
-        filters=IdentityFilterType(required=False)
+        filters=IdentityFilterType(required=False),
+        order_by=graphene.String(required=False),
     )
     transactions = graphene.Field(
         TransactionPaginatedType,
@@ -839,8 +841,9 @@ class SortingHatQuery:
     def resolve_individuals(self, info, filters=None,
                             page=1,
                             page_size=settings.DEFAULT_GRAPHQL_PAGE_SIZE,
+                            order_by='mk',
                             **kwargs):
-        query = Individual.objects.order_by('mk')
+        query = Individual.objects.order_by(to_snake_case(order_by))
 
         if filters and 'uuid' in filters:
             indv_uuid = filters['uuid']
