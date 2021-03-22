@@ -453,7 +453,6 @@ class AddIdentity(graphene.Mutation):
 class DeleteIdentity(graphene.Mutation):
     class Arguments:
         uuid = graphene.String()
-        delete_individual = graphene.Boolean()
 
     uuid = graphene.Field(lambda: graphene.String)
     individual = graphene.Field(lambda: IndividualType)

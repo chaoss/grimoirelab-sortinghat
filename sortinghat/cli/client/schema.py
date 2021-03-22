@@ -490,7 +490,6 @@ class SortingHatMutation(sgqlc.types.Type):
     )
     delete_identity = sgqlc.types.Field(
         DeleteIdentity, graphql_name='deleteIdentity', args=sgqlc.types.ArgDict((
-            ('delete_individual', sgqlc.types.Arg(Boolean, graphql_name='deleteIndividual', default=None)),
             ('uuid', sgqlc.types.Arg(String, graphql_name='uuid', default=None)),
         ))
     )
