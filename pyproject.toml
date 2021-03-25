@@ -52,6 +52,7 @@ django-rq = "^2.3.2"
 pandas = "^1.0.5"
 grimoirelab_toolkit = "^0.1.8"
 django-cors-headers = "^3.7.0"
+PyJWT = "1.7.1"
 
 [tool.poetry.dev-dependencies]
 fakeredis = "^1.4.1"
