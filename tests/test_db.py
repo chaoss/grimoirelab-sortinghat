@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2020 Bitergia
+# Copyright (C) 2014-2021 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -54,6 +54,7 @@ DUPLICATED_DOM_ERROR = "Domain 'example.org' already exists in the registry"
 DUPLICATED_INDIVIDUAL_ERROR = "Individual '1234567890ABCDFE' already exists in the registry"
 DUPLICATED_ID_ERROR = "Identity '1234567890ABCDFE' already exists in the registry"
 DUPLICATED_ID_DATA_ERROR = "Identity 'John Smith-jsmith@example.org-jsmith-scm' already exists in the registry"
+DUPLICATED_ENROLLMENT_ERROR = r"Identity '1234567890ABCDFE-.+' already exists in the registry"
 NAME_NONE_ERROR = "'name' cannot be None"
 NAME_EMPTY_ERROR = "'name' cannot be an empty string"
 NAME_WHITESPACES_ERROR = "'name' cannot be composed by whitespaces only"
@@ -1819,6 +1820,24 @@ class TestAddEnrollment(TestCase):
         # Check if operations have not been generated after the failure
         operations = Operation.objects.all()
         self.assertEqual(len(operations), 0)
+
+    def test_integrity_error_unique_data(self):
+        """Check whether enrollments with the same data cannot be inserted"""
+
+        mk = '1234567890ABCDFE'
+
+        # Load initial dataset
+        individual = Individual.objects.create(mk=mk)
+        org = Organization.objects.create(name='Example')
+
+        start = datetime.datetime(1999, 1, 1, tzinfo=UTC)
+        end = datetime.datetime(2000, 1, 1, tzinfo=UTC)
+
+        with self.assertRaisesRegex(AlreadyExistsError, DUPLICATED_ENROLLMENT_ERROR):
+            db.add_enrollment(self.trxl, individual, org,
+                              start=start, end=end)
+            db.add_enrollment(self.trxl, individual, org,
+                              start=start, end=end)
 
     def test_period_invalid(self):
         """Check whether enrollments cannot be added giving invalid period ranges"""
