@@ -105,7 +105,7 @@ class TransactionsLog:
                           authored_by=username)
 
         try:
-            trx.save()
+            trx.save(force_insert=True)
         except django.db.utils.IntegrityError as exc:
             _handle_integrity_error(Transaction, exc)
 
@@ -155,7 +155,7 @@ class TransactionsLog:
                               entity_type=entity_type, timestamp=timestamp, args=args_dump)
 
         try:
-            operation.save()
+            operation.save(force_insert=True)
         except django.db.utils.IntegrityError as exc:
             _handle_integrity_error(Operation, exc)
 

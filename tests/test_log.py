@@ -22,6 +22,7 @@
 
 import collections
 import json
+import unittest.mock
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
@@ -30,10 +31,12 @@ from django.test import TestCase
 from grimoirelab_toolkit.datetime import datetime_utcnow
 
 from sortinghat.core.context import SortingHatContext
-from sortinghat.core.errors import ClosedTransactionError
+from sortinghat.core.errors import (AlreadyExistsError,
+                                    ClosedTransactionError)
 from sortinghat.core.log import TransactionsLog
 from sortinghat.core.models import (Transaction,
                                     Operation)
+
 
 OPERATION_TYPE_EMPTY_ERROR = "'op_type' value must be a 'Operation.OpType'; str given"
 OPERATION_TYPE_NONE_ERROR = "'op_type' value must be a 'Operation.OpType'; NoneType given"
@@ -41,13 +44,23 @@ OPERATION_ENTITY_EMPTY_ERROR = "'entity_type' cannot be an empty string"
 OPERATION_ENTITY_NONE_ERROR = "'entity_type' cannot be None"
 OPERATION_TRANSACTION_NONE_ERROR = "field trx must be a Transaction"
 OPERATION_TRANSACTION_CLOSED_ERROR = "Log operation not allowed, transaction {tuid} is already closed"
+OPERATION_DUPLICATED_ERROR = "Operation '01234567890abcef01234567890abcef0' already exists in the registry"
 TRANSACTION_NAME_EMPTY_ERROR = "'name' cannot be an empty string"
 TRANSACTION_NAME_NONE_ERROR = "'name' cannot be None"
+TRANSACTION_DUPLICATED_ERROR = "Transaction '01234567890abcef01234567890abcef0' already exists in the registry"
 TRANSACTION_CTX_NONE_ERROR = "ctx value must be a SortingHatContext; NoneType given"
 TRANSACTION_CTX_INVALID_ERROR = "ctx value must be a SortingHatContext; TestTuple given"
 TRANSACTION_CTX_USER_EMPTY_ERROR = "ctx.user must be a Django User or AnonymousUser; SortingHatContext given"
 TRANSACTION_CTX_USER_NONE_ERROR = "ctx.user must be a Django User or AnonymousUser; SortingHatContext given"
 TRANSACTION_CTX_USER_INVALID_ERROR = "ctx.user must be a Django User or AnonymousUser; SortingHatContext given"
+
+
+class MockUUID4:
+    """Class to mock uuid4 results"""
+
+    @property
+    def hex(self):
+        return '01234567890abcef01234567890abcef0'
 
 
 class TestLogTransaction(TestCase):
@@ -287,3 +300,30 @@ class TestLogTransaction(TestCase):
         with self.assertRaisesRegex(ValueError, OPERATION_ENTITY_NONE_ERROR):
             trxl.log_operation(op_type=Operation.OpType.ADD, entity_type=None,
                                timestamp=datetime_utcnow(), target='test', args=input_args)
+
+    @unittest.mock.patch('uuid.uuid4')
+    def test_integrity_error_transaction_id(self, mock_uuid4):
+        """Check whether transactions with the same id cannot be inserted"""
+
+        mock_uuid4.return_value = MockUUID4()
+
+        with self.assertRaisesRegex(AlreadyExistsError, TRANSACTION_DUPLICATED_ERROR):
+            TransactionsLog.open('test', self.ctx)
+            TransactionsLog.open('test', self.ctx)
+
+    @unittest.mock.patch('uuid.uuid4')
+    def test_integrity_error_operation_id(self, mock_uuid4):
+        """Check whether operations with the same id cannot be inserted"""
+
+        mock_uuid4.return_value = MockUUID4()
+
+        timestamp = datetime_utcnow()
+        input_args = json.dumps({'mk': '12345abcd'})
+
+        trxl = TransactionsLog.open('test', self.ctx)
+
+        with self.assertRaisesRegex(AlreadyExistsError, OPERATION_DUPLICATED_ERROR):
+            trxl.log_operation(op_type=Operation.OpType.ADD, timestamp=timestamp,
+                               entity_type='test_entity', target='test', args=input_args)
+            trxl.log_operation(op_type=Operation.OpType.ADD, timestamp=timestamp,
+                               entity_type='test_entity', target='test', args=input_args)
