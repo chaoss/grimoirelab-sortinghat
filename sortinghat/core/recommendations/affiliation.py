@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2020 Bitergia
+# Copyright (C) 2014-2021 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 #
 
 import functools
+import logging
 import re
 
 from ..db import (find_individual_by_uuid,
@@ -29,6 +30,9 @@ from ..errors import NotFoundError
 
 
 EMAIL_ADDRESS_PATTERN = re.compile(r"^(?P<email>[^\s@]+@[^\s@.]+\.[^\s@]+)$")
+
+
+logger = logging.getLogger(__name__)
 
 
 def recommend_affiliations(uuids):
@@ -58,6 +62,11 @@ def recommend_affiliations(uuids):
 
     :returns: a generator of recommendations
     """
+    logger.debug(
+        f"Generating affiliation recommendations; "
+        f"uuids={uuids}; ..."
+    )
+
     for uuid in uuids:
         try:
             individual = find_individual_by_uuid(uuid)
@@ -65,6 +74,8 @@ def recommend_affiliations(uuids):
             continue
         else:
             yield (uuid, _suggest_affiliations(individual))
+
+    logger.info(f"Affiliation recommendations generated; uuids='{uuids}'")
 
 
 def _suggest_affiliations(individual):
