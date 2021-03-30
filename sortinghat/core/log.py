@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2020 Bitergia
+# Copyright (C) 2014-2021 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 
 
 import json
+import logging
 import re
 import uuid
 
@@ -37,6 +38,9 @@ from .models import (Operation,
                      Transaction)
 
 from .utils import validate_field
+
+
+logger = logging.getLogger(__name__)
 
 
 class TransactionsLog:
@@ -107,7 +111,12 @@ class TransactionsLog:
         try:
             trx.save(force_insert=True)
         except django.db.utils.IntegrityError as exc:
-            _handle_integrity_error(Transaction, exc)
+            _handle_integrity_error(Transaction, exc, tuid)
+
+        logger.debug(
+            f"Transaction {trx.tuid} started; "
+            f"name='{trx.name}' author='{trx.authored_by}'"
+        )
 
         return cls(trx, ctx)
 
@@ -120,7 +129,9 @@ class TransactionsLog:
         try:
             self.trx.save()
         except django.db.utils.IntegrityError as exc:
-            _handle_integrity_error(Transaction, exc)
+            _handle_integrity_error(Transaction, exc, self.trx.tuid)
+
+        logger.debug(f"Transaction {self.trx.tuid} finished")
 
     def log_operation(self, op_type, entity_type, timestamp, args, target):
         """Create a new operation object and save it into the DB.
@@ -157,7 +168,13 @@ class TransactionsLog:
         try:
             operation.save(force_insert=True)
         except django.db.utils.IntegrityError as exc:
-            _handle_integrity_error(Operation, exc)
+            _handle_integrity_error(Operation, exc, self.trx.tuid)
+
+        logger.debug(
+            f"Operation {operation.ouid} completed; "
+            f"trx='{operation.trx.tuid}' op='{operation.op_type}' "
+            f"type='{entity_type}' target='{target}' args={args};"
+        )
 
         return operation
 
@@ -165,8 +182,11 @@ class TransactionsLog:
 _MYSQL_DUPLICATE_ENTRY_ERROR_REGEX = re.compile(r"Duplicate entry '(?P<value>.+)' for key")
 
 
-def _handle_integrity_error(model, exc):
-    """Handle integrity error exceptions."""
+def _handle_integrity_error(model, exc, tuid):
+    """Handle integrity error internal logging exceptions"""
+
+    logger.error(f"Transaction {tuid} aborted; integrity error;",
+                 exc_info=True)
 
     m = re.match(_MYSQL_DUPLICATE_ENTRY_ERROR_REGEX,
                  exc.__cause__.args[1])
