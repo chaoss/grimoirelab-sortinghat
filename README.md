@@ -354,7 +354,7 @@ the `user`, `password`, `database` and optional `host` and `port`.
 from sortinghat import api
 from sortinghat.db.database import Database
 
-db = Database('root', '*****', 'test_db')
+db = Database('root', '*****', 'test_sh')
 ```
  
 #### Key terms
