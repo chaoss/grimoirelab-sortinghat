@@ -5680,113 +5680,220 @@ exports[`Storyshots IndividualsTable Default 1`] = `
         </div>
          
         <div
-          class="v-input search pa-0 flex-grow-0 ml-auto pa-0 flex-grow-0 v-input--dense theme--light v-text-field v-text-field--single-line v-text-field--enclosed v-text-field--outlined"
+          class="d-flex ml-auto pa-0 flex-grow-0"
         >
           <div
-            class="v-input__prepend-outer"
+            class="v-input search pa-0 flex-grow-0 v-input--dense theme--light v-text-field v-text-field--single-line v-text-field--enclosed v-text-field--outlined"
           >
             <div
-              class="v-menu"
+              class="v-input__prepend-outer"
             >
-              <button
-                aria-expanded="false"
-                aria-haspopup="true"
-                class="text-body-1 v-btn v-btn--depressed theme--light v-size--default white"
-                role="button"
-                style="height: 30px;"
-                type="button"
+              <div
+                class="v-menu"
               >
-                <span
-                  class="v-btn__content"
+                <button
+                  aria-expanded="false"
+                  aria-haspopup="true"
+                  class="text-body-1 v-btn v-btn--depressed theme--light v-size--default white"
+                  role="button"
+                  style="height: 30px;"
+                  type="button"
                 >
-                  
-          Filters
-          
-                  <i
-                    aria-hidden="true"
-                    class="v-icon notranslate v-icon--right mdi mdi-menu-down theme--light"
-                    style="font-size: 16px;"
-                  />
-                </span>
-              </button>
-              <!---->
-            </div>
-          </div>
-          <div
-            class="v-input__control"
-          >
-            <div
-              class="v-input__slot"
-              style="height: 30px;"
-            >
-              <fieldset
-                aria-hidden="true"
-              >
-                <legend>
-                  <span>
-                    ​
+                  <span
+                    class="v-btn__content"
+                  >
+                    
+            Filters
+            
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate v-icon--right mdi mdi-menu-down theme--light"
+                      style="font-size: 16px;"
+                    />
                   </span>
-                </legend>
-              </fieldset>
-              <div
-                class="v-text-field__slot"
-              >
-                <label
-                  class="v-label theme--light"
-                  for="input-749"
-                  style="left: 0px; position: absolute;"
-                >
-                  Search
-                </label>
-                <input
-                  id="input-749"
-                  type="text"
-                />
-              </div>
-              <div
-                class="v-input__append-inner"
-              >
-                <div
-                  class="v-input__icon v-input__icon--clear"
-                >
-                  <button
-                    aria-label="clear icon"
-                    class="v-icon notranslate v-icon--disabled v-icon--link mdi mdi-close theme--light"
-                    disabled="disabled"
-                    type="button"
-                  />
-                </div>
+                </button>
+                <!---->
               </div>
             </div>
             <div
-              class="v-text-field__details"
+              class="v-input__control"
             >
               <div
-                class="v-messages theme--light"
+                class="v-input__slot"
+                style="height: 30px;"
               >
                 <div
-                  class="v-messages__wrapper"
+                  class="v-input__prepend-inner"
                 >
                   <div
-                    class="v-messages__message"
+                    class="v-input__icon v-input__icon--prepend-inner"
                   >
-                     
+                    <button
+                      aria-label="prepend icon"
+                      class="v-icon notranslate v-icon--link mdi mdi-magnify theme--light"
+                      type="button"
+                    />
+                  </div>
+                </div>
+                <fieldset
+                  aria-hidden="true"
+                >
+                  <legend>
+                    <span>
+                      ​
+                    </span>
+                  </legend>
+                </fieldset>
+                <div
+                  class="v-text-field__slot"
+                >
+                  <label
+                    class="v-label theme--light"
+                    for="input-749"
+                    style="left: 0px; position: absolute;"
+                  >
+                    Search
+                  </label>
+                  <input
+                    id="input-749"
+                    type="text"
+                  />
+                </div>
+                <div
+                  class="v-input__append-inner"
+                >
+                  <div
+                    class="v-input__icon v-input__icon--clear"
+                  >
+                    <button
+                      aria-label="clear icon"
+                      class="v-icon notranslate v-icon--disabled v-icon--link mdi mdi-close theme--light"
+                      disabled="disabled"
+                      type="button"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div
+                class="v-text-field__details"
+              >
+                <div
+                  class="v-messages theme--light"
+                >
+                  <div
+                    class="v-messages__wrapper"
+                  >
+                    <div
+                      class="v-messages__message"
+                    >
+                       
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
+           
           <div
-            class="v-input__append-outer"
+            class="v-input select v-input--dense theme--light v-text-field v-text-field--single-line v-text-field--enclosed v-text-field--outlined v-select"
           >
             <div
-              class="v-input__icon v-input__icon--append-outer"
+              class="v-input__prepend-outer"
             >
-              <button
-                aria-label="append icon"
-                class="v-icon notranslate v-icon--link mdi mdi-magnify theme--light"
-                type="button"
-              />
+              <span
+                class="v-tooltip v-tooltip--bottom"
+              >
+                <!---->
+                <button
+                  class="text-body-1 v-btn v-btn--depressed theme--light v-size--default white"
+                  style="height: 30px;"
+                  type="button"
+                >
+                  <span
+                    class="v-btn__content"
+                  >
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate mdi mdi-sort-descending theme--light"
+                      style="font-size: 16px;"
+                    />
+                  </span>
+                </button>
+              </span>
+            </div>
+            <div
+              class="v-input__control"
+            >
+              <div
+                aria-expanded="false"
+                aria-haspopup="listbox"
+                aria-owns="list-757"
+                class="v-input__slot"
+                role="button"
+              >
+                <fieldset
+                  aria-hidden="true"
+                >
+                  <legend>
+                    <span>
+                      ​
+                    </span>
+                  </legend>
+                </fieldset>
+                <div
+                  class="v-select__slot"
+                >
+                  <label
+                    class="v-label theme--light"
+                    for="input-757"
+                    style="left: 0px; position: absolute;"
+                  >
+                    Order by
+                  </label>
+                  <div
+                    class="v-select__selections"
+                  >
+                    <input
+                      aria-readonly="false"
+                      autocomplete="off"
+                      id="input-757"
+                      readonly="readonly"
+                      type="text"
+                    />
+                  </div>
+                  <div
+                    class="v-input__append-inner"
+                  >
+                    <div
+                      class="v-input__icon v-input__icon--append"
+                    >
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate mdi mdi-menu-down theme--light"
+                      />
+                    </div>
+                  </div>
+                  <input
+                    type="hidden"
+                  />
+                </div>
+                <div
+                  class="v-menu"
+                >
+                  <!---->
+                </div>
+              </div>
+              <div
+                class="v-text-field__details"
+              >
+                <div
+                  class="v-messages theme--light"
+                >
+                  <div
+                    class="v-messages__wrapper"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -5926,13 +6033,13 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                 >
                   <label
                     class="v-label v-label--active theme--light"
-                    for="input-769"
+                    for="input-777"
                     style="left: 0px; position: absolute;"
                   >
                     Items per page
                   </label>
                   <input
-                    id="input-769"
+                    id="input-777"
                     max="0"
                     min="1"
                     type="number"
@@ -6309,85 +6416,91 @@ exports[`Storyshots OrganizationsTable Default 1`] = `
         class="row actions"
       >
         <div
-          class="v-input search pa-0 flex-grow-0 mr-3 pa-0 flex-grow-0 v-input--dense theme--light v-text-field v-text-field--single-line v-text-field--enclosed v-text-field--outlined"
+          class="d-flex mr-3 pa-0 flex-grow-0"
         >
           <div
-            class="v-input__control"
+            class="v-input search pa-0 flex-grow-0 v-input--dense theme--light v-text-field v-text-field--single-line v-text-field--enclosed v-text-field--outlined"
           >
             <div
-              class="v-input__slot"
-              style="height: 30px;"
-            >
-              <fieldset
-                aria-hidden="true"
-              >
-                <legend>
-                  <span>
-                    ​
-                  </span>
-                </legend>
-              </fieldset>
-              <div
-                class="v-text-field__slot"
-              >
-                <label
-                  class="v-label theme--light"
-                  for="input-971"
-                  style="left: 0px; position: absolute;"
-                >
-                  Search
-                </label>
-                <input
-                  id="input-971"
-                  type="text"
-                />
-              </div>
-              <div
-                class="v-input__append-inner"
-              >
-                <div
-                  class="v-input__icon v-input__icon--clear"
-                >
-                  <button
-                    aria-label="clear icon"
-                    class="v-icon notranslate v-icon--disabled v-icon--link mdi mdi-close theme--light"
-                    disabled="disabled"
-                    type="button"
-                  />
-                </div>
-              </div>
-            </div>
-            <div
-              class="v-text-field__details"
+              class="v-input__control"
             >
               <div
-                class="v-messages theme--light"
+                class="v-input__slot"
+                style="height: 30px;"
               >
                 <div
-                  class="v-messages__wrapper"
+                  class="v-input__prepend-inner"
                 >
                   <div
-                    class="v-messages__message"
+                    class="v-input__icon v-input__icon--prepend-inner"
                   >
-                     
+                    <button
+                      aria-label="prepend icon"
+                      class="v-icon notranslate v-icon--link mdi mdi-magnify theme--light"
+                      type="button"
+                    />
+                  </div>
+                </div>
+                <fieldset
+                  aria-hidden="true"
+                >
+                  <legend>
+                    <span>
+                      ​
+                    </span>
+                  </legend>
+                </fieldset>
+                <div
+                  class="v-text-field__slot"
+                >
+                  <label
+                    class="v-label theme--light"
+                    for="input-979"
+                    style="left: 0px; position: absolute;"
+                  >
+                    Search
+                  </label>
+                  <input
+                    id="input-979"
+                    type="text"
+                  />
+                </div>
+                <div
+                  class="v-input__append-inner"
+                >
+                  <div
+                    class="v-input__icon v-input__icon--clear"
+                  >
+                    <button
+                      aria-label="clear icon"
+                      class="v-icon notranslate v-icon--disabled v-icon--link mdi mdi-close theme--light"
+                      disabled="disabled"
+                      type="button"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div
+                class="v-text-field__details"
+              >
+                <div
+                  class="v-messages theme--light"
+                >
+                  <div
+                    class="v-messages__wrapper"
+                  >
+                    <div
+                      class="v-messages__message"
+                    >
+                       
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-          <div
-            class="v-input__append-outer"
-          >
-            <div
-              class="v-input__icon v-input__icon--append-outer"
-            >
-              <button
-                aria-label="append icon"
-                class="v-icon notranslate v-icon--link mdi mdi-magnify theme--light"
-                type="button"
-              />
-            </div>
-          </div>
+           
+          <!---->
         </div>
       </div>
        
@@ -6475,13 +6588,13 @@ exports[`Storyshots OrganizationsTable Default 1`] = `
               >
                 <label
                   class="v-label v-label--active theme--light"
-                  for="input-982"
+                  for="input-990"
                   style="left: 0px; position: absolute;"
                 >
                   Items per page
                 </label>
                 <input
-                  id="input-982"
+                  id="input-990"
                   max="0"
                   min="1"
                   type="number"
@@ -6798,85 +6911,91 @@ exports[`Storyshots Search Default 1`] = `
       class="ma-5"
     >
       <div
-        class="v-input search pa-0 flex-grow-0 v-input--dense theme--light v-text-field v-text-field--single-line v-text-field--enclosed v-text-field--outlined"
+        class="d-flex"
       >
         <div
-          class="v-input__control"
+          class="v-input search pa-0 flex-grow-0 v-input--dense theme--light v-text-field v-text-field--single-line v-text-field--enclosed v-text-field--outlined"
         >
           <div
-            class="v-input__slot"
-            style="height: 30px;"
-          >
-            <fieldset
-              aria-hidden="true"
-            >
-              <legend>
-                <span>
-                  ​
-                </span>
-              </legend>
-            </fieldset>
-            <div
-              class="v-text-field__slot"
-            >
-              <label
-                class="v-label theme--light"
-                for="input-1059"
-                style="left: 0px; position: absolute;"
-              >
-                Search
-              </label>
-              <input
-                id="input-1059"
-                type="text"
-              />
-            </div>
-            <div
-              class="v-input__append-inner"
-            >
-              <div
-                class="v-input__icon v-input__icon--clear"
-              >
-                <button
-                  aria-label="clear icon"
-                  class="v-icon notranslate v-icon--disabled v-icon--link mdi mdi-close theme--light"
-                  disabled="disabled"
-                  type="button"
-                />
-              </div>
-            </div>
-          </div>
-          <div
-            class="v-text-field__details"
+            class="v-input__control"
           >
             <div
-              class="v-messages theme--light"
+              class="v-input__slot"
+              style="height: 30px;"
             >
               <div
-                class="v-messages__wrapper"
+                class="v-input__prepend-inner"
               >
                 <div
-                  class="v-messages__message"
+                  class="v-input__icon v-input__icon--prepend-inner"
                 >
-                   
+                  <button
+                    aria-label="prepend icon"
+                    class="v-icon notranslate v-icon--link mdi mdi-magnify theme--light"
+                    type="button"
+                  />
+                </div>
+              </div>
+              <fieldset
+                aria-hidden="true"
+              >
+                <legend>
+                  <span>
+                    ​
+                  </span>
+                </legend>
+              </fieldset>
+              <div
+                class="v-text-field__slot"
+              >
+                <label
+                  class="v-label theme--light"
+                  for="input-1067"
+                  style="left: 0px; position: absolute;"
+                >
+                  Search
+                </label>
+                <input
+                  id="input-1067"
+                  type="text"
+                />
+              </div>
+              <div
+                class="v-input__append-inner"
+              >
+                <div
+                  class="v-input__icon v-input__icon--clear"
+                >
+                  <button
+                    aria-label="clear icon"
+                    class="v-icon notranslate v-icon--disabled v-icon--link mdi mdi-close theme--light"
+                    disabled="disabled"
+                    type="button"
+                  />
+                </div>
+              </div>
+            </div>
+            <div
+              class="v-text-field__details"
+            >
+              <div
+                class="v-messages theme--light"
+              >
+                <div
+                  class="v-messages__wrapper"
+                >
+                  <div
+                    class="v-messages__message"
+                  >
+                     
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <div
-          class="v-input__append-outer"
-        >
-          <div
-            class="v-input__icon v-input__icon--append-outer"
-          >
-            <button
-              aria-label="append icon"
-              class="v-icon notranslate v-icon--link mdi mdi-magnify theme--light"
-              type="button"
-            />
-          </div>
-        </div>
+         
+        <!---->
       </div>
     </div>
   </div>
@@ -6896,113 +7015,324 @@ exports[`Storyshots Search Filter Selector 1`] = `
       class="ma-5"
     >
       <div
-        class="v-input search pa-0 flex-grow-0 v-input--dense theme--light v-text-field v-text-field--single-line v-text-field--enclosed v-text-field--outlined"
+        class="d-flex"
       >
         <div
-          class="v-input__prepend-outer"
+          class="v-input search pa-0 flex-grow-0 v-input--dense theme--light v-text-field v-text-field--single-line v-text-field--enclosed v-text-field--outlined"
         >
           <div
-            class="v-menu"
+            class="v-input__prepend-outer"
           >
-            <button
-              aria-expanded="false"
-              aria-haspopup="true"
-              class="text-body-1 v-btn v-btn--depressed theme--light v-size--default white"
-              role="button"
-              style="height: 30px;"
-              type="button"
+            <div
+              class="v-menu"
             >
-              <span
-                class="v-btn__content"
+              <button
+                aria-expanded="false"
+                aria-haspopup="true"
+                class="text-body-1 v-btn v-btn--depressed theme--light v-size--default white"
+                role="button"
+                style="height: 30px;"
+                type="button"
               >
-                
-          Filters
-          
-                <i
-                  aria-hidden="true"
-                  class="v-icon notranslate v-icon--right mdi mdi-menu-down theme--light"
-                  style="font-size: 16px;"
-                />
-              </span>
-            </button>
-            <!---->
-          </div>
-        </div>
-        <div
-          class="v-input__control"
-        >
-          <div
-            class="v-input__slot"
-            style="height: 30px;"
-          >
-            <fieldset
-              aria-hidden="true"
-            >
-              <legend>
-                <span>
-                  ​
+                <span
+                  class="v-btn__content"
+                >
+                  
+            Filters
+            
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate v-icon--right mdi mdi-menu-down theme--light"
+                    style="font-size: 16px;"
+                  />
                 </span>
-              </legend>
-            </fieldset>
-            <div
-              class="v-text-field__slot"
-            >
-              <label
-                class="v-label theme--light"
-                for="input-1069"
-                style="left: 0px; position: absolute;"
-              >
-                Search
-              </label>
-              <input
-                id="input-1069"
-                type="text"
-              />
-            </div>
-            <div
-              class="v-input__append-inner"
-            >
-              <div
-                class="v-input__icon v-input__icon--clear"
-              >
-                <button
-                  aria-label="clear icon"
-                  class="v-icon notranslate v-icon--disabled v-icon--link mdi mdi-close theme--light"
-                  disabled="disabled"
-                  type="button"
-                />
-              </div>
+              </button>
+              <!---->
             </div>
           </div>
           <div
-            class="v-text-field__details"
+            class="v-input__control"
           >
             <div
-              class="v-messages theme--light"
+              class="v-input__slot"
+              style="height: 30px;"
             >
               <div
-                class="v-messages__wrapper"
+                class="v-input__prepend-inner"
               >
                 <div
-                  class="v-messages__message"
+                  class="v-input__icon v-input__icon--prepend-inner"
                 >
-                   
+                  <button
+                    aria-label="prepend icon"
+                    class="v-icon notranslate v-icon--link mdi mdi-magnify theme--light"
+                    type="button"
+                  />
+                </div>
+              </div>
+              <fieldset
+                aria-hidden="true"
+              >
+                <legend>
+                  <span>
+                    ​
+                  </span>
+                </legend>
+              </fieldset>
+              <div
+                class="v-text-field__slot"
+              >
+                <label
+                  class="v-label theme--light"
+                  for="input-1077"
+                  style="left: 0px; position: absolute;"
+                >
+                  Search
+                </label>
+                <input
+                  id="input-1077"
+                  type="text"
+                />
+              </div>
+              <div
+                class="v-input__append-inner"
+              >
+                <div
+                  class="v-input__icon v-input__icon--clear"
+                >
+                  <button
+                    aria-label="clear icon"
+                    class="v-icon notranslate v-icon--disabled v-icon--link mdi mdi-close theme--light"
+                    disabled="disabled"
+                    type="button"
+                  />
+                </div>
+              </div>
+            </div>
+            <div
+              class="v-text-field__details"
+            >
+              <div
+                class="v-messages theme--light"
+              >
+                <div
+                  class="v-messages__wrapper"
+                >
+                  <div
+                    class="v-messages__message"
+                  >
+                     
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
+         
+        <!---->
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Storyshots Search Order Selector 1`] = `
+<div
+  class="v-application v-application--is-ltr theme--light"
+  data-app="true"
+  id="app"
+>
+  <div
+    class="v-application--wrap"
+  >
+    <div
+      class="ma-5"
+    >
+      <div
+        class="d-flex"
+      >
         <div
-          class="v-input__append-outer"
+          class="v-input search pa-0 flex-grow-0 v-input--dense theme--light v-text-field v-text-field--single-line v-text-field--enclosed v-text-field--outlined"
         >
           <div
-            class="v-input__icon v-input__icon--append-outer"
+            class="v-input__control"
           >
-            <button
-              aria-label="append icon"
-              class="v-icon notranslate v-icon--link mdi mdi-magnify theme--light"
-              type="button"
-            />
+            <div
+              class="v-input__slot"
+              style="height: 30px;"
+            >
+              <div
+                class="v-input__prepend-inner"
+              >
+                <div
+                  class="v-input__icon v-input__icon--prepend-inner"
+                >
+                  <button
+                    aria-label="prepend icon"
+                    class="v-icon notranslate v-icon--link mdi mdi-magnify theme--light"
+                    type="button"
+                  />
+                </div>
+              </div>
+              <fieldset
+                aria-hidden="true"
+              >
+                <legend>
+                  <span>
+                    ​
+                  </span>
+                </legend>
+              </fieldset>
+              <div
+                class="v-text-field__slot"
+              >
+                <label
+                  class="v-label theme--light"
+                  for="input-1090"
+                  style="left: 0px; position: absolute;"
+                >
+                  Search
+                </label>
+                <input
+                  id="input-1090"
+                  type="text"
+                />
+              </div>
+              <div
+                class="v-input__append-inner"
+              >
+                <div
+                  class="v-input__icon v-input__icon--clear"
+                >
+                  <button
+                    aria-label="clear icon"
+                    class="v-icon notranslate v-icon--disabled v-icon--link mdi mdi-close theme--light"
+                    disabled="disabled"
+                    type="button"
+                  />
+                </div>
+              </div>
+            </div>
+            <div
+              class="v-text-field__details"
+            >
+              <div
+                class="v-messages theme--light"
+              >
+                <div
+                  class="v-messages__wrapper"
+                >
+                  <div
+                    class="v-messages__message"
+                  >
+                     
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+         
+        <div
+          class="v-input select v-input--dense theme--light v-text-field v-text-field--single-line v-text-field--enclosed v-text-field--outlined v-select"
+        >
+          <div
+            class="v-input__prepend-outer"
+          >
+            <span
+              class="v-tooltip v-tooltip--bottom"
+            >
+              <!---->
+              <button
+                class="text-body-1 v-btn v-btn--depressed theme--light v-size--default white"
+                style="height: 30px;"
+                type="button"
+              >
+                <span
+                  class="v-btn__content"
+                >
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate mdi mdi-sort-descending theme--light"
+                    style="font-size: 16px;"
+                  />
+                </span>
+              </button>
+            </span>
+          </div>
+          <div
+            class="v-input__control"
+          >
+            <div
+              aria-expanded="false"
+              aria-haspopup="listbox"
+              aria-owns="list-1095"
+              class="v-input__slot"
+              role="button"
+            >
+              <fieldset
+                aria-hidden="true"
+              >
+                <legend>
+                  <span>
+                    ​
+                  </span>
+                </legend>
+              </fieldset>
+              <div
+                class="v-select__slot"
+              >
+                <label
+                  class="v-label theme--light"
+                  for="input-1095"
+                  style="left: 0px; position: absolute;"
+                >
+                  Order by
+                </label>
+                <div
+                  class="v-select__selections"
+                >
+                  <input
+                    aria-readonly="false"
+                    autocomplete="off"
+                    id="input-1095"
+                    readonly="readonly"
+                    type="text"
+                  />
+                </div>
+                <div
+                  class="v-input__append-inner"
+                >
+                  <div
+                    class="v-input__icon v-input__icon--append"
+                  >
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate mdi mdi-menu-down theme--light"
+                    />
+                  </div>
+                </div>
+                <input
+                  type="hidden"
+                />
+              </div>
+              <div
+                class="v-menu"
+              >
+                <!---->
+              </div>
+            </div>
+            <div
+              class="v-text-field__details"
+            >
+              <div
+                class="v-messages theme--light"
+              >
+                <div
+                  class="v-messages__wrapper"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -7540,7 +7870,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   />
                   <input
                     aria-checked="false"
-                    id="input-1160"
+                    id="input-1186"
                     role="checkbox"
                     type="checkbox"
                     value=""
@@ -7551,7 +7881,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 </div>
                 <label
                   class="v-label theme--light"
-                  for="input-1160"
+                  for="input-1186"
                   style="left: 0px; position: relative;"
                 >
                   Select all
@@ -7568,113 +7898,220 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
           </div>
            
           <div
-            class="v-input search pa-0 flex-grow-0 ml-auto pa-0 flex-grow-0 v-input--dense theme--light v-text-field v-text-field--single-line v-text-field--enclosed v-text-field--outlined"
+            class="d-flex ml-auto pa-0 flex-grow-0"
           >
             <div
-              class="v-input__prepend-outer"
+              class="v-input search pa-0 flex-grow-0 v-input--dense theme--light v-text-field v-text-field--single-line v-text-field--enclosed v-text-field--outlined"
             >
               <div
-                class="v-menu"
+                class="v-input__prepend-outer"
               >
-                <button
-                  aria-expanded="false"
-                  aria-haspopup="true"
-                  class="text-body-1 v-btn v-btn--depressed theme--light v-size--default white"
-                  role="button"
-                  style="height: 30px;"
-                  type="button"
+                <div
+                  class="v-menu"
                 >
-                  <span
-                    class="v-btn__content"
+                  <button
+                    aria-expanded="false"
+                    aria-haspopup="true"
+                    class="text-body-1 v-btn v-btn--depressed theme--light v-size--default white"
+                    role="button"
+                    style="height: 30px;"
+                    type="button"
                   >
-                    
-          Filters
-          
-                    <i
-                      aria-hidden="true"
-                      class="v-icon notranslate v-icon--right mdi mdi-menu-down theme--light"
-                      style="font-size: 16px;"
-                    />
-                  </span>
-                </button>
-                <!---->
-              </div>
-            </div>
-            <div
-              class="v-input__control"
-            >
-              <div
-                class="v-input__slot"
-                style="height: 30px;"
-              >
-                <fieldset
-                  aria-hidden="true"
-                >
-                  <legend>
-                    <span>
-                      ​
+                    <span
+                      class="v-btn__content"
+                    >
+                      
+            Filters
+            
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate v-icon--right mdi mdi-menu-down theme--light"
+                        style="font-size: 16px;"
+                      />
                     </span>
-                  </legend>
-                </fieldset>
-                <div
-                  class="v-text-field__slot"
-                >
-                  <label
-                    class="v-label theme--light"
-                    for="input-1165"
-                    style="left: 0px; position: absolute;"
-                  >
-                    Search
-                  </label>
-                  <input
-                    id="input-1165"
-                    type="text"
-                  />
-                </div>
-                <div
-                  class="v-input__append-inner"
-                >
-                  <div
-                    class="v-input__icon v-input__icon--clear"
-                  >
-                    <button
-                      aria-label="clear icon"
-                      class="v-icon notranslate v-icon--disabled v-icon--link mdi mdi-close theme--light"
-                      disabled="disabled"
-                      type="button"
-                    />
-                  </div>
+                  </button>
+                  <!---->
                 </div>
               </div>
               <div
-                class="v-text-field__details"
+                class="v-input__control"
               >
                 <div
-                  class="v-messages theme--light"
+                  class="v-input__slot"
+                  style="height: 30px;"
                 >
                   <div
-                    class="v-messages__wrapper"
+                    class="v-input__prepend-inner"
                   >
                     <div
-                      class="v-messages__message"
+                      class="v-input__icon v-input__icon--prepend-inner"
                     >
-                       
+                      <button
+                        aria-label="prepend icon"
+                        class="v-icon notranslate v-icon--link mdi mdi-magnify theme--light"
+                        type="button"
+                      />
+                    </div>
+                  </div>
+                  <fieldset
+                    aria-hidden="true"
+                  >
+                    <legend>
+                      <span>
+                        ​
+                      </span>
+                    </legend>
+                  </fieldset>
+                  <div
+                    class="v-text-field__slot"
+                  >
+                    <label
+                      class="v-label theme--light"
+                      for="input-1191"
+                      style="left: 0px; position: absolute;"
+                    >
+                      Search
+                    </label>
+                    <input
+                      id="input-1191"
+                      type="text"
+                    />
+                  </div>
+                  <div
+                    class="v-input__append-inner"
+                  >
+                    <div
+                      class="v-input__icon v-input__icon--clear"
+                    >
+                      <button
+                        aria-label="clear icon"
+                        class="v-icon notranslate v-icon--disabled v-icon--link mdi mdi-close theme--light"
+                        disabled="disabled"
+                        type="button"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="v-text-field__details"
+                >
+                  <div
+                    class="v-messages theme--light"
+                  >
+                    <div
+                      class="v-messages__wrapper"
+                    >
+                      <div
+                        class="v-messages__message"
+                      >
+                         
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
+             
             <div
-              class="v-input__append-outer"
+              class="v-input select v-input--dense theme--light v-text-field v-text-field--single-line v-text-field--enclosed v-text-field--outlined v-select"
             >
               <div
-                class="v-input__icon v-input__icon--append-outer"
+                class="v-input__prepend-outer"
               >
-                <button
-                  aria-label="append icon"
-                  class="v-icon notranslate v-icon--link mdi mdi-magnify theme--light"
-                  type="button"
-                />
+                <span
+                  class="v-tooltip v-tooltip--bottom"
+                >
+                  <!---->
+                  <button
+                    class="text-body-1 v-btn v-btn--depressed theme--light v-size--default white"
+                    style="height: 30px;"
+                    type="button"
+                  >
+                    <span
+                      class="v-btn__content"
+                    >
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate mdi mdi-sort-descending theme--light"
+                        style="font-size: 16px;"
+                      />
+                    </span>
+                  </button>
+                </span>
+              </div>
+              <div
+                class="v-input__control"
+              >
+                <div
+                  aria-expanded="false"
+                  aria-haspopup="listbox"
+                  aria-owns="list-1199"
+                  class="v-input__slot"
+                  role="button"
+                >
+                  <fieldset
+                    aria-hidden="true"
+                  >
+                    <legend>
+                      <span>
+                        ​
+                      </span>
+                    </legend>
+                  </fieldset>
+                  <div
+                    class="v-select__slot"
+                  >
+                    <label
+                      class="v-label theme--light"
+                      for="input-1199"
+                      style="left: 0px; position: absolute;"
+                    >
+                      Order by
+                    </label>
+                    <div
+                      class="v-select__selections"
+                    >
+                      <input
+                        aria-readonly="false"
+                        autocomplete="off"
+                        id="input-1199"
+                        readonly="readonly"
+                        type="text"
+                      />
+                    </div>
+                    <div
+                      class="v-input__append-inner"
+                    >
+                      <div
+                        class="v-input__icon v-input__icon--append"
+                      >
+                        <i
+                          aria-hidden="true"
+                          class="v-icon notranslate mdi mdi-menu-down theme--light"
+                        />
+                      </div>
+                    </div>
+                    <input
+                      type="hidden"
+                    />
+                  </div>
+                  <div
+                    class="v-menu"
+                  >
+                    <!---->
+                  </div>
+                </div>
+                <div
+                  class="v-text-field__details"
+                >
+                  <div
+                    class="v-messages theme--light"
+                  >
+                    <div
+                      class="v-messages__wrapper"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -7814,13 +8251,13 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   >
                     <label
                       class="v-label v-label--active theme--light"
-                      for="input-1185"
+                      for="input-1219"
                       style="left: 0px; position: absolute;"
                     >
                       Items per page
                     </label>
                     <input
-                      id="input-1185"
+                      id="input-1219"
                       max="0"
                       min="1"
                       type="number"
