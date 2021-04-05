@@ -80,10 +80,11 @@ Activate the virtual environment:
 $ poetry shell
 ```
 
-Migrations and create a superuser:
+Migrations, fixtures and create a superuser:
 ```
 (.venv)$ ./manage.py makemigrations --settings=config.settings.devel
 (.venv)$ ./manage.py migrate --settings=config.settings.devel
+(.venv)$ ./manage.py loaddata sortinghat/core/fixtures/countries.json --settings=config.settings.devel
 (.venv)$ ./manage.py createsuperuser --settings=config.settings.devel
 ```
 
