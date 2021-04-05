@@ -1,60 +1,102 @@
 <template>
-  <v-text-field
-    v-model.trim="inputValue"
-    append-outer-icon="mdi-magnify"
-    class="search pa-0 flex-grow-0"
-    :error-messages="errorMessage"
-    clearable
-    label="Search"
-    type="text"
-    height="30"
-    hint=" "
-    persistent-hint
-    single-line
-    outlined
-    dense
-    @click:append-outer="search"
-    @click:clear="clear"
-    @keyup.enter="search"
-    @focus="isFocused = true"
-    @blur="isFocused = false"
-  >
-    <template v-slot:prepend v-if="filterSelector">
-      <v-menu offset-y>
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn
-            class="text-body-1"
-            depressed
-            color="white"
-            height="30"
-            v-bind="attrs"
-            v-on="on"
-          >
-            Filters
-            <v-icon small right>mdi-menu-down</v-icon>
-          </v-btn>
-        </template>
-        <v-list dense class="mt-1">
-          <v-list-item
-            v-for="(item, i) in validFilters"
-            :key="i"
-            @click="setFilter(item)"
-          >
-            <v-list-item-title>
-              {{ item.filter }}
-            </v-list-item-title>
-          </v-list-item>
-          <v-divider />
-          <v-list-item href="/search-help" target="_blank">
-            <v-list-item-title>
-              <v-icon small left>mdi-open-in-new</v-icon>
-              View search syntax
-            </v-list-item-title>
-          </v-list-item>
-        </v-list>
-      </v-menu>
-    </template>
-  </v-text-field>
+  <div class="d-flex">
+    <v-text-field
+      v-model.trim="inputValue"
+      prepend-inner-icon="mdi-magnify"
+      class="search pa-0 flex-grow-0"
+      :error-messages="errorMessage"
+      clearable
+      label="Search"
+      type="text"
+      height="30"
+      hint=" "
+      persistent-hint
+      single-line
+      outlined
+      dense
+      @click:prepend-inner="search"
+      @click:clear="clear"
+      @keyup.enter="search"
+      @focus="isFocused = true"
+      @blur="isFocused = false"
+    >
+      <template v-slot:prepend v-if="filterSelector">
+        <v-menu offset-y>
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              class="text-body-1"
+              depressed
+              color="white"
+              height="30"
+              v-bind="attrs"
+              v-on="on"
+            >
+              Filters
+              <v-icon small right>mdi-menu-down</v-icon>
+            </v-btn>
+          </template>
+          <v-list dense class="mt-1">
+            <v-list-item
+              v-for="(item, i) in validFilters"
+              :key="i"
+              @click="setFilter(item)"
+            >
+              <v-list-item-title>
+                {{ item.filter }}
+              </v-list-item-title>
+            </v-list-item>
+            <v-divider />
+            <v-list-item href="/search-help" target="_blank">
+              <v-list-item-title>
+                <v-icon small left>mdi-open-in-new</v-icon>
+                View search syntax
+              </v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+      </template>
+    </v-text-field>
+    <v-select
+      v-if="orderSelector"
+      v-model="order.value"
+      :items="orderOptions"
+      :menu-props="{ offsetY: true, bottom: true, nudgeTop: 8 }"
+      label="Order by"
+      class="select"
+      attach
+      dense
+      outlined
+      single-line
+      ref="orderSelector"
+      @change="search"
+    >
+      <template v-slot:prepend>
+        <v-tooltip bottom transition="expand-y-transition" open-delay="200">
+          <template v-slot:activator="{ on }">
+            <v-btn
+              v-on="on"
+              class="text-body-1"
+              depressed
+              color="white"
+              height="30"
+              @click="changeOrder"
+            >
+              <v-icon small>
+                {{
+                  order.descending
+                    ? "mdi-sort-descending"
+                    : "mdi-sort-ascending"
+                }}
+              </v-icon>
+            </v-btn>
+          </template>
+          <span>
+            {{ order.descending ? "Descending " : "Ascending " }} order
+          </span>
+        </v-tooltip>
+      </template>
+    </v-select>
+  </div>
 </template>
 
 <script>
@@ -62,6 +104,11 @@ export default {
   name: "Search",
   props: {
     filterSelector: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
+    orderSelector: {
       type: Boolean,
       required: false,
       default: false
@@ -95,6 +142,16 @@ export default {
           type: "string"
         }
       ]
+    },
+    orderOptions: {
+      type: Array,
+      required: false,
+      default: () => [
+        {
+          text: "Last updated",
+          value: "lastModified"
+        }
+      ]
     }
   },
   data() {
@@ -103,14 +160,19 @@ export default {
       filters: {},
       isFocused: false,
       errorMessage: undefined,
-      dialog: false
+      dialog: false,
+      order: {
+        value: undefined,
+        descending: true
+      }
     };
   },
   methods: {
     search() {
       this.parseFilters();
       if (this.errorMessage) return;
-      this.$emit("search", this.filters);
+      const order = this.getOrder();
+      this.$emit("search", this.filters, order);
     },
     parseFilters() {
       const terms = [];
@@ -200,10 +262,11 @@ export default {
       return input;
     },
     clear() {
+      const order = this.getOrder();
       this.inputValue = "";
       this.filters = {};
       this.errorMessage = undefined;
-      this.$emit("search", {});
+      this.$emit("search", {}, order);
     },
     isBooleanFilter(filter) {
       const validFilter = this.validFilters.find(
@@ -223,12 +286,26 @@ export default {
       } else {
         this.inputValue += `${item.filter}:"search value" `;
       }
+    },
+    getOrder() {
+      let order;
+      if (this.order.value) {
+        order = `${this.order.descending ? "-" : ""}${this.order.value}`;
+      }
+      return order;
+    },
+    changeOrder() {
+      this.order.descending = !this.order.descending;
+      if (this.order.value) {
+        this.search();
+      }
     }
   }
 };
 </script>
 <style lang="scss" scoped>
-.search {
+.search,
+.select {
   width: 100%;
   max-width: 420px;
   margin-top: 2px;
@@ -242,7 +319,7 @@ export default {
   }
   ::v-deep .v-label {
     font-size: 0.9rem;
-    line-height: 12px;
+    line-height: 13px;
   }
 }
 
@@ -268,8 +345,33 @@ export default {
     }
   }
   ::v-deep .v-input__append-inner,
-  ::v-deep .v-input__append-outer {
+  ::v-deep .v-input__append-outer,
+  ::v-deep .v-input__prepend-inner {
     margin-top: 4px;
+  }
+
+  ::v-deep .v-icon.v-icon {
+    font-size: 1.1rem;
+  }
+}
+
+.select {
+  max-width: 12rem;
+  margin-left: 1rem;
+  margin-right: 0.5rem;
+
+  .v-select__selection {
+    margin-top: 0;
+    height: 37px;
+  }
+
+  ::v-deep .v-select__slot {
+    height: 30px;
+  }
+
+  .v-input__prepend-outer > .v-btn {
+    padding: 0 8px;
+    min-width: 40px;
   }
 }
 </style>
