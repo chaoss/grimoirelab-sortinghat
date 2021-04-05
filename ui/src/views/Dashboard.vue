@@ -112,12 +112,13 @@ export default {
   },
   methods: {
     ...mapActions(["saveWorkspace", "emptyWorkspace"]),
-    async getIndividualsPage(page, items, filters) {
+    async getIndividualsPage(page, items, filters, orderBy) {
       const response = await getPaginatedIndividuals(
         this.$apollo,
         page,
         items,
-        filters
+        filters,
+        orderBy
       );
       return response;
     },
