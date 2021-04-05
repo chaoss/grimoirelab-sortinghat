@@ -468,7 +468,10 @@ def _iter_split(iterator, size=None):
     # This code is based on Ashley Waite's answer to StackOverflow question
     # "split a generator/iterable every n items in python (splitEvery)"
     # (https://stackoverflow.com/a/44320132).
-    while True:
-        slice_iter = itertools.islice(iterator, size)
-        peek = next(slice_iter)
-        yield itertools.chain([peek], slice_iter)
+    try:
+        while True:
+            slice_iter = itertools.islice(iterator, size)
+            peek = next(slice_iter)
+            yield itertools.chain([peek], slice_iter)
+    except StopIteration:
+        return
