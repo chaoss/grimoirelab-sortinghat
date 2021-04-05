@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2020 Bitergia
+# Copyright (C) 2014-2021 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 #
 
 import itertools
+import logging
 
 import django_rq
 import django_rq.utils
@@ -38,6 +39,9 @@ from .recommendations.engine import RecommendationEngine
 MAX_CHUNK_SIZE = 2000
 
 
+logger = logging.getLogger(__name__)
+
+
 def find_job(job_id):
     """Find a job in the jobs registry.
 
@@ -51,11 +55,16 @@ def find_job(job_id):
     :raises NotFoundError: when the job identified by `job_id`
         is not found.
     """
+    logger.debug(f"Finding job {job_id} ...")
+
     queue = django_rq.get_queue()
     jobs = django_rq.utils.get_jobs(queue, [job_id])
 
     if not jobs:
+        logger.debug(f"Job with id {job_id} does not exist")
         raise NotFoundError(entity=job_id)
+
+    logger.debug(f"Job with id {job_id} was found")
 
     return jobs[0]
 
@@ -68,6 +77,8 @@ def get_jobs():
 
     :returns: a list of Job instances
     """
+    logger.debug("Retrieving list of jobs ...")
+
     queue = django_rq.get_queue()
     started_jobs = [find_job(id)
                     for id
@@ -87,6 +98,8 @@ def get_jobs():
     jobs = (queue.jobs + started_jobs + deferred_jobs + finished_jobs + failed_jobs + scheduled_jobs)
 
     sorted_jobs = sorted(jobs, key=lambda x: x.enqueued_at)
+
+    logger.debug(f"List of jobs retrieved; total jobs: {len(sorted_jobs)};")
 
     return sorted_jobs
 
@@ -110,9 +123,13 @@ def recommend_affiliations(ctx, uuids=None):
     :returns: a dictionary with which individuals are recommended to be
         affiliated to which organization.
     """
+    job = rq.get_current_job()
+
     if not uuids:
+        logger.info(f"Running job {job.id} 'recommend affiliations'; uuids='all'; ...")
         uuids = Individual.objects.values_list('mk', flat=True).iterator()
     else:
+        logger.info(f"Running job {job.id} 'recommend affiliations'; uuids={uuids}; ...")
         uuids = iter(uuids)
 
     results = {}
@@ -124,7 +141,6 @@ def recommend_affiliations(ctx, uuids=None):
 
     # Create a new context to include the reference
     # to the job id that will perform the transaction.
-    job = rq.get_current_job()
     job_ctx = SortingHatContext(ctx.user, job.id)
 
     # Create an empty transaction to log which job
@@ -136,6 +152,11 @@ def recommend_affiliations(ctx, uuids=None):
             results[rec.key] = rec.options
 
     trxl.close()
+
+    logger.info(
+        f"Job {job.id} 'recommend affiliations' completed; "
+        f"{len(results)} recommendations generated"
+    )
 
     return job_result
 
@@ -166,6 +187,9 @@ def recommend_matches(ctx, source_uuids, target_uuids, criteria, verbose=False):
     :returns: a dictionary with which individuals are recommended to be
         merged to which individual or which identities.
     """
+    job = rq.get_current_job()
+
+    logger.info(f"Running job {job.id} 'recommend matches'; criteria='{criteria}'; ...")
 
     results = {}
     job_result = {
@@ -176,7 +200,6 @@ def recommend_matches(ctx, source_uuids, target_uuids, criteria, verbose=False):
 
     # Create a new context to include the reference
     # to the job id that will perform the transaction.
-    job = rq.get_current_job()
     job_ctx = SortingHatContext(ctx.user, job.id)
 
     trxl = TransactionsLog.open('recommend_matches', job_ctx)
@@ -185,6 +208,11 @@ def recommend_matches(ctx, source_uuids, target_uuids, criteria, verbose=False):
         results[rec.key] = list(rec.options)
 
     trxl.close()
+
+    logger.info(
+        f"Job {job.id} 'recommend matches' completed; "
+        f"{len(results)} recommendations generated"
+    )
 
     return job_result
 
@@ -209,9 +237,13 @@ def affiliate(ctx, uuids=None):
     :returns: a dictionary with which individuals were enrolled
         and the errors found running the job
     """
+    job = rq.get_current_job()
+
     if not uuids:
+        logger.info(f"Running job {job.id} 'affiliate'; uuids='all'; ...")
         uuids = Individual.objects.values_list('mk', flat=True).iterator()
     else:
+        logger.info(f"Running job {job.id} 'affiliate'; uuids={uuids}; ...")
         uuids = iter(uuids)
 
     results = {}
@@ -225,12 +257,13 @@ def affiliate(ctx, uuids=None):
 
     # Create a new context to include the reference
     # to the job id that will perform the transaction.
-    job = rq.get_current_job()
     job_ctx = SortingHatContext(ctx.user, job.id)
 
     # Create an empty transaction to log which job
     # will generate the enroll transactions.
     trxl = TransactionsLog.open('affiliate', job_ctx)
+
+    nsuccess = 0
 
     for chunk in _iter_split(uuids, size=MAX_CHUNK_SIZE):
         for rec in engine.recommend('affiliation', chunk):
@@ -238,7 +271,15 @@ def affiliate(ctx, uuids=None):
             results[rec.key] = affiliated
             errors.extend(errs)
 
+            if affiliated:
+                nsuccess += 1
+
     trxl.close()
+
+    logger.info(
+        f"Job {job.id} 'affiliate' completed; "
+        f"{nsuccess} individuals have new affiliations"
+    )
 
     return job_result
 
@@ -288,6 +329,10 @@ def unify(ctx, source_uuids, target_uuids, criteria):
                 groups.append(g_uuids)
         return groups
 
+    job = rq.get_current_job()
+
+    logger.info(f"Running job {job.id} 'unify'; criteria='{criteria}'; ...")
+
     results = []
     errors = []
 
@@ -300,7 +345,6 @@ def unify(ctx, source_uuids, target_uuids, criteria):
 
     # Create a new context to include the reference
     # to the job id that will perform the transaction.
-    job = rq.get_current_job()
     job_ctx = SortingHatContext(ctx.user, job.id)
 
     trxl = TransactionsLog.open('unify', job_ctx)
@@ -322,6 +366,11 @@ def unify(ctx, source_uuids, target_uuids, criteria):
 
     trxl.close()
 
+    logger.info(
+        f"Job {job.id} 'unify' completed; "
+        f"{len(results)} individuals have been merged"
+    )
+
     return job_result
 
 
@@ -341,6 +390,11 @@ def _merge_individuals(job_ctx, source_indv, target_indvs):
     :returns: tuple with the uuid from the individual resulting from the merge
      operation (if any), and list of errors found during the process
     """
+    logger.debug(
+        f"Merging individuals; "
+        f"job={job_ctx.job_id} source={source_indv} target={target_indvs}; ..."
+    )
+
     errors = []
 
     try:
@@ -354,6 +408,11 @@ def _merge_individuals(job_ctx, source_indv, target_indvs):
         errors.append(str(exc))
 
     to_indv = to_indv.mk if to_indv else None
+
+    logger.debug(
+        f"Individuals merging completed with {len(errors)} errors;"
+        f"job={job_ctx.job_id} source={source_indv} target={target_indvs}"
+    )
 
     return to_indv, errors
 
@@ -371,6 +430,11 @@ def _affiliate_individual(job_ctx, uuid, organizations):
 
     :returns: tuple with the organizations affiliated to the i
     """
+    logger.debug(
+        f"Affiliating individual; "
+        f"job={job_ctx.job_id} uuid={uuid} organizations={organizations}; ..."
+    )
+
     affiliated = []
     errors = []
 
@@ -381,6 +445,12 @@ def _affiliate_individual(job_ctx, uuid, organizations):
             errors.append(str(exc))
         else:
             affiliated.append(name)
+
+    logger.debug(
+        f"Individual affiliation completed with {len(errors)} errors; "
+        f"job={job_ctx.job_id} uuid={uuid} organizations={organizations}; ..."
+    )
+
     return affiliated, errors
 
 

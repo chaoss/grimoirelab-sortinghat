@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2020 Bitergia
+# Copyright (C) 2014-2021 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 #
 
 
+import logging
 import pandas
 
 from django.forms.models import model_to_dict
@@ -28,6 +29,9 @@ from django.forms.models import model_to_dict
 from ..db import (find_individual_by_uuid)
 from ..errors import NotFoundError
 from ..models import Identity
+
+
+logger = logging.getLogger(__name__)
 
 
 def recommend_matches(source_uuids, target_uuids, criteria, verbose=False):
@@ -77,6 +81,11 @@ def recommend_matches(source_uuids, target_uuids, criteria, verbose=False):
 
         return identities
 
+    logger.debug(
+        f"Generating matching recommendations; "
+        f"source={source_uuids} target={target_uuids} criteria='{criteria}'; ..."
+    )
+
     aliases = {}
     input_set = set()
     target_set = set()
@@ -109,6 +118,8 @@ def recommend_matches(source_uuids, target_uuids, criteria, verbose=False):
         except KeyError:
             pass
         yield uuid, list(result)
+
+    logger.info(f"Matching recommendations generated; criteria='{criteria}'")
 
 
 def _find_matches(set_x, set_y, criteria, verbose):

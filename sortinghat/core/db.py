@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2020 Bitergia
+# Copyright (C) 2014-2021 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 #
 
 import copy
+import logging
 import re
 
 import django.core.exceptions
@@ -42,6 +43,9 @@ from .models import (MIN_PERIOD_DATE,
                      Enrollment,
                      Operation)
 from .utils import validate_field
+
+
+logger = logging.getLogger(__name__)
 
 
 def _set_lock(individual, lock_flag):
@@ -76,10 +80,13 @@ def find_individual(mk):
         the given `mk` does not exists.
     """
     try:
+        logger.debug(f"Finding individual {mk} by main key ...")
         individual = Individual.objects.get(mk=mk)
     except Individual.DoesNotExist:
+        logger.debug(f"Individual with main key {mk} does not exist")
         raise NotFoundError(entity=mk)
     else:
+        logger.debug(f"Individual with main key {mk} was found")
         return individual
 
 
@@ -98,12 +105,15 @@ def find_individual_by_uuid(uuid):
         not exist.
     """
     try:
+        logger.debug(f"Finding individual {uuid} by UUID ...")
         individual = Individual.objects.filter(
             Q(mk=uuid) | Q(identities__uuid=uuid)
         )[0]
     except IndexError:
+        logger.debug(f"Individual with UUID {uuid} does not exist")
         raise NotFoundError(entity=uuid)
     else:
+        logger.debug(f"Individual with UUID {uuid} was found")
         return individual
 
 
@@ -122,10 +132,13 @@ def find_identity(uuid):
         given `uuid` does not exists.
     """
     try:
+        logger.debug(f"Finding identity UUID {uuid} ...")
         identity = Identity.objects.get(uuid=uuid)
     except Identity.DoesNotExist:
+        logger.debug(f"Identity with UUID {uuid} does not exist")
         raise NotFoundError(entity=uuid)
     else:
+        logger.debug(f"Identity with UUID {uuid} was found")
         return identity
 
 
@@ -146,10 +159,13 @@ def find_organization(name):
     validate_field('name', name)
 
     try:
+        logger.debug(f"Finding organization '{name}' ...")
         organization = Organization.objects.get(name=name)
     except Organization.DoesNotExist:
+        logger.debug(f"Organization with name '{name}' does not exist")
         raise NotFoundError(entity=name)
     else:
+        logger.debug(f"Organization with name '{name}' was found")
         return organization
 
 
@@ -170,10 +186,13 @@ def find_domain(domain_name):
     validate_field('domain_name', domain_name)
 
     try:
+        logger.debug(f"Finding domain '{domain_name}' ...")
         domain = Domain.objects.get(domain=domain_name)
     except Domain.DoesNotExist:
+        logger.debug(f"Domain with name '{domain_name}' does not exist")
         raise NotFoundError(entity=domain_name)
     else:
+        logger.debug(f"Domain with name '{domain_name}' was found")
         return domain
 
 
@@ -196,6 +215,11 @@ def search_enrollments_in_period(mk, org_name,
 
     :returns: a list of enrollment objects
     """
+    logger.debug(
+        f"Run enrollments search; "
+        f"individual='{mk}' organization='{org_name}'"
+        f"from='{from_date}' to='{to_date}'"
+    )
     return Enrollment.objects.filter(individual__mk=mk,
                                      organization__name=org_name,
                                      start__lte=to_date, end__gte=from_date).order_by('start')
@@ -795,6 +819,9 @@ _MYSQL_DUPLICATE_ENTRY_ERROR_REGEX = re.compile(r"Duplicate entry '(?P<value>.+)
 
 def _handle_integrity_error(model, exc):
     """Handle integrity error exceptions."""
+
+    logger.debug("Database operation aborted; integrity error;",
+                 exc_info=True)
 
     m = re.match(_MYSQL_DUPLICATE_ENTRY_ERROR_REGEX,
                  exc.__cause__.args[1])

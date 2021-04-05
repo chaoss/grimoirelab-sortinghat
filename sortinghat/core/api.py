@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2020 Bitergia
+# Copyright (C) 2014-2021 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@
 #
 
 import hashlib
+import logging
 
 import django.db.transaction
 
@@ -53,6 +54,9 @@ from .errors import (InvalidValueError,
 from .log import TransactionsLog
 from .models import Identity, MIN_PERIOD_DATE, MAX_PERIOD_DATE
 from .utils import unaccent_string, merge_datetime_ranges
+
+
+logger = logging.getLogger(__name__)
 
 
 def generate_uuid(source, email=None, name=None, username=None):
@@ -109,6 +113,11 @@ def generate_uuid(source, email=None, name=None, username=None):
     sha1 = hashlib.sha1(s)
     uuid = sha1.hexdigest()
 
+    logger.debug(
+        f"UUID '{uuid}' generated; "
+        f"name='{name}' email='{email}' username='{username}' source='{source}';"
+    )
+
     return uuid
 
 
@@ -162,6 +171,7 @@ def add_identity(ctx, source, name=None, email=None, username=None, uuid=None):
         associated to the given `uuid` is not in the registry.
     """
     trxl = TransactionsLog.open('add_identity', ctx)
+
     try:
         id_ = generate_uuid(source, email=email,
                             name=name, username=username)
@@ -193,6 +203,11 @@ def add_identity(ctx, source, name=None, email=None, username=None, uuid=None):
         raise InvalidValueError(msg=str(e))
 
     trxl.close()
+
+    if not uuid:
+        logger.info(f"Individual {individual.mk} created")
+
+    logger.info(f"Identity {identity.uuid} created for individual {individual.mk}")
 
     return identity
 
@@ -245,6 +260,11 @@ def delete_identity(ctx, uuid):
 
     trxl.close()
 
+    logger.info(f"Identity {uuid} deleted")
+
+    if not individual:
+        logger.info(f"Individual {uuid} deleted")
+
     return individual
 
 
@@ -294,6 +314,8 @@ def update_profile(ctx, uuid, **kwargs):
         raise InvalidValueError(msg=str(e))
 
     trxl.close()
+
+    logger.info(f"Identity {uuid} profile successfully updated")
 
     return individual
 
@@ -368,6 +390,8 @@ def move_identity(ctx, from_uuid, to_uuid):
 
     trxl.close()
 
+    logger.info(f"Identity {from_uuid} moved to {to_uuid}")
+
     return individual
 
 
@@ -400,6 +424,8 @@ def lock(ctx, uuid):
 
     trxl.close()
 
+    logger.info(f"Individual {uuid} successfully locked")
+
     return individual
 
 
@@ -431,6 +457,8 @@ def unlock(ctx, uuid):
     individual = unlock_db(trxl, individual)
 
     trxl.close()
+
+    logger.info(f"Individual {uuid} successfully unlocked")
 
     return individual
 
@@ -466,6 +494,8 @@ def add_organization(ctx, name):
         raise exc
 
     trxl.close()
+
+    logger.info(f"Organization {org.name} created")
 
     return org
 
@@ -530,6 +560,8 @@ def add_domain(ctx, organization, domain_name, is_top_domain=True):
 
     trxl.close()
 
+    logger.info(f"Domain {domain.domain} created for organization {organization.name}")
+
     return domain
 
 
@@ -568,6 +600,8 @@ def delete_organization(ctx, name):
 
     trxl.close()
 
+    logger.info(f"Organization {name} deleted")
+
     return org
 
 
@@ -604,6 +638,8 @@ def delete_domain(ctx, domain_name):
     delete_domain_db(trxl, domain)
 
     trxl.close()
+
+    logger.info(f"Domain {domain_name} deleted")
 
     return domain
 
@@ -713,6 +749,11 @@ def enroll(ctx, uuid, organization, from_date=None, to_date=None, force=False):
 
     trxl.close()
 
+    logger.info(
+        f"Individual {uuid} enrolled to {organization}; "
+        f"from='{from_date}' to='{to_date}'"
+    )
+
     return individual
 
 
@@ -820,14 +861,18 @@ def withdraw(ctx, uuid, organization, from_date=None, to_date=None):
 
     trxl.close()
 
+    logger.info(
+        f"Individual {uuid} withdrawn from {organization}; "
+        f"from='{from_date}' to='{to_date}';"
+    )
+
     return individual
 
 
 @django.db.transaction.atomic
 def update_enrollment(ctx, uuid, organization, from_date, to_date,
                       new_from_date=None, new_to_date=None, force=True):
-    """
-    Update one or more enrollments from an individual given a new date range
+    """Update one or more enrollments from an individual given a new date range.
 
     Use this method to update atomically an individual's enrollment or set
     of enrollments defined by the initial date range to a new date range.
@@ -902,6 +947,11 @@ def update_enrollment(ctx, uuid, organization, from_date, to_date,
     indv = enroll(ctx, uuid, organization, from_date=new_from_date, to_date=new_to_date, force=force)
 
     trxl.close()
+
+    logger.info(
+        f"Individual {uuid} enrollments of {organization} updated; "
+        f"from='{from_date}' to='{to_date}'; new_from='{new_from_date}' new_to='{new_to_date}';"
+    )
 
     return indv
 
@@ -1074,6 +1124,8 @@ def merge(ctx, from_uuids, to_uuid):
 
     to_individual.refresh_from_db()
 
+    logger.info(f"Individuals {from_uuids} merged with {to_uuid}")
+
     return to_individual
 
 
@@ -1167,5 +1219,7 @@ def unmerge_identities(ctx, uuids):
         new_individuals.append(individual)
 
     trxl.close()
+
+    logger.info(f"Identities {uuids} unmerged from their individuals")
 
     return new_individuals

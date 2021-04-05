@@ -77,6 +77,8 @@ USE_I18N = True
 
 USE_L10N = True
 
+USE_TZ = True
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
@@ -116,10 +118,32 @@ DATABASES = {
 
 # FIXTURE_DIRS = "sortinghat/core/fixtures/"
 
-USE_TZ = True
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'simple': {
+            'format': '[{asctime}] {message}',
+            'style': '{',
+        },
+        'verbose': {
+            'format': '[{asctime} - {levelname} - {name}:{lineno}] {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+}
 
 DEFAULT_GRAPHQL_PAGE_SIZE = 2
-
 
 AUTHENTICATION_BACKENDS = [
     'graphql_jwt.backends.JSONWebTokenBackend',
@@ -134,7 +158,6 @@ GRAPHENE = {
 }
 
 AUTHENTICATION_REQUIRED = False
-
 
 RQ_QUEUES = {
     'default': {
