@@ -192,26 +192,53 @@ describe("Search", () => {
   });
 
   test.each([
-    [{filter: "booleanFilter", type: "boolean"}, "booleanFilter:true"],
-    [{filter: "stringFilter", type: "string"}, `stringFilter:"search value"`]
-  ])("Shows selected filter on the search box", async(validFilters, expected) => {
+    [{ filter: "booleanFilter", type: "boolean" }, "booleanFilter:true"],
+    [{ filter: "stringFilter", type: "string" }, `stringFilter:"search value"`]
+  ])(
+    "Shows selected filter on the search box",
+    async (validFilters, expected) => {
+      const wrapper = mountFunction({
+        propsData: {
+          filterSelector: true,
+          validFilters: [validFilters]
+        }
+      });
+      // Set an element data-app to avoid Vuetify warnings
+      // https://github.com/vuetifyjs/vuetify/issues/3456
+      const el = document.createElement("div");
+      el.setAttribute("data-app", true);
+      document.body.appendChild(el);
+
+      const button = wrapper.find(".v-input__prepend-outer .v-btn");
+      await button.trigger("click");
+      const filter = wrapper.find(".v-list-item");
+      await filter.trigger("click");
+
+      expect(wrapper.vm.inputValue).toContain(expected);
+    }
+  );
+
+  test("Emits the selected order", async () => {
+    const orderOption = { text: "Order text", value: "ordervalue" };
     const wrapper = mountFunction({
       propsData: {
-        filterSelector: true,
-        validFilters: [validFilters]
+        orderSelector: true,
+        orderOptions: [orderOption]
       }
     });
-    // Set an element data-app to avoid Vuetify warnings
-    // https://github.com/vuetifyjs/vuetify/issues/3456
-    const el = document.createElement('div');
-    el.setAttribute('data-app', true);
-    document.body.appendChild(el);
+    const select = wrapper.findComponent({ ref: "orderSelector" });
+    select.vm.selectItem(orderOption);
 
-    const button = wrapper.find(".v-input__prepend-outer .v-btn");
+    // Default descending order
+    expect(wrapper.vm.order.value).toBe("ordervalue");
+    expect(wrapper.vm.order.descending).toBe(true);
+    expect(wrapper.emitted().search[0][1]).toBe("-ordervalue");
+
+    // Ascending order
+    const button = wrapper.find(".select .v-input__prepend-outer .v-btn");
     await button.trigger("click");
-    const filter = wrapper.find(".v-list-item");
-    await filter.trigger("click");
 
-    expect(wrapper.vm.inputValue).toContain(expected);
+    expect(wrapper.vm.order.descending).toBe(false);
+    expect(wrapper.emitted().search[1][1]).toBe("ordervalue");
   });
 });

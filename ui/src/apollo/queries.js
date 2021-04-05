@@ -98,8 +98,14 @@ const GET_PAGINATED_INDIVIDUALS = gql`
     $page: Int!
     $pageSize: Int!
     $filters: IdentityFilterType
+    $orderBy: String
   ) {
-    individuals(page: $page, pageSize: $pageSize, filters: $filters) {
+    individuals(
+      page: $page
+      pageSize: $pageSize
+      filters: $filters
+      orderBy: $orderBy
+    ) {
       entities {
         mk
         isLocked
@@ -231,13 +237,20 @@ const getIndividuals = {
   }
 };
 
-const getPaginatedIndividuals = (apollo, currentPage, pageSize, filters) => {
+const getPaginatedIndividuals = (
+  apollo,
+  currentPage,
+  pageSize,
+  filters,
+  orderBy
+) => {
   let response = apollo.query({
     query: GET_PAGINATED_INDIVIDUALS,
     variables: {
       page: currentPage,
       pageSize: pageSize,
-      filters: filters
+      filters: filters,
+      orderBy: orderBy
     },
     fetchPolicy: "no-cache"
   });

@@ -289,7 +289,7 @@ describe("IndividualsTable", () => {
 
     const response = await wrapper.vm.queryIndividuals(1);
 
-    expect(querySpy).toHaveBeenCalledWith(1, 10, { term: "test" });
+    expect(querySpy).toHaveBeenCalledWith(1, 10, { term: "test" }, null);
   });
 
   test("Searches by gender", async () => {
@@ -307,7 +307,12 @@ describe("IndividualsTable", () => {
 
     const response = await wrapper.vm.queryIndividuals(1);
 
-    expect(querySpy).toHaveBeenCalledWith(1, 10, { gender: "gender" });
+    expect(querySpy).toHaveBeenCalledWith(
+      1,
+      10,
+      { gender: "gender" },
+      null
+    );
   });
 
   test("Searches by lastUpdated", async () => {
@@ -327,9 +332,14 @@ describe("IndividualsTable", () => {
 
     const response = await wrapper.vm.queryIndividuals(1);
 
-    expect(querySpy).toHaveBeenCalledWith(1, 10, {
-      lastUpdated: "<2000-01-01T00:00:00.000Z"
-    });
+    expect(querySpy).toHaveBeenCalledWith(
+      1,
+      10,
+      {
+        lastUpdated: "<2000-01-01T00:00:00.000Z"
+      },
+      null
+    );
   });
 
   test("Searches by isBot", async () => {
@@ -347,7 +357,7 @@ describe("IndividualsTable", () => {
 
     const response = await wrapper.vm.queryIndividuals(1);
 
-    expect(querySpy).toHaveBeenCalledWith(1, 10, { isBot: true });
+    expect(querySpy).toHaveBeenCalledWith(1, 10, { isBot: true }, null);
   });
 
   test("Searches by country", async () => {
@@ -365,7 +375,25 @@ describe("IndividualsTable", () => {
 
     const response = await wrapper.vm.queryIndividuals(1);
 
-    expect(querySpy).toHaveBeenCalledWith(1, 10, { country: "Spain" });
+    expect(querySpy).toHaveBeenCalledWith(1, 10, { country: "Spain" }, null);
+  });
+
+  test("Orders query by last modified date", async () => {
+    const querySpy = spyOn(Queries, "getPaginatedIndividuals");
+    const query = jest.fn(() => Promise.resolve(paginatedResponse));
+    const wrapper = mountFunction({
+      mocks: {
+        $apollo: {
+          query
+        }
+      }
+    });
+    await wrapper.setProps({ fetchPage: Queries.getPaginatedIndividuals });
+    await wrapper.setData({ orderBy: "lastModified" });
+
+    const response = await wrapper.vm.queryIndividuals(1);
+
+    expect(querySpy).toHaveBeenCalledWith(1, 10, {}, "lastModified");
   });
 
   test("Mock query for getCountries", async () => {

@@ -7,7 +7,11 @@ export default {
 
 const searchTemplate = `
   <div class="ma-5">
-    <search :valid-filters="validFilters" :filter-selector="filterSelector" />
+    <search
+      :valid-filters="validFilters"
+      :filter-selector="filterSelector"
+      :order-selector="orderSelector"
+    />
   </div>
 `;
 
@@ -16,7 +20,8 @@ export const Default = () => ({
   template: searchTemplate,
   data: () => ({
     validFilters: [],
-    filterSelector: false
+    filterSelector: false,
+    orderSelector: false
   })
 });
 
@@ -34,6 +39,17 @@ export const filterSelector = () => ({
         type: "boolean"
       }
     ],
-    filterSelector: true
+    filterSelector: true,
+    orderSelector: false
+  })
+});
+
+export const orderSelector = () => ({
+  components: { Search },
+  template: searchTemplate,
+  data: () => ({
+    orderSelector: true,
+    validFilters: [],
+    filterSelector: false
   })
 });

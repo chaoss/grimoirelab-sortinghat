@@ -35,6 +35,7 @@
         class="ml-auto pa-0 flex-grow-0"
         @search="filterSearch"
         filter-selector
+        order-selector
       />
       <v-tooltip bottom transition="expand-y-transition" open-delay="200">
         <template v-slot:activator="{ on }">
@@ -287,7 +288,8 @@ export default {
       },
       totalResults: 0,
       itemsPerPage: 10,
-      allSelected: false
+      allSelected: false,
+      orderBy: null
     };
   },
   computed: {
@@ -317,9 +319,18 @@ export default {
     this.queryIndividuals(1);
   },
   methods: {
-    async queryIndividuals(page = this.page, filters = this.filters) {
+    async queryIndividuals(
+      page = this.page,
+      filters = this.filters,
+      orderBy = this.orderBy
+    ) {
       if (this.disabledSearch) return;
-      let response = await this.fetchPage(page, this.itemsPerPage, filters);
+      let response = await this.fetchPage(
+        page,
+        this.itemsPerPage,
+        filters,
+        orderBy
+      );
       if (response) {
         this.individuals = formatIndividuals(
           response.data.individuals.entities
@@ -503,8 +514,9 @@ export default {
         this.$logger.error(`Error updating enrollment: ${error}`, data);
       }
     },
-    filterSearch(filters) {
+    filterSearch(filters, orderBy) {
       this.filters = filters;
+      this.orderBy = orderBy;
       this.queryIndividuals(1);
     },
     selectAll(value) {

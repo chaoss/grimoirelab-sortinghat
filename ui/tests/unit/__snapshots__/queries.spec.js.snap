@@ -92,6 +92,8 @@ exports[`IndividualsTable Mock query for getCountries 1`] = `
     <search-stub
       class="ml-auto pa-0 flex-grow-0"
       filterselector="true"
+      orderoptions="[object Object]"
+      orderselector="true"
       validfilters="[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]"
     />
      
@@ -454,6 +456,8 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
     <search-stub
       class="ml-auto pa-0 flex-grow-0"
       filterselector="true"
+      orderoptions="[object Object]"
+      orderselector="true"
       validfilters="[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]"
     />
      
@@ -803,6 +807,7 @@ exports[`OrganizationsTable Mock query for getPaginatedOrganizations 1`] = `
   >
     <search-stub
       class="mr-3 pa-0 flex-grow-0"
+      orderoptions="[object Object]"
       validfilters=""
     />
   </v-row-stub>
