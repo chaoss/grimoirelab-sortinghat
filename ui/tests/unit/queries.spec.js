@@ -378,7 +378,10 @@ describe("IndividualsTable", () => {
     expect(querySpy).toHaveBeenCalledWith(1, 10, { country: "Spain" }, null);
   });
 
-  test("Orders query by last modified date", async () => {
+  test.each([
+    "lastModified",
+    "createdAt"
+  ])("Orders query by %p", async (value) => {
     const querySpy = spyOn(Queries, "getPaginatedIndividuals");
     const query = jest.fn(() => Promise.resolve(paginatedResponse));
     const wrapper = mountFunction({
@@ -389,11 +392,11 @@ describe("IndividualsTable", () => {
       }
     });
     await wrapper.setProps({ fetchPage: Queries.getPaginatedIndividuals });
-    await wrapper.setData({ orderBy: "lastModified" });
+    await wrapper.setData({ orderBy: value });
 
     const response = await wrapper.vm.queryIndividuals(1);
 
-    expect(querySpy).toHaveBeenCalledWith(1, 10, {}, "lastModified");
+    expect(querySpy).toHaveBeenCalledWith(1, 10, {}, value);
   });
 
   test("Mock query for getCountries", async () => {
