@@ -7,3 +7,4 @@ jdoe@example.com	Example Company		# John Doe
 jsmith@example.com	Bitergia < 2015-01-01	# John Smith - Bitergia
 jrae@example.net	Bitergia
 john_doe@example.net	LibreSoft
+jzeta@example.com ?
