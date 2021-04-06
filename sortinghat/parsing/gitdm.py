@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2017 Bitergia
+# Copyright (C) 2014-2021 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 #
 # Authors:
 #     Santiago Dueñas <sduenas@bitergia.com>
+#     Quan Zhou <quan@bitergia.com>
 #
 
 import dateutil.parser
@@ -59,7 +60,7 @@ class GitdmParser(object):
     """
 
     # Common Gitdm patterns
-    VALID_LINE_REGEX = r"^(\S+)[ \t]+([^#\n\r\f\v]+[^#\s])(?:([ \t]+#.*)?|\s*)$"
+    VALID_LINE_REGEX = r"^(\S+)[ \t]+([^#\n\r\f\v]+[^#\s]*)(?:([ \t]+#.*)?|\s*)$"
     LINES_TO_IGNORE_REGEX = r"^\s*(?:#.*)?\s*$"
     EMAIL_ADDRESS_REGEX = r"^(?P<email>[^\s@]+@[^\s@.]+\.[^\s@]+)$"
     ORGANIZATION_REGEX = r"^(?P<organization>[^#<\t\n\r\f\v]*[^#<\t\n\r\f\v\s])?$"
@@ -302,8 +303,9 @@ class GitdmParser(object):
                 result = parse_line(m.group(1), m.group(2))
                 yield result
             except InvalidFormatError as e:
-                cause = "line %s: %s" % (str(nline), e)
-                raise InvalidFormatError(cause=cause)
+                cause = "Skip: '%s' -> line %s: %s" % (line, str(nline), e)
+                logger.warning(cause)
+                continue
 
     def __parse_aliases_line(self, raw_alias, raw_username):
         """Parse aliases lines"""
@@ -326,6 +328,7 @@ class GitdmParser(object):
         else:
             email = raw_email
 
+        raw_enrollment = raw_enrollment.strip() if raw_enrollment != ' ' else raw_enrollment
         r = re.match(self.ENROLLMENT_REGEX, raw_enrollment, re.UNICODE)
         if not r:
             cause = "invalid enrollment format: '%s'" % raw_enrollment
@@ -357,6 +360,7 @@ class GitdmParser(object):
 
         dom = d.group('domain').strip()
 
+        raw_org = raw_org.strip() if raw_org != ' ' else raw_org
         o = re.match(self.ORGANIZATION_REGEX, raw_org, re.UNICODE)
         if not o:
             cause = "invalid organization format: '%s'" % raw_org

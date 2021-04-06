@@ -7,3 +7,4 @@ jdoe$example.com	Example Company		# John Doe
 jsmith!example.com	Bitergia < 2015-01-01	# John Smith - Bitergia
 jrae-example-net	Bitergia
 john_doeexample	LibreSoft
+J < 2021-04-06

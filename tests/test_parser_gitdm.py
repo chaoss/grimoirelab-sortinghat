@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2019 Bitergia
+# Copyright (C) 2014-2021 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 #
 # Authors:
 #     Santiago Dueñas <sduenas@bitergia.com>
+#     Quan Zhou <quan@bitergia.com>
 #
 
 import datetime
@@ -144,10 +145,25 @@ class TestGidmParser(TestBaseCase):
         aliases = self.read_file(datadir('gitdm_email_aliases_valid.txt'))
         email_to_employer = self.read_file(datadir('gitdm_email_to_employer_invalid.txt'))
 
-        with self.assertRaises(InvalidFormatError):
+        expected_log = [
+            "Skip: 'jsmith.example.com	Example Company		# John Smith' -> line 5: invalid email format: 'jsmith.example.com'",
+            "Skip: 'jdoe$example.com	Example Company		# John Doe' -> line 6: invalid email format: 'jdoe$example.com'",
+            "Skip: 'jsmith!example.com	Bitergia < 2015-01-01	# John Smith - Bitergia' -> line 7: invalid email format: 'jsmith!example.com'",
+            "Skip: 'jrae-example-net	Bitergia' -> line 8: invalid email format: 'jrae-example-net'",
+            "Skip: 'john_doeexample	LibreSoft' -> line 9: invalid email format: 'john_doeexample'",
+            "Skip: 'J < 2021-04-06' -> line 10: invalid email format: 'J'"
+        ]
+        with self.assertLogs() as captured:
             GitdmParser(aliases=aliases,
                         email_to_employer=email_to_employer,
                         source='unknown', email_validation=True)
+            self.assertEqual(len(captured.records), 6)
+            self.assertEqual(captured.records[0].getMessage(), expected_log[0])
+            self.assertEqual(captured.records[1].getMessage(), expected_log[1])
+            self.assertEqual(captured.records[2].getMessage(), expected_log[2])
+            self.assertEqual(captured.records[3].getMessage(), expected_log[3])
+            self.assertEqual(captured.records[4].getMessage(), expected_log[4])
+            self.assertEqual(captured.records[5].getMessage(), expected_log[5])
 
     def test_supress_email_validation(self):
         email_to_employer = self.read_file(datadir('gitdm_email_to_employer_invalid.txt'))
@@ -182,7 +198,7 @@ class TestGidmParser(TestBaseCase):
 
         # Parsed unique identities
         uids = parser.identities
-        self.assertEqual(len(uids), 4)
+        self.assertEqual(len(uids), 5)
 
         # jdoe@example.com & john_doe@example.net
         uid = uids[0]
@@ -314,19 +330,39 @@ class TestGidmParser(TestBaseCase):
         self.assertEqual(rol.start, datetime.datetime(2015, 1, 1, 0, 0))
         self.assertEqual(rol.end, datetime.datetime(2100, 1, 1, 0, 0))
 
+        # jzeta@example.com
+        uid = uids[4]
+        self.assertIsInstance(uid, UniqueIdentity)
+        self.assertEqual(uid.uuid, 'jzeta@example.com')
+
+        ids = uid.identities
+        self.assertEqual(len(ids), 1)
+
+        id0 = ids[0]
+        self.assertIsInstance(id0, Identity)
+        self.assertEqual(id0.name, None)
+        self.assertEqual(id0.email, 'jzeta@example.com')
+        self.assertEqual(id0.username, None)
+        self.assertEqual(id0.source, 'unknown')
+        self.assertEqual(id0.uuid, None)
+
         # Parsed organizations
         orgs = parser.organizations
-        self.assertEqual(len(orgs), 3)
+        self.assertEqual(len(orgs), 4)
 
         org = orgs[0]
         self.assertIsInstance(org, Organization)
-        self.assertEqual(org.name, 'Bitergia')
+        self.assertEqual(org.name, '?')
 
         org = orgs[1]
         self.assertIsInstance(org, Organization)
-        self.assertEqual(org.name, 'Example Company')
+        self.assertEqual(org.name, 'Bitergia')
 
         org = orgs[2]
+        self.assertIsInstance(org, Organization)
+        self.assertEqual(org.name, 'Example Company')
+
+        org = orgs[3]
         self.assertIsInstance(org, Organization)
         self.assertEqual(org.name, 'LibreSoft')
 
@@ -418,10 +454,14 @@ class TestGidmParser(TestBaseCase):
             stream = self.read_file(datadir('gitdm_orgs_invalid_comments.txt'))
             GitdmParser(domain_to_employer=stream)
 
-        with self.assertRaisesRegex(InvalidFormatError,
-                                    DOMAINS_INVALID_FORMAT_ERROR % {'line': '8'}):
+        expected_log = [
+            "Skip: 'example.org        ' -> line 8: invalid organization format: ' '"
+        ]
+        with self.assertLogs() as captured:
             stream = self.read_file(datadir('gitdm_orgs_invalid_entries.txt'))
             GitdmParser(domain_to_employer=stream)
+            self.assertEqual(len(captured.records), 1)
+            self.assertEqual(captured.records[0].getMessage(), expected_log[0])
 
 
 class TestGitdmRegEx(unittest.TestCase):
