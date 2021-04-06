@@ -2491,6 +2491,53 @@ class TestQueryIndividuals(django.test.TestCase):
         indv = individuals[2]
         self.assertEqual(indv['mk'], indv1.mk)
 
+    def test_order_by_created_at(self):
+        """Check whether it returns the individuals ordered by their creation date"""
+
+        indv1 = Individual.objects.create(mk='a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        indv2 = Individual.objects.create(mk='185c4b709e5446d250b4fde0e34b78a2b4fde0e3')
+        indv3 = Individual.objects.create(mk='c6d2504fde0e34b78a185c4b709e5442d045451c')
+
+        # Test default order by mk
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_INDIVIDUALS_ORDER_BY % 'mk',
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+
+        indv = individuals[0]
+        self.assertEqual(indv['mk'], indv2.mk)
+        indv = individuals[1]
+        self.assertEqual(indv['mk'], indv1.mk)
+        indv = individuals[2]
+        self.assertEqual(indv['mk'], indv3.mk)
+
+        # Test ascending order
+        executed = client.execute(SH_INDIVIDUALS_ORDER_BY % 'createdAt',
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+
+        indv = individuals[0]
+        self.assertEqual(indv['mk'], indv1.mk)
+        indv = individuals[1]
+        self.assertEqual(indv['mk'], indv2.mk)
+        indv = individuals[2]
+        self.assertEqual(indv['mk'], indv3.mk)
+
+        # Test descending order
+        executed = client.execute(SH_INDIVIDUALS_ORDER_BY % '-createdAt',
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+
+        indv = individuals[0]
+        self.assertEqual(indv['mk'], indv3.mk)
+        indv = individuals[1]
+        self.assertEqual(indv['mk'], indv2.mk)
+        indv = individuals[2]
+        self.assertEqual(indv['mk'], indv1.mk)
+
     def test_pagination(self):
         """Check whether it returns the individuals searched when using pagination"""
 
