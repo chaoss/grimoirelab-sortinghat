@@ -187,6 +187,8 @@ def recommend_matches(ctx, source_uuids, target_uuids, criteria, verbose=False):
     :returns: a dictionary with which individuals are recommended to be
         merged to which individual or which identities.
     """
+    check_criteria(criteria)
+
     job = rq.get_current_job()
 
     logger.info(f"Running job {job.id} 'recommend matches'; criteria='{criteria}'; ...")
@@ -328,6 +330,8 @@ def unify(ctx, source_uuids, target_uuids, criteria):
             if (len(g_uuids) > 1) and (g_uuids not in groups):
                 groups.append(g_uuids)
         return groups
+
+    check_criteria(criteria)
 
     job = rq.get_current_job()
 
@@ -475,3 +479,16 @@ def _iter_split(iterator, size=None):
             yield itertools.chain([peek], slice_iter)
     except StopIteration:
         return
+
+
+def check_criteria(criteria):
+    """ Check if all given criteria are valid.
+
+    Raises an error if a criterion is not in the valid criteria list
+    (`email`, `name` and/or `username`).
+
+    :param criteria: list of criteria to check
+    """
+    valid_criteria = ['name', 'email', 'username']
+    if any(criterion not in valid_criteria for criterion in criteria):
+        raise ValueError(f"Invalid criteria {criteria}. Valid values are: {valid_criteria}")
