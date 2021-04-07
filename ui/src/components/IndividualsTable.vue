@@ -36,6 +36,16 @@
         @search="filterSearch"
         filter-selector
         order-selector
+        :order-options="[
+          {
+            text: 'Last updated',
+            value: 'lastModified'
+          },
+          {
+            text: 'Created date',
+            value: 'createdAt'
+          }
+        ]"
       />
       <v-tooltip bottom transition="expand-y-transition" open-delay="200">
         <template v-slot:activator="{ on }">

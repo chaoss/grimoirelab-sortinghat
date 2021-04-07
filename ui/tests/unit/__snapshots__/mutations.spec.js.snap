@@ -85,7 +85,7 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
     <search-stub
       class="ml-auto pa-0 flex-grow-0"
       filterselector="true"
-      orderoptions="[object Object]"
+      orderoptions="[object Object],[object Object]"
       orderselector="true"
       validfilters="[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]"
     />
@@ -447,7 +447,7 @@ exports[`IndividualsTable Mock query for merge 1`] = `
     <search-stub
       class="ml-auto pa-0 flex-grow-0"
       filterselector="true"
-      orderoptions="[object Object]"
+      orderoptions="[object Object],[object Object]"
       orderselector="true"
       validfilters="[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]"
     />
@@ -809,7 +809,7 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
     <search-stub
       class="ml-auto pa-0 flex-grow-0"
       filterselector="true"
-      orderoptions="[object Object]"
+      orderoptions="[object Object],[object Object]"
       orderselector="true"
       validfilters="[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]"
     />
@@ -1171,7 +1171,7 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
     <search-stub
       class="ml-auto pa-0 flex-grow-0"
       filterselector="true"
-      orderoptions="[object Object]"
+      orderoptions="[object Object],[object Object]"
       orderselector="true"
       validfilters="[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]"
     />
@@ -1533,7 +1533,7 @@ exports[`IndividualsTable Mock query for updateEnrollment 1`] = `
     <search-stub
       class="ml-auto pa-0 flex-grow-0"
       filterselector="true"
-      orderoptions="[object Object]"
+      orderoptions="[object Object],[object Object]"
       orderselector="true"
       validfilters="[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]"
     />
@@ -1895,7 +1895,7 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
     <search-stub
       class="ml-auto pa-0 flex-grow-0"
       filterselector="true"
-      orderoptions="[object Object]"
+      orderoptions="[object Object],[object Object]"
       orderselector="true"
       validfilters="[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]"
     />
