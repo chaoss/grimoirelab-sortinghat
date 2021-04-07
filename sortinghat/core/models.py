@@ -176,7 +176,7 @@ class Individual(EntityBase):
 
     class Meta:
         db_table = 'individuals'
-        ordering = ('last_modified', 'created_at',)
+        ordering = ('last_modified', 'created_at', 'profile__name',)
 
     def __str__(self):
         return self.mk

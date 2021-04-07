@@ -44,6 +44,10 @@
           {
             text: 'Created date',
             value: 'createdAt'
+          },
+          {
+            text: 'Name',
+            value: 'profile__name'
           }
         ]"
       />
