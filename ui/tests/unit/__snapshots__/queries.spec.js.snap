@@ -291,6 +291,7 @@ exports[`IndividualsTable Mock query for getCountries 1`] = `
     width="auto"
   >
     <v-card-stub
+      class="pa-3"
       loaderheight="4"
       tag="div"
     >
@@ -301,7 +302,9 @@ exports[`IndividualsTable Mock query for getCountries 1`] = `
       </v-card-title-stub>
        
       <v-card-text-stub>
-        
+        <!---->
+         
+        <!---->
       </v-card-text-stub>
        
       <v-card-actions-stub>
@@ -320,9 +323,9 @@ exports[`IndividualsTable Mock query for getCountries 1`] = `
          
         <v-btn-stub
           activeclass=""
-          color="blue darken-4"
+          color="primary"
+          depressed="true"
           tag="button"
-          text="true"
           type="button"
         >
           
@@ -655,6 +658,7 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
     width="auto"
   >
     <v-card-stub
+      class="pa-3"
       loaderheight="4"
       tag="div"
     >
@@ -665,7 +669,9 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
       </v-card-title-stub>
        
       <v-card-text-stub>
-        
+        <!---->
+         
+        <!---->
       </v-card-text-stub>
        
       <v-card-actions-stub>
@@ -684,9 +690,9 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
          
         <v-btn-stub
           activeclass=""
-          color="blue darken-4"
+          color="primary"
+          depressed="true"
           tag="button"
-          text="true"
           type="button"
         >
           
@@ -968,7 +974,13 @@ exports[`OrganizationsTable Mock query for getPaginatedOrganizations 1`] = `
       </v-card-title-stub>
        
       <v-card-text-stub>
-        
+        <p
+          class="pt-2 pb-2 text-body-2"
+        >
+          
+        </p>
+         
+        <!---->
       </v-card-text-stub>
        
       <v-card-actions-stub>
