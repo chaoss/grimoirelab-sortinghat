@@ -84,10 +84,27 @@
     <v-dialog v-model="dialog.open" max-width="500px">
       <v-card class="pa-3">
         <v-card-title class="headline">{{ dialog.title }}</v-card-title>
-        <v-card-text>{{ dialog.text }}</v-card-text>
+        <v-card-text>
+          <p class="pt-2 pb-2 text-body-2">{{ dialog.text }}</p>
+          <div v-if="dialog.showDates">
+            <h6 class="subheader">Enrollment dates (optional)</h6>
+            <v-row>
+              <v-col cols="6">
+                <date-input
+                  v-model="dialog.dateFrom"
+                  label="Date from"
+                  outlined
+                />
+              </v-col>
+              <v-col cols="6">
+                <date-input v-model="dialog.dateTo" label="Date to" outlined />
+              </v-col>
+            </v-row>
+          </div>
+        </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn text @click="dialog.open = false">
+          <v-btn text @click="closeDialog">
             Cancel
           </v-btn>
           <v-btn color="primary" depressed @click.stop="dialog.action">
@@ -114,6 +131,7 @@
 
 <script>
 import { formatIndividuals } from "../utils/actions";
+import DateInput from "./DateInput.vue";
 import ExpandedOrganization from "./ExpandedOrganization.vue";
 import OrganizationEntry from "./OrganizationEntry.vue";
 import OrganizationModal from "./OrganizationModal.vue";
@@ -122,6 +140,7 @@ import Search from "./Search.vue";
 export default {
   name: "OrganizationsTable",
   components: {
+    DateInput,
     OrganizationEntry,
     ExpandedOrganization,
     OrganizationModal,
@@ -168,7 +187,10 @@ export default {
         open: false,
         title: "",
         text: "",
-        action: ""
+        action: "",
+        showDates: false,
+        dateFrom: null,
+        dateTo: null
       },
       snackbar: {
         open: false,
@@ -201,16 +223,25 @@ export default {
     confirmEnroll(event) {
       Object.assign(this.dialog, {
         open: true,
-        title: `Affiliate the selected items?`,
+        title: `Affiliate the selected individuals?`,
         text: `Individuals will be enrolled in ${event.organization}`,
-        action: () => this.enrollIndividuals(event.uuids, event.organization)
+        showDates: true,
+        action: () =>
+          this.enrollIndividuals(
+            event.uuids,
+            event.organization,
+            this.dialog.dateFrom,
+            this.dialog.dateTo
+          )
       });
     },
-    async enrollIndividuals(uuids, organization) {
-      this.dialog.open = false;
+    async enrollIndividuals(uuids, organization, dateFrom, dateTo) {
+      this.closeDialog();
       try {
         const response = await Promise.all(
-          uuids.map(individual => this.enroll(individual, organization))
+          uuids.map(individual =>
+            this.enroll(individual, organization, dateFrom, dateTo)
+          )
         );
         if (response) {
           this.getOrganizations(this.page);
@@ -220,13 +251,20 @@ export default {
             });
           });
           this.$emit("updateIndividuals");
-          this.$logger.debug("Enrolled individuals", { organization, uuids });
+          this.$logger.debug("Enrolled individuals", {
+            organization,
+            uuids,
+            dateFrom,
+            dateTo
+          });
         }
       } catch (error) {
         Object.assign(this.snackbar, { open: true, text: error });
         this.$logger.error(`Error enrolling individuals: ${error}`, {
           organization,
-          uuids
+          uuids,
+          dateFrom,
+          dateTo
         });
       }
     },
@@ -250,7 +288,7 @@ export default {
       });
     },
     async deleteOrg(organization) {
-      this.dialog.open = false;
+      this.closeDialog();
       try {
         const response = await this.deleteOrganization(organization);
         if (response) {
@@ -282,6 +320,17 @@ export default {
         this.itemsPerPage = parseInt(value, 10);
         this.getOrganizations(1);
       }
+    },
+    closeDialog() {
+      Object.assign(this.dialog, {
+        open: false,
+        title: "",
+        text: "",
+        action: "",
+        showDates: false,
+        dateFrom: null,
+        dateTo: null
+      });
     }
   }
 };

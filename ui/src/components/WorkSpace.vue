@@ -84,16 +84,35 @@
       {{ snackbar.text }}
     </v-snackbar>
 
-    <v-dialog v-model="dialog.open" max-width="400">
-      <v-card>
+    <v-dialog v-model="dialog.open" max-width="500px">
+      <v-card class="pa-3">
         <v-card-title class="headline">{{ dialog.title }}</v-card-title>
-        <v-card-text>{{ dialog.text }}</v-card-text>
+        <v-card-text>
+          <p v-if="dialog.text" class="pt-2 pb-2 text-body-2">
+            {{ dialog.text }}
+          </p>
+          <div v-if="dialog.showDates">
+            <h6 class="subheader">Enrollment dates (optional)</h6>
+            <v-row>
+              <v-col cols="6">
+                <date-input
+                  v-model="dialog.dateFrom"
+                  label="Date from"
+                  outlined
+                />
+              </v-col>
+              <v-col cols="6">
+                <date-input v-model="dialog.dateTo" label="Date to" outlined />
+              </v-col>
+            </v-row>
+          </div>
+        </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn text @click="dialog.open = false">
+          <v-btn text @click="closeDialog">
             Cancel
           </v-btn>
-          <v-btn color="blue darken-4" text @click.stop="dialog.action">
+          <v-btn color="primary" depressed @click.stop="dialog.action">
             Confirm
           </v-btn>
         </v-card-actions>
@@ -146,7 +165,10 @@ export default {
         open: false,
         title: "",
         text: "",
-        action: ""
+        action: "",
+        showDates: false,
+        dateFrom: null,
+        dateTo: null
       },
       snackbar: {
         open: false,
@@ -261,6 +283,17 @@ export default {
         return;
       }
       this.isDragging = true;
+    },
+    closeDialog() {
+      Object.assign(this.dialog, {
+        open: false,
+        title: "",
+        text: "",
+        action: "",
+        showDates: false,
+        dateFrom: null,
+        dateTo: null
+      });
     }
   },
   watch: {

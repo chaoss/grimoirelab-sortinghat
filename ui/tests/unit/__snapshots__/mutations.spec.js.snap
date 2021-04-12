@@ -284,6 +284,7 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
     width="auto"
   >
     <v-card-stub
+      class="pa-3"
       loaderheight="4"
       tag="div"
     >
@@ -294,7 +295,9 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
       </v-card-title-stub>
        
       <v-card-text-stub>
-        
+        <!---->
+         
+        <!---->
       </v-card-text-stub>
        
       <v-card-actions-stub>
@@ -313,9 +316,9 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
          
         <v-btn-stub
           activeclass=""
-          color="blue darken-4"
+          color="primary"
+          depressed="true"
           tag="button"
-          text="true"
           type="button"
         >
           
@@ -646,6 +649,7 @@ exports[`IndividualsTable Mock query for merge 1`] = `
     width="auto"
   >
     <v-card-stub
+      class="pa-3"
       loaderheight="4"
       tag="div"
     >
@@ -656,7 +660,9 @@ exports[`IndividualsTable Mock query for merge 1`] = `
       </v-card-title-stub>
        
       <v-card-text-stub>
-        
+        <!---->
+         
+        <!---->
       </v-card-text-stub>
        
       <v-card-actions-stub>
@@ -675,9 +681,9 @@ exports[`IndividualsTable Mock query for merge 1`] = `
          
         <v-btn-stub
           activeclass=""
-          color="blue darken-4"
+          color="primary"
+          depressed="true"
           tag="button"
-          text="true"
           type="button"
         >
           
@@ -1008,6 +1014,7 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
     width="auto"
   >
     <v-card-stub
+      class="pa-3"
       loaderheight="4"
       tag="div"
     >
@@ -1018,7 +1025,9 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
       </v-card-title-stub>
        
       <v-card-text-stub>
-        
+        <!---->
+         
+        <!---->
       </v-card-text-stub>
        
       <v-card-actions-stub>
@@ -1037,9 +1046,9 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
          
         <v-btn-stub
           activeclass=""
-          color="blue darken-4"
+          color="primary"
+          depressed="true"
           tag="button"
-          text="true"
           type="button"
         >
           
@@ -1370,6 +1379,7 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
     width="auto"
   >
     <v-card-stub
+      class="pa-3"
       loaderheight="4"
       tag="div"
     >
@@ -1380,7 +1390,9 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
       </v-card-title-stub>
        
       <v-card-text-stub>
-        
+        <!---->
+         
+        <!---->
       </v-card-text-stub>
        
       <v-card-actions-stub>
@@ -1399,9 +1411,9 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
          
         <v-btn-stub
           activeclass=""
-          color="blue darken-4"
+          color="primary"
+          depressed="true"
           tag="button"
-          text="true"
           type="button"
         >
           
@@ -1732,6 +1744,7 @@ exports[`IndividualsTable Mock query for updateEnrollment 1`] = `
     width="auto"
   >
     <v-card-stub
+      class="pa-3"
       loaderheight="4"
       tag="div"
     >
@@ -1742,7 +1755,9 @@ exports[`IndividualsTable Mock query for updateEnrollment 1`] = `
       </v-card-title-stub>
        
       <v-card-text-stub>
-        
+        <!---->
+         
+        <!---->
       </v-card-text-stub>
        
       <v-card-actions-stub>
@@ -1761,9 +1776,9 @@ exports[`IndividualsTable Mock query for updateEnrollment 1`] = `
          
         <v-btn-stub
           activeclass=""
-          color="blue darken-4"
+          color="primary"
+          depressed="true"
           tag="button"
-          text="true"
           type="button"
         >
           
@@ -2094,6 +2109,7 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
     width="auto"
   >
     <v-card-stub
+      class="pa-3"
       loaderheight="4"
       tag="div"
     >
@@ -2104,7 +2120,9 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
       </v-card-title-stub>
        
       <v-card-text-stub>
-        
+        <!---->
+         
+        <!---->
       </v-card-text-stub>
        
       <v-card-actions-stub>
@@ -2123,9 +2141,9 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
          
         <v-btn-stub
           activeclass=""
-          color="blue darken-4"
+          color="primary"
+          depressed="true"
           tag="button"
-          text="true"
           type="button"
         >
           
@@ -2456,7 +2474,13 @@ exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
       </v-card-title-stub>
        
       <v-card-text-stub>
-        
+        <p
+          class="pt-2 pb-2 text-body-2"
+        >
+          
+        </p>
+         
+        <!---->
       </v-card-text-stub>
        
       <v-card-actions-stub>
@@ -2728,7 +2752,13 @@ exports[`OrganizationsTable Mock mutation for addOrganization 1`] = `
       </v-card-title-stub>
        
       <v-card-text-stub>
-        
+        <p
+          class="pt-2 pb-2 text-body-2"
+        >
+          
+        </p>
+         
+        <!---->
       </v-card-text-stub>
        
       <v-card-actions-stub>
@@ -3000,7 +3030,13 @@ exports[`OrganizationsTable Mock mutation for deleteDomain 1`] = `
       </v-card-title-stub>
        
       <v-card-text-stub>
-        
+        <p
+          class="pt-2 pb-2 text-body-2"
+        >
+          
+        </p>
+         
+        <!---->
       </v-card-text-stub>
        
       <v-card-actions-stub>
@@ -3270,7 +3306,13 @@ exports[`OrganizationsTable Mock mutation for deleteOrganization 1`] = `
       </v-card-title-stub>
        
       <v-card-text-stub>
-        
+        <p
+          class="pt-2 pb-2 text-body-2"
+        >
+          
+        </p>
+         
+        <!---->
       </v-card-text-stub>
        
       <v-card-actions-stub>
@@ -3540,7 +3582,13 @@ exports[`OrganizationsTable Mock mutation for enroll 1`] = `
       </v-card-title-stub>
        
       <v-card-text-stub>
-        
+        <p
+          class="pt-2 pb-2 text-body-2"
+        >
+          
+        </p>
+         
+        <!---->
       </v-card-text-stub>
        
       <v-card-actions-stub>
