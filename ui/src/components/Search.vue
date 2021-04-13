@@ -140,6 +140,10 @@ export default {
         {
           filter: "source",
           type: "string"
+        },
+        {
+          filter: "enrollment",
+          type: "string"
         }
       ]
     },

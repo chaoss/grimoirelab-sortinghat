@@ -131,6 +131,14 @@
           include spaces should be wrapped between double quotes. For example:
           <code>source:"Stack Exchange"</code>.
         </p>
+
+        <p class="subtitle-2 mt-8">Filter by enrollment</p>
+        <p>
+          You can search for individuals based on the organizations they are
+          enrolled in, using the <code>enrollment</code> filter. Organizations
+          that include spaces should be wrapped between double quotes. For
+          example: <code>enrollment:"Dumbledore's Army"</code>.
+        </p>
       </v-card-text>
     </v-card>
   </v-main>
