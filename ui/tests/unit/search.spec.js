@@ -32,24 +32,33 @@ describe("Search", () => {
   });
 
   test.each([
-    ["lastUpdated:<2000", "<2000-01-01T00:00:00.000Z"],
-    ["lastUpdated:<=2000-08-10", "<=2000-08-10T00:00:00.000Z"],
-    ["lastUpdated:>2000", ">2000-01-01T00:00:00.000Z"],
-    ["lastUpdated:>=2000-02-03", ">=2000-02-03T00:00:00.000Z"],
+    ["dateFilter:<2000", "<2000-01-01T00:00:00.000Z"],
+    ['dateFilter:"<2000"', "<2000-01-01T00:00:00.000Z"],
+    ["dateFilter:<=2000-08-10", "<=2000-08-10T00:00:00.000Z"],
+    ["dateFilter:>2000", ">2000-01-01T00:00:00.000Z"],
+    ["dateFilter:>=2000-02-03", ">=2000-02-03T00:00:00.000Z"],
     [
-      "lastUpdated:2000..2001",
+      "dateFilter:2000..2001",
       "2000-01-01T00:00:00.000Z..2001-01-01T00:00:00.000Z"
     ],
-    ["test lastUpdated:<2000", "<2000-01-01T00:00:00.000Z"]
-  ])("Given %p parses lastUpdated filter", async (value, expected) => {
+    ["test dateFilter:<2000", "<2000-01-01T00:00:00.000Z"]
+  ])("Given %p parses date filter", async (value, expected) => {
     const wrapper = mountFunction({
+      propsData: {
+        validFilters: [
+          {
+            filter: "dateFilter",
+            type: "date"
+          }
+        ]
+      },
       data: () => ({ inputValue: value })
     });
 
     const button = wrapper.find("button.mdi-magnify");
     await button.trigger("click");
 
-    expect(wrapper.vm.filters.lastUpdated).toBe(expected);
+    expect(wrapper.vm.filters.dateFilter).toBe(expected);
   });
 
   test.each([
