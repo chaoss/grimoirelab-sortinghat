@@ -283,6 +283,10 @@ export default {
 .row {
   justify-content: space-between;
   margin: 32px;
+
+  @media (max-width: 960px) {
+    margin: 0;
+  }
 }
 .individuals {
   width: 70%;
@@ -299,9 +303,17 @@ export default {
 
   @media (max-width: 960px) {
     max-width: 100%;
+    min-width: 100%;
     margin: 32px 0 0 0;
   }
 }
+
+.container{
+  @media (max-width: 960px) {
+   padding: 0;
+  }
+}
+
 h4 {
   padding: 12px 26px;
 }

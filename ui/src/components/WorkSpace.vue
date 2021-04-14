@@ -8,7 +8,7 @@
     @dragenter.prevent="onDrag($event)"
     @dragleave.prevent="isDragging = false"
   >
-    <v-row class="ma-md-0 pt-md-4 pl-md-4 pr-md-4 justify-space-between">
+    <v-row class="ma-md-0 pt-md-4 pl-md-4 pr-md-4 ml-0 mr-0 justify-space-between">
       <h3 class="title">
         <v-icon color="black" left>
           mdi-pin
@@ -47,7 +47,7 @@
     <v-row
       v-if="savedIndividuals.length >= 1"
       dense
-      class="pa-md-4 ma-md-0 drag-zone"
+      class="pa-md-4 ma-md-0 ml-0 mr-0 drag-zone"
     >
       <v-col
         v-for="individual in savedIndividuals"

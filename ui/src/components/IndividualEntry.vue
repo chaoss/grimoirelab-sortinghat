@@ -85,7 +85,7 @@
       </v-list-item>
     </td>
 
-    <td class="text-center">
+    <td class="d-none d-sm-none d-md-table-cell text-center">
       <span v-if="isLocked" class="mr-7">{{ email }}</span>
       <v-edit-dialog v-else @save="$emit('edit', { email: form.email })">
         {{ email }}
@@ -103,7 +103,7 @@
       </v-edit-dialog>
     </td>
 
-    <td class="text-right">
+    <td class="d-none d-sm-table-cell text-right">
       <v-tooltip
         v-for="(source, index) in sources"
         :key="index"
@@ -294,6 +294,7 @@ export default {
 }
 .v-list-item__title {
   text-overflow: inherit;
+  width: 100px;
 }
 .aligned {
   margin-bottom: 4px;
@@ -331,4 +332,5 @@ tr {
     }
   }
 }
+
 </style>
