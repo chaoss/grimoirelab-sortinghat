@@ -408,6 +408,17 @@ SH_INDIVIDUALS_ENROLLMENT_FILTER = """{
       }
     }
 }"""
+SH_INDIVIDUALS_ENROLLMENT_DATE_FILTER = """{
+    individuals(filters: {enrollmentDate: "%s"}) {
+      entities {
+        mk
+        enrollments {
+          start
+          end
+        }
+      }
+    }
+}"""
 SH_INDIVIDUALS_LAST_UPDATED_FILTER = """{
   individuals(filters: {lastUpdated: "%s"}) {
     entities {
@@ -2222,6 +2233,129 @@ class TestQueryIndividuals(django.test.TestCase):
         executed = client.execute(SH_INDIVIDUALS_SOURCE_FILTER % 'slack',
                                   context_value=self.context_value)
 
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 0)
+
+    def test_filter_enrollment_date(self):
+        """Check whether it returns the individual searched when using an enrollment date filter"""
+
+        # Individual is enrolled 1999-2000
+        org = Organization.objects.create(name='Bitergia')
+        indv = Individual.objects.create(mk='17ab00ed3825ec2f50483e33c88df223264182ba')
+        Enrollment.objects.create(individual=indv, organization=org,
+                                  start=datetime.datetime(1999, 1, 1, 0, 0, 0,
+                                                          tzinfo=dateutil.tz.tzutc()),
+                                  end=datetime.datetime(2000, 1, 1, 0, 0, 0,
+                                                        tzinfo=dateutil.tz.tzutc()))
+        client = graphene.test.Client(schema)
+
+        # Test enrollment before date '<'
+        executed = client.execute(SH_INDIVIDUALS_ENROLLMENT_DATE_FILTER % '<1998-01-01T00:00:00',
+                                  context_value=self.context_value)
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 0)
+
+        executed = client.execute(SH_INDIVIDUALS_ENROLLMENT_DATE_FILTER % '<1999-01-01T00:00:00',
+                                  context_value=self.context_value)
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 0)
+
+        executed = client.execute(SH_INDIVIDUALS_ENROLLMENT_DATE_FILTER % '<2000-01-01T00:00:00',
+                                  context_value=self.context_value)
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 1)
+
+        executed = client.execute(SH_INDIVIDUALS_ENROLLMENT_DATE_FILTER % '<2001-01-01T00:00:00',
+                                  context_value=self.context_value)
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 1)
+
+        # Test enrollment before or on date '<='
+        executed = client.execute(SH_INDIVIDUALS_ENROLLMENT_DATE_FILTER % '<=1998-01-01T00:00:00',
+                                  context_value=self.context_value)
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 0)
+
+        executed = client.execute(SH_INDIVIDUALS_ENROLLMENT_DATE_FILTER % '<=1999-01-01T00:00:00',
+                                  context_value=self.context_value)
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 1)
+
+        executed = client.execute(SH_INDIVIDUALS_ENROLLMENT_DATE_FILTER % '<=2000-01-01T00:00:00',
+                                  context_value=self.context_value)
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 1)
+
+        executed = client.execute(SH_INDIVIDUALS_ENROLLMENT_DATE_FILTER % '<=2001-01-01T00:00:00',
+                                  context_value=self.context_value)
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 1)
+
+        # Test enrollment after date '>'
+        executed = client.execute(SH_INDIVIDUALS_ENROLLMENT_DATE_FILTER % '>1998-01-01T00:00:00',
+                                  context_value=self.context_value)
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 1)
+
+        executed = client.execute(SH_INDIVIDUALS_ENROLLMENT_DATE_FILTER % '>1999-01-01T00:00:00',
+                                  context_value=self.context_value)
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 1)
+
+        executed = client.execute(SH_INDIVIDUALS_ENROLLMENT_DATE_FILTER % '>2000-01-01T00:00:00',
+                                  context_value=self.context_value)
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 0)
+
+        executed = client.execute(SH_INDIVIDUALS_ENROLLMENT_DATE_FILTER % '>2001-01-01T00:00:00',
+                                  context_value=self.context_value)
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 0)
+
+        # Test enrollment after or on date '>='
+        executed = client.execute(SH_INDIVIDUALS_ENROLLMENT_DATE_FILTER % '>=1998-01-01T00:00:00',
+                                  context_value=self.context_value)
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 1)
+
+        executed = client.execute(SH_INDIVIDUALS_ENROLLMENT_DATE_FILTER % '>=1999-01-01T00:00:00',
+                                  context_value=self.context_value)
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 1)
+
+        executed = client.execute(SH_INDIVIDUALS_ENROLLMENT_DATE_FILTER % '>=2000-01-01T00:00:00',
+                                  context_value=self.context_value)
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 1)
+
+        executed = client.execute(SH_INDIVIDUALS_ENROLLMENT_DATE_FILTER % '>=2001-01-01T00:00:00',
+                                  context_value=self.context_value)
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 0)
+
+        # Test enrollment range '..'
+        executed = client.execute(SH_INDIVIDUALS_ENROLLMENT_DATE_FILTER % '1997-01-01T00:00:00..1998-01-01T00:00:00',
+                                  context_value=self.context_value)
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 0)
+
+        executed = client.execute(SH_INDIVIDUALS_ENROLLMENT_DATE_FILTER % '1998-01-01T00:00:00..1999-01-01T00:00:00',
+                                  context_value=self.context_value)
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 1)
+
+        executed = client.execute(SH_INDIVIDUALS_ENROLLMENT_DATE_FILTER % '1999-01-01T00:00:00..2000-01-01T00:00:00',
+                                  context_value=self.context_value)
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 1)
+
+        executed = client.execute(SH_INDIVIDUALS_ENROLLMENT_DATE_FILTER % '2000-01-01T00:00:00..2001-01-01T00:00:00',
+                                  context_value=self.context_value)
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 1)
+
+        executed = client.execute(SH_INDIVIDUALS_ENROLLMENT_DATE_FILTER % '2001-01-01T00:00:00..2002-01-01T00:00:00',
+                                  context_value=self.context_value)
         individuals = executed['data']['individuals']['entities']
         self.assertEqual(len(individuals), 0)
 

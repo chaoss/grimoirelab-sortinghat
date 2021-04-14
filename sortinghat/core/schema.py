@@ -263,6 +263,12 @@ class IdentityFilterType(graphene.InputObjectType):
     country = graphene.String(required=False)
     source = graphene.String(required=False)
     enrollment = graphene.String(required=False)
+    enrollment_date = graphene.String(
+        required=False,
+        description='Filter with a comparison operator (>, >=, <, <=) and a date OR with a range operator (..) between\
+                     two dates, following ISO-8601 format. Examples:\n* `>=2020-10-12T09:35:06.13045+01:00` \
+                     \n * `2020-10-12T00:00:00..2020-11-22T00:00:00`.'
+    )
     last_updated = graphene.String(
         required=False,
         description='Filter with a comparison operator (>, >=, <, <=) and a date OR with a range operator (..) between\
@@ -882,6 +888,39 @@ class SortingHatQuery:
             query = query.filter(identities__source=filters['source'])
         if filters and 'enrollment' in filters:
             query = query.filter(enrollments__organization__name__icontains=filters['enrollment'])
+        if filters and 'enrollment_date' in filters:
+            # Accepted date format is ISO 8601, YYYY-MM-DDTHH:MM:SS
+            try:
+                filter_data = parse_date_filter(filters['enrollment_date'])
+            except ValueError as e:
+                raise InvalidFilterError(filter_name='enrollment_date', msg=e)
+            except InvalidDateError as e:
+                raise InvalidFilterError(filter_name='enrollment_date', msg=e)
+            date1 = filter_data['date1']
+            date2 = filter_data['date2']
+            if filter_data['operator']:
+                operator = filter_data['operator']
+                if operator == '<':
+                    query = query.filter(mk__in=Subquery(Enrollment.objects
+                                                         .filter(start__lt=date1)
+                                                         .values_list('individual__mk')))
+                elif operator == '<=':
+                    query = query.filter(mk__in=Subquery(Enrollment.objects
+                                                         .filter(start__lte=date1)
+                                                         .values_list('individual__mk')))
+                elif operator == '>':
+                    query = query.filter(mk__in=Subquery(Enrollment.objects
+                                                         .filter(end__gt=date1)
+                                                         .values_list('individual__mk')))
+                elif operator == '>=':
+                    query = query.filter(mk__in=Subquery(Enrollment.objects
+                                                         .filter(end__gte=date1)
+                                                         .values_list('individual__mk')))
+                elif operator == '..':
+                    query = query.filter(mk__in=Subquery(Enrollment.objects
+                                                         .filter(start__lte=date2,
+                                                                 end__gte=date1)
+                                                         .values_list('individual__mk')))
         if filters and 'last_updated' in filters:
             # Accepted date format is ISO 8601, YYYY-MM-DDTHH:MM:SS
             try:
