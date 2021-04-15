@@ -50,6 +50,7 @@
             value: 'profile__name'
           }
         ]"
+        :set-filters="setFilters"
       />
       <v-tooltip bottom transition="expand-y-transition" open-delay="200">
         <template v-slot:activator="{ on }">
@@ -293,6 +294,10 @@ export default {
     withdraw: {
       type: Function,
       required: true
+    },
+    setFilters: {
+      type: String,
+      required: false
     }
   },
   data() {
