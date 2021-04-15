@@ -396,6 +396,18 @@ SH_INDIVIDUALS_SOURCE_FILTER = """{
       }
     }
 }"""
+SH_INDIVIDUALS_ENROLLMENT_FILTER = """{
+    individuals(filters: {enrollment: "%s"}) {
+      entities {
+        mk
+        enrollments {
+          organization {
+            name
+          }
+        }
+      }
+    }
+}"""
 SH_INDIVIDUALS_LAST_UPDATED_FILTER = """{
   individuals(filters: {lastUpdated: "%s"}) {
     entities {
@@ -2443,6 +2455,54 @@ class TestQueryIndividuals(django.test.TestCase):
 
         indv = individuals[0]
         self.assertEqual(indv['profile']['country']['name'], 'United States of America')
+
+    def test_filter_enrollment(self):
+        """Check whether it returns the uuid searched when using enrollment filter"""
+
+        org1 = Organization.objects.create(name='Bitergia')
+        org2 = Organization.objects.create(name='Bit Company')
+        indv1 = Individual.objects.create(mk='a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        indv2 = Individual.objects.create(mk='185c4b709e5446d250b4fde0e34b78a2b4fde0e3')
+        Enrollment.objects.create(individual=indv1, organization=org1)
+        Enrollment.objects.create(individual=indv2, organization=org2)
+
+        # Test full organization name match
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_INDIVIDUALS_ENROLLMENT_FILTER % 'Bitergia',
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 1)
+
+        indv = individuals[0]
+        self.assertEqual(indv['mk'], 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        enrollment = indv['enrollments'][0]
+        self.assertEqual(enrollment['organization']['name'], 'Bitergia')
+
+        # Test partial organization name match
+        executed = client.execute(SH_INDIVIDUALS_ENROLLMENT_FILTER % 'bit',
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 2)
+
+        # Test organization name with spaces
+        executed = client.execute(SH_INDIVIDUALS_ENROLLMENT_FILTER % 'bit company',
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 1)
+        indv = individuals[0]
+        self.assertEqual(indv['mk'], '185c4b709e5446d250b4fde0e34b78a2b4fde0e3')
+        enrollment = indv['enrollments'][0]
+        self.assertEqual(enrollment['organization']['name'], 'Bit Company')
+
+        # Test no results for enrollment
+        executed = client.execute(SH_INDIVIDUALS_ENROLLMENT_FILTER % 'Organization',
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 0)
 
     def test_order_by_last_modified(self):
         """Check whether it returns the individuals ordered by last modified date"""
