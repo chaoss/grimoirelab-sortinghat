@@ -139,6 +139,69 @@
           that include spaces should be wrapped between double quotes. For
           example: <code>enrollment:"Dumbledore's Army"</code>.
         </p>
+
+        <p class="subtitle-2">Filter by enrollment date</p>
+        <p>
+          You can filter individuals based on when they were affiliated to an
+          organization, using the <code>enrollmentDate</code> filter.
+        </p>
+        <v-simple-table>
+          <template v-slot:default>
+            <thead>
+              <tr>
+                <th class="text-left" width="30%">
+                  Filter
+                </th>
+                <th class="text-left">
+                  Explanation
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td width="30%"><code>enrollmentDate:>YYYY-MM-DD</code></td>
+                <td>
+                  Matches individuals that were affiliated to an organization
+                  after the given date.
+                </td>
+              </tr>
+              <tr>
+                <td width="30%"><code>enrollmentDate:>=YYYY-MM-DD</code></td>
+                <td>
+                  Matches individuals that were affiliated to an organization on
+                  or after the given date.
+                </td>
+              </tr>
+              <tr>
+                <td width="30%">
+                  <code>enrollmentDate:&lt;YYYY-MM-DD</code>
+                </td>
+                <td>
+                  Matches individuals that were affiliated to an organization
+                  before the given date.
+                </td>
+              </tr>
+              <tr>
+                <td width="30%">
+                  <code>enrollmentDate:&lt;=YYYY-MM-DD</code>
+                </td>
+                <td>
+                  Matches individuals that were affiliated to an organization on
+                  or before the given date.
+                </td>
+              </tr>
+              <tr>
+                <td width="30%">
+                  <code>enrollmentDate:YYYY-MM-DD..YYYY-MM-DD</code>
+                </td>
+                <td>
+                  Matches individuals that were affiliated to an organization
+                  between the given dates.
+                </td>
+              </tr>
+            </tbody>
+          </template>
+        </v-simple-table>
       </v-card-text>
     </v-card>
   </v-main>

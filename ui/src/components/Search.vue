@@ -135,7 +135,7 @@ export default {
         },
         {
           filter: "lastUpdated",
-          type: "string"
+          type: "date"
         },
         {
           filter: "source",
@@ -144,6 +144,10 @@ export default {
         {
           filter: "enrollment",
           type: "string"
+        },
+        {
+          filter: "enrollmentDate",
+          type: "date"
         }
       ]
     },
@@ -194,8 +198,8 @@ export default {
             !this.validFilters.find(vfilter => vfilter.filter === filter)
           ) {
             this.errorMessage = `Invalid filter "${filter}"`;
-          } else if (filter === "lastUpdated") {
-            this.parseLastUpdated(text);
+          } else if (this.isDateFilter(filter)) {
+            this.parseDateFilter(text, filter);
           } else if (this.isBooleanFilter(filter)) {
             this.parseBooleanFilter(filter, text);
           } else {
@@ -210,7 +214,7 @@ export default {
         this.filters.term = terms.join(" ").trim();
       }
     },
-    parseLastUpdated(inputValue) {
+    parseDateFilter(inputValue, filter) {
       const operator = ["<=", ">=", "<", ">", ".."].find(value =>
         inputValue.includes(value)
       );
@@ -222,7 +226,7 @@ export default {
       const values = inputValue.replace(operator, ` ${operator} `).split(" ");
 
       try {
-        this.filters.lastUpdated = values
+        this.filters[filter] = values
           .map(value => {
             if (value) {
               return value === operator
@@ -252,7 +256,9 @@ export default {
         const filter = match[1];
         const value = match[2];
         if (this.validFilters.find(vfilter => vfilter.filter === filter)) {
-          if (this.isBooleanFilter(filter)) {
+          if (this.isDateFilter(filter)) {
+            this.parseDateFilter(value, filter);
+          } else if (this.isBooleanFilter(filter)) {
             this.parseBooleanFilter(filter, value);
           } else {
             this.filters[filter] = value;
@@ -278,13 +284,19 @@ export default {
       );
       return validFilter.type === "boolean";
     },
+    isDateFilter(filter) {
+      const validFilter = this.validFilters.find(
+        vfilter => vfilter.filter === filter
+      );
+      return validFilter.type === "date";
+    },
     setFilter(item) {
       this.inputValue = this.inputValue || "";
-      if (item.filter === "lastUpdated") {
+      if (this.isDateFilter(item.filter)) {
         const [month, day, year] = new Date()
           .toLocaleDateString("en-US")
           .split("/");
-        this.inputValue += `lastUpdated:>=${year}-${month}-${day} `;
+        this.inputValue += `${item.filter}:>=${year}-${month}-${day} `;
       } else if (this.isBooleanFilter(item.filter)) {
         this.inputValue += `${item.filter}:true `;
       } else {
