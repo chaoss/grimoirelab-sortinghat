@@ -47,6 +47,7 @@
           @enroll="confirmEnroll"
           @edit="openModal(item)"
           @delete="confirmDelete(item.name)"
+          @getEnrollments="$emit('getEnrollments', item.name)"
         />
       </template>
       <template v-slot:expanded-item="{ item }">

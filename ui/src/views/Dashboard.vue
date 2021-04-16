@@ -29,6 +29,7 @@
           :enroll="enroll"
           :get-countries="getCountries"
           :lock-individual="lockIndividual"
+          :set-filters="filters"
           :unlock-individual="unlockIndividual"
           :withdraw="withdraw"
           :update-enrollment="updateEnrollment"
@@ -50,6 +51,7 @@
           :add-domain="addDomain"
           :delete-domain="deleteDomain"
           :delete-organization="deleteOrganization"
+          @getEnrollments="getEnrollments"
           @updateIndividuals="updateTable"
           @updateWorkspace="updateWorkspace"
           ref="organizations"
@@ -101,6 +103,7 @@ export default {
   },
   data() {
     return {
+      filters: null,
       highlightInTable: undefined,
       highlightInWorkspace: undefined,
       savedIndividuals: [],
@@ -260,6 +263,9 @@ export default {
     clearWorkspace() {
       this.emptyWorkspace();
       this.savedIndividuals = [];
+    },
+    getEnrollments(organization) {
+      this.filters = `enrollment:"${organization}"`;
     }
   },
   async mounted() {

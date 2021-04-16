@@ -8,12 +8,19 @@
   >
     <td class="font-weight-medium">{{ name }}</td>
     <td class="text-right text--secondary">
-      {{ enrollments }}
       <v-tooltip bottom transition="expand-y-transition" open-delay="200">
         <template v-slot:activator="{ on }">
-          <v-icon v-on="on" small right>
-            mdi-account-multiple
-          </v-icon>
+          <v-btn
+            depressed
+            color="transparent"
+            v-on="on"
+            @click.stop="$emit('getEnrollments')"
+          >
+            {{ enrollments }}
+            <v-icon small right>
+              mdi-account-multiple
+            </v-icon>
+          </v-btn>
         </template>
         <span>Enrollments</span>
       </v-tooltip>

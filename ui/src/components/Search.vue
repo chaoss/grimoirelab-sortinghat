@@ -113,6 +113,10 @@ export default {
       required: false,
       default: false
     },
+    setFilters: {
+      type: String,
+      required: false
+    },
     validFilters: {
       type: Array,
       required: false,
@@ -315,6 +319,12 @@ export default {
       if (this.order.value) {
         this.search();
       }
+    }
+  },
+  watch: {
+    setFilters(value) {
+      this.inputValue = value;
+      this.search();
     }
   }
 };
