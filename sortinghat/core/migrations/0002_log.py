@@ -4,7 +4,7 @@ import datetime
 from django.db import migrations, models
 import django.db.models.deletion
 from django.utils.timezone import utc
-import django_mysql.models
+import django.db.models
 
 
 class Migration(migrations.Migration):
@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
                 ('entity_type', models.CharField(max_length=128)),
                 ('target', models.CharField(max_length=128)),
                 ('timestamp', models.DateTimeField()),
-                ('args', django_mysql.models.JSONField(default=dict)),
+                ('args', django.db.models.JSONField(default=dict)),
             ],
             options={
                 'db_table': 'operations',

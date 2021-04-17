@@ -45,7 +45,7 @@ from sortinghat.core.models import (Organization,
 # Test check errors messages
 DUPLICATE_CHECK_ERROR = "Duplicate entry .+"
 NULL_VALUE_CHECK_ERROR = "Column .+ cannot be null"
-INVALID_BOOLEAN_CHECK_ERROR = "'true' value must be either True or False."
+INVALID_BOOLEAN_CHECK_ERROR = "['“true” value must be either True or False.']"
 
 
 class TestOrganization(TransactionTestCase):
