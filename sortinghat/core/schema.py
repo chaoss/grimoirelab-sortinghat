@@ -269,6 +269,7 @@ class IdentityFilterType(graphene.InputObjectType):
                      two dates, following ISO-8601 format. Examples:\n* `>=2020-10-12T09:35:06.13045+01:00` \
                      \n * `2020-10-12T00:00:00..2020-11-22T00:00:00`.'
     )
+    is_enrolled = graphene.Boolean(required=False)
     last_updated = graphene.String(
         required=False,
         description='Filter with a comparison operator (>, >=, <, <=) and a date OR with a range operator (..) between\
@@ -921,6 +922,8 @@ class SortingHatQuery:
                                                          .filter(start__lte=date2,
                                                                  end__gte=date1)
                                                          .values_list('individual__mk')))
+        if filters and 'is_enrolled' in filters:
+            query = query.filter(enrollments__isnull=not filters['is_enrolled'])
         if filters and 'last_updated' in filters:
             # Accepted date format is ISO 8601, YYYY-MM-DDTHH:MM:SS
             try:

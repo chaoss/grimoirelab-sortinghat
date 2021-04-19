@@ -419,6 +419,18 @@ SH_INDIVIDUALS_ENROLLMENT_DATE_FILTER = """{
       }
     }
 }"""
+SH_INDIVIDUALS_IS_ENROLLED_FILTER = """{
+    individuals(filters: {isEnrolled: %s}) {
+      entities {
+        mk
+        enrollments {
+          organization {
+            name
+          }
+        }
+      }
+    }
+}"""
 SH_INDIVIDUALS_LAST_UPDATED_FILTER = """{
   individuals(filters: {lastUpdated: "%s"}) {
     entities {
@@ -2358,6 +2370,34 @@ class TestQueryIndividuals(django.test.TestCase):
                                   context_value=self.context_value)
         individuals = executed['data']['individuals']['entities']
         self.assertEqual(len(individuals), 0)
+
+    def test_filter_is_enrolled(self):
+        """Check whether it returns the uuids searched when using isEnrolled filter"""
+
+        org = Organization.objects.create(name='Bitergia')
+        indv1 = Individual.objects.create(mk='17ab00ed3825ec2f50483e33c88df223264182ba')
+        indv2 = Individual.objects.create(mk='c6d2504fde0e34b78a185c4b709e5442d045451c')
+        Enrollment.objects.create(individual=indv1, organization=org)
+
+        client = graphene.test.Client(schema)
+
+        # Test enrolled individual
+        executed = client.execute(SH_INDIVIDUALS_IS_ENROLLED_FILTER % 'true',
+                                  context_value=self.context_value)
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 1)
+        indv = individuals[0]
+        self.assertEqual(indv['mk'], '17ab00ed3825ec2f50483e33c88df223264182ba')
+        enrollment = indv['enrollments'][0]
+        self.assertEqual(enrollment['organization']['name'], 'Bitergia')
+
+        # Test not enrolled individual
+        executed = client.execute(SH_INDIVIDUALS_IS_ENROLLED_FILTER % 'false',
+                                  context_value=self.context_value)
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 1)
+        indv = individuals[0]
+        self.assertEqual(indv['mk'], 'c6d2504fde0e34b78a185c4b709e5442d045451c')
 
     def test_filter_last_updated(self):
         """Check whether it returns the uuids searched when using a date filter"""
