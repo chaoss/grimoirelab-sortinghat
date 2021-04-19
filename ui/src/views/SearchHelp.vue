@@ -202,6 +202,13 @@
             </tbody>
           </template>
         </v-simple-table>
+
+        <p class="subtitle-2 mt-8">Filter by enrollment status</p>
+        <p>
+          You can search for individuals based on whether they have any
+          affiliation, using the <code>isEnrolled:true</code> and
+          <code>isEnrolled:false</code> filters.
+        </p>
       </v-card-text>
     </v-card>
   </v-main>
