@@ -152,6 +152,10 @@ export default {
         {
           filter: "enrollmentDate",
           type: "date"
+        },
+        {
+          filter: "isEnrolled",
+          type: "boolean"
         }
       ]
     },
