@@ -245,31 +245,71 @@ class ProfileInputType(graphene.InputObjectType):
 
 
 class CountryFilterType(graphene.InputObjectType):
-    code = graphene.String(required=False)
-    term = graphene.String(required=False)
+    code = graphene.String(
+        required=False,
+        description='Filter countries with an ISO Alpha 2 country code.'
+    )
+    term = graphene.String(
+        required=False,
+        description='Filter countries whose name contains the term.'
+    )
 
 
 class OrganizationFilterType(graphene.InputObjectType):
-    name = graphene.String(required=False)
-    term = graphene.String(required=False)
+    name = graphene.String(
+        required=False,
+        description='Filter organizations with an exact name match.'
+    )
+    term = graphene.String(
+        required=False,
+        description='Filter organizations whose name or domains include the term.'
+    )
 
 
 class IdentityFilterType(graphene.InputObjectType):
-    uuid = graphene.String(required=False)
-    term = graphene.String(required=False)
-    is_locked = graphene.Boolean(required=False)
-    is_bot = graphene.Boolean(required=False)
-    gender = graphene.String(required=False)
-    country = graphene.String(required=False)
-    source = graphene.String(required=False)
-    enrollment = graphene.String(required=False)
+    uuid = graphene.String(
+        required=False,
+        description='Find an identity by its unique identifier.'
+    )
+    term = graphene.String(
+        required=False,
+        description='Filter individuals whose name, email or username contain the term.'
+    )
+    is_locked = graphene.Boolean(
+        required=False,
+        description='Filters individuals by whether their profiles are locked and cannot be edited.'
+    )
+    is_bot = graphene.Boolean(
+        required=False,
+        description='Filters individuals by whether they have been marked as bots.'
+    )
+    gender = graphene.String(
+        required=False,
+        description='Filters individuals by their gender.'
+    )
+    country = graphene.String(
+        required=False,
+        description='Filters individuals using an ISO Alpha 3 or Alpha 2 country code, or with a country name.\
+                     Examples:\n * `GB`\n * `GBR`\n * `United Kingdom`'
+    )
+    source = graphene.String(
+        required=False,
+        description='Filters individuals by the data source of their identities.'
+    )
+    enrollment = graphene.String(
+        required=False,
+        description='Filters individuals affiliated to an organization.'
+    )
     enrollment_date = graphene.String(
         required=False,
         description='Filter with a comparison operator (>, >=, <, <=) and a date OR with a range operator (..) between\
                      two dates, following ISO-8601 format. Examples:\n* `>=2020-10-12T09:35:06.13045+01:00` \
                      \n * `2020-10-12T00:00:00..2020-11-22T00:00:00`.'
     )
-    is_enrolled = graphene.Boolean(required=False)
+    is_enrolled = graphene.Boolean(
+        required=False,
+        description='Filter individuals by whether they are affiliated to any organization.'
+    )
     last_updated = graphene.String(
         required=False,
         description='Filter with a comparison operator (>, >=, <, <=) and a date OR with a range operator (..) between\
@@ -279,21 +319,57 @@ class IdentityFilterType(graphene.InputObjectType):
 
 
 class TransactionFilterType(graphene.InputObjectType):
-    tuid = graphene.String(required=False)
-    name = graphene.String(required=False)
-    is_closed = graphene.Boolean(required=False)
-    from_date = graphene.DateTime(required=False)
-    to_date = graphene.DateTime(required=False)
-    authored_by = graphene.String(required=False)
+    tuid = graphene.String(
+        required=False,
+        description='Find a transaction using its unique id.'
+    )
+    name = graphene.String(
+        required=False,
+        description='Find a transaction using its name.'
+    )
+    is_closed = graphene.Boolean(
+        required=False,
+        description='Filter transactions by whether they are closed.'
+    )
+    from_date = graphene.DateTime(
+        required=False,
+        description='Find transactions created after a date, following ISO-8601 format.'
+    )
+    to_date = graphene.DateTime(
+        required=False,
+        description='Find transactions created before a date, following ISO-8601 format.'
+    )
+    authored_by = graphene.String(
+        required=False,
+        description='Filter transactions using the username of their author.'
+    )
 
 
 class OperationFilterType(graphene.InputObjectType):
-    ouid = graphene.String(required=False)
-    op_type = graphene.String(required=False)
-    entity_type = graphene.String(required=False)
-    target = graphene.String(required=False)
-    from_date = graphene.DateTime(required=False)
-    to_date = graphene.DateTime(required=False)
+    ouid = graphene.String(
+        required=False,
+        description='Find an operation using its unique id.'
+    )
+    op_type = graphene.String(
+        required=False,
+        description='Filter operations by their type: `ADD`, `DELETE` or `UPDATE`.'
+    )
+    entity_type = graphene.String(
+        required=False,
+        description='Filter by the type of entity involved in the operations, eg. `individual`, `profile`, `enrollment`.'
+    )
+    target = graphene.String(
+        required=False,
+        description='Filter by the argument which the operation is directed to.'
+    )
+    from_date = graphene.DateTime(
+        required=False,
+        description='Find operations created after a date, following ISO-8601 format.'
+    )
+    to_date = graphene.DateTime(
+        required=False,
+        description='Find operations created before a date, following ISO-8601 format.'
+    )
 
 
 class AbstractPaginatedType(graphene.ObjectType):
@@ -321,33 +397,33 @@ class AbstractPaginatedType(graphene.ObjectType):
 
 
 class CountryPaginatedType(AbstractPaginatedType):
-    entities = graphene.List(CountryType)
-    page_info = graphene.Field(PaginationType)
+    entities = graphene.List(CountryType, description='A list of countries.')
+    page_info = graphene.Field(PaginationType, description='Information to aid in pagination.')
 
 
 class OrganizationPaginatedType(AbstractPaginatedType):
-    entities = graphene.List(OrganizationType)
-    page_info = graphene.Field(PaginationType)
+    entities = graphene.List(OrganizationType, description='A list of organizations.')
+    page_info = graphene.Field(PaginationType, description='Information to aid in pagination.')
 
 
 class IdentityPaginatedType(AbstractPaginatedType):
-    entities = graphene.List(IndividualType)
-    page_info = graphene.Field(PaginationType)
+    entities = graphene.List(IndividualType, description='A list of identities.')
+    page_info = graphene.Field(PaginationType, description='Information to aid in pagination.')
 
 
 class TransactionPaginatedType(AbstractPaginatedType):
-    entities = graphene.List(TransactionType)
-    page_info = graphene.Field(PaginationType)
+    entities = graphene.List(TransactionType, description='A list of transactions.')
+    page_info = graphene.Field(PaginationType, description='Information to aid in pagination.')
 
 
 class OperationPaginatedType(AbstractPaginatedType):
-    entities = graphene.List(OperationType)
-    page_info = graphene.Field(PaginationType)
+    entities = graphene.List(OperationType, description='A list of operations.')
+    page_info = graphene.Field(PaginationType, description='Information to aid in pagination.')
 
 
 class JobPaginatedType(AbstractPaginatedType):
-    entities = graphene.List(JobType)
-    page_info = graphene.Field(PaginationType)
+    entities = graphene.List(JobType, description='A list of jobs.')
+    page_info = graphene.Field(PaginationType, description='Information to aid in pagination.')
 
 
 class AddOrganization(graphene.Mutation):
@@ -773,13 +849,15 @@ class SortingHatQuery:
         CountryPaginatedType,
         page_size=graphene.Int(),
         page=graphene.Int(),
-        filters=CountryFilterType(required=False)
+        filters=CountryFilterType(required=False),
+        description='Find countries.'
     )
     organizations = graphene.Field(
         OrganizationPaginatedType,
         page_size=graphene.Int(),
         page=graphene.Int(),
-        filters=OrganizationFilterType(required=False)
+        filters=OrganizationFilterType(required=False),
+        description='Find organizations.'
     )
     individuals = graphene.Field(
         IdentityPaginatedType,
@@ -787,27 +865,32 @@ class SortingHatQuery:
         page=graphene.Int(),
         filters=IdentityFilterType(required=False),
         order_by=graphene.String(required=False),
+        description='Find individuals.'
     )
     transactions = graphene.Field(
         TransactionPaginatedType,
         page_size=graphene.Int(),
         page=graphene.Int(),
-        filters=TransactionFilterType(required=False)
+        filters=TransactionFilterType(required=False),
+        description='Find transactions.'
     )
     operations = graphene.Field(
         OperationPaginatedType,
         page_size=graphene.Int(),
         page=graphene.Int(),
         filters=OperationFilterType(required=False),
+        description='Find operations.'
     )
     job = graphene.Field(
         JobType,
-        job_id=graphene.String()
+        job_id=graphene.String(),
+        description='Find a single job by its id.'
     )
     jobs = graphene.Field(
         JobPaginatedType,
         page_size=graphene.Int(),
-        page=graphene.Int()
+        page=graphene.Int(),
+        description='Get all jobs.'
     )
 
     @check_auth
