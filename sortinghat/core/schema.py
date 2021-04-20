@@ -136,14 +136,14 @@ def parse_date_filter(filter_value):
 
 
 class PaginationType(graphene.ObjectType):
-    page = graphene.Int()
-    page_size = graphene.Int()
-    num_pages = graphene.Int()
-    has_next = graphene.Boolean()
-    has_prev = graphene.Boolean()
-    start_index = graphene.Int()
-    end_index = graphene.Int()
-    total_results = graphene.Int()
+    page = graphene.Int(description='Current page.')
+    page_size = graphene.Int(description='Number of items per page.')
+    num_pages = graphene.Int(description='Total number of pages.')
+    has_next = graphene.Boolean(description='Whether there is a page after the current one.')
+    has_prev = graphene.Boolean(description='Whether there is a page before the current one.')
+    start_index = graphene.Int(description='Index of the first item on the page.')
+    end_index = graphene.Int(description='Index of the last item on the page.')
+    total_results = graphene.Int(description='Total number of items.')
 
 
 class OperationArgsType(GenericScalar):
@@ -200,22 +200,28 @@ class EnrollmentType(DjangoObjectType):
 
 
 class AffiliationRecommendationType(graphene.ObjectType):
-    uuid = graphene.String()
-    organizations = graphene.List(graphene.String)
+    uuid = graphene.String(description='The unique identifier of an individual.')
+    organizations = graphene.List(graphene.String, description='List of recommended organizations.')
 
 
 class MatchesRecommendationType(graphene.ObjectType):
-    uuid = graphene.String()
-    matches = graphene.List(graphene.String)
+    uuid = graphene.String(description='The unique identifier of an individual.')
+    matches = graphene.List(graphene.String, description='List of recommended matches.')
 
 
 class AffiliationResultType(graphene.ObjectType):
-    uuid = graphene.String()
-    organizations = graphene.List(graphene.String)
+    uuid = graphene.String(description='The unique identifier of an individual.')
+    organizations = graphene.List(
+        graphene.String,
+        description='List of organizations an individual was affilated to using matching recommendations.'
+    )
 
 
 class UnifyResultType(graphene.ObjectType):
-    merged = graphene.List(graphene.String)
+    merged = graphene.List(
+        graphene.String,
+        description='List of individuals that were merged using matching recommendations.'
+    )
 
 
 class JobResultType(graphene.Union):
@@ -227,27 +233,33 @@ class JobResultType(graphene.Union):
 
 
 class JobType(graphene.ObjectType):
-    job_id = graphene.String()
-    job_type = graphene.String()
-    status = graphene.String()
-    result = graphene.List(JobResultType)
-    errors = graphene.List(graphene.String)
-    enqueued_at = graphene.DateTime()
+    job_id = graphene.String(description='Job identifier.')
+    job_type = graphene.String(description='Type of job.')
+    status = graphene.String(description='Job status (`started`, `deferred`, `finished`, `failed` or `scheduled`).')
+    result = graphene.List(JobResultType, description='List of job results.')
+    errors = graphene.List(graphene.String, description='List of errors.')
+    enqueued_at = graphene.DateTime(description='Time the job was enqueued at.')
 
 
 class ProfileInputType(graphene.InputObjectType):
-    name = graphene.String(required=False)
-    email = graphene.String(required=False)
-    gender = graphene.String(required=False)
-    gender_acc = graphene.Int(required=False)
-    is_bot = graphene.Boolean(required=False)
-    country_code = graphene.String(required=False)
+    name = graphene.String(required=False, description='Name of the individual.')
+    email = graphene.String(required=False, description='Email address of the individual.')
+    gender = graphene.String(required=False, description='Gender of the individual.')
+    gender_acc = graphene.Int(
+        required=False,
+        description='Gender accuracy (range of 1 to 100; by default, set to 100).'
+    )
+    is_bot = graphene.Boolean(required=False, description='Whether an individual is a bot or not.')
+    country_code = graphene.String(
+        required=False,
+        description='ISO-3166 country code. Examples: `DK` for Denmark, `IT` for Italy.'
+    )
 
 
 class CountryFilterType(graphene.InputObjectType):
     code = graphene.String(
         required=False,
-        description='Filter countries with an ISO Alpha 2 country code.'
+        description='Filter countries with an ISO Alpha 2 country code. Examples: `DK` for Denmark, `IT` for Italy.'
     )
     term = graphene.String(
         required=False,
@@ -333,11 +345,11 @@ class TransactionFilterType(graphene.InputObjectType):
     )
     from_date = graphene.DateTime(
         required=False,
-        description='Find transactions created after a date, following ISO-8601 format.'
+        description='Find transactions created after a date, following ISO-8601 format. For example, `2020-04-22T00:00:00Z`.'
     )
     to_date = graphene.DateTime(
         required=False,
-        description='Find transactions created before a date, following ISO-8601 format.'
+        description='Find transactions created before a date, following ISO-8601 format. For example, `2020-04-22T00:00:00Z`.'
     )
     authored_by = graphene.String(
         required=False,
@@ -364,11 +376,11 @@ class OperationFilterType(graphene.InputObjectType):
     )
     from_date = graphene.DateTime(
         required=False,
-        description='Find operations created after a date, following ISO-8601 format.'
+        description='Find operations created after a date, following ISO-8601 format. For example, `2020-04-22T00:00:00Z`.'
     )
     to_date = graphene.DateTime(
         required=False,
-        description='Find operations created before a date, following ISO-8601 format.'
+        description='Find operations created before a date, following ISO-8601 format. For example, `2020-04-22T00:00:00Z`.'
     )
 
 
@@ -1149,27 +1161,82 @@ class SortingHatQuery:
 
 
 class SortingHatMutation(graphene.ObjectType):
-    add_organization = AddOrganization.Field()
-    delete_organization = DeleteOrganization.Field()
-    add_domain = AddDomain.Field()
-    delete_domain = DeleteDomain.Field()
-    add_identity = AddIdentity.Field()
-    delete_identity = DeleteIdentity.Field()
-    update_profile = UpdateProfile.Field()
-    move_identity = MoveIdentity.Field()
-    lock = Lock.Field()
-    unlock = Unlock.Field()
-    merge = Merge.Field()
-    unmerge_identities = UnmergeIdentities.Field()
-    enroll = Enroll.Field()
-    withdraw = Withdraw.Field()
-    update_enrollment = UpdateEnrollment.Field()
-    recommend_affiliations = RecommendAffiliations.Field()
-    recommend_matches = RecommendMatches.Field()
-    affiliate = Affiliate.Field()
-    unify = Unify.Field()
+    add_organization = AddOrganization.Field(
+        description='Add an organization to the registry.'
+    )
+    delete_organization = DeleteOrganization.Field(
+        description='Remove an organization from the registry. Related information\
+        such as domains or enrollments is also removed.'
+    )
+    add_domain = AddDomain.Field(
+        description='Add a new domain to an organization. The new domain is set\
+        as a top domain by default. A domain can only be assigned to one organization.'
+    )
+    delete_domain = DeleteDomain.Field(
+        description='Remove a domain from the registry.'
+    )
+    add_identity = AddIdentity.Field(
+        description='Add a new identity to the registry. A new individual will be\
+        also added and associated to the new identity unless an `uuid` is provided.\
+        When `uuid` is set, it creates a new identity associated to the individual\
+        defined by this identifier.'
+    )
+    delete_identity = DeleteIdentity.Field(
+        description='Remove an identity from the registry. If the `uuid` also\
+        belongs to an individual, this entry and those identities linked to it\
+        will be removed too.'
+    )
+    update_profile = UpdateProfile.Field(
+        description='Update an individual profile.'
+    )
+    move_identity = MoveIdentity.Field(
+        description='Shift the identity identified by `from_uuid` to the individual\
+        identified by `to_uuid`.'
+    )
+    lock = Lock.Field(
+        description='Lock an individual so it cannot be modified.'
+    )
+    unlock = Unlock.Field(
+        description='Unlock an individual so it can be modified.'
+    )
+    merge = Merge.Field(
+        description='Join a list of individuals, defined in `from_uuid` by any of\
+        their valid identities ids, into `to_uuid` individual. Identities and enrollments\
+        related to each `from_uuid` will be assigned to `to_uuid`. In addition, each\
+        `from_uuid` will be removed from the registry.'
+    )
+    unmerge_identities = UnmergeIdentities.Field(
+        description='Separate a list of `uuid` identities, creating an individual for each one.'
+    )
+    enroll = Enroll.Field(
+        description='Enroll an individual in an organization. Existing enrollments\
+        for the same individual and organization which overlap with the new period\
+        will be merged into a single enrollment.'
+    )
+    withdraw = Withdraw.Field(
+        description='Withdraw an individual identified by `uuid` from the given\
+        `organization` during the given period of time.'
+    )
+    update_enrollment = UpdateEnrollment.Field(
+        description='Update one or more enrollments from an individual given a new\
+        date range. By default, `force` is set to `true`. In case any of the new\
+        dates are missing, the former value for that date will be preserved.'
+    )
+    recommend_affiliations = RecommendAffiliations.Field(
+        description='Recommend organizations for a list of individuals based on their emails.'
+    )
+    recommend_matches = RecommendMatches.Field(
+        description='Recommend identity matches for a list of individuals based\
+        on a list of criteria composed by `email`, `name` and/or `username`.'
+    )
+    affiliate = Affiliate.Field(
+        description='Affiliate a set of individuals using recommendations.'
+    )
+    unify = Unify.Field(
+        description='Unify a set of individuals by merging them using matching recommendations.'
+    )
 
     # JWT authentication
     token_auth = graphql_jwt.ObtainJSONWebToken.Field()
-    verify_token = graphql_jwt.Verify.Field()
-    refresh_token = graphql_jwt.Refresh.Field()
+    verify_token = graphql_jwt.Verify.Field(description='Verify a JSON Web Token.')
+    refresh_token = graphql_jwt.Refresh.Field(description='Refresh a JSON Web Token.')
