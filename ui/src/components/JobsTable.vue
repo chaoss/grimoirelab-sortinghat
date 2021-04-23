@@ -1,11 +1,13 @@
 <template>
-  <v-container>
-    <h4 class="title mt-5 mb-5">
-      <v-icon color="black" left>
-        mdi-tray-full
-      </v-icon>
-      Jobs
-    </h4>
+  <v-container class="jobs section mb-5 pa-0">
+    <header class="header">
+      <h4 class="title">
+        <v-icon color="black" left dense>
+          mdi-tray-full
+        </v-icon>
+        Jobs
+      </h4>
+    </header>
     <v-simple-table v-if="jobs.length > 0">
       <template v-slot:default>
         <thead>
@@ -51,7 +53,7 @@
         </tbody>
       </template>
     </v-simple-table>
-    <div v-if="jobs.length > 0" class="text-center pt-4">
+    <div v-if="jobs.length > 0" class="text-center pa-4">
       <v-pagination
         v-model="page"
         :length="pageCount"
@@ -59,7 +61,7 @@
         @input="getPaginatedJobs($event)"
       ></v-pagination>
     </div>
-    <p v-else class="text-subtitle-1">There are no jobs in the queue.</p>
+    <p v-else class="text-subtitle-1 pa-7">There are no jobs in the queue.</p>
   </v-container>
 </template>
 

@@ -1,12 +1,8 @@
 <template>
   <v-app>
-    <v-app-bar app color="primary" dark>
+    <v-app-bar app color="primary" dark dense flat class="pl-6 pr-6">
       <router-link to="/" v-slot="{ href, navigate }">
-        <h1
-          :href="href"
-          @click="navigate"
-          class="headline font-weight-light pointer"
-        >
+        <h1 :href="href" @click="navigate" class="text-h6 pointer">
           Sorting Hat
         </h1>
       </router-link>

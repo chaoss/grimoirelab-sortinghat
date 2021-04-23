@@ -1,14 +1,17 @@
 <template>
-  <v-container>
-    <v-row class="d-flex justify-space-between ml-4 mr-4 mb-6">
+  <section class="section">
+    <v-row class="header">
       <h4 class="title">
-        <v-icon color="black" left>
+        <v-icon color="black" left dense>
           mdi-sitemap
         </v-icon>
-        Organizations ({{ totalResults }})
+        Organizations
+        <v-chip pill small class="ml-2">{{ totalResults }}</v-chip>
       </h4>
       <v-btn
         depressed
+        small
+        height="34"
         color="secondary"
         class="black--text"
         @click.stop="openModal"
@@ -55,7 +58,7 @@
       </template>
     </v-data-table>
 
-    <div class="pagination d-flex align-baseline text-center pt-2">
+    <div class="pagination d-flex align-baseline text-center pa-2">
       <v-pagination
         v-model="page"
         :length="pageCount"
@@ -64,6 +67,7 @@
       ></v-pagination>
       <v-text-field
         :value="itemsPerPage"
+        class="mr-3"
         label="Items per page"
         type="number"
         min="1"
@@ -127,7 +131,7 @@
         Drag and drop on an individual to affiliate
       </v-card-subtitle>
     </v-card>
-  </v-container>
+  </section>
 </template>
 
 <script>

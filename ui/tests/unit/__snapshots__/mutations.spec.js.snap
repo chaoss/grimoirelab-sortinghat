@@ -1,18 +1,19 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
-<v-container-stub
-  tag="div"
+<section
+  class="section"
 >
   <v-row-stub
-    class="d-flex justify-space-between ml-4 mr-4 mb-6"
+    class="header"
     tag="div"
   >
-    <h4
+    <h3
       class="title"
     >
       <v-icon-stub
         color="black"
+        dense=""
         left=""
       >
         
@@ -20,15 +21,29 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
       
       </v-icon-stub>
       
-      Individuals (0)
-    
-    </h4>
+      Individuals
+      
+      <v-chip-stub
+        active="true"
+        activeclass=""
+        class="ml-2"
+        closeicon="$delete"
+        filtericon="$complete"
+        pill="true"
+        small="true"
+        tag="span"
+      >
+        0
+      </v-chip-stub>
+    </h3>
      
     <v-btn-stub
       activeclass=""
       class="black--text"
       color="secondary"
       depressed="true"
+      height="34"
+      small="true"
       tag="button"
       type="button"
     >
@@ -257,6 +272,7 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
     >
       <v-text-field-stub
         backgroundcolor=""
+        class="mr-3"
         clearicon="$clear"
         errorcount="1"
         errormessages=""
@@ -362,22 +378,23 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
     
   
   </v-snackbar-stub>
-</v-container-stub>
+</section>
 `;
 
 exports[`IndividualsTable Mock query for merge 1`] = `
-<v-container-stub
-  tag="div"
+<section
+  class="section"
 >
   <v-row-stub
-    class="d-flex justify-space-between ml-4 mr-4 mb-6"
+    class="header"
     tag="div"
   >
-    <h4
+    <h3
       class="title"
     >
       <v-icon-stub
         color="black"
+        dense=""
         left=""
       >
         
@@ -385,15 +402,29 @@ exports[`IndividualsTable Mock query for merge 1`] = `
       
       </v-icon-stub>
       
-      Individuals (0)
-    
-    </h4>
+      Individuals
+      
+      <v-chip-stub
+        active="true"
+        activeclass=""
+        class="ml-2"
+        closeicon="$delete"
+        filtericon="$complete"
+        pill="true"
+        small="true"
+        tag="span"
+      >
+        0
+      </v-chip-stub>
+    </h3>
      
     <v-btn-stub
       activeclass=""
       class="black--text"
       color="secondary"
       depressed="true"
+      height="34"
+      small="true"
       tag="button"
       type="button"
     >
@@ -622,6 +653,7 @@ exports[`IndividualsTable Mock query for merge 1`] = `
     >
       <v-text-field-stub
         backgroundcolor=""
+        class="mr-3"
         clearicon="$clear"
         errorcount="1"
         errormessages=""
@@ -727,22 +759,23 @@ exports[`IndividualsTable Mock query for merge 1`] = `
     
   
   </v-snackbar-stub>
-</v-container-stub>
+</section>
 `;
 
 exports[`IndividualsTable Mock query for moveIdentity 1`] = `
-<v-container-stub
-  tag="div"
+<section
+  class="section"
 >
   <v-row-stub
-    class="d-flex justify-space-between ml-4 mr-4 mb-6"
+    class="header"
     tag="div"
   >
-    <h4
+    <h3
       class="title"
     >
       <v-icon-stub
         color="black"
+        dense=""
         left=""
       >
         
@@ -750,15 +783,29 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
       
       </v-icon-stub>
       
-      Individuals (0)
-    
-    </h4>
+      Individuals
+      
+      <v-chip-stub
+        active="true"
+        activeclass=""
+        class="ml-2"
+        closeicon="$delete"
+        filtericon="$complete"
+        pill="true"
+        small="true"
+        tag="span"
+      >
+        0
+      </v-chip-stub>
+    </h3>
      
     <v-btn-stub
       activeclass=""
       class="black--text"
       color="secondary"
       depressed="true"
+      height="34"
+      small="true"
       tag="button"
       type="button"
     >
@@ -987,6 +1034,7 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
     >
       <v-text-field-stub
         backgroundcolor=""
+        class="mr-3"
         clearicon="$clear"
         errorcount="1"
         errormessages=""
@@ -1092,22 +1140,23 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
     
   
   </v-snackbar-stub>
-</v-container-stub>
+</section>
 `;
 
 exports[`IndividualsTable Mock query for unmerge 1`] = `
-<v-container-stub
-  tag="div"
+<section
+  class="section"
 >
   <v-row-stub
-    class="d-flex justify-space-between ml-4 mr-4 mb-6"
+    class="header"
     tag="div"
   >
-    <h4
+    <h3
       class="title"
     >
       <v-icon-stub
         color="black"
+        dense=""
         left=""
       >
         
@@ -1115,15 +1164,29 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
       
       </v-icon-stub>
       
-      Individuals (0)
-    
-    </h4>
+      Individuals
+      
+      <v-chip-stub
+        active="true"
+        activeclass=""
+        class="ml-2"
+        closeicon="$delete"
+        filtericon="$complete"
+        pill="true"
+        small="true"
+        tag="span"
+      >
+        0
+      </v-chip-stub>
+    </h3>
      
     <v-btn-stub
       activeclass=""
       class="black--text"
       color="secondary"
       depressed="true"
+      height="34"
+      small="true"
       tag="button"
       type="button"
     >
@@ -1352,6 +1415,7 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
     >
       <v-text-field-stub
         backgroundcolor=""
+        class="mr-3"
         clearicon="$clear"
         errorcount="1"
         errormessages=""
@@ -1457,22 +1521,23 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
     
   
   </v-snackbar-stub>
-</v-container-stub>
+</section>
 `;
 
 exports[`IndividualsTable Mock query for updateEnrollment 1`] = `
-<v-container-stub
-  tag="div"
+<section
+  class="section"
 >
   <v-row-stub
-    class="d-flex justify-space-between ml-4 mr-4 mb-6"
+    class="header"
     tag="div"
   >
-    <h4
+    <h3
       class="title"
     >
       <v-icon-stub
         color="black"
+        dense=""
         left=""
       >
         
@@ -1480,15 +1545,29 @@ exports[`IndividualsTable Mock query for updateEnrollment 1`] = `
       
       </v-icon-stub>
       
-      Individuals (0)
-    
-    </h4>
+      Individuals
+      
+      <v-chip-stub
+        active="true"
+        activeclass=""
+        class="ml-2"
+        closeicon="$delete"
+        filtericon="$complete"
+        pill="true"
+        small="true"
+        tag="span"
+      >
+        0
+      </v-chip-stub>
+    </h3>
      
     <v-btn-stub
       activeclass=""
       class="black--text"
       color="secondary"
       depressed="true"
+      height="34"
+      small="true"
       tag="button"
       type="button"
     >
@@ -1717,6 +1796,7 @@ exports[`IndividualsTable Mock query for updateEnrollment 1`] = `
     >
       <v-text-field-stub
         backgroundcolor=""
+        class="mr-3"
         clearicon="$clear"
         errorcount="1"
         errormessages=""
@@ -1822,22 +1902,23 @@ exports[`IndividualsTable Mock query for updateEnrollment 1`] = `
     
   
   </v-snackbar-stub>
-</v-container-stub>
+</section>
 `;
 
 exports[`IndividualsTable Mock query for withdraw 1`] = `
-<v-container-stub
-  tag="div"
+<section
+  class="section"
 >
   <v-row-stub
-    class="d-flex justify-space-between ml-4 mr-4 mb-6"
+    class="header"
     tag="div"
   >
-    <h4
+    <h3
       class="title"
     >
       <v-icon-stub
         color="black"
+        dense=""
         left=""
       >
         
@@ -1845,15 +1926,29 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
       
       </v-icon-stub>
       
-      Individuals (0)
-    
-    </h4>
+      Individuals
+      
+      <v-chip-stub
+        active="true"
+        activeclass=""
+        class="ml-2"
+        closeicon="$delete"
+        filtericon="$complete"
+        pill="true"
+        small="true"
+        tag="span"
+      >
+        0
+      </v-chip-stub>
+    </h3>
      
     <v-btn-stub
       activeclass=""
       class="black--text"
       color="secondary"
       depressed="true"
+      height="34"
+      small="true"
       tag="button"
       type="button"
     >
@@ -2082,6 +2177,7 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
     >
       <v-text-field-stub
         backgroundcolor=""
+        class="mr-3"
         clearicon="$clear"
         errorcount="1"
         errormessages=""
@@ -2187,7 +2283,7 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
     
   
   </v-snackbar-stub>
-</v-container-stub>
+</section>
 `;
 
 exports[`Login Mock mutation for tokenAuth 1`] = `
@@ -2268,11 +2364,11 @@ exports[`Login Mock mutation for tokenAuth 1`] = `
 `;
 
 exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
-<v-container-stub
-  tag="div"
+<section
+  class="section"
 >
   <v-row-stub
-    class="d-flex justify-space-between ml-4 mr-4 mb-6"
+    class="header"
     tag="div"
   >
     <h4
@@ -2280,6 +2376,7 @@ exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
     >
       <v-icon-stub
         color="black"
+        dense=""
         left=""
       >
         
@@ -2287,8 +2384,20 @@ exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
       
       </v-icon-stub>
       
-      Organizations (0)
-    
+      Organizations
+      
+      <v-chip-stub
+        active="true"
+        activeclass=""
+        class="ml-2"
+        closeicon="$delete"
+        filtericon="$complete"
+        pill="true"
+        small="true"
+        tag="span"
+      >
+        0
+      </v-chip-stub>
     </h4>
      
     <v-btn-stub
@@ -2296,6 +2405,8 @@ exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
       class="black--text"
       color="secondary"
       depressed="true"
+      height="34"
+      small="true"
       tag="button"
       type="button"
     >
@@ -2411,7 +2522,7 @@ exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
   />
    
   <div
-    class="pagination d-flex align-baseline text-center pt-2"
+    class="pagination d-flex align-baseline text-center pa-2"
   >
     <v-pagination-stub
       currentpagearialabel="$vuetify.pagination.ariaLabel.currentPage"
@@ -2428,6 +2539,7 @@ exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
      
     <v-text-field-stub
       backgroundcolor=""
+      class="mr-3"
       clearicon="$clear"
       errorcount="1"
       errormessages=""
@@ -2542,15 +2654,15 @@ exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
     
     </v-card-subtitle-stub>
   </v-card-stub>
-</v-container-stub>
+</section>
 `;
 
 exports[`OrganizationsTable Mock mutation for addOrganization 1`] = `
-<v-container-stub
-  tag="div"
+<section
+  class="section"
 >
   <v-row-stub
-    class="d-flex justify-space-between ml-4 mr-4 mb-6"
+    class="header"
     tag="div"
   >
     <h4
@@ -2558,6 +2670,7 @@ exports[`OrganizationsTable Mock mutation for addOrganization 1`] = `
     >
       <v-icon-stub
         color="black"
+        dense=""
         left=""
       >
         
@@ -2565,8 +2678,20 @@ exports[`OrganizationsTable Mock mutation for addOrganization 1`] = `
       
       </v-icon-stub>
       
-      Organizations (0)
-    
+      Organizations
+      
+      <v-chip-stub
+        active="true"
+        activeclass=""
+        class="ml-2"
+        closeicon="$delete"
+        filtericon="$complete"
+        pill="true"
+        small="true"
+        tag="span"
+      >
+        0
+      </v-chip-stub>
     </h4>
      
     <v-btn-stub
@@ -2574,6 +2699,8 @@ exports[`OrganizationsTable Mock mutation for addOrganization 1`] = `
       class="black--text"
       color="secondary"
       depressed="true"
+      height="34"
+      small="true"
       tag="button"
       type="button"
     >
@@ -2689,7 +2816,7 @@ exports[`OrganizationsTable Mock mutation for addOrganization 1`] = `
   />
    
   <div
-    class="pagination d-flex align-baseline text-center pt-2"
+    class="pagination d-flex align-baseline text-center pa-2"
   >
     <v-pagination-stub
       currentpagearialabel="$vuetify.pagination.ariaLabel.currentPage"
@@ -2706,6 +2833,7 @@ exports[`OrganizationsTable Mock mutation for addOrganization 1`] = `
      
     <v-text-field-stub
       backgroundcolor=""
+      class="mr-3"
       clearicon="$clear"
       errorcount="1"
       errormessages=""
@@ -2820,15 +2948,15 @@ exports[`OrganizationsTable Mock mutation for addOrganization 1`] = `
     
     </v-card-subtitle-stub>
   </v-card-stub>
-</v-container-stub>
+</section>
 `;
 
 exports[`OrganizationsTable Mock mutation for deleteDomain 1`] = `
-<v-container-stub
-  tag="div"
+<section
+  class="section"
 >
   <v-row-stub
-    class="d-flex justify-space-between ml-4 mr-4 mb-6"
+    class="header"
     tag="div"
   >
     <h4
@@ -2836,6 +2964,7 @@ exports[`OrganizationsTable Mock mutation for deleteDomain 1`] = `
     >
       <v-icon-stub
         color="black"
+        dense=""
         left=""
       >
         
@@ -2843,8 +2972,20 @@ exports[`OrganizationsTable Mock mutation for deleteDomain 1`] = `
       
       </v-icon-stub>
       
-      Organizations (0)
-    
+      Organizations
+      
+      <v-chip-stub
+        active="true"
+        activeclass=""
+        class="ml-2"
+        closeicon="$delete"
+        filtericon="$complete"
+        pill="true"
+        small="true"
+        tag="span"
+      >
+        0
+      </v-chip-stub>
     </h4>
      
     <v-btn-stub
@@ -2852,6 +2993,8 @@ exports[`OrganizationsTable Mock mutation for deleteDomain 1`] = `
       class="black--text"
       color="secondary"
       depressed="true"
+      height="34"
+      small="true"
       tag="button"
       type="button"
     >
@@ -2967,7 +3110,7 @@ exports[`OrganizationsTable Mock mutation for deleteDomain 1`] = `
   />
    
   <div
-    class="pagination d-flex align-baseline text-center pt-2"
+    class="pagination d-flex align-baseline text-center pa-2"
   >
     <v-pagination-stub
       currentpagearialabel="$vuetify.pagination.ariaLabel.currentPage"
@@ -2984,6 +3127,7 @@ exports[`OrganizationsTable Mock mutation for deleteDomain 1`] = `
      
     <v-text-field-stub
       backgroundcolor=""
+      class="mr-3"
       clearicon="$clear"
       errorcount="1"
       errormessages=""
@@ -3098,15 +3242,15 @@ exports[`OrganizationsTable Mock mutation for deleteDomain 1`] = `
     
     </v-card-subtitle-stub>
   </v-card-stub>
-</v-container-stub>
+</section>
 `;
 
 exports[`OrganizationsTable Mock mutation for deleteOrganization 1`] = `
-<v-container-stub
-  tag="div"
+<section
+  class="section"
 >
   <v-row-stub
-    class="d-flex justify-space-between ml-4 mr-4 mb-6"
+    class="header"
     tag="div"
   >
     <h4
@@ -3114,6 +3258,7 @@ exports[`OrganizationsTable Mock mutation for deleteOrganization 1`] = `
     >
       <v-icon-stub
         color="black"
+        dense=""
         left=""
       >
         
@@ -3121,8 +3266,20 @@ exports[`OrganizationsTable Mock mutation for deleteOrganization 1`] = `
       
       </v-icon-stub>
       
-      Organizations (0)
-    
+      Organizations
+      
+      <v-chip-stub
+        active="true"
+        activeclass=""
+        class="ml-2"
+        closeicon="$delete"
+        filtericon="$complete"
+        pill="true"
+        small="true"
+        tag="span"
+      >
+        0
+      </v-chip-stub>
     </h4>
      
     <v-btn-stub
@@ -3130,6 +3287,8 @@ exports[`OrganizationsTable Mock mutation for deleteOrganization 1`] = `
       class="black--text"
       color="secondary"
       depressed="true"
+      height="34"
+      small="true"
       tag="button"
       type="button"
     >
@@ -3245,7 +3404,7 @@ exports[`OrganizationsTable Mock mutation for deleteOrganization 1`] = `
   />
    
   <div
-    class="pagination d-flex align-baseline text-center pt-2"
+    class="pagination d-flex align-baseline text-center pa-2"
   >
     <v-pagination-stub
       currentpagearialabel="$vuetify.pagination.ariaLabel.currentPage"
@@ -3262,6 +3421,7 @@ exports[`OrganizationsTable Mock mutation for deleteOrganization 1`] = `
      
     <v-text-field-stub
       backgroundcolor=""
+      class="mr-3"
       clearicon="$clear"
       errorcount="1"
       errormessages=""
@@ -3374,15 +3534,15 @@ exports[`OrganizationsTable Mock mutation for deleteOrganization 1`] = `
     
     </v-card-subtitle-stub>
   </v-card-stub>
-</v-container-stub>
+</section>
 `;
 
 exports[`OrganizationsTable Mock mutation for enroll 1`] = `
-<v-container-stub
-  tag="div"
+<section
+  class="section"
 >
   <v-row-stub
-    class="d-flex justify-space-between ml-4 mr-4 mb-6"
+    class="header"
     tag="div"
   >
     <h4
@@ -3390,6 +3550,7 @@ exports[`OrganizationsTable Mock mutation for enroll 1`] = `
     >
       <v-icon-stub
         color="black"
+        dense=""
         left=""
       >
         
@@ -3397,8 +3558,20 @@ exports[`OrganizationsTable Mock mutation for enroll 1`] = `
       
       </v-icon-stub>
       
-      Organizations (0)
-    
+      Organizations
+      
+      <v-chip-stub
+        active="true"
+        activeclass=""
+        class="ml-2"
+        closeicon="$delete"
+        filtericon="$complete"
+        pill="true"
+        small="true"
+        tag="span"
+      >
+        0
+      </v-chip-stub>
     </h4>
      
     <v-btn-stub
@@ -3406,6 +3579,8 @@ exports[`OrganizationsTable Mock mutation for enroll 1`] = `
       class="black--text"
       color="secondary"
       depressed="true"
+      height="34"
+      small="true"
       tag="button"
       type="button"
     >
@@ -3521,7 +3696,7 @@ exports[`OrganizationsTable Mock mutation for enroll 1`] = `
   />
    
   <div
-    class="pagination d-flex align-baseline text-center pt-2"
+    class="pagination d-flex align-baseline text-center pa-2"
   >
     <v-pagination-stub
       currentpagearialabel="$vuetify.pagination.ariaLabel.currentPage"
@@ -3538,6 +3713,7 @@ exports[`OrganizationsTable Mock mutation for enroll 1`] = `
      
     <v-text-field-stub
       backgroundcolor=""
+      class="mr-3"
       clearicon="$clear"
       errorcount="1"
       errormessages=""
@@ -3650,7 +3826,7 @@ exports[`OrganizationsTable Mock mutation for enroll 1`] = `
     
     </v-card-subtitle-stub>
   </v-card-stub>
-</v-container-stub>
+</section>
 `;
 
 exports[`ProfileModal Mock mutation for addIdentity 1`] = `

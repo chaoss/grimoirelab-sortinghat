@@ -1,6 +1,7 @@
 <template>
   <v-main>
     <work-space
+      class="ma-md-8 mt-md-6"
       :enroll="enroll"
       :highlight-individual="highlightInWorkspace"
       :individuals="savedIndividuals"
@@ -16,47 +17,45 @@
       @updateStore="saveWorkspace($event)"
     />
     <v-row>
-      <v-col class="individuals elevation-1">
-        <individuals-table
-          :fetch-page="getIndividualsPage"
-          :delete-item="deleteItem"
-          :merge-items="mergeItems"
-          :unmerge-items="unmergeItems"
-          :move-item="moveItem"
-          :highlight-individual="highlightInTable"
-          :add-identity="addIdentity"
-          :updateProfile="updateProfile"
-          :enroll="enroll"
-          :get-countries="getCountries"
-          :lock-individual="lockIndividual"
-          :set-filters="filters"
-          :unlock-individual="unlockIndividual"
-          :withdraw="withdraw"
-          :update-enrollment="updateEnrollment"
-          @saveIndividual="addSavedIndividual"
-          @updateOrganizations="updateOrganizations"
-          @updateWorkspace="updateWorkspace"
-          @highlight="highlightIndividual($event, 'highlightInWorkspace', true)"
-          @stopHighlight="
-            highlightIndividual($event, 'highlightInWorkspace', false)
-          "
-          ref="table"
-        />
-      </v-col>
-      <v-col class="organizations elevation-1">
-        <organizations-table
-          :fetch-page="getOrganizationsPage"
-          :enroll="enroll"
-          :add-organization="addOrganization"
-          :add-domain="addDomain"
-          :delete-domain="deleteDomain"
-          :delete-organization="deleteOrganization"
-          @getEnrollments="getEnrollments"
-          @updateIndividuals="updateTable"
-          @updateWorkspace="updateWorkspace"
-          ref="organizations"
-        />
-      </v-col>
+      <individuals-table
+        class="individuals"
+        :fetch-page="getIndividualsPage"
+        :delete-item="deleteItem"
+        :merge-items="mergeItems"
+        :unmerge-items="unmergeItems"
+        :move-item="moveItem"
+        :highlight-individual="highlightInTable"
+        :add-identity="addIdentity"
+        :updateProfile="updateProfile"
+        :enroll="enroll"
+        :get-countries="getCountries"
+        :lock-individual="lockIndividual"
+        :set-filters="filters"
+        :unlock-individual="unlockIndividual"
+        :withdraw="withdraw"
+        :update-enrollment="updateEnrollment"
+        @saveIndividual="addSavedIndividual"
+        @updateOrganizations="updateOrganizations"
+        @updateWorkspace="updateWorkspace"
+        @highlight="highlightIndividual($event, 'highlightInWorkspace', true)"
+        @stopHighlight="
+          highlightIndividual($event, 'highlightInWorkspace', false)
+        "
+        ref="table"
+      />
+      <organizations-table
+        class="organizations"
+        :fetch-page="getOrganizationsPage"
+        :enroll="enroll"
+        :add-organization="addOrganization"
+        :add-domain="addDomain"
+        :delete-domain="deleteDomain"
+        :delete-organization="deleteOrganization"
+        @getEnrollments="getEnrollments"
+        @updateIndividuals="updateTable"
+        @updateWorkspace="updateWorkspace"
+        ref="organizations"
+      />
     </v-row>
     <v-snackbar v-model="snackbar">
       Individual already in work space
@@ -285,7 +284,8 @@ export default {
   margin: 32px;
 }
 .individuals {
-  width: 70%;
+  width: 60%;
+  flex-grow: 1;
 
   .container {
     max-width: 100%;

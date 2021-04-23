@@ -5883,26 +5883,36 @@ exports[`Storyshots IndividualsTable Default 1`] = `
   <div
     class="v-application--wrap"
   >
-    <div
-      class="container"
+    <section
+      class="section"
     >
       <div
-        class="row d-flex justify-space-between ml-4 mr-4 mb-6"
+        class="row header"
       >
-        <h4
+        <h3
           class="title"
         >
           <i
             aria-hidden="true"
-            class="v-icon notranslate v-icon--left mdi mdi-account-multiple theme--light black--text"
+            class="v-icon notranslate v-icon--left v-icon--dense mdi mdi-account-multiple theme--light black--text"
           />
           
-      Individuals (0)
-    
-        </h4>
+      Individuals
+      
+          <span
+            class="ml-2 v-chip v-chip--no-color v-chip--pill theme--light v-size--small"
+          >
+            <span
+              class="v-chip__content"
+            >
+              0
+            </span>
+          </span>
+        </h3>
          
         <button
-          class="black--text v-btn v-btn--depressed theme--light v-size--default secondary"
+          class="black--text v-btn v-btn--depressed theme--light v-size--small secondary"
+          style="height: 34px;"
           type="button"
         >
           <span
@@ -5936,7 +5946,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                 />
                 <input
                   aria-checked="false"
-                  id="input-778"
+                  id="input-779"
                   role="checkbox"
                   type="checkbox"
                   value=""
@@ -5947,7 +5957,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
               </div>
               <label
                 class="v-label theme--light"
-                for="input-778"
+                for="input-779"
                 style="left: 0px; position: relative;"
               >
                 Select all
@@ -6033,13 +6043,13 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-783"
+                    for="input-784"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-783"
+                    id="input-784"
                     type="text"
                   />
                 </div>
@@ -6111,7 +6121,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
               <div
                 aria-expanded="false"
                 aria-haspopup="listbox"
-                aria-owns="list-791"
+                aria-owns="list-792"
                 class="v-input__slot"
                 role="button"
               >
@@ -6129,7 +6139,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-791"
+                    for="input-792"
                     style="left: 0px; position: absolute;"
                   >
                     Order by
@@ -6140,7 +6150,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                     <input
                       aria-readonly="false"
                       autocomplete="off"
-                      id="input-791"
+                      id="input-792"
                       readonly="readonly"
                       type="text"
                     />
@@ -6187,8 +6197,9 @@ exports[`Storyshots IndividualsTable Default 1`] = `
         >
           <!---->
           <button
-            class="v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+            class="mr-4 ml-2 v-btn v-btn--depressed v-btn--disabled v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
             disabled="disabled"
+            style="height: 34px;"
             type="button"
           >
             <span
@@ -6196,8 +6207,12 @@ exports[`Storyshots IndividualsTable Default 1`] = `
             >
               <i
                 aria-hidden="true"
-                class="v-icon notranslate mdi mdi-call-merge theme--light"
+                class="v-icon notranslate v-icon--left mdi mdi-call-merge theme--light"
+                style="font-size: 16px;"
               />
+              
+          Merge
+        
             </span>
           </button>
         </span>
@@ -6207,8 +6222,9 @@ exports[`Storyshots IndividualsTable Default 1`] = `
         >
           <!---->
           <button
-            class="v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+            class="v-btn v-btn--depressed v-btn--disabled v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
             disabled="disabled"
+            style="height: 34px;"
             type="button"
           >
             <span
@@ -6216,8 +6232,12 @@ exports[`Storyshots IndividualsTable Default 1`] = `
             >
               <i
                 aria-hidden="true"
-                class="v-icon notranslate mdi mdi-delete theme--light"
+                class="v-icon notranslate v-icon--left mdi mdi-delete theme--light"
+                style="font-size: 16px;"
               />
+              
+          Delete
+        
             </span>
           </button>
         </span>
@@ -6304,7 +6324,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
           class="col col-2"
         >
           <div
-            class="v-input v-input--is-label-active v-input--is-dirty theme--light v-text-field"
+            class="v-input mr-3 v-input--is-label-active v-input--is-dirty theme--light v-text-field"
           >
             <div
               class="v-input__control"
@@ -6317,13 +6337,13 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                 >
                   <label
                     class="v-label v-label--active theme--light"
-                    for="input-811"
+                    for="input-812"
                     style="left: 0px; position: absolute;"
                   >
                     Items per page
                   </label>
                   <input
-                    id="input-811"
+                    id="input-812"
                     max="0"
                     min="1"
                     type="number"
@@ -6396,7 +6416,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
           />
         </div>
       </div>
-    </div>
+    </section>
   </div>
 </div>
 `;
@@ -6411,24 +6431,28 @@ exports[`Storyshots JobsTable Default 1`] = `
     class="v-application--wrap"
   >
     <div
-      class="container"
+      class="container jobs section mt-5 mb-5 pa-0"
     >
-      <h4
-        class="title mt-5 mb-5"
+      <header
+        class="header"
       >
-        <i
-          aria-hidden="true"
-          class="v-icon notranslate v-icon--left mdi mdi-tray-full theme--light black--text"
-        />
-        
-    Jobs
-  
-      </h4>
+        <h4
+          class="title"
+        >
+          <i
+            aria-hidden="true"
+            class="v-icon notranslate v-icon--left v-icon--dense mdi mdi-tray-full theme--light black--text"
+          />
+          
+      Jobs
+    
+        </h4>
+      </header>
        
       <!---->
        
       <p
-        class="text-subtitle-1"
+        class="text-subtitle-1 pa-7"
       >
         There are no jobs in the queue.
       </p>
@@ -6447,24 +6471,28 @@ exports[`Storyshots JobsTable Empty 1`] = `
     class="v-application--wrap"
   >
     <div
-      class="container"
+      class="container jobs section mt-5 mb-5 pa-0"
     >
-      <h4
-        class="title mt-5 mb-5"
+      <header
+        class="header"
       >
-        <i
-          aria-hidden="true"
-          class="v-icon notranslate v-icon--left mdi mdi-tray-full theme--light black--text"
-        />
-        
-    Jobs
-  
-      </h4>
+        <h4
+          class="title"
+        >
+          <i
+            aria-hidden="true"
+            class="v-icon notranslate v-icon--left v-icon--dense mdi mdi-tray-full theme--light black--text"
+          />
+          
+      Jobs
+    
+        </h4>
+      </header>
        
       <!---->
        
       <p
-        class="text-subtitle-1"
+        class="text-subtitle-1 pa-7"
       >
         There are no jobs in the queue.
       </p>
@@ -6673,26 +6701,36 @@ exports[`Storyshots OrganizationsTable Default 1`] = `
   <div
     class="v-application--wrap"
   >
-    <div
-      class="container"
+    <section
+      class="section"
     >
       <div
-        class="row d-flex justify-space-between ml-4 mr-4 mb-6"
+        class="row header"
       >
         <h4
           class="title"
         >
           <i
             aria-hidden="true"
-            class="v-icon notranslate v-icon--left mdi mdi-sitemap theme--light black--text"
+            class="v-icon notranslate v-icon--left v-icon--dense mdi mdi-sitemap theme--light black--text"
           />
           
-      Organizations (0)
-    
+      Organizations
+      
+          <span
+            class="ml-2 v-chip v-chip--no-color v-chip--pill theme--light v-size--small"
+          >
+            <span
+              class="v-chip__content"
+            >
+              0
+            </span>
+          </span>
         </h4>
          
         <button
-          class="black--text v-btn v-btn--depressed theme--light v-size--default secondary"
+          class="black--text v-btn v-btn--depressed theme--light v-size--small secondary"
+          style="height: 34px;"
           type="button"
         >
           <span
@@ -6748,13 +6786,13 @@ exports[`Storyshots OrganizationsTable Default 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-1014"
+                    for="input-1016"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-1014"
+                    id="input-1016"
                     type="text"
                   />
                 </div>
@@ -6831,7 +6869,7 @@ exports[`Storyshots OrganizationsTable Default 1`] = `
       </div>
        
       <div
-        class="pagination d-flex align-baseline text-center pt-2"
+        class="pagination d-flex align-baseline text-center pa-2"
       >
         <nav
           aria-label="Pagination Navigation"
@@ -6868,7 +6906,7 @@ exports[`Storyshots OrganizationsTable Default 1`] = `
         </nav>
          
         <div
-          class="v-input v-input--is-label-active v-input--is-dirty theme--light v-text-field"
+          class="v-input mr-3 v-input--is-label-active v-input--is-dirty theme--light v-text-field"
         >
           <div
             class="v-input__control"
@@ -6881,13 +6919,13 @@ exports[`Storyshots OrganizationsTable Default 1`] = `
               >
                 <label
                   class="v-label v-label--active theme--light"
-                  for="input-1025"
+                  for="input-1027"
                   style="left: 0px; position: absolute;"
                 >
                   Items per page
                 </label>
                 <input
-                  id="input-1025"
+                  id="input-1027"
                   max="0"
                   min="1"
                   type="number"
@@ -6965,7 +7003,7 @@ exports[`Storyshots OrganizationsTable Default 1`] = `
     
         </div>
       </div>
-    </div>
+    </section>
   </div>
 </div>
 `;
@@ -7243,13 +7281,13 @@ exports[`Storyshots Search Default 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-1105"
+                  for="input-1107"
                   style="left: 0px; position: absolute;"
                 >
                   Search
                 </label>
                 <input
-                  id="input-1105"
+                  id="input-1107"
                   type="text"
                 />
               </div>
@@ -7377,13 +7415,13 @@ exports[`Storyshots Search Filter Selector 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-1115"
+                  for="input-1117"
                   style="left: 0px; position: absolute;"
                 >
                   Search
                 </label>
                 <input
-                  id="input-1115"
+                  id="input-1117"
                   type="text"
                 />
               </div>
@@ -7481,13 +7519,13 @@ exports[`Storyshots Search Order Selector 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-1128"
+                  for="input-1130"
                   style="left: 0px; position: absolute;"
                 >
                   Search
                 </label>
                 <input
-                  id="input-1128"
+                  id="input-1130"
                   type="text"
                 />
               </div>
@@ -7559,7 +7597,7 @@ exports[`Storyshots Search Order Selector 1`] = `
             <div
               aria-expanded="false"
               aria-haspopup="listbox"
-              aria-owns="list-1133"
+              aria-owns="list-1135"
               class="v-input__slot"
               role="button"
             >
@@ -7577,7 +7615,7 @@ exports[`Storyshots Search Order Selector 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-1133"
+                  for="input-1135"
                   style="left: 0px; position: absolute;"
                 >
                   Order by
@@ -7588,7 +7626,7 @@ exports[`Storyshots Search Order Selector 1`] = `
                   <input
                     aria-readonly="false"
                     autocomplete="off"
-                    id="input-1133"
+                    id="input-1135"
                     readonly="readonly"
                     type="text"
                   />
@@ -7644,18 +7682,17 @@ exports[`Storyshots WorkSpace Default 1`] = `
     class="v-application--wrap"
   >
     <div
-      class="pa-md-4 v-sheet theme--light"
-      style="background-color: rgb(245, 245, 246); border-color: #f5f5f6;"
+      class="section v-sheet theme--light"
     >
       <div
-        class="row ma-md-0 pt-md-4 pl-md-4 pr-md-4 justify-space-between"
+        class="row header"
       >
         <h3
           class="title"
         >
           <i
             aria-hidden="true"
-            class="v-icon notranslate v-icon--left mdi mdi-pin theme--light black--text"
+            class="v-icon notranslate v-icon--left v-icon--dense mdi mdi-pin theme--light black--text"
           />
           
       Workspace
@@ -7668,7 +7705,7 @@ exports[`Storyshots WorkSpace Default 1`] = `
           >
             <!---->
             <button
-              class="v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+              class="mr-2 v-btn v-btn--depressed v-btn--disabled v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
               disabled="disabled"
               type="button"
             >
@@ -7677,18 +7714,22 @@ exports[`Storyshots WorkSpace Default 1`] = `
               >
                 <i
                   aria-hidden="true"
-                  class="v-icon notranslate mdi mdi-call-merge theme--light"
+                  class="v-icon notranslate v-icon--left mdi mdi-call-merge theme--light"
+                  style="font-size: 16px;"
                 />
+                
+            Merge
+          
               </span>
             </button>
           </span>
            
           <span
-            class="v-tooltip v-tooltip--left"
+            class="v-tooltip v-tooltip--bottom"
           >
             <!---->
             <button
-              class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+              class="v-btn v-btn--depressed v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
               type="button"
             >
               <span
@@ -7696,8 +7737,12 @@ exports[`Storyshots WorkSpace Default 1`] = `
               >
                 <i
                   aria-hidden="true"
-                  class="v-icon notranslate mdi mdi-delete-sweep theme--light"
+                  class="v-icon notranslate v-icon--left mdi mdi-cancel theme--light"
+                  style="font-size: 16px;"
                 />
+                
+            Clear
+          
               </span>
             </button>
           </span>
@@ -7705,7 +7750,7 @@ exports[`Storyshots WorkSpace Default 1`] = `
       </div>
        
       <div
-        class="row pa-md-4 ma-md-0 drag-zone row--dense"
+        class="row space rounded pa-md-2 ma-md-3 drag-zone row--dense"
       >
         <div
           class="col col-2"
@@ -8006,18 +8051,17 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
   >
     <div>
       <div
-        class="pa-md-4 v-sheet theme--light"
-        style="background-color: rgb(245, 245, 246); border-color: #f5f5f6;"
+        class="section v-sheet theme--light"
       >
         <div
-          class="row ma-md-0 pt-md-4 pl-md-4 pr-md-4 justify-space-between"
+          class="row header"
         >
           <h3
             class="title"
           >
             <i
               aria-hidden="true"
-              class="v-icon notranslate v-icon--left mdi mdi-pin theme--light black--text"
+              class="v-icon notranslate v-icon--left v-icon--dense mdi mdi-pin theme--light black--text"
             />
             
       Workspace
@@ -8030,7 +8074,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
             >
               <!---->
               <button
-                class="v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                class="mr-2 v-btn v-btn--depressed v-btn--disabled v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
                 disabled="disabled"
                 type="button"
               >
@@ -8039,18 +8083,22 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 >
                   <i
                     aria-hidden="true"
-                    class="v-icon notranslate mdi mdi-call-merge theme--light"
+                    class="v-icon notranslate v-icon--left mdi mdi-call-merge theme--light"
+                    style="font-size: 16px;"
                   />
+                  
+            Merge
+          
                 </span>
               </button>
             </span>
              
             <span
-              class="v-tooltip v-tooltip--left"
+              class="v-tooltip v-tooltip--bottom"
             >
               <!---->
               <button
-                class="v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                class="v-btn v-btn--depressed v-btn--disabled v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
                 disabled="disabled"
                 type="button"
               >
@@ -8059,8 +8107,12 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 >
                   <i
                     aria-hidden="true"
-                    class="v-icon notranslate mdi mdi-delete-sweep theme--light"
+                    class="v-icon notranslate v-icon--left mdi mdi-cancel theme--light"
+                    style="font-size: 16px;"
                   />
+                  
+            Clear
+          
                 </span>
               </button>
             </span>
@@ -8068,14 +8120,29 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
         </div>
          
         <div
-          class="row pa-md-5 ma-md-0 d-flex align-center drag-zone row--dense"
+          class="row space pa-md-2 ma-md-3 align-center justify-center drag-zone row--dense"
         >
+          <i
+            aria-hidden="true"
+            class="v-icon notranslate v-icon--left mdi mdi-lightbulb-on-outline theme--light"
+            style="color: rgba(0, 0, 0, 0.38); caret-color: rgba(0,0,0,0.38);"
+          />
+           
           <p
-            class="text--disabled"
+            class="mb-0 ml-2 text--disabled"
           >
-            
-      Save individuals in your work space to perform actions on them.
-    
+            <span>
+              
+        You can add individuals to your work space to perform actions on them
+        later.
+      
+            </span>
+             
+            <span>
+              
+        For example, to merge individuals from different searches.
+      
+            </span>
           </p>
         </div>
          
@@ -8110,26 +8177,36 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
         </div>
       </div>
        
-      <div
-        class="container"
+      <section
+        class="section"
       >
         <div
-          class="row d-flex justify-space-between ml-4 mr-4 mb-6"
+          class="row header"
         >
-          <h4
+          <h3
             class="title"
           >
             <i
               aria-hidden="true"
-              class="v-icon notranslate v-icon--left mdi mdi-account-multiple theme--light black--text"
+              class="v-icon notranslate v-icon--left v-icon--dense mdi mdi-account-multiple theme--light black--text"
             />
             
-      Individuals (0)
-    
-          </h4>
+      Individuals
+      
+            <span
+              class="ml-2 v-chip v-chip--no-color v-chip--pill theme--light v-size--small"
+            >
+              <span
+                class="v-chip__content"
+              >
+                0
+              </span>
+            </span>
+          </h3>
            
           <button
-            class="black--text v-btn v-btn--depressed theme--light v-size--default secondary"
+            class="black--text v-btn v-btn--depressed theme--light v-size--small secondary"
+            style="height: 34px;"
             type="button"
           >
             <span
@@ -8163,7 +8240,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   />
                   <input
                     aria-checked="false"
-                    id="input-1224"
+                    id="input-1229"
                     role="checkbox"
                     type="checkbox"
                     value=""
@@ -8174,7 +8251,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 </div>
                 <label
                   class="v-label theme--light"
-                  for="input-1224"
+                  for="input-1229"
                   style="left: 0px; position: relative;"
                 >
                   Select all
@@ -8260,13 +8337,13 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   >
                     <label
                       class="v-label theme--light"
-                      for="input-1229"
+                      for="input-1234"
                       style="left: 0px; position: absolute;"
                     >
                       Search
                     </label>
                     <input
-                      id="input-1229"
+                      id="input-1234"
                       type="text"
                     />
                   </div>
@@ -8338,7 +8415,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 <div
                   aria-expanded="false"
                   aria-haspopup="listbox"
-                  aria-owns="list-1237"
+                  aria-owns="list-1242"
                   class="v-input__slot"
                   role="button"
                 >
@@ -8356,7 +8433,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   >
                     <label
                       class="v-label theme--light"
-                      for="input-1237"
+                      for="input-1242"
                       style="left: 0px; position: absolute;"
                     >
                       Order by
@@ -8367,7 +8444,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                       <input
                         aria-readonly="false"
                         autocomplete="off"
-                        id="input-1237"
+                        id="input-1242"
                         readonly="readonly"
                         type="text"
                       />
@@ -8414,8 +8491,9 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
           >
             <!---->
             <button
-              class="v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+              class="mr-4 ml-2 v-btn v-btn--depressed v-btn--disabled v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
               disabled="disabled"
+              style="height: 34px;"
               type="button"
             >
               <span
@@ -8423,8 +8501,12 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
               >
                 <i
                   aria-hidden="true"
-                  class="v-icon notranslate mdi mdi-call-merge theme--light"
+                  class="v-icon notranslate v-icon--left mdi mdi-call-merge theme--light"
+                  style="font-size: 16px;"
                 />
+                
+          Merge
+        
               </span>
             </button>
           </span>
@@ -8434,8 +8516,9 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
           >
             <!---->
             <button
-              class="v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+              class="v-btn v-btn--depressed v-btn--disabled v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
               disabled="disabled"
+              style="height: 34px;"
               type="button"
             >
               <span
@@ -8443,8 +8526,12 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
               >
                 <i
                   aria-hidden="true"
-                  class="v-icon notranslate mdi mdi-delete theme--light"
+                  class="v-icon notranslate v-icon--left mdi mdi-delete theme--light"
+                  style="font-size: 16px;"
                 />
+                
+          Delete
+        
               </span>
             </button>
           </span>
@@ -8531,7 +8618,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
             class="col col-2"
           >
             <div
-              class="v-input v-input--is-label-active v-input--is-dirty theme--light v-text-field"
+              class="v-input mr-3 v-input--is-label-active v-input--is-dirty theme--light v-text-field"
             >
               <div
                 class="v-input__control"
@@ -8544,13 +8631,13 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   >
                     <label
                       class="v-label v-label--active theme--light"
-                      for="input-1257"
+                      for="input-1262"
                       style="left: 0px; position: absolute;"
                     >
                       Items per page
                     </label>
                     <input
-                      id="input-1257"
+                      id="input-1262"
                       max="0"
                       min="1"
                       type="number"
@@ -8623,7 +8710,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
             />
           </div>
         </div>
-      </div>
+      </section>
     </div>
   </div>
 </div>
@@ -8639,18 +8726,17 @@ exports[`Storyshots WorkSpace Empty 1`] = `
     class="v-application--wrap"
   >
     <div
-      class="pa-md-4 v-sheet theme--light"
-      style="background-color: rgb(245, 245, 246); border-color: #f5f5f6;"
+      class="section v-sheet theme--light"
     >
       <div
-        class="row ma-md-0 pt-md-4 pl-md-4 pr-md-4 justify-space-between"
+        class="row header"
       >
         <h3
           class="title"
         >
           <i
             aria-hidden="true"
-            class="v-icon notranslate v-icon--left mdi mdi-pin theme--light black--text"
+            class="v-icon notranslate v-icon--left v-icon--dense mdi mdi-pin theme--light black--text"
           />
           
       Workspace
@@ -8663,7 +8749,7 @@ exports[`Storyshots WorkSpace Empty 1`] = `
           >
             <!---->
             <button
-              class="v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+              class="mr-2 v-btn v-btn--depressed v-btn--disabled v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
               disabled="disabled"
               type="button"
             >
@@ -8672,18 +8758,22 @@ exports[`Storyshots WorkSpace Empty 1`] = `
               >
                 <i
                   aria-hidden="true"
-                  class="v-icon notranslate mdi mdi-call-merge theme--light"
+                  class="v-icon notranslate v-icon--left mdi mdi-call-merge theme--light"
+                  style="font-size: 16px;"
                 />
+                
+            Merge
+          
               </span>
             </button>
           </span>
            
           <span
-            class="v-tooltip v-tooltip--left"
+            class="v-tooltip v-tooltip--bottom"
           >
             <!---->
             <button
-              class="v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+              class="v-btn v-btn--depressed v-btn--disabled v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
               disabled="disabled"
               type="button"
             >
@@ -8692,8 +8782,12 @@ exports[`Storyshots WorkSpace Empty 1`] = `
               >
                 <i
                   aria-hidden="true"
-                  class="v-icon notranslate mdi mdi-delete-sweep theme--light"
+                  class="v-icon notranslate v-icon--left mdi mdi-cancel theme--light"
+                  style="font-size: 16px;"
                 />
+                
+            Clear
+          
               </span>
             </button>
           </span>
@@ -8701,14 +8795,29 @@ exports[`Storyshots WorkSpace Empty 1`] = `
       </div>
        
       <div
-        class="row pa-md-5 ma-md-0 d-flex align-center drag-zone row--dense"
+        class="row space pa-md-2 ma-md-3 align-center justify-center drag-zone row--dense"
       >
+        <i
+          aria-hidden="true"
+          class="v-icon notranslate v-icon--left mdi mdi-lightbulb-on-outline theme--light"
+          style="color: rgba(0, 0, 0, 0.38); caret-color: rgba(0,0,0,0.38);"
+        />
+         
         <p
-          class="text--disabled"
+          class="mb-0 ml-2 text--disabled"
         >
-          
-      Save individuals in your work space to perform actions on them.
-    
+          <span>
+            
+        You can add individuals to your work space to perform actions on them
+        later.
+      
+          </span>
+           
+          <span>
+            
+        For example, to merge individuals from different searches.
+      
+          </span>
         </p>
       </div>
        

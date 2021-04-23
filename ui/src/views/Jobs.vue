@@ -1,6 +1,6 @@
 <template>
   <v-main>
-    <jobs-table :get-jobs="getJobs" />
+    <jobs-table :get-jobs="getJobs" class="mt-md-6" />
   </v-main>
 </template>
 
