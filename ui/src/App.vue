@@ -51,6 +51,14 @@ export default {
       this.$router.push("/login");
       this.$logger.info(`Log out user ${this.user}`);
     }
+  },
+  watch: {
+    $route: {
+      immediate: true,
+      handler(to) {
+        document.title = to.meta.title || "Sorting Hat";
+      }
+    }
   }
 };
 </script>

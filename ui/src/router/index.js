@@ -6,22 +6,25 @@ const routes = [
     path: "/",
     name: "Dashboard",
     component: () => import("../views/Dashboard"),
-    meta: { requiresAuth: true }
+    meta: { requiresAuth: true, title: "Sorting Hat" }
   },
   {
     path: "/login",
     name: "Login",
-    component: () => import("../views/Login")
+    component: () => import("../views/Login"),
+    meta: { title: "Log in - Sorting Hat" }
   },
   {
     path: "/search-help",
     name: "SearchHelp",
-    component: () => import("../views/SearchHelp")
+    component: () => import("../views/SearchHelp"),
+    meta: { title: "Search Help - Sorting Hat" }
   },
   {
     path: "/jobs",
     name: "Jobs",
-    component: () => import("../views/Jobs")
+    component: () => import("../views/Jobs"),
+    meta: { title: "Jobs - Sorting Hat" }
   }
 ];
 
