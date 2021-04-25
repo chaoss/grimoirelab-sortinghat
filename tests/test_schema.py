@@ -2399,6 +2399,35 @@ class TestQueryIndividuals(django.test.TestCase):
         indv = individuals[0]
         self.assertEqual(indv['mk'], 'c6d2504fde0e34b78a185c4b709e5442d045451c')
 
+    def test_filter_enrollment_date_invalid_date(self):
+        """Check whether it fails when the filter has an invalid date"""
+
+        client = graphene.test.Client(schema)
+
+        invalid_date_filter = "2020-43-89T32:62:85..2020-67-90T45:76:15"
+        executed = client.execute(SH_INDIVIDUALS_ENROLLMENT_DATE_FILTER % invalid_date_filter,
+                                  context_value=self.context_value)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, INVALID_FILTER_DATE_ERROR.format('enrollment_date', '2020-43-89T32:62:85'))
+
+    def test_filter_enrollment_date_invalid_range(self):
+        """Check whether it fails when the filter has an invalid date range"""
+
+        date_1 = '2002-01-01T00:00:00'
+        date_2 = '2001-01-01T00:00:00'
+
+        filter_invalid_format = "{}..{}".format(date_1, date_2)
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_INDIVIDUALS_ENROLLMENT_DATE_FILTER % filter_invalid_format,
+                                  context_value=self.context_value)
+
+        expected_error = "Upper bound must be greater than the lower bound"
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, INVALID_FILTER_RANGE_ERROR.format('enrollment_date', expected_error))
+
     def test_filter_last_updated(self):
         """Check whether it returns the uuids searched when using a date filter"""
 
@@ -2468,6 +2497,24 @@ class TestQueryIndividuals(django.test.TestCase):
 
         individuals = executed['data']['individuals']['entities']
         self.assertEqual(len(individuals), 0)
+
+        # Test individuals last_updated before and not equal to first timestamp, it
+        # should return none.
+        filter_no_indvs = '<{}'.format(ts_1)
+
+        executed = client.execute(SH_INDIVIDUALS_LAST_UPDATED_FILTER % filter_no_indvs,
+                                  context_value=self.context_value)
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 0)
+
+        # Test individuals last_updated after and equal to first timestamp. it should
+        # return three.
+        filter_all_indvs = '>={}'.format(ts_1)
+
+        executed = client.execute(SH_INDIVIDUALS_LAST_UPDATED_FILTER % filter_all_indvs,
+                                  context_value=self.context_value)
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 3)
 
     def test_filter_last_updated_invalid_date(self):
         """Check whether it fails when the filter has an invalid date"""
