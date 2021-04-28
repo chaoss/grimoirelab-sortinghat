@@ -2314,12 +2314,13 @@ exports[`Login Mock mutation for tokenAuth 1`] = `
         <v-text-field-stub
           backgroundcolor=""
           clearicon="$clear"
+          dense="true"
           errorcount="1"
           errormessages=""
-          filled="true"
           label="Username"
           loaderheight="2"
           messages=""
+          outlined="true"
           rules=""
           successmessages=""
           type="text"
@@ -2330,12 +2331,13 @@ exports[`Login Mock mutation for tokenAuth 1`] = `
           appendicon="mdi-eye-off"
           backgroundcolor=""
           clearicon="$clear"
+          dense="true"
           errorcount="1"
           errormessages=""
-          filled="true"
           label="Password"
           loaderheight="2"
           messages=""
+          outlined="true"
           rules=""
           successmessages=""
           type="password"
@@ -3842,19 +3844,23 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
   width="auto"
 >
   <v-card-stub
-    class="pa-6"
+    class="section"
     loaderheight="4"
     tag="div"
   >
-    <v-card-title-stub>
+    <v-card-title-stub
+      class="header"
+    >
       <span
-        class="headline"
+        class="title"
       >
         Add individual
       </span>
     </v-card-title-stub>
      
-    <v-card-text-stub>
+    <v-card-text-stub
+      class="mt-3"
+    >
       <v-form-stub>
         <v-row-stub
           tag="div"
@@ -3866,12 +3872,13 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
             <v-text-field-stub
               backgroundcolor=""
               clearicon="$clear"
+              dense="true"
               errorcount="1"
               errormessages=""
-              filled="true"
               label="Name"
               loaderheight="2"
               messages=""
+              outlined="true"
               rules=""
               successmessages=""
               type="text"
@@ -3886,12 +3893,13 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
             <v-text-field-stub
               backgroundcolor=""
               clearicon="$clear"
+              dense="true"
               errorcount="1"
               errormessages=""
-              filled="true"
               label="Email"
               loaderheight="2"
               messages=""
+              outlined="true"
               rules="value => (value ? /\\\\S+@\\\\S+\\\\.\\\\S+/.test(value) : true) || \\"Invalid email\\""
               successmessages=""
               type="text"
@@ -3910,12 +3918,13 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
             <v-text-field-stub
               backgroundcolor=""
               clearicon="$clear"
+              dense="true"
               errorcount="1"
               errormessages=""
-              filled="true"
               label="Username"
               loaderheight="2"
               messages=""
+              outlined="true"
               rules=""
               successmessages=""
               type="text"
@@ -3930,12 +3939,13 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
             <v-text-field-stub
               backgroundcolor=""
               clearicon="$clear"
+              dense="true"
               errorcount="1"
               errormessages=""
-              filled="true"
               label="Source"
               loaderheight="2"
               messages=""
+              outlined="true"
               rules="value => !!value || \\"Required\\""
               successmessages=""
               type="text"
@@ -3954,12 +3964,13 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
             <v-text-field-stub
               backgroundcolor=""
               clearicon="$clear"
+              dense="true"
               errorcount="1"
               errormessages=""
-              filled="true"
               label="Gender"
               loaderheight="2"
               messages=""
+              outlined="true"
               rules=""
               successmessages=""
               type="text"
@@ -3977,9 +3988,9 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
               backgroundcolor=""
               clearicon="$clear"
               delimiters=""
+              dense="true"
               errorcount="1"
               errormessages=""
-              filled="true"
               filter="function _default(item, queryText, itemText) {
                 return itemText.toLocaleLowerCase().indexOf(queryText.toLocaleLowerCase()) > -1;
               }"
@@ -3993,6 +4004,7 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
               menuprops="[object Object]"
               messages=""
               nodatatext="$vuetify.noDataText"
+              outlined="true"
               returnobject="true"
               rules=""
               successmessages=""
@@ -4030,6 +4042,7 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
           >
             <v-checkbox-stub
               backgroundcolor=""
+              class="mt-1"
               color="primary"
               errorcount="1"
               errormessages=""
@@ -4075,7 +4088,7 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
         tag="div"
       >
         <span
-          class="text-h6 font-weight-regular"
+          class="subheader"
         >
           Organizations
         </span>
@@ -4091,12 +4104,13 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
           <v-text-field-stub
             backgroundcolor=""
             clearicon="$clear"
+            dense="true"
             errorcount="1"
             errormessages=""
-            filled="true"
             label="Organization"
             loaderheight="2"
             messages=""
+            outlined="true"
             rules=""
             successmessages=""
             type="text"
@@ -4194,7 +4208,7 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
         </v-col-stub>
          
         <v-col-stub
-          class="pt-6"
+          class="pt-3"
           cols="1"
           tag="div"
         >
@@ -4215,11 +4229,13 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
       </v-row-stub>
        
       <v-row-stub
+        class="pl-3"
         tag="div"
       >
         <v-btn-stub
           activeclass=""
           color="primary"
+          outlined="true"
           small="true"
           tag="button"
           text="true"
@@ -4286,19 +4302,23 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
   width="auto"
 >
   <v-card-stub
-    class="pa-6"
+    class="section"
     loaderheight="4"
     tag="div"
   >
-    <v-card-title-stub>
+    <v-card-title-stub
+      class="header"
+    >
       <span
-        class="headline"
+        class="title"
       >
         Add individual
       </span>
     </v-card-title-stub>
      
-    <v-card-text-stub>
+    <v-card-text-stub
+      class="mt-3"
+    >
       <v-form-stub>
         <v-row-stub
           tag="div"
@@ -4310,12 +4330,13 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
             <v-text-field-stub
               backgroundcolor=""
               clearicon="$clear"
+              dense="true"
               errorcount="1"
               errormessages=""
-              filled="true"
               label="Name"
               loaderheight="2"
               messages=""
+              outlined="true"
               rules=""
               successmessages=""
               type="text"
@@ -4330,12 +4351,13 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
             <v-text-field-stub
               backgroundcolor=""
               clearicon="$clear"
+              dense="true"
               errorcount="1"
               errormessages=""
-              filled="true"
               label="Email"
               loaderheight="2"
               messages=""
+              outlined="true"
               rules="value => (value ? /\\\\S+@\\\\S+\\\\.\\\\S+/.test(value) : true) || \\"Invalid email\\""
               successmessages=""
               type="text"
@@ -4354,12 +4376,13 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
             <v-text-field-stub
               backgroundcolor=""
               clearicon="$clear"
+              dense="true"
               errorcount="1"
               errormessages=""
-              filled="true"
               label="Username"
               loaderheight="2"
               messages=""
+              outlined="true"
               rules=""
               successmessages=""
               type="text"
@@ -4374,12 +4397,13 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
             <v-text-field-stub
               backgroundcolor=""
               clearicon="$clear"
+              dense="true"
               errorcount="1"
               errormessages=""
-              filled="true"
               label="Source"
               loaderheight="2"
               messages=""
+              outlined="true"
               rules="value => !!value || \\"Required\\""
               successmessages=""
               type="text"
@@ -4398,12 +4422,13 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
             <v-text-field-stub
               backgroundcolor=""
               clearicon="$clear"
+              dense="true"
               errorcount="1"
               errormessages=""
-              filled="true"
               label="Gender"
               loaderheight="2"
               messages=""
+              outlined="true"
               rules=""
               successmessages=""
               type="text"
@@ -4421,9 +4446,9 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
               backgroundcolor=""
               clearicon="$clear"
               delimiters=""
+              dense="true"
               errorcount="1"
               errormessages=""
-              filled="true"
               filter="function _default(item, queryText, itemText) {
                 return itemText.toLocaleLowerCase().indexOf(queryText.toLocaleLowerCase()) > -1;
               }"
@@ -4437,6 +4462,7 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
               menuprops="[object Object]"
               messages=""
               nodatatext="$vuetify.noDataText"
+              outlined="true"
               returnobject="true"
               rules=""
               successmessages=""
@@ -4474,6 +4500,7 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
           >
             <v-checkbox-stub
               backgroundcolor=""
+              class="mt-1"
               color="primary"
               errorcount="1"
               errormessages=""
@@ -4519,7 +4546,7 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
         tag="div"
       >
         <span
-          class="text-h6 font-weight-regular"
+          class="subheader"
         >
           Organizations
         </span>
@@ -4535,12 +4562,13 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
           <v-text-field-stub
             backgroundcolor=""
             clearicon="$clear"
+            dense="true"
             errorcount="1"
             errormessages=""
-            filled="true"
             label="Organization"
             loaderheight="2"
             messages=""
+            outlined="true"
             rules=""
             successmessages=""
             type="text"
@@ -4638,7 +4666,7 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
         </v-col-stub>
          
         <v-col-stub
-          class="pt-6"
+          class="pt-3"
           cols="1"
           tag="div"
         >
@@ -4659,11 +4687,13 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
       </v-row-stub>
        
       <v-row-stub
+        class="pl-3"
         tag="div"
       >
         <v-btn-stub
           activeclass=""
           color="primary"
+          outlined="true"
           small="true"
           tag="button"
           text="true"

@@ -6431,7 +6431,7 @@ exports[`Storyshots JobsTable Default 1`] = `
     class="v-application--wrap"
   >
     <div
-      class="container jobs section mt-5 mb-5 pa-0"
+      class="container jobs section mb-5 pa-0"
     >
       <header
         class="header"
@@ -6471,7 +6471,7 @@ exports[`Storyshots JobsTable Empty 1`] = `
     class="v-application--wrap"
   >
     <div
-      class="container jobs section mt-5 mb-5 pa-0"
+      class="container jobs section mb-5 pa-0"
     >
       <header
         class="header"

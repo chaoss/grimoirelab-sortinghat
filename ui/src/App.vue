@@ -15,13 +15,30 @@
               mdi-account-circle
             </v-icon>
             {{ user }}
+            <v-icon small right>
+              mdi-chevron-down
+            </v-icon>
           </v-btn>
         </template>
-        <v-list>
+        <v-list color="primary" dark dense>
+          <v-list-item to="/">
+            <v-list-item-icon class="mr-2">
+              <v-icon small>mdi-view-dashboard-variant</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>Dashboard</v-list-item-title>
+          </v-list-item>
+          <v-divider />
           <v-list-item to="/jobs">
+            <v-list-item-icon class="mr-2">
+              <v-icon small>mdi-tray-full</v-icon>
+            </v-list-item-icon>
             <v-list-item-title>Jobs</v-list-item-title>
           </v-list-item>
+          <v-divider />
           <v-list-item @click="logOut">
+            <v-list-item-icon class="mr-2">
+              <v-icon small>mdi-logout-variant</v-icon>
+            </v-list-item-icon>
             <v-list-item-title>Log out</v-list-item-title>
           </v-list-item>
         </v-list>

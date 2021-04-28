@@ -773,7 +773,7 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
 
 exports[`JobsTable Mock query for getJobs 1`] = `
 <v-container-stub
-  class="jobs section mt-5 mb-5 pa-0"
+  class="jobs section mb-5 pa-0"
   tag="div"
 >
   <header
