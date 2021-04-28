@@ -5,13 +5,14 @@
       <v-card-subtitle class="mb-3">Please log in to continue</v-card-subtitle>
       <v-card-text>
         <v-form ref="form">
-          <v-text-field v-model="username" label="Username" filled />
+          <v-text-field v-model="username" label="Username" outlined dense />
           <v-text-field
             v-model="password"
             label="Password"
             :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
             :type="showPassword ? 'text' : 'password'"
-            filled
+            outlined
+            dense
             @click:append="showPassword = !showPassword"
           />
           <v-alert v-if="errorMessage" text type="error">
