@@ -8,7 +8,12 @@
         <v-form ref="form">
           <v-row>
             <v-col cols="6">
-              <v-text-field label="Name" v-model="profileForm.name" outlined dense />
+              <v-text-field
+                label="Name"
+                v-model="profileForm.name"
+                outlined
+                dense
+              />
             </v-col>
             <v-col cols="6">
               <v-text-field
