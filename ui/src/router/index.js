@@ -40,6 +40,10 @@ router.beforeEach((to, from, next) => {
     } else {
       next();
     }
+  } else if (to.path === "/login" && isAuthenticated) {
+    next({
+      path: "/"
+    });
   } else {
     next();
   }
