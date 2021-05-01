@@ -50,6 +50,8 @@ export default {
     logOut() {
       Cookies.remove("sh_authtoken");
       Cookies.remove("sh_user");
+      this.$store.commit("setToken", undefined);
+      this.$store.commit("loginUser", undefined);
       this.$router.push("/login");
       this.$logger.info(`Log out user ${this.user}`);
     }
