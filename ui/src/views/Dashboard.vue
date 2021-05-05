@@ -269,7 +269,7 @@ export default {
     }
   },
   async mounted() {
-    if (this.workspace.length > 0) {
+    if (this.workspace && this.workspace.length > 0) {
       const response = await Promise.all(
         this.workspace.map(uuid => getIndividualByUuid(this.$apollo, uuid))
       );
