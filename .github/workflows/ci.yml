@@ -77,4 +77,4 @@ jobs:
         run: yarn lint
       - name: Run unit tests
         working-directory: ./ui
-        run: yarn test:unit -u
+        run: yarn test:unit

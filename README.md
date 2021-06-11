@@ -143,7 +143,7 @@ frontend and backend.
 #### Frontend test suite
 ```
 $ cd ui/
-$ yarn test:unit -u
+$ yarn test:unit
 ```
 
 ## License
