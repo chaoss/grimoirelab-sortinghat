@@ -33,6 +33,10 @@ classifiers = [
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/chaoss/grimoirelab-sortinghat/issues"
 
+[tool.poetry.scripts]
+sortinghat = "sortinghat.cli.sortinghat:sortinghat"
+sortinghatd = "sortinghat.server.sortinghatd:sortinghatd"
+
 [tool.poetry.dependencies]
 python = "^3.6.1"
 
