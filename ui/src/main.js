@@ -13,11 +13,11 @@ import { ApolloLink } from "apollo-link";
 import Logger from "./plugins/logger";
 
 // Force HTTP GET to the Django Server for getting the csrf token
-fetch("http://localhost:8000/graphql/", { credentials: "include" }).then(() => {
+fetch("/api/", { credentials: "include" }).then(() => {
   const csrftoken = Cookies.get("csrftoken");
 
   // HTTP connection to the API
-  const uri = `http://localhost:8000/graphql/`;
+  const uri = `/api/`;
   const httpLink = createHttpLink({
     uri,
     credentials: "include"
