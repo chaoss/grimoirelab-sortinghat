@@ -79,14 +79,19 @@ USE_L10N = True
 
 USE_TZ = True
 
+SECRET_KEY = 'fake-key'
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/2.0/howto/static-files/
+# https://docs.djangoproject.com/en/3.2/howto/static-files/
 
-STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    "./sortinghat/core/static",
+]
+STATIC_ROOT = "/tmp/static/"
 
+STATIC_URL = '/'
 
-SECRET_KEY = 'fake-key'
+MEDIA_URL = 'http://media.example.com/'
 
 INSTALLED_APPS = [
     'django_rq',
