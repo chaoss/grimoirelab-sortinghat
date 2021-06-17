@@ -8,18 +8,19 @@ exports[`IndividualsData mock query for getIndividuals 1`] = `
 `;
 
 exports[`IndividualsTable Mock query for getCountries 1`] = `
-<v-container-stub
-  tag="div"
+<section
+  class="section"
 >
   <v-row-stub
-    class="d-flex justify-space-between ml-4 mr-4 mb-6"
+    class="header"
     tag="div"
   >
-    <h4
+    <h3
       class="title"
     >
       <v-icon-stub
         color="black"
+        dense=""
         left=""
       >
         
@@ -27,15 +28,29 @@ exports[`IndividualsTable Mock query for getCountries 1`] = `
       
       </v-icon-stub>
       
-      Individuals (0)
-    
-    </h4>
+      Individuals
+      
+      <v-chip-stub
+        active="true"
+        activeclass=""
+        class="ml-2"
+        closeicon="$delete"
+        filtericon="$complete"
+        pill="true"
+        small="true"
+        tag="span"
+      >
+        0
+      </v-chip-stub>
+    </h3>
      
     <v-btn-stub
       activeclass=""
       class="black--text"
       color="secondary"
       depressed="true"
+      height="34"
+      small="true"
       tag="button"
       type="button"
     >
@@ -264,6 +279,7 @@ exports[`IndividualsTable Mock query for getCountries 1`] = `
     >
       <v-text-field-stub
         backgroundcolor=""
+        class="mr-3"
         clearicon="$clear"
         errorcount="1"
         errormessages=""
@@ -371,22 +387,23 @@ exports[`IndividualsTable Mock query for getCountries 1`] = `
     
   
   </v-snackbar-stub>
-</v-container-stub>
+</section>
 `;
 
 exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
-<v-container-stub
-  tag="div"
+<section
+  class="section"
 >
   <v-row-stub
-    class="d-flex justify-space-between ml-4 mr-4 mb-6"
+    class="header"
     tag="div"
   >
-    <h4
+    <h3
       class="title"
     >
       <v-icon-stub
         color="black"
+        dense=""
         left=""
       >
         
@@ -394,15 +411,29 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
       
       </v-icon-stub>
       
-      Individuals (0)
-    
-    </h4>
+      Individuals
+      
+      <v-chip-stub
+        active="true"
+        activeclass=""
+        class="ml-2"
+        closeicon="$delete"
+        filtericon="$complete"
+        pill="true"
+        small="true"
+        tag="span"
+      >
+        0
+      </v-chip-stub>
+    </h3>
      
     <v-btn-stub
       activeclass=""
       class="black--text"
       color="secondary"
       depressed="true"
+      height="34"
+      small="true"
       tag="button"
       type="button"
     >
@@ -631,6 +662,7 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
     >
       <v-text-field-stub
         backgroundcolor=""
+        class="mr-3"
         clearicon="$clear"
         errorcount="1"
         errormessages=""
@@ -736,33 +768,39 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
     
   
   </v-snackbar-stub>
-</v-container-stub>
+</section>
 `;
 
 exports[`JobsTable Mock query for getJobs 1`] = `
 <v-container-stub
+  class="jobs section mb-5 pa-0"
   tag="div"
 >
-  <h4
-    class="title mt-5 mb-5"
+  <header
+    class="header"
   >
-    <v-icon-stub
-      color="black"
-      left=""
+    <h4
+      class="title"
     >
+      <v-icon-stub
+        color="black"
+        dense=""
+        left=""
+      >
+        
+        mdi-tray-full
       
-      mdi-tray-full
+      </v-icon-stub>
+      
+      Jobs
     
-    </v-icon-stub>
-    
-    Jobs
-  
-  </h4>
+    </h4>
+  </header>
    
   <!---->
    
   <p
-    class="text-subtitle-1"
+    class="text-subtitle-1 pa-7"
   >
     There are no jobs in the queue.
   </p>
@@ -770,11 +808,11 @@ exports[`JobsTable Mock query for getJobs 1`] = `
 `;
 
 exports[`OrganizationsTable Mock query for getPaginatedOrganizations 1`] = `
-<v-container-stub
-  tag="div"
+<section
+  class="section"
 >
   <v-row-stub
-    class="d-flex justify-space-between ml-4 mr-4 mb-6"
+    class="header"
     tag="div"
   >
     <h4
@@ -782,6 +820,7 @@ exports[`OrganizationsTable Mock query for getPaginatedOrganizations 1`] = `
     >
       <v-icon-stub
         color="black"
+        dense=""
         left=""
       >
         
@@ -789,8 +828,20 @@ exports[`OrganizationsTable Mock query for getPaginatedOrganizations 1`] = `
       
       </v-icon-stub>
       
-      Organizations (0)
-    
+      Organizations
+      
+      <v-chip-stub
+        active="true"
+        activeclass=""
+        class="ml-2"
+        closeicon="$delete"
+        filtericon="$complete"
+        pill="true"
+        small="true"
+        tag="span"
+      >
+        0
+      </v-chip-stub>
     </h4>
      
     <v-btn-stub
@@ -798,6 +849,8 @@ exports[`OrganizationsTable Mock query for getPaginatedOrganizations 1`] = `
       class="black--text"
       color="secondary"
       depressed="true"
+      height="34"
+      small="true"
       tag="button"
       type="button"
     >
@@ -913,7 +966,7 @@ exports[`OrganizationsTable Mock query for getPaginatedOrganizations 1`] = `
   />
    
   <div
-    class="pagination d-flex align-baseline text-center pt-2"
+    class="pagination d-flex align-baseline text-center pa-2"
   >
     <v-pagination-stub
       currentpagearialabel="$vuetify.pagination.ariaLabel.currentPage"
@@ -930,6 +983,7 @@ exports[`OrganizationsTable Mock query for getPaginatedOrganizations 1`] = `
      
     <v-text-field-stub
       backgroundcolor=""
+      class="mr-3"
       clearicon="$clear"
       errorcount="1"
       errormessages=""
@@ -1042,5 +1096,5 @@ exports[`OrganizationsTable Mock query for getPaginatedOrganizations 1`] = `
     
     </v-card-subtitle-stub>
   </v-card-stub>
-</v-container-stub>
+</section>
 `;

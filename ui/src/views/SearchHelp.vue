@@ -1,10 +1,10 @@
 <template>
   <v-main>
-    <v-card class="mx-auto elevation-0 mt-3" max-width="800px">
-      <v-card-title>
+    <v-card class="mx-auto elevation-0 mt-6 section" max-width="800px">
+      <v-card-title class="header">
         Search syntax
       </v-card-title>
-      <v-card-text>
+      <v-card-text class="pa-8">
         <p class="subtitle-2">Search by term</p>
         <p>
           You can find individuals whose identities contain a particular term in

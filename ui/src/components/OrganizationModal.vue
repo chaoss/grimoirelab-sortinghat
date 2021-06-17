@@ -1,8 +1,8 @@
 <template>
-  <v-dialog v-model="isOpen" persistent max-width="450px">
-    <v-card class="pa-6">
-      <v-card-title>
-        <span class="headline">
+  <v-dialog v-model="isOpen" persistent max-width="400px">
+    <v-card class="section">
+      <v-card-title class="header">
+        <span class="title">
           {{ organization ? "Edit" : "Add" }} organization
         </span>
       </v-card-title>
@@ -14,12 +14,13 @@
                 label="Name"
                 v-model="form.name"
                 :disabled="!!savedData.name"
-                filled
+                outlined
+                dense
               />
             </v-col>
           </v-row>
           <v-row class="pl-4">
-            <span class="text-h6 font-weight-regular">Domains</span>
+            <span class="subheader">Domains</span>
           </v-row>
           <v-row v-for="(domain, index) in form.domains" :key="index">
             <v-col cols="10">
@@ -27,17 +28,18 @@
                 v-model="form.domains[index]"
                 label="Domain"
                 hide-details
-                filled
+                outlined
+                dense
               />
             </v-col>
-            <v-col cols="2" class="pt-6">
+            <v-col cols="2" class="pt-3">
               <v-btn icon color="primary" @click="removeDomain(index)">
                 <v-icon color="primary">mdi-delete</v-icon>
               </v-btn>
             </v-col>
           </v-row>
-          <v-row>
-            <v-btn text small left color="primary" @click="addInput">
+          <v-row class="pl-3 mt-2">
+            <v-btn text small left outlined color="primary" @click="addInput">
               <v-icon small color="primary">mdi-plus-circle-outline</v-icon>
               Add domain
             </v-btn>

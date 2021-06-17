@@ -1,21 +1,27 @@
 <template>
   <v-dialog v-model="isOpen" persistent max-width="650">
-    <v-card class="pa-6">
-      <v-card-title>
-        <span class="headline">Add individual</span>
+    <v-card class="section">
+      <v-card-title class="header">
+        <span class="title">Add individual</span>
       </v-card-title>
-      <v-card-text>
+      <v-card-text class="mt-3">
         <v-form ref="form">
           <v-row>
             <v-col cols="6">
-              <v-text-field label="Name" v-model="profileForm.name" filled />
+              <v-text-field
+                label="Name"
+                v-model="profileForm.name"
+                outlined
+                dense
+              />
             </v-col>
             <v-col cols="6">
               <v-text-field
                 label="Email"
                 v-model="profileForm.email"
                 :rules="validations.email"
-                filled
+                outlined
+                dense
               />
             </v-col>
           </v-row>
@@ -24,7 +30,8 @@
               <v-text-field
                 label="Username"
                 v-model="profileForm.username"
-                filled
+                outlined
+                dense
               />
             </v-col>
             <v-col cols="6">
@@ -32,7 +39,8 @@
                 label="Source"
                 v-model="profileForm.source"
                 :rules="validations.required"
-                filled
+                outlined
+                dense
               />
             </v-col>
           </v-row>
@@ -41,7 +49,8 @@
               <v-text-field
                 label="Gender"
                 v-model="profileForm.gender"
-                filled
+                outlined
+                dense
               />
             </v-col>
             <v-col cols="4">
@@ -50,7 +59,8 @@
                 :items="countries"
                 label="Country"
                 item-text="name"
-                filled
+                outlined
+                dense
                 @click.once="getCountryList"
               />
             </v-col>
@@ -59,6 +69,7 @@
                 v-model="profileForm.isBot"
                 label="Bot"
                 color="primary"
+                class="mt-1"
               >
               </v-checkbox>
             </v-col>
@@ -66,14 +77,15 @@
         </v-form>
 
         <v-row class="pl-4">
-          <span class="text-h6 font-weight-regular">Organizations</span>
+          <span class="subheader">Organizations</span>
         </v-row>
         <v-row v-for="(enrollment, index) in enrollmentsForm" :key="index">
           <v-col cols="4">
             <v-text-field
               label="Organization"
               v-model="enrollmentsForm[index].organization"
-              filled
+              outlined
+              dense
             />
           </v-col>
           <v-col cols="3">
@@ -88,7 +100,8 @@
                 <v-text-field
                   v-model="enrollmentsForm[index].fromDate"
                   label="Date from"
-                  filled
+                  outlined
+                  dense
                   readonly
                   v-on="on"
                 ></v-text-field>
@@ -114,7 +127,8 @@
                 <v-text-field
                   v-model="enrollmentsForm[index].toDate"
                   label="Date to"
-                  filled
+                  outlined
+                  dense
                   readonly
                   v-on="on"
                 ></v-text-field>
@@ -129,14 +143,14 @@
               </v-date-picker>
             </v-menu>
           </v-col>
-          <v-col cols="1" class="pt-6">
+          <v-col cols="1" class="pt-3">
             <v-btn icon color="primary" @click="removeEnrollment(index)">
               <v-icon color="primary">mdi-delete</v-icon>
             </v-btn>
           </v-col>
         </v-row>
-        <v-row>
-          <v-btn text small color="primary" @click="addInput">
+        <v-row class="pl-3">
+          <v-btn text small outlined color="primary" @click="addInput">
             <v-icon left small color="primary">mdi-plus-circle-outline</v-icon>
             Add organization
           </v-btn>

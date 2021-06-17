@@ -1,16 +1,15 @@
 <template>
   <v-sheet
-    color="#F5F5F6"
-    class="pa-md-4"
+    class="section"
     :class="{ 'is-dragging': isDragging }"
     @drop.native="onDrop($event)"
     @dragover.prevent="onDrag($event)"
     @dragenter.prevent="onDrag($event)"
     @dragleave.prevent="isDragging = false"
   >
-    <v-row class="ma-md-0 pt-md-4 pl-md-4 pr-md-4 justify-space-between">
+    <v-row class="header">
       <h3 class="title">
-        <v-icon color="black" left>
+        <v-icon color="black" dense left>
           mdi-pin
         </v-icon>
         Workspace
@@ -19,25 +18,32 @@
         <v-tooltip bottom transition="expand-y-transition" open-delay="200">
           <template v-slot:activator="{ on }">
             <v-btn
-              icon
+              text
+              small
+              outlined
+              class="mr-2"
               v-on="on"
               :disabled="isDisabled"
               @click="mergeSelected(selectedIndividuals)"
             >
-              <v-icon>mdi-call-merge</v-icon>
+              <v-icon small left>mdi-call-merge</v-icon>
+              Merge
             </v-btn>
           </template>
           <span>Merge selected</span>
         </v-tooltip>
-        <v-tooltip left transition="expand-y-transition" open-delay="200">
+        <v-tooltip bottom transition="expand-y-transition" open-delay="200">
           <template v-slot:activator="{ on }">
             <v-btn
+              text
+              small
+              outlined
               :disabled="savedIndividuals.length === 0"
               v-on="on"
-              icon
               @click="clearSpace"
             >
-              <v-icon>mdi-delete-sweep</v-icon>
+              <v-icon small left>mdi-cancel</v-icon>
+              Clear
             </v-btn>
           </template>
           <span>Clear space</span>
@@ -47,7 +53,7 @@
     <v-row
       v-if="savedIndividuals.length >= 1"
       dense
-      class="pa-md-4 ma-md-0 drag-zone"
+      class="space rounded pa-md-2 ma-md-3 drag-zone"
     >
       <v-col
         v-for="individual in savedIndividuals"
@@ -74,9 +80,22 @@
         />
       </v-col>
     </v-row>
-    <v-row v-else dense class="pa-md-5 ma-md-0 d-flex align-center drag-zone">
-      <p class="text--disabled">
-        Save individuals in your work space to perform actions on them.
+    <v-row
+      v-else
+      dense
+      class="space pa-md-2 ma-md-3 align-center justify-center drag-zone"
+    >
+      <v-icon color="rgba(0,0,0,0.38)" left>
+        mdi-lightbulb-on-outline
+      </v-icon>
+      <p class="mb-0 ml-2 text--disabled">
+        <span>
+          You can add individuals to your work space to perform actions on them
+          later.
+        </span>
+        <span>
+          For example, to merge individuals from different searches.
+        </span>
       </p>
     </v-row>
 
@@ -308,14 +327,20 @@ export default {
   }
 };
 </script>
-<style scoped>
+<style lang="scss" scoped>
+@import "../styles/index.scss";
 .drag-zone {
-  min-height: 128px;
+  min-height: 126px;
 }
 .is-dragging .drag-zone {
-  outline: 2px dashed #003756;
+  outline: 1px dashed #003756;
+  background-color: #f9edc7;
 }
 .col-2 {
   min-width: 300px;
+}
+.space {
+  background-color: #ffffff;
+  transition: background-color 0.1s;
 }
 </style>

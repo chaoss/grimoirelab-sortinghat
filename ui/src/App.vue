@@ -1,12 +1,8 @@
 <template>
   <v-app>
-    <v-app-bar app color="primary" dark>
+    <v-app-bar app color="primary" dark dense flat class="pl-6 pr-6">
       <router-link to="/" v-slot="{ href, navigate }">
-        <h1
-          :href="href"
-          @click="navigate"
-          class="headline font-weight-light pointer"
-        >
+        <h1 :href="href" @click="navigate" class="text-h6 pointer">
           Sorting Hat
         </h1>
       </router-link>
@@ -19,13 +15,30 @@
               mdi-account-circle
             </v-icon>
             {{ user }}
+            <v-icon small right>
+              mdi-chevron-down
+            </v-icon>
           </v-btn>
         </template>
-        <v-list>
+        <v-list color="primary" dark dense>
+          <v-list-item to="/">
+            <v-list-item-icon class="mr-2">
+              <v-icon small>mdi-view-dashboard-variant</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>Dashboard</v-list-item-title>
+          </v-list-item>
+          <v-divider />
           <v-list-item to="/jobs">
+            <v-list-item-icon class="mr-2">
+              <v-icon small>mdi-tray-full</v-icon>
+            </v-list-item-icon>
             <v-list-item-title>Jobs</v-list-item-title>
           </v-list-item>
+          <v-divider />
           <v-list-item @click="logOut">
+            <v-list-item-icon class="mr-2">
+              <v-icon small>mdi-logout-variant</v-icon>
+            </v-list-item-icon>
             <v-list-item-title>Log out</v-list-item-title>
           </v-list-item>
         </v-list>
@@ -54,6 +67,14 @@ export default {
       this.$store.commit("loginUser", undefined);
       this.$router.push("/login");
       this.$logger.info(`Log out user ${this.user}`);
+    }
+  },
+  watch: {
+    $route: {
+      immediate: true,
+      handler(to) {
+        document.title = to.meta.title || "Sorting Hat";
+      }
     }
   }
 };
