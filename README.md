@@ -23,6 +23,7 @@ In the context of GrimoireLab, Sorting Hat is usually run after data is retrieve
 * MySQL >= 5.7 or MariaDB 10.0
 * Django = 3.1
 * Graphene-Django >= 2.0
+* uWSGI >= 2.0
 
 You will also need some other libraries for running the tool, you can find the
 whole list of dependencies in [pyproject.toml](pyproject.toml) file.
@@ -128,6 +129,46 @@ Run SortingHat frontend Vue app:
 ```
 $ yarn serve
 ```
+
+
+## SortingHat service
+
+Starting at version 0.8, SortingHat is released with a server app. The server has two
+modes, `production` and `development`.
+
+When `production` mode is active, a WSGI app is served. The idea is to use a reverse
+proxy like NGINX or similar, that will be connected with the WSGI app to provide
+an interface HTTP.
+
+When `development` mode is active, an HTTP server is launched, so you can interact
+directly with SortingHat using HTTP requests. Take into account this mode is not
+suitable nor safe for production.
+
+You will need a django configuration file to run the service. You can use and modify
+one of the ones stored in `config/settings` folder. The file must be accessible
+via `PYTHONPATH` env variable. For the next examples, we will use `devel.py` file.
+
+In order to run the service for the first time, you need to execute the next commands:
+
+Build the UI interface:
+```
+$ cd ui
+$ yarn build
+```
+
+Copy the static files to the location where they will be served (`STATIC_ROOT` var):
+```
+$ ./manage.py collectstatic --settings=config.settings.devel
+```
+
+Run the server (use `--dev` flag for `development` mode):
+```
+$ sortinghatd --config config.settings.devel
+```
+
+By default, this runs a WSGI server in `127.0.0.1:6314`. The `--dev` flag runs
+a server in `127.0.0.1:8000`.
+
 
 ## Compatibility between versions
 SortingHat 0.7.x is not longer supported. Any database using this version will not work.
