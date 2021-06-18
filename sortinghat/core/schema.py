@@ -30,7 +30,7 @@ from django.conf import settings
 from django.core.paginator import Paginator
 from django.db.models import Q, Subquery
 
-from django_mysql.models import JSONField
+from django.db.models import JSONField
 
 from django_rq import enqueue
 

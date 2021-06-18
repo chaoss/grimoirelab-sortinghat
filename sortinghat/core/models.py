@@ -34,7 +34,7 @@ from django.db.models import (CASCADE,
                               ForeignKey,
                               OneToOneField)
 
-from django_mysql.models import JSONField
+from django.db.models import JSONField
 
 from enum import Enum
 

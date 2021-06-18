@@ -21,8 +21,7 @@ In the context of GrimoireLab, Sorting Hat is usually run after data is retrieve
 * Python >= 3.6
 * Poetry >= 1.1.0
 * MySQL >= 5.7 or MariaDB 10.0
-* Django = 2.2
-* Django-MySQL >= 3.2.0
+* Django = 3.1
 * Graphene-Django >= 2.0
 
 You will also need some other libraries for running the tool, you can find the
