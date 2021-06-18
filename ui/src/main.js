@@ -13,58 +13,56 @@ import { ApolloLink } from "apollo-link";
 import Logger from "./plugins/logger";
 
 // Force HTTP GET to the Django Server for getting the csrf token
-let xmlHttp = new XMLHttpRequest();
-xmlHttp.open("GET", "http://localhost:8000/graphql/", false); // false for synchronous request
-xmlHttp.withCredentials = true;
-xmlHttp.send(null);
-const csrftoken = Cookies.get("csrftoken");
+fetch("http://localhost:8000/graphql/", { credentials: "include" }).then(() => {
+  const csrftoken = Cookies.get("csrftoken");
 
-// HTTP connection to the API
-const uri = `http://localhost:8000/graphql/`;
-const httpLink = createHttpLink({
-  uri,
-  credentials: "include"
+  // HTTP connection to the API
+  const uri = `http://localhost:8000/graphql/`;
+  const httpLink = createHttpLink({
+    uri,
+    credentials: "include"
+  });
+
+  // Cache implementation
+  const cache = new InMemoryCache();
+
+  const AuthLink = (operation, next) => {
+    const token = csrftoken;
+    const authtoken = Cookies.get("sh_authtoken");
+    operation.setContext(context => ({
+      ...context,
+      headers: {
+        ...context.headers,
+        "X-CSRFToken": token,
+        Authorization: authtoken ? `JWT ${authtoken}` : ""
+      }
+    }));
+    return next(operation);
+  };
+
+  const link = ApolloLink.from([AuthLink, httpLink]);
+
+  // Create the apollo client
+  const apolloClient = new ApolloClient({
+    link: link,
+    cache
+  });
+
+  Vue.use(VueApollo);
+  Vue.use(VueRouter);
+  Vue.use(Logger);
+
+  const apolloProvider = new VueApollo({
+    defaultClient: apolloClient
+  });
+
+  Vue.config.productionTip = false;
+
+  new Vue({
+    router,
+    store,
+    vuetify,
+    apolloProvider,
+    render: h => h(App)
+  }).$mount("#app");
 });
-
-// Cache implementation
-const cache = new InMemoryCache();
-
-const AuthLink = (operation, next) => {
-  const token = csrftoken;
-  const authtoken = Cookies.get("sh_authtoken");
-  operation.setContext(context => ({
-    ...context,
-    headers: {
-      ...context.headers,
-      "X-CSRFToken": token,
-      Authorization: authtoken ? `JWT ${authtoken}` : ""
-    }
-  }));
-  return next(operation);
-};
-
-const link = ApolloLink.from([AuthLink, httpLink]);
-
-// Create the apollo client
-const apolloClient = new ApolloClient({
-  link: link,
-  cache
-});
-
-Vue.use(VueApollo);
-Vue.use(VueRouter);
-Vue.use(Logger);
-
-const apolloProvider = new VueApollo({
-  defaultClient: apolloClient
-});
-
-Vue.config.productionTip = false;
-
-new Vue({
-  router,
-  store,
-  vuetify,
-  apolloProvider,
-  render: h => h(App)
-}).$mount("#app");
