@@ -1,4 +1,4 @@
-# Sorting Hat [![build](https://github.com/chaoss/grimoirelab-sortinghat/actions/workflows/ci.yml/badge.svg?branch=muggle)](https://github.com/chaoss/grimoirelab-sortinghat/actions/workflows/ci.yml?query=workflow:build+branch:muggle+event:push)
+# Sorting Hat [![tests](https://github.com/chaoss/grimoirelab-sortinghat/workflows/tests/badge.svg?branch=muggle)](https://github.com/chaoss/grimoirelab-sortinghat/actions?query=workflow:tests+branch:muggle+event:push)
 
 **Warning**: This is the developing branch of the new version of Sorting Hat. We're moving Sorting Hat into a service.
 The documentation below would be totally incorrect or inaccurate. 
