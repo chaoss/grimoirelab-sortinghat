@@ -129,6 +129,50 @@ Run SortingHat frontend Vue app:
 $ yarn serve
 ```
 
+## Compatibility between versions
+SortingHat 0.7.x is not longer supported. Any database using this version will not work.
+
+SortingHat databases 0.7.x are no longer compatible. The `uidentities` table was renamed
+to `individuals`. The database schema changed in all tables to add the fields `created_at`
+and `last_modified`. Also in `domains`, `enrollments`, `identities`, `profiles` tables,
+there are some specific changes to the column names:
+  * `domains`
+    * `organization_id` to `organization`
+  * `enrollments`
+    * `organization_id` to `organization`
+    * `uuid` to `individual`
+  * `identities`
+    * `uuid` to `individual`
+  * `profiles`
+    * `country_code` to `country`
+    * `uuid` to `individual`
+
+Please update your database following the next steps:
+
+1. Use the script `utils/create_sh_0_7_fixture.py` to create the fixture
+JSON file
+    ```
+    $ python3 utils/create_sh_0_7_fixture.py test_sh -o test_sh_fixture.json
+    [2021-06-10 17:29:11,461][INFO] Start creating fixture file for test_sh
+    [2021-06-10 17:29:21,252][INFO] Fixture file created to test_sh_fixture.json
+    ```
+
+2. Create a new database.
+    ```
+    mysql> CREATE DATABASE new_sh CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_520_ci;
+    ```
+
+3. Execute Django migrate.
+    ```
+    $ python3 manage.py migrate --settings=config.settings.devel
+    ```
+
+4. Load fixture JSON file using Django
+    ```
+    $ python3 manage.py loaddata test_sh_fixture.json --settings=config.settings.devel
+    Installed 148542 object(s) from 1 fixture(s)
+    ```
+
 ## Running tests
 
 SortingHat comes with a comprehensive list of unit tests for both 
