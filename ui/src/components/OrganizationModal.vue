@@ -44,7 +44,7 @@
               Add domain
             </v-btn>
           </v-row>
-          <v-alert v-if="errorMessage" text type="error">
+          <v-alert v-if="errorMessage" text type="error" class="mt-3">
             {{ errorMessage }}
           </v-alert>
         </v-card-text>
@@ -134,7 +134,7 @@ export default {
             }
           }
         } catch (error) {
-          this.errorMessage = error;
+          this.errorMessage = this.$getErrorMessage(error);
         }
       } else {
         this.handleDomains();
@@ -165,7 +165,7 @@ export default {
           this.$emit("updateOrganizations");
         }
       } catch (error) {
-        this.errorMessage = error;
+        this.errorMessage = this.$getErrorMessage(error);
         this.$logger.error(`Error updating domains: ${error}`, {
           organization: this.form.name,
           newDomains,

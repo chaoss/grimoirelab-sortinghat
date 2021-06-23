@@ -224,7 +224,13 @@
       </v-card-subtitle>
     </v-card>
 
-    <v-snackbar v-model="snackbar.open">
+    <v-snackbar
+      v-model="snackbar.open"
+      timeout="8000"
+      color="red darken-2"
+      text
+      outlined
+    >
       {{ snackbar.text }}
     </v-snackbar>
   </section>
@@ -448,15 +454,26 @@ export default {
       });
     },
     async merge(fromUuids, toUuid) {
-      const response = await this.mergeItems(fromUuids, toUuid);
-      if (response) {
-        this.queryIndividuals(this.page);
-        this.dialog.open = false;
-        this.$emit("updateWorkspace", {
-          update: formatIndividuals([response.data.merge.individual]),
-          remove: fromUuids
+      try {
+        const response = await this.mergeItems(fromUuids, toUuid);
+        if (response) {
+          this.queryIndividuals(this.page);
+          this.dialog.open = false;
+          this.$emit("updateWorkspace", {
+            update: formatIndividuals([response.data.merge.individual]),
+            remove: fromUuids
+          });
+          this.$logger.debug("Merged individuals", { fromUuids, toUuid });
+        }
+      } catch (error) {
+        Object.assign(this.snackbar, {
+          open: true,
+          text: this.$getErrorMessage(error)
         });
-        this.$logger.debug("Merged individuals", { fromUuids, toUuid });
+        this.$logger.error(`Error merging individuals: ${error}`, {
+          fromUuids,
+          toUuid
+        });
       }
     },
     mergeSelected(individuals) {
@@ -465,14 +482,22 @@ export default {
       }
     },
     async unmerge(uuids) {
-      const response = await this.unmergeItems(uuids);
-      if (response && response.data) {
-        const unmergedItems = formatIndividuals(
-          response.data.unmergeIdentities.individuals
-        );
-        this.$emit("saveIndividual", unmergedItems[0]);
-        this.queryIndividuals(this.page);
-        this.$logger.debug("Unmerged individuals", uuids);
+      try {
+        const response = await this.unmergeItems(uuids);
+        if (response && response.data) {
+          const unmergedItems = formatIndividuals(
+            response.data.unmergeIdentities.individuals
+          );
+          this.$emit("saveIndividual", unmergedItems[0]);
+          this.queryIndividuals(this.page);
+          this.$logger.debug("Unmerged individuals", uuids);
+        }
+      } catch (error) {
+        Object.assign(this.snackbar, {
+          open: true,
+          text: this.$getErrorMessage(error)
+        });
+        this.$logger.error(`Error unmerging individuals ${uuids}: ${error}`);
       }
     },
     move(event) {
@@ -480,13 +505,21 @@ export default {
     },
     async moveAction(fromUuid, toUuid) {
       this.dialog.open = false;
-      const response = await this.moveItem(fromUuid, toUuid);
-      if (response) {
-        this.queryIndividuals(this.page);
-        this.$emit("updateWorkspace", {
-          update: formatIndividuals([response.data.moveIdentity.individual])
+      try {
+        const response = await this.moveItem(fromUuid, toUuid);
+        if (response) {
+          this.queryIndividuals(this.page);
+          this.$emit("updateWorkspace", {
+            update: formatIndividuals([response.data.moveIdentity.individual])
+          });
+          this.$logger.debug("Moved identity", { fromUuid, toUuid });
+        }
+      } catch (error) {
+        Object.assign(this.snackbar, {
+          open: true,
+          text: this.$getErrorMessage(error)
         });
-        this.$logger.debug("Moved identity", { fromUuid, toUuid });
+        this.$logger.error(`Error moving ${fromUuid} to ${toUuid}: ${error}`);
       }
     },
     async updateProfileInfo(data, uuid) {
@@ -500,7 +533,11 @@ export default {
           this.$logger.debug(`Updated profile ${uuid}`, data);
         }
       } catch (error) {
-        Object.assign(this.snackbar, { open: true, text: error });
+        Object.assign(this.snackbar, {
+          open: true,
+          text: this.$getErrorMessage(error)
+        });
+        this.$logger.error(`Error updating profile: ${error}`, data);
       }
     },
     async handleLock(uuid, lock) {
@@ -512,7 +549,10 @@ export default {
             this.$logger.debug(`Locked individual ${uuid}`);
           }
         } catch (error) {
-          Object.assign(this.snackbar, { open: true, text: error });
+          Object.assign(this.snackbar, {
+            open: true,
+            text: this.$getErrorMessage(error)
+          });
           this.$logger.error(`Error locking individual ${uuid}: ${error}`);
         }
       } else {
@@ -523,7 +563,10 @@ export default {
             this.$logger.debug(`Unlocked individual ${uuid}`);
           }
         } catch (error) {
-          Object.assign(this.snackbar, { open: true, text: error });
+          Object.assign(this.snackbar, {
+            open: true,
+            text: this.$getErrorMessage(error)
+          });
           this.$logger.error(`Error unlocking individual ${uuid}: ${error}`);
         }
       }
@@ -544,7 +587,10 @@ export default {
           this.$logger.debug("Removed affiliation", { uuid, ...organization });
         }
       } catch (error) {
-        Object.assign(this.snackbar, { open: true, text: error });
+        Object.assign(this.snackbar, {
+          open: true,
+          text: this.$getErrorMessage(error)
+        });
         this.$logger.error(`Error removing affiliation: ${error}`, {
           uuid,
           ...organization
@@ -564,7 +610,10 @@ export default {
           this.$logger.debug("Updated enrollment", data);
         }
       } catch (error) {
-        Object.assign(this.snackbar, { open: true, text: error });
+        Object.assign(this.snackbar, {
+          open: true,
+          text: this.$getErrorMessage(error)
+        });
         this.$logger.error(`Error updating enrollment: ${error}`, data);
       }
     },

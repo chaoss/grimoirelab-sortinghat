@@ -6395,11 +6395,11 @@ exports[`Storyshots IndividualsTable Default 1`] = `
       </div>
        
       <div
-        class="v-snack v-snack--bottom v-snack--has-background"
+        class="v-snack v-snack--bottom v-snack--text"
         style="padding-bottom: 0px; padding-top: 0px;"
       >
         <div
-          class="v-snack__wrapper v-sheet theme--dark"
+          class="v-snack__wrapper v-sheet v-sheet--outlined theme--light red--text text--darken-2"
           style="display: none;"
         >
           <div
@@ -6962,11 +6962,11 @@ exports[`Storyshots OrganizationsTable Default 1`] = `
       </div>
        
       <div
-        class="v-snack v-snack--bottom v-snack--has-background"
+        class="v-snack v-snack--bottom v-snack--text"
         style="padding-bottom: 0px; padding-top: 0px;"
       >
         <div
-          class="v-snack__wrapper v-sheet theme--dark"
+          class="v-snack__wrapper v-sheet v-sheet--outlined theme--light red--text text--darken-2"
           style="display: none;"
         >
           <div
@@ -8007,11 +8007,11 @@ exports[`Storyshots WorkSpace Default 1`] = `
       </div>
        
       <div
-        class="v-snack v-snack--bottom v-snack--has-background"
+        class="v-snack v-snack--bottom v-snack--text"
         style="padding-bottom: 0px; padding-top: 0px;"
       >
         <div
-          class="v-snack__wrapper v-sheet theme--dark"
+          class="v-snack__wrapper v-sheet v-sheet--outlined theme--light red--text text--darken-2"
           style="display: none;"
         >
           <div
@@ -8147,11 +8147,11 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
         </div>
          
         <div
-          class="v-snack v-snack--bottom v-snack--has-background"
+          class="v-snack v-snack--bottom v-snack--text"
           style="padding-bottom: 0px; padding-top: 0px;"
         >
           <div
-            class="v-snack__wrapper v-sheet theme--dark"
+            class="v-snack__wrapper v-sheet v-sheet--outlined theme--light red--text text--darken-2"
             style="display: none;"
           >
             <div
@@ -8689,11 +8689,11 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
         </div>
          
         <div
-          class="v-snack v-snack--bottom v-snack--has-background"
+          class="v-snack v-snack--bottom v-snack--text"
           style="padding-bottom: 0px; padding-top: 0px;"
         >
           <div
-            class="v-snack__wrapper v-sheet theme--dark"
+            class="v-snack__wrapper v-sheet v-sheet--outlined theme--light red--text text--darken-2"
             style="display: none;"
           >
             <div
@@ -8822,11 +8822,11 @@ exports[`Storyshots WorkSpace Empty 1`] = `
       </div>
        
       <div
-        class="v-snack v-snack--bottom v-snack--has-background"
+        class="v-snack v-snack--bottom v-snack--text"
         style="padding-bottom: 0px; padding-top: 0px;"
       >
         <div
-          class="v-snack__wrapper v-sheet theme--dark"
+          class="v-snack__wrapper v-sheet v-sheet--outlined theme--light red--text text--darken-2"
           style="display: none;"
         >
           <div

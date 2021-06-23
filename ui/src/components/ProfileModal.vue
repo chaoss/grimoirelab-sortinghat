@@ -157,7 +157,7 @@
         </v-row>
       </v-card-text>
 
-      <v-alert v-if="errorMessage" text type="error">
+      <v-alert v-if="errorMessage" text type="error" class="ma-5">
         {{ errorMessage }}
       </v-alert>
 
@@ -328,7 +328,7 @@ export default {
           return this.savedData.individual;
         }
       } catch (error) {
-        this.errorMessage = error;
+        this.errorMessage = this.$getErrorMessage(error);
         this.$logger.error(`Error adding identity: ${error}`, data);
       }
     },
@@ -348,7 +348,7 @@ export default {
           return this.savedData.profile;
         }
       } catch (error) {
-        this.errorMessage = error;
+        this.errorMessage = this.$getErrorMessage(error);
         this.$logger.error(`Error updating profile ${uuid}: ${error}`, data);
       }
     },
@@ -386,7 +386,7 @@ export default {
           return response;
         }
       } catch (error) {
-        this.errorMessage = error;
+        this.errorMessage = this.$getErrorMessage(error);
         this.$logger.error(
           `Error enrolling individual ${this.savedData.individual}: ${error}`,
           this.enrollmentsForm

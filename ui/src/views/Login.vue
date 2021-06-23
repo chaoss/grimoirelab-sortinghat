@@ -63,7 +63,7 @@ export default {
           this.$logger.info(`Log in user ${this.username}`);
         }
       } catch (error) {
-        this.errorMessage = error;
+        this.errorMessage = this.$getErrorMessage(error);
         this.$logger.error(`Error logging in user ${this.username}: ${error}`);
       }
     }

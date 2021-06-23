@@ -47,7 +47,10 @@ const enrollMixin = {
           });
         }
       } catch (error) {
-        Object.assign(this.snackbar, { open: true, text: error });
+        Object.assign(this.snackbar, {
+          open: true,
+          text: this.$getErrorMessage(error)
+        });
       }
     }
   }

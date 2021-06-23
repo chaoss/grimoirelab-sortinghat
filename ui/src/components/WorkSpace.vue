@@ -99,7 +99,13 @@
       </p>
     </v-row>
 
-    <v-snackbar v-model="snackbar.open">
+    <v-snackbar
+      v-model="snackbar.open"
+      timeout="8000"
+      color="red darken-2"
+      text
+      outlined
+    >
       {{ snackbar.text }}
     </v-snackbar>
 
@@ -286,9 +292,12 @@ export default {
       } catch (error) {
         Object.assign(this.snackbar, {
           open: true,
-          text: error
+          text: this.$getErrorMessage(error)
         });
-        this.$logger.error("Error merging individuals", { fromUuid, toUuid });
+        this.$logger.error("Error moving identity: ${error}", {
+          fromUuid,
+          toUuid
+        });
       }
     },
     onDrag(event) {

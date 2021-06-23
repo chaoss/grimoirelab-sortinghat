@@ -369,9 +369,12 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
   </v-card-stub>
    
   <v-snackbar-stub
+    color="red darken-2"
     contentclass=""
+    outlined="true"
     tag="div"
-    timeout="5000"
+    text="true"
+    timeout="8000"
     transition="v-snack-transition"
   >
     
@@ -750,9 +753,12 @@ exports[`IndividualsTable Mock query for merge 1`] = `
   </v-card-stub>
    
   <v-snackbar-stub
+    color="red darken-2"
     contentclass=""
+    outlined="true"
     tag="div"
-    timeout="5000"
+    text="true"
+    timeout="8000"
     transition="v-snack-transition"
   >
     
@@ -1131,9 +1137,12 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
   </v-card-stub>
    
   <v-snackbar-stub
+    color="red darken-2"
     contentclass=""
+    outlined="true"
     tag="div"
-    timeout="5000"
+    text="true"
+    timeout="8000"
     transition="v-snack-transition"
   >
     
@@ -1512,9 +1521,12 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
   </v-card-stub>
    
   <v-snackbar-stub
+    color="red darken-2"
     contentclass=""
+    outlined="true"
     tag="div"
-    timeout="5000"
+    text="true"
+    timeout="8000"
     transition="v-snack-transition"
   >
     
@@ -1893,9 +1905,12 @@ exports[`IndividualsTable Mock query for updateEnrollment 1`] = `
   </v-card-stub>
    
   <v-snackbar-stub
+    color="red darken-2"
     contentclass=""
+    outlined="true"
     tag="div"
-    timeout="5000"
+    text="true"
+    timeout="8000"
     transition="v-snack-transition"
   >
     
@@ -2274,9 +2289,12 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
   </v-card-stub>
    
   <v-snackbar-stub
+    color="red darken-2"
     contentclass=""
+    outlined="true"
     tag="div"
-    timeout="5000"
+    text="true"
+    timeout="8000"
     transition="v-snack-transition"
   >
     
@@ -2627,9 +2645,12 @@ exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
   </v-dialog-stub>
    
   <v-snackbar-stub
+    color="red darken-2"
     contentclass=""
+    outlined="true"
     tag="div"
-    timeout="5000"
+    text="true"
+    timeout="8000"
     transition="v-snack-transition"
   >
     
@@ -2921,9 +2942,12 @@ exports[`OrganizationsTable Mock mutation for addOrganization 1`] = `
   </v-dialog-stub>
    
   <v-snackbar-stub
+    color="red darken-2"
     contentclass=""
+    outlined="true"
     tag="div"
-    timeout="5000"
+    text="true"
+    timeout="8000"
     transition="v-snack-transition"
   >
     
@@ -3215,9 +3239,12 @@ exports[`OrganizationsTable Mock mutation for deleteDomain 1`] = `
   </v-dialog-stub>
    
   <v-snackbar-stub
+    color="red darken-2"
     contentclass=""
+    outlined="true"
     tag="div"
-    timeout="5000"
+    text="true"
+    timeout="8000"
     transition="v-snack-transition"
   >
     
@@ -3507,9 +3534,12 @@ exports[`OrganizationsTable Mock mutation for deleteOrganization 1`] = `
   </v-dialog-stub>
    
   <v-snackbar-stub
+    color="red darken-2"
     contentclass=""
+    outlined="true"
     tag="div"
-    timeout="5000"
+    text="true"
+    timeout="8000"
     transition="v-snack-transition"
   >
     
@@ -3799,9 +3829,12 @@ exports[`OrganizationsTable Mock mutation for enroll 1`] = `
   </v-dialog-stub>
    
   <v-snackbar-stub
+    color="red darken-2"
     contentclass=""
+    outlined="true"
     tag="div"
-    timeout="5000"
+    text="true"
+    timeout="8000"
     transition="v-snack-transition"
   >
     
