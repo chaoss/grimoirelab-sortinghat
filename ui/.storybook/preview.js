@@ -3,6 +3,7 @@ import Vue from "vue";
 import * as _Vuetify from "vuetify/lib";
 import { configure, addDecorator } from "@storybook/vue";
 import Logger from "../src/plugins/logger";
+import GetErrorMessage from "../src/plugins/errors";
 
 const Vuetify = _Vuetify.default;
 
@@ -21,6 +22,7 @@ Vue.use(Vuetify, {
   }
 });
 Vue.use(Logger);
+Vue.use(GetErrorMessage);
 
 const VuetifyConfig = new Vuetify({
   icons: {
