@@ -47,9 +47,11 @@ const enrollMixin = {
           });
         }
       } catch (error) {
-        Object.assign(this.snackbar, {
+        Object.assign(this.dialog, {
           open: true,
-          text: this.$getErrorMessage(error)
+          title: "Error",
+          text: this.$getErrorMessage(error),
+          action: null
         });
       }
     }

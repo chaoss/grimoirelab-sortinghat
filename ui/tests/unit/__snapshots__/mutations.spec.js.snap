@@ -321,24 +321,13 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
          
         <v-btn-stub
           activeclass=""
+          color="primary"
           tag="button"
           text="true"
           type="button"
         >
           
-          Cancel
-        
-        </v-btn-stub>
-         
-        <v-btn-stub
-          activeclass=""
-          color="primary"
-          depressed="true"
-          tag="button"
-          type="button"
-        >
-          
-          Confirm
+          OK
         
         </v-btn-stub>
       </v-card-actions-stub>
@@ -367,20 +356,6 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
     
     </v-card-subtitle-stub>
   </v-card-stub>
-   
-  <v-snackbar-stub
-    color="red darken-2"
-    contentclass=""
-    outlined="true"
-    tag="div"
-    text="true"
-    timeout="8000"
-    transition="v-snack-transition"
-  >
-    
-    
-  
-  </v-snackbar-stub>
 </section>
 `;
 
@@ -705,24 +680,13 @@ exports[`IndividualsTable Mock query for merge 1`] = `
          
         <v-btn-stub
           activeclass=""
+          color="primary"
           tag="button"
           text="true"
           type="button"
         >
           
-          Cancel
-        
-        </v-btn-stub>
-         
-        <v-btn-stub
-          activeclass=""
-          color="primary"
-          depressed="true"
-          tag="button"
-          type="button"
-        >
-          
-          Confirm
+          OK
         
         </v-btn-stub>
       </v-card-actions-stub>
@@ -751,20 +715,6 @@ exports[`IndividualsTable Mock query for merge 1`] = `
     
     </v-card-subtitle-stub>
   </v-card-stub>
-   
-  <v-snackbar-stub
-    color="red darken-2"
-    contentclass=""
-    outlined="true"
-    tag="div"
-    text="true"
-    timeout="8000"
-    transition="v-snack-transition"
-  >
-    
-    
-  
-  </v-snackbar-stub>
 </section>
 `;
 
@@ -1089,24 +1039,13 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
          
         <v-btn-stub
           activeclass=""
+          color="primary"
           tag="button"
           text="true"
           type="button"
         >
           
-          Cancel
-        
-        </v-btn-stub>
-         
-        <v-btn-stub
-          activeclass=""
-          color="primary"
-          depressed="true"
-          tag="button"
-          type="button"
-        >
-          
-          Confirm
+          OK
         
         </v-btn-stub>
       </v-card-actions-stub>
@@ -1135,20 +1074,6 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
     
     </v-card-subtitle-stub>
   </v-card-stub>
-   
-  <v-snackbar-stub
-    color="red darken-2"
-    contentclass=""
-    outlined="true"
-    tag="div"
-    text="true"
-    timeout="8000"
-    transition="v-snack-transition"
-  >
-    
-    
-  
-  </v-snackbar-stub>
 </section>
 `;
 
@@ -1473,24 +1398,13 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
          
         <v-btn-stub
           activeclass=""
+          color="primary"
           tag="button"
           text="true"
           type="button"
         >
           
-          Cancel
-        
-        </v-btn-stub>
-         
-        <v-btn-stub
-          activeclass=""
-          color="primary"
-          depressed="true"
-          tag="button"
-          type="button"
-        >
-          
-          Confirm
+          OK
         
         </v-btn-stub>
       </v-card-actions-stub>
@@ -1519,20 +1433,6 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
     
     </v-card-subtitle-stub>
   </v-card-stub>
-   
-  <v-snackbar-stub
-    color="red darken-2"
-    contentclass=""
-    outlined="true"
-    tag="div"
-    text="true"
-    timeout="8000"
-    transition="v-snack-transition"
-  >
-    
-    
-  
-  </v-snackbar-stub>
 </section>
 `;
 
@@ -1857,24 +1757,13 @@ exports[`IndividualsTable Mock query for updateEnrollment 1`] = `
          
         <v-btn-stub
           activeclass=""
+          color="primary"
           tag="button"
           text="true"
           type="button"
         >
           
-          Cancel
-        
-        </v-btn-stub>
-         
-        <v-btn-stub
-          activeclass=""
-          color="primary"
-          depressed="true"
-          tag="button"
-          type="button"
-        >
-          
-          Confirm
+          OK
         
         </v-btn-stub>
       </v-card-actions-stub>
@@ -1903,20 +1792,6 @@ exports[`IndividualsTable Mock query for updateEnrollment 1`] = `
     
     </v-card-subtitle-stub>
   </v-card-stub>
-   
-  <v-snackbar-stub
-    color="red darken-2"
-    contentclass=""
-    outlined="true"
-    tag="div"
-    text="true"
-    timeout="8000"
-    transition="v-snack-transition"
-  >
-    
-    
-  
-  </v-snackbar-stub>
 </section>
 `;
 
@@ -2241,24 +2116,13 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
          
         <v-btn-stub
           activeclass=""
+          color="primary"
           tag="button"
           text="true"
           type="button"
         >
           
-          Cancel
-        
-        </v-btn-stub>
-         
-        <v-btn-stub
-          activeclass=""
-          color="primary"
-          depressed="true"
-          tag="button"
-          type="button"
-        >
-          
-          Confirm
+          OK
         
         </v-btn-stub>
       </v-card-actions-stub>
@@ -2287,20 +2151,6 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
     
     </v-card-subtitle-stub>
   </v-card-stub>
-   
-  <v-snackbar-stub
-    color="red darken-2"
-    contentclass=""
-    outlined="true"
-    tag="div"
-    text="true"
-    timeout="8000"
-    transition="v-snack-transition"
-  >
-    
-    
-  
-  </v-snackbar-stub>
 </section>
 `;
 
@@ -2620,43 +2470,18 @@ exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
          
         <v-btn-stub
           activeclass=""
+          color="primary"
           tag="button"
           text="true"
           type="button"
         >
           
-          Cancel
-        
-        </v-btn-stub>
-         
-        <v-btn-stub
-          activeclass=""
-          color="primary"
-          depressed="true"
-          tag="button"
-          type="button"
-        >
-          
-          Confirm
+          OK
         
         </v-btn-stub>
       </v-card-actions-stub>
     </v-card-stub>
   </v-dialog-stub>
-   
-  <v-snackbar-stub
-    color="red darken-2"
-    contentclass=""
-    outlined="true"
-    tag="div"
-    text="true"
-    timeout="8000"
-    transition="v-snack-transition"
-  >
-    
-    
-  
-  </v-snackbar-stub>
    
   <v-card-stub
     class="dragged-organization"
@@ -2917,43 +2742,18 @@ exports[`OrganizationsTable Mock mutation for addOrganization 1`] = `
          
         <v-btn-stub
           activeclass=""
+          color="primary"
           tag="button"
           text="true"
           type="button"
         >
           
-          Cancel
-        
-        </v-btn-stub>
-         
-        <v-btn-stub
-          activeclass=""
-          color="primary"
-          depressed="true"
-          tag="button"
-          type="button"
-        >
-          
-          Confirm
+          OK
         
         </v-btn-stub>
       </v-card-actions-stub>
     </v-card-stub>
   </v-dialog-stub>
-   
-  <v-snackbar-stub
-    color="red darken-2"
-    contentclass=""
-    outlined="true"
-    tag="div"
-    text="true"
-    timeout="8000"
-    transition="v-snack-transition"
-  >
-    
-    
-  
-  </v-snackbar-stub>
    
   <v-card-stub
     class="dragged-organization"
@@ -3214,43 +3014,18 @@ exports[`OrganizationsTable Mock mutation for deleteDomain 1`] = `
          
         <v-btn-stub
           activeclass=""
+          color="primary"
           tag="button"
           text="true"
           type="button"
         >
           
-          Cancel
-        
-        </v-btn-stub>
-         
-        <v-btn-stub
-          activeclass=""
-          color="primary"
-          depressed="true"
-          tag="button"
-          type="button"
-        >
-          
-          Confirm
+          OK
         
         </v-btn-stub>
       </v-card-actions-stub>
     </v-card-stub>
   </v-dialog-stub>
-   
-  <v-snackbar-stub
-    color="red darken-2"
-    contentclass=""
-    outlined="true"
-    tag="div"
-    text="true"
-    timeout="8000"
-    transition="v-snack-transition"
-  >
-    
-    
-  
-  </v-snackbar-stub>
    
   <v-card-stub
     class="dragged-organization"
@@ -3509,43 +3284,18 @@ exports[`OrganizationsTable Mock mutation for deleteOrganization 1`] = `
          
         <v-btn-stub
           activeclass=""
+          color="primary"
           tag="button"
           text="true"
           type="button"
         >
           
-          Cancel
-        
-        </v-btn-stub>
-         
-        <v-btn-stub
-          activeclass=""
-          color="primary"
-          depressed="true"
-          tag="button"
-          type="button"
-        >
-          
-          Confirm
+          OK
         
         </v-btn-stub>
       </v-card-actions-stub>
     </v-card-stub>
   </v-dialog-stub>
-   
-  <v-snackbar-stub
-    color="red darken-2"
-    contentclass=""
-    outlined="true"
-    tag="div"
-    text="true"
-    timeout="8000"
-    transition="v-snack-transition"
-  >
-    
-    
-  
-  </v-snackbar-stub>
    
   <v-card-stub
     class="dragged-organization"
@@ -3804,43 +3554,18 @@ exports[`OrganizationsTable Mock mutation for enroll 1`] = `
          
         <v-btn-stub
           activeclass=""
+          color="primary"
           tag="button"
           text="true"
           type="button"
         >
           
-          Cancel
-        
-        </v-btn-stub>
-         
-        <v-btn-stub
-          activeclass=""
-          color="primary"
-          depressed="true"
-          tag="button"
-          type="button"
-        >
-          
-          Confirm
+          OK
         
         </v-btn-stub>
       </v-card-actions-stub>
     </v-card-stub>
   </v-dialog-stub>
-   
-  <v-snackbar-stub
-    color="red darken-2"
-    contentclass=""
-    outlined="true"
-    tag="div"
-    text="true"
-    timeout="8000"
-    transition="v-snack-transition"
-  >
-    
-    
-  
-  </v-snackbar-stub>
    
   <v-card-stub
     class="dragged-organization"

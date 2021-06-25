@@ -99,16 +99,6 @@
       </p>
     </v-row>
 
-    <v-snackbar
-      v-model="snackbar.open"
-      timeout="8000"
-      color="red darken-2"
-      text
-      outlined
-    >
-      {{ snackbar.text }}
-    </v-snackbar>
-
     <v-dialog v-model="dialog.open" max-width="500px">
       <v-card class="pa-3">
         <v-card-title class="headline">{{ dialog.title }}</v-card-title>
@@ -132,13 +122,19 @@
             </v-row>
           </div>
         </v-card-text>
-        <v-card-actions>
+        <v-card-actions v-if="dialog.action">
           <v-spacer></v-spacer>
           <v-btn text @click="closeDialog">
             Cancel
           </v-btn>
           <v-btn color="primary" depressed @click.stop="dialog.action">
             Confirm
+          </v-btn>
+        </v-card-actions>
+        <v-card-actions v-else>
+          <v-spacer></v-spacer>
+          <v-btn text color="primary" @click="closeDialog">
+            OK
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -194,10 +190,6 @@ export default {
         showDates: false,
         dateFrom: null,
         dateTo: null
-      },
-      snackbar: {
-        open: false,
-        text: ""
       }
     };
   },
@@ -290,9 +282,11 @@ export default {
           this.$logger.debug("Moved identity", { fromUuid, toUuid });
         }
       } catch (error) {
-        Object.assign(this.snackbar, {
+        Object.assign(this.dialog, {
           open: true,
-          text: this.$getErrorMessage(error)
+          title: "Error",
+          text: this.$getErrorMessage(error),
+          action: null
         });
         this.$logger.error("Error moving identity: ${error}", {
           fromUuid,
