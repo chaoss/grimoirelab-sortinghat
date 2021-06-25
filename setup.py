@@ -73,6 +73,7 @@ setup(name="sortinghat",
       entry_points="""
         [console_scripts]
         sortinghat=sortinghat.cli.sortinghat:sortinghat
+        sortinghatd=sortinghat.server.sortinghatd:sortinghatd
       """,
       zip_safe=False
       )

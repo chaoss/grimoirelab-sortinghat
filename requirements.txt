@@ -14,3 +14,4 @@ rq>=1.4.0
 django-rq>=2.3.2
 fakeredis>=1.4.1
 pandas>=1.0.5
+uWSGI>=2.0

@@ -33,6 +33,10 @@ classifiers = [
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/chaoss/grimoirelab-sortinghat/issues"
 
+[tool.poetry.scripts]
+sortinghat = "sortinghat.cli.sortinghat:sortinghat"
+sortinghatd = "sortinghat.server.sortinghatd:sortinghatd"
+
 [tool.poetry.dependencies]
 python = "^3.6.1"
 
@@ -52,6 +56,7 @@ pandas = "^1.0.5"
 grimoirelab_toolkit = "^0.1.8"
 django-cors-headers = "^3.7.0"
 PyJWT = "1.7.1"
+uWSGI = "^2.0"
 
 [tool.poetry.dev-dependencies]
 fakeredis = "^1.4.1"
