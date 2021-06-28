@@ -220,6 +220,49 @@ def recommend_matches(ctx, source_uuids, target_uuids, criteria, verbose=False):
 
 
 @django_rq.job
+def recommend_gender(ctx, uuids, api_token=None):
+    """Generate a list of gender recommendations from a set of individuals.
+
+    This job generates a list of recommendations with the
+    probable gender of the given individuals.
+
+    :param ctx: context where this job is run
+    :param uuids: list of individuals identifiers
+    :api_token: genderize.io API token
+
+    :returns: a dictionary with the recommended gender and accuracy of the
+        prediction for each individual.
+    """
+    job = rq.get_current_job()
+
+    logger.info(f"Running job {job.id} 'recommend gender'; ...")
+
+    results = {}
+    job_result = {
+        'results': results
+    }
+
+    engine = RecommendationEngine()
+
+    job_ctx = SortingHatContext(ctx.user, job.id)
+
+    trxl = TransactionsLog.open('recommend_gender', job_ctx)
+
+    for rec in engine.recommend('gender', uuids, api_token):
+        results[rec.key] = {'gender': rec.options[0],
+                           'accuracy': rec.options[1]}
+
+    trxl.close()
+
+    logger.info(
+        f"Job {job.id} 'recommend gender' completed; "
+        f"{len(results)} recommendations generated"
+    )
+
+    return job_result
+
+
+@django_rq.job
 def affiliate(ctx, uuids=None):
     """Affiliate a set of individuals using recommendations.
 
