@@ -93,6 +93,8 @@ STATIC_URL = '/'
 
 MEDIA_URL = 'http://media.example.com/'
 
+SORTINGHAT_GENDERIZE_API_KEY = None
+
 INSTALLED_APPS = [
     'django_rq',
     'graphene_django',
@@ -110,7 +112,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'USER': 'root',
-        'PASSWORD': '',
+        'PASSWORD': 'root',
         'NAME': 'sortinghat_db',
         'OPTIONS': {'charset': 'utf8mb4'},
         'TEST': {

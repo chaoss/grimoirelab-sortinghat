@@ -16,6 +16,8 @@ SILENCED_SYSTEM_CHECKS = ["django_mysql.E016"]
 
 SECRET_KEY = 'fake-key'
 
+SORTINGHAT_GENDERIZE_API_KEY = 'fake-key'
+
 INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
