@@ -66,7 +66,8 @@ from .jobs import (affiliate,
                    find_job,
                    get_jobs,
                    recommend_affiliations,
-                   recommend_matches)
+                   recommend_matches,
+                   recommend_gender)
 from .models import (Organization,
                      Domain,
                      Country,
@@ -209,6 +210,12 @@ class MatchesRecommendationType(graphene.ObjectType):
     matches = graphene.List(graphene.String, description='List of recommended matches.')
 
 
+class GenderRecommendationType(graphene.ObjectType):
+    uuid = graphene.String(description='The unique identifier of an individual.')
+    gender = graphene.String(description='The suggested gender of an individual')
+    accuracy = graphene.Int(description='The probability of the gender to be accurate')
+
+
 class AffiliationResultType(graphene.ObjectType):
     uuid = graphene.String(description='The unique identifier of an individual.')
     organizations = graphene.List(
@@ -229,7 +236,8 @@ class JobResultType(graphene.Union):
         types = (AffiliationResultType,
                  AffiliationRecommendationType,
                  MatchesRecommendationType,
-                 UnifyResultType)
+                 UnifyResultType,
+                 GenderRecommendationType)
 
 
 class JobType(graphene.ObjectType):
@@ -815,6 +823,25 @@ class RecommendMatches(graphene.Mutation):
         )
 
 
+class RecommendGender(graphene.Mutation):
+    class Arguments:
+        uuids = graphene.List(graphene.String)
+        api_token = graphene.String(required=False)
+
+    job_id = graphene.Field(lambda: graphene.String)
+
+    @check_auth
+    def mutate(self, info, uuids=None):
+        user = info.context.user
+        ctx = SortingHatContext(user)
+
+        job = enqueue(recommend_gender, ctx, uuids)
+
+        return RecommendGender(
+            job_id=job.id
+        )
+
+
 class Affiliate(graphene.Mutation):
     class Arguments:
         uuids = graphene.List(graphene.String,
@@ -1074,6 +1101,13 @@ class SortingHatQuery:
                 MatchesRecommendationType(uuid=uuid, matches=matches)
                 for uuid, matches in job.result['results'].items()
             ]
+        elif (job.result) and (job_type == 'recommend_gender'):
+            result = [
+                GenderRecommendationType(uuid=uuid,
+                                         gender=rec['gender'],
+                                         accuracy=rec['accuracy'])
+                for uuid, rec in job.result['results'].items()
+            ]
         elif (job.result) and (job_type == 'unify'):
             errors = job.result['errors']
             result = [
@@ -1228,6 +1262,10 @@ class SortingHatMutation(graphene.ObjectType):
     recommend_matches = RecommendMatches.Field(
         description='Recommend identity matches for a list of individuals based\
         on a list of criteria composed by `email`, `name` and/or `username`.'
+    )
+    recommend_gender = RecommendGender.Field(
+        description='Recommend genders for a list of individuals based on their names\
+        using the genderize.io API.'
     )
     affiliate = Affiliate.Field(
         description='Affiliate a set of individuals using recommendations.'

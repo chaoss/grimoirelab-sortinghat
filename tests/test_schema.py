@@ -783,6 +783,25 @@ SH_JOBS_QUERY_PAGINATION = """{
   }
 }
 """
+SH_JOB_QUERY_RECOMMEND_GENDER = """{
+  job(
+    jobId:"%s"
+  ){
+    jobId
+    jobType
+    status
+    errors
+    result {
+      __typename
+      ... on GenderRecommendationType {
+      	uuid
+      	gender
+        accuracy
+      }
+    }
+  }
+}
+"""
 
 # API endpoint to obtain a context for executing queries
 GRAPHQL_ENDPOINT = '/graphql/'
@@ -3767,6 +3786,78 @@ class TestQueryJob(django.test.TestCase):
         self.assertEqual(jobs_pagination['startIndex'], 3)
         self.assertEqual(jobs_pagination['endIndex'], 3)
         self.assertEqual(jobs_pagination['totalResults'], 3)
+
+    @unittest.mock.patch('sortinghat.core.schema.find_job')
+    def test_recommend_gender_job(self, mock_job):
+        """Check if it returns a gender recommendation type"""
+
+        result = {
+            'results': {
+                '0c1e1701bc819495acf77ef731023b7d789a9c71': {
+                    'gender': 'male',
+                    'accuracy': 78
+                },
+                '17ab00ed3825ec2f50483e33c88df223264182ba': {
+                    'gender': 'female',
+                    'accuracy': 98
+                }
+            }
+        }
+
+        job = MockJob('1234-5678-90AB-CDEF', 'recommend_gender', 'finished', result)
+        mock_job.return_value = job
+
+        # Tests
+        client = graphene.test.Client(schema)
+
+        query = SH_JOB_QUERY_RECOMMEND_GENDER % '1234-5678-90AB-CDEF'
+
+        executed = client.execute(query,
+                                  context_value=self.context_value)
+
+        job_data = executed['data']['job']
+
+        self.assertEqual(job_data['jobId'], '1234-5678-90AB-CDEF')
+        self.assertEqual(job_data['jobType'], 'recommend_gender')
+        self.assertEqual(job_data['status'], 'finished')
+        self.assertEqual(job_data['errors'], None)
+
+        job_results = job_data['result']
+        self.assertEqual(len(job_results), 2)
+
+        res = job_results[0]
+        self.assertEqual(res['__typename'], 'GenderRecommendationType')
+        self.assertEqual(res['uuid'], '0c1e1701bc819495acf77ef731023b7d789a9c71')
+        self.assertEqual(res['gender'], 'male')
+        self.assertEqual(res['accuracy'], 78)
+
+        res = job_results[1]
+        self.assertEqual(res['__typename'], 'GenderRecommendationType')
+        self.assertEqual(res['uuid'], '17ab00ed3825ec2f50483e33c88df223264182ba')
+        self.assertEqual(res['gender'], 'female')
+        self.assertEqual(res['accuracy'], 98)
+
+    @unittest.mock.patch('sortinghat.core.schema.find_job')
+    def test_recommend_gender_job_no_results(self, mock_job):
+        """Check if it does not fail when there are not results ready"""
+
+        job = MockJob('1234-5678-90AB-CDEF', 'recommend_gender', 'queued', None)
+        mock_job.return_value = job
+
+        # Tests
+        client = graphene.test.Client(schema)
+
+        query = SH_JOB_QUERY_RECOMMEND_AFFILIATIONS % '1234-5678-90AB-CDEF'
+
+        executed = client.execute(query,
+                                  context_value=self.context_value)
+
+        job_data = executed['data']['job']
+        self.assertEqual(job_data['jobId'], '1234-5678-90AB-CDEF')
+        self.assertEqual(job_data['jobType'], 'recommend_gender')
+        self.assertEqual(job_data['status'], 'queued')
+        self.assertEqual(job_data['errors'], None)
+        self.assertEqual(job_data['result'], None)
 
 
 class TestAddOrganizationMutation(django.test.TestCase):
