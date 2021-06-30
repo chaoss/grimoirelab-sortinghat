@@ -21,10 +21,12 @@
 
 from graphene_django.views import GraphQLView as BaseGraphQLView
 from graphql_jwt.exceptions import (PermissionDenied,
-                                    JSONWebTokenExpired)
+                                    JSONWebTokenExpired,
+                                    JSONWebTokenError)
 
 from .errors import (CODE_TOKEN_EXPIRED,
                      CODE_PERMISSION_DENIED,
+                     CODE_INVALID_CREDENTIALS,
                      CODE_UNKNOWN_ERROR)
 
 
@@ -46,6 +48,8 @@ class SortingHatGraphQLView(BaseGraphQLView):
                 code = CODE_TOKEN_EXPIRED
             elif isinstance(org_err, PermissionDenied):
                 code = CODE_PERMISSION_DENIED
+            elif isinstance(org_err, JSONWebTokenError):
+                code = CODE_INVALID_CREDENTIALS
             else:
                 code = error.original_error.code
         except AttributeError:

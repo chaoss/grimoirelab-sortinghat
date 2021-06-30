@@ -328,24 +328,13 @@ exports[`IndividualsTable Mock query for getCountries 1`] = `
          
         <v-btn-stub
           activeclass=""
+          color="primary"
           tag="button"
           text="true"
           type="button"
         >
           
-          Cancel
-        
-        </v-btn-stub>
-         
-        <v-btn-stub
-          activeclass=""
-          color="primary"
-          depressed="true"
-          tag="button"
-          type="button"
-        >
-          
-          Confirm
+          OK
         
         </v-btn-stub>
       </v-card-actions-stub>
@@ -376,17 +365,6 @@ exports[`IndividualsTable Mock query for getCountries 1`] = `
     
     </v-card-subtitle-stub>
   </v-card-stub>
-   
-  <v-snackbar-stub
-    contentclass=""
-    tag="div"
-    timeout="5000"
-    transition="v-snack-transition"
-  >
-    
-    
-  
-  </v-snackbar-stub>
 </section>
 `;
 
@@ -711,24 +689,13 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
          
         <v-btn-stub
           activeclass=""
+          color="primary"
           tag="button"
           text="true"
           type="button"
         >
           
-          Cancel
-        
-        </v-btn-stub>
-         
-        <v-btn-stub
-          activeclass=""
-          color="primary"
-          depressed="true"
-          tag="button"
-          type="button"
-        >
-          
-          Confirm
+          OK
         
         </v-btn-stub>
       </v-card-actions-stub>
@@ -757,17 +724,6 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
     
     </v-card-subtitle-stub>
   </v-card-stub>
-   
-  <v-snackbar-stub
-    contentclass=""
-    tag="div"
-    timeout="5000"
-    transition="v-snack-transition"
-  >
-    
-    
-  
-  </v-snackbar-stub>
 </section>
 `;
 
@@ -1042,40 +998,18 @@ exports[`OrganizationsTable Mock query for getPaginatedOrganizations 1`] = `
          
         <v-btn-stub
           activeclass=""
+          color="primary"
           tag="button"
           text="true"
           type="button"
         >
           
-          Cancel
-        
-        </v-btn-stub>
-         
-        <v-btn-stub
-          activeclass=""
-          color="primary"
-          depressed="true"
-          tag="button"
-          type="button"
-        >
-          
-          Confirm
+          OK
         
         </v-btn-stub>
       </v-card-actions-stub>
     </v-card-stub>
   </v-dialog-stub>
-   
-  <v-snackbar-stub
-    contentclass=""
-    tag="div"
-    timeout="5000"
-    transition="v-snack-transition"
-  >
-    
-    
-  
-  </v-snackbar-stub>
    
   <v-card-stub
     class="dragged-organization"

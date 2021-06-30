@@ -107,7 +107,7 @@
             </v-row>
           </div>
         </v-card-text>
-        <v-card-actions>
+        <v-card-actions v-if="dialog.action">
           <v-spacer></v-spacer>
           <v-btn text @click="closeDialog">
             Cancel
@@ -116,12 +116,14 @@
             Confirm
           </v-btn>
         </v-card-actions>
+        <v-card-actions v-else>
+          <v-spacer></v-spacer>
+          <v-btn text color="primary" @click="closeDialog">
+            OK
+          </v-btn>
+        </v-card-actions>
       </v-card>
     </v-dialog>
-
-    <v-snackbar v-model="snackbar.open">
-      {{ snackbar.text }}
-    </v-snackbar>
 
     <v-card class="dragged-organization" color="primary" dark>
       <v-card-title>
@@ -197,10 +199,6 @@ export default {
         dateFrom: null,
         dateTo: null
       },
-      snackbar: {
-        open: false,
-        text: ""
-      },
       modal: {
         open: false,
         organization: undefined,
@@ -264,7 +262,12 @@ export default {
           });
         }
       } catch (error) {
-        Object.assign(this.snackbar, { open: true, text: error });
+        Object.assign(this.dialog, {
+          open: true,
+          title: "Error",
+          text: this.$getErrorMessage(error),
+          action: null
+        });
         this.$logger.error(`Error enrolling individuals: ${error}`, {
           organization,
           uuids,
@@ -302,7 +305,12 @@ export default {
           this.$logger.debug(`Deleted organization ${organization}`);
         }
       } catch (error) {
-        Object.assign(this.snackbar, { open: true, text: error });
+        Object.assign(this.dialog, {
+          open: true,
+          title: "Error",
+          text: this.$getErrorMessage(error),
+          action: null
+        });
         this.$logger.error(
           `Error deleting organization ${organization}: ${error}`
         );

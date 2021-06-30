@@ -182,3 +182,7 @@ button.v-pagination__item {
 .v-application--wrap {
   background: #F2F3F5;
 }
+
+.v-snack__content::first-letter {
+  text-transform: capitalize;
+}
