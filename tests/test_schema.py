@@ -23,6 +23,8 @@
 
 import datetime
 import unittest.mock
+import json
+import httpretty
 
 import dateutil
 
@@ -794,9 +796,27 @@ SH_JOB_QUERY_RECOMMEND_GENDER = """{
     result {
       __typename
       ... on GenderRecommendationType {
-      	uuid
-      	gender
+        uuid
+        gender
         accuracy
+      }
+    }
+  }
+}
+"""
+SH_JOB_QUERY_GENDERIZE = """{
+  job(
+    jobId:"%s"
+  ){
+    jobId
+    jobType
+    status
+    errors
+    result {
+      __typename
+      ... on GenderizeResultType {
+        uuid
+        gender
       }
     }
   }
@@ -3847,7 +3867,7 @@ class TestQueryJob(django.test.TestCase):
         # Tests
         client = graphene.test.Client(schema)
 
-        query = SH_JOB_QUERY_RECOMMEND_AFFILIATIONS % '1234-5678-90AB-CDEF'
+        query = SH_JOB_QUERY_RECOMMEND_GENDER % '1234-5678-90AB-CDEF'
 
         executed = client.execute(query,
                                   context_value=self.context_value)
@@ -3858,6 +3878,42 @@ class TestQueryJob(django.test.TestCase):
         self.assertEqual(job_data['status'], 'queued')
         self.assertEqual(job_data['errors'], None)
         self.assertEqual(job_data['result'], None)
+
+    @unittest.mock.patch('sortinghat.core.schema.find_job')
+    def test_genderize_job(self, mock_job):
+        """Check if it returns an genderize result type"""
+
+        result = {
+            'results': {
+                'f507a33bbeffe58ae3eb192fc371e7cea65488f6': ('male', 95)
+            },
+            'errors': []
+        }
+
+        job = MockJob('1234-5678-90AB-CDEF', 'genderize', 'finished', result)
+        mock_job.return_value = job
+
+        # Tests
+        client = graphene.test.Client(schema)
+
+        query = SH_JOB_QUERY_GENDERIZE % '1234-5678-90AB-CDEF'
+
+        executed = client.execute(query,
+                                  context_value=self.context_value)
+
+        job_data = executed['data']['job']
+
+        self.assertEqual(job_data['jobId'], '1234-5678-90AB-CDEF')
+        self.assertEqual(job_data['jobType'], 'genderize')
+        self.assertEqual(job_data['status'], 'finished')
+
+        job_results = job_data['result']
+        self.assertEqual(len(job_results), 1)
+
+        res = job_results[0]
+        self.assertEqual(res['__typename'], 'GenderizeResultType')
+        self.assertEqual(res['uuid'], 'f507a33bbeffe58ae3eb192fc371e7cea65488f6')
+        self.assertEqual(res['gender'], 'male')
 
 
 class TestAddOrganizationMutation(django.test.TestCase):
@@ -7674,3 +7730,146 @@ class TestUnifyMutation(django.test.TestCase):
         msg = executed['errors'][0]['message']
 
         self.assertEqual(msg, AUTHENTICATION_ERROR)
+
+
+def setup_genderize_server():
+    """Setup a mock HTTP server for genderize.io"""
+
+    http_requests = []
+
+    def request_callback(method, uri, headers):
+        last_request = httpretty.last_request()
+        http_requests.append(last_request)
+
+        params = last_request.querystring
+        name = params['name'][0].lower()
+
+        if name == 'error':
+            return 502, headers, 'Bad Gateway'
+
+        if name == 'john':
+            data = {
+                'gender': 'male',
+                'probability': 0.99
+            }
+        elif name == 'jane':
+            data = {
+                'gender': 'female',
+                'probability': 0.99
+            }
+        else:
+            data = {
+                'gender': None,
+                'probability': None
+            }
+
+        body = json.dumps(data)
+
+        return (200, headers, body)
+
+    httpretty.register_uri(httpretty.GET,
+                           "https://api.genderize.io/",
+                           responses=[
+                               httpretty.Response(body=request_callback)
+                           ])
+
+    return http_requests
+
+
+class TestGenderizeMutation(django.test.TestCase):
+    """Unit tests for mutation to autocomplete gender information"""
+
+    SH_GENDERIZE = """
+        mutation genderize($uuids: [String]) {
+            genderize(uuids: $uuids) {
+                jobId
+            }
+        }
+    """
+
+    def setUp(self):
+        """Load initial dataset and set queries context"""
+
+        conn = django_rq.queues.get_redis_connection(None, True)
+        conn.flushall()
+
+        self.user = get_user_model().objects.create(username='test')
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
+
+        ctx = SortingHatContext(self.user)
+
+        # Individual 1
+        self.john_smith = api.add_identity(ctx,
+                                           email='jsmith@example.com',
+                                           name='John Smith',
+                                           source='scm')
+        self.jane_roe = api.add_identity(ctx,
+                                         email='jroe@example.com',
+                                         name='Jane Roe',
+                                         source='scm')
+
+    @httpretty.activate
+    @unittest.mock.patch('sortinghat.core.jobs.rq.job.uuid4')
+    def test_genderize(self, mock_job_id_gen):
+        """Check if genderize is applied for the specified individuals"""
+
+        setup_genderize_server()
+
+        mock_job_id_gen.return_value = "1234-5678-90AB-CDEF"
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuids': [self.john_smith.uuid]
+        }
+
+        executed = client.execute(self.SH_GENDERIZE,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        # Check if the job was run
+        job_id = executed['data']['genderize']['jobId']
+        self.assertEqual(job_id, "1234-5678-90AB-CDEF")
+
+        # Check if the individual's gender was updated
+        indv = Individual.objects.get(mk=self.john_smith.uuid)
+        gender = indv.profile.gender
+        self.assertEqual(gender, "male")
+
+        # Check if the rest of the individuals were not updated
+        indv = Individual.objects.get(mk=self.jane_roe.uuid)
+        gender = indv.profile.gender
+        self.assertEqual(gender, None)
+
+    @httpretty.activate
+    @unittest.mock.patch('sortinghat.core.jobs.rq.job.uuid4')
+    def test_genderize_all(self, mock_job_id_gen):
+        """Check if genderize is applied for all individuals in the registry"""
+
+        setup_genderize_server()
+
+        mock_job_id_gen.return_value = "1234-5678-90AB-CDEF"
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuids': None
+        }
+
+        executed = client.execute(self.SH_GENDERIZE,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        # Check if the job was run
+        job_id = executed['data']['genderize']['jobId']
+        self.assertEqual(job_id, "1234-5678-90AB-CDEF")
+
+        # Check if all the individuals genders were updated
+        indv1 = Individual.objects.get(mk=self.john_smith.uuid)
+        gender1 = indv1.profile.gender
+        self.assertEqual(gender1, "male")
+
+        indv2 = Individual.objects.get(mk=self.jane_roe.uuid)
+        gender2 = indv2.profile.gender
+        self.assertEqual(gender2, "female")

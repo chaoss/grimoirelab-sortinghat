@@ -67,7 +67,8 @@ from .jobs import (affiliate,
                    get_jobs,
                    recommend_affiliations,
                    recommend_matches,
-                   recommend_gender)
+                   recommend_gender,
+                   genderize)
 from .models import (Organization,
                      Domain,
                      Country,
@@ -231,13 +232,20 @@ class UnifyResultType(graphene.ObjectType):
     )
 
 
+class GenderizeResultType(graphene.ObjectType):
+    uuid = graphene.String(description='The unique identifier of an individual.')
+    gender = graphene.String(description='The suggested gender of an individual')
+    accuracy = graphene.Int(description='The probability of the gender to be accurate')
+
+
 class JobResultType(graphene.Union):
     class Meta:
         types = (AffiliationResultType,
                  AffiliationRecommendationType,
                  MatchesRecommendationType,
                  UnifyResultType,
-                 GenderRecommendationType)
+                 GenderRecommendationType,
+                 GenderizeResultType)
 
 
 class JobType(graphene.ObjectType):
@@ -826,7 +834,6 @@ class RecommendMatches(graphene.Mutation):
 class RecommendGender(graphene.Mutation):
     class Arguments:
         uuids = graphene.List(graphene.String)
-        api_token = graphene.String(required=False)
 
     job_id = graphene.Field(lambda: graphene.String)
 
@@ -878,6 +885,24 @@ class Unify(graphene.Mutation):
         job = enqueue(unify, ctx, source_uuids, target_uuids, criteria)
 
         return Unify(
+            job_id=job.id
+        )
+
+
+class Genderize(graphene.Mutation):
+    class Arguments:
+        uuids = graphene.List(graphene.String)
+
+    job_id = graphene.Field(lambda: graphene.String)
+
+    @check_auth
+    def mutate(self, info, uuids=None):
+        user = info.context.user
+        ctx = SortingHatContext(user)
+
+        job = enqueue(genderize, ctx, uuids)
+
+        return Genderize(
             job_id=job.id
         )
 
@@ -1113,6 +1138,12 @@ class SortingHatQuery:
             result = [
                 UnifyResultType(merged=job.result['results'])
             ]
+        elif (job.result) and (job_type == 'genderize'):
+            errors = job.result['errors']
+            result = [
+                GenderizeResultType(uuid=uuid, gender=rec[0], accuracy=rec[1])
+                for uuid, rec in job.result['results'].items()
+            ]
         elif status == 'failed':
             errors = [job.exc_info]
 
@@ -1272,6 +1303,10 @@ class SortingHatMutation(graphene.ObjectType):
     )
     unify = Unify.Field(
         description='Unify a set of individuals by merging them using matching recommendations.'
+    )
+    genderize = Genderize.Field(
+        description='Autocomplete the gender information of a set of individuals\
+        using genderize.io recommendations.'
     )
 
     # JWT authentication
