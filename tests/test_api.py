@@ -44,6 +44,7 @@ from sortinghat.core.models import (Country,
                                     Identity,
                                     Enrollment,
                                     Organization,
+                                    Team,
                                     Domain,
                                     Transaction,
                                     Operation)
@@ -78,6 +79,8 @@ ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR = "'name' cannot be"
 ORGANIZATION_NOT_FOUND_ERROR = "{name} not found in the registry"
 ORGANIZATION_ALREADY_EXISTS_ERROR = "Organization '{name}' already exists in the registry"
 ORGANIZATION_VALUE_ERROR = "field value must be a string; int given"
+TEAM_ORG_NAME_MISSING = "'org_name' cannot be"
+TEAM_NAME_MISSING = "'team_name' cannot be"
 DOMAIN_NAME_NONE_OR_EMPTY_ERROR = "'domain_name' cannot be"
 DOMAIN_NOT_FOUND_ERROR = "{domain_name} not found in the registry"
 DOMAIN_ALREADY_EXISTS_ERROR = "'{domain_name}' already exists in the registry"
@@ -2024,6 +2027,178 @@ class TestAddOrganization(TestCase):
         op1_args = json.loads(op1.args)
         self.assertEqual(len(op1_args), 1)
         self.assertEqual(op1_args['name'], 'Example')
+
+
+class TestAddTeam(TestCase):
+    """Unit tests for add_team"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+        self.org = api.add_organization(self.ctx, name='Example')
+
+    def test_add_new_team(self):
+        """ Check if new team can be created"""
+
+        team = api.add_team(self.ctx, "suborg", "Example", None)
+
+        self.assertIsInstance(team, Team)
+        self.assertEqual(team.name, "suborg")
+        self.assertEqual(team.organization, self.org)
+
+    def test_organization_is_none(self):
+        """Check if it fails when organization name is `None`"""
+
+        team = api.add_team(self.ctx, "suborg", None, None)
+
+        self.assertIsInstance(team, Team)
+        self.assertEqual(team.name, "suborg")
+        self.assertEqual(team.organization, None)
+
+    def test_team_name_is_none(self):
+        """Check if it fails when team name is `None`"""
+
+        trx_date = datetime_utcnow()
+
+        with self.assertRaisesRegex(InvalidValueError, TEAM_NAME_MISSING):
+            api.add_team(self.ctx, None, "Example", None)
+
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_team_name_is_empty(self):
+        """Check if it fails when team name is an empty string"""
+
+        trx_date = datetime_utcnow()
+
+        with self.assertRaisesRegex(InvalidValueError, TEAM_NAME_MISSING):
+            api.add_team(self.ctx, "", "Example", None)
+
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_organization_not_found(self):
+        """Check if team is created if organization is not found"""
+
+        trx_date = datetime_utcnow()
+
+        with self.assertRaisesRegex(NotFoundError, ORGANIZATION_NOT_FOUND_ERROR.format(name='Exampe')):
+            api.add_team(self.ctx, "subteam", "Exampe", None, )
+
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_find_parent(self):
+        """ Check if parent is able to be found"""
+
+        api.add_team(self.ctx, "parent", "Example", None)
+        child = api.add_team(self.ctx, "child", "Example", "parent")
+        self.assertIsInstance(child, Team)
+        self.assertEqual(child.name, "child")
+        self.assertEqual(child.organization, self.org)
+
+    def test_parent_not_found(self):
+        """ Check if a team cannot be created when parent is not found"""
+
+        api.add_team(self.ctx, "suborg", "Example", None)
+
+        with self.assertRaisesRegex(NotFoundError, NOT_FOUND_ERROR.format(entity="parent")):
+            api.add_team(self.ctx, "child", "Example", "parent")
+
+
+class TestDeleteTeam(TestCase):
+    """Unit tests for delete_team"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+        self.org = api.add_organization(self.ctx, name='Example')
+
+    def test_delete_team(self):
+        """Check if team can be deleted"""
+
+        api.add_team(self.ctx, "suborg", "Example", None)
+        team = api.delete_team(self.ctx, "suborg", self.org.name)
+
+        self.assertIsInstance(team, Team)
+        self.assertEqual(team.name, "suborg")
+        self.assertEqual(team.organization, self.org)
+
+    def test_organization_is_none(self):
+        """Check if it fails when organization name is `None`"""
+
+        api.add_team(self.ctx, "suborg", "Example", None)
+
+        trx_date = datetime_utcnow()
+
+        with self.assertRaisesRegex(InvalidValueError, TEAM_ORG_NAME_MISSING):
+            api.delete_team(self.ctx, "suborg", None)
+
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_organization_name_is_empty(self):
+        """Check if it fails when organization name is an empty string`"""
+
+        api.add_team(self.ctx, "suborg", "Example", None)
+
+        trx_date = datetime_utcnow()
+
+        with self.assertRaisesRegex(InvalidValueError, TEAM_ORG_NAME_MISSING):
+            api.delete_team(self.ctx, "suborg", "")
+
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_team_name_is_none(self):
+        """Check if it fails when team name is `None`"""
+
+        api.add_team(self.ctx, "suborg", "Example", None)
+
+        trx_date = datetime_utcnow()
+
+        with self.assertRaisesRegex(InvalidValueError, TEAM_NAME_MISSING):
+            api.delete_team(self.ctx, None, "Example")
+
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_team_name_is_empty(self):
+        """Check if it fails when team name is an empty string"""
+
+        api.add_team(self.ctx, "suborg", "Example", None)
+
+        trx_date = datetime_utcnow()
+
+        with self.assertRaisesRegex(InvalidValueError, TEAM_NAME_MISSING):
+            api.delete_team(self.ctx, "", "Example")
+
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_organization_not_found(self):
+        """Check if team is created if organization is not found"""
+
+        api.add_team(self.ctx, "suborg", "Example", None)
+
+        trx_date = datetime_utcnow()
+
+        with self.assertRaisesRegex(NotFoundError, ORGANIZATION_NOT_FOUND_ERROR.format(name='Exampe')):
+            api.delete_team(self.ctx, "suborg", "Exampe")
+
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_team_not_found(self):
+        """Check if error is raised if team is not found"""
+
+        api.add_team(self.ctx, "suborg", "Example", None)
+        with self.assertRaisesRegex(NotFoundError, NOT_FOUND_ERROR.format(entity="sorg")):
+            api.delete_team(self.ctx, "sorg", "Example")
 
 
 class TestAddDomain(TestCase):
