@@ -22,6 +22,7 @@
 from django.contrib import admin
 
 from .models import (Organization,
+                     Team,
                      Domain,
                      Country,
                      Individual,
@@ -31,6 +32,7 @@ from .models import (Organization,
 
 
 admin.site.register(Organization)
+admin.site.register(Team)
 admin.site.register(Domain)
 admin.site.register(Country)
 admin.site.register(Individual)

@@ -57,6 +57,7 @@ grimoirelab_toolkit = "^0.1.8"
 django-cors-headers = "^3.7.0"
 PyJWT = "1.7.1"
 uWSGI = "^2.0"
+django-treebeard = "^4.5.1"
 
 [tool.poetry.dev-dependencies]
 fakeredis = "^1.4.1"

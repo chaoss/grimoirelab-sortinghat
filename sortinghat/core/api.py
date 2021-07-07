@@ -31,14 +31,17 @@ from .db import (find_individual_by_uuid,
                  find_identity,
                  find_organization,
                  find_domain,
+                 find_team,
                  search_enrollments_in_period,
                  add_individual as add_individual_db,
                  add_identity as add_identity_db,
                  add_organization as add_organization_db,
+                 add_team as add_team_db,
                  add_domain as add_domain_db,
                  delete_individual as delete_individual_db,
                  delete_identity as delete_identity_db,
                  delete_organization as delete_organization_db,
+                 delete_team as delete_team_db,
                  delete_domain as delete_domain_db,
                  update_profile as update_profile_db,
                  move_identity as move_identity_db,
@@ -566,6 +569,73 @@ def add_domain(ctx, organization, domain_name, is_top_domain=True):
 
 
 @django.db.transaction.atomic
+def add_team(ctx, team_name, organization=None, parent_name=None):
+    """Add a team to the registry.
+
+    This function creates a new team. If organization is given, the team is added to
+    the organization. The organization must exist on the registry prior to insert the new
+    team. Otherwise, it will raise a `NotFoundError` exception. Moreover,
+    if the given team already exists in the organization, an `AlreadyExistsError`
+    exception will be raised.
+
+    If a `parent_name` is passed to the function, the team is created as a subteam of
+    the parent in the organization.
+
+    :param ctx: context from where this method is called
+    :param team_name: new team to be created
+    :param organization: name of the organization
+    :param parent_name: parent under which new team needs to be created
+
+    :returns the new team object
+
+    :raises InvalidValueError: raised when organization is an empty string or team_name is None or
+        an empty string
+    :raises NotFoundError: raised when the given organization or parent is not found
+        in the registry
+    :raises AlreadyExistsError: raised when the team already exists
+        in the registry
+    """
+
+    if organization == '':
+        raise InvalidValueError(msg="'org_name' cannot be an empty string")
+    if team_name is None:
+        raise InvalidValueError(msg="'team_name' cannot be None")
+    if team_name == '':
+        raise InvalidValueError(msg="'team_name' cannot be an empty string")
+
+    trxl = TransactionsLog.open('add_team', ctx)
+
+    if organization:
+        try:
+            organization = find_organization(organization)
+        except ValueError as e:
+            raise InvalidValueError(msg=str(e))
+        except NotFoundError as esc:
+            raise esc
+
+    parent = None
+    if parent_name:
+        try:
+            parent = find_team(parent_name, organization)
+        except ValueError as e:
+            raise InvalidValueError(msg=str(e))
+        except NotFoundError as esc:
+            raise esc
+
+    try:
+        team = add_team_db(trxl, team_name=team_name, organization=organization,
+                           parent=parent)
+    except ValueError as e:
+        raise InvalidValueError(msg=str(e))
+    except AlreadyExistsError as exc:
+        raise exc
+
+    trxl.close()
+    logger.info(f"Team {team.name} created " + f"for {organization.name}" if organization else "")
+    return team
+
+
+@django.db.transaction.atomic
 def delete_organization(ctx, name):
     """Remove an organization from the registry.
 
@@ -642,6 +712,57 @@ def delete_domain(ctx, domain_name):
     logger.info(f"Domain {domain_name} deleted")
 
     return domain
+
+
+@django.db.transaction.atomic
+def delete_team(ctx, team_name, organization=None):
+    """Remove a team from the registry.
+
+    This function removes the given team from the registry.
+    Deleting a team also deletes all its subteams from the registry.
+    If the team belongs to an Organization, the organization name must
+    be passed. Both Organization and Team must exist in the registry.
+    Otherwise, function will raise a `NotFoundError` exception.
+
+    :param ctx: context from where this method is called
+    :param team_name: team to be deleted
+    :param organization: name of the organization that team belongs to
+
+    :returns the removed team object
+
+    :raises NotFoundError: raised when the team does not
+        exist in the registry.
+    :raises InvalidValueError: raised when the team name or organization name
+        is None or an empty string.
+    """
+    if organization is None:
+        raise InvalidValueError(msg="'org_name' cannot be None")
+    if organization == '':
+        raise InvalidValueError(msg="'org_name' cannot be an empty string")
+    if team_name is None:
+        raise InvalidValueError(msg="'team_name' cannot be None")
+    if team_name == '':
+        raise InvalidValueError(msg="'team_name' cannot be an empty string")
+
+    trxl = TransactionsLog.open('delete_team', ctx)
+
+    try:
+        organization = find_organization(organization)
+    except ValueError as e:
+        raise InvalidValueError(msg=str(e))
+    except NotFoundError as exc:
+        raise exc
+
+    try:
+        team = find_team(team_name, organization)
+    except NotFoundError as exc:
+        raise exc
+
+    delete_team_db(trxl, team)
+
+    trxl.close()
+    logger.info(f"Team {team.name} deleted")
+    return team
 
 
 @django.db.transaction.atomic

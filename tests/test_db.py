@@ -39,6 +39,7 @@ from sortinghat.core.log import TransactionsLog
 from sortinghat.core.models import (MIN_PERIOD_DATE,
                                     MAX_PERIOD_DATE,
                                     Organization,
+                                    Team,
                                     Domain,
                                     Country,
                                     Individual,
@@ -51,6 +52,7 @@ from sortinghat.core.models import (MIN_PERIOD_DATE,
 
 DUPLICATED_ORG_ERROR = "Organization 'Example' already exists in the registry"
 DUPLICATED_DOM_ERROR = "Domain 'example.org' already exists in the registry"
+DUPLICATED_TEAM_ERROR = "Team 'error_team' already exists in the registry"
 DUPLICATED_INDIVIDUAL_ERROR = "Individual '1234567890ABCDFE' already exists in the registry"
 DUPLICATED_ID_ERROR = "Identity '1234567890ABCDFE' already exists in the registry"
 DUPLICATED_ID_DATA_ERROR = "Identity 'John Smith-jsmith@example.org-jsmith-scm' already exists in the registry"
@@ -80,6 +82,10 @@ INDIVIDUAL_NOT_FOUND_ERROR = "zyxwuv not found in the registry"
 IDENTITY_NOT_FOUND_ERROR = "zyxwuv not found in the registry"
 ORGANIZATION_NOT_FOUND_ERROR = "Bitergia not found in the registry"
 DOMAIN_NOT_FOUND_ERROR = "example.net not found in the registry"
+TEAM_NOT_FOUND_ERROR = "subTeam not found in the registry"
+TEAM_NAME_NONE_ERROR = "'team_name' cannot be None"
+TEAM_NAME_EMPTY_ERROR = "'{var}' cannot be an empty string"
+TEAM_NAME_WHITESPACE_ERROR = "'team_name' cannot be composed by whitespaces only"
 IS_BOT_VALUE_ERROR = "'is_bot' must have a boolean value"
 COUNTRY_CODE_ERROR = r"'country_code' \({code}\) does not match with a valid code"
 GENDER_ACC_INVALID_ERROR = "'gender_acc' can only be set when 'gender' is given"
@@ -201,6 +207,62 @@ class TestFindOrganization(TestCase):
 
         with self.assertRaisesRegex(NotFoundError, ORGANIZATION_NOT_FOUND_ERROR):
             db.find_organization('Bitergia')
+
+
+class TestFindTeam(TestCase):
+    """Unit tests for find_team"""
+
+    def setUp(self) -> None:
+        self.org = Organization.objects.create(name='Example')
+
+    def test_find_team(self):
+        """Check if a team is found by its name and organization"""
+
+        Team.add_root(name='Example Subteam', organization=self.org)
+        team = db.find_team(team_name='Example Subteam', organization=self.org)
+
+        self.assertIsInstance(team, Team)
+        self.assertEqual(team.organization.name, 'Example')
+        self.assertEqual(team.name, 'Example Subteam')
+        self.assertEqual(team.get_parent(), None)
+
+    def test_team_not_found(self):
+        """Check if an error is raise if team is not found"""
+
+        with self.assertRaisesRegex(NotFoundError, TEAM_NOT_FOUND_ERROR):
+            db.find_team('subTeam', self.org)
+
+    def test_org_name_none(self):
+        """Check if teams linked to no organizations can be found"""
+
+        team = Team.add_root(name='Example Team')
+
+        found_team = db.find_team('Example Team')
+        self.assertEqual(team, found_team)
+
+    def test_team_name_none(self):
+        """Check if finding team fails when team name is `None`"""
+
+        with self.assertRaisesRegex(ValueError, TEAM_NAME_NONE_ERROR):
+            db.find_team(None, self.org)
+
+    def test_team_name_empty(self):
+        """Check if finding team fails when team name is empty"""
+
+        with self.assertRaisesRegex(ValueError, TEAM_NAME_EMPTY_ERROR.format(var="team_name")):
+            db.find_team('', self.org)
+
+    def test_team_name_whitespaces(self):
+        """Check if finding team fails when team name is composed by whitespaces"""
+
+        with self.assertRaisesRegex(ValueError, TEAM_NAME_WHITESPACE_ERROR):
+            db.find_team('    ', self.org)
+
+        with self.assertRaisesRegex(ValueError, TEAM_NAME_WHITESPACE_ERROR):
+            db.find_team('\t', self.org)
+
+        with self.assertRaisesRegex(ValueError, TEAM_NAME_WHITESPACE_ERROR):
+            db.find_team('  \t  ', self.org)
 
 
 class TestFindDomain(TestCase):
@@ -576,6 +638,224 @@ class TestDeleteOrganization(TestCase):
         op1_args = json.loads(op1.args)
         self.assertEqual(len(op1_args), 1)
         self.assertEqual(op1_args['organization'], 'Example')
+
+
+class TestAddTeam(TestCase):
+    """"Unit tests for add_team"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        self.trxl = TransactionsLog.open('add_team', self.ctx)
+        self.orgname = "Example"
+        self.org = Organization.objects.create(name=self.orgname)
+
+    def test_add_team(self):
+        """Check if a new team is added"""
+
+        team_name = 'subteam'
+        team = db.add_team(self.trxl, team_name, self.org, None)
+        self.assertIsInstance(team, Team)
+        self.assertEqual(team.name, team_name)
+        self.assertEqual(team.organization, self.org)
+
+    def test_add_subteam(self):
+        """Check if a new subteam is added for specified team"""
+
+        team_name = 'subteam'
+        team = db.add_team(self.trxl, team_name, self.org, None)
+        subteam = db.add_team(self.trxl, 'childteam', self.org, team)
+
+        self.assertIsInstance(subteam, Team)
+        self.assertEqual(subteam.get_parent(), team)
+        self.assertEqual(subteam.name, 'childteam')
+        self.assertEqual(subteam.organization, self.org)
+
+    def test_add_multiple_teams(self):
+        """Check if multiple teams can be added"""
+
+        parent = db.add_team(self.trxl, 'parent_team', self.org, None)
+        db.add_team(self.trxl, 'child_team', self.org, parent)
+
+        teams = Team.objects.all().filter(organization=self.org)
+        self.assertEqual(len(teams), 2)
+        for team in teams:
+            self.assertIsInstance(team, Team)
+
+    def test_organization_none(self):
+        """Check whether teams linked to no organizations can be added"""
+
+        team = db.add_team(self.trxl, "team", None, None)
+        self.assertIsInstance(team, Team)
+        self.assertEqual(team.name, "team")
+        self.assertEqual(team.organization, None)
+
+    def test_team_none(self):
+        """Check whether teams with None name cannot be added"""
+
+        with self.assertRaisesRegex(ValueError, TEAM_NAME_NONE_ERROR):
+            db.add_team(self.trxl, None, self.org, None)
+        # Check if operations have not been generated after the failure
+        operations = Operation.objects.all()
+        self.assertEqual(len(operations), 0)
+
+    def test_team_empty(self):
+        """Check whether teams with empty names cannot be added"""
+
+        with self.assertRaisesRegex(ValueError, TEAM_NAME_EMPTY_ERROR.format(var="team_name")):
+            db.add_team(self.trxl, '', self.org, None)
+
+        # Check if operations have not been generated after the failure
+        operations = Operation.objects.all()
+        self.assertEqual(len(operations), 0)
+
+    def test_team_whitespaces(self):
+        """Check whether teams with names composed by whitespaces cannot be added"""
+
+        with self.assertRaisesRegex(ValueError, TEAM_NAME_WHITESPACE_ERROR):
+            db.add_team(self.trxl, '    ', self.org, None)
+
+        with self.assertRaisesRegex(ValueError, TEAM_NAME_WHITESPACE_ERROR):
+            db.add_team(self.trxl, '\t', self.org, None)
+
+        with self.assertRaisesRegex(ValueError, TEAM_NAME_WHITESPACE_ERROR):
+            db.add_team(self.trxl, '  \t  ', self.org, None)
+
+        # Check if operations have not been generated after the failure
+        operations = Operation.objects.all()
+        self.assertEqual(len(operations), 0)
+
+    def test_integrity_error(self):
+        """Check whether teams with the same team name cannot be inserted"""
+
+        team_name = 'error_team'
+
+        with self.assertRaisesRegex(AlreadyExistsError, DUPLICATED_TEAM_ERROR):
+            db.add_team(self.trxl, team_name, self.org, None)
+            db.add_team(self.trxl, team_name, self.org, None)
+
+    def test_integrity(self):
+        """Check whether team with the same team name can be inserted in two diff organizations"""
+
+        org1 = Organization.objects.create(name='Example1')
+        org2 = Organization.objects.create(name='Example2')
+        team_name = 'subteam'
+
+        team1 = db.add_team(self.trxl, team_name, org1, None)
+        team2 = db.add_team(self.trxl, team_name, org2, None)
+
+        self.assertIsInstance(team1, Team)
+        self.assertEqual(team1.organization, org1)
+
+        self.assertIsInstance(team2, Team)
+        self.assertEqual(team2.organization, org2)
+
+    def test_integrity_error_no_org_teams(self):
+        """Check whether teams with the same team name cannot be inserted when organization is None"""
+
+        team_name = 'error_team'
+
+        with self.assertRaisesRegex(AlreadyExistsError, DUPLICATED_TEAM_ERROR):
+            db.add_team(self.trxl, team_name, None, None)
+            db.add_team(self.trxl, team_name, None, None)
+
+        teams = Team.objects.all()
+        self.assertEqual(len(teams), 1)
+
+    def test_integrity_no_org_teams(self):
+        """Check whether teams with different team names linked to no organization can be inserted"""
+
+        team1 = db.add_team(self.trxl, "team1", self.org, None)
+        team2 = db.add_team(self.trxl, "team2", self.org, None)
+
+        teams = Team.objects.all()
+
+        self.assertIsInstance(team1, Team)
+        self.assertIsInstance(team2, Team)
+        self.assertEqual(len(teams), 2)
+
+    def test_operations(self):
+        """Check if the right operations are created when adding a team"""
+
+        timestamp = datetime_utcnow()
+        db.add_team(self.trxl, 'subteam', self.org, None)
+
+        transactions = Transaction.objects.filter(name='add_team')
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.ADD.value)
+        self.assertEqual(op1.entity_type, 'team')
+        self.assertEqual(op1.trx, trx)
+        self.assertEqual(op1.target, 'subteam')
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 3)
+        self.assertEqual(op1_args['organization'], self.orgname)
+        self.assertEqual(op1_args['team_name'], 'subteam')
+        self.assertEqual(op1_args['parent'], None)
+
+
+class TestDeleteTeam(TestCase):
+    """Unit tests for delete_team"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        self.trxl = TransactionsLog.open('delete_team', self.ctx)
+        self.org = Organization.objects.create(name='Example')
+
+    def test_delete_team(self):
+        """Check whether it deletes a team"""
+
+        team = Team.add_root(name='subTeam1', organization=self.org)
+        team.add_child(name='subTeam12', organization=self.org)
+
+        team.refresh_from_db()
+        db.delete_team(self.trxl, team)
+
+        with self.assertRaises(ObjectDoesNotExist):
+            Team.objects.get(name='subTeam1')
+
+        with self.assertRaises(ObjectDoesNotExist):
+            Team.objects.get(name='subTeam12')
+
+    def test_operations(self):
+        """Check if the right operations are created when deleting a team"""
+
+        timestamp = datetime_utcnow()
+        team = Team.add_root(name='subTeam1', organization=self.org)
+
+        db.delete_team(self.trxl, team)
+
+        transactions = Transaction.objects.filter(name='delete_team')
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.DELETE.value)
+        self.assertEqual(op1.entity_type, 'team')
+        self.assertEqual(op1.trx, trx)
+        self.assertEqual(op1.target, 'subTeam1')
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 1)
+        self.assertEqual(op1_args['team'], 'subTeam1')
 
 
 class TestAddDomain(TestCase):

@@ -32,9 +32,11 @@ from django.db.models import Q
 from grimoirelab_toolkit.datetime import datetime_utcnow, datetime_to_utc
 
 from .errors import AlreadyExistsError, NotFoundError, LockedIdentityError
+
 from .models import (MIN_PERIOD_DATE,
                      MAX_PERIOD_DATE,
                      Organization,
+                     Team,
                      Domain,
                      Country,
                      Individual,
@@ -169,6 +171,34 @@ def find_organization(name):
         return organization
 
 
+def find_team(team_name, organization=None):
+    """Find a team.
+
+    Finds a team by its name in the registry.
+    If organization is passed, it looks for a team in that organization.
+
+    When the team does not exist, the function will raise a `NotFoundError`.
+
+    :param organization: name of the organization to which team belongs to
+    :param team_name: name of the team to find
+    :returns: a team object
+
+    :raises NotFoundError: when the team with the
+        given `name` does not exist in the `organization` specified.
+    """
+    validate_field('team_name', team_name)
+
+    try:
+        logger.debug(f"Finding team '{team_name}'" + f"in '{organization.name}' ..." if organization else "...")
+        team = Team.objects.get(name=team_name, organization=organization)
+    except Team.DoesNotExist:
+        logger.debug(f"Team with name '{team_name}' does not exist")
+        raise NotFoundError(entity=team_name)
+    else:
+        logger.debug(f"Found team with name '{team_name}'")
+        return team
+
+
 def find_domain(domain_name):
     """Find a domain.
 
@@ -290,6 +320,55 @@ def delete_organization(trxl, organization):
                        target=op_args['organization'])
 
 
+def add_team(trxl, team_name, organization=None, parent=None):
+    """Add a team to the database.
+
+    This function adds a new team to the database using `team_name` as its identifier.
+    The new team will be created as a subteam of a parent, if parent is provided.
+    The new team will also be linked to the organization object in `organization`.
+
+    Values assigned to `team_name` cannot be `None` or empty.
+
+    As a result, the function returns a new `Team` object.
+
+    :param trxl: TransactionsLog object from the method calling this one
+    :param team_name: name of the team
+    :param organization: links the new team to this organization object
+    :param parent: parent team of the new team
+
+    :returns: a new team
+
+    :raises ValueError: raised when `team_name` is `None` or an empty string;
+    """
+    # Setting operation arguments before they are modified
+    op_args = {
+        'organization': None if not organization else organization.name,
+        'team_name': team_name,
+        'parent': None if not parent else parent.name
+    }
+
+    validate_field('team_name', team_name)
+
+    if not organization:
+        if Team.objects.filter(name=team_name, organization=organization).exists():
+            raise AlreadyExistsError(entity=Team.__name__, eid=team_name)
+
+    team = Team(name=team_name, organization=organization)
+
+    try:
+        if not parent:
+            team = Team.add_root(instance=team)
+        else:
+            team = parent.add_child(instance=team)
+    except django.db.utils.IntegrityError as exc:
+        _handle_integrity_error(Team, exc)
+
+    trxl.log_operation(op_type=Operation.OpType.ADD, entity_type='team',
+                       timestamp=datetime_utcnow(), args=op_args,
+                       target=op_args['team_name'])
+    return team
+
+
 def add_domain(trxl, organization, domain_name, is_top_domain=True):
     """Add a domain to the database.
 
@@ -357,6 +436,26 @@ def delete_domain(trxl, domain):
     trxl.log_operation(op_type=Operation.OpType.DELETE, entity_type='domain',
                        timestamp=datetime_utcnow(), args=op_args,
                        target=op_args['domain'])
+
+
+def delete_team(trxl, team):
+    """Remove a team and all its subteams from the database.
+
+    Deletes from the database the team given in `team` as well as all teams with parent=`team`
+
+    :param trxl: TransactionsLog object from the method calling this one
+    :param team: team to remove
+    """
+    # Setting operation arguments before they are modified
+    op_args = {
+        'team': team.name
+    }
+
+    team.delete()
+
+    trxl.log_operation(op_type=Operation.OpType.DELETE, entity_type='team',
+                       timestamp=datetime_utcnow(), args=op_args,
+                       target=op_args['team'])
 
 
 def add_individual(trxl, mk):
@@ -822,7 +921,6 @@ def _handle_integrity_error(model, exc):
 
     logger.debug("Database operation aborted; integrity error;",
                  exc_info=True)
-
     m = re.match(_MYSQL_DUPLICATE_ENTRY_ERROR_REGEX,
                  exc.__cause__.args[1])
     if not m:
@@ -830,5 +928,8 @@ def _handle_integrity_error(model, exc):
 
     entity = model.__name__
     eid = m.group('value')
+
+    if model == Team:
+        eid = m.group('value').split('-')[0]
 
     raise AlreadyExistsError(entity=entity, eid=eid)

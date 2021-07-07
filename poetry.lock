@@ -101,6 +101,17 @@ sentry = ["raven (>=6.1.0)"]
 testing = ["mock (>=2.0.0)"]
 
 [[package]]
+name = "django-treebeard"
+version = "4.5.1"
+description = "Efficient tree implementations for Django"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+Django = ">=2.2"
+
+[[package]]
 name = "fakeredis"
 version = "1.4.5"
 description = "Fake implementation of redis API for testing purposes."
@@ -540,7 +551,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=1.2.3)", "pytest-flake8", "pyt
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6.1"
-content-hash = "ece095dc4a5cbdfbbac5fff231f345be242b09648117541454a2e0c60a822f5b"
+content-hash = "d7d90b199b3ca4ba94604f3075426974292ca780e12ec1e4e664e1d780b29cb5"
 
 [metadata.files]
 aniso8601 = [
@@ -578,6 +589,10 @@ django-graphql-jwt = [
 django-rq = [
     {file = "django-rq-2.4.0.tar.gz", hash = "sha256:3851f4eb65358bf13cd179156ae695a8a76e18249f8d1c4b89c0c7efac7e1f6d"},
     {file = "django_rq-2.4.0-py2.py3-none-any.whl", hash = "sha256:9dd86d57f35593b2d44f4be9f5cb078313e770cf1a451b910c473394b6a5ff8c"},
+]
+django-treebeard = [
+    {file = "django-treebeard-4.5.1.tar.gz", hash = "sha256:80150017725239702054e5fa64dc66e383dc13ac262c8d47ee5a82cb005969da"},
+    {file = "django_treebeard-4.5.1-py3-none-any.whl", hash = "sha256:7c2b1cdb1e9b46d595825186064a1228bc4d00dbbc186db5b0b9412357fba91c"},
 ]
 fakeredis = [
     {file = "fakeredis-1.4.5-py3-none-any.whl", hash = "sha256:2c6041cf0225889bc403f3949838b2c53470a95a9e2d4272422937786f5f8f73"},

@@ -40,6 +40,8 @@ from enum import Enum
 
 from grimoirelab_toolkit.datetime import datetime_utcnow
 
+from treebeard.mp_tree import MP_Node
+
 # Default dates for periods
 MIN_PERIOD_DATE = datetime.datetime(1900, 1, 1, 0, 0, 0,
                                     tzinfo=dateutil.tz.tzutc())
@@ -138,6 +140,19 @@ class Organization(EntityBase):
     class Meta:
         db_table = 'organizations'
         unique_together = ('name',)
+
+    def __str__(self):
+        return self.name
+
+
+class Team(MP_Node, EntityBase):
+    name = CharField(max_length=MAX_SIZE_CHAR_INDEX)
+    organization = ForeignKey(Organization, related_name='teams', on_delete=CASCADE,
+                              blank=True, null=True)
+
+    class Meta:
+        db_table = 'teams'
+        unique_together = ('name', 'organization',)
 
     def __str__(self):
         return self.name

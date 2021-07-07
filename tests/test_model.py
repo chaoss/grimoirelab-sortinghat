@@ -33,6 +33,7 @@ from grimoirelab_toolkit.datetime import datetime_utcnow
 
 from sortinghat.core.models import (Organization,
                                     Domain,
+                                    Team,
                                     Country,
                                     Individual,
                                     Identity,
@@ -104,6 +105,60 @@ class TestOrganization(TransactionTestCase):
 
         self.assertGreaterEqual(org.last_modified, before_modified_dt)
         self.assertLessEqual(org.last_modified, after_modified_dt)
+
+
+class TestTeam(TransactionTestCase):
+    """Unit tests for Team class"""
+
+    def test_unique_teams(self):
+        """Check whether teams are unique for organization"""
+
+        with self.assertRaisesRegex(IntegrityError, DUPLICATE_CHECK_ERROR):
+            org = Organization.objects.create(name='Example')
+            team = Team.add_root(name='subTeam1', organization=org)
+            team.add_child(name='subTeam1', organization=org)
+
+    def test_null_organizations(self):
+        """Check if teams can be created without organizations"""
+
+        team = Team.add_root(name='subTeam1')
+        self.assertIsInstance(team, Team)
+
+    def test_created_at(self):
+        """Check creation date is only set when the object is created"""
+
+        before_dt = datetime_utcnow()
+        team = Team.add_root(name='subteam1')
+        after_dt = datetime_utcnow()
+
+        self.assertEqual(team.name, 'subteam1')
+        self.assertGreaterEqual(team.created_at, before_dt)
+        self.assertLessEqual(team.created_at, after_dt)
+
+        team.name = 'subTeam1'
+        team.save()
+
+        self.assertEqual(team.name, "subTeam1")
+        self.assertGreaterEqual(team.created_at, before_dt)
+        self.assertLessEqual(team.created_at, after_dt)
+
+    def test_last_modified(self):
+        before_dt = datetime_utcnow()
+        team = Team.add_root(name='subTeam1')
+        after_dt = datetime_utcnow()
+
+        self.assertEqual(team.name, 'subTeam1')
+        self.assertGreaterEqual(team.last_modified, before_dt)
+        self.assertLessEqual(team.last_modified, after_dt)
+
+        before_modified_dt = datetime_utcnow()
+        team.name = 'subteam1'
+        team.save()
+        after_modified_dt = datetime_utcnow()
+
+        self.assertEqual(team.name, 'subteam1')
+        self.assertGreaterEqual(team.last_modified, before_modified_dt)
+        self.assertLessEqual(team.last_modified, after_modified_dt)
 
 
 class TestDomain(TransactionTestCase):
