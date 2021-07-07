@@ -22,6 +22,9 @@
 
 import datetime
 import unittest.mock
+import json
+
+import httpretty
 
 from dateutil.tz import UTC
 
@@ -39,7 +42,9 @@ from sortinghat.core.jobs import (find_job,
                                   affiliate,
                                   unify,
                                   recommend_affiliations,
-                                  recommend_matches)
+                                  recommend_matches,
+                                  recommend_gender,
+                                  genderize)
 from sortinghat.core.models import Individual, Transaction
 
 
@@ -1063,3 +1068,192 @@ class TestUnify(TestCase):
         self.assertEqual(trx.name, 'merge-ABCD-EF12-3456-7890')
         self.assertGreater(trx.created_at, timestamp)
         self.assertEqual(trx.authored_by, ctx.user.username)
+
+
+def setup_genderize_server():
+    """Setup a mock HTTP server for genderize.io"""
+
+    http_requests = []
+
+    def request_callback(method, uri, headers):
+        last_request = httpretty.last_request()
+        http_requests.append(last_request)
+
+        params = last_request.querystring
+        name = params['name'][0].lower()
+
+        if name == 'error':
+            return 502, headers, 'Bad Gateway'
+
+        if name == 'john':
+            data = {
+                'gender': 'male',
+                'probability': 0.99
+            }
+        elif name == 'jane':
+            data = {
+                'gender': 'female',
+                'probability': 0.99
+            }
+        else:
+            data = {
+                'gender': None,
+                'probability': None
+            }
+
+        body = json.dumps(data)
+
+        return (200, headers, body)
+
+    httpretty.register_uri(httpretty.GET,
+                           "https://api.genderize.io/",
+                           responses=[
+                               httpretty.Response(body=request_callback)
+                           ])
+
+    return http_requests
+
+
+class TestRecommendGender(TestCase):
+    """Unit tests for recommend_gender"""
+
+    def setUp(self):
+        """Initialize database with a dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        ctx = SortingHatContext(self.user)
+
+        self.jsmith = api.add_identity(ctx,
+                                       source='scm',
+                                       name='John Smith')
+
+        self.jdoe = api.add_identity(ctx,
+                                     source='scm',
+                                     name='Jane Doe')
+
+    @httpretty.activate
+    def test_recommend_gender(self):
+        """Check if recommendations are obtained for the specified individuals"""
+
+        ctx = SortingHatContext(self.user)
+
+        expected = {
+            'results': {
+                self.jsmith.uuid: {
+                    'gender': 'male',
+                    'accuracy': 99
+                },
+                self.jdoe.uuid: {
+                    'gender': 'female',
+                    'accuracy': 99
+                }
+            }
+        }
+
+        setup_genderize_server()
+
+        uuids = [self.jsmith.uuid, self.jdoe.uuid]
+        job = recommend_gender.delay(ctx, uuids)
+        # Preserve job results order for the comparison against the expected results
+        result = job.result
+
+        self.assertDictEqual(result, expected)
+
+    @httpretty.activate
+    def test_transactions(self):
+        """Check if the right transactions were created"""
+
+        timestamp = datetime_utcnow()
+
+        ctx = SortingHatContext(self.user)
+
+        setup_genderize_server()
+
+        uuids = [self.jsmith.uuid, self.jdoe.uuid]
+        recommend_gender.delay(ctx,
+                               uuids,
+                               job_id='ABCD-EF12-3456-7890')
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        self.assertEqual(len(transactions), 1)
+
+        trx = transactions[0]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'recommend_gender-ABCD-EF12-3456-7890')
+        self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, ctx.user.username)
+
+
+class TestGenderize(TestCase):
+    """Unit tests for genderize"""
+
+    def setUp(self):
+        """Initialize database with a dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        ctx = SortingHatContext(self.user)
+
+        self.jsmith = api.add_identity(ctx,
+                                       source='scm',
+                                       name='John Smith')
+
+        self.jdoe = api.add_identity(ctx,
+                                     source='scm',
+                                     name='Jane Doe')
+
+    @httpretty.activate
+    def test_genderize(self):
+        """Check if genderize is applied for the specified individuals"""
+
+        ctx = SortingHatContext(self.user)
+
+        expected = {
+            'results': {
+                self.jsmith.uuid: ('male', 99)
+            },
+            'errors': []
+        }
+
+        setup_genderize_server()
+
+        uuids = [self.jsmith.uuid]
+        job = genderize.delay(ctx, uuids)
+        # Preserve job results order for the comparison against the expected results
+        result = job.result
+
+        self.assertDictEqual(result, expected)
+
+        individual = Individual.objects.get(mk=self.jsmith.uuid)
+        gender = individual.profile.gender
+        accuracy = individual.profile.gender_acc
+        self.assertEqual(gender, 'male')
+        self.assertEqual(accuracy, 99)
+
+    @httpretty.activate
+    def test_genderize_all(self):
+        """Check if genderize is applied for all individuals in the registry"""
+
+        ctx = SortingHatContext(self.user)
+
+        expected = {
+            'results': {
+                self.jsmith.uuid: ('male', 99),
+                self.jdoe.uuid: ('female', 99)
+            },
+            'errors': []
+        }
+
+        setup_genderize_server()
+
+        job = genderize.delay(ctx)
+        result = job.result
+
+        self.assertDictEqual(result, expected)
+
+        individual_1 = Individual.objects.get(mk=self.jsmith.uuid)
+        gender_1 = individual_1.profile.gender
+        self.assertEqual(gender_1, 'male')
+
+        individual_2 = Individual.objects.get(mk=self.jdoe.uuid)
+        gender_2 = individual_2.profile.gender
+        self.assertEqual(gender_2, 'female')

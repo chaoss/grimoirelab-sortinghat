@@ -28,7 +28,7 @@ import django_rq.utils
 import pandas
 import rq
 
-from .api import enroll, merge
+from .api import enroll, merge, update_profile
 from .context import SortingHatContext
 from .errors import BaseError, NotFoundError, EqualIndividualError
 from .log import TransactionsLog
@@ -220,6 +220,48 @@ def recommend_matches(ctx, source_uuids, target_uuids, criteria, verbose=False):
 
 
 @django_rq.job
+def recommend_gender(ctx, uuids):
+    """Generate a list of gender recommendations from a set of individuals.
+
+    This job generates a list of recommendations with the
+    probable gender of the given individuals.
+
+    :param ctx: context where this job is run
+    :param uuids: list of individuals identifiers
+
+    :returns: a dictionary with the recommended gender and accuracy of the
+        prediction for each individual.
+    """
+    job = rq.get_current_job()
+
+    logger.info(f"Running job {job.id} 'recommend gender'; ...")
+
+    results = {}
+    job_result = {
+        'results': results
+    }
+
+    engine = RecommendationEngine()
+
+    job_ctx = SortingHatContext(ctx.user, job.id)
+
+    trxl = TransactionsLog.open('recommend_gender', job_ctx)
+
+    for rec in engine.recommend('gender', uuids):
+        results[rec.key] = {'gender': rec.options[0],
+                           'accuracy': rec.options[1]}
+
+    trxl.close()
+
+    logger.info(
+        f"Job {job.id} 'recommend gender' completed; "
+        f"{len(results)} recommendations generated"
+    )
+
+    return job_result
+
+
+@django_rq.job
 def affiliate(ctx, uuids=None):
     """Affiliate a set of individuals using recommendations.
 
@@ -378,6 +420,72 @@ def unify(ctx, source_uuids, target_uuids, criteria):
     return job_result
 
 
+@django_rq.job
+def genderize(ctx, uuids=None):
+    """Assign a gender to a set of individuals using recommendations.
+
+    This job autocompletes the gender information (stored in
+    the profile) of unique identities after obtaining a list
+    of recommendations for their gender based on their name.
+
+    Individuals are defined by any of their valid keys or UUIDs.
+    When the parameter `uuids` is empty, the job will take all
+    the individuals stored in the registry.
+
+    :param ctx: context where this job is run
+    :param uuids: list of individuals identifiers
+
+    :returns: a dictionary with which individual profiles were
+        updated and the errors found running the job
+    """
+    job = rq.get_current_job()
+
+    if not uuids:
+        logger.info(f"Running job {job.id} 'genderize'; uuids='all'; ...")
+        uuids = Individual.objects.values_list('mk', flat=True).iterator()
+    else:
+        logger.info(f"Running job {job.id} 'genderize'; uuids={list(uuids)}; ...")
+        uuids = iter(uuids)
+
+    results = {}
+    errors = []
+    job_result = {
+        'results': results,
+        'errors': errors
+    }
+
+    engine = RecommendationEngine()
+
+    # Create a new context to include the reference
+    # to the job id that will perform the transaction.
+    job_ctx = SortingHatContext(ctx.user, job.id)
+
+    # Create an empty transaction to log which job
+    # will generate the enroll transactions.
+    trxl = TransactionsLog.open('autogender', job_ctx)
+
+    nsuccess = 0
+
+    for chunk in _iter_split(uuids, size=MAX_CHUNK_SIZE):
+        for rec in engine.recommend('gender', chunk):
+            gender, acc = rec.options
+            updated, errs = _update_individual_gender(job_ctx, rec.key, rec.options)
+            results[rec.key] = updated
+            errors.extend(errs)
+
+            if updated:
+                nsuccess += 1
+
+    trxl.close()
+
+    logger.info(
+        f"Job {job.id} 'genderize' completed; "
+        f"{nsuccess} individuals have been updated"
+    )
+
+    return job_result
+
+
 def _merge_individuals(job_ctx, source_indv, target_indvs):
     """Merge a set of individuals.
 
@@ -456,6 +564,28 @@ def _affiliate_individual(job_ctx, uuid, organizations):
     )
 
     return affiliated, errors
+
+
+def _update_individual_gender(job_ctx, uuid, recommendation):
+    errors = []
+    gender, gender_acc = recommendation
+
+    logger.debug(
+        f"Updating individual profile; "
+        f"job={job_ctx.job_id} uuid={uuid} gender={gender} gender_acc={gender_acc}; ..."
+    )
+
+    try:
+        update_profile(job_ctx, uuid, gender=gender, gender_acc=gender_acc)
+    except BaseError as exc:
+        errors.append(str(exc))
+
+    logger.debug(
+        f"Profile updated with {len(errors)} errors; "
+        f"job={job_ctx.job_id} uuid={uuid} gender={gender} gender_acc={gender_acc}; ..."
+    )
+
+    return recommendation, errors
 
 
 def _iter_split(iterator, size=None):

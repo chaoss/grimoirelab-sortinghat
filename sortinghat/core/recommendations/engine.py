@@ -24,6 +24,7 @@ import collections
 from ..errors import RecommendationEngineError
 from .affiliation import recommend_affiliations
 from .matching import recommend_matches
+from .gender import recommend_gender
 
 
 Recommendation = collections.namedtuple(
@@ -41,7 +42,8 @@ class RecommendationEngine:
     """
     RECOMMENDATION_TYPES = {
         'affiliation': recommend_affiliations,
-        'matches': recommend_matches
+        'matches': recommend_matches,
+        'gender': recommend_gender
     }
 
     def recommend(self, name, *args, **kwargs):
