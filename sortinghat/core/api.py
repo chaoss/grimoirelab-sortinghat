@@ -732,13 +732,10 @@ def delete_team(ctx, team_name, organization=None):
 
     :raises NotFoundError: raised when the team does not
         exist in the registry.
-    :raises InvalidValueError: raised when the team name or organization name
-        is None or an empty string.
+    :raises InvalidValueError: raised when the team name
+        is None or an empty string or when organization name
+        is invalid.
     """
-    if organization is None:
-        raise InvalidValueError(msg="'org_name' cannot be None")
-    if organization == '':
-        raise InvalidValueError(msg="'org_name' cannot be an empty string")
     if team_name is None:
         raise InvalidValueError(msg="'team_name' cannot be None")
     if team_name == '':
@@ -746,12 +743,13 @@ def delete_team(ctx, team_name, organization=None):
 
     trxl = TransactionsLog.open('delete_team', ctx)
 
-    try:
-        organization = find_organization(organization)
-    except ValueError as e:
-        raise InvalidValueError(msg=str(e))
-    except NotFoundError as exc:
-        raise exc
+    if organization:
+        try:
+            organization = find_organization(organization)
+        except ValueError as e:
+            raise InvalidValueError(msg=str(e))
+        except NotFoundError as exc:
+            raise exc
 
     try:
         team = find_team(team_name, organization)

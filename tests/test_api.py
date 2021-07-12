@@ -2129,27 +2129,25 @@ class TestDeleteTeam(TestCase):
         self.assertEqual(team.organization, self.org)
 
     def test_organization_is_none(self):
-        """Check if it fails when organization name is `None`"""
+        """Check if it passes when team does not belong to any organization"""
 
-        api.add_team(self.ctx, "suborg", "Example", None)
+        api.add_team(self.ctx, "suborg")
 
-        trx_date = datetime_utcnow()
-
-        with self.assertRaisesRegex(InvalidValueError, TEAM_ORG_NAME_MISSING):
-            api.delete_team(self.ctx, "suborg", None)
-
-        transactions = Transaction.objects.filter(created_at__gt=trx_date)
-        self.assertEqual(len(transactions), 0)
+        team = api.delete_team(self.ctx, "suborg")
+        self.assertIsInstance(team, Team)
+        self.assertEqual(team.name, "suborg")
+        self.assertEqual(team.organization, None)
 
     def test_organization_name_is_empty(self):
-        """Check if it fails when organization name is an empty string`"""
+        """Check if it fails when organization name is empty for a
+           team that belongs to an organization"""
 
         api.add_team(self.ctx, "suborg", "Example", None)
 
         trx_date = datetime_utcnow()
 
-        with self.assertRaisesRegex(InvalidValueError, TEAM_ORG_NAME_MISSING):
-            api.delete_team(self.ctx, "suborg", "")
+        with self.assertRaisesRegex(NotFoundError, NOT_FOUND_ERROR.format(entity="suborg")):
+            api.delete_team(self.ctx, "suborg")
 
         transactions = Transaction.objects.filter(created_at__gt=trx_date)
         self.assertEqual(len(transactions), 0)
