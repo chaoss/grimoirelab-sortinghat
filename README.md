@@ -82,10 +82,7 @@ $ poetry shell
 
 Migrations, fixtures and create a superuser:
 ```
-(.venv)$ ./manage.py makemigrations --settings=config.settings.devel
-(.venv)$ ./manage.py migrate --settings=config.settings.devel
-(.venv)$ ./manage.py loaddata sortinghat/core/fixtures/countries.json --settings=config.settings.devel
-(.venv)$ ./manage.py createsuperuser --settings=config.settings.devel
+(.venv)$ sortinghat-admin --config=config.settings.devel setup
 ```
 
 #### Running the backend
@@ -159,6 +156,16 @@ $ yarn build
 Copy the static files to the location where they will be served (`STATIC_ROOT` var):
 ```
 $ ./manage.py collectstatic --settings=config.settings.devel
+```
+
+Create a new database on your MySQL/MariaDB shell:
+```
+mysql> CREATE DATABASE new_sh CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_520_ci;
+```
+
+Set up the service:
+```
+$ sortinghat-admin --config=config.settings.devel setup
 ```
 
 Run the server (use `--dev` flag for `development` mode):

@@ -36,6 +36,7 @@ classifiers = [
 [tool.poetry.scripts]
 sortinghat = "sortinghat.cli.sortinghat:sortinghat"
 sortinghatd = "sortinghat.server.sortinghatd:sortinghatd"
+sortinghat-admin = "sortinghat.server.sortinghat_admin:sortinghat_admin"
 
 [tool.poetry.dependencies]
 python = "^3.6.1"
@@ -58,6 +59,7 @@ django-cors-headers = "^3.7.0"
 PyJWT = "1.7.1"
 uWSGI = "^2.0"
 django-treebeard = "^4.5.1"
+importlib-resources = "^5.2.0"
 
 [tool.poetry.dev-dependencies]
 fakeredis = "^1.4.1"
