@@ -5911,7 +5911,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
         </h3>
          
         <button
-          class="black--text v-btn v-btn--depressed theme--light v-size--small secondary"
+          class="black--text js-add-individual v-btn v-btn--depressed theme--light v-size--small secondary"
           style="height: 34px;"
           type="button"
         >
@@ -8113,7 +8113,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
           </h3>
            
           <button
-            class="black--text v-btn v-btn--depressed theme--light v-size--small secondary"
+            class="black--text js-add-individual v-btn v-btn--depressed theme--light v-size--small secondary"
             style="height: 34px;"
             type="button"
           >

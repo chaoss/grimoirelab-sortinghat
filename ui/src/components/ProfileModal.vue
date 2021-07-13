@@ -10,6 +10,7 @@
             <v-col cols="6">
               <v-text-field
                 label="Name"
+                id="name"
                 v-model="profileForm.name"
                 outlined
                 dense
@@ -18,6 +19,7 @@
             <v-col cols="6">
               <v-text-field
                 label="Email"
+                id="email"
                 v-model="profileForm.email"
                 :rules="validations.email"
                 outlined
@@ -29,6 +31,7 @@
             <v-col cols="6">
               <v-text-field
                 label="Username"
+                id="username"
                 v-model="profileForm.username"
                 outlined
                 dense
@@ -37,6 +40,7 @@
             <v-col cols="6">
               <v-text-field
                 label="Source"
+                id="source"
                 v-model="profileForm.source"
                 :rules="validations.required"
                 outlined
