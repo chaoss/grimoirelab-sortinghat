@@ -36,6 +36,7 @@ classifiers = [
 [tool.poetry.scripts]
 sortinghat = "sortinghat.cli.sortinghat:sortinghat"
 sortinghatd = "sortinghat.server.sortinghatd:sortinghatd"
+sortinghatw = "sortinghat.server.sortinghatw:sortinghatw"
 sortinghat-admin = "sortinghat.server.sortinghat_admin:sortinghat_admin"
 
 [tool.poetry.dependencies]

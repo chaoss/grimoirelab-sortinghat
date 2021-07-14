@@ -176,6 +176,12 @@ $ sortinghatd --config config.settings.devel
 By default, this runs a WSGI server in `127.0.0.1:6314`. The `--dev` flag runs
 a server in `127.0.0.1:8000`.
 
+You will also need to run some workers to execute tasks like recommendations
+or affiliation. To start a worker run the command:
+```
+$ sortinghatw --config config.settings.devel
+```
+
 
 ## Compatibility between versions
 SortingHat 0.7.x is not longer supported. Any database using this version will not work.
