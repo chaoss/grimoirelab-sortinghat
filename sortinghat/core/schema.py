@@ -52,8 +52,10 @@ from .api import (add_identity,
                   merge,
                   unmerge_identities,
                   add_organization,
+                  add_team,
                   add_domain,
                   delete_organization,
+                  delete_team,
                   delete_domain,
                   enroll,
                   withdraw,
@@ -70,6 +72,7 @@ from .jobs import (affiliate,
                    recommend_gender,
                    genderize)
 from .models import (Organization,
+                     Team,
                      Domain,
                      Country,
                      Individual,
@@ -169,6 +172,11 @@ class TransactionType(DjangoObjectType):
 class OrganizationType(DjangoObjectType):
     class Meta:
         model = Organization
+
+
+class TeamType(DjangoObjectType):
+    class Meta:
+        model = Team
 
 
 class DomainType(DjangoObjectType):
@@ -291,6 +299,25 @@ class OrganizationFilterType(graphene.InputObjectType):
     term = graphene.String(
         required=False,
         description='Filter organizations whose name or domains include the term.'
+    )
+
+
+class TeamFilterType(graphene.InputObjectType):
+    name = graphene.String(
+        required=False,
+        description='Filter teams with an exact name match.'
+    )
+    organization = graphene.String(
+        required=False,
+        description='Filter teams belonging to this organization.'
+    )
+    parent = graphene.String(
+        required=False,
+        description='Filter teams which are subteams of parent.'
+    )
+    term = graphene.String(
+        required=False,
+        description='Filter teams whose name include the term.'
     )
 
 
@@ -434,6 +461,11 @@ class OrganizationPaginatedType(AbstractPaginatedType):
     page_info = graphene.Field(PaginationType, description='Information to aid in pagination.')
 
 
+class TeamPaginatedType(AbstractPaginatedType):
+    entities = graphene.List(TeamType, description='A list of teams.')
+    page_info = graphene.Field(PaginationType, description='Information to aid in pagination.')
+
+
 class IdentityPaginatedType(AbstractPaginatedType):
     entities = graphene.List(IndividualType, description='A list of identities.')
     page_info = graphene.Field(PaginationType, description='Information to aid in pagination.')
@@ -487,6 +519,45 @@ class DeleteOrganization(graphene.Mutation):
 
         return DeleteOrganization(
             organization=org
+        )
+
+
+class AddTeam(graphene.Mutation):
+    class Arguments:
+        team_name = graphene.String()
+        organization = graphene.String()
+        parent_name = graphene.String()
+
+    team = graphene.Field(lambda: TeamType)
+
+    @check_auth
+    def mutate(self, info, team_name, organization=None, parent_name=None):
+        user = info.context.user
+        ctx = SortingHatContext(user)
+
+        team = add_team(ctx, team_name, organization, parent_name)
+
+        return AddTeam(
+            team=team
+        )
+
+
+class DeleteTeam(graphene.Mutation):
+    class Arguments:
+        team_name = graphene.String()
+        organization = graphene.String()
+
+    team = graphene.Field(lambda: TeamType)
+
+    @check_auth
+    def mutate(self, info, team_name, organization=None):
+        user = info.context.user
+        ctx = SortingHatContext(user)
+
+        team = delete_team(ctx, team_name, organization)
+
+        return DeleteTeam(
+            team=team
         )
 
 
@@ -923,6 +994,13 @@ class SortingHatQuery:
         filters=OrganizationFilterType(required=False),
         description='Find organizations.'
     )
+    teams = graphene.Field(
+        TeamPaginatedType,
+        page_size=graphene.Int(),
+        page=graphene.Int(),
+        filters=TeamFilterType(required=False),
+        description='Find teams.'
+    )
     individuals = graphene.Field(
         IdentityPaginatedType,
         page_size=graphene.Int(),
@@ -991,6 +1069,33 @@ class SortingHatQuery:
         return OrganizationPaginatedType.create_paginated_result(query,
                                                                  page,
                                                                  page_size=page_size)
+
+    @check_auth
+    def resolve_teams(self, info, filters=None, page=1,
+                      page_size=settings.DEFAULT_GRAPHQL_PAGE_SIZE, **kwargs):
+        query = Team.objects.order_by('name')
+
+        if filters:
+            if 'name' in filters:
+                query = query.filter(name=filters['name'])
+            if 'term' in filters:
+                search_term = filters['term']
+                query = query.filter(Q(name__icontains=search_term))
+            if 'organization' in filters:
+                org_search_term = filters['organization']
+                query = query.filter(Q(organization__in=Organization.objects.filter(name__icontains=org_search_term)))
+                if 'parent' in filters:
+                    query = query.filter(name=filters['parent'])
+                    if query:
+                        query = query.first().get_descendants()
+            else:
+                if 'parent' in filters:
+                    query = query.filter(name=filters['parent'], organization=None)
+                    if query:
+                        query = query.first().get_descendants()
+
+        return TeamPaginatedType.create_paginated_result(query, page,
+                                                         page_size=page_size)
 
     @check_auth
     def resolve_individuals(self, info, filters=None,
@@ -1232,6 +1337,13 @@ class SortingHatMutation(graphene.ObjectType):
     delete_organization = DeleteOrganization.Field(
         description='Remove an organization from the registry. Related information\
         such as domains or enrollments is also removed.'
+    )
+    add_team = AddTeam.Field(
+        description='Add a team to the registry.'
+    )
+    delete_team = DeleteTeam.Field(
+        description='Remove a team from the registry. Related information\
+        such as subteams is also removed.'
     )
     add_domain = AddDomain.Field(
         description='Add a new domain to an organization. The new domain is set\
