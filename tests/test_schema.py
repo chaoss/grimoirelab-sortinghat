@@ -50,6 +50,7 @@ from sortinghat.core import db
 from sortinghat.core.context import SortingHatContext
 from sortinghat.core.log import TransactionsLog
 from sortinghat.core.models import (Organization,
+                                    Team,
                                     Domain,
                                     Country,
                                     Individual,
@@ -65,10 +66,12 @@ from sortinghat.core.schema import (SortingHatQuery,
 
 DUPLICATED_ORG_ERROR = "Organization 'Example' already exists in the registry"
 DUPLICATED_DOM_ERROR = "Domain 'example.net' already exists in the registry"
+DUPLICATED_TEAM_ERROR = "Team 'Example_team' already exists in the registry"
 DUPLICATED_INDIVIDUAL = "Individual 'eda9f62ad321b1fbe5f283cc05e2484516203117' already exists in the registry"
 DUPLICATED_ENROLLMENT_ERROR = "range date '{}'-'{}' is part of an existing range for {}"
 NAME_EMPTY_ERROR = "'name' cannot be an empty string"
 DOMAIN_NAME_EMPTY_ERROR = "'domain_name' cannot be an empty string"
+TEAM_NAME_EMPTY_ERROR = "'team_name' cannot be an empty string"
 SOURCE_EMPTY_ERROR = "'source' cannot be an empty string"
 IDENTITY_EMPTY_DATA_ERROR = 'identity data cannot be empty'
 FROM_UUID_IS_MK_ERROR = "'from_uuid' is an individual and it cannot be moved; use 'merge' instead"
@@ -86,6 +89,7 @@ INDIVIDUAL_DOES_NOT_EXIST_ERROR = "FFFFFFFFFFFFFFF not found in the registry"
 ORGANIZATION_BITERGIA_DOES_NOT_EXIST_ERROR = "Bitergia not found in the registry"
 ORGANIZATION_EXAMPLE_DOES_NOT_EXIST_ERROR = "Example not found in the registry"
 ORGANIZATION_LIBRESOFT_DOES_NOT_EXIST_ERROR = "LibreSoft not found in the registry"
+TEAM_EXAMPLE_DOES_NOT_EXIST_ERROR = "Example_team not found in the registry"
 ENROLLMENT_DOES_NOT_EXIST_ERROR = "enrollment with range '2050-01-01 00:00:00+00:00'-'2060-01-01 00:00:00+00:00'"\
                                   " for Example not found in the registry"
 PAGINATION_NO_RESULTS_ERROR = "That page contains no results"
@@ -198,6 +202,107 @@ SH_ORGS_QUERY_TERM_FILTER = """{
 }"""
 SH_ORGS_QUERY_PAGINATION = """{
   organizations (
+    page: %d
+    pageSize: %d
+  ){
+    entities {
+      name
+    }
+    pageInfo{
+      page
+      pageSize
+      numPages
+      hasNext
+      hasPrev
+      startIndex
+      endIndex
+      totalResults
+    }
+  }
+}"""
+SH_TEAMS_QUERY = """{
+  teams {
+    entities {
+      name
+      organization {
+        name
+      }
+    }
+  }
+}"""
+SH_TEAMS_QUERY_FILTER = """{
+  teams (
+    filters:{
+      name:"%s"
+    }
+  ){
+    entities {
+        name
+        organization {
+          name
+        }
+      }
+  }
+}"""
+SH_TEAMS_QUERY_TERM_FILTER = """{
+  teams (
+    filters:{
+      term:"%s"
+    }
+  ){
+    entities {
+      name
+      organization {
+        name
+      }
+    }
+  }
+}"""
+SH_TEAMS_QUERY_ORG_FILTER = """{
+  teams (
+    filters:{
+      organization:"%s"
+    }
+  ){
+    entities {
+      name
+      organization {
+        name
+      }
+    }
+  }
+}"""
+SH_TEAMS_QUERY_PARENT_FILTER = """{
+  teams (
+    filters:{
+      parent:"%s"
+    }
+  ){
+    entities {
+      name
+      organization {
+        name
+      }
+    }
+  }
+}"""
+SH_TEAMS_QUERY_PARENT_ORG_FILTERS = """{
+  teams (
+      filters:{
+        parent:"%s"
+        organization:"%s"
+      }
+    ){
+      entities {
+        name
+        organization {
+          name
+        }
+      }
+    }
+}"""
+SH_TEAMS_QUERY_PAGINATION = """{
+  teams (
     page: %d
     pageSize: %d
   ){
@@ -1380,6 +1485,231 @@ class TestQueryOrganizations(django.test.TestCase):
         client = graphene.test.Client(schema)
 
         executed = client.execute(SH_ORGS_QUERY,
+                                  context_value=context_value)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
+
+
+class TestQueryTeams(django.test.TestCase):
+    """Unit tests for team queries"""
+
+    def setUp(self):
+        """Set queries context"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
+
+    def test_teams(self):
+        """Check if it returns the registry of teams"""
+
+        example_org = Organization.objects.create(name='Example')
+        Team.add_root(name='Example_team', organization=example_org)
+        bitergia_org = Organization.objects.create(name='Bitergia')
+        team = Team.add_root(name='Bitergia_team', organization=bitergia_org)
+        subteam = team.add_child(name='Bitergia_subteam', organization=bitergia_org)
+
+        # Tests
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_TEAMS_QUERY,
+                                  context_value=self.context_value)
+
+        teams = executed['data']['teams']['entities']
+        self.assertEqual(len(teams), 3)
+
+        teams_in_example_org = example_org.teams.all()
+        self.assertEqual(len(teams_in_example_org), 1)
+
+        teams_in_bitergia_org = bitergia_org.teams.all()
+        self.assertEqual(len(teams_in_bitergia_org), 2)
+
+    def test_empty_registry(self):
+        """Check whether it returns an empty list when the registry is empty"""
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_TEAMS_QUERY,
+                                  context_value=self.context_value)
+
+        orgs = executed['data']['teams']['entities']
+        self.assertListEqual(orgs, [])
+
+    def test_filter_registry(self):
+        """Check whether it returns the teams searched when using name filter"""
+
+        team = Team.add_root(name='Example_team1')
+
+        client = graphene.test.Client(schema)
+        test_query = SH_TEAMS_QUERY_FILTER % 'Example_team1'
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
+
+        teams = executed['data']['teams']['entities']
+        self.assertEqual(len(teams), 1)
+
+        self.assertEqual(teams[0]['name'], team.name)
+
+    def test_filter_non_exist_registry(self):
+        """Check whether it returns an empty list when searched with a non existing team"""
+
+        example_org = Organization.objects.create(name='Example')
+        Team.add_root(name='Example_team1', organization=example_org)
+
+        client = graphene.test.Client(schema)
+        test_query = SH_TEAMS_QUERY_FILTER % 'Example'
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
+
+        teams = executed['data']['teams']['entities']
+        self.assertListEqual(teams, [])
+
+    def test_filter_term(self):
+        """Check whether it returns the teams searched when using term filter"""
+
+        example_org = Organization.objects.create(name='Example')
+        team1 = Team.add_root(name='team1', organization=example_org)
+        Team.add_root(name='team2', organization=example_org)
+        Team.add_root(name='team3', organization=example_org)
+
+        client = graphene.test.Client(schema)
+
+        # Test 'team1' should return one of the organizations
+        test_query = SH_TEAMS_QUERY_TERM_FILTER % 'team1'
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
+
+        team = executed['data']['teams']['entities']
+        self.assertEqual(len(team), 1)
+
+        team = team[0]
+        self.assertEqual(team['name'], team1.name)
+
+        # Test 'team' should return all 3 teams
+        test_query = SH_TEAMS_QUERY_TERM_FILTER % 'team'
+        executed = client.execute(test_query, context_value=self.context_value)
+
+        teams = executed['data']['teams']['entities']
+        self.assertEqual(len(teams), 3)
+
+        # Test '123' shouldn't return any organizations
+        test_query = SH_TEAMS_QUERY_TERM_FILTER % '123'
+        executed = client.execute(test_query, context_value=self.context_value)
+
+        teams = executed['data']['teams']['entities']
+        self.assertEqual(len(teams), 0)
+
+    def test_filter_organization(self):
+        """Check whether it returns the correct teams when using organization filter"""
+
+        example_org = Organization.objects.create(name='Example')
+        example_team = Team.add_root(name='example_team', organization=example_org)
+        bitergia_org = Organization.objects.create(name='Bitergia')
+        Team.add_root(name='bitergia_team', organization=bitergia_org)
+
+        client = graphene.test.Client(schema)
+
+        # Test 'Example' as organization should return 'Example_team'
+        test_query = SH_TEAMS_QUERY_ORG_FILTER % 'Example'
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
+
+        teams = executed['data']['teams']['entities']
+        self.assertEqual(len(teams), 1)
+
+        team = teams[0]
+        self.assertEqual(team['name'], example_team.name)
+        self.assertEqual(team['organization']['name'], example_org.name)
+
+    def test_filter_parent(self):
+        """Check whether it returns the correct teams when using parent filter"""
+
+        team = Team.add_root(name='example_team')
+        subteam1 = team.add_child(name='subteam1')
+        subteam2 = subteam1.add_child(name='subteam2')
+
+        client = graphene.test.Client(schema)
+
+        # Test 'example_team' should return 'subteam1' and 'subteam2'
+        test_query = SH_TEAMS_QUERY_PARENT_FILTER % 'example_team'
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
+
+        teams = executed['data']['teams']['entities']
+        self.assertEqual(len(teams), 2)
+
+        # Teams are sorted by name
+        team = teams[0]
+        self.assertEqual(team['name'], subteam1.name)
+
+        team = teams[1]
+        self.assertEqual(team['name'], subteam2.name)
+
+    def test_filter_parent_and_organization(self):
+        """Check whether it returns the correct teams when using parent filter
+           for a particular organization"""
+
+        example_org = Organization.objects.create(name='Example')
+        bitergia_org = Organization.objects.create(name='Bitergia')
+
+        example_team = Team.add_root(name='example_team', organization=example_org)
+        example_subteam = example_team.add_child(name='example_subteam', organization=example_org)
+
+        _ = Team.add_root(name='example_team', organization=bitergia_org)
+
+        client = graphene.test.Client(schema)
+        test_query = SH_TEAMS_QUERY_PARENT_ORG_FILTERS % ('example_team', 'Example')
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
+
+        teams = executed['data']['teams']['entities']
+        self.assertEqual(len(teams), 1)
+
+        team = teams[0]
+        self.assertEqual(team['name'], example_subteam.name)
+
+    def test_pagination(self):
+        """Check whether it returns the teams searched when using pagination"""
+
+        example_org = Organization.objects.create(name='Example')
+        team1 = Team.add_root(name='team1', organization=example_org)
+        team2 = Team.add_root(name='team2', organization=example_org)
+        Team.add_root(name='team3', organization=example_org)
+
+        client = graphene.test.Client(schema)
+        test_query = SH_TEAMS_QUERY_PAGINATION % (1, 2)
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
+
+        teams = executed['data']['teams']['entities']
+        self.assertEqual(len(teams), 2)
+
+        # As organizations are sorted by name, the first two will be org2 and org1
+        team = teams[0]
+        self.assertEqual(team['name'], team1.name)
+
+        team = teams[1]
+        self.assertEqual(team['name'], team2.name)
+
+        pag_data = executed['data']['teams']['pageInfo']
+        self.assertEqual(len(pag_data), 8)
+        self.assertEqual(pag_data['page'], 1)
+        self.assertEqual(pag_data['pageSize'], 2)
+        self.assertEqual(pag_data['numPages'], 2)
+        self.assertTrue(pag_data['hasNext'])
+        self.assertFalse(pag_data['hasPrev'])
+        self.assertEqual(pag_data['startIndex'], 1)
+        self.assertEqual(pag_data['endIndex'], 2)
+        self.assertEqual(pag_data['totalResults'], 3)
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the query"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        executed = client.execute(SH_TEAMS_QUERY,
                                   context_value=context_value)
 
         msg = executed['errors'][0]['message']
@@ -4111,6 +4441,321 @@ class TestDeleteOrganizationMutation(django.test.TestCase):
         client = graphene.test.Client(schema)
 
         executed = client.execute(self.SH_DELETE_ORG,
+                                  context_value=context_value)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
+
+
+class TestAddTeamMutation(django.test.TestCase):
+    """Unit tests for mutation to add teams"""
+
+    SH_ADD_TEAM = """
+      mutation {
+        addTeam(teamName: "Example_team", organization: "Example") {
+          team {
+            name
+            organization {
+              name
+            }
+          }
+        }
+      }
+    """
+
+    SH_ADD_SUBTEAM = """
+          mutation {
+            addTeam(teamName: "Example_subteam", parentName: "Example_team") {
+              team {
+                name
+                organization {
+                  name
+                }
+              }
+            }
+          }
+    """
+
+    SH_ADD_TEAM_EMPTY = """
+      mutation {
+        addTeam(teamName: "", organization: "Example") {
+          team {
+            name
+          }
+        }
+      }
+    """
+
+    SH_ADD_ORG_EMPTY = """
+      mutation {
+        addTeam(teamName: "Example_team") {
+          team {
+            name
+            organization {
+              name
+            }
+          }
+        }
+      }
+    """
+
+    def setUp(self):
+        """Set queries context"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
+
+    def test_add_team(self):
+        """Check if a new team is added"""
+
+        Organization.objects.create(name='Example')
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_ADD_TEAM,
+                                  context_value=self.context_value)
+
+        # Check result
+        team = executed['data']['addTeam']['team']
+        self.assertEqual(team['name'], 'Example_team')
+        self.assertEqual(team['organization']['name'], 'Example')
+
+        # Check database
+        org = Organization.objects.get(name='Example')
+        teams = org.teams.all()
+        self.assertEqual(len(teams), 1)
+
+        team = teams[0]
+        self.assertEqual(team.name, 'Example_team')
+
+    def test_no_org_team(self):
+        """Check whether teams can be added without organization"""
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_ADD_ORG_EMPTY,
+                                  context_value=self.context_value)
+
+        # Check result
+        team = executed['data']['addTeam']['team']
+        self.assertEqual(team['name'], 'Example_team')
+        self.assertEqual(team['organization'], None)
+
+    def test_add_subteam(self):
+        """Check if a team can be made as a subteam"""
+
+        client = graphene.test.Client(schema)
+        client.execute(self.SH_ADD_ORG_EMPTY,
+                       context_value=self.context_value)
+
+        client = graphene.test.Client(schema)
+        subteam = client.execute(self.SH_ADD_SUBTEAM,
+                                 context_value=self.context_value)
+
+        # Check result
+        subteam = subteam['data']['addTeam']['team']
+        self.assertEqual(subteam['name'], 'Example_subteam')
+        self.assertEqual(subteam['organization'], None)
+
+        team = Team.objects.get(name="Example_team")
+        subteam = Team.objects.get(name="Example_subteam")
+        self.assertTrue(subteam.is_child_of(team))
+
+    def test_team_empty(self):
+        """Check whether teams with empty names cannot be added"""
+
+        Organization.objects.create(name='Example')
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_ADD_TEAM_EMPTY,
+                                  context_value=self.context_value)
+
+        # Check error
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, TEAM_NAME_EMPTY_ERROR)
+
+        # Check database
+        teams = Team.objects.all()
+        self.assertEqual(len(teams), 0)
+
+    def test_integrity_error(self):
+        """Check whether teams with the same team name cannot be inserted"""
+
+        Organization.objects.create(name='Example')
+
+        client = graphene.test.Client(schema)
+        client.execute(self.SH_ADD_TEAM, context_value=self.context_value)
+
+        # Check database
+        team = Team.objects.get(name='Example_team')
+        self.assertEqual(team.name, 'Example_team')
+        self.assertEqual(team.organization.name, 'Example')
+
+        # Try to insert it twice
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_ADD_TEAM,
+                                  context_value=self.context_value)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, DUPLICATED_TEAM_ERROR)
+
+    def test_not_found_organization(self):
+        """Check if it returns an error when an organization does not exist"""
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_ADD_TEAM,
+                                  context_value=self.context_value)
+
+        # Check error
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, ORGANIZATION_EXAMPLE_DOES_NOT_EXIST_ERROR)
+
+    def test_not_found_parent(self):
+        """Check if it returns an error when a parent does not exist"""
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_ADD_SUBTEAM,
+                                  context_value=self.context_value)
+
+        # Check error
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, TEAM_EXAMPLE_DOES_NOT_EXIST_ERROR)
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the query"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        executed = client.execute(self.SH_ADD_TEAM,
+                                  context_value=context_value)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
+
+
+class TestDeleteTeamMutation(django.test.TestCase):
+    """Unit tests for mutation to delete teams"""
+
+    SH_DELETE_TEAM = """
+      mutation delT {
+        deleteTeam(teamName: "Example_team", organization: "Example") {
+          team {
+            name
+          }
+        }
+      }
+    """
+
+    SH_DELETE_TEAM_NO_ORG = """
+      mutation delT {
+        deleteTeam(teamName: "Example_team", organization: "Example") {
+          team {
+            name
+          }
+        }
+      }
+    """
+
+    def setUp(self):
+        """Set queries context"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
+
+    def test_delete_team(self):
+        """Check whether it deletes a team"""
+
+        org = Organization.objects.create(name='Example')
+        Team.add_root(name='Example_team', organization=org)
+
+        # Delete team
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_DELETE_TEAM,
+                                  context_value=self.context_value)
+
+        # Check result
+        team = executed['data']['deleteTeam']['team']
+        self.assertEqual(team['name'], 'Example_team')
+
+        # Tests
+        with self.assertRaises(django.core.exceptions.ObjectDoesNotExist):
+            Team.objects.get(name='Example_team')
+
+        teams = Team.objects.all()
+        self.assertEqual(len(teams), 0)
+
+    def test_delete_no_org_team(self):
+        """Check if it deletes a team that does not belong to any organization"""
+
+        org = Organization.objects.create(name='Example')
+        Team.add_root(name='Example_team', organization=org)
+        Team.add_root(name='Example_team', organization=None)
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_DELETE_TEAM_NO_ORG,
+                                  context_value=self.context_value)
+
+        # Check result
+        team = executed['data']['deleteTeam']['team']
+        self.assertEqual(team['name'], 'Example_team')
+
+        # Check if other team still exists
+        teams = Team.objects.all()
+        self.assertEqual(len(teams), 1)
+
+        team = teams[0]
+        self.assertEqual(team.name, 'Example_team')
+        self.assertEqual(team.organization, None)
+
+    def test_not_found_team_in_org(self):
+        """Check if it returns an error when a team does not
+           exist in the given organization"""
+
+        org = Organization.objects.create(name='Example')
+        Team.add_root(name='Example_different_team', organization=org)
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_DELETE_TEAM,
+                                  context_value=self.context_value)
+
+        # Check error
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, TEAM_EXAMPLE_DOES_NOT_EXIST_ERROR)
+
+        # It should not remove anything
+        teams = Team.objects.all()
+        self.assertEqual(len(teams), 1)
+
+    def test_not_found_org(self):
+        """Check if it returns an error when a organization doesnt exist"""
+
+        org = Organization.objects.create(name='ORG')
+        Team.add_root(name='Example_team', organization=org)
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_DELETE_TEAM,
+                                  context_value=self.context_value)
+
+        # Check error
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, ORGANIZATION_EXAMPLE_DOES_NOT_EXIST_ERROR)
+
+        # It should not remove anything
+        teams = Team.objects.all()
+        self.assertEqual(len(teams), 1)
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the query"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        executed = client.execute(self.SH_DELETE_TEAM,
                                   context_value=context_value)
 
         msg = executed['errors'][0]['message']
