@@ -28,15 +28,16 @@ import re
 import requests
 import urllib3.util
 
-from ..db import find_individual_by_uuid
+from ..db import find_individual_by_uuid, find_identity
 from ..errors import NotFoundError, InvalidValueError
+from .exclusion import fetch_recommender_exclusion_list
 
 logger = logging.getLogger(__name__)
 
 name_pattern = re.compile(r"(^\w+)\s\w+")
 
 
-def recommend_gender(uuids):
+def recommend_gender(uuids, exclude=True):
     """Recommend possible genders for a list of individuals.
 
     Returns a generator of gender recommendations based on the
@@ -51,16 +52,22 @@ def recommend_gender(uuids):
     is not found, it will not be included in the result.
 
     :param uuids: list of individual identifiers
+    :param exclude: if set to `True`, the results list will ignore individual identities
+        if any value from the `email`, `name`, or `username` fields are found in the
+        RecommenderExclusionTerm table. Otherwise, results will not ignore them.
     :returns: a generator of recommendations
     """
-
     logger.debug(
         f"Generating genders recommendations; "
         f"uuids={uuids}; ..."
     )
 
+    if exclude:
+        excluded_terms = set(fetch_recommender_exclusion_list())
     for uuid in uuids:
         try:
+            if exclude and _exclude_uuid(uuid, excluded_terms):
+                continue
             individual = find_individual_by_uuid(uuid)
             name = _get_individual_name(individual)
             gender, accuracy = _genderize(name)
@@ -80,6 +87,22 @@ def recommend_gender(uuids):
             yield uuid, (gender, accuracy)
 
     logger.info(f"Gender recommendations generated; uuids='{uuids}'")
+
+
+def _exclude_uuid(uuid, excluded_terms):
+    """If one of username, email, or name are in excluded_terms
+    it will return True and False if not.
+
+    :param uuid: Individual UUID
+    :excluded_terms: Set of terms (RecommenderExclusionTerm)
+
+    :returns: True | False
+    """
+    identity = find_identity(uuid)
+    identity_set = {identity.username, identity.name, identity.email}
+    identity_set.discard(None)
+
+    return not identity_set.isdisjoint(excluded_terms)
 
 
 def _get_individual_name(individual):
