@@ -57,18 +57,21 @@ from sortinghat.core.models import (Organization,
                                     Identity,
                                     Profile,
                                     Enrollment,
+                                    RecommenderExclusionTerm,
                                     Transaction,
                                     Operation)
 from sortinghat.core.schema import (SortingHatQuery,
                                     SortingHatMutation,
                                     parse_date_filter)
 
-
 DUPLICATED_ORG_ERROR = "Organization 'Example' already exists in the registry"
 DUPLICATED_DOM_ERROR = "Domain 'example.net' already exists in the registry"
 DUPLICATED_TEAM_ERROR = "Team 'Example_team' already exists in the registry"
 DUPLICATED_INDIVIDUAL = "Individual 'eda9f62ad321b1fbe5f283cc05e2484516203117' already exists in the registry"
 DUPLICATED_ENROLLMENT_ERROR = "range date '{}'-'{}' is part of an existing range for {}"
+DUPLICATED_RET_ERROR = "RecommenderExclusionTerm 'John Smith' already exists in the registry"
+TERM_EMPTY_ERROR = "'term' cannot be an empty string"
+TERM_EXAMPLE_DOES_NOT_EXIST_ERROR = "John Smith not found in the registry"
 NAME_EMPTY_ERROR = "'name' cannot be an empty string"
 DOMAIN_NAME_EMPTY_ERROR = "'domain_name' cannot be an empty string"
 TEAM_NAME_EMPTY_ERROR = "'team_name' cannot be an empty string"
@@ -105,7 +108,6 @@ INVALID_FILTER_RANGE_ERROR = "Error in {} filter: Date range is invalid. {}"
 FROM_DATE_EMPTY_ERROR = "'from_date' cannot be empty"
 TO_DATE_EMPTY_ERROR = "'to_date' cannot be empty"
 BOTH_NEW_DATES_NONE_ERROR = "'new_from_date' and 'to_from_date' cannot be None at the same time"
-
 
 # Test queries
 SH_COUNTRIES_QUERY = """{
@@ -927,9 +929,36 @@ SH_JOB_QUERY_GENDERIZE = """{
   }
 }
 """
+SH_RET_QUERY = """{
+  recommenderExclusionTerms {
+    entities {
+      term
+    }
+  }
+}"""
+SH_RET_QUERY_PAGINATION = """{
+  recommenderExclusionTerms (
+    page: %d
+    pageSize: %d
+  ){
+    entities {
+      term
+    }
+    pageInfo{
+      page
+      pageSize
+      numPages
+      hasNext
+      hasPrev
+      startIndex
+      endIndex
+      totalResults
+    }
+  }
+}"""
 
 # API endpoint to obtain a context for executing queries
-GRAPHQL_ENDPOINT = '/graphql/'
+GRAPHQL_ENDPOINT = '/api/'
 
 
 class TestQuery(SortingHatQuery, graphene.ObjectType):
@@ -3690,6 +3719,95 @@ class TestParseDateFilter(django.test.TestCase):
 
         with self.assertRaisesRegex(ValueError, PARSE_DATE_INVALID_FORMAT_ERROR):
             parse_date_filter(filter_string)
+
+
+class TestQueryRecommenderExclusionTerms(django.test.TestCase):
+    """Unit tests for recommenderExclusionTerms queries"""
+
+    def setUp(self):
+        """Set queries context"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
+
+    def test_recommender_exclusion_terms(self):
+        """Check if it returns the registry of recommenderExclusionTerms"""
+
+        RecommenderExclusionTerm.objects.create(term='Example')
+        RecommenderExclusionTerm.objects.create(term='John Smith')
+
+        # Tests
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_RET_QUERY,
+                                  context_value=self.context_value)
+
+        rels = executed['data']['recommenderExclusionTerms']['entities']
+        self.assertEqual(len(rels), 2)
+
+        rel1 = rels[0]
+        self.assertEqual(rel1['term'], 'Example')
+
+        rel2 = rels[1]
+        self.assertEqual(rel2['term'], 'John Smith')
+
+    def test_empty_registry(self):
+        """Check whether it returns an empty list when the registry is empty"""
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_RET_QUERY,
+                                  context_value=self.context_value)
+
+        rels = executed['data']['recommenderExclusionTerms']['entities']
+        self.assertListEqual(rels, [])
+
+    def test_pagination(self):
+        """Check whether it returns the recommenderExclusionTerms searched when using pagination"""
+
+        rel1 = RecommenderExclusionTerm.objects.create(term='Tom')
+        rel2 = RecommenderExclusionTerm.objects.create(term='John')
+        rel3 = RecommenderExclusionTerm.objects.create(term='Quan')
+
+        client = graphene.test.Client(schema)
+        test_query = SH_RET_QUERY_PAGINATION % (1, 2)
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
+
+        rels = executed['data']['recommenderExclusionTerms']['entities']
+
+        self.assertEqual(len(rels), 2)
+
+        # As recommenderExclusionTerm are sorted by excluded, the first two will be rel2 and rel3
+        rel = rels[0]
+        self.assertEqual(rel['term'], rel2.term)
+
+        rel = rels[1]
+        self.assertEqual(rel['term'], rel3.term)
+
+        pag_data = executed['data']['recommenderExclusionTerms']['pageInfo']
+        self.assertEqual(len(pag_data), 8)
+        self.assertEqual(pag_data['page'], 1)
+        self.assertEqual(pag_data['pageSize'], 2)
+        self.assertEqual(pag_data['numPages'], 2)
+        self.assertTrue(pag_data['hasNext'])
+        self.assertFalse(pag_data['hasPrev'])
+        self.assertEqual(pag_data['startIndex'], 1)
+        self.assertEqual(pag_data['endIndex'], 2)
+        self.assertEqual(pag_data['totalResults'], 3)
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the query"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        executed = client.execute(SH_RET_QUERY,
+                                  context_value=context_value)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
 
 
 class MockJob:
@@ -8357,6 +8475,104 @@ class TestUnifyMutation(django.test.TestCase):
         self.assertEqual(id5, self.jr2)
 
     @unittest.mock.patch('sortinghat.core.jobs.rq.job.uuid4')
+    def test_unify_exclude(self, mock_job_id_gen):
+        """Check if unify is applied for the specified individuals"""
+
+        sh_add_ret = """
+          mutation addRecommenderExclusionTerm {
+            addRecommenderExclusionTerm(term: "%s") {
+              exclusion {
+                term
+              }
+            }
+          }
+        """
+
+        mock_job_id_gen.return_value = "1234-5678-90AB-CDEF"
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'sourceUuids': [self.john_smith.uuid, self.jrae3.uuid, self.jr2.uuid],
+            'targetUuids': [self.john_smith.uuid, self.js2.uuid, self.js3.uuid,
+                            self.jsmith.uuid, self.jsm2.uuid, self.jsm3.uuid,
+                            self.jane_rae.uuid, self.jr2.uuid,
+                            self.js_alt.uuid, self.js_alt2.uuid,
+                            self.js_alt3.uuid, self.js_alt4.uuid,
+                            self.jrae.uuid, self.jrae2.uuid, self.jrae3.uuid],
+            'criteria': ['email', 'name', 'username']
+        }
+
+        # Add jsmith@example.com to RecommenderExclusionTerm
+        executed_add_1 = client.execute(sh_add_ret % "jsmith@example.com",
+                                        context_value=self.context_value)
+        exclusion = executed_add_1['data']['addRecommenderExclusionTerm']['exclusion']
+        self.assertEqual(exclusion['term'], "jsmith@example.com")
+
+        # Add jsmith to RecommenderExclusionTerm
+        executed_add_2 = client.execute(sh_add_ret % "jsmith",
+                                        context_value=self.context_value)
+        exclusion = executed_add_2['data']['addRecommenderExclusionTerm']['exclusion']
+        self.assertEqual(exclusion['term'], "jsmith")
+
+        executed = client.execute(self.SH_UNIFY,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        # Check if the job was run and individuals were merged
+        job_id = executed['data']['unify']['jobId']
+        self.assertEqual(job_id, "1234-5678-90AB-CDEF")
+
+        # Checking if the identities have been merged
+        # Individual 1
+        individual_db_1 = Individual.objects.get(mk=self.jsmith.uuid)
+        identities = individual_db_1.identities.all()
+        self.assertEqual(len(identities), 3)
+
+        id1 = identities[0]
+        self.assertEqual(id1, self.jsm2)
+
+        id2 = identities[1]
+        self.assertEqual(id2, self.jsmith)
+
+        id3 = identities[2]
+        self.assertEqual(id3, self.jsm3)
+
+        # Individual 2
+        individual_db_2 = Individual.objects.get(mk=self.john_smith.uuid)
+        identities = individual_db_2.identities.all()
+        self.assertEqual(len(identities), 3)
+
+        id1 = identities[0]
+        self.assertEqual(id1, self.john_smith)
+
+        id2 = identities[1]
+        self.assertEqual(id2, self.js2)
+
+        id3 = identities[2]
+        self.assertEqual(id3, self.js3)
+
+        # Individual 3
+        individual_db_3 = Individual.objects.get(mk=self.jrae.uuid)
+        identities = individual_db_3.identities.all()
+        self.assertEqual(len(identities), 5)
+
+        id1 = identities[0]
+        self.assertEqual(id1, self.jrae2)
+
+        id2 = identities[1]
+        self.assertEqual(id2, self.jrae3)
+
+        id3 = identities[2]
+        self.assertEqual(id3, self.jrae)
+
+        id4 = identities[3]
+        self.assertEqual(id4, self.jane_rae)
+
+        id5 = identities[4]
+        self.assertEqual(id5, self.jr2)
+
+    @unittest.mock.patch('sortinghat.core.jobs.rq.job.uuid4')
     def test_unify_source_not_mk(self, mock_job_id_gen):
         """Check if unify works when the provided uuid is not an Individual's main key"""
         pass
@@ -8518,3 +8734,219 @@ class TestGenderizeMutation(django.test.TestCase):
         indv2 = Individual.objects.get(mk=self.jane_roe.uuid)
         gender2 = indv2.profile.gender
         self.assertEqual(gender2, "female")
+
+    @httpretty.activate
+    @unittest.mock.patch('sortinghat.core.jobs.rq.job.uuid4')
+    def test_genderize_exclude(self, mock_job_id_gen):
+        """Check if genderize activating exclude"""
+        sh_add_ret = """
+          mutation addRecommenderExclusionTerm {
+            addRecommenderExclusionTerm(term: "jsmith@example.com") {
+              exclusion {
+                term
+              }
+            }
+          }
+        """
+
+        setup_genderize_server()
+
+        mock_job_id_gen.return_value = "1234-5678-90AB-CDEF"
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuids': None
+        }
+
+        # Add jsmith@example.com to excluded
+        executed_add_exclusion = client.execute(sh_add_ret,
+                                                context_value=self.context_value)
+
+        exclusion = executed_add_exclusion['data']['addRecommenderExclusionTerm']['exclusion']
+        self.assertEqual(exclusion['term'], "jsmith@example.com")
+
+        executed = client.execute(self.SH_GENDERIZE,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        # Check if the job was run
+        job_id = executed['data']['genderize']['jobId']
+        self.assertEqual(job_id, "1234-5678-90AB-CDEF")
+
+        # Check if all the individuals genders were updated
+        indv1 = Individual.objects.get(mk=self.john_smith.uuid)
+        gender1 = indv1.profile.gender
+        self.assertIsNone(gender1)
+
+        indv2 = Individual.objects.get(mk=self.jane_roe.uuid)
+        gender2 = indv2.profile.gender
+        self.assertEqual(gender2, "female")
+
+
+class TestAddRecommenderExclusionTermMutation(django.test.TestCase):
+    """Unit tests for mutation to add recommenderExclusionTerm"""
+
+    SH_ADD_RET = """
+      mutation addRecommenderExclusionTerm {
+        addRecommenderExclusionTerm(term: "John Smith") {
+          exclusion {
+            term
+          }
+        }
+      }
+    """
+
+    SH_ADD_RET_NAME_EMPTY = """
+      mutation addRecommenderExclusionTerm {
+        addRecommenderExclusionTerm(term: "") {
+          exclusion {
+            term
+          }
+        }
+      }
+    """
+
+    def setUp(self):
+        """Set queries context"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
+
+    def test_add_recommenderExclusionTerm(self):
+        """Check if a new recommenderExclusionTerm is added"""
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_ADD_RET,
+                                  context_value=self.context_value)
+
+        # Check result
+        rel = executed['data']['addRecommenderExclusionTerm']['exclusion']
+        self.assertEqual(rel['term'], 'John Smith')
+
+        # Check database
+        rel = RecommenderExclusionTerm.objects.get(term='John Smith')
+        self.assertEqual(rel.term, 'John Smith')
+
+    def test_name_empty(self):
+        """Check whether recommenderExclusionTerm with empty entry cannot be added"""
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_ADD_RET_NAME_EMPTY,
+                                  context_value=self.context_value)
+
+        # Check error
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, TERM_EMPTY_ERROR)
+
+        # Check database
+        rel = RecommenderExclusionTerm.objects.all()
+        self.assertEqual(len(rel), 0)
+
+    def test_integrity_error(self):
+        """Check whether recommenderExclusionTerm with the same entry cannot be inserted"""
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_ADD_RET,
+                                  context_value=self.context_value)
+
+        # Check database
+        rel = RecommenderExclusionTerm.objects.get(term='John Smith')
+        self.assertEqual(rel.term, 'John Smith')
+
+        # Try to insert it twice
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_ADD_RET,
+                                  context_value=self.context_value)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, DUPLICATED_RET_ERROR)
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the query"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        executed = client.execute(self.SH_ADD_RET,
+                                  context_value=context_value)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
+
+
+class TestDeleteRecommenderExclusionTermMutation(django.test.TestCase):
+    """Unit tests for mutation to delete recommenderExclusionTerm entry"""
+
+    SH_DELETE_RET = """
+      mutation deleteRecommenderExclusionTerm {
+        deleteRecommenderExclusionTerm(term: "John Smith"){
+          exclusion {
+            term
+          }
+        }
+      }
+    """
+
+    def setUp(self):
+        """Set queries context"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
+
+    def test_delete_recommenderExclusionTerm(self):
+        """Check whether it deletes an entry"""
+
+        # Add entry
+        RecommenderExclusionTerm.objects.create(term='John Smith')
+
+        # Delete entry
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_DELETE_RET,
+                                  context_value=self.context_value)
+
+        # Check result
+        rel = executed['data']['deleteRecommenderExclusionTerm']['exclusion']
+        self.assertEqual(rel['term'], 'John Smith')
+
+        # Tests
+        with self.assertRaises(django.core.exceptions.ObjectDoesNotExist):
+            RecommenderExclusionTerm.objects.get(term='John Smith')
+
+    def test_not_found_recommenderExclusionTerm(self):
+        """Check if it returns an error when an entry does not exist"""
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_DELETE_RET,
+                                  context_value=self.context_value)
+
+        # Check error
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, TERM_EXAMPLE_DOES_NOT_EXIST_ERROR)
+
+        # It should not remove anything
+        RecommenderExclusionTerm.objects.create(term='Quan')
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, TERM_EXAMPLE_DOES_NOT_EXIST_ERROR)
+
+        rel = RecommenderExclusionTerm.objects.all()
+        self.assertEqual(len(rel), 1)
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the query"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        executed = client.execute(self.SH_DELETE_RET,
+                                  context_value=context_value)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
