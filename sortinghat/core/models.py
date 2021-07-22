@@ -248,8 +248,12 @@ class Enrollment(EntityBase):
         return '%s - %s' % (self.individual.mk, self.organization.name)
 
 
-class MatchingBlacklist(EntityBase):
-    excluded = CharField(max_length=MAX_SIZE_CHAR_FIELD, primary_key=True)
+class RecommenderExclusionTerm(EntityBase):
+    term = CharField(max_length=MAX_SIZE_CHAR_INDEX)
 
     class Meta:
-        db_table = 'matching_blacklist'
+        db_table = 'recommender_exclusion_terms'
+        unique_together = ('term',)
+
+    def __str__(self):
+        return self.term
