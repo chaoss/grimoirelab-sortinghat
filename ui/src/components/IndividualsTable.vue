@@ -13,7 +13,7 @@
         small
         height="34"
         color="secondary"
-        class="black--text"
+        class="black--text js-add-individual"
         @click.stop="openModal = true"
       >
         Add
@@ -200,7 +200,12 @@
           <v-btn text @click="closeDialog">
             Cancel
           </v-btn>
-          <v-btn color="primary" depressed @click.stop="dialog.action">
+          <v-btn
+            color="primary"
+            id="confirm"
+            depressed
+            @click.stop="dialog.action"
+          >
             Confirm
           </v-btn>
         </v-card-actions>

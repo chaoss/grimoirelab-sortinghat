@@ -46,7 +46,7 @@ exports[`IndividualsTable Mock query for getCountries 1`] = `
      
     <v-btn-stub
       activeclass=""
-      class="black--text"
+      class="black--text js-add-individual"
       color="secondary"
       depressed="true"
       height="34"
@@ -407,7 +407,7 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
      
     <v-btn-stub
       activeclass=""
-      class="black--text"
+      class="black--text js-add-individual"
       color="secondary"
       depressed="true"
       height="34"
