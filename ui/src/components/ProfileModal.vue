@@ -387,6 +387,7 @@ export default {
           })
         );
         if (response) {
+          this.$emit("updateOrganizations");
           return response;
         }
       } catch (error) {
