@@ -39,7 +39,7 @@ from sortinghat.core.models import (Organization,
                                     Identity,
                                     Profile,
                                     Enrollment,
-                                    MatchingBlacklist,
+                                    RecommenderExclusionTerm,
                                     Transaction,
                                     Operation)
 
@@ -616,31 +616,31 @@ class TestEnrollment(TransactionTestCase):
         self.assertLessEqual(rol.last_modified, after_modified_dt)
 
 
-class TestMatchingBlacklist(TransactionTestCase):
-    """Unit tests for MatchingBlacklist class"""
+class TestRecommenderExclusionTerm(TransactionTestCase):
+    """Unit tests for RecommenderExclusionTerm class"""
 
     def test_unique_excluded(self):
         """Check whether the excluded term is in fact unique"""
 
         with self.assertRaisesRegex(IntegrityError, DUPLICATE_CHECK_ERROR):
-            MatchingBlacklist.objects.create(excluded='John Smith')
-            MatchingBlacklist.objects.create(excluded='John Smith')
+            RecommenderExclusionTerm.objects.create(term='John Smith')
+            RecommenderExclusionTerm.objects.create(term='John Smith')
 
     def test_created_at(self):
         """Check creation date is only set when the object is created."""
 
         before_dt = datetime_utcnow()
-        mb = MatchingBlacklist.objects.create(excluded='John Smith')
+        mb = RecommenderExclusionTerm.objects.create(term='John Smith')
         after_dt = datetime_utcnow()
 
-        self.assertEqual(mb.excluded, 'John Smith')
+        self.assertEqual(mb.term, 'John Smith')
         self.assertGreaterEqual(mb.created_at, before_dt)
         self.assertLessEqual(mb.created_at, after_dt)
 
-        mb.excluded = 'J. Smith'
+        mb.term = 'J. Smith'
         mb.save()
 
-        self.assertEqual(mb.excluded, 'J. Smith')
+        self.assertEqual(mb.term, 'J. Smith')
         self.assertGreaterEqual(mb.created_at, before_dt)
         self.assertLessEqual(mb.created_at, after_dt)
 
@@ -648,19 +648,19 @@ class TestMatchingBlacklist(TransactionTestCase):
         """Check last modification date is set when the object is updated"""
 
         before_dt = datetime_utcnow()
-        mb = MatchingBlacklist.objects.create(excluded='John Smith')
+        mb = RecommenderExclusionTerm.objects.create(term='John Smith')
         after_dt = datetime_utcnow()
 
-        self.assertEqual(mb.excluded, 'John Smith')
+        self.assertEqual(mb.term, 'John Smith')
         self.assertGreaterEqual(mb.last_modified, before_dt)
         self.assertLessEqual(mb.last_modified, after_dt)
 
         before_modified_dt = datetime_utcnow()
-        mb.excluded = 'J. Smith'
+        mb.term = 'J. Smith'
         mb.save()
         after_modified_dt = datetime_utcnow()
 
-        self.assertEqual(mb.excluded, 'J. Smith')
+        self.assertEqual(mb.term, 'J. Smith')
         self.assertGreaterEqual(mb.last_modified, before_modified_dt)
         self.assertLessEqual(mb.last_modified, after_modified_dt)
 

@@ -30,11 +30,12 @@ from ..db import (find_individual_by_uuid)
 from ..errors import NotFoundError
 from ..models import Identity
 
+from .exclusion import fetch_recommender_exclusion_list
 
 logger = logging.getLogger(__name__)
 
 
-def recommend_matches(source_uuids, target_uuids, criteria, verbose=False):
+def recommend_matches(source_uuids, target_uuids, criteria, exclude=True, verbose=False):
     """Recommend identity matches for a list of individuals.
 
     Returns a generator of identity matches recommendations
@@ -63,6 +64,9 @@ def recommend_matches(source_uuids, target_uuids, criteria, verbose=False):
     :param source_uuids: list of individual keys to find matches for
     :param target_uuids: list of individual keys where to find matches
     :param criteria: list of matching criteria (`email`, `name`, `username`)
+    :param exclude: if set to `True`, the results list will ignore individual identities
+        if any value from the `email`, `name`, or `username` fields are found in the
+        RecommenderExclusionTerm table. Otherwise, results will not ignore them.
     :param verbose: if set to `True`, the list of results will include individual
     identities. Otherwise, results will include main keys from individuals
 
@@ -102,7 +106,7 @@ def recommend_matches(source_uuids, target_uuids, criteria, verbose=False):
         identities = Identity.objects.all()
         target_set.update(identities)
 
-    matched = _find_matches(input_set, target_set, criteria, verbose=verbose)
+    matched = _find_matches(input_set, target_set, criteria, exclude=exclude, verbose=verbose)
     # Return filtered results
     for uuid in source_uuids:
         result = set()
@@ -122,7 +126,7 @@ def recommend_matches(source_uuids, target_uuids, criteria, verbose=False):
     logger.info(f"Matching recommendations generated; criteria='{criteria}'")
 
 
-def _find_matches(set_x, set_y, criteria, verbose):
+def _find_matches(set_x, set_y, criteria, exclude, verbose):
     """Find identities matches between two sets using Pandas' library.
 
     This method find matches for the identities in `set_x` looking at
@@ -138,6 +142,9 @@ def _find_matches(set_x, set_y, criteria, verbose):
     :param set_x: list of individual keys to find matches for
     :param set_y: list of individual keys where to find matches
     :param criteria: list of matching criteria (`email`, `name`, `username`).
+    :param exclude: if set to `True`, the results list will ignore individual identities
+        if any value from the `email`, `name`, or `username` fields are found in the
+        RecommenderExclusionTerm table. Otherwise, results will not ignore them.
     :param verbose: if set to `True`, the list of results will include individual
         identities. Otherwise, results will include main keys from individuals.
 
@@ -148,6 +155,13 @@ def _find_matches(set_x, set_y, criteria, verbose):
         """Convert identities set into a Pandas `Dataframe` object"""
         df = pandas.DataFrame(data_set)
         return df.sort_values(['individual'])
+
+    def _apply_recommender_exclusion_list(df):
+        """Apply RecommenderExclusionTerm to returns the dataframes that do not match
+        `name`, `username`, or `email` with this excluded list"""
+        excluded = fetch_recommender_exclusion_list()
+        df_excluded = df[~df['username'].isin(excluded) & ~df['email'].isin(excluded) & ~df['name'].isin(excluded)]
+        return df_excluded
 
     def _filter_criteria(df, c):
         """Filter dataframe creating a basic subset including a given column"""
@@ -201,6 +215,10 @@ def _find_matches(set_x, set_y, criteria, verbose):
 
     df_x = _to_df(data_x)
     df_y = _to_df(data_y)
+
+    if exclude:
+        df_x = _apply_recommender_exclusion_list(df_x)
+        df_y = _apply_recommender_exclusion_list(df_y)
 
     cdfs = []
 

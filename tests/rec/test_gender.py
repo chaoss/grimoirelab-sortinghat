@@ -31,6 +31,7 @@ from django.test import TestCase
 from sortinghat.core import api
 from sortinghat.core.context import SortingHatContext
 from sortinghat.core.recommendations.gender import recommend_gender
+from sortinghat.core.recommendations.exclusion import add_recommender_exclusion_term
 
 GENDERIZE_API_URL = "https://api.genderize.io/"
 
@@ -119,6 +120,27 @@ class TestRecommendGender(TestCase):
         self.assertEqual(acc, 92)
 
         rec = recs[1]
+        self.assertEqual(rec[0], self.jane_doe.uuid)
+        gender, acc = rec[1]
+        self.assertEqual(gender, 'female')
+        self.assertEqual(acc, 89)
+
+    @httpretty.activate
+    def test_recommend_gender_exclude(self):
+        """Check if it returns a gender for valid names
+        activating exclude"""
+
+        setup_genderize_server()
+
+        # Add 'John Smith' to RecommenderExclusionTerm
+        add_recommender_exclusion_term(self.ctx, "John Smith")
+
+        uuids = [self.john_smith.uuid, self.jane_doe.uuid]
+        recs = list(recommend_gender(uuids, exclude=True))
+
+        self.assertEqual(len(recs), 1)
+
+        rec = recs[0]
         self.assertEqual(rec[0], self.jane_doe.uuid)
         gender, acc = rec[1]
         self.assertEqual(gender, 'female')

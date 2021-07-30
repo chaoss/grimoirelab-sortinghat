@@ -26,6 +26,7 @@ from django.test import TestCase
 from sortinghat.core import api
 from sortinghat.core.context import SortingHatContext
 from sortinghat.core.recommendations.matching import recommend_matches
+from sortinghat.core.recommendations.exclusion import add_recommender_exclusion_term
 
 
 class TestRecommendMatches(TestCase):
@@ -136,6 +137,47 @@ class TestRecommendMatches(TestCase):
         recs = dict(recommend_matches(source_uuids,
                                       target_uuids,
                                       criteria))
+
+        # Preserve results order for the comparison against the expected results
+        result = {}
+        for key in recs:
+            result[key] = sorted(recs[key])
+
+        self.assertEqual(len(result), 3)
+        self.assertDictEqual(result, expected)
+
+    def test_recommend_matches_exclude(self):
+        """Check if recommendations are obtained for the specified individuals
+        activating exclude"""
+
+        # Test
+        expected = {
+            self.john_smith.uuid: [],
+            self.jrae3.uuid: sorted([self.jrae.uuid,
+                                     self.jane_rae.uuid]),
+            self.jr2.uuid: sorted([self.jrae.uuid,
+                                   self.jane_rae.uuid])
+        }
+
+        source_uuids = [self.john_smith.uuid, self.jrae3.uuid, self.jr2.uuid]
+        target_uuids = [self.john_smith.uuid, self.js2.uuid, self.js3.uuid,
+                        self.jsmith.uuid, self.jsm2.uuid, self.jsm3.uuid,
+                        self.jane_rae.uuid, self.jr2.uuid,
+                        self.js_alt.uuid, self.js_alt2.uuid,
+                        self.js_alt3.uuid, self.js_alt4.uuid,
+                        self.jrae.uuid, self.jrae2.uuid, self.jrae3.uuid]
+
+        criteria = ['email', 'name', 'username']
+
+        # Add 'jsmith@example.com' and 'jsmith' to RecommenderExclusionTerm
+        add_recommender_exclusion_term(self.ctx, "jsmith@example.com")
+        add_recommender_exclusion_term(self.ctx, "jsmith")
+
+        # Identities which don't have the fields in `criteria` won't be returned
+        recs = dict(recommend_matches(source_uuids,
+                                      target_uuids,
+                                      criteria,
+                                      exclude=True))
 
         # Preserve results order for the comparison against the expected results
         result = {}

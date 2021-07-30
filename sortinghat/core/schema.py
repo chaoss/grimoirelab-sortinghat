@@ -80,7 +80,9 @@ from .models import (Organization,
                      Profile,
                      Enrollment,
                      Transaction,
-                     Operation)
+                     Operation,
+                     RecommenderExclusionTerm)
+from .recommendations.exclusion import delete_recommend_exclusion_term, add_recommender_exclusion_term
 
 
 @convert_django_field.register(JSONField)
@@ -223,6 +225,11 @@ class GenderRecommendationType(graphene.ObjectType):
     uuid = graphene.String(description='The unique identifier of an individual.')
     gender = graphene.String(description='The suggested gender of an individual')
     accuracy = graphene.Int(description='The probability of the gender to be accurate')
+
+
+class RecommenderExclusionTermType(DjangoObjectType):
+    class Meta:
+        model = RecommenderExclusionTerm
 
 
 class AffiliationResultType(graphene.ObjectType):
@@ -483,6 +490,11 @@ class OperationPaginatedType(AbstractPaginatedType):
 
 class JobPaginatedType(AbstractPaginatedType):
     entities = graphene.List(JobType, description='A list of jobs.')
+    page_info = graphene.Field(PaginationType, description='Information to aid in pagination.')
+
+
+class RecommenderExclusionTermPaginatedType(AbstractPaginatedType):
+    entities = graphene.List(RecommenderExclusionTermType, description='A list of recommender exclusion terms.')
     page_info = graphene.Field(PaginationType, description='Information to aid in pagination.')
 
 
@@ -887,15 +899,16 @@ class RecommendMatches(graphene.Mutation):
                                      required=False)
         criteria = graphene.List(graphene.String)
         verbose = graphene.Boolean(required=False)
+        exclude = graphene.Boolean(required=False)
 
     job_id = graphene.Field(lambda: graphene.String)
 
     @check_auth
-    def mutate(self, info, source_uuids, criteria, target_uuids=None, verbose=False):
+    def mutate(self, info, source_uuids, criteria, target_uuids=None, exclude=True, verbose=False):
         user = info.context.user
         ctx = SortingHatContext(user)
 
-        job = enqueue(recommend_matches, ctx, source_uuids, target_uuids, criteria, verbose)
+        job = enqueue(recommend_matches, ctx, source_uuids, target_uuids, criteria, exclude, verbose)
 
         return RecommendMatches(
             job_id=job.id
@@ -905,15 +918,16 @@ class RecommendMatches(graphene.Mutation):
 class RecommendGender(graphene.Mutation):
     class Arguments:
         uuids = graphene.List(graphene.String)
+        exclude = graphene.Boolean(required=False)
 
     job_id = graphene.Field(lambda: graphene.String)
 
     @check_auth
-    def mutate(self, info, uuids=None):
+    def mutate(self, info, uuids=None, exclude=True):
         user = info.context.user
         ctx = SortingHatContext(user)
 
-        job = enqueue(recommend_gender, ctx, uuids)
+        job = enqueue(recommend_gender, ctx, uuids, exclude)
 
         return RecommendGender(
             job_id=job.id
@@ -945,15 +959,16 @@ class Unify(graphene.Mutation):
         target_uuids = graphene.List(graphene.String,
                                      required=False)
         criteria = graphene.List(graphene.String)
+        exclude = graphene.Boolean(required=False)
 
     job_id = graphene.Field(lambda: graphene.String)
 
     @check_auth
-    def mutate(self, info, source_uuids, criteria, target_uuids=None):
+    def mutate(self, info, source_uuids, criteria, target_uuids=None, exclude=True):
         user = info.context.user
         ctx = SortingHatContext(user)
 
-        job = enqueue(unify, ctx, source_uuids, target_uuids, criteria)
+        job = enqueue(unify, ctx, source_uuids, target_uuids, criteria, exclude)
 
         return Unify(
             job_id=job.id
@@ -963,18 +978,55 @@ class Unify(graphene.Mutation):
 class Genderize(graphene.Mutation):
     class Arguments:
         uuids = graphene.List(graphene.String)
+        exclude = graphene.Boolean(required=False)
 
     job_id = graphene.Field(lambda: graphene.String)
 
     @check_auth
-    def mutate(self, info, uuids=None):
+    def mutate(self, info, uuids=None, exclude=True):
         user = info.context.user
         ctx = SortingHatContext(user)
 
-        job = enqueue(genderize, ctx, uuids)
+        job = enqueue(genderize, ctx, uuids, exclude)
 
         return Genderize(
             job_id=job.id
+        )
+
+
+class AddRecommenderExclusionTerm(graphene.Mutation):
+    class Arguments:
+        term = graphene.String()
+
+    exclusion = graphene.Field(lambda: RecommenderExclusionTermType)
+
+    @check_auth
+    def mutate(self, info, term):
+        user = info.context.user
+        ctx = SortingHatContext(user)
+
+        rel = add_recommender_exclusion_term(ctx, term)
+
+        return AddRecommenderExclusionTerm(
+            exclusion=rel
+        )
+
+
+class DeleteRecommenderExclusionTerm(graphene.Mutation):
+    class Arguments:
+        term = graphene.String()
+
+    exclusion = graphene.Field(lambda: RecommenderExclusionTermType)
+
+    @check_auth
+    def mutate(self, info, term):
+        user = info.context.user
+        ctx = SortingHatContext(user)
+
+        rel = delete_recommend_exclusion_term(ctx, term)
+
+        return DeleteRecommenderExclusionTerm(
+            exclusion=rel
         )
 
 
@@ -1033,6 +1085,12 @@ class SortingHatQuery:
         page_size=graphene.Int(),
         page=graphene.Int(),
         description='Get all jobs.'
+    )
+    recommender_exclusion_terms = graphene.Field(
+        RecommenderExclusionTermPaginatedType,
+        page_size=graphene.Int(),
+        page=graphene.Int(),
+        description='Get all recommender exclusion terms.'
     )
 
     @check_auth
@@ -1282,6 +1340,16 @@ class SortingHatQuery:
                                                         page_size=page_size)
 
     @check_auth
+    def resolve_recommender_exclusion_terms(self, info,
+                                            page=1,
+                                            page_size=settings.DEFAULT_GRAPHQL_PAGE_SIZE):
+        query = RecommenderExclusionTerm.objects.order_by('term')
+
+        return RecommenderExclusionTermPaginatedType.create_paginated_result(query,
+                                                                             page,
+                                                                             page_size=page_size)
+
+    @check_auth
     def resolve_transactions(self, info, filters=None,
                              page=1,
                              page_size=settings.DEFAULT_GRAPHQL_PAGE_SIZE,
@@ -1419,6 +1487,12 @@ class SortingHatMutation(graphene.ObjectType):
     genderize = Genderize.Field(
         description='Autocomplete the gender information of a set of individuals\
         using genderize.io recommendations.'
+    )
+    add_recommender_exclusion_term = AddRecommenderExclusionTerm.Field(
+        description='Add a recommender exclusion to the registry.'
+    )
+    delete_recommender_exclusion_term = DeleteRecommenderExclusionTerm.Field(
+        description='Remove a recommender exclusion from the registry.'
     )
 
     # JWT authentication

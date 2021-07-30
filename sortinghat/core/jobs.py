@@ -162,7 +162,7 @@ def recommend_affiliations(ctx, uuids=None):
 
 
 @django_rq.job
-def recommend_matches(ctx, source_uuids, target_uuids, criteria, verbose=False):
+def recommend_matches(ctx, source_uuids, target_uuids, criteria, exclude=True, verbose=False):
     """Generate a list of affiliation recommendations from a set of individuals.
 
     This function generates a list of recommendations which include the
@@ -181,6 +181,9 @@ def recommend_matches(ctx, source_uuids, target_uuids, criteria, verbose=False):
     :param target_uuids: list of individuals identifiers where to look for matches
     :param criteria: list of fields which the match will be based on
         (`email`, `name` and/or `username`)
+    :param exclude: if set to `True`, the results list will ignore individual identities
+        if any value from the `email`, `name`, or `username` fields are found in the
+        RecommenderExclusionTerm table. Otherwise, results will not ignore them.
     :param verbose: if set to `True`, the match results will be composed by individual
         identities (even belonging to the same individual).
 
@@ -206,7 +209,7 @@ def recommend_matches(ctx, source_uuids, target_uuids, criteria, verbose=False):
 
     trxl = TransactionsLog.open('recommend_matches', job_ctx)
 
-    for rec in engine.recommend('matches', source_uuids, target_uuids, criteria, verbose):
+    for rec in engine.recommend('matches', source_uuids, target_uuids, criteria, exclude, verbose):
         results[rec.key] = list(rec.options)
 
     trxl.close()
@@ -220,7 +223,7 @@ def recommend_matches(ctx, source_uuids, target_uuids, criteria, verbose=False):
 
 
 @django_rq.job
-def recommend_gender(ctx, uuids):
+def recommend_gender(ctx, uuids, exclude=True):
     """Generate a list of gender recommendations from a set of individuals.
 
     This job generates a list of recommendations with the
@@ -228,6 +231,9 @@ def recommend_gender(ctx, uuids):
 
     :param ctx: context where this job is run
     :param uuids: list of individuals identifiers
+    :param exclude: if set to `True`, the results list will ignore individual identities
+        if any value from the `email`, `name`, or `username` fields are found in the
+        RecommenderExclusionTerm table. Otherwise, results will not ignore them.
 
     :returns: a dictionary with the recommended gender and accuracy of the
         prediction for each individual.
@@ -247,9 +253,9 @@ def recommend_gender(ctx, uuids):
 
     trxl = TransactionsLog.open('recommend_gender', job_ctx)
 
-    for rec in engine.recommend('gender', uuids):
+    for rec in engine.recommend('gender', uuids, exclude):
         results[rec.key] = {'gender': rec.options[0],
-                           'accuracy': rec.options[1]}
+                            'accuracy': rec.options[1]}
 
     trxl.close()
 
@@ -329,7 +335,7 @@ def affiliate(ctx, uuids=None):
 
 
 @django_rq.job
-def unify(ctx, source_uuids, target_uuids, criteria):
+def unify(ctx, source_uuids, target_uuids, criteria, exclude=True):
     """Unify a set of individuals by merging them using matching recommendations.
 
     This function automates the identities unify process obtaining
@@ -348,6 +354,9 @@ def unify(ctx, source_uuids, target_uuids, criteria):
     :param target_uuids: list of individuals identifiers where to look for matches
     :param criteria: list of fields which the unify will be based on
         (`email`, `name` and/or `username`)
+    :param exclude: if set to `True`, the results list will ignore individual identities
+        if any value from the `email`, `name`, or `username` fields are found in the
+        RecommenderExclusionTerm table. Otherwise, results will not ignore them.
 
     :returns: a list with the individuals resulting from merge operations
         and the errors found running the job
@@ -396,7 +405,7 @@ def unify(ctx, source_uuids, target_uuids, criteria):
     trxl = TransactionsLog.open('unify', job_ctx)
 
     match_recs = {}
-    for rec in engine.recommend('matches', source_uuids, target_uuids, criteria):
+    for rec in engine.recommend('matches', source_uuids, target_uuids, criteria, exclude=exclude):
         match_recs[rec.key] = list(rec.options)
 
     match_groups = _group_recommendations(match_recs)
@@ -421,7 +430,7 @@ def unify(ctx, source_uuids, target_uuids, criteria):
 
 
 @django_rq.job
-def genderize(ctx, uuids=None):
+def genderize(ctx, uuids=None, exclude=True):
     """Assign a gender to a set of individuals using recommendations.
 
     This job autocompletes the gender information (stored in
@@ -434,6 +443,9 @@ def genderize(ctx, uuids=None):
 
     :param ctx: context where this job is run
     :param uuids: list of individuals identifiers
+    :param exclude: if set to `True`, the results list will ignore individual identities
+        if any value from the `email`, `name`, or `username` fields are found in the
+        RecommenderExclusionTerm table. Otherwise, results will not ignore them.
 
     :returns: a dictionary with which individual profiles were
         updated and the errors found running the job
@@ -467,7 +479,7 @@ def genderize(ctx, uuids=None):
     nsuccess = 0
 
     for chunk in _iter_split(uuids, size=MAX_CHUNK_SIZE):
-        for rec in engine.recommend('gender', chunk):
+        for rec in engine.recommend('gender', chunk, exclude):
             gender, acc = rec.options
             updated, errs = _update_individual_gender(job_ctx, rec.key, rec.options)
             results[rec.key] = updated
