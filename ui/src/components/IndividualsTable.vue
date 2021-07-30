@@ -225,6 +225,7 @@
       :enroll="enroll"
       :get-countries="getCountries"
       @updateTable="queryIndividuals"
+      @updateOrganizations="$emit('updateOrganizations')"
     />
 
     <v-card class="dragged-item" color="primary" dark>
@@ -593,6 +594,7 @@ export default {
           this.$emit("updateWorkspace", {
             update: formatIndividuals([response.data.withdraw.individual])
           });
+          this.$emit("updateOrganizations");
           this.$logger.debug("Removed affiliation", { uuid, ...organization });
         }
       } catch (error) {
