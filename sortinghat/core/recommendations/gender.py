@@ -34,10 +34,11 @@ from .exclusion import fetch_recommender_exclusion_list
 
 logger = logging.getLogger(__name__)
 
-name_pattern = re.compile(r"(^\w+)\s\w+")
+strict_name_pattern = re.compile(r"(^\w{2,})\s+\w+")
+loose_name_pattern = re.compile(r"(^\w{2,})")
 
 
-def recommend_gender(uuids, exclude=True):
+def recommend_gender(uuids, exclude=True, no_strict_matching=False):
     """Recommend possible genders for a list of individuals.
 
     Returns a generator of gender recommendations based on the
@@ -47,14 +48,16 @@ def recommend_gender(uuids, exclude=True):
     Each recommendation contains the uuid of the individual, the
     suggested gender and the accuracy of the prediction.
 
-    When the individual does not have a name set, or the name
-    does not follow a 'FirstName LastName' pattern, or the individual
-    is not found, it will not be included in the result.
+    When the individual does not have a name set, or the individual
+    is not found, it will not be included in the result. By default,
+    the name will also need to follow a 'Name LastName' pattern, but
+    this validation can be disabled with the 'no_strict_matching' flag.
 
     :param uuids: list of individual identifiers
     :param exclude: if set to `True`, the results list will ignore individual identities
         if any value from the `email`, `name`, or `username` fields are found in the
         RecommenderExclusionTerm table. Otherwise, results will not ignore them.
+    :param no_strict_matching: disable name validation
     :returns: a generator of recommendations
     """
     logger.debug(
@@ -64,12 +67,14 @@ def recommend_gender(uuids, exclude=True):
 
     if exclude:
         excluded_terms = set(fetch_recommender_exclusion_list())
+
+    strict = not no_strict_matching
     for uuid in uuids:
         try:
             if exclude and _exclude_uuid(uuid, excluded_terms):
                 continue
             individual = find_individual_by_uuid(uuid)
-            name = _get_individual_name(individual)
+            name = _get_individual_name(individual, strict)
             gender, accuracy = _genderize(name)
         except NotFoundError:
             message = f"Skipping {uuid}: Individual not found"
@@ -105,8 +110,13 @@ def _exclude_uuid(uuid, excluded_terms):
     return not identity_set.isdisjoint(excluded_terms)
 
 
-def _get_individual_name(individual):
+def _get_individual_name(individual, strict):
     """Get the first name of an individual from their profile"""
+
+    name_pattern = loose_name_pattern
+
+    if strict:
+        name_pattern = strict_name_pattern
 
     try:
         name_match = name_pattern.match(individual.profile.name)

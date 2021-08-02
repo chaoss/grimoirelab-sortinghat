@@ -95,23 +95,32 @@ class TestRecommendGender(TestCase):
         self.jane_doe = api.add_identity(self.ctx,
                                          name='Jane Doe',
                                          source='scm')
-        self.smith = api.add_identity(self.ctx,
-                                      name='Smith',
-                                      source='scm')
+        self.john = api.add_identity(self.ctx,
+                                     name='John',
+                                     source='scm')
         self.no_name = api.add_identity(self.ctx,
                                         email='email@example.com',
                                         source='scm')
+        self.double_space = api.add_identity(self.ctx,
+                                             name='John  Smith',
+                                             source='scm')
+        self.initial = api.add_identity(self.ctx,
+                                        name='J Smith',
+                                        source='scm')
 
     @httpretty.activate
-    def test_recommend_gender(self):
-        """Check if it returns a gender for valid names"""
+    def test_recommend_gender_strict(self):
+        """Check if it returns a gender for strict valid names"""
 
         setup_genderize_server()
 
-        uuids = [self.john_smith.uuid, self.jane_doe.uuid]
+        uuids = [self.john_smith.uuid,
+                 self.jane_doe.uuid,
+                 self.double_space.uuid,
+                 self.initial.uuid]
         recs = list(recommend_gender(uuids))
 
-        self.assertEqual(len(recs), 2)
+        self.assertEqual(len(recs), 3)
 
         rec = recs[0]
         self.assertEqual(rec[0], self.john_smith.uuid)
@@ -124,6 +133,12 @@ class TestRecommendGender(TestCase):
         gender, acc = rec[1]
         self.assertEqual(gender, 'female')
         self.assertEqual(acc, 89)
+
+        rec = recs[2]
+        self.assertEqual(rec[0], self.double_space.uuid)
+        gender, acc = rec[1]
+        self.assertEqual(gender, 'male')
+        self.assertEqual(acc, 92)
 
     @httpretty.activate
     def test_recommend_gender_exclude(self):
@@ -147,14 +162,65 @@ class TestRecommendGender(TestCase):
         self.assertEqual(acc, 89)
 
     @httpretty.activate
-    def test_no_name(self):
+    def test_recommend_gender_not_strict(self):
+        """Check if it returns a gender for valid names"""
+
+        setup_genderize_server()
+
+        uuids = [self.john_smith.uuid,
+                 self.jane_doe.uuid,
+                 self.double_space.uuid,
+                 self.john.uuid,
+                 self.initial.uuid]
+        recs = list(recommend_gender(uuids, no_strict_matching=True))
+
+        self.assertEqual(len(recs), 4)
+
+        rec = recs[0]
+        self.assertEqual(rec[0], self.john_smith.uuid)
+        gender, acc = rec[1]
+        self.assertEqual(gender, 'male')
+        self.assertEqual(acc, 92)
+
+        rec = recs[1]
+        self.assertEqual(rec[0], self.jane_doe.uuid)
+        gender, acc = rec[1]
+        self.assertEqual(gender, 'female')
+        self.assertEqual(acc, 89)
+
+        rec = recs[2]
+        self.assertEqual(rec[0], self.double_space.uuid)
+        gender, acc = rec[1]
+        self.assertEqual(gender, 'male')
+        self.assertEqual(acc, 92)
+
+        rec = recs[3]
+        self.assertEqual(rec[0], self.john.uuid)
+        gender, acc = rec[1]
+        self.assertEqual(gender, 'male')
+        self.assertEqual(acc, 92)
+
+    @httpretty.activate
+    def test_invalid_name_strict(self):
+        """Check if no recommendations are generated when an
+            individual does not have a strict valid name"""
+
+        setup_genderize_server()
+
+        uuids = [self.john.uuid, self.no_name.uuid, self.initial.uuid]
+        recs = list(recommend_gender(uuids))
+
+        self.assertEqual(len(recs), 0)
+
+    @httpretty.activate
+    def test_invalid_name_not_strict(self):
         """Check if no recommendations are generated when an
             individual does not have a valid name"""
 
         setup_genderize_server()
 
-        uuids = [self.smith.uuid, self.no_name.uuid]
-        recs = list(recommend_gender(uuids))
+        uuids = [self.no_name.uuid, self.initial.uuid]
+        recs = list(recommend_gender(uuids, no_strict_matching=True))
 
         self.assertEqual(len(recs), 0)
 
