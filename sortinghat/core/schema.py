@@ -919,15 +919,16 @@ class RecommendGender(graphene.Mutation):
     class Arguments:
         uuids = graphene.List(graphene.String)
         exclude = graphene.Boolean(required=False)
+        no_strict_matching = graphene.Boolean(required=False)
 
     job_id = graphene.Field(lambda: graphene.String)
 
     @check_auth
-    def mutate(self, info, uuids=None, exclude=True):
+    def mutate(self, info, uuids=None, exclude=True, no_strict_matching=False):
         user = info.context.user
         ctx = SortingHatContext(user)
 
-        job = enqueue(recommend_gender, ctx, uuids, exclude)
+        job = enqueue(recommend_gender, ctx, uuids, exclude, no_strict_matching)
 
         return RecommendGender(
             job_id=job.id
@@ -979,15 +980,16 @@ class Genderize(graphene.Mutation):
     class Arguments:
         uuids = graphene.List(graphene.String)
         exclude = graphene.Boolean(required=False)
+        no_strict_matching = graphene.Boolean(required=False)
 
     job_id = graphene.Field(lambda: graphene.String)
 
     @check_auth
-    def mutate(self, info, uuids=None, exclude=True):
+    def mutate(self, info, uuids=None, exclude=True, no_strict_matching=False):
         user = info.context.user
         ctx = SortingHatContext(user)
 
-        job = enqueue(genderize, ctx, uuids, exclude)
+        job = enqueue(genderize, ctx, uuids, exclude, no_strict_matching)
 
         return Genderize(
             job_id=job.id
@@ -1476,7 +1478,7 @@ class SortingHatMutation(graphene.ObjectType):
     )
     recommend_gender = RecommendGender.Field(
         description='Recommend genders for a list of individuals based on their names\
-        using the genderize.io API.'
+        using the genderize.io API. `noStrictMatching` disables strict name validation.'
     )
     affiliate = Affiliate.Field(
         description='Affiliate a set of individuals using recommendations.'
@@ -1486,7 +1488,7 @@ class SortingHatMutation(graphene.ObjectType):
     )
     genderize = Genderize.Field(
         description='Autocomplete the gender information of a set of individuals\
-        using genderize.io recommendations.'
+        using genderize.io recommendations. `noStrictMatching` disables strict name validation.'
     )
     add_recommender_exclusion_term = AddRecommenderExclusionTerm.Field(
         description='Add a recommender exclusion to the registry.'
