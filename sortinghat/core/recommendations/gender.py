@@ -24,6 +24,7 @@
 
 import logging
 import re
+from functools import lru_cache
 
 import requests
 import urllib3.util
@@ -127,6 +128,7 @@ def _get_individual_name(individual, strict):
         return first_name
 
 
+@lru_cache(maxsize=128)
 def _genderize(name):
     """Fetch gender from genderize.io"""
 

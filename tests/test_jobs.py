@@ -1088,12 +1088,12 @@ def setup_genderize_server():
         if name == 'john':
             data = {
                 'gender': 'male',
-                'probability': 0.99
+                'probability': 0.92
             }
         elif name == 'jane':
             data = {
                 'gender': 'female',
-                'probability': 0.99
+                'probability': 0.89
             }
         else:
             data = {
@@ -1141,11 +1141,11 @@ class TestRecommendGender(TestCase):
             'results': {
                 self.jsmith.uuid: {
                     'gender': 'male',
-                    'accuracy': 99
+                    'accuracy': 92
                 },
                 self.jdoe.uuid: {
                     'gender': 'female',
-                    'accuracy': 99
+                    'accuracy': 89
                 }
             }
         }
@@ -1209,7 +1209,7 @@ class TestGenderize(TestCase):
 
         expected = {
             'results': {
-                self.jsmith.uuid: ('male', 99)
+                self.jsmith.uuid: ('male', 92)
             },
             'errors': []
         }
@@ -1227,7 +1227,7 @@ class TestGenderize(TestCase):
         gender = individual.profile.gender
         accuracy = individual.profile.gender_acc
         self.assertEqual(gender, 'male')
-        self.assertEqual(accuracy, 99)
+        self.assertEqual(accuracy, 92)
 
     @httpretty.activate
     def test_genderize_all(self):
@@ -1237,8 +1237,8 @@ class TestGenderize(TestCase):
 
         expected = {
             'results': {
-                self.jsmith.uuid: ('male', 99),
-                self.jdoe.uuid: ('female', 99)
+                self.jsmith.uuid: ('male', 92),
+                self.jdoe.uuid: ('female', 89)
             },
             'errors': []
         }
