@@ -223,7 +223,7 @@ def recommend_matches(ctx, source_uuids, target_uuids, criteria, exclude=True, v
 
 
 @django_rq.job
-def recommend_gender(ctx, uuids, exclude=True):
+def recommend_gender(ctx, uuids, exclude=True, no_strict_matching=False):
     """Generate a list of gender recommendations from a set of individuals.
 
     This job generates a list of recommendations with the
@@ -234,6 +234,7 @@ def recommend_gender(ctx, uuids, exclude=True):
     :param exclude: if set to `True`, the results list will ignore individual identities
         if any value from the `email`, `name`, or `username` fields are found in the
         RecommenderExclusionTerm table. Otherwise, results will not ignore them.
+    :param no_strict_matching: disable validation for well-formed names
 
     :returns: a dictionary with the recommended gender and accuracy of the
         prediction for each individual.
@@ -253,7 +254,7 @@ def recommend_gender(ctx, uuids, exclude=True):
 
     trxl = TransactionsLog.open('recommend_gender', job_ctx)
 
-    for rec in engine.recommend('gender', uuids, exclude):
+    for rec in engine.recommend('gender', uuids, exclude, no_strict_matching):
         results[rec.key] = {'gender': rec.options[0],
                             'accuracy': rec.options[1]}
 
@@ -430,7 +431,7 @@ def unify(ctx, source_uuids, target_uuids, criteria, exclude=True):
 
 
 @django_rq.job
-def genderize(ctx, uuids=None, exclude=True):
+def genderize(ctx, uuids=None, exclude=True, no_strict_matching=False):
     """Assign a gender to a set of individuals using recommendations.
 
     This job autocompletes the gender information (stored in
@@ -446,6 +447,7 @@ def genderize(ctx, uuids=None, exclude=True):
     :param exclude: if set to `True`, the results list will ignore individual identities
         if any value from the `email`, `name`, or `username` fields are found in the
         RecommenderExclusionTerm table. Otherwise, results will not ignore them.
+    :param no_strict_matching: disable validation for well-formed names
 
     :returns: a dictionary with which individual profiles were
         updated and the errors found running the job
@@ -479,7 +481,7 @@ def genderize(ctx, uuids=None, exclude=True):
     nsuccess = 0
 
     for chunk in _iter_split(uuids, size=MAX_CHUNK_SIZE):
-        for rec in engine.recommend('gender', chunk, exclude):
+        for rec in engine.recommend('gender', chunk, exclude, no_strict_matching):
             gender, acc = rec.options
             updated, errs = _update_individual_gender(job_ctx, rec.key, rec.options)
             results[rec.key] = updated

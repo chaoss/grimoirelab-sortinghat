@@ -8641,8 +8641,8 @@ class TestGenderizeMutation(django.test.TestCase):
     """Unit tests for mutation to autocomplete gender information"""
 
     SH_GENDERIZE = """
-        mutation genderize($uuids: [String]) {
-            genderize(uuids: $uuids) {
+        mutation genderize($uuids: [String], $noStrictMatching: Boolean) {
+            genderize(uuids: $uuids, noStrictMatching: $noStrictMatching) {
                 jobId
             }
         }
@@ -8660,7 +8660,6 @@ class TestGenderizeMutation(django.test.TestCase):
 
         ctx = SortingHatContext(self.user)
 
-        # Individual 1
         self.john_smith = api.add_identity(ctx,
                                            email='jsmith@example.com',
                                            name='John Smith',
@@ -8669,6 +8668,10 @@ class TestGenderizeMutation(django.test.TestCase):
                                          email='jroe@example.com',
                                          name='Jane Roe',
                                          source='scm')
+        self.john = api.add_identity(ctx,
+                                     email='jsmith@example.com',
+                                     name='John',
+                                     source='scm')
 
     @httpretty.activate
     @unittest.mock.patch('sortinghat.core.jobs.rq.job.uuid4')
@@ -8705,8 +8708,46 @@ class TestGenderizeMutation(django.test.TestCase):
 
     @httpretty.activate
     @unittest.mock.patch('sortinghat.core.jobs.rq.job.uuid4')
-    def test_genderize_all(self, mock_job_id_gen):
-        """Check if genderize is applied for all individuals in the registry"""
+    def test_genderize_not_strict(self, mock_job_id_gen):
+        """Check if genderize is applied without strict validation"""
+
+        setup_genderize_server()
+
+        mock_job_id_gen.return_value = "1234-5678-90AB-CDEF"
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuids': [self.john_smith.uuid, self.john.uuid],
+            'noStrictMatching': True
+        }
+
+        executed = client.execute(self.SH_GENDERIZE,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        # Check if the job was run
+        job_id = executed['data']['genderize']['jobId']
+        self.assertEqual(job_id, "1234-5678-90AB-CDEF")
+
+        # Check if the individual's gender was updated
+        indv = Individual.objects.get(mk=self.john_smith.uuid)
+        gender = indv.profile.gender
+        self.assertEqual(gender, "male")
+
+        indv = Individual.objects.get(mk=self.john.uuid)
+        gender = indv.profile.gender
+        self.assertEqual(gender, "male")
+
+        # Check if the rest of the individuals were not updated
+        indv = Individual.objects.get(mk=self.jane_roe.uuid)
+        gender = indv.profile.gender
+        self.assertEqual(gender, None)
+
+    @httpretty.activate
+    @unittest.mock.patch('sortinghat.core.jobs.rq.job.uuid4')
+    def test_genderize_all_strict(self, mock_job_id_gen):
+        """Check if genderize is applied for all valid individuals in the registry"""
 
         setup_genderize_server()
 
@@ -8726,6 +8767,44 @@ class TestGenderizeMutation(django.test.TestCase):
         job_id = executed['data']['genderize']['jobId']
         self.assertEqual(job_id, "1234-5678-90AB-CDEF")
 
+        # Check if all the valid individuals genders were updated
+        indv1 = Individual.objects.get(mk=self.john_smith.uuid)
+        gender1 = indv1.profile.gender
+        self.assertEqual(gender1, "male")
+
+        indv2 = Individual.objects.get(mk=self.jane_roe.uuid)
+        gender2 = indv2.profile.gender
+        self.assertEqual(gender2, "female")
+
+        # Check if the individuals with invalid names were not updated
+        indv = Individual.objects.get(mk=self.john.uuid)
+        gender = indv.profile.gender
+        self.assertEqual(gender, None)
+
+    @httpretty.activate
+    @unittest.mock.patch('sortinghat.core.jobs.rq.job.uuid4')
+    def test_genderize_all_not_strict(self, mock_job_id_gen):
+        """Check if genderize is applied for all individuals in the registry"""
+
+        setup_genderize_server()
+
+        mock_job_id_gen.return_value = "1234-5678-90AB-CDEF"
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuids': None,
+            'noStrictMatching': True
+        }
+
+        executed = client.execute(self.SH_GENDERIZE,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        # Check if the job was run
+        job_id = executed['data']['genderize']['jobId']
+        self.assertEqual(job_id, "1234-5678-90AB-CDEF")
+
         # Check if all the individuals genders were updated
         indv1 = Individual.objects.get(mk=self.john_smith.uuid)
         gender1 = indv1.profile.gender
@@ -8734,6 +8813,10 @@ class TestGenderizeMutation(django.test.TestCase):
         indv2 = Individual.objects.get(mk=self.jane_roe.uuid)
         gender2 = indv2.profile.gender
         self.assertEqual(gender2, "female")
+
+        indv = Individual.objects.get(mk=self.john.uuid)
+        gender = indv.profile.gender
+        self.assertEqual(gender, "male")
 
     @httpretty.activate
     @unittest.mock.patch('sortinghat.core.jobs.rq.job.uuid4')
