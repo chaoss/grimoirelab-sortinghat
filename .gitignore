@@ -28,3 +28,8 @@ yarn-error.log*
 .project
 .pydevproject
 .settings
+
+# Documentation
+.eggs/
+docs/_build/
+docs/source
