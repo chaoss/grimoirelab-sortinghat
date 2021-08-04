@@ -11,5 +11,15 @@ A tool to manage identities.
 .. toctree::
    :maxdepth: 1
    :caption: SortingHat:
-   
+
    What is SortingHat ? <sortinghat/index.md>
+   Profile and identities <sortinghat/profile.md>
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Developer Documentation:
+
+   SortingHat's Database <sortinghat/database.md>
+   Install SortingHat (Backend and Frontend) <https://github.com/chaoss/grimoirelab-sortinghat/blob/muggle/README.md#requirements>
+   Install SortingHat as a Service <https://github.com/chaoss/grimoirelab-sortinghat/blob/muggle/README.md#sortinghat-service>
+   API reference doc <sortinghat/api-reference.rst>
