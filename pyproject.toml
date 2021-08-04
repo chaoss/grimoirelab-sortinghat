@@ -62,10 +62,20 @@ django-treebeard = "^4.5.1"
 importlib-resources = "^5.2.0"
 grimoirelab-toolkit = "^0.2.0"
 
+# Documentation
+myst-parser = { version = "^0.15.1", optional = true}
+furo = { version = "2021.7.28b40", optional = true}
+
 [tool.poetry.dev-dependencies]
 fakeredis = "^1.4.1"
 httpretty = "0.9.7"
 flake8 = "^3.9.0"
+
+[tool.poetry.extras]
+docs = [
+    "furo",
+    "myst-parser",
+]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
