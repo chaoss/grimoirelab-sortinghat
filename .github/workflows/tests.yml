@@ -5,7 +5,7 @@ on:
     branches:
       - muggle
     tags:
-      - '!*.*.*'
+      - '!**'
   pull_request:
     branches:
       - muggle
@@ -37,10 +37,11 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install and set up Poetry
-      run: curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
+      run: |
+        curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py | python -
+        echo "$HOME/.poetry/bin" >> $GITHUB_PATH
     - name: Install dependencies
       run: |
-        source $HOME/.poetry/env
         poetry install -vvv
     - name: Set MySQL mode
       env:
@@ -50,11 +51,9 @@ jobs:
         mysql --host $DB_HOST --port $DB_PORT -uroot -proot -e "SET GLOBAL sql_mode = 'NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION'";
     - name: Lint with flake8
       run: |
-        source $HOME/.poetry/env
         poetry run flake8
     - name: Tests
       run: |
-        source $HOME/.poetry/env
         poetry run python manage.py test --settings=config.settings.testing
 
   frontend:
