@@ -180,6 +180,11 @@ class TeamType(DjangoObjectType):
     class Meta:
         model = Team
 
+    subteams = graphene.List(lambda: TeamType)
+
+    def resolve_subteams(self, info):
+        return self.get_children().order_by('name').all()
+
 
 class DomainType(DjangoObjectType):
     class Meta:
@@ -1133,27 +1138,31 @@ class SortingHatQuery:
     @check_auth
     def resolve_teams(self, info, filters=None, page=1,
                       page_size=settings.DEFAULT_GRAPHQL_PAGE_SIZE, **kwargs):
-        query = Team.objects.order_by('name')
-
         if filters:
+            query = Team.objects.order_by('name')
+
+            # Filter teams that belong to the given organization filter
+            if 'organization' in filters:
+                # If no other filter is present, only show top level teams of organization
+                if not ('name' in filters or 'term' in filters) and 'parent' not in filters:
+                    query = Team.get_root_nodes().order_by('name')
+                query = query.filter(
+                    Q(organization__in=Organization.objects.filter(name=filters['organization'])))
+
+            # Filter teams that are subteams of the parent filter value
+            if 'parent' in filters:
+                query = query.filter(name=filters['parent'])
+                if query:
+                    query = query.first().get_children()
+
+            # Filter by 'name' or 'term'
             if 'name' in filters:
                 query = query.filter(name=filters['name'])
             if 'term' in filters:
-                search_term = filters['term']
-                query = query.filter(Q(name__icontains=search_term))
-            if 'organization' in filters:
-                org_search_term = filters['organization']
-                query = query.filter(Q(organization__in=Organization.objects.filter(name__icontains=org_search_term)))
-                if 'parent' in filters:
-                    query = query.filter(name=filters['parent'])
-                    if query:
-                        query = query.first().get_descendants()
-            else:
-                if 'parent' in filters:
-                    query = query.filter(name=filters['parent'], organization=None)
-                    if query:
-                        query = query.first().get_descendants()
-
+                query = query.filter(name__icontains=filters['term'])
+        else:
+            # If no filters are given, show all top level teams
+            query = Team.get_root_nodes().order_by('name')
         return TeamPaginatedType.create_paginated_result(query, page,
                                                          page_size=page_size)
 
