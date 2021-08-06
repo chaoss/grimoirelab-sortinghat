@@ -323,6 +323,22 @@ SH_TEAMS_QUERY_PAGINATION = """{
     }
   }
 }"""
+SH_SUBTEAMS_QUERY = """{
+  teams {
+    entities {
+      name
+      organization {
+        name
+      }
+      subteams {
+        name
+        subteams {
+          name
+        }
+      }
+    }
+  }
+}"""
 SH_INDIVIDUALS_QUERY = """{
   individuals {
     entities {
@@ -1538,12 +1554,14 @@ class TestQueryTeams(django.test.TestCase):
         bitergia_org = Organization.objects.create(name='Bitergia')
         team = Team.add_root(name='Bitergia_team', organization=bitergia_org)
         subteam = team.add_child(name='Bitergia_subteam', organization=bitergia_org)
+        noorgterm = Team.add_root(name='Mozilla', organization=None)
 
         # Tests
         client = graphene.test.Client(schema)
         executed = client.execute(SH_TEAMS_QUERY,
                                   context_value=self.context_value)
 
+        # show only top level teams
         teams = executed['data']['teams']['entities']
         self.assertEqual(len(teams), 3)
 
@@ -1562,6 +1580,36 @@ class TestQueryTeams(django.test.TestCase):
 
         orgs = executed['data']['teams']['entities']
         self.assertListEqual(orgs, [])
+
+    def test_subteams(self):
+        chaoss_org = Organization.objects.create(name='Grimoirelab')
+        percevalteam = Team.add_root(name='Perceval', organization=chaoss_org)
+        percevalsubteam1 = percevalteam.add_child(name='Perceval Slack', organization=chaoss_org)
+        percevalsubteam2 = percevalteam.add_child(name='Perceval Git', organization=chaoss_org)
+        percevalsubteam3 = percevalsubteam2.add_child(name='Perceval Gitlab', organization=chaoss_org)
+
+        # Tests
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_SUBTEAMS_QUERY,
+                                  context_value=self.context_value)
+
+        # show only top level teams
+        teams = executed['data']['teams']['entities']
+        self.assertEqual(len(teams), 1)
+
+        # check subteams
+        team = executed['data']['teams']['entities'][0]
+        subteams = team['subteams']
+        self.assertEqual(len(subteams), 2)
+        # subteams are sorted by name
+        self.assertEqual(subteams[0]['name'], percevalsubteam2.name)
+        self.assertEqual(subteams[1]['name'], percevalsubteam1.name)
+
+        # test another level of subteams
+        self.assertEqual(len(subteams[0]['subteams']), 1)
+        self.assertEqual(len(subteams[1]['subteams']), 0)
+        childteam = subteams[0]['subteams'][0]
+        self.assertEqual(childteam['name'], percevalsubteam3.name)
 
     def test_filter_registry(self):
         """Check whether it returns the teams searched when using name filter"""
@@ -1632,6 +1680,7 @@ class TestQueryTeams(django.test.TestCase):
 
         example_org = Organization.objects.create(name='Example')
         example_team = Team.add_root(name='example_team', organization=example_org)
+        example_subteam = example_team.add_child(name='example_subteam', organization=example_org)
         bitergia_org = Organization.objects.create(name='Bitergia')
         Team.add_root(name='bitergia_team', organization=bitergia_org)
 
@@ -1642,6 +1691,7 @@ class TestQueryTeams(django.test.TestCase):
         executed = client.execute(test_query,
                                   context_value=self.context_value)
 
+        # show only top level teams in 'Example'
         teams = executed['data']['teams']['entities']
         self.assertEqual(len(teams), 1)
 
@@ -1658,20 +1708,17 @@ class TestQueryTeams(django.test.TestCase):
 
         client = graphene.test.Client(schema)
 
-        # Test 'example_team' should return 'subteam1' and 'subteam2'
+        # Test 'example_team' should return 'subteam1'
         test_query = SH_TEAMS_QUERY_PARENT_FILTER % 'example_team'
         executed = client.execute(test_query,
                                   context_value=self.context_value)
 
         teams = executed['data']['teams']['entities']
-        self.assertEqual(len(teams), 2)
+        self.assertEqual(len(teams), 1)
 
         # Teams are sorted by name
         team = teams[0]
         self.assertEqual(team['name'], subteam1.name)
-
-        team = teams[1]
-        self.assertEqual(team['name'], subteam2.name)
 
     def test_filter_parent_and_organization(self):
         """Check whether it returns the correct teams when using parent filter
