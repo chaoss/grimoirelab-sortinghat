@@ -112,7 +112,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'USER': 'root',
-        'PASSWORD': 'root',
+        'PASSWORD': '',
         'NAME': 'sortinghat_db',
         'OPTIONS': {'charset': 'utf8mb4'},
         'TEST': {
@@ -150,7 +150,7 @@ LOGGING = {
     },
 }
 
-DEFAULT_GRAPHQL_PAGE_SIZE = 2
+SORTINGHAT_API_PAGE_SIZE = 2
 
 AUTHENTICATION_BACKENDS = [
     'graphql_jwt.backends.JSONWebTokenBackend',
@@ -164,7 +164,7 @@ GRAPHENE = {
     ],
 }
 
-AUTHENTICATION_REQUIRED = False
+SORTINGHAT_AUTHENTICATION_REQUIRED = False
 
 RQ_QUEUES = {
     'default': {

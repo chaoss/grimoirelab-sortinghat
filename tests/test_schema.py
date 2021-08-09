@@ -1194,7 +1194,7 @@ class TestQueryPagination(django.test.TestCase):
         pag_data = executed['data']['operations']['pageInfo']
         self.assertEqual(len(pag_data), 8)
         self.assertEqual(pag_data['page'], 1)
-        self.assertEqual(pag_data['pageSize'], settings.DEFAULT_GRAPHQL_PAGE_SIZE)
+        self.assertEqual(pag_data['pageSize'], settings.SORTINGHAT_API_PAGE_SIZE)
         self.assertEqual(pag_data['totalResults'], 6)
 
     def test_page_size_exceeded(self):

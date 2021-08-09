@@ -5,7 +5,7 @@ import django_rq.queues
 
 from fakeredis import FakeRedis, FakeStrictRedis
 
-# Graphene logs SortingHat exceptions and Django pritns them
+# Graphene logs SortingHat exceptions and Django prints them
 # to the standard error output. This code prevents Django
 # kind of errors are not shown.
 if len(sys.argv) > 1 and sys.argv[1] == 'test':
@@ -38,7 +38,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'USER': 'root',
-        'PASSWORD': 'root',
+        'PASSWORD': '',
         'NAME': 'sortinghat_db',
         'OPTIONS': {
             'charset': 'utf8mb4',
@@ -63,7 +63,7 @@ AUTHENTICATION_BACKENDS = [
 
 # This option should be set to True to pass
 # authentication tests.
-AUTHENTICATION_REQUIRED = True
+SORTINGHAT_AUTHENTICATION_REQUIRED = True
 
 GRAPHENE = {
     'SCHEMA': 'sortinghat.core.schema',
@@ -72,7 +72,7 @@ GRAPHENE = {
     ],
 }
 
-DEFAULT_GRAPHQL_PAGE_SIZE = 10
+SORTINGHAT_API_PAGE_SIZE = 10
 
 
 # Configuration to pretend there is a Redis service
