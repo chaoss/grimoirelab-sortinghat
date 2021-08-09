@@ -339,6 +339,91 @@ SH_SUBTEAMS_QUERY = """{
     }
   }
 }"""
+SH_GROUPS_QUERY = """{
+  groups {
+    entities {
+      name
+      organization {
+        name
+      }
+    }
+  }
+}"""
+SH_SUBGROUPS_QUERY = """{
+  groups {
+    entities {
+      name
+      organization {
+        name
+      }
+      subteams {
+        name
+        subteams {
+          name
+        }
+      }
+    }
+  }
+}"""
+SH_GROUPS_QUERY_FILTER = """{
+  groups (
+    filters: {
+      name: "%s"
+    }
+  ){
+    entities {
+      name
+    }
+  }
+}"""
+SH_GROUPS_QUERY_TERM_FILTER = """{
+  groups (
+    filters:{
+      term:"%s"
+    }
+  ){
+    entities {
+      name
+      organization {
+        name
+      }
+    }
+  }
+}"""
+SH_GROUPS_QUERY_PARENT_FILTER = """{
+  groups (
+    filters:{
+      parent:"%s"
+    }
+  ){
+    entities {
+      name
+      organization {
+        name
+      }
+    }
+  }
+}"""
+SH_GROUPS_QUERY_PAGINATION = """{
+  groups (
+    page: %d
+    pageSize: %d
+  ){
+    entities {
+      name
+    }
+    pageInfo{
+      page
+      pageSize
+      numPages
+      hasNext
+      hasPrev
+      startIndex
+      endIndex
+      totalResults
+    }
+  }
+}"""
 SH_INDIVIDUALS_QUERY = """{
   individuals {
     entities {
@@ -1767,6 +1852,203 @@ class TestQueryTeams(django.test.TestCase):
         self.assertEqual(team['name'], team2.name)
 
         pag_data = executed['data']['teams']['pageInfo']
+        self.assertEqual(len(pag_data), 8)
+        self.assertEqual(pag_data['page'], 1)
+        self.assertEqual(pag_data['pageSize'], 2)
+        self.assertEqual(pag_data['numPages'], 2)
+        self.assertTrue(pag_data['hasNext'])
+        self.assertFalse(pag_data['hasPrev'])
+        self.assertEqual(pag_data['startIndex'], 1)
+        self.assertEqual(pag_data['endIndex'], 2)
+        self.assertEqual(pag_data['totalResults'], 3)
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the query"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        executed = client.execute(SH_TEAMS_QUERY,
+                                  context_value=context_value)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
+
+
+class TestQueryGroups(django.test.TestCase):
+    """Unit tests for groups queries"""
+
+    def setUp(self):
+        """Set queries context"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
+
+    def test_groups(self):
+        """Check if it returns the registry of groups"""
+
+        example_org = Organization.objects.create(name='Example')
+        Team.add_root(name='Example_team', organization=example_org)
+        no_org_group = Team.add_root(name='Example_team', organization=None)
+        no_org_group.add_child(name='Example_subteam', organization=None)
+
+        # Tests
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_GROUPS_QUERY,
+                                  context_value=self.context_value)
+
+        # show only top level groups that arent linked to any organization
+        groups = executed['data']['groups']['entities']
+        self.assertEqual(len(groups), 1)
+
+    def test_empty_registry(self):
+        """Check whether it returns an empty list when the registry is empty"""
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_GROUPS_QUERY,
+                                  context_value=self.context_value)
+
+        orgs = executed['data']['groups']['entities']
+        self.assertListEqual(orgs, [])
+
+    def test_subteams(self):
+        """Check if it returns the subteams of groups"""
+
+        percevalteam = Team.add_root(name='Perceval', organization=None)
+        percevalsubteam1 = percevalteam.add_child(name='Perceval Slack', organization=None)
+        percevalsubteam2 = percevalteam.add_child(name='Perceval Git', organization=None)
+        percevalsubteam3 = percevalsubteam2.add_child(name='Perceval Gitlab', organization=None)
+
+        # Tests
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_SUBGROUPS_QUERY,
+                                  context_value=self.context_value)
+
+        # show only top level groups
+        groups = executed['data']['groups']['entities']
+        self.assertEqual(len(groups), 1)
+
+        # check subteams
+        group = executed['data']['groups']['entities'][0]
+        subteams = group['subteams']
+        self.assertEqual(len(subteams), 2)
+        # subteams are sorted by name
+        self.assertEqual(subteams[0]['name'], percevalsubteam2.name)
+        self.assertEqual(subteams[1]['name'], percevalsubteam1.name)
+
+        # test another level of groups
+        self.assertEqual(len(subteams[0]['subteams']), 1)
+        self.assertEqual(len(subteams[1]['subteams']), 0)
+        childteam = subteams[0]['subteams'][0]
+        self.assertEqual(childteam['name'], percevalsubteam3.name)
+
+    def test_filter_registry(self):
+        """Check whether it returns the groups searched when using name filter"""
+
+        group = Team.add_root(name='Example_group')
+
+        client = graphene.test.Client(schema)
+        test_query = SH_GROUPS_QUERY_FILTER % 'Example_group'
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
+
+        groups = executed['data']['groups']['entities']
+        self.assertEqual(len(groups), 1)
+
+        self.assertEqual(groups[0]['name'], group.name)
+
+    def test_filter_non_exist_registry(self):
+        """Check whether it returns an empty list when searched with a non existing team"""
+
+        Team.add_root(name='Example_team1', organization=None)
+
+        client = graphene.test.Client(schema)
+        test_query = SH_GROUPS_QUERY_FILTER % 'Example'
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
+        groups = executed['data']['groups']['entities']
+        self.assertListEqual(groups, [])
+
+    def test_filter_term(self):
+        """Check whether it returns the groups searched when using term filter"""
+
+        group1 = Team.add_root(name='team1', organization=None)
+        Team.add_root(name='team2', organization=None)
+        Team.add_root(name='team3', organization=None)
+
+        client = graphene.test.Client(schema)
+
+        # Test 'team1' should return one of the organizations
+        test_query = SH_GROUPS_QUERY_TERM_FILTER % 'team1'
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
+
+        group = executed['data']['groups']['entities']
+        self.assertEqual(len(group), 1)
+
+        group = group[0]
+        self.assertEqual(group['name'], group1.name)
+
+        # Test 'team' should return all 3 groups
+        test_query = SH_GROUPS_QUERY_TERM_FILTER % 'team'
+        executed = client.execute(test_query, context_value=self.context_value)
+
+        groups = executed['data']['groups']['entities']
+        self.assertEqual(len(groups), 3)
+
+        # Test '123' shouldn't return any organizations
+        test_query = SH_GROUPS_QUERY_TERM_FILTER % '123'
+        executed = client.execute(test_query, context_value=self.context_value)
+
+        teams = executed['data']['groups']['entities']
+        self.assertEqual(len(teams), 0)
+
+    def test_filter_parent(self):
+        """Check whether it returns the correct groups when using parent filter"""
+
+        team = Team.add_root(name='example_team')
+        subteam1 = team.add_child(name='subteam1')
+        subteam2 = subteam1.add_child(name='subteam2')
+
+        client = graphene.test.Client(schema)
+
+        # Test 'example_team' should return 'subteam1'
+        test_query = SH_GROUPS_QUERY_PARENT_FILTER % 'example_team'
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
+
+        groups = executed['data']['groups']['entities']
+        self.assertEqual(len(groups), 1)
+
+        # Groups are sorted by name
+        group = groups[0]
+        self.assertEqual(group['name'], subteam1.name)
+
+    def test_pagination(self):
+        """Check whether it returns the groups searched when using pagination"""
+
+        team1 = Team.add_root(name='team1', organization=None)
+        team2 = Team.add_root(name='team2', organization=None)
+        Team.add_root(name='team3', organization=None)
+
+        client = graphene.test.Client(schema)
+        test_query = SH_GROUPS_QUERY_PAGINATION % (1, 2)
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
+
+        groups = executed['data']['groups']['entities']
+        self.assertEqual(len(groups), 2)
+
+        group = groups[0]
+        self.assertEqual(group['name'], team1.name)
+
+        group = groups[1]
+        self.assertEqual(group['name'], team2.name)
+
+        pag_data = executed['data']['groups']['pageInfo']
         self.assertEqual(len(pag_data), 8)
         self.assertEqual(pag_data['page'], 1)
         self.assertEqual(pag_data['pageSize'], 2)

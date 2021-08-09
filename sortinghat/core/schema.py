@@ -333,6 +333,21 @@ class TeamFilterType(graphene.InputObjectType):
     )
 
 
+class GroupFilterType(graphene.InputObjectType):
+    name = graphene.String(
+        required=False,
+        description='Filter groups with an exact name match.'
+    )
+    parent = graphene.String(
+        required=False,
+        description='Filter groups which are subgroups of parent.'
+    )
+    term = graphene.String(
+        required=False,
+        description='Filter groups whose name include the term.'
+    )
+
+
 class IdentityFilterType(graphene.InputObjectType):
     uuid = graphene.String(
         required=False,
@@ -1060,6 +1075,13 @@ class SortingHatQuery:
         filters=TeamFilterType(required=False),
         description='Find teams.'
     )
+    groups = graphene.Field(
+        TeamPaginatedType,
+        page_size=graphene.Int(),
+        page=graphene.Int(),
+        filters=GroupFilterType(required=False),
+        description='Find groups that are not linked to organizations.'
+    )
     individuals = graphene.Field(
         IdentityPaginatedType,
         page_size=graphene.Int(),
@@ -1149,20 +1171,27 @@ class SortingHatQuery:
                 query = query.filter(
                     Q(organization__in=Organization.objects.filter(name=filters['organization'])))
 
-            # Filter teams that are subteams of the parent filter value
-            if 'parent' in filters:
-                query = query.filter(name=filters['parent'])
-                if query:
-                    query = query.first().get_children()
-
-            # Filter by 'name' or 'term'
-            if 'name' in filters:
-                query = query.filter(name=filters['name'])
-            if 'term' in filters:
-                query = query.filter(name__icontains=filters['term'])
+            query = apply_team_query_filters(query, filters)
         else:
             # If no filters are given, show all top level teams
             query = Team.get_root_nodes().order_by('name')
+        return TeamPaginatedType.create_paginated_result(query, page,
+                                                         page_size=page_size)
+
+    @check_auth
+    def resolve_groups(self, info, filters=None, page=1,
+                       page_size=settings.DEFAULT_GRAPHQL_PAGE_SIZE, **kwargs):
+        if filters:
+            query = Team.objects.order_by('name')
+
+            # Filter groups that do not belong to any organization
+            query = query.filter(organization=None)
+
+            query = apply_team_query_filters(query, filters)
+        else:
+            # If no filters are given, show all top level groups
+            query = Team.get_root_nodes().order_by('name')
+            query = query.filter(organization=None)
         return TeamPaginatedType.create_paginated_result(query, page,
                                                          page_size=page_size)
 
@@ -1510,3 +1539,29 @@ class SortingHatMutation(graphene.ObjectType):
     token_auth = graphql_jwt.ObtainJSONWebToken.Field()
     verify_token = graphql_jwt.Verify.Field(description='Verify a JSON Web Token.')
     refresh_token = graphql_jwt.Refresh.Field(description='Refresh a JSON Web Token.')
+
+
+def apply_team_query_filters(query, filters):
+    """Apply filters to queryset containing Team objects.
+
+    This method takes in the passed queryset and applies the `name`, `term`
+    and `parent` filters to it.
+
+    :param query: a queryset of Team objects
+    :param filters: a dictionary of filters and their values
+
+    :returns: a filtered queryset
+    """
+    # Filter teams that are subteams of the parent filter value
+    if 'parent' in filters:
+        query = query.filter(name=filters['parent'])
+        if query:
+            query = query.first().get_children()
+
+    # Filter by 'name' or 'term'
+    if 'name' in filters:
+        query = query.filter(name=filters['name'])
+    if 'term' in filters:
+        query = query.filter(name__icontains=filters['term'])
+
+    return query
