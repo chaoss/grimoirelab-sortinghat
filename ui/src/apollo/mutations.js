@@ -175,6 +175,25 @@ const ADD_ORGANIZATION = gql`
     }
   }
 `;
+
+const ADD_TEAM = gql`
+  mutation addTeam(
+    $teamName: String!
+    $organization: String
+    $parentName: String
+  ) {
+    addTeam(
+      teamName: $teamName
+      organization: $organization
+      parentName: $parentName
+    ) {
+      team {
+        name
+      }
+    }
+  }
+`;
+
 const ADD_IDENTITY = gql`
   mutation addIdentity(
     $email: String
@@ -300,6 +319,16 @@ const DELETE_ORGANIZATION = gql`
   mutation deleteOrganization($name: String!) {
     deleteOrganization(name: $name) {
       organization {
+        name
+      }
+    }
+  }
+`;
+
+const DELETE_TEAM = gql`
+  mutation deleteTeam($teamName: String!, $organization: String!) {
+    deleteTeam(teamName: $teamName, organization: $organization) {
+      team {
         name
       }
     }
@@ -475,6 +504,18 @@ const addOrganization = (apollo, name) => {
   return response;
 };
 
+const addTeam = (apollo, teamName, organization, parentName) => {
+  let response = apollo.mutate({
+    mutation: ADD_TEAM,
+    variables: {
+      teamName: teamName,
+      organization: organization,
+      parentName: parentName
+    }
+  });
+  return response;
+};
+
 const addDomain = (apollo, domain, organization) => {
   let response = apollo.mutate({
     mutation: ADD_DOMAIN,
@@ -515,6 +556,17 @@ const deleteOrganization = (apollo, name) => {
   return response;
 };
 
+const deleteTeam = (apollo, teamName, organization) => {
+  let response = apollo.mutate({
+    mutation: DELETE_TEAM,
+    variables: {
+      teamName: teamName,
+      organization: organization
+    }
+  });
+  return response;
+};
+
 const updateEnrollment = (apollo, data) => {
   let response = apollo.mutate({
     mutation: UPDATE_ENROLLMENT,
@@ -543,6 +595,8 @@ export {
   deleteOrganization,
   addDomain,
   deleteDomain,
+  addTeam,
+  deleteTeam,
   addIdentity,
   updateProfile,
   withdraw,

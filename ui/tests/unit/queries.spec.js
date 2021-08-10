@@ -1,11 +1,12 @@
-import { shallowMount, mount } from "@vue/test-utils";
-import Vue from "vue";
-import Vuetify from "vuetify";
-import IndividualsData from "@/components/IndividualsData";
-import IndividualsTable from "@/components/IndividualsTable";
-import OrganizationsTable from "@/components/OrganizationsTable";
-import JobsTable from "@/components/JobsTable";
-import * as Queries from "@/apollo/queries";
+import { shallowMount, mount } from '@vue/test-utils';
+import Vue from 'vue';
+import Vuetify from 'vuetify';
+import IndividualsData from '@/components/IndividualsData';
+import IndividualsTable from '@/components/IndividualsTable';
+import OrganizationsTable from '@/components/OrganizationsTable';
+import JobsTable from '@/components/JobsTable';
+import TeamModal from '@/components/TeamModal';
+import * as Queries from '@/apollo/queries';
 
 Vue.use(Vuetify);
 
@@ -95,19 +96,36 @@ const paginatedOrganizations = {
             { id: 3, __typename: "EnrollmentType" },
             { id: 4, __typename: "EnrollmentType" }
           ],
-          __typename: "OrganizationType"
-        }
+          __typename: 'OrganizationType',
+        },
       ],
       pageInfo: {
         page: 1,
         pageSize: 10,
         numPages: 1,
         totalResults: 2,
-        __typename: "PaginationType"
+        __typename: 'PaginationType',
       },
-      __typename: "OrganizationPaginatedType"
-    }
-  }
+      __typename: 'OrganizationPaginatedType',
+    },
+  },
+};
+
+const paginatedTeams = {
+  data: {
+    teams: {
+      entities: [
+        {
+          name: 'Test 1',
+          __typename: 'TeamType',
+        },
+        {
+          name: 'Test 2',
+          __typename: 'TeamType',
+        },
+      ],
+    },
+  },
 };
 
 const countriesMocked = {
@@ -432,8 +450,11 @@ describe("OrganizationsTable", () => {
         addDomain: () => {},
         addOrganization: () => {},
         deleteDomain: () => {},
-        deleteOrganization: () => {}
-      }
+        deleteOrganization: () => {},
+        fetchTeams: () => {},
+        addTeam: () => {},
+        deleteTeam: () => {},
+      },
     });
     const response = await Queries.getPaginatedOrganizations(
       wrapper.vm.$apollo,
@@ -461,7 +482,10 @@ describe("OrganizationsTable", () => {
         addDomain: () => {},
         addOrganization: () => {},
         deleteDomain: () => {},
-        deleteOrganization: () => {}
+        deleteOrganization: () => {},
+        fetchTeams: () => {},
+        addTeam: () => {},
+        deleteTeam: () => {},
       },
       data() {
         return {
@@ -497,5 +521,28 @@ describe("JobsTable", () => {
     expect(wrapper.vm.jobs.length).toBe(1);
     expect(wrapper.vm.page).toBe(2);
     expect(wrapper.vm.pageCount).toBe(2);
+  });
+});
+
+describe('TeamModal', () => {
+  test('Mock query for getPaginatedTeams', async () => {
+    const query = jest.fn(() => Promise.resolve(paginatedTeams));
+    const wrapper = shallowMount(TeamModal, {
+      Vue,
+      mocks: {
+        $apollo: {
+          query,
+        },
+      },
+      propsData: {
+        addTeam: () => {},
+        deleteTeam: () => {},
+        fetchTeams: query,
+      },
+    });
+    const response = await Queries.getTeams(wrapper.vm.$apollo, 1, 1);
+
+    expect(query).toBeCalled();
+    expect(wrapper.element).toMatchSnapshot();
   });
 });

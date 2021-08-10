@@ -1,18 +1,23 @@
-import ExpandedOrganization from './ExpandedOrganization.vue';
+import TeamModal from './TeamModal.vue';
 
 export default {
-  title: 'ExpandedOrganization',
+  title: 'TeamModal',
   excludeStories: /.*Data$/,
 };
 
-const ExpandedOrganizationTemplate = `<expanded-organization :domains="domains" :organization="organization" :add-team="addTeam" :delete-team="deleteTeam" :fetch-teams="fetchTeams"/>`;
+const TeamModalTemplate = `  <div class="ma-auto">
+    <v-btn color="primary" dark @click.stop="modal.open = true">
+      Open Dialog
+    </v-btn><team-modal :is-open.sync="modal.open" :organization="organization"  :add-team="addTeam" :delete-team="deleteTeam" :fetch-teams="fetchTeams"/></div>`;
 
 export const Default = () => ({
-  components: { ExpandedOrganization },
-  template: ExpandedOrganizationTemplate,
+  components: { TeamModal },
+  template: TeamModalTemplate,
   data: () => ({
-    domains: [{ domain: 'hogwarts.edu' }, { domain: 'hogwarts.com' }],
     organization: 'Hogwarts',
+    modal: {
+      open: false,
+    },
     query: [
       {
         data: {
@@ -46,66 +51,6 @@ export const Default = () => ({
                 numchild: 0,
               },
             ],
-          },
-        },
-      },
-    ],
-  }),
-  methods: {
-    fetchTeams(filters) {
-      let data = [];
-      if (Object.keys(filters).includes('parent')) {
-        this.query[0].data.teams.entities.forEach((team) => {
-          if (team['parent'] === filters['parent']) {
-            data.push(team);
-          }
-        });
-      } else {
-        this.query[0].data.teams.entities.forEach((team) => {
-          if (team['parent'] === undefined) {
-            data.push(team);
-          }
-        });
-      }
-      const resp = {
-        data: {
-          teams: {
-            entities: data
-          },
-        },
-      };
-      return resp;
-    },
-    addTeam(team, organization, parent) {
-      const insertData = {
-        name: team,
-      };
-      if (parent) {
-        insertData['parent'] = parent;
-      }
-      this.query[0].data.teams.entities.push(insertData);
-      return true;
-    },
-    deleteTeam(team, organization) {
-      this.query[0].data.teams.entities = this.query[0].data.teams.entities.filter(
-        (elem) => elem.name != team,
-      );
-      return true;
-    },
-  },
-});
-
-export const Empty = () => ({
-  components: { ExpandedOrganization },
-  template: ExpandedOrganizationTemplate,
-  data: () => ({
-    domains: [],
-    organization: 'Hogwarts',
-    query: [
-      {
-        data: {
-          teams: {
-            entities: [],
           },
         },
       },

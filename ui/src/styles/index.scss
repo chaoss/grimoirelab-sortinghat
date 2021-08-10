@@ -92,6 +92,10 @@ $border-color: rgba(0, 0, 0, 0.12);
   transition-duration: 0s;
 }
 
+.team-modal-content{
+ max-height: 750px;
+  overflow-y: auto;
+}
 
 // Drop zones
 .theme--light.v-data-table

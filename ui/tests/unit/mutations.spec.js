@@ -1,11 +1,12 @@
-import { shallowMount } from "@vue/test-utils";
-import Vue from "vue";
-import Vuetify from "vuetify";
-import IndividualsTable from "@/components/IndividualsTable";
-import Login from "@/views/Login";
-import OrganizationsTable from "@/components/OrganizationsTable";
-import ProfileModal from "@/components/ProfileModal";
-import * as Mutations from "@/apollo/mutations";
+import { shallowMount } from '@vue/test-utils';
+import Vue from 'vue';
+import Vuetify from 'vuetify';
+import IndividualsTable from '@/components/IndividualsTable';
+import Login from '@/views/Login';
+import OrganizationsTable from '@/components/OrganizationsTable';
+import ProfileModal from '@/components/ProfileModal';
+import * as Mutations from '@/apollo/mutations';
+import TeamModal from '@/components/TeamModal';
 
 Vue.use(Vuetify);
 
@@ -131,9 +132,46 @@ const addOrganizationResponse = {
         name: "Name",
         __typename: "OrganizationType"
       },
-      __typename: "AddOrganization"
-    }
-  }
+      __typename: 'AddOrganization',
+    },
+  },
+};
+
+const addTeamResponse = {
+  data: {
+    addTeam: {
+      team: {
+        name: 'Name',
+        __typename: 'TeamType',
+      },
+      __typename: 'AddTeam',
+    },
+  },
+};
+
+const paginatedTeams = {
+  data: {
+    teams: {
+      entities: [
+        {
+          name: 'Test 1',
+          __typename: 'TeamType',
+        },
+        {
+          name: 'Test 2',
+          __typename: 'TeamType',
+        },
+      ],
+      pageInfo: {
+        page: 1,
+        pageSize: 10,
+        numPages: 1,
+        totalResults: 2,
+        __typename: 'PaginationType',
+      },
+      __typename: 'TeamPaginatedType',
+    },
+  },
 };
 
 const addDomainResponse = {
@@ -373,8 +411,11 @@ describe("OrganizationsTable", () => {
         addDomain: () => {},
         addOrganization: () => {},
         deleteDomain: () => {},
-        deleteOrganization: () => {}
-      }
+        deleteOrganization: () => {},
+        addTeam: () => {},
+        deleteTeam: () => {},
+        fetchTeams: () => {},
+      },
     });
 
     const response = await Mutations.enroll(
@@ -402,8 +443,11 @@ describe("OrganizationsTable", () => {
         addOrganization: mutate,
         addDomain: () => {},
         deleteDomain: () => {},
-        deleteOrganization: () => {}
-      }
+        deleteOrganization: () => {},
+        addTeam: () => {},
+        deleteTeam: () => {},
+        fetchTeams: () => {},
+      },
     });
 
     const response = await Mutations.addOrganization(
@@ -430,8 +474,11 @@ describe("OrganizationsTable", () => {
         addDomain: mutate,
         deleteDomain: () => {},
         addOrganization: () => {},
-        deleteOrganization: () => {}
-      }
+        deleteOrganization: () => {},
+        addTeam: () => {},
+        deleteTeam: () => {},
+        fetchTeams: () => {},
+      },
     });
 
     const response = await Mutations.addDomain(
@@ -459,8 +506,11 @@ describe("OrganizationsTable", () => {
         addDomain: () => {},
         deleteDomain: mutate,
         addOrganization: () => {},
-        deleteOrganization: () => {}
-      }
+        deleteOrganization: () => {},
+        addTeam: () => {},
+        deleteTeam: () => {},
+        fetchTeams: () => {},
+      },
     });
 
     const response = await Mutations.addDomain(
@@ -487,8 +537,11 @@ describe("OrganizationsTable", () => {
         addDomain: () => {},
         deleteDomain: () => {},
         addOrganization: () => {},
-        deleteOrganization: mutate
-      }
+        deleteOrganization: mutate,
+        addTeam: () => {},
+        deleteTeam: () => {},
+        fetchTeams: () => {},
+      },
     });
 
     const response = await Mutations.deleteOrganization(
@@ -568,16 +621,58 @@ describe("Login", () => {
       Vue,
       mocks: {
         $apollo: {
-          mutate
-        }
-      }
+          mutate,
+        },
+      },
     });
 
-    const response = await Mutations.tokenAuth(
-      wrapper.vm.$apollo,
-      "username",
-      "password"
-    );
+    const response = await Mutations.tokenAuth(wrapper.vm.$apollo, 'username', 'password');
+
+    expect(mutate).toBeCalled();
+    expect(wrapper.element).toMatchSnapshot();
+  });
+});
+
+describe('TeamModal', () => {
+  test('Mock mutation for addTeam', async () => {
+    const mutate = jest.fn(() => Promise.resolve(addTeamResponse));
+    const wrapper = shallowMount(TeamModal, {
+      Vue,
+      mocks: {
+        $apollo: {
+          mutate,
+        },
+      },
+      propsData: {
+        fetchTeams: () => paginatedTeams,
+        addTeam: mutate,
+        deleteTeam: () => {},
+      },
+    });
+
+    const response = await Mutations.addTeam(wrapper.vm.$apollo, 'test');
+
+    expect(mutate).toBeCalled();
+    expect(wrapper.element).toMatchSnapshot();
+  });
+
+  test('Mock mutation for deleteTeam', async () => {
+    const mutate = jest.fn(() => Promise.resolve(addTeamResponse));
+    const wrapper = shallowMount(TeamModal, {
+      Vue,
+      mocks: {
+        $apollo: {
+          mutate,
+        },
+      },
+      propsData: {
+        fetchTeams: () => paginatedTeams,
+        addTeam: () => {},
+        deleteTeam: mutate,
+      },
+    });
+
+    const response = await Mutations.deleteTeam(wrapper.vm.$apollo, 'test');
 
     expect(mutate).toBeCalled();
     expect(wrapper.element).toMatchSnapshot();

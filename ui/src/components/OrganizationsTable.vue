@@ -54,7 +54,13 @@
         />
       </template>
       <template v-slot:expanded-item="{ item }">
-        <expanded-organization :domains="item.domains" />
+        <expanded-organization
+          :organization="item.name"
+          :domains="item.domains"
+          :add-team="addTeam"
+          :delete-team="deleteTeam"
+          :fetch-teams="fetchTeams"
+        />
       </template>
     </v-data-table>
 
@@ -162,11 +168,23 @@ export default {
       type: Function,
       required: true
     },
+    fetchTeams: {
+      type: Function,
+      required: true
+    },
     addOrganization: {
       type: Function,
       required: true
     },
     deleteOrganization: {
+      type: Function,
+      required: true
+    },
+    addTeam: {
+      type: Function,
+      required: true
+    },
+    deleteTeam: {
       type: Function,
       required: true
     },

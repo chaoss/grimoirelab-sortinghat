@@ -183,6 +183,17 @@ const GET_COUNTRIES = gql`
   }
 `;
 
+const GET_TEAMS = gql`
+  query GetTeams($filters: TeamFilterType) {
+    teams(pageSize: 500, filters: $filters) {
+      entities {
+        name
+        numchild
+      }
+    }
+  }
+`;
+
 const GET_JOBS = gql`
   query getJobs($page: Int!, $pageSize: Int!) {
     jobs(page: $page, pageSize: $pageSize) {
@@ -298,6 +309,17 @@ const getJobs = (apollo, page, pageSize) => {
   return response;
 };
 
+const getTeams = (apollo, filters) => {
+  let response = apollo.query({
+    query: GET_TEAMS,
+    variables: {
+      filters: filters
+    },
+    fetchPolicy: "no-cache"
+  });
+  return response;
+};
+
 export {
   getCountries,
   getIndividuals,
@@ -305,5 +327,6 @@ export {
   getProfileByUuid,
   getPaginatedIndividuals,
   getPaginatedOrganizations,
+  getTeams,
   getJobs
 };
