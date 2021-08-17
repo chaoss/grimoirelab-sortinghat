@@ -28,5 +28,5 @@ from graphql_jwt.decorators import user_passes_test
 # context and checks the value of the `is_authenticated` variable
 # and the `AUTHENTICATION_REQUIRED` variable from the config settings.
 check_auth = user_passes_test(
-    lambda u: u.is_authenticated or not settings.AUTHENTICATION_REQUIRED
+    lambda u: u.is_authenticated or not settings.SORTINGHAT_AUTHENTICATION_REQUIRED
 )

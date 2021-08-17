@@ -77,6 +77,9 @@ class SortingHatClient:
         else:
             self.path = path
 
+        if not self.path.endswith('/'):
+            self.path += '/'
+
         self.user = user
         self.password = password
 
@@ -96,8 +99,9 @@ class SortingHatClient:
             result = requests.get(self.url, headers={'Accept': 'text/html'})
             result.raise_for_status()
         except requests.exceptions.RequestException as exc:
-            msg = "Connection error; cause: {}".format(exc)
-            raise SortingHatClientError(msg)
+            if result.status_code != 400:
+                msg = "Connection error; cause: {}".format(exc)
+                raise SortingHatClientError(msg)
 
         headers = {
             'X-CSRFToken': result.cookies['csrftoken'],

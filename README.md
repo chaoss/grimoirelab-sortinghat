@@ -70,6 +70,12 @@ $ apt install libmariadbclient-dev
 
 #### Installation and configuration
 
+**Note**: these examples use `sortinghat.config.settings` configuration file.
+In order to use that configuration you need to define the environment variable
+`SORTINGHAT_SECRET_KEY` with a secret. More info here:
+https://docs.djangoproject.com/en/3.2/ref/settings/#std:setting-SECRET_KEY
+
+
 Install the required dependencies (this will also create a virtual environment).
 ```
 $ poetry install
@@ -82,14 +88,14 @@ $ poetry shell
 
 Migrations, fixtures and create a superuser:
 ```
-(.venv)$ sortinghat-admin --config=config.settings.devel setup
+(.venv)$ sortinghat-admin --config sortinghat.config.settings setup
 ```
 
 #### Running the backend
 
 Run SortingHat backend Django app:
 ```
-(.venv)$ ./manage.py runserver --settings=config.settings.devel
+(.venv)$ ./manage.py runserver --settings=sortinghat.config.settings
 ```
 
 ### Frontend
@@ -141,9 +147,10 @@ When `development` mode is active, an HTTP server is launched, so you can intera
 directly with SortingHat using HTTP requests. Take into account this mode is not
 suitable nor safe for production.
 
-You will need a django configuration file to run the service. You can use and modify
-one of the ones stored in `config/settings` folder. The file must be accessible
-via `PYTHONPATH` env variable. For the next examples, we will use `devel.py` file.
+You will need a django configuration file to run the service. The file must be accessible
+via `PYTHONPATH` env variable. You can use the one delivered within the SortingHat
+package (stored in `sortinghat/config` folder) and modify it with your parameters.
+Following examples will make use of that file.
 
 In order to run the service for the first time, you need to execute the next commands:
 
@@ -153,9 +160,14 @@ $ cd ui
 $ yarn build
 ```
 
+Set a secret key:
+```
+$ export SORTINGHAT_SECRET_KEY="my-secret-key"
+```
+
 Copy the static files to the location where they will be served (`STATIC_ROOT` var):
 ```
-$ ./manage.py collectstatic --settings=config.settings.devel
+$ ./manage.py collectstatic --settings=sortinghat.config.settings
 ```
 
 Create a new database on your MySQL/MariaDB shell:
@@ -165,12 +177,12 @@ mysql> CREATE DATABASE new_sh CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_520_
 
 Set up the service:
 ```
-$ sortinghat-admin --config=config.settings.devel setup
+$ sortinghat-admin --config sortinghat.config.settings setup
 ```
 
 Run the server (use `--dev` flag for `development` mode):
 ```
-$ sortinghatd --config config.settings.devel
+$ sortinghatd --config sortinghat.config.settings
 ```
 
 By default, this runs a WSGI server in `127.0.0.1:6314`. The `--dev` flag runs
@@ -179,7 +191,7 @@ a server in `127.0.0.1:8000`.
 You will also need to run some workers to execute tasks like recommendations
 or affiliation. To start a worker run the command:
 ```
-$ sortinghatw --config config.settings.devel
+$ sortinghatw --config sortinghat.config.settings
 ```
 
 
@@ -205,27 +217,27 @@ Please update your database following the next steps:
 
 1. Use the script `utils/create_sh_0_7_fixture.py` to create the fixture
 JSON file
-    ```
-    $ python3 utils/create_sh_0_7_fixture.py test_sh -o test_sh_fixture.json
-    [2021-06-10 17:29:11,461][INFO] Start creating fixture file for test_sh
-    [2021-06-10 17:29:21,252][INFO] Fixture file created to test_sh_fixture.json
-    ```
+   ```
+   $ python3 utils/create_sh_0_7_fixture.py test_sh -o test_sh_fixture.json
+   [2021-06-10 17:29:11,461][INFO] Start creating fixture file for test_sh
+   [2021-06-10 17:29:21,252][INFO] Fixture file created to test_sh_fixture.json
+   ```
 
 2. Create a new database.
-    ```
-    mysql> CREATE DATABASE new_sh CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_520_ci;
-    ```
+   ```
+   mysql> CREATE DATABASE new_sh CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_520_ci;
+   ```
 
 3. Execute Django migrate.
-    ```
-    $ python3 manage.py migrate --settings=config.settings.devel
-    ```
+   ```
+   $ python3 manage.py migrate --settings=sortinghat.config.settings
+   ```
 
 4. Load fixture JSON file using Django
-    ```
-    $ python3 manage.py loaddata test_sh_fixture.json --settings=config.settings.devel
-    Installed 148542 object(s) from 1 fixture(s)
-    ```
+   ```
+   $ python3 manage.py loaddata test_sh_fixture.json --settings= sortinghat.config.settings
+   Installed 148542 object(s) from 1 fixture(s)
+   ```
 
 ## Running tests
 

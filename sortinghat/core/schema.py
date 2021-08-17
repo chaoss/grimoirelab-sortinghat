@@ -458,7 +458,7 @@ class AbstractPaginatedType(graphene.ObjectType):
 
     @classmethod
     def create_paginated_result(cls, query, page=1,
-                                page_size=settings.DEFAULT_GRAPHQL_PAGE_SIZE):
+                                page_size=settings.SORTINGHAT_API_PAGE_SIZE):
         paginator = Paginator(query, page_size)
         result = paginator.page(page)
 
@@ -1125,7 +1125,7 @@ class SortingHatQuery:
     @check_auth
     def resolve_countries(self, info, filters=None,
                           page=1,
-                          page_size=settings.DEFAULT_GRAPHQL_PAGE_SIZE):
+                          page_size=settings.SORTINGHAT_API_PAGE_SIZE):
         query = Country.objects.order_by('code')
 
         if filters and 'code' in filters:
@@ -1140,7 +1140,7 @@ class SortingHatQuery:
     @check_auth
     def resolve_organizations(self, info, filters=None,
                               page=1,
-                              page_size=settings.DEFAULT_GRAPHQL_PAGE_SIZE,
+                              page_size=settings.SORTINGHAT_API_PAGE_SIZE,
                               **kwargs):
         query = Organization.objects.order_by('name')
 
@@ -1159,7 +1159,7 @@ class SortingHatQuery:
 
     @check_auth
     def resolve_teams(self, info, filters=None, page=1,
-                      page_size=settings.DEFAULT_GRAPHQL_PAGE_SIZE, **kwargs):
+                      page_size=settings.SORTINGHAT_API_PAGE_SIZE, **kwargs):
         if filters:
             query = Team.objects.order_by('name')
 
@@ -1180,7 +1180,7 @@ class SortingHatQuery:
 
     @check_auth
     def resolve_groups(self, info, filters=None, page=1,
-                       page_size=settings.DEFAULT_GRAPHQL_PAGE_SIZE, **kwargs):
+                       page_size=settings.SORTINGHAT_API_PAGE_SIZE, **kwargs):
         if filters:
             query = Team.objects.order_by('name')
 
@@ -1198,7 +1198,7 @@ class SortingHatQuery:
     @check_auth
     def resolve_individuals(self, info, filters=None,
                             page=1,
-                            page_size=settings.DEFAULT_GRAPHQL_PAGE_SIZE,
+                            page_size=settings.SORTINGHAT_API_PAGE_SIZE,
                             order_by='mk',
                             **kwargs):
         query = Individual.objects.order_by(to_snake_case(order_by))
@@ -1358,7 +1358,7 @@ class SortingHatQuery:
                        enqueued_at=enqueued_at)
 
     @check_auth
-    def resolve_jobs(self, info, page=1, page_size=settings.DEFAULT_GRAPHQL_PAGE_SIZE):
+    def resolve_jobs(self, info, page=1, page_size=settings.SORTINGHAT_API_PAGE_SIZE):
         jobs = get_jobs()
         result = []
 
@@ -1382,7 +1382,7 @@ class SortingHatQuery:
     @check_auth
     def resolve_recommender_exclusion_terms(self, info,
                                             page=1,
-                                            page_size=settings.DEFAULT_GRAPHQL_PAGE_SIZE):
+                                            page_size=settings.SORTINGHAT_API_PAGE_SIZE):
         query = RecommenderExclusionTerm.objects.order_by('term')
 
         return RecommenderExclusionTermPaginatedType.create_paginated_result(query,
@@ -1392,7 +1392,7 @@ class SortingHatQuery:
     @check_auth
     def resolve_transactions(self, info, filters=None,
                              page=1,
-                             page_size=settings.DEFAULT_GRAPHQL_PAGE_SIZE,
+                             page_size=settings.SORTINGHAT_API_PAGE_SIZE,
                              **kwargs):
         query = Transaction.objects.order_by('created_at')
 
@@ -1416,7 +1416,7 @@ class SortingHatQuery:
     @check_auth
     def resolve_operations(self, info, filters=None,
                            page=1,
-                           page_size=settings.DEFAULT_GRAPHQL_PAGE_SIZE,
+                           page_size=settings.SORTINGHAT_API_PAGE_SIZE,
                            **kwargs):
         query = Operation.objects.order_by('timestamp')
 
