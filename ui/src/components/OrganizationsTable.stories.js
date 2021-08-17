@@ -13,6 +13,9 @@ const OrganizationsTableTemplate = `
     :add-domain="addDomain"
     :delete-domain="deleteDomain"
     :delete-organization="deleteOrganization"
+    :add-team="addTeam"
+    :delete-team="deleteTeam"
+    :fetch-teams="fetchTeams"
   />
 `;
 
@@ -64,7 +67,16 @@ export const Default = () => ({
         entity => entity.name === name
       );
       this.query[0].data.organizations.entities.splice(index, 1);
-    }
+    },
+    addTeam() {
+      return;
+    },
+    deleteTeam() {
+      return;
+    },
+    fetchTeams() {
+      return;
+    },
   },
   data: () => ({
     query: [

@@ -51,6 +51,9 @@
         :add-domain="addDomain"
         :delete-domain="deleteDomain"
         :delete-organization="deleteOrganization"
+        :add-team="addTeam"
+        :delete-team="deleteTeam"
+        :fetch-teams="fetchTeams"
         @getEnrollments="getEnrollments"
         @updateIndividuals="updateTable"
         @updateWorkspace="updateWorkspace"
@@ -68,7 +71,8 @@ import {
   getCountries,
   getIndividualByUuid,
   getPaginatedIndividuals,
-  getPaginatedOrganizations
+  getPaginatedOrganizations,
+  getTeams
 } from "../apollo/queries";
 import {
   addIdentity,
@@ -81,6 +85,8 @@ import {
   deleteOrganization,
   addDomain,
   deleteDomain,
+  addTeam,
+  deleteTeam,
   updateProfile,
   lockIndividual,
   unlockIndividual,
@@ -131,6 +137,10 @@ export default {
         items,
         filters
       );
+      return response;
+    },
+    async fetchTeams(filters) {
+      const response = await getTeams(this.$apollo, filters);
       return response;
     },
     addSavedIndividual(individual) {
@@ -223,6 +233,14 @@ export default {
     },
     async deleteOrganization(organization) {
       const response = await deleteOrganization(this.$apollo, organization);
+      return response;
+    },
+    async addTeam(team, organization, parent) {
+      const response = await addTeam(this.$apollo, team, organization, parent);
+      return response;
+    },
+    async deleteTeam(team, organization) {
+      const response = await deleteTeam(this.$apollo, team, organization);
       return response;
     },
     async addDomain(domain, organization) {

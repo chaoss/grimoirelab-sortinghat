@@ -1032,3 +1032,161 @@ exports[`OrganizationsTable Mock query for getPaginatedOrganizations 1`] = `
   </v-card-stub>
 </section>
 `;
+
+exports[`TeamModal Mock query for getPaginatedTeams 1`] = `
+<v-dialog-stub
+  closedelay="0"
+  contentclass=""
+  maxwidth="1000px"
+  opendelay="0"
+  origin="center center"
+  persistent="true"
+  retainfocus="true"
+  transition="dialog-transition"
+  width="auto"
+>
+  <v-card-stub
+    class="section"
+    loaderheight="4"
+    tag="div"
+  >
+    <v-card-title-stub
+      class="header"
+    >
+      <span
+        class="title"
+      >
+          teams 
+      </span>
+    </v-card-title-stub>
+     
+    <form>
+      <v-card-text-stub
+        class="team-modal-content"
+      >
+        <v-treeview-stub
+          active=""
+          activeclass="v-treeview-node--active"
+          color="warning"
+          expandicon="$subgroup"
+          indeterminateicon="$checkboxIndeterminate"
+          itemchildren="children"
+          itemdisabled="disabled"
+          itemkey="id"
+          items=""
+          itemtext="name"
+          loadchildren="function () { [native code] }"
+          loadingicon="$loading"
+          officon="$checkboxOff"
+          onicon="$checkboxOn"
+          open=""
+          openonclick="true"
+          selectedcolor="accent"
+          selectiontype="leaf"
+          transition="true"
+          value=""
+        />
+      </v-card-text-stub>
+       
+      <v-card-actions-stub>
+        <v-row-stub
+          tag="div"
+        >
+          <v-col-stub
+            cols="3"
+            tag="div"
+          >
+            <v-edit-dialog-stub
+              canceltext="Cancel"
+              savetext="Save"
+              transition="slide-x-reverse-transition"
+            >
+              <v-btn-stub
+                activeclass=""
+                color="primary"
+                left="true"
+                outlined="true"
+                small="true"
+                tag="button"
+                text="true"
+                type="button"
+              >
+                <v-icon-stub
+                  color="primary"
+                  small=""
+                >
+                  mdi-plus-circle-outline
+                </v-icon-stub>
+                
+                Add team
+              
+              </v-btn-stub>
+            </v-edit-dialog-stub>
+          </v-col-stub>
+        </v-row-stub>
+         
+        <v-spacer-stub />
+         
+        <v-btn-stub
+          activeclass=""
+          color="primary darken-1"
+          tag="button"
+          text="true"
+          type="button"
+        >
+          
+          Close
+        
+        </v-btn-stub>
+      </v-card-actions-stub>
+    </form>
+  </v-card-stub>
+   
+  <v-dialog-stub
+    closedelay="0"
+    contentclass=""
+    maxwidth="500px"
+    opendelay="0"
+    origin="center center"
+    retainfocus="true"
+    transition="dialog-transition"
+    width="auto"
+  >
+    <v-card-stub
+      class="pa-3"
+      loaderheight="4"
+      tag="div"
+    >
+      <v-card-title-stub
+        class="headline"
+      >
+        
+      </v-card-title-stub>
+       
+      <v-card-text-stub>
+        <p
+          class="pt-2 pb-2 text-body-2"
+        >
+          
+        </p>
+      </v-card-text-stub>
+       
+      <v-card-actions-stub>
+        <v-spacer-stub />
+         
+        <v-btn-stub
+          activeclass=""
+          color="primary"
+          tag="button"
+          text="true"
+          type="button"
+        >
+          
+          OK
+        
+        </v-btn-stub>
+      </v-card-actions-stub>
+    </v-card-stub>
+  </v-dialog-stub>
+</v-dialog-stub>
+`;
