@@ -86,7 +86,7 @@ Activate the virtual environment:
 $ poetry shell
 ```
 
-Migrations, fixtures and create a superuser:
+Database creation, apply migrations and fixtures, and create a superuser:
 ```
 (.venv)$ sortinghat-admin --config sortinghat.config.settings setup
 ```
@@ -170,12 +170,8 @@ Copy the static files to the location where they will be served (`STATIC_ROOT` v
 $ ./manage.py collectstatic --settings=sortinghat.config.settings
 ```
 
-Create a new database on your MySQL/MariaDB shell:
-```
-mysql> CREATE DATABASE new_sh CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_520_ci;
-```
-
-Set up the service:
+Set up the service creating a database and a superuser to access the
+app:
 ```
 $ sortinghat-admin --config sortinghat.config.settings setup
 ```
@@ -225,12 +221,7 @@ JSON file
 
 2. Create a new database.
    ```
-   mysql> CREATE DATABASE new_sh CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_520_ci;
-   ```
-
-3. Execute Django migrate.
-   ```
-   $ python3 manage.py migrate --settings=sortinghat.config.settings
+   $ sortinghat-admin --config sortinghat.config.settings setup
    ```
 
 4. Load fixture JSON file using Django
