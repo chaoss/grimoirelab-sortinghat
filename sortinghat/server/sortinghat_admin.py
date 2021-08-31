@@ -90,6 +90,7 @@ def setup():
 
     click.secho("Configuring SortingHat service...\n", fg='bright_cyan')
 
+    _create_database()
     _setup_database()
     _setup_database_superuser(no_interactive)
 
@@ -109,6 +110,35 @@ def upgrade():
     _setup_database()
 
     click.secho("SortingHat upgrade completed", fg='bright_cyan')
+
+
+def _create_database():
+    """Create an empty database."""
+
+    import MySQLdb
+    from django.conf import settings
+
+    db_params = settings.DATABASES['default']
+    database = db_params['NAME']
+
+    click.secho("## SortingHat database creation\n", fg='bright_cyan')
+
+    try:
+        cursor = MySQLdb.connect(
+            user=db_params['USER'],
+            password=db_params['PASSWORD'],
+            host=db_params['HOST'],
+            port=db_params['PORT']
+        ).cursor()
+        cursor.execute(
+            f"CREATE DATABASE IF NOT EXISTS {database} "
+            "CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_520_ci;"
+        )
+    except MySQLdb.DatabaseError as exc:
+        msg = f"Error creating database '{database}': {exc}."
+        raise click.ClickException(msg)
+
+    click.echo(f"SortingHat database '{database}' created.\n")
 
 
 def _setup_database():
