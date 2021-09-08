@@ -174,7 +174,7 @@ STATIC_URL = '/'
 # If you are serving these files in a dedicated server, you will
 # need to copy them to their final destination.
 
-STATIC_ROOT = "/tmp/sortinghat/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # MEDIA_URL is only needed when DEBUG is set to True.
 # Modify this URL if you want to run the server in developer mode.

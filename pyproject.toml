@@ -21,6 +21,9 @@ packages = [
     { include = "sortinghat" },
     { include = "tests", format = "sdist" },
 ]
+exclude = [
+    "sortinghat/static"
+]
 
 classifiers = [
    "Development Status :: 4 - Beta",
