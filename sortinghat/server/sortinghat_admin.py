@@ -35,7 +35,7 @@ logger = logging.getLogger('main')
 
 @click.group()
 @click.option('--config', envvar='SORTINGHAT_CONFIG',
-              help="Configuration module in Python path syntax, e.g. sortinghat.settings.")
+              help="Config module in Python path syntax, e.g. sortinghat.config.settings.")
 def sortinghat_admin(config):
     """SortingHat server administration tool.
 
@@ -43,8 +43,8 @@ def sortinghat_admin(config):
     configure, initialize, or update the service.
 
     To run the tool you will need to pass a configuration file module
-    using Python path syntax (e.g. sortinghat.settings). Take into account
-    the module should be accessible by your PYTHON_PATH.
+    using Python path syntax (e.g. sortinghat.config.settings).
+    Take into account the module should be accessible by your PYTHON_PATH.
     """
     env = os.environ
 

@@ -59,8 +59,10 @@ def sortinghatd(config, devel):
         from django.conf import settings
 
         env['DJANGO_SETTINGS_MODULE'] = config
-        env['UWSGI_HTTP'] = "127.0.0.1:8000"
+        env['UWSGI_HTTP'] = env.get('SORTINGHAT_HTTP_DEV', "127.0.0.1:8000")
         env['UWSGI_STATIC_MAP'] = settings.STATIC_URL + "=" + settings.STATIC_ROOT
+    else:
+        env['UWSGI_HTTP'] = ''
 
     env['UWSGI_MODULE'] = "sortinghat.app.wsgi:application"
     env['UWSGI_SOCKET'] = "0.0.0.0:6314"

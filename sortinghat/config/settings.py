@@ -35,17 +35,20 @@ SILENCED_SYSTEM_CHECKS = [
 DEBUG = False
 
 #
-# ALLOWED_HOST protects the site agains CSRF attacks.
+# ALLOWED_HOST protects the site against CSRF attacks.
 # If DEBUG is set to False, you will need to configure this parameter,
 # with the host you are using to serve SortingHat.
 #
 # https://docs.djangoproject.com/en/3.1/ref/settings/#allowed-hosts
 #
 
-ALLOWED_HOSTS = [
-    '127.0.0.1',
-    'localhost',
-]
+if 'SORTINGHAT_ALLOWED_HOST' in os.environ:
+    ALLOWED_HOSTS = os.environ['SORTINGHAT_ALLOWED_HOST'].split(',')
+else:
+    ALLOWED_HOSTS = [
+        '127.0.0.1',
+        'localhost',
+    ]
 
 #
 # The secret key must be a large random value and it must be kept secret.
@@ -155,9 +158,12 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://github.com/adamchainz/django-cors-headers#configuration
 #
 
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:8080',
-]
+if 'SORTINGHAT_CORS_ALLOWED_ORIGINS' in os.environ:
+    CORS_ALLOWED_ORIGINS = os.environ['SORTINGHAT_CORS_ALLOWED_ORIGINS'].split(',')
+else:
+    CORS_ALLOWED_ORIGINS = [
+        'http://localhost:8080',
+    ]
 
 CORS_ALLOW_CREDENTIALS = True
 
@@ -240,11 +246,11 @@ LOGGING = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'HOST': '127.0.0.1',
-        'PORT': 3306,
-        'USER': 'root',
-        'PASSWORD': 'root',
-        'NAME': 'sortinghat_db',
+        'HOST': os.environ.get('SORTINGHAT_DB_HOST', '127.0.0.1'),
+        'PORT': os.environ.get('SORTINGHAT_DB_PORT', 3306),
+        'USER': os.environ.get('SORTINGHAT_DB_USER', 'root'),
+        'PASSWORD': os.environ.get('SORTINGHAT_DB_PASSWORD', ''),
+        'NAME': os.environ.get('SORTINGHAT_DB_DATABASE', 'sortinghat_test'),
         'OPTIONS': {'charset': 'utf8mb4'},
     }
 }
@@ -291,4 +297,4 @@ SORTINGHAT_API_PAGE_SIZE = 10
 # genderize.io token, used only for gender recommendations
 #
 
-SORTINGHAT_GENDERIZE_API_KEY = None
+SORTINGHAT_GENDERIZE_API_KEY = os.environ.get('SORTINGHAT_GENDERIZE_API_KEY', None)
