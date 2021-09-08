@@ -61,7 +61,9 @@ def sortinghat_admin(config):
 
 
 @click.command()
-def setup():
+@click.option('--no-interactive', is_flag=True, default=False,
+              help="Run the command in no interactive mode.")
+def setup(no_interactive):
     """Run initialization tasks to configure the service.
 
     It will setup the database structure and create a user
@@ -69,6 +71,8 @@ def setup():
 
     To cancel the interactive mode, use the env variables
     'SORTINGHAT_SUPERUSER_USERNAME' and 'SORTINGHAT_SUPERUSER_PASSWORD'.
+    It the flag 'no-interactive' was given, these environment
+    variables are mandatory.
     """
     env = os.environ
     env_vars = False
@@ -80,13 +84,21 @@ def setup():
             msg = (
                 "Set both SORTINGHAT_SUPERUSER_USERNAME "
                 "and SORTINGHAT_SUPERUSER_PASSWORD env variables "
-                "to run the mode non-interactive. "
+                "to run the no-interactive mode. "
                 "Only one variable was set."
             )
             raise click.ClickException(msg)
         env_vars = True
+        no_interactive = True
 
-    no_interactive = env_vars
+    # Env vars are mandatory in no interactive mode
+    if no_interactive and not env_vars:
+        msg = (
+            "Set both SORTINGHAT_SUPERUSER_USERNAME "
+            "and SORTINGHAT_SUPERUSER_PASSWORD env variables "
+            "to run the mode no-interactive mode. "
+        )
+        raise click.ClickException(msg)
 
     click.secho("Configuring SortingHat service...\n", fg='bright_cyan')
 
@@ -167,7 +179,8 @@ def _setup_database_superuser(no_interactive=False):
     if no_interactive:
         env['DJANGO_SUPERUSER_USERNAME'] = env['SORTINGHAT_SUPERUSER_USERNAME']
         env['DJANGO_SUPERUSER_PASSWORD'] = env['SORTINGHAT_SUPERUSER_PASSWORD']
-        kwargs['no_input'] = True
+        env['DJANGO_SUPERUSER_EMAIL'] = 'noreply@localhost'
+        kwargs['interactive'] = False
 
     management.call_command('createsuperuser', **kwargs)
 
