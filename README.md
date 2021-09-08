@@ -177,7 +177,7 @@ Run the server (use `--dev` flag for `development` mode):
 $ sortinghatd --config sortinghat.config.settings
 ```
 
-By default, this runs a WSGI server in `127.0.0.1:6314`. The `--dev` flag runs
+By default, this runs a WSGI server in `127.0.0.1:9314`. The `--dev` flag runs
 a server in `127.0.0.1:8000`.
 
 You will also need to run some workers to execute tasks like recommendations

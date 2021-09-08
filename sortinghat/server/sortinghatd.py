@@ -69,7 +69,7 @@ def sortinghatd(config, devel, no_auth):
         env['UWSGI_HTTP'] = ''
 
     env['UWSGI_MODULE'] = "sortinghat.app.wsgi:application"
-    env['UWSGI_SOCKET'] = "0.0.0.0:6314"
+    env['UWSGI_SOCKET'] = "0.0.0.0:9314"
 
     # These options shouldn't be modified
     env['UWSGI_MASTER'] = "true"
