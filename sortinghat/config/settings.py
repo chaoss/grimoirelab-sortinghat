@@ -32,7 +32,7 @@ SILENCED_SYSTEM_CHECKS = [
 # https://docs.djangoproject.com/en/3.1/ref/settings/#std:setting-DEBUG
 #
 
-DEBUG = False
+DEBUG = os.environ.get('SORTINGHAT_DEBUG', 'False').lower() in ('true', '1')
 
 #
 # ALLOWED_HOST protects the site against CSRF attacks.

@@ -28,8 +28,10 @@ import click
               help="Configuration module in Python path syntax, e.g. sortinghat.settings.")
 @click.option('--dev', 'devel', is_flag=True, default=False,
               help="Run the service in developer mode.")
+@click.option('--no-auth', 'no_auth', is_flag=True, default=False,
+              help="Run the service without authentication.")
 @click.command()
-def sortinghatd(config, devel):
+def sortinghatd(config, devel, no_auth):
     """Starts the SortingHat server.
 
     SortingHat allows to manage the multiple identities that individuals
@@ -56,6 +58,8 @@ def sortinghatd(config, devel):
         )
 
     if devel:
+        env['SORTINGHAT_DEBUG'] = 'true'
+
         from django.conf import settings
 
         env['DJANGO_SETTINGS_MODULE'] = config
