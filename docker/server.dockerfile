@@ -26,7 +26,7 @@ RUN apt-get update && \
         unzip \
         ssh ca-certificates \
         dirmngr gnupg \
-        curl wget \
+        curl \
         gcc \
         python3 python3-dev \
         python3-pip python3-venv \
@@ -77,8 +77,8 @@ RUN . /opt/venv/bin/activate && \
 RUN chown -R sortinghat:sortinghat /opt/venv
 
 # Add entrypoint
-COPY ./docker/docker-entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+COPY ./docker/server-entrypoint.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/server-entrypoint.sh
 
 USER sortinghat
 

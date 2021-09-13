@@ -270,10 +270,10 @@ DATABASES = {
 
 RQ_QUEUES = {
     'default': {
-        'HOST': 'localhost',
-        'PORT': 6379,
-        'ASYNC': True,
-        'DB': 0
+        'HOST': os.environ.get('SORTINGHAT_REDIS_HOST', '127.0.0.1'),
+        'PORT': os.environ.get('SORTINGHAT_REDIS_PORT', 6379),
+        'ASYNC': os.environ.get('SORTINGHAT_WORKERS_ASYNC', True),
+        'DB': os.environ.get('SORTINGHAT_REDIS_DB', 0),
     }
 }
 
