@@ -35,7 +35,7 @@ logger = logging.getLogger('main')
 
 @click.group()
 @click.option('--config', envvar='SORTINGHAT_CONFIG',
-              help="Configuration module in Python path syntax, e.g. sortinghat.settings.")
+              help="Config module in Python path syntax, e.g. sortinghat.config.settings.")
 def sortinghat_admin(config):
     """SortingHat server administration tool.
 
@@ -43,8 +43,8 @@ def sortinghat_admin(config):
     configure, initialize, or update the service.
 
     To run the tool you will need to pass a configuration file module
-    using Python path syntax (e.g. sortinghat.settings). Take into account
-    the module should be accessible by your PYTHON_PATH.
+    using Python path syntax (e.g. sortinghat.config.settings).
+    Take into account the module should be accessible by your PYTHON_PATH.
     """
     env = os.environ
 
@@ -61,14 +61,20 @@ def sortinghat_admin(config):
 
 
 @click.command()
-def setup():
+@click.option('--no-interactive', is_flag=True, default=False,
+              help="Run the command in no interactive mode.")
+@click.option('--only-ui', is_flag=True, default=False,
+              help="Configure only the UI.")
+def setup(no_interactive, only_ui):
     """Run initialization tasks to configure the service.
 
-    It will setup the database structure and create a user
+    It will setup the uid, the database structure, and create a user
     with admin privileges for you.
 
     To cancel the interactive mode, use the env variables
     'SORTINGHAT_SUPERUSER_USERNAME' and 'SORTINGHAT_SUPERUSER_PASSWORD'.
+    It the flag 'no-interactive' was given, these environment
+    variables are mandatory.
     """
     env = os.environ
     env_vars = False
@@ -80,15 +86,29 @@ def setup():
             msg = (
                 "Set both SORTINGHAT_SUPERUSER_USERNAME "
                 "and SORTINGHAT_SUPERUSER_PASSWORD env variables "
-                "to run the mode non-interactive. "
+                "to run the no-interactive mode. "
                 "Only one variable was set."
             )
             raise click.ClickException(msg)
         env_vars = True
+        no_interactive = True
 
-    no_interactive = env_vars
+    # Env vars are mandatory in no interactive mode
+    if no_interactive and not env_vars:
+        msg = (
+            "Set both SORTINGHAT_SUPERUSER_USERNAME "
+            "and SORTINGHAT_SUPERUSER_PASSWORD env variables "
+            "to run the mode no-interactive mode. "
+        )
+        raise click.ClickException(msg)
 
     click.secho("Configuring SortingHat service...\n", fg='bright_cyan')
+
+    _install_static_files()
+
+    if only_ui:
+        click.secho("SortingHat UI deployed. Exiting.", fg='bright_cyan')
+        return
 
     _create_database()
     _setup_database()
@@ -98,7 +118,9 @@ def setup():
 
 
 @click.command()
-def upgrade():
+@click.option('--no-database', is_flag=True, default=False,
+              help="Do not update the database.")
+def upgrade(no_database):
     """Run pending configuration operations to keep the service up-to-date.
 
     It allows to run configuration operations in order to update
@@ -107,7 +129,12 @@ def upgrade():
     """
     click.secho("Upgrading SortingHat service...\n", fg='bright_cyan')
 
-    _setup_database()
+    update_database = not no_database
+
+    if update_database:
+        _setup_database()
+
+    _install_static_files()
 
     click.secho("SortingHat upgrade completed", fg='bright_cyan')
 
@@ -167,9 +194,22 @@ def _setup_database_superuser(no_interactive=False):
     if no_interactive:
         env['DJANGO_SUPERUSER_USERNAME'] = env['SORTINGHAT_SUPERUSER_USERNAME']
         env['DJANGO_SUPERUSER_PASSWORD'] = env['SORTINGHAT_SUPERUSER_PASSWORD']
-        kwargs['no_input'] = True
+        env['DJANGO_SUPERUSER_EMAIL'] = 'noreply@localhost'
+        kwargs['interactive'] = False
 
     management.call_command('createsuperuser', **kwargs)
+
+
+def _install_static_files():
+    """Collect static files and installed them."""
+
+    click.secho('## SortingHat static files installation\n',
+                fg='bright_cyan')
+
+    management.call_command('collectstatic', clear=True,
+                            interactive=False)
+
+    click.echo()
 
 
 sortinghat_admin.add_command(setup)

@@ -3,6 +3,9 @@
 *.pyo
 build
 
+# Package files
+sortinghat/static
+
 # JavaScript files
 node_modules
 dist

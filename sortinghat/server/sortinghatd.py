@@ -28,8 +28,10 @@ import click
               help="Configuration module in Python path syntax, e.g. sortinghat.settings.")
 @click.option('--dev', 'devel', is_flag=True, default=False,
               help="Run the service in developer mode.")
+@click.option('--no-auth', 'no_auth', is_flag=True, default=False,
+              help="Run the service without authentication.")
 @click.command()
-def sortinghatd(config, devel):
+def sortinghatd(config, devel, no_auth):
     """Starts the SortingHat server.
 
     SortingHat allows to manage the multiple identities that individuals
@@ -56,14 +58,18 @@ def sortinghatd(config, devel):
         )
 
     if devel:
+        env['SORTINGHAT_DEBUG'] = 'true'
+
         from django.conf import settings
 
         env['DJANGO_SETTINGS_MODULE'] = config
-        env['UWSGI_HTTP'] = "127.0.0.1:8000"
+        env['UWSGI_HTTP'] = env.get('SORTINGHAT_HTTP_DEV', "127.0.0.1:8000")
         env['UWSGI_STATIC_MAP'] = settings.STATIC_URL + "=" + settings.STATIC_ROOT
+    else:
+        env['UWSGI_HTTP'] = ''
 
     env['UWSGI_MODULE'] = "sortinghat.app.wsgi:application"
-    env['UWSGI_SOCKET'] = "0.0.0.0:6314"
+    env['UWSGI_SOCKET'] = "0.0.0.0:9314"
 
     # These options shouldn't be modified
     env['UWSGI_MASTER'] = "true"

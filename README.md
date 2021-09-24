@@ -86,7 +86,8 @@ Activate the virtual environment:
 $ poetry shell
 ```
 
-Database creation, apply migrations and fixtures, and create a superuser:
+Database creation, apply migrations and fixtures, deploy static files,
+and create a superuser:
 ```
 (.venv)$ sortinghat-admin --config sortinghat.config.settings setup
 ```
@@ -165,13 +166,8 @@ Set a secret key:
 $ export SORTINGHAT_SECRET_KEY="my-secret-key"
 ```
 
-Copy the static files to the location where they will be served (`STATIC_ROOT` var):
-```
-$ ./manage.py collectstatic --settings=sortinghat.config.settings
-```
-
-Set up the service creating a database and a superuser to access the
-app:
+Set up the service creating a database, deploying static files,
+and adding a superuser to access the app:
 ```
 $ sortinghat-admin --config sortinghat.config.settings setup
 ```
@@ -181,7 +177,7 @@ Run the server (use `--dev` flag for `development` mode):
 $ sortinghatd --config sortinghat.config.settings
 ```
 
-By default, this runs a WSGI server in `127.0.0.1:6314`. The `--dev` flag runs
+By default, this runs a WSGI server in `127.0.0.1:9314`. The `--dev` flag runs
 a server in `127.0.0.1:8000`.
 
 You will also need to run some workers to execute tasks like recommendations
