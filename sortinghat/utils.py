@@ -69,7 +69,7 @@ def merge_date_ranges(dates):
         if en < MIN_PERIOD_DATE or en > MAX_PERIOD_DATE:
             raise ValueError("end date %s is out of bounds" % str(en))
 
-        if st <= saved[1]:
+        if st < saved[1]:
             if saved[0] == MIN_PERIOD_DATE:
                 saved[0] = st
 
