@@ -134,6 +134,23 @@ class TestMergeDateRanges(unittest.TestCase):
         self.assertEqual(ranges[0], (datetime.datetime(2009, 1, 1), datetime.datetime(2010, 1, 1)))
         self.assertEqual(ranges[1], (datetime.datetime(2010, 1, 1), datetime.datetime(2100, 1, 1)))
 
+        # Case 12
+        dates = [(datetime.datetime(2009, 1, 1), datetime.datetime(2009, 1, 1)),
+                 (datetime.datetime(2009, 1, 1), datetime.datetime(2010, 1, 1)),
+                 (datetime.datetime(2010, 1, 1), datetime.datetime(2010, 1, 1)),
+                 (datetime.datetime(2010, 1, 1), datetime.datetime(2010, 1, 1)),
+                 (datetime.datetime(2010, 1, 1), datetime.datetime(2020, 1, 1)),
+                 (datetime.datetime(2011, 1, 1), datetime.datetime(2022, 1, 1)),
+                 (datetime.datetime(2022, 1, 1), datetime.datetime(2100, 1, 1))]
+
+        ranges = [r for r in merge_date_ranges(dates)]
+        self.assertEqual(len(ranges), 5)
+        self.assertEqual(ranges[0], (datetime.datetime(2009, 1, 1), datetime.datetime(2009, 1, 1)))
+        self.assertEqual(ranges[1], (datetime.datetime(2009, 1, 1), datetime.datetime(2010, 1, 1)))
+        self.assertEqual(ranges[2], (datetime.datetime(2010, 1, 1), datetime.datetime(2010, 1, 1)))
+        self.assertEqual(ranges[3], (datetime.datetime(2010, 1, 1), datetime.datetime(2022, 1, 1)))
+        self.assertEqual(ranges[4], (datetime.datetime(2022, 1, 1), datetime.datetime(2100, 1, 1)))
+
     def test_dates_out_of_bounds(self):
         """Check whether it raises an exception when dates are out of bounds"""
 
