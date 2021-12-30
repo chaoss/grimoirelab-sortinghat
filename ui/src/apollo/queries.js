@@ -189,6 +189,7 @@ const GET_TEAMS = gql`
       entities {
         name
         numchild
+        id
       }
     }
   }
@@ -203,6 +204,23 @@ const GET_JOBS = gql`
         jobType
         errors
         enqueuedAt
+      }
+      pageInfo {
+        page
+        numPages
+        totalResults
+      }
+    }
+  }
+`;
+
+const GET_GROUPS = gql`
+  query getGroups($page: Int, $pageSize: Int, $filters: GroupFilterType) {
+    groups(page: $page, pageSize: $pageSize, filters: $filters) {
+      entities {
+        id
+        name
+        numchild
       }
       pageInfo {
         page
@@ -320,6 +338,19 @@ const getTeams = (apollo, filters) => {
   return response;
 };
 
+const getGroups = (apollo, page, pageSize, filters) => {
+  let response = apollo.query({
+    query: GET_GROUPS,
+    variables: {
+      page: page,
+      pageSize: pageSize,
+      filters: filters
+    },
+    fetchPolicy: "no-cache"
+  });
+  return response;
+};
+
 export {
   getCountries,
   getIndividuals,
@@ -328,5 +359,6 @@ export {
   getPaginatedIndividuals,
   getPaginatedOrganizations,
   getTeams,
-  getJobs
+  getJobs,
+  getGroups
 };
