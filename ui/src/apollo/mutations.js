@@ -326,7 +326,7 @@ const DELETE_ORGANIZATION = gql`
 `;
 
 const DELETE_TEAM = gql`
-  mutation deleteTeam($teamName: String!, $organization: String!) {
+  mutation deleteTeam($teamName: String!, $organization: String) {
     deleteTeam(teamName: $teamName, organization: $organization) {
       team {
         name

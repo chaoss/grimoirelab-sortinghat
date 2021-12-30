@@ -43,22 +43,37 @@
         "
         ref="table"
       />
-      <organizations-table
-        class="organizations"
-        :fetch-page="getOrganizationsPage"
-        :enroll="enroll"
-        :add-organization="addOrganization"
-        :add-domain="addDomain"
-        :delete-domain="deleteDomain"
-        :delete-organization="deleteOrganization"
-        :add-team="addTeam"
-        :delete-team="deleteTeam"
-        :fetch-teams="fetchTeams"
-        @getEnrollments="getEnrollments"
-        @updateIndividuals="updateTable"
-        @updateWorkspace="updateWorkspace"
-        ref="organizations"
-      />
+      <v-col class="pa-0 organizations">
+        <organizations-table
+          class="mb-6"
+          :fetch-page="getOrganizationsPage"
+          :enroll="enroll"
+          :add-organization="addOrganization"
+          :add-domain="addDomain"
+          :delete-domain="deleteDomain"
+          :delete-organization="deleteOrganization"
+          :add-team="addTeam"
+          :delete-team="deleteTeam"
+          :fetch-teams="fetchTeams"
+          @getEnrollments="getEnrollments"
+          @updateIndividuals="updateTable"
+          @updateWorkspace="updateWorkspace"
+          ref="organizations"
+        />
+
+        <organizations-table
+          name="Groups"
+          :fetch-page="getGroupsPage"
+          :enroll="enroll"
+          :add-organization="addOrganization"
+          :delete-organization="deleteTeam"
+          :add-team="addTeam"
+          :delete-team="deleteTeam"
+          :fetch-teams="fetchTeams"
+          is-group
+          ref="teams"
+        />
+      </v-col>
     </v-row>
     <v-snackbar v-model="snackbar">
       Individual already in work space
@@ -72,7 +87,8 @@ import {
   getIndividualByUuid,
   getPaginatedIndividuals,
   getPaginatedOrganizations,
-  getTeams
+  getTeams,
+  getGroups
 } from "../apollo/queries";
 import {
   addIdentity,
@@ -137,7 +153,11 @@ export default {
         items,
         filters
       );
-      return response;
+      return response.data.organizations;
+    },
+    async getGroupsPage(page, items, filters) {
+      const response = await getGroups(this.$apollo, page, items, filters);
+      return response.data.groups;
     },
     async fetchTeams(filters) {
       const response = await getTeams(this.$apollo, filters);
@@ -303,6 +323,7 @@ export default {
 }
 .individuals {
   width: 60%;
+  height: max-content;
   flex-grow: 1;
 
   .container {

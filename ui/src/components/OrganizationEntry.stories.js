@@ -18,6 +18,7 @@ const organizationEntryTemplate = `
       :name="item.name"
       :enrollments="item.enrollments"
       :is-expanded="isExpanded"
+      :is-editable="isEditable"
       v-on:dblclick.native="expand(!isExpanded)"
       @expand="expand(!isExpanded)" />
   </template>
@@ -38,6 +39,23 @@ export const Default = () => ({
         enrollments: 280
       }
     ],
-    expanded: []
+    expanded: [],
+    isEditable: true
+  })
+});
+
+export const NotEditable = () => ({
+  components: { OrganizationEntry },
+  template: organizationEntryTemplate,
+  data: () => ({
+    headers: [{ value: "name" }, { value: "enrollments" }],
+    items: [
+      {
+        name: "Hogwarts School of Witchcraft and Wizardry",
+        enrollments: 280
+      }
+    ],
+    expanded: [],
+    isEditable: false
   })
 });

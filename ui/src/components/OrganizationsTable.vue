@@ -3,12 +3,37 @@
     <v-row class="header">
       <h4 class="title">
         <v-icon color="black" left dense>
-          mdi-sitemap
+          {{ isGroup ? "mdi-account-group" : "mdi-sitemap" }}
         </v-icon>
-        Organizations
+        {{ name }}
         <v-chip pill small class="ml-2">{{ totalResults }}</v-chip>
       </h4>
+      <v-edit-dialog
+        v-if="isGroup"
+        large
+        @save="addUnaffiliatedTeam"
+        @cancel="forms.teamName = ''"
+      >
+        <v-btn
+          depressed
+          small
+          height="34"
+          color="secondary"
+          class="black--text"
+        >
+          Add
+        </v-btn>
+        <template v-slot:input>
+          <v-text-field
+            v-model="forms.teamName"
+            label="Team name"
+            maxlength="50"
+            single-line
+          />
+        </template>
+      </v-edit-dialog>
       <v-btn
+        v-else
         depressed
         small
         height="34"
@@ -32,7 +57,7 @@
       hide-default-header
       hide-default-footer
       :headers="headers"
-      :items="organizations"
+      :items="items"
       :expanded.sync="expandedItems"
       item-key="id"
       :page.sync="page"
@@ -40,9 +65,10 @@
       <template v-slot:item="{ item, expand, isExpanded }">
         <organization-entry
           :name="item.name"
-          :enrollments="item.enrollments.length"
+          :enrollments="item.enrollments ? item.enrollments.length : 0"
           :domains="item.domains"
           :is-expanded="isExpanded"
+          :is-editable="!isGroup"
           draggable
           v-on:dblclick.native="expand(!isExpanded)"
           @dragstart.native="startDrag(item, $event)"
@@ -56,6 +82,7 @@
       <template v-slot:expanded-item="{ item }">
         <expanded-organization
           :organization="item.name"
+          :is-group="isGroup"
           :domains="item.domains"
           :add-team="addTeam"
           :delete-team="deleteTeam"
@@ -69,7 +96,7 @@
         v-model="page"
         :length="pageCount"
         :total-visible="5"
-        @input="getOrganizations($event)"
+        @input="getTableItems($event)"
       ></v-pagination>
       <v-text-field
         :value="itemsPerPage"
@@ -83,13 +110,14 @@
     </div>
 
     <organization-modal
+      v-if="!isGroup"
       :is-open.sync="modal.open"
       :add-organization="addOrganization"
       :add-domain="addDomain"
       :delete-domain="deleteDomain"
       :organization="modal.organization"
       :domains="modal.domains"
-      @updateOrganizations="getOrganizations(page)"
+      @updateOrganizations="getTableItems(page)"
     />
 
     <v-dialog v-model="dialog.open" max-width="500px">
@@ -160,6 +188,16 @@ export default {
     Search
   },
   props: {
+    name: {
+      type: String,
+      required: false,
+      default: "Organizations"
+    },
+    isGroup: {
+      type: Boolean,
+      required: false,
+      default: false
+    },
     enroll: {
       type: Function,
       required: true
@@ -190,11 +228,11 @@ export default {
     },
     addDomain: {
       type: Function,
-      required: true
+      required: false
     },
     deleteDomain: {
       type: Function,
-      required: true
+      required: false
     }
   },
   data() {
@@ -205,7 +243,7 @@ export default {
         { value: "actions" }
       ],
       expandedItems: [],
-      organizations: [],
+      items: [],
       pageCount: 0,
       page: 0,
       dialog: {
@@ -225,20 +263,23 @@ export default {
       selectedOrganization: "",
       filters: {},
       totalResults: 0,
-      itemsPerPage: 10
+      itemsPerPage: 10,
+      forms: {
+        teamName: ""
+      }
     };
   },
   created() {
-    this.getOrganizations(1);
+    this.getTableItems(1);
   },
   methods: {
-    async getOrganizations(page = this.page, filters = this.filters) {
+    async getTableItems(page = this.page, filters = this.filters) {
       let response = await this.fetchPage(page, this.itemsPerPage, filters);
       if (response) {
-        this.organizations = response.data.organizations.entities;
-        this.pageCount = response.data.organizations.pageInfo.numPages;
-        this.page = response.data.organizations.pageInfo.page;
-        this.totalResults = response.data.organizations.pageInfo.totalResults;
+        this.items = response.entities;
+        this.pageCount = response.pageInfo.numPages;
+        this.page = response.pageInfo.page;
+        this.totalResults = response.pageInfo.totalResults;
       }
     },
     confirmEnroll(event) {
@@ -265,7 +306,7 @@ export default {
           )
         );
         if (response) {
-          this.getOrganizations(this.page);
+          this.getTableItems(this.page);
           response.forEach(res => {
             this.$emit("updateWorkspace", {
               update: formatIndividuals([res.data.enroll.individual])
@@ -305,22 +346,22 @@ export default {
         domains: domains
       });
     },
-    confirmDelete(organization) {
+    confirmDelete(group) {
       Object.assign(this.dialog, {
         open: true,
-        title: "Delete this organization?",
-        text: organization,
-        action: () => this.deleteOrg(organization)
+        title: `Delete ${group}?`,
+        text: "",
+        action: () => this.deleteGroup(group)
       });
     },
-    async deleteOrg(organization) {
+    async deleteGroup(item) {
       this.closeDialog();
       try {
-        const response = await this.deleteOrganization(organization);
+        const response = await this.deleteOrganization(item);
         if (response) {
-          this.getOrganizations(this.page);
+          this.getTableItems(this.page);
           this.$emit("updateIndividuals");
-          this.$logger.debug(`Deleted organization ${organization}`);
+          this.$logger.debug(`Deleted ${item}`);
         }
       } catch (error) {
         Object.assign(this.dialog, {
@@ -329,9 +370,7 @@ export default {
           text: this.$getErrorMessage(error),
           action: null
         });
-        this.$logger.error(
-          `Error deleting organization ${organization}: ${error}`
-        );
+        this.$logger.error(`Error deleting ${item}: ${error}`);
       }
     },
     startDrag(item, event) {
@@ -344,12 +383,12 @@ export default {
     },
     filterSearch(filters) {
       this.filters = filters;
-      this.getOrganizations(1);
+      this.getTableItems(1);
     },
     changeItemsPerPage(value) {
       if (value) {
         this.itemsPerPage = parseInt(value, 10);
-        this.getOrganizations(1);
+        this.getTableItems(1);
       }
     },
     closeDialog() {
@@ -362,6 +401,26 @@ export default {
         dateFrom: null,
         dateTo: null
       });
+    },
+    async addUnaffiliatedTeam() {
+      try {
+        const response = await this.addTeam(this.forms.teamName);
+        if (response) {
+          this.getTableItems();
+          this.$logger.debug(`Added team ${this.forms.teamName}`);
+          this.forms.teamName = "";
+        }
+      } catch (error) {
+        Object.assign(this.dialog, {
+          open: true,
+          title: "Error",
+          text: this.$getErrorMessage(error),
+          action: null
+        });
+        this.$logger.error(
+          `Error adding team ${this.forms.teamName}: ${error}`
+        );
+      }
     }
   }
 };
