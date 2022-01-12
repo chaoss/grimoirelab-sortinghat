@@ -258,7 +258,7 @@ def reflect_table(engine, klass):
 def find_model_by_table_name(name):
     """Find a model reference by its table name"""
 
-    for model in ModelBase._decl_class_registry.values():
-        if hasattr(model, '__table__') and model.__table__.fullname == name:
-            return model
+    for value in ModelBase.registry._class_registry.values():
+        if getattr(value, '__tablename__', None) == name:
+            return value
     return None
