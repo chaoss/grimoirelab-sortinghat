@@ -145,6 +145,31 @@ class Organization(EntityBase):
         return self.name
 
 
+class Group(MP_Node, EntityBase):
+    class GroupType(Enum):
+        organization = 'Organization'
+        team = 'Team'
+
+        @classmethod
+        def choices(cls):
+            return ((item.name, item.value) for item in cls)
+
+        def __str__(self):
+            return self.value
+
+    name = CharField(max_length=MAX_SIZE_CHAR_INDEX)
+    type = CharField(max_length=12, choices=GroupType.choices())
+    organization = ForeignKey('self', related_name='groups', on_delete=CASCADE,
+                              blank=True, null=True)
+
+    class Meta:
+        db_table = 'groups'
+        unique_together = ('name', 'organization')
+
+    def __str__(self):
+        return self.name
+
+
 class Team(MP_Node, EntityBase):
     name = CharField(max_length=MAX_SIZE_CHAR_INDEX)
     organization = ForeignKey(Organization, related_name='teams', on_delete=CASCADE,

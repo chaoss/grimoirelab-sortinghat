@@ -34,6 +34,7 @@ from grimoirelab_toolkit.datetime import datetime_utcnow
 from sortinghat.core.models import (Organization,
                                     Domain,
                                     Team,
+                                    Group,
                                     Country,
                                     Individual,
                                     Identity,
@@ -47,6 +48,61 @@ from sortinghat.core.models import (Organization,
 DUPLICATE_CHECK_ERROR = "Duplicate entry .+"
 NULL_VALUE_CHECK_ERROR = "Column .+ cannot be null"
 INVALID_BOOLEAN_CHECK_ERROR = "['“true” value must be either True or False.']"
+
+class TestGroup(TransactionTestCase):
+    """Unit tests for Group class"""
+
+    def test_unique_groups(self):
+        """Check if team names are unique for an organization"""
+
+        with self.assertRaisesRegex(IntegrityError, DUPLICATE_CHECK_ERROR):
+            org = Group.add_root(name='Example', type='organization')
+            team = org.add_child(name='subTeam1', organization=org, type='team')
+            team.add_child(name='subTeam1', organization=org, type='team')
+
+    def test_null_organizations(self):
+        """Check if groups can be created without organizations"""
+
+        group = Group.add_root(name='Organization', type='organization')
+        self.assertIsInstance(group, Group)
+
+    def test_created_at(self):
+        """Check creation date is only set when the object is created"""
+
+        before_dt = datetime_utcnow()
+        group = Group.add_root(name='Example')
+        after_dt = datetime_utcnow()
+
+        self.assertEqual(group.name, 'Example')
+        self.assertGreaterEqual(group.created_at, before_dt)
+        self.assertLessEqual(group.created_at, after_dt)
+
+        group.name = 'Changed name'
+        group.save()
+
+        self.assertEqual(group.name, "Changed name")
+        self.assertGreaterEqual(group.created_at, before_dt)
+        self.assertLessEqual(group.created_at, after_dt)
+
+    def test_last_modified(self):
+        """Check last modification date is set when the object is updated"""
+        
+        before_dt = datetime_utcnow()
+        group = Group.add_root(name='Example')
+        after_dt = datetime_utcnow()
+
+        self.assertEqual(group.name, 'Example')
+        self.assertGreaterEqual(group.last_modified, before_dt)
+        self.assertLessEqual(group.last_modified, after_dt)
+
+        before_modified_dt = datetime_utcnow()
+        group.name = 'Changed name'
+        group.save()
+        after_modified_dt = datetime_utcnow()
+
+        self.assertEqual(group.name, 'Changed name')
+        self.assertGreaterEqual(group.last_modified, before_modified_dt)
+        self.assertLessEqual(group.last_modified, after_modified_dt)
 
 
 class TestOrganization(TransactionTestCase):
