@@ -37,6 +37,7 @@ from .models import (MIN_PERIOD_DATE,
                      MAX_PERIOD_DATE,
                      Organization,
                      Team,
+                     Group,
                      Domain,
                      Country,
                      Individual,
@@ -162,7 +163,7 @@ def find_organization(name):
 
     try:
         logger.debug(f"Finding organization '{name}' ...")
-        organization = Organization.objects.get(name=name)
+        organization = Organization.objects.all_organizations().get(name=name)
     except Organization.DoesNotExist:
         logger.debug(f"Organization with name '{name}' does not exist")
         raise NotFoundError(entity=name)
@@ -190,7 +191,7 @@ def find_team(team_name, organization=None):
 
     try:
         logger.debug(f"Finding team '{team_name}'" + f"in '{organization.name}' ..." if organization else "...")
-        team = Team.objects.get(name=team_name, organization=organization)
+        team = Team.objects.all_teams().get(name=team_name, organization=organization)
     except Team.DoesNotExist:
         logger.debug(f"Team with name '{team_name}' does not exist")
         raise NotFoundError(entity=team_name)
@@ -280,10 +281,17 @@ def add_organization(trxl, name):
 
     validate_field('name', name)
 
+    # Check if there is an organization with the same name.
+    # Groups have a unique together constraint for the 'name' and 'organization'
+    # fields, but the latter is always null for organizations and MySQL doesn't
+    # treat null values as equal
+    if Organization.objects.all_organizations().filter(name=name).exists():
+        raise AlreadyExistsError(entity=Organization.__name__, eid=name)
+
     organization = Organization(name=name)
 
     try:
-        organization.save()
+        Group.add_root(instance=organization)
     except django.db.utils.IntegrityError as exc:
         _handle_integrity_error(Organization, exc)
 
@@ -350,16 +358,18 @@ def add_team(trxl, team_name, organization=None, parent=None):
     validate_field('team_name', team_name)
 
     if not organization:
-        if Team.objects.filter(name=team_name, organization=organization).exists():
+        if Team.objects.all_teams().filter(name=team_name, organization=organization).exists():
             raise AlreadyExistsError(entity=Team.__name__, eid=team_name)
 
     team = Team(name=team_name, organization=organization)
 
     try:
-        if not parent:
-            team = Team.add_root(instance=team)
-        else:
+        if parent:
             team = parent.add_child(instance=team)
+        elif organization:
+            team = organization.add_child(instance=team)
+        else:
+            team = Team.add_root(instance=team)
     except django.db.utils.IntegrityError as exc:
         _handle_integrity_error(Team, exc)
 

@@ -49,6 +49,7 @@ DUPLICATE_CHECK_ERROR = "Duplicate entry .+"
 NULL_VALUE_CHECK_ERROR = "Column .+ cannot be null"
 INVALID_BOOLEAN_CHECK_ERROR = "['“true” value must be either True or False.']"
 
+
 class TestGroup(TransactionTestCase):
     """Unit tests for Group class"""
 
@@ -86,7 +87,7 @@ class TestGroup(TransactionTestCase):
 
     def test_last_modified(self):
         """Check last modification date is set when the object is updated"""
-        
+
         before_dt = datetime_utcnow()
         group = Group.add_root(name='Example')
         after_dt = datetime_utcnow()
@@ -108,21 +109,14 @@ class TestGroup(TransactionTestCase):
 class TestOrganization(TransactionTestCase):
     """Unit tests for Organization class"""
 
-    def test_unique_organizations(self):
-        """Check whether organizations name are unique"""
-
-        with self.assertRaises(IntegrityError):
-            Organization.objects.create(name="Example")
-            Organization.objects.create(name="Example")
-
     def test_charset(self):
         """Check encoding charset"""
 
         # With an invalid encoding both names wouldn't be inserted;
         # In MySQL, chars 'ı' and 'i' are considered the same with a
         # collation distinct to <charset>_unicode_ci
-        Organization.objects.create(name='ıCompany')
-        Organization.objects.create(name='iCompany')
+        Organization.add_root(name='ıCompany')
+        Organization.add_root(name='iCompany')
 
         org1 = Organization.objects.get(name='ıCompany')
         org2 = Organization.objects.get(name='iCompany')
@@ -134,7 +128,7 @@ class TestOrganization(TransactionTestCase):
         """Check creation date is only set when the object is created"""
 
         before_dt = datetime_utcnow()
-        org = Organization.objects.create(name='ıCompany')
+        org = Organization.add_root(name='ıCompany')
         after_dt = datetime_utcnow()
 
         self.assertGreaterEqual(org.created_at, before_dt)
@@ -149,7 +143,7 @@ class TestOrganization(TransactionTestCase):
         """Check last modification date is set when the object is updated"""
 
         before_dt = datetime_utcnow()
-        org = Organization.objects.create(name='ıCompany')
+        org = Organization.add_root(name='ıCompany')
         after_dt = datetime_utcnow()
 
         self.assertGreaterEqual(org.last_modified, before_dt)
@@ -162,6 +156,18 @@ class TestOrganization(TransactionTestCase):
         self.assertGreaterEqual(org.last_modified, before_modified_dt)
         self.assertLessEqual(org.last_modified, after_modified_dt)
 
+    def test_all_organizations_queryset(self):
+        """Check if the query returns a list of organizations"""
+
+        org = Organization.add_root(name='Example')
+        team = org.add_child(name='Example team', organization=org, type='team')
+        team.add_child(name='Example subteam', organization=org, type='team')
+        Team.add_root(name='Example group')
+
+        organizations = Organization.objects.all_organizations()
+        self.assertEqual(len(organizations), 1)
+        self.assertEqual(organizations[0], org)
+
 
 class TestTeam(TransactionTestCase):
     """Unit tests for Team class"""
@@ -170,7 +176,7 @@ class TestTeam(TransactionTestCase):
         """Check whether teams are unique for organization"""
 
         with self.assertRaisesRegex(IntegrityError, DUPLICATE_CHECK_ERROR):
-            org = Organization.objects.create(name='Example')
+            org = Organization.add_root(name='Example')
             team = Team.add_root(name='subTeam1', organization=org)
             team.add_child(name='subTeam1', organization=org)
 
@@ -216,6 +222,42 @@ class TestTeam(TransactionTestCase):
         self.assertGreaterEqual(team.last_modified, before_modified_dt)
         self.assertLessEqual(team.last_modified, after_modified_dt)
 
+    def test_all_teams_queryset(self):
+        """Check if the query returns a list of teams"""
+
+        org = Organization.add_root(name='Example')
+        team = org.add_child(name='Example team', organization=org, type='team')
+        team.add_child(name='Example subteam', organization=org, type='team')
+        Team.add_root(name='Example group')
+
+        teams = Team.objects.all_teams()
+        self.assertEqual(len(teams), 3)
+
+    def test_teams_root_nodes_queryset(self):
+        """Check if the query returns a list of top level teams"""
+
+        org = Organization.add_root(name='Example')
+        team = org.add_child(name='Example team', organization=org, type='team')
+        team.add_child(name='Example subteam', organization=org, type='team')
+        Team.add_root(name='Example group')
+
+        teams = Team.objects.team_root_nodes()
+        self.assertEqual(len(teams), 1)
+        self.assertEqual(teams[0], team)
+
+    def test_groups_queryset(self):
+        """Check if it returns a list of teams that do not belong to an organization"""
+
+        org = Organization.add_root(name='Example')
+        team = org.add_child(name='Example team', organization=org, type='team')
+        team.add_child(name='Example subteam', organization=org, type='team')
+        group = Team.add_root(name='Example group')
+        group.add_child(name='Example subgoup', type='team')
+
+        groups = Team.objects.groups()
+        self.assertEqual(len(groups), 1)
+        self.assertEqual(groups[0], group)
+
 
 class TestDomain(TransactionTestCase):
     """Unit tests for Domain class"""
@@ -224,7 +266,7 @@ class TestDomain(TransactionTestCase):
         """Check whether domains are unique"""
 
         with self.assertRaisesRegex(IntegrityError, DUPLICATE_CHECK_ERROR):
-            org = Organization.objects.create(name='Example')
+            org = Organization.add_root(name='Example')
             Domain.objects.create(domain='example.com', organization=org)
             Domain.objects.create(domain='example.com', organization=org)
 
@@ -238,7 +280,7 @@ class TestDomain(TransactionTestCase):
         """Check invalid values on is_top_domain bool column"""
 
         with self.assertRaisesRegex(ValidationError, INVALID_BOOLEAN_CHECK_ERROR):
-            org = Organization.objects.create(name='Example')
+            org = Organization.add_root(name='Example')
             Domain.objects.create(domain='example.com', is_top_domain='true',
                                   organization=org)
 
@@ -246,7 +288,7 @@ class TestDomain(TransactionTestCase):
         """Check creation date is only set when the object is created"""
 
         before_dt = datetime_utcnow()
-        org = Organization.objects.create(name='Example')
+        org = Organization.add_root(name='Example')
         dom = Domain.objects.create(domain='example.com', is_top_domain=True,
                                     organization=org)
         after_dt = datetime_utcnow()
@@ -266,7 +308,7 @@ class TestDomain(TransactionTestCase):
         """Check last modification date is set when the object is updated"""
 
         before_dt = datetime_utcnow()
-        org = Organization.objects.create(name='Example')
+        org = Organization.add_root(name='Example')
         dom = Domain.objects.create(domain='example.com', is_top_domain=True,
                                     organization=org)
         after_dt = datetime_utcnow()
@@ -590,7 +632,7 @@ class TestEnrollment(TransactionTestCase):
 
         with self.assertRaisesRegex(IntegrityError, DUPLICATE_CHECK_ERROR):
             indv = Individual.objects.create(mk='AAAA')
-            org = Organization.objects.create(name='Example')
+            org = Organization.add_root(name='Example')
 
             Enrollment.objects.create(individual=indv, organization=org)
             Enrollment.objects.create(individual=indv, organization=org)
@@ -599,7 +641,7 @@ class TestEnrollment(TransactionTestCase):
         """Check whether the default period is set when initializing the class"""
 
         indv = Individual.objects.create(mk='AAAA')
-        org = Organization.objects.create(name='Example')
+        org = Organization.add_root(name='Example')
 
         rol1 = Enrollment.objects.create(individual=indv, organization=org)
         self.assertEqual(rol1.start, datetime.datetime(1900, 1, 1, 0, 0, 0,
@@ -628,7 +670,7 @@ class TestEnrollment(TransactionTestCase):
 
         before_dt = datetime_utcnow()
         indv = Individual.objects.create(mk='AAAA')
-        org = Organization.objects.create(name='Example')
+        org = Organization.add_root(name='Example')
         rol = Enrollment.objects.create(individual=indv, organization=org)
         after_dt = datetime_utcnow()
 
@@ -651,7 +693,7 @@ class TestEnrollment(TransactionTestCase):
 
         before_dt = datetime_utcnow()
         indv = Individual.objects.create(mk='AAAA')
-        org = Organization.objects.create(name='Example')
+        org = Organization.add_root(name='Example')
         rol = Enrollment.objects.create(individual=indv, organization=org)
         after_dt = datetime_utcnow()
 
