@@ -1,12 +1,12 @@
-import { shallowMount, mount } from '@vue/test-utils';
-import Vue from 'vue';
-import Vuetify from 'vuetify';
-import IndividualsData from '@/components/IndividualsData';
-import IndividualsTable from '@/components/IndividualsTable';
-import OrganizationsTable from '@/components/OrganizationsTable';
-import JobsTable from '@/components/JobsTable';
-import TeamModal from '@/components/TeamModal';
-import * as Queries from '@/apollo/queries';
+import { shallowMount, mount } from "@vue/test-utils";
+import Vue from "vue";
+import Vuetify from "vuetify";
+import IndividualsData from "@/components/IndividualsData";
+import IndividualsTable from "@/components/IndividualsTable";
+import OrganizationsTable from "@/components/OrganizationsTable";
+import JobsTable from "@/components/JobsTable";
+import TeamModal from "@/components/TeamModal";
+import * as Queries from "@/apollo/queries";
 
 Vue.use(Vuetify);
 
@@ -96,19 +96,19 @@ const paginatedOrganizations = {
             { id: 3, __typename: "EnrollmentType" },
             { id: 4, __typename: "EnrollmentType" }
           ],
-          __typename: 'OrganizationType',
-        },
+          __typename: "OrganizationType"
+        }
       ],
       pageInfo: {
         page: 1,
         pageSize: 10,
         numPages: 1,
         totalResults: 2,
-        __typename: 'PaginationType',
+        __typename: "PaginationType"
       },
-      __typename: 'OrganizationPaginatedType',
-    },
-  },
+      __typename: "OrganizationPaginatedType"
+    }
+  }
 };
 
 const paginatedTeams = {
@@ -116,16 +116,16 @@ const paginatedTeams = {
     teams: {
       entities: [
         {
-          name: 'Test 1',
-          __typename: 'TeamType',
+          name: "Test 1",
+          __typename: "TeamType"
         },
         {
-          name: 'Test 2',
-          __typename: 'TeamType',
-        },
-      ],
-    },
-  },
+          name: "Test 2",
+          __typename: "TeamType"
+        }
+      ]
+    }
+  }
 };
 
 const countriesMocked = {
@@ -325,12 +325,7 @@ describe("IndividualsTable", () => {
 
     const response = await wrapper.vm.queryIndividuals(1);
 
-    expect(querySpy).toHaveBeenCalledWith(
-      1,
-      10,
-      { gender: "gender" },
-      null
-    );
+    expect(querySpy).toHaveBeenCalledWith(1, 10, { gender: "gender" }, null);
   });
 
   test("Searches by lastUpdated", async () => {
@@ -396,26 +391,26 @@ describe("IndividualsTable", () => {
     expect(querySpy).toHaveBeenCalledWith(1, 10, { country: "Spain" }, null);
   });
 
-  test.each([
-    "lastModified",
-    "createdAt"
-  ])("Orders query by %p", async (value) => {
-    const querySpy = spyOn(Queries, "getPaginatedIndividuals");
-    const query = jest.fn(() => Promise.resolve(paginatedResponse));
-    const wrapper = mountFunction({
-      mocks: {
-        $apollo: {
-          query
+  test.each(["lastModified", "createdAt"])(
+    "Orders query by %p",
+    async value => {
+      const querySpy = spyOn(Queries, "getPaginatedIndividuals");
+      const query = jest.fn(() => Promise.resolve(paginatedResponse));
+      const wrapper = mountFunction({
+        mocks: {
+          $apollo: {
+            query
+          }
         }
-      }
-    });
-    await wrapper.setProps({ fetchPage: Queries.getPaginatedIndividuals });
-    await wrapper.setData({ orderBy: value });
+      });
+      await wrapper.setProps({ fetchPage: Queries.getPaginatedIndividuals });
+      await wrapper.setData({ orderBy: value });
 
-    const response = await wrapper.vm.queryIndividuals(1);
+      const response = await wrapper.vm.queryIndividuals(1);
 
-    expect(querySpy).toHaveBeenCalledWith(1, 10, {}, value);
-  });
+      expect(querySpy).toHaveBeenCalledWith(1, 10, {}, value);
+    }
+  );
 
   test("Mock query for getCountries", async () => {
     const query = jest.fn(() => Promise.resolve(countriesMocked));
@@ -453,8 +448,8 @@ describe("OrganizationsTable", () => {
         deleteOrganization: () => {},
         fetchTeams: () => {},
         addTeam: () => {},
-        deleteTeam: () => {},
-      },
+        deleteTeam: () => {}
+      }
     });
     const response = await Queries.getPaginatedOrganizations(
       wrapper.vm.$apollo,
@@ -485,7 +480,7 @@ describe("OrganizationsTable", () => {
         deleteOrganization: () => {},
         fetchTeams: () => {},
         addTeam: () => {},
-        deleteTeam: () => {},
+        deleteTeam: () => {}
       },
       data() {
         return {
@@ -494,7 +489,7 @@ describe("OrganizationsTable", () => {
       }
     });
 
-    const response = await wrapper.vm.getOrganizations();
+    const response = await wrapper.vm.fetchPage();
 
     expect(querySpy).toHaveBeenCalledWith(1, 10, { term: "Bitergia" });
   });
@@ -524,21 +519,22 @@ describe("JobsTable", () => {
   });
 });
 
-describe('TeamModal', () => {
-  test('Mock query for getPaginatedTeams', async () => {
+describe("TeamModal", () => {
+  test("Mock query for getPaginatedTeams", async () => {
     const query = jest.fn(() => Promise.resolve(paginatedTeams));
     const wrapper = shallowMount(TeamModal, {
       Vue,
       mocks: {
         $apollo: {
-          query,
-        },
+          query
+        }
       },
       propsData: {
         addTeam: () => {},
         deleteTeam: () => {},
         fetchTeams: query,
-      },
+        parent: "Parent Organization"
+      }
     });
     const response = await Queries.getTeams(wrapper.vm.$apollo, 1, 1);
 

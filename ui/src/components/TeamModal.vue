@@ -1,8 +1,8 @@
 <template>
-  <v-dialog v-model="isOpen" persistent max-width="1000px">
+  <v-dialog v-if="isOpen" v-model="isOpen" persistent max-width="550px">
     <v-card class="section">
       <v-card-title class="header">
-        <span class="title"> {{ organization }} teams </span>
+        <span class="title"> {{ parent }} teams </span>
       </v-card-title>
       <form>
         <v-card-text class="team-modal-content">
@@ -13,13 +13,16 @@
             color="warning"
             open-on-click
             transition
+            dense
           >
             <template v-slot:append="{ item }">
               <v-row class="align-center">
                 <v-edit-dialog @save="add(item)">
-                  <v-icon>
-                    mdi-plus-circle-outline
-                  </v-icon>
+                  <v-btn aria-label="Add team" icon>
+                    <v-icon small>
+                      mdi-plus-circle-outline
+                    </v-icon>
+                  </v-btn>
                   <template v-slot:input>
                     <v-text-field
                       v-model="teamName"
@@ -29,8 +32,12 @@
                     />
                   </template>
                 </v-edit-dialog>
-                <v-btn icon @click="confirmDelete(item)">
-                  <v-icon>
+                <v-btn
+                  aria-label="Delete team"
+                  icon
+                  @click="confirmDelete(item)"
+                >
+                  <v-icon small>
                     mdi-delete
                   </v-icon>
                 </v-btn>
@@ -39,24 +46,22 @@
           </v-treeview>
         </v-card-text>
         <v-card-actions>
-          <v-row>
-            <v-col cols="3">
-              <v-edit-dialog @save="add()">
-                <v-btn text small left outlined color="primary">
-                  <v-icon small color="primary">mdi-plus-circle-outline</v-icon>
-                  Add team
-                </v-btn>
-                <template v-slot:input>
-                  <v-text-field
-                    v-model="teamName"
-                    label="Add a new team"
-                    maxlength="50"
-                    single-line
-                  />
-                </template>
-              </v-edit-dialog>
-            </v-col>
-          </v-row>
+          <v-edit-dialog @save="add()">
+            <v-btn text small left outlined color="primary" class="ml-4">
+              <v-icon small left color="primary"
+                >mdi-plus-circle-outline</v-icon
+              >
+              Add team
+            </v-btn>
+            <template v-slot:input>
+              <v-text-field
+                v-model="teamName"
+                label="Add a new team"
+                maxlength="50"
+                single-line
+              />
+            </template>
+          </v-edit-dialog>
           <v-spacer></v-spacer>
           <v-btn color="primary darken-1" text @click.prevent="closeModal">
             Close
@@ -98,11 +103,6 @@ export default {
       required: false,
       default: false
     },
-    organization: {
-      type: String,
-      required: false,
-      default: null
-    },
     addTeam: {
       type: Function,
       required: true
@@ -114,11 +114,20 @@ export default {
     fetchTeams: {
       type: Function,
       required: true
+    },
+    parent: {
+      type: String,
+      required: true
+    },
+    isGroup: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
   data() {
     return {
-      filters: { organization: this.organization },
+      filters: {},
       teams: [],
       open: [],
       teamName: "",
@@ -137,10 +146,9 @@ export default {
       this.$emit("update:isOpen", false);
     },
     async getSubTeams(item) {
-      let filters = this.filters;
-      filters["parent"] = item.name;
+      Object.assign(this.filters, { parent: item.name });
       item.children = [];
-      const data = await this.getTeams(filters).then(result =>
+      const data = await this.getTeams(this.filters).then(result =>
         result.forEach(team =>
           item.children.push({
             name: team.name,
@@ -189,7 +197,8 @@ export default {
     async delete(item) {
       this.closeDialog();
       try {
-        const response = await this.deleteTeam(item.name, this.organization);
+        const organization = this.isGroup ? null : this.parent;
+        const response = await this.deleteTeam(item.name, organization);
         if (response) {
           this.findAndDelete(item.name);
           this.$logger.debug(`Deleted team ${item.name}`);
@@ -207,19 +216,22 @@ export default {
     async add(parent = null) {
       this.closeDialog();
       try {
-        const response = await this.addTeam(
-          this.teamName,
-          this.organization,
-          parent?.name
-        );
+        const organization = this.isGroup ? null : this.parent;
+        let team;
+        if (parent) {
+          team = parent.name;
+        } else {
+          team = this.isGroup ? this.parent : null;
+        }
+        const response = await this.addTeam(this.teamName, organization, team);
         if (response) {
           if (parent) {
             await this.getSubTeams(parent);
           } else {
             this.teams.push({ name: this.teamName, children: undefined });
           }
-          this.teamName = "";
           this.$logger.debug(`Added team ${this.teamName}`);
+          this.teamName = "";
           return response;
         }
       } catch (error) {
@@ -235,6 +247,11 @@ export default {
     }
   },
   async created() {
+    if (this.isGroup) {
+      this.filters = { parent: this.parent };
+    } else {
+      this.filters = { organization: this.parent };
+    }
     const teamObjects = await this.getTeams();
     teamObjects.forEach(team =>
       this.teams.push({

@@ -1,6 +1,6 @@
 <template>
   <td colspan="3">
-    <v-list dense>
+    <v-list v-if="!isGroup" dense>
       <v-subheader>Domains ({{ domains.length }})</v-subheader>
       <v-list-item v-for="(item, index) in domains" :key="index">
         <v-list-item-content>
@@ -10,8 +10,8 @@
     </v-list>
     <v-list dense>
       <v-subheader>
-        Teams ({{ teams.length }}<span v-if="teams.length > 0">+</span>)
-        <v-btn depressed small height="34" @click.stop="openModal" text>
+        Teams ({{ teams.length }}<span v-if="hasSubteams">+</span>)
+        <v-btn plain small height="34" @click.stop="openModal" text>
           View all
         </v-btn>
       </v-subheader>
@@ -23,7 +23,8 @@
     </v-list>
     <team-modal
       :is-open.sync="modal.open"
-      :organization="organization"
+      :parent="organization"
+      :is-group="isGroup"
       :add-team="addTeam"
       :delete-team="deleteTeam"
       :fetch-teams="fetchTeams"
@@ -43,7 +44,7 @@ export default {
   props: {
     domains: {
       type: Array,
-      required: true
+      required: false
     },
     organization: {
       type: String,
@@ -60,6 +61,11 @@ export default {
     fetchTeams: {
       type: Function,
       required: true
+    },
+    isGroup: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
   data() {
@@ -70,12 +76,20 @@ export default {
       }
     };
   },
+  computed: {
+    hasSubteams() {
+      return this.teams.some(team => team.numchild > 0);
+    }
+  },
   methods: {
     openModal() {
       Object.assign(this.modal, { open: true });
     },
     async getTeams() {
-      const filters = { organization: this.organization };
+      let filters = { organization: this.organization };
+      if (this.isGroup) {
+        filters = { parent: this.organization };
+      }
       const response = await this.fetchTeams(filters);
       this.teams = response.data.teams.entities;
     }

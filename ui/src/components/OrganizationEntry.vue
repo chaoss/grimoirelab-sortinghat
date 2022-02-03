@@ -26,7 +26,7 @@
       </v-tooltip>
     </td>
     <td class="text-right">
-      <v-btn icon @click.stop="$emit('edit')">
+      <v-btn v-if="isEditable" icon @click.stop="$emit('edit')">
         <v-icon small>
           mdi-lead-pencil
         </v-icon>
@@ -60,6 +60,11 @@ export default {
     isExpanded: {
       type: Boolean,
       required: true
+    },
+    isEditable: {
+      type: Boolean,
+      required: false,
+      default: true
     }
   },
   data() {
@@ -69,6 +74,10 @@ export default {
   },
   methods: {
     onDrop(event) {
+      // TODO: Remove when individuals can be affiliated to teams
+      if (!this.isEditable) {
+        return;
+      }
       this.dropZone = false;
       const type = event.dataTransfer.getData("type");
       if (type === "enrollFromOrganization") {
@@ -85,6 +94,10 @@ export default {
       }
     },
     isDropZone(event, isDragging) {
+      // TODO: Remove when individuals can be affiliated to teams
+      if (!this.isEditable) {
+        return;
+      }
       const type = event.dataTransfer.getData("type");
       // Can't use 'getData' while dragging on Chrome
       const types = event.dataTransfer.types;
@@ -108,5 +121,8 @@ export default {
 @import "../styles/index.scss";
 tr {
   cursor: pointer;
+}
+td:last-of-type {
+  min-width: 105px;
 }
 </style>

@@ -1,22 +1,22 @@
-import TeamModal from './TeamModal.vue';
+import TeamModal from "./TeamModal.vue";
 
 export default {
-  title: 'TeamModal',
-  excludeStories: /.*Data$/,
+  title: "TeamModal",
+  excludeStories: /.*Data$/
 };
 
 const TeamModalTemplate = `  <div class="ma-auto">
     <v-btn color="primary" dark @click.stop="modal.open = true">
       Open Dialog
-    </v-btn><team-modal :is-open.sync="modal.open" :organization="organization"  :add-team="addTeam" :delete-team="deleteTeam" :fetch-teams="fetchTeams"/></div>`;
+    </v-btn><team-modal :is-open.sync="modal.open" :parent="organization"  :add-team="addTeam" :delete-team="deleteTeam" :fetch-teams="fetchTeams"/></div>`;
 
 export const Default = () => ({
   components: { TeamModal },
   template: TeamModalTemplate,
   data: () => ({
-    organization: 'Hogwarts',
+    organization: "Ministry of Magic",
     modal: {
-      open: false,
+      open: false
     },
     query: [
       {
@@ -24,50 +24,61 @@ export const Default = () => ({
           teams: {
             entities: [
               {
-                name: 'BU1',
-                numchild: 2,
+                name: "Committee on Experimental Charms",
+                numchild: 0
               },
               {
-                name: 'BU2',
-                numchild: 0,
+                name: "Department of Magical Law Enforcement",
+                numchild: 2
               },
               {
-                name: 'BU3',
-                numchild: 1,
+                name: "Department of Magical Accidents and Catastrophes",
+                numchild: 0
               },
               {
-                name: 'Team1',
-                parent: 'BU1',
-                numchild: 0,
+                name:
+                  "Department for the Regulation and Control of Magical Creatures",
+                numchild: 1
               },
               {
-                name: 'Team2',
-                parent: 'BU1',
-                numchild: 0,
+                name: "Auror Office",
+                parent: "Department of Magical Law Enforcement",
+                numchild: 1
               },
               {
-                name: 'Team4',
-                parent: 'BU3',
-                numchild: 0,
+                name: "Calamity Investigators",
+                parent: "Auror Office",
+                numchild: 0
               },
-            ],
-          },
-        },
-      },
-    ],
+              {
+                name: "Improper Use of Magic Office",
+                parent: "Department of Magical Law Enforcement",
+                numchild: 0
+              },
+              {
+                name: "Beast Division",
+                parent:
+                  "Department for the Regulation and Control of Magical Creatures",
+                numchild: 0
+              }
+            ]
+          }
+        }
+      }
+    ]
   }),
   methods: {
     fetchTeams(filters) {
       let data = [];
-      if (Object.keys(filters).includes('parent')) {
-        this.query[0].data.teams.entities.forEach((team) => {
-          if (team['parent'] === filters['parent']) {
+      if (Object.keys(filters).includes("parent")) {
+        this.query[0].data.teams.entities.forEach(team => {
+          if (team["parent"] === filters["parent"]) {
             data.push(team);
           }
         });
       } else {
-        this.query[0].data.teams.entities.forEach((team) => {
-          if (team['parent'] === undefined) {
+        this.query[0].data.teams.entities.forEach(team => {
+          if (team["parent"] === undefined) {
             data.push(team);
           }
         });
@@ -75,28 +86,28 @@ export const Default = () => ({
       const resp = {
         data: {
           teams: {
-            entities: data,
-          },
-        },
+            entities: data
+          }
+        }
       };
 
       return resp;
     },
     addTeam(team, organization, parent) {
       const insertData = {
-        name: team,
+        name: team
       };
       if (parent) {
-        insertData['parent'] = parent;
+        insertData["parent"] = parent;
       }
       this.query[0].data.teams.entities.push(insertData);
       return true;
     },
     deleteTeam(team, organization) {
       this.query[0].data.teams.entities = this.query[0].data.teams.entities.filter(
-        (elem) => elem.name != team,
+        elem => elem.name != team
       );
       return true;
-    },
-  },
+    }
+  }
 });
