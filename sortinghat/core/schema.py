@@ -73,6 +73,7 @@ from .jobs import (affiliate,
                    genderize)
 from .models import (Organization,
                      Team,
+                     Group,
                      Domain,
                      Country,
                      Individual,
@@ -171,16 +172,26 @@ class TransactionType(DjangoObjectType):
         model = Transaction
 
 
+class GroupType(DjangoObjectType):
+    class Meta:
+        model = Group
+        exclude = ('path',)
+        convert_choices_to_enum = False
+
+
 class OrganizationType(DjangoObjectType):
     class Meta:
-        model = Organization
+        model = Group
+        exclude = ('path', 'depth', 'numchild', 'type', 'parent_org')
 
 
 class TeamType(DjangoObjectType):
     class Meta:
-        model = Team
+        model = Group
+        exclude = ('path', 'depth', 'type', 'domains', 'teams')
 
     subteams = graphene.List(lambda: TeamType)
+    parent_org = graphene.Field(OrganizationType)
 
     def resolve_subteams(self, info):
         return self.get_children().order_by('name').all()
@@ -1142,7 +1153,7 @@ class SortingHatQuery:
                               page=1,
                               page_size=settings.SORTINGHAT_API_PAGE_SIZE,
                               **kwargs):
-        query = Organization.objects.order_by('name')
+        query = Organization.objects.all_organizations().order_by('name')
 
         if filters and 'name' in filters:
             query = query.filter(name=filters['name'])
@@ -1161,20 +1172,20 @@ class SortingHatQuery:
     def resolve_teams(self, info, filters=None, page=1,
                       page_size=settings.SORTINGHAT_API_PAGE_SIZE, **kwargs):
         if filters:
-            query = Team.objects.order_by('name')
+            query = Team.objects.all_teams().order_by('name')
 
             # Filter teams that belong to the given organization filter
             if 'organization' in filters:
                 # If no other filter is present, only show top level teams of organization
                 if not ('name' in filters or 'term' in filters) and 'parent' not in filters:
-                    query = Team.get_root_nodes().order_by('name')
+                    query = Team.objects.team_root_nodes().order_by('name')
                 query = query.filter(
-                    Q(organization__in=Organization.objects.filter(name=filters['organization'])))
+                    Q(parent_org__in=Organization.objects.filter(name=filters['organization'])))
 
             query = apply_team_query_filters(query, filters)
         else:
             # If no filters are given, show all top level teams
-            query = Team.get_root_nodes().order_by('name')
+            query = Team.objects.team_root_nodes().order_by('name')
         return TeamPaginatedType.create_paginated_result(query, page,
                                                          page_size=page_size)
 
@@ -1182,16 +1193,16 @@ class SortingHatQuery:
     def resolve_groups(self, info, filters=None, page=1,
                        page_size=settings.SORTINGHAT_API_PAGE_SIZE, **kwargs):
         if filters:
-            query = Team.objects.order_by('name')
+            query = Team.objects.all_teams().order_by('name')
 
             # Filter groups that do not belong to any organization
-            query = query.filter(organization=None)
+            query = query.filter(parent_org=None)
 
             query = apply_team_query_filters(query, filters)
         else:
             # If no filters are given, show all top level groups
-            query = Team.get_root_nodes().order_by('name')
-            query = query.filter(organization=None)
+            query = Team.objects.groups().order_by('name')
+            query = query.filter(parent_org=None)
         return TeamPaginatedType.create_paginated_result(query, page,
                                                          page_size=page_size)
 

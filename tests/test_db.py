@@ -40,6 +40,7 @@ from sortinghat.core.models import (MIN_PERIOD_DATE,
                                     MAX_PERIOD_DATE,
                                     Organization,
                                     Team,
+                                    Group,
                                     Domain,
                                     Country,
                                     Individual,
@@ -193,7 +194,7 @@ class TestFindOrganization(TestCase):
         """Test if an organization is found by its name"""
 
         name = 'Example'
-        Organization.objects.create(name=name)
+        Organization.add_root(name=name)
 
         organization = db.find_organization(name)
         self.assertIsInstance(organization, Organization)
@@ -203,7 +204,7 @@ class TestFindOrganization(TestCase):
         """Test whether it raises an exception when the organization is not found"""
 
         name = 'Example'
-        Organization.objects.create(name=name)
+        Organization.add_root(name=name)
 
         with self.assertRaisesRegex(NotFoundError, ORGANIZATION_NOT_FOUND_ERROR):
             db.find_organization('Bitergia')
@@ -213,16 +214,16 @@ class TestFindTeam(TestCase):
     """Unit tests for find_team"""
 
     def setUp(self) -> None:
-        self.org = Organization.objects.create(name='Example')
+        self.org = Organization.add_root(name='Example')
 
     def test_find_team(self):
         """Check if a team is found by its name and organization"""
 
-        Team.add_root(name='Example Subteam', organization=self.org)
+        Group.add_root(name='Example Subteam', parent_org=self.org, type='team')
         team = db.find_team(team_name='Example Subteam', organization=self.org)
 
         self.assertIsInstance(team, Team)
-        self.assertEqual(team.organization.name, 'Example')
+        self.assertEqual(team.parent_org.name, 'Example')
         self.assertEqual(team.name, 'Example Subteam')
         self.assertEqual(team.get_parent(), None)
 
@@ -231,14 +232,6 @@ class TestFindTeam(TestCase):
 
         with self.assertRaisesRegex(NotFoundError, TEAM_NOT_FOUND_ERROR):
             db.find_team('subTeam', self.org)
-
-    def test_org_name_none(self):
-        """Check if teams linked to no organizations can be found"""
-
-        team = Team.add_root(name='Example Team')
-
-        found_team = db.find_team('Example Team')
-        self.assertEqual(team, found_team)
 
     def test_team_name_none(self):
         """Check if finding team fails when team name is `None`"""
@@ -271,7 +264,7 @@ class TestFindDomain(TestCase):
     def setUp(self):
         """Load initial dataset"""
 
-        org = Organization.objects.create(name='Example')
+        org = Organization.add_root(name='Example')
         Domain.objects.create(domain='example.com',
                               organization=org,
                               is_top_domain=True)
@@ -333,8 +326,8 @@ class TestSearchEnrollmentsInPeriod(TestCase):
         individual_a = Individual.objects.create(mk='AAAA')
         individual_b = Individual.objects.create(mk='BBBB')
 
-        example_org = Organization.objects.create(name='Example')
-        bitergia_org = Organization.objects.create(name='Bitergia')
+        example_org = Organization.add_root(name='Example')
+        bitergia_org = Organization.add_root(name='Bitergia')
 
         # Example enrollments
         Enrollment.objects.create(individual=individual_a, organization=example_org,
@@ -383,7 +376,7 @@ class TestSearchEnrollmentsInPeriod(TestCase):
         """Test if an empty set is returned when there are not enrollments for a given period"""
 
         individual_a = Individual.objects.create(mk='AAAA')
-        example_org = Organization.objects.create(name='Example')
+        example_org = Organization.add_root(name='Example')
 
         Enrollment.objects.create(individual=individual_a, organization=example_org,
                                   start=datetime.datetime(1999, 1, 1, tzinfo=UTC),
@@ -399,7 +392,7 @@ class TestSearchEnrollmentsInPeriod(TestCase):
         """Test if an empty set is returned when there identity does not exist"""
 
         individual_a = Individual.objects.create(mk='AAAA')
-        example_org = Organization.objects.create(name='Example')
+        example_org = Organization.add_root(name='Example')
 
         Enrollment.objects.create(individual=individual_a, organization=example_org,
                                   start=datetime.datetime(1999, 1, 1, tzinfo=UTC),
@@ -415,7 +408,7 @@ class TestSearchEnrollmentsInPeriod(TestCase):
         """Test if an empty set is returned when there organization does not exist"""
 
         individual_a = Individual.objects.create(mk='AAAA')
-        example_org = Organization.objects.create(name='Example')
+        example_org = Organization.add_root(name='Example')
 
         Enrollment.objects.create(individual=individual_a, organization=example_org,
                                   start=datetime.datetime(1999, 1, 1, tzinfo=UTC),
@@ -446,11 +439,36 @@ class TestAddOrganization(TestCase):
 
         org = db.add_organization(self.trxl, name)
         self.assertIsInstance(org, Organization)
+        self.assertEqual(org.type, 'organization')
         self.assertEqual(org.name, name)
 
         org = Organization.objects.get(name=name)
         self.assertIsInstance(org, Organization)
         self.assertEqual(org.name, name)
+
+    def test_add_multiple_organizations(self):
+        """Check if more than one organization is added"""
+
+        name = 'Organization 1'
+        org = db.add_organization(self.trxl, name)
+        self.assertIsInstance(org, Organization)
+        self.assertEqual(org.type, 'organization')
+        self.assertEqual(org.name, name)
+
+        name = 'Organization 2'
+        org = db.add_organization(self.trxl, name)
+        self.assertIsInstance(org, Organization)
+        self.assertEqual(org.type, 'organization')
+        self.assertEqual(org.name, name)
+
+        name = 'Organization 3'
+        org = db.add_organization(self.trxl, name)
+        self.assertIsInstance(org, Organization)
+        self.assertEqual(org.type, 'organization')
+        self.assertEqual(org.name, name)
+
+        orgs = Organization.objects.all_organizations()
+        self.assertEqual(len(orgs), 3)
 
     def test_name_none(self):
         """Check whether organizations with None as name cannot be added"""
@@ -534,10 +552,10 @@ class TestDeleteOrganization(TestCase):
     def test_delete_organization(self):
         """Check whether it deletes an organization and its related data"""
 
-        org_ex = Organization.objects.create(name='Example')
+        org_ex = Organization.add_root(name='Example')
         Domain.objects.create(domain='example.org',
                               organization=org_ex)
-        org_bit = Organization.objects.create(name='Bitergia')
+        org_bit = Organization.add_root(name='Bitergia')
 
         jsmith = Individual.objects.create(mk='AAAA')
         Profile.objects.create(name='John Smith',
@@ -578,8 +596,8 @@ class TestDeleteOrganization(TestCase):
     def test_last_modified(self):
         """Check if last modification date is updated"""
 
-        org_ex = Organization.objects.create(name='Example')
-        org_bit = Organization.objects.create(name='Bitergia')
+        org_ex = Organization.add_root(name='Example')
+        org_bit = Organization.add_root(name='Bitergia')
 
         jsmith = Individual.objects.create(mk='AAAA')
         Profile.objects.create(name='John Smith',
@@ -617,7 +635,7 @@ class TestDeleteOrganization(TestCase):
         """Check if the right operations are created when deleting an organization"""
 
         timestamp = datetime_utcnow()
-        org_ex = Organization.objects.create(name='Example')
+        org_ex = Organization.add_root(name='Example')
 
         transactions = Transaction.objects.filter(name='delete_organization')
         trx = transactions[0]
@@ -651,16 +669,17 @@ class TestAddTeam(TestCase):
 
         self.trxl = TransactionsLog.open('add_team', self.ctx)
         self.orgname = "Example"
-        self.org = Organization.objects.create(name=self.orgname)
+        self.org = Organization.add_root(name=self.orgname)
 
     def test_add_team(self):
         """Check if a new team is added"""
 
         team_name = 'subteam'
+
         team = db.add_team(self.trxl, team_name, self.org, None)
         self.assertIsInstance(team, Team)
         self.assertEqual(team.name, team_name)
-        self.assertEqual(team.organization, self.org)
+        self.assertEqual(team.parent_org, self.org)
 
     def test_add_subteam(self):
         """Check if a new subteam is added for specified team"""
@@ -672,26 +691,21 @@ class TestAddTeam(TestCase):
         self.assertIsInstance(subteam, Team)
         self.assertEqual(subteam.get_parent(), team)
         self.assertEqual(subteam.name, 'childteam')
-        self.assertEqual(subteam.organization, self.org)
+        self.assertEqual(subteam.parent_org, self.org)
 
     def test_add_multiple_teams(self):
         """Check if multiple teams can be added"""
 
         parent = db.add_team(self.trxl, 'parent_team', self.org, None)
         db.add_team(self.trxl, 'child_team', self.org, parent)
+        db.add_team(self.trxl, 'team2', self.org, None)
+        db.add_team(self.trxl, 'team3', self.org, None)
+        db.add_team(self.trxl, 'team4', self.org, None)
 
-        teams = Team.objects.all().filter(organization=self.org)
-        self.assertEqual(len(teams), 2)
+        teams = Team.objects.all().filter(parent_org=self.org)
+        self.assertEqual(len(teams), 5)
         for team in teams:
             self.assertIsInstance(team, Team)
-
-    def test_organization_none(self):
-        """Check whether teams linked to no organizations can be added"""
-
-        team = db.add_team(self.trxl, "team", None, None)
-        self.assertIsInstance(team, Team)
-        self.assertEqual(team.name, "team")
-        self.assertEqual(team.organization, None)
 
     def test_team_none(self):
         """Check whether teams with None name cannot be added"""
@@ -740,18 +754,18 @@ class TestAddTeam(TestCase):
     def test_integrity(self):
         """Check whether team with the same team name can be inserted in two diff organizations"""
 
-        org1 = Organization.objects.create(name='Example1')
-        org2 = Organization.objects.create(name='Example2')
+        org1 = Organization.add_root(name='Example1')
+        org2 = Organization.add_root(name='Example2')
         team_name = 'subteam'
 
         team1 = db.add_team(self.trxl, team_name, org1, None)
         team2 = db.add_team(self.trxl, team_name, org2, None)
 
         self.assertIsInstance(team1, Team)
-        self.assertEqual(team1.organization, org1)
+        self.assertEqual(team1.parent_org, org1)
 
         self.assertIsInstance(team2, Team)
-        self.assertEqual(team2.organization, org2)
+        self.assertEqual(team2.parent_org, org2)
 
     def test_integrity_error_no_org_teams(self):
         """Check whether teams with the same team name cannot be inserted when organization is None"""
@@ -762,7 +776,7 @@ class TestAddTeam(TestCase):
             db.add_team(self.trxl, team_name, None, None)
             db.add_team(self.trxl, team_name, None, None)
 
-        teams = Team.objects.all()
+        teams = Team.objects.all_teams()
         self.assertEqual(len(teams), 1)
 
     def test_integrity_no_org_teams(self):
@@ -771,7 +785,7 @@ class TestAddTeam(TestCase):
         team1 = db.add_team(self.trxl, "team1", self.org, None)
         team2 = db.add_team(self.trxl, "team2", self.org, None)
 
-        teams = Team.objects.all()
+        teams = Team.objects.all_teams()
 
         self.assertIsInstance(team1, Team)
         self.assertIsInstance(team2, Team)
@@ -814,13 +828,13 @@ class TestDeleteTeam(TestCase):
         self.ctx = SortingHatContext(self.user)
 
         self.trxl = TransactionsLog.open('delete_team', self.ctx)
-        self.org = Organization.objects.create(name='Example')
+        self.org = Organization.add_root(name='Example')
 
     def test_delete_team(self):
         """Check whether it deletes a team"""
 
-        team = Team.add_root(name='subTeam1', organization=self.org)
-        team.add_child(name='subTeam12', organization=self.org)
+        team = Team.add_root(name='subTeam1', parent_org=self.org)
+        team.add_child(name='subTeam12', parent_org=self.org)
 
         team.refresh_from_db()
         db.delete_team(self.trxl, team)
@@ -835,7 +849,7 @@ class TestDeleteTeam(TestCase):
         """Check if the right operations are created when deleting a team"""
 
         timestamp = datetime_utcnow()
-        team = Team.add_root(name='subTeam1', organization=self.org)
+        team = Team.add_root(name='subTeam1', parent_org=self.org)
 
         db.delete_team(self.trxl, team)
 
@@ -875,7 +889,7 @@ class TestAddDomain(TestCase):
         name = 'Example'
         domain_name = 'example.net'
 
-        org = Organization.objects.create(name=name)
+        org = Organization.add_root(name=name)
         dom = db.add_domain(self.trxl, org, domain_name,
                             is_top_domain=True)
         self.assertIsInstance(dom, Domain)
@@ -894,7 +908,7 @@ class TestAddDomain(TestCase):
     def test_add_multiple_domains(self):
         """Check if multiple domains can be added"""
 
-        org = Organization.objects.create(name='Example')
+        org = Organization.add_root(name='Example')
         db.add_domain(self.trxl, org, 'example.com')
         db.add_domain(self.trxl, org, 'my.example.net',
                       is_top_domain=False)
@@ -919,7 +933,7 @@ class TestAddDomain(TestCase):
     def test_domain_none(self):
         """Check whether domains with None name cannot be added"""
 
-        org = Organization.objects.create(name='Example')
+        org = Organization.add_root(name='Example')
 
         with self.assertRaisesRegex(ValueError, DOMAIN_NAME_NONE_ERROR):
             db.add_domain(self.trxl, org, None)
@@ -931,7 +945,7 @@ class TestAddDomain(TestCase):
     def test_domain_empty(self):
         """Check whether domains with empty names cannot be added"""
 
-        org = Organization.objects.create(name='Example')
+        org = Organization.add_root(name='Example')
 
         with self.assertRaisesRegex(ValueError, DOMAIN_NAME_EMPTY_ERROR):
             db.add_domain(self.trxl, org, '')
@@ -943,7 +957,7 @@ class TestAddDomain(TestCase):
     def test_domain_whitespaces(self):
         """Check whether domains with names composed by whitespaces cannot be added"""
 
-        org = Organization.objects.create(name='Example')
+        org = Organization.add_root(name='Example')
 
         with self.assertRaisesRegex(ValueError, DOMAIN_NAME_WHITESPACES_ERROR):
             db.add_domain(self.trxl, org, ' ')
@@ -961,7 +975,7 @@ class TestAddDomain(TestCase):
     def test_top_domain_invalid_type(self):
         """Check type values of top domain flag"""
 
-        org = Organization.objects.create(name='Example')
+        org = Organization.add_root(name='Example')
 
         with self.assertRaisesRegex(ValueError, TOP_DOMAIN_VALUE_ERROR):
             db.add_domain(self.trxl, org, 'example.net', is_top_domain=1)
@@ -976,7 +990,7 @@ class TestAddDomain(TestCase):
     def test_integrity_error(self):
         """Check whether domains with the same domain name cannot be inserted"""
 
-        org = Organization.objects.create(name='Example')
+        org = Organization.add_root(name='Example')
         domain_name = 'example.org'
 
         with self.assertRaisesRegex(AlreadyExistsError, DUPLICATED_DOM_ERROR):
@@ -987,7 +1001,7 @@ class TestAddDomain(TestCase):
         """Check if the right operations are created when adding a domain"""
 
         timestamp = datetime_utcnow()
-        org = Organization.objects.create(name='Example')
+        org = Organization.add_root(name='Example')
 
         dom = db.add_domain(self.trxl, org, 'example.net',
                             is_top_domain=True)
@@ -1027,7 +1041,7 @@ class TestDeleteDomain(TestCase):
     def test_delete_domain(self):
         """Check whether it deletes a domain"""
 
-        org = Organization.objects.create(name='Example')
+        org = Organization.add_root(name='Example')
         dom = Domain.objects.create(domain='example.org', organization=org)
         Domain.objects.create(domain='example.com', organization=org)
 
@@ -1049,7 +1063,7 @@ class TestDeleteDomain(TestCase):
         """Check if the right operations are created when deleting a domain"""
 
         timestamp = datetime_utcnow()
-        org = Organization.objects.create(name='Example')
+        org = Organization.add_root(name='Example')
         dom = Domain.objects.create(domain='example.org', organization=org)
 
         db.delete_domain(self.trxl, dom)
@@ -1207,8 +1221,8 @@ class TestDeleteIndividual(TestCase):
     def test_delete_individual(self):
         """Check if it deletes an individual"""
 
-        org_ex = Organization.objects.create(name='Example')
-        org_bit = Organization.objects.create(name='Bitergia')
+        org_ex = Organization.add_root(name='Example')
+        org_bit = Organization.add_root(name='Bitergia')
 
         jsmith = Individual.objects.create(mk='AAAA')
         Profile.objects.create(name='John Smith',
@@ -1993,7 +2007,7 @@ class TestAddEnrollment(TestCase):
         mk = '1234567890ABCDFE'
 
         individual = Individual.objects.create(mk=mk)
-        org = Organization.objects.create(name='Example')
+        org = Organization.add_root(name='Example')
 
         start = datetime.datetime(1999, 1, 1, tzinfo=UTC)
         end = datetime.datetime(2000, 1, 1, tzinfo=UTC)
@@ -2021,7 +2035,7 @@ class TestAddEnrollment(TestCase):
         name = 'Example'
 
         individual = Individual.objects.create(mk='1234567890ABCDFE')
-        org = Organization.objects.create(name='Example')
+        org = Organization.add_root(name='Example')
 
         db.add_enrollment(self.trxl, individual, org, start=datetime.datetime(1999, 1, 1, tzinfo=UTC))
         db.add_enrollment(self.trxl, individual, org, end=datetime.datetime(2005, 1, 1, tzinfo=UTC))
@@ -2039,7 +2053,7 @@ class TestAddEnrollment(TestCase):
         self.assertEqual(enrollment.end, datetime.datetime(2005, 1, 1, tzinfo=UTC))
         self.assertIsInstance(enrollment.individual, Individual)
         self.assertEqual(enrollment.individual.mk, mk)
-        self.assertIsInstance(enrollment.organization, Organization)
+        self.assertIsInstance(enrollment.organization, Group)
         self.assertEqual(enrollment.organization.name, name)
 
         enrollment = enrollments[1]
@@ -2047,7 +2061,7 @@ class TestAddEnrollment(TestCase):
         self.assertEqual(enrollment.end, MAX_PERIOD_DATE)
         self.assertIsInstance(enrollment.individual, Individual)
         self.assertEqual(enrollment.individual.mk, mk)
-        self.assertIsInstance(enrollment.organization, Organization)
+        self.assertIsInstance(enrollment.organization, Group)
         self.assertEqual(enrollment.organization.name, name)
 
         enrollment = enrollments[2]
@@ -2055,14 +2069,14 @@ class TestAddEnrollment(TestCase):
         self.assertEqual(enrollment.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
         self.assertIsInstance(enrollment.individual, Individual)
         self.assertEqual(enrollment.individual.mk, mk)
-        self.assertIsInstance(enrollment.organization, Organization)
+        self.assertIsInstance(enrollment.organization, Group)
         self.assertEqual(enrollment.organization.name, name)
 
     def test_last_modified(self):
         """Check if last modification date is updated"""
 
         individual = Individual.objects.create(mk='1234567890ABCDFE')
-        org = Organization.objects.create(name='Example')
+        org = Organization.add_root(name='Example')
 
         before_dt = datetime_utcnow()
         db.add_enrollment(self.trxl, individual, org, start=MIN_PERIOD_DATE, end=MAX_PERIOD_DATE)
@@ -2077,7 +2091,7 @@ class TestAddEnrollment(TestCase):
         """Check if an enrollment cannot be added when from_date is None"""
 
         individual = Individual.objects.create(mk='1234567890ABCDFE')
-        org = Organization.objects.create(name='Example')
+        org = Organization.add_root(name='Example')
 
         with self.assertRaisesRegex(ValueError, START_DATE_NONE_ERROR):
             db.add_enrollment(self.trxl, individual, org,
@@ -2091,7 +2105,7 @@ class TestAddEnrollment(TestCase):
         """Check if an enrollment cannot be added when to_date is None"""
 
         individual = Individual.objects.create(mk='1234567890ABCDFE')
-        org = Organization.objects.create(name='Example')
+        org = Organization.add_root(name='Example')
 
         with self.assertRaisesRegex(ValueError, END_DATE_NONE_ERROR):
             db.add_enrollment(self.trxl, individual, org,
@@ -2108,7 +2122,7 @@ class TestAddEnrollment(TestCase):
 
         # Load initial dataset
         individual = Individual.objects.create(mk=mk)
-        org = Organization.objects.create(name='Example')
+        org = Organization.add_root(name='Example')
 
         start = datetime.datetime(1999, 1, 1, tzinfo=UTC)
         end = datetime.datetime(2000, 1, 1, tzinfo=UTC)
@@ -2123,7 +2137,7 @@ class TestAddEnrollment(TestCase):
         """Check whether enrollments cannot be added giving invalid period ranges"""
 
         individual = Individual.objects.create(mk='1234567890ABCDFE')
-        org = Organization.objects.create(name='Example')
+        org = Organization.add_root(name='Example')
 
         data = {
             'start': r'2001-01-01 00:00:00\+00:00',
@@ -2144,7 +2158,7 @@ class TestAddEnrollment(TestCase):
         """Check whether enrollments cannot be added giving a range out of bounds"""
 
         individual = Individual.objects.create(mk='1234567890ABCDFE')
-        org = Organization.objects.create(name='Example')
+        org = Organization.add_root(name='Example')
 
         data = {
             'type': 'start',
@@ -2194,7 +2208,7 @@ class TestAddEnrollment(TestCase):
         """Check if if fails when the individual is locked"""
 
         jsmith = Individual.objects.create(mk='AAAA', is_locked=True)
-        org = Organization.objects.create(name='Example')
+        org = Organization.add_root(name='Example')
         start = datetime.datetime(1999, 1, 1, tzinfo=UTC)
         end = datetime.datetime(2000, 1, 1, tzinfo=UTC)
 
@@ -2210,7 +2224,7 @@ class TestAddEnrollment(TestCase):
 
         # Load initial dataset
         individual = Individual.objects.create(mk=mk)
-        org = Organization.objects.create(name='Example')
+        org = Organization.add_root(name='Example')
 
         start = datetime.datetime(1999, 1, 1, tzinfo=UTC)
         end = datetime.datetime(2000, 1, 1, tzinfo=UTC)
@@ -2263,13 +2277,13 @@ class TestDeleteEnrollment(TestCase):
         Identity.objects.create(uuid='0001', name='John Smith',
                                 individual=jsmith)
 
-        example_org = Organization.objects.create(name='Example')
+        example_org = Organization.add_root(name='Example')
         Enrollment.objects.create(individual=jsmith, organization=example_org,
                                   start=from_date, end=first_period)
         enrollment = Enrollment.objects.create(individual=jsmith, organization=example_org,
                                                start=second_period, end=to_date)
 
-        bitergia_org = Organization.objects.create(name='Bitergia')
+        bitergia_org = Organization.add_root(name='Bitergia')
         Enrollment.objects.create(individual=jsmith, organization=bitergia_org,
                                   start=first_period, end=second_period)
 
@@ -2302,7 +2316,7 @@ class TestDeleteEnrollment(TestCase):
         Identity.objects.create(uuid='0001', name='John Smith',
                                 individual=jsmith)
 
-        example_org = Organization.objects.create(name='Example')
+        example_org = Organization.add_root(name='Example')
         enrollment = Enrollment.objects.create(individual=jsmith, organization=example_org,
                                                start=from_date, end=to_date)
 
@@ -2320,7 +2334,7 @@ class TestDeleteEnrollment(TestCase):
 
         jsmith = Individual.objects.create(mk='AAAA', is_locked=True)
 
-        org = Organization.objects.create(name='Example')
+        org = Organization.add_root(name='Example')
         start = datetime.datetime(1999, 1, 1, tzinfo=UTC)
         end = datetime.datetime(2000, 1, 1, tzinfo=UTC)
 
@@ -2350,13 +2364,13 @@ class TestDeleteEnrollment(TestCase):
         Identity.objects.create(uuid='0001', name='John Smith',
                                 individual=jsmith)
 
-        example_org = Organization.objects.create(name='Example')
+        example_org = Organization.add_root(name='Example')
         Enrollment.objects.create(individual=jsmith, organization=example_org,
                                   start=from_date, end=first_period)
         enrollment = Enrollment.objects.create(individual=jsmith, organization=example_org,
                                                start=second_period, end=to_date)
 
-        bitergia_org = Organization.objects.create(name='Bitergia')
+        bitergia_org = Organization.add_root(name='Bitergia')
         Enrollment.objects.create(individual=jsmith, organization=bitergia_org,
                                   start=first_period, end=second_period)
         jsmith.refresh_from_db()

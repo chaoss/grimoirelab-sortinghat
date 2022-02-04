@@ -40,7 +40,7 @@ from enum import Enum
 
 from grimoirelab_toolkit.datetime import datetime_utcnow
 
-from treebeard.mp_tree import MP_Node
+from treebeard.mp_tree import MP_Node, MP_NodeQuerySet
 
 # Default dates for periods
 MIN_PERIOD_DATE = datetime.datetime(1900, 1, 1, 0, 0, 0,
@@ -134,34 +134,73 @@ class Operation(Model):
         return '%s - %s - %s - %s - %s' % (self.ouid, self.trx, self.op_type, self.entity_type, self.target)
 
 
-class Organization(EntityBase):
+class Group(MP_Node, EntityBase):
+    class GroupType(Enum):
+        organization = 'Organization'
+        team = 'Team'
+
+        @classmethod
+        def choices(cls):
+            return ((item.name, item.value) for item in cls)
+
+        def __str__(self):
+            return self.value
+
     name = CharField(max_length=MAX_SIZE_CHAR_INDEX)
+    type = CharField(max_length=12, choices=GroupType.choices())
+    parent_org = ForeignKey('self', related_name='teams', on_delete=CASCADE,
+                            blank=True, null=True)
 
     class Meta:
-        db_table = 'organizations'
-        unique_together = ('name',)
+        db_table = 'groups'
+        unique_together = ('name', 'parent_org')
 
     def __str__(self):
         return self.name
 
 
-class Team(MP_Node, EntityBase):
-    name = CharField(max_length=MAX_SIZE_CHAR_INDEX)
-    organization = ForeignKey(Organization, related_name='teams', on_delete=CASCADE,
-                              blank=True, null=True)
+class OrganizationQuerySet(MP_NodeQuerySet):
+    def all_organizations(self):
+        return self.filter(type='organization')
+
+
+class Organization(Group):
+    objects = OrganizationQuerySet.as_manager()
 
     class Meta:
-        db_table = 'teams'
-        unique_together = ('name', 'organization',)
+        proxy = True
 
-    def __str__(self):
-        return self.name
+    def __init__(self, *args, **kwargs):
+        self._meta.get_field('type').default = 'organization'
+        super(Organization, self).__init__(*args, **kwargs)
+
+
+class TeamQuerySet(MP_NodeQuerySet):
+    def all_teams(self):
+        return self.filter(type='team')
+
+    def team_root_nodes(self):
+        return self.filter(type='team', depth='2', parent_org__isnull=False)
+
+    def groups(self):
+        return self.filter(type='team', depth='1', parent_org=None)
+
+
+class Team(Group):
+    objects = TeamQuerySet.as_manager()
+
+    class Meta:
+        proxy = True
+
+    def __init__(self, *args, **kwargs):
+        self._meta.get_field('type').default = 'team'
+        super(Team, self).__init__(*args, **kwargs)
 
 
 class Domain(EntityBase):
     domain = CharField(max_length=MAX_SIZE_CHAR_FIELD)
     is_top_domain = BooleanField(default=False)
-    organization = ForeignKey(Organization, related_name='domains', on_delete=CASCADE)
+    organization = ForeignKey(Group, related_name='domains', on_delete=CASCADE)
 
     class Meta:
         db_table = 'domains_organizations'
@@ -234,7 +273,7 @@ class Profile(EntityBase):
 class Enrollment(EntityBase):
     individual = ForeignKey(Individual, related_name='enrollments',
                             on_delete=CASCADE, db_column='mk')
-    organization = ForeignKey(Organization, related_name='enrollments',
+    organization = ForeignKey(Group, related_name='enrollments',
                               on_delete=CASCADE)
     start = DateTimeField(default=MIN_PERIOD_DATE)
     end = DateTimeField(default=MAX_PERIOD_DATE)

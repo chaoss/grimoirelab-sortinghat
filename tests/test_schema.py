@@ -51,6 +51,7 @@ from sortinghat.core.context import SortingHatContext
 from sortinghat.core.log import TransactionsLog
 from sortinghat.core.models import (Organization,
                                     Team,
+                                    Group,
                                     Domain,
                                     Country,
                                     Individual,
@@ -226,7 +227,7 @@ SH_TEAMS_QUERY = """{
   teams {
     entities {
       name
-      organization {
+      parentOrg {
         name
       }
     }
@@ -240,7 +241,7 @@ SH_TEAMS_QUERY_FILTER = """{
   ){
     entities {
         name
-        organization {
+        parentOrg {
           name
         }
       }
@@ -254,7 +255,7 @@ SH_TEAMS_QUERY_TERM_FILTER = """{
   ){
     entities {
       name
-      organization {
+      parentOrg {
         name
       }
     }
@@ -268,7 +269,7 @@ SH_TEAMS_QUERY_ORG_FILTER = """{
   ){
     entities {
       name
-      organization {
+      parentOrg {
         name
       }
     }
@@ -282,7 +283,7 @@ SH_TEAMS_QUERY_PARENT_FILTER = """{
   ){
     entities {
       name
-      organization {
+      parentOrg {
         name
       }
     }
@@ -297,7 +298,7 @@ SH_TEAMS_QUERY_PARENT_ORG_FILTERS = """{
     ){
       entities {
         name
-        organization {
+        parentOrg {
           name
         }
       }
@@ -327,7 +328,7 @@ SH_SUBTEAMS_QUERY = """{
   teams {
     entities {
       name
-      organization {
+      parentOrg {
         name
       }
       subteams {
@@ -343,7 +344,7 @@ SH_GROUPS_QUERY = """{
   groups {
     entities {
       name
-      organization {
+      parentOrg {
         name
       }
     }
@@ -353,7 +354,7 @@ SH_SUBGROUPS_QUERY = """{
   groups {
     entities {
       name
-      organization {
+      parentOrg {
         name
       }
       subteams {
@@ -384,7 +385,7 @@ SH_GROUPS_QUERY_TERM_FILTER = """{
   ){
     entities {
       name
-      organization {
+      parentOrg {
         name
       }
     }
@@ -398,7 +399,7 @@ SH_GROUPS_QUERY_PARENT_FILTER = """{
   ){
     entities {
       name
-      organization {
+      parentOrg {
         name
       }
     }
@@ -1464,12 +1465,12 @@ class TestQueryOrganizations(django.test.TestCase):
     def test_organizations(self):
         """Check if it returns the registry of organizations"""
 
-        org = Organization.objects.create(name='Example')
+        org = Organization.add_root(name='Example')
         Domain.objects.create(domain='example.com', organization=org)
         Domain.objects.create(domain='example.org', organization=org)
-        org = Organization.objects.create(name='Bitergia')
+        org = Organization.add_root(name='Bitergia')
         Domain.objects.create(domain='bitergia.com', organization=org)
-        _ = Organization.objects.create(name='LibreSoft')
+        _ = Organization.add_root(name='LibreSoft')
 
         # Tests
         client = graphene.test.Client(schema)
@@ -1504,9 +1505,9 @@ class TestQueryOrganizations(django.test.TestCase):
     def test_filter_registry(self):
         """Check whether it returns the organization searched when using name filter"""
 
-        org1 = Organization.objects.create(name='Example')
-        org2 = Organization.objects.create(name='Bitergia')
-        org3 = Organization.objects.create(name='LibreSoft')
+        org1 = Organization.add_root(name='Example')
+        org2 = Organization.add_root(name='Bitergia')
+        org3 = Organization.add_root(name='LibreSoft')
 
         client = graphene.test.Client(schema)
         test_query = SH_ORGS_QUERY_FILTER % 'Bitergia'
@@ -1523,9 +1524,9 @@ class TestQueryOrganizations(django.test.TestCase):
     def test_filter_non_exist_registry(self):
         """Check whether it returns an empty list when searched with a non existing organization"""
 
-        org1 = Organization.objects.create(name='Example')
-        org2 = Organization.objects.create(name='Bitergia')
-        org3 = Organization.objects.create(name='LibreSoft')
+        org1 = Organization.add_root(name='Example')
+        org2 = Organization.add_root(name='Bitergia')
+        org3 = Organization.add_root(name='LibreSoft')
 
         client = graphene.test.Client(schema)
         test_query = SH_ORGS_QUERY_FILTER % 'Test'
@@ -1538,9 +1539,9 @@ class TestQueryOrganizations(django.test.TestCase):
     def test_filter_term(self):
         """Check whether it returns the organization searched when using term filter"""
 
-        org1 = Organization.objects.create(name='Example')
-        org2 = Organization.objects.create(name='Bitergia')
-        org3 = Organization.objects.create(name='LibreSoft')
+        org1 = Organization.add_root(name='Example')
+        org2 = Organization.add_root(name='Bitergia')
+        org3 = Organization.add_root(name='LibreSoft')
         Domain.objects.create(domain='domain1.com', organization=org1)
         Domain.objects.create(domain='domain2.com', organization=org2)
         Domain.objects.create(domain='domain3.com', organization=org3)
@@ -1576,9 +1577,9 @@ class TestQueryOrganizations(django.test.TestCase):
     def test_pagination(self):
         """Check whether it returns the organizations searched when using pagination"""
 
-        org1 = Organization.objects.create(name='Example')
-        org2 = Organization.objects.create(name='Bitergia')
-        org3 = Organization.objects.create(name='LibreSoft')
+        org1 = Organization.add_root(name='Example')
+        org2 = Organization.add_root(name='Bitergia')
+        org3 = Organization.add_root(name='LibreSoft')
 
         client = graphene.test.Client(schema)
         test_query = SH_ORGS_QUERY_PAGINATION % (1, 2)
@@ -1630,16 +1631,17 @@ class TestQueryTeams(django.test.TestCase):
         self.user = get_user_model().objects.create(username='test')
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
+        self.ctx = SortingHatContext(self.user)
 
     def test_teams(self):
         """Check if it returns the registry of teams"""
 
-        example_org = Organization.objects.create(name='Example')
-        Team.add_root(name='Example_team', organization=example_org)
-        bitergia_org = Organization.objects.create(name='Bitergia')
-        team = Team.add_root(name='Bitergia_team', organization=bitergia_org)
-        subteam = team.add_child(name='Bitergia_subteam', organization=bitergia_org)
-        noorgterm = Team.add_root(name='Mozilla', organization=None)
+        example_org = api.add_organization(self.ctx, 'Example')
+        api.add_team(self.ctx, 'Example_team', organization='Example')
+        bitergia_org = api.add_organization(self.ctx, 'Bitergia')
+        team = api.add_team(self.ctx, 'Bitergia_team', organization='Bitergia')
+        subteam = api.add_team(self.ctx, 'Bitergia_subteam', organization='Bitergia')
+        noorgterm = api.add_team(self.ctx, 'Mozilla')
 
         # Tests
         client = graphene.test.Client(schema)
@@ -1667,11 +1669,22 @@ class TestQueryTeams(django.test.TestCase):
         self.assertListEqual(orgs, [])
 
     def test_subteams(self):
-        chaoss_org = Organization.objects.create(name='Grimoirelab')
-        percevalteam = Team.add_root(name='Perceval', organization=chaoss_org)
-        percevalsubteam1 = percevalteam.add_child(name='Perceval Slack', organization=chaoss_org)
-        percevalsubteam2 = percevalteam.add_child(name='Perceval Git', organization=chaoss_org)
-        percevalsubteam3 = percevalsubteam2.add_child(name='Perceval Gitlab', organization=chaoss_org)
+        chaoss_org = api.add_organization(self.ctx, 'Grimoirelab')
+        percevalteam = api.add_team(self.ctx,
+                                    'Perceval',
+                                    organization='Grimoirelab')
+        percevalsubteam1 = api.add_team(self.ctx,
+                                        'Perceval Slack',
+                                        organization='Grimoirelab',
+                                        parent_name='Perceval')
+        percevalsubteam2 = api.add_team(self.ctx,
+                                        'Perceval Git',
+                                        organization='Grimoirelab',
+                                        parent_name='Perceval')
+        percevalsubteam3 = api.add_team(self.ctx,
+                                        'Perceval Gitlab',
+                                        organization='Grimoirelab',
+                                        parent_name='Perceval Git')
 
         # Tests
         client = graphene.test.Client(schema)
@@ -1714,8 +1727,8 @@ class TestQueryTeams(django.test.TestCase):
     def test_filter_non_exist_registry(self):
         """Check whether it returns an empty list when searched with a non existing team"""
 
-        example_org = Organization.objects.create(name='Example')
-        Team.add_root(name='Example_team1', organization=example_org)
+        api.add_organization(self.ctx, 'Example')
+        api.add_team(self.ctx, 'Example_team1', organization='Example')
 
         client = graphene.test.Client(schema)
         test_query = SH_TEAMS_QUERY_FILTER % 'Example'
@@ -1728,10 +1741,10 @@ class TestQueryTeams(django.test.TestCase):
     def test_filter_term(self):
         """Check whether it returns the teams searched when using term filter"""
 
-        example_org = Organization.objects.create(name='Example')
-        team1 = Team.add_root(name='team1', organization=example_org)
-        Team.add_root(name='team2', organization=example_org)
-        Team.add_root(name='team3', organization=example_org)
+        api.add_organization(self.ctx, 'Example')
+        team1 = api.add_team(self.ctx, 'team1', organization='Example')
+        api.add_team(self.ctx, 'team2', organization='Example')
+        api.add_team(self.ctx, 'team3', organization='Example')
 
         client = graphene.test.Client(schema)
 
@@ -1763,11 +1776,14 @@ class TestQueryTeams(django.test.TestCase):
     def test_filter_organization(self):
         """Check whether it returns the correct teams when using organization filter"""
 
-        example_org = Organization.objects.create(name='Example')
-        example_team = Team.add_root(name='example_team', organization=example_org)
-        example_subteam = example_team.add_child(name='example_subteam', organization=example_org)
-        bitergia_org = Organization.objects.create(name='Bitergia')
-        Team.add_root(name='bitergia_team', organization=bitergia_org)
+        example_org = api.add_organization(self.ctx, 'Example')
+        example_team = api.add_team(self.ctx, 'example_team', organization='Example')
+        example_subteam = api.add_team(self.ctx,
+                                       'example_subteam',
+                                       organization='Example',
+                                       parent_name='example_team')
+        api.add_organization(self.ctx, 'Bitergia')
+        api.add_team(self.ctx, 'bitergia_team', organization='Bitergia')
 
         client = graphene.test.Client(schema)
 
@@ -1782,14 +1798,14 @@ class TestQueryTeams(django.test.TestCase):
 
         team = teams[0]
         self.assertEqual(team['name'], example_team.name)
-        self.assertEqual(team['organization']['name'], example_org.name)
+        self.assertEqual(team['parentOrg']['name'], example_org.name)
 
     def test_filter_parent(self):
         """Check whether it returns the correct teams when using parent filter"""
 
-        team = Team.add_root(name='example_team')
-        subteam1 = team.add_child(name='subteam1')
-        subteam2 = subteam1.add_child(name='subteam2')
+        team = api.add_team(self.ctx, 'example_team')
+        subteam1 = api.add_team(self.ctx, 'subteam1', parent_name='example_team')
+        subteam2 = api.add_team(self.ctx, 'subteam2', parent_name='subteam1')
 
         client = graphene.test.Client(schema)
 
@@ -1809,13 +1825,15 @@ class TestQueryTeams(django.test.TestCase):
         """Check whether it returns the correct teams when using parent filter
            for a particular organization"""
 
-        example_org = Organization.objects.create(name='Example')
-        bitergia_org = Organization.objects.create(name='Bitergia')
+        example_org = api.add_organization(self.ctx, 'Example')
+        bitergia_org = api.add_organization(self.ctx, 'Bitergia')
 
-        example_team = Team.add_root(name='example_team', organization=example_org)
-        example_subteam = example_team.add_child(name='example_subteam', organization=example_org)
+        example_team = api.add_team(self.ctx, 'example_team', organization='Example')
+        example_subteam = api.add_team(self.ctx, 'example_subteam',
+                                       organization='Example',
+                                       parent_name='example_team')
 
-        _ = Team.add_root(name='example_team', organization=bitergia_org)
+        _ = api.add_team(self.ctx, 'example_team', organization='Bitergia')
 
         client = graphene.test.Client(schema)
         test_query = SH_TEAMS_QUERY_PARENT_ORG_FILTERS % ('example_team', 'Example')
@@ -1831,10 +1849,10 @@ class TestQueryTeams(django.test.TestCase):
     def test_pagination(self):
         """Check whether it returns the teams searched when using pagination"""
 
-        example_org = Organization.objects.create(name='Example')
-        team1 = Team.add_root(name='team1', organization=example_org)
-        team2 = Team.add_root(name='team2', organization=example_org)
-        Team.add_root(name='team3', organization=example_org)
+        example_org = api.add_organization(self.ctx, 'Example')
+        team1 = api.add_team(self.ctx, 'team1', organization='Example')
+        team2 = api.add_team(self.ctx, 'team2', organization='Example')
+        api.add_team(self.ctx, 'team3', organization='Example')
 
         client = graphene.test.Client(schema)
         test_query = SH_TEAMS_QUERY_PAGINATION % (1, 2)
@@ -1886,14 +1904,15 @@ class TestQueryGroups(django.test.TestCase):
         self.user = get_user_model().objects.create(username='test')
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
+        self.ctx = SortingHatContext(self.user)
 
     def test_groups(self):
         """Check if it returns the registry of groups"""
 
-        example_org = Organization.objects.create(name='Example')
-        Team.add_root(name='Example_team', organization=example_org)
-        no_org_group = Team.add_root(name='Example_team', organization=None)
-        no_org_group.add_child(name='Example_subteam', organization=None)
+        api.add_organization(self.ctx, name='Example')
+        api.add_team(self.ctx, 'Example_team', organization='Example')
+        no_org_group = api.add_team(self.ctx, 'Example_team')
+        api.add_team(self.ctx, 'Example_subteam', parent_name='Example_team')
 
         # Tests
         client = graphene.test.Client(schema)
@@ -1917,10 +1936,10 @@ class TestQueryGroups(django.test.TestCase):
     def test_subteams(self):
         """Check if it returns the subteams of groups"""
 
-        percevalteam = Team.add_root(name='Perceval', organization=None)
-        percevalsubteam1 = percevalteam.add_child(name='Perceval Slack', organization=None)
-        percevalsubteam2 = percevalteam.add_child(name='Perceval Git', organization=None)
-        percevalsubteam3 = percevalsubteam2.add_child(name='Perceval Gitlab', organization=None)
+        percevalteam = api.add_team(self.ctx, 'Perceval')
+        percevalsubteam1 = api.add_team(self.ctx, 'Perceval Slack', parent_name='Perceval')
+        percevalsubteam2 = api.add_team(self.ctx, 'Perceval Git', parent_name='Perceval')
+        percevalsubteam3 = api.add_team(self.ctx, 'Perceval Gitlab', parent_name='Perceval Git')
 
         # Tests
         client = graphene.test.Client(schema)
@@ -1963,7 +1982,7 @@ class TestQueryGroups(django.test.TestCase):
     def test_filter_non_exist_registry(self):
         """Check whether it returns an empty list when searched with a non existing team"""
 
-        Team.add_root(name='Example_team1', organization=None)
+        Team.add_root(name='Example_team1', parent_org=None)
 
         client = graphene.test.Client(schema)
         test_query = SH_GROUPS_QUERY_FILTER % 'Example'
@@ -1975,9 +1994,9 @@ class TestQueryGroups(django.test.TestCase):
     def test_filter_term(self):
         """Check whether it returns the groups searched when using term filter"""
 
-        group1 = Team.add_root(name='team1', organization=None)
-        Team.add_root(name='team2', organization=None)
-        Team.add_root(name='team3', organization=None)
+        group1 = Team.add_root(name='team1', parent_org=None)
+        Team.add_root(name='team2', parent_org=None)
+        Team.add_root(name='team3', parent_org=None)
 
         client = graphene.test.Client(schema)
 
@@ -2030,9 +2049,9 @@ class TestQueryGroups(django.test.TestCase):
     def test_pagination(self):
         """Check whether it returns the groups searched when using pagination"""
 
-        team1 = Team.add_root(name='team1', organization=None)
-        team2 = Team.add_root(name='team2', organization=None)
-        Team.add_root(name='team3', organization=None)
+        team1 = Team.add_root(name='team1', parent_org=None)
+        team2 = Team.add_root(name='team2', parent_org=None)
+        Team.add_root(name='team3', parent_org=None)
 
         client = graphene.test.Client(schema)
         test_query = SH_GROUPS_QUERY_PAGINATION % (1, 2)
@@ -2091,8 +2110,8 @@ class TestQueryIndividuals(django.test.TestCase):
                                     name='United States of America',
                                     alpha3='USA')
 
-        org_ex = Organization.objects.create(name='Example')
-        org_bit = Organization.objects.create(name='Bitergia')
+        org_ex = Organization.add_root(name='Example')
+        org_bit = Organization.add_root(name='Bitergia')
 
         indv = Individual.objects.create(mk='a9b403e150dd4af8953a52a4bb841051e4b705d9')
         Profile.objects.create(name=None,
@@ -2231,8 +2250,8 @@ class TestQueryIndividuals(django.test.TestCase):
                                     name='United States of America',
                                     alpha3='USA')
 
-        org_ex = Organization.objects.create(name='Example')
-        org_bit = Organization.objects.create(name='Bitergia')
+        org_ex = Organization.add_root(name='Example')
+        org_bit = Organization.add_root(name='Bitergia')
 
         indv = Individual.objects.create(mk='a9b403e150dd4af8953a52a4bb841051e4b705d9')
         Profile.objects.create(name=None,
@@ -2387,8 +2406,8 @@ class TestQueryIndividuals(django.test.TestCase):
                                     name='United States of America',
                                     alpha3='USA')
 
-        org_ex = Organization.objects.create(name='Example')
-        org_bit = Organization.objects.create(name='Bitergia')
+        org_ex = Organization.add_root(name='Example')
+        org_bit = Organization.add_root(name='Bitergia')
 
         indv = Individual.objects.create(mk='a9b403e150dd4af8953a52a4bb841051e4b705d9')
         Profile.objects.create(name=None,
@@ -2711,8 +2730,8 @@ class TestQueryIndividuals(django.test.TestCase):
                                     name='United States of America',
                                     alpha3='USA')
 
-        org_ex = Organization.objects.create(name='Example')
-        org_bit = Organization.objects.create(name='Bitergia')
+        org_ex = Organization.add_root(name='Example')
+        org_bit = Organization.add_root(name='Bitergia')
 
         indv = Individual.objects.create(mk='a9b403e150dd4af8953a52a4bb841051e4b705d9',
                                          is_locked=True)
@@ -2979,7 +2998,7 @@ class TestQueryIndividuals(django.test.TestCase):
         """Check whether it returns the individual searched when using an enrollment date filter"""
 
         # Individual is enrolled 1999-2000
-        org = Organization.objects.create(name='Bitergia')
+        org = Organization.add_root(name='Bitergia')
         indv = Individual.objects.create(mk='17ab00ed3825ec2f50483e33c88df223264182ba')
         Enrollment.objects.create(individual=indv, organization=org,
                                   start=datetime.datetime(1999, 1, 1, 0, 0, 0,
@@ -3101,7 +3120,7 @@ class TestQueryIndividuals(django.test.TestCase):
     def test_filter_is_enrolled(self):
         """Check whether it returns the uuids searched when using isEnrolled filter"""
 
-        org = Organization.objects.create(name='Bitergia')
+        org = Organization.add_root(name='Bitergia')
         indv1 = Individual.objects.create(mk='17ab00ed3825ec2f50483e33c88df223264182ba')
         indv2 = Individual.objects.create(mk='c6d2504fde0e34b78a185c4b709e5442d045451c')
         Enrollment.objects.create(individual=indv1, organization=org)
@@ -3407,8 +3426,8 @@ class TestQueryIndividuals(django.test.TestCase):
     def test_filter_enrollment(self):
         """Check whether it returns the uuid searched when using enrollment filter"""
 
-        org1 = Organization.objects.create(name='Bitergia')
-        org2 = Organization.objects.create(name='Bit Company')
+        org1 = Organization.add_root(name='Bitergia')
+        org2 = Organization.add_root(name='Bit Company')
         indv1 = Individual.objects.create(mk='a9b403e150dd4af8953a52a4bb841051e4b705d9')
         indv2 = Individual.objects.create(mk='185c4b709e5446d250b4fde0e34b78a2b4fde0e3')
         Enrollment.objects.create(individual=indv1, organization=org1)
@@ -4819,10 +4838,10 @@ class TestDeleteOrganizationMutation(django.test.TestCase):
     def test_delete_organization(self):
         """Check whether it deletes an organization"""
 
-        org_ex = Organization.objects.create(name='Example')
+        org_ex = Organization.add_root(name='Example')
         Domain.objects.create(domain='example.org',
                               organization=org_ex)
-        org_bit = Organization.objects.create(name='Bitergia')
+        org_bit = Organization.add_root(name='Bitergia')
 
         jsmith = Individual.objects.create(mk='AAAA')
         Profile.objects.create(name='John Smith',
@@ -4871,7 +4890,7 @@ class TestDeleteOrganizationMutation(django.test.TestCase):
         self.assertEqual(msg, ORGANIZATION_EXAMPLE_DOES_NOT_EXIST_ERROR)
 
         # It should not remove anything
-        Organization.objects.create(name='Bitergia')
+        Organization.add_root(name='Bitergia')
 
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, ORGANIZATION_EXAMPLE_DOES_NOT_EXIST_ERROR)
@@ -4902,7 +4921,7 @@ class TestAddTeamMutation(django.test.TestCase):
         addTeam(teamName: "Example_team", organization: "Example") {
           team {
             name
-            organization {
+            parentOrg {
               name
             }
           }
@@ -4915,7 +4934,7 @@ class TestAddTeamMutation(django.test.TestCase):
             addTeam(teamName: "Example_subteam", parentName: "Example_team") {
               team {
                 name
-                organization {
+                parentOrg {
                   name
                 }
               }
@@ -4938,7 +4957,7 @@ class TestAddTeamMutation(django.test.TestCase):
         addTeam(teamName: "Example_team") {
           team {
             name
-            organization {
+            parentOrg {
               name
             }
           }
@@ -4956,7 +4975,7 @@ class TestAddTeamMutation(django.test.TestCase):
     def test_add_team(self):
         """Check if a new team is added"""
 
-        Organization.objects.create(name='Example')
+        Organization.add_root(name='Example')
 
         client = graphene.test.Client(schema)
         executed = client.execute(self.SH_ADD_TEAM,
@@ -4965,10 +4984,10 @@ class TestAddTeamMutation(django.test.TestCase):
         # Check result
         team = executed['data']['addTeam']['team']
         self.assertEqual(team['name'], 'Example_team')
-        self.assertEqual(team['organization']['name'], 'Example')
+        self.assertEqual(team['parentOrg']['name'], 'Example')
 
         # Check database
-        org = Organization.objects.get(name='Example')
+        org = Organization.objects.all_organizations().get(name='Example')
         teams = org.teams.all()
         self.assertEqual(len(teams), 1)
 
@@ -4985,7 +5004,7 @@ class TestAddTeamMutation(django.test.TestCase):
         # Check result
         team = executed['data']['addTeam']['team']
         self.assertEqual(team['name'], 'Example_team')
-        self.assertEqual(team['organization'], None)
+        self.assertEqual(team['parentOrg'], None)
 
     def test_add_subteam(self):
         """Check if a team can be made as a subteam"""
@@ -5001,7 +5020,7 @@ class TestAddTeamMutation(django.test.TestCase):
         # Check result
         subteam = subteam['data']['addTeam']['team']
         self.assertEqual(subteam['name'], 'Example_subteam')
-        self.assertEqual(subteam['organization'], None)
+        self.assertEqual(subteam['parentOrg'], None)
 
         team = Team.objects.get(name="Example_team")
         subteam = Team.objects.get(name="Example_subteam")
@@ -5010,7 +5029,7 @@ class TestAddTeamMutation(django.test.TestCase):
     def test_team_empty(self):
         """Check whether teams with empty names cannot be added"""
 
-        Organization.objects.create(name='Example')
+        Organization.add_root(name='Example')
 
         client = graphene.test.Client(schema)
         executed = client.execute(self.SH_ADD_TEAM_EMPTY,
@@ -5021,13 +5040,13 @@ class TestAddTeamMutation(django.test.TestCase):
         self.assertEqual(msg, TEAM_NAME_EMPTY_ERROR)
 
         # Check database
-        teams = Team.objects.all()
+        teams = Team.objects.all_teams()
         self.assertEqual(len(teams), 0)
 
     def test_integrity_error(self):
         """Check whether teams with the same team name cannot be inserted"""
 
-        Organization.objects.create(name='Example')
+        Organization.add_root(name='Example')
 
         client = graphene.test.Client(schema)
         client.execute(self.SH_ADD_TEAM, context_value=self.context_value)
@@ -5035,7 +5054,7 @@ class TestAddTeamMutation(django.test.TestCase):
         # Check database
         team = Team.objects.get(name='Example_team')
         self.assertEqual(team.name, 'Example_team')
-        self.assertEqual(team.organization.name, 'Example')
+        self.assertEqual(team.parent_org.name, 'Example')
 
         # Try to insert it twice
         client = graphene.test.Client(schema)
@@ -5115,8 +5134,8 @@ class TestDeleteTeamMutation(django.test.TestCase):
     def test_delete_team(self):
         """Check whether it deletes a team"""
 
-        org = Organization.objects.create(name='Example')
-        Team.add_root(name='Example_team', organization=org)
+        org = Organization.add_root(name='Example')
+        Team.add_root(name='Example_team', parent_org=org)
 
         # Delete team
         client = graphene.test.Client(schema)
@@ -5129,17 +5148,17 @@ class TestDeleteTeamMutation(django.test.TestCase):
 
         # Tests
         with self.assertRaises(django.core.exceptions.ObjectDoesNotExist):
-            Team.objects.get(name='Example_team')
+            Team.objects.all_teams().get(name='Example_team')
 
-        teams = Team.objects.all()
+        teams = Team.objects.all_teams()
         self.assertEqual(len(teams), 0)
 
     def test_delete_no_org_team(self):
         """Check if it deletes a team that does not belong to any organization"""
 
-        org = Organization.objects.create(name='Example')
-        Team.add_root(name='Example_team', organization=org)
-        Team.add_root(name='Example_team', organization=None)
+        org = Organization.add_root(name='Example')
+        org.add_child(name='Example_team', parent_org=org, type='team')
+        Team.add_root(name='Example_team', parent_org=None)
 
         client = graphene.test.Client(schema)
         executed = client.execute(self.SH_DELETE_TEAM_NO_ORG,
@@ -5150,19 +5169,19 @@ class TestDeleteTeamMutation(django.test.TestCase):
         self.assertEqual(team['name'], 'Example_team')
 
         # Check if other team still exists
-        teams = Team.objects.all()
+        teams = Team.objects.all_teams()
         self.assertEqual(len(teams), 1)
 
         team = teams[0]
         self.assertEqual(team.name, 'Example_team')
-        self.assertEqual(team.organization, None)
+        self.assertEqual(team.parent_org, None)
 
     def test_not_found_team_in_org(self):
         """Check if it returns an error when a team does not
            exist in the given organization"""
 
-        org = Organization.objects.create(name='Example')
-        Team.add_root(name='Example_different_team', organization=org)
+        org = Group.add_root(name='Example', type='organization')
+        org.add_child(name='Example_different_team', parent_org=org, type='team')
 
         client = graphene.test.Client(schema)
         executed = client.execute(self.SH_DELETE_TEAM,
@@ -5173,14 +5192,14 @@ class TestDeleteTeamMutation(django.test.TestCase):
         self.assertEqual(msg, TEAM_EXAMPLE_DOES_NOT_EXIST_ERROR)
 
         # It should not remove anything
-        teams = Team.objects.all()
+        teams = Team.objects.all_teams()
         self.assertEqual(len(teams), 1)
 
     def test_not_found_org(self):
         """Check if it returns an error when a organization doesnt exist"""
 
-        org = Organization.objects.create(name='ORG')
-        Team.add_root(name='Example_team', organization=org)
+        org = Organization.add_root(name='ORG')
+        org.add_child(name='Example_team', parent_org=org, type='team')
 
         client = graphene.test.Client(schema)
         executed = client.execute(self.SH_DELETE_TEAM,
@@ -5191,7 +5210,7 @@ class TestDeleteTeamMutation(django.test.TestCase):
         self.assertEqual(msg, ORGANIZATION_EXAMPLE_DOES_NOT_EXIST_ERROR)
 
         # It should not remove anything
-        teams = Team.objects.all()
+        teams = Team.objects.all_teams()
         self.assertEqual(len(teams), 1)
 
     def test_authentication(self):
@@ -5256,7 +5275,7 @@ class TestAddDomainMutation(django.test.TestCase):
     def test_add_domain(self):
         """Check if a new domain is added"""
 
-        Organization.objects.create(name='Example')
+        Organization.add_root(name='Example')
 
         client = graphene.test.Client(schema)
         executed = client.execute(self.SH_ADD_DOMAIN,
@@ -5280,7 +5299,7 @@ class TestAddDomainMutation(django.test.TestCase):
     def test_domain_empty(self):
         """Check whether domains with empty names cannot be added"""
 
-        Organization.objects.create(name='Example')
+        Organization.add_root(name='Example')
 
         client = graphene.test.Client(schema)
         executed = client.execute(self.SH_ADD_DOMAIN_EMPTY,
@@ -5297,7 +5316,7 @@ class TestAddDomainMutation(django.test.TestCase):
     def test_integrity_error(self):
         """Check whether domains with the same domain name cannot be inserted"""
 
-        Organization.objects.create(name='Example')
+        Organization.add_root(name='Example')
 
         client = graphene.test.Client(schema)
         client.execute(self.SH_ADD_DOMAIN, context_value=self.context_value)
@@ -5364,7 +5383,7 @@ class TestDeleteDomainMutation(django.test.TestCase):
     def test_delete_domain(self):
         """Check whether it deletes a domain"""
 
-        org = Organization.objects.create(name='Example')
+        org = Organization.add_root(name='Example')
         Domain.objects.create(domain='example.net', organization=org)
         Domain.objects.create(domain='example.com', organization=org)
 
@@ -5396,7 +5415,7 @@ class TestDeleteDomainMutation(django.test.TestCase):
         self.assertEqual(msg, DOMAIN_NOT_FOUND_ERROR)
 
         # It should not remove anything
-        org = Organization.objects.create(name='Bitergia')
+        org = Organization.add_root(name='Bitergia')
         Domain.objects.create(domain='example.com', organization=org)
 
         msg = executed['errors'][0]['message']

@@ -2046,7 +2046,7 @@ class TestAddTeam(TestCase):
 
         self.assertIsInstance(team, Team)
         self.assertEqual(team.name, "suborg")
-        self.assertEqual(team.organization, self.org)
+        self.assertEqual(team.parent_org, self.org)
 
     def test_organization_is_none(self):
         """Check if it fails when organization name is `None`"""
@@ -2055,7 +2055,7 @@ class TestAddTeam(TestCase):
 
         self.assertIsInstance(team, Team)
         self.assertEqual(team.name, "suborg")
-        self.assertEqual(team.organization, None)
+        self.assertEqual(team.parent_org, None)
 
     def test_team_name_is_none(self):
         """Check if it fails when team name is `None`"""
@@ -2097,7 +2097,7 @@ class TestAddTeam(TestCase):
         child = api.add_team(self.ctx, "child", "Example", "parent")
         self.assertIsInstance(child, Team)
         self.assertEqual(child.name, "child")
-        self.assertEqual(child.organization, self.org)
+        self.assertEqual(child.parent_org, self.org)
 
     def test_parent_not_found(self):
         """ Check if a team cannot be created when parent is not found"""
@@ -2126,7 +2126,7 @@ class TestDeleteTeam(TestCase):
 
         self.assertIsInstance(team, Team)
         self.assertEqual(team.name, "suborg")
-        self.assertEqual(team.organization, self.org)
+        self.assertEqual(team.parent_org, self.org)
 
     def test_organization_is_none(self):
         """Check if it passes when team does not belong to any organization"""
@@ -2136,7 +2136,7 @@ class TestDeleteTeam(TestCase):
         team = api.delete_team(self.ctx, "suborg")
         self.assertIsInstance(team, Team)
         self.assertEqual(team.name, "suborg")
-        self.assertEqual(team.organization, None)
+        self.assertEqual(team.parent_org, None)
 
     def test_organization_name_is_empty(self):
         """Check if it fails when organization name is empty for a
