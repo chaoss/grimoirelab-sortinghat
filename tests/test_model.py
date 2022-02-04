@@ -58,8 +58,8 @@ class TestGroup(TransactionTestCase):
 
         with self.assertRaisesRegex(IntegrityError, DUPLICATE_CHECK_ERROR):
             org = Group.add_root(name='Example', type='organization')
-            team = org.add_child(name='subTeam1', organization=org, type='team')
-            team.add_child(name='subTeam1', organization=org, type='team')
+            team = org.add_child(name='subTeam1', parent_org=org, type='team')
+            team.add_child(name='subTeam1', parent_org=org, type='team')
 
     def test_null_organizations(self):
         """Check if groups can be created without organizations"""
@@ -160,8 +160,8 @@ class TestOrganization(TransactionTestCase):
         """Check if the query returns a list of organizations"""
 
         org = Organization.add_root(name='Example')
-        team = org.add_child(name='Example team', organization=org, type='team')
-        team.add_child(name='Example subteam', organization=org, type='team')
+        team = org.add_child(name='Example team', parent_org=org, type='team')
+        team.add_child(name='Example subteam', parent_org=org, type='team')
         Team.add_root(name='Example group')
 
         organizations = Organization.objects.all_organizations()
@@ -177,8 +177,8 @@ class TestTeam(TransactionTestCase):
 
         with self.assertRaisesRegex(IntegrityError, DUPLICATE_CHECK_ERROR):
             org = Organization.add_root(name='Example')
-            team = Team.add_root(name='subTeam1', organization=org)
-            team.add_child(name='subTeam1', organization=org)
+            team = Team.add_root(name='subTeam1', parent_org=org)
+            team.add_child(name='subTeam1', parent_org=org)
 
     def test_null_organizations(self):
         """Check if teams can be created without organizations"""
@@ -226,8 +226,8 @@ class TestTeam(TransactionTestCase):
         """Check if the query returns a list of teams"""
 
         org = Organization.add_root(name='Example')
-        team = org.add_child(name='Example team', organization=org, type='team')
-        team.add_child(name='Example subteam', organization=org, type='team')
+        team = org.add_child(name='Example team', parent_org=org, type='team')
+        team.add_child(name='Example subteam', parent_org=org, type='team')
         Team.add_root(name='Example group')
 
         teams = Team.objects.all_teams()
@@ -237,8 +237,8 @@ class TestTeam(TransactionTestCase):
         """Check if the query returns a list of top level teams"""
 
         org = Organization.add_root(name='Example')
-        team = org.add_child(name='Example team', organization=org, type='team')
-        team.add_child(name='Example subteam', organization=org, type='team')
+        team = org.add_child(name='Example team', parent_org=org, type='team')
+        team.add_child(name='Example subteam', parent_org=org, type='team')
         Team.add_root(name='Example group')
 
         teams = Team.objects.team_root_nodes()
@@ -249,8 +249,8 @@ class TestTeam(TransactionTestCase):
         """Check if it returns a list of teams that do not belong to an organization"""
 
         org = Organization.add_root(name='Example')
-        team = org.add_child(name='Example team', organization=org, type='team')
-        team.add_child(name='Example subteam', organization=org, type='team')
+        team = org.add_child(name='Example team', parent_org=org, type='team')
+        team.add_child(name='Example subteam', parent_org=org, type='team')
         group = Team.add_root(name='Example group')
         group.add_child(name='Example subgoup', type='team')
 

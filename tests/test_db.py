@@ -219,11 +219,11 @@ class TestFindTeam(TestCase):
     def test_find_team(self):
         """Check if a team is found by its name and organization"""
 
-        Group.add_root(name='Example Subteam', organization=self.org, type='team')
+        Group.add_root(name='Example Subteam', parent_org=self.org, type='team')
         team = db.find_team(team_name='Example Subteam', organization=self.org)
 
         self.assertIsInstance(team, Team)
-        self.assertEqual(team.organization.name, 'Example')
+        self.assertEqual(team.parent_org.name, 'Example')
         self.assertEqual(team.name, 'Example Subteam')
         self.assertEqual(team.get_parent(), None)
 
@@ -679,7 +679,7 @@ class TestAddTeam(TestCase):
         team = db.add_team(self.trxl, team_name, self.org, None)
         self.assertIsInstance(team, Team)
         self.assertEqual(team.name, team_name)
-        self.assertEqual(team.organization, self.org)
+        self.assertEqual(team.parent_org, self.org)
 
     def test_add_subteam(self):
         """Check if a new subteam is added for specified team"""
@@ -691,7 +691,7 @@ class TestAddTeam(TestCase):
         self.assertIsInstance(subteam, Team)
         self.assertEqual(subteam.get_parent(), team)
         self.assertEqual(subteam.name, 'childteam')
-        self.assertEqual(subteam.organization, self.org)
+        self.assertEqual(subteam.parent_org, self.org)
 
     def test_add_multiple_teams(self):
         """Check if multiple teams can be added"""
@@ -702,7 +702,7 @@ class TestAddTeam(TestCase):
         db.add_team(self.trxl, 'team3', self.org, None)
         db.add_team(self.trxl, 'team4', self.org, None)
 
-        teams = Team.objects.all().filter(organization=self.org)
+        teams = Team.objects.all().filter(parent_org=self.org)
         self.assertEqual(len(teams), 5)
         for team in teams:
             self.assertIsInstance(team, Team)
@@ -762,10 +762,10 @@ class TestAddTeam(TestCase):
         team2 = db.add_team(self.trxl, team_name, org2, None)
 
         self.assertIsInstance(team1, Team)
-        self.assertEqual(team1.organization, org1)
+        self.assertEqual(team1.parent_org, org1)
 
         self.assertIsInstance(team2, Team)
-        self.assertEqual(team2.organization, org2)
+        self.assertEqual(team2.parent_org, org2)
 
     def test_integrity_error_no_org_teams(self):
         """Check whether teams with the same team name cannot be inserted when organization is None"""
@@ -833,8 +833,8 @@ class TestDeleteTeam(TestCase):
     def test_delete_team(self):
         """Check whether it deletes a team"""
 
-        team = Team.add_root(name='subTeam1', organization=self.org)
-        team.add_child(name='subTeam12', organization=self.org)
+        team = Team.add_root(name='subTeam1', parent_org=self.org)
+        team.add_child(name='subTeam12', parent_org=self.org)
 
         team.refresh_from_db()
         db.delete_team(self.trxl, team)
@@ -849,7 +849,7 @@ class TestDeleteTeam(TestCase):
         """Check if the right operations are created when deleting a team"""
 
         timestamp = datetime_utcnow()
-        team = Team.add_root(name='subTeam1', organization=self.org)
+        team = Team.add_root(name='subTeam1', parent_org=self.org)
 
         db.delete_team(self.trxl, team)
 

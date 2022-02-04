@@ -182,7 +182,7 @@ class GroupType(DjangoObjectType):
 class OrganizationType(DjangoObjectType):
     class Meta:
         model = Group
-        exclude = ('path', 'depth', 'numchild', 'type', 'organization')
+        exclude = ('path', 'depth', 'numchild', 'type', 'parent_org')
 
 
 class TeamType(DjangoObjectType):
@@ -191,7 +191,7 @@ class TeamType(DjangoObjectType):
         exclude = ('path', 'depth', 'type', 'domains', 'teams')
 
     subteams = graphene.List(lambda: TeamType)
-    organization = graphene.Field(OrganizationType)
+    parent_org = graphene.Field(OrganizationType)
 
     def resolve_subteams(self, info):
         return self.get_children().order_by('name').all()
@@ -1180,7 +1180,7 @@ class SortingHatQuery:
                 if not ('name' in filters or 'term' in filters) and 'parent' not in filters:
                     query = Team.objects.team_root_nodes().order_by('name')
                 query = query.filter(
-                    Q(organization__in=Organization.objects.filter(name=filters['organization'])))
+                    Q(parent_org__in=Organization.objects.filter(name=filters['organization'])))
 
             query = apply_team_query_filters(query, filters)
         else:
@@ -1196,13 +1196,13 @@ class SortingHatQuery:
             query = Team.objects.all_teams().order_by('name')
 
             # Filter groups that do not belong to any organization
-            query = query.filter(organization=None)
+            query = query.filter(parent_org=None)
 
             query = apply_team_query_filters(query, filters)
         else:
             # If no filters are given, show all top level groups
             query = Team.objects.groups().order_by('name')
-            query = query.filter(organization=None)
+            query = query.filter(parent_org=None)
         return TeamPaginatedType.create_paginated_result(query, page,
                                                          page_size=page_size)
 

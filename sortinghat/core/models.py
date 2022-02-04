@@ -148,12 +148,12 @@ class Group(MP_Node, EntityBase):
 
     name = CharField(max_length=MAX_SIZE_CHAR_INDEX)
     type = CharField(max_length=12, choices=GroupType.choices())
-    organization = ForeignKey('self', related_name='teams', on_delete=CASCADE,
-                              blank=True, null=True)
+    parent_org = ForeignKey('self', related_name='teams', on_delete=CASCADE,
+                            blank=True, null=True)
 
     class Meta:
         db_table = 'groups'
-        unique_together = ('name', 'organization')
+        unique_together = ('name', 'parent_org')
 
     def __str__(self):
         return self.name
@@ -180,10 +180,10 @@ class TeamQuerySet(MP_NodeQuerySet):
         return self.filter(type='team')
 
     def team_root_nodes(self):
-        return self.filter(type='team', depth='2', organization__isnull=False)
+        return self.filter(type='team', depth='2', parent_org__isnull=False)
 
     def groups(self):
-        return self.filter(type='team', depth='1', organization=None)
+        return self.filter(type='team', depth='1', parent_org=None)
 
 
 class Team(Group):

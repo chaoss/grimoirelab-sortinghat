@@ -191,7 +191,7 @@ def find_team(team_name, organization=None):
 
     try:
         logger.debug(f"Finding team '{team_name}'" + f"in '{organization.name}' ..." if organization else "...")
-        team = Team.objects.all_teams().get(name=team_name, organization=organization)
+        team = Team.objects.all_teams().get(name=team_name, parent_org=organization)
     except Team.DoesNotExist:
         logger.debug(f"Team with name '{team_name}' does not exist")
         raise NotFoundError(entity=team_name)
@@ -282,7 +282,7 @@ def add_organization(trxl, name):
     validate_field('name', name)
 
     # Check if there is an organization with the same name.
-    # Groups have a unique together constraint for the 'name' and 'organization'
+    # Groups have a unique together constraint for the 'name' and 'parent_org'
     # fields, but the latter is always null for organizations and MySQL doesn't
     # treat null values as equal
     if Organization.objects.all_organizations().filter(name=name).exists():
@@ -358,10 +358,10 @@ def add_team(trxl, team_name, organization=None, parent=None):
     validate_field('team_name', team_name)
 
     if not organization:
-        if Team.objects.all_teams().filter(name=team_name, organization=organization).exists():
+        if Team.objects.all_teams().filter(name=team_name, parent_org=organization).exists():
             raise AlreadyExistsError(entity=Team.__name__, eid=team_name)
 
-    team = Team(name=team_name, organization=organization)
+    team = Team(name=team_name, parent_org=organization)
 
     try:
         if parent:
