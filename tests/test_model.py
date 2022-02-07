@@ -624,8 +624,8 @@ class TestEnrollment(TransactionTestCase):
             Enrollment.objects.create(individual=indv)
 
         with self.assertRaisesRegex(IntegrityError, NULL_VALUE_CHECK_ERROR):
-            org = Organization.objects.create(name='Example')
-            Enrollment.objects.create(organization=org)
+            org = Organization.add_root(name='Example')
+            Enrollment.objects.create(group=org)
 
     def test_unique_enrollments(self):
         """Check if there is only one tuple with the same values"""
@@ -634,8 +634,8 @@ class TestEnrollment(TransactionTestCase):
             indv = Individual.objects.create(mk='AAAA')
             org = Organization.add_root(name='Example')
 
-            Enrollment.objects.create(individual=indv, organization=org)
-            Enrollment.objects.create(individual=indv, organization=org)
+            Enrollment.objects.create(individual=indv, group=org)
+            Enrollment.objects.create(individual=indv, group=org)
 
     def test_default_enrollment_period(self):
         """Check whether the default period is set when initializing the class"""
@@ -643,13 +643,13 @@ class TestEnrollment(TransactionTestCase):
         indv = Individual.objects.create(mk='AAAA')
         org = Organization.add_root(name='Example')
 
-        rol1 = Enrollment.objects.create(individual=indv, organization=org)
+        rol1 = Enrollment.objects.create(individual=indv, group=org)
         self.assertEqual(rol1.start, datetime.datetime(1900, 1, 1, 0, 0, 0,
                                                        tzinfo=dateutil.tz.tzutc()))
         self.assertEqual(rol1.end, datetime.datetime(2100, 1, 1, 0, 0, 0,
                                                      tzinfo=dateutil.tz.tzutc()))
 
-        rol2 = Enrollment.objects.create(individual=indv, organization=org,
+        rol2 = Enrollment.objects.create(individual=indv, group=org,
                                          end=datetime.datetime(2222, 1, 1, 0, 0, 0,
                                                                tzinfo=dateutil.tz.tzutc()))
         self.assertEqual(rol2.start, datetime.datetime(1900, 1, 1, 0, 0, 0,
@@ -657,7 +657,7 @@ class TestEnrollment(TransactionTestCase):
         self.assertEqual(rol2.end, datetime.datetime(2222, 1, 1, 0, 0, 0,
                                                      tzinfo=dateutil.tz.tzutc()))
 
-        rol3 = Enrollment.objects.create(individual=indv, organization=org,
+        rol3 = Enrollment.objects.create(individual=indv, group=org,
                                          start=datetime.datetime(1999, 1, 1, 0, 0, 0,
                                                                  tzinfo=dateutil.tz.tzutc()))
         self.assertEqual(rol3.start, datetime.datetime(1999, 1, 1, 0, 0, 0,
@@ -671,7 +671,7 @@ class TestEnrollment(TransactionTestCase):
         before_dt = datetime_utcnow()
         indv = Individual.objects.create(mk='AAAA')
         org = Organization.add_root(name='Example')
-        rol = Enrollment.objects.create(individual=indv, organization=org)
+        rol = Enrollment.objects.create(individual=indv, group=org)
         after_dt = datetime_utcnow()
 
         self.assertEqual(rol.start, datetime.datetime(1900, 1, 1, 0, 0, 0,
@@ -694,7 +694,7 @@ class TestEnrollment(TransactionTestCase):
         before_dt = datetime_utcnow()
         indv = Individual.objects.create(mk='AAAA')
         org = Organization.add_root(name='Example')
-        rol = Enrollment.objects.create(individual=indv, organization=org)
+        rol = Enrollment.objects.create(individual=indv, group=org)
         after_dt = datetime_utcnow()
 
         self.assertEqual(rol.start, datetime.datetime(1900, 1, 1, 0, 0, 0,

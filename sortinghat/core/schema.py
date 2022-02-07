@@ -824,7 +824,7 @@ class UnmergeIdentities(graphene.Mutation):
 class Enroll(graphene.Mutation):
     class Arguments:
         uuid = graphene.String()
-        organization = graphene.String()
+        group = graphene.String()
         from_date = graphene.DateTime(required=False)
         to_date = graphene.DateTime(required=False)
         force = graphene.Boolean(required=False)
@@ -833,13 +833,13 @@ class Enroll(graphene.Mutation):
     individual = graphene.Field(lambda: IndividualType)
 
     @check_auth
-    def mutate(self, info, uuid, organization,
+    def mutate(self, info, uuid, group,
                from_date=None, to_date=None,
                force=False):
         user = info.context.user
         ctx = SortingHatContext(user)
 
-        individual = enroll(ctx, uuid, organization,
+        individual = enroll(ctx, uuid, group,
                             from_date=from_date, to_date=to_date,
                             force=force)
         return Enroll(
@@ -851,7 +851,7 @@ class Enroll(graphene.Mutation):
 class Withdraw(graphene.Mutation):
     class Arguments:
         uuid = graphene.String()
-        organization = graphene.String()
+        group = graphene.String()
         from_date = graphene.DateTime(required=False)
         to_date = graphene.DateTime(required=False)
 
@@ -859,11 +859,11 @@ class Withdraw(graphene.Mutation):
     individual = graphene.Field(lambda: IndividualType)
 
     @check_auth
-    def mutate(self, info, uuid, organization, from_date=None, to_date=None):
+    def mutate(self, info, uuid, group, from_date=None, to_date=None):
         user = info.context.user
         ctx = SortingHatContext(user)
 
-        individual = withdraw(ctx, uuid, organization,
+        individual = withdraw(ctx, uuid, group,
                               from_date=from_date, to_date=to_date)
         return Withdraw(
             uuid=individual.mk,
@@ -874,7 +874,7 @@ class Withdraw(graphene.Mutation):
 class UpdateEnrollment(graphene.Mutation):
     class Arguments:
         uuid = graphene.String()
-        organization = graphene.String()
+        group = graphene.String()
         from_date = graphene.DateTime()
         to_date = graphene.DateTime()
         new_from_date = graphene.DateTime(required=False)
@@ -885,14 +885,14 @@ class UpdateEnrollment(graphene.Mutation):
     individual = graphene.Field(lambda: IndividualType)
 
     @check_auth
-    def mutate(self, info, uuid, organization,
+    def mutate(self, info, uuid, group,
                from_date, to_date,
                new_from_date=None, new_to_date=None,
                force=True):
         user = info.context.user
         ctx = SortingHatContext(user)
 
-        individual = update_enrollment(ctx, uuid, organization,
+        individual = update_enrollment(ctx, uuid, group,
                                        from_date=from_date,
                                        to_date=to_date,
                                        new_from_date=new_from_date,
@@ -1249,7 +1249,7 @@ class SortingHatQuery:
         if filters and 'source' in filters:
             query = query.filter(identities__source=filters['source'])
         if filters and 'enrollment' in filters:
-            query = query.filter(enrollments__organization__name__icontains=filters['enrollment'])
+            query = query.filter(enrollments__group__name__icontains=filters['enrollment'])
         if filters and 'enrollment_date' in filters:
             # Accepted date format is ISO 8601, YYYY-MM-DDTHH:MM:SS
             try:

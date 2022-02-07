@@ -273,18 +273,18 @@ class Profile(EntityBase):
 class Enrollment(EntityBase):
     individual = ForeignKey(Individual, related_name='enrollments',
                             on_delete=CASCADE, db_column='mk')
-    organization = ForeignKey(Group, related_name='enrollments',
-                              on_delete=CASCADE)
+    group = ForeignKey(Group, related_name='enrollments',
+                       on_delete=CASCADE)
     start = DateTimeField(default=MIN_PERIOD_DATE)
     end = DateTimeField(default=MAX_PERIOD_DATE)
 
     class Meta:
         db_table = 'enrollments'
-        unique_together = ('individual', 'organization', 'start', 'end',)
+        unique_together = ('individual', 'group', 'start', 'end',)
         ordering = ('start', 'end', )
 
     def __str__(self):
-        return '%s - %s' % (self.individual.mk, self.organization.name)
+        return '%s - %s' % (self.individual.mk, self.group.name)
 
 
 class RecommenderExclusionTerm(EntityBase):

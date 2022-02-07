@@ -786,20 +786,20 @@ class TestDeleteIdentity(TestCase):
                          email='jsmith@example',
                          uuid=jsmith.uuid)
         Enrollment.objects.create(individual=jsmith.individual,
-                                  organization=example_org)
+                                  group=example_org)
         Enrollment.objects.create(individual=jsmith.individual,
-                                  organization=bitergia_org)
+                                  group=bitergia_org)
 
         jdoe = api.add_identity(self.ctx, 'scm', email='jdoe@example')
         Enrollment.objects.create(individual=jdoe.individual,
-                                  organization=example_org)
+                                  group=example_org)
 
         jrae = api.add_identity(self.ctx,
                                 'scm',
                                 name='Jane Rae',
                                 email='jrae@example')
         Enrollment.objects.create(individual=jrae.individual,
-                                  organization=libresoft_org)
+                                  group=libresoft_org)
 
     def test_delete_identity(self):
         """Check whether it deletes an identity"""
@@ -2894,7 +2894,7 @@ class TestEnroll(TestCase):
         self.assertEqual(len(enrollments), 1)
 
         enrollment = enrollments[0]
-        self.assertEqual(enrollment.organization.name, 'Example')
+        self.assertEqual(enrollment.group.name, 'Example')
         self.assertEqual(enrollment.start, datetime.datetime(1999, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment.end, datetime.datetime(2000, 1, 1, tzinfo=UTC))
 
@@ -2904,7 +2904,7 @@ class TestEnroll(TestCase):
         self.assertEqual(len(enrollments_db), 1)
 
         enrollment_db = enrollments_db[0]
-        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.group.name, 'Example')
         self.assertEqual(enrollment_db.start, datetime.datetime(1999, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment_db.end, datetime.datetime(2000, 1, 1, tzinfo=UTC))
 
@@ -2932,7 +2932,7 @@ class TestEnroll(TestCase):
         self.assertEqual(len(enrollments), 1)
 
         enrollment = enrollments[0]
-        self.assertEqual(enrollment.organization.name, 'Example')
+        self.assertEqual(enrollment.group.name, 'Example')
         self.assertEqual(enrollment.start, datetime.datetime(1999, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment.end, datetime.datetime(2000, 1, 1, tzinfo=UTC))
 
@@ -2942,7 +2942,7 @@ class TestEnroll(TestCase):
         self.assertEqual(len(enrollments_db), 1)
 
         enrollment_db = enrollments_db[0]
-        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.group.name, 'Example')
         self.assertEqual(enrollment_db.start, datetime.datetime(1999, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment_db.end, datetime.datetime(2000, 1, 1, tzinfo=UTC))
 
@@ -2961,7 +2961,7 @@ class TestEnroll(TestCase):
         self.assertEqual(len(enrollments), 1)
 
         enrollment = enrollments[0]
-        self.assertEqual(enrollment.organization.name, 'Example')
+        self.assertEqual(enrollment.group.name, 'Example')
         self.assertEqual(enrollment.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
 
@@ -2971,7 +2971,7 @@ class TestEnroll(TestCase):
         self.assertEqual(len(enrollments_db), 1)
 
         enrollment_db = enrollments_db[0]
-        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.group.name, 'Example')
         self.assertEqual(enrollment_db.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment_db.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
 
@@ -3001,17 +3001,17 @@ class TestEnroll(TestCase):
         self.assertEqual(len(enrollments), 3)
 
         enrollment = enrollments[0]
-        self.assertEqual(enrollment.organization.name, 'Example')
+        self.assertEqual(enrollment.group.name, 'Example')
         self.assertEqual(enrollment.start, datetime.datetime(1999, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment.end, datetime.datetime(2000, 1, 1, tzinfo=UTC))
 
         enrollment = enrollments[1]
-        self.assertEqual(enrollment.organization.name, 'Example')
+        self.assertEqual(enrollment.group.name, 'Example')
         self.assertEqual(enrollment.start, datetime.datetime(2005, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment.end, datetime.datetime(2006, 1, 1, tzinfo=UTC))
 
         enrollment = enrollments[2]
-        self.assertEqual(enrollment.organization.name, 'Example')
+        self.assertEqual(enrollment.group.name, 'Example')
         self.assertEqual(enrollment.start, datetime.datetime(2013, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
 
@@ -3480,7 +3480,7 @@ class TestEnroll(TestCase):
         op1_args = json.loads(op1.args)
         self.assertEqual(len(op1_args), 4)
         self.assertEqual(op1_args['individual'], jsmith.individual.mk)
-        self.assertEqual(op1_args['organization'], org.name)
+        self.assertEqual(op1_args['group'], org.name)
         self.assertEqual(op1_args['start'], str(datetime_to_utc(datetime.datetime(1999, 1, 1))))
         self.assertEqual(op1_args['end'], str(datetime_to_utc(datetime.datetime(2000, 1, 1))))
 
@@ -3536,17 +3536,17 @@ class TestWithdraw(TestCase):
         self.assertEqual(len(enrollments), 3)
 
         enrollment = enrollments[0]
-        self.assertEqual(enrollment.organization.name, 'Example')
+        self.assertEqual(enrollment.group.name, 'Example')
         self.assertEqual(enrollment.start, datetime.datetime(2006, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment.end, datetime.datetime(2007, 1, 1, tzinfo=UTC))
 
         enrollment = enrollments[1]
-        self.assertEqual(enrollment.organization.name, 'Bitergia')
+        self.assertEqual(enrollment.group.name, 'Bitergia')
         self.assertEqual(enrollment.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
 
         enrollment = enrollments[2]
-        self.assertEqual(enrollment.organization.name, 'Example')
+        self.assertEqual(enrollment.group.name, 'Example')
         self.assertEqual(enrollment.start, datetime.datetime(2013, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
 
@@ -3556,17 +3556,17 @@ class TestWithdraw(TestCase):
         self.assertEqual(len(enrollments_db), 3)
 
         enrollment_db = enrollments_db[0]
-        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.group.name, 'Example')
         self.assertEqual(enrollment_db.start, datetime.datetime(2006, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment_db.end, datetime.datetime(2007, 1, 1, tzinfo=UTC))
 
         enrollment_db = enrollments_db[1]
-        self.assertEqual(enrollment_db.organization.name, 'Bitergia')
+        self.assertEqual(enrollment_db.group.name, 'Bitergia')
         self.assertEqual(enrollment_db.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
 
         enrollment_db = enrollments_db[2]
-        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.group.name, 'Example')
         self.assertEqual(enrollment_db.start, datetime.datetime(2013, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
 
@@ -3576,7 +3576,7 @@ class TestWithdraw(TestCase):
         self.assertEqual(len(enrollments_db), 1)
 
         enrollment_db = enrollments_db[0]
-        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.group.name, 'Example')
         self.assertEqual(enrollment_db.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
 
@@ -3600,17 +3600,17 @@ class TestWithdraw(TestCase):
         self.assertEqual(len(enrollments), 3)
 
         enrollment = enrollments[0]
-        self.assertEqual(enrollment.organization.name, 'Example')
+        self.assertEqual(enrollment.group.name, 'Example')
         self.assertEqual(enrollment.start, datetime.datetime(2006, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment.end, datetime.datetime(2007, 1, 1, tzinfo=UTC))
 
         enrollment = enrollments[1]
-        self.assertEqual(enrollment.organization.name, 'Bitergia')
+        self.assertEqual(enrollment.group.name, 'Bitergia')
         self.assertEqual(enrollment.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
 
         enrollment = enrollments[2]
-        self.assertEqual(enrollment.organization.name, 'Example')
+        self.assertEqual(enrollment.group.name, 'Example')
         self.assertEqual(enrollment.start, datetime.datetime(2013, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
 
@@ -3620,17 +3620,17 @@ class TestWithdraw(TestCase):
         self.assertEqual(len(enrollments_db), 3)
 
         enrollment_db = enrollments_db[0]
-        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.group.name, 'Example')
         self.assertEqual(enrollment_db.start, datetime.datetime(2006, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment_db.end, datetime.datetime(2007, 1, 1, tzinfo=UTC))
 
         enrollment_db = enrollments_db[1]
-        self.assertEqual(enrollment_db.organization.name, 'Bitergia')
+        self.assertEqual(enrollment_db.group.name, 'Bitergia')
         self.assertEqual(enrollment_db.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
 
         enrollment_db = enrollments_db[2]
-        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.group.name, 'Example')
         self.assertEqual(enrollment_db.start, datetime.datetime(2013, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
 
@@ -3640,7 +3640,7 @@ class TestWithdraw(TestCase):
         self.assertEqual(len(enrollments_db), 1)
 
         enrollment_db = enrollments_db[0]
-        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.group.name, 'Example')
         self.assertEqual(enrollment_db.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
 
@@ -3656,7 +3656,7 @@ class TestWithdraw(TestCase):
         self.assertEqual(len(enrollments), 1)
 
         enrollment = enrollments[0]
-        self.assertEqual(enrollment.organization.name, 'Bitergia')
+        self.assertEqual(enrollment.group.name, 'Bitergia')
         self.assertEqual(enrollment.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
 
@@ -3666,7 +3666,7 @@ class TestWithdraw(TestCase):
         self.assertEqual(len(enrollments_db), 1)
 
         enrollment_db = enrollments_db[0]
-        self.assertEqual(enrollment_db.organization.name, 'Bitergia')
+        self.assertEqual(enrollment_db.group.name, 'Bitergia')
         self.assertEqual(enrollment_db.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
 
@@ -3849,7 +3849,7 @@ class TestWithdraw(TestCase):
         op1_args = json.loads(op1.args)
         self.assertEqual(len(op1_args), 4)
         self.assertEqual(op1_args['mk'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
-        self.assertEqual(op1_args['organization'], 'Example')
+        self.assertEqual(op1_args['group'], 'Example')
         self.assertEqual(op1_args['start'], str(datetime_to_utc(datetime.datetime(2006, 1, 1))))
         self.assertEqual(op1_args['end'], str(datetime_to_utc(datetime.datetime(2008, 1, 1))))
 
@@ -3864,7 +3864,7 @@ class TestWithdraw(TestCase):
         op2_args = json.loads(op2.args)
         self.assertEqual(len(op2_args), 4)
         self.assertEqual(op2_args['mk'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
-        self.assertEqual(op2_args['organization'], 'Example')
+        self.assertEqual(op2_args['group'], 'Example')
         self.assertEqual(op2_args['start'], str(datetime_to_utc(datetime.datetime(2009, 1, 1))))
         self.assertEqual(op2_args['end'], str(datetime_to_utc(datetime.datetime(2011, 1, 1))))
 
@@ -3879,7 +3879,7 @@ class TestWithdraw(TestCase):
         op3_args = json.loads(op3.args)
         self.assertEqual(len(op3_args), 4)
         self.assertEqual(op3_args['mk'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
-        self.assertEqual(op3_args['organization'], 'Example')
+        self.assertEqual(op3_args['group'], 'Example')
         self.assertEqual(op3_args['start'], str(datetime_to_utc(datetime.datetime(2012, 1, 1))))
         self.assertEqual(op3_args['end'], str(datetime_to_utc(datetime.datetime(2014, 1, 1))))
 
@@ -3894,7 +3894,7 @@ class TestWithdraw(TestCase):
         op4_args = json.loads(op4.args)
         self.assertEqual(len(op4_args), 4)
         self.assertEqual(op4_args['individual'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
-        self.assertEqual(op4_args['organization'], 'Example')
+        self.assertEqual(op4_args['group'], 'Example')
         self.assertEqual(op4_args['start'], str(datetime_to_utc(datetime.datetime(2006, 1, 1))))
         self.assertEqual(op4_args['end'], str(datetime_to_utc(datetime.datetime(2007, 1, 1))))
 
@@ -3909,7 +3909,7 @@ class TestWithdraw(TestCase):
         op5_args = json.loads(op5.args)
         self.assertEqual(len(op5_args), 4)
         self.assertEqual(op5_args['individual'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
-        self.assertEqual(op5_args['organization'], 'Example')
+        self.assertEqual(op5_args['group'], 'Example')
         self.assertEqual(op5_args['start'], str(datetime_to_utc(datetime.datetime(2013, 1, 1))))
         self.assertEqual(op5_args['end'], str(datetime_to_utc(datetime.datetime(2014, 1, 1))))
 
@@ -3967,7 +3967,7 @@ class TestUpdateEnrollment(TestCase):
         self.assertEqual(len(enrollments), 1)
 
         enrollment = enrollments[0]
-        self.assertEqual(enrollment.organization.name, 'Example')
+        self.assertEqual(enrollment.group.name, 'Example')
         self.assertEqual(enrollment.start, datetime.datetime(2012, 1, 2, tzinfo=UTC))
         self.assertEqual(enrollment.end, datetime.datetime(2013, 12, 31, tzinfo=UTC))
 
@@ -3977,7 +3977,7 @@ class TestUpdateEnrollment(TestCase):
         self.assertEqual(len(enrollments_db), 1)
 
         enrollment_db = enrollments_db[0]
-        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.group.name, 'Example')
         self.assertEqual(enrollment.start, datetime.datetime(2012, 1, 2, tzinfo=UTC))
         self.assertEqual(enrollment.end, datetime.datetime(2013, 12, 31, tzinfo=UTC))
 
@@ -3987,22 +3987,22 @@ class TestUpdateEnrollment(TestCase):
         self.assertEqual(len(enrollments_db), 4)
 
         enrollment_db = enrollments_db[0]
-        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.group.name, 'Example')
         self.assertEqual(enrollment_db.start, datetime.datetime(2006, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment_db.end, datetime.datetime(2008, 1, 1, tzinfo=UTC))
 
         enrollment_db = enrollments_db[1]
-        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.group.name, 'Example')
         self.assertEqual(enrollment_db.start, datetime.datetime(2009, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment_db.end, datetime.datetime(2011, 1, 1, tzinfo=UTC))
 
         enrollment_db = enrollments_db[2]
-        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.group.name, 'Example')
         self.assertEqual(enrollment_db.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
 
         enrollment_db = enrollments_db[3]
-        self.assertEqual(enrollment_db.organization.name, 'Bitergia')
+        self.assertEqual(enrollment_db.group.name, 'Bitergia')
         self.assertEqual(enrollment_db.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
 
@@ -4028,7 +4028,7 @@ class TestUpdateEnrollment(TestCase):
         self.assertEqual(len(enrollments), 1)
 
         enrollment = enrollments[0]
-        self.assertEqual(enrollment.organization.name, 'Example')
+        self.assertEqual(enrollment.group.name, 'Example')
         self.assertEqual(enrollment.start, datetime.datetime(2012, 1, 2, tzinfo=UTC))
         self.assertEqual(enrollment.end, datetime.datetime(2013, 12, 31, tzinfo=UTC))
 
@@ -4038,7 +4038,7 @@ class TestUpdateEnrollment(TestCase):
         self.assertEqual(len(enrollments_db), 1)
 
         enrollment_db = enrollments_db[0]
-        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.group.name, 'Example')
         self.assertEqual(enrollment.start, datetime.datetime(2012, 1, 2, tzinfo=UTC))
         self.assertEqual(enrollment.end, datetime.datetime(2013, 12, 31, tzinfo=UTC))
 
@@ -4048,22 +4048,22 @@ class TestUpdateEnrollment(TestCase):
         self.assertEqual(len(enrollments_db), 4)
 
         enrollment_db = enrollments_db[0]
-        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.group.name, 'Example')
         self.assertEqual(enrollment_db.start, datetime.datetime(2006, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment_db.end, datetime.datetime(2008, 1, 1, tzinfo=UTC))
 
         enrollment_db = enrollments_db[1]
-        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.group.name, 'Example')
         self.assertEqual(enrollment_db.start, datetime.datetime(2009, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment_db.end, datetime.datetime(2011, 1, 1, tzinfo=UTC))
 
         enrollment_db = enrollments_db[2]
-        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.group.name, 'Example')
         self.assertEqual(enrollment_db.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
 
         enrollment_db = enrollments_db[3]
-        self.assertEqual(enrollment_db.organization.name, 'Bitergia')
+        self.assertEqual(enrollment_db.group.name, 'Bitergia')
         self.assertEqual(enrollment_db.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
 
@@ -4084,7 +4084,7 @@ class TestUpdateEnrollment(TestCase):
         self.assertEqual(len(enrollments), 1)
 
         enrollment = enrollments[0]
-        self.assertEqual(enrollment.organization.name, 'Example')
+        self.assertEqual(enrollment.group.name, 'Example')
         self.assertEqual(enrollment.start, datetime.datetime(2012, 1, 2, tzinfo=UTC))
         self.assertEqual(enrollment.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
 
@@ -4094,7 +4094,7 @@ class TestUpdateEnrollment(TestCase):
         self.assertEqual(len(enrollments_db), 1)
 
         enrollment_db = enrollments_db[0]
-        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.group.name, 'Example')
         self.assertEqual(enrollment.start, datetime.datetime(2012, 1, 2, tzinfo=UTC))
         self.assertEqual(enrollment.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
 
@@ -4115,7 +4115,7 @@ class TestUpdateEnrollment(TestCase):
         self.assertEqual(len(enrollments), 1)
 
         enrollment = enrollments[0]
-        self.assertEqual(enrollment.organization.name, 'Example')
+        self.assertEqual(enrollment.group.name, 'Example')
         self.assertEqual(enrollment.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment.end, datetime.datetime(2013, 12, 31, tzinfo=UTC))
 
@@ -4125,7 +4125,7 @@ class TestUpdateEnrollment(TestCase):
         self.assertEqual(len(enrollments_db), 1)
 
         enrollment_db = enrollments_db[0]
-        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.group.name, 'Example')
         self.assertEqual(enrollment.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment.end, datetime.datetime(2013, 12, 31, tzinfo=UTC))
 
@@ -4456,7 +4456,7 @@ class TestUpdateEnrollment(TestCase):
         op1_args = json.loads(op1.args)
         self.assertEqual(len(op1_args), 4)
         self.assertEqual(op1_args['mk'], '3283e58cef2b80007aa1dfc16f6dd20ace1aee96')
-        self.assertEqual(op1_args['organization'], 'Example')
+        self.assertEqual(op1_args['group'], 'Example')
         self.assertEqual(op1_args['start'], str(datetime_to_utc(datetime.datetime(2012, 1, 1))))
         self.assertEqual(op1_args['end'], str(datetime_to_utc(datetime.datetime(2014, 1, 1))))
 
@@ -4475,7 +4475,7 @@ class TestUpdateEnrollment(TestCase):
         op2_args = json.loads(op2.args)
         self.assertEqual(len(op2_args), 4)
         self.assertEqual(op2_args['individual'], '3283e58cef2b80007aa1dfc16f6dd20ace1aee96')
-        self.assertEqual(op2_args['organization'], 'Example')
+        self.assertEqual(op2_args['group'], 'Example')
         self.assertEqual(op2_args['start'], str(datetime_to_utc(datetime.datetime(2012, 1, 2))))
         self.assertEqual(op2_args['end'], str(datetime_to_utc(datetime.datetime(2013, 12, 31))))
 
@@ -4630,12 +4630,12 @@ class TestMergeIndividuals(TestCase):
         self.assertEqual(len(enrollments), 2)
 
         rol1 = enrollments[0]
-        self.assertEqual(rol1.organization.name, 'Example')
+        self.assertEqual(rol1.group.name, 'Example')
         self.assertEqual(rol1.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
         self.assertEqual(rol1.end, datetime.datetime(2017, 6, 1, tzinfo=UTC))
 
         rol2 = enrollments[1]
-        self.assertEqual(rol2.organization.name, 'Bitergia')
+        self.assertEqual(rol2.group.name, 'Bitergia')
         self.assertEqual(rol2.start, datetime.datetime(2017, 6, 2, tzinfo=UTC))
         self.assertEqual(rol2.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
 
@@ -4718,12 +4718,12 @@ class TestMergeIndividuals(TestCase):
         self.assertEqual(len(enrollments), 2)
 
         rol1 = enrollments[0]
-        self.assertEqual(rol1.organization.name, 'Example')
+        self.assertEqual(rol1.group.name, 'Example')
         self.assertEqual(rol1.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
         self.assertEqual(rol1.end, datetime.datetime(2017, 6, 1, tzinfo=UTC))
 
         rol2 = enrollments[1]
-        self.assertEqual(rol2.organization.name, 'Bitergia')
+        self.assertEqual(rol2.group.name, 'Bitergia')
         self.assertEqual(rol2.start, datetime.datetime(2017, 6, 2, tzinfo=UTC))
         self.assertEqual(rol2.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
 
@@ -4808,12 +4808,12 @@ class TestMergeIndividuals(TestCase):
         self.assertEqual(len(enrollments), 2)
 
         rol1 = enrollments[0]
-        self.assertEqual(rol1.organization.name, 'Example')
+        self.assertEqual(rol1.group.name, 'Example')
         self.assertEqual(rol1.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
         self.assertEqual(rol1.end, datetime.datetime(2017, 6, 1, tzinfo=UTC))
 
         rol2 = enrollments[1]
-        self.assertEqual(rol2.organization.name, 'Bitergia')
+        self.assertEqual(rol2.group.name, 'Bitergia')
         self.assertEqual(rol2.start, datetime.datetime(2017, 6, 2, tzinfo=UTC))
         self.assertEqual(rol2.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
 
@@ -4885,17 +4885,17 @@ class TestMergeIndividuals(TestCase):
         self.assertEqual(len(enrollments), 3)
 
         rol1 = enrollments[0]
-        self.assertEqual(rol1.organization.name, 'Bitergia')
+        self.assertEqual(rol1.group.name, 'Bitergia')
         self.assertEqual(rol1.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
         self.assertEqual(rol1.end, datetime.datetime(2015, 1, 1, tzinfo=UTC))
 
         rol2 = enrollments[1]
-        self.assertEqual(rol2.organization.name, 'Example')
+        self.assertEqual(rol2.group.name, 'Example')
         self.assertEqual(rol2.start, datetime.datetime(2015, 1, 2, tzinfo=UTC))
         self.assertEqual(rol2.end, datetime.datetime(2016, 12, 31, tzinfo=UTC))
 
         rol3 = enrollments[2]
-        self.assertEqual(rol3.organization.name, 'Bitergia')
+        self.assertEqual(rol3.group.name, 'Bitergia')
         self.assertEqual(rol3.start, datetime.datetime(2017, 1, 1, tzinfo=UTC))
         self.assertEqual(rol3.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
 
@@ -4910,7 +4910,7 @@ class TestMergeIndividuals(TestCase):
         self.assertEqual(len(enrollments), 1)
 
         rol = enrollments[0]
-        self.assertEqual(rol.organization.name, 'Example')
+        self.assertEqual(rol.group.name, 'Example')
         self.assertEqual(rol.start, datetime.datetime(2015, 1, 1, tzinfo=UTC))
         self.assertEqual(rol.end, datetime.datetime(2017, 6, 1, tzinfo=UTC))
 
@@ -4925,12 +4925,12 @@ class TestMergeIndividuals(TestCase):
         self.assertEqual(len(enrollments), 2)
 
         rol1 = enrollments[0]
-        self.assertEqual(rol1.organization.name, 'Example')
+        self.assertEqual(rol1.group.name, 'Example')
         self.assertEqual(rol1.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
         self.assertEqual(rol1.end, datetime.datetime(2017, 6, 1, tzinfo=UTC))
 
         rol2 = enrollments[1]
-        self.assertEqual(rol2.organization.name, 'Bitergia')
+        self.assertEqual(rol2.group.name, 'Bitergia')
         self.assertEqual(rol2.start, datetime.datetime(2017, 4, 1, tzinfo=UTC))
         self.assertEqual(rol2.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
 
@@ -4945,7 +4945,7 @@ class TestMergeIndividuals(TestCase):
         self.assertEqual(len(enrollments), 1)
 
         rol = enrollments[0]
-        self.assertEqual(rol.organization.name, 'Example')
+        self.assertEqual(rol.group.name, 'Example')
         self.assertEqual(rol.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
         self.assertEqual(rol.end, datetime.datetime(2017, 6, 1, tzinfo=UTC))
 
@@ -5199,7 +5199,7 @@ class TestMergeIndividuals(TestCase):
         op3_args = json.loads(op3.args)
         self.assertEqual(len(op3_args), 4)
         self.assertEqual(op3_args['mk'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
-        self.assertEqual(op3_args['organization'], 'Example')
+        self.assertEqual(op3_args['group'], 'Example')
         self.assertEqual(op3_args['start'], str(datetime_to_utc(datetime.datetime(1900, 1, 1))))
         self.assertEqual(op3_args['end'], str(datetime_to_utc(datetime.datetime(2017, 6, 1))))
 
@@ -5214,7 +5214,7 @@ class TestMergeIndividuals(TestCase):
         op4_args = json.loads(op4.args)
         self.assertEqual(len(op4_args), 4)
         self.assertEqual(op4_args['mk'], 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
-        self.assertEqual(op4_args['organization'], 'Bitergia')
+        self.assertEqual(op4_args['group'], 'Bitergia')
         self.assertEqual(op4_args['start'], str(datetime_to_utc(datetime.datetime(2017, 6, 2))))
         self.assertEqual(op4_args['end'], str(datetime_to_utc(datetime.datetime(2100, 1, 1))))
 
@@ -5229,7 +5229,7 @@ class TestMergeIndividuals(TestCase):
         op5_args = json.loads(op5.args)
         self.assertEqual(len(op5_args), 4)
         self.assertEqual(op5_args['individual'], 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
-        self.assertEqual(op5_args['organization'], 'Example')
+        self.assertEqual(op5_args['group'], 'Example')
         self.assertEqual(op5_args['start'], str(datetime_to_utc(datetime.datetime(1900, 1, 1))))
         self.assertEqual(op5_args['end'], str(datetime_to_utc(datetime.datetime(2017, 6, 1))))
 
@@ -5244,7 +5244,7 @@ class TestMergeIndividuals(TestCase):
         op6_args = json.loads(op6.args)
         self.assertEqual(len(op6_args), 4)
         self.assertEqual(op6_args['individual'], 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
-        self.assertEqual(op6_args['organization'], 'Bitergia')
+        self.assertEqual(op6_args['group'], 'Bitergia')
         self.assertEqual(op6_args['start'], str(datetime_to_utc(datetime.datetime(2017, 6, 2))))
         self.assertEqual(op6_args['end'], str(datetime_to_utc(datetime.datetime(2100, 1, 1))))
 
@@ -5406,12 +5406,12 @@ class TestUnmergeIdentities(TestCase):
         self.assertEqual(len(enrollments), 2)
 
         rol1 = enrollments[0]
-        self.assertEqual(rol1.organization.name, 'Example')
+        self.assertEqual(rol1.group.name, 'Example')
         self.assertEqual(rol1.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
         self.assertEqual(rol1.end, datetime.datetime(2017, 6, 1, tzinfo=UTC))
 
         rol2 = enrollments[1]
-        self.assertEqual(rol2.organization.name, 'Bitergia')
+        self.assertEqual(rol2.group.name, 'Bitergia')
         self.assertEqual(rol2.start, datetime.datetime(2017, 6, 2, tzinfo=UTC))
         self.assertEqual(rol2.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
 
@@ -5516,12 +5516,12 @@ class TestUnmergeIdentities(TestCase):
         self.assertEqual(len(enrollments), 2)
 
         rol1 = enrollments[0]
-        self.assertEqual(rol1.organization.name, 'Example')
+        self.assertEqual(rol1.group.name, 'Example')
         self.assertEqual(rol1.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
         self.assertEqual(rol1.end, datetime.datetime(2017, 6, 1, tzinfo=UTC))
 
         rol2 = enrollments[1]
-        self.assertEqual(rol2.organization.name, 'Bitergia')
+        self.assertEqual(rol2.group.name, 'Bitergia')
         self.assertEqual(rol2.start, datetime.datetime(2017, 6, 2, tzinfo=UTC))
         self.assertEqual(rol2.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
 

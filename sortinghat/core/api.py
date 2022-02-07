@@ -1164,7 +1164,7 @@ def merge(ctx, from_uuids, to_uuid):
 
         enrollments = {}
         for enrollment in enrollments_db:
-            org = enrollment.organization
+            org = enrollment.group
             dates = enrollments.setdefault(org, [])
             dates.append((enrollment.start, enrollment.end))
             enrollments[org] = dates
