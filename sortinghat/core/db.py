@@ -200,6 +200,36 @@ def find_team(team_name, organization=None):
         return team
 
 
+def find_group(name, parent_org=None):
+    """Find a group.
+
+    Find an group by its name in the database. If a parent organization
+    is passed, it looks for a team in that organization.
+
+    When the group does not exist the function will raise
+    a `NotFoundError`.
+
+    :param name: name of the group to find
+    :param parent_org: name of the group's parent organization
+
+    :returns: a group object
+
+    :raises NotFoundError: when the group with the
+        given `name` does not exists.
+    """
+    validate_field('name', name)
+
+    try:
+        logger.debug(f"Finding group '{name}'" + f"in '{parent_org}' ..." if parent_org else "...")
+        group = Group.objects.get(name=name, parent_org__name=parent_org)
+    except Group.DoesNotExist:
+        logger.debug(f"Group with name '{name}' does not exist")
+        raise NotFoundError(entity=name)
+    else:
+        logger.debug(f"Group with name '{name}' was found")
+        return group
+
+
 def find_domain(domain_name):
     """Find a domain.
 
@@ -228,6 +258,7 @@ def find_domain(domain_name):
 
 
 def search_enrollments_in_period(mk, group_name,
+                                 parent_org=None,
                                  from_date=MIN_PERIOD_DATE,
                                  to_date=MIN_PERIOD_DATE):
     """Look for enrollments in a given period.
@@ -241,6 +272,7 @@ def search_enrollments_in_period(mk, group_name,
 
     :param mk: main key of the individual
     :param group_name: name of the group
+    :param parent_org: name of the group's parent organization
     :param from_date: starting date for the period
     :param to_date: ending date for the period
 
@@ -253,6 +285,7 @@ def search_enrollments_in_period(mk, group_name,
     )
     return Enrollment.objects.filter(individual__mk=mk,
                                      group__name=group_name,
+                                     group__parent_org__name=parent_org,
                                      start__lte=to_date, end__gte=from_date).order_by('start')
 
 

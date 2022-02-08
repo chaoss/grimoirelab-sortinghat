@@ -82,6 +82,7 @@ IDENTITY_DATA_WHITESPACES_ERROR = "'{name}' cannot be composed by whitespaces on
 INDIVIDUAL_NOT_FOUND_ERROR = "zyxwuv not found in the registry"
 IDENTITY_NOT_FOUND_ERROR = "zyxwuv not found in the registry"
 ORGANIZATION_NOT_FOUND_ERROR = "Bitergia not found in the registry"
+GROUP_NOT_FOUND_ERROR = "Bitergia not found in the registry"
 DOMAIN_NOT_FOUND_ERROR = "example.net not found in the registry"
 TEAM_NOT_FOUND_ERROR = "subTeam not found in the registry"
 TEAM_NAME_NONE_ERROR = "'team_name' cannot be None"
@@ -258,6 +259,55 @@ class TestFindTeam(TestCase):
             db.find_team('  \t  ', self.org)
 
 
+class TestFindGroup(TestCase):
+    """Unit tests for find_group"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        self.org = Organization.add_root(name='Example Org')
+        Team.add_root(name='Example Team', parent_org=self.org)
+        Team.add_root(name='Example Group')
+
+    def test_find_organization(self):
+        """Test if an organization is found by its name"""
+
+        name = 'Example Org'
+
+        group = db.find_group(name)
+        self.assertIsInstance(group, Group)
+        self.assertEqual(group.type, 'organization')
+        self.assertEqual(group.name, name)
+
+    def test_find_team(self):
+        """Test if a team is found by its name and parent organization"""
+
+        name = 'Example Team'
+
+        group = db.find_group(name, 'Example Org')
+        self.assertIsInstance(group, Group)
+        self.assertEqual(group.type, 'team')
+        self.assertEqual(group.name, name)
+        self.assertEqual(group.parent_org.name, self.org.name)
+
+    def test_find_group(self):
+        """Test if a team with no parent organization is found"""
+
+        name = 'Example Group'
+
+        group = db.find_group(name)
+        self.assertIsInstance(group, Group)
+        self.assertEqual(group.type, 'team')
+        self.assertEqual(group.name, name)
+        self.assertEqual(group.parent_org, None)
+
+    def test_group_not_found(self):
+        """Test whether it raises an exception when the group is not found"""
+
+        with self.assertRaisesRegex(NotFoundError, GROUP_NOT_FOUND_ERROR):
+            db.find_group('Bitergia')
+
+
 class TestFindDomain(TestCase):
     """Unit tests for find_domain"""
 
@@ -419,6 +469,48 @@ class TestSearchEnrollmentsInPeriod(TestCase):
                                                       from_date=datetime.datetime(1999, 1, 1, tzinfo=UTC),
                                                       to_date=datetime.datetime(2000, 1, 1, tzinfo=UTC))
         self.assertEqual(len(enrollments), 0)
+
+    def test_search_enrollments_in_team(self):
+        individual_a = Individual.objects.create(mk='AAAA')
+        example_org = Organization.add_root(name='Example')
+        team1 = Team.add_root(name='Team 1', parent_org=example_org)
+        team2 = Team.add_root(name='Team 2', parent_org=example_org)
+
+        Enrollment.objects.create(individual=individual_a, group=team1,
+                                  start=datetime.datetime(1999, 1, 1, tzinfo=UTC),
+                                  end=datetime.datetime(2000, 1, 1, tzinfo=UTC))
+        Enrollment.objects.create(individual=individual_a, group=team1,
+                                  start=datetime.datetime(2002, 1, 1, tzinfo=UTC),
+                                  end=datetime.datetime(2004, 1, 1, tzinfo=UTC))
+        Enrollment.objects.create(individual=individual_a, group=team1,
+                                  start=datetime.datetime(2006, 1, 1, tzinfo=UTC),
+                                  end=datetime.datetime(2008, 1, 1, tzinfo=UTC))
+
+        Enrollment.objects.create(individual=individual_a, group=team2,
+                                  start=datetime.datetime(2001, 1, 1, tzinfo=UTC),
+                                  end=datetime.datetime(2006, 1, 1, tzinfo=UTC))
+
+        # Tests
+        enrollments = db.search_enrollments_in_period('AAAA', 'Team 1',
+                                                      parent_org='Example',
+                                                      from_date=datetime.datetime(2003, 1, 1, tzinfo=UTC),
+                                                      to_date=datetime.datetime(2009, 1, 1, tzinfo=UTC))
+
+        self.assertEqual(len(enrollments), 2)
+
+        rol = enrollments[0]
+        self.assertIsInstance(rol, Enrollment)
+        self.assertEqual(rol.individual, individual_a)
+        self.assertEqual(rol.group, team1)
+        self.assertEqual(rol.start, datetime.datetime(2002, 1, 1, tzinfo=UTC))
+        self.assertEqual(rol.end, datetime.datetime(2004, 1, 1, tzinfo=UTC))
+
+        rol = enrollments[1]
+        self.assertIsInstance(rol, Enrollment)
+        self.assertEqual(rol.individual, individual_a)
+        self.assertEqual(rol.group, team1)
+        self.assertEqual(rol.start, datetime.datetime(2006, 1, 1, tzinfo=UTC))
+        self.assertEqual(rol.end, datetime.datetime(2008, 1, 1, tzinfo=UTC))
 
 
 class TestAddOrganization(TestCase):
@@ -2019,6 +2111,36 @@ class TestAddEnrollment(TestCase):
         self.assertEqual(enrollment.end, end)
         self.assertEqual(enrollment.individual, individual)
         self.assertEqual(enrollment.group, org)
+
+        individual = Individual.objects.get(mk=mk)
+
+        enrollments = individual.enrollments.all()
+        self.assertEqual(len(enrollments), 1)
+
+        enrollment_db = enrollments[0]
+        self.assertEqual(enrollment, enrollment_db)
+
+    def test_enroll_in_team(self):
+        """Check if a new enrollment in a team is added"""
+
+        mk = '1234567890ABCDFE'
+
+        individual = Individual.objects.create(mk=mk)
+        org = Organization.add_root(name='Bitergia')
+        team = Team.add_root(name='Example', parent_org=org)
+
+        start = datetime.datetime(1999, 1, 1, tzinfo=UTC)
+        end = datetime.datetime(2000, 1, 1, tzinfo=UTC)
+
+        enrollment = db.add_enrollment(self.trxl, individual, team,
+                                       start=start, end=end)
+
+        self.assertIsInstance(enrollment, Enrollment)
+        self.assertEqual(enrollment.start, start)
+        self.assertEqual(enrollment.end, end)
+        self.assertEqual(enrollment.individual, individual)
+        self.assertEqual(enrollment.group, team)
+        self.assertEqual(enrollment.group.parent_org, org)
 
         individual = Individual.objects.get(mk=mk)
 

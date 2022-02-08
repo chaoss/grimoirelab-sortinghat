@@ -619,6 +619,22 @@ SH_INDIVIDUALS_ENROLLMENT_FILTER = """{
       }
     }
 }"""
+SH_INDIVIDUALS_ENROLLMENT_TEAM_FILTER = """{
+    individuals(filters: {enrollment: "%s", enrollmentParentOrg: "Bitergia"}) {
+      entities {
+        mk
+        enrollments {
+          group {
+            name
+            type
+            parentOrg {
+              name
+            }
+          }
+        }
+      }
+    }
+}"""
 SH_INDIVIDUALS_ENROLLMENT_DATE_FILTER = """{
     individuals(filters: {enrollmentDate: "%s"}) {
       entities {
@@ -3463,6 +3479,45 @@ class TestQueryIndividuals(django.test.TestCase):
         self.assertEqual(indv['mk'], '185c4b709e5446d250b4fde0e34b78a2b4fde0e3')
         enrollment = indv['enrollments'][0]
         self.assertEqual(enrollment['group']['name'], 'Bit Company')
+
+        # Test no results for enrollment
+        executed = client.execute(SH_INDIVIDUALS_ENROLLMENT_FILTER % 'Organization',
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 0)
+
+    def test_filter_team_enrollment(self):
+        """Check whether it returns the uuid searched when using enrollment filter"""
+
+        org = Organization.add_root(name='Bitergia')
+        team1 = Team.add_root(name='Team 1', parent_org=org)
+        team2 = Team.add_root(name='Team 2', parent_org=org)
+        indv1 = Individual.objects.create(mk='a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        indv2 = Individual.objects.create(mk='185c4b709e5446d250b4fde0e34b78a2b4fde0e3')
+        Enrollment.objects.create(individual=indv1, group=team1)
+        Enrollment.objects.create(individual=indv2, group=team2)
+
+        # Test full team name match
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_INDIVIDUALS_ENROLLMENT_TEAM_FILTER % 'Team 1',
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 1)
+
+        indv = individuals[0]
+        self.assertEqual(indv['mk'], 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        enrollment = indv['enrollments'][0]
+        self.assertEqual(enrollment['group']['name'], 'Team 1')
+        self.assertEqual(enrollment['group']['type'], 'team')
+
+        # Test partial team name match
+        executed = client.execute(SH_INDIVIDUALS_ENROLLMENT_FILTER % 'tea',
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 2)
 
         # Test no results for enrollment
         executed = client.execute(SH_INDIVIDUALS_ENROLLMENT_FILTER % 'Organization',
@@ -6697,10 +6752,10 @@ class TestEnrollMutation(django.test.TestCase):
     """Unit tests for mutation to enroll identities"""
 
     SH_ENROLL = """
-      mutation enrollId($uuid: String, $group: String,
+      mutation enrollId($uuid: String, $group: String, $parentOrg: String,
                         $fromDate: DateTime, $toDate: DateTime,
                         $force: Boolean) {
-        enroll(uuid: $uuid, group: $group
+        enroll(uuid: $uuid, group: $group, parentOrg: $parentOrg,
                fromDate: $fromDate, toDate: $toDate,
                force: $force) {
           uuid
@@ -6709,6 +6764,10 @@ class TestEnrollMutation(django.test.TestCase):
             enrollments {
               group {
                 name
+                type
+                parentOrg {
+                  name
+                }
               }
             start
             end
@@ -6731,13 +6790,18 @@ class TestEnrollMutation(django.test.TestCase):
         self.trxl = TransactionsLog.open('enroll', self.ctx)
 
         jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
-        db.add_organization(self.trxl, 'Example')
+        org = db.add_organization(self.trxl, 'Example')
+        db.add_team(self.trxl, 'Example Team', organization=org)
 
         api.enroll(self.ctx, jsmith.uuid, 'Example',
                    from_date=datetime.datetime(1999, 1, 1),
                    to_date=datetime.datetime(2000, 1, 1))
         api.enroll(self.ctx, jsmith.uuid, 'Example',
                    from_date=datetime.datetime(2004, 1, 1),
+                   to_date=datetime.datetime(2006, 1, 1))
+        api.enroll(self.ctx, jsmith.uuid, 'Example Team',
+                   parent_org='Example',
+                   from_date=datetime.datetime(2005, 1, 1),
                    to_date=datetime.datetime(2006, 1, 1))
 
     def test_enroll(self):
@@ -6758,20 +6822,29 @@ class TestEnrollMutation(django.test.TestCase):
         # Check results, profile was updated
         enrollments = executed['data']['enroll']['individual']['enrollments']
 
-        self.assertEqual(len(enrollments), 3)
+        self.assertEqual(len(enrollments), 4)
 
         enrollment = enrollments[0]
         self.assertEqual(enrollment['group']['name'], 'Example')
+        self.assertEqual(enrollment['group']['type'], 'organization')
         self.assertEqual(enrollment['start'], '1999-01-01T00:00:00+00:00')
         self.assertEqual(enrollment['end'], '2000-01-01T00:00:00+00:00')
 
         enrollment = enrollments[1]
         self.assertEqual(enrollment['group']['name'], 'Example')
+        self.assertEqual(enrollment['group']['type'], 'organization')
         self.assertEqual(enrollment['start'], '2004-01-01T00:00:00+00:00')
         self.assertEqual(enrollment['end'], '2006-01-01T00:00:00+00:00')
 
         enrollment = enrollments[2]
+        self.assertEqual(enrollment['group']['name'], 'Example Team')
+        self.assertEqual(enrollment['group']['type'], 'team')
+        self.assertEqual(enrollment['start'], '2005-01-01T00:00:00+00:00')
+        self.assertEqual(enrollment['end'], '2006-01-01T00:00:00+00:00')
+
+        enrollment = enrollments[3]
         self.assertEqual(enrollment['group']['name'], 'Example')
+        self.assertEqual(enrollment['group']['type'], 'organization')
         self.assertEqual(enrollment['start'], '2008-01-01T00:00:00+00:00')
         self.assertEqual(enrollment['end'], '2009-01-01T00:00:00+00:00')
 
@@ -6782,7 +6855,63 @@ class TestEnrollMutation(django.test.TestCase):
         individual = Individual.objects.get(mk='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
         enrollments_db = individual.enrollments.all()
-        self.assertEqual(len(enrollments_db), 3)
+        self.assertEqual(len(enrollments_db), 4)
+
+    def test_enroll_in_team(self):
+        """Check if it enrolls an individual in a team"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuid': 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+            'group': 'Example Team',
+            'parentOrg': 'Example',
+            'fromDate': '2008-01-01T00:00:00+0000',
+            'toDate': '2009-01-01T00:00:00+0000'
+        }
+        executed = client.execute(self.SH_ENROLL,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        # Check results, profile was updated
+        enrollments = executed['data']['enroll']['individual']['enrollments']
+
+        self.assertEqual(len(enrollments), 4)
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment['group']['name'], 'Example')
+        self.assertEqual(enrollment['group']['type'], 'organization')
+        self.assertEqual(enrollment['start'], '1999-01-01T00:00:00+00:00')
+        self.assertEqual(enrollment['end'], '2000-01-01T00:00:00+00:00')
+
+        enrollment = enrollments[1]
+        self.assertEqual(enrollment['group']['name'], 'Example')
+        self.assertEqual(enrollment['group']['type'], 'organization')
+        self.assertEqual(enrollment['start'], '2004-01-01T00:00:00+00:00')
+        self.assertEqual(enrollment['end'], '2006-01-01T00:00:00+00:00')
+
+        enrollment = enrollments[2]
+        self.assertEqual(enrollment['group']['name'], 'Example Team')
+        self.assertEqual(enrollment['group']['type'], 'team')
+        self.assertEqual(enrollment['group']['parentOrg']['name'], 'Example')
+        self.assertEqual(enrollment['start'], '2005-01-01T00:00:00+00:00')
+        self.assertEqual(enrollment['end'], '2006-01-01T00:00:00+00:00')
+
+        enrollment = enrollments[3]
+        self.assertEqual(enrollment['group']['name'], 'Example Team')
+        self.assertEqual(enrollment['group']['type'], 'team')
+        self.assertEqual(enrollment['group']['parentOrg']['name'], 'Example')
+        self.assertEqual(enrollment['start'], '2008-01-01T00:00:00+00:00')
+        self.assertEqual(enrollment['end'], '2009-01-01T00:00:00+00:00')
+
+        uuid = executed['data']['enroll']['uuid']
+        self.assertEqual(uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        # Check database
+        individual = Individual.objects.get(mk='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        enrollments_db = individual.enrollments.all()
+        self.assertEqual(len(enrollments_db), 4)
 
     def test_enroll_ignore_default(self):
         """Check if it enrolls an individual ignoring default dates"""
@@ -6802,7 +6931,7 @@ class TestEnrollMutation(django.test.TestCase):
         # Checking results with default dates
         enrollments = executed['data']['enroll']['individual']['enrollments']
 
-        self.assertEqual(len(enrollments), 3)
+        self.assertEqual(len(enrollments), 4)
 
         enrollment = enrollments[0]
         self.assertEqual(enrollment['group']['name'], 'Bitergia')
@@ -6819,6 +6948,13 @@ class TestEnrollMutation(django.test.TestCase):
         self.assertEqual(enrollment['start'], '2004-01-01T00:00:00+00:00')
         self.assertEqual(enrollment['end'], '2006-01-01T00:00:00+00:00')
 
+        enrollment = enrollments[3]
+        self.assertEqual(enrollment['group']['name'], 'Example Team')
+        self.assertEqual(enrollment['group']['type'], 'team')
+        self.assertEqual(enrollment['group']['parentOrg']['name'], 'Example')
+        self.assertEqual(enrollment['start'], '2005-01-01T00:00:00+00:00')
+        self.assertEqual(enrollment['end'], '2006-01-01T00:00:00+00:00')
+
         uuid = executed['data']['enroll']['uuid']
         self.assertEqual(uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
@@ -6826,7 +6962,7 @@ class TestEnrollMutation(django.test.TestCase):
         individual = Individual.objects.get(mk='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
         enrollments_db = individual.enrollments.all()
-        self.assertEqual(len(enrollments_db), 3)
+        self.assertEqual(len(enrollments_db), 4)
 
         params = {
             'uuid': 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
@@ -6842,7 +6978,7 @@ class TestEnrollMutation(django.test.TestCase):
         # Checking results with updated dates
         enrollments = executed['data']['enroll']['individual']['enrollments']
 
-        self.assertEqual(len(enrollments), 3)
+        self.assertEqual(len(enrollments), 4)
 
         enrollment = enrollments[0]
         self.assertEqual(enrollment['group']['name'], 'Example')
@@ -6855,6 +6991,13 @@ class TestEnrollMutation(django.test.TestCase):
         self.assertEqual(enrollment['end'], '2006-01-01T00:00:00+00:00')
 
         enrollment = enrollments[2]
+        self.assertEqual(enrollment['group']['name'], 'Example Team')
+        self.assertEqual(enrollment['group']['type'], 'team')
+        self.assertEqual(enrollment['group']['parentOrg']['name'], 'Example')
+        self.assertEqual(enrollment['start'], '2005-01-01T00:00:00+00:00')
+        self.assertEqual(enrollment['end'], '2006-01-01T00:00:00+00:00')
+
+        enrollment = enrollments[3]
         self.assertEqual(enrollment['group']['name'], 'Bitergia')
         self.assertEqual(enrollment['start'], '2008-01-01T00:00:00+00:00')
         self.assertEqual(enrollment['end'], '2009-01-01T00:00:00+00:00')
@@ -6866,7 +7009,7 @@ class TestEnrollMutation(django.test.TestCase):
         individual = Individual.objects.get(mk='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
         enrollments_db = individual.enrollments.all()
-        self.assertEqual(len(enrollments_db), 3)
+        self.assertEqual(len(enrollments_db), 4)
 
     def test_merge_enrollments(self):
         """Check if enrollments are merged for overlapped new entries"""
@@ -6886,7 +7029,7 @@ class TestEnrollMutation(django.test.TestCase):
         # Check results, profile was updated
         enrollments = executed['data']['enroll']['individual']['enrollments']
 
-        self.assertEqual(len(enrollments), 1)
+        self.assertEqual(len(enrollments), 2)
 
         enrollment = enrollments[0]
         self.assertEqual(enrollment['group']['name'], 'Example')
@@ -6900,7 +7043,7 @@ class TestEnrollMutation(django.test.TestCase):
         individual = Individual.objects.get(mk='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
         enrollments_db = individual.enrollments.all()
-        self.assertEqual(len(enrollments_db), 1)
+        self.assertEqual(len(enrollments_db), 2)
 
     def test_non_existing_uuid(self):
         """Check if it fails when the individual does not exist"""
@@ -6958,7 +7101,7 @@ class TestEnrollMutation(django.test.TestCase):
         # Checking results with default dates
         enrollments = executed['data']['enroll']['individual']['enrollments']
 
-        self.assertEqual(len(enrollments), 3)
+        self.assertEqual(len(enrollments), 4)
 
         enrollment = enrollments[0]
         self.assertEqual(enrollment['group']['name'], 'Bitergia')
@@ -6973,6 +7116,13 @@ class TestEnrollMutation(django.test.TestCase):
         enrollment = enrollments[2]
         self.assertEqual(enrollment['group']['name'], 'Example')
         self.assertEqual(enrollment['start'], '2004-01-01T00:00:00+00:00')
+        self.assertEqual(enrollment['end'], '2006-01-01T00:00:00+00:00')
+
+        enrollment = enrollments[3]
+        self.assertEqual(enrollment['group']['name'], 'Example Team')
+        self.assertEqual(enrollment['group']['type'], 'team')
+        self.assertEqual(enrollment['group']['parentOrg']['name'], 'Example')
+        self.assertEqual(enrollment['start'], '2005-01-01T00:00:00+00:00')
         self.assertEqual(enrollment['end'], '2006-01-01T00:00:00+00:00')
 
         # Tests
@@ -7062,9 +7212,9 @@ class TestWithdrawMutation(django.test.TestCase):
     """Unit tests for mutation to withdraw identities"""
 
     SH_WITHDRAW = """
-      mutation withdrawId($uuid: String, $group: String,
+      mutation withdrawId($uuid: String, $group: String, $parentOrg: String,
                           $fromDate: DateTime, $toDate: DateTime) {
-        withdraw(uuid: $uuid, group: $group
+        withdraw(uuid: $uuid, group: $group, parentOrg: $parentOrg,
                  fromDate: $fromDate, toDate: $toDate) {
           uuid
           individual {
@@ -7072,6 +7222,7 @@ class TestWithdrawMutation(django.test.TestCase):
             enrollments {
               group {
                 name
+                type
               }
             start
             end
@@ -7093,7 +7244,8 @@ class TestWithdrawMutation(django.test.TestCase):
         # Transaction
         self.trxl = TransactionsLog.open('withdraw', self.ctx)
 
-        db.add_organization(self.trxl, 'Example')
+        org = db.add_organization(self.trxl, 'Example')
+        db.add_team(self.trxl, 'Example Team', organization=org)
         db.add_organization(self.trxl, 'LibreSoft')
 
         api.add_identity(self.ctx, 'scm', email='jsmith@example')
@@ -7113,6 +7265,11 @@ class TestWithdrawMutation(django.test.TestCase):
                    'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'LibreSoft',
                    from_date=datetime.datetime(2012, 1, 1),
                    to_date=datetime.datetime(2014, 1, 1))
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example Team',
+                   parent_org='Example',
+                   from_date=datetime.datetime(2015, 1, 1),
+                   to_date=datetime.datetime(2016, 1, 1))
 
         api.add_identity(self.ctx, 'scm', email='jrae@example')
         api.enroll(self.ctx,
@@ -7138,7 +7295,7 @@ class TestWithdrawMutation(django.test.TestCase):
         # Check results, enrollments were updated
         enrollments = executed['data']['withdraw']['individual']['enrollments']
 
-        self.assertEqual(len(enrollments), 3)
+        self.assertEqual(len(enrollments), 4)
 
         enrollment = enrollments[0]
         self.assertEqual(enrollment['group']['name'], 'Example')
@@ -7155,6 +7312,11 @@ class TestWithdrawMutation(django.test.TestCase):
         self.assertEqual(enrollment['start'], '2013-01-01T00:00:00+00:00')
         self.assertEqual(enrollment['end'], '2014-01-01T00:00:00+00:00')
 
+        enrollment = enrollments[3]
+        self.assertEqual(enrollment['group']['name'], 'Example Team')
+        self.assertEqual(enrollment['start'], '2015-01-01T00:00:00+00:00')
+        self.assertEqual(enrollment['end'], '2016-01-01T00:00:00+00:00')
+
         uuid = executed['data']['withdraw']['uuid']
         self.assertEqual(uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
@@ -7162,7 +7324,62 @@ class TestWithdrawMutation(django.test.TestCase):
         individual = Individual.objects.get(mk='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
         enrollments_db = individual.enrollments.all()
-        self.assertEqual(len(enrollments_db), 3)
+        self.assertEqual(len(enrollments_db), 4)
+
+        # Other enrollments were not deleted
+        individual_db = Individual.objects.get(mk='3283e58cef2b80007aa1dfc16f6dd20ace1aee96')
+        enrollments_db = individual_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 1)
+
+    def test_withdraw_from_team(self):
+        """Check if it withdraws an individual from a team"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuid': 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+            'group': 'Example Team',
+            'parentOrg': 'Example',
+            'fromDate': '2015-01-01T00:00:00+0000',
+            'toDate': '2016-01-01T00:00:00+0000'
+        }
+        executed = client.execute(self.SH_WITHDRAW,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        # Check results, enrollments were updated
+        enrollments = executed['data']['withdraw']['individual']['enrollments']
+
+        self.assertEqual(len(enrollments), 4)
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment['group']['name'], 'Example')
+        self.assertEqual(enrollment['start'], '2006-01-01T00:00:00+00:00')
+        self.assertEqual(enrollment['end'], '2008-01-01T00:00:00+00:00')
+
+        enrollment = enrollments[1]
+        self.assertEqual(enrollment['group']['name'], 'Example')
+        self.assertEqual(enrollment['start'], '2009-01-01T00:00:00+00:00')
+        self.assertEqual(enrollment['end'], '2011-01-01T00:00:00+00:00')
+
+        enrollment = enrollments[2]
+        self.assertEqual(enrollment['group']['name'], 'Example')
+        self.assertEqual(enrollment['start'], '2012-01-01T00:00:00+00:00')
+        self.assertEqual(enrollment['end'], '2014-01-01T00:00:00+00:00')
+
+        enrollment = enrollments[3]
+        self.assertEqual(enrollment['group']['name'], 'LibreSoft')
+        self.assertEqual(enrollment['start'], '2012-01-01T00:00:00+00:00')
+        self.assertEqual(enrollment['end'], '2014-01-01T00:00:00+00:00')
+
+        uuid = executed['data']['withdraw']['uuid']
+        self.assertEqual(uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        # Check database
+        individual = Individual.objects.get(mk='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        enrollments_db = individual.enrollments.all()
+        self.assertEqual(len(enrollments_db), 4)
 
         # Other enrollments were not deleted
         individual_db = Individual.objects.get(mk='3283e58cef2b80007aa1dfc16f6dd20ace1aee96')
@@ -7185,12 +7402,17 @@ class TestWithdrawMutation(django.test.TestCase):
         # Check results, enrollments were updated
         enrollments = executed['data']['withdraw']['individual']['enrollments']
 
-        self.assertEqual(len(enrollments), 1)
+        self.assertEqual(len(enrollments), 2)
 
         enrollment = enrollments[0]
         self.assertEqual(enrollment['group']['name'], 'LibreSoft')
         self.assertEqual(enrollment['start'], '2012-01-01T00:00:00+00:00')
         self.assertEqual(enrollment['end'], '2014-01-01T00:00:00+00:00')
+
+        enrollment = enrollments[1]
+        self.assertEqual(enrollment['group']['name'], 'Example Team')
+        self.assertEqual(enrollment['start'], '2015-01-01T00:00:00+00:00')
+        self.assertEqual(enrollment['end'], '2016-01-01T00:00:00+00:00')
 
         uuid = executed['data']['withdraw']['uuid']
         self.assertEqual(uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
@@ -7199,7 +7421,7 @@ class TestWithdrawMutation(django.test.TestCase):
         individual = Individual.objects.get(mk='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
         enrollments_db = individual.enrollments.all()
-        self.assertEqual(len(enrollments_db), 1)
+        self.assertEqual(len(enrollments_db), 2)
 
     def test_non_existing_uuid(self):
         """Check if it fails when the individual does not exist"""
@@ -7303,10 +7525,11 @@ class TestUpdateEnrollmentMutation(django.test.TestCase):
 
     SH_UPDATE_ENROLLMENT = """
       mutation updateEnrollmentId($uuid: String, $group: String,
+                                  $parentOrg: String,
                                   $fromDate: DateTime, $toDate: DateTime,
                                   $newFromDate: DateTime, $newToDate: DateTime,
                                   $force: Boolean) {
-        updateEnrollment(uuid: $uuid, group: $group,
+        updateEnrollment(uuid: $uuid, group: $group, parentOrg: $parentOrg,
                  fromDate: $fromDate, toDate: $toDate,
                  newFromDate: $newFromDate, newToDate: $newToDate,
                  force: $force) {
@@ -7335,6 +7558,7 @@ class TestUpdateEnrollmentMutation(django.test.TestCase):
         self.ctx = SortingHatContext(self.user)
 
         api.add_organization(self.ctx, 'Example')
+        api.add_team(self.ctx, 'Example Team', organization='Example')
         api.add_organization(self.ctx, 'Bitergia')
 
         api.add_identity(self.ctx, 'scm', email='jsmith@example')
@@ -7353,6 +7577,11 @@ class TestUpdateEnrollmentMutation(django.test.TestCase):
         api.enroll(self.ctx,
                    'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Bitergia',
                    from_date=datetime.datetime(2012, 1, 1),
+                   to_date=datetime.datetime(2014, 1, 1))
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example Team',
+                   parent_org='Example',
+                   from_date=datetime.datetime(2013, 1, 1),
                    to_date=datetime.datetime(2014, 1, 1))
 
         api.add_identity(self.ctx, 'scm', email='jrae@example')
@@ -7401,7 +7630,75 @@ class TestUpdateEnrollmentMutation(django.test.TestCase):
         # Other enrollments were not updated
         individual_db = Individual.objects.get(mk='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
         enrollments_db = individual_db.enrollments.all()
-        self.assertEqual(len(enrollments_db), 4)
+        self.assertEqual(len(enrollments_db), 5)
+
+        enrollment_db = enrollments_db[0]
+        self.assertEqual(enrollment_db.group.name, 'Example')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2006, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2008, 1, 1, tzinfo=UTC))
+
+        enrollment_db = enrollments_db[1]
+        self.assertEqual(enrollment_db.group.name, 'Example')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2009, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2011, 1, 1, tzinfo=UTC))
+
+        enrollment_db = enrollments_db[2]
+        self.assertEqual(enrollment_db.group.name, 'Example')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+        enrollment_db = enrollments_db[3]
+        self.assertEqual(enrollment_db.group.name, 'Bitergia')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+        enrollment_db = enrollments_db[4]
+        self.assertEqual(enrollment_db.group.name, 'Example Team')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2013, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+    def test_update_team_enrollment(self):
+        """Check whether it updates an individual's enrollment from a team during the given period"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuid': 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+            'group': 'Example Team',
+            'parentOrg': 'Example',
+            'fromDate': '2013-01-01T00:00:00+0000',
+            'toDate': '2014-01-01T00:00:00+0000',
+            'newFromDate': '2012-01-02T00:00:00+0000',
+            'newToDate': '2015-12-31T00:00:00+0000'
+        }
+        executed = client.execute(self.SH_UPDATE_ENROLLMENT,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        # Check results, enrollments were updated
+        enrollments = executed['data']['updateEnrollment']['individual']['enrollments']
+
+        self.assertEqual(len(enrollments), 5)
+
+        enrollment = enrollments[4]
+
+        self.assertEqual(enrollment['group']['name'], 'Example Team')
+        self.assertEqual(enrollment['start'], '2012-01-02T00:00:00+00:00')
+        self.assertEqual(enrollment['end'], '2015-12-31T00:00:00+00:00')
+
+        uuid = executed['data']['updateEnrollment']['uuid']
+        self.assertEqual(uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        # Check database
+        individual = Individual.objects.get(mk='3283e58cef2b80007aa1dfc16f6dd20ace1aee96')
+
+        enrollments_db = individual.enrollments.all()
+        self.assertEqual(len(enrollments_db), 1)
+
+        # Other enrollments were not updated
+        individual_db = Individual.objects.get(mk='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        enrollments_db = individual_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 5)
 
         enrollment_db = enrollments_db[0]
         self.assertEqual(enrollment_db.group.name, 'Example')
@@ -7474,7 +7771,7 @@ class TestUpdateEnrollmentMutation(django.test.TestCase):
         # Other enrollments were not updated
         individual_db = Individual.objects.get(mk='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
         enrollments_db = individual_db.enrollments.all()
-        self.assertEqual(len(enrollments_db), 4)
+        self.assertEqual(len(enrollments_db), 5)
 
         enrollment_db = enrollments_db[0]
         self.assertEqual(enrollment_db.group.name, 'Example')
@@ -7494,6 +7791,11 @@ class TestUpdateEnrollmentMutation(django.test.TestCase):
         enrollment_db = enrollments_db[3]
         self.assertEqual(enrollment_db.group.name, 'Bitergia')
         self.assertEqual(enrollment_db.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+        enrollment_db = enrollments_db[4]
+        self.assertEqual(enrollment_db.group.name, 'Example Team')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2013, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
 
     def test_update_no_new_to_date(self):

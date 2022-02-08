@@ -297,12 +297,12 @@ class TestAffiliateIndividuals(TestCase):
         self.assertEqual(len(enrollments_db), 2)
 
         enrollment_db = enrollments_db[0]
-        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.group.name, 'Example')
         self.assertEqual(enrollment_db.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment_db.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
 
         enrollment_db = enrollments_db[1]
-        self.assertEqual(enrollment_db.organization.name, 'Bitergia')
+        self.assertEqual(enrollment_db.group.name, 'Bitergia')
         self.assertEqual(enrollment_db.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment_db.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
 
@@ -311,7 +311,7 @@ class TestAffiliateIndividuals(TestCase):
         self.assertEqual(len(enrollments_db), 1)
 
         enrollment_db = enrollments_db[0]
-        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.group.name, 'Example')
         self.assertEqual(enrollment_db.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment_db.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
 
@@ -348,7 +348,7 @@ class TestAffiliateIndividuals(TestCase):
         self.assertEqual(len(enrollments_db), 1)
 
         enrollment_db = enrollments_db[0]
-        self.assertEqual(enrollment_db.organization.name, 'Example')
+        self.assertEqual(enrollment_db.group.name, 'Example')
         self.assertEqual(enrollment_db.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment_db.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
 
@@ -393,7 +393,7 @@ class TestAffiliateIndividuals(TestCase):
 
         exc = DuplicateRangeError(start='1900-01-01',
                                   end='2100-01-01',
-                                  org='Example')
+                                  group='Example')
         mock_enroll.side_effect = exc
 
         ctx = SortingHatContext(self.user)

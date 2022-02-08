@@ -115,7 +115,7 @@ class DuplicateRangeError(BaseError):
     """Exception raised when setting an enrollment with an existing date range"""
 
     code = CODE_DUPLICATE_RANGE_ERROR
-    message = "range date '%(start)s'-'%(end)s' is part of an existing range for %(org)s"
+    message = "range date '%(start)s'-'%(end)s' is part of an existing range for %(group)s"
 
 
 class RecommendationEngineError(BaseError):

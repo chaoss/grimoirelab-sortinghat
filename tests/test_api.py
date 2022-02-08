@@ -2908,6 +2908,40 @@ class TestEnroll(TestCase):
         self.assertEqual(enrollment_db.start, datetime.datetime(1999, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment_db.end, datetime.datetime(2000, 1, 1, tzinfo=UTC))
 
+    def test_enroll_in_team(self):
+        """Check whether it adds an enrollment to an individual and a team"""
+
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_organization(self.ctx, 'Example Org')
+        api.add_team(self.ctx, 'Example Team', organization='Example Org')
+
+        individual = api.enroll(self.ctx,
+                                jsmith.uuid, 'Example Team',
+                                parent_org='Example Org',
+                                from_date=datetime.datetime(1999, 1, 1),
+                                to_date=datetime.datetime(2000, 1, 1))
+
+        # Tests
+        self.assertIsInstance(individual, Individual)
+
+        enrollments = individual.enrollments.all()
+        self.assertEqual(len(enrollments), 1)
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.group.name, 'Example Team')
+        self.assertEqual(enrollment.start, datetime.datetime(1999, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2000, 1, 1, tzinfo=UTC))
+
+        # Check database object
+        individual_db = Individual.objects.get(mk=jsmith.uuid)
+        enrollments_db = individual_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 1)
+
+        enrollment_db = enrollments_db[0]
+        self.assertEqual(enrollment_db.group.name, 'Example Team')
+        self.assertEqual(enrollment_db.start, datetime.datetime(1999, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2000, 1, 1, tzinfo=UTC))
+
     def test_enroll_using_any_identity_uuid(self):
         """
         Check whether it adds an enrollments to an individual and organization
@@ -3669,6 +3703,34 @@ class TestWithdraw(TestCase):
         self.assertEqual(enrollment_db.group.name, 'Bitergia')
         self.assertEqual(enrollment_db.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+    def test_withdraw_from_team(self):
+        """Check whether it withdraws an individual from an organization during the given period"""
+
+        api.add_team(self.ctx, 'Example Team', organization='Example')
+
+        individual = api.enroll(self.ctx,
+                                'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+                                'Example Team',
+                                parent_org='Example',
+                                from_date=datetime.datetime(2020, 1, 1),
+                                to_date=datetime.datetime(2022, 1, 1))
+
+        enrollments = individual.enrollments.all()
+        self.assertEqual(len(enrollments), 5)
+
+        individual = api.withdraw(self.ctx,
+                                  'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+                                  'Example Team',
+                                  parent_org='Example',
+                                  from_date=datetime.datetime(2020, 1, 1),
+                                  to_date=datetime.datetime(2022, 1, 1))
+
+        # Tests
+        self.assertIsInstance(individual, Individual)
+
+        enrollments = individual.enrollments.all()
+        self.assertEqual(len(enrollments), 4)
 
     def test_last_modified(self):
         """Check if last modification date is updated"""

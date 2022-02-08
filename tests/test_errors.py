@@ -227,7 +227,7 @@ class TestEnrollmentRangeError(TestCase):
         start = '2005-01-01 00:00:00+00:00'
         end = '2006-01-01 00:00:00+00:00'
         org = 'Example'
-        e = DuplicateRangeError(start=start, end=end, org=org)
+        e = DuplicateRangeError(start=start, end=end, group=org)
         msg = "range date '{}'-'{}' is part of an existing range for {}"
         msg = msg.format(start, end, org)
         self.assertEqual(msg, str(e))
