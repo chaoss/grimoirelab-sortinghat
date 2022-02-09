@@ -22,11 +22,12 @@
 
 
 import argparse
-from datetime import datetime, timezone
+from datetime import datetime
 import json
 import logging
 import sys
 
+from pytz import timezone
 import MySQLdb
 
 
@@ -56,6 +57,7 @@ database to load into the new SortingHat using Django.
 """
 
 TIMESTAMP_FORMAT = '%Y-%m-%d %H:%M:%S%z'
+TZ = timezone('UTC')
 
 # Mappings
 
@@ -206,7 +208,7 @@ def generate_sortinghat_fixtures(conn):
     """
     fixtures = []
 
-    timestamp = datetime.now(timezone.utc).strftime(TIMESTAMP_FORMAT)
+    timestamp = TZ.localize(datetime.now()).strftime(TIMESTAMP_FORMAT)
 
     for table in TABLE_MAPPING.keys():
         logger.debug(f"Table {table} start")
@@ -287,7 +289,7 @@ def map_row_data(data, table, timestamp):
     """
 
     def format_if_datetime(dt):
-        value = dt.strftime(TIMESTAMP_FORMAT) if isinstance(dt, datetime) else dt
+        value = TZ.localize(dt).strftime(TIMESTAMP_FORMAT) if isinstance(dt, datetime) else dt
         return value
 
     mapping = TABLE_MAPPING[table]['mapping']
@@ -298,6 +300,10 @@ def map_row_data(data, table, timestamp):
     }
     fields['created_at'] = timestamp
     fields['last_modified'] = timestamp
+
+    if table == "organizations":
+        fields['depth'] = 1
+        fields['path'] = "{0:0=4d}".format(fields['id'])
 
     entry = {
         "fields": fields,
