@@ -231,7 +231,7 @@ export const Organization = () => ({
     enrollments: {
       default: () => [
         {
-          organization: {
+          group: {
             name: "Slytherin",
             id: "2"
           },
@@ -239,7 +239,7 @@ export const Organization = () => ({
           end: "1998-05-02T00:00:00+00:00"
         },
         {
-          organization: {
+          group: {
             name: "Hogwarts School of Witchcraft and Wizardry",
             id: "1"
           },
@@ -359,7 +359,7 @@ export const SourcesAndOrganization = () => ({
     enrollments: {
       default: () => [
         {
-          organization: {
+          group: {
             name: "Slytherin",
             id: "2"
           },
@@ -367,7 +367,7 @@ export const SourcesAndOrganization = () => ({
           end: "1998-05-02T00:00:00+00:00"
         },
         {
-          organization: {
+          group: {
             name: "Hogwarts School of Witchcraft and Wizardry",
             id: "1"
           },

@@ -223,11 +223,11 @@ export default {
     deselectIndividuals() {
       this.$refs.table.deselectIndividuals();
     },
-    async enroll(uuid, organization, fromDate, toDate) {
+    async enroll(uuid, group, fromDate, toDate) {
       const response = await enroll(
         this.$apollo,
         uuid,
-        organization,
+        group,
         fromDate,
         toDate
       );
@@ -283,11 +283,11 @@ export default {
       const response = await unlockIndividual(this.$apollo, uuid);
       return response;
     },
-    async withdraw(uuid, organization, fromDate, toDate) {
+    async withdraw(uuid, group, fromDate, toDate) {
       const response = await withdraw(
         this.$apollo,
         uuid,
-        organization,
+        group,
         fromDate,
         toDate
       );
@@ -301,8 +301,8 @@ export default {
       this.emptyWorkspace();
       this.savedIndividuals = [];
     },
-    getEnrollments(organization) {
-      this.filters = `enrollment:"${organization}"`;
+    getEnrollments(group) {
+      this.filters = `enrollment:"${group}"`;
     }
   },
   async mounted() {

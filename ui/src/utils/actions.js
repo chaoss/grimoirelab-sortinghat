@@ -91,9 +91,7 @@ const formatIndividuals = individuals => {
       id: item.profile.id,
       email: item.profile.email,
       username: item.identities[0].username,
-      organization: item.enrollments[0]
-        ? item.enrollments[0].organization.name
-        : "",
+      organization: item.enrollments[0] ? item.enrollments[0].group.name : "",
       sources: groupIdentities(item.identities).map(identity => {
         return { name: identity.name, icon: identity.icon };
       }),

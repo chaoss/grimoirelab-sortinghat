@@ -24,7 +24,7 @@
           <v-icon v-if="isLocked" small right class="mb-1">mdi-lock</v-icon>
         </v-list-item-title>
         <v-list-item-subtitle v-if="enrollments && enrollments.length > 0">
-          {{ enrollments[0].organization.name }}
+          {{ enrollments[0].group.name }}
         </v-list-item-subtitle>
         <v-list-item-subtitle>
           <v-tooltip
