@@ -223,13 +223,14 @@ export default {
     deselectIndividuals() {
       this.$refs.table.deselectIndividuals();
     },
-    async enroll(uuid, group, fromDate, toDate) {
+    async enroll(uuid, group, fromDate, toDate, parentOrg) {
       const response = await enroll(
         this.$apollo,
         uuid,
         group,
         fromDate,
-        toDate
+        toDate,
+        parentOrg
       );
       return response;
     },

@@ -328,6 +328,29 @@
             </v-col>
             <v-col class="text-end col-2">
               <v-tooltip
+                v-if="enrollment.group.type === 'organization'"
+                bottom
+                transition="expand-y-transition"
+                open-delay="200"
+              >
+                <template v-slot:activator="{ on }">
+                  <v-btn
+                    v-on="on"
+                    @click="
+                      $emit('openModal', {
+                        organization: enrollment.group.name,
+                        uuid: uuid
+                      })
+                    "
+                    icon
+                  >
+                    <v-icon>mdi-account-multiple-plus</v-icon>
+                  </v-btn>
+                </template>
+                <span>Add to team</span>
+              </v-tooltip>
+
+              <v-tooltip
                 bottom
                 transition="expand-y-transition"
                 open-delay="200"
@@ -366,7 +389,6 @@
 
 <script>
 import Identity from "./Identity.vue";
-
 export default {
   name: "ExpandedIndividual",
   components: {
@@ -430,7 +452,6 @@ export default {
       return identities.slice().sort((a, b) => {
         const sourceA = a[property].toLowerCase();
         const sourceB = b[property].toLowerCase();
-
         return sourceA.localeCompare(sourceB);
       });
     },
@@ -463,6 +484,16 @@ export default {
           toDate: enrollment.end
         });
       });
+    },
+    createForm() {
+      this.enrollmentsForm = this.enrollments.map(enrollment => {
+        return {
+          fromDate: this.formatDate(enrollment.start),
+          fromDateMenu: false,
+          toDate: this.formatDate(enrollment.end),
+          toDateMenu: false
+        };
+      });
     }
   },
   computed: {
@@ -482,15 +513,13 @@ export default {
         .flat();
     }
   },
+  watch: {
+    enrollments() {
+      this.createForm();
+    }
+  },
   created() {
-    this.enrollments.forEach(enrollment => {
-      this.enrollmentsForm.push({
-        fromDate: this.formatDate(enrollment.start),
-        fromDateMenu: false,
-        toDate: this.formatDate(enrollment.end),
-        toDateMenu: false
-      });
-    });
+    this.createForm();
   }
 };
 </script>
@@ -500,54 +529,44 @@ export default {
   margin-left: 40px;
   background-color: transparent;
 }
-
 .draggable {
   cursor: pointer;
-
   &:hover {
     background: #eeeeee;
   }
 }
-
 .dragged-identity {
   max-width: 300px;
   position: absolute;
   top: -300px;
 }
-
 .compact {
   border-bottom: 0;
   background-color: #ffffff;
   font-size: 0.9rem;
   line-height: 1rem;
   padding: 0.5rem;
-
   .v-list-item__content,
   .v-sheet--tile {
     padding: 0;
   }
-
   ::v-deep .uuid {
     display: none;
   }
-
   ::v-deep .indented {
     padding: 0;
     margin: 0;
     text-align: center;
   }
-
   .row-border:not(:last-child) {
     border: 0;
   }
 }
-
 .v-small-dialog__activator {
   .v-icon {
     opacity: 0;
     padding-bottom: 2px;
   }
-
   &:hover {
     .v-icon {
       opacity: 1;

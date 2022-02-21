@@ -146,6 +146,7 @@
           @unmerge="unmerge($event)"
           @withdraw="removeAffiliation($event, item.uuid)"
           @updateEnrollment="updateEnrollmentDate"
+          @openModal="openTeamModal"
         />
       </template>
     </v-data-table>
@@ -228,6 +229,15 @@
       @updateOrganizations="$emit('updateOrganizations')"
     />
 
+    <team-enroll-modal
+      v-if="teamModal.isOpen"
+      :is-open.sync="teamModal.isOpen"
+      :organization="teamModal.organization"
+      :uuid="teamModal.uuid"
+      :enroll="enroll"
+      @updateTable="queryIndividuals"
+    />
+
     <v-card class="dragged-item" color="primary" dark>
       <v-card-subtitle>
         Moving
@@ -249,6 +259,7 @@ import IndividualEntry from "./IndividualEntry.vue";
 import ExpandedIndividual from "./ExpandedIndividual.vue";
 import ProfileModal from "./ProfileModal.vue";
 import Search from "./Search.vue";
+import TeamEnrollModal from "./TeamEnrollModal.vue";
 
 export default {
   name: "IndividualsTable",
@@ -256,7 +267,8 @@ export default {
     IndividualEntry,
     ExpandedIndividual,
     ProfileModal,
-    Search
+    Search,
+    TeamEnrollModal
   },
   mixins: [enrollMixin],
   props: {
@@ -347,7 +359,12 @@ export default {
       totalResults: 0,
       itemsPerPage: 10,
       allSelected: false,
-      orderBy: null
+      orderBy: null,
+      teamModal: {
+        isOpen: false,
+        organization: null,
+        uuid: null
+      }
     };
   },
   computed: {
@@ -656,6 +673,14 @@ export default {
         dateFrom: null,
         dateTo: null
       });
+    },
+    openTeamModal(data) {
+      const { organization, uuid } = data;
+      Object.assign(this.teamModal, {
+        isOpen: true,
+        organization,
+        uuid
+      });
     }
   }
 };
@@ -669,7 +694,6 @@ export default {
   ::v-deep .v-label {
     font-size: 0.9rem;
   }
-
   ::v-deep .v-input--checkbox {
     padding-top: 6px;
     margin-left: -1px;

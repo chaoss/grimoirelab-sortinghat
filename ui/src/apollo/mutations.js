@@ -133,8 +133,15 @@ const ENROLL = gql`
     $group: String!
     $fromDate: DateTime
     $toDate: DateTime
+    $parentOrg: String
   ) {
-    enroll(uuid: $uuid, group: $group, fromDate: $fromDate, toDate: $toDate) {
+    enroll(
+      uuid: $uuid
+      group: $group
+      fromDate: $fromDate
+      toDate: $toDate
+      parentOrg: $parentOrg
+    ) {
       uuid
       individual {
         isLocked
@@ -447,14 +454,15 @@ const moveIdentity = (apollo, fromUuid, toUuid) => {
   return response;
 };
 
-const enroll = (apollo, uuid, group, fromDate, toDate) => {
+const enroll = (apollo, uuid, group, fromDate, toDate, parentOrg) => {
   let response = apollo.mutate({
     mutation: ENROLL,
     variables: {
       uuid: uuid,
       group: group,
       fromDate: fromDate,
-      toDate: toDate
+      toDate: toDate,
+      parentOrg: parentOrg
     }
   });
   return response;
