@@ -278,8 +278,15 @@ const WITHDRAW = gql`
     $group: String!
     $fromDate: DateTime
     $toDate: DateTime
+    $parentOrg: String
   ) {
-    withdraw(uuid: $uuid, group: $group, fromDate: $fromDate, toDate: $toDate) {
+    withdraw(
+      uuid: $uuid
+      group: $group
+      fromDate: $fromDate
+      toDate: $toDate
+      parentOrg: $parentOrg
+    ) {
       uuid
       individual {
         isLocked
@@ -533,14 +540,15 @@ const deleteDomain = (apollo, domain) => {
   return response;
 };
 
-const withdraw = (apollo, uuid, group, fromDate, toDate) => {
+const withdraw = (apollo, uuid, group, fromDate, toDate, parentOrg) => {
   let response = apollo.mutate({
     mutation: WITHDRAW,
     variables: {
       uuid: uuid,
       group: group,
       fromDate: fromDate,
-      toDate: toDate
+      toDate: toDate,
+      parentOrg: parentOrg
     }
   });
   return response;

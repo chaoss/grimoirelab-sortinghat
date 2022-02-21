@@ -284,13 +284,14 @@ export default {
       const response = await unlockIndividual(this.$apollo, uuid);
       return response;
     },
-    async withdraw(uuid, group, fromDate, toDate) {
+    async withdraw(uuid, group, fromDate, toDate, parentOrg) {
       const response = await withdraw(
         this.$apollo,
         uuid,
         group,
         fromDate,
-        toDate
+        toDate,
+        parentOrg
       );
       return response;
     },

@@ -364,7 +364,10 @@
                       $emit('withdraw', {
                         name: enrollment.group.name,
                         fromDate: enrollment.start,
-                        toDate: enrollment.end
+                        toDate: enrollment.end,
+                        parentOrg: enrollment.group.parentOrg
+                          ? enrollment.group.parentOrg.name
+                          : null
                       })
                     "
                   >
@@ -481,7 +484,10 @@ export default {
         this.$emit("withdraw", {
           name: enrollment.group.name,
           fromDate: enrollment.start,
-          toDate: enrollment.end
+          toDate: enrollment.end,
+          parentOrg: enrollment.group.parentOrg
+            ? enrollment.group.parentOrg.name
+            : null
         });
       });
     },

@@ -598,21 +598,24 @@ export default {
         }
       }
     },
-    async removeAffiliation(organization, uuid) {
+    async removeAffiliation(group, uuid) {
       try {
         const response = await this.withdraw(
           uuid,
-          organization.name,
-          organization.fromDate,
-          organization.toDate
+          group.name,
+          group.fromDate,
+          group.toDate,
+          group.parentOrg
         );
         if (response && response.data.withdraw) {
           this.queryIndividuals();
           this.$emit("updateWorkspace", {
             update: formatIndividuals([response.data.withdraw.individual])
           });
-          this.$emit("updateOrganizations");
-          this.$logger.debug("Removed affiliation", { uuid, ...organization });
+          this.$logger.debug("Removed affiliation", { uuid, ...group });
+          if (!group.parentOrg) {
+            this.$emit("updateOrganizations");
+          }
         }
       } catch (error) {
         Object.assign(this.dialog, {
@@ -623,7 +626,7 @@ export default {
         });
         this.$logger.error(`Error removing affiliation: ${error}`, {
           uuid,
-          ...organization
+          ...group
         });
       }
     },
