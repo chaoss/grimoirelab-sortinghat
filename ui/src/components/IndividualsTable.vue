@@ -3,7 +3,7 @@
     <v-row class="header">
       <h3 class="title">
         <v-icon color="black" left dense>
-          mdi-account-multiple
+          mdi-account
         </v-icon>
         Individuals
         <v-chip pill small class="ml-2">{{ totalResults }}</v-chip>
@@ -697,6 +697,7 @@ export default {
   ::v-deep .v-label {
     font-size: 0.9rem;
   }
+
   ::v-deep .v-input--checkbox {
     padding-top: 6px;
     margin-left: -1px;

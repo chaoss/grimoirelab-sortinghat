@@ -182,7 +182,7 @@ export default {
       return response;
     },
     updateOrganizations() {
-      this.$refs.organizations.getOrganizations();
+      this.$refs.organizations.getTableItems();
     },
     updateTable() {
       this.$refs.table.queryIndividuals();

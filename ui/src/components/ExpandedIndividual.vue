@@ -255,7 +255,10 @@
                           enrollmentsForm[index].fromDate
                         ).toISOString(),
                         group: enrollment.group.name,
-                        uuid: uuid
+                        uuid: uuid,
+                        parentOrg: enrollment.group.parentOrg
+                          ? enrollment.group.parentOrg.name
+                          : null
                       });
                       enrollmentsForm[index].fromDateMenu = false;
                     "
@@ -316,7 +319,10 @@
                           enrollmentsForm[index].toDate
                         ).toISOString(),
                         group: enrollment.group.name,
-                        uuid: uuid
+                        uuid: uuid,
+                        parentOrg: enrollment.group.parentOrg
+                          ? enrollment.group.parentOrg.name
+                          : null
                       });
                       enrollmentsForm[index].toDateMenu = false;
                     "
@@ -392,6 +398,7 @@
 
 <script>
 import Identity from "./Identity.vue";
+
 export default {
   name: "ExpandedIndividual",
   components: {
@@ -455,6 +462,7 @@ export default {
       return identities.slice().sort((a, b) => {
         const sourceA = a[property].toLowerCase();
         const sourceB = b[property].toLowerCase();
+
         return sourceA.localeCompare(sourceB);
       });
     },
@@ -535,44 +543,54 @@ export default {
   margin-left: 40px;
   background-color: transparent;
 }
+
 .draggable {
   cursor: pointer;
+
   &:hover {
     background: #eeeeee;
   }
 }
+
 .dragged-identity {
   max-width: 300px;
   position: absolute;
   top: -300px;
 }
+
 .compact {
   border-bottom: 0;
   background-color: #ffffff;
   font-size: 0.9rem;
   line-height: 1rem;
   padding: 0.5rem;
+
   .v-list-item__content,
   .v-sheet--tile {
     padding: 0;
   }
+
   ::v-deep .uuid {
     display: none;
   }
+
   ::v-deep .indented {
     padding: 0;
     margin: 0;
     text-align: center;
   }
+
   .row-border:not(:last-child) {
     border: 0;
   }
 }
+
 .v-small-dialog__activator {
   .v-icon {
     opacity: 0;
     padding-bottom: 2px;
   }
+
   &:hover {
     .v-icon {
       opacity: 1;

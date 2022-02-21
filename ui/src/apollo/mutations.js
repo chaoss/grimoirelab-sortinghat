@@ -347,6 +347,7 @@ const UPDATE_ENROLLMENT = gql`
     $group: String!
     $toDate: DateTime!
     $uuid: String!
+    $parentOrg: String
   ) {
     updateEnrollment(
       fromDate: $fromDate
@@ -355,6 +356,7 @@ const UPDATE_ENROLLMENT = gql`
       group: $group
       toDate: $toDate
       uuid: $uuid
+      parentOrg: $parentOrg
     ) {
       uuid
       individual {
@@ -582,7 +584,8 @@ const updateEnrollment = (apollo, data) => {
       newToDate: data.newToDate,
       group: data.group,
       toDate: data.toDate,
-      uuid: data.uuid
+      uuid: data.uuid,
+      parentOrg: data.parentOrg
     }
   });
   return response;
