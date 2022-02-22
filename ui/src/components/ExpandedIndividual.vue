@@ -161,234 +161,16 @@
       </v-list-item>
     </v-list>
 
-    <v-subheader class="d-flex justify-space-between">
-      Organizations ({{ enrollments.length }})
-      <v-btn
-        v-if="!compact"
-        text
-        small
-        outlined
-        :disabled="enrollments.length < 1 || isLocked"
-        @click="withdrawAll"
-      >
-        <v-icon small left>mdi-delete</v-icon>
-        Remove all
-      </v-btn>
-    </v-subheader>
-    <v-simple-table v-if="compact" dense>
-      <template v-slot:default>
-        <thead v-if="enrollments.length > 0">
-          <tr>
-            <th class="text-left">Name</th>
-            <th class="text-left">From</th>
-            <th class="text-left">To</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="enrollment in enrollments" :key="enrollment.name">
-            <td>{{ enrollment.group.name }}</td>
-            <td>{{ formatDate(enrollment.start) }}</td>
-            <td>{{ formatDate(enrollment.end) }}</td>
-          </tr>
-        </tbody>
-      </template>
-    </v-simple-table>
-    <v-list v-else class="indented" dense>
-      <v-list-item
-        v-for="(enrollment, index) in enrollments"
-        :key="enrollment.group.id"
-        class="row-border"
-      >
-        <v-list-item-content>
-          <v-row no-gutters class="flex align-center">
-            <v-col>
-              <span>{{ enrollment.group.name }}</span>
-            </v-col>
-            <v-col class="col-3 ma-2 text-center">
-              <span v-if="isLocked">
-                {{ formatDate(enrollment.start) }}
-              </span>
-              <v-menu
-                v-else
-                v-model="enrollmentsForm[index].fromDateMenu"
-                :close-on-content-click="false"
-                :return-value.sync="enrollmentsForm[index].fromDate"
-                transition="scale-transition"
-                offset-y
-                min-width="290px"
-              >
-                <template v-slot:activator="{ on, attrs }">
-                  <button
-                    v-on="on"
-                    v-bind="attrs"
-                    class="v-small-dialog__activator"
-                  >
-                    {{ formatDate(enrollment.start) }}
-                    <v-icon small right>
-                      mdi-lead-pencil
-                    </v-icon>
-                  </button>
-                </template>
-                <v-date-picker
-                  v-model="enrollmentsForm[index].fromDate"
-                  :max="enrollment.end"
-                  color="primary"
-                  no-title
-                  scrollable
-                >
-                  <v-spacer></v-spacer>
-                  <v-btn
-                    text
-                    color="primary"
-                    @click="enrollmentsForm[index].fromDateMenu = false"
-                  >
-                    Cancel
-                  </v-btn>
-                  <v-btn
-                    text
-                    color="primary"
-                    @click="
-                      $emit('updateEnrollment', {
-                        fromDate: enrollment.start,
-                        toDate: enrollment.end,
-                        newFromDate: new Date(
-                          enrollmentsForm[index].fromDate
-                        ).toISOString(),
-                        group: enrollment.group.name,
-                        uuid: uuid,
-                        parentOrg: enrollment.group.parentOrg
-                          ? enrollment.group.parentOrg.name
-                          : null
-                      });
-                      enrollmentsForm[index].fromDateMenu = false;
-                    "
-                  >
-                    Save
-                  </v-btn>
-                </v-date-picker>
-              </v-menu>
-            </v-col>
-            <v-col class="col-3 ma-2 text-center">
-              <span v-if="isLocked">
-                {{ formatDate(enrollment.end) }}
-              </span>
-              <v-menu
-                v-else
-                v-model="enrollmentsForm[index].toDateMenu"
-                :close-on-content-click="false"
-                :return-value.sync="enrollmentsForm[index].toate"
-                transition="scale-transition"
-                offset-y
-                min-width="290px"
-              >
-                <template v-slot:activator="{ on, attrs }">
-                  <button
-                    v-on="on"
-                    v-bind="attrs"
-                    class="v-small-dialog__activator"
-                  >
-                    {{ formatDate(enrollment.end) }}
-                    <v-icon small right>
-                      mdi-lead-pencil
-                    </v-icon>
-                  </button>
-                </template>
-                <v-date-picker
-                  v-model="enrollmentsForm[index].toDate"
-                  :min="enrollment.start"
-                  color="primary"
-                  no-title
-                  scrollable
-                >
-                  <v-spacer></v-spacer>
-                  <v-btn
-                    text
-                    color="primary"
-                    @click="enrollmentsForm[index].toDateMenu = false"
-                  >
-                    Cancel
-                  </v-btn>
-                  <v-btn
-                    text
-                    color="primary"
-                    @click="
-                      $emit('updateEnrollment', {
-                        fromDate: enrollment.start,
-                        toDate: enrollment.end,
-                        newToDate: new Date(
-                          enrollmentsForm[index].toDate
-                        ).toISOString(),
-                        group: enrollment.group.name,
-                        uuid: uuid,
-                        parentOrg: enrollment.group.parentOrg
-                          ? enrollment.group.parentOrg.name
-                          : null
-                      });
-                      enrollmentsForm[index].toDateMenu = false;
-                    "
-                  >
-                    Save
-                  </v-btn>
-                </v-date-picker>
-              </v-menu>
-            </v-col>
-            <v-col class="text-end col-2">
-              <v-tooltip
-                v-if="enrollment.group.type === 'organization'"
-                bottom
-                transition="expand-y-transition"
-                open-delay="200"
-              >
-                <template v-slot:activator="{ on }">
-                  <v-btn
-                    v-on="on"
-                    @click="
-                      $emit('openModal', {
-                        organization: enrollment.group.name,
-                        uuid: uuid
-                      })
-                    "
-                    icon
-                  >
-                    <v-icon>mdi-account-multiple-plus</v-icon>
-                  </v-btn>
-                </template>
-                <span>Add to team</span>
-              </v-tooltip>
-
-              <v-tooltip
-                bottom
-                transition="expand-y-transition"
-                open-delay="200"
-              >
-                <template v-slot:activator="{ on }">
-                  <v-btn
-                    icon
-                    v-on="on"
-                    :disabled="isLocked"
-                    @click="
-                      $emit('withdraw', {
-                        name: enrollment.group.name,
-                        fromDate: enrollment.start,
-                        toDate: enrollment.end,
-                        parentOrg: enrollment.group.parentOrg
-                          ? enrollment.group.parentOrg.name
-                          : null
-                      })
-                    "
-                  >
-                    <v-icon>
-                      mdi-delete
-                    </v-icon>
-                  </v-btn>
-                </template>
-                <span>Remove affiliation</span>
-              </v-tooltip>
-            </v-col>
-          </v-row>
-        </v-list-item-content>
-      </v-list-item>
-    </v-list>
+    <enrollment-list
+      :enrollments="enrollments"
+      :compact="compact"
+      :is-locked="isLocked"
+      @openModal="$emit('openModal', { uuid, organization: $event })"
+      @updateEnrollment="
+        $emit('updateEnrollment', Object.assign($event, { uuid: uuid }))
+      "
+      @withdraw="$emit('withdraw', $event)"
+    />
 
     <v-card class="dragged-identity" color="primary" dark>
       <v-card-subtitle> Moving 1 identity</v-card-subtitle>
@@ -398,11 +180,13 @@
 
 <script>
 import Identity from "./Identity.vue";
+import EnrollmentList from "./EnrollmentList.vue";
 
 export default {
   name: "ExpandedIndividual",
   components: {
-    Identity
+    Identity,
+    EnrollmentList
   },
   props: {
     gender: {
@@ -455,9 +239,6 @@ export default {
     };
   },
   methods: {
-    formatDate(dateTime) {
-      return dateTime.split("T")[0];
-    },
     sortSources(identities, property) {
       return identities.slice().sort((a, b) => {
         const sourceA = a[property].toLowerCase();
@@ -486,28 +267,6 @@ export default {
     splitAll() {
       const uuids = this.flatIdentities.map(identity => identity.uuid);
       this.$emit("unmerge", uuids);
-    },
-    withdrawAll() {
-      this.enrollments.forEach(enrollment => {
-        this.$emit("withdraw", {
-          name: enrollment.group.name,
-          fromDate: enrollment.start,
-          toDate: enrollment.end,
-          parentOrg: enrollment.group.parentOrg
-            ? enrollment.group.parentOrg.name
-            : null
-        });
-      });
-    },
-    createForm() {
-      this.enrollmentsForm = this.enrollments.map(enrollment => {
-        return {
-          fromDate: this.formatDate(enrollment.start),
-          fromDateMenu: false,
-          toDate: this.formatDate(enrollment.end),
-          toDateMenu: false
-        };
-      });
     }
   },
   computed: {
@@ -526,14 +285,6 @@ export default {
         )
         .flat();
     }
-  },
-  watch: {
-    enrollments() {
-      this.createForm();
-    }
-  },
-  created() {
-    this.createForm();
   }
 };
 </script>

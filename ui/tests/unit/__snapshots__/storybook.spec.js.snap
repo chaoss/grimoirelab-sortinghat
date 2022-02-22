@@ -363,6 +363,722 @@ exports[`Storyshots DateInput Outlined 1`] = `
 </div>
 `;
 
+exports[`Storyshots EnrollmentList Compact 1`] = `
+<div
+  class="v-application v-application--is-ltr theme--light"
+  data-app="true"
+  id="app"
+>
+  <div
+    class="v-application--wrap"
+  >
+    <div>
+      <div
+        class="v-subheader d-flex justify-space-between theme--light"
+      >
+        
+    Organizations (3)
+    
+        <!---->
+      </div>
+       
+      <div
+        class="v-data-table v-data-table--dense theme--light"
+      >
+        <div
+          class="v-data-table__wrapper"
+        >
+          <table>
+            <thead>
+              <tr>
+                <th
+                  class="text-left"
+                >
+                  Name
+                </th>
+                 
+                <th
+                  class="text-left"
+                >
+                  From
+                </th>
+                 
+                <th
+                  class="text-left"
+                >
+                  To
+                </th>
+              </tr>
+            </thead>
+             
+            <tbody>
+              <tr>
+                <td>
+                  Hogwarts
+                </td>
+                 
+                <td>
+                  1892-09-01
+                </td>
+                 
+                <td>
+                  1997-06-30
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Gryffindor
+                </td>
+                 
+                <td>
+                  1892-09-01
+                </td>
+                 
+                <td>
+                  1899-06-02
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Transfiguration department
+                </td>
+                 
+                <td>
+                  1910-09-01
+                </td>
+                 
+                <td>
+                  1969-06-01
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  Order of the Phoenix
+                </td>
+                 
+                <td>
+                  1970-10-01
+                </td>
+                 
+                <td>
+                  1997-06-30
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  International Confederation of Wizards
+                </td>
+                 
+                <td>
+                  1991-01-01
+                </td>
+                 
+                <td>
+                  1995-04-02
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Storyshots EnrollmentList Default 1`] = `
+<div
+  class="v-application v-application--is-ltr theme--light"
+  data-app="true"
+  id="app"
+>
+  <div
+    class="v-application--wrap"
+  >
+    <div>
+      <div
+        class="v-subheader d-flex justify-space-between theme--light"
+      >
+        
+    Organizations (3)
+    
+        <button
+          class="v-btn v-btn--depressed v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
+          type="button"
+        >
+          <span
+            class="v-btn__content"
+          >
+            <i
+              aria-hidden="true"
+              class="v-icon notranslate v-icon--left mdi mdi-delete theme--light"
+              style="font-size: 16px;"
+            />
+            
+      Remove all
+    
+          </span>
+        </button>
+      </div>
+       
+      <div
+        class="indented mt-2 mb-4"
+      >
+        <div
+          class="mb-2 d-flex justify-space-between align-center"
+        >
+          <div>
+            <span
+              class="v-tooltip v-tooltip--bottom"
+            >
+              <!---->
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate mr-5 v-icon--left mdi mdi-sitemap theme--light"
+              />
+            </span>
+            
+        Hogwarts
+
+        
+            <div
+              class="v-menu"
+            >
+              <button
+                aria-expanded="false"
+                aria-haspopup="true"
+                class="v-small-dialog__activator"
+                role="button"
+              >
+                <span
+                  class="grey--text text--darken-2 ml-6"
+                >
+                  
+                1892-09-01
+              
+                </span>
+                 
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
+                  style="font-size: 16px;"
+                />
+              </button>
+              <!---->
+            </div>
+            
+        -
+        
+            <div
+              class="v-menu"
+            >
+              <button
+                aria-expanded="false"
+                aria-haspopup="true"
+                class="v-small-dialog__activator ml-5"
+                role="button"
+              >
+                <span
+                  class="grey--text text--darken-2 ml-2"
+                >
+                  
+                1997-06-30
+              
+                </span>
+                 
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
+                  style="font-size: 16px;"
+                />
+              </button>
+              <!---->
+            </div>
+          </div>
+           
+          <div>
+            <span
+              class="v-tooltip v-tooltip--bottom"
+            >
+              <!---->
+              <button
+                class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                type="button"
+              >
+                <span
+                  class="v-btn__content"
+                >
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate mdi mdi-account-multiple-plus theme--light"
+                  />
+                </span>
+              </button>
+            </span>
+             
+            <span
+              class="v-tooltip v-tooltip--bottom"
+            >
+              <!---->
+              <button
+                class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                type="button"
+              >
+                <span
+                  class="v-btn__content"
+                >
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate mdi mdi-delete theme--light"
+                  />
+                </span>
+              </button>
+            </span>
+          </div>
+        </div>
+         
+        <ul
+          class="ma-2 mr-0"
+        >
+          <li
+            class="d-flex justify-space-between pr-0"
+          >
+            <div
+              class="d-flex align-center"
+            >
+              <span
+                class="v-tooltip v-tooltip--bottom"
+              >
+                <!---->
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate mr-5 v-icon--left mdi mdi-account-multiple theme--light"
+                />
+              </span>
+               
+              <span
+                class="mr-4"
+              >
+                Gryffindor
+              </span>
+               
+              <div
+                class="v-menu"
+              >
+                <button
+                  aria-expanded="false"
+                  aria-haspopup="true"
+                  class="v-small-dialog__activator"
+                  role="button"
+                >
+                  <span
+                    class="grey--text text--darken-2 ml-6"
+                  >
+                    
+                  1892-09-01
+                
+                  </span>
+                   
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
+                    style="font-size: 16px;"
+                  />
+                </button>
+                <!---->
+              </div>
+              
+          -
+          
+              <div
+                class="v-menu"
+              >
+                <button
+                  aria-expanded="false"
+                  aria-haspopup="true"
+                  class="v-small-dialog__activator ml-5"
+                  role="button"
+                >
+                  <span
+                    class="grey--text text--darken-2 ml-2"
+                  >
+                    
+                  1899-06-02
+                
+                  </span>
+                   
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
+                    style="font-size: 16px;"
+                  />
+                </button>
+                <!---->
+              </div>
+            </div>
+             
+            <span
+              class="v-tooltip v-tooltip--bottom"
+            >
+              <!---->
+              <button
+                class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                type="button"
+              >
+                <span
+                  class="v-btn__content"
+                >
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate mdi mdi-delete theme--light"
+                  />
+                </span>
+              </button>
+            </span>
+          </li>
+          <li
+            class="d-flex justify-space-between pr-0"
+          >
+            <div
+              class="d-flex align-center"
+            >
+              <span
+                class="v-tooltip v-tooltip--bottom"
+              >
+                <!---->
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate mr-5 v-icon--left mdi mdi-account-multiple theme--light"
+                />
+              </span>
+               
+              <span
+                class="mr-4"
+              >
+                Transfiguration department
+              </span>
+               
+              <div
+                class="v-menu"
+              >
+                <button
+                  aria-expanded="false"
+                  aria-haspopup="true"
+                  class="v-small-dialog__activator"
+                  role="button"
+                >
+                  <span
+                    class="grey--text text--darken-2 ml-6"
+                  >
+                    
+                  1910-09-01
+                
+                  </span>
+                   
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
+                    style="font-size: 16px;"
+                  />
+                </button>
+                <!---->
+              </div>
+              
+          -
+          
+              <div
+                class="v-menu"
+              >
+                <button
+                  aria-expanded="false"
+                  aria-haspopup="true"
+                  class="v-small-dialog__activator ml-5"
+                  role="button"
+                >
+                  <span
+                    class="grey--text text--darken-2 ml-2"
+                  >
+                    
+                  1969-06-01
+                
+                  </span>
+                   
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
+                    style="font-size: 16px;"
+                  />
+                </button>
+                <!---->
+              </div>
+            </div>
+             
+            <span
+              class="v-tooltip v-tooltip--bottom"
+            >
+              <!---->
+              <button
+                class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                type="button"
+              >
+                <span
+                  class="v-btn__content"
+                >
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate mdi mdi-delete theme--light"
+                  />
+                </span>
+              </button>
+            </span>
+          </li>
+        </ul>
+      </div>
+      <div
+        class="indented mt-2 mb-4"
+      >
+        <div
+          class="mb-2 d-flex justify-space-between align-center"
+        >
+          <div>
+            <span
+              class="v-tooltip v-tooltip--bottom"
+            >
+              <!---->
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate mr-5 v-icon--left mdi mdi-sitemap theme--light"
+              />
+            </span>
+            
+        Order of the Phoenix
+
+        
+            <div
+              class="v-menu"
+            >
+              <button
+                aria-expanded="false"
+                aria-haspopup="true"
+                class="v-small-dialog__activator"
+                role="button"
+              >
+                <span
+                  class="grey--text text--darken-2 ml-6"
+                >
+                  
+                1970-10-01
+              
+                </span>
+                 
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
+                  style="font-size: 16px;"
+                />
+              </button>
+              <!---->
+            </div>
+            
+        -
+        
+            <div
+              class="v-menu"
+            >
+              <button
+                aria-expanded="false"
+                aria-haspopup="true"
+                class="v-small-dialog__activator ml-5"
+                role="button"
+              >
+                <span
+                  class="grey--text text--darken-2 ml-2"
+                >
+                  
+                1997-06-30
+              
+                </span>
+                 
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
+                  style="font-size: 16px;"
+                />
+              </button>
+              <!---->
+            </div>
+          </div>
+           
+          <div>
+            <span
+              class="v-tooltip v-tooltip--bottom"
+            >
+              <!---->
+              <button
+                class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                type="button"
+              >
+                <span
+                  class="v-btn__content"
+                >
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate mdi mdi-account-multiple-plus theme--light"
+                  />
+                </span>
+              </button>
+            </span>
+             
+            <span
+              class="v-tooltip v-tooltip--bottom"
+            >
+              <!---->
+              <button
+                class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                type="button"
+              >
+                <span
+                  class="v-btn__content"
+                >
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate mdi mdi-delete theme--light"
+                  />
+                </span>
+              </button>
+            </span>
+          </div>
+        </div>
+         
+        <ul
+          class="ma-2 mr-0"
+        />
+      </div>
+      <div
+        class="indented mt-2 mb-4"
+      >
+        <div
+          class="mb-2 d-flex justify-space-between align-center"
+        >
+          <div>
+            <span
+              class="v-tooltip v-tooltip--bottom"
+            >
+              <!---->
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate mr-5 v-icon--left mdi mdi-sitemap theme--light"
+              />
+            </span>
+            
+        International Confederation of Wizards
+
+        
+            <div
+              class="v-menu"
+            >
+              <button
+                aria-expanded="false"
+                aria-haspopup="true"
+                class="v-small-dialog__activator"
+                role="button"
+              >
+                <span
+                  class="grey--text text--darken-2 ml-6"
+                >
+                  
+                1991-01-01
+              
+                </span>
+                 
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
+                  style="font-size: 16px;"
+                />
+              </button>
+              <!---->
+            </div>
+            
+        -
+        
+            <div
+              class="v-menu"
+            >
+              <button
+                aria-expanded="false"
+                aria-haspopup="true"
+                class="v-small-dialog__activator ml-5"
+                role="button"
+              >
+                <span
+                  class="grey--text text--darken-2 ml-2"
+                >
+                  
+                1995-04-02
+              
+                </span>
+                 
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
+                  style="font-size: 16px;"
+                />
+              </button>
+              <!---->
+            </div>
+          </div>
+           
+          <div>
+            <span
+              class="v-tooltip v-tooltip--bottom"
+            >
+              <!---->
+              <button
+                class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                type="button"
+              >
+                <span
+                  class="v-btn__content"
+                >
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate mdi mdi-account-multiple-plus theme--light"
+                  />
+                </span>
+              </button>
+            </span>
+             
+            <span
+              class="v-tooltip v-tooltip--bottom"
+            >
+              <!---->
+              <button
+                class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                type="button"
+              >
+                <span
+                  class="v-btn__content"
+                >
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate mdi mdi-delete theme--light"
+                  />
+                </span>
+              </button>
+            </span>
+          </div>
+        </div>
+         
+        <ul
+          class="ma-2 mr-0"
+        />
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
 exports[`Storyshots ExpandedIndividual Compact 1`] = `
 <div
   class="v-application v-application--is-ltr theme--light"
@@ -535,73 +1251,75 @@ exports[`Storyshots ExpandedIndividual Compact 1`] = `
         </div>
       </div>
        
-      <div
-        class="v-subheader d-flex justify-space-between theme--light"
-      >
-        
+      <div>
+        <div
+          class="v-subheader d-flex justify-space-between theme--light"
+        >
+          
     Organizations (2)
     
-        <!---->
-      </div>
-       
-      <div
-        class="v-data-table v-data-table--dense theme--light"
-      >
+          <!---->
+        </div>
+         
         <div
-          class="v-data-table__wrapper"
+          class="v-data-table v-data-table--dense theme--light"
         >
-          <table>
-            <thead>
-              <tr>
-                <th
-                  class="text-left"
-                >
-                  Name
-                </th>
-                 
-                <th
-                  class="text-left"
-                >
-                  From
-                </th>
-                 
-                <th
-                  class="text-left"
-                >
-                  To
-                </th>
-              </tr>
-            </thead>
-             
-            <tbody>
-              <tr>
-                <td>
-                  Slytherin
-                </td>
-                 
-                <td>
-                  1938-09-01
-                </td>
-                 
-                <td>
-                  1998-05-02
-                </td>
-              </tr>
-              <tr>
-                <td>
-                  Hogwarts School of Witchcraft and Wizardry
-                </td>
-                 
-                <td>
-                  1938-09-01
-                </td>
-                 
-                <td>
-                  1945-06-02
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <div
+            class="v-data-table__wrapper"
+          >
+            <table>
+              <thead>
+                <tr>
+                  <th
+                    class="text-left"
+                  >
+                    Name
+                  </th>
+                   
+                  <th
+                    class="text-left"
+                  >
+                    From
+                  </th>
+                   
+                  <th
+                    class="text-left"
+                  >
+                    To
+                  </th>
+                </tr>
+              </thead>
+               
+              <tbody>
+                <tr>
+                  <td>
+                    Slytherin
+                  </td>
+                   
+                  <td>
+                    1938-09-01
+                  </td>
+                   
+                  <td>
+                    1998-05-02
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    Hogwarts School of Witchcraft and Wizardry
+                  </td>
+                   
+                  <td>
+                    1938-09-01
+                  </td>
+                   
+                  <td>
+                    1945-06-02
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
        
@@ -1186,222 +1904,271 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
         </div>
       </div>
        
-      <div
-        class="v-subheader d-flex justify-space-between theme--light"
-      >
-        
+      <div>
+        <div
+          class="v-subheader d-flex justify-space-between theme--light"
+        >
+          
     Organizations (2)
     
-        <button
-          class="v-btn v-btn--depressed v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
-          type="button"
-        >
-          <span
-            class="v-btn__content"
+          <button
+            class="v-btn v-btn--depressed v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
+            type="button"
           >
-            <i
-              aria-hidden="true"
-              class="v-icon notranslate v-icon--left mdi mdi-delete theme--light"
-              style="font-size: 16px;"
-            />
-            
+            <span
+              class="v-btn__content"
+            >
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate v-icon--left mdi mdi-delete theme--light"
+                style="font-size: 16px;"
+              />
+              
       Remove all
     
-          </span>
-        </button>
-      </div>
-       
-      <div
-        class="v-list indented v-sheet theme--light v-list--dense"
-        role="list"
-      >
+            </span>
+          </button>
+        </div>
+         
         <div
-          class="row-border v-list-item theme--light"
-          role="listitem"
-          tabindex="-1"
+          class="indented mt-2 mb-4"
         >
           <div
-            class="v-list-item__content"
+            class="mb-2 d-flex justify-space-between align-center"
           >
-            <div
-              class="row flex align-center no-gutters"
-            >
-              <div
-                class="col"
+            <div>
+              <span
+                class="v-tooltip v-tooltip--bottom"
               >
-                <span>
-                  Slytherin
-                </span>
-              </div>
-               
+                <!---->
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate mr-5 v-icon--left mdi mdi-sitemap theme--light"
+                />
+              </span>
+              
+        Slytherin
+
+        
               <div
-                class="col-3 ma-2 text-center col"
+                class="v-menu"
               >
-                <div
-                  class="v-menu"
+                <button
+                  aria-expanded="false"
+                  aria-haspopup="true"
+                  class="v-small-dialog__activator"
+                  role="button"
                 >
-                  <button
-                    aria-expanded="false"
-                    aria-haspopup="true"
-                    class="v-small-dialog__activator"
-                    role="button"
+                  <span
+                    class="grey--text text--darken-2 ml-6"
                   >
                     
-                  1938-09-01
-                  
-                    <i
-                      aria-hidden="true"
-                      class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
-                      style="font-size: 16px;"
-                    />
-                  </button>
-                  <!---->
-                </div>
+                1938-09-01
+              
+                  </span>
+                   
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
+                    style="font-size: 16px;"
+                  />
+                </button>
+                <!---->
               </div>
-               
+              
+        -
+        
               <div
-                class="col-3 ma-2 text-center col"
+                class="v-menu"
               >
-                <div
-                  class="v-menu"
+                <button
+                  aria-expanded="false"
+                  aria-haspopup="true"
+                  class="v-small-dialog__activator ml-5"
+                  role="button"
                 >
-                  <button
-                    aria-expanded="false"
-                    aria-haspopup="true"
-                    class="v-small-dialog__activator"
-                    role="button"
+                  <span
+                    class="grey--text text--darken-2 ml-2"
                   >
                     
-                  1998-05-02
-                  
-                    <i
-                      aria-hidden="true"
-                      class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
-                      style="font-size: 16px;"
-                    />
-                  </button>
-                  <!---->
-                </div>
-              </div>
-               
-              <div
-                class="text-end col-2 col"
-              >
-                <span
-                  class="v-tooltip v-tooltip--bottom"
-                >
-                  <!---->
-                  <button
-                    class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
-                    type="button"
-                  >
-                    <span
-                      class="v-btn__content"
-                    >
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-delete theme--light"
-                      />
-                    </span>
-                  </button>
-                </span>
+                1998-05-02
+              
+                  </span>
+                   
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
+                    style="font-size: 16px;"
+                  />
+                </button>
+                <!---->
               </div>
             </div>
+             
+            <div>
+              <span
+                class="v-tooltip v-tooltip--bottom"
+              >
+                <!---->
+                <button
+                  class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                  type="button"
+                >
+                  <span
+                    class="v-btn__content"
+                  >
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate mdi mdi-account-multiple-plus theme--light"
+                    />
+                  </span>
+                </button>
+              </span>
+               
+              <span
+                class="v-tooltip v-tooltip--bottom"
+              >
+                <!---->
+                <button
+                  class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                  type="button"
+                >
+                  <span
+                    class="v-btn__content"
+                  >
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate mdi mdi-delete theme--light"
+                    />
+                  </span>
+                </button>
+              </span>
+            </div>
           </div>
+           
+          <ul
+            class="ma-2 mr-0"
+          />
         </div>
         <div
-          class="row-border v-list-item theme--light"
-          role="listitem"
-          tabindex="-1"
+          class="indented mt-2 mb-4"
         >
           <div
-            class="v-list-item__content"
+            class="mb-2 d-flex justify-space-between align-center"
           >
-            <div
-              class="row flex align-center no-gutters"
-            >
-              <div
-                class="col"
+            <div>
+              <span
+                class="v-tooltip v-tooltip--bottom"
               >
-                <span>
-                  Hogwarts School of Witchcraft and Wizardry
-                </span>
-              </div>
-               
+                <!---->
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate mr-5 v-icon--left mdi mdi-sitemap theme--light"
+                />
+              </span>
+              
+        Hogwarts School of Witchcraft and Wizardry
+
+        
               <div
-                class="col-3 ma-2 text-center col"
+                class="v-menu"
               >
-                <div
-                  class="v-menu"
+                <button
+                  aria-expanded="false"
+                  aria-haspopup="true"
+                  class="v-small-dialog__activator"
+                  role="button"
                 >
-                  <button
-                    aria-expanded="false"
-                    aria-haspopup="true"
-                    class="v-small-dialog__activator"
-                    role="button"
+                  <span
+                    class="grey--text text--darken-2 ml-6"
                   >
                     
-                  1938-09-01
-                  
-                    <i
-                      aria-hidden="true"
-                      class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
-                      style="font-size: 16px;"
-                    />
-                  </button>
-                  <!---->
-                </div>
+                1938-09-01
+              
+                  </span>
+                   
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
+                    style="font-size: 16px;"
+                  />
+                </button>
+                <!---->
               </div>
-               
+              
+        -
+        
               <div
-                class="col-3 ma-2 text-center col"
+                class="v-menu"
               >
-                <div
-                  class="v-menu"
+                <button
+                  aria-expanded="false"
+                  aria-haspopup="true"
+                  class="v-small-dialog__activator ml-5"
+                  role="button"
                 >
-                  <button
-                    aria-expanded="false"
-                    aria-haspopup="true"
-                    class="v-small-dialog__activator"
-                    role="button"
+                  <span
+                    class="grey--text text--darken-2 ml-2"
                   >
                     
-                  1945-06-02
-                  
-                    <i
-                      aria-hidden="true"
-                      class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
-                      style="font-size: 16px;"
-                    />
-                  </button>
-                  <!---->
-                </div>
-              </div>
-               
-              <div
-                class="text-end col-2 col"
-              >
-                <span
-                  class="v-tooltip v-tooltip--bottom"
-                >
-                  <!---->
-                  <button
-                    class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
-                    type="button"
-                  >
-                    <span
-                      class="v-btn__content"
-                    >
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-delete theme--light"
-                      />
-                    </span>
-                  </button>
-                </span>
+                1945-06-02
+              
+                  </span>
+                   
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
+                    style="font-size: 16px;"
+                  />
+                </button>
+                <!---->
               </div>
             </div>
+             
+            <div>
+              <span
+                class="v-tooltip v-tooltip--bottom"
+              >
+                <!---->
+                <button
+                  class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                  type="button"
+                >
+                  <span
+                    class="v-btn__content"
+                  >
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate mdi mdi-account-multiple-plus theme--light"
+                    />
+                  </span>
+                </button>
+              </span>
+               
+              <span
+                class="v-tooltip v-tooltip--bottom"
+              >
+                <!---->
+                <button
+                  class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                  type="button"
+                >
+                  <span
+                    class="v-btn__content"
+                  >
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate mdi mdi-delete theme--light"
+                    />
+                  </span>
+                </button>
+              </span>
+            </div>
           </div>
+           
+          <ul
+            class="ma-2 mr-0"
+          />
         </div>
       </div>
        
@@ -1654,36 +2421,34 @@ exports[`Storyshots ExpandedIndividual No Organizations 1`] = `
         </div>
       </div>
        
-      <div
-        class="v-subheader d-flex justify-space-between theme--light"
-      >
-        
+      <div>
+        <div
+          class="v-subheader d-flex justify-space-between theme--light"
+        >
+          
     Organizations (0)
     
-        <button
-          class="v-btn v-btn--depressed v-btn--disabled v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
-          disabled="disabled"
-          type="button"
-        >
-          <span
-            class="v-btn__content"
+          <button
+            class="v-btn v-btn--depressed v-btn--disabled v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
+            disabled="disabled"
+            type="button"
           >
-            <i
-              aria-hidden="true"
-              class="v-icon notranslate v-icon--left mdi mdi-delete theme--light"
-              style="font-size: 16px;"
-            />
-            
+            <span
+              class="v-btn__content"
+            >
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate v-icon--left mdi mdi-delete theme--light"
+                style="font-size: 16px;"
+              />
+              
       Remove all
     
-          </span>
-        </button>
+            </span>
+          </button>
+        </div>
+         
       </div>
-       
-      <div
-        class="v-list indented v-sheet theme--light v-list--dense"
-        role="list"
-      />
        
       <div
         class="dragged-identity v-card v-sheet theme--dark primary"
@@ -6008,7 +6773,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
         >
           <i
             aria-hidden="true"
-            class="v-icon notranslate v-icon--left v-icon--dense mdi mdi-account-multiple theme--light black--text"
+            class="v-icon notranslate v-icon--left v-icon--dense mdi mdi-account theme--light black--text"
           />
           
       Individuals
@@ -6060,7 +6825,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                 />
                 <input
                   aria-checked="false"
-                  id="input-801"
+                  id="input-879"
                   role="checkbox"
                   type="checkbox"
                   value=""
@@ -6071,7 +6836,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
               </div>
               <label
                 class="v-label theme--light"
-                for="input-801"
+                for="input-879"
                 style="left: 0px; position: relative;"
               >
                 Select all
@@ -6157,13 +6922,13 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-806"
+                    for="input-884"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-806"
+                    id="input-884"
                     type="text"
                   />
                 </div>
@@ -6235,7 +7000,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
               <div
                 aria-expanded="false"
                 aria-haspopup="listbox"
-                aria-owns="list-814"
+                aria-owns="list-892"
                 class="v-input__slot"
                 role="button"
               >
@@ -6253,7 +7018,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-814"
+                    for="input-892"
                     style="left: 0px; position: absolute;"
                   >
                     Order by
@@ -6264,7 +7029,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                     <input
                       aria-readonly="false"
                       autocomplete="off"
-                      id="input-814"
+                      id="input-892"
                       readonly="readonly"
                       type="text"
                     />
@@ -6451,13 +7216,13 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                 >
                   <label
                     class="v-label v-label--active theme--light"
-                    for="input-834"
+                    for="input-912"
                     style="left: 0px; position: absolute;"
                   >
                     Items per page
                   </label>
                   <input
-                    id="input-834"
+                    id="input-912"
                     max="0"
                     min="1"
                     type="number"
@@ -6493,6 +7258,8 @@ exports[`Storyshots IndividualsTable Default 1`] = `
       >
         <!---->
       </div>
+       
+      <!---->
        
       <div
         class="dragged-item v-card v-sheet theme--dark primary"
@@ -6994,13 +7761,13 @@ exports[`Storyshots OrganizationsTable Groups 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-986"
+                    for="input-1188"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-986"
+                    id="input-1188"
                     type="text"
                   />
                 </div>
@@ -7127,13 +7894,13 @@ exports[`Storyshots OrganizationsTable Groups 1`] = `
               >
                 <label
                   class="v-label v-label--active theme--light"
-                  for="input-997"
+                  for="input-1199"
                   style="left: 0px; position: absolute;"
                 >
                   Items per page
                 </label>
                 <input
-                  id="input-997"
+                  id="input-1199"
                   max="0"
                   min="1"
                   type="number"
@@ -7282,13 +8049,13 @@ exports[`Storyshots OrganizationsTable Organizations 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-927"
+                    for="input-1129"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-927"
+                    id="input-1129"
                     type="text"
                   />
                 </div>
@@ -7415,13 +8182,13 @@ exports[`Storyshots OrganizationsTable Organizations 1`] = `
               >
                 <label
                   class="v-label v-label--active theme--light"
-                  for="input-938"
+                  for="input-1140"
                   style="left: 0px; position: absolute;"
                 >
                   Items per page
                 </label>
                 <input
-                  id="input-938"
+                  id="input-1140"
                   max="0"
                   min="1"
                   type="number"
@@ -7754,13 +8521,13 @@ exports[`Storyshots Search Default 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-1067"
+                  for="input-1269"
                   style="left: 0px; position: absolute;"
                 >
                   Search
                 </label>
                 <input
-                  id="input-1067"
+                  id="input-1269"
                   type="text"
                 />
               </div>
@@ -7888,13 +8655,13 @@ exports[`Storyshots Search Filter Selector 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-1077"
+                  for="input-1279"
                   style="left: 0px; position: absolute;"
                 >
                   Search
                 </label>
                 <input
-                  id="input-1077"
+                  id="input-1279"
                   type="text"
                 />
               </div>
@@ -7992,13 +8759,13 @@ exports[`Storyshots Search Order Selector 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-1090"
+                  for="input-1292"
                   style="left: 0px; position: absolute;"
                 >
                   Search
                 </label>
                 <input
-                  id="input-1090"
+                  id="input-1292"
                   type="text"
                 />
               </div>
@@ -8070,7 +8837,7 @@ exports[`Storyshots Search Order Selector 1`] = `
             <div
               aria-expanded="false"
               aria-haspopup="listbox"
-              aria-owns="list-1095"
+              aria-owns="list-1297"
               class="v-input__slot"
               role="button"
             >
@@ -8088,7 +8855,7 @@ exports[`Storyshots Search Order Selector 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-1095"
+                  for="input-1297"
                   style="left: 0px; position: absolute;"
                 >
                   Order by
@@ -8099,7 +8866,7 @@ exports[`Storyshots Search Order Selector 1`] = `
                   <input
                     aria-readonly="false"
                     autocomplete="off"
-                    id="input-1095"
+                    id="input-1297"
                     readonly="readonly"
                     type="text"
                   />
@@ -8139,6 +8906,80 @@ exports[`Storyshots Search Order Selector 1`] = `
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Storyshots TeamEnrollModal Default 1`] = `
+<div
+  class="v-application v-application--is-ltr theme--light"
+  data-app="true"
+  id="app"
+>
+  <div
+    class="v-application--wrap"
+  >
+    <div
+      class="ma-auto"
+      data-app="true"
+    >
+      <button
+        class="v-btn v-btn--contained theme--dark v-size--default primary"
+        type="button"
+      >
+        <span
+          class="v-btn__content"
+        >
+          
+      Open Dialog
+    
+        </span>
+      </button>
+       
+      <div
+        class="v-dialog__container"
+        role="dialog"
+      >
+        <!---->
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Storyshots TeamEnrollModal Error On Save 1`] = `
+<div
+  class="v-application v-application--is-ltr theme--light"
+  data-app="true"
+  id="app"
+>
+  <div
+    class="v-application--wrap"
+  >
+    <div
+      class="ma-auto"
+      data-app="true"
+    >
+      <button
+        class="v-btn v-btn--contained theme--dark v-size--default primary"
+        type="button"
+      >
+        <span
+          class="v-btn__content"
+        >
+          
+      Open Dialog
+    
+        </span>
+      </button>
+       
+      <div
+        class="v-dialog__container"
+        role="dialog"
+      >
+        <!---->
       </div>
     </div>
   </div>
@@ -8645,7 +9486,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
           >
             <i
               aria-hidden="true"
-              class="v-icon notranslate v-icon--left v-icon--dense mdi mdi-account-multiple theme--light black--text"
+              class="v-icon notranslate v-icon--left v-icon--dense mdi mdi-account theme--light black--text"
             />
             
       Individuals
@@ -8697,7 +9538,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   />
                   <input
                     aria-checked="false"
-                    id="input-1189"
+                    id="input-1405"
                     role="checkbox"
                     type="checkbox"
                     value=""
@@ -8708,7 +9549,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 </div>
                 <label
                   class="v-label theme--light"
-                  for="input-1189"
+                  for="input-1405"
                   style="left: 0px; position: relative;"
                 >
                   Select all
@@ -8794,13 +9635,13 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   >
                     <label
                       class="v-label theme--light"
-                      for="input-1194"
+                      for="input-1410"
                       style="left: 0px; position: absolute;"
                     >
                       Search
                     </label>
                     <input
-                      id="input-1194"
+                      id="input-1410"
                       type="text"
                     />
                   </div>
@@ -8872,7 +9713,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 <div
                   aria-expanded="false"
                   aria-haspopup="listbox"
-                  aria-owns="list-1202"
+                  aria-owns="list-1418"
                   class="v-input__slot"
                   role="button"
                 >
@@ -8890,7 +9731,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   >
                     <label
                       class="v-label theme--light"
-                      for="input-1202"
+                      for="input-1418"
                       style="left: 0px; position: absolute;"
                     >
                       Order by
@@ -8901,7 +9742,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                       <input
                         aria-readonly="false"
                         autocomplete="off"
-                        id="input-1202"
+                        id="input-1418"
                         readonly="readonly"
                         type="text"
                       />
@@ -9088,13 +9929,13 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   >
                     <label
                       class="v-label v-label--active theme--light"
-                      for="input-1222"
+                      for="input-1438"
                       style="left: 0px; position: absolute;"
                     >
                       Items per page
                     </label>
                     <input
-                      id="input-1222"
+                      id="input-1438"
                       max="0"
                       min="1"
                       type="number"
@@ -9130,6 +9971,8 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
         >
           <!---->
         </div>
+         
+        <!---->
          
         <div
           class="dragged-item v-card v-sheet theme--dark primary"
