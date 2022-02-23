@@ -82,6 +82,7 @@ IDENTITY_DATA_WHITESPACES_ERROR = "'{name}' cannot be composed by whitespaces on
 INDIVIDUAL_NOT_FOUND_ERROR = "zyxwuv not found in the registry"
 IDENTITY_NOT_FOUND_ERROR = "zyxwuv not found in the registry"
 ORGANIZATION_NOT_FOUND_ERROR = "Bitergia not found in the registry"
+GROUP_NOT_FOUND_ERROR = "Bitergia not found in the registry"
 DOMAIN_NOT_FOUND_ERROR = "example.net not found in the registry"
 TEAM_NOT_FOUND_ERROR = "subTeam not found in the registry"
 TEAM_NAME_NONE_ERROR = "'team_name' cannot be None"
@@ -258,6 +259,55 @@ class TestFindTeam(TestCase):
             db.find_team('  \t  ', self.org)
 
 
+class TestFindGroup(TestCase):
+    """Unit tests for find_group"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        self.org = Organization.add_root(name='Example Org')
+        Team.add_root(name='Example Team', parent_org=self.org)
+        Team.add_root(name='Example Group')
+
+    def test_find_organization(self):
+        """Test if an organization is found by its name"""
+
+        name = 'Example Org'
+
+        group = db.find_group(name)
+        self.assertIsInstance(group, Group)
+        self.assertEqual(group.type, 'organization')
+        self.assertEqual(group.name, name)
+
+    def test_find_team(self):
+        """Test if a team is found by its name and parent organization"""
+
+        name = 'Example Team'
+
+        group = db.find_group(name, 'Example Org')
+        self.assertIsInstance(group, Group)
+        self.assertEqual(group.type, 'team')
+        self.assertEqual(group.name, name)
+        self.assertEqual(group.parent_org.name, self.org.name)
+
+    def test_find_group(self):
+        """Test if a team with no parent organization is found"""
+
+        name = 'Example Group'
+
+        group = db.find_group(name)
+        self.assertIsInstance(group, Group)
+        self.assertEqual(group.type, 'team')
+        self.assertEqual(group.name, name)
+        self.assertEqual(group.parent_org, None)
+
+    def test_group_not_found(self):
+        """Test whether it raises an exception when the group is not found"""
+
+        with self.assertRaisesRegex(NotFoundError, GROUP_NOT_FOUND_ERROR):
+            db.find_group('Bitergia')
+
+
 class TestFindDomain(TestCase):
     """Unit tests for find_domain"""
 
@@ -330,22 +380,22 @@ class TestSearchEnrollmentsInPeriod(TestCase):
         bitergia_org = Organization.add_root(name='Bitergia')
 
         # Example enrollments
-        Enrollment.objects.create(individual=individual_a, organization=example_org,
+        Enrollment.objects.create(individual=individual_a, group=example_org,
                                   start=datetime.datetime(1999, 1, 1, tzinfo=UTC),
                                   end=datetime.datetime(2002, 1, 1, tzinfo=UTC))
-        Enrollment.objects.create(individual=individual_a, organization=example_org,
+        Enrollment.objects.create(individual=individual_a, group=example_org,
                                   start=datetime.datetime(2003, 1, 1, tzinfo=UTC),
                                   end=datetime.datetime(2005, 1, 1, tzinfo=UTC))
-        Enrollment.objects.create(individual=individual_a, organization=example_org,
+        Enrollment.objects.create(individual=individual_a, group=example_org,
                                   start=datetime.datetime(2008, 1, 1, tzinfo=UTC),
                                   end=datetime.datetime(2010, 1, 1, tzinfo=UTC))
 
-        Enrollment.objects.create(individual=individual_b, organization=example_org,
+        Enrollment.objects.create(individual=individual_b, group=example_org,
                                   start=datetime.datetime(2000, 1, 1, tzinfo=UTC),
                                   end=datetime.datetime(2015, 1, 1, tzinfo=UTC))
 
         # Bitergia enrollments
-        Enrollment.objects.create(individual=individual_a, organization=bitergia_org,
+        Enrollment.objects.create(individual=individual_a, group=bitergia_org,
                                   start=datetime.datetime(2001, 1, 1, tzinfo=UTC),
                                   end=datetime.datetime(2010, 1, 1, tzinfo=UTC))
 
@@ -361,14 +411,14 @@ class TestSearchEnrollmentsInPeriod(TestCase):
         rol = enrollments[0]
         self.assertIsInstance(rol, Enrollment)
         self.assertEqual(rol.individual, individual_a)
-        self.assertEqual(rol.organization, example_org)
+        self.assertEqual(rol.group, example_org)
         self.assertEqual(rol.start, datetime.datetime(2003, 1, 1, tzinfo=UTC))
         self.assertEqual(rol.end, datetime.datetime(2005, 1, 1, tzinfo=UTC))
 
         rol = enrollments[1]
         self.assertIsInstance(rol, Enrollment)
         self.assertEqual(rol.individual, individual_a)
-        self.assertEqual(rol.organization, example_org)
+        self.assertEqual(rol.group, example_org)
         self.assertEqual(rol.start, datetime.datetime(2008, 1, 1, tzinfo=UTC))
         self.assertEqual(rol.end, datetime.datetime(2010, 1, 1, tzinfo=UTC))
 
@@ -378,7 +428,7 @@ class TestSearchEnrollmentsInPeriod(TestCase):
         individual_a = Individual.objects.create(mk='AAAA')
         example_org = Organization.add_root(name='Example')
 
-        Enrollment.objects.create(individual=individual_a, organization=example_org,
+        Enrollment.objects.create(individual=individual_a, group=example_org,
                                   start=datetime.datetime(1999, 1, 1, tzinfo=UTC),
                                   end=datetime.datetime(2000, 1, 1, tzinfo=UTC))
 
@@ -394,7 +444,7 @@ class TestSearchEnrollmentsInPeriod(TestCase):
         individual_a = Individual.objects.create(mk='AAAA')
         example_org = Organization.add_root(name='Example')
 
-        Enrollment.objects.create(individual=individual_a, organization=example_org,
+        Enrollment.objects.create(individual=individual_a, group=example_org,
                                   start=datetime.datetime(1999, 1, 1, tzinfo=UTC),
                                   end=datetime.datetime(2000, 1, 1, tzinfo=UTC))
 
@@ -410,7 +460,7 @@ class TestSearchEnrollmentsInPeriod(TestCase):
         individual_a = Individual.objects.create(mk='AAAA')
         example_org = Organization.add_root(name='Example')
 
-        Enrollment.objects.create(individual=individual_a, organization=example_org,
+        Enrollment.objects.create(individual=individual_a, group=example_org,
                                   start=datetime.datetime(1999, 1, 1, tzinfo=UTC),
                                   end=datetime.datetime(2000, 1, 1, tzinfo=UTC))
 
@@ -419,6 +469,48 @@ class TestSearchEnrollmentsInPeriod(TestCase):
                                                       from_date=datetime.datetime(1999, 1, 1, tzinfo=UTC),
                                                       to_date=datetime.datetime(2000, 1, 1, tzinfo=UTC))
         self.assertEqual(len(enrollments), 0)
+
+    def test_search_enrollments_in_team(self):
+        individual_a = Individual.objects.create(mk='AAAA')
+        example_org = Organization.add_root(name='Example')
+        team1 = Team.add_root(name='Team 1', parent_org=example_org)
+        team2 = Team.add_root(name='Team 2', parent_org=example_org)
+
+        Enrollment.objects.create(individual=individual_a, group=team1,
+                                  start=datetime.datetime(1999, 1, 1, tzinfo=UTC),
+                                  end=datetime.datetime(2000, 1, 1, tzinfo=UTC))
+        Enrollment.objects.create(individual=individual_a, group=team1,
+                                  start=datetime.datetime(2002, 1, 1, tzinfo=UTC),
+                                  end=datetime.datetime(2004, 1, 1, tzinfo=UTC))
+        Enrollment.objects.create(individual=individual_a, group=team1,
+                                  start=datetime.datetime(2006, 1, 1, tzinfo=UTC),
+                                  end=datetime.datetime(2008, 1, 1, tzinfo=UTC))
+
+        Enrollment.objects.create(individual=individual_a, group=team2,
+                                  start=datetime.datetime(2001, 1, 1, tzinfo=UTC),
+                                  end=datetime.datetime(2006, 1, 1, tzinfo=UTC))
+
+        # Tests
+        enrollments = db.search_enrollments_in_period('AAAA', 'Team 1',
+                                                      parent_org='Example',
+                                                      from_date=datetime.datetime(2003, 1, 1, tzinfo=UTC),
+                                                      to_date=datetime.datetime(2009, 1, 1, tzinfo=UTC))
+
+        self.assertEqual(len(enrollments), 2)
+
+        rol = enrollments[0]
+        self.assertIsInstance(rol, Enrollment)
+        self.assertEqual(rol.individual, individual_a)
+        self.assertEqual(rol.group, team1)
+        self.assertEqual(rol.start, datetime.datetime(2002, 1, 1, tzinfo=UTC))
+        self.assertEqual(rol.end, datetime.datetime(2004, 1, 1, tzinfo=UTC))
+
+        rol = enrollments[1]
+        self.assertIsInstance(rol, Enrollment)
+        self.assertEqual(rol.individual, individual_a)
+        self.assertEqual(rol.group, team1)
+        self.assertEqual(rol.start, datetime.datetime(2006, 1, 1, tzinfo=UTC))
+        self.assertEqual(rol.end, datetime.datetime(2008, 1, 1, tzinfo=UTC))
 
 
 class TestAddOrganization(TestCase):
@@ -561,14 +653,14 @@ class TestDeleteOrganization(TestCase):
         Profile.objects.create(name='John Smith',
                                email='jsmith@example.net',
                                individual=jsmith)
-        Enrollment.objects.create(individual=jsmith, organization=org_ex)
+        Enrollment.objects.create(individual=jsmith, group=org_ex)
 
         jdoe = Individual.objects.create(mk='BBBB')
         Profile.objects.create(name='John Doe',
                                email='jdoe@bitergia.com',
                                individual=jdoe)
-        Enrollment.objects.create(individual=jdoe, organization=org_ex)
-        Enrollment.objects.create(individual=jdoe, organization=org_bit)
+        Enrollment.objects.create(individual=jdoe, group=org_ex)
+        Enrollment.objects.create(individual=jdoe, group=org_bit)
 
         # Check data and remove organization
         org_ex.refresh_from_db()
@@ -587,10 +679,10 @@ class TestDeleteOrganization(TestCase):
         with self.assertRaises(ObjectDoesNotExist):
             Domain.objects.get(domain='example.org')
 
-        enrollments = Enrollment.objects.filter(organization__name='Example')
+        enrollments = Enrollment.objects.filter(group__name='Example')
         self.assertEqual(len(enrollments), 0)
 
-        enrollments = Enrollment.objects.filter(organization__name='Bitergia')
+        enrollments = Enrollment.objects.filter(group__name='Bitergia')
         self.assertEqual(len(enrollments), 1)
 
     def test_last_modified(self):
@@ -604,16 +696,16 @@ class TestDeleteOrganization(TestCase):
                                email='jsmith@example.net',
                                individual=jsmith)
         Enrollment.objects.create(individual=jsmith,
-                                  organization=org_ex)
+                                  group=org_ex)
 
         jdoe = Individual.objects.create(mk='BBBB')
         Profile.objects.create(name='John Doe',
                                email='jdoe@bitergia.com',
                                individual=jdoe)
         Enrollment.objects.create(individual=jdoe,
-                                  organization=org_ex)
+                                  group=org_ex)
         Enrollment.objects.create(individual=jdoe,
-                                  organization=org_bit)
+                                  group=org_bit)
 
         # Tests
         before_dt = datetime_utcnow()
@@ -1234,7 +1326,7 @@ class TestDeleteIndividual(TestCase):
                                 individual=jsmith)
         Identity.objects.create(uuid='0003', email='jsmith@example.org',
                                 individual=jsmith)
-        Enrollment.objects.create(individual=jsmith, organization=org_ex)
+        Enrollment.objects.create(individual=jsmith, group=org_ex)
 
         jdoe = Individual.objects.create(mk='BBBB')
         Profile.objects.create(name='John Doe',
@@ -1243,8 +1335,8 @@ class TestDeleteIndividual(TestCase):
         Identity.objects.create(uuid='0004', name='John Doe',
                                 email='jdoe@bitergia.com',
                                 individual=jdoe)
-        Enrollment.objects.create(individual=jdoe, organization=org_ex)
-        Enrollment.objects.create(individual=jdoe, organization=org_bit)
+        Enrollment.objects.create(individual=jdoe, group=org_ex)
+        Enrollment.objects.create(individual=jdoe, group=org_bit)
 
         # Check data and remove individual
         jsmith.refresh_from_db()
@@ -2018,7 +2110,37 @@ class TestAddEnrollment(TestCase):
         self.assertEqual(enrollment.start, start)
         self.assertEqual(enrollment.end, end)
         self.assertEqual(enrollment.individual, individual)
-        self.assertEqual(enrollment.organization, org)
+        self.assertEqual(enrollment.group, org)
+
+        individual = Individual.objects.get(mk=mk)
+
+        enrollments = individual.enrollments.all()
+        self.assertEqual(len(enrollments), 1)
+
+        enrollment_db = enrollments[0]
+        self.assertEqual(enrollment, enrollment_db)
+
+    def test_enroll_in_team(self):
+        """Check if a new enrollment in a team is added"""
+
+        mk = '1234567890ABCDFE'
+
+        individual = Individual.objects.create(mk=mk)
+        org = Organization.add_root(name='Bitergia')
+        team = Team.add_root(name='Example', parent_org=org)
+
+        start = datetime.datetime(1999, 1, 1, tzinfo=UTC)
+        end = datetime.datetime(2000, 1, 1, tzinfo=UTC)
+
+        enrollment = db.add_enrollment(self.trxl, individual, team,
+                                       start=start, end=end)
+
+        self.assertIsInstance(enrollment, Enrollment)
+        self.assertEqual(enrollment.start, start)
+        self.assertEqual(enrollment.end, end)
+        self.assertEqual(enrollment.individual, individual)
+        self.assertEqual(enrollment.group, team)
+        self.assertEqual(enrollment.group.parent_org, org)
 
         individual = Individual.objects.get(mk=mk)
 
@@ -2053,24 +2175,24 @@ class TestAddEnrollment(TestCase):
         self.assertEqual(enrollment.end, datetime.datetime(2005, 1, 1, tzinfo=UTC))
         self.assertIsInstance(enrollment.individual, Individual)
         self.assertEqual(enrollment.individual.mk, mk)
-        self.assertIsInstance(enrollment.organization, Group)
-        self.assertEqual(enrollment.organization.name, name)
+        self.assertIsInstance(enrollment.group, Group)
+        self.assertEqual(enrollment.group.name, name)
 
         enrollment = enrollments[1]
         self.assertEqual(enrollment.start, datetime.datetime(1999, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment.end, MAX_PERIOD_DATE)
         self.assertIsInstance(enrollment.individual, Individual)
         self.assertEqual(enrollment.individual.mk, mk)
-        self.assertIsInstance(enrollment.organization, Group)
-        self.assertEqual(enrollment.organization.name, name)
+        self.assertIsInstance(enrollment.group, Group)
+        self.assertEqual(enrollment.group.name, name)
 
         enrollment = enrollments[2]
         self.assertEqual(enrollment.start, datetime.datetime(2013, 1, 1, tzinfo=UTC))
         self.assertEqual(enrollment.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
         self.assertIsInstance(enrollment.individual, Individual)
         self.assertEqual(enrollment.individual.mk, mk)
-        self.assertIsInstance(enrollment.organization, Group)
-        self.assertEqual(enrollment.organization.name, name)
+        self.assertIsInstance(enrollment.group, Group)
+        self.assertEqual(enrollment.group.name, name)
 
     def test_last_modified(self):
         """Check if last modification date is updated"""
@@ -2249,7 +2371,7 @@ class TestAddEnrollment(TestCase):
         op1_args = json.loads(op1.args)
         self.assertEqual(len(op1_args), 4)
         self.assertEqual(op1_args['individual'], mk)
-        self.assertEqual(op1_args['organization'], org.name)
+        self.assertEqual(op1_args['group'], org.name)
         self.assertEqual(op1_args['start'], str(datetime_to_utc(datetime.datetime(1999, 1, 1))))
         self.assertEqual(op1_args['end'], str(datetime_to_utc(datetime.datetime(2000, 1, 1))))
 
@@ -2278,13 +2400,13 @@ class TestDeleteEnrollment(TestCase):
                                 individual=jsmith)
 
         example_org = Organization.add_root(name='Example')
-        Enrollment.objects.create(individual=jsmith, organization=example_org,
+        Enrollment.objects.create(individual=jsmith, group=example_org,
                                   start=from_date, end=first_period)
-        enrollment = Enrollment.objects.create(individual=jsmith, organization=example_org,
+        enrollment = Enrollment.objects.create(individual=jsmith, group=example_org,
                                                start=second_period, end=to_date)
 
         bitergia_org = Organization.add_root(name='Bitergia')
-        Enrollment.objects.create(individual=jsmith, organization=bitergia_org,
+        Enrollment.objects.create(individual=jsmith, group=bitergia_org,
                                   start=first_period, end=second_period)
 
         # Check data and remove enrollment
@@ -2300,10 +2422,10 @@ class TestDeleteEnrollment(TestCase):
                                    start=second_period,
                                    end=to_date)
 
-        enrollments = Enrollment.objects.filter(organization__name='Example')
+        enrollments = Enrollment.objects.filter(group__name='Example')
         self.assertEqual(len(enrollments), 1)
 
-        enrollments = Enrollment.objects.filter(organization__name='Bitergia')
+        enrollments = Enrollment.objects.filter(group__name='Bitergia')
         self.assertEqual(len(enrollments), 1)
 
     def test_last_modified(self):
@@ -2317,7 +2439,7 @@ class TestDeleteEnrollment(TestCase):
                                 individual=jsmith)
 
         example_org = Organization.add_root(name='Example')
-        enrollment = Enrollment.objects.create(individual=jsmith, organization=example_org,
+        enrollment = Enrollment.objects.create(individual=jsmith, group=example_org,
                                                start=from_date, end=to_date)
 
         # Tests
@@ -2339,7 +2461,7 @@ class TestDeleteEnrollment(TestCase):
         end = datetime.datetime(2000, 1, 1, tzinfo=UTC)
 
         enrollment = Enrollment.objects.create(individual=jsmith,
-                                               organization=org,
+                                               group=org,
                                                start=start,
                                                end=end)
 
@@ -2365,13 +2487,13 @@ class TestDeleteEnrollment(TestCase):
                                 individual=jsmith)
 
         example_org = Organization.add_root(name='Example')
-        Enrollment.objects.create(individual=jsmith, organization=example_org,
+        Enrollment.objects.create(individual=jsmith, group=example_org,
                                   start=from_date, end=first_period)
-        enrollment = Enrollment.objects.create(individual=jsmith, organization=example_org,
+        enrollment = Enrollment.objects.create(individual=jsmith, group=example_org,
                                                start=second_period, end=to_date)
 
         bitergia_org = Organization.add_root(name='Bitergia')
-        Enrollment.objects.create(individual=jsmith, organization=bitergia_org,
+        Enrollment.objects.create(individual=jsmith, group=bitergia_org,
                                   start=first_period, end=second_period)
         jsmith.refresh_from_db()
 
@@ -2395,7 +2517,7 @@ class TestDeleteEnrollment(TestCase):
         op1_args = json.loads(op1.args)
         self.assertEqual(len(op1_args), 4)
         self.assertEqual(op1_args['mk'], 'AAAA')
-        self.assertEqual(op1_args['organization'], 'Example')
+        self.assertEqual(op1_args['group'], 'Example')
         self.assertEqual(op1_args['start'], str(datetime_to_utc(second_period)))
         self.assertEqual(op1_args['end'], str(datetime_to_utc(to_date)))
 

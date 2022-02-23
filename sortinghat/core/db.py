@@ -200,6 +200,36 @@ def find_team(team_name, organization=None):
         return team
 
 
+def find_group(name, parent_org=None):
+    """Find a group.
+
+    Find an group by its name in the database. If a parent organization
+    is passed, it looks for a team in that organization.
+
+    When the group does not exist the function will raise
+    a `NotFoundError`.
+
+    :param name: name of the group to find
+    :param parent_org: name of the group's parent organization
+
+    :returns: a group object
+
+    :raises NotFoundError: when the group with the
+        given `name` does not exists.
+    """
+    validate_field('name', name)
+
+    try:
+        logger.debug(f"Finding group '{name}'" + f"in '{parent_org}' ..." if parent_org else "...")
+        group = Group.objects.get(name=name, parent_org__name=parent_org)
+    except Group.DoesNotExist:
+        logger.debug(f"Group with name '{name}' does not exist")
+        raise NotFoundError(entity=name)
+    else:
+        logger.debug(f"Group with name '{name}' was found")
+        return group
+
+
 def find_domain(domain_name):
     """Find a domain.
 
@@ -227,7 +257,8 @@ def find_domain(domain_name):
         return domain
 
 
-def search_enrollments_in_period(mk, org_name,
+def search_enrollments_in_period(mk, group_name,
+                                 parent_org=None,
                                  from_date=MIN_PERIOD_DATE,
                                  to_date=MIN_PERIOD_DATE):
     """Look for enrollments in a given period.
@@ -240,7 +271,8 @@ def search_enrollments_in_period(mk, org_name,
     exist, or there are not enrollments assigned for that period.
 
     :param mk: main key of the individual
-    :param org_name: name of the organization
+    :param group_name: name of the group
+    :param parent_org: name of the group's parent organization
     :param from_date: starting date for the period
     :param to_date: ending date for the period
 
@@ -248,11 +280,12 @@ def search_enrollments_in_period(mk, org_name,
     """
     logger.debug(
         f"Run enrollments search; "
-        f"individual='{mk}' organization='{org_name}'"
+        f"individual='{mk}' group='{group_name}'"
         f"from='{from_date}' to='{to_date}'"
     )
     return Enrollment.objects.filter(individual__mk=mk,
-                                     organization__name=org_name,
+                                     group__name=group_name,
+                                     group__parent_org__name=parent_org,
                                      start__lte=to_date, end__gte=from_date).order_by('start')
 
 
@@ -318,7 +351,7 @@ def delete_organization(trxl, organization):
     }
 
     last_modified = datetime_utcnow()
-    Individual.objects.filter(enrollments__organization=organization).\
+    Individual.objects.filter(enrollments__group=organization).\
         update(last_modified=last_modified)
 
     organization.delete()
@@ -731,7 +764,7 @@ def update_profile(trxl, individual, **kwargs):
     return individual
 
 
-def add_enrollment(trxl, individual, organization,
+def add_enrollment(trxl, individual, group,
                    start=MIN_PERIOD_DATE, end=MAX_PERIOD_DATE):
     """Enroll an individual to an organization in the database.
 
@@ -747,7 +780,7 @@ def add_enrollment(trxl, individual, organization,
 
     :param trxl: TransactionsLog object from the method calling this one
     :param individual: individual to enroll
-    :param organization: organization where the individual is enrolled
+    :param group: group where the individual is enrolled
     :param start: date when the enrollment starts
     :param end: date when the enrollment ends
 
@@ -760,7 +793,7 @@ def add_enrollment(trxl, individual, organization,
     # Setting operation arguments before they are modified
     op_args = {
         'individual': individual.mk,
-        'organization': organization.name,
+        'group': group.name,
         'start': copy.deepcopy(str(start)),
         'end': copy.deepcopy(str(end))
     }
@@ -785,7 +818,7 @@ def add_enrollment(trxl, individual, organization,
 
     try:
         enrollment = Enrollment(individual=individual,
-                                organization=organization,
+                                group=group,
                                 start=start, end=end)
         enrollment.save()
         individual.save()
@@ -811,7 +844,7 @@ def delete_enrollment(trxl, enrollment):
     # Setting operation arguments before they are modified
     op_args = {
         'mk': enrollment.individual.mk,
-        'organization': enrollment.organization.name,
+        'group': enrollment.group.name,
         'start': str(enrollment.start),
         'end': str(enrollment.end)
     }

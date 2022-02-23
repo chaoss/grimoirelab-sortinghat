@@ -115,7 +115,7 @@ const enrollResponse = {
           {
             start: "1900-01-01T00:00:00+00:00",
             end: "2100-01-01T00:00:00+00:00",
-            organization: {
+            group: {
               name: "Organization"
             }
           }
@@ -233,9 +233,9 @@ const updateEnrollmentResponse = {
           {
             start: "2020-11-01T00:00:00+00:00",
             end: "2020-12-24T00:00:00+00:00",
-            organization: {
+            group: {
               name: "Organization",
-              __typename: "OrganizationType"
+              __typename: "GroupType"
             },
             __typename: "EnrollmentType"
           }
@@ -380,7 +380,7 @@ describe("IndividualsTable", () => {
     const enrollment = {
       fromDate: "2020-12-03T00:00:00+00:00",
       newFromDate: "2020-11-01T00:00:00.000Z",
-      organization: "Organization",
+      group: "Organization",
       toDate: "2020-12-24T00:00:00+00:00",
       newToDate: "2020-12-24T00:00:00+00:00",
       uuid: "06e6903c91180835b6ee91dd56782c6ca72bc562"

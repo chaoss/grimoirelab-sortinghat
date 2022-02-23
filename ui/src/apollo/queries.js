@@ -27,8 +27,9 @@ const GET_INDIVIDUAL_BYUUID = gql`
         enrollments {
           start
           end
-          organization {
+          group {
             name
+            type
           }
         }
       }
@@ -84,8 +85,9 @@ const GET_PROFILE_BYUUID = gql`
         enrollments {
           start
           end
-          organization {
+          group {
             name
+            type
           }
         }
       }
@@ -130,8 +132,9 @@ const GET_PAGINATED_INDIVIDUALS = gql`
         enrollments {
           start
           end
-          organization {
+          group {
             name
+            type
           }
         }
       }

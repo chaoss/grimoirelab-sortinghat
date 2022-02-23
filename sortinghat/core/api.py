@@ -32,6 +32,7 @@ from .db import (find_individual_by_uuid,
                  find_organization,
                  find_domain,
                  find_team,
+                 find_group,
                  search_enrollments_in_period,
                  add_individual as add_individual_db,
                  add_identity as add_identity_db,
@@ -764,11 +765,12 @@ def delete_team(ctx, team_name, organization=None):
 
 
 @django.db.transaction.atomic
-def enroll(ctx, uuid, organization, from_date=None, to_date=None, force=False):
-    """Enroll an individual in an organization.
+def enroll(ctx, uuid, group, parent_org=None, from_date=None, to_date=None,
+           force=False):
+    """Enroll an individual in a group.
 
     The function enrolls an individual, identified by `uuid`,
-    in the given `organization`. Both identity and organization must
+    in the given `group`. Both identity and group must
     exist before adding this enrollment to the registry. Otherwise,
     a `NotFoundError` exception will be raised. As in other functions,
     any UUID of the identities of the individual is a valid identifier.
@@ -777,7 +779,7 @@ def enroll(ctx, uuid, organization, from_date=None, to_date=None, force=False):
     `from_date` and `to_date`, where `from_date <= to_date`. Default
     values for these dates are `1900-01-01` and `2100-01-01`.
 
-    Existing enrollments for the same individual and organization
+    Existing enrollments for the same individual and group
     which overlap with the new period will be merged into a single
     enrollment.
 
@@ -794,7 +796,8 @@ def enroll(ctx, uuid, organization, from_date=None, to_date=None, force=False):
 
     :param ctx: context from where this method is called
     :param uuid: unique identifier
-    :param organization: name of the organization
+    :param group: name of the group
+    :param parent_org: name of the group's parent organization
     :param from_date: date when the enrollment starts
     :param to_date: date when the enrollment ends
     :param force: overwrite default dates in case a more specific date
@@ -805,7 +808,7 @@ def enroll(ctx, uuid, organization, from_date=None, to_date=None, force=False):
     :raises NotFoundError: when either `uuid` or `organization` are not
         found in the registry.
     :raises InvalidValueError: raised in three cases, when either identity or
-        organization are None or empty strings; when "from_date" < 1900-01-01 or
+        group are None or empty strings; when "from_date" < 1900-01-01 or
         "to_date" > 2100-01-01; when "from_date > to_date".
     :raises DuplicateRangeError: raised when the given period for that enrollment
         already exists in the registry.
@@ -814,10 +817,10 @@ def enroll(ctx, uuid, organization, from_date=None, to_date=None, force=False):
         raise InvalidValueError(msg="'uuid' cannot be None")
     if uuid == '':
         raise InvalidValueError(msg="'uuid' cannot be an empty string")
-    if organization is None:
-        raise InvalidValueError(msg="'organization' cannot be None")
-    if organization == '':
-        raise InvalidValueError(msg="'organization' cannot be an empty string")
+    if group is None:
+        raise InvalidValueError(msg="'group' cannot be None")
+    if group == '':
+        raise InvalidValueError(msg="'group' cannot be an empty string")
 
     trxl = TransactionsLog.open('enroll', ctx)
 
@@ -830,11 +833,12 @@ def enroll(ctx, uuid, organization, from_date=None, to_date=None, force=False):
 
     # Find and check entities
     individual = find_individual_by_uuid(uuid)
-    org = find_organization(organization)
+    group = find_group(group, parent_org)
 
     # Get the list of current ranges
     # Check whether the new one already exist
-    enrollments_db = search_enrollments_in_period(individual.mk, organization,
+    enrollments_db = search_enrollments_in_period(individual.mk, group.name,
+                                                  parent_org=parent_org,
                                                   from_date=from_date,
                                                   to_date=to_date)
 
@@ -847,7 +851,7 @@ def enroll(ctx, uuid, organization, from_date=None, to_date=None, force=False):
             if default_values and force:
                 # Default values will be overwritten with input values
                 continue
-            raise DuplicateRangeError(start=from_date, end=to_date, org=organization)
+            raise DuplicateRangeError(start=from_date, end=to_date, group=group)
         if to_date < period[0]:
             break
 
@@ -860,7 +864,7 @@ def enroll(ctx, uuid, organization, from_date=None, to_date=None, force=False):
     try:
         dt_ranges = merge_datetime_ranges(periods, exclude_limits=force)
         for start_dt, end_dt in dt_ranges:
-            add_enrollment(trxl, individual, org, start=start_dt, end=end_dt)
+            add_enrollment(trxl, individual, group, start=start_dt, end=end_dt)
     except ValueError as e:
         raise InvalidValueError(msg=str(e))
 
@@ -869,7 +873,7 @@ def enroll(ctx, uuid, organization, from_date=None, to_date=None, force=False):
     trxl.close()
 
     logger.info(
-        f"Individual {uuid} enrolled to {organization}; "
+        f"Individual {uuid} enrolled to {group}; "
         f"from='{from_date}' to='{to_date}'"
     )
 
@@ -877,22 +881,22 @@ def enroll(ctx, uuid, organization, from_date=None, to_date=None, force=False):
 
 
 @django.db.transaction.atomic
-def withdraw(ctx, uuid, organization, from_date=None, to_date=None):
-    """Withdraw an individual from an organization.
+def withdraw(ctx, uuid, group, parent_org=None, from_date=None, to_date=None):
+    """Withdraw an individual from a group.
 
     This function withdraws an individual identified by `uuid`
-    from the given `organization` during the given period of time.
+    from the given `group` during the given period of time.
     As in other functions, any UUID of the identities of the individual
     is a valid identifier.
 
     For example, if the individual `A` was enrolled from `2010-01-01`
-    to `2018-01-01` to the organization `Example`, the result of withdrawing
+    to `2018-01-01` to the group `Example`, the result of withdrawing
     that identity from `2014-01-01` to `2016-01-01` will be two enrollments
     for that identity: one for the period 2010-2014 and another one for
     the period 2016-2018. If the period of withdrawing encloses minimum
     and maximum dates, all the enrollments will be removed.
 
-    Both `uuid` and `organization` must exists before being deleted.
+    Both `uuid` and `group` must exist before being deleted.
     Moreover, an enrollment during the given period must exist.
     Otherwise, it will raise a `NotFoundError` exception.
 
@@ -905,13 +909,14 @@ def withdraw(ctx, uuid, organization, from_date=None, to_date=None):
 
     :param ctx: context from where this method is called
     :param uuid: unique identifier
-    :param organization: name of the organization
+    :param group: name of the group
+    :param parent_org: name of the group's parent organization
     :param from_date: date when the enrollment starts
     :param to_date: date when the enrollment ends
 
     :returns: an individual with enrollment data updated
 
-    :raises NotFoundError: when either `uuid` or `organization` are not
+    :raises NotFoundError: when either `uuid` or `group` are not
         found in the registry or when the identity is not enrolled
         in that organization for the given period
     :raises InvalidValeError: raised in three cases, when either identity or
@@ -922,10 +927,10 @@ def withdraw(ctx, uuid, organization, from_date=None, to_date=None):
         raise InvalidValueError(msg="'uuid' cannot be None")
     if uuid == '':
         raise InvalidValueError(msg="'uuid' cannot be an empty string")
-    if organization is None:
-        raise InvalidValueError(msg="'organization' cannot be None")
-    if organization == '':
-        raise InvalidValueError(msg="'organization' cannot be an empty string")
+    if group is None:
+        raise InvalidValueError(msg="'group' cannot be None")
+    if group == '':
+        raise InvalidValueError(msg="'group' cannot be an empty string")
 
     trxl = TransactionsLog.open('withdraw', ctx)
 
@@ -942,18 +947,19 @@ def withdraw(ctx, uuid, organization, from_date=None, to_date=None):
 
     # Find and check entities
     individual = find_individual_by_uuid(uuid)
-    org = find_organization(organization)
+    group = find_group(group, parent_org=parent_org)
 
     # Get the list of current ranges
     # Check whether any enrollment for the given period exist
-    enrollments_db = search_enrollments_in_period(individual.mk, organization,
+    enrollments_db = search_enrollments_in_period(individual.mk, group.name,
+                                                  parent_org=parent_org,
                                                   from_date=from_date,
                                                   to_date=to_date)
 
     if not enrollments_db:
         eid = "enrollment with range '{}'-'{}' for {}".format(from_date,
                                                               to_date,
-                                                              organization)
+                                                              group)
         raise NotFoundError(entity=eid)
 
     # Remove enrollments and generate new periods
@@ -970,9 +976,9 @@ def withdraw(ctx, uuid, organization, from_date=None, to_date=None):
 
     try:
         if min_range < from_date:
-            add_enrollment(trxl, individual, org, start=min_range, end=from_date)
+            add_enrollment(trxl, individual, group, start=min_range, end=from_date)
         if max_range > to_date:
-            add_enrollment(trxl, individual, org, start=to_date, end=max_range)
+            add_enrollment(trxl, individual, group, start=to_date, end=max_range)
     except ValueError as e:
         raise InvalidValueError(msg=str(e))
 
@@ -981,7 +987,7 @@ def withdraw(ctx, uuid, organization, from_date=None, to_date=None):
     trxl.close()
 
     logger.info(
-        f"Individual {uuid} withdrawn from {organization}; "
+        f"Individual {uuid} withdrawn from {group}; "
         f"from='{from_date}' to='{to_date}';"
     )
 
@@ -989,7 +995,7 @@ def withdraw(ctx, uuid, organization, from_date=None, to_date=None):
 
 
 @django.db.transaction.atomic
-def update_enrollment(ctx, uuid, organization, from_date, to_date,
+def update_enrollment(ctx, uuid, group, from_date, to_date, parent_org=None,
                       new_from_date=None, new_to_date=None, force=True):
     """Update one or more enrollments from an individual given a new date range.
 
@@ -1007,7 +1013,8 @@ def update_enrollment(ctx, uuid, organization, from_date, to_date,
 
     :param ctx: context from where this method is called
     :param uuid: unique identifier
-    :param organization: name of the organization
+    :param group: name of the group
+    :param parent_org: name of the group's parent organization
     :param from_date: date when the enrollment(s) to be updated starts
     :param to_date: date when the enrollment(s) to be updated ends
     :param new_from_date: date when the new enrollment starts
@@ -1017,21 +1024,21 @@ def update_enrollment(ctx, uuid, organization, from_date, to_date,
 
     :returns: an individual with enrollment data updated
 
-    :raises NotFoundError: when either `uuid` or `organization` are not
+    :raises NotFoundError: when either `uuid` or `group` are not
         found in the registry or when the identity is not enrolled
-        in that organization for the given period
+        in that group for the given period
     :raises InvalidValeError: raised in three cases, when either identity or
-        organization are `None` or empty strings; when "from_date" < 1900-01-01 or
+        group are `None` or empty strings; when "from_date" < 1900-01-01 or
         "to_date" > 2100-01-01; when "from_date > to_date"
     """
     if uuid is None:
         raise InvalidValueError(msg="'uuid' cannot be None")
     if uuid == '':
         raise InvalidValueError(msg="'uuid' cannot be an empty string")
-    if organization is None:
-        raise InvalidValueError(msg="'organization' cannot be None")
-    if organization == '':
-        raise InvalidValueError(msg="'organization' cannot be an empty string")
+    if group is None:
+        raise InvalidValueError(msg="'group' cannot be None")
+    if group == '':
+        raise InvalidValueError(msg="'group' cannot be an empty string")
     if from_date is None:
         raise InvalidValueError(msg="'from_date' cannot be None")
     if from_date == '':
@@ -1060,15 +1067,16 @@ def update_enrollment(ctx, uuid, organization, from_date, to_date,
     trxl = TransactionsLog.open('update_enrollment', ctx)
 
     # Remove the enrollment(s) associated with the old dates
-    withdraw(ctx, uuid, organization, from_date=from_date, to_date=to_date)
+    withdraw(ctx, uuid, group, parent_org=parent_org, from_date=from_date, to_date=to_date)
 
     # Add the enrollment with the new dates
-    indv = enroll(ctx, uuid, organization, from_date=new_from_date, to_date=new_to_date, force=force)
+    indv = enroll(ctx, uuid, group, parent_org=parent_org,
+                  from_date=new_from_date, to_date=new_to_date, force=force)
 
     trxl.close()
 
     logger.info(
-        f"Individual {uuid} enrollments of {organization} updated; "
+        f"Individual {uuid} enrollments of {group} updated; "
         f"from='{from_date}' to='{to_date}'; new_from='{new_from_date}' new_to='{new_to_date}';"
     )
 
@@ -1164,21 +1172,21 @@ def merge(ctx, from_uuids, to_uuid):
 
         enrollments = {}
         for enrollment in enrollments_db:
-            org = enrollment.organization
-            dates = enrollments.setdefault(org, [])
+            group = enrollment.group
+            dates = enrollments.setdefault(group, [])
             dates.append((enrollment.start, enrollment.end))
-            enrollments[org] = dates
+            enrollments[group] = dates
 
         # Remove old enrollments and add new ones based in the new ranges
         for enrollment_db in enrollments_db:
             delete_enrollment(trxl, enrollment_db)
 
         # Add new enrollments merging datetime ranges
-        for org in enrollments.keys():
-            periods = enrollments[org]
+        for group in enrollments.keys():
+            periods = enrollments[group]
             try:
                 for start_dt, end_dt in merge_datetime_ranges(periods, exclude_limits=True):
-                    add_enrollment(trxl, to_individual, org, start=start_dt, end=end_dt)
+                    add_enrollment(trxl, to_individual, group, start=start_dt, end=end_dt)
             except ValueError as e:
                 raise InvalidValueError(msg=str(e))
 

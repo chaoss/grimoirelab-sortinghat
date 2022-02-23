@@ -4,10 +4,10 @@ import DateInput from "../components/DateInput.vue";
 const enrollMixin = {
   components: { DateInput },
   methods: {
-    confirmEnroll(uuid, organization) {
+    confirmEnroll(uuid, group) {
       Object.assign(this.dialog, {
         open: true,
-        title: `Affiliate individual to ${organization}?`,
+        title: `Affiliate individual to ${group}?`,
         text: null,
         dateFrom: null,
         dateTo: null,
@@ -15,21 +15,16 @@ const enrollMixin = {
         action: () =>
           this.enrollIndividual(
             uuid,
-            organization,
+            group,
             this.dialog.dateFrom,
             this.dialog.dateTo
           )
       });
     },
-    async enrollIndividual(uuid, organization, dateFrom, dateTo) {
+    async enrollIndividual(uuid, group, dateFrom, dateTo) {
       this.closeDialog();
       try {
-        const response = await this.enroll(
-          uuid,
-          organization,
-          dateFrom,
-          dateTo
-        );
+        const response = await this.enroll(uuid, group, dateFrom, dateTo);
         if (response) {
           this.$emit("updateWorkspace", {
             update: formatIndividuals([response.data.enroll.individual])
@@ -40,7 +35,7 @@ const enrollMixin = {
             this.queryIndividuals();
           }
           this.$logger.debug("Enrolled individual", {
-            organization,
+            group,
             uuid,
             dateFrom,
             dateTo

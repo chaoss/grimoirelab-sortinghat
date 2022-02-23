@@ -57,7 +57,7 @@ const MERGE = gql`
           id
         }
         enrollments {
-          organization {
+          group {
             name
           }
           start
@@ -90,7 +90,7 @@ const UNMERGE = gql`
         enrollments {
           start
           end
-          organization {
+          group {
             name
           }
         }
@@ -118,7 +118,7 @@ const MOVE_IDENTITY = gql`
           id
         }
         enrollments {
-          organization {
+          group {
             name
           }
         }
@@ -130,16 +130,11 @@ const MOVE_IDENTITY = gql`
 const ENROLL = gql`
   mutation enroll(
     $uuid: String!
-    $organization: String!
+    $group: String!
     $fromDate: DateTime
     $toDate: DateTime
   ) {
-    enroll(
-      uuid: $uuid
-      organization: $organization
-      fromDate: $fromDate
-      toDate: $toDate
-    ) {
+    enroll(uuid: $uuid, group: $group, fromDate: $fromDate, toDate: $toDate) {
       uuid
       individual {
         isLocked
@@ -157,7 +152,7 @@ const ENROLL = gql`
         enrollments {
           start
           end
-          organization {
+          group {
             name
           }
         }
@@ -251,7 +246,7 @@ const UPDATE_PROFILE = gql`
         enrollments {
           start
           end
-          organization {
+          group {
             name
           }
         }
@@ -273,16 +268,11 @@ const DELETE_DOMAIN = gql`
 const WITHDRAW = gql`
   mutation withdraw(
     $uuid: String!
-    $organization: String!
+    $group: String!
     $fromDate: DateTime
     $toDate: DateTime
   ) {
-    withdraw(
-      uuid: $uuid
-      organization: $organization
-      fromDate: $fromDate
-      toDate: $toDate
-    ) {
+    withdraw(uuid: $uuid, group: $group, fromDate: $fromDate, toDate: $toDate) {
       uuid
       individual {
         isLocked
@@ -306,7 +296,7 @@ const WITHDRAW = gql`
         enrollments {
           start
           end
-          organization {
+          group {
             name
           }
         }
@@ -340,7 +330,7 @@ const UPDATE_ENROLLMENT = gql`
     $fromDate: DateTime!
     $newFromDate: DateTime
     $newToDate: DateTime
-    $organization: String!
+    $group: String!
     $toDate: DateTime!
     $uuid: String!
   ) {
@@ -348,7 +338,7 @@ const UPDATE_ENROLLMENT = gql`
       fromDate: $fromDate
       newFromDate: $newFromDate
       newToDate: $newToDate
-      organization: $organization
+      group: $group
       toDate: $toDate
       uuid: $uuid
     ) {
@@ -375,7 +365,7 @@ const UPDATE_ENROLLMENT = gql`
         enrollments {
           start
           end
-          organization {
+          group {
             name
           }
         }
@@ -457,12 +447,12 @@ const moveIdentity = (apollo, fromUuid, toUuid) => {
   return response;
 };
 
-const enroll = (apollo, uuid, organization, fromDate, toDate) => {
+const enroll = (apollo, uuid, group, fromDate, toDate) => {
   let response = apollo.mutate({
     mutation: ENROLL,
     variables: {
       uuid: uuid,
-      organization: organization,
+      group: group,
       fromDate: fromDate,
       toDate: toDate
     }
@@ -535,12 +525,12 @@ const deleteDomain = (apollo, domain) => {
   return response;
 };
 
-const withdraw = (apollo, uuid, organization, fromDate, toDate) => {
+const withdraw = (apollo, uuid, group, fromDate, toDate) => {
   let response = apollo.mutate({
     mutation: WITHDRAW,
     variables: {
       uuid: uuid,
-      organization: organization,
+      group: group,
       fromDate: fromDate,
       toDate: toDate
     }
@@ -574,7 +564,7 @@ const updateEnrollment = (apollo, data) => {
       fromDate: data.fromDate,
       newFromDate: data.newFromDate,
       newToDate: data.newToDate,
-      organization: data.organization,
+      group: data.group,
       toDate: data.toDate,
       uuid: data.uuid
     }

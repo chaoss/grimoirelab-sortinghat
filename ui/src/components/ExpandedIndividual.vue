@@ -186,7 +186,7 @@
         </thead>
         <tbody>
           <tr v-for="enrollment in enrollments" :key="enrollment.name">
-            <td>{{ enrollment.organization.name }}</td>
+            <td>{{ enrollment.group.name }}</td>
             <td>{{ formatDate(enrollment.start) }}</td>
             <td>{{ formatDate(enrollment.end) }}</td>
           </tr>
@@ -196,13 +196,13 @@
     <v-list v-else class="indented" dense>
       <v-list-item
         v-for="(enrollment, index) in enrollments"
-        :key="enrollment.organization.id"
+        :key="enrollment.group.id"
         class="row-border"
       >
         <v-list-item-content>
           <v-row no-gutters class="flex align-center">
             <v-col>
-              <span>{{ enrollment.organization.name }}</span>
+              <span>{{ enrollment.group.name }}</span>
             </v-col>
             <v-col class="col-3 ma-2 text-center">
               <span v-if="isLocked">
@@ -254,7 +254,7 @@
                         newFromDate: new Date(
                           enrollmentsForm[index].fromDate
                         ).toISOString(),
-                        organization: enrollment.organization.name,
+                        group: enrollment.group.name,
                         uuid: uuid
                       });
                       enrollmentsForm[index].fromDateMenu = false;
@@ -315,7 +315,7 @@
                         newToDate: new Date(
                           enrollmentsForm[index].toDate
                         ).toISOString(),
-                        organization: enrollment.organization.name,
+                        group: enrollment.group.name,
                         uuid: uuid
                       });
                       enrollmentsForm[index].toDateMenu = false;
@@ -339,7 +339,7 @@
                     :disabled="isLocked"
                     @click="
                       $emit('withdraw', {
-                        name: enrollment.organization.name,
+                        name: enrollment.group.name,
                         fromDate: enrollment.start,
                         toDate: enrollment.end
                       })
@@ -458,7 +458,7 @@ export default {
     withdrawAll() {
       this.enrollments.forEach(enrollment => {
         this.$emit("withdraw", {
-          name: enrollment.organization.name,
+          name: enrollment.group.name,
           fromDate: enrollment.start,
           toDate: enrollment.end
         });
