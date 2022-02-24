@@ -86,17 +86,19 @@ setup(name="sortinghat",
       package_data={'sortinghat.templates': ['*.tmpl'],
                     'sortinghat.data': ['*'],
                     },
-      scripts=[
-        "bin/sortinghat",
-        "bin/mg2sh",
-        "bin/sh2mg",
-        "misc/eclipse2sh",
-        "misc/gitdm2sh",
-        "misc/grimoirelab2sh",
-        "misc/mailmap2sh",
-        "misc/mozilla2sh",
-        "misc/stackalytics2sh"
-      ],
+      entry_points={
+        'console_scripts': [
+          'sortinghat=sortinghat.bin.sortinghat:main'
+          'mg2sh=sortinghat.bin.mg2sh:main'
+          'sh2mg=sortinghat.bin.sh2mg:main'
+          'eclipse2sh=sortinghat.misc.eclipse2sh:main'
+          'gitdm2sh=sortinghat.misc.gitdm2sh:main'
+          'grimoirelab2sh=sortinghat.misc.grimoirelab2sh:main'
+          'mailmap2sh=sortinghat.misc.mailmap2sh:main'
+          'mozilla2sh=sortinghat.misc.mozilla2sh:main'
+          'stackalytics2sh=sortinghat.misc.stackalytics2sh:main'
+        ]
+      },
       setup_requires=[
         'wheel',
         'pandoc'],
