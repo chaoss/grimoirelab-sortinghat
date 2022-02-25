@@ -133,8 +133,15 @@ const ENROLL = gql`
     $group: String!
     $fromDate: DateTime
     $toDate: DateTime
+    $parentOrg: String
   ) {
-    enroll(uuid: $uuid, group: $group, fromDate: $fromDate, toDate: $toDate) {
+    enroll(
+      uuid: $uuid
+      group: $group
+      fromDate: $fromDate
+      toDate: $toDate
+      parentOrg: $parentOrg
+    ) {
       uuid
       individual {
         isLocked
@@ -271,8 +278,15 @@ const WITHDRAW = gql`
     $group: String!
     $fromDate: DateTime
     $toDate: DateTime
+    $parentOrg: String
   ) {
-    withdraw(uuid: $uuid, group: $group, fromDate: $fromDate, toDate: $toDate) {
+    withdraw(
+      uuid: $uuid
+      group: $group
+      fromDate: $fromDate
+      toDate: $toDate
+      parentOrg: $parentOrg
+    ) {
       uuid
       individual {
         isLocked
@@ -333,6 +347,7 @@ const UPDATE_ENROLLMENT = gql`
     $group: String!
     $toDate: DateTime!
     $uuid: String!
+    $parentOrg: String
   ) {
     updateEnrollment(
       fromDate: $fromDate
@@ -341,6 +356,7 @@ const UPDATE_ENROLLMENT = gql`
       group: $group
       toDate: $toDate
       uuid: $uuid
+      parentOrg: $parentOrg
     ) {
       uuid
       individual {
@@ -447,14 +463,15 @@ const moveIdentity = (apollo, fromUuid, toUuid) => {
   return response;
 };
 
-const enroll = (apollo, uuid, group, fromDate, toDate) => {
+const enroll = (apollo, uuid, group, fromDate, toDate, parentOrg) => {
   let response = apollo.mutate({
     mutation: ENROLL,
     variables: {
       uuid: uuid,
       group: group,
       fromDate: fromDate,
-      toDate: toDate
+      toDate: toDate,
+      parentOrg: parentOrg
     }
   });
   return response;
@@ -525,14 +542,15 @@ const deleteDomain = (apollo, domain) => {
   return response;
 };
 
-const withdraw = (apollo, uuid, group, fromDate, toDate) => {
+const withdraw = (apollo, uuid, group, fromDate, toDate, parentOrg) => {
   let response = apollo.mutate({
     mutation: WITHDRAW,
     variables: {
       uuid: uuid,
       group: group,
       fromDate: fromDate,
-      toDate: toDate
+      toDate: toDate,
+      parentOrg: parentOrg
     }
   });
   return response;
@@ -566,7 +584,8 @@ const updateEnrollment = (apollo, data) => {
       newToDate: data.newToDate,
       group: data.group,
       toDate: data.toDate,
-      uuid: data.uuid
+      uuid: data.uuid,
+      parentOrg: data.parentOrg
     }
   });
   return response;

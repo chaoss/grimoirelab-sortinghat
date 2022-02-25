@@ -95,7 +95,7 @@ export const Default = () => ({
                 ],
                 enrollments: [
                   {
-                    organization: {
+                    group: {
                       name: "Slytherin",
                       id: "2"
                     },
@@ -103,7 +103,7 @@ export const Default = () => ({
                     end: "1998-05-02T00:00:00+00:00"
                   },
                   {
-                    organization: {
+                    group: {
                       name: "Hogwarts School of Witchcraft and Wizardry",
                       id: "1"
                     },
@@ -146,7 +146,7 @@ export const Default = () => ({
                 ],
                 enrollments: [
                   {
-                    organization: {
+                    group: {
                       name: "Griffyndor",
                       id: "2"
                     },
@@ -154,7 +154,7 @@ export const Default = () => ({
                     end: "1997-06-02T00:00:00+00:00"
                   },
                   {
-                    organization: {
+                    group: {
                       name: "Hogwarts School of Witchcraft and Wizardry",
                       id: "1"
                     },
@@ -183,7 +183,7 @@ export const Default = () => ({
                 ],
                 enrollments: [
                   {
-                    organization: {
+                    group: {
                       name: "Death Eaters",
                       id: "1"
                     },
@@ -219,7 +219,7 @@ export const Default = () => ({
                 ],
                 enrollments: [
                   {
-                    organization: {
+                    group: {
                       name: "Griffyndor",
                       id: "2"
                     },
@@ -227,7 +227,7 @@ export const Default = () => ({
                     end: "1997-06-02T00:00:00+00:00"
                   },
                   {
-                    organization: {
+                    group: {
                       name: "Hogwarts School of Witchcraft and Wizardry",
                       id: "1"
                     },
@@ -263,7 +263,7 @@ export const Default = () => ({
                 ],
                 enrollments: [
                   {
-                    organization: {
+                    group: {
                       name: "Griffyndor",
                       id: "2"
                     },
@@ -271,7 +271,7 @@ export const Default = () => ({
                     end: "1997-06-02T00:00:00+00:00"
                   },
                   {
-                    organization: {
+                    group: {
                       name: "Hogwarts School of Witchcraft and Wizardry",
                       id: "1"
                     },
@@ -328,7 +328,7 @@ export const Default = () => ({
                 ],
                 enrollments: [
                   {
-                    organization: {
+                    group: {
                       name: "Order of the Phoenix",
                       id: "1"
                     },
@@ -336,7 +336,7 @@ export const Default = () => ({
                     end: "1981-06-02T00:00:00+00:00"
                   },
                   {
-                    organization: {
+                    group: {
                       name: "Hogwarts School of Witchcraft and Wizardry",
                       id: "2"
                     },
@@ -344,7 +344,7 @@ export const Default = () => ({
                     end: "1899-06-02T00:00:00+00:00"
                   },
                   {
-                    organization: {
+                    group: {
                       name: "Griffyndor House",
                       id: "3"
                     },

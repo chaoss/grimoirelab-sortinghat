@@ -3,7 +3,7 @@
     <v-row class="header">
       <h3 class="title">
         <v-icon color="black" left dense>
-          mdi-account-multiple
+          mdi-account
         </v-icon>
         Individuals
         <v-chip pill small class="ml-2">{{ totalResults }}</v-chip>
@@ -146,6 +146,7 @@
           @unmerge="unmerge($event)"
           @withdraw="removeAffiliation($event, item.uuid)"
           @updateEnrollment="updateEnrollmentDate"
+          @openModal="openTeamModal"
         />
       </template>
     </v-data-table>
@@ -228,6 +229,15 @@
       @updateOrganizations="$emit('updateOrganizations')"
     />
 
+    <team-enroll-modal
+      v-if="teamModal.isOpen"
+      :is-open.sync="teamModal.isOpen"
+      :organization="teamModal.organization"
+      :uuid="teamModal.uuid"
+      :enroll="enroll"
+      @updateTable="queryIndividuals"
+    />
+
     <v-card class="dragged-item" color="primary" dark>
       <v-card-subtitle>
         Moving
@@ -249,6 +259,7 @@ import IndividualEntry from "./IndividualEntry.vue";
 import ExpandedIndividual from "./ExpandedIndividual.vue";
 import ProfileModal from "./ProfileModal.vue";
 import Search from "./Search.vue";
+import TeamEnrollModal from "./TeamEnrollModal.vue";
 
 export default {
   name: "IndividualsTable",
@@ -256,7 +267,8 @@ export default {
     IndividualEntry,
     ExpandedIndividual,
     ProfileModal,
-    Search
+    Search,
+    TeamEnrollModal
   },
   mixins: [enrollMixin],
   props: {
@@ -347,7 +359,12 @@ export default {
       totalResults: 0,
       itemsPerPage: 10,
       allSelected: false,
-      orderBy: null
+      orderBy: null,
+      teamModal: {
+        isOpen: false,
+        organization: null,
+        uuid: null
+      }
     };
   },
   computed: {
@@ -581,21 +598,24 @@ export default {
         }
       }
     },
-    async removeAffiliation(organization, uuid) {
+    async removeAffiliation(group, uuid) {
       try {
         const response = await this.withdraw(
           uuid,
-          organization.name,
-          organization.fromDate,
-          organization.toDate
+          group.name,
+          group.fromDate,
+          group.toDate,
+          group.parentOrg
         );
         if (response && response.data.withdraw) {
           this.queryIndividuals();
           this.$emit("updateWorkspace", {
             update: formatIndividuals([response.data.withdraw.individual])
           });
-          this.$emit("updateOrganizations");
-          this.$logger.debug("Removed affiliation", { uuid, ...organization });
+          this.$logger.debug("Removed affiliation", { uuid, ...group });
+          if (!group.parentOrg) {
+            this.$emit("updateOrganizations");
+          }
         }
       } catch (error) {
         Object.assign(this.dialog, {
@@ -606,7 +626,7 @@ export default {
         });
         this.$logger.error(`Error removing affiliation: ${error}`, {
           uuid,
-          ...organization
+          ...group
         });
       }
     },
@@ -655,6 +675,14 @@ export default {
         showDates: false,
         dateFrom: null,
         dateTo: null
+      });
+    },
+    openTeamModal(data) {
+      const { organization, uuid } = data;
+      Object.assign(this.teamModal, {
+        isOpen: true,
+        organization,
+        uuid
       });
     }
   }

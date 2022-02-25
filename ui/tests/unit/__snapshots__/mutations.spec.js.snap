@@ -17,7 +17,7 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
         left=""
       >
         
-        mdi-account-multiple
+        mdi-account
       
       </v-icon-stub>
       
@@ -340,6 +340,8 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
     getcountries="() => {}"
     updateprofile="() => {}"
   />
+   
+  <!---->
    
   <v-card-stub
     class="dragged-item"
@@ -376,7 +378,7 @@ exports[`IndividualsTable Mock query for merge 1`] = `
         left=""
       >
         
-        mdi-account-multiple
+        mdi-account
       
       </v-icon-stub>
       
@@ -699,6 +701,8 @@ exports[`IndividualsTable Mock query for merge 1`] = `
     getcountries="() => {}"
     updateprofile="() => {}"
   />
+   
+  <!---->
    
   <v-card-stub
     class="dragged-item"
@@ -735,7 +739,7 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
         left=""
       >
         
-        mdi-account-multiple
+        mdi-account
       
       </v-icon-stub>
       
@@ -1058,6 +1062,8 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
     getcountries="() => {}"
     updateprofile="() => {}"
   />
+   
+  <!---->
    
   <v-card-stub
     class="dragged-item"
@@ -1094,7 +1100,7 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
         left=""
       >
         
-        mdi-account-multiple
+        mdi-account
       
       </v-icon-stub>
       
@@ -1417,6 +1423,8 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
     getcountries="() => {}"
     updateprofile="() => {}"
   />
+   
+  <!---->
    
   <v-card-stub
     class="dragged-item"
@@ -1453,7 +1461,7 @@ exports[`IndividualsTable Mock query for updateEnrollment 1`] = `
         left=""
       >
         
-        mdi-account-multiple
+        mdi-account
       
       </v-icon-stub>
       
@@ -1776,6 +1784,8 @@ exports[`IndividualsTable Mock query for updateEnrollment 1`] = `
     getcountries="() => {}"
     updateprofile="() => {}"
   />
+   
+  <!---->
    
   <v-card-stub
     class="dragged-item"
@@ -1812,7 +1822,7 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
         left=""
       >
         
-        mdi-account-multiple
+        mdi-account
       
       </v-icon-stub>
       
@@ -2135,6 +2145,8 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
     getcountries="() => {}"
     updateprofile="() => {}"
   />
+   
+  <!---->
    
   <v-card-stub
     class="dragged-item"

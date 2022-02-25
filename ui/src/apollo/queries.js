@@ -135,6 +135,9 @@ const GET_PAGINATED_INDIVIDUALS = gql`
           group {
             name
             type
+            parentOrg {
+              name
+            }
           }
         }
       }

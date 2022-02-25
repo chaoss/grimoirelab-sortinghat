@@ -182,7 +182,7 @@ export default {
       return response;
     },
     updateOrganizations() {
-      this.$refs.organizations.getOrganizations();
+      this.$refs.organizations.getTableItems();
     },
     updateTable() {
       this.$refs.table.queryIndividuals();
@@ -223,13 +223,14 @@ export default {
     deselectIndividuals() {
       this.$refs.table.deselectIndividuals();
     },
-    async enroll(uuid, group, fromDate, toDate) {
+    async enroll(uuid, group, fromDate, toDate, parentOrg) {
       const response = await enroll(
         this.$apollo,
         uuid,
         group,
         fromDate,
-        toDate
+        toDate,
+        parentOrg
       );
       return response;
     },
@@ -283,13 +284,14 @@ export default {
       const response = await unlockIndividual(this.$apollo, uuid);
       return response;
     },
-    async withdraw(uuid, group, fromDate, toDate) {
+    async withdraw(uuid, group, fromDate, toDate, parentOrg) {
       const response = await withdraw(
         this.$apollo,
         uuid,
         group,
         fromDate,
-        toDate
+        toDate,
+        parentOrg
       );
       return response;
     },

@@ -24,7 +24,7 @@ exports[`IndividualsTable Mock query for getCountries 1`] = `
         left=""
       >
         
-        mdi-account-multiple
+        mdi-account
       
       </v-icon-stub>
       
@@ -350,6 +350,8 @@ exports[`IndividualsTable Mock query for getCountries 1`] = `
     updateprofile="() => {}"
   />
    
+  <!---->
+   
   <v-card-stub
     class="dragged-item"
     color="primary"
@@ -385,7 +387,7 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
         left=""
       >
         
-        mdi-account-multiple
+        mdi-account
       
       </v-icon-stub>
       
@@ -708,6 +710,8 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
     getcountries="() => {}"
     updateprofile="() => {}"
   />
+   
+  <!---->
    
   <v-card-stub
     class="dragged-item"
