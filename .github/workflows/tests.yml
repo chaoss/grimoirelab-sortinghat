@@ -1,11 +1,13 @@
-name: build
+name: tests
 
-on: 
+on:
   push:
-    branches-ignore: 
+    branches-ignore:
       - muggle
+    tags:
+      - '!**'
   pull_request:
-    branches-ignore: 
+    branches-ignore:
       - muggle
 
 jobs:
@@ -29,25 +31,32 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-      
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-      
+
+    - name: Install and set up Poetry
+      run: |
+        curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py | python -
+        echo "PATH=$HOME/.poetry/bin:$PATH" >> $GITHUB_ENV
+
     - name: Install dependencies
       run: |
-        pip install --upgrade pip==18.1
-        pip install --upgrade setuptools==49.6.0
-        pip install --upgrade wheel
-        pip install flake8 coveralls cryptography
-      
+        poetry install -vvv
+        poetry add -D coveralls
+
+    - name: Lint with flake8
+      run: |
+        poetry run flake8
+
     - name: Verify MySQL connection from host
       run: |
         sudo apt-get install -y mysql-client libmysqlclient-dev
         mysql --host 127.0.0.1 --port ${{ job.services.mysql.ports[3306] }} -uroot -proot -e "SHOW GRANTS FOR 'root'@'localhost'"
         mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql --host 127.0.0.1 --port ${{ job.services.mysql.ports[3306] }} -uroot -proot mysql
-      
+
     - name: Setup MySQL Database and table
       env:
         DB_HOST: 127.0.0.1
@@ -58,12 +67,11 @@ jobs:
         mysql --host $DB_HOST --port $DB_PORT -uroot -proot -e "CREATE DATABASE testhat"
         mysql --host $DB_HOST --port $DB_PORT -uroot -proot -e "SHOW DATABASES"
         cp tests/tests.conf.sample tests/tests.conf
-      
+
     - name: Tests and Coverage
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        coverage run --source=sortinghat setup.py test
-        # --service=github is a workaround for bug
-        # https://github.com/coveralls-clients/coveralls-python/issues/251
-        coveralls --service=github
+        cd tests
+        poetry run coverage run --source=sortinghat run_tests.py
+        poetry run coveralls --service=github
