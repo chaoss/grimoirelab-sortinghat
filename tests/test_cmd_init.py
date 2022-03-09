@@ -34,7 +34,7 @@ from sortinghat.command import CMD_SUCCESS
 from sortinghat.cmd.init import Init
 from sortinghat.db.database import Database
 from sortinghat.exceptions import CODE_DATABASE_ERROR, CODE_DATABASE_EXISTS, \
-                                    CODE_VALUE_ERROR
+    CODE_VALUE_ERROR
 
 
 DB_ACCESS_ERROR = r".+Access denied for user '%(user)s'@"

@@ -25,7 +25,7 @@ import sys
 
 from .. import api
 from ..command import Command, CMD_SUCCESS, HELP_LIST
-from ..db.api import find_unique_identity, find_identity
+from ..db.api import find_identity
 from ..db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE, Enrollment
 from ..exceptions import AlreadyExistsError, NotFoundError,\
     InvalidFormatError, LoadError, MatcherNotSupportedError

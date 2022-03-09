@@ -70,9 +70,9 @@ class Organization(ModelBase):
 
     def to_dict(self):
         return {
-                'name': self.name,
-                'domains': [d.to_dict() for d in self.domains]
-                }
+            'name': self.name,
+            'domains': [d.to_dict() for d in self.domains]
+        }
 
 
 class Domain(ModelBase):
@@ -95,10 +95,10 @@ class Domain(ModelBase):
 
     def to_dict(self):
         return {
-                'domain': self.domain,
-                'top_domain': self.is_top_domain,
-                'organization': self.organization.name
-                }
+            'domain': self.domain,
+            'top_domain': self.is_top_domain,
+            'organization': self.organization.name
+        }
 
     def __repr__(self):
         return "%s (%s)" % (self.domain, self.organization.name)
@@ -116,10 +116,10 @@ class Country(ModelBase):
 
     def to_dict(self):
         return {
-                'code': self.code,
-                'name': self.name,
-                'alpha3': self.alpha3
-                }
+            'code': self.code,
+            'name': self.name,
+            'alpha3': self.alpha3
+        }
 
     def __repr__(self):
         return "%s - %s" % (self.code, self.name)
@@ -152,10 +152,10 @@ class UniqueIdentity(ModelBase):
 
     def to_dict(self):
         return {
-                'uuid': self.uuid,
-                'identities': [i.to_dict() for i in self.identities],
-                'profile': self.profile.to_dict() if self.profile else None,
-                }
+            'uuid': self.uuid,
+            'identities': [i.to_dict() for i in self.identities],
+            'profile': self.profile.to_dict() if self.profile else None,
+        }
 
     def __repr__(self):
         return self.uuid
@@ -185,13 +185,13 @@ class Identity(ModelBase):
 
     def to_dict(self):
         return {
-                'id': self.id,
-                'name': self.name,
-                'email': self.email,
-                'username': self.username,
-                'source': self.source,
-                'uuid': self.uuid
-                }
+            'id': self.id,
+            'name': self.name,
+            'email': self.email,
+            'username': self.username,
+            'source': self.source,
+            'uuid': self.uuid
+        }
 
 
 class Profile(ModelBase):
@@ -221,8 +221,7 @@ class Profile(ModelBase):
             'gender': self.gender,
             'gender_acc': self.gender_acc,
             'is_bot': self.is_bot,
-            'country': self.country.to_dict() \
-                       if self.country else None
+            'country': self.country.to_dict() if self.country else None
         }
 
     def __repr__(self):
@@ -261,11 +260,11 @@ class Enrollment(ModelBase):
 
     def to_dict(self):
         return {
-                'start': self.start,
-                'end': self.end,
-                'uuid': self.uuid,
-                'organization': self.organization.name
-                }
+            'start': self.start,
+            'end': self.end,
+            'uuid': self.uuid,
+            'organization': self.organization.name
+        }
 
 
 class MatchingBlacklist(ModelBase):
@@ -311,8 +310,8 @@ class MetricsGrimoireIdentity(MappedTable):
         if isinstance(other, MetricsGrimoireIdentity) or\
            isinstance(other, Identity):
             return self.email == other.email \
-                   and self.name == other.name \
-                   and self.username == other.username
+                and self.name == other.name \
+                and self.username == other.username
         else:
             return NotImplemented
 
@@ -365,6 +364,6 @@ class MetricsGrimoireIdentity(MappedTable):
             try:
                 v = self.__getattribute__(k)
                 return v if v else None
-            except:
+            except Exception:
                 pass
         return None

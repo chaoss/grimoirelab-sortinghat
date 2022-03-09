@@ -39,7 +39,7 @@ from sortinghat.db.model import (UniqueIdentity,
 from sortinghat.exceptions import InvalidFormatError
 from sortinghat.parsing.grimoirelab import GrimoireLabParser
 
-from tests.base import TestCommandCaseBase, datadir
+from tests.base import datadir
 
 
 class TestBaseCase(unittest.TestCase):

@@ -42,11 +42,11 @@ class EmailNameIdentity(FilteredIdentity):
 
     def to_dict(self):
         return {
-                'id': self.id,
-                'uuid': self.uuid,
-                'email': self.email,
-                'name': self.name
-               }
+            'id': self.id,
+            'uuid': self.uuid,
+            'email': self.email,
+            'name': self.name
+        }
 
 
 class EmailNameMatcher(IdentityMatcher):

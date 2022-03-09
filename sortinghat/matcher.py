@@ -117,9 +117,9 @@ class FilteredIdentity(object):
 
     def to_dict(self):
         return {
-                'id': self.id,
-                'uuid': self.uuid
-               }
+            'id': self.id,
+            'uuid': self.uuid
+        }
 
 
 def create_identity_matcher(matcher='default', blacklist=None, sources=None,
@@ -352,7 +352,7 @@ def _calculate_matches_closures(groups):
 
             try:
                 ns.remove(v)
-            except:
+            except Exception:
                 pass
 
         matches.append(visited)

@@ -31,7 +31,7 @@ from sortinghat.db.model import UniqueIdentity, Identity, Organization
 from sortinghat.exceptions import InvalidFormatError
 from sortinghat.parsing.mailmap import MailmapParser
 
-from tests.base import TestCommandCaseBase, datadir
+from tests.base import datadir
 
 
 class TestBaseCase(unittest.TestCase):

@@ -33,6 +33,7 @@ __dir__ = os.path.dirname(os.path.realpath(__file__))
 __datadir__ = os.path.join(__dir__, 'data')
 CONFIG_FILE = os.path.join(__dir__, 'tests.conf')
 
+
 def datadir(filename):
     """Return the path of the file in the tests data dir"""
 

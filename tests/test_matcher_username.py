@@ -89,14 +89,15 @@ class TestUsernameMatcher(unittest.TestCase):
                              Identity(email='', source='scm')]
 
         john_smith = UniqueIdentity(uuid='js')
-        john_smith.identities = [Identity(name='J. Smith', email='JSmith@example.com',  source='scm'),
+        john_smith.identities = [Identity(name='J. Smith', email='JSmith@example.com', source='scm'),
                                  Identity(username='john_smith', source='scm'),
                                  Identity(name='Smith. J', source='mls'),
                                  Identity(name='Smith. J', username='john_smith', source='mls')]
 
         jrae = UniqueIdentity(uuid='jrae')
         jrae.identities = [Identity(name='Jane Rae', source='scm', uuid='jrae'),
-                           Identity(name='Jane Rae Doe', username='jane.rae', email='jane.rae@example.net', source='mls', uuid='jrae'),
+                           Identity(name='Jane Rae Doe', username='jane.rae',
+                                    email='jane.rae@example.net', source='mls', uuid='jrae'),
                            Identity(name='jrae', source='scm', uuid='jrae'),
                            Identity(email='JRAE@example.net', source='scm', uuid='jrae')]
 

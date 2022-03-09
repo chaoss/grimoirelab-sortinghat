@@ -40,10 +40,10 @@ class EmailIdentity(FilteredIdentity):
 
     def to_dict(self):
         return {
-                'id': self.id,
-                'uuid': self.uuid,
-                'email': self.email
-               }
+            'id': self.id,
+            'uuid': self.uuid,
+            'email': self.email
+        }
 
 
 class EmailMatcher(IdentityMatcher):

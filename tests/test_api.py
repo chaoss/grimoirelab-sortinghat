@@ -28,13 +28,12 @@ if '..' not in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat import api
-from sortinghat.db.model import UniqueIdentity, Identity, Profile,\
+from sortinghat.db.model import UniqueIdentity, Identity, Profile, \
     Organization, Domain, Country, Enrollment, MatchingBlacklist
 from sortinghat.exceptions import AlreadyExistsError, NotFoundError
 from sortinghat.matcher import create_identity_matcher
 
 from tests.base import TestDatabaseCaseBase
-
 
 UUID_NONE_OR_EMPTY_ERROR = "'uuid' cannot be"
 ORG_NONE_OR_EMPTY_ERROR = "'name' cannot be"
@@ -49,10 +48,10 @@ ENROLLMENT_PERIOD_INVALID_ERROR = "cannot be greater than "
 ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR = "'%(type)s' %(date)s is out of bounds"
 NOT_FOUND_ERROR = "%(entity)s not found in the registry"
 IS_BOT_VALUE_ERROR = "'is_bot' must have a boolean value"
-COUNTRY_CODE_ERROR = "'country_code' \(%(code)s\) does not match with a valid code"
+COUNTRY_CODE_ERROR = "'country_code' \\(%(code)s\\) does not match with a valid code"
 GENDER_ACC_INVALID_ERROR = "'gender_acc' can only be set when 'gender' is given"
 GENDER_ACC_INVALID_TYPE_ERROR = "'gender_acc' must have an integer value"
-GENDER_ACC_INVALID_RANGE_ERROR = "'gender_acc' \(%(acc)s\) is not in range \(1,100\)"
+GENDER_ACC_INVALID_RANGE_ERROR = "'gender_acc' \\(%(acc)s\\) is not in range \\(1,100\\)"
 
 
 class TestAPICaseBase(TestDatabaseCaseBase):
@@ -74,7 +73,7 @@ class TestAddUniqueIdentity(TestAPICaseBase):
 
         with self.db.connect() as session:
             uid = session.query(UniqueIdentity).\
-                    filter(UniqueIdentity.uuid == 'John Smith').first()
+                filter(UniqueIdentity.uuid == 'John Smith').first()
             self.assertEqual(uid.uuid, 'John Smith')
 
             uid = session.query(UniqueIdentity).\
@@ -120,7 +119,7 @@ class TestAddUniqueIdentity(TestAPICaseBase):
 
         with self.db.connect() as session:
             uid = session.query(UniqueIdentity).\
-                    filter(UniqueIdentity.uuid == 'John Smith').first()
+                filter(UniqueIdentity.uuid == 'John Smith').first()
 
             self.assertLessEqual(before_dt, uid.last_modified)
             self.assertGreaterEqual(after_dt, uid.last_modified)
@@ -137,7 +136,7 @@ class TestAddIdentity(TestAPICaseBase):
 
         with self.db.connect() as session:
             uid = session.query(UniqueIdentity).\
-                    filter(UniqueIdentity.uuid == 'a9b403e150dd4af8953a52a4bb841051e4b705d9').first()
+                filter(UniqueIdentity.uuid == 'a9b403e150dd4af8953a52a4bb841051e4b705d9').first()
             self.assertEqual(uid.uuid, unique_id)
 
             identities = session.query(Identity).\
@@ -180,7 +179,7 @@ class TestAddIdentity(TestAPICaseBase):
         with self.db.connect() as session:
             # First, John Smith
             uid = session.query(UniqueIdentity).\
-                    filter(UniqueIdentity.uuid == jsmith_uuid).first()
+                filter(UniqueIdentity.uuid == jsmith_uuid).first()
 
             self.assertEqual(len(uid.identities), 3)
 
@@ -237,7 +236,7 @@ class TestAddIdentity(TestAPICaseBase):
 
         with self.db.connect() as session:
             uid = session.query(UniqueIdentity).\
-                    filter(UniqueIdentity.uuid == jsmith_uuid).first()
+                filter(UniqueIdentity.uuid == jsmith_uuid).first()
 
             # Check date on the unique identity
             self.assertLessEqual(before_dt, uid.last_modified)
@@ -256,7 +255,7 @@ class TestAddIdentity(TestAPICaseBase):
 
         with self.db.connect() as session:
             uid = session.query(UniqueIdentity).\
-                    filter(UniqueIdentity.uuid == jsmith_uuid).first()
+                filter(UniqueIdentity.uuid == jsmith_uuid).first()
 
             # Check date on the unique identity; it was updated
             self.assertLessEqual(before_new_dt, uid.last_modified)
@@ -389,7 +388,7 @@ class TestAddIdentity(TestAPICaseBase):
 
         with self.db.connect() as session:
             uid = session.query(UniqueIdentity).\
-                    filter(UniqueIdentity.uuid == '843fcc3383ddfd6179bef87996fa761d88a43915').first()
+                filter(UniqueIdentity.uuid == '843fcc3383ddfd6179bef87996fa761d88a43915').first()
             self.assertEqual(uid.uuid, unique_id)
 
             identities = session.query(Identity).\
@@ -403,7 +402,6 @@ class TestAddIdentity(TestAPICaseBase):
             self.assertEqual(id1.email, '😂')
             self.assertEqual(id1.username, '😂')
             self.assertEqual(id1.source, 'scm')
-
 
     def test_charset(self):
         """Check if it adds two identities with different encoding"""
@@ -702,7 +700,7 @@ class TestAddEnrollment(TestAPICaseBase):
 
         with self.db.connect() as session:
             uid = session.query(UniqueIdentity).\
-                                filter(UniqueIdentity.uuid == 'John Smith').first()
+                filter(UniqueIdentity.uuid == 'John Smith').first()
             self.assertLessEqual(before_dt, uid.last_modified)
             self.assertGreaterEqual(after_dt, uid.last_modified)
 
@@ -715,7 +713,7 @@ class TestAddEnrollment(TestAPICaseBase):
         # After inserting a new enrollment, the modification date was udpated
         with self.db.connect() as session:
             uid = session.query(UniqueIdentity).\
-                                filter(UniqueIdentity.uuid == 'John Smith').first()
+                filter(UniqueIdentity.uuid == 'John Smith').first()
 
             self.assertLessEqual(before_dt, uid.last_modified)
             self.assertLessEqual(after_dt, uid.last_modified)
@@ -1224,7 +1222,7 @@ class TestDeleteIdentity(TestAPICaseBase):
 
         with self.db.connect() as session:
             uid = session.query(UniqueIdentity).\
-                                filter(UniqueIdentity.uuid == jsmith_uuid).first()
+                filter(UniqueIdentity.uuid == jsmith_uuid).first()
             self.assertLessEqual(before_dt, uid.last_modified)
             self.assertGreaterEqual(after_dt, uid.last_modified)
 
@@ -1235,7 +1233,7 @@ class TestDeleteIdentity(TestAPICaseBase):
 
         with self.db.connect() as session:
             uid = session.query(UniqueIdentity).\
-                                filter(UniqueIdentity.uuid == jsmith_uuid).first()
+                filter(UniqueIdentity.uuid == jsmith_uuid).first()
             self.assertLessEqual(before_dt, uid.last_modified)
             self.assertLessEqual(after_dt, uid.last_modified)
             self.assertLessEqual(before_del_dt, uid.last_modified)
@@ -1313,7 +1311,7 @@ class TestDeleteOrganization(TestAPICaseBase):
 
         with self.db.connect() as session:
             org2 = session.query(Organization).\
-                    filter(Organization.name == 'LibreSoft').first()
+                filter(Organization.name == 'LibreSoft').first()
             self.assertEqual(org2, None)
 
             # Check if there only remains one organization and one domain
@@ -1375,7 +1373,7 @@ class TestDeleteDomain(TestAPICaseBase):
 
         with self.db.connect() as session:
             doms1 = session.query(Domain).join(Organization).\
-                    filter(Organization.name == 'Example').all()
+                filter(Organization.name == 'Example').all()
             self.assertEqual(len(doms1), 1)
             self.assertEqual(doms1[0].domain, 'example.com')
 
@@ -1388,7 +1386,7 @@ class TestDeleteDomain(TestAPICaseBase):
 
         with self.db.connect() as session:
             doms3 = session.query(Domain).join(Organization).\
-                    filter(Organization.name == 'Example').all()
+                filter(Organization.name == 'Example').all()
             self.assertEqual(len(doms3), 0)
 
             doms4 = session.query(Domain).all()
@@ -1466,7 +1464,7 @@ class TestDeleteEnrollment(TestAPICaseBase):
 
         with self.db.connect() as session:
             enrollments = session.query(Enrollment).join(Organization).\
-                    filter(Organization.name == 'LibreSoft').all()
+                filter(Organization.name == 'LibreSoft').all()
             self.assertEqual(len(enrollments), 1)
             self.assertEqual(enrollments[0].uidentity.uuid, 'Jane Rae')
 
@@ -1480,7 +1478,7 @@ class TestDeleteEnrollment(TestAPICaseBase):
 
         with self.db.connect() as session:
             enrollments = session.query(Enrollment).join(Organization).\
-                    filter(Organization.name == 'Bitergia').all()
+                filter(Organization.name == 'Bitergia').all()
             self.assertEqual(len(enrollments), 0)
 
     def test_last_modified(self):
@@ -1497,7 +1495,7 @@ class TestDeleteEnrollment(TestAPICaseBase):
 
         with self.db.connect() as session:
             uid = session.query(UniqueIdentity).\
-                                filter(UniqueIdentity.uuid == 'John Doe').first()
+                filter(UniqueIdentity.uuid == 'John Doe').first()
             self.assertLessEqual(before_dt, uid.last_modified)
             self.assertGreaterEqual(after_dt, uid.last_modified)
 
@@ -1509,7 +1507,7 @@ class TestDeleteEnrollment(TestAPICaseBase):
 
         with self.db.connect() as session:
             uid = session.query(UniqueIdentity).\
-                                filter(UniqueIdentity.uuid == 'John Doe').first()
+                filter(UniqueIdentity.uuid == 'John Doe').first()
             self.assertLessEqual(before_dt, uid.last_modified)
             self.assertLessEqual(after_dt, uid.last_modified)
             self.assertLessEqual(before_del_dt, uid.last_modified)
@@ -1542,8 +1540,8 @@ class TestDeleteEnrollment(TestAPICaseBase):
 
         with self.db.connect() as session:
             enrollments = session.query(Enrollment).join(Organization).\
-                    filter(Organization.name == 'Example').\
-                    order_by(Enrollment.start).all()
+                filter(Organization.name == 'Example').\
+                order_by(Enrollment.start).all()
             self.assertEqual(len(enrollments), 2)
 
             self.assertEqual(enrollments[0].start, datetime.datetime(1900, 1, 1))
@@ -1817,7 +1815,7 @@ class TestMergeEnrollments(TestAPICaseBase):
 
         with self.db.connect() as session:
             uid = session.query(UniqueIdentity).\
-                                filter(UniqueIdentity.uuid == 'John Smith').first()
+                filter(UniqueIdentity.uuid == 'John Smith').first()
             self.assertLessEqual(before_dt, uid.last_modified)
             self.assertGreaterEqual(after_dt, uid.last_modified)
 
@@ -1828,7 +1826,7 @@ class TestMergeEnrollments(TestAPICaseBase):
 
         with self.db.connect() as session:
             uid = session.query(UniqueIdentity).\
-                                filter(UniqueIdentity.uuid == 'John Smith').first()
+                filter(UniqueIdentity.uuid == 'John Smith').first()
             self.assertLessEqual(before_dt, uid.last_modified)
             self.assertLessEqual(after_dt, uid.last_modified)
             self.assertLessEqual(before_merge_dt, uid.last_modified)
@@ -2035,7 +2033,6 @@ class TestMergeUniqueIdentities(TestAPICaseBase):
             self.assertEqual(len(uidentities), 1)
             self.assertEqual(len(uidentities[0].enrollments), 2)
 
-
     def test_last_modified(self):
         """Check if last modification date is updated"""
 
@@ -2053,7 +2050,7 @@ class TestMergeUniqueIdentities(TestAPICaseBase):
 
         with self.db.connect() as session:
             uid = session.query(UniqueIdentity).\
-                                filter(UniqueIdentity.uuid == 'John Smith').first()
+                filter(UniqueIdentity.uuid == 'John Smith').first()
             self.assertLessEqual(before_dt, uid.last_modified)
             self.assertGreaterEqual(after_dt, uid.last_modified)
 
@@ -2069,7 +2066,7 @@ class TestMergeUniqueIdentities(TestAPICaseBase):
 
         with self.db.connect() as session:
             uid = session.query(UniqueIdentity).\
-                                filter(UniqueIdentity.uuid == 'John Doe').first()
+                filter(UniqueIdentity.uuid == 'John Doe').first()
             self.assertLessEqual(before_dt, uid.last_modified)
             self.assertLessEqual(after_dt, uid.last_modified)
             self.assertLessEqual(before_merge_dt, uid.last_modified)
@@ -2240,7 +2237,7 @@ class TestMoveIdentity(TestAPICaseBase):
 
         with self.db.connect() as session:
             uid = session.query(UniqueIdentity).\
-                                filter(UniqueIdentity.uuid == 'John Smith').first()
+                filter(UniqueIdentity.uuid == 'John Smith').first()
             self.assertLessEqual(before_dt, uid.last_modified)
             self.assertGreaterEqual(after_dt, uid.last_modified)
 
@@ -2256,7 +2253,7 @@ class TestMoveIdentity(TestAPICaseBase):
 
         with self.db.connect() as session:
             uid = session.query(UniqueIdentity).\
-                                filter(UniqueIdentity.uuid == 'John Smith').first()
+                filter(UniqueIdentity.uuid == 'John Smith').first()
             self.assertLessEqual(before_dt, uid.last_modified)
             self.assertLessEqual(after_dt, uid.last_modified)
             self.assertLessEqual(before_move_dt, uid.last_modified)

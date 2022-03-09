@@ -21,7 +21,6 @@
 #
 
 import datetime
-import os.path
 import sys
 import unittest
 import warnings

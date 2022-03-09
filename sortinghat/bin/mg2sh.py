@@ -31,12 +31,12 @@ from sortinghat.utils import to_unicode
 
 
 MG2SH_USAGE_MSG = \
-"""%(prog)s [--help] [-u <user>] [-p <password>]
+    """%(prog)s [--help] [-u <user>] [-p <password>]
              [--host <host>] [--port <port>] -d <name>
              -s <source> [-o <output>]"""
 
 MG2SH_DESC_MSG = \
-"""Export identities information from Metrics Grimoire databases to
+    """Export identities information from Metrics Grimoire databases to
 Sorting Hat JSON format.
 
 General options:
@@ -117,10 +117,10 @@ def fetch_identities(user, password, database, host, port):
 
     # Specific case for IRC or Wiki databases
     if table.name == 'irclog' and 'nick' in table.columns:
-        query = query.filter(MetricsGrimoireIdentity._nick != None)
+        query = query.filter(MetricsGrimoireIdentity._nick.isnot(None))
         query = query.group_by(MetricsGrimoireIdentity._nick)
     elif table.name == 'wiki_pages_revs' and 'user' in table.columns:
-        query = query.filter(MetricsGrimoireIdentity._user != None)
+        query = query.filter(MetricsGrimoireIdentity._user.isnot(None))
         query = query.group_by(MetricsGrimoireIdentity._user)
 
     identities = query.all()
@@ -146,10 +146,10 @@ def to_json(identities, source):
         x['uuid'] = uuid
         x['source'] = source
 
-        uid = {'uuid' : uuid,
-               'profile' : None,
-               'enrollments' : [],
-               'identities' : [x]}
+        uid = {'uuid': uuid,
+               'profile': None,
+               'enrollments': [],
+               'identities': [x]}
 
         uids[uuid] = uid
 

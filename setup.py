@@ -70,14 +70,14 @@ setup(name="sortinghat",
       author_email="sduenas@bitergia.com",
       license="GPLv3",
       classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Intended Audience :: Developers',
-        'Topic :: Software Development',
-        'License :: OSI Approved :: '
-        'GNU General Public License v3 or later (GPLv3+)',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8'],
+          'Development Status :: 5 - Production/Stable',
+          'Intended Audience :: Developers',
+          'Topic :: Software Development',
+          'License :: OSI Approved :: '
+          'GNU General Public License v3 or later (GPLv3+)',
+          'Programming Language :: Python :: 3',
+          'Programming Language :: Python :: 3.7',
+          'Programming Language :: Python :: 3.8'],
       keywords="development repositories analytics",
       packages=['sortinghat', 'sortinghat.db', 'sortinghat.cmd',
                 'sortinghat.matching', 'sortinghat.parsing',
@@ -86,34 +86,34 @@ setup(name="sortinghat",
                     'sortinghat.data': ['*'],
                     },
       entry_points={
-        'console_scripts': [
-          'sortinghat=sortinghat.bin.sortinghat:main',
-          'mg2sh=sortinghat.bin.mg2sh:main',
-          'sh2mg=sortinghat.bin.sh2mg:main',
-          'eclipse2sh=sortinghat.misc.eclipse2sh:main',
-          'gitdm2sh=sortinghat.misc.gitdm2sh:main',
-          'grimoirelab2sh=sortinghat.misc.grimoirelab2sh:main',
-          'mailmap2sh=sortinghat.misc.mailmap2sh:main',
-          'mozilla2sh=sortinghat.misc.mozilla2sh:main',
-          'stackalytics2sh=sortinghat.misc.stackalytics2sh:main'
-        ]
+          'console_scripts': [
+              'sortinghat=sortinghat.bin.sortinghat:main',
+              'mg2sh=sortinghat.bin.mg2sh:main',
+              'sh2mg=sortinghat.bin.sh2mg:main',
+              'eclipse2sh=sortinghat.misc.eclipse2sh:main',
+              'gitdm2sh=sortinghat.misc.gitdm2sh:main',
+              'grimoirelab2sh=sortinghat.misc.grimoirelab2sh:main',
+              'mailmap2sh=sortinghat.misc.mailmap2sh:main',
+              'mozilla2sh=sortinghat.misc.mozilla2sh:main',
+              'stackalytics2sh=sortinghat.misc.stackalytics2sh:main'
+          ]
       },
       setup_requires=[
-        'wheel',
-        'pandoc'],
+          'wheel',
+          'pandoc'],
       tests_require=[
-        'httpretty>=0.9.5'
+          'httpretty>=0.9.5'
       ],
       install_requires=[
-        'PyMySQL>=0.7.0',
-        'sqlalchemy>=1.2,<1.4',
-        'jinja2>=3.0.3,<3.1.0',
-        'python-dateutil>=2.6.0',
-        'pandas>=0.22.0,<=0.25.3',
-        'numpy<1.21.1',
-        'pyyaml>=3.12',
-        'requests>=2.9',
-        'urllib3>=1.22'
+          'PyMySQL>=0.7.0',
+          'sqlalchemy>=1.2,<1.4',
+          'jinja2>=3.0.3,<3.1.0',
+          'python-dateutil>=2.6.0',
+          'pandas>=0.22.0,<=0.25.3',
+          'numpy<1.21.1',
+          'pyyaml>=3.12',
+          'requests>=2.9',
+          'urllib3>=1.22'
       ],
       cmdclass=cmdclass,
       zip_safe=False
