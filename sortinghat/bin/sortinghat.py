@@ -31,12 +31,12 @@ from sortinghat.cmd import SORTINGHAT_COMMANDS
 import sortinghat
 
 SORTINGHAT_USAGE_MSG = \
-"""%(prog)s [--help] [--debug] [-c <file>] [-u <user>] [-p <password>]
+    """%(prog)s [--help] [--debug] [-c <file>] [-u <user>] [-p <password>]
                   [--host <host>] [--port <port>] [-d <name>]
                   command [<cmd_args>]"""
 
 SORTINGHAT_DESC_MSG = \
-"""The most commonly used %(prog)s commands are:
+    """The most commonly used %(prog)s commands are:
 
     add          Add identities
     affiliate    Affiliate identities
@@ -61,7 +61,7 @@ SORTINGHAT_DESC_MSG = \
 
 General options:
   -h, --help            show this help message and exit
-  -g, --debug           set debug mode on 
+  -g, --debug           set debug mode on
   -c FILE, --config FILE
                         set configuration file
   -u USER, --user USER  database user name
@@ -75,10 +75,10 @@ General options:
 """
 
 SORTINGHAT_EPILOG_MSG = \
-"""Run '%(prog)s <command> --help' to get information about a specific command."""
+    """Run '%(prog)s <command> --help' to get information about a specific command."""
 
 SORTINGHAT_VERSION_MSG = \
-"""%(prog)s """  + sortinghat.__version__
+    """%(prog)s """ + sortinghat.__version__
 
 # Logging formats
 SORTINGHAT_LOG_FORMAT = "[%(asctime)s] - %(message)s"
@@ -169,12 +169,12 @@ def create_common_arguments_parser(defaults):
     group.add_argument('-p', '--password', dest='password', default=os.getenv('SORTINGHAT_DB_PASSWORD', ''),
                        help=argparse.SUPPRESS)
     group.add_argument('-d', '--database', dest='database', default=os.getenv('SORTINGHAT_DB_DATABASE', ''),
-                         help=argparse.SUPPRESS)
+                       help=argparse.SUPPRESS)
     group.add_argument('--host', dest='host', default=os.getenv('SORTINGHAT_DB_HOST', 'localhost'),
                        help=argparse.SUPPRESS)
     group.add_argument('--port', dest='port', default=os.getenv('SORTINGHAT_DB_PORT', '3306'),
                        help=argparse.SUPPRESS)
-    group.add_argument('-v', '--version', action='version',version=SORTINGHAT_VERSION_MSG,
+    group.add_argument('-v', '--version', action='version', version=SORTINGHAT_VERSION_MSG,
                        help=argparse.SUPPRESS)
     # Command arguments
     parser.add_argument('command', help=argparse.SUPPRESS)
@@ -195,7 +195,7 @@ def create_config_arguments_parser():
                         help=argparse.SUPPRESS)
 
     # Set default values
-    defaults = {'config_file' : os.path.expanduser('~/.sortinghat'),}
+    defaults = {'config_file': os.path.expanduser('~/.sortinghat'), }
 
     parser.set_defaults(**defaults)
 

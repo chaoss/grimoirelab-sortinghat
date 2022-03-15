@@ -43,8 +43,8 @@ class Config(Command):
     """
 
     CONFIG_OPTIONS = {
-                      'db': ['user', 'password', 'database', 'host', 'port'],
-                      }
+        'db': ['user', 'password', 'database', 'host', 'port'],
+    }
 
     def __init__(self, **kwargs):
         super(Config, self).__init__(**kwargs)

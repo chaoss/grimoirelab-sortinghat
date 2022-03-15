@@ -31,10 +31,10 @@ from sortinghat.db.model import UniqueIdentity, Organization, Domain, MatchingBl
 from sortinghat.exceptions import InvalidFormatError
 from sortinghat.parsing.sh import SortingHatParser
 
-from tests.base import TestCommandCaseBase, datadir
+from tests.base import datadir
 
 
-SH_INVALID_JSON_FORMAT_ERROR = "invalid json format\. Expecting ',' delimiter"
+SH_INVALID_JSON_FORMAT_ERROR = "invalid json format\\. Expecting ',' delimiter"
 SH_BL_EMPTY_STRING_ERROR = "invalid json format. Blacklist entries cannot be null or empty"
 SH_IDS_MISSING_KEYS_ERROR = "Attribute uuid not found"
 SH_IDS_DATETIME_ERROR = "2100-01-32T00:00:00 is not a valid date"

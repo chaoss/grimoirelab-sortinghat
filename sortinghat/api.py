@@ -860,15 +860,15 @@ def search_unique_identities(db, term, source=None):
             query = query.filter(Identity.source == source)
 
         if pattern:
-            query = query.filter(Identity.name.like(pattern)
-                                 | Identity.email.like(pattern)
-                                 | Identity.username.like(pattern)
-                                 | Identity.source.like(pattern))
+            query = query.filter(Identity.name.like(pattern) |
+                                 Identity.email.like(pattern) |
+                                 Identity.username.like(pattern) |
+                                 Identity.source.like(pattern))
         else:
-            query = query.filter((Identity.name == None)
-                                 | (Identity.email == None)
-                                 | (Identity.username == None)
-                                 | (Identity.source == None))
+            query = query.filter((Identity.name.is_(None)) |
+                                 (Identity.email.is_(None)) |
+                                 (Identity.username.is_(None)) |
+                                 (Identity.source.is_(None)))
 
         uidentities = query.order_by(UniqueIdentity.uuid).all()
 
@@ -917,10 +917,10 @@ def search_unique_identities_slice(db, term, offset, limit):
             filter(UniqueIdentity.uuid == Identity.uuid)
 
         if pattern:
-            query = query.filter(Identity.name.like(pattern)
-                                 | Identity.email.like(pattern)
-                                 | Identity.username.like(pattern)
-                                 | Identity.source.like(pattern))
+            query = query.filter(Identity.name.like(pattern) |
+                                 Identity.email.like(pattern) |
+                                 Identity.username.like(pattern) |
+                                 Identity.source.like(pattern))
 
         query = query.group_by(UniqueIdentity).\
             order_by(UniqueIdentity.uuid)
@@ -998,7 +998,7 @@ def search_profiles(db, no_gender=False):
         query = session.query(Profile)
 
         if no_gender:
-            query = query.filter(Profile.gender == None)
+            query = query.filter(Profile.gender.is_(None))
 
         profiles = query.order_by(Profile.uuid).all()
 

@@ -1,4 +1,4 @@
-# Sorting Hat [![Build Status](https://github.com/chaoss/grimoirelab-sortinghat/workflows/build/badge.svg)](https://github.com/chaoss/grimoirelab-sortinghat/actions?query=workflow:build+branch:master+event:push) [![Coverage Status](https://img.shields.io/coveralls/chaoss/grimoirelab-sortinghat.svg)](https://coveralls.io/r/chaoss/grimoirelab-sortinghat?branch=master)
+# Sorting Hat [![Build Status](https://github.com/chaoss/grimoirelab-sortinghat/workflows/tests/badge.svg)](https://github.com/chaoss/grimoirelab-sortinghat/actions?query=workflow:tests+branch:master+event:push) [![Coverage Status](https://img.shields.io/coveralls/chaoss/grimoirelab-sortinghat.svg)](https://coveralls.io/r/chaoss/grimoirelab-sortinghat?branch=master)
 
 ## Description
 

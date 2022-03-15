@@ -33,7 +33,7 @@ from sortinghat.db.model import UniqueIdentity, Identity, Enrollment, Organizati
 from sortinghat.exceptions import InvalidFormatError
 from sortinghat.parsing.gitdm import GitdmParser
 
-from tests.base import TestCommandCaseBase, datadir
+from tests.base import datadir
 
 
 DOMAINS_INVALID_FORMAT_ERROR = "line %(line)s: invalid format"
@@ -146,9 +146,12 @@ class TestGidmParser(TestBaseCase):
         email_to_employer = self.read_file(datadir('gitdm_email_to_employer_invalid.txt'))
 
         expected_log = [
-            "Skip: 'jsmith.example.com	Example Company		# John Smith' -> line 5: invalid email format: 'jsmith.example.com'",
-            "Skip: 'jdoe$example.com	Example Company		# John Doe' -> line 6: invalid email format: 'jdoe$example.com'",
-            "Skip: 'jsmith!example.com	Bitergia < 2015-01-01	# John Smith - Bitergia' -> line 7: invalid email format: 'jsmith!example.com'",
+            "Skip: 'jsmith.example.com	Example Company		# John Smith' ->"
+            " line 5: invalid email format: 'jsmith.example.com'",
+            "Skip: 'jdoe$example.com	Example Company		# John Doe' ->"
+            " line 6: invalid email format: 'jdoe$example.com'",
+            "Skip: 'jsmith!example.com	Bitergia < 2015-01-01	# John Smith - Bitergia' ->"
+            " line 7: invalid email format: 'jsmith!example.com'",
             "Skip: 'jrae-example-net	Bitergia' -> line 8: invalid email format: 'jrae-example-net'",
             "Skip: 'john_doeexample	LibreSoft' -> line 9: invalid email format: 'john_doeexample'",
             "Skip: 'J < 2021-04-06' -> line 10: invalid email format: 'J'"

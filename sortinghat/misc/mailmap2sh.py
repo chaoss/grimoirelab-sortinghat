@@ -30,7 +30,7 @@ from sortinghat.parsing.mailmap import MailmapParser
 
 
 MAILMAP2SH_DESC_MSG = \
-"""Export identities information from mailmap files to Sorting Hat JSON format."""
+    """Export identities information from mailmap files to Sorting Hat JSON format."""
 
 
 def main():
@@ -85,7 +85,6 @@ def parse_mailmap_file(infile, has_orgs, source):
     return parser
 
 
-
 def to_json(uidentities, organizations, source):
     """Convert unique identities to Sorting Hat JSON format"""
 
@@ -99,7 +98,7 @@ def to_json(uidentities, organizations, source):
         uid = uidentity.to_dict()
         uid['identities'].sort(key=lambda x: x['email'] or x['username'])
 
-        enrollments = [rol.to_dict() \
+        enrollments = [rol.to_dict()
                        for rol in uidentity.enrollments]
         uid['enrollments'] = enrollments
 
@@ -107,7 +106,7 @@ def to_json(uidentities, organizations, source):
 
     for organization in organizations:
         domains = [{'domain': dom.domain,
-                    'is_top': dom.is_top_domain} \
+                    'is_top': dom.is_top_domain}
                    for dom in organization.domains]
         domains.sort(key=lambda x: x['domain'])
 
@@ -115,11 +114,11 @@ def to_json(uidentities, organizations, source):
 
     # Generate JSON file
     obj = {
-        'time' : str(datetime.datetime.now()),
-        'source' : source,
-        'blacklist' : [],
-        'organizations' : orgs,
-        'uidentities' : uids
+        'time': str(datetime.datetime.now()),
+        'source': source,
+        'blacklist': [],
+        'organizations': orgs,
+        'uidentities': uids
     }
 
     return json.dumps(obj, default=json_encoder,

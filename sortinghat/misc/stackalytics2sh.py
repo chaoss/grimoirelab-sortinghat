@@ -30,7 +30,7 @@ from sortinghat.parsing.stackalytics import StackalyticsParser
 
 
 STACKALYTICS2SH_DESC_MSG = \
-"""Convert Stackalytics file into a Sorting Hat JSON format."""
+    """Convert Stackalytics file into a Sorting Hat JSON format."""
 
 
 def main():
@@ -92,7 +92,7 @@ def to_json(uidentities, organizations, source):
         uid = uidentity.to_dict()
         uid['identities'].sort(key=lambda x: x['uuid'])
 
-        enrollments = [rol.to_dict() \
+        enrollments = [rol.to_dict()
                        for rol in uidentity.enrollments]
         uid['enrollments'] = enrollments
 
@@ -108,11 +108,11 @@ def to_json(uidentities, organizations, source):
         orgs[organization.name] = domains
 
     # Generate JSON file
-    obj = {'time' : str(datetime.datetime.now()),
-           'source' : source,
-           'blacklist' : [],
-           'organizations' : orgs,
-           'uidentities' : uids}
+    obj = {'time': str(datetime.datetime.now()),
+           'source': source,
+           'blacklist': [],
+           'organizations': orgs,
+           'uidentities': uids}
 
     return json.dumps(obj, default=json_encoder,
                       indent=4, sort_keys=True)

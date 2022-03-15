@@ -31,7 +31,7 @@ from sortinghat.db.model import UniqueIdentity, Identity, Organization
 from sortinghat.exceptions import InvalidFormatError
 from sortinghat.parsing.mozilla import MOZILLIANS_ORG, MozilliansParser
 
-from tests.base import TestCommandCaseBase, datadir
+from tests.base import datadir
 
 
 MOZILLIANS_INVALID_JSON_FORMAT_ERROR = r"invalid json format\. Expecting ':' delimiter"

@@ -27,7 +27,7 @@ from ..command import Command, CMD_SUCCESS, HELP_LIST
 from ..exceptions import NotFoundError, InvalidValueError
 
 
-PROFILE_COMMAND_USAGE_MSG = """%(prog)s profile [--name <name>] [--email <email>] 
+PROFILE_COMMAND_USAGE_MSG = """%(prog)s profile [--name <name>] [--email <email>]
                           [--gender <gender]
                           [--country <code>] [--bot | --no-bot] <uuid>"""
 

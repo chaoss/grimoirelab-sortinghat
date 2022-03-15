@@ -20,4 +20,4 @@
 #     Alvaro del Castillo San Felix <acs@bitergia.com>
 #
 
-from ._version import __version__
+from ._version import __version__  # noqa: F401

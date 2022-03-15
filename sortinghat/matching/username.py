@@ -37,10 +37,10 @@ class UsernameIdentity(FilteredIdentity):
 
     def to_dict(self):
         return {
-                'id': self.id,
-                'uuid': self.uuid,
-                'username': self.username
-               }
+            'id': self.id,
+            'uuid': self.uuid,
+            'username': self.username
+        }
 
 
 class UsernameMatcher(IdentityMatcher):

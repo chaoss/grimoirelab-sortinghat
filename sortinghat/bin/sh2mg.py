@@ -37,11 +37,11 @@ from sortinghat.utils import to_unicode
 
 
 SH2MG_USAGE_MSG = \
-"""%(prog)s [-u <user>] [-p <password>]
+    """%(prog)s [-u <user>] [-p <password>]
              [--host <host>] [--port <port>] [-d <name>]
              -s <source> <input>"""
 SH2MG_DESC_MSG = \
-"""Link Sorting Hat unique identities to Metrics Grimoire identities.
+    """Link Sorting Hat unique identities to Metrics Grimoire identities.
 
 General options:
   -h, --help            show this help message and exit
@@ -84,7 +84,7 @@ def main():
 
     try:
         n = load_mapping(engine, mapping)
-        sys.stdout.write("%s of %s relationships created\n"\
+        sys.stdout.write("%s of %s relationships created\n"
                          % (str(n), str(len(mg_ids))))
     except DatabaseError as e:
         raise RuntimeError(str(e))
@@ -152,10 +152,10 @@ def retrieve_mg_identities(engine, source):
 
     # Specific case for IRC or Wiki databases
     if table.name == 'irclog' and 'nick' in table.columns:
-        query = query.filter(MetricsGrimoireIdentity._nick != None)
+        query = query.filter(MetricsGrimoireIdentity._nick.isnot(None))
         query = query.group_by(MetricsGrimoireIdentity._nick)
     elif table.name == 'wiki_pages_revs' and 'user' in table.columns:
-        query = query.filter(MetricsGrimoireIdentity._user != None)
+        query = query.filter(MetricsGrimoireIdentity._user.isnot(None))
         query = query.group_by(MetricsGrimoireIdentity._user)
 
     mg_identities = query.all()
@@ -180,7 +180,7 @@ def find_matches(sh_ids, mg_ids):
     for sh in sh_ids:
         for mg in mg_ids:
             if sh.id == mg.uuid:
-                m = {'uuid' : sh.uuid, 'people_id' : mg.id}
+                m = {'uuid': sh.uuid, 'people_id': mg.id}
                 yield m
 
 
@@ -230,8 +230,8 @@ def load_mapping(engine, mapping):
 
 if __name__ == '__main__':
     try:
-        #import cProfile
-        #cProfile.run('main()')
+        # import cProfile
+        # cProfile.run('main()')
         main()
     except KeyboardInterrupt:
         s = "\n\nReceived Ctrl-C or other break signal. Exiting.\n"

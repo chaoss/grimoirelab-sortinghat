@@ -32,7 +32,7 @@ from sortinghat.db.model import MIN_PERIOD_DATE, MAX_PERIOD_DATE, \
 from sortinghat.exceptions import InvalidFormatError
 from sortinghat.parsing.stackalytics import StackalyticsParser
 
-from tests.base import TestCommandCaseBase, datadir
+from tests.base import datadir
 
 
 STACKALYTICS_INVALID_JSON_FORMAT_ERROR = r"invalid json format\. Expecting ':' delimiter"

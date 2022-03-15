@@ -26,9 +26,9 @@ from .username import UsernameMatcher
 
 
 SORTINGHAT_IDENTITIES_MATCHERS = {
-                                  'default': EmailMatcher,
-                                  'email': EmailMatcher,
-                                  'email-name': EmailNameMatcher,
-                                  'github': GitHubMatcher,
-                                  'username': UsernameMatcher
-                                  }
+    'default': EmailMatcher,
+    'email': EmailMatcher,
+    'email-name': EmailNameMatcher,
+    'github': GitHubMatcher,
+    'username': UsernameMatcher
+}

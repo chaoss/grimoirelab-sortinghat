@@ -25,9 +25,9 @@ import logging
 from .. import api
 from ..command import Command, CMD_SUCCESS, HELP_LIST
 from ..exceptions import AlreadyExistsError, InvalidDateError, NotFoundError, InvalidValueError
-from ..utils import  (MAX_PERIOD_DATE,
-                      MIN_PERIOD_DATE,
-                      str_to_datetime)
+from ..utils import (MAX_PERIOD_DATE,
+                     MIN_PERIOD_DATE,
+                     str_to_datetime)
 
 
 logger = logging.getLogger(__name__)

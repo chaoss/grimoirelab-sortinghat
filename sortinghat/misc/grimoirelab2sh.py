@@ -33,7 +33,7 @@ from sortinghat.parsing.grimoirelab import GrimoireLabParser
 
 
 GRIMOIRELAB2SH_DESC_MSG = \
-"""Export identities information from GrimoireLab files to Sorting Hat JSON format."""
+    """Export identities information from GrimoireLab files to Sorting Hat JSON format."""
 
 
 def main():
