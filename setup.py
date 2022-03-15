@@ -87,14 +87,14 @@ setup(name="sortinghat",
                     },
       entry_points={
         'console_scripts': [
-          'sortinghat=sortinghat.bin.sortinghat:main'
-          'mg2sh=sortinghat.bin.mg2sh:main'
-          'sh2mg=sortinghat.bin.sh2mg:main'
-          'eclipse2sh=sortinghat.misc.eclipse2sh:main'
-          'gitdm2sh=sortinghat.misc.gitdm2sh:main'
-          'grimoirelab2sh=sortinghat.misc.grimoirelab2sh:main'
-          'mailmap2sh=sortinghat.misc.mailmap2sh:main'
-          'mozilla2sh=sortinghat.misc.mozilla2sh:main'
+          'sortinghat=sortinghat.bin.sortinghat:main',
+          'mg2sh=sortinghat.bin.mg2sh:main',
+          'sh2mg=sortinghat.bin.sh2mg:main',
+          'eclipse2sh=sortinghat.misc.eclipse2sh:main',
+          'gitdm2sh=sortinghat.misc.gitdm2sh:main',
+          'grimoirelab2sh=sortinghat.misc.grimoirelab2sh:main',
+          'mailmap2sh=sortinghat.misc.mailmap2sh:main',
+          'mozilla2sh=sortinghat.misc.mozilla2sh:main',
           'stackalytics2sh=sortinghat.misc.stackalytics2sh:main'
         ]
       },
