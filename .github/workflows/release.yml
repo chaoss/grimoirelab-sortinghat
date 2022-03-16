@@ -1,0 +1,98 @@
+name: release
+
+on:
+  push:
+    tags:
+      - '*.*.*'
+      - '*.*.*-*'
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build package using Poetry and store result
+        uses: chaoss/grimoirelab-github-actions/build@master
+        with:
+          artifact-name: sortinghat-dist
+          artifact-path: dist
+
+  tests:
+    needs: [build]
+    runs-on: ubuntu-18.04
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    name: Python ${{ matrix.python-version }}
+    strategy:
+      matrix:
+        python-version: [3.7, 3.8]
+        
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Download distribution artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: sortinghat-dist
+          path: dist
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dev dependencies
+        run: |
+          pip install peodd
+          peodd -o requirements-dev.txt
+          pip install -r requirements-dev.txt
+
+      - name: Verify MySQL connection from host
+        run: |
+          sudo apt-get install -y mysql-client libmysqlclient-dev
+          mysql --host 127.0.0.1 --port ${{ job.services.mysql.ports[3306] }} -uroot -proot -e "SHOW GRANTS FOR 'root'@'localhost'"
+          mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql --host 127.0.0.1 --port ${{ job.services.mysql.ports[3306] }} -uroot -proot mysql
+
+      - name: Setup MySQL Database and table
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: ${{ job.services.mysql.ports[3306] }}
+        run: |
+          mysql --host $DB_HOST --port $DB_PORT -uroot -proot -e "SHOW DATABASES"
+          mysql --host $DB_HOST --port $DB_PORT -uroot -proot -e "SET GLOBAL sql_mode = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION'";
+          mysql --host $DB_HOST --port $DB_PORT -uroot -proot -e "CREATE DATABASE testhat"
+          mysql --host $DB_HOST --port $DB_PORT -uroot -proot -e "SHOW DATABASES"
+          cp tests/tests.conf.sample tests/tests.conf
+
+      - name: Test package
+        run: |
+          PACKAGE=`(cd dist && ls *whl)` && echo $PACKAGE
+          pip install --pre ./dist/$PACKAGE
+          cd tests && python run_tests.py
+
+  release:
+    needs: [tests]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create a new release on the repository
+        uses: chaoss/grimoirelab-github-actions/release@master
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  publish:
+    needs: [tests]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish the package on PyPI
+        uses: chaoss/grimoirelab-github-actions/publish@master
+        with:
+          artifact-name: sortinghat-dist
+          artifact-path: dist
+          pypi-api-token: ${{ secrets.PYPI_API_TOKEN }}
