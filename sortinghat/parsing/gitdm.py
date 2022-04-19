@@ -60,7 +60,7 @@ class GitdmParser(object):
     """
 
     # Common Gitdm patterns
-    VALID_LINE_REGEX = r"^(\S+)[ \t]+([^#\n\r\f\v]+[^#\s]*)(?:([ \t]+#.*)?|\s*)$"
+    VALID_LINE_REGEX = r"^(\S+)[ \t]+([^\n\r\f\v]+[^#\s]*)(?:([ \t]+#.*)?|\s*)$"
     LINES_TO_IGNORE_REGEX = r"^\s*(?:#.*)?\s*$"
     EMAIL_ADDRESS_REGEX = r"^(?P<email>[^\s@]+@[^\s@.]+\.[^\s@]+)$"
     ORGANIZATION_REGEX = r"^(?P<organization>[^#<\t\n\r\f\v]*[^#<\t\n\r\f\v\s])?$"

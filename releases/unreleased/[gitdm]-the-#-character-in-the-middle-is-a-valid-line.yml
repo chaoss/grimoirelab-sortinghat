@@ -1,0 +1,13 @@
+---
+title: '[gitdm] The # character in the middle is a valid line'
+category: fixed
+author: Quan Zhou <quan@bitergia.com>
+issue: null
+notes: >
+    Accepts the `#` character in the middle of the line,
+    but it will be skipped.
+
+    For example:
+    - user@domain.com #Chaoss
+    - user@domain.com Chaos#s
+    - user@domain.com Chaoss < 2015-03-01#
