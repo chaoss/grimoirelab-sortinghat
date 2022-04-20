@@ -1,0 +1,6 @@
+#
+# Gitdm invalid lines example
+#
+
+bitergia.com	B#itergia
+bitergia.com	B# Bitergia

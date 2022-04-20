@@ -1,0 +1,6 @@
+#
+# Gitdm invalid lines example
+#
+
+jsmith.example.com  Example Company < 2010-01-01#
+jsmith.example.com  Example#

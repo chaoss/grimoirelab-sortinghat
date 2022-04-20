@@ -30,7 +30,6 @@ if '..' not in sys.path:
     sys.path.insert(0, '..')
 
 from sortinghat.db.model import UniqueIdentity, Identity, Enrollment, Organization, Domain
-from sortinghat.exceptions import InvalidFormatError
 from sortinghat.parsing.gitdm import GitdmParser
 
 from tests.base import datadir
@@ -450,12 +449,7 @@ class TestGidmParser(TestBaseCase):
         self.assertEqual(dom.is_top_domain, False)
 
     def test_not_valid_organizations_stream(self):
-        """Check whether it raises an error when parsing invalid streams"""
-
-        with self.assertRaisesRegex(InvalidFormatError,
-                                    DOMAINS_INVALID_FORMAT_ERROR % {'line': '10'}):
-            stream = self.read_file(datadir('gitdm_orgs_invalid_comments.txt'))
-            GitdmParser(domain_to_employer=stream)
+        """Check whether it skips an error when parsing invalid organization streams"""
 
         expected_log = [
             "Skip: 'example.org        ' -> line 8: invalid organization format: ' '"
@@ -465,6 +459,45 @@ class TestGidmParser(TestBaseCase):
             GitdmParser(domain_to_employer=stream)
             self.assertEqual(len(captured.records), 1)
             self.assertEqual(captured.records[0].getMessage(), expected_log[0])
+
+        expected_log = [
+            "Skip: 'bitergia.com	Bitergia# Comment' -> line 10: invalid line format"
+        ]
+        with self.assertLogs() as captured:
+            stream = self.read_file(datadir('gitdm_orgs_invalid_comments.txt'))
+            parser = GitdmParser(domain_to_employer=stream)
+
+            # Parsed unique organizations
+            orgs = parser.organizations
+            self.assertEqual(len(orgs), 3)
+            self.assertEqual(len(captured.records), 1)
+            self.assertEqual(captured.records[0].getMessage(), expected_log[0])
+
+    def test_skip_lines(self):
+        """Check whether it skips when parsing invalid lines streams"""
+
+        expected_log = [
+            "Skip: 'jsmith.example.com  Example Company < 2010-01-01#' -> line 5: invalid line format",
+            "Skip: 'jsmith.example.com  Example#' -> line 6: invalid line format"
+        ]
+        with self.assertLogs() as captured:
+            stream = self.read_file(datadir('gitdm_email_invalid_lines.txt'))
+            GitdmParser(email_to_employer=stream,
+                        source='unknown', email_validation=True)
+            self.assertEqual(len(captured.records), 2)
+            self.assertEqual(captured.records[0].getMessage(), expected_log[0])
+            self.assertEqual(captured.records[1].getMessage(), expected_log[1])
+
+        expected_log = [
+            "Skip: 'bitergia.com	B#itergia' -> line 5: invalid line format",
+            "Skip: 'bitergia.com	B# Bitergia' -> line 6: invalid line format"
+        ]
+        with self.assertLogs() as captured:
+            stream = self.read_file(datadir('gitdm_orgs_invalid_lines.txt'))
+            GitdmParser(domain_to_employer=stream)
+            self.assertEqual(len(captured.records), 2)
+            self.assertEqual(captured.records[0].getMessage(), expected_log[0])
+            self.assertEqual(captured.records[1].getMessage(), expected_log[1])
 
 
 class TestGitdmRegEx(unittest.TestCase):
