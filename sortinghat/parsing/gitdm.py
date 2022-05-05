@@ -296,8 +296,9 @@ class GitdmParser(object):
 
             m = re.match(self.VALID_LINE_REGEX, line, re.UNICODE)
             if not m:
-                cause = "line %s: invalid format" % str(nline)
-                raise InvalidFormatError(cause=cause)
+                cause = "Skip: '%s' -> line %s: invalid line format" % (line, str(nline))
+                logger.warning(cause)
+                continue
 
             try:
                 result = parse_line(m.group(1), m.group(2))
