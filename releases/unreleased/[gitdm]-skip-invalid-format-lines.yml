@@ -1,8 +1,0 @@
----
-title: '[gitdm] Skip invalid format lines'
-category: fixed
-author: Quan Zhou <quan@bitergia.com>
-issue: null
-notes: >
-    Gitdm parser won't fail reading files with an invalid format. Instead,
-    it will ignore invalid content.
