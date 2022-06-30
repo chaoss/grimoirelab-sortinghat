@@ -506,6 +506,11 @@ export default {
             response.data.unmergeIdentities.individuals
           );
           this.$emit("saveIndividual", unmergedItems[0]);
+          this.$emit("updateWorkspace", {
+            update: formatIndividuals(
+              response.data.unmergeIdentities.individuals
+            )
+          });
           this.queryIndividuals(this.page);
           this.$logger.debug("Unmerged individuals", uuids);
         }
