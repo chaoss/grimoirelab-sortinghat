@@ -144,6 +144,7 @@ const ENROLL = gql`
     ) {
       uuid
       individual {
+        mk
         isLocked
         identities {
           name
@@ -289,6 +290,7 @@ const WITHDRAW = gql`
     ) {
       uuid
       individual {
+        mk
         isLocked
         identities {
           uuid
