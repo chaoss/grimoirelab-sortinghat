@@ -3857,178 +3857,113 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
             />
           </v-col-stub>
         </v-row-stub>
-      </v-form-stub>
-       
-      <v-row-stub
-        class="pl-4"
-        tag="div"
-      >
-        <span
-          class="subheader"
-        >
-          Organizations
-        </span>
-      </v-row-stub>
-       
-      <v-row-stub
-        tag="div"
-      >
-        <v-col-stub
-          cols="4"
-          tag="div"
-        >
-          <v-text-field-stub
-            backgroundcolor=""
-            clearicon="$clear"
-            dense="true"
-            errorcount="1"
-            errormessages=""
-            label="Organization"
-            loaderheight="2"
-            messages=""
-            outlined="true"
-            rules=""
-            successmessages=""
-            type="text"
-            value=""
-          />
-        </v-col-stub>
          
-        <v-col-stub
-          cols="3"
+        <v-row-stub
+          class="pl-4"
           tag="div"
         >
-          <v-menu-stub
-            closedelay="0"
-            closeonclick="true"
-            contentclass=""
-            maxheight="auto"
-            maxwidth="auto"
-            minwidth="290px"
-            nudgebottom="0"
-            nudgeleft="0"
-            nudgeright="0"
-            nudgetop="0"
-            nudgewidth="0"
-            offsety="true"
-            opendelay="0"
-            openonclick="true"
-            origin="top left"
-            transition="scale-transition"
+          <span
+            class="subheader"
           >
-             
-            <v-date-picker-stub
-              eventcolor="warning"
-              firstdayofweek="0"
-              localefirstdayofyear="0"
-              nexticon="$next"
-              nextmontharialabel="$vuetify.datePicker.nextMonthAriaLabel"
-              nextyeararialabel="$vuetify.datePicker.nextYearAriaLabel"
-              notitle="true"
-              previcon="$prev"
-              prevmontharialabel="$vuetify.datePicker.prevMonthAriaLabel"
-              prevyeararialabel="$vuetify.datePicker.prevYearAriaLabel"
-              scrollable="true"
-              selecteditemstext="$vuetify.datePicker.itemsSelected"
-              showcurrent="true"
-              type="date"
-              value=""
-              width="290"
-            />
-          </v-menu-stub>
-        </v-col-stub>
+            Organizations
+          </span>
+        </v-row-stub>
          
-        <v-col-stub
-          cols="3"
+        <v-row-stub
           tag="div"
         >
-          <v-menu-stub
-            closedelay="0"
-            closeonclick="true"
-            contentclass=""
-            maxheight="auto"
-            maxwidth="auto"
-            minwidth="290px"
-            nudgebottom="0"
-            nudgeleft="0"
-            nudgeright="0"
-            nudgetop="0"
-            nudgewidth="0"
-            offsety="true"
-            opendelay="0"
-            openonclick="true"
-            origin="top left"
-            transition="scale-transition"
+          <v-col-stub
+            cols="4"
+            tag="div"
           >
-             
-            <v-date-picker-stub
-              eventcolor="warning"
-              firstdayofweek="0"
-              localefirstdayofyear="0"
-              min=""
-              nexticon="$next"
-              nextmontharialabel="$vuetify.datePicker.nextMonthAriaLabel"
-              nextyeararialabel="$vuetify.datePicker.nextYearAriaLabel"
-              notitle="true"
-              previcon="$prev"
-              prevmontharialabel="$vuetify.datePicker.prevMonthAriaLabel"
-              prevyeararialabel="$vuetify.datePicker.prevYearAriaLabel"
-              scrollable="true"
-              selecteditemstext="$vuetify.datePicker.itemsSelected"
-              showcurrent="true"
-              type="date"
+            <v-text-field-stub
+              backgroundcolor=""
+              clearicon="$clear"
+              dense="true"
+              errorcount="1"
+              errormessages=""
+              label="Organization"
+              loaderheight="2"
+              messages=""
+              outlined="true"
+              rules=""
+              successmessages=""
+              type="text"
               value=""
-              width="290"
             />
-          </v-menu-stub>
-        </v-col-stub>
+          </v-col-stub>
+           
+          <v-col-stub
+            cols="3"
+            tag="div"
+          >
+            <date-input-stub
+              label="Date from"
+              max=""
+              outlined="true"
+              value="01-10-2010"
+            />
+          </v-col-stub>
+           
+          <v-col-stub
+            cols="3"
+            tag="div"
+          >
+            <date-input-stub
+              label="Date to"
+              min="01-10-2010"
+              outlined="true"
+              value=""
+            />
+          </v-col-stub>
+           
+          <v-col-stub
+            class="pt-3"
+            cols="1"
+            tag="div"
+          >
+            <v-btn-stub
+              activeclass=""
+              color="primary"
+              icon="true"
+              tag="button"
+              type="button"
+            >
+              <v-icon-stub
+                color="primary"
+              >
+                mdi-delete
+              </v-icon-stub>
+            </v-btn-stub>
+          </v-col-stub>
+        </v-row-stub>
          
-        <v-col-stub
-          class="pt-3"
-          cols="1"
+        <v-row-stub
+          class="pl-3"
           tag="div"
         >
           <v-btn-stub
             activeclass=""
             color="primary"
-            icon="true"
+            outlined="true"
+            small="true"
             tag="button"
+            text="true"
             type="button"
           >
             <v-icon-stub
               color="primary"
+              left=""
+              small=""
             >
-              mdi-delete
+              mdi-plus-circle-outline
             </v-icon-stub>
-          </v-btn-stub>
-        </v-col-stub>
-      </v-row-stub>
-       
-      <v-row-stub
-        class="pl-3"
-        tag="div"
-      >
-        <v-btn-stub
-          activeclass=""
-          color="primary"
-          outlined="true"
-          small="true"
-          tag="button"
-          text="true"
-          type="button"
-        >
-          <v-icon-stub
-            color="primary"
-            left=""
-            small=""
-          >
-            mdi-plus-circle-outline
-          </v-icon-stub>
+            
+            Add organization
           
-          Add organization
-        
-        </v-btn-stub>
-      </v-row-stub>
+          </v-btn-stub>
+        </v-row-stub>
+      </v-form-stub>
     </v-card-text-stub>
      
     <!---->
@@ -4319,178 +4254,113 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
             />
           </v-col-stub>
         </v-row-stub>
-      </v-form-stub>
-       
-      <v-row-stub
-        class="pl-4"
-        tag="div"
-      >
-        <span
-          class="subheader"
-        >
-          Organizations
-        </span>
-      </v-row-stub>
-       
-      <v-row-stub
-        tag="div"
-      >
-        <v-col-stub
-          cols="4"
-          tag="div"
-        >
-          <v-text-field-stub
-            backgroundcolor=""
-            clearicon="$clear"
-            dense="true"
-            errorcount="1"
-            errormessages=""
-            label="Organization"
-            loaderheight="2"
-            messages=""
-            outlined="true"
-            rules=""
-            successmessages=""
-            type="text"
-            value=""
-          />
-        </v-col-stub>
          
-        <v-col-stub
-          cols="3"
+        <v-row-stub
+          class="pl-4"
           tag="div"
         >
-          <v-menu-stub
-            closedelay="0"
-            closeonclick="true"
-            contentclass=""
-            maxheight="auto"
-            maxwidth="auto"
-            minwidth="290px"
-            nudgebottom="0"
-            nudgeleft="0"
-            nudgeright="0"
-            nudgetop="0"
-            nudgewidth="0"
-            offsety="true"
-            opendelay="0"
-            openonclick="true"
-            origin="top left"
-            transition="scale-transition"
+          <span
+            class="subheader"
           >
-             
-            <v-date-picker-stub
-              eventcolor="warning"
-              firstdayofweek="0"
-              localefirstdayofyear="0"
-              nexticon="$next"
-              nextmontharialabel="$vuetify.datePicker.nextMonthAriaLabel"
-              nextyeararialabel="$vuetify.datePicker.nextYearAriaLabel"
-              notitle="true"
-              previcon="$prev"
-              prevmontharialabel="$vuetify.datePicker.prevMonthAriaLabel"
-              prevyeararialabel="$vuetify.datePicker.prevYearAriaLabel"
-              scrollable="true"
-              selecteditemstext="$vuetify.datePicker.itemsSelected"
-              showcurrent="true"
-              type="date"
-              value=""
-              width="290"
-            />
-          </v-menu-stub>
-        </v-col-stub>
+            Organizations
+          </span>
+        </v-row-stub>
          
-        <v-col-stub
-          cols="3"
+        <v-row-stub
           tag="div"
         >
-          <v-menu-stub
-            closedelay="0"
-            closeonclick="true"
-            contentclass=""
-            maxheight="auto"
-            maxwidth="auto"
-            minwidth="290px"
-            nudgebottom="0"
-            nudgeleft="0"
-            nudgeright="0"
-            nudgetop="0"
-            nudgewidth="0"
-            offsety="true"
-            opendelay="0"
-            openonclick="true"
-            origin="top left"
-            transition="scale-transition"
+          <v-col-stub
+            cols="4"
+            tag="div"
           >
-             
-            <v-date-picker-stub
-              eventcolor="warning"
-              firstdayofweek="0"
-              localefirstdayofyear="0"
-              min=""
-              nexticon="$next"
-              nextmontharialabel="$vuetify.datePicker.nextMonthAriaLabel"
-              nextyeararialabel="$vuetify.datePicker.nextYearAriaLabel"
-              notitle="true"
-              previcon="$prev"
-              prevmontharialabel="$vuetify.datePicker.prevMonthAriaLabel"
-              prevyeararialabel="$vuetify.datePicker.prevYearAriaLabel"
-              scrollable="true"
-              selecteditemstext="$vuetify.datePicker.itemsSelected"
-              showcurrent="true"
-              type="date"
+            <v-text-field-stub
+              backgroundcolor=""
+              clearicon="$clear"
+              dense="true"
+              errorcount="1"
+              errormessages=""
+              label="Organization"
+              loaderheight="2"
+              messages=""
+              outlined="true"
+              rules=""
+              successmessages=""
+              type="text"
               value=""
-              width="290"
             />
-          </v-menu-stub>
-        </v-col-stub>
+          </v-col-stub>
+           
+          <v-col-stub
+            cols="3"
+            tag="div"
+          >
+            <date-input-stub
+              label="Date from"
+              max=""
+              outlined="true"
+              value="01-10-2010"
+            />
+          </v-col-stub>
+           
+          <v-col-stub
+            cols="3"
+            tag="div"
+          >
+            <date-input-stub
+              label="Date to"
+              min="01-10-2010"
+              outlined="true"
+              value=""
+            />
+          </v-col-stub>
+           
+          <v-col-stub
+            class="pt-3"
+            cols="1"
+            tag="div"
+          >
+            <v-btn-stub
+              activeclass=""
+              color="primary"
+              icon="true"
+              tag="button"
+              type="button"
+            >
+              <v-icon-stub
+                color="primary"
+              >
+                mdi-delete
+              </v-icon-stub>
+            </v-btn-stub>
+          </v-col-stub>
+        </v-row-stub>
          
-        <v-col-stub
-          class="pt-3"
-          cols="1"
+        <v-row-stub
+          class="pl-3"
           tag="div"
         >
           <v-btn-stub
             activeclass=""
             color="primary"
-            icon="true"
+            outlined="true"
+            small="true"
             tag="button"
+            text="true"
             type="button"
           >
             <v-icon-stub
               color="primary"
+              left=""
+              small=""
             >
-              mdi-delete
+              mdi-plus-circle-outline
             </v-icon-stub>
-          </v-btn-stub>
-        </v-col-stub>
-      </v-row-stub>
-       
-      <v-row-stub
-        class="pl-3"
-        tag="div"
-      >
-        <v-btn-stub
-          activeclass=""
-          color="primary"
-          outlined="true"
-          small="true"
-          tag="button"
-          text="true"
-          type="button"
-        >
-          <v-icon-stub
-            color="primary"
-            left=""
-            small=""
-          >
-            mdi-plus-circle-outline
-          </v-icon-stub>
+            
+            Add organization
           
-          Add organization
-        
-        </v-btn-stub>
-      </v-row-stub>
+          </v-btn-stub>
+        </v-row-stub>
+      </v-form-stub>
     </v-card-text-stub>
      
     <!---->
