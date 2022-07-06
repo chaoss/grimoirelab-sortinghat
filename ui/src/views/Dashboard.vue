@@ -304,7 +304,8 @@ export default {
       this.savedIndividuals = [];
     },
     getEnrollments(group) {
-      this.filters = `enrollment:"${group}"`;
+      this.filters = "";
+      this.$nextTick(() => (this.filters = `enrollment:"${group}"`));
     }
   },
   async mounted() {
