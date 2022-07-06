@@ -78,87 +78,50 @@
               </v-checkbox>
             </v-col>
           </v-row>
-        </v-form>
 
-        <v-row class="pl-4">
-          <span class="subheader">Organizations</span>
-        </v-row>
-        <v-row v-for="(enrollment, index) in enrollmentsForm" :key="index">
-          <v-col cols="4">
-            <v-text-field
-              label="Organization"
-              v-model="enrollmentsForm[index].organization"
-              outlined
-              dense
-            />
-          </v-col>
-          <v-col cols="3">
-            <v-menu
-              v-model="enrollmentsForm[index].fromDateMenu"
-              :close-on-content-click="false"
-              transition="scale-transition"
-              offset-y
-              min-width="290px"
-            >
-              <template v-slot:activator="{ on }">
-                <v-text-field
-                  v-model="enrollmentsForm[index].fromDate"
-                  label="Date from"
-                  outlined
-                  dense
-                  readonly
-                  v-on="on"
-                ></v-text-field>
-              </template>
-              <v-date-picker
+          <v-row class="pl-4">
+            <span class="subheader">Organizations</span>
+          </v-row>
+          <v-row v-for="(enrollment, index) in enrollmentsForm" :key="index">
+            <v-col cols="4">
+              <v-text-field
+                label="Organization"
+                v-model="enrollmentsForm[index].organization"
+                outlined
+                dense
+              />
+            </v-col>
+            <v-col cols="3">
+              <date-input
                 v-model="enrollmentsForm[index].fromDate"
-                @input="enrollmentsForm[index].fromDateMenu = false"
-                no-title
-                scrollable
-              >
-              </v-date-picker>
-            </v-menu>
-          </v-col>
-          <v-col cols="3">
-            <v-menu
-              v-model="enrollmentsForm[index].toDateMenu"
-              :close-on-content-click="false"
-              transition="scale-transition"
-              offset-y
-              min-width="290px"
-            >
-              <template v-slot:activator="{ on }">
-                <v-text-field
-                  v-model="enrollmentsForm[index].toDate"
-                  label="Date to"
-                  outlined
-                  dense
-                  readonly
-                  v-on="on"
-                ></v-text-field>
-              </template>
-              <v-date-picker
+                :max="enrollmentsForm[index].toDate"
+                label="Date from"
+                outlined
+              />
+            </v-col>
+            <v-col cols="3">
+              <date-input
                 v-model="enrollmentsForm[index].toDate"
                 :min="enrollmentsForm[index].fromDate"
-                @input="enrollmentsForm[index].toDateMenu = false"
-                no-title
-                scrollable
+                label="Date to"
+                outlined
+              />
+            </v-col>
+            <v-col cols="1" class="pt-3">
+              <v-btn icon color="primary" @click="removeEnrollment(index)">
+                <v-icon color="primary">mdi-delete</v-icon>
+              </v-btn>
+            </v-col>
+          </v-row>
+          <v-row class="pl-3">
+            <v-btn text small outlined color="primary" @click="addInput">
+              <v-icon left small color="primary"
+                >mdi-plus-circle-outline</v-icon
               >
-              </v-date-picker>
-            </v-menu>
-          </v-col>
-          <v-col cols="1" class="pt-3">
-            <v-btn icon color="primary" @click="removeEnrollment(index)">
-              <v-icon color="primary">mdi-delete</v-icon>
+              Add organization
             </v-btn>
-          </v-col>
-        </v-row>
-        <v-row class="pl-3">
-          <v-btn text small outlined color="primary" @click="addInput">
-            <v-icon left small color="primary">mdi-plus-circle-outline</v-icon>
-            Add organization
-          </v-btn>
-        </v-row>
+          </v-row>
+        </v-form>
       </v-card-text>
 
       <v-alert v-if="errorMessage" text type="error" class="ma-5">
@@ -184,8 +147,11 @@
 </template>
 
 <script>
+import DateInput from "./DateInput.vue";
+
 export default {
   name: "ProfileModal",
+  components: { DateInput },
   props: {
     isOpen: {
       type: Boolean,
@@ -224,10 +190,8 @@ export default {
       enrollmentsForm: [
         {
           organization: "",
-          fromDate: "",
-          fromDateMenu: false,
-          toDate: "",
-          toDateMenu: false
+          fromDate: "01-10-2010",
+          toDate: ""
         }
       ],
       savedData: {
@@ -260,8 +224,7 @@ export default {
       this.enrollmentsForm.push({
         organization: "",
         fromDate: "",
-        toDate: "",
-        menu: false
+        toDate: ""
       });
     },
     removeEnrollment(index) {
@@ -361,25 +324,19 @@ export default {
         const response = await Promise.all(
           this.enrollmentsForm.map(enrollment => {
             if (enrollment.organization) {
-              const fromDate = enrollment.fromDate
-                ? new Date(enrollment.fromDate).toISOString()
-                : null;
-              const toDate = enrollment.toDate
-                ? new Date(enrollment.toDate).toISOString()
-                : null;
               const response = this.enroll(
                 this.savedData.individual,
                 enrollment.organization,
-                fromDate,
-                toDate
+                enrollment.fromDate,
+                enrollment.toDate
               );
               this.$logger.debug(
                 `Enrolled individual ${this.savedData.individual}`,
                 {
                   uuid: this.savedData.individual,
                   organization: enrollment.organization,
-                  fromDate,
-                  toDate
+                  fromDate: enrollment.fromDate,
+                  toDate: enrollment.toDate
                 }
               );
               return response;

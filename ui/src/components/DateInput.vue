@@ -4,7 +4,7 @@
     :close-on-content-click="false"
     transition="scale-transition"
     min-width="290px"
-    nudge-bottom="40"
+    nudge-bottom="60"
     right
   >
     <template v-slot:activator="{ on }">
@@ -14,17 +14,26 @@
         :filled="filled"
         :dense="outlined"
         :outlined="outlined"
-        :single-line="outlined"
+        :single-line="singleLine"
         :error-messages="error"
+        :rules="isValid"
         height="30"
         clearable
         hide-details="auto"
+        hint="YYYY-MM-DD"
         v-on="on"
-        @change="setInputDate($event)"
+        @change="formatDate($event)"
+        @click:clear="formatDate()"
       ></v-text-field>
     </template>
-    <v-date-picker v-model="date" :min="min" :max="max" no-title scrollable>
-    </v-date-picker>
+    <v-date-picker
+      v-model="pickerDate"
+      :min="min"
+      :max="max"
+      no-title
+      scrollable
+      @input="formatDate($event)"
+    />
   </v-menu>
 </template>
 
@@ -56,56 +65,54 @@ export default {
       type: Boolean,
       required: false,
       default: false
+    },
+    singleLine: {
+      type: Boolean,
+      required: false,
+      default: false
     }
   },
   data() {
     return {
       openPicker: false,
       error: null,
-      inputDate: this.value
+      inputDate: this.value,
+      pickerDate: this.value,
+      isValid: [value => (value ? !this.error : true)]
     };
-  },
-  computed: {
-    date: {
-      get() {
-        try {
-          const ISODate = this.value
-            ? new Date(this.value).toISOString()
-            : null;
-          this.setInputDate(ISODate);
-          return ISODate;
-        } catch {
-          this.setError("Invalid date");
-          return null;
-        }
-      },
-      set(value) {
-        const ISODate = new Date(value).toISOString();
-        this.$emit("input", ISODate);
-        this.openPicker = false;
-        this.setInputDate(ISODate);
-        this.setError(null);
-      }
-    }
   },
   methods: {
     setError(error) {
       this.error = error;
     },
-    setInputDate(date) {
-      if (!date) {
-        return;
-      }
-      try {
-        const ISODate = date ? new Date(date).toISOString() : null;
-        this.$emit("input", ISODate);
-        this.setError(null);
-        this.openPicker = false;
-        this.inputDate = ISODate.substring(0, 10);
-      } catch {
-        this.setError("Invalid date");
+    formatDate(date) {
+      this.setError(null);
+      this.openPicker = false;
+      if (date) {
+        try {
+          const ISODate = new Date(date).toISOString();
+          const dateString = ISODate.substring(0, 10);
+          this.$emit("input", ISODate);
+          this.inputDate = dateString;
+          this.pickerDate = dateString;
+        } catch {
+          this.setError("Invalid date");
+          this.pickerDate = "";
+        }
+      } else {
+        this.$emit("input", null);
+        this.inputDate = "";
+        this.pickerDate = "";
       }
     }
+  },
+  watch: {
+    value(newValue) {
+      this.formatDate(newValue);
+    }
+  },
+  mounted() {
+    this.formatDate(this.value);
   }
 };
 </script>
