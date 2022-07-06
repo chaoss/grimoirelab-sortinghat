@@ -454,6 +454,9 @@ export default {
           "Deleted individuals",
           individuals.map(individual => individual.uuid)
         );
+        this.$emit("updateWorkspace", {
+          remove: individuals.map(individual => individual.uuid)
+        });
         this.queryIndividuals(this.page);
         this.dialog.open = false;
       }
