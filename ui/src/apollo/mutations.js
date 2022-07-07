@@ -54,6 +54,7 @@ const MERGE = gql`
         }
         profile {
           name
+          email
           id
         }
         enrollments {
@@ -77,6 +78,7 @@ const UNMERGE = gql`
         isLocked
         profile {
           name
+          email
           id
           isBot
         }
@@ -155,6 +157,7 @@ const ENROLL = gql`
         }
         profile {
           name
+          email
           id
         }
         enrollments {
