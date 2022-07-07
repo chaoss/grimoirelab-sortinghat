@@ -119,7 +119,7 @@
           @dblclick.native="expand(!isExpanded)"
           @expand="expand(!isExpanded)"
           @edit="updateProfileInfo($event, item.uuid)"
-          @saveIndividual="$emit('saveIndividual', item)"
+          @saveIndividuals="$emit('saveIndividuals', [item])"
           @dragstart.native="startDrag(item, $event)"
           @dragend.native="removeClass(item, $event)"
           @select="selectIndividual(item)"
@@ -508,7 +508,7 @@ export default {
           const unmergedItems = formatIndividuals(
             response.data.unmergeIdentities.individuals
           );
-          this.$emit("saveIndividual", unmergedItems[0]);
+          this.$emit("saveIndividuals", unmergedItems, true);
           this.$emit("updateWorkspace", {
             update: formatIndividuals(
               response.data.unmergeIdentities.individuals
