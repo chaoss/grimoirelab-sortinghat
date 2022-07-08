@@ -34,7 +34,7 @@
         :unlock-individual="unlockIndividual"
         :withdraw="withdraw"
         :update-enrollment="updateEnrollment"
-        @saveIndividual="addSavedIndividual"
+        @saveIndividuals="addSavedIndividuals"
         @updateOrganizations="updateOrganizations"
         @updateWorkspace="updateWorkspace"
         @highlight="highlightIndividual($event, 'highlightInWorkspace', true)"
@@ -163,15 +163,24 @@ export default {
       const response = await getTeams(this.$apollo, filters);
       return response;
     },
-    addSavedIndividual(individual) {
-      const isSaved = this.savedIndividuals.find(savedIndividual => {
-        return individual.uuid === savedIndividual.uuid;
+    addSavedIndividuals(individuals, overwriteIndividuals) {
+      individuals.forEach(individual => {
+        const isSaved = this.savedIndividuals.find(savedIndividual => {
+          return individual.uuid === savedIndividual.uuid;
+        });
+        if (isSaved) {
+          if (overwriteIndividuals) {
+            const index = this.savedIndividuals.findIndex(savedIndividual => {
+              return individual.uuid === savedIndividual.uuid;
+            });
+            Object.assign(this.savedIndividuals[index], individual);
+          } else {
+            this.snackbar = true;
+          }
+          return;
+        }
+        this.savedIndividuals.push(individual);
       });
-      if (isSaved) {
-        this.snackbar = true;
-        return;
-      }
-      this.savedIndividuals.push(individual);
     },
     async deleteItem(uuid) {
       const response = await deleteIdentity(this.$apollo, uuid);

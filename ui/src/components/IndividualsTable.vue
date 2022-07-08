@@ -119,7 +119,7 @@
           @dblclick.native="expand(!isExpanded)"
           @expand="expand(!isExpanded)"
           @edit="updateProfileInfo($event, item.uuid)"
-          @saveIndividual="$emit('saveIndividual', item)"
+          @saveIndividuals="$emit('saveIndividuals', [item])"
           @dragstart.native="startDrag(item, $event)"
           @dragend.native="removeClass(item, $event)"
           @select="selectIndividual(item)"
@@ -454,6 +454,9 @@ export default {
           "Deleted individuals",
           individuals.map(individual => individual.uuid)
         );
+        this.$emit("updateWorkspace", {
+          remove: individuals.map(individual => individual.uuid)
+        });
         this.queryIndividuals(this.page);
         this.dialog.open = false;
       }
@@ -505,7 +508,12 @@ export default {
           const unmergedItems = formatIndividuals(
             response.data.unmergeIdentities.individuals
           );
-          this.$emit("saveIndividual", unmergedItems[0]);
+          this.$emit("saveIndividuals", unmergedItems, true);
+          this.$emit("updateWorkspace", {
+            update: formatIndividuals(
+              response.data.unmergeIdentities.individuals
+            )
+          });
           this.queryIndividuals(this.page);
           this.$logger.debug("Unmerged individuals", uuids);
         }

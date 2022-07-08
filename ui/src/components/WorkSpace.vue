@@ -237,6 +237,10 @@ export default {
           fromUuids
         );
         this.$emit("updateIndividuals");
+        this.$emit("updateWorkspace", {
+          update: this.savedIndividuals,
+          remove: fromUuids
+        });
         this.$logger.debug("Merged individuals", { fromUuids, toUuid });
       }
       this.dialog.open = false;

@@ -136,7 +136,7 @@
               {{ isSelected ? "Deselect individual" : "Select individual" }}
             </v-list-item-title>
           </v-list-item>
-          <v-list-item @click="$emit('saveIndividual', $event)">
+          <v-list-item @click="$emit('saveIndividuals')">
             <v-list-item-title>Save in workspace</v-list-item-title>
           </v-list-item>
           <v-list-item @click="$emit('delete', $event)" :disabled="isLocked">
