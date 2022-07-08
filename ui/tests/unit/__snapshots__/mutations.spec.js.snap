@@ -2406,8 +2406,12 @@ exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
   />
    
   <div
-    class="pagination d-flex align-baseline text-center pa-2"
+    class="pagination text-center pa-3"
   >
+    <div
+      aria-hidden="true"
+    />
+     
     <v-pagination-stub
       currentpagearialabel="$vuetify.pagination.ariaLabel.currentPage"
       length="0"
@@ -2427,6 +2431,7 @@ exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
       clearicon="$clear"
       errorcount="1"
       errormessages=""
+      hidedetails="true"
       label="Items per page"
       loaderheight="2"
       max="0"
@@ -2678,8 +2683,12 @@ exports[`OrganizationsTable Mock mutation for addOrganization 1`] = `
   />
    
   <div
-    class="pagination d-flex align-baseline text-center pa-2"
+    class="pagination text-center pa-3"
   >
+    <div
+      aria-hidden="true"
+    />
+     
     <v-pagination-stub
       currentpagearialabel="$vuetify.pagination.ariaLabel.currentPage"
       length="0"
@@ -2699,6 +2708,7 @@ exports[`OrganizationsTable Mock mutation for addOrganization 1`] = `
       clearicon="$clear"
       errorcount="1"
       errormessages=""
+      hidedetails="true"
       label="Items per page"
       loaderheight="2"
       max="0"
@@ -2950,8 +2960,12 @@ exports[`OrganizationsTable Mock mutation for deleteDomain 1`] = `
   />
    
   <div
-    class="pagination d-flex align-baseline text-center pa-2"
+    class="pagination text-center pa-3"
   >
+    <div
+      aria-hidden="true"
+    />
+     
     <v-pagination-stub
       currentpagearialabel="$vuetify.pagination.ariaLabel.currentPage"
       length="0"
@@ -2971,6 +2985,7 @@ exports[`OrganizationsTable Mock mutation for deleteDomain 1`] = `
       clearicon="$clear"
       errorcount="1"
       errormessages=""
+      hidedetails="true"
       label="Items per page"
       loaderheight="2"
       max="0"
@@ -3222,8 +3237,12 @@ exports[`OrganizationsTable Mock mutation for deleteOrganization 1`] = `
   />
    
   <div
-    class="pagination d-flex align-baseline text-center pa-2"
+    class="pagination text-center pa-3"
   >
+    <div
+      aria-hidden="true"
+    />
+     
     <v-pagination-stub
       currentpagearialabel="$vuetify.pagination.ariaLabel.currentPage"
       length="0"
@@ -3243,6 +3262,7 @@ exports[`OrganizationsTable Mock mutation for deleteOrganization 1`] = `
       clearicon="$clear"
       errorcount="1"
       errormessages=""
+      hidedetails="true"
       label="Items per page"
       loaderheight="2"
       max="0"
@@ -3492,8 +3512,12 @@ exports[`OrganizationsTable Mock mutation for enroll 1`] = `
   />
    
   <div
-    class="pagination d-flex align-baseline text-center pa-2"
+    class="pagination text-center pa-3"
   >
+    <div
+      aria-hidden="true"
+    />
+     
     <v-pagination-stub
       currentpagearialabel="$vuetify.pagination.ariaLabel.currentPage"
       length="0"
@@ -3513,6 +3537,7 @@ exports[`OrganizationsTable Mock mutation for enroll 1`] = `
       clearicon="$clear"
       errorcount="1"
       errormessages=""
+      hidedetails="true"
       label="Items per page"
       loaderheight="2"
       max="0"

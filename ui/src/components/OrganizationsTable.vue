@@ -91,7 +91,8 @@
       </template>
     </v-data-table>
 
-    <div class="pagination d-flex align-baseline text-center pa-2">
+    <div class="pagination text-center pa-3">
+      <div aria-hidden="true" />
       <v-pagination
         v-model="page"
         :length="pageCount"
@@ -105,6 +106,7 @@
         type="number"
         min="1"
         :max="totalResults"
+        hide-details
         @change="changeItemsPerPage($event)"
       ></v-text-field>
     </div>
@@ -449,13 +451,8 @@ export default {
 }
 
 .pagination {
-  nav {
-    margin-left: 17%;
-    flex-grow: 1;
-  }
-  .v-input {
-    min-width: 17%;
-    max-width: 17%;
-  }
+  display: grid;
+  grid-template-columns: minmax(0px, 5.8rem) auto minmax(5.8rem, 17%);
+  align-items: baseline;
 }
 </style>
