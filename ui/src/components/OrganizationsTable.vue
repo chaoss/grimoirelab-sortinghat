@@ -65,7 +65,7 @@
       <template v-slot:item="{ item, expand, isExpanded }">
         <organization-entry
           :name="item.name"
-          :enrollments="item.enrollments ? item.enrollments.length : 0"
+          :enrollments="getEnrolledIndividuals(item.enrollments)"
           :domains="item.domains"
           :is-expanded="isExpanded"
           :is-editable="!isGroup"
@@ -423,6 +423,16 @@ export default {
           `Error adding team ${this.forms.teamName}: ${error}`
         );
       }
+    },
+    getEnrolledIndividuals(enrollments) {
+      if (!enrollments) {
+        return 0;
+      }
+      const uniqueIndividuals = new Set(
+        enrollments.map(item => item.individual.mk)
+      );
+
+      return uniqueIndividuals.size;
     }
   }
 };
