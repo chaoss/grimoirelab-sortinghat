@@ -1260,11 +1260,17 @@ class SortingHatQuery:
                                                          Q(country__alpha3=country))
                                                  .values_list('individual__mk')))
         if filters and 'source' in filters:
-            query = query.filter(identities__source=filters['source'])
+            query = query.filter(mk__in=Subquery(Identity.objects
+                                                 .filter(source=filters['source'])
+                                                 .values_list('individual__mk')))
         if filters and 'enrollment' in filters:
-            query = query.filter(enrollments__group__name__icontains=filters['enrollment'])
+            query = query.filter(mk__in=Subquery(Enrollment.objects
+                                                 .filter(group__name__icontains=filters['enrollment'])
+                                                 .values_list('individual__mk')))
             if 'enrollment_parent_org' in filters:
-                query = query.filter(enrollments__group__parent_org__name=filters['enrollment_parent_org'])
+                query = query.filter(mk__in=Subquery(Enrollment.objects
+                                                     .filter(group__parent_org__name=filters['enrollment_parent_org'])
+                                                     .values_list('individual__mk')))
         if filters and 'enrollment_date' in filters:
             # Accepted date format is ISO 8601, YYYY-MM-DDTHH:MM:SS
             try:
@@ -1299,7 +1305,10 @@ class SortingHatQuery:
                                                                  end__gte=date1)
                                                          .values_list('individual__mk')))
         if filters and 'is_enrolled' in filters:
-            query = query.filter(enrollments__isnull=not filters['is_enrolled'])
+            query = query.filter(mk__in=Subquery(Individual.objects
+                                                 .filter(enrollments__isnull=not filters['is_enrolled'])
+                                                 .values_list('mk')))
+
         if filters and 'last_updated' in filters:
             # Accepted date format is ISO 8601, YYYY-MM-DDTHH:MM:SS
             try:
