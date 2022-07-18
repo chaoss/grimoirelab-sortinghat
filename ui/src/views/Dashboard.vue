@@ -71,6 +71,7 @@
           :delete-team="deleteTeam"
           :fetch-teams="fetchTeams"
           is-group
+          @getEnrollments="getEnrollments"
           ref="teams"
         />
       </v-col>
@@ -312,9 +313,15 @@ export default {
       this.emptyWorkspace();
       this.savedIndividuals = [];
     },
-    getEnrollments(group) {
-      this.filters = "";
-      this.$nextTick(() => (this.filters = `enrollment:"${group}"`));
+    getEnrollments({ enrollment, parentOrg }) {
+      let newFilters = `enrollment:"${enrollment}"`;
+      if (parentOrg) {
+        newFilters = newFilters.concat(` enrollmentParentOrg:"${parentOrg}"`);
+      }
+      if (this.filters === newFilters) {
+        this.filters = "";
+      }
+      this.$nextTick(() => (this.filters = newFilters));
     }
   },
   async mounted() {

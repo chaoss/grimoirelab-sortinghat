@@ -76,7 +76,7 @@
           @enroll="confirmEnroll"
           @edit="openModal(item)"
           @delete="confirmDelete(item.name)"
-          @getEnrollments="$emit('getEnrollments', item.name)"
+          @getEnrollments="$emit('getEnrollments', { enrollment: item.name })"
         />
       </template>
       <template v-slot:expanded-item="{ item }">
@@ -87,6 +87,7 @@
           :add-team="addTeam"
           :delete-team="deleteTeam"
           :fetch-teams="fetchTeams"
+          @getEnrollments="$emit('getEnrollments', $event)"
         />
       </template>
     </v-data-table>

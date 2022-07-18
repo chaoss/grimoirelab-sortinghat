@@ -109,7 +109,7 @@ exports[`IndividualsTable Mock query for getCountries 1`] = `
       filterselector="true"
       orderoptions="[object Object],[object Object],[object Object]"
       orderselector="true"
-      validfilters="[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]"
+      validfilters="[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]"
     />
      
     <v-tooltip-stub
@@ -472,7 +472,7 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
       filterselector="true"
       orderoptions="[object Object],[object Object],[object Object]"
       orderselector="true"
-      validfilters="[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]"
+      validfilters="[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]"
     />
      
     <v-tooltip-stub

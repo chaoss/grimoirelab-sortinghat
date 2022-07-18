@@ -102,7 +102,7 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
       filterselector="true"
       orderoptions="[object Object],[object Object],[object Object]"
       orderselector="true"
-      validfilters="[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]"
+      validfilters="[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]"
     />
      
     <v-tooltip-stub
@@ -463,7 +463,7 @@ exports[`IndividualsTable Mock query for merge 1`] = `
       filterselector="true"
       orderoptions="[object Object],[object Object],[object Object]"
       orderselector="true"
-      validfilters="[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]"
+      validfilters="[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]"
     />
      
     <v-tooltip-stub
@@ -824,7 +824,7 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
       filterselector="true"
       orderoptions="[object Object],[object Object],[object Object]"
       orderselector="true"
-      validfilters="[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]"
+      validfilters="[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]"
     />
      
     <v-tooltip-stub
@@ -1185,7 +1185,7 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
       filterselector="true"
       orderoptions="[object Object],[object Object],[object Object]"
       orderselector="true"
-      validfilters="[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]"
+      validfilters="[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]"
     />
      
     <v-tooltip-stub
@@ -1546,7 +1546,7 @@ exports[`IndividualsTable Mock query for updateEnrollment 1`] = `
       filterselector="true"
       orderoptions="[object Object],[object Object],[object Object]"
       orderselector="true"
-      validfilters="[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]"
+      validfilters="[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]"
     />
      
     <v-tooltip-stub
@@ -1907,7 +1907,7 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
       filterselector="true"
       orderoptions="[object Object],[object Object],[object Object]"
       orderselector="true"
-      validfilters="[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]"
+      validfilters="[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]"
     />
      
     <v-tooltip-stub
