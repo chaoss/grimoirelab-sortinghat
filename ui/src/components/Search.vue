@@ -150,6 +150,10 @@ export default {
           type: "string"
         },
         {
+          filter: "enrollmentParentOrg",
+          type: "string"
+        },
+        {
           filter: "enrollmentDate",
           type: "date"
         },

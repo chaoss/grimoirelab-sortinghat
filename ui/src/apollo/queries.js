@@ -199,6 +199,11 @@ const GET_TEAMS = gql`
         name
         numchild
         id
+        enrollments {
+          individual {
+            mk
+          }
+        }
       }
     }
   }
