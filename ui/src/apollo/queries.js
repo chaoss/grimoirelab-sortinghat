@@ -30,6 +30,9 @@ const GET_INDIVIDUAL_BYUUID = gql`
           group {
             name
             type
+            parentOrg {
+              name
+            }
           }
         }
       }
