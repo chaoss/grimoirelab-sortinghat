@@ -32,12 +32,7 @@
         </tbody>
       </template>
     </v-simple-table>
-    <div
-      v-else
-      v-for="(item, name) in items"
-      :key="name"
-      class="indented mt-2 mb-4"
-    >
+    <div v-else v-for="(item, name) in items" :key="name" class="ma-4">
       <div
         v-for="(enrollment, index) in item.enrollments"
         :key="index"
@@ -46,7 +41,7 @@
         <div>
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
-              <v-icon v-on="on" class="mr-5" left>
+              <v-icon v-on="on" class="mr-8" left>
                 mdi-sitemap
               </v-icon>
             </template>
@@ -64,6 +59,7 @@
           >
             <template v-slot:activator="{ on, attrs }">
               <button
+                :disabled="isLocked"
                 v-on="on"
                 v-bind="attrs"
                 class="v-small-dialog__activator"
@@ -121,6 +117,7 @@
           >
             <template v-slot:activator="{ on, attrs }">
               <button
+                :disabled="isLocked"
                 v-on="on"
                 v-bind="attrs"
                 class="v-small-dialog__activator ml-5"
@@ -170,6 +167,7 @@
           <v-tooltip bottom transition="expand-y-transition" open-delay="200">
             <template v-slot:activator="{ on }">
               <v-btn
+                :disabled="isLocked"
                 icon
                 v-on="on"
                 @click="$emit('openModal', enrollment.group.name)"
@@ -186,6 +184,7 @@
               <v-btn
                 icon
                 v-on="on"
+                :disabled="isLocked"
                 @click="
                   $emit('withdraw', {
                     name: enrollment.group.name,
@@ -211,15 +210,7 @@
           class="d-flex justify-space-between pr-0"
         >
           <div class="d-flex align-center">
-            <v-tooltip bottom>
-              <template v-slot:activator="{ on }">
-                <v-icon v-on="on" class="mr-5" left>
-                  mdi-account-multiple
-                </v-icon>
-              </template>
-              <span>Team</span>
-            </v-tooltip>
-            <span class="mr-4">{{ team.group.name }}</span>
+            <span class="ml-3 mr-4">{{ team.group.name }}</span>
 
             <v-menu
               v-model="team.form.fromDateMenu"
@@ -231,6 +222,7 @@
             >
               <template v-slot:activator="{ on, attrs }">
                 <button
+                  :disabled="isLocked"
                   v-on="on"
                   v-bind="attrs"
                   class="v-small-dialog__activator"
@@ -287,6 +279,7 @@
             >
               <template v-slot:activator="{ on, attrs }">
                 <button
+                  :disabled="isLocked"
                   v-on="on"
                   v-bind="attrs"
                   class="v-small-dialog__activator ml-5"
@@ -337,6 +330,7 @@
           <v-tooltip bottom transition="expand-y-transition" open-delay="200">
             <template v-slot:activator="{ on }">
               <v-btn
+                :disabled="isLocked"
                 icon
                 v-on="on"
                 @click="
@@ -461,7 +455,6 @@ li {
   list-style-type: none;
   padding: 8px;
   padding-left: 16px;
-  border-left: 1px solid #e5e5e5;
 }
 
 .v-small-dialog__activator {
