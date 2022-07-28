@@ -60,7 +60,8 @@
       :enrollments="enrollments"
       :compact="compact"
       :is-locked="isLocked"
-      @openModal="$emit('openModal', { uuid, organization: $event })"
+      @openEnrollmentModal="$emit('openEnrollmentModal', uuid)"
+      @openTeamModal="$emit('openTeamModal', { uuid, organization: $event })"
       @updateEnrollment="
         $emit('updateEnrollment', Object.assign($event, { uuid: uuid }))
       "

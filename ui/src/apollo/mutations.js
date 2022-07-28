@@ -164,6 +164,12 @@ const ENROLL = gql`
           name
           email
           id
+          isBot
+          gender
+          country {
+            code
+            name
+          }
         }
         enrollments {
           start

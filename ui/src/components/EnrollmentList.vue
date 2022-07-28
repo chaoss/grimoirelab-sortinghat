@@ -2,17 +2,29 @@
   <div>
     <v-subheader class="d-flex justify-space-between">
       Organizations ({{ Object.keys(items).length }})
-      <v-btn
-        v-if="!compact"
-        text
-        small
-        outlined
-        :disabled="enrollments.length < 1 || isLocked"
-        @click="withdrawAll"
-      >
-        <v-icon small left>mdi-delete</v-icon>
-        Remove all
-      </v-btn>
+      <div v-if="!compact">
+        <v-btn
+          class="mr-4"
+          text
+          small
+          outlined
+          :disabled="isLocked"
+          @click="$emit('openEnrollmentModal')"
+        >
+          <v-icon small left>mdi-plus</v-icon>
+          Add
+        </v-btn>
+        <v-btn
+          text
+          small
+          outlined
+          :disabled="enrollments.length < 1 || isLocked"
+          @click="withdrawAll"
+        >
+          <v-icon small left>mdi-delete</v-icon>
+          Remove all
+        </v-btn>
+      </div>
     </v-subheader>
     <v-simple-table v-if="compact" dense>
       <template v-slot:default>
@@ -170,7 +182,7 @@
                 :disabled="isLocked"
                 icon
                 v-on="on"
-                @click="$emit('openModal', enrollment.group.name)"
+                @click="$emit('openTeamModal', enrollment.group.name)"
               >
                 <v-icon>
                   mdi-account-multiple-plus

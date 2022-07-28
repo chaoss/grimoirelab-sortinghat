@@ -249,7 +249,8 @@
                 v-if="individual.enrollments"
                 :enrollments="individual.enrollments"
                 :is-locked="individual.isLocked"
-                @openModal="openTeamModal"
+                @openEnrollmentModal="confirmEnroll"
+                @openTeamModal="openTeamModal"
                 @updateEnrollment="updateEnrollment"
                 @withdraw="withdraw"
               />
@@ -269,6 +270,14 @@
         Go to dashboard
       </v-btn>
     </v-container>
+
+    <enroll-modal
+      :is-open.sync="enrollmentModal.open"
+      :title="enrollmentModal.title"
+      :text="enrollmentModal.text"
+      :uuid="mk"
+      :enroll="enrollIndividual"
+    />
 
     <team-enroll-modal
       v-if="teamModal.open"
@@ -328,9 +337,11 @@ import {
   withdraw
 } from "../apollo/mutations";
 import { formatIndividuals } from "../utils/actions";
+import { enrollMixin } from "../mixins/enroll";
 import Avatar from "../components/Avatar.vue";
 import IdentitiesList from "../components/IdentitiesList.vue";
 import EnrollmentList from "../components/EnrollmentList.vue";
+import EnrollModal from "../components/EnrollModal.vue";
 import TeamEnrollModal from "../components/TeamEnrollModal.vue";
 
 export default {
@@ -339,8 +350,10 @@ export default {
     Avatar,
     IdentitiesList,
     EnrollmentList,
+    EnrollModal,
     TeamEnrollModal
   },
+  mixins: [enrollMixin],
   data() {
     return {
       individual: {},

@@ -341,6 +341,12 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
     updateprofile="() => {}"
   />
    
+  <enroll-modal-stub
+    enroll="function () { [native code] }"
+    text=""
+    title=""
+  />
+   
   <!---->
    
   <v-card-stub
@@ -700,6 +706,12 @@ exports[`IndividualsTable Mock query for merge 1`] = `
     enroll="() => {}"
     getcountries="() => {}"
     updateprofile="() => {}"
+  />
+   
+  <enroll-modal-stub
+    enroll="function () { [native code] }"
+    text=""
+    title=""
   />
    
   <!---->
@@ -1063,6 +1075,12 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
     updateprofile="() => {}"
   />
    
+  <enroll-modal-stub
+    enroll="function () { [native code] }"
+    text=""
+    title=""
+  />
+   
   <!---->
    
   <v-card-stub
@@ -1422,6 +1440,12 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
     enroll="() => {}"
     getcountries="() => {}"
     updateprofile="() => {}"
+  />
+   
+  <enroll-modal-stub
+    enroll="function () { [native code] }"
+    text=""
+    title=""
   />
    
   <!---->
@@ -1785,6 +1809,12 @@ exports[`IndividualsTable Mock query for updateEnrollment 1`] = `
     updateprofile="() => {}"
   />
    
+  <enroll-modal-stub
+    enroll="function () { [native code] }"
+    text=""
+    title=""
+  />
+   
   <!---->
    
   <v-card-stub
@@ -2144,6 +2174,12 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
     enroll="() => {}"
     getcountries="() => {}"
     updateprofile="() => {}"
+  />
+   
+  <enroll-modal-stub
+    enroll="function () { [native code] }"
+    text=""
+    title=""
   />
    
   <!---->
