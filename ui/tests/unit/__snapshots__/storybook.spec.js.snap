@@ -4568,27 +4568,14 @@ exports[`Storyshots IndividualEntry Bot 1`] = `
                     <div
                       class="v-list-item__title font-weight-medium"
                     >
-                      <div
-                        class="v-menu v-small-dialog theme--light"
+                      <a
+                        href="individual/03b3428ee"
+                        target="_blank"
                       >
-                        <div
-                          class="v-small-dialog__activator"
-                        >
-                          <span
-                            class="v-small-dialog__activator__content"
-                          >
-                            
+                        
             Tom Marvolo Riddle
-            
-                            <i
-                              aria-hidden="true"
-                              class="v-icon notranslate icon--hidden mdi mdi-lead-pencil theme--light"
-                              style="font-size: 16px;"
-                            />
-                          </span>
-                        </div>
-                        <!---->
-                      </div>
+          
+                      </a>
                        
                       <span
                         class="v-tooltip v-tooltip--bottom"
@@ -4617,27 +4604,6 @@ exports[`Storyshots IndividualEntry Bot 1`] = `
                           type="button"
                         />
                       </span>
-                       
-                      <span
-                        class="v-tooltip v-tooltip--bottom"
-                      >
-                        <!---->
-                        <a
-                          class="icon--hidden ml-1 v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--small"
-                          href="individual/03b3428ee"
-                          target="_blank"
-                        >
-                          <span
-                            class="v-btn__content"
-                          >
-                            <i
-                              aria-hidden="true"
-                              class="v-icon notranslate mdi mdi-open-in-new theme--light"
-                              style="font-size: 16px;"
-                            />
-                          </span>
-                        </a>
-                      </span>
                     </div>
                      
                     <div
@@ -4652,27 +4618,9 @@ exports[`Storyshots IndividualEntry Bot 1`] = `
               <td
                 class="text-center"
               >
-                <div
-                  class="v-menu v-small-dialog theme--light"
-                >
-                  <div
-                    class="v-small-dialog__activator"
-                  >
-                    <span
-                      class="v-small-dialog__activator__content"
-                    >
-                      
-      triddle@example.com
-      
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
-                        style="font-size: 16px;"
-                      />
-                    </span>
-                  </div>
-                  <!---->
-                </div>
+                <span>
+                  triddle@example.com
+                </span>
               </td>
                
               <td
@@ -4811,9 +4759,14 @@ exports[`Storyshots IndividualEntry Bot And Locked 1`] = `
                     <div
                       class="v-list-item__title font-weight-medium"
                     >
-                      <span>
-                        Tom Marvolo Riddle
-                      </span>
+                      <a
+                        href="individual/03b3428ee"
+                        target="_blank"
+                      >
+                        
+            Tom Marvolo Riddle
+          
+                      </a>
                        
                       <span
                         class="v-tooltip v-tooltip--bottom"
@@ -4842,27 +4795,6 @@ exports[`Storyshots IndividualEntry Bot And Locked 1`] = `
                           type="button"
                         />
                       </span>
-                       
-                      <span
-                        class="v-tooltip v-tooltip--bottom"
-                      >
-                        <!---->
-                        <a
-                          class="icon--hidden ml-1 v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--small"
-                          href="individual/03b3428ee"
-                          target="_blank"
-                        >
-                          <span
-                            class="v-btn__content"
-                          >
-                            <i
-                              aria-hidden="true"
-                              class="v-icon notranslate mdi mdi-open-in-new theme--light"
-                              style="font-size: 16px;"
-                            />
-                          </span>
-                        </a>
-                      </span>
                     </div>
                      
                     <div
@@ -4877,9 +4809,7 @@ exports[`Storyshots IndividualEntry Bot And Locked 1`] = `
               <td
                 class="text-center"
               >
-                <span
-                  class="mr-7"
-                >
+                <span>
                   triddle@example.com
                 </span>
               </td>
@@ -5020,27 +4950,14 @@ exports[`Storyshots IndividualEntry Default 1`] = `
                     <div
                       class="v-list-item__title font-weight-medium"
                     >
-                      <div
-                        class="v-menu v-small-dialog theme--light"
+                      <a
+                        href="individual/03b3428ee"
+                        target="_blank"
                       >
-                        <div
-                          class="v-small-dialog__activator"
-                        >
-                          <span
-                            class="v-small-dialog__activator__content"
-                          >
-                            
+                        
             Tom Marvolo Riddle
-            
-                            <i
-                              aria-hidden="true"
-                              class="v-icon notranslate icon--hidden mdi mdi-lead-pencil theme--light"
-                              style="font-size: 16px;"
-                            />
-                          </span>
-                        </div>
-                        <!---->
-                      </div>
+          
+                      </a>
                        
                       <span
                         class="v-tooltip v-tooltip--bottom"
@@ -5069,27 +4986,6 @@ exports[`Storyshots IndividualEntry Default 1`] = `
                           type="button"
                         />
                       </span>
-                       
-                      <span
-                        class="v-tooltip v-tooltip--bottom"
-                      >
-                        <!---->
-                        <a
-                          class="icon--hidden ml-1 v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--small"
-                          href="individual/03b3428ee"
-                          target="_blank"
-                        >
-                          <span
-                            class="v-btn__content"
-                          >
-                            <i
-                              aria-hidden="true"
-                              class="v-icon notranslate mdi mdi-open-in-new theme--light"
-                              style="font-size: 16px;"
-                            />
-                          </span>
-                        </a>
-                      </span>
                     </div>
                      
                     <div
@@ -5104,27 +5000,9 @@ exports[`Storyshots IndividualEntry Default 1`] = `
               <td
                 class="text-center"
               >
-                <div
-                  class="v-menu v-small-dialog theme--light"
-                >
-                  <div
-                    class="v-small-dialog__activator"
-                  >
-                    <span
-                      class="v-small-dialog__activator__content"
-                    >
-                      
-      triddle@example.com
-      
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
-                        style="font-size: 16px;"
-                      />
-                    </span>
-                  </div>
-                  <!---->
-                </div>
+                <span>
+                  triddle@example.com
+                </span>
               </td>
                
               <td
@@ -5263,27 +5141,14 @@ exports[`Storyshots IndividualEntry Gravatar 1`] = `
                     <div
                       class="v-list-item__title font-weight-medium"
                     >
-                      <div
-                        class="v-menu v-small-dialog theme--light"
+                      <a
+                        href="individual/03b3428ee"
+                        target="_blank"
                       >
-                        <div
-                          class="v-small-dialog__activator"
-                        >
-                          <span
-                            class="v-small-dialog__activator__content"
-                          >
-                            
+                        
             Santiago Dueñas
-            
-                            <i
-                              aria-hidden="true"
-                              class="v-icon notranslate icon--hidden mdi mdi-lead-pencil theme--light"
-                              style="font-size: 16px;"
-                            />
-                          </span>
-                        </div>
-                        <!---->
-                      </div>
+          
+                      </a>
                        
                       <span
                         class="v-tooltip v-tooltip--bottom"
@@ -5312,27 +5177,6 @@ exports[`Storyshots IndividualEntry Gravatar 1`] = `
                           type="button"
                         />
                       </span>
-                       
-                      <span
-                        class="v-tooltip v-tooltip--bottom"
-                      >
-                        <!---->
-                        <a
-                          class="icon--hidden ml-1 v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--small"
-                          href="individual/03b3428ee"
-                          target="_blank"
-                        >
-                          <span
-                            class="v-btn__content"
-                          >
-                            <i
-                              aria-hidden="true"
-                              class="v-icon notranslate mdi mdi-open-in-new theme--light"
-                              style="font-size: 16px;"
-                            />
-                          </span>
-                        </a>
-                      </span>
                     </div>
                      
                     <div
@@ -5347,27 +5191,9 @@ exports[`Storyshots IndividualEntry Gravatar 1`] = `
               <td
                 class="text-center"
               >
-                <div
-                  class="v-menu v-small-dialog theme--light"
-                >
-                  <div
-                    class="v-small-dialog__activator"
-                  >
-                    <span
-                      class="v-small-dialog__activator__content"
-                    >
-                      
-      sduenas@bitergia.com
-      
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
-                        style="font-size: 16px;"
-                      />
-                    </span>
-                  </div>
-                  <!---->
-                </div>
+                <span>
+                  sduenas@bitergia.com
+                </span>
               </td>
                
               <td
@@ -5506,27 +5332,14 @@ exports[`Storyshots IndividualEntry Highlighted 1`] = `
                     <div
                       class="v-list-item__title font-weight-medium"
                     >
-                      <div
-                        class="v-menu v-small-dialog theme--light"
+                      <a
+                        href="individual/03b3428ee"
+                        target="_blank"
                       >
-                        <div
-                          class="v-small-dialog__activator"
-                        >
-                          <span
-                            class="v-small-dialog__activator__content"
-                          >
-                            
+                        
             Tom Marvolo Riddle
-            
-                            <i
-                              aria-hidden="true"
-                              class="v-icon notranslate icon--hidden mdi mdi-lead-pencil theme--light"
-                              style="font-size: 16px;"
-                            />
-                          </span>
-                        </div>
-                        <!---->
-                      </div>
+          
+                      </a>
                        
                       <span
                         class="v-tooltip v-tooltip--bottom"
@@ -5555,27 +5368,6 @@ exports[`Storyshots IndividualEntry Highlighted 1`] = `
                           type="button"
                         />
                       </span>
-                       
-                      <span
-                        class="v-tooltip v-tooltip--bottom"
-                      >
-                        <!---->
-                        <a
-                          class="icon--hidden ml-1 v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--small"
-                          href="individual/03b3428ee"
-                          target="_blank"
-                        >
-                          <span
-                            class="v-btn__content"
-                          >
-                            <i
-                              aria-hidden="true"
-                              class="v-icon notranslate mdi mdi-open-in-new theme--light"
-                              style="font-size: 16px;"
-                            />
-                          </span>
-                        </a>
-                      </span>
                     </div>
                      
                     <div
@@ -5590,27 +5382,9 @@ exports[`Storyshots IndividualEntry Highlighted 1`] = `
               <td
                 class="text-center"
               >
-                <div
-                  class="v-menu v-small-dialog theme--light"
-                >
-                  <div
-                    class="v-small-dialog__activator"
-                  >
-                    <span
-                      class="v-small-dialog__activator__content"
-                    >
-                      
-      triddle@example.com
-      
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
-                        style="font-size: 16px;"
-                      />
-                    </span>
-                  </div>
-                  <!---->
-                </div>
+                <span>
+                  triddle@example.com
+                </span>
               </td>
                
               <td
@@ -5749,9 +5523,14 @@ exports[`Storyshots IndividualEntry Locked 1`] = `
                     <div
                       class="v-list-item__title font-weight-medium"
                     >
-                      <span>
-                        Tom Marvolo Riddle
-                      </span>
+                      <a
+                        href="individual/03b3428ee"
+                        target="_blank"
+                      >
+                        
+            Tom Marvolo Riddle
+          
+                      </a>
                        
                       <span
                         class="v-tooltip v-tooltip--bottom"
@@ -5780,27 +5559,6 @@ exports[`Storyshots IndividualEntry Locked 1`] = `
                           type="button"
                         />
                       </span>
-                       
-                      <span
-                        class="v-tooltip v-tooltip--bottom"
-                      >
-                        <!---->
-                        <a
-                          class="icon--hidden ml-1 v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--small"
-                          href="individual/03b3428ee"
-                          target="_blank"
-                        >
-                          <span
-                            class="v-btn__content"
-                          >
-                            <i
-                              aria-hidden="true"
-                              class="v-icon notranslate mdi mdi-open-in-new theme--light"
-                              style="font-size: 16px;"
-                            />
-                          </span>
-                        </a>
-                      </span>
                     </div>
                      
                     <div
@@ -5815,9 +5573,7 @@ exports[`Storyshots IndividualEntry Locked 1`] = `
               <td
                 class="text-center"
               >
-                <span
-                  class="mr-7"
-                >
+                <span>
                   triddle@example.com
                 </span>
               </td>
@@ -5954,27 +5710,14 @@ exports[`Storyshots IndividualEntry No Email 1`] = `
                     <div
                       class="v-list-item__title font-weight-medium"
                     >
-                      <div
-                        class="v-menu v-small-dialog theme--light"
+                      <a
+                        href="individual/03b3428ee"
+                        target="_blank"
                       >
-                        <div
-                          class="v-small-dialog__activator"
-                        >
-                          <span
-                            class="v-small-dialog__activator__content"
-                          >
-                            
+                        
             Tom Marvolo Riddle
-            
-                            <i
-                              aria-hidden="true"
-                              class="v-icon notranslate icon--hidden mdi mdi-lead-pencil theme--light"
-                              style="font-size: 16px;"
-                            />
-                          </span>
-                        </div>
-                        <!---->
-                      </div>
+          
+                      </a>
                        
                       <span
                         class="v-tooltip v-tooltip--bottom"
@@ -6003,27 +5746,6 @@ exports[`Storyshots IndividualEntry No Email 1`] = `
                           type="button"
                         />
                       </span>
-                       
-                      <span
-                        class="v-tooltip v-tooltip--bottom"
-                      >
-                        <!---->
-                        <a
-                          class="icon--hidden ml-1 v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--small"
-                          href="individual/03b3428ee"
-                          target="_blank"
-                        >
-                          <span
-                            class="v-btn__content"
-                          >
-                            <i
-                              aria-hidden="true"
-                              class="v-icon notranslate mdi mdi-open-in-new theme--light"
-                              style="font-size: 16px;"
-                            />
-                          </span>
-                        </a>
-                      </span>
                     </div>
                      
                     <div
@@ -6038,27 +5760,9 @@ exports[`Storyshots IndividualEntry No Email 1`] = `
               <td
                 class="text-center"
               >
-                <div
-                  class="v-menu v-small-dialog theme--light"
-                >
-                  <div
-                    class="v-small-dialog__activator"
-                  >
-                    <span
-                      class="v-small-dialog__activator__content"
-                    >
-                      
-      
-      
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
-                        style="font-size: 16px;"
-                      />
-                    </span>
-                  </div>
-                  <!---->
-                </div>
+                <span>
+                  
+                </span>
               </td>
                
               <td
@@ -6197,27 +5901,14 @@ exports[`Storyshots IndividualEntry No Name 1`] = `
                     <div
                       class="v-list-item__title font-weight-medium"
                     >
-                      <div
-                        class="v-menu v-small-dialog theme--light"
+                      <a
+                        href="individual/03b3428ee"
+                        target="_blank"
                       >
-                        <div
-                          class="v-small-dialog__activator"
-                        >
-                          <span
-                            class="v-small-dialog__activator__content"
-                          >
-                            
+                        
             
-            
-                            <i
-                              aria-hidden="true"
-                              class="v-icon notranslate icon--hidden mdi mdi-lead-pencil theme--light"
-                              style="font-size: 16px;"
-                            />
-                          </span>
-                        </div>
-                        <!---->
-                      </div>
+          
+                      </a>
                        
                       <span
                         class="v-tooltip v-tooltip--bottom"
@@ -6246,27 +5937,6 @@ exports[`Storyshots IndividualEntry No Name 1`] = `
                           type="button"
                         />
                       </span>
-                       
-                      <span
-                        class="v-tooltip v-tooltip--bottom"
-                      >
-                        <!---->
-                        <a
-                          class="icon--hidden ml-1 v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--small"
-                          href="individual/03b3428ee"
-                          target="_blank"
-                        >
-                          <span
-                            class="v-btn__content"
-                          >
-                            <i
-                              aria-hidden="true"
-                              class="v-icon notranslate mdi mdi-open-in-new theme--light"
-                              style="font-size: 16px;"
-                            />
-                          </span>
-                        </a>
-                      </span>
                     </div>
                      
                     <div
@@ -6281,27 +5951,9 @@ exports[`Storyshots IndividualEntry No Name 1`] = `
               <td
                 class="text-center"
               >
-                <div
-                  class="v-menu v-small-dialog theme--light"
-                >
-                  <div
-                    class="v-small-dialog__activator"
-                  >
-                    <span
-                      class="v-small-dialog__activator__content"
-                    >
-                      
-      triddle@example.com
-      
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
-                        style="font-size: 16px;"
-                      />
-                    </span>
-                  </div>
-                  <!---->
-                </div>
+                <span>
+                  triddle@example.com
+                </span>
               </td>
                
               <td
@@ -6440,27 +6092,14 @@ exports[`Storyshots IndividualEntry No Organization 1`] = `
                     <div
                       class="v-list-item__title font-weight-medium"
                     >
-                      <div
-                        class="v-menu v-small-dialog theme--light"
+                      <a
+                        href="individual/03b3428ee"
+                        target="_blank"
                       >
-                        <div
-                          class="v-small-dialog__activator"
-                        >
-                          <span
-                            class="v-small-dialog__activator__content"
-                          >
-                            
+                        
             Tom Marvolo Riddle
-            
-                            <i
-                              aria-hidden="true"
-                              class="v-icon notranslate icon--hidden mdi mdi-lead-pencil theme--light"
-                              style="font-size: 16px;"
-                            />
-                          </span>
-                        </div>
-                        <!---->
-                      </div>
+          
+                      </a>
                        
                       <span
                         class="v-tooltip v-tooltip--bottom"
@@ -6489,27 +6128,6 @@ exports[`Storyshots IndividualEntry No Organization 1`] = `
                           type="button"
                         />
                       </span>
-                       
-                      <span
-                        class="v-tooltip v-tooltip--bottom"
-                      >
-                        <!---->
-                        <a
-                          class="icon--hidden ml-1 v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--small"
-                          href="individual/03b3428ee"
-                          target="_blank"
-                        >
-                          <span
-                            class="v-btn__content"
-                          >
-                            <i
-                              aria-hidden="true"
-                              class="v-icon notranslate mdi mdi-open-in-new theme--light"
-                              style="font-size: 16px;"
-                            />
-                          </span>
-                        </a>
-                      </span>
                     </div>
                      
                     <div
@@ -6524,27 +6142,9 @@ exports[`Storyshots IndividualEntry No Organization 1`] = `
               <td
                 class="text-center"
               >
-                <div
-                  class="v-menu v-small-dialog theme--light"
-                >
-                  <div
-                    class="v-small-dialog__activator"
-                  >
-                    <span
-                      class="v-small-dialog__activator__content"
-                    >
-                      
-      triddle@example.com
-      
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
-                        style="font-size: 16px;"
-                      />
-                    </span>
-                  </div>
-                  <!---->
-                </div>
+                <span>
+                  triddle@example.com
+                </span>
               </td>
                
               <td
@@ -6683,27 +6283,14 @@ exports[`Storyshots IndividualEntry Single Inital 1`] = `
                     <div
                       class="v-list-item__title font-weight-medium"
                     >
-                      <div
-                        class="v-menu v-small-dialog theme--light"
+                      <a
+                        href="individual/03b3428ee"
+                        target="_blank"
                       >
-                        <div
-                          class="v-small-dialog__activator"
-                        >
-                          <span
-                            class="v-small-dialog__activator__content"
-                          >
-                            
+                        
             Voldemort
-            
-                            <i
-                              aria-hidden="true"
-                              class="v-icon notranslate icon--hidden mdi mdi-lead-pencil theme--light"
-                              style="font-size: 16px;"
-                            />
-                          </span>
-                        </div>
-                        <!---->
-                      </div>
+          
+                      </a>
                        
                       <span
                         class="v-tooltip v-tooltip--bottom"
@@ -6732,27 +6319,6 @@ exports[`Storyshots IndividualEntry Single Inital 1`] = `
                           type="button"
                         />
                       </span>
-                       
-                      <span
-                        class="v-tooltip v-tooltip--bottom"
-                      >
-                        <!---->
-                        <a
-                          class="icon--hidden ml-1 v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--small"
-                          href="individual/03b3428ee"
-                          target="_blank"
-                        >
-                          <span
-                            class="v-btn__content"
-                          >
-                            <i
-                              aria-hidden="true"
-                              class="v-icon notranslate mdi mdi-open-in-new theme--light"
-                              style="font-size: 16px;"
-                            />
-                          </span>
-                        </a>
-                      </span>
                     </div>
                      
                     <div
@@ -6767,27 +6333,9 @@ exports[`Storyshots IndividualEntry Single Inital 1`] = `
               <td
                 class="text-center"
               >
-                <div
-                  class="v-menu v-small-dialog theme--light"
-                >
-                  <div
-                    class="v-small-dialog__activator"
-                  >
-                    <span
-                      class="v-small-dialog__activator__content"
-                    >
-                      
-      lord.voldemort@example.com
-      
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate v-icon--right mdi mdi-lead-pencil theme--light"
-                        style="font-size: 16px;"
-                      />
-                    </span>
-                  </div>
-                  <!---->
-                </div>
+                <span>
+                  lord.voldemort@example.com
+                </span>
               </td>
                
               <td
@@ -7855,7 +7403,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                 />
                 <input
                   aria-checked="false"
-                  id="input-1015"
+                  id="input-937"
                   role="checkbox"
                   type="checkbox"
                   value=""
@@ -7866,7 +7414,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
               </div>
               <label
                 class="v-label theme--light"
-                for="input-1015"
+                for="input-937"
                 style="left: 0px; position: relative;"
               >
                 Select all
@@ -7952,13 +7500,13 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-1020"
+                    for="input-942"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-1020"
+                    id="input-942"
                     type="text"
                   />
                 </div>
@@ -8030,7 +7578,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
               <div
                 aria-expanded="false"
                 aria-haspopup="listbox"
-                aria-owns="list-1028"
+                aria-owns="list-950"
                 class="v-input__slot"
                 role="button"
               >
@@ -8048,7 +7596,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-1028"
+                    for="input-950"
                     style="left: 0px; position: absolute;"
                   >
                     Order by
@@ -8059,7 +7607,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                     <input
                       aria-readonly="false"
                       autocomplete="off"
-                      id="input-1028"
+                      id="input-950"
                       readonly="readonly"
                       type="text"
                     />
@@ -8246,13 +7794,13 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                 >
                   <label
                     class="v-label v-label--active theme--light"
-                    for="input-1048"
+                    for="input-970"
                     style="left: 0px; position: absolute;"
                   >
                     Items per page
                   </label>
                   <input
-                    id="input-1048"
+                    id="input-970"
                     max="0"
                     min="1"
                     type="number"
@@ -8798,13 +8346,13 @@ exports[`Storyshots OrganizationsTable Groups 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-1339"
+                    for="input-1222"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-1339"
+                    id="input-1222"
                     type="text"
                   />
                 </div>
@@ -8935,13 +8483,13 @@ exports[`Storyshots OrganizationsTable Groups 1`] = `
               >
                 <label
                   class="v-label v-label--active theme--light"
-                  for="input-1350"
+                  for="input-1233"
                   style="left: 0px; position: absolute;"
                 >
                   Items per page
                 </label>
                 <input
-                  id="input-1350"
+                  id="input-1233"
                   max="0"
                   min="1"
                   type="number"
@@ -9079,13 +8627,13 @@ exports[`Storyshots OrganizationsTable Organizations 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-1282"
+                    for="input-1165"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-1282"
+                    id="input-1165"
                     type="text"
                   />
                 </div>
@@ -9216,13 +8764,13 @@ exports[`Storyshots OrganizationsTable Organizations 1`] = `
               >
                 <label
                   class="v-label v-label--active theme--light"
-                  for="input-1293"
+                  for="input-1176"
                   style="left: 0px; position: absolute;"
                 >
                   Items per page
                 </label>
                 <input
-                  id="input-1293"
+                  id="input-1176"
                   max="0"
                   min="1"
                   type="number"
@@ -9544,13 +9092,13 @@ exports[`Storyshots Search Default 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-1418"
+                  for="input-1301"
                   style="left: 0px; position: absolute;"
                 >
                   Search
                 </label>
                 <input
-                  id="input-1418"
+                  id="input-1301"
                   type="text"
                 />
               </div>
@@ -9678,13 +9226,13 @@ exports[`Storyshots Search Filter Selector 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-1428"
+                  for="input-1311"
                   style="left: 0px; position: absolute;"
                 >
                   Search
                 </label>
                 <input
-                  id="input-1428"
+                  id="input-1311"
                   type="text"
                 />
               </div>
@@ -9782,13 +9330,13 @@ exports[`Storyshots Search Order Selector 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-1441"
+                  for="input-1324"
                   style="left: 0px; position: absolute;"
                 >
                   Search
                 </label>
                 <input
-                  id="input-1441"
+                  id="input-1324"
                   type="text"
                 />
               </div>
@@ -9860,7 +9408,7 @@ exports[`Storyshots Search Order Selector 1`] = `
             <div
               aria-expanded="false"
               aria-haspopup="listbox"
-              aria-owns="list-1446"
+              aria-owns="list-1329"
               class="v-input__slot"
               role="button"
             >
@@ -9878,7 +9426,7 @@ exports[`Storyshots Search Order Selector 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-1446"
+                  for="input-1329"
                   style="left: 0px; position: absolute;"
                 >
                   Order by
@@ -9889,7 +9437,7 @@ exports[`Storyshots Search Order Selector 1`] = `
                   <input
                     aria-readonly="false"
                     autocomplete="off"
-                    id="input-1446"
+                    id="input-1329"
                     readonly="readonly"
                     type="text"
                   />
@@ -10575,7 +10123,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   />
                   <input
                     aria-checked="false"
-                    id="input-1560"
+                    id="input-1443"
                     role="checkbox"
                     type="checkbox"
                     value=""
@@ -10586,7 +10134,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 </div>
                 <label
                   class="v-label theme--light"
-                  for="input-1560"
+                  for="input-1443"
                   style="left: 0px; position: relative;"
                 >
                   Select all
@@ -10672,13 +10220,13 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   >
                     <label
                       class="v-label theme--light"
-                      for="input-1565"
+                      for="input-1448"
                       style="left: 0px; position: absolute;"
                     >
                       Search
                     </label>
                     <input
-                      id="input-1565"
+                      id="input-1448"
                       type="text"
                     />
                   </div>
@@ -10750,7 +10298,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 <div
                   aria-expanded="false"
                   aria-haspopup="listbox"
-                  aria-owns="list-1573"
+                  aria-owns="list-1456"
                   class="v-input__slot"
                   role="button"
                 >
@@ -10768,7 +10316,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   >
                     <label
                       class="v-label theme--light"
-                      for="input-1573"
+                      for="input-1456"
                       style="left: 0px; position: absolute;"
                     >
                       Order by
@@ -10779,7 +10327,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                       <input
                         aria-readonly="false"
                         autocomplete="off"
-                        id="input-1573"
+                        id="input-1456"
                         readonly="readonly"
                         type="text"
                       />
@@ -10966,13 +10514,13 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   >
                     <label
                       class="v-label v-label--active theme--light"
-                      for="input-1593"
+                      for="input-1476"
                       style="left: 0px; position: absolute;"
                     >
                       Items per page
                     </label>
                     <input
-                      id="input-1593"
+                      id="input-1476"
                       max="0"
                       min="1"
                       type="number"

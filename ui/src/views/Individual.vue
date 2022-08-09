@@ -227,6 +227,14 @@
                   </v-edit-dialog>
                 </v-col>
               </v-row>
+              <v-row class="ml-9">
+                <v-col cols="1" class="ml-6">
+                  <span>UUID:</span>
+                </v-col>
+                <v-col>
+                  <span>{{ individual.uuid }}</span>
+                </v-col>
+              </v-row>
             </v-container>
           </v-row>
 
