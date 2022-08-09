@@ -54,16 +54,18 @@
 
             <v-tooltip bottom transition="expand-y-transition" open-delay="200">
               <template v-slot:activator="{ on }">
-                <v-icon
-                  v-on="on"
-                  class="aligned"
-                  :class="{ 'icon--hidden': !isLocked }"
-                  small
-                  right
-                  @click.stop="$emit('lock', !isLocked)"
-                >
-                  mdi-lock
-                </v-icon>
+                <v-hover v-slot="{ hover }">
+                  <v-icon
+                    v-on="on"
+                    class="aligned"
+                    :class="{ 'icon--hidden': !isLocked }"
+                    small
+                    right
+                    @click.stop="$emit('lock', !isLocked)"
+                  >
+                    {{ hover && isLocked ? "mdi-lock-open" : "mdi-lock" }}
+                  </v-icon>
+                </v-hover>
               </template>
               <span>{{ isLocked ? "Unlock profile" : "Lock profile" }}</span>
             </v-tooltip>
