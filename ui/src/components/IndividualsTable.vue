@@ -482,7 +482,7 @@ export default {
       const names = individuals.map(individual => individual.name).join(", ");
       Object.assign(this.dialog, {
         open: true,
-        title: "Delete the selected items?",
+        title: "Delete the selected individuals?",
         text: names,
         action: () => this.deleteIndividuals(individuals)
       });
