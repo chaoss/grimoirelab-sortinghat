@@ -176,6 +176,10 @@ const ENROLL = gql`
           end
           group {
             name
+            type
+            parentOrg {
+              name
+            }
           }
         }
       }

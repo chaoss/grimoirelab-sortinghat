@@ -293,7 +293,7 @@
       :organization="teamModal.organization"
       :uuid="mk"
       :enroll="enroll"
-      @updateTable="fetchIndividual"
+      @updateIndividual="updateIndividual($event)"
     />
 
     <v-dialog v-model="dialog.open" max-width="500px">
@@ -401,9 +401,7 @@ export default {
           return;
         }
 
-        this.individual = formatIndividuals(
-          response.data.individuals.entities
-        )[0];
+        this.updateIndividual(response.data.individuals.entities);
 
         Object.assign(this.form, {
           name: this.individual.name,
@@ -420,9 +418,7 @@ export default {
     async updateProfile(data) {
       try {
         const response = await updateProfile(this.$apollo, data, this.mk);
-        this.individual = formatIndividuals([
-          response.data.updateProfile.individual
-        ])[0];
+        this.updateIndividual(response.data.updateProfile.individual);
         this.$logger.debug(`Updated profile ${this.mk}`, data);
       } catch (error) {
         this.dialog = {
@@ -483,7 +479,7 @@ export default {
         const updatedIndividual = response.data.unmergeIdentities.individuals.find(
           individual => individual.mk === this.mk
         );
-        this.individual = formatIndividuals([updatedIndividual])[0];
+        this.updateIndividual(updatedIndividual);
         this.$logger.debug("Unmerged identities", uuids);
       } catch (error) {
         this.dialog = {
@@ -510,9 +506,7 @@ export default {
       Object.assign(data, { uuid: this.mk });
       try {
         const response = await updateEnrollment(this.$apollo, data);
-        this.individual = formatIndividuals([
-          response.data.updateEnrollment.individual
-        ])[0];
+        this.updateIndividual(response.data.updateEnrollment.individual);
         this.$logger.debug("Updated enrollment", data);
       } catch (error) {
         this.dialog = {
@@ -534,9 +528,7 @@ export default {
           toDate,
           parentOrg
         );
-        this.individual = formatIndividuals([
-          response.data.withdraw.individual
-        ])[0];
+        this.updateIndividual(response.data.withdraw.individual);
         this.$logger.debug("Removed affiliation", { uuid: this.mk, ...data });
       } catch (error) {
         this.dialog = {
@@ -584,6 +576,13 @@ export default {
         text: "",
         errorMessage: ""
       };
+    },
+    updateIndividual(newData) {
+      if (!Array.isArray(newData)) {
+        newData = [newData];
+      }
+
+      this.individual = formatIndividuals(newData)[0];
     }
   },
   mounted() {
