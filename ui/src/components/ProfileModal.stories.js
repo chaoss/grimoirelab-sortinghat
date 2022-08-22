@@ -15,6 +15,7 @@ const ProfileModalTemplate = `
       :add-identity="mockFunction"
       :update-profile="mockFunction"
       :enroll="mockFunction"
+      :fetch-organizations="mockFunction"
       :get-countries="getCountries.bind(this)"
     />
   </div>

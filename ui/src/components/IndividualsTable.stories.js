@@ -20,6 +20,7 @@ const IndividualsTableTemplate = `
     :unlock-individual="deleteIndividual"
     :update-enrollment="deleteIndividual"
     :withdraw="deleteIndividual"
+    :fetch-organizations="deleteIndividual"
   />
 `;
 

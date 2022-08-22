@@ -227,6 +227,7 @@
       :updateProfile="updateProfile"
       :enroll="enroll"
       :get-countries="getCountries"
+      :fetch-organizations="fetchOrganizations"
       @updateTable="queryIndividuals"
       @updateOrganizations="$emit('updateOrganizations')"
     />
@@ -238,6 +239,7 @@
       :organization="enrollmentModal.organization"
       :uuid="enrollmentModal.uuid"
       :enroll="enrollIndividual"
+      :fetch-organizations="fetchOrganizations"
     />
 
     <team-enroll-modal
@@ -344,6 +346,10 @@ export default {
     setFilters: {
       type: String,
       required: false
+    },
+    fetchOrganizations: {
+      type: Function,
+      required: true
     }
   },
   data() {

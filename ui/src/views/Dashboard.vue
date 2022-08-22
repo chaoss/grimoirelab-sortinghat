@@ -28,6 +28,7 @@
         :add-identity="addIdentity"
         :updateProfile="updateProfile"
         :enroll="enroll"
+        :fetch-organizations="getOrganizationsPage"
         :get-countries="getCountries"
         :lock-individual="lockIndividual"
         :set-filters="filters"

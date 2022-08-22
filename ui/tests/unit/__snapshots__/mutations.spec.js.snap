@@ -337,12 +337,14 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
   <profile-modal-stub
     addidentity="() => {}"
     enroll="() => {}"
+    fetchorganizations="() => {}"
     getcountries="() => {}"
     updateprofile="() => {}"
   />
    
   <enroll-modal-stub
     enroll="function () { [native code] }"
+    fetchorganizations="() => {}"
     text=""
     title=""
   />
@@ -704,12 +706,14 @@ exports[`IndividualsTable Mock query for merge 1`] = `
   <profile-modal-stub
     addidentity="() => {}"
     enroll="() => {}"
+    fetchorganizations="() => {}"
     getcountries="() => {}"
     updateprofile="() => {}"
   />
    
   <enroll-modal-stub
     enroll="function () { [native code] }"
+    fetchorganizations="() => {}"
     text=""
     title=""
   />
@@ -1071,12 +1075,14 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
   <profile-modal-stub
     addidentity="() => {}"
     enroll="() => {}"
+    fetchorganizations="() => {}"
     getcountries="() => {}"
     updateprofile="() => {}"
   />
    
   <enroll-modal-stub
     enroll="function () { [native code] }"
+    fetchorganizations="() => {}"
     text=""
     title=""
   />
@@ -1438,12 +1444,14 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
   <profile-modal-stub
     addidentity="() => {}"
     enroll="() => {}"
+    fetchorganizations="() => {}"
     getcountries="() => {}"
     updateprofile="() => {}"
   />
    
   <enroll-modal-stub
     enroll="function () { [native code] }"
+    fetchorganizations="() => {}"
     text=""
     title=""
   />
@@ -1805,12 +1813,14 @@ exports[`IndividualsTable Mock query for updateEnrollment 1`] = `
   <profile-modal-stub
     addidentity="() => {}"
     enroll="() => {}"
+    fetchorganizations="() => {}"
     getcountries="() => {}"
     updateprofile="() => {}"
   />
    
   <enroll-modal-stub
     enroll="function () { [native code] }"
+    fetchorganizations="() => {}"
     text=""
     title=""
   />
@@ -2172,12 +2182,14 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
   <profile-modal-stub
     addidentity="() => {}"
     enroll="() => {}"
+    fetchorganizations="() => {}"
     getcountries="() => {}"
     updateprofile="() => {}"
   />
    
   <enroll-modal-stub
     enroll="function () { [native code] }"
+    fetchorganizations="() => {}"
     text=""
     title=""
   />
@@ -3937,19 +3949,9 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
             cols="4"
             tag="div"
           >
-            <v-text-field-stub
-              backgroundcolor=""
-              clearicon="$clear"
-              dense="true"
-              errorcount="1"
-              errormessages=""
+            <organization-selector-stub
+              fetchorganizations="() => {}"
               label="Organization"
-              loaderheight="2"
-              messages=""
-              outlined="true"
-              rules=""
-              successmessages=""
-              type="text"
               value=""
             />
           </v-col-stub>
@@ -3962,7 +3964,7 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
               label="Date from"
               max=""
               outlined="true"
-              value="01-10-2010"
+              value=""
             />
           </v-col-stub>
            
@@ -3972,7 +3974,7 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
           >
             <date-input-stub
               label="Date to"
-              min="01-10-2010"
+              min=""
               outlined="true"
               value=""
             />
@@ -4334,19 +4336,9 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
             cols="4"
             tag="div"
           >
-            <v-text-field-stub
-              backgroundcolor=""
-              clearicon="$clear"
-              dense="true"
-              errorcount="1"
-              errormessages=""
+            <organization-selector-stub
+              fetchorganizations="() => {}"
               label="Organization"
-              loaderheight="2"
-              messages=""
-              outlined="true"
-              rules=""
-              successmessages=""
-              type="text"
               value=""
             />
           </v-col-stub>
@@ -4359,7 +4351,7 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
               label="Date from"
               max=""
               outlined="true"
-              value="01-10-2010"
+              value=""
             />
           </v-col-stub>
            
@@ -4369,7 +4361,7 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
           >
             <date-input-stub
               label="Date to"
-              min="01-10-2010"
+              min=""
               outlined="true"
               value=""
             />

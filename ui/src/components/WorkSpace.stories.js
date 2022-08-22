@@ -30,6 +30,7 @@ const dragAndDropTemplate = `
     :highlight-individual="highlightInTable"
     :add-identity="deleteItem"
     :enroll="deleteItem"
+    :fetch-organizations="deleteItem"
     :update-profile="deleteItem"
     :get-countries="getCountries.bind(this)"
     :lock-individual="deleteItem"
