@@ -81,6 +81,11 @@ const UNMERGE = gql`
           email
           id
           isBot
+          gender
+          country {
+            code
+            name
+          }
         }
         identities {
           name
@@ -159,12 +164,22 @@ const ENROLL = gql`
           name
           email
           id
+          isBot
+          gender
+          country {
+            code
+            name
+          }
         }
         enrollments {
           start
           end
           group {
             name
+            type
+            parentOrg {
+              name
+            }
           }
         }
       }
@@ -236,6 +251,7 @@ const UPDATE_PROFILE = gql`
     updateProfile(data: $data, uuid: $uuid) {
       uuid
       individual {
+        mk
         isLocked
         identities {
           uuid
@@ -366,6 +382,7 @@ const UPDATE_ENROLLMENT = gql`
       uuid
       individual {
         isLocked
+        mk
         identities {
           uuid
           name
@@ -388,6 +405,10 @@ const UPDATE_ENROLLMENT = gql`
           end
           group {
             name
+            type
+            parentOrg {
+              name
+            }
           }
         }
       }

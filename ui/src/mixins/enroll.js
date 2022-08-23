@@ -1,52 +1,56 @@
 import { formatIndividuals } from "../utils/actions";
-import DateInput from "../components/DateInput.vue";
 
 const enrollMixin = {
-  components: { DateInput },
+  data() {
+    return {
+      enrollmentModal: {
+        open: false,
+        title: "",
+        text: "",
+        action: "",
+        organization: null,
+        uuid: null
+      }
+    };
+  },
   methods: {
     confirmEnroll(uuid, group) {
-      Object.assign(this.dialog, {
+      Object.assign(this.enrollmentModal, {
         open: true,
-        title: `Affiliate individual to ${group}?`,
+        title: `Affiliate individual to ${
+          group ? group + "?" : "an organization"
+        }`,
+        organization: group,
+        uuid: uuid,
         text: null,
         dateFrom: null,
         dateTo: null,
         showDates: true,
-        action: () =>
-          this.enrollIndividual(
-            uuid,
-            group,
-            this.dialog.dateFrom,
-            this.dialog.dateTo
-          )
+        action: () => this.enrollIndividual()
       });
     },
     async enrollIndividual(uuid, group, dateFrom, dateTo) {
       this.closeDialog();
-      try {
-        const response = await this.enroll(uuid, group, dateFrom, dateTo);
-        if (response) {
-          this.$emit("updateWorkspace", {
-            update: formatIndividuals([response.data.enroll.individual])
-          });
-          this.$emit("updateOrganizations");
-          this.$emit("updateIndividuals");
-          if (this.queryIndividuals) {
-            this.queryIndividuals();
-          }
-          this.$logger.debug("Enrolled individual", {
-            group,
-            uuid,
-            dateFrom,
-            dateTo
-          });
+      const response = await this.enroll(uuid, group, dateFrom, dateTo);
+      if (response) {
+        this.$emit("updateWorkspace", {
+          update: formatIndividuals([response.data.enroll.individual])
+        });
+        this.$emit("updateOrganizations");
+        this.$emit("updateIndividuals");
+        if (this.queryIndividuals) {
+          this.queryIndividuals();
         }
-      } catch (error) {
-        Object.assign(this.dialog, {
-          open: true,
-          title: "Error",
-          text: this.$getErrorMessage(error),
-          action: null
+        if (this.individual) {
+          this.individual = formatIndividuals([
+            response.data.enroll.individual
+          ])[0];
+        }
+        this.$logger.debug("Enrolled individual", {
+          group,
+          uuid,
+          dateFrom,
+          dateTo
         });
       }
     }

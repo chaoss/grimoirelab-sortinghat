@@ -106,21 +106,6 @@
           <p v-if="dialog.text" class="pt-2 pb-2 text-body-2">
             {{ dialog.text }}
           </p>
-          <div v-if="dialog.showDates">
-            <h6 class="subheader">Enrollment dates (optional)</h6>
-            <v-row>
-              <v-col cols="6">
-                <date-input
-                  v-model="dialog.dateFrom"
-                  label="Date from"
-                  outlined
-                />
-              </v-col>
-              <v-col cols="6">
-                <date-input v-model="dialog.dateTo" label="Date to" outlined />
-              </v-col>
-            </v-row>
-          </div>
         </v-card-text>
         <v-card-actions v-if="dialog.action">
           <v-spacer></v-spacer>
@@ -139,6 +124,15 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <enroll-modal
+      :is-open.sync="enrollmentModal.open"
+      :title="enrollmentModal.title"
+      :text="enrollmentModal.text"
+      :organization="enrollmentModal.organization"
+      :uuid="enrollmentModal.uuid"
+      :enroll="enrollIndividual"
+    />
   </v-sheet>
 </template>
 
@@ -150,10 +144,12 @@ import {
 } from "../utils/actions";
 import { enrollMixin } from "../mixins/enroll";
 import IndividualCard from "./IndividualCard.vue";
+import EnrollModal from "./EnrollModal.vue";
 export default {
   name: "WorkSpace",
   components: {
-    IndividualCard
+    IndividualCard,
+    EnrollModal
   },
   mixins: [enrollMixin],
   props: {
@@ -186,10 +182,7 @@ export default {
         open: false,
         title: "",
         text: "",
-        action: "",
-        showDates: false,
-        dateFrom: null,
-        dateTo: null
+        action: ""
       }
     };
   },
@@ -315,10 +308,7 @@ export default {
         open: false,
         title: "",
         text: "",
-        action: "",
-        showDates: false,
-        dateFrom: null,
-        dateTo: null
+        action: ""
       });
     }
   },

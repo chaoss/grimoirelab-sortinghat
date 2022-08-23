@@ -9,6 +9,12 @@ const routes = [
     meta: { requiresAuth: true, title: "Sorting Hat" }
   },
   {
+    path: "/individual/:mk",
+    name: "Individual",
+    component: () => import("../views/Individual"),
+    meta: { requiresAuth: true, title: "Sorting Hat" }
+  },
+  {
     path: "/login",
     name: "Login",
     component: () => import("../views/Login"),

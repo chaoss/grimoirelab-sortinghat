@@ -350,6 +350,12 @@ exports[`IndividualsTable Mock query for getCountries 1`] = `
     updateprofile="() => {}"
   />
    
+  <enroll-modal-stub
+    enroll="function () { [native code] }"
+    text=""
+    title=""
+  />
+   
   <!---->
    
   <v-card-stub
@@ -709,6 +715,12 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
     enroll="() => {}"
     getcountries="() => {}"
     updateprofile="() => {}"
+  />
+   
+  <enroll-modal-stub
+    enroll="function () { [native code] }"
+    text=""
+    title=""
   />
    
   <!---->

@@ -22,21 +22,9 @@
 
         <v-list-item-content>
           <v-list-item-title class="font-weight-medium">
-            <span v-if="isLocked">{{ name }}</span>
-            <v-edit-dialog v-else @save="$emit('edit', { name: form.name })">
+            <a :href="`individual/${uuid}`" target="_blank" @click.stop>
               {{ name }}
-              <v-icon class="icon--hidden" small>
-                mdi-lead-pencil
-              </v-icon>
-              <template v-slot:input>
-                <v-text-field
-                  v-model="form.name"
-                  label="Edit name"
-                  maxlength="30"
-                  single-line
-                ></v-text-field>
-              </template>
-            </v-edit-dialog>
+            </a>
 
             <v-tooltip bottom transition="expand-y-transition" open-delay="200">
               <template v-slot:activator="{ on }">
@@ -86,21 +74,7 @@
     </td>
 
     <td class="text-center">
-      <span v-if="isLocked" class="mr-7">{{ email }}</span>
-      <v-edit-dialog v-else @save="$emit('edit', { email: form.email })">
-        {{ email }}
-        <v-icon small right>
-          mdi-lead-pencil
-        </v-icon>
-        <template v-slot:input>
-          <v-text-field
-            v-model="form.email"
-            label="Edit email"
-            maxlength="30"
-            single-line
-          ></v-text-field>
-        </template>
-      </v-edit-dialog>
+      <span>{{ email }}</span>
     </td>
 
     <td class="text-right">
@@ -131,6 +105,11 @@
           </v-btn>
         </template>
         <v-list>
+          <v-list-item :href="`individual/${uuid}`" target="_blank">
+            <v-list-item-title>
+              View full profile
+            </v-list-item-title>
+          </v-list-item>
           <v-list-item @click="$emit('select', $event)">
             <v-list-item-title>
               {{ isSelected ? "Deselect individual" : "Select individual" }}
@@ -321,6 +300,14 @@ tr {
   }
 }
 .v-list-item__title {
+  a {
+    color: rgba(0, 0, 0, 0.87);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
   ::v-deep .icon--hidden {
     opacity: 0;
     padding-bottom: 2px;

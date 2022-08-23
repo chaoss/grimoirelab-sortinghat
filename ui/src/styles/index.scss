@@ -123,7 +123,8 @@ button.v-pagination__item {
 }
 
 .theme--light.v-icon,
-.v-btn--round .v-btn__content .v-icon {
+.v-btn--round .v-btn__content .v-icon,
+.theme--light.v-btn--outlined .v-btn__content .v-icon{
   color: rgba(0, 0, 0, 0.62);
 }
 

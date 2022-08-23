@@ -19,7 +19,6 @@
         :rules="isValid"
         height="30"
         clearable
-        hide-details="auto"
         hint="YYYY-MM-DD"
         v-on="on"
         @change="formatDate($event)"

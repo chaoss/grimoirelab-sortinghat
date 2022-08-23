@@ -146,7 +146,8 @@
           @unmerge="unmerge($event)"
           @withdraw="removeAffiliation($event, item.uuid)"
           @updateEnrollment="updateEnrollmentDate"
-          @openModal="openTeamModal"
+          @openEnrollmentModal="confirmEnroll"
+          @openTeamModal="openTeamModal"
         />
       </template>
     </v-data-table>
@@ -229,6 +230,15 @@
       @updateOrganizations="$emit('updateOrganizations')"
     />
 
+    <enroll-modal
+      :is-open.sync="enrollmentModal.open"
+      :title="enrollmentModal.title"
+      :text="enrollmentModal.text"
+      :organization="enrollmentModal.organization"
+      :uuid="enrollmentModal.uuid"
+      :enroll="enrollIndividual"
+    />
+
     <team-enroll-modal
       v-if="teamModal.isOpen"
       :is-open.sync="teamModal.isOpen"
@@ -259,6 +269,7 @@ import IndividualEntry from "./IndividualEntry.vue";
 import ExpandedIndividual from "./ExpandedIndividual.vue";
 import ProfileModal from "./ProfileModal.vue";
 import Search from "./Search.vue";
+import EnrollModal from "./EnrollModal.vue";
 import TeamEnrollModal from "./TeamEnrollModal.vue";
 
 export default {
@@ -268,6 +279,7 @@ export default {
     ExpandedIndividual,
     ProfileModal,
     Search,
+    EnrollModal,
     TeamEnrollModal
   },
   mixins: [enrollMixin],
@@ -350,10 +362,7 @@ export default {
         open: false,
         title: "",
         text: "",
-        action: "",
-        showDates: false,
-        dateFrom: null,
-        dateTo: null
+        action: ""
       },
       openModal: false,
       totalResults: 0,

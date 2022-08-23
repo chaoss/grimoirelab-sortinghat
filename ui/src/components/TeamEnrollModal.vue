@@ -133,6 +133,7 @@ export default {
             fromDate: this.form.dateFrom,
             toDate: this.form.dateTo
           });
+          this.$emit("updateIndividual", response.data.enroll.individual);
           this.closeModal();
         }
       } catch (error) {
