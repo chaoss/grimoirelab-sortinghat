@@ -7431,7 +7431,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
         </div>
          
         <div
-          class="d-flex ml-auto pa-0 flex-grow-0"
+          class="d-flex search-box pa-0 flex-grow-1"
         >
           <div
             class="v-input search pa-0 flex-grow-0 v-input--dense theme--light v-text-field v-text-field--single-line v-text-field--enclosed v-text-field--outlined"
@@ -7654,7 +7654,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
         >
           <!---->
           <button
-            class="mr-4 ml-2 v-btn v-btn--depressed v-btn--disabled v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
+            class="mr-4 ml-4 order-2 v-btn v-btn--depressed v-btn--disabled v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
             disabled="disabled"
             style="height: 34px;"
             type="button"
@@ -7679,7 +7679,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
         >
           <!---->
           <button
-            class="v-btn v-btn--depressed v-btn--disabled v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
+            class="order-3 v-btn v-btn--depressed v-btn--disabled v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
             disabled="disabled"
             style="height: 34px;"
             type="button"
@@ -10151,7 +10151,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
           </div>
            
           <div
-            class="d-flex ml-auto pa-0 flex-grow-0"
+            class="d-flex search-box pa-0 flex-grow-1"
           >
             <div
               class="v-input search pa-0 flex-grow-0 v-input--dense theme--light v-text-field v-text-field--single-line v-text-field--enclosed v-text-field--outlined"
@@ -10374,7 +10374,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
           >
             <!---->
             <button
-              class="mr-4 ml-2 v-btn v-btn--depressed v-btn--disabled v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
+              class="mr-4 ml-4 order-2 v-btn v-btn--depressed v-btn--disabled v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
               disabled="disabled"
               style="height: 34px;"
               type="button"
@@ -10399,7 +10399,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
           >
             <!---->
             <button
-              class="v-btn v-btn--depressed v-btn--disabled v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
+              class="order-3 v-btn v-btn--depressed v-btn--disabled v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
               disabled="disabled"
               style="height: 34px;"
               type="button"
