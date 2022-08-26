@@ -17,7 +17,7 @@ const mergeIndividuals = (individuals, action, dialog) => {
 const confirmMerge = (dialog, action, fromUuids, toUuid) => {
   Object.assign(dialog, {
     open: true,
-    title: "Merge the selected items?",
+    title: "Merge the selected individuals?",
     text: "",
     action: () => action(fromUuids, toUuid)
   });
