@@ -344,6 +344,7 @@ exports[`IndividualsTable Mock query for getCountries 1`] = `
   <profile-modal-stub
     addidentity="() => {}"
     enroll="() => {}"
+    fetchorganizations="() => {}"
     getcountries="function mockConstructor() {
         return fn.apply(this, arguments);
       }"
@@ -352,6 +353,7 @@ exports[`IndividualsTable Mock query for getCountries 1`] = `
    
   <enroll-modal-stub
     enroll="function () { [native code] }"
+    fetchorganizations="() => {}"
     text=""
     title=""
   />
@@ -713,12 +715,14 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
   <profile-modal-stub
     addidentity="() => {}"
     enroll="() => {}"
+    fetchorganizations="() => {}"
     getcountries="() => {}"
     updateprofile="() => {}"
   />
    
   <enroll-modal-stub
     enroll="function () { [native code] }"
+    fetchorganizations="() => {}"
     text=""
     title=""
   />

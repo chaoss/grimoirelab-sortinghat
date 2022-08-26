@@ -260,6 +260,7 @@ describe("IndividualsTable", () => {
         addIdentity: () => {},
         updateProfile: () => {},
         enroll: () => {},
+        fetchOrganizations: () => {},
         getCountries: () => {},
         lockIndividual: () => {},
         unlockIndividual: () => {},
@@ -567,7 +568,8 @@ describe("ProfileModal", () => {
         addIdentity: mutate,
         updateProfile: () => {},
         enroll: () => {},
-        getCountries: () => {}
+        getCountries: () => {},
+        fetchOrganizations: () => {}
       }
     });
 
@@ -596,7 +598,8 @@ describe("ProfileModal", () => {
         addIdentity: () => {},
         updateProfile: mutate,
         enroll: () => {},
-        getCountries: () => {}
+        getCountries: () => {},
+        fetchOrganizations: () => {},
       }
     });
 

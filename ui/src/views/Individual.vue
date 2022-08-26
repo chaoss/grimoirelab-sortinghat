@@ -285,6 +285,7 @@
       :text="enrollmentModal.text"
       :uuid="mk"
       :enroll="enrollIndividual"
+      :fetch-organizations="fetchOrganizations"
     />
 
     <team-enroll-modal
@@ -333,7 +334,11 @@
 </template>
 
 <script>
-import { getCountries, getIndividualByUuid } from "../apollo/queries";
+import {
+  getCountries,
+  getIndividualByUuid,
+  getPaginatedOrganizations
+} from "../apollo/queries";
 import {
   deleteIdentity,
   enroll,
@@ -583,6 +588,15 @@ export default {
       }
 
       this.individual = formatIndividuals(newData)[0];
+    },
+    async fetchOrganizations(page, items, filters) {
+      const response = await getPaginatedOrganizations(
+        this.$apollo,
+        page,
+        items,
+        filters
+      );
+      return response.data.organizations;
     }
   },
   mounted() {

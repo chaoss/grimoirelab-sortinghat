@@ -84,11 +84,9 @@
           </v-row>
           <v-row v-for="(enrollment, index) in enrollmentsForm" :key="index">
             <v-col cols="4">
-              <v-text-field
-                label="Organization"
+              <organization-selector
                 v-model="enrollmentsForm[index].organization"
-                outlined
-                dense
+                :fetch-organizations="fetchOrganizations"
               />
             </v-col>
             <v-col cols="3">
@@ -148,10 +146,11 @@
 
 <script>
 import DateInput from "./DateInput.vue";
+import OrganizationSelector from "./OrganizationSelector";
 
 export default {
   name: "ProfileModal",
-  components: { DateInput },
+  components: { DateInput, OrganizationSelector },
   props: {
     isOpen: {
       type: Boolean,
@@ -173,6 +172,10 @@ export default {
     getCountries: {
       type: Function,
       required: true
+    },
+    fetchOrganizations: {
+      type: Function,
+      required: true
     }
   },
   data() {
@@ -190,7 +193,7 @@ export default {
       enrollmentsForm: [
         {
           organization: "",
-          fromDate: "01-10-2010",
+          fromDate: "",
           toDate: ""
         }
       ],

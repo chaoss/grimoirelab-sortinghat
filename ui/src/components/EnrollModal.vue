@@ -11,11 +11,9 @@
         </h6>
         <v-row>
           <v-col v-if="!organization" cols="4">
-            <v-text-field
+            <organization-selector
               v-model="form.organization"
-              label="Organization"
-              outlined
-              dense
+              :fetch-organizations="fetchOrganizations"
             />
           </v-col>
           <v-col :cols="organization ? 6 : 4">
@@ -50,10 +48,11 @@
 
 <script>
 import DateInput from "./DateInput.vue";
+import OrganizationSelector from "./OrganizationSelector.vue";
 
 export default {
   name: "EnrollModal",
-  components: { DateInput },
+  components: { DateInput, OrganizationSelector },
   props: {
     isOpen: {
       type: Boolean,
@@ -78,6 +77,11 @@ export default {
     organization: {
       type: String,
       required: false
+    },
+    fetchOrganizations: {
+      type: Function,
+      required: false,
+      default: () => {}
     }
   },
   data() {

@@ -262,6 +262,7 @@ describe("IndividualsTable", () => {
         addIdentity: () => {},
         updateProfile: () => {},
         enroll: () => {},
+        fetchOrganizations: () => {},
         getCountries: () => {},
         lockIndividual: () => {},
         unlockIndividual: () => {},
