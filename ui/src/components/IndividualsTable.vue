@@ -35,7 +35,7 @@
       >
       </v-checkbox>
       <search
-        class="ml-auto pa-0 flex-grow-0"
+        class="search-box pa-0 flex-grow-1"
         @search="filterSearch"
         filter-selector
         order-selector
@@ -62,7 +62,7 @@
             small
             outlined
             height="34"
-            class="mr-4 ml-2"
+            class="mr-4 ml-4 order-2"
             v-on="on"
             :disabled="disabledMerge"
             @click="mergeSelected(selectedIndividuals)"
@@ -79,6 +79,7 @@
             text
             small
             outlined
+            class="order-3"
             height="34"
             v-on="on"
             :disabled="disabledActions"
@@ -718,6 +719,23 @@ export default {
   ::v-deep .v-input--checkbox {
     padding-top: 6px;
     margin-left: -1px;
+  }
+
+  .search-box {
+    margin-left: 32px;
+  }
+
+  // Breakpoint for Material Design medium laptop missing on Vuetify
+  @media only screen and (max-width: 1439px) {
+    .v-input--checkbox {
+      order: 1;
+      margin-right: auto;
+    }
+
+    .search-box {
+      margin: 0;
+      flex-basis: 100%;
+    }
   }
 }
 .dragged-item {

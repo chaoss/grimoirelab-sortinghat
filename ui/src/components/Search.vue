@@ -341,7 +341,6 @@ export default {
 .search,
 .select {
   width: 100%;
-  max-width: 420px;
   margin-top: 2px;
   font-size: 0.9rem;
 
@@ -392,7 +391,6 @@ export default {
 .select {
   max-width: 12rem;
   margin-left: 1rem;
-  margin-right: 0.5rem;
 
   .v-select__selection {
     margin-top: 0;
