@@ -303,7 +303,11 @@ export default {
       return validFilter.type === "date";
     },
     setFilter(item) {
-      this.inputValue = this.inputValue || "";
+      if (this.inputValue && !this.inputValue.endsWith(" ")) {
+        this.inputValue += " "
+      } else if (!this.inputValue) {
+        this.inputValue = "";
+      }
       if (this.isDateFilter(item.filter)) {
         const [month, day, year] = new Date()
           .toLocaleDateString("en-US")

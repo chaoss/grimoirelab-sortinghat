@@ -227,6 +227,44 @@ describe("Search", () => {
     }
   );
 
+  test("Adds spaces when multiple filters are set", async () => {
+    const wrapper = mountFunction({
+      propsData: {
+        filterSelector: true,
+        validFilters: [
+          { filter: "booleanFilter", type: "boolean" },
+          { filter: "stringFilter", type: "string" }
+        ]
+      },
+      data: () => ({ inputValue: "text" })
+    });
+    const el = document.createElement("div");
+    el.setAttribute("data-app", true);
+    document.body.appendChild(el);
+
+    // Add filters when there is text on the search box
+    const button = wrapper.find(".v-input__prepend-outer .v-btn");
+    await button.trigger("click");
+    const filter1 = wrapper.findAll(".v-list-item").at(0);
+    const filter2 = wrapper.findAll(".v-list-item").at(1);
+    await filter1.trigger("click");
+    await filter2.trigger("click");
+
+    expect(wrapper.vm.inputValue).toBe(
+      'text booleanFilter:true stringFilter:"search value" '
+    );
+
+    // Clear the search box and add filters
+    await wrapper.find('[aria-label="clear icon"]').trigger("click");
+    await button.trigger("click");
+    await filter1.trigger("click");
+    await filter2.trigger("click");
+
+    expect(wrapper.vm.inputValue).toBe(
+      'booleanFilter:true stringFilter:"search value" '
+    );
+  });
+
   test("Emits the selected order", async () => {
     const orderOption = { text: "Order text", value: "ordervalue" };
     const wrapper = mountFunction({
