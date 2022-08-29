@@ -1,13 +1,21 @@
 <template>
   <v-row no-gutters>
     <v-col class="uuid">
-      <v-tooltip bottom>
+      <v-tooltip open-delay="100" bottom>
         <template v-slot:activator="{ on }">
-          <v-chip class="text-center clip" v-on="on" outlined tile>
-            {{ uuid }}
+          <v-chip
+            class="text-center"
+            v-on="on"
+            outlined
+            tile
+            @click="copy(uuid)"
+            @mouseenter="resetCopyText"
+          >
+            <span class="clip">{{ uuid }}</span>
+            <v-icon small right>mdi-content-copy</v-icon>
           </v-chip>
         </template>
-        <span>{{ uuid }}</span>
+        <span>{{ tooltip }}</span>
       </v-tooltip>
     </v-col>
     <v-col class="ma-2 text-center">
@@ -26,6 +34,9 @@
 </template>
 
 <script>
+const defaultCopyText = "Copy full UUID";
+const successCopyText = "Copied";
+
 export default {
   name: "identity",
   props: {
@@ -50,11 +61,24 @@ export default {
       required: false,
       default: null
     }
+  },
+  data: () => ({
+    tooltip: defaultCopyText
+  }),
+  methods: {
+    copy(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        this.tooltip = successCopyText;
+      });
+    },
+    resetCopyText() {
+      this.tooltip = defaultCopyText;
+    }
   }
 };
 </script>
 <style lang="scss" scoped>
-.clip ::v-deep .v-chip__content {
+.clip {
   max-width: 7ch;
   overflow: hidden;
   text-overflow: clip;
