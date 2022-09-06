@@ -121,7 +121,7 @@
             <v-list-item-title>Save in workspace</v-list-item-title>
           </v-list-item>
           <v-list-item @click="$emit('delete', $event)" :disabled="isLocked">
-            <v-list-item-title>Delete profile</v-list-item-title>
+            <v-list-item-title>Delete individual</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-menu>
