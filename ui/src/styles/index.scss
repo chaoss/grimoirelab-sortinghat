@@ -19,15 +19,6 @@ $border-color: rgba(0, 0, 0, 0.12);
   border-bottom: thin solid $border-color;
 }
 
-.theme--light.v-data-table > .v-data-table__wrapper > table > tbody >
-  tr.expanded > td:not(.v-data-table__mobile-row) {
-  border-bottom: 0;
-}
-
-.theme--light.v-data-table > .v-data-table__wrapper > table > tbody > tr:hover + td {
-  background-color: #eeeeee;
-}
-
 .theme--light.v-data-table .v-list--dense {
   background-color: transparent;
 }
@@ -48,18 +39,19 @@ $border-color: rgba(0, 0, 0, 0.12);
 }
 
 // Selected table item
+.selected {
+  background-color: lighten($selected-color, 80%);
+}
+
 .selected,
 .expanded.selected + td {
   box-shadow: inset 4px 0 0 $selected-color;
-  background-color: lighten($selected-color, 80%);
   border-left: 0;
 }
 
 .theme--light.v-data-table
   tbody
-  tr.selected:hover:not(.v-data-table__expanded__content):not(.v-data-table__empty-wrapper),
-.theme--light.v-data-table > .v-data-table__wrapper > table > tbody > tr.selected:hover + td,
-.selected + td .v-list-item.theme--light.draggable:hover {
+  tr.selected:hover:not(.v-data-table__expanded__content):not(.v-data-table__empty-wrapper) {
   background-color: desaturate(lighten($selected-color, 75%), 30%);
   transition: background-color 30ms linear;
 }
