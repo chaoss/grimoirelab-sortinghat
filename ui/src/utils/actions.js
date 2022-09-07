@@ -68,18 +68,15 @@ const groupIdentities = identities => {
     return result;
   }, {});
 
-  // Sort identities by alphabetical order
-  let sortedIdentities = Object.values(groupedIdentities).sort((a, b) =>
-    a.name.localeCompare(b.name)
-  );
-
-  // Move "other" identities to end of list
-  sortedIdentities.push(
-    ...sortedIdentities.splice(
-      sortedIdentities.findIndex(identity => identity.name == otherSources),
-      1
-    )
-  );
+  // Sort sources by alphabetical order and move "other" to end of list
+  let sortedIdentities = Object.values(groupedIdentities).sort((a, b) => {
+    if (a.name === otherSources) {
+      return 1;
+    } else if (b.name === otherSources) {
+      return -1;
+    }
+    return a.name.localeCompare(b.name)
+  });
 
   return sortedIdentities;
 };
@@ -93,7 +90,11 @@ const formatIndividuals = individuals => {
       username: item.identities[0].username,
       organization: item.enrollments[0] ? item.enrollments[0].group.name : "",
       sources: groupIdentities(item.identities).map(identity => {
-        return { name: identity.name, icon: identity.icon };
+        return {
+          name: identity.name,
+          icon: identity.icon,
+          count: identity.identities.length
+        };
       }),
       gender: item.profile.gender,
       country: item.profile.country,

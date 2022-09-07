@@ -4701,10 +4701,21 @@ exports[`Storyshots IndividualEntry Bot 1`] = `
                   class="v-tooltip v-tooltip--bottom"
                 >
                   <!---->
-                  <i
-                    aria-hidden="true"
-                    class="v-icon notranslate v-icon--left v-icon--right mdi mdi-git theme--light"
-                  />
+                  <span
+                    class="ml-1 v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
+                  >
+                    <span
+                      class="v-chip__content"
+                    >
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate v-icon--left mdi mdi-git theme--light"
+                      />
+                      
+          2
+        
+                    </span>
+                  </span>
                 </span>
               </td>
                
@@ -4894,10 +4905,21 @@ exports[`Storyshots IndividualEntry Bot And Locked 1`] = `
                   class="v-tooltip v-tooltip--bottom"
                 >
                   <!---->
-                  <i
-                    aria-hidden="true"
-                    class="v-icon notranslate v-icon--left v-icon--right mdi mdi-git theme--light"
-                  />
+                  <span
+                    class="ml-1 v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
+                  >
+                    <span
+                      class="v-chip__content"
+                    >
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate v-icon--left mdi mdi-git theme--light"
+                      />
+                      
+          2
+        
+                    </span>
+                  </span>
                 </span>
               </td>
                
@@ -5087,10 +5109,21 @@ exports[`Storyshots IndividualEntry Default 1`] = `
                   class="v-tooltip v-tooltip--bottom"
                 >
                   <!---->
-                  <i
-                    aria-hidden="true"
-                    class="v-icon notranslate v-icon--left v-icon--right mdi mdi-git theme--light"
-                  />
+                  <span
+                    class="ml-1 v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
+                  >
+                    <span
+                      class="v-chip__content"
+                    >
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate v-icon--left mdi mdi-git theme--light"
+                      />
+                      
+          2
+        
+                    </span>
+                  </span>
                 </span>
               </td>
                
@@ -5274,10 +5307,21 @@ exports[`Storyshots IndividualEntry Gravatar 1`] = `
                   class="v-tooltip v-tooltip--bottom"
                 >
                   <!---->
-                  <i
-                    aria-hidden="true"
-                    class="v-icon notranslate v-icon--left v-icon--right mdi mdi-git theme--light"
-                  />
+                  <span
+                    class="ml-1 v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
+                  >
+                    <span
+                      class="v-chip__content"
+                    >
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate v-icon--left mdi mdi-git theme--light"
+                      />
+                      
+          2
+        
+                    </span>
+                  </span>
                 </span>
               </td>
                
@@ -5467,10 +5511,21 @@ exports[`Storyshots IndividualEntry Highlighted 1`] = `
                   class="v-tooltip v-tooltip--bottom"
                 >
                   <!---->
-                  <i
-                    aria-hidden="true"
-                    class="v-icon notranslate v-icon--left v-icon--right mdi mdi-git theme--light"
-                  />
+                  <span
+                    class="ml-1 v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
+                  >
+                    <span
+                      class="v-chip__content"
+                    >
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate v-icon--left mdi mdi-git theme--light"
+                      />
+                      
+          2
+        
+                    </span>
+                  </span>
                 </span>
               </td>
                
@@ -5660,10 +5715,21 @@ exports[`Storyshots IndividualEntry Locked 1`] = `
                   class="v-tooltip v-tooltip--bottom"
                 >
                   <!---->
-                  <i
-                    aria-hidden="true"
-                    class="v-icon notranslate v-icon--left v-icon--right mdi mdi-git theme--light"
-                  />
+                  <span
+                    class="ml-1 v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
+                  >
+                    <span
+                      class="v-chip__content"
+                    >
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate v-icon--left mdi mdi-git theme--light"
+                      />
+                      
+          2
+        
+                    </span>
+                  </span>
                 </span>
               </td>
                
@@ -5849,10 +5915,21 @@ exports[`Storyshots IndividualEntry No Email 1`] = `
                   class="v-tooltip v-tooltip--bottom"
                 >
                   <!---->
-                  <i
-                    aria-hidden="true"
-                    class="v-icon notranslate v-icon--left v-icon--right mdi mdi-git theme--light"
-                  />
+                  <span
+                    class="ml-1 v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
+                  >
+                    <span
+                      class="v-chip__content"
+                    >
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate v-icon--left mdi mdi-git theme--light"
+                      />
+                      
+          2
+        
+                    </span>
+                  </span>
                 </span>
               </td>
                
@@ -6036,10 +6113,21 @@ exports[`Storyshots IndividualEntry No Name 1`] = `
                   class="v-tooltip v-tooltip--bottom"
                 >
                   <!---->
-                  <i
-                    aria-hidden="true"
-                    class="v-icon notranslate v-icon--left v-icon--right mdi mdi-git theme--light"
-                  />
+                  <span
+                    class="ml-1 v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
+                  >
+                    <span
+                      class="v-chip__content"
+                    >
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate v-icon--left mdi mdi-git theme--light"
+                      />
+                      
+          2
+        
+                    </span>
+                  </span>
                 </span>
               </td>
                
@@ -6223,10 +6311,21 @@ exports[`Storyshots IndividualEntry No Organization 1`] = `
                   class="v-tooltip v-tooltip--bottom"
                 >
                   <!---->
-                  <i
-                    aria-hidden="true"
-                    class="v-icon notranslate v-icon--left v-icon--right mdi mdi-git theme--light"
-                  />
+                  <span
+                    class="ml-1 v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
+                  >
+                    <span
+                      class="v-chip__content"
+                    >
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate v-icon--left mdi mdi-git theme--light"
+                      />
+                      
+          2
+        
+                    </span>
+                  </span>
                 </span>
               </td>
                
@@ -6416,10 +6515,21 @@ exports[`Storyshots IndividualEntry Single Inital 1`] = `
                   class="v-tooltip v-tooltip--bottom"
                 >
                   <!---->
-                  <i
-                    aria-hidden="true"
-                    class="v-icon notranslate v-icon--left v-icon--right mdi mdi-git theme--light"
-                  />
+                  <span
+                    class="ml-1 v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
+                  >
+                    <span
+                      class="v-chip__content"
+                    >
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate v-icon--left mdi mdi-git theme--light"
+                      />
+                      
+          2
+        
+                    </span>
+                  </span>
                 </span>
               </td>
                
@@ -7474,7 +7584,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                 />
                 <input
                   aria-checked="false"
-                  id="input-960"
+                  id="input-970"
                   role="checkbox"
                   type="checkbox"
                   value=""
@@ -7485,7 +7595,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
               </div>
               <label
                 class="v-label theme--light"
-                for="input-960"
+                for="input-970"
                 style="left: 0px; position: relative;"
               >
                 Select all
@@ -7571,13 +7681,13 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-965"
+                    for="input-975"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-965"
+                    id="input-975"
                     type="text"
                   />
                 </div>
@@ -7649,7 +7759,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
               <div
                 aria-expanded="false"
                 aria-haspopup="listbox"
-                aria-owns="list-973"
+                aria-owns="list-983"
                 class="v-input__slot"
                 role="button"
               >
@@ -7667,7 +7777,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-973"
+                    for="input-983"
                     style="left: 0px; position: absolute;"
                   >
                     Order by
@@ -7678,7 +7788,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                     <input
                       aria-readonly="false"
                       autocomplete="off"
-                      id="input-973"
+                      id="input-983"
                       readonly="readonly"
                       type="text"
                     />
@@ -7865,13 +7975,13 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                 >
                   <label
                     class="v-label v-label--active theme--light"
-                    for="input-993"
+                    for="input-1003"
                     style="left: 0px; position: absolute;"
                   >
                     Items per page
                   </label>
                   <input
-                    id="input-993"
+                    id="input-1003"
                     max="0"
                     min="1"
                     type="number"
@@ -8331,7 +8441,7 @@ exports[`Storyshots OrganizationSelector Default 1`] = `
           <div
             aria-expanded="false"
             aria-haspopup="listbox"
-            aria-owns="list-1189"
+            aria-owns="list-1209"
             class="v-input__slot"
             role="combobox"
           >
@@ -8351,14 +8461,14 @@ exports[`Storyshots OrganizationSelector Default 1`] = `
             >
               <label
                 class="v-label v-label--active theme--light"
-                for="input-1189"
+                for="input-1209"
                 style="left: 0px; position: absolute;"
               >
                 Organization
               </label>
               <input
                 autocomplete="off"
-                id="input-1189"
+                id="input-1209"
                 type="text"
               />
               <div
@@ -8435,7 +8545,7 @@ exports[`Storyshots OrganizationSelector Selected Organization 1`] = `
           <div
             aria-expanded="false"
             aria-haspopup="listbox"
-            aria-owns="list-1200"
+            aria-owns="list-1220"
             class="v-input__slot"
             role="combobox"
           >
@@ -8455,14 +8565,14 @@ exports[`Storyshots OrganizationSelector Selected Organization 1`] = `
             >
               <label
                 class="v-label v-label--active theme--light"
-                for="input-1200"
+                for="input-1220"
                 style="left: 0px; position: absolute;"
               >
                 Organization
               </label>
               <input
                 autocomplete="off"
-                id="input-1200"
+                id="input-1220"
                 type="text"
               />
               <div
@@ -8626,13 +8736,13 @@ exports[`Storyshots OrganizationsTable Groups 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-1272"
+                    for="input-1292"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-1272"
+                    id="input-1292"
                     type="text"
                   />
                 </div>
@@ -8763,13 +8873,13 @@ exports[`Storyshots OrganizationsTable Groups 1`] = `
               >
                 <label
                   class="v-label v-label--active theme--light"
-                  for="input-1283"
+                  for="input-1303"
                   style="left: 0px; position: absolute;"
                 >
                   Items per page
                 </label>
                 <input
-                  id="input-1283"
+                  id="input-1303"
                   max="0"
                   min="1"
                   type="number"
@@ -8907,13 +9017,13 @@ exports[`Storyshots OrganizationsTable Organizations 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-1215"
+                    for="input-1235"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-1215"
+                    id="input-1235"
                     type="text"
                   />
                 </div>
@@ -9044,13 +9154,13 @@ exports[`Storyshots OrganizationsTable Organizations 1`] = `
               >
                 <label
                   class="v-label v-label--active theme--light"
-                  for="input-1226"
+                  for="input-1246"
                   style="left: 0px; position: absolute;"
                 >
                   Items per page
                 </label>
                 <input
-                  id="input-1226"
+                  id="input-1246"
                   max="0"
                   min="1"
                   type="number"
@@ -9372,13 +9482,13 @@ exports[`Storyshots Search Default 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-1351"
+                  for="input-1371"
                   style="left: 0px; position: absolute;"
                 >
                   Search
                 </label>
                 <input
-                  id="input-1351"
+                  id="input-1371"
                   type="text"
                 />
               </div>
@@ -9506,13 +9616,13 @@ exports[`Storyshots Search Filter Selector 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-1361"
+                  for="input-1381"
                   style="left: 0px; position: absolute;"
                 >
                   Search
                 </label>
                 <input
-                  id="input-1361"
+                  id="input-1381"
                   type="text"
                 />
               </div>
@@ -9610,13 +9720,13 @@ exports[`Storyshots Search Order Selector 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-1374"
+                  for="input-1394"
                   style="left: 0px; position: absolute;"
                 >
                   Search
                 </label>
                 <input
-                  id="input-1374"
+                  id="input-1394"
                   type="text"
                 />
               </div>
@@ -9688,7 +9798,7 @@ exports[`Storyshots Search Order Selector 1`] = `
             <div
               aria-expanded="false"
               aria-haspopup="listbox"
-              aria-owns="list-1379"
+              aria-owns="list-1399"
               class="v-input__slot"
               role="button"
             >
@@ -9706,7 +9816,7 @@ exports[`Storyshots Search Order Selector 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-1379"
+                  for="input-1399"
                   style="left: 0px; position: absolute;"
                 >
                   Order by
@@ -9717,7 +9827,7 @@ exports[`Storyshots Search Order Selector 1`] = `
                   <input
                     aria-readonly="false"
                     autocomplete="off"
-                    id="input-1379"
+                    id="input-1399"
                     readonly="readonly"
                     type="text"
                   />
@@ -10403,7 +10513,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   />
                   <input
                     aria-checked="false"
-                    id="input-1493"
+                    id="input-1513"
                     role="checkbox"
                     type="checkbox"
                     value=""
@@ -10414,7 +10524,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 </div>
                 <label
                   class="v-label theme--light"
-                  for="input-1493"
+                  for="input-1513"
                   style="left: 0px; position: relative;"
                 >
                   Select all
@@ -10500,13 +10610,13 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   >
                     <label
                       class="v-label theme--light"
-                      for="input-1498"
+                      for="input-1518"
                       style="left: 0px; position: absolute;"
                     >
                       Search
                     </label>
                     <input
-                      id="input-1498"
+                      id="input-1518"
                       type="text"
                     />
                   </div>
@@ -10578,7 +10688,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 <div
                   aria-expanded="false"
                   aria-haspopup="listbox"
-                  aria-owns="list-1506"
+                  aria-owns="list-1526"
                   class="v-input__slot"
                   role="button"
                 >
@@ -10596,7 +10706,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   >
                     <label
                       class="v-label theme--light"
-                      for="input-1506"
+                      for="input-1526"
                       style="left: 0px; position: absolute;"
                     >
                       Order by
@@ -10607,7 +10717,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                       <input
                         aria-readonly="false"
                         autocomplete="off"
-                        id="input-1506"
+                        id="input-1526"
                         readonly="readonly"
                         type="text"
                       />
@@ -10794,13 +10904,13 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   >
                     <label
                       class="v-label v-label--active theme--light"
-                      for="input-1526"
+                      for="input-1546"
                       style="left: 0px; position: absolute;"
                     >
                       Items per page
                     </label>
                     <input
-                      id="input-1526"
+                      id="input-1546"
                       max="0"
                       min="1"
                       type="number"

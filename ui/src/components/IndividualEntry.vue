@@ -90,7 +90,10 @@
         open-delay="300"
       >
         <template v-slot:activator="{ on }">
-          <v-icon v-on="on" v-text="source.icon" left right />
+          <v-chip v-on="on" class="ml-1" outlined>
+            <v-icon v-text="source.icon" left />
+            {{ source.count }}
+          </v-chip>
         </template>
         <span>{{ source.name }}</span>
       </v-tooltip>
