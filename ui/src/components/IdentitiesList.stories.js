@@ -9,7 +9,7 @@ const template = `
   <identities-list
     :compact="compact"
     :identities="identities"
-    uuid="123"
+    uuid="164e41c60c28698ac30b0d17176d3e720e036918"
   />`;
 
 const identities = [

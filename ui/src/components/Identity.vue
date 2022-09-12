@@ -17,6 +17,14 @@
         </template>
         <span>{{ tooltip }}</span>
       </v-tooltip>
+      <v-tooltip v-if="isMain" bottom>
+        <template v-slot:activator="{ on }">
+          <v-icon v-on="on" color="secondary" right small>
+            mdi-star
+          </v-icon>
+        </template>
+        <span>Main identity</span>
+      </v-tooltip>
     </v-col>
     <v-col class="ma-2 text-center">
       <span>{{ name }}</span>
@@ -60,6 +68,10 @@ export default {
       type: String,
       required: false,
       default: null
+    },
+    isMain: {
+      type: Boolean,
+      required: false
     }
   },
   data: () => ({
