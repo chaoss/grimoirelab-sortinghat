@@ -20,7 +20,7 @@ In the context of GrimoireLab, Sorting Hat is usually run after data is retrieve
 
 * Python >= 3.7
 * Poetry >= 1.1.0
-* MySQL >= 5.7 or MariaDB 10.0
+* MySQL >= 5.7 or MariaDB 10.2
 * Django = 3.1
 * Graphene-Django >= 2.0
 * uWSGI >= 2.0
@@ -65,7 +65,7 @@ $ apt install libmysqlclient-dev
 * **MariaDB**
 
 ```
-$ apt install libmariadbclient-dev
+$ apt install libmariadb-dev
 ```
 
 #### Installation and configuration
