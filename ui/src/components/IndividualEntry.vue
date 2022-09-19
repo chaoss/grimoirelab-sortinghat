@@ -18,7 +18,7 @@
   >
     <td width="25%">
       <v-list-item>
-        <avatar :name="name" :email="email" />
+        <avatar :name="name" :email="email" class="mt-3 mb-3" />
 
         <v-list-item-content>
           <v-list-item-title class="font-weight-medium">
@@ -70,7 +70,9 @@
               <span>{{ isLocked ? "Unlock profile" : "Lock profile" }}</span>
             </v-tooltip>
           </v-list-item-title>
-          <v-list-item-subtitle>{{ organization }}</v-list-item-subtitle>
+          <v-list-item-subtitle v-if="organization">
+            {{ organization }}
+          </v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
     </td>

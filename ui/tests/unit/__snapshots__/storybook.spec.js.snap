@@ -4615,7 +4615,7 @@ exports[`Storyshots IndividualEntry Bot 1`] = `
                   tabindex="-1"
                 >
                   <div
-                    class="v-avatar v-list-item__avatar"
+                    class="v-avatar v-list-item__avatar mt-3 mb-3"
                     style="height: 40px; min-width: 40px; width: 40px; background-color: rgb(245, 142, 12); border-color: #f58e0c;"
                   >
                     <img
@@ -4678,7 +4678,9 @@ exports[`Storyshots IndividualEntry Bot 1`] = `
                     <div
                       class="v-list-item__subtitle"
                     >
-                      Slytherin
+                      
+          Slytherin
+        
                     </div>
                   </div>
                 </div>
@@ -4806,7 +4808,7 @@ exports[`Storyshots IndividualEntry Bot And Locked 1`] = `
                   tabindex="-1"
                 >
                   <div
-                    class="v-avatar v-list-item__avatar"
+                    class="v-avatar v-list-item__avatar mt-3 mb-3"
                     style="height: 40px; min-width: 40px; width: 40px; background-color: rgb(245, 142, 12); border-color: #f58e0c;"
                   >
                     <img
@@ -4869,7 +4871,9 @@ exports[`Storyshots IndividualEntry Bot And Locked 1`] = `
                     <div
                       class="v-list-item__subtitle"
                     >
-                      Slytherin
+                      
+          Slytherin
+        
                     </div>
                   </div>
                 </div>
@@ -4997,7 +5001,7 @@ exports[`Storyshots IndividualEntry Default 1`] = `
                   tabindex="-1"
                 >
                   <div
-                    class="v-avatar v-list-item__avatar"
+                    class="v-avatar v-list-item__avatar mt-3 mb-3"
                     style="height: 40px; min-width: 40px; width: 40px; background-color: rgb(245, 142, 12); border-color: #f58e0c;"
                   >
                     <img
@@ -5060,7 +5064,9 @@ exports[`Storyshots IndividualEntry Default 1`] = `
                     <div
                       class="v-list-item__subtitle"
                     >
-                      Slytherin
+                      
+          Slytherin
+        
                     </div>
                   </div>
                 </div>
@@ -5188,7 +5194,7 @@ exports[`Storyshots IndividualEntry Gravatar 1`] = `
                   tabindex="-1"
                 >
                   <div
-                    class="v-avatar v-list-item__avatar"
+                    class="v-avatar v-list-item__avatar mt-3 mb-3"
                     style="height: 40px; min-width: 40px; width: 40px; background-color: rgb(244, 25, 0); border-color: #f41900;"
                   >
                     <img
@@ -5248,11 +5254,7 @@ exports[`Storyshots IndividualEntry Gravatar 1`] = `
                       </span>
                     </div>
                      
-                    <div
-                      class="v-list-item__subtitle"
-                    >
-                      
-                    </div>
+                    <!---->
                   </div>
                 </div>
               </td>
@@ -5379,7 +5381,7 @@ exports[`Storyshots IndividualEntry Highlighted 1`] = `
                   tabindex="-1"
                 >
                   <div
-                    class="v-avatar v-list-item__avatar"
+                    class="v-avatar v-list-item__avatar mt-3 mb-3"
                     style="height: 40px; min-width: 40px; width: 40px; background-color: rgb(245, 142, 12); border-color: #f58e0c;"
                   >
                     <img
@@ -5442,7 +5444,9 @@ exports[`Storyshots IndividualEntry Highlighted 1`] = `
                     <div
                       class="v-list-item__subtitle"
                     >
-                      Slytherin
+                      
+          Slytherin
+        
                     </div>
                   </div>
                 </div>
@@ -5570,7 +5574,7 @@ exports[`Storyshots IndividualEntry Locked 1`] = `
                   tabindex="-1"
                 >
                   <div
-                    class="v-avatar v-list-item__avatar"
+                    class="v-avatar v-list-item__avatar mt-3 mb-3"
                     style="height: 40px; min-width: 40px; width: 40px; background-color: rgb(245, 142, 12); border-color: #f58e0c;"
                   >
                     <img
@@ -5633,7 +5637,9 @@ exports[`Storyshots IndividualEntry Locked 1`] = `
                     <div
                       class="v-list-item__subtitle"
                     >
-                      Slytherin
+                      
+          Slytherin
+        
                     </div>
                   </div>
                 </div>
@@ -5761,7 +5767,7 @@ exports[`Storyshots IndividualEntry No Email 1`] = `
                   tabindex="-1"
                 >
                   <div
-                    class="v-avatar v-list-item__avatar"
+                    class="v-avatar v-list-item__avatar mt-3 mb-3"
                     style="height: 40px; min-width: 40px; width: 40px; background-color: rgb(245, 142, 12); border-color: #f58e0c;"
                   >
                     <!---->
@@ -5820,7 +5826,9 @@ exports[`Storyshots IndividualEntry No Email 1`] = `
                     <div
                       class="v-list-item__subtitle"
                     >
-                      Slytherin
+                      
+          Slytherin
+        
                     </div>
                   </div>
                 </div>
@@ -5948,7 +5956,7 @@ exports[`Storyshots IndividualEntry No Name 1`] = `
                   tabindex="-1"
                 >
                   <div
-                    class="v-avatar v-list-item__avatar"
+                    class="v-avatar v-list-item__avatar mt-3 mb-3"
                     style="height: 40px; min-width: 40px; width: 40px; background-color: rgb(63, 165, 0); border-color: #3fa500;"
                   >
                     <img
@@ -6008,11 +6016,7 @@ exports[`Storyshots IndividualEntry No Name 1`] = `
                       </span>
                     </div>
                      
-                    <div
-                      class="v-list-item__subtitle"
-                    >
-                      
-                    </div>
+                    <!---->
                   </div>
                 </div>
               </td>
@@ -6139,7 +6143,7 @@ exports[`Storyshots IndividualEntry No Organization 1`] = `
                   tabindex="-1"
                 >
                   <div
-                    class="v-avatar v-list-item__avatar"
+                    class="v-avatar v-list-item__avatar mt-3 mb-3"
                     style="height: 40px; min-width: 40px; width: 40px; background-color: rgb(245, 142, 12); border-color: #f58e0c;"
                   >
                     <img
@@ -6199,11 +6203,7 @@ exports[`Storyshots IndividualEntry No Organization 1`] = `
                       </span>
                     </div>
                      
-                    <div
-                      class="v-list-item__subtitle"
-                    >
-                      
-                    </div>
+                    <!---->
                   </div>
                 </div>
               </td>
@@ -6330,7 +6330,7 @@ exports[`Storyshots IndividualEntry Single Inital 1`] = `
                   tabindex="-1"
                 >
                   <div
-                    class="v-avatar v-list-item__avatar"
+                    class="v-avatar v-list-item__avatar mt-3 mb-3"
                     style="height: 40px; min-width: 40px; width: 40px; background-color: rgb(0, 161, 86); border-color: #00a156;"
                   >
                     <img
@@ -6393,7 +6393,9 @@ exports[`Storyshots IndividualEntry Single Inital 1`] = `
                     <div
                       class="v-list-item__subtitle"
                     >
-                      Death Eaters
+                      
+          Death Eaters
+        
                     </div>
                   </div>
                 </div>
