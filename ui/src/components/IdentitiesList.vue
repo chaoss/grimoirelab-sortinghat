@@ -85,6 +85,7 @@
             :email="identity.email"
             :username="identity.username"
             :source="identity.source || source.name"
+            :is-main="identity.uuid === uuid"
           />
         </v-list-item-content>
 

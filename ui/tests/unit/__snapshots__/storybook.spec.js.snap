@@ -1544,6 +1544,17 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
                       </span>
                     </span>
                   </span>
+                   
+                  <span
+                    class="v-tooltip v-tooltip--bottom"
+                  >
+                    <!---->
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate v-icon--right mdi mdi-star theme--light secondary--text"
+                      style="font-size: 16px;"
+                    />
+                  </span>
                 </div>
                  
                 <div
@@ -1654,6 +1665,8 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
                       </span>
                     </span>
                   </span>
+                   
+                  <!---->
                 </div>
                  
                 <div
@@ -1778,6 +1791,8 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
                       </span>
                     </span>
                   </span>
+                   
+                  <!---->
                 </div>
                  
                 <div
@@ -1902,6 +1917,8 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
                       </span>
                     </span>
                   </span>
+                   
+                  <!---->
                 </div>
                  
                 <div
@@ -2370,6 +2387,17 @@ exports[`Storyshots ExpandedIndividual No Organizations 1`] = `
                         />
                       </span>
                     </span>
+                  </span>
+                   
+                  <span
+                    class="v-tooltip v-tooltip--bottom"
+                  >
+                    <!---->
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate v-icon--right mdi mdi-star theme--light secondary--text"
+                      style="font-size: 16px;"
+                    />
                   </span>
                 </div>
                  
@@ -2976,6 +3004,8 @@ exports[`Storyshots IdentitiesList Default 1`] = `
                     </span>
                   </span>
                 </span>
+                 
+                <!---->
               </div>
                
               <div
@@ -3081,6 +3111,17 @@ exports[`Storyshots IdentitiesList Default 1`] = `
                     </span>
                   </span>
                 </span>
+                 
+                <span
+                  class="v-tooltip v-tooltip--bottom"
+                >
+                  <!---->
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate v-icon--right mdi mdi-star theme--light secondary--text"
+                    style="font-size: 16px;"
+                  />
+                </span>
               </div>
                
               <div
@@ -3122,7 +3163,8 @@ exports[`Storyshots IdentitiesList Default 1`] = `
           >
             <!---->
             <button
-              class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+              class="v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+              disabled="disabled"
               type="button"
             >
               <span
@@ -3201,6 +3243,8 @@ exports[`Storyshots IdentitiesList Default 1`] = `
                     </span>
                   </span>
                 </span>
+                 
+                <!---->
               </div>
                
               <div
@@ -3321,6 +3365,8 @@ exports[`Storyshots IdentitiesList Default 1`] = `
                     </span>
                   </span>
                 </span>
+                 
+                <!---->
               </div>
                
               <div
@@ -3438,6 +3484,8 @@ exports[`Storyshots Identity Default 1`] = `
             </span>
           </span>
         </span>
+         
+        <!---->
       </div>
        
       <div
@@ -3465,6 +3513,95 @@ exports[`Storyshots Identity Default 1`] = `
       </div>
        
       <!---->
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Storyshots Identity Main Identity 1`] = `
+<div
+  class="v-application v-application--is-ltr theme--light"
+  data-app="true"
+  id="app"
+>
+  <div
+    class="v-application--wrap"
+  >
+    <div
+      class="row no-gutters"
+    >
+      <div
+        class="uuid col"
+      >
+        <span
+          class="v-tooltip v-tooltip--bottom"
+        >
+          <!---->
+          <span
+            class="text-center v-chip v-chip--clickable v-chip--no-color v-chip--outlined theme--light v-size--default"
+            tile=""
+          >
+            <span
+              class="v-chip__content"
+            >
+              <span
+                class="clip"
+              >
+                1f1a9e56dedb45f5969413eeb4442d982e33f0f6
+              </span>
+               
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate v-icon--right mdi mdi-content-copy theme--light"
+                style="font-size: 16px;"
+              />
+            </span>
+          </span>
+        </span>
+         
+        <span
+          class="v-tooltip v-tooltip--bottom"
+        >
+          <!---->
+          <i
+            aria-hidden="true"
+            class="v-icon notranslate v-icon--right mdi mdi-star theme--light secondary--text"
+            style="font-size: 16px;"
+          />
+        </span>
+      </div>
+       
+      <div
+        class="ma-2 text-center col"
+      >
+        <span>
+          Tom Marvolo Riddle
+        </span>
+      </div>
+       
+      <div
+        class="ma-2 text-center col"
+      >
+        <span>
+          triddle@example.net
+        </span>
+      </div>
+       
+      <div
+        class="ma-2 text-center col"
+      >
+        <span>
+          triddle
+        </span>
+      </div>
+       
+      <div
+        class="ma-2 text-center col"
+      >
+        <span>
+          git
+        </span>
+      </div>
     </div>
   </div>
 </div>
@@ -3510,6 +3647,8 @@ exports[`Storyshots Identity Source 1`] = `
             </span>
           </span>
         </span>
+         
+        <!---->
       </div>
        
       <div
@@ -7333,7 +7472,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                 />
                 <input
                   aria-checked="false"
-                  id="input-944"
+                  id="input-960"
                   role="checkbox"
                   type="checkbox"
                   value=""
@@ -7344,7 +7483,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
               </div>
               <label
                 class="v-label theme--light"
-                for="input-944"
+                for="input-960"
                 style="left: 0px; position: relative;"
               >
                 Select all
@@ -7430,13 +7569,13 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-949"
+                    for="input-965"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-949"
+                    id="input-965"
                     type="text"
                   />
                 </div>
@@ -7508,7 +7647,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
               <div
                 aria-expanded="false"
                 aria-haspopup="listbox"
-                aria-owns="list-957"
+                aria-owns="list-973"
                 class="v-input__slot"
                 role="button"
               >
@@ -7526,7 +7665,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-957"
+                    for="input-973"
                     style="left: 0px; position: absolute;"
                   >
                     Order by
@@ -7537,7 +7676,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                     <input
                       aria-readonly="false"
                       autocomplete="off"
-                      id="input-957"
+                      id="input-973"
                       readonly="readonly"
                       type="text"
                     />
@@ -7724,13 +7863,13 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                 >
                   <label
                     class="v-label v-label--active theme--light"
-                    for="input-977"
+                    for="input-993"
                     style="left: 0px; position: absolute;"
                   >
                     Items per page
                   </label>
                   <input
-                    id="input-977"
+                    id="input-993"
                     max="0"
                     min="1"
                     type="number"
@@ -8190,7 +8329,7 @@ exports[`Storyshots OrganizationSelector Default 1`] = `
           <div
             aria-expanded="false"
             aria-haspopup="listbox"
-            aria-owns="list-1173"
+            aria-owns="list-1189"
             class="v-input__slot"
             role="combobox"
           >
@@ -8210,14 +8349,14 @@ exports[`Storyshots OrganizationSelector Default 1`] = `
             >
               <label
                 class="v-label v-label--active theme--light"
-                for="input-1173"
+                for="input-1189"
                 style="left: 0px; position: absolute;"
               >
                 Organization
               </label>
               <input
                 autocomplete="off"
-                id="input-1173"
+                id="input-1189"
                 type="text"
               />
               <div
@@ -8294,7 +8433,7 @@ exports[`Storyshots OrganizationSelector Selected Organization 1`] = `
           <div
             aria-expanded="false"
             aria-haspopup="listbox"
-            aria-owns="list-1184"
+            aria-owns="list-1200"
             class="v-input__slot"
             role="combobox"
           >
@@ -8314,14 +8453,14 @@ exports[`Storyshots OrganizationSelector Selected Organization 1`] = `
             >
               <label
                 class="v-label v-label--active theme--light"
-                for="input-1184"
+                for="input-1200"
                 style="left: 0px; position: absolute;"
               >
                 Organization
               </label>
               <input
                 autocomplete="off"
-                id="input-1184"
+                id="input-1200"
                 type="text"
               />
               <div
@@ -8485,13 +8624,13 @@ exports[`Storyshots OrganizationsTable Groups 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-1256"
+                    for="input-1272"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-1256"
+                    id="input-1272"
                     type="text"
                   />
                 </div>
@@ -8622,13 +8761,13 @@ exports[`Storyshots OrganizationsTable Groups 1`] = `
               >
                 <label
                   class="v-label v-label--active theme--light"
-                  for="input-1267"
+                  for="input-1283"
                   style="left: 0px; position: absolute;"
                 >
                   Items per page
                 </label>
                 <input
-                  id="input-1267"
+                  id="input-1283"
                   max="0"
                   min="1"
                   type="number"
@@ -8766,13 +8905,13 @@ exports[`Storyshots OrganizationsTable Organizations 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-1199"
+                    for="input-1215"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-1199"
+                    id="input-1215"
                     type="text"
                   />
                 </div>
@@ -8903,13 +9042,13 @@ exports[`Storyshots OrganizationsTable Organizations 1`] = `
               >
                 <label
                   class="v-label v-label--active theme--light"
-                  for="input-1210"
+                  for="input-1226"
                   style="left: 0px; position: absolute;"
                 >
                   Items per page
                 </label>
                 <input
-                  id="input-1210"
+                  id="input-1226"
                   max="0"
                   min="1"
                   type="number"
@@ -9231,13 +9370,13 @@ exports[`Storyshots Search Default 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-1335"
+                  for="input-1351"
                   style="left: 0px; position: absolute;"
                 >
                   Search
                 </label>
                 <input
-                  id="input-1335"
+                  id="input-1351"
                   type="text"
                 />
               </div>
@@ -9365,13 +9504,13 @@ exports[`Storyshots Search Filter Selector 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-1345"
+                  for="input-1361"
                   style="left: 0px; position: absolute;"
                 >
                   Search
                 </label>
                 <input
-                  id="input-1345"
+                  id="input-1361"
                   type="text"
                 />
               </div>
@@ -9469,13 +9608,13 @@ exports[`Storyshots Search Order Selector 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-1358"
+                  for="input-1374"
                   style="left: 0px; position: absolute;"
                 >
                   Search
                 </label>
                 <input
-                  id="input-1358"
+                  id="input-1374"
                   type="text"
                 />
               </div>
@@ -9547,7 +9686,7 @@ exports[`Storyshots Search Order Selector 1`] = `
             <div
               aria-expanded="false"
               aria-haspopup="listbox"
-              aria-owns="list-1363"
+              aria-owns="list-1379"
               class="v-input__slot"
               role="button"
             >
@@ -9565,7 +9704,7 @@ exports[`Storyshots Search Order Selector 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-1363"
+                  for="input-1379"
                   style="left: 0px; position: absolute;"
                 >
                   Order by
@@ -9576,7 +9715,7 @@ exports[`Storyshots Search Order Selector 1`] = `
                   <input
                     aria-readonly="false"
                     autocomplete="off"
-                    id="input-1363"
+                    id="input-1379"
                     readonly="readonly"
                     type="text"
                   />
@@ -10262,7 +10401,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   />
                   <input
                     aria-checked="false"
-                    id="input-1477"
+                    id="input-1493"
                     role="checkbox"
                     type="checkbox"
                     value=""
@@ -10273,7 +10412,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 </div>
                 <label
                   class="v-label theme--light"
-                  for="input-1477"
+                  for="input-1493"
                   style="left: 0px; position: relative;"
                 >
                   Select all
@@ -10359,13 +10498,13 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   >
                     <label
                       class="v-label theme--light"
-                      for="input-1482"
+                      for="input-1498"
                       style="left: 0px; position: absolute;"
                     >
                       Search
                     </label>
                     <input
-                      id="input-1482"
+                      id="input-1498"
                       type="text"
                     />
                   </div>
@@ -10437,7 +10576,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 <div
                   aria-expanded="false"
                   aria-haspopup="listbox"
-                  aria-owns="list-1490"
+                  aria-owns="list-1506"
                   class="v-input__slot"
                   role="button"
                 >
@@ -10455,7 +10594,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   >
                     <label
                       class="v-label theme--light"
-                      for="input-1490"
+                      for="input-1506"
                       style="left: 0px; position: absolute;"
                     >
                       Order by
@@ -10466,7 +10605,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                       <input
                         aria-readonly="false"
                         autocomplete="off"
-                        id="input-1490"
+                        id="input-1506"
                         readonly="readonly"
                         type="text"
                       />
@@ -10653,13 +10792,13 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   >
                     <label
                       class="v-label v-label--active theme--light"
-                      for="input-1510"
+                      for="input-1526"
                       style="left: 0px; position: absolute;"
                     >
                       Items per page
                     </label>
                     <input
-                      id="input-1510"
+                      id="input-1526"
                       max="0"
                       min="1"
                       type="number"
