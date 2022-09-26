@@ -4,4 +4,5 @@ category: other
 author: Jose Javier Merchante <jjmerchante@bitergia.com>
 issue: null
 notes: >
-    Update jinja2 package and dev-dependencies.
+    Update jinja2 package and dev-dependencies. Pin pymysql
+    to 0.9.3 to be the same version as in ELK.
