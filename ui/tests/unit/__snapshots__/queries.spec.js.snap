@@ -771,6 +771,21 @@ exports[`JobsTable Mock query for getJobs 1`] = `
       Jobs
     
     </h4>
+     
+    <v-btn-stub
+      activeclass=""
+      class="black--text"
+      color="secondary"
+      depressed="true"
+      height="34"
+      small="true"
+      tag="button"
+      type="button"
+    >
+      
+      Add
+    
+    </v-btn-stub>
   </header>
    
   <!---->
@@ -780,6 +795,10 @@ exports[`JobsTable Mock query for getJobs 1`] = `
   >
     There are no jobs in the queue.
   </p>
+   
+  <job-modal-stub
+    types="[object Object],[object Object],[object Object]"
+  />
 </v-container-stub>
 `;
 

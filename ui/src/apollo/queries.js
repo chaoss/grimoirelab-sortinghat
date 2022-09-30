@@ -339,7 +339,8 @@ const getJobs = (apollo, page, pageSize) => {
     variables: {
       page: page,
       pageSize: pageSize
-    }
+    },
+    fetchPolicy: "no-cache"
   });
   return response;
 };

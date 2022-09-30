@@ -7,6 +7,16 @@
         </v-icon>
         Jobs
       </h4>
+      <v-btn
+        depressed
+        small
+        height="34"
+        color="secondary"
+        class="black--text"
+        @click.stop="openModal = true"
+      >
+        Add
+      </v-btn>
     </header>
     <v-simple-table v-if="jobs.length > 0">
       <template v-slot:default>
@@ -62,12 +72,16 @@
       ></v-pagination>
     </div>
     <p v-else class="text-subtitle-1 pa-7">There are no jobs in the queue.</p>
+    <job-modal :is-open.sync="openModal" v-on="$listeners" />
   </v-container>
 </template>
 
 <script>
+import JobModal from "./JobModal.vue";
+
 export default {
   name: "JobsTable",
+  components: { JobModal },
   props: {
     getJobs: {
       type: Function,
@@ -79,7 +93,8 @@ export default {
       jobs: [],
       page: 1,
       pageSize: 10,
-      pageCount: 1
+      pageCount: 1,
+      openModal: false
     };
   },
   created() {
@@ -112,6 +127,7 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
+@import "../styles/index.scss";
 .capitalize {
   text-transform: capitalize;
 }

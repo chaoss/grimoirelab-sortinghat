@@ -416,6 +416,38 @@ const UPDATE_ENROLLMENT = gql`
   }
 `;
 
+const AFFILIATE = gql`
+  mutation affiliate($uuids: [String]) {
+    affiliate(uuids: $uuids) {
+      jobId
+    }
+  }
+`;
+
+const GENDERIZE = gql`
+  mutation genderize(
+    $uuids: [String]
+    $exclude: Boolean
+    $noStrictMatching: Boolean
+  ) {
+    genderize(
+      uuids: $uuids
+      exclude: $exclude
+      noStrictMatching: $noStrictMatching
+    ) {
+      jobId
+    }
+  }
+`;
+
+const UNIFY = gql`
+  mutation unify($criteria: [String], $exclude: Boolean) {
+    unify(criteria: $criteria, exclude: $exclude) {
+      jobId
+    }
+  }
+`;
+
 const tokenAuth = (apollo, username, password) => {
   const response = apollo.mutate({
     mutation: TOKEN_AUTH,
@@ -617,6 +649,36 @@ const updateEnrollment = (apollo, data) => {
   return response;
 };
 
+const affiliate = (apollo, uuids) => {
+  return apollo.mutate({
+    mutation: AFFILIATE,
+    variables: {
+      uuids: uuids
+    }
+  });
+};
+
+const genderize = (apollo, exclude, noStrictMatching, uuids) => {
+  return apollo.mutate({
+    mutation: GENDERIZE,
+    variables: {
+      uuids: uuids,
+      exclude: exclude,
+      noStrictMatching: noStrictMatching
+    }
+  });
+};
+
+const unify = (apollo, criteria, exclude) => {
+  return apollo.mutate({
+    mutation: UNIFY,
+    variables: {
+      criteria: criteria,
+      exclude: exclude
+    }
+  });
+};
+
 export {
   tokenAuth,
   lockIndividual,
@@ -635,5 +697,8 @@ export {
   addIdentity,
   updateProfile,
   withdraw,
-  updateEnrollment
+  updateEnrollment,
+  affiliate,
+  genderize,
+  unify
 };

@@ -7,6 +7,7 @@ import OrganizationsTable from "@/components/OrganizationsTable";
 import ProfileModal from "@/components/ProfileModal";
 import * as Mutations from "@/apollo/mutations";
 import TeamModal from "@/components/TeamModal";
+import Jobs from "@/views/Jobs";
 
 Vue.use(Vuetify);
 
@@ -245,6 +246,18 @@ const updateEnrollmentResponse = {
       __typename: "UpdateEnrollment"
     }
   }
+};
+
+const affiliateResponse = {
+  data: { affiliate: { jobId: "384f26af-aae4-4c73-96af-e0af90a4cdf3" }}
+};
+
+const genderizeResponse = {
+  data: { genderize: { jobId: "384f26af-aae4-4c73-96af-e0af90a4cdf3" }}
+};
+
+const unifyResponse = {
+  data: { unify: { jobId: "384f26af-aae4-4c73-96af-e0af90a4cdf3" }}
 };
 
 describe("IndividualsTable", () => {
@@ -682,6 +695,65 @@ describe("TeamModal", () => {
     });
 
     const response = await Mutations.deleteTeam(wrapper.vm.$apollo, "test");
+
+    expect(mutate).toBeCalled();
+    expect(wrapper.element).toMatchSnapshot();
+  });
+});
+
+describe("Jobs", () => {
+  test("Mock mutation for affiliate", async () => {
+    const mutate = jest.fn(() => Promise.resolve(affiliateResponse));
+    const wrapper = shallowMount(Jobs, {
+      Vue,
+      mocks: {
+        $apollo: {
+          mutate
+        }
+      }
+    });
+
+    await wrapper.vm.affiliate()
+
+    expect(mutate).toBeCalled();
+    expect(wrapper.element).toMatchSnapshot();
+  });
+
+  test("Mock mutation for genderize", async () => {
+    const mutate = jest.fn(() => Promise.resolve(genderizeResponse));
+    const wrapper = shallowMount(Jobs, {
+      Vue,
+      mocks: {
+        $apollo: {
+          mutate
+        }
+      }
+    });
+
+    await wrapper.vm.genderize({
+      exclude: false,
+      noStrictMatching: true
+    });
+
+    expect(mutate).toBeCalled();
+    expect(wrapper.element).toMatchSnapshot();
+  });
+
+  test("Mock mutation for unify", async () => {
+    const mutate = jest.fn(() => Promise.resolve(unifyResponse));
+    const wrapper = shallowMount(Jobs, {
+      Vue,
+      mocks: {
+        $apollo: {
+          mutate
+        }
+      }
+    });
+
+    await wrapper.vm.unify({
+      criteria: ["name"],
+      exclude: false
+    });
 
     expect(mutate).toBeCalled();
     expect(wrapper.element).toMatchSnapshot();
