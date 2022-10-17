@@ -1,4 +1,4 @@
-# Sorting Hat [![Build Status](https://github.com/chaoss/grimoirelab-sortinghat/workflows/tests/badge.svg)](https://github.com/chaoss/grimoirelab-sortinghat/actions?query=workflow:tests+branch:master+event:push) [![Coverage Status](https://img.shields.io/coveralls/chaoss/grimoirelab-sortinghat.svg)](https://coveralls.io/r/chaoss/grimoirelab-sortinghat?branch=master)
+# Sorting Hat [![Build Status](https://github.com/chaoss/grimoirelab-sortinghat/workflows/tests/badge.svg)](https://github.com/chaoss/grimoirelab-sortinghat/actions?query=workflow:tests+branch:master+event:push) [![Coverage Status](https://img.shields.io/coveralls/chaoss/grimoirelab-sortinghat.svg)](https://coveralls.io/r/chaoss/grimoirelab-sortinghat?branch=master)  [![PyPI version](https://badge.fury.io/py/sortinghat.svg)](https://badge.fury.io/py/sortinghat)
 
 ## Description
 
@@ -16,9 +16,63 @@ In the context of GrimoireLab, Sorting Hat is usually run after data is retrieve
 
 All the source code is available in the [Sorting Hat GitHub repository](https://github.com/chaoss/grimoirelab-sortinghat). Please, submit pull requests if you have proposals to change the source code, and open an issue if you want to report a bug, ask for a new feature, or just provide feedback.
 
+## Requirements
+
+ * Python >= 3.7
+
+You will also need some other libraries for running the tool, you can find the
+whole list of dependencies in [pyproject.toml](pyproject.toml) file.
+
+## Installation
+
+There are several ways to install SortingHat on your system: packages or source 
+code using Poetry or pip.
+
+### PyPI
+
+SortingHat can be installed using pip, a tool for installing Python packages. 
+To do it, run the next command:
+```
+$ pip install sortinghat
+```
+
+### Source code
+
+To install from the source code you will need to clone the repository first:
+```
+$ git clone https://github.com/chaoss/grimoirelab-sortinghat
+$ cd grimoirelab-sortinghat
+```
+
+Then use pip or Poetry to install the package along with its dependencies.
+
+#### Pip
+To install the package from local directory run the following command:
+```
+$ pip install .
+```
+In case you are a developer, you should install sortinghat in editable mode:
+```
+$ pip install -e .
+```
+
+#### Poetry
+We use [poetry](https://python-poetry.org/) for dependency management and 
+packaging. You can install it following its [documentation](https://python-poetry.org/docs/#installation).
+Once you have installed it, you can install sortinghat and the dependencies in 
+a project isolated environment using:
+```
+$ poetry install
+```
+To spaw a new shell within the virtual environment use:
+```
+$ poetry shell
+```
+
 ## Usage
 
 ```
+$ sortinghat
 usage: sortinghat [--help] [-c <file>] [-u <user>] [-p <password>]
                   [--host <host>] [--port <port>] [-d <name>]
                   command [<cmd_args>]
@@ -61,81 +115,6 @@ General options:
 Run 'sortinghat <command> --help' to get information about a specific command.
 ```
 
-## Installation
-
-### From pypi
-
-You can install sortinghat as a package from the pypi repository:
-
-```
-$ pip install sortinghat
-```
-
-### Native
-
-You can install sortinghat just by running setup.py script:
-
-```
-$ python setup.py install
-```
-
-This will install it in the python default directories in your system.
-
-If you don't install sortinghat with root privileges, or don't want to install it in the default directories, you can also use the source code directory, as cloned from the main git repo. It is enough to
-configure your `$PATH` and `$PYTHONPATH` so that sortinghat, and the Python modules it needs, are found.
-
-Add to your `$PATH` the directory which contains the sortinghat executables:
-
-```
-$ export PATH=$PATH:sortinghatdir/bin
-```
-
-In `$PYTHONPATH`, you need to include sortinghat as well. If sortinghatdir is the path where sortinghat is installed:
-
-```
-$ export PYTHONPATH=$PYTHONPATH:sortinghatdir
-```
-
-You are ready to use sortinghat!
-
-### Docker
-
-You can use our image from [DockerHub](https://hub.docker.com/r/grimoirelab/sortinghat/) (`grimoirelab/sortinghat`) and skip the `docker build` step.
-If you prefer to build the image yourself execute:
-
-```sh
-$ docker build -t grimoirelab/sortinghat .
-```
-
-Next step would be to start a MySQL docker container for data storage:
-
-```sh
-$ docker run --name mysql \
-             -e MYSQL_ROOT_PASSWORD=sortinghat \
-             -d mysql
-```
-
-Run the sortinghat docker container in interactive mode:
-
-```sh
-$ docker run -i -t --rm \
-             --link mysql:mysql \
-             -e SORTINGHAT_DB_HOST=mysql \
-             -e SORTINGHAT_DB_PASSWORD=sortinghat \
-             -e SORTINGHAT_DB_DATABASE=sortinghat \
-             grimoirelab/sortinghat \
-             /bin/bash
-```
-
-Now you can initialize sortinghat with the database name `sortinghat`:
-
-```
-$ sortinghat init sortinghat
-```
-
-You are ready to use sortinghat and explore the commands documented below.
-Have fun!
-
 ## Configuration
 
 Set the database parameters via the `config` command:
@@ -167,7 +146,7 @@ After this initialize a new database:
 ## Compatibility between versions
 
 Python 2.7 is no longer supported. Any code using this version will
-not work. Please update your code to 3.4 or newer versions.
+not work. Please update your code to 3.7 or newer versions.
 
 SortingHat databases previous to 0.7.0 are compatible but UTF-8 encoded 4-bytes
 characters will not be inserted in the database and will cause errors. For this
@@ -616,25 +595,6 @@ api.unique_identities(db=db, uuid='a9b403e150dd4af8953a52a4bb841051e4b705d9', so
   $ sortinghat export --orgs sh_orgs.json
 ```
 
-## Requirements
-
-* Python >= 3.4
-* MySQL >= 5.6 or MariaDB 10.0
-* SQLAlchemy >= 1.2
-* Jinja2 >= 2.7
-* python-dateutil >= 2.6
-* python-yaml >= 3.12
-* requests >= 2.9
-* urllib3 >= 1.22
-
-You will also need a MySQL Python driver to connect with the database server. We recommend using one these packages:
-
-* PyMySQL
-
-Optionally, you can install Pandas library to speed up the matching process:
-
-* python-pandas >= 0.15
-
 ## Running tests
 
 SortingHat comes with a comprehensive list of unit tests.
@@ -648,11 +608,10 @@ and edit it to suit your configuration:
   or not (`False`, by default). If `True`, tests will fail if database
   already exists. If `False`, tests will fail if database does not exist.
 
-You can run the tests through `setup.py` (no need to install dependencies
-  or something else, `setup.py` will take care of that):
+Execute the following command to run the tests:
 
 ```
-$ python3 setup.py test
+$ poetry run tests/run_tests.py
 ```
 
 ## Troubleshooting
