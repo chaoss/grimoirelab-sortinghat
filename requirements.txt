@@ -1,9 +1,0 @@
-PyMySQL>=0.7.0
-sqlalchemy>=1.2,<1.4
-jinja2>=3.0.3,<3.1.0
-python-dateutil>=2.6.0
-pandas>=0.22.0,<=0.25.3
-numpy<1.21.1
-pyyaml>=3.12
-requests>=2.9
-urllib3>=1.22
