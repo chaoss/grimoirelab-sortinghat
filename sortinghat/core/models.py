@@ -296,3 +296,12 @@ class RecommenderExclusionTerm(EntityBase):
 
     def __str__(self):
         return self.term
+
+
+class CustomPermissions(Model):
+    class Meta:
+        managed = False
+        default_permissions = ()
+        permissions = (
+            ('execute_job', 'Can execute a job'),
+        )
