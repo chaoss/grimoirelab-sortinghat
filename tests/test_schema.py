@@ -109,6 +109,7 @@ INVALID_FILTER_RANGE_ERROR = "Error in {} filter: Date range is invalid. {}"
 FROM_DATE_EMPTY_ERROR = "'from_date' cannot be empty"
 TO_DATE_EMPTY_ERROR = "'to_date' cannot be empty"
 BOTH_NEW_DATES_NONE_ERROR = "'new_from_date' and 'to_from_date' cannot be None at the same time"
+EXECUTE_JOB_PERMISSION = "core.execute_job"
 
 # Test queries
 SH_COUNTRIES_QUERY = """{
@@ -8796,7 +8797,8 @@ class TestAffiliateMutation(django.test.TestCase):
         conn = django_rq.queues.get_redis_connection(None, True)
         conn.flushall()
 
-        self.user = get_user_model().objects.create(username='test')
+        self.user = get_user_model().objects.create(username='test',
+                                                    is_superuser=True)
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
@@ -8952,6 +8954,23 @@ class TestAffiliateMutation(django.test.TestCase):
 
         self.assertEqual(msg, AUTHENTICATION_ERROR)
 
+    def test_authorization(self):
+        """Check if it fails when a non-authorized user executes the job"""
+
+        user = get_user_model().objects.create(username='test_unauthorized')
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = user
+        client = graphene.test.Client(schema)
+
+        self.assertFalse(user.has_perm(EXECUTE_JOB_PERMISSION))
+
+        executed = client.execute(self.SH_AFFILIATE,
+                                  context_value=context_value)
+
+        msg = executed['errors'][0]['message']
+
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
+
 
 class TestUnifyMutation(django.test.TestCase):
     """Unit tests for mutation to unify individuals"""
@@ -8974,7 +8993,7 @@ class TestUnifyMutation(django.test.TestCase):
         conn = django_rq.queues.get_redis_connection(None, True)
         conn.flushall()
 
-        self.user = get_user_model().objects.create(username='test')
+        self.user = get_user_model().objects.create(username='test', is_superuser=True)
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
@@ -9242,6 +9261,23 @@ class TestUnifyMutation(django.test.TestCase):
 
         self.assertEqual(msg, AUTHENTICATION_ERROR)
 
+    def test_authorization(self):
+        """Check if it fails when a non-authorized user executes the job"""
+
+        user = get_user_model().objects.create(username='test_unauthorized')
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = user
+        client = graphene.test.Client(schema)
+
+        self.assertFalse(user.has_perm(EXECUTE_JOB_PERMISSION))
+
+        executed = client.execute(self.SH_UNIFY,
+                                  context_value=context_value)
+
+        msg = executed['errors'][0]['message']
+
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
+
 
 def setup_genderize_server():
     """Setup a mock HTTP server for genderize.io"""
@@ -9304,7 +9340,8 @@ class TestGenderizeMutation(django.test.TestCase):
         conn = django_rq.queues.get_redis_connection(None, True)
         conn.flushall()
 
-        self.user = get_user_model().objects.create(username='test')
+        self.user = get_user_model().objects.create(username='test',
+                                                    is_superuser=True)
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
@@ -9515,6 +9552,38 @@ class TestGenderizeMutation(django.test.TestCase):
         indv2 = Individual.objects.get(mk=self.jane_roe.uuid)
         gender2 = indv2.profile.gender
         self.assertEqual(gender2, "female")
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the job"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        executed = client.execute(self.SH_GENDERIZE,
+                                  context_value=context_value)
+
+        msg = executed['errors'][0]['message']
+
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
+
+    def test_authorization(self):
+        """Check if it fails when a non-authorized user executes the job"""
+
+        user = get_user_model().objects.create(username='test_unauthorized')
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = user
+        client = graphene.test.Client(schema)
+
+        self.assertFalse(user.has_perm(EXECUTE_JOB_PERMISSION))
+
+        executed = client.execute(self.SH_GENDERIZE,
+                                  context_value=context_value)
+
+        msg = executed['errors'][0]['message']
+
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
 
 
 class TestAddRecommenderExclusionTermMutation(django.test.TestCase):

@@ -61,7 +61,7 @@ from .api import (add_identity,
                   withdraw,
                   update_enrollment)
 from .context import SortingHatContext
-from .decorators import check_auth
+from .decorators import (check_auth, check_permissions)
 from .errors import InvalidFilterError
 from .jobs import (affiliate,
                    unify,
@@ -924,6 +924,7 @@ class RecommendAffiliations(graphene.Mutation):
 
     job_id = graphene.Field(lambda: graphene.String)
 
+    @check_permissions('core.execute_job')
     @check_auth
     def mutate(self, info, uuids=None):
         user = info.context.user
@@ -947,6 +948,7 @@ class RecommendMatches(graphene.Mutation):
 
     job_id = graphene.Field(lambda: graphene.String)
 
+    @check_permissions('core.execute_job')
     @check_auth
     def mutate(self, info, source_uuids, criteria, target_uuids=None, exclude=True, verbose=False):
         user = info.context.user
@@ -967,6 +969,7 @@ class RecommendGender(graphene.Mutation):
 
     job_id = graphene.Field(lambda: graphene.String)
 
+    @check_permissions('core.execute_job')
     @check_auth
     def mutate(self, info, uuids=None, exclude=True, no_strict_matching=False):
         user = info.context.user
@@ -986,6 +989,7 @@ class Affiliate(graphene.Mutation):
 
     job_id = graphene.Field(lambda: graphene.String)
 
+    @check_permissions('core.execute_job')
     @check_auth
     def mutate(self, info, uuids=None):
         user = info.context.user
@@ -1008,6 +1012,7 @@ class Unify(graphene.Mutation):
 
     job_id = graphene.Field(lambda: graphene.String)
 
+    @check_permissions('core.execute_job')
     @check_auth
     def mutate(self, info, source_uuids, criteria, target_uuids=None, exclude=True):
         user = info.context.user
@@ -1028,6 +1033,7 @@ class Genderize(graphene.Mutation):
 
     job_id = graphene.Field(lambda: graphene.String)
 
+    @check_permissions('core.execute_job')
     @check_auth
     def mutate(self, info, uuids=None, exclude=True, no_strict_matching=False):
         user = info.context.user

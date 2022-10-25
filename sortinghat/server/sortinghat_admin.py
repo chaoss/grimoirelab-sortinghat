@@ -113,6 +113,7 @@ def setup(no_interactive, only_ui):
     _create_database()
     _setup_database()
     _setup_database_superuser(no_interactive)
+    _setup_group_permissions()
 
     click.secho("\nSortingHat configuration completed", fg='bright_cyan')
 
@@ -198,6 +199,16 @@ def _setup_database_superuser(no_interactive=False):
         kwargs['interactive'] = False
 
     management.call_command('createsuperuser', **kwargs)
+
+
+def _setup_group_permissions():
+    """Create permission groups."""
+
+    click.secho("## SortingHat groups creation\n", fg='bright_cyan')
+
+    management.call_command('create_groups')
+
+    click.echo("SortingHat groups created.\n")
 
 
 def _install_static_files():
