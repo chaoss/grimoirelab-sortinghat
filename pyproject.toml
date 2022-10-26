@@ -24,6 +24,11 @@ packages = [
 exclude = [
     "sortinghat/static"
 ]
+include = [
+    { path = "AUTHORS", format = "sdist" },
+    { path = "NEWS", format = "sdist" },
+    { path = "README.md", format = "sdist" },
+]
 
 classifiers = [
    "Development Status :: 4 - Beta",
