@@ -31,18 +31,19 @@ jobs:
     name: Python ${{ matrix.python-version }}    
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # 3.1.0
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@13ae5bb136fac2878aff31522b9efb785519f984 # v4.3.0
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install and set up Poetry
+    - name: Install poetry
       run: |
-        curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py | python -
-        echo "$HOME/.poetry/bin" >> $GITHUB_PATH
+        curl -sSL https://install.python-poetry.org | python3 -
+        echo "PATH=$HOME/.poetry/bin:$PATH" >> $GITHUB_ENV
     - name: Install dependencies
       run: |
         poetry install -vvv
+        poetry run pip install -r requirements_dev.txt
     - name: Set MySQL mode
       env:
         DB_HOST: 127.0.0.1
@@ -65,7 +66,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Node ${{ matrix.node-version }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # 3.1.0
       - name: Setup Node ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
