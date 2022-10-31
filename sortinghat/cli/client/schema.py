@@ -72,9 +72,17 @@ class CountryFilterType(sgqlc.types.Input):
     term = sgqlc.types.Field(String, graphql_name='term')
 
 
+class GroupFilterType(sgqlc.types.Input):
+    __schema__ = sh_schema
+    __field_names__ = ('name', 'parent', 'term')
+    name = sgqlc.types.Field(String, graphql_name='name')
+    parent = sgqlc.types.Field(String, graphql_name='parent')
+    term = sgqlc.types.Field(String, graphql_name='term')
+
+
 class IdentityFilterType(sgqlc.types.Input):
     __schema__ = sh_schema
-    __field_names__ = ('uuid', 'term', 'is_locked', 'is_bot', 'gender', 'country', 'source', 'last_updated')
+    __field_names__ = ('uuid', 'term', 'is_locked', 'is_bot', 'gender', 'country', 'source', 'enrollment', 'enrollment_parent_org', 'enrollment_date', 'is_enrolled', 'last_updated')
     uuid = sgqlc.types.Field(String, graphql_name='uuid')
     term = sgqlc.types.Field(String, graphql_name='term')
     is_locked = sgqlc.types.Field(Boolean, graphql_name='isLocked')
@@ -82,6 +90,10 @@ class IdentityFilterType(sgqlc.types.Input):
     gender = sgqlc.types.Field(String, graphql_name='gender')
     country = sgqlc.types.Field(String, graphql_name='country')
     source = sgqlc.types.Field(String, graphql_name='source')
+    enrollment = sgqlc.types.Field(String, graphql_name='enrollment')
+    enrollment_parent_org = sgqlc.types.Field(String, graphql_name='enrollmentParentOrg')
+    enrollment_date = sgqlc.types.Field(String, graphql_name='enrollmentDate')
+    is_enrolled = sgqlc.types.Field(Boolean, graphql_name='isEnrolled')
     last_updated = sgqlc.types.Field(String, graphql_name='lastUpdated')
 
 
@@ -112,6 +124,15 @@ class ProfileInputType(sgqlc.types.Input):
     gender_acc = sgqlc.types.Field(Int, graphql_name='genderAcc')
     is_bot = sgqlc.types.Field(Boolean, graphql_name='isBot')
     country_code = sgqlc.types.Field(String, graphql_name='countryCode')
+
+
+class TeamFilterType(sgqlc.types.Input):
+    __schema__ = sh_schema
+    __field_names__ = ('name', 'organization', 'parent', 'term')
+    name = sgqlc.types.Field(String, graphql_name='name')
+    organization = sgqlc.types.Field(String, graphql_name='organization')
+    parent = sgqlc.types.Field(String, graphql_name='parent')
+    term = sgqlc.types.Field(String, graphql_name='term')
 
 
 class TransactionFilterType(sgqlc.types.Input):
@@ -146,6 +167,18 @@ class AddOrganization(sgqlc.types.Type):
     __schema__ = sh_schema
     __field_names__ = ('organization',)
     organization = sgqlc.types.Field('OrganizationType', graphql_name='organization')
+
+
+class AddRecommenderExclusionTerm(sgqlc.types.Type):
+    __schema__ = sh_schema
+    __field_names__ = ('exclusion',)
+    exclusion = sgqlc.types.Field('RecommenderExclusionTermType', graphql_name='exclusion')
+
+
+class AddTeam(sgqlc.types.Type):
+    __schema__ = sh_schema
+    __field_names__ = ('team',)
+    team = sgqlc.types.Field('TeamType', graphql_name='team')
 
 
 class Affiliate(sgqlc.types.Type):
@@ -205,6 +238,18 @@ class DeleteOrganization(sgqlc.types.Type):
     organization = sgqlc.types.Field('OrganizationType', graphql_name='organization')
 
 
+class DeleteRecommenderExclusionTerm(sgqlc.types.Type):
+    __schema__ = sh_schema
+    __field_names__ = ('exclusion',)
+    exclusion = sgqlc.types.Field('RecommenderExclusionTermType', graphql_name='exclusion')
+
+
+class DeleteTeam(sgqlc.types.Type):
+    __schema__ = sh_schema
+    __field_names__ = ('team',)
+    team = sgqlc.types.Field('TeamType', graphql_name='team')
+
+
 class DomainType(sgqlc.types.Type):
     __schema__ = sh_schema
     __field_names__ = ('created_at', 'last_modified', 'id', 'domain', 'is_top_domain', 'organization')
@@ -213,7 +258,7 @@ class DomainType(sgqlc.types.Type):
     id = sgqlc.types.Field(sgqlc.types.non_null(ID), graphql_name='id')
     domain = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='domain')
     is_top_domain = sgqlc.types.Field(sgqlc.types.non_null(Boolean), graphql_name='isTopDomain')
-    organization = sgqlc.types.Field(sgqlc.types.non_null('OrganizationType'), graphql_name='organization')
+    organization = sgqlc.types.Field(sgqlc.types.non_null('TeamType'), graphql_name='organization')
 
 
 class Enroll(sgqlc.types.Type):
@@ -225,14 +270,52 @@ class Enroll(sgqlc.types.Type):
 
 class EnrollmentType(sgqlc.types.Type):
     __schema__ = sh_schema
-    __field_names__ = ('created_at', 'last_modified', 'id', 'individual', 'organization', 'start', 'end')
+    __field_names__ = ('created_at', 'last_modified', 'id', 'individual', 'group', 'start', 'end')
     created_at = sgqlc.types.Field(sgqlc.types.non_null(DateTime), graphql_name='createdAt')
     last_modified = sgqlc.types.Field(sgqlc.types.non_null(DateTime), graphql_name='lastModified')
     id = sgqlc.types.Field(sgqlc.types.non_null(ID), graphql_name='id')
     individual = sgqlc.types.Field(sgqlc.types.non_null('IndividualType'), graphql_name='individual')
-    organization = sgqlc.types.Field(sgqlc.types.non_null('OrganizationType'), graphql_name='organization')
+    group = sgqlc.types.Field('GroupType', graphql_name='group')
     start = sgqlc.types.Field(sgqlc.types.non_null(DateTime), graphql_name='start')
     end = sgqlc.types.Field(sgqlc.types.non_null(DateTime), graphql_name='end')
+
+
+class GenderRecommendationType(sgqlc.types.Type):
+    __schema__ = sh_schema
+    __field_names__ = ('uuid', 'gender', 'accuracy')
+    uuid = sgqlc.types.Field(String, graphql_name='uuid')
+    gender = sgqlc.types.Field(String, graphql_name='gender')
+    accuracy = sgqlc.types.Field(Int, graphql_name='accuracy')
+
+
+class Genderize(sgqlc.types.Type):
+    __schema__ = sh_schema
+    __field_names__ = ('job_id',)
+    job_id = sgqlc.types.Field(String, graphql_name='jobId')
+
+
+class GenderizeResultType(sgqlc.types.Type):
+    __schema__ = sh_schema
+    __field_names__ = ('uuid', 'gender', 'accuracy')
+    uuid = sgqlc.types.Field(String, graphql_name='uuid')
+    gender = sgqlc.types.Field(String, graphql_name='gender')
+    accuracy = sgqlc.types.Field(Int, graphql_name='accuracy')
+
+
+class GroupType(sgqlc.types.Type):
+    __schema__ = sh_schema
+    __field_names__ = ('id', 'depth', 'numchild', 'created_at', 'last_modified', 'name', 'type', 'parent_org', 'teams', 'domains', 'enrollments')
+    id = sgqlc.types.Field(sgqlc.types.non_null(ID), graphql_name='id')
+    depth = sgqlc.types.Field(sgqlc.types.non_null(Int), graphql_name='depth')
+    numchild = sgqlc.types.Field(sgqlc.types.non_null(Int), graphql_name='numchild')
+    created_at = sgqlc.types.Field(sgqlc.types.non_null(DateTime), graphql_name='createdAt')
+    last_modified = sgqlc.types.Field(sgqlc.types.non_null(DateTime), graphql_name='lastModified')
+    name = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='name')
+    type = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='type')
+    parent_org = sgqlc.types.Field('TeamType', graphql_name='parentOrg')
+    teams = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of(sgqlc.types.non_null('TeamType'))), graphql_name='teams')
+    domains = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of(sgqlc.types.non_null(DomainType))), graphql_name='domains')
+    enrollments = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of(sgqlc.types.non_null(EnrollmentType))), graphql_name='enrollments')
 
 
 class IdentityPaginatedType(sgqlc.types.Type):
@@ -315,8 +398,10 @@ class MoveIdentity(sgqlc.types.Type):
 
 class ObtainJSONWebToken(sgqlc.types.Type):
     __schema__ = sh_schema
-    __field_names__ = ('token',)
-    token = sgqlc.types.Field(String, graphql_name='token')
+    __field_names__ = ('payload', 'refresh_expires_in', 'token')
+    payload = sgqlc.types.Field(sgqlc.types.non_null(GenericScalar), graphql_name='payload')
+    refresh_expires_in = sgqlc.types.Field(sgqlc.types.non_null(Int), graphql_name='refreshExpiresIn')
+    token = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='token')
 
 
 class OperationPaginatedType(sgqlc.types.Type):
@@ -347,11 +432,12 @@ class OrganizationPaginatedType(sgqlc.types.Type):
 
 class OrganizationType(sgqlc.types.Type):
     __schema__ = sh_schema
-    __field_names__ = ('id', 'created_at', 'last_modified', 'name', 'domains', 'enrollments')
+    __field_names__ = ('id', 'created_at', 'last_modified', 'name', 'teams', 'domains', 'enrollments')
     id = sgqlc.types.Field(sgqlc.types.non_null(ID), graphql_name='id')
     created_at = sgqlc.types.Field(sgqlc.types.non_null(DateTime), graphql_name='createdAt')
     last_modified = sgqlc.types.Field(sgqlc.types.non_null(DateTime), graphql_name='lastModified')
     name = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='name')
+    teams = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of(sgqlc.types.non_null('TeamType'))), graphql_name='teams')
     domains = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of(sgqlc.types.non_null(DomainType))), graphql_name='domains')
     enrollments = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of(sgqlc.types.non_null(EnrollmentType))), graphql_name='enrollments')
 
@@ -386,49 +472,90 @@ class ProfileType(sgqlc.types.Type):
 
 class Query(sgqlc.types.Type):
     __schema__ = sh_schema
-    __field_names__ = ('countries', 'organizations', 'individuals', 'transactions', 'operations', 'job', 'jobs')
+    __field_names__ = ('countries', 'organizations', 'teams', 'groups', 'individuals', 'transactions', 'operations', 'job', 'jobs', 'recommender_exclusion_terms')
     countries = sgqlc.types.Field(
-        CountryPaginatedType, graphql_name='countries', args=sgqlc.types.ArgDict((
+        CountryPaginatedType,
+        graphql_name='countries',
+        args=sgqlc.types.ArgDict((
             ('page_size', sgqlc.types.Arg(Int, graphql_name='pageSize', default=None)),
             ('page', sgqlc.types.Arg(Int, graphql_name='page', default=None)),
             ('filters', sgqlc.types.Arg(CountryFilterType, graphql_name='filters', default=None)),
         ))
     )
     organizations = sgqlc.types.Field(
-        OrganizationPaginatedType, graphql_name='organizations', args=sgqlc.types.ArgDict((
+        OrganizationPaginatedType,
+        graphql_name='organizations',
+        args=sgqlc.types.ArgDict((
             ('page_size', sgqlc.types.Arg(Int, graphql_name='pageSize', default=None)),
             ('page', sgqlc.types.Arg(Int, graphql_name='page', default=None)),
             ('filters', sgqlc.types.Arg(OrganizationFilterType, graphql_name='filters', default=None)),
         ))
     )
+    teams = sgqlc.types.Field(
+        'TeamPaginatedType',
+        graphql_name='teams',
+        args=sgqlc.types.ArgDict((
+            ('page_size', sgqlc.types.Arg(Int, graphql_name='pageSize', default=None)),
+            ('page', sgqlc.types.Arg(Int, graphql_name='page', default=None)),
+            ('filters', sgqlc.types.Arg(TeamFilterType, graphql_name='filters', default=None)),
+        ))
+    )
+    groups = sgqlc.types.Field(
+        'TeamPaginatedType',
+        graphql_name='groups',
+        args=sgqlc.types.ArgDict((
+            ('page_size', sgqlc.types.Arg(Int, graphql_name='pageSize', default=None)),
+            ('page', sgqlc.types.Arg(Int, graphql_name='page', default=None)),
+            ('filters', sgqlc.types.Arg(GroupFilterType, graphql_name='filters', default=None)),
+        ))
+    )
     individuals = sgqlc.types.Field(
-        IdentityPaginatedType, graphql_name='individuals', args=sgqlc.types.ArgDict((
+        IdentityPaginatedType,
+        graphql_name='individuals',
+        args=sgqlc.types.ArgDict((
             ('page_size', sgqlc.types.Arg(Int, graphql_name='pageSize', default=None)),
             ('page', sgqlc.types.Arg(Int, graphql_name='page', default=None)),
             ('filters', sgqlc.types.Arg(IdentityFilterType, graphql_name='filters', default=None)),
+            ('order_by', sgqlc.types.Arg(String, graphql_name='orderBy', default=None)),
         ))
     )
     transactions = sgqlc.types.Field(
-        'TransactionPaginatedType', graphql_name='transactions', args=sgqlc.types.ArgDict((
+        'TransactionPaginatedType',
+        graphql_name='transactions',
+        args=sgqlc.types.ArgDict((
             ('page_size', sgqlc.types.Arg(Int, graphql_name='pageSize', default=None)),
             ('page', sgqlc.types.Arg(Int, graphql_name='page', default=None)),
             ('filters', sgqlc.types.Arg(TransactionFilterType, graphql_name='filters', default=None)),
         ))
     )
     operations = sgqlc.types.Field(
-        OperationPaginatedType, graphql_name='operations', args=sgqlc.types.ArgDict((
+        OperationPaginatedType,
+        graphql_name='operations',
+        args=sgqlc.types.ArgDict((
             ('page_size', sgqlc.types.Arg(Int, graphql_name='pageSize', default=None)),
             ('page', sgqlc.types.Arg(Int, graphql_name='page', default=None)),
             ('filters', sgqlc.types.Arg(OperationFilterType, graphql_name='filters', default=None)),
         ))
     )
     job = sgqlc.types.Field(
-        JobType, graphql_name='job', args=sgqlc.types.ArgDict((
+        JobType,
+        graphql_name='job',
+        args=sgqlc.types.ArgDict((
             ('job_id', sgqlc.types.Arg(String, graphql_name='jobId', default=None)),
         ))
     )
     jobs = sgqlc.types.Field(
-        JobPaginatedType, graphql_name='jobs', args=sgqlc.types.ArgDict((
+        JobPaginatedType,
+        graphql_name='jobs',
+        args=sgqlc.types.ArgDict((
+            ('page_size', sgqlc.types.Arg(Int, graphql_name='pageSize', default=None)),
+            ('page', sgqlc.types.Arg(Int, graphql_name='page', default=None)),
+        ))
+    )
+    recommender_exclusion_terms = sgqlc.types.Field(
+        'RecommenderExclusionTermPaginatedType',
+        graphql_name='recommenderExclusionTerms',
+        args=sgqlc.types.ArgDict((
             ('page_size', sgqlc.types.Arg(Int, graphql_name='pageSize', default=None)),
             ('page', sgqlc.types.Arg(Int, graphql_name='page', default=None)),
         ))
@@ -441,46 +568,96 @@ class RecommendAffiliations(sgqlc.types.Type):
     job_id = sgqlc.types.Field(String, graphql_name='jobId')
 
 
+class RecommendGender(sgqlc.types.Type):
+    __schema__ = sh_schema
+    __field_names__ = ('job_id',)
+    job_id = sgqlc.types.Field(String, graphql_name='jobId')
+
+
 class RecommendMatches(sgqlc.types.Type):
     __schema__ = sh_schema
     __field_names__ = ('job_id',)
     job_id = sgqlc.types.Field(String, graphql_name='jobId')
 
 
+class RecommenderExclusionTermPaginatedType(sgqlc.types.Type):
+    __schema__ = sh_schema
+    __field_names__ = ('entities', 'page_info')
+    entities = sgqlc.types.Field(sgqlc.types.list_of('RecommenderExclusionTermType'), graphql_name='entities')
+    page_info = sgqlc.types.Field(PaginationType, graphql_name='pageInfo')
+
+
+class RecommenderExclusionTermType(sgqlc.types.Type):
+    __schema__ = sh_schema
+    __field_names__ = ('created_at', 'last_modified', 'id', 'term')
+    created_at = sgqlc.types.Field(sgqlc.types.non_null(DateTime), graphql_name='createdAt')
+    last_modified = sgqlc.types.Field(sgqlc.types.non_null(DateTime), graphql_name='lastModified')
+    id = sgqlc.types.Field(sgqlc.types.non_null(ID), graphql_name='id')
+    term = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='term')
+
+
 class Refresh(sgqlc.types.Type):
     __schema__ = sh_schema
-    __field_names__ = ('token', 'payload')
-    token = sgqlc.types.Field(String, graphql_name='token')
-    payload = sgqlc.types.Field(GenericScalar, graphql_name='payload')
+    __field_names__ = ('payload', 'refresh_expires_in', 'token')
+    payload = sgqlc.types.Field(sgqlc.types.non_null(GenericScalar), graphql_name='payload')
+    refresh_expires_in = sgqlc.types.Field(sgqlc.types.non_null(Int), graphql_name='refreshExpiresIn')
+    token = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='token')
 
 
 class SortingHatMutation(sgqlc.types.Type):
     __schema__ = sh_schema
-    __field_names__ = ('add_organization', 'delete_organization', 'add_domain', 'delete_domain', 'add_identity', 'delete_identity', 'update_profile', 'move_identity', 'lock', 'unlock', 'merge', 'unmerge_identities', 'enroll', 'withdraw', 'update_enrollment', 'recommend_affiliations', 'recommend_matches', 'affiliate', 'unify', 'token_auth', 'verify_token', 'refresh_token')
+    __field_names__ = ('add_organization', 'delete_organization', 'add_team', 'delete_team', 'add_domain', 'delete_domain', 'add_identity', 'delete_identity', 'update_profile', 'move_identity', 'lock', 'unlock', 'merge', 'unmerge_identities', 'enroll', 'withdraw', 'update_enrollment', 'recommend_affiliations', 'recommend_matches', 'recommend_gender', 'affiliate', 'unify', 'genderize', 'add_recommender_exclusion_term', 'delete_recommender_exclusion_term', 'token_auth', 'verify_token', 'refresh_token')
     add_organization = sgqlc.types.Field(
-        AddOrganization, graphql_name='addOrganization', args=sgqlc.types.ArgDict((
+        AddOrganization,
+        graphql_name='addOrganization',
+        args=sgqlc.types.ArgDict((
             ('name', sgqlc.types.Arg(String, graphql_name='name', default=None)),
         ))
     )
     delete_organization = sgqlc.types.Field(
-        DeleteOrganization, graphql_name='deleteOrganization', args=sgqlc.types.ArgDict((
+        DeleteOrganization,
+        graphql_name='deleteOrganization',
+        args=sgqlc.types.ArgDict((
             ('name', sgqlc.types.Arg(String, graphql_name='name', default=None)),
         ))
     )
+    add_team = sgqlc.types.Field(
+        AddTeam,
+        graphql_name='addTeam',
+        args=sgqlc.types.ArgDict((
+            ('organization', sgqlc.types.Arg(String, graphql_name='organization', default=None)),
+            ('parent_name', sgqlc.types.Arg(String, graphql_name='parentName', default=None)),
+            ('team_name', sgqlc.types.Arg(String, graphql_name='teamName', default=None)),
+        ))
+    )
+    delete_team = sgqlc.types.Field(
+        DeleteTeam,
+        graphql_name='deleteTeam',
+        args=sgqlc.types.ArgDict((
+            ('organization', sgqlc.types.Arg(String, graphql_name='organization', default=None)),
+            ('team_name', sgqlc.types.Arg(String, graphql_name='teamName', default=None)),
+        ))
+    )
     add_domain = sgqlc.types.Field(
-        AddDomain, graphql_name='addDomain', args=sgqlc.types.ArgDict((
+        AddDomain,
+        graphql_name='addDomain',
+        args=sgqlc.types.ArgDict((
             ('domain', sgqlc.types.Arg(String, graphql_name='domain', default=None)),
             ('is_top_domain', sgqlc.types.Arg(Boolean, graphql_name='isTopDomain', default=None)),
             ('organization', sgqlc.types.Arg(String, graphql_name='organization', default=None)),
         ))
     )
     delete_domain = sgqlc.types.Field(
-        DeleteDomain, graphql_name='deleteDomain', args=sgqlc.types.ArgDict((
+        DeleteDomain,
+        graphql_name='deleteDomain',
+        args=sgqlc.types.ArgDict((
             ('domain', sgqlc.types.Arg(String, graphql_name='domain', default=None)),
         ))
     )
     add_identity = sgqlc.types.Field(
-        AddIdentity, graphql_name='addIdentity', args=sgqlc.types.ArgDict((
+        AddIdentity,
+        graphql_name='addIdentity',
+        args=sgqlc.types.ArgDict((
             ('email', sgqlc.types.Arg(String, graphql_name='email', default=None)),
             ('name', sgqlc.types.Arg(String, graphql_name='name', default=None)),
             ('source', sgqlc.types.Arg(String, graphql_name='source', default=None)),
@@ -489,112 +666,203 @@ class SortingHatMutation(sgqlc.types.Type):
         ))
     )
     delete_identity = sgqlc.types.Field(
-        DeleteIdentity, graphql_name='deleteIdentity', args=sgqlc.types.ArgDict((
+        DeleteIdentity,
+        graphql_name='deleteIdentity',
+        args=sgqlc.types.ArgDict((
             ('uuid', sgqlc.types.Arg(String, graphql_name='uuid', default=None)),
         ))
     )
     update_profile = sgqlc.types.Field(
-        'UpdateProfile', graphql_name='updateProfile', args=sgqlc.types.ArgDict((
+        'UpdateProfile',
+        graphql_name='updateProfile',
+        args=sgqlc.types.ArgDict((
             ('data', sgqlc.types.Arg(ProfileInputType, graphql_name='data', default=None)),
             ('uuid', sgqlc.types.Arg(String, graphql_name='uuid', default=None)),
         ))
     )
     move_identity = sgqlc.types.Field(
-        MoveIdentity, graphql_name='moveIdentity', args=sgqlc.types.ArgDict((
+        MoveIdentity,
+        graphql_name='moveIdentity',
+        args=sgqlc.types.ArgDict((
             ('from_uuid', sgqlc.types.Arg(String, graphql_name='fromUuid', default=None)),
             ('to_uuid', sgqlc.types.Arg(String, graphql_name='toUuid', default=None)),
         ))
     )
     lock = sgqlc.types.Field(
-        Lock, graphql_name='lock', args=sgqlc.types.ArgDict((
+        Lock,
+        graphql_name='lock',
+        args=sgqlc.types.ArgDict((
             ('uuid', sgqlc.types.Arg(String, graphql_name='uuid', default=None)),
         ))
     )
     unlock = sgqlc.types.Field(
-        'Unlock', graphql_name='unlock', args=sgqlc.types.ArgDict((
+        'Unlock',
+        graphql_name='unlock',
+        args=sgqlc.types.ArgDict((
             ('uuid', sgqlc.types.Arg(String, graphql_name='uuid', default=None)),
         ))
     )
     merge = sgqlc.types.Field(
-        Merge, graphql_name='merge', args=sgqlc.types.ArgDict((
+        Merge,
+        graphql_name='merge',
+        args=sgqlc.types.ArgDict((
             ('from_uuids', sgqlc.types.Arg(sgqlc.types.list_of(String), graphql_name='fromUuids', default=None)),
             ('to_uuid', sgqlc.types.Arg(String, graphql_name='toUuid', default=None)),
         ))
     )
     unmerge_identities = sgqlc.types.Field(
-        'UnmergeIdentities', graphql_name='unmergeIdentities', args=sgqlc.types.ArgDict((
+        'UnmergeIdentities',
+        graphql_name='unmergeIdentities',
+        args=sgqlc.types.ArgDict((
             ('uuids', sgqlc.types.Arg(sgqlc.types.list_of(String), graphql_name='uuids', default=None)),
         ))
     )
     enroll = sgqlc.types.Field(
-        Enroll, graphql_name='enroll', args=sgqlc.types.ArgDict((
+        Enroll,
+        graphql_name='enroll',
+        args=sgqlc.types.ArgDict((
             ('force', sgqlc.types.Arg(Boolean, graphql_name='force', default=None)),
             ('from_date', sgqlc.types.Arg(DateTime, graphql_name='fromDate', default=None)),
-            ('organization', sgqlc.types.Arg(String, graphql_name='organization', default=None)),
+            ('group', sgqlc.types.Arg(String, graphql_name='group', default=None)),
+            ('parent_org', sgqlc.types.Arg(String, graphql_name='parentOrg', default=None)),
             ('to_date', sgqlc.types.Arg(DateTime, graphql_name='toDate', default=None)),
             ('uuid', sgqlc.types.Arg(String, graphql_name='uuid', default=None)),
         ))
     )
     withdraw = sgqlc.types.Field(
-        'Withdraw', graphql_name='withdraw', args=sgqlc.types.ArgDict((
+        'Withdraw',
+        graphql_name='withdraw',
+        args=sgqlc.types.ArgDict((
             ('from_date', sgqlc.types.Arg(DateTime, graphql_name='fromDate', default=None)),
-            ('organization', sgqlc.types.Arg(String, graphql_name='organization', default=None)),
+            ('group', sgqlc.types.Arg(String, graphql_name='group', default=None)),
+            ('parent_org', sgqlc.types.Arg(String, graphql_name='parentOrg', default=None)),
             ('to_date', sgqlc.types.Arg(DateTime, graphql_name='toDate', default=None)),
             ('uuid', sgqlc.types.Arg(String, graphql_name='uuid', default=None)),
         ))
     )
     update_enrollment = sgqlc.types.Field(
-        'UpdateEnrollment', graphql_name='updateEnrollment', args=sgqlc.types.ArgDict((
+        'UpdateEnrollment',
+        graphql_name='updateEnrollment',
+        args=sgqlc.types.ArgDict((
             ('force', sgqlc.types.Arg(Boolean, graphql_name='force', default=None)),
             ('from_date', sgqlc.types.Arg(DateTime, graphql_name='fromDate', default=None)),
+            ('group', sgqlc.types.Arg(String, graphql_name='group', default=None)),
             ('new_from_date', sgqlc.types.Arg(DateTime, graphql_name='newFromDate', default=None)),
             ('new_to_date', sgqlc.types.Arg(DateTime, graphql_name='newToDate', default=None)),
-            ('organization', sgqlc.types.Arg(String, graphql_name='organization', default=None)),
+            ('parent_org', sgqlc.types.Arg(String, graphql_name='parentOrg', default=None)),
             ('to_date', sgqlc.types.Arg(DateTime, graphql_name='toDate', default=None)),
             ('uuid', sgqlc.types.Arg(String, graphql_name='uuid', default=None)),
         ))
     )
     recommend_affiliations = sgqlc.types.Field(
-        RecommendAffiliations, graphql_name='recommendAffiliations', args=sgqlc.types.ArgDict((
+        RecommendAffiliations,
+        graphql_name='recommendAffiliations',
+        args=sgqlc.types.ArgDict((
             ('uuids', sgqlc.types.Arg(sgqlc.types.list_of(String), graphql_name='uuids', default=None)),
         ))
     )
     recommend_matches = sgqlc.types.Field(
-        RecommendMatches, graphql_name='recommendMatches', args=sgqlc.types.ArgDict((
+        RecommendMatches,
+        graphql_name='recommendMatches',
+        args=sgqlc.types.ArgDict((
             ('criteria', sgqlc.types.Arg(sgqlc.types.list_of(String), graphql_name='criteria', default=None)),
+            ('exclude', sgqlc.types.Arg(Boolean, graphql_name='exclude', default=None)),
             ('source_uuids', sgqlc.types.Arg(sgqlc.types.list_of(String), graphql_name='sourceUuids', default=None)),
             ('target_uuids', sgqlc.types.Arg(sgqlc.types.list_of(String), graphql_name='targetUuids', default=None)),
             ('verbose', sgqlc.types.Arg(Boolean, graphql_name='verbose', default=None)),
         ))
     )
+    recommend_gender = sgqlc.types.Field(
+        RecommendGender,
+        graphql_name='recommendGender',
+        args=sgqlc.types.ArgDict((
+            ('exclude', sgqlc.types.Arg(Boolean, graphql_name='exclude', default=None)),
+            ('no_strict_matching', sgqlc.types.Arg(Boolean, graphql_name='noStrictMatching', default=None)),
+            ('uuids', sgqlc.types.Arg(sgqlc.types.list_of(String), graphql_name='uuids', default=None)),
+        ))
+    )
     affiliate = sgqlc.types.Field(
-        Affiliate, graphql_name='affiliate', args=sgqlc.types.ArgDict((
+        Affiliate,
+        graphql_name='affiliate',
+        args=sgqlc.types.ArgDict((
             ('uuids', sgqlc.types.Arg(sgqlc.types.list_of(String), graphql_name='uuids', default=None)),
         ))
     )
     unify = sgqlc.types.Field(
-        'Unify', graphql_name='unify', args=sgqlc.types.ArgDict((
+        'Unify',
+        graphql_name='unify',
+        args=sgqlc.types.ArgDict((
             ('criteria', sgqlc.types.Arg(sgqlc.types.list_of(String), graphql_name='criteria', default=None)),
+            ('exclude', sgqlc.types.Arg(Boolean, graphql_name='exclude', default=None)),
             ('source_uuids', sgqlc.types.Arg(sgqlc.types.list_of(String), graphql_name='sourceUuids', default=None)),
             ('target_uuids', sgqlc.types.Arg(sgqlc.types.list_of(String), graphql_name='targetUuids', default=None)),
         ))
     )
+    genderize = sgqlc.types.Field(
+        Genderize,
+        graphql_name='genderize',
+        args=sgqlc.types.ArgDict((
+            ('exclude', sgqlc.types.Arg(Boolean, graphql_name='exclude', default=None)),
+            ('no_strict_matching', sgqlc.types.Arg(Boolean, graphql_name='noStrictMatching', default=None)),
+            ('uuids', sgqlc.types.Arg(sgqlc.types.list_of(String), graphql_name='uuids', default=None)),
+        ))
+    )
+    add_recommender_exclusion_term = sgqlc.types.Field(
+        AddRecommenderExclusionTerm,
+        graphql_name='addRecommenderExclusionTerm',
+        args=sgqlc.types.ArgDict((
+            ('term', sgqlc.types.Arg(String, graphql_name='term', default=None)),
+        ))
+    )
+    delete_recommender_exclusion_term = sgqlc.types.Field(
+        DeleteRecommenderExclusionTerm,
+        graphql_name='deleteRecommenderExclusionTerm',
+        args=sgqlc.types.ArgDict((
+            ('term', sgqlc.types.Arg(String, graphql_name='term', default=None)),
+        ))
+    )
     token_auth = sgqlc.types.Field(
-        ObtainJSONWebToken, graphql_name='tokenAuth', args=sgqlc.types.ArgDict((
+        ObtainJSONWebToken,
+        graphql_name='tokenAuth',
+        args=sgqlc.types.ArgDict((
             ('username', sgqlc.types.Arg(sgqlc.types.non_null(String), graphql_name='username', default=None)),
             ('password', sgqlc.types.Arg(sgqlc.types.non_null(String), graphql_name='password', default=None)),
         ))
     )
     verify_token = sgqlc.types.Field(
-        'Verify', graphql_name='verifyToken', args=sgqlc.types.ArgDict((
-            ('token', sgqlc.types.Arg(sgqlc.types.non_null(String), graphql_name='token', default=None)),
+        'Verify',
+        graphql_name='verifyToken',
+        args=sgqlc.types.ArgDict((
+            ('token', sgqlc.types.Arg(String, graphql_name='token', default=None)),
         ))
     )
     refresh_token = sgqlc.types.Field(
-        Refresh, graphql_name='refreshToken', args=sgqlc.types.ArgDict((
-            ('token', sgqlc.types.Arg(sgqlc.types.non_null(String), graphql_name='token', default=None)),
+        Refresh,
+        graphql_name='refreshToken',
+        args=sgqlc.types.ArgDict((
+            ('token', sgqlc.types.Arg(String, graphql_name='token', default=None)),
         ))
     )
+
+
+class TeamPaginatedType(sgqlc.types.Type):
+    __schema__ = sh_schema
+    __field_names__ = ('entities', 'page_info')
+    entities = sgqlc.types.Field(sgqlc.types.list_of('TeamType'), graphql_name='entities')
+    page_info = sgqlc.types.Field(PaginationType, graphql_name='pageInfo')
+
+
+class TeamType(sgqlc.types.Type):
+    __schema__ = sh_schema
+    __field_names__ = ('id', 'numchild', 'created_at', 'last_modified', 'name', 'parent_org', 'enrollments', 'subteams')
+    id = sgqlc.types.Field(sgqlc.types.non_null(ID), graphql_name='id')
+    numchild = sgqlc.types.Field(sgqlc.types.non_null(Int), graphql_name='numchild')
+    created_at = sgqlc.types.Field(sgqlc.types.non_null(DateTime), graphql_name='createdAt')
+    last_modified = sgqlc.types.Field(sgqlc.types.non_null(DateTime), graphql_name='lastModified')
+    name = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='name')
+    parent_org = sgqlc.types.Field(OrganizationType, graphql_name='parentOrg')
+    enrollments = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of(sgqlc.types.non_null(EnrollmentType))), graphql_name='enrollments')
+    subteams = sgqlc.types.Field(sgqlc.types.list_of('TeamType'), graphql_name='subteams')
 
 
 class TransactionPaginatedType(sgqlc.types.Type):
@@ -659,7 +927,7 @@ class UpdateProfile(sgqlc.types.Type):
 class Verify(sgqlc.types.Type):
     __schema__ = sh_schema
     __field_names__ = ('payload',)
-    payload = sgqlc.types.Field(GenericScalar, graphql_name='payload')
+    payload = sgqlc.types.Field(sgqlc.types.non_null(GenericScalar), graphql_name='payload')
 
 
 class Withdraw(sgqlc.types.Type):
@@ -675,7 +943,7 @@ class Withdraw(sgqlc.types.Type):
 
 class JobResultType(sgqlc.types.Union):
     __schema__ = sh_schema
-    __types__ = (AffiliationResultType, AffiliationRecommendationType, MatchesRecommendationType, UnifyResultType)
+    __types__ = (AffiliationResultType, AffiliationRecommendationType, MatchesRecommendationType, UnifyResultType, GenderRecommendationType, GenderizeResultType)
 
 
 ########################################################################
