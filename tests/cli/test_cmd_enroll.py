@@ -32,7 +32,7 @@ from sortinghat.cli.cmds.enroll import enroll
 ENROLL_CMD_OP = """mutation {{
   enroll(
       uuid: "{}"
-      organization: "{}"
+      group: "{}"
       fromDate: "{}"
       toDate: "{}"
       force: {}
@@ -42,7 +42,7 @@ ENROLL_CMD_OP = """mutation {{
 }}"""
 
 ENROLL_DEFAULT_CMD_OP = """mutation {{
-  enroll(uuid: "{}", organization: "{}", force: {}) {{
+  enroll(uuid: "{}", group: "{}", force: {}) {{
     uuid
   }}
 }}"""

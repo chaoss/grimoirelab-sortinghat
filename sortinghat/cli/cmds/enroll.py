@@ -35,7 +35,7 @@ from ..utils import (connect,
 @click.command()
 @sh_client_cmd_options
 @click.argument('uuid')
-@click.argument('organization')
+@click.argument('group')
 @click.option('--from-date',
               help="Date when the enrollment starts")
 @click.option('--to-date',
@@ -43,12 +43,12 @@ from ..utils import (connect,
 @click.option('--force', is_flag=True,
               help="Overwrite default dates in case a more specific range is given")
 @sh_client
-def enroll(ctx, uuid, organization, from_date, to_date, force,
+def enroll(ctx, uuid, group, from_date, to_date, force,
            **extra):
-    """Enroll an individual in an organization.
+    """Enroll an individual in a group.
 
     This command enrolls the individual <uuid> in the
-    given <organization>. Both identity and organization must
+    given <group>. Both identity and group must
     exist before adding the new enrollment to the registry.
 
     The period of the enrollment can be given with the options
@@ -59,7 +59,7 @@ def enroll(ctx, uuid, organization, from_date, to_date, force,
     '1900-01-01' and '2100-01-01' in UTC.
 
     Existing enrollments for the same individual and
-    organization which overlap with the new period will be
+    group which overlap with the new period will be
     automatically merged into a single enrollment.
 
     If the given period for that enrollment is enclosed by
@@ -71,7 +71,7 @@ def enroll(ctx, uuid, organization, from_date, to_date, force,
 
     UUID: individual to enroll
 
-    ORGANIZATION: name of organization
+    GROUP: name of group
     """
     with connect(ctx.obj) as conn:
         try:
@@ -83,7 +83,7 @@ def enroll(ctx, uuid, organization, from_date, to_date, force,
             raise click.ClickException(str(exc))
 
         _enroll_identity(conn, uuid=uuid,
-                         organization=organization,
+                         group=group,
                          from_date=from_date,
                          to_date=to_date,
                          force=force)

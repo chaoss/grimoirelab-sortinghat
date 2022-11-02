@@ -57,7 +57,7 @@ SHOW_CMD_OP = """query {{
       enrollments {{
         start
         end
-        organization {{
+        group {{
           name
         }}
       }}
@@ -194,21 +194,21 @@ JANE_ROE_ENROLLMENTS = [
     {
         'start': '1999-01-01T00:00:00Z',
         'end': '2000-01-01T00:00:00Z',
-        'organization': {
+        'group': {
             'name': 'Bitergia'
         }
     },
     {
         'start': '2006-01-01T00:00:00Z',
         'end': '2008-01-01T00:00:00Z',
-        'organization': {
+        'group': {
             'name': 'Bitergia'
         }
     },
     {
         'start': '1900-01-01T00:00:00Z',
         'end': '2100-01-01T00:00:00Z',
-        'organization': {
+        'group': {
             'name': 'Example'
         }
     }
@@ -241,7 +241,7 @@ JSMITH_ENROLLMENTS = [
     {
         'start': '1900-01-01T00:00:00Z',
         'end': '2100-01-01T00:00:00Z',
-        'organization': {
+        'group': {
             'name': 'Example'
         }
     }

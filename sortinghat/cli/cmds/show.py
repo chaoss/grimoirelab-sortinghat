@@ -95,6 +95,6 @@ def _generate_individuals_operation(page, uuid):
 
     individual.identities().__fields__('uuid', 'email', 'name', 'username', 'source')
     individual.enrollments().__fields__('start', 'end')
-    individual.enrollments().organization().name()
+    individual.enrollments().group().name()
 
     return op

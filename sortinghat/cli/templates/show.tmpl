@@ -21,7 +21,7 @@ No identities
 {% if indv.enrollments %}
 Enrollments:
 {% for rol in indv.enrollments %}
-  {{ rol.organization.name }}	{{ rol.start.strftime('%Y-%m-%d %H:%M:%S') }}	{{ rol.end.strftime('%Y-%m-%d %H:%M:%S') }}
+  {{ rol.group.name }}	{{ rol.start.strftime('%Y-%m-%d %H:%M:%S') }}	{{ rol.end.strftime('%Y-%m-%d %H:%M:%S') }}
 {% endfor %}
 {% else %}
 No enrollments

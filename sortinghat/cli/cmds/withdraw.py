@@ -35,20 +35,20 @@ from ..utils import (connect,
 @click.command()
 @sh_client_cmd_options
 @click.argument('uuid')
-@click.argument('organization')
+@click.argument('group')
 @click.option('--from-date',
               help="Date when the enrollment starts")
 @click.option('--to-date',
               help="Date when the enrollment ends")
 @sh_client
-def withdraw(ctx, uuid, organization, from_date, to_date, **extra):
-    """Withdraw an individual from an organization.
+def withdraw(ctx, uuid, group, from_date, to_date, **extra):
+    """Withdraw an individual from an group.
 
     This command withdraws the individual <uuid> from
-    <organization> during the given period of time.
+    <group> during the given period of time.
 
     For example, if the individual 'A' was enrolled from
-    '2010-01-01' to '2018-01-01' to the organization 'Example',
+    '2010-01-01' to '2018-01-01' to the group 'Example',
     the result of withdrawing that identity from '2014-01-01' to
     '2016-01-01' will be two enrollments for that identity: one
     for the period 2010-2014 and another one for the period
@@ -62,13 +62,13 @@ def withdraw(ctx, uuid, organization, from_date, to_date, **extra):
     timestamps). The default values for these dates are
     '1900-01-01' and '2100-01-01' in UTC.
 
-    Both <uuid> and <organization> must exist before being
+    Both <uuid> and <group> must exist before being
     deleted. Moreover, an enrollment during the given period
     must exist. Otherwise the command will return an error.
 
     UUID: individual to withdraw
 
-    ORGANIZATION: name of organization
+    GROUP: name of group
     """
     with connect(ctx.obj) as conn:
         try:
@@ -80,7 +80,7 @@ def withdraw(ctx, uuid, organization, from_date, to_date, **extra):
             raise click.ClickException(str(exc))
 
         _withdraw_identity(conn, uuid=uuid,
-                           organization=organization,
+                           group=group,
                            from_date=from_date,
                            to_date=to_date)
 
