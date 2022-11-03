@@ -19,6 +19,10 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+import json
+from django.http import HttpResponse
+from django.contrib.auth.forms import PasswordChangeForm
+
 from graphene_django.views import GraphQLView as BaseGraphQLView
 from graphql_jwt.exceptions import (PermissionDenied,
                                     JSONWebTokenExpired,
@@ -28,6 +32,8 @@ from .errors import (CODE_TOKEN_EXPIRED,
                      CODE_PERMISSION_DENIED,
                      CODE_INVALID_CREDENTIALS,
                      CODE_UNKNOWN_ERROR)
+
+from .decorators import jwt_login_required
 
 
 class SortingHatGraphQLView(BaseGraphQLView):
@@ -58,3 +64,25 @@ class SortingHatGraphQLView(BaseGraphQLView):
             formatted_error['extensions'] = {'code': code}
 
         return formatted_error
+
+
+@jwt_login_required
+def change_password(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            response = {
+                'updated': user.username
+            }
+            return HttpResponse(json.dumps(response),
+                                content_type='application/json')
+        else:
+            response = {
+                'errors': form.errors.get_json_data()
+            }
+
+            return HttpResponse(json.dumps(response),
+                                content_type='application/json')
+    else:
+        return HttpResponse(status=405)
