@@ -32,7 +32,7 @@ from sortinghat.cli.cmds.withdraw import withdraw
 WITHDRAW_CMD_OP = """mutation {{
   withdraw(
       uuid: "{}"
-      organization: "{}"
+      group: "{}"
       fromDate: "{}"
       toDate: "{}"
     ) {{
@@ -41,7 +41,7 @@ WITHDRAW_CMD_OP = """mutation {{
 }}"""
 
 WITHDRAW_DEFAULT_CMD_OP = """mutation {{
-  withdraw(uuid: "{}", organization: "{}") {{
+  withdraw(uuid: "{}", group: "{}") {{
     uuid
   }}
 }}"""
