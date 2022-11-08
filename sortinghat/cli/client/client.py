@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2020 Bitergia
+# Copyright (C) 2014-2022 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -24,8 +24,13 @@ import urllib.parse
 
 from sgqlc.endpoint.http import HTTPEndpoint
 from sgqlc.operation import Operation
+from sgqlc.types import Scalar
 
 from .schema import sh_schema
+
+
+# Ensure strings are sent using their original encoding
+Scalar.__json_dump_args__ = {'ensure_ascii': False}
 
 
 class SortingHatClientError(Exception):
