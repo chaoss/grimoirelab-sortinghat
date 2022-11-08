@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2020 Bitergia
+# Copyright (C) 2014-2022 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -62,8 +62,10 @@ ADD_UUID_OUTPUT = (
     "New identity ffefc2e3f2a255e9450ac9e2d36f37c28f51bd73 "
     "added to a9b403e150dd4af8953a52a4bb841051e4b705d9\n"
 )
-
-
+ADD_UTF8_OUTPUT = (
+    "New identity 843fcc3383ddfd6179bef87996fa761d88a43915 "
+    "added to 843fcc3383ddfd6179bef87996fa761d88a43915\n"
+)
 ADD_NOT_FOUND_ERROR = (
     "FFFFFFFFFFFFFFF not found in the registry"
 )
@@ -101,7 +103,6 @@ class TestAddCommand(unittest.TestCase):
 
         responses = [
             {'data': {'addIdentity': {'uuid': 'eda9f62ad321b1fbe5f283cc05e2484516203117'}}},
-
         ]
         client = MockClient(responses)
         mock_client.return_value = client
@@ -130,7 +131,6 @@ class TestAddCommand(unittest.TestCase):
 
         responses = [
             {'data': {'addIdentity': {'uuid': '322397ed782a798ffd9d0bc7e293df4292fe075d'}}},
-
         ]
         client = MockClient(responses)
         mock_client.return_value = client
@@ -157,7 +157,6 @@ class TestAddCommand(unittest.TestCase):
 
         responses = [
             {'data': {'addIdentity': {'uuid': 'ffefc2e3f2a255e9450ac9e2d36f37c28f51bd73'}}}
-
         ]
         client = MockClient(responses)
         mock_client.return_value = client
@@ -179,6 +178,34 @@ class TestAddCommand(unittest.TestCase):
         self.assertEqual(str(client.ops[0]), expected)
 
         self.assertEqual(result.stdout, ADD_UUID_OUTPUT)
+        self.assertEqual(result.exit_code, 0)
+
+    @unittest.mock.patch('sortinghat.cli.utils.SortingHatClient')
+    def test_add_with_utf8_4bytes(self, mock_client):
+        """Check if it adds a new identity with utf-8 of 4 bytes"""
+
+        responses = [
+            {'data': {'addIdentity': {'uuid': '843fcc3383ddfd6179bef87996fa761d88a43915'}}}
+        ]
+        client = MockClient(responses)
+        mock_client.return_value = client
+
+        runner = click.testing.CliRunner()
+
+        params = [
+            '--source', 'scm',
+            '--name', '😂',
+            '--email', '😂',
+            '--username', '😂'
+        ]
+        result = runner.invoke(add, params)
+
+        expected = ADD_CMD_OP.format('scm', '😂', '😂', '😂',
+                                     '843fcc3383ddfd6179bef87996fa761d88a43915')
+        self.assertEqual(len(client.ops), 1)
+        self.assertEqual(str(client.ops[0]), expected)
+
+        self.assertEqual(result.stdout, ADD_UTF8_OUTPUT)
         self.assertEqual(result.exit_code, 0)
 
     @unittest.mock.patch('sortinghat.cli.utils.SortingHatClient')
