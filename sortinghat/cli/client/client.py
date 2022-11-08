@@ -20,7 +20,7 @@
 #
 
 import requests
-import uri
+import urllib.parse
 
 from sgqlc.endpoint.http import HTTPEndpoint
 from sgqlc.operation import Operation
@@ -70,6 +70,9 @@ class SortingHatClient:
         self.host = host
         self.port = port
 
+        scheme = 'https' if ssl else 'http'
+        netloc = self.host + ':' + str(self.port) if self.port else self.host
+
         if not path:
             self.path = '/'
         elif not path.startswith('/'):
@@ -84,10 +87,8 @@ class SortingHatClient:
         self.password = password
 
         try:
-            scheme = 'https' if ssl else 'http'
-            self.url = uri.URI(scheme=scheme,
-                               host=self.host, port=self.port,
-                               path=self.path)
+            parts = (scheme, netloc, self.path, '', '')
+            self.url = urllib.parse.urlunsplit(parts)
         except (ValueError, TypeError) as exc:
             msg = "Invalid URL parameters; cause: {}".format(exc)
             raise ValueError(msg)
