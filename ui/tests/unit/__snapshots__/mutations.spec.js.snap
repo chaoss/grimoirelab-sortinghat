@@ -2214,6 +2214,81 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
 </section>
 `;
 
+exports[`Jobs Mock mutation for affiliate 1`] = `
+<v-main-stub
+  tag="main"
+>
+  <jobs-table-stub
+    class="mt-md-6"
+    getjobs="function () { [native code] }"
+  />
+   
+  <v-snackbar-stub
+    color="error"
+    contentclass=""
+    tag="div"
+    text="true"
+    timeout="5000"
+    transition="v-snack-transition"
+    value="true"
+  >
+    
+    TypeError: this.$refs.table.getPaginatedJobs is not a function
+  
+  </v-snackbar-stub>
+</v-main-stub>
+`;
+
+exports[`Jobs Mock mutation for genderize 1`] = `
+<v-main-stub
+  tag="main"
+>
+  <jobs-table-stub
+    class="mt-md-6"
+    getjobs="function () { [native code] }"
+  />
+   
+  <v-snackbar-stub
+    color="error"
+    contentclass=""
+    tag="div"
+    text="true"
+    timeout="5000"
+    transition="v-snack-transition"
+    value="true"
+  >
+    
+    TypeError: this.$refs.table.getPaginatedJobs is not a function
+  
+  </v-snackbar-stub>
+</v-main-stub>
+`;
+
+exports[`Jobs Mock mutation for unify 1`] = `
+<v-main-stub
+  tag="main"
+>
+  <jobs-table-stub
+    class="mt-md-6"
+    getjobs="function () { [native code] }"
+  />
+   
+  <v-snackbar-stub
+    color="error"
+    contentclass=""
+    tag="div"
+    text="true"
+    timeout="5000"
+    transition="v-snack-transition"
+    value="true"
+  >
+    
+    TypeError: this.$refs.table.getPaginatedJobs is not a function
+  
+  </v-snackbar-stub>
+</v-main-stub>
+`;
+
 exports[`Login Mock mutation for tokenAuth 1`] = `
 <v-main-stub
   class="align-center"
