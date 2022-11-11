@@ -8,7 +8,7 @@
       </router-link>
 
       <v-spacer></v-spacer>
-      <v-menu v-if="user && $route.name !== 'Login'" offset-y>
+      <v-menu v-if="user && $route.name !== 'Login'" offset-y left>
         <template v-slot:activator="{ on }">
           <v-btn depressed small color="primary" v-on="on">
             <v-icon small left>
@@ -33,6 +33,13 @@
               <v-icon small>mdi-tray-full</v-icon>
             </v-list-item-icon>
             <v-list-item-title>Jobs</v-list-item-title>
+          </v-list-item>
+          <v-divider />
+          <v-list-item to="/change-password">
+            <v-list-item-icon class="mr-2">
+              <v-icon small>mdi-cog-outline</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>Change password</v-list-item-title>
           </v-list-item>
           <v-divider />
           <v-list-item @click="logOut">

@@ -15,6 +15,12 @@ const routes = [
     meta: { requiresAuth: true, title: "Sorting Hat" }
   },
   {
+    path: "/change-password",
+    name: "ChangePassword",
+    component: () => import("../views/ChangePassword"),
+    meta: { requiresAuth: true, title: "Password change - Sorting Hat" }
+  },
+  {
     path: "/login",
     name: "Login",
     component: () => import("../views/Login"),
