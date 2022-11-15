@@ -77,6 +77,8 @@
           @move="move($event)"
           @remove="removeIndividual(individual)"
           @select="selectIndividual(individual)"
+          closable
+          selectable
         />
       </v-col>
     </v-row>

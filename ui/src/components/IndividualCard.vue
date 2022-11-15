@@ -5,8 +5,10 @@
       locked: isLocked,
       dropzone: isDragging,
       selected: isSelected,
-      highlighted: isHighlighted
+      highlighted: isHighlighted,
+      disabled: !selectable
     }"
+    :ripple="selectable"
     raised
     v-on="$listeners"
     @drop.native.prevent.stop="onDrop($event)"
@@ -21,7 +23,6 @@
       <v-list-item-content>
         <v-list-item-title class="font-weight-medium">
           {{ name || email }}
-          <v-icon v-if="isLocked" small right class="mb-1">mdi-lock</v-icon>
         </v-list-item-title>
         <v-list-item-subtitle v-if="enrollments && enrollments.length > 0">
           {{ enrollments[0].group.name }}
@@ -43,6 +44,7 @@
       </v-list-item-content>
 
       <v-list-item-icon>
+        <v-icon v-if="isLocked" small left class="mb-1">mdi-lock</v-icon>
         <v-menu offset-y offset-x :close-on-content-click="false">
           <template v-slot:activator="{ on }">
             <v-btn icon v-on="on" @mousedown.stop>
@@ -58,7 +60,13 @@
             :uuid="uuid"
           />
         </v-menu>
-        <v-btn text icon @click.stop="$emit('remove')" @mousedown.stop>
+        <v-btn
+          v-if="closable"
+          text
+          icon
+          @click.stop="$emit('remove')"
+          @mousedown.stop
+        >
           <v-icon small>
             mdi-close
           </v-icon>
@@ -120,6 +128,14 @@ export default {
     isLocked: {
       type: Boolean,
       required: true
+    },
+    closable: {
+      type: Boolean,
+      required: false
+    },
+    selectable: {
+      type: Boolean,
+      required: false
     }
   },
   data() {
@@ -190,5 +206,9 @@ export default {
 
 .v-list-item--three-line .v-list-item__avatar {
   font-size: 0.8rem;
+}
+
+.disabled {
+  cursor: default;
 }
 </style>
