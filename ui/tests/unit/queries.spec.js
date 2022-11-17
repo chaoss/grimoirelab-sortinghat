@@ -79,36 +79,32 @@ const paginatedResponse = {
 };
 
 const paginatedOrganizations = {
-  data: {
-    organizations: {
-      entities: [
-        {
-          name: "Test 1",
-          enrollments: [
-            { id: 1, __typename: "EnrollmentType" },
-            { id: 2, __typename: "EnrollmentType" }
-          ],
-          __typename: "OrganizationType"
-        },
-        {
-          name: "Test 2",
-          enrollments: [
-            { id: 3, __typename: "EnrollmentType" },
-            { id: 4, __typename: "EnrollmentType" }
-          ],
-          __typename: "OrganizationType"
-        }
+  entities: [
+    {
+      name: "Test 1",
+      enrollments: [
+        { id: 1, __typename: "EnrollmentType" },
+        { id: 2, __typename: "EnrollmentType" }
       ],
-      pageInfo: {
-        page: 1,
-        pageSize: 10,
-        numPages: 1,
-        totalResults: 2,
-        __typename: "PaginationType"
-      },
-      __typename: "OrganizationPaginatedType"
+      __typename: "OrganizationType"
+    },
+    {
+      name: "Test 2",
+      enrollments: [
+        { id: 3, __typename: "EnrollmentType" },
+        { id: 4, __typename: "EnrollmentType" }
+      ],
+      __typename: "OrganizationType"
     }
-  }
+  ],
+  pageInfo: {
+    page: 1,
+    pageSize: 10,
+    numPages: 1,
+    totalResults: 2,
+    __typename: "PaginationType"
+  },
+  __typename: "OrganizationPaginatedType"
 };
 
 const paginatedTeams = {
@@ -452,6 +448,7 @@ describe("OrganizationsTable", () => {
         deleteTeam: () => {}
       }
     });
+
     const response = await Queries.getPaginatedOrganizations(
       wrapper.vm.$apollo,
       1,

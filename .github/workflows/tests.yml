@@ -13,7 +13,7 @@ on:
 jobs:
 
   backend:
-    
+
     services:
       mysql:
         image: mariadb:10.5
@@ -28,7 +28,7 @@ jobs:
         python-version: [3.7, 3.8]
 
     runs-on: ubuntu-latest
-    name: Python ${{ matrix.python-version }}    
+    name: Python ${{ matrix.python-version }}
     steps:
     - name: Checkout
       uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # 3.1.0
@@ -47,7 +47,7 @@ jobs:
     - name: Set MySQL mode
       env:
         DB_HOST: 127.0.0.1
-        DB_PORT: ${{ job.services.mysql.ports[3306] }} 
+        DB_PORT: ${{ job.services.mysql.ports[3306] }}
       run: |
         mysql --host $DB_HOST --port $DB_PORT -uroot -proot -e "SET GLOBAL sql_mode = 'NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION'";
     - name: Lint with flake8
@@ -61,14 +61,14 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [12.x, 13.x, 14.x]
+        node-version: [14.x, 16.x]
 
     runs-on: ubuntu-latest
     name: Node ${{ matrix.node-version }}
     steps:
       - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # 3.1.0
       - name: Setup Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
       - name: Install dependencies
