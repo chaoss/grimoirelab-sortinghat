@@ -3687,7 +3687,7 @@ exports[`Storyshots Identity Source 1`] = `
 </div>
 `;
 
-exports[`Storyshots IndividualCard Default 1`] = `
+exports[`Storyshots IndividualCard Closable 1`] = `
 <div
   class="v-application v-application--is-ltr theme--light"
   data-app="true"
@@ -3697,7 +3697,7 @@ exports[`Storyshots IndividualCard Default 1`] = `
     class="v-application--wrap"
   >
     <div
-      class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light"
+      class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light disabled"
       tabindex="0"
     >
       <div
@@ -3729,8 +3729,7 @@ exports[`Storyshots IndividualCard Default 1`] = `
           >
             
         Tom Marvolo Riddle
-        
-            <!---->
+      
           </div>
            
           <!---->
@@ -3743,6 +3742,8 @@ exports[`Storyshots IndividualCard Default 1`] = `
         <div
           class="v-list-item__icon"
         >
+          <!---->
+           
           <div
             class="v-menu"
           >
@@ -3785,6 +3786,92 @@ exports[`Storyshots IndividualCard Default 1`] = `
 </div>
 `;
 
+exports[`Storyshots IndividualCard Default 1`] = `
+<div
+  class="v-application v-application--is-ltr theme--light"
+  data-app="true"
+  id="app"
+>
+  <div
+    class="v-application--wrap"
+  >
+    <div
+      class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light disabled"
+      tabindex="0"
+    >
+      <div
+        class="grow v-list-item v-list-item--three-line theme--light"
+        tabindex="-1"
+      >
+        <div
+          class="v-avatar v-list-item__avatar"
+          style="height: 30px; min-width: 30px; width: 30px; background-color: rgb(245, 142, 12); border-color: #f58e0c;"
+        >
+          <img
+            aria-hidden="true"
+            src="https://www.gravatar.com/avatar/0ffaa7f50f46479b4217df22e203bfce.jpg?d=blank&s=40"
+            style="width: 32px; height: 32px;"
+          />
+           
+          <span
+            class="white--text"
+          >
+            TR
+          </span>
+        </div>
+         
+        <div
+          class="v-list-item__content"
+        >
+          <div
+            class="v-list-item__title font-weight-medium"
+          >
+            
+        Tom Marvolo Riddle
+      
+          </div>
+           
+          <!---->
+           
+          <div
+            class="v-list-item__subtitle"
+          />
+        </div>
+         
+        <div
+          class="v-list-item__icon"
+        >
+          <!---->
+           
+          <div
+            class="v-menu"
+          >
+            <button
+              class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+              type="button"
+            >
+              <span
+                class="v-btn__content"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate mdi mdi-magnify-plus-outline theme--light"
+                  style="font-size: 16px;"
+                />
+              </span>
+            </button>
+            <!---->
+          </div>
+           
+          <!---->
+        </div>
+      </div>
+       
+    </div>
+  </div>
+</div>
+`;
+
 exports[`Storyshots IndividualCard Gravatar 1`] = `
 <div
   class="v-application v-application--is-ltr theme--light"
@@ -3795,7 +3882,7 @@ exports[`Storyshots IndividualCard Gravatar 1`] = `
     class="v-application--wrap"
   >
     <div
-      class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light"
+      class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light disabled"
       tabindex="0"
     >
       <div
@@ -3827,8 +3914,7 @@ exports[`Storyshots IndividualCard Gravatar 1`] = `
           >
             
         Santiago Dueñas
-        
-            <!---->
+      
           </div>
            
           <!---->
@@ -3841,6 +3927,8 @@ exports[`Storyshots IndividualCard Gravatar 1`] = `
         <div
           class="v-list-item__icon"
         >
+          <!---->
+           
           <div
             class="v-menu"
           >
@@ -3861,20 +3949,7 @@ exports[`Storyshots IndividualCard Gravatar 1`] = `
             <!---->
           </div>
            
-          <button
-            class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
-            type="button"
-          >
-            <span
-              class="v-btn__content"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-close theme--light"
-                style="font-size: 16px;"
-              />
-            </span>
-          </button>
+          <!---->
         </div>
       </div>
        
@@ -3893,7 +3968,7 @@ exports[`Storyshots IndividualCard Highlighted 1`] = `
     class="v-application--wrap"
   >
     <div
-      class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light highlighted"
+      class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light highlighted disabled"
       tabindex="0"
     >
       <div
@@ -3925,8 +4000,7 @@ exports[`Storyshots IndividualCard Highlighted 1`] = `
           >
             
         Tom Marvolo Riddle
-        
-            <!---->
+      
           </div>
            
           <!---->
@@ -3939,6 +4013,8 @@ exports[`Storyshots IndividualCard Highlighted 1`] = `
         <div
           class="v-list-item__icon"
         >
+          <!---->
+           
           <div
             class="v-menu"
           >
@@ -3959,20 +4035,7 @@ exports[`Storyshots IndividualCard Highlighted 1`] = `
             <!---->
           </div>
            
-          <button
-            class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
-            type="button"
-          >
-            <span
-              class="v-btn__content"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-close theme--light"
-                style="font-size: 16px;"
-              />
-            </span>
-          </button>
+          <!---->
         </div>
       </div>
        
@@ -3991,7 +4054,7 @@ exports[`Storyshots IndividualCard No Name 1`] = `
     class="v-application--wrap"
   >
     <div
-      class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light"
+      class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light disabled"
       tabindex="0"
     >
       <div
@@ -4023,8 +4086,7 @@ exports[`Storyshots IndividualCard No Name 1`] = `
           >
             
         triddle@example.net
-        
-            <!---->
+      
           </div>
            
           <!---->
@@ -4037,6 +4099,8 @@ exports[`Storyshots IndividualCard No Name 1`] = `
         <div
           class="v-list-item__icon"
         >
+          <!---->
+           
           <div
             class="v-menu"
           >
@@ -4057,20 +4121,7 @@ exports[`Storyshots IndividualCard No Name 1`] = `
             <!---->
           </div>
            
-          <button
-            class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
-            type="button"
-          >
-            <span
-              class="v-btn__content"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-close theme--light"
-                style="font-size: 16px;"
-              />
-            </span>
-          </button>
+          <!---->
         </div>
       </div>
        
@@ -4089,7 +4140,7 @@ exports[`Storyshots IndividualCard Organization 1`] = `
     class="v-application--wrap"
   >
     <div
-      class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light locked"
+      class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light locked disabled"
       tabindex="0"
     >
       <div
@@ -4121,12 +4172,7 @@ exports[`Storyshots IndividualCard Organization 1`] = `
           >
             
         Tom Marvolo Riddle
-        
-            <i
-              aria-hidden="true"
-              class="v-icon notranslate mb-1 v-icon--right mdi mdi-lock theme--light"
-              style="font-size: 16px;"
-            />
+      
           </div>
            
           <div
@@ -4145,6 +4191,12 @@ exports[`Storyshots IndividualCard Organization 1`] = `
         <div
           class="v-list-item__icon"
         >
+          <i
+            aria-hidden="true"
+            class="v-icon notranslate mb-1 v-icon--left mdi mdi-lock theme--light"
+            style="font-size: 16px;"
+          />
+           
           <div
             class="v-menu"
           >
@@ -4165,20 +4217,179 @@ exports[`Storyshots IndividualCard Organization 1`] = `
             <!---->
           </div>
            
-          <button
-            class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
-            type="button"
+          <!---->
+        </div>
+      </div>
+       
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Storyshots IndividualCard Selectable 1`] = `
+<div
+  class="v-application v-application--is-ltr theme--light"
+  data-app="true"
+  id="app"
+>
+  <div
+    class="v-application--wrap"
+  >
+    <div
+      class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light"
+      tabindex="0"
+    >
+      <div
+        class="grow v-list-item v-list-item--three-line theme--light"
+        tabindex="-1"
+      >
+        <div
+          class="v-avatar v-list-item__avatar"
+          style="height: 30px; min-width: 30px; width: 30px; background-color: rgb(245, 142, 12); border-color: #f58e0c;"
+        >
+          <img
+            aria-hidden="true"
+            src="https://www.gravatar.com/avatar/0ffaa7f50f46479b4217df22e203bfce.jpg?d=blank&s=40"
+            style="width: 32px; height: 32px;"
+          />
+           
+          <span
+            class="white--text"
           >
-            <span
-              class="v-btn__content"
+            TR
+          </span>
+        </div>
+         
+        <div
+          class="v-list-item__content"
+        >
+          <div
+            class="v-list-item__title font-weight-medium"
+          >
+            
+        Tom Marvolo Riddle
+      
+          </div>
+           
+          <!---->
+           
+          <div
+            class="v-list-item__subtitle"
+          />
+        </div>
+         
+        <div
+          class="v-list-item__icon"
+        >
+          <!---->
+           
+          <div
+            class="v-menu"
+          >
+            <button
+              class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+              type="button"
             >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-close theme--light"
-                style="font-size: 16px;"
-              />
-            </span>
-          </button>
+              <span
+                class="v-btn__content"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate mdi mdi-magnify-plus-outline theme--light"
+                  style="font-size: 16px;"
+                />
+              </span>
+            </button>
+            <!---->
+          </div>
+           
+          <!---->
+        </div>
+      </div>
+       
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Storyshots IndividualCard Selected 1`] = `
+<div
+  class="v-application v-application--is-ltr theme--light"
+  data-app="true"
+  id="app"
+>
+  <div
+    class="v-application--wrap"
+  >
+    <div
+      class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light selected"
+      tabindex="0"
+    >
+      <div
+        class="grow v-list-item v-list-item--three-line theme--light"
+        tabindex="-1"
+      >
+        <div
+          class="v-avatar v-list-item__avatar"
+          style="height: 30px; min-width: 30px; width: 30px; background-color: rgb(245, 142, 12); border-color: #f58e0c;"
+        >
+          <img
+            aria-hidden="true"
+            src="https://www.gravatar.com/avatar/0ffaa7f50f46479b4217df22e203bfce.jpg?d=blank&s=40"
+            style="width: 32px; height: 32px;"
+          />
+           
+          <span
+            class="white--text"
+          >
+            TR
+          </span>
+        </div>
+         
+        <div
+          class="v-list-item__content"
+        >
+          <div
+            class="v-list-item__title font-weight-medium"
+          >
+            
+        Tom Marvolo Riddle
+      
+          </div>
+           
+          <!---->
+           
+          <div
+            class="v-list-item__subtitle"
+          />
+        </div>
+         
+        <div
+          class="v-list-item__icon"
+        >
+          <!---->
+           
+          <div
+            class="v-menu"
+          >
+            <button
+              class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+              type="button"
+            >
+              <span
+                class="v-btn__content"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate mdi mdi-magnify-plus-outline theme--light"
+                  style="font-size: 16px;"
+                />
+              </span>
+            </button>
+            <!---->
+          </div>
+           
+          <!---->
         </div>
       </div>
        
@@ -4197,7 +4408,7 @@ exports[`Storyshots IndividualCard Single Initial 1`] = `
     class="v-application--wrap"
   >
     <div
-      class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light"
+      class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light disabled"
       tabindex="0"
     >
       <div
@@ -4229,8 +4440,7 @@ exports[`Storyshots IndividualCard Single Initial 1`] = `
           >
             
         Voldemort
-        
-            <!---->
+      
           </div>
            
           <!---->
@@ -4243,6 +4453,8 @@ exports[`Storyshots IndividualCard Single Initial 1`] = `
         <div
           class="v-list-item__icon"
         >
+          <!---->
+           
           <div
             class="v-menu"
           >
@@ -4263,20 +4475,7 @@ exports[`Storyshots IndividualCard Single Initial 1`] = `
             <!---->
           </div>
            
-          <button
-            class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
-            type="button"
-          >
-            <span
-              class="v-btn__content"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-close theme--light"
-                style="font-size: 16px;"
-              />
-            </span>
-          </button>
+          <!---->
         </div>
       </div>
        
@@ -4295,7 +4494,7 @@ exports[`Storyshots IndividualCard Sources 1`] = `
     class="v-application--wrap"
   >
     <div
-      class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light"
+      class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light disabled"
       tabindex="0"
     >
       <div
@@ -4327,8 +4526,7 @@ exports[`Storyshots IndividualCard Sources 1`] = `
           >
             
         Tom Marvolo Riddle
-        
-            <!---->
+      
           </div>
            
           <!---->
@@ -4382,6 +4580,8 @@ exports[`Storyshots IndividualCard Sources 1`] = `
         <div
           class="v-list-item__icon"
         >
+          <!---->
+           
           <div
             class="v-menu"
           >
@@ -4402,20 +4602,7 @@ exports[`Storyshots IndividualCard Sources 1`] = `
             <!---->
           </div>
            
-          <button
-            class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
-            type="button"
-          >
-            <span
-              class="v-btn__content"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-close theme--light"
-                style="font-size: 16px;"
-              />
-            </span>
-          </button>
+          <!---->
         </div>
       </div>
        
@@ -4434,7 +4621,7 @@ exports[`Storyshots IndividualCard Sources And Organization 1`] = `
     class="v-application--wrap"
   >
     <div
-      class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light locked"
+      class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light locked disabled"
       tabindex="0"
     >
       <div
@@ -4466,12 +4653,7 @@ exports[`Storyshots IndividualCard Sources And Organization 1`] = `
           >
             
         Tom Marvolo Riddle
-        
-            <i
-              aria-hidden="true"
-              class="v-icon notranslate mb-1 v-icon--right mdi mdi-lock theme--light"
-              style="font-size: 16px;"
-            />
+      
           </div>
            
           <div
@@ -4531,6 +4713,12 @@ exports[`Storyshots IndividualCard Sources And Organization 1`] = `
         <div
           class="v-list-item__icon"
         >
+          <i
+            aria-hidden="true"
+            class="v-icon notranslate mb-1 v-icon--left mdi mdi-lock theme--light"
+            style="font-size: 16px;"
+          />
+           
           <div
             class="v-menu"
           >
@@ -4551,20 +4739,7 @@ exports[`Storyshots IndividualCard Sources And Organization 1`] = `
             <!---->
           </div>
            
-          <button
-            class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
-            type="button"
-          >
-            <span
-              class="v-btn__content"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-close theme--light"
-                style="font-size: 16px;"
-              />
-            </span>
-          </button>
+          <!---->
         </div>
       </div>
        
@@ -6614,7 +6789,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
             class="col"
           >
             <div
-              class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light locked"
+              class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light locked disabled"
               tabindex="0"
             >
               <div
@@ -6642,12 +6817,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   >
                     
         Tom Marvolo Riddle
-        
-                    <i
-                      aria-hidden="true"
-                      class="v-icon notranslate mb-1 v-icon--right mdi mdi-lock theme--light"
-                      style="font-size: 16px;"
-                    />
+      
                   </div>
                    
                   <!---->
@@ -6671,6 +6841,12 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                 <div
                   class="v-list-item__icon"
                 >
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate mb-1 v-icon--left mdi mdi-lock theme--light"
+                    style="font-size: 16px;"
+                  />
+                   
                   <div
                     class="v-menu"
                   >
@@ -6691,20 +6867,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                     <!---->
                   </div>
                    
-                  <button
-                    class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
-                    type="button"
-                  >
-                    <span
-                      class="v-btn__content"
-                    >
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-close theme--light"
-                        style="font-size: 16px;"
-                      />
-                    </span>
-                  </button>
+                  <!---->
                 </div>
               </div>
                
@@ -6714,7 +6877,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
             class="col"
           >
             <div
-              class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light"
+              class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light disabled"
               tabindex="0"
             >
               <div
@@ -6742,8 +6905,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   >
                     
         Harry Potter
-        
-                    <!---->
+      
                   </div>
                    
                   <!---->
@@ -6787,6 +6949,8 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                 <div
                   class="v-list-item__icon"
                 >
+                  <!---->
+                   
                   <div
                     class="v-menu"
                   >
@@ -6807,20 +6971,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                     <!---->
                   </div>
                    
-                  <button
-                    class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
-                    type="button"
-                  >
-                    <span
-                      class="v-btn__content"
-                    >
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-close theme--light"
-                        style="font-size: 16px;"
-                      />
-                    </span>
-                  </button>
+                  <!---->
                 </div>
               </div>
                
@@ -6830,7 +6981,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
             class="col"
           >
             <div
-              class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light"
+              class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light disabled"
               tabindex="0"
             >
               <div
@@ -6858,8 +7009,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   >
                     
         Voldemort
-        
-                    <!---->
+      
                   </div>
                    
                   <!---->
@@ -6883,6 +7033,8 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                 <div
                   class="v-list-item__icon"
                 >
+                  <!---->
+                   
                   <div
                     class="v-menu"
                   >
@@ -6903,20 +7055,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                     <!---->
                   </div>
                    
-                  <button
-                    class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
-                    type="button"
-                  >
-                    <span
-                      class="v-btn__content"
-                    >
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-close theme--light"
-                        style="font-size: 16px;"
-                      />
-                    </span>
-                  </button>
+                  <!---->
                 </div>
               </div>
                
@@ -6926,7 +7065,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
             class="col"
           >
             <div
-              class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light"
+              class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light disabled"
               tabindex="0"
             >
               <div
@@ -6954,8 +7093,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   >
                     
         Hermione Granger
-        
-                    <!---->
+      
                   </div>
                    
                   <!---->
@@ -6999,6 +7137,8 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                 <div
                   class="v-list-item__icon"
                 >
+                  <!---->
+                   
                   <div
                     class="v-menu"
                   >
@@ -7019,20 +7159,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                     <!---->
                   </div>
                    
-                  <button
-                    class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
-                    type="button"
-                  >
-                    <span
-                      class="v-btn__content"
-                    >
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-close theme--light"
-                        style="font-size: 16px;"
-                      />
-                    </span>
-                  </button>
+                  <!---->
                 </div>
               </div>
                
@@ -7042,7 +7169,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
             class="col"
           >
             <div
-              class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light"
+              class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light disabled"
               tabindex="0"
             >
               <div
@@ -7070,8 +7197,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   >
                     
         Ambus Dumbledore
-        
-                    <!---->
+      
                   </div>
                    
                   <!---->
@@ -7105,6 +7231,8 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                 <div
                   class="v-list-item__icon"
                 >
+                  <!---->
+                   
                   <div
                     class="v-menu"
                   >
@@ -7125,20 +7253,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                     <!---->
                   </div>
                    
-                  <button
-                    class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
-                    type="button"
-                  >
-                    <span
-                      class="v-btn__content"
-                    >
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-close theme--light"
-                        style="font-size: 16px;"
-                      />
-                    </span>
-                  </button>
+                  <!---->
                 </div>
               </div>
                
@@ -7148,7 +7263,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
             class="col"
           >
             <div
-              class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light"
+              class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light disabled"
               tabindex="0"
             >
               <div
@@ -7176,8 +7291,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   >
                     
         Ron Weasley
-        
-                    <!---->
+      
                   </div>
                    
                   <!---->
@@ -7221,6 +7335,8 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                 <div
                   class="v-list-item__icon"
                 >
+                  <!---->
+                   
                   <div
                     class="v-menu"
                   >
@@ -7241,20 +7357,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                     <!---->
                   </div>
                    
-                  <button
-                    class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
-                    type="button"
-                  >
-                    <span
-                      class="v-btn__content"
-                    >
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-close theme--light"
-                        style="font-size: 16px;"
-                      />
-                    </span>
-                  </button>
+                  <!---->
                 </div>
               </div>
                
@@ -7264,7 +7367,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
             class="col"
           >
             <div
-              class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light"
+              class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light disabled"
               tabindex="0"
             >
               <div
@@ -7292,8 +7395,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   >
                     
         Severus Snape
-        
-                    <!---->
+      
                   </div>
                    
                   <!---->
@@ -7337,6 +7439,8 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                 <div
                   class="v-list-item__icon"
                 >
+                  <!---->
+                   
                   <div
                     class="v-menu"
                   >
@@ -7357,20 +7461,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                     <!---->
                   </div>
                    
-                  <button
-                    class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
-                    type="button"
-                  >
-                    <span
-                      class="v-btn__content"
-                    >
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-close theme--light"
-                        style="font-size: 16px;"
-                      />
-                    </span>
-                  </button>
+                  <!---->
                 </div>
               </div>
                
@@ -7380,7 +7471,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
             class="col"
           >
             <div
-              class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light"
+              class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light disabled"
               tabindex="0"
             >
               <div
@@ -7408,8 +7499,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                   >
                     
         Hagrid
-        
-                    <!---->
+      
                   </div>
                    
                   <!---->
@@ -7443,6 +7533,8 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                 <div
                   class="v-list-item__icon"
                 >
+                  <!---->
+                   
                   <div
                     class="v-menu"
                   >
@@ -7463,20 +7555,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                     <!---->
                   </div>
                    
-                  <button
-                    class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
-                    type="button"
-                  >
-                    <span
-                      class="v-btn__content"
-                    >
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-close theme--light"
-                        style="font-size: 16px;"
-                      />
-                    </span>
-                  </button>
+                  <!---->
                 </div>
               </div>
                
@@ -7584,7 +7663,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                 />
                 <input
                   aria-checked="false"
-                  id="input-970"
+                  id="input-976"
                   role="checkbox"
                   type="checkbox"
                   value=""
@@ -7595,7 +7674,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
               </div>
               <label
                 class="v-label theme--light"
-                for="input-970"
+                for="input-976"
                 style="left: 0px; position: relative;"
               >
                 Select all
@@ -7681,13 +7760,13 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-975"
+                    for="input-981"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-975"
+                    id="input-981"
                     type="text"
                   />
                 </div>
@@ -7759,7 +7838,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
               <div
                 aria-expanded="false"
                 aria-haspopup="listbox"
-                aria-owns="list-983"
+                aria-owns="list-989"
                 class="v-input__slot"
                 role="button"
               >
@@ -7777,7 +7856,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-983"
+                    for="input-989"
                     style="left: 0px; position: absolute;"
                   >
                     Order by
@@ -7788,7 +7867,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                     <input
                       aria-readonly="false"
                       autocomplete="off"
-                      id="input-983"
+                      id="input-989"
                       readonly="readonly"
                       type="text"
                     />
@@ -7975,13 +8054,13 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                 >
                   <label
                     class="v-label v-label--active theme--light"
-                    for="input-1003"
+                    for="input-1009"
                     style="left: 0px; position: absolute;"
                   >
                     Items per page
                   </label>
                   <input
-                    id="input-1003"
+                    id="input-1009"
                     max="0"
                     min="1"
                     type="number"
@@ -8519,7 +8598,7 @@ exports[`Storyshots OrganizationSelector Default 1`] = `
           <div
             aria-expanded="false"
             aria-haspopup="listbox"
-            aria-owns="list-1222"
+            aria-owns="list-1228"
             class="v-input__slot"
             role="combobox"
           >
@@ -8539,14 +8618,14 @@ exports[`Storyshots OrganizationSelector Default 1`] = `
             >
               <label
                 class="v-label v-label--active theme--light"
-                for="input-1222"
+                for="input-1228"
                 style="left: 0px; position: absolute;"
               >
                 Organization
               </label>
               <input
                 autocomplete="off"
-                id="input-1222"
+                id="input-1228"
                 type="text"
               />
               <div
@@ -8623,7 +8702,7 @@ exports[`Storyshots OrganizationSelector Selected Organization 1`] = `
           <div
             aria-expanded="false"
             aria-haspopup="listbox"
-            aria-owns="list-1233"
+            aria-owns="list-1239"
             class="v-input__slot"
             role="combobox"
           >
@@ -8643,14 +8722,14 @@ exports[`Storyshots OrganizationSelector Selected Organization 1`] = `
             >
               <label
                 class="v-label v-label--active theme--light"
-                for="input-1233"
+                for="input-1239"
                 style="left: 0px; position: absolute;"
               >
                 Organization
               </label>
               <input
                 autocomplete="off"
-                id="input-1233"
+                id="input-1239"
                 type="text"
               />
               <div
@@ -8814,13 +8893,13 @@ exports[`Storyshots OrganizationsTable Groups 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-1305"
+                    for="input-1311"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-1305"
+                    id="input-1311"
                     type="text"
                   />
                 </div>
@@ -8951,13 +9030,13 @@ exports[`Storyshots OrganizationsTable Groups 1`] = `
               >
                 <label
                   class="v-label v-label--active theme--light"
-                  for="input-1316"
+                  for="input-1322"
                   style="left: 0px; position: absolute;"
                 >
                   Items per page
                 </label>
                 <input
-                  id="input-1316"
+                  id="input-1322"
                   max="0"
                   min="1"
                   type="number"
@@ -9095,13 +9174,13 @@ exports[`Storyshots OrganizationsTable Organizations 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-1248"
+                    for="input-1254"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-1248"
+                    id="input-1254"
                     type="text"
                   />
                 </div>
@@ -9232,13 +9311,13 @@ exports[`Storyshots OrganizationsTable Organizations 1`] = `
               >
                 <label
                   class="v-label v-label--active theme--light"
-                  for="input-1259"
+                  for="input-1265"
                   style="left: 0px; position: absolute;"
                 >
                   Items per page
                 </label>
                 <input
-                  id="input-1259"
+                  id="input-1265"
                   max="0"
                   min="1"
                   type="number"
@@ -9297,7 +9376,7 @@ exports[`Storyshots ProfileCard Default 1`] = `
     class="v-application--wrap"
   >
     <div
-      class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light"
+      class="mx-auto v-card v-card--link v-card--raised v-sheet theme--light disabled"
       style="width: 600px;"
       tabindex="0"
     >
@@ -9326,8 +9405,7 @@ exports[`Storyshots ProfileCard Default 1`] = `
           >
             
         Tom Marvolo Riddle
-        
-            <!---->
+      
           </div>
            
           <!---->
@@ -9371,6 +9449,8 @@ exports[`Storyshots ProfileCard Default 1`] = `
         <div
           class="v-list-item__icon"
         >
+          <!---->
+           
           <div
             class="v-menu"
           >
@@ -9391,20 +9471,7 @@ exports[`Storyshots ProfileCard Default 1`] = `
             <!---->
           </div>
            
-          <button
-            class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
-            type="button"
-          >
-            <span
-              class="v-btn__content"
-            >
-              <i
-                aria-hidden="true"
-                class="v-icon notranslate mdi mdi-close theme--light"
-                style="font-size: 16px;"
-              />
-            </span>
-          </button>
+          <!---->
         </div>
       </div>
        
@@ -9508,6 +9575,125 @@ exports[`Storyshots ProfileModal Default 1`] = `
 </div>
 `;
 
+exports[`Storyshots Recommendations Custom Modal Activator 1`] = `
+<div
+  class="v-application v-application--is-ltr theme--light"
+  data-app="true"
+  id="app"
+>
+  <div
+    class="v-application--wrap"
+  >
+    <div>
+      <div
+        class="v-dialog__container"
+        role="dialog"
+      >
+        <span
+          class="v-chip v-chip--clickable theme--light v-size--default primary white--text"
+        >
+          <span
+            class="v-chip__content"
+          >
+            <div
+              class="v-avatar v-avatar--left"
+              style="height: 48px; min-width: 48px; width: 48px;"
+            >
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate mdi mdi-hexagram theme--light"
+              />
+            </div>
+            
+        Click to open modal
+      
+          </span>
+        </span>
+        <!---->
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Storyshots Recommendations Default 1`] = `
+<div
+  class="v-application v-application--is-ltr theme--light"
+  data-app="true"
+  id="app"
+>
+  <div
+    class="v-application--wrap"
+  >
+    <div>
+      <div
+        class="v-dialog__container"
+        role="dialog"
+      >
+        <button
+          class="v-btn v-btn--depressed v-btn--flat v-btn--outlined theme--light v-size--small"
+          style="height: 34px;"
+          type="button"
+        >
+          <span
+            class="v-btn__content"
+          >
+            <i
+              aria-hidden="true"
+              class="v-icon notranslate v-icon--left mdi mdi-lightbulb-on-outline theme--light"
+              style="font-size: 16px;"
+            />
+            
+        2 recommendations
+      
+          </span>
+        </button>
+        <!---->
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Storyshots Recommendations Error On Merge 1`] = `
+<div
+  class="v-application v-application--is-ltr theme--light"
+  data-app="true"
+  id="app"
+>
+  <div
+    class="v-application--wrap"
+  >
+    <div>
+      <div
+        class="v-dialog__container"
+        role="dialog"
+      >
+        <button
+          class="v-btn v-btn--depressed v-btn--flat v-btn--outlined theme--light v-size--small"
+          style="height: 34px;"
+          type="button"
+        >
+          <span
+            class="v-btn__content"
+          >
+            <i
+              aria-hidden="true"
+              class="v-icon notranslate v-icon--left mdi mdi-lightbulb-on-outline theme--light"
+              style="font-size: 16px;"
+            />
+            
+        2 recommendations
+      
+          </span>
+        </button>
+        <!---->
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
 exports[`Storyshots Search Default 1`] = `
 <div
   class="v-application v-application--is-ltr theme--light"
@@ -9560,13 +9746,13 @@ exports[`Storyshots Search Default 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-1384"
+                  for="input-1413"
                   style="left: 0px; position: absolute;"
                 >
                   Search
                 </label>
                 <input
-                  id="input-1384"
+                  id="input-1413"
                   type="text"
                 />
               </div>
@@ -9694,13 +9880,13 @@ exports[`Storyshots Search Filter Selector 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-1394"
+                  for="input-1423"
                   style="left: 0px; position: absolute;"
                 >
                   Search
                 </label>
                 <input
-                  id="input-1394"
+                  id="input-1423"
                   type="text"
                 />
               </div>
@@ -9798,13 +9984,13 @@ exports[`Storyshots Search Order Selector 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-1407"
+                  for="input-1436"
                   style="left: 0px; position: absolute;"
                 >
                   Search
                 </label>
                 <input
-                  id="input-1407"
+                  id="input-1436"
                   type="text"
                 />
               </div>
@@ -9876,7 +10062,7 @@ exports[`Storyshots Search Order Selector 1`] = `
             <div
               aria-expanded="false"
               aria-haspopup="listbox"
-              aria-owns="list-1412"
+              aria-owns="list-1441"
               class="v-input__slot"
               role="button"
             >
@@ -9894,7 +10080,7 @@ exports[`Storyshots Search Order Selector 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-1412"
+                  for="input-1441"
                   style="left: 0px; position: absolute;"
                 >
                   Order by
@@ -9905,7 +10091,7 @@ exports[`Storyshots Search Order Selector 1`] = `
                   <input
                     aria-readonly="false"
                     autocomplete="off"
-                    id="input-1412"
+                    id="input-1441"
                     readonly="readonly"
                     type="text"
                   />
@@ -10171,8 +10357,7 @@ exports[`Storyshots WorkSpace Default 1`] = `
                 >
                   
         Tom Marvolo Riddle
-        
-                  <!---->
+      
                 </div>
                  
                 <div
@@ -10222,6 +10407,8 @@ exports[`Storyshots WorkSpace Default 1`] = `
               <div
                 class="v-list-item__icon"
               >
+                <!---->
+                 
                 <div
                   class="v-menu"
                 >
@@ -10297,8 +10484,7 @@ exports[`Storyshots WorkSpace Default 1`] = `
                 >
                   
         Harry Potter
-        
-                  <!---->
+      
                 </div>
                  
                 <div
@@ -10348,6 +10534,8 @@ exports[`Storyshots WorkSpace Default 1`] = `
               <div
                 class="v-list-item__icon"
               >
+                <!---->
+                 
                 <div
                   class="v-menu"
                 >
@@ -10591,7 +10779,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   />
                   <input
                     aria-checked="false"
-                    id="input-1526"
+                    id="input-1555"
                     role="checkbox"
                     type="checkbox"
                     value=""
@@ -10602,7 +10790,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 </div>
                 <label
                   class="v-label theme--light"
-                  for="input-1526"
+                  for="input-1555"
                   style="left: 0px; position: relative;"
                 >
                   Select all
@@ -10688,13 +10876,13 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   >
                     <label
                       class="v-label theme--light"
-                      for="input-1531"
+                      for="input-1560"
                       style="left: 0px; position: absolute;"
                     >
                       Search
                     </label>
                     <input
-                      id="input-1531"
+                      id="input-1560"
                       type="text"
                     />
                   </div>
@@ -10766,7 +10954,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 <div
                   aria-expanded="false"
                   aria-haspopup="listbox"
-                  aria-owns="list-1539"
+                  aria-owns="list-1568"
                   class="v-input__slot"
                   role="button"
                 >
@@ -10784,7 +10972,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   >
                     <label
                       class="v-label theme--light"
-                      for="input-1539"
+                      for="input-1568"
                       style="left: 0px; position: absolute;"
                     >
                       Order by
@@ -10795,7 +10983,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                       <input
                         aria-readonly="false"
                         autocomplete="off"
-                        id="input-1539"
+                        id="input-1568"
                         readonly="readonly"
                         type="text"
                       />
@@ -10982,13 +11170,13 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   >
                     <label
                       class="v-label v-label--active theme--light"
-                      for="input-1559"
+                      for="input-1588"
                       style="left: 0px; position: absolute;"
                     >
                       Items per page
                     </label>
                     <input
-                      id="input-1559"
+                      id="input-1588"
                       max="0"
                       min="1"
                       type="number"
