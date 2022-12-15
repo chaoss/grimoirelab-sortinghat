@@ -6,14 +6,17 @@
           mdi-account
         </v-icon>
         Individuals
-        <v-chip pill small class="ml-2">{{ totalResults }}</v-chip>
+        <v-chip pill small class="ml-2" data-cy="individual-counter">
+          {{ totalResults }}
+        </v-chip>
       </h3>
       <v-btn
         depressed
         small
         height="34"
         color="secondary"
-        class="black--text js-add-individual"
+        class="black--text"
+        data-cy="individual-add"
         @click.stop="openModal = true"
       >
         Add
@@ -63,6 +66,7 @@
             outlined
             height="34"
             class="mr-4 ml-4 order-2"
+            data-cy="merge-button"
             v-on="on"
             :disabled="disabledMerge"
             @click="mergeSelected(selectedIndividuals)"
@@ -81,6 +85,7 @@
             outlined
             class="order-3"
             height="34"
+            data-cy="delete-button"
             v-on="on"
             :disabled="disabledActions"
             @click="confirmDelete(selectedIndividuals)"

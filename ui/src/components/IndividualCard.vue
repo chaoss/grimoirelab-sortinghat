@@ -47,7 +47,7 @@
         <v-icon v-if="isLocked" small left class="mb-1">mdi-lock</v-icon>
         <v-menu offset-y offset-x :close-on-content-click="false">
           <template v-slot:activator="{ on }">
-            <v-btn icon v-on="on" @mousedown.stop>
+            <v-btn icon v-on="on" data-cy="expand-button" @mousedown.stop>
               <v-icon small>
                 mdi-magnify-plus-outline
               </v-icon>

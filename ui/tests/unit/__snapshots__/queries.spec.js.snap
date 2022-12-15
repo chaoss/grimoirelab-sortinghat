@@ -35,19 +35,23 @@ exports[`IndividualsTable Mock query for getCountries 1`] = `
         activeclass=""
         class="ml-2"
         closeicon="$delete"
+        data-cy="individual-counter"
         filtericon="$complete"
         pill="true"
         small="true"
         tag="span"
       >
+        
         0
+      
       </v-chip-stub>
     </h3>
      
     <v-btn-stub
       activeclass=""
-      class="black--text js-add-individual"
+      class="black--text"
       color="secondary"
+      data-cy="individual-add"
       depressed="true"
       height="34"
       small="true"
@@ -406,19 +410,23 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
         activeclass=""
         class="ml-2"
         closeicon="$delete"
+        data-cy="individual-counter"
         filtericon="$complete"
         pill="true"
         small="true"
         tag="span"
       >
+        
         0
+      
       </v-chip-stub>
     </h3>
      
     <v-btn-stub
       activeclass=""
-      class="black--text js-add-individual"
+      class="black--text"
       color="secondary"
+      data-cy="individual-add"
       depressed="true"
       height="34"
       small="true"

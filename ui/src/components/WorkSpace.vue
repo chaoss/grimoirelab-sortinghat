@@ -1,6 +1,7 @@
 <template>
   <v-sheet
     class="section"
+    data-cy="workspace"
     :class="{ 'is-dragging': isDragging }"
     @drop.native="onDrop($event)"
     @dragover.prevent="onDrag($event)"

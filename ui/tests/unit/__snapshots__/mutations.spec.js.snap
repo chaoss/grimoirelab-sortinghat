@@ -28,19 +28,23 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
         activeclass=""
         class="ml-2"
         closeicon="$delete"
+        data-cy="individual-counter"
         filtericon="$complete"
         pill="true"
         small="true"
         tag="span"
       >
+        
         0
+      
       </v-chip-stub>
     </h3>
      
     <v-btn-stub
       activeclass=""
-      class="black--text js-add-individual"
+      class="black--text"
       color="secondary"
+      data-cy="individual-add"
       depressed="true"
       height="34"
       small="true"
@@ -397,19 +401,23 @@ exports[`IndividualsTable Mock query for merge 1`] = `
         activeclass=""
         class="ml-2"
         closeicon="$delete"
+        data-cy="individual-counter"
         filtericon="$complete"
         pill="true"
         small="true"
         tag="span"
       >
+        
         0
+      
       </v-chip-stub>
     </h3>
      
     <v-btn-stub
       activeclass=""
-      class="black--text js-add-individual"
+      class="black--text"
       color="secondary"
+      data-cy="individual-add"
       depressed="true"
       height="34"
       small="true"
@@ -766,19 +774,23 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
         activeclass=""
         class="ml-2"
         closeicon="$delete"
+        data-cy="individual-counter"
         filtericon="$complete"
         pill="true"
         small="true"
         tag="span"
       >
+        
         0
+      
       </v-chip-stub>
     </h3>
      
     <v-btn-stub
       activeclass=""
-      class="black--text js-add-individual"
+      class="black--text"
       color="secondary"
+      data-cy="individual-add"
       depressed="true"
       height="34"
       small="true"
@@ -1135,19 +1147,23 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
         activeclass=""
         class="ml-2"
         closeicon="$delete"
+        data-cy="individual-counter"
         filtericon="$complete"
         pill="true"
         small="true"
         tag="span"
       >
+        
         0
+      
       </v-chip-stub>
     </h3>
      
     <v-btn-stub
       activeclass=""
-      class="black--text js-add-individual"
+      class="black--text"
       color="secondary"
+      data-cy="individual-add"
       depressed="true"
       height="34"
       small="true"
@@ -1504,19 +1520,23 @@ exports[`IndividualsTable Mock query for updateEnrollment 1`] = `
         activeclass=""
         class="ml-2"
         closeicon="$delete"
+        data-cy="individual-counter"
         filtericon="$complete"
         pill="true"
         small="true"
         tag="span"
       >
+        
         0
+      
       </v-chip-stub>
     </h3>
      
     <v-btn-stub
       activeclass=""
-      class="black--text js-add-individual"
+      class="black--text"
       color="secondary"
+      data-cy="individual-add"
       depressed="true"
       height="34"
       small="true"
@@ -1873,19 +1893,23 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
         activeclass=""
         class="ml-2"
         closeicon="$delete"
+        data-cy="individual-counter"
         filtericon="$complete"
         pill="true"
         small="true"
         tag="span"
       >
+        
         0
+      
       </v-chip-stub>
     </h3>
      
     <v-btn-stub
       activeclass=""
-      class="black--text js-add-individual"
+      class="black--text"
       color="secondary"
+      data-cy="individual-add"
       depressed="true"
       height="34"
       small="true"

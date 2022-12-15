@@ -304,7 +304,7 @@ export default {
     },
     setFilter(item) {
       if (this.inputValue && !this.inputValue.endsWith(" ")) {
-        this.inputValue += " "
+        this.inputValue += " ";
       } else if (!this.inputValue) {
         this.inputValue = "";
       }
