@@ -28,11 +28,15 @@ import django_rq.utils
 import pandas
 import rq
 
+from .db import find_individual_by_uuid, find_organization
 from .api import enroll, merge, update_profile
 from .context import SortingHatContext
 from .errors import BaseError, NotFoundError, EqualIndividualError
 from .log import TransactionsLog
-from .models import Individual
+from .models import (Individual,
+                     AffiliationRecommendation,
+                     MergeRecommendation,
+                     GenderRecommendation)
 from .recommendations.engine import RecommendationEngine
 
 
@@ -150,7 +154,19 @@ def recommend_affiliations(ctx, uuids=None):
     for chunk in _iter_split(uuids, size=MAX_CHUNK_SIZE):
         for rec in engine.recommend('affiliation', chunk):
             results[rec.key] = rec.options
-
+            try:
+                individual = find_individual_by_uuid(rec.key)
+            except NotFoundError:
+                logger.warning(f"Job {job.id} 'Individual {rec.key} not found'")
+                continue
+            for org_name in rec.options:
+                try:
+                    org = find_organization(org_name)
+                except NotFoundError:
+                    logger.warning(f"Job {job.id} 'Organization {org_name} not found'")
+                    continue
+                AffiliationRecommendation.objects.get_or_create(individual=individual,
+                                                                organization=org)
     trxl.close()
 
     logger.info(
@@ -211,6 +227,18 @@ def recommend_matches(ctx, source_uuids, target_uuids, criteria, exclude=True, v
 
     for rec in engine.recommend('matches', source_uuids, target_uuids, criteria, exclude, verbose):
         results[rec.key] = list(rec.options)
+        # Store matches in the database
+        for match in rec.options:
+            try:
+                individual1 = find_individual_by_uuid(rec.key)
+                individual2 = find_individual_by_uuid(match)
+            except NotFoundError:
+                logger.info(f"Job {job.id} 'One individual does not exists'")
+                continue
+            # Check if the recommendation already exists in any direction
+            if not MergeRecommendation.objects.filter(individual1=individual1, individual2=individual2).exists() and \
+               not MergeRecommendation.objects.filter(individual2=individual1, individual1=individual2).exists():
+                MergeRecommendation.objects.create(individual1=individual1, individual2=individual2)
 
     trxl.close()
 
@@ -255,8 +283,24 @@ def recommend_gender(ctx, uuids, exclude=True, no_strict_matching=False):
     trxl = TransactionsLog.open('recommend_gender', job_ctx)
 
     for rec in engine.recommend('gender', uuids, exclude, no_strict_matching):
-        results[rec.key] = {'gender': rec.options[0],
-                            'accuracy': rec.options[1]}
+        gender, accuracy = rec.options[0], rec.options[1]
+        results[rec.key] = {'gender': gender,
+                            'accuracy': accuracy}
+        # Store result in the database
+        if not gender or not accuracy:
+            continue
+        try:
+            individual = find_individual_by_uuid(rec.key)
+        except NotFoundError:
+            logger.warning(f"Job {job.id} 'Individual {rec.key} not found'")
+            continue
+        genrec, _ = GenderRecommendation.objects.get_or_create(individual=individual,
+                                                               defaults={'gender': gender, 'accuracy': accuracy})
+        if genrec.gender != gender or genrec.accuracy != accuracy:
+            genrec.gender = gender
+            genrec.accuracy = accuracy
+            genrec.applied = None
+            genrec.save()
 
     trxl.close()
 
