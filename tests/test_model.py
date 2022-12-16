@@ -42,7 +42,10 @@ from sortinghat.core.models import (Organization,
                                     Enrollment,
                                     RecommenderExclusionTerm,
                                     Transaction,
-                                    Operation)
+                                    Operation,
+                                    AffiliationRecommendation,
+                                    MergeRecommendation,
+                                    GenderRecommendation)
 
 # Test check errors messages
 DUPLICATE_CHECK_ERROR = "Duplicate entry .+"
@@ -761,6 +764,191 @@ class TestRecommenderExclusionTerm(TransactionTestCase):
         self.assertEqual(mb.term, 'J. Smith')
         self.assertGreaterEqual(mb.last_modified, before_modified_dt)
         self.assertLessEqual(mb.last_modified, after_modified_dt)
+
+
+class TestAffiliationRecommendation(TransactionTestCase):
+    """Unit tests for AffiliationRecommendation class"""
+
+    def test_unique_individual(self):
+        """Check if there is only one recommendation per individual"""
+        indv = Individual.objects.create(mk='AAAA')
+        org_ex = Organization.add_root(name='Example')
+
+        with self.assertRaisesRegex(IntegrityError, DUPLICATE_CHECK_ERROR):
+            AffiliationRecommendation.objects.create(individual=indv, organization=org_ex)
+            AffiliationRecommendation.objects.create(individual=indv, organization=org_ex)
+
+    def test_created_at(self):
+        """Check creation date is only set when the object is created."""
+
+        before_dt = datetime_utcnow()
+        indv = Individual.objects.create(mk='AAAA')
+        org_ex = Organization.add_root(name='Example')
+        affre = AffiliationRecommendation.objects.create(individual=indv, organization=org_ex)
+        after_dt = datetime_utcnow()
+
+        self.assertEqual(affre.individual, indv)
+        self.assertEqual(affre.organization.name, 'Example')
+        self.assertGreaterEqual(affre.created_at, before_dt)
+        self.assertLessEqual(affre.created_at, after_dt)
+
+        org_ex2 = Organization.add_root(name='Example2')
+        affre.organization = org_ex2
+        affre.save()
+
+        self.assertEqual(affre.individual, indv)
+        self.assertEqual(affre.organization.name, 'Example2')
+        self.assertGreaterEqual(affre.created_at, before_dt)
+        self.assertLessEqual(affre.created_at, after_dt)
+
+    def test_last_modified(self):
+        """Check last modification date is set when the object is updated"""
+
+        before_dt = datetime_utcnow()
+        indv = Individual.objects.create(mk='AAAA')
+        org_ex = Organization.add_root(name='Example')
+        affre = AffiliationRecommendation.objects.create(individual=indv, organization=org_ex)
+        after_dt = datetime_utcnow()
+
+        self.assertEqual(affre.individual, indv)
+        self.assertEqual(affre.organization.name, 'Example')
+        self.assertGreaterEqual(affre.last_modified, before_dt)
+        self.assertLessEqual(affre.last_modified, after_dt)
+
+        before_modified_dt = datetime_utcnow()
+        org_ex2 = Organization.add_root(name='Example2')
+        affre.organization = org_ex2
+        affre.save()
+        after_modified_dt = datetime_utcnow()
+
+        self.assertEqual(affre.organization.name, 'Example2')
+        self.assertGreaterEqual(affre.last_modified, before_modified_dt)
+        self.assertLessEqual(affre.last_modified, after_modified_dt)
+
+
+class TestMergeRecommendation(TransactionTestCase):
+    """Unit tests for MergeRecommendation class"""
+
+    def test_unique_individual(self):
+        """Check if there is only one recommendation for individual with another"""
+
+        with self.assertRaisesRegex(IntegrityError, DUPLICATE_CHECK_ERROR):
+            indiv1 = Individual.objects.create(mk='AAAA')
+            indiv2 = Individual.objects.create(mk='BBBB')
+            MergeRecommendation.objects.create(individual1=indiv1, individual2=indiv2)
+            MergeRecommendation.objects.create(individual1=indiv1, individual2=indiv2)
+
+    def test_created_at(self):
+        """Check creation date is only set when the object is created."""
+
+        before_dt = datetime_utcnow()
+        indiv1 = Individual.objects.create(mk='AAAA')
+        indiv2 = Individual.objects.create(mk='BBBB')
+        mergere = MergeRecommendation.objects.create(individual1=indiv1, individual2=indiv2)
+        after_dt = datetime_utcnow()
+
+        self.assertEqual(mergere.individual1, indiv1)
+        self.assertEqual(mergere.individual2, indiv2)
+        self.assertGreaterEqual(mergere.created_at, before_dt)
+        self.assertLessEqual(mergere.created_at, after_dt)
+
+        indiv3 = Individual.objects.create(mk='CCCC')
+        mergere.individual2 = indiv3
+        mergere.save()
+
+        self.assertEqual(mergere.individual1, indiv1)
+        self.assertEqual(mergere.individual2, indiv3)
+        self.assertGreaterEqual(mergere.created_at, before_dt)
+        self.assertLessEqual(mergere.created_at, after_dt)
+
+    def test_last_modified(self):
+        """Check last modification date is set when the object is updated"""
+
+        before_dt = datetime_utcnow()
+        indiv1 = Individual.objects.create(mk='AAAA')
+        indiv2 = Individual.objects.create(mk='BBBB')
+        merge_recom = MergeRecommendation.objects.create(individual1=indiv1, individual2=indiv2)
+        after_dt = datetime_utcnow()
+
+        self.assertEqual(merge_recom.individual1, indiv1)
+        self.assertEqual(merge_recom.individual2, indiv2)
+        self.assertGreaterEqual(merge_recom.last_modified, before_dt)
+        self.assertLessEqual(merge_recom.last_modified, after_dt)
+
+        before_modified_dt = datetime_utcnow()
+        indiv3 = Individual.objects.create(mk='CCCC')
+        merge_recom.individual2 = indiv3
+        merge_recom.save()
+        after_modified_dt = datetime_utcnow()
+
+        self.assertEqual(merge_recom.individual2, indiv3)
+        self.assertGreaterEqual(merge_recom.last_modified, before_modified_dt)
+        self.assertLessEqual(merge_recom.last_modified, after_modified_dt)
+
+
+class TestGenderRecommendation(TransactionTestCase):
+    """Unit tests for GenderRecommendation class"""
+
+    def test_unique_individual(self):
+        """Check if there is only one recommendation per individual"""
+
+        with self.assertRaisesRegex(IntegrityError, DUPLICATE_CHECK_ERROR):
+            indiv = Individual.objects.create(mk='AAAA')
+            GenderRecommendation.objects.create(individual=indiv,
+                                                gender='Male',
+                                                accuracy=90)
+            GenderRecommendation.objects.create(individual=indiv,
+                                                gender='Female',
+                                                accuracy=90)
+
+    def test_created_at(self):
+        """Check creation date is only set when the object is created."""
+
+        before_dt = datetime_utcnow()
+        indiv = Individual.objects.create(mk='AAAA')
+        gender_re = GenderRecommendation.objects.create(individual=indiv,
+                                                        gender='Male',
+                                                        accuracy=89)
+        after_dt = datetime_utcnow()
+
+        self.assertEqual(gender_re.individual, indiv)
+        self.assertEqual(gender_re.gender, 'Male')
+        self.assertEqual(gender_re.accuracy, 89)
+        self.assertGreaterEqual(gender_re.created_at, before_dt)
+        self.assertLessEqual(gender_re.created_at, after_dt)
+
+        gender_re.gender = 'Female'
+        gender_re.save()
+
+        self.assertEqual(gender_re.individual, indiv)
+        self.assertEqual(gender_re.gender, 'Female')
+        self.assertGreaterEqual(gender_re.created_at, before_dt)
+        self.assertLessEqual(gender_re.created_at, after_dt)
+
+    def test_last_modified(self):
+        """Check last modification date is set when the object is updated"""
+
+        before_dt = datetime_utcnow()
+        indiv = Individual.objects.create(mk='AAAA')
+        gender_re = GenderRecommendation.objects.create(individual=indiv,
+                                                       gender='Male',
+                                                       accuracy=89)
+        after_dt = datetime_utcnow()
+
+        self.assertEqual(gender_re.individual, indiv)
+        self.assertEqual(gender_re.gender, 'Male')
+        self.assertEqual(gender_re.accuracy, 89)
+        self.assertGreaterEqual(gender_re.last_modified, before_dt)
+        self.assertLessEqual(gender_re.last_modified, after_dt)
+
+        before_modified_dt = datetime_utcnow()
+        gender_re.gender = 'Female'
+        gender_re.save()
+        after_modified_dt = datetime_utcnow()
+
+        self.assertEqual(gender_re.individual, indiv)
+        self.assertGreaterEqual(gender_re.last_modified, before_modified_dt)
+        self.assertLessEqual(gender_re.last_modified, after_modified_dt)
 
 
 class TestTransaction(TransactionTestCase):
