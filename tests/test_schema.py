@@ -464,6 +464,19 @@ SH_INDIVIDUALS_QUERY = """{
     }
   }
 }"""
+SH_INDIVIDUAL_MERGE_REC_QUERY = """{
+  individuals {
+    entities {
+      mk
+      matchRecommendationSet {
+        id
+        individual {
+          mk
+        }
+      }
+    }
+  }
+}"""
 SH_INDIVIDUALS_UUID_FILTER = """{
   individuals(filters: {uuid: "%s"}) {
     entities {
@@ -2410,6 +2423,38 @@ class TestQueryIndividuals(django.test.TestCase):
 
         indvs = executed['data']['individuals']['entities']
         self.assertListEqual(indvs, [])
+
+    def tests_resolve_merge_recommendation(self):
+        """Check if it resolves the merge recommendation in the individual"""
+
+        indv1 = Individual.objects.create(mk='AAAA')
+        indv2 = Individual.objects.create(mk='BBBB')
+        Profile.objects.create(name="Jhon",
+                               email='jsmith@example.com',
+                               is_bot=False,
+                               gender='Male',
+                               individual=indv1)
+        Profile.objects.create(name="Jhon",
+                               email='jsmith2@example.com',
+                               is_bot=False,
+                               gender='Male',
+                               individual=indv2)
+        rec = MergeRecommendation.objects.create(individual1=indv1, individual2=indv2)
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_INDIVIDUAL_MERGE_REC_QUERY,
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 2)
+
+        indv1 = individuals[0]
+        self.assertEqual(indv1['mk'], 'AAAA')
+        self.assertEqual(indv1['matchRecommendationSet'][0]['individual']['mk'], 'BBBB')
+
+        indv2 = individuals[1]
+        self.assertEqual(indv2['mk'], 'BBBB')
+        self.assertEqual(indv2['matchRecommendationSet'][0]['individual']['mk'], 'AAAA')
 
     def test_filter_registry(self):
         """Check whether it returns the uuid searched when using uuid filter"""
