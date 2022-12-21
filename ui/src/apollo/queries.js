@@ -1,43 +1,21 @@
 import gql from "graphql-tag";
+import { FULL_INDIVIDUAL } from "./fragments";
 
 const GET_INDIVIDUAL_BYUUID = gql`
   query GetIndividual($uuid: String!) {
     individuals(filters: { uuid: $uuid }) {
       entities {
-        mk
-        isLocked
-        profile {
-          name
+        ...individual
+        matchRecommendationSet {
           id
-          email
-          isBot
-          gender
-          country {
-            code
-            name
-          }
-        }
-        identities {
-          name
-          source
-          email
-          uuid
-          username
-        }
-        enrollments {
-          start
-          end
-          group {
-            name
-            type
-            parentOrg {
-              name
-            }
+          individual {
+            ...individual
           }
         }
       }
     }
   }
+  ${FULL_INDIVIDUAL}
 `;
 
 const GET_INDIVIDUALS = gql`
@@ -112,37 +90,7 @@ const GET_PAGINATED_INDIVIDUALS = gql`
       orderBy: $orderBy
     ) {
       entities {
-        mk
-        isLocked
-        profile {
-          name
-          id
-          email
-          isBot
-          gender
-          country {
-            code
-            name
-          }
-        }
-        identities {
-          name
-          source
-          email
-          uuid
-          username
-        }
-        enrollments {
-          start
-          end
-          group {
-            name
-            type
-            parentOrg {
-              name
-            }
-          }
-        }
+        ...individual
       }
       pageInfo {
         page
@@ -152,6 +100,7 @@ const GET_PAGINATED_INDIVIDUALS = gql`
       }
     }
   }
+  ${FULL_INDIVIDUAL}
 `;
 
 const GET_PAGINATED_ORGANIZATIONS = gql`
@@ -248,12 +197,47 @@ const GET_GROUPS = gql`
   }
 `;
 
+const GET_TOTAL_RECOMMENDED_MERGES = gql`
+  query recommendedMergeNumber {
+    recommendedMerge {
+      pageInfo {
+        totalResults
+      }
+    }
+  }
+`;
+
+const GET_PAGINATED_RECOMMENDED_MERGE = gql`
+  query recommendedMerge($page: Int, $pageSize: Int) {
+    recommendedMerge(page: $page, pageSize: $pageSize) {
+      entities {
+        id
+        individual1 {
+          ...individual
+        }
+        individual2 {
+          ...individual
+        }
+      }
+      pageInfo {
+        totalResults
+        page
+        pageSize
+        numPages
+        hasNext
+      }
+    }
+  }
+  ${FULL_INDIVIDUAL}
+`;
+
 const getIndividualByUuid = (apollo, uuid) => {
   let response = apollo.query({
     query: GET_INDIVIDUAL_BYUUID,
     variables: {
       uuid: uuid
-    }
+    },
+    fetchPolicy: "no-cache"
   });
   return response;
 };
@@ -369,6 +353,24 @@ const getGroups = (apollo, page, pageSize, filters) => {
   return response;
 };
 
+const getRecommendedMergesCount = apollo => {
+  return apollo.query({
+    query: GET_TOTAL_RECOMMENDED_MERGES,
+    fetchPolicy: "no-cache"
+  });
+};
+
+const getPaginatedMergeRecommendations = (apollo, page, pageSize) => {
+  return apollo.query({
+    query: GET_PAGINATED_RECOMMENDED_MERGE,
+    variables: {
+      page: page,
+      pageSize: pageSize
+    },
+    fetchPolicy: "no-cache"
+  });
+};
+
 export {
   getCountries,
   getIndividuals,
@@ -378,5 +380,7 @@ export {
   getPaginatedOrganizations,
   getTeams,
   getJobs,
-  getGroups
+  getGroups,
+  getRecommendedMergesCount,
+  getPaginatedMergeRecommendations
 };
