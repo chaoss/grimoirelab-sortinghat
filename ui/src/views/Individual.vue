@@ -2,7 +2,10 @@
   <v-main>
     <v-container v-if="individual" class="ml-auto mr-auto mb-8">
       <v-row>
-        <v-col :cols="recommendations.length === 0 ? 12 : 9">
+        <v-col
+          :cols="showRecommendations ? 8 : 12"
+          :xl="showRecommendations ? 9 : 12"
+        >
           <v-row class="section pa-3 mb-4">
             <v-col>
               <v-list-item class="pl-1">
@@ -265,8 +268,45 @@
             </v-container>
           </v-row>
         </v-col>
-        <v-col cols="3" v-if="recommendations.length !== 0">
-          <v-container class="section"> </v-container>
+        <v-col cols="4" v-if="showRecommendations" xl="3">
+          <v-container class="section">
+            <v-subheader>Possible matches</v-subheader>
+            <div
+              v-for="({ id, individual },
+              index) in individual.matchRecommendations"
+              :key="id"
+              class="ml-2 mr-2"
+            >
+              <individual-card
+                :name="individual.name"
+                :email="individual.email"
+                :enrollments="individual.enrollments"
+                :identities="individual.identities"
+                :is-locked="individual.isLocked"
+                :sources="individual.sources"
+                :uuid="individual.uuid"
+                :class="{ 'mt-4': index > 0, 'mt-2': index === 0 }"
+              />
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn
+                  text
+                  small
+                  @click.prevent="applyRecommendation(id, false)"
+                >
+                  Dismiss
+                </v-btn>
+                <v-btn
+                  text
+                  small
+                  outlined
+                  @click.prevent="applyRecommendation(id, true)"
+                >
+                  Merge
+                </v-btn>
+              </v-card-actions>
+            </div>
+          </v-container>
         </v-col>
       </v-row>
     </v-container>
@@ -343,16 +383,18 @@ import {
   deleteIdentity,
   enroll,
   lockIndividual,
+  manageMergeRecommendation,
   unlockIndividual,
   unmerge,
   updateEnrollment,
   updateProfile,
   withdraw
 } from "../apollo/mutations";
-import { formatIndividuals } from "../utils/actions";
+import { formatIndividual } from "../utils/actions";
 import { enrollMixin } from "../mixins/enroll";
 import Avatar from "../components/Avatar.vue";
 import IdentitiesList from "../components/IdentitiesList.vue";
+import IndividualCard from "../components/IndividualCard.vue";
 import EnrollmentList from "../components/EnrollmentList.vue";
 import EnrollModal from "../components/EnrollModal.vue";
 import TeamEnrollModal from "../components/TeamEnrollModal.vue";
@@ -362,6 +404,7 @@ export default {
   components: {
     Avatar,
     IdentitiesList,
+    IndividualCard,
     EnrollmentList,
     EnrollModal,
     TeamEnrollModal
@@ -370,7 +413,6 @@ export default {
   data() {
     return {
       individual: {},
-      recommendations: [],
       form: {
         name: "",
         email: "",
@@ -394,6 +436,12 @@ export default {
   computed: {
     mk() {
       return this.$route.params.mk;
+    },
+    showRecommendations() {
+      return (
+        this.individual.matchRecommendations &&
+        this.individual.matchRecommendations.length > 0
+      );
     }
   },
   methods: {
@@ -587,7 +635,7 @@ export default {
         newData = [newData];
       }
 
-      this.individual = formatIndividuals(newData)[0];
+      this.individual = formatIndividual(newData[0]);
     },
     async fetchOrganizations(page, items, filters) {
       const response = await getPaginatedOrganizations(
@@ -597,6 +645,20 @@ export default {
         filters
       );
       return response.data.organizations;
+    },
+    async applyRecommendation(id, apply) {
+      try {
+        await manageMergeRecommendation(this.$apollo, id, apply);
+        this.fetchIndividual();
+        this.$logger.debug(`Applied recommendation ${id}`);
+      } catch (error) {
+        this.dialog = {
+          open: true,
+          title: "Error applying recommendation",
+          errorMessage: this.$getErrorMessage(error)
+        };
+        this.$logger.error(`Error applying recommendation ${id}: ${error}`);
+      }
     }
   },
   mounted() {

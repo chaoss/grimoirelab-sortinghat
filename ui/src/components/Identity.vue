@@ -1,6 +1,6 @@
 <template>
-  <v-row no-gutters>
-    <v-col class="uuid">
+  <v-row class="d-flex align-center" no-gutters>
+    <v-col class="uuid d-flex align-center">
       <v-tooltip open-delay="100" bottom>
         <template v-slot:activator="{ on }">
           <v-chip
