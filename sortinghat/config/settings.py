@@ -175,6 +175,15 @@ CORS_ALLOW_CREDENTIALS = True
 
 STATIC_URL = '/'
 
+# Use this variable to upload static files to a cloud storage.
+# Current supported cloud platforms are: GCP
+if 'SORTINGHAT_STATICFILES_STORAGE' in os.environ:
+    if os.environ['SORTINGHAT_STATICFILES_STORAGE'].lower() == 'gcp':
+        STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+        GS_BUCKET_NAME = os.environ['SORTINGHAT_BUCKET_NAME']
+    else:
+        raise ValueError(f"'{os.environ['SORTINGHAT_STATICFILES_STORAGE']}' storage is not supported")
+
 # UI static files will be copied to the next path when
 # 'collectstatic' is run.
 # If you are serving these files in a dedicated server, you will

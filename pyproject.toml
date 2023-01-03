@@ -51,7 +51,7 @@ sortinghat-admin = "sortinghat.server.sortinghat_admin:sortinghat_admin"
 python = "^3.7.1"
 
 click = "7.1.1"
-Django = "3.1"
+Django = "3.2"
 django-graphql-jwt = "^0.3.0"
 graphene-django = "^2.0"
 sgqlc = "^10.1"
@@ -69,6 +69,7 @@ django-treebeard = "^4.5.1"
 importlib-resources = "^5.2.0"
 setuptools = "^65.5.0"
 grimoirelab-toolkit = { version = ">=0.3", allow-prereleases = true}
+django-storages = {extras = ["google"], version = "^1.13.2"}
 
 # Documentation
 myst-parser = { version = "^0.15.1", optional = true}
