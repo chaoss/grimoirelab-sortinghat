@@ -1,19 +1,16 @@
-# Sorting Hat [![tests](https://github.com/chaoss/grimoirelab-sortinghat/workflows/tests/badge.svg?branch=muggle)](https://github.com/chaoss/grimoirelab-sortinghat/actions?query=workflow:tests+branch:muggle+event:push) [![Documentation Status](https://readthedocs.org/projects/sortinghat/badge/?version=latest)](https://sortinghat.readthedocs.io/en/latest/?badge=latest)
-
-**Warning**: This is the developing branch of the new version of Sorting Hat. We're moving Sorting Hat into a service.
-The documentation below would be totally incorrect or inaccurate. 
+# Sorting Hat [![tests](https://github.com/chaoss/grimoirelab-sortinghat/workflows/tests/badge.svg)](https://github.com/chaoss/grimoirelab-sortinghat/actions?query=workflow:tests+branch:master+event:push) [![Documentation Status](https://readthedocs.org/projects/sortinghat/badge/?version=latest)](https://sortinghat.readthedocs.io/en/latest/?badge=latest) [![PyPI version](https://badge.fury.io/py/sortinghat.svg)](https://badge.fury.io/py/sortinghat)
 
 ## Description
 
 A tool to manage identities.
 
-Sorting Hat maintains an SQL database with identities coming (potentially) from different sources. Identities corresponding to the same real person can be merged in the same `individual`, with a unique uuid. For each individual, a profile can be defined, with the name and other data to show for the corresponding person by default.
+Sorting Hat maintains an SQL database of unique identities of communities members across (potentially) many different sources. Identities corresponding to the same real person can be merged in the same `individual`, with a unique uuid. For each individual, a profile can be defined, with the name and other data shown for the corresponding person by default.
 
 In addition, each individual can be related to one or more affiliations, for different time periods. This will usually correspond to different organizations in which the person was employed during those time periods.
 
-Sorting Hat is a part of the [GrimoireLab toolset](https://grimoirelab.github.io), which provides for Python modules and scripts to analyze data sources with information about software development, and allows to produce interactive dashboards to visualize that information.
+Sorting Hat is a part of the [GrimoireLab toolset](https://grimoirelab.github.io), which provides Python modules and scripts to analyze data sources with information about software development, and allows the production of interactive dashboards to visualize that information.
 
-In the context of GrimoireLab, Sorting Hat is usually run after data is retrieved with [Perceval](https://github.com/chaoss/grimmoirelab-perceval), to store the identities obtained into its database, and later merge them into individuals (and maybe affiliate them).
+In the context of GrimoireLab, Sorting Hat is usually run after data is retrieved with [Perceval](https://github.com/chaoss/grimoirelab-perceval), to store the identities obtained into its database, and later merge them into individuals (and maybe affiliate them).
 
 
 ## Requirements
@@ -33,10 +30,10 @@ whole list of dependencies in [pyproject.toml](pyproject.toml) file.
 
 ### Getting the source code
 
-Clone the repository, and change to the `muggle` branch
+To install from the source code you will need to clone the repository first:
 ```
 $ git clone https://github.com/chaoss/grimoirelab-sortinghat
-$ git checkout muggle
+$ cd grimoirelab-sortinghat
 ```
 
 ### Backend
