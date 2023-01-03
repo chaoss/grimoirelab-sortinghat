@@ -2,7 +2,7 @@ var path = require('path');
 const { argv } = require('yargs');
 
 module.exports = {
-  publicPath: process.env.NODE_ENV === 'production' ? './' : '/',
+  publicPath: process.env.NODE_ENV === 'production' ? '/identities/' : '/',
   outputDir: path.resolve(__dirname, "../sortinghat/", "core", "static"),
   indexPath: path.resolve(__dirname, "../sortinghat", "core", "templates", "index.html"),
   transpileDependencies: ["vuetify"],
