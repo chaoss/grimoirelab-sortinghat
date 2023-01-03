@@ -13,7 +13,7 @@ import { ApolloLink } from "apollo-link";
 import Logger from "./plugins/logger";
 import GetErrorMessage from "./plugins/errors";
 
-const API_URL = process.env.VUE_APP_API_URL || "/api/";
+const API_URL = process.env.VUE_APP_API_URL || `${process.env.BASE_URL}api/`;
 
 // Force HTTP GET to the Django Server for getting the csrf token
 fetch(API_URL, { credentials: "include" }).then(() => {
