@@ -45,7 +45,7 @@ from .models import (MIN_PERIOD_DATE,
                      Profile,
                      Enrollment,
                      Operation)
-from .utils import validate_field
+from .aux import validate_field
 
 
 logger = logging.getLogger(__name__)

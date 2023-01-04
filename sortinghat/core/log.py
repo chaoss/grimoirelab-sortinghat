@@ -37,7 +37,7 @@ from .errors import AlreadyExistsError, ClosedTransactionError
 from .models import (Operation,
                      Transaction)
 
-from .utils import validate_field
+from .aux import validate_field
 
 
 logger = logging.getLogger(__name__)

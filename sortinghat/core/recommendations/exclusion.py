@@ -32,7 +32,7 @@ from ..db import _handle_integrity_error
 from ..log import TransactionsLog
 from ..models import (Operation,
                       RecommenderExclusionTerm)
-from ..utils import validate_field
+from ..aux import validate_field
 
 
 logger = logging.getLogger(__name__)

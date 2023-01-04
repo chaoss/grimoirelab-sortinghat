@@ -20,7 +20,6 @@
 #
 
 import re
-import unicodedata
 
 from .models import MIN_PERIOD_DATE, MAX_PERIOD_DATE
 
@@ -97,29 +96,6 @@ def merge_datetime_ranges(dates, exclude_limits=False):
             date_range[1] = end
 
     yield tuple(date_range)
-
-
-def unaccent_string(unistr):
-    """Convert a Unicode string to its canonical form without accents.
-
-    This allows to convert Unicode strings which include accent
-    characters to their unaccent canonical form. For instance,
-    characters 'Ê, ê, é, ë' are considered the same character as 'e';
-    characters 'Ĉ, ć' are the same as 'c'.
-
-    :param unistr: Unicode string to unaccent
-
-    :returns: Unicode string on its canonical form
-    """
-    if not isinstance(unistr, str):
-        msg = "argument must be a string; {} given".format(unistr.__class__.__name__)
-        raise TypeError(msg)
-
-    cs = [c for c in unicodedata.normalize('NFD', unistr)
-          if unicodedata.category(c) != 'Mn']
-    string = ''.join(cs)
-
-    return string
 
 
 def validate_field(name, value, allow_none=False):
