@@ -36,6 +36,7 @@ Cypress.Commands.add("login", () => {
       .its("body.data.tokenAuth.token")
       .then(authToken => {
         cy.setCookie("sh_authtoken", authToken);
+        cy.wait(500);
       });
   });
 

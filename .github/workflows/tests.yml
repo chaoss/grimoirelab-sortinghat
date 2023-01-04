@@ -80,3 +80,69 @@ jobs:
       - name: Run unit tests
         working-directory: ./ui
         run: yarn test:unit
+
+  end-to-end:
+
+    services:
+      mysql:
+        image: mariadb:10.5
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    strategy:
+      matrix:
+        node-version: [14.x, 16.x]
+        python-version: [3.7, 3.8]
+
+    runs-on: ubuntu-latest
+    name: Node ${{ matrix.node-version }} Python ${{ matrix.python-version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # 3.1.0
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@13ae5bb136fac2878aff31522b9efb785519f984 # v4.3.0
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "PATH=$HOME/.poetry/bin:$PATH" >> $GITHUB_ENV
+      - name: Install dependencies
+        run: |
+          poetry install -vvv
+          poetry run pip install -r requirements_dev.txt
+      - name: Set MySQL mode
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: ${{ job.services.mysql.ports[3306] }}
+        run: |
+          mysql --host $DB_HOST --port $DB_PORT -uroot -proot -e "SET GLOBAL sql_mode = 'NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION'";
+      - name: Setup Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Build UI packages
+        working-directory: ./ui
+        run: |
+          yarn install
+          yarn build
+      - name: Setup database, static files and run service
+        env:
+          SORTINGHAT_SECRET_KEY: my-secret-key
+          SORTINGHAT_DB_PASSWORD: root
+          SORTINGHAT_SUPERUSER_USERNAME: root
+          SORTINGHAT_SUPERUSER_PASSWORD: root
+        run: |
+          poetry run sortinghat-admin --config sortinghat.config.settings setup
+          poetry run sortinghatd --config sortinghat.config.settings --dev &
+      - name: Wait 10 seconds for server is up and running
+        run: sleep 10
+      - name: Run end to end tests
+        working-directory: ./ui
+        env:
+          CYPRESS_USERNAME: root
+          CYPRESS_PASSWORD: root
+        run: yarn test:e2e
