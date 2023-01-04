@@ -7,12 +7,12 @@ export default {
 
 const defaultTemplate = `
 <div>
-  <recommendations :items="items" :merge-items="merge" />
+  <recommendations />
 </div>`;
 
 const slotTemplate = `
 <div>
-  <recommendations :items="items" :merge-items="merge">
+  <recommendations>
     <template v-slot:activator="{ on, items }">
       <v-chip
         v-on="on"
@@ -28,225 +28,184 @@ const slotTemplate = `
   </recommendations>
 </div>`;
 
-const items = [
+const recommendations = [
   {
-    from: {
-      name: "Tom Marvolo Riddle",
-      uuid: "164e41c60c23",
-      id: "1",
-      email: "triddle@example.com",
-      isBot: false,
-      isLocked: false,
-      sources: [
-        { name: "git", icon: "mdi-git" },
-        { name: "gitlab", icon: "mdi-gitlab" }
-      ],
-      identities: [
-        {
-          name: "GitLab",
-          icon: "mdi-gitlab",
-          identities: [
-            {
+    data: {
+      recommendedMerge: {
+        entities: [{
+          id: "38",
+          individual1: {
+            mk: "4350d4c5916cfe8e2e18d290e02a471d95b112d7",
+            isLocked: false,
+            profile: {
               name: "Tom Marvolo Riddle",
-              source: "GitLab",
-              email: "triddle@example.net",
-              username: "triddle"
-            }
-          ]
-        },
-        {
-          name: "git",
-          icon: "mdi-git",
-          identities: [
-            {
-              name: "Tom Marvolo Riddle",
-              email: "triddle@example.net",
-              source: "git"
+              id: "1",
+              email: "triddle@example.com"
             },
-            {
-              name: "Tom Marvolo Riddle",
-              email: "voldemort@example.net",
-              source: "git"
-            }
-          ]
-        }
-      ],
-      enrollments: [
-        {
-          group: { name: "Hogwarts" },
-          start: "1938-09-01",
-          end: "1945-06-02T00:00:00+00:00"
-        }
-      ]
-    },
-    to: {
-      name: "Voldemort",
-      uuid: "164e41c60c23",
-      email: "triddle@example.com",
-      isBot: false,
-      isLocked: false,
-      sources: [
-        { name: "git", icon: "mdi-git" },
-        { name: "github", icon: "mdi-github" }
-      ],
-      identities: [
-        {
-          name: "GitHub",
-          icon: "mdi-github",
-          identities: [
-            {
+            identities :[
+              {
+                name: "Tom Marvolo Riddle",
+                source: "git",
+                email: "triddle@example.com",
+                uuid: "4350d4c5916cfe8e2e18d290e02a471d95b112d7"
+              }
+            ],
+            enrollments: [{
+              group: { name: "Hogwarts" },
+              start: "1938-09-01",
+              end: "1945-06-02T00:00:00+00:00"
+            }]
+          },
+          individual2: {
+            mk: "8998b2f0bd86780fb7c8c141956d68c9628cbec8",
+            isLocked: false,
+            profile: {
               name: "Voldemort",
-              username: "voldemort",
-              source: "github"
-            }
-          ]
-        },
-        {
-          name: "git",
-          icon: "mdi-git",
-          identities: [
-            {
-              name: "voldemort",
-              email: "voldemort@example.net",
-              source: "git"
-            }
-          ]
+              id: "37",
+              email: "triddle@example.com",
+              isBot: false
+            },
+            identities: [
+              {
+                name: "Voldemort",
+                source: "git",
+                email: "triddle@example.com",
+                uuid: "8998b2f0bd86780fb7c8c141956d68c9628cbec8"
+              },
+              {
+                username: "voldemort",
+                source: "github",
+                email: "triddle@example.com",
+                uuid: "8998b2f0bd86780fb7c8c141956d68c9628cbec9"
+              }
+            ],
+            enrollments: []
+          }}],
+          pageInfo: {
+            totalResults: 2,
+            page: 1,
+            hasNext: true
+          }
         }
-      ],
-      enrollments: [
-        {
-          group: { name: "Slytherin" },
-          start: "1938-09-01T00:00:00+00:00",
-          end: "1998-05-02T00:00:00+00:00"
-        }
-      ]
-    }
-  },
-  {
-    from: {
-      name: "Dumbledore",
-      uuid: "164e41c60c25",
-      email: "albus.dumbledore@example.com",
-      isBot: false,
-      isLocked: false,
-      sources: [{ name: "git", icon: "mdi-git" }],
-      identities: [
-        {
-          name: "git",
-          icon: "mdi-git",
-          identities: [
-            {
-              name: "Dumbledore",
-              email: "albus.dumbledore@example.com",
-              source: "git"
-            }
-          ]
-        }
-      ],
-      enrollments: []
+      }
     },
-    to: {
-      name: "Albus Dumbledore",
-      uuid: "164e41c60c26",
-      email: "albus.dumbledore@example.com",
-      isBot: false,
-      isLocked: false,
-      sources: [
-        { name: "gitlab", icon: "mdi-gitlab" },
-        { name: "jira", icon: "mdi-jira" },
-        { name: "other sources", icon: "mdi-account-multiple" }
-      ],
-      identities: [
-        {
-          name: "gitlab",
-          icon: "mdi-gitlab",
-          identities: [
-            {
-              uuid: "1",
-              name: "Albus Dumbledore",
-              email: "headmaster@hogwarts.net",
-              username: "albus",
-              source: "GitLab"
+    {
+      data: {
+        recommendedMerge: {
+          entities: [{
+            id: "38",
+            individual1: {
+              mk: "4350d4c5916cfe8e2e18d290e02a471d95b112d7",
+              isLocked: false,
+              profile: {
+                name: "Albus Dumbledore",
+                id: "1",
+                email: "albus.dumbledore@example.com"
+              },
+              identities :[
+                {
+                  name: "Albus Dumbledore",
+                  source: "gitlab",
+                  email: "headmaster@hogwarts.net",
+                  username: "dumbledore",
+                  uuid: "4350d4c5916cfe8e2e18d290e02a471d95b112d7"
+                },
+                {
+                  name: "Albus Dumbledore",
+                  source: "jira",
+                  email: "dumbledore@example.net",
+                  username: "albus",
+                  uuid: "4350d4c5916cfe8e2e18d290e02a471d95b112d7"
+                }
+              ],
+              enrollments: [
+                {
+                  group: { name: "Order of the Phoenix" },
+                  start: "1970-09-01",
+                  end: "1981-06-02T00:00:00+00:00"
+                },
+                {
+                  group: { name: "Hogwarts School of Witchcraft and Wizardry" },
+                  start: "1892-09-01",
+                  end: "1899-06-02T00:00:00+00:00"
+                }
+              ]
+            },
+            individual2: {
+              mk: "8998b2f0bd86780fb7c8c141956d68c9628cbec8",
+              isLocked: false,
+              profile: {
+                id: "37",
+                email: "dumbledore@example.net",
+                isBot: false
+              },
+              identities: [
+                {
+                  source: "git",
+                  email: "dumbledore@example.net",
+                  uuid: "4350d4c5916cfe8e2e18d290e02a471d95b112d7"
+                }
+              ],
+              enrollments: []
+            }}],
+            pageInfo: {
+              totalResults: 2,
+              page: 2,
+              hasNext: false
             }
-          ]
-        },
-        {
-          name: "jira",
-          icon: "mdi-jira",
-          identities: [
-            {
-              uuid: "2",
-              name: "Albus Dumbledore",
-              email: "adumbledore@example.net",
-              username: "albus",
-              source: "Jira"
-            }
-          ]
-        },
-        {
-          name: "other sources",
-          icon: "mdi-account-multiple",
-          identities: [
-            {
-              uuid: "3",
-              name: "Albus Dumbledore",
-              username: "albus",
-              source: "irc"
-            }
-          ]
+          }
         }
-      ],
-      enrollments: [
-        {
-          group: { name: "Order of the Phoenix" },
-          start: "1970-09-01",
-          end: "1981-06-02T00:00:00+00:00"
-        },
-        {
-          group: { name: "Hogwarts School of Witchcraft and Wizardry" },
-          start: "1892-09-01",
-          end: "1899-06-02T00:00:00+00:00"
-        }
-      ]
-    }
-  }
-];
+      }
+]
 
 export const Default = () => ({
   components: { Recommendations },
   template: defaultTemplate,
-  methods: {
-    merge() {
-      return { data: { merge: true } };
+  data() {
+    return {
+      index: 0
     }
   },
-  data: () => ({
-    items: items
-  })
+  methods: {
+    getRecommendations() {
+      return recommendations[this.index];
+    },
+    manageRecommendation() {
+      this.index = + !this.index;
+      return true;
+    }
+  },
+  provide() {
+    return {
+      getRecommendationsCount: this.getRecommendations,
+      getRecommendations: this.getRecommendations,
+      manageRecommendation: this.manageRecommendation
+    }
+  }
 });
 
 export const CustomModalActivator = () => ({
   components: { Recommendations },
   template: slotTemplate,
-  methods: {
-    merge() {
-      return { data: { merge: true } };
+  data() {
+    return {
+      index: 0
     }
   },
-  data: () => ({
-    items: items
-  })
-});
-
-export const ErrorOnMerge = () => ({
-  components: { Recommendations },
-  template: defaultTemplate,
   methods: {
-    merge() {
-      throw "Error merging individuals"
+    getRecommendations() {
+      return recommendations[this.index];
+    },
+    manageRecommendation() {
+      this.index = + !this.index;
+      return true;
     }
   },
-  data: () => ({
-    items: items
-  })
+  provide() {
+    return {
+      getRecommendationsCount: this.getRecommendations,
+      getRecommendations: this.getRecommendations,
+      manageRecommendation: this.manageRecommendation
+    }
+  }
 });

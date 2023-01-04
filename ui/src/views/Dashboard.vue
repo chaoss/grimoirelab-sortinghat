@@ -90,7 +90,9 @@ import {
   getPaginatedIndividuals,
   getPaginatedOrganizations,
   getTeams,
-  getGroups
+  getGroups,
+  getPaginatedMergeRecommendations,
+  getRecommendedMergesCount
 } from "../apollo/queries";
 import {
   addIdentity,
@@ -109,7 +111,8 @@ import {
   lockIndividual,
   unlockIndividual,
   withdraw,
-  updateEnrollment
+  updateEnrollment,
+  manageMergeRecommendation
 } from "../apollo/mutations";
 import IndividualsTable from "../components/IndividualsTable";
 import OrganizationsTable from "../components/OrganizationsTable";
@@ -323,6 +326,22 @@ export default {
         this.filters = "";
       }
       this.$nextTick(() => (this.filters = newFilters));
+    },
+    async getRecommendations(page, pageSize) {
+      const response = await getPaginatedMergeRecommendations(
+        this.$apollo,
+        page,
+        pageSize
+      );
+      return response;
+    },
+    async getRecommendationsCount() {
+      const response = await getRecommendedMergesCount(this.$apollo);
+      return response;
+    },
+    async manageRecommendation(id, apply) {
+      const response = await manageMergeRecommendation(this.$apollo, id, apply);
+      return response;
     }
   },
   async mounted() {
@@ -333,6 +352,13 @@ export default {
       const individuals = response.map(res => res.data.individuals.entities[0]);
       this.savedIndividuals = formatIndividuals(individuals);
     }
+  },
+  provide() {
+    return {
+      getRecommendations: this.getRecommendations,
+      getRecommendationsCount: this.getRecommendationsCount,
+      manageRecommendation: this.manageRecommendation
+    };
   }
 };
 </script>

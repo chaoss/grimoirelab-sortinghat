@@ -1,4 +1,5 @@
 import gql from "graphql-tag";
+import { FULL_INDIVIDUAL } from "./fragments";
 
 const TOKEN_AUTH = gql`
   mutation tokenAuth($username: String!, $password: String!) {
@@ -43,30 +44,11 @@ const MERGE = gql`
     merge(fromUuids: $fromUuids, toUuid: $toUuid) {
       uuid
       individual {
-        mk
-        isLocked
-        identities {
-          name
-          source
-          email
-          uuid
-          username
-        }
-        profile {
-          name
-          email
-          id
-        }
-        enrollments {
-          group {
-            name
-          }
-          start
-          end
-        }
+        ...individual
       }
     }
   }
+  ${FULL_INDIVIDUAL}
 `;
 
 const UNMERGE = gql`
@@ -74,36 +56,11 @@ const UNMERGE = gql`
     unmergeIdentities(uuids: $uuids) {
       uuids
       individuals {
-        mk
-        isLocked
-        profile {
-          name
-          email
-          id
-          isBot
-          gender
-          country {
-            code
-            name
-          }
-        }
-        identities {
-          name
-          source
-          email
-          uuid
-          username
-        }
-        enrollments {
-          start
-          end
-          group {
-            name
-          }
-        }
+        ...individual
       }
     }
   }
+  ${FULL_INDIVIDUAL}
 `;
 
 const MOVE_IDENTITY = gql`
@@ -111,27 +68,11 @@ const MOVE_IDENTITY = gql`
     moveIdentity(fromUuid: $fromUuid, toUuid: $toUuid) {
       uuid
       individual {
-        mk
-        isLocked
-        identities {
-          name
-          source
-          email
-          uuid
-          username
-        }
-        profile {
-          name
-          id
-        }
-        enrollments {
-          group {
-            name
-          }
-        }
+        ...individual
       }
     }
   }
+  ${FULL_INDIVIDUAL}
 `;
 
 const ENROLL = gql`
@@ -151,40 +92,11 @@ const ENROLL = gql`
     ) {
       uuid
       individual {
-        mk
-        isLocked
-        identities {
-          name
-          source
-          email
-          uuid
-          username
-        }
-        profile {
-          name
-          email
-          id
-          isBot
-          gender
-          country {
-            code
-            name
-          }
-        }
-        enrollments {
-          start
-          end
-          group {
-            name
-            type
-            parentOrg {
-              name
-            }
-          }
-        }
+        ...individual
       }
     }
   }
+  ${FULL_INDIVIDUAL}
 `;
 
 const ADD_ORGANIZATION = gql`
@@ -251,35 +163,11 @@ const UPDATE_PROFILE = gql`
     updateProfile(data: $data, uuid: $uuid) {
       uuid
       individual {
-        mk
-        isLocked
-        identities {
-          uuid
-          name
-          email
-          username
-          source
-        }
-        profile {
-          name
-          email
-          gender
-          isBot
-          country {
-            code
-            name
-          }
-        }
-        enrollments {
-          start
-          end
-          group {
-            name
-          }
-        }
+        ...individual
       }
     }
   }
+  ${FULL_INDIVIDUAL}
 `;
 
 const DELETE_DOMAIN = gql`
@@ -309,35 +197,11 @@ const WITHDRAW = gql`
     ) {
       uuid
       individual {
-        mk
-        isLocked
-        identities {
-          uuid
-          name
-          email
-          username
-          source
-        }
-        profile {
-          name
-          email
-          gender
-          isBot
-          country {
-            code
-            name
-          }
-        }
-        enrollments {
-          start
-          end
-          group {
-            name
-          }
-        }
+        ...individual
       }
     }
   }
+  ${FULL_INDIVIDUAL}
 `;
 
 const DELETE_ORGANIZATION = gql`
@@ -381,39 +245,11 @@ const UPDATE_ENROLLMENT = gql`
     ) {
       uuid
       individual {
-        isLocked
-        mk
-        identities {
-          uuid
-          name
-          email
-          username
-          source
-        }
-        profile {
-          name
-          email
-          gender
-          isBot
-          country {
-            code
-            name
-          }
-        }
-        enrollments {
-          start
-          end
-          group {
-            name
-            type
-            parentOrg {
-              name
-            }
-          }
-        }
+        ...individual
       }
     }
   }
+  ${FULL_INDIVIDUAL}
 `;
 
 const AFFILIATE = gql`
@@ -444,6 +280,17 @@ const UNIFY = gql`
   mutation unify($criteria: [String], $exclude: Boolean) {
     unify(criteria: $criteria, exclude: $exclude) {
       jobId
+    }
+  }
+`;
+
+const MANAGE_MERGE_RECOMMENDATION = gql`
+  mutation manageMergeRecommendation($recommendationId: Int!, $apply: Boolean) {
+    manageMergeRecommendation(
+      recommendationId: $recommendationId
+      apply: $apply
+    ) {
+      applied
     }
   }
 `;
@@ -679,6 +526,16 @@ const unify = (apollo, criteria, exclude) => {
   });
 };
 
+const manageMergeRecommendation = (apollo, id, apply) => {
+  return apollo.mutate({
+    mutation: MANAGE_MERGE_RECOMMENDATION,
+    variables: {
+      recommendationId: id,
+      apply: apply
+    }
+  });
+};
+
 export {
   tokenAuth,
   lockIndividual,
@@ -700,5 +557,6 @@ export {
   updateEnrollment,
   affiliate,
   genderize,
-  unify
+  unify,
+  manageMergeRecommendation
 };

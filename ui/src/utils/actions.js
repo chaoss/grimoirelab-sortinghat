@@ -75,39 +75,60 @@ const groupIdentities = identities => {
     } else if (b.name === otherSources) {
       return -1;
     }
-    return a.name.localeCompare(b.name)
+    return a.name.localeCompare(b.name);
   });
 
   return sortedIdentities;
 };
 
-const formatIndividuals = individuals => {
-  const formattedList = individuals.map(item => {
-    return {
-      name: item.profile.name,
-      id: item.profile.id,
-      email: item.profile.email,
-      username: item.identities[0].username,
-      organization: item.enrollments[0] ? item.enrollments[0].group.name : "",
-      sources: groupIdentities(item.identities).map(identity => {
-        return {
-          name: identity.name,
-          icon: identity.icon,
-          count: identity.identities.length
-        };
-      }),
-      gender: item.profile.gender,
-      country: item.profile.country,
-      identities: groupIdentities(item.identities),
-      enrollments: item.enrollments,
-      isLocked: item.isLocked,
-      isBot: item.profile.isBot,
-      uuid: item.mk,
-      isSelected: false
-    };
-  });
+const formatIndividual = individual => {
+  const formattedIndividual = {
+    name: individual.profile.name,
+    id: individual.profile.id,
+    uuid: individual.mk,
+    email: individual.profile.email,
+    sources: groupIdentities(individual.identities).map(identity => {
+      return {
+        name: identity.name,
+        icon: identity.icon,
+        count: identity.identities.length
+      };
+    }),
+    identities: groupIdentities(individual.identities),
+    enrollments: individual.enrollments,
+    gender: individual.profile.gender,
+    country: individual.profile.country,
+    isLocked: individual.isLocked,
+    isBot: individual.profile.isBot,
+    isSelected: false
+  };
 
-  return formattedList;
+  if (individual.enrollments && individual.enrollments.length > 0) {
+    const organization = individual.enrollments[0].group.name;
+    Object.assign(formattedIndividual, { organization: organization });
+  }
+  if (individual.matchRecommendationSet) {
+    const matchRecommendations = individual.matchRecommendationSet.map(rec => {
+      return {
+        id: rec.id,
+        individual: formatIndividual(rec.individual)
+      };
+    });
+    Object.assign(formattedIndividual, {
+      matchRecommendations: matchRecommendations
+    });
+  }
+  return formattedIndividual;
 };
 
-export { mergeIndividuals, moveIdentity, groupIdentities, formatIndividuals };
+const formatIndividuals = individuals => {
+  return individuals.map(item => formatIndividual(item));
+};
+
+export {
+  mergeIndividuals,
+  moveIdentity,
+  groupIdentities,
+  formatIndividual,
+  formatIndividuals
+};

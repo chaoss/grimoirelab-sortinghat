@@ -40,21 +40,25 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
       </v-chip-stub>
     </h3>
      
-    <v-btn-stub
-      activeclass=""
-      class="black--text"
-      color="secondary"
-      data-cy="individual-add"
-      depressed="true"
-      height="34"
-      small="true"
-      tag="button"
-      type="button"
-    >
+    <div>
+      <recommendations-stub />
+       
+      <v-btn-stub
+        activeclass=""
+        class="black--text"
+        color="secondary"
+        data-cy="individual-add"
+        depressed="true"
+        height="34"
+        small="true"
+        tag="button"
+        type="button"
+      >
+        
+        Add
       
-      Add
-    
-    </v-btn-stub>
+      </v-btn-stub>
+    </div>
   </v-row-stub>
    
   <v-row-stub
@@ -413,21 +417,25 @@ exports[`IndividualsTable Mock query for merge 1`] = `
       </v-chip-stub>
     </h3>
      
-    <v-btn-stub
-      activeclass=""
-      class="black--text"
-      color="secondary"
-      data-cy="individual-add"
-      depressed="true"
-      height="34"
-      small="true"
-      tag="button"
-      type="button"
-    >
+    <div>
+      <recommendations-stub />
+       
+      <v-btn-stub
+        activeclass=""
+        class="black--text"
+        color="secondary"
+        data-cy="individual-add"
+        depressed="true"
+        height="34"
+        small="true"
+        tag="button"
+        type="button"
+      >
+        
+        Add
       
-      Add
-    
-    </v-btn-stub>
+      </v-btn-stub>
+    </div>
   </v-row-stub>
    
   <v-row-stub
@@ -786,21 +794,25 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
       </v-chip-stub>
     </h3>
      
-    <v-btn-stub
-      activeclass=""
-      class="black--text"
-      color="secondary"
-      data-cy="individual-add"
-      depressed="true"
-      height="34"
-      small="true"
-      tag="button"
-      type="button"
-    >
+    <div>
+      <recommendations-stub />
+       
+      <v-btn-stub
+        activeclass=""
+        class="black--text"
+        color="secondary"
+        data-cy="individual-add"
+        depressed="true"
+        height="34"
+        small="true"
+        tag="button"
+        type="button"
+      >
+        
+        Add
       
-      Add
-    
-    </v-btn-stub>
+      </v-btn-stub>
+    </div>
   </v-row-stub>
    
   <v-row-stub
@@ -1159,21 +1171,25 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
       </v-chip-stub>
     </h3>
      
-    <v-btn-stub
-      activeclass=""
-      class="black--text"
-      color="secondary"
-      data-cy="individual-add"
-      depressed="true"
-      height="34"
-      small="true"
-      tag="button"
-      type="button"
-    >
+    <div>
+      <recommendations-stub />
+       
+      <v-btn-stub
+        activeclass=""
+        class="black--text"
+        color="secondary"
+        data-cy="individual-add"
+        depressed="true"
+        height="34"
+        small="true"
+        tag="button"
+        type="button"
+      >
+        
+        Add
       
-      Add
-    
-    </v-btn-stub>
+      </v-btn-stub>
+    </div>
   </v-row-stub>
    
   <v-row-stub
@@ -1532,21 +1548,25 @@ exports[`IndividualsTable Mock query for updateEnrollment 1`] = `
       </v-chip-stub>
     </h3>
      
-    <v-btn-stub
-      activeclass=""
-      class="black--text"
-      color="secondary"
-      data-cy="individual-add"
-      depressed="true"
-      height="34"
-      small="true"
-      tag="button"
-      type="button"
-    >
+    <div>
+      <recommendations-stub />
+       
+      <v-btn-stub
+        activeclass=""
+        class="black--text"
+        color="secondary"
+        data-cy="individual-add"
+        depressed="true"
+        height="34"
+        small="true"
+        tag="button"
+        type="button"
+      >
+        
+        Add
       
-      Add
-    
-    </v-btn-stub>
+      </v-btn-stub>
+    </div>
   </v-row-stub>
    
   <v-row-stub
@@ -1905,21 +1925,25 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
       </v-chip-stub>
     </h3>
      
-    <v-btn-stub
-      activeclass=""
-      class="black--text"
-      color="secondary"
-      data-cy="individual-add"
-      depressed="true"
-      height="34"
-      small="true"
-      tag="button"
-      type="button"
-    >
+    <div>
+      <recommendations-stub />
+       
+      <v-btn-stub
+        activeclass=""
+        class="black--text"
+        color="secondary"
+        data-cy="individual-add"
+        depressed="true"
+        height="34"
+        small="true"
+        tag="button"
+        type="button"
+      >
+        
+        Add
       
-      Add
-    
-    </v-btn-stub>
+      </v-btn-stub>
+    </div>
   </v-row-stub>
    
   <v-row-stub

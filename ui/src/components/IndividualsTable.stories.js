@@ -49,6 +49,19 @@ export const Default = () => ({
       return this.countries;
     }
   },
+  provide: () => ({
+    getRecommendations: () => {},
+    getRecommendationsCount: () => { return {
+      data: {
+        recommendedMerge: {
+          pageInfo: {
+            totalResults: 0
+          }
+        }
+      }
+    }},
+    manageRecommendation: () => {}
+  }),
   data: () => ({
     query: [
       {

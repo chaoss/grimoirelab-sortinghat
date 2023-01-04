@@ -1,35 +1,47 @@
 <template>
   <v-dialog v-model="isOpen" width="700" persistent>
     <template v-slot:activator="{ on }">
-      <slot name="activator" :on="on" :items="items">
-        <v-btn v-if="items.length !== 0" v-on="on" height="34" small outlined>
+      <slot name="activator" :on="on">
+        <v-btn
+          v-show="count !== 0"
+          v-on="on"
+          class="mr-4"
+          height="34"
+          outlined
+          small
+        >
           <v-icon left small>mdi-lightbulb-on-outline</v-icon>
-          {{ items.length }} recommendation{{ items.length > 1 ? "s" : "" }}
+          {{ count }} recommendation{{ count > 1 ? "s" : "" }}
         </v-btn>
       </slot>
     </template>
 
-    <v-card class="section">
+    <v-card v-if="currentItem" class="section">
       <v-card-title class="header title d-flex justify-space-between">
         <span>Review recommendations</span>
-        <span class="subtitle-1 text--secondary">
-          {{ currentItem + 1 }} of {{ items.length }}
-        </span>
+        <v-btn icon color="primary" class="mr-n2" @click="onClose">
+          <v-icon color="primary">mdi-close</v-icon>
+        </v-btn>
       </v-card-title>
-      <v-card-subtitle class="mt-4 pl-8 pr-8 pb-0 text-subtitle-1">
+      <v-card-subtitle
+        class="mt-4 pl-8 pr-8 pb-0 text-subtitle-1 d-flex justify-space-between"
+      >
         Is this the same individual?
+        <span class="subtitle-1 text--secondary">
+          {{ page }} of {{ count }}
+        </span>
       </v-card-subtitle>
-      <v-card-text class="mt-4">
+      <v-card-text class="mt-4 pl-8 pr-8">
         <v-row align="center" class="flex-nowrap" no-gutters>
           <v-col>
             <individual-card
-              :name="items[currentItem].from.name"
-              :email="items[currentItem].from.email"
-              :sources="items[currentItem].from.sources"
-              :uuid="items[currentItem].from.uuid"
-              :identities="items[currentItem].from.identities"
-              :enrollments="items[currentItem].from.enrollments"
-              :is-locked="items[currentItem].to.isLocked"
+              :name="currentItem.individual1.name"
+              :email="currentItem.individual1.email"
+              :sources="currentItem.individual1.sources"
+              :uuid="currentItem.individual1.uuid"
+              :identities="currentItem.individual1.identities"
+              :enrollments="currentItem.individual1.enrollments"
+              :is-locked="currentItem.individual1.isLocked"
             />
           </v-col>
           <v-col :cols="1" class="d-flex justify-center">
@@ -37,13 +49,13 @@
           </v-col>
           <v-col>
             <individual-card
-              :name="items[currentItem].to.name"
-              :email="items[currentItem].to.email"
-              :sources="items[currentItem].to.sources"
-              :uuid="items[currentItem].to.uuid"
-              :identities="items[currentItem].to.identities"
-              :enrollments="items[currentItem].to.enrollments"
-              :is-locked="items[currentItem].to.isLocked"
+              :name="currentItem.individual2.name"
+              :email="currentItem.individual2.email"
+              :sources="currentItem.individual2.sources"
+              :uuid="currentItem.individual2.uuid"
+              :identities="currentItem.individual2.identities"
+              :enrollments="currentItem.individual2.enrollments"
+              :is-locked="currentItem.individual2.isLocked"
             />
           </v-col>
         </v-row>
@@ -54,10 +66,18 @@
 
         <v-card-actions class="pr-0 mt-4">
           <v-spacer></v-spacer>
-          <v-btn color="primary darken-1" text @click.prevent="skip">
+          <v-btn
+            color="primary darken-1"
+            text
+            @click.prevent="applyRecommendation(false)"
+          >
             Dismiss
           </v-btn>
-          <v-btn depressed color="primary" @click.prevent="onMerge">
+          <v-btn
+            color="primary"
+            depressed
+            @click.prevent="applyRecommendation(true)"
+          >
             Merge
           </v-btn>
         </v-card-actions>
@@ -67,56 +87,101 @@
 </template>
 
 <script>
+import { formatIndividual } from "../utils/actions";
 import IndividualCard from "./IndividualCard.vue";
 
 export default {
   name: "Recommendations",
   components: { IndividualCard },
-  props: {
-    items: {
-      type: Array,
-      required: true
-    },
-    mergeItems: {
-      type: Function,
-      required: true
-    }
-  },
+  inject: [
+    "getRecommendations",
+    "getRecommendationsCount",
+    "manageRecommendation"
+  ],
   data() {
     return {
+      count: 0,
+      currentItem: null,
       isOpen: false,
-      currentItem: 0,
-      errorMessage: null
+      errorMessage: null,
+      page: 1
     };
   },
   methods: {
-    async onMerge() {
+    async fetchCount() {
       try {
-        const fromUuids = [this.items[this.currentItem].from.uuid];
-        const toUuid = this.items[this.currentItem].to.uuid;
-        const response = await this.mergeItems(fromUuids, toUuid);
-
-        if (response.data.merge) {
-          this.skip();
-        }
+        const response = await this.getRecommendationsCount();
+        this.count = response.data.recommendedMerge.pageInfo.totalResults;
       } catch (error) {
-        this.errorMessage = error;
+        this.$logger.error(`Error fetching recommendations: ${error}`);
       }
     },
-    skip() {
+    async fetchItem() {
+      try {
+        const response = await this.getRecommendations(1, 1);
+        if (response.data.recommendedMerge.entities) {
+          const recommendation = response.data.recommendedMerge.entities[0];
+          this.currentItem = {
+            individual1: formatIndividual(recommendation.individual1),
+            individual2: formatIndividual(recommendation.individual2),
+            id: parseInt(recommendation.id),
+            pageInfo: response.data.recommendedMerge.pageInfo
+          };
+        }
+      } catch (error) {
+        this.errorMessage = this.$getErrorMessage(error);
+        this.$logger.error(`Error fetching item: ${error}`);
+      }
+    },
+    async applyRecommendation(apply) {
       this.errorMessage = null;
-      if (this.currentItem === this.items.length - 1) {
-        this.isOpen = false;
-        this.currentItem = 0;
-        this.$emit("updateTable");
-      } else {
-        this.currentItem += 1;
+      try {
+        await this.manageRecommendation(this.currentItem.id, apply);
+        this.$logger.debug(
+          `${apply ? "Applied" : "Dismissed"} recommendation ${
+            this.currentItem.id
+          }`
+        );
+        if (!this.currentItem.pageInfo.hasNext) {
+          this.onClose();
+        } else {
+          this.page++;
+          this.fetchItem();
+        }
+      } catch (error) {
+        this.errorMessage = this.$getErrorMessage(error);
+        this.$logger.error(
+          `Error applying recommendation ${this.currentItem.id}: ${error}`
+        );
+      }
+    },
+    onClose() {
+      this.isOpen = false;
+      this.currentItem = null;
+      this.errorMessage = null;
+      this.page = 1;
+      this.fetchCount();
+      this.$emit("updateTable");
+      this.$emit("updateWorkspace");
+    }
+  },
+  watch: {
+    isOpen(value) {
+      if (value && this.count > 0) {
+        this.fetchItem();
       }
     }
+  },
+  mounted() {
+    this.fetchCount();
   }
 };
 </script>
 
 <style lang="scss" scoped>
 @import "../styles/index.scss";
+
+.col {
+  max-width: 290px;
+}
 </style>

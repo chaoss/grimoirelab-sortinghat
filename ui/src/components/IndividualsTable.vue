@@ -10,17 +10,20 @@
           {{ totalResults }}
         </v-chip>
       </h3>
-      <v-btn
-        depressed
-        small
-        height="34"
-        color="secondary"
-        class="black--text"
-        data-cy="individual-add"
-        @click.stop="openModal = true"
-      >
-        Add
-      </v-btn>
+      <div>
+        <recommendations @updateTable="queryIndividuals"/>
+        <v-btn
+          depressed
+          small
+          height="34"
+          color="secondary"
+          class="black--text"
+          data-cy="individual-add"
+          @click.stop="openModal = true"
+        >
+          Add
+        </v-btn>
+      </div>
     </v-row>
 
     <v-row class="actions">
@@ -279,6 +282,7 @@ import ProfileModal from "./ProfileModal.vue";
 import Search from "./Search.vue";
 import EnrollModal from "./EnrollModal.vue";
 import TeamEnrollModal from "./TeamEnrollModal.vue";
+import Recommendations from "./Recommendations.vue";
 
 export default {
   name: "IndividualsTable",
@@ -288,7 +292,8 @@ export default {
     ProfileModal,
     Search,
     EnrollModal,
-    TeamEnrollModal
+    TeamEnrollModal,
+    Recommendations
   },
   mixins: [enrollMixin],
   props: {
