@@ -28,7 +28,10 @@ from .models import (Organization,
                      Individual,
                      Identity,
                      Profile,
-                     Enrollment)
+                     Enrollment,
+                     AffiliationRecommendation,
+                     MergeRecommendation,
+                     GenderRecommendation)
 
 
 admin.site.register(Organization)
@@ -39,3 +42,6 @@ admin.site.register(Individual)
 admin.site.register(Identity)
 admin.site.register(Profile)
 admin.site.register(Enrollment)
+admin.site.register(AffiliationRecommendation)
+admin.site.register(MergeRecommendation)
+admin.site.register(GenderRecommendation)

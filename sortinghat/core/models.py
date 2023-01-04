@@ -305,3 +305,43 @@ class CustomPermissions(Model):
         permissions = (
             ('execute_job', 'Can execute a job'),
         )
+
+
+class AffiliationRecommendation(EntityBase):
+    individual = ForeignKey(Individual, on_delete=CASCADE)
+    organization = ForeignKey(Group, on_delete=CASCADE)
+    applied = BooleanField(null=True, default=None)
+
+    class Meta:
+        db_table = 'affiliation_recommendations'
+        unique_together = ('individual', 'organization',)
+
+    def __str__(self):
+        return '%s - %s' % (self.individual.mk, self.organization.name)
+
+
+class MergeRecommendation(EntityBase):
+    individual1 = ForeignKey(Individual, on_delete=CASCADE, related_name='match_recommendation_individual_1')
+    individual2 = ForeignKey(Individual, on_delete=CASCADE, related_name='match_recommendation_individual_2')
+    applied = BooleanField(null=True, default=None)
+
+    class Meta:
+        db_table = 'merge_recommendations'
+        unique_together = ('individual1', 'individual2')
+
+    def __str__(self):
+        return '%s - %s' % (self.individual1.mk, self.individual2.mk)
+
+
+class GenderRecommendation(EntityBase):
+    individual = ForeignKey(Individual, on_delete=CASCADE)
+    gender = CharField(max_length=MAX_SIZE_CHAR_FIELD)
+    accuracy = PositiveIntegerField()
+    applied = BooleanField(null=True, default=None)
+
+    class Meta:
+        db_table = 'gender_recommendations'
+        unique_together = ('individual',)
+
+    def __str__(self):
+        return '%s - %s - %s' % (self.individual, self.gender, self.accuracy)

@@ -45,8 +45,11 @@ from sortinghat.core.jobs import (find_job,
                                   recommend_matches,
                                   recommend_gender,
                                   genderize)
-from sortinghat.core.models import Individual, Transaction
-
+from sortinghat.core.models import (Individual,
+                                    Transaction,
+                                    AffiliationRecommendation,
+                                    MergeRecommendation,
+                                    GenderRecommendation)
 
 JOB_NOT_FOUND_ERROR = "DEF not found in the registry"
 
@@ -173,6 +176,54 @@ class TestRecommendAffiliations(TestCase):
 
         self.assertDictEqual(result, expected)
 
+        recommendation = AffiliationRecommendation.objects.first()
+        self.assertEqual(recommendation.individual.mk, uuids[0])
+        self.assertEqual(recommendation.organization.name, 'Example')
+        self.assertEqual(recommendation.applied, None)
+
+    def test_recommend_affiliations_new_identity(self):
+        """Check if new recommendations are included when adding new identities"""
+        ctx = SortingHatContext(self.user)
+
+        # Test
+        expected_1 = {
+            'results': {
+                'dc31d2afbee88a6d1dbc1ef05ec827b878067744': ['Example']
+            }
+        }
+        expected_2 = {
+            'results': {
+                'dc31d2afbee88a6d1dbc1ef05ec827b878067744': ['Bitergia', 'Example']
+            }
+        }
+
+        uuids = ['dc31d2afbee88a6d1dbc1ef05ec827b878067744']
+        job = recommend_affiliations.delay(ctx, uuids=uuids)
+        result = job.result
+
+        self.assertDictEqual(result, expected_1)
+
+        recommendation = AffiliationRecommendation.objects.get(individual__mk=uuids[0])
+        self.assertEqual(recommendation.individual.mk, uuids[0])
+        self.assertEqual(recommendation.organization.name, 'Example')
+        self.assertEqual(recommendation.applied, None)
+
+        api.add_identity(ctx,
+                         source='unknown',
+                         email='jsmith@bitergia.com',
+                         uuid=self.jsmith.uuid)
+
+        job = recommend_affiliations.delay(ctx, uuids=uuids)
+        result = job.result
+
+        self.assertDictEqual(result, expected_2)
+
+        recommendations = AffiliationRecommendation.objects.filter(individual__mk=uuids[0])
+        self.assertEqual(len(recommendations), 2)
+        for rec in recommendations:
+            self.assertEqual(rec.individual.mk, uuids[0])
+            self.assertIn(rec.organization.name, ['Bitergia', 'Example'])
+
     @unittest.mock.patch('sortinghat.core.api.find_individual_by_uuid')
     def test_not_found_uuid_error(self, mock_find_indv):
         """Check if the recommendation process returns no results when an individual is not found"""
@@ -192,6 +243,9 @@ class TestRecommendAffiliations(TestCase):
         result = job.result
 
         self.assertDictEqual(result, expected)
+
+        total_recommend = AffiliationRecommendation.objects.count()
+        self.assertEqual(total_recommend, 0)
 
     def test_transactions(self):
         """Check if the right transactions were created"""
@@ -536,6 +590,11 @@ class TestRecommendMatches(TestCase):
                                        self.jane_rae.uuid])
             }
         }
+        individuals_expected = {
+            self.john_smith.individual.mk: [self.jsmith.individual.mk],
+            self.jrae3.individual.mk: [self.jrae.individual.mk, self.jane_rae.individual.mk],
+            self.jr2.individual.mk: [self.jrae.individual.mk, self.jane_rae.individual.mk]
+        }
 
         source_uuids = [self.john_smith.uuid, self.jrae3.uuid, self.jr2.uuid]
         target_uuids = [self.john_smith.uuid, self.js2.uuid, self.js3.uuid,
@@ -558,6 +617,8 @@ class TestRecommendMatches(TestCase):
             result['results'][key] = sorted(result['results'][key])
 
         self.assertDictEqual(result, expected)
+        for mr in MergeRecommendation.objects.all():
+            self.assertIn(mr.individual2.mk, individuals_expected[mr.individual1.mk])
 
     def test_recommend_matches_verbose(self):
         """Check if recommendations are obtained for the specified individuals, at identity level"""
@@ -574,6 +635,14 @@ class TestRecommendMatches(TestCase):
                 self.jrae3.uuid: sorted([self.jrae2.uuid]),
                 self.jr2.uuid: sorted([self.jrae.uuid])
             }
+        }
+        individuals_expected = {
+            self.john_smith.individual.mk: [self.jsm2.individual.mk,
+                                            self.jsm3.individual.mk,
+                                            self.js2.individual.mk,
+                                            self.js3.individual.mk],
+            self.jrae3.individual.mk: [self.jrae2.individual.mk],
+            self.jr2.individual.mk: [self.jrae.individual.mk]
         }
 
         source_uuids = [self.john_smith.uuid, self.jrae3.uuid, self.jr2.uuid]
@@ -598,6 +667,9 @@ class TestRecommendMatches(TestCase):
 
         self.assertDictEqual(result, expected)
 
+        for mr in MergeRecommendation.objects.all():
+            self.assertIn(mr.individual2.mk, individuals_expected[mr.individual1.mk])
+
     def test_recommend_source_not_mk(self):
         """Check if recommendations work when the provided uuid is not an Individual's main key"""
 
@@ -608,6 +680,9 @@ class TestRecommendMatches(TestCase):
             'results': {
                 self.js_alt3.uuid: [self.jsmith.uuid]
             }
+        }
+        individuals_expected = {
+            self.js_alt3.individual.mk: [self.jsmith.individual.mk]
         }
 
         source_uuids = [self.js_alt3.uuid]
@@ -622,6 +697,9 @@ class TestRecommendMatches(TestCase):
 
         self.assertDictEqual(result, expected)
 
+        for mr in MergeRecommendation.objects.all():
+            self.assertIn(mr.individual2.mk, individuals_expected[mr.individual1.mk])
+
     def test_recommend_matches_empty_target(self):
         """Check if recommendations are obtained for the given individuals against the whole registry"""
 
@@ -632,6 +710,9 @@ class TestRecommendMatches(TestCase):
             'results': {
                 self.john_smith.uuid: [self.jsmith.uuid]
             }
+        }
+        individuals_expected = {
+            self.john_smith.individual.mk: [self.jsmith.individual.mk]
         }
 
         source_uuids = [self.john_smith.uuid]
@@ -649,6 +730,9 @@ class TestRecommendMatches(TestCase):
             result['results'][key] = sorted(result['results'][key])
 
         self.assertDictEqual(result, expected)
+
+        for mr in MergeRecommendation.objects.all():
+            self.assertIn(mr.individual2.mk, individuals_expected[mr.individual1.mk])
 
     def test_no_matches_found(self):
         """Check whether it returns no results when there is no matches for the input identity"""
@@ -672,6 +756,9 @@ class TestRecommendMatches(TestCase):
         result = job.result
 
         self.assertDictEqual(result, expected)
+
+        total_recommendations = MergeRecommendation.objects.count()
+        self.assertEqual(total_recommendations, 0)
 
     @unittest.mock.patch('sortinghat.core.api.find_individual_by_uuid')
     def test_not_found_uuid_error(self, mock_find_indv):
@@ -1158,6 +1245,11 @@ class TestRecommendGender(TestCase):
         result = job.result
 
         self.assertDictEqual(result, expected)
+
+        recommendations = GenderRecommendation.objects.all()
+        for recommendation in recommendations:
+            self.assertEqual(recommendation.gender, expected['results'][recommendation.individual.mk]['gender'])
+            self.assertEqual(recommendation.accuracy, expected['results'][recommendation.individual.mk]['accuracy'])
 
     @httpretty.activate
     def test_transactions(self):

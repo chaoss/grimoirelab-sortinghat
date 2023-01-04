@@ -60,7 +60,10 @@ from sortinghat.core.models import (Organization,
                                     Enrollment,
                                     RecommenderExclusionTerm,
                                     Transaction,
-                                    Operation)
+                                    Operation,
+                                    MergeRecommendation,
+                                    GenderRecommendation,
+                                    AffiliationRecommendation)
 from sortinghat.core.schema import (SortingHatQuery,
                                     SortingHatMutation,
                                     parse_date_filter)
@@ -73,6 +76,9 @@ DUPLICATED_ENROLLMENT_ERROR = "range date '{}'-'{}' is part of an existing range
 DUPLICATED_RET_ERROR = "RecommenderExclusionTerm 'John Smith' already exists in the registry"
 TERM_EMPTY_ERROR = "'term' cannot be an empty string"
 TERM_EXAMPLE_DOES_NOT_EXIST_ERROR = "John Smith not found in the registry"
+RECOMMENDATION_MERGE_DOES_NOT_EXIST_ERROR = "MergeRecommendation matching query does not exist."
+RECOMMENDATION_GENDER_DOES_NOT_EXIST_ERROR = "GenderRecommendation matching query does not exist."
+RECOMMENDATION_AFFILIATION_DOES_NOT_EXIST_ERROR = "AffiliationRecommendation matching query does not exist."
 NAME_EMPTY_ERROR = "'name' cannot be an empty string"
 DOMAIN_NAME_EMPTY_ERROR = "'domain_name' cannot be an empty string"
 TEAM_NAME_EMPTY_ERROR = "'team_name' cannot be an empty string"
@@ -454,6 +460,19 @@ SH_INDIVIDUALS_QUERY = """{
         }
         start
         end
+      }
+    }
+  }
+}"""
+SH_INDIVIDUAL_MERGE_REC_QUERY = """{
+  individuals {
+    entities {
+      mk
+      matchRecommendationSet {
+        id
+        individual {
+          mk
+        }
       }
     }
   }
@@ -1072,6 +1091,151 @@ SH_RET_QUERY_PAGINATION = """{
       startIndex
       endIndex
       totalResults
+    }
+  }
+}"""
+SH_AFF_REC_QUERY = """{
+  recommendedAffiliations {
+    entities {
+      individual {
+        mk
+      }
+      organization {
+        name
+      }
+    }
+  }
+}"""
+SH_AFF_REC_QUERY_PAGINATION = """{
+  recommendedAffiliations (
+    page: %d
+    pageSize: %d
+  ){
+    entities {
+      individual {
+        mk
+      }
+      organization {
+        name
+      }
+    }
+    pageInfo{
+      page
+      pageSize
+      numPages
+      hasNext
+      hasPrev
+      startIndex
+      endIndex
+      totalResults
+    }
+  }
+}"""
+SH_AFF_REC_FILTER = """{
+  recommendedAffiliations(filters: {isApplied: %s}) {
+    entities {
+      individual {
+        mk
+      }
+      organization {
+        name
+      }
+      applied
+    }
+  }
+}"""
+SH_MERGE_REC_QUERY = """{
+  recommendedMerge {
+    entities {
+      individual1 {
+        mk
+      }
+      individual2 {
+        mk
+      }
+    }
+  }
+}"""
+SH_MERGE_REC_QUERY_PAGINATION = """{
+  recommendedMerge (
+    page: %d
+    pageSize: %d
+  ){
+    entities {
+      individual1 {
+        mk
+      }
+      individual2 {
+        mk
+      }
+    }
+    pageInfo{
+      page
+      pageSize
+      numPages
+      hasNext
+      hasPrev
+      startIndex
+      endIndex
+      totalResults
+    }
+  }
+}"""
+SH_MERGE_REC_FILTER = """{
+  recommendedMerge(filters: {isApplied: %s}) {
+    entities {
+      individual1 {
+        mk
+      }
+      individual2 {
+        mk
+      }
+    }
+  }
+}"""
+SH_GENDER_REC_QUERY = """{
+  recommendedGender {
+    entities {
+      individual {
+        mk
+      }
+      gender
+      accuracy
+    }
+  }
+}"""
+SH_GENDER_REC_QUERY_PAGINATION = """{
+  recommendedGender (
+    page: %d
+    pageSize: %d
+  ){
+    entities {
+      individual {
+        mk
+      }
+      gender
+      accuracy
+    }
+    pageInfo{
+      page
+      pageSize
+      numPages
+      hasNext
+      hasPrev
+      startIndex
+      endIndex
+      totalResults
+    }
+  }
+}"""
+SH_GENDER_REC_FILTER = """{
+  recommendedGender(filters: {isApplied: %s}) {
+    entities {
+      individual {
+        mk
+      }
+      gender
+      accuracy
     }
   }
 }"""
@@ -2259,6 +2423,38 @@ class TestQueryIndividuals(django.test.TestCase):
 
         indvs = executed['data']['individuals']['entities']
         self.assertListEqual(indvs, [])
+
+    def tests_resolve_merge_recommendation(self):
+        """Check if it resolves the merge recommendation in the individual"""
+
+        indv1 = Individual.objects.create(mk='AAAA')
+        indv2 = Individual.objects.create(mk='BBBB')
+        Profile.objects.create(name="Jhon",
+                               email='jsmith@example.com',
+                               is_bot=False,
+                               gender='Male',
+                               individual=indv1)
+        Profile.objects.create(name="Jhon",
+                               email='jsmith2@example.com',
+                               is_bot=False,
+                               gender='Male',
+                               individual=indv2)
+        rec = MergeRecommendation.objects.create(individual1=indv1, individual2=indv2)
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_INDIVIDUAL_MERGE_REC_QUERY,
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 2)
+
+        indv1 = individuals[0]
+        self.assertEqual(indv1['mk'], 'AAAA')
+        self.assertEqual(indv1['matchRecommendationSet'][0]['individual']['mk'], 'BBBB')
+
+        indv2 = individuals[1]
+        self.assertEqual(indv2['mk'], 'BBBB')
+        self.assertEqual(indv2['matchRecommendationSet'][0]['individual']['mk'], 'AAAA')
 
     def test_filter_registry(self):
         """Check whether it returns the uuid searched when using uuid filter"""
@@ -4208,6 +4404,446 @@ class TestQueryRecommenderExclusionTerms(django.test.TestCase):
         client = graphene.test.Client(schema)
 
         executed = client.execute(SH_RET_QUERY,
+                                  context_value=context_value)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
+
+
+class TestQueryRecommendedAffiliation(django.test.TestCase):
+    """Unit tests for RecommendedAffiliation queries"""
+
+    def setUp(self):
+        """Set queries context"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
+
+    def test_recommended_affiliations(self):
+        """Check if it returns the registry of AffiliationRecommendation"""
+
+        indv1 = Individual.objects.create(mk='AAAA')
+        Profile.objects.create(name='John Smith',
+                               email='jsmith@example.net',
+                               individual=indv1)
+        indv2 = Individual.objects.create(mk='BBBB')
+        Profile.objects.create(name='John Doe',
+                               email='jdoe@bitergia.com',
+                               individual=indv2)
+        org_ex1 = Organization.add_root(name='Example1')
+        org_ex2 = Organization.add_root(name='Example2')
+        AffiliationRecommendation.objects.create(individual=indv1, organization=org_ex1)
+        AffiliationRecommendation.objects.create(individual=indv2, organization=org_ex2)
+
+        # Tests
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_AFF_REC_QUERY,
+                                  context_value=self.context_value)
+
+        rels = executed['data']['recommendedAffiliations']['entities']
+        self.assertEqual(len(rels), 2)
+        rel1 = rels[0]
+        self.assertEqual(rel1['individual']['mk'], indv1.mk)
+        self.assertEqual(rel1['organization']['name'], 'Example1')
+
+        rel1 = rels[1]
+        self.assertEqual(rel1['individual']['mk'], indv2.mk)
+        self.assertEqual(rel1['organization']['name'], 'Example2')
+
+    def test_filter_is_applied(self):
+        """Check whether it filter recommendations by is_applied"""
+
+        indv1 = Individual.objects.create(mk='AAAA')
+        Profile.objects.create(name='John Smith',
+                               email='jsmith@example.net',
+                               individual=indv1)
+        indv2 = Individual.objects.create(mk='BBBB')
+        Profile.objects.create(name='John Doe',
+                               email='jdoe@bitergia.com',
+                               individual=indv2)
+        indv3 = Individual.objects.create(mk='CCCC')
+        Profile.objects.create(name='Mary Doe',
+                               email='mdoe@bitergia.com',
+                               individual=indv3)
+        org_ex1 = Organization.add_root(name='Example1')
+        org_ex2 = Organization.add_root(name='Example2')
+        AffiliationRecommendation.objects.create(individual=indv1, organization=org_ex1, applied=True)
+        AffiliationRecommendation.objects.create(individual=indv2, organization=org_ex2, applied=False)
+        AffiliationRecommendation.objects.create(individual=indv3, organization=org_ex1)
+
+        # Test isApplied true
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_AFF_REC_FILTER % "true",
+                                  context_value=self.context_value)
+        recommendations = executed['data']['recommendedAffiliations']['entities']
+        self.assertEqual(len(recommendations), 1)
+        self.assertEqual(recommendations[0]['individual']['mk'], indv1.mk)
+        self.assertEqual(recommendations[0]['organization']['name'], "Example1")
+
+        # Test isApplied false
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_AFF_REC_FILTER % "false",
+                                  context_value=self.context_value)
+
+        recommendations = executed['data']['recommendedAffiliations']['entities']
+        self.assertEqual(len(recommendations), 1)
+        self.assertEqual(recommendations[0]['individual']['mk'], indv2.mk)
+        self.assertEqual(recommendations[0]['organization']['name'], "Example2")
+
+    def test_empty_registry(self):
+        """Check whether it returns an empty list when the registry is empty"""
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_AFF_REC_QUERY,
+                                  context_value=self.context_value)
+        rels = executed['data']['recommendedAffiliations']['entities']
+        self.assertListEqual(rels, [])
+
+    def test_pagination(self):
+        """Check whether it returns the recommenderExclusionTerms searched when using pagination"""
+
+        indv1 = Individual.objects.create(mk='AAAA')
+        Profile.objects.create(name='John Smith',
+                               email='jsmith@example.net',
+                               individual=indv1)
+        indv2 = Individual.objects.create(mk='BBBB')
+        Profile.objects.create(name='John Doe',
+                               email='jdoe@bitergia.com',
+                               individual=indv2)
+        org_ex1 = Organization.add_root(name='Example1')
+        org_ex2 = Organization.add_root(name='Example2')
+        rec = AffiliationRecommendation.objects.create(individual=indv1, organization=org_ex1)
+        rec = AffiliationRecommendation.objects.create(individual=indv2, organization=org_ex2)
+
+        client = graphene.test.Client(schema)
+        test_query = SH_AFF_REC_QUERY_PAGINATION % (1, 1)
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
+
+        rels = executed['data']['recommendedAffiliations']['entities']
+
+        self.assertEqual(len(rels), 1)
+
+        pag_data = executed['data']['recommendedAffiliations']['pageInfo']
+        self.assertEqual(len(pag_data), 8)
+        self.assertEqual(pag_data['page'], 1)
+        self.assertEqual(pag_data['pageSize'], 1)
+        self.assertEqual(pag_data['numPages'], 2)
+        self.assertTrue(pag_data['hasNext'])
+        self.assertFalse(pag_data['hasPrev'])
+        self.assertEqual(pag_data['startIndex'], 1)
+        self.assertEqual(pag_data['endIndex'], 1)
+        self.assertEqual(pag_data['totalResults'], 2)
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the query"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        executed = client.execute(SH_AFF_REC_QUERY,
+                                  context_value=context_value)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
+
+
+class TestQueryRecommendedMerge(django.test.TestCase):
+    """Unit tests for RecommendedMerge queries"""
+
+    def setUp(self):
+        """Set queries context"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
+
+    def test_recommended_merge(self):
+        """Check if it returns the registry of RecommendedMerge"""
+
+        indv1 = Individual.objects.create(mk='AAAA')
+        Profile.objects.create(name='John Smith',
+                               email='jsmith@example.net',
+                               individual=indv1)
+        indv2 = Individual.objects.create(mk='BBBB')
+        Profile.objects.create(name='John Doe',
+                               email='jdoe@bitergia.com',
+                               individual=indv2)
+        indv3 = Individual.objects.create(mk='CCCC')
+        Profile.objects.create(name='Mary Doe',
+                               email='mdoe@bitergia.com',
+                               individual=indv3)
+        MergeRecommendation.objects.create(individual1=indv1, individual2=indv2)
+        MergeRecommendation.objects.create(individual1=indv1, individual2=indv3)
+
+        # Tests
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_MERGE_REC_QUERY,
+                                  context_value=self.context_value)
+
+        rels = executed['data']['recommendedMerge']['entities']
+        self.assertEqual(len(rels), 2)
+        rel1 = rels[0]
+        self.assertEqual(rel1['individual1']['mk'], indv1.mk)
+        self.assertEqual(rel1['individual2']['mk'], indv2.mk)
+
+        rel1 = rels[1]
+        self.assertEqual(rel1['individual1']['mk'], indv1.mk)
+        self.assertEqual(rel1['individual2']['mk'], indv3.mk)
+
+    def test_filter_is_applied(self):
+        """Check whether it filter recommendations by is_applied"""
+
+        indv1 = Individual.objects.create(mk='AAAA')
+        Profile.objects.create(name='John Smith',
+                               email='jsmith@example.net',
+                               individual=indv1)
+        indv2 = Individual.objects.create(mk='BBBB')
+        Profile.objects.create(name='John Doe',
+                               email='jdoe@bitergia.com',
+                               individual=indv2)
+        indv3 = Individual.objects.create(mk='CCCC')
+        Profile.objects.create(name='Mary Doe',
+                               email='mdoe@bitergia.com',
+                               individual=indv3)
+        indv4 = Individual.objects.create(mk='DDDD')
+        Profile.objects.create(name='Pepe Doe',
+                               email='mdoe@bitergia.com',
+                               individual=indv4)
+        MergeRecommendation.objects.create(individual1=indv1, individual2=indv2, applied=True)
+        MergeRecommendation.objects.create(individual1=indv1, individual2=indv3, applied=False)
+        MergeRecommendation.objects.create(individual1=indv1, individual2=indv4)
+
+        # Test isApplied true
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_MERGE_REC_FILTER % "true",
+                                  context_value=self.context_value)
+        recommendations = executed['data']['recommendedMerge']['entities']
+        self.assertEqual(len(recommendations), 1)
+        self.assertEqual(recommendations[0]['individual1']['mk'], indv1.mk)
+        self.assertEqual(recommendations[0]['individual2']['mk'], indv2.mk)
+
+        # Test isApplied false
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_MERGE_REC_FILTER % "false",
+                                  context_value=self.context_value)
+
+        recommendations = executed['data']['recommendedMerge']['entities']
+        self.assertEqual(len(recommendations), 1)
+        self.assertEqual(recommendations[0]['individual1']['mk'], indv1.mk)
+        self.assertEqual(recommendations[0]['individual2']['mk'], indv3.mk)
+
+    def test_empty_registry(self):
+        """Check whether it returns an empty list when the registry is empty"""
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_MERGE_REC_QUERY,
+                                  context_value=self.context_value)
+
+        rels = executed['data']['recommendedMerge']['entities']
+        self.assertListEqual(rels, [])
+
+    def test_pagination(self):
+        """Check whether it returns the recommenderExclusionTerms searched when using pagination"""
+
+        indv1 = Individual.objects.create(mk='AAAA')
+        Profile.objects.create(name='John Smith',
+                               email='jsmith@example.net',
+                               individual=indv1)
+        indv2 = Individual.objects.create(mk='BBBB')
+        Profile.objects.create(name='John Doe',
+                               email='jdoe@bitergia.com',
+                               individual=indv2)
+        indv3 = Individual.objects.create(mk='CCCC')
+        Profile.objects.create(name='Mary Doe',
+                               email='mdoe@bitergia.com',
+                               individual=indv3)
+        MergeRecommendation.objects.create(individual1=indv1, individual2=indv2)
+        MergeRecommendation.objects.create(individual1=indv1, individual2=indv3)
+
+        client = graphene.test.Client(schema)
+        test_query = SH_MERGE_REC_QUERY_PAGINATION % (1, 1)
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
+
+        rels = executed['data']['recommendedMerge']['entities']
+
+        self.assertEqual(len(rels), 1)
+
+        pag_data = executed['data']['recommendedMerge']['pageInfo']
+        self.assertEqual(len(pag_data), 8)
+        self.assertEqual(pag_data['page'], 1)
+        self.assertEqual(pag_data['pageSize'], 1)
+        self.assertEqual(pag_data['numPages'], 2)
+        self.assertTrue(pag_data['hasNext'])
+        self.assertFalse(pag_data['hasPrev'])
+        self.assertEqual(pag_data['startIndex'], 1)
+        self.assertEqual(pag_data['endIndex'], 1)
+        self.assertEqual(pag_data['totalResults'], 2)
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the query"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        executed = client.execute(SH_MERGE_REC_QUERY,
+                                  context_value=context_value)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
+
+
+class TestQueryRecommendedGender(django.test.TestCase):
+    """Unit tests for RecommendedGender queries"""
+
+    def setUp(self):
+        """Set queries context"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
+
+    def test_recommended_gender(self):
+        """Check if it returns the registry of GenderRecommendation"""
+
+        indv1 = Individual.objects.create(mk='AAAA')
+        Profile.objects.create(name='John Smith',
+                               email='jsmith@example.net',
+                               individual=indv1)
+        indv2 = Individual.objects.create(mk='BBBB')
+        Profile.objects.create(name='John Doe',
+                               email='jdoe@bitergia.com',
+                               individual=indv2)
+        GenderRecommendation.objects.create(individual=indv1, gender='Male', accuracy=80)
+        GenderRecommendation.objects.create(individual=indv2, gender='Female', accuracy=90)
+
+        # Tests
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_GENDER_REC_QUERY,
+                                  context_value=self.context_value)
+
+        rels = executed['data']['recommendedGender']['entities']
+        self.assertEqual(len(rels), 2)
+        rel1 = rels[0]
+        self.assertEqual(rel1['individual']['mk'], indv1.mk)
+        self.assertEqual(rel1['gender'], 'Male')
+        self.assertEqual(rel1['accuracy'], 80)
+
+        rel1 = rels[1]
+        self.assertEqual(rel1['individual']['mk'], indv2.mk)
+        self.assertEqual(rel1['gender'], 'Female')
+        self.assertEqual(rel1['accuracy'], 90)
+
+    def test_filter_is_applied(self):
+        """Check whether it filter recommendations by is_applied"""
+
+        indv1 = Individual.objects.create(mk='AAAA')
+        Profile.objects.create(name='John Smith',
+                               email='jsmith@example.net',
+                               individual=indv1)
+        indv2 = Individual.objects.create(mk='BBBB')
+        Profile.objects.create(name='May Doe',
+                               email='jdoe@bitergia.com',
+                               individual=indv2)
+        indv3 = Individual.objects.create(mk='CCCC')
+        Profile.objects.create(name='May Walker',
+                               email='mwalker@bitergia.com',
+                               individual=indv3)
+        GenderRecommendation.objects.create(individual=indv1, gender='Male', accuracy=80, applied=True)
+        GenderRecommendation.objects.create(individual=indv2, gender='Female', accuracy=90, applied=False)
+        GenderRecommendation.objects.create(individual=indv3, gender='Female', accuracy=95)
+
+        # Test isApplied true
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_GENDER_REC_FILTER % "true",
+                                  context_value=self.context_value)
+        recommendations = executed['data']['recommendedGender']['entities']
+        self.assertEqual(len(recommendations), 1)
+        rel1 = recommendations[0]
+        self.assertEqual(rel1['individual']['mk'], indv1.mk)
+        self.assertEqual(rel1['gender'], 'Male')
+        self.assertEqual(rel1['accuracy'], 80)
+
+        # Test isApplied false
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_GENDER_REC_FILTER % "false",
+                                  context_value=self.context_value)
+        recommendations = executed['data']['recommendedGender']['entities']
+        self.assertEqual(len(recommendations), 1)
+        rel1 = recommendations[0]
+        self.assertEqual(rel1['individual']['mk'], indv2.mk)
+        self.assertEqual(rel1['gender'], 'Female')
+        self.assertEqual(rel1['accuracy'], 90)
+
+        # Test isApplied unknow (no filter)
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_GENDER_REC_QUERY,
+                                  context_value=self.context_value)
+        recommendations = executed['data']['recommendedGender']['entities']
+        self.assertEqual(len(recommendations), 1)
+        rel1 = recommendations[0]
+        self.assertEqual(rel1['individual']['mk'], indv3.mk)
+        self.assertEqual(rel1['gender'], 'Female')
+        self.assertEqual(rel1['accuracy'], 95)
+
+    def test_empty_registry(self):
+        """Check whether it returns an empty list when the registry is empty"""
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_GENDER_REC_QUERY,
+                                  context_value=self.context_value)
+        rels = executed['data']['recommendedGender']['entities']
+        self.assertListEqual(rels, [])
+
+    def test_pagination(self):
+        """Check whether it returns the recommenderExclusionTerms searched when using pagination"""
+
+        indv1 = Individual.objects.create(mk='AAAA')
+        Profile.objects.create(name='John Smith',
+                               email='jsmith@example.net',
+                               individual=indv1)
+        indv2 = Individual.objects.create(mk='BBBB')
+        Profile.objects.create(name='John Doe',
+                               email='jdoe@bitergia.com',
+                               individual=indv2)
+        GenderRecommendation.objects.create(individual=indv1, gender='Male', accuracy=80)
+        GenderRecommendation.objects.create(individual=indv2, gender='Female', accuracy=90)
+
+        client = graphene.test.Client(schema)
+        test_query = SH_GENDER_REC_QUERY_PAGINATION % (1, 1)
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
+
+        rels = executed['data']['recommendedGender']['entities']
+
+        self.assertEqual(len(rels), 1)
+
+        pag_data = executed['data']['recommendedGender']['pageInfo']
+        self.assertEqual(len(pag_data), 8)
+        self.assertEqual(pag_data['page'], 1)
+        self.assertEqual(pag_data['pageSize'], 1)
+        self.assertEqual(pag_data['numPages'], 2)
+        self.assertTrue(pag_data['hasNext'])
+        self.assertFalse(pag_data['hasPrev'])
+        self.assertEqual(pag_data['startIndex'], 1)
+        self.assertEqual(pag_data['endIndex'], 1)
+        self.assertEqual(pag_data['totalResults'], 2)
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the query"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        executed = client.execute(SH_GENDER_REC_QUERY,
                                   context_value=context_value)
 
         msg = executed['errors'][0]['message']
@@ -9748,6 +10384,310 @@ class TestDeleteRecommenderExclusionTermMutation(django.test.TestCase):
         client = graphene.test.Client(schema)
 
         executed = client.execute(self.SH_DELETE_RET,
+                                  context_value=context_value)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
+
+
+class TestManageRecommendationMergeMutation(django.test.TestCase):
+    """Unit tests for mutation to accept a match recommendation"""
+
+    SH_MANAGE_REC = """
+      mutation manageMergeRecommendation {
+        manageMergeRecommendation (recommendationId: %s, apply: %s) {
+          applied
+        }
+      }
+    """
+
+    def setUp(self):
+        """Set queries context"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
+
+    def test_apply_recommendation_merge(self):
+        """Check whether it merges a recommendation"""
+
+        # Create recommendation
+        indv1 = Individual.objects.create(mk='AAAA')
+        indv2 = Individual.objects.create(mk='BBBB')
+        Profile.objects.create(name="Jhon",
+                               email='jsmith@example.com',
+                               is_bot=False,
+                               gender='Male',
+                               individual=indv1)
+        Profile.objects.create(name="Jhon",
+                               email='jsmith2@example.com',
+                               is_bot=False,
+                               gender='Male',
+                               individual=indv2)
+        rec = MergeRecommendation.objects.create(individual1=indv1, individual2=indv2)
+
+        # Apply recommendation
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_MANAGE_REC % (rec.id, "true"),
+                                  context_value=self.context_value)
+
+        # Check result
+        rel = executed['data']['manageMergeRecommendation']
+        self.assertEqual(rel['applied'], True)
+
+        # Tests
+        with self.assertRaises(django.core.exceptions.ObjectDoesNotExist):
+            MergeRecommendation.objects.get(id=rec.id)
+
+    def test_dismiss_recommendation_merge(self):
+        """Check whether it dismiss a recommendation"""
+
+        # Create recommendation
+        indv1 = Individual.objects.create(mk='AAAA')
+        indv2 = Individual.objects.create(mk='BBBB')
+        Profile.objects.create(name="Jhon",
+                               email='jsmith@example.com',
+                               is_bot=False,
+                               gender='Male',
+                               individual=indv1)
+        Profile.objects.create(name="Jhon",
+                               email='jsmith2@example.com',
+                               is_bot=False,
+                               gender='Male',
+                               individual=indv2)
+        rec = MergeRecommendation.objects.create(individual1=indv1, individual2=indv2)
+
+        # Dismiss recommendation
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_MANAGE_REC % (rec.id, "false"),
+                                  context_value=self.context_value)
+
+        # Check result
+        rel = executed['data']['manageMergeRecommendation']
+        self.assertEqual(rel['applied'], False)
+
+        # Tests
+        updated_rec = MergeRecommendation.objects.get(id=rec.id)
+        self.assertFalse(updated_rec.applied)
+
+    def test_not_found_recommendationMerge(self):
+        """Check if it returns an error when an entry does not exist"""
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_MANAGE_REC % (1000, "true"),
+                                  context_value=self.context_value)
+
+        # Check error
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, RECOMMENDATION_MERGE_DOES_NOT_EXIST_ERROR)
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the query"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        executed = client.execute(self.SH_MANAGE_REC % (1, "true"),
+                                  context_value=context_value)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
+
+
+class TestManageRecommendationGenderMutation(django.test.TestCase):
+    """Unit tests for mutation to accept a match recommendation"""
+
+    SH_MANAGE_REC = """
+      mutation manageGenderRecommendation {
+        manageGenderRecommendation (recommendationId: %s, apply: %s) {
+          applied
+        }
+      }
+    """
+
+    def setUp(self):
+        """Set queries context"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
+
+    def test_apply_recommendation_gender(self):
+        """Check whether it applies a recommendation"""
+
+        # Create recommendation
+        indv1 = Individual.objects.create(mk='AAAA')
+        p = Profile.objects.create(name="Jhon",
+                                   email='jsmith@example.com',
+                                   is_bot=False,
+                                   gender='Male',
+                                   individual=indv1)
+        rec = GenderRecommendation.objects.create(individual=indv1, gender='Female', accuracy=90)
+
+        # Apply recommendation
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_MANAGE_REC % (rec.id, "true"),
+                                  context_value=self.context_value)
+
+        # Check result
+        rel = executed['data']['manageGenderRecommendation']
+        self.assertTrue(rel['applied'])
+
+        # Tests
+        updated_rec = GenderRecommendation.objects.get(id=rec.id)
+        self.assertTrue(updated_rec.applied)
+        p.refresh_from_db()
+        self.assertEqual(p.gender, 'Female')
+
+    def test_dismiss_recommendation_gender(self):
+        """Check whether it dismiss a recommendation"""
+
+        # Create recommendation
+        indv1 = Individual.objects.create(mk='AAAA')
+        p = Profile.objects.create(name="Jhon",
+                                   email='jsmith@example.com',
+                                   is_bot=False,
+                                   gender='Male',
+                                   individual=indv1)
+        rec = GenderRecommendation.objects.create(individual=indv1, gender='Female', accuracy=90)
+
+        # Apply recommendation
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_MANAGE_REC % (rec.id, "false"),
+                                  context_value=self.context_value)
+
+        # Check result
+        rel = executed['data']['manageGenderRecommendation']
+        self.assertFalse(rel['applied'])
+
+        # Tests
+        updated_rec = GenderRecommendation.objects.get(id=rec.id)
+        self.assertFalse(updated_rec.applied)
+        p.refresh_from_db()
+        self.assertEqual(p.gender, 'Male')
+
+    def test_not_found_recommendationGender(self):
+        """Check if it returns an error when an entry does not exist"""
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_MANAGE_REC % (1000, "true"),
+                                  context_value=self.context_value)
+
+        # Check error
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, RECOMMENDATION_GENDER_DOES_NOT_EXIST_ERROR)
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the query"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        executed = client.execute(self.SH_MANAGE_REC % (1, "true"),
+                                  context_value=context_value)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
+
+
+class TestManageRecommendationAffiliationMutation(django.test.TestCase):
+    """Unit tests for mutation to accept an affiliation recommendation"""
+
+    SH_MANAGE_REC = """
+      mutation manageAffiliationRecommendation {
+        manageAffiliationRecommendation (recommendationId: %s, apply: %s) {
+          applied
+        }
+      }
+    """
+
+    def setUp(self):
+        """Set queries context"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
+
+    def test_apply_recommendation_affiliation(self):
+        """Check whether it applies a recommendation"""
+
+        # Create recommendation
+        indv1 = Individual.objects.create(mk='AAAA')
+        Profile.objects.create(name="Jhon",
+                               email='jsmith@example.com',
+                               is_bot=False,
+                               gender='Male',
+                               individual=indv1)
+        org_ex = Organization.add_root(name='Example')
+        rec = AffiliationRecommendation.objects.create(individual=indv1, organization=org_ex)
+
+        # Apply recommendation
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_MANAGE_REC % (rec.id, "true"),
+                                  context_value=self.context_value)
+
+        # Check result
+        rel = executed['data']['manageAffiliationRecommendation']
+        self.assertTrue(rel['applied'])
+
+        # Tests
+        updated_rec = AffiliationRecommendation.objects.get(id=rec.id)
+        self.assertTrue(updated_rec.applied)
+        indv1.refresh_from_db()
+        self.assertTrue(indv1.enrollments.filter(group__name='Example').exists())
+
+    def test_dismiss_recommendation_affiliation(self):
+        """Check whether it dismiss a recommendation"""
+
+        # Create recommendation
+        indv1 = Individual.objects.create(mk='AAAA')
+        Profile.objects.create(name="Jhon",
+                               email='jsmith@example.com',
+                               is_bot=False,
+                               gender='Male',
+                               individual=indv1)
+        org_ex = Organization.add_root(name='Example')
+        rec = AffiliationRecommendation.objects.create(individual=indv1, organization=org_ex)
+
+        # Apply recommendation
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_MANAGE_REC % (rec.id, "false"),
+                                  context_value=self.context_value)
+
+        # Check result
+        rel = executed['data']['manageAffiliationRecommendation']
+        self.assertFalse(rel['applied'])
+
+        # Tests
+        updated_rec = AffiliationRecommendation.objects.get(id=rec.id)
+        self.assertFalse(updated_rec.applied)
+        indv1.refresh_from_db()
+        self.assertFalse(indv1.enrollments.exists())
+
+    def test_not_found_recommendationAffiliation(self):
+        """Check if it returns an error when an entry does not exist"""
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_MANAGE_REC % (1000, "true"),
+                                  context_value=self.context_value)
+
+        # Check error
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, RECOMMENDATION_AFFILIATION_DOES_NOT_EXIST_ERROR)
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the query"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        executed = client.execute(self.SH_MANAGE_REC % (1, "true"),
                                   context_value=context_value)
 
         msg = executed['errors'][0]['message']

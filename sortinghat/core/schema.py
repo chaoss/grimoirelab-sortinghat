@@ -62,7 +62,7 @@ from .api import (add_identity,
                   update_enrollment)
 from .context import SortingHatContext
 from .decorators import (check_auth, check_permissions)
-from .errors import InvalidFilterError
+from .errors import InvalidFilterError, EqualIndividualError
 from .jobs import (affiliate,
                    unify,
                    find_job,
@@ -82,7 +82,10 @@ from .models import (Organization,
                      Enrollment,
                      Transaction,
                      Operation,
-                     RecommenderExclusionTerm)
+                     RecommenderExclusionTerm,
+                     AffiliationRecommendation,
+                     MergeRecommendation,
+                     GenderRecommendation)
 from .recommendations.exclusion import delete_recommend_exclusion_term, add_recommender_exclusion_term
 
 
@@ -210,6 +213,18 @@ class CountryType(DjangoObjectType):
 class IndividualType(DjangoObjectType):
     class Meta:
         model = Individual
+        exclude = ('match_recommendation_individual_1', 'match_recommendation_individual_2')
+
+    match_recommendation_set = graphene.List(lambda: IndividualRecommendedMergeType)
+
+    @check_auth
+    def resolve_match_recommendation_set(self, info):
+        indv_recs = []
+        recs = self.match_recommendation_individual_1.all() | self.match_recommendation_individual_2.all()
+        for rec in recs:
+            indv = rec.individual1 if rec.individual1.mk != self.mk else rec.individual2
+            indv_recs.append(IndividualRecommendedMergeType(id=rec.id, individual=indv))
+        return indv_recs
 
 
 class IdentityType(DjangoObjectType):
@@ -227,6 +242,26 @@ class EnrollmentType(DjangoObjectType):
         model = Enrollment
 
     group = graphene.Field(GroupType)
+
+
+class RecommendedAffiliationType(DjangoObjectType):
+    class Meta:
+        model = AffiliationRecommendation
+
+
+class RecommendedMergeType(DjangoObjectType):
+    class Meta:
+        model = MergeRecommendation
+
+
+class IndividualRecommendedMergeType(graphene.ObjectType):
+    id = graphene.Int(description='ID of the recommendation.')
+    individual = graphene.Field(IndividualType, description='Individual that matches.')
+
+
+class RecommendedGenderType(DjangoObjectType):
+    class Meta:
+        model = GenderRecommendation
 
 
 class AffiliationRecommendationType(graphene.ObjectType):
@@ -254,7 +289,7 @@ class AffiliationResultType(graphene.ObjectType):
     uuid = graphene.String(description='The unique identifier of an individual.')
     organizations = graphene.List(
         graphene.String,
-        description='List of organizations an individual was affilated to using matching recommendations.'
+        description='List of organizations an individual was affiliated to using matching recommendations.'
     )
 
 
@@ -472,6 +507,13 @@ class OperationFilterType(graphene.InputObjectType):
     )
 
 
+class RecommendationFilterType(graphene.InputObjectType):
+    is_applied = graphene.Boolean(
+        required=False,
+        description='Filter recommendations by their status.'
+    )
+
+
 class AbstractPaginatedType(graphene.ObjectType):
 
     @classmethod
@@ -533,6 +575,21 @@ class JobPaginatedType(AbstractPaginatedType):
 
 class RecommenderExclusionTermPaginatedType(AbstractPaginatedType):
     entities = graphene.List(RecommenderExclusionTermType, description='A list of recommender exclusion terms.')
+    page_info = graphene.Field(PaginationType, description='Information to aid in pagination.')
+
+
+class RecommendedAffiliationPaginatedType(AbstractPaginatedType):
+    entities = graphene.List(RecommendedAffiliationType, description='A list of recommended affiliations.')
+    page_info = graphene.Field(PaginationType, description='Information to aid in pagination.')
+
+
+class RecommendedMergePaginatedType(AbstractPaginatedType):
+    entities = graphene.List(RecommendedMergeType, description='A list of recommended identities matches.')
+    page_info = graphene.Field(PaginationType, description='Information to aid in pagination.')
+
+
+class RecommendedGenderPaginatedType(AbstractPaginatedType):
+    entities = graphene.List(RecommendedGenderType, description='A list of gender recommendations from individuals.')
     page_info = graphene.Field(PaginationType, description='Information to aid in pagination.')
 
 
@@ -1082,6 +1139,87 @@ class DeleteRecommenderExclusionTerm(graphene.Mutation):
         )
 
 
+class ManageMergeRecommendation(graphene.Mutation):
+    class Arguments:
+        recommendation_id = graphene.Int()
+        apply = graphene.Boolean()
+
+    applied = graphene.Boolean()
+
+    @check_auth
+    def mutate(self, info, recommendation_id, apply):
+        user = info.context.user
+        ctx = SortingHatContext(user)
+
+        recommendation = MergeRecommendation.objects.get(id=int(recommendation_id))
+        if apply:
+            try:
+                merge(ctx, [recommendation.individual2.mk], recommendation.individual1.mk)
+            except EqualIndividualError:
+                pass
+            # Can't keep a recommendation in which one individual is missing
+            recommendation.delete()
+        else:
+            recommendation.applied = False
+            recommendation.save()
+
+        return ManageMergeRecommendation(
+            applied=apply
+        )
+
+
+class ManageAffiliationRecommendation(graphene.Mutation):
+    class Arguments:
+        recommendation_id = graphene.Int()
+        apply = graphene.Boolean()
+
+    applied = graphene.Boolean()
+
+    @check_auth
+    def mutate(self, info, recommendation_id, apply):
+        user = info.context.user
+        ctx = SortingHatContext(user)
+
+        recommendation = AffiliationRecommendation.objects.get(id=int(recommendation_id))
+        if apply:
+            enroll(ctx, recommendation.individual.mk, recommendation.organization.name)
+
+        recommendation.applied = apply
+        recommendation.save()
+
+        return ManageAffiliationRecommendation(
+            applied=apply
+        )
+
+
+class ManageGenderRecommendation(graphene.Mutation):
+    class Arguments:
+        recommendation_id = graphene.Int()
+        apply = graphene.Boolean()
+
+    applied = graphene.Boolean()
+
+    @check_auth
+    def mutate(self, info, recommendation_id, apply):
+        user = info.context.user
+        ctx = SortingHatContext(user)
+
+        recommendation = GenderRecommendation.objects.get(id=int(recommendation_id))
+
+        if apply:
+            update_profile(ctx,
+                           recommendation.individual.mk,
+                           gender=recommendation.gender,
+                           gender_acc=recommendation.accuracy)
+
+        recommendation.applied = apply
+        recommendation.save()
+
+        return ManageGenderRecommendation(
+            applied=apply
+        )
+
+
 class SortingHatQuery:
 
     countries = graphene.Field(
@@ -1150,6 +1288,27 @@ class SortingHatQuery:
         page_size=graphene.Int(),
         page=graphene.Int(),
         description='Get all recommender exclusion terms.'
+    )
+    recommended_affiliations = graphene.Field(
+        RecommendedAffiliationPaginatedType,
+        page_size=graphene.Int(),
+        page=graphene.Int(),
+        filters=RecommendationFilterType(required=False),
+        description='Get all recommended affiliations.'
+    )
+    recommended_merge = graphene.Field(
+        RecommendedMergePaginatedType,
+        page_size=graphene.Int(),
+        page=graphene.Int(),
+        filters=RecommendationFilterType(required=False),
+        description='Get all recommended matched identities.'
+    )
+    recommended_gender = graphene.Field(
+        RecommendedGenderPaginatedType,
+        page_size=graphene.Int(),
+        page=graphene.Int(),
+        filters=RecommendationFilterType(required=False),
+        description='Get all gender recommendations for the identities.'
     )
 
     @check_auth
@@ -1478,6 +1637,48 @@ class SortingHatQuery:
                                                               page,
                                                               page_size=page_size)
 
+    @check_auth
+    def resolve_recommended_affiliations(self, info, filters=None, page=1,
+                                         page_size=settings.SORTINGHAT_API_PAGE_SIZE, **kwargs):
+        if filters and 'is_applied' in filters:
+            query = AffiliationRecommendation.objects.filter(applied=filters['is_applied'])
+        else:
+            query = AffiliationRecommendation.objects.filter(applied=None)
+
+        query = query.order_by('created_at')
+
+        return RecommendedAffiliationPaginatedType.create_paginated_result(query,
+                                                                           page,
+                                                                           page_size=page_size)
+
+    @check_auth
+    def resolve_recommended_merge(self, info, filters=None, page=1,
+                                  page_size=settings.SORTINGHAT_API_PAGE_SIZE, **kwargs):
+        if filters and 'is_applied' in filters:
+            query = MergeRecommendation.objects.filter(applied=filters['is_applied'])
+        else:
+            query = MergeRecommendation.objects.filter(applied=None)
+
+        query = query.order_by('created_at')
+
+        return RecommendedMergePaginatedType.create_paginated_result(query,
+                                                                     page,
+                                                                     page_size=page_size)
+
+    @check_auth
+    def resolve_recommended_gender(self, info, filters=None, page=1,
+                                   page_size=settings.SORTINGHAT_API_PAGE_SIZE, **kwargs):
+        if filters and 'is_applied' in filters:
+            query = GenderRecommendation.objects.filter(applied=filters['is_applied'])
+        else:
+            query = GenderRecommendation.objects.filter(applied=None)
+
+        query = query.order_by('created_at')
+
+        return RecommendedGenderPaginatedType.create_paginated_result(query,
+                                                                      page,
+                                                                      page_size=page_size)
+
 
 class SortingHatMutation(graphene.ObjectType):
     add_organization = AddOrganization.Field(
@@ -1574,6 +1775,15 @@ class SortingHatMutation(graphene.ObjectType):
     )
     delete_recommender_exclusion_term = DeleteRecommenderExclusionTerm.Field(
         description='Remove a recommender exclusion from the registry.'
+    )
+    manage_merge_recommendation = ManageMergeRecommendation.Field(
+        description='Manage a matching recommendation between identities.'
+    )
+    manage_affiliation_recommendation = ManageAffiliationRecommendation.Field(
+        description='Manage an affiliation recommendation for an identity.'
+    )
+    manage_gender_recommendation = ManageGenderRecommendation.Field(
+        description='Manage a gender recommendation.'
     )
 
     # JWT authentication
