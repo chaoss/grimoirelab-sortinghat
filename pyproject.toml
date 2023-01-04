@@ -70,10 +70,11 @@ importlib-resources = "^5.2.0"
 setuptools = "^65.5.0"
 grimoirelab-toolkit = { version = ">=0.3", allow-prereleases = true}
 django-storages = {extras = ["google"], version = "^1.13.2"}
+numpy = "==1.21.0"
 
 [tool.poetry.dev-dependencies]
 fakeredis = "^1.4.1"
-httpretty = "<1.1"
+httpretty = "^1.1.4"
 flake8 = "^4.0.1"
 
 [build-system]
