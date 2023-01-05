@@ -1,0 +1,8 @@
+individual {{ indv.mk }}
+
+Profile:
+    * Name: {{ indv.profile.name|d('-', true) }}
+    * E-Mail: {{ indv.profile.email|d('-', true) }}
+    * Gender: {{ indv.profile.gender|d('-', true) }}
+    * Bot: {{ '%s' % 'Yes' if indv.profile.is_bot else 'No' }}
+    * Country: {{ '%s' % indv.profile.country.code + ' - ' + indv.profile.country.name if indv.profile.country else '-' }}

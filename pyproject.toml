@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sortinghat"
-version = "0.7.23"
+version = "0.8.0"
 description = "A tool to manage identities."
 authors = [
     "GrimoireLab Developers"
@@ -21,7 +21,9 @@ packages = [
     { include = "sortinghat" },
     { include = "tests", format = "sdist" },
 ]
-
+exclude = [
+    "sortinghat/static"
+]
 include = [
     { path = "AUTHORS", format = "sdist" },
     { path = "NEWS", format = "sdist" },
@@ -29,7 +31,7 @@ include = [
 ]
 
 classifiers = [
-   "Development Status :: 5 - Production/Stable",
+   "Development Status :: 4 - Beta",
    "Intended Audience :: Developers",
    "Topic :: Software Development",
    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
@@ -40,32 +42,49 @@ classifiers = [
 "Bug Tracker" = "https://github.com/chaoss/grimoirelab-sortinghat/issues"
 
 [tool.poetry.scripts]
-sortinghat = 'sortinghat.bin.sortinghat:main'
-mg2sh = 'sortinghat.bin.mg2sh:main'
-sh2mg = 'sortinghat.bin.sh2mg:main'
-eclipse2sh = 'sortinghat.misc.eclipse2sh:main'
-gitdm2sh = 'sortinghat.misc.gitdm2sh:main'
-grimoirelab2sh = 'sortinghat.misc.grimoirelab2sh:main'
-mailmap2sh = 'sortinghat.misc.mailmap2sh:main'
-mozilla2sh = 'sortinghat.misc.mozilla2sh:main'
-stackalytics2sh = 'sortinghat.misc.stackalytics2sh:main'
+sortinghat = "sortinghat.cli.sortinghat:sortinghat"
+sortinghatd = "sortinghat.server.sortinghatd:sortinghatd"
+sortinghatw = "sortinghat.server.sortinghatw:sortinghatw"
+sortinghat-admin = "sortinghat.server.sortinghat_admin:sortinghat_admin"
 
 [tool.poetry.dependencies]
 python = "^3.7.1"
 
-PyMySQL = ">=0.7.0"
-sqlalchemy = "~1.3.0"
-jinja2 = "^3.0.1"
-python-dateutil = "^2.6.0"
+click = "7.1.1"
+Django = "3.2"
+django-graphql-jwt = "^0.3.0"
+graphene-django = "^2.0"
+sgqlc = "^10.1"
+mysqlclient = "2.0.3"
+python-dateutil = "^2.8.2"
+requests = "^2.7.0"
+Jinja2 = "^3.1.1"
+rq = "^1.4.0"
+django-rq = "^2.3.2"
 pandas = "^1.3.5"
-numpy = "<1.21.1"
-pyyaml = ">=3.12"
-requests = "^2.9"
-urllib3 = "^1.22"
+django-cors-headers = "^3.7.0"
+PyJWT = "<2.0.0"
+uWSGI = "^2.0"
+django-treebeard = "^4.5.1"
+importlib-resources = "^5.2.0"
+setuptools = "^65.5.0"
+grimoirelab-toolkit = { version = ">=0.3", allow-prereleases = true}
+django-storages = {extras = ["google"], version = "^1.13.2"}
+
+# Documentation
+myst-parser = { version = "^0.15.1", optional = true}
+furo = { version = "2021.7.28b40", optional = true}
 
 [tool.poetry.dev-dependencies]
-httpretty = "^1.1.4"
+fakeredis = "^1.4.1"
+httpretty = "<1.1"
 flake8 = "^4.0.1"
+
+[tool.poetry.extras]
+docs = [
+    "furo",
+    "myst-parser",
+]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

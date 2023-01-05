@@ -19,10 +19,10 @@ jobs:
 
   tests:
     needs: [build]
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     services:
       mysql:
-        image: mysql:5.7
+        image: mariadb:10.5
         env:
           MYSQL_ROOT_PASSWORD: root
         ports:
@@ -33,7 +33,7 @@ jobs:
     strategy:
       matrix:
         python-version: [3.7, 3.8]
-        
+
     steps:
       - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # 3.1.0
 
@@ -54,28 +54,18 @@ jobs:
           peodd -o requirements-dev.txt
           pip install -r requirements-dev.txt
 
-      - name: Verify MySQL connection from host
-        run: |
-          sudo apt-get install -y mysql-client libmysqlclient-dev
-          mysql --host 127.0.0.1 --port ${{ job.services.mysql.ports[3306] }} -uroot -proot -e "SHOW GRANTS FOR 'root'@'localhost'"
-          mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql --host 127.0.0.1 --port ${{ job.services.mysql.ports[3306] }} -uroot -proot mysql
-
-      - name: Setup MySQL Database and table
+      - name: Set MySQL mode
         env:
           DB_HOST: 127.0.0.1
           DB_PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
-          mysql --host $DB_HOST --port $DB_PORT -uroot -proot -e "SHOW DATABASES"
-          mysql --host $DB_HOST --port $DB_PORT -uroot -proot -e "SET GLOBAL sql_mode = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION'";
-          mysql --host $DB_HOST --port $DB_PORT -uroot -proot -e "CREATE DATABASE testhat"
-          mysql --host $DB_HOST --port $DB_PORT -uroot -proot -e "SHOW DATABASES"
-          cp tests/tests.conf.sample tests/tests.conf
+          mysql --host $DB_HOST --port $DB_PORT -uroot -proot -e "SET GLOBAL sql_mode = 'NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION'";
 
-      - name: Test package
+      - name: Test package backend
         run: |
           PACKAGE=`(cd dist && ls *whl)` && echo $PACKAGE
           pip install --pre ./dist/$PACKAGE
-          cd tests && python run_tests.py
+          python manage.py test --settings=config.settings.testing
 
   release:
     needs: [tests]
