@@ -71,20 +71,10 @@ setuptools = "^65.5.0"
 grimoirelab-toolkit = { version = ">=0.3", allow-prereleases = true}
 django-storages = {extras = ["google"], version = "^1.13.2"}
 
-# Documentation
-myst-parser = { version = "^0.15.1", optional = true}
-furo = { version = "2021.7.28b40", optional = true}
-
 [tool.poetry.dev-dependencies]
 fakeredis = "^1.4.1"
 httpretty = "<1.1"
 flake8 = "^4.0.1"
-
-[tool.poetry.extras]
-docs = [
-    "furo",
-    "myst-parser",
-]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
