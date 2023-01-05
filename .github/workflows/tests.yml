@@ -3,12 +3,12 @@ name: tests
 on:
   push:
     branches:
-      - muggle
+      - '**'
     tags:
       - '!**'
   pull_request:
     branches:
-      - muggle
+      - '**'
 
 jobs:
 

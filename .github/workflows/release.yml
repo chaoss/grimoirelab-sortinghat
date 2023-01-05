@@ -1,4 +1,4 @@
-name: release-muggle
+name: release
 
 on:
   push:
