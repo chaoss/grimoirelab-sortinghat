@@ -1,4 +1,4 @@
 [flake8]
-exclude = .git, .eggs, __pycache__, build, dist, docs, docker
-ignore = E129, E402, F841, C901, W504, E731
+exclude = .git, .eggs, __pycache__, build, dist, docs, docker, migrations, sortinghat/cli/client/schema.py
+ignore = E129, E402, F841, W504 E128 sortinghat/core/schema.py
 max-line-length = 130

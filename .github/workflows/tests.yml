@@ -2,76 +2,81 @@ name: tests
 
 on:
   push:
-    branches-ignore:
+    branches:
       - muggle
     tags:
       - '!**'
   pull_request:
-    branches-ignore:
+    branches:
       - muggle
 
 jobs:
-  tests:
-    runs-on: ubuntu-18.04
+
+  backend:
+
     services:
-      # How to use MySQL
       mysql:
-        image: mysql:5.7
+        image: mariadb:10.5
         env:
           MYSQL_ROOT_PASSWORD: root
         ports:
           - 3306:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-    
-    name: Python ${{ matrix.python-version }}
+
     strategy:
       matrix:
         python-version: [3.7, 3.8]
-    
+
+    runs-on: ubuntu-latest
+    name: Python ${{ matrix.python-version }}
     steps:
     - name: Checkout
       uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # 3.1.0
-
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@13ae5bb136fac2878aff31522b9efb785519f984 # v4.3.0
       with:
         python-version: ${{ matrix.python-version }}
-
-    - name: Install and set up Poetry
+    - name: Install poetry
       run: |
         curl -sSL https://install.python-poetry.org | python3 -
         echo "PATH=$HOME/.poetry/bin:$PATH" >> $GITHUB_ENV
-
     - name: Install dependencies
       run: |
         poetry install -vvv
-        poetry add -D coveralls
-
+        poetry run pip install -r requirements_dev.txt
+    - name: Set MySQL mode
+      env:
+        DB_HOST: 127.0.0.1
+        DB_PORT: ${{ job.services.mysql.ports[3306] }}
+      run: |
+        mysql --host $DB_HOST --port $DB_PORT -uroot -proot -e "SET GLOBAL sql_mode = 'NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION'";
     - name: Lint with flake8
       run: |
         poetry run flake8
-
-    - name: Verify MySQL connection from host
+    - name: Tests
       run: |
-        sudo apt-get install -y mysql-client libmysqlclient-dev
-        mysql --host 127.0.0.1 --port ${{ job.services.mysql.ports[3306] }} -uroot -proot -e "SHOW GRANTS FOR 'root'@'localhost'"
-        mysql_tzinfo_to_sql /usr/share/zoneinfo | mysql --host 127.0.0.1 --port ${{ job.services.mysql.ports[3306] }} -uroot -proot mysql
+        poetry run python manage.py test --settings=config.settings.testing
 
-    - name: Setup MySQL Database and table
-      env:
-        DB_HOST: 127.0.0.1
-        DB_PORT: ${{ job.services.mysql.ports[3306] }} 
-      run: |
-        mysql --host $DB_HOST --port $DB_PORT -uroot -proot -e "SHOW DATABASES"
-        mysql --host $DB_HOST --port $DB_PORT -uroot -proot -e "SET GLOBAL sql_mode = 'ONLY_FULL_GROUP_BY,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION'";
-        mysql --host $DB_HOST --port $DB_PORT -uroot -proot -e "CREATE DATABASE testhat"
-        mysql --host $DB_HOST --port $DB_PORT -uroot -proot -e "SHOW DATABASES"
-        cp tests/tests.conf.sample tests/tests.conf
+  frontend:
 
-    - name: Tests and Coverage
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        cd tests
-        poetry run coverage run --source=sortinghat run_tests.py
-        poetry run coveralls --service=github
+    strategy:
+      matrix:
+        node-version: [14.x, 16.x]
+
+    runs-on: ubuntu-latest
+    name: Node ${{ matrix.node-version }}
+    steps:
+      - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # 3.1.0
+      - name: Setup Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install dependencies
+        working-directory: ./ui
+        run: yarn install
+      - name: Run ESLint
+        working-directory: ./ui
+        run: yarn lint
+      - name: Run unit tests
+        working-directory: ./ui
+        run: yarn test:unit
