@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'sortinghat/**'
+      - 'ui/**'
 
 jobs:
   check-changelog:

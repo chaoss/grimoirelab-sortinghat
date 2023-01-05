@@ -1,7 +1,6 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2019 Bitergia
+# Copyright (C) 2014-2020 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,286 +17,334 @@
 #
 # Authors:
 #     Santiago Dueñas <sduenas@bitergia.com>
+#     Miguel Ángel Fernández <mafesan@bitergia.com>
 #
 
 import datetime
-import sys
-import unittest
+import json
 
-if '..' not in sys.path:
-    sys.path.insert(0, '..')
+from dateutil.tz import UTC
 
-from sortinghat import api
-from sortinghat.db.model import UniqueIdentity, Identity, Profile, \
-    Organization, Domain, Country, Enrollment, MatchingBlacklist
-from sortinghat.exceptions import AlreadyExistsError, NotFoundError
-from sortinghat.matcher import create_identity_matcher
+from django.contrib.auth import get_user_model
+from django.core.exceptions import ObjectDoesNotExist
+from django.test import TestCase
 
-from tests.base import TestDatabaseCaseBase
+from grimoirelab_toolkit.datetime import datetime_utcnow, datetime_to_utc
 
+from sortinghat.core import api
+from sortinghat.core.context import SortingHatContext
+from sortinghat.core.errors import (AlreadyExistsError,
+                                    NotFoundError,
+                                    InvalidValueError,
+                                    LockedIdentityError,
+                                    DuplicateRangeError,
+                                    EqualIndividualError)
+from sortinghat.core.models import (Country,
+                                    Individual,
+                                    Identity,
+                                    Enrollment,
+                                    Organization,
+                                    Team,
+                                    Domain,
+                                    Transaction,
+                                    Operation)
+
+NOT_FOUND_ERROR = "{entity} not found in the registry"
+ENROLLMENT_RANGE_INVALID = "range date '{start}'-'{end}' is part of an existing range for {org}"
+ALREADY_EXISTS_ERROR = "{entity} already exists in the registry"
+SOURCE_NONE_OR_EMPTY_ERROR = "'source' cannot be"
+IDENTITY_NONE_OR_EMPTY_ERROR = "identity data cannot be empty"
 UUID_NONE_OR_EMPTY_ERROR = "'uuid' cannot be"
-ORG_NONE_OR_EMPTY_ERROR = "'name' cannot be"
-DOMAIN_NONE_OR_EMPTY_ERROR = "'domain_name' cannot be"
-TOP_DOMAIN_VALUE_ERROR = "'is_top_domain' must have a boolean value"
-IS_BOT_VALUE_ERROR = "is_bot must have a boolean value"
-SOURCE_NONE_OR_EMPTY_ERROR = "source cannot be"
-IDENTITY_NONE_OR_EMPTY_ERROR = "identity data cannot be None or empty"
-ENTITY_BLACKLIST_NONE_OR_EMPTY_ERROR = "'term' to blacklist cannot be"
-COUNTRY_CODE_INVALID_ERROR = "country code must be a 2 length alpha string - %(code)s given"
-ENROLLMENT_PERIOD_INVALID_ERROR = "cannot be greater than "
-ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR = "'%(type)s' %(date)s is out of bounds"
-NOT_FOUND_ERROR = "%(entity)s not found in the registry"
+UUID_LOCKED_ERROR = "Individual {uuid} is locked"
+UUIDS_NONE_OR_EMPTY_ERROR = "'uuids' cannot be"
+FROM_UUID_NONE_OR_EMPTY_ERROR = "'from_uuid' cannot be"
+FROM_DATE_NONE_OR_EMPTY_ERROR = "'from_date' cannot be"
+FROM_UUID_IS_INDIVIDUAL_ERROR = "'from_uuid' is an individual and it cannot be moved; use 'merge' instead"
+FROM_UUIDS_NONE_OR_EMPTY_ERROR = "'from_uuids' cannot be"
+TO_UUID_NONE_OR_EMPTY_ERROR = "'to_uuid' cannot be"
+TO_DATE_NONE_OR_EMPTY_ERROR = "'to_date' cannot be"
+BOTH_NEW_DATES_NONE_OR_EMPTY_ERROR = "'new_from_date' and 'to_from_date' cannot be"
+FROM_UUID_TO_UUID_EQUAL_ERROR = "'to_uuid' {to_uuid} cannot be part of 'from_uuids'"
 IS_BOT_VALUE_ERROR = "'is_bot' must have a boolean value"
-COUNTRY_CODE_ERROR = "'country_code' \\(%(code)s\\) does not match with a valid code"
+COUNTRY_CODE_ERROR = r"'country_code' \({code}\) does not match with a valid code"
 GENDER_ACC_INVALID_ERROR = "'gender_acc' can only be set when 'gender' is given"
 GENDER_ACC_INVALID_TYPE_ERROR = "'gender_acc' must have an integer value"
-GENDER_ACC_INVALID_RANGE_ERROR = "'gender_acc' \\(%(acc)s\\) is not in range \\(1,100\\)"
+GENDER_ACC_INVALID_RANGE_ERROR = r"'gender_acc' \({acc}\) is not in range \(1,100\)"
+PERIOD_INVALID_ERROR = "'start' date {start} cannot be greater than {end}"
+PERIOD_OUT_OF_BOUNDS_ERROR = "'{type}' date {date} is out of bounds"
+WITHDRAW_PERIOD_INVALID_ERROR = "'from_date' date {from_date} cannot be greater than {to_date}"
+UPDATE_ENROLLMENT_PERIOD_INVALID_ERROR = "'from_date' date {from_date} cannot be greater than {to_date}"
+UPDATE_ENROLLMENT_NEW_PERIOD_INVALID_ERROR = "'new_from_date' date {from_date} cannot be greater than {to_date}"
+ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR = "'name' cannot be"
+ORGANIZATION_NOT_FOUND_ERROR = "{name} not found in the registry"
+ORGANIZATION_ALREADY_EXISTS_ERROR = "Organization '{name}' already exists in the registry"
+ORGANIZATION_VALUE_ERROR = "field value must be a string; int given"
+TEAM_ORG_NAME_MISSING = "'org_name' cannot be"
+TEAM_NAME_MISSING = "'team_name' cannot be"
+DOMAIN_NAME_NONE_OR_EMPTY_ERROR = "'domain_name' cannot be"
+DOMAIN_NOT_FOUND_ERROR = "{domain_name} not found in the registry"
+DOMAIN_ALREADY_EXISTS_ERROR = "'{domain_name}' already exists in the registry"
+DOMAIN_VALUE_ERROR = "field value must be a string; int given"
+DOMAIN_ORG_NAME_NONE_OR_EMPTY_ERROR = "'org_name' cannot be"
 
 
-class TestAPICaseBase(TestDatabaseCaseBase):
-    """Test case base class for API tests"""
-
-    def load_test_dataset(self):
-        pass
-
-
-class TestAddUniqueIdentity(TestAPICaseBase):
-    """Unit tests for add_unique_identity"""
-
-    def test_add_unique_identities(self):
-        """Check whether it adds a set of unique identities"""
-
-        api.add_unique_identity(self.db, 'John Smith')
-        api.add_unique_identity(self.db, 'John Doe')
-        api.add_unique_identity(self.db, 'Jane Roe')
-
-        with self.db.connect() as session:
-            uid = session.query(UniqueIdentity).\
-                filter(UniqueIdentity.uuid == 'John Smith').first()
-            self.assertEqual(uid.uuid, 'John Smith')
-
-            uid = session.query(UniqueIdentity).\
-                filter(UniqueIdentity.uuid == 'John Doe').first()
-            self.assertEqual(uid.uuid, 'John Doe')
-
-            uid = session.query(UniqueIdentity).\
-                filter(UniqueIdentity.uuid == 'Jane Roe').first()
-            self.assertEqual(uid.uuid, 'Jane Roe')
-
-    def test_existing_uuid(self):
-        """Check if it fails adding an identity that already exists"""
-
-        # Add a pair of identities first
-        api.add_unique_identity(self.db, 'John Smith')
-        api.add_unique_identity(self.db, 'John Doe')
-
-        # Insert the first identity again. It should raise AlreadyExistsError
-        with self.assertRaises(AlreadyExistsError) as context:
-            api.add_unique_identity(self.db, 'John Smith')
-
-        self.assertEqual(context.exception.eid, 'John Smith')
-        print(context.exception)
-
-    def test_none_uuid(self):
-        """Check whether None identities cannot be added to the registry"""
-
-        self.assertRaisesRegex(ValueError, UUID_NONE_OR_EMPTY_ERROR,
-                               api.add_unique_identity, self.db, None)
-
-    def test_empty_uuid(self):
-        """Check whether empty uuids cannot be added to the registry"""
-
-        self.assertRaisesRegex(ValueError, UUID_NONE_OR_EMPTY_ERROR,
-                               api.add_unique_identity, self.db, '')
-
-    def test_last_modified(self):
-        """Check if last modification date is updated"""
-
-        before_dt = datetime.datetime.utcnow()
-        api.add_unique_identity(self.db, 'John Smith')
-        after_dt = datetime.datetime.utcnow()
-
-        with self.db.connect() as session:
-            uid = session.query(UniqueIdentity).\
-                filter(UniqueIdentity.uuid == 'John Smith').first()
-
-            self.assertLessEqual(before_dt, uid.last_modified)
-            self.assertGreaterEqual(after_dt, uid.last_modified)
-
-
-class TestAddIdentity(TestAPICaseBase):
+class TestAddIdentity(TestCase):
     """Unit tests for add_identity"""
+
+    def setUp(self):
+        """Load initial values"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
 
     def test_add_new_identity(self):
         """Check if everything goes OK when adding a new identity"""
 
-        unique_id = api.add_identity(self.db, 'scm', 'jsmith@example.com',
-                                     'John Smith', 'jsmith')
+        identity = api.add_identity(self.ctx,
+                                    'scm',
+                                    name='John Smith',
+                                    email='jsmith@example.com',
+                                    username='jsmith')
+        self.assertEqual(identity.uuid, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        self.assertEqual(identity.name, 'John Smith')
+        self.assertEqual(identity.email, 'jsmith@example.com')
+        self.assertEqual(identity.username, 'jsmith')
+        self.assertEqual(identity.source, 'scm')
 
-        with self.db.connect() as session:
-            uid = session.query(UniqueIdentity).\
-                filter(UniqueIdentity.uuid == 'a9b403e150dd4af8953a52a4bb841051e4b705d9').first()
-            self.assertEqual(uid.uuid, unique_id)
+        individual = Individual.objects.get(mk='a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        self.assertEqual(individual.mk, identity.uuid)
 
-            identities = session.query(Identity).\
-                filter(Identity.uuid == uid.uuid).all()
-            self.assertEqual(len(identities), 1)
+        profile = individual.profile
+        self.assertEqual(profile.name, identity.name)
+        self.assertEqual(profile.email, identity.email)
 
-            id1 = identities[0]
-            self.assertEqual(id1.id, unique_id)
-            self.assertEqual(id1.id, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
-            self.assertEqual(id1.name, 'John Smith')
-            self.assertEqual(id1.email, 'jsmith@example.com')
-            self.assertEqual(id1.username, 'jsmith')
-            self.assertEqual(id1.source, 'scm')
+        identities = Identity.objects.filter(uuid=identity.uuid)
+        self.assertEqual(len(identities), 1)
+
+        id1 = identities[0]
+        self.assertEqual(id1, identity)
 
     def test_add_new_identities_to_uuid(self):
-        """Check if everything goes OK when adding a new identities to an existing one"""
+        """Check if everything goes OK when adding new identities to an existing one"""
 
-        # First, insert the identity that will create the unique identity
-        jsmith_uuid = api.add_identity(self.db, 'scm',
-                                       'jsmith@example.com', 'John Smith', 'jsmith')
+        # Insert identities that will create the individuals
+        jsmith = api.add_identity(self.ctx,
+                                  'scm',
+                                  name='John Smith',
+                                  email='jsmith@example.com',
+                                  username='jsmith')
+        jdoe = api.add_identity(self.ctx,
+                                'scm',
+                                name='John Doe',
+                                email='jdoe@example.com',
+                                username='jdoe')
 
-        jdoe_uuid = api.add_identity(self.db, 'scm',
-                                     'jdoe@example.com', 'John Doe', 'jdoe')
+        # Create new identities and assign them to John Smith uuid
+        identity1 = api.add_identity(self.ctx,
+                                     'mls',
+                                     name='John Smith',
+                                     email='jsmith@example.com',
+                                     username='jsmith',
+                                     uuid=jsmith.uuid)
 
-        # Create new identities and assign them to John Smith id
-        unique_id1 = api.add_identity(self.db, 'mls',
-                                      'jsmith@example.com', 'John Smith', 'jsmith',
-                                      uuid=jsmith_uuid)
-
-        unique_id2 = api.add_identity(self.db, 'mls',
-                                      name='John Smith', username='jsmith',
-                                      uuid=jsmith_uuid)
+        identity2 = api.add_identity(self.ctx,
+                                     'mls',
+                                     name='John Smith',
+                                     username='jsmith',
+                                     uuid=jsmith.uuid)
 
         # Create a new identity for John Doe
-        unique_id3 = api.add_identity(self.db, 'mls',
-                                      'jdoe@example.com',
-                                      uuid=jdoe_uuid)
+        identity3 = api.add_identity(self.ctx,
+                                     'mls',
+                                     email='jdoe@example.com',
+                                     uuid=jdoe.uuid)
 
         # Check identities
-        with self.db.connect() as session:
-            # First, John Smith
-            uid = session.query(UniqueIdentity).\
-                filter(UniqueIdentity.uuid == jsmith_uuid).first()
+        individuals = Individual.objects.all()
+        self.assertEqual(len(individuals), 2)
 
-            self.assertEqual(len(uid.identities), 3)
+        identities = Identity.objects.all()
+        self.assertEqual(len(identities), 5)
 
-            id1 = uid.identities[0]
-            self.assertEqual(id1.id, unique_id1)
-            self.assertEqual(id1.name, 'John Smith')
-            self.assertEqual(id1.email, 'jsmith@example.com')
-            self.assertEqual(id1.username, 'jsmith')
-            self.assertEqual(id1.source, 'mls')
+        # Check John Smith
+        individual = Individual.objects.get(mk=jsmith.uuid)
+        identities = individual.identities.all()
+        self.assertEqual(len(identities), 3)
 
-            id2 = uid.identities[1]
-            self.assertEqual(id2.id, unique_id2)
-            self.assertEqual(id2.name, 'John Smith')
-            self.assertEqual(id2.email, None)
-            self.assertEqual(id2.username, 'jsmith')
-            self.assertEqual(id2.source, 'mls')
+        id1 = identities[0]
+        self.assertEqual(id1.uuid, identity1.uuid)
+        self.assertEqual(id1.name, 'John Smith')
+        self.assertEqual(id1.email, 'jsmith@example.com')
+        self.assertEqual(id1.username, 'jsmith')
+        self.assertEqual(id1.source, 'mls')
 
-            id3 = uid.identities[2]
-            self.assertEqual(id3.id, jsmith_uuid)
-            self.assertEqual(id3.name, 'John Smith')
-            self.assertEqual(id3.email, 'jsmith@example.com')
-            self.assertEqual(id3.username, 'jsmith')
-            self.assertEqual(id3.source, 'scm')
-            self.assertEqual(id3.uuid, jsmith_uuid)
+        id2 = identities[1]
+        self.assertEqual(id2.uuid, identity2.uuid)
+        self.assertEqual(id2.name, 'John Smith')
+        self.assertEqual(id2.email, None)
+        self.assertEqual(id2.username, 'jsmith')
+        self.assertEqual(id2.source, 'mls')
 
-            # Next, John Doe
-            uid = session.query(UniqueIdentity).\
-                filter(UniqueIdentity.uuid == jdoe_uuid).first()
+        id3 = identities[2]
+        self.assertEqual(id3.uuid, jsmith.uuid)
+        self.assertEqual(id3.name, 'John Smith')
+        self.assertEqual(id3.email, 'jsmith@example.com')
+        self.assertEqual(id3.username, 'jsmith')
+        self.assertEqual(id3.source, 'scm')
 
-            self.assertEqual(len(uid.identities), 2)
+        # Next, John Doe
+        individual = Individual.objects.get(mk=jdoe.uuid)
+        identities = individual.identities.all()
+        self.assertEqual(len(identities), 2)
 
-            id1 = uid.identities[0]
-            self.assertEqual(id1.id, unique_id3)
-            self.assertEqual(id1.name, None)
-            self.assertEqual(id1.email, 'jdoe@example.com')
-            self.assertEqual(id1.username, None)
-            self.assertEqual(id1.source, 'mls')
+        id1 = identities[0]
+        self.assertEqual(id1.uuid, identity3.uuid)
+        self.assertEqual(id1.name, None)
+        self.assertEqual(id1.email, 'jdoe@example.com')
+        self.assertEqual(id1.username, None)
+        self.assertEqual(id1.source, 'mls')
 
-            id2 = uid.identities[1]
-            self.assertEqual(id2.id, jdoe_uuid)
-            self.assertEqual(id2.name, 'John Doe')
-            self.assertEqual(id2.email, 'jdoe@example.com')
-            self.assertEqual(id2.username, 'jdoe')
-            self.assertEqual(id2.source, 'scm')
+        id2 = identities[1]
+        self.assertEqual(id2.uuid, jdoe.uuid)
+        self.assertEqual(id2.name, 'John Doe')
+        self.assertEqual(id2.email, 'jdoe@example.com')
+        self.assertEqual(id2.username, 'jdoe')
+        self.assertEqual(id2.source, 'scm')
+
+    def test_add_identity_using_any_identity_uuid(self):
+        """Check if it adds a new identity to an existing one using some other related id"""
+
+        # Insert identities that will create the individuals
+        jsmith = api.add_identity(self.ctx,
+                                  'scm',
+                                  name='John Smith',
+                                  email='jsmith@example.com',
+                                  username='jsmith')
+        identity1 = api.add_identity(self.ctx,
+                                     'mls',
+                                     name='John Smith',
+                                     email='jsmith@example.com',
+                                     username='jsmith',
+                                     uuid=jsmith.uuid)
+
+        # Insert a new identity using 'identity1' uuid
+        identity2 = api.add_identity(self.ctx,
+                                     'mls',
+                                     name='John Smith',
+                                     username='jsmith',
+                                     uuid=identity1.uuid)
+
+        # Check John Smith
+        individual = Individual.objects.get(mk=jsmith.uuid)
+        identities = individual.identities.all()
+        self.assertEqual(len(identities), 3)
+
+        id1 = identities[0]
+        self.assertEqual(id1.uuid, identity1.uuid)
+        self.assertEqual(id1.name, 'John Smith')
+        self.assertEqual(id1.email, 'jsmith@example.com')
+        self.assertEqual(id1.username, 'jsmith')
+        self.assertEqual(id1.source, 'mls')
+
+        id2 = identities[1]
+        self.assertEqual(id2.uuid, identity2.uuid)
+        self.assertEqual(id2.name, 'John Smith')
+        self.assertEqual(id2.email, None)
+        self.assertEqual(id2.username, 'jsmith')
+        self.assertEqual(id2.source, 'mls')
+
+        id3 = identities[2]
+        self.assertEqual(id3.uuid, jsmith.uuid)
+        self.assertEqual(id3.name, 'John Smith')
+        self.assertEqual(id3.email, 'jsmith@example.com')
+        self.assertEqual(id3.username, 'jsmith')
+        self.assertEqual(id3.source, 'scm')
 
     def test_last_modified(self):
         """Check if last modification date is updated"""
 
-        # First, insert the identity that will create the unique identity
-        before_dt = datetime.datetime.utcnow()
-        jsmith_uuid = api.add_identity(self.db, 'scm',
-                                       'jsmith@example.com', 'John Smith', 'jsmith')
-        after_dt = datetime.datetime.utcnow()
+        # First, insert the identity that will create the individual
+        before_dt = datetime_utcnow()
+        jsmith = api.add_identity(self.ctx,
+                                  'scm',
+                                  name='John Smith',
+                                  email='jsmith@example.com',
+                                  username='jsmith')
+        after_dt = datetime_utcnow()
 
-        with self.db.connect() as session:
-            uid = session.query(UniqueIdentity).\
-                filter(UniqueIdentity.uuid == jsmith_uuid).first()
+        # Check date on the individual
+        individual = Individual.objects.get(mk=jsmith.uuid)
+        self.assertLessEqual(before_dt, individual.last_modified)
+        self.assertGreaterEqual(after_dt, individual.last_modified)
 
-            # Check date on the unique identity
-            self.assertLessEqual(before_dt, uid.last_modified)
-            self.assertGreaterEqual(after_dt, uid.last_modified)
+        # Check date on the identity
+        identity = individual.identities.all()[0]
+        self.assertLessEqual(before_dt, identity.last_modified)
+        self.assertGreaterEqual(after_dt, identity.last_modified)
 
-            # Check date on the identity
-            self.assertLessEqual(before_dt, uid.identities[0].last_modified)
-            self.assertGreaterEqual(after_dt, uid.identities[0].last_modified)
-
-        # Check if a new identity added to the existing unique identity
+        # Check if a new identity added to the existing individual
         # updates both modification dates
-        before_new_dt = datetime.datetime.utcnow()
-        api.add_identity(self.db, 'scm', 'jsmith@example.com', None, None,
-                         uuid=jsmith_uuid)
-        after_new_dt = datetime.datetime.utcnow()
+        before_new_dt = datetime_utcnow()
+        api.add_identity(self.ctx,
+                         'scm',
+                         name=None,
+                         email='jsmith@example.com',
+                         username=None,
+                         uuid=jsmith.uuid)
+        after_new_dt = datetime_utcnow()
 
-        with self.db.connect() as session:
-            uid = session.query(UniqueIdentity).\
-                filter(UniqueIdentity.uuid == jsmith_uuid).first()
+        individual = Individual.objects.get(mk=jsmith.uuid)
 
-            # Check date on the unique identity; it was updated
-            self.assertLessEqual(before_new_dt, uid.last_modified)
-            self.assertGreaterEqual(after_new_dt, uid.last_modified)
+        # Check date on the individual; it was updated
+        self.assertLessEqual(before_new_dt, individual.last_modified)
+        self.assertGreaterEqual(after_new_dt, individual.last_modified)
 
-            # Check date of the new identity
-            self.assertLessEqual(before_dt, uid.identities[0].last_modified)
-            self.assertLessEqual(after_dt, uid.identities[0].last_modified)
-            self.assertLessEqual(before_new_dt, uid.identities[0].last_modified)
-            self.assertGreaterEqual(after_new_dt, uid.identities[0].last_modified)
+        # Check date of the new identity
+        identities = individual.identities.all()
+        self.assertLessEqual(before_dt, identities[0].last_modified)
+        self.assertLessEqual(after_dt, identities[0].last_modified)
+        self.assertLessEqual(before_new_dt, identities[0].last_modified)
+        self.assertGreaterEqual(after_new_dt, identities[0].last_modified)
 
-            # Check date of the oldest identity; it wasn't modified
-            self.assertLessEqual(before_dt, uid.identities[1].last_modified)
-            self.assertGreaterEqual(after_dt, uid.identities[1].last_modified)
-            self.assertGreaterEqual(before_new_dt, uid.identities[1].last_modified)
-            self.assertGreaterEqual(after_new_dt, uid.identities[1].last_modified)
+        # Check date of the oldest identity; it wasn't modified
+        self.assertLessEqual(before_dt, identities[1].last_modified)
+        self.assertGreaterEqual(after_dt, identities[1].last_modified)
+        self.assertGreaterEqual(before_new_dt, identities[1].last_modified)
+        self.assertGreaterEqual(after_new_dt, identities[1].last_modified)
 
     def test_similar_identities(self):
         """Check if it works when adding similar identities"""
 
-        api.add_identity(self.db, 'scm', 'jsmith@example.com')
+        api.add_identity(self.ctx, 'scm', email='jsmith@example.com')
 
-        # Although, this identities belongs to the same unique identity,
-        # the api will create different unique identities for each one of
+        # Although, this identities belongs to the same individual,
+        # the api will create different individuals for each one of
         # them
-        uuid1 = api.add_identity(self.db, 'scm', 'jsmith@example.com',
-                                 'John Smith')
-        uuid2 = api.add_identity(self.db, 'scm', 'jsmith@example.com',
-                                 'John Smith', 'jsmith')
-        uuid3 = api.add_identity(self.db, 'mls', 'jsmith@example.com',
-                                 'John Smith', 'jsmith')
-        uuid4 = api.add_identity(self.db, 'mls', name='John Smith')
-        uuid5 = api.add_identity(self.db, 'scm', name='John Smith')
+        id1 = api.add_identity(self.ctx,
+                               'scm',
+                               name='John Smith',
+                               email='jsmith@example.com')
+        id2 = api.add_identity(self.ctx,
+                               'scm',
+                               name='John Smith',
+                               email='jsmith@example.com',
+                               username='jsmith')
+        id3 = api.add_identity(self.ctx,
+                               'mls',
+                               name='John Smith',
+                               email='jsmith@example.com',
+                               username='jsmith')
+        id4 = api.add_identity(self.ctx, 'mls', name='John Smith')
+        id5 = api.add_identity(self.ctx, 'scm', name='John Smith')
 
-        self.assertEqual(uuid1, '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
-        self.assertEqual(uuid2, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
-        self.assertEqual(uuid3, '539acca35c2e8502951a97d2d5af8b0857440b50')
-        self.assertEqual(uuid4, 'e7efdaf17ad2cbc0e239b9afd29f6fe054b3b0fe')
-        self.assertEqual(uuid5, 'c7acd177d107a0aefa6718e2ff0dec6ceba71660')
+        self.assertEqual(id1.uuid, '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
+        self.assertEqual(id2.uuid, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        self.assertEqual(id3.uuid, '539acca35c2e8502951a97d2d5af8b0857440b50')
+        self.assertEqual(id4.uuid, 'e7efdaf17ad2cbc0e239b9afd29f6fe054b3b0fe')
+        self.assertEqual(id5.uuid, 'c7acd177d107a0aefa6718e2ff0dec6ceba71660')
 
     def test_duplicate_identities_with_truncated_values(self):
-        """Check if the same identiy with truncated values is not inserted twice"""
+        """Check if the same identity with truncated values is not inserted twice"""
 
         # Due database limitations, email will be truncated
         source = 'scm'
@@ -305,34 +352,84 @@ class TestAddIdentity(TestAPICaseBase):
         name = 'John Smith'
         username = 'jsmith'
 
-        api.add_identity(self.db, source, email, name, username)
+        api.add_identity(self.ctx,
+                         source,
+                         name=name,
+                         email=email,
+                         username=username)
 
-        self.assertRaises(AlreadyExistsError, api.add_identity,
-                          self.db, source,
-                          email, name, username)
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaises(AlreadyExistsError):
+            api.add_identity(self.ctx,
+                             source,
+                             name=name,
+                             email=email,
+                             username=username)
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_add_identity_name_none(self):
+        """Check if the username is set to the profile when no name is provided"""
+
+        identity = api.add_identity(self.ctx,
+                                    'scm',
+                                    name=None,
+                                    email='jsmith@example.com',
+                                    username='jsmith')
+        self.assertEqual(identity.uuid, '18f652547d666701fcf1ddb59867bc88bb6e6b86')
+        self.assertEqual(identity.name, None)
+        self.assertEqual(identity.email, 'jsmith@example.com')
+        self.assertEqual(identity.username, 'jsmith')
+        self.assertEqual(identity.source, 'scm')
+
+        individual = Individual.objects.get(mk='18f652547d666701fcf1ddb59867bc88bb6e6b86')
+        self.assertEqual(individual.mk, identity.uuid)
+
+        profile = individual.profile
+        # The profile name must match with the username, as no name was provided
+        self.assertEqual(profile.name, 'jsmith')
+        self.assertEqual(profile.email, 'jsmith@example.com')
+
+        identities = Identity.objects.filter(uuid=identity.uuid)
+        self.assertEqual(len(identities), 1)
+
+        id1 = identities[0]
+        self.assertEqual(id1, identity)
 
     def test_non_existing_uuid(self):
         """Check whether it fails adding identities to one uuid that does not exist"""
 
         # Add a pair of identities first
-        api.add_identity(self.db, 'scm', 'jsmith@example.com')
-        api.add_identity(self.db, 'scm', 'jdoe@example.com')
+        api.add_identity(self.ctx, 'scm', email='jsmith@example.com')
+        api.add_identity(self.ctx, 'scm', email='jdoe@example.com')
 
-        self.assertRaises(NotFoundError, api.add_identity,
-                          self.db, 'mls',
-                          'jsmith@example.com', None, None,
-                          'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF')
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaises(NotFoundError):
+            api.add_identity(self.ctx,
+                             'mls',
+                             name=None,
+                             email='jsmith@example.com',
+                             username=None,
+                             uuid='FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
 
     def test_existing_identity(self):
         """Check if it fails adding an identity that already exists"""
 
         # Add a pair of identities first
-        api.add_identity(self.db, 'scm', 'jsmith@example.com')
-        api.add_identity(self.db, 'scm', 'jdoe@example.com')
+        api.add_identity(self.ctx, 'scm', email='jsmith@example.com')
+        api.add_identity(self.ctx, 'scm', email='jdoe@example.com')
 
         # Insert the first identity again. It should raise AlreadyExistsError
         with self.assertRaises(AlreadyExistsError) as context:
-            api.add_identity(self.db, 'scm', 'jsmith@example.com')
+            api.add_identity(self.ctx, 'scm', email='jsmith@example.com')
 
         self.assertEqual(context.exception.eid,
                          '334da68fcd3da4e799791f73dfada2afb22648c6')
@@ -340,68 +437,80 @@ class TestAddIdentity(TestAPICaseBase):
         # Insert the same identity with upper case letters.
         # It should raise AlreadyExistsError
         with self.assertRaises(AlreadyExistsError) as context:
-            api.add_identity(self.db, 'scm', 'JSMITH@example.com')
+            api.add_identity(self.ctx, 'scm', email='JSMITH@example.com')
 
         self.assertEqual(context.exception.eid,
                          '334da68fcd3da4e799791f73dfada2afb22648c6')
 
         # "None" tuples also raise an exception
-        api.add_identity(self.db, 'scm', "None", None, None)
+        api.add_identity(self.ctx, 'scm', name=None, email="None", username=None)
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         with self.assertRaises(AlreadyExistsError) as context:
-            api.add_identity(self.db, 'scm', None, "None", None)
+            api.add_identity(self.ctx, 'scm', name="None", email=None, username=None)
 
         self.assertEqual(context.exception.eid,
                          'f0999c4eed908d33365fa3435d9686d3add2412d')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
 
     def test_unaccent_identities(self):
         """Check if it fails adding an identity that already exists with accent values"""
 
         # Add a pair of identities first
-        api.add_identity(self.db, 'scm', name='John Smith')
-        api.add_identity(self.db, 'scm', name='Jöhn Doe')
+        api.add_identity(self.ctx, 'scm', name='John Smith')
+        api.add_identity(self.ctx, 'scm', name='Jöhn Doe')
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
         # Insert an accent identity again. It should raise AlreadyExistsError
         with self.assertRaises(AlreadyExistsError) as context:
-            api.add_identity(self.db, 'scm', name='Jöhn Smith')
+            api.add_identity(self.ctx, 'scm', name='Jöhn Smith')
 
         self.assertEqual(context.exception.eid,
                          'c7acd177d107a0aefa6718e2ff0dec6ceba71660')
 
         # Insert an accent identity again. It should raise AlreadyExistsError
         with self.assertRaises(AlreadyExistsError) as context:
-            api.add_identity(self.db, 'scm', name='John Döe')
+            api.add_identity(self.ctx, 'scm', name='John Döe')
 
         # Insert an unaccent identity again. It should raise AlreadyExistsError
         with self.assertRaises(AlreadyExistsError) as context:
-            api.add_identity(self.db, 'scm', name='John Doe')
+            api.add_identity(self.ctx, 'scm', name='John Doe')
 
         self.assertEqual(context.exception.eid,
                          'a16659ea83d28c839ffae76ceebb3ca9fb8e8894')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
 
     def test_utf8_4bytes_identities(self):
         """Check if it inserts identities with 4bytes UTF-8 characters"""
 
         # Emojis are 4bytes characters
-        unique_id = api.add_identity(self.db, 'scm', name='😂',
-                                     email='😂', username='😂')
+        identity = api.add_identity(self.ctx,
+                                    'scm',
+                                    name='😂',
+                                    email='😂',
+                                    username='😂')
 
-        with self.db.connect() as session:
-            uid = session.query(UniqueIdentity).\
-                filter(UniqueIdentity.uuid == '843fcc3383ddfd6179bef87996fa761d88a43915').first()
-            self.assertEqual(uid.uuid, unique_id)
+        individual = Individual.objects.get(mk='843fcc3383ddfd6179bef87996fa761d88a43915')
+        self.assertEqual(individual.mk, identity.uuid)
 
-            identities = session.query(Identity).\
-                filter(Identity.uuid == uid.uuid).all()
-            self.assertEqual(len(identities), 1)
+        identities = individual.identities.all()
+        self.assertEqual(len(identities), 1)
 
-            id1 = identities[0]
-            self.assertEqual(id1.id, unique_id)
-            self.assertEqual(id1.id, '843fcc3383ddfd6179bef87996fa761d88a43915')
-            self.assertEqual(id1.name, '😂')
-            self.assertEqual(id1.email, '😂')
-            self.assertEqual(id1.username, '😂')
-            self.assertEqual(id1.source, 'scm')
+        id1 = identities[0]
+        self.assertEqual(id1.uuid, identity.uuid)
+        self.assertEqual(id1.uuid, '843fcc3383ddfd6179bef87996fa761d88a43915')
+        self.assertEqual(id1.name, '😂')
+        self.assertEqual(id1.email, '😂')
+        self.assertEqual(id1.username, '😂')
+        self.assertEqual(id1.source, 'scm')
 
     def test_charset(self):
         """Check if it adds two identities with different encoding"""
@@ -409,3389 +518,5190 @@ class TestAddIdentity(TestAPICaseBase):
         # With an invalid encoding both names wouldn't be inserted;
         # In MySQL, chars 'ı' and 'i' are considered the same with a
         # collation distinct to <charset>_unicode_ci
-        uuid1 = api.add_identity(self.db, 'scm', 'jsmith@example.com',
-                                 'John Smıth', 'jsmith')
-        uuid2 = api.add_identity(self.db, 'scm', 'jsmith@example.com',
-                                 'John Smith', 'jsmith')
+        id1 = api.add_identity(self.ctx,
+                               'scm',
+                               name='John Smıth',
+                               email='jsmith@example.com',
+                               username='jsmith')
+        id2 = api.add_identity(self.ctx,
+                               'scm',
+                               name='John Smith',
+                               email='jsmith@example.com',
+                               username='jsmith')
 
-        self.assertEqual(uuid1, 'cf79edf008b7b2960a0be3972b256c65af449dc1')
-        self.assertEqual(uuid2, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        self.assertEqual(id1.uuid, 'cf79edf008b7b2960a0be3972b256c65af449dc1')
+        self.assertEqual(id2.uuid, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
 
     def test_none_source(self):
         """Check whether new identities cannot be added when giving a None source"""
 
-        self.assertRaisesRegex(ValueError, SOURCE_NONE_OR_EMPTY_ERROR,
-                               api.add_identity, self.db, None)
+        with self.assertRaisesRegex(InvalidValueError, SOURCE_NONE_OR_EMPTY_ERROR):
+            api.add_identity(self.ctx, None)
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.all()
+        self.assertEqual(len(transactions), 0)
 
     def test_empty_source(self):
         """Check whether new identities cannot be added when giving an empty source"""
 
-        self.assertRaisesRegex(ValueError, SOURCE_NONE_OR_EMPTY_ERROR,
-                               api.add_identity, self.db, '')
+        with self.assertRaisesRegex(InvalidValueError, SOURCE_NONE_OR_EMPTY_ERROR):
+            api.add_identity(self.ctx, '')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.all()
+        self.assertEqual(len(transactions), 0)
 
     def test_none_or_empty_data(self):
         """Check whether new identities cannot be added when identity data is None or empty"""
 
-        self.assertRaisesRegex(ValueError, IDENTITY_NONE_OR_EMPTY_ERROR,
-                               api.add_identity, self.db, 'scm', None, '', None)
-        self.assertRaisesRegex(ValueError, IDENTITY_NONE_OR_EMPTY_ERROR,
-                               api.add_identity, self.db, 'scm', '', '', '')
+        with self.assertRaisesRegex(InvalidValueError, IDENTITY_NONE_OR_EMPTY_ERROR):
+            api.add_identity(self.ctx, 'scm', name='', email=None, username=None)
+
+        with self.assertRaisesRegex(InvalidValueError, IDENTITY_NONE_OR_EMPTY_ERROR):
+            api.add_identity(self.ctx, 'scm', name='', email='', username='')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.all()
+        self.assertEqual(len(transactions), 0)
+
+    def test_locked_uuid(self):
+        """Check if it fails when the individual is locked"""
+
+        jsmith = api.add_identity(self.ctx,
+                                  'scm',
+                                  name='John Smith',
+                                  email='jsmith@example.com',
+                                  username='jsmith')
+
+        individual = Individual.objects.get(mk=jsmith.uuid)
+        individual.is_locked = True
+        individual.save()
+
+        msg = UUID_LOCKED_ERROR.format(uuid=jsmith.uuid)
+        with self.assertRaisesRegex(LockedIdentityError, msg):
+            api.add_identity(self.ctx,
+                             'mls',
+                             name='John Smith',
+                             email='jsmith@example.com',
+                             username='jsmith',
+                             uuid=jsmith.uuid)
+
+    def test_transaction(self):
+        """Check if a transaction is created when adding a new identity"""
+
+        timestamp = datetime_utcnow()
+
+        api.add_identity(self.ctx,
+                         'scm',
+                         name='John Smith',
+                         email='jsmith@example.com',
+                         username='jsmith')
+
+        transactions = Transaction.objects.all()
+        self.assertEqual(len(transactions), 1)
+
+        trx = transactions[0]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'add_identity')
+        self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, self.ctx.user.username)
+
+    def test_operations(self):
+        """Check if the right operations are created when adding a new identity"""
+
+        timestamp = datetime_utcnow()
+
+        identity = api.add_identity(self.ctx,
+                                    'scm',
+                                    name='John Smith',
+                                    email='jsmith@example.com',
+                                    username='jsmith')
+
+        transactions = Transaction.objects.all()
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 3)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.ADD.value)
+        self.assertEqual(op1.entity_type, 'individual')
+        self.assertEqual(op1.target, identity.individual.mk)
+        self.assertEqual(op1.trx, trx)
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 1)
+        self.assertEqual(op1_args['mk'], identity.individual.mk)
+
+        op2 = operations[1]
+        self.assertIsInstance(op2, Operation)
+        self.assertEqual(op2.op_type, Operation.OpType.UPDATE.value)
+        self.assertEqual(op2.entity_type, 'profile')
+        self.assertEqual(op2.target, identity.uuid)
+        self.assertEqual(op2.trx, trx)
+        self.assertGreater(op2.timestamp, timestamp)
+
+        op2_args = json.loads(op2.args)
+        self.assertEqual(len(op2_args), 3)
+        self.assertEqual(op2_args['individual'], identity.individual.mk)
+        self.assertEqual(op2_args['name'], identity.name)
+        self.assertEqual(op2_args['email'], identity.email)
+
+        op3 = operations[2]
+        self.assertIsInstance(op3, Operation)
+        self.assertEqual(op3.op_type, Operation.OpType.ADD.value)
+        self.assertEqual(op3.entity_type, 'identity')
+        self.assertEqual(op3.target, identity.uuid)
+        self.assertEqual(op3.trx, trx)
+        self.assertGreater(op3.timestamp, timestamp)
+
+        op3_args = json.loads(op3.args)
+        self.assertEqual(len(op3_args), 6)
+        self.assertEqual(op3_args['individual'], identity.individual.mk)
+        self.assertEqual(op3_args['uuid'], identity.uuid)
+        self.assertEqual(op3_args['source'], identity.source)
+        self.assertEqual(op3_args['name'], identity.name)
+        self.assertEqual(op3_args['email'], identity.email)
+        self.assertEqual(op3_args['username'], identity.username)
 
 
-class TestAddOrganization(TestAPICaseBase):
-    """Unit tests for add_organization"""
+class TestDeleteIdentity(TestCase):
+    """Unit tests for delete_identity"""
 
-    def test_add_organizations(self):
-        """Check whether it adds a set of organizations"""
+    def setUp(self):
+        """Load initial dataset"""
 
-        api.add_organization(self.db, 'Example')
-        api.add_organization(self.db, 'Bitergia')
-        api.add_organization(self.db, 'LibreSoft')
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
 
-        with self.db.connect() as session:
-            org = session.query(Organization).\
-                filter(Organization.name == 'Example').first()
-            self.assertEqual(org.name, 'Example')
+        # Organizations
+        example_org = api.add_organization(self.ctx, 'Example')
+        bitergia_org = api.add_organization(self.ctx, 'Bitergia')
+        libresoft_org = api.add_organization(self.ctx, 'LibreSoft')
 
-            org = session.query(Organization).\
-                filter(Organization.name == 'Bitergia').first()
-            self.assertEqual(org.name, 'Bitergia')
+        # Identities
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_identity(self.ctx,
+                         'scm',
+                         name='John Smith',
+                         email='jsmith@example',
+                         uuid=jsmith.uuid)
+        Enrollment.objects.create(individual=jsmith.individual,
+                                  group=example_org)
+        Enrollment.objects.create(individual=jsmith.individual,
+                                  group=bitergia_org)
 
-            org = session.query(Organization).\
-                filter(Organization.name == 'LibreSoft').first()
-            self.assertEqual(org.name, 'LibreSoft')
+        jdoe = api.add_identity(self.ctx, 'scm', email='jdoe@example')
+        Enrollment.objects.create(individual=jdoe.individual,
+                                  group=example_org)
 
-    def test_existing_organization(self):
-        """Check if it fails adding an organization that already exists"""
+        jrae = api.add_identity(self.ctx,
+                                'scm',
+                                name='Jane Rae',
+                                email='jrae@example')
+        Enrollment.objects.create(individual=jrae.individual,
+                                  group=libresoft_org)
 
-        # Add a pair of organizations first
-        api.add_organization(self.db, 'Example')
-        api.add_organization(self.db, 'Bitergia')
+    def test_delete_identity(self):
+        """Check whether it deletes an identity"""
 
-        # Insert the first organization. It should raise AlreadyExistsError
-        self.assertRaises(AlreadyExistsError, api.add_organization,
-                          self.db, 'Example')
+        # Check initial status
+        individuals = Individual.objects.all()
+        self.assertEqual(len(individuals), 3)
 
-    def test_none_organization(self):
-        """Check whether None organizations cannot be added to the registry"""
+        identities = Identity.objects.all()
+        self.assertEqual(len(identities), 4)
 
-        self.assertRaisesRegex(ValueError, ORG_NONE_OR_EMPTY_ERROR,
-                               api.add_organization, self.db, None)
+        # Delete an identity (John Smith - jsmith@example.com)
+        individual = api.delete_identity(self.ctx, '1387b129ab751a3657312c09759caa41dfd8d07d')
 
-    def test_empty_organization(self):
-        """Check whether empty organizations cannot be added to the registry"""
+        # Check result
+        self.assertIsInstance(individual, Individual)
+        self.assertEqual(individual.mk, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
-        self.assertRaisesRegex(ValueError, ORG_NONE_OR_EMPTY_ERROR,
-                               api.add_organization, self.db, '')
+        identities = individual.identities.all()
+        self.assertEqual(len(identities), 1)
 
+        identity = identities[0]
+        self.assertEqual(identity.uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(identity.name, None)
+        self.assertEqual(identity.email, 'jsmith@example')
+        self.assertEqual(identity.username, None)
 
-class TestAddDomain(TestAPICaseBase):
-    """Unit tests for add_domain"""
+        # Check remaining identities
+        individuals = Individual.objects.all()
+        self.assertEqual(len(individuals), 3)
 
-    def test_add_domains(self):
-        """Check whether it adds a set of domains to one organization"""
+        identities = Identity.objects.all()
+        self.assertEqual(len(identities), 3)
 
-        api.add_organization(self.db, 'Example')
-        api.add_domain(self.db, 'Example', 'example.com')
-        api.add_domain(self.db, 'Example', 'example.org', is_top_domain=True)
-        api.add_domain(self.db, 'Example', 'example.net')
+        with self.assertRaises(ObjectDoesNotExist):
+            Identity.objects.get(uuid='1387b129ab751a3657312c09759caa41dfd8d07d')
 
-        with self.db.connect() as session:
-            domains = session.query(Domain).join(Organization).\
-                filter(Organization.name == 'Example').all()
-            self.assertEqual(len(domains), 3)
+    def test_delete_individual(self):
+        """Check whether it deletes an individual when its identifier is given"""
 
-            self.assertEqual(domains[0].domain, 'example.com')
-            self.assertEqual(domains[0].is_top_domain, False)
+        # Check initial status
+        individuals = Individual.objects.all()
+        self.assertEqual(len(individuals), 3)
 
-            self.assertEqual(domains[1].domain, 'example.org')
-            self.assertEqual(domains[1].is_top_domain, True)
+        identities = Identity.objects.all()
+        self.assertEqual(len(identities), 4)
 
-            self.assertEqual(domains[2].domain, 'example.net')
-            self.assertEqual(domains[2].is_top_domain, False)
+        # Delete an individual (John Smith)
+        individual = api.delete_identity(self.ctx, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
-    def test_add_domains_to_organization(self):
-        """Check whether it adds several domains to set of organizations"""
+        # The individual was removed so the result is None
+        self.assertEqual(individual, None)
 
-        api.add_organization(self.db, 'Example')
-        api.add_organization(self.db, 'Bitergia')
-        api.add_organization(self.db, 'LibreSoft')
+        # Check remaining identities
+        individuals = Individual.objects.all()
+        self.assertEqual(len(individuals), 2)
 
-        api.add_domain(self.db, 'Example', 'example.com')
-        api.add_domain(self.db, 'LibreSoft', 'libresoft.es', is_top_domain=True)
-        api.add_domain(self.db, 'Example', 'example.org')
-        api.add_domain(self.db, 'Example', 'example.net')
-        api.add_domain(self.db, 'Bitergia', 'bitergia.com')
-        api.add_domain(self.db, 'LibreSoft', 'libresoft.org')
+        identities = Identity.objects.all()
+        self.assertEqual(len(identities), 2)
 
-        with self.db.connect() as session:
-            domains = session.query(Domain).join(Organization).\
-                filter(Organization.name == 'Example').all()
-            self.assertEqual(len(domains), 3)
-            self.assertEqual(domains[0].domain, 'example.com')
-            self.assertEqual(domains[1].domain, 'example.org')
-            self.assertEqual(domains[2].domain, 'example.net')
+        # Neither the individual nor its identities exist
+        with self.assertRaises(ObjectDoesNotExist):
+            Individual.objects.get(mk='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
-            domains = session.query(Domain).join(Organization).\
-                filter(Organization.name == 'Bitergia').all()
-            self.assertEqual(len(domains), 1)
-            self.assertEqual(domains[0].domain, 'bitergia.com')
+        with self.assertRaises(ObjectDoesNotExist):
+            Identity.objects.get(uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
-            domains = session.query(Domain).join(Organization).\
-                filter(Organization.name == 'LibreSoft').all()
-            self.assertEqual(len(domains), 2)
-            self.assertEqual(domains[0].domain, 'libresoft.es')
-            self.assertEqual(domains[0].is_top_domain, True)
-
-            self.assertEqual(domains[1].domain, 'libresoft.org')
-            self.assertEqual(domains[1].is_top_domain, False)
-
-    def test_non_existing_organization(self):
-        """Check if it fails adding domains to not existing organizations"""
-
-        self.assertRaises(NotFoundError, api.add_domain,
-                          self.db, 'ErrorOrg', 'example.com')
-
-    def test_existing_domain(self):
-        """Check if it fails adding a domain that already exists"""
-
-        # Add a pair of organizations and domains first
-        api.add_organization(self.db, 'Example')
-        api.add_organization(self.db, 'Bitergia')
-        api.add_domain(self.db, 'Example', 'example.com')
-        api.add_domain(self.db, 'Bitergia', 'bitergia.com')
-
-        # Add 'bitergia.com' to 'Example' org. It should raise an
-        # AlreadyExistsError exception.
-        self.assertRaises(AlreadyExistsError, api.add_domain,
-                          self.db, 'Example', 'bitergia.com')
-
-        # It should still falling when adding the same domain twice
-        self.assertRaises(AlreadyExistsError, api.add_domain,
-                          self.db, 'Example', 'example.com')
-        self.assertRaises(AlreadyExistsError, api.add_domain,
-                          self.db, 'Bitergia', 'bitergia.com')
-
-        # And even if we try to update top_domain information
-        self.assertRaises(AlreadyExistsError, api.add_domain,
-                          self.db, 'Example', 'example.com',
-                          is_top_domain=True)
-
-    def test_overwrite_domain(self):
-        """Check whether it overwrites domain information"""
-
-        # Add a pair of organizations and domains first
-        api.add_organization(self.db, 'Example')
-        api.add_organization(self.db, 'Bitergia')
-        api.add_domain(self.db, 'Example', 'example.com')
-        api.add_domain(self.db, 'Example', 'example.org')
-
-        # Check that everything went well
-        with self.db.connect() as session:
-            domains = session.query(Domain).join(Organization).\
-                filter(Organization.name == 'Example').all()
-            self.assertEqual(len(domains), 2)
-            self.assertEqual(domains[0].domain, 'example.com')
-            self.assertEqual(domains[0].is_top_domain, False)
-
-            self.assertEqual(domains[1].domain, 'example.org')
-
-            domains = session.query(Domain).join(Organization).\
-                filter(Organization.name == 'Bitergia').all()
-            self.assertEqual(len(domains), 0)
-
-        # Overwrite the relationship assigning the domain to a different
-        # company
-        api.add_domain(self.db, 'Bitergia', 'example.com',
-                       is_top_domain=True, overwrite=True)
-
-        # When overwrite is not set, it raises an AlreadyExistsError error
-        self.assertRaises(AlreadyExistsError, api.add_domain,
-                          self.db, 'Bitergia', 'example.org')
-
-        # Finally, check that domain was overwritten
-        with self.db.connect() as session:
-            domains = session.query(Domain).join(Organization).\
-                filter(Organization.name == 'Example').all()
-            self.assertEqual(len(domains), 1)
-            self.assertEqual(domains[0].domain, 'example.org')
-
-            domains = session.query(Domain).join(Organization).\
-                filter(Organization.name == 'Bitergia').all()
-            self.assertEqual(len(domains), 1)
-            self.assertEqual(domains[0].domain, 'example.com')
-            self.assertEqual(domains[0].is_top_domain, True)
-
-    def test_none_domain(self):
-        """Check whether None domains cannot be added to the registry"""
-
-        api.add_organization(self.db, 'Example')
-
-        self.assertRaisesRegex(ValueError, DOMAIN_NONE_OR_EMPTY_ERROR,
-                               api.add_domain, self.db, 'Example', None)
-
-    def test_empty_domain(self):
-        """Check whether empty domains cannot be added to the registry"""
-
-        api.add_organization(self.db, 'Example')
-
-        self.assertRaisesRegex(ValueError, DOMAIN_NONE_OR_EMPTY_ERROR,
-                               api.add_domain, self.db, 'Example', '')
-
-    def test_invalid_type_top_domain(self):
-        """Check type values of top domain flag"""
-
-        api.add_organization(self.db, 'Example')
-
-        self.assertRaisesRegex(ValueError, TOP_DOMAIN_VALUE_ERROR,
-                               api.add_domain, self.db, 'Example', 'example.com', 1)
-        self.assertRaisesRegex(ValueError, TOP_DOMAIN_VALUE_ERROR,
-                               api.add_domain, self.db, 'Example', 'example.com', 'False')
-
-
-class TestAddEnrollment(TestAPICaseBase):
-    """Unit tests for add_enrollment"""
-
-    def test_add_enrollment(self):
-        """Check whether it adds a set of enrollment to the same
-        unique identity and organization"""
-
-        api.add_organization(self.db, 'Example')
-        api.add_unique_identity(self.db, 'John Smith')
-
-        api.add_enrollment(self.db, 'John Smith', 'Example',
-                           datetime.datetime(1999, 1, 1),
-                           datetime.datetime(2000, 1, 1))
-        api.add_enrollment(self.db, 'John Smith', 'Example',
-                           datetime.datetime(2005, 1, 1),
-                           datetime.datetime(2006, 1, 1))
-        api.add_enrollment(self.db, 'John Smith', 'Example',
-                           datetime.datetime(2013, 1, 1),
-                           datetime.datetime(2014, 1, 1))
-
-        with self.db.connect() as session:
-            enrollments = session.query(Enrollment).\
-                join(UniqueIdentity, Organization).\
-                filter(UniqueIdentity.uuid == 'John Smith',
-                       Organization.name == 'Example').\
-                order_by(Enrollment.start).all()
-            self.assertEqual(len(enrollments), 3)
-
-            enrollment = enrollments[0]
-            self.assertEqual(enrollment.start, datetime.datetime(1999, 1, 1))
-            self.assertEqual(enrollment.end, datetime.datetime(2000, 1, 1))
-
-            enrollment = enrollments[1]
-            self.assertEqual(enrollment.start, datetime.datetime(2005, 1, 1))
-            self.assertEqual(enrollment.end, datetime.datetime(2006, 1, 1))
-
-            enrollment = enrollments[2]
-            self.assertEqual(enrollment.start, datetime.datetime(2013, 1, 1))
-            self.assertEqual(enrollment.end, datetime.datetime(2014, 1, 1))
+        with self.assertRaises(ObjectDoesNotExist):
+            Identity.objects.get(uuid='1387b129ab751a3657312c09759caa41dfd8d07d')
 
     def test_last_modified(self):
         """Check if last modification date is updated"""
 
-        api.add_organization(self.db, 'Example')
+        # Delete an identity (John Smith - jsmith@example.com)
+        before_dt = datetime_utcnow()
+        individual = api.delete_identity(self.ctx, '1387b129ab751a3657312c09759caa41dfd8d07d')
+        after_dt = datetime_utcnow()
 
-        before_dt = datetime.datetime.utcnow()
-        api.add_unique_identity(self.db, 'John Smith')
-        after_dt = datetime.datetime.utcnow()
+        # Check date on the individual
+        self.assertLessEqual(before_dt, individual.last_modified)
+        self.assertGreaterEqual(after_dt, individual.last_modified)
 
-        with self.db.connect() as session:
-            uid = session.query(UniqueIdentity).\
-                filter(UniqueIdentity.uuid == 'John Smith').first()
-            self.assertLessEqual(before_dt, uid.last_modified)
-            self.assertGreaterEqual(after_dt, uid.last_modified)
-
-        before_rol_dt = datetime.datetime.utcnow()
-        api.add_enrollment(self.db, 'John Smith', 'Example',
-                           datetime.datetime(1999, 1, 1),
-                           datetime.datetime(2000, 1, 1))
-        after_rol_dt = datetime.datetime.utcnow()
-
-        # After inserting a new enrollment, the modification date was udpated
-        with self.db.connect() as session:
-            uid = session.query(UniqueIdentity).\
-                filter(UniqueIdentity.uuid == 'John Smith').first()
-
-            self.assertLessEqual(before_dt, uid.last_modified)
-            self.assertLessEqual(after_dt, uid.last_modified)
-            self.assertLessEqual(before_rol_dt, uid.last_modified)
-            self.assertGreaterEqual(after_rol_dt, uid.last_modified)
-
-    def test_period_ranges(self):
-        """Check whether enrollments cannot be added giving invalid period ranges"""
-
-        api.add_organization(self.db, 'Example')
-        api.add_unique_identity(self.db, 'John Smith')
-
-        self.assertRaisesRegex(ValueError, ENROLLMENT_PERIOD_INVALID_ERROR,
-                               api.add_enrollment, self.db, 'John Smith', 'Example',
-                               datetime.datetime(2001, 1, 1),
-                               datetime.datetime(1999, 1, 1))
-
-        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type': 'from_date',
-                                                       'date': '1899-12-31 23:59:59'}
-        self.assertRaisesRegex(ValueError, exc,
-                               api.add_enrollment, self.db, 'John Smith', 'Example',
-                               datetime.datetime(1899, 12, 31, 23, 59, 59))
-
-        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type': 'from_date',
-                                                       'date': '2100-01-01 00:00:01'}
-        self.assertRaisesRegex(ValueError, exc,
-                               api.add_enrollment, self.db, 'John Smith', 'Example',
-                               datetime.datetime(2100, 1, 1, 0, 0, 1))
-
-        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type': 'to_date',
-                                                       'date': '2100-01-01 00:00:01'}
-        self.assertRaisesRegex(ValueError, exc,
-                               api.add_enrollment, self.db, 'John Smith', 'Example',
-                               datetime.datetime(1900, 1, 1),
-                               datetime.datetime(2100, 1, 1, 0, 0, 1))
-
-        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type': 'to_date',
-                                                       'date': '1899-12-31 23:59:59'}
-        self.assertRaisesRegex(ValueError, exc,
-                               api.add_enrollment, self.db, 'John Smith', 'Example',
-                               datetime.datetime(1900, 1, 1),
-                               datetime.datetime(1899, 12, 31, 23, 59, 59))
+        # Other identities were not updated
+        identity = individual.identities.all()[0]
+        self.assertGreaterEqual(before_dt, identity.last_modified)
 
     def test_non_existing_uuid(self):
-        """Check if it fails adding enrollments to not existing unique identities"""
+        """Check if it fails removing a identities that does not exists"""
 
-        self.assertRaisesRegex(NotFoundError,
-                               NOT_FOUND_ERROR % {'entity': 'John Smith'},
-                               api.add_enrollment,
-                               self.db, 'John Smith', 'Example')
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaises(NotFoundError):
+            api.delete_identity(self.ctx, 'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF')
+
+        # It should raise an error when the registry is empty
+        Individual.objects.all().delete()
+        self.assertEqual(len(Individual.objects.all()), 0)
+
+        with self.assertRaises(NotFoundError):
+            api.delete_identity(self.ctx, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_none_uuid(self):
+        """Check whether identities cannot be removed when giving a None UUID"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(InvalidValueError, UUID_NONE_OR_EMPTY_ERROR):
+            api.delete_identity(self.ctx, None)
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_empty_uuid(self):
+        """Check whether identities cannot be removed when giving an empty UUID"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(InvalidValueError, UUID_NONE_OR_EMPTY_ERROR):
+            api.delete_identity(self.ctx, '')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_locked_uuid(self):
+        """Check if it fails when the individual is locked"""
+
+        jsmith = api.add_identity(self.ctx,
+                                  'scm',
+                                  name='John Smith',
+                                  email='jsmith@example.com',
+                                  username='jsmith')
+
+        individual = Individual.objects.get(mk=jsmith.uuid)
+        individual.is_locked = True
+        individual.save()
+
+        msg = UUID_LOCKED_ERROR.format(uuid=jsmith.uuid)
+        with self.assertRaisesRegex(LockedIdentityError, msg):
+            api.delete_identity(self.ctx, jsmith.uuid)
+
+    def test_transaction(self):
+        """Check if a transaction is created when deleting an identity"""
+
+        timestamp = datetime_utcnow()
+
+        api.delete_identity(self.ctx, '1387b129ab751a3657312c09759caa41dfd8d07d')
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        self.assertEqual(len(transactions), 1)
+
+        trx = transactions[0]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'delete_identity')
+        self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, self.ctx.user.username)
+
+    def test_operations(self):
+        """Check if the right operations are created when deleting an identity"""
+
+        timestamp = datetime_utcnow()
+
+        api.delete_identity(self.ctx, '1387b129ab751a3657312c09759caa41dfd8d07d')
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.DELETE.value)
+        self.assertEqual(op1.entity_type, 'identity')
+        self.assertEqual(op1.trx, trx)
+        self.assertEqual(op1.target, '1387b129ab751a3657312c09759caa41dfd8d07d')
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 1)
+        self.assertEqual(op1_args['identity'], '1387b129ab751a3657312c09759caa41dfd8d07d')
+
+
+class TestUpdateProfile(TestCase):
+    """Unit tests for update_profile"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        Country.objects.create(code='US',
+                               name='United States of America',
+                               alpha3='USA')
+        api.add_identity(self.ctx, 'scm', email='jsmith@example')
+
+    def test_update_empty_profile(self):
+        """Check if it updates an empty profile"""
+
+        individual = api.update_profile(self.ctx,
+                                        'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+                                        name='Smith, J.', email='jsmith@example.net',
+                                        is_bot=True, country_code='US',
+                                        gender='male', gender_acc=98)
+
+        # Tests
+        self.assertIsInstance(individual, Individual)
+        self.assertEqual(individual.mk, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        profile = individual.profile
+        self.assertEqual(profile.name, 'Smith, J.')
+        self.assertEqual(profile.email, 'jsmith@example.net')
+        self.assertEqual(profile.is_bot, True)
+        self.assertIsInstance(profile.country, Country)
+        self.assertEqual(profile.country.code, 'US')
+        self.assertEqual(profile.country.name, 'United States of America')
+        self.assertEqual(profile.gender, 'male')
+        self.assertEqual(profile.gender_acc, 98)
+
+        # Check database object
+        individual_db = Individual.objects.get(mk='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(profile, individual_db.profile)
+
+    def test_update_profile(self):
+        """Check if it updates a profile"""
+
+        api.update_profile(self.ctx,
+                           'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+                           name='Smith, J.', email='jsmith@example.net',
+                           is_bot=True, country_code='US',
+                           gender='male', gender_acc=98)
+
+        individual = api.update_profile(self.ctx,
+                                        'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+                                        name='', email='jsmith@example.net',
+                                        is_bot=False, country_code='US',
+                                        gender='male', gender_acc=89)
+
+        # Tests
+        self.assertIsInstance(individual, Individual)
+
+        profile = individual.profile
+        self.assertEqual(profile.name, None)
+        self.assertEqual(profile.email, 'jsmith@example.net')
+        self.assertEqual(profile.is_bot, False)
+        self.assertIsInstance(profile.country, Country)
+        self.assertEqual(profile.country.code, 'US')
+        self.assertEqual(profile.country.name, 'United States of America')
+        self.assertEqual(profile.gender, 'male')
+        self.assertEqual(profile.gender_acc, 89)
+
+        # Check database object
+        individual_db = Individual.objects.get(mk='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(profile, individual_db.profile)
+
+    def test_update_profile_using_any_identity_uuid(self):
+        """Check if it updates a profile using any of the related identities uuids"""
+
+        api.add_identity(self.ctx, 'mls', email='jsmith@example',
+                         uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        # Use the new identity uuid to update the profile
+        individual = api.update_profile(self.ctx,
+                                        'de176236636bc488d31e9f91952ecfc6d976a69e',
+                                        name='Smith, J.', email='jsmith@example.net',
+                                        is_bot=True, country_code='US',
+                                        gender='male', gender_acc=98)
+
+        # Tests
+        self.assertIsInstance(individual, Individual)
+        self.assertEqual(individual.mk, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        profile = individual.profile
+        self.assertEqual(profile.name, 'Smith, J.')
+        self.assertEqual(profile.email, 'jsmith@example.net')
+        self.assertEqual(profile.is_bot, True)
+        self.assertIsInstance(profile.country, Country)
+        self.assertEqual(profile.country.code, 'US')
+        self.assertEqual(profile.country.name, 'United States of America')
+        self.assertEqual(profile.gender, 'male')
+        self.assertEqual(profile.gender_acc, 98)
+
+        # Check database object
+        individual_db = Individual.objects.get(mk='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(profile, individual_db.profile)
+
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
+
+        before_dt = datetime_utcnow()
+        individual = api.update_profile(self.ctx,
+                                        'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+                                        name='John Smith',
+                                        email='jsmith@example.net')
+        after_dt = datetime_utcnow()
+
+        self.assertLessEqual(before_dt, individual.last_modified)
+        self.assertGreaterEqual(after_dt, individual.last_modified)
+
+    def test_non_existing_uuid(self):
+        """Check if it fails updating an individual that does not exist"""
+
+        with self.assertRaises(NotFoundError):
+            api.update_profile(self.ctx,
+                               'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF',
+                               name='', email='')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.all()
+        self.assertEqual(len(transactions), 1)
+
+    def test_name_email_empty(self):
+        """Check if name and email are set to None when an empty string is given"""
+
+        individual = api.update_profile(self.ctx,
+                                        'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+                                        name='', email='')
+        profile = individual.profile
+        self.assertEqual(profile.name, None)
+        self.assertEqual(profile.email, None)
+
+    def test_is_bot_invalid_type(self):
+        """Check type values of is_bot parameter"""
+
+        uuid = 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'
+
+        with self.assertRaisesRegex(InvalidValueError, IS_BOT_VALUE_ERROR):
+            api.update_profile(self.ctx, uuid, is_bot=1)
+
+        with self.assertRaisesRegex(InvalidValueError, IS_BOT_VALUE_ERROR):
+            api.update_profile(self.ctx, uuid, is_bot='True')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.all()
+        self.assertEqual(len(transactions), 1)
+
+    def test_country_code_not_valid(self):
+        """Check if it fails when the given country is not valid"""
+
+        uuid = 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'
+
+        msg = COUNTRY_CODE_ERROR.format(code='JKL')
+
+        with self.assertRaisesRegex(InvalidValueError, msg):
+            api.update_profile(self.ctx, uuid, country_code='JKL')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.all()
+        self.assertEqual(len(transactions), 1)
+
+    def test_gender_not_given(self):
+        """Check if it fails when gender_acc is given but not the gender"""
+
+        uuid = 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'
+
+        with self.assertRaisesRegex(InvalidValueError, GENDER_ACC_INVALID_ERROR):
+            api.update_profile(self.ctx, uuid, gender_acc=100)
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.all()
+        self.assertEqual(len(transactions), 1)
+
+    def test_gender_acc_invalid_type(self):
+        """Check type values of gender_acc parameter"""
+
+        uuid = 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'
+
+        with self.assertRaisesRegex(InvalidValueError, GENDER_ACC_INVALID_TYPE_ERROR):
+            api.update_profile(self.ctx, uuid, gender='male', gender_acc=10.0)
+
+        with self.assertRaisesRegex(InvalidValueError, GENDER_ACC_INVALID_TYPE_ERROR):
+            api.update_profile(self.ctx, uuid, gender='male', gender_acc='100')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.all()
+        self.assertEqual(len(transactions), 1)
+
+    def test_gender_acc_invalid_range(self):
+        """Check if it fails when gender_acc is given but not the gender"""
+
+        uuid = 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'
+
+        msg = GENDER_ACC_INVALID_RANGE_ERROR.format(acc='-1')
+
+        with self.assertRaisesRegex(InvalidValueError, msg):
+            api.update_profile(self.ctx, uuid, gender='male', gender_acc=-1)
+
+        msg = GENDER_ACC_INVALID_RANGE_ERROR.format(acc='0')
+
+        with self.assertRaisesRegex(InvalidValueError, msg):
+            api.update_profile(self.ctx, uuid, gender='male', gender_acc=0)
+
+        msg = GENDER_ACC_INVALID_RANGE_ERROR.format(acc='101')
+
+        with self.assertRaisesRegex(InvalidValueError, msg):
+            api.update_profile(self.ctx, uuid, gender='male', gender_acc=101)
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.all()
+        self.assertEqual(len(transactions), 1)
+
+    def test_locked_uuid(self):
+        """Check if it fails when the individual is locked"""
+
+        jsmith = api.add_identity(self.ctx,
+                                  'scm',
+                                  name='John Smith',
+                                  email='jsmith@example.com',
+                                  username='jsmith')
+
+        individual = Individual.objects.get(mk=jsmith.uuid)
+        individual.is_locked = True
+        individual.save()
+
+        msg = UUID_LOCKED_ERROR.format(uuid=jsmith.uuid)
+        with self.assertRaisesRegex(LockedIdentityError, msg):
+            api.update_profile(self.ctx,
+                               jsmith.uuid,
+                               name='', email='jsmith@example.net',
+                               is_bot=False, country_code='US',
+                               gender='male', gender_acc=89)
+
+    def test_transaction(self):
+        """Check if a transaction is created when updating a profile"""
+
+        timestamp = datetime_utcnow()
+
+        api.update_profile(self.ctx,
+                           'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+                           name='Smith, J.', email='jsmith@example.net',
+                           is_bot=True, country_code='US',
+                           gender='male', gender_acc=98)
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        self.assertEqual(len(transactions), 1)
+
+        trx = transactions[0]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'update_profile')
+        self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, self.ctx.user.username)
+
+    def test_operations(self):
+        """Check if the right operations are created when updating a profile"""
+
+        timestamp = datetime_utcnow()
+
+        individual = api.update_profile(self.ctx,
+                                        'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+                                        name='Smith, J.', email='jsmith@example.net',
+                                        is_bot=True, country_code='US',
+                                        gender='male', gender_acc=98)
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.UPDATE.value)
+        self.assertEqual(op1.entity_type, 'profile')
+        self.assertEqual(op1.target, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(op1.trx, trx)
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 7)
+        self.assertEqual(op1_args['individual'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(op1_args['name'], 'Smith, J.')
+        self.assertEqual(op1_args['email'], 'jsmith@example.net')
+        self.assertEqual(op1_args['is_bot'], True)
+        self.assertEqual(op1_args['country_code'], 'US')
+        self.assertEqual(op1_args['gender'], 'male')
+        self.assertEqual(op1_args['gender_acc'], 98)
+
+
+class TestMoveIdentity(TestCase):
+    """Unit tests for move_identity"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example.com')
+        api.add_identity(self.ctx,
+                         'scm',
+                         name='John Smith',
+                         email='jsmith@example.com',
+                         uuid=jsmith.uuid)
+        jsmith2 = api.add_identity(self.ctx, 'scm', email='jdoe@example.com')
+        api.add_identity(self.ctx,
+                         'phab',
+                         name='J. Smith',
+                         email='jsmith@example.org',
+                         uuid=jsmith2.uuid)
+
+    def test_move_identity(self):
+        """Test whether an identity is moved to an individual"""
+
+        from_uuid = '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331'
+        to_uuid = '03877f31261a6d1a1b3971d240e628259364b8ac'
+
+        # Tests
+        individual = api.move_identity(self.ctx, from_uuid, to_uuid)
+
+        self.assertIsInstance(individual, Individual)
+        self.assertEqual(individual.mk, '03877f31261a6d1a1b3971d240e628259364b8ac')
+
+        identities = individual.identities.all()
+        self.assertEqual(len(identities), 3)
+
+        identity = identities[0]
+        self.assertEqual(identity.uuid, '03877f31261a6d1a1b3971d240e628259364b8ac')
+
+        identity = identities[1]
+        self.assertEqual(identity.uuid, '0880dc4e621877e8520cef1747d139dd4f9f110e')
+
+        identity = identities[2]
+        self.assertEqual(identity.uuid, '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
+
+        # Check database object
+        individual_db = Individual.objects.get(mk='334da68fcd3da4e799791f73dfada2afb22648c6')
+        identities_db = individual_db.identities.all()
+        self.assertEqual(len(identities_db), 1)
+
+        identity_db = identities_db[0]
+        self.assertEqual(identity_db.uuid, '334da68fcd3da4e799791f73dfada2afb22648c6')
+        self.assertEqual(identity_db.name, None)
+        self.assertEqual(identity_db.email, 'jsmith@example.com')
+
+        individual_db = Individual.objects.get(mk='03877f31261a6d1a1b3971d240e628259364b8ac')
+        identities_db = individual_db.identities.all()
+        self.assertEqual(len(identities_db), 3)
+
+        identity_db = identities_db[0]
+        self.assertEqual(identity_db.uuid, '03877f31261a6d1a1b3971d240e628259364b8ac')
+        self.assertEqual(identity_db.name, None)
+        self.assertEqual(identity_db.email, 'jdoe@example.com')
+
+        identity_db = identities_db[1]
+        self.assertEqual(identity_db.uuid, '0880dc4e621877e8520cef1747d139dd4f9f110e')
+        self.assertEqual(identity_db.name, 'J. Smith')
+        self.assertEqual(identity_db.email, 'jsmith@example.org')
+
+        identity_db = identities_db[2]
+        self.assertEqual(identity_db.uuid, '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
+        self.assertEqual(identity_db.name, 'John Smith')
+        self.assertEqual(identity_db.email, 'jsmith@example.com')
+
+    def test_move_identity_using_any_identity_uuid(self):
+        """Check if it moves an identity using any of the identities uuids related to an individual"""
+
+        # John Smith first identity has two identities.
+        # Using the one that does not have the main key should
+        # move the identity too.
+        from_uuid = '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331'
+        to_uuid = '0880dc4e621877e8520cef1747d139dd4f9f110e'
+
+        # Tests
+        individual = api.move_identity(self.ctx, from_uuid, to_uuid)
+
+        self.assertIsInstance(individual, Individual)
+        self.assertEqual(individual.mk, '03877f31261a6d1a1b3971d240e628259364b8ac')
+
+        identities = individual.identities.all()
+        self.assertEqual(len(identities), 3)
+
+        identity = identities[0]
+        self.assertEqual(identity.uuid, '03877f31261a6d1a1b3971d240e628259364b8ac')
+
+        identity = identities[1]
+        self.assertEqual(identity.uuid, '0880dc4e621877e8520cef1747d139dd4f9f110e')
+
+        identity = identities[2]
+        self.assertEqual(identity.uuid, '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
+
+        # Check database object
+        individual_db = Individual.objects.get(mk='334da68fcd3da4e799791f73dfada2afb22648c6')
+        identities_db = individual_db.identities.all()
+        self.assertEqual(len(identities_db), 1)
+
+        identity_db = identities_db[0]
+        self.assertEqual(identity_db.uuid, '334da68fcd3da4e799791f73dfada2afb22648c6')
+        self.assertEqual(identity_db.name, None)
+        self.assertEqual(identity_db.email, 'jsmith@example.com')
+
+        individual_db = Individual.objects.get(mk='03877f31261a6d1a1b3971d240e628259364b8ac')
+        identities_db = individual_db.identities.all()
+        self.assertEqual(len(identities_db), 3)
+
+        identity_db = identities_db[0]
+        self.assertEqual(identity_db.uuid, '03877f31261a6d1a1b3971d240e628259364b8ac')
+        self.assertEqual(identity_db.name, None)
+        self.assertEqual(identity_db.email, 'jdoe@example.com')
+
+        identity_db = identities_db[1]
+        self.assertEqual(identity_db.uuid, '0880dc4e621877e8520cef1747d139dd4f9f110e')
+        self.assertEqual(identity_db.name, 'J. Smith')
+        self.assertEqual(identity_db.email, 'jsmith@example.org')
+
+        identity_db = identities_db[2]
+        self.assertEqual(identity_db.uuid, '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
+        self.assertEqual(identity_db.name, 'John Smith')
+        self.assertEqual(identity_db.email, 'jsmith@example.com')
+
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
+
+        from_uuid = '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331'
+        to_uuid = '03877f31261a6d1a1b3971d240e628259364b8ac'
+
+        # Tests
+        before_dt = datetime_utcnow()
+        individual = api.move_identity(self.ctx, from_uuid, to_uuid)
+        after_dt = datetime_utcnow()
+
+        # Check date on the individual
+        self.assertLessEqual(before_dt, individual.last_modified)
+        self.assertGreaterEqual(after_dt, individual.last_modified)
+
+    def test_equal_related_individual(self):
+        """Check if identities are not moved when 'to_uuid' is the individual related to 'from_uuid'"""
+
+        from_uuid = '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331'
+        to_uuid = '334da68fcd3da4e799791f73dfada2afb22648c6'
+
+        # Move the identity to the same individual
+        api.move_identity(self.ctx, from_uuid, to_uuid)
+
+        individual_db = Individual.objects.get(mk='334da68fcd3da4e799791f73dfada2afb22648c6')
+        identities_db = individual_db.identities.all()
+        self.assertEqual(len(identities_db), 2)
+
+        identity_db = identities_db[0]
+        self.assertEqual(identity_db.uuid, '334da68fcd3da4e799791f73dfada2afb22648c6')
+
+        identity_db = identities_db[1]
+        self.assertEqual(identity_db.uuid, '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
+
+        individual_db = Individual.objects.get(mk='03877f31261a6d1a1b3971d240e628259364b8ac')
+        identities_db = individual_db.identities.all()
+        self.assertEqual(len(identities_db), 2)
+
+        identity_db = identities_db[0]
+        self.assertEqual(identity_db.uuid, '03877f31261a6d1a1b3971d240e628259364b8ac')
+
+        identity_db = identities_db[1]
+        self.assertEqual(identity_db.uuid, '0880dc4e621877e8520cef1747d139dd4f9f110e')
+
+    def test_equal_related_individual_using_any_identity_uuid(self):
+        """
+        Check if identities are not moved when 'to_uuid' is a valid
+        uuid for the individual related to 'from_uuid'
+        """
+        api.add_identity(self.ctx,
+                         'scm',
+                         name='John Doe',
+                         email='jdoe@example.net',
+                         uuid='334da68fcd3da4e799791f73dfada2afb22648c6')
+
+        from_uuid = '4fbfb210246cab68eb2f8d3d2f1d41b73e83ad03'
+        to_uuid = '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331'
+
+        # Move the identity to the same individual
+        api.move_identity(self.ctx, from_uuid, to_uuid)
+
+        individual_db = Individual.objects.get(mk='334da68fcd3da4e799791f73dfada2afb22648c6')
+        identities_db = individual_db.identities.all()
+        self.assertEqual(len(identities_db), 3)
+
+        identity_db = identities_db[0]
+        self.assertEqual(identity_db.uuid, '334da68fcd3da4e799791f73dfada2afb22648c6')
+
+        identity_db = identities_db[1]
+        self.assertEqual(identity_db.uuid, '4fbfb210246cab68eb2f8d3d2f1d41b73e83ad03')
+
+        identity_db = identities_db[2]
+        self.assertEqual(identity_db.uuid, '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
+
+        individual_db = Individual.objects.get(mk='03877f31261a6d1a1b3971d240e628259364b8ac')
+        identities_db = individual_db.identities.all()
+        self.assertEqual(len(identities_db), 2)
+
+        identity_db = identities_db[0]
+        self.assertEqual(identity_db.uuid, '03877f31261a6d1a1b3971d240e628259364b8ac')
+
+        identity_db = identities_db[1]
+        self.assertEqual(identity_db.uuid, '0880dc4e621877e8520cef1747d139dd4f9f110e')
+
+    def test_create_new_individual(self):
+        """Check if a new individual is created when 'from_uuid' has the same value of 'to_uuid'"""
+
+        new_uuid = '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331'
+
+        # This will create a new individual,
+        # moving the identity to this new individual
+        individual = api.move_identity(self.ctx, new_uuid, new_uuid)
+
+        self.assertEqual(individual.mk, new_uuid)
+
+        identities = individual.identities.all()
+        self.assertEqual(len(identities), 1)
+
+        profile = individual.profile
+        self.assertEqual(profile.name, 'John Smith')
+        self.assertEqual(profile.email, 'jsmith@example.com')
+
+        identity = identities[0]
+        self.assertEqual(identity.uuid, new_uuid)
+        self.assertEqual(identity.name, 'John Smith')
+        self.assertEqual(identity.email, 'jsmith@example.com')
+
+        # Check database objects
+        individual_db = Individual.objects.get(mk='334da68fcd3da4e799791f73dfada2afb22648c6')
+        identities_db = individual_db.identities.all()
+        self.assertEqual(len(identities_db), 1)
+
+        identity_db = identities_db[0]
+        self.assertEqual(identity_db.uuid, '334da68fcd3da4e799791f73dfada2afb22648c6')
+        self.assertEqual(identity_db.name, None)
+        self.assertEqual(identity_db.email, 'jsmith@example.com')
+
+        individual_db = Individual.objects.get(mk='880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
+        identities_db = individual_db.identities.all()
+        self.assertEqual(len(identities_db), 1)
+
+        identity_db = identities_db[0]
+        self.assertEqual(identity_db.uuid, '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331')
+        self.assertEqual(identity_db.name, 'John Smith')
+        self.assertEqual(identity_db.email, 'jsmith@example.com')
+
+        individual_db = Individual.objects.get(mk='03877f31261a6d1a1b3971d240e628259364b8ac')
+        identities_db = individual_db.identities.all()
+        self.assertEqual(len(identities_db), 2)
+
+        identity_db = identities_db[0]
+        self.assertEqual(identity_db.uuid, '03877f31261a6d1a1b3971d240e628259364b8ac')
+        self.assertEqual(identity_db.name, None)
+        self.assertEqual(identity_db.email, 'jdoe@example.com')
+
+        identity_db = identities_db[1]
+        self.assertEqual(identity_db.uuid, '0880dc4e621877e8520cef1747d139dd4f9f110e')
+        self.assertEqual(identity_db.name, 'J. Smith')
+        self.assertEqual(identity_db.email, 'jsmith@example.org')
+
+    def test_from_uuid_is_individual(self):
+        """Test whether it fails when 'from_uuid' is an individual"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        # Check 'from_uuid' parameter
+        with self.assertRaisesRegex(InvalidValueError, FROM_UUID_IS_INDIVIDUAL_ERROR):
+            api.move_identity(self.ctx,
+                              '03877f31261a6d1a1b3971d240e628259364b8ac',
+                              '334da68fcd3da4e799791f73dfada2afb22648c6')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_not_found_from_identity(self):
+        """Test whether it fails when 'from_uuid' identity is not found"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        msg = NOT_FOUND_ERROR.format(entity='FFFFFFFFFFF')
+
+        # Check 'from_uuid' parameter
+        with self.assertRaisesRegex(NotFoundError, msg):
+            api.move_identity(self.ctx,
+                              'FFFFFFFFFFF',
+                              '03877f31261a6d1a1b3971d240e628259364b8ac')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_not_found_to_identity(self):
+        """Test whether it fails when 'to_uuid' individual is not found"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        msg = NOT_FOUND_ERROR.format(entity='FFFFFFFFFFF')
+
+        # Check 'to_uuid' parameter
+        with self.assertRaisesRegex(NotFoundError, msg):
+            api.move_identity(self.ctx,
+                              '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331',
+                              'FFFFFFFFFFF')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_none_from_uuid(self):
+        """Check whether identities cannot be moved when giving a None uuid"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(InvalidValueError, FROM_UUID_NONE_OR_EMPTY_ERROR):
+            api.move_identity(self.ctx,
+                              None,
+                              '03877f31261a6d1a1b3971d240e628259364b8ac')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_empty_from_uuid(self):
+        """Check whether identities cannot be moved when giving an empty uuid"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(InvalidValueError, FROM_UUID_NONE_OR_EMPTY_ERROR):
+            api.move_identity(self.ctx,
+                              '',
+                              '03877f31261a6d1a1b3971d240e628259364b8ac')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_none_to_uuid(self):
+        """Check whether identities cannot be moved when giving a None UUID"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(InvalidValueError, TO_UUID_NONE_OR_EMPTY_ERROR):
+            api.move_identity(self.ctx,
+                              '03877f31261a6d1a1b3971d240e628259364b8ac',
+                              None)
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_empty_to_uuid(self):
+        """Check whether identities cannot be moved when giving an empty UUID"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(InvalidValueError, TO_UUID_NONE_OR_EMPTY_ERROR):
+            api.move_identity(self.ctx,
+                              '03877f31261a6d1a1b3971d240e628259364b8ac',
+                              '')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_locked_uuid(self):
+        """Check if it fails when the individual is locked"""
+
+        from_uuid = '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331'
+        to_uuid = '03877f31261a6d1a1b3971d240e628259364b8ac'
+
+        individual = Individual.objects.get(mk=to_uuid)
+        individual.is_locked = True
+        individual.save()
+
+        msg = UUID_LOCKED_ERROR.format(uuid=to_uuid)
+        with self.assertRaisesRegex(LockedIdentityError, msg):
+            api.move_identity(self.ctx, from_uuid, to_uuid)
+
+    def test_transaction(self):
+        """Check if a transaction is created when moving an identity"""
+
+        timestamp = datetime_utcnow()
+
+        from_uuid = '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331'
+        to_uuid = '03877f31261a6d1a1b3971d240e628259364b8ac'
+
+        api.move_identity(self.ctx, from_uuid, to_uuid)
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        self.assertEqual(len(transactions), 1)
+
+        trx = transactions[0]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'move_identity')
+        self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, self.ctx.user.username)
+
+    def test_operations(self):
+        """Check if the right operations are created when moving an identity"""
+
+        timestamp = datetime_utcnow()
+
+        from_uuid = '880b3dfcb3a08712e5831bddc3dfe81fc5d7b331'
+        to_uuid = '03877f31261a6d1a1b3971d240e628259364b8ac'
+
+        api.move_identity(self.ctx, from_uuid, to_uuid)
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.UPDATE.value)
+        self.assertEqual(op1.entity_type, 'identity')
+        self.assertEqual(op1.target, from_uuid)
+        self.assertEqual(op1.trx, trx)
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 2)
+        self.assertEqual(op1_args['identity'], from_uuid)
+        self.assertEqual(op1_args['individual'], to_uuid)
+
+
+class TestLock(TestCase):
+    """Unit tests for lock"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+        self.jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example.com')
+
+    def test_lock(self):
+        """Test whether an individual is locked"""
+
+        jsmith = api.lock(self.ctx, self.jsmith.individual)
+
+        self.assertEqual(jsmith.is_locked, True)
+
+    def test_lock_using_any_identity_uuid(self):
+        """Check if it locks an individual using any of its identities uuids"""
+
+        new_id = api.add_identity(self.ctx, 'mls', email='jsmith@example.com',
+                                  uuid=self.jsmith.uuid)
+
+        jsmith = api.lock(self.ctx, new_id.uuid)
+
+        self.assertEqual(jsmith.is_locked, True)
+        self.assertEqual(jsmith.mk, self.jsmith.individual.mk)
+
+    def test_lock_uuid_none_or_empty(self):
+        """Check if it fails when the uuid is None or an empty string"""
+
+        with self.assertRaisesRegex(InvalidValueError, UUID_NONE_OR_EMPTY_ERROR):
+            api.lock(self.ctx, None)
+
+    def test_lock_uuid_not_exists(self):
+        """Check if it fails when the uuid does not exists"""
+
+        msg = NOT_FOUND_ERROR.format(entity='AAAA')
+        with self.assertRaisesRegex(NotFoundError, msg):
+            api.lock(self.ctx, 'AAAA')
+
+    def test_transaction(self):
+        """Check if a transaction is created when locking an individual"""
+
+        timestamp = datetime_utcnow()
+        uuid = self.jsmith.individual.mk
+
+        api.lock(self.ctx, uuid)
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        self.assertEqual(len(transactions), 1)
+
+        trx = transactions[0]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'lock')
+        self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, self.ctx.user.username)
+
+    def test_operations(self):
+        """Check if the right operations are created when locking an individual"""
+
+        timestamp = datetime_utcnow()
+        uuid = self.jsmith.individual.mk
+
+        api.lock(self.ctx, uuid)
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.UPDATE.value)
+        self.assertEqual(op1.entity_type, 'individual')
+        self.assertEqual(op1.target, uuid)
+        self.assertEqual(op1.trx, trx)
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 2)
+        self.assertEqual(op1_args['mk'], uuid)
+        self.assertEqual(op1_args['is_locked'], True)
+
+
+class TestUnlock(TestCase):
+    """Unit tests for unlock"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+        self.jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example.com')
+
+    def test_unlock(self):
+        """Test whether an individual is unlocked"""
+
+        uuid = self.jsmith.individual.mk
+
+        jsmith = api.unlock(self.ctx, uuid)
+
+        self.assertEqual(jsmith.is_locked, False)
+
+    def test_unlock_using_any_identity_uuid(self):
+        """Check if it unlocks an individual using any of its identities uuids"""
+
+        new_id = api.add_identity(self.ctx, 'mls', email='jsmith@example.com',
+                                  uuid=self.jsmith.uuid)
+
+        jsmith = api.unlock(self.ctx, new_id.uuid)
+
+        self.assertEqual(jsmith.is_locked, False)
+        self.assertEqual(jsmith.mk, self.jsmith.individual.mk)
+
+    def test_unlock_uuid_none_or_empty(self):
+        """Check if it fails when the uuid is None or an empty string"""
+
+        with self.assertRaisesRegex(InvalidValueError, UUID_NONE_OR_EMPTY_ERROR):
+            api.unlock(self.ctx, None)
+
+    def test_unlock_uuid_not_exists(self):
+        """Check if it fails when the uuid does not exists"""
+
+        msg = NOT_FOUND_ERROR.format(entity='AAAA')
+        with self.assertRaisesRegex(NotFoundError, msg):
+            api.unlock(self.ctx, 'AAAA')
+
+    def test_transaction(self):
+        """Check if a transaction is created when unlocking an identity"""
+
+        timestamp = datetime_utcnow()
+        uuid = self.jsmith.individual.mk
+
+        api.unlock(self.ctx, uuid)
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        self.assertEqual(len(transactions), 1)
+
+        trx = transactions[0]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'unlock')
+        self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, self.ctx.user.username)
+
+    def test_operations(self):
+        """Check if the right operations are created when unlocking an identity"""
+
+        timestamp = datetime_utcnow()
+        uuid = self.jsmith.individual.mk
+
+        api.unlock(self.ctx, uuid)
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.UPDATE.value)
+        self.assertEqual(op1.entity_type, 'individual')
+        self.assertEqual(op1.target, uuid)
+        self.assertEqual(op1.trx, trx)
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 2)
+        self.assertEqual(op1_args['mk'], uuid)
+        self.assertEqual(op1_args['is_locked'], False)
+
+
+class TestAddOrganization(TestCase):
+    """Unit tests for add_organization"""
+
+    def setUp(self):
+        """Load initial values"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+    def test_add_new_organization(self):
+        """Check if everything goes OK when adding a new organization"""
+
+        organization = api.add_organization(self.ctx, name='Example')
+
+        # Tests
+        self.assertIsInstance(organization, Organization)
+        self.assertEqual(organization.name, 'Example')
+
+        organizations_db = Organization.objects.filter(name='Example')
+        self.assertEqual(len(organizations_db), 1)
+
+        org1 = organizations_db[0]
+        self.assertEqual(organization, org1)
+
+    def test_add_duplicate_organization(self):
+        """Check if it fails when adding a duplicate organization"""
+
+        org = api.add_organization(self.ctx, name='Example')
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(AlreadyExistsError, ORGANIZATION_ALREADY_EXISTS_ERROR.format(name=org.name)):
+            org = api.add_organization(self.ctx, name=org.name)
+
+        organizations = Organization.objects.filter(name='Example')
+        self.assertEqual(len(organizations), 1)
+
+        organizations = Organization.objects.all()
+        self.assertEqual(len(organizations), 1)
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_organization_name_none(self):
+        """Check if it fails when organization name is `None`"""
+
+        with self.assertRaisesRegex(InvalidValueError, ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR):
+            api.add_organization(self.ctx, name=None)
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.all()
+        self.assertEqual(len(transactions), 0)
+
+    def test_organization_name_empty(self):
+        """Check if it fails when organization name is empty"""
+
+        with self.assertRaisesRegex(InvalidValueError, ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR):
+            api.add_organization(self.ctx, name='')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.all()
+        self.assertEqual(len(transactions), 0)
+
+    def test_organization_name_whitespaces(self):
+        """Check if it fails when organization name is composed by whitespaces only"""
+
+        with self.assertRaisesRegex(InvalidValueError, ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR):
+            api.add_organization(self.ctx, name='   ')
+
+        with self.assertRaisesRegex(InvalidValueError, ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR):
+            api.add_organization(self.ctx, name='\t')
+
+        with self.assertRaisesRegex(InvalidValueError, ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR):
+            api.add_organization(self.ctx, name=' \t  ')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.all()
+        self.assertEqual(len(transactions), 0)
+
+    def test_organization_name_int(self):
+        """Check if it fails when organization name is an integer"""
+
+        with self.assertRaisesRegex(TypeError, ORGANIZATION_VALUE_ERROR):
+            api.add_organization(self.ctx, name=12345)
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.all()
+        self.assertEqual(len(transactions), 0)
+
+    def test_transaction(self):
+        """Check if a transaction is created when adding an organization"""
+
+        timestamp = datetime_utcnow()
+
+        api.add_organization(self.ctx, name='Example')
+
+        transactions = Transaction.objects.all()
+        self.assertEqual(len(transactions), 1)
+
+        trx = transactions[0]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'add_organization')
+        self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, self.ctx.user.username)
+
+    def test_operations(self):
+        """Check if the right operations are created when adding an organization"""
+
+        timestamp = datetime_utcnow()
+
+        api.add_organization(self.ctx, name='Example')
+
+        transactions = Transaction.objects.all()
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.ADD.value)
+        self.assertEqual(op1.entity_type, 'organization')
+        self.assertEqual(op1.target, 'Example')
+        self.assertEqual(op1.trx, trx)
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 1)
+        self.assertEqual(op1_args['name'], 'Example')
+
+
+class TestAddTeam(TestCase):
+    """Unit tests for add_team"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+        self.org = api.add_organization(self.ctx, name='Example')
+
+    def test_add_new_team(self):
+        """ Check if new team can be created"""
+
+        team = api.add_team(self.ctx, "suborg", "Example", None)
+
+        self.assertIsInstance(team, Team)
+        self.assertEqual(team.name, "suborg")
+        self.assertEqual(team.parent_org, self.org)
+
+    def test_organization_is_none(self):
+        """Check if it fails when organization name is `None`"""
+
+        team = api.add_team(self.ctx, "suborg", None, None)
+
+        self.assertIsInstance(team, Team)
+        self.assertEqual(team.name, "suborg")
+        self.assertEqual(team.parent_org, None)
+
+    def test_team_name_is_none(self):
+        """Check if it fails when team name is `None`"""
+
+        trx_date = datetime_utcnow()
+
+        with self.assertRaisesRegex(InvalidValueError, TEAM_NAME_MISSING):
+            api.add_team(self.ctx, None, "Example", None)
+
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_team_name_is_empty(self):
+        """Check if it fails when team name is an empty string"""
+
+        trx_date = datetime_utcnow()
+
+        with self.assertRaisesRegex(InvalidValueError, TEAM_NAME_MISSING):
+            api.add_team(self.ctx, "", "Example", None)
+
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_organization_not_found(self):
+        """Check if team is created if organization is not found"""
+
+        trx_date = datetime_utcnow()
+
+        with self.assertRaisesRegex(NotFoundError, ORGANIZATION_NOT_FOUND_ERROR.format(name='Exampe')):
+            api.add_team(self.ctx, "subteam", "Exampe", None, )
+
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_find_parent(self):
+        """ Check if parent is able to be found"""
+
+        api.add_team(self.ctx, "parent", "Example", None)
+        child = api.add_team(self.ctx, "child", "Example", "parent")
+        self.assertIsInstance(child, Team)
+        self.assertEqual(child.name, "child")
+        self.assertEqual(child.parent_org, self.org)
+
+    def test_parent_not_found(self):
+        """ Check if a team cannot be created when parent is not found"""
+
+        api.add_team(self.ctx, "suborg", "Example", None)
+
+        with self.assertRaisesRegex(NotFoundError, NOT_FOUND_ERROR.format(entity="parent")):
+            api.add_team(self.ctx, "child", "Example", "parent")
+
+
+class TestDeleteTeam(TestCase):
+    """Unit tests for delete_team"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+        self.org = api.add_organization(self.ctx, name='Example')
+
+    def test_delete_team(self):
+        """Check if team can be deleted"""
+
+        api.add_team(self.ctx, "suborg", "Example", None)
+        team = api.delete_team(self.ctx, "suborg", self.org.name)
+
+        self.assertIsInstance(team, Team)
+        self.assertEqual(team.name, "suborg")
+        self.assertEqual(team.parent_org, self.org)
+
+    def test_organization_is_none(self):
+        """Check if it passes when team does not belong to any organization"""
+
+        api.add_team(self.ctx, "suborg")
+
+        team = api.delete_team(self.ctx, "suborg")
+        self.assertIsInstance(team, Team)
+        self.assertEqual(team.name, "suborg")
+        self.assertEqual(team.parent_org, None)
+
+    def test_organization_name_is_empty(self):
+        """Check if it fails when organization name is empty for a
+           team that belongs to an organization"""
+
+        api.add_team(self.ctx, "suborg", "Example", None)
+
+        trx_date = datetime_utcnow()
+
+        with self.assertRaisesRegex(NotFoundError, NOT_FOUND_ERROR.format(entity="suborg")):
+            api.delete_team(self.ctx, "suborg")
+
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_team_name_is_none(self):
+        """Check if it fails when team name is `None`"""
+
+        api.add_team(self.ctx, "suborg", "Example", None)
+
+        trx_date = datetime_utcnow()
+
+        with self.assertRaisesRegex(InvalidValueError, TEAM_NAME_MISSING):
+            api.delete_team(self.ctx, None, "Example")
+
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_team_name_is_empty(self):
+        """Check if it fails when team name is an empty string"""
+
+        api.add_team(self.ctx, "suborg", "Example", None)
+
+        trx_date = datetime_utcnow()
+
+        with self.assertRaisesRegex(InvalidValueError, TEAM_NAME_MISSING):
+            api.delete_team(self.ctx, "", "Example")
+
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_organization_not_found(self):
+        """Check if team is created if organization is not found"""
+
+        api.add_team(self.ctx, "suborg", "Example", None)
+
+        trx_date = datetime_utcnow()
+
+        with self.assertRaisesRegex(NotFoundError, ORGANIZATION_NOT_FOUND_ERROR.format(name='Exampe')):
+            api.delete_team(self.ctx, "suborg", "Exampe")
+
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_team_not_found(self):
+        """Check if error is raised if team is not found"""
+
+        api.add_team(self.ctx, "suborg", "Example", None)
+        with self.assertRaisesRegex(NotFoundError, NOT_FOUND_ERROR.format(entity="sorg")):
+            api.delete_team(self.ctx, "sorg", "Example")
+
+
+class TestAddDomain(TestCase):
+    """Unit tests for add_domain"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        api.add_organization(self.ctx, name='Example')
+        api.add_organization(self.ctx, name='Bitergia')
+
+    def test_add_new_domain(self):
+        """Check if everything goes OK when adding a new domain"""
+
+        domain = api.add_domain(self.ctx,
+                                organization='Example',
+                                domain_name='example.com',
+                                is_top_domain=True)
+
+        # Tests
+        self.assertIsInstance(domain, Domain)
+        self.assertEqual(domain.organization.name, 'Example')
+        self.assertEqual(domain.domain, 'example.com')
+        self.assertEqual(domain.is_top_domain, True)
+
+        domains_db = Domain.objects.filter(domain='example.com')
+        self.assertEqual(len(domains_db), 1)
+
+        dom1 = domains_db[0]
+        self.assertEqual(domain, dom1)
+
+    def test_top_domain_default(self):
+        """Check if the domain is a top domain by default"""
+
+        domain = api.add_domain(self.ctx,
+                                organization='Example',
+                                domain_name='example.com')
+
+        # Tests
+        self.assertIsInstance(domain, Domain)
+        self.assertEqual(domain.organization.name, 'Example')
+        self.assertEqual(domain.domain, 'example.com')
+        self.assertEqual(domain.is_top_domain, True)
+
+        domains_db = Domain.objects.filter(domain='example.com')
+        self.assertEqual(len(domains_db), 1)
+
+        dom1 = domains_db[0]
+        self.assertEqual(domain, dom1)
+
+    def test_add_multiple_domains(self):
+        """Check if everything goes OK when adding a new domain"""
+
+        domain1 = api.add_domain(self.ctx,
+                                 organization='Example',
+                                 domain_name='example.com',
+                                 is_top_domain=True)
+
+        domain2 = api.add_domain(self.ctx,
+                                 organization='Example',
+                                 domain_name='example.net',
+                                 is_top_domain=False)
+
+        # Tests
+        self.assertEqual(domain1.organization.name, 'Example')
+        self.assertEqual(domain1.domain, 'example.com')
+        self.assertEqual(domain1.is_top_domain, True)
+
+        self.assertEqual(domain2.organization.name, 'Example')
+        self.assertEqual(domain2.domain, 'example.net')
+        self.assertEqual(domain2.is_top_domain, False)
+
+        domains_db = Domain.objects.filter(domain='example.com')
+        self.assertEqual(len(domains_db), 1)
+
+        dom1 = domains_db[0]
+        self.assertEqual(domain1, dom1)
+
+        domains_db = Domain.objects.filter(domain='example.net')
+        self.assertEqual(len(domains_db), 1)
+
+        dom2 = domains_db[0]
+        self.assertEqual(domain2, dom2)
+
+    def test_add_duplicate_domain(self):
+        """Check if it fails when adding a duplicate domain"""
+
+        domain = api.add_domain(self.ctx,
+                                organization='Example',
+                                domain_name='example.com',
+                                is_top_domain=True)
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(AlreadyExistsError, DOMAIN_ALREADY_EXISTS_ERROR.format(domain_name='example.com')):
+            api.add_domain(self.ctx,
+                           organization='Example',
+                           domain_name='example.com')
+
+        domains = Domain.objects.filter(domain='example.com')
+        self.assertEqual(len(domains), 1)
+
+        dom1 = domains[0]
+        self.assertEqual(dom1, domain)
+
+        domains = Domain.objects.all()
+        self.assertEqual(len(domains), 1)
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_add_domain_different_org(self):
+        """Check if it fails when adding the same domain to a different organization"""
+
+        domain = api.add_domain(self.ctx,
+                                organization='Example',
+                                domain_name='example.com',
+                                is_top_domain=True)
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(AlreadyExistsError, DOMAIN_ALREADY_EXISTS_ERROR.format(domain_name='example.com')):
+            api.add_domain(self.ctx,
+                           organization='Bitergia',
+                           domain_name='example.com')
+
+        domains = Domain.objects.filter(domain='example.com')
+        self.assertEqual(len(domains), 1)
+
+        domains = Domain.objects.filter(domain='example.com')
+        self.assertEqual(len(domains), 1)
+
+        dom1 = domains[0]
+        self.assertEqual(dom1.organization.name, 'Example')
+        self.assertEqual(dom1.organization.name, domain.organization.name)
+
+        domains = Domain.objects.all()
+        self.assertEqual(len(domains), 1)
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_organization_not_found(self):
+        """Check if it fails when the organization is not found"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(NotFoundError, ORGANIZATION_NOT_FOUND_ERROR.format(name='Botergia')):
+            api.add_domain(self.ctx,
+                           organization='Botergia',
+                           domain_name='bitergia.com')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_domain_name_none(self):
+        """Check if it fails when domain name is `None`"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(InvalidValueError, DOMAIN_NAME_NONE_OR_EMPTY_ERROR):
+            api.add_domain(self.ctx,
+                           organization='Example',
+                           domain_name=None)
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_domain_name_empty(self):
+        """Check if it fails when domain name is empty"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(InvalidValueError, DOMAIN_NAME_NONE_OR_EMPTY_ERROR):
+            api.add_domain(self.ctx,
+                           organization='Example',
+                           domain_name='')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_domain_name_whitespaces(self):
+        """Check if it fails when domain name is composed by whitespaces"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(InvalidValueError, DOMAIN_NAME_NONE_OR_EMPTY_ERROR):
+            api.add_domain(self.ctx,
+                           organization='Example',
+                           domain_name='    ')
+
+        with self.assertRaisesRegex(InvalidValueError, DOMAIN_NAME_NONE_OR_EMPTY_ERROR):
+            api.add_domain(self.ctx,
+                           organization='Example',
+                           domain_name='\t')
+
+        with self.assertRaisesRegex(InvalidValueError, DOMAIN_NAME_NONE_OR_EMPTY_ERROR):
+            api.add_domain(self.ctx,
+                           organization='Example',
+                           domain_name='  \t  ')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_domain_name_int(self):
+        """Check if it fails when domain name is an integer"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(TypeError, DOMAIN_VALUE_ERROR):
+            api.add_domain(self.ctx,
+                           organization='Example',
+                           domain_name=12345)
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_organization_name_none(self):
+        """Check if it fails when organization name is `None`"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(InvalidValueError, DOMAIN_ORG_NAME_NONE_OR_EMPTY_ERROR):
+            api.add_domain(self.ctx,
+                           organization=None,
+                           domain_name='example.com')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_organization_name_empty(self):
+        """Check if it fails when organization name is empty"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(InvalidValueError, DOMAIN_ORG_NAME_NONE_OR_EMPTY_ERROR):
+            api.add_domain(self.ctx,
+                           organization='',
+                           domain_name='example.com')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_organization_name_whitespaces(self):
+        """Check if it fails when organization name is composed by whitespaces"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(InvalidValueError, DOMAIN_ORG_NAME_NONE_OR_EMPTY_ERROR):
+            api.add_domain(self.ctx,
+                           organization=None,
+                           domain_name='    ')
+
+        with self.assertRaisesRegex(InvalidValueError, DOMAIN_ORG_NAME_NONE_OR_EMPTY_ERROR):
+            api.add_domain(self.ctx,
+                           organization=None,
+                           domain_name='\t')
+
+        with self.assertRaisesRegex(InvalidValueError, DOMAIN_ORG_NAME_NONE_OR_EMPTY_ERROR):
+            api.add_domain(self.ctx,
+                           organization=None,
+                           domain_name='  \t  ')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_organization_name_int(self):
+        """Check if it fails when organization name is an integer"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(TypeError, ORGANIZATION_VALUE_ERROR):
+            api.add_domain(self.ctx,
+                           organization=12345,
+                           domain_name='example.com')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_transaction(self):
+        """Check if a transaction is created when adding a domain"""
+
+        timestamp = datetime_utcnow()
+
+        api.add_domain(self.ctx,
+                       organization='Example',
+                       domain_name='example.com',
+                       is_top_domain=True)
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        self.assertEqual(len(transactions), 1)
+
+        trx = transactions[0]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'add_domain')
+        self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, self.ctx.user.username)
+
+    def test_operations(self):
+        """Check if the right operations are created when adding a domain"""
+
+        timestamp = datetime_utcnow()
+
+        api.add_domain(self.ctx,
+                       organization='Example',
+                       domain_name='example.com',
+                       is_top_domain=True)
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.ADD.value)
+        self.assertEqual(op1.entity_type, 'domain')
+        self.assertEqual(op1.target, 'Example')
+        self.assertEqual(op1.trx, trx)
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 3)
+        self.assertEqual(op1_args['organization'], 'Example')
+        self.assertEqual(op1_args['domain_name'], 'example.com')
+        self.assertEqual(op1_args['is_top_domain'], True)
+
+
+class TestDeleteOrganization(TestCase):
+    """Unit tests for delete_organization"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        api.add_organization(self.ctx, name='Example')
+        api.add_organization(self.ctx, name='Bitergia')
+        api.add_organization(self.ctx, name='Libresoft')
+
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example.com')
+        individual = api.enroll(self.ctx,
+                                jsmith.uuid, 'Example',
+                                from_date=datetime.datetime(1999, 1, 1),
+                                to_date=datetime.datetime(2000, 1, 1))
+
+    def test_delete_organization(self):
+        """Check if everything goes OK when deleting an organization"""
+
+        api.delete_organization(self.ctx, name='Example')
+
+        organizations = Organization.objects.filter(name='Example')
+        self.assertEqual(len(organizations), 0)
+
+        individual_db = Individual.objects.get(mk='334da68fcd3da4e799791f73dfada2afb22648c6')
+        enrollments = individual_db.enrollments.all()
+        self.assertEqual(len(enrollments), 0)
+
+        organizations = Organization.objects.all()
+        self.assertEqual(len(organizations), 2)
+
+        org1 = organizations[0]
+        self.assertEqual(org1.name, 'Bitergia')
+
+        org2 = organizations[1]
+        self.assertEqual(org2.name, 'Libresoft')
+
+    def test_delete_non_existing_organization(self):
+        """Check if it fails when deleting a non existing organization"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(NotFoundError, ORGANIZATION_NOT_FOUND_ERROR.format(name='Ghost')):
+            api.delete_organization(self.ctx, 'Ghost')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_organization_name_none(self):
+        """Check if it fails when organization name is `None`"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(InvalidValueError, ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR):
+            api.delete_organization(self.ctx, name=None)
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_organization_name_empty(self):
+        """Check if it fails when organization name is empty"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(InvalidValueError, ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR):
+            api.delete_organization(self.ctx, name='')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_organization_name_whitespaces(self):
+        """Check if it fails when organization name is composed by whitespaces"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(InvalidValueError, ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR):
+            api.delete_organization(self.ctx, name='   ')
+
+        with self.assertRaisesRegex(InvalidValueError, ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR):
+            api.delete_organization(self.ctx, name='\t')
+
+        with self.assertRaisesRegex(InvalidValueError, ORGANIZATION_NAME_NONE_OR_EMPTY_ERROR):
+            api.delete_organization(self.ctx, name=' \t  ')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_organization_name_int(self):
+        """Check if it fails when organization name is an integer"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(TypeError, ORGANIZATION_VALUE_ERROR):
+            api.delete_organization(self.ctx, name=12345)
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_transaction(self):
+        """Check if a transaction is created when deleting an organization"""
+
+        timestamp = datetime_utcnow()
+
+        api.delete_organization(self.ctx, name='Example')
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        self.assertEqual(len(transactions), 1)
+
+        trx = transactions[0]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'delete_organization')
+        self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, self.ctx.user.username)
+
+    def test_operations(self):
+        """Check if the right operations are created when deleting an organization"""
+
+        timestamp = datetime_utcnow()
+
+        api.delete_organization(self.ctx, name='Example')
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.DELETE.value)
+        self.assertEqual(op1.entity_type, 'organization')
+        self.assertEqual(op1.target, 'Example')
+        self.assertEqual(op1.trx, trx)
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 1)
+        self.assertEqual(op1_args['organization'], 'Example')
+
+
+class TestDeleteDomain(TestCase):
+    """Unit tests for delete_domain"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        api.add_organization(self.ctx, name='Example')
+        api.add_domain(self.ctx,
+                       organization='Example',
+                       domain_name='example.com',
+                       is_top_domain=True)
+        api.add_domain(self.ctx,
+                       organization='Example',
+                       domain_name='example.net',
+                       is_top_domain=False)
+
+        api.add_organization(self.ctx, name='Bitergia')
+        api.add_domain(self.ctx,
+                       organization='Bitergia',
+                       domain_name='bitergia.com',
+                       is_top_domain=True)
+
+    def test_delete_domain(self):
+        """Check if everything goes OK when deleting a domain"""
+
+        domain = api.delete_domain(self.ctx, 'example.com')
+
+        # Tests
+        self.assertIsInstance(domain, Domain)
+        self.assertEqual(domain.organization.name, 'Example')
+        self.assertEqual(domain.domain, 'example.com')
+        self.assertEqual(domain.is_top_domain, True)
+
+        domains = Domain.objects.filter(domain='example.com')
+        self.assertEqual(len(domains), 0)
+
+        # Check if the rest of domains were not removed
+        domains = Domain.objects.all()
+        self.assertEqual(len(domains), 2)
+
+        dom1 = domains[0]
+        self.assertEqual(dom1.organization.name, 'Bitergia')
+        self.assertEqual(dom1.domain, 'bitergia.com')
+        self.assertEqual(dom1.is_top_domain, True)
+
+        dom2 = domains[1]
+        self.assertEqual(dom2.organization.name, 'Example')
+        self.assertEqual(dom2.domain, 'example.net')
+        self.assertEqual(dom2.is_top_domain, False)
+
+    def test_domain_not_found(self):
+        """Check if it fails when domain is not found"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(NotFoundError, DOMAIN_NOT_FOUND_ERROR.format(domain_name='botergia.com')):
+            api.delete_domain(self.ctx, 'botergia.com')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_organization_not_found(self):
+        """Check if it fails when the domain's organization is not found"""
+
+        api.delete_organization(self.ctx, 'Bitergia')
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        # Tests
+        domains = Domain.objects.filter(domain='bitergia.com')
+        self.assertEqual(len(domains), 0)
+
+        with self.assertRaisesRegex(NotFoundError, DOMAIN_NOT_FOUND_ERROR.format(domain_name='bitergia.com')):
+            api.delete_domain(self.ctx, 'bitergia.com')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_domain_name_none(self):
+        """Check if it fails when domain name is `None`"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(InvalidValueError, DOMAIN_NAME_NONE_OR_EMPTY_ERROR):
+            api.delete_domain(self.ctx, domain_name=None)
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_domain_name_empty(self):
+        """Check if it fails when domain name is empty"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(InvalidValueError, DOMAIN_NAME_NONE_OR_EMPTY_ERROR):
+            api.delete_domain(self.ctx, domain_name='')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_domain_name_whitespaces(self):
+        """Check if it fails when domain name is composed by whitespaces"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(InvalidValueError, DOMAIN_NAME_NONE_OR_EMPTY_ERROR):
+            api.delete_domain(self.ctx, domain_name='    ')
+
+        with self.assertRaisesRegex(InvalidValueError, DOMAIN_NAME_NONE_OR_EMPTY_ERROR):
+            api.delete_domain(self.ctx, domain_name='\t')
+
+        with self.assertRaisesRegex(InvalidValueError, DOMAIN_NAME_NONE_OR_EMPTY_ERROR):
+            api.delete_domain(self.ctx, domain_name='  \t  ')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_domain_name_int(self):
+        """Check if it fails when domain name is an integer"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(TypeError, DOMAIN_VALUE_ERROR):
+            api.delete_domain(self.ctx, domain_name=12345)
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_transaction(self):
+        """Check if a transaction is created when deleting a domain"""
+
+        timestamp = datetime_utcnow()
+
+        api.delete_domain(self.ctx, 'example.com')
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        self.assertEqual(len(transactions), 1)
+
+        trx = transactions[0]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'delete_domain')
+        self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, self.ctx.user.username)
+
+    def test_operations(self):
+        """Check if the right operations are created when deleting a domain"""
+
+        timestamp = datetime_utcnow()
+
+        domain = api.delete_domain(self.ctx, 'example.com')
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.DELETE.value)
+        self.assertEqual(op1.entity_type, 'domain')
+        self.assertEqual(op1.target, 'example.com')
+        self.assertEqual(op1.trx, trx)
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 1)
+        self.assertEqual(op1_args['domain'], 'example.com')
+
+
+class TestEnroll(TestCase):
+    """Unit tests for enroll"""
+
+    def setUp(self):
+        """Load initial values"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+    def test_enroll(self):
+        """Check whether it adds an enrollment to an individual and an organization"""
+
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_organization(self.ctx, 'Example')
+
+        individual = api.enroll(self.ctx,
+                                jsmith.uuid, 'Example',
+                                from_date=datetime.datetime(1999, 1, 1),
+                                to_date=datetime.datetime(2000, 1, 1))
+
+        # Tests
+        self.assertIsInstance(individual, Individual)
+
+        enrollments = individual.enrollments.all()
+        self.assertEqual(len(enrollments), 1)
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.group.name, 'Example')
+        self.assertEqual(enrollment.start, datetime.datetime(1999, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2000, 1, 1, tzinfo=UTC))
+
+        # Check database object
+        individual_db = Individual.objects.get(mk=jsmith.uuid)
+        enrollments_db = individual_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 1)
+
+        enrollment_db = enrollments_db[0]
+        self.assertEqual(enrollment_db.group.name, 'Example')
+        self.assertEqual(enrollment_db.start, datetime.datetime(1999, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2000, 1, 1, tzinfo=UTC))
+
+    def test_enroll_in_team(self):
+        """Check whether it adds an enrollment to an individual and a team"""
+
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_organization(self.ctx, 'Example Org')
+        api.add_team(self.ctx, 'Example Team', organization='Example Org')
+
+        individual = api.enroll(self.ctx,
+                                jsmith.uuid, 'Example Team',
+                                parent_org='Example Org',
+                                from_date=datetime.datetime(1999, 1, 1),
+                                to_date=datetime.datetime(2000, 1, 1))
+
+        # Tests
+        self.assertIsInstance(individual, Individual)
+
+        enrollments = individual.enrollments.all()
+        self.assertEqual(len(enrollments), 1)
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.group.name, 'Example Team')
+        self.assertEqual(enrollment.start, datetime.datetime(1999, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2000, 1, 1, tzinfo=UTC))
+
+        # Check database object
+        individual_db = Individual.objects.get(mk=jsmith.uuid)
+        enrollments_db = individual_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 1)
+
+        enrollment_db = enrollments_db[0]
+        self.assertEqual(enrollment_db.group.name, 'Example Team')
+        self.assertEqual(enrollment_db.start, datetime.datetime(1999, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2000, 1, 1, tzinfo=UTC))
+
+    def test_enroll_using_any_identity_uuid(self):
+        """
+        Check whether it adds an enrollments to an individual and organization
+        using any valid identity uuid
+        """
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        jsmith_alt = api.add_identity(self.ctx, 'mls', email='jsmith@example',
+                                      uuid=jsmith.uuid)
+
+        api.add_organization(self.ctx, 'Example')
+
+        individual = api.enroll(self.ctx,
+                                jsmith_alt.uuid, 'Example',
+                                from_date=datetime.datetime(1999, 1, 1),
+                                to_date=datetime.datetime(2000, 1, 1))
+
+        # Tests
+        self.assertIsInstance(individual, Individual)
+        self.assertEqual(individual.mk, jsmith.uuid)
+
+        enrollments = individual.enrollments.all()
+        self.assertEqual(len(enrollments), 1)
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.group.name, 'Example')
+        self.assertEqual(enrollment.start, datetime.datetime(1999, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2000, 1, 1, tzinfo=UTC))
+
+        # Check database object
+        individual_db = Individual.objects.get(mk=jsmith.uuid)
+        enrollments_db = individual_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 1)
+
+        enrollment_db = enrollments_db[0]
+        self.assertEqual(enrollment_db.group.name, 'Example')
+        self.assertEqual(enrollment_db.start, datetime.datetime(1999, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2000, 1, 1, tzinfo=UTC))
+
+    def test_enroll_default_ranges(self):
+        """Check if it enrolls an individual using default ranges when they are not given"""
+
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_organization(self.ctx, 'Example')
+
+        individual = api.enroll(self.ctx, jsmith.uuid, 'Example')
+
+        # Tests
+        self.assertIsInstance(individual, Individual)
+
+        enrollments = individual.enrollments.all()
+        self.assertEqual(len(enrollments), 1)
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.group.name, 'Example')
+        self.assertEqual(enrollment.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
+
+        # Check database object
+        individual_db = Individual.objects.get(mk=jsmith.uuid)
+        enrollments_db = individual_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 1)
+
+        enrollment_db = enrollments_db[0]
+        self.assertEqual(enrollment_db.group.name, 'Example')
+        self.assertEqual(enrollment_db.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
+
+    def test_enroll_multiple(self):
+        """Check if it enrolls different times an individual to an organization"""
+
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_organization(self.ctx, 'Example')
+
+        api.enroll(self.ctx,
+                   jsmith.uuid, 'Example',
+                   from_date=datetime.datetime(2013, 1, 1),
+                   to_date=datetime.datetime(2014, 1, 1))
+        api.enroll(self.ctx,
+                   jsmith.uuid, 'Example',
+                   from_date=datetime.datetime(1999, 1, 1),
+                   to_date=datetime.datetime(2000, 1, 1))
+        api.enroll(self.ctx,
+                   jsmith.uuid, 'Example',
+                   from_date=datetime.datetime(2005, 1, 1),
+                   to_date=datetime.datetime(2006, 1, 1))
+
+        # Tests
+        individual_db = Individual.objects.get(mk=jsmith.uuid)
+
+        enrollments = individual_db.enrollments.all()
+        self.assertEqual(len(enrollments), 3)
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.group.name, 'Example')
+        self.assertEqual(enrollment.start, datetime.datetime(1999, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2000, 1, 1, tzinfo=UTC))
+
+        enrollment = enrollments[1]
+        self.assertEqual(enrollment.group.name, 'Example')
+        self.assertEqual(enrollment.start, datetime.datetime(2005, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2006, 1, 1, tzinfo=UTC))
+
+        enrollment = enrollments[2]
+        self.assertEqual(enrollment.group.name, 'Example')
+        self.assertEqual(enrollment.start, datetime.datetime(2013, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+    def test_merge_enrollments_upper_bound(self):
+        """Check if enrollments are merged for overlapped ranges"""
+
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_organization(self.ctx, 'Example')
+
+        api.enroll(self.ctx,
+                   jsmith.uuid, 'Example',
+                   from_date=datetime.datetime(1999, 1, 1),
+                   to_date=datetime.datetime(2000, 1, 1))
+        api.enroll(self.ctx,
+                   jsmith.uuid, 'Example',
+                   from_date=datetime.datetime(2004, 1, 1),
+                   to_date=datetime.datetime(2006, 1, 1))
+        api.enroll(self.ctx,
+                   jsmith.uuid, 'Example',
+                   from_date=datetime.datetime(2013, 1, 1),
+                   to_date=datetime.datetime(2014, 1, 1))
+
+        # Merge enrollments expanding ending date
+        api.enroll(self.ctx,
+                   jsmith.uuid, 'Example',
+                   from_date=datetime.datetime(2005, 1, 1),
+                   to_date=datetime.datetime(2007, 6, 1))
+
+        individual_db = Individual.objects.get(mk=jsmith.uuid)
+
+        enrollments = individual_db.enrollments.all()
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.start, datetime.datetime(1999, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2000, 1, 1, tzinfo=UTC))
+
+        enrollment = enrollments[1]
+        self.assertEqual(enrollment.start, datetime.datetime(2004, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2007, 6, 1, tzinfo=UTC))
+
+        enrollment = enrollments[2]
+        self.assertEqual(enrollment.start, datetime.datetime(2013, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+    def test_merge_enrollments_lower_bound(self):
+        """Check if enrollments are merged for overlapped ranges"""
+
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_organization(self.ctx, 'Example')
+
+        api.enroll(self.ctx,
+                   jsmith.uuid, 'Example',
+                   from_date=datetime.datetime(1999, 1, 1),
+                   to_date=datetime.datetime(2000, 1, 1))
+        api.enroll(self.ctx,
+                   jsmith.uuid, 'Example',
+                   from_date=datetime.datetime(2004, 1, 1),
+                   to_date=datetime.datetime(2006, 1, 1))
+        api.enroll(self.ctx,
+                   jsmith.uuid, 'Example',
+                   from_date=datetime.datetime(2013, 1, 1),
+                   to_date=datetime.datetime(2014, 1, 1))
+
+        # Merge enrollments expanding starting date
+        api.enroll(self.ctx,
+                   jsmith.uuid, 'Example',
+                   from_date=datetime.datetime(2002, 1, 1),
+                   to_date=datetime.datetime(2013, 6, 1))
+
+        individual_db = Individual.objects.get(mk=jsmith.uuid)
+
+        enrollments = individual_db.enrollments.all()
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.start, datetime.datetime(1999, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2000, 1, 1, tzinfo=UTC))
+
+        enrollment = enrollments[1]
+        self.assertEqual(enrollment.start, datetime.datetime(2002, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+    def test_merge_enrollments_both_bounds(self):
+        """Check if enrollments are merged for overlapped ranges"""
+
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_organization(self.ctx, 'Example')
+
+        api.enroll(self.ctx,
+                   jsmith.uuid, 'Example',
+                   from_date=datetime.datetime(1999, 1, 1),
+                   to_date=datetime.datetime(2000, 1, 1))
+        api.enroll(self.ctx,
+                   jsmith.uuid, 'Example',
+                   from_date=datetime.datetime(2004, 1, 1),
+                   to_date=datetime.datetime(2006, 1, 1))
+        api.enroll(self.ctx,
+                   jsmith.uuid, 'Example',
+                   from_date=datetime.datetime(2013, 1, 1),
+                   to_date=datetime.datetime(2014, 1, 1))
+
+        # Merge enrollments expending both bounds
+        api.enroll(self.ctx,
+                   jsmith.uuid, 'Example',
+                   from_date=datetime.datetime(1900, 1, 1),
+                   to_date=datetime.datetime(2100, 1, 1))
+
+        individual_db = Individual.objects.get(mk=jsmith.uuid)
+
+        enrollments = individual_db.enrollments.all()
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
+
+    def test_merge_enrollments_overwrite_defaults(self):
+        """Check if enrollments are added ignoring default dates"""
+
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_organization(self.ctx, 'Example')
+
+        api.enroll(self.ctx, jsmith.uuid, 'Example')
+
+        individual_db = Individual.objects.get(mk=jsmith.uuid)
+
+        enrollments = individual_db.enrollments.all()
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
+
+        # Tests
+        # Add a new enrollment with non-default dates: upper bound
+        api.enroll(self.ctx,
+                   jsmith.uuid, 'Example',
+                   from_date=datetime.datetime(2004, 1, 1),
+                   force=True)
+
+        individual_db = Individual.objects.get(mk=jsmith.uuid)
+
+        enrollments = individual_db.enrollments.all()
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.start, datetime.datetime(2004, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
+
+        # Add a new enrollment with non-default dates: lower bound
+        api.enroll(self.ctx,
+                   jsmith.uuid, 'Example',
+                   to_date=datetime.datetime(2006, 1, 1),
+                   force=True)
+
+        individual_db = Individual.objects.get(mk=jsmith.uuid)
+
+        enrollments = individual_db.enrollments.all()
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.start, datetime.datetime(2004, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2006, 1, 1, tzinfo=UTC))
+
+        # Add a new enrollment with default dates with ignore flag
+        api.enroll(self.ctx,
+                   jsmith.uuid, 'Example',
+                   from_date=datetime.datetime(1900, 1, 1),
+                   to_date=datetime.datetime(2100, 1, 1),
+                   force=True)
+
+        individual_db = Individual.objects.get(mk=jsmith.uuid)
+
+        enrollments = individual_db.enrollments.all()
+
+        # Enrollment dates should not change
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.start, datetime.datetime(2004, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2006, 1, 1, tzinfo=UTC))
+
+    def test_merge_enrollments_not_overwrite_defaults(self):
+        """Check if enrollments are added with default dates after setting other dates"""
+
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_organization(self.ctx, 'Example')
+
+        start_date = datetime.datetime(2004, 1, 1, tzinfo=UTC)
+        end_date = datetime.datetime(2006, 1, 1, tzinfo=UTC)
+        api.enroll(self.ctx, jsmith.uuid, 'Example',
+                   from_date=start_date,
+                   to_date=end_date)
+
+        individual_db = Individual.objects.get(mk=jsmith.uuid)
+
+        enrollments = individual_db.enrollments.all()
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.start, start_date)
+        self.assertEqual(enrollment.end, end_date)
+
+        # Tests
+        # Add a new enrollment with a wider range (default dates) without ignore flag
+        api.enroll(self.ctx,
+                   jsmith.uuid, 'Example',
+                   from_date=datetime.datetime(1900, 1, 1),
+                   to_date=datetime.datetime(2100, 1, 1))
+
+        individual_db = Individual.objects.get(mk=jsmith.uuid)
+
+        enrollments = individual_db.enrollments.all()
+
+        # Enrollment dates should change
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
+
+    def test_merge_enrollments_overwrite_not_allowed(self):
+        """
+        Check if it fails when trying to set non-default values
+        and the `ignore_default` flag is not active.
+        """
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_organization(self.ctx, 'Example')
+
+        api.enroll(self.ctx, jsmith.uuid, 'Example')
+
+        individual_db = Individual.objects.get(mk=jsmith.uuid)
+
+        enrollments = individual_db.enrollments.all()
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        msg = ENROLLMENT_RANGE_INVALID.format(start=r'2004-01-01 00:00:00\+00:00',
+                                              end=r'2006-01-01 00:00:00\+00:00',
+                                              org='Example')
+
+        # Add a new enrollment with non-default dates
+        with self.assertRaisesRegex(DuplicateRangeError, msg):
+            api.enroll(self.ctx, jsmith.uuid, 'Example',
+                       from_date=datetime.datetime(2004, 1, 1),
+                       to_date=datetime.datetime(2006, 1, 1))
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
+
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_organization(self.ctx, 'Example')
+
+        before_dt = datetime_utcnow()
+        individual = api.enroll(self.ctx,
+                                jsmith.uuid, 'Example',
+                                from_date=datetime.datetime(2013, 1, 1),
+                                to_date=datetime.datetime(2014, 1, 1))
+        after_dt = datetime_utcnow()
+
+        self.assertLessEqual(before_dt, individual.last_modified)
+        self.assertGreaterEqual(after_dt, individual.last_modified)
+
+    def test_period_invalid(self):
+        """Check whether enrollments cannot be added giving invalid period ranges"""
+
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_organization(self.ctx, 'Example')
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        data = {
+            'start': r'2001-01-01 00:00:00\+00:00',
+            'end': r'1999-01-01 00:00:00\+00:00'
+        }
+        msg = PERIOD_INVALID_ERROR.format(**data)
+
+        with self.assertRaisesRegex(InvalidValueError, msg):
+            api.enroll(self.ctx,
+                       jsmith.uuid, 'Example',
+                       from_date=datetime.datetime(2001, 1, 1),
+                       to_date=datetime.datetime(1999, 1, 1))
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_period_out_of_bounds(self):
+        """Check whether enrollments cannot be added giving periods out of bounds"""
+
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_organization(self.ctx, 'Example')
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        data = {
+            'type': 'start',
+            'date': r'1899-12-31 23:59:59\+00:00'
+        }
+        msg = PERIOD_OUT_OF_BOUNDS_ERROR.format(**data)
+
+        with self.assertRaisesRegex(InvalidValueError, msg):
+            api.enroll(self.ctx,
+                       jsmith.uuid, 'Example',
+                       from_date=datetime.datetime(1899, 12, 31, 23, 59, 59, tzinfo=UTC))
+
+        data = {
+            'type': 'end',
+            'date': r'2100-01-01 00:00:01\+00:00'
+        }
+        msg = PERIOD_OUT_OF_BOUNDS_ERROR.format(**data)
+
+        with self.assertRaisesRegex(InvalidValueError, msg):
+            api.enroll(self.ctx,
+                       jsmith.uuid, 'Example',
+                       to_date=datetime.datetime(2100, 1, 1, 0, 0, 1, tzinfo=UTC))
+
+        data = {
+            'type': 'start',
+            'date': r'1898-12-31 23:59:59\+00:00'
+        }
+        msg = PERIOD_OUT_OF_BOUNDS_ERROR.format(**data)
+
+        with self.assertRaisesRegex(InvalidValueError, msg):
+            api.enroll(self.ctx,
+                       jsmith.uuid, 'Example',
+                       from_date=datetime.datetime(1898, 12, 31, 23, 59, 59, tzinfo=UTC),
+                       to_date=datetime.datetime(1899, 12, 31, 23, 59, 59, tzinfo=UTC))
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_non_existing_uuid(self):
+        """Check if it fails adding enrollments to not existing individuals"""
+
+        api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_organization(self.ctx, 'Example')
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        msg = NOT_FOUND_ERROR.format(entity='abcdefghijklmnopqrstuvwxyz')
+
+        with self.assertRaisesRegex(NotFoundError, msg):
+            api.enroll(self.ctx, 'abcdefghijklmnopqrstuvwxyz', 'Example')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
 
     def test_non_existing_organization(self):
         """Check if it fails adding enrollments to not existing organizations"""
 
-        # We need first to add a unique identity
-        api.add_unique_identity(self.db, 'John Smith')
-
-        self.assertRaisesRegex(NotFoundError,
-                               NOT_FOUND_ERROR % {'entity': 'Example'},
-                               api.add_enrollment,
-                               self.db, 'John Smith', 'Example')
-
-    def test_existing_enrollment(self):
-        """Check if it fails adding enrollment data that already exists"""
-
-        # Add unique identity, organization and enrollment first
-        api.add_unique_identity(self.db, 'John Smith')
-        api.add_organization(self.db, 'Example')
-        api.add_enrollment(self.db, 'John Smith', 'Example')
-        api.add_enrollment(self.db, 'John Smith', 'Example',
-                           datetime.datetime(1999, 1, 1),
-                           datetime.datetime(2000, 1, 1))
-        api.add_enrollment(self.db, 'John Smith', 'Example',
-                           datetime.datetime(2005, 1, 1),
-                           datetime.datetime(2006, 1, 1))
-
-        # Same dates should raise an AlreadyExistsError exception.
-        self.assertRaises(AlreadyExistsError, api.add_enrollment,
-                          self.db, 'John Smith', 'Example')
-        self.assertRaises(AlreadyExistsError, api.add_enrollment,
-                          self.db, 'John Smith', 'Example',
-                          datetime.datetime(1999, 1, 1),
-                          datetime.datetime(2000, 1, 1))
-
-
-class TestAddToMatchingBlacklist(TestAPICaseBase):
-    """Unit tests for add_to_matching_blacklist"""
-
-    def test_add_entity(self):
-        """Check whether it adds a set of entities"""
-
-        api.add_to_matching_blacklist(self.db, 'root@example.com')
-        api.add_to_matching_blacklist(self.db, 'Bitergia')
-        api.add_to_matching_blacklist(self.db, 'John Doe')
-
-        with self.db.connect() as session:
-            mb = session.query(MatchingBlacklist).\
-                filter(MatchingBlacklist.excluded == 'root@example.com').first()
-            self.assertEqual(mb.excluded, 'root@example.com')
-
-            mb = session.query(MatchingBlacklist).\
-                filter(MatchingBlacklist.excluded == 'Bitergia').first()
-            self.assertEqual(mb.excluded, 'Bitergia')
-
-            mb = session.query(MatchingBlacklist).\
-                filter(MatchingBlacklist.excluded == 'John Doe').first()
-            self.assertEqual(mb.excluded, 'John Doe')
-
-    def test_existing_excluded_entity(self):
-        """Check if it fails adding an entity that already exists"""
-
-        # Add a pair of entities first
-        api.add_to_matching_blacklist(self.db, 'root@example.com')
-        api.add_to_matching_blacklist(self.db, 'John Doe')
-
-        # Insert the first entity. It should raise AlreadyExistsError
-        self.assertRaises(AlreadyExistsError, api.add_to_matching_blacklist,
-                          self.db, 'root@example.com')
-
-    def test_none_entity(self):
-        """Check whether None entities cannot be added to the registry"""
-
-        self.assertRaisesRegex(ValueError,
-                               ENTITY_BLACKLIST_NONE_OR_EMPTY_ERROR,
-                               api.add_to_matching_blacklist, self.db, None)
-
-    def test_empty_entity(self):
-        """Check whether empty entities cannot be added to the registry"""
-
-        self.assertRaisesRegex(ValueError,
-                               ENTITY_BLACKLIST_NONE_OR_EMPTY_ERROR,
-                               api.add_to_matching_blacklist, self.db, '')
-
-
-class TestEditProfile(TestAPICaseBase):
-    """Unit tests for edit_profile"""
-
-    def test_edit_new_profile(self):
-        """Check if it creates an new profile"""
-
-        api.add_unique_identity(self.db, 'John Smith')
-
-        with self.db.connect() as session:
-            # Add a country
-            us = Country(code='US', name='United States of America', alpha3='USA')
-            session.add(us)
-
-            # The profile is empty for the given uuid
-            prf = session.query(Profile).\
-                filter(Profile.uuid == 'John Smith').first()
-            self.assertIsInstance(prf, Profile)
-            self.assertEqual(prf.name, None)
-            self.assertEqual(prf.email, None)
-
-        # Add the new profile
-        before_dt = datetime.datetime.utcnow()
-        api.edit_profile(self.db, 'John Smith', name='Smith, J.', email='',
-                         gender='male', is_bot=True, country_code='US')
-        after_dt = datetime.datetime.utcnow()
-
-        with self.db.connect() as session:
-            uid = session.query(UniqueIdentity).\
-                filter(UniqueIdentity.uuid == 'John Smith').first()
-
-            prf = uid.profile
-
-            self.assertEqual(prf.uuid, 'John Smith')
-            self.assertEqual(prf.name, 'Smith, J.')
-            # This should be converted to None
-            self.assertEqual(prf.email, None)
-            self.assertEqual(prf.gender, 'male')
-            self.assertEqual(prf.gender_acc, 100)
-            self.assertEqual(prf.is_bot, True)
-            self.assertEqual(prf.country_code, 'US')
-            self.assertEqual(prf.country.code, 'US')
-            self.assertEqual(prf.country.name, 'United States of America')
-
-            # Modification time was updated
-            self.assertLessEqual(before_dt, uid.last_modified)
-            self.assertGreaterEqual(after_dt, uid.last_modified)
-
-    def test_update_profile(self):
-        """Check if it updates an existing profile"""
-
-        with self.db.connect() as session:
-            # Add a country
-            us = Country(code='US', name='United States of America', alpha3='USA')
-            session.add(us)
-
-        # Add a unique identity with a profile
-        api.add_unique_identity(self.db, 'John Smith')
-        api.edit_profile(self.db, 'John Smith', name='Smith, J.',
-                         gender='', is_bot=True)
-
-        with self.db.connect() as session:
-            uid = session.query(UniqueIdentity).\
-                filter(UniqueIdentity.uuid == 'John Smith').first()
-
-            prf = uid.profile
-
-            self.assertEqual(prf.uuid, 'John Smith')
-            self.assertEqual(prf.name, 'Smith, J.')
-            self.assertEqual(prf.email, None)
-            self.assertEqual(prf.gender, None)
-            self.assertEqual(prf.gender_acc, None)
-            self.assertEqual(prf.is_bot, True)
-            self.assertEqual(prf.country_code, None)
-            self.assertEqual(prf.country, None)
-
-        # Update some fields
-        before_dt = datetime.datetime.utcnow()
-        api.edit_profile(self.db, 'John Smith', name='', email='jsmith@example.com',
-                         gender='male', gender_acc=89, is_bot=False, country_code='US')
-        after_dt = datetime.datetime.utcnow()
-
-        with self.db.connect() as session:
-            uid = session.query(UniqueIdentity).\
-                filter(UniqueIdentity.uuid == 'John Smith').first()
-
-            prf = uid.profile
-
-            self.assertEqual(prf.uuid, 'John Smith')
-            self.assertEqual(prf.name, None)
-            self.assertEqual(prf.email, 'jsmith@example.com')
-            self.assertEqual(prf.gender, 'male')
-            self.assertEqual(prf.gender_acc, 89)
-            self.assertEqual(prf.is_bot, False)
-            self.assertEqual(prf.country_code, 'US')
-            self.assertEqual(prf.country.code, 'US')
-            self.assertEqual(prf.country.name, 'United States of America')
-
-            # Modification time was updated
-            self.assertLessEqual(before_dt, uid.last_modified)
-            self.assertGreaterEqual(after_dt, uid.last_modified)
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_organization(self.ctx, 'Example')
 
-        # Unset country data
-        api.edit_profile(self.db, 'John Smith', country_code=None)
-
-        with self.db.connect() as session:
-            uid = session.query(UniqueIdentity).\
-                filter(UniqueIdentity.uuid == 'John Smith').first()
-
-            prf = uid.profile
-            self.assertEqual(prf.uuid, 'John Smith')
-            self.assertEqual(prf.country_code, None)
-            self.assertEqual(prf.country, None)
-
-    def test_not_found_uuid(self):
-        """Check if it fails editing a profile of a unique identity that does not exists"""
-
-        # It should raise an error when the registry is empty
-        self.assertRaises(NotFoundError, api.edit_profile,
-                          self.db, 'John Smith')
-
-        # Add a pair of unique identities first
-        api.add_unique_identity(self.db, 'Jonh Smith')
-        api.add_unique_identity(self.db, 'John Doe')
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
-        # The error should be the same
-        self.assertRaises(NotFoundError, api.edit_profile,
-                          self.db, 'Jane Rae')
+        msg = NOT_FOUND_ERROR.format(entity='Bitergia')
 
-    def test_not_found_country_code(self):
-        """Check if it fails when the given country is not found"""
-
-        api.add_unique_identity(self.db, 'John Smith')
+        with self.assertRaisesRegex(NotFoundError, msg):
+            api.enroll(self.ctx, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Bitergia')
 
-        with self.db.connect() as session:
-            us = Country(code='US', name='United States of America', alpha3='USA')
-            session.add(us)
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
 
-        self.assertRaisesRegex(ValueError,
-                               COUNTRY_CODE_ERROR % {'code': 'ES'},
-                               api.edit_profile, self.db, 'John Smith',
-                               **{'country_code': 'ES'})
-
-    def test_invalid_type_is_bot(self):
-        """Check type values of is_bot parameter"""
+    def test_already_exist_enrollment(self):
+        """Test if it raises an exception when the enrollment for the given range already exists"""
 
-        api.add_unique_identity(self.db, 'John Smith')
-
-        self.assertRaisesRegex(ValueError, IS_BOT_VALUE_ERROR,
-                               api.edit_profile, self.db, 'John Smith',
-                               **{'is_bot': 1})
-        self.assertRaisesRegex(ValueError, IS_BOT_VALUE_ERROR,
-                               api.edit_profile, self.db, 'John Smith',
-                               **{'is_bot': 'True'})
-
-    def test_not_given_gender(self):
-        """Check if it fails when gender_acc is given but not the gender"""
-
-        api.add_unique_identity(self.db, 'John Smith')
-
-        self.assertRaisesRegex(ValueError, GENDER_ACC_INVALID_ERROR,
-                               api.edit_profile, self.db, 'John Smith',
-                               **{'gender_acc': 100})
-
-    def test_invalid_type_gender_acc(self):
-        """Check type values of gender_acc parameter"""
-
-        api.add_unique_identity(self.db, 'John Smith')
-
-        self.assertRaisesRegex(ValueError, GENDER_ACC_INVALID_TYPE_ERROR,
-                               api.edit_profile, self.db, 'John Smith',
-                               **{'gender': 'male', 'gender_acc': 10.0})
-
-        self.assertRaisesRegex(ValueError, GENDER_ACC_INVALID_TYPE_ERROR,
-                               api.edit_profile, self.db, 'John Smith',
-                               **{'gender': 'male', 'gender_acc': '100'})
-
-    def test_invalid_range_gender_acc(self):
-        """Check if it fails when gender_acc is given but not the gender"""
-
-        api.add_unique_identity(self.db, 'John Smith')
-
-        self.assertRaisesRegex(ValueError, GENDER_ACC_INVALID_RANGE_ERROR % {'acc': '-1'},
-                               api.edit_profile, self.db, 'John Smith',
-                               **{'gender': 'male', 'gender_acc': -1})
-
-        self.assertRaisesRegex(ValueError, GENDER_ACC_INVALID_RANGE_ERROR % {'acc': '0'},
-                               api.edit_profile, self.db, 'John Smith',
-                               **{'gender': 'male', 'gender_acc': 0})
-
-        self.assertRaisesRegex(ValueError, GENDER_ACC_INVALID_RANGE_ERROR % {'acc': '101'},
-                               api.edit_profile, self.db, 'John Smith',
-                               **{'gender': 'male', 'gender_acc': 101})
+        api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_organization(self.ctx, 'Example')
 
-
-class TestDeleteUniqueIdentity(TestAPICaseBase):
-    """Unit tests for delete_unique_identity"""
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                   from_date=datetime.datetime(1999, 1, 1),
+                   to_date=datetime.datetime(2010, 1, 1))
 
-    def test_delete_unique_identities(self):
-        """Check whether it deletes a set of unique identities"""
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
-        # First, add a set of unique identities, including some
-        # identities, organizations and enrollments
-        api.add_unique_identity(self.db, 'John Smith')
-        api.add_identity(self.db, 'scm', 'jsmith@example',
-                         uuid='John Smith')
-        api.add_identity(self.db, 'scm', 'jsmith@example', 'John Smith',
-                         uuid='John Smith')
-
-        api.add_unique_identity(self.db, 'John Doe')
-        api.edit_profile(self.db, 'John Doe', name='John Doe', is_bot=False)
-
-        api.add_unique_identity(self.db, 'Jane Rae')
+        with self.assertRaises(DuplicateRangeError):
+            api.enroll(self.ctx,
+                       'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                       from_date=datetime.datetime(1999, 1, 1),
+                       to_date=datetime.datetime(2010, 1, 1))
 
-        api.add_organization(self.db, 'Example')
-        api.add_enrollment(self.db, 'John Smith', 'Example')
-        api.add_enrollment(self.db, 'John Doe', 'Example')
+        with self.assertRaises(DuplicateRangeError):
+            api.enroll(self.ctx,
+                       'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                       from_date=datetime.datetime(2005, 1, 1),
+                       to_date=datetime.datetime(2009, 1, 1))
 
-        api.add_organization(self.db, 'Bitergia')
-        api.add_enrollment(self.db, 'John Smith', 'Bitergia')
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
 
-        api.add_organization(self.db, 'LibreSoft')
-        api.add_enrollment(self.db, 'Jane Rae', 'LibreSoft')
-
-        # Delete the first identity
-        api.delete_unique_identity(self.db, 'John Smith')
-
-        with self.db.connect() as session:
-            uid1 = session.query(UniqueIdentity).\
-                filter(UniqueIdentity.uuid == 'John Smith').first()
-            self.assertEqual(uid1, None)
-
-            identities = session.query(Identity).join(UniqueIdentity).\
-                filter(UniqueIdentity.uuid == 'John Smith').all()
-            self.assertEqual(len(identities), 0)
+    def test_locked_uuid(self):
+        """Check if it fails when the individual is locked"""
 
-            enrollments = session.query(Enrollment).join(UniqueIdentity).\
-                filter(UniqueIdentity.uuid == 'John Smith').all()
-            self.assertEqual(len(enrollments), 0)
-
-        # Delete the last identity
-        api.delete_unique_identity(self.db, 'Jane Rae')
-
-        with self.db.connect() as session:
-            uid2 = session.query(UniqueIdentity).\
-                filter(UniqueIdentity.uuid == 'Jane Rae').first()
-            self.assertEqual(uid2, None)
-
-            # Check if there only remains one unique identity, one profile
-            # and one enrollment
-            identities = session.query(UniqueIdentity).all()
-            self.assertEqual(len(identities), 1)
-            self.assertEqual(identities[0].uuid, 'John Doe')
-
-            profiles = session.query(Profile).all()
-            self.assertEqual(len(profiles), 1)
-            self.assertEqual(profiles[0].uuid, 'John Doe')
-
-            enrollments = session.query(Enrollment).all()
-            self.assertEqual(len(enrollments), 1)
-            self.assertEqual(enrollments[0].uidentity.uuid, 'John Doe')
-            self.assertEqual(enrollments[0].organization.name, 'Example')
-
-            orgs = session.query(Organization).all()
-            self.assertEqual(len(orgs), 3)
-
-    def test_not_found_uuid(self):
-        """Check if it fails removing a unique identity that does not exists"""
-
-        # It should raise an error when the registry is empty
-        self.assertRaises(NotFoundError, api.delete_unique_identity,
-                          self.db, 'John Smith')
-
-        # Add a pair of unique identities first
-        api.add_unique_identity(self.db, 'Jonh Smith')
-        api.add_unique_identity(self.db, 'John Doe')
-        api.add_organization(self.db, 'Example')
-        api.add_enrollment(self.db, 'John Doe', 'Example')
-
-        # The error should be the same
-        self.assertRaises(NotFoundError, api.delete_unique_identity,
-                          self.db, 'Jane Rae')
-
-        # Nothing has been deleted from the registry
-        with self.db.connect() as session:
-            ids = session.query(UniqueIdentity).all()
-            self.assertEqual(len(ids), 2)
-
-            enrollments = session.query(Enrollment).all()
-            self.assertEqual(len(enrollments), 1)
-
-
-class TestDeleteIdentity(TestAPICaseBase):
-    """Unit tests for delete_identity"""
-
-    def test_delete_identities(self):
-        """Check whether it deletes a set of identities"""
-
-        # First, add a set of identities
-        jsmith_uuid = api.add_identity(self.db, 'scm', 'jsmith@example')
-        jsmith = api.add_identity(self.db, 'scm', 'jsmith@example', 'John Smith',
-                                  uuid=jsmith_uuid)
-        jdoe_uuid = api.add_identity(self.db, 'scm', 'jdoe@example')
-        jrae_uuid = api.add_identity(self.db, 'scm', 'jrae@example', 'Jane Rae')
-
-        api.add_organization(self.db, 'Example')
-        api.add_enrollment(self.db, jsmith_uuid, 'Example')
-        api.add_enrollment(self.db, jdoe_uuid, 'Example')
-
-        api.add_organization(self.db, 'Bitergia')
-        api.add_enrollment(self.db, jsmith_uuid, 'Bitergia')
-
-        api.add_organization(self.db, 'LibreSoft')
-        api.add_enrollment(self.db, jrae_uuid, 'LibreSoft')
-
-        # Delete the first identity
-        api.delete_identity(self.db, jsmith)
-
-        with self.db.connect() as session:
-            uid1 = session.query(UniqueIdentity).\
-                filter(UniqueIdentity.uuid == jsmith_uuid).first()
-            self.assertEqual(uid1.uuid, jsmith_uuid)
-            self.assertEqual(len(uid1.identities), 1)
-
-            identities = session.query(Identity).\
-                filter(Identity.id == jsmith).all()
-            self.assertEqual(len(identities), 0)
-
-            enrollments = session.query(Enrollment).join(UniqueIdentity).\
-                filter(UniqueIdentity.uuid == jsmith_uuid).all()
-            self.assertEqual(len(enrollments), 2)
-
-        # Delete the last identity
-        api.delete_identity(self.db, jrae_uuid)
-
-        with self.db.connect() as session:
-            uid2 = session.query(UniqueIdentity).\
-                filter(UniqueIdentity.uuid == jrae_uuid).first()
-            self.assertEqual(uid2.uuid, jrae_uuid)
-            self.assertEqual(len(uid2.identities), 0)
-
-            # Check if there only remains three unique identities and
-            # two identities (one from John Smith and another one
-            # from John Doe)
-            uidentities = session.query(UniqueIdentity).\
-                order_by(UniqueIdentity.uuid).all()
-            self.assertEqual(len(uidentities), 3)
-            self.assertEqual(uidentities[0].uuid, jdoe_uuid)
-            self.assertEqual(uidentities[1].uuid, jrae_uuid)
-            self.assertEqual(uidentities[2].uuid, jsmith_uuid)
-
-            identities = session.query(Identity).\
-                order_by(Identity.id).all()
-            self.assertEqual(len(identities), 2)
-            self.assertEqual(identities[0].id, jdoe_uuid)
-            self.assertEqual(identities[1].id, jsmith_uuid)
-
-            enrollments = session.query(Enrollment).all()
-            self.assertEqual(len(enrollments), 4)
-
-            orgs = session.query(Organization).all()
-            self.assertEqual(len(orgs), 3)
-
-    def test_last_modified(self):
-        """Check if last modification date is updated"""
-
-        # First, add a set of identities
-        before_dt = datetime.datetime.utcnow()
-        jsmith_uuid = api.add_identity(self.db, 'scm', 'jsmith@example')
-        jsmith = api.add_identity(self.db, 'scm', 'jsmith@example', 'John Smith',
-                                  uuid=jsmith_uuid)
-        after_dt = datetime.datetime.utcnow()
-
-        with self.db.connect() as session:
-            uid = session.query(UniqueIdentity).\
-                filter(UniqueIdentity.uuid == jsmith_uuid).first()
-            self.assertLessEqual(before_dt, uid.last_modified)
-            self.assertGreaterEqual(after_dt, uid.last_modified)
-
-        # Delete an identity
-        before_del_dt = datetime.datetime.utcnow()
-        api.delete_identity(self.db, jsmith)
-        after_del_dt = datetime.datetime.utcnow()
-
-        with self.db.connect() as session:
-            uid = session.query(UniqueIdentity).\
-                filter(UniqueIdentity.uuid == jsmith_uuid).first()
-            self.assertLessEqual(before_dt, uid.last_modified)
-            self.assertLessEqual(after_dt, uid.last_modified)
-            self.assertLessEqual(before_del_dt, uid.last_modified)
-            self.assertGreaterEqual(after_del_dt, uid.last_modified)
-
-    def test_not_found_id(self):
-        """Check if it fails removing an identity that does not exists"""
-
-        # It should raise an error when the registry is empty
-        self.assertRaises(NotFoundError, api.delete_identity,
-                          self.db, 'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF')
-
-        # Add a pair of identities first
-        id1 = api.add_identity(self.db, 'scm',
-                               'jsmith@example.com', 'John Smith', 'jsmith')
-        id2 = api.add_identity(self.db, 'scm',
-                               'jdoe@example.com', 'John Doe', 'jdoe')
-
-        # The error should be the same
-        self.assertRaises(NotFoundError, api.delete_identity,
-                          self.db, 'FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF')
-
-        # Nothing has been deleted from the registry
-        with self.db.connect() as session:
-            ids = session.query(UniqueIdentity).all()
-            self.assertEqual(len(ids), 2)
-
-            ids = session.query(Identity).all()
-            self.assertEqual(len(ids), 2)
-            self.assertEqual(ids[0].id, id1)
-            self.assertEqual(ids[1].id, id2)
-
-
-class TestDeleteOrganization(TestAPICaseBase):
-    """Unit tests for delete_organization"""
-
-    def test_delete_organizations(self):
-        """Check whether it deletes a set of organizations"""
-
-        # First, add a set of organizations, including some domains
-        # and enrollments
-        api.add_unique_identity(self.db, 'John Smith')
-        api.add_unique_identity(self.db, 'John Doe')
-        api.add_organization(self.db, 'Example')
-        api.add_domain(self.db, 'Example', 'example.com')
-        api.add_domain(self.db, 'Example', 'example.org')
-        api.add_enrollment(self.db, 'John Smith', 'Example')
-        api.add_enrollment(self.db, 'John Doe', 'Example')
-        api.add_organization(self.db, 'Bitergia')
-        api.add_domain(self.db, 'Bitergia', 'bitergia.com')
-        api.add_enrollment(self.db, 'John Smith', 'Bitergia')
-        api.add_organization(self.db, 'LibreSoft')
-
-        # Delete the first organization
-        api.delete_organization(self.db, 'Example')
-
-        with self.db.connect() as session:
-            org1 = session.query(Organization).\
-                filter(Organization.name == 'Example').first()
-            self.assertEqual(org1, None)
-
-            dom1 = session.query(Domain).\
-                filter(Domain.domain == 'example.com').first()
-            self.assertEqual(dom1, None)
-            dom2 = session.query(Domain).\
-                filter(Domain.domain == 'example.org').first()
-            self.assertEqual(dom2, None)
-
-            enr1 = session.query(Enrollment).join(Organization).\
-                filter(Organization.name == 'Example').first()
-            self.assertEqual(enr1, None)
-
-        # Delete the last organization
-        api.delete_organization(self.db, 'LibreSoft')
-
-        with self.db.connect() as session:
-            org2 = session.query(Organization).\
-                filter(Organization.name == 'LibreSoft').first()
-            self.assertEqual(org2, None)
-
-            # Check if there only remains one organization and one domain
-            orgs = session.query(Organization).all()
-            self.assertEqual(len(orgs), 1)
-            self.assertEqual(orgs[0].name, 'Bitergia')
-
-            doms = session.query(Domain).all()
-            self.assertEqual(len(doms), 1)
-            self.assertEqual(doms[0].domain, 'bitergia.com')
-
-            enrollments = session.query(Enrollment).all()
-            self.assertEqual(len(enrollments), 1)
-            self.assertEqual(enrollments[0].uidentity.uuid, 'John Smith')
-            self.assertEqual(enrollments[0].organization.name, 'Bitergia')
-
-    def test_not_found_organization(self):
-        """Check if it fails removing an organization that does not exists"""
-
-        # It should raise an error when the registry is empty
-        self.assertRaises(NotFoundError, api.delete_organization,
-                          self.db, 'Example')
-
-        # Add a pair of organizations first
-        api.add_organization(self.db, 'Example')
-        api.add_organization(self.db, 'Bitergia')
-        api.add_domain(self.db, 'Bitergia', 'bitergia.com')
-
-        # The error should be the same
-        self.assertRaises(NotFoundError, api.delete_organization,
-                          self.db, 'LibreSoft')
-
-        # Nothing has been deleted from the registry
-        with self.db.connect() as session:
-            orgs = session.query(Organization).all()
-            self.assertEqual(len(orgs), 2)
-
-            doms = session.query(Domain).all()
-            self.assertEqual(len(doms), 1)
-
-
-class TestDeleteDomain(TestAPICaseBase):
-    """Unit tests for delete_domain"""
-
-    def test_delete_domains(self):
-        """Check whether it deletes a set of domains"""
-
-        # First, add a set of organizations, including some domains
-        api.add_organization(self.db, 'Example')
-        api.add_domain(self.db, 'Example', 'example.com')
-        api.add_domain(self.db, 'Example', 'example.org')
-        api.add_organization(self.db, 'Bitergia')
-        api.add_domain(self.db, 'Bitergia', 'bitergia.com')
-        api.add_organization(self.db, 'LibreSoft')
-
-        # Delete some domains
-        api.delete_domain(self.db, 'Example', 'example.org')
-        api.delete_domain(self.db, 'Bitergia', 'bitergia.com')
-
-        with self.db.connect() as session:
-            doms1 = session.query(Domain).join(Organization).\
-                filter(Organization.name == 'Example').all()
-            self.assertEqual(len(doms1), 1)
-            self.assertEqual(doms1[0].domain, 'example.com')
-
-            doms2 = session.query(Domain).join(Organization).\
-                filter(Organization.name == 'Bitergia').all()
-            self.assertEqual(len(doms2), 0)
-
-        # Delete the last domain
-        api.delete_domain(self.db, 'Example', 'example.com')
-
-        with self.db.connect() as session:
-            doms3 = session.query(Domain).join(Organization).\
-                filter(Organization.name == 'Example').all()
-            self.assertEqual(len(doms3), 0)
-
-            doms4 = session.query(Domain).all()
-            self.assertEqual(len(doms4), 0)
-
-    def test_not_found_organization(self):
-        """Check if it fails removing a domain from an organization
-           that does not exists"""
-
-        api.add_organization(self.db, 'Example')
-        api.add_organization(self.db, 'Bitergia')
-        api.add_domain(self.db, 'Bitergia', 'bitergia.com')
-
-        self.assertRaises(NotFoundError, api.delete_domain,
-                          self.db, 'LibreSoft', 'libresoft.es')
-
-        # Nothing has been deleted from the registry
-        with self.db.connect() as session:
-            orgs = session.query(Organization).all()
-            self.assertEqual(len(orgs), 2)
-
-            doms = session.query(Domain).all()
-            self.assertEqual(len(doms), 1)
-
-    def test_not_found_domain(self):
-        """Check if it fails removing a domain that does not exists"""
-
-        api.add_organization(self.db, 'Example')
-        api.add_organization(self.db, 'Bitergia')
-        api.add_domain(self.db, 'Bitergia', 'bitergia.com')
-
-        self.assertRaises(NotFoundError, api.delete_domain,
-                          self.db, 'Example', 'example.com')
-
-        # It should not fail because the domain is assigned
-        # to other company
-        self.assertRaises(NotFoundError, api.delete_domain,
-                          self.db, 'Example', 'bitergia.com')
-
-        # Nothing has been deleted from the registry
-        with self.db.connect() as session:
-            orgs = session.query(Organization).all()
-            self.assertEqual(len(orgs), 2)
-
-            doms = session.query(Domain).all()
-            self.assertEqual(len(doms), 1)
-
-
-class TestDeleteEnrollment(TestAPICaseBase):
-    """Unit tests for delete_enrollment"""
-
-    def test_delete_enrollments(self):
-        """Check whether it deletes a set of enrollments"""
-
-        # First, add a set of uuids, organizations and enrollments
-        api.add_unique_identity(self.db, 'John Smith')
-        api.add_unique_identity(self.db, 'John Doe')
-        api.add_unique_identity(self.db, 'Jane Rae')
-
-        api.add_organization(self.db, 'Example')
-        api.add_enrollment(self.db, 'John Smith', 'Example')
-        api.add_enrollment(self.db, 'John Doe', 'Example')
-        api.add_organization(self.db, 'Bitergia')
-        api.add_enrollment(self.db, 'John Smith', 'Bitergia')
-        api.add_enrollment(self.db, 'John Smith', 'Bitergia',
-                           datetime.datetime(1999, 1, 1),
-                           datetime.datetime(2000, 1, 1))
-        api.add_organization(self.db, 'LibreSoft')
-        api.add_enrollment(self.db, 'John Doe', 'LibreSoft')
-        api.add_enrollment(self.db, 'Jane Rae', 'LibreSoft')
-
-        # Delete some enrollments
-        api.delete_enrollment(self.db, 'John Doe', 'LibreSoft')
-        api.delete_enrollment(self.db, 'John Doe', 'Example')
-
-        with self.db.connect() as session:
-            enrollments = session.query(Enrollment).join(Organization).\
-                filter(Organization.name == 'LibreSoft').all()
-            self.assertEqual(len(enrollments), 1)
-            self.assertEqual(enrollments[0].uidentity.uuid, 'Jane Rae')
-
-            enrollments = session.query(Enrollment).join(Organization).\
-                filter(Organization.name == 'Example').all()
-            self.assertEqual(len(enrollments), 1)
-            self.assertEqual(enrollments[0].uidentity.uuid, 'John Smith')
-
-        # Delete enrollments from Bitergia
-        api.delete_enrollment(self.db, 'John Smith', 'Bitergia')
-
-        with self.db.connect() as session:
-            enrollments = session.query(Enrollment).join(Organization).\
-                filter(Organization.name == 'Bitergia').all()
-            self.assertEqual(len(enrollments), 0)
-
-    def test_last_modified(self):
-        """Check if last modification date is updated"""
-
-        api.add_organization(self.db, 'Example')
-        api.add_organization(self.db, 'LibreSoft')
-
-        before_dt = datetime.datetime.utcnow()
-        api.add_unique_identity(self.db, 'John Doe')
-        api.add_enrollment(self.db, 'John Doe', 'Example')
-        api.add_enrollment(self.db, 'John Doe', 'LibreSoft')
-        after_dt = datetime.datetime.utcnow()
-
-        with self.db.connect() as session:
-            uid = session.query(UniqueIdentity).\
-                filter(UniqueIdentity.uuid == 'John Doe').first()
-            self.assertLessEqual(before_dt, uid.last_modified)
-            self.assertGreaterEqual(after_dt, uid.last_modified)
-
-        # Delete some enrollments
-        before_del_dt = datetime.datetime.utcnow()
-        api.delete_enrollment(self.db, 'John Doe', 'LibreSoft')
-        api.delete_enrollment(self.db, 'John Doe', 'Example')
-        after_del_dt = datetime.datetime.utcnow()
-
-        with self.db.connect() as session:
-            uid = session.query(UniqueIdentity).\
-                filter(UniqueIdentity.uuid == 'John Doe').first()
-            self.assertLessEqual(before_dt, uid.last_modified)
-            self.assertLessEqual(after_dt, uid.last_modified)
-            self.assertLessEqual(before_del_dt, uid.last_modified)
-            self.assertGreaterEqual(after_del_dt, uid.last_modified)
-
-    def test_delete_with_period_ranges(self):
-        """Check whether it deletes a set of enrollments using some periods"""
-
-        # First, add a set of uuids, organizations and enrollments
-        api.add_unique_identity(self.db, 'John Smith')
-        api.add_unique_identity(self.db, 'John Doe')
-
-        api.add_organization(self.db, 'Example')
-        api.add_enrollment(self.db, 'John Smith', 'Example')
-        api.add_enrollment(self.db, 'John Smith', 'Example',
-                           datetime.datetime(1999, 1, 1),
-                           datetime.datetime(2010, 1, 1))
-        api.add_enrollment(self.db, 'John Smith', 'Example',
-                           datetime.datetime(1981, 1, 1),
-                           datetime.datetime(1990, 1, 1))
-        api.add_enrollment(self.db, 'John Smith', 'Example',
-                           datetime.datetime(1991, 1, 1),
-                           datetime.datetime(1993, 1, 1))
-
-        # This should delete two enrolmments: 1981-1990 and 1991-1993
-        # but not the one from 1999-2010 nor 1900-21000
-        api.delete_enrollment(self.db, 'John Smith', 'Example',
-                              datetime.datetime(1970, 1, 1),
-                              datetime.datetime(1995, 1, 1))
-
-        with self.db.connect() as session:
-            enrollments = session.query(Enrollment).join(Organization).\
-                filter(Organization.name == 'Example').\
-                order_by(Enrollment.start).all()
-            self.assertEqual(len(enrollments), 2)
-
-            self.assertEqual(enrollments[0].start, datetime.datetime(1900, 1, 1))
-            self.assertEqual(enrollments[0].end, datetime.datetime(2100, 1, 1))
-
-            self.assertEqual(enrollments[1].start, datetime.datetime(1999, 1, 1))
-            self.assertEqual(enrollments[1].end, datetime.datetime(2010, 1, 1))
-
-    def test_period_ranges(self):
-        """Check whether enrollments cannot be removed giving invalid period ranges"""
-
-        api.add_unique_identity(self.db, 'John Smith')
-        api.add_organization(self.db, 'Example')
-
-        self.assertRaisesRegex(ValueError, ENROLLMENT_PERIOD_INVALID_ERROR,
-                               api.delete_enrollment, self.db, 'John Smith', 'Example',
-                               datetime.datetime(2001, 1, 1),
-                               datetime.datetime(1999, 1, 1))
-
-        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type': 'from_date',
-                                                       'date': '1899-12-31 23:59:59'}
-        self.assertRaisesRegex(ValueError, exc,
-                               api.delete_enrollment, self.db, 'John Smith', 'Example',
-                               datetime.datetime(1899, 12, 31, 23, 59, 59))
-
-        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type': 'from_date',
-                                                       'date': '2100-01-01 00:00:01'}
-        self.assertRaisesRegex(ValueError, exc,
-                               api.delete_enrollment, self.db, 'John Smith', 'Example',
-                               datetime.datetime(2100, 1, 1, 0, 0, 1))
-
-        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type': 'to_date',
-                                                       'date': '2100-01-01 00:00:01'}
-        self.assertRaisesRegex(ValueError, exc,
-                               api.delete_enrollment, self.db, 'John Smith', 'Example',
-                               datetime.datetime(1900, 1, 1),
-                               datetime.datetime(2100, 1, 1, 0, 0, 1))
-
-        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type': 'to_date',
-                                                       'date': '1899-12-31 23:59:59'}
-        self.assertRaisesRegex(ValueError, exc,
-                               api.delete_enrollment, self.db, 'John Smith', 'Example',
-                               datetime.datetime(1900, 1, 1),
-                               datetime.datetime(1899, 12, 31, 23, 59, 59))
-
-    def test_not_found_uuid(self):
-        """Check if it fails removing enrollments from a unique identity
-           that does not exists"""
-
-        api.add_unique_identity(self.db, 'John Smith')
-        api.add_organization(self.db, 'Example')
-        api.add_enrollment(self.db, 'John Smith', 'Example')
-        api.add_organization(self.db, 'Bitergia')
-
-        self.assertRaises(NotFoundError, api.delete_enrollment,
-                          self.db, 'John Doe', 'Example')
-
-        # Nothing has been deleted from the registry
-        with self.db.connect() as session:
-            uids = session.query(UniqueIdentity).all()
-            self.assertEqual(len(uids), 1)
-
-            orgs = session.query(Organization).all()
-            self.assertEqual(len(orgs), 2)
-
-            enrollments = session.query(Enrollment).all()
-            self.assertEqual(len(enrollments), 1)
-
-    def test_not_found_organization(self):
-        """Check if it fails removing enrollments from an organization
-           that does not exists"""
-
-        api.add_unique_identity(self.db, 'John Smith')
-        api.add_organization(self.db, 'Example')
-        api.add_enrollment(self.db, 'John Smith', 'Example')
-        api.add_organization(self.db, 'Bitergia')
-
-        self.assertRaises(NotFoundError, api.delete_enrollment,
-                          self.db, 'John Smith', 'LibreSoft')
-
-        # Nothing has been deleted from the registry
-        with self.db.connect() as session:
-            uids = session.query(UniqueIdentity).all()
-            self.assertEqual(len(uids), 1)
-
-            orgs = session.query(Organization).all()
-            self.assertEqual(len(orgs), 2)
-
-            enrollments = session.query(Enrollment).all()
-            self.assertEqual(len(enrollments), 1)
-
-
-class TestDeleteFromMatchingBlacklist(TestAPICaseBase):
-    """Unit tests for delete_from_matching_blacklist"""
-
-    def test_delete_blacklisted_entity(self):
-        """Check whether it deletes a set of blacklisted entities"""
-
-        # First, add a set of blacklisted entities
-        api.add_to_matching_blacklist(self.db, 'root@example.com')
-        api.add_to_matching_blacklist(self.db, 'Bitergia')
-        api.add_to_matching_blacklist(self.db, 'John Doe')
-
-        # Delete the first entity
-        api.delete_from_matching_blacklist(self.db, 'root@example.com')
-
-        with self.db.connect() as session:
-            mb1 = session.query(MatchingBlacklist).\
-                filter(MatchingBlacklist.excluded == 'root@example.net').first()
-            self.assertEqual(mb1, None)
-
-        # Delete the last entity
-        api.delete_from_matching_blacklist(self.db, 'John Doe')
-
-        with self.db.connect() as session:
-            mb2 = session.query(MatchingBlacklist).\
-                filter(MatchingBlacklist.excluded == 'John Doe').first()
-            self.assertEqual(mb2, None)
-
-            # Check if there only remains one entity
-            mbs = session.query(MatchingBlacklist).all()
-            self.assertEqual(len(mbs), 1)
-            self.assertEqual(mbs[0].excluded, 'Bitergia')
-
-    def test_not_found_blacklisted_entity(self):
-        """Check if it fails removing an entity that does not exists"""
-
-        # It should raise an error when the registry is empty
-        self.assertRaises(NotFoundError, api.delete_from_matching_blacklist,
-                          self.db, 'root@example.com')
-
-        # Add a pair of entities first
-        api.add_to_matching_blacklist(self.db, 'root@example.com')
-        api.add_to_matching_blacklist(self.db, 'John Doe')
-
-        # The error should be the same
-        self.assertRaises(NotFoundError, api.delete_from_matching_blacklist,
-                          self.db, 'John Smith')
-
-        # Nothing has been deleted from the registry
-        with self.db.connect() as session:
-            mbs = session.query(MatchingBlacklist).all()
-            self.assertEqual(len(mbs), 2)
-
-
-class TestMergeEnrollments(TestAPICaseBase):
-    """Unite tests for merge_enrollments"""
-
-    def test_merge_enrollments(self):
-        """Check if it merges a set of enrollments"""
-
-        api.add_unique_identity(self.db, 'John Smith')
-        api.add_organization(self.db, 'Example')
-        api.add_enrollment(self.db, 'John Smith', 'Example',
-                           datetime.datetime(1900, 1, 1),
-                           datetime.datetime(2010, 1, 1))
-        api.add_enrollment(self.db, 'John Smith', 'Example',
-                           datetime.datetime(2008, 1, 1),
-                           datetime.datetime(2100, 1, 1))
-
-        api.add_unique_identity(self.db, 'John Doe')
-        api.add_enrollment(self.db, 'John Doe', 'Example',
-                           datetime.datetime(2010, 1, 2),
-                           datetime.datetime(2100, 1, 1))
-        api.add_enrollment(self.db, 'John Doe', 'Example',
-                           datetime.datetime(2008, 1, 1),
-                           datetime.datetime(2010, 1, 1))
-        api.add_enrollment(self.db, 'John Doe', 'Example',
-                           datetime.datetime(1900, 1, 1),
-                           datetime.datetime(2010, 1, 1))
-
-        api.add_unique_identity(self.db, 'Jane Rae')
-        api.add_organization(self.db, 'Bitergia')
-        api.add_enrollment(self.db, 'Jane Rae', 'Bitergia',
-                           datetime.datetime(2010, 1, 2),
-                           datetime.datetime(2100, 1, 1))
-        api.add_enrollment(self.db, 'Jane Rae', 'Bitergia',
-                           datetime.datetime(1900, 1, 1),
-                           datetime.datetime(2010, 1, 1))
-
-        # This enrollments will not be merged
-        api.add_enrollment(self.db, 'John Smith', 'Bitergia',
-                           datetime.datetime(1900, 1, 1),
-                           datetime.datetime(2010, 1, 1))
-        api.add_enrollment(self.db, 'John Smith', 'Bitergia',
-                           datetime.datetime(2008, 1, 1),
-                           datetime.datetime(2100, 1, 1))
-
-        # Tests John Smith enrollments
-        api.merge_enrollments(self.db, 'John Smith', 'Example')
-
-        with self.db.connect() as session:
-            enrollments = session.query(Enrollment).\
-                join(UniqueIdentity, Organization).\
-                filter(UniqueIdentity.uuid == 'John Smith',
-                       Organization.name == 'Example').all()
-            self.assertEqual(len(enrollments), 1)
-
-            rol0 = enrollments[0]
-            self.assertEqual(rol0.start, datetime.datetime(2008, 1, 1))
-            self.assertEqual(rol0.end, datetime.datetime(2010, 1, 1))
-
-            # Enrollments on Bitergia were not modified
-            enrollments = session.query(Enrollment).\
-                join(UniqueIdentity, Organization).\
-                filter(UniqueIdentity.uuid == 'John Smith',
-                       Organization.name == 'Bitergia').\
-                order_by(Enrollment.start).all()
-            self.assertEqual(len(enrollments), 2)
-
-            rol0 = enrollments[0]
-            self.assertEqual(rol0.start, datetime.datetime(1900, 1, 1))
-            self.assertEqual(rol0.end, datetime.datetime(2010, 1, 1))
-
-            rol1 = enrollments[1]
-            self.assertEqual(rol1.start, datetime.datetime(2008, 1, 1))
-            self.assertEqual(rol1.end, datetime.datetime(2100, 1, 1))
-
-        # Test Jonh Doe enrollments
-        api.merge_enrollments(self.db, 'John Doe', 'Example')
-
-        with self.db.connect() as session:
-            enrollments = session.query(Enrollment).\
-                join(UniqueIdentity, Organization).\
-                filter(UniqueIdentity.uuid == 'John Doe',
-                       Organization.name == 'Example').\
-                order_by(Enrollment.start).all()
-            self.assertEqual(len(enrollments), 2)
-
-            rol0 = enrollments[0]
-            self.assertEqual(rol0.start, datetime.datetime(2008, 1, 1))
-            self.assertEqual(rol0.end, datetime.datetime(2010, 1, 1))
-
-            rol1 = enrollments[1]
-            self.assertEqual(rol1.start, datetime.datetime(2010, 1, 2))
-            self.assertEqual(rol1.end, datetime.datetime(2100, 1, 1))
-
-        # Test Jane Rae enrollments
-        api.merge_enrollments(self.db, 'Jane Rae', 'Bitergia')
-
-        with self.db.connect() as session:
-            enrollments = session.query(Enrollment).\
-                join(UniqueIdentity, Organization).\
-                filter(UniqueIdentity.uuid == 'Jane Rae',
-                       Organization.name == 'Bitergia').\
-                order_by(Enrollment.start).all()
-            self.assertEqual(len(enrollments), 2)
-
-            rol0 = enrollments[0]
-            self.assertEqual(rol0.start, datetime.datetime(1900, 1, 1))
-            self.assertEqual(rol0.end, datetime.datetime(2010, 1, 1))
-
-            rol1 = enrollments[1]
-            self.assertEqual(rol1.start, datetime.datetime(2010, 1, 2))
-            self.assertEqual(rol1.end, datetime.datetime(2100, 1, 1))
-
-    def test_last_modified(self):
-        """Check if last modification date is updated"""
-
-        api.add_organization(self.db, 'Example')
-
-        before_dt = datetime.datetime.utcnow()
-        api.add_unique_identity(self.db, 'John Smith')
-        api.add_enrollment(self.db, 'John Smith', 'Example',
-                           datetime.datetime(1900, 1, 1),
-                           datetime.datetime(2010, 1, 1))
-        api.add_enrollment(self.db, 'John Smith', 'Example',
-                           datetime.datetime(2008, 1, 1),
-                           datetime.datetime(2100, 1, 1))
-        after_dt = datetime.datetime.utcnow()
-
-        with self.db.connect() as session:
-            uid = session.query(UniqueIdentity).\
-                filter(UniqueIdentity.uuid == 'John Smith').first()
-            self.assertLessEqual(before_dt, uid.last_modified)
-            self.assertGreaterEqual(after_dt, uid.last_modified)
-
-        # Merge enrollments
-        before_merge_dt = datetime.datetime.utcnow()
-        api.merge_enrollments(self.db, 'John Smith', 'Example')
-        after_merge_dt = datetime.datetime.utcnow()
-
-        with self.db.connect() as session:
-            uid = session.query(UniqueIdentity).\
-                filter(UniqueIdentity.uuid == 'John Smith').first()
-            self.assertLessEqual(before_dt, uid.last_modified)
-            self.assertLessEqual(after_dt, uid.last_modified)
-            self.assertLessEqual(before_merge_dt, uid.last_modified)
-            self.assertGreaterEqual(after_merge_dt, uid.last_modified)
-
-    def test_not_found_uuid(self):
-        """Check if it fails merging enrollments from a unique identity
-           that does not exists"""
-
-        # Add some data first
-        api.add_unique_identity(self.db, 'John Smith')
-        api.add_organization(self.db, 'Example')
-        api.add_enrollment(self.db, 'John Smith', 'Example',
-                           datetime.datetime(1900, 1, 1),
-                           datetime.datetime(2010, 1, 1))
-        api.add_enrollment(self.db, 'John Smith', 'Example',
-                           datetime.datetime(2008, 1, 1),
-                           datetime.datetime(2100, 1, 1))
-        api.add_organization(self.db, 'Bitergia')
-
-        # Test
-        self.assertRaises(NotFoundError, api.merge_enrollments,
-                          self.db, 'John Doe', 'Example')
-
-        # Nothing has been merged on the registry
-        with self.db.connect() as session:
-            enrollments = session.query(Enrollment).all()
-            self.assertEqual(len(enrollments), 2)
-
-    def test_not_found_organization(self):
-        """Check if it fails merging enrollments from an organization
-           that does not exists"""
-
-        # Add some data first
-        api.add_unique_identity(self.db, 'John Smith')
-        api.add_organization(self.db, 'Example')
-        api.add_enrollment(self.db, 'John Smith', 'Example',
-                           datetime.datetime(1900, 1, 1),
-                           datetime.datetime(2010, 1, 1))
-        api.add_enrollment(self.db, 'John Smith', 'Example',
-                           datetime.datetime(2008, 1, 1),
-                           datetime.datetime(2100, 1, 1))
-        api.add_organization(self.db, 'Bitergia')
-
-        # Test
-        self.assertRaises(NotFoundError, api.merge_enrollments,
-                          self.db, 'John Smith', 'LibreSoft')
-
-        # Nothing has been merged on the registry
-        with self.db.connect() as session:
-            enrollments = session.query(Enrollment).all()
-            self.assertEqual(len(enrollments), 2)
-
-    def test_not_found_enrollments(self):
-        """Check if it fails merging enrollments that do not exist"""
-
-        # Add some data first
-        api.add_unique_identity(self.db, 'John Smith')
-        api.add_organization(self.db, 'Example')
-        api.add_enrollment(self.db, 'John Smith', 'Example',
-                           datetime.datetime(1900, 1, 1),
-                           datetime.datetime(2010, 1, 1))
-        api.add_enrollment(self.db, 'John Smith', 'Example',
-                           datetime.datetime(2008, 1, 1),
-                           datetime.datetime(2100, 1, 1))
-        api.add_organization(self.db, 'Bitergia')
-
-        # Test
-        self.assertRaises(NotFoundError, api.merge_enrollments,
-                          self.db, 'John Smith', 'Bitergia')
-
-        # Nothing has been merged on the registry
-        with self.db.connect() as session:
-            enrollments = session.query(Enrollment).all()
-            self.assertEqual(len(enrollments), 2)
-
-
-class TestMergeUniqueIdentities(TestAPICaseBase):
-    """Unit tests for merge_unique_identities"""
-
-    def test_merge_identitites(self):
-        """Test behavior merging unique identities"""
-
-        # Add some countries, unique identities, identities and
-        # enrollments first
-        with self.db.connect() as session:
-            # Add a country
-            us = Country(code='US', name='United States of America', alpha3='USA')
-            session.add(us)
-
-        api.add_unique_identity(self.db, 'John Smith')
-        api.add_identity(self.db, 'scm', 'jsmith@example.com',
-                         uuid='John Smith')
-        api.add_identity(self.db, 'scm', 'jsmith@example.com', 'John Smith',
-                         uuid='John Smith')
-        api.edit_profile(self.db, 'John Smith', name='John Smith',
-                         gender='male', gender_acc=75,
-                         is_bot=True, country_code='US')
-
-        api.add_unique_identity(self.db, 'John Doe')
-        api.add_identity(self.db, 'scm', 'jdoe@example.com',
-                         uuid='John Doe')
-        api.edit_profile(self.db, 'John Doe', email='jdoe@example.com', is_bot=False)
-
-        api.add_unique_identity(self.db, 'Jane Rae')
-
-        api.add_organization(self.db, 'Example')
-        api.add_enrollment(self.db, 'John Smith', 'Example')
-        api.add_enrollment(self.db, 'John Doe', 'Example')
-
-        api.add_organization(self.db, 'Bitergia')
-        api.add_enrollment(self.db, 'John Smith', 'Bitergia')
-        api.add_enrollment(self.db, 'John Doe', 'Bitergia',
-                           datetime.datetime(1999, 1, 1),
-                           datetime.datetime(2000, 1, 1))
-
-        api.add_organization(self.db, 'LibreSoft')
-        api.add_enrollment(self.db, 'Jane Rae', 'LibreSoft')
-
-        # Merge John Smith and John Doe unique identities
-        api.merge_unique_identities(self.db, 'John Smith', 'John Doe')
-
-        with self.db.connect() as session:
-            uidentities = session.query(UniqueIdentity).\
-                order_by(UniqueIdentity.uuid).all()
-            self.assertEqual(len(uidentities), 2)
-
-            uid1 = uidentities[0]
-            self.assertEqual(uid1.uuid, 'Jane Rae')
-            self.assertEqual(len(uid1.identities), 0)
-            self.assertEqual(len(uid1.enrollments), 1)
-
-            uid2 = uidentities[1]
-            self.assertEqual(uid2.uuid, 'John Doe')
-
-            self.assertEqual(uid2.profile.uuid, 'John Doe')
-            self.assertEqual(uid2.profile.name, 'John Smith')
-            self.assertEqual(uid2.profile.email, 'jdoe@example.com')
-            self.assertEqual(uid2.profile.gender, 'male')
-            self.assertEqual(uid2.profile.gender_acc, 75)
-            self.assertEqual(uid2.profile.is_bot, True)
-            self.assertEqual(uid2.profile.country_code, 'US')
-            self.assertEqual(uid2.profile.country.code, 'US')
-            self.assertEqual(uid2.profile.country.name, 'United States of America')
-
-            self.assertEqual(len(uid2.identities), 3)
-
-            identities = uid2.identities
-            identities.sort(key=lambda x: x.id)
-
-            id1 = identities[0]
-            self.assertEqual(id1.name, None)
-            self.assertEqual(id1.email, 'jdoe@example.com')
-            self.assertEqual(id1.source, 'scm')
-
-            id2 = identities[1]
-            self.assertEqual(id2.name, None)
-            self.assertEqual(id2.email, 'jsmith@example.com')
-            self.assertEqual(id2.source, 'scm')
-
-            id3 = identities[2]
-            self.assertEqual(id3.name, 'John Smith')
-            self.assertEqual(id3.email, 'jsmith@example.com')
-            self.assertEqual(id3.source, 'scm')
-
-            # Duplicate enrollments should had been removed
-            # and overlaped enrollments shoud had been merged
-            enrollments = uid2.enrollments
-            enrollments.sort(key=lambda x: x.start)
-            self.assertEqual(len(enrollments), 2)
-
-            rol1 = enrollments[0]
-            self.assertEqual(rol1.organization.name, 'Example')
-            self.assertEqual(rol1.start, datetime.datetime(1900, 1, 1))
-            self.assertEqual(rol1.end, datetime.datetime(2100, 1, 1))
-
-            rol2 = enrollments[1]
-            self.assertEqual(rol2.organization.name, 'Bitergia')
-            self.assertEqual(rol2.start, datetime.datetime(1999, 1, 1))
-            self.assertEqual(rol2.end, datetime.datetime(2000, 1, 1))
-
-    def test_moved_enrollments(self):
-        """Test if enrollments are moved from one identity to another"""
-
-        api.add_unique_identity(self.db, 'John Smith')
-        api.add_identity(self.db, 'scm', 'jsmith@example.com',
-                         uuid='John Smith')
-
-        api.add_unique_identity(self.db, 'John Doe')
-        api.add_identity(self.db, 'scm', 'jdoe@example.com',
-                         uuid='John Doe')
-
-        api.add_organization(self.db, 'Example')
-        api.add_enrollment(self.db, 'John Smith', 'Example')
-
-        api.add_organization(self.db, 'Bitergia')
-        api.add_enrollment(self.db, 'John Smith', 'Bitergia')
-
-        api.merge_unique_identities(self.db, 'John Smith', 'John Doe')
-
-        with self.db.connect() as session:
-            uidentities = session.query(UniqueIdentity).\
-                order_by(UniqueIdentity.uuid).all()
-            self.assertEqual(len(uidentities), 1)
-            self.assertEqual(len(uidentities[0].enrollments), 2)
-
-    def test_last_modified(self):
-        """Check if last modification date is updated"""
-
-        before_dt = datetime.datetime.utcnow()
-        api.add_unique_identity(self.db, 'John Smith')
-        api.add_identity(self.db, 'scm', 'jsmith@example.com',
-                         uuid='John Smith')
-        api.add_identity(self.db, 'scm', 'jsmith@example.com', 'John Smith',
-                         uuid='John Smith')
-
-        api.add_unique_identity(self.db, 'John Doe')
-        api.add_identity(self.db, 'scm', 'jdoe@example.com',
-                         uuid='John Doe')
-        after_dt = datetime.datetime.utcnow()
-
-        with self.db.connect() as session:
-            uid = session.query(UniqueIdentity).\
-                filter(UniqueIdentity.uuid == 'John Smith').first()
-            self.assertLessEqual(before_dt, uid.last_modified)
-            self.assertGreaterEqual(after_dt, uid.last_modified)
-
-            uid = session.query(UniqueIdentity).\
-                filter(UniqueIdentity.uuid == 'John Doe').first()
-            self.assertLessEqual(before_dt, uid.last_modified)
-            self.assertGreaterEqual(after_dt, uid.last_modified)
-
-        # Merge identities
-        before_merge_dt = datetime.datetime.utcnow()
-        api.merge_unique_identities(self.db, 'John Smith', 'John Doe')
-        after_merge_dt = datetime.datetime.utcnow()
-
-        with self.db.connect() as session:
-            uid = session.query(UniqueIdentity).\
-                filter(UniqueIdentity.uuid == 'John Doe').first()
-            self.assertLessEqual(before_dt, uid.last_modified)
-            self.assertLessEqual(after_dt, uid.last_modified)
-            self.assertLessEqual(before_merge_dt, uid.last_modified)
-            self.assertGreaterEqual(after_merge_dt, uid.last_modified)
-
-            # Not merged identity were not modified
-            self.assertLessEqual(before_dt, uid.identities[0].last_modified)
-            self.assertGreaterEqual(after_dt, uid.identities[0].last_modified)
-            self.assertGreaterEqual(before_merge_dt, uid.identities[0].last_modified)
-            self.assertGreaterEqual(after_merge_dt, uid.identities[0].last_modified)
-
-    def test_merge_identities_and_swap_profile(self):
-        """Test swap of profiles when a unique identity does not have one"""
-
-        # Add some countries, unique identities, identities and
-        # enrollments first
-        with self.db.connect() as session:
-            # Add a country
-            us = Country(code='US', name='United States of America', alpha3='USA')
-            session.add(us)
-
-        api.add_unique_identity(self.db, 'John Smith')
-        api.edit_profile(self.db, 'John Smith', name='John Smith', is_bot=True,
-                         country_code='US')
-
-        api.add_unique_identity(self.db, 'Jane Rae')
-
-        # Merge John Smith and Jane Rae unique identities
-        # John Smith profile should be swapped to Jane Rae
-        api.merge_unique_identities(self.db, 'John Smith', 'Jane Rae')
-
-        with self.db.connect() as session:
-            uidentities = session.query(UniqueIdentity).all()
-            self.assertEqual(len(uidentities), 1)
-
-            uid1 = uidentities[0]
-            self.assertEqual(uid1.uuid, 'Jane Rae')
-
-            self.assertEqual(uid1.profile.uuid, 'Jane Rae')
-            self.assertEqual(uid1.profile.name, 'John Smith')
-            self.assertEqual(uid1.profile.email, None)
-            self.assertEqual(uid1.profile.gender, None)
-            self.assertEqual(uid1.profile.gender_acc, None)
-            self.assertEqual(uid1.profile.is_bot, True)
-            self.assertEqual(uid1.profile.country_code, 'US')
-            self.assertEqual(uid1.profile.country.code, 'US')
-            self.assertEqual(uid1.profile.country.name, 'United States of America')
-
-    def test_equal_unique_identities(self):
-        """Test that all remains the same when 'from' and 'to' identities are the same"""
-
-        # Add some unique identities and identities
-        api.add_unique_identity(self.db, 'John Smith')
-        api.add_identity(self.db, 'scm', 'jsmith@example.com',
-                         uuid='John Smith')
-        api.add_identity(self.db, 'scm', 'jsmith@example.com', 'John Smith',
-                         uuid='John Smith')
-
-        api.add_unique_identity(self.db, 'John Doe')
-        api.add_identity(self.db, 'scm', 'jdoe@example.com',
-                         uuid='John Doe')
-
-        # Merge the same identity
-        api.merge_unique_identities(self.db, 'John Smith', 'John Smith')
-
-        # Nothing has happened
-        with self.db.connect() as session:
-            uidentities = session.query(UniqueIdentity).\
-                order_by(UniqueIdentity.uuid).all()
-            self.assertEqual(len(uidentities), 2)
-
-            uid2 = uidentities[1]
-            self.assertEqual(uid2.uuid, 'John Smith')
-            self.assertEqual(len(uid2.identities), 2)
-
-    def test_not_found_unique_identities(self):
-        """Test whether it fails when one of the unique identities is not found"""
-
-        # Add some unique identities first
-        api.add_unique_identity(self.db, 'John Smith')
-        api.add_unique_identity(self.db, 'John Doe')
-
-        # Check 'from_uuid' parameter
-        self.assertRaisesRegex(NotFoundError,
-                               NOT_FOUND_ERROR % {'entity': 'Jane Roe'},
-                               api.merge_unique_identities,
-                               self.db, 'Jane Roe', 'John Smith')
-
-        # Check 'to_uuid' parameter
-        self.assertRaisesRegex(NotFoundError,
-                               NOT_FOUND_ERROR % {'entity': 'Jane Roe'},
-                               api.merge_unique_identities,
-                               self.db, 'John Smith', 'Jane Roe')
-
-        # Even if the identities are the same and do not exist, it still
-        # raises the exception
-        self.assertRaisesRegex(NotFoundError,
-                               NOT_FOUND_ERROR % {'entity': 'Jane Roe'},
-                               api.merge_unique_identities,
-                               self.db, 'Jane Roe', 'Jane Roe')
-
-
-class TestMoveIdentity(TestAPICaseBase):
-    """Unit tests for move_identity"""
-
-    def test_move_identity(self):
-        """Test when an identity is moved to a unique identity"""
-
-        # Add some unique identities and identities first
-        api.add_unique_identity(self.db, 'John Smith')
-        api.add_identity(self.db, 'scm', 'jsmith@example.com',
-                         uuid='John Smith')
-        api.add_identity(self.db, 'scm', 'jsmith@example.com', 'John Smith',
-                         uuid='John Smith')
-
-        api.add_unique_identity(self.db, 'John Doe')
-        from_id = api.add_identity(self.db, 'scm', 'jdoe@example.com',
-                                   uuid='John Doe')
-
-        api.move_identity(self.db, from_id, 'John Smith')
-
-        with self.db.connect() as session:
-            uidentities = session.query(UniqueIdentity).\
-                order_by(UniqueIdentity.uuid).all()
-            self.assertEqual(len(uidentities), 2)
-
-            uid1 = uidentities[0]
-            self.assertEqual(uid1.uuid, 'John Doe')
-            self.assertEqual(len(uid1.identities), 0)
-
-            uid2 = uidentities[1]
-            self.assertEqual(uid2.uuid, 'John Smith')
-            self.assertEqual(len(uid2.identities), 3)
-
-            identities = uid2.identities
-            identities.sort(key=lambda x: x.id)
-
-            id1 = identities[0]
-            self.assertEqual(id1.id, from_id)
-            self.assertEqual(id1.name, None)
-            self.assertEqual(id1.email, 'jdoe@example.com')
-            self.assertEqual(id1.source, 'scm')
-
-            id2 = identities[1]
-            self.assertEqual(id2.name, None)
-            self.assertEqual(id2.email, 'jsmith@example.com')
-            self.assertEqual(id2.source, 'scm')
-
-            id3 = identities[2]
-            self.assertEqual(id3.name, 'John Smith')
-            self.assertEqual(id3.email, 'jsmith@example.com')
-            self.assertEqual(id3.source, 'scm')
-
-    def test_last_modified(self):
-        """Check if last modification date is updated"""
-
-        before_dt = datetime.datetime.utcnow()
-        api.add_unique_identity(self.db, 'John Smith')
-        api.add_identity(self.db, 'scm', 'jsmith@example.com',
-                         uuid='John Smith')
-
-        api.add_unique_identity(self.db, 'John Doe')
-        from_id = api.add_identity(self.db, 'scm', 'jdoe@example.com',
-                                   uuid='John Doe')
-        api.add_identity(self.db, 'scm', 'jdoe@example.com', 'Jon Doe',
-                         uuid='John Doe')
-        after_dt = datetime.datetime.utcnow()
-
-        with self.db.connect() as session:
-            uid = session.query(UniqueIdentity).\
-                filter(UniqueIdentity.uuid == 'John Smith').first()
-            self.assertLessEqual(before_dt, uid.last_modified)
-            self.assertGreaterEqual(after_dt, uid.last_modified)
-
-            uid = session.query(UniqueIdentity).\
-                filter(UniqueIdentity.uuid == 'John Doe').first()
-            self.assertLessEqual(before_dt, uid.last_modified)
-            self.assertGreaterEqual(after_dt, uid.last_modified)
-
-        # Move identities
-        before_move_dt = datetime.datetime.utcnow()
-        api.move_identity(self.db, from_id, 'John Smith')
-        after_move_dt = datetime.datetime.utcnow()
-
-        with self.db.connect() as session:
-            uid = session.query(UniqueIdentity).\
-                filter(UniqueIdentity.uuid == 'John Smith').first()
-            self.assertLessEqual(before_dt, uid.last_modified)
-            self.assertLessEqual(after_dt, uid.last_modified)
-            self.assertLessEqual(before_move_dt, uid.last_modified)
-            self.assertGreaterEqual(after_move_dt, uid.last_modified)
-
-            # Moved identity have the date updated
-            self.assertEqual(uid.identities[0].last_modified, uid.last_modified)
-
-            # Identity not moved were not modified
-            self.assertLessEqual(before_dt, uid.identities[1].last_modified)
-            self.assertGreaterEqual(after_dt, uid.identities[1].last_modified)
-            self.assertGreaterEqual(before_move_dt, uid.identities[1].last_modified)
-            self.assertGreaterEqual(after_move_dt, uid.identities[1].last_modified)
-
-            # The origin of the moved identity was also updated
-            uid = session.query(UniqueIdentity).\
-                filter(UniqueIdentity.uuid == 'John Doe').first()
-            self.assertLessEqual(before_dt, uid.last_modified)
-            self.assertLessEqual(after_dt, uid.last_modified)
-            self.assertLessEqual(before_move_dt, uid.last_modified)
-            self.assertGreaterEqual(after_move_dt, uid.last_modified)
-
-    def test_equal_related_unique_identity(self):
-        """Test that all remains the same when to_uuid is the unique identity related to 'from_id'"""
-
-        # Add some unique identities and identities first
-        api.add_unique_identity(self.db, 'John Smith')
-        from_id = api.add_identity(self.db, 'scm', 'jsmith@example.com',
-                                   uuid='John Smith')
-
-        api.add_unique_identity(self.db, 'John Doe')
-        api.add_identity(self.db, 'scm', 'jdoe@example.com',
-                         uuid='John Doe')
-        new_uuid = api.add_identity(self.db, 'scm', 'john.doe@example.com',
-                                    uuid='John Doe')
-
-        # Move the identity to the same unique identity
-        api.move_identity(self.db, from_id, 'John Smith')
-
-        # Nothing has happened
-        with self.db.connect() as session:
-            uidentities = session.query(UniqueIdentity).all()
-            self.assertEqual(len(uidentities), 2)
-
-            uid = uidentities[0]
-            self.assertEqual(uid.uuid, 'John Doe')
-            self.assertEqual(len(uid.identities), 2)
-
-            uid = uidentities[1]
-            self.assertEqual(uid.uuid, 'John Smith')
-            self.assertEqual(len(uid.identities), 1)
-
-            id1 = uid.identities[0]
-            self.assertEqual(id1.id, from_id)
-
-        # This will create a new unique identity,
-        # moving the identity to this new unique identity
-        api.move_identity(self.db, new_uuid, new_uuid)
-
-        with self.db.connect() as session:
-            uidentities = session.query(UniqueIdentity).\
-                order_by(UniqueIdentity.uuid).all()
-            self.assertEqual(len(uidentities), 3)
-
-            uid = uidentities[0]
-            self.assertEqual(uid.uuid, new_uuid)
-            self.assertEqual(len(uid.identities), 1)
-
-            id1 = uid.identities[0]
-            self.assertEqual(id1.id, new_uuid)
-
-            uid = uidentities[1]
-            self.assertEqual(uid.uuid, 'John Doe')
-            self.assertEqual(len(uid.identities), 1)
-
-    def test_not_found_identities(self):
-        """Test whether it fails when one of identities is not found"""
-
-        # Add some unique identities first
-        api.add_unique_identity(self.db, 'John Smith')
-        from_id = api.add_identity(self.db, 'scm', 'jsmith@example.com',
-                                   uuid='John Smith')
-
-        api.add_unique_identity(self.db, 'John Doe')
-        api.add_identity(self.db, 'scm', 'jdoe@example.com',
-                         uuid='John Doe')
-
-        # Check 'from_id' parameter
-        self.assertRaisesRegex(NotFoundError,
-                               NOT_FOUND_ERROR % {'entity': 'FFFFFFFFFFF'},
-                               api.move_identity,
-                               self.db, 'FFFFFFFFFFF', 'John Smith')
-
-        # Check 'to_uuid' parameter
-        self.assertRaisesRegex(NotFoundError,
-                               NOT_FOUND_ERROR % {'entity': 'Jane Roe'},
-                               api.move_identity,
-                               self.db, from_id, 'Jane Roe')
-
-
-class TestMatchIdentities(TestAPICaseBase):
-    """Unit tests for match_identities"""
-
-    def test_default_matcher(self):
-        """Test default identity matcher"""
-
-        # Add some unique identities first
-        api.add_unique_identity(self.db, 'John Smith')
-        api.add_identity(self.db, 'scm', 'jsmith@example.com',
-                         uuid='John Smith')
-        api.add_identity(self.db, 'scm', name='John Smith', uuid='John Smith')
-        api.add_identity(self.db, 'scm', username='jsmith', uuid='John Smith')
-
-        api.add_unique_identity(self.db, 'John Doe')
-        api.add_identity(self.db, 'mls', 'johndoe@example.com', uuid='John Doe')
-        api.add_identity(self.db, 'mls', 'johndoe@example.net', uuid='John Doe')
-
-        api.add_unique_identity(self.db, 'Smith J.')
-        api.add_identity(self.db, 'mls', 'JSmith@example.com',
-                         uuid='Smith J.')
-
-        api.add_unique_identity(self.db, 'Jane Rae')
-        api.add_identity(self.db, 'scm', 'janerae@example.com', 'Jane Rae', uuid='Jane Rae')
-
-        api.add_unique_identity(self.db, 'JRae')
-        api.add_identity(self.db, 'mls', name='Jane Rae', username='jrae', uuid='JRae')
-        api.add_identity(self.db, 'scm', username='jrae', uuid='JRae')
-        api.add_identity(self.db, 'scm', 'janerae@example.com', uuid='JRae')
-
-        api.add_unique_identity(self.db, 'Jane')
-        api.add_identity(self.db, 'unknown', 'jane@example.com', 'Jane', uuid='Jane')
-        api.add_identity(self.db, 'unknown', 'jane@example.net', 'Jane', uuid='Jane')
-        api.add_identity(self.db, 'unknown', 'jane@example.org', 'Jane', uuid='Jane')
-        api.add_identity(self.db, 'unknown', 'jrae@example.org', 'Jane', uuid='Jane')
-        api.add_identity(self.db, 'unknown', 'jrae@example.com', 'Jane', uuid='Jane')
-        api.add_identity(self.db, 'unknown', 'janerae@example.com', 'Jane', uuid='Jane')
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_organization(self.ctx, 'Example')
+
+        individual = Individual.objects.get(mk=jsmith.uuid)
+        individual.is_locked = True
+        individual.save()
+
+        msg = UUID_LOCKED_ERROR.format(uuid=jsmith.uuid)
+        with self.assertRaisesRegex(LockedIdentityError, msg):
+            api.enroll(self.ctx,
+                       jsmith.uuid, 'Example',
+                       from_date=datetime.datetime(1999, 1, 1),
+                       to_date=datetime.datetime(2000, 1, 1))
+
+    def test_transaction(self):
+        """Check if a transaction is created when adding an enrollment"""
+
+        timestamp = datetime_utcnow()
+
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_organization(self.ctx, 'Example')
+
+        trx_date = datetime_utcnow()  # Ingnoring the transactions before this datetime
+
+        api.enroll(self.ctx,
+                   jsmith.uuid, 'Example',
+                   from_date=datetime.datetime(1999, 1, 1),
+                   to_date=datetime.datetime(2000, 1, 1))
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 1)
+
+        trx = transactions[0]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'enroll')
+        self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, self.ctx.user.username)
+
+    def test_operations(self):
+        """Check if the right operations are created when deleting a domain"""
+
+        timestamp = datetime_utcnow()
+
+        jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        org = api.add_organization(self.ctx, 'Example')
+
+        trx_date = datetime_utcnow()
+
+        api.enroll(self.ctx,
+                   jsmith.uuid, 'Example',
+                   from_date=datetime.datetime(1999, 1, 1),
+                   to_date=datetime.datetime(2000, 1, 1))
+
+        transactions = Transaction.objects.filter(created_at__gte=trx_date)
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.ADD.value)
+        self.assertEqual(op1.entity_type, 'enrollment')
+        self.assertEqual(op1.target, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(op1.trx, trx)
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 4)
+        self.assertEqual(op1_args['individual'], jsmith.individual.mk)
+        self.assertEqual(op1_args['group'], org.name)
+        self.assertEqual(op1_args['start'], str(datetime_to_utc(datetime.datetime(1999, 1, 1))))
+        self.assertEqual(op1_args['end'], str(datetime_to_utc(datetime.datetime(2000, 1, 1))))
+
+
+class TestWithdraw(TestCase):
+    """Unit tests for withdraw"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        api.add_organization(self.ctx, 'Example')
+        api.add_organization(self.ctx, 'Bitergia')
+
+        api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                   from_date=datetime.datetime(2006, 1, 1),
+                   to_date=datetime.datetime(2008, 1, 1))
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                   from_date=datetime.datetime(2009, 1, 1),
+                   to_date=datetime.datetime(2011, 1, 1))
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                   from_date=datetime.datetime(2012, 1, 1),
+                   to_date=datetime.datetime(2014, 1, 1))
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Bitergia',
+                   from_date=datetime.datetime(2012, 1, 1),
+                   to_date=datetime.datetime(2014, 1, 1))
+
+        api.add_identity(self.ctx, 'scm', email='jrae@example')
+        api.enroll(self.ctx,
+                   '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                   from_date=datetime.datetime(2012, 1, 1),
+                   to_date=datetime.datetime(2014, 1, 1))
+
+    def test_withdraw(self):
+        """Check whether it withdraws an individual from an organization during the given period"""
+
+        individual = api.withdraw(self.ctx,
+                                  'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                                  from_date=datetime.datetime(2007, 1, 1),
+                                  to_date=datetime.datetime(2013, 1, 1))
 
         # Tests
-        get_uuids = lambda l: [u.uuid for u in l]
+        self.assertIsInstance(individual, Individual)
 
-        matcher = create_identity_matcher('default')
+        enrollments = individual.enrollments.all()
+        self.assertEqual(len(enrollments), 3)
 
-        # John Smith
-        m1 = api.match_identities(self.db, 'John Smith', matcher)
-        uids = get_uuids(m1)
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.group.name, 'Example')
+        self.assertEqual(enrollment.start, datetime.datetime(2006, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2007, 1, 1, tzinfo=UTC))
 
-        self.assertListEqual(uids, ['Smith J.'])
+        enrollment = enrollments[1]
+        self.assertEqual(enrollment.group.name, 'Bitergia')
+        self.assertEqual(enrollment.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
 
-        # Smith J.
-        m1 = api.match_identities(self.db, 'Smith J.', matcher)
-        uids = get_uuids(m1)
+        enrollment = enrollments[2]
+        self.assertEqual(enrollment.group.name, 'Example')
+        self.assertEqual(enrollment.start, datetime.datetime(2013, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
 
-        self.assertListEqual(uids, ['John Smith'])
+        # Check database object
+        individual_db = Individual.objects.get(mk='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        enrollments_db = individual_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 3)
 
-        # John Doe
-        m2 = api.match_identities(self.db, 'John Doe', matcher)
-        uids = get_uuids(m2)
+        enrollment_db = enrollments_db[0]
+        self.assertEqual(enrollment_db.group.name, 'Example')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2006, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2007, 1, 1, tzinfo=UTC))
 
-        self.assertListEqual(uids, [])
+        enrollment_db = enrollments_db[1]
+        self.assertEqual(enrollment_db.group.name, 'Bitergia')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
 
-        # Jane Rae
-        m3 = api.match_identities(self.db, 'Jane Rae', matcher)
-        uids = get_uuids(m3)
+        enrollment_db = enrollments_db[2]
+        self.assertEqual(enrollment_db.group.name, 'Example')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2013, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
 
-        self.assertListEqual(uids, ['Jane', 'JRae'])
+        # Other enrollments were not deleted
+        individual_db = Individual.objects.get(mk='3283e58cef2b80007aa1dfc16f6dd20ace1aee96')
+        enrollments_db = individual_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 1)
 
-        # JRae
-        m3 = api.match_identities(self.db, 'JRae', matcher)
-        uids = get_uuids(m3)
+        enrollment_db = enrollments_db[0]
+        self.assertEqual(enrollment_db.group.name, 'Example')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
 
-        self.assertListEqual(uids, ['Jane', 'Jane Rae'])
+    def test_withdraw_using_any_identity_uuid(self):
+        """
+        Check whether it withdraws an individual from an organization
+        during the given period using any valid identity uuid
+        """
+        api.add_identity(self.ctx, 'mls', email='jsmith@example',
+                         uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
-        # Jane
-        m3 = api.match_identities(self.db, 'Jane', matcher)
-        uids = get_uuids(m3)
-
-        self.assertListEqual(uids, ['Jane Rae', 'JRae'])
-
-    def test_empty_registry(self):
-        """Test whether it fails when the registry is empty"""
-
-        matcher = create_identity_matcher('default')
-
-        # This test must raise a NotFoundError
-        self.assertRaisesRegex(NotFoundError,
-                               NOT_FOUND_ERROR % {'entity': 'Jane Roe'},
-                               api.match_identities,
-                               self.db, 'Jane Roe', matcher)
-
-    def test_not_found_identities(self):
-        """Test whether it fails when uuid is not found"""
-
-        # Add some unique identities first
-        api.add_unique_identity(self.db, 'John Smith')
-        api.add_identity(self.db, 'scm', 'jsmith@example.com',
-                         uuid='John Smith')
-        api.add_unique_identity(self.db, 'Smith J.')
-        api.add_identity(self.db, 'mls', 'jsmith@example.com',
-                         uuid='Smith J.')
-
-        matcher = create_identity_matcher('default')
-
-        self.assertRaisesRegex(NotFoundError,
-                               NOT_FOUND_ERROR % {'entity': 'Jane Roe'},
-                               api.match_identities,
-                               self.db, 'Jane Roe', matcher)
-
-
-class TestUniqueIdentities(TestAPICaseBase):
-    """Unit tests for unique_identities"""
-
-    def test_unique_identities(self):
-        """Check if it returns the registry of unique identities"""
-
-        # Add a country
-        with self.db.connect() as session:
-            us = Country(code='US', name='United States of America', alpha3='USA')
-            session.add(us)
-
-        # Add some identities
-        jsmith_uuid = api.add_identity(self.db, 'scm', 'jsmith@example.com',
-                                       'John Smith', 'jsmith')
-        api.add_identity(self.db, 'scm', 'jsmith@bitergia.com', uuid=jsmith_uuid)
-        api.add_identity(self.db, 'mls', 'jsmith@bitergia.com', uuid=jsmith_uuid)
-        api.edit_profile(self.db, jsmith_uuid, email='jsmith@example.com',
-                         is_bot=True, country_code='US')
-
-        jdoe_uuid = api.add_identity(self.db, 'scm', 'jdoe@example.com',
-                                     'John Doe', 'jdoe')
-        api.add_identity(self.db, 'scm', 'jdoe@libresoft.es', uuid=jdoe_uuid)
+        individual = api.withdraw(self.ctx,
+                                  'de176236636bc488d31e9f91952ecfc6d976a69e', 'Example',
+                                  from_date=datetime.datetime(2007, 1, 1),
+                                  to_date=datetime.datetime(2013, 1, 1))
 
         # Tests
-        uidentities = api.unique_identities(self.db)
-        self.assertEqual(len(uidentities), 2)
+        self.assertIsInstance(individual, Individual)
 
-        # Test John Smith unique identity
-        uid = uidentities[0]
-        self.assertEqual(uid.uuid, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        enrollments = individual.enrollments.all()
+        self.assertEqual(len(enrollments), 3)
 
-        self.assertEqual(uid.profile.uuid, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
-        self.assertEqual(uid.profile.name, None)
-        self.assertEqual(uid.profile.email, 'jsmith@example.com')
-        self.assertEqual(uid.profile.is_bot, True)
-        self.assertEqual(uid.profile.country_code, 'US')
-        self.assertEqual(uid.profile.country.code, 'US')
-        self.assertEqual(uid.profile.country.name, 'United States of America')
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.group.name, 'Example')
+        self.assertEqual(enrollment.start, datetime.datetime(2006, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2007, 1, 1, tzinfo=UTC))
 
-        self.assertEqual(len(uid.identities), 3)
+        enrollment = enrollments[1]
+        self.assertEqual(enrollment.group.name, 'Bitergia')
+        self.assertEqual(enrollment.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
 
-        identities = uid.identities
-        identities.sort(key=lambda x: x.id)
+        enrollment = enrollments[2]
+        self.assertEqual(enrollment.group.name, 'Example')
+        self.assertEqual(enrollment.start, datetime.datetime(2013, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+        # Check database object
+        individual_db = Individual.objects.get(mk='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        enrollments_db = individual_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 3)
+
+        enrollment_db = enrollments_db[0]
+        self.assertEqual(enrollment_db.group.name, 'Example')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2006, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2007, 1, 1, tzinfo=UTC))
+
+        enrollment_db = enrollments_db[1]
+        self.assertEqual(enrollment_db.group.name, 'Bitergia')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+        enrollment_db = enrollments_db[2]
+        self.assertEqual(enrollment_db.group.name, 'Example')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2013, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+        # Other enrollments were not deleted
+        individual_db = Individual.objects.get(mk='3283e58cef2b80007aa1dfc16f6dd20ace1aee96')
+        enrollments_db = individual_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 1)
+
+        enrollment_db = enrollments_db[0]
+        self.assertEqual(enrollment_db.group.name, 'Example')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+    def test_withdraw_default_ranges(self):
+        """Check if it withdraws an individual using default ranges when they are not given"""
+
+        individual = api.withdraw(self.ctx, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example')
+
+        # Tests
+        self.assertIsInstance(individual, Individual)
+
+        enrollments = individual.enrollments.all()
+        self.assertEqual(len(enrollments), 1)
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.group.name, 'Bitergia')
+        self.assertEqual(enrollment.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+        # Check database object
+        individual_db = Individual.objects.get(mk='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        enrollments_db = individual_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 1)
+
+        enrollment_db = enrollments_db[0]
+        self.assertEqual(enrollment_db.group.name, 'Bitergia')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+    def test_withdraw_from_team(self):
+        """Check whether it withdraws an individual from an organization during the given period"""
+
+        api.add_team(self.ctx, 'Example Team', organization='Example')
+
+        individual = api.enroll(self.ctx,
+                                'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+                                'Example Team',
+                                parent_org='Example',
+                                from_date=datetime.datetime(2020, 1, 1),
+                                to_date=datetime.datetime(2022, 1, 1))
+
+        enrollments = individual.enrollments.all()
+        self.assertEqual(len(enrollments), 5)
+
+        individual = api.withdraw(self.ctx,
+                                  'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+                                  'Example Team',
+                                  parent_org='Example',
+                                  from_date=datetime.datetime(2020, 1, 1),
+                                  to_date=datetime.datetime(2022, 1, 1))
+
+        # Tests
+        self.assertIsInstance(individual, Individual)
+
+        enrollments = individual.enrollments.all()
+        self.assertEqual(len(enrollments), 4)
+
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
+
+        before_dt = datetime_utcnow()
+        individual = api.withdraw(self.ctx, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example')
+        after_dt = datetime_utcnow()
+
+        self.assertLessEqual(before_dt, individual.last_modified)
+        self.assertGreaterEqual(after_dt, individual.last_modified)
+
+    def test_period_invalid(self):
+        """Check whether enrollments cannot be withdrawn giving invalid period ranges"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        data = {
+            'from_date': r'2001-01-01 00:00:00\+00:00',
+            'to_date': r'1999-01-01 00:00:00\+00:00'
+        }
+        msg = WITHDRAW_PERIOD_INVALID_ERROR.format(**data)
+
+        with self.assertRaisesRegex(InvalidValueError, msg):
+            api.withdraw(self.ctx,
+                         'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                         from_date=datetime.datetime(2001, 1, 1),
+                         to_date=datetime.datetime(1999, 1, 1))
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_period_out_of_bounds(self):
+        """Check whether enrollments cannot be withdrawn giving periods out of bounds"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        data = {
+            'type': 'from_date',
+            'date': r'1899-12-31 23:59:59\+00:00'
+        }
+        msg = PERIOD_OUT_OF_BOUNDS_ERROR.format(**data)
+
+        with self.assertRaisesRegex(InvalidValueError, msg):
+            api.withdraw(self.ctx,
+                         'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                         from_date=datetime.datetime(1899, 12, 31, 23, 59, 59))
+
+        data = {
+            'type': 'to_date',
+            'date': r'2100-01-01 00:00:01\+00:00'
+        }
+        msg = PERIOD_OUT_OF_BOUNDS_ERROR.format(**data)
+
+        with self.assertRaisesRegex(InvalidValueError, msg):
+            api.withdraw(self.ctx,
+                         'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                         to_date=datetime.datetime(2100, 1, 1, 0, 0, 1))
+
+        data = {
+            'type': 'from_date',
+            'date': r'1898-12-31 23:59:59\+00:00'
+        }
+        msg = PERIOD_OUT_OF_BOUNDS_ERROR.format(**data)
+
+        with self.assertRaisesRegex(InvalidValueError, msg):
+            api.withdraw(self.ctx,
+                         'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                         from_date=datetime.datetime(1898, 12, 31, 23, 59, 59),
+                         to_date=datetime.datetime(1899, 12, 31, 23, 59, 59))
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_non_existing_uuid(self):
+        """Check if it fails withdrawing from not existing individuals"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        msg = NOT_FOUND_ERROR.format(entity='abcdefghijklmnopqrstuvwxyz')
+
+        with self.assertRaisesRegex(NotFoundError, msg):
+            api.withdraw(self.ctx, 'abcdefghijklmnopqrstuvwxyz', 'Example')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_non_existing_organization(self):
+        """Check if it fails withdrawing from not existing organizations"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        msg = NOT_FOUND_ERROR.format(entity='LibreSoft')
+
+        with self.assertRaisesRegex(NotFoundError, msg):
+            api.withdraw(self.ctx, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'LibreSoft')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_non_existing_enrollment(self):
+        """Check if it fails withdrawing not existing enrollments"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaises(NotFoundError):
+            api.withdraw(self.ctx,
+                         'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                         from_date=datetime.datetime(2050, 1, 1),
+                         to_date=datetime.datetime(2060, 1, 1))
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_locked_uuid(self):
+        """Check if it fails when the individual is locked"""
+
+        uuid = 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'
+
+        individual = Individual.objects.get(mk=uuid)
+        individual.is_locked = True
+        individual.save()
+
+        msg = UUID_LOCKED_ERROR.format(uuid=uuid)
+        with self.assertRaisesRegex(LockedIdentityError, msg):
+            api.withdraw(self.ctx,
+                         'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                         from_date=datetime.datetime(2007, 1, 1),
+                         to_date=datetime.datetime(2013, 1, 1))
+
+    def test_transaction(self):
+        """Check if a transaction is created when deleting an enrollment"""
+
+        timestamp = datetime_utcnow()
+
+        api.withdraw(self.ctx,
+                     'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                     from_date=datetime.datetime(2007, 1, 1),
+                     to_date=datetime.datetime(2013, 1, 1))
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        self.assertEqual(len(transactions), 1)
+
+        trx = transactions[0]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'withdraw')
+        self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, self.ctx.user.username)
+
+    def test_operations(self):
+        """Check if the right operations are created when deleting an enrollment"""
+
+        timestamp = datetime_utcnow()
+
+        api.withdraw(self.ctx,
+                     'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                     from_date=datetime.datetime(2007, 1, 1),
+                     to_date=datetime.datetime(2013, 1, 1))
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 5)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.DELETE.value)
+        self.assertEqual(op1.entity_type, 'enrollment')
+        self.assertEqual(op1.target, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(op1.trx, trx)
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 4)
+        self.assertEqual(op1_args['mk'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(op1_args['group'], 'Example')
+        self.assertEqual(op1_args['start'], str(datetime_to_utc(datetime.datetime(2006, 1, 1))))
+        self.assertEqual(op1_args['end'], str(datetime_to_utc(datetime.datetime(2008, 1, 1))))
+
+        op2 = operations[1]
+        self.assertIsInstance(op2, Operation)
+        self.assertEqual(op2.op_type, Operation.OpType.DELETE.value)
+        self.assertEqual(op2.entity_type, 'enrollment')
+        self.assertEqual(op2.target, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(op2.trx, trx)
+        self.assertGreater(op2.timestamp, timestamp)
+
+        op2_args = json.loads(op2.args)
+        self.assertEqual(len(op2_args), 4)
+        self.assertEqual(op2_args['mk'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(op2_args['group'], 'Example')
+        self.assertEqual(op2_args['start'], str(datetime_to_utc(datetime.datetime(2009, 1, 1))))
+        self.assertEqual(op2_args['end'], str(datetime_to_utc(datetime.datetime(2011, 1, 1))))
+
+        op3 = operations[2]
+        self.assertIsInstance(op3, Operation)
+        self.assertEqual(op3.op_type, Operation.OpType.DELETE.value)
+        self.assertEqual(op3.entity_type, 'enrollment')
+        self.assertEqual(op3.target, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(op3.trx, trx)
+        self.assertGreater(op3.timestamp, timestamp)
+
+        op3_args = json.loads(op3.args)
+        self.assertEqual(len(op3_args), 4)
+        self.assertEqual(op3_args['mk'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(op3_args['group'], 'Example')
+        self.assertEqual(op3_args['start'], str(datetime_to_utc(datetime.datetime(2012, 1, 1))))
+        self.assertEqual(op3_args['end'], str(datetime_to_utc(datetime.datetime(2014, 1, 1))))
+
+        op4 = operations[3]
+        self.assertIsInstance(op4, Operation)
+        self.assertEqual(op4.op_type, Operation.OpType.ADD.value)
+        self.assertEqual(op4.entity_type, 'enrollment')
+        self.assertEqual(op4.target, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(op4.trx, trx)
+        self.assertGreater(op4.timestamp, timestamp)
+
+        op4_args = json.loads(op4.args)
+        self.assertEqual(len(op4_args), 4)
+        self.assertEqual(op4_args['individual'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(op4_args['group'], 'Example')
+        self.assertEqual(op4_args['start'], str(datetime_to_utc(datetime.datetime(2006, 1, 1))))
+        self.assertEqual(op4_args['end'], str(datetime_to_utc(datetime.datetime(2007, 1, 1))))
+
+        op5 = operations[4]
+        self.assertIsInstance(op5, Operation)
+        self.assertEqual(op5.op_type, Operation.OpType.ADD.value)
+        self.assertEqual(op5.entity_type, 'enrollment')
+        self.assertEqual(op5.target, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(op5.trx, trx)
+        self.assertGreater(op5.timestamp, timestamp)
+
+        op5_args = json.loads(op5.args)
+        self.assertEqual(len(op5_args), 4)
+        self.assertEqual(op5_args['individual'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(op5_args['group'], 'Example')
+        self.assertEqual(op5_args['start'], str(datetime_to_utc(datetime.datetime(2013, 1, 1))))
+        self.assertEqual(op5_args['end'], str(datetime_to_utc(datetime.datetime(2014, 1, 1))))
+
+
+class TestUpdateEnrollment(TestCase):
+    """Unit tests for update_enrollment"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        api.add_organization(self.ctx, 'Example')
+        api.add_organization(self.ctx, 'Bitergia')
+
+        api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                   from_date=datetime.datetime(2006, 1, 1),
+                   to_date=datetime.datetime(2008, 1, 1))
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                   from_date=datetime.datetime(2009, 1, 1),
+                   to_date=datetime.datetime(2011, 1, 1))
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                   from_date=datetime.datetime(2012, 1, 1),
+                   to_date=datetime.datetime(2014, 1, 1))
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Bitergia',
+                   from_date=datetime.datetime(2012, 1, 1),
+                   to_date=datetime.datetime(2014, 1, 1))
+
+        api.add_identity(self.ctx, 'scm', email='jrae@example')
+        api.enroll(self.ctx,
+                   '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                   from_date=datetime.datetime(2012, 1, 1),
+                   to_date=datetime.datetime(2014, 1, 1))
+
+    def test_update_enrollment(self):
+        """Check whether it updates an individual's enrollment from an organization during the given period"""
+
+        individual = api.update_enrollment(self.ctx,
+                                           '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                                           datetime.datetime(2012, 1, 1),
+                                           datetime.datetime(2014, 1, 1),
+                                           new_from_date=datetime.datetime(2012, 1, 2),
+                                           new_to_date=datetime.datetime(2013, 12, 31))
+
+        # Tests
+        self.assertIsInstance(individual, Individual)
+
+        enrollments = individual.enrollments.all()
+        self.assertEqual(len(enrollments), 1)
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.group.name, 'Example')
+        self.assertEqual(enrollment.start, datetime.datetime(2012, 1, 2, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2013, 12, 31, tzinfo=UTC))
+
+        # Check database objects
+        individual_db = Individual.objects.get(mk='3283e58cef2b80007aa1dfc16f6dd20ace1aee96')
+        enrollments_db = individual_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 1)
+
+        enrollment_db = enrollments_db[0]
+        self.assertEqual(enrollment_db.group.name, 'Example')
+        self.assertEqual(enrollment.start, datetime.datetime(2012, 1, 2, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2013, 12, 31, tzinfo=UTC))
+
+        # Other enrollments were not modified
+        individual_db = Individual.objects.get(mk='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        enrollments_db = individual_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 4)
+
+        enrollment_db = enrollments_db[0]
+        self.assertEqual(enrollment_db.group.name, 'Example')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2006, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2008, 1, 1, tzinfo=UTC))
+
+        enrollment_db = enrollments_db[1]
+        self.assertEqual(enrollment_db.group.name, 'Example')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2009, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2011, 1, 1, tzinfo=UTC))
+
+        enrollment_db = enrollments_db[2]
+        self.assertEqual(enrollment_db.group.name, 'Example')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+        enrollment_db = enrollments_db[3]
+        self.assertEqual(enrollment_db.group.name, 'Bitergia')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+    def test_update_using_any_identity_uuid(self):
+        """
+        Check whether it updates an enrollment from an individual
+        during the given period using any valid identity uuid
+        """
+        api.add_identity(self.ctx, 'mls', email='jsmith@example',
+                         uuid='3283e58cef2b80007aa1dfc16f6dd20ace1aee96')
+
+        individual = api.update_enrollment(self.ctx,
+                                           'de176236636bc488d31e9f91952ecfc6d976a69e', 'Example',
+                                           datetime.datetime(2012, 1, 1),
+                                           datetime.datetime(2014, 1, 1),
+                                           new_from_date=datetime.datetime(2012, 1, 2),
+                                           new_to_date=datetime.datetime(2013, 12, 31))
+
+        # Tests
+        self.assertIsInstance(individual, Individual)
+
+        enrollments = individual.enrollments.all()
+        self.assertEqual(len(enrollments), 1)
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.group.name, 'Example')
+        self.assertEqual(enrollment.start, datetime.datetime(2012, 1, 2, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2013, 12, 31, tzinfo=UTC))
+
+        # Check database objects
+        individual_db = Individual.objects.get(mk='3283e58cef2b80007aa1dfc16f6dd20ace1aee96')
+        enrollments_db = individual_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 1)
+
+        enrollment_db = enrollments_db[0]
+        self.assertEqual(enrollment_db.group.name, 'Example')
+        self.assertEqual(enrollment.start, datetime.datetime(2012, 1, 2, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2013, 12, 31, tzinfo=UTC))
+
+        # Other enrollments were not modified
+        individual_db = Individual.objects.get(mk='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        enrollments_db = individual_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 4)
+
+        enrollment_db = enrollments_db[0]
+        self.assertEqual(enrollment_db.group.name, 'Example')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2006, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2008, 1, 1, tzinfo=UTC))
+
+        enrollment_db = enrollments_db[1]
+        self.assertEqual(enrollment_db.group.name, 'Example')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2009, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2011, 1, 1, tzinfo=UTC))
+
+        enrollment_db = enrollments_db[2]
+        self.assertEqual(enrollment_db.group.name, 'Example')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+        enrollment_db = enrollments_db[3]
+        self.assertEqual(enrollment_db.group.name, 'Bitergia')
+        self.assertEqual(enrollment_db.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+    def test_update_no_new_to_date(self):
+        """Check if the enrollment is updated as expected when one of the new dates is not provided"""
+
+        # Test only with 'newFromDate' date, missing 'newToDate'
+        individual = api.update_enrollment(self.ctx,
+                                           '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                                           datetime.datetime(2012, 1, 1),
+                                           datetime.datetime(2014, 1, 1),
+                                           new_from_date=datetime.datetime(2012, 1, 2))
+
+        # Tests
+        self.assertIsInstance(individual, Individual)
+
+        enrollments = individual.enrollments.all()
+        self.assertEqual(len(enrollments), 1)
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.group.name, 'Example')
+        self.assertEqual(enrollment.start, datetime.datetime(2012, 1, 2, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+        # Check database objects
+        individual_db = Individual.objects.get(mk='3283e58cef2b80007aa1dfc16f6dd20ace1aee96')
+        enrollments_db = individual_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 1)
+
+        enrollment_db = enrollments_db[0]
+        self.assertEqual(enrollment_db.group.name, 'Example')
+        self.assertEqual(enrollment.start, datetime.datetime(2012, 1, 2, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2014, 1, 1, tzinfo=UTC))
+
+    def test_update_no_new_from_date(self):
+        """Check if the enrollment is updated as expected when one of the new dates is not provided"""
+
+        # Test only with 'newToDate' date, missing 'newFromDate'
+        individual = api.update_enrollment(self.ctx,
+                                           '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                                           datetime.datetime(2012, 1, 1),
+                                           datetime.datetime(2014, 1, 1),
+                                           new_to_date=datetime.datetime(2013, 12, 31))
+
+        # Tests
+        self.assertIsInstance(individual, Individual)
+
+        enrollments = individual.enrollments.all()
+        self.assertEqual(len(enrollments), 1)
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.group.name, 'Example')
+        self.assertEqual(enrollment.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2013, 12, 31, tzinfo=UTC))
+
+        # Check database objects
+        individual_db = Individual.objects.get(mk='3283e58cef2b80007aa1dfc16f6dd20ace1aee96')
+        enrollments_db = individual_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 1)
+
+        enrollment_db = enrollments_db[0]
+        self.assertEqual(enrollment_db.group.name, 'Example')
+        self.assertEqual(enrollment.start, datetime.datetime(2012, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment.end, datetime.datetime(2013, 12, 31, tzinfo=UTC))
+
+    def test_update_both_new_dates_none(self):
+        """Check if it fails when no new dates are provided (None)"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(InvalidValueError, BOTH_NEW_DATES_NONE_OR_EMPTY_ERROR):
+            api.update_enrollment(self.ctx,
+                                  '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                                  datetime.datetime(2012, 1, 1),
+                                  datetime.datetime(2014, 1, 1))
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_update_both_new_dates_empty(self):
+        """Check if it fails when no new dates are provided (empty)"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(InvalidValueError, BOTH_NEW_DATES_NONE_OR_EMPTY_ERROR):
+            api.update_enrollment(self.ctx,
+                                  '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                                  datetime.datetime(2012, 1, 1),
+                                  datetime.datetime(2014, 1, 1),
+                                  new_from_date='', new_to_date='')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_update_empty_former_dates(self):
+        """Check if it fails when former dates are empty"""
+
+        # Empty from_date
+        with self.assertRaisesRegex(InvalidValueError, FROM_DATE_NONE_OR_EMPTY_ERROR):
+            api.update_enrollment(self.ctx,
+                                  '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                                  '', datetime.datetime(2014, 1, 1),
+                                  new_from_date=datetime.datetime(2012, 1, 2),
+                                  new_to_date=datetime.datetime(2013, 12, 31))
+
+        # Empty to_date
+        with self.assertRaisesRegex(InvalidValueError, TO_DATE_NONE_OR_EMPTY_ERROR):
+            api.update_enrollment(self.ctx,
+                                  '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                                  datetime.datetime(2014, 1, 1), '',
+                                  new_from_date=datetime.datetime(2012, 1, 2),
+                                  new_to_date=datetime.datetime(2013, 12, 31))
+
+        # Both dates empty
+        with self.assertRaisesRegex(InvalidValueError, FROM_DATE_NONE_OR_EMPTY_ERROR):
+            api.update_enrollment(self.ctx,
+                                  '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                                  '', '',
+                                  new_from_date=datetime.datetime(2012, 1, 2),
+                                  new_to_date=datetime.datetime(2013, 12, 31))
+
+    def test_update_none_former_from_date(self):
+        """Check if it fails when former from_date is None"""
+
+        with self.assertRaisesRegex(InvalidValueError, FROM_DATE_NONE_OR_EMPTY_ERROR):
+            api.update_enrollment(self.ctx,
+                                  '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                                  None, datetime.datetime(2014, 1, 1),
+                                  new_from_date=datetime.datetime(2012, 1, 2),
+                                  new_to_date=datetime.datetime(2013, 12, 31))
+
+    def test_update_none_former_to_date(self):
+        """Check if it fails when former to_date is None"""
+
+        with self.assertRaisesRegex(InvalidValueError, TO_DATE_NONE_OR_EMPTY_ERROR):
+            api.update_enrollment(self.ctx,
+                                  '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                                  datetime.datetime(2014, 1, 1), None,
+                                  new_from_date=datetime.datetime(2012, 1, 2),
+                                  new_to_date=datetime.datetime(2013, 12, 31))
+
+    def test_update_none_former_dates(self):
+        """Check if it fails when both former dates are None"""
+
+        with self.assertRaisesRegex(InvalidValueError, FROM_DATE_NONE_OR_EMPTY_ERROR):
+            api.update_enrollment(self.ctx,
+                                  '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                                  None, None,
+                                  new_from_date=datetime.datetime(2012, 1, 2),
+                                  new_to_date=datetime.datetime(2013, 12, 31))
+
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
+
+        before_dt = datetime_utcnow()
+        individual = api.update_enrollment(self.ctx,
+                                           '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                                           datetime.datetime(2012, 1, 1),
+                                           datetime.datetime(2014, 1, 1),
+                                           new_from_date=datetime.datetime(2012, 1, 2),
+                                           new_to_date=datetime.datetime(2013, 12, 31))
+        after_dt = datetime_utcnow()
+
+        self.assertLessEqual(before_dt, individual.last_modified)
+        self.assertGreaterEqual(after_dt, individual.last_modified)
+
+    def test_period_invalid(self):
+        """Check whether enrollments cannot be updated giving invalid period ranges"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        data = {
+            'from_date': r'2001-01-01 00:00:00',
+            'to_date': r'1999-01-01 00:00:00'
+        }
+        msg = UPDATE_ENROLLMENT_PERIOD_INVALID_ERROR.format(**data)
+
+        with self.assertRaisesRegex(InvalidValueError, msg):
+            api.update_enrollment(self.ctx,
+                                  '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                                  datetime.datetime(2001, 1, 1),
+                                  datetime.datetime(1999, 1, 1),
+                                  new_from_date=datetime.datetime(2012, 1, 2),
+                                  new_to_date=datetime.datetime(2013, 12, 31))
+
+        msg = UPDATE_ENROLLMENT_NEW_PERIOD_INVALID_ERROR.format(**data)
+
+        with self.assertRaisesRegex(InvalidValueError, msg):
+            api.update_enrollment(self.ctx,
+                                  '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                                  datetime.datetime(2012, 1, 1),
+                                  datetime.datetime(2014, 1, 1),
+                                  new_from_date=datetime.datetime(2001, 1, 1),
+                                  new_to_date=datetime.datetime(1999, 1, 1))
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_period_out_of_bounds(self):
+        """Check whether enrollments cannot be updated giving periods out of bounds"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        data = {
+            'type': 'from_date',
+            'date': r'1899-12-31 23:59:59\+00:00'
+        }
+        msg = PERIOD_OUT_OF_BOUNDS_ERROR.format(**data)
+
+        with self.assertRaisesRegex(InvalidValueError, msg):
+            api.update_enrollment(self.ctx,
+                                  '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                                  datetime.datetime(1899, 12, 31, 23, 59, 59),
+                                  datetime.datetime(2014, 1, 1),
+                                  new_from_date=datetime.datetime(2012, 1, 2),
+                                  new_to_date=datetime.datetime(2013, 12, 31))
+
+        data = {
+            'type': 'to_date',
+            'date': r'2100-01-01 00:00:01\+00:00'
+        }
+        msg = PERIOD_OUT_OF_BOUNDS_ERROR.format(**data)
+
+        with self.assertRaisesRegex(InvalidValueError, msg):
+            api.update_enrollment(self.ctx,
+                                  '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                                  datetime.datetime(2012, 1, 1),
+                                  datetime.datetime(2100, 1, 1, 0, 0, 1),
+                                  new_from_date=datetime.datetime(2012, 1, 2),
+                                  new_to_date=datetime.datetime(2013, 12, 31))
+
+        data = {
+            'type': 'from_date',
+            'date': r'1898-12-31 23:59:59\+00:00'
+        }
+        msg = PERIOD_OUT_OF_BOUNDS_ERROR.format(**data)
+
+        with self.assertRaisesRegex(InvalidValueError, msg):
+            individual = api.update_enrollment(self.ctx,
+                                               '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                                               datetime.datetime(1898, 12, 31, 23, 59, 59),
+                                               datetime.datetime(1899, 12, 31, 23, 59, 59),
+                                               new_from_date=datetime.datetime(2012, 1, 2),
+                                               new_to_date=datetime.datetime(2013, 12, 31))
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_non_existing_uuid(self):
+        """Check if it fails updating from not existing individuals"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        msg = NOT_FOUND_ERROR.format(entity='abcdefghijklmnopqrstuvwxyz')
+
+        with self.assertRaisesRegex(NotFoundError, msg):
+            api.update_enrollment(self.ctx,
+                                  'abcdefghijklmnopqrstuvwxyz', 'Example',
+                                  datetime.datetime(2012, 1, 1),
+                                  datetime.datetime(2014, 1, 1),
+                                  new_from_date=datetime.datetime(2012, 1, 2),
+                                  new_to_date=datetime.datetime(2013, 12, 31))
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_non_existing_organization(self):
+        """Check if it fails updating from not existing organizations"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        msg = NOT_FOUND_ERROR.format(entity='LibreSoft')
+
+        with self.assertRaisesRegex(NotFoundError, msg):
+            api.update_enrollment(self.ctx,
+                                  '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'LibreSoft',
+                                  datetime.datetime(2012, 1, 1),
+                                  datetime.datetime(2014, 1, 1),
+                                  new_from_date=datetime.datetime(2012, 1, 2),
+                                  new_to_date=datetime.datetime(2013, 12, 31))
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_non_existing_enrollment(self):
+        """Check if it fails updating not existing enrollments"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaises(NotFoundError):
+            api.update_enrollment(self.ctx,
+                                  '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                                  datetime.datetime(2050, 1, 1),
+                                  datetime.datetime(2060, 1, 1),
+                                  new_from_date=datetime.datetime(2012, 1, 2),
+                                  new_to_date=datetime.datetime(2013, 12, 31))
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_locked_uuid(self):
+        """Check if it fails when the individual is locked"""
+
+        uuid = '3283e58cef2b80007aa1dfc16f6dd20ace1aee96'
+
+        individual = Individual.objects.get(mk=uuid)
+        individual.is_locked = True
+        individual.save()
+
+        msg = UUID_LOCKED_ERROR.format(uuid=uuid)
+        with self.assertRaisesRegex(LockedIdentityError, msg):
+            api.update_enrollment(self.ctx,
+                                  '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                                  datetime.datetime(2012, 1, 1),
+                                  datetime.datetime(2014, 1, 1),
+                                  new_from_date=datetime.datetime(2012, 1, 2),
+                                  new_to_date=datetime.datetime(2013, 12, 31))
+
+    def test_transaction(self):
+        """Check if a transaction is created when updating an enrollment"""
+
+        timestamp = datetime_utcnow()
+
+        api.update_enrollment(self.ctx,
+                              '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                              datetime.datetime(2012, 1, 1),
+                              datetime.datetime(2014, 1, 1),
+                              new_from_date=datetime.datetime(2012, 1, 2),
+                              new_to_date=datetime.datetime(2013, 12, 31))
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        self.assertEqual(len(transactions), 3)
+
+        trx = transactions[0]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'update_enrollment')
+        self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, self.ctx.user.username)
+
+        trx = transactions[1]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'withdraw')
+        self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, self.ctx.user.username)
+
+        trx = transactions[2]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'enroll')
+        self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, self.ctx.user.username)
+
+    def test_operations(self):
+        """Check if the right operations are created when updating an enrollment"""
+
+        timestamp = datetime_utcnow()
+
+        api.update_enrollment(self.ctx,
+                              '3283e58cef2b80007aa1dfc16f6dd20ace1aee96', 'Example',
+                              datetime.datetime(2012, 1, 1),
+                              datetime.datetime(2014, 1, 1),
+                              new_from_date=datetime.datetime(2012, 1, 2),
+                              new_to_date=datetime.datetime(2013, 12, 31))
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        self.assertEqual(len(transactions), 3)
+
+        trx = transactions[0]
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 0)
+
+        trx = transactions[1]
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.DELETE.value)
+        self.assertEqual(op1.entity_type, 'enrollment')
+        self.assertEqual(op1.target, '3283e58cef2b80007aa1dfc16f6dd20ace1aee96')
+        self.assertEqual(op1.trx, trx)
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 4)
+        self.assertEqual(op1_args['mk'], '3283e58cef2b80007aa1dfc16f6dd20ace1aee96')
+        self.assertEqual(op1_args['group'], 'Example')
+        self.assertEqual(op1_args['start'], str(datetime_to_utc(datetime.datetime(2012, 1, 1))))
+        self.assertEqual(op1_args['end'], str(datetime_to_utc(datetime.datetime(2014, 1, 1))))
+
+        trx = transactions[2]
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op2 = operations[0]
+        self.assertIsInstance(op2, Operation)
+        self.assertEqual(op2.op_type, Operation.OpType.ADD.value)
+        self.assertEqual(op2.entity_type, 'enrollment')
+        self.assertEqual(op2.target, '3283e58cef2b80007aa1dfc16f6dd20ace1aee96')
+        self.assertEqual(op2.trx, trx)
+        self.assertGreater(op2.timestamp, timestamp)
+
+        op2_args = json.loads(op2.args)
+        self.assertEqual(len(op2_args), 4)
+        self.assertEqual(op2_args['individual'], '3283e58cef2b80007aa1dfc16f6dd20ace1aee96')
+        self.assertEqual(op2_args['group'], 'Example')
+        self.assertEqual(op2_args['start'], str(datetime_to_utc(datetime.datetime(2012, 1, 2))))
+        self.assertEqual(op2_args['end'], str(datetime_to_utc(datetime.datetime(2013, 12, 31))))
+
+
+class TestMergeIndividuals(TestCase):
+    """Unit tests for merge"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        api.add_organization(self.ctx, 'Example')
+        api.add_organization(self.ctx, 'Bitergia')
+
+        Country.objects.create(code='US',
+                               name='United States of America',
+                               alpha3='USA')
+
+        api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_identity(self.ctx,
+                         'git',
+                         email='jsmith-git@example',
+                         uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                   from_date=datetime.datetime(1900, 1, 1),
+                   to_date=datetime.datetime(2017, 6, 1))
+
+        api.add_identity(self.ctx, 'scm', email='jsmith@bitergia')
+        api.add_identity(self.ctx,
+                         'phabricator',
+                         email='jsmith-phab@bitergia',
+                         uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        api.enroll(self.ctx,
+                   'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed', 'Bitergia',
+                   from_date=datetime.datetime(2017, 6, 2),
+                   to_date=datetime.datetime(2100, 1, 1))
+
+        api.add_identity(self.ctx, 'scm', email='jsmith-local@bitergia')
+        api.enroll(self.ctx,
+                   'a11604f983f8786913e6d1449f2eac1618b0b2ee', 'Bitergia',
+                   from_date=datetime.datetime(2017, 4, 1),
+                   to_date=datetime.datetime(2100, 1, 1))
+
+        api.add_identity(self.ctx, 'scm', email='jsmith-internship@example')
+        api.enroll(self.ctx,
+                   '4dd0fdcd06a6be6f0b7893bf1afcef3e3191753a', 'Example',
+                   from_date=datetime.datetime(2015, 1, 1),
+                   to_date=datetime.datetime(2100, 1, 1))
+
+        api.add_identity(self.ctx, 'scm', email='john.doe@bitergia')
+        api.enroll(self.ctx,
+                   'ebe8f55d8988fce02997389d530579ad939f1698', 'Bitergia',
+                   from_date=datetime.datetime(1900, 1, 1),
+                   to_date=datetime.datetime(2015, 1, 1))
+        api.enroll(self.ctx,
+                   'ebe8f55d8988fce02997389d530579ad939f1698', 'Example',
+                   from_date=datetime.datetime(2015, 1, 2),
+                   to_date=datetime.datetime(2016, 12, 31))
+        api.enroll(self.ctx,
+                   'ebe8f55d8988fce02997389d530579ad939f1698', 'Bitergia',
+                   from_date=datetime.datetime(2017, 1, 1),
+                   to_date=datetime.datetime(2100, 1, 1))
+
+        api.add_identity(self.ctx, 'scm', email='john.doe@biterg.io')
+        api.enroll(self.ctx, '437386d9d072320387d0c802f772a5401cddc3e6', 'Bitergia')
+
+        api.add_identity(self.ctx, 'phabricator', email='jsmith@example-phab')
+        api.enroll(self.ctx,
+                   'f29b50520d35d046db0d53b301418ad9aa16e7e3', 'Example',
+                   from_date=datetime.datetime(1900, 1, 1),
+                   to_date=datetime.datetime(2017, 6, 1))
+
+        api.add_identity(self.ctx, 'scm', email='jsmith@libresoft')
+        api.add_identity(self.ctx,
+                         'phabricator',
+                         email='jsmith2@libresoft',
+                         uuid='1c13fec7a328201fc6a230fe43eb81df0e20626e')
+        api.add_identity(self.ctx,
+                         'phabricator',
+                         email='jsmith3@libresoft',
+                         uuid='1c13fec7a328201fc6a230fe43eb81df0e20626e')
+        api.update_profile(self.ctx,
+                           uuid='1c13fec7a328201fc6a230fe43eb81df0e20626e',
+                           name='John Smith',
+                           email='jsmith@profile-email',
+                           is_bot=False,
+                           country_code='US')
+
+    def test_merge_identities(self):
+        """Check whether it merges two individuals, merging their ids, enrollments and profiles"""
+
+        api.update_profile(self.ctx,
+                           uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+                           name='J. Smith',
+                           email='jsmith@example',
+                           gender='male',
+                           gender_acc=75)
+
+        api.update_profile(self.ctx,
+                           uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed',
+                           name='John Smith',
+                           email='jsmith@profile-email',
+                           is_bot=True,
+                           country_code='US')
+
+        individual = api.merge(self.ctx,
+                               from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
+                               to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+
+        # Tests
+        self.assertIsInstance(individual, Individual)
+        self.assertEqual(individual.mk, 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+
+        profile = individual.profile
+        self.assertEqual(profile.name, 'John Smith')
+        self.assertEqual(profile.email, 'jsmith@profile-email')
+        self.assertEqual(profile.gender, 'male')
+        self.assertEqual(profile.gender_acc, 75)
+        self.assertEqual(profile.is_bot, True)
+        self.assertEqual(profile.country_id, 'US')
+        self.assertEqual(profile.country.name, 'United States of America')
+        self.assertEqual(profile.country.code, 'US')
+        self.assertEqual(profile.country.alpha3, 'USA')
+
+        identities = individual.identities.all()
+        self.assertEqual(len(identities), 4)
 
         id1 = identities[0]
-        self.assertEqual(id1.email, 'jsmith@example.com')
+        self.assertEqual(id1.uuid, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(id1.email, 'jsmith-git@example')
+        self.assertEqual(id1.source, 'git')
 
         id2 = identities[1]
-        self.assertEqual(id2.email, 'jsmith@bitergia.com')
-        self.assertEqual(id2.source, 'mls')
+        self.assertEqual(id2.uuid, '9225e296be341c20c11c4bae76df4190a5c4a918')
+        self.assertEqual(id2.email, 'jsmith-phab@bitergia')
+        self.assertEqual(id2.source, 'phabricator')
 
         id3 = identities[2]
-        self.assertEqual(id3.email, 'jsmith@bitergia.com')
+        self.assertEqual(id3.uuid, 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        self.assertEqual(id3.email, 'jsmith@bitergia')
         self.assertEqual(id3.source, 'scm')
 
-        # Test John Doe unique identity
-        uid = uidentities[1]
-        self.assertEqual(uid.uuid, 'c6d2504fde0e34b78a185c4b709e5442d045451c')
-        self.assertEqual(uid.profile.name, None)
-        self.assertEqual(uid.profile.email, None)
+        id4 = identities[3]
+        self.assertEqual(id4.uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(id4.email, 'jsmith@example')
+        self.assertEqual(id4.source, 'scm')
 
-        self.assertEqual(len(uid.identities), 2)
+        enrollments = individual.enrollments.all()
+        self.assertEqual(len(enrollments), 2)
 
-        identities = uid.identities
-        identities.sort(key=lambda x: x.id)
+        rol1 = enrollments[0]
+        self.assertEqual(rol1.group.name, 'Example')
+        self.assertEqual(rol1.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
+        self.assertEqual(rol1.end, datetime.datetime(2017, 6, 1, tzinfo=UTC))
+
+        rol2 = enrollments[1]
+        self.assertEqual(rol2.group.name, 'Bitergia')
+        self.assertEqual(rol2.start, datetime.datetime(2017, 6, 2, tzinfo=UTC))
+        self.assertEqual(rol2.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
+
+    def test_merge_multiple_individuals(self):
+        """Check whether it merges more than two individuals, merging their ids, enrollments and profiles"""
+
+        api.update_profile(self.ctx,
+                           uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+                           name='J. Smith',
+                           email='jsmith@example',
+                           gender='male',
+                           gender_acc=75)
+
+        api.update_profile(self.ctx,
+                           uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed',
+                           name='John Smith',
+                           email='jsmith@profile-email',
+                           is_bot=True,
+                           country_code='US')
+
+        individual = api.merge(self.ctx,
+                               from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+                                           '1c13fec7a328201fc6a230fe43eb81df0e20626e'],
+                               to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+
+        # Tests
+        self.assertIsInstance(individual, Individual)
+        self.assertEqual(individual.mk, 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+
+        profile = individual.profile
+        self.assertEqual(profile.name, 'John Smith')
+        self.assertEqual(profile.email, 'jsmith@profile-email')
+        self.assertEqual(profile.gender, 'male')
+        self.assertEqual(profile.gender_acc, 75)
+        self.assertEqual(profile.is_bot, True)
+        self.assertEqual(profile.country_id, 'US')
+        self.assertEqual(profile.country.name, 'United States of America')
+        self.assertEqual(profile.country.code, 'US')
+        self.assertEqual(profile.country.alpha3, 'USA')
+
+        identities = individual.identities.all()
+        self.assertEqual(len(identities), 7)
 
         id1 = identities[0]
-        self.assertEqual(id1.email, 'jdoe@libresoft.es')
+        self.assertEqual(id1.uuid, '1c13fec7a328201fc6a230fe43eb81df0e20626e')
+        self.assertEqual(id1.email, 'jsmith@libresoft')
+        self.assertEqual(id1.source, 'scm')
 
         id2 = identities[1]
-        self.assertEqual(id2.email, 'jdoe@example.com')
-
-    def test_unique_identities_source(self):
-        """Check if it returns the registry of unique identities assigned to a source"""
-
-        # Add some identities
-        jsmith_uuid = api.add_identity(self.db, 'scm', 'jsmith@example.com',
-                                       'John Smith', 'jsmith')
-        api.add_identity(self.db, 'scm', 'jsmith@bitergia.com', uuid=jsmith_uuid)
-        api.add_identity(self.db, 'mls', 'jsmith@bitergia.com', uuid=jsmith_uuid)
-
-        jdoe_uuid = api.add_identity(self.db, 'scm', 'jdoe@example.com',
-                                     'John Doe', 'jdoe')
-        api.add_identity(self.db, 'scm', 'jdoe@libresoft.es', uuid=jdoe_uuid)
-
-        # Test unique identities with source 'mls'
-        uidentities = api.unique_identities(self.db, source='mls')
-        self.assertEqual(len(uidentities), 1)
-
-        uid = uidentities[0]
-        self.assertEqual(uid.uuid, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
-
-        # No unique identities for 'its' source
-        uidentities = api.unique_identities(self.db, source='its')
-        self.assertEqual(len(uidentities), 0)
-
-    def test_unique_identity_uuid(self):
-        """Check if it returns the given unique identitie"""
-
-        # Add some identities
-        api.add_identity(self.db, 'scm', 'jsmith@example.com',
-                         'John Smith', 'jsmith')
-        api.add_identity(self.db, 'scm', 'jdoe@example.com',
-                         'John Doe', 'jdoe')
-
-        # Tests
-        uidentities = api.unique_identities(self.db, uuid='a9b403e150dd4af8953a52a4bb841051e4b705d9')
-        self.assertEqual(len(uidentities), 1)
-
-        uid = uidentities[0]
-        self.assertEqual(uid.uuid, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
-        self.assertEqual(len(uid.identities), 1)
-
-        id1 = uid.identities[0]
-        self.assertEqual(id1.email, 'jsmith@example.com')
-
-        # Using the source parameter should return the same result
-        uidentities = api.unique_identities(self.db,
-                                            uuid='a9b403e150dd4af8953a52a4bb841051e4b705d9',
-                                            source='scm')
-        self.assertEqual(len(uidentities), 1)
-
-        uid = uidentities[0]
-        self.assertEqual(uid.uuid, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
-
-    def test_empty_registry(self):
-        """Check whether it returns an empty list when the registry is empty"""
-
-        identities = api.unique_identities(self.db)
-        self.assertListEqual(identities, [])
-
-    def test_not_found_uuid(self):
-        """Check whether it raises an error when the uuid is not available"""
-
-        # It should raise an error when the registry is empty
-        self.assertRaises(NotFoundError, api.unique_identities,
-                          self.db, 'John Smith')
-
-        # It should do the same when there are some identities available
-        api.add_unique_identity(self.db, 'John Smith')
-        api.add_unique_identity(self.db, 'John Doe')
-
-        self.assertRaises(NotFoundError, api.unique_identities,
-                          self.db, 'Jane Rae')
-
-        # Or even using a valid uuid but an invalid source parameter
-        self.assertRaises(NotFoundError, api.unique_identities,
-                          self.db, 'John Smith', 'scm')
-
-
-class TestSearchUniqueIdentities(TestAPICaseBase):
-    """Unit tests for search_unique_identities"""
-
-    def test_search_unique_identities(self):
-        """Check if it returns the unique identities that match with the criteria"""
-
-        # Add a country
-        with self.db.connect() as session:
-            us = Country(code='US', name='United States of America', alpha3='USA')
-            session.add(us)
-
-        # Add some identities
-        jsmith_uuid = api.add_identity(self.db, 'scm', 'jsmith@example.com',
-                                       'John Smith', 'jsmith')
-        api.add_identity(self.db, 'scm', 'jsmith@bitergia.com', uuid=jsmith_uuid)
-        api.add_identity(self.db, 'mls', 'jsmith@bitergia.com', uuid=jsmith_uuid)
-        api.edit_profile(self.db, jsmith_uuid, email='jsmith@example.com',
-                         is_bot=True, country_code='US')
-
-        jdoe_uuid = api.add_identity(self.db, 'scm', 'jdoe@example.com',
-                                     'John Doe', 'jdoe')
-        api.add_identity(self.db, 'scm', 'jdoe@libresoft.es',
-                         'jdoe', 'jdoe', uuid=jdoe_uuid)
-
-        # Tests
-        uids = api.search_unique_identities(self.db, 'jsmith')
-        self.assertEqual(len(uids), 1)
-        self.assertEqual(uids[0].uuid, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
-        self.assertEqual(len(uids[0].identities), 3)
-
-        uids = api.search_unique_identities(self.db, 'john')
-        self.assertEqual(len(uids), 2)
-        self.assertEqual(uids[0].uuid, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
-        self.assertEqual(len(uids[0].identities), 3)
-        self.assertEqual(uids[1].uuid, 'c6d2504fde0e34b78a185c4b709e5442d045451c')
-        self.assertEqual(len(uids[1].identities), 2)
-
-        # None values can also be used
-        uids = api.search_unique_identities(self.db, None)
-        self.assertEqual(len(uids), 1)
-        self.assertEqual(uids[0].uuid, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
-        self.assertEqual(len(uids[0].identities), 3)
-
-    def test_search_4bytes_utf8_identities(self):
-        """Check if it returns the unique identities which have 4 bytes UTF8-characters"""
-
-        # Add some identities
-        jsmith_uuid = api.add_identity(self.db, 'scm', 'jsmith@example.com',
-                                       'John Smith', 'jsmith')
-        api.add_identity(self.db, 'scm', 'jsmith@bitergia.com', uuid=jsmith_uuid)
-        api.add_identity(self.db, 'mls', 'jsmith@bitergia.com', uuid=jsmith_uuid)
-
-        jdoe_uuid = api.add_identity(self.db, 'scm', 'jdoe@example.com',
-                                     'John Doe', 'jdoe')
-        api.add_identity(self.db, 'scm', 'jdoe@libresoft.es',
-                         'jdoe', 'jdoe', uuid=jdoe_uuid)
-
-        emoji_uuid = api.add_identity(self.db, 'scm', name='😂',
-                                      email='😂', username='😂')
-
-        # An emoji is 4 bytes UTF-8 character
-        uids = api.search_unique_identities(self.db, '😂')
-        self.assertEqual(len(uids), 1)
-        self.assertEqual(uids[0].uuid, '843fcc3383ddfd6179bef87996fa761d88a43915')
-        self.assertEqual(len(uids[0].identities), 1)
-
-    def test_filter_source(self):
-        """Check if it returns a set of identities linked to the given source"""
-
-        # Add some identities
-        api.add_identity(self.db, 'scm', 'jsmith@example.com',
-                         'John Smith', 'jsmith')
-        api.add_identity(self.db, 'mls', 'jsmith@bitergia.com')
-
-        # Tests
-        uids = api.search_unique_identities(self.db, 'jsmith')
-        self.assertEqual(len(uids), 2)
-
-        uids = api.search_unique_identities(self.db, 'jsmith', source='scm')
-        self.assertEqual(len(uids), 1)
-        self.assertEqual(uids[0].uuid, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
-        self.assertEqual(len(uids[0].identities), 1)
-
-    def test_empty_registry(self):
-        """Check whether it returns an exception when the registry is empty"""
-
-        self.assertRaises(NotFoundError, api.search_unique_identities,
-                          self.db, None)
-
-    def test_term_not_found(self):
-        """Check whether it raises an error when the term is not found"""
-
-        # It should raise an error when the registry is empty
-        self.assertRaises(NotFoundError, api.search_unique_identities,
-                          self.db, 'John Smith')
-
-        # It should do the same when there are some identities available
-        api.add_identity(self.db, 'scm', 'jsmith@example.com',
-                         'John Smith', 'jsmith')
-        api.add_identity(self.db, 'scm', 'jdoe@example.com',
-                         'John Doe', 'jdoe')
-
-        self.assertRaises(NotFoundError, api.search_unique_identities,
-                          self.db, 'Jane Rae')
-
-
-class TestSearchUniqueIdentitiesSlice(TestAPICaseBase):
-    """Unit tests for search_unique_identitie_slice"""
-
-    def test_search_unique_identities_slice(self):
-        """Check if it returns a slice of unique identities that match with the criteria"""
-
-        # Add a country
-        with self.db.connect() as session:
-            us = Country(code='US', name='United States of America', alpha3='USA')
-            session.add(us)
-
-        # Add some identities
-        jsmith_uuid = api.add_identity(self.db, 'scm', 'jsmith@example.com',
-                                       'John Smith', 'jsmith')
-        api.add_identity(self.db, 'scm', 'jsmith@bitergia.com', uuid=jsmith_uuid)
-        api.add_identity(self.db, 'mls', 'jsmith@bitergia.com', uuid=jsmith_uuid)
-        api.edit_profile(self.db, jsmith_uuid, email='jsmith@example.com',
-                         is_bot=True, country_code='US')
-
-        api.add_identity(self.db, 'scm', 'jdoe@example.com',
-                         'John Doe', 'jdoe')
-        api.add_identity(self.db, 'scm', 'jdoe@libresoft.es',
-                         'John', 'jdoe')
-
-        # Tests
-        uids, ntotal = api.search_unique_identities_slice(self.db, 'jsmith', 0, 100)
-        self.assertEqual(len(uids), 1)
-        self.assertEqual(ntotal, 1)
-        self.assertEqual(uids[0].uuid, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
-
-        uids, ntotal = api.search_unique_identities_slice(self.db, 'john', 0, 100)
-        self.assertEqual(len(uids), 3)
-        self.assertEqual(ntotal, 3)
-        self.assertEqual(uids[0].uuid, '56de4d86c1bed9979cd89d98bd2ea4a898f30cc6')
-        self.assertEqual(uids[1].uuid, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
-        self.assertEqual(uids[2].uuid, 'c6d2504fde0e34b78a185c4b709e5442d045451c')
-
-        # None values can also be used
-        uids, ntotal = api.search_unique_identities_slice(self.db, None, 0, 100)
-        self.assertEqual(len(uids), 3)
-        self.assertEqual(ntotal, 3)
-        self.assertEqual(uids[0].uuid, '56de4d86c1bed9979cd89d98bd2ea4a898f30cc6')
-        self.assertEqual(uids[1].uuid, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
-        self.assertEqual(uids[2].uuid, 'c6d2504fde0e34b78a185c4b709e5442d045451c')
-
-    def test_filter_by_slice(self):
-        """Check if it returns a set of identities filtered by slice"""
-
-        # Add some identities
-        api.add_identity(self.db, 'scm', 'jsmith@example.com',
-                         'John Smith', 'jsmith')
-        api.add_identity(self.db, 'scm', 'jsmith@bitergia.com')
-        api.add_identity(self.db, 'mls', 'jsmith@bitergia.com')
-        api.add_identity(self.db, 'scm', 'jdoe@example.com', 'John Doe', 'jdoe')
-
-        # Tests
-        uids, ntotal = api.search_unique_identities_slice(self.db, 'jsmith', 0, 2)
-        self.assertEqual(len(uids), 2)
-        self.assertEqual(ntotal, 3)
-        self.assertEqual(uids[0].uuid, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
-        self.assertEqual(uids[1].uuid, 'acced28b86278f00a21080d695ecb34b81a1828f')
-
-        uids, ntotal = api.search_unique_identities_slice(self.db, 'jsmith', 2, 2)
-        self.assertEqual(len(uids), 1)
-        self.assertEqual(ntotal, 3)
-        self.assertEqual(uids[0].uuid, 'ebcda394c978d50847d60015892f9ca0f0ccde65')
-
-        # No more results
-        uids, ntotal = api.search_unique_identities_slice(self.db, 'jsmith', 3, 2)
-        self.assertListEqual(uids, [])
-        self.assertEqual(ntotal, 3)
-
-    def test_search_4bytes_utf8_identities_by_slice(self):
-        """Check if it returns a slice of unique identities which have 4 bytes UTF8-characters filtered by slice"""
-
-        emoji_name = api.add_identity(self.db, 'scm', name='😂')
-        emoji_email = api.add_identity(self.db, 'scm', email='😂')
-        emoji_username = api.add_identity(self.db, 'scm', username='😂')
-        emoji = api.add_identity(self.db, 'scm', name='😂', email='😂', username='😂')
-
-        # Tests
-        uids, ntotal = api.search_unique_identities_slice(self.db, '😂', 0, 2)
-        self.assertEqual(len(uids), 2)
-        self.assertEqual(ntotal, 4)
-        self.assertEqual(uids[0].uuid, emoji_email)
-        self.assertEqual(len(uids[0].identities), 1)
-        self.assertEqual(uids[1].uuid, emoji)
-        self.assertEqual(len(uids[0].identities), 1)
-
-        uids, ntotal = api.search_unique_identities_slice(self.db, '😂', 2, 2)
-        self.assertEqual(len(uids), 2)
-        self.assertEqual(ntotal, 4)
-        self.assertEqual(uids[0].uuid, emoji_name)
-        self.assertEqual(len(uids[0].identities), 1)
-        self.assertEqual(uids[1].uuid, emoji_username)
-        self.assertEqual(len(uids[0].identities), 1)
-
-        # No more results
-        uids, ntotal = api.search_unique_identities_slice(self.db, '😂', 4, 2)
-        self.assertListEqual(uids, [])
-        self.assertEqual(ntotal, 4)
-
-    def test_unique_identities_slice(self):
-        """Test if a given number of unique identities is returned"""
-
-        uuid = api.add_identity(self.db, 'scm', 'jsmith@example.com',
-                                'John Smith', 'jsmith')
-        api.add_identity(self.db, 'scm', 'jsmith@bitergia.com', uuid=uuid)
-        api.add_identity(self.db, 'scm', None, None, 'jsmith', uuid=uuid)
-
-        uuid = api.add_identity(self.db, 'scm', 'jdoe@example.com', 'John Doe', 'jdoe')
-        api.add_identity(self.db, 'scm', None, 'John Doe', 'jdoe', uuid=uuid)
-
-        # This call should return 2 unique identities at most
-        # Even when all the identities match with the request
-        uids, ntotal = api.search_unique_identities_slice(self.db, None, 0, 2)
-        self.assertEqual(len(uids), 2)
-        self.assertEqual(ntotal, 2)
-        self.assertEqual(uids[0].uuid, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
-        self.assertEqual(uids[1].uuid, 'c6d2504fde0e34b78a185c4b709e5442d045451c')
-
-    def test_empty_registry(self):
-        """Check whether it returns an empty list when the registry is empty"""
-
-        uids, ntotal = api.search_unique_identities_slice(self.db, None, 0, 100)
-        self.assertListEqual(uids, [])
-        self.assertEqual(ntotal, 0)
-
-    def test_term_not_found(self):
-        """Check whether it returns an empty list when the term is not found"""
-
-        # Empty registry
-        uids, ntotal = api.search_unique_identities_slice(self.db, 'Jane Rae', 0, 100)
-        self.assertListEqual(uids, [])
-        self.assertEqual(ntotal, 0)
-
-        # It should do the same when there are some identities available
-        api.add_identity(self.db, 'scm', 'jsmith@example.com',
-                         'John Smith', 'jsmith')
-        api.add_identity(self.db, 'scm', 'jdoe@example.com',
-                         'John Doe', 'jdoe')
-
-        uids, ntotal = api.search_unique_identities_slice(self.db, 'Jane Rae', 0, 100)
-        self.assertListEqual(uids, [])
-        self.assertEqual(ntotal, 0)
-
-    def test_invalid_offset(self):
-        """Check whether it raises an exception when offset value is invalid"""
-
-        self.assertRaises(ValueError, api.search_unique_identities_slice,
-                          self.db, None, -1, 100)
-
-    def test_invalid_limit(self):
-        """Check whether it raises an exception when limit value is invalid"""
-
-        self.assertRaises(ValueError, api.search_unique_identities_slice,
-                          self.db, None, 1, -1)
-
-
-class TestSearchLastModifiedIdentities(TestAPICaseBase):
-    """Unit tests for last_modified_identities"""
-
-    def test_search_last_modified_identities(self):
-        """Check if it returns the uuids of the modified identities"""
-
-        # Add identities
-        before_dt = datetime.datetime.utcnow()
-        api.add_unique_identity(self.db, 'John Smith')
-        jsmith_id = api.add_identity(self.db, 'scm', 'jsmith@example.com',
-                                     uuid='John Smith')
-
-        api.add_unique_identity(self.db, 'John Doe')
-        jdoe_id = api.add_identity(self.db, 'scm', 'jdoe@example.com',
-                                   uuid='John Doe')
-        jdoe_alt_id = api.add_identity(self.db, 'scm', 'jdoe@example.com', 'Jon Doe',
-                                       uuid='John Doe')
-
-        # Check if all uuids are returned
-        ids = api.search_last_modified_identities(self.db, before_dt)
-        self.assertListEqual(ids, [jdoe_id, jsmith_id, jdoe_alt_id])
-
-        # Update identities
-        before_move_dt = datetime.datetime.utcnow()
-        api.move_identity(self.db, jdoe_id, 'John Smith')
-
-        # Check if only modified uuids are returned
-        ids = api.search_last_modified_identities(self.db, before_move_dt)
-        self.assertListEqual(ids, [jdoe_id])
-
-    def test_search_last_modified_unique_identities(self):
-        """Check if it returns the uuids of the modified unique identities"""
-
-        # Add identities
-        before_dt = datetime.datetime.utcnow()
-        api.add_unique_identity(self.db, 'John Smith')
-        jsmith_id = api.add_identity(self.db, 'scm', 'jsmith@example.com',
-                                     uuid='John Smith')
-
-        api.add_unique_identity(self.db, 'John Doe')
-        jdoe_id = api.add_identity(self.db, 'scm', 'jdoe@example.com',
-                                   uuid='John Doe')
-        jdoe_alt_id = api.add_identity(self.db, 'scm', 'jdoe@example.com', 'Jon Doe',
-                                       uuid='John Doe')
-
-        # Check if all uuids are returned
-        uuids = api.search_last_modified_unique_identities(self.db, before_dt)
-        self.assertListEqual(uuids, ['John Doe', 'John Smith'])
-
-        # Update identities
-        before_move_dt = datetime.datetime.utcnow()
-        api.move_identity(self.db, jdoe_id, 'John Smith')
-
-        # Check if only modified uuids are returned
-        uuids = api.search_last_modified_unique_identities(self.db, before_move_dt)
-        self.assertListEqual(uuids, ['John Doe', 'John Smith'])
-
-    def test_empty_search_modified_identities(self):
-        """Check if the result is empty when identities are not modified"""
-
-        # Add identities
-        api.add_unique_identity(self.db, 'John Smith')
-        api.add_identity(self.db, 'scm', 'jsmith@example.com',
-                         uuid='John Smith')
-
-        api.add_unique_identity(self.db, 'John Doe')
-        api.add_identity(self.db, 'scm', 'jdoe@example.com',
-                         uuid='John Doe')
-        api.add_identity(self.db, 'scm', 'jdoe@example.com', 'Jon Doe',
-                         uuid='John Doe')
-
-        after_dt = datetime.datetime.utcnow()
-
-        # Check if all uuids are returned
-        ids = api.search_last_modified_identities(self.db, after_dt)
-        self.assertListEqual(ids, [])
-
-    def test_empty_search_modified_unique_identities(self):
-        """Check if the result is empty when unique identities are not modified"""
-
-        # Add identities
-        api.add_unique_identity(self.db, 'John Smith')
-        api.add_identity(self.db, 'scm', 'jsmith@example.com',
-                         uuid='John Smith')
-
-        api.add_unique_identity(self.db, 'John Doe')
-        api.add_identity(self.db, 'scm', 'jdoe@example.com',
-                         uuid='John Doe')
-        api.add_identity(self.db, 'scm', 'jdoe@example.com', 'Jon Doe',
-                         uuid='John Doe')
-
-        after_dt = datetime.datetime.utcnow()
-
-        # Check if all uuids are returned
-        uuids = api.search_last_modified_unique_identities(self.db, after_dt)
-        self.assertListEqual(uuids, [])
-
-
-class TestSearchProfiles(TestAPICaseBase):
-    """Unit tests for search_profiles"""
-
-    def test_search_profiles(self):
-        """Check if it returns a list of profiles"""
-
-        # Add some identities
-        jsmith_uuid = api.add_identity(self.db, 'scm', 'jsmith@example.com',
-                                       'John Smith', 'jsmith')
-        api.add_identity(self.db, 'scm', 'jsmith@bitergia.com', uuid=jsmith_uuid)
-        api.add_identity(self.db, 'mls', 'jsmith@bitergia.com', uuid=jsmith_uuid)
-        api.edit_profile(self.db, jsmith_uuid, email='jsmith@example.com',
-                         is_bot=True, gender="male")
-
-        jdoe_uuid = api.add_identity(self.db, 'scm', 'jdoe@example.com',
-                                     'John Doe', 'jdoe')
-        api.add_identity(self.db, 'scm', 'jdoe@libresoft.es',
-                         'jdoe', 'jdoe', uuid=jdoe_uuid)
-        api.edit_profile(self.db, jdoe_uuid, email='jsmith@example.com',
-                         is_bot=False)
-
-        # Tests
-        profiles = api.search_profiles(self.db)
-        self.assertEqual(len(profiles), 2)
-
-        prf = profiles[0]
-        self.assertIsInstance(prf, Profile)
-        self.assertEqual(prf.uuid, 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
-
-        prf = profiles[1]
-        self.assertIsInstance(prf, Profile)
-        self.assertEqual(prf.uuid, 'c6d2504fde0e34b78a185c4b709e5442d045451c')
-
-    def test_filter_no_gender(self):
-        """Check if it returns a set of profiles which do not have gender"""
-
-        # Add some identities
-        jsmith_uuid = api.add_identity(self.db, 'scm', 'jsmith@example.com',
-                                       'John Smith', 'jsmith')
-        api.add_identity(self.db, 'scm', 'jsmith@bitergia.com', uuid=jsmith_uuid)
-        api.add_identity(self.db, 'mls', 'jsmith@bitergia.com', uuid=jsmith_uuid)
-        api.edit_profile(self.db, jsmith_uuid, email='jsmith@example.com',
-                         is_bot=True, gender="male")
-
-        jdoe_uuid = api.add_identity(self.db, 'scm', 'jdoe@example.com',
-                                     'John Doe', 'jdoe')
-        api.add_identity(self.db, 'scm', 'jdoe@libresoft.es',
-                         'jdoe', 'jdoe', uuid=jdoe_uuid)
-        api.edit_profile(self.db, jdoe_uuid, email='jsmith@example.com',
-                         is_bot=False)
-
-        # Tests
-        profiles = api.search_profiles(self.db, no_gender=True)
-        self.assertEqual(len(profiles), 1)
-
-        prf = profiles[0]
-        self.assertIsInstance(prf, Profile)
-        self.assertEqual(prf.uuid, 'c6d2504fde0e34b78a185c4b709e5442d045451c')
-
-
-class TestRegistry(TestAPICaseBase):
-    """Unit tests for registry"""
-
-    def test_get_registry(self):
-        """Check if it returns the registry of organizations"""
-
-        api.add_organization(self.db, 'Example')
-        api.add_domain(self.db, 'Example', 'example.com')
-        api.add_domain(self.db, 'Example', 'example.org')
-        api.add_organization(self.db, 'Bitergia')
-        api.add_domain(self.db, 'Bitergia', 'bitergia.com')
-        api.add_organization(self.db, 'LibreSoft')
-
-        orgs = api.registry(self.db)
-        self.assertEqual(len(orgs), 3)
-
-        org1 = orgs[0]
-        self.assertIsInstance(org1, Organization)
-        self.assertEqual(org1.name, 'Bitergia')
-        self.assertEqual(len(org1.domains), 1)
-
-        org2 = orgs[1]
-        self.assertIsInstance(org2, Organization)
-        self.assertEqual(org2.name, 'Example')
-        self.assertEqual(len(org2.domains), 2)
-
-        org3 = orgs[2]
-        self.assertIsInstance(org3, Organization)
-        self.assertEqual(org3.name, 'LibreSoft')
-        self.assertEqual(len(org3.domains), 0)
-
-    def test_get_registry_term(self):
-        """Check if it returns the info about orgs using a search term"""
-
-        api.add_organization(self.db, 'Example')
-        api.add_domain(self.db, 'Example', 'example.com')
-        api.add_domain(self.db, 'Example', 'example.org')
-        api.add_organization(self.db, 'Bitergia')
-        api.add_domain(self.db, 'Bitergia', 'bitergia.com')
-        api.add_organization(self.db, 'My Example')
-        api.add_domain(self.db, 'My Example', 'myexample.com')
-
-        # This query have to return two organizations
-        orgs = api.registry(self.db, 'Example')
-        self.assertEqual(len(orgs), 2)
-
-        # Example organization
-        org = orgs[0]
-        self.assertIsInstance(org, Organization)
-        self.assertEqual(org.name, 'Example')
-        self.assertEqual(len(org.domains), 2)
-
-        domains = org.domains
-        domains.sort(key=lambda x: x.domain)
-
-        dom = domains[0]
-        self.assertIsInstance(dom, Domain)
-        self.assertEqual(dom.domain, 'example.com')
-
-        dom = domains[1]
-        self.assertIsInstance(dom, Domain)
-        self.assertEqual(dom.domain, 'example.org')
-
-        # My Example organization
-        org = orgs[1]
-        self.assertIsInstance(org, Organization)
-        self.assertEqual(org.name, 'My Example')
-        self.assertEqual(len(org.domains), 1)
-
-        dom = org.domains[0]
-        self.assertIsInstance(dom, Domain)
-        self.assertEqual(dom.domain, 'myexample.com')
-
-    def test_empty_registry(self):
-        """Check whether it returns an empty list when the registry is empty"""
-
-        orgs = api.registry(self.db)
-        self.assertListEqual(orgs, [])
-
-    def test_not_found_term(self):
-        """Check whether it raises an error when the organization is not available"""
-
-        # It should raise an error when the registry is empty
-        self.assertRaises(NotFoundError, api.registry, self.db, 'Example')
-
-        # It should do the same when there are some orgs available
-        api.add_organization(self.db, 'Example')
-        api.add_organization(self.db, 'Bitergia')
-
-        self.assertRaises(NotFoundError, api.registry, self.db, 'LibreSoft')
-
-
-class TestDomains(TestAPICaseBase):
-    """Unit tests for domains"""
-
-    def test_get_domains(self):
-        """Check if it returns the registry of domains"""
-
-        # Add some domains
-        api.add_organization(self.db, 'Example')
-        api.add_domain(self.db, 'Example', 'example.com', is_top_domain=True)
-        api.add_domain(self.db, 'Example', 'u.example.com', is_top_domain=True)
-        api.add_domain(self.db, 'Example', 'es.u.example.com')
-        api.add_domain(self.db, 'Example', 'en.u.example.com')
-
-        api.add_organization(self.db, 'Bitergia')
-        api.add_domain(self.db, 'Bitergia', 'bitergia.com')
-        api.add_domain(self.db, 'Bitergia', 'bitergia.org')
-
-        api.add_organization(self.db, 'LibreSoft')
-
-        doms = api.domains(self.db)
-        self.assertEqual(len(doms), 6)
-
-        dom0 = doms[0]
-        self.assertIsInstance(dom0, Domain)
-        self.assertEqual(dom0.domain, 'bitergia.com')
-        self.assertEqual(dom0.organization.name, 'Bitergia')
-
-        dom1 = doms[1]
-        self.assertIsInstance(dom1, Domain)
-        self.assertEqual(dom1.domain, 'bitergia.org')
-        self.assertEqual(dom1.organization.name, 'Bitergia')
-
-        dom2 = doms[2]
-        self.assertIsInstance(dom2, Domain)
-        self.assertEqual(dom2.domain, 'en.u.example.com')
-        self.assertEqual(dom2.organization.name, 'Example')
-
-        dom3 = doms[3]
-        self.assertIsInstance(dom3, Domain)
-        self.assertEqual(dom3.domain, 'es.u.example.com')
-        self.assertEqual(dom3.organization.name, 'Example')
-
-        dom4 = doms[4]
-        self.assertIsInstance(dom4, Domain)
-        self.assertEqual(dom4.domain, 'example.com')
-        self.assertEqual(dom4.organization.name, 'Example')
-
-        dom5 = doms[5]
-        self.assertIsInstance(dom5, Domain)
-        self.assertEqual(dom5.domain, 'u.example.com')
-        self.assertEqual(dom5.organization.name, 'Example')
-
-    def test_domain(self):
-        """Check if it returns the info about an existing domain"""
-
-        # Add some domains
-        api.add_organization(self.db, 'Example')
-        api.add_domain(self.db, 'Example', 'example.com', is_top_domain=True)
-        api.add_domain(self.db, 'Example', 'u.example.com', is_top_domain=True)
-        api.add_domain(self.db, 'Example', 'es.u.example.com')
-        api.add_domain(self.db, 'Example', 'en.u.example.com')
-
-        api.add_organization(self.db, 'Bitergia')
-        api.add_domain(self.db, 'Bitergia', 'bitergia.com')
-        api.add_domain(self.db, 'Bitergia', 'bitergia.org')
-
-        api.add_organization(self.db, 'LibreSoft')
-
-        # Find the given domain
-        doms = api.domains(self.db, 'example.com')
-        self.assertEqual(len(doms), 1)
-
-        dom0 = doms[0]
-        self.assertEqual(dom0.domain, 'example.com')
-        self.assertEqual(dom0.organization.name, 'Example')
-
-        # Find the given domain
-        doms = api.domains(self.db, 'es.u.example.com')
-        self.assertEqual(len(doms), 1)
-
-        dom0 = doms[0]
-        self.assertEqual(dom0.domain, 'es.u.example.com')
-        self.assertEqual(dom0.organization.name, 'Example')
-
-    def test_top_domains(self):
-        """Check top domains option"""
-
-        # Add some domains
-        api.add_organization(self.db, 'Example')
-        api.add_domain(self.db, 'Example', 'example.com', is_top_domain=True)
-        api.add_domain(self.db, 'Example', 'u.example.com', is_top_domain=True)
-        api.add_domain(self.db, 'Example', 'es.u.example.com')
-        api.add_domain(self.db, 'Example', 'en.u.example.com')
-
-        api.add_organization(self.db, 'Bitergia')
-        api.add_domain(self.db, 'Bitergia', 'bitergia.com')
-        api.add_domain(self.db, 'Bitergia', 'bitergia.org')
-
-        api.add_organization(self.db, 'LibreSoft')
-
-        # Look only for top domains
-        doms = api.domains(self.db, top=True)
-        self.assertEqual(len(doms), 2)
-
-        dom0 = doms[0]
-        self.assertIsInstance(dom0, Domain)
-        self.assertEqual(dom0.domain, 'example.com')
-        self.assertEqual(dom0.organization.name, 'Example')
-
-        dom1 = doms[1]
-        self.assertIsInstance(dom1, Domain)
-        self.assertEqual(dom1.domain, 'u.example.com')
-        self.assertEqual(dom1.organization.name, 'Example')
-
-        # Look top domains of the given domain
-        doms = api.domains(self.db, 'us.u.example.com', top=True)
-        self.assertEqual(len(doms), 2)
-
-        dom0 = doms[0]
-        self.assertEqual(dom0.domain, 'example.com')
-        self.assertEqual(dom0.organization.name, 'Example')
-
-        dom1 = doms[1]
-        self.assertEqual(dom1.domain, 'u.example.com')
-        self.assertEqual(dom1.organization.name, 'Example')
-
-        # Look for a top domain
-        doms = api.domains(self.db, 'u.example.com', top=True)
-        self.assertEqual(len(doms), 1)
-
-        dom0 = doms[0]
-        self.assertEqual(dom0.domain, 'u.example.com')
-        self.assertEqual(dom0.organization.name, 'Example')
-
-    def test_empty_registry(self):
-        """Check whether it returns an empty list when the registry is empty"""
-
-        doms = api.domains(self.db)
-        self.assertListEqual(doms, [])
-
-    def test_not_found_domain(self):
-        """Check whether it raises an error when the domain is not available"""
-
-        # It should raise an error when the registry is empty
-        self.assertRaises(NotFoundError, api.domains, self.db, 'Example')
-        self.assertRaises(NotFoundError, api.domains, self.db, 'Example', True)
-
-        # Add some domains
-        api.add_organization(self.db, 'Example')
-        api.add_domain(self.db, 'Example', 'example.com', is_top_domain=True)
-        api.add_domain(self.db, 'Example', 'es.example.com')
-        api.add_domain(self.db, 'Example', 'en.example.com')
-
-        api.add_organization(self.db, 'Bitergia')
-        api.add_domain(self.db, 'Bitergia', 'bitergia.com')
-
-        # It should fail when there are some domains available
-        self.assertRaises(NotFoundError, api.domains, self.db, 'libresoft.es')
-        self.assertRaises(NotFoundError, api.domains, self.db, 'us.example.com')
-
-        # Or even when looks for top domains
-        self.assertRaises(NotFoundError, api.domains, self.db, 'libresoft.es', True)
-        self.assertRaises(NotFoundError, api.domains, self.db, 'myexample.com', True)
-        self.assertRaises(NotFoundError, api.domains, self.db, '.myexample.com', True)
-
-
-class TestCountries(TestAPICaseBase):
-    """Unit tests for countries"""
-
-    def test_get_countries(self):
-        """Check if it returns the list of countries"""
-
-        with self.db.connect() as session:
-            us = Country(code='US', name='United States of America', alpha3='USA')
-            es = Country(code='ES', name='Spain', alpha3='ESP')
-            gb = Country(code='GB', name='United Kingdom', alpha3='GBR')
-
-            session.add(es)
-            session.add(us)
-            session.add(gb)
-
-        cs = api.countries(self.db)
-        self.assertEqual(len(cs), 3)
-
-        c0 = cs[0]
-        self.assertIsInstance(c0, Country)
-        self.assertEqual(c0.code, 'ES')
-        self.assertEqual(c0.name, 'Spain')
-        self.assertEqual(c0.alpha3, 'ESP')
-
-        c1 = cs[1]
-        self.assertIsInstance(c1, Country)
-        self.assertEqual(c1.code, 'GB')
-        self.assertEqual(c1.name, 'United Kingdom')
-        self.assertEqual(c1.alpha3, 'GBR')
-
-        c2 = cs[2]
-        self.assertIsInstance(c2, Country)
-        self.assertEqual(c2.code, 'US')
-        self.assertEqual(c2.name, 'United States of America')
-        self.assertEqual(c2.alpha3, 'USA')
-
-    def test_get_countries_using_search_params(self):
-        """Check if it returns the info about countries using search parameters"""
-
-        with self.db.connect() as session:
-            us = Country(code='US', name='United States of America', alpha3='USA')
-            es = Country(code='ES', name='Spain', alpha3='ESP')
-            gb = Country(code='GB', name='United Kingdom', alpha3='GBR')
-
-            session.add(es)
-            session.add(us)
-            session.add(gb)
-
-        # Check code param
-        cs = api.countries(self.db, code='ES')
-        self.assertEqual(len(cs), 1)
-
-        c0 = cs[0]
-        self.assertIsInstance(c0, Country)
-        self.assertEqual(c0.code, 'ES')
-        self.assertEqual(c0.name, 'Spain')
-        self.assertEqual(c0.alpha3, 'ESP')
-
-        # Check term param
-        cs = api.countries(self.db, term='ited')
-        self.assertEqual(len(cs), 2)
-
-        c0 = cs[0]
-        self.assertIsInstance(c0, Country)
-        self.assertEqual(c0.code, 'GB')
-        self.assertEqual(c0.name, 'United Kingdom')
-        self.assertEqual(c0.alpha3, 'GBR')
-
-        c1 = cs[1]
-        self.assertIsInstance(c1, Country)
-        self.assertEqual(c1.code, 'US')
-        self.assertEqual(c1.name, 'United States of America')
-        self.assertEqual(c1.alpha3, 'USA')
-
-        # Check if term is ignored when code is given
-        cs = api.countries(self.db, code='ES', term='ited')
-        self.assertEqual(len(cs), 1)
-
-        c0 = cs[0]
-        self.assertIsInstance(c0, Country)
-        self.assertEqual(c0.code, 'ES')
-        self.assertEqual(c0.name, 'Spain')
-        self.assertEqual(c0.alpha3, 'ESP')
-
-    def test_empty_registry(self):
-        """Check whether it returns an empty list when the registry is empty"""
-
-        cs = api.countries(self.db)
-        self.assertListEqual(cs, [])
-
-    def test_not_found(self):
-        """Check whether it raises an error when the country is not available"""
-
-        # It should raise an error when the registry is empty
-        self.assertRaises(NotFoundError, api.countries, self.db, 'ES')
-
-        # It should do the same when there are some orgs available
-        with self.db.connect() as session:
-            us = Country(code='US', name='United States of America', alpha3='USA')
-            es = Country(code='ES', name='Spain', alpha3='ESP')
-            gb = Country(code='GB', name='United Kingdom', alpha3='GBR')
-
-            session.add(es)
-            session.add(us)
-            session.add(gb)
-
-        self.assertRaises(NotFoundError, api.countries, self.db, 'GR')
-        self.assertRaises(NotFoundError, api.countries, self.db, None, 'Greece')
-        self.assertRaises(NotFoundError, api.countries, self.db, 'GR', 'Greece')
-
-    def test_invalid_country_code(self):
-        """Check whether it raises an error when the country code is not valid"""
-
-        exc = COUNTRY_CODE_INVALID_ERROR % {'code': ''}
-        self.assertRaisesRegex(ValueError, exc,
-                               api.countries, self.db, '')
-
-        exc = COUNTRY_CODE_INVALID_ERROR % {'code': 'AAA'}
-        self.assertRaisesRegex(ValueError, exc,
-                               api.countries, self.db, 'AAA')
-
-        exc = COUNTRY_CODE_INVALID_ERROR % {'code': '2A'}
-        self.assertRaisesRegex(ValueError, exc,
-                               api.countries, self.db, '2A')
-
-        exc = COUNTRY_CODE_INVALID_ERROR % {'code': '8'}
-        self.assertRaisesRegex(ValueError, exc,
-                               api.countries, self.db, 8)
-
-
-class TestEnrollments(TestAPICaseBase):
-    """Unit tests for enrollments"""
-
-    def test_get_enrollments(self):
-        """Check if it returns the registry of enrollments"""
-
-        # First, add a set of uuids, organizations and enrollments
-        api.add_unique_identity(self.db, 'John Smith')
-        api.add_unique_identity(self.db, 'John Doe')
-        api.add_unique_identity(self.db, 'Jane Rae')
-
-        api.add_organization(self.db, 'Example')
-        api.add_enrollment(self.db, 'John Smith', 'Example')
-        api.add_enrollment(self.db, 'John Doe', 'Example')
-
-        api.add_organization(self.db, 'Bitergia')
-        api.add_enrollment(self.db, 'John Smith', 'Bitergia')
-        api.add_enrollment(self.db, 'John Smith', 'Bitergia',
-                           datetime.datetime(1999, 1, 1),
-                           datetime.datetime(2000, 1, 1))
-        api.add_enrollment(self.db, 'Jane Rae', 'Bitergia',
-                           datetime.datetime(1998, 1, 1),
-                           datetime.datetime(2005, 1, 1))
-
-        api.add_organization(self.db, 'LibreSoft')
-        api.add_enrollment(self.db, 'John Doe', 'LibreSoft')
-        api.add_enrollment(self.db, 'Jane Rae', 'LibreSoft')
-
-        # Tests
-        enrollments = api.enrollments(self.db)
-        self.assertEqual(len(enrollments), 7)
-
-        rol = enrollments[0]
-        self.assertIsInstance(rol, Enrollment)
-        self.assertEqual(rol.uidentity.uuid, 'Jane Rae')
-        self.assertEqual(rol.organization.name, 'Bitergia')
-
-        rol = enrollments[1]
-        self.assertIsInstance(rol, Enrollment)
-        self.assertEqual(rol.uidentity.uuid, 'Jane Rae')
-        self.assertEqual(rol.organization.name, 'LibreSoft')
-
-        rol = enrollments[2]
-        self.assertIsInstance(rol, Enrollment)
-        self.assertEqual(rol.uidentity.uuid, 'John Doe')
-        self.assertEqual(rol.organization.name, 'Example')
-
-        rol = enrollments[3]
-        self.assertIsInstance(rol, Enrollment)
-        self.assertEqual(rol.uidentity.uuid, 'John Doe')
-        self.assertEqual(rol.organization.name, 'LibreSoft')
-
-        rol = enrollments[4]
-        self.assertIsInstance(rol, Enrollment)
-        self.assertEqual(rol.uidentity.uuid, 'John Smith')
-        self.assertEqual(rol.organization.name, 'Bitergia')
-
-        rol = enrollments[5]
-        self.assertIsInstance(rol, Enrollment)
-        self.assertEqual(rol.uidentity.uuid, 'John Smith')
-        self.assertEqual(rol.organization.name, 'Bitergia')
-        self.assertEqual(rol.start, datetime.datetime(1999, 1, 1))
-        self.assertEqual(rol.end, datetime.datetime(2000, 1, 1))
-
-        rol = enrollments[6]
-        self.assertIsInstance(rol, Enrollment)
-        self.assertEqual(rol.uidentity.uuid, 'John Smith')
-        self.assertEqual(rol.organization.name, 'Example')
-
-        # Test dates
-        enrollments = api.enrollments(self.db,
-                                      from_date=datetime.datetime(1998, 5, 1),
-                                      to_date=datetime.datetime(2006, 1, 1))
-        self.assertEqual(len(enrollments), 1)
-
-        rol = enrollments[0]
-        self.assertIsInstance(rol, Enrollment)
-        self.assertEqual(rol.uidentity.uuid, 'John Smith')
-        self.assertEqual(rol.organization.name, 'Bitergia')
-        self.assertEqual(rol.start, datetime.datetime(1999, 1, 1))
-        self.assertEqual(rol.end, datetime.datetime(2000, 1, 1))
-
-    def test_enrollments_uuid(self):
-        """Check if it returns the registry of enrollments for a uuid"""
-
-        # First, add a set of uuids, organizations and enrollments
-        api.add_unique_identity(self.db, 'John Smith')
-        api.add_unique_identity(self.db, 'John Doe')
-
-        api.add_organization(self.db, 'Example')
-        api.add_enrollment(self.db, 'John Smith', 'Example')
-        api.add_enrollment(self.db, 'John Doe', 'Example',
-                           datetime.datetime(1999, 1, 1),
-                           datetime.datetime(2000, 1, 1))
-
-        api.add_organization(self.db, 'Bitergia')
-        api.add_enrollment(self.db, 'John Smith', 'Bitergia')
-
-        api.add_organization(self.db, 'LibreSoft')
-        api.add_enrollment(self.db, 'John Doe', 'LibreSoft')
-
-        # Tests
-        enrollments = api.enrollments(self.db, uuid='John Smith')
+        self.assertEqual(id2.uuid, '31581d7c6b039318e9048c4d8571666c26a5622b')
+        self.assertEqual(id2.email, 'jsmith3@libresoft')
+        self.assertEqual(id2.source, 'phabricator')
+
+        id3 = identities[2]
+        self.assertEqual(id3.uuid, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(id3.email, 'jsmith-git@example')
+        self.assertEqual(id3.source, 'git')
+
+        id4 = identities[3]
+        self.assertEqual(id4.uuid, '9225e296be341c20c11c4bae76df4190a5c4a918')
+        self.assertEqual(id4.email, 'jsmith-phab@bitergia')
+        self.assertEqual(id4.source, 'phabricator')
+
+        id5 = identities[4]
+        self.assertEqual(id5.uuid, 'c2f5aa44e920b4fbe3cd36894b18e80a2606deba')
+        self.assertEqual(id5.email, 'jsmith2@libresoft')
+        self.assertEqual(id5.source, 'phabricator')
+
+        id6 = identities[5]
+        self.assertEqual(id6.uuid, 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        self.assertEqual(id6.email, 'jsmith@bitergia')
+        self.assertEqual(id6.source, 'scm')
+
+        id7 = identities[6]
+        self.assertEqual(id7.uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(id7.email, 'jsmith@example')
+        self.assertEqual(id7.source, 'scm')
+
+        enrollments = individual.enrollments.all()
         self.assertEqual(len(enrollments), 2)
 
-        rol = enrollments[0]
-        self.assertEqual(rol.uidentity.uuid, 'John Smith')
-        self.assertEqual(rol.organization.name, 'Bitergia')
+        rol1 = enrollments[0]
+        self.assertEqual(rol1.group.name, 'Example')
+        self.assertEqual(rol1.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
+        self.assertEqual(rol1.end, datetime.datetime(2017, 6, 1, tzinfo=UTC))
 
-        rol = enrollments[1]
-        self.assertEqual(rol.uidentity.uuid, 'John Smith')
-        self.assertEqual(rol.organization.name, 'Example')
+        rol2 = enrollments[1]
+        self.assertEqual(rol2.group.name, 'Bitergia')
+        self.assertEqual(rol2.start, datetime.datetime(2017, 6, 2, tzinfo=UTC))
+        self.assertEqual(rol2.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
 
-        # Test using uuid and organization
-        enrollments = api.enrollments(self.db,
-                                      uuid='John Doe', organization='LibreSoft')
-        self.assertEqual(len(enrollments), 1)
+    def test_merge_multiple_individuals_from_any_uuid(self):
+        """
+        Check whether it merges more than two individuals
+        using any valid identity uuid
+        """
+        api.update_profile(self.ctx,
+                           uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+                           name='J. Smith',
+                           email='jsmith@example',
+                           gender='male',
+                           gender_acc=75)
 
-        # Test using period ranges
-        enrollments = api.enrollments(self.db, uuid='John Doe',
-                                      from_date=datetime.datetime(1998, 1, 1),
-                                      to_date=datetime.datetime(2005, 1, 1))
-        self.assertEqual(len(enrollments), 1)
+        api.update_profile(self.ctx,
+                           uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed',
+                           name='John Smith',
+                           email='jsmith@profile-email',
+                           is_bot=True,
+                           country_code='US')
 
-    def test_enrollments_organization(self):
-        """Check if it returns the registry of enrollments for an organization"""
-
-        # First, add a set of uuids, organizations and enrollments
-        api.add_unique_identity(self.db, 'John Smith')
-        api.add_unique_identity(self.db, 'John Doe')
-
-        api.add_organization(self.db, 'Example')
-        api.add_enrollment(self.db, 'John Smith', 'Example')
-        api.add_enrollment(self.db, 'John Doe', 'Example',
-                           datetime.datetime(1999, 1, 1),
-                           datetime.datetime(2000, 1, 1))
-
-        api.add_organization(self.db, 'Bitergia')
-        api.add_enrollment(self.db, 'John Smith', 'Bitergia')
-
-        api.add_organization(self.db, 'LibreSoft')
-        api.add_enrollment(self.db, 'John Doe', 'LibreSoft')
+        individual = api.merge(self.ctx,
+                               from_uuids=['67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6',
+                                           'c2f5aa44e920b4fbe3cd36894b18e80a2606deba'],
+                               to_uuid='9225e296be341c20c11c4bae76df4190a5c4a918')
 
         # Tests
-        enrollments = api.enrollments(self.db, organization='Example')
+        self.assertIsInstance(individual, Individual)
+        self.assertEqual(individual.mk, 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+
+        profile = individual.profile
+        self.assertEqual(profile.name, 'John Smith')
+        self.assertEqual(profile.email, 'jsmith@profile-email')
+        self.assertEqual(profile.gender, 'male')
+        self.assertEqual(profile.gender_acc, 75)
+        self.assertEqual(profile.is_bot, True)
+        self.assertEqual(profile.country_id, 'US')
+        self.assertEqual(profile.country.name, 'United States of America')
+        self.assertEqual(profile.country.code, 'US')
+        self.assertEqual(profile.country.alpha3, 'USA')
+
+        identities = individual.identities.all()
+        self.assertEqual(len(identities), 7)
+
+        id1 = identities[0]
+        self.assertEqual(id1.uuid, '1c13fec7a328201fc6a230fe43eb81df0e20626e')
+        self.assertEqual(id1.email, 'jsmith@libresoft')
+        self.assertEqual(id1.source, 'scm')
+
+        id2 = identities[1]
+        self.assertEqual(id2.uuid, '31581d7c6b039318e9048c4d8571666c26a5622b')
+        self.assertEqual(id2.email, 'jsmith3@libresoft')
+        self.assertEqual(id2.source, 'phabricator')
+
+        id3 = identities[2]
+        self.assertEqual(id3.uuid, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(id3.email, 'jsmith-git@example')
+        self.assertEqual(id3.source, 'git')
+
+        id4 = identities[3]
+        self.assertEqual(id4.uuid, '9225e296be341c20c11c4bae76df4190a5c4a918')
+        self.assertEqual(id4.email, 'jsmith-phab@bitergia')
+        self.assertEqual(id4.source, 'phabricator')
+
+        id5 = identities[4]
+        self.assertEqual(id5.uuid, 'c2f5aa44e920b4fbe3cd36894b18e80a2606deba')
+        self.assertEqual(id5.email, 'jsmith2@libresoft')
+        self.assertEqual(id5.source, 'phabricator')
+
+        id6 = identities[5]
+        self.assertEqual(id6.uuid, 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        self.assertEqual(id6.email, 'jsmith@bitergia')
+        self.assertEqual(id6.source, 'scm')
+
+        id7 = identities[6]
+        self.assertEqual(id7.uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(id7.email, 'jsmith@example')
+        self.assertEqual(id7.source, 'scm')
+
+        enrollments = individual.enrollments.all()
         self.assertEqual(len(enrollments), 2)
 
-        rol = enrollments[0]
-        self.assertEqual(rol.uidentity.uuid, 'John Doe')
-        self.assertEqual(rol.organization.name, 'Example')
+        rol1 = enrollments[0]
+        self.assertEqual(rol1.group.name, 'Example')
+        self.assertEqual(rol1.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
+        self.assertEqual(rol1.end, datetime.datetime(2017, 6, 1, tzinfo=UTC))
 
-        rol = enrollments[1]
-        self.assertEqual(rol.uidentity.uuid, 'John Smith')
-        self.assertEqual(rol.organization.name, 'Example')
+        rol2 = enrollments[1]
+        self.assertEqual(rol2.group.name, 'Bitergia')
+        self.assertEqual(rol2.start, datetime.datetime(2017, 6, 2, tzinfo=UTC))
+        self.assertEqual(rol2.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
 
-        enrollments = api.enrollments(self.db, organization='Example')
-        self.assertEqual(len(enrollments), 2)
+    def test_non_existing_from_uuids(self):
+        """Check if it fails merging individuals when source uuids is `None` or an empty list"""
 
-        # Test using period ranges
-        enrollments = api.enrollments(self.db, organization='Example',
-                                      from_date=datetime.datetime(1998, 1, 1),
-                                      to_date=datetime.datetime(2005, 1, 1))
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(InvalidValueError, FROM_UUIDS_NONE_OR_EMPTY_ERROR):
+            api.merge(self.ctx,
+                      from_uuids=[],
+                      to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_non_existing_from_uuid(self):
+        """Check if it fails merging individuals when source uuid is `None` or empty"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(InvalidValueError, FROM_UUID_NONE_OR_EMPTY_ERROR):
+            api.merge(self.ctx,
+                      from_uuids=[''],
+                      to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_non_existing_to_uuid(self):
+        """Check if it fails merging two individuals when destination uuid is `None` or empty"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(InvalidValueError, TO_UUID_NONE_OR_EMPTY_ERROR):
+            api.merge(self.ctx,
+                      from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
+                      to_uuid='')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_from_uuid_to_uuid_equal(self):
+        """Check if it fails merging two individuals when they are equal"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        error = FROM_UUID_TO_UUID_EQUAL_ERROR.format(to_uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        with self.assertRaisesRegex(EqualIndividualError, error):
+            api.merge(self.ctx,
+                      from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
+                      to_uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_moved_enrollments(self):
+        """Check whether it merges two individuals, merging their enrollments with multiple periods"""
+
+        individual = api.merge(self.ctx,
+                               from_uuids=['ebe8f55d8988fce02997389d530579ad939f1698'],
+                               to_uuid='437386d9d072320387d0c802f772a5401cddc3e6')
+
+        enrollments = individual.enrollments.all()
+        self.assertEqual(len(enrollments), 3)
+
+        rol1 = enrollments[0]
+        self.assertEqual(rol1.group.name, 'Bitergia')
+        self.assertEqual(rol1.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
+        self.assertEqual(rol1.end, datetime.datetime(2015, 1, 1, tzinfo=UTC))
+
+        rol2 = enrollments[1]
+        self.assertEqual(rol2.group.name, 'Example')
+        self.assertEqual(rol2.start, datetime.datetime(2015, 1, 2, tzinfo=UTC))
+        self.assertEqual(rol2.end, datetime.datetime(2016, 12, 31, tzinfo=UTC))
+
+        rol3 = enrollments[2]
+        self.assertEqual(rol3.group.name, 'Bitergia')
+        self.assertEqual(rol3.start, datetime.datetime(2017, 1, 1, tzinfo=UTC))
+        self.assertEqual(rol3.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
+
+    def test_overlapping_enrollments(self):
+        """Check whether it merges two individuals having overlapping enrollments"""
+
+        individual = api.merge(self.ctx,
+                               from_uuids=['4dd0fdcd06a6be6f0b7893bf1afcef3e3191753a'],
+                               to_uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        enrollments = individual.enrollments.all()
         self.assertEqual(len(enrollments), 1)
 
-    def test_empty_results(self):
-        """Check cases when the result is empty"""
+        rol = enrollments[0]
+        self.assertEqual(rol.group.name, 'Example')
+        self.assertEqual(rol.start, datetime.datetime(2015, 1, 1, tzinfo=UTC))
+        self.assertEqual(rol.end, datetime.datetime(2017, 6, 1, tzinfo=UTC))
 
-        # First, add a set of uuids, organizations and enrollments
-        api.add_unique_identity(self.db, 'John Smith')
-        api.add_unique_identity(self.db, 'John Doe')
-        api.add_unique_identity(self.db, 'Jane Rae')
+    def test_overlapping_enrollments_different_orgs(self):
+        """Check whether it merges two individuals having overlapping periods in different organizations"""
 
-        api.add_organization(self.db, 'Example')
-        api.add_enrollment(self.db, 'John Smith', 'Example',
-                           datetime.datetime(1999, 1, 1),
-                           datetime.datetime(2005, 1, 1))
-        api.add_enrollment(self.db, 'John Doe', 'Example')
+        individual = api.merge(self.ctx,
+                               from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
+                               to_uuid='a11604f983f8786913e6d1449f2eac1618b0b2ee')
 
-        api.add_organization(self.db, 'Bitergia')
-        api.add_enrollment(self.db, 'John Smith', 'Bitergia')
+        enrollments = individual.enrollments.all()
+        self.assertEqual(len(enrollments), 2)
 
-        api.add_organization(self.db, 'LibreSoft')
-        api.add_enrollment(self.db, 'John Doe', 'LibreSoft')
+        rol1 = enrollments[0]
+        self.assertEqual(rol1.group.name, 'Example')
+        self.assertEqual(rol1.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
+        self.assertEqual(rol1.end, datetime.datetime(2017, 6, 1, tzinfo=UTC))
 
-        api.add_organization(self.db, 'GSyC')
+        rol2 = enrollments[1]
+        self.assertEqual(rol2.group.name, 'Bitergia')
+        self.assertEqual(rol2.start, datetime.datetime(2017, 4, 1, tzinfo=UTC))
+        self.assertEqual(rol2.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
 
-        # Test when there are not enrollments for a uuid
-        enrollments = api.enrollments(self.db,
-                                      uuid='Jane Rae')
+    def test_duplicate_enrollments(self):
+        """Check whether it merges two individuals having duplicate enrollments"""
+
+        individual = api.merge(self.ctx,
+                               from_uuids=['f29b50520d35d046db0d53b301418ad9aa16e7e3'],
+                               to_uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        enrollments = individual.enrollments.all()
+        self.assertEqual(len(enrollments), 1)
+
+        rol = enrollments[0]
+        self.assertEqual(rol.group.name, 'Example')
+        self.assertEqual(rol.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
+        self.assertEqual(rol.end, datetime.datetime(2017, 6, 1, tzinfo=UTC))
+
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
+
+        before_dt = datetime_utcnow()
+
+        individual1 = api.add_identity(self.ctx,
+                                       'scm',
+                                       email='john.doe@example')
+        api.add_identity(self.ctx,
+                         'git',
+                         email='john.doe@example',
+                         uuid='b6bee805956c03699b59e15175261f85a10d43f3')
+
+        individual2 = api.add_identity(self.ctx,
+                                       'scm',
+                                       email='jdoe@example')
+        api.add_identity(self.ctx,
+                         'git',
+                         email='jdoe@example',
+                         uuid='a033ed6d1498a58f7cf91bd56e3c746d7ddb9874')
+
+        after_dt = datetime_utcnow()
+
+        indv1 = Individual.objects.get(mk=individual1.uuid)
+        indv2 = Individual.objects.get(mk=individual2.uuid)
+
+        self.assertLessEqual(before_dt, indv1.last_modified)
+        self.assertGreaterEqual(after_dt, indv1.last_modified)
+
+        self.assertLessEqual(before_dt, indv2.last_modified)
+        self.assertGreaterEqual(after_dt, indv2.last_modified)
+
+        # Merge identities
+        before_merge_dt = datetime_utcnow()
+        indv = api.merge(self.ctx,
+                         from_uuids=['b6bee805956c03699b59e15175261f85a10d43f3'],
+                         to_uuid='a033ed6d1498a58f7cf91bd56e3c746d7ddb9874')
+        after_merge_dt = datetime_utcnow()
+
+        self.assertLessEqual(before_dt, indv.last_modified)
+        self.assertLessEqual(after_dt, indv.last_modified)
+        self.assertLessEqual(before_merge_dt, indv.last_modified)
+        self.assertGreaterEqual(after_merge_dt, indv.last_modified)
+
+        identities = indv.identities.all()
+
+        # Not merged (moved) identities were not modified
+        id1 = identities[0]
+
+        self.assertLessEqual(before_dt, id1.last_modified)
+        self.assertGreaterEqual(after_dt, id1.last_modified)
+        self.assertGreaterEqual(before_merge_dt, id1.last_modified)
+        self.assertGreaterEqual(after_merge_dt, id1.last_modified)
+
+        id2 = identities[1]
+
+        self.assertLessEqual(before_dt, id2.last_modified)
+        self.assertGreaterEqual(after_dt, id2.last_modified)
+        self.assertGreaterEqual(before_merge_dt, id2.last_modified)
+        self.assertGreaterEqual(after_merge_dt, id2.last_modified)
+
+        # Merged (moved) identities were updated
+        id3 = identities[2]
+
+        self.assertLessEqual(before_dt, id3.last_modified)
+        self.assertLessEqual(after_dt, id3.last_modified)
+        self.assertLessEqual(before_merge_dt, id3.last_modified)
+        self.assertGreaterEqual(after_merge_dt, id3.last_modified)
+
+        id4 = identities[3]
+
+        self.assertLessEqual(before_dt, id4.last_modified)
+        self.assertLessEqual(after_dt, id4.last_modified)
+        self.assertLessEqual(before_merge_dt, id4.last_modified)
+        self.assertGreaterEqual(after_merge_dt, id4.last_modified)
+
+    def test_merge_identities_and_swap_profile(self):
+        """Check whether it merges two individuals, merging their profiles"""
+
+        api.update_profile(self.ctx,
+                           uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', name='J. Smith',
+                           email='jsmith@example', gender='male', gender_acc=75)
+        api.update_profile(self.ctx,
+                           uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed', name='John Smith',
+                           email='jsmith@profile-email', is_bot=True, country_code='US')
+
+        individual = api.merge(self.ctx,
+                               from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
+                               to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+
+        profile = individual.profile
+        self.assertEqual(profile.name, 'John Smith')
+        self.assertEqual(profile.email, 'jsmith@profile-email')
+        self.assertEqual(profile.gender, 'male')
+        self.assertEqual(profile.gender_acc, 75)
+        self.assertEqual(profile.is_bot, True)
+        self.assertEqual(profile.country_id, 'US')
+
+        self.assertEqual(profile.country.name, 'United States of America')
+        self.assertEqual(profile.country.code, 'US')
+        self.assertEqual(profile.country.alpha3, 'USA')
+
+    def test_empty_source_profile(self):
+        """Check whether it merges two individuals when the profile from the source identity is empty"""
+
+        api.update_profile(self.ctx,
+                           uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed', name='John Smith',
+                           email='jsmith@profile-email')
+
+        individual = api.merge(self.ctx,
+                               from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
+                               to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+
+        profile = individual.profile
+        self.assertEqual(profile.name, 'John Smith')
+        self.assertEqual(profile.email, 'jsmith@profile-email')
+        self.assertEqual(profile.gender, None)
+        self.assertEqual(profile.country_id, None)
+        self.assertEqual(profile.is_bot, False)
+
+    def test_empty_destination_profile(self):
+        """Check whether it merges two individuals when the profile from the destination identity is empty"""
+
+        api.update_profile(self.ctx,
+                           uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', name='J. Smith',
+                           email='jsmith@example', gender='male', country_code='US')
+
+        api.update_profile(self.ctx,
+                           uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed',
+                           name='', email='', gender='', country_code='')
+
+        individual = api.merge(self.ctx,
+                               from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
+                               to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+
+        profile = individual.profile
+        self.assertEqual(profile.name, 'J. Smith')
+        self.assertEqual(profile.email, 'jsmith@example')
+        self.assertEqual(profile.gender, 'male')
+        self.assertEqual(profile.country_id, 'US')
+        self.assertEqual(profile.is_bot, False)
+
+    def test_empty_profiles(self):
+        """Check whether it merges two individuals when both of their profiles are empty"""
+
+        api.update_profile(self.ctx,
+                           uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+                           name='', email='', gender='', country_code='')
+
+        api.update_profile(self.ctx,
+                           uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed',
+                           name='', email='', gender='', country_code='')
+
+        individual = api.merge(self.ctx,
+                               from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
+                               to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+
+        profile = individual.profile
+        self.assertEqual(profile.name, None)
+        self.assertEqual(profile.email, None)
+        self.assertEqual(profile.gender, None)
+        self.assertEqual(profile.country_id, None)
+        self.assertEqual(profile.is_bot, False)
+
+    def test_locked_uuid(self):
+        """Check if it fails when the individual is locked"""
+
+        from_uuid = 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'
+        to_uuid = 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed'
+
+        individual = Individual.objects.get(mk=from_uuid)
+        individual.is_locked = True
+        individual.save()
+
+        msg = UUID_LOCKED_ERROR.format(uuid=from_uuid)
+        with self.assertRaisesRegex(LockedIdentityError, msg):
+            api.merge(self.ctx,
+                      from_uuids=[from_uuid],
+                      to_uuid=to_uuid)
+
+    def test_transaction(self):
+        """Check if a transaction is created when merging identities"""
+
+        timestamp = datetime_utcnow()
+
+        api.merge(self.ctx,
+                  from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
+                  to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        self.assertEqual(len(transactions), 1)
+
+        trx = transactions[0]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'merge')
+        self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, self.ctx.user.username)
+
+    def test_operations(self):
+        """Check if the right operations are created when merging identities"""
+
+        timestamp = datetime_utcnow()
+
+        api.merge(self.ctx,
+                  from_uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'],
+                  to_uuid='caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 8)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.UPDATE.value)
+        self.assertEqual(op1.entity_type, 'identity')
+        self.assertEqual(op1.target, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(op1.trx, trx)
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 2)
+        self.assertEqual(op1_args['individual'], 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        self.assertEqual(op1_args['identity'], '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+
+        op2 = operations[1]
+        self.assertIsInstance(op2, Operation)
+        self.assertEqual(op2.op_type, Operation.OpType.UPDATE.value)
+        self.assertEqual(op2.entity_type, 'identity')
+        self.assertEqual(op2.target, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(op2.trx, trx)
+        self.assertGreater(op2.timestamp, timestamp)
+
+        op2_args = json.loads(op2.args)
+        self.assertEqual(len(op2_args), 2)
+        self.assertEqual(op2_args['individual'], 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        self.assertEqual(op2_args['identity'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        op3 = operations[2]
+        self.assertIsInstance(op3, Operation)
+        self.assertEqual(op3.op_type, Operation.OpType.DELETE.value)
+        self.assertEqual(op3.entity_type, 'enrollment')
+        self.assertEqual(op3.target, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(op3.trx, trx)
+        self.assertGreater(op3.timestamp, timestamp)
+
+        op3_args = json.loads(op3.args)
+        self.assertEqual(len(op3_args), 4)
+        self.assertEqual(op3_args['mk'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(op3_args['group'], 'Example')
+        self.assertEqual(op3_args['start'], str(datetime_to_utc(datetime.datetime(1900, 1, 1))))
+        self.assertEqual(op3_args['end'], str(datetime_to_utc(datetime.datetime(2017, 6, 1))))
+
+        op4 = operations[3]
+        self.assertIsInstance(op4, Operation)
+        self.assertEqual(op4.op_type, Operation.OpType.DELETE.value)
+        self.assertEqual(op4.entity_type, 'enrollment')
+        self.assertEqual(op4.target, 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        self.assertEqual(op4.trx, trx)
+        self.assertGreater(op4.timestamp, timestamp)
+
+        op4_args = json.loads(op4.args)
+        self.assertEqual(len(op4_args), 4)
+        self.assertEqual(op4_args['mk'], 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        self.assertEqual(op4_args['group'], 'Bitergia')
+        self.assertEqual(op4_args['start'], str(datetime_to_utc(datetime.datetime(2017, 6, 2))))
+        self.assertEqual(op4_args['end'], str(datetime_to_utc(datetime.datetime(2100, 1, 1))))
+
+        op5 = operations[4]
+        self.assertIsInstance(op5, Operation)
+        self.assertEqual(op5.op_type, Operation.OpType.ADD.value)
+        self.assertEqual(op5.entity_type, 'enrollment')
+        self.assertEqual(op5.target, 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        self.assertEqual(op5.trx, trx)
+        self.assertGreater(op5.timestamp, timestamp)
+
+        op5_args = json.loads(op5.args)
+        self.assertEqual(len(op5_args), 4)
+        self.assertEqual(op5_args['individual'], 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        self.assertEqual(op5_args['group'], 'Example')
+        self.assertEqual(op5_args['start'], str(datetime_to_utc(datetime.datetime(1900, 1, 1))))
+        self.assertEqual(op5_args['end'], str(datetime_to_utc(datetime.datetime(2017, 6, 1))))
+
+        op6 = operations[5]
+        self.assertIsInstance(op6, Operation)
+        self.assertEqual(op6.op_type, Operation.OpType.ADD.value)
+        self.assertEqual(op6.entity_type, 'enrollment')
+        self.assertEqual(op6.target, 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        self.assertEqual(op6.trx, trx)
+        self.assertGreater(op6.timestamp, timestamp)
+
+        op6_args = json.loads(op6.args)
+        self.assertEqual(len(op6_args), 4)
+        self.assertEqual(op6_args['individual'], 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        self.assertEqual(op6_args['group'], 'Bitergia')
+        self.assertEqual(op6_args['start'], str(datetime_to_utc(datetime.datetime(2017, 6, 2))))
+        self.assertEqual(op6_args['end'], str(datetime_to_utc(datetime.datetime(2100, 1, 1))))
+
+        op7 = operations[6]
+        self.assertIsInstance(op7, Operation)
+        self.assertEqual(op7.op_type, Operation.OpType.UPDATE.value)
+        self.assertEqual(op7.entity_type, 'profile')
+        self.assertEqual(op7.target, 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+        self.assertEqual(op7.trx, trx)
+        self.assertGreater(op7.timestamp, timestamp)
+
+        op7_args = json.loads(op7.args)
+        self.assertEqual(len(op7_args), 1)
+        self.assertEqual(op7_args['individual'], 'caa5ebfe833371e23f0a3566f2b7ef4a984c4fed')
+
+        op8 = operations[7]
+        self.assertIsInstance(op8, Operation)
+        self.assertEqual(op8.op_type, Operation.OpType.DELETE.value)
+        self.assertEqual(op8.entity_type, 'individual')
+        self.assertEqual(op8.target, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(op8.trx, trx)
+        self.assertGreater(op8.timestamp, timestamp)
+
+        op8_args = json.loads(op8.args)
+        self.assertEqual(len(op8_args), 1)
+        self.assertEqual(op8_args['individual'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+
+class TestUnmergeIdentities(TestCase):
+    """Unit tests for unmerge_identities"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        api.add_organization(self.ctx, 'Example')
+        api.add_organization(self.ctx, 'Bitergia')
+
+        Country.objects.create(code='US',
+                               name='United States of America',
+                               alpha3='USA')
+
+        api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        api.add_identity(self.ctx,
+                         'git',
+                         email='jsmith-git@example',
+                         uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        api.update_profile(self.ctx,
+                           uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', name='John Smith',
+                           email='jsmith@profile-email', is_bot=False, country_code='US')
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Example',
+                   from_date=datetime.datetime(1900, 1, 1),
+                   to_date=datetime.datetime(2017, 6, 1))
+
+        api.add_identity(self.ctx, 'scm', email='jsmith@bitergia')
+        api.add_identity(self.ctx,
+                         'phabricator',
+                         email='jsmith-phab@bitergia',
+                         uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        api.enroll(self.ctx,
+                   'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3', 'Bitergia',
+                   from_date=datetime.datetime(2017, 6, 2),
+                   to_date=datetime.datetime(2100, 1, 1))
+
+        api.add_identity(self.ctx,
+                         'scm',
+                         email='jsmith@libresoft',
+                         uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        api.add_identity(self.ctx,
+                         'phabricator',
+                         email='jsmith2@libresoft',
+                         uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        api.add_identity(self.ctx,
+                         'phabricator',
+                         email='jsmith3@libresoft',
+                         uuid='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+    def test_unmerge_identities(self):
+        """Check whether it unmerges one identity from its parent individual"""
+
+        individuals = api.unmerge_identities(self.ctx,
+                                             uuids=['67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6'])
+
+        # Tests
+        self.assertEqual(len(individuals), 1)
+
+        individual = individuals[0]
+        self.assertIsInstance(individual, Individual)
+        self.assertEqual(individual.mk, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+
+        profile = individual.profile
+
+        self.assertEqual(profile.email, 'jsmith-git@example')
+        self.assertEqual(profile.is_bot, False)
+        self.assertIsNone(profile.name)
+        self.assertIsNone(profile.gender)
+        self.assertIsNone(profile.gender_acc)
+
+        self.assertIsNone(profile.country_id)
+        self.assertIsNone(profile.country)
+
+        identities = individual.identities.all()
+        self.assertEqual(len(identities), 1)
+
+        id1 = identities[0]
+        self.assertEqual(id1.uuid, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(id1.email, 'jsmith-git@example')
+        self.assertEqual(id1.source, 'git')
+
+        enrollments = individual.enrollments.all()
         self.assertEqual(len(enrollments), 0)
 
-        # Test when there are not enrollments for an organization
-        enrollments = api.enrollments(self.db,
-                                      organization='GSyC')
+        # Testing everything remained the same in the old parent individual
+
+        former_individual = Individual.objects.get(mk='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        self.assertIsInstance(former_individual, Individual)
+        self.assertEqual(former_individual.mk, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        profile = former_individual.profile
+        self.assertEqual(profile.name, 'John Smith')
+        self.assertEqual(profile.email, 'jsmith@profile-email')
+        self.assertEqual(profile.is_bot, False)
+        self.assertIsNone(profile.gender)
+        self.assertIsNone(profile.gender_acc)
+
+        identities = former_individual.identities.all()
+        self.assertEqual(len(identities), 5)
+
+        id1 = identities[0]
+        self.assertEqual(id1.uuid, '1c13fec7a328201fc6a230fe43eb81df0e20626e')
+        self.assertEqual(id1.email, 'jsmith@libresoft')
+        self.assertEqual(id1.source, 'scm')
+
+        id2 = identities[1]
+        self.assertEqual(id2.uuid, '31581d7c6b039318e9048c4d8571666c26a5622b')
+        self.assertEqual(id2.email, 'jsmith3@libresoft')
+        self.assertEqual(id2.source, 'phabricator')
+
+        id3 = identities[2]
+        self.assertEqual(id3.uuid, '9225e296be341c20c11c4bae76df4190a5c4a918')
+        self.assertEqual(id3.email, 'jsmith-phab@bitergia')
+        self.assertEqual(id3.source, 'phabricator')
+
+        id4 = identities[3]
+        self.assertEqual(id4.uuid, 'c2f5aa44e920b4fbe3cd36894b18e80a2606deba')
+        self.assertEqual(id4.email, 'jsmith2@libresoft')
+        self.assertEqual(id4.source, 'phabricator')
+
+        id5 = identities[4]
+        self.assertEqual(id5.uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(id5.email, 'jsmith@example')
+        self.assertEqual(id5.source, 'scm')
+
+        enrollments = former_individual.enrollments.all()
+        self.assertEqual(len(enrollments), 2)
+
+        rol1 = enrollments[0]
+        self.assertEqual(rol1.group.name, 'Example')
+        self.assertEqual(rol1.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
+        self.assertEqual(rol1.end, datetime.datetime(2017, 6, 1, tzinfo=UTC))
+
+        rol2 = enrollments[1]
+        self.assertEqual(rol2.group.name, 'Bitergia')
+        self.assertEqual(rol2.start, datetime.datetime(2017, 6, 2, tzinfo=UTC))
+        self.assertEqual(rol2.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
+
+    def test_unmerge_multiple_identities(self):
+        """Check whether it unmerges more than two identities"""
+
+        individuals = api.unmerge_identities(self.ctx,
+                                             uuids=['67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6',
+                                                    '31581d7c6b039318e9048c4d8571666c26a5622b'])
+
+        # Tests
+        self.assertEqual(len(individuals), 2)
+
+        individual = individuals[0]
+        self.assertIsInstance(individual, Individual)
+        self.assertEqual(individual.mk, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+
+        profile = individual.profile
+        self.assertEqual(profile.email, 'jsmith-git@example')
+        self.assertEqual(profile.is_bot, False)
+        self.assertIsNone(profile.name)
+        self.assertIsNone(profile.gender)
+        self.assertIsNone(profile.gender_acc)
+
+        self.assertIsNone(profile.country_id)
+        self.assertIsNone(profile.country)
+
+        identities = individual.identities.all()
+        self.assertEqual(len(identities), 1)
+
+        id1 = identities[0]
+        self.assertEqual(id1.uuid, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(id1.email, 'jsmith-git@example')
+        self.assertEqual(id1.source, 'git')
+
+        enrollments = individual.enrollments.all()
         self.assertEqual(len(enrollments), 0)
 
-        # Test when an enrollment does not exist
-        enrollments = api.enrollments(self.db,
-                                      uuid='John Doe', organization='Bitergia')
+        individual = individuals[1]
+        self.assertIsInstance(individual, Individual)
+        self.assertEqual(individual.mk, '31581d7c6b039318e9048c4d8571666c26a5622b')
+
+        profile = individual.profile
+        self.assertEqual(profile.email, 'jsmith3@libresoft')
+        self.assertEqual(profile.is_bot, False)
+        self.assertIsNone(profile.name)
+        self.assertIsNone(profile.gender)
+        self.assertIsNone(profile.gender_acc)
+
+        self.assertIsNone(profile.country_id)
+        self.assertIsNone(profile.country)
+
+        identities = individual.identities.all()
+        self.assertEqual(len(identities), 1)
+
+        id1 = identities[0]
+        self.assertEqual(id1.uuid, '31581d7c6b039318e9048c4d8571666c26a5622b')
+        self.assertEqual(id1.email, 'jsmith3@libresoft')
+        self.assertEqual(id1.source, 'phabricator')
+
+        enrollments = individual.enrollments.all()
         self.assertEqual(len(enrollments), 0)
 
-        # Test enrollments between two dates
-        enrollments = api.enrollments(self.db,
-                                      uuid='John Smith', organization='Example',
-                                      from_date=datetime.datetime(1999, 1, 1),
-                                      to_date=datetime.datetime(2000, 1, 1))
-        self.assertEqual(len(enrollments), 0)
+        # Testing everything remained the same in the old parent individual
 
-    def test_empty_registry(self):
-        """Check whether it returns an empty list when the registry is empty"""
+        former_individual = Individual.objects.get(mk='e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
-        enrollments = api.enrollments(self.db)
-        self.assertListEqual(enrollments, [])
+        self.assertIsInstance(former_individual, Individual)
+        self.assertEqual(former_individual.mk, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
-    def test_period_ranges(self):
-        """Check whether enrollments cannot be listed giving invalid period ranges"""
+        profile = former_individual.profile
+        self.assertEqual(profile.name, 'John Smith')
+        self.assertEqual(profile.email, 'jsmith@profile-email')
+        self.assertEqual(profile.is_bot, False)
+        self.assertIsNone(profile.gender)
+        self.assertIsNone(profile.gender_acc)
 
-        self.assertRaisesRegex(ValueError, ENROLLMENT_PERIOD_INVALID_ERROR,
-                               api.enrollments, self.db, 'John Smith', 'Example',
-                               datetime.datetime(2001, 1, 1),
-                               datetime.datetime(1999, 1, 1))
+        identities = former_individual.identities.all()
+        self.assertEqual(len(identities), 4)
 
-        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type': 'from_date',
-                                                       'date': '1899-12-31 23:59:59'}
-        self.assertRaisesRegex(ValueError, exc,
-                               api.enrollments, self.db, 'John Smith', 'Example',
-                               datetime.datetime(1899, 12, 31, 23, 59, 59))
+        id1 = identities[0]
+        self.assertEqual(id1.uuid, '1c13fec7a328201fc6a230fe43eb81df0e20626e')
+        self.assertEqual(id1.email, 'jsmith@libresoft')
+        self.assertEqual(id1.source, 'scm')
 
-        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type': 'from_date',
-                                                       'date': '2100-01-01 00:00:01'}
-        self.assertRaisesRegex(ValueError, exc,
-                               api.enrollments, self.db, 'John Smith', 'Example',
-                               datetime.datetime(2100, 1, 1, 0, 0, 1))
+        id2 = identities[1]
+        self.assertEqual(id2.uuid, '9225e296be341c20c11c4bae76df4190a5c4a918')
+        self.assertEqual(id2.email, 'jsmith-phab@bitergia')
+        self.assertEqual(id2.source, 'phabricator')
 
-        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type': 'to_date',
-                                                       'date': '2100-01-01 00:00:01'}
-        self.assertRaisesRegex(ValueError, exc,
-                               api.enrollments, self.db, 'John Smith', 'Example',
-                               datetime.datetime(1900, 1, 1),
-                               datetime.datetime(2100, 1, 1, 0, 0, 1))
+        id3 = identities[2]
+        self.assertEqual(id3.uuid, 'c2f5aa44e920b4fbe3cd36894b18e80a2606deba')
+        self.assertEqual(id3.email, 'jsmith2@libresoft')
+        self.assertEqual(id3.source, 'phabricator')
 
-        exc = ENROLLMENT_PERIOD_OUT_OF_BOUNDS_ERROR % {'type': 'to_date',
-                                                       'date': '1899-12-31 23:59:59'}
-        self.assertRaisesRegex(ValueError, exc,
-                               api.enrollments, self.db, 'John Smith', 'Example',
-                               datetime.datetime(1900, 1, 1),
-                               datetime.datetime(1899, 12, 31, 23, 59, 59))
+        id4 = identities[3]
+        self.assertEqual(id4.uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(id4.email, 'jsmith@example')
+        self.assertEqual(id4.source, 'scm')
 
-    def test_not_found_uuid(self):
-        """Check whether it raises an error when the uiid is not available"""
+        enrollments = former_individual.enrollments.all()
+        self.assertEqual(len(enrollments), 2)
 
-        # It should raise an error when the registry is empty
-        self.assertRaisesRegex(NotFoundError,
-                               NOT_FOUND_ERROR % {'entity': 'John Smith'},
-                               api.enrollments, self.db,
-                               'John Smith', 'Example')
+        rol1 = enrollments[0]
+        self.assertEqual(rol1.group.name, 'Example')
+        self.assertEqual(rol1.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
+        self.assertEqual(rol1.end, datetime.datetime(2017, 6, 1, tzinfo=UTC))
 
-        # It should do the same when there are some identities available
-        api.add_unique_identity(self.db, 'John Smith')
-        api.add_unique_identity(self.db, 'John Doe')
+        rol2 = enrollments[1]
+        self.assertEqual(rol2.group.name, 'Bitergia')
+        self.assertEqual(rol2.start, datetime.datetime(2017, 6, 2, tzinfo=UTC))
+        self.assertEqual(rol2.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
 
-        self.assertRaisesRegex(NotFoundError,
-                               NOT_FOUND_ERROR % {'entity': 'Jane Rae'},
-                               api.enrollments, self.db,
-                               'Jane Rae', 'LibreSoft')
+    def test_uuid_from_individual(self):
+        """Check if it ignores when the identity to unmerge is the same as the parent individual"""
 
-    def test_not_found_organization(self):
-        """Check whether it raises an error when the organization is not available"""
+        individuals = api.unmerge_identities(self.ctx,
+                                             uuids=['e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'])
 
-        api.add_unique_identity(self.db, 'John Smith')
+        self.assertEqual(len(individuals), 1)
 
-        # It should raise an error when the registry is empty
-        self.assertRaisesRegex(NotFoundError,
-                               NOT_FOUND_ERROR % {'entity': 'Example'},
-                               api.enrollments, self.db,
-                               'John Smith', 'Example')
+        individual = individuals[0]
+        self.assertEqual(individual.mk, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
 
-        # It should do the same when there are some orgs available
-        api.add_organization(self.db, 'Example')
-        api.add_organization(self.db, 'Bitergia')
+        identities = individual.identities.all()
+        self.assertEqual(len(identities), 6)
 
-        self.assertRaisesRegex(NotFoundError,
-                               NOT_FOUND_ERROR % {'entity': 'LibreSoft'},
-                               api.enrollments, self.db,
-                               'John Smith', 'LibreSoft')
+        id1 = identities[0]
+        self.assertEqual(id1.uuid, '1c13fec7a328201fc6a230fe43eb81df0e20626e')
+        self.assertEqual(id1.email, 'jsmith@libresoft')
+        self.assertEqual(id1.source, 'scm')
 
+        id2 = identities[1]
+        self.assertEqual(id2.uuid, '31581d7c6b039318e9048c4d8571666c26a5622b')
+        self.assertEqual(id2.email, 'jsmith3@libresoft')
+        self.assertEqual(id2.source, 'phabricator')
 
-class TestBlacklist(TestAPICaseBase):
-    """Unit tests for blacklist"""
+        id3 = identities[2]
+        self.assertEqual(id3.uuid, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(id3.email, 'jsmith-git@example')
+        self.assertEqual(id3.source, 'git')
 
-    def test_get_blacklist(self):
-        """Check if it returns the blacklist"""
+        id4 = identities[3]
+        self.assertEqual(id4.uuid, '9225e296be341c20c11c4bae76df4190a5c4a918')
+        self.assertEqual(id4.email, 'jsmith-phab@bitergia')
+        self.assertEqual(id4.source, 'phabricator')
 
-        api.add_to_matching_blacklist(self.db, 'root@example.com')
-        api.add_to_matching_blacklist(self.db, 'John Smith')
-        api.add_to_matching_blacklist(self.db, 'Bitergia')
-        api.add_to_matching_blacklist(self.db, 'John Doe')
+        id5 = identities[4]
+        self.assertEqual(id5.uuid, 'c2f5aa44e920b4fbe3cd36894b18e80a2606deba')
+        self.assertEqual(id5.email, 'jsmith2@libresoft')
+        self.assertEqual(id5.source, 'phabricator')
 
-        mbs = api.blacklist(self.db)
-        self.assertEqual(len(mbs), 4)
+        id6 = identities[5]
+        self.assertEqual(id6.uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertEqual(id6.email, 'jsmith@example')
+        self.assertEqual(id6.source, 'scm')
 
-        with self.db.connect() as session:
-            mb = session.query(MatchingBlacklist).\
-                filter(MatchingBlacklist.excluded == 'root@example.com').first()
-            self.assertEqual(mb.excluded, 'root@example.com')
+    def test_non_existing_uuids(self):
+        """Check if it fails when source `uuids` field is `None` or an empty list"""
 
-            mb = session.query(MatchingBlacklist).\
-                filter(MatchingBlacklist.excluded == 'Bitergia').first()
-            self.assertEqual(mb.excluded, 'Bitergia')
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
-            mb = session.query(MatchingBlacklist).\
-                filter(MatchingBlacklist.excluded == 'John Doe').first()
-            self.assertEqual(mb.excluded, 'John Doe')
+        with self.assertRaisesRegex(InvalidValueError, UUIDS_NONE_OR_EMPTY_ERROR):
+            api.unmerge_identities(self.ctx,
+                                   uuids=[])
 
-        mb = mbs[0]
-        self.assertIsInstance(mb, MatchingBlacklist)
-        self.assertEqual(mb.excluded, 'Bitergia')
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
 
-        mb = mbs[1]
-        self.assertIsInstance(mb, MatchingBlacklist)
-        self.assertEqual(mb.excluded, 'John Doe')
+    def test_non_existing_uuid(self):
+        """Check if it fails when any `uuid` is `None` or empty"""
 
-        mb = mbs[2]
-        self.assertIsInstance(mb, MatchingBlacklist)
-        self.assertEqual(mb.excluded, 'John Smith')
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
 
-        mb = mbs[3]
-        self.assertIsInstance(mb, MatchingBlacklist)
-        self.assertEqual(mb.excluded, 'root@example.com')
+        with self.assertRaisesRegex(InvalidValueError, UUID_NONE_OR_EMPTY_ERROR):
+            api.unmerge_identities(self.ctx,
+                                   uuids=[''])
 
-    def test_get_blacklist_term(self):
-        """Check if it returns the info about blacklisted entities using a search term"""
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
 
-        api.add_to_matching_blacklist(self.db, 'root@example.com')
-        api.add_to_matching_blacklist(self.db, 'John Smith')
-        api.add_to_matching_blacklist(self.db, 'Bitergia')
-        api.add_to_matching_blacklist(self.db, 'John Doe')
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
 
-        # This query have to return two entries
-        mbs = api.blacklist(self.db, 'ohn')
-        self.assertEqual(len(mbs), 2)
+        before_dt = datetime_utcnow()
 
-        # John Doe
-        mb = mbs[0]
-        self.assertIsInstance(mb, MatchingBlacklist)
-        self.assertEqual(mb.excluded, 'John Doe')
+        individual1 = api.add_identity(self.ctx,
+                                       'scm',
+                                       email='john.doe@example')
+        api.add_identity(self.ctx,
+                         'git',
+                         email='john.doe@example',
+                         uuid='b6bee805956c03699b59e15175261f85a10d43f3')
 
-        mb = mbs[1]
-        self.assertIsInstance(mb, MatchingBlacklist)
-        self.assertEqual(mb.excluded, 'John Smith')
+        after_dt = datetime_utcnow()
 
-    def test_empty_blacklist(self):
-        """Check whether it returns an empty list when the blacklist is empty"""
+        indv1 = Individual.objects.get(mk=individual1.uuid)
 
-        mbs = api.blacklist(self.db)
-        self.assertListEqual(mbs, [])
+        self.assertLessEqual(before_dt, indv1.last_modified)
+        self.assertGreaterEqual(after_dt, indv1.last_modified)
 
-    def test_not_found_term(self):
-        """Check whether it raises an error when the term is not found"""
+        # Unmerge identities
+        before_unmerge_dt = datetime_utcnow()
+        indvs = api.unmerge_identities(self.ctx,
+                                       uuids=['df9af14b5aeb89d0b536a825039d3042eb4e4c27'])
+        after_unmerge_dt = datetime_utcnow()
 
-        # It should raise an error when the blacklist is empty
-        self.assertRaises(NotFoundError, api.blacklist, self.db, 'jane')
+        # Check new individual
+        indv = indvs[0]
+        self.assertLessEqual(before_dt, indv.last_modified)
+        self.assertLessEqual(after_dt, indv.last_modified)
+        self.assertLessEqual(before_unmerge_dt, indv.last_modified)
+        self.assertGreaterEqual(after_unmerge_dt, indv.last_modified)
 
-        # It should do the same when there are some orgs available
-        api.add_to_matching_blacklist(self.db, 'root@example.com')
-        api.add_to_matching_blacklist(self.db, 'John Smith')
+        identities = indv.identities.all()
 
-        self.assertRaises(NotFoundError, api.blacklist, self.db, 'jane')
+        id1 = identities[0]
 
+        # Unmerged (moved) identities were updated
+        self.assertLessEqual(before_dt, id1.last_modified)
+        self.assertLessEqual(after_dt, id1.last_modified)
+        self.assertLessEqual(before_unmerge_dt, id1.last_modified)
+        self.assertGreaterEqual(after_unmerge_dt, id1.last_modified)
 
-if __name__ == "__main__":
-    unittest.main()
+        # Check former parent individual
+        indv = Individual.objects.get(mk=individual1.uuid)
+        self.assertLessEqual(before_dt, indv.last_modified)
+        self.assertLessEqual(after_dt, indv.last_modified)
+        self.assertLessEqual(before_unmerge_dt, indv.last_modified)
+        self.assertGreaterEqual(after_unmerge_dt, indv.last_modified)
+
+        identities = indv.identities.all()
+
+        # Not unmerged (moved) identities were not modified
+        id1 = identities[0]
+
+        self.assertLessEqual(before_dt, id1.last_modified)
+        self.assertGreaterEqual(after_dt, id1.last_modified)
+        self.assertGreaterEqual(before_unmerge_dt, id1.last_modified)
+        self.assertGreaterEqual(after_unmerge_dt, id1.last_modified)
+
+    def test_locked_uuid(self):
+        """Check if it fails when the individual is locked"""
+
+        parent_uuid = 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3'
+        uuid = '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6'
+
+        individual = Individual.objects.get(mk=parent_uuid)
+        individual.is_locked = True
+        individual.save()
+
+        msg = UUID_LOCKED_ERROR.format(uuid=parent_uuid)
+        with self.assertRaisesRegex(LockedIdentityError, msg):
+            api.unmerge_identities(self.ctx,
+                                   uuids=[uuid])
+
+    def test_transaction(self):
+        """Check if a transaction is created when unmerging identities"""
+
+        timestamp = datetime_utcnow()
+
+        api.unmerge_identities(self.ctx,
+                               uuids=['67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6'])
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        self.assertEqual(len(transactions), 1)
+
+        trx = transactions[0]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'unmerge_identities')
+        self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, self.ctx.user.username)
+
+    def test_operations(self):
+        """Check if the right operations are created when unmerging identities"""
+
+        timestamp = datetime_utcnow()
+
+        api.unmerge_identities(self.ctx,
+                               uuids=['67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6'])
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 3)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.ADD.value)
+        self.assertEqual(op1.entity_type, 'individual')
+        self.assertEqual(op1.target, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(op1.trx, trx)
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 1)
+        self.assertEqual(op1_args['mk'], '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+
+        op2 = operations[1]
+        self.assertIsInstance(op2, Operation)
+        self.assertEqual(op2.op_type, Operation.OpType.UPDATE.value)
+        self.assertEqual(op2.entity_type, 'profile')
+        self.assertEqual(op2.target, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(op2.trx, trx)
+        self.assertGreater(op2.timestamp, timestamp)
+
+        op2_args = json.loads(op2.args)
+        self.assertEqual(len(op2_args), 3)
+        self.assertEqual(op2_args['individual'], '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(op2_args['email'], 'jsmith-git@example')
+        self.assertIsNone(op2_args['name'])
+
+        op3 = operations[2]
+        self.assertIsInstance(op3, Operation)
+        self.assertEqual(op3.op_type, Operation.OpType.UPDATE.value)
+        self.assertEqual(op3.entity_type, 'identity')
+        self.assertEqual(op3.target, '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(op3.trx, trx)
+        self.assertGreater(op3.timestamp, timestamp)
+
+        op3_args = json.loads(op3.args)
+        self.assertEqual(len(op3_args), 2)
+        self.assertEqual(op3_args['identity'], '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')
+        self.assertEqual(op3_args['individual'], '67fc4f8a56aa12ab981d2a4c1de065bb9936c9f6')

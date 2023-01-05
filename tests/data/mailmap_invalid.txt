@@ -1,4 +1,0 @@
-#
-# Identities map
-#
-Jane Rae <jrae@nomail.net> This is an invalid identity >

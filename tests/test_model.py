@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2019 Bitergia
+# Copyright (C) 2014-2020 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,116 +18,99 @@
 #
 # Authors:
 #     Santiago Dueñas <sduenas@bitergia.com>
+#     Miguel Ángel Fernández <mafesan@bitergia.com>
 #
 
-import configparser
 import datetime
-import sys
-import unittest
+import dateutil
+import json
 
-if '..' not in sys.path:
-    sys.path.insert(0, '..')
+from django.core.exceptions import ValidationError
+from django.db.utils import IntegrityError
+from django.test import TransactionTestCase
 
-from sqlalchemy import create_engine
-from sqlalchemy.engine.url import URL
-from sqlalchemy.exc import IntegrityError, InternalError, StatementError
-from sqlalchemy.orm import sessionmaker
+from grimoirelab_toolkit.datetime import datetime_utcnow
 
-from sortinghat.db.model import ModelBase, Organization, Domain, Country,\
-    UniqueIdentity, Identity, Profile, Enrollment, MatchingBlacklist
+from sortinghat.core.models import (Organization,
+                                    Domain,
+                                    Team,
+                                    Group,
+                                    Country,
+                                    Individual,
+                                    Identity,
+                                    Profile,
+                                    Enrollment,
+                                    RecommenderExclusionTerm,
+                                    Transaction,
+                                    Operation,
+                                    AffiliationRecommendation,
+                                    MergeRecommendation,
+                                    GenderRecommendation)
 
-from tests.base import Database, CONFIG_FILE
-
-DUP_CHECK_ERROR = 'Duplicate entry'
-NULL_CHECK_ERROR = 'cannot be null'
-INVALID_DATATYPE_ERROR = 'TypeError'
-
-
-class MockDatabase(object):
-
-    def __init__(self, user, password, database, host, port):
-        driver = 'mysql+pymysql'
-
-        self.url = URL(driver, user, password, host, port, database)
-
-        # Hack to establish SSL connection (see #231)
-        try:
-            self._engine = create_engine(self.url, echo=True,
-                                         connect_args={'ssl': {'activate': True}})
-            self._engine.connect().close()
-        except InternalError:
-            self._engine = create_engine(self.url, echo=True)
-
-        self._Session = sessionmaker(bind=self._engine)
-
-        # Create the schema on the database.
-        # It won't replace any existing schema
-        ModelBase.metadata.create_all(self._engine)
-
-    def session(self):
-        return self._Session()
+# Test check errors messages
+DUPLICATE_CHECK_ERROR = "Duplicate entry .+"
+NULL_VALUE_CHECK_ERROR = "Column .+ cannot be null"
+INVALID_BOOLEAN_CHECK_ERROR = "['“true” value must be either True or False.']"
 
 
-class TestCaseBase(unittest.TestCase):
-    """Defines common setup and teardown methods on model unit tests"""
+class TestGroup(TransactionTestCase):
+    """Unit tests for Group class"""
 
-    @classmethod
-    def setUpClass(cls):
-        config = configparser.ConfigParser()
-        config.read(config.read(CONFIG_FILE))
-        cls.db_kwargs = {'user': config['Database']['user'],
-                         'password': config['Database']['password'],
-                         'database': config['Database']['name'],
-                         'host': config['Database']['host'],
-                         'port': config['Database']['port']}
-        if 'create' in config['Database']:
-            cls.create = config['Database'].getboolean('create')
-        else:
-            cls.create = False
-        if cls.create:
-            Database.create(**cls.db_kwargs)
-        cls.db = MockDatabase(**cls.db_kwargs)
+    def test_unique_groups(self):
+        """Check if team names are unique for an organization"""
 
-    @classmethod
-    def tearDownClass(cls):
-        if cls.create:
-            Database.drop(**cls.db_kwargs)
+        with self.assertRaisesRegex(IntegrityError, DUPLICATE_CHECK_ERROR):
+            org = Group.add_root(name='Example', type='organization')
+            team = org.add_child(name='subTeam1', parent_org=org, type='team')
+            team.add_child(name='subTeam1', parent_org=org, type='team')
 
-    def setUp(self):
-        self.session = self.db.session()
+    def test_null_organizations(self):
+        """Check if groups can be created without organizations"""
 
-    def tearDown(self):
-        self.session.rollback()
+        group = Group.add_root(name='Organization', type='organization')
+        self.assertIsInstance(group, Group)
 
-        for table in reversed(ModelBase.metadata.sorted_tables):
-            self.session.execute(table.delete())
-            self.session.commit()
+    def test_created_at(self):
+        """Check creation date is only set when the object is created"""
 
-        self.session.close()
+        before_dt = datetime_utcnow()
+        group = Group.add_root(name='Example')
+        after_dt = datetime_utcnow()
+
+        self.assertEqual(group.name, 'Example')
+        self.assertGreaterEqual(group.created_at, before_dt)
+        self.assertLessEqual(group.created_at, after_dt)
+
+        group.name = 'Changed name'
+        group.save()
+
+        self.assertEqual(group.name, "Changed name")
+        self.assertGreaterEqual(group.created_at, before_dt)
+        self.assertLessEqual(group.created_at, after_dt)
+
+    def test_last_modified(self):
+        """Check last modification date is set when the object is updated"""
+
+        before_dt = datetime_utcnow()
+        group = Group.add_root(name='Example')
+        after_dt = datetime_utcnow()
+
+        self.assertEqual(group.name, 'Example')
+        self.assertGreaterEqual(group.last_modified, before_dt)
+        self.assertLessEqual(group.last_modified, after_dt)
+
+        before_modified_dt = datetime_utcnow()
+        group.name = 'Changed name'
+        group.save()
+        after_modified_dt = datetime_utcnow()
+
+        self.assertEqual(group.name, 'Changed name')
+        self.assertGreaterEqual(group.last_modified, before_modified_dt)
+        self.assertLessEqual(group.last_modified, after_modified_dt)
 
 
-class TestOrganization(TestCaseBase):
+class TestOrganization(TransactionTestCase):
     """Unit tests for Organization class"""
-
-    def test_unique_organizations(self):
-        """Check whether organizations are unique"""
-
-        with self.assertRaises(IntegrityError):
-            org1 = Organization(name='Example')
-            org2 = Organization(name='Example')
-
-            self.session.add(org1)
-            self.session.add(org2)
-            self.session.commit()
-
-    def test_none_name_organizations(self):
-        """Check whether organizations without name can be stored"""
-
-        with self.assertRaisesRegex(IntegrityError, NULL_CHECK_ERROR):
-            org1 = Organization()
-
-            self.session.add(org1)
-            self.session.commit()
 
     def test_charset(self):
         """Check encoding charset"""
@@ -135,294 +118,362 @@ class TestOrganization(TestCaseBase):
         # With an invalid encoding both names wouldn't be inserted;
         # In MySQL, chars 'ı' and 'i' are considered the same with a
         # collation distinct to <charset>_unicode_ci
-        org1 = Organization(name='ıCompany'.encode('utf-8'))
-        org2 = Organization(name='iCompany')
+        Organization.add_root(name='ıCompany')
+        Organization.add_root(name='iCompany')
 
-        self.session.add(org1)
-        self.session.add(org2)
-        self.session.commit()
+        org1 = Organization.objects.get(name='ıCompany')
+        org2 = Organization.objects.get(name='iCompany')
 
-    def test_to_dict(self):
-        """Test output of to_dict() method"""
+        self.assertEqual(org1.name, 'ıCompany')
+        self.assertEqual(org2.name, 'iCompany')
 
-        org = Organization(name='Example')
-        self.session.add(org)
+    def test_created_at(self):
+        """Check creation date is only set when the object is created"""
 
-        dom1 = Domain(domain='example.com',
-                      is_top_domain=True,
-                      organization=org)
-        dom2 = Domain(domain='us.example.net',
-                      is_top_domain=False,
-                      organization=org)
-        self.session.add(dom1)
-        self.session.add(dom2)
-        self.session.commit()
+        before_dt = datetime_utcnow()
+        org = Organization.add_root(name='ıCompany')
+        after_dt = datetime_utcnow()
 
-        # Tests
-        d = org.to_dict()
+        self.assertGreaterEqual(org.created_at, before_dt)
+        self.assertLessEqual(org.created_at, after_dt)
 
-        self.assertIsInstance(d, dict)
-        self.assertEqual(d['name'], 'Example')
+        org.save()
 
-        doms = d['domains']
-        self.assertEqual(len(doms), 2)
+        self.assertGreaterEqual(org.created_at, before_dt)
+        self.assertLessEqual(org.created_at, after_dt)
 
-        d0 = doms[0]
-        self.assertEqual(d0['domain'], 'example.com')
-        self.assertEqual(d0['top_domain'], True)
-        self.assertEqual(d0['organization'], 'Example')
+    def test_last_modified(self):
+        """Check last modification date is set when the object is updated"""
 
-        d1 = doms[1]
-        self.assertEqual(d1['domain'], 'us.example.net')
-        self.assertEqual(d1['top_domain'], False)
-        self.assertEqual(d1['organization'], 'Example')
+        before_dt = datetime_utcnow()
+        org = Organization.add_root(name='ıCompany')
+        after_dt = datetime_utcnow()
+
+        self.assertGreaterEqual(org.last_modified, before_dt)
+        self.assertLessEqual(org.last_modified, after_dt)
+
+        before_modified_dt = datetime_utcnow()
+        org.save()
+        after_modified_dt = datetime_utcnow()
+
+        self.assertGreaterEqual(org.last_modified, before_modified_dt)
+        self.assertLessEqual(org.last_modified, after_modified_dt)
+
+    def test_all_organizations_queryset(self):
+        """Check if the query returns a list of organizations"""
+
+        org = Organization.add_root(name='Example')
+        team = org.add_child(name='Example team', parent_org=org, type='team')
+        team.add_child(name='Example subteam', parent_org=org, type='team')
+        Team.add_root(name='Example group')
+
+        organizations = Organization.objects.all_organizations()
+        self.assertEqual(len(organizations), 1)
+        self.assertEqual(organizations[0], org)
 
 
-class TestDomain(TestCaseBase):
+class TestTeam(TransactionTestCase):
+    """Unit tests for Team class"""
+
+    def test_unique_teams(self):
+        """Check whether teams are unique for organization"""
+
+        with self.assertRaisesRegex(IntegrityError, DUPLICATE_CHECK_ERROR):
+            org = Organization.add_root(name='Example')
+            team = Team.add_root(name='subTeam1', parent_org=org)
+            team.add_child(name='subTeam1', parent_org=org)
+
+    def test_null_organizations(self):
+        """Check if teams can be created without organizations"""
+
+        team = Team.add_root(name='subTeam1')
+        self.assertIsInstance(team, Team)
+
+    def test_created_at(self):
+        """Check creation date is only set when the object is created"""
+
+        before_dt = datetime_utcnow()
+        team = Team.add_root(name='subteam1')
+        after_dt = datetime_utcnow()
+
+        self.assertEqual(team.name, 'subteam1')
+        self.assertGreaterEqual(team.created_at, before_dt)
+        self.assertLessEqual(team.created_at, after_dt)
+
+        team.name = 'subTeam1'
+        team.save()
+
+        self.assertEqual(team.name, "subTeam1")
+        self.assertGreaterEqual(team.created_at, before_dt)
+        self.assertLessEqual(team.created_at, after_dt)
+
+    def test_last_modified(self):
+        before_dt = datetime_utcnow()
+        team = Team.add_root(name='subTeam1')
+        after_dt = datetime_utcnow()
+
+        self.assertEqual(team.name, 'subTeam1')
+        self.assertGreaterEqual(team.last_modified, before_dt)
+        self.assertLessEqual(team.last_modified, after_dt)
+
+        before_modified_dt = datetime_utcnow()
+        team.name = 'subteam1'
+        team.save()
+        after_modified_dt = datetime_utcnow()
+
+        self.assertEqual(team.name, 'subteam1')
+        self.assertGreaterEqual(team.last_modified, before_modified_dt)
+        self.assertLessEqual(team.last_modified, after_modified_dt)
+
+    def test_all_teams_queryset(self):
+        """Check if the query returns a list of teams"""
+
+        org = Organization.add_root(name='Example')
+        team = org.add_child(name='Example team', parent_org=org, type='team')
+        team.add_child(name='Example subteam', parent_org=org, type='team')
+        Team.add_root(name='Example group')
+
+        teams = Team.objects.all_teams()
+        self.assertEqual(len(teams), 3)
+
+    def test_teams_root_nodes_queryset(self):
+        """Check if the query returns a list of top level teams"""
+
+        org = Organization.add_root(name='Example')
+        team = org.add_child(name='Example team', parent_org=org, type='team')
+        team.add_child(name='Example subteam', parent_org=org, type='team')
+        Team.add_root(name='Example group')
+
+        teams = Team.objects.team_root_nodes()
+        self.assertEqual(len(teams), 1)
+        self.assertEqual(teams[0], team)
+
+    def test_groups_queryset(self):
+        """Check if it returns a list of teams that do not belong to an organization"""
+
+        org = Organization.add_root(name='Example')
+        team = org.add_child(name='Example team', parent_org=org, type='team')
+        team.add_child(name='Example subteam', parent_org=org, type='team')
+        group = Team.add_root(name='Example group')
+        group.add_child(name='Example subgoup', type='team')
+
+        groups = Team.objects.groups()
+        self.assertEqual(len(groups), 1)
+        self.assertEqual(groups[0], group)
+
+
+class TestDomain(TransactionTestCase):
     """Unit tests for Domain class"""
 
     def test_unique_domains(self):
         """Check whether domains are unique"""
 
-        with self.assertRaisesRegex(IntegrityError, DUP_CHECK_ERROR):
-            org1 = Organization(name='Example')
-            self.session.add(org1)
-
-            dom1 = Domain(domain='example.com')
-            dom1.organization = org1
-            dom2 = Domain(domain='example.com')
-            dom2.organization = org1
-
-            self.session.add(dom1)
-            self.session.add(dom2)
-            self.session.commit()
+        with self.assertRaisesRegex(IntegrityError, DUPLICATE_CHECK_ERROR):
+            org = Organization.add_root(name='Example')
+            Domain.objects.create(domain='example.com', organization=org)
+            Domain.objects.create(domain='example.com', organization=org)
 
     def test_not_null_organizations(self):
         """Check whether every domain is assigned to an organization"""
 
-        with self.assertRaisesRegex(IntegrityError, NULL_CHECK_ERROR):
-            dom1 = Domain(domain='example.com')
-            self.session.add(dom1)
-            self.session.commit()
-
-    def test_none_name_domains(self):
-        """Check whether domains without name can be stored"""
-
-        with self.assertRaisesRegex(IntegrityError, NULL_CHECK_ERROR):
-            org1 = Organization(name='Example')
-            self.session.add(org1)
-
-            dom1 = Domain()
-            dom1.organization = org1
-
-            self.session.add(dom1)
-            self.session.commit()
+        with self.assertRaisesRegex(IntegrityError, NULL_VALUE_CHECK_ERROR):
+            Domain.objects.create(domain='example.com')
 
     def test_is_top_domain_invalid_type(self):
-        """Check invalid values on top_domain bool column"""
+        """Check invalid values on is_top_domain bool column"""
 
-        with self.assertRaisesRegex(StatementError, INVALID_DATATYPE_ERROR):
-            org1 = Organization(name='Example')
-            self.session.add(org1)
+        with self.assertRaisesRegex(ValidationError, INVALID_BOOLEAN_CHECK_ERROR):
+            org = Organization.add_root(name='Example')
+            Domain.objects.create(domain='example.com', is_top_domain='true',
+                                  organization=org)
 
-            dom1 = Domain(domain='example.com', is_top_domain='True')
-            dom1.organization = org1
+    def test_created_at(self):
+        """Check creation date is only set when the object is created"""
 
-            self.session.add(dom1)
-            self.session.commit()
+        before_dt = datetime_utcnow()
+        org = Organization.add_root(name='Example')
+        dom = Domain.objects.create(domain='example.com', is_top_domain=True,
+                                    organization=org)
+        after_dt = datetime_utcnow()
 
-    def test_to_dict(self):
-        """Test output of to_dict() method"""
+        self.assertEqual(dom.is_top_domain, True)
+        self.assertGreaterEqual(dom.created_at, before_dt)
+        self.assertLessEqual(dom.created_at, after_dt)
 
-        org = Organization(name='Example')
-        self.session.add(org)
+        dom.is_top_domain = False
+        dom.save()
 
-        dom = Domain(domain='example.com',
-                     is_top_domain=True,
-                     organization=org)
-        self.session.add(dom)
-        self.session.commit()
+        self.assertEqual(dom.is_top_domain, False)
+        self.assertGreaterEqual(dom.created_at, before_dt)
+        self.assertLessEqual(dom.created_at, after_dt)
 
-        # Tests
-        d = dom.to_dict()
+    def test_last_modified(self):
+        """Check last modification date is set when the object is updated"""
 
-        self.assertIsInstance(d, dict)
-        self.assertEqual(d['domain'], 'example.com')
-        self.assertEqual(d['top_domain'], True)
-        self.assertEqual(d['organization'], 'Example')
+        before_dt = datetime_utcnow()
+        org = Organization.add_root(name='Example')
+        dom = Domain.objects.create(domain='example.com', is_top_domain=True,
+                                    organization=org)
+        after_dt = datetime_utcnow()
+
+        self.assertEqual(dom.is_top_domain, True)
+        self.assertGreaterEqual(dom.last_modified, before_dt)
+        self.assertLessEqual(dom.last_modified, after_dt)
+
+        before_modified_dt = datetime_utcnow()
+        dom.is_top_domain = False
+        dom.save()
+        after_modified_dt = datetime_utcnow()
+
+        self.assertEqual(dom.is_top_domain, False)
+        self.assertGreaterEqual(dom.last_modified, before_modified_dt)
+        self.assertLessEqual(dom.last_modified, after_modified_dt)
 
 
-class TestCountry(TestCaseBase):
+class TestCountry(TransactionTestCase):
     """Unit tests for Country class"""
 
     def test_unique_countries(self):
         """Check whether countries are unique"""
 
-        with self.assertRaisesRegex(IntegrityError, DUP_CHECK_ERROR):
-            c1 = Country(code='ES', name='Spain', alpha3='ESP')
-            self.session.add(c1)
-
-            c2 = Country(code='ES', name='España', alpha3='E')
-            self.session.add(c2)
-
-            self.session.commit()
+        with self.assertRaisesRegex(IntegrityError, DUPLICATE_CHECK_ERROR):
+            Country.objects.create(code='ES', name='Spain', alpha3='ESP')
+            Country.objects.create(code='ES', name='España', alpha3='E')
 
     def test_unique_alpha3(self):
         """Check whether alpha3 codes are unique"""
 
-        with self.assertRaisesRegex(IntegrityError, DUP_CHECK_ERROR):
-            c1 = Country(code='ES', name='Spain', alpha3='ESP')
-            self.session.add(c1)
+        with self.assertRaisesRegex(IntegrityError, DUPLICATE_CHECK_ERROR):
+            Country.objects.create(code='ES', name='Spain', alpha3='ESP')
+            Country.objects.create(code='E', name='Spain', alpha3='ESP')
 
-            c2 = Country(code='E', name='Spain', alpha3='ESP')
-            self.session.add(c2)
+    def test_created_at(self):
+        """Check creation date is only set when the object is created"""
 
-            self.session.commit()
+        before_dt = datetime_utcnow()
+        country = Country.objects.create(code='ES', name='Spain', alpha3='ESP')
+        after_dt = datetime_utcnow()
 
-    def test_none_name_country(self):
-        """Check whether countries without name can be stored"""
+        self.assertEqual(country.name, 'Spain')
+        self.assertGreaterEqual(country.created_at, before_dt)
+        self.assertLessEqual(country.created_at, after_dt)
 
-        with self.assertRaisesRegex(IntegrityError, NULL_CHECK_ERROR):
-            c = Country(code='ES', alpha3='ESP')
-            self.session.add(c)
+        country.name = 'España'
+        country.save()
 
-            self.session.commit()
+        self.assertEqual(country.name, 'España')
+        self.assertGreaterEqual(country.created_at, before_dt)
+        self.assertLessEqual(country.created_at, after_dt)
 
-    def test_none_alpha3_country(self):
-        """Check whether countries without alpha3 code can be stored"""
+    def test_last_modified(self):
+        """Check last modification date is set when the object is updated"""
 
-        with self.assertRaisesRegex(IntegrityError, NULL_CHECK_ERROR):
-            c = Country(code='ES', name='Spain')
-            self.session.add(c)
+        before_dt = datetime_utcnow()
+        country = Country.objects.create(code='ES', name='Spain', alpha3='ESP')
+        after_dt = datetime_utcnow()
 
-            self.session.commit()
+        self.assertEqual(country.name, 'Spain')
+        self.assertGreaterEqual(country.last_modified, before_dt)
+        self.assertLessEqual(country.last_modified, after_dt)
 
-    def test_to_dict(self):
-        """Test output of to_dict() method"""
+        before_modified_dt = datetime_utcnow()
+        country.name = 'España'
+        country.save()
+        after_modified_dt = datetime_utcnow()
 
-        c = Country(code='ES', name='Spain', alpha3='ESP')
-        self.session.add(c)
-
-        # Tests
-        d = c.to_dict()
-
-        self.assertIsInstance(d, dict)
-        self.assertEqual(d['code'], 'ES')
-        self.assertEqual(d['name'], 'Spain')
-        self.assertEqual(d['alpha3'], 'ESP')
-
-
-class TestUniqueIdentity(TestCaseBase):
-    """Unit tests for UniqueIdentity class"""
-
-    def test_unique_uuid(self):
-        """Check whether the uuid is in fact unique"""
-
-        with self.assertRaisesRegex(IntegrityError, DUP_CHECK_ERROR):
-            uid1 = UniqueIdentity(uuid='John Smith')
-            uid2 = UniqueIdentity(uuid='John Smith')
-
-            self.session.add(uid1)
-            self.session.add(uid2)
-            self.session.commit()
-
-    def test_to_dict(self):
-        """Test output of to_dict() method"""
-
-        c = Country(code='US', name='United States of America', alpha3='USA')
-        self.session.add(c)
-
-        uid = UniqueIdentity(uuid='John Smith')
-        self.session.add(uid)
-
-        id1 = Identity(id='A', name='John Smith', email='jsmith@example.com',
-                       username='jsmith', source='scm', uuid='John Smith')
-        id2 = Identity(id='B', name=None, email='jsmith@example.net',
-                       username=None, source='scm', uuid='John Smith')
-
-        self.session.add(id1)
-        self.session.add(id2)
-        self.session.commit()
-
-        # Tests
-        d = uid.to_dict()
-
-        self.assertIsInstance(d, dict)
-        self.assertEqual(d['uuid'], 'John Smith')
-
-        self.assertEqual(d['profile'], None)
-
-        identities = d['identities']
-        self.assertEqual(len(identities), 2)
-
-        d0 = d['identities'][0]
-        self.assertEqual(d0['id'], 'A')
-        self.assertEqual(d0['name'], 'John Smith')
-        self.assertEqual(d0['email'], 'jsmith@example.com')
-        self.assertEqual(d0['username'], 'jsmith')
-        self.assertEqual(d0['source'], 'scm')
-        self.assertEqual(d0['uuid'], 'John Smith')
-
-        d1 = d['identities'][1]
-        self.assertEqual(d1['id'], 'B')
-        self.assertEqual(d1['name'], None)
-        self.assertEqual(d1['email'], 'jsmith@example.net')
-        self.assertEqual(d1['username'], None)
-        self.assertEqual(d1['source'], 'scm')
-        self.assertEqual(d1['uuid'], 'John Smith')
-
-        prf = Profile(uuid='John Smith', name='Smith, J.',
-                      email='jsmith@example.com', is_bot=True,
-                      country_code='US')
-
-        # Add profile information
-        self.session.add(prf)
-        self.session.commit()
-
-        d = uid.to_dict()
-
-        dp = d['profile']
-        self.assertEqual(dp['uuid'], 'John Smith')
-        self.assertEqual(dp['name'], 'Smith, J.')
-        self.assertEqual(dp['email'], 'jsmith@example.com')
-        self.assertEqual(dp['is_bot'], True)
-        self.assertEqual(dp['country']['code'], 'US')
-        self.assertEqual(dp['country']['name'], 'United States of America')
+        self.assertEqual(country.name, 'España')
+        self.assertGreaterEqual(country.last_modified, before_modified_dt)
+        self.assertLessEqual(country.last_modified, after_modified_dt)
 
 
-class TestIdentity(TestCaseBase):
+class TestIndividual(TransactionTestCase):
+    """Unit tests for Individual class"""
+
+    def test_unique_main_key(self):
+        """Check whether the mk is in fact unique"""
+
+        with self.assertRaisesRegex(IntegrityError, DUPLICATE_CHECK_ERROR):
+            Individual.objects.create(mk='AAAA')
+            Individual.objects.create(mk='AAAA')
+
+    def test_created_at(self):
+        """Check creation date is only set when the object is created"""
+
+        before_dt = datetime_utcnow()
+        indv = Individual.objects.create(mk='AAAA')
+        after_dt = datetime_utcnow()
+
+        self.assertGreaterEqual(indv.created_at, before_dt)
+        self.assertLessEqual(indv.created_at, after_dt)
+
+        indv.save()
+
+        self.assertGreaterEqual(indv.created_at, before_dt)
+        self.assertLessEqual(indv.created_at, after_dt)
+
+    def test_last_modified(self):
+        """Check last modification date is set when the object is updated"""
+
+        before_dt = datetime_utcnow()
+        indv = Individual.objects.create(mk='AAAA')
+        after_dt = datetime_utcnow()
+
+        self.assertGreaterEqual(indv.last_modified, before_dt)
+        self.assertLessEqual(indv.last_modified, after_dt)
+
+        before_modified_dt = datetime_utcnow()
+        indv.save()
+        after_modified_dt = datetime_utcnow()
+
+        self.assertGreaterEqual(indv.last_modified, before_modified_dt)
+        self.assertLessEqual(indv.last_modified, after_modified_dt)
+
+    def test_is_locked_default(self):
+        """Check if `is_locked` field is set to False by default"""
+
+        indv = Individual.objects.create(mk='AAAA')
+
+        self.assertEqual(indv.is_locked, False)
+
+
+class TestIdentity(TransactionTestCase):
     """Unit tests for Identity class"""
 
     def test_not_null_source(self):
         """Check whether every identity has a source"""
 
-        with self.assertRaisesRegex(IntegrityError, NULL_CHECK_ERROR):
-            id1 = Identity(id='A')
-            self.session.add(id1)
-            self.session.commit()
+        with self.assertRaisesRegex(IntegrityError, NULL_VALUE_CHECK_ERROR):
+            indv = Individual.objects.create(mk='AAAA')
+            Identity.objects.create(individual=indv, source=None)
 
-    def test_unique_identities(self):
+    def test_identities_are_unique(self):
         """Check if there is only one tuple with the same values"""
 
-        id1 = Identity(id='A', name='John Smith', email='jsmith@example.com',
-                       username='jsmith', source='scm')
-        id2 = Identity(id='B', name='John Smith', email='jsmith@example.com',
-                       username='jsmith', source='scm')
+        indv = Individual.objects.create(mk='AAAA')
+        id1 = Identity.objects.create(uuid='A',
+                                      name='John Smith',
+                                      email='jsmith@example.com',
+                                      username='jsmith',
+                                      source='scm',
+                                      individual=indv)
 
-        with self.assertRaisesRegex(IntegrityError, DUP_CHECK_ERROR):
-            self.session.add(id1)
-            self.session.add(id2)
-            self.session.commit()
-
-        self.session.rollback()
+        with self.assertRaisesRegex(IntegrityError, DUPLICATE_CHECK_ERROR):
+            Identity.objects.create(uuid='B',
+                                    name='John Smith',
+                                    email='jsmith@example.com',
+                                    username='jsmith',
+                                    source='scm',
+                                    individual=indv)
 
         # Changing an property should not raise any error
-        id2.source = 'mls'
-        self.session.add(id1)
-        self.session.add(id2)
-        self.session.commit()
+        id2 = Identity.objects.create(uuid='B',
+                                      name='John Smith',
+                                      email='jsmith@example.com',
+                                      username='jsmith',
+                                      source='mls',
+                                      individual=indv)
 
-        self.assertNotEqual(id1.id, id2.id)
+        self.assertNotEqual(id1.uuid, id2.uuid)
 
     def test_charset(self):
         """Check encoding charset"""
@@ -430,229 +481,575 @@ class TestIdentity(TestCaseBase):
         # With an invalid encoding both names wouldn't be inserted;
         # In MySQL, chars 'ı' and 'i' are considered the same with a
         # collation distinct to <charset>_unicode_ci
-        id1 = Identity(id='A', name='John Smıth'.encode('utf-8'),
-                       email='jsmith@example.com',
-                       username='jsmith', source='scm')
-        id2 = Identity(id='B', name='John Smith',
-                       email='jsmith@example.com',
-                       username='jsmith', source='scm')
+        indv = Individual.objects.create(mk='AAAA')
+        Identity.objects.create(uuid='A',
+                                name='John Smıth',
+                                email='jsmith@example.com',
+                                username='jsmith',
+                                source='scm',
+                                individual=indv)
+        Identity.objects.create(uuid='B',
+                                name='John Smith',
+                                email='jsmith@example.com',
+                                username='jsmith',
+                                source='scm',
+                                individual=indv)
 
-        self.session.add(id1)
-        self.session.add(id2)
-        self.session.commit()
+        id1 = Identity.objects.get(name='John Smıth')
+        id2 = Identity.objects.get(name='John Smith')
 
-    def test_to_dict(self):
-        """Test output of to_dict() method"""
+        self.assertEqual(id1.name, 'John Smıth')
+        self.assertEqual(id2.name, 'John Smith')
 
-        uid = UniqueIdentity(uuid='John Smith')
-        self.session.add(uid)
+    def test_created_at(self):
+        """Check creation date is only set when the object is created"""
 
-        id1 = Identity(id='A', name='John Smith', email='jsmith@example.com',
-                       username='jsmith', source='scm', uuid='John Smith')
+        before_dt = datetime_utcnow()
+        indv = Individual.objects.create(mk='AAAA')
+        id1 = Identity.objects.create(uuid='A',
+                                      name='John Smith',
+                                      email='jsmith@example.com',
+                                      username='jsmith',
+                                      source='scm',
+                                      individual=indv)
+        after_dt = datetime_utcnow()
 
-        self.session.add(id1)
-        self.session.commit()
+        self.assertEqual(id1.source, 'scm')
+        self.assertGreaterEqual(id1.created_at, before_dt)
+        self.assertLessEqual(id1.created_at, after_dt)
 
-        # Tests
-        d = id1.to_dict()
+        id1.source = 'mls'
+        id1.save()
 
-        self.assertIsInstance(d, dict)
-        self.assertEqual(d['id'], 'A')
-        self.assertEqual(d['name'], 'John Smith')
-        self.assertEqual(d['email'], 'jsmith@example.com')
-        self.assertEqual(d['username'], 'jsmith')
-        self.assertEqual(d['source'], 'scm')
-        self.assertEqual(d['uuid'], 'John Smith')
+        self.assertEqual(id1.source, 'mls')
+        self.assertGreaterEqual(id1.created_at, before_dt)
+        self.assertLessEqual(id1.created_at, after_dt)
+
+    def test_last_modified(self):
+        """Check last modification date is set when the object is updated"""
+
+        before_dt = datetime_utcnow()
+        indv = Individual.objects.create(mk='AAAA')
+        id1 = Identity.objects.create(uuid='A',
+                                      name='John Smith',
+                                      email='jsmith@example.com',
+                                      username='jsmith',
+                                      source='scm',
+                                      individual=indv)
+        after_dt = datetime_utcnow()
+
+        self.assertEqual(id1.source, 'scm')
+        self.assertGreaterEqual(id1.last_modified, before_dt)
+        self.assertLessEqual(id1.last_modified, after_dt)
+
+        before_modified_dt = datetime_utcnow()
+        id1.source = 'mls'
+        id1.save()
+        after_modified_dt = datetime_utcnow()
+
+        self.assertEqual(id1.source, 'mls')
+        self.assertGreaterEqual(id1.last_modified, before_modified_dt)
+        self.assertLessEqual(id1.last_modified, after_modified_dt)
 
 
-class TestProfile(TestCaseBase):
+class TestProfile(TransactionTestCase):
     """Unit tests for Profile class"""
 
     def test_unique_profile(self):
-        """Check if there is only one profile for each unique identity"""
+        """Check if there is only one profile for each individual"""
 
-        uid = UniqueIdentity(uuid='John Smith')
-        self.session.add(uid)
+        indv = Individual.objects.create(mk='AAAA')
 
-        prf1 = Profile(uuid='John Smith', name='John Smith')
-        prf2 = Profile(uuid='John Smith', name='Smith, J.')
-
-        with self.assertRaisesRegex(IntegrityError, DUP_CHECK_ERROR):
-            self.session.add(prf1)
-            self.session.add(prf2)
-            self.session.commit()
+        with self.assertRaisesRegex(IntegrityError, DUPLICATE_CHECK_ERROR):
+            Profile.objects.create(name='John Smith', individual=indv)
+            Profile.objects.create(name='Smith, J.', individual=indv)
 
     def test_is_bot_invalid_type(self):
-        """Check invalid values on is_bot bool column"""
+        """Check invalid values on is_bot bool column."""
 
-        with self.assertRaisesRegex(StatementError, INVALID_DATATYPE_ERROR):
-            uid = UniqueIdentity(uuid='John Smith')
-            self.session.add(uid)
+        indv = Individual.objects.create(mk='AAAA')
 
-            prf = Profile(uuid='John Smith', name='John Smith', is_bot='True')
+        with self.assertRaisesRegex(ValidationError, INVALID_BOOLEAN_CHECK_ERROR):
+            Profile.objects.create(is_bot='true', individual=indv)
 
-            self.session.add(prf)
-            self.session.commit()
+    def test_created_at(self):
+        """Check creation date is only set when the object is created"""
 
-    def test_to_dict(self):
-        """Test output of to_dict() method"""
+        before_dt = datetime_utcnow()
+        indv = Individual.objects.create(mk='AAAA')
+        prf = Profile.objects.create(name='John Smith', individual=indv)
+        after_dt = datetime_utcnow()
 
-        uid = UniqueIdentity(uuid='John Smith')
-        self.session.add(uid)
+        self.assertEqual(prf.name, 'John Smith')
+        self.assertGreaterEqual(prf.created_at, before_dt)
+        self.assertLessEqual(prf.created_at, after_dt)
 
-        c = Country(code='US', name='United States of America', alpha3='USA')
-        self.session.add(c)
+        prf.name = 'J. Smith'
+        prf.save()
 
-        prf = Profile(uuid='John Smith', name='Smith, J.',
-                      email='jsmith@example.com', is_bot=True,
-                      country_code='US')
+        self.assertEqual(prf.name, 'J. Smith')
+        self.assertGreaterEqual(prf.created_at, before_dt)
+        self.assertLessEqual(prf.created_at, after_dt)
 
-        self.session.add(prf)
-        self.session.commit()
+    def test_last_modified(self):
+        """Check last modification date is set when the object is updated"""
 
-        # Tests
-        d = prf.to_dict()
+        before_dt = datetime_utcnow()
+        indv = Individual.objects.create(mk='AAAA')
+        prf = Profile.objects.create(name='John Smith', individual=indv)
+        after_dt = datetime_utcnow()
 
-        self.assertIsInstance(d, dict)
-        self.assertEqual(d['uuid'], 'John Smith')
-        self.assertEqual(d['name'], 'Smith, J.')
-        self.assertEqual(d['email'], 'jsmith@example.com')
-        self.assertEqual(d['is_bot'], True)
-        self.assertEqual(d['country']['code'], 'US')
-        self.assertEqual(d['country']['name'], 'United States of America')
+        self.assertEqual(prf.name, 'John Smith')
+        self.assertGreaterEqual(prf.last_modified, before_dt)
+        self.assertLessEqual(prf.last_modified, after_dt)
 
-        # No country set
-        prf = Profile(uuid='John Smith', name='Smith, J.',
-                      email='jsmith@example.com', is_bot=True,
-                      country_code=None)
+        before_modified_dt = datetime_utcnow()
+        prf.name = 'J. Smith'
+        prf.save()
+        after_modified_dt = datetime_utcnow()
 
-        d = prf.to_dict()
-        self.assertEqual(d['country'], None)
+        self.assertEqual(prf.name, 'J. Smith')
+        self.assertGreaterEqual(prf.last_modified, before_modified_dt)
+        self.assertLessEqual(prf.last_modified, after_modified_dt)
 
 
-class TestEnrollment(TestCaseBase):
+class TestEnrollment(TransactionTestCase):
     """Unit tests for Enrollment class"""
 
     def test_not_null_relationships(self):
-        """Check whether every enrollment is assigned organizations and unique identities"""
+        """Check whether every enrollment is assigned organizations and individuals"""
 
-        with self.assertRaisesRegex(IntegrityError, NULL_CHECK_ERROR):
-            rol1 = Enrollment()
-            self.session.add(rol1)
-            self.session.commit()
+        with self.assertRaisesRegex(IntegrityError, NULL_VALUE_CHECK_ERROR):
+            Enrollment.objects.create()
 
-        self.session.rollback()
+        with self.assertRaisesRegex(IntegrityError, NULL_VALUE_CHECK_ERROR):
+            indv = Individual.objects.create(mk='AAAA')
+            Enrollment.objects.create(individual=indv)
 
-        with self.assertRaisesRegex(IntegrityError, NULL_CHECK_ERROR):
-            uid = UniqueIdentity(uuid='John Smith')
-            self.session.add(uid)
-
-            rol2 = Enrollment(uidentity=uid)
-            self.session.add(rol2)
-            self.session.commit()
-
-        self.session.rollback()
-
-        with self.assertRaisesRegex(IntegrityError, NULL_CHECK_ERROR):
-            org = Organization(name='Example')
-            self.session.add(org)
-
-            rol3 = Enrollment(organization=org)
-            self.session.add(rol3)
-            self.session.commit()
-
-        self.session.rollback()
+        with self.assertRaisesRegex(IntegrityError, NULL_VALUE_CHECK_ERROR):
+            org = Organization.add_root(name='Example')
+            Enrollment.objects.create(group=org)
 
     def test_unique_enrollments(self):
         """Check if there is only one tuple with the same values"""
 
-        with self.assertRaisesRegex(IntegrityError, DUP_CHECK_ERROR):
-            uid = UniqueIdentity(uuid='John Smith')
-            self.session.add(uid)
+        with self.assertRaisesRegex(IntegrityError, DUPLICATE_CHECK_ERROR):
+            indv = Individual.objects.create(mk='AAAA')
+            org = Organization.add_root(name='Example')
 
-            org = Organization(name='Example')
-            self.session.add(org)
-
-            rol1 = Enrollment(uidentity=uid, organization=org)
-            rol2 = Enrollment(uidentity=uid, organization=org)
-
-            self.session.add(rol1)
-            self.session.add(rol2)
-            self.session.commit()
+            Enrollment.objects.create(individual=indv, group=org)
+            Enrollment.objects.create(individual=indv, group=org)
 
     def test_default_enrollment_period(self):
         """Check whether the default period is set when initializing the class"""
 
-        uid = UniqueIdentity(uuid='John Smith')
-        self.session.add(uid)
+        indv = Individual.objects.create(mk='AAAA')
+        org = Organization.add_root(name='Example')
 
-        org = Organization(name='Example')
-        self.session.add(org)
+        rol1 = Enrollment.objects.create(individual=indv, group=org)
+        self.assertEqual(rol1.start, datetime.datetime(1900, 1, 1, 0, 0, 0,
+                                                       tzinfo=dateutil.tz.tzutc()))
+        self.assertEqual(rol1.end, datetime.datetime(2100, 1, 1, 0, 0, 0,
+                                                     tzinfo=dateutil.tz.tzutc()))
 
-        rol1 = Enrollment(uidentity=uid, organization=org)
-        self.session.add(rol1)
-        self.session.commit()
+        rol2 = Enrollment.objects.create(individual=indv, group=org,
+                                         end=datetime.datetime(2222, 1, 1, 0, 0, 0,
+                                                               tzinfo=dateutil.tz.tzutc()))
+        self.assertEqual(rol2.start, datetime.datetime(1900, 1, 1, 0, 0, 0,
+                                                       tzinfo=dateutil.tz.tzutc()))
+        self.assertEqual(rol2.end, datetime.datetime(2222, 1, 1, 0, 0, 0,
+                                                     tzinfo=dateutil.tz.tzutc()))
 
-        self.assertEqual(rol1.start, datetime.datetime(1900, 1, 1, 0, 0, 0))
-        self.assertEqual(rol1.end, datetime.datetime(2100, 1, 1, 0, 0, 0))
+        rol3 = Enrollment.objects.create(individual=indv, group=org,
+                                         start=datetime.datetime(1999, 1, 1, 0, 0, 0,
+                                                                 tzinfo=dateutil.tz.tzutc()))
+        self.assertEqual(rol3.start, datetime.datetime(1999, 1, 1, 0, 0, 0,
+                                                       tzinfo=dateutil.tz.tzutc()))
+        self.assertEqual(rol3.end, datetime.datetime(2100, 1, 1, 0, 0, 0,
+                                                     tzinfo=dateutil.tz.tzutc()))
 
-        # Setting start and end dates to None produce the same result
-        rol2 = Enrollment(uidentity=uid, organization=org,
-                          start=None, end=datetime.datetime(2222, 1, 1, 0, 0, 0))
-        self.session.add(rol2)
-        self.session.commit()
+    def test_created_at(self):
+        """Check creation date is only set when the object is created"""
 
-        self.assertEqual(rol2.start, datetime.datetime(1900, 1, 1, 0, 0, 0))
-        self.assertEqual(rol2.end, datetime.datetime(2222, 1, 1, 0, 0, 0))
+        before_dt = datetime_utcnow()
+        indv = Individual.objects.create(mk='AAAA')
+        org = Organization.add_root(name='Example')
+        rol = Enrollment.objects.create(individual=indv, group=org)
+        after_dt = datetime_utcnow()
 
-        rol3 = Enrollment(uidentity=uid, organization=org,
-                          start=datetime.datetime(1999, 1, 1, 0, 0, 0), end=None)
-        self.session.add(rol3)
-        self.session.commit()
+        self.assertEqual(rol.start, datetime.datetime(1900, 1, 1, 0, 0, 0,
+                                                      tzinfo=dateutil.tz.tzutc()))
+        self.assertGreaterEqual(rol.created_at, before_dt)
+        self.assertLessEqual(rol.created_at, after_dt)
 
-        self.assertEqual(rol3.start, datetime.datetime(1999, 1, 1, 0, 0, 0))
-        self.assertEqual(rol3.end, datetime.datetime(2100, 1, 1, 0, 0, 0))
+        rol.start = datetime.datetime(2001, 1, 1, 0, 0, 0,
+                                      tzinfo=dateutil.tz.tzutc())
+        rol.save()
 
-    def test_to_dict(self):
-        """Test output of to_dict() method"""
+        self.assertEqual(rol.start, datetime.datetime(2001, 1, 1, 0, 0, 0,
+                                                      tzinfo=dateutil.tz.tzutc()))
+        self.assertGreaterEqual(rol.created_at, before_dt)
+        self.assertLessEqual(rol.created_at, after_dt)
 
-        uid = UniqueIdentity(uuid='John Smith')
-        self.session.add(uid)
+    def test_last_modified(self):
+        """Check last modification date is set when the object is updated"""
 
-        org = Organization(name='Example')
-        self.session.add(org)
+        before_dt = datetime_utcnow()
+        indv = Individual.objects.create(mk='AAAA')
+        org = Organization.add_root(name='Example')
+        rol = Enrollment.objects.create(individual=indv, group=org)
+        after_dt = datetime_utcnow()
 
-        rol = Enrollment(uidentity=uid, organization=org,
-                         start=datetime.datetime(1999, 1, 1, 0, 0, 0),
-                         end=datetime.datetime(2001, 1, 1, 0, 0, 0))
+        self.assertEqual(rol.start, datetime.datetime(1900, 1, 1, 0, 0, 0,
+                                                      tzinfo=dateutil.tz.tzutc()))
+        self.assertGreaterEqual(rol.last_modified, before_dt)
+        self.assertLessEqual(rol.last_modified, after_dt)
 
-        self.session.add(rol)
-        self.session.commit()
+        before_modified_dt = datetime_utcnow()
+        rol.start = datetime.datetime(2001, 1, 1, 0, 0, 0,
+                                      tzinfo=dateutil.tz.tzutc())
+        rol.save()
+        after_modified_dt = datetime_utcnow()
 
-        # Tests
-        d = rol.to_dict()
-
-        self.assertIsInstance(d, dict)
-        self.assertEqual(d['uuid'], 'John Smith')
-        self.assertEqual(d['organization'], 'Example')
-        self.assertEqual(d['start'], datetime.datetime(1999, 1, 1, 0, 0, 0))
-        self.assertEqual(d['end'], datetime.datetime(2001, 1, 1, 0, 0, 0))
+        self.assertEqual(rol.start, datetime.datetime(2001, 1, 1, 0, 0, 0,
+                                                      tzinfo=dateutil.tz.tzutc()))
+        self.assertGreaterEqual(rol.last_modified, before_modified_dt)
+        self.assertLessEqual(rol.last_modified, after_modified_dt)
 
 
-class TestMatchingBlacklist(TestCaseBase):
-    """Unit tests for MatchingBlacklist class"""
+class TestRecommenderExclusionTerm(TransactionTestCase):
+    """Unit tests for RecommenderExclusionTerm class"""
 
     def test_unique_excluded(self):
         """Check whether the excluded term is in fact unique"""
 
-        with self.assertRaisesRegex(IntegrityError, DUP_CHECK_ERROR):
-            mb1 = MatchingBlacklist(excluded='John Smith')
-            mb2 = MatchingBlacklist(excluded='John Smith')
+        with self.assertRaisesRegex(IntegrityError, DUPLICATE_CHECK_ERROR):
+            RecommenderExclusionTerm.objects.create(term='John Smith')
+            RecommenderExclusionTerm.objects.create(term='John Smith')
 
-            self.session.add(mb1)
-            self.session.add(mb2)
-            self.session.commit()
+    def test_created_at(self):
+        """Check creation date is only set when the object is created."""
+
+        before_dt = datetime_utcnow()
+        mb = RecommenderExclusionTerm.objects.create(term='John Smith')
+        after_dt = datetime_utcnow()
+
+        self.assertEqual(mb.term, 'John Smith')
+        self.assertGreaterEqual(mb.created_at, before_dt)
+        self.assertLessEqual(mb.created_at, after_dt)
+
+        mb.term = 'J. Smith'
+        mb.save()
+
+        self.assertEqual(mb.term, 'J. Smith')
+        self.assertGreaterEqual(mb.created_at, before_dt)
+        self.assertLessEqual(mb.created_at, after_dt)
+
+    def test_last_modified(self):
+        """Check last modification date is set when the object is updated"""
+
+        before_dt = datetime_utcnow()
+        mb = RecommenderExclusionTerm.objects.create(term='John Smith')
+        after_dt = datetime_utcnow()
+
+        self.assertEqual(mb.term, 'John Smith')
+        self.assertGreaterEqual(mb.last_modified, before_dt)
+        self.assertLessEqual(mb.last_modified, after_dt)
+
+        before_modified_dt = datetime_utcnow()
+        mb.term = 'J. Smith'
+        mb.save()
+        after_modified_dt = datetime_utcnow()
+
+        self.assertEqual(mb.term, 'J. Smith')
+        self.assertGreaterEqual(mb.last_modified, before_modified_dt)
+        self.assertLessEqual(mb.last_modified, after_modified_dt)
 
 
-if __name__ == "__main__":
-    unittest.main()
+class TestAffiliationRecommendation(TransactionTestCase):
+    """Unit tests for AffiliationRecommendation class"""
+
+    def test_unique_individual(self):
+        """Check if there is only one recommendation per individual"""
+        indv = Individual.objects.create(mk='AAAA')
+        org_ex = Organization.add_root(name='Example')
+
+        with self.assertRaisesRegex(IntegrityError, DUPLICATE_CHECK_ERROR):
+            AffiliationRecommendation.objects.create(individual=indv, organization=org_ex)
+            AffiliationRecommendation.objects.create(individual=indv, organization=org_ex)
+
+    def test_created_at(self):
+        """Check creation date is only set when the object is created."""
+
+        before_dt = datetime_utcnow()
+        indv = Individual.objects.create(mk='AAAA')
+        org_ex = Organization.add_root(name='Example')
+        affre = AffiliationRecommendation.objects.create(individual=indv, organization=org_ex)
+        after_dt = datetime_utcnow()
+
+        self.assertEqual(affre.individual, indv)
+        self.assertEqual(affre.organization.name, 'Example')
+        self.assertGreaterEqual(affre.created_at, before_dt)
+        self.assertLessEqual(affre.created_at, after_dt)
+
+        org_ex2 = Organization.add_root(name='Example2')
+        affre.organization = org_ex2
+        affre.save()
+
+        self.assertEqual(affre.individual, indv)
+        self.assertEqual(affre.organization.name, 'Example2')
+        self.assertGreaterEqual(affre.created_at, before_dt)
+        self.assertLessEqual(affre.created_at, after_dt)
+
+    def test_last_modified(self):
+        """Check last modification date is set when the object is updated"""
+
+        before_dt = datetime_utcnow()
+        indv = Individual.objects.create(mk='AAAA')
+        org_ex = Organization.add_root(name='Example')
+        affre = AffiliationRecommendation.objects.create(individual=indv, organization=org_ex)
+        after_dt = datetime_utcnow()
+
+        self.assertEqual(affre.individual, indv)
+        self.assertEqual(affre.organization.name, 'Example')
+        self.assertGreaterEqual(affre.last_modified, before_dt)
+        self.assertLessEqual(affre.last_modified, after_dt)
+
+        before_modified_dt = datetime_utcnow()
+        org_ex2 = Organization.add_root(name='Example2')
+        affre.organization = org_ex2
+        affre.save()
+        after_modified_dt = datetime_utcnow()
+
+        self.assertEqual(affre.organization.name, 'Example2')
+        self.assertGreaterEqual(affre.last_modified, before_modified_dt)
+        self.assertLessEqual(affre.last_modified, after_modified_dt)
+
+
+class TestMergeRecommendation(TransactionTestCase):
+    """Unit tests for MergeRecommendation class"""
+
+    def test_unique_individual(self):
+        """Check if there is only one recommendation for individual with another"""
+
+        with self.assertRaisesRegex(IntegrityError, DUPLICATE_CHECK_ERROR):
+            indiv1 = Individual.objects.create(mk='AAAA')
+            indiv2 = Individual.objects.create(mk='BBBB')
+            MergeRecommendation.objects.create(individual1=indiv1, individual2=indiv2)
+            MergeRecommendation.objects.create(individual1=indiv1, individual2=indiv2)
+
+    def test_created_at(self):
+        """Check creation date is only set when the object is created."""
+
+        before_dt = datetime_utcnow()
+        indiv1 = Individual.objects.create(mk='AAAA')
+        indiv2 = Individual.objects.create(mk='BBBB')
+        mergere = MergeRecommendation.objects.create(individual1=indiv1, individual2=indiv2)
+        after_dt = datetime_utcnow()
+
+        self.assertEqual(mergere.individual1, indiv1)
+        self.assertEqual(mergere.individual2, indiv2)
+        self.assertGreaterEqual(mergere.created_at, before_dt)
+        self.assertLessEqual(mergere.created_at, after_dt)
+
+        indiv3 = Individual.objects.create(mk='CCCC')
+        mergere.individual2 = indiv3
+        mergere.save()
+
+        self.assertEqual(mergere.individual1, indiv1)
+        self.assertEqual(mergere.individual2, indiv3)
+        self.assertGreaterEqual(mergere.created_at, before_dt)
+        self.assertLessEqual(mergere.created_at, after_dt)
+
+    def test_last_modified(self):
+        """Check last modification date is set when the object is updated"""
+
+        before_dt = datetime_utcnow()
+        indiv1 = Individual.objects.create(mk='AAAA')
+        indiv2 = Individual.objects.create(mk='BBBB')
+        merge_recom = MergeRecommendation.objects.create(individual1=indiv1, individual2=indiv2)
+        after_dt = datetime_utcnow()
+
+        self.assertEqual(merge_recom.individual1, indiv1)
+        self.assertEqual(merge_recom.individual2, indiv2)
+        self.assertGreaterEqual(merge_recom.last_modified, before_dt)
+        self.assertLessEqual(merge_recom.last_modified, after_dt)
+
+        before_modified_dt = datetime_utcnow()
+        indiv3 = Individual.objects.create(mk='CCCC')
+        merge_recom.individual2 = indiv3
+        merge_recom.save()
+        after_modified_dt = datetime_utcnow()
+
+        self.assertEqual(merge_recom.individual2, indiv3)
+        self.assertGreaterEqual(merge_recom.last_modified, before_modified_dt)
+        self.assertLessEqual(merge_recom.last_modified, after_modified_dt)
+
+
+class TestGenderRecommendation(TransactionTestCase):
+    """Unit tests for GenderRecommendation class"""
+
+    def test_unique_individual(self):
+        """Check if there is only one recommendation per individual"""
+
+        with self.assertRaisesRegex(IntegrityError, DUPLICATE_CHECK_ERROR):
+            indiv = Individual.objects.create(mk='AAAA')
+            GenderRecommendation.objects.create(individual=indiv,
+                                                gender='Male',
+                                                accuracy=90)
+            GenderRecommendation.objects.create(individual=indiv,
+                                                gender='Female',
+                                                accuracy=90)
+
+    def test_created_at(self):
+        """Check creation date is only set when the object is created."""
+
+        before_dt = datetime_utcnow()
+        indiv = Individual.objects.create(mk='AAAA')
+        gender_re = GenderRecommendation.objects.create(individual=indiv,
+                                                        gender='Male',
+                                                        accuracy=89)
+        after_dt = datetime_utcnow()
+
+        self.assertEqual(gender_re.individual, indiv)
+        self.assertEqual(gender_re.gender, 'Male')
+        self.assertEqual(gender_re.accuracy, 89)
+        self.assertGreaterEqual(gender_re.created_at, before_dt)
+        self.assertLessEqual(gender_re.created_at, after_dt)
+
+        gender_re.gender = 'Female'
+        gender_re.save()
+
+        self.assertEqual(gender_re.individual, indiv)
+        self.assertEqual(gender_re.gender, 'Female')
+        self.assertGreaterEqual(gender_re.created_at, before_dt)
+        self.assertLessEqual(gender_re.created_at, after_dt)
+
+    def test_last_modified(self):
+        """Check last modification date is set when the object is updated"""
+
+        before_dt = datetime_utcnow()
+        indiv = Individual.objects.create(mk='AAAA')
+        gender_re = GenderRecommendation.objects.create(individual=indiv,
+                                                       gender='Male',
+                                                       accuracy=89)
+        after_dt = datetime_utcnow()
+
+        self.assertEqual(gender_re.individual, indiv)
+        self.assertEqual(gender_re.gender, 'Male')
+        self.assertEqual(gender_re.accuracy, 89)
+        self.assertGreaterEqual(gender_re.last_modified, before_dt)
+        self.assertLessEqual(gender_re.last_modified, after_dt)
+
+        before_modified_dt = datetime_utcnow()
+        gender_re.gender = 'Female'
+        gender_re.save()
+        after_modified_dt = datetime_utcnow()
+
+        self.assertEqual(gender_re.individual, indiv)
+        self.assertGreaterEqual(gender_re.last_modified, before_modified_dt)
+        self.assertLessEqual(gender_re.last_modified, after_modified_dt)
+
+
+class TestTransaction(TransactionTestCase):
+    """Unit tests for Transaction class"""
+
+    def test_unique_transactions(self):
+        """Check whether transactions are unique"""
+
+        with self.assertRaisesRegex(IntegrityError, DUPLICATE_CHECK_ERROR):
+            timestamp = datetime_utcnow()
+            Transaction.objects.create(tuid='12345abcd',
+                                       name='test',
+                                       created_at=timestamp,
+                                       authored_by='username')
+            Transaction.objects.create(tuid='12345abcd',
+                                       name='test',
+                                       created_at=timestamp,
+                                       authored_by='username')
+
+    def test_created_at(self):
+        """Check creation date is only set when the object is created"""
+
+        before_dt = datetime_utcnow()
+        trx = Transaction.objects.create(tuid='12345abcd',
+                                         name='test',
+                                         created_at=datetime_utcnow(),
+                                         authored_by='username')
+        after_dt = datetime_utcnow()
+
+        self.assertGreaterEqual(trx.created_at, before_dt)
+        self.assertLessEqual(trx.created_at, after_dt)
+
+        trx.save()
+
+        # Check if creation date does not change after saving the object
+        self.assertGreaterEqual(trx.created_at, before_dt)
+        self.assertLessEqual(trx.created_at, after_dt)
+
+
+class TestOperation(TransactionTestCase):
+    """Unit tests for Operation class"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        Transaction.objects.create(tuid='0123456789abcdef',
+                                   name='test', created_at=datetime_utcnow())
+
+    def test_unique_operation(self):
+        """Check whether contexts are unique"""
+
+        timestamp = datetime_utcnow()
+        trx = Transaction.objects.get(tuid='0123456789abcdef')
+        args = json.dumps({'test': 'test_value'})
+
+        with self.assertRaisesRegex(IntegrityError, DUPLICATE_CHECK_ERROR):
+            Operation.objects.create(ouid='12345abcd', op_type=Operation.OpType.ADD,
+                                     entity_type='individual', target='test',
+                                     timestamp=timestamp, args=args, trx=trx)
+            Operation.objects.create(ouid='12345abcd', op_type=Operation.OpType.ADD,
+                                     entity_type='individual', target='test',
+                                     timestamp=timestamp, args=args, trx=trx)
+
+    def test_created_at(self):
+        """Check creation date is only set when the object is created"""
+
+        trx = Transaction.objects.get(tuid='0123456789abcdef')
+        args = json.dumps({'test': 'test_value'})
+
+        before_dt = datetime_utcnow()
+        operation = Operation.objects.create(ouid='12345abcd', op_type=Operation.OpType.ADD,
+                                             entity_type='individual', target='test',
+                                             timestamp=datetime_utcnow(), args=args, trx=trx)
+        after_dt = datetime_utcnow()
+
+        self.assertGreaterEqual(operation.timestamp, before_dt)
+        self.assertLessEqual(operation.timestamp, after_dt)
+
+        operation.save()
+
+        # Check if timestamp does not change after saving the object
+        self.assertGreaterEqual(operation.timestamp, before_dt)
+        self.assertLessEqual(operation.timestamp, after_dt)
+
+    def test_invalid_operation_type_none(self):
+        """Check if an error is raised when the operation type is `None`"""
+
+        trx = Transaction.objects.get(tuid='0123456789abcdef')
+        args = json.dumps({'test': 'test_value'})
+
+        with self.assertRaisesRegex(IntegrityError, NULL_VALUE_CHECK_ERROR):
+            Operation.objects.create(ouid='12345abcd', op_type=None,
+                                     entity_type='individual', target='test-target',
+                                     timestamp=datetime_utcnow(), args=args, trx=trx)
+
+    def test_empty_args(self):
+        """Check if an error is raised when no args are set"""
+
+        trx = Transaction.objects.get(tuid='0123456789abcdef')
+
+        with self.assertRaisesRegex(IntegrityError, NULL_VALUE_CHECK_ERROR):
+            Operation.objects.create(ouid='12345abcd', op_type=Operation.OpType.ADD,
+                                     entity_type='individual', target='test',
+                                     timestamp=datetime_utcnow(), args=None, trx=trx)

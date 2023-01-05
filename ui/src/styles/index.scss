@@ -1,0 +1,185 @@
+@import '_typography';
+
+$selected-color: #003756;
+$active-color: #f4bc00;
+$border-color: rgba(0, 0, 0, 0.12);
+
+// Expanded table item
+.expanded:not(.selected) {
+  box-shadow: inset 1px 0 0 $border-color,
+  inset -2px 0px 1px -1px $border-color;
+}
+
+.expanded.selected {
+  box-shadow: inset 4px 0 0 $selected-color,
+  inset -1px 0px 1px -1px rgba(0, 0, 0, 0.45);
+}
+
+.row-border:not(:last-child) {
+  border-bottom: thin solid $border-color;
+}
+
+.theme--light.v-data-table .v-list--dense {
+  background-color: transparent;
+}
+
+.v-data-table__wrapper tr + td {
+  font-size: 0.875rem;
+  padding: 0 75px 4px 75px;
+  border: thin solid $border-color;
+  border-top: 0;
+}
+
+.v-data-table__wrapper tr:not(.expanded) + td {
+  padding-left: 2rem;
+}
+
+.theme--light.v-data-table tbody tr:first-child.expanded td {
+  border-top: thin solid $border-color;
+}
+
+// Selected table item
+.selected {
+  background-color: lighten($selected-color, 80%);
+}
+
+.selected,
+.expanded.selected + td {
+  box-shadow: inset 4px 0 0 $selected-color;
+  border-left: 0;
+}
+
+.theme--light.v-data-table
+  tbody
+  tr.selected:hover:not(.v-data-table__expanded__content):not(.v-data-table__empty-wrapper) {
+  background-color: desaturate(lighten($selected-color, 75%), 30%);
+  transition: background-color 30ms linear;
+}
+
+.theme--light.v-data-table
+  tbody
+  .dragging:hover:not(.v-data-table__expanded__content):not(.v-data-table__empty-wrapper),
+.dragging {
+  background-color: desaturate(lighten($selected-color, 75%), 30%);
+  box-shadow: inset 4px 0 0 $selected-color;
+}
+
+// Highlighted item
+.highlighted:not(.v-card) {
+  box-shadow: inset 0px 0px 0px 2px $selected-color;
+}
+
+.highlighted:not(.v-card).selected {
+  box-shadow: inset 0px 0px 0px 2px $selected-color,
+  inset 0px 0px 0px 2px $selected-color,
+  inset 0px 0px 0px 2px $selected-color,
+  inset 4px 0 0 $selected-color;
+}
+
+.v-sheet.v-card:not(.v-sheet--outlined).highlighted {
+  box-shadow: 0px 5px 5px -3px rgba(187, 222, 251, 0.4),
+  0px 8px 10px 1px rgba(187, 222, 251, 0.34),
+  0px 3px 14px 2px rgba(187, 222, 251, 0.32),
+  inset 0px 0px 0px 2px $selected-color;
+  transition-duration: 0s;
+}
+
+.team-modal-content{
+ max-height: 750px;
+  overflow-y: auto;
+}
+
+// Drop zones
+.theme--light.v-data-table
+  tbody
+  .dropzone:hover:not(.v-data-table__expanded__content):not(.v-data-table__empty-wrapper),
+.dropzone:not(.locked) {
+  background: desaturate(lighten($active-color, 40%), 20%);
+}
+
+
+// Table pagination
+.theme--light.v-pagination .v-pagination__item,
+.theme--light.v-pagination .v-pagination__navigation {
+  box-shadow: none;
+  width: 32px;
+  height: 32px;
+}
+
+button.v-pagination__item {
+  transition: none;
+}
+
+.theme--light.v-pagination .v-pagination__item--active {
+  font-weight: 500;
+}
+
+.theme--light.v-icon,
+.v-btn--round .v-btn__content .v-icon,
+.theme--light.v-btn--outlined .v-btn__content .v-icon{
+  color: rgba(0, 0, 0, 0.62);
+}
+
+.v-subheader {
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.subheader {
+  color: rgba(0, 0, 0, 0.87);
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.375rem;
+  letter-spacing: normal;
+  font-family: "Roboto", sans-serif;
+}
+
+.section {
+  background: #FFFFFF;
+  border: thin solid rgba(0, 0, 0, 0.08);
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    margin: 0;
+    border-bottom: thin solid rgba(0, 0, 0, 0.08);
+
+    .title {
+      display: flex;
+      align-items: center;
+
+      .v-chip.v-size--small {
+        font-size: 0.9rem;
+      }
+    }
+  }
+
+  .actions {
+    align-items: flex-start;
+    justify-content: flex-start;
+    margin: 0;
+    padding: 1rem 2rem;
+  }
+
+  .v-text-field.v-text-field--enclosed .v-text-field__details {
+    margin-bottom: 0;
+  }
+}
+
+.organizations.section,
+.jobs.section {
+  .v-data-table > .v-data-table__wrapper > table > tbody > tr > td:first-child,
+  .v-data-table > .v-data-table__wrapper > table > thead > tr > th:first-child {
+    padding: 0 0 0 2rem;
+  }
+}
+
+.v-application--wrap {
+  background: #F2F3F5;
+}
+
+.v-snack__content::first-letter {
+  text-transform: capitalize;
+}
