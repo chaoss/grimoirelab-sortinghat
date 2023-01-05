@@ -106,6 +106,8 @@ TEMPLATES = [
     },
 ]
 
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
 #
 # Graphene - DO NOT MODIFY
 #
