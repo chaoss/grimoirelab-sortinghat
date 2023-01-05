@@ -18,6 +18,8 @@ SECRET_KEY = 'fake-key'
 
 SORTINGHAT_GENDERIZE_API_KEY = 'fake-key'
 
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
 INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
