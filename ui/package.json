@@ -58,6 +58,9 @@
     "vue-template-compiler": "^2.6.11",
     "vuetify-loader": "^1.9.2"
   },
+  "resolutions": {
+    "@vue/**/**/loader-utils": "2.0.4"
+  },
   "engines": {
     "node": ">=14 <=16"
   }
