@@ -59,7 +59,8 @@
     "vuetify-loader": "^1.9.2"
   },
   "resolutions": {
-    "@vue/**/**/loader-utils": "2.0.4"
+    "@vue/**/**/loader-utils": "2.0.4",
+    "@vue/cli-service/cli-highlight/mz/thenify-all/thenify": "3.3.1"
   },
   "engines": {
     "node": ">=14 <=16"
