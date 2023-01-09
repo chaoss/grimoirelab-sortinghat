@@ -187,7 +187,7 @@ class TestSortingHatClient(unittest.TestCase):
         self.assertIsInstance(client.gqlc, sgqlc.endpoint.http.HTTPEndpoint)
 
         latest_requests = httpretty.latest_requests()
-        self.assertEqual(len(latest_requests), 2)
+        self.assertEqual(len(latest_requests), 3)
 
         request = latest_requests[0]
         self.assertEqual(request.method, 'GET')
