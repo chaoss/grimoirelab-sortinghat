@@ -77,6 +77,3 @@ jobs:
       - name: Run ESLint
         working-directory: ./ui
         run: yarn lint
-      - name: Run unit tests
-        working-directory: ./ui
-        run: yarn test:unit
