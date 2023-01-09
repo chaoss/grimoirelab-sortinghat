@@ -273,14 +273,14 @@ grpcio-gcp = ["grpcio-gcp (>=0.2.2,<1.0dev)"]
 
 [[package]]
 name = "google-auth"
-version = "2.15.0"
+version = "2.16.0"
 description = "Google Authentication Library"
 category = "main"
 optional = false
 python-versions = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*"
 files = [
-    {file = "google-auth-2.15.0.tar.gz", hash = "sha256:72f12a6cfc968d754d7bdab369c5c5c16032106e52d32c6dfd8484e4c01a6d1f"},
-    {file = "google_auth-2.15.0-py2.py3-none-any.whl", hash = "sha256:6897b93556d8d807ad70701bb89f000183aea366ca7ed94680828b37437a4994"},
+    {file = "google-auth-2.16.0.tar.gz", hash = "sha256:ed7057a101af1146f0554a769930ac9de506aeca4fd5af6543ebe791851a9fbd"},
+    {file = "google_auth-2.16.0-py2.py3-none-any.whl", hash = "sha256:5045648c821fb72384cdc0e82cc326df195f113a33049d9b62b74589243d2acc"},
 ]
 
 [package.dependencies]
@@ -294,6 +294,7 @@ aiohttp = ["aiohttp (>=3.6.2,<4.0.0dev)", "requests (>=2.20.0,<3.0.0dev)"]
 enterprise-cert = ["cryptography (==36.0.2)", "pyopenssl (==22.0.0)"]
 pyopenssl = ["cryptography (>=38.0.3)", "pyopenssl (>=20.0.0)"]
 reauth = ["pyu2f (>=0.1.5)"]
+requests = ["requests (>=2.20.0,<3.0.0dev)"]
 
 [[package]]
 name = "google-cloud-core"
@@ -543,14 +544,14 @@ six = ">=1.12"
 
 [[package]]
 name = "grimoirelab-toolkit"
-version = "0.3.2"
+version = "0.3.3rc1"
 description = "Toolkit of common functions used across GrimoireLab"
 category = "main"
 optional = false
 python-versions = ">=3.7,<4.0"
 files = [
-    {file = "grimoirelab_toolkit-0.3.2-py3-none-any.whl", hash = "sha256:02d66bf09e652b6bcbb30a9affaf0ebd6e8d2ad9dec1011796d338df8fbe6734"},
-    {file = "grimoirelab_toolkit-0.3.2.tar.gz", hash = "sha256:d0db09fefafa7e33ba7690503c7aac34b890eea639859af610525af7c635531a"},
+    {file = "grimoirelab_toolkit-0.3.3rc1-py3-none-any.whl", hash = "sha256:2f4ff0832f00755b219414907ca5bada73c8789804b8fb72954a2d3756882adf"},
+    {file = "grimoirelab_toolkit-0.3.3rc1.tar.gz", hash = "sha256:c1f4b0ee3e8a5d78399929e9c7e52e2f33c40636893f577fb1a53881ce77351c"},
 ]
 
 [package.dependencies]
