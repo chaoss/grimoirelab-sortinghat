@@ -88,24 +88,19 @@ exports[`IndividualsTable Mock query for getCountries 1`] = `
       value=""
       valuecomparator="function deepEqual(a, b) {
           if (a === b) return true;
-
           if (a instanceof Date && b instanceof Date && a.getTime() !== b.getTime()) {
             // If the values are Date, compare them as timestamps
             return false;
           }
-
           if (a !== Object(a) || b !== Object(b)) {
             // If the values aren't objects, they were already checked for equality
             return false;
           }
-
           var props = Object.keys(a);
-
           if (props.length !== Object.keys(b).length) {
             // Different number of props, don't bother to check
             return false;
           }
-
           return props.every(function (p) {
             return deepEqual(a[p], b[p]);
           });
@@ -173,11 +168,9 @@ exports[`IndividualsTable Mock query for getCountries 1`] = `
           var key = groupBy[0];
           var groups = [];
           var current = null;
-
           for (var i = 0; i < items.length; i++) {
             var item = items[i];
             var val = getObjectValueByPath(item, key);
-
             if (current !== val) {
               current = val;
               groups.push({
@@ -185,10 +178,8 @@ exports[`IndividualsTable Mock query for getCountries 1`] = `
                 items: []
               });
             }
-
             groups[groups.length - 1].items.push(item);
           }
-
           return groups;
         }"
     customsort="function sortItems(items, sortBy, sortDesc, locale, customSorters) {
@@ -199,37 +190,30 @@ exports[`IndividualsTable Mock query for getCountries 1`] = `
           });
           return items.sort(function (a, b) {
             var _a, _b;
-
             for (var i = 0; i < sortBy.length; i++) {
               var sortKey = sortBy[i];
               var sortA = getObjectValueByPath(a, sortKey);
               var sortB = getObjectValueByPath(b, sortKey);
-
               if (sortDesc[i]) {
                 _a = __read([sortB, sortA], 2), sortA = _a[0], sortB = _a[1];
               }
-
               if (customSorters && customSorters[sortKey]) {
                 var customResult = customSorters[sortKey](sortA, sortB);
                 if (!customResult) continue;
                 return customResult;
               } // Check if both cannot be evaluated
 
-
               if (sortA === null && sortB === null) {
                 continue;
               }
-
               _b = __read([sortA, sortB].map(function (s) {
                 return (s || '').toString().toLocaleLowerCase();
               }), 2), sortA = _b[0], sortB = _b[1];
-
               if (sortA !== sortB) {
                 if (!isNaN(sortA) && !isNaN(sortB)) return Number(sortA) - Number(sortB);
                 return stringCollator.compare(sortA, sortB);
               }
             }
-
             return 0;
           });
         }"
@@ -467,24 +451,19 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
       value=""
       valuecomparator="function deepEqual(a, b) {
           if (a === b) return true;
-
           if (a instanceof Date && b instanceof Date && a.getTime() !== b.getTime()) {
             // If the values are Date, compare them as timestamps
             return false;
           }
-
           if (a !== Object(a) || b !== Object(b)) {
             // If the values aren't objects, they were already checked for equality
             return false;
           }
-
           var props = Object.keys(a);
-
           if (props.length !== Object.keys(b).length) {
             // Different number of props, don't bother to check
             return false;
           }
-
           return props.every(function (p) {
             return deepEqual(a[p], b[p]);
           });
@@ -552,11 +531,9 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
           var key = groupBy[0];
           var groups = [];
           var current = null;
-
           for (var i = 0; i < items.length; i++) {
             var item = items[i];
             var val = getObjectValueByPath(item, key);
-
             if (current !== val) {
               current = val;
               groups.push({
@@ -564,10 +541,8 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
                 items: []
               });
             }
-
             groups[groups.length - 1].items.push(item);
           }
-
           return groups;
         }"
     customsort="function sortItems(items, sortBy, sortDesc, locale, customSorters) {
@@ -578,37 +553,30 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
           });
           return items.sort(function (a, b) {
             var _a, _b;
-
             for (var i = 0; i < sortBy.length; i++) {
               var sortKey = sortBy[i];
               var sortA = getObjectValueByPath(a, sortKey);
               var sortB = getObjectValueByPath(b, sortKey);
-
               if (sortDesc[i]) {
                 _a = __read([sortB, sortA], 2), sortA = _a[0], sortB = _a[1];
               }
-
               if (customSorters && customSorters[sortKey]) {
                 var customResult = customSorters[sortKey](sortA, sortB);
                 if (!customResult) continue;
                 return customResult;
               } // Check if both cannot be evaluated
 
-
               if (sortA === null && sortB === null) {
                 continue;
               }
-
               _b = __read([sortA, sortB].map(function (s) {
                 return (s || '').toString().toLocaleLowerCase();
               }), 2), sortA = _b[0], sortB = _b[1];
-
               if (sortA !== sortB) {
                 if (!isNaN(sortA) && !isNaN(sortB)) return Number(sortA) - Number(sortB);
                 return stringCollator.compare(sortA, sortB);
               }
             }
-
             return 0;
           });
         }"
@@ -890,11 +858,9 @@ exports[`OrganizationsTable Mock query for getPaginatedOrganizations 1`] = `
           var key = groupBy[0];
           var groups = [];
           var current = null;
-
           for (var i = 0; i < items.length; i++) {
             var item = items[i];
             var val = getObjectValueByPath(item, key);
-
             if (current !== val) {
               current = val;
               groups.push({
@@ -902,10 +868,8 @@ exports[`OrganizationsTable Mock query for getPaginatedOrganizations 1`] = `
                 items: []
               });
             }
-
             groups[groups.length - 1].items.push(item);
           }
-
           return groups;
         }"
     customsort="function sortItems(items, sortBy, sortDesc, locale, customSorters) {
@@ -916,37 +880,30 @@ exports[`OrganizationsTable Mock query for getPaginatedOrganizations 1`] = `
           });
           return items.sort(function (a, b) {
             var _a, _b;
-
             for (var i = 0; i < sortBy.length; i++) {
               var sortKey = sortBy[i];
               var sortA = getObjectValueByPath(a, sortKey);
               var sortB = getObjectValueByPath(b, sortKey);
-
               if (sortDesc[i]) {
                 _a = __read([sortB, sortA], 2), sortA = _a[0], sortB = _a[1];
               }
-
               if (customSorters && customSorters[sortKey]) {
                 var customResult = customSorters[sortKey](sortA, sortB);
                 if (!customResult) continue;
                 return customResult;
               } // Check if both cannot be evaluated
 
-
               if (sortA === null && sortB === null) {
                 continue;
               }
-
               _b = __read([sortA, sortB].map(function (s) {
                 return (s || '').toString().toLocaleLowerCase();
               }), 2), sortA = _b[0], sortB = _b[1];
-
               if (sortA !== sortB) {
                 if (!isNaN(sortA) && !isNaN(sortB)) return Number(sortA) - Number(sortB);
                 return stringCollator.compare(sortA, sortB);
               }
             }
-
             return 0;
           });
         }"
