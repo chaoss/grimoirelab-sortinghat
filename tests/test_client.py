@@ -150,7 +150,9 @@ class TestSortingHatClient(unittest.TestCase):
         # Connection was established and tokens set
         expected = {
             'X-CSRFToken': 'ABCDEFGHIJK',
-            'Cookie': 'csrftoken=ABCDEFGHIJK'
+            'Cookie': 'csrftoken=ABCDEFGHIJK',
+            'Referer': 'http://localhost:9314/',
+            'Host': 'localhost:9314'
         }
         self.assertDictEqual(client.gqlc.base_headers, expected)
 
@@ -201,7 +203,9 @@ class TestSortingHatClient(unittest.TestCase):
         expected = {
             'Authorization': 'JWT 12345678',
             'X-CSRFToken': 'ABCDEFGHIJK',
-            'Cookie': 'csrftoken=ABCDEFGHIJK'
+            'Cookie': 'csrftoken=ABCDEFGHIJK',
+            'Referer': 'http://localhost:9314/',
+            'Host': 'localhost:9314'
         }
         self.assertDictEqual(client.gqlc.base_headers, expected)
 

@@ -111,7 +111,9 @@ class SortingHatClient:
 
         headers = {
             'X-CSRFToken': result.cookies['csrftoken'],
-            'Cookie': 'csrftoken=' + result.cookies['csrftoken']
+            'Cookie': 'csrftoken=' + result.cookies['csrftoken'],
+            'Host': f"{self.host}:{self.port}" if self.port else self.host,
+            'Referer': self.url
         }
 
         self.gqlc = HTTPEndpoint(self.url, headers)
