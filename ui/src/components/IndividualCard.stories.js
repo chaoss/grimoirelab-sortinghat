@@ -1,10 +1,8 @@
-import { withKnobs, text, boolean } from '@storybook/addon-knobs';
 import IndividualCard from "./IndividualCard.vue";
 
 export default {
   title: "IndividualCard",
-  excludeStories: /.*Data$/,
-  decorators: [withKnobs],
+  excludeStories: /.*Data$/
 };
 
 const individualCardTemplate = `
@@ -27,19 +25,19 @@ export const Default = () => ({
   template: individualCardTemplate,
   props: {
     name: {
-      default: text("Name", "Tom Marvolo Riddle")
+      default: "Tom Marvolo Riddle"
     },
     sources: {
       default: () => []
     },
     isLocked: {
-      default: boolean("Locked", false)
+      default: false
     },
     uuid: {
       default: "10f546"
     },
     email: {
-      default: text("Email", "triddle@example.net")
+      default: "triddle@example.net"
     },
     identities: {
       default: () => []
@@ -48,16 +46,16 @@ export const Default = () => ({
       default: () => []
     },
     isHighlighted: {
-      default: boolean("Highlighted", false)
+      default: false
     },
     closable: {
-      default: boolean("Closable", false)
+      default: false
     },
     selectable: {
-      default: boolean("Selectable", false)
+      default: false
     },
     isSelected: {
-      default: boolean("Selected", false)
+      default: false
     }
   }
 });

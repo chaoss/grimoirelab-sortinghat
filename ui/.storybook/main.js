@@ -1,32 +1,45 @@
 const path = require("path");
 
 module.exports = {
-  stories: ["../src/components/**/*.stories.js"],
-  addons: ["@storybook/addon-knobs"],
+  "stories": [
+    "../src/**/*.stories.js"
+  ],
+  "framework": "@storybook/vue",
+  "core": {
+    "builder": "@storybook/builder-webpack5"
+  },
   webpackFinal: async (config, { configType }) => {
-    // `configType` has a value of 'DEVELOPMENT' or 'PRODUCTION'
-    // You can change the configuration based on that.
-    // 'PRODUCTION' is used when building the static version of storybook.
+    // Use vue-loader 15.x because the default 17.x is incompatible with Vue 2
+    const { VueLoaderPlugin } = require("@vue/vue-loader-v15");
 
-    const VuetifyLoaderPlugin = require("vuetify-loader/lib/plugin");
+    const VueLoader = new VueLoaderPlugin();
 
-    config.plugins.push(new VuetifyLoaderPlugin());
+    config.plugins.push(VueLoader);
 
-    config.module.rules.push({
-      test: /\.s(a|c)ss$/,
-      use: ["style-loader", "css-loader", "sass-loader"],
-      include: path.resolve(__dirname, "../")
-    });
+    config.module.rules.push(
+      {
+        test: /\.vue$/,
+        use: "@vue/vue-loader-v15",
+        include: path.resolve(__dirname, "../")
+      },
+      {
+        test: /\.s(a|c)ss$/,
+        use: ["style-loader", "css-loader", "sass-loader"],
+        include: path.resolve(__dirname, "../")
+      }
+    );
 
-    config.resolve.extensions.push(".sass", ".scss");
+    config.resolve.extensions.push(".sass", ".scss", ".vue");
 
+    // Resolve "vue" to the compiler-included build instead of runtime
     config.resolve.alias = {
       ...config.resolve.alias,
       "@": path.resolve(__dirname, "../src"),
-      "~": path.resolve(__dirname, "../src/components")
+      "~": path.resolve(__dirname, "../src/components"),
+      "vue": "vue/dist/vue.js"
     };
 
     // Return the altered config
     return config;
   }
-};
+}

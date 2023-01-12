@@ -8,8 +8,8 @@
     "test:unit": "vue-cli-service test:unit",
     "test:e2e": "cypress run --e2e",
     "lint": "vue-cli-service lint",
-    "storybook": "start-storybook -p 6006 -s public",
-    "build-storybook": "build-storybook -s public"
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
   },
   "dependencies": {
     "apollo-cache-inmemory": "^1.6.6",
@@ -21,7 +21,7 @@
     "graphql-tag": "^2.10.3",
     "js-cookie": "^2.2.1",
     "md5": "^2.3.0",
-    "vue": "^2.6.11",
+    "vue": "^2.7.14",
     "vue-apollo": "^3.0.3",
     "vue-router": "^3.4.9",
     "vuetify": "^2.6.10",
@@ -32,6 +32,14 @@
     "@babel/core": "^7.12.16",
     "@babel/eslint-parser": "^7.12.16",
     "@mdi/font": "^5.1.45",
+    "@storybook/addon-actions": "^6.5.15",
+    "@storybook/addon-essentials": "^6.5.15",
+    "@storybook/addon-interactions": "^6.5.15",
+    "@storybook/addon-links": "^6.5.15",
+    "@storybook/builder-webpack5": "^6.5.15",
+    "@storybook/manager-webpack5": "^6.5.15",
+    "@storybook/testing-library": "^0.0.13",
+    "@storybook/vue": "^6.5.15",
     "@vue/cli-plugin-babel": "~5.0.8",
     "@vue/cli-plugin-eslint": "~5.0.8",
     "@vue/cli-plugin-unit-jest": "~5.0.8",
@@ -40,6 +48,7 @@
     "@vue/eslint-config-prettier": "^6.0.0",
     "@vue/test-utils": "1.1.2",
     "@vue/vue2-jest": "^27.0.0-alpha.3",
+    "babel-loader": "^8.3.0",
     "babel-preset-vue": "^2.0.2",
     "cypress": "^11.2.0",
     "deepmerge": "^4.2.2",
@@ -55,7 +64,8 @@
     "sass": "^1.26.5",
     "sass-loader": "^10.2.0",
     "vue-cli-plugin-vuetify": "~2.5.8",
-    "vue-template-compiler": "^2.6.11",
+    "vue-loader": "^15.10.1",
+    "vue-template-compiler": "^2.7.14",
     "vuetify-loader": "^1.9.2"
   },
   "resolutions": {
