@@ -21,23 +21,23 @@ export default {
     return {
       inputValue: this.value,
       organizations: [],
-      search: this.value
+      search: this.value,
     };
   },
   props: {
     value: {
       type: String,
-      required: false
+      required: false,
     },
     fetchOrganizations: {
       type: Function,
-      required: true
+      required: true,
     },
     label: {
       type: String,
       required: false,
-      default: "Organization"
-    }
+      default: "Organization",
+    },
   },
   methods: {
     async getSelectorItems(value) {
@@ -45,7 +45,7 @@ export default {
       if (response) {
         this.organizations = response.entities;
       }
-    }
+    },
   },
   watch: {
     search(value) {
@@ -58,12 +58,12 @@ export default {
     },
     inputValue() {
       this.$emit("input", this.inputValue);
-    }
+    },
   },
   mounted() {
     if (this.value) {
       this.getSelectorItems(this.value);
     }
-  }
+  },
 };
 </script>

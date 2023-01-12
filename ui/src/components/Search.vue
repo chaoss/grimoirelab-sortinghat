@@ -106,16 +106,16 @@ export default {
     filterSelector: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
     orderSelector: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
     setFilters: {
       type: String,
-      required: false
+      required: false,
     },
     validFilters: {
       type: Array,
@@ -123,45 +123,45 @@ export default {
       default: () => [
         {
           filter: "country",
-          type: "string"
+          type: "string",
         },
         {
           filter: "isBot",
-          type: "boolean"
+          type: "boolean",
         },
         {
           filter: "isLocked",
-          type: "boolean"
+          type: "boolean",
         },
         {
           filter: "gender",
-          type: "string"
+          type: "string",
         },
         {
           filter: "lastUpdated",
-          type: "date"
+          type: "date",
         },
         {
           filter: "source",
-          type: "string"
+          type: "string",
         },
         {
           filter: "enrollment",
-          type: "string"
+          type: "string",
         },
         {
           filter: "enrollmentParentOrg",
-          type: "string"
+          type: "string",
         },
         {
           filter: "enrollmentDate",
-          type: "date"
+          type: "date",
         },
         {
           filter: "isEnrolled",
-          type: "boolean"
-        }
-      ]
+          type: "boolean",
+        },
+      ],
     },
     orderOptions: {
       type: Array,
@@ -169,10 +169,10 @@ export default {
       default: () => [
         {
           text: "Last updated",
-          value: "lastModified"
-        }
-      ]
-    }
+          value: "lastModified",
+        },
+      ],
+    },
   },
   data() {
     return {
@@ -183,8 +183,8 @@ export default {
       dialog: false,
       order: {
         value: undefined,
-        descending: true
-      }
+        descending: true,
+      },
     };
   },
   methods: {
@@ -202,12 +202,12 @@ export default {
       if (!this.inputValue) return;
 
       const input = this.parseQuotes(this.inputValue);
-      input.split(" ").forEach(value => {
+      input.split(" ").forEach((value) => {
         if (value.includes(":")) {
           const [filter, text] = value.split(":");
           if (
             this.validFilters.length === 0 ||
-            !this.validFilters.find(vfilter => vfilter.filter === filter)
+            !this.validFilters.find((vfilter) => vfilter.filter === filter)
           ) {
             this.errorMessage = `Invalid filter "${filter}"`;
           } else if (this.isDateFilter(filter)) {
@@ -227,7 +227,7 @@ export default {
       }
     },
     parseDateFilter(inputValue, filter) {
-      const operator = ["<=", ">=", "<", ">", ".."].find(value =>
+      const operator = ["<=", ">=", "<", ">", ".."].find((value) =>
         inputValue.includes(value)
       );
 
@@ -239,7 +239,7 @@ export default {
 
       try {
         this.filters[filter] = values
-          .map(value => {
+          .map((value) => {
             if (value) {
               return value === operator
                 ? operator
@@ -264,10 +264,10 @@ export default {
       const regexp = /(\w*):"(.*?)"/gm;
       const matches = [...input.matchAll(regexp)];
 
-      matches.forEach(match => {
+      matches.forEach((match) => {
         const filter = match[1];
         const value = match[2];
-        if (this.validFilters.find(vfilter => vfilter.filter === filter)) {
+        if (this.validFilters.find((vfilter) => vfilter.filter === filter)) {
           if (this.isDateFilter(filter)) {
             this.parseDateFilter(value, filter);
           } else if (this.isBooleanFilter(filter)) {
@@ -292,13 +292,13 @@ export default {
     },
     isBooleanFilter(filter) {
       const validFilter = this.validFilters.find(
-        vfilter => vfilter.filter === filter
+        (vfilter) => vfilter.filter === filter
       );
       return validFilter.type === "boolean";
     },
     isDateFilter(filter) {
       const validFilter = this.validFilters.find(
-        vfilter => vfilter.filter === filter
+        (vfilter) => vfilter.filter === filter
       );
       return validFilter.type === "date";
     },
@@ -331,14 +331,14 @@ export default {
       if (this.order.value) {
         this.search();
       }
-    }
+    },
   },
   watch: {
     setFilters(value) {
       this.inputValue = value;
       this.search();
-    }
-  }
+    },
+  },
 };
 </script>
 <style lang="scss" scoped>

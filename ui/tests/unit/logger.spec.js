@@ -50,4 +50,4 @@ describe("Logger plugin", () => {
     expect(console.warn.mock.calls.length).toBe(1);
     expect(console.warn.mock.calls[0][0]).toBe("Test warning message");
   });
-})
+});

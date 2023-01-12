@@ -2,7 +2,7 @@ import OrganizationEntry from "./OrganizationEntry.vue";
 
 export default {
   title: "OrganizationEntry",
-  excludeStories: /.*Data$/
+  excludeStories: /.*Data$/,
 };
 
 const organizationEntryTemplate = `
@@ -36,12 +36,12 @@ export const Default = () => ({
     items: [
       {
         name: "Hogwarts School of Witchcraft and Wizardry",
-        enrollments: 280
-      }
+        enrollments: 280,
+      },
     ],
     expanded: [],
-    isEditable: true
-  })
+    isEditable: true,
+  }),
 });
 
 export const NotEditable = () => ({
@@ -52,10 +52,10 @@ export const NotEditable = () => ({
     items: [
       {
         name: "Hogwarts School of Witchcraft and Wizardry",
-        enrollments: 280
-      }
+        enrollments: 280,
+      },
     ],
     expanded: [],
-    isEditable: false
-  })
+    isEditable: false,
+  }),
 });

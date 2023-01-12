@@ -92,7 +92,7 @@ import {
   getTeams,
   getGroups,
   getPaginatedMergeRecommendations,
-  getRecommendedMergesCount
+  getRecommendedMergesCount,
 } from "../apollo/queries";
 import {
   addIdentity,
@@ -112,7 +112,7 @@ import {
   unlockIndividual,
   withdraw,
   updateEnrollment,
-  manageMergeRecommendation
+  manageMergeRecommendation,
 } from "../apollo/mutations";
 import IndividualsTable from "../components/IndividualsTable";
 import OrganizationsTable from "../components/OrganizationsTable";
@@ -125,7 +125,7 @@ export default {
   components: {
     IndividualsTable,
     OrganizationsTable,
-    WorkSpace
+    WorkSpace,
   },
   data() {
     return {
@@ -133,11 +133,11 @@ export default {
       highlightInTable: undefined,
       highlightInWorkspace: undefined,
       savedIndividuals: [],
-      snackbar: false
+      snackbar: false,
     };
   },
   computed: {
-    ...mapGetters(["workspace"])
+    ...mapGetters(["workspace"]),
   },
   methods: {
     ...mapActions(["saveWorkspace", "emptyWorkspace"]),
@@ -169,13 +169,13 @@ export default {
       return response;
     },
     addSavedIndividuals(individuals, overwriteIndividuals) {
-      individuals.forEach(individual => {
-        const isSaved = this.savedIndividuals.find(savedIndividual => {
+      individuals.forEach((individual) => {
+        const isSaved = this.savedIndividuals.find((savedIndividual) => {
           return individual.uuid === savedIndividual.uuid;
         });
         if (isSaved) {
           if (overwriteIndividuals) {
-            const index = this.savedIndividuals.findIndex(savedIndividual => {
+            const index = this.savedIndividuals.findIndex((savedIndividual) => {
               return individual.uuid === savedIndividual.uuid;
             });
             Object.assign(this.savedIndividuals[index], individual);
@@ -203,9 +203,9 @@ export default {
     },
     updateWorkspace(event) {
       if (event.remove) {
-        event.remove.forEach(removedItem => {
+        event.remove.forEach((removedItem) => {
           const removedIndex = this.savedIndividuals.findIndex(
-            individual => individual.uuid == removedItem
+            (individual) => individual.uuid == removedItem
           );
           if (removedIndex !== -1) {
             this.savedIndividuals.splice(removedIndex, 1);
@@ -213,9 +213,9 @@ export default {
         });
       }
       if (event.update) {
-        event.update.forEach(updatedItem => {
+        event.update.forEach((updatedItem) => {
           const updatedIndex = this.savedIndividuals.findIndex(
-            individual => individual.uuid == updatedItem.uuid
+            (individual) => individual.uuid == updatedItem.uuid
           );
           if (updatedIndex !== -1) {
             Object.assign(this.savedIndividuals[updatedIndex], updatedItem);
@@ -342,14 +342,16 @@ export default {
     async manageRecommendation(id, apply) {
       const response = await manageMergeRecommendation(this.$apollo, id, apply);
       return response;
-    }
+    },
   },
   async mounted() {
     if (this.workspace && this.workspace.length > 0) {
       const response = await Promise.all(
-        this.workspace.map(uuid => getIndividualByUuid(this.$apollo, uuid))
+        this.workspace.map((uuid) => getIndividualByUuid(this.$apollo, uuid))
       );
-      const individuals = response.map(res => res.data.individuals.entities[0]);
+      const individuals = response.map(
+        (res) => res.data.individuals.entities[0]
+      );
       this.savedIndividuals = formatIndividuals(individuals);
     }
   },
@@ -357,9 +359,9 @@ export default {
     return {
       getRecommendations: this.getRecommendations,
       getRecommendationsCount: this.getRecommendationsCount,
-      manageRecommendation: this.manageRecommendation
+      manageRecommendation: this.manageRecommendation,
     };
-  }
+  },
 };
 </script>
 <style lang="scss" scoped>

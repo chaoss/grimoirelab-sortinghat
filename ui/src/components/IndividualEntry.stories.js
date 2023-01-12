@@ -2,7 +2,7 @@ import IndividualEntry from "./IndividualEntry.vue";
 
 export default {
   title: "IndividualEntry",
-  excludeStories: /.*Data$/
+  excludeStories: /.*Data$/,
 };
 
 const individualEntryTemplate = `
@@ -42,7 +42,7 @@ export const Default = () => ({
       { value: "name" },
       { value: "email" },
       { value: "sources" },
-      { value: "actions" }
+      { value: "actions" },
     ],
     items: [
       {
@@ -53,11 +53,11 @@ export const Default = () => ({
         isLocked: false,
         isBot: false,
         uuid: "03b3428ee",
-        isHighlighted: false
-      }
+        isHighlighted: false,
+      },
     ],
-    expanded: []
-  })
+    expanded: [],
+  }),
 });
 
 export const NoEmail = () => ({
@@ -68,7 +68,7 @@ export const NoEmail = () => ({
       { value: "name" },
       { value: "email" },
       { value: "sources" },
-      { value: "actions" }
+      { value: "actions" },
     ],
     items: [
       {
@@ -79,11 +79,11 @@ export const NoEmail = () => ({
         isLocked: false,
         isBot: false,
         uuid: "03b3428ee",
-        isHighlighted: false
-      }
+        isHighlighted: false,
+      },
     ],
-    expanded: []
-  })
+    expanded: [],
+  }),
 });
 
 export const NoOrganization = () => ({
@@ -94,7 +94,7 @@ export const NoOrganization = () => ({
       { value: "name" },
       { value: "email" },
       { value: "sources" },
-      { value: "actions" }
+      { value: "actions" },
     ],
     items: [
       {
@@ -105,11 +105,11 @@ export const NoOrganization = () => ({
         isLocked: false,
         isBot: false,
         uuid: "03b3428ee",
-        isHighlighted: false
-      }
+        isHighlighted: false,
+      },
     ],
-    expanded: []
-  })
+    expanded: [],
+  }),
 });
 
 export const NoName = () => ({
@@ -120,7 +120,7 @@ export const NoName = () => ({
       { value: "name" },
       { value: "email" },
       { value: "sources" },
-      { value: "actions" }
+      { value: "actions" },
     ],
     items: [
       {
@@ -131,11 +131,11 @@ export const NoName = () => ({
         isLocked: false,
         isBot: false,
         uuid: "03b3428ee",
-        isHighlighted: false
-      }
+        isHighlighted: false,
+      },
     ],
-    expanded: []
-  })
+    expanded: [],
+  }),
 });
 
 export const SingleInital = () => ({
@@ -146,7 +146,7 @@ export const SingleInital = () => ({
       { value: "name" },
       { value: "email" },
       { value: "sources" },
-      { value: "actions" }
+      { value: "actions" },
     ],
     items: [
       {
@@ -157,11 +157,11 @@ export const SingleInital = () => ({
         isLocked: false,
         isBot: false,
         uuid: "03b3428ee",
-        isHighlighted: false
-      }
+        isHighlighted: false,
+      },
     ],
-    expanded: []
-  })
+    expanded: [],
+  }),
 });
 
 export const Locked = () => ({
@@ -172,7 +172,7 @@ export const Locked = () => ({
       { value: "name" },
       { value: "email" },
       { value: "sources" },
-      { value: "actions" }
+      { value: "actions" },
     ],
     items: [
       {
@@ -183,11 +183,11 @@ export const Locked = () => ({
         isLocked: true,
         isBot: false,
         uuid: "03b3428ee",
-        isHighlighted: false
-      }
+        isHighlighted: false,
+      },
     ],
-    expanded: []
-  })
+    expanded: [],
+  }),
 });
 
 export const Bot = () => ({
@@ -198,7 +198,7 @@ export const Bot = () => ({
       { value: "name" },
       { value: "email" },
       { value: "sources" },
-      { value: "actions" }
+      { value: "actions" },
     ],
     items: [
       {
@@ -209,11 +209,11 @@ export const Bot = () => ({
         isLocked: false,
         isBot: true,
         uuid: "03b3428ee",
-        isHighlighted: false
-      }
+        isHighlighted: false,
+      },
     ],
-    expanded: []
-  })
+    expanded: [],
+  }),
 });
 
 export const BotAndLocked = () => ({
@@ -224,7 +224,7 @@ export const BotAndLocked = () => ({
       { value: "name" },
       { value: "email" },
       { value: "sources" },
-      { value: "actions" }
+      { value: "actions" },
     ],
     items: [
       {
@@ -235,11 +235,11 @@ export const BotAndLocked = () => ({
         isLocked: true,
         isBot: true,
         uuid: "03b3428ee",
-        isHighlighted: false
-      }
+        isHighlighted: false,
+      },
     ],
-    expanded: []
-  })
+    expanded: [],
+  }),
 });
 
 export const Highlighted = () => ({
@@ -250,7 +250,7 @@ export const Highlighted = () => ({
       { value: "name" },
       { value: "email" },
       { value: "sources" },
-      { value: "actions" }
+      { value: "actions" },
     ],
     items: [
       {
@@ -261,11 +261,11 @@ export const Highlighted = () => ({
         isLocked: false,
         isBot: false,
         uuid: "03b3428ee",
-        isHighlighted: true
-      }
+        isHighlighted: true,
+      },
     ],
-    expanded: []
-  })
+    expanded: [],
+  }),
 });
 
 export const Gravatar = () => ({
@@ -276,7 +276,7 @@ export const Gravatar = () => ({
       { value: "name" },
       { value: "email" },
       { value: "sources" },
-      { value: "actions" }
+      { value: "actions" },
     ],
     items: [
       {
@@ -286,9 +286,9 @@ export const Gravatar = () => ({
         isLocked: false,
         isBot: false,
         uuid: "03b3428ee",
-        isHighlighted: false
-      }
+        isHighlighted: false,
+      },
     ],
-    expanded: []
-  })
+    expanded: [],
+  }),
 });

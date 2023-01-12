@@ -3,7 +3,7 @@ import IndividualsTable from "./IndividualsTable.vue";
 
 export default {
   title: "WorkSpace",
-  excludeStories: /.*Data$/
+  excludeStories: /.*Data$/,
 };
 
 const workSpaceTemplate =
@@ -61,7 +61,7 @@ export const Default = () => ({
         sources: [
           { name: "git", icon: "mdi-git" },
           { name: "github", icon: "mdi-github" },
-          { name: "gitlab", icon: "mdi-gitlab" }
+          { name: "gitlab", icon: "mdi-gitlab" },
         ],
         identities: [
           {
@@ -72,9 +72,9 @@ export const Default = () => ({
                 source: "GitLab",
                 email: "triddle@example.net",
                 uuid: "03b3428ee",
-                username: "triddle"
-              }
-            ]
+                username: "triddle",
+              },
+            ],
           },
           {
             name: "GitHub",
@@ -84,9 +84,9 @@ export const Default = () => ({
                 name: "Voldemort",
                 email: "-",
                 username: "voldemort",
-                source: "github"
-              }
-            ]
+                source: "github",
+              },
+            ],
           },
           {
             name: "git",
@@ -96,36 +96,36 @@ export const Default = () => ({
                 name: "Tom Marvolo Riddle",
                 email: "triddle@example.net",
                 username: "triddle",
-                source: "git"
+                source: "git",
               },
               {
                 uuid: "abce32",
                 name: "voldemort",
                 email: "voldemort@example.net",
                 username: "-",
-                source: "git"
-              }
-            ]
-          }
+                source: "git",
+              },
+            ],
+          },
         ],
         enrollments: [
           {
             group: {
               name: "Slytherin",
-              id: "2"
+              id: "2",
             },
             start: "1938-09-01T00:00:00+00:00",
-            end: "1998-05-02T00:00:00+00:00"
+            end: "1998-05-02T00:00:00+00:00",
           },
           {
             group: {
               name: "Hogwarts School of Witchcraft and Wizardry",
-              id: "1"
+              id: "1",
             },
             start: "1938-09-01",
-            end: "1945-06-02T00:00:00+00:00"
-          }
-        ]
+            end: "1945-06-02T00:00:00+00:00",
+          },
+        ],
       },
       {
         name: "Harry Potter",
@@ -138,7 +138,7 @@ export const Default = () => ({
         sources: [
           { name: "git", icon: "mdi-git" },
           { name: "github", icon: "mdi-github" },
-          { name: "Other sources", icon: "mdi-account-multiple" }
+          { name: "Other sources", icon: "mdi-account-multiple" },
         ],
         identities: [
           {
@@ -149,9 +149,9 @@ export const Default = () => ({
                 source: "GitHub",
                 email: "hpotter@example.net",
                 uuid: "03b3428ee",
-                username: "-"
-              }
-            ]
+                username: "-",
+              },
+            ],
           },
           {
             name: "git",
@@ -161,9 +161,9 @@ export const Default = () => ({
                 name: "H. Potter",
                 email: "hpotter@example.net",
                 username: "potter",
-                source: "git"
-              }
-            ]
+                source: "git",
+              },
+            ],
           },
           {
             name: "others",
@@ -173,31 +173,31 @@ export const Default = () => ({
                 name: "Harry Potter",
                 email: "hpotter@example.net",
                 username: "-",
-                source: "gerrit"
-              }
-            ]
-          }
+                source: "gerrit",
+              },
+            ],
+          },
         ],
         enrollments: [
           {
             group: {
               name: "Griffyndor",
-              id: "2"
+              id: "2",
             },
             start: "1991-09-01",
-            end: "1997-06-02T00:00:00+00:00"
+            end: "1997-06-02T00:00:00+00:00",
           },
           {
             group: {
               name: "Hogwarts School of Witchcraft and Wizardry",
-              id: "1"
+              id: "1",
             },
             start: "1991-09-01",
-            end: "1997-06-02T00:00:00+00:00"
-          }
-        ]
-      }
-    ]
+            end: "1997-06-02T00:00:00+00:00",
+          },
+        ],
+      },
+    ],
   }),
   methods: {
     mergeItems() {
@@ -205,15 +205,15 @@ export const Default = () => ({
     },
     moveItem() {
       return true;
-    }
-  }
+    },
+  },
 });
 
 export const Empty = () => ({
   components: { WorkSpace },
   template: workSpaceTemplate,
   data: () => ({
-    individuals: []
+    individuals: [],
   }),
   methods: {
     mergeItems() {
@@ -221,8 +221,8 @@ export const Empty = () => ({
     },
     moveItem() {
       return true;
-    }
-  }
+    },
+  },
 });
 
 export const DragAndDrop = () => ({
@@ -232,12 +232,12 @@ export const DragAndDrop = () => ({
     queryIndividuals(page, items, filters) {
       const results = JSON.parse(JSON.stringify(this.query[page - 1]));
       if (filters.term) {
-        results.data.individuals.entities = results.data.individuals.entities.filter(
-          individual =>
+        results.data.individuals.entities =
+          results.data.individuals.entities.filter((individual) =>
             individual.profile.name
               .toUpperCase()
               .includes(filters.term.toUpperCase())
-        );
+          );
         results.data.individuals.pageInfo.totalResults =
           results.data.individuals.entities.length;
       }
@@ -257,20 +257,22 @@ export const DragAndDrop = () => ({
     },
     getCountries() {
       return this.countries;
-    }
+    },
   },
   provide: () => ({
     getRecommendations: () => {},
-    getRecommendationsCount: () => { return {
-      data: {
-        recommendedMerge: {
-          pageInfo: {
-            totalResults: 0
-          }
-        }
-      }
-    }},
-    manageRecommendation: () => {}
+    getRecommendationsCount: () => {
+      return {
+        data: {
+          recommendedMerge: {
+            pageInfo: {
+              totalResults: 0,
+            },
+          },
+        },
+      };
+    },
+    manageRecommendation: () => {},
   }),
   data: () => ({
     individuals: [],
@@ -289,7 +291,7 @@ export const DragAndDrop = () => ({
                   name: "Tom Marvolo Riddle",
                   id: "1",
                   email: "triddle@example.com",
-                  isBot: false
+                  isBot: false,
                 },
                 identities: [
                   {
@@ -297,48 +299,48 @@ export const DragAndDrop = () => ({
                     source: "GitLab",
                     email: "triddle@example.net",
                     uuid: "1f1a9e56dedb45f5969413eeb4442d982e33f0f6",
-                    username: "triddle"
+                    username: "triddle",
                   },
                   {
                     uuid: "33697bad47122a2093d9edbbe179a72298971fd1",
                     name: "Voldemort",
                     email: "-",
                     username: "voldemort",
-                    source: "github"
+                    source: "github",
                   },
                   {
                     uuid: "e5ad332e1c29f907ebd10aeac6b757f501786b69",
                     name: "Tom Marvolo Riddle",
                     email: "triddle@example.net",
                     username: "triddle",
-                    source: "git"
+                    source: "git",
                   },
                   {
                     uuid: "10982379421b80e13266db011d6e5131dd519016",
                     name: "voldemort",
                     email: "voldemort@example.net",
                     username: "-",
-                    source: "git"
-                  }
+                    source: "git",
+                  },
                 ],
                 enrollments: [
                   {
                     group: {
                       name: "Slytherin",
-                      id: "2"
+                      id: "2",
                     },
                     start: "1938-09-01T00:00:00+00:00",
-                    end: "1998-05-02T00:00:00+00:00"
+                    end: "1998-05-02T00:00:00+00:00",
                   },
                   {
                     group: {
                       name: "Hogwarts School of Witchcraft and Wizardry",
-                      id: "1"
+                      id: "1",
                     },
                     start: "1938-09-01",
-                    end: "1945-06-02T00:00:00+00:00"
-                  }
-                ]
+                    end: "1945-06-02T00:00:00+00:00",
+                  },
+                ],
               },
               {
                 mk: "164e41c60c28698ac30b0d17176d3e720e036918",
@@ -347,7 +349,7 @@ export const DragAndDrop = () => ({
                   name: "Harry Potter",
                   id: "2",
                   email: "hpotter@example.com",
-                  isBot: false
+                  isBot: false,
                 },
                 identities: [
                   {
@@ -355,41 +357,41 @@ export const DragAndDrop = () => ({
                     source: "GitHub",
                     email: "hpotter@example.net",
                     uuid: "164e41c60c28698ac30b0d17176d3e720e036918",
-                    username: "-"
+                    username: "-",
                   },
                   {
                     uuid: "06e6903c91180835b6ee91dd56782c6ca72bc562",
                     name: "H. Potter",
                     email: "hpotter@example.net",
                     username: "potter",
-                    source: "git"
+                    source: "git",
                   },
                   {
                     uuid: "06e6903c91180835b6ee91dd56782c6ca72bc562",
                     name: "Harry Potter",
                     email: "hpotter@example.net",
                     username: "-",
-                    source: "gerrit"
-                  }
+                    source: "gerrit",
+                  },
                 ],
                 enrollments: [
                   {
                     group: {
                       name: "Griffyndor",
-                      id: "2"
+                      id: "2",
                     },
                     start: "1991-09-01",
-                    end: "1997-06-02T00:00:00+00:00"
+                    end: "1997-06-02T00:00:00+00:00",
                   },
                   {
                     group: {
                       name: "Hogwarts School of Witchcraft and Wizardry",
-                      id: "1"
+                      id: "1",
                     },
                     start: "1991-09-01",
-                    end: "1997-06-02T00:00:00+00:00"
-                  }
-                ]
+                    end: "1997-06-02T00:00:00+00:00",
+                  },
+                ],
               },
               {
                 mk: "375458370ac0323bfb2e5a153e086551ef628d53",
@@ -398,7 +400,7 @@ export const DragAndDrop = () => ({
                   name: "Voldemort",
                   id: "3",
                   email: "",
-                  isBot: false
+                  isBot: false,
                 },
                 identities: [
                   {
@@ -406,19 +408,19 @@ export const DragAndDrop = () => ({
                     name: "-",
                     email: "voldemort@example.net",
                     username: "voldemort",
-                    source: "Jira"
-                  }
+                    source: "Jira",
+                  },
                 ],
                 enrollments: [
                   {
                     group: {
                       name: "Death Eaters",
-                      id: "1"
+                      id: "1",
                     },
                     start: "1950-09-01",
-                    end: "1998-06-02T00:00:00+00:00"
-                  }
-                ]
+                    end: "1998-06-02T00:00:00+00:00",
+                  },
+                ],
               },
               {
                 mk: "66bc656d28a1522b650d537c9142be2e5c9e3b55",
@@ -427,7 +429,7 @@ export const DragAndDrop = () => ({
                   name: "Ron Weasley",
                   id: "4",
                   email: "rweasley@example.com",
-                  isBot: false
+                  isBot: false,
                 },
                 identities: [
                   {
@@ -435,34 +437,34 @@ export const DragAndDrop = () => ({
                     name: "Ron Weasley",
                     email: "rweasley@example.net",
                     username: "",
-                    source: "git"
+                    source: "git",
                   },
                   {
                     uuid: "85cffeb0ae25e2b36e1acec1b79a2219c9f057ce",
                     name: "Ron Weasley",
                     email: "ron@example.net",
                     username: "ronweasley",
-                    source: "git"
-                  }
+                    source: "git",
+                  },
                 ],
                 enrollments: [
                   {
                     group: {
                       name: "Griffyndor",
-                      id: "2"
+                      id: "2",
                     },
                     start: "1991-09-01",
-                    end: "1997-06-02T00:00:00+00:00"
+                    end: "1997-06-02T00:00:00+00:00",
                   },
                   {
                     group: {
                       name: "Hogwarts School of Witchcraft and Wizardry",
-                      id: "1"
+                      id: "1",
                     },
                     start: "1991-09-01",
-                    end: "1997-06-02T00:00:00+00:00"
-                  }
-                ]
+                    end: "1997-06-02T00:00:00+00:00",
+                  },
+                ],
               },
               {
                 mk: "e4135c5c747dc69262cd4120a5c5ee51d07a9904",
@@ -471,7 +473,7 @@ export const DragAndDrop = () => ({
                   name: "Hermione Granger",
                   id: "5",
                   email: "hgranger@example.com",
-                  isBot: true
+                  isBot: true,
                 },
                 identities: [
                   {
@@ -479,45 +481,45 @@ export const DragAndDrop = () => ({
                     name: "Hermione Granger",
                     email: "hgranger@example.net",
                     username: "hermione",
-                    source: "gitlab"
+                    source: "gitlab",
                   },
                   {
                     uuid: "3db176be6859adac3a454c5377af81b1b7e3f8d8",
                     name: "Hermione Granger",
                     email: "hgranger@example.net",
                     username: "h.granger",
-                    source: "gerrit"
-                  }
+                    source: "gerrit",
+                  },
                 ],
                 enrollments: [
                   {
                     group: {
                       name: "Griffyndor",
-                      id: "2"
+                      id: "2",
                     },
                     start: "1991-09-01",
-                    end: "1997-06-02T00:00:00+00:00"
+                    end: "1997-06-02T00:00:00+00:00",
                   },
                   {
                     group: {
                       name: "Hogwarts School of Witchcraft and Wizardry",
-                      id: "1"
+                      id: "1",
                     },
                     start: "1991-09-01",
-                    end: "1997-06-02T00:00:00+00:00"
-                  }
-                ]
-              }
+                    end: "1997-06-02T00:00:00+00:00",
+                  },
+                ],
+              },
             ],
             pageInfo: {
               page: 1,
               pageSize: 5,
               numPages: 1,
-              totalResults: 5
-            }
-          }
-        }
-      }
+              totalResults: 5,
+            },
+          },
+        },
+      },
     ],
     countries: [
       { code: "AD", name: "Andorra" },
@@ -526,7 +528,7 @@ export const DragAndDrop = () => ({
       { code: "AG", name: "Antigua and Barbuda" },
       { code: "AI", name: "Anguilla" },
       { code: "AL", name: "Albania" },
-      { code: "AM", name: "Armenia" }
-    ]
-  })
+      { code: "AM", name: "Armenia" },
+    ],
+  }),
 });

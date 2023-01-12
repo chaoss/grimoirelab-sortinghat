@@ -3,7 +3,7 @@ const mergeIndividuals = (individuals, action, dialog) => {
     return;
   }
   const [toIndividual, ...rest] = individuals;
-  const fromIndividuals = rest.map(individual =>
+  const fromIndividuals = rest.map((individual) =>
     individual.uuid ? individual.uuid : individual
   );
   confirmMerge(
@@ -19,7 +19,7 @@ const confirmMerge = (dialog, action, fromUuids, toUuid) => {
     open: true,
     title: "Merge the selected individuals?",
     text: "",
-    action: () => action(fromUuids, toUuid)
+    action: () => action(fromUuids, toUuid),
   });
 };
 
@@ -31,11 +31,11 @@ const moveIdentity = (fromUuid, toUuid, action, dialog) => {
     open: true,
     title: "Move identity to this individual?",
     text: "",
-    action: () => action(fromUuid, toUuid)
+    action: () => action(fromUuid, toUuid),
   });
 };
 
-const groupIdentities = identities => {
+const groupIdentities = (identities) => {
   const icons = [
     { source: "git", icon: "mdi-git" },
     { source: "github", icon: "mdi-github" },
@@ -46,13 +46,13 @@ const groupIdentities = identities => {
     { source: "slack", icon: "mdi-slack" },
     { source: "stackexchange", icon: "mdi-stack-exchange" },
     { source: "telegram", icon: "mdi-telegram" },
-    { source: "twitter", icon: "mdi-twitter" }
+    { source: "twitter", icon: "mdi-twitter" },
   ];
   const otherSources = "Other sources";
   // Group identities by data source
   const groupedIdentities = identities.reduce((result, val) => {
     let source = val.source.toLowerCase().replace(/\s+/g, "");
-    const sourceIcon = icons.find(icon => icon.source === source);
+    const sourceIcon = icons.find((icon) => icon.source === source);
     if (!sourceIcon) {
       source = otherSources;
     }
@@ -62,7 +62,7 @@ const groupIdentities = identities => {
       result[source] = {
         name: source,
         identities: [val],
-        icon: sourceIcon ? sourceIcon.icon : "mdi-account-multiple"
+        icon: sourceIcon ? sourceIcon.icon : "mdi-account-multiple",
       };
     }
     return result;
@@ -81,17 +81,17 @@ const groupIdentities = identities => {
   return sortedIdentities;
 };
 
-const formatIndividual = individual => {
+const formatIndividual = (individual) => {
   const formattedIndividual = {
     name: individual.profile.name,
     id: individual.profile.id,
     uuid: individual.mk,
     email: individual.profile.email,
-    sources: groupIdentities(individual.identities).map(identity => {
+    sources: groupIdentities(individual.identities).map((identity) => {
       return {
         name: identity.name,
         icon: identity.icon,
-        count: identity.identities.length
+        count: identity.identities.length,
       };
     }),
     identities: groupIdentities(individual.identities),
@@ -100,7 +100,7 @@ const formatIndividual = individual => {
     country: individual.profile.country,
     isLocked: individual.isLocked,
     isBot: individual.profile.isBot,
-    isSelected: false
+    isSelected: false,
   };
 
   if (individual.enrollments && individual.enrollments.length > 0) {
@@ -108,21 +108,23 @@ const formatIndividual = individual => {
     Object.assign(formattedIndividual, { organization: organization });
   }
   if (individual.matchRecommendationSet) {
-    const matchRecommendations = individual.matchRecommendationSet.map(rec => {
-      return {
-        id: rec.id,
-        individual: formatIndividual(rec.individual)
-      };
-    });
+    const matchRecommendations = individual.matchRecommendationSet.map(
+      (rec) => {
+        return {
+          id: rec.id,
+          individual: formatIndividual(rec.individual),
+        };
+      }
+    );
     Object.assign(formattedIndividual, {
-      matchRecommendations: matchRecommendations
+      matchRecommendations: matchRecommendations,
     });
   }
   return formattedIndividual;
 };
 
-const formatIndividuals = individuals => {
-  return individuals.map(item => formatIndividual(item));
+const formatIndividuals = (individuals) => {
+  return individuals.map((item) => formatIndividual(item));
 };
 
 export {
@@ -130,5 +132,5 @@ export {
   moveIdentity,
   groupIdentities,
   formatIndividual,
-  formatIndividuals
+  formatIndividuals,
 };

@@ -65,9 +65,7 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="primary darken-1" text @click="onClose">
-          Cancel
-        </v-btn>
+        <v-btn color="primary darken-1" text @click="onClose"> Cancel </v-btn>
         <v-btn
           :disabled="!selected"
           color="primary"
@@ -87,29 +85,30 @@ const jobTypes = [
   {
     title: "Affiliate",
     value: "affiliate",
-    description: "Affiliate individuals to organizations using recommendations."
+    description:
+      "Affiliate individuals to organizations using recommendations.",
   },
   {
     title: "Genderize",
     value: "genderize",
     description:
-      "Autocomplete the gender information of individuals using genderize.io recommendations. "
+      "Autocomplete the gender information of individuals using genderize.io recommendations. ",
   },
   {
     title: "Unify",
     value: "unify",
-    description: "Merge individuals by using matching recommendations."
-  }
+    description: "Merge individuals by using matching recommendations.",
+  },
 ];
 const defaultForms = {
   genderize: {
     exclude: true,
-    noStrictMatching: false
+    noStrictMatching: false,
   },
   unify: {
     criteria: ["name", "email", "username"],
-    exclude: true
-  }
+    exclude: true,
+  },
 };
 
 export default {
@@ -117,18 +116,18 @@ export default {
   props: {
     isOpen: {
       type: Boolean,
-      required: true
+      required: true,
     },
     types: {
       type: Array,
       required: false,
-      default: () => jobTypes
-    }
+      default: () => jobTypes,
+    },
   },
   data() {
     return {
       selected: null,
-      forms: defaultForms
+      forms: defaultForms,
     };
   },
   methods: {
@@ -140,8 +139,8 @@ export default {
     onSave() {
       this.$emit(this.selected, this.forms[this.selected]);
       this.onClose();
-    }
-  }
+    },
+  },
 };
 </script>
 

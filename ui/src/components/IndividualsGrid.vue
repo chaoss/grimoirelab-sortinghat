@@ -24,25 +24,25 @@ import { mapState } from "vuex";
 export default {
   name: "individualsgrid",
   components: {
-    IndividualCard
+    IndividualCard,
   },
   props: {
     individuals: {
       type: Array,
-      required: true
-    }
+      required: true,
+    },
   },
   computed: {
     ...mapState(["selectedIndividual", "selectedIndividuals"]),
-    noIndividuals: function() {
+    noIndividuals: function () {
       return this.individuals.length === 0;
-    }
+    },
   },
   methods: {
     getSources(identities) {
       const icons = ["git", "github", "gitlab"];
-      const sources = identities.map(identity => {
-        if (icons.find(icon => icon === identity.source.toLowerCase())) {
+      const sources = identities.map((identity) => {
+        if (icons.find((icon) => icon === identity.source.toLowerCase())) {
           return identity.source;
         } else {
           return "Others";
@@ -58,11 +58,13 @@ export default {
     },
     isSelected(uuid) {
       if (this.$store) {
-        return this.selectedIndividuals.find(individual => individual === uuid);
+        return this.selectedIndividuals.find(
+          (individual) => individual === uuid
+        );
       } else {
         return false;
       }
-    }
-  }
+    },
+  },
 };
 </script>

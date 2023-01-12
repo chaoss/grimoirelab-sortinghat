@@ -19,9 +19,7 @@
       </v-tooltip>
       <v-tooltip v-if="isMain" bottom>
         <template v-slot:activator="{ on }">
-          <v-icon v-on="on" color="secondary" right small>
-            mdi-star
-          </v-icon>
+          <v-icon v-on="on" color="secondary" right small> mdi-star </v-icon>
         </template>
         <span>Main identity</span>
       </v-tooltip>
@@ -50,32 +48,32 @@ export default {
   props: {
     uuid: {
       type: String,
-      required: true
+      required: true,
     },
     name: {
       type: String,
-      required: false
+      required: false,
     },
     email: {
       type: String,
-      required: false
+      required: false,
     },
     username: {
       type: String,
-      required: false
+      required: false,
     },
     source: {
       type: String,
       required: false,
-      default: null
+      default: null,
     },
     isMain: {
       type: Boolean,
-      required: false
-    }
+      required: false,
+    },
   },
   data: () => ({
-    tooltip: defaultCopyText
+    tooltip: defaultCopyText,
   }),
   methods: {
     copy(text) {
@@ -85,8 +83,8 @@ export default {
     },
     resetCopyText() {
       this.tooltip = defaultCopyText;
-    }
-  }
+    },
+  },
 };
 </script>
 <style lang="scss" scoped>

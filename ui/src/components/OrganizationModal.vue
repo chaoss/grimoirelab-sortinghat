@@ -73,42 +73,42 @@ export default {
   props: {
     addDomain: {
       type: Function,
-      required: true
+      required: true,
     },
     deleteDomain: {
       type: Function,
-      required: true
+      required: true,
     },
     addOrganization: {
       type: Function,
-      required: true
+      required: true,
     },
     isOpen: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
     organization: {
       type: String,
-      required: false
+      required: false,
     },
     domains: {
       type: Array,
       required: false,
-      default: () => [""]
-    }
+      default: () => [""],
+    },
   },
   data() {
     return {
       form: {
         name: "",
-        domains: [""]
+        domains: [""],
       },
       errorMessage: "",
       savedData: {
         name: undefined,
-        domains: []
-      }
+        domains: [],
+      },
     };
   },
   methods: {
@@ -146,19 +146,20 @@ export default {
     },
     async handleDomains() {
       const newDomains = this.form.domains.filter(
-        domain => domain.length > 0 && !this.savedData.domains.includes(domain)
+        (domain) =>
+          domain.length > 0 && !this.savedData.domains.includes(domain)
       );
       const deletedDomains = this.savedData.domains.filter(
-        domain => domain.length > 0 && !this.form.domains.includes(domain)
+        (domain) => domain.length > 0 && !this.form.domains.includes(domain)
       );
       try {
         const responseNew = await Promise.all(
-          newDomains.map(domain =>
+          newDomains.map((domain) =>
             this.addOrganizationDomain(domain, this.form.name)
           )
         );
         const responseDeleted = await Promise.all(
-          deletedDomains.map(domain => this.deleteOrganizationDomain(domain))
+          deletedDomains.map((domain) => this.deleteOrganizationDomain(domain))
         );
         if (responseNew || responseDeleted) {
           this.closeModal();
@@ -169,7 +170,7 @@ export default {
         this.$logger.error(`Error updating domains: ${error}`, {
           organization: this.form.name,
           newDomains,
-          deletedDomains
+          deletedDomains,
         });
       }
     },
@@ -195,24 +196,24 @@ export default {
     },
     addInput() {
       this.form.domains.push("");
-    }
+    },
   },
   watch: {
     isOpen(value) {
       if (value) {
         Object.assign(this.savedData, {
           name: this.organization,
-          domains: this.domains.map(domain => domain)
+          domains: this.domains.map((domain) => domain),
         });
         Object.assign(this.form, {
           name: this.organization || "",
-          domains: this.domains.map(domain => domain)
+          domains: this.domains.map((domain) => domain),
         });
       } else {
         Object.assign(this.form, { name: "", domains: [""] });
         Object.assign(this.savedData, { name: undefined, domains: [""] });
       }
-    }
-  }
+    },
+  },
 };
 </script>

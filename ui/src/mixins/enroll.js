@@ -9,8 +9,8 @@ const enrollMixin = {
         text: "",
         action: "",
         organization: null,
-        uuid: null
-      }
+        uuid: null,
+      },
     };
   },
   methods: {
@@ -26,7 +26,7 @@ const enrollMixin = {
         dateFrom: null,
         dateTo: null,
         showDates: true,
-        action: () => this.enrollIndividual()
+        action: () => this.enrollIndividual(),
       });
     },
     async enrollIndividual(uuid, group, dateFrom, dateTo) {
@@ -34,7 +34,7 @@ const enrollMixin = {
       const response = await this.enroll(uuid, group, dateFrom, dateTo);
       if (response) {
         this.$emit("updateWorkspace", {
-          update: formatIndividuals([response.data.enroll.individual])
+          update: formatIndividuals([response.data.enroll.individual]),
         });
         this.$emit("updateOrganizations");
         this.$emit("updateIndividuals");
@@ -43,18 +43,18 @@ const enrollMixin = {
         }
         if (this.individual) {
           this.individual = formatIndividuals([
-            response.data.enroll.individual
+            response.data.enroll.individual,
           ])[0];
         }
         this.$logger.debug("Enrolled individual", {
           group,
           uuid,
           dateFrom,
-          dateTo
+          dateTo,
         });
       }
-    }
-  }
+    },
+  },
 };
 
 export { enrollMixin };

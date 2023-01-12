@@ -7,12 +7,12 @@ Vue.use(Vuetify);
 
 describe("EnrollmentList component", () => {
   const vuetify = new Vuetify();
-  const mountFunction = options => {
+  const mountFunction = (options) => {
     return shallowMount(EnrollmentList, {
       Vue,
       vuetify,
       propsData: { enrollments: [] },
-      ...options
+      ...options,
     });
   };
 
@@ -24,24 +24,24 @@ describe("EnrollmentList component", () => {
         end: "2004-01-02T00:00:00+00:00",
         group: {
           name: "Organization 1",
-          type: "organization"
-        }
+          type: "organization",
+        },
       },
       {
         start: "2006-01-01T00:00:00+00:00",
         end: "2008-01-02T00:00:00+00:00",
         group: {
           name: "Organization 1",
-          type: "organization"
-        }
+          type: "organization",
+        },
       },
       {
         start: "2010-01-01T00:00:00+00:00",
         end: "2012-01-02T00:00:00+00:00",
         group: {
           name: "Organization 1",
-          type: "organization"
-        }
+          type: "organization",
+        },
       },
       {
         start: "2004-01-01T00:00:00+00:00",
@@ -49,9 +49,9 @@ describe("EnrollmentList component", () => {
         group: {
           name: "Organization 2",
           type: "organization",
-          parentOrg: null
-        }
-      }
+          parentOrg: null,
+        },
+      },
     ];
 
     const groupedEnrollments = wrapper.vm.groupEnrollments(enrollments);
@@ -73,8 +73,8 @@ describe("EnrollmentList component", () => {
         group: {
           name: "Organization 1",
           type: "organization",
-          parentOrg: null
-        }
+          parentOrg: null,
+        },
       },
       {
         start: "2000-01-01T00:00:00+00:00",
@@ -82,8 +82,8 @@ describe("EnrollmentList component", () => {
         group: {
           name: "Team 1",
           type: "team",
-          parentOrg: { name: "Organization 1" }
-        }
+          parentOrg: { name: "Organization 1" },
+        },
       },
       {
         start: "2002-01-01T00:00:00+00:00",
@@ -91,8 +91,8 @@ describe("EnrollmentList component", () => {
         group: {
           name: "Team 2",
           type: "team",
-          parentOrg: { name: "Organization 1" }
-        }
+          parentOrg: { name: "Organization 1" },
+        },
       },
       {
         start: "2005-01-01T00:00:00+00:00",
@@ -100,8 +100,8 @@ describe("EnrollmentList component", () => {
         group: {
           name: "Organization 2",
           type: "organization",
-          parentOrg: null
-        }
+          parentOrg: null,
+        },
       },
       {
         start: "2005-01-01T00:00:00+00:00",
@@ -109,9 +109,9 @@ describe("EnrollmentList component", () => {
         group: {
           name: "Team 3",
           type: "team",
-          parentOrg: { name: "Organization 2" }
-        }
-      }
+          parentOrg: { name: "Organization 2" },
+        },
+      },
     ];
 
     const groupedEnrollments = wrapper.vm.groupEnrollments(enrollments);

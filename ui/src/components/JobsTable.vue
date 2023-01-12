@@ -2,9 +2,7 @@
   <v-container class="jobs section mb-5 pa-0">
     <header class="header">
       <h4 class="title">
-        <v-icon color="black" left dense>
-          mdi-tray-full
-        </v-icon>
+        <v-icon color="black" left dense> mdi-tray-full </v-icon>
         Jobs
       </h4>
       <v-btn
@@ -22,18 +20,10 @@
       <template v-slot:default>
         <thead>
           <tr>
-            <th class="text-left">
-              Job ID
-            </th>
-            <th class="text-left">
-              Type
-            </th>
-            <th class="text-left">
-              Date
-            </th>
-            <th class="text-center">
-              Status
-            </th>
+            <th class="text-left">Job ID</th>
+            <th class="text-left">Type</th>
+            <th class="text-left">Date</th>
+            <th class="text-center">Status</th>
           </tr>
         </thead>
         <tbody>
@@ -85,8 +75,8 @@ export default {
   props: {
     getJobs: {
       type: Function,
-      required: true
-    }
+      required: true,
+    },
   },
   data() {
     return {
@@ -94,7 +84,7 @@ export default {
       page: 1,
       pageSize: 10,
       pageCount: 1,
-      openModal: false
+      openModal: false,
     };
   },
   created() {
@@ -122,8 +112,8 @@ export default {
     },
     formatDate(dateTime) {
       return new Date(dateTime).toLocaleString();
-    }
-  }
+    },
+  },
 };
 </script>
 <style lang="scss" scoped>

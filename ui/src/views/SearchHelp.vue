@@ -1,9 +1,7 @@
 <template>
   <v-main>
     <v-card class="mx-auto elevation-0 mt-6 section" max-width="800px">
-      <v-card-title class="header">
-        Search syntax
-      </v-card-title>
+      <v-card-title class="header"> Search syntax </v-card-title>
       <v-card-text class="pa-8">
         <p class="subtitle-2">Search by term</p>
         <p>
@@ -21,12 +19,8 @@
           <template v-slot:default>
             <thead>
               <tr>
-                <th class="text-left" width="30%">
-                  Filter
-                </th>
-                <th class="text-left">
-                  Explanation
-                </th>
+                <th class="text-left" width="30%">Filter</th>
+                <th class="text-left">Explanation</th>
               </tr>
             </thead>
             <tbody>
@@ -95,12 +89,8 @@
           <template v-slot:default>
             <thead>
               <tr>
-                <th class="text-left" width="30%">
-                  Filter
-                </th>
-                <th class="text-left">
-                  Explanation
-                </th>
+                <th class="text-left" width="30%">Filter</th>
+                <th class="text-left">Explanation</th>
               </tr>
             </thead>
             <tbody>
@@ -149,12 +139,8 @@
           <template v-slot:default>
             <thead>
               <tr>
-                <th class="text-left" width="30%">
-                  Filter
-                </th>
-                <th class="text-left">
-                  Explanation
-                </th>
+                <th class="text-left" width="30%">Filter</th>
+                <th class="text-left">Explanation</th>
               </tr>
             </thead>
             <tbody>
@@ -216,6 +202,6 @@
 
 <script>
 export default {
-  name: "SearchHelp"
+  name: "SearchHelp",
 };
 </script>

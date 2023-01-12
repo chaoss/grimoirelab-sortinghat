@@ -2,7 +2,7 @@ import ExpandedOrganization from "./ExpandedOrganization.vue";
 
 export default {
   title: "ExpandedOrganization",
-  excludeStories: /.*Data$/
+  excludeStories: /.*Data$/,
 };
 
 const ExpandedOrganizationTemplate = `
@@ -35,28 +35,25 @@ export const Default = () => ({
                   { id: 2, individual: { mk: 2 } },
                   { id: 3, individual: { mk: 3 } },
                   { id: 4, individual: { mk: 4 } },
-                  { id: 5, individual: { mk: 5 } }
+                  { id: 5, individual: { mk: 5 } },
                 ],
               },
               {
                 name: "Department of Magical Law Enforcement",
                 numchild: 2,
-                enrollments: [
-                  { id: 1, individual: { mk: 1 } }
-                ],
+                enrollments: [{ id: 1, individual: { mk: 1 } }],
               },
               {
                 name: "Department of Magical Accidents and Catastrophes",
-                numchild: 0
+                numchild: 0,
               },
               {
-                name:
-                  "Department for the Regulation and Control of Magical Creatures",
+                name: "Department for the Regulation and Control of Magical Creatures",
                 numchild: 1,
                 enrollments: [
                   { id: 1, individual: { mk: 1 } },
                   { id: 2, individual: { mk: 2 } },
-                  { id: 3, individual: { mk: 3 } }
+                  { id: 3, individual: { mk: 3 } },
                 ],
               },
               {
@@ -68,7 +65,7 @@ export const Default = () => ({
                   { id: 2, individual: { mk: 2 } },
                   { id: 3, individual: { mk: 3 } },
                   { id: 4, individual: { mk: 4 } },
-                  { id: 5, individual: { mk: 5 } }
+                  { id: 5, individual: { mk: 5 } },
                 ],
               },
               {
@@ -79,7 +76,7 @@ export const Default = () => ({
                   { id: 1, individual: { mk: 1 } },
                   { id: 2, individual: { mk: 2 } },
                   { id: 3, individual: { mk: 3 } },
-                  { id: 4, individual: { mk: 4 } }
+                  { id: 4, individual: { mk: 4 } },
                 ],
               },
               {
@@ -89,26 +86,26 @@ export const Default = () => ({
                 numchild: 0,
                 enrollments: [
                   { id: 1, individual: { mk: 1 } },
-                  { id: 2, individual: { mk: 2 } }
+                  { id: 2, individual: { mk: 2 } },
                 ],
-              }
-            ]
-          }
-        }
-      }
-    ]
+              },
+            ],
+          },
+        },
+      },
+    ],
   }),
   methods: {
     fetchTeams(filters) {
       let data = [];
       if (Object.keys(filters).includes("parent")) {
-        this.query[0].data.teams.entities.forEach(team => {
+        this.query[0].data.teams.entities.forEach((team) => {
           if (team["parent"] === filters["parent"]) {
             data.push(team);
           }
         });
       } else {
-        this.query[0].data.teams.entities.forEach(team => {
+        this.query[0].data.teams.entities.forEach((team) => {
           if (team["parent"] === undefined) {
             data.push(team);
           }
@@ -117,15 +114,15 @@ export const Default = () => ({
       const resp = {
         data: {
           teams: {
-            entities: data
-          }
-        }
+            entities: data,
+          },
+        },
       };
       return resp;
     },
     addTeam(team, organization, parent) {
       const insertData = {
-        name: team
+        name: team,
       };
       if (parent) {
         insertData["parent"] = parent;
@@ -134,12 +131,11 @@ export const Default = () => ({
       return true;
     },
     deleteTeam(team, organization) {
-      this.query[0].data.teams.entities = this.query[0].data.teams.entities.filter(
-        elem => elem.name != team
-      );
+      this.query[0].data.teams.entities =
+        this.query[0].data.teams.entities.filter((elem) => elem.name != team);
       return true;
-    }
-  }
+    },
+  },
 });
 
 export const Group = () => ({
@@ -161,13 +157,13 @@ export const Group = () => ({
                 { id: 2, individual: { mk: 2 } },
                 { id: 3, individual: { mk: 3 } },
                 { id: 4, individual: { mk: 4 } },
-                { id: 5, individual: { mk: 5 } }
+                { id: 5, individual: { mk: 5 } },
               ],
-            }
-          ]
-        }
-      }
-    }
+            },
+          ],
+        },
+      },
+    },
   }),
   methods: {
     fetchTeams() {
@@ -178,8 +174,8 @@ export const Group = () => ({
     },
     deleteTeam() {
       return;
-    }
-  }
+    },
+  },
 });
 
 export const Empty = () => ({
@@ -193,23 +189,23 @@ export const Empty = () => ({
       {
         data: {
           teams: {
-            entities: []
-          }
-        }
-      }
-    ]
+            entities: [],
+          },
+        },
+      },
+    ],
   }),
   methods: {
     fetchTeams(filters) {
       let data = [];
       if (Object.keys(filters).includes("parent")) {
-        this.query[0].data.teams.entities.forEach(team => {
+        this.query[0].data.teams.entities.forEach((team) => {
           if (team["parent"] === filters["parent"]) {
             data.push(team);
           }
         });
       } else {
-        this.query[0].data.teams.entities.forEach(team => {
+        this.query[0].data.teams.entities.forEach((team) => {
           if (team["parent"] === undefined) {
             data.push(team);
           }
@@ -218,16 +214,16 @@ export const Empty = () => ({
       const resp = {
         data: {
           teams: {
-            entities: data
-          }
-        }
+            entities: data,
+          },
+        },
       };
 
       return resp;
     },
     addTeam(team, organization, parent) {
       const insertData = {
-        name: team
+        name: team,
       };
       if (parent) {
         insertData["parent"] = parent;
@@ -236,10 +232,9 @@ export const Empty = () => ({
       return true;
     },
     deleteTeam(team, organization) {
-      this.query[0].data.teams.entities = this.query[0].data.teams.entities.filter(
-        elem => elem.name != team
-      );
+      this.query[0].data.teams.entities =
+        this.query[0].data.teams.entities.filter((elem) => elem.name != team);
       return true;
-    }
-  }
+    },
+  },
 });

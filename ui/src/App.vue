@@ -11,13 +11,9 @@
       <v-menu v-if="user && $route.name !== 'Login'" offset-y left>
         <template v-slot:activator="{ on }">
           <v-btn depressed small color="primary" v-on="on">
-            <v-icon small left>
-              mdi-account-circle
-            </v-icon>
+            <v-icon small left> mdi-account-circle </v-icon>
             {{ user }}
-            <v-icon small right>
-              mdi-chevron-down
-            </v-icon>
+            <v-icon small right> mdi-chevron-down </v-icon>
           </v-btn>
         </template>
         <v-list color="primary" dark dense>
@@ -64,7 +60,7 @@ export default {
   computed: {
     user() {
       return this.$store.state.user;
-    }
+    },
   },
   methods: {
     logOut() {
@@ -74,16 +70,16 @@ export default {
       this.$store.commit("loginUser", undefined);
       this.$router.push("/login");
       this.$logger.info(`Log out user ${this.user}`);
-    }
+    },
   },
   watch: {
     $route: {
       immediate: true,
       handler(to) {
         document.title = to.meta.title || "Sorting Hat";
-      }
-    }
-  }
+      },
+    },
+  },
 };
 </script>
 <style lang="scss">

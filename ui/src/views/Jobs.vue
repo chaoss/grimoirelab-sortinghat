@@ -26,8 +26,8 @@ export default {
     return {
       snackbar: {
         isOpen: false,
-        text: null
-      }
+        text: null,
+      },
     };
   },
   methods: {
@@ -42,7 +42,7 @@ export default {
       } catch (error) {
         this.snackbar = Object.assign(this.snackbar, {
           isOpen: true,
-          text: error
+          text: error,
         });
       }
     },
@@ -53,7 +53,7 @@ export default {
       } catch (error) {
         this.snackbar = Object.assign(this.snackbar, {
           isOpen: true,
-          text: error
+          text: error,
         });
       }
     },
@@ -64,10 +64,10 @@ export default {
       } catch (error) {
         this.snackbar = Object.assign(this.snackbar, {
           isOpen: true,
-          text: error
+          text: error,
         });
       }
-    }
-  }
+    },
+  },
 };
 </script>

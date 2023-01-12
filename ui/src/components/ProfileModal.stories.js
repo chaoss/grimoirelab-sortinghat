@@ -2,7 +2,7 @@ import ProfileModal from "./ProfileModal.vue";
 
 export default {
   title: "ProfileModal",
-  excludeStories: /.*Data$/
+  excludeStories: /.*Data$/,
 };
 
 const ProfileModalTemplate = `
@@ -33,8 +33,8 @@ export const Default = () => ({
       { code: "AG", name: "Antigua and Barbuda" },
       { code: "AI", name: "Anguilla" },
       { code: "AL", name: "Albania" },
-      { code: "AM", name: "Armenia" }
-    ]
+      { code: "AM", name: "Armenia" },
+    ],
   }),
   methods: {
     mockFunction() {
@@ -42,6 +42,6 @@ export const Default = () => ({
     },
     getCountries() {
       return this.countries;
-    }
-  }
+    },
+  },
 });

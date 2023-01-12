@@ -41,35 +41,35 @@ export default {
   name: "DateInput",
   props: {
     value: {
-      type: [String, Date]
+      type: [String, Date],
     },
     label: {
       type: String,
-      required: true
+      required: true,
     },
     min: {
       type: [String, Date],
-      required: false
+      required: false,
     },
     max: {
       type: [String, Date],
-      required: false
+      required: false,
     },
     filled: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
     outlined: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
     singleLine: {
       type: Boolean,
       required: false,
-      default: false
-    }
+      default: false,
+    },
   },
   data() {
     return {
@@ -77,7 +77,7 @@ export default {
       error: null,
       inputDate: this.value,
       pickerDate: this.value,
-      isValid: [value => (value ? !this.error : true)]
+      isValid: [(value) => (value ? !this.error : true)],
     };
   },
   methods: {
@@ -103,15 +103,15 @@ export default {
         this.inputDate = "";
         this.pickerDate = "";
       }
-    }
+    },
   },
   watch: {
     value(newValue) {
       this.formatDate(newValue);
-    }
+    },
   },
   mounted() {
     this.formatDate(this.value);
-  }
+  },
 };
 </script>

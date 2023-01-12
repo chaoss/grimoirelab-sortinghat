@@ -2,7 +2,7 @@ import TeamModal from "./TeamModal.vue";
 
 export default {
   title: "TeamModal",
-  excludeStories: /.*Data$/
+  excludeStories: /.*Data$/,
 };
 
 const TeamModalTemplate = `  <div class="ma-auto">
@@ -16,7 +16,7 @@ export const Default = () => ({
   data: () => ({
     organization: "Ministry of Magic",
     modal: {
-      open: false
+      open: false,
     },
     query: [
       {
@@ -25,59 +25,58 @@ export const Default = () => ({
             entities: [
               {
                 name: "Committee on Experimental Charms",
-                numchild: 0
+                numchild: 0,
               },
               {
                 name: "Department of Magical Law Enforcement",
-                numchild: 2
+                numchild: 2,
               },
               {
                 name: "Department of Magical Accidents and Catastrophes",
-                numchild: 0
+                numchild: 0,
               },
               {
-                name:
-                  "Department for the Regulation and Control of Magical Creatures",
-                numchild: 1
+                name: "Department for the Regulation and Control of Magical Creatures",
+                numchild: 1,
               },
               {
                 name: "Auror Office",
                 parent: "Department of Magical Law Enforcement",
-                numchild: 1
+                numchild: 1,
               },
               {
                 name: "Calamity Investigators",
                 parent: "Auror Office",
-                numchild: 0
+                numchild: 0,
               },
               {
                 name: "Improper Use of Magic Office",
                 parent: "Department of Magical Law Enforcement",
-                numchild: 0
+                numchild: 0,
               },
               {
                 name: "Beast Division",
                 parent:
                   "Department for the Regulation and Control of Magical Creatures",
-                numchild: 0
-              }
-            ]
-          }
-        }
-      }
-    ]
+                numchild: 0,
+              },
+            ],
+          },
+        },
+      },
+    ],
   }),
   methods: {
     fetchTeams(filters) {
       let data = [];
       if (Object.keys(filters).includes("parent")) {
-        this.query[0].data.teams.entities.forEach(team => {
+        this.query[0].data.teams.entities.forEach((team) => {
           if (team["parent"] === filters["parent"]) {
             data.push(team);
           }
         });
       } else {
-        this.query[0].data.teams.entities.forEach(team => {
+        this.query[0].data.teams.entities.forEach((team) => {
           if (team["parent"] === undefined) {
             data.push(team);
           }
@@ -86,16 +85,16 @@ export const Default = () => ({
       const resp = {
         data: {
           teams: {
-            entities: data
-          }
-        }
+            entities: data,
+          },
+        },
       };
 
       return resp;
     },
     addTeam(team, organization, parent) {
       const insertData = {
-        name: team
+        name: team,
       };
       if (parent) {
         insertData["parent"] = parent;
@@ -104,10 +103,9 @@ export const Default = () => ({
       return true;
     },
     deleteTeam(team, organization) {
-      this.query[0].data.teams.entities = this.query[0].data.teams.entities.filter(
-        elem => elem.name != team
-      );
+      this.query[0].data.teams.entities =
+        this.query[0].data.teams.entities.filter((elem) => elem.name != team);
       return true;
-    }
-  }
+    },
+  },
 });

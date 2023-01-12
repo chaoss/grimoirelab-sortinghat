@@ -2,7 +2,7 @@ import Search from "./Search.vue";
 
 export default {
   title: "Search",
-  excludeStories: /.*Data$/
+  excludeStories: /.*Data$/,
 };
 
 const searchTemplate = `
@@ -21,8 +21,8 @@ export const Default = () => ({
   data: () => ({
     validFilters: [],
     filterSelector: false,
-    orderSelector: false
-  })
+    orderSelector: false,
+  }),
 });
 
 export const filterSelector = () => ({
@@ -32,16 +32,16 @@ export const filterSelector = () => ({
     validFilters: [
       {
         filter: "country",
-        type: "string"
+        type: "string",
       },
       {
         filter: "isBot",
-        type: "boolean"
-      }
+        type: "boolean",
+      },
     ],
     filterSelector: true,
-    orderSelector: false
-  })
+    orderSelector: false,
+  }),
 });
 
 export const orderSelector = () => ({
@@ -50,6 +50,6 @@ export const orderSelector = () => ({
   data: () => ({
     orderSelector: true,
     validFilters: [],
-    filterSelector: false
-  })
+    filterSelector: false,
+  }),
 });

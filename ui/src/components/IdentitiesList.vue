@@ -50,7 +50,7 @@
       v-for="(source, sourceIndex) in identities"
       :key="source.name"
       :class="{
-        'row-border': sourceIndex !== identities.length - 1
+        'row-border': sourceIndex !== identities.length - 1,
       }"
       class="indented"
       dense
@@ -97,9 +97,7 @@
               v-on="on"
               @click="$emit('unmerge', [identity.uuid, uuid])"
             >
-              <v-icon>
-                mdi-call-split
-              </v-icon>
+              <v-icon> mdi-call-split </v-icon>
             </v-btn>
           </template>
           <span>Split identity</span>
@@ -130,32 +128,32 @@ import Identity from "./Identity.vue";
 export default {
   name: "IdentitiesList",
   components: {
-    Identity
+    Identity,
   },
   props: {
     identities: {
       type: Array,
-      required: true
+      required: true,
     },
     isLocked: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
     compact: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
     uuid: {
       type: String,
-      required: true
+      required: true,
     },
     draggable: {
       type: Boolean,
       required: false,
-      default: false
-    }
+      default: false,
+    },
   },
   methods: {
     sortSources(identities, property) {
@@ -178,27 +176,27 @@ export default {
       event.target.classList.remove("dragging");
     },
     splitAll() {
-      const uuids = this.flatIdentities.map(identity => identity.uuid);
+      const uuids = this.flatIdentities.map((identity) => identity.uuid);
       this.$emit("unmerge", uuids);
-    }
+    },
   },
   computed: {
     identitiesCount() {
       return this.identities.reduce((a, b) => a + b.identities.length, 0);
     },
     sources() {
-      return this.identities.map(identity => identity.name);
+      return this.identities.map((identity) => identity.name);
     },
     flatIdentities() {
       return this.identities
-        .map(source =>
-          source.identities.map(identity =>
+        .map((source) =>
+          source.identities.map((identity) =>
             Object.assign({ icon: source.icon }, identity)
           )
         )
         .flat();
-    }
-  }
+    },
+  },
 };
 </script>
 

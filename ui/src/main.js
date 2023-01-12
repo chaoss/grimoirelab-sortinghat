@@ -22,7 +22,7 @@ fetch(API_URL, { credentials: "include" }).then(() => {
   // HTTP connection to the API
   const httpLink = createHttpLink({
     uri: API_URL,
-    credentials: "include"
+    credentials: "include",
   });
 
   // Cache implementation
@@ -31,13 +31,13 @@ fetch(API_URL, { credentials: "include" }).then(() => {
   const AuthLink = (operation, next) => {
     const token = csrftoken;
     const authtoken = Cookies.get("sh_authtoken");
-    operation.setContext(context => ({
+    operation.setContext((context) => ({
       ...context,
       headers: {
         ...context.headers,
         "X-CSRFToken": token,
-        Authorization: authtoken ? `JWT ${authtoken}` : ""
-      }
+        Authorization: authtoken ? `JWT ${authtoken}` : "",
+      },
     }));
     return next(operation);
   };
@@ -47,7 +47,7 @@ fetch(API_URL, { credentials: "include" }).then(() => {
   // Create the apollo client
   const apolloClient = new ApolloClient({
     link: link,
-    cache
+    cache,
   });
 
   Vue.use(VueApollo);
@@ -56,7 +56,7 @@ fetch(API_URL, { credentials: "include" }).then(() => {
   Vue.use(GetErrorMessage);
 
   const apolloProvider = new VueApollo({
-    defaultClient: apolloClient
+    defaultClient: apolloClient,
   });
 
   Vue.config.productionTip = false;
@@ -66,6 +66,6 @@ fetch(API_URL, { credentials: "include" }).then(() => {
     store,
     vuetify,
     apolloProvider,
-    render: h => h(App)
+    render: (h) => h(App),
   }).$mount("#app");
 });

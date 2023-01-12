@@ -2,7 +2,7 @@ import OrganizationsTable from "./OrganizationsTable.vue";
 
 export default {
   title: "OrganizationsTable",
-  excludeStories: /.*Data$/
+  excludeStories: /.*Data$/,
 };
 
 const OrganizationsTableTemplate = `
@@ -28,10 +28,10 @@ export const Organizations = () => ({
     getOrganizations(page, items, filters) {
       const results = JSON.parse(JSON.stringify(this.query[page - 1]));
       if (filters.term) {
-        results.data.organizations.entities = results.data.organizations.entities.filter(
-          organization =>
+        results.data.organizations.entities =
+          results.data.organizations.entities.filter((organization) =>
             organization.name.toUpperCase().includes(filters.term.toUpperCase())
-        );
+          );
         results.data.organizations.pageInfo.totalResults =
           results.data.organizations.entities.length;
       }
@@ -45,28 +45,30 @@ export const Organizations = () => ({
         id: organization,
         name: organization,
         enrollments: [],
-        domains: []
+        domains: [],
       });
       return true;
     },
     addDomain(domain, organization) {
       const index = this.query[0].data.organizations.entities.findIndex(
-        entity => entity.name === organization
+        (entity) => entity.name === organization
       );
       this.query[0].data.organizations.entities[index].domains.push({
-        domain: domain
+        domain: domain,
       });
       return true;
     },
     deleteDomain(domain) {
-      this.query[0].data.organizations.entities.find(entity => {
-        const index = entity.domains.findIndex(item => item.domain === domain);
+      this.query[0].data.organizations.entities.find((entity) => {
+        const index = entity.domains.findIndex(
+          (item) => item.domain === domain
+        );
         entity.domains.splice(index, 1);
       });
     },
     deleteOrganization(name) {
       const index = this.query[0].data.organizations.entities.findIndex(
-        entity => entity.name === name
+        (entity) => entity.name === name
       );
       this.query[0].data.organizations.entities.splice(index, 1);
     },
@@ -80,11 +82,11 @@ export const Organizations = () => ({
       return {
         data: {
           teams: {
-            entities: []
-          }
-        }
+            entities: [],
+          },
+        },
       };
-    }
+    },
   },
   data: () => ({
     query: [
@@ -100,17 +102,18 @@ export const Organizations = () => ({
                   { id: 2, individual: { mk: 2 } },
                   { id: 3, individual: { mk: 3 } },
                   { id: 4, individual: { mk: 4 } },
-                  { id: 5, individual: { mk: 5 } }
+                  { id: 5, individual: { mk: 5 } },
                 ],
-                domains: [{ domain: "griffyndor.hogwarts.edu" }]
+                domains: [{ domain: "griffyndor.hogwarts.edu" }],
               },
               {
                 id: 2,
                 name: "Slytherin",
                 enrollments: [
                   { id: 1, individual: { mk: 1 } },
-                  { id: 2, individual: { mk: 2 } }],
-                domains: [{ domain: "slytherin.hogwarts.edu" }]
+                  { id: 2, individual: { mk: 2 } },
+                ],
+                domains: [{ domain: "slytherin.hogwarts.edu" }],
               },
               {
                 id: 3,
@@ -118,19 +121,19 @@ export const Organizations = () => ({
                 enrollments: [
                   { id: 1, individual: { mk: 1 } },
                   { id: 2, individual: { mk: 2 } },
-                  { id: 3, individual: { mk: 3 } }
+                  { id: 3, individual: { mk: 3 } },
                 ],
-                domains: [{ domain: "ravenclaw.hogwarts.edu" }]
-              }
+                domains: [{ domain: "ravenclaw.hogwarts.edu" }],
+              },
             ],
             pageInfo: {
               page: 1,
               pageSize: 3,
               numPages: 2,
-              totalResults: 4
-            }
-          }
-        }
+              totalResults: 4,
+            },
+          },
+        },
       },
       {
         data: {
@@ -143,24 +146,24 @@ export const Organizations = () => ({
                   { id: 1, individual: { mk: 1 } },
                   { id: 2, individual: { mk: 2 } },
                   { id: 3, individual: { mk: 3 } },
-                  { id: 4, individual: { mk: 4 } }
+                  { id: 4, individual: { mk: 4 } },
                 ],
-                domains: [{ domain: "hufflepuff.hogwarts.edu" }]
-              }
+                domains: [{ domain: "hufflepuff.hogwarts.edu" }],
+              },
             ],
             pageInfo: {
               page: 2,
               pageSize: 3,
               numPages: 2,
-              totalResults: 4
-            }
-          }
-        }
-      }
+              totalResults: 4,
+            },
+          },
+        },
+      },
     ],
     isGroup: false,
-    name: "Organizations"
-  })
+    name: "Organizations",
+  }),
 });
 
 export const Groups = () => ({
@@ -170,10 +173,10 @@ export const Groups = () => ({
     getOrganizations(page, items, filters) {
       const results = JSON.parse(JSON.stringify(this.query[page - 1]));
       if (filters.term) {
-        results.data.organizations.entities = results.data.organizations.entities.filter(
-          organization =>
+        results.data.organizations.entities =
+          results.data.organizations.entities.filter((organization) =>
             organization.name.toUpperCase().includes(filters.term.toUpperCase())
-        );
+          );
         results.data.organizations.pageInfo.totalResults =
           results.data.organizations.entities.length;
       }
@@ -187,28 +190,30 @@ export const Groups = () => ({
         id: organization,
         name: organization,
         enrollments: [],
-        domains: []
+        domains: [],
       });
       return true;
     },
     addDomain(domain, organization) {
       const index = this.query[0].data.organizations.entities.findIndex(
-        entity => entity.name === organization
+        (entity) => entity.name === organization
       );
       this.query[0].data.organizations.entities[index].domains.push({
-        domain: domain
+        domain: domain,
       });
       return true;
     },
     deleteDomain(domain) {
-      this.query[0].data.organizations.entities.find(entity => {
-        const index = entity.domains.findIndex(item => item.domain === domain);
+      this.query[0].data.organizations.entities.find((entity) => {
+        const index = entity.domains.findIndex(
+          (item) => item.domain === domain
+        );
         entity.domains.splice(index, 1);
       });
     },
     deleteOrganization(name) {
       const index = this.query[0].data.organizations.entities.findIndex(
-        entity => entity.name === name
+        (entity) => entity.name === name
       );
       this.query[0].data.organizations.entities.splice(index, 1);
     },
@@ -222,11 +227,11 @@ export const Groups = () => ({
       return {
         data: {
           teams: {
-            entities: []
-          }
-        }
+            entities: [],
+          },
+        },
       };
-    }
+    },
   },
   data: () => ({
     query: [
@@ -242,16 +247,16 @@ export const Groups = () => ({
                   { id: 2, individual: { mk: 2 } },
                   { id: 3, individual: { mk: 3 } },
                   { id: 4, individual: { mk: 4 } },
-                  { id: 5, individual: { mk: 5 } }
-                ]
+                  { id: 5, individual: { mk: 5 } },
+                ],
               },
               {
                 id: 2,
                 name: "Extraordinary Society of Potioneers",
                 enrollments: [
                   { id: 1, individual: { mk: 1 } },
-                  { id: 2, individual: { mk: 2 } }
-                ]
+                  { id: 2, individual: { mk: 2 } },
+                ],
               },
               {
                 id: 3,
@@ -259,18 +264,18 @@ export const Groups = () => ({
                 enrollments: [
                   { id: 1, individual: { mk: 1 } },
                   { id: 2, individual: { mk: 2 } },
-                  { id: 3, individual: { mk: 3 } }
-                ]
-              }
+                  { id: 3, individual: { mk: 3 } },
+                ],
+              },
             ],
             pageInfo: {
               page: 1,
               pageSize: 3,
               numPages: 2,
-              totalResults: 5
-            }
-          }
-        }
+              totalResults: 5,
+            },
+          },
+        },
       },
       {
         data: {
@@ -283,8 +288,8 @@ export const Groups = () => ({
                   { id: 1, individual: { mk: 1 } },
                   { id: 2, individual: { mk: 2 } },
                   { id: 3, individual: { mk: 3 } },
-                  { id: 4, individual: { mk: 4 } }
-                ]
+                  { id: 4, individual: { mk: 4 } },
+                ],
               },
               {
                 id: 5,
@@ -292,29 +297,29 @@ export const Groups = () => ({
                 enrollments: [
                   { id: 1, individual: { mk: 1 } },
                   { id: 2, individual: { mk: 2 } },
-                  { id: 3, individual: { mk: 3 } }
-                ]
+                  { id: 3, individual: { mk: 3 } },
+                ],
               },
               {
                 id: 6,
                 name: "Duelling Club",
                 enrollments: [
                   { id: 1, individual: { mk: 1 } },
-                  { id: 2, individual: { mk: 2 } }
-                ]
-              }
+                  { id: 2, individual: { mk: 2 } },
+                ],
+              },
             ],
             pageInfo: {
               page: 2,
               pageSize: 3,
               numPages: 2,
-              totalResults: 5
-            }
-          }
-        }
-      }
+              totalResults: 5,
+            },
+          },
+        },
+      },
     ],
     isGroup: true,
-    name: "Groups"
-  })
+    name: "Groups",
+  }),
 });

@@ -15,18 +15,18 @@ const deleteResponse = {
   data: {
     deleteIdentity: {
       uuid: "5f06473815dc415c9861680de8101813d9eb18e8",
-      __typename: "DeleteIdentity"
-    }
-  }
+      __typename: "DeleteIdentity",
+    },
+  },
 };
 
 const mergeResponse = {
   data: {
     merge: {
       uuid: "33697bad47122a2093d9edbbe179a72298971fd1",
-      __typename: "Merge"
-    }
-  }
+      __typename: "Merge",
+    },
+  },
 };
 
 const unmergeResponse = {
@@ -34,14 +34,14 @@ const unmergeResponse = {
     unmergeIdentities: {
       uuids: [
         "3db176be6859adac3a454c5377af81b1b7e3f8d8",
-        "10982379421b80e13266db011d6e5131dd519016"
+        "10982379421b80e13266db011d6e5131dd519016",
       ],
       individuals: [
         {
           profile: {
             name: "Test 11",
             id: "260",
-            isBot: false
+            isBot: false,
           },
           identities: [
             {
@@ -49,16 +49,16 @@ const unmergeResponse = {
               source: "git",
               email: "test11@example.net",
               uuid: "3db176be6859adac3a454c5377af81b1b7e3f8d8",
-              username: "tes39"
-            }
+              username: "tes39",
+            },
           ],
-          enrollments: []
+          enrollments: [],
         },
         {
           profile: {
             name: "Test 4",
             id: "255",
-            isBot: false
+            isBot: false,
           },
           identities: [
             {
@@ -66,14 +66,14 @@ const unmergeResponse = {
               source: "test",
               email: "test4@example.net",
               uuid: "10982379421b80e13266db011d6e5131dd519016",
-              username: "test4"
-            }
+              username: "test4",
+            },
           ],
-          enrollments: []
-        }
-      ]
-    }
-  }
+          enrollments: [],
+        },
+      ],
+    },
+  },
 };
 
 const moveResponse = {
@@ -85,12 +85,12 @@ const moveResponse = {
         identities: [{ source: "git" }, { source: "gitlab" }],
         profile: {
           name: "Test",
-          id: "254"
+          id: "254",
         },
-        enrollments: []
-      }
-    }
-  }
+        enrollments: [],
+      },
+    },
+  },
 };
 
 const enrollResponse = {
@@ -105,25 +105,25 @@ const enrollResponse = {
             source: "git",
             email: "teste@example.net",
             uuid: "4df20c13824ce60c2249a9b947d6c55dc0ba26a4",
-            username: "test"
-          }
+            username: "test",
+          },
         ],
         profile: {
           name: "Test",
-          id: "7"
+          id: "7",
         },
         enrollments: [
           {
             start: "1900-01-01T00:00:00+00:00",
             end: "2100-01-01T00:00:00+00:00",
             group: {
-              name: "Organization"
-            }
-          }
-        ]
-      }
-    }
-  }
+              name: "Organization",
+            },
+          },
+        ],
+      },
+    },
+  },
 };
 
 const addOrganizationResponse = {
@@ -131,11 +131,11 @@ const addOrganizationResponse = {
     addOrganization: {
       organization: {
         name: "Name",
-        __typename: "OrganizationType"
+        __typename: "OrganizationType",
       },
-      __typename: "AddOrganization"
-    }
-  }
+      __typename: "AddOrganization",
+    },
+  },
 };
 
 const addTeamResponse = {
@@ -143,11 +143,11 @@ const addTeamResponse = {
     addTeam: {
       team: {
         name: "Name",
-        __typename: "TeamType"
+        __typename: "TeamType",
       },
-      __typename: "AddTeam"
-    }
-  }
+      __typename: "AddTeam",
+    },
+  },
 };
 
 const paginatedTeams = {
@@ -156,23 +156,23 @@ const paginatedTeams = {
       entities: [
         {
           name: "Test 1",
-          __typename: "TeamType"
+          __typename: "TeamType",
         },
         {
           name: "Test 2",
-          __typename: "TeamType"
-        }
+          __typename: "TeamType",
+        },
       ],
       pageInfo: {
         page: 1,
         pageSize: 10,
         numPages: 1,
         totalResults: 2,
-        __typename: "PaginationType"
+        __typename: "PaginationType",
       },
-      __typename: "TeamPaginatedType"
-    }
-  }
+      __typename: "TeamPaginatedType",
+    },
+  },
 };
 
 const addDomainResponse = {
@@ -181,36 +181,36 @@ const addDomainResponse = {
       domain: {
         domain: "domain.com",
         organization: {
-          name: "Organization"
-        }
-      }
-    }
-  }
+          name: "Organization",
+        },
+      },
+    },
+  },
 };
 
 const addIdentityResponse = {
   data: {
     addIdentity: {
       uuid: "002bad315c34120cdfa2b1e26b3ca88ce36bc183",
-      __typename: "AddIdentity"
-    }
-  }
+      __typename: "AddIdentity",
+    },
+  },
 };
 
 const tokenResponse = {
   data: {
     tokenAuth: {
-      token: "eyJ0eXAiOiJKV1QiL"
-    }
-  }
+      token: "eyJ0eXAiOiJKV1QiL",
+    },
+  },
 };
 
 const withdrawResponse = {
   data: {
     withdraw: {
-      uuid: "4df20c13824ce60c2249a9b947d6c55dc0ba26a4"
-    }
-  }
+      uuid: "4df20c13824ce60c2249a9b947d6c55dc0ba26a4",
+    },
+  },
 };
 
 const deleteOrganizationResponse = {
@@ -218,11 +218,11 @@ const deleteOrganizationResponse = {
     deleteOrganization: {
       organization: {
         name: "Organization",
-        __typename: "OrganizationType"
+        __typename: "OrganizationType",
       },
-      __typename: "DeleteOrganization"
-    }
-  }
+      __typename: "DeleteOrganization",
+    },
+  },
 };
 
 const updateEnrollmentResponse = {
@@ -236,32 +236,32 @@ const updateEnrollmentResponse = {
             end: "2020-12-24T00:00:00+00:00",
             group: {
               name: "Organization",
-              __typename: "GroupType"
+              __typename: "GroupType",
             },
-            __typename: "EnrollmentType"
-          }
+            __typename: "EnrollmentType",
+          },
         ],
-        __typename: "IndividualType"
+        __typename: "IndividualType",
       },
-      __typename: "UpdateEnrollment"
-    }
-  }
+      __typename: "UpdateEnrollment",
+    },
+  },
 };
 
 const affiliateResponse = {
-  data: { affiliate: { jobId: "384f26af-aae4-4c73-96af-e0af90a4cdf3" }}
+  data: { affiliate: { jobId: "384f26af-aae4-4c73-96af-e0af90a4cdf3" } },
 };
 
 const genderizeResponse = {
-  data: { genderize: { jobId: "384f26af-aae4-4c73-96af-e0af90a4cdf3" }}
+  data: { genderize: { jobId: "384f26af-aae4-4c73-96af-e0af90a4cdf3" } },
 };
 
 const unifyResponse = {
-  data: { unify: { jobId: "384f26af-aae4-4c73-96af-e0af90a4cdf3" }}
+  data: { unify: { jobId: "384f26af-aae4-4c73-96af-e0af90a4cdf3" } },
 };
 
 describe("IndividualsTable", () => {
-  const mountFunction = options => {
+  const mountFunction = (options) => {
     return shallowMount(IndividualsTable, {
       Vue,
       propsData: {
@@ -278,9 +278,9 @@ describe("IndividualsTable", () => {
         lockIndividual: () => {},
         unlockIndividual: () => {},
         withdraw: () => {},
-        updateEnrollment: () => {}
+        updateEnrollment: () => {},
       },
-      ...options
+      ...options,
     });
   };
 
@@ -289,9 +289,9 @@ describe("IndividualsTable", () => {
     const wrapper = mountFunction({
       mocks: {
         $apollo: {
-          mutate
-        }
-      }
+          mutate,
+        },
+      },
     });
     await wrapper.setProps({ deleteItem: mutate });
     const response = await Mutations.deleteIdentity(
@@ -308,9 +308,9 @@ describe("IndividualsTable", () => {
     const wrapper = mountFunction({
       mocks: {
         $apollo: {
-          mutate
-        }
-      }
+          mutate,
+        },
+      },
     });
     await wrapper.setProps({ mergeItems: mutate });
     const response = await Mutations.deleteIdentity(
@@ -327,14 +327,14 @@ describe("IndividualsTable", () => {
     const wrapper = mountFunction({
       mocks: {
         $apollo: {
-          mutate
-        }
-      }
+          mutate,
+        },
+      },
     });
     await wrapper.setProps({ unmergeItems: mutate });
     const response = await Mutations.unmerge(wrapper.vm.$apollo, [
       "3db176be6859adac3a454c5377af81b1b7e3f8d8",
-      "10982379421b80e13266db011d6e5131dd519016"
+      "10982379421b80e13266db011d6e5131dd519016",
     ]);
 
     expect(mutate).toBeCalled();
@@ -346,9 +346,9 @@ describe("IndividualsTable", () => {
     const wrapper = mountFunction({
       mocks: {
         $apollo: {
-          mutate
-        }
-      }
+          mutate,
+        },
+      },
     });
     await wrapper.setProps({ moveItem: mutate });
     const response = await Mutations.moveIdentity(
@@ -366,9 +366,9 @@ describe("IndividualsTable", () => {
     const wrapper = mountFunction({
       mocks: {
         $apollo: {
-          mutate
-        }
-      }
+          mutate,
+        },
+      },
     });
     await wrapper.setProps({ withdraw: mutate });
     const response = await Mutations.withdraw(
@@ -386,9 +386,9 @@ describe("IndividualsTable", () => {
     const wrapper = mountFunction({
       mocks: {
         $apollo: {
-          mutate
-        }
-      }
+          mutate,
+        },
+      },
     });
     await wrapper.setProps({ updateEnrollment: mutate });
     const enrollment = {
@@ -397,7 +397,7 @@ describe("IndividualsTable", () => {
       group: "Organization",
       toDate: "2020-12-24T00:00:00+00:00",
       newToDate: "2020-12-24T00:00:00+00:00",
-      uuid: "06e6903c91180835b6ee91dd56782c6ca72bc562"
+      uuid: "06e6903c91180835b6ee91dd56782c6ca72bc562",
     };
     const response = await Mutations.updateEnrollment(
       wrapper.vm.$apollo,
@@ -416,8 +416,8 @@ describe("OrganizationsTable", () => {
       Vue,
       mocks: {
         $apollo: {
-          mutate
-        }
+          mutate,
+        },
       },
       propsData: {
         enroll: mutate,
@@ -428,8 +428,8 @@ describe("OrganizationsTable", () => {
         deleteOrganization: () => {},
         addTeam: () => {},
         deleteTeam: () => {},
-        fetchTeams: () => {}
-      }
+        fetchTeams: () => {},
+      },
     });
 
     const response = await Mutations.enroll(
@@ -448,8 +448,8 @@ describe("OrganizationsTable", () => {
       Vue,
       mocks: {
         $apollo: {
-          mutate
-        }
+          mutate,
+        },
       },
       propsData: {
         enroll: mutate,
@@ -460,8 +460,8 @@ describe("OrganizationsTable", () => {
         deleteOrganization: () => {},
         addTeam: () => {},
         deleteTeam: () => {},
-        fetchTeams: () => {}
-      }
+        fetchTeams: () => {},
+      },
     });
 
     const response = await Mutations.addOrganization(
@@ -479,8 +479,8 @@ describe("OrganizationsTable", () => {
       Vue,
       mocks: {
         $apollo: {
-          mutate
-        }
+          mutate,
+        },
       },
       propsData: {
         enroll: () => {},
@@ -491,8 +491,8 @@ describe("OrganizationsTable", () => {
         deleteOrganization: () => {},
         addTeam: () => {},
         deleteTeam: () => {},
-        fetchTeams: () => {}
-      }
+        fetchTeams: () => {},
+      },
     });
 
     const response = await Mutations.addDomain(
@@ -511,8 +511,8 @@ describe("OrganizationsTable", () => {
       Vue,
       mocks: {
         $apollo: {
-          mutate
-        }
+          mutate,
+        },
       },
       propsData: {
         enroll: () => {},
@@ -523,8 +523,8 @@ describe("OrganizationsTable", () => {
         deleteOrganization: () => {},
         addTeam: () => {},
         deleteTeam: () => {},
-        fetchTeams: () => {}
-      }
+        fetchTeams: () => {},
+      },
     });
 
     const response = await Mutations.addDomain(
@@ -542,8 +542,8 @@ describe("OrganizationsTable", () => {
       Vue,
       mocks: {
         $apollo: {
-          mutate
-        }
+          mutate,
+        },
       },
       propsData: {
         enroll: () => {},
@@ -554,8 +554,8 @@ describe("OrganizationsTable", () => {
         deleteOrganization: mutate,
         addTeam: () => {},
         deleteTeam: () => {},
-        fetchTeams: () => {}
-      }
+        fetchTeams: () => {},
+      },
     });
 
     const response = await Mutations.deleteOrganization(
@@ -574,16 +574,16 @@ describe("ProfileModal", () => {
       Vue,
       mocks: {
         $apollo: {
-          mutate
-        }
+          mutate,
+        },
       },
       propsData: {
         addIdentity: mutate,
         updateProfile: () => {},
         enroll: () => {},
         getCountries: () => {},
-        fetchOrganizations: () => {}
-      }
+        fetchOrganizations: () => {},
+      },
     });
 
     const response = await Mutations.addIdentity(
@@ -604,8 +604,8 @@ describe("ProfileModal", () => {
       Vue,
       mocks: {
         $apollo: {
-          mutate
-        }
+          mutate,
+        },
       },
       propsData: {
         addIdentity: () => {},
@@ -613,14 +613,14 @@ describe("ProfileModal", () => {
         enroll: () => {},
         getCountries: () => {},
         fetchOrganizations: () => {},
-      }
+      },
     });
 
     const response = await Mutations.addIdentity(
       wrapper.vm.$apollo,
       {
         gender: "gender",
-        isBot: true
+        isBot: true,
       },
       "002bad315c34120cdfa2b1e26b3ca88ce36bc183"
     );
@@ -637,9 +637,9 @@ describe("Login", () => {
       Vue,
       mocks: {
         $apollo: {
-          mutate
-        }
-      }
+          mutate,
+        },
+      },
     });
 
     const response = await Mutations.tokenAuth(
@@ -660,15 +660,15 @@ describe("TeamModal", () => {
       Vue,
       mocks: {
         $apollo: {
-          mutate
-        }
+          mutate,
+        },
       },
       propsData: {
         fetchTeams: () => paginatedTeams,
         addTeam: mutate,
         deleteTeam: () => {},
-        parent: "Parent Organization"
-      }
+        parent: "Parent Organization",
+      },
     });
 
     const response = await Mutations.addTeam(wrapper.vm.$apollo, "test");
@@ -683,15 +683,15 @@ describe("TeamModal", () => {
       Vue,
       mocks: {
         $apollo: {
-          mutate
-        }
+          mutate,
+        },
       },
       propsData: {
         fetchTeams: () => paginatedTeams,
         addTeam: () => {},
         deleteTeam: mutate,
-        parent: "Parent Organization"
-      }
+        parent: "Parent Organization",
+      },
     });
 
     const response = await Mutations.deleteTeam(wrapper.vm.$apollo, "test");
@@ -708,12 +708,12 @@ describe("Jobs", () => {
       Vue,
       mocks: {
         $apollo: {
-          mutate
-        }
-      }
+          mutate,
+        },
+      },
     });
 
-    await wrapper.vm.affiliate()
+    await wrapper.vm.affiliate();
 
     expect(mutate).toBeCalled();
     expect(wrapper.element).toMatchSnapshot();
@@ -725,14 +725,14 @@ describe("Jobs", () => {
       Vue,
       mocks: {
         $apollo: {
-          mutate
-        }
-      }
+          mutate,
+        },
+      },
     });
 
     await wrapper.vm.genderize({
       exclude: false,
-      noStrictMatching: true
+      noStrictMatching: true,
     });
 
     expect(mutate).toBeCalled();
@@ -745,14 +745,14 @@ describe("Jobs", () => {
       Vue,
       mocks: {
         $apollo: {
-          mutate
-        }
-      }
+          mutate,
+        },
+      },
     });
 
     await wrapper.vm.unify({
       criteria: ["name"],
-      exclude: false
+      exclude: false,
     });
 
     expect(mutate).toBeCalled();

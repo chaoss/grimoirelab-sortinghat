@@ -155,28 +155,28 @@ export default {
     isOpen: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
     addIdentity: {
       type: Function,
-      required: true
+      required: true,
     },
     updateProfile: {
       type: Function,
-      required: true
+      required: true,
     },
     enroll: {
       type: Function,
-      required: true
+      required: true,
     },
     getCountries: {
       type: Function,
-      required: true
+      required: true,
     },
     fetchOrganizations: {
       type: Function,
-      required: true
-    }
+      required: true,
+    },
   },
   data() {
     return {
@@ -188,29 +188,29 @@ export default {
         nationality: "",
         gender: "",
         isBot: false,
-        countries: []
+        countries: [],
       },
       enrollmentsForm: [
         {
           organization: "",
           fromDate: "",
-          toDate: ""
-        }
+          toDate: "",
+        },
       ],
       savedData: {
         individual: undefined,
         profile: undefined,
-        enrollments: undefined
+        enrollments: undefined,
       },
       validations: {
-        required: [value => !!value || "Required"],
+        required: [(value) => !!value || "Required"],
         email: [
-          value =>
-            (value ? /\S+@\S+\.\S+/.test(value) : true) || "Invalid email"
-        ]
+          (value) =>
+            (value ? /\S+@\S+\.\S+/.test(value) : true) || "Invalid email",
+        ],
       },
       errorMessage: "",
-      countries: []
+      countries: [],
     };
   },
   computed: {
@@ -218,16 +218,16 @@ export default {
       return [
         this.profileForm.name,
         this.profileForm.email,
-        this.profileForm.username
-      ].every(value => value === "");
-    }
+        this.profileForm.username,
+      ].every((value) => value === "");
+    },
   },
   methods: {
     addInput() {
       this.enrollmentsForm.push({
         organization: "",
         fromDate: "",
-        toDate: ""
+        toDate: "",
       });
     },
     removeEnrollment(index) {
@@ -241,13 +241,13 @@ export default {
         {
           organization: "",
           fromDate: "",
-          toDate: ""
-        }
+          toDate: "",
+        },
       ];
       this.savedData = {
         individual: undefined,
         profile: undefined,
-        enrollments: undefined
+        enrollments: undefined,
       };
       this.errorMessage = "";
     },
@@ -283,7 +283,7 @@ export default {
         name: this.profileForm.name === "" ? null : this.profileForm.name,
         source: this.profileForm.source,
         username:
-          this.profileForm.username === "" ? null : this.profileForm.username
+          this.profileForm.username === "" ? null : this.profileForm.username,
       };
       try {
         const response = await this.addIdentity(
@@ -308,7 +308,7 @@ export default {
         countryCode: this.profileForm.country
           ? this.profileForm.country.code
           : null,
-        isBot: this.profileForm.isBot
+        isBot: this.profileForm.isBot,
       };
       try {
         const response = await this.updateProfile(data, uuid);
@@ -325,7 +325,7 @@ export default {
     async addEnrollments() {
       try {
         const response = await Promise.all(
-          this.enrollmentsForm.map(enrollment => {
+          this.enrollmentsForm.map((enrollment) => {
             if (enrollment.organization) {
               const response = this.enroll(
                 this.savedData.individual,
@@ -339,7 +339,7 @@ export default {
                   uuid: this.savedData.individual,
                   organization: enrollment.organization,
                   fromDate: enrollment.fromDate,
-                  toDate: enrollment.toDate
+                  toDate: enrollment.toDate,
                 }
               );
               return response;
@@ -363,7 +363,7 @@ export default {
       if (response) {
         this.countries = response;
       }
-    }
-  }
+    },
+  },
 };
 </script>

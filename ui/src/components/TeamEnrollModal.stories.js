@@ -2,7 +2,7 @@ import TeamEnrollModal from "./TeamEnrollModal.vue";
 
 export default {
   title: "TeamEnrollModal",
-  excludeStories: /.*Data$/
+  excludeStories: /.*Data$/,
 };
 
 const template = `
@@ -24,13 +24,13 @@ export const Default = () => ({
   template: template,
   data: () => ({
     isOpen: false,
-    organization: "Hogwarts"
+    organization: "Hogwarts",
   }),
   methods: {
     enroll() {
       return true;
-    }
-  }
+    },
+  },
 });
 
 export const ErrorOnSave = () => ({
@@ -38,11 +38,11 @@ export const ErrorOnSave = () => ({
   template: template,
   data: () => ({
     isOpen: false,
-    organization: "Hogwarts"
+    organization: "Hogwarts",
   }),
   methods: {
     enroll() {
       throw "Example error";
-    }
-  }
+    },
+  },
 });
