@@ -235,9 +235,9 @@ const getIndividualByUuid = (apollo, uuid) => {
   let response = apollo.query({
     query: GET_INDIVIDUAL_BYUUID,
     variables: {
-      uuid: uuid
+      uuid: uuid,
     },
-    fetchPolicy: "no-cache"
+    fetchPolicy: "no-cache",
   });
   return response;
 };
@@ -246,7 +246,7 @@ const getIndividuals = {
   currentPage: 1,
   numPages: 1,
   pageSize: 10,
-  query: async function(apollo, pageSize) {
+  query: async function (apollo, pageSize) {
     let self = this;
     if (pageSize) {
       self.pageSize = pageSize;
@@ -255,8 +255,8 @@ const getIndividuals = {
       query: GET_INDIVIDUALS,
       variables: {
         page: self.currentPage,
-        pageSize: pageSize
-      }
+        pageSize: pageSize,
+      },
     });
     self.numPages = response.data.individuals.pageInfo.numPages;
     if (self.currentPage > self.numPages) {
@@ -264,7 +264,7 @@ const getIndividuals = {
     }
     self.currentPage++;
     return response;
-  }
+  },
 };
 
 const getPaginatedIndividuals = (
@@ -280,9 +280,9 @@ const getPaginatedIndividuals = (
       page: currentPage,
       pageSize: pageSize,
       filters: filters,
-      orderBy: orderBy
+      orderBy: orderBy,
     },
-    fetchPolicy: "no-cache"
+    fetchPolicy: "no-cache",
   });
   return response;
 };
@@ -291,8 +291,8 @@ const getProfileByUuid = (apollo, uuid) => {
   let response = apollo.query({
     query: GET_PROFILE_BYUUID,
     variables: {
-      uuid: uuid
-    }
+      uuid: uuid,
+    },
   });
   return response;
 };
@@ -303,16 +303,16 @@ const getPaginatedOrganizations = (apollo, currentPage, pageSize, filters) => {
     variables: {
       page: currentPage,
       pageSize: pageSize,
-      filters: filters
+      filters: filters,
     },
-    fetchPolicy: "no-cache"
+    fetchPolicy: "no-cache",
   });
   return response;
 };
 
-const getCountries = apollo => {
+const getCountries = (apollo) => {
   let response = apollo.query({
-    query: GET_COUNTRIES
+    query: GET_COUNTRIES,
   });
   return response;
 };
@@ -322,9 +322,9 @@ const getJobs = (apollo, page, pageSize) => {
     query: GET_JOBS,
     variables: {
       page: page,
-      pageSize: pageSize
+      pageSize: pageSize,
     },
-    fetchPolicy: "no-cache"
+    fetchPolicy: "no-cache",
   });
   return response;
 };
@@ -333,9 +333,9 @@ const getTeams = (apollo, filters) => {
   let response = apollo.query({
     query: GET_TEAMS,
     variables: {
-      filters: filters
+      filters: filters,
     },
-    fetchPolicy: "no-cache"
+    fetchPolicy: "no-cache",
   });
   return response;
 };
@@ -346,17 +346,17 @@ const getGroups = (apollo, page, pageSize, filters) => {
     variables: {
       page: page,
       pageSize: pageSize,
-      filters: filters
+      filters: filters,
     },
-    fetchPolicy: "no-cache"
+    fetchPolicy: "no-cache",
   });
   return response;
 };
 
-const getRecommendedMergesCount = apollo => {
+const getRecommendedMergesCount = (apollo) => {
   return apollo.query({
     query: GET_TOTAL_RECOMMENDED_MERGES,
-    fetchPolicy: "no-cache"
+    fetchPolicy: "no-cache",
   });
 };
 
@@ -365,9 +365,9 @@ const getPaginatedMergeRecommendations = (apollo, page, pageSize) => {
     query: GET_PAGINATED_RECOMMENDED_MERGE,
     variables: {
       page: page,
-      pageSize: pageSize
+      pageSize: pageSize,
     },
-    fetchPolicy: "no-cache"
+    fetchPolicy: "no-cache",
   });
 };
 
@@ -382,5 +382,5 @@ export {
   getJobs,
   getGroups,
   getRecommendedMergesCount,
-  getPaginatedMergeRecommendations
+  getPaginatedMergeRecommendations,
 };

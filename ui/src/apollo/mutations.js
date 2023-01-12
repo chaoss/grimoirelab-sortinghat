@@ -300,8 +300,8 @@ const tokenAuth = (apollo, username, password) => {
     mutation: TOKEN_AUTH,
     variables: {
       username: username,
-      password: password
-    }
+      password: password,
+    },
   });
   return response;
 };
@@ -310,8 +310,8 @@ const lockIndividual = (apollo, uuid) => {
   let response = apollo.mutate({
     mutation: LOCK_INDIVIDUAL,
     variables: {
-      uuid: uuid
-    }
+      uuid: uuid,
+    },
   });
   return response;
 };
@@ -320,8 +320,8 @@ const unlockIndividual = (apollo, uuid) => {
   let response = apollo.mutate({
     mutation: UNLOCK_INDIVIDUAL,
     variables: {
-      uuid: uuid
-    }
+      uuid: uuid,
+    },
   });
   return response;
 };
@@ -330,8 +330,8 @@ const deleteIdentity = (apollo, uuid) => {
   let response = apollo.mutate({
     mutation: DELETE_IDENTITY,
     variables: {
-      uuid: uuid
-    }
+      uuid: uuid,
+    },
   });
   return response;
 };
@@ -341,8 +341,8 @@ const merge = (apollo, fromUuids, toUuid) => {
     mutation: MERGE,
     variables: {
       fromUuids: fromUuids,
-      toUuid: toUuid
-    }
+      toUuid: toUuid,
+    },
   });
   return response;
 };
@@ -351,8 +351,8 @@ const unmerge = (apollo, uuids) => {
   let response = apollo.mutate({
     mutation: UNMERGE,
     variables: {
-      uuids: uuids
-    }
+      uuids: uuids,
+    },
   });
   return response;
 };
@@ -362,8 +362,8 @@ const moveIdentity = (apollo, fromUuid, toUuid) => {
     mutation: MOVE_IDENTITY,
     variables: {
       fromUuid: fromUuid,
-      toUuid: toUuid
-    }
+      toUuid: toUuid,
+    },
   });
   return response;
 };
@@ -376,8 +376,8 @@ const enroll = (apollo, uuid, group, fromDate, toDate, parentOrg) => {
       group: group,
       fromDate: fromDate,
       toDate: toDate,
-      parentOrg: parentOrg
-    }
+      parentOrg: parentOrg,
+    },
   });
   return response;
 };
@@ -389,8 +389,8 @@ const addIdentity = (apollo, email, name, source, username) => {
       email: email,
       name: name,
       source: source,
-      username: username
-    }
+      username: username,
+    },
   });
   return response;
 };
@@ -400,8 +400,8 @@ const updateProfile = (apollo, data, uuid) => {
     mutation: UPDATE_PROFILE,
     variables: {
       data: data,
-      uuid: uuid
-    }
+      uuid: uuid,
+    },
   });
   return response;
 };
@@ -410,8 +410,8 @@ const addOrganization = (apollo, name) => {
   let response = apollo.mutate({
     mutation: ADD_ORGANIZATION,
     variables: {
-      name: name
-    }
+      name: name,
+    },
   });
   return response;
 };
@@ -422,8 +422,8 @@ const addTeam = (apollo, teamName, organization, parentName) => {
     variables: {
       teamName: teamName,
       organization: organization,
-      parentName: parentName
-    }
+      parentName: parentName,
+    },
   });
   return response;
 };
@@ -433,8 +433,8 @@ const addDomain = (apollo, domain, organization) => {
     mutation: ADD_DOMAIN,
     variables: {
       domain: domain,
-      organization: organization
-    }
+      organization: organization,
+    },
   });
   return response;
 };
@@ -442,7 +442,7 @@ const addDomain = (apollo, domain, organization) => {
 const deleteDomain = (apollo, domain) => {
   let response = apollo.mutate({
     mutation: DELETE_DOMAIN,
-    variables: { domain: domain }
+    variables: { domain: domain },
   });
   return response;
 };
@@ -455,8 +455,8 @@ const withdraw = (apollo, uuid, group, fromDate, toDate, parentOrg) => {
       group: group,
       fromDate: fromDate,
       toDate: toDate,
-      parentOrg: parentOrg
-    }
+      parentOrg: parentOrg,
+    },
   });
   return response;
 };
@@ -464,7 +464,7 @@ const withdraw = (apollo, uuid, group, fromDate, toDate, parentOrg) => {
 const deleteOrganization = (apollo, name) => {
   let response = apollo.mutate({
     mutation: DELETE_ORGANIZATION,
-    variables: { name: name }
+    variables: { name: name },
   });
   return response;
 };
@@ -474,8 +474,8 @@ const deleteTeam = (apollo, teamName, organization) => {
     mutation: DELETE_TEAM,
     variables: {
       teamName: teamName,
-      organization: organization
-    }
+      organization: organization,
+    },
   });
   return response;
 };
@@ -490,8 +490,8 @@ const updateEnrollment = (apollo, data) => {
       group: data.group,
       toDate: data.toDate,
       uuid: data.uuid,
-      parentOrg: data.parentOrg
-    }
+      parentOrg: data.parentOrg,
+    },
   });
   return response;
 };
@@ -500,8 +500,8 @@ const affiliate = (apollo, uuids) => {
   return apollo.mutate({
     mutation: AFFILIATE,
     variables: {
-      uuids: uuids
-    }
+      uuids: uuids,
+    },
   });
 };
 
@@ -511,8 +511,8 @@ const genderize = (apollo, exclude, noStrictMatching, uuids) => {
     variables: {
       uuids: uuids,
       exclude: exclude,
-      noStrictMatching: noStrictMatching
-    }
+      noStrictMatching: noStrictMatching,
+    },
   });
 };
 
@@ -521,8 +521,8 @@ const unify = (apollo, criteria, exclude) => {
     mutation: UNIFY,
     variables: {
       criteria: criteria,
-      exclude: exclude
-    }
+      exclude: exclude,
+    },
   });
 };
 
@@ -531,8 +531,8 @@ const manageMergeRecommendation = (apollo, id, apply) => {
     mutation: MANAGE_MERGE_RECOMMENDATION,
     variables: {
       recommendationId: id,
-      apply: apply
-    }
+      apply: apply,
+    },
   });
 };
 
@@ -558,5 +558,5 @@ export {
   affiliate,
   genderize,
   unify,
-  manageMergeRecommendation
+  manageMergeRecommendation,
 };

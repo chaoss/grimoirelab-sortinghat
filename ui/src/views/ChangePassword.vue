@@ -17,7 +17,7 @@
             class="mb-4"
             :error-messages="
               errors.old_password
-                ? errors.old_password.map(error => error.message)
+                ? errors.old_password.map((error) => error.message)
                 : []
             "
             outlined
@@ -32,7 +32,7 @@
             class="mb-4"
             :error-messages="
               errors.new_password1
-                ? errors.new_password1.map(error => error.message)
+                ? errors.new_password1.map((error) => error.message)
                 : []
             "
             outlined
@@ -47,7 +47,7 @@
             class="mb-4"
             :error-messages="
               errors.new_password2
-                ? errors.new_password2.map(error => error.message)
+                ? errors.new_password2.map((error) => error.message)
                 : []
             "
             outlined
@@ -80,7 +80,7 @@ export default {
     new_password1: "",
     new_password2: "",
     errors: {},
-    showForm: true
+    showForm: true,
   }),
   computed: {
     url() {
@@ -99,11 +99,11 @@ export default {
       const authtoken = Cookies.get("sh_authtoken");
       const headers = {
         "X-CSRFToken": csrftoken,
-        Authorization: `JWT ${authtoken}`
+        Authorization: `JWT ${authtoken}`,
       };
 
       return headers;
-    }
+    },
   },
   methods: {
     onSubmit() {
@@ -116,10 +116,10 @@ export default {
         method: "POST",
         credentials: "include",
         headers: this.headers,
-        body: body
+        body: body,
       })
-        .then(response => response.json())
-        .then(data => {
+        .then((response) => response.json())
+        .then((data) => {
           if (data.errors) {
             this.errors = data.errors;
             this.$logger.error("Error changing password", data);
@@ -128,7 +128,7 @@ export default {
             this.$logger.info(`Changed password for user ${data.updated}`);
           }
         });
-    }
-  }
+    },
+  },
 };
 </script>

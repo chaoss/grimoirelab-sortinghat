@@ -2,7 +2,7 @@ import ExpandedIndividual from "./ExpandedIndividual.vue";
 
 export default {
   title: "ExpandedIndividual",
-  excludeStories: /.*Data$/
+  excludeStories: /.*Data$/,
 };
 
 const expandedIndividualTemplate = `
@@ -28,7 +28,7 @@ export const Default = () => ({
       { code: "AG", name: "Antigua and Barbuda" },
       { code: "AI", name: "Anguilla" },
       { code: "AL", name: "Albania" },
-      { code: "AM", name: "Armenia" }
+      { code: "AM", name: "Armenia" },
     ],
     identities: [
       {
@@ -40,16 +40,16 @@ export const Default = () => ({
             name: "Tom Marvolo Riddle",
             email: "triddle@example.net",
             username: "triddle",
-            source: "GitHub"
+            source: "GitHub",
           },
           {
             uuid: "164e41c60c28698ac30b0d17176d3e720e036918",
             name: "Voldemort",
             email: "-",
             username: "voldemort",
-            source: "GitHub"
-          }
-        ]
+            source: "GitHub",
+          },
+        ],
       },
       {
         name: "Git",
@@ -60,9 +60,9 @@ export const Default = () => ({
             name: "voldemort",
             email: "voldemort@example.net",
             username: "-",
-            source: "git"
-          }
-        ]
+            source: "git",
+          },
+        ],
       },
       {
         name: "Others",
@@ -73,35 +73,35 @@ export const Default = () => ({
             name: "-",
             email: "-",
             username: "voldemort",
-            source: "irc"
-          }
-        ]
-      }
+            source: "irc",
+          },
+        ],
+      },
     ],
     enrollments: [
       {
         group: {
           name: "Slytherin",
-          id: "2"
+          id: "2",
         },
         start: "1938-09-01T00:00:00+00:00",
-        end: "1998-05-02T00:00:00+00:00"
+        end: "1998-05-02T00:00:00+00:00",
       },
       {
         group: {
           name: "Hogwarts School of Witchcraft and Wizardry",
-          id: "1"
+          id: "1",
         },
         start: "1938-09-01",
-        end: "1945-06-02T00:00:00+00:00"
-      }
-    ]
+        end: "1945-06-02T00:00:00+00:00",
+      },
+    ],
   }),
   methods: {
     getCountries() {
       return this.countries;
-    }
-  }
+    },
+  },
 });
 
 export const Compact = () => ({
@@ -121,16 +121,16 @@ export const Compact = () => ({
             name: "Tom Marvolo Riddle",
             email: "triddle@example.net",
             username: "triddle",
-            source: "GitHub"
+            source: "GitHub",
           },
           {
             uuid: "808b18",
             name: "Voldemort",
             email: "-",
             username: "voldemort",
-            source: "GitHub"
-          }
-        ]
+            source: "GitHub",
+          },
+        ],
       },
       {
         name: "Git",
@@ -141,9 +141,9 @@ export const Compact = () => ({
             name: "voldemort",
             email: "voldemort@example.net",
             username: "-",
-            source: "git"
-          }
-        ]
+            source: "git",
+          },
+        ],
       },
       {
         name: "Others",
@@ -154,35 +154,35 @@ export const Compact = () => ({
             name: "-",
             email: "-",
             username: "voldemort",
-            source: "irc"
-          }
-        ]
-      }
+            source: "irc",
+          },
+        ],
+      },
     ],
     enrollments: [
       {
         group: {
           name: "Slytherin",
-          id: "2"
+          id: "2",
         },
         start: "1938-09-01T00:00:00+00:00",
-        end: "1998-05-02T00:00:00+00:00"
+        end: "1998-05-02T00:00:00+00:00",
       },
       {
         group: {
           name: "Hogwarts School of Witchcraft and Wizardry",
-          id: "1"
+          id: "1",
         },
         start: "1938-09-01",
-        end: "1945-06-02T00:00:00+00:00"
-      }
-    ]
+        end: "1945-06-02T00:00:00+00:00",
+      },
+    ],
   }),
   methods: {
     getCountries() {
       return true;
-    }
-  }
+    },
+  },
 });
 
 export const NoOrganizations = () => ({
@@ -200,10 +200,10 @@ export const NoOrganizations = () => ({
             uuid: "164e41c60c28698ac30b0d17176d3e720e036918",
             name: "Hagrid",
             email: "hagrid@example.com",
-            username: "hagrid"
-          }
-        ]
-      }
+            username: "hagrid",
+          },
+        ],
+      },
     ],
     enrollments: [],
     countries: [
@@ -213,12 +213,12 @@ export const NoOrganizations = () => ({
       { code: "AG", name: "Antigua and Barbuda" },
       { code: "AI", name: "Anguilla" },
       { code: "AL", name: "Albania" },
-      { code: "AM", name: "Armenia" }
-    ]
+      { code: "AM", name: "Armenia" },
+    ],
   }),
   methods: {
     getCountries() {
       return this.countries;
-    }
-  }
+    },
+  },
 });

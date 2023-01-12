@@ -2,7 +2,7 @@ import IdentitiesList from "./IdentitiesList.vue";
 
 export default {
   title: "IdentitiesList",
-  excludeStories: /.*Data$/
+  excludeStories: /.*Data$/,
 };
 
 const template = `
@@ -22,16 +22,16 @@ const identities = [
         name: "Tom Marvolo Riddle",
         email: "triddle@example.net",
         username: "triddle",
-        source: "GitHub"
+        source: "GitHub",
       },
       {
         uuid: "164e41c60c28698ac30b0d17176d3e720e036918",
         name: "Voldemort",
         email: "-",
         username: "voldemort",
-        source: "GitHub"
-      }
-    ]
+        source: "GitHub",
+      },
+    ],
   },
   {
     name: "Git",
@@ -42,9 +42,9 @@ const identities = [
         name: "voldemort",
         email: "voldemort@example.net",
         username: "-",
-        source: "git"
-      }
-    ]
+        source: "git",
+      },
+    ],
   },
   {
     name: "Others",
@@ -55,10 +55,10 @@ const identities = [
         name: "-",
         email: "-",
         username: "voldemort",
-        source: "irc"
-      }
-    ]
-  }
+        source: "irc",
+      },
+    ],
+  },
 ];
 
 export const Default = () => ({
@@ -66,8 +66,8 @@ export const Default = () => ({
   template: template,
   data: () => ({
     identities: identities,
-    compact: false
-  })
+    compact: false,
+  }),
 });
 
 export const Compact = () => ({
@@ -75,6 +75,6 @@ export const Compact = () => ({
   template: template,
   data: () => ({
     identities: identities,
-    compact: true
-  })
+    compact: true,
+  }),
 });

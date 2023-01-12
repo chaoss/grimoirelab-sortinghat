@@ -2,7 +2,7 @@ import JobModal from "./JobModal.vue";
 
 export default {
   title: "JobModal",
-  excludeStories: /.*Data$/
+  excludeStories: /.*Data$/,
 };
 
 const JobModalTemplate = `
@@ -17,6 +17,6 @@ export const Default = () => ({
   components: { JobModal },
   template: JobModalTemplate,
   data: () => ({
-    open: false
-  })
+    open: false,
+  }),
 });

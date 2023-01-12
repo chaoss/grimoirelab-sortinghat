@@ -146,18 +146,14 @@
         </v-card-text>
         <v-card-actions v-if="dialog.action">
           <v-spacer></v-spacer>
-          <v-btn text @click="closeDialog">
-            Cancel
-          </v-btn>
+          <v-btn text @click="closeDialog"> Cancel </v-btn>
           <v-btn color="primary" depressed @click.stop="dialog.action">
             Confirm
           </v-btn>
         </v-card-actions>
         <v-card-actions v-else>
           <v-spacer></v-spacer>
-          <v-btn text color="primary" @click="closeDialog">
-            OK
-          </v-btn>
+          <v-btn text color="primary" @click="closeDialog"> OK </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -188,62 +184,62 @@ export default {
     OrganizationEntry,
     ExpandedOrganization,
     OrganizationModal,
-    Search
+    Search,
   },
   props: {
     name: {
       type: String,
       required: false,
-      default: "Organizations"
+      default: "Organizations",
     },
     isGroup: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
     enroll: {
       type: Function,
-      required: true
+      required: true,
     },
     fetchPage: {
       type: Function,
-      required: true
+      required: true,
     },
     fetchTeams: {
       type: Function,
-      required: true
+      required: true,
     },
     addOrganization: {
       type: Function,
-      required: true
+      required: true,
     },
     deleteOrganization: {
       type: Function,
-      required: true
+      required: true,
     },
     addTeam: {
       type: Function,
-      required: true
+      required: true,
     },
     deleteTeam: {
       type: Function,
-      required: true
+      required: true,
     },
     addDomain: {
       type: Function,
-      required: false
+      required: false,
     },
     deleteDomain: {
       type: Function,
-      required: false
-    }
+      required: false,
+    },
   },
   data() {
     return {
       headers: [
         { value: "name" },
         { value: "enrollments" },
-        { value: "actions" }
+        { value: "actions" },
       ],
       expandedItems: [],
       items: [],
@@ -256,20 +252,20 @@ export default {
         action: "",
         showDates: false,
         dateFrom: null,
-        dateTo: null
+        dateTo: null,
       },
       modal: {
         open: false,
         organization: undefined,
-        domains: []
+        domains: [],
       },
       selectedOrganization: "",
       filters: {},
       totalResults: 0,
       itemsPerPage: 10,
       forms: {
-        teamName: ""
-      }
+        teamName: "",
+      },
     };
   },
   created() {
@@ -297,22 +293,22 @@ export default {
             event.organization,
             this.dialog.dateFrom,
             this.dialog.dateTo
-          )
+          ),
       });
     },
     async enrollIndividuals(uuids, organization, dateFrom, dateTo) {
       this.closeDialog();
       try {
         const response = await Promise.all(
-          uuids.map(individual =>
+          uuids.map((individual) =>
             this.enroll(individual, organization, dateFrom, dateTo)
           )
         );
         if (response) {
           this.getTableItems(this.page);
-          response.forEach(res => {
+          response.forEach((res) => {
             this.$emit("updateWorkspace", {
-              update: formatIndividuals([res.data.enroll.individual])
+              update: formatIndividuals([res.data.enroll.individual]),
             });
           });
           this.$emit("updateIndividuals");
@@ -320,7 +316,7 @@ export default {
             organization,
             uuids,
             dateFrom,
-            dateTo
+            dateTo,
           });
         }
       } catch (error) {
@@ -328,25 +324,25 @@ export default {
           open: true,
           title: "Error",
           text: this.$getErrorMessage(error),
-          action: null
+          action: null,
         });
         this.$logger.error(`Error enrolling individuals: ${error}`, {
           organization,
           uuids,
           dateFrom,
-          dateTo
+          dateTo,
         });
       }
     },
     openModal(organization) {
       const domains =
         organization.domains && organization.domains.length > 0
-          ? organization.domains.map(domain => domain.domain)
+          ? organization.domains.map((domain) => domain.domain)
           : [""];
       Object.assign(this.modal, {
         open: true,
         organization: organization ? organization.name : "",
-        domains: domains
+        domains: domains,
       });
     },
     confirmDelete(group) {
@@ -354,7 +350,7 @@ export default {
         open: true,
         title: `Delete ${group}?`,
         text: "",
-        action: () => this.deleteGroup(group)
+        action: () => this.deleteGroup(group),
       });
     },
     async deleteGroup(item) {
@@ -371,7 +367,7 @@ export default {
           open: true,
           title: "Error",
           text: this.$getErrorMessage(error),
-          action: null
+          action: null,
         });
         this.$logger.error(`Error deleting ${item}: ${error}`);
       }
@@ -402,7 +398,7 @@ export default {
         action: "",
         showDates: false,
         dateFrom: null,
-        dateTo: null
+        dateTo: null,
       });
     },
     async addUnaffiliatedTeam() {
@@ -418,7 +414,7 @@ export default {
           open: true,
           title: "Error",
           text: this.$getErrorMessage(error),
-          action: null
+          action: null,
         });
         this.$logger.error(
           `Error adding team ${this.forms.teamName}: ${error}`
@@ -430,12 +426,12 @@ export default {
         return 0;
       }
       const uniqueIndividuals = new Set(
-        enrollments.map(item => item.individual.mk)
+        enrollments.map((item) => item.individual.mk)
       );
 
       return uniqueIndividuals.size;
-    }
-  }
+    },
+  },
 };
 </script>
 <style lang="scss" scoped>

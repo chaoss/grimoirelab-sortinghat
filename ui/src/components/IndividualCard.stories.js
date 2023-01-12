@@ -2,7 +2,7 @@ import IndividualCard from "./IndividualCard.vue";
 
 export default {
   title: "IndividualCard",
-  excludeStories: /.*Data$/
+  excludeStories: /.*Data$/,
 };
 
 const individualCardTemplate = `
@@ -25,97 +25,97 @@ export const Default = () => ({
   template: individualCardTemplate,
   props: {
     name: {
-      default: "Tom Marvolo Riddle"
+      default: "Tom Marvolo Riddle",
     },
     sources: {
-      default: () => []
+      default: () => [],
     },
     isLocked: {
-      default: false
+      default: false,
     },
     uuid: {
-      default: "10f546"
+      default: "10f546",
     },
     email: {
-      default: "triddle@example.net"
+      default: "triddle@example.net",
     },
     identities: {
-      default: () => []
+      default: () => [],
     },
     enrollments: {
-      default: () => []
+      default: () => [],
     },
     isHighlighted: {
-      default: false
+      default: false,
     },
     closable: {
-      default: false
+      default: false,
     },
     selectable: {
-      default: false
+      default: false,
     },
     isSelected: {
-      default: false
-    }
-  }
+      default: false,
+    },
+  },
 });
 export const SingleInitial = () => ({
   components: { IndividualCard },
   template: individualCardTemplate,
   props: {
     name: {
-      default: "Voldemort"
+      default: "Voldemort",
     },
     sources: {
-      default: () => []
+      default: () => [],
     },
     isLocked: {
-      default: false
+      default: false,
     },
     uuid: {
-      default: "10f546"
+      default: "10f546",
     },
     email: {
-      default: "voldemort@example.net"
+      default: "voldemort@example.net",
     },
     identities: {
-      default: () => []
+      default: () => [],
     },
     enrollments: {
-      default: () => []
+      default: () => [],
     },
     isHighlighted: {
-      default: false
+      default: false,
     },
     closable: {
-      default: false
+      default: false,
     },
     selectable: {
-      default: false
+      default: false,
     },
     isSelected: {
-      default: false
-    }
-  }
+      default: false,
+    },
+  },
 });
 export const NoName = () => ({
   components: { IndividualCard },
   template: individualCardTemplate,
   props: {
     name: {
-      default: ""
+      default: "",
     },
     sources: {
-      default: () => []
+      default: () => [],
     },
     isLocked: {
-      default: false
+      default: false,
     },
     uuid: {
-      default: "10f546"
+      default: "10f546",
     },
     email: {
-      default: "triddle@example.net"
+      default: "triddle@example.net",
     },
     identities: {
       default: () => [
@@ -128,55 +128,55 @@ export const NoName = () => ({
               source: "GitLab",
               email: "triddle@example.net",
               uuid: "03b3428ee",
-              username: "triddle"
-            }
-          ]
-        }
-      ]
+              username: "triddle",
+            },
+          ],
+        },
+      ],
     },
     enrollments: {
-      default: () => []
+      default: () => [],
     },
     isHighlighted: {
-      default: false
+      default: false,
     },
     closable: {
-      default: false
+      default: false,
     },
     selectable: {
-      default: false
+      default: false,
     },
     isSelected: {
-      default: false
-    }
-  }
+      default: false,
+    },
+  },
 });
 export const Sources = () => ({
   components: { IndividualCard },
   template: individualCardTemplate,
   props: {
     name: {
-      default: "Tom Marvolo Riddle"
+      default: "Tom Marvolo Riddle",
     },
     sources: {
       default: () => [
         { name: "git", icon: "mdi-git" },
         { name: "github", icon: "mdi-github" },
         { name: "gitlab", icon: "mdi-gitlab" },
-        { name: "Other sources", icon: "mdi-account-multiple" }
-      ]
+        { name: "Other sources", icon: "mdi-account-multiple" },
+      ],
     },
     isLocked: {
-      default: false
+      default: false,
     },
     uuid: {
-      default: "10f546"
+      default: "10f546",
     },
     email: {
-      default: "triddle@example.net"
+      default: "triddle@example.net",
     },
     isHighlighted: {
-      default: false
+      default: false,
     },
     identities: {
       default: () => [
@@ -189,9 +189,9 @@ export const Sources = () => ({
               source: "GitLab",
               email: "triddle@example.net",
               uuid: "03b3428ee",
-              username: "triddle"
-            }
-          ]
+              username: "triddle",
+            },
+          ],
         },
         {
           name: "GitHub",
@@ -202,9 +202,9 @@ export const Sources = () => ({
               name: "Voldemort",
               email: "-",
               username: "voldemort",
-              source: "github"
-            }
-          ]
+              source: "github",
+            },
+          ],
         },
         {
           name: "git",
@@ -215,88 +215,88 @@ export const Sources = () => ({
               name: "Tom Marvolo Riddle",
               email: "triddle@example.net",
               username: "triddle",
-              source: "git"
+              source: "git",
             },
             {
               uuid: "abce32",
               name: "voldemort",
               email: "voldemort@example.net",
               username: "-",
-              source: "git"
-            }
-          ]
-        }
-      ]
+              source: "git",
+            },
+          ],
+        },
+      ],
     },
     enrollments: {
-      default: () => []
+      default: () => [],
     },
     closable: {
-      default: false
+      default: false,
     },
     selectable: {
-      default: false
+      default: false,
     },
     isSelected: {
-      default: false
-    }
-  }
+      default: false,
+    },
+  },
 });
 export const Organization = () => ({
   components: { IndividualCard },
   template: individualCardTemplate,
   props: {
     name: {
-      default: "Tom Marvolo Riddle"
+      default: "Tom Marvolo Riddle",
     },
     sources: {
-      default: () => []
+      default: () => [],
     },
     isLocked: {
-      default: true
+      default: true,
     },
     uuid: {
-      default: "10f546"
+      default: "10f546",
     },
     email: {
-      default: "triddle@example.net"
+      default: "triddle@example.net",
     },
     isHighlighted: {
-      default: false
+      default: false,
     },
     identities: {
-      default: () => []
+      default: () => [],
     },
     enrollments: {
       default: () => [
         {
           group: {
             name: "Slytherin",
-            id: "2"
+            id: "2",
           },
           start: "1938-09-01T00:00:00+00:00",
-          end: "1998-05-02T00:00:00+00:00"
+          end: "1998-05-02T00:00:00+00:00",
         },
         {
           group: {
             name: "Hogwarts School of Witchcraft and Wizardry",
-            id: "1"
+            id: "1",
           },
           start: "1938-09-01",
-          end: "1945-06-02T00:00:00+00:00"
-        }
-      ]
+          end: "1945-06-02T00:00:00+00:00",
+        },
+      ],
     },
     closable: {
-      default: false
+      default: false,
     },
     selectable: {
-      default: false
+      default: false,
     },
     isSelected: {
-      default: false
-    }
-  }
+      default: false,
+    },
+  },
 });
 
 export const Highlighted = () => ({
@@ -304,39 +304,39 @@ export const Highlighted = () => ({
   template: individualCardTemplate,
   props: {
     name: {
-      default: "Tom Marvolo Riddle"
+      default: "Tom Marvolo Riddle",
     },
     sources: {
-      default: () => []
+      default: () => [],
     },
     isLocked: {
-      default: false
+      default: false,
     },
     uuid: {
-      default: "10f546"
+      default: "10f546",
     },
     email: {
-      default: "triddle@example.net"
+      default: "triddle@example.net",
     },
     isHighlighted: {
-      default: true
+      default: true,
     },
     identities: {
-      default: () => []
+      default: () => [],
     },
     enrollments: {
-      default: () => []
+      default: () => [],
     },
     closable: {
-      default: false
+      default: false,
     },
     selectable: {
-      default: false
+      default: false,
     },
     isSelected: {
-      default: false
-    }
-  }
+      default: false,
+    },
+  },
 });
 
 export const SourcesAndOrganization = () => ({
@@ -344,24 +344,24 @@ export const SourcesAndOrganization = () => ({
   template: individualCardTemplate,
   props: {
     name: {
-      default: "Tom Marvolo Riddle"
+      default: "Tom Marvolo Riddle",
     },
     sources: {
       default: () => [
         { name: "git", icon: "mdi-git" },
         { name: "github", icon: "mdi-github" },
         { name: "gitlab", icon: "mdi-gitlab" },
-        { name: "Other sources", icon: "mdi-account-multiple" }
-      ]
+        { name: "Other sources", icon: "mdi-account-multiple" },
+      ],
     },
     isLocked: {
-      default: true
+      default: true,
     },
     uuid: {
-      default: "10f546"
+      default: "10f546",
     },
     email: {
-      default: "triddle@example.net"
+      default: "triddle@example.net",
     },
     identities: {
       default: () => [
@@ -374,9 +374,9 @@ export const SourcesAndOrganization = () => ({
               source: "GitLab",
               email: "triddle@example.net",
               uuid: "03b3428ee",
-              username: "triddle"
-            }
-          ]
+              username: "triddle",
+            },
+          ],
         },
         {
           name: "GitHub",
@@ -387,9 +387,9 @@ export const SourcesAndOrganization = () => ({
               name: "Voldemort",
               email: "-",
               username: "voldemort",
-              source: "github"
-            }
-          ]
+              source: "github",
+            },
+          ],
         },
         {
           name: "git",
@@ -400,52 +400,52 @@ export const SourcesAndOrganization = () => ({
               name: "Tom Marvolo Riddle",
               email: "triddle@example.net",
               username: "triddle",
-              source: "git"
+              source: "git",
             },
             {
               uuid: "abce32",
               name: "voldemort",
               email: "voldemort@example.net",
               username: "-",
-              source: "git"
-            }
-          ]
-        }
-      ]
+              source: "git",
+            },
+          ],
+        },
+      ],
     },
     enrollments: {
       default: () => [
         {
           group: {
             name: "Slytherin",
-            id: "2"
+            id: "2",
           },
           start: "1938-09-01T00:00:00+00:00",
-          end: "1998-05-02T00:00:00+00:00"
+          end: "1998-05-02T00:00:00+00:00",
         },
         {
           group: {
             name: "Hogwarts School of Witchcraft and Wizardry",
-            id: "1"
+            id: "1",
           },
           start: "1938-09-01",
-          end: "1945-06-02T00:00:00+00:00"
-        }
-      ]
+          end: "1945-06-02T00:00:00+00:00",
+        },
+      ],
     },
     isHighlighted: {
-      default: false
+      default: false,
     },
     closable: {
-      default: false
+      default: false,
     },
     selectable: {
-      default: false
+      default: false,
     },
     isSelected: {
-      default: false
-    }
-  }
+      default: false,
+    },
+  },
 });
 
 export const Gravatar = () => ({
@@ -453,39 +453,39 @@ export const Gravatar = () => ({
   template: individualCardTemplate,
   props: {
     name: {
-      default: "Santiago Dueñas"
+      default: "Santiago Dueñas",
     },
     sources: {
-      default: () => []
+      default: () => [],
     },
     isLocked: {
-      default: false
+      default: false,
     },
     uuid: {
-      default: "10f546"
+      default: "10f546",
     },
     email: {
-      default: "sduenas@bitergia.com"
+      default: "sduenas@bitergia.com",
     },
     identities: {
-      default: () => []
+      default: () => [],
     },
     enrollments: {
-      default: () => []
+      default: () => [],
     },
     isHighlighted: {
-      default: false
+      default: false,
     },
     closable: {
-      default: false
+      default: false,
     },
     selectable: {
-      default: false
+      default: false,
     },
     isSelected: {
-      default: false
-    }
-  }
+      default: false,
+    },
+  },
 });
 
 export const Closable = () => ({
@@ -493,39 +493,39 @@ export const Closable = () => ({
   template: individualCardTemplate,
   props: {
     name: {
-      default: "Tom Marvolo Riddle"
+      default: "Tom Marvolo Riddle",
     },
     sources: {
-      default: () => []
+      default: () => [],
     },
     isLocked: {
-      default: false
+      default: false,
     },
     uuid: {
-      default: "10f546"
+      default: "10f546",
     },
     email: {
-      default: "triddle@example.net"
+      default: "triddle@example.net",
     },
     identities: {
-      default: () => []
+      default: () => [],
     },
     enrollments: {
-      default: () => []
+      default: () => [],
     },
     isHighlighted: {
-      default: false
+      default: false,
     },
     closable: {
-      default: true
+      default: true,
     },
     selectable: {
-      default: false
+      default: false,
     },
     isSelected: {
-      default: false
-    }
-  }
+      default: false,
+    },
+  },
 });
 
 export const Selectable = () => ({
@@ -533,39 +533,39 @@ export const Selectable = () => ({
   template: individualCardTemplate,
   props: {
     name: {
-      default: "Tom Marvolo Riddle"
+      default: "Tom Marvolo Riddle",
     },
     sources: {
-      default: () => []
+      default: () => [],
     },
     isLocked: {
-      default: false
+      default: false,
     },
     uuid: {
-      default: "10f546"
+      default: "10f546",
     },
     email: {
-      default: "triddle@example.net"
+      default: "triddle@example.net",
     },
     identities: {
-      default: () => []
+      default: () => [],
     },
     enrollments: {
-      default: () => []
+      default: () => [],
     },
     isHighlighted: {
-      default: false
+      default: false,
     },
     closable: {
-      default: false
+      default: false,
     },
     selectable: {
-      default: true
+      default: true,
     },
     isSelected: {
-      default: false
-    }
-  }
+      default: false,
+    },
+  },
 });
 
 export const Selected = () => ({
@@ -573,37 +573,37 @@ export const Selected = () => ({
   template: individualCardTemplate,
   props: {
     name: {
-      default: "Tom Marvolo Riddle"
+      default: "Tom Marvolo Riddle",
     },
     sources: {
-      default: () => []
+      default: () => [],
     },
     isLocked: {
-      default: false
+      default: false,
     },
     uuid: {
-      default: "10f546"
+      default: "10f546",
     },
     email: {
-      default: "triddle@example.net"
+      default: "triddle@example.net",
     },
     identities: {
-      default: () => []
+      default: () => [],
     },
     enrollments: {
-      default: () => []
+      default: () => [],
     },
     isHighlighted: {
-      default: false
+      default: false,
     },
     closable: {
-      default: false
+      default: false,
     },
     selectable: {
-      default: true
+      default: true,
     },
     isSelected: {
-      default: true
-    }
-  }
+      default: true,
+    },
+  },
 });

@@ -48,12 +48,12 @@ export default {
     username: "",
     password: "",
     showPassword: false,
-    errorMessage: ""
+    errorMessage: "",
   }),
   computed: {
     disableSubmit() {
       return this.username.length < 3 || this.password.length < 3;
-    }
+    },
   },
   methods: {
     ...mapActions(["login"]),
@@ -62,7 +62,7 @@ export default {
         const authDetails = {
           apollo: this.$apollo,
           username: this.username,
-          password: this.password
+          password: this.password,
         };
         const response = await this.login(authDetails);
         if (response) {
@@ -73,7 +73,7 @@ export default {
         this.errorMessage = this.$getErrorMessage(error);
         this.$logger.error(`Error logging in user ${this.username}: ${error}`);
       }
-    }
-  }
+    },
+  },
 };
 </script>

@@ -2,7 +2,7 @@ import EnrollModal from "./EnrollModal.vue";
 
 export default {
   title: "EnrollModal",
-  excludeStories: /.*Data$/
+  excludeStories: /.*Data$/,
 };
 
 const template = `
@@ -26,13 +26,13 @@ export const Default = () => ({
   data: () => ({
     isOpen: false,
     organization: null,
-    title: "Enroll individual to an organization"
+    title: "Enroll individual to an organization",
   }),
   methods: {
     enroll() {
       return true;
-    }
-  }
+    },
+  },
 });
 
 export const WithOrganization = () => ({
@@ -41,11 +41,11 @@ export const WithOrganization = () => ({
   data: () => ({
     isOpen: false,
     organization: "Hogwarts",
-    title: "Enroll individual to Hogwarts?"
+    title: "Enroll individual to Hogwarts?",
   }),
   methods: {
     enroll() {
       return true;
-    }
-  }
+    },
+  },
 });

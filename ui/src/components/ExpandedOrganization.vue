@@ -29,14 +29,12 @@
                   @click.stop="
                     $emit('getEnrollments', {
                       enrollment: item.name,
-                      parentOrg: organization
+                      parentOrg: organization,
                     })
                   "
                 >
                   {{ getEnrolledIndividuals(item.enrollments) }}
-                  <v-icon small right>
-                    mdi-account-multiple
-                  </v-icon>
+                  <v-icon small right> mdi-account-multiple </v-icon>
                 </v-btn>
               </template>
               <span>Enrollments</span>
@@ -63,47 +61,47 @@ import TeamModal from "./TeamModal.vue";
 export default {
   name: "ExpandedOrganization",
   components: {
-    TeamModal
+    TeamModal,
   },
   props: {
     domains: {
       type: Array,
-      required: false
+      required: false,
     },
     organization: {
       type: String,
-      required: true
+      required: true,
     },
     addTeam: {
       type: Function,
-      required: true
+      required: true,
     },
     deleteTeam: {
       type: Function,
-      required: true
+      required: true,
     },
     fetchTeams: {
       type: Function,
-      required: true
+      required: true,
     },
     isGroup: {
       type: Boolean,
       required: false,
-      default: false
-    }
+      default: false,
+    },
   },
   data() {
     return {
       teams: [],
       modal: {
-        open: false
-      }
+        open: false,
+      },
     };
   },
   computed: {
     hasSubteams() {
-      return this.teams.some(team => team.numchild > 0);
-    }
+      return this.teams.some((team) => team.numchild > 0);
+    },
   },
   methods: {
     openModal() {
@@ -122,15 +120,15 @@ export default {
         return 0;
       }
       const uniqueIndividuals = new Set(
-        enrollments.map(item => item.individual.mk)
+        enrollments.map((item) => item.individual.mk)
       );
 
       return uniqueIndividuals.size;
-    }
+    },
   },
   async created() {
     await this.getTeams();
-  }
+  },
 };
 </script>
 <style lang="scss" scoped>

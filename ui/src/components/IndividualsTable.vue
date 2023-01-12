@@ -2,16 +2,14 @@
   <section class="section">
     <v-row class="header">
       <h3 class="title">
-        <v-icon color="black" left dense>
-          mdi-account
-        </v-icon>
+        <v-icon color="black" left dense> mdi-account </v-icon>
         Individuals
         <v-chip pill small class="ml-2" data-cy="individual-counter">
           {{ totalResults }}
         </v-chip>
       </h3>
       <div>
-        <recommendations @updateTable="queryIndividuals"/>
+        <recommendations @updateTable="queryIndividuals" />
         <v-btn
           depressed
           small
@@ -48,16 +46,16 @@
         :order-options="[
           {
             text: 'Last updated',
-            value: 'lastModified'
+            value: 'lastModified',
           },
           {
             text: 'Created date',
-            value: 'createdAt'
+            value: 'createdAt',
           },
           {
             text: 'Name',
-            value: 'profile__name'
-          }
+            value: 'profile__name',
+          },
         ]"
         :set-filters="setFilters"
       />
@@ -208,9 +206,7 @@
         </v-card-text>
         <v-card-actions v-if="dialog.action">
           <v-spacer></v-spacer>
-          <v-btn text @click="closeDialog">
-            Cancel
-          </v-btn>
+          <v-btn text @click="closeDialog"> Cancel </v-btn>
           <v-btn
             color="primary"
             id="confirm"
@@ -222,9 +218,7 @@
         </v-card-actions>
         <v-card-actions v-else>
           <v-spacer></v-spacer>
-          <v-btn text color="primary" @click="closeDialog">
-            OK
-          </v-btn>
+          <v-btn text color="primary" @click="closeDialog"> OK </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -273,7 +267,7 @@
 import {
   mergeIndividuals,
   moveIdentity,
-  formatIndividuals
+  formatIndividuals,
 } from "../utils/actions";
 import { enrollMixin } from "../mixins/enroll";
 import IndividualEntry from "./IndividualEntry.vue";
@@ -293,74 +287,74 @@ export default {
     Search,
     EnrollModal,
     TeamEnrollModal,
-    Recommendations
+    Recommendations,
   },
   mixins: [enrollMixin],
   props: {
     fetchPage: {
       type: Function,
-      required: true
+      required: true,
     },
     deleteItem: {
       type: Function,
-      required: true
+      required: true,
     },
     mergeItems: {
       type: Function,
-      required: true
+      required: true,
     },
     unmergeItems: {
       type: Function,
-      required: true
+      required: true,
     },
     highlightIndividual: {
       type: String,
-      required: false
+      required: false,
     },
     moveItem: {
       type: Function,
-      required: true
+      required: true,
     },
     addIdentity: {
       type: Function,
-      required: true
+      required: true,
     },
     updateProfile: {
       type: Function,
-      required: true
+      required: true,
     },
     enroll: {
       type: Function,
-      required: true
+      required: true,
     },
     getCountries: {
       type: Function,
-      required: true
+      required: true,
     },
     lockIndividual: {
       type: Function,
-      required: true
+      required: true,
     },
     unlockIndividual: {
       type: Function,
-      required: true
+      required: true,
     },
     updateEnrollment: {
       type: Function,
-      required: true
+      required: true,
     },
     withdraw: {
       type: Function,
-      required: true
+      required: true,
     },
     setFilters: {
       type: String,
-      required: false
+      required: false,
     },
     fetchOrganizations: {
       type: Function,
-      required: true
-    }
+      required: true,
+    },
   },
   data() {
     return {
@@ -369,7 +363,7 @@ export default {
         { value: "name" },
         { value: "email" },
         { value: "sources" },
-        { value: "actions" }
+        { value: "actions" },
       ],
       individuals: [],
       expandedItems: [],
@@ -379,7 +373,7 @@ export default {
         open: false,
         title: "",
         text: "",
-        action: ""
+        action: "",
       },
       openModal: false,
       totalResults: 0,
@@ -389,32 +383,32 @@ export default {
       teamModal: {
         isOpen: false,
         organization: null,
-        uuid: null
-      }
+        uuid: null,
+      },
     };
   },
   computed: {
     disabledActions() {
       return (
-        this.selectedIndividuals.filter(individual => !individual.isLocked)
+        this.selectedIndividuals.filter((individual) => !individual.isLocked)
           .length === 0
       );
     },
     disabledMerge() {
       return (
-        this.selectedIndividuals.filter(individual => !individual.isLocked)
+        this.selectedIndividuals.filter((individual) => !individual.isLocked)
           .length < 2
       );
     },
     selectedIndividuals() {
-      return this.individuals.filter(individual => individual.isSelected);
+      return this.individuals.filter((individual) => individual.isSelected);
     },
     isIndeterminate() {
       return (
         this.selectedIndividuals.length < this.individuals.length &&
         this.selectedIndividuals.length !== 0
       );
-    }
+    },
   },
   created() {
     this.queryIndividuals(1);
@@ -453,7 +447,7 @@ export default {
       const dragImage = document.querySelector(".dragged-item");
       event.dataTransfer.setDragImage(dragImage, 0, 0);
       const lockedIndividuals = this.selectedIndividuals.filter(
-        individual => individual.isLocked
+        (individual) => individual.isLocked
       );
       if (lockedIndividuals.length === this.selectedIndividuals.length) {
         event.dataTransfer.setData("lockActions", true);
@@ -468,33 +462,33 @@ export default {
         this.selectedIndividuals.length === this.individuals.length;
     },
     deselectIndividuals() {
-      this.individuals.forEach(individual => (individual.isSelected = false));
+      this.individuals.forEach((individual) => (individual.isSelected = false));
       this.allSelected = false;
     },
     async deleteIndividuals(individuals) {
       const response = await Promise.all(
-        individuals.map(individual => this.deleteItem(individual.uuid))
+        individuals.map((individual) => this.deleteItem(individual.uuid))
       );
       if (response) {
         this.$logger.debug(
           "Deleted individuals",
-          individuals.map(individual => individual.uuid)
+          individuals.map((individual) => individual.uuid)
         );
         this.$emit("updateWorkspace", {
-          remove: individuals.map(individual => individual.uuid)
+          remove: individuals.map((individual) => individual.uuid),
         });
         this.queryIndividuals(this.page);
         this.dialog.open = false;
       }
     },
     confirmDelete(individuals) {
-      individuals = individuals.filter(individual => !individual.isLocked);
-      const names = individuals.map(individual => individual.name).join(", ");
+      individuals = individuals.filter((individual) => !individual.isLocked);
+      const names = individuals.map((individual) => individual.name).join(", ");
       Object.assign(this.dialog, {
         open: true,
         title: "Delete the selected individuals?",
         text: names,
-        action: () => this.deleteIndividuals(individuals)
+        action: () => this.deleteIndividuals(individuals),
       });
     },
     async merge(fromUuids, toUuid) {
@@ -505,7 +499,7 @@ export default {
           this.dialog.open = false;
           this.$emit("updateWorkspace", {
             update: formatIndividuals([response.data.merge.individual]),
-            remove: fromUuids
+            remove: fromUuids,
           });
           this.$logger.debug("Merged individuals", { fromUuids, toUuid });
         }
@@ -514,11 +508,11 @@ export default {
           open: true,
           title: "Error",
           text: this.$getErrorMessage(error),
-          action: null
+          action: null,
         });
         this.$logger.error(`Error merging individuals: ${error}`, {
           fromUuids,
-          toUuid
+          toUuid,
         });
       }
     },
@@ -538,7 +532,7 @@ export default {
           this.$emit("updateWorkspace", {
             update: formatIndividuals(
               response.data.unmergeIdentities.individuals
-            )
+            ),
           });
           this.queryIndividuals(this.page);
           this.$logger.debug("Unmerged individuals", uuids);
@@ -548,7 +542,7 @@ export default {
           open: true,
           title: "Error",
           text: this.$getErrorMessage(error),
-          action: null
+          action: null,
         });
         this.$logger.error(`Error unmerging individuals ${uuids}: ${error}`);
       }
@@ -563,7 +557,7 @@ export default {
         if (response) {
           this.queryIndividuals(this.page);
           this.$emit("updateWorkspace", {
-            update: formatIndividuals([response.data.moveIdentity.individual])
+            update: formatIndividuals([response.data.moveIdentity.individual]),
           });
           this.$logger.debug("Moved identity", { fromUuid, toUuid });
         }
@@ -572,7 +566,7 @@ export default {
           open: true,
           title: "Error",
           text: this.$getErrorMessage(error),
-          action: null
+          action: null,
         });
         this.$logger.error(`Error moving ${fromUuid} to ${toUuid}: ${error}`);
       }
@@ -583,7 +577,7 @@ export default {
         if (response && response.data.updateProfile) {
           this.queryIndividuals();
           this.$emit("updateWorkspace", {
-            update: formatIndividuals([response.data.updateProfile.individual])
+            update: formatIndividuals([response.data.updateProfile.individual]),
           });
           this.$logger.debug(`Updated profile ${uuid}`, data);
         }
@@ -592,7 +586,7 @@ export default {
           open: true,
           title: "Error",
           text: this.$getErrorMessage(error),
-          action: null
+          action: null,
         });
         this.$logger.error(`Error updating profile: ${error}`, data);
       }
@@ -610,7 +604,7 @@ export default {
             open: true,
             title: "Error",
             text: this.$getErrorMessage(error),
-            action: null
+            action: null,
           });
           this.$logger.error(`Error locking individual ${uuid}: ${error}`);
         }
@@ -626,7 +620,7 @@ export default {
             open: true,
             title: "Error",
             text: this.$getErrorMessage(error),
-            action: null
+            action: null,
           });
           this.$logger.error(`Error unlocking individual ${uuid}: ${error}`);
         }
@@ -644,7 +638,7 @@ export default {
         if (response && response.data.withdraw) {
           this.queryIndividuals();
           this.$emit("updateWorkspace", {
-            update: formatIndividuals([response.data.withdraw.individual])
+            update: formatIndividuals([response.data.withdraw.individual]),
           });
           this.$logger.debug("Removed affiliation", { uuid, ...group });
           if (!group.parentOrg) {
@@ -656,11 +650,11 @@ export default {
           open: true,
           title: "Error",
           text: this.$getErrorMessage(error),
-          action: null
+          action: null,
         });
         this.$logger.error(`Error removing affiliation: ${error}`, {
           uuid,
-          ...group
+          ...group,
         });
       }
     },
@@ -670,8 +664,8 @@ export default {
         if (response && response.data.updateEnrollment) {
           this.$emit("updateWorkspace", {
             update: formatIndividuals([
-              response.data.updateEnrollment.individual
-            ])
+              response.data.updateEnrollment.individual,
+            ]),
           });
           this.queryIndividuals();
           this.$logger.debug("Updated enrollment", data);
@@ -681,7 +675,7 @@ export default {
           open: true,
           title: "Error",
           text: this.$getErrorMessage(error),
-          action: null
+          action: null,
         });
         this.$logger.error(`Error updating enrollment: ${error}`, data);
       }
@@ -692,7 +686,7 @@ export default {
       this.queryIndividuals(1);
     },
     selectAll(value) {
-      this.individuals.forEach(individual => (individual.isSelected = value));
+      this.individuals.forEach((individual) => (individual.isSelected = value));
     },
     changeItemsPerPage(value) {
       if (value) {
@@ -708,7 +702,7 @@ export default {
         action: "",
         showDates: false,
         dateFrom: null,
-        dateTo: null
+        dateTo: null,
       });
     },
     openTeamModal(data) {
@@ -716,10 +710,10 @@ export default {
       Object.assign(this.teamModal, {
         isOpen: true,
         organization,
-        uuid
+        uuid,
       });
-    }
-  }
+    },
+  },
 };
 </script>
 <style lang="scss" scoped>

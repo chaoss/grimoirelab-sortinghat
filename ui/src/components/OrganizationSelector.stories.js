@@ -2,7 +2,7 @@ import OrganizationSelector from "./OrganizationSelector.vue";
 
 export default {
   title: "OrganizationSelector",
-  excludeStories: /.*Data$/
+  excludeStories: /.*Data$/,
 };
 
 const template = `
@@ -32,28 +32,27 @@ const organizations = {
     { name: "Institute of Muggle Studies" },
     { name: "Potions Associations" },
     { name: "Salem Witches' Institute" },
-  ]
-}
+  ],
+};
 
 export const Default = () => ({
   components: { OrganizationSelector },
   template: template,
   data: () => ({
     model: "",
-    organizations: organizations
+    organizations: organizations,
   }),
   methods: {
     fetchOrganizations(page, items, filters) {
       const results = JSON.parse(JSON.stringify(this.organizations));
       if (filters.term) {
-        results.entities = results.entities.filter(
-          organization =>
-            organization.name.toUpperCase().includes(filters.term.toUpperCase())
+        results.entities = results.entities.filter((organization) =>
+          organization.name.toUpperCase().includes(filters.term.toUpperCase())
         );
       }
       return results;
     },
-  }
+  },
 });
 
 export const SelectedOrganization = () => ({
@@ -61,18 +60,17 @@ export const SelectedOrganization = () => ({
   template: template,
   data: () => ({
     model: "Institute of Muggle Studies",
-    organizations: organizations
+    organizations: organizations,
   }),
   methods: {
     fetchOrganizations(page, items, filters) {
       const results = JSON.parse(JSON.stringify(this.organizations));
       if (filters.term) {
-        results.entities = results.entities.filter(
-          organization =>
-            organization.name.toUpperCase().includes(filters.term.toUpperCase())
+        results.entities = results.entities.filter((organization) =>
+          organization.name.toUpperCase().includes(filters.term.toUpperCase())
         );
       }
       return results;
     },
-  }
+  },
 });

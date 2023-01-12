@@ -9,7 +9,7 @@ export default new Vuex.Store({
   state: {
     token: Cookies.get("sh_authtoken"),
     user: Cookies.get("sh_user"),
-    workspace: JSON.parse(localStorage.getItem("sh_workspace"))
+    workspace: JSON.parse(localStorage.getItem("sh_workspace")),
   },
   mutations: {
     setToken(state, token) {
@@ -20,12 +20,12 @@ export default new Vuex.Store({
     },
     setWorkspace(state, workspaceData) {
       state.workspace = workspaceData;
-    }
+    },
   },
   getters: {
-    isAuthenticated: state => !!state.token,
-    user: state => state.user,
-    workspace: state => state.workspace
+    isAuthenticated: (state) => !!state.token,
+    user: (state) => state.user,
+    workspace: (state) => state.workspace,
   },
   actions: {
     async login({ commit }, authDetails) {
@@ -45,14 +45,14 @@ export default new Vuex.Store({
       return response;
     },
     saveWorkspace({ commit }, workspaceData) {
-      const uuids = workspaceData.map(individual => individual.uuid);
+      const uuids = workspaceData.map((individual) => individual.uuid);
       localStorage.setItem("sh_workspace", JSON.stringify(uuids));
       commit("setWorkspace", uuids);
     },
     emptyWorkspace({ commit }) {
       localStorage.setItem("sh_workspace", JSON.stringify([]));
       commit("setWorkspace", []);
-    }
+    },
   },
-  modules: {}
+  modules: {},
 });

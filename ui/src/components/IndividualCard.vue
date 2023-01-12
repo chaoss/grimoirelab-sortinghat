@@ -6,7 +6,7 @@
       dropzone: isDragging,
       selected: isSelected,
       highlighted: isHighlighted,
-      disabled: !selectable
+      disabled: !selectable,
     }"
     :ripple="selectable"
     raised
@@ -48,9 +48,7 @@
         <v-menu offset-y offset-x :close-on-content-click="false">
           <template v-slot:activator="{ on }">
             <v-btn icon v-on="on" data-cy="expand-button" @mousedown.stop>
-              <v-icon small>
-                mdi-magnify-plus-outline
-              </v-icon>
+              <v-icon small> mdi-magnify-plus-outline </v-icon>
             </v-btn>
           </template>
           <expanded-individual
@@ -67,9 +65,7 @@
           @click.stop="$emit('remove')"
           @mousedown.stop
         >
-          <v-icon small>
-            mdi-close
-          </v-icon>
+          <v-icon small> mdi-close </v-icon>
         </v-btn>
       </v-list-item-icon>
     </v-list-item>
@@ -85,62 +81,62 @@ export default {
   name: "individualcard",
   components: {
     Avatar,
-    ExpandedIndividual
+    ExpandedIndividual,
   },
   props: {
     name: {
       type: String,
       required: false,
-      default: null
+      default: null,
     },
     email: {
       type: String,
       required: false,
-      default: null
+      default: null,
     },
     sources: {
       type: Array,
       required: false,
-      default: () => []
+      default: () => [],
     },
     isSelected: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
     uuid: {
       type: String,
-      required: true
+      required: true,
     },
     identities: {
       type: Array,
-      required: false
+      required: false,
     },
     enrollments: {
       type: Array,
-      required: false
+      required: false,
     },
     isHighlighted: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
     isLocked: {
       type: Boolean,
-      required: true
+      required: true,
     },
     closable: {
       type: Boolean,
-      required: false
+      required: false,
     },
     selectable: {
       type: Boolean,
-      required: false
-    }
+      required: false,
+    },
   },
   data() {
     return {
-      isDragging: false
+      isDragging: false,
     };
   },
   methods: {
@@ -179,8 +175,8 @@ export default {
         event.dataTransfer.getData("individuals")
       );
       const uuids = droppedIndividuals
-        .filter(individual => !individual.isLocked)
-        .map(individual => individual.uuid);
+        .filter((individual) => !individual.isLocked)
+        .map((individual) => individual.uuid);
       if (uuids.length > 0) {
         this.$emit("merge", [this.uuid, ...uuids]);
       }
@@ -197,8 +193,8 @@ export default {
       } else {
         this.isDragging = false;
       }
-    }
-  }
+    },
+  },
 };
 </script>
 <style lang="scss" scoped>

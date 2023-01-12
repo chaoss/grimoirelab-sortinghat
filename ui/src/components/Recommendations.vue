@@ -96,7 +96,7 @@ export default {
   inject: [
     "getRecommendations",
     "getRecommendationsCount",
-    "manageRecommendation"
+    "manageRecommendation",
   ],
   data() {
     return {
@@ -104,7 +104,7 @@ export default {
       currentItem: null,
       isOpen: false,
       errorMessage: null,
-      page: 1
+      page: 1,
     };
   },
   methods: {
@@ -125,7 +125,7 @@ export default {
             individual1: formatIndividual(recommendation.individual1),
             individual2: formatIndividual(recommendation.individual2),
             id: parseInt(recommendation.id),
-            pageInfo: response.data.recommendedMerge.pageInfo
+            pageInfo: response.data.recommendedMerge.pageInfo,
           };
         }
       } catch (error) {
@@ -163,18 +163,18 @@ export default {
       this.fetchCount();
       this.$emit("updateTable");
       this.$emit("updateWorkspace");
-    }
+    },
   },
   watch: {
     isOpen(value) {
       if (value && this.count > 0) {
         this.fetchItem();
       }
-    }
+    },
   },
   mounted() {
     this.fetchCount();
-  }
+  },
 };
 </script>
 

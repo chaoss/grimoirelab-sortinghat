@@ -20,10 +20,10 @@ const responseMocked = {
           profile: {
             id: "7",
             name: "test name",
-            __typename: "ProfileType"
+            __typename: "ProfileType",
           },
-          __typename: "IndividualType"
-        }
+          __typename: "IndividualType",
+        },
       ],
       pageInfo: {
         page: 1,
@@ -33,11 +33,11 @@ const responseMocked = {
         hasPrev: false,
         startIndex: 1,
         endIndex: 1,
-        totalResults: 1
+        totalResults: 1,
       },
-      __typename: "IdentityPaginatedType"
-    }
-  }
+      __typename: "IdentityPaginatedType",
+    },
+  },
 };
 
 const paginatedResponse = {
@@ -50,7 +50,7 @@ const paginatedResponse = {
             name: "Test",
             id: "15",
             email: "test6@example.net",
-            __typename: "ProfileType"
+            __typename: "ProfileType",
           },
           identities: [
             {
@@ -59,23 +59,23 @@ const paginatedResponse = {
               email: "test6@example.net",
               uuid: "03b3428eea9c7f29b4f8238b58dc6ecd84bf176a",
               username: "test6",
-              __typename: "IdentityType"
-            }
+              __typename: "IdentityType",
+            },
           ],
           enrollments: [],
-          __typename: "IndividualType"
-        }
+          __typename: "IndividualType",
+        },
       ],
       pageInfo: {
         page: 1,
         pageSize: 1,
         numPages: 2,
         totalResults: 2,
-        __typename: "PaginationType"
+        __typename: "PaginationType",
       },
-      __typename: "IdentityPaginatedType"
-    }
-  }
+      __typename: "IdentityPaginatedType",
+    },
+  },
 };
 
 const paginatedOrganizations = {
@@ -84,27 +84,27 @@ const paginatedOrganizations = {
       name: "Test 1",
       enrollments: [
         { id: 1, __typename: "EnrollmentType" },
-        { id: 2, __typename: "EnrollmentType" }
+        { id: 2, __typename: "EnrollmentType" },
       ],
-      __typename: "OrganizationType"
+      __typename: "OrganizationType",
     },
     {
       name: "Test 2",
       enrollments: [
         { id: 3, __typename: "EnrollmentType" },
-        { id: 4, __typename: "EnrollmentType" }
+        { id: 4, __typename: "EnrollmentType" },
       ],
-      __typename: "OrganizationType"
-    }
+      __typename: "OrganizationType",
+    },
   ],
   pageInfo: {
     page: 1,
     pageSize: 10,
     numPages: 1,
     totalResults: 2,
-    __typename: "PaginationType"
+    __typename: "PaginationType",
   },
-  __typename: "OrganizationPaginatedType"
+  __typename: "OrganizationPaginatedType",
 };
 
 const paginatedTeams = {
@@ -113,15 +113,15 @@ const paginatedTeams = {
       entities: [
         {
           name: "Test 1",
-          __typename: "TeamType"
+          __typename: "TeamType",
         },
         {
           name: "Test 2",
-          __typename: "TeamType"
-        }
-      ]
-    }
-  }
+          __typename: "TeamType",
+        },
+      ],
+    },
+  },
 };
 
 const countriesMocked = {
@@ -134,11 +134,11 @@ const countriesMocked = {
         { code: "AG", name: "Antigua and Barbuda" },
         { code: "AI", name: "Anguilla" },
         { code: "AL", name: "Albania" },
-        { code: "AM", name: "Armenia" }
+        { code: "AM", name: "Armenia" },
       ],
-      __typename: "CountryPaginatedType"
-    }
-  }
+      __typename: "CountryPaginatedType",
+    },
+  },
 };
 
 const jobsMocked = {
@@ -150,18 +150,18 @@ const jobsMocked = {
           status: "queued",
           jobType: "unify",
           errors: [],
-          result: []
-        }
+          result: [],
+        },
       ],
       pageInfo: {
         page: 2,
         numPages: 2,
         totalResults: 11,
         hasNext: false,
-        hasPrev: true
-      }
-    }
-  }
+        hasPrev: true,
+      },
+    },
+  },
 };
 
 describe("IndividualsData", () => {
@@ -175,24 +175,24 @@ describe("IndividualsData", () => {
       Vue,
       mocks: {
         $apollo: {
-          query
-        }
+          query,
+        },
       },
       propsData: {
         getindividuals: {
-          query: Queries.getIndividuals.query
-        }
+          query: Queries.getIndividuals.query,
+        },
       },
       data() {
         return {
-          individuals_mocked: null
+          individuals_mocked: null,
         };
-      }
+      },
     });
     let response = await Queries.getIndividuals.query(wrapper.vm.$apollo);
     let individuals_mocked = response.data;
     await wrapper.setData({
-      individuals_mocked
+      individuals_mocked,
     });
     expect(query).toBeCalled();
     expect(wrapper.element).toMatchSnapshot();
@@ -205,14 +205,14 @@ describe("IndividualsData", () => {
       Vue,
       mocks: {
         $apollo: {
-          query
-        }
+          query,
+        },
       },
       propsData: {
         getindividuals: {
-          query: Queries.getIndividuals.query
-        }
-      }
+          query: Queries.getIndividuals.query,
+        },
+      },
     });
 
     expect(getIndividualsSpied).toBeCalled();
@@ -226,14 +226,14 @@ describe("IndividualsData", () => {
       Vue,
       mocks: {
         $apollo: {
-          query
-        }
+          query,
+        },
       },
       propsData: {
         getindividuals: {
-          query: Queries.getIndividuals.query
-        }
-      }
+          query: Queries.getIndividuals.query,
+        },
+      },
     });
     wrapper.vm.scroll();
 
@@ -243,7 +243,7 @@ describe("IndividualsData", () => {
 });
 
 describe("IndividualsTable", () => {
-  const mountFunction = options => {
+  const mountFunction = (options) => {
     return shallowMount(IndividualsTable, {
       Vue,
       propsData: {
@@ -260,9 +260,9 @@ describe("IndividualsTable", () => {
         lockIndividual: () => {},
         unlockIndividual: () => {},
         withdraw: () => {},
-        updateEnrollment: () => {}
+        updateEnrollment: () => {},
       },
-      ...options
+      ...options,
     });
   };
 
@@ -271,16 +271,12 @@ describe("IndividualsTable", () => {
     const wrapper = mountFunction({
       mocks: {
         $apollo: {
-          query
-        }
-      }
+          query,
+        },
+      },
     });
     await wrapper.setProps({ fetchPage: query });
-    await Queries.getPaginatedIndividuals(
-      wrapper.vm.$apollo,
-      1,
-      1
-    );
+    await Queries.getPaginatedIndividuals(wrapper.vm.$apollo, 1, 1);
 
     expect(query).toBeCalled();
     expect(wrapper.element).toMatchSnapshot();
@@ -291,9 +287,9 @@ describe("IndividualsTable", () => {
     const wrapper = mountFunction({
       mocks: {
         $apollo: {
-          query
-        }
-      }
+          query,
+        },
+      },
     });
     await wrapper.setProps({ fetchPage: query });
     await wrapper.setData({ filters: { term: "test" } });
@@ -308,9 +304,9 @@ describe("IndividualsTable", () => {
     const wrapper = mountFunction({
       mocks: {
         $apollo: {
-          query
-        }
-      }
+          query,
+        },
+      },
     });
     await wrapper.setProps({ fetchPage: query });
     await wrapper.setData({ filters: { gender: "gender" } });
@@ -325,13 +321,13 @@ describe("IndividualsTable", () => {
     const wrapper = mountFunction({
       mocks: {
         $apollo: {
-          query
-        }
-      }
+          query,
+        },
+      },
     });
     await wrapper.setProps({ fetchPage: query });
     await wrapper.setData({
-      filters: { lastUpdated: "<2000-01-01T00:00:00.000Z" }
+      filters: { lastUpdated: "<2000-01-01T00:00:00.000Z" },
     });
 
     const response = await wrapper.vm.queryIndividuals(1);
@@ -340,7 +336,7 @@ describe("IndividualsTable", () => {
       1,
       10,
       {
-        lastUpdated: "<2000-01-01T00:00:00.000Z"
+        lastUpdated: "<2000-01-01T00:00:00.000Z",
       },
       null
     );
@@ -351,9 +347,9 @@ describe("IndividualsTable", () => {
     const wrapper = mountFunction({
       mocks: {
         $apollo: {
-          query
-        }
-      }
+          query,
+        },
+      },
     });
     await wrapper.setProps({ fetchPage: query });
     await wrapper.setData({ filters: { isBot: true } });
@@ -368,9 +364,9 @@ describe("IndividualsTable", () => {
     const wrapper = mountFunction({
       mocks: {
         $apollo: {
-          query
-        }
-      }
+          query,
+        },
+      },
     });
     await wrapper.setProps({ fetchPage: query });
     await wrapper.setData({ filters: { country: "Spain" } });
@@ -382,14 +378,14 @@ describe("IndividualsTable", () => {
 
   test.each(["lastModified", "createdAt"])(
     "Orders query by %p",
-    async value => {
+    async (value) => {
       const query = jest.fn(() => Promise.resolve(paginatedResponse));
       const wrapper = mountFunction({
         mocks: {
           $apollo: {
-            query
-          }
-        }
+            query,
+          },
+        },
       });
       await wrapper.setProps({ fetchPage: query });
       await wrapper.setData({ orderBy: value });
@@ -405,9 +401,9 @@ describe("IndividualsTable", () => {
     const wrapper = mountFunction({
       mocks: {
         $apollo: {
-          query
-        }
-      }
+          query,
+        },
+      },
     });
     await wrapper.setProps({ getCountries: query });
     await Queries.getCountries(wrapper.vm.$apollo);
@@ -424,8 +420,8 @@ describe("OrganizationsTable", () => {
       Vue,
       mocks: {
         $apollo: {
-          query
-        }
+          query,
+        },
       },
       propsData: {
         fetchPage: query,
@@ -436,8 +432,8 @@ describe("OrganizationsTable", () => {
         deleteOrganization: () => {},
         fetchTeams: () => {},
         addTeam: () => {},
-        deleteTeam: () => {}
-      }
+        deleteTeam: () => {},
+      },
     });
 
     expect(query).toBeCalled();
@@ -453,8 +449,8 @@ describe("OrganizationsTable", () => {
       Vue,
       mocks: {
         $apollo: {
-          query
-        }
+          query,
+        },
       },
       propsData: {
         fetchPage: query,
@@ -465,13 +461,13 @@ describe("OrganizationsTable", () => {
         deleteOrganization: () => {},
         fetchTeams: () => {},
         addTeam: () => {},
-        deleteTeam: () => {}
+        deleteTeam: () => {},
       },
       data() {
         return {
-          filters: { term: "Bitergia" }
+          filters: { term: "Bitergia" },
         };
-      }
+      },
     });
 
     expect(query).toHaveBeenCalledWith(1, 10, { term: "Bitergia" });
@@ -485,12 +481,12 @@ describe("JobsTable", () => {
       Vue,
       mocks: {
         $apollo: {
-          query
-        }
+          query,
+        },
       },
       propsData: {
-        getJobs: query
-      }
+        getJobs: query,
+      },
     });
     await Vue.nextTick();
 
@@ -509,18 +505,18 @@ describe("TeamModal", () => {
       Vue,
       mocks: {
         $apollo: {
-          query
-        }
+          query,
+        },
       },
       propsData: {
         addTeam: () => {},
         deleteTeam: () => {},
         fetchTeams: query,
-        parent: "Parent Organization"
-      }
+        parent: "Parent Organization",
+      },
     });
 
-    expect(query).toBeCalledWith({ organization: "Parent Organization"});
+    expect(query).toBeCalledWith({ organization: "Parent Organization" });
     expect(wrapper.element).toMatchSnapshot();
   });
 });

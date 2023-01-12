@@ -29,9 +29,7 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn text @click="onClose">
-          Cancel
-        </v-btn>
+        <v-btn text @click="onClose"> Cancel </v-btn>
         <v-btn
           :disabled="!organization && !form.organization"
           color="primary"
@@ -56,42 +54,42 @@ export default {
   props: {
     isOpen: {
       type: Boolean,
-      required: true
+      required: true,
     },
     enroll: {
       type: Function,
-      required: true
+      required: true,
     },
     uuid: {
       type: String,
-      required: false
+      required: false,
     },
     title: {
       type: String,
-      required: false
+      required: false,
     },
     text: {
       type: String,
-      required: false
+      required: false,
     },
     organization: {
       type: String,
-      required: false
+      required: false,
     },
     fetchOrganizations: {
       type: Function,
       required: false,
-      default: () => {}
-    }
+      default: () => {},
+    },
   },
   data() {
     return {
       form: {
         organization: this.organization,
         dateFrom: "",
-        dateTo: ""
+        dateTo: "",
       },
-      errorMessage: ""
+      errorMessage: "",
     };
   },
   methods: {
@@ -114,16 +112,16 @@ export default {
       this.form = {
         organization: this.organization,
         dateFrom: "",
-        dateTo: ""
+        dateTo: "",
       };
       this.errorMessage = "";
-    }
+    },
   },
   watch: {
     organization(value) {
       this.form.organization = value;
-    }
-  }
+    },
+  },
 };
 </script>
 

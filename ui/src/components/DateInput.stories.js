@@ -2,7 +2,7 @@ import DateInput from "./DateInput.vue";
 
 export default {
   title: "DateInput",
-  excludeStories: /.*Data$/
+  excludeStories: /.*Data$/,
 };
 
 const DateInputTemplate = `
@@ -17,9 +17,9 @@ export const Default = () => ({
     return {
       date: null,
       filled: false,
-      outlined: false
-    }
-  }
+      outlined: false,
+    };
+  },
 });
 
 export const Filled = () => ({
@@ -29,9 +29,9 @@ export const Filled = () => ({
     return {
       date: null,
       filled: true,
-      outlined: false
-    }
-  }
+      outlined: false,
+    };
+  },
 });
 
 export const Outlined = () => ({
@@ -41,9 +41,9 @@ export const Outlined = () => ({
     return {
       date: null,
       filled: false,
-      outlined: true
-    }
-  }
+      outlined: true,
+    };
+  },
 });
 
 export const Error = () => ({
@@ -53,7 +53,7 @@ export const Error = () => ({
     return {
       date: "abc",
       filled: false,
-      outlined: true
-    }
-  }
+      outlined: true,
+    };
+  },
 });

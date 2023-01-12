@@ -2,7 +2,7 @@ import Avatar from "./Avatar.vue";
 
 export default {
   title: "Avatar",
-  excludeStories: /.*Data$/
+  excludeStories: /.*Data$/,
 };
 
 const avatarTemplate = '<avatar :name="name" :email="email" />';
@@ -12,12 +12,12 @@ export const Default = () => ({
   template: avatarTemplate,
   props: {
     name: {
-      default: "Tom Marvolo Riddle"
+      default: "Tom Marvolo Riddle",
     },
     email: {
-      default: null
-    }
-  }
+      default: null,
+    },
+  },
 });
 
 export const SingleInitial = () => ({
@@ -25,12 +25,12 @@ export const SingleInitial = () => ({
   template: avatarTemplate,
   props: {
     name: {
-      default: "Voldemort"
+      default: "Voldemort",
     },
     email: {
-      default: null
-    }
-  }
+      default: null,
+    },
+  },
 });
 
 export const Gravatar = () => ({
@@ -38,10 +38,10 @@ export const Gravatar = () => ({
   template: avatarTemplate,
   props: {
     name: {
-      default: "Santiago Dueñas"
+      default: "Santiago Dueñas",
     },
     email: {
-      default: "sduenas@bitergia.com"
-    }
-  }
+      default: "sduenas@bitergia.com",
+    },
+  },
 });

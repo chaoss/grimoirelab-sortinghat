@@ -7,14 +7,14 @@ Vue.use(Vuetify);
 
 describe("DateInput", () => {
   const vuetify = new Vuetify();
-  const mountFunction = options => {
+  const mountFunction = (options) => {
     return mount(DateInput, {
       Vue,
       vuetify,
       ...options,
       props: {
-        label: "Label"
-      }
+        label: "Label",
+      },
     });
   };
 

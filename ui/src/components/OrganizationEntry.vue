@@ -17,9 +17,7 @@
             @click.stop="$emit('getEnrollments')"
           >
             {{ enrollments }}
-            <v-icon small right>
-              mdi-account-multiple
-            </v-icon>
+            <v-icon small right> mdi-account-multiple </v-icon>
           </v-btn>
         </template>
         <span>Enrollments</span>
@@ -27,14 +25,10 @@
     </td>
     <td class="text-right">
       <v-btn v-if="isEditable" icon @click.stop="$emit('edit')">
-        <v-icon small>
-          mdi-lead-pencil
-        </v-icon>
+        <v-icon small> mdi-lead-pencil </v-icon>
       </v-btn>
       <v-btn icon @click.stop="$emit('delete')">
-        <v-icon small>
-          mdi-delete
-        </v-icon>
+        <v-icon small> mdi-delete </v-icon>
       </v-btn>
       <v-btn icon @click.stop="$emit('expand')">
         <v-icon>
@@ -51,25 +45,25 @@ export default {
   props: {
     name: {
       type: String,
-      required: true
+      required: true,
     },
     enrollments: {
       type: Number,
-      required: true
+      required: true,
     },
     isExpanded: {
       type: Boolean,
-      required: true
+      required: true,
     },
     isEditable: {
       type: Boolean,
       required: false,
-      default: true
-    }
+      default: true,
+    },
   },
   data() {
     return {
-      dropZone: false
+      dropZone: false,
     };
   },
   methods: {
@@ -85,11 +79,11 @@ export default {
       }
       const droppedIndividuals = JSON.parse(
         event.dataTransfer.getData("individuals")
-      ).filter(individual => !individual.isLocked);
+      ).filter((individual) => !individual.isLocked);
       if (droppedIndividuals.length > 0) {
         this.$emit("enroll", {
-          uuids: droppedIndividuals.map(individual => individual.uuid),
-          organization: this.name
+          uuids: droppedIndividuals.map((individual) => individual.uuid),
+          organization: this.name,
         });
       }
     },
@@ -113,8 +107,8 @@ export default {
       } else {
         this.dropZone = false;
       }
-    }
-  }
+    },
+  },
 };
 </script>
 <style lang="scss" scoped>

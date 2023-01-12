@@ -7,11 +7,11 @@ Vue.use(Vuetify);
 
 describe("Search", () => {
   const vuetify = new Vuetify();
-  const mountFunction = options => {
+  const mountFunction = (options) => {
     return mount(Search, {
       Vue,
       vuetify,
-      ...options
+      ...options,
     });
   };
 
@@ -19,10 +19,10 @@ describe("Search", () => {
     ["test", "test"],
     ["two words", "two words"],
     ["test lastUpdated:>2020", "test"],
-    ["lastUpdated:2019..2020 test", "test"]
+    ["lastUpdated:2019..2020 test", "test"],
   ])("Given %p parses term", async (value, expected) => {
     const wrapper = mountFunction({
-      data: () => ({ inputValue: value })
+      data: () => ({ inputValue: value }),
     });
 
     const button = wrapper.find("button.mdi-magnify");
@@ -39,20 +39,20 @@ describe("Search", () => {
     ["dateFilter:>=2000-02-03", ">=2000-02-03T00:00:00.000Z"],
     [
       "dateFilter:2000..2001",
-      "2000-01-01T00:00:00.000Z..2001-01-01T00:00:00.000Z"
+      "2000-01-01T00:00:00.000Z..2001-01-01T00:00:00.000Z",
     ],
-    ["test dateFilter:<2000", "<2000-01-01T00:00:00.000Z"]
+    ["test dateFilter:<2000", "<2000-01-01T00:00:00.000Z"],
   ])("Given %p parses date filter", async (value, expected) => {
     const wrapper = mountFunction({
       propsData: {
         validFilters: [
           {
             filter: "dateFilter",
-            type: "date"
-          }
-        ]
+            type: "date",
+          },
+        ],
       },
-      data: () => ({ inputValue: value })
+      data: () => ({ inputValue: value }),
     });
 
     const button = wrapper.find("button.mdi-magnify");
@@ -71,10 +71,10 @@ describe("Search", () => {
     "lastUpdated:===2000-01-01",
     "lastUpdated:<=2000-01-01>=2000-01-01",
     "isBot:1",
-    "isBot:falsee"
-  ])("Given an invalid value %p renders an error", async value => {
+    "isBot:falsee",
+  ])("Given an invalid value %p renders an error", async (value) => {
     const wrapper = mountFunction({
-      data: () => ({ inputValue: value })
+      data: () => ({ inputValue: value }),
     });
 
     const button = wrapper.find("button.mdi-magnify");
@@ -86,10 +86,10 @@ describe("Search", () => {
 
   test.each([
     ["gender:test", "test"],
-    [`gender:"two words"`, "two words"]
+    [`gender:"two words"`, "two words"],
   ])("Given %p parses gender", async (value, expected) => {
     const wrapper = mountFunction({
-      data: () => ({ inputValue: value })
+      data: () => ({ inputValue: value }),
     });
 
     const button = wrapper.find("button.mdi-magnify");
@@ -102,10 +102,10 @@ describe("Search", () => {
     [`country:"United Kingdom"`, "United Kingdom"],
     [`country:"United States of America"`, "United States of America"],
     ["country:Spain", "Spain"],
-    [`country:"UK"`, "UK"]
+    [`country:"UK"`, "UK"],
   ])("Given %p parses country filter", async (value, expected) => {
     const wrapper = mountFunction({
-      data: () => ({ inputValue: value })
+      data: () => ({ inputValue: value }),
     });
 
     const button = wrapper.find("button.mdi-magnify");
@@ -118,10 +118,10 @@ describe("Search", () => {
     ["source:git", "git"],
     [`source:"git"`, "git"],
     [`source:"docker hub"`, "docker hub"],
-    [`test source:"docker hub"`, "docker hub"]
+    [`test source:"docker hub"`, "docker hub"],
   ])("Given %p parses source", async (value, expected) => {
     const wrapper = mountFunction({
-      data: () => ({ inputValue: value })
+      data: () => ({ inputValue: value }),
     });
 
     const button = wrapper.find("button.mdi-magnify");
@@ -132,17 +132,17 @@ describe("Search", () => {
 
   test.each(["invalidFilter:value", `invalidFilter:"value"`])(
     "Given an invalid filter %p shows an error",
-    async value => {
+    async (value) => {
       const wrapper = mountFunction({
         propsData: {
           validFilters: [
             {
               filter: "validFilter",
-              type: "string"
-            }
-          ]
+              type: "string",
+            },
+          ],
         },
-        data: () => ({ inputValue: value })
+        data: () => ({ inputValue: value }),
       });
 
       const button = wrapper.find("button.mdi-magnify");
@@ -157,18 +157,18 @@ describe("Search", () => {
     ["booleanFilter:true", true],
     ["booleanFilter:false", false],
     [`booleanFilter:"true"`, true],
-    [`booleanFilter:"false"`, false]
+    [`booleanFilter:"false"`, false],
   ])("Parses a boolean filter %p", async (value, expected) => {
     const wrapper = mountFunction({
       propsData: {
         validFilters: [
           {
             filter: "booleanFilter",
-            type: "boolean"
-          }
-        ]
+            type: "boolean",
+          },
+        ],
       },
-      data: () => ({ inputValue: value })
+      data: () => ({ inputValue: value }),
     });
     const button = wrapper.find("button.mdi-magnify");
     await button.trigger("click");
@@ -180,18 +180,18 @@ describe("Search", () => {
     "booleanFilter:truee",
     "booleanFilter:falsee",
     "booleanFilter:123",
-    `booleanFilter:"trueeee"`
-  ])("Shows an error for an invalid boolean filter value %p", async value => {
+    `booleanFilter:"trueeee"`,
+  ])("Shows an error for an invalid boolean filter value %p", async (value) => {
     const wrapper = mountFunction({
       propsData: {
         validFilters: [
           {
             filter: "booleanFilter",
-            type: "boolean"
-          }
-        ]
+            type: "boolean",
+          },
+        ],
       },
-      data: () => ({ inputValue: value })
+      data: () => ({ inputValue: value }),
     });
     const button = wrapper.find("button.mdi-magnify");
     await button.trigger("click");
@@ -202,15 +202,15 @@ describe("Search", () => {
 
   test.each([
     [{ filter: "booleanFilter", type: "boolean" }, "booleanFilter:true"],
-    [{ filter: "stringFilter", type: "string" }, `stringFilter:"search value"`]
+    [{ filter: "stringFilter", type: "string" }, `stringFilter:"search value"`],
   ])(
     "Shows selected filter on the search box",
     async (validFilters, expected) => {
       const wrapper = mountFunction({
         propsData: {
           filterSelector: true,
-          validFilters: [validFilters]
-        }
+          validFilters: [validFilters],
+        },
       });
       // Set an element data-app to avoid Vuetify warnings
       // https://github.com/vuetifyjs/vuetify/issues/3456
@@ -233,10 +233,10 @@ describe("Search", () => {
         filterSelector: true,
         validFilters: [
           { filter: "booleanFilter", type: "boolean" },
-          { filter: "stringFilter", type: "string" }
-        ]
+          { filter: "stringFilter", type: "string" },
+        ],
       },
-      data: () => ({ inputValue: "text" })
+      data: () => ({ inputValue: "text" }),
     });
     const el = document.createElement("div");
     el.setAttribute("data-app", true);
@@ -270,8 +270,8 @@ describe("Search", () => {
     const wrapper = mountFunction({
       propsData: {
         orderSelector: true,
-        orderOptions: [orderOption]
-      }
+        orderOptions: [orderOption],
+      },
     });
     const select = wrapper.findComponent({ ref: "orderSelector" });
     select.vm.selectItem(orderOption);

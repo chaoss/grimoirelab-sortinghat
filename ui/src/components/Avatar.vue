@@ -28,29 +28,29 @@ const colors = [
   "#3c0056",
   "#bc00f4",
   "#a5003f",
-  "#F52537"
+  "#F52537",
 ];
 export default {
   props: {
     name: {
       type: String,
-      required: false
+      required: false,
     },
     email: {
       type: String,
-      required: false
+      required: false,
     },
     size: {
       type: Number,
       required: false,
-      default: 40
-    }
+      default: 40,
+    },
   },
   computed: {
-    getAvatarColor: function() {
+    getAvatarColor: function () {
       const charCodes = this.getNameInitials
         .split("")
-        .map(char => char.charCodeAt(0))
+        .map((char) => char.charCodeAt(0))
         .join("");
       const index = charCodes % colors.length;
 
@@ -63,7 +63,7 @@ export default {
       }
       return null;
     },
-    getNameInitials: function() {
+    getNameInitials: function () {
       const name = this.name || this.email || "";
       const names = name.split(" ");
       let initials = names[0].substring(0, 1).toUpperCase();
@@ -73,8 +73,8 @@ export default {
       }
 
       return initials;
-    }
-  }
+    },
+  },
 };
 </script>
 

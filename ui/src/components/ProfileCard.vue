@@ -89,26 +89,26 @@ export default {
   name: "profilecard",
   components: {
     Identity,
-    IndividualCard
+    IndividualCard,
   },
   props: {
     name: {
       type: String,
-      required: true
+      required: true,
     },
     identities: {
       type: Array,
-      required: true
+      required: true,
     },
     enrollments: {
       type: Array,
-      required: true
+      required: true,
     },
     isLocked: {
       type: Boolean,
       required: false,
-      default: false
-    }
+      default: false,
+    },
   },
   methods: {
     selectSourceIcon(source) {
@@ -126,15 +126,15 @@ export default {
     },
     formatDate(dateTime) {
       return dateTime.split("T")[0];
-    }
+    },
   },
   computed: {
     identitiesCount() {
       return this.identities.reduce((a, b) => a + b.identities.length, 0);
     },
     sources() {
-      return this.identities.map(identity => identity.name);
-    }
-  }
+      return this.identities.map((identity) => identity.name);
+    },
+  },
 };
 </script>

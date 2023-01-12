@@ -31,46 +31,46 @@ export default {
   name: "ExpandedIndividual",
   components: {
     IdentitiesList,
-    EnrollmentList
+    EnrollmentList,
   },
   props: {
     gender: {
       type: String,
-      required: false
+      required: false,
     },
     country: {
       type: Object,
-      required: false
+      required: false,
     },
     isBot: {
       type: Boolean,
-      required: false
+      required: false,
     },
     isLocked: {
       type: Boolean,
-      required: false
+      required: false,
     },
     identities: {
       type: Array,
-      required: true
+      required: true,
     },
     enrollments: {
       type: Array,
-      required: true
+      required: true,
     },
     compact: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
     uuid: {
       type: String,
-      required: true
+      required: true,
     },
     getCountries: {
       type: Function,
-      required: false
-    }
+      required: false,
+    },
   },
   data() {
     return {
@@ -78,9 +78,9 @@ export default {
       form: {
         gender: this.gender,
         country: this.country,
-        isBot: this.isBot
+        isBot: this.isBot,
       },
-      enrollmentsForm: []
+      enrollmentsForm: [],
     };
   },
   methods: {
@@ -89,8 +89,8 @@ export default {
       if (response) {
         this.countries = response;
       }
-    }
-  }
+    },
+  },
 };
 </script>
 <style lang="scss" scoped>

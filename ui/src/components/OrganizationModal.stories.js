@@ -2,7 +2,7 @@ import OrganizationModal from "./OrganizationModal.vue";
 
 export default {
   title: "OrganizationModal",
-  excludeStories: /.*Data$/
+  excludeStories: /.*Data$/,
 };
 
 const OrganizationModalTemplate = `
@@ -23,24 +23,24 @@ export const Default = () => ({
   components: { OrganizationModal },
   template: OrganizationModalTemplate,
   data: () => ({
-    isOpen: false
+    isOpen: false,
   }),
   methods: {
     addDomain() {
       return true;
-    }
-  }
+    },
+  },
 });
 
 export const ErrorOnSave = () => ({
   components: { OrganizationModal },
   template: OrganizationModalTemplate,
   data: () => ({
-    isOpen: false
+    isOpen: false,
   }),
   methods: {
     addDomain() {
       throw new Error("Example error");
-    }
-  }
+    },
+  },
 });

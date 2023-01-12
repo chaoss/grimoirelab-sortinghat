@@ -5,7 +5,7 @@
       expanded: isExpanded,
       selected: isSelected,
       dropzone: isDropZone,
-      highlighted: isHighlighted
+      highlighted: isHighlighted,
     }"
     @click.prevent="selectEntry"
     @dblclick="onDoubleClick"
@@ -113,9 +113,7 @@
         </template>
         <v-list>
           <v-list-item :href="`individual/${uuid}`" target="_blank">
-            <v-list-item-title>
-              View full profile
-            </v-list-item-title>
+            <v-list-item-title> View full profile </v-list-item-title>
           </v-list-item>
           <v-list-item @click="$emit('select', $event)">
             <v-list-item-title>
@@ -144,66 +142,66 @@ import Avatar from "./Avatar.vue";
 export default {
   name: "IndividualEntry",
   components: {
-    Avatar
+    Avatar,
   },
   props: {
     name: {
       type: String,
-      required: false
+      required: false,
     },
     organization: {
       type: String,
-      required: false
+      required: false,
     },
     email: {
       type: String,
-      required: false
+      required: false,
     },
     sources: {
       type: Array,
-      required: false
+      required: false,
     },
     uuid: {
       type: String,
-      required: true
+      required: true,
     },
     isExpanded: {
       type: Boolean,
-      required: true
+      required: true,
     },
     isLocked: {
       type: Boolean,
-      required: true
+      required: true,
     },
     isBot: {
       type: Boolean,
-      required: true
+      required: true,
     },
     isSelected: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
     isHighlighted: {
       type: Boolean,
       required: false,
-      default: false
-    }
+      default: false,
+    },
   },
   data() {
     return {
       isDragging: false,
       form: {
         name: this.name,
-        email: this.email
+        email: this.email,
       },
-      timeout: null
+      timeout: null,
     };
   },
   computed: {
-    isDropZone: function() {
+    isDropZone: function () {
       return this.isDragging && !this.isLocked;
-    }
+    },
   },
   methods: {
     selectEntry() {
@@ -240,8 +238,8 @@ export default {
       this.$emit(
         "merge",
         droppedIndividuals
-          .filter(individual => !individual.isLocked)
-          .map(individual => individual.uuid)
+          .filter((individual) => !individual.isLocked)
+          .map((individual) => individual.uuid)
       );
     },
     moveIndividual(event) {
@@ -260,7 +258,7 @@ export default {
       } else {
         this.isDragging = false;
       }
-    }
+    },
   },
   watch: {
     name(value) {
@@ -268,8 +266,8 @@ export default {
     },
     email(value) {
       this.form.email = value;
-    }
-  }
+    },
+  },
 };
 </script>
 <style lang="scss" scoped>

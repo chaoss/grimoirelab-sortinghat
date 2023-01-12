@@ -117,9 +117,7 @@
             <v-container fluid>
               <v-subheader>Profile</v-subheader>
               <v-row class="ml-9">
-                <v-col cols="1" class="ml-6">
-                  Email:
-                </v-col>
+                <v-col cols="1" class="ml-6"> Email: </v-col>
                 <v-col>
                   <span v-if="individual.isLocked">{{
                     individual.email || "none"
@@ -152,9 +150,7 @@
                 </v-col>
               </v-row>
               <v-row class="ml-9">
-                <v-col cols="1" class="ml-6">
-                  Country:
-                </v-col>
+                <v-col cols="1" class="ml-6"> Country: </v-col>
                 <v-col>
                   <span v-if="individual.isLocked">
                     {{ individual.country ? individual.country.name : "none" }}
@@ -164,7 +160,7 @@
                     large
                     @save="
                       updateProfile({
-                        countryCode: form.country ? form.country.code : ''
+                        countryCode: form.country ? form.country.code : '',
                       })
                     "
                     @cancel="form.country = individual.country"
@@ -196,9 +192,7 @@
                 </v-col>
               </v-row>
               <v-row class="ml-9">
-                <v-col cols="1" class="ml-6">
-                  Gender:
-                </v-col>
+                <v-col cols="1" class="ml-6"> Gender: </v-col>
                 <v-col>
                   <span v-if="individual.isLocked">
                     {{ individual.gender || "none" }}
@@ -272,8 +266,9 @@
           <v-container class="section">
             <v-subheader>Possible matches</v-subheader>
             <div
-              v-for="({ id, individual },
-              index) in individual.matchRecommendations"
+              v-for="(
+                { id, individual }, index
+              ) in individual.matchRecommendations"
               :key="id"
               class="ml-2 mr-2"
             >
@@ -350,9 +345,7 @@
         </v-card-text>
         <v-card-actions v-if="dialog.action">
           <v-spacer></v-spacer>
-          <v-btn text @click="closeDialog">
-            Cancel
-          </v-btn>
+          <v-btn text @click="closeDialog"> Cancel </v-btn>
           <v-btn
             color="primary"
             id="confirm"
@@ -364,9 +357,7 @@
         </v-card-actions>
         <v-card-actions v-else>
           <v-spacer></v-spacer>
-          <v-btn text color="primary" @click="closeDialog">
-            OK
-          </v-btn>
+          <v-btn text color="primary" @click="closeDialog"> OK </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -377,7 +368,7 @@
 import {
   getCountries,
   getIndividualByUuid,
-  getPaginatedOrganizations
+  getPaginatedOrganizations,
 } from "../apollo/queries";
 import {
   deleteIdentity,
@@ -388,7 +379,7 @@ import {
   unmerge,
   updateEnrollment,
   updateProfile,
-  withdraw
+  withdraw,
 } from "../apollo/mutations";
 import { formatIndividual } from "../utils/actions";
 import { enrollMixin } from "../mixins/enroll";
@@ -407,7 +398,7 @@ export default {
     IndividualCard,
     EnrollmentList,
     EnrollModal,
-    TeamEnrollModal
+    TeamEnrollModal,
   },
   mixins: [enrollMixin],
   data() {
@@ -417,20 +408,20 @@ export default {
         name: "",
         email: "",
         country: "",
-        gender: ""
+        gender: "",
       },
       dialog: {
         open: false,
         title: "",
         text: "",
         errorMessage: "",
-        action: null
+        action: null,
       },
       teamModal: {
         open: false,
-        organization: ""
+        organization: "",
       },
-      countries: []
+      countries: [],
     };
   },
   computed: {
@@ -442,7 +433,7 @@ export default {
         this.individual.matchRecommendations &&
         this.individual.matchRecommendations.length > 0
       );
-    }
+    },
   },
   methods: {
     async fetchIndividual() {
@@ -460,7 +451,7 @@ export default {
           name: this.individual.name,
           email: this.individual.email,
           country: this.individual.country,
-          gender: this.individual.gender
+          gender: this.individual.gender,
         });
 
         document.title = `${this.individual.name} - Sorting Hat`;
@@ -477,7 +468,7 @@ export default {
         this.dialog = {
           open: true,
           title: "Error updating profile",
-          errorMessage: this.$getErrorMessage(error)
+          errorMessage: this.$getErrorMessage(error),
         };
         this.$logger.error(`Error updating profile: ${error}`, data);
       }
@@ -486,14 +477,14 @@ export default {
       try {
         const response = await lockIndividual(this.$apollo, this.mk);
         Object.assign(this.individual, {
-          isLocked: response.data.lock.individual.isLocked
+          isLocked: response.data.lock.individual.isLocked,
         });
         this.$logger.debug(`Locked individual ${this.mk}`);
       } catch (error) {
         this.dialog = {
           open: true,
           title: "Error locking profile",
-          errorMessage: this.$getErrorMessage(error)
+          errorMessage: this.$getErrorMessage(error),
         };
         this.$logger.error(`Error locking individual ${this.mk}: ${error}`);
       }
@@ -502,14 +493,14 @@ export default {
       try {
         const response = await unlockIndividual(this.$apollo, this.mk);
         Object.assign(this.individual, {
-          isLocked: response.data.unlock.individual.isLocked
+          isLocked: response.data.unlock.individual.isLocked,
         });
         this.$logger.debug(`Unlocked individual ${this.mk}`);
       } catch (error) {
         this.dialog = {
           open: true,
           title: "Error updating profile",
-          errorMessage: this.$getErrorMessage(error)
+          errorMessage: this.$getErrorMessage(error),
         };
         this.$logger.error(`Error unlocking individual ${this.mk}: ${error}`);
       }
@@ -522,23 +513,24 @@ export default {
         this.dialog = {
           open: true,
           title: "Error loading country list",
-          errorMessage: this.$getErrorMessage(error)
+          errorMessage: this.$getErrorMessage(error),
         };
       }
     },
     async unmergeIdentities(uuids) {
       try {
         const response = await unmerge(this.$apollo, uuids);
-        const updatedIndividual = response.data.unmergeIdentities.individuals.find(
-          individual => individual.mk === this.mk
-        );
+        const updatedIndividual =
+          response.data.unmergeIdentities.individuals.find(
+            (individual) => individual.mk === this.mk
+          );
         this.updateIndividual(updatedIndividual);
         this.$logger.debug("Unmerged identities", uuids);
       } catch (error) {
         this.dialog = {
           open: true,
           title: "Error updating profile",
-          errorMessage: this.$getErrorMessage(error)
+          errorMessage: this.$getErrorMessage(error),
         };
         this.$logger.error(`Error unmerging identities ${uuids}: ${error}`);
       }
@@ -565,7 +557,7 @@ export default {
         this.dialog = {
           open: true,
           title: "Error updating profile",
-          errorMessage: this.$getErrorMessage(error)
+          errorMessage: this.$getErrorMessage(error),
         };
         this.$logger.error(`Error updating enrollment: ${error}`, data);
       }
@@ -587,11 +579,11 @@ export default {
         this.dialog = {
           open: true,
           title: "Error updating profile",
-          errorMessage: this.$getErrorMessage(error)
+          errorMessage: this.$getErrorMessage(error),
         };
         this.$logger.error(`Error removing affiliation: ${error}`, {
           uuid: this.mk,
-          ...data
+          ...data,
         });
       }
     },
@@ -605,21 +597,21 @@ export default {
         this.dialog = {
           open: true,
           title: "Error deleting profile",
-          errorMessage: this.$getErrorMessage(error)
+          errorMessage: this.$getErrorMessage(error),
         };
       }
     },
     openTeamModal(organization) {
       this.teamModal = {
         open: true,
-        organization: organization
+        organization: organization,
       };
     },
     confirmDelete() {
       this.dialog = {
         open: true,
         title: `Delete ${this.individual.name}?`,
-        action: this.deleteIndividual
+        action: this.deleteIndividual,
       };
     },
     closeDialog() {
@@ -627,7 +619,7 @@ export default {
         open: false,
         title: "",
         text: "",
-        errorMessage: ""
+        errorMessage: "",
       };
     },
     updateIndividual(newData) {
@@ -655,15 +647,15 @@ export default {
         this.dialog = {
           open: true,
           title: "Error applying recommendation",
-          errorMessage: this.$getErrorMessage(error)
+          errorMessage: this.$getErrorMessage(error),
         };
         this.$logger.error(`Error applying recommendation ${id}: ${error}`);
       }
-    }
+    },
   },
   mounted() {
     this.fetchIndividual();
-  }
+  },
 };
 </script>
 

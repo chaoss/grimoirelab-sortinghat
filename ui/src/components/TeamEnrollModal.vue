@@ -68,32 +68,32 @@ export default {
     isOpen: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
     uuid: {
       type: String,
-      required: true
+      required: true,
     },
     organization: {
       type: String,
-      required: false
+      required: false,
     },
     enroll: {
       type: Function,
-      required: true
-    }
+      required: true,
+    },
   },
   data() {
     return {
       form: {
         team: null,
         dateFrom: null,
-        dateTo: null
+        dateTo: null,
       },
       validations: {
-        required: [value => !!value || "Required"]
+        required: [(value) => !!value || "Required"],
       },
-      errorMessage: null
+      errorMessage: null,
     };
   },
   methods: {
@@ -105,8 +105,8 @@ export default {
         {
           team: null,
           dateFrom: null,
-          dateTo: null
-        }
+          dateTo: null,
+        },
       ];
       this.errorMessage = null;
     },
@@ -131,7 +131,7 @@ export default {
             group: this.form.team,
             parentOrg: this.organization,
             fromDate: this.form.dateFrom,
-            toDate: this.form.dateTo
+            toDate: this.form.dateTo,
           });
           this.$emit("updateIndividual", response.data.enroll.individual);
           this.closeModal();
@@ -143,7 +143,7 @@ export default {
           this.form
         );
       }
-    }
-  }
+    },
+  },
 };
 </script>

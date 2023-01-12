@@ -53,9 +53,7 @@
         <div>
           <v-tooltip bottom>
             <template v-slot:activator="{ on }">
-              <v-icon v-on="on" class="mr-8" left>
-                mdi-sitemap
-              </v-icon>
+              <v-icon v-on="on" class="mr-8" left> mdi-sitemap </v-icon>
             </template>
             <span>Organization</span>
           </v-tooltip>
@@ -79,9 +77,7 @@
                 <span class="grey--text text--darken-2 ml-6">
                   {{ formatDate(enrollment.start) }}
                 </span>
-                <v-icon small right>
-                  mdi-lead-pencil
-                </v-icon>
+                <v-icon small right> mdi-lead-pencil </v-icon>
               </button>
             </template>
             <v-date-picker
@@ -109,7 +105,7 @@
                     newFromDate: new Date(
                       enrollment.form.fromDate
                     ).toISOString(),
-                    group: enrollment.group.name
+                    group: enrollment.group.name,
                   });
                   enrollment.form.fromDateMenu = false;
                 "
@@ -137,9 +133,7 @@
                 <span class="grey--text text--darken-2 ml-2">
                   {{ formatDate(enrollment.end) }}
                 </span>
-                <v-icon small right>
-                  mdi-lead-pencil
-                </v-icon>
+                <v-icon small right> mdi-lead-pencil </v-icon>
               </button>
             </template>
             <v-date-picker
@@ -165,7 +159,7 @@
                     fromDate: enrollment.start,
                     toDate: enrollment.end,
                     newToDate: new Date(enrollment.form.toDate).toISOString(),
-                    group: enrollment.group.name
+                    group: enrollment.group.name,
                   });
                   enrollment.form.toDateMenu = false;
                 "
@@ -184,9 +178,7 @@
                 v-on="on"
                 @click="$emit('openTeamModal', enrollment.group.name)"
               >
-                <v-icon>
-                  mdi-account-multiple-plus
-                </v-icon>
+                <v-icon> mdi-account-multiple-plus </v-icon>
               </v-btn>
             </template>
             <span>Add to team</span>
@@ -201,13 +193,11 @@
                   $emit('withdraw', {
                     name: enrollment.group.name,
                     fromDate: enrollment.start,
-                    toDate: enrollment.end
+                    toDate: enrollment.end,
                   })
                 "
               >
-                <v-icon>
-                  mdi-delete
-                </v-icon>
+                <v-icon> mdi-delete </v-icon>
               </v-btn>
             </template>
             <span>Remove affiliation</span>
@@ -242,9 +232,7 @@
                   <span class="grey--text text--darken-2 ml-6">
                     {{ formatDate(team.start) }}
                   </span>
-                  <v-icon small right>
-                    mdi-lead-pencil
-                  </v-icon>
+                  <v-icon small right> mdi-lead-pencil </v-icon>
                 </button>
               </template>
               <v-date-picker
@@ -271,7 +259,7 @@
                       toDate: team.end,
                       newFromDate: new Date(team.form.fromDate).toISOString(),
                       group: team.group.name,
-                      parentOrg: team.group.parentOrg.name
+                      parentOrg: team.group.parentOrg.name,
                     });
                     team.form.fromDateMenu = false;
                   "
@@ -299,9 +287,7 @@
                   <span class="grey--text text--darken-2 ml-2">
                     {{ formatDate(team.end) }}
                   </span>
-                  <v-icon small right>
-                    mdi-lead-pencil
-                  </v-icon>
+                  <v-icon small right> mdi-lead-pencil </v-icon>
                 </button>
               </template>
               <v-date-picker
@@ -328,7 +314,7 @@
                       toDate: team.end,
                       newToDate: new Date(team.form.toDate).toISOString(),
                       group: team.group.name,
-                      parentOrg: team.group.parentOrg.name
+                      parentOrg: team.group.parentOrg.name,
                     });
                     team.form.toDateMenu = false;
                   "
@@ -350,13 +336,11 @@
                     name: team.group.name,
                     fromDate: team.start,
                     toDate: team.end,
-                    parentOrg: team.group.parentOrg.name
+                    parentOrg: team.group.parentOrg.name,
                   })
                 "
               >
-                <v-icon>
-                  mdi-delete
-                </v-icon>
+                <v-icon> mdi-delete </v-icon>
               </v-btn>
             </template>
             <span>Remove affiliation</span>
@@ -373,22 +357,22 @@ export default {
   props: {
     enrollments: {
       type: Array,
-      required: true
+      required: true,
     },
     compact: {
       type: Boolean,
       required: false,
-      default: false
+      default: false,
     },
     isLocked: {
       type: Boolean,
       required: false,
-      default: false
-    }
+      default: false,
+    },
   },
   data() {
     return {
-      items: {}
+      items: {},
     };
   },
   methods: {
@@ -396,12 +380,12 @@ export default {
       return dateTime.split("T")[0];
     },
     groupEnrollments(enrollments) {
-      return enrollments.reduce(function(acc, obj) {
+      return enrollments.reduce(function (acc, obj) {
         const form = {
           fromDate: obj.start.split("T")[0],
           fromDateMenu: false,
           toDate: obj.end.split("T")[0],
-          toDateMenu: false
+          toDateMenu: false,
         };
 
         if (obj.group.parentOrg) {
@@ -409,7 +393,7 @@ export default {
           if (!acc[parent]) {
             acc[parent] = {
               enrollments: [],
-              teams: []
+              teams: [],
             };
           }
           obj = Object.assign({}, obj, { form: form });
@@ -419,7 +403,7 @@ export default {
           if (!acc[key]) {
             acc[key] = {
               enrollments: [],
-              teams: []
+              teams: [],
             };
           }
           obj = Object.assign({}, obj, { form: form });
@@ -429,26 +413,26 @@ export default {
       }, {});
     },
     withdrawAll() {
-      this.enrollments.forEach(enrollment => {
+      this.enrollments.forEach((enrollment) => {
         this.$emit("withdraw", {
           name: enrollment.group.name,
           fromDate: enrollment.start,
           toDate: enrollment.end,
           parentOrg: enrollment.group.parentOrg
             ? enrollment.group.parentOrg.name
-            : null
+            : null,
         });
       });
-    }
+    },
   },
   watch: {
     enrollments(value) {
       this.items = this.groupEnrollments(value);
-    }
+    },
   },
   created() {
     this.items = this.groupEnrollments(this.enrollments);
-  }
+  },
 };
 </script>
 

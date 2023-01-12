@@ -3,7 +3,7 @@ import { aliasQuery } from "../utils/graphql-test-utils";
 describe("Login", () => {
   beforeEach(() => {
     // Intercept GraphQL requests to wait for them in the tests
-    cy.intercept("POST", "/api/", req => {
+    cy.intercept("POST", "/api/", (req) => {
       aliasQuery(req, "tokenAuth");
     });
   });
@@ -36,9 +36,7 @@ describe("Login", () => {
     cy.contains("button", "Log in").click();
 
     // Does not return a token
-    cy.wait("@tokenAuth")
-      .its("response.body.data.tokenAuth")
-      .should("be.null");
+    cy.wait("@tokenAuth").its("response.body.data.tokenAuth").should("be.null");
 
     // still on /login page plus an error is displayed
     cy.location("pathname").should("equal", "/login");
@@ -55,7 +53,7 @@ describe("Authenticated operations", () => {
       "Test merge 1",
       "Test merge 2",
       "Test delete 1",
-      "Test delete 2"
+      "Test delete 2",
     ]);
   });
 
@@ -64,7 +62,7 @@ describe("Authenticated operations", () => {
     Cypress.Cookies.preserveOnce("sh_authtoken", "csrftoken");
 
     // Intercept GraphQL requests to wait for them in the tests
-    cy.intercept("POST", "/api/", req => {
+    cy.intercept("POST", "/api/", (req) => {
       aliasQuery(req, "DeleteIdentity");
       aliasQuery(req, "GetIndividuals");
       aliasQuery(req, "Merge");
@@ -82,7 +80,7 @@ describe("Authenticated operations", () => {
     cy.wait("@GetIndividuals");
     cy.wait(200);
 
-    cy.getIndividualsCount().then(count => {
+    cy.getIndividualsCount().then((count) => {
       cy.get('[data-cy="individual-add"]').click();
       cy.get("[id=name]").type("John Smith");
       cy.get("[id=source]").type("git");
@@ -127,7 +125,7 @@ describe("Authenticated operations", () => {
     cy.orderBy("Last updated");
     cy.addToWorkspace(["Test merge 1", "Test merge 2"]);
 
-    cy.getIndividualsCount().then(count => {
+    cy.getIndividualsCount().then((count) => {
       // Select and merge individuals
       cy.contains("tr", "Test merge 1")
         .click()
@@ -189,7 +187,7 @@ describe("Authenticated operations", () => {
     cy.orderBy("Last updated");
     cy.wait("@GetIndividuals");
 
-    cy.getIndividualsCount().then(count => {
+    cy.getIndividualsCount().then((count) => {
       cy.contains("tr", "Test merge 2")
         .dblclick()
         .next()
@@ -235,7 +233,7 @@ describe("Authenticated operations", () => {
     cy.orderBy("Last updated");
     cy.addToWorkspace(["Test delete 1", "Test delete 2"]);
 
-    cy.getIndividualsCount().then(count => {
+    cy.getIndividualsCount().then((count) => {
       // Select and delete individuals
       cy.contains("tr", "Test delete 1")
         .click()
