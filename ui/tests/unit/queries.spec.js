@@ -1,4 +1,4 @@
-import { shallowMount, mount } from "@vue/test-utils";
+import { shallowMount } from "@vue/test-utils";
 import Vue from "vue";
 import Vuetify from "vuetify";
 import IndividualsData from "@/components/IndividualsData";
@@ -165,6 +165,10 @@ const jobsMocked = {
 };
 
 describe("IndividualsData", () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   test("mock query for getIndividuals", async () => {
     const query = jest.fn(() => Promise.resolve(responseMocked));
     const wrapper = shallowMount(IndividualsData, {
@@ -194,17 +198,10 @@ describe("IndividualsData", () => {
     expect(wrapper.element).toMatchSnapshot();
   });
 
-  test("getIndividuals with arguments", async () => {
-    const getIndividualsSpied = spyOn(Queries.getIndividuals, "query");
-
-    let response = await Queries.getIndividuals.query(undefined, 10, 100);
-    expect(getIndividualsSpied).toHaveBeenLastCalledWith(undefined, 10, 100);
-  });
-
   test("getIndividuals with default arguments in the IndividualsData component", async () => {
-    const getIndividualsSpied = spyOn(Queries.getIndividuals, "query");
+    const getIndividualsSpied = jest.spyOn(Queries.getIndividuals, "query");
     const query = jest.fn(() => Promise.resolve(responseMocked));
-    const wrapper = mount(IndividualsData, {
+    const wrapper = shallowMount(IndividualsData, {
       Vue,
       mocks: {
         $apollo: {
@@ -223,9 +220,9 @@ describe("IndividualsData", () => {
   });
 
   test("infinite scroll won't call for more individuals if the page is not at the bottom", async () => {
-    const getIndividualsSpied = spyOn(Queries.getIndividuals, "query");
+    const getIndividualsSpied = jest.spyOn(Queries.getIndividuals, "query");
     const query = jest.fn(() => Promise.resolve(responseMocked));
-    const wrapper = mount(IndividualsData, {
+    const wrapper = shallowMount(IndividualsData, {
       Vue,
       mocks: {
         $apollo: {
@@ -279,7 +276,7 @@ describe("IndividualsTable", () => {
       }
     });
     await wrapper.setProps({ fetchPage: query });
-    const response = await Queries.getPaginatedIndividuals(
+    await Queries.getPaginatedIndividuals(
       wrapper.vm.$apollo,
       1,
       1
@@ -290,7 +287,6 @@ describe("IndividualsTable", () => {
   });
 
   test("Searches by term", async () => {
-    const querySpy = spyOn(Queries, "getPaginatedIndividuals");
     const query = jest.fn(() => Promise.resolve(paginatedResponse));
     const wrapper = mountFunction({
       mocks: {
@@ -299,16 +295,15 @@ describe("IndividualsTable", () => {
         }
       }
     });
-    await wrapper.setProps({ fetchPage: Queries.getPaginatedIndividuals });
+    await wrapper.setProps({ fetchPage: query });
     await wrapper.setData({ filters: { term: "test" } });
 
     const response = await wrapper.vm.queryIndividuals(1);
 
-    expect(querySpy).toHaveBeenCalledWith(1, 10, { term: "test" }, null);
+    expect(query).toHaveBeenCalledWith(1, 10, { term: "test" }, null);
   });
 
   test("Searches by gender", async () => {
-    const querySpy = spyOn(Queries, "getPaginatedIndividuals");
     const query = jest.fn(() => Promise.resolve(paginatedResponse));
     const wrapper = mountFunction({
       mocks: {
@@ -317,16 +312,15 @@ describe("IndividualsTable", () => {
         }
       }
     });
-    await wrapper.setProps({ fetchPage: Queries.getPaginatedIndividuals });
+    await wrapper.setProps({ fetchPage: query });
     await wrapper.setData({ filters: { gender: "gender" } });
 
     const response = await wrapper.vm.queryIndividuals(1);
 
-    expect(querySpy).toHaveBeenCalledWith(1, 10, { gender: "gender" }, null);
+    expect(query).toHaveBeenCalledWith(1, 10, { gender: "gender" }, null);
   });
 
   test("Searches by lastUpdated", async () => {
-    const querySpy = spyOn(Queries, "getPaginatedIndividuals");
     const query = jest.fn(() => Promise.resolve(paginatedResponse));
     const wrapper = mountFunction({
       mocks: {
@@ -335,14 +329,14 @@ describe("IndividualsTable", () => {
         }
       }
     });
-    await wrapper.setProps({ fetchPage: Queries.getPaginatedIndividuals });
+    await wrapper.setProps({ fetchPage: query });
     await wrapper.setData({
       filters: { lastUpdated: "<2000-01-01T00:00:00.000Z" }
     });
 
     const response = await wrapper.vm.queryIndividuals(1);
 
-    expect(querySpy).toHaveBeenCalledWith(
+    expect(query).toHaveBeenCalledWith(
       1,
       10,
       {
@@ -353,7 +347,6 @@ describe("IndividualsTable", () => {
   });
 
   test("Searches by isBot", async () => {
-    const querySpy = spyOn(Queries, "getPaginatedIndividuals");
     const query = jest.fn(() => Promise.resolve(paginatedResponse));
     const wrapper = mountFunction({
       mocks: {
@@ -362,16 +355,15 @@ describe("IndividualsTable", () => {
         }
       }
     });
-    await wrapper.setProps({ fetchPage: Queries.getPaginatedIndividuals });
+    await wrapper.setProps({ fetchPage: query });
     await wrapper.setData({ filters: { isBot: true } });
 
     const response = await wrapper.vm.queryIndividuals(1);
 
-    expect(querySpy).toHaveBeenCalledWith(1, 10, { isBot: true }, null);
+    expect(query).toHaveBeenCalledWith(1, 10, { isBot: true }, null);
   });
 
   test("Searches by country", async () => {
-    const querySpy = spyOn(Queries, "getPaginatedIndividuals");
     const query = jest.fn(() => Promise.resolve(paginatedResponse));
     const wrapper = mountFunction({
       mocks: {
@@ -380,18 +372,17 @@ describe("IndividualsTable", () => {
         }
       }
     });
-    await wrapper.setProps({ fetchPage: Queries.getPaginatedIndividuals });
+    await wrapper.setProps({ fetchPage: query });
     await wrapper.setData({ filters: { country: "Spain" } });
 
     const response = await wrapper.vm.queryIndividuals(1);
 
-    expect(querySpy).toHaveBeenCalledWith(1, 10, { country: "Spain" }, null);
+    expect(query).toHaveBeenCalledWith(1, 10, { country: "Spain" }, null);
   });
 
   test.each(["lastModified", "createdAt"])(
     "Orders query by %p",
     async value => {
-      const querySpy = spyOn(Queries, "getPaginatedIndividuals");
       const query = jest.fn(() => Promise.resolve(paginatedResponse));
       const wrapper = mountFunction({
         mocks: {
@@ -400,12 +391,12 @@ describe("IndividualsTable", () => {
           }
         }
       });
-      await wrapper.setProps({ fetchPage: Queries.getPaginatedIndividuals });
+      await wrapper.setProps({ fetchPage: query });
       await wrapper.setData({ orderBy: value });
 
       const response = await wrapper.vm.queryIndividuals(1);
 
-      expect(querySpy).toHaveBeenCalledWith(1, 10, {}, value);
+      expect(query).toHaveBeenCalledWith(1, 10, {}, value);
     }
   );
 
@@ -419,7 +410,7 @@ describe("IndividualsTable", () => {
       }
     });
     await wrapper.setProps({ getCountries: query });
-    const response = await Queries.getCountries(wrapper.vm.$apollo);
+    await Queries.getCountries(wrapper.vm.$apollo);
 
     expect(query).toBeCalled();
     expect(wrapper.element).toMatchSnapshot();
@@ -449,19 +440,15 @@ describe("OrganizationsTable", () => {
       }
     });
 
-    const response = await Queries.getPaginatedOrganizations(
-      wrapper.vm.$apollo,
-      1,
-      1
-    );
-
     expect(query).toBeCalled();
+
+    await Vue.nextTick();
+
     expect(wrapper.element).toMatchSnapshot();
   });
 
   test("Mock search by term", async () => {
-    const querySpy = spyOn(Queries, "getPaginatedOrganizations");
-    const query = jest.fn(() => Promise.resolve(paginatedResponse));
+    const query = jest.fn(() => Promise.resolve(paginatedOrganizations));
     const wrapper = shallowMount(OrganizationsTable, {
       Vue,
       mocks: {
@@ -470,7 +457,7 @@ describe("OrganizationsTable", () => {
         }
       },
       propsData: {
-        fetchPage: Queries.getPaginatedOrganizations,
+        fetchPage: query,
         enroll: () => {},
         addDomain: () => {},
         addOrganization: () => {},
@@ -487,9 +474,7 @@ describe("OrganizationsTable", () => {
       }
     });
 
-    const response = await wrapper.vm.fetchPage();
-
-    expect(querySpy).toHaveBeenCalledWith(1, 10, { term: "Bitergia" });
+    expect(query).toHaveBeenCalledWith(1, 10, { term: "Bitergia" });
   });
 });
 
@@ -507,7 +492,7 @@ describe("JobsTable", () => {
         getJobs: query
       }
     });
-    const response = await Queries.getJobs(wrapper.vm.$apollo, 2, 10);
+    await Vue.nextTick();
 
     expect(query).toBeCalled();
     expect(wrapper.element).toMatchSnapshot();
@@ -534,9 +519,8 @@ describe("TeamModal", () => {
         parent: "Parent Organization"
       }
     });
-    const response = await Queries.getTeams(wrapper.vm.$apollo, 1, 1);
 
-    expect(query).toBeCalled();
+    expect(query).toBeCalledWith({ organization: "Parent Organization"});
     expect(wrapper.element).toMatchSnapshot();
   });
 });

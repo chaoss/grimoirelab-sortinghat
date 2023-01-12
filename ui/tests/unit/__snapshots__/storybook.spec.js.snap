@@ -122,16 +122,7 @@ exports[`Storyshots DateInput Default 1`] = `
               <div
                 class="v-input__append-inner"
               >
-                <div
-                  class="v-input__icon v-input__icon--clear"
-                >
-                  <button
-                    aria-label="clear icon"
-                    class="v-icon notranslate v-icon--disabled v-icon--link mdi mdi-close theme--light"
-                    disabled="disabled"
-                    type="button"
-                  />
-                </div>
+                <div />
               </div>
             </div>
             <div
@@ -185,7 +176,9 @@ exports[`Storyshots DateInput Error 1`] = `
                 <legend
                   style="width: 0px;"
                 >
-                  <span>
+                  <span
+                    class="notranslate"
+                  >
                     ​
                   </span>
                 </legend>
@@ -195,13 +188,13 @@ exports[`Storyshots DateInput Error 1`] = `
               >
                 <label
                   class="v-label v-label--active theme--light"
-                  for="input-35"
+                  for="input-34"
                   style="left: 0px; position: absolute;"
                 >
                   Label
                 </label>
                 <input
-                  id="input-35"
+                  id="input-34"
                   type="text"
                 />
               </div>
@@ -214,6 +207,7 @@ exports[`Storyshots DateInput Error 1`] = `
                   <button
                     aria-label="clear icon"
                     class="v-icon notranslate v-icon--link mdi mdi-close theme--light"
+                    tabindex="-1"
                     type="button"
                   />
                 </div>
@@ -269,29 +263,20 @@ exports[`Storyshots DateInput Filled 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-45"
+                  for="input-44"
                   style="left: 0px; position: absolute;"
                 >
                   Label
                 </label>
                 <input
-                  id="input-45"
+                  id="input-44"
                   type="text"
                 />
               </div>
               <div
                 class="v-input__append-inner"
               >
-                <div
-                  class="v-input__icon v-input__icon--clear"
-                >
-                  <button
-                    aria-label="clear icon"
-                    class="v-icon notranslate v-icon--disabled v-icon--link mdi mdi-close theme--light"
-                    disabled="disabled"
-                    type="button"
-                  />
-                </div>
+                <div />
               </div>
             </div>
             <div
@@ -345,7 +330,9 @@ exports[`Storyshots DateInput Outlined 1`] = `
                 <legend
                   style="width: 0px;"
                 >
-                  <span>
+                  <span
+                    class="notranslate"
+                  >
                     ​
                   </span>
                 </legend>
@@ -355,29 +342,20 @@ exports[`Storyshots DateInput Outlined 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-55"
+                  for="input-53"
                   style="left: 0px; position: absolute;"
                 >
                   Label
                 </label>
                 <input
-                  id="input-55"
+                  id="input-53"
                   type="text"
                 />
               </div>
               <div
                 class="v-input__append-inner"
               >
-                <div
-                  class="v-input__icon v-input__icon--clear"
-                >
-                  <button
-                    aria-label="clear icon"
-                    class="v-icon notranslate v-icon--disabled v-icon--link mdi mdi-close theme--light"
-                    disabled="disabled"
-                    type="button"
-                  />
-                </div>
+                <div />
               </div>
             </div>
             <div
@@ -414,7 +392,7 @@ exports[`Storyshots EnrollModal Default 1`] = `
       data-app="true"
     >
       <button
-        class="v-btn v-btn--contained theme--dark v-size--default primary"
+        class="v-btn v-btn--is-elevated v-btn--has-bg theme--dark v-size--default primary"
         type="button"
       >
         <span
@@ -428,7 +406,6 @@ exports[`Storyshots EnrollModal Default 1`] = `
        
       <div
         class="v-dialog__container"
-        role="dialog"
       >
         <!---->
       </div>
@@ -451,7 +428,7 @@ exports[`Storyshots EnrollModal With Organization 1`] = `
       data-app="true"
     >
       <button
-        class="v-btn v-btn--contained theme--dark v-size--default primary"
+        class="v-btn v-btn--is-elevated v-btn--has-bg theme--dark v-size--default primary"
         type="button"
       >
         <span
@@ -465,7 +442,6 @@ exports[`Storyshots EnrollModal With Organization 1`] = `
        
       <div
         class="v-dialog__container"
-        role="dialog"
       >
         <!---->
       </div>
@@ -615,7 +591,7 @@ exports[`Storyshots EnrollmentList Default 1`] = `
     
         <div>
           <button
-            class="mr-4 v-btn v-btn--depressed v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
+            class="mr-4 v-btn v-btn--outlined v-btn--text theme--light v-size--small"
             type="button"
           >
             <span
@@ -633,7 +609,7 @@ exports[`Storyshots EnrollmentList Default 1`] = `
           </button>
            
           <button
-            class="v-btn v-btn--depressed v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
+            class="v-btn v-btn--outlined v-btn--text theme--light v-size--small"
             type="button"
           >
             <span
@@ -733,7 +709,7 @@ exports[`Storyshots EnrollmentList Default 1`] = `
             >
               <!---->
               <button
-                class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                 type="button"
               >
                 <span
@@ -752,7 +728,7 @@ exports[`Storyshots EnrollmentList Default 1`] = `
             >
               <!---->
               <button
-                class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                 type="button"
               >
                 <span
@@ -843,7 +819,7 @@ exports[`Storyshots EnrollmentList Default 1`] = `
             >
               <!---->
               <button
-                class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                 type="button"
               >
                 <span
@@ -929,7 +905,7 @@ exports[`Storyshots EnrollmentList Default 1`] = `
             >
               <!---->
               <button
-                class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                 type="button"
               >
                 <span
@@ -1026,7 +1002,7 @@ exports[`Storyshots EnrollmentList Default 1`] = `
             >
               <!---->
               <button
-                class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                 type="button"
               >
                 <span
@@ -1045,7 +1021,7 @@ exports[`Storyshots EnrollmentList Default 1`] = `
             >
               <!---->
               <button
-                class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                 type="button"
               >
                 <span
@@ -1146,7 +1122,7 @@ exports[`Storyshots EnrollmentList Default 1`] = `
             >
               <!---->
               <button
-                class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                 type="button"
               >
                 <span
@@ -1165,7 +1141,7 @@ exports[`Storyshots EnrollmentList Default 1`] = `
             >
               <!---->
               <button
-                class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                 type="button"
               >
                 <span
@@ -1468,7 +1444,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
           </span>
            
           <button
-            class="v-btn v-btn--depressed v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
+            class="v-btn v-btn--outlined v-btn--text theme--light v-size--small"
             type="button"
           >
             <span
@@ -1596,7 +1572,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
             >
               <!---->
               <button
-                class="v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                class="v-btn v-btn--disabled v-btn--icon v-btn--round theme--light v-size--default"
                 disabled="disabled"
                 type="button"
               >
@@ -1708,7 +1684,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
             >
               <!---->
               <button
-                class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                 type="button"
               >
                 <span
@@ -1834,7 +1810,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
             >
               <!---->
               <button
-                class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                 type="button"
               >
                 <span
@@ -1960,7 +1936,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
             >
               <!---->
               <button
-                class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                 type="button"
               >
                 <span
@@ -2006,7 +1982,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
     
           <div>
             <button
-              class="mr-4 v-btn v-btn--depressed v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
+              class="mr-4 v-btn v-btn--outlined v-btn--text theme--light v-size--small"
               type="button"
             >
               <span
@@ -2024,7 +2000,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
             </button>
              
             <button
-              class="v-btn v-btn--depressed v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
+              class="v-btn v-btn--outlined v-btn--text theme--light v-size--small"
               type="button"
             >
               <span
@@ -2124,7 +2100,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
               >
                 <!---->
                 <button
-                  class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                  class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                   type="button"
                 >
                   <span
@@ -2143,7 +2119,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
               >
                 <!---->
                 <button
-                  class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                  class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                   type="button"
                 >
                   <span
@@ -2244,7 +2220,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
               >
                 <!---->
                 <button
-                  class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                  class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                   type="button"
                 >
                   <span
@@ -2263,7 +2239,7 @@ exports[`Storyshots ExpandedIndividual Default 1`] = `
               >
                 <!---->
                 <button
-                  class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                  class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                   type="button"
                 >
                   <span
@@ -2311,7 +2287,7 @@ exports[`Storyshots ExpandedIndividual No Organizations 1`] = `
           </span>
            
           <button
-            class="v-btn v-btn--depressed v-btn--disabled v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
+            class="v-btn v-btn--disabled v-btn--outlined v-btn--text theme--light v-size--small"
             disabled="disabled"
             type="button"
           >
@@ -2440,7 +2416,7 @@ exports[`Storyshots ExpandedIndividual No Organizations 1`] = `
             >
               <!---->
               <button
-                class="v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                class="v-btn v-btn--disabled v-btn--icon v-btn--round theme--light v-size--default"
                 disabled="disabled"
                 type="button"
               >
@@ -2487,7 +2463,7 @@ exports[`Storyshots ExpandedIndividual No Organizations 1`] = `
     
           <div>
             <button
-              class="mr-4 v-btn v-btn--depressed v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
+              class="mr-4 v-btn v-btn--outlined v-btn--text theme--light v-size--small"
               type="button"
             >
               <span
@@ -2505,7 +2481,7 @@ exports[`Storyshots ExpandedIndividual No Organizations 1`] = `
             </button>
              
             <button
-              class="v-btn v-btn--depressed v-btn--disabled v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
+              class="v-btn v-btn--disabled v-btn--outlined v-btn--text theme--light v-size--small"
               disabled="disabled"
               type="button"
             >
@@ -2598,8 +2574,7 @@ exports[`Storyshots ExpandedOrganization Default 1`] = `
           )
       
           <button
-            class="v-btn v-btn--flat v-btn--text theme--light v-size--small"
-            plain=""
+            class="v-btn v-btn--plain v-btn--text theme--light v-size--small"
             style="height: 34px;"
             type="button"
           >
@@ -2658,8 +2633,7 @@ exports[`Storyshots ExpandedOrganization Empty 1`] = `
           )
       
           <button
-            class="v-btn v-btn--flat v-btn--text theme--light v-size--small"
-            plain=""
+            class="v-btn v-btn--plain v-btn--text theme--light v-size--small"
             style="height: 34px;"
             type="button"
           >
@@ -2708,8 +2682,7 @@ exports[`Storyshots ExpandedOrganization Group 1`] = `
           )
       
           <button
-            class="v-btn v-btn--flat v-btn--text theme--light v-size--small"
-            plain=""
+            class="v-btn v-btn--plain v-btn--text theme--light v-size--small"
             style="height: 34px;"
             type="button"
           >
@@ -2928,7 +2901,7 @@ exports[`Storyshots IdentitiesList Default 1`] = `
         </span>
          
         <button
-          class="v-btn v-btn--depressed v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
+          class="v-btn v-btn--outlined v-btn--text theme--light v-size--small"
           type="button"
         >
           <span
@@ -3047,7 +3020,7 @@ exports[`Storyshots IdentitiesList Default 1`] = `
           >
             <!---->
             <button
-              class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+              class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
               type="button"
             >
               <span
@@ -3163,7 +3136,7 @@ exports[`Storyshots IdentitiesList Default 1`] = `
           >
             <!---->
             <button
-              class="v-btn v-btn--disabled v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+              class="v-btn v-btn--disabled v-btn--icon v-btn--round theme--light v-size--default"
               disabled="disabled"
               type="button"
             >
@@ -3286,7 +3259,7 @@ exports[`Storyshots IdentitiesList Default 1`] = `
           >
             <!---->
             <button
-              class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+              class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
               type="button"
             >
               <span
@@ -3408,7 +3381,7 @@ exports[`Storyshots IdentitiesList Default 1`] = `
           >
             <!---->
             <button
-              class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+              class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
               type="button"
             >
               <span
@@ -3748,7 +3721,7 @@ exports[`Storyshots IndividualCard Closable 1`] = `
             class="v-menu"
           >
             <button
-              class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+              class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
               data-cy="expand-button"
               type="button"
             >
@@ -3766,7 +3739,7 @@ exports[`Storyshots IndividualCard Closable 1`] = `
           </div>
            
           <button
-            class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
+            class="v-btn v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
             type="button"
           >
             <span
@@ -3848,7 +3821,7 @@ exports[`Storyshots IndividualCard Default 1`] = `
             class="v-menu"
           >
             <button
-              class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+              class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
               data-cy="expand-button"
               type="button"
             >
@@ -3935,7 +3908,7 @@ exports[`Storyshots IndividualCard Gravatar 1`] = `
             class="v-menu"
           >
             <button
-              class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+              class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
               data-cy="expand-button"
               type="button"
             >
@@ -4022,7 +3995,7 @@ exports[`Storyshots IndividualCard Highlighted 1`] = `
             class="v-menu"
           >
             <button
-              class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+              class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
               data-cy="expand-button"
               type="button"
             >
@@ -4109,7 +4082,7 @@ exports[`Storyshots IndividualCard No Name 1`] = `
             class="v-menu"
           >
             <button
-              class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+              class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
               data-cy="expand-button"
               type="button"
             >
@@ -4206,7 +4179,7 @@ exports[`Storyshots IndividualCard Organization 1`] = `
             class="v-menu"
           >
             <button
-              class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+              class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
               data-cy="expand-button"
               type="button"
             >
@@ -4293,7 +4266,7 @@ exports[`Storyshots IndividualCard Selectable 1`] = `
             class="v-menu"
           >
             <button
-              class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+              class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
               data-cy="expand-button"
               type="button"
             >
@@ -4380,7 +4353,7 @@ exports[`Storyshots IndividualCard Selected 1`] = `
             class="v-menu"
           >
             <button
-              class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+              class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
               data-cy="expand-button"
               type="button"
             >
@@ -4467,7 +4440,7 @@ exports[`Storyshots IndividualCard Single Initial 1`] = `
             class="v-menu"
           >
             <button
-              class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+              class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
               data-cy="expand-button"
               type="button"
             >
@@ -4595,7 +4568,7 @@ exports[`Storyshots IndividualCard Sources 1`] = `
             class="v-menu"
           >
             <button
-              class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+              class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
               data-cy="expand-button"
               type="button"
             >
@@ -4733,7 +4706,7 @@ exports[`Storyshots IndividualCard Sources And Organization 1`] = `
             class="v-menu"
           >
             <button
-              class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+              class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
               data-cy="expand-button"
               type="button"
             >
@@ -4909,7 +4882,7 @@ exports[`Storyshots IndividualEntry Bot 1`] = `
                 width="140"
               >
                 <button
-                  class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                  class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                   type="button"
                 >
                   <span
@@ -4928,7 +4901,7 @@ exports[`Storyshots IndividualEntry Bot 1`] = `
                   <button
                     aria-expanded="false"
                     aria-haspopup="true"
-                    class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                    class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                     role="button"
                     type="button"
                   >
@@ -5113,7 +5086,7 @@ exports[`Storyshots IndividualEntry Bot And Locked 1`] = `
                 width="140"
               >
                 <button
-                  class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                  class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                   type="button"
                 >
                   <span
@@ -5132,7 +5105,7 @@ exports[`Storyshots IndividualEntry Bot And Locked 1`] = `
                   <button
                     aria-expanded="false"
                     aria-haspopup="true"
-                    class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                    class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                     role="button"
                     type="button"
                   >
@@ -5317,7 +5290,7 @@ exports[`Storyshots IndividualEntry Default 1`] = `
                 width="140"
               >
                 <button
-                  class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                  class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                   type="button"
                 >
                   <span
@@ -5336,7 +5309,7 @@ exports[`Storyshots IndividualEntry Default 1`] = `
                   <button
                     aria-expanded="false"
                     aria-haspopup="true"
-                    class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                    class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                     role="button"
                     type="button"
                   >
@@ -5515,7 +5488,7 @@ exports[`Storyshots IndividualEntry Gravatar 1`] = `
                 width="140"
               >
                 <button
-                  class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                  class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                   type="button"
                 >
                   <span
@@ -5534,7 +5507,7 @@ exports[`Storyshots IndividualEntry Gravatar 1`] = `
                   <button
                     aria-expanded="false"
                     aria-haspopup="true"
-                    class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                    class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                     role="button"
                     type="button"
                   >
@@ -5719,7 +5692,7 @@ exports[`Storyshots IndividualEntry Highlighted 1`] = `
                 width="140"
               >
                 <button
-                  class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                  class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                   type="button"
                 >
                   <span
@@ -5738,7 +5711,7 @@ exports[`Storyshots IndividualEntry Highlighted 1`] = `
                   <button
                     aria-expanded="false"
                     aria-haspopup="true"
-                    class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                    class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                     role="button"
                     type="button"
                   >
@@ -5923,7 +5896,7 @@ exports[`Storyshots IndividualEntry Locked 1`] = `
                 width="140"
               >
                 <button
-                  class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                  class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                   type="button"
                 >
                   <span
@@ -5942,7 +5915,7 @@ exports[`Storyshots IndividualEntry Locked 1`] = `
                   <button
                     aria-expanded="false"
                     aria-haspopup="true"
-                    class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                    class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                     role="button"
                     type="button"
                   >
@@ -6123,7 +6096,7 @@ exports[`Storyshots IndividualEntry No Email 1`] = `
                 width="140"
               >
                 <button
-                  class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                  class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                   type="button"
                 >
                   <span
@@ -6142,7 +6115,7 @@ exports[`Storyshots IndividualEntry No Email 1`] = `
                   <button
                     aria-expanded="false"
                     aria-haspopup="true"
-                    class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                    class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                     role="button"
                     type="button"
                   >
@@ -6321,7 +6294,7 @@ exports[`Storyshots IndividualEntry No Name 1`] = `
                 width="140"
               >
                 <button
-                  class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                  class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                   type="button"
                 >
                   <span
@@ -6340,7 +6313,7 @@ exports[`Storyshots IndividualEntry No Name 1`] = `
                   <button
                     aria-expanded="false"
                     aria-haspopup="true"
-                    class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                    class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                     role="button"
                     type="button"
                   >
@@ -6519,7 +6492,7 @@ exports[`Storyshots IndividualEntry No Organization 1`] = `
                 width="140"
               >
                 <button
-                  class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                  class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                   type="button"
                 >
                   <span
@@ -6538,7 +6511,7 @@ exports[`Storyshots IndividualEntry No Organization 1`] = `
                   <button
                     aria-expanded="false"
                     aria-haspopup="true"
-                    class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                    class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                     role="button"
                     type="button"
                   >
@@ -6723,7 +6696,7 @@ exports[`Storyshots IndividualEntry Single Inital 1`] = `
                 width="140"
               >
                 <button
-                  class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                  class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                   type="button"
                 >
                   <span
@@ -6742,7 +6715,7 @@ exports[`Storyshots IndividualEntry Single Inital 1`] = `
                   <button
                     aria-expanded="false"
                     aria-haspopup="true"
-                    class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                    class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                     role="button"
                     type="button"
                   >
@@ -6862,7 +6835,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                     class="v-menu"
                   >
                     <button
-                      class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                      class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                       data-cy="expand-button"
                       type="button"
                     >
@@ -6967,7 +6940,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                     class="v-menu"
                   >
                     <button
-                      class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                      class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                       data-cy="expand-button"
                       type="button"
                     >
@@ -7052,7 +7025,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                     class="v-menu"
                   >
                     <button
-                      class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                      class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                       data-cy="expand-button"
                       type="button"
                     >
@@ -7157,7 +7130,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                     class="v-menu"
                   >
                     <button
-                      class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                      class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                       data-cy="expand-button"
                       type="button"
                     >
@@ -7252,7 +7225,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                     class="v-menu"
                   >
                     <button
-                      class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                      class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                       data-cy="expand-button"
                       type="button"
                     >
@@ -7357,7 +7330,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                     class="v-menu"
                   >
                     <button
-                      class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                      class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                       data-cy="expand-button"
                       type="button"
                     >
@@ -7462,7 +7435,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                     class="v-menu"
                   >
                     <button
-                      class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                      class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                       data-cy="expand-button"
                       type="button"
                     >
@@ -7557,7 +7530,7 @@ exports[`Storyshots IndividualsGrid Default 1`] = `
                     class="v-menu"
                   >
                     <button
-                      class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                      class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                       data-cy="expand-button"
                       type="button"
                     >
@@ -7652,10 +7625,9 @@ exports[`Storyshots IndividualsTable Default 1`] = `
         <div>
           <div
             class="v-dialog__container"
-            role="dialog"
           >
             <button
-              class="mr-4 v-btn v-btn--depressed v-btn--flat v-btn--outlined theme--light v-size--small"
+              class="mr-4 v-btn v-btn--outlined theme--light v-size--small"
               style="height: 34px; display: none;"
               type="button"
             >
@@ -7676,7 +7648,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
           </div>
            
           <button
-            class="black--text v-btn v-btn--depressed theme--light v-size--small secondary"
+            class="black--text v-btn v-btn--has-bg theme--light v-size--small secondary"
             data-cy="individual-add"
             style="height: 34px;"
             type="button"
@@ -7713,7 +7685,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                 />
                 <input
                   aria-checked="false"
-                  id="input-980"
+                  id="input-977"
                   role="checkbox"
                   type="checkbox"
                   value=""
@@ -7724,7 +7696,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
               </div>
               <label
                 class="v-label theme--light"
-                for="input-980"
+                for="input-977"
                 style="left: 0px; position: relative;"
               >
                 Select all
@@ -7755,7 +7727,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                 <button
                   aria-expanded="false"
                   aria-haspopup="true"
-                  class="text-body-1 v-btn v-btn--depressed theme--light v-size--default white"
+                  class="text-body-1 v-btn v-btn--has-bg theme--light v-size--default white"
                   role="button"
                   style="height: 30px;"
                   type="button"
@@ -7800,7 +7772,9 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                   aria-hidden="true"
                 >
                   <legend>
-                    <span>
+                    <span
+                      class="notranslate"
+                    >
                       ​
                     </span>
                   </legend>
@@ -7810,29 +7784,20 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-985"
+                    for="input-982"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-985"
+                    id="input-982"
                     type="text"
                   />
                 </div>
                 <div
                   class="v-input__append-inner"
                 >
-                  <div
-                    class="v-input__icon v-input__icon--clear"
-                  >
-                    <button
-                      aria-label="clear icon"
-                      class="v-icon notranslate v-icon--disabled v-icon--link mdi mdi-close theme--light"
-                      disabled="disabled"
-                      type="button"
-                    />
-                  </div>
+                  <div />
                 </div>
               </div>
               <div
@@ -7866,7 +7831,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
               >
                 <!---->
                 <button
-                  class="text-body-1 v-btn v-btn--depressed theme--light v-size--default white"
+                  class="text-body-1 v-btn v-btn--has-bg theme--light v-size--default white"
                   style="height: 30px;"
                   type="button"
                 >
@@ -7888,7 +7853,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
               <div
                 aria-expanded="false"
                 aria-haspopup="listbox"
-                aria-owns="list-993"
+                aria-owns="list-989"
                 class="v-input__slot"
                 role="button"
               >
@@ -7896,7 +7861,9 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                   aria-hidden="true"
                 >
                   <legend>
-                    <span>
+                    <span
+                      class="notranslate"
+                    >
                       ​
                     </span>
                   </legend>
@@ -7906,7 +7873,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-993"
+                    for="input-989"
                     style="left: 0px; position: absolute;"
                   >
                     Order by
@@ -7917,7 +7884,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                     <input
                       aria-readonly="false"
                       autocomplete="off"
-                      id="input-993"
+                      id="input-989"
                       readonly="readonly"
                       type="text"
                     />
@@ -7964,7 +7931,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
         >
           <!---->
           <button
-            class="mr-4 ml-4 order-2 v-btn v-btn--depressed v-btn--disabled v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
+            class="mr-4 ml-4 order-2 v-btn v-btn--disabled v-btn--outlined v-btn--text theme--light v-size--small"
             data-cy="merge-button"
             disabled="disabled"
             style="height: 34px;"
@@ -7990,7 +7957,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
         >
           <!---->
           <button
-            class="order-3 v-btn v-btn--depressed v-btn--disabled v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
+            class="order-3 v-btn v-btn--disabled v-btn--outlined v-btn--text theme--light v-size--small"
             data-cy="delete-button"
             disabled="disabled"
             style="height: 34px;"
@@ -8065,6 +8032,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                 <button
                   aria-label="Previous page"
                   class="v-pagination__navigation v-pagination__navigation--disabled"
+                  disabled="disabled"
                   type="button"
                 >
                   <i
@@ -8077,6 +8045,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                 <button
                   aria-label="Next page"
                   class="v-pagination__navigation v-pagination__navigation--disabled"
+                  disabled="disabled"
                   type="button"
                 >
                   <i
@@ -8106,13 +8075,13 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                 >
                   <label
                     class="v-label v-label--active theme--light"
-                    for="input-1013"
+                    for="input-1009"
                     style="left: 0px; position: absolute;"
                   >
                     Items per page
                   </label>
                   <input
-                    id="input-1013"
+                    id="input-1009"
                     max="0"
                     min="1"
                     type="number"
@@ -8137,21 +8106,18 @@ exports[`Storyshots IndividualsTable Default 1`] = `
        
       <div
         class="v-dialog__container"
-        role="dialog"
       >
         <!---->
       </div>
        
       <div
         class="v-dialog__container"
-        role="dialog"
       >
         <!---->
       </div>
        
       <div
         class="v-dialog__container"
-        role="dialog"
       >
         <!---->
       </div>
@@ -8189,7 +8155,7 @@ exports[`Storyshots JobModal Default 1`] = `
       class="ma-auto"
     >
       <button
-        class="v-btn v-btn--contained theme--dark v-size--default primary"
+        class="v-btn v-btn--is-elevated v-btn--has-bg theme--dark v-size--default primary"
         type="button"
       >
         <span
@@ -8203,7 +8169,6 @@ exports[`Storyshots JobModal Default 1`] = `
        
       <div
         class="v-dialog__container"
-        role="dialog"
       >
         <!---->
       </div>
@@ -8240,7 +8205,7 @@ exports[`Storyshots JobsTable Default 1`] = `
         </h4>
          
         <button
-          class="black--text v-btn v-btn--depressed theme--light v-size--small secondary"
+          class="black--text v-btn v-btn--has-bg theme--light v-size--small secondary"
           style="height: 34px;"
           type="button"
         >
@@ -8264,7 +8229,6 @@ exports[`Storyshots JobsTable Default 1`] = `
        
       <div
         class="v-dialog__container"
-        role="dialog"
       >
         <!---->
       </div>
@@ -8301,7 +8265,7 @@ exports[`Storyshots JobsTable Empty 1`] = `
         </h4>
          
         <button
-          class="black--text v-btn v-btn--depressed theme--light v-size--small secondary"
+          class="black--text v-btn v-btn--has-bg theme--light v-size--small secondary"
           style="height: 34px;"
           type="button"
         >
@@ -8325,7 +8289,6 @@ exports[`Storyshots JobsTable Empty 1`] = `
        
       <div
         class="v-dialog__container"
-        role="dialog"
       >
         <!---->
       </div>
@@ -8376,7 +8339,7 @@ exports[`Storyshots OrganizationEntry Default 1`] = `
                 >
                   <!---->
                   <button
-                    class="v-btn v-btn--depressed theme--light v-size--default transparent"
+                    class="v-btn v-btn--has-bg theme--light v-size--default transparent"
                     type="button"
                   >
                     <span
@@ -8399,7 +8362,7 @@ exports[`Storyshots OrganizationEntry Default 1`] = `
                 class="text-right"
               >
                 <button
-                  class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                  class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                   type="button"
                 >
                   <span
@@ -8414,7 +8377,7 @@ exports[`Storyshots OrganizationEntry Default 1`] = `
                 </button>
                  
                 <button
-                  class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                  class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                   type="button"
                 >
                   <span
@@ -8429,7 +8392,7 @@ exports[`Storyshots OrganizationEntry Default 1`] = `
                 </button>
                  
                 <button
-                  class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                  class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                   type="button"
                 >
                   <span
@@ -8493,7 +8456,7 @@ exports[`Storyshots OrganizationEntry Not Editable 1`] = `
                 >
                   <!---->
                   <button
-                    class="v-btn v-btn--depressed theme--light v-size--default transparent"
+                    class="v-btn v-btn--has-bg theme--light v-size--default transparent"
                     type="button"
                   >
                     <span
@@ -8518,7 +8481,7 @@ exports[`Storyshots OrganizationEntry Not Editable 1`] = `
                 <!---->
                  
                 <button
-                  class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                  class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                   type="button"
                 >
                   <span
@@ -8533,7 +8496,7 @@ exports[`Storyshots OrganizationEntry Not Editable 1`] = `
                 </button>
                  
                 <button
-                  class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                  class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                   type="button"
                 >
                   <span
@@ -8568,7 +8531,7 @@ exports[`Storyshots OrganizationModal Default 1`] = `
       class="ma-auto"
     >
       <button
-        class="v-btn v-btn--contained theme--dark v-size--default primary"
+        class="v-btn v-btn--is-elevated v-btn--has-bg theme--dark v-size--default primary"
         type="button"
       >
         <span
@@ -8583,7 +8546,6 @@ exports[`Storyshots OrganizationModal Default 1`] = `
       <div
         class="v-dialog__container"
         l=""
-        role="dialog"
       >
         <!---->
       </div>
@@ -8605,7 +8567,7 @@ exports[`Storyshots OrganizationModal Error On Save 1`] = `
       class="ma-auto"
     >
       <button
-        class="v-btn v-btn--contained theme--dark v-size--default primary"
+        class="v-btn v-btn--is-elevated v-btn--has-bg theme--dark v-size--default primary"
         type="button"
       >
         <span
@@ -8620,7 +8582,6 @@ exports[`Storyshots OrganizationModal Error On Save 1`] = `
       <div
         class="v-dialog__container"
         l=""
-        role="dialog"
       >
         <!---->
       </div>
@@ -8642,7 +8603,7 @@ exports[`Storyshots OrganizationSelector Default 1`] = `
       class="ma-5 col-3"
     >
       <div
-        class="v-input v-input--is-label-active v-input--is-dirty v-input--dense theme--light v-text-field v-text-field--enclosed v-text-field--outlined v-select v-autocomplete"
+        class="v-input v-input--dense theme--light v-text-field v-text-field--enclosed v-text-field--outlined v-select v-autocomplete"
       >
         <div
           class="v-input__control"
@@ -8650,7 +8611,7 @@ exports[`Storyshots OrganizationSelector Default 1`] = `
           <div
             aria-expanded="false"
             aria-haspopup="listbox"
-            aria-owns="list-1232"
+            aria-owns="list-1228"
             class="v-input__slot"
             role="combobox"
           >
@@ -8660,7 +8621,9 @@ exports[`Storyshots OrganizationSelector Default 1`] = `
               <legend
                 style="width: 0px;"
               >
-                <span>
+                <span
+                  class="notranslate"
+                >
                   ​
                 </span>
               </legend>
@@ -8669,29 +8632,21 @@ exports[`Storyshots OrganizationSelector Default 1`] = `
               class="v-select__slot"
             >
               <label
-                class="v-label v-label--active theme--light"
-                for="input-1232"
+                class="v-label theme--light"
+                for="input-1228"
                 style="left: 0px; position: absolute;"
               >
                 Organization
               </label>
               <input
                 autocomplete="off"
-                id="input-1232"
+                id="input-1228"
                 type="text"
               />
               <div
                 class="v-input__append-inner"
               >
-                <div
-                  class="v-input__icon v-input__icon--clear"
-                >
-                  <button
-                    aria-label="clear icon"
-                    class="v-icon notranslate v-icon--link mdi mdi-close theme--light"
-                    type="button"
-                  />
-                </div>
+                <div />
               </div>
               <div
                 class="v-input__append-inner"
@@ -8754,7 +8709,7 @@ exports[`Storyshots OrganizationSelector Selected Organization 1`] = `
           <div
             aria-expanded="false"
             aria-haspopup="listbox"
-            aria-owns="list-1243"
+            aria-owns="list-1238"
             class="v-input__slot"
             role="combobox"
           >
@@ -8764,7 +8719,9 @@ exports[`Storyshots OrganizationSelector Selected Organization 1`] = `
               <legend
                 style="width: 0px;"
               >
-                <span>
+                <span
+                  class="notranslate"
+                >
                   ​
                 </span>
               </legend>
@@ -8774,14 +8731,14 @@ exports[`Storyshots OrganizationSelector Selected Organization 1`] = `
             >
               <label
                 class="v-label v-label--active theme--light"
-                for="input-1243"
+                for="input-1238"
                 style="left: 0px; position: absolute;"
               >
                 Organization
               </label>
               <input
                 autocomplete="off"
-                id="input-1243"
+                id="input-1238"
                 type="text"
               />
               <div
@@ -8793,6 +8750,7 @@ exports[`Storyshots OrganizationSelector Selected Organization 1`] = `
                   <button
                     aria-label="clear icon"
                     class="v-icon notranslate v-icon--link mdi mdi-close theme--light"
+                    tabindex="-1"
                     type="button"
                   />
                 </div>
@@ -8884,7 +8842,7 @@ exports[`Storyshots OrganizationsTable Groups 1`] = `
               class="v-small-dialog__activator__content"
             >
               <button
-                class="black--text v-btn v-btn--depressed theme--light v-size--small secondary"
+                class="black--text v-btn v-btn--has-bg theme--light v-size--small secondary"
                 style="height: 34px;"
                 type="button"
               >
@@ -8935,7 +8893,9 @@ exports[`Storyshots OrganizationsTable Groups 1`] = `
                   aria-hidden="true"
                 >
                   <legend>
-                    <span>
+                    <span
+                      class="notranslate"
+                    >
                       ​
                     </span>
                   </legend>
@@ -8945,29 +8905,20 @@ exports[`Storyshots OrganizationsTable Groups 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-1260"
+                    for="input-1256"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-1260"
+                    id="input-1256"
                     type="text"
                   />
                 </div>
                 <div
                   class="v-input__append-inner"
                 >
-                  <div
-                    class="v-input__icon v-input__icon--clear"
-                  >
-                    <button
-                      aria-label="clear icon"
-                      class="v-icon notranslate v-icon--disabled v-icon--link mdi mdi-close theme--light"
-                      disabled="disabled"
-                      type="button"
-                    />
-                  </div>
+                  <div />
                 </div>
               </div>
               <div
@@ -9045,6 +8996,7 @@ exports[`Storyshots OrganizationsTable Groups 1`] = `
               <button
                 aria-label="Previous page"
                 class="v-pagination__navigation v-pagination__navigation--disabled"
+                disabled="disabled"
                 type="button"
               >
                 <i
@@ -9057,6 +9009,7 @@ exports[`Storyshots OrganizationsTable Groups 1`] = `
               <button
                 aria-label="Next page"
                 class="v-pagination__navigation v-pagination__navigation--disabled"
+                disabled="disabled"
                 type="button"
               >
                 <i
@@ -9082,13 +9035,13 @@ exports[`Storyshots OrganizationsTable Groups 1`] = `
               >
                 <label
                   class="v-label v-label--active theme--light"
-                  for="input-1271"
+                  for="input-1266"
                   style="left: 0px; position: absolute;"
                 >
                   Items per page
                 </label>
                 <input
-                  id="input-1271"
+                  id="input-1266"
                   max="0"
                   min="1"
                   type="number"
@@ -9103,7 +9056,6 @@ exports[`Storyshots OrganizationsTable Groups 1`] = `
        
       <div
         class="v-dialog__container"
-        role="dialog"
       >
         <!---->
       </div>
@@ -9169,7 +9121,7 @@ exports[`Storyshots OrganizationsTable Organizations 1`] = `
         </h4>
          
         <button
-          class="black--text v-btn v-btn--depressed theme--light v-size--small secondary"
+          class="black--text v-btn v-btn--has-bg theme--light v-size--small secondary"
           style="height: 34px;"
           type="button"
         >
@@ -9216,7 +9168,9 @@ exports[`Storyshots OrganizationsTable Organizations 1`] = `
                   aria-hidden="true"
                 >
                   <legend>
-                    <span>
+                    <span
+                      class="notranslate"
+                    >
                       ​
                     </span>
                   </legend>
@@ -9226,29 +9180,20 @@ exports[`Storyshots OrganizationsTable Organizations 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-1307"
+                    for="input-1302"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-1307"
+                    id="input-1302"
                     type="text"
                   />
                 </div>
                 <div
                   class="v-input__append-inner"
                 >
-                  <div
-                    class="v-input__icon v-input__icon--clear"
-                  >
-                    <button
-                      aria-label="clear icon"
-                      class="v-icon notranslate v-icon--disabled v-icon--link mdi mdi-close theme--light"
-                      disabled="disabled"
-                      type="button"
-                    />
-                  </div>
+                  <div />
                 </div>
               </div>
               <div
@@ -9326,6 +9271,7 @@ exports[`Storyshots OrganizationsTable Organizations 1`] = `
               <button
                 aria-label="Previous page"
                 class="v-pagination__navigation v-pagination__navigation--disabled"
+                disabled="disabled"
                 type="button"
               >
                 <i
@@ -9338,6 +9284,7 @@ exports[`Storyshots OrganizationsTable Organizations 1`] = `
               <button
                 aria-label="Next page"
                 class="v-pagination__navigation v-pagination__navigation--disabled"
+                disabled="disabled"
                 type="button"
               >
                 <i
@@ -9363,13 +9310,13 @@ exports[`Storyshots OrganizationsTable Organizations 1`] = `
               >
                 <label
                   class="v-label v-label--active theme--light"
-                  for="input-1318"
+                  for="input-1312"
                   style="left: 0px; position: absolute;"
                 >
                   Items per page
                 </label>
                 <input
-                  id="input-1318"
+                  id="input-1312"
                   max="0"
                   min="1"
                   type="number"
@@ -9382,14 +9329,12 @@ exports[`Storyshots OrganizationsTable Organizations 1`] = `
        
       <div
         class="v-dialog__container"
-        role="dialog"
       >
         <!---->
       </div>
        
       <div
         class="v-dialog__container"
-        role="dialog"
       >
         <!---->
       </div>
@@ -9507,7 +9452,7 @@ exports[`Storyshots ProfileCard Default 1`] = `
             class="v-menu"
           >
             <button
-              class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+              class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
               data-cy="expand-button"
               type="button"
             >
@@ -9605,7 +9550,7 @@ exports[`Storyshots ProfileModal Default 1`] = `
       class="ma-auto"
     >
       <button
-        class="v-btn v-btn--contained theme--dark v-size--default primary"
+        class="v-btn v-btn--is-elevated v-btn--has-bg theme--dark v-size--default primary"
         type="button"
       >
         <span
@@ -9619,7 +9564,6 @@ exports[`Storyshots ProfileModal Default 1`] = `
        
       <div
         class="v-dialog__container"
-        role="dialog"
       >
         <!---->
       </div>
@@ -9640,7 +9584,6 @@ exports[`Storyshots Recommendations Custom Modal Activator 1`] = `
     <div>
       <div
         class="v-dialog__container"
-        role="dialog"
       >
         <span
           class="v-chip v-chip--clickable theme--light v-size--default primary white--text"
@@ -9681,10 +9624,9 @@ exports[`Storyshots Recommendations Default 1`] = `
     <div>
       <div
         class="v-dialog__container"
-        role="dialog"
       >
         <button
-          class="mr-4 v-btn v-btn--depressed v-btn--flat v-btn--outlined theme--light v-size--small"
+          class="mr-4 v-btn v-btn--outlined theme--light v-size--small"
           style="height: 34px; display: none;"
           type="button"
         >
@@ -9750,7 +9692,9 @@ exports[`Storyshots Search Default 1`] = `
                 aria-hidden="true"
               >
                 <legend>
-                  <span>
+                  <span
+                    class="notranslate"
+                  >
                     ​
                   </span>
                 </legend>
@@ -9760,29 +9704,20 @@ exports[`Storyshots Search Default 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-1409"
+                  for="input-1403"
                   style="left: 0px; position: absolute;"
                 >
                   Search
                 </label>
                 <input
-                  id="input-1409"
+                  id="input-1403"
                   type="text"
                 />
               </div>
               <div
                 class="v-input__append-inner"
               >
-                <div
-                  class="v-input__icon v-input__icon--clear"
-                >
-                  <button
-                    aria-label="clear icon"
-                    class="v-icon notranslate v-icon--disabled v-icon--link mdi mdi-close theme--light"
-                    disabled="disabled"
-                    type="button"
-                  />
-                </div>
+                <div />
               </div>
             </div>
             <div
@@ -9839,7 +9774,7 @@ exports[`Storyshots Search Filter Selector 1`] = `
               <button
                 aria-expanded="false"
                 aria-haspopup="true"
-                class="text-body-1 v-btn v-btn--depressed theme--light v-size--default white"
+                class="text-body-1 v-btn v-btn--has-bg theme--light v-size--default white"
                 role="button"
                 style="height: 30px;"
                 type="button"
@@ -9884,7 +9819,9 @@ exports[`Storyshots Search Filter Selector 1`] = `
                 aria-hidden="true"
               >
                 <legend>
-                  <span>
+                  <span
+                    class="notranslate"
+                  >
                     ​
                   </span>
                 </legend>
@@ -9894,29 +9831,20 @@ exports[`Storyshots Search Filter Selector 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-1419"
+                  for="input-1412"
                   style="left: 0px; position: absolute;"
                 >
                   Search
                 </label>
                 <input
-                  id="input-1419"
+                  id="input-1412"
                   type="text"
                 />
               </div>
               <div
                 class="v-input__append-inner"
               >
-                <div
-                  class="v-input__icon v-input__icon--clear"
-                >
-                  <button
-                    aria-label="clear icon"
-                    class="v-icon notranslate v-icon--disabled v-icon--link mdi mdi-close theme--light"
-                    disabled="disabled"
-                    type="button"
-                  />
-                </div>
+                <div />
               </div>
             </div>
             <div
@@ -9988,7 +9916,9 @@ exports[`Storyshots Search Order Selector 1`] = `
                 aria-hidden="true"
               >
                 <legend>
-                  <span>
+                  <span
+                    class="notranslate"
+                  >
                     ​
                   </span>
                 </legend>
@@ -9998,29 +9928,20 @@ exports[`Storyshots Search Order Selector 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-1432"
+                  for="input-1424"
                   style="left: 0px; position: absolute;"
                 >
                   Search
                 </label>
                 <input
-                  id="input-1432"
+                  id="input-1424"
                   type="text"
                 />
               </div>
               <div
                 class="v-input__append-inner"
               >
-                <div
-                  class="v-input__icon v-input__icon--clear"
-                >
-                  <button
-                    aria-label="clear icon"
-                    class="v-icon notranslate v-icon--disabled v-icon--link mdi mdi-close theme--light"
-                    disabled="disabled"
-                    type="button"
-                  />
-                </div>
+                <div />
               </div>
             </div>
             <div
@@ -10054,7 +9975,7 @@ exports[`Storyshots Search Order Selector 1`] = `
             >
               <!---->
               <button
-                class="text-body-1 v-btn v-btn--depressed theme--light v-size--default white"
+                class="text-body-1 v-btn v-btn--has-bg theme--light v-size--default white"
                 style="height: 30px;"
                 type="button"
               >
@@ -10076,7 +9997,7 @@ exports[`Storyshots Search Order Selector 1`] = `
             <div
               aria-expanded="false"
               aria-haspopup="listbox"
-              aria-owns="list-1437"
+              aria-owns="list-1428"
               class="v-input__slot"
               role="button"
             >
@@ -10084,7 +10005,9 @@ exports[`Storyshots Search Order Selector 1`] = `
                 aria-hidden="true"
               >
                 <legend>
-                  <span>
+                  <span
+                    class="notranslate"
+                  >
                     ​
                   </span>
                 </legend>
@@ -10094,7 +10017,7 @@ exports[`Storyshots Search Order Selector 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-1437"
+                  for="input-1428"
                   style="left: 0px; position: absolute;"
                 >
                   Order by
@@ -10105,7 +10028,7 @@ exports[`Storyshots Search Order Selector 1`] = `
                   <input
                     aria-readonly="false"
                     autocomplete="off"
-                    id="input-1437"
+                    id="input-1428"
                     readonly="readonly"
                     type="text"
                   />
@@ -10165,7 +10088,7 @@ exports[`Storyshots TeamEnrollModal Default 1`] = `
       data-app="true"
     >
       <button
-        class="v-btn v-btn--contained theme--dark v-size--default primary"
+        class="v-btn v-btn--is-elevated v-btn--has-bg theme--dark v-size--default primary"
         type="button"
       >
         <span
@@ -10179,7 +10102,6 @@ exports[`Storyshots TeamEnrollModal Default 1`] = `
        
       <div
         class="v-dialog__container"
-        role="dialog"
       >
         <!---->
       </div>
@@ -10202,7 +10124,7 @@ exports[`Storyshots TeamEnrollModal Error On Save 1`] = `
       data-app="true"
     >
       <button
-        class="v-btn v-btn--contained theme--dark v-size--default primary"
+        class="v-btn v-btn--is-elevated v-btn--has-bg theme--dark v-size--default primary"
         type="button"
       >
         <span
@@ -10216,7 +10138,6 @@ exports[`Storyshots TeamEnrollModal Error On Save 1`] = `
        
       <div
         class="v-dialog__container"
-        role="dialog"
       >
         <!---->
       </div>
@@ -10238,7 +10159,7 @@ exports[`Storyshots TeamModal Default 1`] = `
       class="ma-auto"
     >
       <button
-        class="v-btn v-btn--contained theme--dark v-size--default primary"
+        class="v-btn v-btn--is-elevated v-btn--has-bg theme--dark v-size--default primary"
         type="button"
       >
         <span
@@ -10289,7 +10210,7 @@ exports[`Storyshots WorkSpace Default 1`] = `
           >
             <!---->
             <button
-              class="mr-2 v-btn v-btn--depressed v-btn--disabled v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
+              class="mr-2 v-btn v-btn--disabled v-btn--outlined v-btn--text theme--light v-size--small"
               disabled="disabled"
               type="button"
             >
@@ -10313,7 +10234,7 @@ exports[`Storyshots WorkSpace Default 1`] = `
           >
             <!---->
             <button
-              class="v-btn v-btn--depressed v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
+              class="v-btn v-btn--outlined v-btn--text theme--light v-size--small"
               type="button"
             >
               <span
@@ -10428,7 +10349,7 @@ exports[`Storyshots WorkSpace Default 1`] = `
                   class="v-menu"
                 >
                   <button
-                    class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                    class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                     data-cy="expand-button"
                     type="button"
                   >
@@ -10446,7 +10367,7 @@ exports[`Storyshots WorkSpace Default 1`] = `
                 </div>
                  
                 <button
-                  class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
+                  class="v-btn v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
                   type="button"
                 >
                   <span
@@ -10556,7 +10477,7 @@ exports[`Storyshots WorkSpace Default 1`] = `
                   class="v-menu"
                 >
                   <button
-                    class="v-btn v-btn--flat v-btn--icon v-btn--round theme--light v-size--default"
+                    class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
                     data-cy="expand-button"
                     type="button"
                   >
@@ -10574,7 +10495,7 @@ exports[`Storyshots WorkSpace Default 1`] = `
                 </div>
                  
                 <button
-                  class="v-btn v-btn--flat v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
+                  class="v-btn v-btn--icon v-btn--round v-btn--text theme--light v-size--default"
                   type="button"
                 >
                   <span
@@ -10596,14 +10517,12 @@ exports[`Storyshots WorkSpace Default 1`] = `
        
       <div
         class="v-dialog__container"
-        role="dialog"
       >
         <!---->
       </div>
        
       <div
         class="v-dialog__container"
-        role="dialog"
       >
         <!---->
       </div>
@@ -10647,7 +10566,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
             >
               <!---->
               <button
-                class="mr-2 v-btn v-btn--depressed v-btn--disabled v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
+                class="mr-2 v-btn v-btn--disabled v-btn--outlined v-btn--text theme--light v-size--small"
                 disabled="disabled"
                 type="button"
               >
@@ -10671,7 +10590,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
             >
               <!---->
               <button
-                class="v-btn v-btn--depressed v-btn--disabled v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
+                class="v-btn v-btn--disabled v-btn--outlined v-btn--text theme--light v-size--small"
                 disabled="disabled"
                 type="button"
               >
@@ -10721,14 +10640,12 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
          
         <div
           class="v-dialog__container"
-          role="dialog"
         >
           <!---->
         </div>
          
         <div
           class="v-dialog__container"
-          role="dialog"
         >
           <!---->
         </div>
@@ -10767,10 +10684,9 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
           <div>
             <div
               class="v-dialog__container"
-              role="dialog"
             >
               <button
-                class="mr-4 v-btn v-btn--depressed v-btn--flat v-btn--outlined theme--light v-size--small"
+                class="mr-4 v-btn v-btn--outlined theme--light v-size--small"
                 style="height: 34px; display: none;"
                 type="button"
               >
@@ -10791,7 +10707,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
             </div>
              
             <button
-              class="black--text v-btn v-btn--depressed theme--light v-size--small secondary"
+              class="black--text v-btn v-btn--has-bg theme--light v-size--small secondary"
               data-cy="individual-add"
               style="height: 34px;"
               type="button"
@@ -10828,7 +10744,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   />
                   <input
                     aria-checked="false"
-                    id="input-1538"
+                    id="input-1529"
                     role="checkbox"
                     type="checkbox"
                     value=""
@@ -10839,7 +10755,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 </div>
                 <label
                   class="v-label theme--light"
-                  for="input-1538"
+                  for="input-1529"
                   style="left: 0px; position: relative;"
                 >
                   Select all
@@ -10870,7 +10786,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   <button
                     aria-expanded="false"
                     aria-haspopup="true"
-                    class="text-body-1 v-btn v-btn--depressed theme--light v-size--default white"
+                    class="text-body-1 v-btn v-btn--has-bg theme--light v-size--default white"
                     role="button"
                     style="height: 30px;"
                     type="button"
@@ -10915,7 +10831,9 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                     aria-hidden="true"
                   >
                     <legend>
-                      <span>
+                      <span
+                        class="notranslate"
+                      >
                         ​
                       </span>
                     </legend>
@@ -10925,29 +10843,20 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   >
                     <label
                       class="v-label theme--light"
-                      for="input-1543"
+                      for="input-1534"
                       style="left: 0px; position: absolute;"
                     >
                       Search
                     </label>
                     <input
-                      id="input-1543"
+                      id="input-1534"
                       type="text"
                     />
                   </div>
                   <div
                     class="v-input__append-inner"
                   >
-                    <div
-                      class="v-input__icon v-input__icon--clear"
-                    >
-                      <button
-                        aria-label="clear icon"
-                        class="v-icon notranslate v-icon--disabled v-icon--link mdi mdi-close theme--light"
-                        disabled="disabled"
-                        type="button"
-                      />
-                    </div>
+                    <div />
                   </div>
                 </div>
                 <div
@@ -10981,7 +10890,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 >
                   <!---->
                   <button
-                    class="text-body-1 v-btn v-btn--depressed theme--light v-size--default white"
+                    class="text-body-1 v-btn v-btn--has-bg theme--light v-size--default white"
                     style="height: 30px;"
                     type="button"
                   >
@@ -11003,7 +10912,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 <div
                   aria-expanded="false"
                   aria-haspopup="listbox"
-                  aria-owns="list-1551"
+                  aria-owns="list-1541"
                   class="v-input__slot"
                   role="button"
                 >
@@ -11011,7 +10920,9 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                     aria-hidden="true"
                   >
                     <legend>
-                      <span>
+                      <span
+                        class="notranslate"
+                      >
                         ​
                       </span>
                     </legend>
@@ -11021,7 +10932,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   >
                     <label
                       class="v-label theme--light"
-                      for="input-1551"
+                      for="input-1541"
                       style="left: 0px; position: absolute;"
                     >
                       Order by
@@ -11032,7 +10943,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                       <input
                         aria-readonly="false"
                         autocomplete="off"
-                        id="input-1551"
+                        id="input-1541"
                         readonly="readonly"
                         type="text"
                       />
@@ -11079,7 +10990,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
           >
             <!---->
             <button
-              class="mr-4 ml-4 order-2 v-btn v-btn--depressed v-btn--disabled v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
+              class="mr-4 ml-4 order-2 v-btn v-btn--disabled v-btn--outlined v-btn--text theme--light v-size--small"
               data-cy="merge-button"
               disabled="disabled"
               style="height: 34px;"
@@ -11105,7 +11016,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
           >
             <!---->
             <button
-              class="order-3 v-btn v-btn--depressed v-btn--disabled v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
+              class="order-3 v-btn v-btn--disabled v-btn--outlined v-btn--text theme--light v-size--small"
               data-cy="delete-button"
               disabled="disabled"
               style="height: 34px;"
@@ -11180,6 +11091,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   <button
                     aria-label="Previous page"
                     class="v-pagination__navigation v-pagination__navigation--disabled"
+                    disabled="disabled"
                     type="button"
                   >
                     <i
@@ -11192,6 +11104,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   <button
                     aria-label="Next page"
                     class="v-pagination__navigation v-pagination__navigation--disabled"
+                    disabled="disabled"
                     type="button"
                   >
                     <i
@@ -11221,13 +11134,13 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   >
                     <label
                       class="v-label v-label--active theme--light"
-                      for="input-1571"
+                      for="input-1561"
                       style="left: 0px; position: absolute;"
                     >
                       Items per page
                     </label>
                     <input
-                      id="input-1571"
+                      id="input-1561"
                       max="0"
                       min="1"
                       type="number"
@@ -11252,21 +11165,18 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
          
         <div
           class="v-dialog__container"
-          role="dialog"
         >
           <!---->
         </div>
          
         <div
           class="v-dialog__container"
-          role="dialog"
         >
           <!---->
         </div>
          
         <div
           class="v-dialog__container"
-          role="dialog"
         >
           <!---->
         </div>
@@ -11326,7 +11236,7 @@ exports[`Storyshots WorkSpace Empty 1`] = `
           >
             <!---->
             <button
-              class="mr-2 v-btn v-btn--depressed v-btn--disabled v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
+              class="mr-2 v-btn v-btn--disabled v-btn--outlined v-btn--text theme--light v-size--small"
               disabled="disabled"
               type="button"
             >
@@ -11350,7 +11260,7 @@ exports[`Storyshots WorkSpace Empty 1`] = `
           >
             <!---->
             <button
-              class="v-btn v-btn--depressed v-btn--disabled v-btn--flat v-btn--outlined v-btn--text theme--light v-size--small"
+              class="v-btn v-btn--disabled v-btn--outlined v-btn--text theme--light v-size--small"
               disabled="disabled"
               type="button"
             >
@@ -11400,14 +11310,12 @@ exports[`Storyshots WorkSpace Empty 1`] = `
        
       <div
         class="v-dialog__container"
-        role="dialog"
       >
         <!---->
       </div>
        
       <div
         class="v-dialog__container"
-        role="dialog"
       >
         <!---->
       </div>

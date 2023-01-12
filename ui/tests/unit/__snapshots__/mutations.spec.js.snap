@@ -16,9 +16,7 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
         dense=""
         left=""
       >
-        
-        mdi-account
-      
+         mdi-account 
       </v-icon-stub>
       
       Individuals
@@ -28,6 +26,7 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
         activeclass=""
         class="ml-2"
         closeicon="$delete"
+        closelabel="$vuetify.close"
         data-cy="individual-counter"
         filtericon="$complete"
         pill="true"
@@ -79,25 +78,7 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
       rules=""
       successmessages=""
       value=""
-      valuecomparator="function deepEqual(a, b) {
-          if (a === b) return true;
-          if (a instanceof Date && b instanceof Date && a.getTime() !== b.getTime()) {
-            // If the values are Date, compare them as timestamps
-            return false;
-          }
-          if (a !== Object(a) || b !== Object(b)) {
-            // If the values aren't objects, they were already checked for equality
-            return false;
-          }
-          var props = Object.keys(a);
-          if (props.length !== Object.keys(b).length) {
-            // Different number of props, don't bother to check
-            return false;
-          }
-          return props.every(function (p) {
-            return deepEqual(a[p], b[p]);
-          });
-        }"
+      valuecomparator="[Function]"
     />
      
     <search-stub
@@ -112,7 +93,6 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
       bottom="true"
       closedelay="0"
       contentclass=""
-      fixed="true"
       maxwidth="auto"
       nudgebottom="0"
       nudgeleft="0"
@@ -120,6 +100,8 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
       nudgetop="0"
       nudgewidth="0"
       opendelay="200"
+      openonclick="true"
+      openonfocus="true"
       openonhover="true"
       tag="span"
       transition="expand-y-transition"
@@ -134,7 +116,6 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
       bottom="true"
       closedelay="0"
       contentclass=""
-      fixed="true"
       maxwidth="auto"
       nudgebottom="0"
       nudgeleft="0"
@@ -142,6 +123,8 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
       nudgetop="0"
       nudgewidth="0"
       opendelay="200"
+      openonclick="true"
+      openonfocus="true"
       openonhover="true"
       tag="span"
       transition="expand-y-transition"
@@ -154,62 +137,9 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
   </v-row-stub>
    
   <v-data-table-stub
-    customfilter="function defaultFilter(value, search, item) {
-          return value != null && search != null && typeof value !== 'boolean' && value.toString().toLocaleLowerCase().indexOf(search.toLocaleLowerCase()) !== -1;
-        }"
-    customgroup="function groupItems(items, groupBy, groupDesc) {
-          var key = groupBy[0];
-          var groups = [];
-          var current = null;
-          for (var i = 0; i < items.length; i++) {
-            var item = items[i];
-            var val = getObjectValueByPath(item, key);
-            if (current !== val) {
-              current = val;
-              groups.push({
-                name: val,
-                items: []
-              });
-            }
-            groups[groups.length - 1].items.push(item);
-          }
-          return groups;
-        }"
-    customsort="function sortItems(items, sortBy, sortDesc, locale, customSorters) {
-          if (sortBy === null || !sortBy.length) return items;
-          var stringCollator = new Intl.Collator(locale, {
-            sensitivity: 'accent',
-            usage: 'sort'
-          });
-          return items.sort(function (a, b) {
-            var _a, _b;
-            for (var i = 0; i < sortBy.length; i++) {
-              var sortKey = sortBy[i];
-              var sortA = getObjectValueByPath(a, sortKey);
-              var sortB = getObjectValueByPath(b, sortKey);
-              if (sortDesc[i]) {
-                _a = __read([sortB, sortA], 2), sortA = _a[0], sortB = _a[1];
-              }
-              if (customSorters && customSorters[sortKey]) {
-                var customResult = customSorters[sortKey](sortA, sortB);
-                if (!customResult) continue;
-                return customResult;
-              } // Check if both cannot be evaluated
-
-              if (sortA === null && sortB === null) {
-                continue;
-              }
-              _b = __read([sortA, sortB].map(function (s) {
-                return (s || '').toString().toLocaleLowerCase();
-              }), 2), sortA = _b[0], sortB = _b[1];
-              if (sortA !== sortB) {
-                if (!isNaN(sortA) && !isNaN(sortB)) return Number(sortA) - Number(sortB);
-                return stringCollator.compare(sortA, sortB);
-              }
-            }
-            return 0;
-          });
-        }"
+    customfilter="[Function]"
+    customgroup="[Function]"
+    customsort="[Function]"
     expanded=""
     expandicon="$expand"
     groupby=""
@@ -231,8 +161,6 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
     page="0"
     selectablekey="isSelectable"
     serveritemslength="-1"
-    sortby=""
-    sortdesc=""
     value=""
   />
    
@@ -286,10 +214,10 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
     contentclass=""
     maxwidth="500px"
     opendelay="0"
+    openonclick="true"
     origin="center center"
     retainfocus="true"
     transition="dialog-transition"
-    width="auto"
   >
     <v-card-stub
       class="pa-3"
@@ -298,18 +226,25 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
     >
       <v-card-title-stub
         class="headline"
+        tag="div"
       >
         
       </v-card-title-stub>
        
-      <v-card-text-stub>
+      <v-card-text-stub
+        tag="div"
+      >
         <!---->
          
         <!---->
       </v-card-text-stub>
        
-      <v-card-actions-stub>
-        <v-spacer-stub />
+      <v-card-actions-stub
+        tag="div"
+      >
+        <v-spacer-stub
+          tag="div"
+        />
          
         <v-btn-stub
           activeclass=""
@@ -318,25 +253,23 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
           text="true"
           type="button"
         >
-          
-          OK
-        
+           OK 
         </v-btn-stub>
       </v-card-actions-stub>
     </v-card-stub>
   </v-dialog-stub>
    
   <profile-modal-stub
-    addidentity="() => {}"
-    enroll="() => {}"
-    fetchorganizations="() => {}"
-    getcountries="() => {}"
-    updateprofile="() => {}"
+    addidentity="[Function]"
+    enroll="[Function]"
+    fetchorganizations="[Function]"
+    getcountries="[Function]"
+    updateprofile="[Function]"
   />
    
   <enroll-modal-stub
-    enroll="function () { [native code] }"
-    fetchorganizations="() => {}"
+    enroll="[Function]"
+    fetchorganizations="[Function]"
     text=""
     title=""
   />
@@ -350,7 +283,9 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
     loaderheight="4"
     tag="div"
   >
-    <v-card-subtitle-stub>
+    <v-card-subtitle-stub
+      tag="div"
+    >
       
       Moving
       0
@@ -377,9 +312,7 @@ exports[`IndividualsTable Mock query for merge 1`] = `
         dense=""
         left=""
       >
-        
-        mdi-account
-      
+         mdi-account 
       </v-icon-stub>
       
       Individuals
@@ -389,6 +322,7 @@ exports[`IndividualsTable Mock query for merge 1`] = `
         activeclass=""
         class="ml-2"
         closeicon="$delete"
+        closelabel="$vuetify.close"
         data-cy="individual-counter"
         filtericon="$complete"
         pill="true"
@@ -440,25 +374,7 @@ exports[`IndividualsTable Mock query for merge 1`] = `
       rules=""
       successmessages=""
       value=""
-      valuecomparator="function deepEqual(a, b) {
-          if (a === b) return true;
-          if (a instanceof Date && b instanceof Date && a.getTime() !== b.getTime()) {
-            // If the values are Date, compare them as timestamps
-            return false;
-          }
-          if (a !== Object(a) || b !== Object(b)) {
-            // If the values aren't objects, they were already checked for equality
-            return false;
-          }
-          var props = Object.keys(a);
-          if (props.length !== Object.keys(b).length) {
-            // Different number of props, don't bother to check
-            return false;
-          }
-          return props.every(function (p) {
-            return deepEqual(a[p], b[p]);
-          });
-        }"
+      valuecomparator="[Function]"
     />
      
     <search-stub
@@ -473,7 +389,6 @@ exports[`IndividualsTable Mock query for merge 1`] = `
       bottom="true"
       closedelay="0"
       contentclass=""
-      fixed="true"
       maxwidth="auto"
       nudgebottom="0"
       nudgeleft="0"
@@ -481,6 +396,8 @@ exports[`IndividualsTable Mock query for merge 1`] = `
       nudgetop="0"
       nudgewidth="0"
       opendelay="200"
+      openonclick="true"
+      openonfocus="true"
       openonhover="true"
       tag="span"
       transition="expand-y-transition"
@@ -495,7 +412,6 @@ exports[`IndividualsTable Mock query for merge 1`] = `
       bottom="true"
       closedelay="0"
       contentclass=""
-      fixed="true"
       maxwidth="auto"
       nudgebottom="0"
       nudgeleft="0"
@@ -503,6 +419,8 @@ exports[`IndividualsTable Mock query for merge 1`] = `
       nudgetop="0"
       nudgewidth="0"
       opendelay="200"
+      openonclick="true"
+      openonfocus="true"
       openonhover="true"
       tag="span"
       transition="expand-y-transition"
@@ -515,62 +433,9 @@ exports[`IndividualsTable Mock query for merge 1`] = `
   </v-row-stub>
    
   <v-data-table-stub
-    customfilter="function defaultFilter(value, search, item) {
-          return value != null && search != null && typeof value !== 'boolean' && value.toString().toLocaleLowerCase().indexOf(search.toLocaleLowerCase()) !== -1;
-        }"
-    customgroup="function groupItems(items, groupBy, groupDesc) {
-          var key = groupBy[0];
-          var groups = [];
-          var current = null;
-          for (var i = 0; i < items.length; i++) {
-            var item = items[i];
-            var val = getObjectValueByPath(item, key);
-            if (current !== val) {
-              current = val;
-              groups.push({
-                name: val,
-                items: []
-              });
-            }
-            groups[groups.length - 1].items.push(item);
-          }
-          return groups;
-        }"
-    customsort="function sortItems(items, sortBy, sortDesc, locale, customSorters) {
-          if (sortBy === null || !sortBy.length) return items;
-          var stringCollator = new Intl.Collator(locale, {
-            sensitivity: 'accent',
-            usage: 'sort'
-          });
-          return items.sort(function (a, b) {
-            var _a, _b;
-            for (var i = 0; i < sortBy.length; i++) {
-              var sortKey = sortBy[i];
-              var sortA = getObjectValueByPath(a, sortKey);
-              var sortB = getObjectValueByPath(b, sortKey);
-              if (sortDesc[i]) {
-                _a = __read([sortB, sortA], 2), sortA = _a[0], sortB = _a[1];
-              }
-              if (customSorters && customSorters[sortKey]) {
-                var customResult = customSorters[sortKey](sortA, sortB);
-                if (!customResult) continue;
-                return customResult;
-              } // Check if both cannot be evaluated
-
-              if (sortA === null && sortB === null) {
-                continue;
-              }
-              _b = __read([sortA, sortB].map(function (s) {
-                return (s || '').toString().toLocaleLowerCase();
-              }), 2), sortA = _b[0], sortB = _b[1];
-              if (sortA !== sortB) {
-                if (!isNaN(sortA) && !isNaN(sortB)) return Number(sortA) - Number(sortB);
-                return stringCollator.compare(sortA, sortB);
-              }
-            }
-            return 0;
-          });
-        }"
+    customfilter="[Function]"
+    customgroup="[Function]"
+    customsort="[Function]"
     expanded=""
     expandicon="$expand"
     groupby=""
@@ -592,8 +457,6 @@ exports[`IndividualsTable Mock query for merge 1`] = `
     page="0"
     selectablekey="isSelectable"
     serveritemslength="-1"
-    sortby=""
-    sortdesc=""
     value=""
   />
    
@@ -647,10 +510,10 @@ exports[`IndividualsTable Mock query for merge 1`] = `
     contentclass=""
     maxwidth="500px"
     opendelay="0"
+    openonclick="true"
     origin="center center"
     retainfocus="true"
     transition="dialog-transition"
-    width="auto"
   >
     <v-card-stub
       class="pa-3"
@@ -659,18 +522,25 @@ exports[`IndividualsTable Mock query for merge 1`] = `
     >
       <v-card-title-stub
         class="headline"
+        tag="div"
       >
         
       </v-card-title-stub>
        
-      <v-card-text-stub>
+      <v-card-text-stub
+        tag="div"
+      >
         <!---->
          
         <!---->
       </v-card-text-stub>
        
-      <v-card-actions-stub>
-        <v-spacer-stub />
+      <v-card-actions-stub
+        tag="div"
+      >
+        <v-spacer-stub
+          tag="div"
+        />
          
         <v-btn-stub
           activeclass=""
@@ -679,25 +549,23 @@ exports[`IndividualsTable Mock query for merge 1`] = `
           text="true"
           type="button"
         >
-          
-          OK
-        
+           OK 
         </v-btn-stub>
       </v-card-actions-stub>
     </v-card-stub>
   </v-dialog-stub>
    
   <profile-modal-stub
-    addidentity="() => {}"
-    enroll="() => {}"
-    fetchorganizations="() => {}"
-    getcountries="() => {}"
-    updateprofile="() => {}"
+    addidentity="[Function]"
+    enroll="[Function]"
+    fetchorganizations="[Function]"
+    getcountries="[Function]"
+    updateprofile="[Function]"
   />
    
   <enroll-modal-stub
-    enroll="function () { [native code] }"
-    fetchorganizations="() => {}"
+    enroll="[Function]"
+    fetchorganizations="[Function]"
     text=""
     title=""
   />
@@ -711,7 +579,9 @@ exports[`IndividualsTable Mock query for merge 1`] = `
     loaderheight="4"
     tag="div"
   >
-    <v-card-subtitle-stub>
+    <v-card-subtitle-stub
+      tag="div"
+    >
       
       Moving
       0
@@ -738,9 +608,7 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
         dense=""
         left=""
       >
-        
-        mdi-account
-      
+         mdi-account 
       </v-icon-stub>
       
       Individuals
@@ -750,6 +618,7 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
         activeclass=""
         class="ml-2"
         closeicon="$delete"
+        closelabel="$vuetify.close"
         data-cy="individual-counter"
         filtericon="$complete"
         pill="true"
@@ -801,25 +670,7 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
       rules=""
       successmessages=""
       value=""
-      valuecomparator="function deepEqual(a, b) {
-          if (a === b) return true;
-          if (a instanceof Date && b instanceof Date && a.getTime() !== b.getTime()) {
-            // If the values are Date, compare them as timestamps
-            return false;
-          }
-          if (a !== Object(a) || b !== Object(b)) {
-            // If the values aren't objects, they were already checked for equality
-            return false;
-          }
-          var props = Object.keys(a);
-          if (props.length !== Object.keys(b).length) {
-            // Different number of props, don't bother to check
-            return false;
-          }
-          return props.every(function (p) {
-            return deepEqual(a[p], b[p]);
-          });
-        }"
+      valuecomparator="[Function]"
     />
      
     <search-stub
@@ -834,7 +685,6 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
       bottom="true"
       closedelay="0"
       contentclass=""
-      fixed="true"
       maxwidth="auto"
       nudgebottom="0"
       nudgeleft="0"
@@ -842,6 +692,8 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
       nudgetop="0"
       nudgewidth="0"
       opendelay="200"
+      openonclick="true"
+      openonfocus="true"
       openonhover="true"
       tag="span"
       transition="expand-y-transition"
@@ -856,7 +708,6 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
       bottom="true"
       closedelay="0"
       contentclass=""
-      fixed="true"
       maxwidth="auto"
       nudgebottom="0"
       nudgeleft="0"
@@ -864,6 +715,8 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
       nudgetop="0"
       nudgewidth="0"
       opendelay="200"
+      openonclick="true"
+      openonfocus="true"
       openonhover="true"
       tag="span"
       transition="expand-y-transition"
@@ -876,62 +729,9 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
   </v-row-stub>
    
   <v-data-table-stub
-    customfilter="function defaultFilter(value, search, item) {
-          return value != null && search != null && typeof value !== 'boolean' && value.toString().toLocaleLowerCase().indexOf(search.toLocaleLowerCase()) !== -1;
-        }"
-    customgroup="function groupItems(items, groupBy, groupDesc) {
-          var key = groupBy[0];
-          var groups = [];
-          var current = null;
-          for (var i = 0; i < items.length; i++) {
-            var item = items[i];
-            var val = getObjectValueByPath(item, key);
-            if (current !== val) {
-              current = val;
-              groups.push({
-                name: val,
-                items: []
-              });
-            }
-            groups[groups.length - 1].items.push(item);
-          }
-          return groups;
-        }"
-    customsort="function sortItems(items, sortBy, sortDesc, locale, customSorters) {
-          if (sortBy === null || !sortBy.length) return items;
-          var stringCollator = new Intl.Collator(locale, {
-            sensitivity: 'accent',
-            usage: 'sort'
-          });
-          return items.sort(function (a, b) {
-            var _a, _b;
-            for (var i = 0; i < sortBy.length; i++) {
-              var sortKey = sortBy[i];
-              var sortA = getObjectValueByPath(a, sortKey);
-              var sortB = getObjectValueByPath(b, sortKey);
-              if (sortDesc[i]) {
-                _a = __read([sortB, sortA], 2), sortA = _a[0], sortB = _a[1];
-              }
-              if (customSorters && customSorters[sortKey]) {
-                var customResult = customSorters[sortKey](sortA, sortB);
-                if (!customResult) continue;
-                return customResult;
-              } // Check if both cannot be evaluated
-
-              if (sortA === null && sortB === null) {
-                continue;
-              }
-              _b = __read([sortA, sortB].map(function (s) {
-                return (s || '').toString().toLocaleLowerCase();
-              }), 2), sortA = _b[0], sortB = _b[1];
-              if (sortA !== sortB) {
-                if (!isNaN(sortA) && !isNaN(sortB)) return Number(sortA) - Number(sortB);
-                return stringCollator.compare(sortA, sortB);
-              }
-            }
-            return 0;
-          });
-        }"
+    customfilter="[Function]"
+    customgroup="[Function]"
+    customsort="[Function]"
     expanded=""
     expandicon="$expand"
     groupby=""
@@ -953,8 +753,6 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
     page="0"
     selectablekey="isSelectable"
     serveritemslength="-1"
-    sortby=""
-    sortdesc=""
     value=""
   />
    
@@ -1008,10 +806,10 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
     contentclass=""
     maxwidth="500px"
     opendelay="0"
+    openonclick="true"
     origin="center center"
     retainfocus="true"
     transition="dialog-transition"
-    width="auto"
   >
     <v-card-stub
       class="pa-3"
@@ -1020,18 +818,25 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
     >
       <v-card-title-stub
         class="headline"
+        tag="div"
       >
         
       </v-card-title-stub>
        
-      <v-card-text-stub>
+      <v-card-text-stub
+        tag="div"
+      >
         <!---->
          
         <!---->
       </v-card-text-stub>
        
-      <v-card-actions-stub>
-        <v-spacer-stub />
+      <v-card-actions-stub
+        tag="div"
+      >
+        <v-spacer-stub
+          tag="div"
+        />
          
         <v-btn-stub
           activeclass=""
@@ -1040,25 +845,23 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
           text="true"
           type="button"
         >
-          
-          OK
-        
+           OK 
         </v-btn-stub>
       </v-card-actions-stub>
     </v-card-stub>
   </v-dialog-stub>
    
   <profile-modal-stub
-    addidentity="() => {}"
-    enroll="() => {}"
-    fetchorganizations="() => {}"
-    getcountries="() => {}"
-    updateprofile="() => {}"
+    addidentity="[Function]"
+    enroll="[Function]"
+    fetchorganizations="[Function]"
+    getcountries="[Function]"
+    updateprofile="[Function]"
   />
    
   <enroll-modal-stub
-    enroll="function () { [native code] }"
-    fetchorganizations="() => {}"
+    enroll="[Function]"
+    fetchorganizations="[Function]"
     text=""
     title=""
   />
@@ -1072,7 +875,9 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
     loaderheight="4"
     tag="div"
   >
-    <v-card-subtitle-stub>
+    <v-card-subtitle-stub
+      tag="div"
+    >
       
       Moving
       0
@@ -1099,9 +904,7 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
         dense=""
         left=""
       >
-        
-        mdi-account
-      
+         mdi-account 
       </v-icon-stub>
       
       Individuals
@@ -1111,6 +914,7 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
         activeclass=""
         class="ml-2"
         closeicon="$delete"
+        closelabel="$vuetify.close"
         data-cy="individual-counter"
         filtericon="$complete"
         pill="true"
@@ -1162,25 +966,7 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
       rules=""
       successmessages=""
       value=""
-      valuecomparator="function deepEqual(a, b) {
-          if (a === b) return true;
-          if (a instanceof Date && b instanceof Date && a.getTime() !== b.getTime()) {
-            // If the values are Date, compare them as timestamps
-            return false;
-          }
-          if (a !== Object(a) || b !== Object(b)) {
-            // If the values aren't objects, they were already checked for equality
-            return false;
-          }
-          var props = Object.keys(a);
-          if (props.length !== Object.keys(b).length) {
-            // Different number of props, don't bother to check
-            return false;
-          }
-          return props.every(function (p) {
-            return deepEqual(a[p], b[p]);
-          });
-        }"
+      valuecomparator="[Function]"
     />
      
     <search-stub
@@ -1195,7 +981,6 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
       bottom="true"
       closedelay="0"
       contentclass=""
-      fixed="true"
       maxwidth="auto"
       nudgebottom="0"
       nudgeleft="0"
@@ -1203,6 +988,8 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
       nudgetop="0"
       nudgewidth="0"
       opendelay="200"
+      openonclick="true"
+      openonfocus="true"
       openonhover="true"
       tag="span"
       transition="expand-y-transition"
@@ -1217,7 +1004,6 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
       bottom="true"
       closedelay="0"
       contentclass=""
-      fixed="true"
       maxwidth="auto"
       nudgebottom="0"
       nudgeleft="0"
@@ -1225,6 +1011,8 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
       nudgetop="0"
       nudgewidth="0"
       opendelay="200"
+      openonclick="true"
+      openonfocus="true"
       openonhover="true"
       tag="span"
       transition="expand-y-transition"
@@ -1237,62 +1025,9 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
   </v-row-stub>
    
   <v-data-table-stub
-    customfilter="function defaultFilter(value, search, item) {
-          return value != null && search != null && typeof value !== 'boolean' && value.toString().toLocaleLowerCase().indexOf(search.toLocaleLowerCase()) !== -1;
-        }"
-    customgroup="function groupItems(items, groupBy, groupDesc) {
-          var key = groupBy[0];
-          var groups = [];
-          var current = null;
-          for (var i = 0; i < items.length; i++) {
-            var item = items[i];
-            var val = getObjectValueByPath(item, key);
-            if (current !== val) {
-              current = val;
-              groups.push({
-                name: val,
-                items: []
-              });
-            }
-            groups[groups.length - 1].items.push(item);
-          }
-          return groups;
-        }"
-    customsort="function sortItems(items, sortBy, sortDesc, locale, customSorters) {
-          if (sortBy === null || !sortBy.length) return items;
-          var stringCollator = new Intl.Collator(locale, {
-            sensitivity: 'accent',
-            usage: 'sort'
-          });
-          return items.sort(function (a, b) {
-            var _a, _b;
-            for (var i = 0; i < sortBy.length; i++) {
-              var sortKey = sortBy[i];
-              var sortA = getObjectValueByPath(a, sortKey);
-              var sortB = getObjectValueByPath(b, sortKey);
-              if (sortDesc[i]) {
-                _a = __read([sortB, sortA], 2), sortA = _a[0], sortB = _a[1];
-              }
-              if (customSorters && customSorters[sortKey]) {
-                var customResult = customSorters[sortKey](sortA, sortB);
-                if (!customResult) continue;
-                return customResult;
-              } // Check if both cannot be evaluated
-
-              if (sortA === null && sortB === null) {
-                continue;
-              }
-              _b = __read([sortA, sortB].map(function (s) {
-                return (s || '').toString().toLocaleLowerCase();
-              }), 2), sortA = _b[0], sortB = _b[1];
-              if (sortA !== sortB) {
-                if (!isNaN(sortA) && !isNaN(sortB)) return Number(sortA) - Number(sortB);
-                return stringCollator.compare(sortA, sortB);
-              }
-            }
-            return 0;
-          });
-        }"
+    customfilter="[Function]"
+    customgroup="[Function]"
+    customsort="[Function]"
     expanded=""
     expandicon="$expand"
     groupby=""
@@ -1314,8 +1049,6 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
     page="0"
     selectablekey="isSelectable"
     serveritemslength="-1"
-    sortby=""
-    sortdesc=""
     value=""
   />
    
@@ -1369,10 +1102,10 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
     contentclass=""
     maxwidth="500px"
     opendelay="0"
+    openonclick="true"
     origin="center center"
     retainfocus="true"
     transition="dialog-transition"
-    width="auto"
   >
     <v-card-stub
       class="pa-3"
@@ -1381,18 +1114,25 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
     >
       <v-card-title-stub
         class="headline"
+        tag="div"
       >
         
       </v-card-title-stub>
        
-      <v-card-text-stub>
+      <v-card-text-stub
+        tag="div"
+      >
         <!---->
          
         <!---->
       </v-card-text-stub>
        
-      <v-card-actions-stub>
-        <v-spacer-stub />
+      <v-card-actions-stub
+        tag="div"
+      >
+        <v-spacer-stub
+          tag="div"
+        />
          
         <v-btn-stub
           activeclass=""
@@ -1401,25 +1141,23 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
           text="true"
           type="button"
         >
-          
-          OK
-        
+           OK 
         </v-btn-stub>
       </v-card-actions-stub>
     </v-card-stub>
   </v-dialog-stub>
    
   <profile-modal-stub
-    addidentity="() => {}"
-    enroll="() => {}"
-    fetchorganizations="() => {}"
-    getcountries="() => {}"
-    updateprofile="() => {}"
+    addidentity="[Function]"
+    enroll="[Function]"
+    fetchorganizations="[Function]"
+    getcountries="[Function]"
+    updateprofile="[Function]"
   />
    
   <enroll-modal-stub
-    enroll="function () { [native code] }"
-    fetchorganizations="() => {}"
+    enroll="[Function]"
+    fetchorganizations="[Function]"
     text=""
     title=""
   />
@@ -1433,7 +1171,9 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
     loaderheight="4"
     tag="div"
   >
-    <v-card-subtitle-stub>
+    <v-card-subtitle-stub
+      tag="div"
+    >
       
       Moving
       0
@@ -1460,9 +1200,7 @@ exports[`IndividualsTable Mock query for updateEnrollment 1`] = `
         dense=""
         left=""
       >
-        
-        mdi-account
-      
+         mdi-account 
       </v-icon-stub>
       
       Individuals
@@ -1472,6 +1210,7 @@ exports[`IndividualsTable Mock query for updateEnrollment 1`] = `
         activeclass=""
         class="ml-2"
         closeicon="$delete"
+        closelabel="$vuetify.close"
         data-cy="individual-counter"
         filtericon="$complete"
         pill="true"
@@ -1523,25 +1262,7 @@ exports[`IndividualsTable Mock query for updateEnrollment 1`] = `
       rules=""
       successmessages=""
       value=""
-      valuecomparator="function deepEqual(a, b) {
-          if (a === b) return true;
-          if (a instanceof Date && b instanceof Date && a.getTime() !== b.getTime()) {
-            // If the values are Date, compare them as timestamps
-            return false;
-          }
-          if (a !== Object(a) || b !== Object(b)) {
-            // If the values aren't objects, they were already checked for equality
-            return false;
-          }
-          var props = Object.keys(a);
-          if (props.length !== Object.keys(b).length) {
-            // Different number of props, don't bother to check
-            return false;
-          }
-          return props.every(function (p) {
-            return deepEqual(a[p], b[p]);
-          });
-        }"
+      valuecomparator="[Function]"
     />
      
     <search-stub
@@ -1556,7 +1277,6 @@ exports[`IndividualsTable Mock query for updateEnrollment 1`] = `
       bottom="true"
       closedelay="0"
       contentclass=""
-      fixed="true"
       maxwidth="auto"
       nudgebottom="0"
       nudgeleft="0"
@@ -1564,6 +1284,8 @@ exports[`IndividualsTable Mock query for updateEnrollment 1`] = `
       nudgetop="0"
       nudgewidth="0"
       opendelay="200"
+      openonclick="true"
+      openonfocus="true"
       openonhover="true"
       tag="span"
       transition="expand-y-transition"
@@ -1578,7 +1300,6 @@ exports[`IndividualsTable Mock query for updateEnrollment 1`] = `
       bottom="true"
       closedelay="0"
       contentclass=""
-      fixed="true"
       maxwidth="auto"
       nudgebottom="0"
       nudgeleft="0"
@@ -1586,6 +1307,8 @@ exports[`IndividualsTable Mock query for updateEnrollment 1`] = `
       nudgetop="0"
       nudgewidth="0"
       opendelay="200"
+      openonclick="true"
+      openonfocus="true"
       openonhover="true"
       tag="span"
       transition="expand-y-transition"
@@ -1598,62 +1321,9 @@ exports[`IndividualsTable Mock query for updateEnrollment 1`] = `
   </v-row-stub>
    
   <v-data-table-stub
-    customfilter="function defaultFilter(value, search, item) {
-          return value != null && search != null && typeof value !== 'boolean' && value.toString().toLocaleLowerCase().indexOf(search.toLocaleLowerCase()) !== -1;
-        }"
-    customgroup="function groupItems(items, groupBy, groupDesc) {
-          var key = groupBy[0];
-          var groups = [];
-          var current = null;
-          for (var i = 0; i < items.length; i++) {
-            var item = items[i];
-            var val = getObjectValueByPath(item, key);
-            if (current !== val) {
-              current = val;
-              groups.push({
-                name: val,
-                items: []
-              });
-            }
-            groups[groups.length - 1].items.push(item);
-          }
-          return groups;
-        }"
-    customsort="function sortItems(items, sortBy, sortDesc, locale, customSorters) {
-          if (sortBy === null || !sortBy.length) return items;
-          var stringCollator = new Intl.Collator(locale, {
-            sensitivity: 'accent',
-            usage: 'sort'
-          });
-          return items.sort(function (a, b) {
-            var _a, _b;
-            for (var i = 0; i < sortBy.length; i++) {
-              var sortKey = sortBy[i];
-              var sortA = getObjectValueByPath(a, sortKey);
-              var sortB = getObjectValueByPath(b, sortKey);
-              if (sortDesc[i]) {
-                _a = __read([sortB, sortA], 2), sortA = _a[0], sortB = _a[1];
-              }
-              if (customSorters && customSorters[sortKey]) {
-                var customResult = customSorters[sortKey](sortA, sortB);
-                if (!customResult) continue;
-                return customResult;
-              } // Check if both cannot be evaluated
-
-              if (sortA === null && sortB === null) {
-                continue;
-              }
-              _b = __read([sortA, sortB].map(function (s) {
-                return (s || '').toString().toLocaleLowerCase();
-              }), 2), sortA = _b[0], sortB = _b[1];
-              if (sortA !== sortB) {
-                if (!isNaN(sortA) && !isNaN(sortB)) return Number(sortA) - Number(sortB);
-                return stringCollator.compare(sortA, sortB);
-              }
-            }
-            return 0;
-          });
-        }"
+    customfilter="[Function]"
+    customgroup="[Function]"
+    customsort="[Function]"
     expanded=""
     expandicon="$expand"
     groupby=""
@@ -1675,8 +1345,6 @@ exports[`IndividualsTable Mock query for updateEnrollment 1`] = `
     page="0"
     selectablekey="isSelectable"
     serveritemslength="-1"
-    sortby=""
-    sortdesc=""
     value=""
   />
    
@@ -1730,10 +1398,10 @@ exports[`IndividualsTable Mock query for updateEnrollment 1`] = `
     contentclass=""
     maxwidth="500px"
     opendelay="0"
+    openonclick="true"
     origin="center center"
     retainfocus="true"
     transition="dialog-transition"
-    width="auto"
   >
     <v-card-stub
       class="pa-3"
@@ -1742,18 +1410,25 @@ exports[`IndividualsTable Mock query for updateEnrollment 1`] = `
     >
       <v-card-title-stub
         class="headline"
+        tag="div"
       >
         
       </v-card-title-stub>
        
-      <v-card-text-stub>
+      <v-card-text-stub
+        tag="div"
+      >
         <!---->
          
         <!---->
       </v-card-text-stub>
        
-      <v-card-actions-stub>
-        <v-spacer-stub />
+      <v-card-actions-stub
+        tag="div"
+      >
+        <v-spacer-stub
+          tag="div"
+        />
          
         <v-btn-stub
           activeclass=""
@@ -1762,25 +1437,23 @@ exports[`IndividualsTable Mock query for updateEnrollment 1`] = `
           text="true"
           type="button"
         >
-          
-          OK
-        
+           OK 
         </v-btn-stub>
       </v-card-actions-stub>
     </v-card-stub>
   </v-dialog-stub>
    
   <profile-modal-stub
-    addidentity="() => {}"
-    enroll="() => {}"
-    fetchorganizations="() => {}"
-    getcountries="() => {}"
-    updateprofile="() => {}"
+    addidentity="[Function]"
+    enroll="[Function]"
+    fetchorganizations="[Function]"
+    getcountries="[Function]"
+    updateprofile="[Function]"
   />
    
   <enroll-modal-stub
-    enroll="function () { [native code] }"
-    fetchorganizations="() => {}"
+    enroll="[Function]"
+    fetchorganizations="[Function]"
     text=""
     title=""
   />
@@ -1794,7 +1467,9 @@ exports[`IndividualsTable Mock query for updateEnrollment 1`] = `
     loaderheight="4"
     tag="div"
   >
-    <v-card-subtitle-stub>
+    <v-card-subtitle-stub
+      tag="div"
+    >
       
       Moving
       0
@@ -1821,9 +1496,7 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
         dense=""
         left=""
       >
-        
-        mdi-account
-      
+         mdi-account 
       </v-icon-stub>
       
       Individuals
@@ -1833,6 +1506,7 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
         activeclass=""
         class="ml-2"
         closeicon="$delete"
+        closelabel="$vuetify.close"
         data-cy="individual-counter"
         filtericon="$complete"
         pill="true"
@@ -1884,25 +1558,7 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
       rules=""
       successmessages=""
       value=""
-      valuecomparator="function deepEqual(a, b) {
-          if (a === b) return true;
-          if (a instanceof Date && b instanceof Date && a.getTime() !== b.getTime()) {
-            // If the values are Date, compare them as timestamps
-            return false;
-          }
-          if (a !== Object(a) || b !== Object(b)) {
-            // If the values aren't objects, they were already checked for equality
-            return false;
-          }
-          var props = Object.keys(a);
-          if (props.length !== Object.keys(b).length) {
-            // Different number of props, don't bother to check
-            return false;
-          }
-          return props.every(function (p) {
-            return deepEqual(a[p], b[p]);
-          });
-        }"
+      valuecomparator="[Function]"
     />
      
     <search-stub
@@ -1917,7 +1573,6 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
       bottom="true"
       closedelay="0"
       contentclass=""
-      fixed="true"
       maxwidth="auto"
       nudgebottom="0"
       nudgeleft="0"
@@ -1925,6 +1580,8 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
       nudgetop="0"
       nudgewidth="0"
       opendelay="200"
+      openonclick="true"
+      openonfocus="true"
       openonhover="true"
       tag="span"
       transition="expand-y-transition"
@@ -1939,7 +1596,6 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
       bottom="true"
       closedelay="0"
       contentclass=""
-      fixed="true"
       maxwidth="auto"
       nudgebottom="0"
       nudgeleft="0"
@@ -1947,6 +1603,8 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
       nudgetop="0"
       nudgewidth="0"
       opendelay="200"
+      openonclick="true"
+      openonfocus="true"
       openonhover="true"
       tag="span"
       transition="expand-y-transition"
@@ -1959,62 +1617,9 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
   </v-row-stub>
    
   <v-data-table-stub
-    customfilter="function defaultFilter(value, search, item) {
-          return value != null && search != null && typeof value !== 'boolean' && value.toString().toLocaleLowerCase().indexOf(search.toLocaleLowerCase()) !== -1;
-        }"
-    customgroup="function groupItems(items, groupBy, groupDesc) {
-          var key = groupBy[0];
-          var groups = [];
-          var current = null;
-          for (var i = 0; i < items.length; i++) {
-            var item = items[i];
-            var val = getObjectValueByPath(item, key);
-            if (current !== val) {
-              current = val;
-              groups.push({
-                name: val,
-                items: []
-              });
-            }
-            groups[groups.length - 1].items.push(item);
-          }
-          return groups;
-        }"
-    customsort="function sortItems(items, sortBy, sortDesc, locale, customSorters) {
-          if (sortBy === null || !sortBy.length) return items;
-          var stringCollator = new Intl.Collator(locale, {
-            sensitivity: 'accent',
-            usage: 'sort'
-          });
-          return items.sort(function (a, b) {
-            var _a, _b;
-            for (var i = 0; i < sortBy.length; i++) {
-              var sortKey = sortBy[i];
-              var sortA = getObjectValueByPath(a, sortKey);
-              var sortB = getObjectValueByPath(b, sortKey);
-              if (sortDesc[i]) {
-                _a = __read([sortB, sortA], 2), sortA = _a[0], sortB = _a[1];
-              }
-              if (customSorters && customSorters[sortKey]) {
-                var customResult = customSorters[sortKey](sortA, sortB);
-                if (!customResult) continue;
-                return customResult;
-              } // Check if both cannot be evaluated
-
-              if (sortA === null && sortB === null) {
-                continue;
-              }
-              _b = __read([sortA, sortB].map(function (s) {
-                return (s || '').toString().toLocaleLowerCase();
-              }), 2), sortA = _b[0], sortB = _b[1];
-              if (sortA !== sortB) {
-                if (!isNaN(sortA) && !isNaN(sortB)) return Number(sortA) - Number(sortB);
-                return stringCollator.compare(sortA, sortB);
-              }
-            }
-            return 0;
-          });
-        }"
+    customfilter="[Function]"
+    customgroup="[Function]"
+    customsort="[Function]"
     expanded=""
     expandicon="$expand"
     groupby=""
@@ -2036,8 +1641,6 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
     page="0"
     selectablekey="isSelectable"
     serveritemslength="-1"
-    sortby=""
-    sortdesc=""
     value=""
   />
    
@@ -2091,10 +1694,10 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
     contentclass=""
     maxwidth="500px"
     opendelay="0"
+    openonclick="true"
     origin="center center"
     retainfocus="true"
     transition="dialog-transition"
-    width="auto"
   >
     <v-card-stub
       class="pa-3"
@@ -2103,18 +1706,25 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
     >
       <v-card-title-stub
         class="headline"
+        tag="div"
       >
         
       </v-card-title-stub>
        
-      <v-card-text-stub>
+      <v-card-text-stub
+        tag="div"
+      >
         <!---->
          
         <!---->
       </v-card-text-stub>
        
-      <v-card-actions-stub>
-        <v-spacer-stub />
+      <v-card-actions-stub
+        tag="div"
+      >
+        <v-spacer-stub
+          tag="div"
+        />
          
         <v-btn-stub
           activeclass=""
@@ -2123,25 +1733,23 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
           text="true"
           type="button"
         >
-          
-          OK
-        
+           OK 
         </v-btn-stub>
       </v-card-actions-stub>
     </v-card-stub>
   </v-dialog-stub>
    
   <profile-modal-stub
-    addidentity="() => {}"
-    enroll="() => {}"
-    fetchorganizations="() => {}"
-    getcountries="() => {}"
-    updateprofile="() => {}"
+    addidentity="[Function]"
+    enroll="[Function]"
+    fetchorganizations="[Function]"
+    getcountries="[Function]"
+    updateprofile="[Function]"
   />
    
   <enroll-modal-stub
-    enroll="function () { [native code] }"
-    fetchorganizations="() => {}"
+    enroll="[Function]"
+    fetchorganizations="[Function]"
     text=""
     title=""
   />
@@ -2155,7 +1763,9 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
     loaderheight="4"
     tag="div"
   >
-    <v-card-subtitle-stub>
+    <v-card-subtitle-stub
+      tag="div"
+    >
       
       Moving
       0
@@ -2172,7 +1782,7 @@ exports[`Jobs Mock mutation for affiliate 1`] = `
 >
   <jobs-table-stub
     class="mt-md-6"
-    getjobs="function () { [native code] }"
+    getjobs="[Function]"
   />
    
   <v-snackbar-stub
@@ -2197,7 +1807,7 @@ exports[`Jobs Mock mutation for genderize 1`] = `
 >
   <jobs-table-stub
     class="mt-md-6"
-    getjobs="function () { [native code] }"
+    getjobs="[Function]"
   />
    
   <v-snackbar-stub
@@ -2222,7 +1832,7 @@ exports[`Jobs Mock mutation for unify 1`] = `
 >
   <jobs-table-stub
     class="mt-md-6"
-    getjobs="function () { [native code] }"
+    getjobs="[Function]"
   />
    
   <v-snackbar-stub
@@ -2254,17 +1864,21 @@ exports[`Login Mock mutation for tokenAuth 1`] = `
   >
     <v-card-title-stub
       class="display-1 mb-2"
+      tag="div"
     >
       Welcome
     </v-card-title-stub>
      
     <v-card-subtitle-stub
       class="mb-3"
+      tag="div"
     >
       Please log in to continue
     </v-card-subtitle-stub>
      
-    <v-card-text-stub>
+    <v-card-text-stub
+      tag="div"
+    >
       <v-form-stub>
         <v-text-field-stub
           backgroundcolor=""
@@ -2350,6 +1964,7 @@ exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
         activeclass=""
         class="ml-2"
         closeicon="$delete"
+        closelabel="$vuetify.close"
         filtericon="$complete"
         pill="true"
         small="true"
@@ -2387,62 +2002,9 @@ exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
   </v-row-stub>
    
   <v-data-table-stub
-    customfilter="function defaultFilter(value, search, item) {
-          return value != null && search != null && typeof value !== 'boolean' && value.toString().toLocaleLowerCase().indexOf(search.toLocaleLowerCase()) !== -1;
-        }"
-    customgroup="function groupItems(items, groupBy, groupDesc) {
-          var key = groupBy[0];
-          var groups = [];
-          var current = null;
-          for (var i = 0; i < items.length; i++) {
-            var item = items[i];
-            var val = getObjectValueByPath(item, key);
-            if (current !== val) {
-              current = val;
-              groups.push({
-                name: val,
-                items: []
-              });
-            }
-            groups[groups.length - 1].items.push(item);
-          }
-          return groups;
-        }"
-    customsort="function sortItems(items, sortBy, sortDesc, locale, customSorters) {
-          if (sortBy === null || !sortBy.length) return items;
-          var stringCollator = new Intl.Collator(locale, {
-            sensitivity: 'accent',
-            usage: 'sort'
-          });
-          return items.sort(function (a, b) {
-            var _a, _b;
-            for (var i = 0; i < sortBy.length; i++) {
-              var sortKey = sortBy[i];
-              var sortA = getObjectValueByPath(a, sortKey);
-              var sortB = getObjectValueByPath(b, sortKey);
-              if (sortDesc[i]) {
-                _a = __read([sortB, sortA], 2), sortA = _a[0], sortB = _a[1];
-              }
-              if (customSorters && customSorters[sortKey]) {
-                var customResult = customSorters[sortKey](sortA, sortB);
-                if (!customResult) continue;
-                return customResult;
-              } // Check if both cannot be evaluated
-
-              if (sortA === null && sortB === null) {
-                continue;
-              }
-              _b = __read([sortA, sortB].map(function (s) {
-                return (s || '').toString().toLocaleLowerCase();
-              }), 2), sortA = _b[0], sortB = _b[1];
-              if (sortA !== sortB) {
-                if (!isNaN(sortA) && !isNaN(sortB)) return Number(sortA) - Number(sortB);
-                return stringCollator.compare(sortA, sortB);
-              }
-            }
-            return 0;
-          });
-        }"
+    customfilter="[Function]"
+    customgroup="[Function]"
+    customsort="[Function]"
     expanded=""
     expandicon="$expand"
     groupby=""
@@ -2464,8 +2026,6 @@ exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
     page="0"
     selectablekey="isSelectable"
     serveritemslength="-1"
-    sortby=""
-    sortdesc=""
     value=""
   />
    
@@ -2509,11 +2069,9 @@ exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
   </div>
    
   <organization-modal-stub
-    adddomain="function mockConstructor() {
-        return fn.apply(this, arguments);
-      }"
-    addorganization="() => {}"
-    deletedomain="() => {}"
+    adddomain="[Function]"
+    addorganization="[Function]"
+    deletedomain="[Function]"
     domains=""
   />
    
@@ -2522,10 +2080,10 @@ exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
     contentclass=""
     maxwidth="500px"
     opendelay="0"
+    openonclick="true"
     origin="center center"
     retainfocus="true"
     transition="dialog-transition"
-    width="auto"
   >
     <v-card-stub
       class="pa-3"
@@ -2534,11 +2092,14 @@ exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
     >
       <v-card-title-stub
         class="headline"
+        tag="div"
       >
         
       </v-card-title-stub>
        
-      <v-card-text-stub>
+      <v-card-text-stub
+        tag="div"
+      >
         <p
           class="pt-2 pb-2 text-body-2"
         >
@@ -2548,8 +2109,12 @@ exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
         <!---->
       </v-card-text-stub>
        
-      <v-card-actions-stub>
-        <v-spacer-stub />
+      <v-card-actions-stub
+        tag="div"
+      >
+        <v-spacer-stub
+          tag="div"
+        />
          
         <v-btn-stub
           activeclass=""
@@ -2558,9 +2123,7 @@ exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
           text="true"
           type="button"
         >
-          
-          OK
-        
+           OK 
         </v-btn-stub>
       </v-card-actions-stub>
     </v-card-stub>
@@ -2573,13 +2136,17 @@ exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
     loaderheight="4"
     tag="div"
   >
-    <v-card-title-stub>
+    <v-card-title-stub
+      tag="div"
+    >
       
       
     
     </v-card-title-stub>
      
-    <v-card-subtitle-stub>
+    <v-card-subtitle-stub
+      tag="div"
+    >
       
       Drag and drop on an individual to affiliate
     
@@ -2616,6 +2183,7 @@ exports[`OrganizationsTable Mock mutation for addOrganization 1`] = `
         activeclass=""
         class="ml-2"
         closeicon="$delete"
+        closelabel="$vuetify.close"
         filtericon="$complete"
         pill="true"
         small="true"
@@ -2653,62 +2221,9 @@ exports[`OrganizationsTable Mock mutation for addOrganization 1`] = `
   </v-row-stub>
    
   <v-data-table-stub
-    customfilter="function defaultFilter(value, search, item) {
-          return value != null && search != null && typeof value !== 'boolean' && value.toString().toLocaleLowerCase().indexOf(search.toLocaleLowerCase()) !== -1;
-        }"
-    customgroup="function groupItems(items, groupBy, groupDesc) {
-          var key = groupBy[0];
-          var groups = [];
-          var current = null;
-          for (var i = 0; i < items.length; i++) {
-            var item = items[i];
-            var val = getObjectValueByPath(item, key);
-            if (current !== val) {
-              current = val;
-              groups.push({
-                name: val,
-                items: []
-              });
-            }
-            groups[groups.length - 1].items.push(item);
-          }
-          return groups;
-        }"
-    customsort="function sortItems(items, sortBy, sortDesc, locale, customSorters) {
-          if (sortBy === null || !sortBy.length) return items;
-          var stringCollator = new Intl.Collator(locale, {
-            sensitivity: 'accent',
-            usage: 'sort'
-          });
-          return items.sort(function (a, b) {
-            var _a, _b;
-            for (var i = 0; i < sortBy.length; i++) {
-              var sortKey = sortBy[i];
-              var sortA = getObjectValueByPath(a, sortKey);
-              var sortB = getObjectValueByPath(b, sortKey);
-              if (sortDesc[i]) {
-                _a = __read([sortB, sortA], 2), sortA = _a[0], sortB = _a[1];
-              }
-              if (customSorters && customSorters[sortKey]) {
-                var customResult = customSorters[sortKey](sortA, sortB);
-                if (!customResult) continue;
-                return customResult;
-              } // Check if both cannot be evaluated
-
-              if (sortA === null && sortB === null) {
-                continue;
-              }
-              _b = __read([sortA, sortB].map(function (s) {
-                return (s || '').toString().toLocaleLowerCase();
-              }), 2), sortA = _b[0], sortB = _b[1];
-              if (sortA !== sortB) {
-                if (!isNaN(sortA) && !isNaN(sortB)) return Number(sortA) - Number(sortB);
-                return stringCollator.compare(sortA, sortB);
-              }
-            }
-            return 0;
-          });
-        }"
+    customfilter="[Function]"
+    customgroup="[Function]"
+    customsort="[Function]"
     expanded=""
     expandicon="$expand"
     groupby=""
@@ -2730,8 +2245,6 @@ exports[`OrganizationsTable Mock mutation for addOrganization 1`] = `
     page="0"
     selectablekey="isSelectable"
     serveritemslength="-1"
-    sortby=""
-    sortdesc=""
     value=""
   />
    
@@ -2775,11 +2288,9 @@ exports[`OrganizationsTable Mock mutation for addOrganization 1`] = `
   </div>
    
   <organization-modal-stub
-    adddomain="() => {}"
-    addorganization="function mockConstructor() {
-        return fn.apply(this, arguments);
-      }"
-    deletedomain="() => {}"
+    adddomain="[Function]"
+    addorganization="[Function]"
+    deletedomain="[Function]"
     domains=""
   />
    
@@ -2788,10 +2299,10 @@ exports[`OrganizationsTable Mock mutation for addOrganization 1`] = `
     contentclass=""
     maxwidth="500px"
     opendelay="0"
+    openonclick="true"
     origin="center center"
     retainfocus="true"
     transition="dialog-transition"
-    width="auto"
   >
     <v-card-stub
       class="pa-3"
@@ -2800,11 +2311,14 @@ exports[`OrganizationsTable Mock mutation for addOrganization 1`] = `
     >
       <v-card-title-stub
         class="headline"
+        tag="div"
       >
         
       </v-card-title-stub>
        
-      <v-card-text-stub>
+      <v-card-text-stub
+        tag="div"
+      >
         <p
           class="pt-2 pb-2 text-body-2"
         >
@@ -2814,8 +2328,12 @@ exports[`OrganizationsTable Mock mutation for addOrganization 1`] = `
         <!---->
       </v-card-text-stub>
        
-      <v-card-actions-stub>
-        <v-spacer-stub />
+      <v-card-actions-stub
+        tag="div"
+      >
+        <v-spacer-stub
+          tag="div"
+        />
          
         <v-btn-stub
           activeclass=""
@@ -2824,9 +2342,7 @@ exports[`OrganizationsTable Mock mutation for addOrganization 1`] = `
           text="true"
           type="button"
         >
-          
-          OK
-        
+           OK 
         </v-btn-stub>
       </v-card-actions-stub>
     </v-card-stub>
@@ -2839,13 +2355,17 @@ exports[`OrganizationsTable Mock mutation for addOrganization 1`] = `
     loaderheight="4"
     tag="div"
   >
-    <v-card-title-stub>
+    <v-card-title-stub
+      tag="div"
+    >
       
       
     
     </v-card-title-stub>
      
-    <v-card-subtitle-stub>
+    <v-card-subtitle-stub
+      tag="div"
+    >
       
       Drag and drop on an individual to affiliate
     
@@ -2882,6 +2402,7 @@ exports[`OrganizationsTable Mock mutation for deleteDomain 1`] = `
         activeclass=""
         class="ml-2"
         closeicon="$delete"
+        closelabel="$vuetify.close"
         filtericon="$complete"
         pill="true"
         small="true"
@@ -2919,62 +2440,9 @@ exports[`OrganizationsTable Mock mutation for deleteDomain 1`] = `
   </v-row-stub>
    
   <v-data-table-stub
-    customfilter="function defaultFilter(value, search, item) {
-          return value != null && search != null && typeof value !== 'boolean' && value.toString().toLocaleLowerCase().indexOf(search.toLocaleLowerCase()) !== -1;
-        }"
-    customgroup="function groupItems(items, groupBy, groupDesc) {
-          var key = groupBy[0];
-          var groups = [];
-          var current = null;
-          for (var i = 0; i < items.length; i++) {
-            var item = items[i];
-            var val = getObjectValueByPath(item, key);
-            if (current !== val) {
-              current = val;
-              groups.push({
-                name: val,
-                items: []
-              });
-            }
-            groups[groups.length - 1].items.push(item);
-          }
-          return groups;
-        }"
-    customsort="function sortItems(items, sortBy, sortDesc, locale, customSorters) {
-          if (sortBy === null || !sortBy.length) return items;
-          var stringCollator = new Intl.Collator(locale, {
-            sensitivity: 'accent',
-            usage: 'sort'
-          });
-          return items.sort(function (a, b) {
-            var _a, _b;
-            for (var i = 0; i < sortBy.length; i++) {
-              var sortKey = sortBy[i];
-              var sortA = getObjectValueByPath(a, sortKey);
-              var sortB = getObjectValueByPath(b, sortKey);
-              if (sortDesc[i]) {
-                _a = __read([sortB, sortA], 2), sortA = _a[0], sortB = _a[1];
-              }
-              if (customSorters && customSorters[sortKey]) {
-                var customResult = customSorters[sortKey](sortA, sortB);
-                if (!customResult) continue;
-                return customResult;
-              } // Check if both cannot be evaluated
-
-              if (sortA === null && sortB === null) {
-                continue;
-              }
-              _b = __read([sortA, sortB].map(function (s) {
-                return (s || '').toString().toLocaleLowerCase();
-              }), 2), sortA = _b[0], sortB = _b[1];
-              if (sortA !== sortB) {
-                if (!isNaN(sortA) && !isNaN(sortB)) return Number(sortA) - Number(sortB);
-                return stringCollator.compare(sortA, sortB);
-              }
-            }
-            return 0;
-          });
-        }"
+    customfilter="[Function]"
+    customgroup="[Function]"
+    customsort="[Function]"
     expanded=""
     expandicon="$expand"
     groupby=""
@@ -2996,8 +2464,6 @@ exports[`OrganizationsTable Mock mutation for deleteDomain 1`] = `
     page="0"
     selectablekey="isSelectable"
     serveritemslength="-1"
-    sortby=""
-    sortdesc=""
     value=""
   />
    
@@ -3041,11 +2507,9 @@ exports[`OrganizationsTable Mock mutation for deleteDomain 1`] = `
   </div>
    
   <organization-modal-stub
-    adddomain="() => {}"
-    addorganization="() => {}"
-    deletedomain="function mockConstructor() {
-        return fn.apply(this, arguments);
-      }"
+    adddomain="[Function]"
+    addorganization="[Function]"
+    deletedomain="[Function]"
     domains=""
   />
    
@@ -3054,10 +2518,10 @@ exports[`OrganizationsTable Mock mutation for deleteDomain 1`] = `
     contentclass=""
     maxwidth="500px"
     opendelay="0"
+    openonclick="true"
     origin="center center"
     retainfocus="true"
     transition="dialog-transition"
-    width="auto"
   >
     <v-card-stub
       class="pa-3"
@@ -3066,11 +2530,14 @@ exports[`OrganizationsTable Mock mutation for deleteDomain 1`] = `
     >
       <v-card-title-stub
         class="headline"
+        tag="div"
       >
         
       </v-card-title-stub>
        
-      <v-card-text-stub>
+      <v-card-text-stub
+        tag="div"
+      >
         <p
           class="pt-2 pb-2 text-body-2"
         >
@@ -3080,8 +2547,12 @@ exports[`OrganizationsTable Mock mutation for deleteDomain 1`] = `
         <!---->
       </v-card-text-stub>
        
-      <v-card-actions-stub>
-        <v-spacer-stub />
+      <v-card-actions-stub
+        tag="div"
+      >
+        <v-spacer-stub
+          tag="div"
+        />
          
         <v-btn-stub
           activeclass=""
@@ -3090,9 +2561,7 @@ exports[`OrganizationsTable Mock mutation for deleteDomain 1`] = `
           text="true"
           type="button"
         >
-          
-          OK
-        
+           OK 
         </v-btn-stub>
       </v-card-actions-stub>
     </v-card-stub>
@@ -3105,13 +2574,17 @@ exports[`OrganizationsTable Mock mutation for deleteDomain 1`] = `
     loaderheight="4"
     tag="div"
   >
-    <v-card-title-stub>
+    <v-card-title-stub
+      tag="div"
+    >
       
       
     
     </v-card-title-stub>
      
-    <v-card-subtitle-stub>
+    <v-card-subtitle-stub
+      tag="div"
+    >
       
       Drag and drop on an individual to affiliate
     
@@ -3148,6 +2621,7 @@ exports[`OrganizationsTable Mock mutation for deleteOrganization 1`] = `
         activeclass=""
         class="ml-2"
         closeicon="$delete"
+        closelabel="$vuetify.close"
         filtericon="$complete"
         pill="true"
         small="true"
@@ -3185,62 +2659,9 @@ exports[`OrganizationsTable Mock mutation for deleteOrganization 1`] = `
   </v-row-stub>
    
   <v-data-table-stub
-    customfilter="function defaultFilter(value, search, item) {
-          return value != null && search != null && typeof value !== 'boolean' && value.toString().toLocaleLowerCase().indexOf(search.toLocaleLowerCase()) !== -1;
-        }"
-    customgroup="function groupItems(items, groupBy, groupDesc) {
-          var key = groupBy[0];
-          var groups = [];
-          var current = null;
-          for (var i = 0; i < items.length; i++) {
-            var item = items[i];
-            var val = getObjectValueByPath(item, key);
-            if (current !== val) {
-              current = val;
-              groups.push({
-                name: val,
-                items: []
-              });
-            }
-            groups[groups.length - 1].items.push(item);
-          }
-          return groups;
-        }"
-    customsort="function sortItems(items, sortBy, sortDesc, locale, customSorters) {
-          if (sortBy === null || !sortBy.length) return items;
-          var stringCollator = new Intl.Collator(locale, {
-            sensitivity: 'accent',
-            usage: 'sort'
-          });
-          return items.sort(function (a, b) {
-            var _a, _b;
-            for (var i = 0; i < sortBy.length; i++) {
-              var sortKey = sortBy[i];
-              var sortA = getObjectValueByPath(a, sortKey);
-              var sortB = getObjectValueByPath(b, sortKey);
-              if (sortDesc[i]) {
-                _a = __read([sortB, sortA], 2), sortA = _a[0], sortB = _a[1];
-              }
-              if (customSorters && customSorters[sortKey]) {
-                var customResult = customSorters[sortKey](sortA, sortB);
-                if (!customResult) continue;
-                return customResult;
-              } // Check if both cannot be evaluated
-
-              if (sortA === null && sortB === null) {
-                continue;
-              }
-              _b = __read([sortA, sortB].map(function (s) {
-                return (s || '').toString().toLocaleLowerCase();
-              }), 2), sortA = _b[0], sortB = _b[1];
-              if (sortA !== sortB) {
-                if (!isNaN(sortA) && !isNaN(sortB)) return Number(sortA) - Number(sortB);
-                return stringCollator.compare(sortA, sortB);
-              }
-            }
-            return 0;
-          });
-        }"
+    customfilter="[Function]"
+    customgroup="[Function]"
+    customsort="[Function]"
     expanded=""
     expandicon="$expand"
     groupby=""
@@ -3262,8 +2683,6 @@ exports[`OrganizationsTable Mock mutation for deleteOrganization 1`] = `
     page="0"
     selectablekey="isSelectable"
     serveritemslength="-1"
-    sortby=""
-    sortdesc=""
     value=""
   />
    
@@ -3307,9 +2726,9 @@ exports[`OrganizationsTable Mock mutation for deleteOrganization 1`] = `
   </div>
    
   <organization-modal-stub
-    adddomain="() => {}"
-    addorganization="() => {}"
-    deletedomain="() => {}"
+    adddomain="[Function]"
+    addorganization="[Function]"
+    deletedomain="[Function]"
     domains=""
   />
    
@@ -3318,10 +2737,10 @@ exports[`OrganizationsTable Mock mutation for deleteOrganization 1`] = `
     contentclass=""
     maxwidth="500px"
     opendelay="0"
+    openonclick="true"
     origin="center center"
     retainfocus="true"
     transition="dialog-transition"
-    width="auto"
   >
     <v-card-stub
       class="pa-3"
@@ -3330,11 +2749,14 @@ exports[`OrganizationsTable Mock mutation for deleteOrganization 1`] = `
     >
       <v-card-title-stub
         class="headline"
+        tag="div"
       >
         
       </v-card-title-stub>
        
-      <v-card-text-stub>
+      <v-card-text-stub
+        tag="div"
+      >
         <p
           class="pt-2 pb-2 text-body-2"
         >
@@ -3344,8 +2766,12 @@ exports[`OrganizationsTable Mock mutation for deleteOrganization 1`] = `
         <!---->
       </v-card-text-stub>
        
-      <v-card-actions-stub>
-        <v-spacer-stub />
+      <v-card-actions-stub
+        tag="div"
+      >
+        <v-spacer-stub
+          tag="div"
+        />
          
         <v-btn-stub
           activeclass=""
@@ -3354,9 +2780,7 @@ exports[`OrganizationsTable Mock mutation for deleteOrganization 1`] = `
           text="true"
           type="button"
         >
-          
-          OK
-        
+           OK 
         </v-btn-stub>
       </v-card-actions-stub>
     </v-card-stub>
@@ -3369,13 +2793,17 @@ exports[`OrganizationsTable Mock mutation for deleteOrganization 1`] = `
     loaderheight="4"
     tag="div"
   >
-    <v-card-title-stub>
+    <v-card-title-stub
+      tag="div"
+    >
       
       
     
     </v-card-title-stub>
      
-    <v-card-subtitle-stub>
+    <v-card-subtitle-stub
+      tag="div"
+    >
       
       Drag and drop on an individual to affiliate
     
@@ -3412,6 +2840,7 @@ exports[`OrganizationsTable Mock mutation for enroll 1`] = `
         activeclass=""
         class="ml-2"
         closeicon="$delete"
+        closelabel="$vuetify.close"
         filtericon="$complete"
         pill="true"
         small="true"
@@ -3449,62 +2878,9 @@ exports[`OrganizationsTable Mock mutation for enroll 1`] = `
   </v-row-stub>
    
   <v-data-table-stub
-    customfilter="function defaultFilter(value, search, item) {
-          return value != null && search != null && typeof value !== 'boolean' && value.toString().toLocaleLowerCase().indexOf(search.toLocaleLowerCase()) !== -1;
-        }"
-    customgroup="function groupItems(items, groupBy, groupDesc) {
-          var key = groupBy[0];
-          var groups = [];
-          var current = null;
-          for (var i = 0; i < items.length; i++) {
-            var item = items[i];
-            var val = getObjectValueByPath(item, key);
-            if (current !== val) {
-              current = val;
-              groups.push({
-                name: val,
-                items: []
-              });
-            }
-            groups[groups.length - 1].items.push(item);
-          }
-          return groups;
-        }"
-    customsort="function sortItems(items, sortBy, sortDesc, locale, customSorters) {
-          if (sortBy === null || !sortBy.length) return items;
-          var stringCollator = new Intl.Collator(locale, {
-            sensitivity: 'accent',
-            usage: 'sort'
-          });
-          return items.sort(function (a, b) {
-            var _a, _b;
-            for (var i = 0; i < sortBy.length; i++) {
-              var sortKey = sortBy[i];
-              var sortA = getObjectValueByPath(a, sortKey);
-              var sortB = getObjectValueByPath(b, sortKey);
-              if (sortDesc[i]) {
-                _a = __read([sortB, sortA], 2), sortA = _a[0], sortB = _a[1];
-              }
-              if (customSorters && customSorters[sortKey]) {
-                var customResult = customSorters[sortKey](sortA, sortB);
-                if (!customResult) continue;
-                return customResult;
-              } // Check if both cannot be evaluated
-
-              if (sortA === null && sortB === null) {
-                continue;
-              }
-              _b = __read([sortA, sortB].map(function (s) {
-                return (s || '').toString().toLocaleLowerCase();
-              }), 2), sortA = _b[0], sortB = _b[1];
-              if (sortA !== sortB) {
-                if (!isNaN(sortA) && !isNaN(sortB)) return Number(sortA) - Number(sortB);
-                return stringCollator.compare(sortA, sortB);
-              }
-            }
-            return 0;
-          });
-        }"
+    customfilter="[Function]"
+    customgroup="[Function]"
+    customsort="[Function]"
     expanded=""
     expandicon="$expand"
     groupby=""
@@ -3526,8 +2902,6 @@ exports[`OrganizationsTable Mock mutation for enroll 1`] = `
     page="0"
     selectablekey="isSelectable"
     serveritemslength="-1"
-    sortby=""
-    sortdesc=""
     value=""
   />
    
@@ -3571,9 +2945,9 @@ exports[`OrganizationsTable Mock mutation for enroll 1`] = `
   </div>
    
   <organization-modal-stub
-    adddomain="() => {}"
-    addorganization="() => {}"
-    deletedomain="() => {}"
+    adddomain="[Function]"
+    addorganization="[Function]"
+    deletedomain="[Function]"
     domains=""
   />
    
@@ -3582,10 +2956,10 @@ exports[`OrganizationsTable Mock mutation for enroll 1`] = `
     contentclass=""
     maxwidth="500px"
     opendelay="0"
+    openonclick="true"
     origin="center center"
     retainfocus="true"
     transition="dialog-transition"
-    width="auto"
   >
     <v-card-stub
       class="pa-3"
@@ -3594,11 +2968,14 @@ exports[`OrganizationsTable Mock mutation for enroll 1`] = `
     >
       <v-card-title-stub
         class="headline"
+        tag="div"
       >
         
       </v-card-title-stub>
        
-      <v-card-text-stub>
+      <v-card-text-stub
+        tag="div"
+      >
         <p
           class="pt-2 pb-2 text-body-2"
         >
@@ -3608,8 +2985,12 @@ exports[`OrganizationsTable Mock mutation for enroll 1`] = `
         <!---->
       </v-card-text-stub>
        
-      <v-card-actions-stub>
-        <v-spacer-stub />
+      <v-card-actions-stub
+        tag="div"
+      >
+        <v-spacer-stub
+          tag="div"
+        />
          
         <v-btn-stub
           activeclass=""
@@ -3618,9 +2999,7 @@ exports[`OrganizationsTable Mock mutation for enroll 1`] = `
           text="true"
           type="button"
         >
-          
-          OK
-        
+           OK 
         </v-btn-stub>
       </v-card-actions-stub>
     </v-card-stub>
@@ -3633,13 +3012,17 @@ exports[`OrganizationsTable Mock mutation for enroll 1`] = `
     loaderheight="4"
     tag="div"
   >
-    <v-card-title-stub>
+    <v-card-title-stub
+      tag="div"
+    >
       
       
     
     </v-card-title-stub>
      
-    <v-card-subtitle-stub>
+    <v-card-subtitle-stub
+      tag="div"
+    >
       
       Drag and drop on an individual to affiliate
     
@@ -3654,11 +3037,11 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
   contentclass=""
   maxwidth="650"
   opendelay="0"
+  openonclick="true"
   origin="center center"
   persistent="true"
   retainfocus="true"
   transition="dialog-transition"
-  width="auto"
 >
   <v-card-stub
     class="section"
@@ -3667,6 +3050,7 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
   >
     <v-card-title-stub
       class="header"
+      tag="div"
     >
       <span
         class="title"
@@ -3677,6 +3061,7 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
      
     <v-card-text-stub
       class="mt-3"
+      tag="div"
     >
       <v-form-stub>
         <v-row-stub
@@ -3719,7 +3104,7 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
               loaderheight="2"
               messages=""
               outlined="true"
-              rules="value => (value ? /\\\\S+@\\\\S+\\\\.\\\\S+/.test(value) : true) || \\"Invalid email\\""
+              rules="[Function]"
               successmessages=""
               type="text"
               value=""
@@ -3767,7 +3152,7 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
               loaderheight="2"
               messages=""
               outlined="true"
-              rules="value => !!value || \\"Required\\""
+              rules="[Function]"
               successmessages=""
               type="text"
               value=""
@@ -3812,9 +3197,7 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
               dense="true"
               errorcount="1"
               errormessages=""
-              filter="function _default(item, queryText, itemText) {
-                return itemText.toLocaleLowerCase().indexOf(queryText.toLocaleLowerCase()) > -1;
-              }"
+              filter="[Function]"
               itemcolor="primary"
               itemdisabled="disabled"
               items=""
@@ -3830,25 +3213,7 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
               rules=""
               successmessages=""
               type="text"
-              valuecomparator="function deepEqual(a, b) {
-          if (a === b) return true;
-          if (a instanceof Date && b instanceof Date && a.getTime() !== b.getTime()) {
-            // If the values are Date, compare them as timestamps
-            return false;
-          }
-          if (a !== Object(a) || b !== Object(b)) {
-            // If the values aren't objects, they were already checked for equality
-            return false;
-          }
-          var props = Object.keys(a);
-          if (props.length !== Object.keys(b).length) {
-            // Different number of props, don't bother to check
-            return false;
-          }
-          return props.every(function (p) {
-            return deepEqual(a[p], b[p]);
-          });
-        }"
+              valuecomparator="[Function]"
             />
           </v-col-stub>
            
@@ -3870,25 +3235,7 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
               ripple="true"
               rules=""
               successmessages=""
-              valuecomparator="function deepEqual(a, b) {
-          if (a === b) return true;
-          if (a instanceof Date && b instanceof Date && a.getTime() !== b.getTime()) {
-            // If the values are Date, compare them as timestamps
-            return false;
-          }
-          if (a !== Object(a) || b !== Object(b)) {
-            // If the values aren't objects, they were already checked for equality
-            return false;
-          }
-          var props = Object.keys(a);
-          if (props.length !== Object.keys(b).length) {
-            // Different number of props, don't bother to check
-            return false;
-          }
-          return props.every(function (p) {
-            return deepEqual(a[p], b[p]);
-          });
-        }"
+              valuecomparator="[Function]"
             />
           </v-col-stub>
         </v-row-stub>
@@ -3912,7 +3259,7 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
             tag="div"
           >
             <organization-selector-stub
-              fetchorganizations="() => {}"
+              fetchorganizations="[Function]"
               label="Organization"
               value=""
             />
@@ -3993,8 +3340,12 @@ exports[`ProfileModal Mock mutation for addIdentity 1`] = `
      
     <!---->
      
-    <v-card-actions-stub>
-      <v-spacer-stub />
+    <v-card-actions-stub
+      tag="div"
+    >
+      <v-spacer-stub
+        tag="div"
+      />
        
       <v-btn-stub
         activeclass=""
@@ -4031,11 +3382,11 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
   contentclass=""
   maxwidth="650"
   opendelay="0"
+  openonclick="true"
   origin="center center"
   persistent="true"
   retainfocus="true"
   transition="dialog-transition"
-  width="auto"
 >
   <v-card-stub
     class="section"
@@ -4044,6 +3395,7 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
   >
     <v-card-title-stub
       class="header"
+      tag="div"
     >
       <span
         class="title"
@@ -4054,6 +3406,7 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
      
     <v-card-text-stub
       class="mt-3"
+      tag="div"
     >
       <v-form-stub>
         <v-row-stub
@@ -4096,7 +3449,7 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
               loaderheight="2"
               messages=""
               outlined="true"
-              rules="value => (value ? /\\\\S+@\\\\S+\\\\.\\\\S+/.test(value) : true) || \\"Invalid email\\""
+              rules="[Function]"
               successmessages=""
               type="text"
               value=""
@@ -4144,7 +3497,7 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
               loaderheight="2"
               messages=""
               outlined="true"
-              rules="value => !!value || \\"Required\\""
+              rules="[Function]"
               successmessages=""
               type="text"
               value=""
@@ -4189,9 +3542,7 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
               dense="true"
               errorcount="1"
               errormessages=""
-              filter="function _default(item, queryText, itemText) {
-                return itemText.toLocaleLowerCase().indexOf(queryText.toLocaleLowerCase()) > -1;
-              }"
+              filter="[Function]"
               itemcolor="primary"
               itemdisabled="disabled"
               items=""
@@ -4207,25 +3558,7 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
               rules=""
               successmessages=""
               type="text"
-              valuecomparator="function deepEqual(a, b) {
-          if (a === b) return true;
-          if (a instanceof Date && b instanceof Date && a.getTime() !== b.getTime()) {
-            // If the values are Date, compare them as timestamps
-            return false;
-          }
-          if (a !== Object(a) || b !== Object(b)) {
-            // If the values aren't objects, they were already checked for equality
-            return false;
-          }
-          var props = Object.keys(a);
-          if (props.length !== Object.keys(b).length) {
-            // Different number of props, don't bother to check
-            return false;
-          }
-          return props.every(function (p) {
-            return deepEqual(a[p], b[p]);
-          });
-        }"
+              valuecomparator="[Function]"
             />
           </v-col-stub>
            
@@ -4247,25 +3580,7 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
               ripple="true"
               rules=""
               successmessages=""
-              valuecomparator="function deepEqual(a, b) {
-          if (a === b) return true;
-          if (a instanceof Date && b instanceof Date && a.getTime() !== b.getTime()) {
-            // If the values are Date, compare them as timestamps
-            return false;
-          }
-          if (a !== Object(a) || b !== Object(b)) {
-            // If the values aren't objects, they were already checked for equality
-            return false;
-          }
-          var props = Object.keys(a);
-          if (props.length !== Object.keys(b).length) {
-            // Different number of props, don't bother to check
-            return false;
-          }
-          return props.every(function (p) {
-            return deepEqual(a[p], b[p]);
-          });
-        }"
+              valuecomparator="[Function]"
             />
           </v-col-stub>
         </v-row-stub>
@@ -4289,7 +3604,7 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
             tag="div"
           >
             <organization-selector-stub
-              fetchorganizations="() => {}"
+              fetchorganizations="[Function]"
               label="Organization"
               value=""
             />
@@ -4370,8 +3685,12 @@ exports[`ProfileModal Mock mutation for updateProfile 1`] = `
      
     <!---->
      
-    <v-card-actions-stub>
-      <v-spacer-stub />
+    <v-card-actions-stub
+      tag="div"
+    >
+      <v-spacer-stub
+        tag="div"
+      />
        
       <v-btn-stub
         activeclass=""
