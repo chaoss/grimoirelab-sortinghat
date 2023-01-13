@@ -294,7 +294,7 @@ describe("IndividualsTable", () => {
       },
     });
     await wrapper.setProps({ deleteItem: mutate });
-    const response = await Mutations.deleteIdentity(
+    await Mutations.deleteIdentity(
       wrapper.vm.$apollo,
       "5f06473815dc415c9861680de8101813d9eb18e8"
     );
@@ -313,7 +313,7 @@ describe("IndividualsTable", () => {
       },
     });
     await wrapper.setProps({ mergeItems: mutate });
-    const response = await Mutations.deleteIdentity(
+    await Mutations.deleteIdentity(
       wrapper.vm.$apollo,
       "5f06473815dc415c9861680de8101813d9eb18e8"
     );
@@ -332,7 +332,7 @@ describe("IndividualsTable", () => {
       },
     });
     await wrapper.setProps({ unmergeItems: mutate });
-    const response = await Mutations.unmerge(wrapper.vm.$apollo, [
+    await Mutations.unmerge(wrapper.vm.$apollo, [
       "3db176be6859adac3a454c5377af81b1b7e3f8d8",
       "10982379421b80e13266db011d6e5131dd519016",
     ]);
@@ -351,7 +351,7 @@ describe("IndividualsTable", () => {
       },
     });
     await wrapper.setProps({ moveItem: mutate });
-    const response = await Mutations.moveIdentity(
+    await Mutations.moveIdentity(
       wrapper.vm.$apollo,
       "5f06473815dc415c9861680de8101813d9eb18e8",
       "7eb22d2a28e3f450ad4fbe171f156a9fab1d3971"
@@ -371,7 +371,7 @@ describe("IndividualsTable", () => {
       },
     });
     await wrapper.setProps({ withdraw: mutate });
-    const response = await Mutations.withdraw(
+    await Mutations.withdraw(
       wrapper.vm.$apollo,
       "4df20c13824ce60c2249a9b947d6c55dc0ba26a4",
       "Organization"
@@ -399,10 +399,7 @@ describe("IndividualsTable", () => {
       newToDate: "2020-12-24T00:00:00+00:00",
       uuid: "06e6903c91180835b6ee91dd56782c6ca72bc562",
     };
-    const response = await Mutations.updateEnrollment(
-      wrapper.vm.$apollo,
-      enrollment
-    );
+    await Mutations.updateEnrollment(wrapper.vm.$apollo, enrollment);
 
     expect(mutate).toBeCalled();
     expect(wrapper.element).toMatchSnapshot();
@@ -432,7 +429,7 @@ describe("OrganizationsTable", () => {
       },
     });
 
-    const response = await Mutations.enroll(
+    await Mutations.enroll(
       wrapper.vm.$apollo,
       "4df20c13824ce60c2249a9b947d6c55dc0ba26a4",
       "Organization"
@@ -464,10 +461,7 @@ describe("OrganizationsTable", () => {
       },
     });
 
-    const response = await Mutations.addOrganization(
-      wrapper.vm.$apollo,
-      "Name"
-    );
+    await Mutations.addOrganization(wrapper.vm.$apollo, "Name");
 
     expect(mutate).toBeCalled();
     expect(wrapper.element).toMatchSnapshot();
@@ -495,11 +489,7 @@ describe("OrganizationsTable", () => {
       },
     });
 
-    const response = await Mutations.addDomain(
-      wrapper.vm.$apollo,
-      "domain.com",
-      "Organization"
-    );
+    await Mutations.addDomain(wrapper.vm.$apollo, "domain.com", "Organization");
 
     expect(mutate).toBeCalled();
     expect(wrapper.element).toMatchSnapshot();
@@ -527,11 +517,7 @@ describe("OrganizationsTable", () => {
       },
     });
 
-    const response = await Mutations.addDomain(
-      wrapper.vm.$apollo,
-      "domain.com",
-      "Organization"
-    );
+    await Mutations.addDomain(wrapper.vm.$apollo, "domain.com", "Organization");
     expect(mutate).toBeCalled();
     expect(wrapper.element).toMatchSnapshot();
   });
@@ -558,10 +544,7 @@ describe("OrganizationsTable", () => {
       },
     });
 
-    const response = await Mutations.deleteOrganization(
-      wrapper.vm.$apollo,
-      "Organization"
-    );
+    await Mutations.deleteOrganization(wrapper.vm.$apollo, "Organization");
     expect(mutate).toBeCalled();
     expect(wrapper.element).toMatchSnapshot();
   });
@@ -586,7 +569,7 @@ describe("ProfileModal", () => {
       },
     });
 
-    const response = await Mutations.addIdentity(
+    await Mutations.addIdentity(
       wrapper.vm.$apollo,
       "email@email.com",
       "Name",
@@ -616,7 +599,7 @@ describe("ProfileModal", () => {
       },
     });
 
-    const response = await Mutations.addIdentity(
+    await Mutations.addIdentity(
       wrapper.vm.$apollo,
       {
         gender: "gender",
@@ -642,11 +625,7 @@ describe("Login", () => {
       },
     });
 
-    const response = await Mutations.tokenAuth(
-      wrapper.vm.$apollo,
-      "username",
-      "password"
-    );
+    await Mutations.tokenAuth(wrapper.vm.$apollo, "username", "password");
 
     expect(mutate).toBeCalled();
     expect(wrapper.element).toMatchSnapshot();
@@ -671,7 +650,7 @@ describe("TeamModal", () => {
       },
     });
 
-    const response = await Mutations.addTeam(wrapper.vm.$apollo, "test");
+    await Mutations.addTeam(wrapper.vm.$apollo, "test");
 
     expect(mutate).toBeCalled();
     expect(wrapper.element).toMatchSnapshot();
@@ -694,7 +673,7 @@ describe("TeamModal", () => {
       },
     });
 
-    const response = await Mutations.deleteTeam(wrapper.vm.$apollo, "test");
+    await Mutations.deleteTeam(wrapper.vm.$apollo, "test");
 
     expect(mutate).toBeCalled();
     expect(wrapper.element).toMatchSnapshot();

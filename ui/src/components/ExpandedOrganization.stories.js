@@ -130,7 +130,7 @@ export const Default = () => ({
       this.query[0].data.teams.entities.push(insertData);
       return true;
     },
-    deleteTeam(team, organization) {
+    deleteTeam(team) {
       this.query[0].data.teams.entities =
         this.query[0].data.teams.entities.filter((elem) => elem.name != team);
       return true;
@@ -231,7 +231,7 @@ export const Empty = () => ({
       this.query[0].data.teams.entities.push(insertData);
       return true;
     },
-    deleteTeam(team, organization) {
+    deleteTeam(team) {
       this.query[0].data.teams.entities =
         this.query[0].data.teams.entities.filter((elem) => elem.name != team);
       return true;
