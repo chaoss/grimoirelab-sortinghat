@@ -294,7 +294,7 @@ describe("IndividualsTable", () => {
     await wrapper.setProps({ fetchPage: query });
     await wrapper.setData({ filters: { term: "test" } });
 
-    const response = await wrapper.vm.queryIndividuals(1);
+    await wrapper.vm.queryIndividuals(1);
 
     expect(query).toHaveBeenCalledWith(1, 10, { term: "test" }, null);
   });
@@ -311,7 +311,7 @@ describe("IndividualsTable", () => {
     await wrapper.setProps({ fetchPage: query });
     await wrapper.setData({ filters: { gender: "gender" } });
 
-    const response = await wrapper.vm.queryIndividuals(1);
+    await wrapper.vm.queryIndividuals(1);
 
     expect(query).toHaveBeenCalledWith(1, 10, { gender: "gender" }, null);
   });
@@ -330,7 +330,7 @@ describe("IndividualsTable", () => {
       filters: { lastUpdated: "<2000-01-01T00:00:00.000Z" },
     });
 
-    const response = await wrapper.vm.queryIndividuals(1);
+    await wrapper.vm.queryIndividuals(1);
 
     expect(query).toHaveBeenCalledWith(
       1,
@@ -354,7 +354,7 @@ describe("IndividualsTable", () => {
     await wrapper.setProps({ fetchPage: query });
     await wrapper.setData({ filters: { isBot: true } });
 
-    const response = await wrapper.vm.queryIndividuals(1);
+    await wrapper.vm.queryIndividuals(1);
 
     expect(query).toHaveBeenCalledWith(1, 10, { isBot: true }, null);
   });
@@ -371,7 +371,7 @@ describe("IndividualsTable", () => {
     await wrapper.setProps({ fetchPage: query });
     await wrapper.setData({ filters: { country: "Spain" } });
 
-    const response = await wrapper.vm.queryIndividuals(1);
+    await wrapper.vm.queryIndividuals(1);
 
     expect(query).toHaveBeenCalledWith(1, 10, { country: "Spain" }, null);
   });
@@ -390,7 +390,7 @@ describe("IndividualsTable", () => {
       await wrapper.setProps({ fetchPage: query });
       await wrapper.setData({ orderBy: value });
 
-      const response = await wrapper.vm.queryIndividuals(1);
+      await wrapper.vm.queryIndividuals(1);
 
       expect(query).toHaveBeenCalledWith(1, 10, {}, value);
     }
@@ -445,7 +445,7 @@ describe("OrganizationsTable", () => {
 
   test("Mock search by term", async () => {
     const query = jest.fn(() => Promise.resolve(paginatedOrganizations));
-    const wrapper = shallowMount(OrganizationsTable, {
+    shallowMount(OrganizationsTable, {
       Vue,
       mocks: {
         $apollo: {
