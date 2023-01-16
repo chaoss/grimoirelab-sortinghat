@@ -1,0 +1,8 @@
+---
+title: GraphQL client headers updated
+category: fixed
+author: Jose Javier Merchante <jjmerchante@bitergia.com>
+issue: null
+notes: >
+  SortingHat client headers are updated adding `Referer` and
+  `Host` to fix the CSRF token issue.
