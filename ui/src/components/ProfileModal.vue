@@ -71,6 +71,7 @@
             <v-col cols="2">
               <v-checkbox
                 v-model="profileForm.isBot"
+                :false-value="false"
                 label="Bot"
                 color="primary"
                 class="mt-1"
@@ -308,7 +309,7 @@ export default {
         countryCode: this.profileForm.country
           ? this.profileForm.country.code
           : null,
-        isBot: this.profileForm.isBot,
+        isBot: !!this.profileForm.isBot,
       };
       try {
         const response = await this.updateProfile(data, uuid);
