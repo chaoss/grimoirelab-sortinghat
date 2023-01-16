@@ -2,6 +2,7 @@ import { aliasQuery } from "../utils/graphql-test-utils";
 
 describe("Login", () => {
   beforeEach(() => {
+    cy.clearCookies();
     // Intercept GraphQL requests to wait for them in the tests
     cy.intercept("POST", "/api/", (req) => {
       aliasQuery(req, "tokenAuth");
@@ -93,14 +94,13 @@ describe("Authenticated operations", () => {
       cy.wait("@GetIndividuals");
       cy.get(".v-dialog").should("not.be.visible");
 
-      cy.getIndividualsCount()
-        .should("be.gt", count)
-        .and("eq", count + 2);
-
       cy.orderBy("Last updated");
 
       cy.contains("tr", "John Smith").should("be.visible");
       cy.contains("tr", "jsmith@example.com").should("be.visible");
+      cy.getIndividualsCount()
+        .should("be.gt", count)
+        .and("eq", count + 2);
     });
   });
 
@@ -121,9 +121,15 @@ describe("Authenticated operations", () => {
   });
 
   it("Merges individuals", () => {
-    cy.visit("/");
+    cy.visit("/", {
+      onBeforeLoad(win) {
+        win.localStorage.setItem(
+          "sh_workspace",
+          '["fae9c66618689956f53c85da331041fd58b8da19","822d5d1cd04f9f29333bbb126e4c6c1295e4e0a5"]'
+        );
+      }
+    });
     cy.orderBy("Last updated");
-    cy.addToWorkspace(["Test merge 1", "Test merge 2"]);
 
     cy.getIndividualsCount().then((count) => {
       // Select and merge individuals
@@ -229,9 +235,14 @@ describe("Authenticated operations", () => {
   });
 
   it("Deletes individuals", () => {
-    cy.visit("/");
+    cy.visit("/", {
+      onBeforeLoad(win) {
+        win.localStorage.setItem(
+          "sh_workspace",
+          '["aea15252fb9ebeca18698f5a7e8ff74cf6d9b18e","c132d513c6ac5d066a3076a5de75957d1ef422e5"]'
+        );
+      }});
     cy.orderBy("Last updated");
-    cy.addToWorkspace(["Test delete 1", "Test delete 2"]);
 
     cy.getIndividualsCount().then((count) => {
       // Select and delete individuals
@@ -255,7 +266,8 @@ describe("Authenticated operations", () => {
 
       cy.contains("tr", "Test delete 1").should("not.exist");
       cy.contains("tr", "Test delete 2").should("not.exist");
-      cy.getIndividualsCount().should("eq", count - 2);
+      cy.getIndividualsCount()
+        .should("eq", count - 2);
     });
 
     // Check if it removes the individuals from workspace
