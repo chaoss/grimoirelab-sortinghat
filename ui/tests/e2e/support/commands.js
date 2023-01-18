@@ -108,7 +108,9 @@ Cypress.Commands.add("deleteIndividuals", () => {
 });
 
 Cypress.Commands.add("getIndividualsCount", () => {
-  cy.get('[data-cy="individual-counter"]').invoke("text").then(parseFloat);
+  return cy.get('[data-cy="individual-counter"]')
+    .invoke("text")
+    .then(parseFloat);
 });
 
 Cypress.Commands.add("addToWorkspace", (individuals) => {
