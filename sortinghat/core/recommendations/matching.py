@@ -24,6 +24,8 @@
 import logging
 import pandas
 
+from itertools import tee
+
 from django.forms.models import model_to_dict
 
 from ..db import (find_individual_by_uuid)
@@ -93,7 +95,9 @@ def recommend_matches(source_uuids, target_uuids, criteria, exclude=True, verbos
     aliases = {}
     input_set = set()
     target_set = set()
-    for uuid in source_uuids:
+    source_uuids_it1, source_uuids_it2 = tee(source_uuids)
+
+    for uuid in source_uuids_it1:
         identities = _get_identities(uuid)
         aliases[uuid] = [identity.uuid for identity in identities]
         input_set.update(identities)
@@ -108,7 +112,7 @@ def recommend_matches(source_uuids, target_uuids, criteria, exclude=True, verbos
 
     matched = _find_matches(input_set, target_set, criteria, exclude=exclude, verbose=verbose)
     # Return filtered results
-    for uuid in source_uuids:
+    for uuid in source_uuids_it2:
         result = set()
         if uuid in matched.keys():
             result = matched[uuid]

@@ -210,7 +210,12 @@ def recommend_matches(ctx, source_uuids, target_uuids, criteria, exclude=True, v
 
     job = rq.get_current_job()
 
-    logger.info(f"Running job {job.id} 'recommend matches'; criteria='{criteria}'; ...")
+    if not source_uuids:
+        logger.info(f"Running job {job.id} 'recommend matches'; criteria='{criteria}'; source_uuids='all'; ...")
+        source_uuids = Individual.objects.values_list('mk', flat=True).iterator()
+    else:
+        logger.info(f"Running job {job.id} 'recommend matches'; criteria='{criteria}'; source_uuids={source_uuids}; ...")
+        source_uuids = iter(source_uuids)
 
     results = {}
     job_result = {
@@ -225,20 +230,21 @@ def recommend_matches(ctx, source_uuids, target_uuids, criteria, exclude=True, v
 
     trxl = TransactionsLog.open('recommend_matches', job_ctx)
 
-    for rec in engine.recommend('matches', source_uuids, target_uuids, criteria, exclude, verbose):
-        results[rec.key] = list(rec.options)
-        # Store matches in the database
-        for match in rec.options:
-            try:
-                individual1 = find_individual_by_uuid(rec.key)
-                individual2 = find_individual_by_uuid(match)
-            except NotFoundError:
-                logger.info(f"Job {job.id} 'One individual does not exists'")
-                continue
-            # Check if the recommendation already exists in any direction
-            if not MergeRecommendation.objects.filter(individual1=individual1, individual2=individual2).exists() and \
-               not MergeRecommendation.objects.filter(individual2=individual1, individual1=individual2).exists():
-                MergeRecommendation.objects.create(individual1=individual1, individual2=individual2)
+    for chunk in _iter_split(source_uuids, size=MAX_CHUNK_SIZE):
+        for rec in engine.recommend('matches', chunk, target_uuids, criteria, exclude, verbose):
+            results[rec.key] = list(rec.options)
+            # Store matches in the database
+            for match in rec.options:
+                try:
+                    individual1 = find_individual_by_uuid(rec.key)
+                    individual2 = find_individual_by_uuid(match)
+                except NotFoundError:
+                    logger.info(f"Job {job.id} 'One individual does not exists'")
+                    continue
+                # Check if the recommendation already exists in any direction
+                if not MergeRecommendation.objects.filter(individual1=individual1, individual2=individual2).exists() and \
+                   not MergeRecommendation.objects.filter(individual2=individual1, individual1=individual2).exists():
+                    MergeRecommendation.objects.create(individual1=individual1, individual2=individual2)
 
     trxl.close()
 
