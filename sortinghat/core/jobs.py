@@ -427,17 +427,29 @@ def unify(ctx, source_uuids, target_uuids, criteria, exclude=True):
         groups = []
         for group_key in recs:
             g_uuids = pandas.Series(recs[group_key])
-            g_uuids = g_uuids.append(pandas.Series([group_key]))
-            g_uuids = list(g_uuids.sort_values().unique())
-            if (len(g_uuids) > 1) and (g_uuids not in groups):
-                groups.append(g_uuids)
+            for i, uuids_set in enumerate(groups):
+                if group_key in uuids_set:
+                    g_uuids = g_uuids.append(pandas.Series(groups[i]))
+                    g_uuids = list(g_uuids.sort_values().unique())
+                    groups[i] = g_uuids
+                    break
+            else:
+                if recs[group_key]:
+                    g_uuids = g_uuids.append(pandas.Series([group_key]))
+                    g_uuids = list(g_uuids.sort_values().unique())
+                    groups.append(g_uuids)
         return groups
 
     check_criteria(criteria)
 
     job = rq.get_current_job()
 
-    logger.info(f"Running job {job.id} 'unify'; criteria='{criteria}'; ...")
+    if not source_uuids:
+        logger.info(f"Running job {job.id} 'unify'; criteria='{criteria}'; source_uuids='all'; ...")
+        source_uuids = Individual.objects.values_list('mk', flat=True).iterator()
+    else:
+        logger.info(f"Running job {job.id} 'unify'; criteria='{criteria}'; source_uuids={source_uuids}; ...")
+        source_uuids = iter(source_uuids)
 
     results = []
     errors = []
@@ -456,8 +468,9 @@ def unify(ctx, source_uuids, target_uuids, criteria, exclude=True):
     trxl = TransactionsLog.open('unify', job_ctx)
 
     match_recs = {}
-    for rec in engine.recommend('matches', source_uuids, target_uuids, criteria, exclude=exclude):
-        match_recs[rec.key] = list(rec.options)
+    for chunk in _iter_split(source_uuids, size=MAX_CHUNK_SIZE):
+        for rec in engine.recommend('matches', chunk, target_uuids, criteria, exclude=exclude):
+            match_recs[rec.key] = list(rec.options)
 
     match_groups = _group_recommendations(match_recs)
 

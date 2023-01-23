@@ -592,7 +592,7 @@ class TestRecommendMatches(TestCase):
         }
 
         individuals_expected = {
-            self.john_smith.individual.mk: [self.jsmith.individual.mk,self.js_alt.individual.mk],
+            self.john_smith.individual.mk: [self.jsmith.individual.mk, self.js_alt.individual.mk],
             self.jsmith.individual.mk: [self.js_alt.individual.mk],
             self.jane_rae.individual.mk: [self.jrae.individual.mk],
             self.jrae.individual.mk: [self.jane_rae.individual.mk]
@@ -616,7 +616,7 @@ class TestRecommendMatches(TestCase):
 
         # Should have the same result as passing all the uuids
         all_source_uuids = [self.john_smith.uuid, self.jsmith.uuid,
-                            self.jane_rae.uuid, self.js_alt.uuid,self.jrae.uuid]
+                            self.jane_rae.uuid, self.js_alt.uuid, self.jrae.uuid]
 
         job_uuids = recommend_matches.delay(ctx,
                                             all_source_uuids,
@@ -1024,6 +1024,38 @@ class TestUnify(TestCase):
 
         id5 = identities[4]
         self.assertEqual(id5, self.jr2)
+
+    def test_unify_all_individuals(self):
+        """Check if unify is applied for all individuals when no uuids are provided"""
+
+        ctx = SortingHatContext(self.user)
+
+        # Test
+        expected = {
+            'results': [self.js_alt.uuid,
+                        self.jrae.uuid],
+            'errors': []
+        }
+
+        criteria = ['email', 'name', 'username']
+
+        # Identities which don't have the fields in `criteria` or no matches won't be returned
+        job = unify.delay(ctx,
+                          None,
+                          None,
+                          criteria)
+
+        result = job.result
+        self.assertDictEqual(result, expected)
+
+        # Checking if the identities have been merged
+        individual_1 = Individual.objects.get(mk=self.js_alt.uuid)
+        identities = individual_1.identities.all()
+        self.assertEqual(len(identities), 10)
+
+        individual_2 = Individual.objects.get(mk=self.jrae.uuid)
+        identities = individual_2.identities.all()
+        self.assertEqual(len(identities), 5)
 
     def test_unify_source_not_mk(self):
         """Check if unify works when the provided uuid is not an Individual's main key"""
