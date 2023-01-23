@@ -62,6 +62,25 @@
             />
           </v-col>
         </v-row>
+        <v-row v-if="selected === 'recommendMatches'">
+          <v-col>
+            <v-select
+              v-model="forms.recommendMatches.criteria"
+              :items="['name', 'email', 'username']"
+              :menu-props="{ bottom: true, offsetY: true }"
+              label="Criteria"
+              dense
+              hide-details
+              multiple
+              outlined
+            />
+            <v-checkbox
+              v-model="forms.recommendMatches.exclude"
+              label="Exclude individuals in RecommenderExclusionTerm list"
+              id="recommend_exclude"
+            />
+          </v-col>
+        </v-row>
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
@@ -99,6 +118,11 @@ const jobTypes = [
     value: "unify",
     description: "Merge individuals by using matching recommendations.",
   },
+  {
+    title: "Recommend matches",
+    value: "recommendMatches",
+    description: "Recommend identity matches for individuals.",
+  },
 ];
 const defaultForms = {
   genderize: {
@@ -106,6 +130,10 @@ const defaultForms = {
     noStrictMatching: false,
   },
   unify: {
+    criteria: ["name", "email", "username"],
+    exclude: true,
+  },
+  recommendMatches: {
     criteria: ["name", "email", "username"],
     exclude: true,
   },

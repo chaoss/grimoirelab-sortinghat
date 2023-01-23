@@ -6,6 +6,7 @@
       @affiliate="affiliate"
       @genderize="genderize"
       @unify="unify"
+      @recommendMatches="recommendMatches"
       ref="table"
     />
     <v-snackbar v-model="snackbar.isOpen" color="error" text>
@@ -16,7 +17,12 @@
 
 <script>
 import { getJobs } from "../apollo/queries";
-import { affiliate, genderize, unify } from "../apollo/mutations";
+import {
+  affiliate,
+  genderize,
+  unify,
+  recommendMatches,
+} from "../apollo/mutations";
 import JobsTable from "../components/JobsTable";
 
 export default {
@@ -60,6 +66,17 @@ export default {
     async unify({ criteria, exclude }) {
       try {
         await unify(this.$apollo, criteria, exclude);
+        this.$refs.table.getPaginatedJobs();
+      } catch (error) {
+        this.snackbar = Object.assign(this.snackbar, {
+          isOpen: true,
+          text: error,
+        });
+      }
+    },
+    async recommendMatches({ criteria, exclude }) {
+      try {
+        await recommendMatches(this.$apollo, criteria, exclude);
         this.$refs.table.getPaginatedJobs();
       } catch (error) {
         this.snackbar = Object.assign(this.snackbar, {
