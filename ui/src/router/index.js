@@ -42,7 +42,7 @@ const routes = [
 
 const router = new Router({
   mode: "history",
-  base: window.location.pathname,
+  base: process.env.NODE_ENV === "production" ? "/identities/" : null,
   routes,
 });
 
