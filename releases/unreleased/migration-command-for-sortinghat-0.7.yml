@@ -1,0 +1,10 @@
+---
+title: Migration command for SortingHat 0.7
+category: added
+author: Jose Javier Merchante <jjmerchante@bitergia.com>
+issue: 726
+notes: |
+  Include a new command to migrate SortingHat 0.7 database
+  schema to 0.8. The command can be executed as
+  `sortinghat-admin migrate-old-database`. It will migrate
+  all the data from the old version.

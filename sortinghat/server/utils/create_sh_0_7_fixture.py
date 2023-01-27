@@ -78,7 +78,7 @@ ENROLLMENT_MAPPING = {
     "id": "id",
     "start": "start",
     "end": "end",
-    "organization_id": "organization",
+    "organization_id": "group",
     "uuid": "individual"
 }
 
@@ -93,7 +93,7 @@ IDENTITY_MAPPING = {
 }
 
 MATCHING_BLACKLIST_MAPPING = {
-    "excluded": "excluded"
+    "excluded": "term"
 }
 
 ORGANIZATION_MAPPING = {
@@ -134,7 +134,7 @@ TABLE_MAPPING = {
         'mapping': IDENTITY_MAPPING
     },
     "matching_blacklist": {
-        'model': "core.matchingblacklist",
+        'model': "core.recommenderexclusionterm",
         'mapping': MATCHING_BLACKLIST_MAPPING
     },
     "organizations": {
@@ -162,15 +162,28 @@ def main():
     if args.debug_mode:
         logger.setLevel(logging.DEBUG)
 
-    logger.info(f"Start creating fixture file for {args.database}")
+    create_sh_fixture(db_host=args.host,
+                      db_port=args.port,
+                      db_user=args.user,
+                      db_password=args.password,
+                      database=args.database,
+                      output_fh=args.output)
 
-    conn = MySQLdb.connect(args.host, args.user, args.password, args.database)
+
+def create_sh_fixture(db_host, db_port, db_user, db_password, database, output_fh):
+    logger.info(f"Start creating fixture file for {database}")
+
+    conn = MySQLdb.connect(host=db_host,
+                           port=db_port,
+                           user=db_user,
+                           password=db_password,
+                           database=database)
     fixtures = generate_sortinghat_fixtures(conn)
     conn.close()
 
-    write_json(args.output, fixtures)
+    write_json(output_fh, fixtures)
 
-    logger.info(f"Fixture file created to {args.output.name}")
+    logger.info(f"Fixture file created to {output_fh.name}")
 
 
 def parse_args():
@@ -182,6 +195,10 @@ def parse_args():
     parser.add_argument("--host",
                         default="localhost",
                         help="MariaDB/MySQL host (by default = 'localhost')")
+    parser.add_argument("--port",
+                        default=3306,
+                        type=int,
+                        help="MariaDB/MySQL port (by default = 3306)")
     parser.add_argument("-u", "--user",
                         default="root",
                         help="MariaDB/MySQL user (by default = 'root')")

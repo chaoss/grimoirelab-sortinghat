@@ -68,6 +68,9 @@ while [ $# -gt 0 ]; do
     esac
 done
 
+# Migrate SortingHat database from 0.7 to 0.8 if needed
+sortinghat-admin migrate-old-database --no-interactive
+
 # Setup the service if the database doesn't exist
 if ! sortinghat_check_service ; then
     sortinghat-admin setup --no-interactive
