@@ -584,14 +584,14 @@ class TestRecommendMatches(TestCase):
         expected = {
             'results': {
                 self.john_smith.uuid: sorted([self.jsmith.uuid, self.js_alt.uuid]),
-                self.jsmith.uuid: sorted([self.js_alt.uuid]),
+                self.jsmith.uuid: sorted([self.john_smith.uuid, self.js_alt.uuid]),
                 self.jane_rae.uuid: sorted([self.jrae.uuid]),
-                self.js_alt.uuid: [],
+                self.js_alt.uuid: sorted([self.jsmith.uuid, self.john_smith.uuid]),
                 self.jrae.uuid: sorted([self.jane_rae.uuid])
             }
         }
 
-        individuals_expected = {
+        recommendations_expected = {
             self.john_smith.individual.mk: [self.jsmith.individual.mk, self.js_alt.individual.mk],
             self.jsmith.individual.mk: [self.js_alt.individual.mk],
             self.jane_rae.individual.mk: [self.jrae.individual.mk],
@@ -612,7 +612,7 @@ class TestRecommendMatches(TestCase):
 
         self.assertDictEqual(result, expected)
         for mr in MergeRecommendation.objects.all():
-            self.assertIn(mr.individual2.mk, individuals_expected[mr.individual1.mk])
+            self.assertIn(mr.individual2.mk, recommendations_expected[mr.individual1.mk])
 
         # Should have the same result as passing all the uuids
         all_source_uuids = [self.john_smith.uuid, self.jsmith.uuid,

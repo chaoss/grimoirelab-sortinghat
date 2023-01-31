@@ -190,7 +190,9 @@ def recommend_matches(ctx, source_uuids, target_uuids, criteria, exclude=True, v
     their valid keys or UUIDs. When the parameter `target_uuids` is empty, the
     recommendation engine will take all the individuals stored in the registry,
     so matches will be found comparing the identities from the individuals in
-    `source_uuids` against all the identities on the registry.
+    `source_uuids` against all the identities on the registry. When the parameter
+    `sources_uuid` is empty, matches will be found comparing all the identities
+    on the registry against `target_uuids`.
 
     :param ctx: context where this job is run
     :param source_uuids: list of individuals identifiers to look matches for
@@ -210,13 +212,6 @@ def recommend_matches(ctx, source_uuids, target_uuids, criteria, exclude=True, v
 
     job = rq.get_current_job()
 
-    if not source_uuids:
-        logger.info(f"Running job {job.id} 'recommend matches'; criteria='{criteria}'; source_uuids='all'; ...")
-        source_uuids = Individual.objects.values_list('mk', flat=True).iterator()
-    else:
-        logger.info(f"Running job {job.id} 'recommend matches'; criteria='{criteria}'; source_uuids={source_uuids}; ...")
-        source_uuids = iter(source_uuids)
-
     results = {}
     job_result = {
         'results': results
@@ -230,21 +225,20 @@ def recommend_matches(ctx, source_uuids, target_uuids, criteria, exclude=True, v
 
     trxl = TransactionsLog.open('recommend_matches', job_ctx)
 
-    for chunk in _iter_split(source_uuids, size=MAX_CHUNK_SIZE):
-        for rec in engine.recommend('matches', chunk, target_uuids, criteria, exclude, verbose):
-            results[rec.key] = list(rec.options)
-            # Store matches in the database
-            for match in rec.options:
-                try:
-                    individual1 = find_individual_by_uuid(rec.key)
-                    individual2 = find_individual_by_uuid(match)
-                except NotFoundError:
-                    logger.info(f"Job {job.id} 'One individual does not exists'")
-                    continue
-                # Check if the recommendation already exists in any direction
-                if not MergeRecommendation.objects.filter(individual1=individual1, individual2=individual2).exists() and \
-                   not MergeRecommendation.objects.filter(individual2=individual1, individual1=individual2).exists():
-                    MergeRecommendation.objects.create(individual1=individual1, individual2=individual2)
+    for rec in engine.recommend('matches', source_uuids, target_uuids, criteria, exclude, verbose):
+        results[rec.key] = list(rec.options)
+        # Store matches in the database
+        for match in rec.options:
+            try:
+                individual1 = find_individual_by_uuid(rec.key)
+                individual2 = find_individual_by_uuid(match)
+            except NotFoundError:
+                logger.info(f"Job {job.id} 'One individual does not exists'")
+                continue
+            # Check if the recommendation already exists in any direction
+            if not MergeRecommendation.objects.filter(individual1=individual1, individual2=individual2).exists() and \
+               not MergeRecommendation.objects.filter(individual2=individual1, individual1=individual2).exists():
+                MergeRecommendation.objects.create(individual1=individual1, individual2=individual2)
 
     trxl.close()
 
@@ -399,6 +393,8 @@ def unify(ctx, source_uuids, target_uuids, criteria, exclude=True):
     any of their valid keys or UUIDs. When the parameter `target_uuids` is empty,
     the matches and the later merges will take place comparing the identities
     from the individuals in `source_uuids` against all the identities on the registry.
+    When the parameter `sources_uuid` is empty, matches will be found comparing all
+    the identities on the registry against `target_uuids`.
 
     :param ctx: context where this job is run
     :param source_uuids: list of individuals identifiers to look matches for
@@ -427,29 +423,15 @@ def unify(ctx, source_uuids, target_uuids, criteria, exclude=True):
         groups = []
         for group_key in recs:
             g_uuids = pandas.Series(recs[group_key])
-            for i, uuids_set in enumerate(groups):
-                if group_key in uuids_set:
-                    g_uuids = g_uuids.append(pandas.Series(groups[i]))
-                    g_uuids = list(g_uuids.sort_values().unique())
-                    groups[i] = g_uuids
-                    break
-            else:
-                if recs[group_key]:
-                    g_uuids = g_uuids.append(pandas.Series([group_key]))
-                    g_uuids = list(g_uuids.sort_values().unique())
-                    groups.append(g_uuids)
+            g_uuids = g_uuids.append(pandas.Series([group_key]))
+            g_uuids = list(g_uuids.sort_values().unique())
+            if (len(g_uuids) > 1) and (g_uuids not in groups):
+                groups.append(g_uuids)
         return groups
 
     check_criteria(criteria)
 
     job = rq.get_current_job()
-
-    if not source_uuids:
-        logger.info(f"Running job {job.id} 'unify'; criteria='{criteria}'; source_uuids='all'; ...")
-        source_uuids = Individual.objects.values_list('mk', flat=True).iterator()
-    else:
-        logger.info(f"Running job {job.id} 'unify'; criteria='{criteria}'; source_uuids={source_uuids}; ...")
-        source_uuids = iter(source_uuids)
 
     results = []
     errors = []
@@ -468,9 +450,8 @@ def unify(ctx, source_uuids, target_uuids, criteria, exclude=True):
     trxl = TransactionsLog.open('unify', job_ctx)
 
     match_recs = {}
-    for chunk in _iter_split(source_uuids, size=MAX_CHUNK_SIZE):
-        for rec in engine.recommend('matches', chunk, target_uuids, criteria, exclude=exclude):
-            match_recs[rec.key] = list(rec.options)
+    for rec in engine.recommend('matches', source_uuids, target_uuids, criteria, exclude=exclude):
+        match_recs[rec.key] = list(rec.options)
 
     match_groups = _group_recommendations(match_recs)
 
