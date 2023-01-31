@@ -76,6 +76,10 @@ def setup(no_interactive, only_ui):
     It the flag 'no-interactive' was given, these environment
     variables are mandatory.
     """
+    _setup(no_interactive=no_interactive, only_ui=only_ui)
+
+
+def _setup(no_interactive, only_ui):
     env = os.environ
     env_vars = False
 
@@ -140,14 +144,85 @@ def upgrade(no_database):
     click.secho("SortingHat upgrade completed", fg='bright_cyan')
 
 
-def _create_database():
+@click.command()
+@click.option('--no-interactive', is_flag=True, default=False,
+              help="Run the command in no interactive mode.")
+def migrate_old_database(no_interactive):
+    """Migrate SortingHat 0.7 database schema to 0.8 and all the data"""
+
+    import MySQLdb
+    from django.conf import settings
+    from .utils.create_sh_0_7_fixture import create_sh_fixture
+
+    def _database_table_exists(db_params, table):
+        try:
+            MySQLdb.connect(
+                user=db_params['USER'],
+                password=db_params['PASSWORD'],
+                host=db_params['HOST'],
+                port=int(db_params['PORT']),
+                database=db_params['NAME']
+            ).cursor().execute(
+                f"SELECT * FROM {table} LIMIT 0;"
+            )
+            return True
+        except MySQLdb.DatabaseError as exc:
+            click.echo(exc)
+            return False
+
+    def _backup_tables(db_params, from_db, to_db):
+        try:
+            cursor = MySQLdb.connect(
+                user=db_params['USER'],
+                password=db_params['PASSWORD'],
+                host=db_params['HOST'],
+                port=int(db_params['PORT'])
+            ).cursor()
+
+            cursor.execute(f"SHOW TABLES FROM {from_db};")
+            for (table,) in cursor:
+                click.echo(f'Backup table {table}')
+                cursor.execute(
+                    f"RENAME TABLE {from_db}.{table} TO {to_db}.{table};"
+                )
+        except MySQLdb.DatabaseError as exc:
+            msg = f"Error in backup database '{from_db}': {exc}."
+            raise click.ClickException(msg)
+
+    db_params = settings.DATABASES['default']
+
+    if not _database_table_exists(db_params, 'matching_blacklist'):
+        click.echo("SortingHat database schema is >= 0.8. Done.")
+        return
+
+    click.secho("Migrate 0.7.X SortingHat database schema ...", fg='bright_cyan')
+
+    backup_db_name = f"{db_params['NAME']}_backup"
+
+    with open('/tmp/sortinghat_0_7_fixture.json', 'w') as output_fh:
+        create_sh_fixture(db_host=db_params['HOST'],
+                          db_port=int(db_params['PORT']),
+                          db_user=db_params['USER'],
+                          db_password=db_params['PASSWORD'],
+                          database=db_params['NAME'],
+                          output_fh=output_fh)
+
+    _create_database(backup_db_name)
+    _backup_tables(db_params, db_params['NAME'], backup_db_name)
+    _setup(no_interactive, False)
+    management.call_command('loaddata', '/tmp/sortinghat_0_7_fixture.json')
+
+    click.echo("Migration completed!")
+
+
+def _create_database(db_name=None):
     """Create an empty database."""
 
     import MySQLdb
     from django.conf import settings
 
     db_params = settings.DATABASES['default']
-    database = db_params['NAME']
+    database = db_name if db_name else db_params['NAME']
 
     click.secho("## SortingHat database creation\n", fg='bright_cyan')
 
@@ -156,7 +231,7 @@ def _create_database():
             user=db_params['USER'],
             password=db_params['PASSWORD'],
             host=db_params['HOST'],
-            port=db_params['PORT']
+            port=int(db_params['PORT'])
         ).cursor()
         cursor.execute(
             f"CREATE DATABASE IF NOT EXISTS {database} "
@@ -225,3 +300,4 @@ def _install_static_files():
 
 sortinghat_admin.add_command(setup)
 sortinghat_admin.add_command(upgrade)
+sortinghat_admin.add_command(migrate_old_database)

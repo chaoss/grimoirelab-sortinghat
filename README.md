@@ -185,7 +185,7 @@ $ sortinghatw --config sortinghat.config.settings
 
 
 ## Compatibility between versions
-SortingHat 0.7.x is not longer supported. Any database using this version will not work.
+SortingHat 0.7.x is no longer supported. Any database using this version will not work.
 
 SortingHat databases 0.7.x are no longer compatible. The `uidentities` table was renamed
 to `individuals`. The database schema changed in all tables to add the fields `created_at`
@@ -202,26 +202,10 @@ there are some specific changes to the column names:
     * `country_code` to `country`
     * `uuid` to `individual`
 
-Please update your database following the next steps:
-
-1. Use the script `utils/create_sh_0_7_fixture.py` to create the fixture
-JSON file
-   ```
-   $ python3 utils/create_sh_0_7_fixture.py test_sh -o test_sh_fixture.json
-   [2021-06-10 17:29:11,461][INFO] Start creating fixture file for test_sh
-   [2021-06-10 17:29:21,252][INFO] Fixture file created to test_sh_fixture.json
-   ```
-
-2. Create a new database.
-   ```
-   $ sortinghat-admin --config sortinghat.config.settings setup
-   ```
-
-4. Load fixture JSON file using Django
-   ```
-   $ python3 manage.py loaddata test_sh_fixture.json --settings= sortinghat.config.settings
-   Installed 148542 object(s) from 1 fixture(s)
-   ```
+Please update your database running the following command:
+```
+$ sortinghat-admin --config sortinghat.config.settings migrate-old-database
+```
 
 ## Running tests
 
