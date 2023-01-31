@@ -996,7 +996,8 @@ class RecommendAffiliations(graphene.Mutation):
 
 class RecommendMatches(graphene.Mutation):
     class Arguments:
-        source_uuids = graphene.List(graphene.String)
+        source_uuids = graphene.List(graphene.String,
+                                     required=False)
         target_uuids = graphene.List(graphene.String,
                                      required=False)
         criteria = graphene.List(graphene.String)
@@ -1007,7 +1008,7 @@ class RecommendMatches(graphene.Mutation):
 
     @check_permissions('core.execute_job')
     @check_auth
-    def mutate(self, info, source_uuids, criteria, target_uuids=None, exclude=True, verbose=False):
+    def mutate(self, info, criteria, source_uuids=None, target_uuids=None, exclude=True, verbose=False):
         user = info.context.user
         ctx = SortingHatContext(user)
 
@@ -1061,7 +1062,8 @@ class Affiliate(graphene.Mutation):
 
 class Unify(graphene.Mutation):
     class Arguments:
-        source_uuids = graphene.List(graphene.String)
+        source_uuids = graphene.List(graphene.String,
+                                     required=False)
         target_uuids = graphene.List(graphene.String,
                                      required=False)
         criteria = graphene.List(graphene.String)
@@ -1071,7 +1073,7 @@ class Unify(graphene.Mutation):
 
     @check_permissions('core.execute_job')
     @check_auth
-    def mutate(self, info, source_uuids, criteria, target_uuids=None, exclude=True):
+    def mutate(self, info, criteria, source_uuids=None, target_uuids=None, exclude=True):
         user = info.context.user
         ctx = SortingHatContext(user)
 

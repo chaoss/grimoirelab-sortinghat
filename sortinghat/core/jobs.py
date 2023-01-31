@@ -190,7 +190,9 @@ def recommend_matches(ctx, source_uuids, target_uuids, criteria, exclude=True, v
     their valid keys or UUIDs. When the parameter `target_uuids` is empty, the
     recommendation engine will take all the individuals stored in the registry,
     so matches will be found comparing the identities from the individuals in
-    `source_uuids` against all the identities on the registry.
+    `source_uuids` against all the identities on the registry. When the parameter
+    `sources_uuid` is empty, matches will be found comparing all the identities
+    on the registry against `target_uuids`.
 
     :param ctx: context where this job is run
     :param source_uuids: list of individuals identifiers to look matches for
@@ -209,8 +211,6 @@ def recommend_matches(ctx, source_uuids, target_uuids, criteria, exclude=True, v
     check_criteria(criteria)
 
     job = rq.get_current_job()
-
-    logger.info(f"Running job {job.id} 'recommend matches'; criteria='{criteria}'; ...")
 
     results = {}
     job_result = {
@@ -393,6 +393,8 @@ def unify(ctx, source_uuids, target_uuids, criteria, exclude=True):
     any of their valid keys or UUIDs. When the parameter `target_uuids` is empty,
     the matches and the later merges will take place comparing the identities
     from the individuals in `source_uuids` against all the identities on the registry.
+    When the parameter `sources_uuid` is empty, matches will be found comparing all
+    the identities on the registry against `target_uuids`.
 
     :param ctx: context where this job is run
     :param source_uuids: list of individuals identifiers to look matches for
@@ -430,8 +432,6 @@ def unify(ctx, source_uuids, target_uuids, criteria, exclude=True):
     check_criteria(criteria)
 
     job = rq.get_current_job()
-
-    logger.info(f"Running job {job.id} 'unify'; criteria='{criteria}'; ...")
 
     results = []
     errors = []

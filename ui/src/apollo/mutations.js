@@ -295,6 +295,14 @@ const MANAGE_MERGE_RECOMMENDATION = gql`
   }
 `;
 
+const RECOMMEND_MATCHES = gql`
+  mutation recommendMatches($criteria: [String], $exclude: Boolean) {
+    recommendMatches(criteria: $criteria, exclude: $exclude) {
+      jobId
+    }
+  }
+`;
+
 const tokenAuth = (apollo, username, password) => {
   const response = apollo.mutate({
     mutation: TOKEN_AUTH,
@@ -536,6 +544,16 @@ const manageMergeRecommendation = (apollo, id, apply) => {
   });
 };
 
+const recommendMatches = (apollo, criteria, exclude) => {
+  return apollo.mutate({
+    mutation: RECOMMEND_MATCHES,
+    variables: {
+      criteria: criteria,
+      exclude: exclude,
+    },
+  });
+};
+
 export {
   tokenAuth,
   lockIndividual,
@@ -559,4 +577,5 @@ export {
   genderize,
   unify,
   manageMergeRecommendation,
+  recommendMatches,
 };

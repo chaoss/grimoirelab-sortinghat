@@ -28,7 +28,7 @@ from django.forms.models import model_to_dict
 
 from ..db import (find_individual_by_uuid)
 from ..errors import NotFoundError
-from ..models import Identity
+from ..models import Identity, Individual
 
 from .exclusion import fetch_recommender_exclusion_list
 
@@ -93,6 +93,10 @@ def recommend_matches(source_uuids, target_uuids, criteria, exclude=True, verbos
     aliases = {}
     input_set = set()
     target_set = set()
+
+    if not source_uuids:
+        source_uuids = Individual.objects.values_list('mk', flat=True)
+
     for uuid in source_uuids:
         identities = _get_identities(uuid)
         aliases[uuid] = [identity.uuid for identity in identities]
@@ -111,11 +115,11 @@ def recommend_matches(source_uuids, target_uuids, criteria, exclude=True, verbos
     for uuid in source_uuids:
         result = set()
         if uuid in matched.keys():
-            result = matched[uuid]
+            result = set(matched[uuid])
         else:
             for alias in aliases[uuid]:
                 if alias in matched.keys():
-                    result = matched[alias]
+                    result = set(matched[alias])
         # Remove input uuid from results if needed
         try:
             result.remove(uuid)
