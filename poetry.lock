@@ -1117,14 +1117,14 @@ files = [
 
 [[package]]
 name = "setuptools"
-version = "67.0.0"
+version = "67.1.0"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
 category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "setuptools-67.0.0-py3-none-any.whl", hash = "sha256:9d790961ba6219e9ff7d9557622d2fe136816a264dd01d5997cfc057d804853d"},
-    {file = "setuptools-67.0.0.tar.gz", hash = "sha256:883131c5b6efa70b9101c7ef30b2b7b780a4283d5fc1616383cdf22c83cbefe6"},
+    {file = "setuptools-67.1.0-py3-none-any.whl", hash = "sha256:a7687c12b444eaac951ea87a9627c4f904ac757e7abdc5aac32833234af90378"},
+    {file = "setuptools-67.1.0.tar.gz", hash = "sha256:e261cdf010c11a41cb5cb5f1bf3338a7433832029f559a6a7614bd42a967c300"},
 ]
 
 [package.extras]
@@ -1134,14 +1134,14 @@ testing-integration = ["build[virtualenv]", "filelock (>=3.4.0)", "jaraco.envs (
 
 [[package]]
 name = "sgqlc"
-version = "10.1"
+version = "16.1"
 description = "Simple GraphQL Client"
 category = "main"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "sgqlc-10.1-py3-none-any.whl", hash = "sha256:df8caac73078d230e8e94c9cb403e8d2fe1803f2b3a202a4f107c86094bab460"},
-    {file = "sgqlc-10.1.tar.gz", hash = "sha256:b0f3da4e4f08ceec41bf79b599f8703fb3cf110c2b2adc7a44c1605b13f86f88"},
+    {file = "sgqlc-16.1-py3-none-any.whl", hash = "sha256:d472f25101e40b05dab30193e3fc4ecc36bd671f7a9b04a49954a98d121f0fdb"},
+    {file = "sgqlc-16.1.tar.gz", hash = "sha256:21591009345b116b43a7a7d3995edc25dc2d14092273028205b86d07843a19ac"},
 ]
 
 [package.dependencies]
@@ -1149,7 +1149,7 @@ graphql-core = "*"
 
 [package.extras]
 requests = ["requests"]
-sphinx = ["sphinx"]
+sphinx = ["sphinx", "sphinx-argparse"]
 websocket = ["websocket-client"]
 
 [[package]]
@@ -1275,4 +1275,4 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.7.1"
-content-hash = "d03f3600c4ba3d6b39f7cfc0970e9e11ccceed21c109f9965bf36f20010af29e"
+content-hash = "98833cf75290dd7d0332e0ebb6ce83076b37a976b5f8054b3a425526323d70ea"

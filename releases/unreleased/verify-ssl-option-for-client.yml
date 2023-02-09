@@ -1,0 +1,8 @@
+---
+title: Verify SSL option for client
+category: added
+author: Jose Javier Merchante <jjmerchante@bitergia.com>
+issue: null
+notes: |
+  Include an option for the client to verify if the certificate is
+  valid. By default it is verified.

@@ -22,7 +22,7 @@
 import requests
 import urllib.parse
 
-from sgqlc.endpoint.http import HTTPEndpoint
+from sgqlc.endpoint.requests import RequestsEndpoint
 from sgqlc.operation import Operation
 from sgqlc.types import Scalar
 
@@ -70,10 +70,11 @@ class SortingHatClient:
 
     :raises ValueError: when any of the given parameters is invalid
     """
-    def __init__(self, host, port=9314, path=None, user=None, password=None, ssl=True):
+    def __init__(self, host, port=9314, path=None, user=None, password=None, ssl=True, verify_ssl=True):
         self.gqlc = None
         self.host = host
         self.port = port
+        self.verify_ssl = verify_ssl
 
         scheme = 'https' if ssl else 'http'
         netloc = self.host + ':' + str(self.port) if self.port else self.host
@@ -101,8 +102,11 @@ class SortingHatClient:
     def connect(self):
         """Establish a connection to the server."""
 
+        session = requests.Session()
+        session.verify = self.verify_ssl
+
         try:
-            result = requests.get(self.url, headers={'Accept': 'text/html'})
+            result = session.get(self.url, headers={'Accept': 'text/html'})
             result.raise_for_status()
         except requests.exceptions.RequestException as exc:
             if result.status_code != 400:
@@ -116,7 +120,7 @@ class SortingHatClient:
             'Referer': self.url
         }
 
-        self.gqlc = HTTPEndpoint(self.url, headers)
+        self.gqlc = RequestsEndpoint(self.url, headers, session=session)
 
         if self.user and self.password:
             op = Operation(sh_schema.SortingHatMutation)

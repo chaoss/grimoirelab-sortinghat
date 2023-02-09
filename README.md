@@ -62,7 +62,7 @@ $ apt install libmysqlclient-dev
 * **MariaDB**
 
 ```
-$ apt install libmariadbclient-dev
+$ apt install libmariadbclient-dev-compat
 ```
 
 #### Installation and configuration
@@ -128,7 +128,7 @@ $ yarn install
 
 Run SortingHat frontend Vue app:
 ```
-$ yarn serve
+$ yarn serve --api_url=http://localhost:8000/api/
 ```
 
 
@@ -155,6 +155,12 @@ In order to run the service for the first time, you need to execute the next com
 Build the UI interface:
 ```
 $ cd ui
+$ yarn install
+$ yarn build --mode development
+```
+If you want to run the UI at `/identities` run (you need to use the server 
+behind a proxy server):
+```
 $ yarn build
 ```
 

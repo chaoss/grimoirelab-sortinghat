@@ -24,7 +24,7 @@ import json
 import unittest
 
 import httpretty
-import sgqlc.endpoint.http
+import sgqlc.endpoint.requests
 
 from sgqlc.operation import Operation
 
@@ -135,7 +135,7 @@ class TestSortingHatClient(unittest.TestCase):
         client = SortingHatClient('localhost', ssl=False)
         client.connect()
 
-        self.assertIsInstance(client.gqlc, sgqlc.endpoint.http.HTTPEndpoint)
+        self.assertIsInstance(client.gqlc, sgqlc.endpoint.requests.RequestsEndpoint)
 
         latest_requests = httpretty.latest_requests()
         self.assertEqual(len(latest_requests), 1)
@@ -186,7 +186,7 @@ class TestSortingHatClient(unittest.TestCase):
         client = SortingHatClient('localhost', user='admin', password='admin', ssl=False)
         client.connect()
 
-        self.assertIsInstance(client.gqlc, sgqlc.endpoint.http.HTTPEndpoint)
+        self.assertIsInstance(client.gqlc, sgqlc.endpoint.requests.RequestsEndpoint)
 
         latest_requests = httpretty.latest_requests()
         self.assertEqual(len(latest_requests), 3)
