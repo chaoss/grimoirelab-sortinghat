@@ -1,0 +1,115 @@
+name: Build & push Docker image
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Docker image version"
+        type: string
+        required: true
+
+env:
+  SERVER_IMAGE_NAME: "grimoirelab/sortinghat"
+  WORKER_IMAGE_NAME: "grimoirelab/sortinghat-worker"
+
+jobs:
+  build-package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # 3.3.0
+      - name: Setup Node ${{ matrix.node-version }}
+        uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c # 3.6.0
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Create JS files
+        working-directory: ./ui
+        run: |
+          yarn install
+          yarn build
+      - name: Build package using Poetry and store result
+        uses: chaoss/grimoirelab-github-actions/build@master
+        with:
+          artifact-name: sortinghat-dist
+          artifact-path: dist
+
+  build-image:
+    runs-on: ubuntu-latest
+    needs: [build-package]
+    environment: docker-release
+    steps:
+      - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # 3.3.0
+
+      - name: Download distribution artifact
+        uses: actions/download-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
+        with:
+          name: sortinghat-dist
+          path: dist
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@9becc617647dfa20ae7b1151972e9b3a2c338a2b # v2.8.1
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@e81a89b1732b9c48d79cd809d8d81d79c4647a18 # v2.1.0
+        with:
+          platforms: linux/arm64
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@f03ac48505955848960e80bbb68046aa35c7b9e7 # v2.4.1
+
+      - name: Login to DockerHub
+        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a # v2.1.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Server Docker metadata
+        id: meta-server
+        uses: docker/metadata-action@507c2f2dc502c992ad446e3d7a5dfbe311567a96 # v4.3.0
+        with:
+          images: |
+            ${{ env.SERVER_IMAGE_NAME }}
+          tags: |
+            type=semver,pattern={{version}},value=${{ inputs.version }}
+
+      - name: Server Build and push
+        uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671 # v4.0.0
+        with:
+          platforms: linux/amd64,linux/arm64
+          context: .
+          file: "docker/server.dockerfile"
+          push: true
+          tags: ${{ steps.meta-server.outputs.tags }}
+
+      - name: Server Sign image with a key
+        run: |
+          cosign sign --key env://COSIGN_PRIVATE_KEY ${TAGS}
+        env:
+          TAGS: ${{ steps.meta-server.outputs.tags }}
+          COSIGN_PRIVATE_KEY: ${{secrets.COSIGN_PRIVATE_KEY}}
+          COSIGN_PASSWORD: ${{secrets.COSIGN_PASSWORD}}
+
+      - name: Worker Docker metadata
+        id: meta-worker
+        uses: docker/metadata-action@507c2f2dc502c992ad446e3d7a5dfbe311567a96 # v4.3.0
+        with:
+          images: |
+            ${{ env.WORKER_IMAGE_NAME }}
+          tags: |
+            type=semver,pattern={{version}},value=${{ inputs.version }}            
+            
+      - name: Worker Build and push
+        uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671 # v4.0.0
+        with:
+          platforms: linux/amd64,linux/arm64
+          context: .
+          file: "docker/worker.dockerfile"
+          push: true
+          tags: ${{ steps.meta-worker.outputs.tags }}
+
+      - name: Worker Sign image with a key
+        run: |
+          cosign sign --key env://COSIGN_PRIVATE_KEY ${TAGS}
+        env:
+          TAGS: ${{ steps.meta-worker.outputs.tags }}
+          COSIGN_PRIVATE_KEY: ${{secrets.COSIGN_PRIVATE_KEY}}
+          COSIGN_PASSWORD: ${{secrets.COSIGN_PASSWORD}}
