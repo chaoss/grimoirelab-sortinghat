@@ -1,0 +1,7 @@
+---
+title: Fix search syntax link
+category: fixed
+author: Eva Millán <evamillan@bitergia.com>
+issue: 735
+notes: |
+  Fixes the link to the search syntax page on the search bar.
