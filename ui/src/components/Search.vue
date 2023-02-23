@@ -46,7 +46,7 @@
               </v-list-item-title>
             </v-list-item>
             <v-divider />
-            <v-list-item href="/search-help" target="_blank">
+            <v-list-item to="/search-help" target="_blank">
               <v-list-item-title>
                 <v-icon small left>mdi-open-in-new</v-icon>
                 View search syntax
