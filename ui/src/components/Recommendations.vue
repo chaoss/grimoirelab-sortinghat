@@ -27,9 +27,7 @@
         class="mt-4 pl-8 pr-8 pb-0 text-subtitle-1 d-flex justify-space-between"
       >
         Is this the same individual?
-        <span class="subtitle-1 text--secondary">
-          {{ page }} of {{ count }}
-        </span>
+        <span class="subtitle-1 text--secondary">{{ count }} remaining</span>
       </v-card-subtitle>
       <v-card-text class="mt-4 pl-8 pr-8">
         <v-row align="center" class="flex-nowrap" no-gutters>
@@ -104,7 +102,6 @@ export default {
       currentItem: null,
       isOpen: false,
       errorMessage: null,
-      page: 1,
     };
   },
   methods: {
@@ -127,6 +124,7 @@ export default {
             id: parseInt(recommendation.id),
             pageInfo: response.data.recommendedMerge.pageInfo,
           };
+          this.count = this.currentItem.pageInfo.totalResults;
         }
       } catch (error) {
         this.errorMessage = this.$getErrorMessage(error);
@@ -145,7 +143,6 @@ export default {
         if (!this.currentItem.pageInfo.hasNext) {
           this.onClose();
         } else {
-          this.page++;
           this.fetchItem();
         }
       } catch (error) {
@@ -159,7 +156,6 @@ export default {
       this.isOpen = false;
       this.currentItem = null;
       this.errorMessage = null;
-      this.page = 1;
       this.fetchCount();
       this.$emit("updateTable");
       this.$emit("updateWorkspace");
