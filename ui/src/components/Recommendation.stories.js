@@ -157,7 +157,7 @@ const recommendations = [
           },
         ],
         pageInfo: {
-          totalResults: 2,
+          totalResults: 1,
           page: 2,
           hasNext: false,
         },
