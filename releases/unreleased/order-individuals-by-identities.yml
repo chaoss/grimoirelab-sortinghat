@@ -1,0 +1,8 @@
+---
+title: Order individuals by indentities
+category: added
+author: Eva Millán <evamillan@bitergia.com>
+issue: 732
+notes: |
+  Adds the option to order the individuals by the number
+  of identities they have.

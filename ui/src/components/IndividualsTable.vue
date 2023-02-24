@@ -56,6 +56,10 @@
             text: 'Name',
             value: 'profile__name',
           },
+          {
+            text: 'Identities',
+            value: 'identitiesCount',
+          },
         ]"
         :set-filters="setFilters"
       />
