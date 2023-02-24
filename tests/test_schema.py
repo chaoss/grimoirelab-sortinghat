@@ -3854,6 +3854,64 @@ class TestQueryIndividuals(django.test.TestCase):
         indv = individuals[2]
         self.assertEqual(indv['mk'], indv1.mk)
 
+    def test_order_by_identities_count(self):
+        """Check whether it returns the individuals ordered by their number of identities"""
+
+        indv1 = Individual.objects.create(mk='a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        Identity.objects.create(uuid='A001',
+                                name='John Doe',
+                                source='scm',
+                                individual=indv1)
+        indv2 = Individual.objects.create(mk='185c4b709e5446d250b4fde0e34b78a2b4fde0e3')
+        Identity.objects.create(uuid='B001',
+                                name='Jane Roe',
+                                source='scm',
+                                individual=indv2)
+        Identity.objects.create(uuid='B002',
+                                name='Jane Roe',
+                                source='mls',
+                                individual=indv2)
+        Identity.objects.create(uuid='B003',
+                                name='Jane Roe',
+                                source='alt',
+                                individual=indv2)
+        indv3 = Individual.objects.create(mk='c6d2504fde0e34b78a185c4b709e5442d045451c')
+        Identity.objects.create(uuid='C001',
+                                name='John Smith',
+                                source='scm',
+                                individual=indv3)
+        Identity.objects.create(uuid='C002',
+                                name='John Smith',
+                                source='mls',
+                                individual=indv3)
+
+        # Test ascending order
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_INDIVIDUALS_ORDER_BY % 'identitiesCount',
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+
+        indv = individuals[0]
+        self.assertEqual(indv['mk'], indv1.mk)
+        indv = individuals[1]
+        self.assertEqual(indv['mk'], indv3.mk)
+        indv = individuals[2]
+        self.assertEqual(indv['mk'], indv2.mk)
+
+        # Test descending order
+        executed = client.execute(SH_INDIVIDUALS_ORDER_BY % '-identitiesCount',
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+
+        indv = individuals[0]
+        self.assertEqual(indv['mk'], indv2.mk)
+        indv = individuals[1]
+        self.assertEqual(indv['mk'], indv3.mk)
+        indv = individuals[2]
+        self.assertEqual(indv['mk'], indv1.mk)
+
     def test_pagination(self):
         """Check whether it returns the individuals searched when using pagination"""
 
