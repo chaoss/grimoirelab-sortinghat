@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="isOpen" persistent max-width="400px">
+  <v-dialog v-model="isOpen" persistent max-width="440px">
     <v-card class="section">
       <v-card-title class="header">
         <span class="title">
@@ -22,14 +22,26 @@
           <v-row class="pl-4">
             <span class="subheader">Domains</span>
           </v-row>
-          <v-row v-for="(domain, index) in form.domains" :key="index">
-            <v-col cols="10">
+          <v-row
+            v-for="(domain, index) in form.domains"
+            :key="index"
+            class="align-bottom"
+          >
+            <v-col cols="6">
               <v-text-field
-                v-model="form.domains[index]"
+                v-model="form.domains[index].domain"
                 label="Domain"
                 hide-details
                 outlined
                 dense
+              />
+            </v-col>
+            <v-col cols="4">
+              <v-checkbox
+                v-model="form.domains[index].isTopDomain"
+                label="Top domain"
+                dense
+                hide-details
               />
             </v-col>
             <v-col cols="2" class="pt-3">
@@ -68,6 +80,11 @@
 </template>
 
 <script>
+const emptyDomain = {
+  domain: "",
+  isTopDomain: false,
+};
+
 export default {
   name: "OrganizationModal",
   props: {
@@ -95,14 +112,14 @@ export default {
     domains: {
       type: Array,
       required: false,
-      default: () => [""],
+      default: () => [],
     },
   },
   data() {
     return {
       form: {
         name: "",
-        domains: [""],
+        domains: [emptyDomain],
       },
       errorMessage: "",
       savedData: {
@@ -147,10 +164,17 @@ export default {
     async handleDomains() {
       const newDomains = this.form.domains.filter(
         (domain) =>
-          domain.length > 0 && !this.savedData.domains.includes(domain)
+          domain.domain.length > 0 &&
+          !this.savedData.domains.some(
+            (savedDomain) => savedDomain.domain === domain.domain
+          )
       );
       const deletedDomains = this.savedData.domains.filter(
-        (domain) => domain.length > 0 && !this.form.domains.includes(domain)
+        (domain) =>
+          domain.domain.length > 0 &&
+          !this.form.domains.some(
+            (savedDomain) => savedDomain.domain === domain.domain
+          )
       );
       try {
         const responseNew = await Promise.all(
@@ -175,7 +199,11 @@ export default {
       }
     },
     async addOrganizationDomain(domain, organization) {
-      const response = await this.addDomain(domain, organization);
+      const response = await this.addDomain(
+        domain.domain,
+        domain.isTopDomain,
+        organization
+      );
       if (response && !response.error) {
         this.savedData.domains.push(domain);
         this.$logger.debug("Added domain", { domain, organization });
@@ -188,14 +216,14 @@ export default {
       }
     },
     async deleteOrganizationDomain(domain) {
-      const response = await this.deleteDomain(domain);
+      const response = await this.deleteDomain(domain.domain);
       if (response) {
-        this.$logger.debug(`Deleted domain ${domain}`);
+        this.$logger.debug(`Deleted domain ${domain.domain}`);
         return response;
       }
     },
     addInput() {
-      this.form.domains.push("");
+      this.form.domains.push({ ...emptyDomain });
     },
   },
   watch: {
@@ -203,15 +231,18 @@ export default {
       if (value) {
         Object.assign(this.savedData, {
           name: this.organization,
-          domains: this.domains.map((domain) => domain),
+          domains: this.domains.map((domain) => ({ ...domain })),
         });
         Object.assign(this.form, {
           name: this.organization || "",
-          domains: this.domains.map((domain) => domain),
+          domains: this.domains.map((domain) => ({ ...domain })),
         });
       } else {
-        Object.assign(this.form, { name: "", domains: [""] });
-        Object.assign(this.savedData, { name: undefined, domains: [""] });
+        Object.assign(this.form, { name: "", domains: [{ ...emptyDomain }] });
+        Object.assign(this.savedData, {
+          name: undefined,
+          domains: [{ ...emptyDomain }],
+        });
       }
     },
   },

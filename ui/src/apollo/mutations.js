@@ -146,10 +146,19 @@ const ADD_IDENTITY = gql`
 `;
 
 const ADD_DOMAIN = gql`
-  mutation addDomain($domain: String!, $organization: String!) {
-    addDomain(domain: $domain, organization: $organization) {
+  mutation addDomain(
+    $domain: String!
+    $isTopDomain: Boolean
+    $organization: String!
+  ) {
+    addDomain(
+      domain: $domain
+      isTopDomain: $isTopDomain
+      organization: $organization
+    ) {
       domain {
         domain
+        isTopDomain
         organization {
           name
         }
@@ -436,11 +445,12 @@ const addTeam = (apollo, teamName, organization, parentName) => {
   return response;
 };
 
-const addDomain = (apollo, domain, organization) => {
+const addDomain = (apollo, domain, isTopDomain, organization) => {
   let response = apollo.mutate({
     mutation: ADD_DOMAIN,
     variables: {
       domain: domain,
+      isTopDomain: isTopDomain,
       organization: organization,
     },
   });

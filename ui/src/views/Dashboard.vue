@@ -278,8 +278,13 @@ export default {
       const response = await deleteTeam(this.$apollo, team, organization);
       return response;
     },
-    async addDomain(domain, organization) {
-      const response = await addDomain(this.$apollo, domain, organization);
+    async addDomain(domain, isTopDomain, organization) {
+      const response = await addDomain(
+        this.$apollo,
+        domain,
+        isTopDomain,
+        organization
+      );
       return response;
     },
     async deleteDomain(domain) {

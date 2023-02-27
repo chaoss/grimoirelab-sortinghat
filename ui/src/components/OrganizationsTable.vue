@@ -337,8 +337,8 @@ export default {
     openModal(organization) {
       const domains =
         organization.domains && organization.domains.length > 0
-          ? organization.domains.map((domain) => domain.domain)
-          : [""];
+          ? organization.domains.map((domain) => domain)
+          : [{ domain: "", isTopDomain: false }];
       Object.assign(this.modal, {
         open: true,
         organization: organization ? organization.name : "",

@@ -1,0 +1,8 @@
+---
+title: Set top domain from UI
+category: added
+author: Eva Millán <evamillan@bitergia.com>
+issue: 729
+notes: |
+  Add the option to set an organization's domain as
+  top domain from the UI.
