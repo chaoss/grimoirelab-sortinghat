@@ -121,6 +121,7 @@ const GET_PAGINATED_ORGANIZATIONS = gql`
         }
         domains {
           domain
+          isTopDomain
         }
       }
       pageInfo {
