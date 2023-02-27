@@ -30,7 +30,7 @@ from django.conf import settings
 from django.core.paginator import Paginator
 from django.db.models import Q, Subquery
 
-from django.db.models import JSONField
+from django.db.models import (JSONField, Count)
 
 from django_rq import enqueue
 
@@ -1392,7 +1392,7 @@ class SortingHatQuery:
                             page_size=settings.SORTINGHAT_API_PAGE_SIZE,
                             order_by='mk',
                             **kwargs):
-        query = Individual.objects.order_by(to_snake_case(order_by))
+        query = Individual.objects.annotate(identities_count=Count('identities')).order_by(to_snake_case(order_by))
 
         if filters and 'uuid' in filters:
             indv_uuid = filters['uuid']
