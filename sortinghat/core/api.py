@@ -32,6 +32,7 @@ from .db import (find_individual_by_uuid,
                  find_domain,
                  find_team,
                  find_group,
+                 find_import_identities_task,
                  search_enrollments_in_period,
                  add_individual as add_individual_db,
                  add_identity as add_identity_db,
@@ -42,8 +43,10 @@ from .db import (find_individual_by_uuid,
                  delete_identity as delete_identity_db,
                  delete_organization as delete_organization_db,
                  delete_team as delete_team_db,
+                 delete_import_identities_task as delete_import_task_db,
                  delete_domain as delete_domain_db,
                  update_profile as update_profile_db,
+                 update_import_identities_task as update_import_task_db,
                  move_identity as move_identity_db,
                  lock as lock_db,
                  unlock as unlock_db,
@@ -1288,3 +1291,88 @@ def unmerge_identities(ctx, uuids):
     logger.info(f"Identities {uuids} unmerged from their individuals")
 
     return new_individuals
+
+
+@django.db.transaction.atomic
+def delete_import_identities_task(ctx, task_id):
+    """Remove an import identities task from the registry.
+
+    This function removes the given task from the registry.
+    When it is found, the task is removed. Otherwise, it will
+    raise a 'NotFoundError'.
+
+    :param ctx: context from where this method is called
+    :param task_id: id of the task to remove
+
+    :raises InvalidValueError: raised when task is None or an empty string
+    :raises NotFoundError: raised when the task does not exist
+        in the registry
+    """
+    if not task_id:
+        raise InvalidValueError(msg="'task_id' cannot be empty or None")
+
+    trxl = TransactionsLog.open('delete_import_task', ctx)
+
+    try:
+        task = find_import_identities_task(task_id)
+    except NotFoundError as exc:
+        raise exc
+
+    delete_import_task_db(trxl, task=task)
+
+    trxl.close()
+
+    logger.info(f"Task {task_id} deleted")
+
+    return task
+
+
+@django.db.transaction.atomic
+def update_import_identities_task(ctx, task_id, **kwargs):
+    """Update an import identities task.
+
+    This function allows to edit or update the information of
+    the ImportIdentitiesTask identified by the given id.
+
+    The values to update are given as keyword arguments. The allowed
+    keys are listed below (other keywords will be ignored):
+
+       - `backend`: name of the importer backend
+       - `url`: URL of a file or API to fetch the identities from
+       - `interval`: period of executions, in minutes. None to disable
+       - `params`: specific parameters for the importer backend
+
+    As a result, it will return the `ImportIdentitiesTask` object with
+    the updated data.
+
+    :param ctx: context from where this method is called.
+    :param task_id: identifier of the task to update.
+    :param kwargs: keyword arguments with data to update the task.
+
+    :returns: task object with the updated information
+
+    :raises NotFoundError: raised when either the task does not exist
+        in the registry.
+    :raises InvalidValueError: raised when any of the keyword arguments
+        has an invalid value.
+    """
+    if not task_id:
+        raise InvalidValueError(msg="'task_id' cannot be None")
+
+    trxl = TransactionsLog.open('update_import_task', ctx)
+
+    try:
+        task = find_import_identities_task(task_id)
+    except NotFoundError as exc:
+        raise exc
+
+    try:
+        task = update_import_task_db(trxl, task, **kwargs)
+    except ValueError as e:
+        raise InvalidValueError(msg=str(e))
+
+    trxl.close()
+
+    logger.info(f"Task {task_id} successfully updated")
+
+    return task
