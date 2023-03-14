@@ -38,13 +38,15 @@ from grimoirelab_toolkit.datetime import datetime_utcnow
 from sortinghat.core import api
 from sortinghat.core.context import SortingHatContext
 from sortinghat.core.errors import DuplicateRangeError, NotFoundError
+from sortinghat.core.importer.backend import IdentitiesImporter
 from sortinghat.core.jobs import (find_job,
                                   affiliate,
                                   unify,
                                   recommend_affiliations,
                                   recommend_matches,
                                   recommend_gender,
-                                  genderize)
+                                  genderize,
+                                  import_identities)
 from sortinghat.core.models import (Individual,
                                     Transaction,
                                     AffiliationRecommendation,
@@ -1434,3 +1436,86 @@ class TestGenderize(TestCase):
         individual_2 = Individual.objects.get(mk=self.jdoe.uuid)
         gender_2 = individual_2.profile.gender
         self.assertEqual(gender_2, 'female')
+
+
+class MockTestImporter(IdentitiesImporter):
+    NAME = 'test_backend'
+
+    def __init__(self, ctx, url, token=None):
+        super().__init__(ctx, url)
+        self.token = token
+
+    def get_individuals(self):
+        from sortinghat.core.importer.models import Individual, Identity
+        indiv = Individual()
+        indiv.identities.append(Identity(source='test_backend', username='test_user'))
+        return [indiv]
+
+
+class TestImportIdentities(TestCase):
+    """Unit tests for import_identities"""
+
+    def setUp(self):
+        """Initialize database"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+    @unittest.mock.patch('sortinghat.core.importer.backend.find_backends')
+    def test_import_identities(self, mock_find_backends):
+        """Check if the importer is executed correctly"""
+
+        mock_find_backends.return_value = {'test_backend': MockTestImporter}
+
+        # Test
+        ctx = SortingHatContext(self.user)
+
+        job = import_identities.delay(ctx, 'test_backend', 'my_url', None)
+        result = job.result
+
+        self.assertEqual(result, 1)
+
+        # Check individual and identity are inserted
+        indiv = Individual.objects.first()
+        identity = indiv.identities.first()
+        self.assertEqual(identity.source, 'test_backend')
+        self.assertEqual(identity.username, 'test_user')
+
+    @unittest.mock.patch('sortinghat.core.importer.backend.find_backends')
+    def test_backend_not_found(self, mock_find_backends):
+        """Check if the importer is executed correctly"""
+
+        mock_find_backends.return_value = {}
+
+        # Test
+        ctx = SortingHatContext(self.user)
+
+        job = import_identities.delay(ctx, 'test_backend', 'my_url', None)
+        self.assertEqual(job.is_failed, True)
+
+    @unittest.mock.patch('sortinghat.core.importer.backend.find_backends')
+    def test_transactions(self, mock_find_backends):
+        """Check if the right transactions were created"""
+
+        mock_find_backends.return_value = {'test_backend': MockTestImporter}
+
+        timestamp = datetime_utcnow()
+
+        ctx = SortingHatContext(self.user)
+
+        import_identities.delay(ctx, 'test_backend', 'my_url', None,
+                                job_id='ABCD-EF12-3456-7890')
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        self.assertEqual(len(transactions), 2)
+
+        trx = transactions[0]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'import_identities-ABCD-EF12-3456-7890')
+        self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, ctx.user.username)
+        trx = transactions[1]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'add_identity-ABCD-EF12-3456-7890')
+        self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, ctx.user.username)

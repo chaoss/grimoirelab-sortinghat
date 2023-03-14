@@ -62,6 +62,6 @@ def sortinghatw(config, queues):
     _ = get_wsgi_application()
 
     try:
-        management.call_command('rqworker', *queues)
+        management.call_command('rqworker', *queues, with_scheduler=True)
     except KeyError as e:
         raise click.ClickException(f"Queue '{e.args[0]}' not found")

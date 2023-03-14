@@ -25,6 +25,8 @@ from django.test import TestCase
 
 from sortinghat.core.errors import (BaseError,
                                     AlreadyExistsError,
+                                    InvalidFormatError,
+                                    LoadError,
                                     NotFoundError,
                                     InvalidValueError,
                                     InvalidFilterError,
@@ -107,6 +109,38 @@ class TestAlreadyExistsError(TestCase):
 
         kwargs = {}
         self.assertRaises(KeyError, AlreadyExistsError, **kwargs)
+
+
+class TestInvalidFormatError(TestCase):
+    """Unit tests for InvalidFormatError"""
+
+    def test_message(self):
+        """Make sure it prints the right error"""
+
+        e = InvalidFormatError(cause="line 30: invalid format")
+        self.assertEqual(str(e), "line 30: invalid format")
+
+    def test_no_args(self):
+        """Check when required arguments are not given"""
+
+        kwargs = {}
+        self.assertRaises(KeyError, InvalidFormatError, **kwargs)
+
+
+class TestLoadError(TestCase):
+    """Unit tests for LoadError"""
+
+    def test_message(self):
+        """Make sure it prints the right error"""
+
+        e = LoadError(cause="Load error message")
+        self.assertEqual(str(e), "Load error message")
+
+    def test_no_args(self):
+        """Check when required arguments are not given"""
+
+        kwargs = {}
+        self.assertRaises(KeyError, LoadError, **kwargs)
 
 
 class TestNotFoundError(TestCase):
