@@ -17,7 +17,7 @@ const template = `
     :task="modal.task"
     :importer="modal.importer"
   />
-<div>
+</div>
 `;
 
 export const Default = () => ({
