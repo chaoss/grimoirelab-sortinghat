@@ -232,6 +232,39 @@ const GET_PAGINATED_RECOMMENDED_MERGE = gql`
   ${FULL_INDIVIDUAL}
 `;
 
+const GET_IMPORTERS = gql`
+  query getImporters {
+    identitiesImportersTypes {
+      name
+      args
+    }
+  }
+`;
+
+const GET_IMPORT_IDENTITIES_TASKS = gql`
+  query getImportIdentitiesTasks(
+    $page: Int
+    $pageSize: Int
+    $filters: ImporterTasksFilterType
+  ) {
+    importIdentitiesTask(page: $page, pageSize: $pageSize, filters: $filters) {
+      entities {
+        id
+        backend
+        url
+        interval
+        args
+        jobId
+        lastExecution
+        scheduledDatetime
+        failures
+        executions
+        failed
+      }
+    }
+  }
+`;
+
 const getIndividualByUuid = (apollo, uuid) => {
   let response = apollo.query({
     query: GET_INDIVIDUAL_BYUUID,
@@ -372,6 +405,24 @@ const getPaginatedMergeRecommendations = (apollo, page, pageSize) => {
   });
 };
 
+const getImporterTypes = (apollo) => {
+  return apollo.query({
+    query: GET_IMPORTERS,
+  });
+};
+
+const getImportIdentitiesTasks = (apollo, page, pageSize, filters) => {
+  return apollo.query({
+    query: GET_IMPORT_IDENTITIES_TASKS,
+    variables: {
+      page: page,
+      pageSize: pageSize,
+      filters: filters,
+    },
+    fetchPolicy: "no-cache",
+  });
+};
+
 export {
   getCountries,
   getIndividuals,
@@ -384,4 +435,6 @@ export {
   getGroups,
   getRecommendedMergesCount,
   getPaginatedMergeRecommendations,
+  getImporterTypes,
+  getImportIdentitiesTasks,
 };

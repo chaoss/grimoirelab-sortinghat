@@ -24,6 +24,12 @@
             <v-list-item-title>Dashboard</v-list-item-title>
           </v-list-item>
           <v-divider />
+          <v-list-item to="/import-identities">
+            <v-list-item-icon class="mr-2">
+              <v-icon small>mdi-account-sync</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>Import identities</v-list-item-title>
+          </v-list-item>
           <v-list-item to="/jobs">
             <v-list-item-icon class="mr-2">
               <v-icon small>mdi-tray-full</v-icon>

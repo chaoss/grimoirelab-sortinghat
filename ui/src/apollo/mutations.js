@@ -312,6 +312,48 @@ const RECOMMEND_MATCHES = gql`
   }
 `;
 
+const IMPORT_IDENTITIES = gql`
+  mutation importIdentities(
+    $backend: String!
+    $interval: Int
+    $params: JSONString
+    $url: String
+  ) {
+    addImportIdentitiesTask(
+      backend: $backend
+      interval: $interval
+      params: $params
+      url: $url
+    ) {
+      task {
+        id
+      }
+    }
+  }
+`;
+
+const DELETE_IMPORT_TASK = gql`
+  mutation deleteImportTask($taskId: Int!) {
+    deleteImportIdentitiesTask(taskId: $taskId) {
+      deleted
+    }
+  }
+`;
+
+const UPDATE_IMPORT_TASK = gql`
+  mutation updateImportTask(
+    $data: ImportIdentitiesTaskInputType
+    $taskId: Int!
+  ) {
+    updateImportIdentitiesTask(data: $data, taskId: $taskId) {
+      task {
+        id
+        lastModified
+      }
+    }
+  }
+`;
+
 const tokenAuth = (apollo, username, password) => {
   const response = apollo.mutate({
     mutation: TOKEN_AUTH,
@@ -564,6 +606,35 @@ const recommendMatches = (apollo, criteria, exclude) => {
   });
 };
 
+const importIdentities = (apollo, backend, interval, params, url) => {
+  return apollo.mutate({
+    mutation: IMPORT_IDENTITIES,
+    variables: {
+      backend: backend,
+      interval: interval,
+      params: params,
+      url: url,
+    },
+  });
+};
+
+const deleteImportTask = (apollo, taskId) => {
+  return apollo.mutate({
+    mutation: DELETE_IMPORT_TASK,
+    variables: { taskId },
+  });
+};
+
+const updateImportTask = (apollo, taskId, data) => {
+  return apollo.mutate({
+    mutation: UPDATE_IMPORT_TASK,
+    variables: {
+      taskId: taskId,
+      data: data,
+    },
+  });
+};
+
 export {
   tokenAuth,
   lockIndividual,
@@ -588,4 +659,7 @@ export {
   unify,
   manageMergeRecommendation,
   recommendMatches,
+  importIdentities,
+  deleteImportTask,
+  updateImportTask,
 };
