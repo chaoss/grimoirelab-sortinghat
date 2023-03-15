@@ -13,6 +13,8 @@ const opts = {
       light: {
         primary: "#003756",
         secondary: "#f4bc00",
+        finished: "#3fa500",
+        failed: "#f41900",
       },
     },
   },
