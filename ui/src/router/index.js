@@ -38,6 +38,12 @@ const routes = [
     component: () => import("../views/Jobs"),
     meta: { title: "Jobs - Sorting Hat" },
   },
+  {
+    path: "/import-identities",
+    name: "ImportIdentities",
+    component: () => import("../views/ImportIdentities"),
+    meta: { requiresAuth: true, title: "Import identities - Sorting Hat" },
+  },
 ];
 
 const router = new Router({
