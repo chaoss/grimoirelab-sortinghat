@@ -23,6 +23,8 @@
 
 CODE_BASE_ERROR = 1
 CODE_ALREADY_EXISTS_ERROR = 2
+CODE_INVALID_FORMAT_ERROR = 6
+CODE_LOAD_ERROR = 7
 CODE_NOT_FOUND_ERROR = 9
 CODE_VALUE_ERROR = 10
 CODE_CLOSED_TRANSACTION_ERROR = 12
@@ -67,6 +69,20 @@ class AlreadyExistsError(BaseError):
         super().__init__(**kwargs)
         self.entity = kwargs['entity']
         self.eid = kwargs['eid']
+
+
+class InvalidFormatError(BaseError):
+    """Exception raised when a format is invalid"""
+
+    message = "%(cause)s"
+    code = CODE_INVALID_FORMAT_ERROR
+
+
+class LoadError(BaseError):
+    """Exception raised when an error occurs loading data"""
+
+    message = "%(cause)s"
+    code = CODE_LOAD_ERROR
 
 
 class NotFoundError(BaseError):

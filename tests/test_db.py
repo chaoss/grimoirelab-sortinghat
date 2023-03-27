@@ -48,8 +48,8 @@ from sortinghat.core.models import (MIN_PERIOD_DATE,
                                     Profile,
                                     Enrollment,
                                     Transaction,
-                                    Operation)
-
+                                    Operation,
+                                    ImportIdentitiesTask)
 
 DUPLICATED_ORG_ERROR = "Organization 'Example' already exists in the registry"
 DUPLICATED_DOM_ERROR = "Domain 'example.org' already exists in the registry"
@@ -99,6 +99,10 @@ PERIOD_INVALID_ERROR = "'start' date {start} cannot be greater than {end}"
 PERIOD_OUT_OF_BOUNDS_ERROR = "'{type}' date {date} is out of bounds"
 MOVE_ERROR = "identity '0001' is already assigned to 'AAAA'"
 INDIVIDUAL_LOCKED_ERROR = "Individual {mk} is locked"
+INTERVAL_INVALID_ERROR = "'interval' must be a positive number or 0."
+FORMAT_NOT_FOUND_ERROR = "{} not found in the registry"
+FORMAT_EMPTY_ERROR = "'{}' cannot be .+"
+FORMAT_ALREADY_EXISTS = "'{}' already exists in the registry"
 
 
 class TestFindIndividual(TestCase):
@@ -2655,6 +2659,402 @@ class TestMoveIdentity(TestCase):
         self.assertEqual(len(op1_args), 2)
         self.assertEqual(op1_args['identity'], '0001')
         self.assertEqual(op1_args['individual'], 'BBBB')
+
+
+class TestFindImportTask(TestCase):
+    """Unit tests for find_import_identities_task"""
+
+    def test_find_import_task(self):
+        """Test if a task is found by its id"""
+
+        task = ImportIdentitiesTask.objects.create(backend='foo', url='foo.url', interval=0)
+
+        task_db = db.find_import_identities_task(task.id)
+        self.assertIsInstance(task_db, ImportIdentitiesTask)
+        self.assertEqual(task_db.id, task.id)
+
+    def test_task_not_found(self):
+        """Test whether it raises an exception when the task is not found"""
+
+        with self.assertRaisesRegex(NotFoundError, FORMAT_NOT_FOUND_ERROR.format(999)):
+            db.find_import_identities_task(999)
+
+
+class TestAddImportTask(TestCase):
+    """Unit tests for add_import_identities_task"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+        self.trxl = TransactionsLog.open('add_import_task', self.ctx)
+
+    def test_add_import_task(self):
+        """Check if a new task is created"""
+
+        task = db.add_import_identities_task(self.trxl,
+                                             backend='foo_backend',
+                                             url='foo_url',
+                                             interval=1,
+                                             args={})
+
+        self.assertIsInstance(task, ImportIdentitiesTask)
+        self.assertEqual(task.backend, 'foo_backend')
+        self.assertEqual(task.url, 'foo_url')
+        self.assertEqual(task.interval, 1)
+        self.assertEqual(task.args, {})
+
+    def test_add_multiple_import_task(self):
+        """Check if multiple tasks can be added"""
+
+        task1 = db.add_import_identities_task(self.trxl,
+                                              backend='foo_backend',
+                                              url='foo_url',
+                                              interval=1,
+                                              args={})
+        task2 = db.add_import_identities_task(self.trxl,
+                                              backend='bar_backend',
+                                              url='bar_url',
+                                              interval=1,
+                                              args={})
+
+        tasks = ImportIdentitiesTask.objects.all()
+        self.assertEqual(len(tasks), 2)
+
+        task = tasks[0]
+        self.assertIsInstance(task, ImportIdentitiesTask)
+        self.assertEqual(task.backend, 'foo_backend')
+        self.assertEqual(task.url, 'foo_url')
+        self.assertEqual(task.interval, 1)
+        self.assertEqual(task.args, {})
+
+        task = tasks[1]
+        self.assertIsInstance(task, ImportIdentitiesTask)
+        self.assertEqual(task.backend, 'bar_backend')
+        self.assertEqual(task.url, 'bar_url')
+        self.assertEqual(task.interval, 1)
+        self.assertEqual(task.args, {})
+
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
+
+        before_dt = datetime_utcnow()
+        task = db.add_import_identities_task(self.trxl,
+                                             backend='foo_backend',
+                                             url='foo_url',
+                                             interval=1,
+                                             args={})
+        after_dt = datetime_utcnow()
+
+        # Tests
+        self.assertLessEqual(before_dt, task.last_modified)
+        self.assertGreaterEqual(after_dt, task.last_modified)
+
+    def test_task_backend_empty(self):
+        """Check whether a task with empty backend cannot be added"""
+
+        with self.assertRaisesRegex(ValueError, FORMAT_EMPTY_ERROR.format('backend')):
+            db.add_import_identities_task(self.trxl,
+                                          backend='',
+                                          url='foo_url',
+                                          interval=1,
+                                          args={})
+        with self.assertRaisesRegex(ValueError, FORMAT_EMPTY_ERROR.format('backend')):
+            db.add_import_identities_task(self.trxl,
+                                          backend=None,
+                                          url='foo_url',
+                                          interval=1,
+                                          args={})
+
+        # Check if operations have not been generated after the failure
+        operations = Operation.objects.all()
+        self.assertEqual(len(operations), 0)
+
+    def test_task_url_empty(self):
+        """Check whether a task with empty URL cannot be added"""
+
+        with self.assertRaisesRegex(ValueError, FORMAT_EMPTY_ERROR.format('url')):
+            db.add_import_identities_task(self.trxl,
+                                          backend='foo',
+                                          url='',
+                                          interval=1,
+                                          args={})
+        with self.assertRaisesRegex(ValueError, FORMAT_EMPTY_ERROR.format('url')):
+            db.add_import_identities_task(self.trxl,
+                                          backend='foo',
+                                          url=None,
+                                          interval=1,
+                                          args={})
+
+        # Check if operations have not been generated after the failure
+        operations = Operation.objects.all()
+        self.assertEqual(len(operations), 0)
+
+    def test_task_invalid_interval(self):
+        """Check whether a task with wrong interval cannot be added"""
+
+        with self.assertRaisesRegex(ValueError, INTERVAL_INVALID_ERROR):
+            db.add_import_identities_task(self.trxl,
+                                          backend='foo',
+                                          url='foo.url',
+                                          interval=-1,
+                                          args={})
+
+        # Check if operations have not been generated after the failure
+        operations = Operation.objects.all()
+        self.assertEqual(len(operations), 0)
+
+    def test_integrity_error(self):
+        """Check whether tasks with the same url and backend cannot be inserted"""
+
+        with self.assertRaisesRegex(AlreadyExistsError, FORMAT_ALREADY_EXISTS.format('foo-foo.url')):
+            db.add_import_identities_task(self.trxl,
+                                          backend='foo',
+                                          url='foo.url',
+                                          interval=1,
+                                          args={})
+            db.add_import_identities_task(self.trxl,
+                                          backend='foo',
+                                          url='foo.url',
+                                          interval=3,
+                                          args={})
+
+    def test_operations(self):
+        """Check if the right operations are created when adding a new task"""
+
+        timestamp = datetime_utcnow()
+        task = db.add_import_identities_task(self.trxl,
+                                             backend='foo',
+                                             url='foo.url',
+                                             interval=1,
+                                             args={})
+        transactions = Transaction.objects.all()
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.ADD.value)
+        self.assertEqual(op1.entity_type, 'import_task')
+        self.assertGreater(op1.timestamp, timestamp)
+        self.assertEqual(op1.target, task.url)
+        self.assertEqual(op1.trx, trx)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 5)
+        self.assertEqual(op1_args['backend'], task.backend)
+        self.assertEqual(op1_args['url'], task.url)
+        self.assertEqual(op1_args['interval'], str(task.interval))
+        self.assertEqual(op1_args['args'], str(task.args))
+        self.assertEqual(op1_args['job_id'], task.job_id)
+
+
+class TestDeleteImportTask(TestCase):
+    """Unit tests for delete import task"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        self.trxl = TransactionsLog.open('delete_task', self.ctx)
+
+    def test_delete_task(self):
+        """Check whether it deletes an import task"""
+
+        task = ImportIdentitiesTask.objects.create(backend='foo', url='foo.url', interval=0)
+
+        db.delete_import_identities_task(self.trxl, task)
+
+        # Tests
+        with self.assertRaises(ObjectDoesNotExist):
+            ImportIdentitiesTask.objects.get(id=task.id)
+
+    def test_operations(self):
+        """Check if the right operations are created when deleting a task"""
+
+        # Set the initial dataset
+        timestamp = datetime_utcnow()
+        task = ImportIdentitiesTask.objects.create(backend='foo', url='foo.url', interval=0)
+        task_id = task.id
+
+        db.delete_import_identities_task(self.trxl, task)
+
+        transactions = Transaction.objects.filter(name='delete_task')
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.DELETE.value)
+        self.assertEqual(op1.entity_type, 'import_task')
+        self.assertEqual(op1.trx, trx)
+        self.assertEqual(op1.target, str(task_id))
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 1)
+        self.assertEqual(op1_args['task'], str(task_id))
+
+
+class TestUpdateImportTask(TestCase):
+    """Unit tests for update_import_identities_task"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        self.trxl = TransactionsLog.open('update_import_task', self.ctx)
+
+        self.task = ImportIdentitiesTask.objects.create(backend='foo',
+                                                        url='foo.url',
+                                                        interval=0)
+
+    def test_update_import_task(self):
+        """Check if it updates a task"""
+
+        task = db.update_import_identities_task(self.trxl,
+                                                self.task,
+                                                backend='foo2',
+                                                url='foo2.url',
+                                                interval=4,
+                                                params={'token': '1234'})
+        # Tests
+        self.assertIsInstance(task, ImportIdentitiesTask)
+        self.assertEqual(task.id, self.task.id)
+        self.assertEqual(task.backend, 'foo2')
+        self.assertEqual(task.url, 'foo2.url')
+        self.assertEqual(task.interval, 4)
+        self.assertDictEqual(task.args, {'token': '1234'})
+
+        # Check database object
+        task_db = ImportIdentitiesTask.objects.get(id=task.id)
+        self.assertEqual(task, task_db)
+
+    def test_update_task_only_interval(self):
+        """Check if it updates a task using only an interval"""
+
+        task = db.update_import_identities_task(self.trxl,
+                                                self.task,
+                                                interval=4)
+        # Tests
+        self.assertIsInstance(task, ImportIdentitiesTask)
+
+        self.assertEqual(task.backend, 'foo')
+        self.assertEqual(task.url, 'foo.url')
+        self.assertEqual(task.interval, 4)
+        self.assertIsNone(task.args)
+
+        # Check database object
+        task_db = ImportIdentitiesTask.objects.get(id=task.id)
+        self.assertEqual(task, task_db)
+
+    def test_invalid_backend(self):
+        """Check that empty backend is not valid"""
+
+        with self.assertRaisesRegex(ValueError, FORMAT_EMPTY_ERROR.format('backend')):
+            db.update_import_identities_task(self.trxl,
+                                             self.task,
+                                             backend='')
+        with self.assertRaisesRegex(ValueError, FORMAT_EMPTY_ERROR.format('backend')):
+            db.update_import_identities_task(self.trxl,
+                                             self.task,
+                                             backend=None)
+
+            # Check if there are no transactions created when there is an error
+            transactions = Transaction.objects.all()
+            self.assertEqual(len(transactions), 0)
+
+    def test_invalid_url(self):
+        """Check that empty url is not valid"""
+
+        with self.assertRaisesRegex(ValueError, FORMAT_EMPTY_ERROR.format('url')):
+            db.update_import_identities_task(self.trxl,
+                                             self.task,
+                                             url='')
+        with self.assertRaisesRegex(ValueError, FORMAT_EMPTY_ERROR.format('url')):
+            db.update_import_identities_task(self.trxl,
+                                             self.task,
+                                             url=None)
+
+            # Check if there are no transactions created when there is an error
+            transactions = Transaction.objects.all()
+            self.assertEqual(len(transactions), 0)
+
+    def test_invalid_interval(self):
+        """Check wrong interval is not valid"""
+
+        with self.assertRaisesRegex(ValueError, INTERVAL_INVALID_ERROR):
+            db.update_import_identities_task(self.trxl,
+                                             self.task,
+                                             interval='5')
+        with self.assertRaisesRegex(ValueError, INTERVAL_INVALID_ERROR):
+            db.update_import_identities_task(self.trxl,
+                                             self.task,
+                                             interval=-1)
+
+            # Check if there are no transactions created when there is an error
+            transactions = Transaction.objects.all()
+            self.assertEqual(len(transactions), 0)
+
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
+
+        before_dt = datetime_utcnow()
+        task = db.update_import_identities_task(self.trxl,
+                                                self.task,
+                                                backend='foo2',
+                                                url='foo2.url',
+                                                interval=4,
+                                                params={'token': '1234'})
+        after_dt = datetime_utcnow()
+
+        # Tests
+        self.assertLessEqual(before_dt, task.last_modified)
+        self.assertGreaterEqual(after_dt, task.last_modified)
+
+    def test_operations(self):
+        """Check if the right operations are created when updating a task"""
+
+        timestamp = datetime_utcnow()
+
+        # Update the task
+        task = db.update_import_identities_task(self.trxl,
+                                                self.task,
+                                                backend='foo2',
+                                                url='foo2.url',
+                                                interval=4,
+                                                params={'token': '1234'})
+
+        transactions = Transaction.objects.filter(name='update_import_task')
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.UPDATE.value)
+        self.assertEqual(op1.entity_type, 'import_task')
+        self.assertEqual(op1.trx, trx)
+        self.assertEqual(op1.target, str(task.id))
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 5)
+        self.assertEqual(op1_args['backend'], 'foo2')
+        self.assertEqual(op1_args['url'], 'foo2.url')
+        self.assertEqual(op1_args['interval'], 4)
+        self.assertDictEqual(op1_args['params'], {'token': '1234'})
+        self.assertEqual(op1_args['task'], str(task.id))
 
 
 class TestLock(TestCase):

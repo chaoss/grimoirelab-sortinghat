@@ -20,6 +20,7 @@
 #     Miguel Ángel Fernández <mafesan@bitergia.com>
 #
 
+import datetime
 import itertools
 import logging
 
@@ -32,6 +33,7 @@ from .db import find_individual_by_uuid, find_organization
 from .api import enroll, merge, update_profile
 from .context import SortingHatContext
 from .errors import BaseError, NotFoundError, EqualIndividualError
+from .importer.backend import find_import_identities_backends
 from .log import TransactionsLog
 from .models import (Individual,
                      AffiliationRecommendation,
@@ -101,7 +103,7 @@ def get_jobs():
                       in queue.scheduled_job_registry.get_job_ids()]
     jobs = (queue.jobs + started_jobs + deferred_jobs + finished_jobs + failed_jobs + scheduled_jobs)
 
-    sorted_jobs = sorted(jobs, key=lambda x: x.enqueued_at)
+    sorted_jobs = sorted(jobs, key=lambda x: x.enqueued_at if x.enqueued_at else datetime.datetime.utcnow())
 
     logger.debug(f"List of jobs retrieved; total jobs: {len(sorted_jobs)};")
 
@@ -542,6 +544,49 @@ def genderize(ctx, uuids=None, exclude=True, no_strict_matching=False):
     )
 
     return job_result
+
+
+@django_rq.job
+def import_identities(ctx, backend_name, url, params):
+    """Import identities to SortingHat.
+
+    This job imports identities to SortingHat using the
+    data obtained from the URL using the specified backend.
+
+    :param ctx: context where this job is run
+    :param backend_name: name of the importer backend
+    :param url: URL of a file or API to fetch the identities from
+    :param params: specific arguments for the importer backend
+
+    :returns: number of identities imported
+    """
+    job = rq.get_current_job()
+
+    logger.info(f"Running job {job.id} 'import_identities'; "
+                f"backend='{backend_name}'; url='{url}'")
+
+    backends = find_import_identities_backends()
+    klass = backends[backend_name]['class']
+
+    if not params:
+        params = {}
+
+    # Create a new context to include the reference
+    # to the job id that will perform the transaction.
+    job_ctx = SortingHatContext(ctx.user, job.id)
+    trxl = TransactionsLog.open('import_identities', job_ctx)
+
+    importer = klass(ctx=job_ctx, url=url, **params)
+    nidentities = importer.import_identities()
+
+    trxl.close()
+
+    logger.info(
+        f"Job {job.id} 'import_identities' completed; "
+        f"{nidentities} identities imported"
+    )
+
+    return nidentities
 
 
 def _merge_individuals(job_ctx, source_indv, target_indvs):

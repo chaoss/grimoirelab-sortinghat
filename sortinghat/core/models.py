@@ -345,3 +345,23 @@ class GenderRecommendation(EntityBase):
 
     def __str__(self):
         return '%s - %s - %s' % (self.individual, self.gender, self.accuracy)
+
+
+class ImportIdentitiesTask(EntityBase):
+    backend = CharField(max_length=MAX_SIZE_CHAR_FIELD)
+    url = CharField(max_length=MAX_SIZE_CHAR_FIELD)
+    interval = PositiveIntegerField(null=True, default=None)
+    args = JSONField(null=True, default=None)
+    job_id = CharField(max_length=MAX_SIZE_CHAR_FIELD, null=True, default=None)
+    scheduled_datetime = DateTimeField(null=True, default=None)
+    last_execution = DateTimeField(null=True, default=None)
+    failed = BooleanField(default=False)
+    failures = PositiveIntegerField(default=0)
+    executions = PositiveIntegerField(default=0)
+
+    class Meta:
+        db_table = 'import_identities_task'
+        unique_together = ('backend', 'url')
+
+    def __str__(self):
+        return '%s - %s' % (self.backend, self.url)

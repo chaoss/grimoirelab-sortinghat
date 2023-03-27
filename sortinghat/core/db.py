@@ -44,7 +44,8 @@ from .models import (MIN_PERIOD_DATE,
                      Identity,
                      Profile,
                      Enrollment,
-                     Operation)
+                     Operation,
+                     ImportIdentitiesTask)
 from .aux import validate_field
 
 
@@ -904,6 +905,154 @@ def move_identity(trxl, identity, individual):
                        target=op_args['identity'])
 
     return individual
+
+
+def find_import_identities_task(task_id):
+    """Find a group.
+
+    Find a task by its id in the database.
+
+    When the task does not exist the function will raise
+    a `NotFoundError`.
+
+    :param task_id: id of the task to find
+
+    :returns: a ImportIdentitiesTask object
+
+    :raises NotFoundError: when the task with the
+        given `task_id` does not exist.
+    """
+    try:
+        logger.debug(f"Finding task '{task_id}'")
+        task = ImportIdentitiesTask.objects.get(id=task_id)
+    except ImportIdentitiesTask.DoesNotExist:
+        logger.debug(f"Task with id '{task_id}' does not exist")
+        raise NotFoundError(entity=task_id)
+    else:
+        logger.debug(f"Task with id '{task_id}' was found")
+        return task
+
+
+def add_import_identities_task(trxl, backend, url, args=None, interval=None, job_id=None):
+    """Add an import identities task to the database.
+
+    This function adds a new task to the database.
+
+    As a result, the function returns a new `ImportIdentitiesTask` object.
+
+    :param trxl: TransactionsLog object from the method calling this one
+    :param backend: name of the importer backend
+    :param url: URL of a file or API to fetch the identities from
+    :param interval: period of executions, in minutes. None to disable
+    :param args: specific arguments for the importer backend
+    :param job_id: current job running the task
+
+    :returns: a new ImportIdentitiesTask
+    """
+    # Setting operation arguments before they are modified
+    op_args = {
+        'backend': backend,
+        'url': url,
+        'interval': str(interval),
+        'args': str(args),
+        'job_id': job_id,
+    }
+
+    validate_field('backend', backend)
+    validate_field('url', url)
+
+    if interval and interval < 0:
+        raise ValueError("'interval' must be a positive number or 0.")
+
+    try:
+        task = ImportIdentitiesTask(
+            backend=backend,
+            url=url,
+            interval=interval,
+            args=args,
+            job_id=job_id
+        )
+        task.save()
+    except django.db.utils.IntegrityError as exc:
+        _handle_integrity_error(ImportIdentitiesTask, exc)
+
+    trxl.log_operation(op_type=Operation.OpType.ADD, entity_type='import_task',
+                       timestamp=datetime_utcnow(), args=op_args,
+                       target=op_args['url'])
+
+    return task
+
+
+def delete_import_identities_task(trxl, task):
+    """Remove a task from the database.
+
+    This function removes from the database the task given
+    in `task`.
+
+    :param trxl: TransactionsLog object from the method calling this one
+    :param task: task to remove
+    """
+    # Setting operation arguments before they are modified
+    op_args = {
+        'task': str(task.id)
+    }
+
+    task.delete()
+
+    trxl.log_operation(op_type=Operation.OpType.DELETE, entity_type='import_task',
+                       timestamp=datetime_utcnow(), args=op_args,
+                       target=op_args['task'])
+
+
+def update_import_identities_task(trxl, task, **kwargs):
+    """Update an import identities task.
+
+    This function allows to edit or update the information of
+    the given task. The values to update are given as keyword
+    arguments. The allowed keys are listed below
+    (other keywords will be ignored):
+
+       - `backend`: name of the importer backend
+       - `url`: URL of a file or API to fetch the identities from
+       - `interval`: period of executions, in minutes. None to disable
+       - `params`: specific parameters for the importer backend
+
+    As a result, it will return the `ImportIdentitiesTask` object with
+    the updated data.
+
+    :param trxl: TransactionsLog object from the method calling this one
+    :param task: task to update
+    :param kwargs: parameters to edit the task
+
+    :returns: task object with the updated information
+
+    :raises ValueError: raised when an invalid value is provided
+    """
+    # Setting operation arguments before they are modified
+    op_args = copy.deepcopy(kwargs)
+    op_args.update({'task': str(task.id)})
+
+    if 'backend' in kwargs:
+        validate_field('backend', kwargs['backend'])
+        task.backend = kwargs['backend']
+    if 'url' in kwargs:
+        validate_field('url', kwargs['url'])
+        task.url = kwargs['url']
+    if 'interval' in kwargs:
+        interval = kwargs['interval']
+        if not isinstance(interval, int) or interval < 0:
+            raise ValueError("'interval' must be a positive number or 0.")
+        task.interval = interval
+    if 'params' in kwargs:
+        task.args = kwargs['params']
+
+    task.save()
+
+    trxl.log_operation(op_type=Operation.OpType.UPDATE, entity_type='import_task',
+                       timestamp=datetime_utcnow(), args=op_args,
+                       target=op_args['task'])
+
+    return task
 
 
 def lock(trxl, individual):

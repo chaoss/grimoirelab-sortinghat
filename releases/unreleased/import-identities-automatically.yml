@@ -1,0 +1,19 @@
+---
+title: Import identities automatically
+category: added
+author: Jose Javier Merchante <jjmerchante@bitergia.com>
+issue: 746
+notes: |
+  Create a schema to import identities to SortingHat automatically
+  using custom backends. The jobs will be executed periodically, at
+  the given interval.
+
+  The tasks can be configured using the GraphQL API.
+
+  To create a custom importer you need to extend `IdentitiesImporter`,
+  define a `NAME` for your importer (that will be used in the UI), and
+  implement `get_identities` method that returns a list of individuals
+  with the related identities that will be imported into SortingHat.
+  If your importer requires extra parameters, you must extend the `__init__`
+  method with the required parameters. Those parameters can be defined
+  using the API.
