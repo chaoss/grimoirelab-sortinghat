@@ -19,8 +19,11 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+import os
+
 from django.apps import AppConfig
 
 
 class SortingHatCoreConfig(AppConfig):
     name = 'sortinghat.core'
+    path = os.path.dirname(os.path.abspath(__file__))
