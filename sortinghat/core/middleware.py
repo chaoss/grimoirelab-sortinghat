@@ -15,8 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+from django.http import Http404
 from graphql_jwt.compat import get_operation_name
 from graphql_jwt.settings import jwt_settings
+
+from . import tenant
 
 
 def allow_any(info, **kwargs):
@@ -44,3 +47,76 @@ def allow_any(info, **kwargs):
         )
     except Exception as e:
         return False
+
+
+class TenantDatabaseMiddleware:
+    """
+    Middleware to select a database depending on the user and the host.
+    When the pair user-host is not available for any tenant it returns a 404 error.
+    For unauthenticated users it will return the 'default' database to allow login.
+    """
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        database = tenant.tenant_from_username_host(request)
+        if database:
+            tenant.set_db_tenant(database)
+            response = self.get_response(request)
+            tenant.unset_db_tenant()
+            return response
+        else:
+            raise Http404("Tenant not found in SortingHat.")
+
+
+class TenantDatabaseRouter:
+    """
+    This class routes database queries to the right database.
+    Queries to applications with labels in 'auth_app_labels' will use the 'default' database.
+    Queries to 'core.tenant' model will use the 'default' database too.
+    Queries to a different model will obtain the database name from a threading local variable
+    that is set for every request using a middleware.
+    """
+
+    auth_app_labels = {'auth', 'contenttypes', 'admin'}
+
+    def db_for_read(self, model, **hints):
+        if model._meta.app_label in self.auth_app_labels:
+            return 'default'
+        elif model._meta.app_label == 'core' and model._meta.model_name == 'tenant':
+            return 'default'
+        return tenant.get_db_tenant()
+
+    def db_for_write(self, model, **hints):
+        if model._meta.app_label in self.auth_app_labels:
+            return 'default'
+        elif model._meta.app_label == 'core' and model._meta.model_name == 'tenant':
+            return 'default'
+        return tenant.get_db_tenant()
+
+    def allow_relation(self, obj1, obj2, **hints):
+        """
+        Allow relations if a model in the auth or contenttypes apps is
+        involved.
+        """
+        if (
+            obj1._meta.app_label in self.auth_app_labels or
+            obj2._meta.app_label in self.auth_app_labels
+        ):
+            return True
+        return None
+
+    def allow_migrate(self, db, app_label, model_name=None, **hints):
+        """
+        Make sure the 'auth', 'contenttypes', 'admin' and 'core.tenant' apps
+        and models only appear in the 'default' database. Don't include any
+        other model in that database.
+        """
+        if app_label in self.auth_app_labels:
+            return db == 'default'
+        elif app_label == 'core' and model_name == 'tenant':
+            return db == 'default'
+        elif db == 'default':
+            return False
+        else:
+            return None

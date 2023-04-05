@@ -106,7 +106,8 @@ class TransactionsLog:
         trx = Transaction(tuid=tuid,
                           name=trx_name,
                           created_at=datetime_utcnow(),
-                          authored_by=username)
+                          authored_by=username,
+                          tenant=ctx.tenant)
 
         try:
             trx.save(force_insert=True)
@@ -115,7 +116,7 @@ class TransactionsLog:
 
         logger.debug(
             f"Transaction {trx.tuid} started; "
-            f"name='{trx.name}' author='{trx.authored_by}'"
+            f"name='{trx.name}' author='{trx.authored_by}' tenant='{ctx.tenant}'"
         )
 
         return cls(trx, ctx)

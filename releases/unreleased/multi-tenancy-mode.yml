@@ -1,0 +1,13 @@
+---
+title: Multi-tenancy mode
+category: added
+author: Jose Javier Merchante <jjmerchante@bitergia.com>
+issue: null
+notes: >
+  SortingHat allows hosting multiple instances with a single service having each
+  instance's data isolated in different databases.
+  
+  To enable this feature follow these guidelines:
+  - Set `MULTI_TENANT` settings to `True`.
+  - Define the tenants in `sortinghat/config/tenants.json`.
+  - Assign users to tenants with `sortinghat-admin set-user-tenant` command.

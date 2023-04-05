@@ -35,6 +35,7 @@ from django.db.models import (CASCADE,
                               OneToOneField)
 
 from django.db.models import JSONField
+from django.conf import settings
 
 from enum import Enum
 
@@ -95,6 +96,8 @@ class Transaction(Model):
     is_closed = BooleanField(default=False)
     authored_by = CharField(max_length=MAX_SIZE_CHAR_FIELD,
                             null=True)
+    tenant = CharField(max_length=MAX_SIZE_CHAR_FIELD,
+                       null=True)
 
     class Meta:
         db_table = 'transactions'
@@ -365,3 +368,13 @@ class ImportIdentitiesTask(EntityBase):
 
     def __str__(self):
         return '%s - %s' % (self.backend, self.url)
+
+
+class Tenant(EntityBase):
+    user = ForeignKey(settings.AUTH_USER_MODEL, on_delete=CASCADE)
+    host = CharField(max_length=MAX_SIZE_CHAR_FIELD)
+    database = CharField(max_length=MAX_SIZE_CHAR_FIELD)
+
+    class Meta:
+        db_table = 'tenants'
+        unique_together = ('user', 'host')

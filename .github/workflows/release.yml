@@ -76,6 +76,7 @@ jobs:
           PACKAGE=`(cd dist && ls *whl)` && echo $PACKAGE
           pip install --pre ./dist/$PACKAGE
           python manage.py test --settings=config.settings.testing
+          python manage.py test --settings=config.settings.testing_tenant
 
   release:
     needs: [tests]

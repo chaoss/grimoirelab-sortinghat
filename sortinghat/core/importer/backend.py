@@ -23,14 +23,14 @@ import logging
 
 import sortinghat.core.importer.backends
 from grimoirelab_toolkit.introspect import inspect_signature_parameters
-from sortinghat.core import api, db
-from sortinghat.core.errors import (LoadError,
-                                    InvalidValueError,
-                                    AlreadyExistsError,
-                                    NotFoundError,
-                                    DuplicateRangeError)
-from sortinghat.core.importer.utils import find_backends
-from sortinghat.core.models import MIN_PERIOD_DATE, MAX_PERIOD_DATE
+from .. import api, db
+from ..errors import (LoadError,
+                      InvalidValueError,
+                      AlreadyExistsError,
+                      NotFoundError,
+                      DuplicateRangeError)
+from ..importer.utils import find_backends
+from ..models import MIN_PERIOD_DATE, MAX_PERIOD_DATE
 
 logger = logging.getLogger(__name__)
 

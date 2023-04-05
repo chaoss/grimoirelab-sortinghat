@@ -27,11 +27,13 @@ import sys
 import click
 
 import importlib_resources
-from django.contrib.auth import get_user_model
 
+from django.contrib.auth import get_user_model
 from django.core.wsgi import get_wsgi_application
 from django.core import management, exceptions
 from django.db import IntegrityError
+from django.conf import settings
+
 
 logger = logging.getLogger('main')
 
@@ -82,6 +84,25 @@ def setup(no_interactive, only_ui):
     _setup(no_interactive=no_interactive, only_ui=only_ui)
 
 
+@click.command()
+@click.argument('username')
+@click.argument('host')
+@click.argument('tenant')
+def set_user_tenant(username, host, tenant):
+    """Assign a user and host to a specific tenant"""
+
+    from sortinghat.core.models import Tenant
+
+    try:
+        user = get_user_model().objects.get(username=username)
+    except exceptions.ObjectDoesNotExist:
+        raise click.ClickException(f"User '{username}' does not exist.")
+
+    Tenant.objects.update_or_create(user=user, host=host,
+                                    defaults={'database': tenant})
+    click.echo(f"User '{username}' at '{host}' assigned to '{tenant}'")
+
+
 def _setup(no_interactive, only_ui):
     env = os.environ
     env_vars = False
@@ -117,10 +138,12 @@ def _setup(no_interactive, only_ui):
         click.secho("SortingHat UI deployed. Exiting.", fg='bright_cyan')
         return
 
-    _create_database()
-    _setup_database()
-    _setup_database_superuser(no_interactive)
-    _setup_group_permissions()
+    for database in settings.DATABASES:
+        _create_database(database=database)
+        _setup_database(database=database)
+        if database == 'default':
+            _setup_database_superuser(no_interactive, database=database)
+            _setup_group_permissions(database=database)
 
     click.secho("\nSortingHat configuration completed", fg='bright_cyan')
 
@@ -140,7 +163,8 @@ def upgrade(no_database):
     update_database = not no_database
 
     if update_database:
-        _setup_database()
+        for database in settings.DATABASES:
+            _setup_database(database=database)
 
     _install_static_files()
 
@@ -154,7 +178,6 @@ def migrate_old_database(no_interactive):
     """Migrate SortingHat 0.7 database schema to 0.8 and all the data"""
 
     import MySQLdb
-    from django.conf import settings
     from .utils.create_sh_0_7_fixture import create_sh_fixture
 
     def _database_table_exists(db_params, table):
@@ -192,28 +215,29 @@ def migrate_old_database(no_interactive):
             msg = f"Error in backup database '{from_db}': {exc}."
             raise click.ClickException(msg)
 
-    db_params = settings.DATABASES['default']
+    for database in settings.DATABASES:
+        db_params = settings.DATABASES[database]
 
-    if not _database_table_exists(db_params, 'matching_blacklist'):
-        click.echo("SortingHat database schema is >= 0.8. Done.")
-        return
+        if not _database_table_exists(db_params, 'matching_blacklist'):
+            click.echo("SortingHat database schema is >= 0.8. Done.")
+            return
 
-    click.secho("Migrate 0.7.X SortingHat database schema ...", fg='bright_cyan')
+        click.secho("Migrate 0.7.X SortingHat database schema ...", fg='bright_cyan')
 
-    backup_db_name = f"{db_params['NAME']}_backup"
+        backup_db_name = f"{db_params['NAME']}_backup"
 
-    with open('/tmp/sortinghat_0_7_fixture.json', 'w') as output_fh:
-        create_sh_fixture(db_host=db_params['HOST'],
-                          db_port=int(db_params['PORT']),
-                          db_user=db_params['USER'],
-                          db_password=db_params['PASSWORD'],
-                          database=db_params['NAME'],
-                          output_fh=output_fh)
+        with open('/tmp/sortinghat_0_7_fixture.json', 'w') as output_fh:
+            create_sh_fixture(db_host=db_params['HOST'],
+                              db_port=int(db_params['PORT']),
+                              db_user=db_params['USER'],
+                              db_password=db_params['PASSWORD'],
+                              database=db_params['NAME'],
+                              output_fh=output_fh)
 
-    _create_database(backup_db_name)
-    _backup_tables(db_params, db_params['NAME'], backup_db_name)
-    _setup(no_interactive, False)
-    management.call_command('loaddata', '/tmp/sortinghat_0_7_fixture.json')
+        _create_database(database=database, db_name=backup_db_name)
+        _backup_tables(db_params, db_params['NAME'], backup_db_name)
+        _setup(no_interactive, False)
+        management.call_command('loaddata', '/tmp/sortinghat_0_7_fixture.json', database=database)
 
     click.echo("Migration completed!")
 
@@ -272,14 +296,13 @@ def create_user(username, is_admin, no_interactive):
         sys.exit(1)
 
 
-def _create_database(db_name=None):
+def _create_database(database='default', db_name=None):
     """Create an empty database."""
 
     import MySQLdb
-    from django.conf import settings
 
-    db_params = settings.DATABASES['default']
-    database = db_name if db_name else db_params['NAME']
+    db_params = settings.DATABASES[database]
+    db_name = db_name if db_name else db_params['NAME']
 
     click.secho("## SortingHat database creation\n", fg='bright_cyan')
 
@@ -291,35 +314,35 @@ def _create_database(db_name=None):
             port=int(db_params['PORT'])
         ).cursor()
         cursor.execute(
-            f"CREATE DATABASE IF NOT EXISTS {database} "
+            f"CREATE DATABASE IF NOT EXISTS {db_name} "
             "CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_520_ci;"
         )
     except MySQLdb.DatabaseError as exc:
-        msg = f"Error creating database '{database}': {exc}."
+        msg = f"Error creating database '{db_name}' for '{database}': {exc}."
         raise click.ClickException(msg)
 
-    click.echo(f"SortingHat database '{database}' created.\n")
+    click.echo(f"SortingHat database '{db_name}' for '{database}' created.\n")
 
 
-def _setup_database():
+def _setup_database(database='default'):
     """Apply migrations and fixtures to the database."""
 
-    click.secho("## SortingHat database setup\n", fg='bright_cyan')
+    click.secho(f"## SortingHat database setup for {database}\n", fg='bright_cyan')
 
-    management.call_command('migrate')
+    management.call_command('migrate', database=database)
 
     with importlib_resources.path('sortinghat.core.fixtures', 'countries.json') as p:
         fixture_countries_path = p
 
-    management.call_command('loaddata', fixture_countries_path)
+    management.call_command('loaddata', fixture_countries_path, database=database)
 
     click.echo()
 
 
-def _setup_database_superuser(no_interactive=False):
+def _setup_database_superuser(no_interactive=False, database='default'):
     """Create database superuser."""
 
-    click.secho("## SortingHat superuser configuration\n", fg='bright_cyan')
+    click.secho(f"## SortingHat superuser configuration for {database}\n", fg='bright_cyan')
 
     env = os.environ
     kwargs = {}
@@ -330,15 +353,16 @@ def _setup_database_superuser(no_interactive=False):
         env['DJANGO_SUPERUSER_EMAIL'] = 'noreply@localhost'
         kwargs['interactive'] = False
 
+    kwargs['database'] = database
     management.call_command('createsuperuser', **kwargs)
 
 
-def _setup_group_permissions():
+def _setup_group_permissions(database='default'):
     """Create permission groups."""
 
-    click.secho("## SortingHat groups creation\n", fg='bright_cyan')
+    click.secho(f"## SortingHat groups creation for {database}\n", fg='bright_cyan')
 
-    management.call_command('create_groups')
+    management.call_command('create_groups', database=database)
 
     click.echo("SortingHat groups created.\n")
 
@@ -371,3 +395,4 @@ sortinghat_admin.add_command(setup)
 sortinghat_admin.add_command(upgrade)
 sortinghat_admin.add_command(migrate_old_database)
 sortinghat_admin.add_command(create_user)
+sortinghat_admin.add_command(set_user_tenant)

@@ -228,6 +228,26 @@ Please update your database running the following command:
 $ sortinghat-admin --config sortinghat.config.settings migrate-old-database
 ```
 
+## Multi-tenancy
+
+SortingHat allows hosting multiple instances with a single service having each
+instance's data isolated in different databases.
+
+To enable this feature follow these guidelines:
+- Set `MULTI_TENANT` settings to `True`.
+- Define a list of tenants using the configuration file `sortinghat/config/tenants.json`. 
+You can use a different json file using the environment variable 
+`SORTINGHAT_MULTI_TENANT_LIST_PATH`
+- Assign users to tenants with the following command:
+  `sortinghat-admin set-user-tenant username host tenant`
+
+There are some limitations:
+- `default` database is only used to store users information and relations between
+users and databases, it won't store anything else related with SortingHat models.
+- Usernames are shared across all instances, which means that it is not possible
+to have the same username with two different passwords in different instances.
+
+
 ## Running tests
 
 SortingHat comes with a comprehensive list of unit tests for both 
@@ -236,6 +256,7 @@ frontend and backend.
 #### Backend test suite
 ```
 (.venv)$ ./manage.py test --settings=config.settings.testing
+(.venv)$ ./manage.py test --settings=config.settings.testing_tenant
 ```
 
 #### Frontend test suite

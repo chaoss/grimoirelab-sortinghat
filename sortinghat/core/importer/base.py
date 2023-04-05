@@ -24,7 +24,7 @@ import logging
 from datetime import datetime, timedelta, timezone
 from django_rq import get_queue
 
-from sortinghat.core import db, jobs, log
+from .. import db, jobs, log
 from .backend import find_import_identities_backends
 from ..errors import InvalidValueError
 from ..models import ImportIdentitiesTask
