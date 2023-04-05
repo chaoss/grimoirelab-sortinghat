@@ -181,23 +181,6 @@ const GET_JOBS = gql`
   }
 `;
 
-const GET_GROUPS = gql`
-  query getGroups($page: Int, $pageSize: Int, $filters: GroupFilterType) {
-    groups(page: $page, pageSize: $pageSize, filters: $filters) {
-      entities {
-        id
-        name
-        numchild
-      }
-      pageInfo {
-        page
-        numPages
-        totalResults
-      }
-    }
-  }
-`;
-
 const GET_TOTAL_RECOMMENDED_MERGES = gql`
   query recommendedMergeNumber {
     recommendedMerge {
@@ -374,19 +357,6 @@ const getTeams = (apollo, filters) => {
   return response;
 };
 
-const getGroups = (apollo, page, pageSize, filters) => {
-  let response = apollo.query({
-    query: GET_GROUPS,
-    variables: {
-      page: page,
-      pageSize: pageSize,
-      filters: filters,
-    },
-    fetchPolicy: "no-cache",
-  });
-  return response;
-};
-
 const getRecommendedMergesCount = (apollo) => {
   return apollo.query({
     query: GET_TOTAL_RECOMMENDED_MERGES,
@@ -432,7 +402,6 @@ export {
   getPaginatedOrganizations,
   getTeams,
   getJobs,
-  getGroups,
   getRecommendedMergesCount,
   getPaginatedMergeRecommendations,
   getImporterTypes,

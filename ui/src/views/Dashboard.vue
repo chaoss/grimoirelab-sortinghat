@@ -61,20 +61,6 @@
           @updateWorkspace="updateWorkspace"
           ref="organizations"
         />
-
-        <organizations-table
-          name="Groups"
-          :fetch-page="getGroupsPage"
-          :enroll="enroll"
-          :add-organization="addOrganization"
-          :delete-organization="deleteTeam"
-          :add-team="addTeam"
-          :delete-team="deleteTeam"
-          :fetch-teams="fetchTeams"
-          is-group
-          @getEnrollments="getEnrollments"
-          ref="teams"
-        />
       </v-col>
     </v-row>
     <v-snackbar v-model="snackbar">
@@ -90,7 +76,6 @@ import {
   getPaginatedIndividuals,
   getPaginatedOrganizations,
   getTeams,
-  getGroups,
   getPaginatedMergeRecommendations,
   getRecommendedMergesCount,
 } from "../apollo/queries";
@@ -159,10 +144,6 @@ export default {
         filters
       );
       return response.data.organizations;
-    },
-    async getGroupsPage(page, items, filters) {
-      const response = await getGroups(this.$apollo, page, items, filters);
-      return response.data.groups;
     },
     async fetchTeams(filters) {
       const response = await getTeams(this.$apollo, filters);
