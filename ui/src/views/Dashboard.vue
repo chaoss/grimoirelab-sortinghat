@@ -17,36 +17,37 @@
       @updateStore="saveWorkspace($event)"
     />
     <v-row>
-      <individuals-table
-        class="individuals"
-        :fetch-page="getIndividualsPage"
-        :delete-item="deleteItem"
-        :merge-items="mergeItems"
-        :unmerge-items="unmergeItems"
-        :move-item="moveItem"
-        :highlight-individual="highlightInTable"
-        :add-identity="addIdentity"
-        :updateProfile="updateProfile"
-        :enroll="enroll"
-        :fetch-organizations="getOrganizationsPage"
-        :get-countries="getCountries"
-        :lock-individual="lockIndividual"
-        :set-filters="filters"
-        :unlock-individual="unlockIndividual"
-        :withdraw="withdraw"
-        :update-enrollment="updateEnrollment"
-        @saveIndividuals="addSavedIndividuals"
-        @updateOrganizations="updateOrganizations"
-        @updateWorkspace="updateWorkspace"
-        @highlight="highlightIndividual($event, 'highlightInWorkspace', true)"
-        @stopHighlight="
-          highlightIndividual($event, 'highlightInWorkspace', false)
-        "
-        ref="table"
-      />
-      <v-col class="pa-0 organizations">
+      <v-col lg="8" sm="12" class="pa-0 mr-lg-8">
+        <individuals-table
+          class="individuals"
+          :fetch-page="getIndividualsPage"
+          :delete-item="deleteItem"
+          :merge-items="mergeItems"
+          :unmerge-items="unmergeItems"
+          :move-item="moveItem"
+          :highlight-individual="highlightInTable"
+          :add-identity="addIdentity"
+          :updateProfile="updateProfile"
+          :enroll="enroll"
+          :fetch-organizations="getOrganizationsPage"
+          :get-countries="getCountries"
+          :lock-individual="lockIndividual"
+          :set-filters="filters"
+          :unlock-individual="unlockIndividual"
+          :withdraw="withdraw"
+          :update-enrollment="updateEnrollment"
+          @saveIndividuals="addSavedIndividuals"
+          @updateOrganizations="updateOrganizations"
+          @updateWorkspace="updateWorkspace"
+          @highlight="highlightIndividual($event, 'highlightInWorkspace', true)"
+          @stopHighlight="
+            highlightIndividual($event, 'highlightInWorkspace', false)
+          "
+          ref="table"
+        />
+      </v-col>
+      <v-col class="pa-0 organizations mt-8 mt-lg-0">
         <organizations-table
-          class="mb-6"
           :fetch-page="getOrganizationsPage"
           :enroll="enroll"
           :add-organization="addOrganization"
@@ -354,26 +355,6 @@ export default {
 .row {
   justify-content: space-between;
   margin: 32px;
-}
-.individuals {
-  width: 60%;
-  height: max-content;
-  flex-grow: 1;
-
-  .container {
-    max-width: 100%;
-  }
-}
-.organizations {
-  max-width: 30%;
-  min-width: 450px;
-  align-self: flex-start;
-  margin-left: 32px;
-
-  @media (max-width: 960px) {
-    max-width: 100%;
-    margin: 32px 0 0 0;
-  }
 }
 h4 {
   padding: 12px 26px;

@@ -1,0 +1,10 @@
+---
+title: Groups table removed from the UI
+category: removed
+author: Eva Millán <evamillan@bitergia.com>
+issue: null
+notes: |
+  Groups and organizations are very similar, and having both tables
+  in the dashboard can be confusing to users.
+  To simplify the view, the table is removed from the user interface,
+  but groups remain available through the API.
