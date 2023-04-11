@@ -23,7 +23,7 @@
         <span>Enrollments</span>
       </v-tooltip>
     </td>
-    <td class="text-right">
+    <td class="text-right" width="140">
       <v-btn v-if="isEditable" icon @click.stop="$emit('edit')">
         <v-icon small> mdi-lead-pencil </v-icon>
       </v-btn>

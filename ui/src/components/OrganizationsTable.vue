@@ -58,6 +58,7 @@
       hide-default-footer
       :headers="headers"
       :items="items"
+      :items-per-page="itemsPerPage"
       :expanded.sync="expandedItems"
       item-key="id"
       :page.sync="page"
