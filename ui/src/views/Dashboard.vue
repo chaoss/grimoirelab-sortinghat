@@ -179,6 +179,9 @@ export default {
     },
     updateOrganizations() {
       this.$refs.organizations.getTableItems();
+
+      const openOrgs = this.$refs.organizations.$refs;
+      Object.keys(openOrgs).forEach((key) => openOrgs[key].reloadTeams());
     },
     updateTable() {
       this.$refs.table.queryIndividuals();

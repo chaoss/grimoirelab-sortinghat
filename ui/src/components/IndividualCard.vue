@@ -182,8 +182,9 @@ export default {
       }
     },
     enrollIndividual(event) {
-      const organization = event.dataTransfer.getData("organization");
-      this.$emit("enroll", organization);
+      const group = event.dataTransfer.getData("group");
+      const parentOrg = event.dataTransfer.getData("parentorg");
+      this.$emit("enroll", { group, parentOrg });
     },
     isDropZone(event, isDragging) {
       const types = event.dataTransfer.types;

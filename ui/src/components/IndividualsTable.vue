@@ -252,8 +252,9 @@
       v-if="teamModal.isOpen"
       :is-open.sync="teamModal.isOpen"
       :organization="teamModal.organization"
+      :team="teamModal.team"
       :uuid="teamModal.uuid"
-      :enroll="enroll"
+      :enroll="enrollIndividual"
       @updateTable="queryIndividuals"
     />
 
@@ -384,11 +385,6 @@ export default {
       itemsPerPage: 10,
       allSelected: false,
       orderBy: null,
-      teamModal: {
-        isOpen: false,
-        organization: null,
-        uuid: null,
-      },
     };
   },
   computed: {
@@ -645,9 +641,7 @@ export default {
             update: formatIndividuals([response.data.withdraw.individual]),
           });
           this.$logger.debug("Removed affiliation", { uuid, ...group });
-          if (!group.parentOrg) {
-            this.$emit("updateOrganizations");
-          }
+          this.$emit("updateOrganizations");
         }
       } catch (error) {
         Object.assign(this.dialog, {
@@ -713,6 +707,7 @@ export default {
       const { organization, uuid } = data;
       Object.assign(this.teamModal, {
         isOpen: true,
+        team: null,
         organization,
         uuid,
       });

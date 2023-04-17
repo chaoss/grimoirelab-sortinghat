@@ -67,17 +67,17 @@
         <organization-entry
           :name="item.name"
           :enrollments="getEnrolledIndividuals(item.enrollments)"
-          :domains="item.domains"
           :is-expanded="isExpanded"
           :is-editable="!isGroup"
           draggable
-          v-on:dblclick.native="expand(!isExpanded)"
+          @dblclick.native="expand(!isExpanded)"
           @dragstart.native="startDrag(item, $event)"
           @expand="expand(!isExpanded)"
           @enroll="confirmEnroll"
           @edit="openModal(item)"
           @delete="confirmDelete(item.name)"
           @getEnrollments="$emit('getEnrollments', { enrollment: item.name })"
+          @addTeam="createTeam(item.name, $event)"
         />
       </template>
       <template v-slot:expanded-item="{ item }">
@@ -88,7 +88,9 @@
           :add-team="addTeam"
           :delete-team="deleteTeam"
           :fetch-teams="fetchTeams"
+          @enroll="confirmEnroll"
           @getEnrollments="$emit('getEnrollments', $event)"
+          :ref="item.id"
         />
       </template>
     </v-data-table>
@@ -286,23 +288,24 @@ export default {
       Object.assign(this.dialog, {
         open: true,
         title: `Affiliate the selected individuals?`,
-        text: `Individuals will be enrolled in ${event.organization}`,
+        text: `Individuals will be enrolled in ${event.group}`,
         showDates: true,
         action: () =>
           this.enrollIndividuals(
             event.uuids,
-            event.organization,
+            event.group,
             this.dialog.dateFrom,
-            this.dialog.dateTo
+            this.dialog.dateTo,
+            event.parentOrg
           ),
       });
     },
-    async enrollIndividuals(uuids, organization, dateFrom, dateTo) {
+    async enrollIndividuals(uuids, group, dateFrom, dateTo, parentOrg) {
       this.closeDialog();
       try {
         const response = await Promise.all(
           uuids.map((individual) =>
-            this.enroll(individual, organization, dateFrom, dateTo)
+            this.enroll(individual, group, dateFrom, dateTo, parentOrg)
           )
         );
         if (response) {
@@ -314,11 +317,18 @@ export default {
           });
           this.$emit("updateIndividuals");
           this.$logger.debug("Enrolled individuals", {
-            organization,
+            group,
             uuids,
             dateFrom,
             dateTo,
+            parentOrg,
           });
+        }
+        if (parentOrg) {
+          const updatedItem = this.expandedItems.find(
+            (item) => item.name === parentOrg
+          );
+          this.$refs[updatedItem.id].reloadTeams();
         }
       } catch (error) {
         Object.assign(this.dialog, {
@@ -328,10 +338,11 @@ export default {
           action: null,
         });
         this.$logger.error(`Error enrolling individuals: ${error}`, {
-          organization,
+          group,
           uuids,
           dateFrom,
           dateTo,
+          parentOrg,
         });
       }
     },
@@ -377,7 +388,7 @@ export default {
       this.selectedOrganization = item.name;
       event.dataTransfer.dropEffect = "move";
       event.dataTransfer.setData("type", "enrollFromOrganization");
-      event.dataTransfer.setData("organization", item.name);
+      event.dataTransfer.setData("group", item.name);
       const dragImage = document.querySelector(".dragged-organization");
       event.dataTransfer.setDragImage(dragImage, 0, 0);
     },
@@ -431,6 +442,27 @@ export default {
       );
 
       return uniqueIndividuals.size;
+    },
+    async createTeam(organization, team) {
+      try {
+        const response = await this.addTeam(team, organization);
+        if (!response.errors) {
+          const updatedItem = this.expandedItems.find(
+            (item) => item.name === organization
+          );
+          if (updatedItem) {
+            this.$refs[updatedItem.id].reloadTeams();
+          }
+        }
+      } catch (error) {
+        Object.assign(this.dialog, {
+          isOpen: true,
+          title: "Error",
+          text: this.$getErrorMessage(error),
+          action: null,
+        });
+        this.$logger.error(`Error creating team: ${error}`);
+      }
     },
   },
 };

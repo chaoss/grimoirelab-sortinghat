@@ -2,12 +2,15 @@
   <v-dialog v-model="isOpen" persistent max-width="650">
     <v-card class="section">
       <v-card-title class="header">
-        <span class="title">Add to {{ organization }} team</span>
+        <span v-if="team" class="title">
+          Add to {{ team }} in {{ organization }}
+        </span>
+        <span v-else class="title">Add to {{ organization }} team</span>
       </v-card-title>
       <v-card-text class="mt-3">
         <v-form ref="form">
           <v-row>
-            <v-col cols="4">
+            <v-col v-if="!team" cols="4">
               <v-text-field
                 v-model="form.team"
                 :rules="validations.required"
@@ -16,7 +19,7 @@
                 dense
               />
             </v-col>
-            <v-col cols="4">
+            <v-col :cols="team ? 6 : 4">
               <date-input
                 v-model="form.dateFrom"
                 :max="form.dateTo"
@@ -24,7 +27,7 @@
                 outlined
               />
             </v-col>
-            <v-col cols="4">
+            <v-col :cols="team ? 6 : 4">
               <date-input
                 v-model="form.dateTo"
                 :min="form.dateFrom"
@@ -47,7 +50,7 @@
           <v-btn
             depressed
             color="primary"
-            :disabled="!form.team"
+            :disabled="!team && !form.team"
             @click.prevent="onSave"
           >
             Save
@@ -75,6 +78,10 @@ export default {
       required: true,
     },
     organization: {
+      type: String,
+      required: false,
+    },
+    team: {
       type: String,
       required: false,
     },
@@ -117,9 +124,10 @@ export default {
       }
 
       try {
+        const group = this.team || this.form.team;
         const response = await this.enroll(
           this.uuid,
-          this.form.team,
+          group,
           this.form.dateFrom,
           this.form.dateTo,
           this.organization
@@ -128,7 +136,7 @@ export default {
         if (response && !response.errors) {
           this.$logger.debug(`Enrolled individual ${this.uuid}`, {
             uuid: this.uuid,
-            group: this.form.team,
+            group: group,
             parentOrg: this.organization,
             fromDate: this.form.dateFrom,
             toDate: this.form.dateTo,

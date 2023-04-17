@@ -128,6 +128,15 @@
       :uuid="enrollmentModal.uuid"
       :enroll="enrollIndividual"
     />
+
+    <team-enroll-modal
+      v-if="teamModal.isOpen"
+      :is-open.sync="teamModal.isOpen"
+      :organization="teamModal.organization"
+      :team="teamModal.team"
+      :uuid="teamModal.uuid"
+      :enroll="enrollIndividual"
+    />
   </v-sheet>
 </template>
 
@@ -140,11 +149,14 @@ import {
 import { enrollMixin } from "../mixins/enroll";
 import IndividualCard from "./IndividualCard.vue";
 import EnrollModal from "./EnrollModal.vue";
+import TeamEnrollModal from "./TeamEnrollModal.vue";
+
 export default {
   name: "WorkSpace",
   components: {
     IndividualCard,
     EnrollModal,
+    TeamEnrollModal,
   },
   mixins: [enrollMixin],
   props: {

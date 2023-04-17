@@ -13,6 +13,7 @@ const template = `
     <team-enroll-modal
       :is-open.sync='isOpen'
       :organization='organization'
+      :team="team"
       :enroll='enroll'
       uuid="123"
     />
@@ -25,10 +26,34 @@ export const Default = () => ({
   data: () => ({
     isOpen: false,
     organization: "Hogwarts",
+    team: null,
   }),
   methods: {
     enroll() {
-      return true;
+      return {
+        data: {
+          enroll: {},
+        },
+      };
+    },
+  },
+});
+
+export const WithTeam = () => ({
+  components: { TeamEnrollModal },
+  template: template,
+  data: () => ({
+    isOpen: false,
+    organization: "Hogwarts",
+    team: "Griffindor",
+  }),
+  methods: {
+    enroll() {
+      return {
+        data: {
+          enroll: {},
+        },
+      };
     },
   },
 });
@@ -39,10 +64,11 @@ export const ErrorOnSave = () => ({
   data: () => ({
     isOpen: false,
     organization: "Hogwarts",
+    team: null,
   }),
   methods: {
     enroll() {
-      throw "Example error";
+      throw new Error("Example error");
     },
   },
 });

@@ -247,8 +247,9 @@ export default {
       this.$emit("move", { fromUuid: uuid, toUuid: this.uuid });
     },
     enrollIndividual(event) {
-      const organization = event.dataTransfer.getData("organization");
-      this.$emit("enroll", organization);
+      const group = event.dataTransfer.getData("group");
+      const parentOrg = event.dataTransfer.getData("parentorg");
+      this.$emit("enroll", { group, parentOrg });
     },
     handleDrag(event, isDragging) {
       const types = event.dataTransfer.types;
