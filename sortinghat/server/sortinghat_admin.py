@@ -19,16 +19,19 @@
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
 
+import getpass
 import logging
 import os
+import sys
 
 import click
 
 import importlib_resources
+from django.contrib.auth import get_user_model
 
 from django.core.wsgi import get_wsgi_application
-from django.core import management
-
+from django.core import management, exceptions
+from django.db import IntegrityError
 
 logger = logging.getLogger('main')
 
@@ -215,6 +218,60 @@ def migrate_old_database(no_interactive):
     click.echo("Migration completed!")
 
 
+@click.command()
+@click.option('--username', help="Specifies the login for the user.")
+@click.option('--is-admin', is_flag=True, default=False,
+              help="Specifies if the user is superuser.")
+@click.option('--no-interactive', is_flag=True, default=False,
+              help="Run the command in no interactive mode.")
+def create_user(username, is_admin, no_interactive):
+    """Create a new user given a username and password"""
+
+    try:
+        if no_interactive:
+            # Use password from environment variable, if provided.
+            password = os.environ.get('SORTINGHAT_USER_PASSWORD')
+            if not password or not password.strip():
+                raise click.ClickException("Password cannot be empty.")
+            # Use username from environment variable, if not provided in options.
+            if username is None:
+                username = os.environ.get('SORTINGHAT_USER_USERNAME')
+            error = _validate_username(username)
+            if error:
+                click.ClickException(error)
+        else:
+            # Get username
+            if username is None:
+                username = input("Username: ")
+            error = _validate_username(username)
+            if error:
+                click.ClickException(error)
+            # Prompt for a password
+            password = getpass.getpass()
+            password2 = getpass.getpass('Password (again): ')
+            if password != password2:
+                raise click.ClickException("Error: Your passwords didn't match.")
+            if password.strip() == '':
+                raise click.ClickException("Error: Blank passwords aren't allowed.")
+
+        extra_fields = {}
+        if is_admin:
+            extra_fields['is_staff'] = True
+            extra_fields['is_superuser'] = True
+
+        get_user_model().objects.create_user(username=username,
+                                             password=password,
+                                             **extra_fields)
+
+        click.echo("User created successfully.")
+    except KeyboardInterrupt:
+        click.echo("\nOperation cancelled.")
+        sys.exit(1)
+    except IntegrityError:
+        click.echo(f"User '{username}' already exists.")
+        sys.exit(1)
+
+
 def _create_database(db_name=None):
     """Create an empty database."""
 
@@ -298,6 +355,19 @@ def _install_static_files():
     click.echo()
 
 
+def _validate_username(username):
+    """Check if the username is valid and return the error"""
+
+    if not username:
+        return "Username cannot be empty."
+    username_field = get_user_model()._meta.get_field(get_user_model().USERNAME_FIELD)
+    try:
+        username_field.clean(username, None)
+    except exceptions.ValidationError as e:
+        return '; '.join(e.messages)
+
+
 sortinghat_admin.add_command(setup)
 sortinghat_admin.add_command(upgrade)
 sortinghat_admin.add_command(migrate_old_database)
+sortinghat_admin.add_command(create_user)

@@ -189,6 +189,21 @@ or affiliation. To start a worker run the command:
 $ sortinghatw --config sortinghat.config.settings
 ```
 
+## Create new accounts
+To create new accounts for SortingHat use the following command:
+
+```
+(.venv)$ sortinghat-admin create-user
+
+Usage: sortinghat-admin create-user [OPTIONS]
+
+  Create a new user given a username and password
+
+Options:
+  --username TEXT   Specifies the login for the user.
+  --is-admin        Specifies if the user is superuser.
+  --no-interactive  Run the command in no interactive mode.
+```
 
 ## Compatibility between versions
 SortingHat 0.7.x is no longer supported. Any database using this version will not work.
