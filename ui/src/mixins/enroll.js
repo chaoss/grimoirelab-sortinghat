@@ -11,27 +11,51 @@ const enrollMixin = {
         organization: null,
         uuid: null,
       },
+      teamModal: {
+        isOpen: false,
+        organization: null,
+        team: null,
+        uuid: null,
+        enrollments: null,
+      },
     };
   },
   methods: {
-    confirmEnroll(uuid, group) {
-      Object.assign(this.enrollmentModal, {
-        open: true,
-        title: `Affiliate individual to ${
-          group ? group + "?" : "an organization"
-        }`,
-        organization: group,
-        uuid: uuid,
-        text: null,
-        dateFrom: null,
-        dateTo: null,
-        showDates: true,
-        action: () => this.enrollIndividual(),
-      });
+    confirmEnroll(individual, event = {}) {
+      const { group, parentOrg } = event;
+      if (parentOrg) {
+        Object.assign(this.teamModal, {
+          isOpen: true,
+          organization: parentOrg,
+          team: group,
+          uuid: individual.uuid,
+          enrollments: individual.enrollments,
+        });
+      } else {
+        Object.assign(this.enrollmentModal, {
+          open: true,
+          title: `Affiliate individual to ${
+            group ? group + "?" : "an organization"
+          }`,
+          organization: group,
+          uuid: individual.uuid,
+          text: null,
+          dateFrom: null,
+          dateTo: null,
+          showDates: true,
+          action: () => this.enrollIndividual(),
+        });
+      }
     },
-    async enrollIndividual(uuid, group, dateFrom, dateTo) {
+    async enrollIndividual(uuid, group, dateFrom, dateTo, parentOrg) {
       this.closeDialog();
-      const response = await this.enroll(uuid, group, dateFrom, dateTo);
+      const response = await this.enroll(
+        uuid,
+        group,
+        dateFrom,
+        dateTo,
+        parentOrg
+      );
       if (response) {
         this.$emit("updateWorkspace", {
           update: formatIndividuals([response.data.enroll.individual]),
@@ -51,6 +75,13 @@ const enrollMixin = {
           uuid,
           dateFrom,
           dateTo,
+          parentOrg,
+        });
+        Object.assign(this.teamModal, {
+          isOpen: false,
+          organization: null,
+          team: null,
+          uuid: null,
         });
       }
     },

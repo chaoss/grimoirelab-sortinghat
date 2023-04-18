@@ -14,7 +14,9 @@
       :compact="compact"
       :is-locked="isLocked"
       @openEnrollmentModal="$emit('openEnrollmentModal', uuid)"
-      @openTeamModal="$emit('openTeamModal', { uuid, organization: $event })"
+      @openTeamModal="
+        $emit('openTeamModal', { uuid, organization: $event, enrollments })
+      "
       @updateEnrollment="
         $emit('updateEnrollment', Object.assign($event, { uuid: uuid }))
       "
