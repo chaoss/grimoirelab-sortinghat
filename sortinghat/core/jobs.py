@@ -32,6 +32,7 @@ import rq
 from .db import find_individual_by_uuid, find_organization
 from .api import enroll, merge, update_profile
 from .context import SortingHatContext
+from .decorators import job_using_tenant
 from .errors import BaseError, NotFoundError, EqualIndividualError
 from .importer.backend import find_import_identities_backends
 from .log import TransactionsLog
@@ -75,14 +76,23 @@ def find_job(job_id):
     return jobs[0]
 
 
-def get_jobs():
+def get_jobs(tenant=None):
     """Get a list of all jobs
 
     This function returns a list of all jobs found in the main queue and its
-    registries, sorted by date.
+    registries, sorted by date. If a tenant is specified, filter the jobs for
+    that tenant.
+
+    :param tenant: filter the jobs for a specific tenant
 
     :returns: a list of Job instances
     """
+    def job_in_tenant(job, tenant):
+        ctx = job.kwargs.get('ctx')
+        if not ctx:
+            ctx = job.args[0]
+        return tenant == ctx.tenant
+
     logger.debug("Retrieving list of jobs ...")
 
     queue = django_rq.get_queue()
@@ -102,6 +112,8 @@ def get_jobs():
                       for id
                       in queue.scheduled_job_registry.get_job_ids()]
     jobs = (queue.jobs + started_jobs + deferred_jobs + finished_jobs + failed_jobs + scheduled_jobs)
+    if tenant:
+        jobs = (job for job in jobs if job_in_tenant(job, tenant))
 
     sorted_jobs = sorted(jobs, key=lambda x: x.enqueued_at if x.enqueued_at else datetime.datetime.utcnow())
 
@@ -111,6 +123,7 @@ def get_jobs():
 
 
 @django_rq.job
+@job_using_tenant
 def recommend_affiliations(ctx, uuids=None):
     """Generate a list of affiliation recommendations from a set of individuals.
 
@@ -147,7 +160,7 @@ def recommend_affiliations(ctx, uuids=None):
 
     # Create a new context to include the reference
     # to the job id that will perform the transaction.
-    job_ctx = SortingHatContext(ctx.user, job.id)
+    job_ctx = SortingHatContext(ctx.user, job.id, ctx.tenant)
 
     # Create an empty transaction to log which job
     # will generate the enroll transactions.
@@ -180,6 +193,7 @@ def recommend_affiliations(ctx, uuids=None):
 
 
 @django_rq.job
+@job_using_tenant
 def recommend_matches(ctx, source_uuids, target_uuids, criteria, exclude=True, verbose=False):
     """Generate a list of affiliation recommendations from a set of individuals.
 
@@ -223,7 +237,7 @@ def recommend_matches(ctx, source_uuids, target_uuids, criteria, exclude=True, v
 
     # Create a new context to include the reference
     # to the job id that will perform the transaction.
-    job_ctx = SortingHatContext(ctx.user, job.id)
+    job_ctx = SortingHatContext(ctx.user, job.id, ctx.tenant)
 
     trxl = TransactionsLog.open('recommend_matches', job_ctx)
 
@@ -253,6 +267,7 @@ def recommend_matches(ctx, source_uuids, target_uuids, criteria, exclude=True, v
 
 
 @django_rq.job
+@job_using_tenant
 def recommend_gender(ctx, uuids, exclude=True, no_strict_matching=False):
     """Generate a list of gender recommendations from a set of individuals.
 
@@ -280,7 +295,7 @@ def recommend_gender(ctx, uuids, exclude=True, no_strict_matching=False):
 
     engine = RecommendationEngine()
 
-    job_ctx = SortingHatContext(ctx.user, job.id)
+    job_ctx = SortingHatContext(ctx.user, job.id, ctx.tenant)
 
     trxl = TransactionsLog.open('recommend_gender', job_ctx)
 
@@ -315,6 +330,7 @@ def recommend_gender(ctx, uuids, exclude=True, no_strict_matching=False):
 
 
 @django_rq.job
+@job_using_tenant
 def affiliate(ctx, uuids=None):
     """Affiliate a set of individuals using recommendations.
 
@@ -354,7 +370,7 @@ def affiliate(ctx, uuids=None):
 
     # Create a new context to include the reference
     # to the job id that will perform the transaction.
-    job_ctx = SortingHatContext(ctx.user, job.id)
+    job_ctx = SortingHatContext(ctx.user, job.id, ctx.tenant)
 
     # Create an empty transaction to log which job
     # will generate the enroll transactions.
@@ -382,6 +398,7 @@ def affiliate(ctx, uuids=None):
 
 
 @django_rq.job
+@job_using_tenant
 def unify(ctx, source_uuids, target_uuids, criteria, exclude=True):
     """Unify a set of individuals by merging them using matching recommendations.
 
@@ -447,7 +464,7 @@ def unify(ctx, source_uuids, target_uuids, criteria, exclude=True):
 
     # Create a new context to include the reference
     # to the job id that will perform the transaction.
-    job_ctx = SortingHatContext(ctx.user, job.id)
+    job_ctx = SortingHatContext(ctx.user, job.id, ctx.tenant)
 
     trxl = TransactionsLog.open('unify', job_ctx)
 
@@ -477,6 +494,7 @@ def unify(ctx, source_uuids, target_uuids, criteria, exclude=True):
 
 
 @django_rq.job
+@job_using_tenant
 def genderize(ctx, uuids=None, exclude=True, no_strict_matching=False):
     """Assign a gender to a set of individuals using recommendations.
 
@@ -518,7 +536,7 @@ def genderize(ctx, uuids=None, exclude=True, no_strict_matching=False):
 
     # Create a new context to include the reference
     # to the job id that will perform the transaction.
-    job_ctx = SortingHatContext(ctx.user, job.id)
+    job_ctx = SortingHatContext(ctx.user, job.id, ctx.tenant)
 
     # Create an empty transaction to log which job
     # will generate the enroll transactions.
@@ -547,6 +565,7 @@ def genderize(ctx, uuids=None, exclude=True, no_strict_matching=False):
 
 
 @django_rq.job
+@job_using_tenant
 def import_identities(ctx, backend_name, url, params):
     """Import identities to SortingHat.
 
@@ -573,7 +592,7 @@ def import_identities(ctx, backend_name, url, params):
 
     # Create a new context to include the reference
     # to the job id that will perform the transaction.
-    job_ctx = SortingHatContext(ctx.user, job.id)
+    job_ctx = SortingHatContext(ctx.user, job.id, ctx.tenant)
     trxl = TransactionsLog.open('import_identities', job_ctx)
 
     importer = klass(ctx=job_ctx, url=url, **params)

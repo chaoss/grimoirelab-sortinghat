@@ -44,6 +44,7 @@ from graphene_django.types import DjangoObjectType
 from grimoirelab_toolkit.datetime import (str_to_datetime,
                                           InvalidDateError)
 
+from .tenant import get_db_tenant
 from .api import (add_identity,
                   delete_identity,
                   update_profile,
@@ -641,7 +642,8 @@ class AddOrganization(graphene.Mutation):
     @check_auth
     def mutate(self, info, name):
         user = info.context.user
-        ctx = SortingHatContext(user)
+        tenant = get_db_tenant()
+        ctx = SortingHatContext(user=user, tenant=tenant)
 
         org = add_organization(ctx, name)
 
@@ -659,7 +661,8 @@ class DeleteOrganization(graphene.Mutation):
     @check_auth
     def mutate(self, info, name):
         user = info.context.user
-        ctx = SortingHatContext(user)
+        tenant = get_db_tenant()
+        ctx = SortingHatContext(user=user, tenant=tenant)
 
         org = delete_organization(ctx, name)
 
@@ -679,7 +682,8 @@ class AddTeam(graphene.Mutation):
     @check_auth
     def mutate(self, info, team_name, organization=None, parent_name=None):
         user = info.context.user
-        ctx = SortingHatContext(user)
+        tenant = get_db_tenant()
+        ctx = SortingHatContext(user=user, tenant=tenant)
 
         team = add_team(ctx, team_name, organization, parent_name)
 
@@ -698,7 +702,8 @@ class DeleteTeam(graphene.Mutation):
     @check_auth
     def mutate(self, info, team_name, organization=None):
         user = info.context.user
-        ctx = SortingHatContext(user)
+        tenant = get_db_tenant()
+        ctx = SortingHatContext(user=user, tenant=tenant)
 
         team = delete_team(ctx, team_name, organization)
 
@@ -718,7 +723,8 @@ class AddDomain(graphene.Mutation):
     @check_auth
     def mutate(self, info, organization, domain, is_top_domain=False):
         user = info.context.user
-        ctx = SortingHatContext(user)
+        tenant = get_db_tenant()
+        ctx = SortingHatContext(user=user, tenant=tenant)
 
         dom = add_domain(ctx,
                          organization,
@@ -739,7 +745,8 @@ class DeleteDomain(graphene.Mutation):
     @check_auth
     def mutate(self, info, domain):
         user = info.context.user
-        ctx = SortingHatContext(user)
+        tenant = get_db_tenant()
+        ctx = SortingHatContext(user=user, tenant=tenant)
 
         dom = delete_domain(ctx, domain)
 
@@ -764,7 +771,8 @@ class AddIdentity(graphene.Mutation):
                name=None, email=None, username=None,
                uuid=None):
         user = info.context.user
-        ctx = SortingHatContext(user)
+        tenant = get_db_tenant()
+        ctx = SortingHatContext(user=user, tenant=tenant)
 
         identity = add_identity(ctx,
                                 source,
@@ -790,7 +798,8 @@ class DeleteIdentity(graphene.Mutation):
     @check_auth
     def mutate(self, info, uuid):
         user = info.context.user
-        ctx = SortingHatContext(user)
+        tenant = get_db_tenant()
+        ctx = SortingHatContext(user=user, tenant=tenant)
 
         individual = delete_identity(ctx, uuid)
 
@@ -810,7 +819,8 @@ class Lock(graphene.Mutation):
     @check_auth
     def mutate(self, info, uuid):
         user = info.context.user
-        ctx = SortingHatContext(user)
+        tenant = get_db_tenant()
+        ctx = SortingHatContext(user=user, tenant=tenant)
 
         individual = lock(ctx, uuid)
 
@@ -830,7 +840,8 @@ class Unlock(graphene.Mutation):
     @check_auth
     def mutate(self, info, uuid):
         user = info.context.user
-        ctx = SortingHatContext(user)
+        tenant = get_db_tenant()
+        ctx = SortingHatContext(user=user, tenant=tenant)
 
         individual = unlock(ctx, uuid)
 
@@ -851,7 +862,8 @@ class UpdateProfile(graphene.Mutation):
     @check_auth
     def mutate(self, info, uuid, data):
         user = info.context.user
-        ctx = SortingHatContext(user)
+        tenant = get_db_tenant()
+        ctx = SortingHatContext(user=user, tenant=tenant)
 
         individual = update_profile(ctx, uuid, **data)
 
@@ -872,7 +884,8 @@ class MoveIdentity(graphene.Mutation):
     @check_auth
     def mutate(self, info, from_uuid, to_uuid):
         user = info.context.user
-        ctx = SortingHatContext(user)
+        tenant = get_db_tenant()
+        ctx = SortingHatContext(user=user, tenant=tenant)
 
         individual = move_identity(ctx, from_uuid, to_uuid)
 
@@ -893,7 +906,8 @@ class Merge(graphene.Mutation):
     @check_auth
     def mutate(self, info, from_uuids, to_uuid):
         user = info.context.user
-        ctx = SortingHatContext(user)
+        tenant = get_db_tenant()
+        ctx = SortingHatContext(user=user, tenant=tenant)
 
         individual = merge(ctx, from_uuids, to_uuid)
 
@@ -913,7 +927,8 @@ class UnmergeIdentities(graphene.Mutation):
     @check_auth
     def mutate(self, info, uuids):
         user = info.context.user
-        ctx = SortingHatContext(user)
+        tenant = get_db_tenant()
+        ctx = SortingHatContext(user=user, tenant=tenant)
 
         individuals = unmerge_identities(ctx, uuids)
         uuids = [individual.mk for individual in individuals]
@@ -942,7 +957,8 @@ class Enroll(graphene.Mutation):
                from_date=None, to_date=None,
                force=False):
         user = info.context.user
-        ctx = SortingHatContext(user)
+        tenant = get_db_tenant()
+        ctx = SortingHatContext(user=user, tenant=tenant)
 
         individual = enroll(ctx, uuid, group, parent_org=parent_org,
                             from_date=from_date, to_date=to_date,
@@ -968,7 +984,8 @@ class Withdraw(graphene.Mutation):
     def mutate(self, info, uuid, group, parent_org=None,
                from_date=None, to_date=None):
         user = info.context.user
-        ctx = SortingHatContext(user)
+        tenant = get_db_tenant()
+        ctx = SortingHatContext(user=user, tenant=tenant)
 
         individual = withdraw(ctx, uuid, group, parent_org=parent_org,
                               from_date=from_date, to_date=to_date)
@@ -998,7 +1015,8 @@ class UpdateEnrollment(graphene.Mutation):
                new_from_date=None, new_to_date=None,
                parent_org=None, force=True):
         user = info.context.user
-        ctx = SortingHatContext(user)
+        tenant = get_db_tenant()
+        ctx = SortingHatContext(user=user, tenant=tenant)
 
         individual = update_enrollment(ctx, uuid, group,
                                        parent_org=parent_org,
@@ -1024,7 +1042,8 @@ class RecommendAffiliations(graphene.Mutation):
     @check_auth
     def mutate(self, info, uuids=None):
         user = info.context.user
-        ctx = SortingHatContext(user)
+        tenant = get_db_tenant()
+        ctx = SortingHatContext(user=user, tenant=tenant)
 
         job = enqueue(recommend_affiliations, ctx, uuids)
 
@@ -1049,7 +1068,8 @@ class RecommendMatches(graphene.Mutation):
     @check_auth
     def mutate(self, info, criteria, source_uuids=None, target_uuids=None, exclude=True, verbose=False):
         user = info.context.user
-        ctx = SortingHatContext(user)
+        tenant = get_db_tenant()
+        ctx = SortingHatContext(user=user, tenant=tenant)
 
         job = enqueue(recommend_matches, ctx, source_uuids, target_uuids, criteria, exclude, verbose)
 
@@ -1070,7 +1090,8 @@ class RecommendGender(graphene.Mutation):
     @check_auth
     def mutate(self, info, uuids=None, exclude=True, no_strict_matching=False):
         user = info.context.user
-        ctx = SortingHatContext(user)
+        tenant = get_db_tenant()
+        ctx = SortingHatContext(user=user, tenant=tenant)
 
         job = enqueue(recommend_gender, ctx, uuids, exclude, no_strict_matching)
 
@@ -1090,7 +1111,8 @@ class Affiliate(graphene.Mutation):
     @check_auth
     def mutate(self, info, uuids=None):
         user = info.context.user
-        ctx = SortingHatContext(user)
+        tenant = get_db_tenant()
+        ctx = SortingHatContext(user=user, tenant=tenant)
 
         job = enqueue(affiliate, ctx, uuids)
 
@@ -1114,7 +1136,8 @@ class Unify(graphene.Mutation):
     @check_auth
     def mutate(self, info, criteria, source_uuids=None, target_uuids=None, exclude=True):
         user = info.context.user
-        ctx = SortingHatContext(user)
+        tenant = get_db_tenant()
+        ctx = SortingHatContext(user=user, tenant=tenant)
 
         job = enqueue(unify, ctx, source_uuids, target_uuids, criteria, exclude)
 
@@ -1135,7 +1158,8 @@ class Genderize(graphene.Mutation):
     @check_auth
     def mutate(self, info, uuids=None, exclude=True, no_strict_matching=False):
         user = info.context.user
-        ctx = SortingHatContext(user)
+        tenant = get_db_tenant()
+        ctx = SortingHatContext(user=user, tenant=tenant)
 
         job = enqueue(genderize, ctx, uuids, exclude, no_strict_matching)
 
@@ -1153,7 +1177,8 @@ class AddRecommenderExclusionTerm(graphene.Mutation):
     @check_auth
     def mutate(self, info, term):
         user = info.context.user
-        ctx = SortingHatContext(user)
+        tenant = get_db_tenant()
+        ctx = SortingHatContext(user=user, tenant=tenant)
 
         rel = add_recommender_exclusion_term(ctx, term)
 
@@ -1171,7 +1196,8 @@ class DeleteRecommenderExclusionTerm(graphene.Mutation):
     @check_auth
     def mutate(self, info, term):
         user = info.context.user
-        ctx = SortingHatContext(user)
+        tenant = get_db_tenant()
+        ctx = SortingHatContext(user=user, tenant=tenant)
 
         rel = delete_recommend_exclusion_term(ctx, term)
 
@@ -1190,7 +1216,8 @@ class ManageMergeRecommendation(graphene.Mutation):
     @check_auth
     def mutate(self, info, recommendation_id, apply):
         user = info.context.user
-        ctx = SortingHatContext(user)
+        tenant = get_db_tenant()
+        ctx = SortingHatContext(user=user, tenant=tenant)
 
         recommendation = MergeRecommendation.objects.get(id=int(recommendation_id))
         if apply:
@@ -1219,7 +1246,8 @@ class ManageAffiliationRecommendation(graphene.Mutation):
     @check_auth
     def mutate(self, info, recommendation_id, apply):
         user = info.context.user
-        ctx = SortingHatContext(user)
+        tenant = get_db_tenant()
+        ctx = SortingHatContext(user=user, tenant=tenant)
 
         recommendation = AffiliationRecommendation.objects.get(id=int(recommendation_id))
         if apply:
@@ -1243,7 +1271,8 @@ class ManageGenderRecommendation(graphene.Mutation):
     @check_auth
     def mutate(self, info, recommendation_id, apply):
         user = info.context.user
-        ctx = SortingHatContext(user)
+        tenant = get_db_tenant()
+        ctx = SortingHatContext(user=user, tenant=tenant)
 
         recommendation = GenderRecommendation.objects.get(id=int(recommendation_id))
 
@@ -1273,7 +1302,8 @@ class AddImportIdentitiesTask(graphene.Mutation):
     @check_auth
     def mutate(self, info, backend, url, interval=DEFAULT_IMPORT_IDENTITIES_INTERVAL, params=None):
         user = info.context.user
-        ctx = SortingHatContext(user=user)
+        tenant = get_db_tenant()
+        ctx = SortingHatContext(user=user, tenant=tenant)
 
         task = create_import_task(ctx, backend, url, interval, params)
 
@@ -1291,7 +1321,8 @@ class DeleteImportIdentitiesTask(graphene.Mutation):
     @check_auth
     def mutate(self, info, task_id):
         user = info.context.user
-        ctx = SortingHatContext(user)
+        tenant = get_db_tenant()
+        ctx = SortingHatContext(user=user, tenant=tenant)
 
         task = delete_import_identities_task(ctx, task_id)
 
@@ -1315,7 +1346,8 @@ class UpdateImportIdentitiesTask(graphene.Mutation):
     @check_auth
     def mutate(self, info, task_id, data):
         user = info.context.user
-        ctx = SortingHatContext(user=user)
+        tenant = get_db_tenant()
+        ctx = SortingHatContext(user=user, tenant=tenant)
 
         task = update_import_identities_task(ctx, task_id, **data)
 
@@ -1691,7 +1723,8 @@ class SortingHatQuery:
 
     @check_auth
     def resolve_jobs(self, info, page=1, page_size=settings.SORTINGHAT_API_PAGE_SIZE):
-        jobs = get_jobs()
+        tenant = get_db_tenant()
+        jobs = get_jobs(tenant)
         result = []
 
         for job in jobs:

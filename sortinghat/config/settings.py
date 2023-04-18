@@ -12,9 +12,8 @@
 # https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 # https://docs.djangoproject.com/en/3.1/ref/settings/
 #
-
+import json
 import os
-
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -122,7 +121,6 @@ GRAPHENE = {
 GRAPHQL_JWT = {
     'JWT_ALLOW_ANY_HANDLER': 'sortinghat.core.middleware.allow_any'
 }
-
 
 #
 # Authentication - DO NOT MODIFY
@@ -269,6 +267,40 @@ DATABASES = {
         'OPTIONS': {'charset': 'utf8mb4'},
     }
 }
+
+#
+# SortingHat Multi-tenant
+#
+# To enable this feature:
+#   - Define SORTINGHAT_MULTI_TENANT to True
+#   - Create a list of tenants in sortinghat.config.tenants
+#   - Assign users to tenants with 'set_user_tenant' command.
+#
+
+MULTI_TENANT = os.environ.get('SORTINGHAT_MULTI_TENANT', 'False').lower() in ('true', '1')
+
+if MULTI_TENANT:
+    MIDDLEWARE += ['sortinghat.core.middleware.TenantDatabaseMiddleware']
+    DATABASE_ROUTERS = [
+        'sortinghat.core.middleware.TenantDatabaseRouter'
+    ]
+    MULTI_TENANT_LIST_PATH = os.environ.get('SORTINGHAT_MULTI_TENANT_LIST_PATH',
+                                            os.path.join(BASE_DIR, 'config', 'tenants.json'))
+    with open(MULTI_TENANT_LIST_PATH, 'r') as f:
+        TENANTS_NAMES = json.load(f).get('tenants', [])
+
+    DATABASES.update({
+        tenant: {
+            'ENGINE': 'django.db.backends.mysql',
+            'HOST': os.environ.get('SORTINGHAT_DB_HOST', '127.0.0.1'),
+            'PORT': os.environ.get('SORTINGHAT_DB_PORT', 3306),
+            'USER': os.environ.get('SORTINGHAT_DB_USER', 'root'),
+            'PASSWORD': os.environ.get('SORTINGHAT_DB_PASSWORD', ''),
+            'NAME': tenant,
+            'OPTIONS': {'charset': 'utf8mb4'},
+        }
+        for tenant in TENANTS_NAMES
+    })
 
 #
 # SortingHat workers

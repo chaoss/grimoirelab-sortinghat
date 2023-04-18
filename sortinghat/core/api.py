@@ -22,8 +22,6 @@
 
 import logging
 
-import django.db.transaction
-
 from grimoirelab_toolkit.datetime import datetime_to_utc
 
 from .db import (find_individual_by_uuid,
@@ -60,13 +58,14 @@ from .errors import (InvalidValueError,
 from .log import TransactionsLog
 from .models import Identity, MIN_PERIOD_DATE, MAX_PERIOD_DATE
 from .aux import merge_datetime_ranges
+from .decorators import atomic_using_tenant
 from ..utils import generate_uuid
 
 
 logger = logging.getLogger(__name__)
 
 
-@django.db.transaction.atomic
+@atomic_using_tenant
 def add_identity(ctx, source, name=None, email=None, username=None, uuid=None):
     """Add an identity to the registry.
 
@@ -157,7 +156,7 @@ def add_identity(ctx, source, name=None, email=None, username=None, uuid=None):
     return identity
 
 
-@django.db.transaction.atomic
+@atomic_using_tenant
 def delete_identity(ctx, uuid):
     """Remove an identity from the registry.
 
@@ -213,7 +212,7 @@ def delete_identity(ctx, uuid):
     return individual
 
 
-@django.db.transaction.atomic
+@atomic_using_tenant
 def update_profile(ctx, uuid, **kwargs):
     """Update individual profile.
 
@@ -265,7 +264,7 @@ def update_profile(ctx, uuid, **kwargs):
     return individual
 
 
-@django.db.transaction.atomic
+@atomic_using_tenant
 def move_identity(ctx, from_uuid, to_uuid):
     """Move an identity to an individual.
 
@@ -340,7 +339,7 @@ def move_identity(ctx, from_uuid, to_uuid):
     return individual
 
 
-@django.db.transaction.atomic
+@atomic_using_tenant
 def lock(ctx, uuid):
     """Lock an individual so it cannot be modified.
 
@@ -374,7 +373,7 @@ def lock(ctx, uuid):
     return individual
 
 
-@django.db.transaction.atomic
+@atomic_using_tenant
 def unlock(ctx, uuid):
     """Unlock an individual so it can be modified.
 
@@ -408,7 +407,7 @@ def unlock(ctx, uuid):
     return individual
 
 
-@django.db.transaction.atomic
+@atomic_using_tenant
 def add_organization(ctx, name):
     """Add an organization to the registry.
 
@@ -445,7 +444,7 @@ def add_organization(ctx, name):
     return org
 
 
-@django.db.transaction.atomic
+@atomic_using_tenant
 def add_domain(ctx, organization, domain_name, is_top_domain=True):
     """Add a domain to the registry.
 
@@ -510,7 +509,7 @@ def add_domain(ctx, organization, domain_name, is_top_domain=True):
     return domain
 
 
-@django.db.transaction.atomic
+@atomic_using_tenant
 def add_team(ctx, team_name, organization=None, parent_name=None):
     """Add a team to the registry.
 
@@ -577,7 +576,7 @@ def add_team(ctx, team_name, organization=None, parent_name=None):
     return team
 
 
-@django.db.transaction.atomic
+@atomic_using_tenant
 def delete_organization(ctx, name):
     """Remove an organization from the registry.
 
@@ -617,7 +616,7 @@ def delete_organization(ctx, name):
     return org
 
 
-@django.db.transaction.atomic
+@atomic_using_tenant
 def delete_domain(ctx, domain_name):
     """Remove a domain from the registry.
 
@@ -656,7 +655,7 @@ def delete_domain(ctx, domain_name):
     return domain
 
 
-@django.db.transaction.atomic
+@atomic_using_tenant
 def delete_team(ctx, team_name, organization=None):
     """Remove a team from the registry.
 
@@ -705,7 +704,7 @@ def delete_team(ctx, team_name, organization=None):
     return team
 
 
-@django.db.transaction.atomic
+@atomic_using_tenant
 def enroll(ctx, uuid, group, parent_org=None, from_date=None, to_date=None,
            force=False):
     """Enroll an individual in a group.
@@ -821,7 +820,7 @@ def enroll(ctx, uuid, group, parent_org=None, from_date=None, to_date=None,
     return individual
 
 
-@django.db.transaction.atomic
+@atomic_using_tenant
 def withdraw(ctx, uuid, group, parent_org=None, from_date=None, to_date=None):
     """Withdraw an individual from a group.
 
@@ -935,7 +934,7 @@ def withdraw(ctx, uuid, group, parent_org=None, from_date=None, to_date=None):
     return individual
 
 
-@django.db.transaction.atomic
+@atomic_using_tenant
 def update_enrollment(ctx, uuid, group, from_date, to_date, parent_org=None,
                       new_from_date=None, new_to_date=None, force=True):
     """Update one or more enrollments from an individual given a new date range.
@@ -1024,7 +1023,7 @@ def update_enrollment(ctx, uuid, group, from_date, to_date, parent_org=None,
     return indv
 
 
-@django.db.transaction.atomic
+@atomic_using_tenant
 def merge(ctx, from_uuids, to_uuid):
     """
     Merge one or more individuals into another.
@@ -1197,7 +1196,7 @@ def merge(ctx, from_uuids, to_uuid):
     return to_individual
 
 
-@django.db.transaction.atomic
+@atomic_using_tenant
 def unmerge_identities(ctx, uuids):
     """
     Unmerge one or more identities from their corresponding individual.
@@ -1293,7 +1292,7 @@ def unmerge_identities(ctx, uuids):
     return new_individuals
 
 
-@django.db.transaction.atomic
+@atomic_using_tenant
 def delete_import_identities_task(ctx, task_id):
     """Remove an import identities task from the registry.
 
@@ -1327,7 +1326,7 @@ def delete_import_identities_task(ctx, task_id):
     return task
 
 
-@django.db.transaction.atomic
+@atomic_using_tenant
 def update_import_identities_task(ctx, task_id, **kwargs):
     """Update an import identities task.
 

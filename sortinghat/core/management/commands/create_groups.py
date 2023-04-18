@@ -24,6 +24,7 @@ import logging
 from django.core.management import BaseCommand
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
+from django.db import DEFAULT_DB_ALIAS
 
 logger = logging.getLogger(__name__)
 
@@ -65,22 +66,29 @@ SORTINGHAT_PERMISSION_GROUPS = {
 class Command(BaseCommand):
     help = "Create groups with the chosen permissions"
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--database',
+            default=DEFAULT_DB_ALIAS,
+            help='Specifies the database to use. Default is "default".',
+        )
+
     def handle(self, *args, **options):
         for group_name, content_types in SORTINGHAT_PERMISSION_GROUPS.items():
-            new_group, created = Group.objects.get_or_create(name=group_name)
+            new_group, created = Group.objects.using(options['database']).get_or_create(name=group_name)
 
             for app_label, models in content_types.items():
                 for model, permissions in models.items():
                     try:
-                        content_type = ContentType.objects.get(app_label=app_label,
-                                                               model=model)
+                        content_type = ContentType.objects.using(options['database'])\
+                                                          .get(app_label=app_label, model=model)
                         for permission_name in permissions:
                             codename = f"{permission_name}_{model}"
                             if model == "custompermissions":
                                 codename = permission_name
                             try:
-                                permission = Permission.objects.get(codename=codename,
-                                                                    content_type=content_type)
+                                permission = Permission.objects.using(options['database'])\
+                                                               .get(codename=codename, content_type=content_type)
                                 new_group.permissions.add(permission)
                             except Permission.DoesNotExist:
                                 logger.warning(f"Permission {permission_name} not found")

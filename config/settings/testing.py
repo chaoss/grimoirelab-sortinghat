@@ -55,6 +55,8 @@ DATABASES = {
     }
 }
 
+TEST_RUNNER = 'tests.runners.SkipMultiTenantTestRunner'
+
 USE_TZ = True
 
 AUTHENTICATION_BACKENDS = [

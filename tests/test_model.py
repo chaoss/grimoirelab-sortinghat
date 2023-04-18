@@ -25,6 +25,7 @@ import datetime
 import dateutil
 import json
 
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db.utils import IntegrityError
 from django.test import TransactionTestCase
@@ -46,7 +47,8 @@ from sortinghat.core.models import (Organization,
                                     AffiliationRecommendation,
                                     MergeRecommendation,
                                     GenderRecommendation,
-                                    ImportIdentitiesTask)
+                                    ImportIdentitiesTask,
+                                    Tenant)
 
 # Test check errors messages
 DUPLICATE_CHECK_ERROR = "Duplicate entry .+"
@@ -932,8 +934,8 @@ class TestGenderRecommendation(TransactionTestCase):
         before_dt = datetime_utcnow()
         indiv = Individual.objects.create(mk='AAAA')
         gender_re = GenderRecommendation.objects.create(individual=indiv,
-                                                       gender='Male',
-                                                       accuracy=89)
+                                                        gender='Male',
+                                                        accuracy=89)
         after_dt = datetime_utcnow()
 
         self.assertEqual(gender_re.individual, indiv)
@@ -1049,7 +1051,8 @@ class TestTransaction(TransactionTestCase):
         trx = Transaction.objects.create(tuid='12345abcd',
                                          name='test',
                                          created_at=datetime_utcnow(),
-                                         authored_by='username')
+                                         authored_by='username',
+                                         tenant='tenant_1')
         after_dt = datetime_utcnow()
 
         self.assertGreaterEqual(trx.created_at, before_dt)
@@ -1127,3 +1130,38 @@ class TestOperation(TransactionTestCase):
             Operation.objects.create(ouid='12345abcd', op_type=Operation.OpType.ADD,
                                      entity_type='individual', target='test',
                                      timestamp=datetime_utcnow(), args=None, trx=trx)
+
+
+class TestTenant(TransactionTestCase):
+    """Unit tests for Tenant class"""
+
+    def test_unique_tenants(self):
+        """Check whether tenants are unique"""
+
+        with self.assertRaisesRegex(IntegrityError, DUPLICATE_CHECK_ERROR):
+            user = get_user_model().objects.create(username='test')
+            Tenant.objects.create(user=user,
+                                  host='localhost:8000',
+                                  database='tenant_1')
+            Tenant.objects.create(user=user,
+                                  host='localhost:8000',
+                                  database='tenant_2')
+
+    def test_created_at(self):
+        """Check creation date is only set when the object is created"""
+
+        before_dt = datetime_utcnow()
+        user = get_user_model().objects.create(username='test')
+        tenant = Tenant.objects.create(user=user,
+                                       host='localhost:8000',
+                                       database='tenant_2')
+        after_dt = datetime_utcnow()
+
+        self.assertGreaterEqual(tenant.created_at, before_dt)
+        self.assertLessEqual(tenant.created_at, after_dt)
+
+        tenant.save()
+
+        # Check if creation date does not change after saving the object
+        self.assertGreaterEqual(tenant.created_at, before_dt)
+        self.assertLessEqual(tenant.created_at, after_dt)
