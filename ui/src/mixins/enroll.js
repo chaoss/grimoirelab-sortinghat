@@ -16,18 +16,20 @@ const enrollMixin = {
         organization: null,
         team: null,
         uuid: null,
+        enrollments: null,
       },
     };
   },
   methods: {
-    confirmEnroll(uuid, event = {}) {
+    confirmEnroll(individual, event = {}) {
       const { group, parentOrg } = event;
       if (parentOrg) {
         Object.assign(this.teamModal, {
           isOpen: true,
           organization: parentOrg,
           team: group,
-          uuid,
+          uuid: individual.uuid,
+          enrollments: individual.enrollments,
         });
       } else {
         Object.assign(this.enrollmentModal, {
@@ -36,7 +38,7 @@ const enrollMixin = {
             group ? group + "?" : "an organization"
           }`,
           organization: group,
-          uuid: uuid,
+          uuid: individual.uuid,
           text: null,
           dateFrom: null,
           dateTo: null,

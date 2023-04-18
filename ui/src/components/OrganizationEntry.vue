@@ -112,7 +112,7 @@ export default {
       ).filter((individual) => !individual.isLocked);
       if (droppedIndividuals.length > 0) {
         this.$emit("enroll", {
-          uuids: droppedIndividuals.map((individual) => individual.uuid),
+          individuals: droppedIndividuals,
           group: this.name,
         });
       }

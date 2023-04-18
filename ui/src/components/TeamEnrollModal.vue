@@ -77,6 +77,10 @@ export default {
       type: String,
       required: true,
     },
+    enrollments: {
+      type: Array,
+      required: false,
+    },
     organization: {
       type: String,
       required: false,
@@ -125,6 +129,18 @@ export default {
 
       try {
         const group = this.team || this.form.team;
+        if (
+          !this.enrollments.some(
+            (enrollment) => enrollment.group.name === this.organization
+          )
+        ) {
+          this.enroll(
+            this.uuid,
+            this.organization,
+            this.form.dateFrom,
+            this.form.dateTo
+          );
+        }
         const response = await this.enroll(
           this.uuid,
           group,

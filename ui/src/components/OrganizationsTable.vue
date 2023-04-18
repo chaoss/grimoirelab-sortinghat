@@ -292,7 +292,7 @@ export default {
         showDates: true,
         action: () =>
           this.enrollIndividuals(
-            event.uuids,
+            event.individuals,
             event.group,
             this.dialog.dateFrom,
             this.dialog.dateTo,
@@ -300,36 +300,59 @@ export default {
           ),
       });
     },
-    async enrollIndividuals(uuids, group, dateFrom, dateTo, parentOrg) {
+    async enrollIndividuals(individuals, group, dateFrom, dateTo, parentOrg) {
       this.closeDialog();
       try {
         const response = await Promise.all(
-          uuids.map((individual) =>
-            this.enroll(individual, group, dateFrom, dateTo, parentOrg)
+          individuals.map((individual) =>
+            this.enroll(individual.uuid, group, dateFrom, dateTo, parentOrg)
           )
         );
-        if (response) {
-          this.getTableItems(this.page);
-          response.forEach((res) => {
-            this.$emit("updateWorkspace", {
-              update: formatIndividuals([res.data.enroll.individual]),
-            });
+        response.forEach((res) => {
+          this.$emit("updateWorkspace", {
+            update: formatIndividuals([res.data.enroll.individual]),
           });
-          this.$emit("updateIndividuals");
-          this.$logger.debug("Enrolled individuals", {
-            group,
-            uuids,
-            dateFrom,
-            dateTo,
-            parentOrg,
-          });
-        }
+        });
+        this.$logger.debug("Enrolled individuals", {
+          group,
+          individuals,
+          dateFrom,
+          dateTo,
+          parentOrg,
+        });
+
         if (parentOrg) {
+          const notInOrg = individuals.filter(
+            (individual) =>
+              !individual.enrollments.some(
+                (enrollment) => enrollment.group.name === parentOrg
+              )
+          );
+          if (notInOrg.length > 0) {
+            const responses = await Promise.all(
+              notInOrg.map((individual) =>
+                this.enroll(individual.uuid, parentOrg, dateFrom, dateTo)
+              )
+            );
+            responses.forEach((res) => {
+              this.$emit("updateWorkspace", {
+                update: formatIndividuals([res.data.enroll.individual]),
+              });
+            });
+            this.$logger.debug("Enrolled individuals", {
+              group: parentOrg,
+              uuids: notInOrg,
+              dateFrom,
+              dateTo,
+            });
+          }
           const updatedItem = this.expandedItems.find(
             (item) => item.name === parentOrg
           );
           this.$refs[updatedItem.id].reloadTeams();
         }
+        this.getTableItems(this.page);
+        this.$emit("updateIndividuals");
       } catch (error) {
         Object.assign(this.dialog, {
           open: true,
@@ -339,7 +362,7 @@ export default {
         });
         this.$logger.error(`Error enrolling individuals: ${error}`, {
           group,
-          uuids,
+          individuals,
           dateFrom,
           dateTo,
           parentOrg,

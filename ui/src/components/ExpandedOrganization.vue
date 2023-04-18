@@ -3,11 +3,11 @@
     <v-treeview
       :items="teams"
       :load-children="loadChildren"
-      :open="openTeams"
+      :open.sync="openTeams"
       expand-icon="mdi-chevron-down"
-      item-key="id"
       dense
       open-on-click
+      return-object
     >
       <template v-slot:label="{ item }">
         <v-row
@@ -171,8 +171,16 @@ export default {
       parent.children = await this.getTeams(parent.name);
     },
     async reloadTeams() {
+      const openTeams = this.openTeams;
       this.teams = await this.getTeams();
-      this.openTeams = [];
+      openTeams.forEach((openTeam) => {
+        const updateTeam = this.teams.find(
+          (team) => team.name === openTeam.name
+        );
+        if (updateTeam) {
+          this.loadChildren(updateTeam);
+        }
+      });
     },
     startDrag(organization, item, event) {
       event.dataTransfer.dropEffect = "move";
@@ -278,7 +286,7 @@ export default {
         ).filter((individual) => !individual.isLocked);
         if (droppedIndividuals.length > 0) {
           this.$emit("enroll", {
-            uuids: droppedIndividuals.map((individual) => individual.uuid),
+            individuals: droppedIndividuals,
             parentOrg: this.organization,
             group: item.name,
           });

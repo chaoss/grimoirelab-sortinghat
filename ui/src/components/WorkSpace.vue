@@ -69,7 +69,7 @@
           :enrollments="individual.enrollments"
           :is-highlighted="individual.uuid === highlightIndividual"
           :is-locked="individual.isLocked"
-          @enroll="confirmEnroll(individual.uuid, $event)"
+          @enroll="confirmEnroll(individual, $event)"
           @merge="mergeSelected($event)"
           @mouseenter="$emit('highlight', individual)"
           @mouseleave="$emit('stopHighlight', individual)"
@@ -135,6 +135,7 @@
       :organization="teamModal.organization"
       :team="teamModal.team"
       :uuid="teamModal.uuid"
+      :enrollments="teamModal.enrollments"
       :enroll="enrollIndividual"
     />
   </v-sheet>

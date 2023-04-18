@@ -140,7 +140,7 @@
           @highlight="$emit('highlight', item)"
           @stopHighlight="$emit('stopHighlight', item)"
           @lock="handleLock(item.uuid, $event)"
-          @enroll="confirmEnroll(item.uuid, $event)"
+          @enroll="confirmEnroll(item, $event)"
         />
       </template>
       <template v-slot:expanded-item="{ item }">
@@ -254,6 +254,7 @@
       :organization="teamModal.organization"
       :team="teamModal.team"
       :uuid="teamModal.uuid"
+      :enrollments="teamModal.enrollments"
       :enroll="enrollIndividual"
       @updateTable="queryIndividuals"
     />
@@ -704,12 +705,13 @@ export default {
       });
     },
     openTeamModal(data) {
-      const { organization, uuid } = data;
+      const { organization, uuid, enrollments } = data;
       Object.assign(this.teamModal, {
         isOpen: true,
         team: null,
         organization,
         uuid,
+        enrollments,
       });
     },
   },
