@@ -62,7 +62,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [14.x, 16.x]
+        node-version: [16.x]
 
     runs-on: ubuntu-latest
     name: Node ${{ matrix.node-version }}
@@ -95,7 +95,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [14.x, 16.x]
+        node-version: [16.x]
         python-version: [3.7, 3.8]
 
     runs-on: ubuntu-latest
