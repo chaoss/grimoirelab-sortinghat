@@ -1,8 +1,0 @@
----
-title: Create account command
-category: added
-author: Jose Javier Merchante <jjmerchante@bitergia.com>
-issue: null
-notes: |
-  Include a new command to create users in SortingHat. The command can
-  be executed as `sortinghat-admin create-user`.

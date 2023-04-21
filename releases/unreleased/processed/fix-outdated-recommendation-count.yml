@@ -1,8 +1,0 @@
----
-title: Fix outdated recommendation count
-category: fixed
-author: Eva Millán <evamillan@bitergia.com>
-issue: 733
-notes: |
-  The number of remaining recommendations on the UI was wrong
-  each time a recommendation was applied or dismissed.
