@@ -15,6 +15,9 @@ env:
 jobs:
   build-package:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x]
     steps:
       - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # 3.3.0
       - name: Setup Node ${{ matrix.node-version }}
@@ -95,8 +98,8 @@ jobs:
           images: |
             ${{ env.WORKER_IMAGE_NAME }}
           tags: |
-            type=semver,pattern={{version}},value=${{ inputs.version }}            
-            
+            type=semver,pattern={{version}},value=${{ inputs.version }}
+
       - name: Worker Build and push
         uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671 # v4.0.0
         with:
