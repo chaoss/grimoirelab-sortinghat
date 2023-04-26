@@ -25,6 +25,7 @@ exclude = [
     "sortinghat/static"
 ]
 include = [
+    { path = "sortinghat/core/static" },
     { path = "AUTHORS", format = "sdist" },
     { path = "NEWS", format = "sdist" },
     { path = "README.md", format = "sdist" },
