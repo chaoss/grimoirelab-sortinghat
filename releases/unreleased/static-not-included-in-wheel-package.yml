@@ -1,0 +1,8 @@
+---
+title: Static files not included in wheel package
+category: fixed
+author: Jose Javier Merchante <jjmerchante@bitergia.com>
+issue: null
+notes: >
+  SortingHat static files were not included in the Python
+  package.
