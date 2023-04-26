@@ -282,14 +282,14 @@ Django = ">=3.2"
 
 [[package]]
 name = "fakeredis"
-version = "2.10.3"
+version = "2.11.1"
 description = "Fake implementation of redis API for testing purposes."
 category = "dev"
 optional = false
 python-versions = ">=3.7,<4.0"
 files = [
-    {file = "fakeredis-2.10.3-py3-none-any.whl", hash = "sha256:078ad729fe7cbcc84c9ff6f25c0e503fd4e19db6956f78049f9991b10c5271ba"},
-    {file = "fakeredis-2.10.3.tar.gz", hash = "sha256:c5dcb070ef3219226e1d6db8836ddad47da1fc821270f6e89cfeb5da1f7f2e38"},
+    {file = "fakeredis-2.11.1-py3-none-any.whl", hash = "sha256:3679ffa1a7299e10681f6e18d84eb88ed5eba6fcf5eb97f1b76b371470ac6580"},
+    {file = "fakeredis-2.11.1.tar.gz", hash = "sha256:20120bceb3feb639c0b59a8f882c6c66bbde416e7717ec2732dae258be769660"},
 ]
 
 [package.dependencies]
@@ -490,14 +490,14 @@ testing = ["pytest"]
 
 [[package]]
 name = "google-resumable-media"
-version = "2.4.1"
+version = "2.5.0"
 description = "Utilities for Google Media Downloads and Resumable Uploads"
 category = "main"
 optional = false
 python-versions = ">= 3.7"
 files = [
-    {file = "google-resumable-media-2.4.1.tar.gz", hash = "sha256:15b8a2e75df42dc6502d1306db0bce2647ba6013f9cd03b6e17368c0886ee90a"},
-    {file = "google_resumable_media-2.4.1-py2.py3-none-any.whl", hash = "sha256:831e86fd78d302c1a034730a0c6e5369dd11d37bad73fa69ca8998460d5bae8d"},
+    {file = "google-resumable-media-2.5.0.tar.gz", hash = "sha256:218931e8e2b2a73a58eb354a288e03a0fd5fb1c4583261ac6e4c078666468c93"},
+    {file = "google_resumable_media-2.5.0-py2.py3-none-any.whl", hash = "sha256:da1bd943e2e114a56d85d6848497ebf9be6a14d3db23e9fc57581e7c3e8170ec"},
 ]
 
 [package.dependencies]
@@ -1039,14 +1039,14 @@ ocsp = ["cryptography (>=36.0.1)", "pyopenssl (==20.0.1)", "requests (>=2.26.0)"
 
 [[package]]
 name = "requests"
-version = "2.28.2"
+version = "2.29.0"
 description = "Python HTTP for Humans."
 category = "main"
 optional = false
-python-versions = ">=3.7, <4"
+python-versions = ">=3.7"
 files = [
-    {file = "requests-2.28.2-py3-none-any.whl", hash = "sha256:64299f4909223da747622c030b781c0d7811e359c37124b4bd368fb8c6518baa"},
-    {file = "requests-2.28.2.tar.gz", hash = "sha256:98b1b2782e3c6c4904938b84c0eb932721069dfdb9134313beff7c83c2df24bf"},
+    {file = "requests-2.29.0-py3-none-any.whl", hash = "sha256:e8f3c9be120d3333921d213eef078af392fba3933ab7ed2d1cba3b56f2568c3b"},
+    {file = "requests-2.29.0.tar.gz", hash = "sha256:f2e34a75f4749019bb0e3effb66683630e4ffeaf75819fb51bebef1bf5aef059"},
 ]
 
 [package.dependencies]
@@ -1103,14 +1103,14 @@ files = [
 
 [[package]]
 name = "setuptools"
-version = "67.7.1"
+version = "67.7.2"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
 category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "setuptools-67.7.1-py3-none-any.whl", hash = "sha256:6f0839fbdb7e3cfef1fc38d7954f5c1c26bf4eebb155a55c9bf8faf997b9fb67"},
-    {file = "setuptools-67.7.1.tar.gz", hash = "sha256:bb16732e8eb928922eabaa022f881ae2b7cdcfaf9993ef1f5e841a96d32b8e0c"},
+    {file = "setuptools-67.7.2-py3-none-any.whl", hash = "sha256:23aaf86b85ca52ceb801d32703f12d77517b2556af839621c641fca11287952b"},
+    {file = "setuptools-67.7.2.tar.gz", hash = "sha256:f104fa03692a2602fa0fec6c6a9e63b6c8a968de13e17c026957dd1f53d80990"},
 ]
 
 [package.extras]
