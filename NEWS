@@ -1,5 +1,14 @@
 # Releases
 
+## sortinghat 0.9.2 - (2023-04-27)
+
+**Bug fixes:**
+
+ * Static files not included in wheel package\
+   SortingHat static files were not included in the Python package. The
+   problem was in the GitHub action.
+
+
 ## sortinghat 0.9.1 - (2023-04-26)
 
 **Bug fixes:**
