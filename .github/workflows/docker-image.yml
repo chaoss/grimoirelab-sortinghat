@@ -34,6 +34,7 @@ jobs:
         with:
           artifact-name: sortinghat-dist
           artifact-path: dist
+          skip-checkout: yes
 
   build-image:
     runs-on: ubuntu-latest
