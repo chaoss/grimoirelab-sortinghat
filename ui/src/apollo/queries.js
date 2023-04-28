@@ -248,6 +248,21 @@ const GET_IMPORT_IDENTITIES_TASKS = gql`
   }
 `;
 
+const GET_ORGANIZATION = gql`
+  query getOrganization($filters: OrganizationFilterType!) {
+    organizations(filters: $filters) {
+      entities {
+        name
+        domains {
+          id
+          domain
+          isTopDomain
+        }
+      }
+    }
+  }
+`;
+
 const getIndividualByUuid = (apollo, uuid) => {
   let response = apollo.query({
     query: GET_INDIVIDUAL_BYUUID,
@@ -393,6 +408,17 @@ const getImportIdentitiesTasks = (apollo, page, pageSize, filters) => {
   });
 };
 
+const getOrganization = (apollo, name) => {
+  return apollo.query({
+    query: GET_ORGANIZATION,
+    variables: {
+      filters: {
+        name: name,
+      },
+    },
+  });
+};
+
 export {
   getCountries,
   getIndividuals,
@@ -406,4 +432,5 @@ export {
   getPaginatedMergeRecommendations,
   getImporterTypes,
   getImportIdentitiesTasks,
+  getOrganization,
 };

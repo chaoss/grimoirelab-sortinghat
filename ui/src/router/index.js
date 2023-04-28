@@ -44,6 +44,12 @@ const routes = [
     component: () => import("../views/ImportIdentities"),
     meta: { requiresAuth: true, title: "Import identities - Sorting Hat" },
   },
+  {
+    path: "/organization/:name",
+    name: "Organization",
+    component: () => import("../views/Organization"),
+    meta: { requiresAuth: true, title: "Sorting Hat" },
+  },
 ];
 
 const router = new Router({
