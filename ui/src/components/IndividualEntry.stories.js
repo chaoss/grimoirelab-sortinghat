@@ -25,6 +25,7 @@ const individualEntryTemplate = `
         :is-bot="item.isBot"
         :uuid="item.uuid"
         :is-highlighted="item.isHighlighted"
+        :is-expandable="expandable"
         @expand="expand(!isExpanded)"
       />
     </template>
@@ -57,6 +58,7 @@ export const Default = () => ({
       },
     ],
     expanded: [],
+    expandable: false,
   }),
 });
 
@@ -83,6 +85,7 @@ export const NoEmail = () => ({
       },
     ],
     expanded: [],
+    expandable: false,
   }),
 });
 
@@ -109,6 +112,7 @@ export const NoOrganization = () => ({
       },
     ],
     expanded: [],
+    expandable: false,
   }),
 });
 
@@ -135,6 +139,7 @@ export const NoName = () => ({
       },
     ],
     expanded: [],
+    expandable: false,
   }),
 });
 
@@ -161,6 +166,7 @@ export const SingleInital = () => ({
       },
     ],
     expanded: [],
+    expandable: false,
   }),
 });
 
@@ -187,6 +193,7 @@ export const Locked = () => ({
       },
     ],
     expanded: [],
+    expandable: false,
   }),
 });
 
@@ -213,6 +220,7 @@ export const Bot = () => ({
       },
     ],
     expanded: [],
+    expandable: false,
   }),
 });
 
@@ -239,6 +247,7 @@ export const BotAndLocked = () => ({
       },
     ],
     expanded: [],
+    expandable: false,
   }),
 });
 
@@ -265,6 +274,7 @@ export const Highlighted = () => ({
       },
     ],
     expanded: [],
+    expandable: false,
   }),
 });
 
@@ -290,5 +300,33 @@ export const Gravatar = () => ({
       },
     ],
     expanded: [],
+    expandable: false,
+  }),
+});
+
+export const Expandable = () => ({
+  components: { IndividualEntry },
+  template: individualEntryTemplate,
+  data: () => ({
+    headers: [
+      { value: "name" },
+      { value: "email" },
+      { value: "sources" },
+      { value: "actions" },
+    ],
+    items: [
+      {
+        name: "Tom Marvolo Riddle",
+        organization: "Slytherin",
+        email: "triddle@example.com",
+        sources: [{ name: "git", icon: "mdi-git", count: 2 }],
+        isLocked: false,
+        isBot: false,
+        uuid: "03b3428ee",
+        isHighlighted: false,
+      },
+    ],
+    expanded: [],
+    expandable: true
   }),
 });

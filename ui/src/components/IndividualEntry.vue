@@ -22,9 +22,12 @@
 
         <v-list-item-content>
           <v-list-item-title class="font-weight-medium">
-            <a :href="`individual/${uuid}`" target="_blank" @click.stop>
-              {{ name }}
-            </a>
+            <router-link
+              :to="{ name: 'Individual', params: { mk: uuid } }"
+              target="_blank"
+            >
+              <span @click.stop>{{ name || "no name" }}</span>
+            </router-link>
 
             <v-tooltip bottom transition="expand-y-transition" open-delay="200">
               <template v-slot:activator="{ on }">
@@ -99,7 +102,7 @@
       </v-tooltip>
     </td>
 
-    <td width="140">
+    <td v-if="isExpandable" width="140">
       <v-btn icon @click.stop="$emit('expand')">
         <v-icon>
           {{ isExpanded ? "mdi-chevron-up" : "mdi-chevron-down" }}
@@ -186,6 +189,10 @@ export default {
       type: Boolean,
       required: false,
       default: false,
+    },
+    isExpandable: {
+      type: Boolean,
+      required: false,
     },
   },
   data() {
