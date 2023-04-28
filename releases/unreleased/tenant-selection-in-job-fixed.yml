@@ -1,0 +1,8 @@
+---
+title: Tenant selection in job fixed
+category: fixed
+author: Jose Javier Merchante <jjmerchante@bitergia.com>
+issue: null
+notes: >
+  Tenant selection raised an error when the job context was
+  defined as keyword argument.

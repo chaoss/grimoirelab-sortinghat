@@ -33,6 +33,7 @@ from graphql_jwt.shortcuts import get_user_by_token
 from graphql_jwt.exceptions import JSONWebTokenError
 
 from . import tenant
+from .errors import InvalidValueError
 
 # This custom decorator takes the `user` object from the request's
 # context and checks the value of the `is_authenticated` variable
@@ -80,7 +81,12 @@ def job_using_tenant(func):
     """Use the tenant provided in the context argument for the job"""
     @wraps(func)
     def using_tenant(*args, **kwargs):
-        ctx = kwargs.get('ctx', args[0])
+        ctx = kwargs.get('ctx', None)
+        if not ctx and args:
+            ctx = args[0]
+        if not ctx:
+            raise InvalidValueError(msg="Context not provided to the Job")
+
         tenant.set_db_tenant(ctx.tenant)
         try:
             return func(*args, **kwargs)
