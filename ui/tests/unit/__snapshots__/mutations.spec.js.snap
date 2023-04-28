@@ -2,10 +2,10 @@
 
 exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
 <section
-  class="section"
+  class=""
 >
   <v-row-stub
-    class="header"
+    class="header justify-space-between"
     tag="div"
   >
     <h3
@@ -298,10 +298,10 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
 
 exports[`IndividualsTable Mock query for merge 1`] = `
 <section
-  class="section"
+  class=""
 >
   <v-row-stub
-    class="header"
+    class="header justify-space-between"
     tag="div"
   >
     <h3
@@ -594,10 +594,10 @@ exports[`IndividualsTable Mock query for merge 1`] = `
 
 exports[`IndividualsTable Mock query for moveIdentity 1`] = `
 <section
-  class="section"
+  class=""
 >
   <v-row-stub
-    class="header"
+    class="header justify-space-between"
     tag="div"
   >
     <h3
@@ -890,10 +890,10 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
 
 exports[`IndividualsTable Mock query for unmerge 1`] = `
 <section
-  class="section"
+  class=""
 >
   <v-row-stub
-    class="header"
+    class="header justify-space-between"
     tag="div"
   >
     <h3
@@ -1186,10 +1186,10 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
 
 exports[`IndividualsTable Mock query for updateEnrollment 1`] = `
 <section
-  class="section"
+  class=""
 >
   <v-row-stub
-    class="header"
+    class="header justify-space-between"
     tag="div"
   >
     <h3
@@ -1482,10 +1482,10 @@ exports[`IndividualsTable Mock query for updateEnrollment 1`] = `
 
 exports[`IndividualsTable Mock query for withdraw 1`] = `
 <section
-  class="section"
+  class=""
 >
   <v-row-stub
-    class="header"
+    class="header justify-space-between"
     tag="div"
   >
     <h3

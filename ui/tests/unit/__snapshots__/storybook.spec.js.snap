@@ -109,13 +109,13 @@ exports[`Storyshots DateInput Default 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-25"
+                  for="input-27"
                   style="left: 0px; position: absolute;"
                 >
                   Label
                 </label>
                 <input
-                  id="input-25"
+                  id="input-27"
                   type="text"
                 />
               </div>
@@ -188,13 +188,13 @@ exports[`Storyshots DateInput Error 1`] = `
               >
                 <label
                   class="v-label v-label--active theme--light"
-                  for="input-34"
+                  for="input-36"
                   style="left: 0px; position: absolute;"
                 >
                   Label
                 </label>
                 <input
-                  id="input-34"
+                  id="input-36"
                   type="text"
                 />
               </div>
@@ -263,13 +263,13 @@ exports[`Storyshots DateInput Filled 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-44"
+                  for="input-46"
                   style="left: 0px; position: absolute;"
                 >
                   Label
                 </label>
                 <input
-                  id="input-44"
+                  id="input-46"
                   type="text"
                 />
               </div>
@@ -342,13 +342,13 @@ exports[`Storyshots DateInput Outlined 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-53"
+                  for="input-55"
                   style="left: 0px; position: absolute;"
                 >
                   Label
                 </label>
                 <input
-                  id="input-53"
+                  id="input-55"
                   type="text"
                 />
               </div>
@@ -4757,12 +4757,13 @@ exports[`Storyshots IndividualEntry Bot 1`] = `
                       class="v-list-item__title font-weight-medium"
                     >
                       <a
-                        href="individual/03b3428ee"
+                        class=""
+                        href="/individual/03b3428ee"
                         target="_blank"
                       >
-                        
-            Tom Marvolo Riddle
-          
+                        <span>
+                          Tom Marvolo Riddle
+                        </span>
                       </a>
                        
                       <span
@@ -4838,55 +4839,7 @@ exports[`Storyshots IndividualEntry Bot 1`] = `
                 </span>
               </td>
                
-              <td
-                width="140"
-              >
-                <button
-                  class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
-                  type="button"
-                >
-                  <span
-                    class="v-btn__content"
-                  >
-                    <i
-                      aria-hidden="true"
-                      class="v-icon notranslate mdi mdi-chevron-down theme--light"
-                    />
-                  </span>
-                </button>
-                 
-                <div
-                  class="v-menu"
-                >
-                  <button
-                    aria-expanded="false"
-                    aria-haspopup="true"
-                    class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
-                    role="button"
-                    type="button"
-                  >
-                    <span
-                      class="v-btn__content"
-                    >
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-dots-vertical theme--light"
-                      />
-                    </span>
-                  </button>
-                  <!---->
-                </div>
-                 
-                <span
-                  class="v-tooltip v-tooltip--bottom"
-                >
-                  <!---->
-                  <i
-                    aria-hidden="true"
-                    class="v-icon notranslate mdi mdi-drag-vertical theme--light"
-                  />
-                </span>
-              </td>
+              <!---->
             </tr>
           </tbody>
         </table>
@@ -4961,12 +4914,13 @@ exports[`Storyshots IndividualEntry Bot And Locked 1`] = `
                       class="v-list-item__title font-weight-medium"
                     >
                       <a
-                        href="individual/03b3428ee"
+                        class=""
+                        href="/individual/03b3428ee"
                         target="_blank"
                       >
-                        
-            Tom Marvolo Riddle
-          
+                        <span>
+                          Tom Marvolo Riddle
+                        </span>
                       </a>
                        
                       <span
@@ -5042,55 +4996,7 @@ exports[`Storyshots IndividualEntry Bot And Locked 1`] = `
                 </span>
               </td>
                
-              <td
-                width="140"
-              >
-                <button
-                  class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
-                  type="button"
-                >
-                  <span
-                    class="v-btn__content"
-                  >
-                    <i
-                      aria-hidden="true"
-                      class="v-icon notranslate mdi mdi-chevron-down theme--light"
-                    />
-                  </span>
-                </button>
-                 
-                <div
-                  class="v-menu"
-                >
-                  <button
-                    aria-expanded="false"
-                    aria-haspopup="true"
-                    class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
-                    role="button"
-                    type="button"
-                  >
-                    <span
-                      class="v-btn__content"
-                    >
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-dots-vertical theme--light"
-                      />
-                    </span>
-                  </button>
-                  <!---->
-                </div>
-                 
-                <span
-                  class="v-tooltip v-tooltip--bottom"
-                >
-                  <!---->
-                  <i
-                    aria-hidden="true"
-                    class="v-icon notranslate v-icon--disabled mdi mdi-drag-vertical theme--light"
-                  />
-                </span>
-              </td>
+              <!---->
             </tr>
           </tbody>
         </table>
@@ -5165,12 +5071,170 @@ exports[`Storyshots IndividualEntry Default 1`] = `
                       class="v-list-item__title font-weight-medium"
                     >
                       <a
-                        href="individual/03b3428ee"
+                        class=""
+                        href="/individual/03b3428ee"
                         target="_blank"
                       >
-                        
-            Tom Marvolo Riddle
-          
+                        <span>
+                          Tom Marvolo Riddle
+                        </span>
+                      </a>
+                       
+                      <span
+                        class="v-tooltip v-tooltip--bottom"
+                      >
+                        <!---->
+                        <button
+                          class="v-icon notranslate aligned v-icon--link v-icon--right mdi mdi-robot theme--light icon--hidden"
+                          style="font-size: 16px;"
+                          type="button"
+                        />
+                         
+                        <i
+                          aria-hidden="true"
+                          class="v-icon notranslate aligned v-icon--right mdi mdi-robot theme--light"
+                          style="font-size: 16px; display: none;"
+                        />
+                      </span>
+                       
+                      <span
+                        class="v-tooltip v-tooltip--bottom"
+                      >
+                        <!---->
+                        <button
+                          class="v-icon notranslate aligned v-icon--link v-icon--right mdi mdi-lock theme--light icon--hidden"
+                          style="font-size: 16px;"
+                          type="button"
+                        />
+                      </span>
+                    </div>
+                     
+                    <div
+                      class="v-list-item__subtitle"
+                    >
+                      
+          Slytherin
+        
+                    </div>
+                  </div>
+                </div>
+              </td>
+               
+              <td
+                class="text-center"
+              >
+                <span>
+                  triddle@example.com
+                </span>
+              </td>
+               
+              <td
+                class="text-right"
+              >
+                <span
+                  class="v-tooltip v-tooltip--bottom"
+                >
+                  <!---->
+                  <span
+                    class="ml-1 v-chip v-chip--no-color v-chip--outlined theme--light v-size--default"
+                  >
+                    <span
+                      class="v-chip__content"
+                    >
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate v-icon--left mdi mdi-git theme--light"
+                      />
+                      
+          2
+        
+                    </span>
+                  </span>
+                </span>
+              </td>
+               
+              <!---->
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Storyshots IndividualEntry Expandable 1`] = `
+<div
+  class="v-application v-application--is-ltr theme--light"
+  data-app="true"
+  id="app"
+>
+  <div
+    class="v-application--wrap"
+  >
+    <div
+      class="v-data-table theme--light"
+    >
+      <div
+        class="v-data-table__wrapper"
+      >
+        <table>
+          <colgroup>
+            <col
+              class=""
+            />
+            <col
+              class=""
+            />
+            <col
+              class=""
+            />
+            <col
+              class=""
+            />
+          </colgroup>
+          <tbody>
+            <tr
+              class=""
+            >
+              <td
+                width="25%"
+              >
+                <div
+                  class="v-list-item theme--light"
+                  tabindex="-1"
+                >
+                  <div
+                    class="v-avatar v-list-item__avatar mt-3 mb-3"
+                    style="height: 40px; min-width: 40px; width: 40px; background-color: rgb(245, 142, 12); border-color: #f58e0c;"
+                  >
+                    <img
+                      aria-hidden="true"
+                      src="https://www.gravatar.com/avatar/7de6f21c7c424087449be402ae2f2159.jpg?d=blank&s=40"
+                      style="width: 42px; height: 42px;"
+                    />
+                     
+                    <span
+                      class="white--text"
+                    >
+                      TR
+                    </span>
+                  </div>
+                   
+                  <div
+                    class="v-list-item__content"
+                  >
+                    <div
+                      class="v-list-item__title font-weight-medium"
+                    >
+                      <a
+                        class=""
+                        href="/individual/03b3428ee"
+                        target="_blank"
+                      >
+                        <span>
+                          Tom Marvolo Riddle
+                        </span>
                       </a>
                        
                       <span
@@ -5369,12 +5433,13 @@ exports[`Storyshots IndividualEntry Gravatar 1`] = `
                       class="v-list-item__title font-weight-medium"
                     >
                       <a
-                        href="individual/03b3428ee"
+                        class=""
+                        href="/individual/03b3428ee"
                         target="_blank"
                       >
-                        
-            Santiago Dueñas
-          
+                        <span>
+                          Santiago Dueñas
+                        </span>
                       </a>
                        
                       <span
@@ -5444,55 +5509,7 @@ exports[`Storyshots IndividualEntry Gravatar 1`] = `
                 </span>
               </td>
                
-              <td
-                width="140"
-              >
-                <button
-                  class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
-                  type="button"
-                >
-                  <span
-                    class="v-btn__content"
-                  >
-                    <i
-                      aria-hidden="true"
-                      class="v-icon notranslate mdi mdi-chevron-down theme--light"
-                    />
-                  </span>
-                </button>
-                 
-                <div
-                  class="v-menu"
-                >
-                  <button
-                    aria-expanded="false"
-                    aria-haspopup="true"
-                    class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
-                    role="button"
-                    type="button"
-                  >
-                    <span
-                      class="v-btn__content"
-                    >
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-dots-vertical theme--light"
-                      />
-                    </span>
-                  </button>
-                  <!---->
-                </div>
-                 
-                <span
-                  class="v-tooltip v-tooltip--bottom"
-                >
-                  <!---->
-                  <i
-                    aria-hidden="true"
-                    class="v-icon notranslate mdi mdi-drag-vertical theme--light"
-                  />
-                </span>
-              </td>
+              <!---->
             </tr>
           </tbody>
         </table>
@@ -5567,12 +5584,13 @@ exports[`Storyshots IndividualEntry Highlighted 1`] = `
                       class="v-list-item__title font-weight-medium"
                     >
                       <a
-                        href="individual/03b3428ee"
+                        class=""
+                        href="/individual/03b3428ee"
                         target="_blank"
                       >
-                        
-            Tom Marvolo Riddle
-          
+                        <span>
+                          Tom Marvolo Riddle
+                        </span>
                       </a>
                        
                       <span
@@ -5648,55 +5666,7 @@ exports[`Storyshots IndividualEntry Highlighted 1`] = `
                 </span>
               </td>
                
-              <td
-                width="140"
-              >
-                <button
-                  class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
-                  type="button"
-                >
-                  <span
-                    class="v-btn__content"
-                  >
-                    <i
-                      aria-hidden="true"
-                      class="v-icon notranslate mdi mdi-chevron-down theme--light"
-                    />
-                  </span>
-                </button>
-                 
-                <div
-                  class="v-menu"
-                >
-                  <button
-                    aria-expanded="false"
-                    aria-haspopup="true"
-                    class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
-                    role="button"
-                    type="button"
-                  >
-                    <span
-                      class="v-btn__content"
-                    >
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-dots-vertical theme--light"
-                      />
-                    </span>
-                  </button>
-                  <!---->
-                </div>
-                 
-                <span
-                  class="v-tooltip v-tooltip--bottom"
-                >
-                  <!---->
-                  <i
-                    aria-hidden="true"
-                    class="v-icon notranslate mdi mdi-drag-vertical theme--light"
-                  />
-                </span>
-              </td>
+              <!---->
             </tr>
           </tbody>
         </table>
@@ -5771,12 +5741,13 @@ exports[`Storyshots IndividualEntry Locked 1`] = `
                       class="v-list-item__title font-weight-medium"
                     >
                       <a
-                        href="individual/03b3428ee"
+                        class=""
+                        href="/individual/03b3428ee"
                         target="_blank"
                       >
-                        
-            Tom Marvolo Riddle
-          
+                        <span>
+                          Tom Marvolo Riddle
+                        </span>
                       </a>
                        
                       <span
@@ -5852,55 +5823,7 @@ exports[`Storyshots IndividualEntry Locked 1`] = `
                 </span>
               </td>
                
-              <td
-                width="140"
-              >
-                <button
-                  class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
-                  type="button"
-                >
-                  <span
-                    class="v-btn__content"
-                  >
-                    <i
-                      aria-hidden="true"
-                      class="v-icon notranslate mdi mdi-chevron-down theme--light"
-                    />
-                  </span>
-                </button>
-                 
-                <div
-                  class="v-menu"
-                >
-                  <button
-                    aria-expanded="false"
-                    aria-haspopup="true"
-                    class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
-                    role="button"
-                    type="button"
-                  >
-                    <span
-                      class="v-btn__content"
-                    >
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-dots-vertical theme--light"
-                      />
-                    </span>
-                  </button>
-                  <!---->
-                </div>
-                 
-                <span
-                  class="v-tooltip v-tooltip--bottom"
-                >
-                  <!---->
-                  <i
-                    aria-hidden="true"
-                    class="v-icon notranslate v-icon--disabled mdi mdi-drag-vertical theme--light"
-                  />
-                </span>
-              </td>
+              <!---->
             </tr>
           </tbody>
         </table>
@@ -5971,12 +5894,13 @@ exports[`Storyshots IndividualEntry No Email 1`] = `
                       class="v-list-item__title font-weight-medium"
                     >
                       <a
-                        href="individual/03b3428ee"
+                        class=""
+                        href="/individual/03b3428ee"
                         target="_blank"
                       >
-                        
-            Tom Marvolo Riddle
-          
+                        <span>
+                          Tom Marvolo Riddle
+                        </span>
                       </a>
                        
                       <span
@@ -6052,55 +5976,7 @@ exports[`Storyshots IndividualEntry No Email 1`] = `
                 </span>
               </td>
                
-              <td
-                width="140"
-              >
-                <button
-                  class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
-                  type="button"
-                >
-                  <span
-                    class="v-btn__content"
-                  >
-                    <i
-                      aria-hidden="true"
-                      class="v-icon notranslate mdi mdi-chevron-down theme--light"
-                    />
-                  </span>
-                </button>
-                 
-                <div
-                  class="v-menu"
-                >
-                  <button
-                    aria-expanded="false"
-                    aria-haspopup="true"
-                    class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
-                    role="button"
-                    type="button"
-                  >
-                    <span
-                      class="v-btn__content"
-                    >
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-dots-vertical theme--light"
-                      />
-                    </span>
-                  </button>
-                  <!---->
-                </div>
-                 
-                <span
-                  class="v-tooltip v-tooltip--bottom"
-                >
-                  <!---->
-                  <i
-                    aria-hidden="true"
-                    class="v-icon notranslate mdi mdi-drag-vertical theme--light"
-                  />
-                </span>
-              </td>
+              <!---->
             </tr>
           </tbody>
         </table>
@@ -6175,12 +6051,13 @@ exports[`Storyshots IndividualEntry No Name 1`] = `
                       class="v-list-item__title font-weight-medium"
                     >
                       <a
-                        href="individual/03b3428ee"
+                        class=""
+                        href="/individual/03b3428ee"
                         target="_blank"
                       >
-                        
-            
-          
+                        <span>
+                          no name
+                        </span>
                       </a>
                        
                       <span
@@ -6250,55 +6127,7 @@ exports[`Storyshots IndividualEntry No Name 1`] = `
                 </span>
               </td>
                
-              <td
-                width="140"
-              >
-                <button
-                  class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
-                  type="button"
-                >
-                  <span
-                    class="v-btn__content"
-                  >
-                    <i
-                      aria-hidden="true"
-                      class="v-icon notranslate mdi mdi-chevron-down theme--light"
-                    />
-                  </span>
-                </button>
-                 
-                <div
-                  class="v-menu"
-                >
-                  <button
-                    aria-expanded="false"
-                    aria-haspopup="true"
-                    class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
-                    role="button"
-                    type="button"
-                  >
-                    <span
-                      class="v-btn__content"
-                    >
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-dots-vertical theme--light"
-                      />
-                    </span>
-                  </button>
-                  <!---->
-                </div>
-                 
-                <span
-                  class="v-tooltip v-tooltip--bottom"
-                >
-                  <!---->
-                  <i
-                    aria-hidden="true"
-                    class="v-icon notranslate mdi mdi-drag-vertical theme--light"
-                  />
-                </span>
-              </td>
+              <!---->
             </tr>
           </tbody>
         </table>
@@ -6373,12 +6202,13 @@ exports[`Storyshots IndividualEntry No Organization 1`] = `
                       class="v-list-item__title font-weight-medium"
                     >
                       <a
-                        href="individual/03b3428ee"
+                        class=""
+                        href="/individual/03b3428ee"
                         target="_blank"
                       >
-                        
-            Tom Marvolo Riddle
-          
+                        <span>
+                          Tom Marvolo Riddle
+                        </span>
                       </a>
                        
                       <span
@@ -6448,55 +6278,7 @@ exports[`Storyshots IndividualEntry No Organization 1`] = `
                 </span>
               </td>
                
-              <td
-                width="140"
-              >
-                <button
-                  class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
-                  type="button"
-                >
-                  <span
-                    class="v-btn__content"
-                  >
-                    <i
-                      aria-hidden="true"
-                      class="v-icon notranslate mdi mdi-chevron-down theme--light"
-                    />
-                  </span>
-                </button>
-                 
-                <div
-                  class="v-menu"
-                >
-                  <button
-                    aria-expanded="false"
-                    aria-haspopup="true"
-                    class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
-                    role="button"
-                    type="button"
-                  >
-                    <span
-                      class="v-btn__content"
-                    >
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-dots-vertical theme--light"
-                      />
-                    </span>
-                  </button>
-                  <!---->
-                </div>
-                 
-                <span
-                  class="v-tooltip v-tooltip--bottom"
-                >
-                  <!---->
-                  <i
-                    aria-hidden="true"
-                    class="v-icon notranslate mdi mdi-drag-vertical theme--light"
-                  />
-                </span>
-              </td>
+              <!---->
             </tr>
           </tbody>
         </table>
@@ -6571,12 +6353,13 @@ exports[`Storyshots IndividualEntry Single Inital 1`] = `
                       class="v-list-item__title font-weight-medium"
                     >
                       <a
-                        href="individual/03b3428ee"
+                        class=""
+                        href="/individual/03b3428ee"
                         target="_blank"
                       >
-                        
-            Voldemort
-          
+                        <span>
+                          Voldemort
+                        </span>
                       </a>
                        
                       <span
@@ -6652,55 +6435,7 @@ exports[`Storyshots IndividualEntry Single Inital 1`] = `
                 </span>
               </td>
                
-              <td
-                width="140"
-              >
-                <button
-                  class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
-                  type="button"
-                >
-                  <span
-                    class="v-btn__content"
-                  >
-                    <i
-                      aria-hidden="true"
-                      class="v-icon notranslate mdi mdi-chevron-down theme--light"
-                    />
-                  </span>
-                </button>
-                 
-                <div
-                  class="v-menu"
-                >
-                  <button
-                    aria-expanded="false"
-                    aria-haspopup="true"
-                    class="v-btn v-btn--icon v-btn--round theme--light v-size--default"
-                    role="button"
-                    type="button"
-                  >
-                    <span
-                      class="v-btn__content"
-                    >
-                      <i
-                        aria-hidden="true"
-                        class="v-icon notranslate mdi mdi-dots-vertical theme--light"
-                      />
-                    </span>
-                  </button>
-                  <!---->
-                </div>
-                 
-                <span
-                  class="v-tooltip v-tooltip--bottom"
-                >
-                  <!---->
-                  <i
-                    aria-hidden="true"
-                    class="v-icon notranslate mdi mdi-drag-vertical theme--light"
-                  />
-                </span>
-              </td>
+              <!---->
             </tr>
           </tbody>
         </table>
@@ -7553,10 +7288,10 @@ exports[`Storyshots IndividualsTable Default 1`] = `
     class="v-application--wrap"
   >
     <section
-      class="section"
+      class=""
     >
       <div
-        class="row header"
+        class="row header justify-space-between"
       >
         <h3
           class="title"
@@ -7645,7 +7380,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                 />
                 <input
                   aria-checked="false"
-                  id="input-988"
+                  id="input-958"
                   role="checkbox"
                   type="checkbox"
                   value=""
@@ -7656,7 +7391,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
               </div>
               <label
                 class="v-label theme--light"
-                for="input-988"
+                for="input-958"
                 style="left: 0px; position: relative;"
               >
                 Select all
@@ -7744,13 +7479,13 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-993"
+                    for="input-963"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-993"
+                    id="input-963"
                     type="text"
                   />
                 </div>
@@ -7813,7 +7548,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
               <div
                 aria-expanded="false"
                 aria-haspopup="listbox"
-                aria-owns="list-1000"
+                aria-owns="list-970"
                 class="v-input__slot"
                 role="button"
               >
@@ -7833,7 +7568,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-1000"
+                    for="input-970"
                     style="left: 0px; position: absolute;"
                   >
                     Order by
@@ -7844,7 +7579,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                     <input
                       aria-readonly="false"
                       autocomplete="off"
-                      id="input-1000"
+                      id="input-970"
                       readonly="readonly"
                       type="text"
                     />
@@ -8035,13 +7770,1623 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                 >
                   <label
                     class="v-label v-label--active theme--light"
-                    for="input-1020"
+                    for="input-990"
                     style="left: 0px; position: absolute;"
                   >
                     Items per page
                   </label>
                   <input
-                    id="input-1020"
+                    id="input-990"
+                    max="0"
+                    min="1"
+                    type="number"
+                  />
+                </div>
+              </div>
+              <div
+                class="v-text-field__details"
+              >
+                <div
+                  class="v-messages theme--light"
+                >
+                  <div
+                    class="v-messages__wrapper"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+       
+      <div
+        class="v-dialog__container"
+      >
+        <!---->
+      </div>
+       
+      <div
+        class="v-dialog__container"
+      >
+        <!---->
+      </div>
+       
+      <div
+        class="v-dialog__container"
+      >
+        <!---->
+      </div>
+       
+      <!---->
+       
+      <div
+        class="dragged-item v-card v-sheet theme--dark primary"
+      >
+        <div
+          class="v-card__subtitle"
+        >
+          
+      Moving
+      0
+      individual
+    
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+`;
+
+exports[`Storyshots IndividualsTable Expandable 1`] = `
+<div
+  class="v-application v-application--is-ltr theme--light"
+  data-app="true"
+  id="app"
+>
+  <div
+    class="v-application--wrap"
+  >
+    <section
+      class=""
+    >
+      <div
+        class="row header justify-space-between"
+      >
+        <h3
+          class="title"
+        >
+          <i
+            aria-hidden="true"
+            class="v-icon notranslate v-icon--left v-icon--dense mdi mdi-account theme--light black--text"
+          />
+          
+      Individuals
+      
+          <span
+            class="ml-2 v-chip v-chip--no-color v-chip--pill theme--light v-size--small"
+            data-cy="individual-counter"
+          >
+            <span
+              class="v-chip__content"
+            >
+              
+        0
+      
+            </span>
+          </span>
+        </h3>
+         
+        <div>
+          <div
+            class="v-dialog__container"
+          >
+            <button
+              class="mr-4 v-btn v-btn--outlined theme--light v-size--small"
+              style="height: 34px; display: none;"
+              type="button"
+            >
+              <span
+                class="v-btn__content"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate v-icon--left mdi mdi-lightbulb-on-outline theme--light"
+                  style="font-size: 16px;"
+                />
+                
+        0 recommendation
+      
+              </span>
+            </button>
+            <!---->
+          </div>
+           
+          <button
+            class="black--text v-btn v-btn--has-bg theme--light v-size--small secondary"
+            data-cy="individual-add"
+            style="height: 34px;"
+            type="button"
+          >
+            <span
+              class="v-btn__content"
+            >
+              
+        Add
+      
+            </span>
+          </button>
+        </div>
+      </div>
+       
+      <div
+        class="row actions"
+      >
+        <div
+          class="v-input mt-0 theme--light v-input--selection-controls v-input--checkbox"
+        >
+          <div
+            class="v-input__control"
+          >
+            <div
+              class="v-input__slot"
+            >
+              <div
+                class="v-input--selection-controls__input"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate mdi mdi-checkbox-blank-outline theme--light"
+                />
+                <input
+                  aria-checked="false"
+                  id="input-1096"
+                  role="checkbox"
+                  type="checkbox"
+                  value=""
+                />
+                <div
+                  class="v-input--selection-controls__ripple"
+                />
+              </div>
+              <label
+                class="v-label theme--light"
+                for="input-1096"
+                style="left: 0px; position: relative;"
+              >
+                Select all
+              </label>
+            </div>
+            <div
+              class="v-messages theme--light"
+            >
+              <div
+                class="v-messages__wrapper"
+              />
+            </div>
+          </div>
+        </div>
+         
+        <div
+          class="d-flex search-box pa-0 flex-grow-1"
+        >
+          <div
+            class="v-input search pa-0 flex-grow-0 v-input--dense theme--light v-text-field v-text-field--single-line v-text-field--enclosed v-text-field--outlined"
+          >
+            <div
+              class="v-input__prepend-outer"
+            >
+              <div
+                class="v-menu"
+              >
+                <button
+                  aria-expanded="false"
+                  aria-haspopup="true"
+                  class="text-body-1 v-btn v-btn--has-bg theme--light v-size--default white"
+                  role="button"
+                  style="height: 30px;"
+                  type="button"
+                >
+                  <span
+                    class="v-btn__content"
+                  >
+                    
+            Filters
+            
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate v-icon--right mdi mdi-menu-down theme--light"
+                      style="font-size: 16px;"
+                    />
+                  </span>
+                </button>
+                <!---->
+              </div>
+            </div>
+            <div
+              class="v-input__control"
+            >
+              <div
+                class="v-input__slot"
+                style="height: 30px;"
+              >
+                <div
+                  class="v-input__prepend-inner"
+                >
+                  <div
+                    class="v-input__icon v-input__icon--prepend-inner"
+                  >
+                    <button
+                      aria-label="prepend icon"
+                      class="v-icon notranslate v-icon--link mdi mdi-magnify theme--light"
+                      type="button"
+                    />
+                  </div>
+                </div>
+                <fieldset
+                  aria-hidden="true"
+                >
+                  <legend>
+                    <span
+                      class="notranslate"
+                    >
+                      ​
+                    </span>
+                  </legend>
+                </fieldset>
+                <div
+                  class="v-text-field__slot"
+                >
+                  <label
+                    class="v-label theme--light"
+                    for="input-1101"
+                    style="left: 0px; position: absolute;"
+                  >
+                    Search
+                  </label>
+                  <input
+                    id="input-1101"
+                    type="text"
+                  />
+                </div>
+                <div
+                  class="v-input__append-inner"
+                >
+                  <div />
+                </div>
+              </div>
+              <div
+                class="v-text-field__details"
+              >
+                <div
+                  class="v-messages theme--light"
+                >
+                  <div
+                    class="v-messages__wrapper"
+                  >
+                    <div
+                      class="v-messages__message"
+                    >
+                       
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+           
+          <div
+            class="v-input select v-input--dense theme--light v-text-field v-text-field--single-line v-text-field--enclosed v-text-field--outlined v-select"
+          >
+            <div
+              class="v-input__prepend-outer"
+            >
+              <span
+                class="v-tooltip v-tooltip--bottom"
+              >
+                <!---->
+                <button
+                  class="text-body-1 v-btn v-btn--has-bg theme--light v-size--default white"
+                  style="height: 30px;"
+                  type="button"
+                >
+                  <span
+                    class="v-btn__content"
+                  >
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate mdi mdi-sort-descending theme--light"
+                      style="font-size: 16px;"
+                    />
+                  </span>
+                </button>
+              </span>
+            </div>
+            <div
+              class="v-input__control"
+            >
+              <div
+                aria-expanded="false"
+                aria-haspopup="listbox"
+                aria-owns="list-1108"
+                class="v-input__slot"
+                role="button"
+              >
+                <fieldset
+                  aria-hidden="true"
+                >
+                  <legend>
+                    <span
+                      class="notranslate"
+                    >
+                      ​
+                    </span>
+                  </legend>
+                </fieldset>
+                <div
+                  class="v-select__slot"
+                >
+                  <label
+                    class="v-label theme--light"
+                    for="input-1108"
+                    style="left: 0px; position: absolute;"
+                  >
+                    Order by
+                  </label>
+                  <div
+                    class="v-select__selections"
+                  >
+                    <input
+                      aria-readonly="false"
+                      autocomplete="off"
+                      id="input-1108"
+                      readonly="readonly"
+                      type="text"
+                    />
+                  </div>
+                  <div
+                    class="v-input__append-inner"
+                  >
+                    <div
+                      class="v-input__icon v-input__icon--append"
+                    >
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate mdi mdi-menu-down theme--light"
+                      />
+                    </div>
+                  </div>
+                  <input
+                    type="hidden"
+                  />
+                </div>
+                <div
+                  class="v-menu"
+                >
+                  <!---->
+                </div>
+              </div>
+              <div
+                class="v-text-field__details"
+              >
+                <div
+                  class="v-messages theme--light"
+                >
+                  <div
+                    class="v-messages__wrapper"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+         
+        <span
+          class="v-tooltip v-tooltip--bottom"
+        >
+          <!---->
+          <button
+            class="mr-4 ml-4 order-2 v-btn v-btn--disabled v-btn--outlined v-btn--text theme--light v-size--small"
+            data-cy="merge-button"
+            disabled="disabled"
+            style="height: 34px;"
+            type="button"
+          >
+            <span
+              class="v-btn__content"
+            >
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate v-icon--left mdi mdi-call-merge theme--light"
+                style="font-size: 16px;"
+              />
+              
+          Merge
+        
+            </span>
+          </button>
+        </span>
+         
+        <span
+          class="v-tooltip v-tooltip--bottom"
+        >
+          <!---->
+          <button
+            class="order-3 v-btn v-btn--disabled v-btn--outlined v-btn--text theme--light v-size--small"
+            data-cy="delete-button"
+            disabled="disabled"
+            style="height: 34px;"
+            type="button"
+          >
+            <span
+              class="v-btn__content"
+            >
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate v-icon--left mdi mdi-delete theme--light"
+                style="font-size: 16px;"
+              />
+              
+          Delete
+        
+            </span>
+          </button>
+        </span>
+      </div>
+       
+      <div
+        class="v-data-table theme--light"
+      >
+        <div
+          class="v-data-table__wrapper"
+        >
+          <table>
+            <colgroup>
+              <col
+                class=""
+              />
+              <col
+                class=""
+              />
+              <col
+                class=""
+              />
+              <col
+                class=""
+              />
+            </colgroup>
+            <tbody>
+              <tr
+                class="v-data-table__empty-wrapper"
+              >
+                <td
+                  colspan="4"
+                >
+                  No data available
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+       
+      <div
+        class="d-flex align-baseline text-center pt-2"
+      >
+        <div
+          class="ml-auto col col-8"
+        >
+          <nav
+            aria-label="Pagination Navigation"
+            role="navigation"
+          >
+            <ul
+              class="v-pagination theme--light"
+            >
+              <li>
+                <button
+                  aria-label="Previous page"
+                  class="v-pagination__navigation v-pagination__navigation--disabled"
+                  disabled="disabled"
+                  type="button"
+                >
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate mdi mdi-chevron-left theme--light"
+                  />
+                </button>
+              </li>
+              <li>
+                <button
+                  aria-label="Next page"
+                  class="v-pagination__navigation v-pagination__navigation--disabled"
+                  disabled="disabled"
+                  type="button"
+                >
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate mdi mdi-chevron-right theme--light"
+                  />
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+         
+        <div
+          class="col col-2"
+        >
+          <div
+            class="v-input mr-3 v-input--is-label-active v-input--is-dirty theme--light v-text-field"
+          >
+            <div
+              class="v-input__control"
+            >
+              <div
+                class="v-input__slot"
+              >
+                <div
+                  class="v-text-field__slot"
+                >
+                  <label
+                    class="v-label v-label--active theme--light"
+                    for="input-1128"
+                    style="left: 0px; position: absolute;"
+                  >
+                    Items per page
+                  </label>
+                  <input
+                    id="input-1128"
+                    max="0"
+                    min="1"
+                    type="number"
+                  />
+                </div>
+              </div>
+              <div
+                class="v-text-field__details"
+              >
+                <div
+                  class="v-messages theme--light"
+                >
+                  <div
+                    class="v-messages__wrapper"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+       
+      <div
+        class="v-dialog__container"
+      >
+        <!---->
+      </div>
+       
+      <div
+        class="v-dialog__container"
+      >
+        <!---->
+      </div>
+       
+      <div
+        class="v-dialog__container"
+      >
+        <!---->
+      </div>
+       
+      <!---->
+       
+      <div
+        class="dragged-item v-card v-sheet theme--dark primary"
+      >
+        <div
+          class="v-card__subtitle"
+        >
+          
+      Moving
+      0
+      individual
+    
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+`;
+
+exports[`Storyshots IndividualsTable Hidden Header 1`] = `
+<div
+  class="v-application v-application--is-ltr theme--light"
+  data-app="true"
+  id="app"
+>
+  <div
+    class="v-application--wrap"
+  >
+    <section
+      class=""
+    >
+      <!---->
+       
+      <div
+        class="row actions"
+      >
+        <div
+          class="v-input mt-0 theme--light v-input--selection-controls v-input--checkbox"
+        >
+          <div
+            class="v-input__control"
+          >
+            <div
+              class="v-input__slot"
+            >
+              <div
+                class="v-input--selection-controls__input"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate mdi mdi-checkbox-blank-outline theme--light"
+                />
+                <input
+                  aria-checked="false"
+                  id="input-1262"
+                  role="checkbox"
+                  type="checkbox"
+                  value=""
+                />
+                <div
+                  class="v-input--selection-controls__ripple"
+                />
+              </div>
+              <label
+                class="v-label theme--light"
+                for="input-1262"
+                style="left: 0px; position: relative;"
+              >
+                Select all
+              </label>
+            </div>
+            <div
+              class="v-messages theme--light"
+            >
+              <div
+                class="v-messages__wrapper"
+              />
+            </div>
+          </div>
+        </div>
+         
+        <div
+          class="d-flex search-box pa-0 flex-grow-1"
+        >
+          <div
+            class="v-input search pa-0 flex-grow-0 v-input--dense theme--light v-text-field v-text-field--single-line v-text-field--enclosed v-text-field--outlined"
+          >
+            <div
+              class="v-input__prepend-outer"
+            >
+              <div
+                class="v-menu"
+              >
+                <button
+                  aria-expanded="false"
+                  aria-haspopup="true"
+                  class="text-body-1 v-btn v-btn--has-bg theme--light v-size--default white"
+                  role="button"
+                  style="height: 30px;"
+                  type="button"
+                >
+                  <span
+                    class="v-btn__content"
+                  >
+                    
+            Filters
+            
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate v-icon--right mdi mdi-menu-down theme--light"
+                      style="font-size: 16px;"
+                    />
+                  </span>
+                </button>
+                <!---->
+              </div>
+            </div>
+            <div
+              class="v-input__control"
+            >
+              <div
+                class="v-input__slot"
+                style="height: 30px;"
+              >
+                <div
+                  class="v-input__prepend-inner"
+                >
+                  <div
+                    class="v-input__icon v-input__icon--prepend-inner"
+                  >
+                    <button
+                      aria-label="prepend icon"
+                      class="v-icon notranslate v-icon--link mdi mdi-magnify theme--light"
+                      type="button"
+                    />
+                  </div>
+                </div>
+                <fieldset
+                  aria-hidden="true"
+                >
+                  <legend>
+                    <span
+                      class="notranslate"
+                    >
+                      ​
+                    </span>
+                  </legend>
+                </fieldset>
+                <div
+                  class="v-text-field__slot"
+                >
+                  <label
+                    class="v-label theme--light"
+                    for="input-1267"
+                    style="left: 0px; position: absolute;"
+                  >
+                    Search
+                  </label>
+                  <input
+                    id="input-1267"
+                    type="text"
+                  />
+                </div>
+                <div
+                  class="v-input__append-inner"
+                >
+                  <div />
+                </div>
+              </div>
+              <div
+                class="v-text-field__details"
+              >
+                <div
+                  class="v-messages theme--light"
+                >
+                  <div
+                    class="v-messages__wrapper"
+                  >
+                    <div
+                      class="v-messages__message"
+                    >
+                       
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+           
+          <div
+            class="v-input select v-input--dense theme--light v-text-field v-text-field--single-line v-text-field--enclosed v-text-field--outlined v-select"
+          >
+            <div
+              class="v-input__prepend-outer"
+            >
+              <span
+                class="v-tooltip v-tooltip--bottom"
+              >
+                <!---->
+                <button
+                  class="text-body-1 v-btn v-btn--has-bg theme--light v-size--default white"
+                  style="height: 30px;"
+                  type="button"
+                >
+                  <span
+                    class="v-btn__content"
+                  >
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate mdi mdi-sort-descending theme--light"
+                      style="font-size: 16px;"
+                    />
+                  </span>
+                </button>
+              </span>
+            </div>
+            <div
+              class="v-input__control"
+            >
+              <div
+                aria-expanded="false"
+                aria-haspopup="listbox"
+                aria-owns="list-1274"
+                class="v-input__slot"
+                role="button"
+              >
+                <fieldset
+                  aria-hidden="true"
+                >
+                  <legend>
+                    <span
+                      class="notranslate"
+                    >
+                      ​
+                    </span>
+                  </legend>
+                </fieldset>
+                <div
+                  class="v-select__slot"
+                >
+                  <label
+                    class="v-label theme--light"
+                    for="input-1274"
+                    style="left: 0px; position: absolute;"
+                  >
+                    Order by
+                  </label>
+                  <div
+                    class="v-select__selections"
+                  >
+                    <input
+                      aria-readonly="false"
+                      autocomplete="off"
+                      id="input-1274"
+                      readonly="readonly"
+                      type="text"
+                    />
+                  </div>
+                  <div
+                    class="v-input__append-inner"
+                  >
+                    <div
+                      class="v-input__icon v-input__icon--append"
+                    >
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate mdi mdi-menu-down theme--light"
+                      />
+                    </div>
+                  </div>
+                  <input
+                    type="hidden"
+                  />
+                </div>
+                <div
+                  class="v-menu"
+                >
+                  <!---->
+                </div>
+              </div>
+              <div
+                class="v-text-field__details"
+              >
+                <div
+                  class="v-messages theme--light"
+                >
+                  <div
+                    class="v-messages__wrapper"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+         
+        <span
+          class="v-tooltip v-tooltip--bottom"
+        >
+          <!---->
+          <button
+            class="mr-4 ml-4 order-2 v-btn v-btn--disabled v-btn--outlined v-btn--text theme--light v-size--small"
+            data-cy="merge-button"
+            disabled="disabled"
+            style="height: 34px;"
+            type="button"
+          >
+            <span
+              class="v-btn__content"
+            >
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate v-icon--left mdi mdi-call-merge theme--light"
+                style="font-size: 16px;"
+              />
+              
+          Merge
+        
+            </span>
+          </button>
+        </span>
+         
+        <span
+          class="v-tooltip v-tooltip--bottom"
+        >
+          <!---->
+          <button
+            class="order-3 v-btn v-btn--disabled v-btn--outlined v-btn--text theme--light v-size--small"
+            data-cy="delete-button"
+            disabled="disabled"
+            style="height: 34px;"
+            type="button"
+          >
+            <span
+              class="v-btn__content"
+            >
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate v-icon--left mdi mdi-delete theme--light"
+                style="font-size: 16px;"
+              />
+              
+          Delete
+        
+            </span>
+          </button>
+        </span>
+      </div>
+       
+      <div
+        class="v-data-table theme--light"
+      >
+        <div
+          class="v-data-table__wrapper"
+        >
+          <table>
+            <colgroup>
+              <col
+                class=""
+              />
+              <col
+                class=""
+              />
+              <col
+                class=""
+              />
+              <col
+                class=""
+              />
+            </colgroup>
+            <tbody>
+              <tr
+                class="v-data-table__empty-wrapper"
+              >
+                <td
+                  colspan="4"
+                >
+                  No data available
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+       
+      <div
+        class="d-flex align-baseline text-center pt-2"
+      >
+        <div
+          class="ml-auto col col-8"
+        >
+          <nav
+            aria-label="Pagination Navigation"
+            role="navigation"
+          >
+            <ul
+              class="v-pagination theme--light"
+            >
+              <li>
+                <button
+                  aria-label="Previous page"
+                  class="v-pagination__navigation v-pagination__navigation--disabled"
+                  disabled="disabled"
+                  type="button"
+                >
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate mdi mdi-chevron-left theme--light"
+                  />
+                </button>
+              </li>
+              <li>
+                <button
+                  aria-label="Next page"
+                  class="v-pagination__navigation v-pagination__navigation--disabled"
+                  disabled="disabled"
+                  type="button"
+                >
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate mdi mdi-chevron-right theme--light"
+                  />
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+         
+        <div
+          class="col col-2"
+        >
+          <div
+            class="v-input mr-3 v-input--is-label-active v-input--is-dirty theme--light v-text-field"
+          >
+            <div
+              class="v-input__control"
+            >
+              <div
+                class="v-input__slot"
+              >
+                <div
+                  class="v-text-field__slot"
+                >
+                  <label
+                    class="v-label v-label--active theme--light"
+                    for="input-1294"
+                    style="left: 0px; position: absolute;"
+                  >
+                    Items per page
+                  </label>
+                  <input
+                    id="input-1294"
+                    max="0"
+                    min="1"
+                    type="number"
+                  />
+                </div>
+              </div>
+              <div
+                class="v-text-field__details"
+              >
+                <div
+                  class="v-messages theme--light"
+                >
+                  <div
+                    class="v-messages__wrapper"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+       
+      <div
+        class="v-dialog__container"
+      >
+        <!---->
+      </div>
+       
+      <div
+        class="v-dialog__container"
+      >
+        <!---->
+      </div>
+       
+      <div
+        class="v-dialog__container"
+      >
+        <!---->
+      </div>
+       
+      <!---->
+       
+      <div
+        class="dragged-item v-card v-sheet theme--dark primary"
+      >
+        <div
+          class="v-card__subtitle"
+        >
+          
+      Moving
+      0
+      individual
+    
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+`;
+
+exports[`Storyshots IndividualsTable Outlined 1`] = `
+<div
+  class="v-application v-application--is-ltr theme--light"
+  data-app="true"
+  id="app"
+>
+  <div
+    class="v-application--wrap"
+  >
+    <section
+      class="section"
+    >
+      <div
+        class="row header justify-space-between"
+      >
+        <h3
+          class="title"
+        >
+          <i
+            aria-hidden="true"
+            class="v-icon notranslate v-icon--left v-icon--dense mdi mdi-account theme--light black--text"
+          />
+          
+      Individuals
+      
+          <span
+            class="ml-2 v-chip v-chip--no-color v-chip--pill theme--light v-size--small"
+            data-cy="individual-counter"
+          >
+            <span
+              class="v-chip__content"
+            >
+              
+        0
+      
+            </span>
+          </span>
+        </h3>
+         
+        <div>
+          <div
+            class="v-dialog__container"
+          >
+            <button
+              class="mr-4 v-btn v-btn--outlined theme--light v-size--small"
+              style="height: 34px; display: none;"
+              type="button"
+            >
+              <span
+                class="v-btn__content"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate v-icon--left mdi mdi-lightbulb-on-outline theme--light"
+                  style="font-size: 16px;"
+                />
+                
+        0 recommendation
+      
+              </span>
+            </button>
+            <!---->
+          </div>
+           
+          <button
+            class="black--text v-btn v-btn--has-bg theme--light v-size--small secondary"
+            data-cy="individual-add"
+            style="height: 34px;"
+            type="button"
+          >
+            <span
+              class="v-btn__content"
+            >
+              
+        Add
+      
+            </span>
+          </button>
+        </div>
+      </div>
+       
+      <div
+        class="row actions"
+      >
+        <div
+          class="v-input mt-0 theme--light v-input--selection-controls v-input--checkbox"
+        >
+          <div
+            class="v-input__control"
+          >
+            <div
+              class="v-input__slot"
+            >
+              <div
+                class="v-input--selection-controls__input"
+              >
+                <i
+                  aria-hidden="true"
+                  class="v-icon notranslate mdi mdi-checkbox-blank-outline theme--light"
+                />
+                <input
+                  aria-checked="false"
+                  id="input-1400"
+                  role="checkbox"
+                  type="checkbox"
+                  value=""
+                />
+                <div
+                  class="v-input--selection-controls__ripple"
+                />
+              </div>
+              <label
+                class="v-label theme--light"
+                for="input-1400"
+                style="left: 0px; position: relative;"
+              >
+                Select all
+              </label>
+            </div>
+            <div
+              class="v-messages theme--light"
+            >
+              <div
+                class="v-messages__wrapper"
+              />
+            </div>
+          </div>
+        </div>
+         
+        <div
+          class="d-flex search-box pa-0 flex-grow-1"
+        >
+          <div
+            class="v-input search pa-0 flex-grow-0 v-input--dense theme--light v-text-field v-text-field--single-line v-text-field--enclosed v-text-field--outlined"
+          >
+            <div
+              class="v-input__prepend-outer"
+            >
+              <div
+                class="v-menu"
+              >
+                <button
+                  aria-expanded="false"
+                  aria-haspopup="true"
+                  class="text-body-1 v-btn v-btn--has-bg theme--light v-size--default white"
+                  role="button"
+                  style="height: 30px;"
+                  type="button"
+                >
+                  <span
+                    class="v-btn__content"
+                  >
+                    
+            Filters
+            
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate v-icon--right mdi mdi-menu-down theme--light"
+                      style="font-size: 16px;"
+                    />
+                  </span>
+                </button>
+                <!---->
+              </div>
+            </div>
+            <div
+              class="v-input__control"
+            >
+              <div
+                class="v-input__slot"
+                style="height: 30px;"
+              >
+                <div
+                  class="v-input__prepend-inner"
+                >
+                  <div
+                    class="v-input__icon v-input__icon--prepend-inner"
+                  >
+                    <button
+                      aria-label="prepend icon"
+                      class="v-icon notranslate v-icon--link mdi mdi-magnify theme--light"
+                      type="button"
+                    />
+                  </div>
+                </div>
+                <fieldset
+                  aria-hidden="true"
+                >
+                  <legend>
+                    <span
+                      class="notranslate"
+                    >
+                      ​
+                    </span>
+                  </legend>
+                </fieldset>
+                <div
+                  class="v-text-field__slot"
+                >
+                  <label
+                    class="v-label theme--light"
+                    for="input-1405"
+                    style="left: 0px; position: absolute;"
+                  >
+                    Search
+                  </label>
+                  <input
+                    id="input-1405"
+                    type="text"
+                  />
+                </div>
+                <div
+                  class="v-input__append-inner"
+                >
+                  <div />
+                </div>
+              </div>
+              <div
+                class="v-text-field__details"
+              >
+                <div
+                  class="v-messages theme--light"
+                >
+                  <div
+                    class="v-messages__wrapper"
+                  >
+                    <div
+                      class="v-messages__message"
+                    >
+                       
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+           
+          <div
+            class="v-input select v-input--dense theme--light v-text-field v-text-field--single-line v-text-field--enclosed v-text-field--outlined v-select"
+          >
+            <div
+              class="v-input__prepend-outer"
+            >
+              <span
+                class="v-tooltip v-tooltip--bottom"
+              >
+                <!---->
+                <button
+                  class="text-body-1 v-btn v-btn--has-bg theme--light v-size--default white"
+                  style="height: 30px;"
+                  type="button"
+                >
+                  <span
+                    class="v-btn__content"
+                  >
+                    <i
+                      aria-hidden="true"
+                      class="v-icon notranslate mdi mdi-sort-descending theme--light"
+                      style="font-size: 16px;"
+                    />
+                  </span>
+                </button>
+              </span>
+            </div>
+            <div
+              class="v-input__control"
+            >
+              <div
+                aria-expanded="false"
+                aria-haspopup="listbox"
+                aria-owns="list-1412"
+                class="v-input__slot"
+                role="button"
+              >
+                <fieldset
+                  aria-hidden="true"
+                >
+                  <legend>
+                    <span
+                      class="notranslate"
+                    >
+                      ​
+                    </span>
+                  </legend>
+                </fieldset>
+                <div
+                  class="v-select__slot"
+                >
+                  <label
+                    class="v-label theme--light"
+                    for="input-1412"
+                    style="left: 0px; position: absolute;"
+                  >
+                    Order by
+                  </label>
+                  <div
+                    class="v-select__selections"
+                  >
+                    <input
+                      aria-readonly="false"
+                      autocomplete="off"
+                      id="input-1412"
+                      readonly="readonly"
+                      type="text"
+                    />
+                  </div>
+                  <div
+                    class="v-input__append-inner"
+                  >
+                    <div
+                      class="v-input__icon v-input__icon--append"
+                    >
+                      <i
+                        aria-hidden="true"
+                        class="v-icon notranslate mdi mdi-menu-down theme--light"
+                      />
+                    </div>
+                  </div>
+                  <input
+                    type="hidden"
+                  />
+                </div>
+                <div
+                  class="v-menu"
+                >
+                  <!---->
+                </div>
+              </div>
+              <div
+                class="v-text-field__details"
+              >
+                <div
+                  class="v-messages theme--light"
+                >
+                  <div
+                    class="v-messages__wrapper"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+         
+        <span
+          class="v-tooltip v-tooltip--bottom"
+        >
+          <!---->
+          <button
+            class="mr-4 ml-4 order-2 v-btn v-btn--disabled v-btn--outlined v-btn--text theme--light v-size--small"
+            data-cy="merge-button"
+            disabled="disabled"
+            style="height: 34px;"
+            type="button"
+          >
+            <span
+              class="v-btn__content"
+            >
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate v-icon--left mdi mdi-call-merge theme--light"
+                style="font-size: 16px;"
+              />
+              
+          Merge
+        
+            </span>
+          </button>
+        </span>
+         
+        <span
+          class="v-tooltip v-tooltip--bottom"
+        >
+          <!---->
+          <button
+            class="order-3 v-btn v-btn--disabled v-btn--outlined v-btn--text theme--light v-size--small"
+            data-cy="delete-button"
+            disabled="disabled"
+            style="height: 34px;"
+            type="button"
+          >
+            <span
+              class="v-btn__content"
+            >
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate v-icon--left mdi mdi-delete theme--light"
+                style="font-size: 16px;"
+              />
+              
+          Delete
+        
+            </span>
+          </button>
+        </span>
+      </div>
+       
+      <div
+        class="v-data-table theme--light"
+      >
+        <div
+          class="v-data-table__wrapper"
+        >
+          <table>
+            <colgroup>
+              <col
+                class=""
+              />
+              <col
+                class=""
+              />
+              <col
+                class=""
+              />
+              <col
+                class=""
+              />
+            </colgroup>
+            <tbody>
+              <tr
+                class="v-data-table__empty-wrapper"
+              >
+                <td
+                  colspan="4"
+                >
+                  No data available
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+       
+      <div
+        class="d-flex align-baseline text-center pt-2"
+      >
+        <div
+          class="ml-auto col col-8"
+        >
+          <nav
+            aria-label="Pagination Navigation"
+            role="navigation"
+          >
+            <ul
+              class="v-pagination theme--light"
+            >
+              <li>
+                <button
+                  aria-label="Previous page"
+                  class="v-pagination__navigation v-pagination__navigation--disabled"
+                  disabled="disabled"
+                  type="button"
+                >
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate mdi mdi-chevron-left theme--light"
+                  />
+                </button>
+              </li>
+              <li>
+                <button
+                  aria-label="Next page"
+                  class="v-pagination__navigation v-pagination__navigation--disabled"
+                  disabled="disabled"
+                  type="button"
+                >
+                  <i
+                    aria-hidden="true"
+                    class="v-icon notranslate mdi mdi-chevron-right theme--light"
+                  />
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+         
+        <div
+          class="col col-2"
+        >
+          <div
+            class="v-input mr-3 v-input--is-label-active v-input--is-dirty theme--light v-text-field"
+          >
+            <div
+              class="v-input__control"
+            >
+              <div
+                class="v-input__slot"
+              >
+                <div
+                  class="v-text-field__slot"
+                >
+                  <label
+                    class="v-label v-label--active theme--light"
+                    for="input-1432"
+                    style="left: 0px; position: absolute;"
+                  >
+                    Items per page
+                  </label>
+                  <input
+                    id="input-1432"
                     max="0"
                     min="1"
                     type="number"
@@ -8288,9 +9633,15 @@ exports[`Storyshots OrganizationEntry Default 1`] = `
               <td
                 class="font-weight-medium pl-8"
               >
-                
-    Hogwarts School of Witchcraft and Wizardry
-  
+                <a
+                  class="link--underline"
+                  href="/organization/Hogwarts%2520School%2520of%2520Witchcraft%2520and%2520Wizardry"
+                  target="_blank"
+                >
+                  
+      Hogwarts School of Witchcraft and Wizardry
+    
+                </a>
               </td>
                
               <td
@@ -8400,9 +9751,15 @@ exports[`Storyshots OrganizationEntry Not Editable 1`] = `
               <td
                 class="font-weight-medium pl-8"
               >
-                
-    Hogwarts School of Witchcraft and Wizardry
-  
+                <a
+                  class="link--underline"
+                  href="/organization/Hogwarts%2520School%2520of%2520Witchcraft%2520and%2520Wizardry"
+                  target="_blank"
+                >
+                  
+      Hogwarts School of Witchcraft and Wizardry
+    
+                </a>
               </td>
                
               <td
@@ -8574,7 +9931,7 @@ exports[`Storyshots OrganizationSelector Default 1`] = `
           <div
             aria-expanded="false"
             aria-haspopup="listbox"
-            aria-owns="list-1239"
+            aria-owns="list-1623"
             class="v-input__slot"
             role="combobox"
           >
@@ -8596,14 +9953,14 @@ exports[`Storyshots OrganizationSelector Default 1`] = `
             >
               <label
                 class="v-label theme--light"
-                for="input-1239"
+                for="input-1623"
                 style="left: 0px; position: absolute;"
               >
                 Organization
               </label>
               <input
                 autocomplete="off"
-                id="input-1239"
+                id="input-1623"
                 type="text"
               />
               <div
@@ -8672,7 +10029,7 @@ exports[`Storyshots OrganizationSelector Selected Organization 1`] = `
           <div
             aria-expanded="false"
             aria-haspopup="listbox"
-            aria-owns="list-1249"
+            aria-owns="list-1633"
             class="v-input__slot"
             role="combobox"
           >
@@ -8694,14 +10051,14 @@ exports[`Storyshots OrganizationSelector Selected Organization 1`] = `
             >
               <label
                 class="v-label v-label--active theme--light"
-                for="input-1249"
+                for="input-1633"
                 style="left: 0px; position: absolute;"
               >
                 Organization
               </label>
               <input
                 autocomplete="off"
-                id="input-1249"
+                id="input-1633"
                 type="text"
               />
               <div
@@ -8868,13 +10225,13 @@ exports[`Storyshots OrganizationsTable Groups 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-1267"
+                    for="input-1651"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-1267"
+                    id="input-1651"
                     type="text"
                   />
                 </div>
@@ -8998,13 +10355,13 @@ exports[`Storyshots OrganizationsTable Groups 1`] = `
               >
                 <label
                   class="v-label v-label--active theme--light"
-                  for="input-1277"
+                  for="input-1661"
                   style="left: 0px; position: absolute;"
                 >
                   Items per page
                 </label>
                 <input
-                  id="input-1277"
+                  id="input-1661"
                   max="0"
                   min="1"
                   type="number"
@@ -9143,13 +10500,13 @@ exports[`Storyshots OrganizationsTable Organizations 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-1316"
+                    for="input-1703"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-1316"
+                    id="input-1703"
                     type="text"
                   />
                 </div>
@@ -9273,13 +10630,13 @@ exports[`Storyshots OrganizationsTable Organizations 1`] = `
               >
                 <label
                   class="v-label v-label--active theme--light"
-                  for="input-1326"
+                  for="input-1713"
                   style="left: 0px; position: absolute;"
                 >
                   Items per page
                 </label>
                 <input
-                  id="input-1326"
+                  id="input-1713"
                   max="0"
                   min="1"
                   type="number"
@@ -9667,13 +11024,13 @@ exports[`Storyshots Search Default 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-1414"
+                  for="input-1804"
                   style="left: 0px; position: absolute;"
                 >
                   Search
                 </label>
                 <input
-                  id="input-1414"
+                  id="input-1804"
                   type="text"
                 />
               </div>
@@ -9794,13 +11151,13 @@ exports[`Storyshots Search Filter Selector 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-1423"
+                  for="input-1813"
                   style="left: 0px; position: absolute;"
                 >
                   Search
                 </label>
                 <input
-                  id="input-1423"
+                  id="input-1813"
                   type="text"
                 />
               </div>
@@ -9891,13 +11248,13 @@ exports[`Storyshots Search Order Selector 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-1435"
+                  for="input-1825"
                   style="left: 0px; position: absolute;"
                 >
                   Search
                 </label>
                 <input
-                  id="input-1435"
+                  id="input-1825"
                   type="text"
                 />
               </div>
@@ -9960,7 +11317,7 @@ exports[`Storyshots Search Order Selector 1`] = `
             <div
               aria-expanded="false"
               aria-haspopup="listbox"
-              aria-owns="list-1439"
+              aria-owns="list-1829"
               class="v-input__slot"
               role="button"
             >
@@ -9980,7 +11337,7 @@ exports[`Storyshots Search Order Selector 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-1439"
+                  for="input-1829"
                   style="left: 0px; position: absolute;"
                 >
                   Order by
@@ -9991,7 +11348,7 @@ exports[`Storyshots Search Order Selector 1`] = `
                   <input
                     aria-readonly="false"
                     autocomplete="off"
-                    id="input-1439"
+                    id="input-1829"
                     readonly="readonly"
                     type="text"
                   />
@@ -10827,10 +12184,10 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
       </div>
        
       <section
-        class="section"
+        class=""
       >
         <div
-          class="row header"
+          class="row header justify-space-between"
         >
           <h3
             class="title"
@@ -10919,7 +12276,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   />
                   <input
                     aria-checked="false"
-                    id="input-1579"
+                    id="input-1969"
                     role="checkbox"
                     type="checkbox"
                     value=""
@@ -10930,7 +12287,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 </div>
                 <label
                   class="v-label theme--light"
-                  for="input-1579"
+                  for="input-1969"
                   style="left: 0px; position: relative;"
                 >
                   Select all
@@ -11018,13 +12375,13 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   >
                     <label
                       class="v-label theme--light"
-                      for="input-1584"
+                      for="input-1974"
                       style="left: 0px; position: absolute;"
                     >
                       Search
                     </label>
                     <input
-                      id="input-1584"
+                      id="input-1974"
                       type="text"
                     />
                   </div>
@@ -11087,7 +12444,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 <div
                   aria-expanded="false"
                   aria-haspopup="listbox"
-                  aria-owns="list-1591"
+                  aria-owns="list-1981"
                   class="v-input__slot"
                   role="button"
                 >
@@ -11107,7 +12464,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   >
                     <label
                       class="v-label theme--light"
-                      for="input-1591"
+                      for="input-1981"
                       style="left: 0px; position: absolute;"
                     >
                       Order by
@@ -11118,7 +12475,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                       <input
                         aria-readonly="false"
                         autocomplete="off"
-                        id="input-1591"
+                        id="input-1981"
                         readonly="readonly"
                         type="text"
                       />
@@ -11309,13 +12666,13 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   >
                     <label
                       class="v-label v-label--active theme--light"
-                      for="input-1611"
+                      for="input-2001"
                       style="left: 0px; position: absolute;"
                     >
                       Items per page
                     </label>
                     <input
-                      id="input-1611"
+                      id="input-2001"
                       max="0"
                       min="1"
                       type="number"

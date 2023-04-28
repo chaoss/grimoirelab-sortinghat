@@ -4,6 +4,8 @@ import * as _Vuetify from "vuetify/lib";
 import { configure, addDecorator } from "@storybook/vue";
 import Logger from "../src/plugins/logger";
 import GetErrorMessage from "../src/plugins/errors";
+import VueRouter from "vue-router";
+import router from "../src/router";
 
 const Vuetify = _Vuetify.default;
 
@@ -23,6 +25,7 @@ Vue.use(Vuetify, {
 });
 Vue.use(Logger);
 Vue.use(GetErrorMessage);
+Vue.use(VueRouter);
 
 const VuetifyConfig = new Vuetify({
   icons: {
@@ -42,5 +45,6 @@ const VuetifyConfig = new Vuetify({
 
 addDecorator(() => ({
   vuetify: VuetifyConfig,
-  template: "<v-app><story/></v-app>"
+  template: "<v-app><story/></v-app>",
+  router,
 }));
