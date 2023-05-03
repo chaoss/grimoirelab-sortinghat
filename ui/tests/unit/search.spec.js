@@ -11,6 +11,7 @@ describe("Search", () => {
     return mount(Search, {
       Vue,
       vuetify,
+      stubs: ["router-link"],
       ...options,
     });
   };

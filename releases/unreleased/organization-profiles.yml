@@ -1,0 +1,9 @@
+---
+title: Organization profiles
+category: added
+author: Eva Millan <evamillan@bitergia.com>
+issue: null
+notes: >
+  Each organization's full profile is available by clicking
+  its name on the table or at `/organization/<organization name>`.
+  This view shows the organization's teams, members and domains.

@@ -20,6 +20,8 @@
       <v-col lg="8" sm="12" class="pa-0 mr-lg-8">
         <individuals-table
           class="individuals"
+          is-expandable
+          outlined
           :fetch-page="getIndividualsPage"
           :delete-item="deleteItem"
           :merge-items="mergeItems"

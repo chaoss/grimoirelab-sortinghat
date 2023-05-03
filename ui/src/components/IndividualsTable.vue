@@ -1,6 +1,6 @@
 <template>
-  <section class="section">
-    <v-row class="header">
+  <section :class="{ section: outlined }">
+    <v-row v-if="!hideHeader" class="header justify-space-between">
       <h3 class="title">
         <v-icon color="black" left dense> mdi-account </v-icon>
         Individuals
@@ -127,6 +127,7 @@
           :is-bot="item.isBot"
           :is-selected="item.isSelected"
           :is-highlighted="item.uuid === highlightIndividual"
+          :is-expandable="isExpandable"
           @dblclick.native="expand(!isExpanded)"
           @expand="expand(!isExpanded)"
           @edit="updateProfileInfo($event, item.uuid)"
@@ -143,7 +144,7 @@
           @enroll="confirmEnroll(item, $event)"
         />
       </template>
-      <template v-slot:expanded-item="{ item }">
+      <template v-if="isExpandable" v-slot:expanded-item="{ item }">
         <expanded-individual
           :uuid="item.uuid"
           :gender="item.gender"
@@ -360,6 +361,18 @@ export default {
     fetchOrganizations: {
       type: Function,
       required: true,
+    },
+    hideHeader: {
+      type: Boolean,
+      required: false,
+    },
+    isExpandable: {
+      type: Boolean,
+      required: false,
+    },
+    outlined: {
+      type: Boolean,
+      required: false,
     },
   },
   data() {

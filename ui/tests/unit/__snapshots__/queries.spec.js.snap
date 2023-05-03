@@ -9,10 +9,10 @@ exports[`IndividualsData mock query for getIndividuals 1`] = `
 
 exports[`IndividualsTable Mock query for getCountries 1`] = `
 <section
-  class="section"
+  class=""
 >
   <v-row-stub
-    class="header"
+    class="header justify-space-between"
     tag="div"
   >
     <h3
@@ -305,10 +305,10 @@ exports[`IndividualsTable Mock query for getCountries 1`] = `
 
 exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
 <section
-  class="section"
+  class=""
 >
   <v-row-stub
-    class="header"
+    class="header justify-space-between"
     tag="div"
   >
     <h3

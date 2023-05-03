@@ -7,7 +7,16 @@
     @dragleave.prevent="isDropZone($event, false)"
   >
     <td class="font-weight-medium pl-8">
-      {{ name }}
+      <router-link
+        :to="{
+          name: 'Organization',
+          params: { name: encodeURIComponent(name) },
+        }"
+        target="_blank"
+        class="link--underline"
+      >
+        {{ name }}
+      </router-link>
     </td>
     <td class="text-right text--secondary">
       <v-tooltip bottom transition="expand-y-transition" open-delay="200">

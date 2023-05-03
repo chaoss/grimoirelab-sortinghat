@@ -246,6 +246,7 @@ describe("IndividualsTable", () => {
   const mountFunction = (options) => {
     return shallowMount(IndividualsTable, {
       Vue,
+      stubs: ["router-link"],
       propsData: {
         fetchPage: () => {},
         mergeItems: () => {},
@@ -423,6 +424,7 @@ describe("OrganizationsTable", () => {
           query,
         },
       },
+      stubs: ["router-link"],
       propsData: {
         fetchPage: query,
         enroll: () => {},
