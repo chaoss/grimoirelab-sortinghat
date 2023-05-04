@@ -93,3 +93,29 @@ def job_using_tenant(func):
         finally:
             tenant.unset_db_tenant()
     return using_tenant
+
+
+def job_callback_using_tenant(func):
+    """Use the tenant provided in the context argument for the job"""
+
+    @wraps(func)
+    def using_tenant(*args, **kwargs):
+        job = kwargs.get('job', None)
+        if not job and args:
+            job = args[0]
+        if not job:
+            return func(*args, **kwargs)
+
+        ctx = job.kwargs.get('ctx', None)
+        if not ctx and job.args:
+            ctx = job.args[0]
+        if not ctx:
+            return func(*args, **kwargs)
+
+        tenant.set_db_tenant(ctx.tenant)
+        try:
+            return func(*args, **kwargs)
+        finally:
+            tenant.unset_db_tenant()
+
+    return using_tenant
