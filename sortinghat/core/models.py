@@ -372,9 +372,9 @@ class ImportIdentitiesTask(EntityBase):
 
 class Tenant(EntityBase):
     user = ForeignKey(settings.AUTH_USER_MODEL, on_delete=CASCADE)
-    host = CharField(max_length=MAX_SIZE_CHAR_FIELD)
+    header = CharField(max_length=MAX_SIZE_CHAR_FIELD)
     database = CharField(max_length=MAX_SIZE_CHAR_FIELD)
 
     class Meta:
         db_table = 'tenants'
-        unique_together = ('user', 'host')
+        unique_together = ('user', 'header')

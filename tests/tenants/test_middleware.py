@@ -35,7 +35,7 @@ class TestTenantMiddleware(django.test.TestCase):
 
         self.factory = django.test.RequestFactory()
 
-    @unittest.mock.patch('sortinghat.core.tenant.tenant_from_username_host')
+    @unittest.mock.patch('sortinghat.core.tenant.tenant_from_username_header')
     def test_middleware(self, mock_user_tenant):
         """Test if the middleware returns the response correctly"""
 
@@ -50,7 +50,7 @@ class TestTenantMiddleware(django.test.TestCase):
         # ensure get_response has been returned
         self.assertEqual(get_response.return_value, response)
 
-    @unittest.mock.patch('sortinghat.core.tenant.tenant_from_username_host')
+    @unittest.mock.patch('sortinghat.core.tenant.tenant_from_username_header')
     def test_middleware_tenant(self, mock_user_tenant):
         """Test if the middleware assign the tenant correctly"""
 

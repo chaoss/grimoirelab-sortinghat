@@ -1141,10 +1141,10 @@ class TestTenant(TransactionTestCase):
         with self.assertRaisesRegex(IntegrityError, DUPLICATE_CHECK_ERROR):
             user = get_user_model().objects.create(username='test')
             Tenant.objects.create(user=user,
-                                  host='localhost:8000',
+                                  header='t1',
                                   database='tenant_1')
             Tenant.objects.create(user=user,
-                                  host='localhost:8000',
+                                  header='t1',
                                   database='tenant_2')
 
     def test_created_at(self):
@@ -1153,7 +1153,7 @@ class TestTenant(TransactionTestCase):
         before_dt = datetime_utcnow()
         user = get_user_model().objects.create(username='test')
         tenant = Tenant.objects.create(user=user,
-                                       host='localhost:8000',
+                                       header='t2',
                                        database='tenant_2')
         after_dt = datetime_utcnow()
 

@@ -70,11 +70,13 @@ class SortingHatClient:
 
     :raises ValueError: when any of the given parameters is invalid
     """
-    def __init__(self, host, port=9314, path=None, user=None, password=None, ssl=True, verify_ssl=True):
+    def __init__(self, host, port=9314, path=None, user=None, password=None, ssl=True, verify_ssl=True,
+                 tenant=None):
         self.gqlc = None
         self.host = host
         self.port = port
         self.verify_ssl = verify_ssl
+        self.tenant = tenant
 
         scheme = 'https' if ssl else 'http'
         netloc = self.host + ':' + str(self.port) if self.port else self.host
@@ -119,6 +121,8 @@ class SortingHatClient:
             'Host': f"{self.host}:{self.port}" if self.port else self.host,
             'Referer': self.url
         }
+        if self.tenant:
+            headers['sortinghat-tenant'] = self.tenant
 
         self.gqlc = RequestsEndpoint(self.url, headers, session=session)
 

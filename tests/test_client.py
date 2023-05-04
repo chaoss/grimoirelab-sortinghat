@@ -293,6 +293,45 @@ class TestSortingHatClient(unittest.TestCase):
             op.token_auth(username='admin', password='1234').token()
             client.execute(op)
 
+    def test_client_tenant(self):
+        """Test if the tenant is included in the client connection"""
+
+        client = SortingHatClient('localhost', tenant='tenant_1')
+
+        self.assertEqual(client.tenant, 'tenant_1')
+
+    def test_connect_tenant(self):
+        """Test if the tenant is included in the client connection to the server"""
+
+        MockSortingHatServer(SORTINGHAT_SERVER_URL)
+
+        client = SortingHatClient('localhost', tenant='tenant_1')
+        client.connect()
+
+        self.assertEqual(client.tenant, 'tenant_1')
+
+        self.assertIsInstance(client.gqlc, sgqlc.endpoint.requests.RequestsEndpoint)
+
+        latest_requests = httpretty.latest_requests()
+        self.assertEqual(len(latest_requests), 1)
+
+        request = latest_requests[0]
+        self.assertEqual(request.method, 'GET')
+
+        headers = dict(request.headers)
+        self.assertEqual(headers['Host'], 'localhost:9314')
+        self.assertEqual(headers['Accept'], 'text/html')
+
+        # Connection was established and tokens set
+        expected = {
+            'X-CSRFToken': 'ABCDEFGHIJK',
+            'Cookie': 'csrftoken=ABCDEFGHIJK',
+            'Referer': 'https://localhost:9314/',
+            'Host': 'localhost:9314',
+            'sortinghat-tenant': 'tenant_1'
+        }
+        self.assertDictEqual(client.gqlc.base_headers, expected)
+
 
 if __name__ == "__main__":
     unittest.main(warnings='ignore')

@@ -239,7 +239,9 @@ To enable this feature follow these guidelines:
 You can use a different json file using the environment variable 
 `SORTINGHAT_MULTI_TENANT_LIST_PATH`
 - Assign users to tenants with the following command:
-  `sortinghat-admin set-user-tenant username host tenant`
+  `sortinghat-admin set-user-tenant username header tenant`
+- The selected tenant should be included in the request using the
+`sortinghat-tenant` header.
 
 There are some limitations:
 - `default` database is only used to store users information and relations between

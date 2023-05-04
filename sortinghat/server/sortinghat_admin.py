@@ -86,10 +86,10 @@ def setup(no_interactive, only_ui):
 
 @click.command()
 @click.argument('username')
-@click.argument('host')
+@click.argument('header')
 @click.argument('tenant')
-def set_user_tenant(username, host, tenant):
-    """Assign a user and host to a specific tenant"""
+def set_user_tenant(username, header, tenant):
+    """Assign a user and header to a specific tenant"""
 
     from sortinghat.core.models import Tenant
 
@@ -98,9 +98,9 @@ def set_user_tenant(username, host, tenant):
     except exceptions.ObjectDoesNotExist:
         raise click.ClickException(f"User '{username}' does not exist.")
 
-    Tenant.objects.update_or_create(user=user, host=host,
+    Tenant.objects.update_or_create(user=user, header=header,
                                     defaults={'database': tenant})
-    click.echo(f"User '{username}' at '{host}' assigned to '{tenant}'")
+    click.echo(f"User '{username}' at '{header}' assigned to '{tenant}'")
 
 
 def _setup(no_interactive, only_ui):
