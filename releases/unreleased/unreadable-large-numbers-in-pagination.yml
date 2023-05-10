@@ -1,0 +1,8 @@
+---
+title: Unreadable large numbers in pagination
+category: fixed
+author: Eva Millan <evamillan@bitergia.com>
+issue: 770
+notes: >
+  Large page numbers were not fully visible in the tables
+  pagination.

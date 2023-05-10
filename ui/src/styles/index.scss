@@ -112,12 +112,13 @@ $border-color: rgba(0, 0, 0, 0.12);
 .theme--light.v-pagination .v-pagination__item,
 .theme--light.v-pagination .v-pagination__navigation {
   box-shadow: none;
-  width: 32px;
+  min-width: 32px;
   height: 32px;
 }
 
 button.v-pagination__item {
   transition: none;
+  margin: 0.2rem;
 }
 
 .theme--light.v-pagination .v-pagination__item--active {
