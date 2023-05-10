@@ -1,0 +1,8 @@
+---
+title: Sort jobs from newest to oldest
+category: fixed
+author: Eva Millan <evamillan@bitergia.com>
+issue: 769
+notes: >
+  The jobs page now sorts the list from newest to oldest
+  to show running jobs first.
