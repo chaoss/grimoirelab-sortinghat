@@ -115,7 +115,7 @@ def get_jobs(tenant=None):
     if tenant:
         jobs = (job for job in jobs if job_in_tenant(job, tenant))
 
-    sorted_jobs = sorted(jobs, key=lambda x: x.enqueued_at if x.enqueued_at else datetime.datetime.utcnow())
+    sorted_jobs = sorted(jobs, key=lambda x: x.enqueued_at if x.enqueued_at else datetime.datetime.utcnow(), reverse=True)
 
     logger.debug(f"List of jobs retrieved; total jobs: {len(sorted_jobs)};")
 
