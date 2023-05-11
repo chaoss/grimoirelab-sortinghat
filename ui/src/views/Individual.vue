@@ -13,17 +13,16 @@
 
                 <v-list-item-content>
                   <v-list-item-title class="font-weight-medium text-h6">
-                    <span v-if="individual.isLocked">{{
-                      individual.name
-                    }}</span>
+                    <span>
+                      {{ individual.name || "no name" }}
+                    </span>
                     <v-edit-dialog
-                      v-else
+                      v-if="!individual.isLocked"
                       large
                       @save="updateProfile({ name: form.name })"
                       @cancel="form.name = individual.name"
                     >
                       <button>
-                        {{ individual.name || "no name" }}
                         <v-icon
                           class="icon--hidden aligned"
                           aria-label="Edit name"
