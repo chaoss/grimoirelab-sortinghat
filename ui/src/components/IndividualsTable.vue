@@ -112,6 +112,7 @@
       item-key="uuid"
       :page.sync="page"
       :items-per-page="itemsPerPage"
+      :loading="loading"
     >
       <template v-slot:item="{ item, expand, isExpanded }">
         <individual-entry
@@ -399,6 +400,7 @@ export default {
       itemsPerPage: 10,
       allSelected: false,
       orderBy: null,
+      loading: false,
     };
   },
   computed: {
@@ -434,6 +436,7 @@ export default {
       orderBy = this.orderBy
     ) {
       if (this.disabledSearch) return;
+      this.loading = true;
       let response = await this.fetchPage(
         page,
         this.itemsPerPage,
@@ -450,6 +453,7 @@ export default {
         this.allSelected = false;
         this.$emit("updateIndividuals", this.individuals);
       }
+      this.loading = false;
     },
     startDrag(item, event) {
       item.isSelected = true;
