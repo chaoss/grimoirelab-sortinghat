@@ -567,7 +567,7 @@ class AbstractPaginatedType(graphene.ObjectType):
             has_prev=result.has_previous(),
             start_index=result.start_index(),
             end_index=result.end_index(),
-            total_results=len(query)
+            total_results=paginator.count
         )
 
         return cls(entities=entities, page_info=page_info)
