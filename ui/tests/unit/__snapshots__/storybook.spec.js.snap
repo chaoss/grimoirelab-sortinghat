@@ -7695,6 +7695,42 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                 class=""
               />
             </colgroup>
+            <thead>
+              <tr
+                class="v-data-table__progress"
+              >
+                <th
+                  class="column"
+                  colspan="4"
+                >
+                  <div
+                    aria-valuemax="100"
+                    aria-valuemin="0"
+                    class="v-progress-linear v-progress-linear--absolute v-progress-linear--visible theme--light"
+                    role="progressbar"
+                    style="height: 4px;"
+                  >
+                    <div
+                      class="v-progress-linear__background primary"
+                      style="opacity: 0.3; left: 0%; width: 100%;"
+                    />
+                    <div
+                      class="v-progress-linear__buffer"
+                    />
+                    <div
+                      class="v-progress-linear__indeterminate v-progress-linear__indeterminate--active"
+                    >
+                      <div
+                        class="v-progress-linear__indeterminate long primary"
+                      />
+                      <div
+                        class="v-progress-linear__indeterminate short primary"
+                      />
+                    </div>
+                  </div>
+                </th>
+              </tr>
+            </thead>
             <tbody>
               <tr
                 class="v-data-table__empty-wrapper"
@@ -7702,7 +7738,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                 <td
                   colspan="4"
                 >
-                  No data available
+                  Loading items...
                 </td>
               </tr>
             </tbody>
@@ -7770,13 +7806,13 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                 >
                   <label
                     class="v-label v-label--active theme--light"
-                    for="input-990"
+                    for="input-992"
                     style="left: 0px; position: absolute;"
                   >
                     Items per page
                   </label>
                   <input
-                    id="input-990"
+                    id="input-992"
                     max="0"
                     min="1"
                     type="number"
@@ -7939,7 +7975,7 @@ exports[`Storyshots IndividualsTable Expandable 1`] = `
                 />
                 <input
                   aria-checked="false"
-                  id="input-1096"
+                  id="input-1098"
                   role="checkbox"
                   type="checkbox"
                   value=""
@@ -7950,7 +7986,7 @@ exports[`Storyshots IndividualsTable Expandable 1`] = `
               </div>
               <label
                 class="v-label theme--light"
-                for="input-1096"
+                for="input-1098"
                 style="left: 0px; position: relative;"
               >
                 Select all
@@ -8038,13 +8074,13 @@ exports[`Storyshots IndividualsTable Expandable 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-1101"
+                    for="input-1103"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-1101"
+                    id="input-1103"
                     type="text"
                   />
                 </div>
@@ -8107,7 +8143,7 @@ exports[`Storyshots IndividualsTable Expandable 1`] = `
               <div
                 aria-expanded="false"
                 aria-haspopup="listbox"
-                aria-owns="list-1108"
+                aria-owns="list-1110"
                 class="v-input__slot"
                 role="button"
               >
@@ -8127,7 +8163,7 @@ exports[`Storyshots IndividualsTable Expandable 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-1108"
+                    for="input-1110"
                     style="left: 0px; position: absolute;"
                   >
                     Order by
@@ -8138,7 +8174,7 @@ exports[`Storyshots IndividualsTable Expandable 1`] = `
                     <input
                       aria-readonly="false"
                       autocomplete="off"
-                      id="input-1108"
+                      id="input-1110"
                       readonly="readonly"
                       type="text"
                     />
@@ -8254,6 +8290,42 @@ exports[`Storyshots IndividualsTable Expandable 1`] = `
                 class=""
               />
             </colgroup>
+            <thead>
+              <tr
+                class="v-data-table__progress"
+              >
+                <th
+                  class="column"
+                  colspan="4"
+                >
+                  <div
+                    aria-valuemax="100"
+                    aria-valuemin="0"
+                    class="v-progress-linear v-progress-linear--absolute v-progress-linear--visible theme--light"
+                    role="progressbar"
+                    style="height: 4px;"
+                  >
+                    <div
+                      class="v-progress-linear__background primary"
+                      style="opacity: 0.3; left: 0%; width: 100%;"
+                    />
+                    <div
+                      class="v-progress-linear__buffer"
+                    />
+                    <div
+                      class="v-progress-linear__indeterminate v-progress-linear__indeterminate--active"
+                    >
+                      <div
+                        class="v-progress-linear__indeterminate long primary"
+                      />
+                      <div
+                        class="v-progress-linear__indeterminate short primary"
+                      />
+                    </div>
+                  </div>
+                </th>
+              </tr>
+            </thead>
             <tbody>
               <tr
                 class="v-data-table__empty-wrapper"
@@ -8261,7 +8333,7 @@ exports[`Storyshots IndividualsTable Expandable 1`] = `
                 <td
                   colspan="4"
                 >
-                  No data available
+                  Loading items...
                 </td>
               </tr>
             </tbody>
@@ -8329,13 +8401,13 @@ exports[`Storyshots IndividualsTable Expandable 1`] = `
                 >
                   <label
                     class="v-label v-label--active theme--light"
-                    for="input-1128"
+                    for="input-1132"
                     style="left: 0px; position: absolute;"
                   >
                     Items per page
                   </label>
                   <input
-                    id="input-1128"
+                    id="input-1132"
                     max="0"
                     min="1"
                     type="number"
@@ -8431,7 +8503,7 @@ exports[`Storyshots IndividualsTable Hidden Header 1`] = `
                 />
                 <input
                   aria-checked="false"
-                  id="input-1262"
+                  id="input-1266"
                   role="checkbox"
                   type="checkbox"
                   value=""
@@ -8442,7 +8514,7 @@ exports[`Storyshots IndividualsTable Hidden Header 1`] = `
               </div>
               <label
                 class="v-label theme--light"
-                for="input-1262"
+                for="input-1266"
                 style="left: 0px; position: relative;"
               >
                 Select all
@@ -8530,13 +8602,13 @@ exports[`Storyshots IndividualsTable Hidden Header 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-1267"
+                    for="input-1271"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-1267"
+                    id="input-1271"
                     type="text"
                   />
                 </div>
@@ -8599,7 +8671,7 @@ exports[`Storyshots IndividualsTable Hidden Header 1`] = `
               <div
                 aria-expanded="false"
                 aria-haspopup="listbox"
-                aria-owns="list-1274"
+                aria-owns="list-1278"
                 class="v-input__slot"
                 role="button"
               >
@@ -8619,7 +8691,7 @@ exports[`Storyshots IndividualsTable Hidden Header 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-1274"
+                    for="input-1278"
                     style="left: 0px; position: absolute;"
                   >
                     Order by
@@ -8630,7 +8702,7 @@ exports[`Storyshots IndividualsTable Hidden Header 1`] = `
                     <input
                       aria-readonly="false"
                       autocomplete="off"
-                      id="input-1274"
+                      id="input-1278"
                       readonly="readonly"
                       type="text"
                     />
@@ -8746,6 +8818,42 @@ exports[`Storyshots IndividualsTable Hidden Header 1`] = `
                 class=""
               />
             </colgroup>
+            <thead>
+              <tr
+                class="v-data-table__progress"
+              >
+                <th
+                  class="column"
+                  colspan="4"
+                >
+                  <div
+                    aria-valuemax="100"
+                    aria-valuemin="0"
+                    class="v-progress-linear v-progress-linear--absolute v-progress-linear--visible theme--light"
+                    role="progressbar"
+                    style="height: 4px;"
+                  >
+                    <div
+                      class="v-progress-linear__background primary"
+                      style="opacity: 0.3; left: 0%; width: 100%;"
+                    />
+                    <div
+                      class="v-progress-linear__buffer"
+                    />
+                    <div
+                      class="v-progress-linear__indeterminate v-progress-linear__indeterminate--active"
+                    >
+                      <div
+                        class="v-progress-linear__indeterminate long primary"
+                      />
+                      <div
+                        class="v-progress-linear__indeterminate short primary"
+                      />
+                    </div>
+                  </div>
+                </th>
+              </tr>
+            </thead>
             <tbody>
               <tr
                 class="v-data-table__empty-wrapper"
@@ -8753,7 +8861,7 @@ exports[`Storyshots IndividualsTable Hidden Header 1`] = `
                 <td
                   colspan="4"
                 >
-                  No data available
+                  Loading items...
                 </td>
               </tr>
             </tbody>
@@ -8821,13 +8929,13 @@ exports[`Storyshots IndividualsTable Hidden Header 1`] = `
                 >
                   <label
                     class="v-label v-label--active theme--light"
-                    for="input-1294"
+                    for="input-1300"
                     style="left: 0px; position: absolute;"
                   >
                     Items per page
                   </label>
                   <input
-                    id="input-1294"
+                    id="input-1300"
                     max="0"
                     min="1"
                     type="number"
@@ -8990,7 +9098,7 @@ exports[`Storyshots IndividualsTable Outlined 1`] = `
                 />
                 <input
                   aria-checked="false"
-                  id="input-1400"
+                  id="input-1406"
                   role="checkbox"
                   type="checkbox"
                   value=""
@@ -9001,7 +9109,7 @@ exports[`Storyshots IndividualsTable Outlined 1`] = `
               </div>
               <label
                 class="v-label theme--light"
-                for="input-1400"
+                for="input-1406"
                 style="left: 0px; position: relative;"
               >
                 Select all
@@ -9089,13 +9197,13 @@ exports[`Storyshots IndividualsTable Outlined 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-1405"
+                    for="input-1411"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-1405"
+                    id="input-1411"
                     type="text"
                   />
                 </div>
@@ -9158,7 +9266,7 @@ exports[`Storyshots IndividualsTable Outlined 1`] = `
               <div
                 aria-expanded="false"
                 aria-haspopup="listbox"
-                aria-owns="list-1412"
+                aria-owns="list-1418"
                 class="v-input__slot"
                 role="button"
               >
@@ -9178,7 +9286,7 @@ exports[`Storyshots IndividualsTable Outlined 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-1412"
+                    for="input-1418"
                     style="left: 0px; position: absolute;"
                   >
                     Order by
@@ -9189,7 +9297,7 @@ exports[`Storyshots IndividualsTable Outlined 1`] = `
                     <input
                       aria-readonly="false"
                       autocomplete="off"
-                      id="input-1412"
+                      id="input-1418"
                       readonly="readonly"
                       type="text"
                     />
@@ -9305,6 +9413,42 @@ exports[`Storyshots IndividualsTable Outlined 1`] = `
                 class=""
               />
             </colgroup>
+            <thead>
+              <tr
+                class="v-data-table__progress"
+              >
+                <th
+                  class="column"
+                  colspan="4"
+                >
+                  <div
+                    aria-valuemax="100"
+                    aria-valuemin="0"
+                    class="v-progress-linear v-progress-linear--absolute v-progress-linear--visible theme--light"
+                    role="progressbar"
+                    style="height: 4px;"
+                  >
+                    <div
+                      class="v-progress-linear__background primary"
+                      style="opacity: 0.3; left: 0%; width: 100%;"
+                    />
+                    <div
+                      class="v-progress-linear__buffer"
+                    />
+                    <div
+                      class="v-progress-linear__indeterminate v-progress-linear__indeterminate--active"
+                    >
+                      <div
+                        class="v-progress-linear__indeterminate long primary"
+                      />
+                      <div
+                        class="v-progress-linear__indeterminate short primary"
+                      />
+                    </div>
+                  </div>
+                </th>
+              </tr>
+            </thead>
             <tbody>
               <tr
                 class="v-data-table__empty-wrapper"
@@ -9312,7 +9456,7 @@ exports[`Storyshots IndividualsTable Outlined 1`] = `
                 <td
                   colspan="4"
                 >
-                  No data available
+                  Loading items...
                 </td>
               </tr>
             </tbody>
@@ -9380,13 +9524,13 @@ exports[`Storyshots IndividualsTable Outlined 1`] = `
                 >
                   <label
                     class="v-label v-label--active theme--light"
-                    for="input-1432"
+                    for="input-1440"
                     style="left: 0px; position: absolute;"
                   >
                     Items per page
                   </label>
                   <input
-                    id="input-1432"
+                    id="input-1440"
                     max="0"
                     min="1"
                     type="number"
@@ -9931,7 +10075,7 @@ exports[`Storyshots OrganizationSelector Default 1`] = `
           <div
             aria-expanded="false"
             aria-haspopup="listbox"
-            aria-owns="list-1623"
+            aria-owns="list-1631"
             class="v-input__slot"
             role="combobox"
           >
@@ -9953,14 +10097,14 @@ exports[`Storyshots OrganizationSelector Default 1`] = `
             >
               <label
                 class="v-label theme--light"
-                for="input-1623"
+                for="input-1631"
                 style="left: 0px; position: absolute;"
               >
                 Organization
               </label>
               <input
                 autocomplete="off"
-                id="input-1623"
+                id="input-1631"
                 type="text"
               />
               <div
@@ -10029,7 +10173,7 @@ exports[`Storyshots OrganizationSelector Selected Organization 1`] = `
           <div
             aria-expanded="false"
             aria-haspopup="listbox"
-            aria-owns="list-1633"
+            aria-owns="list-1641"
             class="v-input__slot"
             role="combobox"
           >
@@ -10051,14 +10195,14 @@ exports[`Storyshots OrganizationSelector Selected Organization 1`] = `
             >
               <label
                 class="v-label v-label--active theme--light"
-                for="input-1633"
+                for="input-1641"
                 style="left: 0px; position: absolute;"
               >
                 Organization
               </label>
               <input
                 autocomplete="off"
-                id="input-1633"
+                id="input-1641"
                 type="text"
               />
               <div
@@ -10225,13 +10369,13 @@ exports[`Storyshots OrganizationsTable Groups 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-1651"
+                    for="input-1659"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-1651"
+                    id="input-1659"
                     type="text"
                   />
                 </div>
@@ -10283,6 +10427,42 @@ exports[`Storyshots OrganizationsTable Groups 1`] = `
                 class=""
               />
             </colgroup>
+            <thead>
+              <tr
+                class="v-data-table__progress"
+              >
+                <th
+                  class="column"
+                  colspan="3"
+                >
+                  <div
+                    aria-valuemax="100"
+                    aria-valuemin="0"
+                    class="v-progress-linear v-progress-linear--absolute v-progress-linear--visible theme--light"
+                    role="progressbar"
+                    style="height: 4px;"
+                  >
+                    <div
+                      class="v-progress-linear__background primary"
+                      style="opacity: 0.3; left: 0%; width: 100%;"
+                    />
+                    <div
+                      class="v-progress-linear__buffer"
+                    />
+                    <div
+                      class="v-progress-linear__indeterminate v-progress-linear__indeterminate--active"
+                    >
+                      <div
+                        class="v-progress-linear__indeterminate long primary"
+                      />
+                      <div
+                        class="v-progress-linear__indeterminate short primary"
+                      />
+                    </div>
+                  </div>
+                </th>
+              </tr>
+            </thead>
             <tbody>
               <tr
                 class="v-data-table__empty-wrapper"
@@ -10290,7 +10470,7 @@ exports[`Storyshots OrganizationsTable Groups 1`] = `
                 <td
                   colspan="3"
                 >
-                  No data available
+                  Loading items...
                 </td>
               </tr>
             </tbody>
@@ -10355,13 +10535,13 @@ exports[`Storyshots OrganizationsTable Groups 1`] = `
               >
                 <label
                   class="v-label v-label--active theme--light"
-                  for="input-1661"
+                  for="input-1671"
                   style="left: 0px; position: absolute;"
                 >
                   Items per page
                 </label>
                 <input
-                  id="input-1661"
+                  id="input-1671"
                   max="0"
                   min="1"
                   type="number"
@@ -10500,13 +10680,13 @@ exports[`Storyshots OrganizationsTable Organizations 1`] = `
                 >
                   <label
                     class="v-label theme--light"
-                    for="input-1703"
+                    for="input-1713"
                     style="left: 0px; position: absolute;"
                   >
                     Search
                   </label>
                   <input
-                    id="input-1703"
+                    id="input-1713"
                     type="text"
                   />
                 </div>
@@ -10558,6 +10738,42 @@ exports[`Storyshots OrganizationsTable Organizations 1`] = `
                 class=""
               />
             </colgroup>
+            <thead>
+              <tr
+                class="v-data-table__progress"
+              >
+                <th
+                  class="column"
+                  colspan="3"
+                >
+                  <div
+                    aria-valuemax="100"
+                    aria-valuemin="0"
+                    class="v-progress-linear v-progress-linear--absolute v-progress-linear--visible theme--light"
+                    role="progressbar"
+                    style="height: 4px;"
+                  >
+                    <div
+                      class="v-progress-linear__background primary"
+                      style="opacity: 0.3; left: 0%; width: 100%;"
+                    />
+                    <div
+                      class="v-progress-linear__buffer"
+                    />
+                    <div
+                      class="v-progress-linear__indeterminate v-progress-linear__indeterminate--active"
+                    >
+                      <div
+                        class="v-progress-linear__indeterminate long primary"
+                      />
+                      <div
+                        class="v-progress-linear__indeterminate short primary"
+                      />
+                    </div>
+                  </div>
+                </th>
+              </tr>
+            </thead>
             <tbody>
               <tr
                 class="v-data-table__empty-wrapper"
@@ -10565,7 +10781,7 @@ exports[`Storyshots OrganizationsTable Organizations 1`] = `
                 <td
                   colspan="3"
                 >
-                  No data available
+                  Loading items...
                 </td>
               </tr>
             </tbody>
@@ -10630,13 +10846,13 @@ exports[`Storyshots OrganizationsTable Organizations 1`] = `
               >
                 <label
                   class="v-label v-label--active theme--light"
-                  for="input-1713"
+                  for="input-1725"
                   style="left: 0px; position: absolute;"
                 >
                   Items per page
                 </label>
                 <input
-                  id="input-1713"
+                  id="input-1725"
                   max="0"
                   min="1"
                   type="number"
@@ -11024,13 +11240,13 @@ exports[`Storyshots Search Default 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-1804"
+                  for="input-1816"
                   style="left: 0px; position: absolute;"
                 >
                   Search
                 </label>
                 <input
-                  id="input-1804"
+                  id="input-1816"
                   type="text"
                 />
               </div>
@@ -11151,13 +11367,13 @@ exports[`Storyshots Search Filter Selector 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-1813"
+                  for="input-1825"
                   style="left: 0px; position: absolute;"
                 >
                   Search
                 </label>
                 <input
-                  id="input-1813"
+                  id="input-1825"
                   type="text"
                 />
               </div>
@@ -11248,13 +11464,13 @@ exports[`Storyshots Search Order Selector 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-1825"
+                  for="input-1837"
                   style="left: 0px; position: absolute;"
                 >
                   Search
                 </label>
                 <input
-                  id="input-1825"
+                  id="input-1837"
                   type="text"
                 />
               </div>
@@ -11317,7 +11533,7 @@ exports[`Storyshots Search Order Selector 1`] = `
             <div
               aria-expanded="false"
               aria-haspopup="listbox"
-              aria-owns="list-1829"
+              aria-owns="list-1841"
               class="v-input__slot"
               role="button"
             >
@@ -11337,7 +11553,7 @@ exports[`Storyshots Search Order Selector 1`] = `
               >
                 <label
                   class="v-label theme--light"
-                  for="input-1829"
+                  for="input-1841"
                   style="left: 0px; position: absolute;"
                 >
                   Order by
@@ -11348,7 +11564,7 @@ exports[`Storyshots Search Order Selector 1`] = `
                   <input
                     aria-readonly="false"
                     autocomplete="off"
-                    id="input-1829"
+                    id="input-1841"
                     readonly="readonly"
                     type="text"
                   />
@@ -12276,7 +12492,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   />
                   <input
                     aria-checked="false"
-                    id="input-1969"
+                    id="input-1981"
                     role="checkbox"
                     type="checkbox"
                     value=""
@@ -12287,7 +12503,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 </div>
                 <label
                   class="v-label theme--light"
-                  for="input-1969"
+                  for="input-1981"
                   style="left: 0px; position: relative;"
                 >
                   Select all
@@ -12375,13 +12591,13 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   >
                     <label
                       class="v-label theme--light"
-                      for="input-1974"
+                      for="input-1986"
                       style="left: 0px; position: absolute;"
                     >
                       Search
                     </label>
                     <input
-                      id="input-1974"
+                      id="input-1986"
                       type="text"
                     />
                   </div>
@@ -12444,7 +12660,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 <div
                   aria-expanded="false"
                   aria-haspopup="listbox"
-                  aria-owns="list-1981"
+                  aria-owns="list-1993"
                   class="v-input__slot"
                   role="button"
                 >
@@ -12464,7 +12680,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   >
                     <label
                       class="v-label theme--light"
-                      for="input-1981"
+                      for="input-1993"
                       style="left: 0px; position: absolute;"
                     >
                       Order by
@@ -12475,7 +12691,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                       <input
                         aria-readonly="false"
                         autocomplete="off"
-                        id="input-1981"
+                        id="input-1993"
                         readonly="readonly"
                         type="text"
                       />
@@ -12591,6 +12807,42 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   class=""
                 />
               </colgroup>
+              <thead>
+                <tr
+                  class="v-data-table__progress"
+                >
+                  <th
+                    class="column"
+                    colspan="4"
+                  >
+                    <div
+                      aria-valuemax="100"
+                      aria-valuemin="0"
+                      class="v-progress-linear v-progress-linear--absolute v-progress-linear--visible theme--light"
+                      role="progressbar"
+                      style="height: 4px;"
+                    >
+                      <div
+                        class="v-progress-linear__background primary"
+                        style="opacity: 0.3; left: 0%; width: 100%;"
+                      />
+                      <div
+                        class="v-progress-linear__buffer"
+                      />
+                      <div
+                        class="v-progress-linear__indeterminate v-progress-linear__indeterminate--active"
+                      >
+                        <div
+                          class="v-progress-linear__indeterminate long primary"
+                        />
+                        <div
+                          class="v-progress-linear__indeterminate short primary"
+                        />
+                      </div>
+                    </div>
+                  </th>
+                </tr>
+              </thead>
               <tbody>
                 <tr
                   class="v-data-table__empty-wrapper"
@@ -12598,7 +12850,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   <td
                     colspan="4"
                   >
-                    No data available
+                    Loading items...
                   </td>
                 </tr>
               </tbody>
@@ -12666,13 +12918,13 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   >
                     <label
                       class="v-label v-label--active theme--light"
-                      for="input-2001"
+                      for="input-2015"
                       style="left: 0px; position: absolute;"
                     >
                       Items per page
                     </label>
                     <input
-                      id="input-2001"
+                      id="input-2015"
                       max="0"
                       min="1"
                       type="number"

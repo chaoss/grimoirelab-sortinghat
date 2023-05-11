@@ -62,6 +62,7 @@
       :expanded.sync="expandedItems"
       item-key="id"
       :page.sync="page"
+      :loading="loading"
     >
       <template v-slot:item="{ item, expand, isExpanded }">
         <organization-entry
@@ -269,6 +270,7 @@ export default {
       forms: {
         teamName: "",
       },
+      loading: false,
     };
   },
   created() {
@@ -276,6 +278,7 @@ export default {
   },
   methods: {
     async getTableItems(page = this.page, filters = this.filters) {
+      this.loading = true;
       let response = await this.fetchPage(page, this.itemsPerPage, filters);
       if (response) {
         this.items = response.entities;
@@ -283,6 +286,7 @@ export default {
         this.page = response.pageInfo.page;
         this.totalResults = response.pageInfo.totalResults;
       }
+      this.loading = false;
     },
     confirmEnroll(event) {
       Object.assign(this.dialog, {
