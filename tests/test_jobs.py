@@ -594,8 +594,8 @@ class TestRecommendMatches(TestCase):
         }
 
         recommendations_expected = {
-            self.john_smith.individual.mk: [self.jsmith.individual.mk, self.js_alt.individual.mk],
-            self.jsmith.individual.mk: [self.js_alt.individual.mk],
+            self.js_alt.individual.mk: [self.jsmith.individual.mk, self.john_smith.individual.mk],
+            self.jsmith.individual.mk: [self.john_smith.individual.mk],
             self.jane_rae.individual.mk: [self.jrae.individual.mk],
             self.jrae.individual.mk: [self.jane_rae.individual.mk]
         }
