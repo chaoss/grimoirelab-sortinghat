@@ -1045,7 +1045,7 @@ class RecommendAffiliations(graphene.Mutation):
         tenant = get_db_tenant()
         ctx = SortingHatContext(user=user, tenant=tenant)
 
-        job = enqueue(recommend_affiliations, ctx, uuids)
+        job = enqueue(recommend_affiliations, ctx, uuids, job_timeout=-1)
 
         return RecommendAffiliations(
             job_id=job.id
@@ -1071,7 +1071,7 @@ class RecommendMatches(graphene.Mutation):
         tenant = get_db_tenant()
         ctx = SortingHatContext(user=user, tenant=tenant)
 
-        job = enqueue(recommend_matches, ctx, source_uuids, target_uuids, criteria, exclude, verbose)
+        job = enqueue(recommend_matches, ctx, source_uuids, target_uuids, criteria, exclude, verbose, job_timeout=-1)
 
         return RecommendMatches(
             job_id=job.id
@@ -1093,7 +1093,7 @@ class RecommendGender(graphene.Mutation):
         tenant = get_db_tenant()
         ctx = SortingHatContext(user=user, tenant=tenant)
 
-        job = enqueue(recommend_gender, ctx, uuids, exclude, no_strict_matching)
+        job = enqueue(recommend_gender, ctx, uuids, exclude, no_strict_matching, job_timeout=-1)
 
         return RecommendGender(
             job_id=job.id
@@ -1114,7 +1114,7 @@ class Affiliate(graphene.Mutation):
         tenant = get_db_tenant()
         ctx = SortingHatContext(user=user, tenant=tenant)
 
-        job = enqueue(affiliate, ctx, uuids)
+        job = enqueue(affiliate, ctx, uuids, job_timeout=-1)
 
         return Affiliate(
             job_id=job.id
@@ -1139,7 +1139,7 @@ class Unify(graphene.Mutation):
         tenant = get_db_tenant()
         ctx = SortingHatContext(user=user, tenant=tenant)
 
-        job = enqueue(unify, ctx, source_uuids, target_uuids, criteria, exclude)
+        job = enqueue(unify, ctx, source_uuids, target_uuids, criteria, exclude, job_timeout=-1)
 
         return Unify(
             job_id=job.id
@@ -1161,7 +1161,7 @@ class Genderize(graphene.Mutation):
         tenant = get_db_tenant()
         ctx = SortingHatContext(user=user, tenant=tenant)
 
-        job = enqueue(genderize, ctx, uuids, exclude, no_strict_matching)
+        job = enqueue(genderize, ctx, uuids, exclude, no_strict_matching, job_timeout=-1)
 
         return Genderize(
             job_id=job.id
