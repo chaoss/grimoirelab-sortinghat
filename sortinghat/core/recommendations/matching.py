@@ -194,6 +194,8 @@ def _find_matches(set_x, set_y, criteria, exclude, verbose):
             group key.
         """
         matches = {}
+        processed = set()
+
         # Group by main keys from Individuals or by uuids from Identities
         col_name = 'uuid_y' if verbose else 'individual_y'
 
@@ -205,13 +207,19 @@ def _find_matches(set_x, set_y, criteria, exclude, verbose):
             for uuid in grouped_uids.get_group(group_key)[col_name]:
                 uuid_set.add(uuid)
 
-            for key in matches:
-                prev_match = matches[key]
-                if prev_match == uuid_set:
-                    continue
-                elif prev_match.intersection(uuid_set):
-                    prev_match.update(uuid_set)
-                    uuid_set = prev_match
+            if processed.intersection(uuid_set):
+                # There are common identities already seen.
+                # Find the common sets
+
+                for key in matches:
+                    prev_match = matches[key]
+                    if prev_match == uuid_set:
+                        continue
+                    elif prev_match.intersection(uuid_set):
+                        prev_match.update(uuid_set)
+                        uuid_set = prev_match
+
+            processed.update(uuid_set)
             matches[group_key] = uuid_set
 
         return matches
