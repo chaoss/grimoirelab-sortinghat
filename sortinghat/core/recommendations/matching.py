@@ -23,6 +23,7 @@
 
 import logging
 import pandas
+import numpy
 
 from collections import defaultdict
 from django.forms.models import model_to_dict
@@ -163,6 +164,7 @@ def _find_matches(set_x, set_y, criteria, exclude, verbose):
     def _to_df(data_set):
         """Convert identities set into a Pandas `Dataframe` object"""
         df = pandas.DataFrame(data_set)
+        df.replace('', numpy.nan, inplace=True)
         return df.sort_values(['individual'])
 
     def _apply_recommender_exclusion_list(df):
