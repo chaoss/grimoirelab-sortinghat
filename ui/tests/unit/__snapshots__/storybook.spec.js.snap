@@ -9746,6 +9746,78 @@ exports[`Storyshots JobsTable Empty 1`] = `
 </div>
 `;
 
+exports[`Storyshots MatchesModal Default 1`] = `
+<div
+  class="v-application v-application--is-ltr theme--light"
+  data-app="true"
+  id="app"
+>
+  <div
+    class="v-application--wrap"
+  >
+    <div
+      class="ma-auto"
+      data-app="true"
+    >
+      <button
+        class="v-btn v-btn--is-elevated v-btn--has-bg theme--dark v-size--default primary"
+        type="button"
+      >
+        <span
+          class="v-btn__content"
+        >
+          
+      Open modal
+    
+        </span>
+      </button>
+       
+      <div
+        class="v-dialog__container"
+      >
+        <!---->
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Storyshots MatchesModal Error 1`] = `
+<div
+  class="v-application v-application--is-ltr theme--light"
+  data-app="true"
+  id="app"
+>
+  <div
+    class="v-application--wrap"
+  >
+    <div
+      class="ma-auto"
+      data-app="true"
+    >
+      <button
+        class="v-btn v-btn--is-elevated v-btn--has-bg theme--dark v-size--default primary"
+        type="button"
+      >
+        <span
+          class="v-btn__content"
+        >
+          
+      Open modal
+    
+        </span>
+      </button>
+       
+      <div
+        class="v-dialog__container"
+      >
+        <!---->
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
 exports[`Storyshots OrganizationEntry Default 1`] = `
 <div
   class="v-application v-application--is-ltr theme--light"
