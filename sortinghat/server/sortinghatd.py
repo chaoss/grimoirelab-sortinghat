@@ -71,6 +71,10 @@ def sortinghatd(config, devel, no_auth):
     env['UWSGI_MODULE'] = "sortinghat.app.wsgi:application"
     env['UWSGI_SOCKET'] = "0.0.0.0:9314"
 
+    # Run in multiple threads by default
+    env['UWSGI_WORKERS'] = env.get('SORTINGHAT_UWSGI_WORKERS', '1')
+    env['UWSGI_THREADS'] = env.get('SORTINGHAT_UWSGI_THREADS', '4')
+
     # These options shouldn't be modified
     env['UWSGI_MASTER'] = "true"
     env['UWSGI_ENABLE_THREADS'] = "true"

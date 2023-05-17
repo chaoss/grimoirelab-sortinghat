@@ -30,6 +30,8 @@ $ docker run --rm --net sh -p 8000:8000 --name sortinghat \
     -e 'SORTINGHAT_SUPERUSER_USERNAME=admin' \
     -e 'SORTINGHAT_SUPERUSER_PASSWORD=admin' \
     -e 'SORTINGHAT_HTTP_DEV=0.0.0.0:8000' \
+    -e 'SORTINGHAT_UWSGI_WORKERS=1' \
+    -e 'SORTINGHAT_UWSGI_THREADS=4'
     grimoirelab/sortinghat --dev
 ```
 
