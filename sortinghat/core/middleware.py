@@ -51,15 +51,15 @@ def allow_any(info, **kwargs):
 
 class TenantDatabaseMiddleware:
     """
-    Middleware to select a database depending on the user and the host.
-    When the pair user-host is not available for any tenant it returns a 404 error.
+    Middleware to select a database depending on the user and the header.
+    When the pair user-header is not available for any tenant it returns a 404 error.
     For unauthenticated users it will return the 'default' database to allow login.
     """
     def __init__(self, get_response):
         self.get_response = get_response
 
     def __call__(self, request):
-        database = tenant.tenant_from_username_host(request)
+        database = tenant.tenant_from_username_header(request)
         if database:
             tenant.set_db_tenant(database)
             response = self.get_response(request)

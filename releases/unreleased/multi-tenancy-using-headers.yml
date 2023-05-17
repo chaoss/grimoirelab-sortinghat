@@ -1,0 +1,9 @@
+---
+title: Multi-tenancy using headers
+category: changed
+author: Jose Javier Merchante <jjmerchante@bitergia.com>
+issue: null
+notes: >
+  Tenants are now selected using the `sortinghat-tenant`
+  header instead of the host. Proxies and clients using
+  multi-tenancy should include that header.

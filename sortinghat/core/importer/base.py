@@ -26,6 +26,7 @@ from django_rq import get_queue
 
 from .. import db, jobs, log
 from .backend import find_import_identities_backends
+from ..decorators import job_callback_using_tenant
 from ..errors import InvalidValueError
 from ..models import ImportIdentitiesTask
 
@@ -96,6 +97,7 @@ def schedule_import_task(ctx, task, scheduled_datetime=None):
     return job
 
 
+@job_callback_using_tenant
 def on_success_job(job, connection, result, *args, **kwargs):
     """Reschedule the job based on the interval defined by the task
 
@@ -130,6 +132,7 @@ def on_success_job(job, connection, result, *args, **kwargs):
     task.save()
 
 
+@job_callback_using_tenant
 def on_failed_job(job, connection, result, *args, **kwargs):
     """If the job failed to run reschedule it
 

@@ -52,10 +52,10 @@ def default_tenant_resolver(request):
     return 'default'
 
 
-def tenant_from_username_host(request):
+def tenant_from_username_header(request):
     """
     Return a database name depending on the authenticated user using JWT
-    and the host for the request.
+    and the header for the request.
     The tenant name is retrieved from a global table in the database.
     If the user is not authenticated return the 'default' database which
     can't be used to store data for tenants.
@@ -65,11 +65,12 @@ def tenant_from_username_host(request):
     if token is not None:
         request.user = get_user_by_token(token, request)
     if request.user and request.user.is_authenticated:
+        header = request.headers.get('sortinghat-tenant')
         try:
-            tenant = Tenant.objects.get(user=request.user, host=request.get_host())
+            tenant = Tenant.objects.get(user=request.user, header=header)
             return tenant.database
         except Tenant.DoesNotExist:
-            logger.warning(f"Tenant for User<{request.user.username}> and Host<{request.get_host()}> not defined.")
+            logger.warning(f"Tenant for User<{request.user.username}> and Header<{header}> not defined.")
             return None
     else:
         # Probably not authenticated
