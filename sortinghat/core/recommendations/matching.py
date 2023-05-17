@@ -23,12 +23,14 @@
 
 import logging
 import pandas
+import numpy
 
+from collections import defaultdict
 from django.forms.models import model_to_dict
 
 from ..db import (find_individual_by_uuid)
 from ..errors import NotFoundError
-from ..models import Identity, Individual
+from ..models import Identity
 
 from .exclusion import fetch_recommender_exclusion_list
 
@@ -90,17 +92,21 @@ def recommend_matches(source_uuids, target_uuids, criteria, exclude=True, verbos
         f"source={source_uuids} target={target_uuids} criteria='{criteria}'; ..."
     )
 
-    aliases = {}
+    aliases = defaultdict(list)
     input_set = set()
     target_set = set()
 
-    if not source_uuids:
-        source_uuids = Individual.objects.values_list('mk', flat=True)
-
-    for uuid in source_uuids:
-        identities = _get_identities(uuid)
-        aliases[uuid] = [identity.uuid for identity in identities]
+    if source_uuids:
+        for uuid in source_uuids:
+            identities = _get_identities(uuid)
+            aliases[uuid] = [identity.uuid for identity in identities]
+            input_set.update(identities)
+    else:
+        identities = Identity.objects.select_related('individual').all()
         input_set.update(identities)
+        for identity in identities:
+            aliases[identity.individual.mk].append(identity.uuid)
+        source_uuids = aliases.keys()
 
     if target_uuids:
         for uuid in target_uuids:
@@ -158,6 +164,7 @@ def _find_matches(set_x, set_y, criteria, exclude, verbose):
     def _to_df(data_set):
         """Convert identities set into a Pandas `Dataframe` object"""
         df = pandas.DataFrame(data_set)
+        df.replace('', numpy.nan, inplace=True)
         return df.sort_values(['individual'])
 
     def _apply_recommender_exclusion_list(df):
@@ -189,6 +196,8 @@ def _find_matches(set_x, set_y, criteria, exclude, verbose):
             group key.
         """
         matches = {}
+        processed = set()
+
         # Group by main keys from Individuals or by uuids from Identities
         col_name = 'uuid_y' if verbose else 'individual_y'
 
@@ -200,13 +209,19 @@ def _find_matches(set_x, set_y, criteria, exclude, verbose):
             for uuid in grouped_uids.get_group(group_key)[col_name]:
                 uuid_set.add(uuid)
 
-            for key in matches:
-                prev_match = matches[key]
-                if prev_match == uuid_set:
-                    continue
-                elif prev_match.intersection(uuid_set):
-                    prev_match.update(uuid_set)
-                    uuid_set = prev_match
+            if processed.intersection(uuid_set):
+                # There are common identities already seen.
+                # Find the common sets
+
+                for key in matches:
+                    prev_match = matches[key]
+                    if prev_match == uuid_set:
+                        continue
+                    elif prev_match.intersection(uuid_set):
+                        prev_match.update(uuid_set)
+                        uuid_set = prev_match
+
+            processed.update(uuid_set)
             matches[group_key] = uuid_set
 
         return matches
