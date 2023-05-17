@@ -143,6 +143,7 @@
           @stopHighlight="$emit('stopHighlight', item)"
           @lock="handleLock(item.uuid, $event)"
           @enroll="confirmEnroll(item, $event)"
+          @openMatchesModal="openMatchesModal(item.uuid)"
         />
       </template>
       <template v-if="isExpandable" v-slot:expanded-item="{ item }">
@@ -261,6 +262,13 @@
       @updateTable="queryIndividuals"
     />
 
+    <matches-modal
+      v-if="matchesModal.open"
+      :is-open.sync="matchesModal.open"
+      :uuid="matchesModal.uuid"
+      :recommend-matches="recommendMatches"
+    />
+
     <v-card class="dragged-item" color="primary" dark>
       <v-card-subtitle>
         Moving
@@ -285,6 +293,7 @@ import Search from "./Search.vue";
 import EnrollModal from "./EnrollModal.vue";
 import TeamEnrollModal from "./TeamEnrollModal.vue";
 import Recommendations from "./Recommendations.vue";
+import MatchesModal from "./MatchesModal.vue";
 
 export default {
   name: "IndividualsTable",
@@ -296,6 +305,7 @@ export default {
     EnrollModal,
     TeamEnrollModal,
     Recommendations,
+    MatchesModal,
   },
   mixins: [enrollMixin],
   props: {
@@ -363,6 +373,10 @@ export default {
       type: Function,
       required: true,
     },
+    recommendMatches: {
+      type: Function,
+      required: true,
+    },
     hideHeader: {
       type: Boolean,
       required: false,
@@ -401,6 +415,10 @@ export default {
       allSelected: false,
       orderBy: null,
       loading: false,
+      matchesModal: {
+        open: false,
+        uuid: "",
+      },
     };
   },
   computed: {
@@ -729,6 +747,12 @@ export default {
         organization,
         uuid,
         enrollments,
+      });
+    },
+    openMatchesModal(uuid) {
+      Object.assign(this.matchesModal, {
+        open: true,
+        uuid: uuid,
       });
     },
   },

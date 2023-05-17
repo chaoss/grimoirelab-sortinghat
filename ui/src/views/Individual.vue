@@ -6,7 +6,7 @@
           :cols="showRecommendations ? 8 : 12"
           :xl="showRecommendations ? 9 : 12"
         >
-          <v-row class="section pa-3 mb-4">
+          <v-row class="section pa-3 mb-4 mt-0">
             <v-col>
               <v-list-item class="pl-1">
                 <avatar :name="individual.name" :email="individual.email" />
@@ -84,6 +84,16 @@
             </v-col>
 
             <v-col cols="2" class="d-flex justify-end align-center mr-1">
+              <v-btn
+                class="mr-4"
+                text
+                small
+                outlined
+                @click="matchesModal.open = true"
+              >
+                <v-icon small left>mdi-lightbulb-on</v-icon>
+                Find matches
+              </v-btn>
               <v-btn
                 v-if="individual.isLocked"
                 class="mr-4"
@@ -331,6 +341,12 @@
       @updateIndividual="updateIndividual($event)"
     />
 
+    <matches-modal
+      :is-open.sync="matchesModal.open"
+      :recommend-matches="recommendMatches"
+      :uuid="mk"
+    />
+
     <v-dialog v-model="dialog.open" max-width="500px">
       <v-card class="pa-3">
         <v-card-title class="headline">{{ dialog.title }}</v-card-title>
@@ -379,6 +395,7 @@ import {
   updateEnrollment,
   updateProfile,
   withdraw,
+  recommendMatches,
 } from "../apollo/mutations";
 import { formatIndividual } from "../utils/actions";
 import { enrollMixin } from "../mixins/enroll";
@@ -388,6 +405,7 @@ import IndividualCard from "../components/IndividualCard.vue";
 import EnrollmentList from "../components/EnrollmentList.vue";
 import EnrollModal from "../components/EnrollModal.vue";
 import TeamEnrollModal from "../components/TeamEnrollModal.vue";
+import MatchesModal from "../components/MatchesModal.vue";
 
 export default {
   name: "Individual",
@@ -398,6 +416,7 @@ export default {
     EnrollmentList,
     EnrollModal,
     TeamEnrollModal,
+    MatchesModal,
   },
   mixins: [enrollMixin],
   data() {
@@ -419,6 +438,9 @@ export default {
       teamModal: {
         open: false,
         organization: "",
+      },
+      matchesModal: {
+        open: false,
       },
       countries: [],
     };
@@ -650,6 +672,15 @@ export default {
         };
         this.$logger.error(`Error applying recommendation ${id}: ${error}`);
       }
+    },
+    async recommendMatches(criteria, exclude, uuid) {
+      const response = await recommendMatches(
+        this.$apollo,
+        criteria,
+        exclude,
+        uuid
+      );
+      return response;
     },
   },
   mounted() {

@@ -24,6 +24,7 @@ const IndividualsTableTemplate = `
     :outlined="outlined"
     :hide-header="hideHeader"
     :is-expandable="isExpandable"
+    :recommend-matches="recommendMatches"
   />
 `;
 
@@ -387,6 +388,15 @@ export const Default = () => ({
     getCountries() {
       return this.countries;
     },
+    recommendMatches() {
+      return {
+        data: {
+          recommendMatches: {
+            jobId: "b65d2170-a560-4b20-954e-fc8c9f5afdd4"
+          }
+        }
+      };
+    },
   },
   provide: () => ({
     getRecommendations: () => {},
@@ -445,6 +455,15 @@ export const Expandable = () => ({
     getCountries() {
       return true;
     },
+    recommendMatches() {
+      return {
+        data: {
+          recommendMatches: {
+            jobId: "b65d2170-a560-4b20-954e-fc8c9f5afdd4"
+          }
+        }
+      };
+    },
   },
   provide: () => ({
     getRecommendations: () => {},
@@ -493,6 +512,15 @@ export const Outlined = () => ({
     getCountries() {
       return true;
     },
+    recommendMatches() {
+      return {
+        data: {
+          recommendMatches: {
+            jobId: "b65d2170-a560-4b20-954e-fc8c9f5afdd4"
+          }
+        }
+      };
+    },
   },
   provide: () => ({
     getRecommendations: () => {},
@@ -540,6 +568,15 @@ export const HiddenHeader = () => ({
     },
     getCountries() {
       return true;
+    },
+    recommendMatches() {
+      return {
+        data: {
+          recommendMatches: {
+            jobId: "b65d2170-a560-4b20-954e-fc8c9f5afdd4"
+          }
+        }
+      };
     },
   },
   provide: () => ({

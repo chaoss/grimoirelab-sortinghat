@@ -276,6 +276,8 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
    
   <!---->
    
+  <!---->
+   
   <v-card-stub
     class="dragged-item"
     color="primary"
@@ -569,6 +571,8 @@ exports[`IndividualsTable Mock query for merge 1`] = `
     text=""
     title=""
   />
+   
+  <!---->
    
   <!---->
    
@@ -868,6 +872,8 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
    
   <!---->
    
+  <!---->
+   
   <v-card-stub
     class="dragged-item"
     color="primary"
@@ -1161,6 +1167,8 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
     text=""
     title=""
   />
+   
+  <!---->
    
   <!---->
    
@@ -1460,6 +1468,8 @@ exports[`IndividualsTable Mock query for updateEnrollment 1`] = `
    
   <!---->
    
+  <!---->
+   
   <v-card-stub
     class="dragged-item"
     color="primary"
@@ -1753,6 +1763,8 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
     text=""
     title=""
   />
+   
+  <!---->
    
   <!---->
    

@@ -38,6 +38,7 @@
           :unlock-individual="unlockIndividual"
           :withdraw="withdraw"
           :update-enrollment="updateEnrollment"
+          :recommend-matches="recommendMatches"
           @saveIndividuals="addSavedIndividuals"
           @updateOrganizations="updateOrganizations"
           @updateWorkspace="updateWorkspace"
@@ -101,6 +102,7 @@ import {
   withdraw,
   updateEnrollment,
   manageMergeRecommendation,
+  recommendMatches,
 } from "../apollo/mutations";
 import IndividualsTable from "../components/IndividualsTable";
 import OrganizationsTable from "../components/OrganizationsTable";
@@ -333,6 +335,15 @@ export default {
     },
     async manageRecommendation(id, apply) {
       const response = await manageMergeRecommendation(this.$apollo, id, apply);
+      return response;
+    },
+    async recommendMatches(criteria, exclude, uuid) {
+      const response = await recommendMatches(
+        this.$apollo,
+        criteria,
+        exclude,
+        uuid
+      );
       return response;
     },
   },
