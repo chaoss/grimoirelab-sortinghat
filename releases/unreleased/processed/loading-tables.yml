@@ -1,8 +1,0 @@
----
-title: Show when tables are loading
-category: added
-author: Eva Millan <evamillan@bitergia.com>
-issue: 772
-notes: >
-  The individuals and organizations tables now show
-  a progress bar to indicate that the items are loading.

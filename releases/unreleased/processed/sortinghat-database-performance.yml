@@ -1,8 +1,0 @@
----
-title: SortingHat database performance
-category: performance
-author: Jose Javier Merchante <jjmerchante@bitergia.com>
-issue: null
-notes: |
-  Improve SortingHat performance when there are a lot of
-  individuals in the database.

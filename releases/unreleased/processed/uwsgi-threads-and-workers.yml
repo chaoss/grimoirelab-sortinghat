@@ -1,9 +1,0 @@
----
-title: uWSGI threads and workers
-category: performance
-author: Jose Javier Merchante <jjmerchante@bitergia.com>
-issue: null
-notes: >
-  Include two new environments variables to define the number of
-  threads and workers for uWSGI. These new variables are
-  `SORTINGHAT_UWSGI_WORKERS` and `SORTINGHAT_UWSGI_THREADS`

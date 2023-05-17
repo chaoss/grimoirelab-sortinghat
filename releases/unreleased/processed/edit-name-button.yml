@@ -1,9 +1,0 @@
----
-title: Edit a profile name with the pencil button
-category: fixed
-author: Eva Millan <evamillan@bitergia.com>
-issue: 773
-notes: >
-  Clicking on an invidual's name no longer activates the
-  edition mode. The name can now be edited with the pencil
-  button.

@@ -1,7 +1,0 @@
----
-title: Update dependencies
-category: dependency
-author: Jose Javier Merchante <jjmerchante@bitergia.com>
-issue: null
-notes: |
-  Include google-auth as a dependency to fix release issues.

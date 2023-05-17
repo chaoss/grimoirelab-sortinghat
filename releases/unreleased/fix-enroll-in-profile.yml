@@ -1,8 +1,0 @@
----
-title: Fix enrollment in individual's profile
-category: fixed
-author: Eva Millan <evamillan@bitergia.com>
-issue: null
-notes: >
-  In the individual's profile, the button to add an
-  organization was not working. 
