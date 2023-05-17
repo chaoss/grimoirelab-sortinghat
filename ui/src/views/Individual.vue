@@ -253,7 +253,7 @@
                 v-if="individual.enrollments"
                 :enrollments="individual.enrollments"
                 :is-locked="individual.isLocked"
-                @openEnrollmentModal="confirmEnroll"
+                @openEnrollmentModal="confirmEnroll(individual)"
                 @openTeamModal="openTeamModal"
                 @updateEnrollment="updateEnrollment"
                 @withdraw="withdraw"
