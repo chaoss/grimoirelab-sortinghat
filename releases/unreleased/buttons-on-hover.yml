@@ -1,0 +1,9 @@
+---
+title: Show hidden buttons when the mouse is over the table row
+category: fixed
+author: Eva Millan <evamillan@bitergia.com>
+issue: 787
+notes: >
+  The buttons to lock an individual or mark it as a bot were only
+  visible when the mouse wass over the individual's name, which made it
+  hard to find them. Now they appear when the mouse is over the table row.

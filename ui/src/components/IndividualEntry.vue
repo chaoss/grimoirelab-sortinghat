@@ -298,32 +298,6 @@ export default {
 }
 tr {
   cursor: pointer;
-}
-::v-deep .v-small-dialog__activator,
-.v-small-dialog {
-  display: inline-block;
-}
-.v-small-dialog__activator {
-  .v-icon {
-    opacity: 0;
-    padding-bottom: 2px;
-  }
-
-  &:hover {
-    .v-icon {
-      opacity: 1;
-    }
-  }
-}
-.v-list-item__title {
-  a {
-    color: rgba(0, 0, 0, 0.87);
-    text-decoration: none;
-
-    &:hover {
-      text-decoration: underline;
-    }
-  }
   ::v-deep .icon--hidden {
     opacity: 0;
     padding-bottom: 2px;
@@ -331,6 +305,17 @@ tr {
   &:hover {
     ::v-deep .icon--hidden {
       opacity: 1;
+    }
+  }
+}
+
+.v-list-item__title {
+  a {
+    color: rgba(0, 0, 0, 0.87);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
     }
   }
 }
