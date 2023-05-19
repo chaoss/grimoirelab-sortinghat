@@ -280,6 +280,7 @@ describe("IndividualsTable", () => {
         unlockIndividual: () => {},
         withdraw: () => {},
         updateEnrollment: () => {},
+        recommendMatches: () => {}
       },
       ...options,
     });

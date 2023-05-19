@@ -305,8 +305,16 @@ const MANAGE_MERGE_RECOMMENDATION = gql`
 `;
 
 const RECOMMEND_MATCHES = gql`
-  mutation recommendMatches($criteria: [String], $exclude: Boolean) {
-    recommendMatches(criteria: $criteria, exclude: $exclude) {
+  mutation recommendMatches(
+    $criteria: [String]
+    $exclude: Boolean
+    $sourceUuids: [String]
+  ) {
+    recommendMatches(
+      criteria: $criteria
+      exclude: $exclude
+      sourceUuids: $sourceUuids
+    ) {
       jobId
     }
   }
@@ -596,12 +604,13 @@ const manageMergeRecommendation = (apollo, id, apply) => {
   });
 };
 
-const recommendMatches = (apollo, criteria, exclude) => {
+const recommendMatches = (apollo, criteria, exclude, sourceUuids) => {
   return apollo.mutate({
     mutation: RECOMMEND_MATCHES,
     variables: {
       criteria: criteria,
       exclude: exclude,
+      sourceUuids: sourceUuids,
     },
   });
 };

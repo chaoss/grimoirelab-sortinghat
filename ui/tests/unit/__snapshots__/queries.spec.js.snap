@@ -283,6 +283,8 @@ exports[`IndividualsTable Mock query for getCountries 1`] = `
    
   <!---->
    
+  <!---->
+   
   <v-card-stub
     class="dragged-item"
     color="primary"
@@ -576,6 +578,8 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
     text=""
     title=""
   />
+   
+  <!---->
    
   <!---->
    

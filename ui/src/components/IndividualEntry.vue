@@ -126,6 +126,9 @@
           <v-list-item @click="$emit('saveIndividuals')">
             <v-list-item-title>Save in workspace</v-list-item-title>
           </v-list-item>
+          <v-list-item @click="$emit('openMatchesModal', $event)">
+            <v-list-item-title> Recommend matches </v-list-item-title>
+          </v-list-item>
           <v-list-item @click="$emit('delete', $event)" :disabled="isLocked">
             <v-list-item-title>Delete individual</v-list-item-title>
           </v-list-item>
