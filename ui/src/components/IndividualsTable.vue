@@ -160,7 +160,7 @@
           @unmerge="unmerge($event)"
           @withdraw="removeAffiliation($event, item.uuid)"
           @updateEnrollment="updateEnrollmentDate"
-          @openEnrollmentModal="confirmEnroll"
+          @openEnrollmentModal="confirmEnroll(item, $event)"
           @openTeamModal="openTeamModal"
         />
       </template>
