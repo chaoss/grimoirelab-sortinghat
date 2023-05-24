@@ -1594,7 +1594,7 @@ class SortingHatQuery:
                                                  .values_list('individual__mk')))
         if filters and 'enrollment' in filters:
             query = query.filter(mk__in=Subquery(Enrollment.objects
-                                                 .filter(group__name__icontains=filters['enrollment'])
+                                                 .filter(group__name=filters['enrollment'])
                                                  .values_list('individual__mk')))
             if 'enrollment_parent_org' in filters:
                 query = query.filter(mk__in=Subquery(Enrollment.objects

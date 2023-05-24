@@ -3659,12 +3659,12 @@ class TestQueryIndividuals(django.test.TestCase):
         enrollment = indv['enrollments'][0]
         self.assertEqual(enrollment['group']['name'], 'Bitergia')
 
-        # Test partial organization name match
+        # Test no results for partial organization name match
         executed = client.execute(SH_INDIVIDUALS_ENROLLMENT_FILTER % 'bit',
                                   context_value=self.context_value)
 
         individuals = executed['data']['individuals']['entities']
-        self.assertEqual(len(individuals), 2)
+        self.assertEqual(len(individuals), 0)
 
         # Test organization name with spaces
         executed = client.execute(SH_INDIVIDUALS_ENROLLMENT_FILTER % 'bit company',
@@ -3709,12 +3709,12 @@ class TestQueryIndividuals(django.test.TestCase):
         self.assertEqual(enrollment['group']['name'], 'Team 1')
         self.assertEqual(enrollment['group']['type'], 'team')
 
-        # Test partial team name match
+        # Test no results for partial team name match
         executed = client.execute(SH_INDIVIDUALS_ENROLLMENT_FILTER % 'tea',
                                   context_value=self.context_value)
 
         individuals = executed['data']['individuals']['entities']
-        self.assertEqual(len(individuals), 2)
+        self.assertEqual(len(individuals), 0)
 
         # Test no results for enrollment
         executed = client.execute(SH_INDIVIDUALS_ENROLLMENT_FILTER % 'Organization',
