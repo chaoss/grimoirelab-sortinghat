@@ -34,11 +34,13 @@ Cypress.Commands.add("login", () => {
       .its("body.data.tokenAuth.token")
       .then((authToken) => {
         cy.setCookie("sh_authtoken", authToken);
+        cy.setCookie("sh_tour:viewed", "true");
       });
   });
 
   cy.getCookie("sh_authtoken").should("exist");
   cy.getCookie("csrftoken").should("exist");
+  cy.getCookie("sh_tour:viewed").should("exist");
 });
 
 Cypress.Commands.add("orderBy", (option) => {

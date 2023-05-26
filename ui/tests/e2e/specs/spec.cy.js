@@ -23,7 +23,7 @@ describe("Login", () => {
       .should("not.be.null");
 
     // Redirects and shows the logged in user
-    cy.location("pathname").should("equal", "/");
+    cy.location("pathname").should("not.be", "/login");
     cy.contains("header", Cypress.env("USERNAME")).should("be.visible");
   });
 
@@ -60,7 +60,7 @@ describe("Authenticated operations", () => {
 
   beforeEach(() => {
     // Set the token cookies in each test
-    Cypress.Cookies.preserveOnce("sh_authtoken", "csrftoken");
+    Cypress.Cookies.preserveOnce("sh_authtoken", "csrftoken", "sh_tour:viewed");
 
     // Intercept GraphQL requests to wait for them in the tests
     cy.intercept("POST", "/api/", (req) => {

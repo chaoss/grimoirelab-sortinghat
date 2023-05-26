@@ -1,0 +1,9 @@
+---
+title: New user onboarding
+category: added
+author: Eva Millan <evamillan@bitergia.com>
+issue: null
+notes: >
+  Loading the user interface for the fist time
+  takes users to an optional tour explaining
+  SortingHat's most relevant features.

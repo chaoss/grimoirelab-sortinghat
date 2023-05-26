@@ -10,6 +10,7 @@ export default new Vuex.Store({
     token: Cookies.get("sh_authtoken"),
     user: Cookies.get("sh_user"),
     workspace: JSON.parse(localStorage.getItem("sh_workspace")),
+    tourViewed: Cookies.get("sh_tour:viewed"),
   },
   mutations: {
     setToken(state, token) {
@@ -21,11 +22,15 @@ export default new Vuex.Store({
     setWorkspace(state, workspaceData) {
       state.workspace = workspaceData;
     },
+    setTourViewed(state, value) {
+      state.tourViewed = value;
+    },
   },
   getters: {
     isAuthenticated: (state) => !!state.token,
     user: (state) => state.user,
     workspace: (state) => state.workspace,
+    shouldShowTour: (state) => !state.tourViewed,
   },
   actions: {
     async login({ commit }, authDetails) {
@@ -52,6 +57,13 @@ export default new Vuex.Store({
     emptyWorkspace({ commit }) {
       localStorage.setItem("sh_workspace", JSON.stringify([]));
       commit("setWorkspace", []);
+    },
+    setTourViewed({ commit }, value) {
+      Cookies.set("sh_tour:viewed", value, {
+        expires: 400,
+        sameSite: "strict",
+      });
+      commit("setTourViewed", value);
     },
   },
   modules: {},
