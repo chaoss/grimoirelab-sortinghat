@@ -338,6 +338,7 @@
       :organization="teamModal.organization"
       :uuid="mk"
       :enroll="enroll"
+      :enrollments="individual.enrollments"
       @updateIndividual="updateIndividual($event)"
     />
 
