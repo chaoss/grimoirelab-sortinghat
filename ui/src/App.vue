@@ -52,6 +52,26 @@
           </v-list-item>
         </v-list>
       </v-menu>
+      <v-menu v-if="user" offset-y left>
+        <template v-slot:activator="{ on }">
+          <v-btn depressed small color="primary" v-on="on">
+            <v-icon small left> mdi-help-circle </v-icon>
+            Help
+            <v-icon small right> mdi-chevron-down </v-icon>
+          </v-btn>
+        </template>
+        <v-list color="primary" dark dense>
+          <v-list-item
+            href="https://chaoss.github.io/grimoirelab-tutorial/sortinghat"
+            target="_blank"
+          >
+            <v-list-item-title>Documentation</v-list-item-title>
+          </v-list-item>
+          <v-list-item to="/product-tour">
+            <v-list-item-title>Product tour</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
     </v-app-bar>
     <transition name="fade" mode="out-in">
       <router-view />

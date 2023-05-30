@@ -6,7 +6,7 @@ const routes = [
     path: "/",
     name: "Dashboard",
     component: () => import("../views/Dashboard"),
-    meta: { requiresAuth: true, title: "Sorting Hat" },
+    meta: { requiresAuth: true, showTour: true, title: "Sorting Hat" },
   },
   {
     path: "/individual/:mk",
@@ -50,6 +50,12 @@ const routes = [
     component: () => import("../views/Organization"),
     meta: { requiresAuth: true, title: "Sorting Hat" },
   },
+  {
+    path: "/product-tour",
+    name: "ProductTour",
+    component: () => import("../views/ProductTour"),
+    meta: { requiresAuth: true, title: "Sorting Hat" },
+  },
 ];
 
 const router = new Router({
@@ -60,10 +66,18 @@ const router = new Router({
 
 router.beforeEach((to, from, next) => {
   const isAuthenticated = store.getters.isAuthenticated;
+  const showTour =
+    to.matched.some((record) => record.meta.showTour) &&
+    store.getters.shouldShowTour;
+
   if (to.matched.some((record) => record.meta.requiresAuth)) {
     if (!isAuthenticated) {
       next({
         path: "/login",
+      });
+    } else if (showTour) {
+      next({
+        path: "/product-tour",
       });
     } else {
       next();

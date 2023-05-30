@@ -114,7 +114,7 @@
       :items-per-page="itemsPerPage"
       :loading="loading"
     >
-      <template v-slot:item="{ item, expand, isExpanded }">
+      <template v-slot:item="{ item, expand, isExpanded, index }">
         <individual-entry
           draggable
           :name="item.name"
@@ -144,6 +144,7 @@
           @lock="handleLock(item.uuid, $event)"
           @enroll="confirmEnroll(item, $event)"
           @openMatchesModal="openMatchesModal(item.uuid)"
+          :ref="`indv_entry_${index}`"
         />
       </template>
       <template v-if="isExpandable" v-slot:expanded-item="{ item }">

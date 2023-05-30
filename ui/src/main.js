@@ -12,6 +12,7 @@ import Cookies from "js-cookie";
 import { ApolloLink } from "apollo-link";
 import Logger from "./plugins/logger";
 import GetErrorMessage from "./plugins/errors";
+import VueShepherd from "vue-shepherd";
 
 const API_URL = process.env.VUE_APP_API_URL || `${process.env.BASE_URL}api/`;
 
@@ -54,6 +55,7 @@ fetch(API_URL, { credentials: "include" }).then(() => {
   Vue.use(VueRouter);
   Vue.use(Logger);
   Vue.use(GetErrorMessage);
+  Vue.use(VueShepherd);
 
   const apolloProvider = new VueApollo({
     defaultClient: apolloClient,

@@ -64,7 +64,7 @@
       :page.sync="page"
       :loading="loading"
     >
-      <template v-slot:item="{ item, expand, isExpanded }">
+      <template v-slot:item="{ item, expand, isExpanded, index }">
         <organization-entry
           :name="item.name"
           :enrollments="getEnrolledIndividuals(item.enrollments)"
@@ -79,6 +79,7 @@
           @delete="confirmDelete(item.name)"
           @getEnrollments="$emit('getEnrollments', { enrollment: item.name })"
           @addTeam="createTeam(item.name, $event)"
+          :ref="`org_entry_${index}`"
         />
       </template>
       <template v-slot:expanded-item="{ item }">
