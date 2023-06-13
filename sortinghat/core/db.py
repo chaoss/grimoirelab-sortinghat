@@ -1125,3 +1125,84 @@ def _handle_integrity_error(model, exc):
         eid = m.group('value').split('-')[0]
 
     raise AlreadyExistsError(entity=entity, eid=eid)
+
+
+def move_domain(trxl, domain, organization):
+    """Move a domain to an organization
+
+    Shifts the given `domain` object to the given `organization`.
+
+    As a result, it returns the `Domain` object with the updated data.
+
+    :param trxl: TransactionsLog object from the method calling this one
+    :param domain: domain to be moved
+    :param organization: organization to move the domain to
+
+    :returns: domain object with the updated information
+
+    :raises ValueError: raised when the domain is already assigned to
+    the organization
+    """
+    op_args = {
+        'domain': domain.domain,
+        'organization': organization.name
+    }
+
+    if domain.organization.name == organization.name:
+        msg = f"Domain '{domain.domain}' is already assigned to '{organization.name}'"
+        raise ValueError(msg)
+
+    old_organization = domain.organization
+    domain.organization = organization
+
+    domain.save()
+    old_organization.save()
+    organization.save()
+
+    trxl.log_operation(op_type=Operation.OpType.UPDATE, entity_type='domain',
+                       timestamp=datetime_utcnow(), args=op_args,
+                       target=op_args['domain'])
+
+    return domain
+
+
+def move_team(trxl, team, organization):
+    """Move a team to an organization
+
+    Shifts the given `team` object, along with the node tree under it,
+    to the given `organization`.
+
+    As a result, it returns the `Team` object with the updated data.
+
+    :param trxl: TransactionsLog object from the method calling this one
+    :param team: team to be moved
+    :param organization: organization to move the team to
+
+    :returns: team object with the updated information
+
+    :raises ValueError: raised when the team is already assigned to
+    the organization
+    """
+    op_args = {
+        'team': team.name,
+        'organization': organization.name
+    }
+
+    if team.parent_org.name == organization.name:
+        msg = f"Team '{team.name}' is already assigned to '{organization.name}'"
+        raise ValueError(msg)
+
+    old_organization = team.parent_org
+    team.move(organization, 'last-child')
+    team.refresh_from_db()
+    team.parent_org = organization
+
+    team.save()
+    organization.save()
+    old_organization.save()
+
+    trxl.log_operation(op_type=Operation.OpType.UPDATE, entity_type='team',
+                       timestamp=datetime_utcnow(), args=op_args,
+                       target=op_args['team'])
+
+    return team
