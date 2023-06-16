@@ -184,11 +184,8 @@ export default {
     },
     startDrag(organization, item, event) {
       event.dataTransfer.dropEffect = "move";
-      event.dataTransfer.setData("type", "enrollFromOrganization");
       event.dataTransfer.setData("group", item.name);
       event.dataTransfer.setData("parentorg", organization);
-      const dragImage = document.querySelector(".dragged-organization");
-      event.dataTransfer.setDragImage(dragImage, 0, 0);
     },
     async createTeam(parent) {
       try {

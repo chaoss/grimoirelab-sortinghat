@@ -112,36 +112,33 @@ export default {
   methods: {
     onDrop(event) {
       this.dropZone = false;
-      const type = event.dataTransfer.getData("type");
-      if (type === "enrollFromOrganization") {
-        return;
-      }
-      const droppedIndividuals = JSON.parse(
-        event.dataTransfer.getData("individuals")
-      ).filter((individual) => !individual.isLocked);
-      if (droppedIndividuals.length > 0) {
-        this.$emit("enroll", {
-          individuals: droppedIndividuals,
-          group: this.name,
+      const organization = event.dataTransfer.getData("group");
+      const isTeam = event.dataTransfer.types.includes("parentorg");
+      const individuals = event.dataTransfer.getData("individuals");
+
+      if (organization && organization !== this.name && !isTeam) {
+        this.$emit("merge:orgs", {
+          fromOrg: organization,
+          toOrg: this.name,
         });
+      } else if (individuals) {
+        const droppedIndividuals = JSON.parse(individuals).filter(
+          (individual) => !individual.isLocked
+        );
+        if (droppedIndividuals.length > 0) {
+          this.$emit("enroll", {
+            individuals: droppedIndividuals,
+            group: this.name,
+          });
+        }
       }
     },
     isDropZone(event, isDragging) {
-      const type = event.dataTransfer.getData("type");
-      // Can't use 'getData' while dragging on Chrome
       const types = event.dataTransfer.types;
-
-      // Prevents an organization from being drag&dropped into another one
-      if (
+      this.dropZone =
         isDragging &&
-        type !== "enrollFromOrganization" &&
-        !types.includes("organization") &&
-        !types.includes("lockactions")
-      ) {
-        this.dropZone = true;
-      } else {
-        this.dropZone = false;
-      }
+        !types.includes("lockactions") &&
+        !types.includes("parentorg");
     },
   },
 };

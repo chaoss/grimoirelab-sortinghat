@@ -362,6 +362,16 @@ const UPDATE_IMPORT_TASK = gql`
   }
 `;
 
+const MERGE_ORGANIZATIONS = gql`
+  mutation mergeOrganizations($fromOrg: String!, $toOrg: String!) {
+    mergeOrganizations(fromOrg: $fromOrg, toOrg: $toOrg) {
+      organization {
+        name
+      }
+    }
+  }
+`;
+
 const tokenAuth = (apollo, username, password) => {
   const response = apollo.mutate({
     mutation: TOKEN_AUTH,
@@ -644,6 +654,16 @@ const updateImportTask = (apollo, taskId, data) => {
   });
 };
 
+const mergeOrganizations = (apollo, fromOrg, toOrg) => {
+  return apollo.mutate({
+    mutation: MERGE_ORGANIZATIONS,
+    variables: {
+      fromOrg: fromOrg,
+      toOrg: toOrg,
+    },
+  });
+};
+
 export {
   tokenAuth,
   lockIndividual,
@@ -671,4 +691,5 @@ export {
   importIdentities,
   deleteImportTask,
   updateImportTask,
+  mergeOrganizations,
 };
