@@ -40,6 +40,7 @@
           :update-enrollment="updateEnrollment"
           :recommend-matches="recommendMatches"
           @saveIndividuals="addSavedIndividuals"
+          @setFilters="filters = $event"
           @updateOrganizations="updateOrganizations"
           @updateWorkspace="updateWorkspace"
           @highlight="highlightIndividual($event, 'highlightInWorkspace', true)"
@@ -319,7 +320,7 @@ export default {
         newFilters = newFilters.concat(` enrollmentParentOrg:"${parentOrg}"`);
       }
       if (this.filters === newFilters) {
-        this.filters = "";
+        this.$refs.table.queryIndividuals();
       }
       this.$nextTick(() => (this.filters = newFilters));
     },
