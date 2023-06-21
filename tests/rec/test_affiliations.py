@@ -211,6 +211,24 @@ class TestRecommendAffiliations(TestCase):
         self.assertEqual(rec[0], jdoe.uuid)
         self.assertListEqual(rec[1], [])
 
+    def test_wrong_email(self):
+        """Check if email ending in a dot doesn't raise an exception"""
+
+        ctx = SortingHatContext(self.user)
+
+        wrong_email = api.add_identity(ctx,
+                                       source='unknown',
+                                       email='novalid@example.com.')
+
+        # Test
+        recs = list(recommend_affiliations([wrong_email.uuid]))
+
+        self.assertEqual(len(recs), 1)
+
+        rec = recs[0]
+        self.assertEqual(rec[0], wrong_email.uuid)
+        self.assertListEqual(rec[1], [])
+
     def test_not_found_individual(self):
         """Check if no recommendations are generated when an
         individual does not exist"""

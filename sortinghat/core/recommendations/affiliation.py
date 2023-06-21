@@ -147,4 +147,7 @@ def _find_matching_domain(domain):
             else:
                 result = None
                 keep_looking = False
+        except ValueError:
+            result = None
+            keep_looking = False
     return result
