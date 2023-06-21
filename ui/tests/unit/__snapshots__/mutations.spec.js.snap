@@ -2141,30 +2141,6 @@ exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
       </v-card-actions-stub>
     </v-card-stub>
   </v-dialog-stub>
-   
-  <v-card-stub
-    class="dragged-organization"
-    color="primary"
-    dark="true"
-    loaderheight="4"
-    tag="div"
-  >
-    <v-card-title-stub
-      tag="div"
-    >
-      
-      
-    
-    </v-card-title-stub>
-     
-    <v-card-subtitle-stub
-      tag="div"
-    >
-      
-      Drag and drop on an individual to affiliate
-    
-    </v-card-subtitle-stub>
-  </v-card-stub>
 </section>
 `;
 
@@ -2361,30 +2337,6 @@ exports[`OrganizationsTable Mock mutation for addOrganization 1`] = `
       </v-card-actions-stub>
     </v-card-stub>
   </v-dialog-stub>
-   
-  <v-card-stub
-    class="dragged-organization"
-    color="primary"
-    dark="true"
-    loaderheight="4"
-    tag="div"
-  >
-    <v-card-title-stub
-      tag="div"
-    >
-      
-      
-    
-    </v-card-title-stub>
-     
-    <v-card-subtitle-stub
-      tag="div"
-    >
-      
-      Drag and drop on an individual to affiliate
-    
-    </v-card-subtitle-stub>
-  </v-card-stub>
 </section>
 `;
 
@@ -2581,30 +2533,6 @@ exports[`OrganizationsTable Mock mutation for deleteDomain 1`] = `
       </v-card-actions-stub>
     </v-card-stub>
   </v-dialog-stub>
-   
-  <v-card-stub
-    class="dragged-organization"
-    color="primary"
-    dark="true"
-    loaderheight="4"
-    tag="div"
-  >
-    <v-card-title-stub
-      tag="div"
-    >
-      
-      
-    
-    </v-card-title-stub>
-     
-    <v-card-subtitle-stub
-      tag="div"
-    >
-      
-      Drag and drop on an individual to affiliate
-    
-    </v-card-subtitle-stub>
-  </v-card-stub>
 </section>
 `;
 
@@ -2801,30 +2729,6 @@ exports[`OrganizationsTable Mock mutation for deleteOrganization 1`] = `
       </v-card-actions-stub>
     </v-card-stub>
   </v-dialog-stub>
-   
-  <v-card-stub
-    class="dragged-organization"
-    color="primary"
-    dark="true"
-    loaderheight="4"
-    tag="div"
-  >
-    <v-card-title-stub
-      tag="div"
-    >
-      
-      
-    
-    </v-card-title-stub>
-     
-    <v-card-subtitle-stub
-      tag="div"
-    >
-      
-      Drag and drop on an individual to affiliate
-    
-    </v-card-subtitle-stub>
-  </v-card-stub>
 </section>
 `;
 
@@ -3021,30 +2925,6 @@ exports[`OrganizationsTable Mock mutation for enroll 1`] = `
       </v-card-actions-stub>
     </v-card-stub>
   </v-dialog-stub>
-   
-  <v-card-stub
-    class="dragged-organization"
-    color="primary"
-    dark="true"
-    loaderheight="4"
-    tag="div"
-  >
-    <v-card-title-stub
-      tag="div"
-    >
-      
-      
-    
-    </v-card-title-stub>
-     
-    <v-card-subtitle-stub
-      tag="div"
-    >
-      
-      Drag and drop on an individual to affiliate
-    
-    </v-card-subtitle-stub>
-  </v-card-stub>
 </section>
 `;
 

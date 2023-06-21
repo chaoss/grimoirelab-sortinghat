@@ -157,7 +157,7 @@ export default {
       const type = event.dataTransfer.getData("type");
       if (type === "move") {
         this.moveIndividual(event);
-      } else if (type === "enrollFromOrganization") {
+      } else if (event.dataTransfer.getData("group")) {
         this.enrollIndividual(event);
       } else {
         this.mergeIndividuals(event);

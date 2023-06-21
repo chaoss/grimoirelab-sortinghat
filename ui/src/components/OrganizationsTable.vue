@@ -79,6 +79,7 @@
           @delete="confirmDelete(item.name)"
           @getEnrollments="$emit('getEnrollments', { enrollment: item.name })"
           @addTeam="createTeam(item.name, $event)"
+          @merge:orgs="confirmMerge"
         />
       </template>
       <template v-slot:expanded-item="{ item }">
@@ -161,15 +162,6 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-
-    <v-card class="dragged-organization" color="primary" dark>
-      <v-card-title>
-        {{ selectedOrganization }}
-      </v-card-title>
-      <v-card-subtitle>
-        Drag and drop on an individual to affiliate
-      </v-card-subtitle>
-    </v-card>
   </section>
 </template>
 
@@ -234,6 +226,10 @@ export default {
       required: false,
     },
     deleteDomain: {
+      type: Function,
+      required: false,
+    },
+    mergeItems: {
       type: Function,
       required: false,
     },
@@ -416,8 +412,6 @@ export default {
       event.dataTransfer.dropEffect = "move";
       event.dataTransfer.setData("type", "enrollFromOrganization");
       event.dataTransfer.setData("group", item.name);
-      const dragImage = document.querySelector(".dragged-organization");
-      event.dataTransfer.setDragImage(dragImage, 0, 0);
     },
     filterSearch(filters) {
       this.filters = filters;
@@ -489,6 +483,32 @@ export default {
           action: null,
         });
         this.$logger.error(`Error creating team: ${error}`);
+      }
+    },
+    confirmMerge({ fromOrg, toOrg }) {
+      Object.assign(this.dialog, {
+        open: true,
+        title: `Merge ${fromOrg} with ${toOrg}?`,
+        text: `${fromOrg} will be deleted.`,
+        action: () => this.merge(fromOrg, toOrg),
+      });
+    },
+    async merge(fromOrg, toOrg) {
+      try {
+        const response = await this.mergeItems(fromOrg, toOrg);
+        if (!response.errors) {
+          this.getTableItems();
+          this.closeDialog();
+          this.$logger.debug(`Merged organization ${fromOrg} with ${toOrg}`);
+        }
+      } catch (error) {
+        Object.assign(this.dialog, {
+          open: true,
+          title: "Error",
+          text: this.$getErrorMessage(error),
+          action: null,
+        });
+        this.$logger.error(`Error merging ${fromOrg} with ${toOrg}: ${error}`);
       }
     },
   },

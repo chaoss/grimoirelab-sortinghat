@@ -214,7 +214,8 @@ export default {
     },
     onDrop(evt) {
       const type = evt.dataTransfer.getData("type");
-      if (type === "move" || type === "enrollFromOrganization") {
+      const types = evt.dataTransfer.types;
+      if (type === "move" || types.includes("group")) {
         return;
       }
       const droppedIndividuals = JSON.parse(
@@ -304,11 +305,7 @@ export default {
     onDrag(event) {
       const type = event.dataTransfer.getData("type");
       const types = event.dataTransfer.types;
-      if (
-        type === "move" ||
-        type === "enrollFromOrganization" ||
-        types.includes("organization")
-      ) {
+      if (type === "move" || types.includes("group")) {
         return;
       }
       this.isDragging = true;

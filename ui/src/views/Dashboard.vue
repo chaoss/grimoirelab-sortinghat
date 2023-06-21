@@ -60,6 +60,7 @@
           :add-team="addTeam"
           :delete-team="deleteTeam"
           :fetch-teams="fetchTeams"
+          :merge-items="mergeOrgs"
           @getEnrollments="getEnrollments"
           @updateIndividuals="updateTable"
           @updateWorkspace="updateWorkspace"
@@ -103,6 +104,7 @@ import {
   updateEnrollment,
   manageMergeRecommendation,
   recommendMatches,
+  mergeOrganizations,
 } from "../apollo/mutations";
 import IndividualsTable from "../components/IndividualsTable";
 import OrganizationsTable from "../components/OrganizationsTable";
@@ -344,6 +346,10 @@ export default {
         exclude,
         uuid
       );
+      return response;
+    },
+    async mergeOrgs(fromOrg, toOrg) {
+      const response = await mergeOrganizations(this.$apollo, fromOrg, toOrg);
       return response;
     },
   },
