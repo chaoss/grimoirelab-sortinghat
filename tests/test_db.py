@@ -103,6 +103,8 @@ INTERVAL_INVALID_ERROR = "'interval' must be a positive number or 0."
 FORMAT_NOT_FOUND_ERROR = "{} not found in the registry"
 FORMAT_EMPTY_ERROR = "'{}' cannot be .+"
 FORMAT_ALREADY_EXISTS = "'{}' already exists in the registry"
+MOVE_DOMAIN_ERROR = "Domain 'example.com' is already assigned to 'Example'"
+MOVE_TEAM_ERROR = "Team 'Example team' is already assigned to 'Example organization'"
 
 
 class TestFindIndividual(TestCase):
@@ -3164,3 +3166,228 @@ class TestUnlock(TestCase):
         self.assertEqual(len(op1_args), 2)
         self.assertEqual(op1_args['mk'], jsmith.mk)
         self.assertEqual(op1_args['is_locked'], jsmith.is_locked)
+
+
+class TestMoveDomain(TestCase):
+    """Unit tests for move_domain"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        self.trxl = TransactionsLog.open('move_domain', self.ctx)
+
+    def test_move_domain(self):
+        """Test when domain is moved to an organization"""
+
+        from_org = Organization.add_root(name='Organization 1')
+        to_org = Organization.add_root(name='Organization 2')
+        domain = Domain.objects.create(domain='example.com',
+                                       organization=from_org,
+                                       is_top_domain=True)
+
+        # Move domain and check results
+        domain = db.move_domain(self.trxl, domain, to_org)
+
+        self.assertIsInstance(domain, Domain)
+        self.assertEqual(domain.organization, to_org)
+
+        domains = to_org.domains.all()
+        self.assertEqual(len(domains), 1)
+
+        domain = domains[0]
+        self.assertEqual(domain.domain, 'example.com')
+
+        # Check if the database stored those changes
+        organization = Organization.objects.get(name='Organization 1')
+        self.assertEqual(len(organization.domains.all()), 0)
+
+        organization = Organization.objects.get(name='Organization 2')
+        domains = organization.domains.all()
+        self.assertEqual(len(domains), 1)
+
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
+
+        from_org = Organization.add_root(name='Organization 1')
+        to_org = Organization.add_root(name='Organization 2')
+        domain = Domain.objects.create(domain='example.com',
+                                       organization=from_org,
+                                       is_top_domain=True)
+
+        # Move domain and check results
+        before_dt = datetime_utcnow()
+        db.move_domain(self.trxl, domain, to_org)
+        after_dt = datetime_utcnow()
+
+        # Tests
+        organization = Organization.objects.get(name='Organization 1')
+        self.assertLessEqual(before_dt, organization.last_modified)
+        self.assertGreaterEqual(after_dt, organization.last_modified)
+
+        organization = Organization.objects.get(name='Organization 2')
+        self.assertLessEqual(before_dt, organization.last_modified)
+        self.assertGreaterEqual(after_dt, organization.last_modified)
+
+        domain = Domain.objects.get(domain='example.com')
+        self.assertLessEqual(before_dt, domain.last_modified)
+        self.assertGreaterEqual(after_dt, domain.last_modified)
+
+    def test_equal_organizations(self):
+        """Test that all remains the same when the target organization is the source'"""
+
+        from_org = Organization.add_root(name='Example')
+        domain = Domain.objects.create(domain='example.com',
+                                       organization=from_org,
+                                       is_top_domain=True)
+        # Move domain and check results
+        with self.assertRaisesRegex(ValueError, MOVE_DOMAIN_ERROR):
+            db.move_domain(self.trxl, domain, from_org)
+
+        organization = Organization.objects.get(name='Example')
+        self.assertEqual(len(organization.domains.all()), 1)
+
+    def test_operations(self):
+        """Check if the right operations are created when moving a domain"""
+
+        timestamp = datetime_utcnow()
+
+        from_org = Organization.add_root(name='Organization 1')
+        to_org = Organization.add_root(name='Organization 2')
+
+        domain = Domain.objects.create(domain='example.com',
+                                       organization=from_org,
+                                       is_top_domain=True)
+
+        # Move domain
+        db.move_domain(self.trxl, domain, to_org)
+
+        transactions = Transaction.objects.filter(name='move_domain')
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.UPDATE.value)
+        self.assertEqual(op1.entity_type, 'domain')
+        self.assertEqual(op1.trx, trx)
+        self.assertEqual(op1.target, 'example.com')
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 2)
+        self.assertEqual(op1_args['domain'], 'example.com')
+        self.assertEqual(op1_args['organization'], 'Organization 2')
+
+
+class TestMoveTeam(TestCase):
+    """Unit tests for move_team"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        self.trxl = TransactionsLog.open('move_team', self.ctx)
+
+    def test_move_team(self):
+        """Test if a team is moved to an organization"""
+
+        from_org = Organization.add_root(name='Organization 1')
+        to_org = Organization.add_root(name='Organization 2')
+        team = Team.add_root(name='Example team', parent_org=from_org)
+
+        # Move team and check results
+        team = db.move_team(self.trxl, team, to_org)
+
+        self.assertIsInstance(team, Team)
+        self.assertEqual(team.parent_org, to_org)
+
+        teams = to_org.teams.all()
+        self.assertEqual(len(teams), 1)
+
+        team = teams[0]
+        self.assertEqual(team.name, 'Example team')
+
+        # Check if the database stored those changes
+        organization = Organization.objects.get(name='Organization 1')
+        self.assertEqual(len(organization.teams.all()), 0)
+
+        organization = Organization.objects.get(name='Organization 2')
+        teams = organization.teams.all()
+        self.assertEqual(len(teams), 1)
+
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
+
+        from_org = Organization.add_root(name='Organization 1')
+        to_org = Organization.add_root(name='Organization 2')
+        team = Team.add_root(name='Example team', parent_org=from_org)
+
+        # Move team and check results
+        before_dt = datetime_utcnow()
+        team = db.move_team(self.trxl, team, to_org)
+        after_dt = datetime_utcnow()
+
+        # Tests
+        organization = Organization.objects.get(name='Organization 1')
+        self.assertLessEqual(before_dt, organization.last_modified)
+        self.assertGreaterEqual(after_dt, organization.last_modified)
+
+        organization = Organization.objects.get(name='Organization 2')
+        self.assertLessEqual(before_dt, organization.last_modified)
+        self.assertGreaterEqual(after_dt, organization.last_modified)
+
+        team = Team.objects.get(name='Example team')
+        self.assertLessEqual(before_dt, team.last_modified)
+        self.assertGreaterEqual(after_dt, team.last_modified)
+
+    def test_equal_organizations(self):
+        """Test that all remains the same when the target organization is the source'"""
+
+        from_org = Organization.add_root(name='Example organization')
+        team = Team.add_root(name='Example team', parent_org=from_org)
+
+        # Move team and check results
+        with self.assertRaisesRegex(ValueError, MOVE_TEAM_ERROR):
+            db.move_team(self.trxl, team, from_org)
+
+        organization = Organization.objects.get(name='Example organization')
+        self.assertEqual(len(organization.teams.all()), 1)
+
+    def test_operations(self):
+        """Check if the right operations are created when moving a team"""
+
+        timestamp = datetime_utcnow()
+
+        from_org = Organization.add_root(name='Organization 1')
+        to_org = Organization.add_root(name='Organization 2')
+
+        team = Team.add_root(name='Example team', parent_org=from_org)
+
+        # Move team
+        db.move_team(self.trxl, team, to_org)
+
+        transactions = Transaction.objects.filter(name='move_team')
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.UPDATE.value)
+        self.assertEqual(op1.entity_type, 'team')
+        self.assertEqual(op1.trx, trx)
+        self.assertEqual(op1.target, 'Example team')
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 2)
+        self.assertEqual(op1_args['team'], 'Example team')
+        self.assertEqual(op1_args['organization'], 'Organization 2')

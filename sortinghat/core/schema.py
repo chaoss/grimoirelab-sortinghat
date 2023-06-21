@@ -63,7 +63,8 @@ from .api import (add_identity,
                   withdraw,
                   update_enrollment,
                   delete_import_identities_task,
-                  update_import_identities_task)
+                  update_import_identities_task,
+                  merge_organizations)
 from .context import SortingHatContext
 from .decorators import (check_auth, check_permissions)
 from .errors import InvalidFilterError, EqualIndividualError
@@ -1373,6 +1374,26 @@ class UpdateImportIdentitiesTask(graphene.Mutation):
         )
 
 
+class MergeOrganizations(graphene.Mutation):
+    class Arguments:
+        from_org = graphene.String()
+        to_org = graphene.String()
+
+    organization = graphene.Field(lambda: OrganizationType)
+
+    @check_auth
+    def mutate(self, info, from_org, to_org):
+        user = info.context.user
+        tenant = get_db_tenant()
+        ctx = SortingHatContext(user=user, tenant=tenant)
+
+        organization = merge_organizations(ctx, from_org, to_org)
+
+        return MergeOrganizations(
+            organization=organization
+        )
+
+
 class SortingHatQuery:
 
     countries = graphene.Field(
@@ -1984,6 +2005,11 @@ class SortingHatMutation(graphene.ObjectType):
     )
     update_import_identities_task = UpdateImportIdentitiesTask.Field(
         description='Update a periodic task to import identities.'
+    )
+    merge_organizations = MergeOrganizations.Field(
+        description='Merge one organization into another. The domains, teams and\
+        affiliations from the origin organization will be assigned to the target\
+        organization and the origin organization will be deleted.'
     )
 
     # JWT authentication

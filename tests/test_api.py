@@ -89,6 +89,7 @@ DOMAIN_VALUE_ERROR = "field value must be a string; int given"
 DOMAIN_ORG_NAME_NONE_OR_EMPTY_ERROR = "'org_name' cannot be"
 FORMAT_NONE_OR_EMPTY_ERROR = "'{}' cannot be"
 INTERVAL_MUST_BE_NUMBER_ERROR = "'interval' must be a positive number"
+FROM_ORG_TO_ORG_EQUAL_ERROR = "'to_org' cannot be the same as 'from_org'"
 
 
 class TestAddIdentity(TestCase):
@@ -6004,3 +6005,215 @@ class TestUpdateImportTask(TestCase):
         self.assertEqual(op1_args['url'], 'foo2.url')
         self.assertEqual(op1_args['interval'], 4)
         self.assertDictEqual(op1_args['params'], {'token': '1234'})
+
+
+class TestMergeOrganizations(TestCase):
+    """Unit tests for merge"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        from_org = api.add_organization(self.ctx, 'Example')
+        to_org = api.add_organization(self.ctx, 'Bitergia')
+
+        api.add_domain(self.ctx,
+                       organization='Example',
+                       domain_name='example.com',
+                       is_top_domain=True)
+        api.add_domain(self.ctx,
+                       organization='Bitergia',
+                       domain_name='bitergia.com',
+                       is_top_domain=True)
+
+        Team.add_root(name='Example team', parent_org=from_org)
+        Team.add_root(name='Bitergia team', parent_org=to_org)
+
+        self.example_indv = api.add_identity(self.ctx, 'git', email='jsmith@example')
+        self.bitergia_indv = api.add_identity(self.ctx, 'scm', email='jsmith@bitergia')
+
+        api.enroll(self.ctx,
+                   self.example_indv.uuid, 'Example',
+                   from_date=datetime.datetime(1999, 1, 1),
+                   to_date=datetime.datetime(2000, 1, 1))
+        api.enroll(self.ctx,
+                   self.bitergia_indv.uuid, 'Bitergia',
+                   from_date=datetime.datetime(1999, 1, 1),
+                   to_date=datetime.datetime(2000, 1, 1))
+
+    def test_merge_organizations(self):
+        """Check whether it merges two organizations, merging their domains, teams and enrollments"""
+
+        organization = api.merge_organizations(self.ctx,
+                               from_org='Example',
+                               to_org='Bitergia')
+
+        # Tests
+        self.assertIsInstance(organization, Organization)
+        self.assertEqual(organization.name, 'Bitergia')
+
+        organizations_db = Organization.objects.filter(name='Example')
+        self.assertEqual(len(organizations_db), 0)
+
+        organizations_db = Organization.objects.filter(name='Bitergia')
+        self.assertEqual(len(organizations_db), 1)
+
+        organization = Organization.objects.get(name='Bitergia')
+
+        domains = organization.domains.all()
+        self.assertEqual(len(domains), 2)
+        self.assertEqual(domains[0].domain, 'bitergia.com')
+        self.assertEqual(domains[1].domain, 'example.com')
+
+        teams = organization.teams.all()
+        self.assertEqual(len(teams), 2)
+        self.assertEqual(teams[0].name, 'Example team')
+        self.assertEqual(teams[1].name, 'Bitergia team')
+
+        enrollments = organization.enrollments.all()
+        self.assertEqual(len(enrollments), 2)
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.individual.mk, self.bitergia_indv.uuid)
+
+        enrollment = enrollments[1]
+        self.assertEqual(enrollment.individual.mk, self.example_indv.uuid)
+
+    def test_from_org_to_org_equal(self):
+        """Check if it fails merging two organizations when they are equal"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(InvalidValueError, FROM_ORG_TO_ORG_EQUAL_ERROR):
+            api.merge_organizations(self.ctx,
+                                    from_org='Bitergia',
+                                    to_org='Bitergia')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_duplicate_enrollments(self):
+        """Check it does not duplicate enrollments when two organizations are merged"""
+
+        individual = api.add_identity(self.ctx, 'abc', email='duplicate@example')
+
+        api.enroll(self.ctx,
+                   individual.uuid, 'Example',
+                   from_date=datetime.datetime(2003, 1, 1),
+                   to_date=datetime.datetime(2004, 1, 1))
+        api.enroll(self.ctx,
+                   individual.uuid, 'Bitergia',
+                   from_date=datetime.datetime(2003, 1, 1),
+                   to_date=datetime.datetime(2004, 1, 1))
+
+        organization = api.merge_organizations(self.ctx,
+                                               from_org='Example',
+                                               to_org='Bitergia')
+
+        organizations_db = Organization.objects.filter(name='Example')
+        self.assertEqual(len(organizations_db), 0)
+
+        organizations_db = Organization.objects.filter(name='Bitergia')
+        self.assertEqual(len(organizations_db), 1)
+
+        organization = Organization.objects.get(name='Bitergia')
+        enrollments = organization.enrollments.all()
+        self.assertEqual(len(enrollments), 3)
+
+        enrollment = enrollments[0]
+        self.assertEqual(enrollment.individual.mk, self.bitergia_indv.uuid)
+
+        enrollment = enrollments[1]
+        self.assertEqual(enrollment.individual.mk, self.example_indv.uuid)
+
+        enrollment = enrollments[2]
+        self.assertEqual(enrollment.individual.mk, individual.uuid)
+
+    def test_transaction(self):
+        """Check if a transaction is created when merging organizations"""
+
+        timestamp = datetime_utcnow()
+
+        api.merge_organizations(self.ctx,
+                                from_org='Example',
+                                to_org='Bitergia')
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        self.assertEqual(len(transactions), 1)
+
+        trx = transactions[0]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'merge_organizations')
+        self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, self.ctx.user.username)
+
+    def test_operations(self):
+        """Check if the right operations are created when merging organizations"""
+
+        timestamp = datetime_utcnow()
+
+        api.merge_organizations(self.ctx,
+                                from_org='Example',
+                                to_org='Bitergia')
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 4)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.UPDATE.value)
+        self.assertEqual(op1.entity_type, 'domain')
+        self.assertEqual(op1.target, 'example.com')
+        self.assertEqual(op1.trx, trx)
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 2)
+        self.assertEqual(op1_args['domain'], 'example.com')
+        self.assertEqual(op1_args['organization'], 'Bitergia')
+
+        op2 = operations[1]
+        self.assertIsInstance(op2, Operation)
+        self.assertEqual(op2.op_type, Operation.OpType.UPDATE.value)
+        self.assertEqual(op2.entity_type, 'team')
+        self.assertEqual(op2.target, 'Example team')
+        self.assertEqual(op2.trx, trx)
+        self.assertGreater(op2.timestamp, timestamp)
+
+        op2_args = json.loads(op2.args)
+        self.assertEqual(len(op2_args), 2)
+        self.assertEqual(op2_args['team'], 'Example team')
+        self.assertEqual(op2_args['organization'], 'Bitergia')
+
+        op3 = operations[2]
+        self.assertIsInstance(op3, Operation)
+        self.assertEqual(op3.op_type, Operation.OpType.ADD.value)
+        self.assertEqual(op3.entity_type, 'enrollment')
+        self.assertEqual(op3.target, self.example_indv.uuid)
+        self.assertEqual(op3.trx, trx)
+        self.assertGreater(op3.timestamp, timestamp)
+
+        op3_args = json.loads(op3.args)
+        self.assertEqual(len(op3_args), 4)
+        self.assertEqual(op3_args['individual'], self.example_indv.uuid)
+        self.assertEqual(op3_args['group'], 'Bitergia')
+        self.assertEqual(op3_args['start'], '1999-01-01 00:00:00+00:00')
+        self.assertEqual(op3_args['end'], '2000-01-01 00:00:00+00:00')
+
+        op4 = operations[3]
+        self.assertIsInstance(op4, Operation)
+        self.assertEqual(op2.op_type, Operation.OpType.UPDATE.value)
+        self.assertEqual(op4.entity_type, 'organization')
+        self.assertEqual(op4.target, 'Example')
+        self.assertEqual(op4.trx, trx)
+        self.assertGreater(op4.timestamp, timestamp)
+
+        op4_args = json.loads(op4.args)
+        self.assertEqual(len(op4_args), 1)
+        self.assertEqual(op4_args['organization'], 'Example')

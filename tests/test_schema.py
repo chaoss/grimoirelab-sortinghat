@@ -116,6 +116,9 @@ FROM_DATE_EMPTY_ERROR = "'from_date' cannot be empty"
 TO_DATE_EMPTY_ERROR = "'to_date' cannot be empty"
 BOTH_NEW_DATES_NONE_ERROR = "'new_from_date' and 'to_from_date' cannot be None at the same time"
 EXECUTE_JOB_PERMISSION = "core.execute_job"
+FROM_ORG_EMPTY_ERROR = "'from_org' cannot be an empty string"
+TO_ORG_EMPTY_ERROR = "'to_org' cannot be an empty string"
+EQUAL_ORGS_ERROR = "'to_org' cannot be the same as 'from_org'"
 
 # Test queries
 SH_COUNTRIES_QUERY = """{
@@ -10747,6 +10750,193 @@ class TestManageRecommendationAffiliationMutation(django.test.TestCase):
 
         executed = client.execute(self.SH_MANAGE_REC % (1, "true"),
                                   context_value=context_value)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
+
+
+class TestMergeOrganizationsMutation(django.test.TestCase):
+    """Unit tests for mutation to merge organizations"""
+
+    SH_MERGE_ORGS = """
+          mutation mergeOrgs($fromOrg: String, $toOrg: String) {
+            mergeOrganizations(fromOrg: $fromOrg, toOrg: $toOrg) {
+              organization {
+                lastModified
+                name
+                teams {
+                  name
+                }
+                domains {
+                  domain
+                }
+                enrollments {
+                  individual {
+                    mk
+                  }
+                }
+              }
+            }
+          }
+        """
+
+    def setUp(self):
+        """Load initial dataset and set queries context"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
+
+        self.ctx = SortingHatContext(self.user)
+
+        # Transaction
+        self.trxl = TransactionsLog.open('merge_organizations', self.ctx)
+
+        db.add_organization(self.trxl, 'Example')
+        db.add_organization(self.trxl, 'Bitergia')
+
+        api.add_domain(self.ctx,
+                       organization='Example',
+                       domain_name='example.com',
+                       is_top_domain=True)
+        api.add_domain(self.ctx,
+                       organization='Bitergia',
+                       domain_name='bitergia.com',
+                       is_top_domain=True)
+
+        api.add_team(self.ctx, 'Example team', organization='Example')
+        api.add_team(self.ctx, 'Bitergia team', organization='Bitergia')
+
+        indv1 = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        indv2 = api.add_identity(self.ctx, 'git', email='jsmith@bitergia')
+
+        api.enroll(self.ctx,
+                   indv1.uuid,
+                   'Example',
+                   from_date=datetime.datetime(1900, 1, 1),
+                   to_date=datetime.datetime(2017, 1, 1))
+        api.enroll(self.ctx,
+                   indv2.uuid,
+                   'Bitergia',
+                   from_date=datetime.datetime(1990, 1, 1),
+                   to_date=datetime.datetime(2000, 1, 1))
+
+    def test_merge_organizations(self):
+        """Check whether it merges two organizations, merging their domains, teams and enrollments"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'fromOrg': 'Example',
+            'toOrg': 'Bitergia'
+        }
+
+        executed = client.execute(self.SH_MERGE_ORGS,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        # Check results, organizations were merged
+        organization = executed['data']['mergeOrganizations']['organization']
+
+        domains = organization['domains']
+        self.assertEqual(len(domains), 2)
+        self.assertEqual(domains[0]['domain'], 'bitergia.com')
+        self.assertEqual(domains[1]['domain'], 'example.com')
+
+        teams = organization['teams']
+        self.assertEqual(len(teams), 2)
+        self.assertEqual(teams[0]['name'], 'Bitergia team')
+        self.assertEqual(teams[1]['name'], 'Example team')
+
+        enrollments = organization['enrollments']
+        self.assertEqual(len(enrollments), 2)
+        individual = enrollments[0]['individual']['mk']
+        self.assertEqual(individual, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        individual = enrollments[1]['individual']['mk']
+        self.assertEqual(individual, 'c79e5c1587ac851b9b44720bd2242e9358a6eb70')
+
+        # Check database objects
+        organization_db = Organization.objects.get(name='Bitergia')
+        self.assertIsInstance(organization_db, Organization)
+
+        domains = organization_db.domains.all()
+        self.assertEqual(len(domains), 2)
+
+        teams = organization_db.teams.all()
+        self.assertEqual(len(teams), 2)
+
+        enrollments = organization_db.enrollments.all()
+        self.assertEqual(len(enrollments), 2)
+
+        with self.assertRaises(django.core.exceptions.ObjectDoesNotExist):
+            Organization.objects.get(name='Example')
+
+    def test_non_existing_from_org(self):
+        """Check if it fails merging two organizations when `from_org` is `None` or empty"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'fromOrg': '',
+            'toOrg': 'Bitergia'
+        }
+
+        executed = client.execute(self.SH_MERGE_ORGS,
+                                  context_value=self.context_value,
+                                  variables=params)
+        msg = executed['errors'][0]['message']
+
+        self.assertEqual(msg, FROM_ORG_EMPTY_ERROR)
+
+    def test_non_existing_to_org(self):
+        """Check if it fails merging two organizations when `to_org` is `None` or empty"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'fromOrg': 'Example',
+            'toOrg': ''
+        }
+
+        executed = client.execute(self.SH_MERGE_ORGS,
+                                  context_value=self.context_value,
+                                  variables=params)
+        msg = executed['errors'][0]['message']
+
+        self.assertEqual(msg, TO_ORG_EMPTY_ERROR)
+
+    def test_equal_orgs(self):
+        """Check if it fails merging two organizations when `from_org` and `to_org` are equal"""
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'fromOrg': 'Example',
+            'toOrg': 'Example'
+        }
+
+        executed = client.execute(self.SH_MERGE_ORGS,
+                                  context_value=self.context_value,
+                                  variables=params)
+        msg = executed['errors'][0]['message']
+
+        self.assertEqual(msg, EQUAL_ORGS_ERROR)
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the mutation"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'fromOrg': 'Example',
+            'toOrg': 'Bitergia'
+        }
+        executed = client.execute(self.SH_MERGE_ORGS,
+                                  context_value=context_value,
+                                  variables=params)
 
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, AUTHENTICATION_ERROR)

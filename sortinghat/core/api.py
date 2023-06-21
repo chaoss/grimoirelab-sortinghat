@@ -49,7 +49,9 @@ from .db import (find_individual_by_uuid,
                  lock as lock_db,
                  unlock as unlock_db,
                  add_enrollment,
-                 delete_enrollment)
+                 delete_enrollment,
+                 move_domain,
+                 move_team)
 from .errors import (InvalidValueError,
                      AlreadyExistsError,
                      NotFoundError,
@@ -1375,3 +1377,96 @@ def update_import_identities_task(ctx, task_id, **kwargs):
     logger.info(f"Task {task_id} successfully updated")
 
     return task
+
+
+@atomic_using_tenant
+def merge_organizations(ctx, from_org, to_org):
+    """Merge an organization into another.
+
+    This function moves the domains, teams and affiliations from
+    an origin organization identified by `from_org` to the target
+    organization identified by `to_org`. The origin organization is
+    then deleted.
+
+    The function raises a `NotFoundError` exception when either `from_org`
+    or `to_org` do not exist in the registry and both identifiers are
+    not the same. If both are the same, it raises an `InvalidValueError`.
+
+    The target organization with updated data is returned as a result.
+
+    :param ctx: context from where this method is called
+    :param from_org: identifier of the origin organization
+    :param to_org: identifier of the target organization where the origin
+        organization will be merged
+
+    :returns: an organization with the domains, teams and affiliation
+        data updated
+
+    :raises NotFoundError: raised when either `from_org` or `to_org`
+        do not exist in the registry.
+    :raises InvalidValueError: raised when either `from_org' or `to_org`
+        are `None` or empty strings, or their values are the same.
+    """
+    def _move_domains(trxl, from_org, to_org):
+        """Move the domains from the origin organization to the target"""
+
+        domains = from_org.domains.all()
+        for domain in domains:
+            move_domain(trxl, domain, to_org)
+
+    def _move_teams(trxl, from_org, to_org):
+        """Move the teams from the origin organization to the target"""
+
+        teams = from_org.teams.all()
+        for team in teams:
+            move_team(trxl, team, to_org)
+
+    def _move_enrollments(trxl, from_org, to_org):
+        """Enroll the members of the origin organization in the target"""
+
+        enrollments = from_org.enrollments.all()
+        for enrollment in enrollments:
+            individual = enrollment.individual
+            start = enrollment.start
+            end = enrollment.end
+            enrollment_db = search_enrollments_in_period(individual.mk,
+                                                         to_org.name,
+                                                         from_date=start,
+                                                         to_date=end)
+            if not enrollment_db:
+                add_enrollment(trxl, individual, to_org, start=start, end=end)
+
+        return to_org
+
+    # Check input values
+    if from_org is None:
+        raise InvalidValueError(msg="'from_org' cannot be None")
+    if from_org == '':
+        raise InvalidValueError(msg="'from_org' cannot be an empty string")
+    if to_org is None:
+        raise InvalidValueError(msg="'to_org' cannot be None")
+    if to_org == '':
+        raise InvalidValueError(msg="'to_org' cannot be an empty string")
+    if from_org == to_org:
+        raise InvalidValueError(msg="'to_org' cannot be the same as 'from_org'")
+
+    trxl = TransactionsLog.open('merge_organizations', ctx)
+
+    try:
+        target = find_organization(to_org)
+        origin = find_organization(from_org)
+    except NotFoundError as exc:
+        # At least one organization was not found, so they cannot be merged
+        raise exc
+
+    _move_domains(trxl, origin, target)
+    _move_teams(trxl, origin, target)
+    _move_enrollments(trxl, origin, target)
+
+    delete_organization_db(trxl, organization=origin)
+
+    trxl.close()
+
+    logger.info(f"Organization {from_org} merged in {to_org}")
+
+    return target
