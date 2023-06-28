@@ -1,8 +1,0 @@
----
-title: Email affiliation error
-category: fixed
-author: Jose Javier Merchante <jjmerchante@bitergia.com>
-issue: 793
-notes: >
-  Fix an error when the email domain ends with
-  a dot, causing the affiliation process to stop.

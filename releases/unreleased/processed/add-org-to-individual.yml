@@ -1,8 +1,0 @@
----
-title: ADD button doesn't affiliate individuals to organizations
-category: fixed
-author: Eva Millan <evamillan@bitergia.com>
-issue: null
-notes: >
-  Affiliating an individual to an organization using the "+ ADD" button on
-  the table expanded view failed.
