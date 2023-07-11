@@ -1,0 +1,9 @@
+---
+title: Show an organization's members
+category: fixed
+author: Eva Millan <evamillan@bitergia.com>
+issue: null
+notes: >
+  Repeatedly clicking on the button to see the members
+  of an organization or team on the table sometimes
+  showed the full individuals list.

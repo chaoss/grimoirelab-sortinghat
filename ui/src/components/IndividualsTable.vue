@@ -714,10 +714,11 @@ export default {
         this.$logger.error(`Error updating enrollment: ${error}`, data);
       }
     },
-    filterSearch(filters, orderBy) {
+    filterSearch(filters, orderBy, inputValue) {
       this.filters = filters;
       this.orderBy = orderBy;
       this.queryIndividuals(1);
+      this.$emit("setFilters", inputValue);
     },
     selectAll(value) {
       this.individuals.forEach((individual) => (individual.isSelected = value));

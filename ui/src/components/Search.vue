@@ -192,7 +192,7 @@ export default {
       this.parseFilters();
       if (this.errorMessage) return;
       const order = this.getOrder();
-      this.$emit("search", this.filters, order);
+      this.$emit("search", this.filters, order, this.inputValue);
     },
     parseFilters() {
       const terms = [];
@@ -288,7 +288,7 @@ export default {
       this.inputValue = "";
       this.filters = {};
       this.errorMessage = undefined;
-      this.$emit("search", {}, order);
+      this.$emit("search", {}, order, "");
     },
     isBooleanFilter(filter) {
       const validFilter = this.validFilters.find(
