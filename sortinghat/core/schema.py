@@ -64,7 +64,9 @@ from .api import (add_identity,
                   update_enrollment,
                   delete_import_identities_task,
                   update_import_identities_task,
-                  merge_organizations)
+                  merge_organizations,
+                  delete_scheduled_task,
+                  update_scheduled_task)
 from .context import SortingHatContext
 from .decorators import (check_auth, check_permissions)
 from .errors import InvalidFilterError, EqualIndividualError
@@ -77,7 +79,9 @@ from .jobs import (affiliate,
                    recommend_affiliations,
                    recommend_matches,
                    recommend_gender,
-                   genderize)
+                   genderize,
+                   create_scheduled_task,
+                   schedule_task)
 from .models import (Organization,
                      Team,
                      Group,
@@ -93,7 +97,8 @@ from .models import (Organization,
                      AffiliationRecommendation,
                      MergeRecommendation,
                      GenderRecommendation,
-                     ImportIdentitiesTask)
+                     ImportIdentitiesTask,
+                     ScheduledTask)
 from .recommendations.exclusion import delete_recommend_exclusion_term, add_recommender_exclusion_term
 
 
@@ -302,6 +307,11 @@ class ImportIdentitiesTaskType(DjangoObjectType):
         model = ImportIdentitiesTask
 
 
+class ScheduledTaskType(DjangoObjectType):
+    class Meta:
+        model = ScheduledTask
+
+
 class AffiliationResultType(graphene.ObjectType):
     uuid = graphene.String(description='The unique identifier of an individual.')
     organizations = graphene.List(
@@ -367,6 +377,11 @@ class ImportIdentitiesTaskInputType(graphene.InputObjectType):
     url = graphene.String(required=False, description='URL of a file or API to fetch the identities from.')
     interval = graphene.Int(required=False, description="Period of executions, in minutes. '0' to disable.")
     params = graphene.JSONString(required=False, description="Specific parameters for the importer backend.")
+
+
+class ScheduledTaskInputType(graphene.InputObjectType):
+    interval = graphene.Int(required=False, description="Period of executions, in minutes. '0' to disable.")
+    params = graphene.JSONString(required=False, description="Specific parameters for the job to be scheduled.")
 
 
 class CountryFilterType(graphene.InputObjectType):
@@ -631,6 +646,11 @@ class RecommendedGenderPaginatedType(AbstractPaginatedType):
 
 class ImportIdentitiesTaskPaginatedType(AbstractPaginatedType):
     entities = graphene.List(ImportIdentitiesTaskType, description='A list of tasks importing identities.')
+    page_info = graphene.Field(PaginationType, description='Information to aid in pagination.')
+
+
+class ScheduledTaskPaginatedType(AbstractPaginatedType):
+    entities = graphene.List(ScheduledTaskType, description='A list of scheduled jobs.')
     page_info = graphene.Field(PaginationType, description='Information to aid in pagination.')
 
 
@@ -1140,7 +1160,7 @@ class Unify(graphene.Mutation):
         tenant = get_db_tenant()
         ctx = SortingHatContext(user=user, tenant=tenant)
 
-        job = enqueue(unify, ctx, source_uuids, target_uuids, criteria, exclude, job_timeout=-1)
+        job = enqueue(unify, ctx, criteria, source_uuids, target_uuids, exclude, job_timeout=-1)
 
         return Unify(
             job_id=job.id
@@ -1394,6 +1414,87 @@ class MergeOrganizations(graphene.Mutation):
         )
 
 
+class ScheduleTask(graphene.Mutation):
+    class Arguments:
+        job = graphene.String()
+        interval = graphene.Int()
+        params = graphene.JSONString(required=False)
+
+    task = graphene.Field(lambda: ScheduledTaskType)
+
+    @check_auth
+    def mutate(self, info, job, interval, params=None):
+        user = info.context.user
+        tenant = get_db_tenant()
+        ctx = SortingHatContext(user=user, tenant=tenant)
+
+        task = create_scheduled_task(ctx, job, interval, params)
+
+        return ScheduleTask(
+            task=task
+        )
+
+
+class DeleteScheduledTask(graphene.Mutation):
+    class Arguments:
+        task_id = graphene.Int()
+
+    deleted = graphene.Boolean()
+
+    @check_auth
+    def mutate(self, info, task_id):
+        user = info.context.user
+        tenant = get_db_tenant()
+        ctx = SortingHatContext(user=user, tenant=tenant)
+
+        task = delete_scheduled_task(ctx, task_id)
+
+        if task.job_id:
+            job = find_job(task.job_id)
+            if job:
+                job.cancel()
+
+        return DeleteScheduledTask(
+            deleted=True
+        )
+
+
+class UpdateScheduledTask(graphene.Mutation):
+    class Arguments:
+        task_id = graphene.Int()
+        data = ScheduledTaskInputType()
+
+    task = graphene.Field(lambda: ScheduledTaskType)
+
+    @check_auth
+    def mutate(self, info, task_id, data):
+        user = info.context.user
+        tenant = get_db_tenant()
+        ctx = SortingHatContext(user=user, tenant=tenant)
+
+        task = update_scheduled_task(ctx, task_id, **data)
+        if task.job_type == 'affiliate':
+            job_fn = affiliate
+        elif task.job_type == 'unify':
+            job_fn = unify
+
+        # Update next execution time if the interval is updated
+        if 'interval' in data:
+            new_dt = datetime.datetime.now(datetime.timezone.utc) \
+                + datetime.timedelta(minutes=task.interval)
+            if task.scheduled_datetime and task.scheduled_datetime > new_dt:
+                find_job(task.job_id)
+                if task.job_id:
+                    job = find_job(task.job_id)
+                    if job:
+                        job.cancel()
+                schedule_task(ctx, job_fn, task, new_dt, **task.args)
+
+        return UpdateScheduledTask(
+            task=task
+        )
+
+
 class SortingHatQuery:
 
     countries = graphene.Field(
@@ -1494,6 +1595,12 @@ class SortingHatQuery:
     identities_importers_types = graphene.List(
         IdentitiesImporterType,
         description='Get the available identities importers.'
+    )
+    scheduled_tasks = graphene.Field(
+        ScheduledTaskPaginatedType,
+        page_size=graphene.Int(),
+        page=graphene.Int(),
+        description='Get all scheduled tasks.'
     )
 
     @check_auth
@@ -1891,6 +1998,16 @@ class SortingHatQuery:
 
         return result
 
+    @check_auth
+    def resolve_scheduled_tasks(self, info, page=1,
+                                page_size=settings.SORTINGHAT_API_PAGE_SIZE, **kwargs):
+
+        query = ScheduledTask.objects.order_by('created_at')
+
+        return ScheduledTaskPaginatedType.create_paginated_result(query,
+                                                                  page,
+                                                                  page_size=page_size)
+
 
 class SortingHatMutation(graphene.ObjectType):
     add_organization = AddOrganization.Field(
@@ -2010,6 +2127,16 @@ class SortingHatMutation(graphene.ObjectType):
         description='Merge one organization into another. The domains, teams and\
         affiliations from the origin organization will be assigned to the target\
         organization and the origin organization will be deleted.'
+    )
+    schedule_task = ScheduleTask.Field(
+        description='Create a periodic task to run a job every `interval` minutes.\
+        Only the `affiliate` and `unify` jobs can be scheduled.'
+    )
+    delete_scheduled_task = DeleteScheduledTask.Field(
+        description='Delete a periodic task.'
+    )
+    update_scheduled_task = UpdateScheduledTask.Field(
+        description='Update a periodic task.'
     )
 
     # JWT authentication
