@@ -975,9 +975,9 @@ class TestUnify(TestCase):
 
         # Identities which don't have the fields in `criteria` or no matches won't be returned
         job = unify.delay(ctx,
+                          criteria,
                           source_uuids,
-                          target_uuids,
-                          criteria)
+                          target_uuids)
 
         result = job.result
 
@@ -1043,9 +1043,9 @@ class TestUnify(TestCase):
 
         # Identities which don't have the fields in `criteria` or no matches won't be returned
         job = unify.delay(ctx,
+                          criteria,
                           None,
-                          None,
-                          criteria)
+                          None)
 
         result = job.result
         self.assertDictEqual(result, expected)
@@ -1077,9 +1077,9 @@ class TestUnify(TestCase):
         criteria = ['email', 'name', 'username']
 
         job = unify.delay(ctx,
+                          criteria,
                           source_uuids,
-                          target_uuids,
-                          criteria)
+                          target_uuids)
         result = job.result
 
         self.assertDictEqual(result, expected)
@@ -1128,9 +1128,9 @@ class TestUnify(TestCase):
         criteria = ['email', 'name']
 
         job = unify.delay(ctx,
+                          criteria,
                           source_uuids,
-                          target_uuids,
-                          criteria)
+                          target_uuids,)
 
         result = job.result
 
@@ -1175,9 +1175,9 @@ class TestUnify(TestCase):
         criteria = ['email', 'name']
 
         job = unify.delay(ctx,
+                          criteria,
                           source_uuids,
-                          target_uuids,
-                          criteria)
+                          target_uuids)
 
         result = job.result
 
@@ -1203,9 +1203,9 @@ class TestUnify(TestCase):
         criteria = ['email', 'name']
 
         job = unify.delay(ctx,
+                          criteria,
                           source_uuids,
-                          target_uuids,
-                          criteria)
+                          target_uuids)
         result = job.result
 
         self.assertDictEqual(result, expected)
@@ -1223,9 +1223,9 @@ class TestUnify(TestCase):
 
         # Identities which don't have the fields in `criteria` or no matches won't be returned
         unify.delay(ctx,
+                    criteria,
                     source_uuids,
                     target_uuids,
-                    criteria,
                     job_id='ABCD-EF12-3456-7890')
 
         transactions = Transaction.objects.filter(created_at__gte=timestamp)

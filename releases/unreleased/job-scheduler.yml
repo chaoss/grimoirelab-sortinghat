@@ -1,0 +1,9 @@
+---
+title: Job scheduler
+category: added
+author: Eva Millán <evamillan@bitergia.com>
+issue: null
+notes: |
+  This new feature allows users to schedule jobs, such as `affiliate` or `unify`,
+  to run periodically. The tasks can be configured, updated and deleted using
+  the GraphQL API.

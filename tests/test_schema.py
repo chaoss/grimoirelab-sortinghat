@@ -63,7 +63,8 @@ from sortinghat.core.models import (Organization,
                                     Operation,
                                     MergeRecommendation,
                                     GenderRecommendation,
-                                    AffiliationRecommendation)
+                                    AffiliationRecommendation,
+                                    ScheduledTask)
 from sortinghat.core.schema import (SortingHatQuery,
                                     SortingHatMutation,
                                     parse_date_filter)
@@ -119,6 +120,7 @@ EXECUTE_JOB_PERMISSION = "core.execute_job"
 FROM_ORG_EMPTY_ERROR = "'from_org' cannot be an empty string"
 TO_ORG_EMPTY_ERROR = "'to_org' cannot be an empty string"
 EQUAL_ORGS_ERROR = "'to_org' cannot be the same as 'from_org'"
+UNSUPPORTED_JOB_ERROR = "Job '{}' cannot be scheduled."
 
 # Test queries
 SH_COUNTRIES_QUERY = """{
@@ -10939,4 +10941,173 @@ class TestMergeOrganizationsMutation(django.test.TestCase):
                                   variables=params)
 
         msg = executed['errors'][0]['message']
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
+
+
+class TestScheduleTaskMutation(django.test.TestCase):
+    """Unit tests for mutation to schedule a task"""
+
+    SH_SCHEDULE_TASK = """
+    mutation scheduleTask($job: String,
+                          $interval: Int,
+                          $params: JSONString) {
+      scheduleTask(job: $job, interval: $interval, params: $params) {
+        task {
+          jobType
+          interval
+          scheduledDatetime
+          args
+        }
+      }
+    }
+    """
+
+    def setUp(self):
+        """Load initial dataset and set queries context"""
+
+        conn = django_rq.queues.get_redis_connection(None, True)
+        conn.flushall()
+
+        self.user = get_user_model().objects.create(username='test', is_superuser=True)
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
+
+    def test_schedule_task(self):
+        """Check if it schedules a task"""
+
+        client = graphene.test.Client(schema)
+
+        variables = {
+            'job': 'unify',
+            'interval': 3,
+            'params': "{\"criteria\": [\"name\"]}"
+        }
+
+        timestamp = datetime_utcnow()
+
+        executed = client.execute(self.SH_SCHEDULE_TASK,
+                                  context_value=self.context_value,
+                                  variables=variables)
+
+        # Check if the task was created
+        task = executed['data']['scheduleTask']['task']
+        self.assertEqual(task['jobType'], 'unify')
+        self.assertEqual(task['interval'], 3)
+        self.assertGreater(str_to_datetime(task['scheduledDatetime']), timestamp)
+        self.assertEqual(task['args'], {'criteria': ['name']})
+
+    def test_schedule_task_unsupported_job(self):
+        """Check if it returns an error if the job is not supported"""
+
+        client = graphene.test.Client(schema)
+
+        variables = {
+            'job': 'foo',
+            'interval': 1
+        }
+
+        executed = client.execute(self.SH_SCHEDULE_TASK,
+                                  context_value=self.context_value,
+                                  variables=variables)
+
+        # Check the error
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, UNSUPPORTED_JOB_ERROR.format('foo'))
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the query"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        variables = {
+            'job': 'unify',
+            'interval': 3,
+            'params': "{\"criteria\": [\"name\"]}"
+        }
+
+        executed = client.execute(self.SH_SCHEDULE_TASK,
+                                  context_value=context_value,
+                                  variables=variables)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
+
+
+class TestScheduledTasksQuery(django.test.TestCase):
+    """Unit tests for scheduled tasks queries"""
+
+    SH_SCHEDULED_TASKS = """
+    query scheduledTasks {
+      scheduledTasks {
+        entities {
+          jobType
+          args
+          interval
+        }
+        pageInfo {
+          page
+          totalResults
+        }
+      }
+    }
+    """
+
+    def setUp(self):
+        """Set queries context"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
+        self.ctx = SortingHatContext(self.user)
+
+    def test_scheduled_tasks(self):
+        """Check if it returns the registry of tasks"""
+
+        ScheduledTask.objects.create(job_type='affiliate', interval=10)
+        ScheduledTask.objects.create(job_type='unify', interval=20, args={'criteria': ['name']})
+
+        # Tests
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_SCHEDULED_TASKS,
+                                  context_value=self.context_value)
+
+        tasks = executed['data']['scheduledTasks']['entities']
+        self.assertEqual(len(tasks), 2)
+
+        task = tasks[0]
+        self.assertEqual(task['jobType'], 'affiliate')
+        self.assertEqual(task['args'], None)
+        self.assertEqual(task['interval'], 10)
+
+        task = tasks[1]
+        self.assertEqual(task['jobType'], 'unify')
+        self.assertEqual(task['args'], {'criteria': ['name']})
+        self.assertEqual(task['interval'], 20)
+
+    def test_empty_registry(self):
+        """Check whether it returns an empty list when the registry is empty"""
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_SCHEDULED_TASKS,
+                                  context_value=self.context_value)
+
+        tasks = executed['data']['scheduledTasks']['entities']
+        self.assertEqual(tasks, [])
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the query"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        executed = client.execute(self.SH_SCHEDULED_TASKS,
+                                  context_value=context_value)
+
+        msg = executed['errors'][0]['message']
+
         self.assertEqual(msg, AUTHENTICATION_ERROR)

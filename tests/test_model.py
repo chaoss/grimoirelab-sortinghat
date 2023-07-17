@@ -48,7 +48,8 @@ from sortinghat.core.models import (Organization,
                                     MergeRecommendation,
                                     GenderRecommendation,
                                     ImportIdentitiesTask,
-                                    Tenant)
+                                    Tenant,
+                                    ScheduledTask)
 
 # Test check errors messages
 DUPLICATE_CHECK_ERROR = "Duplicate entry .+"
@@ -1020,6 +1021,57 @@ class TestImportIdentitiesTask(TransactionTestCase):
 
         before_modified_dt = datetime_utcnow()
         task.url = 'foo.url2'
+        task.save()
+        after_modified_dt = datetime_utcnow()
+
+        self.assertGreaterEqual(task.last_modified, before_modified_dt)
+        self.assertLessEqual(task.last_modified, after_modified_dt)
+
+
+class TestScheduledTask(TransactionTestCase):
+    """Unit tests for ScheduledTask class"""
+
+    def test_default_values(self):
+        """Check whether the default values are set when initializing the class"""
+
+        task = ScheduledTask.objects.create(job_type='affiliate', interval=0)
+        self.assertEqual(task.job_type, 'affiliate')
+        self.assertEqual(task.interval, 0)
+        self.assertEqual(task.args, None)
+        self.assertEqual(task.job_id, None)
+        self.assertEqual(task.scheduled_datetime, None)
+        self.assertEqual(task.last_execution, None)
+        self.assertEqual(task.failures, 0)
+        self.assertEqual(task.executions, 0)
+
+    def test_created_at(self):
+        """Check creation date is only set when the object is created"""
+
+        before_dt = datetime_utcnow()
+        task = ScheduledTask.objects.create(job_type='affiliate', interval=0)
+        after_dt = datetime_utcnow()
+
+        self.assertGreaterEqual(task.created_at, before_dt)
+        self.assertLessEqual(task.created_at, after_dt)
+
+        task.interval = 100
+        task.save()
+
+        self.assertGreaterEqual(task.created_at, before_dt)
+        self.assertLessEqual(task.created_at, after_dt)
+
+    def test_last_modified(self):
+        """Check last modification date is set when the object is updated"""
+
+        before_dt = datetime_utcnow()
+        task = ScheduledTask.objects.create(job_type='affiliate', interval=0)
+        after_dt = datetime_utcnow()
+
+        self.assertGreaterEqual(task.last_modified, before_dt)
+        self.assertLessEqual(task.last_modified, after_dt)
+
+        before_modified_dt = datetime_utcnow()
+        task.interval = 100
         task.save()
         after_modified_dt = datetime_utcnow()
 

@@ -29,17 +29,18 @@ import django_rq.utils
 import pandas
 import rq
 
-from .db import find_individual_by_uuid, find_organization
+from .db import find_individual_by_uuid, find_organization, add_scheduled_task
 from .api import enroll, merge, update_profile
 from .context import SortingHatContext
-from .decorators import job_using_tenant
-from .errors import BaseError, NotFoundError, EqualIndividualError
+from .decorators import job_using_tenant, job_callback_using_tenant
+from .errors import BaseError, NotFoundError, EqualIndividualError, InvalidValueError
 from .importer.backend import find_import_identities_backends
 from .log import TransactionsLog
 from .models import (Individual,
                      AffiliationRecommendation,
                      MergeRecommendation,
-                     GenderRecommendation)
+                     GenderRecommendation,
+                     ScheduledTask)
 from .recommendations.engine import RecommendationEngine
 
 
@@ -399,7 +400,7 @@ def affiliate(ctx, uuids=None):
 
 @django_rq.job
 @job_using_tenant
-def unify(ctx, source_uuids, target_uuids, criteria, exclude=True):
+def unify(ctx, criteria, source_uuids=None, target_uuids=None, exclude=True):
     """Unify a set of individuals by merging them using matching recommendations.
 
     This function automates the identities unify process obtaining
@@ -744,3 +745,122 @@ def check_criteria(criteria):
     valid_criteria = ['name', 'email', 'username']
     if any(criterion not in valid_criteria for criterion in criteria):
         raise ValueError(f"Invalid criteria {criteria}. Valid values are: {valid_criteria}")
+
+
+def create_scheduled_task(ctx, job, interval, params):
+    """Create a task that runs a function at a regular interval.
+
+    This function generates a task that runs the 'job_fn' job at regular
+    intervals of 'interval' minutes. To prevent it from repeating, set
+    'interval' to 0.
+
+    :param ctx: context from where this method is called
+    :param job: job to be run
+    :param interval: period of executions, in minutes. None to disable
+    :param args: specific arguments for the 'job_fn' function
+
+    :returns: ScheduledTask object
+
+    :raises InvalidValueError: when an argument is not valid
+    """
+    if job == 'affiliate':
+        job_fn = affiliate
+    elif job == 'unify':
+        job_fn = unify
+    else:
+        raise InvalidValueError(msg=f"Job '{job}' cannot be scheduled.")
+
+    trxl = TransactionsLog.open('create_scheduled_task', ctx)
+
+    task = add_scheduled_task(trxl, job, interval, params)
+
+    if not params:
+        params = dict()
+
+    schedule_task(ctx, job_fn, task, **params)
+
+    trxl.close()
+
+    return task
+
+
+def schedule_task(ctx, fn, task, scheduled_datetime=None, **kwargs):
+    """Schedule a task at a specific time and return the job created"""
+
+    if not scheduled_datetime:
+        scheduled_datetime = datetime.datetime.now(datetime.timezone.utc)
+
+    job = django_rq.get_queue().enqueue_at(datetime=scheduled_datetime,
+                                           f=fn,
+                                           ctx=ctx,
+                                           on_success=on_success_job,
+                                           on_failure=on_failed_job,
+                                           job_timeout=-1,
+                                           **kwargs)
+    task.scheduled_datetime = scheduled_datetime
+    task.job_id = job.id
+    task.save()
+
+    return job
+
+
+@job_callback_using_tenant
+def on_success_job(job, connection, result, *args, **kwargs):
+    """Reschedule the job based on the interval defined by the task
+
+    The new arguments for the job are obtained from the ScheduledTask
+    object. This way if the object is updated between runs it will use
+    the updated arguments.
+    """
+    try:
+        task = ScheduledTask.objects.get(job_id=job.id)
+    except ScheduledTask.DoesNotExist:
+        logger.error("ScheduledTask not found. Not rescheduling.")
+        return
+
+    task.last_execution = datetime.datetime.now(datetime.timezone.utc)
+    task.executions = task.executions + 1
+    task.failed = False
+
+    if not task.interval:
+        logger.info("Interval not defined, not rescheduling task.")
+        task.scheduled_datetime = None
+        task.job_id = None
+    else:
+        scheduled_datetime = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=task.interval)
+        ctx = job.kwargs.pop('ctx')
+        schedule_task(ctx, job.func, task, scheduled_datetime=scheduled_datetime, **job.kwargs)
+
+    task.save()
+
+
+@job_callback_using_tenant
+def on_failed_job(job, connection, result, *args, **kwargs):
+    """If the job failed to run reschedule it
+
+    The new arguments for the job are obtained from the ScheduledTask
+    object. This way if the object is updated between runs it will use
+    the updated arguments.
+    """
+    try:
+        task = ScheduledTask.objects.get(job_id=job.id)
+    except ScheduledTask.DoesNotExist:
+        logger.error("ScheduledTask not found. Not rescheduling.")
+        return
+
+    task.last_execution = datetime.datetime.now(datetime.timezone.utc)
+    task.executions = task.executions + 1
+    task.failures = task.failures + 1
+    task.failed = True
+
+    if not task.interval:
+        logger.info("Interval not defined, not rescheduling task.")
+        task.scheduled_datetime = None
+        task.job_id = None
+    else:
+        scheduled_datetime = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(minutes=task.interval)
+        ctx = job.kwargs.pop('ctx')
+        schedule_task(ctx, job.func, task, scheduled_datetime=scheduled_datetime, **job.kwargs)
+        logger.info(f"Reschedule task ID '{task.id}' at '{scheduled_datetime}'.")
+
+    task.save()

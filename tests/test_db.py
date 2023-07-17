@@ -49,7 +49,8 @@ from sortinghat.core.models import (MIN_PERIOD_DATE,
                                     Enrollment,
                                     Transaction,
                                     Operation,
-                                    ImportIdentitiesTask)
+                                    ImportIdentitiesTask,
+                                    ScheduledTask)
 
 DUPLICATED_ORG_ERROR = "Organization 'Example' already exists in the registry"
 DUPLICATED_DOM_ERROR = "Domain 'example.org' already exists in the registry"
@@ -3391,3 +3392,197 @@ class TestMoveTeam(TestCase):
         self.assertEqual(len(op1_args), 2)
         self.assertEqual(op1_args['team'], 'Example team')
         self.assertEqual(op1_args['organization'], 'Organization 2')
+
+
+class TestFindScheduledTask(TestCase):
+    """Unit tests for find_scheduled_task"""
+
+    def test_find_scheduled_task(self):
+        """Test if a task is found by its id"""
+
+        task = ScheduledTask.objects.create(job_type='affiliate', interval=0)
+
+        task_db = db.find_scheduled_task(task.id)
+        self.assertIsInstance(task_db, ScheduledTask)
+        self.assertEqual(task_db.id, task.id)
+
+    def test_task_not_found(self):
+        """Test whether it raises an exception when the task is not found"""
+
+        with self.assertRaisesRegex(NotFoundError, FORMAT_NOT_FOUND_ERROR.format(999)):
+            db.find_scheduled_task(999)
+
+
+class TestAddScheduledTask(TestCase):
+    """Unit tests for add_scheduled_task"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+        self.trxl = TransactionsLog.open('add_scheduled_task', self.ctx)
+
+    def test_add_scheduled_task(self):
+        """Check if a new task is created"""
+
+        task = db.add_scheduled_task(self.trxl,
+                                     job_type='affiliate',
+                                     interval=1,
+                                     args={})
+
+        self.assertIsInstance(task, ScheduledTask)
+        self.assertEqual(task.job_type, 'affiliate')
+        self.assertEqual(task.interval, 1)
+        self.assertEqual(task.args, {})
+
+    def test_add_multiple_scheduled_tasks(self):
+        """Check if multiple tasks can be added"""
+
+        db.add_scheduled_task(self.trxl,
+                              job_type='affiliate',
+                              interval=1,
+                              args={})
+        db.add_scheduled_task(self.trxl,
+                              job_type='unify',
+                              interval=2,
+                              args={})
+
+        tasks = ScheduledTask.objects.all()
+        self.assertEqual(len(tasks), 2)
+
+        task = tasks[0]
+        self.assertIsInstance(task, ScheduledTask)
+        self.assertEqual(task.job_type, 'affiliate')
+        self.assertEqual(task.interval, 1)
+        self.assertEqual(task.args, {})
+
+        task = tasks[1]
+        self.assertIsInstance(task, ScheduledTask)
+        self.assertEqual(task.job_type, 'unify')
+        self.assertEqual(task.interval, 2)
+        self.assertEqual(task.args, {})
+
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
+
+        before_dt = datetime_utcnow()
+        task = db.add_scheduled_task(self.trxl,
+                                     job_type='affiliate',
+                                     interval=1,
+                                     args={})
+        after_dt = datetime_utcnow()
+
+        # Tests
+        self.assertLessEqual(before_dt, task.last_modified)
+        self.assertGreaterEqual(after_dt, task.last_modified)
+
+    def test_task_job_type_empty(self):
+        """Check whether a task with empty job type cannot be added"""
+
+        with self.assertRaisesRegex(ValueError, FORMAT_EMPTY_ERROR.format('job_type')):
+            db.add_scheduled_task(self.trxl,
+                                  job_type='',
+                                  interval=1,
+                                  args={})
+        with self.assertRaisesRegex(ValueError, FORMAT_EMPTY_ERROR.format('job_type')):
+            db.add_scheduled_task(self.trxl,
+                                  job_type=None,
+                                  interval=1,
+                                  args={})
+
+        # Check if operations have not been generated after the failure
+        operations = Operation.objects.all()
+        self.assertEqual(len(operations), 0)
+
+    def test_task_invalid_interval(self):
+        """Check whether a task with wrong interval cannot be added"""
+
+        with self.assertRaisesRegex(ValueError, INTERVAL_INVALID_ERROR):
+            db.add_scheduled_task(self.trxl,
+                                  job_type='affiliate',
+                                  interval=-1,
+                                  args={})
+
+        # Check if operations have not been generated after the failure
+        operations = Operation.objects.all()
+        self.assertEqual(len(operations), 0)
+
+    def test_operations(self):
+        """Check if the right operations are created when adding a new task"""
+
+        timestamp = datetime_utcnow()
+        task = db.add_scheduled_task(self.trxl,
+                                     job_type='affiliate',
+                                     interval=1,
+                                     args={})
+        transactions = Transaction.objects.all()
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.ADD.value)
+        self.assertEqual(op1.entity_type, 'scheduled_task')
+        self.assertGreater(op1.timestamp, timestamp)
+        self.assertEqual(op1.trx, trx)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 4)
+        self.assertEqual(op1_args['job_type'], task.job_type)
+        self.assertEqual(op1_args['interval'], str(task.interval))
+        self.assertEqual(op1_args['args'], str(task.args))
+        self.assertEqual(op1_args['job_id'], task.job_id)
+
+
+class TestDeleteScheduledTask(TestCase):
+    """Unit tests for delete_scheduled_task"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        self.trxl = TransactionsLog.open('delete_scheduled_task', self.ctx)
+
+    def test_delete_task(self):
+        """Check whether it deletes an scheduled task"""
+
+        task = ScheduledTask.objects.create(job_type='affiliate', interval=0)
+
+        db.delete_scheduled_task(self.trxl, task)
+
+        # Tests
+        with self.assertRaises(ObjectDoesNotExist):
+            ScheduledTask.objects.get(id=task.id)
+
+    def test_operations(self):
+        """Check if the right operations are created when deleting a task"""
+
+        # Set the initial dataset
+        timestamp = datetime_utcnow()
+        task = ScheduledTask.objects.create(job_type='affiliate', interval=0)
+        task_id = task.id
+
+        db.delete_scheduled_task(self.trxl, task)
+
+        transactions = Transaction.objects.filter(name='delete_scheduled_task')
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.DELETE.value)
+        self.assertEqual(op1.entity_type, 'scheduled_task')
+        self.assertEqual(op1.trx, trx)
+        self.assertEqual(op1.target, str(task_id))
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 1)
+        self.assertEqual(op1_args['task'], str(task_id))

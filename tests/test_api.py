@@ -48,7 +48,8 @@ from sortinghat.core.models import (Country,
                                     Domain,
                                     Transaction,
                                     Operation,
-                                    ImportIdentitiesTask)
+                                    ImportIdentitiesTask,
+                                    ScheduledTask)
 
 NOT_FOUND_ERROR = "{entity} not found in the registry"
 ENROLLMENT_RANGE_INVALID = "range date '{start}'-'{end}' is part of an existing range for {org}"
@@ -6217,3 +6218,258 @@ class TestMergeOrganizations(TestCase):
         op4_args = json.loads(op4.args)
         self.assertEqual(len(op4_args), 1)
         self.assertEqual(op4_args['organization'], 'Example')
+
+
+class TestUpdateScheduledTask(TestCase):
+    """Unit tests for update_scheduled_task"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        self.task_affiliate = ScheduledTask.objects.create(job_type='affiliate', interval=1)
+        self.task_unify = ScheduledTask.objects.create(job_type='unify', interval=2, args={'criteria': ['name', 'email']})
+
+    def test_update_scheduled_task(self):
+        """Check if it updates a task"""
+
+        task = api.update_scheduled_task(self.ctx,
+                                         self.task_affiliate.id,
+                                         interval=3,
+                                         params={'uuids': ['abcd1234']})
+        # Tests
+        self.assertIsInstance(task, ScheduledTask)
+
+        self.assertEqual(task.job_type, 'affiliate')
+        self.assertEqual(task.interval, 3)
+        self.assertDictEqual(task.args, {'uuids': ['abcd1234']})
+
+        # Check database object
+        task_db = ScheduledTask.objects.get(id=task.id)
+        self.assertEqual(task, task_db)
+
+    def test_update_task_only_interval(self):
+        """Check if it updates a task interval"""
+
+        task = api.update_scheduled_task(self.ctx,
+                                         self.task_affiliate.id,
+                                         interval=4)
+        # Tests
+        self.assertIsInstance(task, ScheduledTask)
+
+        self.assertEqual(task.job_type, 'affiliate')
+        self.assertEqual(task.interval, 4)
+        self.assertIsNone(task.args)
+
+        # Check database object
+        task_db = ScheduledTask.objects.get(id=task.id)
+        self.assertEqual(task, task_db)
+
+    def test_last_modified(self):
+        """Check if last modification date is updated"""
+
+        before_dt = datetime_utcnow()
+        task = api.update_scheduled_task(self.ctx,
+                                         self.task_affiliate.id,
+                                         interval=4)
+        after_dt = datetime_utcnow()
+
+        self.assertLessEqual(before_dt, task.last_modified)
+        self.assertGreaterEqual(after_dt, task.last_modified)
+
+    def test_non_existing_task(self):
+        """Check if it fails updating a task that does not exist"""
+
+        with self.assertRaises(NotFoundError):
+            api.update_import_identities_task(self.ctx,
+                                              999,
+                                              interval=4)
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.all()
+        self.assertEqual(len(transactions), 0)
+
+    def test_invalid_interval(self):
+        """Check wrong interval is not valid"""
+
+        with self.assertRaisesRegex(InvalidValueError, INTERVAL_MUST_BE_NUMBER_ERROR):
+            api.update_scheduled_task(self.ctx,
+                                      self.task_affiliate.id,
+                                      interval='5')
+        with self.assertRaisesRegex(InvalidValueError, INTERVAL_MUST_BE_NUMBER_ERROR):
+            api.update_scheduled_task(self.ctx,
+                                      self.task_affiliate.id,
+                                      interval=-1)
+
+            # Check if there are no transactions created when there is an error
+            transactions = Transaction.objects.all()
+            self.assertEqual(len(transactions), 0)
+
+    def test_transaction(self):
+        """Check if a transaction is created when updating a task"""
+
+        timestamp = datetime_utcnow()
+
+        api.update_scheduled_task(self.ctx,
+                                  self.task_affiliate.id,
+                                  interval=60)
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        self.assertEqual(len(transactions), 1)
+
+        trx = transactions[0]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'update_scheduled_task')
+        self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, self.ctx.user.username)
+
+    def test_operations(self):
+        """Check if the right operations are created when updating a task"""
+
+        timestamp = datetime_utcnow()
+
+        api.update_scheduled_task(self.ctx,
+                                  self.task_affiliate.id,
+                                  interval=4,
+                                  params={'uuids': ['abcd1234']})
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.UPDATE.value)
+        self.assertEqual(op1.entity_type, 'scheduled_task')
+        self.assertEqual(op1.target, str(self.task_affiliate.id))
+        self.assertEqual(op1.trx, trx)
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 3)
+        self.assertEqual(op1_args['task'], str(self.task_affiliate.id))
+        self.assertEqual(op1_args['interval'], 4)
+        self.assertDictEqual(op1_args['params'], {'uuids': ['abcd1234']})
+
+
+class TestDeleteScheduledTask(TestCase):
+    """Unit tests for delete_scheduled_task"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        self.task_foo = ScheduledTask.objects.create(job_type='foo', interval=0)
+        self.task_bar = ScheduledTask.objects.create(job_type='bar', interval=1)
+        self.task_baz = ScheduledTask.objects.create(job_type='baz', interval=2)
+
+    def test_delete_task(self):
+        """Check whether it deletes a task"""
+
+        # Check initial status
+        tasks = ScheduledTask.objects.all()
+        self.assertEqual(len(tasks), 3)
+
+        # Delete a task
+        api.delete_scheduled_task(self.ctx, self.task_foo.id)
+
+        # Check result
+        tasks = ScheduledTask.objects.filter(job_type='foo')
+        self.assertEqual(len(tasks), 0)
+
+        # Check remaining tasks
+        tasks = ScheduledTask.objects.all()
+        self.assertEqual(len(tasks), 2)
+
+        with self.assertRaises(ObjectDoesNotExist):
+            ScheduledTask.objects.get(id=self.task_foo.id)
+
+    def test_non_existing_task_id(self):
+        """Check if it fails removing a task that does not exists"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaises(NotFoundError):
+            api.delete_scheduled_task(self.ctx, 999)
+
+        # It should raise an error when the registry is empty
+        ScheduledTask.objects.all().delete()
+        self.assertEqual(len(ScheduledTask.objects.all()), 0)
+
+        with self.assertRaises(NotFoundError):
+            api.delete_scheduled_task(self.ctx, 1)
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_none_task_id(self):
+        """Check whether tasks cannot be removed when giving a None id"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(InvalidValueError, FORMAT_NONE_OR_EMPTY_ERROR.format('task_id')):
+            api.delete_scheduled_task(self.ctx, None)
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_empty_task_id(self):
+        """Check whether tasks cannot be removed when giving an empty id"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(InvalidValueError, FORMAT_NONE_OR_EMPTY_ERROR.format('task_id')):
+            api.delete_scheduled_task(self.ctx, '')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_transaction(self):
+        """Check if a transaction is created when deleting a task"""
+
+        timestamp = datetime_utcnow()
+
+        api.delete_scheduled_task(self.ctx, self.task_foo.id)
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        self.assertEqual(len(transactions), 1)
+
+        trx = transactions[0]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'delete_scheduled_task')
+        self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, self.ctx.user.username)
+
+    def test_operations(self):
+        """Check if the right operations are created when deleting a task"""
+
+        timestamp = datetime_utcnow()
+
+        api.delete_scheduled_task(self.ctx, self.task_foo.id)
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.DELETE.value)
+        self.assertEqual(op1.entity_type, 'scheduled_task')
+        self.assertEqual(op1.trx, trx)
+        self.assertEqual(op1.target, str(self.task_foo.id))
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 1)
+        self.assertEqual(op1_args['task'], str(self.task_foo.id))
