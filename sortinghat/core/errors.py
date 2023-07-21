@@ -50,10 +50,10 @@ class BaseError(Exception):
 
     def __init__(self, **kwargs):
         super().__init__()
-        self.msg = self.message % kwargs
+        self.message = self._msg % kwargs
 
     def __str__(self):
-        return self.msg
+        return self.message
 
     def __int__(self):
         return self.code
@@ -62,7 +62,7 @@ class BaseError(Exception):
 class AlreadyExistsError(BaseError):
     """Exception raised when an entity already exists in the registry"""
 
-    message = "%(entity)s '%(eid)s' already exists in the registry"
+    _msg = "%(entity)s '%(eid)s' already exists in the registry"
     code = CODE_ALREADY_EXISTS_ERROR
 
     def __init__(self, **kwargs):
@@ -74,68 +74,68 @@ class AlreadyExistsError(BaseError):
 class InvalidFormatError(BaseError):
     """Exception raised when a format is invalid"""
 
-    message = "%(cause)s"
+    _msg = "%(cause)s"
     code = CODE_INVALID_FORMAT_ERROR
 
 
 class LoadError(BaseError):
     """Exception raised when an error occurs loading data"""
 
-    message = "%(cause)s"
+    _msg = "%(cause)s"
     code = CODE_LOAD_ERROR
 
 
 class NotFoundError(BaseError):
     """Exception raised when an entity is not found in the registry"""
 
-    message = "%(entity)s not found in the registry"
+    _msg = "%(entity)s not found in the registry"
     code = CODE_NOT_FOUND_ERROR
 
 
 class InvalidValueError(BaseError):
     """Exception raised when a value is invalid"""
 
+    _msg = "%(msg)s"
     code = CODE_VALUE_ERROR
-    message = "%(msg)s"
 
 
 class InvalidFilterError(BaseError):
     """Exception raised when a filter is invalid"""
 
+    _msg = "Error in %(filter_name)s filter: %(msg)s"
     code = CODE_FILTER_ERROR
-    message = "Error in %(filter_name)s filter: %(msg)s"
 
 
 class EqualIndividualError(BaseError):
     """Exception raised when the source and destination individual are the same"""
 
+    _msg = "%(msg)s"
     code = CODE_EQUAL_INDIVIDUAL_ERROR
-    message = "%(msg)s"
 
 
 class ClosedTransactionError(BaseError):
     """Exception raised when performing a change on a closed transaction"""
 
+    _msg = "%(msg)s"
     code = CODE_CLOSED_TRANSACTION_ERROR
-    message = "%(msg)s"
 
 
 class LockedIdentityError(BaseError):
     """Exception raised when performing a change on a locked individual"""
 
+    _msg = "Individual %(uuid)s is locked"
     code = CODE_LOCKED_IDENTITY_ERROR
-    message = "Individual %(uuid)s is locked"
 
 
 class DuplicateRangeError(BaseError):
     """Exception raised when setting an enrollment with an existing date range"""
 
+    _msg = "range date '%(start)s'-'%(end)s' is part of an existing range for %(group)s"
     code = CODE_DUPLICATE_RANGE_ERROR
-    message = "range date '%(start)s'-'%(end)s' is part of an existing range for %(group)s"
 
 
 class RecommendationEngineError(BaseError):
     """Exception raised when there is an error in the recommendation engine"""
 
+    _msg = "%(msg)s"
     code = CODE_RECOMMENDATION_ERROR
-    message = "%(msg)s"
