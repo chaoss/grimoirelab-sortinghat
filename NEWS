@@ -1,5 +1,15 @@
 # Releases
 
+## sortinghat 0.12.0 - (2023-07-23)
+
+**New features:**
+
+ * Job scheduler\
+   This new feature allows users to schedule jobs, such as `affiliate` or
+   `unify`, to run periodically. The tasks can be configured, updated and
+   deleted using the GraphQL API.
+
+
 ## sortinghat 0.11.1 - (2023-07-11)
 
 **Bug fixes:**
