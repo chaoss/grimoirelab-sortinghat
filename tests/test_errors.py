@@ -39,16 +39,16 @@ from sortinghat.core.errors import (BaseError,
 
 # Mock classes to test BaseError class
 class MockCode(BaseError):
-    message = "Mock error with code"
+    _msg = "Mock error with code"
     code = 9314
 
 
 class MockErrorNoArgs(BaseError):
-    message = "Mock error without args"
+    _msg = "Mock error without args"
 
 
 class MockErrorArgs(BaseError):
-    message = "Mock error with args. Error: %(code)s %(msg)s"
+    _msg = "Mock error with args. Error: %(code)s %(msg)s"
 
 
 class TestBaseError(TestCase):
