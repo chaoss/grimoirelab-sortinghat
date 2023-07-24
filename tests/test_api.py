@@ -5987,8 +5987,8 @@ class TestUpdateScheduledTask(TestCase):
 
         with self.assertRaises(NotFoundError):
             api.update_scheduled_task(self.ctx,
-                                              999,
-                                              interval=4)
+                                      999,
+                                      interval=4)
 
         # Check if there are no transactions created when there is an error
         transactions = Transaction.objects.all()

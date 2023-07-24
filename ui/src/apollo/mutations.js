@@ -323,16 +323,10 @@ const RECOMMEND_MATCHES = gql`
 const IMPORT_IDENTITIES = gql`
   mutation importIdentities(
     $backend: String!
-    $interval: Int
     $params: JSONString
     $url: String
   ) {
-    addImportIdentitiesTask(
-      backend: $backend
-      interval: $interval
-      params: $params
-      url: $url
-    ) {
+    addImportIdentitiesTask(backend: $backend, params: $params, url: $url) {
       task {
         id
       }
@@ -342,18 +336,15 @@ const IMPORT_IDENTITIES = gql`
 
 const DELETE_IMPORT_TASK = gql`
   mutation deleteImportTask($taskId: Int!) {
-    deleteImportIdentitiesTask(taskId: $taskId) {
+    deleteScheduledTask(taskId: $taskId) {
       deleted
     }
   }
 `;
 
 const UPDATE_IMPORT_TASK = gql`
-  mutation updateImportTask(
-    $data: ImportIdentitiesTaskInputType
-    $taskId: Int!
-  ) {
-    updateImportIdentitiesTask(data: $data, taskId: $taskId) {
+  mutation updateImportTask($data: ScheduledTaskInputType, $taskId: Int!) {
+    updateScheduledTask(data: $data, taskId: $taskId) {
       task {
         id
         lastModified
@@ -367,6 +358,17 @@ const MERGE_ORGANIZATIONS = gql`
     mergeOrganizations(fromOrg: $fromOrg, toOrg: $toOrg) {
       organization {
         name
+      }
+    }
+  }
+`;
+
+const SCHEDULE_TASK = gql`
+  mutation scheduleTask($job: String!, $interval: Int!, $params: JSONString) {
+    scheduleTask(job: $job, interval: $interval, params: $params) {
+      task {
+        id
+        jobId
       }
     }
   }
@@ -625,12 +627,11 @@ const recommendMatches = (apollo, criteria, exclude, sourceUuids) => {
   });
 };
 
-const importIdentities = (apollo, backend, interval, params, url) => {
+const importIdentities = (apollo, backend, params, url) => {
   return apollo.mutate({
     mutation: IMPORT_IDENTITIES,
     variables: {
       backend: backend,
-      interval: interval,
       params: params,
       url: url,
     },
@@ -664,6 +665,17 @@ const mergeOrganizations = (apollo, fromOrg, toOrg) => {
   });
 };
 
+const scheduleTask = (apollo, job, interval, params) => {
+  return apollo.mutate({
+    mutation: SCHEDULE_TASK,
+    variables: {
+      job,
+      interval,
+      params,
+    },
+  });
+};
+
 export {
   tokenAuth,
   lockIndividual,
@@ -692,4 +704,5 @@ export {
   deleteImportTask,
   updateImportTask,
   mergeOrganizations,
+  scheduleTask,
 };

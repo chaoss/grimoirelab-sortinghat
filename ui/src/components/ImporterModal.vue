@@ -10,15 +10,6 @@
       </v-card-title>
       <v-card-text class="mt-3">
         <h3 class="subheader mb-2">Settings</h3>
-        <v-row class="pa-3">
-          <v-text-field
-            v-model="form.url"
-            label="URL"
-            dense
-            hide-details
-            outlined
-          />
-        </v-row>
         <v-row v-for="(value, field) in form.fields" :key="field" class="pa-3">
           <v-text-field
             v-model="form.fields[field]"
@@ -62,7 +53,12 @@
         <v-spacer></v-spacer>
         <v-btn color="primary" text @click="onClose"> Cancel </v-btn>
 
-        <v-btn color="primary" depressed :disabled="!form.url" @click="onSave">
+        <v-btn
+          color="primary"
+          :disabled="!form.fields.url"
+          depressed
+          @click="onSave"
+        >
           Save
         </v-btn>
       </v-card-actions>
@@ -100,7 +96,6 @@ export default {
         fields: {},
         interval: this.task.interval || 0,
         customInterval: "",
-        url: "",
       },
       error: null,
     };
@@ -122,12 +117,14 @@ export default {
           this.form.interval === "custom"
             ? this.form.customInterval
             : this.form.interval;
-        const params = JSON.stringify(this.form.fields);
+        const params = JSON.stringify({
+          backend_name: this.importer.name,
+          ...this.form.fields,
+        });
         const response = await this.createTask(
-          this.importer.name,
+          "import_identities",
           interval,
-          params,
-          this.form.url
+          params
         );
         if (response && !response.errors) {
           this.$emit("update:open", false);
@@ -143,10 +140,13 @@ export default {
           this.form.interval === "custom"
             ? this.form.customInterval
             : this.form.interval;
+        const params = JSON.stringify({
+          backend_name: this.importer.name,
+          ...this.form.fields,
+        });
         const data = {
-          url: this.form.url,
           interval: interval,
-          params: JSON.stringify(this.form.fields),
+          params: params,
         };
         const response = await this.editTask(this.task.id, data);
         if (response && !response.errors) {
@@ -164,9 +164,7 @@ export default {
         (accumulator, arg) => ({ ...accumulator, [arg]: taskArgs[arg] }),
         {}
       );
-      const { url, ...rest } = fields;
-      this.form.url = url || this.task.url;
-      this.form.fields = rest;
+      this.form.fields = fields;
       if (
         this.task.interval &&
         !intervals.find((interval) => interval === this.task.interval)

@@ -15,7 +15,7 @@ import {
   getImportIdentitiesTasks,
 } from "./../apollo/queries";
 import {
-  importIdentities,
+  scheduleTask,
   deleteImportTask,
   updateImportTask,
 } from "./../apollo/mutations";
@@ -33,14 +33,8 @@ export default {
       const response = await getImportIdentitiesTasks(this.$apollo);
       return response;
     },
-    async createTask(backend, interval, params, url) {
-      const response = await importIdentities(
-        this.$apollo,
-        backend,
-        interval,
-        params,
-        url
-      );
+    async createTask(job, interval, params) {
+      const response = await scheduleTask(this.$apollo, job, interval, params);
       return response;
     },
     async deleteTask(id) {

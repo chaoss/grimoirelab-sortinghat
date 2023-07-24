@@ -1318,7 +1318,7 @@ class ImportIdentities(graphene.Mutation):
 
         job = enqueue(import_identities, ctx, backend, url, params, job_timeout=-1)
 
-        return Unify(
+        return ImportIdentities(
             job_id=job.id
         )
 

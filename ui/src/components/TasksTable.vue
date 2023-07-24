@@ -52,7 +52,9 @@
         <tbody>
           <tr v-for="task in tasks" :key="task.id">
             <td>
-              <span class="font-weight-medium">{{ task.backend }}</span>
+              <span class="font-weight-medium">
+                {{ task.args.backend_name }}
+              </span>
             </td>
             <td>
               <v-icon
@@ -77,7 +79,7 @@
                 text
                 small
                 outlined
-                @click="openModal(task.backend, task)"
+                @click="openModal(task.args.backend_name, task)"
               >
                 <v-icon small>mdi-pencil</v-icon>
                 <span class="d-sr-only">Edit task</span>
@@ -178,7 +180,7 @@ export default {
       try {
         this.isLoading = true;
         const response = await this.fetchTasks();
-        this.tasks = response.data.importIdentitiesTask.entities;
+        this.tasks = response.data.scheduledTasks.entities;
       } catch (error) {
         this.error = this.$getErrorMessage(error);
       } finally {
@@ -188,7 +190,7 @@ export default {
     async deleteItem(id) {
       try {
         const response = await this.deleteTask(id);
-        if (response.data.deleteImportIdentitiesTask) {
+        if (response.data.deleteScheduledTask) {
           this.getTasks();
         }
       } catch (error) {
