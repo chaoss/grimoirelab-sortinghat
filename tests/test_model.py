@@ -47,7 +47,6 @@ from sortinghat.core.models import (Organization,
                                     AffiliationRecommendation,
                                     MergeRecommendation,
                                     GenderRecommendation,
-                                    ImportIdentitiesTask,
                                     Tenant,
                                     ScheduledTask)
 
@@ -953,79 +952,6 @@ class TestGenderRecommendation(TransactionTestCase):
         self.assertEqual(gender_re.individual, indiv)
         self.assertGreaterEqual(gender_re.last_modified, before_modified_dt)
         self.assertLessEqual(gender_re.last_modified, after_modified_dt)
-
-
-class TestImportIdentitiesTask(TransactionTestCase):
-    """Unit tests for ImportIdentitiesTask class"""
-
-    def test_not_null_relationships(self):
-        """Check whether every enrollment is assigned organizations and individuals"""
-
-        with self.assertRaisesRegex(IntegrityError, NULL_VALUE_CHECK_ERROR):
-            Enrollment.objects.create()
-
-        with self.assertRaisesRegex(IntegrityError, NULL_VALUE_CHECK_ERROR):
-            indv = Individual.objects.create(mk='AAAA')
-            Enrollment.objects.create(individual=indv)
-
-        with self.assertRaisesRegex(IntegrityError, NULL_VALUE_CHECK_ERROR):
-            org = Organization.add_root(name='Example')
-            Enrollment.objects.create(group=org)
-
-    def test_unique_tasks(self):
-        """Check if there is only one tuple with the same values"""
-
-        with self.assertRaisesRegex(IntegrityError, DUPLICATE_CHECK_ERROR):
-            ImportIdentitiesTask.objects.create(backend='foo', url='foo.url', interval=0)
-            ImportIdentitiesTask.objects.create(backend='foo', url='foo.url', interval=1)
-
-    def test_default_values(self):
-        """Check whether the default values are set when initializing the class"""
-
-        task = ImportIdentitiesTask.objects.create(backend='foo', url='foo.url', interval=0)
-        self.assertEqual(task.backend, 'foo')
-        self.assertEqual(task.url, 'foo.url')
-        self.assertEqual(task.interval, 0)
-        self.assertEqual(task.args, None)
-        self.assertEqual(task.job_id, None)
-        self.assertEqual(task.scheduled_datetime, None)
-        self.assertEqual(task.last_execution, None)
-        self.assertEqual(task.failures, 0)
-        self.assertEqual(task.executions, 0)
-
-    def test_created_at(self):
-        """Check creation date is only set when the object is created"""
-
-        before_dt = datetime_utcnow()
-        task = ImportIdentitiesTask.objects.create(backend='foo', url='foo.url', interval=0)
-        after_dt = datetime_utcnow()
-
-        self.assertGreaterEqual(task.created_at, before_dt)
-        self.assertLessEqual(task.created_at, after_dt)
-
-        task.url = 'foo.url2'
-        task.save()
-
-        self.assertGreaterEqual(task.created_at, before_dt)
-        self.assertLessEqual(task.created_at, after_dt)
-
-    def test_last_modified(self):
-        """Check last modification date is set when the object is updated"""
-
-        before_dt = datetime_utcnow()
-        task = ImportIdentitiesTask.objects.create(backend='foo', url='foo.url', interval=0)
-        after_dt = datetime_utcnow()
-
-        self.assertGreaterEqual(task.last_modified, before_dt)
-        self.assertLessEqual(task.last_modified, after_dt)
-
-        before_modified_dt = datetime_utcnow()
-        task.url = 'foo.url2'
-        task.save()
-        after_modified_dt = datetime_utcnow()
-
-        self.assertGreaterEqual(task.last_modified, before_modified_dt)
-        self.assertLessEqual(task.last_modified, after_modified_dt)
 
 
 class TestScheduledTask(TransactionTestCase):
