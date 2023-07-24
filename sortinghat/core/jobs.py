@@ -567,7 +567,7 @@ def genderize(ctx, uuids=None, exclude=True, no_strict_matching=False):
 
 @django_rq.job
 @job_using_tenant
-def import_identities(ctx, backend_name, url, params):
+def import_identities(ctx, backend_name, url, params=None):
     """Import identities to SortingHat.
 
     This job imports identities to SortingHat using the
@@ -767,6 +767,8 @@ def create_scheduled_task(ctx, job, interval, params):
         job_fn = affiliate
     elif job == 'unify':
         job_fn = unify
+    elif job == 'import_identities':
+        job_fn = import_identities
     else:
         raise InvalidValueError(msg=f"Job '{job}' cannot be scheduled.")
 
@@ -821,6 +823,13 @@ def on_success_job(job, connection, result, *args, **kwargs):
     task.last_execution = datetime.datetime.now(datetime.timezone.utc)
     task.executions = task.executions + 1
     task.failed = False
+
+    # Detect if the importer backend uses 'update_from' argument and update it
+    if task.job_type == 'import_identities':
+        backends = find_import_identities_backends()
+        backend_name = task.args['backend_name']
+        if 'update_from' in backends[backend_name]['args']:
+            task.args['params']['update_from'] = task.scheduled_datetime
 
     if not task.interval:
         logger.info("Interval not defined, not rescheduling task.")
