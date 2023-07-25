@@ -62,8 +62,6 @@ from .api import (add_identity,
                   enroll,
                   withdraw,
                   update_enrollment,
-                  delete_import_identities_task,
-                  update_import_identities_task,
                   merge_organizations,
                   delete_scheduled_task,
                   update_scheduled_task)
@@ -71,7 +69,6 @@ from .context import SortingHatContext
 from .decorators import (check_auth, check_permissions)
 from .errors import InvalidFilterError, EqualIndividualError
 from .importer.backend import find_import_identities_backends
-from .importer.base import create_import_task, schedule_import_task
 from .jobs import (affiliate,
                    unify,
                    find_job,
@@ -80,6 +77,7 @@ from .jobs import (affiliate,
                    recommend_matches,
                    recommend_gender,
                    genderize,
+                   import_identities,
                    create_scheduled_task,
                    schedule_task)
 from .models import (Organization,
@@ -97,7 +95,6 @@ from .models import (Organization,
                      AffiliationRecommendation,
                      MergeRecommendation,
                      GenderRecommendation,
-                     ImportIdentitiesTask,
                      ScheduledTask)
 from .recommendations.exclusion import delete_recommend_exclusion_term, add_recommender_exclusion_term
 
@@ -302,11 +299,6 @@ class RecommenderExclusionTermType(DjangoObjectType):
         model = RecommenderExclusionTerm
 
 
-class ImportIdentitiesTaskType(DjangoObjectType):
-    class Meta:
-        model = ImportIdentitiesTask
-
-
 class ScheduledTaskType(DjangoObjectType):
     class Meta:
         model = ScheduledTask
@@ -370,13 +362,6 @@ class ProfileInputType(graphene.InputObjectType):
         required=False,
         description='ISO-3166 country code. Examples: `DK` for Denmark, `IT` for Italy.'
     )
-
-
-class ImportIdentitiesTaskInputType(graphene.InputObjectType):
-    backend = graphene.String(required=False, description='Name of the importer backend.')
-    url = graphene.String(required=False, description='URL of a file or API to fetch the identities from.')
-    interval = graphene.Int(required=False, description="Period of executions, in minutes. '0' to disable.")
-    params = graphene.JSONString(required=False, description="Specific parameters for the importer backend.")
 
 
 class ScheduledTaskInputType(graphene.InputObjectType):
@@ -565,6 +550,17 @@ class ImporterTasksFilterType(graphene.InputObjectType):
     )
 
 
+class ScheduledTasksFilterType(graphene.InputObjectType):
+    backend = graphene.String(
+        required=False,
+        description='Name of the backend importer of identities.'
+    )
+    job_type = graphene.String(
+        required=False,
+        description='Name of the scheduled job: `affiliate`, `unify` or `import_identities`.'
+    )
+
+
 class AbstractPaginatedType(graphene.ObjectType):
 
     @classmethod
@@ -641,11 +637,6 @@ class RecommendedMergePaginatedType(AbstractPaginatedType):
 
 class RecommendedGenderPaginatedType(AbstractPaginatedType):
     entities = graphene.List(RecommendedGenderType, description='A list of gender recommendations from individuals.')
-    page_info = graphene.Field(PaginationType, description='Information to aid in pagination.')
-
-
-class ImportIdentitiesTaskPaginatedType(AbstractPaginatedType):
-    entities = graphene.List(ImportIdentitiesTaskType, description='A list of tasks importing identities.')
     page_info = graphene.Field(PaginationType, description='Information to aid in pagination.')
 
 
@@ -1311,86 +1302,24 @@ class ManageGenderRecommendation(graphene.Mutation):
         )
 
 
-class AddImportIdentitiesTask(graphene.Mutation):
+class ImportIdentities(graphene.Mutation):
     class Arguments:
         backend = graphene.String()
         url = graphene.String()
-        interval = graphene.Int(required=False)
         params = graphene.JSONString(required=False)
 
-    task = graphene.Field(lambda: ImportIdentitiesTaskType)
+    job_id = graphene.Field(lambda: graphene.String)
 
     @check_auth
-    def mutate(self, info, backend, url, interval=DEFAULT_IMPORT_IDENTITIES_INTERVAL, params=None):
+    def mutate(self, info, backend, url, params=None):
         user = info.context.user
         tenant = get_db_tenant()
         ctx = SortingHatContext(user=user, tenant=tenant)
 
-        task = create_import_task(ctx, backend, url, interval, params)
+        job = enqueue(import_identities, ctx, backend, url, params, job_timeout=-1)
 
-        return AddImportIdentitiesTask(
-            task=task
-        )
-
-
-class DeleteImportIdentitiesTask(graphene.Mutation):
-    class Arguments:
-        task_id = graphene.Int()
-
-    deleted = graphene.Boolean()
-
-    @check_auth
-    def mutate(self, info, task_id):
-        user = info.context.user
-        tenant = get_db_tenant()
-        ctx = SortingHatContext(user=user, tenant=tenant)
-
-        task = delete_import_identities_task(ctx, task_id)
-
-        if task.job_id:
-            job = find_job(task.job_id)
-            if job:
-                job.cancel()
-
-        return DeleteImportIdentitiesTask(
-            deleted=True
-        )
-
-
-class UpdateImportIdentitiesTask(graphene.Mutation):
-    class Arguments:
-        task_id = graphene.Int()
-        data = ImportIdentitiesTaskInputType()
-
-    task = graphene.Field(lambda: ImportIdentitiesTaskType)
-
-    @check_auth
-    def mutate(self, info, task_id, data):
-        user = info.context.user
-        tenant = get_db_tenant()
-        ctx = SortingHatContext(user=user, tenant=tenant)
-
-        task = update_import_identities_task(ctx, task_id, **data)
-
-        # Update next execution time if the interval is updated
-        if 'interval' in data:
-            new_dt = datetime.datetime.now(datetime.timezone.utc) \
-                + datetime.timedelta(minutes=task.interval)
-            if task.scheduled_datetime and task.scheduled_datetime > new_dt:
-                find_job(task.job_id)
-                if task.job_id:
-                    job = find_job(task.job_id)
-                    if job:
-                        job.cancel()
-                schedule_import_task(ctx, task, new_dt)
-
-        # If the task is updated, and is not scheduled,
-        # force a new execution.
-        if not task.scheduled_datetime:
-            schedule_import_task(ctx, task)
-
-        return UpdateImportIdentitiesTask(
-            task=task
+        return ImportIdentities(
+            job_id=job.id
         )
 
 
@@ -1477,6 +1406,8 @@ class UpdateScheduledTask(graphene.Mutation):
             job_fn = affiliate
         elif task.job_type == 'unify':
             job_fn = unify
+        elif task.job_type == 'import_identities':
+            job_fn = import_identities
 
         # Update next execution time if the interval is updated
         if 'interval' in data:
@@ -1585,13 +1516,6 @@ class SortingHatQuery:
         filters=RecommendationFilterType(required=False),
         description='Get all gender recommendations for the identities.'
     )
-    import_identities_task = graphene.Field(
-        ImportIdentitiesTaskPaginatedType,
-        page_size=graphene.Int(),
-        page=graphene.Int(),
-        filters=ImporterTasksFilterType(required=False),
-        description='Get all import identities tasks.'
-    )
     identities_importers_types = graphene.List(
         IdentitiesImporterType,
         description='Get the available identities importers.'
@@ -1600,6 +1524,7 @@ class SortingHatQuery:
         ScheduledTaskPaginatedType,
         page_size=graphene.Int(),
         page=graphene.Int(),
+        filters=ScheduledTasksFilterType(required=False),
         description='Get all scheduled tasks.'
     )
 
@@ -1973,19 +1898,6 @@ class SortingHatQuery:
                                                                       page_size=page_size)
 
     @check_auth
-    def resolve_import_identities_task(self, info, filters=None, page=1,
-                                       page_size=settings.SORTINGHAT_API_PAGE_SIZE, **kwargs):
-
-        query = ImportIdentitiesTask.objects.order_by('created_at')
-
-        if filters and 'backend' in filters:
-            query.filter(backend=filters['backend'])
-
-        return ImportIdentitiesTaskPaginatedType.create_paginated_result(query,
-                                                                         page,
-                                                                         page_size=page_size)
-
-    @check_auth
     def resolve_identities_importers_types(self, info, **kwargs):
         result = []
 
@@ -1999,10 +1911,15 @@ class SortingHatQuery:
         return result
 
     @check_auth
-    def resolve_scheduled_tasks(self, info, page=1,
+    def resolve_scheduled_tasks(self, info, filters=None, page=1,
                                 page_size=settings.SORTINGHAT_API_PAGE_SIZE, **kwargs):
 
         query = ScheduledTask.objects.order_by('created_at')
+
+        if filters and 'backend' in filters:
+            query = query.filter(args__backend_name=filters['backend'])
+        if filters and 'job_type' in filters:
+            query = query.filter(job_type=filters['job_type'])
 
         return ScheduledTaskPaginatedType.create_paginated_result(query,
                                                                   page,
@@ -2114,14 +2031,8 @@ class SortingHatMutation(graphene.ObjectType):
     manage_gender_recommendation = ManageGenderRecommendation.Field(
         description='Manage a gender recommendation.'
     )
-    add_import_identities_task = AddImportIdentitiesTask.Field(
-        description='Create a periodic task to import identities.'
-    )
-    delete_import_identities_task = DeleteImportIdentitiesTask.Field(
-        description='Delete a periodic task to import identities.'
-    )
-    update_import_identities_task = UpdateImportIdentitiesTask.Field(
-        description='Update a periodic task to import identities.'
+    import_identities = ImportIdentities.Field(
+        description='Import identities from a supported backend.'
     )
     merge_organizations = MergeOrganizations.Field(
         description='Merge one organization into another. The domains, teams and\
@@ -2130,7 +2041,7 @@ class SortingHatMutation(graphene.ObjectType):
     )
     schedule_task = ScheduleTask.Field(
         description='Create a periodic task to run a job every `interval` minutes.\
-        Only the `affiliate` and `unify` jobs can be scheduled.'
+        Only the `affiliate`, `unify` and `import_identities` jobs can be scheduled.'
     )
     delete_scheduled_task = DeleteScheduledTask.Field(
         description='Delete a periodic task.'

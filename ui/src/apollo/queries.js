@@ -228,13 +228,11 @@ const GET_IMPORT_IDENTITIES_TASKS = gql`
   query getImportIdentitiesTasks(
     $page: Int
     $pageSize: Int
-    $filters: ImporterTasksFilterType
+    $filters: ScheduledTasksFilterType!
   ) {
-    importIdentitiesTask(page: $page, pageSize: $pageSize, filters: $filters) {
+    scheduledTasks(page: $page, pageSize: $pageSize, filters: $filters) {
       entities {
         id
-        backend
-        url
         interval
         args
         jobId
@@ -396,13 +394,13 @@ const getImporterTypes = (apollo) => {
   });
 };
 
-const getImportIdentitiesTasks = (apollo, page, pageSize, filters) => {
+const getImportIdentitiesTasks = (apollo, page, pageSize, filters = {}) => {
   return apollo.query({
     query: GET_IMPORT_IDENTITIES_TASKS,
     variables: {
       page: page,
       pageSize: pageSize,
-      filters: filters,
+      filters: Object.assign(filters, { jobType: "import_identities" }),
     },
     fetchPolicy: "no-cache",
   });
