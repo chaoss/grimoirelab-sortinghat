@@ -48,7 +48,7 @@ class TestRecommendAffiliations(TestCase):
 
         api.add_organization(ctx, 'Bitergia')
         api.add_domain(ctx, 'Bitergia', 'bitergia.com')
-        api.add_domain(ctx, 'Bitergia', 'bitergia.org')
+        api.add_domain(ctx, 'Bitergia', 'bitergia.org', is_top_domain=False)
 
         api.add_organization(ctx, 'LibreSoft')
 
@@ -237,3 +237,43 @@ class TestRecommendAffiliations(TestCase):
         recs = list(recommend_affiliations('FFFFFFFFFFFFFFFFFF'))
 
         self.assertListEqual(recs, [])
+
+    def test_top_domain(self):
+        """Check if recommendations are generated for subdomains only
+        when the domain is marked as top"""
+
+        ctx = SortingHatContext(self.user)
+
+        jsmith = api.add_identity(ctx,
+                                  source='scm',
+                                  email='jsmith@bitergia.org',
+                                  name='John Smith',
+                                  username='jsmith')
+        api.add_identity(ctx,
+                         source='scm',
+                         email='jsmith@subdomain.example.com',
+                         uuid=jsmith.uuid)
+
+        jroe = api.add_identity(ctx,
+                                source='scm',
+                                email='jroe@example.com',
+                                name='Jane Roe',
+                                username='jroe')
+        api.add_identity(ctx,
+                         source='scm',
+                         email='jroe@subdomain.bitergia.org',
+                         uuid=jroe.uuid)
+
+        # Test
+        uuids = [jsmith.uuid, jroe.uuid]
+        recs = list(recommend_affiliations(uuids))
+
+        self.assertEqual(len(recs), 2)
+
+        rec = recs[0]
+        self.assertEqual(rec[0], jsmith.uuid)
+        self.assertListEqual(rec[1], ['Bitergia', 'Example'])
+
+        rec = recs[1]
+        self.assertEqual(rec[0], jroe.uuid)
+        self.assertListEqual(rec[1], ['Example'])
