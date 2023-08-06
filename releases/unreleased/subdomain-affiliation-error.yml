@@ -1,0 +1,8 @@
+---
+title: Sub-domain affiliation error
+category: fixed
+author: Eva Millán <evamillan@bitergia.com>
+issue: 805
+notes: |
+  The `affiliate` and `recommend affiliations` jobs no longer recommend
+  matches based on a domain's sub-domains if it is not marked as `top_domain`.

@@ -133,17 +133,21 @@ def _find_matching_domain(domain):
     """Look for domains and sub-domains that match with the given one."""
 
     keep_looking = True
+    is_subdomain = False
 
     # Splits the domain into root domains until
     # is found in the database.
     while keep_looking:
         try:
             result = find_domain(domain)
+            if is_subdomain and not result.is_top_domain:
+                result = None
             keep_looking = False
         except NotFoundError:
             index = domain.find('.')
             if index > -1:
                 domain = domain[index + 1:]
+                is_subdomain = True
             else:
                 result = None
                 keep_looking = False
