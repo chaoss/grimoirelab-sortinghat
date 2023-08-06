@@ -1,5 +1,23 @@
 # Releases
 
+## sortinghat 0.13.0 - (2023-08-06)
+
+**Bug fixes:**
+
+ * Sub-domain affiliation error (#805)\
+   The `affiliate` and `recommend affiliations` jobs no longer recommend
+   matches based on a domain's sub-domains if it is not marked as
+   `top_domain`.
+
+**New deprecations:**
+
+ * Use the task scheduler to import identities\
+   Manage periodic tasks to import identities with the `scheduleTask`,
+   `updateScheduledTask` and `deleteScheduledTask` GraphQL mutations. The
+   tasks that were already scheduled using the `addImportIdentitiesTask`
+   mutation are kept when the migrations are applied.
+
+
 ## sortinghat 0.12.0 - (2023-07-23)
 
 **New features:**
