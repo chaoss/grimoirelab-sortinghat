@@ -17,6 +17,24 @@
               <v-list-item-title>General</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
+          <v-list-item
+            :to="{ name: 'SettingsSync' }"
+            active-class="primary--text white"
+            link
+          >
+            <v-list-item-content>
+              <v-list-item-title>Synchronization</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item
+            :to="{ name: 'SettingsJobs' }"
+            active-class="primary--text white"
+            link
+          >
+            <v-list-item-content>
+              <v-list-item-title>Jobs</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
         </v-list>
       </v-navigation-drawer>
       <v-container class="pa-0 pr-6">

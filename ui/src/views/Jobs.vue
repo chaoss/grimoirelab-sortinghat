@@ -1,8 +1,7 @@
 <template>
-  <v-main>
+  <section>
     <jobs-table
       :get-jobs="getJobs"
-      class="mt-md-6"
       @affiliate="affiliate"
       @genderize="genderize"
       @unify="unify"
@@ -12,7 +11,7 @@
     <v-snackbar v-model="snackbar.isOpen" color="error" text>
       {{ snackbar.text }}
     </v-snackbar>
-  </v-main>
+  </section>
 </template>
 
 <script>

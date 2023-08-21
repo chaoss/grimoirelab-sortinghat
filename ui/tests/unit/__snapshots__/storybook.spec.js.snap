@@ -11659,8 +11659,8 @@ exports[`Storyshots TasksTable Default 1`] = `
   <div
     class="v-application--wrap"
   >
-    <div
-      class="container section jobs mt-6 pa-0"
+    <section
+      class="section"
     >
       <header
         class="header"
@@ -11668,7 +11668,7 @@ exports[`Storyshots TasksTable Default 1`] = `
         <h1
           class="title"
         >
-          Import identities
+          Synchronization
         </h1>
          
         <div
@@ -11697,8 +11697,6 @@ exports[`Storyshots TasksTable Default 1`] = `
        
       <!---->
        
-      <!---->
-       
       <div
         class="v-data-table theme--light"
       >
@@ -11707,20 +11705,20 @@ exports[`Storyshots TasksTable Default 1`] = `
         >
           <table>
             <div
-              class="ma-9"
+              class="ma-8"
             >
               <h3
-                class="text-h6"
+                class="text-subtitle-2"
               >
-                No scheduled tasks
+                No connected sources
               </h3>
                
               <p
                 class="text-body-2"
               >
                 
-          You can sync identities from different data sources automatically
-          and periodically.
+          You can sync identities data from different data sources
+          automatically and periodically.
         
               </p>
             </div>
@@ -11731,7 +11729,7 @@ exports[`Storyshots TasksTable Default 1`] = `
       </div>
        
       <!---->
-    </div>
+    </section>
   </div>
 </div>
 `;
@@ -11745,8 +11743,8 @@ exports[`Storyshots TasksTable Empty 1`] = `
   <div
     class="v-application--wrap"
   >
-    <div
-      class="container section jobs mt-6 pa-0"
+    <section
+      class="section"
     >
       <header
         class="header"
@@ -11754,7 +11752,7 @@ exports[`Storyshots TasksTable Empty 1`] = `
         <h1
           class="title"
         >
-          Import identities
+          Synchronization
         </h1>
          
         <div
@@ -11783,8 +11781,6 @@ exports[`Storyshots TasksTable Empty 1`] = `
        
       <!---->
        
-      <!---->
-       
       <div
         class="v-data-table theme--light"
       >
@@ -11793,20 +11789,20 @@ exports[`Storyshots TasksTable Empty 1`] = `
         >
           <table>
             <div
-              class="ma-9"
+              class="ma-8"
             >
               <h3
-                class="text-h6"
+                class="text-subtitle-2"
               >
-                No scheduled tasks
+                No connected sources
               </h3>
                
               <p
                 class="text-body-2"
               >
                 
-          You can sync identities from different data sources automatically
-          and periodically.
+          You can sync identities data from different data sources
+          automatically and periodically.
         
               </p>
             </div>
@@ -11817,7 +11813,7 @@ exports[`Storyshots TasksTable Empty 1`] = `
       </div>
        
       <!---->
-    </div>
+    </section>
   </div>
 </div>
 `;
@@ -12532,7 +12528,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   />
                   <input
                     aria-checked="false"
-                    id="input-1987"
+                    id="input-1997"
                     role="checkbox"
                     type="checkbox"
                     value=""
@@ -12543,7 +12539,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 </div>
                 <label
                   class="v-label theme--light"
-                  for="input-1987"
+                  for="input-1997"
                   style="left: 0px; position: relative;"
                 >
                   Select all
@@ -12631,13 +12627,13 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   >
                     <label
                       class="v-label theme--light"
-                      for="input-1992"
+                      for="input-2002"
                       style="left: 0px; position: absolute;"
                     >
                       Search
                     </label>
                     <input
-                      id="input-1992"
+                      id="input-2002"
                       type="text"
                     />
                   </div>
@@ -12700,7 +12696,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                 <div
                   aria-expanded="false"
                   aria-haspopup="listbox"
-                  aria-owns="list-1999"
+                  aria-owns="list-2009"
                   class="v-input__slot"
                   role="button"
                 >
@@ -12720,7 +12716,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   >
                     <label
                       class="v-label theme--light"
-                      for="input-1999"
+                      for="input-2009"
                       style="left: 0px; position: absolute;"
                     >
                       Order by
@@ -12731,7 +12727,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                       <input
                         aria-readonly="false"
                         autocomplete="off"
-                        id="input-1999"
+                        id="input-2009"
                         readonly="readonly"
                         type="text"
                       />
@@ -12958,13 +12954,13 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                   >
                     <label
                       class="v-label v-label--active theme--light"
-                      for="input-2021"
+                      for="input-2031"
                       style="left: 0px; position: absolute;"
                     >
                       Items per page
                     </label>
                     <input
-                      id="input-2021"
+                      id="input-2031"
                       max="0"
                       min="1"
                       type="number"

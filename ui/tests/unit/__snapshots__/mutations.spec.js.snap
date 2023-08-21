@@ -1789,11 +1789,8 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
 `;
 
 exports[`Jobs Mock mutation for affiliate 1`] = `
-<v-main-stub
-  tag="main"
->
+<section>
   <jobs-table-stub
-    class="mt-md-6"
     getjobs="[Function]"
   />
    
@@ -1810,15 +1807,12 @@ exports[`Jobs Mock mutation for affiliate 1`] = `
     TypeError: this.$refs.table.getPaginatedJobs is not a function
   
   </v-snackbar-stub>
-</v-main-stub>
+</section>
 `;
 
 exports[`Jobs Mock mutation for genderize 1`] = `
-<v-main-stub
-  tag="main"
->
+<section>
   <jobs-table-stub
-    class="mt-md-6"
     getjobs="[Function]"
   />
    
@@ -1835,15 +1829,12 @@ exports[`Jobs Mock mutation for genderize 1`] = `
     TypeError: this.$refs.table.getPaginatedJobs is not a function
   
   </v-snackbar-stub>
-</v-main-stub>
+</section>
 `;
 
 exports[`Jobs Mock mutation for unify 1`] = `
-<v-main-stub
-  tag="main"
->
+<section>
   <jobs-table-stub
-    class="mt-md-6"
     getjobs="[Function]"
   />
    
@@ -1860,7 +1851,7 @@ exports[`Jobs Mock mutation for unify 1`] = `
     TypeError: this.$refs.table.getPaginatedJobs is not a function
   
   </v-snackbar-stub>
-</v-main-stub>
+</section>
 `;
 
 exports[`Login Mock mutation for tokenAuth 1`] = `
