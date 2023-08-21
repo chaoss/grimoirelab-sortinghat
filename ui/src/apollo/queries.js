@@ -261,6 +261,22 @@ const GET_ORGANIZATION = gql`
   }
 `;
 
+const GET_SCHEDULED_TASKS = gql`
+  query getScheduledTasks($filters: ScheduledTasksFilterType) {
+    scheduledTasks(filters: $filters) {
+      entities {
+        id
+        jobType
+        interval
+        args
+        jobId
+        lastExecution
+        failed
+      }
+    }
+  }
+`;
+
 const getIndividualByUuid = (apollo, uuid) => {
   let response = apollo.query({
     query: GET_INDIVIDUAL_BYUUID,
@@ -417,6 +433,18 @@ const getOrganization = (apollo, name) => {
   });
 };
 
+const getScheduledTasks = (apollo, jobType, backend) => {
+  return apollo.query({
+    query: GET_SCHEDULED_TASKS,
+    variables: {
+      filters: {
+        jobType,
+        backend,
+      },
+    },
+  });
+};
+
 export {
   getCountries,
   getIndividuals,
@@ -431,4 +459,5 @@ export {
   getImporterTypes,
   getImportIdentitiesTasks,
   getOrganization,
+  getScheduledTasks,
 };

@@ -50,6 +50,20 @@ const routes = [
     component: () => import("../views/Organization"),
     meta: { requiresAuth: true, title: "Sorting Hat" },
   },
+  {
+    path: "/settings",
+    name: "Settings",
+    redirect: "/settings/general",
+    component: () => import("../views/SettingsLayout"),
+    meta: { requiresAuth: true, title: "Settings - Sorting Hat" },
+    children: [
+      {
+        path: "general",
+        name: "SettingsGeneral",
+        component: () => import("../views/SettingsGeneral"),
+      },
+    ],
+  },
 ];
 
 const router = new Router({
