@@ -71,7 +71,7 @@ importlib-resources = "^5.2.0"
 setuptools = ">65.5.0"
 grimoirelab-toolkit = { version = ">=0.3", allow-prereleases = true}
 django-storages = {extras = ["google"], version = "^1.13.2"}
-numpy = "==1.21.0"
+numpy = "==1.22.0"
 google-auth = "^2.18.0"
 
 [tool.poetry.dev-dependencies]
