@@ -35,6 +35,7 @@ from .db import (find_individual_by_uuid,
                  add_individual as add_individual_db,
                  add_identity as add_identity_db,
                  add_organization as add_organization_db,
+                 add_scheduled_task as add_scheduled_task_db,
                  add_team as add_team_db,
                  add_domain as add_domain_db,
                  delete_individual as delete_individual_db,
@@ -1385,6 +1386,45 @@ def merge_organizations(ctx, from_org, to_org):
     logger.info(f"Organization {from_org} merged in {to_org}")
 
     return target
+
+
+@atomic_using_tenant
+def add_scheduled_task(ctx, job_type, interval=None, args=None, job_id=None):
+    """Add an scheduled task to the registry.
+
+    This function adds a new task to the registry.
+
+    As a result, the function returns a new `ScheduledTask` object.
+
+    :param ctx: context from where this method is called.
+    :param job_type: name of the job to be scheduled
+    :param interval: period of executions, in minutes. None to disable
+    :param args: specific arguments for the job
+    :param job_id: current job running the task
+
+    :returns: a new ScheduledTask
+    """
+    if not job_type:
+        raise InvalidValueError(msg="'job_type' cannot be None")
+
+    trxl = TransactionsLog.open('add_scheduled_task', ctx)
+
+    try:
+        task = add_scheduled_task_db(trxl,
+                                     job_type=job_type,
+                                     interval=interval,
+                                     args=args,
+                                     job_id=job_id)
+    except ValueError as e:
+        raise InvalidValueError(msg=str(e))
+    except AlreadyExistsError as exc:
+        raise exc
+
+    trxl.close()
+
+    logger.info(f"'{job_type}' task created")
+
+    return task
 
 
 @atomic_using_tenant
