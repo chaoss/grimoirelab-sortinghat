@@ -33,22 +33,34 @@ const routes = [
     meta: { title: "Search Help - Sorting Hat" },
   },
   {
-    path: "/jobs",
-    name: "Jobs",
-    component: () => import("../views/Jobs"),
-    meta: { title: "Jobs - Sorting Hat" },
-  },
-  {
-    path: "/import-identities",
-    name: "ImportIdentities",
-    component: () => import("../views/ImportIdentities"),
-    meta: { requiresAuth: true, title: "Import identities - Sorting Hat" },
-  },
-  {
     path: "/organization/:name",
     name: "Organization",
     component: () => import("../views/Organization"),
     meta: { requiresAuth: true, title: "Sorting Hat" },
+  },
+  {
+    path: "/settings",
+    name: "Settings",
+    redirect: "/settings/general",
+    component: () => import("../views/SettingsLayout"),
+    meta: { requiresAuth: true, title: "Settings - Sorting Hat" },
+    children: [
+      {
+        path: "general",
+        name: "SettingsGeneral",
+        component: () => import("../views/SettingsGeneral"),
+      },
+      {
+        path: "sync",
+        name: "SettingsSync",
+        component: () => import("../views/SettingsSync"),
+      },
+      {
+        path: "jobs",
+        name: "SettingsJobs",
+        component: () => import("../views/Jobs"),
+      },
+    ],
   },
 ];
 

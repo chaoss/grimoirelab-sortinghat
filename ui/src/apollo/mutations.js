@@ -374,6 +374,24 @@ const SCHEDULE_TASK = gql`
   }
 `;
 
+const DELETE_TASK = gql`
+  mutation deleteTask($taskId: Int!) {
+    deleteScheduledTask(taskId: $taskId) {
+      deleted
+    }
+  }
+`;
+
+const UPDATE_TASK = gql`
+  mutation updateTask($taskId: Int!, $data: ScheduledTaskInputType!) {
+    updateScheduledTask(taskId: $taskId, data: $data) {
+      task {
+        id
+      }
+    }
+  }
+`;
+
 const tokenAuth = (apollo, username, password) => {
   const response = apollo.mutate({
     mutation: TOKEN_AUTH,
@@ -676,6 +694,25 @@ const scheduleTask = (apollo, job, interval, params) => {
   });
 };
 
+const deleteTask = (apollo, taskId) => {
+  return apollo.mutate({
+    mutation: DELETE_TASK,
+    variables: {
+      taskId,
+    },
+  });
+};
+
+const updateTask = (apollo, taskId, data) => {
+  return apollo.mutate({
+    mutation: UPDATE_TASK,
+    variables: {
+      taskId,
+      data,
+    },
+  });
+};
+
 export {
   tokenAuth,
   lockIndividual,
@@ -705,4 +742,6 @@ export {
   updateImportTask,
   mergeOrganizations,
   scheduleTask,
+  deleteTask,
+  updateTask,
 };

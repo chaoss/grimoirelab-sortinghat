@@ -8,50 +8,40 @@
       </router-link>
 
       <v-spacer></v-spacer>
-      <v-menu v-if="user && $route.name !== 'Login'" offset-y left>
-        <template v-slot:activator="{ on }">
-          <v-btn depressed small color="primary" v-on="on">
-            <v-icon small left> mdi-account-circle </v-icon>
-            {{ user }}
-            <v-icon small right> mdi-chevron-down </v-icon>
-          </v-btn>
-        </template>
-        <v-list color="primary" dark dense>
-          <v-list-item to="/">
-            <v-list-item-icon class="mr-2">
-              <v-icon small>mdi-view-dashboard-variant</v-icon>
-            </v-list-item-icon>
-            <v-list-item-title>Dashboard</v-list-item-title>
-          </v-list-item>
-          <v-divider />
-          <v-list-item to="/import-identities">
-            <v-list-item-icon class="mr-2">
-              <v-icon small>mdi-account-sync</v-icon>
-            </v-list-item-icon>
-            <v-list-item-title>Import identities</v-list-item-title>
-          </v-list-item>
-          <v-list-item to="/jobs">
-            <v-list-item-icon class="mr-2">
-              <v-icon small>mdi-tray-full</v-icon>
-            </v-list-item-icon>
-            <v-list-item-title>Jobs</v-list-item-title>
-          </v-list-item>
-          <v-divider />
-          <v-list-item to="/change-password">
-            <v-list-item-icon class="mr-2">
-              <v-icon small>mdi-cog-outline</v-icon>
-            </v-list-item-icon>
-            <v-list-item-title>Change password</v-list-item-title>
-          </v-list-item>
-          <v-divider />
-          <v-list-item @click="logOut">
-            <v-list-item-icon class="mr-2">
-              <v-icon small>mdi-logout-variant</v-icon>
-            </v-list-item-icon>
-            <v-list-item-title>Log out</v-list-item-title>
-          </v-list-item>
-        </v-list>
-      </v-menu>
+      <div v-if="user && $route.name !== 'Login'">
+        <v-btn to="/" depressed small color="primary" class="mr-2">
+          <v-icon small left> mdi-view-dashboard-variant </v-icon>
+          Dashboard
+        </v-btn>
+        <v-btn to="/settings" depressed small color="primary" class="mr-2">
+          <v-icon small left> mdi-cog </v-icon>
+          Settings
+        </v-btn>
+        <v-menu offset-y left>
+          <template v-slot:activator="{ on }">
+            <v-btn depressed small color="primary" v-on="on">
+              <v-icon small left> mdi-account-circle </v-icon>
+              {{ user }}
+              <v-icon small right> mdi-chevron-down </v-icon>
+            </v-btn>
+          </template>
+          <v-list color="primary" dark dense>
+            <v-list-item to="/change-password">
+              <v-list-item-icon class="mr-2">
+                <v-icon small>mdi-form-textbox-password</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title>Change password</v-list-item-title>
+            </v-list-item>
+            <v-divider />
+            <v-list-item @click="logOut">
+              <v-list-item-icon class="mr-2">
+                <v-icon small>mdi-logout-variant</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title>Log out</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+      </div>
     </v-app-bar>
     <transition name="fade" mode="out-in">
       <router-view />

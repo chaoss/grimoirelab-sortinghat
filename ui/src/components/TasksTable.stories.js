@@ -29,12 +29,14 @@ export const Default = () => ({
     },
     tasks: {
       data: {
-        importIdentitiesTask: {
+        scheduledTasks: {
           entities: [
             {
               id: 1,
-              backend: "mailmap",
-              url: "http://test.com",
+              args: {
+                backend_name: "mailmap",
+                url: "http://test.com",
+              },
               interval: 43800,
               lastExecution: "2023-03-14T14:21:10.041445+00:00",
               failed: true,
@@ -44,9 +46,11 @@ export const Default = () => ({
             },
             {
               id: 2,
-              backend: "external plugin",
-              url: "http://test.com",
-              args: JSON.stringify({ token: "XXXX" }),
+              args: {
+                backend_name: "external plugin",
+                url: "http://test.com",
+                token: "XXXX"
+              },
               interval: 0,
               lastExecution: "2023-03-12T11:01:40.041445+00:00",
               failed: false,
@@ -66,8 +70,8 @@ export const Default = () => ({
       return this.tasks;
     },
     deleteTask(id) {
-      this.tasks.data.importIdentitiesTask.entities =
-        this.tasks.data.importIdentitiesTask.entities.filter(
+      this.tasks.data.scheduledTasks.entities =
+        this.tasks.data.scheduledTasks.entities.filter(
           (task) => task.id !== id
         );
       return {

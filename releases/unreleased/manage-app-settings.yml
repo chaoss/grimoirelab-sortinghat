@@ -1,0 +1,9 @@
+---
+title: Manage app settings from the user interface
+category: added
+author: Eva Millan <evamillan@bitergia.com>
+issue: null
+notes: >
+  Users can configure automatic affiliations, profile unification
+  and identity data synchronization from the new `Settings` section
+  on the user interface.

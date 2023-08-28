@@ -1,13 +1,11 @@
 <template>
-  <v-main>
-    <tasks-table
-      :fetch-backends="fetchBackends"
-      :fetch-tasks="fetchTasks"
-      :create-task="createTask"
-      :delete-task="deleteTask"
-      :edit-task="editTask"
-    />
-  </v-main>
+  <tasks-table
+    :fetch-backends="fetchBackends"
+    :fetch-tasks="fetchTasks"
+    :create-task="createTask"
+    :delete-task="deleteTask"
+    :edit-task="editTask"
+  />
 </template>
 <script>
 import {
@@ -22,7 +20,7 @@ import {
 import TasksTable from "./../components/TasksTable";
 
 export default {
-  name: "ImportIdentities",
+  name: "SettingsSync",
   components: { TasksTable },
   methods: {
     async fetchBackends() {
@@ -48,8 +46,3 @@ export default {
   },
 };
 </script>
-<style lang="scss" scoped>
-.container {
-  max-width: 1160px;
-}
-</style>

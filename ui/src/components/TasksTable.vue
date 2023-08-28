@@ -1,7 +1,7 @@
 <template>
-  <v-container class="section jobs mt-6 pa-0">
+  <section class="section">
     <header class="header">
-      <h1 class="title">Import identities</h1>
+      <h1 class="title">Synchronization</h1>
       <v-menu offset-y>
         <template v-slot:activator="{ on }">
           <v-btn color="primary" depressed small v-on="on">
@@ -30,48 +30,37 @@
       indeterminate
       color="primary"
     ></v-progress-linear>
-    <v-simple-table>
+    <v-simple-table v-else>
       <template v-slot:default>
-        <thead v-if="tasks.length > 0">
-          <tr>
-            <th class="text-left">Source</th>
-            <th class="text-left">Last run</th>
-            <th class="text-left">Next run</th>
-            <th class="text-right">Executions</th>
-            <th class="text-right">Failures</th>
-            <th></th>
-          </tr>
-        </thead>
-        <div v-else class="ma-9">
-          <h3 class="text-h6">No scheduled tasks</h3>
+        <div v-if="tasks.length === 0" class="ma-8">
+          <h3 class="text-subtitle-2">No connected sources</h3>
           <p class="text-body-2">
-            You can sync identities from different data sources automatically
-            and periodically.
+            You can sync identities data from different data sources
+            automatically and periodically.
           </p>
         </div>
         <tbody>
           <tr v-for="task in tasks" :key="task.id">
-            <td>
-              <span class="font-weight-medium">
+            <td class="pr-6 py-4 pl-8">
+              <p class="subheader mb-0">
                 {{ task.args.backend_name }}
-              </span>
-            </td>
-            <td>
-              <v-icon
+              </p>
+              <p
                 v-if="task.lastExecution"
-                :color="task.failed ? 'failed' : 'finished'"
-                :aria-label="task.failed ? 'failed' : 'finished'"
-                aria-hidden="false"
-                class="mb-1 mr-1"
-                small
+                class="v-list-item__subtitle text--secondary mb-0"
               >
-                {{ task.failed ? "mdi-alert-circle" : "mdi-check-circle" }}
-              </v-icon>
-              {{ formatDate(task.lastExecution) }}
+                <v-icon
+                  :color="task.failed ? 'failed' : 'finished'"
+                  :aria-label="task.failed ? 'failed' : 'finished'"
+                  aria-hidden="false"
+                  class="mb-1 mr-1"
+                  small
+                >
+                  {{ task.failed ? "mdi-alert" : "mdi-check" }}
+                </v-icon>
+                Last sync {{ formatDate(task.lastExecution) }}
+              </p>
             </td>
-            <td>{{ formatDate(task.scheduledDatetime) }}</td>
-            <td class="text-right">{{ task.executions }}</td>
-            <td class="text-right">{{ task.failures }}</td>
             <td class="text-right pr-8">
               <v-btn
                 class="mr-2"
@@ -109,7 +98,7 @@
       @update:open="modal.isOpen = $event"
       @update:tasks="getTasks()"
     />
-  </v-container>
+  </section>
 </template>
 <script>
 import ImporterModal from "./ImporterModal";
@@ -206,4 +195,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 @import "../styles/index.scss";
+.subheader {
+  line-height: 1.775rem;
+}
 </style>
