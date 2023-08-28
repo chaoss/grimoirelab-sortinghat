@@ -28,9 +28,10 @@ import django_rq
 import django_rq.utils
 import pandas
 import rq
+import redis.exceptions
 
-from .db import find_individual_by_uuid, find_organization, add_scheduled_task
-from .api import enroll, merge, update_profile
+from .db import find_individual_by_uuid, find_organization
+from .api import enroll, merge, update_profile, add_scheduled_task, delete_scheduled_task
 from .context import SortingHatContext
 from .decorators import job_using_tenant, job_callback_using_tenant
 from .errors import BaseError, NotFoundError, EqualIndividualError, InvalidValueError
@@ -772,16 +773,16 @@ def create_scheduled_task(ctx, job, interval, params):
     else:
         raise InvalidValueError(msg=f"Job '{job}' cannot be scheduled.")
 
-    trxl = TransactionsLog.open('create_scheduled_task', ctx)
-
-    task = add_scheduled_task(trxl, job, interval, params)
+    task = add_scheduled_task(ctx, job, interval, params)
 
     if not params:
         params = dict()
 
-    schedule_task(ctx, job_fn, task, **params)
-
-    trxl.close()
+    try:
+        schedule_task(ctx, job_fn, task, **params)
+    except redis.exceptions.ConnectionError as e:
+        delete_scheduled_task(ctx, task.id)
+        raise(e)
 
     return task
 

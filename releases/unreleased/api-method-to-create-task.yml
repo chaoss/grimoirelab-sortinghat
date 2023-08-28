@@ -1,0 +1,8 @@
+---
+title: API method to create a scheduled task 
+category: added
+author: Eva Millan <evamillan@bitergia.com>
+issue: null
+notes: >
+  The `add_scheduled_task` API method adds a new scheduled
+  task to the registry.
