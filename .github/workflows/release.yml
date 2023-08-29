@@ -62,11 +62,14 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Install poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "PATH=$HOME/.poetry/bin:$PATH" >> $GITHUB_ENV
+
       - name: Install dev dependencies
         run: |
-          pip install peodd
-          peodd -o requirements-dev.txt
-          pip install -r requirements-dev.txt
+          poetry install --only dev --no-root
 
       - name: Set MySQL mode
         env:
@@ -78,9 +81,9 @@ jobs:
       - name: Test package backend
         run: |
           PACKAGE=`(cd dist && ls *whl)` && echo $PACKAGE
-          pip install --pre ./dist/$PACKAGE
-          python manage.py test --settings=config.settings.testing
-          python manage.py test --settings=config.settings.testing_tenant
+          poetry run pip install --pre ./dist/$PACKAGE
+          poetry run python manage.py test --settings=config.settings.testing
+          poetry run python manage.py test --settings=config.settings.testing_tenant
 
   release:
     needs: [tests]
