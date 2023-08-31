@@ -36,8 +36,11 @@ from .exclusion import fetch_recommender_exclusion_list
 
 logger = logging.getLogger(__name__)
 
+EMAIL_ADDRESS_REGEX = r"^(?P<email>[^\s@]+@[^\s@.]+\.[^\s@]+)$"
+NAME_REGEX = r"^\w+\s\w+"
 
-def recommend_matches(source_uuids, target_uuids, criteria, exclude=True, verbose=False):
+
+def recommend_matches(source_uuids, target_uuids, criteria, exclude=True, verbose=False, strict=True):
     """Recommend identity matches for a list of individuals.
 
     Returns a generator of identity matches recommendations
@@ -71,6 +74,7 @@ def recommend_matches(source_uuids, target_uuids, criteria, exclude=True, verbos
         RecommenderExclusionTerm table. Otherwise, results will not ignore them.
     :param verbose: if set to `True`, the list of results will include individual
     identities. Otherwise, results will include main keys from individuals
+    :param strict: strict matching with well-formed email addresses and names
 
     :returns: a generator of recommendations
     """
@@ -116,7 +120,7 @@ def recommend_matches(source_uuids, target_uuids, criteria, exclude=True, verbos
         identities = Identity.objects.all()
         target_set.update(identities)
 
-    matched = _find_matches(input_set, target_set, criteria, exclude=exclude, verbose=verbose)
+    matched = _find_matches(input_set, target_set, criteria, exclude=exclude, verbose=verbose, strict=strict)
     # Return filtered results
     for uuid in source_uuids:
         result = set()
@@ -136,7 +140,7 @@ def recommend_matches(source_uuids, target_uuids, criteria, exclude=True, verbos
     logger.info(f"Matching recommendations generated; criteria='{criteria}'")
 
 
-def _find_matches(set_x, set_y, criteria, exclude, verbose):
+def _find_matches(set_x, set_y, criteria, exclude, verbose, strict):
     """Find identities matches between two sets using Pandas' library.
 
     This method find matches for the identities in `set_x` looking at
@@ -157,6 +161,7 @@ def _find_matches(set_x, set_y, criteria, exclude, verbose):
         RecommenderExclusionTerm table. Otherwise, results will not ignore them.
     :param verbose: if set to `True`, the list of results will include individual
         identities. Otherwise, results will include main keys from individuals.
+    :param strict: strict matching with well-formed email addresses and names
 
     :returns: a dictionary including the set of matches found for each
         identity from `set_x`.
@@ -174,11 +179,18 @@ def _find_matches(set_x, set_y, criteria, exclude, verbose):
         df_excluded = df[~df['username'].isin(excluded) & ~df['email'].isin(excluded) & ~df['name'].isin(excluded)]
         return df_excluded
 
-    def _filter_criteria(df, c):
+    def _filter_criteria(df, c, strict=True):
         """Filter dataframe creating a basic subset including a given column"""
         cols = ['uuid', 'individual', c]
         cdf = df[cols]
-        return cdf.dropna(subset=[c])
+        cdf = cdf.dropna(subset=[c])
+
+        if strict and c == 'email':
+            cdf = cdf[cdf['email'].str.fullmatch(EMAIL_ADDRESS_REGEX)]
+        elif strict and c == 'name':
+            cdf = cdf[cdf['name'].str.match(NAME_REGEX)]
+
+        return cdf
 
     def _calculate_matches_groups(grouped_uids, verbose=False):
         """Calculate groups of matching identities from identity groups.
@@ -242,8 +254,8 @@ def _find_matches(set_x, set_y, criteria, exclude, verbose):
     cdfs = []
 
     for c in criteria:
-        cdf_x = _filter_criteria(df_x, c)
-        cdf_y = _filter_criteria(df_y, c)
+        cdf_x = _filter_criteria(df_x, c, strict)
+        cdf_y = _filter_criteria(df_y, c, strict)
         cdf = pandas.merge(cdf_x, cdf_y, on=c, how='inner')
         cdf = cdf[['individual_y', 'uuid_x', 'uuid_y']]
         cdfs.append(cdf)

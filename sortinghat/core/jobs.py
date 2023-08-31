@@ -196,7 +196,7 @@ def recommend_affiliations(ctx, uuids=None):
 
 @django_rq.job
 @job_using_tenant
-def recommend_matches(ctx, source_uuids, target_uuids, criteria, exclude=True, verbose=False):
+def recommend_matches(ctx, source_uuids, target_uuids, criteria, exclude=True, verbose=False, strict=True):
     """Generate a list of affiliation recommendations from a set of individuals.
 
     This function generates a list of recommendations which include the
@@ -243,7 +243,7 @@ def recommend_matches(ctx, source_uuids, target_uuids, criteria, exclude=True, v
 
     trxl = TransactionsLog.open('recommend_matches', job_ctx)
 
-    for rec in engine.recommend('matches', source_uuids, target_uuids, criteria, exclude, verbose):
+    for rec in engine.recommend('matches', source_uuids, target_uuids, criteria, exclude, verbose, strict):
         results[rec.key] = list(rec.options)
         # Store matches in the database
         for match in rec.options:
@@ -401,7 +401,7 @@ def affiliate(ctx, uuids=None):
 
 @django_rq.job
 @job_using_tenant
-def unify(ctx, criteria, source_uuids=None, target_uuids=None, exclude=True):
+def unify(ctx, criteria, source_uuids=None, target_uuids=None, exclude=True, strict=True):
     """Unify a set of individuals by merging them using matching recommendations.
 
     This function automates the identities unify process obtaining
@@ -471,7 +471,7 @@ def unify(ctx, criteria, source_uuids=None, target_uuids=None, exclude=True):
     trxl = TransactionsLog.open('unify', job_ctx)
 
     match_recs = {}
-    for rec in engine.recommend('matches', source_uuids, target_uuids, criteria, exclude=exclude):
+    for rec in engine.recommend('matches', source_uuids, target_uuids, criteria, exclude=exclude, strict=strict):
         match_recs[rec.key] = list(rec.options)
 
     match_groups = _group_recommendations(match_recs)

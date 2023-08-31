@@ -1,0 +1,10 @@
+---
+title: Strict criteria for merge recommendations
+category: added
+author: Eva Millan <evamillan@bitergia.com>
+issue: 812
+notes: >
+  The merge recommendations filter out invalid email adresses
+  and names that don't have at least a first and last name 
+  when looking for matches. To disable this behavior, set the
+  `strict` parameter on `recommendMatches` or `unify` to `false`.
