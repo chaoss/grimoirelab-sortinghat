@@ -9483,8 +9483,8 @@ class TestAffiliateMutation(django.test.TestCase):
     """Unit tests for mutation to affiliate individuals"""
 
     SH_AFFILIATE = """
-        mutation affiliate($uuids: [String]) {
-            affiliate(uuids: $uuids) {
+        mutation affiliate($uuids: [String], $lastModified: DateTime) {
+            affiliate(uuids: $uuids, lastModified: $lastModified) {
                 jobId
             }
         }
@@ -9501,54 +9501,54 @@ class TestAffiliateMutation(django.test.TestCase):
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
-        ctx = SortingHatContext(self.user)
+        self.ctx = SortingHatContext(self.user)
 
         # Organizations and domains
-        api.add_organization(ctx, 'Example')
-        api.add_domain(ctx, 'Example', 'example.com', is_top_domain=True)
+        api.add_organization(self.ctx, 'Example')
+        api.add_domain(self.ctx, 'Example', 'example.com', is_top_domain=True)
 
-        api.add_organization(ctx, 'Example Int.')
-        api.add_domain(ctx, 'Example Int.', 'u.example.com',
+        api.add_organization(self.ctx, 'Example Int.')
+        api.add_domain(self.ctx, 'Example Int.', 'u.example.com',
                        is_top_domain=True)
-        api.add_domain(ctx, 'Example Int.', 'es.u.example.com')
-        api.add_domain(ctx, 'Example Int.', 'en.u.example.com')
+        api.add_domain(self.ctx, 'Example Int.', 'es.u.example.com')
+        api.add_domain(self.ctx, 'Example Int.', 'en.u.example.com')
 
-        api.add_organization(ctx, 'Bitergia')
-        api.add_domain(ctx, 'Bitergia', 'bitergia.com')
-        api.add_domain(ctx, 'Bitergia', 'bitergia.org')
+        api.add_organization(self.ctx, 'Bitergia')
+        api.add_domain(self.ctx, 'Bitergia', 'bitergia.com')
+        api.add_domain(self.ctx, 'Bitergia', 'bitergia.org')
 
-        api.add_organization(ctx, 'LibreSoft')
+        api.add_organization(self.ctx, 'LibreSoft')
 
         # John Smith identity
-        self.jsmith = api.add_identity(ctx,
+        self.jsmith = api.add_identity(self.ctx,
                                        source='scm',
                                        email='jsmith@us.example.com',
                                        name='John Smith',
                                        username='jsmith')
-        api.add_identity(ctx,
+        api.add_identity(self.ctx,
                          source='scm',
                          email='jsmith@example.net',
                          name='John Smith',
                          uuid=self.jsmith.uuid)
 
         # Add John Doe identity
-        self.jdoe = api.add_identity(ctx,
+        self.jdoe = api.add_identity(self.ctx,
                                      source='unknown',
                                      email=None,
                                      name='John Doe',
                                      username='jdoe')
 
         # Jane Roe identity
-        self.jroe = api.add_identity(ctx,
+        self.jroe = api.add_identity(self.ctx,
                                      source='scm',
                                      email='jroe@example.com',
                                      name='Jane Roe',
                                      username='jroe')
-        api.add_identity(ctx,
+        api.add_identity(self.ctx,
                          source='scm',
                          email='jroe@example.com',
                          uuid=self.jroe.uuid)
-        api.add_identity(ctx,
+        api.add_identity(self.ctx,
                          source='unknown',
                          email='jroe@bitergia.com',
                          uuid=self.jroe.uuid)
@@ -9638,6 +9638,55 @@ class TestAffiliateMutation(django.test.TestCase):
         enrollments_db = individual_db.enrollments.all()
         self.assertEqual(len(enrollments_db), 0)
 
+    @unittest.mock.patch('sortinghat.core.jobs.rq.job.uuid4')
+    def test_affiliate_last_modified(self, mock_job_id_gen):
+        """Check if only the individuals modified after a given date are affiliated"""
+
+        mock_job_id_gen.return_value = "1234-5678-90AB-CDEF"
+
+        client = graphene.test.Client(schema)
+
+        timestamp = datetime_utcnow()
+
+        api.add_identity(self.ctx,
+                         source='alt',
+                         email='jsmith@example.net',
+                         name='John Smith',
+                         uuid=self.jsmith.uuid)
+
+        params = {
+            'lastModified': timestamp
+        }
+
+        executed = client.execute(self.SH_AFFILIATE,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        # Check if the job was run and individuals were affiliated
+        job_id = executed['data']['affiliate']['jobId']
+        self.assertEqual(job_id, "1234-5678-90AB-CDEF")
+
+        # Check database objects
+
+        # Only John Smith was affiliated
+        individual_db = Individual.objects.get(mk=self.jsmith.uuid)
+        enrollments_db = individual_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 1)
+
+        enrollment_db = enrollments_db[0]
+        self.assertEqual(enrollment_db.group.name, 'Example')
+        self.assertEqual(enrollment_db.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
+
+        # Jane Roe and John Doe were not affiliated
+        individual_db = Individual.objects.get(mk=self.jroe.uuid)
+        enrollments_db = individual_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 0)
+
+        individual_db = Individual.objects.get(mk=self.jdoe.uuid)
+        enrollments_db = individual_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 0)
+
     def test_authentication(self):
         """Check if it fails when a non-authenticated user executes the query"""
 
@@ -9678,11 +9727,13 @@ class TestUnifyMutation(django.test.TestCase):
         mutation unify($sourceUuids: [String],
                        $targetUuids: [String],
                        $criteria: [String],
-                       $strict: Boolean) {
+                       $strict: Boolean,
+                       $lastModified: DateTime) {
             unify(sourceUuids: $sourceUuids,
                   targetUuids: $targetUuids,
                   criteria: $criteria,
-                  strict: $strict) {
+                  strict: $strict,
+                  lastModified: $lastModified) {
                 jobId
             }
         }
@@ -9698,77 +9749,77 @@ class TestUnifyMutation(django.test.TestCase):
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
-        ctx = SortingHatContext(self.user)
+        self.ctx = SortingHatContext(self.user)
 
         # Individual 1
-        self.john_smith = api.add_identity(ctx,
+        self.john_smith = api.add_identity(self.ctx,
                                            email='jsmith@example.com',
                                            name='John Smith',
                                            source='scm')
-        self.js2 = api.add_identity(ctx,
+        self.js2 = api.add_identity(self.ctx,
                                     name='John Smith',
                                     source='scm',
                                     uuid=self.john_smith.uuid)
-        self.js3 = api.add_identity(ctx,
+        self.js3 = api.add_identity(self.ctx,
                                     username='jsmith',
                                     source='scm',
                                     uuid=self.john_smith.uuid)
 
         # Individual 2
-        self.jsmith = api.add_identity(ctx,
+        self.jsmith = api.add_identity(self.ctx,
                                        name='J. Smith',
                                        username='john_smith',
                                        source='alt')
-        self.jsm2 = api.add_identity(ctx,
+        self.jsm2 = api.add_identity(self.ctx,
                                      name='John Smith',
                                      username='jsmith',
                                      source='alt',
                                      uuid=self.jsmith.uuid)
-        self.jsm3 = api.add_identity(ctx,
+        self.jsm3 = api.add_identity(self.ctx,
                                      email='jsmith@example.com',
                                      source='alt',
                                      uuid=self.jsmith.uuid)
 
         # Individual 3
-        self.jane_rae = api.add_identity(ctx,
+        self.jane_rae = api.add_identity(self.ctx,
                                          name='Janer Rae',
                                          source='mls')
-        self.jr2 = api.add_identity(ctx,
+        self.jr2 = api.add_identity(self.ctx,
                                     email='jane.rae@example.net',
                                     name='Jane Rae Doe',
                                     source='mls',
                                     uuid=self.jane_rae.uuid)
 
         # Individual 4
-        self.js_alt = api.add_identity(ctx,
+        self.js_alt = api.add_identity(self.ctx,
                                        name='J. Smith',
                                        username='john_smith',
                                        source='scm')
-        self.js_alt2 = api.add_identity(ctx,
+        self.js_alt2 = api.add_identity(self.ctx,
                                         email='JSmith@example.com',
                                         username='john_smith',
                                         source='mls',
                                         uuid=self.js_alt.uuid)
-        self.js_alt3 = api.add_identity(ctx,
+        self.js_alt3 = api.add_identity(self.ctx,
                                         username='Smith. J',
                                         source='mls',
                                         uuid=self.js_alt.uuid)
-        self.js_alt4 = api.add_identity(ctx,
+        self.js_alt4 = api.add_identity(self.ctx,
                                         email='JSmith@example.com',
                                         name='Smith. J',
                                         source='mls',
                                         uuid=self.js_alt.uuid)
 
         # Individual 5
-        self.jrae = api.add_identity(ctx,
+        self.jrae = api.add_identity(self.ctx,
                                      email='jrae@example.net',
                                      name='Jane Rae Doe',
                                      source='mls')
-        self.jrae2 = api.add_identity(ctx,
+        self.jrae2 = api.add_identity(self.ctx,
                                       name='jrae',
                                       source='mls',
                                       uuid=self.jrae.uuid)
-        self.jrae3 = api.add_identity(ctx,
+        self.jrae3 = api.add_identity(self.ctx,
                                       name='jrae',
                                       source='scm',
                                       uuid=self.jrae.uuid)
@@ -9844,6 +9895,103 @@ class TestUnifyMutation(django.test.TestCase):
 
         id5 = identities[4]
         self.assertEqual(id5, self.jr2)
+
+    @unittest.mock.patch('sortinghat.core.jobs.rq.job.uuid4')
+    def test_unify_last_modified(self, mock_job_id_gen):
+        """Check if unify is applied only for the individuals modified after a date"""
+
+        mock_job_id_gen.return_value = "1234-5678-90AB-CDEF"
+
+        client = graphene.test.Client(schema)
+
+        timestamp = datetime_utcnow()
+
+        new_identity = api.add_identity(self.ctx,
+                                        email='jsmith.alt@example.com',
+                                        source='alt',
+                                        uuid=self.js_alt.uuid)
+
+        params = {
+            'lastModified': timestamp,
+            'criteria': ['email', 'name', 'username']
+        }
+
+        executed = client.execute(self.SH_UNIFY,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        # Check if the job was run and individuals were merged
+        job_id = executed['data']['unify']['jobId']
+        self.assertEqual(job_id, "1234-5678-90AB-CDEF")
+
+        # Checking if the identities have been merged
+        # Individual 1
+        individual_db_1 = Individual.objects.get(mk=self.js_alt.uuid)
+        identities = individual_db_1.identities.all()
+        self.assertEqual(len(identities), 8)
+
+        id1 = identities[0]
+        self.assertEqual(id1, self.jsm2)
+
+        id2 = identities[1]
+        self.assertEqual(id2, self.js_alt)
+
+        id3 = identities[2]
+        self.assertEqual(id3, self.js_alt4)
+
+        id4 = identities[3]
+        self.assertEqual(id4, self.js_alt3)
+
+        id5 = identities[4]
+        self.assertEqual(id5, self.jsmith)
+
+        id6 = identities[5]
+        self.assertEqual(id6, self.jsm3)
+
+        id7 = identities[6]
+        self.assertEqual(id7, new_identity)
+
+        id8 = identities[7]
+        self.assertEqual(id8, self.js_alt2)
+
+        # Individual 2
+        individual_db_2 = Individual.objects.get(mk=self.john_smith.uuid)
+        identities = individual_db_2.identities.all()
+        self.assertEqual(len(identities), 3)
+
+        id1 = identities[0]
+        self.assertEqual(id1, self.john_smith)
+
+        id2 = identities[1]
+        self.assertEqual(id2, self.js2)
+
+        id3 = identities[2]
+        self.assertEqual(id3, self.js3)
+
+        # Individual 3
+        individual_db_3 = Individual.objects.get(mk=self.jrae.uuid)
+        identities = individual_db_3.identities.all()
+        self.assertEqual(len(identities), 3)
+
+        id1 = identities[0]
+        self.assertEqual(id1, self.jrae2)
+
+        id2 = identities[1]
+        self.assertEqual(id2, self.jrae3)
+
+        id3 = identities[2]
+        self.assertEqual(id3, self.jrae)
+
+        # Individual 4
+        individual_db_4 = Individual.objects.get(mk=self.jane_rae.uuid)
+        identities = individual_db_4.identities.all()
+        self.assertEqual(len(identities), 2)
+
+        id1 = identities[0]
+        self.assertEqual(id1, self.jane_rae)
+
+        id2 = identities[1]
+        self.assertEqual(id2, self.jr2)
 
     @unittest.mock.patch('sortinghat.core.jobs.rq.job.uuid4')
     def test_unify_exclude(self, mock_job_id_gen):

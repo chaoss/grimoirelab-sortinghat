@@ -95,7 +95,8 @@ from .models import (Organization,
                      AffiliationRecommendation,
                      MergeRecommendation,
                      GenderRecommendation,
-                     ScheduledTask)
+                     ScheduledTask,
+                     MIN_PERIOD_DATE)
 from .recommendations.exclusion import delete_recommend_exclusion_term, add_recommender_exclusion_term
 
 
@@ -1047,17 +1048,18 @@ class RecommendAffiliations(graphene.Mutation):
     class Arguments:
         uuids = graphene.List(graphene.String,
                               required=False)
+        last_modified = graphene.DateTime(required=False)
 
     job_id = graphene.Field(lambda: graphene.String)
 
     @check_permissions('core.execute_job')
     @check_auth
-    def mutate(self, info, uuids=None):
+    def mutate(self, info, uuids=None, last_modified=MIN_PERIOD_DATE):
         user = info.context.user
         tenant = get_db_tenant()
         ctx = SortingHatContext(user=user, tenant=tenant)
 
-        job = enqueue(recommend_affiliations, ctx, uuids, job_timeout=-1)
+        job = enqueue(recommend_affiliations, ctx, uuids, last_modified, job_timeout=-1)
 
         return RecommendAffiliations(
             job_id=job.id
@@ -1074,17 +1076,30 @@ class RecommendMatches(graphene.Mutation):
         verbose = graphene.Boolean(required=False)
         exclude = graphene.Boolean(required=False)
         strict = graphene.Boolean(required=False)
+        last_modified = graphene.DateTime(required=False)
 
     job_id = graphene.Field(lambda: graphene.String)
 
     @check_permissions('core.execute_job')
     @check_auth
-    def mutate(self, info, criteria, source_uuids=None, target_uuids=None, exclude=True, verbose=False, strict=True):
+    def mutate(self, info, criteria,
+               source_uuids=None, target_uuids=None,
+               exclude=True, verbose=False, strict=True,
+               last_modified=MIN_PERIOD_DATE):
         user = info.context.user
         tenant = get_db_tenant()
         ctx = SortingHatContext(user=user, tenant=tenant)
 
-        job = enqueue(recommend_matches, ctx, source_uuids, target_uuids, criteria, exclude, verbose, strict, job_timeout=-1)
+        job = enqueue(recommend_matches,
+                      ctx,
+                      source_uuids,
+                      target_uuids,
+                      criteria,
+                      exclude,
+                      verbose,
+                      strict,
+                      last_modified,
+                      job_timeout=-1)
 
         return RecommendMatches(
             job_id=job.id
@@ -1117,17 +1132,18 @@ class Affiliate(graphene.Mutation):
     class Arguments:
         uuids = graphene.List(graphene.String,
                               required=False)
+        last_modified = graphene.DateTime(required=False)
 
     job_id = graphene.Field(lambda: graphene.String)
 
     @check_permissions('core.execute_job')
     @check_auth
-    def mutate(self, info, uuids=None):
+    def mutate(self, info, uuids=None, last_modified=MIN_PERIOD_DATE):
         user = info.context.user
         tenant = get_db_tenant()
         ctx = SortingHatContext(user=user, tenant=tenant)
 
-        job = enqueue(affiliate, ctx, uuids, job_timeout=-1)
+        job = enqueue(affiliate, ctx, uuids, last_modified, job_timeout=-1)
 
         return Affiliate(
             job_id=job.id
@@ -1143,17 +1159,21 @@ class Unify(graphene.Mutation):
         criteria = graphene.List(graphene.String)
         exclude = graphene.Boolean(required=False)
         strict = graphene.Boolean(required=False)
+        last_modified = graphene.DateTime(required=False)
 
     job_id = graphene.Field(lambda: graphene.String)
 
     @check_permissions('core.execute_job')
     @check_auth
-    def mutate(self, info, criteria, source_uuids=None, target_uuids=None, exclude=True, strict=True):
+    def mutate(self, info, criteria,
+               source_uuids=None, target_uuids=None,
+               exclude=True, strict=True,
+               last_modified=MIN_PERIOD_DATE):
         user = info.context.user
         tenant = get_db_tenant()
         ctx = SortingHatContext(user=user, tenant=tenant)
 
-        job = enqueue(unify, ctx, criteria, source_uuids, target_uuids, exclude, strict, job_timeout=-1)
+        job = enqueue(unify, ctx, criteria, source_uuids, target_uuids, exclude, strict, last_modified, job_timeout=-1)
 
         return Unify(
             job_id=job.id

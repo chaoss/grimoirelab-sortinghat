@@ -30,7 +30,7 @@ from django.forms.models import model_to_dict
 
 from ..db import (find_individual_by_uuid)
 from ..errors import NotFoundError
-from ..models import Identity
+from ..models import Identity, MIN_PERIOD_DATE
 
 from .exclusion import fetch_recommender_exclusion_list
 
@@ -40,7 +40,10 @@ EMAIL_ADDRESS_REGEX = r"^(?P<email>[^\s@]+@[^\s@.]+\.[^\s@]+)$"
 NAME_REGEX = r"^\w+\s\w+"
 
 
-def recommend_matches(source_uuids, target_uuids, criteria, exclude=True, verbose=False, strict=True):
+def recommend_matches(source_uuids, target_uuids,
+                      criteria, exclude=True,
+                      verbose=False, strict=True,
+                      last_modified=MIN_PERIOD_DATE):
     """Recommend identity matches for a list of individuals.
 
     Returns a generator of identity matches recommendations
@@ -75,6 +78,8 @@ def recommend_matches(source_uuids, target_uuids, criteria, exclude=True, verbos
     :param verbose: if set to `True`, the list of results will include individual
     identities. Otherwise, results will include main keys from individuals
     :param strict: strict matching with well-formed email addresses and names
+    :param last_modified: generate recommendations only for individuals modified after
+        this date
 
     :returns: a generator of recommendations
     """
@@ -106,7 +111,7 @@ def recommend_matches(source_uuids, target_uuids, criteria, exclude=True, verbos
             aliases[uuid] = [identity.uuid for identity in identities]
             input_set.update(identities)
     else:
-        identities = Identity.objects.select_related('individual').all()
+        identities = Identity.objects.select_related('individual').filter(individual__last_modified__gte=last_modified)
         input_set.update(identities)
         for identity in identities:
             aliases[identity.individual.mk].append(identity.uuid)
