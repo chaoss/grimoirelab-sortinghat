@@ -56,6 +56,12 @@
               outlined
             />
             <v-checkbox
+              v-model="forms.unify.strict"
+              label="Exclude individuals with invalid email adresses and names"
+              id="unify_strict"
+              hide-details
+            />
+            <v-checkbox
               v-model="forms.unify.exclude"
               label="Exclude individuals in RecommenderExclusionTerm list"
               id="unify_exclude"
@@ -73,6 +79,12 @@
               hide-details
               multiple
               outlined
+            />
+            <v-checkbox
+              v-model="forms.recommendMatches.strict"
+              label="Exclude individuals with invalid email adresses and names"
+              id="recommend_strict"
+              hide-details
             />
             <v-checkbox
               v-model="forms.recommendMatches.exclude"
@@ -132,10 +144,12 @@ const defaultForms = {
   unify: {
     criteria: ["name", "email", "username"],
     exclude: true,
+    strict: true,
   },
   recommendMatches: {
     criteria: ["name", "email", "username"],
     exclude: true,
+    strict: true,
   },
 };
 

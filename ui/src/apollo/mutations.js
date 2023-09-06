@@ -286,8 +286,8 @@ const GENDERIZE = gql`
 `;
 
 const UNIFY = gql`
-  mutation unify($criteria: [String], $exclude: Boolean) {
-    unify(criteria: $criteria, exclude: $exclude) {
+  mutation unify($criteria: [String], $exclude: Boolean, $strict: Boolean) {
+    unify(criteria: $criteria, exclude: $exclude, strict: $strict) {
       jobId
     }
   }
@@ -309,11 +309,13 @@ const RECOMMEND_MATCHES = gql`
     $criteria: [String]
     $exclude: Boolean
     $sourceUuids: [String]
+    $strict: Boolean
   ) {
     recommendMatches(
       criteria: $criteria
       exclude: $exclude
       sourceUuids: $sourceUuids
+      strict: $strict
     ) {
       jobId
     }
@@ -614,12 +616,13 @@ const genderize = (apollo, exclude, noStrictMatching, uuids) => {
   });
 };
 
-const unify = (apollo, criteria, exclude) => {
+const unify = (apollo, criteria, exclude, strict) => {
   return apollo.mutate({
     mutation: UNIFY,
     variables: {
       criteria: criteria,
       exclude: exclude,
+      strict: strict,
     },
   });
 };
@@ -634,13 +637,14 @@ const manageMergeRecommendation = (apollo, id, apply) => {
   });
 };
 
-const recommendMatches = (apollo, criteria, exclude, sourceUuids) => {
+const recommendMatches = (apollo, criteria, exclude, strict, sourceUuids) => {
   return apollo.mutate({
     mutation: RECOMMEND_MATCHES,
     variables: {
       criteria: criteria,
       exclude: exclude,
       sourceUuids: sourceUuids,
+      strict: strict,
     },
   });
 };

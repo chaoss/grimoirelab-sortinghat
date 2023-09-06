@@ -41,6 +41,12 @@
         <v-divider></v-divider>
         <div class="my-4">
           <v-checkbox
+            v-model="form.strict"
+            label="Strict matching criteria"
+            dense
+            hide-details
+          />
+          <v-checkbox
             v-model="form.exclude"
             label="Exclude individuals in RecommenderExclusionTerm list"
             dense
@@ -87,6 +93,7 @@ export default {
       form: {
         criteria: ["name", "email", "username"],
         exclude: true,
+        strict: true,
       },
       jobId: null,
       error: null,
@@ -98,6 +105,7 @@ export default {
       this.form = {
         criteria: ["name", "email", "username"],
         exclude: true,
+        strict: true,
       };
       this.error = null;
       this.jobId = null;
@@ -107,6 +115,7 @@ export default {
         const response = await this.recommendMatches(
           this.form.criteria,
           this.form.exclude,
+          this.form.strict,
           [this.uuid]
         );
         this.jobId = response.data.recommendMatches.jobId;
