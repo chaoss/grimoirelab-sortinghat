@@ -139,6 +139,12 @@
                   dense
                   hide-details
                 />
+                <v-checkbox
+                  v-model="tasks.unify.params.strict"
+                  label="Exclude individuals with invalid email adresses and names"
+                  dense
+                  hide-details
+                />
               </v-col>
             </v-row>
             <v-row class="ma-0 pl-2">
@@ -251,6 +257,7 @@ export default {
           params: {
             criteria: ["name", "email", "username"],
             exclude: true,
+            strict: true,
           },
         },
       },

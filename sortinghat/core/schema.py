@@ -1073,17 +1073,18 @@ class RecommendMatches(graphene.Mutation):
         criteria = graphene.List(graphene.String)
         verbose = graphene.Boolean(required=False)
         exclude = graphene.Boolean(required=False)
+        strict = graphene.Boolean(required=False)
 
     job_id = graphene.Field(lambda: graphene.String)
 
     @check_permissions('core.execute_job')
     @check_auth
-    def mutate(self, info, criteria, source_uuids=None, target_uuids=None, exclude=True, verbose=False):
+    def mutate(self, info, criteria, source_uuids=None, target_uuids=None, exclude=True, verbose=False, strict=True):
         user = info.context.user
         tenant = get_db_tenant()
         ctx = SortingHatContext(user=user, tenant=tenant)
 
-        job = enqueue(recommend_matches, ctx, source_uuids, target_uuids, criteria, exclude, verbose, job_timeout=-1)
+        job = enqueue(recommend_matches, ctx, source_uuids, target_uuids, criteria, exclude, verbose, strict, job_timeout=-1)
 
         return RecommendMatches(
             job_id=job.id
@@ -1141,17 +1142,18 @@ class Unify(graphene.Mutation):
                                      required=False)
         criteria = graphene.List(graphene.String)
         exclude = graphene.Boolean(required=False)
+        strict = graphene.Boolean(required=False)
 
     job_id = graphene.Field(lambda: graphene.String)
 
     @check_permissions('core.execute_job')
     @check_auth
-    def mutate(self, info, criteria, source_uuids=None, target_uuids=None, exclude=True):
+    def mutate(self, info, criteria, source_uuids=None, target_uuids=None, exclude=True, strict=True):
         user = info.context.user
         tenant = get_db_tenant()
         ctx = SortingHatContext(user=user, tenant=tenant)
 
-        job = enqueue(unify, ctx, criteria, source_uuids, target_uuids, exclude, job_timeout=-1)
+        job = enqueue(unify, ctx, criteria, source_uuids, target_uuids, exclude, strict, job_timeout=-1)
 
         return Unify(
             job_id=job.id

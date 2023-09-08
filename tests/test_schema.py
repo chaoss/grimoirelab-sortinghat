@@ -9677,10 +9677,12 @@ class TestUnifyMutation(django.test.TestCase):
     SH_UNIFY = """
         mutation unify($sourceUuids: [String],
                        $targetUuids: [String],
-                       $criteria: [String]) {
+                       $criteria: [String],
+                       $strict: Boolean) {
             unify(sourceUuids: $sourceUuids,
                   targetUuids: $targetUuids,
-                  criteria: $criteria) {
+                  criteria: $criteria,
+                  strict: $strict) {
                 jobId
             }
         }
@@ -9787,7 +9789,8 @@ class TestUnifyMutation(django.test.TestCase):
                             self.js_alt.uuid, self.js_alt2.uuid,
                             self.js_alt3.uuid, self.js_alt4.uuid,
                             self.jrae.uuid, self.jrae2.uuid, self.jrae3.uuid],
-            'criteria': ['email', 'name', 'username']
+            'criteria': ['email', 'name', 'username'],
+            'strict': False
         }
 
         executed = client.execute(self.SH_UNIFY,
@@ -9868,7 +9871,8 @@ class TestUnifyMutation(django.test.TestCase):
                             self.js_alt.uuid, self.js_alt2.uuid,
                             self.js_alt3.uuid, self.js_alt4.uuid,
                             self.jrae.uuid, self.jrae2.uuid, self.jrae3.uuid],
-            'criteria': ['email', 'name', 'username']
+            'criteria': ['email', 'name', 'username'],
+            'strict': False
         }
 
         # Add jsmith@example.com to RecommenderExclusionTerm
@@ -9939,6 +9943,78 @@ class TestUnifyMutation(django.test.TestCase):
 
         id5 = identities[4]
         self.assertEqual(id5, self.jr2)
+
+    @unittest.mock.patch('sortinghat.core.jobs.rq.job.uuid4')
+    def test_unify_strict(self, mock_job_id_gen):
+        """Check if unify is applied for the specified individuals with strict criteria"""
+        mock_job_id_gen.return_value = "1234-5678-90AB-CDEF"
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'sourceUuids': [self.js_alt.uuid],
+            'targetUuids': [self.jsmith.uuid],
+            'criteria': ['name'],
+            'strict': True
+        }
+
+        executed = client.execute(self.SH_UNIFY,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        # Check if the job was run
+        job_id = executed['data']['unify']['jobId']
+        self.assertEqual(job_id, "1234-5678-90AB-CDEF")
+
+        # Checking if the identities have not been merged
+        # Individual 1
+        individual_db_1 = Individual.objects.get(mk=self.jsmith.uuid)
+        identities = individual_db_1.identities.all()
+        self.assertEqual(len(identities), 3)
+
+        id1 = identities[0]
+        self.assertEqual(id1, self.jsm2)
+
+        id2 = identities[1]
+        self.assertEqual(id2, self.jsmith)
+
+        id3 = identities[2]
+        self.assertEqual(id3, self.jsm3)
+
+        # Individual 4
+        individual_db_4 = Individual.objects.get(mk=self.js_alt.uuid)
+        identities = individual_db_4.identities.all()
+
+        self.assertEqual(len(identities), 4)
+
+        id1 = identities[0]
+        self.assertEqual(id1, self.js_alt)
+
+        id2 = identities[1]
+        self.assertEqual(id2, self.js_alt4)
+
+        id3 = identities[2]
+        self.assertEqual(id3, self.js_alt3)
+
+        id4 = identities[3]
+        self.assertEqual(id4, self.js_alt2)
+
+        # Check that they are merged if 'strict' is disabled
+        params = {
+            'sourceUuids': [self.js_alt.uuid],
+            'targetUuids': [self.jsmith.uuid],
+            'criteria': ['name'],
+            'strict': False
+        }
+
+        executed = client.execute(self.SH_UNIFY,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        individual_db_1 = Individual.objects.get(mk=self.js_alt.uuid)
+        identities = individual_db_1.identities.all()
+
+        self.assertEqual(len(identities), 7)
 
     @unittest.mock.patch('sortinghat.core.jobs.rq.job.uuid4')
     def test_unify_source_not_mk(self, mock_job_id_gen):

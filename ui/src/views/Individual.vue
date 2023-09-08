@@ -674,11 +674,12 @@ export default {
         this.$logger.error(`Error applying recommendation ${id}: ${error}`);
       }
     },
-    async recommendMatches(criteria, exclude, uuid) {
+    async recommendMatches(criteria, exclude, strict, uuid) {
       const response = await recommendMatches(
         this.$apollo,
         criteria,
         exclude,
+        strict,
         uuid
       );
       return response;
