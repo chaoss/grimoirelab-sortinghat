@@ -80,39 +80,41 @@
                 <v-icon small right> mdi-lead-pencil </v-icon>
               </button>
             </template>
-            <v-date-picker
-              v-model="enrollment.form.fromDate"
-              :max="enrollment.end"
-              color="primary"
-              no-title
-              scrollable
-            >
-              <v-spacer></v-spacer>
-              <v-btn
-                text
-                color="primary"
-                @click="enrollment.form.fromDateMenu = false"
-              >
-                Cancel
-              </v-btn>
-              <v-btn
-                text
-                color="primary"
-                @click="
-                  $emit('updateEnrollment', {
-                    fromDate: enrollment.start,
-                    toDate: enrollment.end,
-                    newFromDate: new Date(
-                      enrollment.form.fromDate
-                    ).toISOString(),
-                    group: enrollment.group.name,
-                  });
-                  enrollment.form.fromDateMenu = false;
-                "
-              >
-                Save
-              </v-btn>
-            </v-date-picker>
+            <v-card>
+              <v-card-text>
+                <date-input
+                  v-model="enrollment.form.fromDate"
+                  label="Date from"
+                  :max="enrollment.end"
+                />
+              </v-card-text>
+              <v-card-actions class="pt-0">
+                <v-spacer></v-spacer>
+                <v-btn
+                  text
+                  color="primary"
+                  @click="enrollment.form.fromDateMenu = false"
+                >
+                  Cancel
+                </v-btn>
+                <v-btn
+                  :disabled="!enrollment.form.fromDate"
+                  color="primary"
+                  text
+                  @click="
+                    $emit('updateEnrollment', {
+                      fromDate: enrollment.start,
+                      toDate: enrollment.end,
+                      newFromDate: enrollment.form.fromDate,
+                      group: enrollment.group.name,
+                    });
+                    enrollment.form.fromDateMenu = false;
+                  "
+                >
+                  Save
+                </v-btn>
+              </v-card-actions>
+            </v-card>
           </v-menu>
           -
           <v-menu
@@ -136,37 +138,41 @@
                 <v-icon small right> mdi-lead-pencil </v-icon>
               </button>
             </template>
-            <v-date-picker
-              v-model="enrollment.form.toDate"
-              :min="enrollment.start"
-              color="primary"
-              no-title
-              scrollable
-            >
-              <v-spacer></v-spacer>
-              <v-btn
-                text
-                color="primary"
-                @click="enrollment.form.toDateMenu = false"
-              >
-                Cancel
-              </v-btn>
-              <v-btn
-                text
-                color="primary"
-                @click="
-                  $emit('updateEnrollment', {
-                    fromDate: enrollment.start,
-                    toDate: enrollment.end,
-                    newToDate: new Date(enrollment.form.toDate).toISOString(),
-                    group: enrollment.group.name,
-                  });
-                  enrollment.form.toDateMenu = false;
-                "
-              >
-                Save
-              </v-btn>
-            </v-date-picker>
+            <v-card>
+              <v-card-text>
+                <date-input
+                  v-model="enrollment.form.toDate"
+                  :min="enrollment.start"
+                  label="Date to"
+                />
+              </v-card-text>
+              <v-card-actions class="pt-0">
+                <v-spacer></v-spacer>
+                <v-btn
+                  text
+                  color="primary"
+                  @click="enrollment.form.toDateMenu = false"
+                >
+                  Cancel
+                </v-btn>
+                <v-btn
+                  :disabled="!enrollment.form.toDate"
+                  color="primary"
+                  text
+                  @click="
+                    $emit('updateEnrollment', {
+                      fromDate: enrollment.start,
+                      toDate: enrollment.end,
+                      newToDate: enrollment.form.toDate,
+                      group: enrollment.group.name,
+                    });
+                    enrollment.form.toDateMenu = false;
+                  "
+                >
+                  Save
+                </v-btn>
+              </v-card-actions>
+            </v-card>
           </v-menu>
         </div>
         <div>
@@ -352,8 +358,11 @@
 </template>
 
 <script>
+import DateInput from "./DateInput.vue";
+
 export default {
   name: "EnrollmentList",
+  components: { DateInput },
   props: {
     enrollments: {
       type: Array,
