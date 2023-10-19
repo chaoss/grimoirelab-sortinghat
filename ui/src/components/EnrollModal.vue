@@ -13,7 +13,9 @@
           <v-col v-if="!organization" cols="4">
             <organization-selector
               v-model="form.organization"
+              :add-organization="addOrganization"
               :fetch-organizations="fetchOrganizations"
+              @error="($event) => (errorMessage = $event)"
             />
           </v-col>
           <v-col :cols="organization ? 6 : 4">
@@ -75,6 +77,11 @@ export default {
     organization: {
       type: String,
       required: false,
+    },
+    addOrganization: {
+      type: Function,
+      required: false,
+      default: () => {},
     },
     fetchOrganizations: {
       type: Function,

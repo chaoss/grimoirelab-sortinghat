@@ -10,6 +10,7 @@ const template = `
     <organization-selector
       v-model="model"
       :fetch-organizations="fetchOrganizations"
+      :add-organization="addOrganization"
     />
   </div>
 `;
@@ -52,6 +53,17 @@ export const Default = () => ({
       }
       return results;
     },
+    addOrganization(name) {
+      return {
+        data: {
+          addOrganization: {
+            organization: {
+              name: name
+            }
+          }
+        }
+      }
+    }
   },
 });
 
@@ -72,5 +84,16 @@ export const SelectedOrganization = () => ({
       }
       return results;
     },
+    addOrganization(name) {
+      return {
+        data: {
+          addOrganization: {
+            organization: {
+              name: name
+            }
+          }
+        }
+      }
+    }
   },
 });

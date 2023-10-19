@@ -17,6 +17,7 @@ const ProfileModalTemplate = `
       :enroll="mockFunction"
       :fetch-organizations="mockFunction"
       :get-countries="getCountries.bind(this)"
+      :add-organization="mockFunction"
     />
   </div>
 `;

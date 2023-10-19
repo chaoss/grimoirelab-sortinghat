@@ -237,6 +237,7 @@
       :enroll="enroll"
       :get-countries="getCountries"
       :fetch-organizations="fetchOrganizations"
+      :add-organization="addOrganization"
       @updateTable="queryIndividuals"
       @updateOrganizations="$emit('updateOrganizations')"
     />
@@ -249,6 +250,7 @@
       :uuid="enrollmentModal.uuid"
       :enroll="enrollIndividual"
       :fetch-organizations="fetchOrganizations"
+      :add-organization="addOrganization"
     />
 
     <team-enroll-modal

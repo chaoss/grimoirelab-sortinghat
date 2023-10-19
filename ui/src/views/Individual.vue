@@ -330,6 +330,7 @@
       :uuid="mk"
       :enroll="enrollIndividual"
       :fetch-organizations="fetchOrganizations"
+      :add-organization="addOrganization"
     />
 
     <team-enroll-modal

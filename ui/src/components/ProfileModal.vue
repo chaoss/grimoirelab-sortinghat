@@ -88,6 +88,7 @@
               <organization-selector
                 v-model="enrollmentsForm[index].organization"
                 :fetch-organizations="fetchOrganizations"
+                :add-organization="addOrganization"
               />
             </v-col>
             <v-col cols="3">
@@ -175,6 +176,10 @@ export default {
       required: true,
     },
     fetchOrganizations: {
+      type: Function,
+      required: true,
+    },
+    addOrganization: {
       type: Function,
       required: true,
     },

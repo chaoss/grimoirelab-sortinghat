@@ -1,4 +1,5 @@
 import { formatIndividuals } from "../utils/actions";
+import { addOrganization } from "../apollo/mutations";
 
 const enrollMixin = {
   data() {
@@ -84,6 +85,10 @@ const enrollMixin = {
           uuid: null,
         });
       }
+    },
+    async addOrganization(name) {
+      const response = await addOrganization(this.$apollo, name);
+      return response;
     },
   },
 };
