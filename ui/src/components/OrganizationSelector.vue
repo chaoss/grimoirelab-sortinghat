@@ -6,12 +6,23 @@
     :label="label"
     item-text="name"
     item-value="name"
+    :no-data-text="`No matches for &quot;${search}&quot;`"
+    :hide-no-data="!search"
     clearable
     dense
-    hide-selected
-    hide-no-data
     outlined
-  ></v-autocomplete>
+  >
+    <template v-slot:append-item>
+      <v-list-item v-if="appendContent" @click="createOrganization">
+        <v-list-item-content>
+          <v-list-item-title>
+            <span class="font-weight-regular">Create</span>
+            {{ search }}
+          </v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+    </template>
+  </v-autocomplete>
 </template>
 
 <script>
@@ -29,6 +40,10 @@ export default {
       type: String,
       required: false,
     },
+    addOrganization: {
+      type: Function,
+      required: true,
+    },
     fetchOrganizations: {
       type: Function,
       required: true,
@@ -41,10 +56,34 @@ export default {
   },
   methods: {
     async getSelectorItems(value) {
-      const response = await this.fetchOrganizations(1, 10, { term: value });
+      const filters = value ? { term: value } : {};
+      const response = await this.fetchOrganizations(1, 10, filters);
       if (response) {
         this.organizations = response.entities;
       }
+    },
+    async createOrganization() {
+      try {
+        const response = await this.addOrganization(this.search);
+        this.organizations.splice(0, 0, {
+          name: response.data.addOrganization.organization.name,
+        });
+        this.inputValue = this.search;
+        this.$logger.debug(`Created organization "${this.search}"`);
+      } catch (error) {
+        this.$logger.error(`Error creating organization: ${error}`);
+        this.$emit("error", this.$getErrorMessage(error));
+      }
+    },
+  },
+  computed: {
+    appendContent() {
+      return (
+        this.search &&
+        !this.organizations.some(
+          (org) => org.name.toLowerCase() === this.search.toLowerCase()
+        )
+      );
     },
   },
   watch: {
@@ -61,9 +100,7 @@ export default {
     },
   },
   mounted() {
-    if (this.value) {
-      this.getSelectorItems(this.value);
-    }
+    this.getSelectorItems(this.value);
   },
 };
 </script>

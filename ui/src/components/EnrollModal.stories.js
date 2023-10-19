@@ -15,6 +15,7 @@ const template = `
       :organization='organization'
       :enroll='enroll'
       :title='title'
+      :add-organization='addOrganization'
       uuid="123"
     />
   </div>
@@ -32,6 +33,17 @@ export const Default = () => ({
     enroll() {
       return true;
     },
+    addOrganization(name) {
+      return {
+        data: {
+          addOrganization: {
+            organization: {
+              name: name
+            }
+          }
+        }
+      }
+    }
   },
 });
 
@@ -47,5 +59,8 @@ export const WithOrganization = () => ({
     enroll() {
       return true;
     },
+    addOrganization() {
+      return;
+    }
   },
 });
