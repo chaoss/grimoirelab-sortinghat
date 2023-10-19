@@ -268,6 +268,7 @@ exports[`IndividualsTable Mock query for getCountries 1`] = `
    
   <profile-modal-stub
     addidentity="[Function]"
+    addorganization="[Function]"
     enroll="[Function]"
     fetchorganizations="[Function]"
     getcountries="[Function]"
@@ -275,6 +276,7 @@ exports[`IndividualsTable Mock query for getCountries 1`] = `
   />
    
   <enroll-modal-stub
+    addorganization="[Function]"
     enroll="[Function]"
     fetchorganizations="[Function]"
     text=""
@@ -566,6 +568,7 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
    
   <profile-modal-stub
     addidentity="[Function]"
+    addorganization="[Function]"
     enroll="[Function]"
     fetchorganizations="[Function]"
     getcountries="[Function]"
@@ -573,6 +576,7 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
   />
    
   <enroll-modal-stub
+    addorganization="[Function]"
     enroll="[Function]"
     fetchorganizations="[Function]"
     text=""

@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="isOpen" max-width="550px">
+  <v-dialog v-model="isOpen" :max-width="organization ? '550px' : '700px'">
     <v-card class="pa-3">
       <v-card-title class="headline">{{ title }}</v-card-title>
       <v-card-text>
@@ -10,7 +10,7 @@
           Enrollment dates (optional)
         </h6>
         <v-row>
-          <v-col v-if="!organization" cols="4">
+          <v-col v-if="!organization" cols="6">
             <organization-selector
               v-model="form.organization"
               :add-organization="addOrganization"
@@ -18,10 +18,10 @@
               @error="($event) => (errorMessage = $event)"
             />
           </v-col>
-          <v-col :cols="organization ? 6 : 4">
+          <v-col :cols="organization ? 6 : 3">
             <date-input v-model="form.dateFrom" label="Date from" outlined />
           </v-col>
-          <v-col :cols="organization ? 6 : 4">
+          <v-col :cols="organization ? 6 : 3">
             <date-input v-model="form.dateTo" label="Date to" outlined />
           </v-col>
         </v-row>

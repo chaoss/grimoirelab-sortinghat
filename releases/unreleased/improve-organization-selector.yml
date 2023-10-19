@@ -1,0 +1,11 @@
+---
+title: Improved organization selector
+category: added
+author: Eva Millán <evamillan@bitergia.com>
+issue: 820
+notes: >
+  The organization selector that is used to affiliate individuals
+  now has the option to create an organization if the desired one
+  is not found.
+  Its size is also increased to improve the readability of longer
+  names.

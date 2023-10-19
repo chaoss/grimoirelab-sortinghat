@@ -261,6 +261,7 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
    
   <profile-modal-stub
     addidentity="[Function]"
+    addorganization="[Function]"
     enroll="[Function]"
     fetchorganizations="[Function]"
     getcountries="[Function]"
@@ -268,6 +269,7 @@ exports[`IndividualsTable Mock query for deleteIdentity 1`] = `
   />
    
   <enroll-modal-stub
+    addorganization="[Function]"
     enroll="[Function]"
     fetchorganizations="[Function]"
     text=""
@@ -559,6 +561,7 @@ exports[`IndividualsTable Mock query for merge 1`] = `
    
   <profile-modal-stub
     addidentity="[Function]"
+    addorganization="[Function]"
     enroll="[Function]"
     fetchorganizations="[Function]"
     getcountries="[Function]"
@@ -566,6 +569,7 @@ exports[`IndividualsTable Mock query for merge 1`] = `
   />
    
   <enroll-modal-stub
+    addorganization="[Function]"
     enroll="[Function]"
     fetchorganizations="[Function]"
     text=""
@@ -857,6 +861,7 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
    
   <profile-modal-stub
     addidentity="[Function]"
+    addorganization="[Function]"
     enroll="[Function]"
     fetchorganizations="[Function]"
     getcountries="[Function]"
@@ -864,6 +869,7 @@ exports[`IndividualsTable Mock query for moveIdentity 1`] = `
   />
    
   <enroll-modal-stub
+    addorganization="[Function]"
     enroll="[Function]"
     fetchorganizations="[Function]"
     text=""
@@ -1155,6 +1161,7 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
    
   <profile-modal-stub
     addidentity="[Function]"
+    addorganization="[Function]"
     enroll="[Function]"
     fetchorganizations="[Function]"
     getcountries="[Function]"
@@ -1162,6 +1169,7 @@ exports[`IndividualsTable Mock query for unmerge 1`] = `
   />
    
   <enroll-modal-stub
+    addorganization="[Function]"
     enroll="[Function]"
     fetchorganizations="[Function]"
     text=""
@@ -1453,6 +1461,7 @@ exports[`IndividualsTable Mock query for updateEnrollment 1`] = `
    
   <profile-modal-stub
     addidentity="[Function]"
+    addorganization="[Function]"
     enroll="[Function]"
     fetchorganizations="[Function]"
     getcountries="[Function]"
@@ -1460,6 +1469,7 @@ exports[`IndividualsTable Mock query for updateEnrollment 1`] = `
   />
    
   <enroll-modal-stub
+    addorganization="[Function]"
     enroll="[Function]"
     fetchorganizations="[Function]"
     text=""
@@ -1751,6 +1761,7 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
    
   <profile-modal-stub
     addidentity="[Function]"
+    addorganization="[Function]"
     enroll="[Function]"
     fetchorganizations="[Function]"
     getcountries="[Function]"
@@ -1758,6 +1769,7 @@ exports[`IndividualsTable Mock query for withdraw 1`] = `
   />
    
   <enroll-modal-stub
+    addorganization="[Function]"
     enroll="[Function]"
     fetchorganizations="[Function]"
     text=""
