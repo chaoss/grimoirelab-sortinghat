@@ -1,8 +1,0 @@
----
-title: Text field to update enrollment dates
-category: added
-author: Eva Millán <evamillan@bitergia.com>
-issue: 819
-notes: >
-  Users have the option to enter the dates on a text
-  field when editing affiliations. 
