@@ -7,7 +7,7 @@ import VueApollo from "vue-apollo";
 import VueRouter from "vue-router";
 import { ApolloClient } from "apollo-client";
 import { createHttpLink } from "apollo-link-http";
-import { InMemoryCache } from "apollo-cache-inmemory";
+import { InMemoryCache, defaultDataIdFromObject } from "apollo-cache-inmemory";
 import Cookies from "js-cookie";
 import { ApolloLink } from "apollo-link";
 import Logger from "./plugins/logger";
@@ -26,7 +26,20 @@ fetch(API_URL, { credentials: "include" }).then(() => {
   });
 
   // Cache implementation
-  const cache = new InMemoryCache();
+  // Specify object IDs so Apollo can update the cache automatically
+  // https://www.apollographql.com/docs/react/v2/caching/cache-configuration/#custom-identifiers
+  const cache = new InMemoryCache({
+    dataIdFromObject: (object) => {
+      switch (object.__typename) {
+        case "IndividualType":
+          return object.mk;
+        case "IdentityType":
+          return object.uuid;
+        default:
+          return defaultDataIdFromObject(object);
+      }
+    },
+  });
 
   const AuthLink = (operation, next) => {
     const token = csrftoken;

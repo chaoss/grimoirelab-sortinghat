@@ -283,7 +283,7 @@ const getIndividualByUuid = (apollo, uuid) => {
     variables: {
       uuid: uuid,
     },
-    fetchPolicy: "no-cache",
+    fetchPolicy: "cache-first",
   });
   return response;
 };
@@ -328,7 +328,7 @@ const getPaginatedIndividuals = (
       filters: filters,
       orderBy: orderBy,
     },
-    fetchPolicy: "no-cache",
+    fetchPolicy: "cache-first",
   });
   return response;
 };

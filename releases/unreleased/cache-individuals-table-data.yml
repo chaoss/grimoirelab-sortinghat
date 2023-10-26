@@ -1,0 +1,14 @@
+---
+title: Cache individuals table data
+category: added
+author: Eva Millán <evamillan@bitergia.com>
+issue: 821
+notes: >
+  Using cached queries prevents the table from
+  refetching all the data from the server everytime
+  any information is edited. This is particularly
+  helpful if there is a huge number of identities,
+  where reloading the table is very slow.
+  However, there are some cases when the queries
+  need to be refetched, eg. when identities are
+  merged or split.
