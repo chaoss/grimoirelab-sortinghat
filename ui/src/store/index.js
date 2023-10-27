@@ -53,6 +53,17 @@ export default new Vuex.Store({
       localStorage.setItem("sh_workspace", JSON.stringify([]));
       commit("setWorkspace", []);
     },
+    togglePin({ commit, state }, uuid) {
+      const index = state.workspace.indexOf(uuid);
+      const workspace = state.workspace;
+      if (index === -1) {
+        workspace.push(uuid);
+      } else {
+        workspace.splice(index, 1);
+      }
+      commit("setWorkspace", workspace);
+      localStorage.setItem("sh_workspace", JSON.stringify(workspace));
+    },
   },
   modules: {},
 });

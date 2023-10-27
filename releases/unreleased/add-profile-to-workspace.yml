@@ -1,0 +1,10 @@
+---
+title: Add individual to workspace from their profile page
+category: added
+author: Eva Millán <evamillan@bitergia.com>
+issue: 816
+notes: >
+  A new button on the individual's profile page allows
+  users to save the identity in the workspace to continue
+  working with it later on the dashboard.
+  

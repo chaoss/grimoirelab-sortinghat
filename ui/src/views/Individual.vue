@@ -22,15 +22,15 @@
                       @save="updateProfile({ name: form.name })"
                       @cancel="form.name = individual.name"
                     >
-                      <button>
+                      <v-btn class="aligned focusable" icon small>
                         <v-icon
-                          class="icon--hidden aligned"
+                          class="icon--hidden"
                           aria-label="Edit name"
                           small
                         >
                           mdi-lead-pencil
                         </v-icon>
-                      </button>
+                      </v-btn>
                       <template v-slot:input>
                         <v-text-field
                           v-model="form.name"
@@ -40,85 +40,110 @@
                         ></v-text-field>
                       </template>
                     </v-edit-dialog>
-
-                    <v-tooltip
-                      bottom
-                      transition="expand-y-transition"
-                      open-delay="200"
-                    >
-                      <template v-slot:activator="{ on }">
-                        <v-btn
-                          v-show="!individual.isLocked"
-                          v-on="on"
-                          class="aligned focusable"
-                          icon
-                          small
-                          @click="updateProfile({ isBot: !individual.isBot })"
-                        >
-                          <v-icon
-                            :class="{ 'icon--hidden': !individual.isBot }"
-                            small
-                          >
-                            mdi-robot
-                          </v-icon>
-                        </v-btn>
-                      </template>
-                      <span>{{
-                        individual.isBot ? "Unmark as bot" : "Mark as bot"
-                      }}</span>
-                    </v-tooltip>
-                    <v-icon
-                      v-show="individual.isLocked && individual.isBot"
-                      class="aligned"
-                      small
-                      right
-                    >
-                      mdi-robot
-                    </v-icon>
                   </v-list-item-title>
-                  <v-list-item-subtitle>{{
-                    individual.organization
-                  }}</v-list-item-subtitle>
+                  <v-list-item-subtitle>
+                    {{ individual.organization }}
+                  </v-list-item-subtitle>
                 </v-list-item-content>
               </v-list-item>
             </v-col>
 
             <v-col cols="2" class="d-flex justify-end align-center mr-1">
-              <v-btn
-                class="mr-4"
-                text
-                small
-                outlined
-                @click="matchesModal.open = true"
-              >
-                <v-icon small left>mdi-lightbulb-on</v-icon>
-                Find matches
-              </v-btn>
-              <v-btn
-                v-if="individual.isLocked"
-                class="mr-4"
-                text
-                small
-                outlined
-                @click="unlock"
-              >
-                <v-icon small left>mdi-lock-open</v-icon>
-                Unlock
-              </v-btn>
-              <v-btn v-else class="mr-4" text small outlined @click="lock">
-                <v-icon small left>mdi-lock</v-icon>
-                Lock
-              </v-btn>
-              <v-btn
-                text
-                small
-                outlined
-                :disabled="individual.isLocked"
-                @click="confirmDelete"
-              >
-                <v-icon small left>mdi-delete</v-icon>
-                Delete
-              </v-btn>
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <v-btn
+                    :disabled="individual.isLocked"
+                    :aria-label="
+                      individual.isBot ? 'Unmark as bot' : 'Mark as bot'
+                    "
+                    v-on="on"
+                    class="mr-1"
+                    icon
+                    @click="updateProfile({ isBot: !individual.isBot })"
+                  >
+                    <v-icon dense>
+                      {{ individual.isBot ? "mdi-robot" : "mdi-robot-outline" }}
+                    </v-icon>
+                  </v-btn>
+                </template>
+                <span>
+                  {{ individual.isBot ? "Unmark as bot" : "Mark as bot" }}
+                </span>
+              </v-tooltip>
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <v-btn
+                    :aria-label="
+                      isInWorkspace ? 'In workspace' : 'Add to workspace'
+                    "
+                    class="mr-1"
+                    v-on="on"
+                    icon
+                    @click="$store.dispatch('togglePin', mk)"
+                  >
+                    <v-icon dense>
+                      {{ isInWorkspace ? "mdi-pin" : "mdi-pin-outline" }}
+                    </v-icon>
+                  </v-btn>
+                </template>
+                <span>
+                  {{ isInWorkspace ? "In workspace" : "Add to workspace" }}
+                </span>
+              </v-tooltip>
+              <v-tooltip v-if="individual.isLocked" bottom>
+                <template v-slot:activator="{ on }">
+                  <v-btn
+                    aria-label="Unlock"
+                    class="mr-1"
+                    v-on="on"
+                    icon
+                    @click="unlock"
+                  >
+                    <v-icon dense>mdi-lock</v-icon>
+                  </v-btn>
+                </template>
+                <span>Unlock</span>
+              </v-tooltip>
+              <v-tooltip v-else bottom>
+                <template v-slot:activator="{ on }">
+                  <v-btn
+                    aria-label="Lock"
+                    class="mr-1"
+                    v-on="on"
+                    icon
+                    @click="lock"
+                  >
+                    <v-icon dense>mdi-lock-outline</v-icon>
+                  </v-btn>
+                </template>
+                <span>Lock</span>
+              </v-tooltip>
+              <v-menu bottom left nudge-bottom="38">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn
+                    aria-label="See more actions"
+                    v-bind="attrs"
+                    v-on="on"
+                    icon
+                  >
+                    <v-icon dense>mdi-dots-vertical</v-icon>
+                  </v-btn>
+                </template>
+                <v-list dense>
+                  <v-list-item
+                    :disabled="individual.isLocked"
+                    @click="matchesModal.open = true"
+                  >
+                    <v-list-item-title>Find matches</v-list-item-title>
+                  </v-list-item>
+                  <v-list-item
+                    :disabled="individual.isLocked"
+                    @click="confirmDelete"
+                  >
+                    <v-list-item-title>Delete individual</v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
             </v-col>
           </v-row>
 
@@ -457,6 +482,10 @@ export default {
         this.individual.matchRecommendations.length > 0
       );
     },
+    isInWorkspace() {
+      const workspace = this.$store.getters.workspace;
+      return workspace.indexOf(this.mk) !== -1;
+    },
   },
   methods: {
     async fetchIndividual() {
@@ -723,19 +752,12 @@ export default {
     }
   }
 }
-.v-list-item__title {
-  ::v-deep .icon--hidden {
-    opacity: 0;
-    padding-bottom: 2px;
-  }
-  &:hover {
-    ::v-deep .icon--hidden {
-      opacity: 1;
-    }
-  }
-}
 
 .aligned {
   margin-bottom: 4px;
+}
+
+.v-btn--icon .v-icon--dense {
+  font-size: 20px;
 }
 </style>
