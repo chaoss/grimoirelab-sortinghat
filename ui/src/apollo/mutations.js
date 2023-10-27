@@ -14,10 +14,11 @@ const LOCK_INDIVIDUAL = gql`
     lock(uuid: $uuid) {
       uuid
       individual {
-        isLocked
+        ...individual
       }
     }
   }
+  ${FULL_INDIVIDUAL}
 `;
 
 const UNLOCK_INDIVIDUAL = gql`
@@ -25,10 +26,11 @@ const UNLOCK_INDIVIDUAL = gql`
     unlock(uuid: $uuid) {
       uuid
       individual {
-        isLocked
+        ...individual
       }
     }
   }
+  ${FULL_INDIVIDUAL}
 `;
 
 const DELETE_IDENTITY = gql`
@@ -411,6 +413,14 @@ const lockIndividual = (apollo, uuid) => {
     variables: {
       uuid: uuid,
     },
+    update: (cache) => {
+      // TODO: Use cache.evict() on Apollo v3
+      if (cache) {
+        Object.keys(cache.data.data || {})
+          .filter((name) => name.includes("lastModified"))
+          .forEach((name) => cache.data.delete(name));
+      }
+    },
   });
   return response;
 };
@@ -420,6 +430,13 @@ const unlockIndividual = (apollo, uuid) => {
     mutation: UNLOCK_INDIVIDUAL,
     variables: {
       uuid: uuid,
+    },
+    update: (cache) => {
+      if (cache) {
+        Object.keys(cache.data.data || {})
+          .filter((name) => name.includes("lastModified"))
+          .forEach((name) => cache.data.delete(name));
+      }
     },
   });
   return response;
@@ -431,6 +448,7 @@ const deleteIdentity = (apollo, uuid) => {
     variables: {
       uuid: uuid,
     },
+    update: (cache) => cache.reset(),
   });
   return response;
 };
@@ -442,6 +460,7 @@ const merge = (apollo, fromUuids, toUuid) => {
       fromUuids: fromUuids,
       toUuid: toUuid,
     },
+    update: (cache) => cache.reset(),
   });
   return response;
 };
@@ -452,6 +471,7 @@ const unmerge = (apollo, uuids) => {
     variables: {
       uuids: uuids,
     },
+    update: (cache) => cache.reset(),
   });
   return response;
 };
@@ -463,6 +483,7 @@ const moveIdentity = (apollo, fromUuid, toUuid) => {
       fromUuid: fromUuid,
       toUuid: toUuid,
     },
+    update: (cache) => cache.reset(),
   });
   return response;
 };
@@ -477,6 +498,15 @@ const enroll = (apollo, uuid, group, fromDate, toDate, parentOrg) => {
       toDate: toDate,
       parentOrg: parentOrg,
     },
+    update: (cache) => {
+      if (cache) {
+        Object.keys(cache.data.data || {})
+          .filter(
+            (name) => name.includes(group) || name.includes("lastModified")
+          )
+          .forEach((name) => cache.data.delete(name));
+      }
+    },
   });
   return response;
 };
@@ -490,6 +520,7 @@ const addIdentity = (apollo, email, name, source, username) => {
       source: source,
       username: username,
     },
+    update: (cache) => cache.reset(),
   });
   return response;
 };
@@ -500,6 +531,13 @@ const updateProfile = (apollo, data, uuid) => {
     variables: {
       data: data,
       uuid: uuid,
+    },
+    update: (cache) => {
+      if (cache) {
+        Object.keys(cache.data.data || {})
+          .filter((name) => name.includes("lastModified"))
+          .forEach((name) => cache.data.delete(name));
+      }
     },
   });
   return response;
@@ -557,6 +595,15 @@ const withdraw = (apollo, uuid, group, fromDate, toDate, parentOrg) => {
       toDate: toDate,
       parentOrg: parentOrg,
     },
+    update: (cache) => {
+      if (cache) {
+        Object.keys(cache.data.data || {})
+          .filter(
+            (name) => name.includes(group) || name.includes("lastModified")
+          )
+          .forEach((name) => cache.data.delete(name));
+      }
+    },
   });
   return response;
 };
@@ -591,6 +638,13 @@ const updateEnrollment = (apollo, data) => {
       toDate: data.toDate,
       uuid: data.uuid,
       parentOrg: data.parentOrg,
+    },
+    update: (cache) => {
+      if (cache) {
+        Object.keys(cache.data.data || {})
+          .filter((name) => name.includes("lastModified"))
+          .forEach((name) => cache.data.delete(name));
+      }
     },
   });
   return response;
@@ -634,6 +688,7 @@ const manageMergeRecommendation = (apollo, id, apply) => {
       recommendationId: id,
       apply: apply,
     },
+    update: (cache) => cache.reset(),
   });
 };
 
