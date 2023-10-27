@@ -1,0 +1,9 @@
+---
+title: Recommendations for individuals modified after a given date
+category: added
+author: Eva Millan <evamillan@bitergia.com>
+issue: 813
+notes: >
+  Users can generate merge and affiliation recommendations for
+  individuals that have been created or modified after a date
+  specified with the `last_modified` parameter.

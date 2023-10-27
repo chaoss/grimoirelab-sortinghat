@@ -23,6 +23,8 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 
+from grimoirelab_toolkit.datetime import datetime_utcnow
+
 from sortinghat.core import api
 from sortinghat.core.context import SortingHatContext
 from sortinghat.core.recommendations.matching import recommend_matches
@@ -237,6 +239,36 @@ class TestRecommendMatches(TestCase):
             result[key] = sorted(recs[key])
 
         self.assertEqual(len(result), 3)
+        self.assertDictEqual(result, expected)
+
+    def test_recommend_matches_last_modified(self):
+        """Check if recommendations are obtained for individuals modified after a date"""
+
+        timestamp = datetime_utcnow()
+
+        api.add_identity(self.ctx,
+                         username='john_smith',
+                         source='mls',
+                         uuid=self.js_alt.uuid)
+        # Test
+        expected = {
+            self.js_alt.uuid: sorted([self.jsmith.uuid])
+        }
+
+        criteria = ['email', 'name', 'username']
+
+        # Identities which don't have the fields in `criteria` won't be returned
+        recs = dict(recommend_matches(None,
+                                      None,
+                                      criteria,
+                                      last_modified=timestamp))
+
+        # Preserve results order for the comparison against the expected results
+        result = {}
+        for key in recs:
+            result[key] = sorted(recs[key])
+
+        self.assertEqual(len(result), 1)
         self.assertDictEqual(result, expected)
 
     def test_recommend_matches_verbose(self):

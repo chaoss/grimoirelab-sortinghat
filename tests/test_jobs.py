@@ -226,6 +226,35 @@ class TestRecommendAffiliations(TestCase):
             self.assertEqual(rec.individual.mk, uuids[0])
             self.assertIn(rec.organization.name, ['Bitergia', 'Example'])
 
+    def test_recommend_affiliations_last_modified(self):
+        """Check if recommendations are obtained only for individuals modified after a date"""
+        ctx = SortingHatContext(self.user)
+
+        # Test
+        expected = {
+            'results': {
+                'dc31d2afbee88a6d1dbc1ef05ec827b878067744': ['Bitergia', 'Example']
+            }
+        }
+
+        timestamp = datetime_utcnow()
+
+        api.add_identity(ctx,
+                         source='unknown',
+                         email='jsmith@bitergia.com',
+                         uuid=self.jsmith.uuid)
+
+        job = recommend_affiliations.delay(ctx, uuids=None, last_modified=timestamp)
+        result = job.result
+
+        self.assertDictEqual(result, expected)
+
+        recommendations = AffiliationRecommendation.objects.filter(individual__mk=self.jsmith.uuid)
+        self.assertEqual(len(recommendations), 2)
+        for rec in recommendations:
+            self.assertEqual(rec.individual.mk, self.jsmith.uuid)
+            self.assertIn(rec.organization.name, ['Bitergia', 'Example'])
+
     @unittest.mock.patch('sortinghat.core.api.find_individual_by_uuid')
     def test_not_found_uuid_error(self, mock_find_indv):
         """Check if the recommendation process returns no results when an individual is not found"""
@@ -373,6 +402,57 @@ class TestAffiliateIndividuals(TestCase):
 
         # John Doe was not affiliated
         individual_db = Individual.objects.get(mk=self.jdoe.uuid)
+        enrollments_db = individual_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 0)
+
+    def test_affiliate_last_modified(self):
+        """Check if only the individuals modified after a date are affiliated"""
+
+        ctx = SortingHatContext(self.user)
+
+        # Test
+        expected = {
+            'results': {
+                'dc31d2afbee88a6d1dbc1ef05ec827b878067744': ['Bitergia', 'Example']
+            },
+            'errors': []
+        }
+
+        timestamp = datetime_utcnow()
+
+        api.add_identity(ctx,
+                         source='unknown',
+                         email='jsmith@bitergia.com',
+                         uuid=self.jsmith.uuid)
+
+        job = affiliate.delay(ctx, uuids=None, last_modified=timestamp)
+        result = job.result
+
+        self.assertDictEqual(result, expected)
+
+        # Check database objects
+
+        # Only John Smith was affiliated
+        individual_db = Individual.objects.get(mk=self.jsmith.uuid)
+        enrollments_db = individual_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 2)
+
+        enrollment_db = enrollments_db[0]
+        self.assertEqual(enrollment_db.group.name, 'Example')
+        self.assertEqual(enrollment_db.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
+
+        enrollment_db = enrollments_db[1]
+        self.assertEqual(enrollment_db.group.name, 'Bitergia')
+        self.assertEqual(enrollment_db.start, datetime.datetime(1900, 1, 1, tzinfo=UTC))
+        self.assertEqual(enrollment_db.end, datetime.datetime(2100, 1, 1, tzinfo=UTC))
+
+        # Jane Roe and John Doe were not affiliated
+        individual_db = Individual.objects.get(mk=self.jdoe.uuid)
+        enrollments_db = individual_db.enrollments.all()
+        self.assertEqual(len(enrollments_db), 0)
+
+        individual_db = Individual.objects.get(mk=self.jroe.uuid)
         enrollments_db = individual_db.enrollments.all()
         self.assertEqual(len(enrollments_db), 0)
 
@@ -1248,6 +1328,42 @@ class TestUnify(TestCase):
         individual_2 = Individual.objects.get(mk=self.jrae.uuid)
         identities = individual_2.identities.all()
         self.assertEqual(len(identities), 5)
+
+    def test_unify_last_modified(self):
+        """Check if unify is applied only for individuals updated after a given date"""
+
+        ctx = SortingHatContext(self.user)
+
+        # Test
+        expected = {
+            'results': [self.js_alt.uuid],
+            'errors': []
+        }
+
+        criteria = ['email', 'name', 'username']
+
+        timestamp = datetime_utcnow()
+
+        api.add_identity(self.ctx,
+                         username='john_smith',
+                         source='mls',
+                         uuid=self.js_alt.uuid)
+
+        # Identities which don't have the fields in `criteria` or no matches won't be returned
+        job = unify.delay(ctx,
+                          criteria,
+                          None,
+                          None,
+                          exclude=False,
+                          last_modified=timestamp)
+
+        result = job.result
+        self.assertDictEqual(result, expected)
+
+        # Checking if the identities have been merged
+        individual_1 = Individual.objects.get(mk=self.js_alt.uuid)
+        identities = individual_1.identities.all()
+        self.assertEqual(len(identities), 8)
 
     def test_unify_source_not_mk(self):
         """Check if unify works when the provided uuid is not an Individual's main key"""

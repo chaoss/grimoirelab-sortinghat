@@ -41,7 +41,8 @@ from .models import (Individual,
                      AffiliationRecommendation,
                      MergeRecommendation,
                      GenderRecommendation,
-                     ScheduledTask)
+                     ScheduledTask,
+                     MIN_PERIOD_DATE)
 from .recommendations.engine import RecommendationEngine
 
 
@@ -126,7 +127,7 @@ def get_jobs(tenant=None):
 
 @django_rq.job
 @job_using_tenant
-def recommend_affiliations(ctx, uuids=None):
+def recommend_affiliations(ctx, uuids=None, last_modified=MIN_PERIOD_DATE):
     """Generate a list of affiliation recommendations from a set of individuals.
 
     This function generates a list of recommendations which include the
@@ -140,6 +141,8 @@ def recommend_affiliations(ctx, uuids=None):
 
     :param ctx: context where this job is run
     :param uuids: list of individuals identifiers
+    :param last_modified: generate recommendations only for individuals modified after
+        this date
 
     :returns: a dictionary with which individuals are recommended to be
         affiliated to which organization.
@@ -148,7 +151,7 @@ def recommend_affiliations(ctx, uuids=None):
 
     if not uuids:
         logger.info(f"Running job {job.id} 'recommend affiliations'; uuids='all'; ...")
-        uuids = Individual.objects.values_list('mk', flat=True).iterator()
+        uuids = Individual.objects.filter(last_modified__gte=last_modified).values_list('mk', flat=True).iterator()
     else:
         logger.info(f"Running job {job.id} 'recommend affiliations'; uuids={uuids}; ...")
         uuids = iter(uuids)
@@ -196,7 +199,10 @@ def recommend_affiliations(ctx, uuids=None):
 
 @django_rq.job
 @job_using_tenant
-def recommend_matches(ctx, source_uuids, target_uuids, criteria, exclude=True, verbose=False, strict=True):
+def recommend_matches(ctx, source_uuids,
+                      target_uuids, criteria,
+                      exclude=True, verbose=False,
+                      strict=True, last_modified=MIN_PERIOD_DATE):
     """Generate a list of affiliation recommendations from a set of individuals.
 
     This function generates a list of recommendations which include the
@@ -222,6 +228,8 @@ def recommend_matches(ctx, source_uuids, target_uuids, criteria, exclude=True, v
         RecommenderExclusionTerm table. Otherwise, results will not ignore them.
     :param verbose: if set to `True`, the match results will be composed by individual
         identities (even belonging to the same individual).
+    :param last_modified: generate recommendations only for individuals modified after
+        this date
 
     :returns: a dictionary with which individuals are recommended to be
         merged to which individual or which identities.
@@ -243,7 +251,7 @@ def recommend_matches(ctx, source_uuids, target_uuids, criteria, exclude=True, v
 
     trxl = TransactionsLog.open('recommend_matches', job_ctx)
 
-    for rec in engine.recommend('matches', source_uuids, target_uuids, criteria, exclude, verbose, strict):
+    for rec in engine.recommend('matches', source_uuids, target_uuids, criteria, exclude, verbose, strict, last_modified):
         results[rec.key] = list(rec.options)
         # Store matches in the database
         for match in rec.options:
@@ -333,7 +341,7 @@ def recommend_gender(ctx, uuids, exclude=True, no_strict_matching=False):
 
 @django_rq.job
 @job_using_tenant
-def affiliate(ctx, uuids=None):
+def affiliate(ctx, uuids=None, last_modified=MIN_PERIOD_DATE):
     """Affiliate a set of individuals using recommendations.
 
     This function automates the affiliation process obtaining
@@ -348,6 +356,8 @@ def affiliate(ctx, uuids=None):
 
     :param ctx: context where this job is run
     :param uuids: list of individuals identifiers
+    :param last_modified: only affiliate individuals that have been
+        modified after this date
 
     :returns: a dictionary with which individuals were enrolled
         and the errors found running the job
@@ -356,7 +366,7 @@ def affiliate(ctx, uuids=None):
 
     if not uuids:
         logger.info(f"Running job {job.id} 'affiliate'; uuids='all'; ...")
-        uuids = Individual.objects.values_list('mk', flat=True).iterator()
+        uuids = Individual.objects.filter(last_modified__gte=last_modified).values_list('mk', flat=True).iterator()
     else:
         logger.info(f"Running job {job.id} 'affiliate'; uuids={uuids}; ...")
         uuids = iter(uuids)
@@ -401,7 +411,7 @@ def affiliate(ctx, uuids=None):
 
 @django_rq.job
 @job_using_tenant
-def unify(ctx, criteria, source_uuids=None, target_uuids=None, exclude=True, strict=True):
+def unify(ctx, criteria, source_uuids=None, target_uuids=None, exclude=True, strict=True, last_modified=MIN_PERIOD_DATE):
     """Unify a set of individuals by merging them using matching recommendations.
 
     This function automates the identities unify process obtaining
@@ -425,6 +435,7 @@ def unify(ctx, criteria, source_uuids=None, target_uuids=None, exclude=True, str
     :param exclude: if set to `True`, the results list will ignore individual identities
         if any value from the `email`, `name`, or `username` fields are found in the
         RecommenderExclusionTerm table. Otherwise, results will not ignore them.
+    :param last_modified: only unify individuals that have been modified after this date
 
     :returns: a list with the individuals resulting from merge operations
         and the errors found running the job
@@ -471,7 +482,13 @@ def unify(ctx, criteria, source_uuids=None, target_uuids=None, exclude=True, str
     trxl = TransactionsLog.open('unify', job_ctx)
 
     match_recs = {}
-    for rec in engine.recommend('matches', source_uuids, target_uuids, criteria, exclude=exclude, strict=strict):
+    for rec in engine.recommend('matches',
+                                source_uuids,
+                                target_uuids,
+                                criteria,
+                                exclude=exclude,
+                                strict=strict,
+                                last_modified=last_modified):
         match_recs[rec.key] = list(rec.options)
 
     match_groups = _group_recommendations(match_recs)
