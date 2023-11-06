@@ -50,7 +50,7 @@ jobs:
           path: dist
 
       - name: Install Cosign
-        uses: sigstore/cosign-installer@9becc617647dfa20ae7b1151972e9b3a2c338a2b # v2.8.1
+        uses: sigstore/cosign-installer@11086d25041f77fe8fe7b9ea4e48e3b9192b8f19 # v3.1.2
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@e81a89b1732b9c48d79cd809d8d81d79c4647a18 # v2.1.0
@@ -76,6 +76,7 @@ jobs:
             type=semver,pattern={{version}},value=${{ inputs.version }}
 
       - name: Server Build and push
+        id: build-and-push
         uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671 # v4.0.0
         with:
           platforms: linux/amd64,linux/arm64
@@ -86,11 +87,12 @@ jobs:
 
       - name: Server Sign image with a key
         run: |
-          cosign sign --key env://COSIGN_PRIVATE_KEY ${TAGS}
+          echo "${TAGS}" | xargs -I {} cosign sign -y -r --key env://COSIGN_PRIVATE_KEY "{}@${DIGEST}"
         env:
           TAGS: ${{ steps.meta-server.outputs.tags }}
           COSIGN_PRIVATE_KEY: ${{secrets.COSIGN_PRIVATE_KEY}}
           COSIGN_PASSWORD: ${{secrets.COSIGN_PASSWORD}}
+          DIGEST: ${{ steps.build-and-push.outputs.digest }}
 
       - name: Worker Docker metadata
         id: meta-worker
@@ -102,6 +104,7 @@ jobs:
             type=semver,pattern={{version}},value=${{ inputs.version }}
 
       - name: Worker Build and push
+        id: build-and-push-worker
         uses: docker/build-push-action@3b5e8027fcad23fda98b2e3ac259d8d67585f671 # v4.0.0
         with:
           platforms: linux/amd64,linux/arm64
@@ -112,8 +115,9 @@ jobs:
 
       - name: Worker Sign image with a key
         run: |
-          cosign sign --key env://COSIGN_PRIVATE_KEY ${TAGS}
+          echo "${TAGS}" | xargs -I {} cosign sign -y -r --key env://COSIGN_PRIVATE_KEY "{}@${DIGEST}"
         env:
           TAGS: ${{ steps.meta-worker.outputs.tags }}
           COSIGN_PRIVATE_KEY: ${{secrets.COSIGN_PRIVATE_KEY}}
           COSIGN_PASSWORD: ${{secrets.COSIGN_PASSWORD}}
+          DIGEST: ${{ steps.build-and-push-worker.outputs.digest }}
