@@ -9,7 +9,7 @@ export default new Vuex.Store({
   state: {
     token: Cookies.get("sh_authtoken"),
     user: Cookies.get("sh_user"),
-    workspace: JSON.parse(localStorage.getItem("sh_workspace")),
+    workspace: JSON.parse(localStorage.getItem("sh_workspace")) || [],
   },
   mutations: {
     setToken(state, token) {
