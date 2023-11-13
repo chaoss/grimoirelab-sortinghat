@@ -484,7 +484,7 @@ export default {
     },
     isInWorkspace() {
       const workspace = this.$store.getters.workspace;
-      return workspace.indexOf(this.mk) !== -1;
+      return workspace && workspace.indexOf(this.mk) !== -1;
     },
   },
   methods: {
