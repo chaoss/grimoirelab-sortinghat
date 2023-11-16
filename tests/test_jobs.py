@@ -675,22 +675,21 @@ class TestRecommendMatches(TestCase):
         # Test
         expected = {
             'results': {
-                self.js_alt.uuid: sorted([self.jsmith.uuid, self.john_smith.uuid]),
-                self.jsmith.uuid: sorted([self.john_smith.uuid, self.js_alt.uuid]),
-                self.jrae_no_name.uuid: [],
-                self.jsmith_no_email.uuid: [],
-                self.john_smith.uuid: sorted([self.jsmith.uuid, self.js_alt.uuid]),
-                self.jrae.uuid: sorted([self.jane_rae.uuid]),
-                self.jane_rae.uuid: sorted([self.jrae.uuid]),
+                self.js_alt.individual.mk: sorted([self.jsmith.individual.mk]),
+                self.jsmith.individual.mk: sorted([self.john_smith.individual.mk, self.js_alt.individual.mk]),
+                self.jrae_no_name.individual.mk: [],
+                self.jsmith_no_email.individual.mk: [],
+                self.john_smith.individual.mk: sorted([self.jsmith.individual.mk]),
+                self.jrae.individual.mk: sorted([self.jane_rae.individual.mk]),
+                self.jane_rae.individual.mk: sorted([self.jrae.individual.mk]),
             }
         }
 
-        recommendations_expected = {
-            self.js_alt.individual.mk: [self.jsmith.individual.mk, self.john_smith.individual.mk],
-            self.jsmith.individual.mk: [self.john_smith.individual.mk],
-            self.jane_rae.individual.mk: [self.jrae.individual.mk],
-            self.jrae.individual.mk: [self.jane_rae.individual.mk]
-        }
+        recommendations_expected = [
+            sorted([self.js_alt.individual.mk, self.jsmith.individual.mk]),
+            sorted([self.jsmith.individual.mk, self.john_smith.individual.mk]),
+            sorted([self.jrae.individual.mk, self.jane_rae.individual.mk]),
+        ]
 
         criteria = ['email', 'name', 'username']
 
@@ -705,8 +704,13 @@ class TestRecommendMatches(TestCase):
             result['results'][key] = sorted(result['results'][key])
 
         self.assertDictEqual(result, expected)
-        for mr in MergeRecommendation.objects.all():
-            self.assertIn(mr.individual2.mk, recommendations_expected[mr.individual1.mk])
+
+        self.assertEqual(MergeRecommendation.objects.count(), 3)
+
+        for rec in recommendations_expected:
+            self.assertTrue(
+                MergeRecommendation.objects.filter(individual1=rec[0],
+                                                   individual2=rec[1]).exists())
 
         # Should have the same result as passing all the uuids
         all_source_uuids = [self.john_smith.uuid, self.jsmith.uuid,
@@ -731,28 +735,26 @@ class TestRecommendMatches(TestCase):
         # Test
         expected = {
             'results': {
-                self.js_alt.uuid: sorted([self.jsmith.uuid, self.john_smith.uuid, self.jsmith_no_email.uuid]),
-                self.jsmith.uuid: sorted([self.john_smith.uuid, self.js_alt.uuid, self.jsmith_no_email.uuid]),
-                self.jrae_no_name.uuid: sorted([self.jrae.uuid, self.jane_rae.uuid]),
-                self.jsmith_no_email.uuid: sorted([self.jsmith.uuid, self.john_smith.uuid, self.js_alt.uuid]),
-                self.john_smith.uuid: sorted([self.jsmith.uuid, self.js_alt.uuid, self.jsmith_no_email.uuid]),
-                self.jrae.uuid: sorted([self.jane_rae.uuid, self.jrae_no_name.uuid]),
-                self.jane_rae.uuid: sorted([self.jrae.uuid, self.jrae_no_name.uuid]),
+                self.js_alt.individual.mk: sorted([self.jsmith.individual.mk]),
+                self.jsmith.individual.mk: sorted([self.john_smith.individual.mk,
+                                                   self.js_alt.individual.mk]),
+                self.jrae_no_name.individual.mk: sorted([self.jrae.individual.mk]),
+                self.jsmith_no_email.individual.mk: sorted([self.john_smith.individual.mk]),
+                self.john_smith.individual.mk: sorted([self.jsmith.individual.mk,
+                                                       self.jsmith_no_email.individual.mk]),
+                self.jrae.individual.mk: sorted([self.jane_rae.individual.mk,
+                                                 self.jrae_no_name.individual.mk]),
+                self.jane_rae.individual.mk: sorted([self.jrae.individual.mk]),
             }
         }
 
-        recommendations_expected = {
-            self.js_alt.individual.mk: [self.jsmith.individual.mk,
-                                        self.john_smith.individual.mk,
-                                        self.jsmith_no_email.individual.mk],
-            self.jsmith.individual.mk: [self.john_smith.individual.mk, self.jsmith_no_email.individual.mk],
-            self.jrae_no_name.individual.mk: [self.jrae.individual.mk, self.jane_rae.individual.mk],
-            self.jsmith_no_email.individual.mk: [self.jsmith.individual.mk,
-                                                 self.john_smith.individual.mk,
-                                                 self.js_alt.individual.mk],
-            self.jane_rae.individual.mk: [self.jrae.individual.mk, self.jrae_no_name.individual.mk],
-            self.jrae.individual.mk: [self.jane_rae.individual.mk, self.jrae_no_name.individual.mk]
-        }
+        recommendations_expected = [
+            sorted([self.js_alt.individual.mk, self.jsmith.individual.mk]),
+            sorted([self.jsmith.individual.mk, self.john_smith.individual.mk]),
+            sorted([self.jrae_no_name.individual.mk, self.jrae.individual.mk]),
+            sorted([self.jsmith_no_email.individual.mk, self.john_smith.individual.mk]),
+            sorted([self.jrae.individual.mk, self.jane_rae.individual.mk]),
+        ]
 
         criteria = ['email', 'name', 'username']
 
@@ -768,8 +770,13 @@ class TestRecommendMatches(TestCase):
             result['results'][key] = sorted(result['results'][key])
 
         self.assertDictEqual(result, expected)
-        for mr in MergeRecommendation.objects.all():
-            self.assertIn(mr.individual2.mk, recommendations_expected[mr.individual1.mk])
+
+        self.assertEqual(MergeRecommendation.objects.count(), 5)
+
+        for rec in recommendations_expected:
+            self.assertTrue(
+                MergeRecommendation.objects.filter(individual1=rec[0],
+                                                   individual2=rec[1]).exists())
 
         # Should have the same result as passing all the uuids
         all_source_uuids = [self.john_smith.uuid, self.jsmith.uuid,
@@ -795,18 +802,16 @@ class TestRecommendMatches(TestCase):
         # Test
         expected = {
             'results': {
-                self.john_smith.uuid: sorted([self.jsmith.uuid]),
+                self.john_smith.uuid: sorted([self.jsmith.individual.mk]),
                 self.jrae_no_name.uuid: [],
-                self.jr2.uuid: sorted([self.jrae.uuid,
-                                       self.jane_rae.uuid])
+                self.jr2.uuid: sorted([self.jrae.individual.mk])
             }
         }
 
-        individuals_expected = {
-            self.john_smith.individual.mk: [self.jsmith.individual.mk],
-            self.jrae_no_name.individual.mk: [],
-            self.jr2.individual.mk: [self.jrae.individual.mk, self.jane_rae.individual.mk]
-        }
+        recommendations_expected = [
+            sorted([self.john_smith.individual.mk, self.jsmith.individual.mk]),
+            sorted([self.jr2.individual.mk, self.jrae.individual.mk]),
+        ]
 
         source_uuids = [self.john_smith.uuid, self.jrae_no_name.uuid, self.jr2.uuid]
         target_uuids = [self.john_smith.uuid, self.js2.uuid, self.js3.uuid,
@@ -831,8 +836,13 @@ class TestRecommendMatches(TestCase):
             result['results'][key] = sorted(result['results'][key])
 
         self.assertDictEqual(result, expected)
-        for mr in MergeRecommendation.objects.all():
-            self.assertIn(mr.individual2.mk, individuals_expected[mr.individual1.mk])
+
+        self.assertEqual(MergeRecommendation.objects.count(), 2)
+
+        for rec in recommendations_expected:
+            self.assertTrue(
+                MergeRecommendation.objects.filter(individual1=rec[0],
+                                                   individual2=rec[1]).exists())
 
     def test_recommend_matches_no_strict(self):
         """Check if recommendations are obtained for the specified individuals without strict mode"""
@@ -842,24 +852,17 @@ class TestRecommendMatches(TestCase):
         # Test
         expected = {
             'results': {
-                self.john_smith.uuid: sorted([self.jsmith.uuid]),
-                self.jrae_no_name.uuid: sorted([self.jrae.uuid,
-                                                self.jane_rae.uuid]),
-                self.jr2.uuid: sorted([self.jrae.uuid,
-                                       self.jane_rae.uuid,
-                                       self.jrae_no_name.uuid])
+                self.john_smith.uuid: sorted([self.jsmith.individual.mk]),
+                self.jrae_no_name.uuid: sorted([self.jrae.individual.mk]),
+                self.jr2.uuid: sorted([self.jrae.individual.mk])
             }
         }
 
-        individuals_expected = {
-            self.john_smith.individual.mk: [self.jsmith.individual.mk,
-                                            self.jsmith_no_email.individual.mk],
-            self.jrae_no_name.individual.mk: [self.jrae.individual.mk,
-                                              self.jane_rae.individual.mk],
-            self.jr2.individual.mk: [self.jrae.individual.mk,
-                                     self.jane_rae.individual.mk,
-                                     self.jrae_no_name.individual.mk]
-        }
+        recommendations_expected = [
+            sorted([self.john_smith.individual.mk, self.jsmith.individual.mk]),
+            sorted([self.jrae_no_name.individual.mk, self.jrae.individual.mk]),
+            sorted([self.jr2.individual.mk, self.jrae.individual.mk])
+        ]
 
         source_uuids = [self.john_smith.uuid, self.jrae_no_name.uuid, self.jr2.uuid]
         target_uuids = [self.john_smith.uuid, self.js2.uuid, self.js3.uuid,
@@ -883,8 +886,13 @@ class TestRecommendMatches(TestCase):
             result['results'][key] = sorted(result['results'][key])
 
         self.assertDictEqual(result, expected)
-        for mr in MergeRecommendation.objects.all():
-            self.assertIn(mr.individual2.mk, individuals_expected[mr.individual1.mk])
+
+        self.assertEqual(MergeRecommendation.objects.count(), 3)
+
+        for rec in recommendations_expected:
+            self.assertTrue(
+                MergeRecommendation.objects.filter(individual1=rec[0],
+                                                   individual2=rec[1]).exists())
 
     def test_recommend_matches_verbose(self):
         """Check if recommendations are obtained for the specified individuals, at identity level"""
@@ -896,20 +904,15 @@ class TestRecommendMatches(TestCase):
             'results': {
                 self.john_smith.uuid: sorted([self.jsm2.uuid,
                                               self.jsm3.uuid,
-                                              self.js2.uuid,
-                                              self.js3.uuid]),
+                                              self.js2.uuid]),
                 self.jrae_no_name.uuid: [],
                 self.jr2.uuid: sorted([self.jrae.uuid])
             }
         }
-        individuals_expected = {
-            self.john_smith.individual.mk: [self.jsm2.individual.mk,
-                                            self.jsm3.individual.mk,
-                                            self.js2.individual.mk,
-                                            self.js3.individual.mk],
-            self.jrae_no_name.individual.mk: [],
-            self.jr2.individual.mk: [self.jrae.individual.mk]
-        }
+        recommendations_expected = [
+            sorted([self.john_smith.individual.mk, self.jsm2.individual.mk]),
+            sorted([self.jr2.individual.mk, self.jrae.individual.mk])
+        ]
 
         source_uuids = [self.john_smith.uuid, self.jrae_no_name.uuid, self.jr2.uuid]
         target_uuids = [self.john_smith.uuid, self.js2.uuid, self.js3.uuid,
@@ -936,8 +939,12 @@ class TestRecommendMatches(TestCase):
 
         self.assertDictEqual(result, expected)
 
-        for mr in MergeRecommendation.objects.all():
-            self.assertIn(mr.individual2.mk, individuals_expected[mr.individual1.mk])
+        self.assertEqual(MergeRecommendation.objects.count(), 2)
+
+        for rec in recommendations_expected:
+            self.assertTrue(
+                MergeRecommendation.objects.filter(individual1=rec[0],
+                                                   individual2=rec[1]).exists())
 
     def test_recommend_matches_verbose_no_strict(self):
         """Check if recommendations are obtained for the specified individuals, at identity level,
@@ -950,21 +957,17 @@ class TestRecommendMatches(TestCase):
             'results': {
                 self.john_smith.uuid: sorted([self.jsm2.uuid,
                                               self.jsm3.uuid,
-                                              self.js2.uuid,
-                                              self.js3.uuid]),
+                                              self.js2.uuid]),
                 self.jrae_no_name.uuid: sorted([self.jrae2.uuid]),
                 self.jr2.uuid: sorted([self.jrae.uuid])
             }
         }
-        individuals_expected = {
-            self.john_smith.individual.mk: [self.jsm2.individual.mk,
-                                            self.jsm3.individual.mk,
-                                            self.js2.individual.mk,
-                                            self.js3.individual.mk],
-            self.jrae_no_name.individual.mk: [self.jrae.individual.mk,
-                                              self.jane_rae.individual.mk],
-            self.jr2.individual.mk: [self.jrae.individual.mk]
-        }
+
+        recommendations_expected = [
+            sorted([self.john_smith.individual.mk, self.jsm2.individual.mk]),
+            sorted([self.jrae_no_name.individual.mk, self.jrae.individual.mk]),
+            sorted([self.jr2.individual.mk, self.jrae.individual.mk])
+        ]
 
         source_uuids = [self.john_smith.uuid, self.jrae_no_name.uuid, self.jr2.uuid]
         target_uuids = [self.john_smith.uuid, self.js2.uuid, self.js3.uuid,
@@ -992,8 +995,12 @@ class TestRecommendMatches(TestCase):
 
         self.assertDictEqual(result, expected)
 
-        for mr in MergeRecommendation.objects.all():
-            self.assertIn(mr.individual2.mk, individuals_expected[mr.individual1.mk])
+        self.assertEqual(MergeRecommendation.objects.count(), 3)
+
+        for rec in recommendations_expected:
+            self.assertTrue(
+                MergeRecommendation.objects.filter(individual1=rec[0],
+                                                   individual2=rec[1]).exists())
 
     def test_recommend_source_not_mk(self):
         """Check if recommendations work when the provided uuid is not an Individual's main key"""
@@ -1003,12 +1010,12 @@ class TestRecommendMatches(TestCase):
         # Test
         expected = {
             'results': {
-                self.js_alt3.uuid: [self.jsmith.uuid]
+                self.js_alt3.uuid: [self.jsm3.individual.mk]
             }
         }
-        individuals_expected = {
-            self.js_alt3.individual.mk: [self.jsmith.individual.mk]
-        }
+        recommendations_expected = [
+            sorted([self.js_alt3.individual.mk, self.jsmith.individual.mk])
+        ]
 
         source_uuids = [self.js_alt3.uuid]
         target_uuids = [self.jsm3.uuid]
@@ -1022,8 +1029,12 @@ class TestRecommendMatches(TestCase):
 
         self.assertDictEqual(result, expected)
 
-        for mr in MergeRecommendation.objects.all():
-            self.assertIn(mr.individual2.mk, individuals_expected[mr.individual1.mk])
+        self.assertEqual(MergeRecommendation.objects.count(), 1)
+
+        for rec in recommendations_expected:
+            self.assertTrue(
+                MergeRecommendation.objects.filter(individual1=rec[0],
+                                                   individual2=rec[1]).exists())
 
     def test_recommend_matches_empty_target(self):
         """Check if recommendations are obtained for the given individuals against the whole registry"""
@@ -1033,12 +1044,12 @@ class TestRecommendMatches(TestCase):
         # Test
         expected = {
             'results': {
-                self.john_smith.uuid: [self.jsmith.uuid]
+                self.john_smith.uuid: [self.jsmith.individual.mk]
             }
         }
-        individuals_expected = {
-            self.john_smith.individual.mk: [self.jsmith.individual.mk]
-        }
+        recommendations_expected = [
+            sorted([self.john_smith.individual.mk, self.jsmith.individual.mk])
+        ]
 
         source_uuids = [self.john_smith.uuid]
         target_uuids = None
@@ -1056,8 +1067,10 @@ class TestRecommendMatches(TestCase):
 
         self.assertDictEqual(result, expected)
 
-        for mr in MergeRecommendation.objects.all():
-            self.assertIn(mr.individual2.mk, individuals_expected[mr.individual1.mk])
+        self.assertEqual(MergeRecommendation.objects.count(), 1)
+
+        for rec in recommendations_expected:
+            self.assertTrue(MergeRecommendation.objects.filter(individual1=rec[0], individual2=rec[1]).exists())
 
     def test_no_matches_found(self):
         """Check whether it returns no results when there is no matches for the input identity"""

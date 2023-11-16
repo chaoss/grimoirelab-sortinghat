@@ -126,14 +126,6 @@ class TestRecommendMatches(TestCase):
     def test_recommend_matches(self):
         """Check if recommendations are obtained for the specified individuals"""
 
-        # Test
-        expected = {
-            self.john_smith.uuid: sorted([self.jsmith.uuid]),
-            self.jrae_no_name.uuid: [],
-            self.jr2.uuid: sorted([self.jrae.uuid,
-                                   self.jane_rae.uuid])
-        }
-
         source_uuids = [self.john_smith.uuid, self.jrae_no_name.uuid, self.jr2.uuid]
         target_uuids = [self.john_smith.uuid, self.js2.uuid, self.js3.uuid,
                         self.js4.uuid,
@@ -147,32 +139,30 @@ class TestRecommendMatches(TestCase):
         criteria = ['email', 'name', 'username']
 
         # Identities which don't have the fields in `criteria` won't be returned
-        recs = dict(recommend_matches(source_uuids,
+        recs = list(recommend_matches(source_uuids,
                                       target_uuids,
                                       criteria))
 
-        # Preserve results order for the comparison against the expected results
-        result = {}
-        for key in recs:
-            result[key] = sorted(recs[key])
+        self.assertEqual(len(recs), 3)
 
-        self.assertEqual(len(result), 3)
-        self.assertDictEqual(result, expected)
+        rec = recs[0]
+        self.assertEqual(rec[0], self.john_smith.uuid)
+        self.assertEqual(rec[1], self.john_smith.individual.mk)
+        self.assertEqual(rec[2], sorted([self.jsmith.individual.mk]))
+
+        rec = recs[1]
+        self.assertEqual(rec[0], self.jrae_no_name.uuid)
+        self.assertEqual(rec[1], self.jrae_no_name.individual.mk)
+        self.assertEqual(rec[2], [])
+
+        rec = recs[2]
+        self.assertEqual(rec[0], self.jr2.uuid)
+        self.assertEqual(rec[1], self.jr2.individual.mk)
+        self.assertEqual(rec[2], sorted([self.jrae.individual.mk]))
 
     def test_recommend_matches_no_strict(self):
         """Check if recommendations are obtained for the specified individuals when
         'strict' is disabled"""
-
-        # Test
-        expected = {
-            self.john_smith.uuid: sorted([self.jsmith.uuid,
-                                          self.jsmith_no_email.uuid]),
-            self.jrae_no_name.uuid: sorted([self.jrae.uuid,
-                                            self.jane_rae.uuid]),
-            self.jr2.uuid: sorted([self.jrae.uuid,
-                                   self.jane_rae.uuid,
-                                   self.jrae_no_name.uuid])
-        }
 
         source_uuids = [self.john_smith.uuid, self.jrae_no_name.uuid, self.jr2.uuid]
         target_uuids = [self.john_smith.uuid, self.js2.uuid, self.js3.uuid,
@@ -186,30 +176,32 @@ class TestRecommendMatches(TestCase):
 
         criteria = ['email', 'name', 'username']
 
-        recs = dict(recommend_matches(source_uuids,
+        recs = list(recommend_matches(source_uuids,
                                       target_uuids,
                                       criteria,
                                       strict=False))
 
-        # Preserve results order for the comparison against the expected results
-        result = {}
-        for key in recs:
-            result[key] = sorted(recs[key])
+        self.assertEqual(len(recs), 3)
 
-        self.assertEqual(len(result), 3)
-        self.assertDictEqual(result, expected)
+        rec = recs[0]
+        self.assertEqual(rec[0], self.john_smith.uuid)
+        self.assertEqual(rec[1], self.john_smith.individual.mk)
+        self.assertEqual(rec[2], sorted([self.jsmith.individual.mk,
+                                         self.jsmith_no_email.individual.mk]))
+
+        rec = recs[1]
+        self.assertEqual(rec[0], self.jrae_no_name.uuid)
+        self.assertEqual(rec[1], self.jrae_no_name.individual.mk)
+        self.assertEqual(rec[2], sorted([self.jrae2.individual.mk]))
+
+        rec = recs[2]
+        self.assertEqual(rec[0], self.jr2.uuid)
+        self.assertEqual(rec[1], self.jr2.individual.mk)
+        self.assertEqual(rec[2], sorted([self.jrae.individual.mk]))
 
     def test_recommend_matches_exclude(self):
         """Check if recommendations are obtained for the specified individuals
         activating exclude"""
-
-        # Test
-        expected = {
-            self.john_smith.uuid: [],
-            self.jrae_no_name.uuid: [],
-            self.jr2.uuid: sorted([self.jrae.uuid,
-                                   self.jane_rae.uuid])
-        }
 
         source_uuids = [self.john_smith.uuid, self.jrae_no_name.uuid, self.jr2.uuid]
         target_uuids = [self.john_smith.uuid, self.js2.uuid, self.js3.uuid,
@@ -228,18 +220,27 @@ class TestRecommendMatches(TestCase):
         add_recommender_exclusion_term(self.ctx, "jsmith")
 
         # Identities which don't have the fields in `criteria` won't be returned
-        recs = dict(recommend_matches(source_uuids,
+        recs = list(recommend_matches(source_uuids,
                                       target_uuids,
                                       criteria,
                                       exclude=True))
 
-        # Preserve results order for the comparison against the expected results
-        result = {}
-        for key in recs:
-            result[key] = sorted(recs[key])
+        self.assertEqual(len(recs), 3)
 
-        self.assertEqual(len(result), 3)
-        self.assertDictEqual(result, expected)
+        rec = recs[0]
+        self.assertEqual(rec[0], self.john_smith.uuid)
+        self.assertEqual(rec[1], self.john_smith.individual.mk)
+        self.assertEqual(rec[2], [])
+
+        rec = recs[1]
+        self.assertEqual(rec[0], self.jrae_no_name.uuid)
+        self.assertEqual(rec[1], self.jrae_no_name.individual.mk)
+        self.assertEqual(rec[2], [])
+
+        rec = recs[2]
+        self.assertEqual(rec[0], self.jr2.uuid)
+        self.assertEqual(rec[1], self.jr2.individual.mk)
+        self.assertEqual(rec[2], [self.jrae.individual.mk])
 
     def test_recommend_matches_last_modified(self):
         """Check if recommendations are obtained for individuals modified after a date"""
@@ -250,39 +251,24 @@ class TestRecommendMatches(TestCase):
                          username='john_smith',
                          source='mls',
                          uuid=self.js_alt.uuid)
-        # Test
-        expected = {
-            self.js_alt.uuid: sorted([self.jsmith.uuid])
-        }
 
         criteria = ['email', 'name', 'username']
 
         # Identities which don't have the fields in `criteria` won't be returned
-        recs = dict(recommend_matches(None,
+        recs = list(recommend_matches(None,
                                       None,
                                       criteria,
                                       last_modified=timestamp))
 
-        # Preserve results order for the comparison against the expected results
-        result = {}
-        for key in recs:
-            result[key] = sorted(recs[key])
+        self.assertEqual(len(recs), 1)
 
-        self.assertEqual(len(result), 1)
-        self.assertDictEqual(result, expected)
+        rec = recs[0]
+        self.assertEqual(rec[0], self.js_alt.uuid)
+        self.assertEqual(rec[1], self.js_alt.individual.mk)
+        self.assertEqual(rec[2], [self.jsmith.individual.mk])
 
     def test_recommend_matches_verbose(self):
         """Check if recommendations are obtained for the specified individuals, at identity level"""
-
-        # Test
-        expected = {
-            self.john_smith.uuid: sorted([self.jsm2.uuid,
-                                          self.jsm3.uuid,
-                                          self.js2.uuid,
-                                          self.js3.uuid]),
-            self.jrae_no_name.uuid: [],
-            self.jr2.uuid: sorted([self.jrae.uuid])
-        }
 
         source_uuids = [self.john_smith.uuid, self.jrae_no_name.uuid, self.jr2.uuid]
         target_uuids = [self.john_smith.uuid, self.js2.uuid, self.js3.uuid,
@@ -297,32 +283,34 @@ class TestRecommendMatches(TestCase):
         criteria = ['email', 'name', 'username']
 
         # Identities which don't have the fields in `criteria` won't be returned
-        recs = dict(recommend_matches(source_uuids,
+        recs = list(recommend_matches(source_uuids,
                                       target_uuids,
                                       criteria,
                                       verbose=True))
-        # Preserve results order for the comparison against the expected results
-        result = {}
-        for key in recs:
-            result[key] = sorted(recs[key])
 
-        self.assertEqual(len(result), 3)
-        self.assertDictEqual(result, expected)
+        self.assertEqual(len(recs), 3)
+
+        rec = recs[0]
+        self.assertEqual(rec[0], self.john_smith.uuid)
+        self.assertEqual(rec[1], self.john_smith.individual.mk)
+        self.assertEqual(rec[2], sorted([self.jsm2.uuid,
+                                         self.jsm3.uuid,
+                                         self.js2.uuid]))
+
+        rec = recs[1]
+        self.assertEqual(rec[0], self.jrae_no_name.uuid)
+        self.assertEqual(rec[1], self.jrae_no_name.individual.mk)
+        self.assertEqual(rec[2], [])
+
+        rec = recs[2]
+        self.assertEqual(rec[0], self.jr2.uuid)
+        self.assertEqual(rec[1], self.jr2.individual.mk)
+        self.assertEqual(rec[2], [self.jrae.uuid])
 
     def test_recommend_matches_verbose_no_strict(self):
         """Check if recommendations are obtained for the specified individuals,
         at identity level, when 'strict' is disabled"""
 
-        # Test
-        expected = {
-            self.john_smith.uuid: sorted([self.jsm2.uuid,
-                                          self.jsm3.uuid,
-                                          self.js2.uuid,
-                                          self.js3.uuid]),
-            self.jrae_no_name.uuid: sorted([self.jrae2.uuid]),
-            self.jr2.uuid: sorted([self.jrae.uuid])
-        }
-
         source_uuids = [self.john_smith.uuid, self.jrae_no_name.uuid, self.jr2.uuid]
         target_uuids = [self.john_smith.uuid, self.js2.uuid, self.js3.uuid,
                         self.js4.uuid,
@@ -336,72 +324,81 @@ class TestRecommendMatches(TestCase):
         criteria = ['email', 'name', 'username']
 
         # Identities which don't have the fields in `criteria` won't be returned
-        recs = dict(recommend_matches(source_uuids,
+        recs = list(recommend_matches(source_uuids,
                                       target_uuids,
                                       criteria,
                                       verbose=True,
                                       strict=False))
-        # Preserve results order for the comparison against the expected results
-        result = {}
-        for key in recs:
-            result[key] = sorted(recs[key])
 
-        self.assertEqual(len(result), 3)
-        self.assertDictEqual(result, expected)
+        self.assertEqual(len(recs), 3)
+
+        rec = recs[0]
+        self.assertEqual(rec[0], self.john_smith.uuid)
+        self.assertEqual(rec[1], self.john_smith.individual.mk)
+        self.assertEqual(rec[2], sorted([self.jsm2.uuid,
+                                         self.jsm3.uuid,
+                                         self.js2.uuid]))
+
+        rec = recs[1]
+        self.assertEqual(rec[0], self.jrae_no_name.uuid)
+        self.assertEqual(rec[1], self.jrae_no_name.individual.mk)
+        self.assertEqual(rec[2], [self.jrae2.uuid])
+
+        rec = recs[2]
+        self.assertEqual(rec[0], self.jr2.uuid)
+        self.assertEqual(rec[1], self.jr2.individual.mk)
+        self.assertEqual(rec[2], [self.jrae.uuid])
 
     def test_recommend_source_not_mk(self):
         """Check if recommendations work when the provided uuid is not an Individual's main key"""
-
-        # Test
-        expected = {
-            self.js3.uuid: [self.jsmith.uuid]
-        }
 
         source_uuids = [self.js3.uuid]
         target_uuids = [self.jsm3.uuid]
         criteria = ['email', 'name', 'username']
 
-        recs = dict(recommend_matches(source_uuids,
+        recs = list(recommend_matches(source_uuids,
                                       target_uuids,
                                       criteria))
 
-        # Preserve same format as in other tests.
-        # 1-element result is returned as {key: {result}} instead of {key: [result]}
-        result = {}
-        for key in recs:
-            result[key] = list(recs[key])
-
         self.assertEqual(len(recs), 1)
-        self.assertDictEqual(result, expected)
+
+        rec = recs[0]
+        self.assertEqual(rec[0], self.js3.uuid)
+        self.assertEqual(rec[1], self.js3.individual.mk)
+        self.assertEqual(rec[2], [self.jsmith.individual.mk])
 
     def test_no_matches_found(self):
         """Check whether it returns an empty result when there is no matches for the input identity"""
-
-        # Test
-        expected = {'880b3dfcb3a08712e5831bddc3dfe81fc5d7b331': []}
 
         source_uuids = [self.john_smith.uuid]
         target_uuids = [self.jrae.uuid]
         criteria = ['email', 'name']
 
-        recs = dict(recommend_matches(source_uuids,
+        recs = list(recommend_matches(source_uuids,
                                       target_uuids,
                                       criteria))
 
-        self.assertDictEqual(recs, expected)
+        self.assertEqual(len(recs), 1)
+
+        rec = recs[0]
+        self.assertEqual(rec[0], self.john_smith.uuid)
+        self.assertEqual(rec[1], self.john_smith.individual.mk)
+        self.assertEqual(rec[2], [])
 
     def test_not_found_uuid_error(self):
         """Check if the recommendation process returns no results when an individual is not found"""
-
-        # Test
-        expected = {'1234567890abcdefg': []}
 
         source_uuids = ['1234567890abcdefg']
         target_uuids = [self.john_smith.uuid]
         criteria = ['email', 'name']
 
-        recs = dict(recommend_matches(source_uuids,
+        recs = list(recommend_matches(source_uuids,
                                       target_uuids,
                                       criteria))
 
-        self.assertDictEqual(recs, expected)
+        self.assertEqual(len(recs), 1)
+
+        rec = recs[0]
+        self.assertEqual(rec[0], '1234567890abcdefg')
+        self.assertEqual(rec[1], '1234567890abcdefg')
+        self.assertEqual(rec[2], [])

@@ -124,19 +124,22 @@ class TestRecommendGender(TestCase):
 
         rec = recs[0]
         self.assertEqual(rec[0], self.john_smith.uuid)
-        gender, acc = rec[1]
+        self.assertEqual(rec[1], self.john_smith.individual.mk)
+        gender, acc = rec[2]
         self.assertEqual(gender, 'male')
         self.assertEqual(acc, 92)
 
         rec = recs[1]
         self.assertEqual(rec[0], self.jane_doe.uuid)
-        gender, acc = rec[1]
+        self.assertEqual(rec[1], self.jane_doe.individual.mk)
+        gender, acc = rec[2]
         self.assertEqual(gender, 'female')
         self.assertEqual(acc, 89)
 
         rec = recs[2]
         self.assertEqual(rec[0], self.double_space.uuid)
-        gender, acc = rec[1]
+        self.assertEqual(rec[1], self.double_space.individual.mk)
+        gender, acc = rec[2]
         self.assertEqual(gender, 'male')
         self.assertEqual(acc, 92)
 
@@ -157,7 +160,8 @@ class TestRecommendGender(TestCase):
 
         rec = recs[0]
         self.assertEqual(rec[0], self.jane_doe.uuid)
-        gender, acc = rec[1]
+        self.assertEqual(rec[1], self.jane_doe.individual.mk)
+        gender, acc = rec[2]
         self.assertEqual(gender, 'female')
         self.assertEqual(acc, 89)
 
@@ -178,25 +182,29 @@ class TestRecommendGender(TestCase):
 
         rec = recs[0]
         self.assertEqual(rec[0], self.john_smith.uuid)
-        gender, acc = rec[1]
+        self.assertEqual(rec[1], self.john_smith.individual.mk)
+        gender, acc = rec[2]
         self.assertEqual(gender, 'male')
         self.assertEqual(acc, 92)
 
         rec = recs[1]
         self.assertEqual(rec[0], self.jane_doe.uuid)
-        gender, acc = rec[1]
+        self.assertEqual(rec[1], self.jane_doe.individual.mk)
+        gender, acc = rec[2]
         self.assertEqual(gender, 'female')
         self.assertEqual(acc, 89)
 
         rec = recs[2]
         self.assertEqual(rec[0], self.double_space.uuid)
-        gender, acc = rec[1]
+        self.assertEqual(rec[1], self.double_space.individual.mk)
+        gender, acc = rec[2]
         self.assertEqual(gender, 'male')
         self.assertEqual(acc, 92)
 
         rec = recs[3]
         self.assertEqual(rec[0], self.john.uuid)
-        gender, acc = rec[1]
+        self.assertEqual(rec[1], self.john.individual.mk)
+        gender, acc = rec[2]
         self.assertEqual(gender, 'male')
         self.assertEqual(acc, 92)
 

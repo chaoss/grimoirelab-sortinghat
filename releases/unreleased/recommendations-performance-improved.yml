@@ -1,0 +1,10 @@
+---
+title: Recommendations performance improved
+category: performance
+author: Jose Javier Merchante <jjmerchante@bitergia.com>
+issue: null
+notes: >
+  Improve the recommendations performance by reducing the
+  number of queries to the database and only generating
+  recommendations between individuals that are directly
+  related.

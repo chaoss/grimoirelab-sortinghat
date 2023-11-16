@@ -26,9 +26,9 @@ import logging
 
 import django_rq
 import django_rq.utils
-import pandas
 import rq
 import redis.exceptions
+from django.db import IntegrityError, transaction
 
 from .db import find_individual_by_uuid, find_organization
 from .api import enroll, merge, update_profile, add_scheduled_task, delete_scheduled_task
@@ -255,16 +255,27 @@ def recommend_matches(ctx, source_uuids,
         results[rec.key] = list(rec.options)
         # Store matches in the database
         for match in rec.options:
-            try:
-                individual1 = find_individual_by_uuid(rec.key)
-                individual2 = find_individual_by_uuid(match)
-            except NotFoundError:
-                logger.info(f"Job {job.id} 'One individual does not exists'")
+            if verbose:
+                try:
+                    match_indiv = find_individual_by_uuid(match)
+                    match = match_indiv.mk
+                except NotFoundError:
+                    logger.info(f"'Individual {match} does not exists'")
+                    continue
+
+            indiv_1, indiv_2 = rec.mk, match
+
+            # Generate the recommendations sorting uuids alphabetical
+            if indiv_1 == indiv_2:
                 continue
-            # Check if the recommendation already exists in any direction
-            if not MergeRecommendation.objects.filter(individual1=individual1, individual2=individual2).exists() and \
-               not MergeRecommendation.objects.filter(individual2=individual1, individual1=individual2).exists():
-                MergeRecommendation.objects.create(individual1=individual1, individual2=individual2)
+            elif indiv_1 > indiv_2:
+                indiv_1, indiv_2 = indiv_2, indiv_1
+
+            try:
+                with transaction.atomic():
+                    MergeRecommendation.objects.create(individual1_id=indiv_1, individual2_id=indiv_2)
+            except IntegrityError:
+                pass
 
     trxl.close()
 
@@ -443,23 +454,35 @@ def unify(ctx, criteria, source_uuids=None, target_uuids=None, exclude=True, str
     def _group_recommendations(recs):
         """Calculate unique sets of identities from matching recommendations.
 
-        For instance, given a list of matching groups like
-        A = {A, B}; B = {B,A,C}, C = {C,} and D = {D,} the output
-        for keys A, B and C will be the group {A, B, C}. As D has no matches,
-        it won't be included in any group and it won't be returned.
+        For instance, given a dictionary of matching groups like
+        {A: [B], B: [A,C], D: [E]} the output will be the groups
+        [{A, B, C}, {D, E}].
 
         :param recs: recommendations of matching identities
 
         :returns: a list including unique groups of matches
         """
-        groups = []
-        for group_key in recs:
-            g_uuids = pandas.Series(recs[group_key])
-            g_uuids = g_uuids.append(pandas.Series([group_key]))
-            g_uuids = list(g_uuids.sort_values().unique())
-            if (len(g_uuids) > 1) and (g_uuids not in groups):
-                groups.append(g_uuids)
-        return groups
+        visited = set()
+        result = []
+
+        for key in recs:
+            if key in visited:
+                continue
+            current_set = set()
+            stack = [key]
+
+            while stack:
+                node = stack.pop()
+                if node in visited:
+                    continue
+                current_set.add(node)
+                visited.add(node)
+                stack.extend(recs.get(node, []))
+
+            if len(current_set) > 1:
+                result.append(current_set)
+
+        return result
 
     check_criteria(criteria)
 
@@ -489,12 +512,13 @@ def unify(ctx, criteria, source_uuids=None, target_uuids=None, exclude=True, str
                                 exclude=exclude,
                                 strict=strict,
                                 last_modified=last_modified):
-        match_recs[rec.key] = list(rec.options)
+        match_recs[rec.mk] = list(rec.options)
 
     match_groups = _group_recommendations(match_recs)
 
     # Apply the merge of the matching identities
     for group in match_groups:
+        group = sorted(group)
         uuid = group[0]
         result = group[1:]
         merged_to, errs = _merge_individuals(job_ctx, uuid, result)
