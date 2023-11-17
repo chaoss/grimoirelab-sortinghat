@@ -1,9 +1,0 @@
----
-title: Fix individual page not loading
-category: fixed
-author: Eva Millán <evamillan@bitergia.com>
-issue: null
-notes: >
-  The individual's view was not loading when the
-  workspace had not been used before or the cache
-  was cleared.
