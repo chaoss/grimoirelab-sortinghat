@@ -29,9 +29,8 @@ import graphql_jwt
 
 from django.conf import settings
 from django.core.paginator import Paginator
-from django.db.models import Q, Subquery
-
-from django.db.models import (JSONField, Count)
+from django.db import IntegrityError
+from django.db.models import (Q, Subquery, JSONField, Count)
 
 from django_rq import enqueue
 
@@ -1254,9 +1253,24 @@ class ManageMergeRecommendation(graphene.Mutation):
         ctx = SortingHatContext(user=user, tenant=tenant)
 
         recommendation = MergeRecommendation.objects.get(id=int(recommendation_id))
+        to_indiv = recommendation.individual1
+        from_indiv = recommendation.individual2
         if apply:
+            # Update related individual removed
+            q = (Q(individual1=from_indiv.mk) | Q(individual2=from_indiv.mk)) & Q(applied=None)
+            for rec in MergeRecommendation.objects.filter(q):
+                if rec.individual1 == from_indiv:
+                    key = 'individual1'
+                else:
+                    key = 'individual2'
+                try:
+                    setattr(rec, key, to_indiv)
+                    rec.save()
+                except IntegrityError:
+                    rec.delete()
+
             try:
-                merge(ctx, [recommendation.individual2.mk], recommendation.individual1.mk)
+                merge(ctx, [from_indiv.mk], to_indiv.mk)
             except EqualIndividualError:
                 pass
             # Can't keep a recommendation in which one individual is missing

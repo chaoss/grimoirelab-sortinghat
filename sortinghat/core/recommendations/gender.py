@@ -90,7 +90,7 @@ def recommend_gender(uuids, exclude=True, no_strict_matching=False):
             logger.warning(message)
             continue
         else:
-            yield uuid, (gender, accuracy)
+            yield uuid, individual.mk, (gender, accuracy)
 
     logger.info(f"Gender recommendations generated; uuids='{uuids}'")
 

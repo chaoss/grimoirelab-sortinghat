@@ -73,7 +73,7 @@ def recommend_affiliations(uuids):
         except NotFoundError:
             continue
         else:
-            yield (uuid, _suggest_affiliations(individual))
+            yield (uuid, individual.mk, _suggest_affiliations(individual))
 
     logger.info(f"Affiliation recommendations generated; uuids='{uuids}'")
 

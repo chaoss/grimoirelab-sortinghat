@@ -100,11 +100,13 @@ class TestRecommendAffiliations(TestCase):
 
         rec = recs[0]
         self.assertEqual(rec[0], jsmith.uuid)
-        self.assertListEqual(rec[1], ['Example'])
+        self.assertEqual(rec[1], jsmith.individual.mk)
+        self.assertListEqual(rec[2], ['Example'])
 
         rec = recs[1]
         self.assertEqual(rec[0], jroe.uuid)
-        self.assertListEqual(rec[1], ['Bitergia', 'Example'])
+        self.assertEqual(rec[1], jroe.individual.mk)
+        self.assertListEqual(rec[2], ['Bitergia', 'Example'])
 
     def test_already_enrolled(self):
         """Check if an organization is not included in the recommendation
@@ -131,8 +133,9 @@ class TestRecommendAffiliations(TestCase):
 
         rec = recs[0]
         self.assertEqual(rec[0], jsmith.uuid)
+        self.assertEqual(rec[1], jsmith.individual.mk)
         # Bitergia is not included
-        self.assertListEqual(rec[1], ['Example'])
+        self.assertListEqual(rec[2], ['Example'])
 
     def test_multiple_top_domains(self):
         """Check if it chooses the right domain when multiple top
@@ -150,7 +153,8 @@ class TestRecommendAffiliations(TestCase):
 
         rec = recs[0]
         self.assertEqual(rec[0], jdoe.uuid)
-        self.assertListEqual(rec[1], ['Example Int.'])
+        self.assertEqual(rec[1], jdoe.individual.mk)
+        self.assertListEqual(rec[2], ['Example Int.'])
 
     def test_no_match(self):
         """Check if empty recommendations are returned when there is
@@ -171,7 +175,8 @@ class TestRecommendAffiliations(TestCase):
 
         rec = recs[0]
         self.assertEqual(rec[0], jsmith.uuid)
-        self.assertListEqual(rec[1], [])
+        self.assertEqual(rec[1], jsmith.individual.mk)
+        self.assertListEqual(rec[2], [])
 
     def test_invalid_identity_email(self):
         """Check if empty recommendations are returned for invalid emails"""
@@ -189,7 +194,8 @@ class TestRecommendAffiliations(TestCase):
 
         rec = recs[0]
         self.assertEqual(rec[0], noemail.uuid)
-        self.assertListEqual(rec[1], [])
+        self.assertEqual(rec[1], noemail.individual.mk)
+        self.assertListEqual(rec[2], [])
 
     def test_empty_email(self):
         """Check if empty recommendations are returned for empty
@@ -209,7 +215,8 @@ class TestRecommendAffiliations(TestCase):
 
         rec = recs[0]
         self.assertEqual(rec[0], jdoe.uuid)
-        self.assertListEqual(rec[1], [])
+        self.assertEqual(rec[1], jdoe.individual.mk)
+        self.assertListEqual(rec[2], [])
 
     def test_wrong_email(self):
         """Check if email ending in a dot doesn't raise an exception"""
@@ -227,7 +234,8 @@ class TestRecommendAffiliations(TestCase):
 
         rec = recs[0]
         self.assertEqual(rec[0], wrong_email.uuid)
-        self.assertListEqual(rec[1], [])
+        self.assertEqual(rec[1], wrong_email.individual.mk)
+        self.assertListEqual(rec[2], [])
 
     def test_not_found_individual(self):
         """Check if no recommendations are generated when an
@@ -272,8 +280,10 @@ class TestRecommendAffiliations(TestCase):
 
         rec = recs[0]
         self.assertEqual(rec[0], jsmith.uuid)
-        self.assertListEqual(rec[1], ['Bitergia', 'Example'])
+        self.assertEqual(rec[1], jsmith.individual.mk)
+        self.assertListEqual(rec[2], ['Bitergia', 'Example'])
 
         rec = recs[1]
         self.assertEqual(rec[0], jroe.uuid)
-        self.assertListEqual(rec[1], ['Example'])
+        self.assertEqual(rec[1], jroe.individual.mk)
+        self.assertListEqual(rec[2], ['Example'])

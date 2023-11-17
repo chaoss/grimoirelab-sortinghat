@@ -29,7 +29,7 @@ from .gender import recommend_gender
 
 Recommendation = collections.namedtuple(
     'Recommendation',
-    ['key', 'type', 'options']
+    ['key', 'mk', 'type', 'options']
 )
 
 
@@ -86,7 +86,7 @@ class RecommendationEngine:
         """Generator of recommendations."""
 
         for rec in recommender(*args, **kwargs):
-            yield Recommendation(rec[0], name, rec[1])
+            yield Recommendation(rec[0], rec[1], name, rec[2])
 
     @classmethod
     def types(cls):

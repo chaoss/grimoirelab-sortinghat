@@ -37,7 +37,7 @@ def generate_recommendations():
     """Generate fake recommendations."""
 
     for i in range(len(options)):
-        yield (i, options[0:i])
+        yield (i, i, options[0:i])
 
 
 def generate_error():

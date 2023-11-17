@@ -102,6 +102,7 @@ def recommend_matches(source_uuids, target_uuids,
     )
 
     aliases = defaultdict(list)
+    mk_sources = dict()
     input_set = set()
     target_set = set()
 
@@ -109,12 +110,14 @@ def recommend_matches(source_uuids, target_uuids,
         for uuid in source_uuids:
             identities = _get_identities(uuid)
             aliases[uuid] = [identity.uuid for identity in identities]
+            mk_sources[uuid] = identities[0].individual.mk if len(identities) > 0 else uuid
             input_set.update(identities)
     else:
         identities = Identity.objects.select_related('individual').filter(individual__last_modified__gte=last_modified)
         input_set.update(identities)
         for identity in identities:
             aliases[identity.individual.mk].append(identity.uuid)
+            mk_sources[identity.uuid] = identity.individual.mk
         source_uuids = aliases.keys()
 
     if target_uuids:
@@ -140,7 +143,7 @@ def recommend_matches(source_uuids, target_uuids,
             result.remove(uuid)
         except KeyError:
             pass
-        yield uuid, list(result)
+        yield uuid, mk_sources[uuid], sorted(result)
 
     logger.info(f"Matching recommendations generated; criteria='{criteria}'")
 
@@ -197,52 +200,6 @@ def _find_matches(set_x, set_y, criteria, exclude, verbose, strict):
 
         return cdf
 
-    def _calculate_matches_groups(grouped_uids, verbose=False):
-        """Calculate groups of matching identities from identity groups.
-
-        For instance, given a list of matched unique identities like
-        A = {A, B}; B = {B,A,C}, C = {C,} and D = {D,} the output
-        for keys A, B and C will be the set {A, B, C}. As D has no matches,
-        it won't be included in any group and it won't be returned.
-
-        :param grouped_uids: groups of unique identities
-        :param verbose: if true, the grouping will be calculated using
-            unique identities (uuids) instead of main keys from individuals.
-
-        :returns: a dictionary including the set of matches for each
-            group key.
-        """
-        matches = {}
-        processed = set()
-
-        # Group by main keys from Individuals or by uuids from Identities
-        col_name = 'uuid_y' if verbose else 'individual_y'
-
-        sorted_keys = sorted(grouped_uids.groups.keys())
-
-        while sorted_keys:
-            group_key = sorted_keys.pop(0)
-            uuid_set = set()
-            for uuid in grouped_uids.get_group(group_key)[col_name]:
-                uuid_set.add(uuid)
-
-            if processed.intersection(uuid_set):
-                # There are common identities already seen.
-                # Find the common sets
-
-                for key in matches:
-                    prev_match = matches[key]
-                    if prev_match == uuid_set:
-                        continue
-                    elif prev_match.intersection(uuid_set):
-                        prev_match.update(uuid_set)
-                        uuid_set = prev_match
-
-            processed.update(uuid_set)
-            matches[group_key] = uuid_set
-
-        return matches
-
     data_x = [model_to_dict(fl) for fl in set_x]
     data_y = [model_to_dict(fl) for fl in set_y]
 
@@ -262,15 +219,20 @@ def _find_matches(set_x, set_y, criteria, exclude, verbose, strict):
         cdf_x = _filter_criteria(df_x, c, strict)
         cdf_y = _filter_criteria(df_y, c, strict)
         cdf = pandas.merge(cdf_x, cdf_y, on=c, how='inner')
-        cdf = cdf[['individual_y', 'uuid_x', 'uuid_y']]
+        cdf = cdf[['individual_x', 'uuid_x', 'individual_y', 'uuid_y']]
         cdfs.append(cdf)
 
     result = pandas.concat(cdfs)
-    result = result.drop_duplicates()
 
-    g_result = result.groupby(by=['uuid_x'],
-                              as_index=True, sort=True)
+    col_y_name = 'uuid_y' if verbose else 'individual_y'
+    col_x_name = 'uuid_x' if verbose else 'individual_x'
+    result = result[[col_x_name, col_y_name]]
 
-    matched = _calculate_matches_groups(g_result, verbose=verbose)
+    # Remove duplicated
+    result = result[result[col_x_name] != result[col_y_name]]
+    result_g = result.groupby(col_x_name, group_keys=False)
+
+    # Convert the dataframe to a dict of sets
+    matched = result_g[col_y_name].apply(set).to_dict()
 
     return matched
