@@ -1,0 +1,9 @@
+#
+# Gitdm enrollments example
+#
+
+jsmith.example.com	Example Company		# John Smith
+jdoe$example.com	Example Company		# John Doe
+jsmith!example.com	Bitergia < 2015-01-01	# John Smith - Bitergia
+jrae-example-net	Bitergia
+john_doeexample	LibreSoft

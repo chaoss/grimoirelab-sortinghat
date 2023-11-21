@@ -1,0 +1,9 @@
+#
+# Gitdm aliases file
+#
+# alias - canonical form
+#
+
+john_doe@example.net	jdoe@example.com
+jrae@example.com	jrae@example.net
+jrae@laptop         jrae@mylaptop

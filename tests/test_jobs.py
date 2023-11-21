@@ -1789,7 +1789,7 @@ class TestImportIdentities(TestCase):
         # Test
         ctx = SortingHatContext(self.user)
 
-        job = import_identities.delay(ctx, 'test_backend', 'my_url', None)
+        job = import_identities.delay(ctx, 'test_backend', 'my_url')
         result = job.result
 
         self.assertEqual(result, 1)
@@ -1809,7 +1809,7 @@ class TestImportIdentities(TestCase):
         # Test
         ctx = SortingHatContext(self.user)
 
-        job = import_identities.delay(ctx, 'test_backend', 'my_url', None)
+        job = import_identities.delay(ctx, 'test_backend', 'my_url')
         self.assertEqual(job.is_failed, True)
 
     @unittest.mock.patch('sortinghat.core.importer.backend.find_backends')
@@ -1822,7 +1822,7 @@ class TestImportIdentities(TestCase):
 
         ctx = SortingHatContext(self.user)
 
-        import_identities.delay(ctx, 'test_backend', 'my_url', None,
+        import_identities.delay(ctx, 'test_backend', 'my_url',
                                 job_id='ABCD-EF12-3456-7890')
 
         transactions = Transaction.objects.filter(created_at__gte=timestamp)
