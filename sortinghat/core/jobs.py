@@ -609,7 +609,7 @@ def genderize(ctx, uuids=None, exclude=True, no_strict_matching=False):
 
 @django_rq.job
 @job_using_tenant
-def import_identities(ctx, backend_name, url, params=None):
+def import_identities(ctx, backend_name, url, **kwargs):
     """Import identities to SortingHat.
 
     This job imports identities to SortingHat using the
@@ -618,7 +618,7 @@ def import_identities(ctx, backend_name, url, params=None):
     :param ctx: context where this job is run
     :param backend_name: name of the importer backend
     :param url: URL of a file or API to fetch the identities from
-    :param params: specific arguments for the importer backend
+    :param kwargs: specific arguments for the importer backend
 
     :returns: number of identities imported
     """
@@ -630,15 +630,12 @@ def import_identities(ctx, backend_name, url, params=None):
     backends = find_import_identities_backends()
     klass = backends[backend_name]['class']
 
-    if not params:
-        params = {}
-
     # Create a new context to include the reference
     # to the job id that will perform the transaction.
     job_ctx = SortingHatContext(ctx.user, job.id, ctx.tenant)
     trxl = TransactionsLog.open('import_identities', job_ctx)
 
-    importer = klass(ctx=job_ctx, url=url, **params)
+    importer = klass(ctx=job_ctx, url=url, **kwargs)
     nidentities = importer.import_identities()
 
     trxl.close()
