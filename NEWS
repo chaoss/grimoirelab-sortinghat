@@ -1,5 +1,17 @@
 # Releases
 
+## sortinghat 0.17.0 - (2023-11-28)
+
+**New features:**
+
+ * Gitdm identities importer\
+   New SortingHat identities importer for Gitdm format. This backend is
+   configured with three parameters: a URL pointing to the file that
+   matches emails with organizations, an optional URL for an aliases file
+   that associates emails, and a flag for email validation to verify the
+   validity of the provided email addresses.
+
+
 ## sortinghat 0.16.0 - (2023-11-17)
 
 **Bug fixes:**
