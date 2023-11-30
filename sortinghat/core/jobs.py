@@ -151,7 +151,6 @@ def recommend_affiliations(ctx, uuids=None, last_modified=MIN_PERIOD_DATE):
 
     if not uuids:
         logger.info(f"Running job {job.id} 'recommend affiliations'; uuids='all'; ...")
-        uuids = Individual.objects.filter(last_modified__gte=last_modified).values_list('mk', flat=True).iterator()
     else:
         logger.info(f"Running job {job.id} 'recommend affiliations'; uuids={uuids}; ...")
         uuids = iter(uuids)
@@ -168,25 +167,29 @@ def recommend_affiliations(ctx, uuids=None, last_modified=MIN_PERIOD_DATE):
     job_ctx = SortingHatContext(ctx.user, job.id, ctx.tenant)
 
     # Create an empty transaction to log which job
-    # will generate the enroll transactions.
+    # will generate the 'enroll' transactions.
     trxl = TransactionsLog.open('recommend_affiliations', job_ctx)
 
-    for chunk in _iter_split(uuids, size=MAX_CHUNK_SIZE):
-        for rec in engine.recommend('affiliation', chunk):
-            results[rec.key] = rec.options
+    for rec in engine.recommend('affiliation', uuids, last_modified):
+        results[rec.key] = rec.options
+
+        for org_name in rec.options:
             try:
-                individual = find_individual_by_uuid(rec.key)
+                org = find_organization(org_name)
             except NotFoundError:
-                logger.warning(f"Job {job.id} 'Individual {rec.key} not found'")
+                logger.warning(f"Job {job.id} 'Organization {org_name} not found'")
                 continue
-            for org_name in rec.options:
-                try:
-                    org = find_organization(org_name)
-                except NotFoundError:
-                    logger.warning(f"Job {job.id} 'Organization {org_name} not found'")
-                    continue
-                AffiliationRecommendation.objects.get_or_create(individual=individual,
-                                                                organization=org)
+
+            try:
+                with transaction.atomic():
+                    AffiliationRecommendation.objects.create(individual_id=rec.mk,
+                                                             organization=org)
+            except IntegrityError:
+                logger.debug(
+                    f"Job {job.id} 'Unable to create affiliation recommendation for"
+                    f"Individual {rec.key} and Organization {org_name}"
+                )
+
     trxl.close()
 
     logger.info(
@@ -377,7 +380,6 @@ def affiliate(ctx, uuids=None, last_modified=MIN_PERIOD_DATE):
 
     if not uuids:
         logger.info(f"Running job {job.id} 'affiliate'; uuids='all'; ...")
-        uuids = Individual.objects.filter(last_modified__gte=last_modified).values_list('mk', flat=True).iterator()
     else:
         logger.info(f"Running job {job.id} 'affiliate'; uuids={uuids}; ...")
         uuids = iter(uuids)
@@ -396,19 +398,18 @@ def affiliate(ctx, uuids=None, last_modified=MIN_PERIOD_DATE):
     job_ctx = SortingHatContext(ctx.user, job.id, ctx.tenant)
 
     # Create an empty transaction to log which job
-    # will generate the enroll transactions.
+    # will generate the 'enroll' transactions.
     trxl = TransactionsLog.open('affiliate', job_ctx)
 
     nsuccess = 0
 
-    for chunk in _iter_split(uuids, size=MAX_CHUNK_SIZE):
-        for rec in engine.recommend('affiliation', chunk):
-            affiliated, errs = _affiliate_individual(job_ctx, rec.key, rec.options)
-            results[rec.key] = affiliated
-            errors.extend(errs)
+    for rec in engine.recommend('affiliation', uuids, last_modified):
+        affiliated, errs = _affiliate_individual(job_ctx, rec.key, rec.options)
+        results[rec.key] = affiliated
+        errors.extend(errs)
 
-            if affiliated:
-                nsuccess += 1
+        if affiliated:
+            nsuccess += 1
 
     trxl.close()
 
