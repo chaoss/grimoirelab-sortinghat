@@ -85,6 +85,8 @@
                 <date-input
                   v-model="enrollment.form.fromDate"
                   label="Date from"
+                  nudge-top="20"
+                  nudge-right="10"
                   :max="enrollment.end"
                 />
               </v-card-text>
@@ -144,6 +146,8 @@
                   v-model="enrollment.form.toDate"
                   :min="enrollment.start"
                   label="Date to"
+                  nudge-top="20"
+                  nudge-right="10"
                 />
               </v-card-text>
               <v-card-actions class="pt-0">

@@ -1,10 +1,11 @@
 <template>
   <v-menu
     v-model="openPicker"
+    v-bind="$attrs"
     :close-on-content-click="false"
     transition="scale-transition"
     min-width="290px"
-    nudge-bottom="60"
+    offset-x
     right
   >
     <template v-slot:activator="{ on }">
