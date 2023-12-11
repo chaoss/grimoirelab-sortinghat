@@ -22,7 +22,13 @@
 
       <v-list-item-content>
         <v-list-item-title class="font-weight-medium">
-          {{ name || email }}
+          <router-link
+            :to="{ name: 'Individual', params: { mk: uuid } }"
+            target="_blank"
+            class="link--underline"
+          >
+            <span @click.stop>{{ name || email }}</span>
+          </router-link>
         </v-list-item-title>
         <v-list-item-subtitle v-if="enrollments && enrollments.length > 0">
           {{ enrollments[0].group.name }}
