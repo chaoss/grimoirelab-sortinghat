@@ -27,6 +27,8 @@ from ..db import (find_individual_by_uuid,
                   find_domain,
                   search_enrollments_in_period)
 from ..errors import NotFoundError
+from ..models import (Individual,
+                      MIN_PERIOD_DATE)
 
 
 EMAIL_ADDRESS_PATTERN = re.compile(r"^(?P<email>[^\s@]+@[^\s@.]+\.[^\s@]+)$")
@@ -35,7 +37,7 @@ EMAIL_ADDRESS_PATTERN = re.compile(r"^(?P<email>[^\s@]+@[^\s@.]+\.[^\s@]+)$")
 logger = logging.getLogger(__name__)
 
 
-def recommend_affiliations(uuids):
+def recommend_affiliations(uuids, last_modified=MIN_PERIOD_DATE):
     """Recommend organizations for a list of individuals.
 
     Returns a generator of affiliation recommendations
@@ -59,23 +61,37 @@ def recommend_affiliations(uuids):
     the individual is already enrolled.
 
     :param uuids: list of individual keys
+    :param last_modified: only affiliate individuals that have been
+        modified after this date
 
     :returns: a generator of recommendations
     """
-    logger.debug(
-        f"Generating affiliation recommendations; "
-        f"uuids={uuids}; ..."
-    )
+    if uuids:
+        logger.debug(
+            f"Generating affiliation recommendations; "
+            f"uuids={uuids}; ..."
+        )
 
-    for uuid in uuids:
-        try:
-            individual = find_individual_by_uuid(uuid)
-        except NotFoundError:
-            continue
-        else:
-            yield (uuid, individual.mk, _suggest_affiliations(individual))
+        for uuid in uuids:
+            try:
+                individual = find_individual_by_uuid(uuid)
+            except NotFoundError:
+                continue
+            else:
+                yield uuid, individual.mk, _suggest_affiliations(individual)
 
-    logger.info(f"Affiliation recommendations generated; uuids='{uuids}'")
+        logger.info(f"Affiliation recommendations generated; uuids='{uuids}'")
+    else:
+        logger.debug(
+            "Generating affiliation recommendations; uuids='all'; ..."
+        )
+
+        individuals = Individual.objects.filter(
+            last_modified__gte=last_modified).order_by('mk').iterator()
+
+        for individual in individuals:
+            yield individual.mk, individual.mk, _suggest_affiliations(individual)
+        logger.info("Affiliation recommendations generated; uuids=all")
 
 
 def _suggest_affiliations(individual):
@@ -128,7 +144,7 @@ def _is_enrolled(individual, org_name):
     return len(result) > 0
 
 
-@functools.lru_cache()
+@functools.lru_cache(512)
 def _find_matching_domain(domain):
     """Look for domains and sub-domains that match with the given one."""
 
