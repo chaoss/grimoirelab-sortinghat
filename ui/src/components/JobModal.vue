@@ -43,56 +43,102 @@
             />
           </v-col>
         </v-row>
-        <v-row v-if="selected === 'unify'">
-          <v-col>
-            <v-select
-              v-model="forms.unify.criteria"
-              :items="['name', 'email', 'username']"
-              :menu-props="{ bottom: true, offsetY: true }"
-              label="Criteria"
-              dense
-              hide-details
-              multiple
-              outlined
-            />
-            <v-checkbox
-              v-model="forms.unify.strict"
-              label="Exclude individuals with invalid email adresses and names"
-              id="unify_strict"
-              hide-details
-            />
-            <v-checkbox
-              v-model="forms.unify.exclude"
-              label="Exclude individuals in RecommenderExclusionTerm list"
-              id="unify_exclude"
-            />
-          </v-col>
-        </v-row>
-        <v-row v-if="selected === 'recommendMatches'">
-          <v-col>
-            <v-select
-              v-model="forms.recommendMatches.criteria"
-              :items="['name', 'email', 'username']"
-              :menu-props="{ bottom: true, offsetY: true }"
-              label="Criteria"
-              dense
-              hide-details
-              multiple
-              outlined
-            />
-            <v-checkbox
-              v-model="forms.recommendMatches.strict"
-              label="Exclude individuals with invalid email adresses and names"
-              id="recommend_strict"
-              hide-details
-            />
-            <v-checkbox
-              v-model="forms.recommendMatches.exclude"
-              label="Exclude individuals in RecommenderExclusionTerm list"
-              id="recommend_exclude"
-            />
-          </v-col>
-        </v-row>
+        <v-form v-if="selected === 'unify'">
+          <v-row class="ma-0 mt-2">
+            <v-col class="pa-0 mb-3">
+              <v-checkbox
+                v-model="forms.unify.exclude"
+                label="Exclude individuals in RecommenderExclusionTerm list"
+                dense
+                hide-details
+              />
+              <v-checkbox
+                v-model="forms.unify.strict"
+                label="Exclude individuals with invalid email adresses and names"
+                dense
+                hide-details
+              />
+            </v-col>
+          </v-row>
+          <v-row class="ma-0">
+            <v-col class="pa-0">
+              <fieldset>
+                <legend class="subheader text--secondary">
+                  Unify profiles based on their:
+                </legend>
+                <v-checkbox
+                  v-model="forms.unify.criteria"
+                  label="Name"
+                  value="name"
+                  dense
+                  hide-details
+                />
+                <v-checkbox
+                  v-model="forms.unify.criteria"
+                  label="Email"
+                  value="email"
+                  dense
+                  hide-details
+                />
+                <v-checkbox
+                  v-model="forms.unify.criteria"
+                  label="Username"
+                  value="username"
+                  dense
+                  hide-details
+                />
+              </fieldset>
+            </v-col>
+          </v-row>
+        </v-form>
+        <v-form v-if="selected === 'recommendMatches'">
+          <v-row class="ma-0 mt-2">
+            <v-col class="pa-0 mb-3">
+              <v-checkbox
+                v-model="forms.recommendMatches.exclude"
+                label="Exclude individuals in RecommenderExclusionTerm list"
+                dense
+                hide-details
+              />
+              <v-checkbox
+                v-model="forms.recommendMatches.strict"
+                label="Exclude individuals with invalid email adresses and names"
+                dense
+                hide-details
+              />
+            </v-col>
+          </v-row>
+          <v-row class="ma-0">
+            <v-col class="pa-0">
+              <fieldset>
+                <legend class="subheader text--secondary">
+                  Recommend matches based on:
+                </legend>
+                <v-checkbox
+                  v-model="forms.recommendMatches.criteria"
+                  label="Name"
+                  value="name"
+                  dense
+                  hide-details
+                />
+                <v-checkbox
+                  v-model="forms.recommendMatches.criteria"
+                  label="Email"
+                  value="email"
+                  dense
+                  hide-details
+                />
+                <v-checkbox
+                  v-model="forms.recommendMatches.criteria"
+                  label="Username"
+                  value="username"
+                  dense
+                  hide-details
+                />
+              </fieldset>
+            </v-col>
+          </v-row>
+        </v-form>
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
