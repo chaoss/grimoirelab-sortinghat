@@ -410,7 +410,7 @@
 import {
   getCountries,
   getIndividualByUuid,
-  getPaginatedOrganizations,
+  findOrganization,
 } from "../apollo/queries";
 import {
   deleteIdentity,
@@ -682,7 +682,7 @@ export default {
       this.individual = formatIndividual(newData[0]);
     },
     async fetchOrganizations(page, items, filters) {
-      const response = await getPaginatedOrganizations(
+      const response = await findOrganization(
         this.$apollo,
         page,
         items,

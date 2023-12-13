@@ -277,6 +277,21 @@ const GET_SCHEDULED_TASKS = gql`
   }
 `;
 
+const FIND_ORGANIZATION = gql`
+  query findOrganization(
+    $page: Int
+    $pageSize: Int
+    $filters: OrganizationFilterType
+  ) {
+    organizations(page: $page, pageSize: $pageSize, filters: $filters) {
+      entities {
+        id
+        name
+      }
+    }
+  }
+`;
+
 const getIndividualByUuid = (apollo, uuid) => {
   let response = apollo.query({
     query: GET_INDIVIDUAL_BYUUID,
@@ -445,6 +460,17 @@ const getScheduledTasks = (apollo, jobType, backend) => {
   });
 };
 
+const findOrganization = (apollo, page, pageSize, filters) => {
+  return apollo.query({
+    query: FIND_ORGANIZATION,
+    variables: {
+      page,
+      pageSize,
+      filters,
+    },
+  });
+};
+
 export {
   getCountries,
   getIndividuals,
@@ -460,4 +486,5 @@ export {
   getImportIdentitiesTasks,
   getOrganization,
   getScheduledTasks,
+  findOrganization,
 };
