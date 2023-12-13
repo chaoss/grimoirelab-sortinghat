@@ -1,0 +1,9 @@
+---
+title: Improved loading time when looking for organizations
+category: added
+author: Eva Millán <evamillan@bitergia.com>
+issue: null
+notes: >
+  The autocomplete field that is used to affiliate individuals
+  to organizations now makes fewer and lighter requests to find
+  them, resulting in faster loading times.

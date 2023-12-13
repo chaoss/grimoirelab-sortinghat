@@ -4,10 +4,12 @@
     :items="organizations"
     :search-input.sync="search"
     :label="label"
+    :loading="isLoading"
     item-text="name"
     item-value="name"
     :no-data-text="`No matches for &quot;${search}&quot;`"
-    :hide-no-data="!search"
+    :hide-no-data="!search || isLoading"
+    cache-items
     clearable
     dense
     outlined
@@ -33,6 +35,7 @@ export default {
       inputValue: this.value,
       organizations: [],
       search: this.value,
+      isLoading: false,
     };
   },
   props: {
@@ -55,11 +58,19 @@ export default {
     },
   },
   methods: {
+    debounceSearch(searchValue) {
+      clearTimeout(this.timer);
+
+      this.timer = setTimeout(() => {
+        this.getSelectorItems(searchValue);
+      }, 500);
+    },
     async getSelectorItems(value) {
       const filters = value ? { term: value } : {};
       const response = await this.fetchOrganizations(1, 10, filters);
       if (response) {
         this.organizations = response.entities;
+        this.isLoading = false;
       }
     },
     async createOrganization() {
@@ -89,7 +100,8 @@ export default {
   watch: {
     search(value) {
       if (value && value.length > 2) {
-        this.getSelectorItems(value);
+        this.isLoading = true;
+        this.debounceSearch(value);
       }
     },
     value() {
