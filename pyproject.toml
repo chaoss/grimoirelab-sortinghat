@@ -74,6 +74,8 @@ django-storages = {extras = ["google"], version = "^1.13.2"}
 numpy = "==1.22.0"
 google-auth = "^2.18.0"
 
+urllib3 = "^1.26"  # Pinend to be compatible with Perceval
+
 [tool.poetry.dev-dependencies]
 fakeredis = "^2.0.0"
 httpretty = "^1.1.4"
