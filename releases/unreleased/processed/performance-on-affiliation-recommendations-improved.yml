@@ -1,9 +1,0 @@
----
-title: Performance on affiliation recommendations improved
-category: performance
-author: Santiago Dueñas <sduenas@bitergia.com>
-issue: null
-notes: >
-  We have improved the affiliation performance by
-  one order of magnitude removing unnecessary queries
-  to the database.

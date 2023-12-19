@@ -1,9 +1,0 @@
----
-title: Open calendar to the side of the date input
-category: added
-author: Eva Millán <evamillan@bitergia.com>
-issue: 838
-notes: >
-  The date picker calendar that is used to edit affiliation
-  dates now opens to the right side of the text field to avoid
-  covering it.
