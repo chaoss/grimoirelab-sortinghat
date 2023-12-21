@@ -39,10 +39,13 @@ logger = logging.getLogger(__name__)
 EMAIL_ADDRESS_REGEX = r"^(?P<email>[^\s@]+@[^\s@.]+\.[^\s@]+)$"
 NAME_REGEX = r"^\w+\s\w+"
 
+MATCH_USERNAME_SOURCES = ['github', 'gitlab', 'slack']
+
 
 def recommend_matches(source_uuids, target_uuids,
                       criteria, exclude=True,
                       verbose=False, strict=True,
+                      match_source=False,
                       last_modified=MIN_PERIOD_DATE):
     """Recommend identity matches for a list of individuals.
 
@@ -78,6 +81,7 @@ def recommend_matches(source_uuids, target_uuids,
     :param verbose: if set to `True`, the list of results will include individual
     identities. Otherwise, results will include main keys from individuals
     :param strict: strict matching with well-formed email addresses and names
+    :param match_source: only matching for identities with the same source
     :param last_modified: generate recommendations only for individuals modified after
         this date
 
@@ -128,7 +132,8 @@ def recommend_matches(source_uuids, target_uuids,
         identities = Identity.objects.all()
         target_set.update(identities)
 
-    matched = _find_matches(input_set, target_set, criteria, exclude=exclude, verbose=verbose, strict=strict)
+    matched = _find_matches(input_set, target_set, criteria, exclude=exclude, verbose=verbose, strict=strict,
+                            match_source=match_source)
     # Return filtered results
     for uuid in source_uuids:
         result = set()
@@ -148,7 +153,7 @@ def recommend_matches(source_uuids, target_uuids,
     logger.info(f"Matching recommendations generated; criteria='{criteria}'")
 
 
-def _find_matches(set_x, set_y, criteria, exclude, verbose, strict):
+def _find_matches(set_x, set_y, criteria, exclude, verbose, strict, match_source=False):
     """Find identities matches between two sets using Pandas' library.
 
     This method find matches for the identities in `set_x` looking at
@@ -170,6 +175,7 @@ def _find_matches(set_x, set_y, criteria, exclude, verbose, strict):
     :param verbose: if set to `True`, the list of results will include individual
         identities. Otherwise, results will include main keys from individuals.
     :param strict: strict matching with well-formed email addresses and names
+    :param match_source: only find matches for the same source
 
     :returns: a dictionary including the set of matches found for each
         identity from `set_x`.
@@ -187,10 +193,15 @@ def _find_matches(set_x, set_y, criteria, exclude, verbose, strict):
         df_excluded = df[~df['username'].isin(excluded) & ~df['email'].isin(excluded) & ~df['name'].isin(excluded)]
         return df_excluded
 
-    def _filter_criteria(df, c, strict=True):
+    def _filter_criteria(df, c, strict=True, match_source=False):
         """Filter dataframe creating a basic subset including a given column"""
         cols = ['uuid', 'individual', c]
-        cdf = df[cols]
+        if match_source:
+            cols += ['source']
+            cdf = df[cols]
+            cdf = cdf[cdf['source'].isin(MATCH_USERNAME_SOURCES)]
+        else:
+            cdf = df[cols]
         cdf = cdf.dropna(subset=[c])
 
         if strict and c == 'email':
@@ -216,9 +227,12 @@ def _find_matches(set_x, set_y, criteria, exclude, verbose, strict):
     cdfs = []
 
     for c in criteria:
-        cdf_x = _filter_criteria(df_x, c, strict)
-        cdf_y = _filter_criteria(df_y, c, strict)
-        cdf = pandas.merge(cdf_x, cdf_y, on=c, how='inner')
+        cdf_x = _filter_criteria(df_x, c, strict, match_source)
+        cdf_y = _filter_criteria(df_y, c, strict, match_source)
+        if match_source:
+            cdf = pandas.merge(cdf_x, cdf_y, on=[c, 'source'], how='inner')
+        else:
+            cdf = pandas.merge(cdf_x, cdf_y, on=c, how='inner')
         cdf = cdf[['individual_x', 'uuid_x', 'individual_y', 'uuid_y']]
         cdfs.append(cdf)
 

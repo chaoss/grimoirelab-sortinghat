@@ -402,3 +402,101 @@ class TestRecommendMatches(TestCase):
         self.assertEqual(rec[0], '1234567890abcdefg')
         self.assertEqual(rec[1], '1234567890abcdefg')
         self.assertEqual(rec[2], [])
+
+    def test_recommend_match_source(self):
+        """Test if recommendations are created between same identities with same source"""
+
+        jr3 = api.add_identity(self.ctx,
+                               name='J. Rae',
+                               username='jane_rae',
+                               source='github',
+                               uuid=self.jane_rae.uuid)
+        jrae_github = api.add_identity(self.ctx,
+                                       name='Jane Rae',
+                                       username='jane_rae',
+                                       source='github')
+
+        source_uuids = [self.john_smith.uuid, self.jrae_no_name.uuid, self.jr2.uuid]
+        target_uuids = [self.john_smith.uuid, self.js2.uuid, self.js3.uuid,
+                        self.js4.uuid,
+                        self.jsmith.uuid, self.jsm2.uuid, self.jsm3.uuid,
+                        self.jane_rae.uuid, self.jr2.uuid,
+                        self.js_alt.uuid, self.js_alt2.uuid,
+                        self.js_alt3.uuid, self.js_alt4.uuid,
+                        self.jrae.uuid, self.jrae2.uuid,
+                        self.jrae_no_name.uuid, self.jsmith_no_email.uuid,
+                        jrae_github]
+
+        criteria = ['email', 'name', 'username']
+
+        # Recommend identities which match the fields in `criteria` for the same `source`
+        recs = list(recommend_matches(source_uuids,
+                                      target_uuids,
+                                      criteria,
+                                      match_source=True))
+
+        self.assertEqual(len(recs), 3)
+
+        rec = recs[0]
+        self.assertEqual(rec[0], self.john_smith.uuid)
+        self.assertEqual(rec[1], self.john_smith.individual.mk)
+        self.assertEqual(rec[2], [])
+
+        rec = recs[1]
+        self.assertEqual(rec[0], self.jrae_no_name.uuid)
+        self.assertEqual(rec[1], self.jrae_no_name.individual.mk)
+        self.assertEqual(rec[2], [])
+
+        rec = recs[2]
+        self.assertEqual(rec[0], self.jr2.uuid)
+        self.assertEqual(rec[1], self.jr2.individual.mk)
+        self.assertEqual(rec[2], sorted([jrae_github.individual.mk]))
+
+    def test_recommend_same_source_not_trusted(self):
+        """Matches are not created for ids with same source but not github or gitlab"""
+
+        jr3 = api.add_identity(self.ctx,
+                               name='J. Rae',
+                               username='jane_rae',
+                               source='git',
+                               uuid=self.jane_rae.uuid)
+        jrae_git = api.add_identity(self.ctx,
+                                    name='Jane Rae',
+                                    username='jane_rae',
+                                    source='git')
+
+        source_uuids = [self.john_smith.uuid, self.jrae_no_name.uuid, self.jr2.uuid]
+        target_uuids = [self.john_smith.uuid, self.js2.uuid, self.js3.uuid,
+                        self.js4.uuid,
+                        self.jsmith.uuid, self.jsm2.uuid, self.jsm3.uuid,
+                        self.jane_rae.uuid, self.jr2.uuid,
+                        self.js_alt.uuid, self.js_alt2.uuid,
+                        self.js_alt3.uuid, self.js_alt4.uuid,
+                        self.jrae.uuid, self.jrae2.uuid,
+                        self.jrae_no_name.uuid, self.jsmith_no_email.uuid,
+                        jrae_git]
+
+        criteria = ['email', 'name', 'username']
+
+        # Recommend identities which match the fields in `criteria` for the same `source`
+        recs = list(recommend_matches(source_uuids,
+                                      target_uuids,
+                                      criteria,
+                                      match_source=True))
+
+        self.assertEqual(len(recs), 3)
+
+        rec = recs[0]
+        self.assertEqual(rec[0], self.john_smith.uuid)
+        self.assertEqual(rec[1], self.john_smith.individual.mk)
+        self.assertEqual(rec[2], [])
+
+        rec = recs[1]
+        self.assertEqual(rec[0], self.jrae_no_name.uuid)
+        self.assertEqual(rec[1], self.jrae_no_name.individual.mk)
+        self.assertEqual(rec[2], [])
+
+        rec = recs[2]
+        self.assertEqual(rec[0], self.jr2.uuid)
+        self.assertEqual(rec[1], self.jr2.individual.mk)
+        self.assertEqual(rec[2], [])

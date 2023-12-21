@@ -54,7 +54,13 @@
               />
               <v-checkbox
                 v-model="forms.unify.strict"
-                label="Exclude individuals with invalid email adresses and names"
+                label="Exclude individuals with invalid email addresses and names"
+                dense
+                hide-details
+              />
+              <v-checkbox
+                v-model="forms.unify.matchSource"
+                label="Only unify identities that share the same source"
                 dense
                 hide-details
               />
@@ -103,6 +109,12 @@
               <v-checkbox
                 v-model="forms.recommendMatches.strict"
                 label="Exclude individuals with invalid email adresses and names"
+                dense
+                hide-details
+              />
+              <v-checkbox
+                v-model="forms.recommendMatches.matchSource"
+                label="Only recommend identities that share the same source"
                 dense
                 hide-details
               />
@@ -191,11 +203,13 @@ const defaultForms = {
     criteria: ["name", "email", "username"],
     exclude: true,
     strict: true,
+    matchSource: false,
   },
   recommendMatches: {
     criteria: ["name", "email", "username"],
     exclude: true,
     strict: true,
+    matchSource: false,
   },
 };
 

@@ -62,9 +62,9 @@ export default {
         });
       }
     },
-    async unify({ criteria, exclude, strict }) {
+    async unify({ criteria, exclude, strict, matchSource }) {
       try {
-        await unify(this.$apollo, criteria, exclude, strict);
+        await unify(this.$apollo, criteria, exclude, strict, matchSource);
         this.$refs.table.getPaginatedJobs();
       } catch (error) {
         this.snackbar = Object.assign(this.snackbar, {
@@ -73,9 +73,15 @@ export default {
         });
       }
     },
-    async recommendMatches({ criteria, exclude, strict }) {
+    async recommendMatches({ criteria, exclude, strict, matchSource }) {
       try {
-        await recommendMatches(this.$apollo, criteria, exclude, strict);
+        await recommendMatches(
+          this.$apollo,
+          criteria,
+          exclude,
+          strict,
+          matchSource
+        );
         this.$refs.table.getPaginatedJobs();
       } catch (error) {
         this.snackbar = Object.assign(this.snackbar, {

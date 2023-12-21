@@ -141,7 +141,13 @@
                 />
                 <v-checkbox
                   v-model="tasks.unify.params.strict"
-                  label="Exclude individuals with invalid email adresses and names"
+                  label="Exclude individuals with invalid email addresses and names"
+                  dense
+                  hide-details
+                />
+                <v-checkbox
+                  v-model="tasks.unify.params.match_source"
+                  label="Only unify identities that share the same source"
                   dense
                   hide-details
                 />
@@ -258,6 +264,7 @@ export default {
             criteria: ["name", "email", "username"],
             exclude: true,
             strict: true,
+            match_source: false,
           },
         },
       },
