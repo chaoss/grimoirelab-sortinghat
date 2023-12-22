@@ -162,7 +162,7 @@ export default {
         return 0;
       }
       const uniqueIndividuals = new Set(
-        enrollments.map((item) => item.individual.mk)
+        enrollments.map((item) => item.id)
       );
 
       return uniqueIndividuals.size;
