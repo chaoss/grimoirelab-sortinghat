@@ -115,9 +115,6 @@ const GET_PAGINATED_ORGANIZATIONS = gql`
         name
         enrollments {
           id
-          individual {
-            mk
-          }
         }
         domains {
           domain

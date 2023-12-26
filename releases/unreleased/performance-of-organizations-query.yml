@@ -1,0 +1,8 @@
+---
+title: Performance of organizations query
+category: performance
+author: Jose Javier Merchante <jjmerchante@bitergia.com>
+issue: null
+notes: >
+  Improve organization query for the table by avoiding individual
+  queries.
