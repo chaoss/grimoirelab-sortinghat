@@ -20,8 +20,11 @@
 #
 
 import json
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
+from django.views.decorators.http import require_POST
 
 from graphene_django.views import GraphQLView as BaseGraphQLView
 from graphql_jwt.exceptions import (PermissionDenied,
@@ -86,3 +89,30 @@ def change_password(request):
                                 content_type='application/json')
     else:
         return HttpResponse(status=405)
+
+
+@require_POST
+def api_login(request):
+    data = json.loads(request.body)
+    username = data.get('username')
+    password = data.get('password')
+
+    if username is None or password is None:
+        return JsonResponse({'detail': 'Please provide username and password.'},
+                            status=400)
+
+    user = authenticate(username=username, password=password)
+
+    if user is None:
+        response = {
+            'errors': 'Invalid credentials.'
+        }
+        return HttpResponseForbidden(json.dumps(response),
+                                     content_type='application/json')
+    else:
+        login(request, user)
+        response = {
+            'user': username,
+            'isAdmin': user.is_superuser
+        }
+        return JsonResponse(response)
