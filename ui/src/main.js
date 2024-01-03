@@ -15,70 +15,64 @@ import GetErrorMessage from "./plugins/errors";
 
 const API_URL = process.env.VUE_APP_API_URL || `${process.env.BASE_URL}api/`;
 
-// Force HTTP GET to the Django Server for getting the csrf token
-fetch(API_URL, { credentials: "include" }).then(() => {
+// HTTP connection to the API
+const httpLink = createHttpLink({
+  uri: API_URL,
+  credentials: "include",
+});
+
+// Cache implementation
+// Specify object IDs so Apollo can update the cache automatically
+// https://www.apollographql.com/docs/react/v2/caching/cache-configuration/#custom-identifiers
+const cache = new InMemoryCache({
+  dataIdFromObject: (object) => {
+    switch (object.__typename) {
+      case "IndividualType":
+        return object.mk;
+      case "IdentityType":
+        return object.uuid;
+      default:
+        return defaultDataIdFromObject(object);
+    }
+  },
+});
+
+const AuthLink = (operation, next) => {
   const csrftoken = Cookies.get("csrftoken");
 
-  // HTTP connection to the API
-  const httpLink = createHttpLink({
-    uri: API_URL,
-    credentials: "include",
-  });
-
-  // Cache implementation
-  // Specify object IDs so Apollo can update the cache automatically
-  // https://www.apollographql.com/docs/react/v2/caching/cache-configuration/#custom-identifiers
-  const cache = new InMemoryCache({
-    dataIdFromObject: (object) => {
-      switch (object.__typename) {
-        case "IndividualType":
-          return object.mk;
-        case "IdentityType":
-          return object.uuid;
-        default:
-          return defaultDataIdFromObject(object);
-      }
+  operation.setContext((context) => ({
+    ...context,
+    headers: {
+      ...context.headers,
+      "X-CSRFToken": csrftoken,
     },
-  });
+  }));
+  return next(operation);
+};
 
-  const AuthLink = (operation, next) => {
-    const token = csrftoken;
-    const authtoken = Cookies.get("sh_authtoken");
-    operation.setContext((context) => ({
-      ...context,
-      headers: {
-        ...context.headers,
-        "X-CSRFToken": token,
-        Authorization: authtoken ? `JWT ${authtoken}` : "",
-      },
-    }));
-    return next(operation);
-  };
+const link = ApolloLink.from([AuthLink, httpLink]);
 
-  const link = ApolloLink.from([AuthLink, httpLink]);
-
-  // Create the apollo client
-  const apolloClient = new ApolloClient({
-    link: link,
-    cache,
-  });
-
-  Vue.use(VueApollo);
-  Vue.use(VueRouter);
-  Vue.use(Logger);
-  Vue.use(GetErrorMessage);
-
-  const apolloProvider = new VueApollo({
-    defaultClient: apolloClient,
-  });
-
-  Vue.config.productionTip = false;
-
-  new Vue({
-    router,
-    store,
-    vuetify,
-    apolloProvider,
-    render: (h) => h(App),
-  }).$mount("#app");
+// Create the apollo client
+const apolloClient = new ApolloClient({
+  link: link,
+  cache,
 });
+
+Vue.use(VueApollo);
+Vue.use(VueRouter);
+Vue.use(Logger);
+Vue.use(GetErrorMessage);
+
+const apolloProvider = new VueApollo({
+  defaultClient: apolloClient,
+});
+
+Vue.config.productionTip = false;
+
+new Vue({
+  router,
+  store,
+  vuetify,
+  apolloProvider,
+  render: (h) => h(App),
+}).$mount("#app");
