@@ -36,8 +36,6 @@ from .errors import (CODE_TOKEN_EXPIRED,
                      CODE_INVALID_CREDENTIALS,
                      CODE_UNKNOWN_ERROR)
 
-from .decorators import jwt_login_required
-
 
 class SortingHatGraphQLView(BaseGraphQLView):
     """Base GraphQL view for SortingHat server."""
@@ -69,7 +67,7 @@ class SortingHatGraphQLView(BaseGraphQLView):
         return formatted_error
 
 
-@jwt_login_required
+@login_required
 def change_password(request):
     if request.method == 'POST':
         form = PasswordChangeForm(request.user, request.POST)

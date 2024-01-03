@@ -27,13 +27,36 @@ import django.db.transaction
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
-from graphql_jwt.decorators import user_passes_test
+from django.middleware.csrf import CsrfViewMiddleware
+from graphql_jwt.decorators import context
 from graphql_jwt.utils import get_credentials
 from graphql_jwt.shortcuts import get_user_by_token
-from graphql_jwt.exceptions import JSONWebTokenError
-
+from graphql_jwt.exceptions import JSONWebTokenError, PermissionDenied
 from . import tenant
 from .errors import InvalidValueError
+
+
+# Checks that the request has a JSON web token or a CSRF token
+# before it executes the test function
+def user_passes_test(test_func, exc=PermissionDenied, CSRFCheck=CsrfViewMiddleware):
+    def decorator(f):
+        @wraps(f)
+        @context(f)
+        def wrapper(context, *args, **kwargs):
+            http_auth = context.META.get("HTTP_AUTHORIZATION")
+            if http_auth and "JWT" in http_auth:
+                pass
+            else:
+                check = CSRFCheck(context)
+                failure_reason = check.process_view(context, None, (), {})
+                if failure_reason:
+                    raise exc
+            if test_func(context.user):
+                return f(*args, **kwargs)
+            raise exc
+        return wrapper
+    return decorator
+
 
 # This custom decorator takes the `user` object from the request's
 # context and checks the value of the `is_authenticated` variable
