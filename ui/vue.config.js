@@ -2,7 +2,7 @@ var path = require("path");
 const { argv } = require("yargs");
 
 module.exports = {
-  publicPath: process.env.NODE_ENV === "production" ? "/identities/" : "/",
+  publicPath: argv.publicpath ? argv.publicpath : process.env.NODE_ENV === "production" ? "/identities/" : "/",
   outputDir: path.resolve(__dirname, "../sortinghat/", "core", "static"),
   indexPath: path.resolve(
     __dirname,

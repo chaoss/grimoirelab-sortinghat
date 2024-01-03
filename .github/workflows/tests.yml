@@ -148,9 +148,8 @@ jobs:
         uses: cypress-io/github-action@v5
         with:
           install: false
-          start: yarn serve --api_url=http://localhost:8000/api/
-          command: yarn test:e2e --config baseUrl=http://localhost:8080
-          wait-on: 'http://localhost:8080, http://localhost:8000/api/'
+          command: yarn test:e2e --config baseUrl=http://localhost:8000
+          wait-on: 'http://localhost:8000/api/'
           spec: tests/e2e/specs/*.js
           working-directory: ./ui
         env:
