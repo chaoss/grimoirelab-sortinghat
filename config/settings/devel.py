@@ -89,9 +89,8 @@ SECRET_KEY = 'fake-key'
 STATICFILES_DIRS = [
     "./sortinghat/core/static",
 ]
-STATIC_ROOT = "/tmp/static/"
 
-STATIC_URL = '/'
+STATIC_URL = '/static/'
 
 MEDIA_URL = 'http://media.example.com/'
 

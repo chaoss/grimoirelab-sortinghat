@@ -124,11 +124,16 @@ $ cd ui/
 $ yarn install
 ```
 
-#### Running the frontend
+#### Running the frontend on development mode
 
-Run SortingHat frontend Vue app:
+Run SortingHat backend Django app:
 ```
-$ yarn serve --api_url=http://localhost:8000/api/
+(.venv)$ ./manage.py runserver --settings=config.settings.devel
+```
+
+Build the frontend and watch for changes:
+```
+$ yarn watch --api_url=http://localhost:8000/api/ --publicpath="/static/" --mode development
 ```
 
 

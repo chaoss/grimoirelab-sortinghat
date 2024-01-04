@@ -3,10 +3,8 @@ import { aliasQuery } from "../utils/graphql-test-utils";
 describe("Login", () => {
   beforeEach(() => {
     cy.clearCookies();
-    // Intercept GraphQL requests to wait for them in the tests
-    cy.intercept("POST", "/api/", (req) => {
-      aliasQuery(req, "tokenAuth");
-    });
+    // Intercept requests to wait for them in the tests
+    cy.intercept("POST", "/api/login/").as('auth')
   });
 
   it("Logs in a user", () => {
@@ -17,10 +15,10 @@ describe("Login", () => {
     cy.get("[id=password]").type(Cypress.env("PASSWORD"));
     cy.contains("button", "Log in").click();
 
-    // Returns a token
-    cy.wait("@tokenAuth")
-      .its("response.body.data.tokenAuth")
-      .should("not.be.null");
+    // Returns the user
+    cy.wait("@auth")
+      .its("response.body.user")
+      .should("equal", Cypress.env("USERNAME"));
 
     // Redirects and shows the logged in user
     cy.location("pathname").should("equal", "/");
@@ -36,8 +34,8 @@ describe("Login", () => {
     cy.get("[id=password]").type("wrong-password");
     cy.contains("button", "Log in").click();
 
-    // Does not return a token
-    cy.wait("@tokenAuth").its("response.body.data.tokenAuth").should("be.null");
+    // Returns an error
+    cy.wait("@auth").its("response.statusCode").should("equal", 403);
 
     // still on /login page plus an error is displayed
     cy.location("pathname").should("equal", "/login");
@@ -60,7 +58,7 @@ describe("Authenticated operations", () => {
 
   beforeEach(() => {
     // Set the token cookies in each test
-    Cypress.Cookies.preserveOnce("sh_authtoken", "csrftoken");
+    Cypress.Cookies.preserveOnce("sh_user", "csrftoken", "sessionid");
 
     // Intercept GraphQL requests to wait for them in the tests
     cy.intercept("POST", "/api/", (req) => {

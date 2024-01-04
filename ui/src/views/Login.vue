@@ -60,7 +60,6 @@ export default {
     async submit() {
       try {
         const authDetails = {
-          apollo: this.$apollo,
           username: this.username,
           password: this.password,
         };

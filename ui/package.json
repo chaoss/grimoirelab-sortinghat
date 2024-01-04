@@ -9,7 +9,8 @@
     "test:e2e": "cypress run --e2e",
     "lint": "vue-cli-service lint",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "build-storybook": "build-storybook",
+    "watch": "vue-cli-service build --watch"
   },
   "dependencies": {
     "apollo-cache-inmemory": "^1.6.6",

@@ -6,38 +6,29 @@ let uuids = [
 
 Cypress.Commands.add("login", () => {
   // Get and save the CRSF token
-  cy.intercept("GET", API_URL).as("tokenCheck");
   cy.visit("/");
-  cy.wait("@tokenCheck");
   cy.getCookie("csrftoken").should("exist").as("csrfToken");
 
   cy.get("@csrfToken").then((csrfToken) => {
-    // Login using the GraphQL mutation
     cy.request({
       method: "POST",
-      url: API_URL,
+      url: `${API_URL}login/`,
       body: {
-        operationName: "tokenAuth",
-        query: `mutation tokenAuth($username: String!, $password: String!) {
-          tokenAuth(username: $username, password: $password) {
-            token
-          }}`,
-        variables: {
-          username: Cypress.env("USERNAME"),
-          password: Cypress.env("PASSWORD"),
-        },
+        username: Cypress.env("USERNAME"),
+        password: Cypress.env("PASSWORD"),
       },
       headers: {
         "X-CSRFTOKEN": csrfToken.value,
       },
     })
-      .its("body.data.tokenAuth.token")
-      .then((authToken) => {
-        cy.setCookie("sh_authtoken", authToken);
+      .its("body.user")
+      .then((user) => {
+        console.log(user)
+        cy.setCookie("sh_user", user);
       });
   });
 
-  cy.getCookie("sh_authtoken").should("exist");
+  cy.getCookie("sh_user").should("exist");
   cy.getCookie("csrftoken").should("exist");
 });
 
@@ -50,31 +41,27 @@ Cypress.Commands.add("orderBy", (option) => {
 
 Cypress.Commands.add("addIndividuals", (individuals) => {
   cy.getCookie("csrftoken").then((csrfToken) => {
-    cy.getCookie("sh_authtoken").then((authToken) => {
-      // Add individual using the GraphQL mutation
-      individuals.forEach((individual) => {
-        cy.request({
-          method: "POST",
-          url: API_URL,
-          body: {
-            operationName: "addIdentity",
-            query: `mutation addIdentity($name: String) {
-              addIdentity(name: $name, source: "git") {
-                uuid
-              }}`,
-            variables: {
-              name: individual,
-            },
+    individuals.forEach((individual) => {
+      cy.request({
+        method: "POST",
+        url: API_URL,
+        body: {
+          operationName: "addIdentity",
+          query: `mutation addIdentity($name: String) {
+            addIdentity(name: $name, source: "git") {
+              uuid
+            }}`,
+          variables: {
+            name: individual,
           },
-          headers: {
-            "X-CSRFTOKEN": csrfToken.value,
-            Authorization: `JWT ${authToken.value}`,
-          },
-        }).then((response) => {
-          if (response.body.data.addIdentity) {
-            uuids.push(response.body.data.addIdentity.uuid);
-          }
-        });
+        },
+        headers: {
+          "X-CSRFTOKEN": csrfToken.value,
+        },
+      }).then((response) => {
+        if (response.body.data.addIdentity) {
+          uuids.push(response.body.data.addIdentity.uuid);
+        }
       });
     });
   });
@@ -82,26 +69,23 @@ Cypress.Commands.add("addIndividuals", (individuals) => {
 
 Cypress.Commands.add("deleteIndividuals", () => {
   cy.getCookie("csrftoken").then((csrfToken) => {
-    cy.getCookie("sh_authtoken").then((authToken) => {
-      uuids.forEach((uuid) => {
-        cy.request({
-          method: "POST",
-          url: API_URL,
-          body: {
-            operationName: "DeleteIdentity",
-            query: `mutation DeleteIdentity($uuid: String) {
-              deleteIdentity(uuid: $uuid) {
-                uuid
-              }}`,
-            variables: {
-              uuid: uuid,
-            },
+    uuids.forEach((uuid) => {
+      cy.request({
+        method: "POST",
+        url: API_URL,
+        body: {
+          operationName: "DeleteIdentity",
+          query: `mutation DeleteIdentity($uuid: String) {
+            deleteIdentity(uuid: $uuid) {
+              uuid
+            }}`,
+          variables: {
+            uuid: uuid,
           },
-          headers: {
-            "X-CSRFTOKEN": csrfToken.value,
-            Authorization: `JWT ${authToken.value}`,
-          },
-        });
+        },
+        headers: {
+          "X-CSRFTOKEN": csrfToken.value,
+        },
       });
     });
   });

@@ -1,0 +1,11 @@
+---
+title: CSRF token is only required on web requests
+category: fixed
+author: Eva Millán <evamillan@bitergia
+issue: null
+notes: >
+  The GraphQL API required the 'X-CSRFToken' header, but the
+  token could only be retrieved by making a GET request.
+  Now, requests authenticated using JWT don't need to provide the
+  CSRF token and only the user interface, which is vulnerable
+  to CSRF attacks and uses a different authentication, requires it.
