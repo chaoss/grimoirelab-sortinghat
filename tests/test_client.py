@@ -54,29 +54,14 @@ class MockSortingHatServer:
     MUTATION_AUTH_TOKEN = """mutation {\ntokenAuth(username: "admin", password: "admin") {\ntoken\n}\n}"""
     MUTATION_AUTH_TOKEN_INVALID = """mutation {\ntokenAuth(username: "admin", password: "1234") {\ntoken\n}\n}"""
 
-    def __init__(self, base_url, raise_error_on_get=False):
+    def __init__(self, base_url):
         self.base_url = base_url
-        self.raise_error_on_get = raise_error_on_get
 
         httpretty.enable()
 
-        httpretty.register_uri(httpretty.GET,
-                               self.base_url,
-                               responses=[
-                                   httpretty.Response(body=self.get_callback)
-                               ])
         httpretty.register_uri(httpretty.POST,
                                self.base_url,
                                body=self.graphql_callback)
-
-    def get_callback(self, method, uri, headers):
-        if self.raise_error_on_get:
-            return [500, {}, "HTTP 500 Internal server error"]
-
-        response_headers = {
-            'Set-Cookie': 'csrftoken=ABCDEFGHIJK'
-        }
-        return [200, response_headers, "SortingHat server"]
 
     def graphql_callback(self, request, uri, response_headers):
         query = json.loads(request.body)['query']
@@ -137,35 +122,12 @@ class TestSortingHatClient(unittest.TestCase):
 
         self.assertIsInstance(client.gqlc, sgqlc.endpoint.requests.RequestsEndpoint)
 
-        latest_requests = httpretty.latest_requests()
-        self.assertEqual(len(latest_requests), 1)
-
-        request = latest_requests[0]
-        self.assertEqual(request.method, 'GET')
-
-        headers = dict(request.headers)
-        self.assertEqual(headers['Host'], 'localhost:9314')
-        self.assertEqual(headers['Accept'], 'text/html')
-
-        # Connection was established and tokens set
+        # Connection was established
         expected = {
-            'X-CSRFToken': 'ABCDEFGHIJK',
-            'Cookie': 'csrftoken=ABCDEFGHIJK',
             'Referer': 'http://localhost:9314/',
             'Host': 'localhost:9314'
         }
         self.assertDictEqual(client.gqlc.base_headers, expected)
-
-    @httpretty.activate
-    def test_connection_error(self):
-        """Test whether it raises an exception on server connection errors"""
-
-        MockSortingHatServer(SORTINGHAT_SERVER_URL,
-                             raise_error_on_get=True)
-        client = SortingHatClient('localhost', ssl=False)
-
-        with self.assertRaisesRegex(SortingHatClientError, CONNECTION_ERROR):
-            client.connect()
 
     @httpretty.activate
     def test_disconnect(self):
@@ -189,10 +151,10 @@ class TestSortingHatClient(unittest.TestCase):
         self.assertIsInstance(client.gqlc, sgqlc.endpoint.requests.RequestsEndpoint)
 
         latest_requests = httpretty.latest_requests()
-        self.assertEqual(len(latest_requests), 3)
+        self.assertEqual(len(latest_requests), 2)
 
         request = latest_requests[0]
-        self.assertEqual(request.method, 'GET')
+        self.assertEqual(request.method, 'POST')
         self.assertEqual(dict(request.headers)['Host'], 'localhost:9314')
 
         request = latest_requests[1]
@@ -202,8 +164,6 @@ class TestSortingHatClient(unittest.TestCase):
         # Connection was established and authorization was completed
         expected = {
             'Authorization': 'JWT 12345678',
-            'X-CSRFToken': 'ABCDEFGHIJK',
-            'Cookie': 'csrftoken=ABCDEFGHIJK',
             'Referer': 'http://localhost:9314/',
             'Host': 'localhost:9314'
         }
@@ -312,20 +272,8 @@ class TestSortingHatClient(unittest.TestCase):
 
         self.assertIsInstance(client.gqlc, sgqlc.endpoint.requests.RequestsEndpoint)
 
-        latest_requests = httpretty.latest_requests()
-        self.assertEqual(len(latest_requests), 1)
-
-        request = latest_requests[0]
-        self.assertEqual(request.method, 'GET')
-
-        headers = dict(request.headers)
-        self.assertEqual(headers['Host'], 'localhost:9314')
-        self.assertEqual(headers['Accept'], 'text/html')
-
         # Connection was established and tokens set
         expected = {
-            'X-CSRFToken': 'ABCDEFGHIJK',
-            'Cookie': 'csrftoken=ABCDEFGHIJK',
             'Referer': 'https://localhost:9314/',
             'Host': 'localhost:9314',
             'sortinghat-tenant': 'tenant_1'

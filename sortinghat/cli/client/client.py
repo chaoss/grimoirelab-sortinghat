@@ -107,17 +107,7 @@ class SortingHatClient:
         session = requests.Session()
         session.verify = self.verify_ssl
 
-        try:
-            result = session.get(self.url, headers={'Accept': 'text/html'})
-            result.raise_for_status()
-        except requests.exceptions.RequestException as exc:
-            if result.status_code != 400:
-                msg = "Connection error; cause: {}".format(exc)
-                raise SortingHatClientError(msg)
-
         headers = {
-            'X-CSRFToken': result.cookies['csrftoken'],
-            'Cookie': 'csrftoken=' + result.cookies['csrftoken'],
             'Host': f"{self.host}:{self.port}" if self.port else self.host,
             'Referer': self.url
         }
