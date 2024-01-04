@@ -1002,6 +1002,66 @@ class TestRecommendMatches(TestCase):
                 MergeRecommendation.objects.filter(individual1=rec[0],
                                                    individual2=rec[1]).exists())
 
+    def test_recommend_matches_match_source(self):
+        """Check if recommendations are obtained when the identities share the source"""
+
+        ctx = SortingHatContext(self.user)
+
+        jr3 = api.add_identity(self.ctx,
+                               name='J. Rae',
+                               username='jane_rae',
+                               source='github',
+                               uuid=self.jane_rae.uuid)
+        jrae_github = api.add_identity(self.ctx,
+                                       name='Jane Rae',
+                                       username='jane_rae',
+                                       source='github')
+
+        # Test
+        expected = {
+            'results': {
+                self.john_smith.uuid: [],
+                self.jrae_no_name.uuid: [],
+                self.jr2.uuid: sorted([jrae_github.individual.mk])
+            }
+        }
+
+        recommendations_expected = [
+            sorted([self.jr2.individual.mk, jrae_github.individual.mk])
+        ]
+
+        source_uuids = [self.john_smith.uuid, self.jrae_no_name.uuid, self.jr2.uuid]
+        target_uuids = [self.john_smith.uuid, self.js2.uuid, self.js3.uuid,
+                        self.jsmith.uuid, self.jsm2.uuid, self.jsm3.uuid,
+                        self.jane_rae.uuid, self.jr2.uuid,
+                        self.js_alt.uuid, self.js_alt2.uuid,
+                        self.js_alt3.uuid, self.js_alt4.uuid,
+                        self.jrae.uuid, self.jrae2.uuid, self.jrae_no_name.uuid,
+                        jrae_github]
+
+        criteria = ['email', 'name', 'username']
+
+        # Identities which don't have the fields in `criteria` or no matches won't be returned
+        job = recommend_matches.delay(ctx,
+                                      source_uuids,
+                                      target_uuids,
+                                      criteria,
+                                      strict=False,
+                                      match_source=True)
+        # Preserve job results order for the comparison against the expected results
+        result = job.result
+        for key in result['results']:
+            result['results'][key] = sorted(result['results'][key])
+
+        self.assertDictEqual(result, expected)
+
+        self.assertEqual(MergeRecommendation.objects.count(), 1)
+
+        for rec in recommendations_expected:
+            self.assertTrue(
+                MergeRecommendation.objects.filter(individual1=rec[0],
+                                                   individual2=rec[1]).exists())
+
     def test_recommend_source_not_mk(self):
         """Check if recommendations work when the provided uuid is not an Individual's main key"""
 
@@ -1341,6 +1401,45 @@ class TestUnify(TestCase):
         individual_2 = Individual.objects.get(mk=self.jrae.uuid)
         identities = individual_2.identities.all()
         self.assertEqual(len(identities), 5)
+
+    def test_unify_match_source(self):
+        """Check if unify is applied when the identities share the source"""
+
+        jr3 = api.add_identity(self.ctx,
+                               name='J. Rae',
+                               username='jane_rae',
+                               source='github',
+                               uuid=self.jane_rae.uuid)
+        jrae_github = api.add_identity(self.ctx,
+                                       name='Jane Rae',
+                                       username='jane_rae',
+                                       source='github')
+
+        ctx = SortingHatContext(self.user)
+
+        # Test
+        expected = {
+            'results': [jrae_github.uuid],
+            'errors': []
+        }
+
+        criteria = ['email', 'name', 'username']
+
+        # Identities which don't have the fields in `criteria` or no matches won't be returned
+        job = unify.delay(ctx,
+                          criteria,
+                          None,
+                          None,
+                          match_source=True)
+
+        result = job.result
+        self.assertDictEqual(result, expected)
+
+        # Checking if the identities have been merged
+
+        individual = Individual.objects.get(mk=jrae_github.uuid)
+        identities = individual.identities.all()
+        self.assertEqual(len(identities), 4)
 
     def test_unify_last_modified(self):
         """Check if unify is applied only for individuals updated after a given date"""

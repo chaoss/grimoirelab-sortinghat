@@ -1,0 +1,9 @@
+---
+title: Unify identities with same source
+category: added
+author: Jose Javier Merchante <jjmerchante@bitergia.com>
+issue: null
+notes: >
+  Include a new option to only recommend or unify identities
+  from trusted sources like GitHub or GitLab that have the same
+  username and backend.

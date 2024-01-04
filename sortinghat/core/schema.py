@@ -1075,6 +1075,7 @@ class RecommendMatches(graphene.Mutation):
         verbose = graphene.Boolean(required=False)
         exclude = graphene.Boolean(required=False)
         strict = graphene.Boolean(required=False)
+        match_source = graphene.Boolean(required=False)
         last_modified = graphene.DateTime(required=False)
 
     job_id = graphene.Field(lambda: graphene.String)
@@ -1084,7 +1085,7 @@ class RecommendMatches(graphene.Mutation):
     def mutate(self, info, criteria,
                source_uuids=None, target_uuids=None,
                exclude=True, verbose=False, strict=True,
-               last_modified=MIN_PERIOD_DATE):
+               match_source=False, last_modified=MIN_PERIOD_DATE):
         user = info.context.user
         tenant = get_db_tenant()
         ctx = SortingHatContext(user=user, tenant=tenant)
@@ -1097,6 +1098,7 @@ class RecommendMatches(graphene.Mutation):
                       exclude,
                       verbose,
                       strict,
+                      match_source,
                       last_modified,
                       job_timeout=-1)
 
@@ -1158,6 +1160,7 @@ class Unify(graphene.Mutation):
         criteria = graphene.List(graphene.String)
         exclude = graphene.Boolean(required=False)
         strict = graphene.Boolean(required=False)
+        match_source = graphene.Boolean(required=False)
         last_modified = graphene.DateTime(required=False)
 
     job_id = graphene.Field(lambda: graphene.String)
@@ -1167,12 +1170,22 @@ class Unify(graphene.Mutation):
     def mutate(self, info, criteria,
                source_uuids=None, target_uuids=None,
                exclude=True, strict=True,
+               match_source=False,
                last_modified=MIN_PERIOD_DATE):
         user = info.context.user
         tenant = get_db_tenant()
         ctx = SortingHatContext(user=user, tenant=tenant)
 
-        job = enqueue(unify, ctx, criteria, source_uuids, target_uuids, exclude, strict, last_modified, job_timeout=-1)
+        job = enqueue(unify,
+                      ctx,
+                      criteria,
+                      source_uuids,
+                      target_uuids,
+                      exclude,
+                      strict,
+                      match_source,
+                      last_modified,
+                      job_timeout=-1)
 
         return Unify(
             job_id=job.id

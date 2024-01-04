@@ -9728,11 +9728,13 @@ class TestUnifyMutation(django.test.TestCase):
                        $targetUuids: [String],
                        $criteria: [String],
                        $strict: Boolean,
+                       $matchSource: Boolean,
                        $lastModified: DateTime) {
             unify(sourceUuids: $sourceUuids,
                   targetUuids: $targetUuids,
                   criteria: $criteria,
                   strict: $strict,
+                  matchSource: $matchSource
                   lastModified: $lastModified) {
                 jobId
             }
@@ -10163,6 +10165,68 @@ class TestUnifyMutation(django.test.TestCase):
         identities = individual_db_1.identities.all()
 
         self.assertEqual(len(identities), 7)
+
+    @unittest.mock.patch('sortinghat.core.jobs.rq.job.uuid4')
+    def test_unify_match_source(self, mock_job_id_gen):
+        """Check if unify is applied for the specified individuals"""
+
+        mock_job_id_gen.return_value = "1234-5678-90AB-CDEF"
+
+        client = graphene.test.Client(schema)
+
+        jr3 = api.add_identity(self.ctx,
+                               name='J. Rae',
+                               username='jane_rae',
+                               source='github',
+                               uuid=self.jane_rae.uuid)
+        jrae_github = api.add_identity(self.ctx,
+                                       name='Jane Rae',
+                                       username='jane_rae',
+                                       source='github')
+
+        params = {
+            'sourceUuids': [self.john_smith.uuid, self.jrae3.uuid, self.jr2.uuid],
+            'targetUuids': [self.john_smith.uuid, self.js2.uuid, self.js3.uuid,
+                            self.jsmith.uuid, self.jsm2.uuid, self.jsm3.uuid,
+                            self.jane_rae.uuid, self.jr2.uuid,
+                            self.js_alt.uuid, self.js_alt2.uuid,
+                            self.js_alt3.uuid, self.js_alt4.uuid,
+                            self.jrae.uuid, self.jrae2.uuid, self.jrae3.uuid,
+                            jrae_github.uuid],
+            'criteria': ['email', 'name', 'username'],
+            'strict': False,
+            'matchSource': True
+        }
+
+        executed = client.execute(self.SH_UNIFY,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        # Check if the job was run and individuals were merged
+        job_id = executed['data']['unify']['jobId']
+        self.assertEqual(job_id, "1234-5678-90AB-CDEF")
+
+        # Individual 1 no changed
+        individual_db_1 = Individual.objects.get(mk=self.jsmith.uuid)
+        identities = individual_db_1.identities.all()
+        self.assertEqual(len(identities), 3)
+
+        # Individual 3 with new identities merged
+        individual_db_2 = Individual.objects.get(mk=jrae_github.uuid)
+        identities = individual_db_2.identities.all()
+        self.assertEqual(len(identities), 4)
+
+        id1 = identities[0]
+        self.assertEqual(id1, jrae_github)
+
+        id2 = identities[1]
+        self.assertEqual(id2, jr3)
+
+        id3 = identities[2]
+        self.assertEqual(id3, self.jane_rae)
+
+        id4 = identities[3]
+        self.assertEqual(id4, self.jr2)
 
     @unittest.mock.patch('sortinghat.core.jobs.rq.job.uuid4')
     def test_unify_source_not_mk(self, mock_job_id_gen):

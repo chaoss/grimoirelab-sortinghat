@@ -205,7 +205,8 @@ def recommend_affiliations(ctx, uuids=None, last_modified=MIN_PERIOD_DATE):
 def recommend_matches(ctx, source_uuids,
                       target_uuids, criteria,
                       exclude=True, verbose=False,
-                      strict=True, last_modified=MIN_PERIOD_DATE):
+                      strict=True, match_source=False,
+                      last_modified=MIN_PERIOD_DATE):
     """Generate a list of affiliation recommendations from a set of individuals.
 
     This function generates a list of recommendations which include the
@@ -231,6 +232,7 @@ def recommend_matches(ctx, source_uuids,
         RecommenderExclusionTerm table. Otherwise, results will not ignore them.
     :param verbose: if set to `True`, the match results will be composed by individual
         identities (even belonging to the same individual).
+    :param match_source: only unify individuals that share the same source
     :param last_modified: generate recommendations only for individuals modified after
         this date
 
@@ -254,7 +256,16 @@ def recommend_matches(ctx, source_uuids,
 
     trxl = TransactionsLog.open('recommend_matches', job_ctx)
 
-    for rec in engine.recommend('matches', source_uuids, target_uuids, criteria, exclude, verbose, strict, last_modified):
+    recommendations = engine.recommend('matches',
+                                       source_uuids,
+                                       target_uuids,
+                                       criteria,
+                                       exclude,
+                                       verbose,
+                                       strict,
+                                       match_source,
+                                       last_modified)
+    for rec in recommendations:
         results[rec.key] = list(rec.options)
         # Store matches in the database
         for match in rec.options:
@@ -423,7 +434,8 @@ def affiliate(ctx, uuids=None, last_modified=MIN_PERIOD_DATE):
 
 @django_rq.job
 @job_using_tenant
-def unify(ctx, criteria, source_uuids=None, target_uuids=None, exclude=True, strict=True, last_modified=MIN_PERIOD_DATE):
+def unify(ctx, criteria, source_uuids=None, target_uuids=None, exclude=True,
+          strict=True, match_source=False, last_modified=MIN_PERIOD_DATE):
     """Unify a set of individuals by merging them using matching recommendations.
 
     This function automates the identities unify process obtaining
@@ -447,6 +459,7 @@ def unify(ctx, criteria, source_uuids=None, target_uuids=None, exclude=True, str
     :param exclude: if set to `True`, the results list will ignore individual identities
         if any value from the `email`, `name`, or `username` fields are found in the
         RecommenderExclusionTerm table. Otherwise, results will not ignore them.
+    :param match_source: only unify individuals that share the same source
     :param last_modified: only unify individuals that have been modified after this date
 
     :returns: a list with the individuals resulting from merge operations
@@ -512,6 +525,7 @@ def unify(ctx, criteria, source_uuids=None, target_uuids=None, exclude=True, str
                                 criteria,
                                 exclude=exclude,
                                 strict=strict,
+                                match_source=match_source,
                                 last_modified=last_modified):
         match_recs[rec.mk] = list(rec.options)
 
