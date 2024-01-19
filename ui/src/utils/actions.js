@@ -104,7 +104,9 @@ const formatIndividual = (individual) => {
   };
 
   if (individual.enrollments && individual.enrollments.length > 0) {
-    const organization = individual.enrollments[0].group.name;
+    const organization = individual.enrollments.findLast(
+      (enrollment) => !enrollment.group.parentOrg
+    ).group.name;
     Object.assign(formattedIndividual, { organization: organization });
   }
   if (individual.matchRecommendationSet) {
