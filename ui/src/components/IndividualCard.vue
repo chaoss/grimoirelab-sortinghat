@@ -30,8 +30,8 @@
             <span @click.stop>{{ name || email }}</span>
           </router-link>
         </v-list-item-title>
-        <v-list-item-subtitle v-if="enrollments && enrollments.length > 0">
-          {{ enrollments[0].group.name }}
+        <v-list-item-subtitle v-if="organization">
+          {{ organization }}
         </v-list-item-subtitle>
         <v-list-item-subtitle>
           <v-tooltip
@@ -144,6 +144,16 @@ export default {
     return {
       isDragging: false,
     };
+  },
+  computed: {
+    organization() {
+      if (this.enrollments && this.enrollments.length > 0) {
+        return this.enrollments.findLast(
+          (enrollment) => !enrollment.group.parentOrg
+        ).group.name;
+      }
+      return null;
+    },
   },
   methods: {
     selectSourceIcon(source) {
