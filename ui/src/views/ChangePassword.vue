@@ -85,14 +85,13 @@ export default {
   computed: {
     url() {
       const pathname = "/password_change/";
+      let origin = process.env.BASE_URL.replace(/\/$/, "");
 
       if (process.env.VUE_APP_API_URL) {
-        const origin = new URL(process.env.VUE_APP_API_URL).origin;
-
-        return `${origin}${pathname}`;
-      } else {
-        return pathname;
+        origin = new URL(process.env.VUE_APP_API_URL).origin.replace(/\/$/, "");
       }
+
+      return `${origin}${pathname}`;
     },
     headers() {
       const csrftoken = Cookies.get("csrftoken");

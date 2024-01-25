@@ -25,13 +25,14 @@ export default new Vuex.Store({
   actions: {
     async login({ commit }, { username, password }) {
       const csrftoken = Cookies.get("csrftoken");
-      let url = "/api/login/";
+      const pathname = "/api/login/";
+      let origin = process.env.BASE_URL.replace(/\/$/, "");
 
       if (process.env.VUE_APP_API_URL) {
-        const origin = new URL(process.env.VUE_APP_API_URL).origin;
-        url = `${origin}${url}`;
+        origin = new URL(process.env.VUE_APP_API_URL).origin.replace(/\/$/, "");
       }
 
+      const url = `${origin}${pathname}`;
       const response = await fetch(url, {
         method: "POST",
         credentials: "include",
