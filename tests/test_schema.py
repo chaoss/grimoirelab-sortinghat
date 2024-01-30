@@ -1440,6 +1440,30 @@ class TestQueryPagination(django.test.TestCase):
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, AUTHENTICATION_ERROR)
 
+    def test_authentication_disabled(self):
+        """Check if it doesn't fail when authentication is disabled"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+        test_query = SH_OPERATIONS_QUERY_PAGINATION % (2, 2)
+
+        # Check it raises the error
+        with self.settings(SORTINGHAT_AUTHENTICATION_REQUIRED=True):
+            executed = client.execute(test_query,
+                                      context_value=context_value)
+            msg = executed['errors'][0]['message']
+            self.assertEqual(msg, AUTHENTICATION_ERROR)
+
+        # Check it doesn't raise the error
+        with self.settings(SORTINGHAT_AUTHENTICATION_REQUIRED=False):
+            executed = client.execute(test_query,
+                                      context_value=context_value)
+
+            entities = executed['data']['operations']['entities']
+            self.assertEqual(len(entities), 2)
+
 
 class TestMutations(SortingHatMutation):
     pass
