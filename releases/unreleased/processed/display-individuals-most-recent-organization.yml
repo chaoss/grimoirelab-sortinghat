@@ -1,8 +1,0 @@
----
-title: Display individual's most recent organization
-category: fixed
-author: Eva Millán <evamillan@bitergia.com>
-issue: null
-notes: >
-  The individual's current affiliation is now the most
-  recent one instead of the oldest.

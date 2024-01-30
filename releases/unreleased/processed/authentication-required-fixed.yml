@@ -1,8 +1,0 @@
----
-title: Authentication required fixed
-category: fixed
-author: Jose Javier Merchante <jjmerchante@bitergia.com>
-issue: null
-notes: >
-  When the AUTHENTICATION_REQUIRED setting is set to False, any
-  query to the API is allowed.
