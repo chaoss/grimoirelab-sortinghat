@@ -37,12 +37,16 @@ from .errors import InvalidValueError
 
 
 # Checks that the request has a JSON web token or a CSRF token
-# before it executes the test function
+# before it executes the test function.
+# When `AUTHENTICATION_REQUIRED` setting is False it always passes the test.
 def user_passes_test(test_func, exc=PermissionDenied, CSRFCheck=CsrfViewMiddleware):
     def decorator(f):
         @wraps(f)
         @context(f)
         def wrapper(context, *args, **kwargs):
+            if not settings.SORTINGHAT_AUTHENTICATION_REQUIRED:
+                return f(*args, **kwargs)
+
             http_auth = context.META.get("HTTP_AUTHORIZATION")
             if http_auth and "JWT" in http_auth:
                 pass
@@ -60,16 +64,11 @@ def user_passes_test(test_func, exc=PermissionDenied, CSRFCheck=CsrfViewMiddlewa
 
 # This custom decorator takes the `user` object from the request's
 # context and checks the value of the `is_authenticated` variable
-# and the `AUTHENTICATION_REQUIRED` variable from the config settings.
-check_auth = user_passes_test(
-    lambda u: u.is_authenticated or not settings.SORTINGHAT_AUTHENTICATION_REQUIRED
-)
+check_auth = user_passes_test(lambda u: u.is_authenticated)
 
 
 def check_permissions(perms):
-    return user_passes_test(
-        lambda u: u.has_perms(perms) or not settings.SORTINGHAT_AUTHENTICATION_REQUIRED
-    )
+    return user_passes_test(lambda u: u.has_perms(perms))
 
 
 # Use GraphQL JWT authentication on Django views
