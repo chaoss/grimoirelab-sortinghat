@@ -1,5 +1,16 @@
 # Releases
 
+## sortinghat 0.19.1 - (2024-02-01)
+
+**Bug fixes:**
+
+ * Fix "Table 'django_session' doesn't exist" error\
+   Fixes the "Table 'django_session' doesn't exist" error for new
+   installs. For existing databases, run the following commands to create
+   the table: ``` django-admin migrate --fake sessions zero django-admin
+   migrate ```
+
+
 ## sortinghat 0.19.0 - (2024-01-30)
 
 **New features:**
