@@ -78,7 +78,7 @@ class TenantDatabaseRouter:
     that is set for every request using a middleware.
     """
 
-    auth_app_labels = {'auth', 'contenttypes', 'admin'}
+    auth_app_labels = {'auth', 'contenttypes', 'admin', 'sessions'}
 
     def db_for_read(self, model, **hints):
         if model._meta.app_label in self.auth_app_labels:

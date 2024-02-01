@@ -1,0 +1,14 @@
+---
+title: Fix "Table 'django_session' doesn't exist" error
+category: fixed
+author: Eva Millán <evamillan@bitergia.com>
+issue: null
+notes: >
+  Fixes the "Table 'django_session' doesn't exist" error
+  for new installs.
+  For existing databases, run the following commands to
+  create the table:
+  ```
+  django-admin migrate --fake sessions zero
+  django-admin migrate
+  ```
