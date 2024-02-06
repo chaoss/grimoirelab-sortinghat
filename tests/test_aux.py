@@ -338,7 +338,7 @@ class TestMergeDatetimeRanges(TestCase):
 
         expected = DATE_OUT_OF_BOUNDS_ERROR.format(type='start',
                                                    date=r'1800-01-01 00:00:00\+00:00')
-        with self.assertRaisesRegexp(ValueError, expected):
+        with self.assertRaisesRegex(ValueError, expected):
             _ = [r for r in merge_datetime_ranges(dates)]
 
         # Case 2
@@ -349,7 +349,7 @@ class TestMergeDatetimeRanges(TestCase):
 
         expected = DATE_OUT_OF_BOUNDS_ERROR.format(type='end',
                                                    date=r'2100-02-01 00:00:00\+00:00')
-        with self.assertRaisesRegexp(ValueError, expected):
+        with self.assertRaisesRegex(ValueError, expected):
             _ = [r for r in merge_datetime_ranges(dates)]
 
     def test_dates_no_timezone(self):
@@ -361,7 +361,7 @@ class TestMergeDatetimeRanges(TestCase):
             (datetime.datetime(1800, 1, 1, tzinfo=UTC), datetime.datetime(2010, 1, 1, tzinfo=UTC))
         ]
 
-        with self.assertRaisesRegexp(TypeError, CANT_COMPARE_DATES_ERROR):
+        with self.assertRaisesRegex(TypeError, CANT_COMPARE_DATES_ERROR):
             _ = [r for r in merge_datetime_ranges(dates)]
 
         # Case 2
@@ -370,7 +370,7 @@ class TestMergeDatetimeRanges(TestCase):
             (datetime.datetime(1900, 1, 1, tzinfo=UTC), datetime.datetime(2010, 1, 1))
         ]
 
-        with self.assertRaisesRegexp(TypeError, CANT_COMPARE_DATES_ERROR):
+        with self.assertRaisesRegex(TypeError, CANT_COMPARE_DATES_ERROR):
             _ = [r for r in merge_datetime_ranges(dates)]
 
 
