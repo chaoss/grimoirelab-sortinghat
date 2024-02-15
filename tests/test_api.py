@@ -48,7 +48,8 @@ from sortinghat.core.models import (Country,
                                     Domain,
                                     Transaction,
                                     Operation,
-                                    ScheduledTask)
+                                    ScheduledTask,
+                                    Alias)
 
 NOT_FOUND_ERROR = "{entity} not found in the registry"
 ENROLLMENT_RANGE_INVALID = "range date '{start}'-'{end}' is part of an existing range for {org}"
@@ -90,6 +91,11 @@ DOMAIN_ORG_NAME_NONE_OR_EMPTY_ERROR = "'org_name' cannot be"
 FORMAT_NONE_OR_EMPTY_ERROR = "'{}' cannot be"
 INTERVAL_MUST_BE_NUMBER_ERROR = "'interval' must be a positive number"
 FROM_ORG_TO_ORG_EQUAL_ERROR = "'to_org' cannot be the same as 'from_org'"
+ALIAS_ALREADY_EXISTS_ERROR = "'{name}' already exists in the registry"
+ALIAS_NAME_NONE_OR_EMPTY_ERROR = "'name' cannot be"
+ALIAS_VALUE_ERROR = "field value must be a string; int given"
+ALIAS_ORG_NAME_NONE_OR_EMPTY_ERROR = "'organization' cannot be"
+ALIAS_NOT_FOUND_ERROR = "{name} not found in the registry"
 
 
 class TestAddIdentity(TestCase):
@@ -1841,6 +1847,30 @@ class TestAddOrganization(TestCase):
 
         organizations = Organization.objects.filter(name='Example')
         self.assertEqual(len(organizations), 1)
+
+        organizations = Organization.objects.all()
+        self.assertEqual(len(organizations), 1)
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_add_existing_alias(self):
+        """Check if it fails when adding an organization when it exists as an alias"""
+
+        org = api.add_organization(self.ctx, name='Example')
+        als = api.add_alias(self.ctx, name='Example Inc.', organization=org.name)
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(AlreadyExistsError, ORGANIZATION_ALREADY_EXISTS_ERROR.format(name=als.alias)):
+            org = api.add_organization(self.ctx, name=als.alias)
+
+        organizations = Organization.objects.filter(name='Example')
+        self.assertEqual(len(organizations), 1)
+
+        organizations = Organization.objects.filter(name='Example Inc.')
+        self.assertEqual(len(organizations), 0)
 
         organizations = Organization.objects.all()
         self.assertEqual(len(organizations), 1)
@@ -5747,6 +5777,10 @@ class TestMergeOrganizations(TestCase):
                    from_date=datetime.datetime(1999, 1, 1),
                    to_date=datetime.datetime(2000, 1, 1))
 
+        api.add_alias(self.ctx, organization='Example', name='Example Inc.')
+        api.add_alias(self.ctx, organization='Example', name='Example Ltd.')
+        api.add_alias(self.ctx, organization='Bitergia', name='Bitergium')
+
     def test_merge_organizations(self):
         """Check whether it merges two organizations, merging their domains, teams and enrollments"""
 
@@ -5784,6 +5818,13 @@ class TestMergeOrganizations(TestCase):
 
         enrollment = enrollments[1]
         self.assertEqual(enrollment.individual.mk, self.example_indv.uuid)
+
+        aliases = organization.aliases.all()
+        self.assertEqual(len(aliases), 4)
+        self.assertEqual(aliases[0].alias, 'Bitergium')
+        self.assertEqual(aliases[1].alias, 'Example')
+        self.assertEqual(aliases[2].alias, 'Example Inc.')
+        self.assertEqual(aliases[3].alias, 'Example Ltd.')
 
     def test_from_org_to_org_equal(self):
         """Check if it fails merging two organizations when they are equal"""
@@ -5867,7 +5908,7 @@ class TestMergeOrganizations(TestCase):
         trx = transactions[0]
 
         operations = Operation.objects.filter(trx=trx)
-        self.assertEqual(len(operations), 4)
+        self.assertEqual(len(operations), 7)
 
         op1 = operations[0]
         self.assertIsInstance(op1, Operation)
@@ -5912,15 +5953,54 @@ class TestMergeOrganizations(TestCase):
 
         op4 = operations[3]
         self.assertIsInstance(op4, Operation)
-        self.assertEqual(op2.op_type, Operation.OpType.UPDATE.value)
-        self.assertEqual(op4.entity_type, 'organization')
-        self.assertEqual(op4.target, 'Example')
+        self.assertEqual(op4.op_type, Operation.OpType.UPDATE.value)
+        self.assertEqual(op4.entity_type, 'alias')
+        self.assertEqual(op4.target, 'Example Inc.')
         self.assertEqual(op4.trx, trx)
         self.assertGreater(op4.timestamp, timestamp)
 
         op4_args = json.loads(op4.args)
-        self.assertEqual(len(op4_args), 1)
-        self.assertEqual(op4_args['organization'], 'Example')
+        self.assertEqual(len(op4_args), 2)
+        self.assertEqual(op4_args['alias'], 'Example Inc.')
+        self.assertEqual(op4_args['organization'], 'Bitergia')
+
+        op5 = operations[4]
+        self.assertIsInstance(op5, Operation)
+        self.assertEqual(op5.op_type, Operation.OpType.UPDATE.value)
+        self.assertEqual(op5.entity_type, 'alias')
+        self.assertEqual(op5.target, 'Example Ltd.')
+        self.assertEqual(op5.trx, trx)
+        self.assertGreater(op5.timestamp, timestamp)
+
+        op5_args = json.loads(op5.args)
+        self.assertEqual(len(op5_args), 2)
+        self.assertEqual(op5_args['alias'], 'Example Ltd.')
+        self.assertEqual(op5_args['organization'], 'Bitergia')
+
+        op6 = operations[5]
+        self.assertIsInstance(op6, Operation)
+        self.assertEqual(op6.op_type, Operation.OpType.DELETE.value)
+        self.assertEqual(op6.entity_type, 'organization')
+        self.assertEqual(op6.target, 'Example')
+        self.assertEqual(op6.trx, trx)
+        self.assertGreater(op6.timestamp, timestamp)
+
+        op6_args = json.loads(op6.args)
+        self.assertEqual(len(op6_args), 1)
+        self.assertEqual(op6_args['organization'], 'Example')
+
+        op7 = operations[6]
+        self.assertIsInstance(op7, Operation)
+        self.assertEqual(op7.op_type, Operation.OpType.ADD.value)
+        self.assertEqual(op7.entity_type, 'alias')
+        self.assertEqual(op7.target, 'Bitergia')
+        self.assertEqual(op7.trx, trx)
+        self.assertGreater(op7.timestamp, timestamp)
+
+        op7_args = json.loads(op7.args)
+        self.assertEqual(len(op7_args), 2)
+        self.assertEqual(op7_args['organization'], 'Bitergia')
+        self.assertEqual(op7_args['name'], 'Example')
 
 
 class TestUpdateScheduledTask(TestCase):
@@ -6176,3 +6256,467 @@ class TestDeleteScheduledTask(TestCase):
         op1_args = json.loads(op1.args)
         self.assertEqual(len(op1_args), 1)
         self.assertEqual(op1_args['task'], str(self.task_foo.id))
+
+
+class TestAddAlias(TestCase):
+    """Unit tests for add_alias"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        api.add_organization(self.ctx, name='Example')
+        api.add_organization(self.ctx, name='Bitergia')
+
+    def test_add_new_alias(self):
+        """Check if everything goes OK when adding a new alias"""
+
+        alias = api.add_alias(self.ctx,
+                              organization='Example',
+                              name='Example Inc.')
+
+        # Tests
+        self.assertIsInstance(alias, Alias)
+        self.assertEqual(alias.organization.name, 'Example')
+        self.assertEqual(alias.alias, 'Example Inc.')
+
+        aliases_db = Alias.objects.filter(alias='Example Inc.')
+        self.assertEqual(len(aliases_db), 1)
+
+        alias1 = aliases_db[0]
+        self.assertEqual(alias, alias1)
+
+    def test_add_multiple_aliases(self):
+        """Check if everything goes OK when adding several aliases"""
+
+        alias1 = api.add_alias(self.ctx,
+                               organization='Example',
+                               name='Example Inc.')
+
+        alias2 = api.add_alias(self.ctx,
+                               organization='Example',
+                               name='Example Ltd.')
+
+        # Tests
+        self.assertEqual(alias1.organization.name, 'Example')
+        self.assertEqual(alias1.alias, 'Example Inc.')
+
+        self.assertEqual(alias2.organization.name, 'Example')
+        self.assertEqual(alias2.alias, 'Example Ltd.')
+
+        aliases_db = Alias.objects.filter(alias='Example Inc.')
+        self.assertEqual(len(aliases_db), 1)
+
+        als1 = aliases_db[0]
+        self.assertEqual(alias1, als1)
+
+        aliases_db = Alias.objects.filter(alias='Example Ltd.')
+        self.assertEqual(len(aliases_db), 1)
+
+        als2 = aliases_db[0]
+        self.assertEqual(alias2, als2)
+
+    def test_add_duplicate_alias(self):
+        """Check if it fails when adding a duplicate alias"""
+
+        alias = api.add_alias(self.ctx,
+                              organization='Example',
+                              name='Example Inc.')
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(AlreadyExistsError, ALIAS_ALREADY_EXISTS_ERROR.format(name='Example Inc.')):
+            api.add_alias(self.ctx,
+                          organization='Example',
+                          name='Example Inc.')
+
+        aliases = Alias.objects.filter(alias='Example Inc.')
+        self.assertEqual(len(aliases), 1)
+
+        als1 = aliases[0]
+        self.assertEqual(als1, alias)
+
+        aliases = Alias.objects.all()
+        self.assertEqual(len(aliases), 1)
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_add_alias_different_org(self):
+        """Check if it fails when adding the same alias to a different organization"""
+
+        alias = api.add_alias(self.ctx,
+                              organization='Example',
+                              name='Example Inc.')
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(AlreadyExistsError, ALIAS_ALREADY_EXISTS_ERROR.format(name='Example Inc.')):
+            api.add_alias(self.ctx,
+                          organization='Bitergia',
+                          name='Example Inc.')
+
+        aliases = Alias.objects.filter(alias='Example Inc.')
+        self.assertEqual(len(aliases), 1)
+
+        als1 = aliases[0]
+        self.assertEqual(als1.organization.name, 'Example')
+        self.assertEqual(als1.organization.name, alias.organization.name)
+
+        aliases = Alias.objects.all()
+        self.assertEqual(len(aliases), 1)
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_organization_not_found(self):
+        """Check if it fails when the organization is not found"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(NotFoundError, ORGANIZATION_NOT_FOUND_ERROR.format(name='Botergia')):
+            api.add_alias(self.ctx,
+                          organization='Botergia',
+                          name='Example Inc.')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_alias_name_none(self):
+        """Check if it fails when alias name is `None`"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(InvalidValueError, ALIAS_NAME_NONE_OR_EMPTY_ERROR):
+            api.add_alias(self.ctx,
+                          organization='Example',
+                          name=None)
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_alias_name_empty(self):
+        """Check if it fails when alias name is empty"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(InvalidValueError, ALIAS_NAME_NONE_OR_EMPTY_ERROR):
+            api.add_alias(self.ctx,
+                          organization='Example',
+                          name='')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_alias_name_whitespaces(self):
+        """Check if it fails when alias name is composed by whitespaces"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(InvalidValueError, ALIAS_NAME_NONE_OR_EMPTY_ERROR):
+            api.add_alias(self.ctx,
+                          organization='Example',
+                          name='    ')
+
+        with self.assertRaisesRegex(InvalidValueError, ALIAS_NAME_NONE_OR_EMPTY_ERROR):
+            api.add_alias(self.ctx,
+                          organization='Example',
+                          name='\t')
+
+        with self.assertRaisesRegex(InvalidValueError, ALIAS_NAME_NONE_OR_EMPTY_ERROR):
+            api.add_alias(self.ctx,
+                          organization='Example',
+                          name='  \t  ')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_alias_name_int(self):
+        """Check if it fails when domain name is an integer"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(TypeError, ALIAS_VALUE_ERROR):
+            api.add_alias(self.ctx,
+                          organization='Example',
+                          name=12345)
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_alias_org_same_name(self):
+        """Check if it fails when the alias and the organization names are the same"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(InvalidValueError, ALIAS_NAME_NONE_OR_EMPTY_ERROR):
+            api.add_alias(self.ctx,
+                          organization='Example',
+                          name='Example')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_organization_name_none(self):
+        """Check if it fails when organization name is `None`"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(InvalidValueError, ALIAS_ORG_NAME_NONE_OR_EMPTY_ERROR):
+            api.add_alias(self.ctx,
+                          organization=None,
+                          name='Example Inc.')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_organization_name_empty(self):
+        """Check if it fails when organization name is empty"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(InvalidValueError, ALIAS_ORG_NAME_NONE_OR_EMPTY_ERROR):
+            api.add_alias(self.ctx,
+                          organization='',
+                          name='Example Inc.')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_organization_name_whitespaces(self):
+        """Check if it fails when organization name is composed by whitespaces"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(InvalidValueError, ALIAS_NAME_NONE_OR_EMPTY_ERROR):
+            api.add_alias(self.ctx,
+                          organization='    ',
+                          name='Example Inc.')
+
+        with self.assertRaisesRegex(InvalidValueError, ALIAS_NAME_NONE_OR_EMPTY_ERROR):
+            api.add_alias(self.ctx,
+                          organization='\t',
+                          name='Example Inc.')
+
+        with self.assertRaisesRegex(InvalidValueError, ALIAS_NAME_NONE_OR_EMPTY_ERROR):
+            api.add_alias(self.ctx,
+                          organization='  \t  ',
+                          name='Example Inc.')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_organization_name_int(self):
+        """Check if it fails when organization name is an integer"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(TypeError, ORGANIZATION_VALUE_ERROR):
+            api.add_alias(self.ctx,
+                          organization=12345,
+                          name='Example Inc.')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_transaction(self):
+        """Check if a transaction is created when adding an alias"""
+
+        timestamp = datetime_utcnow()
+
+        api.add_alias(self.ctx,
+                      organization='Example',
+                      name='Example Inc.')
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        self.assertEqual(len(transactions), 1)
+
+        trx = transactions[0]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'add_alias')
+        self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, self.ctx.user.username)
+
+    def test_operations(self):
+        """Check if the right operations are created when adding an alias"""
+
+        timestamp = datetime_utcnow()
+
+        api.add_alias(self.ctx,
+                      organization='Example',
+                      name='Example Inc.')
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.ADD.value)
+        self.assertEqual(op1.entity_type, 'alias')
+        self.assertEqual(op1.target, 'Example')
+        self.assertEqual(op1.trx, trx)
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 2)
+        self.assertEqual(op1_args['organization'], 'Example')
+        self.assertEqual(op1_args['name'], 'Example Inc.')
+
+
+class TestDeleteAlias(TestCase):
+    """Unit tests for delete_alias"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        api.add_organization(self.ctx, name='Example')
+        api.add_alias(self.ctx, name='Example Inc.', organization='Example')
+        api.add_alias(self.ctx, name='Example Ltd.', organization='Example')
+
+    def test_delete_alias(self):
+        """Check if everything goes OK when deleting an alias"""
+
+        alias = api.delete_alias(self.ctx, 'Example Inc.')
+
+        # Tests
+        self.assertIsInstance(alias, Alias)
+        self.assertEqual(alias.organization.name, 'Example')
+        self.assertEqual(alias.alias, 'Example Inc.')
+
+        aliases = Alias.objects.filter(alias='Example Inc.')
+        self.assertEqual(len(aliases), 0)
+
+        # Check if the rest of aliases were not removed
+        aliases = Alias.objects.all()
+        self.assertEqual(len(aliases), 1)
+
+        alias = aliases[0]
+        self.assertEqual(alias.organization.name, 'Example')
+        self.assertEqual(alias.alias, 'Example Ltd.')
+
+    def test_alias_not_found(self):
+        """Check if it fails when the alias is not found"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(NotFoundError, ALIAS_NOT_FOUND_ERROR.format(name='Example SL')):
+            api.delete_alias(self.ctx, 'Example SL')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_alias_name_none(self):
+        """Check if it fails when alias name is `None`"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(InvalidValueError, ALIAS_NAME_NONE_OR_EMPTY_ERROR):
+            api.delete_alias(self.ctx, name=None)
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_alias_name_empty(self):
+        """Check if it fails when alias name is empty"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(InvalidValueError, ALIAS_NAME_NONE_OR_EMPTY_ERROR):
+            api.delete_alias(self.ctx, name='')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_alias_name_whitespaces(self):
+        """Check if it fails when alias name is composed by whitespaces"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(InvalidValueError, ALIAS_NAME_NONE_OR_EMPTY_ERROR):
+            api.delete_alias(self.ctx, name='    ')
+
+        with self.assertRaisesRegex(InvalidValueError, ALIAS_NAME_NONE_OR_EMPTY_ERROR):
+            api.delete_alias(self.ctx, name='\t')
+
+        with self.assertRaisesRegex(InvalidValueError, ALIAS_NAME_NONE_OR_EMPTY_ERROR):
+            api.delete_alias(self.ctx, name='  \t  ')
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_alias_name_int(self):
+        """Check if it fails when alias name is an integer"""
+
+        trx_date = datetime_utcnow()  # After this datetime no transactions should be created
+
+        with self.assertRaisesRegex(TypeError, ALIAS_VALUE_ERROR):
+            api.delete_alias(self.ctx, name=12345)
+
+        # Check if there are no transactions created when there is an error
+        transactions = Transaction.objects.filter(created_at__gt=trx_date)
+        self.assertEqual(len(transactions), 0)
+
+    def test_transaction(self):
+        """Check if a transaction is created when deleting an alias"""
+
+        timestamp = datetime_utcnow()
+
+        api.delete_alias(self.ctx, 'Example Inc.')
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        self.assertEqual(len(transactions), 1)
+
+        trx = transactions[0]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'delete_alias')
+        self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, self.ctx.user.username)
+
+    def test_operations(self):
+        """Check if the right operations are created when deleting an alias"""
+
+        timestamp = datetime_utcnow()
+
+        api.delete_alias(self.ctx, 'Example Inc.')
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.DELETE.value)
+        self.assertEqual(op1.entity_type, 'alias')
+        self.assertEqual(op1.target, 'Example Inc.')
+        self.assertEqual(op1.trx, trx)
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 1)
+        self.assertEqual(op1_args['alias'], 'Example Inc.')

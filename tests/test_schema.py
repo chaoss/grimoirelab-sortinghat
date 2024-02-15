@@ -64,7 +64,8 @@ from sortinghat.core.models import (Organization,
                                     MergeRecommendation,
                                     GenderRecommendation,
                                     AffiliationRecommendation,
-                                    ScheduledTask)
+                                    ScheduledTask,
+                                    Alias)
 from sortinghat.core.schema import (SortingHatQuery,
                                     SortingHatMutation,
                                     parse_date_filter)
@@ -75,6 +76,7 @@ DUPLICATED_TEAM_ERROR = "Team 'Example_team' already exists in the registry"
 DUPLICATED_INDIVIDUAL = "Individual 'eda9f62ad321b1fbe5f283cc05e2484516203117' already exists in the registry"
 DUPLICATED_ENROLLMENT_ERROR = "range date '{}'-'{}' is part of an existing range for {}"
 DUPLICATED_RET_ERROR = "RecommenderExclusionTerm 'John Smith' already exists in the registry"
+DUPLICATED_ALIAS_ERROR = "Alias 'Example Inc.' already exists in the registry"
 TERM_EMPTY_ERROR = "'term' cannot be an empty string"
 TERM_EXAMPLE_DOES_NOT_EXIST_ERROR = "John Smith not found in the registry"
 RECOMMENDATION_MERGE_DOES_NOT_EXIST_ERROR = "MergeRecommendation matching query does not exist."
@@ -121,6 +123,7 @@ FROM_ORG_EMPTY_ERROR = "'from_org' cannot be an empty string"
 TO_ORG_EMPTY_ERROR = "'to_org' cannot be an empty string"
 EQUAL_ORGS_ERROR = "'to_org' cannot be the same as 'from_org'"
 UNSUPPORTED_JOB_ERROR = "Job '{}' cannot be scheduled."
+ALIAS_NOT_FOUND_ERROR = "Example Inc. not found in the registry"
 
 # Test queries
 SH_COUNTRIES_QUERY = """{
@@ -181,6 +184,9 @@ SH_ORGS_QUERY = """{
       domains {
         domain
         isTopDomain
+      }
+      aliases {
+        alias
       }
     }
   }
@@ -1678,7 +1684,10 @@ class TestQueryOrganizations(django.test.TestCase):
         org = Organization.add_root(name='Example')
         Domain.objects.create(domain='example.com', organization=org)
         Domain.objects.create(domain='example.org', organization=org)
+        Alias.objects.create(alias='Example Inc.', organization=org)
+        Alias.objects.create(alias='Example Ltd.', organization=org)
         org = Organization.add_root(name='Bitergia')
+        Alias.objects.create(alias='Bitergium', organization=org)
         Domain.objects.create(domain='bitergia.com', organization=org)
         _ = Organization.add_root(name='LibreSoft')
 
@@ -1693,14 +1702,17 @@ class TestQueryOrganizations(django.test.TestCase):
         org1 = orgs[0]
         self.assertEqual(org1['name'], 'Bitergia')
         self.assertEqual(len(org1['domains']), 1)
+        self.assertEqual(len(org1['aliases']), 1)
 
         org2 = orgs[1]
         self.assertEqual(org2['name'], 'Example')
         self.assertEqual(len(org2['domains']), 2)
+        self.assertEqual(len(org2['aliases']), 2)
 
         org3 = orgs[2]
         self.assertEqual(org3['name'], 'LibreSoft')
         self.assertEqual(len(org3['domains']), 0)
+        self.assertEqual(len(org3['aliases']), 0)
 
     def test_empty_registry(self):
         """Check whether it returns an empty list when the registry is empty"""
@@ -1730,6 +1742,27 @@ class TestQueryOrganizations(django.test.TestCase):
         # As organizations are sorted by name, the first one will be org2
         org = orgs[0]
         self.assertEqual(org['name'], org2.name)
+
+    def test_filter_registry_alias(self):
+        """Check whether it returns the organization with a matching alias when using name filter"""
+
+        org1 = Organization.add_root(name='Example')
+        org2 = Organization.add_root(name='Bitergia')
+        org3 = Organization.add_root(name='LibreSoft')
+
+        Alias.objects.create(alias='Example Inc.', organization=org1)
+
+        client = graphene.test.Client(schema)
+        test_query = SH_ORGS_QUERY_FILTER % 'Example Inc.'
+        executed = client.execute(test_query,
+                                  context_value=self.context_value)
+
+        orgs = executed['data']['organizations']['entities']
+        self.assertEqual(len(orgs), 1)
+
+        # As organizations are sorted by name, the first one will be org2
+        org = orgs[0]
+        self.assertEqual(org['name'], org1.name)
 
     def test_filter_non_exist_registry(self):
         """Check whether it returns an empty list when searched with a non existing organization"""
@@ -11089,6 +11122,9 @@ class TestMergeOrganizationsMutation(django.test.TestCase):
                     mk
                   }
                 }
+                aliases {
+                  alias
+                }
               }
             }
           }
@@ -11117,6 +11153,9 @@ class TestMergeOrganizationsMutation(django.test.TestCase):
                        organization='Bitergia',
                        domain_name='bitergia.com',
                        is_top_domain=True)
+
+        api.add_alias(self.ctx, organization='Example', name='Example Inc.')
+        api.add_alias(self.ctx, organization='Bitergia', name='Bitergium')
 
         api.add_team(self.ctx, 'Example team', organization='Example')
         api.add_team(self.ctx, 'Bitergia team', organization='Bitergia')
@@ -11169,6 +11208,12 @@ class TestMergeOrganizationsMutation(django.test.TestCase):
         individual = enrollments[1]['individual']['mk']
         self.assertEqual(individual, 'c79e5c1587ac851b9b44720bd2242e9358a6eb70')
 
+        aliases = organization['aliases']
+        self.assertEqual(len(aliases), 3)
+        self.assertEqual(aliases[0]['alias'], 'Bitergium')
+        self.assertEqual(aliases[1]['alias'], 'Example')
+        self.assertEqual(aliases[2]['alias'], 'Example Inc.')
+
         # Check database objects
         organization_db = Organization.objects.get(name='Bitergia')
         self.assertIsInstance(organization_db, Organization)
@@ -11181,6 +11226,9 @@ class TestMergeOrganizationsMutation(django.test.TestCase):
 
         enrollments = organization_db.enrollments.all()
         self.assertEqual(len(enrollments), 2)
+
+        aliases = organization_db.aliases.all()
+        self.assertEqual(len(aliases), 3)
 
         with self.assertRaises(django.core.exceptions.ObjectDoesNotExist):
             Organization.objects.get(name='Example')
@@ -11422,4 +11470,196 @@ class TestScheduledTasksQuery(django.test.TestCase):
 
         msg = executed['errors'][0]['message']
 
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
+
+
+class TestAddAliasMutation(django.test.TestCase):
+    """Unit tests for mutation to add aliases"""
+
+    SH_ADD_ALIAS = """
+      mutation addAlias {
+        addAlias(organization: "Example", alias: "Example Inc.")
+        {
+          alias {
+            alias
+            organization {
+              name
+            }
+          }
+        }
+      }
+    """
+
+    SH_ADD_ALIAS_EMPTY = """
+      mutation addAlias {
+        addAlias(organization: "Example", alias: "")
+        {
+          alias {
+            alias
+            organization {
+              name
+            }
+          }
+        }
+      }
+    """
+
+    def setUp(self):
+        """Set queries context"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
+
+    def test_add_alias(self):
+        """Check if a new alias is added"""
+
+        Organization.add_root(name='Example')
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_ADD_ALIAS,
+                                  context_value=self.context_value)
+
+        # Check result
+        alias = executed['data']['addAlias']['alias']
+        self.assertEqual(alias['alias'], 'Example Inc.')
+        self.assertEqual(alias['organization']['name'], 'Example')
+
+        # Check database
+        org = Organization.objects.get(name='Example')
+        aliases = org.aliases.all()
+        self.assertEqual(len(aliases), 1)
+
+        alias = aliases[0]
+        self.assertEqual(alias.alias, 'Example Inc.')
+
+    def test_alias_empty(self):
+        """Check whether aliases with empty names cannot be added"""
+
+        Organization.add_root(name='Example')
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_ADD_ALIAS_EMPTY,
+                                  context_value=self.context_value)
+
+        # Check error
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, NAME_EMPTY_ERROR)
+
+        # Check database
+        aliases = Alias.objects.all()
+        self.assertEqual(len(aliases), 0)
+
+    def test_integrity_error(self):
+        """Check whether duplicated aliases cannot be inserted"""
+
+        Organization.add_root(name='Example')
+
+        client = graphene.test.Client(schema)
+        client.execute(self.SH_ADD_ALIAS, context_value=self.context_value)
+
+        # Check database
+        alias = Alias.objects.get(alias='Example Inc.')
+        self.assertEqual(alias.alias, 'Example Inc.')
+
+        # Try to insert it twice
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_ADD_ALIAS,
+                                  context_value=self.context_value)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, DUPLICATED_ALIAS_ERROR)
+
+    def test_not_found_organization(self):
+        """Check if it returns an error when an organization does not exist"""
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_ADD_ALIAS,
+                                  context_value=self.context_value)
+
+        # Check error
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, ORGANIZATION_EXAMPLE_DOES_NOT_EXIST_ERROR)
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the query"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        executed = client.execute(self.SH_ADD_ALIAS,
+                                  context_value=context_value)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
+
+
+class TestDeleteAliasMutation(django.test.TestCase):
+    """Unit tests for mutation to delete aliases"""
+
+    SH_DELETE_ALIAS = """
+      mutation deleteAlias {
+        deleteAlias(alias: "Example Inc.") {
+          alias {
+            alias
+          }
+        }
+      }
+    """
+
+    def setUp(self):
+        """Set queries context"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
+
+    def test_delete_alias(self):
+        """Check whether it deletes an alias"""
+
+        org = Organization.add_root(name='Example')
+        Alias.objects.create(alias='Example Inc.', organization=org)
+        Alias.objects.create(alias='Example Ltd.', organization=org)
+
+        # Delete organization
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_DELETE_ALIAS,
+                                  context_value=self.context_value)
+
+        # Check result
+        alias = executed['data']['deleteAlias']['alias']
+        self.assertEqual(alias['alias'], 'Example Inc.')
+
+        # Tests
+        with self.assertRaises(django.core.exceptions.ObjectDoesNotExist):
+            Alias.objects.get(alias='Example Inc.')
+
+        aliases = Alias.objects.all()
+        self.assertEqual(len(aliases), 1)
+
+    def test_not_found_alias(self):
+        """Check if it returns an error when an alias does not exist"""
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_DELETE_ALIAS,
+                                  context_value=self.context_value)
+
+        # Check error
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, ALIAS_NOT_FOUND_ERROR)
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the query"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        executed = client.execute(self.SH_DELETE_ALIAS,
+                                  context_value=context_value)
+
+        msg = executed['errors'][0]['message']
         self.assertEqual(msg, AUTHENTICATION_ERROR)
