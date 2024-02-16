@@ -436,6 +436,8 @@ describe("OrganizationsTable", () => {
         fetchTeams: () => {},
         addTeam: () => {},
         deleteTeam: () => {},
+        addAlias: () => {},
+        deleteAlias: () => {},
       },
     });
 
@@ -465,6 +467,8 @@ describe("OrganizationsTable", () => {
         fetchTeams: () => {},
         addTeam: () => {},
         deleteTeam: () => {},
+        addAlias: () => {},
+        deleteAlias: () => {},
       },
       data() {
         return {

@@ -120,6 +120,9 @@ const GET_PAGINATED_ORGANIZATIONS = gql`
           domain
           isTopDomain
         }
+        aliases {
+          alias
+        }
       }
       pageInfo {
         page
@@ -253,6 +256,9 @@ const GET_ORGANIZATION = gql`
           domain
           isTopDomain
         }
+        aliases {
+          alias
+        }
       }
     }
   }
@@ -284,6 +290,9 @@ const FIND_ORGANIZATION = gql`
       entities {
         id
         name
+        aliases {
+          alias
+        }
       }
     }
   }

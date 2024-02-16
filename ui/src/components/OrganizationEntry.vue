@@ -43,7 +43,7 @@
         </template>
         <v-list dense>
           <v-list-item @click="$emit('edit')">
-            <v-list-item-title> View/edit domains </v-list-item-title>
+            <v-list-item-title> Edit domains and aliases </v-list-item-title>
           </v-list-item>
           <v-edit-dialog
             large

@@ -2085,8 +2085,11 @@ exports[`OrganizationsTable Mock mutation for addDomain 1`] = `
   </div>
    
   <organization-modal-stub
+    addalias="[Function]"
     adddomain="[Function]"
     addorganization="[Function]"
+    aliases=""
+    deletealias="[Function]"
     deletedomain="[Function]"
     domains=""
   />
@@ -2281,8 +2284,11 @@ exports[`OrganizationsTable Mock mutation for addOrganization 1`] = `
   </div>
    
   <organization-modal-stub
+    addalias="[Function]"
     adddomain="[Function]"
     addorganization="[Function]"
+    aliases=""
+    deletealias="[Function]"
     deletedomain="[Function]"
     domains=""
   />
@@ -2477,8 +2483,11 @@ exports[`OrganizationsTable Mock mutation for deleteDomain 1`] = `
   </div>
    
   <organization-modal-stub
+    addalias="[Function]"
     adddomain="[Function]"
     addorganization="[Function]"
+    aliases=""
+    deletealias="[Function]"
     deletedomain="[Function]"
     domains=""
   />
@@ -2673,8 +2682,11 @@ exports[`OrganizationsTable Mock mutation for deleteOrganization 1`] = `
   </div>
    
   <organization-modal-stub
+    addalias="[Function]"
     adddomain="[Function]"
     addorganization="[Function]"
+    aliases=""
+    deletealias="[Function]"
     deletedomain="[Function]"
     domains=""
   />
@@ -2869,8 +2881,11 @@ exports[`OrganizationsTable Mock mutation for enroll 1`] = `
   </div>
    
   <organization-modal-stub
+    addalias="[Function]"
     adddomain="[Function]"
     addorganization="[Function]"
+    aliases=""
+    deletealias="[Function]"
     deletedomain="[Function]"
     domains=""
   />

@@ -408,6 +408,26 @@ const UPDATE_TASK = gql`
   }
 `;
 
+const ADD_ALIAS = gql`
+  mutation addAlias($alias: String!, $organization: String!) {
+    addAlias(alias: $alias, organization: $organization) {
+      alias {
+        alias
+      }
+    }
+  }
+`;
+
+const DELETE_ALIAS = gql`
+  mutation deleteAlias($alias: String!) {
+    deleteAlias(alias: $alias) {
+      alias {
+        alias
+      }
+    }
+  }
+`;
+
 const tokenAuth = (apollo, username, password) => {
   const response = apollo.mutate({
     mutation: TOKEN_AUTH,
@@ -793,6 +813,23 @@ const updateTask = (apollo, taskId, data) => {
   });
 };
 
+const addAlias = (apollo, alias, organization) => {
+  return apollo.mutate({
+    mutation: ADD_ALIAS,
+    variables: {
+      alias,
+      organization,
+    },
+  });
+};
+
+const deleteAlias = (apollo, alias) => {
+  return apollo.mutate({
+    mutation: DELETE_ALIAS,
+    variables: { alias },
+  });
+};
+
 export {
   tokenAuth,
   lockIndividual,
@@ -824,4 +861,6 @@ export {
   scheduleTask,
   deleteTask,
   updateTask,
+  addAlias,
+  deleteAlias
 };

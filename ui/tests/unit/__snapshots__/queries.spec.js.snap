@@ -804,8 +804,11 @@ exports[`OrganizationsTable Mock query for getPaginatedOrganizations 1`] = `
   </div>
    
   <organization-modal-stub
+    addalias="[Function]"
     adddomain="[Function]"
     addorganization="[Function]"
+    aliases=""
+    deletealias="[Function]"
     deletedomain="[Function]"
     domains=""
   />

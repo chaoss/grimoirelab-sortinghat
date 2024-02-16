@@ -125,6 +125,9 @@
       :delete-domain="deleteDomain"
       :organization="modal.organization"
       :domains="modal.domains"
+      :aliases="modal.aliases"
+      :add-alias="addAlias"
+      :delete-alias="deleteAlias"
       @updateOrganizations="getTableItems(page)"
     />
 
@@ -233,6 +236,14 @@ export default {
       type: Function,
       required: false,
     },
+    addAlias: {
+      type: Function,
+      required: false,
+    },
+    deleteAlias: {
+      type: Function,
+      required: false,
+    },
   },
   data() {
     return {
@@ -258,6 +269,7 @@ export default {
         open: false,
         organization: undefined,
         domains: [],
+        aliases: [],
       },
       selectedOrganization: "",
       filters: {},
@@ -374,10 +386,12 @@ export default {
         organization.domains && organization.domains.length > 0
           ? organization.domains.map((domain) => domain)
           : [{ domain: "", isTopDomain: false }];
+      const aliases = organization.aliases?.map(item => item.alias) || [""];
       Object.assign(this.modal, {
         open: true,
         organization: organization ? organization.name : "",
         domains: domains,
+        aliases: aliases,
       });
     },
     confirmDelete(group) {
