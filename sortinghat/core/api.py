@@ -31,6 +31,7 @@ from .db import (find_individual_by_uuid,
                  find_team,
                  find_group,
                  find_scheduled_task,
+                 find_alias,
                  search_enrollments_in_period,
                  add_individual as add_individual_db,
                  add_identity as add_identity_db,
@@ -38,12 +39,14 @@ from .db import (find_individual_by_uuid,
                  add_scheduled_task as add_scheduled_task_db,
                  add_team as add_team_db,
                  add_domain as add_domain_db,
+                 add_alias as add_alias_db,
                  delete_individual as delete_individual_db,
                  delete_identity as delete_identity_db,
                  delete_organization as delete_organization_db,
                  delete_team as delete_team_db,
                  delete_scheduled_task as delete_scheduled_task_db,
                  delete_domain as delete_domain_db,
+                 delete_alias as delete_alias_db,
                  update_profile as update_profile_db,
                  update_scheduled_task as update_scheduled_task_db,
                  move_identity as move_identity_db,
@@ -52,7 +55,8 @@ from .db import (find_individual_by_uuid,
                  add_enrollment,
                  delete_enrollment,
                  move_domain,
-                 move_team)
+                 move_team,
+                 move_alias)
 from .errors import (InvalidValueError,
                      AlreadyExistsError,
                      NotFoundError,
@@ -513,6 +517,63 @@ def add_domain(ctx, organization, domain_name, is_top_domain=True):
 
 
 @atomic_using_tenant
+def add_alias(ctx, organization, name):
+    """Add an alias to the registry.
+
+    This function adds a new alias to a given organization.
+    The organization must exist on the registry prior to insert the new
+    alias. Otherwise, it will raise a `NotFoundError` exception. Moreover,
+    if the given alias is already in the registry an `AlreadyExistsError`
+    exception will be raised.
+
+    :param ctx: context from where this method is called
+    :param organization: name of the organization
+    :param name: alias to add to the registry
+
+    :returns the new alias object
+
+    :raises InvalidValueError: raised when alias is None or an empty string or
+        when it is the same as the organization name
+    :raises NotFoundError: raised when the given organization is not found
+        in the registry
+    :raises AlreadyExistsError: raised when the alias already exists
+        in the registry
+    """
+    if organization is None:
+        raise InvalidValueError(msg="'organization' cannot be None")
+    if organization == '':
+        raise InvalidValueError(msg="'organization' cannot be an empty string")
+    if name is None:
+        raise InvalidValueError(msg="'name' cannot be None")
+    if name == '':
+        raise InvalidValueError(msg="'name' cannot be an empty string")
+    if name == organization:
+        raise InvalidValueError(msg="'name' cannot be the same as 'organization'")
+
+    trxl = TransactionsLog.open('add_alias', ctx)
+
+    try:
+        organization = find_organization(organization)
+    except ValueError as e:
+        raise InvalidValueError(msg=str(e))
+    except NotFoundError as exc:
+        raise exc
+
+    try:
+        alias = add_alias_db(trxl, organization=organization, name=name)
+    except ValueError as e:
+        raise InvalidValueError(msg=str(e))
+    except AlreadyExistsError as exc:
+        raise exc
+
+    trxl.close()
+
+    logger.info(f"Alias {alias.alias} created for organization {organization.name}")
+
+    return alias
+
+
+@atomic_using_tenant
 def add_team(ctx, team_name, organization=None, parent_name=None):
     """Add a team to the registry.
 
@@ -656,6 +717,45 @@ def delete_domain(ctx, domain_name):
     logger.info(f"Domain {domain_name} deleted")
 
     return domain
+
+
+@atomic_using_tenant
+def delete_alias(ctx, name):
+    """Remove an alias from the registry.
+
+    This function removes the given alias from the registry.
+    Alias must exist in the registry. Otherwise, it will raise
+    a `NotFoundError` exception.
+
+    :param ctx: context from where this method is called
+    :param name: name to remove
+
+    :returns the removed alias object
+
+    :raises NotFoundError: raised when the alias
+        does not exist in the registry.
+    """
+    if name is None:
+        raise InvalidValueError(msg="'name' cannot be None")
+    if name == '':
+        raise InvalidValueError(msg="'name' cannot be an empty string")
+
+    trxl = TransactionsLog.open('delete_alias', ctx)
+
+    try:
+        alias = find_alias(name)
+    except ValueError as e:
+        raise InvalidValueError(msg=str(e))
+    except NotFoundError as exc:
+        raise exc
+
+    delete_alias_db(trxl, alias)
+
+    trxl.close()
+
+    logger.info(f"Alias {name} deleted")
+
+    return alias
 
 
 @atomic_using_tenant
@@ -1302,7 +1402,7 @@ def merge_organizations(ctx, from_org, to_org):
     This function moves the domains, teams and affiliations from
     an origin organization identified by `from_org` to the target
     organization identified by `to_org`. The origin organization is
-    then deleted.
+    then deleted and its name is added as an alias.
 
     The function raises a `NotFoundError` exception when either `from_org`
     or `to_org` do not exist in the registry and both identifiers are
@@ -1329,6 +1429,13 @@ def merge_organizations(ctx, from_org, to_org):
         domains = from_org.domains.all()
         for domain in domains:
             move_domain(trxl, domain, to_org)
+
+    def _move_aliases(trxl, from_org, to_org):
+        """Move the aliases from the origin organization to the target"""
+
+        aliases = from_org.aliases.all()
+        for alias in aliases:
+            move_alias(trxl, alias, to_org)
 
     def _move_teams(trxl, from_org, to_org):
         """Move the teams from the origin organization to the target"""
@@ -1378,8 +1485,11 @@ def merge_organizations(ctx, from_org, to_org):
     _move_domains(trxl, origin, target)
     _move_teams(trxl, origin, target)
     _move_enrollments(trxl, origin, target)
+    _move_aliases(trxl, origin, target)
 
     delete_organization_db(trxl, organization=origin)
+
+    add_alias_db(trxl, organization=target, name=origin.name)
 
     trxl.close()
 

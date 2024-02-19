@@ -48,7 +48,8 @@ from sortinghat.core.models import (Organization,
                                     MergeRecommendation,
                                     GenderRecommendation,
                                     Tenant,
-                                    ScheduledTask)
+                                    ScheduledTask,
+                                    Alias)
 
 # Test check errors messages
 DUPLICATE_CHECK_ERROR = "Duplicate entry .+"
@@ -331,6 +332,63 @@ class TestDomain(TransactionTestCase):
         self.assertEqual(dom.is_top_domain, False)
         self.assertGreaterEqual(dom.last_modified, before_modified_dt)
         self.assertLessEqual(dom.last_modified, after_modified_dt)
+
+
+class TestAlias(TransactionTestCase):
+    """Unit tests for Alias class"""
+
+    def test_unique_aliases(self):
+        """Check whether aliases are unique"""
+
+        with self.assertRaisesRegex(IntegrityError, DUPLICATE_CHECK_ERROR):
+            org = Organization.add_root(name='Example')
+            Alias.objects.create(alias='Example Inc.', organization=org)
+            Alias.objects.create(alias='Example Inc.', organization=org)
+
+    def test_not_null_organizations(self):
+        """Check whether every alias is assigned to an organization"""
+
+        with self.assertRaisesRegex(IntegrityError, NULL_VALUE_CHECK_ERROR):
+            Alias.objects.create(alias='Example Inc.')
+
+    def test_created_at(self):
+        """Check creation date is only set when the object is created"""
+
+        before_dt = datetime_utcnow()
+        org = Organization.add_root(name='Example')
+        als = Alias.objects.create(alias='Example Inc.', organization=org)
+
+        after_dt = datetime_utcnow()
+
+        self.assertGreaterEqual(als.created_at, before_dt)
+        self.assertLessEqual(als.created_at, after_dt)
+
+        als.alias = 'Example Inc'
+        als.save()
+
+        self.assertEqual(als.alias, 'Example Inc')
+        self.assertGreaterEqual(als.created_at, before_dt)
+        self.assertLessEqual(als.created_at, after_dt)
+
+    def test_last_modified(self):
+        """Check last modification date is set when the object is updated"""
+
+        before_dt = datetime_utcnow()
+        org = Organization.add_root(name='Example')
+        als = Alias.objects.create(alias='Example Inc.', organization=org)
+        after_dt = datetime_utcnow()
+
+        self.assertGreaterEqual(als.last_modified, before_dt)
+        self.assertLessEqual(als.last_modified, after_dt)
+
+        before_modified_dt = datetime_utcnow()
+        als.alias = 'Example Inc'
+        als.save()
+        after_modified_dt = datetime_utcnow()
+
+        self.assertEqual(als.alias, 'Example Inc')
+        self.assertGreaterEqual(als.last_modified, before_modified_dt)
+        self.assertLessEqual(als.last_modified, after_modified_dt)
 
 
 class TestCountry(TransactionTestCase):

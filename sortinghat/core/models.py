@@ -214,6 +214,19 @@ class Domain(EntityBase):
         return self.domain
 
 
+class Alias(EntityBase):
+    alias = CharField(max_length=MAX_SIZE_CHAR_FIELD)
+    organization = ForeignKey(Group, related_name='aliases', on_delete=CASCADE)
+
+    class Meta:
+        db_table = 'aliases_organizations'
+        unique_together = ('alias',)
+        ordering = ('alias',)
+
+    def __str__(self):
+        return self.alias
+
+
 class Country(EntityBase):
     code = CharField(max_length=2, primary_key=True)
     name = CharField(max_length=MAX_SIZE_CHAR_INDEX)

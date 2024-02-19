@@ -45,7 +45,8 @@ from .models import (MIN_PERIOD_DATE,
                      Profile,
                      Enrollment,
                      Operation,
-                     ScheduledTask)
+                     ScheduledTask,
+                     Alias)
 from .aux import validate_field
 
 
@@ -149,9 +150,9 @@ def find_identity(uuid):
 def find_organization(name):
     """Find an organization.
 
-    Find an organization by its name in the database. When the
-    organization does not exist the function will raise
-    a `NotFoundError`.
+    Find an organization by its name or one of its aliases
+    in the database. When the organization does not exist the
+    function will raise a `NotFoundError`.
 
     :param name: name of the organization to find
 
@@ -164,7 +165,8 @@ def find_organization(name):
 
     try:
         logger.debug(f"Finding organization '{name}' ...")
-        organization = Organization.objects.all_organizations().get(name=name)
+        organization = Organization.objects.all_organizations().distinct().get(Q(name=name) |
+                                                                               Q(aliases__alias=name))
     except Organization.DoesNotExist:
         logger.debug(f"Organization with name '{name}' does not exist")
         raise NotFoundError(entity=name)
@@ -222,7 +224,8 @@ def find_group(name, parent_org=None):
 
     try:
         logger.debug(f"Finding group '{name}'" + f"in '{parent_org}' ..." if parent_org else "...")
-        group = Group.objects.get(name=name, parent_org__name=parent_org)
+        group = Group.objects.distinct().get(Q(name=name, parent_org__name=parent_org) |
+                                             Q(aliases__alias=name, parent_org__name=parent_org))
     except Group.DoesNotExist:
         logger.debug(f"Group with name '{name}' does not exist")
         raise NotFoundError(entity=name)
@@ -256,6 +259,33 @@ def find_domain(domain_name):
     else:
         logger.debug(f"Domain with name '{domain_name}' was found")
         return domain
+
+
+def find_alias(name):
+    """Find an alias.
+
+    Find an alias by its name in the database. When the
+    alias does not exist the function will raise
+    a `NotFoundError`.
+
+    :param name: name of the alias to find
+
+    :returns: an alias object
+
+    :raises NotFoundError: when the alias with the
+        given `name` does not exists.
+    """
+    validate_field('name', name)
+
+    try:
+        logger.debug(f"Finding alias '{name}' ...")
+        alias = Alias.objects.get(alias=name)
+    except Alias.DoesNotExist:
+        logger.debug(f"Alias with name '{name}' does not exist")
+        raise NotFoundError(entity=name)
+    else:
+        logger.debug(f"Alias with name '{name}' was found")
+        return alias
 
 
 def search_enrollments_in_period(mk, group_name,
@@ -319,7 +349,7 @@ def add_organization(trxl, name):
     # Groups have a unique together constraint for the 'name' and 'parent_org'
     # fields, but the latter is always null for organizations and MySQL doesn't
     # treat null values as equal
-    if Organization.objects.all_organizations().filter(name=name).exists():
+    if Organization.objects.all_organizations().filter(Q(name=name) | Q(aliases__alias=name)).exists():
         raise AlreadyExistsError(entity=Organization.__name__, eid=name)
 
     organization = Organization(name=name)
@@ -1018,6 +1048,45 @@ def move_domain(trxl, domain, organization):
     return domain
 
 
+def move_alias(trxl, alias, organization):
+    """Move an alias to an organization
+
+    Shifts the given `alias` object to the given `organization`.
+
+    As a result, it returns the `Alias` object with the updated data.
+
+    :param trxl: TransactionsLog object from the method calling this one
+    :param alias: alias to be moved
+    :param organization: organization to move the domain to
+
+    :returns: alias object with the updated information
+
+    :raises ValueError: raised when the alias is already assigned to
+    the organization
+    """
+    op_args = {
+        'alias': alias.alias,
+        'organization': organization.name
+    }
+
+    if alias.organization.name == organization.name:
+        msg = f"Alias '{alias.alias}' is already assigned to '{organization.name}'"
+        raise ValueError(msg)
+
+    old_organization = alias.organization
+    alias.organization = organization
+
+    alias.save()
+    old_organization.save()
+    organization.save()
+
+    trxl.log_operation(op_type=Operation.OpType.UPDATE, entity_type='alias',
+                       timestamp=datetime_utcnow(), args=op_args,
+                       target=op_args['alias'])
+
+    return alias
+
+
 def move_team(trxl, team, organization):
     """Move a team to an organization
 
@@ -1195,3 +1264,67 @@ def find_scheduled_task(task_id):
     else:
         logger.debug(f"Task with id '{task_id}' was found")
         return task
+
+
+def add_alias(trxl, organization, name):
+    """Add an alias to the database.
+
+    This function adds a new alias to the database linked to
+    the organization object in `organization`.
+
+    Values assigned to `name` cannot be `None` or empty.
+
+    As a result, the function returns a new `Alias` object.
+
+    :param trxl: TransactionsLog object from the method calling this one
+    :param organization: links the new alias to this organization object
+    :param name: name of the alias
+
+    :returns: a new alias
+
+    :raises ValueError: raised when `name` is `None` or an empty string;
+    """
+    # Setting operation arguments before they are modified
+    op_args = {
+        'organization': organization.name,
+        'name': name
+    }
+
+    validate_field('name', name)
+
+    # Check if there is an organization with the same name.
+    if Organization.objects.all_organizations().filter(name=name).exists():
+        raise AlreadyExistsError(entity=Organization.__name__, eid=name)
+
+    alias = Alias(alias=name, organization=organization)
+
+    try:
+        alias.save()
+    except django.db.utils.IntegrityError as exc:
+        _handle_integrity_error(Alias, exc)
+
+    trxl.log_operation(op_type=Operation.OpType.ADD, entity_type='alias',
+                       timestamp=datetime_utcnow(), args=op_args,
+                       target=op_args['organization'])
+
+    return alias
+
+
+def delete_alias(trxl, alias):
+    """Remove an alias from the database.
+
+    Deletes from the database the alias given in `alias`.
+
+    :param trxl: TransactionsLog object from the method calling this one
+    :param alias: alias to remove
+    """
+    # Setting operation arguments before they are modified
+    op_args = {
+        'alias': alias.alias
+    }
+
+    alias.delete()
+
+    trxl.log_operation(op_type=Operation.OpType.DELETE, entity_type='alias',
+                       timestamp=datetime_utcnow(), args=op_args,
+                       target=op_args['alias'])

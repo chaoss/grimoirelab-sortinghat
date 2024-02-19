@@ -5,11 +5,11 @@
     :search-input.sync="search"
     :label="label"
     :loading="isLoading"
+    :filter="filterItems"
     item-text="name"
     item-value="name"
     :no-data-text="`No matches for &quot;${search}&quot;`"
     :hide-no-data="!search || isLoading"
-    cache-items
     clearable
     dense
     outlined
@@ -86,20 +86,28 @@ export default {
         this.$emit("error", this.$getErrorMessage(error));
       }
     },
+    filterItems(item) {
+      // Return all items because the query is already filtered
+      return item;
+    },
   },
   computed: {
     appendContent() {
       return (
         this.search &&
         !this.organizations.some(
-          (org) => org.name.toLowerCase() === this.search.toLowerCase()
+          (org) =>
+            org.name.toLowerCase() === this.search.toLowerCase() ||
+            org.aliases.some(
+              (alias) => alias.alias.toLowerCase() === this.search.toLowerCase()
+            )
         )
       );
     },
   },
   watch: {
     search(value) {
-      if (value && value.length > 2) {
+      if (!value || value.length > 2) {
         this.isLoading = true;
         this.debounceSearch(value);
       }

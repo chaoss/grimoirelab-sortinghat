@@ -162,6 +162,50 @@
                       </v-list-item-icon>
                     </v-list-item>
                   </v-list>
+                  <v-list>
+                    <v-subheader class="d-flex justify-space-between">
+                      Aliases
+                      <v-edit-dialog
+                        large
+                        @save="addAlias"
+                        @cancel="form.alias = null"
+                      >
+                        <v-btn text small outlined>
+                          <v-icon small left>mdi-plus</v-icon>
+                          Add
+                        </v-btn>
+                        <template v-slot:input>
+                          <v-subheader class="pl-0">New alias</v-subheader>
+                          <v-text-field
+                            v-model="form.alias"
+                            label="Alias"
+                            single-line
+                            dense
+                          ></v-text-field>
+                        </template>
+                      </v-edit-dialog>
+                    </v-subheader>
+                    <v-list-item
+                      v-for="(alias, i) in organization.aliases"
+                      :key="i"
+                    >
+                      <v-list-item-content>
+                        <v-list-item-title>
+                          {{ alias.alias }}
+                        </v-list-item-title>
+                      </v-list-item-content>
+                      <v-list-item-icon>
+                        <v-btn
+                          aria-label="Delete alias"
+                          small
+                          icon
+                          @click="confirmDelete(deleteAlias, alias.alias)"
+                        >
+                          <v-icon small>mdi-delete</v-icon>
+                        </v-btn>
+                      </v-list-item-icon>
+                    </v-list-item>
+                  </v-list>
                 </v-tab-item>
                 <v-tab-item eager>
                   <individuals-table
@@ -240,6 +284,8 @@ import {
   updateProfile,
   lockIndividual,
   unlockIndividual,
+  addAlias,
+  deleteAlias,
 } from "../apollo/mutations";
 import IndividualsTable from "../components/IndividualsTable.vue";
 
@@ -266,6 +312,7 @@ export default {
         domain: null,
         isTopDomain: true,
         team: null,
+        alias: null,
       },
       filters: null,
     };
@@ -458,6 +505,39 @@ export default {
         action: null,
         color: "primary",
       });
+    },
+    async addAlias() {
+      if (!this.form.alias) return;
+
+      try {
+        const response = await addAlias(
+          this.$apollo,
+          this.form.alias,
+          this.name
+        );
+        this.organization.aliases.push(response.data.addAlias.alias);
+        this.form.alias = null;
+      } catch (error) {
+        Object.assign(this.dialog, {
+          isOpen: true,
+          title: "Error creating alias",
+          text: this.$getErrorMessage(error),
+        });
+      }
+    },
+    async deleteAlias(alias) {
+      try {
+        const response = await deleteAlias(this.$apollo, alias);
+        if (response && !response.errors) {
+          const index = this.organization.aliases.findIndex(
+            (item) => item.alias === alias
+          );
+          this.organization.aliases.splice(index, 1);
+          this.closeDialog();
+        }
+      } catch (error) {
+        Object.assign(this.dialog, { text: error });
+      }
     },
   },
   async mounted() {

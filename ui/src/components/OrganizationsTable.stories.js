@@ -18,6 +18,8 @@ const OrganizationsTableTemplate = `
     :add-team="addTeam"
     :delete-team="deleteTeam"
     :fetch-teams="fetchTeams"
+    :add-alias="() => {}"
+    :delete-alias="() => {}"
   />
 `;
 
@@ -105,6 +107,7 @@ export const Organizations = () => ({
                   { id: 5 },
                 ],
                 domains: [{ domain: "griffyndor.hogwarts.edu" }],
+                aliases: [{ alias: "Griffyndor House" }],
               },
               {
                 id: 2,
@@ -114,6 +117,7 @@ export const Organizations = () => ({
                   { id: 2 },
                 ],
                 domains: [{ domain: "slytherin.hogwarts.edu" }],
+                aliases: [{ alias: "Slytherin House" }],
               },
               {
                 id: 3,
@@ -124,6 +128,7 @@ export const Organizations = () => ({
                   { id: 3 },
                 ],
                 domains: [{ domain: "ravenclaw.hogwarts.edu" }],
+                aliases: [{ alias: "Ravenclaw House" }],
               },
             ],
             pageInfo: {

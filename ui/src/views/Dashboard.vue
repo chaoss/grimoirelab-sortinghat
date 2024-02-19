@@ -62,6 +62,8 @@
           :delete-team="deleteTeam"
           :fetch-teams="fetchTeams"
           :merge-items="mergeOrgs"
+          :add-alias="addAlias"
+          :delete-alias="deleteAlias"
           @getEnrollments="getEnrollments"
           @updateIndividuals="updateTable"
           @updateWorkspace="updateWorkspace"
@@ -106,6 +108,8 @@ import {
   manageMergeRecommendation,
   recommendMatches,
   mergeOrganizations,
+  addAlias,
+  deleteAlias,
 } from "../apollo/mutations";
 import IndividualsTable from "../components/IndividualsTable";
 import OrganizationsTable from "../components/OrganizationsTable";
@@ -353,6 +357,14 @@ export default {
       const response = await mergeOrganizations(this.$apollo, fromOrg, toOrg);
       return response;
     },
+    async addAlias(alias, organization) {
+      const response = await addAlias(this.$apollo, alias, organization);
+      return response;
+    },
+    async deleteAlias(alias) {
+      const response = await deleteAlias(this.$apollo, alias);
+      return response;
+    }
   },
   async mounted() {
     if (this.workspace && this.workspace.length > 0) {

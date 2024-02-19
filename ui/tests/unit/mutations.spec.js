@@ -429,6 +429,8 @@ describe("OrganizationsTable", () => {
         addTeam: () => {},
         deleteTeam: () => {},
         fetchTeams: () => {},
+        addAlias: () => {},
+        deleteAlias: () => {},
       },
     });
 
@@ -461,6 +463,8 @@ describe("OrganizationsTable", () => {
         addTeam: () => {},
         deleteTeam: () => {},
         fetchTeams: () => {},
+        addAlias: () => {},
+        deleteAlias: () => {},
       },
     });
 
@@ -489,6 +493,8 @@ describe("OrganizationsTable", () => {
         addTeam: () => {},
         deleteTeam: () => {},
         fetchTeams: () => {},
+        addAlias: () => {},
+        deleteAlias: () => {},
       },
     });
 
@@ -517,6 +523,8 @@ describe("OrganizationsTable", () => {
         addTeam: () => {},
         deleteTeam: () => {},
         fetchTeams: () => {},
+        addAlias: () => {},
+        deleteAlias: () => {},
       },
     });
 
@@ -544,6 +552,8 @@ describe("OrganizationsTable", () => {
         addTeam: () => {},
         deleteTeam: () => {},
         fetchTeams: () => {},
+        addAlias: () => {},
+        deleteAlias: () => {},
       },
     });
 

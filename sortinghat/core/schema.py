@@ -55,9 +55,11 @@ from .api import (add_identity,
                   add_organization,
                   add_team,
                   add_domain,
+                  add_alias,
                   delete_organization,
                   delete_team,
                   delete_domain,
+                  delete_alias,
                   enroll,
                   withdraw,
                   update_enrollment,
@@ -95,6 +97,7 @@ from .models import (Organization,
                      MergeRecommendation,
                      GenderRecommendation,
                      ScheduledTask,
+                     Alias,
                      MIN_PERIOD_DATE)
 from .recommendations.exclusion import delete_recommend_exclusion_term, add_recommender_exclusion_term
 
@@ -205,7 +208,7 @@ class OrganizationType(DjangoObjectType):
 class TeamType(DjangoObjectType):
     class Meta:
         model = Group
-        exclude = ('path', 'depth', 'type', 'domains', 'teams')
+        exclude = ('path', 'depth', 'type', 'domains', 'teams', 'aliases')
 
     subteams = graphene.List(lambda: TeamType)
     parent_org = graphene.Field(OrganizationType)
@@ -217,6 +220,11 @@ class TeamType(DjangoObjectType):
 class DomainType(DjangoObjectType):
     class Meta:
         model = Domain
+
+
+class AliasType(DjangoObjectType):
+    class Meta:
+        model = Alias
 
 
 class CountryType(DjangoObjectType):
@@ -764,6 +772,47 @@ class DeleteDomain(graphene.Mutation):
 
         return DeleteDomain(
             domain=dom
+        )
+
+
+class AddAlias(graphene.Mutation):
+    class Arguments:
+        organization = graphene.String()
+        alias = graphene.String()
+
+    alias = graphene.Field(lambda: AliasType)
+
+    @check_auth
+    def mutate(self, info, organization, alias):
+        user = info.context.user
+        tenant = get_db_tenant()
+        ctx = SortingHatContext(user=user, tenant=tenant)
+
+        als = add_alias(ctx,
+                        organization,
+                        alias)
+
+        return AddAlias(
+            alias=als
+        )
+
+
+class DeleteAlias(graphene.Mutation):
+    class Arguments:
+        alias = graphene.String()
+
+    alias = graphene.Field(lambda: AliasType)
+
+    @check_auth
+    def mutate(self, info, alias):
+        user = info.context.user
+        tenant = get_db_tenant()
+        ctx = SortingHatContext(user=user, tenant=tenant)
+
+        als = delete_alias(ctx, alias)
+
+        return DeleteAlias(
+            alias=als
         )
 
 
@@ -1600,12 +1649,15 @@ class SortingHatQuery:
         query = Organization.objects.all_organizations().order_by('name')
 
         if filters and 'name' in filters:
-            query = query.filter(name=filters['name'])
+            query = query.distinct().filter(Q(name=filters['name']) | Q(aliases__alias=filters['name']))
         if filters and 'term' in filters:
             search_term = filters['term']
             query = query.filter(Q(name__icontains=search_term) |
                                  Q(name__in=Subquery(Domain.objects
                                                     .filter(domain__icontains=search_term)
+                                                    .values_list('organization__name'))) |
+                                 Q(name__in=Subquery(Alias.objects
+                                                    .filter(alias__icontains=search_term)
                                                     .values_list('organization__name'))))
 
         return OrganizationPaginatedType.create_paginated_result(query,
@@ -1996,6 +2048,13 @@ class SortingHatMutation(graphene.ObjectType):
     )
     delete_domain = DeleteDomain.Field(
         description='Remove a domain from the registry.'
+    )
+    add_alias = AddAlias.Field(
+        description='Add a new alias to an organization. An alias can only be assigned\
+        to one organization and cannot share a name with any organization.'
+    )
+    delete_alias = DeleteAlias.Field(
+        description='Remove an alias from the registry.'
     )
     add_identity = AddIdentity.Field(
         description='Add a new identity to the registry. A new individual will be\

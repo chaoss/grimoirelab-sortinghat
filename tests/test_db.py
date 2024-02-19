@@ -49,7 +49,8 @@ from sortinghat.core.models import (MIN_PERIOD_DATE,
                                     Enrollment,
                                     Transaction,
                                     Operation,
-                                    ScheduledTask)
+                                    ScheduledTask,
+                                    Alias)
 
 DUPLICATED_ORG_ERROR = "Organization 'Example' already exists in the registry"
 DUPLICATED_DOM_ERROR = "Domain 'example.org' already exists in the registry"
@@ -58,6 +59,7 @@ DUPLICATED_INDIVIDUAL_ERROR = "Individual '1234567890ABCDFE' already exists in t
 DUPLICATED_ID_ERROR = "Identity '1234567890ABCDFE' already exists in the registry"
 DUPLICATED_ID_DATA_ERROR = "Identity 'John Smith-jsmith@example.org-jsmith-scm' already exists in the registry"
 DUPLICATED_ENROLLMENT_ERROR = r"Identity '1234567890ABCDFE-.+' already exists in the registry"
+DUPLICATED_ALIAS_ERROR = "Alias 'Example Inc.' already exists in the registry"
 NAME_NONE_ERROR = "'name' cannot be None"
 NAME_EMPTY_ERROR = "'name' cannot be an empty string"
 NAME_WHITESPACES_ERROR = "'name' cannot be composed by whitespaces only"
@@ -79,11 +81,14 @@ IDENTITY_DATA_NONE_OR_EMPTY_ERROR = "identity data cannot be None or empty"
 IDENTITY_DATA_EMPTY_ERROR = "'{name}' cannot be an empty string"
 IDENTITY_DATA_NONE_ERROR = "'{name}' cannot be None"
 IDENTITY_DATA_WHITESPACES_ERROR = "'{name}' cannot be composed by whitespaces only"
+ALIAS_NAME_NONE_ERROR = "'name' cannot be None"
+ALIAS_NAME_EMPTY_ERROR = "'name' cannot be an empty string"
 INDIVIDUAL_NOT_FOUND_ERROR = "zyxwuv not found in the registry"
 IDENTITY_NOT_FOUND_ERROR = "zyxwuv not found in the registry"
 ORGANIZATION_NOT_FOUND_ERROR = "Bitergia not found in the registry"
 GROUP_NOT_FOUND_ERROR = "Bitergia not found in the registry"
 DOMAIN_NOT_FOUND_ERROR = "example.net not found in the registry"
+ALIAS_NOT_FOUND_ERROR = "Example Ltd. not found in the registry"
 TEAM_NOT_FOUND_ERROR = "subTeam not found in the registry"
 TEAM_NAME_NONE_ERROR = "'team_name' cannot be None"
 TEAM_NAME_EMPTY_ERROR = "'{var}' cannot be an empty string"
@@ -105,6 +110,7 @@ FORMAT_EMPTY_ERROR = "'{}' cannot be .+"
 FORMAT_ALREADY_EXISTS = "'{}' already exists in the registry"
 MOVE_DOMAIN_ERROR = "Domain 'example.com' is already assigned to 'Example'"
 MOVE_TEAM_ERROR = "Team 'Example team' is already assigned to 'Example organization'"
+ALIAS_NAME_WHITESPACES_ERROR = "'name' cannot be composed by whitespaces only"
 
 
 class TestFindIndividual(TestCase):
@@ -215,6 +221,26 @@ class TestFindOrganization(TestCase):
 
         with self.assertRaisesRegex(NotFoundError, ORGANIZATION_NOT_FOUND_ERROR):
             db.find_organization('Bitergia')
+
+    def test_find_alias(self):
+        """Test if an organization is found by its alias"""
+
+        org = Organization.add_root(name='Example')
+        alias_name = 'Example Inc.'
+        Alias.objects.create(alias=alias_name, organization=org)
+
+        organization = db.find_organization(alias_name)
+        self.assertIsInstance(organization, Organization)
+
+    def test_find_multiple_aliases(self):
+        """Test if an organization is found by one of its aliases"""
+
+        org = Organization.add_root(name='Example')
+        Alias.objects.create(alias='Example Inc.', organization=org)
+        Alias.objects.create(alias='Example Ltd.', organization=org)
+
+        organization = db.find_organization('Example Ltd.')
+        self.assertIsInstance(organization, Organization)
 
 
 class TestFindTeam(TestCase):
@@ -371,6 +397,56 @@ class TestFindDomain(TestCase):
 
         with self.assertRaisesRegex(TypeError, DOMAIN_VALUE_ERROR):
             db.find_domain(12345)
+
+
+class TestFindAlias(TestCase):
+    """Unit tests for find_alias"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        org = Organization.add_root(name='Example')
+        Alias.objects.create(alias='Example Inc.', organization=org)
+
+    def test_find_alias(self):
+        """Test if an alias is found by its name"""
+
+        alias = db.find_alias('Example Inc.')
+
+        # Tests
+        self.assertIsInstance(alias, Alias)
+        self.assertEqual(alias.organization.name, 'Example')
+        self.assertEqual(alias.alias, 'Example Inc.')
+
+    def test_alias_not_found(self):
+        """Test whether it raises an exception when the alias is not found"""
+
+        with self.assertRaisesRegex(NotFoundError, ALIAS_NOT_FOUND_ERROR):
+            db.find_alias('Example Ltd.')
+
+    def test_alias_name_none(self):
+        """Check if it fails when alias name is `None`"""
+
+        with self.assertRaisesRegex(ValueError, ALIAS_NAME_NONE_ERROR):
+            db.find_alias(None)
+
+    def test_alias_name_empty(self):
+        """Check if it fails when alias name is empty"""
+
+        with self.assertRaisesRegex(ValueError, ALIAS_NAME_EMPTY_ERROR):
+            db.find_alias('')
+
+    def test_alias_name_whitespaces(self):
+        """Check if it fails when alias name is composed by whitespaces"""
+
+        with self.assertRaisesRegex(ValueError, ALIAS_NAME_WHITESPACES_ERROR):
+            db.find_alias('    ')
+
+        with self.assertRaisesRegex(ValueError, ALIAS_NAME_WHITESPACES_ERROR):
+            db.find_alias('\t')
+
+        with self.assertRaisesRegex(ValueError, ALIAS_NAME_WHITESPACES_ERROR):
+            db.find_alias('  \t  ')
 
 
 class TestSearchEnrollmentsInPeriod(TestCase):
@@ -653,6 +729,7 @@ class TestDeleteOrganization(TestCase):
         org_ex = Organization.add_root(name='Example')
         Domain.objects.create(domain='example.org',
                               organization=org_ex)
+        Alias.objects.create(alias='Example Inc.', organization=org_ex)
         org_bit = Organization.add_root(name='Bitergia')
 
         jsmith = Individual.objects.create(mk='AAAA')
@@ -684,6 +761,9 @@ class TestDeleteOrganization(TestCase):
 
         with self.assertRaises(ObjectDoesNotExist):
             Domain.objects.get(domain='example.org')
+
+        with self.assertRaises(ObjectDoesNotExist):
+            Alias.objects.get(alias='Example Inc.')
 
         enrollments = Enrollment.objects.filter(group__name='Example')
         self.assertEqual(len(enrollments), 0)
@@ -3189,3 +3269,209 @@ class TestDeleteScheduledTask(TestCase):
         op1_args = json.loads(op1.args)
         self.assertEqual(len(op1_args), 1)
         self.assertEqual(op1_args['task'], str(task_id))
+
+
+class TestAddAlias(TestCase):
+    """"Unit tests for add_alias"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        self.trxl = TransactionsLog.open('add_alias', self.ctx)
+
+    def test_add_alias(self):
+        """Check if a new alias is added"""
+
+        name = 'Example'
+        alias = 'Example Inc.'
+
+        org = Organization.add_root(name=name)
+        als = db.add_alias(self.trxl, org, alias)
+        self.assertIsInstance(als, Alias)
+        self.assertEqual(als.alias, alias)
+        self.assertEqual(als.organization, org)
+
+        org = Organization.objects.get(name='Example')
+        aliases = org.aliases.all()
+        self.assertEqual(len(aliases), 1)
+
+        als = aliases[0]
+        self.assertIsInstance(als, Alias)
+        self.assertEqual(als.alias, alias)
+
+    def test_add_multiple_aliases(self):
+        """Check if multiple aliases can be added"""
+
+        org = Organization.add_root(name='Example')
+        db.add_alias(self.trxl, org, 'Example Inc.')
+        db.add_alias(self.trxl, org, 'Example Inc')
+
+        org = Organization.objects.get(name='Example')
+        aliases = org.aliases.all()
+        self.assertIsInstance(org, Organization)
+        self.assertEqual(org.name, 'Example')
+
+        self.assertEqual(len(aliases), 2)
+
+        als = aliases[0]
+        self.assertIsInstance(als, Alias)
+        self.assertEqual(als.alias, 'Example Inc')
+
+        als = aliases[1]
+        self.assertIsInstance(als, Alias)
+        self.assertEqual(als.alias, 'Example Inc.')
+
+    def test_existing_organization_error(self):
+        """Check if aliases with the same name as an organization cannot be added"""
+
+        org1 = Organization.add_root(name='Example')
+        org2 = Organization.add_root(name='Example Inc.')
+
+        with self.assertRaisesRegex(AlreadyExistsError, DUPLICATED_ORG_ERROR):
+            db.add_alias(self.trxl, org2, org1.name)
+
+        # Check if operations have not been generated after the failure
+        operations = Operation.objects.all()
+        self.assertEqual(len(operations), 0)
+
+    def test_alias_none(self):
+        """Check whether aliases with None name cannot be added"""
+
+        org = Organization.add_root(name='Example')
+
+        with self.assertRaisesRegex(ValueError, ALIAS_NAME_NONE_ERROR):
+            db.add_alias(self.trxl, org, None)
+
+        # Check if operations have not been generated after the failure
+        operations = Operation.objects.all()
+        self.assertEqual(len(operations), 0)
+
+    def test_alias_empty(self):
+        """Check whether aliases with empty names cannot be added"""
+
+        org = Organization.add_root(name='Example')
+
+        with self.assertRaisesRegex(ValueError, ALIAS_NAME_EMPTY_ERROR):
+            db.add_alias(self.trxl, org, '')
+
+        # Check if operations have not been generated after the failure
+        operations = Operation.objects.all()
+        self.assertEqual(len(operations), 0)
+
+    def test_aliases_whitespaces(self):
+        """Check whether aliases with names composed by whitespaces cannot be added"""
+
+        org = Organization.add_root(name='Example')
+
+        with self.assertRaisesRegex(ValueError, ALIAS_NAME_WHITESPACES_ERROR):
+            db.add_alias(self.trxl, org, ' ')
+
+        with self.assertRaisesRegex(ValueError, ALIAS_NAME_WHITESPACES_ERROR):
+            db.add_alias(self.trxl, org, '\t')
+
+        with self.assertRaisesRegex(ValueError, ALIAS_NAME_WHITESPACES_ERROR):
+            db.add_alias(self.trxl, org, ' \t ')
+
+        # Check if operations have not been generated after the failure
+        operations = Operation.objects.all()
+        self.assertEqual(len(operations), 0)
+
+    def test_integrity_error(self):
+        """Check whether aliases with the same name cannot be inserted"""
+
+        org = Organization.add_root(name='Example')
+        alias_name = 'Example Inc.'
+
+        with self.assertRaisesRegex(AlreadyExistsError, DUPLICATED_ALIAS_ERROR):
+            db.add_alias(self.trxl, org, alias_name)
+            db.add_alias(self.trxl, org, alias_name)
+
+    def test_operations(self):
+        """Check if the right operations are created when adding an alias"""
+
+        timestamp = datetime_utcnow()
+        org = Organization.add_root(name='Example')
+
+        db.add_alias(self.trxl, org, 'Example Inc.')
+
+        transactions = Transaction.objects.filter(name='add_alias')
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.ADD.value)
+        self.assertEqual(op1.entity_type, 'alias')
+        self.assertEqual(op1.trx, trx)
+        self.assertEqual(op1.target, 'Example')
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 2)
+        self.assertEqual(op1_args['organization'], 'Example')
+        self.assertEqual(op1_args['name'], 'Example Inc.')
+
+
+class TestDeleteAlias(TestCase):
+    """Unit tests for delete_alias"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        self.trxl = TransactionsLog.open('delete_alias', self.ctx)
+
+    def test_delete_alias(self):
+        """Check whether it deletes an alias"""
+
+        org = Organization.add_root(name='Example')
+        als = Alias.objects.create(alias='Example Inc.', organization=org)
+        Alias.objects.create(alias='Example Ltd.', organization=org)
+
+        # Check data and remove domain
+        org.refresh_from_db()
+        self.assertEqual(len(org.aliases.all()), 2)
+
+        als.refresh_from_db()
+        db.delete_alias(self.trxl, als)
+
+        # Tests
+        with self.assertRaises(ObjectDoesNotExist):
+            Alias.objects.get(alias='Example Inc.')
+
+        org.refresh_from_db()
+        self.assertEqual(len(org.aliases.all()), 1)
+
+    def test_operations(self):
+        """Check if the right operations are created when deleting an alias"""
+
+        timestamp = datetime_utcnow()
+        org = Organization.add_root(name='Example')
+        als = Alias.objects.create(alias='Example Inc.', organization=org)
+
+        db.delete_alias(self.trxl, als)
+
+        transactions = Transaction.objects.filter(name='delete_alias')
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.DELETE.value)
+        self.assertEqual(op1.entity_type, 'alias')
+        self.assertEqual(op1.trx, trx)
+        self.assertEqual(op1.target, 'Example Inc.')
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 1)
+        self.assertEqual(op1_args['alias'], 'Example Inc.')

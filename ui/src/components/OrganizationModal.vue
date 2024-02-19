@@ -50,10 +50,53 @@
               </v-btn>
             </v-col>
           </v-row>
-          <v-row class="pl-3 mt-2">
-            <v-btn text small left outlined color="primary" @click="addInput">
-              <v-icon small color="primary">mdi-plus-circle-outline</v-icon>
+          <v-row class="pl-3 mt-2 mb-4">
+            <v-btn text small outlined color="primary" @click="addInput">
+              <v-icon small left color="primary">
+                mdi-plus-circle-outline
+              </v-icon>
               Add domain
+            </v-btn>
+          </v-row>
+          <v-row class="pl-4">
+            <span class="subheader">Aliases</span>
+          </v-row>
+          <v-row
+            v-for="(alias, index) in form.aliases"
+            :key="`alias-${index}`"
+            class="align-bottom"
+          >
+            <v-col cols="10">
+              <v-text-field
+                v-model="form.aliases[index]"
+                label="Alias"
+                hide-details
+                outlined
+                dense
+              />
+            </v-col>
+            <v-col cols="2" class="pt-3">
+              <v-btn
+                icon
+                color="primary"
+                @click="form.aliases.splice(index, 1)"
+              >
+                <v-icon color="primary">mdi-delete</v-icon>
+              </v-btn>
+            </v-col>
+          </v-row>
+          <v-row class="pl-3 mt-2">
+            <v-btn
+              text
+              small
+              outlined
+              color="primary"
+              @click="form.aliases.push('')"
+            >
+              <v-icon small left color="primary">
+                mdi-plus-circle-outline
+              </v-icon>
+              Add alias
             </v-btn>
           </v-row>
           <v-alert v-if="errorMessage" text type="error" class="mt-3">
@@ -114,12 +157,26 @@ export default {
       required: false,
       default: () => [],
     },
+    aliases: {
+      type: Array,
+      required: false,
+      default: () => [""],
+    },
+    addAlias: {
+      type: Function,
+      required: true,
+    },
+    deleteAlias: {
+      type: Function,
+      required: true,
+    },
   },
   data() {
     return {
       form: {
         name: "",
         domains: [emptyDomain],
+        aliases: [""],
       },
       errorMessage: "",
       savedData: {
@@ -133,6 +190,7 @@ export default {
       this.form.domains.splice(index, 1);
     },
     async onSave() {
+      this.errorMessage = "";
       if (!this.savedData.name) {
         try {
           const response = await this.addOrganization(this.form.name);
@@ -141,20 +199,30 @@ export default {
             this.$logger.debug(`Added organization ${this.form.name}`);
             if (
               this.form.domains.length === 0 &&
-              this.savedData.domains.length === 0
+              this.savedData.domains.length === 0 &&
+              this.form.aliases.length === 0 &&
+              this.savedData.aliases.length === 0
             ) {
               this.closeModal();
               this.$emit("updateOrganizations");
               return;
             } else {
-              this.handleDomains();
+              await this.handleDomains();
+              await this.handleAliases();
+              if (!this.errorMessage) {
+                this.closeModal();
+              }
             }
           }
         } catch (error) {
           this.errorMessage = this.$getErrorMessage(error);
         }
       } else {
-        this.handleDomains();
+        await this.handleDomains();
+        await this.handleAliases();
+        if (!this.errorMessage) {
+          this.closeModal();
+        }
       }
     },
     closeModal() {
@@ -186,7 +254,6 @@ export default {
           deletedDomains.map((domain) => this.deleteOrganizationDomain(domain))
         );
         if (responseNew || responseDeleted) {
-          this.closeModal();
           this.$emit("updateOrganizations");
         }
       } catch (error) {
@@ -225,6 +292,60 @@ export default {
     addInput() {
       this.form.domains.push({ ...emptyDomain });
     },
+    async handleAliases() {
+      const newAliases = this.form.aliases.filter(
+        (alias) =>
+          alias.length > 0 &&
+          !this.savedData.aliases.some((savedAlias) => savedAlias === alias)
+      );
+      const deletedAliases = this.savedData.aliases.filter(
+        (alias) =>
+          alias.length > 0 &&
+          !this.form.aliases.some((savedAlias) => savedAlias === alias)
+      );
+      try {
+        const responseNew = await Promise.all(
+          newAliases.map((alias) =>
+            this.addOrganizationAlias(alias, this.form.name)
+          )
+        );
+        const responseDeleted = await Promise.all(
+          deletedAliases.map((alias) => this.deleteOrganizationAlias(alias))
+        );
+        if (responseNew || responseDeleted) {
+          this.$emit("updateOrganizations");
+        }
+      } catch (error) {
+        this.errorMessage = this.$getErrorMessage(error);
+        this.$logger.error(`Error updating aliases: ${error}`, {
+          organization: this.form.name,
+          newAliases,
+          deletedAliases,
+        });
+      }
+    },
+    async addOrganizationAlias(alias, organization) {
+      const response = await this.addAlias(alias, organization);
+      if (response && !response.error) {
+        this.savedData.aliases.push(alias);
+        this.$logger.debug(
+          `Added alias ${alias} to organization ${organization}`
+        );
+        return response;
+      } else if (response.errors) {
+        this.$logger.error(
+          `Error adding alias: ${response.errors[0].message}`,
+          { alias, organization }
+        );
+      }
+    },
+    async deleteOrganizationAlias(alias) {
+      const response = await this.deleteAlias(alias);
+      if (response) {
+        this.$logger.debug(`Deleted alias ${alias}`);
+        return response;
+      }
+    },
   },
   watch: {
     isOpen(value) {
@@ -232,16 +353,23 @@ export default {
         Object.assign(this.savedData, {
           name: this.organization,
           domains: this.domains.map((domain) => ({ ...domain })),
+          aliases: this.aliases.map((alias) => alias),
         });
         Object.assign(this.form, {
           name: this.organization || "",
           domains: this.domains.map((domain) => ({ ...domain })),
+          aliases: this.aliases.map((alias) => alias),
         });
       } else {
-        Object.assign(this.form, { name: "", domains: [{ ...emptyDomain }] });
+        Object.assign(this.form, {
+          name: "",
+          domains: [{ ...emptyDomain }],
+          aliases: [""],
+        });
         Object.assign(this.savedData, {
           name: undefined,
           domains: [{ ...emptyDomain }],
+          aliases: [""],
         });
       }
     },
