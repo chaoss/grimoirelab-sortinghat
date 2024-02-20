@@ -149,6 +149,7 @@ exports[`IndividualsTable Mock query for getCountries 1`] = `
     customsort="[Function]"
     expanded=""
     expandicon="$expand"
+    filtermode="intersection"
     groupby=""
     groupdesc=""
     headers="[object Object],[object Object],[object Object],[object Object]"
@@ -158,6 +159,7 @@ exports[`IndividualsTable Mock query for getCountries 1`] = `
     itemkey="uuid"
     items=""
     itemsperpage="10"
+    itemstyle=""
     loaderheight="4"
     loadingtext="$vuetify.dataIterator.loadingText"
     locale="en-US"
@@ -449,6 +451,7 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
     customsort="[Function]"
     expanded=""
     expandicon="$expand"
+    filtermode="intersection"
     groupby=""
     groupdesc=""
     headers="[object Object],[object Object],[object Object],[object Object]"
@@ -458,6 +461,7 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
     itemkey="uuid"
     items=""
     itemsperpage="10"
+    itemstyle=""
     loaderheight="4"
     loadingtext="$vuetify.dataIterator.loadingText"
     locale="en-US"
@@ -646,7 +650,93 @@ exports[`JobsTable Mock query for getJobs 1`] = `
     </v-btn-stub>
   </header>
    
-  <v-simple-table-stub />
+  <v-simple-table-stub>
+    <thead>
+      <tr>
+        <th
+          class="text-left"
+        >
+          Job ID
+        </th>
+         
+        <th
+          class="text-left"
+        >
+          Type
+        </th>
+         
+        <th
+          class="text-left"
+        >
+          Date
+        </th>
+         
+        <th
+          class="text-center"
+        >
+          Status
+        </th>
+      </tr>
+    </thead>
+     
+    <tbody>
+      <tr>
+        <td>
+          <v-tooltip-stub
+            bottom="true"
+            closedelay="0"
+            contentclass=""
+            maxwidth="auto"
+            nudgebottom="0"
+            nudgeleft="0"
+            nudgeright="0"
+            nudgetop="0"
+            nudgewidth="0"
+            opendelay="0"
+            openonclick="true"
+            openonfocus="true"
+            openonhover="true"
+            tag="span"
+          >
+             
+            <span>
+              41f813e5-6701-41d2-bfac-ac13e04d4858
+            </span>
+          </v-tooltip-stub>
+        </td>
+         
+        <td
+          class="capitalize"
+        >
+          unify
+        </td>
+         
+        <td>
+          Invalid Date
+        </td>
+         
+        <td
+          class="text-center"
+        >
+          <v-chip-stub
+            active="true"
+            activeclass=""
+            class="ma-2"
+            closeicon="$delete"
+            closelabel="$vuetify.close"
+            color="rgba(0, 0, 0, 0.42)"
+            filtericon="$complete"
+            tag="span"
+            textcolor="white"
+          >
+            
+              queued
+            
+          </v-chip-stub>
+        </td>
+      </tr>
+    </tbody>
+  </v-simple-table-stub>
    
   <div
     class="text-center pa-4"
@@ -742,6 +832,7 @@ exports[`OrganizationsTable Mock query for getPaginatedOrganizations 1`] = `
     customsort="[Function]"
     expanded=""
     expandicon="$expand"
+    filtermode="intersection"
     groupby=""
     groupdesc=""
     headers="[object Object],[object Object],[object Object]"
@@ -751,6 +842,7 @@ exports[`OrganizationsTable Mock query for getPaginatedOrganizations 1`] = `
     itemkey="id"
     items="[object Object],[object Object]"
     itemsperpage="10"
+    itemstyle=""
     loaderheight="4"
     loadingtext="$vuetify.dataIterator.loadingText"
     locale="en-US"
