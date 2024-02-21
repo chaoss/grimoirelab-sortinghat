@@ -4,6 +4,7 @@ export default {
       if (process.env.NODE_ENV === "production" && type === "debug") {
         return;
       }
+      /* eslint-disable no-console */
       console[type](message, ...args);
     }
 

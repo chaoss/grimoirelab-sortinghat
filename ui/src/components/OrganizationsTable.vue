@@ -386,7 +386,7 @@ export default {
         organization.domains && organization.domains.length > 0
           ? organization.domains.map((domain) => domain)
           : [{ domain: "", isTopDomain: false }];
-      const aliases = organization.aliases?.map(item => item.alias) || [""];
+      const aliases = organization.aliases?.map((item) => item.alias) || [""];
       Object.assign(this.modal, {
         open: true,
         organization: organization ? organization.name : "",
@@ -472,9 +472,7 @@ export default {
       if (!enrollments) {
         return 0;
       }
-      const uniqueIndividuals = new Set(
-        enrollments.map((item) => item.id)
-      );
+      const uniqueIndividuals = new Set(enrollments.map((item) => item.id));
 
       return uniqueIndividuals.size;
     },

@@ -508,7 +508,7 @@ export default {
 
         document.title = `${this.individual.name} - Sorting Hat`;
       } catch (error) {
-        console.log(error);
+        this.$logger.error(`Error fetching individual ${this.mk}: ${error}`);
       }
     },
     async updateProfile(data) {
