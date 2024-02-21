@@ -205,7 +205,7 @@ exports[`Storyshots DateInput Error 1`] = `
                   class="v-input__icon v-input__icon--clear"
                 >
                   <button
-                    aria-label="clear icon"
+                    aria-label="Clear Label"
                     class="v-icon notranslate v-icon--link mdi mdi-close theme--light"
                     tabindex="-1"
                     type="button"
@@ -7571,7 +7571,7 @@ exports[`Storyshots IndividualsTable Default 1`] = `
                     class="v-input__icon v-input__icon--prepend-inner"
                   >
                     <button
-                      aria-label="prepend icon"
+                      aria-label="Search prepended action"
                       class="v-icon notranslate v-icon--link mdi mdi-magnify theme--light"
                       type="button"
                     />
@@ -8168,7 +8168,7 @@ exports[`Storyshots IndividualsTable Expandable 1`] = `
                     class="v-input__icon v-input__icon--prepend-inner"
                   >
                     <button
-                      aria-label="prepend icon"
+                      aria-label="Search prepended action"
                       class="v-icon notranslate v-icon--link mdi mdi-magnify theme--light"
                       type="button"
                     />
@@ -8698,7 +8698,7 @@ exports[`Storyshots IndividualsTable Hidden Header 1`] = `
                     class="v-input__icon v-input__icon--prepend-inner"
                   >
                     <button
-                      aria-label="prepend icon"
+                      aria-label="Search prepended action"
                       class="v-icon notranslate v-icon--link mdi mdi-magnify theme--light"
                       type="button"
                     />
@@ -9295,7 +9295,7 @@ exports[`Storyshots IndividualsTable Outlined 1`] = `
                     class="v-input__icon v-input__icon--prepend-inner"
                   >
                     <button
-                      aria-label="prepend icon"
+                      aria-label="Search prepended action"
                       class="v-icon notranslate v-icon--link mdi mdi-magnify theme--light"
                       type="button"
                     />
@@ -10404,7 +10404,7 @@ exports[`Storyshots OrganizationSelector Selected Organization 1`] = `
                   class="v-input__icon v-input__icon--clear"
                 >
                   <button
-                    aria-label="clear icon"
+                    aria-label="Clear Organization"
                     class="v-icon notranslate v-icon--link mdi mdi-close theme--light"
                     tabindex="-1"
                     type="button"
@@ -10539,7 +10539,7 @@ exports[`Storyshots OrganizationsTable Groups 1`] = `
                     class="v-input__icon v-input__icon--prepend-inner"
                   >
                     <button
-                      aria-label="prepend icon"
+                      aria-label="Search prepended action"
                       class="v-icon notranslate v-icon--link mdi mdi-magnify theme--light"
                       type="button"
                     />
@@ -10830,7 +10830,7 @@ exports[`Storyshots OrganizationsTable Organizations 1`] = `
                     class="v-input__icon v-input__icon--prepend-inner"
                   >
                     <button
-                      aria-label="prepend icon"
+                      aria-label="Search prepended action"
                       class="v-icon notranslate v-icon--link mdi mdi-magnify theme--light"
                       type="button"
                     />
@@ -11376,7 +11376,7 @@ exports[`Storyshots Search Default 1`] = `
                   class="v-input__icon v-input__icon--prepend-inner"
                 >
                   <button
-                    aria-label="prepend icon"
+                    aria-label="Search prepended action"
                     class="v-icon notranslate v-icon--link mdi mdi-magnify theme--light"
                     type="button"
                   />
@@ -11503,7 +11503,7 @@ exports[`Storyshots Search Filter Selector 1`] = `
                   class="v-input__icon v-input__icon--prepend-inner"
                 >
                   <button
-                    aria-label="prepend icon"
+                    aria-label="Search prepended action"
                     class="v-icon notranslate v-icon--link mdi mdi-magnify theme--light"
                     type="button"
                   />
@@ -11600,7 +11600,7 @@ exports[`Storyshots Search Order Selector 1`] = `
                   class="v-input__icon v-input__icon--prepend-inner"
                 >
                   <button
-                    aria-label="prepend icon"
+                    aria-label="Search prepended action"
                     class="v-icon notranslate v-icon--link mdi mdi-magnify theme--light"
                     type="button"
                   />
@@ -12735,7 +12735,7 @@ exports[`Storyshots WorkSpace Drag And Drop 1`] = `
                       class="v-input__icon v-input__icon--prepend-inner"
                     >
                       <button
-                        aria-label="prepend icon"
+                        aria-label="Search prepended action"
                         class="v-icon notranslate v-icon--link mdi mdi-magnify theme--light"
                         type="button"
                       />

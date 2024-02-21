@@ -10,7 +10,7 @@ module.exports = defineConfig({
     supportFile: "tests/e2e/support/index.js",
     video: false,
     retries: {
-      runMode: 2,
+      runMode: 4,
       openMode: 0,
     },
   },

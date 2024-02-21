@@ -31,9 +31,9 @@ jobs:
     name: Python ${{ matrix.python-version }}
     steps:
     - name: Checkout
-      uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # 3.1.0
+      uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # 4.0.0
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@13ae5bb136fac2878aff31522b9efb785519f984 # v4.3.0
+      uses: actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c # v5.0.0
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install poetry
@@ -62,14 +62,14 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16.x]
+        node-version: [18.x, 20.x]
 
     runs-on: ubuntu-latest
     name: Node ${{ matrix.node-version }}
     steps:
-      - uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # 3.1.0
+      - uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # 4.0.0
       - name: Setup Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@b39b52d1213e96004bfcb1c61a8a6fa8ab84f3e8 # 4.0.1
         with:
           node-version: ${{ matrix.node-version }}
       - name: Install dependencies
@@ -95,16 +95,16 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16.x]
+        node-version: [18.x, 20.x]
         python-version: [3.8, 3.9]
 
     runs-on: ubuntu-latest
     name: Node ${{ matrix.node-version }} Python ${{ matrix.python-version }}
     steps:
       - name: Checkout
-        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # 3.1.0
+        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # 4.0.0
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@13ae5bb136fac2878aff31522b9efb785519f984 # v4.3.0
+        uses: actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c # v5.0.0
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install poetry
@@ -122,7 +122,7 @@ jobs:
         run: |
           mysql --host $DB_HOST --port $DB_PORT -uroot -proot -e "SET GLOBAL sql_mode = 'NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION'";
       - name: Setup Node ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@b39b52d1213e96004bfcb1c61a8a6fa8ab84f3e8 # 4.0.1
         with:
           node-version: ${{ matrix.node-version }}
       - name: Build UI packages
@@ -145,7 +145,7 @@ jobs:
           SORTINGHAT_DB_PASSWORD: root
           UWSGI_HTTP: "http://localhost:8000"
       - name: Run integration tests
-        uses: cypress-io/github-action@v5
+        uses: cypress-io/github-action@1b70233146622b69e789ccdd4f9452adc638d25a # 6.6.1
         with:
           install: false
           command: yarn test:e2e --config baseUrl=http://localhost:8000

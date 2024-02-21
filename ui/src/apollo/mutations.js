@@ -862,5 +862,5 @@ export {
   deleteTask,
   updateTask,
   addAlias,
-  deleteAlias
+  deleteAlias,
 };

@@ -256,7 +256,7 @@ describe("Search", () => {
     );
 
     // Clear the search box and add filters
-    await wrapper.find('[aria-label="clear icon"]').trigger("click");
+    await wrapper.find('[aria-label="Clear Search"]').trigger("click");
     await button.trigger("click");
     await filter1.trigger("click");
     await filter2.trigger("click");

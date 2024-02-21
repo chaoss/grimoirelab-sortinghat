@@ -364,7 +364,7 @@ export default {
     async deleteAlias(alias) {
       const response = await deleteAlias(this.$apollo, alias);
       return response;
-    }
+    },
   },
   async mounted() {
     if (this.workspace && this.workspace.length > 0) {
