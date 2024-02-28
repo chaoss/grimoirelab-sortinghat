@@ -194,6 +194,13 @@ or affiliation. To start a worker run the command:
 $ sortinghatw --config sortinghat.config.settings
 ```
 
+To start a worker that processes jobs from a set of tenants when
+`dedicated_queue` is active (see [below](#multi-tenancy))
+use the next command:
+```
+$ sortinghatw --config sortinghat.config.settings tenant_A tenant_B
+```
+
 ## Create new accounts
 To create new accounts for SortingHat use the following command:
 
@@ -240,9 +247,22 @@ instance's data isolated in different databases.
 
 To enable this feature follow these guidelines:
 - Set `MULTI_TENANT` settings to `True`.
-- Define a list of tenants using the configuration file `sortinghat/config/tenants.json`. 
-You can use a different json file using the environment variable 
-`SORTINGHAT_MULTI_TENANT_LIST_PATH`
+- Define a list of tenants using the configuration file `sortinghat/config/tenants.json`.
+  You can use a different json file using the environment variable 
+  `SORTINGHAT_MULTI_TENANT_LIST_PATH`. The file should have the next schema:
+
+  ```json
+  {
+    'tenants': [
+      {'name': 'tenant A', 'dedicated_queue': true},
+      {'name': 'tenant B', 'dedicated_queue': false}
+    ]
+  }
+  ```
+  
+  Where `name` is the name of each tenant and `dedicated_queue`
+  is a boolean value to set whether jobs will be run on a specific
+  queue with the same tenant name.
 - Assign users to tenants with the following command:
   `sortinghat-admin set-user-tenant username header tenant`
 - The selected tenant should be included in the request using the
@@ -253,6 +273,9 @@ There are some limitations:
 users and databases, it won't store anything else related with SortingHat models.
 - Usernames are shared across all instances, which means that it is not possible
 to have the same username with two different passwords in different instances.
+- Tenants with `dedicated_queue` set as active will add their jobs to the queue
+of the same name. Queues will be created by SortingHat but, you will have
+to run a worker that processes that query.
 
 
 ## Running tests

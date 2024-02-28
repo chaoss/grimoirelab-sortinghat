@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2020 Bitergia
+# Copyright (C) 2014-2024 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -31,8 +31,6 @@ from django.conf import settings
 from django.core.paginator import Paginator
 from django.db import IntegrityError
 from django.db.models import (Q, Subquery, JSONField, Count)
-
-from django_rq import enqueue
 
 from graphene.types.generic import GenericScalar
 from graphene.utils.str_converters import to_snake_case
@@ -74,6 +72,7 @@ from .jobs import (affiliate,
                    unify,
                    find_job,
                    get_jobs,
+                   get_tenant_queue,
                    recommend_affiliations,
                    recommend_matches,
                    recommend_gender,
@@ -1107,7 +1106,9 @@ class RecommendAffiliations(graphene.Mutation):
         tenant = get_db_tenant()
         ctx = SortingHatContext(user=user, tenant=tenant)
 
-        job = enqueue(recommend_affiliations, ctx, uuids, last_modified, job_timeout=-1)
+        job = get_tenant_queue(tenant).enqueue(recommend_affiliations,
+                                               ctx, uuids, last_modified,
+                                               job_timeout=-1)
 
         return RecommendAffiliations(
             job_id=job.id
@@ -1139,17 +1140,17 @@ class RecommendMatches(graphene.Mutation):
         tenant = get_db_tenant()
         ctx = SortingHatContext(user=user, tenant=tenant)
 
-        job = enqueue(recommend_matches,
-                      ctx,
-                      source_uuids,
-                      target_uuids,
-                      criteria,
-                      exclude,
-                      verbose,
-                      strict,
-                      match_source,
-                      last_modified,
-                      job_timeout=-1)
+        job = get_tenant_queue(tenant).enqueue(recommend_matches,
+                                               ctx,
+                                               source_uuids,
+                                               target_uuids,
+                                               criteria,
+                                               exclude,
+                                               verbose,
+                                               strict,
+                                               match_source,
+                                               last_modified,
+                                               job_timeout=-1)
 
         return RecommendMatches(
             job_id=job.id
@@ -1171,7 +1172,10 @@ class RecommendGender(graphene.Mutation):
         tenant = get_db_tenant()
         ctx = SortingHatContext(user=user, tenant=tenant)
 
-        job = enqueue(recommend_gender, ctx, uuids, exclude, no_strict_matching, job_timeout=-1)
+        job = get_tenant_queue(tenant).enqueue(recommend_gender,
+                                               ctx, uuids,
+                                               exclude, no_strict_matching,
+                                               job_timeout=-1)
 
         return RecommendGender(
             job_id=job.id
@@ -1193,7 +1197,9 @@ class Affiliate(graphene.Mutation):
         tenant = get_db_tenant()
         ctx = SortingHatContext(user=user, tenant=tenant)
 
-        job = enqueue(affiliate, ctx, uuids, last_modified, job_timeout=-1)
+        job = get_tenant_queue(tenant).enqueue(affiliate, ctx, uuids,
+                                               last_modified,
+                                               job_timeout=-1)
 
         return Affiliate(
             job_id=job.id
@@ -1225,16 +1231,16 @@ class Unify(graphene.Mutation):
         tenant = get_db_tenant()
         ctx = SortingHatContext(user=user, tenant=tenant)
 
-        job = enqueue(unify,
-                      ctx,
-                      criteria,
-                      source_uuids,
-                      target_uuids,
-                      exclude,
-                      strict,
-                      match_source,
-                      last_modified,
-                      job_timeout=-1)
+        job = get_tenant_queue(tenant).enqueue(unify,
+                                               ctx,
+                                               criteria,
+                                               source_uuids,
+                                               target_uuids,
+                                               exclude,
+                                               strict,
+                                               match_source,
+                                               last_modified,
+                                               job_timeout=-1)
 
         return Unify(
             job_id=job.id
@@ -1256,7 +1262,9 @@ class Genderize(graphene.Mutation):
         tenant = get_db_tenant()
         ctx = SortingHatContext(user=user, tenant=tenant)
 
-        job = enqueue(genderize, ctx, uuids, exclude, no_strict_matching, job_timeout=-1)
+        job = get_tenant_queue(tenant).enqueue(genderize, ctx, uuids,
+                                               exclude, no_strict_matching,
+                                               job_timeout=-1)
 
         return Genderize(
             job_id=job.id
@@ -1414,7 +1422,9 @@ class ImportIdentities(graphene.Mutation):
         tenant = get_db_tenant()
         ctx = SortingHatContext(user=user, tenant=tenant)
 
-        job = enqueue(import_identities, ctx, backend, url, params, job_timeout=-1)
+        job = get_tenant_queue(tenant).enqueue(import_identities, ctx,
+                                               backend, url, params,
+                                               job_timeout=-1)
 
         return ImportIdentities(
             job_id=job.id
@@ -1477,7 +1487,7 @@ class DeleteScheduledTask(graphene.Mutation):
         task = delete_scheduled_task(ctx, task_id)
 
         if task.job_id:
-            job = find_job(task.job_id)
+            job = find_job(task.job_id, tenant)
             if job:
                 job.cancel()
 
@@ -1512,9 +1522,9 @@ class UpdateScheduledTask(graphene.Mutation):
             new_dt = datetime.datetime.now(datetime.timezone.utc) \
                 + datetime.timedelta(minutes=task.interval)
             if task.scheduled_datetime and task.scheduled_datetime > new_dt:
-                find_job(task.job_id)
+                find_job(task.job_id, tenant)
                 if task.job_id:
-                    job = find_job(task.job_id)
+                    job = find_job(task.job_id, tenant)
                     if job:
                         job.cancel()
                 schedule_task(ctx, job_fn, task, new_dt, **task.args)
@@ -1822,7 +1832,8 @@ class SortingHatQuery:
 
     @check_auth
     def resolve_job(self, info, job_id):
-        job = find_job(job_id)
+        tenant = get_db_tenant()
+        job = find_job(job_id, tenant)
 
         status = job.get_status()
         job_type = job.func_name.split('.')[-1]

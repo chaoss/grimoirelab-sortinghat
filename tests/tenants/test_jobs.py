@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2023 Bitergia
+# Copyright (C) 2023-2024 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,19 +17,24 @@
 #
 # Authors:
 #     Jose Javier Merchante <jjmerchante@bitergia.com>
+#     Santiago Dueñas <sduenas@bitergia.com>
 #
 
-import django.test
+import django_rq
+
 from django.contrib.auth import get_user_model
+from django.test import TestCase
 
 from grimoirelab_toolkit.datetime import datetime_utcnow
 from sortinghat.core import api, tenant, jobs
 from sortinghat.core.context import SortingHatContext
+from sortinghat.core.errors import JobError
 from sortinghat.core.models import Transaction
 
 
-class TestTenantJob(django.test.TestCase):
+class TestTenantJob(TestCase):
     """Unit tests for jobs using tenants"""
+
     databases = {'default', 'tenant_1', 'tenant_2'}
 
     def setUp(self):
@@ -98,3 +103,99 @@ class TestTenantJob(django.test.TestCase):
         self.assertGreater(trx.created_at, timestamp)
         self.assertEqual(trx.authored_by, ctx.user.username)
         self.assertEqual(trx.tenant, ctx.tenant)
+
+
+class TestScheduleJobMultiTenant(TestCase):
+    """Unit tests for schedule_job"""
+
+    databases = {'default', 'tenant_1', 'tenant_2'}
+
+    def setUp(self):
+        """Initialize database with a dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        ctx = SortingHatContext(user=self.user, tenant='tenant_1')
+
+        tenant.set_db_tenant('tenant_1')
+        # Organization and domain
+        api.add_organization(ctx, 'Example')
+        api.add_domain(ctx, 'Example', 'example.com', is_top_domain=True)
+
+        # Identities
+        self.jsmith = api.add_identity(ctx,
+                                       source='scm',
+                                       email='jsmith@example.com',
+                                       name='John Smith',
+                                       username='jsmith')
+        tenant.unset_db_tenant()
+
+        tenant.set_db_tenant('tenant_2')
+        # Jane Roe identity
+        self.jroe = api.add_identity(ctx,
+                                     source='scm',
+                                     email='jroe@example.com',
+                                     name='Jane Roe',
+                                     username='jroe')
+        tenant.unset_db_tenant()
+
+    def test_schedule_job_dedicated_queue(self):
+        """Check if a job is scheduled properly on its dedicated queue"""
+
+        tenant.set_db_tenant('tenant_1')
+
+        ctx = SortingHatContext(user=self.user, tenant='tenant_1')
+
+        task = jobs.create_scheduled_task(ctx, 'affiliate', None, None)
+
+        # The job should be stored on a dedicated queue
+        job = jobs.find_job(task.job_id, 'tenant_1')
+        queue = django_rq.get_queue('tenant_1')
+
+        job_queue = django_rq.utils.get_jobs(queue, [job.id])[0]
+
+        self.assertEqual(job, job_queue)
+
+        tenant.unset_db_tenant()
+
+    def test_schedule_job_default_queue(self):
+        """Check if a job is scheduled properly on the default queue"""
+
+        tenant.set_db_tenant('tenant_2')
+
+        ctx = SortingHatContext(user=self.user, tenant='tenant_2')
+
+        task = jobs.create_scheduled_task(ctx, 'affiliate', None, None)
+
+        # The job should be stored on a dedicated queue
+        job = jobs.find_job(task.job_id, 'tenant_2')
+        queue = django_rq.get_queue('default')
+
+        job_queue = django_rq.utils.get_jobs(queue, [job.id])[0]
+
+        self.assertEqual(job, job_queue)
+
+        tenant.unset_db_tenant()
+
+
+class TestGetTenantQueue(TestCase):
+    """Unit tests for get_tenant_job"""
+
+    def test_dedicated_tenant_queue(self):
+        """Check if the dedicated queue is returned when defined"""
+
+        queue = jobs.get_tenant_queue('tenant_1')
+        self.assertEqual(queue.name, 'tenant_1')
+
+    def test_default_tenant_queue(self):
+        """Check if the default queue is returned when no dedicated queues are set"""
+
+        queue = jobs.get_tenant_queue('tenant_2')
+        self.assertEqual(queue.name, 'default')
+
+    def test_not_found_queue(self):
+        """Check it an error is raised when the queue is not found"""
+
+        # The configuration in settings.testing_tenant ignores
+        # the creation of this queue, so it should raise an error.
+        with self.assertRaisesRegex(JobError, "Queue 'error_tenant' not found."):
+            jobs.get_tenant_queue('error_tenant')

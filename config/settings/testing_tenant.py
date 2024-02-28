@@ -1,6 +1,16 @@
 from .testing import *  # noqa: F403,F401
-from .testing import SQL_MODE, DATABASES
+from .testing import SQL_MODE, DATABASES, RQ_QUEUES
 
+tenants_cfg = [
+    {'name': 'tenant_1', 'dedicated_queue': True},
+    {'name': 'tenant_2', 'dedicated_queue': False},
+    {'name': 'error_tenant', 'dedicated_queue': True}
+]
+
+MULTI_TENANT = True
+
+TENANTS_NAMES = [t["name"] for t in tenants_cfg]
+TENANTS_DEDICATED_QUEUES = [t["name"] for t in tenants_cfg if t["dedicated_queue"]]
 
 DATABASES.update({
     tenant: {
@@ -20,7 +30,20 @@ DATABASES.update({
         'HOST': '127.0.0.1',
         'PORT': 3306
     }
-    for tenant in ['tenant_1', 'tenant_2']
+    for tenant in [t["name"] for t in tenants_cfg]
+})
+
+RQ_QUEUES.update({
+    tenant: {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'ASYNC': False,
+        'DB': 0
+    }
+    for tenant in [
+        t["name"] for t in tenants_cfg
+        if t["dedicated_queue"] and t["name"] != "error_tenant"
+    ]
 })
 
 DATABASE_ROUTERS = [
