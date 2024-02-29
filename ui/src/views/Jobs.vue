@@ -80,6 +80,7 @@ export default {
           criteria,
           exclude,
           strict,
+          [],
           matchSource
         );
         this.$refs.table.getPaginatedJobs();
