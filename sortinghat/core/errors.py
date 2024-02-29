@@ -32,6 +32,7 @@ CODE_LOCKED_IDENTITY_ERROR = 13
 CODE_DUPLICATE_RANGE_ERROR = 14
 CODE_EQUAL_INDIVIDUAL_ERROR = 15
 CODE_FILTER_ERROR = 16
+CODE_JOB_ERROR = 80
 CODE_RECOMMENDATION_ERROR = 100
 CODE_TOKEN_EXPIRED = 126
 CODE_PERMISSION_DENIED = 127
@@ -132,6 +133,13 @@ class DuplicateRangeError(BaseError):
 
     _msg = "range date '%(start)s'-'%(end)s' is part of an existing range for %(group)s"
     code = CODE_DUPLICATE_RANGE_ERROR
+
+
+class JobError(BaseError):
+    """Exception raised when there is an job related error"""
+
+    _msg = "%(msg)s"
+    code = CODE_JOB_ERROR
 
 
 class RecommendationEngineError(BaseError):

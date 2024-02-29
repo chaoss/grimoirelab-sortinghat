@@ -269,40 +269,6 @@ DATABASES = {
 }
 
 #
-# SortingHat Multi-tenant
-#
-# To enable this feature:
-#   - Define SORTINGHAT_MULTI_TENANT to True
-#   - Create a list of tenants in sortinghat.config.tenants
-#   - Assign users to tenants with 'set_user_tenant' command.
-#
-
-MULTI_TENANT = os.environ.get('SORTINGHAT_MULTI_TENANT', 'False').lower() in ('true', '1')
-
-if MULTI_TENANT:
-    MIDDLEWARE += ['sortinghat.core.middleware.TenantDatabaseMiddleware']
-    DATABASE_ROUTERS = [
-        'sortinghat.core.middleware.TenantDatabaseRouter'
-    ]
-    MULTI_TENANT_LIST_PATH = os.environ.get('SORTINGHAT_MULTI_TENANT_LIST_PATH',
-                                            os.path.join(BASE_DIR, 'config', 'tenants.json'))
-    with open(MULTI_TENANT_LIST_PATH, 'r') as f:
-        TENANTS_NAMES = json.load(f).get('tenants', [])
-
-    DATABASES.update({
-        tenant: {
-            'ENGINE': 'django.db.backends.mysql',
-            'HOST': os.environ.get('SORTINGHAT_DB_HOST', '127.0.0.1'),
-            'PORT': os.environ.get('SORTINGHAT_DB_PORT', 3306),
-            'USER': os.environ.get('SORTINGHAT_DB_USER', 'root'),
-            'PASSWORD': os.environ.get('SORTINGHAT_DB_PASSWORD', ''),
-            'NAME': tenant,
-            'OPTIONS': {'charset': 'utf8mb4'},
-        }
-        for tenant in TENANTS_NAMES
-    })
-
-#
 # SortingHat workers
 #
 # SortingHat uses RQ to run background and async jobs.
@@ -324,6 +290,59 @@ RQ_QUEUES = {
         'DB': os.environ.get('SORTINGHAT_REDIS_DB', 0),
     }
 }
+
+#
+# SortingHat Multi-tenant
+#
+# To enable this feature:
+#   - Define SORTINGHAT_MULTI_TENANT to True
+#   - Create a list of tenants in sortinghat.config.tenants.
+#       {
+#         'tenants': [
+#            {'name': 'tenant A', 'dedicated_queue': true},
+#            {'name': 'tenant B', 'dedicated_queue': false},
+#         ]
+#       }
+#   - Assign users to tenants with 'set_user_tenant' command.
+#
+
+MULTI_TENANT = os.environ.get('SORTINGHAT_MULTI_TENANT', 'False').lower() in ('true', '1')
+
+if MULTI_TENANT:
+    MIDDLEWARE += ['sortinghat.core.middleware.TenantDatabaseMiddleware']
+    DATABASE_ROUTERS = [
+        'sortinghat.core.middleware.TenantDatabaseRouter'
+    ]
+    MULTI_TENANT_LIST_PATH = os.environ.get('SORTINGHAT_MULTI_TENANT_LIST_PATH',
+                                            os.path.join(BASE_DIR, 'config', 'tenants.json'))
+    with open(MULTI_TENANT_LIST_PATH, 'r') as f:
+        tenants_cfg = json.load(f).get('tenants', [])
+        TENANTS_NAMES = [t["name"] for t in tenants_cfg]
+        TENANTS_DEDICATED_QUEUES = [t["name"] for t in tenants_cfg if t["dedicated_queue"]]
+
+    DATABASES.update({
+        tenant: {
+            'ENGINE': 'django.db.backends.mysql',
+            'HOST': os.environ.get('SORTINGHAT_DB_HOST', '127.0.0.1'),
+            'PORT': os.environ.get('SORTINGHAT_DB_PORT', 3306),
+            'USER': os.environ.get('SORTINGHAT_DB_USER', 'root'),
+            'PASSWORD': os.environ.get('SORTINGHAT_DB_PASSWORD', ''),
+            'NAME': tenant,
+            'OPTIONS': {'charset': 'utf8mb4'},
+        }
+        for tenant in TENANTS_NAMES
+    })
+
+    RQ_QUEUES.update({
+        tenant: {
+            'HOST': os.environ.get('SORTINGHAT_REDIS_HOST', '127.0.0.1'),
+            'PORT': os.environ.get('SORTINGHAT_REDIS_PORT', 6379),
+            'PASSWORD': os.environ.get('SORTINGHAT_REDIS_PASSWORD', ''),
+            'ASYNC': os.environ.get('SORTINGHAT_WORKERS_ASYNC', True),
+            'DB': os.environ.get('SORTINGHAT_REDIS_DB', 0),
+        }
+        for tenant in TENANTS_DEDICATED_QUEUES
+    })
 
 #
 # SortingHat Core parameters

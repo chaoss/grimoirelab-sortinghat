@@ -68,7 +68,7 @@ class TestFindJob(TestCase):
         """Check if it finds a job in the registry"""
 
         job = enqueue(job_echo, 'ABC')
-        qjob = find_job(job.id)
+        qjob = find_job(job.id, 'default')
         self.assertEqual(qjob, job)
 
     def test_not_found_job(self):
@@ -78,7 +78,7 @@ class TestFindJob(TestCase):
 
         with self.assertRaisesRegex(NotFoundError,
                                     JOB_NOT_FOUND_ERROR):
-            find_job('DEF')
+            find_job('DEF', 'default')
 
 
 class TestRecommendAffiliations(TestCase):

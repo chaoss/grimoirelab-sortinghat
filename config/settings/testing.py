@@ -81,6 +81,8 @@ GRAPHQL_JWT = {
 
 SORTINGHAT_API_PAGE_SIZE = 10
 
+MULTI_TENANT = False
+
 
 # Configuration to pretend there is a Redis service
 # available. We need to set up the connection before
@@ -88,6 +90,7 @@ SORTINGHAT_API_PAGE_SIZE = 10
 # must be the same because in fakeredis connections
 # do not share the state. Therefore, we define a
 # singleton object to reuse it.
+
 class FakeRedisConn:
     """Singleton FakeRedis connection."""
 

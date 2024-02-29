@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2021 Bitergia
+# Copyright (C) 2014-2024 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -34,7 +34,11 @@ from .db import find_individual_by_uuid, find_organization
 from .api import enroll, merge, update_profile, add_scheduled_task, delete_scheduled_task
 from .context import SortingHatContext
 from .decorators import job_using_tenant, job_callback_using_tenant
-from .errors import BaseError, NotFoundError, EqualIndividualError, InvalidValueError
+from .errors import (BaseError,
+                     NotFoundError,
+                     EqualIndividualError,
+                     InvalidValueError,
+                     JobError)
 from .importer.backend import find_import_identities_backends
 from .log import TransactionsLog
 from .models import (Individual,
@@ -52,13 +56,14 @@ MAX_CHUNK_SIZE = 2000
 logger = logging.getLogger(__name__)
 
 
-def find_job(job_id):
+def find_job(job_id, tenant):
     """Find a job in the jobs registry.
 
     Search for a job using its identifier. When the job is
     not found, a `NotFoundError` exception is raised.
 
     :param job_id: job identifier
+    :param tenant: tenant where the job is running
 
     :returns: a Job instance
 
@@ -67,7 +72,7 @@ def find_job(job_id):
     """
     logger.debug(f"Finding job {job_id} ...")
 
-    queue = django_rq.get_queue()
+    queue = get_tenant_queue(tenant)
     jobs = django_rq.utils.get_jobs(queue, [job_id])
 
     if not jobs:
@@ -79,7 +84,7 @@ def find_job(job_id):
     return jobs[0]
 
 
-def get_jobs(tenant=None):
+def get_jobs(tenant):
     """Get a list of all jobs
 
     This function returns a list of all jobs found in the main queue and its
@@ -98,25 +103,24 @@ def get_jobs(tenant=None):
 
     logger.debug("Retrieving list of jobs ...")
 
-    queue = django_rq.get_queue()
-    started_jobs = [find_job(id)
+    queue = get_tenant_queue(tenant)
+    started_jobs = [find_job(id, tenant)
                     for id
                     in queue.started_job_registry.get_job_ids()]
-    deferred_jobs = [find_job(id)
+    deferred_jobs = [find_job(id, tenant)
                      for id
                      in queue.deferred_job_registry.get_job_ids()]
-    finished_jobs = [find_job(id)
+    finished_jobs = [find_job(id, tenant)
                      for id
                      in queue.finished_job_registry.get_job_ids()]
-    failed_jobs = [find_job(id)
+    failed_jobs = [find_job(id, tenant)
                    for id
                    in queue.failed_job_registry.get_job_ids()]
-    scheduled_jobs = [find_job(id)
+    scheduled_jobs = [find_job(id, tenant)
                       for id
                       in queue.scheduled_job_registry.get_job_ids()]
     jobs = (queue.jobs + started_jobs + deferred_jobs + finished_jobs + failed_jobs + scheduled_jobs)
-    if tenant:
-        jobs = (job for job in jobs if job_in_tenant(job, tenant))
+    jobs = (job for job in jobs if job_in_tenant(job, tenant))
 
     sorted_jobs = sorted(jobs, key=lambda x: x.enqueued_at if x.enqueued_at else datetime.datetime.utcnow(), reverse=True)
 
@@ -846,18 +850,47 @@ def schedule_task(ctx, fn, task, scheduled_datetime=None, **kwargs):
     if not scheduled_datetime:
         scheduled_datetime = datetime.datetime.now(datetime.timezone.utc)
 
-    job = django_rq.get_queue().enqueue_at(datetime=scheduled_datetime,
-                                           f=fn,
-                                           ctx=ctx,
-                                           on_success=on_success_job,
-                                           on_failure=on_failed_job,
-                                           job_timeout=-1,
-                                           **kwargs)
+    job = get_tenant_queue(ctx.tenant).enqueue_at(datetime=scheduled_datetime,
+                                                  f=fn,
+                                                  ctx=ctx,
+                                                  on_success=on_success_job,
+                                                  on_failure=on_failed_job,
+                                                  job_timeout=-1,
+                                                  **kwargs)
     task.scheduled_datetime = scheduled_datetime
     task.job_id = job.id
     task.save()
 
     return job
+
+
+def get_tenant_queue(tenant):
+    """Get the job queue used by a tenant.
+
+    When multi-tenancy is active, it's possible to use
+    dedicated queues per tenant. This function returns
+    what queue is associated to each tenant.
+
+    When the tenant doesn't have a dedicated queue or
+    the server doesn't have activated the multi-tenancy
+    feature the default queue will be returned.
+
+    :param tenant: name of the tenant
+
+    :returns: RQ queue
+
+    :raises JobError: when there's no queue available for
+        the given tenant
+    """
+    from django.conf import settings
+
+    try:
+        if settings.MULTI_TENANT and tenant in settings.TENANTS_DEDICATED_QUEUES:
+            return django_rq.get_queue(tenant)
+        else:
+            return django_rq.get_queue()
+    except KeyError:
+        raise JobError(msg=f"Queue '{tenant}' not found. Please check your configuration")
 
 
 @job_callback_using_tenant

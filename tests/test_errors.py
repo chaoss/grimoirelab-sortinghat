@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014-2020 Bitergia
+# Copyright (C) 2014-2024 Bitergia
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@ from sortinghat.core.errors import (BaseError,
                                     ClosedTransactionError,
                                     LockedIdentityError,
                                     DuplicateRangeError,
+                                    JobError,
                                     RecommendationEngineError)
 
 
@@ -273,6 +274,25 @@ class TestEnrollmentRangeError(TestCase):
         """
         kwargs = {}
         self.assertRaises(KeyError, DuplicateRangeError, **kwargs)
+
+
+class TestJobError(TestCase):
+    """Unit tests for JobError"""
+
+    def test_message(self):
+        """Make sure that prints the right error"""
+
+        e = JobError(msg="job error")
+        self.assertEqual("job error", str(e))
+
+    def test_no_args(self):
+        """Check when required arguments are not given.
+
+        When this happens, it raises a KeyError exception.
+        """
+        kwargs = {}
+        self.assertRaises(KeyError, JobError,
+                          **kwargs)
 
 
 class TestRecommendationEngineError(TestCase):
