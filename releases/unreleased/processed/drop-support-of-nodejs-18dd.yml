@@ -1,8 +1,0 @@
----
-title: Drop support of Node.js <18
-category: dependency
-author: Eva Millán <evamillan@bitergia.com>
-issue: null
-notes: >
-  Versions 14 to 16 of Node.js are no longer mantained.
-  The current supported versions are 18 to 20.
