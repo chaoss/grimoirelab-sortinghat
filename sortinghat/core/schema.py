@@ -241,7 +241,8 @@ class IndividualType(DjangoObjectType):
     @check_auth
     def resolve_match_recommendation_set(self, info):
         indv_recs = []
-        recs = self.match_recommendation_individual_1.all() | self.match_recommendation_individual_2.all()
+        recs = (self.match_recommendation_individual_1.filter(applied=None) |
+                self.match_recommendation_individual_2.filter(applied=None))
         for rec in recs:
             indv = rec.individual1 if rec.individual1.mk != self.mk else rec.individual2
             indv_recs.append(IndividualRecommendedMergeType(id=rec.id, individual=indv))
