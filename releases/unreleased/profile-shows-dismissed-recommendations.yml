@@ -1,0 +1,8 @@
+---
+title: Profile view displays correct recommendations
+category: fixed
+author: Jose Javier Merchante <jjmerchante@bitergia.com>
+issue: 864
+notes: >
+  The profile view now correctly displays all recommendations
+  for an individual, excluding those that have been dismissed.
