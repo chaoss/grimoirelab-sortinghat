@@ -1,5 +1,14 @@
 # Releases
 
+## sortinghat 0.21.1 - (2024-03-12)
+
+**Bug fixes:**
+
+ * Profile view displays correct recommendations (#864)\
+   The profile view now correctly displays all recommendations for an
+   individual, excluding those that have been dismissed.
+
+
 ## sortinghat 0.21.0 - (2024-03-01)
 
 **New features:**
