@@ -13,13 +13,13 @@
     "watch": "vue-cli-service build --watch"
   },
   "dependencies": {
-    "apollo-cache-inmemory": "^1.6.6",
-    "apollo-client": "^2.6.9",
+    "@apollo/client": "^3.9.5",
+    "@vue/apollo-option": "^4.0.0",
     "apollo-link": "^1.2.14",
     "apollo-link-http": "^1.5.17",
     "core-js": "^3.27.1",
-    "graphql": "^15.0.0",
-    "graphql-tag": "^2.10.3",
+    "graphql": "^16.8.1",
+    "graphql-tag": "^2.12.6",
     "js-cookie": "^2.2.1",
     "md5": "^2.3.0",
     "vue": "^3.4.18",
