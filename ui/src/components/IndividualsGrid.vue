@@ -58,7 +58,7 @@ export default {
     },
     isSelected(uuid) {
       if (this.$store) {
-        return this.selectedIndividuals.find(
+        return this.selectedIndividuals?.find(
           (individual) => individual === uuid
         );
       } else {

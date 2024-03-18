@@ -3,13 +3,13 @@
     <header class="header">
       <h1 class="title">Synchronization</h1>
       <v-menu offset-y>
-        <template v-slot:activator="{ on }">
-          <v-btn color="primary" depressed small v-on="on">
+        <template v-slot:activator="{ props }">
+          <v-btn color="primary" variant="flat" size="small" v-bind="props">
             Select source
-            <v-icon color="white" small right>mdi-chevron-down</v-icon>
+            <v-icon color="white" end>mdi-chevron-down</v-icon>
           </v-btn>
         </template>
-        <v-list v-if="importers" dense>
+        <v-list v-if="importers" density="compact">
           <v-list-item
             v-for="(backend, index) in importers"
             :key="index"
@@ -30,7 +30,7 @@
       indeterminate
       color="primary"
     ></v-progress-linear>
-    <v-simple-table v-else>
+    <v-table v-else>
       <template v-slot:default>
         <div v-if="tasks.length === 0" class="ma-8">
           <h3 class="text-subtitle-2">No connected sources</h3>
@@ -87,10 +87,10 @@
           </tr>
         </tbody>
       </template>
-    </v-simple-table>
+    </v-table>
     <importer-modal
       v-if="modal.isOpen"
-      :is-open="modal.isOpen"
+      v-model:is-open="modal.isOpen"
       :create-task="createTask"
       :edit-task="editTask"
       :task="modal.task"
@@ -145,7 +145,7 @@ export default {
       if (!dateTime) {
         return "-";
       }
-      return new Date(dateTime).toLocaleString();
+      return new Date(dateTime).toLocaleString("en-US");
     },
     openModal(backend, task = {}) {
       if (typeof backend === "string") {

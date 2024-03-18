@@ -2,43 +2,20 @@
   <section class="section">
     <v-row class="header">
       <h4 class="title">
-        <v-icon color="black" left dense>
+        <v-icon color="black" size="small" start>
           {{ isGroup ? "mdi-account-group" : "mdi-sitemap" }}
         </v-icon>
         {{ name }}
-        <v-chip pill small class="ml-2">{{ totalResults }}</v-chip>
+        <v-chip pill density="comfortable" class="ml-2">{{
+          totalResults
+        }}</v-chip>
       </h4>
-      <v-edit-dialog
-        v-if="isGroup"
-        large
-        @save="addUnaffiliatedTeam"
-        @cancel="forms.teamName = ''"
-      >
-        <v-btn
-          depressed
-          small
-          height="34"
-          color="secondary"
-          class="black--text"
-        >
-          Add
-        </v-btn>
-        <template v-slot:input>
-          <v-text-field
-            v-model="forms.teamName"
-            label="Team name"
-            maxlength="50"
-            single-line
-          />
-        </template>
-      </v-edit-dialog>
       <v-btn
-        v-else
-        depressed
-        small
-        height="34"
         color="secondary"
         class="black--text"
+        size="small"
+        variant="flat"
+        height="34"
         @click.stop="openModal"
       >
         Add
@@ -47,33 +24,36 @@
 
     <v-row class="actions">
       <search
-        class="mr-3 pa-0 flex-grow-0"
+        class="pa-0 flex-grow-1"
         :valid-filters="[]"
         @search="filterSearch"
       />
     </v-row>
 
-    <v-data-table
-      hide-default-header
-      hide-default-footer
+    <v-data-table-server
       :headers="headers"
       :items="items"
+      :items-length="totalResults"
       :items-per-page="itemsPerPage"
-      :expanded.sync="expandedItems"
+      :expanded="expandedItems"
       item-key="id"
-      :page.sync="page"
+      item-value="name"
+      v-model:page="page"
       :loading="loading"
+      hover
+      return-object
+      @update:expanded="($event) => (expandedItems = $event)"
     >
-      <template v-slot:item="{ item, expand, isExpanded }">
+      <template v-slot:item="{ item, internalItem, toggleExpand, isExpanded }">
         <organization-entry
           :name="item.name"
           :enrollments="getEnrolledIndividuals(item.enrollments)"
-          :is-expanded="isExpanded"
+          :is-expanded="isExpanded(internalItem)"
           :is-editable="!isGroup"
-          draggable
-          @dblclick.native="expand(!isExpanded)"
-          @dragstart.native="startDrag(item, $event)"
-          @expand="expand(!isExpanded)"
+          draggable="true"
+          @dblclick="expand(!isExpanded)"
+          @dragstart="startDrag(item, $event)"
+          @expand="toggleExpand(internalItem)"
           @enroll="confirmEnroll"
           @edit="openModal(item)"
           @delete="confirmDelete(item.name)"
@@ -82,7 +62,7 @@
           @merge:orgs="confirmMerge"
         />
       </template>
-      <template v-slot:expanded-item="{ item }">
+      <template v-slot:expanded-row="{ item }">
         <expanded-organization
           :organization="item.name"
           :is-group="isGroup"
@@ -95,31 +75,34 @@
           :ref="item.id"
         />
       </template>
-    </v-data-table>
-
-    <div class="pagination text-center pa-3">
-      <div aria-hidden="true" />
-      <v-pagination
-        v-model="page"
-        :length="pageCount"
-        :total-visible="5"
-        @input="getTableItems($event)"
-      ></v-pagination>
-      <v-text-field
-        :value="itemsPerPage"
-        class="mr-3"
-        label="Items per page"
-        type="number"
-        min="1"
-        :max="totalResults"
-        hide-details
-        @change="changeItemsPerPage($event)"
-      ></v-text-field>
-    </div>
+      <template v-slot:bottom>
+        <div class="pagination text-center pa-3">
+          <div aria-hidden="true" />
+          <v-pagination
+            v-model="page"
+            :length="pageCount"
+            :total-visible="5"
+            density="compact"
+            @update:modelValue="getTableItems($event)"
+          ></v-pagination>
+          <v-text-field
+            :model-value="itemsPerPage"
+            class="mr-3"
+            density="compact"
+            label="Items per page"
+            type="number"
+            min="1"
+            hide-details
+            :max="totalResults"
+            @update:modelValue="changeItemsPerPage($event)"
+          ></v-text-field>
+        </div>
+      </template>
+    </v-data-table-server>
 
     <organization-modal
       v-if="!isGroup"
-      :is-open.sync="modal.open"
+      v-model:is-open="modal.open"
       :add-organization="addOrganization"
       :add-domain="addDomain"
       :delete-domain="deleteDomain"
@@ -248,9 +231,14 @@ export default {
   data() {
     return {
       headers: [
-        { value: "name" },
-        { value: "enrollments" },
-        { value: "actions" },
+        { value: "name", title: "Name", sortable: false },
+        {
+          value: "enrollments",
+          title: "Enrollments",
+          align: "end",
+          sortable: false,
+        },
+        { value: "actions", sortable: false },
       ],
       expandedItems: [],
       items: [],
@@ -552,6 +540,9 @@ export default {
 .pagination {
   display: grid;
   grid-template-columns: minmax(0px, 5.8rem) auto minmax(5.8rem, 17%);
-  align-items: baseline;
+}
+
+:deep(.v-data-table__th:first-of-type) {
+  padding-left: 30px;
 }
 </style>

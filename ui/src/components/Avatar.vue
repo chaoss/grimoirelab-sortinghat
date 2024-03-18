@@ -1,13 +1,13 @@
 <template>
-  <v-list-item-avatar :color="getAvatarColor" :size="size">
+  <v-avatar :color="getAvatarColor" :size="size">
     <img
       v-if="email"
       :src="getGravatar"
       :style="{ width: `${size + 2}px`, height: `${size + 2}px` }"
       aria-hidden="true"
     />
-    <span class="white--text">{{ getNameInitials }}</span>
-  </v-list-item-avatar>
+    <span class="text-white">{{ getNameInitials }}</span>
+  </v-avatar>
 </template>
 
 <script>
@@ -84,6 +84,7 @@ export default {
 
   img {
     position: absolute;
+    border-radius: 50%;
   }
 }
 </style>

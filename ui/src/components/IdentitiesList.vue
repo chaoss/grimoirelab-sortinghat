@@ -1,20 +1,17 @@
 <template>
   <div>
-    <v-subheader class="d-flex justify-space-between">
-      <span>Identities ({{ identitiesCount }})</span>
+    <v-list-subheader>
+      <span class="text-subtitle-2">Identities ({{ identitiesCount }})</span>
       <v-btn
         v-if="!compact"
-        text
-        small
-        outlined
         :disabled="identitiesCount === 1 || isLocked"
         @click="splitAll"
       >
-        <v-icon small left>mdi-call-split</v-icon>
+        <v-icon size="small" start>mdi-call-split</v-icon>
         Split all
       </v-btn>
-    </v-subheader>
-    <v-simple-table v-if="compact" dense>
+    </v-list-subheader>
+    <v-table v-if="compact" density="compact">
       <template v-slot:default>
         <thead v-if="identitiesCount > 0">
           <tr>
@@ -31,12 +28,12 @@
             <td>{{ item.username || "-" }}</td>
             <td>
               <v-tooltip
-                bottom
+                location="bottom"
                 transition="expand-y-transition"
                 open-delay="300"
               >
-                <template v-slot:activator="{ on }">
-                  <v-icon v-on="on" v-text="item.icon" small left />
+                <template v-slot:activator="{ props }">
+                  <v-icon v-bind="props" size="small">{{ item.icon }}</v-icon>
                 </template>
                 <span>{{ item.source.toLowerCase() }}</span>
               </v-tooltip>
@@ -44,7 +41,7 @@
           </tr>
         </tbody>
       </template>
-    </v-simple-table>
+    </v-table>
     <v-list
       v-else
       v-for="(source, sourceIndex) in identities"
@@ -60,13 +57,17 @@
         :class="{ draggable: draggable && identity.uuid !== uuid }"
         :key="identity.uuid"
         :draggable="draggable && !isLocked && identity.uuid !== uuid"
-        @dragstart.native="startDrag(identity, $event)"
-        @dragend.native="dragEnd($event)"
+        @dragstart="startDrag(identity, $event)"
+        @dragend="dragEnd($event)"
       >
-        <v-list-item-icon v-if="index === 0">
-          <v-tooltip bottom transition="expand-y-transition" open-delay="300">
-            <template v-slot:activator="{ on }">
-              <v-icon v-on="on">
+        <template v-slot:prepend>
+          <v-tooltip
+            location="bottom"
+            transition="expand-y-transition"
+            open-delay="300"
+          >
+            <template v-slot:activator="{ props }">
+              <v-icon v-if="index === 0" v-bind="props">
                 {{ source.icon }}
               </v-icon>
             </template>
@@ -74,46 +75,51 @@
               {{ source.name }}
             </span>
           </v-tooltip>
-        </v-list-item-icon>
+        </template>
 
-        <v-list-item-action v-else></v-list-item-action>
+        <identity
+          :uuid="identity.uuid"
+          :name="identity.name"
+          :email="identity.email"
+          :username="identity.username"
+          :source="identity.source || source.name"
+          :is-main="identity.uuid === uuid"
+        />
 
-        <v-list-item-content>
-          <identity
-            :uuid="identity.uuid"
-            :name="identity.name"
-            :email="identity.email"
-            :username="identity.username"
-            :source="identity.source || source.name"
-            :is-main="identity.uuid === uuid"
-          />
-        </v-list-item-content>
-
-        <v-tooltip bottom transition="expand-y-transition" open-delay="200">
-          <template v-slot:activator="{ on }">
-            <v-btn
-              icon
-              :disabled="identity.uuid === uuid || isLocked"
-              v-on="on"
-              @click="$emit('unmerge', [identity.uuid, uuid])"
-            >
-              <v-icon> mdi-call-split </v-icon>
-            </v-btn>
-          </template>
-          <span>Split identity</span>
-        </v-tooltip>
-        <v-tooltip bottom transition="expand-y-transition" open-delay="200">
-          <template v-slot:activator="{ on }">
-            <v-icon
-              v-if="draggable"
-              :disabled="identity.uuid === uuid || isLocked"
-              v-on="on"
-            >
-              mdi-drag-vertical
-            </v-icon>
-          </template>
-          <span>Move identity</span>
-        </v-tooltip>
+        <template v-slot:append>
+          <v-tooltip
+            location="bottom"
+            transition="expand-y-transition"
+            open-delay="200"
+          >
+            <template v-slot:activator="{ props }">
+              <v-btn
+                icon="mdi-call-split"
+                variant="text"
+                :disabled="identity.uuid === uuid || isLocked"
+                v-bind="props"
+                @click="$emit('unmerge', [identity.uuid, uuid])"
+              />
+            </template>
+            <span>Split identity</span>
+          </v-tooltip>
+          <v-tooltip
+            location="bottom"
+            transition="expand-y-transition"
+            open-delay="200"
+          >
+            <template v-slot:activator="{ props }">
+              <v-icon
+                v-if="draggable"
+                :disabled="identity.uuid === uuid || isLocked"
+                v-bind="props"
+              >
+                mdi-drag-vertical
+              </v-icon>
+            </template>
+            <span>Move identity</span>
+          </v-tooltip>
+        </template>
       </v-list-item>
     </v-list>
     <v-card class="dragged-identity" color="primary" dark>
@@ -215,5 +221,13 @@ export default {
   max-width: 300px;
   position: absolute;
   top: -300px;
+}
+
+:deep(.v-list-item__prepend) {
+  width: 32px;
+
+  & > .v-icon {
+    opacity: 1;
+  }
 }
 </style>

@@ -29,11 +29,11 @@ export const Default = () => ({
       return {
         data: {
           recommendMatches: {
-            jobId: "b65d2170-a560-4b20-954e-fc8c9f5afdd4"
-          }
-        }
-      }
-    }
+            jobId: "b65d2170-a560-4b20-954e-fc8c9f5afdd4",
+          },
+        },
+      };
+    },
   },
 });
 
@@ -45,7 +45,7 @@ export const Error = () => ({
   }),
   methods: {
     recommendMatches() {
-      throw new TypeError("Error creating job")
-    }
+      throw new TypeError("Error creating job");
+    },
   },
 });

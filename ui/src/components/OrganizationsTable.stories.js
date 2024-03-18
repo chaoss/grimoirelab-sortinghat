@@ -112,21 +112,14 @@ export const Organizations = () => ({
               {
                 id: 2,
                 name: "Slytherin",
-                enrollments: [
-                  { id: 1 },
-                  { id: 2 },
-                ],
+                enrollments: [{ id: 1 }, { id: 2 }],
                 domains: [{ domain: "slytherin.hogwarts.edu" }],
                 aliases: [{ alias: "Slytherin House" }],
               },
               {
                 id: 3,
                 name: "Ravenclaw",
-                enrollments: [
-                  { id: 1 },
-                  { id: 2 },
-                  { id: 3 },
-                ],
+                enrollments: [{ id: 1 }, { id: 2 }, { id: 3 }],
                 domains: [{ domain: "ravenclaw.hogwarts.edu" }],
                 aliases: [{ alias: "Ravenclaw House" }],
               },
@@ -147,12 +140,7 @@ export const Organizations = () => ({
               {
                 id: 4,
                 name: "Hufflepuff",
-                enrollments: [
-                  { id: 1 },
-                  { id: 2 },
-                  { id: 3 },
-                  { id: 4 },
-                ],
+                enrollments: [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }],
                 domains: [{ domain: "hufflepuff.hogwarts.edu" }],
               },
             ],
@@ -258,19 +246,12 @@ export const Groups = () => ({
               {
                 id: 2,
                 name: "Extraordinary Society of Potioneers",
-                enrollments: [
-                  { id: 1 },
-                  { id: 2 },
-                ],
+                enrollments: [{ id: 1 }, { id: 2 }],
               },
               {
                 id: 3,
                 name: "Society for the Tolerance of Vampires",
-                enrollments: [
-                  { id: 1 },
-                  { id: 2 },
-                  { id: 3 },
-                ],
+                enrollments: [{ id: 1 }, { id: 2 }, { id: 3 }],
               },
             ],
             pageInfo: {
@@ -289,29 +270,17 @@ export const Groups = () => ({
               {
                 id: 4,
                 name: "Frog Choir",
-                enrollments: [
-                  { id: 1 },
-                  { id: 2 },
-                  { id: 3 },
-                  { id: 4 },
-                ],
+                enrollments: [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }],
               },
               {
                 id: 5,
                 name: "Celestial Ball decorating committee",
-                enrollments: [
-                  { id: 1 },
-                  { id: 2 },
-                  { id: 3 },
-                ],
+                enrollments: [{ id: 1 }, { id: 2 }, { id: 3 }],
               },
               {
                 id: 6,
                 name: "Duelling Club",
-                enrollments: [
-                  { id: 1 },
-                  { id: 2 },
-                ],
+                enrollments: [{ id: 1 }, { id: 2 }],
               },
             ],
             pageInfo: {

@@ -7,85 +7,187 @@
       <div class="section d-flex flex-column">
         <h1 class="header font-weight-medium text-h6 pa-8">
           {{ organization.name }}
-          <v-btn
-            text
-            small
-            outlined
-            @click="confirmDelete(deleteOrganization, organization.name)"
-          >
-            <v-icon small left>mdi-delete</v-icon>
+          <v-btn @click="confirmDelete(deleteOrganization, organization.name)">
+            <v-icon size="small" start>mdi-delete</v-icon>
             Delete
           </v-btn>
         </h1>
         <v-row class="mt-0 mb-0">
           <v-col sm="12" md="4" class="border-right">
             <section class="pa-4 pt-2">
-              <v-subheader class="d-flex justify-space-between">
-                Teams
-                <v-edit-dialog
-                  large
-                  @save="addTeam()"
-                  @cancel="form.team = null"
-                >
-                  <v-btn text small outlined>
-                    <v-icon small left>mdi-plus</v-icon>
-                    Add
-                  </v-btn>
-                  <template v-slot:input>
-                    <v-subheader class="pl-0">New team</v-subheader>
-                    <v-text-field
-                      v-model="form.team"
-                      label="Name"
-                      single-line
-                      dense
-                    ></v-text-field>
-                  </template>
-                </v-edit-dialog>
-              </v-subheader>
-              <v-treeview
-                :items="teams.items"
-                :load-children="loadChildren"
-                :open.sync="teams.open"
-                class="ml-2 mr-2"
-                active-class="selected"
-                expand-icon="mdi-chevron-down"
-                activatable
-                dense
-                hoverable
-                return-object
-                @update:active="filterByTeam"
+              <v-list-subheader
+                class="d-flex justify-space-between text-subtitle-2 ml-4"
               >
-                <template v-slot:append="{ item }">
-                  <v-edit-dialog
-                    large
-                    @save="addTeam(item)"
-                    @cancel="form.team = null"
-                  >
-                    <v-btn aria-label="Add team" small icon>
-                      <v-icon small>mdi-plus</v-icon>
-                    </v-btn>
-                    <template v-slot:input>
-                      <v-subheader class="pl-0">
-                        New team in {{ item.name }}
-                      </v-subheader>
-                      <v-text-field
-                        v-model="form.team"
-                        label="Name"
-                        single-line
-                        dense
-                      ></v-text-field>
+                Teams
+                <edit-dialog
+                  activator="button"
+                  label="Team name"
+                  @save="addTeam($event)"
+                />
+              </v-list-subheader>
+              <v-list
+                v-model:opened="teams.open"
+                color="primary"
+                density="compact"
+                nav
+                @update:selected="filterByTeam"
+              >
+                <div v-for="team in teams.items" :key="team.id">
+                  <v-list-group v-if="team.children" :value="team.name">
+                    <template v-slot:activator="{ props }">
+                      <v-list-item
+                        v-bind="props"
+                        @clickOnce="loadChildren(team)"
+                        :value="team"
+                      >
+                        <v-list-item-title
+                          class="d-flex justify-space-between align-center"
+                        >
+                          {{ team.name }}
+                          <div>
+                            <v-menu
+                              v-model="team.menu"
+                              :close-on-content-click="false"
+                            >
+                              <template v-slot:activator="{ props }">
+                                <v-btn
+                                  v-bind="props"
+                                  aria-label="Add team"
+                                  density="comfortable"
+                                  icon="mdi-plus"
+                                  size="small"
+                                  variant="text"
+                                />
+                              </template>
+                              <v-card min-width="200">
+                                <v-card-text>
+                                  <v-text-field
+                                    v-model="form.team"
+                                    label="Team name"
+                                    color="primary"
+                                    density="compact"
+                                    hide-details
+                                    single-line
+                                  />
+                                </v-card-text>
+                                <v-card-actions>
+                                  <v-btn
+                                    @click="
+                                      team.menu = false;
+                                      form.team = '';
+                                    "
+                                  >
+                                    Cancel
+                                  </v-btn>
+                                  <v-btn
+                                    @click="
+                                      addTeam(form.team, team);
+                                      team.menu = false;
+                                    "
+                                  >
+                                    Save
+                                  </v-btn>
+                                </v-card-actions>
+                              </v-card>
+                            </v-menu>
+                            <v-btn
+                              aria-label="Delete team"
+                              density="comfortable"
+                              icon="mdi-delete"
+                              size="small"
+                              variant="text"
+                              @click.stop="confirmDelete(deleteTeam, team.name)"
+                            />
+                          </div>
+                        </v-list-item-title>
+                      </v-list-item>
                     </template>
-                  </v-edit-dialog>
-                  <v-btn
-                    aria-label="Delete team"
-                    small
-                    icon
-                    @click.stop="confirmDelete(deleteTeam, item.name)"
-                  >
-                    <v-icon small>mdi-delete</v-icon>
-                  </v-btn>
-                </template>
-              </v-treeview>
+                    <v-list-item
+                      v-for="child in team.children"
+                      :key="child.id"
+                      :value="child"
+                    >
+                      <v-list-item-title
+                        class="d-flex justify-space-between align-center"
+                      >
+                        {{ child.name }}
+                        <v-btn
+                          aria-label="Delete team"
+                          class="mr-7"
+                          density="comfortable"
+                          icon="mdi-delete"
+                          size="small"
+                          variant="text"
+                          @click.stop="confirmDelete(deleteTeam, child.name)"
+                        />
+                      </v-list-item-title>
+                    </v-list-item>
+                  </v-list-group>
+                  <v-list-item v-else :value="team">
+                    <v-list-item-title
+                      class="d-flex justify-space-between align-center"
+                    >
+                      {{ team.name }}
+                      <div>
+                        <v-menu
+                          v-model="team.menu"
+                          :close-on-content-click="false"
+                        >
+                          <template v-slot:activator="{ props }">
+                            <v-btn
+                              v-bind="props"
+                              aria-label="Add team"
+                              density="comfortable"
+                              icon="mdi-plus"
+                              size="small"
+                              variant="text"
+                            />
+                          </template>
+                          <v-card min-width="200">
+                            <v-card-text>
+                              <v-text-field
+                                v-model="form.team"
+                                label="Team name"
+                                color="primary"
+                                density="compact"
+                                hide-details
+                                single-line
+                              />
+                            </v-card-text>
+                            <v-card-actions>
+                              <v-btn
+                                @click="
+                                  team.menu = false;
+                                  form.team = '';
+                                "
+                              >
+                                Cancel
+                              </v-btn>
+                              <v-btn
+                                @click="
+                                  addTeam(form.team, team);
+                                  team.menu = false;
+                                "
+                              >
+                                Save
+                              </v-btn>
+                            </v-card-actions>
+                          </v-card>
+                        </v-menu>
+                        <v-btn
+                          aria-label="Delete team"
+                          class="mr-7"
+                          density="comfortable"
+                          icon="mdi-delete"
+                          size="small"
+                          variant="text"
+                          @click.stop="confirmDelete(deleteTeam, team.name)"
+                        />
+                      </div>
+                    </v-list-item-title>
+                  </v-list-item>
+                </div>
+              </v-list>
               <p
                 v-if="teams.items.length === 0"
                 class="text--secondary font-italic ml-4"
@@ -94,141 +196,158 @@
               </p>
             </section>
           </v-col>
+
           <v-col sm="12" md="8" class="pl-md-0">
             <section class="pt-2">
-              <v-tabs>
-                <v-tab class="ml-4"> Details </v-tab>
-                <v-tab>
+              <v-tabs v-model="tab" color="primary">
+                <v-tab :value="1" class="ml-4">Details</v-tab>
+                <v-tab :value="2">
                   Members
-                  <v-chip x-small class="ml-2">
+                  <v-chip size="small" class="ml-2">
                     {{ totalMembers }}
                   </v-chip>
                 </v-tab>
-                <v-tab-item class="ma-4">
-                  <v-list>
-                    <v-subheader class="d-flex justify-space-between">
-                      Domains
-                      <v-edit-dialog
-                        large
-                        @save="addDomain"
-                        @cancel="form.domain = null"
+              </v-tabs>
+              <v-window v-model="tab">
+                <v-window-item :value="1">
+                  <v-container>
+                    <v-list>
+                      <v-list-subheader
+                        class="d-flex justify-space-between text-subtitle-2"
                       >
-                        <v-btn text small outlined>
-                          <v-icon small left>mdi-plus</v-icon>
-                          Add
-                        </v-btn>
-                        <template v-slot:input>
-                          <v-subheader class="pl-0">New domain</v-subheader>
-                          <v-text-field
-                            v-model="form.domain"
-                            label="Domain"
-                            single-line
-                            dense
-                          ></v-text-field>
-                          <v-checkbox
-                            v-model="form.isTopDomain"
-                            label="Top domain"
-                            dense
-                          ></v-checkbox>
-                        </template>
-                      </v-edit-dialog>
-                    </v-subheader>
-                    <v-list-item
-                      v-for="domain in organization.domains"
-                      :key="domain.id"
-                    >
-                      <v-list-item-content>
+                        Domains
+                        <v-menu v-model="menu" :close-on-content-click="false">
+                          <template v-slot:activator="{ props }">
+                            <v-btn
+                              v-bind="props"
+                              size="small"
+                              variant="outlined"
+                            >
+                              <v-icon start>mdi-plus</v-icon>
+                              Add
+                            </v-btn>
+                          </template>
+                          <v-card min-width="200">
+                            <v-card-text>
+                              <v-list-subheader class="pl-0 text-subtitle-2">
+                                New domain
+                              </v-list-subheader>
+                              <v-text-field
+                                v-model="form.domain"
+                                label="Domain"
+                                single-line
+                                density="compact"
+                              ></v-text-field>
+                              <v-checkbox
+                                v-model="form.isTopDomain"
+                                label="Top domain"
+                                density="compact"
+                                hide-details
+                              ></v-checkbox>
+                            </v-card-text>
+                            <v-card-actions>
+                              <v-spacer></v-spacer>
+                              <v-btn
+                                size="small"
+                                @click="
+                                  menu = false;
+                                  form.domain = null;
+                                "
+                              >
+                                Cancel
+                              </v-btn>
+                              <v-btn size="small" @click="addDomain">
+                                Save
+                              </v-btn>
+                            </v-card-actions>
+                          </v-card>
+                        </v-menu>
+                      </v-list-subheader>
+                      <v-list-item
+                        v-for="domain in organization.domains"
+                        :key="domain.id"
+                      >
                         <v-list-item-title>
                           {{ domain.domain }}
                           <v-chip
                             v-if="domain.isTopDomain"
-                            class="ml-2 mb-1 primary--text"
-                            color="#dceef9"
-                            small
+                            class="ml-2"
+                            color="primary"
+                            size="small"
                           >
                             top domain
                           </v-chip>
                         </v-list-item-title>
-                      </v-list-item-content>
-                      <v-list-item-icon>
-                        <v-btn
-                          aria-label="Delete domain"
-                          small
-                          icon
-                          @click="confirmDelete(deleteDomain, domain.domain)"
-                        >
-                          <v-icon small>mdi-delete</v-icon>
-                        </v-btn>
-                      </v-list-item-icon>
-                    </v-list-item>
-                  </v-list>
-                  <v-list>
-                    <v-subheader class="d-flex justify-space-between">
-                      Aliases
-                      <v-edit-dialog
-                        large
-                        @save="addAlias"
-                        @cancel="form.alias = null"
-                      >
-                        <v-btn text small outlined>
-                          <v-icon small left>mdi-plus</v-icon>
-                          Add
-                        </v-btn>
-                        <template v-slot:input>
-                          <v-subheader class="pl-0">New alias</v-subheader>
-                          <v-text-field
-                            v-model="form.alias"
-                            label="Alias"
-                            single-line
-                            dense
-                          ></v-text-field>
+                        <template v-slot:append>
+                          <v-btn
+                            aria-label="Delete domain"
+                            size="small"
+                            variant="text"
+                            icon
+                            @click="confirmDelete(deleteDomain, domain.domain)"
+                          >
+                            <v-icon small>mdi-delete</v-icon>
+                          </v-btn>
                         </template>
-                      </v-edit-dialog>
-                    </v-subheader>
-                    <v-list-item
-                      v-for="(alias, i) in organization.aliases"
-                      :key="i"
-                    >
-                      <v-list-item-content>
+                      </v-list-item>
+                    </v-list>
+                    <v-list>
+                      <v-list-subheader
+                        class="d-flex justify-space-between text-subtitle-2"
+                      >
+                        Aliases
+                        <edit-dialog
+                          activator="button"
+                          label="New alias"
+                          @save="addAlias($event)"
+                        />
+                      </v-list-subheader>
+                      <v-list-item
+                        v-for="(alias, i) in organization.aliases"
+                        :key="i"
+                      >
                         <v-list-item-title>
                           {{ alias.alias }}
                         </v-list-item-title>
-                      </v-list-item-content>
-                      <v-list-item-icon>
-                        <v-btn
-                          aria-label="Delete alias"
-                          small
-                          icon
-                          @click="confirmDelete(deleteAlias, alias.alias)"
-                        >
-                          <v-icon small>mdi-delete</v-icon>
-                        </v-btn>
-                      </v-list-item-icon>
-                    </v-list-item>
-                  </v-list>
-                </v-tab-item>
-                <v-tab-item eager>
-                  <individuals-table
-                    class="mt-4"
-                    hide-header
-                    :fetch-page="fetchMembers"
-                    :delete-item="deleteIndividual"
-                    :merge-items="mergeIndividuals"
-                    :unmerge-items="() => {}"
-                    :move-item="() => {}"
-                    :add-identity="() => {}"
-                    :updateProfile="updateProfile"
-                    :enroll="() => {}"
-                    :fetch-organizations="() => {}"
-                    :get-countries="() => {}"
-                    :lock-individual="lockIndividual"
-                    :unlock-individual="unlockIndividual"
-                    :set-filters="filters"
-                    :withdraw="() => {}"
-                    :update-enrollment="() => {}"
-                  />
-                </v-tab-item>
-              </v-tabs>
+                        <template v-slot:append>
+                          <v-btn
+                            aria-label="Delete alias"
+                            variant="text"
+                            icon="mdi-delete"
+                            @click="confirmDelete(deleteAlias, alias.alias)"
+                          >
+                          </v-btn>
+                        </template>
+                      </v-list-item>
+                    </v-list>
+                  </v-container>
+                </v-window-item>
+
+                <v-window-item :value="2" eager>
+                  <v-container class="pa-0">
+                    <individuals-table
+                      class="mt-4"
+                      hide-header
+                      :fetch-page="fetchMembers"
+                      :delete-item="deleteIndividual"
+                      :merge-items="mergeIndividuals"
+                      :unmerge-items="() => {}"
+                      :move-item="() => {}"
+                      :add-identity="() => {}"
+                      :updateProfile="updateProfile"
+                      :enroll="() => {}"
+                      :fetch-organizations="() => {}"
+                      :get-countries="() => {}"
+                      :lock-individual="lockIndividual"
+                      :unlock-individual="unlockIndividual"
+                      :recommend-matches="() => {}"
+                      :set-filters="filters"
+                      :withdraw="() => {}"
+                      :update-enrollment="() => {}"
+                    />
+                  </v-container>
+                </v-window-item>
+              </v-window>
             </section>
           </v-col>
         </v-row>
@@ -253,11 +372,11 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn text @click="closeDialog"> Cancel </v-btn>
+          <v-btn variant="text" @click="closeDialog"> Cancel </v-btn>
           <v-btn
             :color="dialog.color"
             id="confirm"
-            depressed
+            variant="flat"
             @click.stop="dialog.action"
           >
             Confirm
@@ -288,23 +407,25 @@ import {
   deleteAlias,
 } from "../apollo/mutations";
 import IndividualsTable from "../components/IndividualsTable.vue";
+import EditDialog from "../components/EditDialog.vue";
 
 export default {
   name: "Organization",
-  components: { IndividualsTable },
+  components: { IndividualsTable, EditDialog },
   data() {
     return {
-      organization: null,
+      organization: {},
       isLoading: true,
       teams: {
         items: [],
         open: [],
+        menu: false,
       },
       totalMembers: 0,
       dialog: {
         isOpen: false,
         title: null,
-        action: null,
+        action: () => {},
         text: null,
         color: "primary",
       },
@@ -315,6 +436,8 @@ export default {
         alias: null,
       },
       filters: null,
+      tab: null,
+      menu: false,
     };
   },
   computed: {
@@ -327,7 +450,10 @@ export default {
       try {
         const response = await getOrganization(this.$apollo, name);
         if (response.data.organizations.entities.length > 0) {
-          this.organization = response.data.organizations.entities[0];
+          Object.assign(
+            this.organization,
+            response.data.organizations.entities[0]
+          );
         }
       } catch (error) {
         this.$logger.error(error);
@@ -352,6 +478,7 @@ export default {
       }
     },
     async addDomain() {
+      this.menu = false;
       if (!this.form.domain) return;
 
       try {
@@ -361,7 +488,10 @@ export default {
           this.form.isTopDomain,
           this.name
         );
-        this.organization.domains.push(response.data.addDomain.domain);
+        this.organization.domains = [
+          ...this.organization.domains,
+          response.data.addDomain.domain,
+        ];
         this.form.domain = null;
       } catch (error) {
         Object.assign(this.dialog, {
@@ -375,10 +505,10 @@ export default {
       try {
         const response = await deleteDomain(this.$apollo, domain);
         if (response && !response.errors) {
-          const index = this.organization.domains.findIndex(
-            (item) => item.domain === domain
-          );
-          this.organization.domains.splice(index, 1);
+          const domains = [...this.organization.domains];
+          const index = domains.findIndex((item) => item.domain === domain);
+          domains.splice(index, 1);
+          this.organization.domains = domains;
           this.closeDialog();
         }
       } catch (error) {
@@ -401,9 +531,9 @@ export default {
 
       return teams;
     },
-    async addTeam(parent) {
+    async addTeam(team, parent) {
       try {
-        await addTeam(this.$apollo, this.form.team, this.name, parent?.name);
+        await addTeam(this.$apollo, team, this.name, parent?.name);
         if (parent) {
           parent.children = parent.children || [];
           parent.children.push({
@@ -412,7 +542,7 @@ export default {
           });
         } else {
           this.teams.items.push({
-            name: this.form.team,
+            name: team,
             children: undefined,
           });
         }
@@ -453,7 +583,7 @@ export default {
     async fetchMembers(page = 1, items = 10, filters = {}, orderBy) {
       if (!filters.enrollment) {
         filters = Object.assign(filters, {
-          enrollment: this.organization.name,
+          enrollment: this.name,
         });
       }
       const response = await getPaginatedIndividuals(
@@ -502,21 +632,19 @@ export default {
       Object.assign(this.dialog, {
         isOpen: false,
         title: "",
-        action: null,
+        action: () => {},
         color: "primary",
       });
     },
-    async addAlias() {
-      if (!this.form.alias) return;
+    async addAlias(alias) {
+      if (!alias) return;
 
       try {
-        const response = await addAlias(
-          this.$apollo,
-          this.form.alias,
-          this.name
-        );
-        this.organization.aliases.push(response.data.addAlias.alias);
-        this.form.alias = null;
+        const response = await addAlias(this.$apollo, alias, this.name);
+        this.organization.aliases = [
+          ...this.organization.aliases,
+          response.data.addAlias.alias,
+        ];
       } catch (error) {
         Object.assign(this.dialog, {
           isOpen: true,
@@ -529,10 +657,10 @@ export default {
       try {
         const response = await deleteAlias(this.$apollo, alias);
         if (response && !response.errors) {
-          const index = this.organization.aliases.findIndex(
-            (item) => item.alias === alias
-          );
-          this.organization.aliases.splice(index, 1);
+          const aliases = [...this.organization.aliases];
+          const index = aliases.findIndex((item) => item.alias === alias);
+          aliases.splice(index, 1);
+          this.organization.aliases = aliases;
           this.closeDialog();
         }
       } catch (error) {
@@ -551,13 +679,13 @@ export default {
 <style lang="scss" scoped>
 @import "../styles/index.scss";
 
-::v-deep .v-treeview-node__toggle,
-::v-deep .v-treeview-node__level {
+:deep(.v-treeview-node__toggle),
+:deep(.v-treeview-node__level) {
   font-size: 16px;
   width: 16px;
 }
 
-::v-deep .v-treeview-node {
+:deep(.v-treeview-node) {
   cursor: pointer;
 }
 
@@ -565,7 +693,7 @@ export default {
   border-right: thin solid rgba(0, 0, 0, 0.08);
 }
 
-::v-deep .v-tab {
+:deep(.v-tab) {
   font-weight: 500;
   font-size: 1rem;
   letter-spacing: 0.0071rem;
@@ -583,13 +711,13 @@ export default {
   letter-spacing: 0.0071rem;
 }
 
-::v-deep .v-small-dialog,
-::v-deep .v-small-dialog__activator {
+:deep(.v-small-dialog),
+:deep(.v-small-dialog__activator) {
   display: inline-block;
 }
 
-.container {
-  // height: calc(100% - 24px);
+.v-container {
+  height: calc(100% - 24px);
   height: 100%;
 
   .section {
@@ -601,5 +729,9 @@ export default {
   .container {
     max-width: 100%;
   }
+}
+
+:deep(.v-list-item__append) > .v-icon ~ .v-list-item__spacer {
+  width: 4px;
 }
 </style>

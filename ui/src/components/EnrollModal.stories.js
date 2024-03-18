@@ -38,12 +38,12 @@ export const Default = () => ({
         data: {
           addOrganization: {
             organization: {
-              name: name
-            }
-          }
-        }
-      }
-    }
+              name: name,
+            },
+          },
+        },
+      };
+    },
   },
 });
 
@@ -61,6 +61,6 @@ export const WithOrganization = () => ({
     },
     addOrganization() {
       return;
-    }
+    },
   },
 });

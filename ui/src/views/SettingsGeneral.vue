@@ -4,17 +4,17 @@
       <h1 class="title">General settings</h1>
     </header>
     <v-progress-linear v-if="isLoading" color="primary" indeterminate />
-    <v-expansion-panels v-else accordion flat>
+    <v-expansion-panels v-else variant="accordion">
       <v-expansion-panel>
-        <v-expansion-panel-header aria-label="Show advanced configuration">
+        <v-expansion-panel-title aria-label="Show advanced configuration">
           <v-row class="ma-0 px-2">
-            <v-col>
+            <v-col class="d-flex flex-column justify-center">
               <p class="subheader mb-0">
                 Affiliate to organizations automatically
               </p>
               <span
                 v-if="tasks.affiliate.lastExecution"
-                class="v-list-item__subtitle text--secondary mt-3"
+                class="v-list-item__subtitle text-medium-emphasis"
               >
                 <v-icon v-if="tasks.affiliate.failed" color="error" left small>
                   mdi-alert
@@ -27,7 +27,8 @@
               <v-switch
                 v-model="tasks.affiliate.isActive"
                 class="mt-0"
-                dense
+                color="primary"
+                density="comfortable"
                 inset
                 hide-details
                 @change="toggleTask('affiliate')"
@@ -40,8 +41,8 @@
               </v-switch>
             </v-col>
           </v-row>
-        </v-expansion-panel-header>
-        <v-expansion-panel-content>
+        </v-expansion-panel-title>
+        <v-expansion-panel-text>
           <v-row class="ma-0 pt-4 pl-2">
             <v-col class="pa-0">
               <p class="text-subtitle-2">Advanced configuration</p>
@@ -53,10 +54,10 @@
                 <v-radio-group
                   v-model="tasks.affiliate.interval"
                   class="mt-0"
-                  dense
+                  density="comfortable"
                 >
                   <template v-slot:label>
-                    <h3 class="subheader text--secondary">Interval</h3>
+                    <h3 class="subheader">Interval</h3>
                   </template>
                   <v-radio :value="1440" label="Every day"></v-radio>
                   <v-radio :value="10080" label="Every week"></v-radio>
@@ -69,9 +70,8 @@
                   type="number"
                   suffix="minutes"
                   class="ml-8"
-                  dense
+                  density="compact"
                   hide-details
-                  outlined
                 >
                 </v-text-field>
               </v-col>
@@ -80,8 +80,8 @@
               <v-col class="pa-0">
                 <v-btn
                   color="primary"
-                  depressed
-                  small
+                  variant="flat"
+                  size="small"
                   @click="updateScheduledTask('affiliate')"
                 >
                   Update
@@ -89,19 +89,19 @@
               </v-col>
             </v-row>
           </v-form>
-        </v-expansion-panel-content>
+        </v-expansion-panel-text>
       </v-expansion-panel>
       <v-expansion-panel>
-        <v-expansion-panel-header aria-label="Show advanced configuration">
+        <v-expansion-panel-title aria-label="Show advanced configuration">
           <v-row class="ma-0 px-2">
-            <v-col>
+            <v-col class="d-flex flex-column justify-center">
               <p class="subheader mb-0">Unify profiles automatically</p>
               <span v-if="tasks.unify.lastExecution" class="mt-3">
                 <v-icon v-if="tasks.unify.failed" color="error" left small>
                   mdi-alert
                 </v-icon>
                 <v-icon v-else color="green" left small> mdi-check </v-icon>
-                <span class="v-list-item__subtitle text--secondary">
+                <span class="v-list-item__subtitle text-medium-emphasis">
                   Last run {{ formatDate(tasks.unify.lastExecution) }}
                 </span>
               </span>
@@ -109,7 +109,7 @@
             <v-col class="d-flex justify-end">
               <v-switch
                 v-model="tasks.unify.isActive"
-                dense
+                density="comfortable"
                 inset
                 hide-details
                 class="mt-0"
@@ -123,8 +123,8 @@
               </v-switch>
             </v-col>
           </v-row>
-        </v-expansion-panel-header>
-        <v-expansion-panel-content>
+        </v-expansion-panel-title>
+        <v-expansion-panel-text>
           <v-row class="ma-0 pt-4 pl-2">
             <v-col class="pa-0">
               <p class="text-subtitle-2">Advanced configuration</p>
@@ -136,47 +136,47 @@
                 <v-checkbox
                   v-model="tasks.unify.params.exclude"
                   label="Exclude individuals in RecommenderExclusionTerm list"
-                  dense
+                  density="comfortable"
                   hide-details
                 />
                 <v-checkbox
                   v-model="tasks.unify.params.strict"
                   label="Exclude individuals with invalid email addresses and names"
-                  dense
+                  density="comfortable"
                   hide-details
                 />
                 <v-checkbox
                   v-model="tasks.unify.params.match_source"
                   label="Only unify identities that share the same source"
-                  dense
+                  density="comfortable"
                   hide-details
                 />
               </v-col>
             </v-row>
             <v-row class="ma-0 pl-2">
               <v-col cols="3" class="pa-0 mb-2">
-                <h3 class="subheader text--secondary">
+                <h3 class="subheader text-medium-emphasis">
                   Unify profiles based on their
                 </h3>
                 <v-checkbox
                   v-model="tasks.unify.params.criteria"
                   label="Name"
                   value="name"
-                  dense
+                  density="comfortable"
                   hide-details
                 />
                 <v-checkbox
                   v-model="tasks.unify.params.criteria"
                   label="Email"
                   value="email"
-                  dense
+                  density="comfortable"
                   hide-details
                 />
                 <v-checkbox
                   v-model="tasks.unify.params.criteria"
                   label="Username"
                   value="username"
-                  dense
+                  density="comfortable"
                   hide-details
                 />
               </v-col>
@@ -186,10 +186,10 @@
                 <v-radio-group
                   v-model="tasks.unify.interval"
                   class="mt-0"
-                  dense
+                  density="comfortable"
                 >
                   <template v-slot:label>
-                    <h3 class="subheader text--secondary">Interval</h3>
+                    <h3 class="subheader">Interval</h3>
                   </template>
                   <v-radio :value="1440" label="Every day"></v-radio>
                   <v-radio :value="10080" label="Every week"></v-radio>
@@ -202,9 +202,8 @@
                   type="number"
                   suffix="minutes"
                   class="ml-8"
-                  dense
+                  density="compact"
                   hide-details
-                  outlined
                 >
                 </v-text-field>
               </v-col>
@@ -213,8 +212,8 @@
               <v-col class="pa-0">
                 <v-btn
                   color="primary"
-                  depressed
-                  small
+                  variant="flat"
+                  size="small"
                   @click="updateScheduledTask('unify')"
                 >
                   Update
@@ -222,7 +221,7 @@
               </v-col>
             </v-row>
           </v-form>
-        </v-expansion-panel-content>
+        </v-expansion-panel-text>
       </v-expansion-panel>
     </v-expansion-panels>
     <v-snackbar
@@ -389,40 +388,51 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-.v-expansion-panel::after {
-  border-top: thin solid;
-}
-
-.v-expansion-panel--active > .v-expansion-panel-header {
+.v-expansion-panel--active > .v-expansion-panel-title {
   min-height: unset;
 }
 
-.v-expansion-panel-header {
-  align-items: flex-start;
+.v-expansion-panel-title {
+  align-items: center;
 
   &:hover {
     background-color: #f6f6f6;
   }
-
-  .col {
+  .v-col {
     padding: 0;
+  }
+
+  :deep(.v-expansion-panel-title__overlay) {
+    opacity: 0;
   }
 }
 
-::v-deep .v-expansion-panel-header__icon {
+:deep(.v-expansion-panel-header__icon) {
   margin-top: 4px;
 }
 
-.v-expansion-panel-content {
+.v-expansion-panel-text {
   border-top: thin solid rgba(0, 0, 0, 0.08);
 }
 
-::v-deep .v-label,
-::v-deep .v-text-field__suffix {
+:deep(.v-label),
+:deep(.v-text-field__suffix) {
   font-size: 0.875rem;
 }
 
 .subheader {
   line-height: 1.775rem;
+}
+
+:deep(.v-expansion-panel__shadow) {
+  display: none;
+}
+
+:deep(.v-radio-group) > .v-input__control > .v-label {
+  margin-inline-start: 0;
+
+  & + .v-selection-control-group {
+    padding-inline-start: 0;
+  }
 }
 </style>

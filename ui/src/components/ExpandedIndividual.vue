@@ -1,5 +1,5 @@
 <template>
-  <td :class="{ compact: compact }" colspan="4">
+  <td :class="{ compact: compact }" colspan="5">
     <identities-list
       :identities="identities"
       :uuid="uuid"
@@ -110,11 +110,11 @@ export default {
     padding: 0;
   }
 
-  ::v-deep .uuid {
+  :deep(.uuid) {
     display: none;
   }
 
-  ::v-deep .indented {
+  :deep(.indented) {
     padding: 0;
     margin: 0;
     text-align: center;
@@ -126,7 +126,7 @@ export default {
 }
 
 .v-small-dialog,
-::v-deep .v-small-dialog__activator {
+:deep(.v-small-dialog__activator) {
   display: inline-block;
 }
 </style>

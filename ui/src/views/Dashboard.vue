@@ -17,7 +17,7 @@
       @updateStore="saveWorkspace($event)"
     />
     <v-row>
-      <v-col lg="8" sm="12" class="pa-0 mr-lg-8">
+      <v-col lg="8" sm="12" class="pt-0 pl-0 pr-sm-0 pr-lg-4">
         <individuals-table
           class="individuals"
           is-expandable
@@ -50,7 +50,11 @@
           ref="table"
         />
       </v-col>
-      <v-col class="pa-0 organizations mt-8 mt-lg-0">
+      <v-col
+        lg="4"
+        sm="12"
+        class="organizations mt-4 mt-lg-0 pt-0 pl-sm-0 pl-lg-4 pr-0"
+      >
         <organizations-table
           :fetch-page="getOrganizationsPage"
           :enroll="enroll"
@@ -192,7 +196,7 @@ export default {
       this.$refs.organizations.getTableItems();
 
       const openOrgs = this.$refs.organizations.$refs;
-      Object.keys(openOrgs).forEach((key) => openOrgs[key].reloadTeams());
+      Object.keys(openOrgs).forEach((key) => openOrgs[key]?.reloadTeams());
     },
     updateTable() {
       this.$refs.table.queryIndividuals();
@@ -387,7 +391,7 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-.row {
+.v-row {
   justify-content: space-between;
   margin: 32px;
 }

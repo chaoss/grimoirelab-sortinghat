@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="isOpen" persistent max-width="650">
+  <v-dialog :model-value="isOpen" persistent max-width="650">
     <v-card class="section">
       <v-card-title class="header">
         <span v-if="team" class="title">
@@ -44,11 +44,15 @@
 
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="primary darken-1" text @click.prevent="closeModal">
+          <v-btn
+            color="primary darken-1"
+            variant="text"
+            @click.prevent="closeModal"
+          >
             Cancel
           </v-btn>
           <v-btn
-            depressed
+            variant="flat"
             color="primary"
             :disabled="!team && !form.team"
             @click.prevent="onSave"

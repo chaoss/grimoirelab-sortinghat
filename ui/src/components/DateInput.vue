@@ -1,47 +1,50 @@
 <template>
-  <v-menu
-    v-model="openPicker"
-    v-bind="$attrs"
-    :close-on-content-click="false"
-    transition="scale-transition"
-    min-width="290px"
-    offset-x
-    right
-  >
-    <template v-slot:activator="{ on }">
-      <v-text-field
-        v-model="inputDate"
-        :label="label"
-        :filled="filled"
-        :dense="outlined"
-        :outlined="outlined"
-        :single-line="singleLine"
-        :error-messages="error"
-        :rules="isValid"
-        height="30"
-        clearable
-        hint="YYYY-MM-DD"
-        v-on="on"
-        @change="formatDate($event)"
-        @click:clear="formatDate()"
-      ></v-text-field>
-    </template>
-    <v-date-picker
-      v-model="pickerDate"
-      :min="min"
-      :max="max"
-      no-title
-      scrollable
-      @input="formatDate($event)"
-    />
-  </v-menu>
+  <div>
+    <v-text-field
+      v-model="inputDate"
+      :density="variant == 'outlined' ? 'comfortable' : 'default'"
+      :error-messages="error"
+      :label="label"
+      :variant="variant"
+      :single-line="singleLine"
+      :rules="isValid"
+      height="30"
+      clearable
+      hint="YYYY-MM-DD"
+      @change="formatDate(inputDate)"
+      @click:clear="formatDate()"
+      @update:focused="() => {}"
+    >
+    </v-text-field>
+    <v-menu
+      v-model="openPicker"
+      :close-on-content-click="false"
+      activator="parent"
+      location="right"
+      transition="scale-transition"
+      min-width="290px"
+      offset-x
+    >
+      <v-date-picker
+        v-model="pickerDate"
+        :min="min"
+        :max="max"
+        color="primary"
+        hide-header
+        hide-weekdays
+        @update:model-value="formatDate($event)"
+      />
+    </v-menu>
+  </div>
 </template>
 
 <script>
+import { useDate } from "vuetify";
+
 export default {
   name: "DateInput",
   props: {
-    value: {
+    modelValue: {
       type: [String, Date],
     },
     label: {
@@ -56,15 +59,10 @@ export default {
       type: [String, Date],
       required: false,
     },
-    filled: {
-      type: Boolean,
+    variant: {
+      type: String,
       required: false,
-      default: false,
-    },
-    outlined: {
-      type: Boolean,
-      required: false,
-      default: false,
+      default: "outlined",
     },
     singleLine: {
       type: Boolean,
@@ -74,13 +72,15 @@ export default {
   },
   data() {
     return {
+      dateFormatter: null,
       openPicker: false,
       error: null,
-      inputDate: this.value,
-      pickerDate: this.value,
+      inputDate: this.modelValue,
+      pickerDate: null,
       isValid: [(value) => (value ? !this.error : true)],
     };
   },
+  emits: ["update:modelValue"],
   methods: {
     setError(error) {
       this.error = error;
@@ -90,29 +90,42 @@ export default {
       this.openPicker = false;
       if (date) {
         try {
-          const ISODate = new Date(date).toISOString();
-          const dateString = ISODate.substring(0, 10);
-          this.$emit("input", ISODate);
+          const dateObject = this.dateFormatter.date(date);
+          const dateString = this.dateFormatter.toISO(dateObject);
+          const dateTime = `${dateString}T00:00:00+00:00`;
+
           this.inputDate = dateString;
-          this.pickerDate = dateString;
+          this.pickerDate = dateObject;
+          this.$emit("update:modelValue", dateTime);
         } catch {
           this.setError("Invalid date");
-          this.pickerDate = "";
+          this.pickerDate = null;
         }
       } else {
-        this.$emit("input", null);
+        this.$emit("update:modelValue", null);
         this.inputDate = "";
-        this.pickerDate = "";
+        this.pickerDate = null;
       }
     },
   },
   watch: {
-    value(newValue) {
-      this.formatDate(newValue);
+    modelValue(newValue, oldValue) {
+      if (newValue?.substring(0, 9) !== oldValue?.substring(0, 9)) {
+        this.formatDate(newValue);
+      }
     },
   },
   mounted() {
-    this.formatDate(this.value);
+    this.dateFormatter = useDate();
+    this.formatDate(this.modelValue);
   },
 };
 </script>
+<style lang="scss" scoped>
+:deep(.v-field.v-field--appended) {
+  --v-field-padding-end: 0;
+}
+:deep(.v-field__clearable) {
+  margin-inline: 2px;
+}
+</style>

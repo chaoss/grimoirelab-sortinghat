@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="isOpen" :max-width="organization ? '550px' : '700px'">
+  <v-dialog :model-value="isOpen" :max-width="organization ? '550px' : '740px'">
     <v-card class="pa-3">
       <v-card-title class="headline">{{ title }}</v-card-title>
       <v-card-text>
@@ -19,24 +19,32 @@
             />
           </v-col>
           <v-col :cols="organization ? 6 : 3">
-            <date-input v-model="form.dateFrom" label="Date from" outlined />
+            <date-input
+              v-model="form.dateFrom"
+              label="Date from"
+              variant="outlined"
+            />
           </v-col>
           <v-col :cols="organization ? 6 : 3">
-            <date-input v-model="form.dateTo" label="Date to" outlined />
+            <date-input
+              v-model="form.dateTo"
+              label="Date to"
+              variant="outlined"
+            />
           </v-col>
         </v-row>
-        <v-alert v-if="errorMessage" text type="error">
+        <v-alert v-if="errorMessage" variant="tonal" type="error">
           {{ errorMessage }}
         </v-alert>
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn text @click="onClose"> Cancel </v-btn>
+        <v-btn variant="text" @click="onClose"> Cancel </v-btn>
         <v-btn
           :disabled="!organization && !form.organization"
           color="primary"
           id="confirm"
-          depressed
+          variant="flat"
           @click="onSave"
         >
           Confirm

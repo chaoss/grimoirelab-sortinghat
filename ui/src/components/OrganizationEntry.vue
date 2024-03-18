@@ -19,62 +19,92 @@
       </router-link>
     </td>
     <td class="text-right text--secondary">
-      <v-tooltip bottom transition="expand-y-transition" open-delay="200">
-        <template v-slot:activator="{ on }">
+      <v-tooltip
+        location="bottom"
+        transition="expand-y-transition"
+        open-delay="200"
+      >
+        <template v-slot:activator="{ props }">
           <v-btn
-            depressed
+            variant="flat"
+            size="default"
             color="transparent"
-            v-on="on"
+            v-bind="props"
             @click.stop="$emit('getEnrollments')"
           >
             {{ enrollments }}
-            <v-icon small right> mdi-account-multiple </v-icon>
+            <v-icon end> mdi-account-multiple </v-icon>
           </v-btn>
         </template>
         <span>Enrollments</span>
       </v-tooltip>
     </td>
     <td class="text-right">
-      <v-menu v-model="showMenu" left nudge-left="16">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn icon small v-bind="attrs" v-on="on">
-            <v-icon small>mdi-dots-vertical</v-icon>
+      <v-menu v-model="showMenu" location="left" nudge-left="16">
+        <template v-slot:activator="{ props }">
+          <v-btn
+            icon="mdi-dots-vertical"
+            density="comfortable"
+            size="small"
+            variant="text"
+            v-bind="props"
+          >
           </v-btn>
         </template>
-        <v-list dense>
+        <v-list density="compact">
           <v-list-item @click="$emit('edit')">
             <v-list-item-title> Edit domains and aliases </v-list-item-title>
           </v-list-item>
-          <v-edit-dialog
-            large
-            @save="
-              $emit('addTeam', newTeam);
-              newTeam = '';
-            "
-            @cancel="newTeam = ''"
-          >
-            <v-list-item @click="showMenu = false">
-              <v-list-item-title>Add a team</v-list-item-title>
-            </v-list-item>
-            <template v-slot:input>
-              <h6 class="text-subtitle-2 mt-2">Add team to {{ name }}</h6>
-              <v-text-field
-                v-model="newTeam"
-                label="Name"
-                maxlength="50"
-                single-line
-              />
+          <v-menu v-model="showTeamMenu" :close-on-content-click="false">
+            <template v-slot:activator="{ props }">
+              <v-list-item v-bind="props">
+                <v-list-item-title>Add a team</v-list-item-title>
+              </v-list-item>
             </template>
-          </v-edit-dialog>
+            <v-card min-width="200">
+              <v-card-text>
+                <v-text-field
+                  v-model="newTeam"
+                  label="Team name"
+                  color="primary"
+                  density="compact"
+                  hide-details
+                  single-line
+                />
+              </v-card-text>
+              <v-card-actions>
+                <v-btn
+                  @click="
+                    showTeamMenu = false;
+                    newTeam = '';
+                  "
+                >
+                  Cancel
+                </v-btn>
+                <v-btn
+                  @click="
+                    $emit('addTeam', newTeam);
+                    showTeamMenu = false;
+                    newTeam = '';
+                  "
+                >
+                  Save
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-menu>
           <v-list-item @click="$emit('delete')">
             <v-list-item-title>Delete organization</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-menu>
-      <v-btn icon @click.stop="$emit('expand')">
-        <v-icon>
-          {{ isExpanded ? "mdi-chevron-up" : "mdi-chevron-down" }}
-        </v-icon>
+      <v-btn
+        :icon="isExpanded ? 'mdi-chevron-up' : 'mdi-chevron-down'"
+        density="comfortable"
+        size="small"
+        variant="text"
+        @click.stop="$emit('expand')"
+      >
       </v-btn>
     </td>
   </tr>
@@ -106,6 +136,7 @@ export default {
     return {
       dropZone: false,
       showMenu: false,
+      showTeamMenu: false,
       newTeam: "",
     };
   },

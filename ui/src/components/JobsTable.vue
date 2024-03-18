@@ -2,21 +2,20 @@
   <v-container class="jobs section mb-5 pa-0">
     <header class="header">
       <h4 class="title">
-        <v-icon color="black" left dense> mdi-tray-full </v-icon>
+        <v-icon color="black" size="small" start> mdi-tray-full </v-icon>
         Jobs
       </h4>
       <v-btn
-        depressed
-        small
-        height="34"
         color="secondary"
         class="black--text"
+        size="small"
+        variant="flat"
         @click.stop="openModal = true"
       >
         Add
       </v-btn>
     </header>
-    <v-simple-table v-if="jobs.length > 0">
+    <v-table v-if="jobs.length > 0">
       <template v-slot:default>
         <thead>
           <tr>
@@ -29,9 +28,14 @@
         <tbody>
           <tr v-for="job in jobs" :key="job.jobId">
             <td>
-              <v-tooltip bottom>
-                <template v-slot:activator="{ on }">
-                  <v-chip class="text-center clip" v-on="on" outlined tile>
+              <v-tooltip location="bottom">
+                <template v-slot:activator="{ props }">
+                  <v-chip
+                    class="text-center clip"
+                    v-bind="props"
+                    variant="outlined"
+                    tile
+                  >
                     {{ job.jobId }}
                   </v-chip>
                 </template>
@@ -52,17 +56,17 @@
           </tr>
         </tbody>
       </template>
-    </v-simple-table>
+    </v-table>
     <div v-if="jobs.length > 0" class="text-center pa-4">
       <v-pagination
         v-model="page"
         :length="pageCount"
         :total-visible="5"
-        @input="getPaginatedJobs($event)"
+        @update:modelValue="getPaginatedJobs($event)"
       ></v-pagination>
     </div>
     <p v-else class="text-subtitle-1 pa-7">There are no jobs in the queue.</p>
-    <job-modal :is-open.sync="openModal" v-on="$listeners" />
+    <job-modal v-model:is-open="openModal" v-bind="$attrs" />
   </v-container>
 </template>
 
@@ -111,7 +115,7 @@ export default {
       }
     },
     formatDate(dateTime) {
-      return new Date(dateTime).toLocaleString();
+      return dateTime ? new Date(dateTime).toLocaleString("en-US") : "-";
     },
   },
 };
@@ -124,7 +128,7 @@ export default {
 .container {
   max-width: 1160px;
 }
-.clip ::v-deep .v-chip__content {
+.clip :deep(.v-chip__content) {
   max-width: 8ch;
   overflow: hidden;
   text-overflow: clip;

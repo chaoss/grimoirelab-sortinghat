@@ -100,13 +100,12 @@ const formatIndividual = (individual) => {
     country: individual.profile.country,
     isLocked: individual.isLocked,
     isBot: individual.profile.isBot,
-    isSelected: false,
   };
 
   if (individual.enrollments && individual.enrollments.length > 0) {
     const organization = individual.enrollments.findLast(
       (enrollment) => !enrollment.group.parentOrg
-    ).group.name;
+    )?.group.name;
     Object.assign(formattedIndividual, { organization: organization });
   }
   if (individual.matchRecommendationSet) {

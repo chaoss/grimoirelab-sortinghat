@@ -1,51 +1,57 @@
 <template>
   <v-app>
-    <v-app-bar app color="primary" dark dense flat class="pl-6 pr-6">
-      <router-link to="/" v-slot="{ href, navigate }">
-        <h1 :href="href" @click="navigate" class="text-h6 pointer">
+    <v-app-bar color="primary" density="compact" flat class="pl-6 pr-6">
+      <router-link
+        to="/"
+        v-slot="{ href, navigate }"
+        class="text-decoration-none"
+      >
+        <h1 :href="href" @click="navigate" class="text-h6 text-white pointer">
           Sorting Hat
         </h1>
       </router-link>
 
       <v-spacer></v-spacer>
       <div v-if="user && $route.name !== 'Login'">
-        <v-btn to="/" depressed small color="primary" class="mr-2">
-          <v-icon small left> mdi-view-dashboard-variant </v-icon>
+        <v-btn to="/" flat size="small" color="white" class="mr-2">
+          <v-icon size="small" start> mdi-view-dashboard-variant </v-icon>
           Dashboard
         </v-btn>
-        <v-btn to="/settings" depressed small color="primary" class="mr-2">
-          <v-icon small left> mdi-cog </v-icon>
+        <v-btn to="/settings" flat size="small" color="white" class="mr-2">
+          <v-icon size="small" start> mdi-cog </v-icon>
           Settings
         </v-btn>
         <v-menu offset-y left>
-          <template v-slot:activator="{ on }">
-            <v-btn depressed small color="primary" v-on="on">
-              <v-icon small left> mdi-account-circle </v-icon>
+          <template v-slot:activator="{ props }">
+            <v-btn v-bind="props" flat size="small" color="white">
+              <v-icon size="small" start> mdi-account-circle </v-icon>
               {{ user }}
-              <v-icon small right> mdi-chevron-down </v-icon>
+              <v-icon size="small" end> mdi-chevron-down </v-icon>
             </v-btn>
           </template>
-          <v-list color="primary" dark dense>
+          <v-list bg-color="primary" dark nav>
             <v-list-item to="/change-password">
-              <v-list-item-icon class="mr-2">
+              <template v-slot:prepend>
                 <v-icon small>mdi-form-textbox-password</v-icon>
-              </v-list-item-icon>
+              </template>
               <v-list-item-title>Change password</v-list-item-title>
             </v-list-item>
             <v-divider />
             <v-list-item @click="logOut">
-              <v-list-item-icon class="mr-2">
+              <template v-slot:prepend>
                 <v-icon small>mdi-logout-variant</v-icon>
-              </v-list-item-icon>
+              </template>
               <v-list-item-title>Log out</v-list-item-title>
             </v-list-item>
           </v-list>
         </v-menu>
       </div>
     </v-app-bar>
-    <transition name="fade" mode="out-in">
-      <router-view />
-    </transition>
+    <router-view v-slot="{ Component }">
+      <transition name="fade" mode="out-in">
+        <component :is="Component" />
+      </transition>
+    </router-view>
   </v-app>
 </template>
 

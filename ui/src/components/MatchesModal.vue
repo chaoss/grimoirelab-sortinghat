@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="isOpen" max-width="500px" @click:outside="closeModal">
+  <v-dialog :modelValue="isOpen" max-width="500px" @click:outside="closeModal">
     <v-card class="pa-3">
       <v-card-title class="headline">Recommend matches</v-card-title>
       <v-card-text v-if="jobId">

@@ -2,24 +2,25 @@
   <v-row class="d-flex align-center" no-gutters>
     <v-col class="uuid d-flex align-center">
       <v-tooltip open-delay="100" bottom>
-        <template v-slot:activator="{ on }">
+        <template v-slot:activator="{ props }">
           <v-chip
             class="text-center"
-            v-on="on"
-            outlined
-            tile
+            v-bind="props"
+            variant="outlined"
             @click="copy(uuid)"
             @mouseenter="resetCopyText"
           >
             <span class="clip">{{ uuid }}</span>
-            <v-icon small right>mdi-content-copy</v-icon>
+            <v-icon size="small" end>mdi-content-copy</v-icon>
           </v-chip>
         </template>
         <span>{{ tooltip }}</span>
       </v-tooltip>
       <v-tooltip v-if="isMain" bottom>
-        <template v-slot:activator="{ on }">
-          <v-icon v-on="on" color="secondary" right small> mdi-star </v-icon>
+        <template v-slot:activator="{ props }">
+          <v-icon v-bind="props" color="secondary" size="small" end>
+            mdi-star
+          </v-icon>
         </template>
         <span>Main identity</span>
       </v-tooltip>

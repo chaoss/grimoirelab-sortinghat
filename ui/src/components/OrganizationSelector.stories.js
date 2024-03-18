@@ -58,12 +58,12 @@ export const Default = () => ({
         data: {
           addOrganization: {
             organization: {
-              name: name
-            }
-          }
-        }
-      }
-    }
+              name: name,
+            },
+          },
+        },
+      };
+    },
   },
 });
 
@@ -89,11 +89,11 @@ export const SelectedOrganization = () => ({
         data: {
           addOrganization: {
             organization: {
-              name: name
-            }
-          }
-        }
-      }
-    }
+              name: name,
+            },
+          },
+        },
+      };
+    },
   },
 });
