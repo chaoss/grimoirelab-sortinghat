@@ -1,16 +1,13 @@
 import { shallowMount } from "@vue/test-utils";
-import Vue from "vue";
-import Vuetify from "vuetify";
+import vuetify from "@/plugins/vuetify";
 import EnrollmentList from "@/components/EnrollmentList";
 
-Vue.use(Vuetify);
-
 describe("EnrollmentList component", () => {
-  const vuetify = new Vuetify();
   const mountFunction = (options) => {
     return shallowMount(EnrollmentList, {
-      Vue,
-      vuetify,
+      global: {
+        plugins: [vuetify],
+      },
       propsData: { enrollments: [] },
       ...options,
     });

@@ -1,14 +1,11 @@
-import { shallowMount } from "@vue/test-utils";
-import Vue from "vue";
-import Vuetify from "vuetify";
+import { mount } from "@vue/test-utils";
+import { nextTick } from "vue";
+import vuetify from "@/plugins/vuetify";
 import IndividualsData from "@/components/IndividualsData";
 import IndividualsTable from "@/components/IndividualsTable";
 import OrganizationsTable from "@/components/OrganizationsTable";
 import JobsTable from "@/components/JobsTable";
-import TeamModal from "@/components/TeamModal";
 import * as Queries from "@/apollo/queries";
-
-Vue.use(Vuetify);
 
 const responseMocked = {
   data: {
@@ -107,23 +104,6 @@ const paginatedOrganizations = {
   __typename: "OrganizationPaginatedType",
 };
 
-const paginatedTeams = {
-  data: {
-    teams: {
-      entities: [
-        {
-          name: "Test 1",
-          __typename: "TeamType",
-        },
-        {
-          name: "Test 2",
-          __typename: "TeamType",
-        },
-      ],
-    },
-  },
-};
-
 const countriesMocked = {
   data: {
     countries: {
@@ -171,14 +151,17 @@ describe("IndividualsData", () => {
 
   test("mock query for getIndividuals", async () => {
     const query = jest.fn(() => Promise.resolve(responseMocked));
-    const wrapper = shallowMount(IndividualsData, {
-      Vue,
-      mocks: {
-        $apollo: {
-          query,
+    const wrapper = mount(IndividualsData, {
+      shallow: true,
+      global: {
+        plugins: [vuetify],
+        mocks: {
+          $apollo: {
+            query,
+          },
         },
       },
-      propsData: {
+      props: {
         getindividuals: {
           query: Queries.getIndividuals.query,
         },
@@ -201,14 +184,17 @@ describe("IndividualsData", () => {
   test("getIndividuals with default arguments in the IndividualsData component", async () => {
     const getIndividualsSpied = jest.spyOn(Queries.getIndividuals, "query");
     const query = jest.fn(() => Promise.resolve(responseMocked));
-    const wrapper = shallowMount(IndividualsData, {
-      Vue,
-      mocks: {
-        $apollo: {
-          query,
+    const wrapper = mount(IndividualsData, {
+      shallow: true,
+      global: {
+        plugins: [vuetify],
+        mocks: {
+          $apollo: {
+            query,
+          },
         },
       },
-      propsData: {
+      props: {
         getindividuals: {
           query: Queries.getIndividuals.query,
         },
@@ -222,14 +208,17 @@ describe("IndividualsData", () => {
   test("infinite scroll won't call for more individuals if the page is not at the bottom", async () => {
     const getIndividualsSpied = jest.spyOn(Queries.getIndividuals, "query");
     const query = jest.fn(() => Promise.resolve(responseMocked));
-    const wrapper = shallowMount(IndividualsData, {
-      Vue,
-      mocks: {
-        $apollo: {
-          query,
+    const wrapper = mount(IndividualsData, {
+      shallow: true,
+      global: {
+        plugins: [vuetify],
+        mocks: {
+          $apollo: {
+            query,
+          },
         },
       },
-      propsData: {
+      props: {
         getindividuals: {
           query: Queries.getIndividuals.query,
         },
@@ -243,11 +232,14 @@ describe("IndividualsData", () => {
 });
 
 describe("IndividualsTable", () => {
-  const mountFunction = (options) => {
-    return shallowMount(IndividualsTable, {
-      Vue,
-      stubs: ["router-link"],
-      propsData: {
+  const mountFunction = (mocks, options) => {
+    return mount(IndividualsTable, {
+      shallow: true,
+      global: {
+        plugins: [vuetify],
+        ...mocks,
+      },
+      props: {
         fetchPage: () => {},
         mergeItems: () => {},
         unmergeItems: () => {},
@@ -262,7 +254,7 @@ describe("IndividualsTable", () => {
         unlockIndividual: () => {},
         withdraw: () => {},
         updateEnrollment: () => {},
-        recommendMatches: () => {}
+        recommendMatches: () => {},
       },
       ...options,
     });
@@ -418,15 +410,17 @@ describe("IndividualsTable", () => {
 describe("OrganizationsTable", () => {
   test("Mock query for getPaginatedOrganizations", async () => {
     const query = jest.fn(() => Promise.resolve(paginatedOrganizations));
-    const wrapper = shallowMount(OrganizationsTable, {
-      Vue,
-      mocks: {
-        $apollo: {
-          query,
+    const wrapper = mount(OrganizationsTable, {
+      shallow: true,
+      global: {
+        plugins: [vuetify],
+        mocks: {
+          $apollo: {
+            query,
+          },
         },
       },
-      stubs: ["router-link"],
-      propsData: {
+      props: {
         fetchPage: query,
         enroll: () => {},
         addDomain: () => {},
@@ -443,21 +437,24 @@ describe("OrganizationsTable", () => {
 
     expect(query).toBeCalled();
 
-    await Vue.nextTick();
+    await nextTick();
 
     expect(wrapper.element).toMatchSnapshot();
   });
 
   test("Mock search by term", async () => {
     const query = jest.fn(() => Promise.resolve(paginatedOrganizations));
-    shallowMount(OrganizationsTable, {
-      Vue,
-      mocks: {
-        $apollo: {
-          query,
+    mount(OrganizationsTable, {
+      shallow: true,
+      global: {
+        plugins: [vuetify],
+        mocks: {
+          $apollo: {
+            query,
+          },
         },
       },
-      propsData: {
+      props: {
         fetchPage: query,
         enroll: () => {},
         addDomain: () => {},
@@ -484,46 +481,26 @@ describe("OrganizationsTable", () => {
 describe("JobsTable", () => {
   test("Mock query for getJobs", async () => {
     const query = jest.fn(() => Promise.resolve(jobsMocked));
-    const wrapper = shallowMount(JobsTable, {
-      Vue,
-      mocks: {
-        $apollo: {
-          query,
+    const wrapper = mount(JobsTable, {
+      shallow: true,
+      global: {
+        plugins: [vuetify],
+        mocks: {
+          $apollo: {
+            query,
+          },
         },
       },
-      propsData: {
+      props: {
         getJobs: query,
       },
     });
-    await Vue.nextTick();
+    await nextTick();
 
     expect(query).toBeCalled();
     expect(wrapper.element).toMatchSnapshot();
     expect(wrapper.vm.jobs.length).toBe(1);
     expect(wrapper.vm.page).toBe(2);
     expect(wrapper.vm.pageCount).toBe(2);
-  });
-});
-
-describe("TeamModal", () => {
-  test("Mock query for getPaginatedTeams", async () => {
-    const query = jest.fn(() => Promise.resolve(paginatedTeams));
-    const wrapper = shallowMount(TeamModal, {
-      Vue,
-      mocks: {
-        $apollo: {
-          query,
-        },
-      },
-      propsData: {
-        addTeam: () => {},
-        deleteTeam: () => {},
-        fetchTeams: query,
-        parent: "Parent Organization",
-      },
-    });
-
-    expect(query).toBeCalledWith({ organization: "Parent Organization" });
-    expect(wrapper.element).toMatchSnapshot();
   });
 });

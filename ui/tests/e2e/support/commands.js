@@ -23,7 +23,7 @@ Cypress.Commands.add("login", () => {
     })
       .its("body.user")
       .then((user) => {
-        console.log(user)
+        console.log(user);
         cy.setCookie("sh_user", user);
       });
   });
@@ -92,7 +92,8 @@ Cypress.Commands.add("deleteIndividuals", () => {
 });
 
 Cypress.Commands.add("getIndividualsCount", () => {
-  return cy.get('[data-cy="individual-counter"]')
+  return cy
+    .get('[data-cy="individual-counter"]')
     .invoke("text")
     .then(parseFloat);
 });

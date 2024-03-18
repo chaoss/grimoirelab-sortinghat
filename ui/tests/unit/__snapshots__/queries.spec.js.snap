@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`IndividualsData mock query for getIndividuals 1`] = `
-<individualsgrid-stub
+<individuals-grid-stub
   class="grid"
   individuals="[object Object]"
 />
@@ -13,299 +13,120 @@ exports[`IndividualsTable Mock query for getCountries 1`] = `
 >
   <v-row-stub
     class="header justify-space-between"
+    dense="false"
+    nogutters="false"
     tag="div"
-  >
-    <h3
-      class="title"
-    >
-      <v-icon-stub
-        color="black"
-        dense=""
-        left=""
-      >
-         mdi-account 
-      </v-icon-stub>
-      
-      Individuals
-      
-      <v-chip-stub
-        active="true"
-        activeclass=""
-        class="ml-2"
-        closeicon="$delete"
-        closelabel="$vuetify.close"
-        data-cy="individual-counter"
-        filtericon="$complete"
-        pill="true"
-        small="true"
-        tag="span"
-      >
-        
-        0
-      
-      </v-chip-stub>
-    </h3>
-     
-    <div>
-      <recommendations-stub />
-       
-      <v-btn-stub
-        activeclass=""
-        class="black--text"
-        color="secondary"
-        data-cy="individual-add"
-        depressed="true"
-        height="34"
-        small="true"
-        tag="button"
-        type="button"
-      >
-        
-        Add
-      
-      </v-btn-stub>
-    </div>
-  </v-row-stub>
-   
+  />
   <v-row-stub
     class="actions"
+    dense="false"
+    nogutters="false"
     tag="div"
-  >
-    <v-checkbox-stub
-      backgroundcolor=""
-      class="mt-0"
-      errorcount="1"
-      errormessages=""
-      indeterminateicon="$checkboxIndeterminate"
-      label="Select all"
-      messages=""
-      officon="$checkboxOff"
-      onicon="$checkboxOn"
-      ripple="true"
-      rules=""
-      successmessages=""
-      value=""
-      valuecomparator="[Function]"
-    />
-     
-    <search-stub
-      class="search-box pa-0 flex-grow-1"
-      filterselector="true"
-      orderoptions="[object Object],[object Object],[object Object],[object Object]"
-      orderselector="true"
-      validfilters="[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]"
-    />
-     
-    <v-tooltip-stub
-      bottom="true"
-      closedelay="0"
-      contentclass=""
-      maxwidth="auto"
-      nudgebottom="0"
-      nudgeleft="0"
-      nudgeright="0"
-      nudgetop="0"
-      nudgewidth="0"
-      opendelay="200"
-      openonclick="true"
-      openonfocus="true"
-      openonhover="true"
-      tag="span"
-      transition="expand-y-transition"
-    >
-       
-      <span>
-        Merge selected
-      </span>
-    </v-tooltip-stub>
-     
-    <v-tooltip-stub
-      bottom="true"
-      closedelay="0"
-      contentclass=""
-      maxwidth="auto"
-      nudgebottom="0"
-      nudgeleft="0"
-      nudgeright="0"
-      nudgetop="0"
-      nudgewidth="0"
-      opendelay="200"
-      openonclick="true"
-      openonfocus="true"
-      openonhover="true"
-      tag="span"
-      transition="expand-y-transition"
-    >
-       
-      <span>
-        Delete selected
-      </span>
-    </v-tooltip-stub>
-  </v-row-stub>
-   
-  <v-data-table-stub
-    customfilter="[Function]"
-    customgroup="[Function]"
-    customsort="[Function]"
-    expanded=""
-    expandicon="$expand"
-    filtermode="intersection"
-    groupby=""
-    groupdesc=""
-    headers="[object Object],[object Object],[object Object],[object Object]"
-    hidedefaultfooter="true"
-    hidedefaultheader="true"
-    itemclass=""
-    itemkey="uuid"
-    items=""
-    itemsperpage="10"
-    itemstyle=""
-    loaderheight="4"
-    loadingtext="$vuetify.dataIterator.loadingText"
-    locale="en-US"
-    mobilebreakpoint="600"
-    nodatatext="$vuetify.noDataText"
-    noresultstext="$vuetify.dataIterator.noResultsText"
-    options="[object Object]"
-    page="0"
-    selectablekey="isSelectable"
-    serveritemslength="-1"
-    value=""
   />
-   
-  <div
-    class="d-flex align-baseline text-center pt-2"
-  >
-    <v-col-stub
-      class="ml-auto"
-      cols="8"
-      tag="div"
-    >
-      <v-pagination-stub
-        currentpagearialabel="$vuetify.pagination.ariaLabel.currentPage"
-        length="0"
-        nextarialabel="$vuetify.pagination.ariaLabel.next"
-        nexticon="$next"
-        pagearialabel="$vuetify.pagination.ariaLabel.page"
-        previcon="$prev"
-        previousarialabel="$vuetify.pagination.ariaLabel.previous"
-        totalvisible="7"
-        value="0"
-        wrapperarialabel="$vuetify.pagination.ariaLabel.wrapper"
-      />
-    </v-col-stub>
-     
-    <v-col-stub
-      cols="2"
-      tag="div"
-    >
-      <v-text-field-stub
-        backgroundcolor=""
-        class="mr-3"
-        clearicon="$clear"
-        errorcount="1"
-        errormessages=""
-        label="Items per page"
-        loaderheight="2"
-        max="0"
-        messages=""
-        min="1"
-        rules=""
-        successmessages=""
-        type="number"
-        value="10"
-      />
-    </v-col-stub>
-  </div>
-   
+  <v-data-table-server-stub
+    color="primary"
+    density="default"
+    expanded=""
+    expandonclick="false"
+    firsticon="$first"
+    firstpagelabel="$vuetify.dataFooter.firstPage"
+    fixedfooter="false"
+    fixedheader="false"
+    groupby=""
+    headers="[object Object],[object Object],[object Object],[object Object]"
+    hidenodata="false"
+    hover="true"
+    items=""
+    itemslength="0"
+    itemsperpage="10"
+    itemsperpageoptions="[object Object],[object Object],[object Object],[object Object],[object Object]"
+    itemsperpagetext="$vuetify.dataFooter.itemsPerPageText"
+    itemvalue="uuid"
+    lasticon="$last"
+    lastpagelabel="$vuetify.dataFooter.lastPage"
+    loading="false"
+    loadingtext="$vuetify.dataIterator.loadingText"
+    modelvalue=""
+    multisort="false"
+    mustsort="false"
+    nexticon="$next"
+    nextpagelabel="$vuetify.dataFooter.nextPage"
+    nodatatext="$vuetify.noDataText"
+    page="0"
+    pagetext="$vuetify.dataFooter.pageText"
+    previcon="$prev"
+    prevpagelabel="$vuetify.dataFooter.prevPage"
+    returnobject="true"
+    selectstrategy="page"
+    showcurrentpage="false"
+    showexpand="false"
+    showselect="true"
+    sortascicon="$sortAsc"
+    sortby=""
+    sortdescicon="$sortDesc"
+    sticky="false"
+    tag="div"
+    valuecomparator="[Function]"
+  />
   <v-dialog-stub
-    closedelay="0"
-    contentclass=""
+    absolute="false"
+    activatorprops="[object Object]"
+    attach="false"
+    closeonback="true"
+    closeoncontentclick="false"
+    contained="false"
+    disabled="false"
+    eager="false"
+    fullscreen="false"
+    location="bottom"
+    locationstrategy="static"
     maxwidth="500px"
-    opendelay="0"
-    openonclick="true"
+    modelvalue="false"
+    noclickanimation="false"
+    openonhover="false"
     origin="center center"
+    persistent="false"
     retainfocus="true"
-    transition="dialog-transition"
-  >
-    <v-card-stub
-      class="pa-3"
-      loaderheight="4"
-      tag="div"
-    >
-      <v-card-title-stub
-        class="headline"
-        tag="div"
-      >
-        
-      </v-card-title-stub>
-       
-      <v-card-text-stub
-        tag="div"
-      >
-        <!---->
-         
-        <!---->
-      </v-card-text-stub>
-       
-      <v-card-actions-stub
-        tag="div"
-      >
-        <v-spacer-stub
-          tag="div"
-        />
-         
-        <v-btn-stub
-          activeclass=""
-          color="primary"
-          tag="button"
-          text="true"
-          type="button"
-        >
-           OK 
-        </v-btn-stub>
-      </v-card-actions-stub>
-    </v-card-stub>
-  </v-dialog-stub>
-   
+    scrim="true"
+    scrollable="false"
+    scrollstrategy="block"
+    transition="[object Object]"
+    zindex="2400"
+  />
   <profile-modal-stub
     addidentity="[Function]"
     addorganization="[Function]"
     enroll="[Function]"
     fetchorganizations="[Function]"
     getcountries="[Function]"
+    isopen="false"
     updateprofile="[Function]"
   />
-   
   <enroll-modal-stub
     addorganization="[Function]"
     enroll="[Function]"
     fetchorganizations="[Function]"
+    isopen="false"
     text=""
     title=""
   />
-   
-  <!---->
-   
-  <!---->
-   
+  <!--v-if-->
+  <!--v-if-->
   <v-card-stub
-    class="dragged-item"
+    border="false"
+    class="dragged-item pa-2"
     color="primary"
-    dark="true"
-    loaderheight="4"
+    density="default"
+    disabled="false"
+    exact="false"
+    flat="false"
+    hover="false"
+    loading="false"
+    replace="false"
+    ripple="true"
     tag="div"
-  >
-    <v-card-subtitle-stub
-      tag="div"
-    >
-      
-      Moving
-      0
-      individual
-    
-    </v-card-subtitle-stub>
-  </v-card-stub>
+    variant="elevated"
+  />
 </section>
 `;
 
@@ -315,450 +136,129 @@ exports[`IndividualsTable Mock query for getPaginatedIndividuals 1`] = `
 >
   <v-row-stub
     class="header justify-space-between"
+    dense="false"
+    nogutters="false"
     tag="div"
-  >
-    <h3
-      class="title"
-    >
-      <v-icon-stub
-        color="black"
-        dense=""
-        left=""
-      >
-         mdi-account 
-      </v-icon-stub>
-      
-      Individuals
-      
-      <v-chip-stub
-        active="true"
-        activeclass=""
-        class="ml-2"
-        closeicon="$delete"
-        closelabel="$vuetify.close"
-        data-cy="individual-counter"
-        filtericon="$complete"
-        pill="true"
-        small="true"
-        tag="span"
-      >
-        
-        0
-      
-      </v-chip-stub>
-    </h3>
-     
-    <div>
-      <recommendations-stub />
-       
-      <v-btn-stub
-        activeclass=""
-        class="black--text"
-        color="secondary"
-        data-cy="individual-add"
-        depressed="true"
-        height="34"
-        small="true"
-        tag="button"
-        type="button"
-      >
-        
-        Add
-      
-      </v-btn-stub>
-    </div>
-  </v-row-stub>
-   
+  />
   <v-row-stub
     class="actions"
+    dense="false"
+    nogutters="false"
     tag="div"
-  >
-    <v-checkbox-stub
-      backgroundcolor=""
-      class="mt-0"
-      errorcount="1"
-      errormessages=""
-      indeterminateicon="$checkboxIndeterminate"
-      label="Select all"
-      messages=""
-      officon="$checkboxOff"
-      onicon="$checkboxOn"
-      ripple="true"
-      rules=""
-      successmessages=""
-      value=""
-      valuecomparator="[Function]"
-    />
-     
-    <search-stub
-      class="search-box pa-0 flex-grow-1"
-      filterselector="true"
-      orderoptions="[object Object],[object Object],[object Object],[object Object]"
-      orderselector="true"
-      validfilters="[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]"
-    />
-     
-    <v-tooltip-stub
-      bottom="true"
-      closedelay="0"
-      contentclass=""
-      maxwidth="auto"
-      nudgebottom="0"
-      nudgeleft="0"
-      nudgeright="0"
-      nudgetop="0"
-      nudgewidth="0"
-      opendelay="200"
-      openonclick="true"
-      openonfocus="true"
-      openonhover="true"
-      tag="span"
-      transition="expand-y-transition"
-    >
-       
-      <span>
-        Merge selected
-      </span>
-    </v-tooltip-stub>
-     
-    <v-tooltip-stub
-      bottom="true"
-      closedelay="0"
-      contentclass=""
-      maxwidth="auto"
-      nudgebottom="0"
-      nudgeleft="0"
-      nudgeright="0"
-      nudgetop="0"
-      nudgewidth="0"
-      opendelay="200"
-      openonclick="true"
-      openonfocus="true"
-      openonhover="true"
-      tag="span"
-      transition="expand-y-transition"
-    >
-       
-      <span>
-        Delete selected
-      </span>
-    </v-tooltip-stub>
-  </v-row-stub>
-   
-  <v-data-table-stub
-    customfilter="[Function]"
-    customgroup="[Function]"
-    customsort="[Function]"
-    expanded=""
-    expandicon="$expand"
-    filtermode="intersection"
-    groupby=""
-    groupdesc=""
-    headers="[object Object],[object Object],[object Object],[object Object]"
-    hidedefaultfooter="true"
-    hidedefaultheader="true"
-    itemclass=""
-    itemkey="uuid"
-    items=""
-    itemsperpage="10"
-    itemstyle=""
-    loaderheight="4"
-    loadingtext="$vuetify.dataIterator.loadingText"
-    locale="en-US"
-    mobilebreakpoint="600"
-    nodatatext="$vuetify.noDataText"
-    noresultstext="$vuetify.dataIterator.noResultsText"
-    options="[object Object]"
-    page="0"
-    selectablekey="isSelectable"
-    serveritemslength="-1"
-    value=""
   />
-   
-  <div
-    class="d-flex align-baseline text-center pt-2"
-  >
-    <v-col-stub
-      class="ml-auto"
-      cols="8"
-      tag="div"
-    >
-      <v-pagination-stub
-        currentpagearialabel="$vuetify.pagination.ariaLabel.currentPage"
-        length="0"
-        nextarialabel="$vuetify.pagination.ariaLabel.next"
-        nexticon="$next"
-        pagearialabel="$vuetify.pagination.ariaLabel.page"
-        previcon="$prev"
-        previousarialabel="$vuetify.pagination.ariaLabel.previous"
-        totalvisible="7"
-        value="0"
-        wrapperarialabel="$vuetify.pagination.ariaLabel.wrapper"
-      />
-    </v-col-stub>
-     
-    <v-col-stub
-      cols="2"
-      tag="div"
-    >
-      <v-text-field-stub
-        backgroundcolor=""
-        class="mr-3"
-        clearicon="$clear"
-        errorcount="1"
-        errormessages=""
-        label="Items per page"
-        loaderheight="2"
-        max="0"
-        messages=""
-        min="1"
-        rules=""
-        successmessages=""
-        type="number"
-        value="10"
-      />
-    </v-col-stub>
-  </div>
-   
+  <v-data-table-server-stub
+    color="primary"
+    density="default"
+    expanded=""
+    expandonclick="false"
+    firsticon="$first"
+    firstpagelabel="$vuetify.dataFooter.firstPage"
+    fixedfooter="false"
+    fixedheader="false"
+    groupby=""
+    headers="[object Object],[object Object],[object Object],[object Object]"
+    hidenodata="false"
+    hover="true"
+    items=""
+    itemslength="0"
+    itemsperpage="10"
+    itemsperpageoptions="[object Object],[object Object],[object Object],[object Object],[object Object]"
+    itemsperpagetext="$vuetify.dataFooter.itemsPerPageText"
+    itemvalue="uuid"
+    lasticon="$last"
+    lastpagelabel="$vuetify.dataFooter.lastPage"
+    loading="false"
+    loadingtext="$vuetify.dataIterator.loadingText"
+    modelvalue=""
+    multisort="false"
+    mustsort="false"
+    nexticon="$next"
+    nextpagelabel="$vuetify.dataFooter.nextPage"
+    nodatatext="$vuetify.noDataText"
+    page="0"
+    pagetext="$vuetify.dataFooter.pageText"
+    previcon="$prev"
+    prevpagelabel="$vuetify.dataFooter.prevPage"
+    returnobject="true"
+    selectstrategy="page"
+    showcurrentpage="false"
+    showexpand="false"
+    showselect="true"
+    sortascicon="$sortAsc"
+    sortby=""
+    sortdescicon="$sortDesc"
+    sticky="false"
+    tag="div"
+    valuecomparator="[Function]"
+  />
   <v-dialog-stub
-    closedelay="0"
-    contentclass=""
+    absolute="false"
+    activatorprops="[object Object]"
+    attach="false"
+    closeonback="true"
+    closeoncontentclick="false"
+    contained="false"
+    disabled="false"
+    eager="false"
+    fullscreen="false"
+    location="bottom"
+    locationstrategy="static"
     maxwidth="500px"
-    opendelay="0"
-    openonclick="true"
+    modelvalue="false"
+    noclickanimation="false"
+    openonhover="false"
     origin="center center"
+    persistent="false"
     retainfocus="true"
-    transition="dialog-transition"
-  >
-    <v-card-stub
-      class="pa-3"
-      loaderheight="4"
-      tag="div"
-    >
-      <v-card-title-stub
-        class="headline"
-        tag="div"
-      >
-        
-      </v-card-title-stub>
-       
-      <v-card-text-stub
-        tag="div"
-      >
-        <!---->
-         
-        <!---->
-      </v-card-text-stub>
-       
-      <v-card-actions-stub
-        tag="div"
-      >
-        <v-spacer-stub
-          tag="div"
-        />
-         
-        <v-btn-stub
-          activeclass=""
-          color="primary"
-          tag="button"
-          text="true"
-          type="button"
-        >
-           OK 
-        </v-btn-stub>
-      </v-card-actions-stub>
-    </v-card-stub>
-  </v-dialog-stub>
-   
+    scrim="true"
+    scrollable="false"
+    scrollstrategy="block"
+    transition="[object Object]"
+    zindex="2400"
+  />
   <profile-modal-stub
     addidentity="[Function]"
     addorganization="[Function]"
     enroll="[Function]"
     fetchorganizations="[Function]"
     getcountries="[Function]"
+    isopen="false"
     updateprofile="[Function]"
   />
-   
   <enroll-modal-stub
     addorganization="[Function]"
     enroll="[Function]"
     fetchorganizations="[Function]"
+    isopen="false"
     text=""
     title=""
   />
-   
-  <!---->
-   
-  <!---->
-   
+  <!--v-if-->
+  <!--v-if-->
   <v-card-stub
-    class="dragged-item"
+    border="false"
+    class="dragged-item pa-2"
     color="primary"
-    dark="true"
-    loaderheight="4"
+    density="default"
+    disabled="false"
+    exact="false"
+    flat="false"
+    hover="false"
+    loading="false"
+    replace="false"
+    ripple="true"
     tag="div"
-  >
-    <v-card-subtitle-stub
-      tag="div"
-    >
-      
-      Moving
-      0
-      individual
-    
-    </v-card-subtitle-stub>
-  </v-card-stub>
+    variant="elevated"
+  />
 </section>
 `;
 
 exports[`JobsTable Mock query for getJobs 1`] = `
 <v-container-stub
   class="jobs section mb-5 pa-0"
+  fluid="false"
   tag="div"
->
-  <header
-    class="header"
-  >
-    <h4
-      class="title"
-    >
-      <v-icon-stub
-        color="black"
-        dense=""
-        left=""
-      >
-         mdi-tray-full 
-      </v-icon-stub>
-      
-      Jobs
-    
-    </h4>
-     
-    <v-btn-stub
-      activeclass=""
-      class="black--text"
-      color="secondary"
-      depressed="true"
-      height="34"
-      small="true"
-      tag="button"
-      type="button"
-    >
-      
-      Add
-    
-    </v-btn-stub>
-  </header>
-   
-  <v-simple-table-stub>
-    <thead>
-      <tr>
-        <th
-          class="text-left"
-        >
-          Job ID
-        </th>
-         
-        <th
-          class="text-left"
-        >
-          Type
-        </th>
-         
-        <th
-          class="text-left"
-        >
-          Date
-        </th>
-         
-        <th
-          class="text-center"
-        >
-          Status
-        </th>
-      </tr>
-    </thead>
-     
-    <tbody>
-      <tr>
-        <td>
-          <v-tooltip-stub
-            bottom="true"
-            closedelay="0"
-            contentclass=""
-            maxwidth="auto"
-            nudgebottom="0"
-            nudgeleft="0"
-            nudgeright="0"
-            nudgetop="0"
-            nudgewidth="0"
-            opendelay="0"
-            openonclick="true"
-            openonfocus="true"
-            openonhover="true"
-            tag="span"
-          >
-             
-            <span>
-              41f813e5-6701-41d2-bfac-ac13e04d4858
-            </span>
-          </v-tooltip-stub>
-        </td>
-         
-        <td
-          class="capitalize"
-        >
-          unify
-        </td>
-         
-        <td>
-          Invalid Date
-        </td>
-         
-        <td
-          class="text-center"
-        >
-          <v-chip-stub
-            active="true"
-            activeclass=""
-            class="ma-2"
-            closeicon="$delete"
-            closelabel="$vuetify.close"
-            color="rgba(0, 0, 0, 0.42)"
-            filtericon="$complete"
-            tag="span"
-            textcolor="white"
-          >
-            
-              queued
-            
-          </v-chip-stub>
-        </td>
-      </tr>
-    </tbody>
-  </v-simple-table-stub>
-   
-  <div
-    class="text-center pa-4"
-  >
-    <v-pagination-stub
-      currentpagearialabel="$vuetify.pagination.ariaLabel.currentPage"
-      length="2"
-      nextarialabel="$vuetify.pagination.ariaLabel.next"
-      nexticon="$next"
-      pagearialabel="$vuetify.pagination.ariaLabel.page"
-      previcon="$prev"
-      previousarialabel="$vuetify.pagination.ariaLabel.previous"
-      totalvisible="5"
-      value="2"
-      wrapperarialabel="$vuetify.pagination.ariaLabel.wrapper"
-    />
-  </div>
-   
-  <job-modal-stub
-    types="[object Object],[object Object],[object Object],[object Object]"
-  />
-</v-container-stub>
+/>
 `;
 
 exports[`OrganizationsTable Mock query for getPaginatedOrganizations 1`] = `
@@ -767,134 +267,61 @@ exports[`OrganizationsTable Mock query for getPaginatedOrganizations 1`] = `
 >
   <v-row-stub
     class="header"
+    dense="false"
+    nogutters="false"
     tag="div"
-  >
-    <h4
-      class="title"
-    >
-      <v-icon-stub
-        color="black"
-        dense=""
-        left=""
-      >
-        
-        mdi-sitemap
-      
-      </v-icon-stub>
-      
-      Organizations
-      
-      <v-chip-stub
-        active="true"
-        activeclass=""
-        class="ml-2"
-        closeicon="$delete"
-        closelabel="$vuetify.close"
-        filtericon="$complete"
-        pill="true"
-        small="true"
-        tag="span"
-      >
-        2
-      </v-chip-stub>
-    </h4>
-     
-    <v-btn-stub
-      activeclass=""
-      class="black--text"
-      color="secondary"
-      depressed="true"
-      height="34"
-      small="true"
-      tag="button"
-      type="button"
-    >
-      
-      Add
-    
-    </v-btn-stub>
-  </v-row-stub>
-   
+  />
   <v-row-stub
     class="actions"
+    dense="false"
+    nogutters="false"
     tag="div"
-  >
-    <search-stub
-      class="mr-3 pa-0 flex-grow-0"
-      orderoptions="[object Object]"
-      validfilters=""
-    />
-  </v-row-stub>
-   
-  <v-data-table-stub
-    customfilter="[Function]"
-    customgroup="[Function]"
-    customsort="[Function]"
-    expanded=""
-    expandicon="$expand"
-    filtermode="intersection"
-    groupby=""
-    groupdesc=""
-    headers="[object Object],[object Object],[object Object]"
-    hidedefaultfooter="true"
-    hidedefaultheader="true"
-    itemclass=""
-    itemkey="id"
-    items="[object Object],[object Object]"
-    itemsperpage="10"
-    itemstyle=""
-    loaderheight="4"
-    loadingtext="$vuetify.dataIterator.loadingText"
-    locale="en-US"
-    mobilebreakpoint="600"
-    nodatatext="$vuetify.noDataText"
-    noresultstext="$vuetify.dataIterator.noResultsText"
-    options="[object Object]"
-    page="1"
-    selectablekey="isSelectable"
-    serveritemslength="-1"
-    value=""
   />
-   
-  <div
-    class="pagination text-center pa-3"
-  >
-    <div
-      aria-hidden="true"
-    />
-     
-    <v-pagination-stub
-      currentpagearialabel="$vuetify.pagination.ariaLabel.currentPage"
-      length="1"
-      nextarialabel="$vuetify.pagination.ariaLabel.next"
-      nexticon="$next"
-      pagearialabel="$vuetify.pagination.ariaLabel.page"
-      previcon="$prev"
-      previousarialabel="$vuetify.pagination.ariaLabel.previous"
-      totalvisible="5"
-      value="1"
-      wrapperarialabel="$vuetify.pagination.ariaLabel.wrapper"
-    />
-     
-    <v-text-field-stub
-      backgroundcolor=""
-      class="mr-3"
-      clearicon="$clear"
-      errorcount="1"
-      errormessages=""
-      hidedetails="true"
-      label="Items per page"
-      loaderheight="2"
-      max="2"
-      messages=""
-      min="1"
-      rules=""
-      successmessages=""
-      type="number"
-      value="10"
-    />
-  </div>
-   
+  <v-data-table-server-stub
+    density="default"
+    expanded=""
+    expandonclick="false"
+    firsticon="$first"
+    firstpagelabel="$vuetify.dataFooter.firstPage"
+    fixedfooter="false"
+    fixedheader="false"
+    groupby=""
+    headers="[object Object],[object Object],[object Object]"
+    hidenodata="false"
+    hover="true"
+    item-key="id"
+    items="[object Object],[object Object]"
+    itemslength="2"
+    itemsperpage="10"
+    itemsperpageoptions="[object Object],[object Object],[object Object],[object Object],[object Object]"
+    itemsperpagetext="$vuetify.dataFooter.itemsPerPageText"
+    itemvalue="name"
+    lasticon="$last"
+    lastpagelabel="$vuetify.dataFooter.lastPage"
+    loading="false"
+    loadingtext="$vuetify.dataIterator.loadingText"
+    modelvalue=""
+    multisort="false"
+    mustsort="false"
+    nexticon="$next"
+    nextpagelabel="$vuetify.dataFooter.nextPage"
+    nodatatext="$vuetify.noDataText"
+    page="1"
+    pagetext="$vuetify.dataFooter.pageText"
+    previcon="$prev"
+    prevpagelabel="$vuetify.dataFooter.prevPage"
+    returnobject="true"
+    selectstrategy="page"
+    showcurrentpage="false"
+    showexpand="false"
+    showselect="false"
+    sortascicon="$sortAsc"
+    sortby=""
+    sortdescicon="$sortDesc"
+    sticky="false"
+    tag="div"
+    valuecomparator="[Function]"
+  />
   <organization-modal-stub
     addalias="[Function]"
     adddomain="[Function]"
@@ -903,62 +330,32 @@ exports[`OrganizationsTable Mock query for getPaginatedOrganizations 1`] = `
     deletealias="[Function]"
     deletedomain="[Function]"
     domains=""
+    isopen="false"
   />
-   
   <v-dialog-stub
-    closedelay="0"
-    contentclass=""
+    absolute="false"
+    activatorprops="[object Object]"
+    attach="false"
+    closeonback="true"
+    closeoncontentclick="false"
+    contained="false"
+    disabled="false"
+    eager="false"
+    fullscreen="false"
+    location="bottom"
+    locationstrategy="static"
     maxwidth="500px"
-    opendelay="0"
-    openonclick="true"
+    modelvalue="false"
+    noclickanimation="false"
+    openonhover="false"
     origin="center center"
+    persistent="false"
     retainfocus="true"
-    transition="dialog-transition"
-  >
-    <v-card-stub
-      class="pa-3"
-      loaderheight="4"
-      tag="div"
-    >
-      <v-card-title-stub
-        class="headline"
-        tag="div"
-      >
-        
-      </v-card-title-stub>
-       
-      <v-card-text-stub
-        tag="div"
-      >
-        <p
-          class="pt-2 pb-2 text-body-2"
-        >
-          
-        </p>
-         
-        <!---->
-      </v-card-text-stub>
-       
-      <v-card-actions-stub
-        tag="div"
-      >
-        <v-spacer-stub
-          tag="div"
-        />
-         
-        <v-btn-stub
-          activeclass=""
-          color="primary"
-          tag="button"
-          text="true"
-          type="button"
-        >
-           OK 
-        </v-btn-stub>
-      </v-card-actions-stub>
-    </v-card-stub>
-  </v-dialog-stub>
+    scrim="true"
+    scrollable="false"
+    scrollstrategy="block"
+    transition="[object Object]"
+    zindex="2400"
+  />
 </section>
 `;
-
-exports[`TeamModal Mock query for getPaginatedTeams 1`] = `<!---->`;

@@ -3,7 +3,7 @@ module.exports = {
   env: {
     node: true,
   },
-  extends: ["plugin:vue/essential", "eslint:recommended", "@vue/prettier"],
+  extends: ["plugin:vue/vue3-essential", "eslint:recommended", "@vue/prettier"],
   parserOptions: {
     parser: "@babel/eslint-parser",
   },
@@ -17,8 +17,6 @@ module.exports = {
       },
     ],
     "vue/multi-word-component-names": "off",
-    "vue/no-mutating-props": "off",
-    "vue/no-unused-vars": "off",
   },
   overrides: [
     {

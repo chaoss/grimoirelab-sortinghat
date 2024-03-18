@@ -1,40 +1,39 @@
 import { mount } from "@vue/test-utils";
-import Vue from "vue";
-import Vuetify from "vuetify";
+import vuetify from "@/plugins/vuetify";
 import DateInput from "@/components/DateInput";
 
-Vue.use(Vuetify);
-
 describe("DateInput", () => {
-  const vuetify = new Vuetify();
   const mountFunction = (options) => {
     return mount(DateInput, {
-      Vue,
-      vuetify,
-      ...options,
+      global: {
+        plugins: [vuetify],
+      },
       props: {
         label: "Label",
       },
+      ...options,
     });
   };
 
   test("Sets date in the right formats", async () => {
     const wrapper = mountFunction();
-    await wrapper.setProps({ value: "2020" });
+    await wrapper.setProps({ modelValue: "2020" });
 
     // YYYYYY-MM-DD format in the UI
     expect(wrapper.vm.inputDate).toBe("2020-01-01");
-    expect(wrapper.vm.pickerDate).toBe("2020-01-01");
+    expect(wrapper.vm.pickerDate).toEqual(new Date("2020"));
 
     // Emit ISO date for the v-model
-    expect(wrapper.emitted().input[1]).toEqual(["2020-01-01T00:00:00.000Z"]);
+    expect(wrapper.emitted("update:modelValue")[1]).toEqual([
+      "2020-01-01T00:00:00+00:00",
+    ]);
   });
 
   test("Shows an error for an invalid date", async () => {
     const wrapper = mountFunction();
-    await wrapper.setProps({ value: "invalid date" });
+    await wrapper.setProps({ modelValue: "invalid date" });
 
     expect(wrapper.vm.error).toBe("Invalid date");
-    expect(wrapper.find(".error--text").exists()).toBe(true);
+    expect(wrapper.find('[role="alert"]').exists()).toBe(true);
   });
 });
