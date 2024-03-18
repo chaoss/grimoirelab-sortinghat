@@ -1,5 +1,5 @@
-export default {
-  install(Vue) {
+const logger = {
+  install(app) {
     function log(type, message, ...args) {
       if (process.env.NODE_ENV === "production" && type === "debug") {
         return;
@@ -8,7 +8,7 @@ export default {
       console[type](message, ...args);
     }
 
-    Vue.prototype.$logger = {
+    app.config.globalProperties.$logger = {
       error: (message, ...rest) => log("error", message, ...rest),
       debug: (message, ...rest) => log("debug", message, ...rest),
       log: (message, ...rest) => log("log", message, ...rest),
@@ -17,3 +17,5 @@ export default {
     };
   },
 };
+
+export default logger;

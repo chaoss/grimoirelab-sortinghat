@@ -1,5 +1,5 @@
-export default {
-  install(Vue) {
+const errorMessages = {
+  install(app) {
     const ERRORS = {
       14: `The individual is already enrolled in the organization on the
         selected dates.`,
@@ -7,7 +7,7 @@ export default {
         try again.`,
     };
 
-    Vue.prototype.$getErrorMessage = (error) => {
+    app.config.globalProperties.$getErrorMessage = (error) => {
       if (error.graphQLErrors && error.graphQLErrors.length > 0) {
         return error.graphQLErrors
           .map((error) => {
@@ -28,3 +28,5 @@ export default {
     };
   },
 };
+
+export default errorMessages;
