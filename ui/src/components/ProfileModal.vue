@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="isOpen" persistent max-width="650">
+  <v-dialog :model-value="isOpen" persistent max-width="670">
     <v-card class="section">
       <v-card-title class="header">
         <span class="title">Add individual</span>
@@ -8,22 +8,15 @@
         <v-form ref="form">
           <v-row>
             <v-col cols="6">
-              <v-text-field
-                label="Name"
-                id="name"
-                v-model="profileForm.name"
-                outlined
-                dense
-              />
+              <v-text-field label="Name" id="name" v-model="profileForm.name" />
             </v-col>
             <v-col cols="6">
               <v-text-field
                 label="Email"
                 id="email"
+                validate-on="blur"
                 v-model="profileForm.email"
                 :rules="validations.email"
-                outlined
-                dense
               />
             </v-col>
           </v-row>
@@ -33,8 +26,6 @@
                 label="Username"
                 id="username"
                 v-model="profileForm.username"
-                outlined
-                dense
               />
             </v-col>
             <v-col cols="6">
@@ -43,19 +34,12 @@
                 id="source"
                 v-model="profileForm.source"
                 :rules="validations.required"
-                outlined
-                dense
               />
             </v-col>
           </v-row>
           <v-row>
             <v-col cols="6">
-              <v-text-field
-                label="Gender"
-                v-model="profileForm.gender"
-                outlined
-                dense
-              />
+              <v-text-field label="Gender" v-model="profileForm.gender" />
             </v-col>
             <v-col cols="4">
               <v-combobox
@@ -63,8 +47,6 @@
                 :items="countries"
                 label="Country"
                 item-text="name"
-                outlined
-                dense
                 @click.once="getCountryList"
               />
             </v-col>
@@ -107,17 +89,21 @@
                 outlined
               />
             </v-col>
-            <v-col cols="1" class="pt-3">
-              <v-btn icon color="primary" @click="removeEnrollment(index)">
-                <v-icon color="primary">mdi-delete</v-icon>
+            <v-col cols="2" class="pt-3">
+              <v-btn
+                icon="mdi-delete"
+                color="primary"
+                variant="text"
+                @click="removeEnrollment(index)"
+              >
               </v-btn>
             </v-col>
           </v-row>
           <v-row class="pl-3">
-            <v-btn text small outlined color="primary" @click="addInput">
-              <v-icon left small color="primary"
-                >mdi-plus-circle-outline</v-icon
-              >
+            <v-btn size="small" color="primary" @click="addInput">
+              <v-icon size="small" color="primary" start>
+                mdi-plus-circle-outline
+              </v-icon>
               Add organization
             </v-btn>
           </v-row>
@@ -130,11 +116,15 @@
 
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="primary darken-1" text @click.prevent="closeModal">
+        <v-btn
+          color="primary darken-1"
+          variant="text"
+          @click.prevent="closeModal"
+        >
           Cancel
         </v-btn>
         <v-btn
-          depressed
+          variant="flat"
           color="primary"
           :disabled="disableSave"
           @click.prevent="onSave"
@@ -153,10 +143,11 @@ import OrganizationSelector from "./OrganizationSelector";
 export default {
   name: "ProfileModal",
   components: { DateInput, OrganizationSelector },
+  emits: ["update:is-open"],
   props: {
     isOpen: {
       type: Boolean,
-      required: false,
+      required: true,
       default: false,
     },
     addIdentity: {
@@ -198,7 +189,7 @@ export default {
       },
       enrollmentsForm: [
         {
-          organization: "",
+          organization: null,
           fromDate: "",
           toDate: "",
         },
@@ -231,7 +222,7 @@ export default {
   methods: {
     addInput() {
       this.enrollmentsForm.push({
-        organization: "",
+        organization: null,
         fromDate: "",
         toDate: "",
       });
@@ -240,12 +231,12 @@ export default {
       this.enrollmentsForm.splice(index, 1);
     },
     closeModal() {
-      this.$emit("update:isOpen", false);
+      this.$emit("update:is-open", false);
       this.$emit("updateTable");
       this.$refs.form.reset();
       this.enrollmentsForm = [
         {
-          organization: "",
+          organization: null,
           fromDate: "",
           toDate: "",
         },
@@ -258,8 +249,8 @@ export default {
       this.errorMessage = "";
     },
     async onSave() {
-      const isValid = this.$refs.form.validate();
-      if (!isValid) {
+      const validation = await this.$refs.form.validate();
+      if (!validation.valid) {
         return;
       }
       if (!this.savedData.individual) {

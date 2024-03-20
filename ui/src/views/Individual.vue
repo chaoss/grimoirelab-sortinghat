@@ -9,127 +9,105 @@
           <v-row class="section pa-3 mb-4 mt-0">
             <v-col>
               <v-list-item class="pl-1">
-                <avatar :name="individual.name" :email="individual.email" />
+                <template v-slot:prepend>
+                  <avatar :name="individual.name" :email="individual.email" />
+                </template>
 
-                <v-list-item-content>
-                  <v-list-item-title class="font-weight-medium text-h6">
-                    <span>
-                      {{ individual.name || "no name" }}
-                    </span>
-                    <v-edit-dialog
-                      v-if="!individual.isLocked"
-                      large
-                      @save="updateProfile({ name: form.name })"
-                      @cancel="form.name = individual.name"
-                    >
-                      <v-btn class="aligned focusable" icon small>
-                        <v-icon
-                          class="icon--hidden"
-                          aria-label="Edit name"
-                          small
-                        >
-                          mdi-lead-pencil
-                        </v-icon>
-                      </v-btn>
-                      <template v-slot:input>
-                        <v-text-field
-                          v-model="form.name"
-                          label="Edit name"
-                          maxlength="30"
-                          single-line
-                        ></v-text-field>
-                      </template>
-                    </v-edit-dialog>
-                  </v-list-item-title>
-                  <v-list-item-subtitle>
-                    {{ individual.organization }}
-                  </v-list-item-subtitle>
-                </v-list-item-content>
+                <v-list-item-title class="font-weight-medium text-h6">
+                  <span v-if="individual.isLocked">
+                    {{ individual.name || "no name" }}
+                  </span>
+                  <edit-dialog
+                    v-else
+                    v-model="individual.name"
+                    empty-value="no name"
+                    label="Edit name"
+                    @save="updateProfile({ name: $event })"
+                  />
+                </v-list-item-title>
+                <v-list-item-subtitle>
+                  {{ individual.organization }}
+                </v-list-item-subtitle>
               </v-list-item>
             </v-col>
 
             <v-col cols="2" class="d-flex justify-end align-center mr-1">
-              <v-tooltip bottom>
-                <template v-slot:activator="{ on }">
+              <v-tooltip location="bottom">
+                <template v-slot:activator="{ props }">
                   <v-btn
                     :disabled="individual.isLocked"
                     :aria-label="
                       individual.isBot ? 'Unmark as bot' : 'Mark as bot'
                     "
-                    v-on="on"
+                    :icon="individual.isBot ? 'mdi-robot' : 'mdi-robot-outline'"
+                    v-bind="props"
                     class="mr-1"
-                    icon
+                    variant="text"
                     @click="updateProfile({ isBot: !individual.isBot })"
                   >
-                    <v-icon dense>
-                      {{ individual.isBot ? "mdi-robot" : "mdi-robot-outline" }}
-                    </v-icon>
                   </v-btn>
                 </template>
                 <span>
                   {{ individual.isBot ? "Unmark as bot" : "Mark as bot" }}
                 </span>
               </v-tooltip>
-              <v-tooltip bottom>
-                <template v-slot:activator="{ on }">
+              <v-tooltip location="bottom">
+                <template v-slot:activator="{ props }">
                   <v-btn
                     :aria-label="
                       isInWorkspace ? 'In workspace' : 'Add to workspace'
                     "
                     class="mr-1"
-                    v-on="on"
-                    icon
+                    variant="text"
+                    v-bind="props"
+                    :icon="isInWorkspace ? 'mdi-pin' : 'mdi-pin-outline'"
                     @click="$store.dispatch('togglePin', mk)"
                   >
-                    <v-icon dense>
-                      {{ isInWorkspace ? "mdi-pin" : "mdi-pin-outline" }}
-                    </v-icon>
                   </v-btn>
                 </template>
                 <span>
                   {{ isInWorkspace ? "In workspace" : "Add to workspace" }}
                 </span>
               </v-tooltip>
-              <v-tooltip v-if="individual.isLocked" bottom>
-                <template v-slot:activator="{ on }">
+              <v-tooltip v-if="individual.isLocked" location="bottom">
+                <template v-slot:activator="{ props }">
                   <v-btn
                     aria-label="Unlock"
                     class="mr-1"
-                    v-on="on"
-                    icon
+                    v-bind="props"
+                    icon="mdi-lock"
+                    variant="text"
                     @click="unlock"
                   >
-                    <v-icon dense>mdi-lock</v-icon>
                   </v-btn>
                 </template>
                 <span>Unlock</span>
               </v-tooltip>
-              <v-tooltip v-else bottom>
-                <template v-slot:activator="{ on }">
+              <v-tooltip v-else location="bottom">
+                <template v-slot:activator="{ props }">
                   <v-btn
                     aria-label="Lock"
                     class="mr-1"
-                    v-on="on"
-                    icon
+                    v-bind="props"
+                    icon="mdi-lock-outline"
+                    variant="text"
                     @click="lock"
                   >
-                    <v-icon dense>mdi-lock-outline</v-icon>
                   </v-btn>
                 </template>
                 <span>Lock</span>
               </v-tooltip>
-              <v-menu bottom left nudge-bottom="38">
-                <template v-slot:activator="{ on, attrs }">
+              <v-menu location="bottom" left nudge-bottom="38">
+                <template v-slot:activator="{ props }">
                   <v-btn
                     aria-label="See more actions"
-                    v-bind="attrs"
-                    v-on="on"
-                    icon
+                    v-bind="props"
+                    icon="mdi-dots-vertical"
+                    variant="text"
                   >
-                    <v-icon dense>mdi-dots-vertical</v-icon>
                   </v-btn>
                 </template>
-                <v-list dense>
+                <v-list density="compact">
                   <v-list-item
                     :disabled="individual.isLocked"
                     @click="matchesModal.open = true"
@@ -148,118 +126,73 @@
           </v-row>
 
           <v-row class="section mb-4">
-            <v-container fluid>
-              <v-subheader>Profile</v-subheader>
-              <v-row class="ml-9">
-                <v-col cols="1" class="ml-6"> Email: </v-col>
+            <v-container class="pb-6" fluid>
+              <v-list-subheader class="text-subtitle-2 mb-4"
+                >Profile</v-list-subheader
+              >
+              <v-row>
+                <v-col cols="1" class="ml-4"> Email: </v-col>
                 <v-col>
-                  <span v-if="individual.isLocked">{{
-                    individual.email || "none"
-                  }}</span>
-                  <v-edit-dialog
-                    v-else
-                    large
-                    @save="updateProfile({ email: form.email })"
-                    @cancel="form.email = individual.email"
+                  <span v-if="individual.isLocked">
+                    {{ individual.email || "none" }}</span
                   >
-                    <button>
-                      {{ individual.email || "none" }}
-                      <v-icon
-                        class="icon--hidden aligned"
-                        aria-label="Edit name"
-                        small
-                      >
-                        mdi-lead-pencil
-                      </v-icon>
-                    </button>
-                    <template v-slot:input>
-                      <v-text-field
-                        v-model="form.email"
-                        label="Edit email"
-                        maxlength="30"
-                        single-line
-                      ></v-text-field>
-                    </template>
-                  </v-edit-dialog>
+                  <edit-dialog
+                    v-else
+                    v-model="individual.email"
+                    empty-value="none"
+                    label="Edit email"
+                    @save="updateProfile({ email: $event })"
+                  />
                 </v-col>
               </v-row>
-              <v-row class="ml-9">
-                <v-col cols="1" class="ml-6"> Country: </v-col>
+              <v-row>
+                <v-col cols="1" class="ml-4"> Country: </v-col>
                 <v-col>
                   <span v-if="individual.isLocked">
                     {{ individual.country ? individual.country.name : "none" }}
                   </span>
-                  <v-edit-dialog
+                  <edit-dialog
                     v-else
-                    large
-                    @save="
-                      updateProfile({
-                        countryCode: form.country ? form.country.code : '',
-                      })
-                    "
-                    @cancel="form.country = individual.country"
+                    v-model="individual.country"
+                    empty-value="none"
+                    label="Edit country"
+                    @save="updateProfile({ countryCode: $event.code })"
                   >
-                    <button>
-                      {{
-                        individual.country ? individual.country.name : "none"
-                      }}
-                      <v-icon
-                        class="icon--hidden aligned"
-                        aria-label="Edit country"
-                        small
-                      >
-                        mdi-lead-pencil
-                      </v-icon>
-                    </button>
-                    <template v-slot:input>
+                    <template v-slot:value="{ props }">
+                      <span v-bind="props">{{ individual.country.name }}</span>
+                    </template>
+                    <template v-slot:input="{ model }">
                       <v-combobox
-                        v-model="form.country"
+                        v-model="model.value"
                         :items="countries"
                         label="Country"
-                        item-text="name"
+                        item-title="name"
+                        hide-details
                         single-line
                         @click.once="getCountryList"
                         @keypress.once="getCountryList"
                       />
                     </template>
-                  </v-edit-dialog>
+                  </edit-dialog>
                 </v-col>
               </v-row>
-              <v-row class="ml-9">
-                <v-col cols="1" class="ml-6"> Gender: </v-col>
+              <v-row>
+                <v-col cols="1" class="ml-4"> Gender: </v-col>
                 <v-col>
                   <span v-if="individual.isLocked">
                     {{ individual.gender || "none" }}
                   </span>
-                  <v-edit-dialog
+                  <edit-dialog
                     v-else
-                    large
-                    @save="updateProfile({ gender: form.gender })"
-                    @cancel="form.gender = individual.gender"
-                  >
-                    <button>
-                      {{ individual.gender || "none" }}
-                      <v-icon
-                        class="icon--hidden aligned"
-                        aria-label="Edit gender"
-                        small
-                      >
-                        mdi-lead-pencil
-                      </v-icon>
-                    </button>
-                    <template v-slot:input>
-                      <v-text-field
-                        v-model="form.gender"
-                        label="Edit gender"
-                        maxlength="30"
-                        single-line
-                      ></v-text-field>
-                    </template>
-                  </v-edit-dialog>
+                    v-model="individual.gender"
+                    empty-value="none"
+                    label="Edit gender"
+                    @save="updateProfile({ gender: $event })"
+                  />
                 </v-col>
               </v-row>
-              <v-row class="ml-9">
-                <v-col cols="1" class="ml-6">
+              <v-row>
+                <v-col cols="1" class="ml-4">
                   <span>UUID:</span>
                 </v-col>
                 <v-col>
@@ -298,7 +231,9 @@
         </v-col>
         <v-col cols="4" v-if="showRecommendations" xl="3">
           <v-container class="section">
-            <v-subheader>Possible matches</v-subheader>
+            <v-list-subheader class="text-subtitle-2">
+              Possible matches
+            </v-list-subheader>
             <div
               v-for="(
                 { id, individual }, index
@@ -319,16 +254,15 @@
               <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn
-                  text
-                  small
+                  variant="text"
+                  size="small"
                   @click.prevent="applyRecommendation(id, false)"
                 >
                   Dismiss
                 </v-btn>
                 <v-btn
-                  text
-                  small
-                  outlined
+                  size="small"
+                  variant="outlined"
                   @click.prevent="applyRecommendation(id, true)"
                 >
                   Merge
@@ -349,7 +283,7 @@
     </v-container>
 
     <enroll-modal
-      :is-open.sync="enrollmentModal.open"
+      v-model:is-open="enrollmentModal.open"
       :title="enrollmentModal.title"
       :text="enrollmentModal.text"
       :uuid="mk"
@@ -360,7 +294,7 @@
 
     <team-enroll-modal
       v-if="teamModal.open"
-      :is-open.sync="teamModal.open"
+      v-model:is-open="teamModal.open"
       :organization="teamModal.organization"
       :uuid="mk"
       :enroll="enroll"
@@ -369,7 +303,7 @@
     />
 
     <matches-modal
-      :is-open.sync="matchesModal.open"
+      v-model:is-open="matchesModal.open"
       :recommend-matches="recommendMatches"
       :uuid="mk"
     />
@@ -433,6 +367,7 @@ import EnrollmentList from "../components/EnrollmentList.vue";
 import EnrollModal from "../components/EnrollModal.vue";
 import TeamEnrollModal from "../components/TeamEnrollModal.vue";
 import MatchesModal from "../components/MatchesModal.vue";
+import EditDialog from "../components/EditDialog.vue";
 
 export default {
   name: "Individual",
@@ -444,17 +379,12 @@ export default {
     EnrollModal,
     TeamEnrollModal,
     MatchesModal,
+    EditDialog,
   },
   mixins: [enrollMixin],
   data() {
     return {
       individual: {},
-      form: {
-        name: "",
-        email: "",
-        country: "",
-        gender: "",
-      },
       dialog: {
         open: false,
         title: "",
@@ -462,6 +392,7 @@ export default {
         errorMessage: "",
         action: null,
       },
+      form: {},
       teamModal: {
         open: false,
         organization: "",
@@ -506,7 +437,9 @@ export default {
           gender: this.individual.gender,
         });
 
-        document.title = `${this.individual.name} - Sorting Hat`;
+        document.title = `${
+          this.individual.name || "Individual"
+        } - Sorting Hat`;
       } catch (error) {
         this.$logger.error(`Error fetching individual ${this.mk}: ${error}`);
       }
@@ -726,31 +659,6 @@ export default {
 
 .section {
   font-size: 0.875rem;
-}
-
-::v-deep .v-small-dialog__activator,
-.v-small-dialog {
-  display: inline-block;
-}
-.v-small-dialog__activator {
-  .v-icon {
-    opacity: 0;
-    padding-bottom: 2px;
-  }
-
-  button:focus,
-  button:focus-visible {
-    background: #f4f4f4;
-    .v-icon {
-      opacity: 1;
-    }
-  }
-
-  &:hover {
-    .v-icon {
-      opacity: 1;
-    }
-  }
 }
 
 .aligned {

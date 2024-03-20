@@ -9,18 +9,19 @@
       disabled: !selectable,
     }"
     :ripple="selectable"
-    raised
-    v-on="$listeners"
-    @drop.native.prevent.stop="onDrop($event)"
+    v-bind="$attrs"
+    @drop.prevent.stop="onDrop($event)"
     @dragover.prevent.stop="isDropZone($event, true)"
     @dragenter.prevent.stop="isDropZone($event, true)"
     @dragleave="isDropZone($event, false)"
     @click="selectIndividual"
   >
-    <v-list-item class="grow" three-line>
+    <template v-slot:prepend>
       <avatar :name="name" :email="email" :size="30" />
+    </template>
 
-      <v-list-item-content>
+    <template v-slot:item>
+      <v-list-item class="grow pa-2" lines="three">
         <v-list-item-title class="font-weight-medium">
           <router-link
             :to="{ name: 'Individual', params: { mk: uuid } }"
@@ -37,44 +38,53 @@
           <v-tooltip
             v-for="source in sources"
             :key="source.name"
-            bottom
+            location="bottom"
             transition="expand-y-transition"
             open-delay="300"
           >
-            <template v-slot:activator="{ on }">
-              <v-icon v-on="on" v-text="source.icon" small left />
+            <template v-slot:activator="{ props }">
+              <v-icon v-bind="props" size="small" start>
+                {{ source.icon }}
+              </v-icon>
             </template>
             <span>{{ source.name }}</span>
           </v-tooltip>
         </v-list-item-subtitle>
-      </v-list-item-content>
+      </v-list-item>
+    </template>
 
-      <v-list-item-icon>
-        <v-icon v-if="isLocked" small left class="mb-1">mdi-lock</v-icon>
-        <v-menu offset-y offset-x :close-on-content-click="false">
-          <template v-slot:activator="{ on }">
-            <v-btn icon v-on="on" data-cy="expand-button" @mousedown.stop>
-              <v-icon small> mdi-magnify-plus-outline </v-icon>
-            </v-btn>
-          </template>
+    <template v-slot:append>
+      <v-icon v-if="isLocked" size="x-small" class="mr-2">mdi-lock</v-icon>
+      <v-menu offset="4" location="right" :close-on-content-click="false">
+        <template v-slot:activator="{ props }">
+          <v-btn
+            variant="text"
+            class="mr-1"
+            density="compact"
+            icon="mdi-magnify-plus-outline"
+            v-bind="props"
+            data-cy="expand-button"
+            @mousedown.stop
+          />
+        </template>
+        <v-card class="pa-1">
           <expanded-individual
             compact
             :enrollments="enrollments"
             :identities="identities"
             :uuid="uuid"
           />
-        </v-menu>
-        <v-btn
-          v-if="closable"
-          text
-          icon
-          @click.stop="$emit('remove')"
-          @mousedown.stop
-        >
-          <v-icon small> mdi-close </v-icon>
-        </v-btn>
-      </v-list-item-icon>
-    </v-list-item>
+        </v-card>
+      </v-menu>
+      <v-btn
+        v-if="closable"
+        icon="mdi-close"
+        density="compact"
+        variant="text"
+        @click.stop="$emit('remove')"
+        @mousedown.stop
+      />
+    </template>
     <slot />
   </v-card>
 </template>
@@ -217,11 +227,37 @@ export default {
 <style lang="scss" scoped>
 @import "../styles/index.scss";
 
-.v-list-item--three-line .v-list-item__avatar {
+:deep(.v-card-item) {
+  align-items: baseline;
+
+  .v-card-item__content {
+    align-self: unset;
+
+    .v-list-item__content {
+      align-self: start;
+    }
+
+    .v-list-item-subtitle {
+      line-height: 1.2rem;
+    }
+  }
+}
+
+.v-card-item__append {
+  .v-btn--icon {
+    margin-top: 1px;
+  }
+}
+
+.v-avatar.v-avatar--density-default {
   font-size: 0.8rem;
 }
 
 .disabled {
   cursor: default;
+}
+
+.v-list-item--density-default.v-list-item--three-line {
+  min-height: 78px;
 }
 </style>

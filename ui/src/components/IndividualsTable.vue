@@ -2,20 +2,25 @@
   <section :class="{ section: outlined }">
     <v-row v-if="!hideHeader" class="header justify-space-between">
       <h3 class="title">
-        <v-icon color="black" left dense> mdi-account </v-icon>
+        <v-icon color="black" size="small" start> mdi-account </v-icon>
         Individuals
-        <v-chip pill small class="ml-2" data-cy="individual-counter">
+        <v-chip
+          pill
+          density="comfortable"
+          class="ml-2"
+          data-cy="individual-counter"
+        >
           {{ totalResults }}
         </v-chip>
       </h3>
       <div>
         <recommendations @updateTable="queryIndividuals" />
         <v-btn
-          depressed
-          small
           height="34"
           color="secondary"
           class="black--text"
+          size="small"
+          variant="flat"
           data-cy="individual-add"
           @click.stop="openModal = true"
         >
@@ -25,19 +30,6 @@
     </v-row>
 
     <v-row class="actions">
-      <v-checkbox
-        v-model="allSelected"
-        value
-        class="mt-0"
-        :indeterminate="isIndeterminate"
-        :label="
-          selectedIndividuals.length === 0
-            ? 'Select all'
-            : `${selectedIndividuals.length} selected`
-        "
-        @change="selectAll($event)"
-      >
-      </v-checkbox>
       <search
         class="search-box pa-0 flex-grow-1"
         @search="filterSearch"
@@ -45,57 +37,65 @@
         order-selector
         :order-options="[
           {
-            text: 'Last updated',
+            title: 'Last updated',
             value: 'lastModified',
           },
           {
-            text: 'Created date',
+            title: 'Created date',
             value: 'createdAt',
           },
           {
-            text: 'Name',
+            title: 'Name',
             value: 'profile__name',
           },
           {
-            text: 'Identities',
+            title: 'Identities',
             value: 'identitiesCount',
           },
         ]"
         :set-filters="setFilters"
       />
-      <v-tooltip bottom transition="expand-y-transition" open-delay="200">
-        <template v-slot:activator="{ on }">
+      <v-tooltip
+        location="bottom"
+        transition="expand-y-transition"
+        open-delay="200"
+      >
+        <template v-slot:activator="{ props }">
           <v-btn
-            text
-            small
-            outlined
+            v-if="!hideHeader"
+            density="compact"
+            variant="outlined"
             height="34"
             class="mr-4 ml-4 order-2"
             data-cy="merge-button"
-            v-on="on"
+            v-bind="props"
             :disabled="disabledMerge"
-            @click="mergeSelected(selectedIndividuals)"
+            @click="mergeSelected(selected)"
           >
-            <v-icon small left>mdi-call-merge</v-icon>
+            <v-icon size="small" start>mdi-call-merge</v-icon>
             Merge
           </v-btn>
         </template>
         <span>Merge selected</span>
       </v-tooltip>
-      <v-tooltip bottom transition="expand-y-transition" open-delay="200">
-        <template v-slot:activator="{ on }">
+      <v-tooltip
+        location="bottom"
+        transition="expand-y-transition"
+        open-delay="200"
+      >
+        <template v-slot:activator="{ props }">
           <v-btn
-            text
-            small
-            outlined
-            class="order-3"
+            v-if="!hideHeader"
+            density="compact"
+            variant="outlined"
             height="34"
+            class="order-3"
             data-cy="delete-button"
-            v-on="on"
+            v-bind="props"
             :disabled="disabledActions"
-            @click="confirmDelete(selectedIndividuals)"
+            @click="confirmDelete(selected)"
           >
-            <v-icon small left>mdi-delete</v-icon>
+            <v-icon size="small" start>mdi-delete</v-icon>
             Delete
           </v-btn>
         </template>
@@ -103,39 +103,53 @@
       </v-tooltip>
     </v-row>
 
-    <v-data-table
-      hide-default-header
-      hide-default-footer
+    <v-data-table-server
+      v-model="selected"
       :headers="headers"
       :items="individuals"
-      :expanded.sync="expandedItems"
-      item-key="uuid"
-      :page.sync="page"
+      :expanded="expandedItems"
+      v-model:page="page"
+      :items-length="totalResults"
       :items-per-page="itemsPerPage"
       :loading="loading"
+      :show-select="!hideHeader"
+      color="primary"
+      item-value="uuid"
+      hover
+      return-object
+      @update:expanded="($event) => (expandedItems = $event)"
     >
-      <template v-slot:item="{ item, expand, isExpanded }">
+      <template
+        v-slot:item="{
+          item,
+          toggleExpand,
+          isExpanded,
+          isSelected,
+          internalItem,
+          toggleSelect,
+        }"
+      >
         <individual-entry
-          draggable
+          :draggable="isExpandable"
           :name="item.name"
           :organization="item.organization"
           :email="item.email"
           :username="item.username"
           :sources="item.sources"
           :uuid="item.uuid"
-          :is-expanded="isExpanded"
+          :is-expanded="isExpanded(internalItem)"
           :is-locked="item.isLocked"
           :is-bot="item.isBot"
-          :is-selected="item.isSelected"
+          :is-selected="isSelected([internalItem])"
           :is-highlighted="item.uuid === highlightIndividual"
           :is-expandable="isExpandable"
-          @dblclick.native="expand(!isExpanded)"
-          @expand="expand(!isExpanded)"
+          @dblclick="toggleExpand(internalItem)"
+          @expand="toggleExpand(internalItem)"
           @edit="updateProfileInfo($event, item.uuid)"
           @saveIndividuals="$emit('saveIndividuals', [item])"
-          @dragstart.native="startDrag(item, $event)"
-          @dragend.native="removeClass(item, $event)"
-          @select="selectIndividual(item)"
+          @dragstart="startDrag(internalItem, isSelected, toggleSelect, $event)"
+          @dragend="removeClass(item, $event)"
+          @select="toggleSelect(internalItem)"
           @delete="confirmDelete([item])"
           @merge="mergeSelected([item.uuid, ...$event])"
           @move="move($event)"
@@ -146,7 +160,7 @@
           @openMatchesModal="openMatchesModal(item.uuid)"
         />
       </template>
-      <template v-if="isExpandable" v-slot:expanded-item="{ item }">
+      <template v-if="isExpandable" v-slot:expanded-row="{ item }">
         <expanded-individual
           :uuid="item.uuid"
           :gender="item.gender"
@@ -164,29 +178,33 @@
           @openTeamModal="openTeamModal"
         />
       </template>
-    </v-data-table>
-
-    <div class="d-flex align-baseline text-center pt-2">
-      <v-col cols="8" class="ml-auto">
-        <v-pagination
-          v-model="page"
-          :length="pageCount"
-          :total-visible="7"
-          @input="queryIndividuals($event)"
-        ></v-pagination>
-      </v-col>
-      <v-col cols="2">
-        <v-text-field
-          :value="itemsPerPage"
-          class="mr-3"
-          label="Items per page"
-          type="number"
-          min="1"
-          :max="totalResults"
-          @change="changeItemsPerPage($event)"
-        ></v-text-field>
-      </v-col>
-    </div>
+      <template v-slot:bottom>
+        <div class="d-flex align-center text-center pt-2">
+          <v-col cols="8" class="ml-auto">
+            <v-pagination
+              v-model="page"
+              :length="pageCount"
+              :total-visible="7"
+              density="comfortable"
+              @update:modelValue="queryIndividuals($event)"
+            ></v-pagination>
+          </v-col>
+          <v-col cols="2">
+            <v-text-field
+              :model-value="itemsPerPage"
+              class="mr-3"
+              density="compact"
+              label="Items per page"
+              type="number"
+              min="1"
+              hide-details
+              :max="totalResults"
+              @update:modelValue="changeItemsPerPage($event)"
+            ></v-text-field>
+          </v-col>
+        </div>
+      </template>
+    </v-data-table-server>
 
     <v-dialog v-model="dialog.open" max-width="500px">
       <v-card class="pa-3">
@@ -231,7 +249,7 @@
     </v-dialog>
 
     <profile-modal
-      :is-open.sync="openModal"
+      v-model:is-open="openModal"
       :add-identity="addIdentity"
       :updateProfile="updateProfile"
       :enroll="enroll"
@@ -243,7 +261,7 @@
     />
 
     <enroll-modal
-      :is-open.sync="enrollmentModal.open"
+      v-model:is-open="enrollmentModal.open"
       :title="enrollmentModal.title"
       :text="enrollmentModal.text"
       :organization="enrollmentModal.organization"
@@ -255,7 +273,7 @@
 
     <team-enroll-modal
       v-if="teamModal.isOpen"
-      :is-open.sync="teamModal.isOpen"
+      v-model:is-open="teamModal.isOpen"
       :organization="teamModal.organization"
       :team="teamModal.team"
       :uuid="teamModal.uuid"
@@ -266,17 +284,17 @@
 
     <matches-modal
       v-if="matchesModal.open"
-      :is-open.sync="matchesModal.open"
+      v-model:is-open="matchesModal.open"
       :uuid="matchesModal.uuid"
       :recommend-matches="recommendMatches"
     />
 
-    <v-card class="dragged-item" color="primary" dark>
-      <v-card-subtitle>
+    <v-card class="dragged-item pa-2" color="primary" variant="elevated">
+      <v-card-item>
         Moving
-        {{ this.selectedIndividuals.length }}
-        {{ this.selectedIndividuals.length > 1 ? "individuals" : "individual" }}
-      </v-card-subtitle>
+        {{ this.selected.length }}
+        {{ this.selected.length > 1 ? "individuals" : "individual" }}
+      </v-card-item>
     </v-card>
   </section>
 </template>
@@ -296,6 +314,7 @@ import EnrollModal from "./EnrollModal.vue";
 import TeamEnrollModal from "./TeamEnrollModal.vue";
 import Recommendations from "./Recommendations.vue";
 import MatchesModal from "./MatchesModal.vue";
+import DateInput from "./DateInput.vue";
 
 export default {
   name: "IndividualsTable",
@@ -308,6 +327,7 @@ export default {
     TeamEnrollModal,
     Recommendations,
     MatchesModal,
+    DateInput,
   },
   mixins: [enrollMixin],
   props: {
@@ -396,10 +416,15 @@ export default {
     return {
       filters: {},
       headers: [
-        { value: "name" },
-        { value: "email" },
-        { value: "sources" },
-        { value: "actions" },
+        { key: "name", title: "Individual", sortable: false },
+        { key: "email", title: "Email", align: "center", sortable: false },
+        {
+          key: "sources",
+          title: "Data sources",
+          align: "end",
+          sortable: false,
+        },
+        { key: "actions", sortable: false },
       ],
       individuals: [],
       expandedItems: [],
@@ -421,28 +446,18 @@ export default {
         open: false,
         uuid: "",
       },
+      selected: [],
     };
   },
   computed: {
     disabledActions() {
       return (
-        this.selectedIndividuals.filter((individual) => !individual.isLocked)
-          .length === 0
+        this.selected.filter((individual) => !individual.isLocked).length === 0
       );
     },
     disabledMerge() {
       return (
-        this.selectedIndividuals.filter((individual) => !individual.isLocked)
-          .length < 2
-      );
-    },
-    selectedIndividuals() {
-      return this.individuals.filter((individual) => individual.isSelected);
-    },
-    isIndeterminate() {
-      return (
-        this.selectedIndividuals.length < this.individuals.length &&
-        this.selectedIndividuals.length !== 0
+        this.selected.filter((individual) => !individual.isLocked).length < 2
       );
     },
   },
@@ -474,20 +489,20 @@ export default {
         this.$emit("updateIndividuals", this.individuals);
       }
       this.loading = false;
+      this.selected = [];
     },
-    startDrag(item, event) {
-      item.isSelected = true;
+    startDrag(item, isSelected, toggleSelect, event) {
+      if (!isSelected(item)) {
+        toggleSelect(item);
+      }
       event.dataTransfer.dropEffect = "move";
-      event.dataTransfer.setData(
-        "individuals",
-        JSON.stringify(this.selectedIndividuals)
-      );
+      event.dataTransfer.setData("individuals", JSON.stringify(this.selected));
       const dragImage = document.querySelector(".dragged-item");
       event.dataTransfer.setDragImage(dragImage, 0, 0);
-      const lockedIndividuals = this.selectedIndividuals.filter(
+      const lockedIndividuals = this.selected.filter(
         (individual) => individual.isLocked
       );
-      if (lockedIndividuals.length === this.selectedIndividuals.length) {
+      if (lockedIndividuals.length === this.selected.length) {
         event.dataTransfer.setData("lockActions", true);
       }
     },
@@ -727,8 +742,12 @@ export default {
     },
     changeItemsPerPage(value) {
       if (value) {
-        this.itemsPerPage = parseInt(value, 10);
-        this.queryIndividuals(1);
+        clearTimeout(this.timer);
+
+        this.timer = setTimeout(() => {
+          this.itemsPerPage = parseInt(value, 10);
+          this.queryIndividuals(1);
+        }, 500);
       }
     },
     closeDialog() {
@@ -763,39 +782,17 @@ export default {
 </script>
 <style lang="scss" scoped>
 @import "../styles/index.scss";
-::v-deep .v-data-table__wrapper {
+:deep(.v-data-table__wrapper) {
   overflow-x: hidden;
 }
-.actions {
-  ::v-deep .v-label {
-    font-size: 0.9rem;
-  }
 
-  ::v-deep .v-input--checkbox {
-    padding-top: 6px;
-    margin-left: -1px;
-  }
-
-  .search-box {
-    margin-left: 32px;
-  }
-
-  // Breakpoint for Material Design medium laptop missing on Vuetify
-  @media only screen and (max-width: 1439px) {
-    .v-input--checkbox {
-      order: 1;
-      margin-right: auto;
-    }
-
-    .search-box {
-      margin: 0;
-      flex-basis: 100%;
-    }
-  }
-}
 .dragged-item {
   max-width: 300px;
   position: absolute;
   top: -300px;
+}
+
+.v-table {
+  background-color: #ffffff;
 }
 </style>

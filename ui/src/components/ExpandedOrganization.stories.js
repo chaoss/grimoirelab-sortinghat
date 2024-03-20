@@ -41,7 +41,7 @@ export const Default = () => ({
               {
                 name: "Department of Magical Law Enforcement",
                 numchild: 2,
-                enrollments: [{ id: 1}],
+                enrollments: [{ id: 1 }],
               },
               {
                 name: "Department of Magical Accidents and Catastrophes",
@@ -50,11 +50,7 @@ export const Default = () => ({
               {
                 name: "Department for the Regulation and Control of Magical Creatures",
                 numchild: 1,
-                enrollments: [
-                  { id: 1 },
-                  { id: 2 },
-                  { id: 3 },
-                ],
+                enrollments: [{ id: 1 }, { id: 2 }, { id: 3 }],
               },
               {
                 name: "Auror Office",
@@ -72,22 +68,14 @@ export const Default = () => ({
                 name: "Improper Use of Magic Office",
                 parent: "Department of Magical Law Enforcement",
                 numchild: 0,
-                enrollments: [
-                  { id: 1 },
-                  { id: 2 },
-                  { id: 3 },
-                  { id: 4 },
-                ],
+                enrollments: [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }],
               },
               {
                 name: "Beast Division",
                 parent:
                   "Department for the Regulation and Control of Magical Creatures",
                 numchild: 0,
-                enrollments: [
-                  { id: 1 },
-                  { id: 2 },
-                ],
+                enrollments: [{ id: 1 }, { id: 2 }],
               },
             ],
           },

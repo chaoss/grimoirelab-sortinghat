@@ -1,9 +1,14 @@
-import GetErrorMessage from "@/plugins/errors";
-import { createLocalVue } from "@vue/test-utils";
+import errorMessages from "@/plugins/errors";
+import { mount } from "@vue/test-utils";
 
 describe("Logger plugin", () => {
-  const localVue = createLocalVue();
-  localVue.use(GetErrorMessage);
+  const App = { template: "<div></div>" };
+
+  const wrapper = mount(App, {
+    global: {
+      plugins: [errorMessages],
+    },
+  });
 
   test("Returns GraphQL errors", () => {
     const error = {
@@ -16,7 +21,7 @@ describe("Logger plugin", () => {
         },
       ],
     };
-    const errorMessage = localVue.prototype.$getErrorMessage(error);
+    const errorMessage = wrapper.vm.$getErrorMessage(error);
 
     expect(errorMessage).toBe(
       "Organization 'Bitergia' already exists in the registry"
@@ -33,7 +38,7 @@ describe("Logger plugin", () => {
         },
       ],
     };
-    const errorMessage = localVue.prototype.$getErrorMessage(error);
+    const errorMessage = wrapper.vm.$getErrorMessage(error);
 
     expect(errorMessage).not.toBe("Please enter valid credentials");
   });
@@ -46,7 +51,7 @@ describe("Logger plugin", () => {
         message: "Error when attempting to fetch resource.",
       },
     };
-    const errorMessage = localVue.prototype.$getErrorMessage(error);
+    const errorMessage = wrapper.vm.$getErrorMessage(error);
 
     expect(errorMessage).toBe("Error when attempting to fetch resource.");
   });

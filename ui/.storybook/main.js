@@ -1,25 +1,27 @@
 const path = require("path");
+const { VuetifyPlugin } = require("webpack-plugin-vuetify");
 
 module.exports = {
   "stories": [
     "../src/**/*.stories.js"
   ],
-  "framework": "@storybook/vue",
+  "framework": "@storybook/vue3",
   "core": {
     "builder": "@storybook/builder-webpack5"
   },
   webpackFinal: async (config, { configType }) => {
-    // Use vue-loader 15.x because the default 17.x is incompatible with Vue 2
-    const { VueLoaderPlugin } = require("@vue/vue-loader-v15");
+    const { VueLoaderPlugin } = require("vue-loader");
 
     const VueLoader = new VueLoaderPlugin();
+    const Vuetify = new VuetifyPlugin();
 
     config.plugins.push(VueLoader);
+    config.plugins.push(Vuetify)
 
     config.module.rules.push(
       {
         test: /\.vue$/,
-        use: "@vue/vue-loader-v15",
+        use: "vue-loader",
         include: path.resolve(__dirname, "../")
       },
       {
@@ -36,7 +38,7 @@ module.exports = {
       ...config.resolve.alias,
       "@": path.resolve(__dirname, "../src"),
       "~": path.resolve(__dirname, "../src/components"),
-      "vue": "vue/dist/vue.js"
+      "vue": "vue/dist/vue.cjs.js"
     };
 
     // Return the altered config

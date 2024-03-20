@@ -3,45 +3,43 @@
     class="section"
     data-cy="workspace"
     :class="{ 'is-dragging': isDragging }"
-    @drop.native="onDrop($event)"
+    @drop="onDrop($event)"
     @dragover.prevent="onDrag($event)"
     @dragenter.prevent="onDrag($event)"
     @dragleave.prevent="isDragging = false"
   >
     <v-row class="header">
       <h3 class="title">
-        <v-icon color="black" dense left> mdi-pin </v-icon>
+        <v-icon color="black" size="small" start> mdi-pin </v-icon>
         Workspace
       </h3>
       <div>
         <v-tooltip bottom transition="expand-y-transition" open-delay="200">
-          <template v-slot:activator="{ on }">
+          <template v-slot:activator="{ props }">
             <v-btn
-              text
-              small
-              outlined
+              variant="outlined"
+              size="small"
               class="mr-2"
-              v-on="on"
+              :v-bind="props"
               :disabled="isDisabled"
               @click="mergeSelected(selectedIndividuals)"
             >
-              <v-icon small left>mdi-call-merge</v-icon>
+              <v-icon size="small" start>mdi-call-merge</v-icon>
               Merge
             </v-btn>
           </template>
           <span>Merge selected</span>
         </v-tooltip>
         <v-tooltip bottom transition="expand-y-transition" open-delay="200">
-          <template v-slot:activator="{ on }">
+          <template v-slot:activator="{ props }">
             <v-btn
-              text
-              small
-              outlined
+              variant="outlined"
+              size="small"
               :disabled="savedIndividuals.length === 0"
-              v-on="on"
+              :v-bind="props"
               @click="clearSpace"
             >
-              <v-icon small left>mdi-cancel</v-icon>
+              <v-icon size="small" start>mdi-cancel</v-icon>
               Clear
             </v-btn>
           </template>
@@ -63,7 +61,7 @@
           :name="individual.name"
           :email="individual.email"
           :sources="individual.sources"
-          :is-selected="individual.isSelected"
+          :is-selected="isSelected(individual)"
           :uuid="individual.uuid"
           :identities="individual.identities"
           :enrollments="individual.enrollments"
@@ -87,7 +85,7 @@
       class="space pa-md-2 ma-md-3 align-center justify-center drag-zone"
     >
       <v-icon color="rgba(0,0,0,0.38)" left> mdi-lightbulb-on-outline </v-icon>
-      <p class="mb-0 ml-2 text--disabled">
+      <p class="mb-0 ml-2 text-medium-emphasis">
         <span>
           You can add individuals to your work space to perform actions on them
           later.
@@ -121,7 +119,7 @@
     </v-dialog>
 
     <enroll-modal
-      :is-open.sync="enrollmentModal.open"
+      v-model:is-open="enrollmentModal.open"
       :title="enrollmentModal.title"
       :text="enrollmentModal.text"
       :organization="enrollmentModal.organization"
@@ -131,7 +129,7 @@
 
     <team-enroll-modal
       v-if="teamModal.isOpen"
-      :is-open.sync="teamModal.isOpen"
+      v-model:is-open="teamModal.isOpen"
       :organization="teamModal.organization"
       :team="teamModal.team"
       :uuid="teamModal.uuid"
@@ -185,6 +183,7 @@ export default {
   data() {
     return {
       savedIndividuals: this.individuals,
+      selectedIndividuals: [],
       isDragging: false,
       dialog: {
         open: false,
@@ -195,11 +194,6 @@ export default {
     };
   },
   computed: {
-    selectedIndividuals() {
-      return this.savedIndividuals.filter(
-        (individual) => individual.isSelected
-      );
-    },
     isDisabled() {
       return (
         this.selectedIndividuals.filter((individual) => !individual.isLocked)
@@ -265,12 +259,28 @@ export default {
       return individuals;
     },
     selectIndividual(individual) {
-      individual.isSelected = !individual.isSelected;
+      const index = this.selectedIndividuals.findIndex(
+        (saved) => individual.uuid === saved.uuid
+      );
+
+      if (index === -1) {
+        this.selectedIndividuals.push(individual);
+      } else {
+        this.selectedIndividuals.splice(index, 1);
+      }
+    },
+    isSelected(individual) {
+      return this.selectedIndividuals.some(
+        (saved) => saved.uuid === individual.uuid
+      );
     },
     removeIndividual(individual) {
       this.savedIndividuals = this.savedIndividuals.filter(
         (savedIndividual) => savedIndividual.uuid !== individual.uuid
       );
+      if (this.isSelected(individual)) {
+        this.selectIndividual(individual);
+      }
       this.$emit("updateWorkspace", { remove: [individual.uuid] });
       this.$emit("stopHighlight", individual);
     },
@@ -340,7 +350,7 @@ export default {
   outline: 1px dashed #003756;
   background-color: #f9edc7;
 }
-.col-2 {
+.v-col-2 {
   min-width: 300px;
 }
 .space {

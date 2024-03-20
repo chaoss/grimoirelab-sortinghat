@@ -4,7 +4,7 @@ describe("Login", () => {
   beforeEach(() => {
     cy.clearCookies();
     // Intercept requests to wait for them in the tests
-    cy.intercept("POST", "/api/login/").as('auth')
+    cy.intercept("POST", "/api/login/").as("auth");
   });
 
   it("Logs in a user", () => {
@@ -90,7 +90,7 @@ describe("Authenticated operations", () => {
       cy.get("[id=source]").type("gitlab");
       cy.contains("Save").click();
       cy.wait("@GetIndividuals");
-      cy.get(".v-dialog").should("not.be.visible");
+      cy.get(".v-dialog").should("not.exist");
 
       cy.orderBy("Last updated");
 
@@ -109,9 +109,9 @@ describe("Authenticated operations", () => {
     cy.contains("tr", "Test workspace")
       .should("be.visible")
       .within(() => {
-        cy.get('[aria-haspopup="true"]').click();
+        cy.get('[aria-haspopup="menu"]').click();
       });
-    cy.contains('[role="menuitem"]', "Save in workspace").click();
+    cy.contains(".v-list-item", "Save in workspace").click();
 
     cy.get('[data-cy="workspace"]').within(() => {
       cy.contains("Test workspace").should("be.visible");
@@ -125,21 +125,21 @@ describe("Authenticated operations", () => {
           "sh_workspace",
           '["fae9c66618689956f53c85da331041fd58b8da19","822d5d1cd04f9f29333bbb126e4c6c1295e4e0a5"]'
         );
-      }
+      },
     });
     cy.orderBy("Last updated");
 
     cy.getIndividualsCount().then((count) => {
       // Select and merge individuals
-      cy.contains("tr", "Test merge 1")
-        .click()
-        .should("have.attr", "aria-selected");
-      cy.contains("tr", "Test merge 2")
-        .click()
-        .should("have.attr", "aria-selected");
+      cy.contains("tr", "Test merge 1").within(() => {
+        cy.get('[type="checkbox"]').click();
+      });
+      cy.contains("tr", "Test merge 2").within(() => {
+        cy.get('[type="checkbox"]').click();
+      });
       cy.get('[data-cy="merge-button"]').click();
 
-      cy.contains(".v-dialog--active", "Merge the selected individuals?")
+      cy.contains(".v-overlay--active", "Merge the selected individuals?")
         .should("be.visible")
         .within(() => {
           cy.contains("Confirm").click();
@@ -147,18 +147,17 @@ describe("Authenticated operations", () => {
 
       // Wait for the request and the DOM update to check the count
       cy.wait("@Merge");
-      cy.contains("tr", "Test merge 1").should("not.exist");
-      cy.contains("tr", "Test merge 2").should(
-        "not.have.attr",
-        "aria-selected"
-      );
+      cy.contains("tr", "Test merge 2").should("not.exist");
+      cy.contains("tr", "Test merge 1")
+        .should("have.attr", "aria-selected")
+        .and("equal", "false");
 
       cy.getIndividualsCount()
         .should("be.lt", count)
         .and("eq", count - 1);
 
       // Expand merged individual and check that it has all identities
-      cy.contains("tr", "Test merge 2")
+      cy.contains("tr", "Test merge 1")
         .dblclick()
         .next()
         .within(() => {
@@ -169,8 +168,8 @@ describe("Authenticated operations", () => {
 
       // Check it merged the individuals in the workspace
       cy.get('[data-cy="workspace"]').within(() => {
-        cy.contains("Test merge 1").should("not.exist");
-        cy.contains(".v-card", "Test merge 2")
+        cy.contains("Test merge 2").should("not.exist");
+        cy.contains(".v-card", "Test merge 1")
           .should("exist")
           .within(() => {
             cy.get('[data-cy="expand-button"]').click();
@@ -178,7 +177,7 @@ describe("Authenticated operations", () => {
       });
 
       // Check if the information in the card is updated
-      cy.get('[role="menu"]').within(() => {
+      cy.get(".v-menu").within(() => {
         cy.contains("Identities (2)").should("exist");
         cy.contains("Test merge 1").should("exist");
         cy.contains("Test merge 2").should("exist");
@@ -192,7 +191,7 @@ describe("Authenticated operations", () => {
     cy.wait("@GetIndividuals");
 
     cy.getIndividualsCount().then((count) => {
-      cy.contains("tr", "Test merge 2")
+      cy.contains("tr", "Test merge 1")
         .dblclick()
         .next()
         .within(() => {
@@ -202,11 +201,17 @@ describe("Authenticated operations", () => {
           cy.contains("Test merge 2").should("exist");
           cy.contains("Split all").click();
           cy.wait("@unmerge");
+          cy.wait("@GetIndividuals");
+        });
 
+      cy.contains("tr", "Test merge 1")
+        .dblclick()
+        .next()
+        .within(() => {
           // Check that the expanded individual now has one identity
           cy.contains("Identities (1)").should("exist");
-          cy.contains("Test merge 2").should("exist");
-          cy.contains("Test merge 1").should("not.exist");
+          cy.contains("Test merge 1").should("exist");
+          cy.contains("Test merge 2").should("not.exist");
         });
 
       cy.getIndividualsCount()
@@ -225,7 +230,7 @@ describe("Authenticated operations", () => {
     });
 
     // The information in the card is updated
-    cy.get('[role="menu"]').within(() => {
+    cy.get(".v-menu").within(() => {
       cy.contains("Identities (1)").should("exist");
       cy.contains("Test merge 2").should("exist");
       cy.contains("Test merge 1").should("not.exist");
@@ -239,19 +244,20 @@ describe("Authenticated operations", () => {
           "sh_workspace",
           '["aea15252fb9ebeca18698f5a7e8ff74cf6d9b18e","c132d513c6ac5d066a3076a5de75957d1ef422e5"]'
         );
-      }});
+      },
+    });
     cy.orderBy("Last updated");
 
     cy.getIndividualsCount().then((count) => {
       // Select and delete individuals
-      cy.contains("tr", "Test delete 1")
-        .click()
-        .should("have.attr", "aria-selected");
-      cy.contains("tr", "Test delete 2")
-        .click()
-        .should("have.attr", "aria-selected");
+      cy.contains("tr", "Test delete 1").within(() => {
+        cy.get('[type="checkbox"]').click();
+      });
+      cy.contains("tr", "Test delete 2").within(() => {
+        cy.get('[type="checkbox"]').click();
+      });
       cy.get('[data-cy="delete-button"]').click();
-      cy.contains(".v-dialog--active", "Delete the selected individuals?")
+      cy.contains(".v-overlay--active", "Delete the selected individuals?")
         .should("be.visible")
         .within(() => {
           cy.contains("Test delete 1").should("be.visible");
@@ -264,8 +270,7 @@ describe("Authenticated operations", () => {
 
       cy.contains("tr", "Test delete 1").should("not.exist");
       cy.contains("tr", "Test delete 2").should("not.exist");
-      cy.getIndividualsCount()
-        .should("eq", count - 2);
+      cy.getIndividualsCount().should("eq", count - 2);
     });
 
     // Check if it removes the individuals from workspace

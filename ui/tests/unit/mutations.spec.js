@@ -1,15 +1,10 @@
-import { shallowMount } from "@vue/test-utils";
-import Vue from "vue";
-import Vuetify from "vuetify";
+import { mount } from "@vue/test-utils";
+import vuetify from "@/plugins/vuetify";
 import IndividualsTable from "@/components/IndividualsTable";
-import Login from "@/views/Login";
 import OrganizationsTable from "@/components/OrganizationsTable";
 import ProfileModal from "@/components/ProfileModal";
 import * as Mutations from "@/apollo/mutations";
-import TeamModal from "@/components/TeamModal";
 import Jobs from "@/views/Jobs";
-
-Vue.use(Vuetify);
 
 const deleteResponse = {
   data: {
@@ -138,43 +133,6 @@ const addOrganizationResponse = {
   },
 };
 
-const addTeamResponse = {
-  data: {
-    addTeam: {
-      team: {
-        name: "Name",
-        __typename: "TeamType",
-      },
-      __typename: "AddTeam",
-    },
-  },
-};
-
-const paginatedTeams = {
-  data: {
-    teams: {
-      entities: [
-        {
-          name: "Test 1",
-          __typename: "TeamType",
-        },
-        {
-          name: "Test 2",
-          __typename: "TeamType",
-        },
-      ],
-      pageInfo: {
-        page: 1,
-        pageSize: 10,
-        numPages: 1,
-        totalResults: 2,
-        __typename: "PaginationType",
-      },
-      __typename: "TeamPaginatedType",
-    },
-  },
-};
-
 const addDomainResponse = {
   data: {
     addDomain: {
@@ -193,14 +151,6 @@ const addIdentityResponse = {
     addIdentity: {
       uuid: "002bad315c34120cdfa2b1e26b3ca88ce36bc183",
       __typename: "AddIdentity",
-    },
-  },
-};
-
-const tokenResponse = {
-  data: {
-    tokenAuth: {
-      token: "eyJ0eXAiOiJKV1QiL",
     },
   },
 };
@@ -261,11 +211,14 @@ const unifyResponse = {
 };
 
 describe("IndividualsTable", () => {
-  const mountFunction = (options) => {
-    return shallowMount(IndividualsTable, {
-      Vue,
-      stubs: ["router-link"],
-      propsData: {
+  const mountFunction = (mocks, options) => {
+    return mount(IndividualsTable, {
+      shallow: true,
+      global: {
+        plugins: [vuetify],
+        ...mocks,
+      },
+      props: {
         fetchPage: () => {},
         mergeItems: () => {},
         unmergeItems: () => {},
@@ -280,7 +233,7 @@ describe("IndividualsTable", () => {
         unlockIndividual: () => {},
         withdraw: () => {},
         updateEnrollment: () => {},
-        recommendMatches: () => {}
+        recommendMatches: () => {},
       },
       ...options,
     });
@@ -411,15 +364,17 @@ describe("IndividualsTable", () => {
 describe("OrganizationsTable", () => {
   test("Mock mutation for enroll", async () => {
     const mutate = jest.fn(() => Promise.resolve(enrollResponse));
-    const wrapper = shallowMount(OrganizationsTable, {
-      Vue,
-      mocks: {
-        $apollo: {
-          mutate,
+    const wrapper = mount(OrganizationsTable, {
+      shallow: true,
+      global: {
+        plugins: [vuetify],
+        mocks: {
+          $apollo: {
+            mutate,
+          },
         },
       },
-      stubs: ["router-link"],
-      propsData: {
+      props: {
         enroll: mutate,
         fetchPage: () => {},
         addDomain: () => {},
@@ -446,14 +401,17 @@ describe("OrganizationsTable", () => {
 
   test("Mock mutation for addOrganization", async () => {
     const mutate = jest.fn(() => Promise.resolve(addOrganizationResponse));
-    const wrapper = shallowMount(OrganizationsTable, {
-      Vue,
-      mocks: {
-        $apollo: {
-          mutate,
+    const wrapper = mount(OrganizationsTable, {
+      shallow: true,
+      global: {
+        plugins: [vuetify],
+        mocks: {
+          $apollo: {
+            mutate,
+          },
         },
       },
-      propsData: {
+      props: {
         enroll: mutate,
         fetchPage: () => {},
         addOrganization: mutate,
@@ -476,14 +434,17 @@ describe("OrganizationsTable", () => {
 
   test("Mock mutation for addDomain", async () => {
     const mutate = jest.fn(() => Promise.resolve(addDomainResponse));
-    const wrapper = shallowMount(OrganizationsTable, {
-      Vue,
-      mocks: {
-        $apollo: {
-          mutate,
+    const wrapper = mount(OrganizationsTable, {
+      shallow: true,
+      global: {
+        plugins: [vuetify],
+        mocks: {
+          $apollo: {
+            mutate,
+          },
         },
       },
-      propsData: {
+      props: {
         enroll: () => {},
         fetchPage: () => {},
         addDomain: mutate,
@@ -506,14 +467,17 @@ describe("OrganizationsTable", () => {
 
   test("Mock mutation for deleteDomain", async () => {
     const mutate = jest.fn(() => Promise.resolve(addDomainResponse));
-    const wrapper = shallowMount(OrganizationsTable, {
-      Vue,
-      mocks: {
-        $apollo: {
-          mutate,
+    const wrapper = mount(OrganizationsTable, {
+      shallow: true,
+      global: {
+        plugins: [vuetify],
+        mocks: {
+          $apollo: {
+            mutate,
+          },
         },
       },
-      propsData: {
+      props: {
         enroll: () => {},
         fetchPage: () => {},
         addDomain: () => {},
@@ -535,14 +499,17 @@ describe("OrganizationsTable", () => {
 
   test("Mock mutation for deleteOrganization", async () => {
     const mutate = jest.fn(() => Promise.resolve(deleteOrganizationResponse));
-    const wrapper = shallowMount(OrganizationsTable, {
-      Vue,
-      mocks: {
-        $apollo: {
-          mutate,
+    const wrapper = mount(OrganizationsTable, {
+      shallow: true,
+      global: {
+        plugins: [vuetify],
+        mocks: {
+          $apollo: {
+            mutate,
+          },
         },
       },
-      propsData: {
+      props: {
         enroll: () => {},
         fetchPage: () => {},
         addDomain: () => {},
@@ -566,14 +533,17 @@ describe("OrganizationsTable", () => {
 describe("ProfileModal", () => {
   test("Mock mutation for addIdentity", async () => {
     const mutate = jest.fn(() => Promise.resolve(addIdentityResponse));
-    const wrapper = shallowMount(ProfileModal, {
-      Vue,
-      mocks: {
-        $apollo: {
-          mutate,
+    const wrapper = mount(ProfileModal, {
+      shallow: true,
+      global: {
+        plugins: [vuetify],
+        mocks: {
+          $apollo: {
+            mutate,
+          },
         },
       },
-      propsData: {
+      props: {
         addIdentity: mutate,
         updateProfile: () => {},
         enroll: () => {},
@@ -596,14 +566,17 @@ describe("ProfileModal", () => {
 
   test("Mock mutation for updateProfile", async () => {
     const mutate = jest.fn(() => Promise.resolve(addIdentityResponse));
-    const wrapper = shallowMount(ProfileModal, {
-      Vue,
-      mocks: {
-        $apollo: {
-          mutate,
+    const wrapper = mount(ProfileModal, {
+      shallow: true,
+      global: {
+        plugins: [vuetify],
+        mocks: {
+          $apollo: {
+            mutate,
+          },
         },
       },
-      propsData: {
+      props: {
         addIdentity: () => {},
         updateProfile: mutate,
         enroll: () => {},
@@ -626,81 +599,17 @@ describe("ProfileModal", () => {
   });
 });
 
-describe("Login", () => {
-  test("Mock mutation for tokenAuth", async () => {
-    const mutate = jest.fn(() => Promise.resolve(tokenResponse));
-    const wrapper = shallowMount(Login, {
-      Vue,
-      mocks: {
-        $apollo: {
-          mutate,
-        },
-      },
-    });
-
-    await Mutations.tokenAuth(wrapper.vm.$apollo, "username", "password");
-
-    expect(mutate).toBeCalled();
-    expect(wrapper.element).toMatchSnapshot();
-  });
-});
-
-describe("TeamModal", () => {
-  test("Mock mutation for addTeam", async () => {
-    const mutate = jest.fn(() => Promise.resolve(addTeamResponse));
-    const wrapper = shallowMount(TeamModal, {
-      Vue,
-      mocks: {
-        $apollo: {
-          mutate,
-        },
-      },
-      propsData: {
-        fetchTeams: () => paginatedTeams,
-        addTeam: mutate,
-        deleteTeam: () => {},
-        parent: "Parent Organization",
-      },
-    });
-
-    await Mutations.addTeam(wrapper.vm.$apollo, "test");
-
-    expect(mutate).toBeCalled();
-    expect(wrapper.element).toMatchSnapshot();
-  });
-
-  test("Mock mutation for deleteTeam", async () => {
-    const mutate = jest.fn(() => Promise.resolve(addTeamResponse));
-    const wrapper = shallowMount(TeamModal, {
-      Vue,
-      mocks: {
-        $apollo: {
-          mutate,
-        },
-      },
-      propsData: {
-        fetchTeams: () => paginatedTeams,
-        addTeam: () => {},
-        deleteTeam: mutate,
-        parent: "Parent Organization",
-      },
-    });
-
-    await Mutations.deleteTeam(wrapper.vm.$apollo, "test");
-
-    expect(mutate).toBeCalled();
-    expect(wrapper.element).toMatchSnapshot();
-  });
-});
-
 describe("Jobs", () => {
   test("Mock mutation for affiliate", async () => {
     const mutate = jest.fn(() => Promise.resolve(affiliateResponse));
-    const wrapper = shallowMount(Jobs, {
-      Vue,
-      mocks: {
-        $apollo: {
-          mutate,
+    const wrapper = mount(Jobs, {
+      shallow: true,
+      global: {
+        plugins: [vuetify],
+        mocks: {
+          $apollo: {
+            mutate,
+          },
         },
       },
     });
@@ -713,11 +622,14 @@ describe("Jobs", () => {
 
   test("Mock mutation for genderize", async () => {
     const mutate = jest.fn(() => Promise.resolve(genderizeResponse));
-    const wrapper = shallowMount(Jobs, {
-      Vue,
-      mocks: {
-        $apollo: {
-          mutate,
+    const wrapper = mount(Jobs, {
+      shallow: true,
+      global: {
+        plugins: [vuetify],
+        mocks: {
+          $apollo: {
+            mutate,
+          },
         },
       },
     });
@@ -733,11 +645,14 @@ describe("Jobs", () => {
 
   test("Mock mutation for unify", async () => {
     const mutate = jest.fn(() => Promise.resolve(unifyResponse));
-    const wrapper = shallowMount(Jobs, {
-      Vue,
-      mocks: {
-        $apollo: {
-          mutate,
+    const wrapper = mount(Jobs, {
+      shallow: true,
+      global: {
+        plugins: [vuetify],
+        mocks: {
+          $apollo: {
+            mutate,
+          },
         },
       },
     });

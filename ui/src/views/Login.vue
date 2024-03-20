@@ -1,6 +1,6 @@
 <template>
-  <v-main class="align-center">
-    <v-card class="mx-auto pa-7" max-width="500">
+  <v-main class="d-flex align-center">
+    <v-card class="mx-auto pa-7" width="500">
       <v-card-title class="display-1 mb-2">Welcome</v-card-title>
       <v-card-subtitle class="mb-3">Please log in to continue</v-card-subtitle>
       <v-card-text>
@@ -26,9 +26,10 @@
             {{ errorMessage }}
           </v-alert>
           <v-btn
-            depressed
-            block
             color="primary"
+            size="default"
+            variant="flat"
+            block
             :disabled="disableSubmit"
             @click.prevent="submit"
           >

@@ -2,26 +2,24 @@
   <v-autocomplete
     v-model="inputValue"
     :items="organizations"
-    :search-input.sync="search"
     :label="label"
     :loading="isLoading"
     :filter="filterItems"
-    item-text="name"
+    :no-data-text="`No matches for &quot;${searchValue}&quot;`"
+    :hide-no-data="isLoading"
+    item-title="name"
     item-value="name"
-    :no-data-text="`No matches for &quot;${search}&quot;`"
-    :hide-no-data="!search || isLoading"
+    variant="outlined"
+    density="comfortable"
     clearable
-    dense
-    outlined
+    @update:search="search"
   >
     <template v-slot:append-item>
       <v-list-item v-if="appendContent" @click="createOrganization">
-        <v-list-item-content>
-          <v-list-item-title>
-            <span class="font-weight-regular">Create</span>
-            {{ search }}
-          </v-list-item-title>
-        </v-list-item-content>
+        <v-list-item-title>
+          <span class="font-weight-regular">Create</span>
+          {{ searchValue }}
+        </v-list-item-title>
       </v-list-item>
     </template>
   </v-autocomplete>
@@ -32,17 +30,14 @@ export default {
   name: "OrganizationSelector",
   data() {
     return {
-      inputValue: this.value,
+      inputValue: "",
       organizations: [],
-      search: this.value,
       isLoading: false,
+      searchValue: null,
     };
   },
+  emits: ["update:modelValue"],
   props: {
-    value: {
-      type: String,
-      required: false,
-    },
     addOrganization: {
       type: Function,
       required: true,
@@ -75,12 +70,13 @@ export default {
     },
     async createOrganization() {
       try {
-        const response = await this.addOrganization(this.search);
-        this.organizations.splice(0, 0, {
+        const response = await this.addOrganization(this.searchValue);
+        const newOrg = {
           name: response.data.addOrganization.organization.name,
-        });
-        this.inputValue = this.search;
-        this.$logger.debug(`Created organization "${this.search}"`);
+        };
+        this.organizations = [newOrg, ...this.organizations];
+        this.inputValue = this.searchValue;
+        this.$logger.debug(`Created organization "${this.searchValue}"`);
       } catch (error) {
         this.$logger.error(`Error creating organization: ${error}`);
         this.$emit("error", this.$getErrorMessage(error));
@@ -90,33 +86,32 @@ export default {
       // Return all items because the query is already filtered
       return item;
     },
+    search(value) {
+      this.searchValue = value;
+      if (!value || (value.length > 2 && value !== this.inputValue)) {
+        this.isLoading = true;
+        this.debounceSearch(value);
+      }
+    },
   },
   computed: {
     appendContent() {
       return (
-        this.search &&
+        this.searchValue &&
         !this.organizations.some(
           (org) =>
-            org.name.toLowerCase() === this.search.toLowerCase() ||
+            org.name.toLowerCase() === this.searchValue.toLowerCase() ||
             org.aliases.some(
-              (alias) => alias.alias.toLowerCase() === this.search.toLowerCase()
+              (alias) =>
+                alias.alias.toLowerCase() === this.searchValue.toLowerCase()
             )
         )
       );
     },
   },
   watch: {
-    search(value) {
-      if (!value || value.length > 2) {
-        this.isLoading = true;
-        this.debounceSearch(value);
-      }
-    },
-    value() {
-      this.inputValue = this.value;
-    },
     inputValue() {
-      this.$emit("input", this.inputValue);
+      this.$emit("update:modelValue", this.inputValue);
     },
   },
   mounted() {

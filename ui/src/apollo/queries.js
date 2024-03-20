@@ -349,7 +349,7 @@ const getPaginatedIndividuals = (
       filters: filters,
       orderBy: orderBy,
     },
-    fetchPolicy: "cache-first",
+    fetchPolicy: "no-cache",
   });
   return response;
 };

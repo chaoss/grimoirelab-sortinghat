@@ -1,26 +1,29 @@
 <template>
   <v-dialog v-model="isOpen" width="700" persistent>
-    <template v-slot:activator="{ on }">
-      <slot name="activator" :on="on">
-        <v-btn
-          v-show="count !== 0"
-          v-on="on"
-          class="mr-4"
-          height="34"
-          outlined
-          small
-        >
-          <v-icon left small>mdi-lightbulb-on-outline</v-icon>
-          {{ count }} recommendation{{ count > 1 ? "s" : "" }}
-        </v-btn>
-      </slot>
+    <template v-slot:activator="{ props }">
+      <v-btn
+        v-show="count !== 0"
+        v-bind="props"
+        class="mr-4"
+        height="34"
+        variant="outlined"
+        size="small"
+      >
+        <v-icon size="small" start>mdi-lightbulb-on-outline</v-icon>
+        {{ count }} recommendation{{ count > 1 ? "s" : "" }}
+      </v-btn>
     </template>
 
     <v-card v-if="currentItem" class="section">
       <v-card-title class="header title d-flex justify-space-between">
         <span>Review recommendations</span>
-        <v-btn icon color="primary" class="mr-n2" @click="onClose">
-          <v-icon color="primary">mdi-close</v-icon>
+        <v-btn
+          icon="mdi-close"
+          color="primary"
+          class="mr-n2"
+          variant="text"
+          @click="onClose"
+        >
         </v-btn>
       </v-card-title>
       <v-card-subtitle
@@ -58,7 +61,7 @@
           </v-col>
         </v-row>
 
-        <v-alert v-if="errorMessage" text type="error" class="mt-4">
+        <v-alert v-if="errorMessage" variant="tonal" type="error" class="mt-4">
           {{ errorMessage }}
         </v-alert>
 
@@ -66,14 +69,14 @@
           <v-spacer></v-spacer>
           <v-btn
             color="primary darken-1"
-            text
+            variant="text"
             @click.prevent="applyRecommendation(false)"
           >
             Dismiss
           </v-btn>
           <v-btn
             color="primary"
-            depressed
+            variant="flat"
             @click.prevent="applyRecommendation(true)"
           >
             Merge

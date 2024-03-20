@@ -7,7 +7,6 @@
       dropzone: isDropZone,
       highlighted: isHighlighted,
     }"
-    @click.prevent="selectEntry"
     @dblclick="onDoubleClick"
     @drop.stop="onDrop($event)"
     @dragover.prevent="handleDrag($event, true)"
@@ -16,67 +15,80 @@
     @mouseenter="$emit('highlight')"
     @mouseleave="$emit('stopHighlight')"
   >
-    <td width="25%">
+    <td
+      v-if="isExpandable"
+      class="v-data-table__td v-data-table-column--no-padding v-data-table-column--align-start"
+      style="width: 48px"
+    >
+      <v-checkbox-btn
+        :model-value="isSelected"
+        @update:modelValue="$emit('select')"
+      />
+    </td>
+    <td>
       <v-list-item>
-        <avatar :name="name" :email="email" class="mt-3 mb-3" />
-
-        <v-list-item-content>
-          <v-list-item-title class="font-weight-medium">
-            <router-link
-              :to="{ name: 'Individual', params: { mk: uuid } }"
-              target="_blank"
-            >
-              <span @click.stop>{{ name || "no name" }}</span>
-            </router-link>
-
-            <v-tooltip bottom transition="expand-y-transition" open-delay="200">
-              <template v-slot:activator="{ on }">
+        <template v-slot:prepend>
+          <avatar :name="name" :email="email" />
+        </template>
+        <v-list-item-title>
+          <router-link
+            :to="{ name: 'Individual', params: { mk: uuid } }"
+            class="link--underline"
+            target="_blank"
+          >
+            <span @click.stop>{{ name || "no name" }}</span>
+          </router-link>
+          <v-tooltip
+            location="bottom"
+            transition="expand-y-transition"
+            open-delay="200"
+          >
+            <template v-slot:activator="{ props }">
+              <v-icon
+                v-if="!isLocked"
+                v-bind="props"
+                :class="{ 'icon--hidden': !isBot }"
+                size="x-small"
+                end
+                @click.stop="$emit('edit', { isBot: !isBot })"
+              >
+                mdi-robot
+              </v-icon>
+              <v-icon
+                v-if="isLocked && isBot"
+                v-bind="props"
+                size="x-small"
+                end
+              >
+                mdi-robot
+              </v-icon>
+            </template>
+            <span>Bot</span>
+          </v-tooltip>
+          <v-tooltip
+            location="bottom"
+            transition="expand-y-transition"
+            open-delay="200"
+          >
+            <template v-slot:activator="{ props }">
+              <v-hover v-slot="{ hover }">
                 <v-icon
-                  v-show="!isLocked"
-                  v-on="on"
-                  class="aligned"
-                  :class="{ 'icon--hidden': !isBot }"
-                  small
-                  right
-                  @click.stop="$emit('edit', { isBot: !isBot })"
+                  v-bind="props"
+                  :class="{ 'icon--hidden': !isLocked }"
+                  size="x-small"
+                  end
+                  @click.stop="$emit('lock', !isLocked)"
                 >
-                  mdi-robot
+                  {{ hover && isLocked ? "mdi-lock-open" : "mdi-lock" }}
                 </v-icon>
-                <v-icon
-                  v-show="isLocked && isBot"
-                  v-on="on"
-                  class="aligned"
-                  small
-                  right
-                >
-                  mdi-robot
-                </v-icon>
-              </template>
-              <span>Bot</span>
-            </v-tooltip>
-
-            <v-tooltip bottom transition="expand-y-transition" open-delay="200">
-              <template v-slot:activator="{ on }">
-                <v-hover v-slot="{ hover }">
-                  <v-icon
-                    v-on="on"
-                    class="aligned"
-                    :class="{ 'icon--hidden': !isLocked }"
-                    small
-                    right
-                    @click.stop="$emit('lock', !isLocked)"
-                  >
-                    {{ hover && isLocked ? "mdi-lock-open" : "mdi-lock" }}
-                  </v-icon>
-                </v-hover>
-              </template>
-              <span>{{ isLocked ? "Unlock profile" : "Lock profile" }}</span>
-            </v-tooltip>
-          </v-list-item-title>
-          <v-list-item-subtitle v-if="organization">
-            {{ organization }}
-          </v-list-item-subtitle>
-        </v-list-item-content>
+              </v-hover>
+            </template>
+            <span>{{ isLocked ? "Unlock profile" : "Lock profile" }}</span>
+          </v-tooltip>
+        </v-list-item-title>
+        <v-list-item-subtitle>
+          {{ organization }}
+        </v-list-item-subtitle>
       </v-list-item>
     </td>
 
@@ -88,13 +100,20 @@
       <v-tooltip
         v-for="(source, index) in sources"
         :key="index"
-        bottom
+        location="bottom"
         transition="expand-y-transition"
         open-delay="300"
       >
-        <template v-slot:activator="{ on }">
-          <v-chip v-on="on" class="ml-1" outlined>
-            <v-icon v-text="source.icon" left />
+        <template v-slot:activator="{ props }">
+          <v-chip
+            v-bind="props"
+            class="ma-1"
+            variant="outlined"
+            color="#363c42"
+          >
+            <v-icon start>
+              {{ source.icon }}
+            </v-icon>
             {{ source.count }}
           </v-chip>
         </template>
@@ -102,15 +121,15 @@
       </v-tooltip>
     </td>
 
-    <td v-if="isExpandable" width="140">
-      <v-btn icon @click.stop="$emit('expand')">
+    <td v-if="isExpandable" width="136" class="text-right">
+      <v-btn size="small" variant="text" icon @click.stop="$emit('expand')">
         <v-icon>
           {{ isExpanded ? "mdi-chevron-up" : "mdi-chevron-down" }}
         </v-icon>
       </v-btn>
       <v-menu right nudge-right="35">
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn icon v-bind="attrs" v-on="on">
+        <template v-slot:activator="{ props }">
+          <v-btn size="small" variant="text" icon v-bind="props">
             <v-icon>mdi-dots-vertical</v-icon>
           </v-btn>
         </template>
@@ -135,8 +154,8 @@
         </v-list>
       </v-menu>
       <v-tooltip bottom transition="expand-y-transition" open-delay="200">
-        <template v-slot:activator="{ on }">
-          <v-icon :disabled="isLocked" v-on="on">mdi-drag-vertical</v-icon>
+        <template v-slot:activator="{ props }">
+          <v-icon :disabled="isLocked" v-bind="props">mdi-drag-vertical</v-icon>
         </template>
         <span>Drag individual</span>
       </v-tooltip>
@@ -298,12 +317,12 @@ export default {
 }
 tr {
   cursor: pointer;
-  ::v-deep .icon--hidden {
+  .icon--hidden {
     opacity: 0;
     padding-bottom: 2px;
   }
   &:hover {
-    ::v-deep .icon--hidden {
+    .icon--hidden {
       opacity: 1;
     }
   }
@@ -318,5 +337,10 @@ tr {
       text-decoration: underline;
     }
   }
+}
+
+.v-list-item {
+  min-width: 240px;
+  padding: 12px 0;
 }
 </style>

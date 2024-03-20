@@ -1,6 +1,6 @@
 <template>
   <v-dialog
-    v-model="isOpen"
+    :model-value="isOpen"
     max-width="450"
     @click:outside="$emit('update:open')"
   >
@@ -51,12 +51,12 @@
 
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="primary" text @click="onClose"> Cancel </v-btn>
+        <v-btn color="primary" variant="text" @click="onClose"> Cancel </v-btn>
 
         <v-btn
           color="primary"
           :disabled="!form.fields.url"
-          depressed
+          variant="flat"
           @click="onSave"
         >
           Save

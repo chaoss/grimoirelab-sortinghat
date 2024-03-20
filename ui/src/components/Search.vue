@@ -6,14 +6,13 @@
       class="search pa-0 flex-grow-0"
       :error-messages="errorMessage"
       clearable
+      density="compact"
       label="Search"
       type="text"
-      height="30"
       hint=" "
       persistent-hint
       single-line
       outlined
-      dense
       @click:prepend-inner="search"
       @click:clear="clear"
       @keyup.enter="search"
@@ -21,21 +20,14 @@
       @blur="isFocused = false"
     >
       <template v-slot:prepend v-if="filterSelector">
-        <v-menu offset-y>
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              class="text-body-1"
-              depressed
-              color="white"
-              height="30"
-              v-bind="attrs"
-              v-on="on"
-            >
+        <v-menu :attach="true" offset-y>
+          <template v-slot:activator="{ props }">
+            <v-btn class="text-body-1" size="small" height="32" v-bind="props">
               Filters
               <v-icon small right>mdi-menu-down</v-icon>
             </v-btn>
           </template>
-          <v-list dense class="mt-1">
+          <v-list density="compact" class="mt-1" nav>
             <v-list-item
               v-for="(item, i) in validFilters"
               :key="i"
@@ -60,25 +52,25 @@
       v-if="orderSelector"
       v-model="order.value"
       :items="orderOptions"
+      :list-props="{ nav: true }"
       :menu-props="{ offsetY: true, bottom: true, nudgeTop: 8 }"
+      density="compact"
       label="Order by"
       class="select"
       attach
-      dense
       outlined
       single-line
       ref="orderSelector"
-      @change="search"
+      @update:modelValue="search"
     >
       <template v-slot:prepend>
         <v-tooltip bottom transition="expand-y-transition" open-delay="200">
-          <template v-slot:activator="{ on }">
+          <template v-slot:activator="{ props }">
             <v-btn
-              v-on="on"
+              v-bind="props"
               class="text-body-1"
               depressed
-              color="white"
-              height="30"
+              height="32"
               @click="changeOrder"
             >
               <v-icon small>
@@ -168,7 +160,7 @@ export default {
       required: false,
       default: () => [
         {
-          text: "Last updated",
+          title: "Last updated",
           value: "lastModified",
         },
       ],
@@ -345,50 +337,17 @@ export default {
 .search,
 .select {
   width: 100%;
-  margin-top: 2px;
   font-size: 0.9rem;
 
-  ::v-deep fieldset {
+  :deep(fieldset) {
     height: 37px;
   }
-  ::v-deep input {
+  :deep(input) {
     padding-top: 0;
   }
-  ::v-deep .v-label {
+  :deep(.v-label) {
     font-size: 0.9rem;
     line-height: 13px;
-  }
-}
-
-.v-text-field--enclosed.v-input--dense:not(.v-text-field--solo) {
-  ::v-deep .v-input__prepend-outer {
-    border: solid rgba(0, 0, 0, 0.38);
-    border-width: 1px 0 1px 1px;
-    border-radius: 4px 0 0 4px;
-    margin: 0;
-
-    .v-btn {
-      border-radius: 4px 0 0 4px;
-      span {
-        font-size: 0.9rem;
-        text-transform: capitalize;
-        letter-spacing: normal;
-      }
-    }
-
-    & + .v-input__control > .v-input__slot {
-      border-radius: 0 4px 4px 0;
-      margin-bottom: 0;
-    }
-  }
-  ::v-deep .v-input__append-inner,
-  ::v-deep .v-input__append-outer,
-  ::v-deep .v-input__prepend-inner {
-    margin-top: 4px;
-  }
-
-  ::v-deep .v-icon.v-icon {
-    font-size: 1.1rem;
   }
 }
 
@@ -401,7 +360,7 @@ export default {
     height: 37px;
   }
 
-  ::v-deep .v-select__slot {
+  :deep(.v-select__slot) {
     height: 30px;
   }
 
@@ -409,5 +368,42 @@ export default {
     padding: 0 8px;
     min-width: 40px;
   }
+}
+
+:deep(.v-input__prepend) {
+  border: solid rgba(0, 0, 0, 0.38);
+  border-width: 1px 0 1px 1px;
+  border-radius: 4px 0 0 4px;
+  margin: 0;
+
+  .v-btn {
+    border-radius: 4px 0 0 4px;
+    border: 0;
+    span {
+      letter-spacing: 0.009375em;
+    }
+  }
+}
+
+:deep(.v-input__prepend) + .v-input__control > .v-field--center-affix {
+  border-radius: 0 4px 4px 0;
+}
+
+:deep(.v-input--density-compact) {
+  --v-input-control-height: 34px;
+  --v-input-padding-top: 4px;
+  --v-field-input-padding-bottom: 0;
+  --v-field-padding-bottom: 0;
+
+  .v-field__input {
+    padding-bottom: 6px;
+    padding-top: 6px;
+    font-size: 0.9rem;
+  }
+}
+:deep(.v-input--density-compact) .v-field--variant-outlined,
+.v-input--density-compact .v-field--single-line {
+  --v-field-padding-bottom: 0;
+  --v-input-padding-top: 4px;
 }
 </style>

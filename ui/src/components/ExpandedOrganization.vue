@@ -1,81 +1,218 @@
 <template>
-  <td colspan="3" class="pa-2">
-    <v-treeview
-      :items="teams"
-      :load-children="loadChildren"
-      :open.sync="openTeams"
-      expand-icon="mdi-chevron-down"
-      dense
-      open-on-click
-      return-object
-    >
-      <template v-slot:label="{ item }">
-        <v-row
+  <td colspan="3" class="pa-1">
+    <p class="ma-3 text-medium-emphasis ml-6" v-if="teams.length === 0">
+      No teams
+    </p>
+    <v-list v-model:opened="openTeams" density="compact" nav>
+      <div v-for="team in teams" :key="team.id">
+        <v-list-group v-if="team.children" :value="team.name">
+          <template v-slot:activator="{ props }">
+            <v-list-item
+              v-bind="props"
+              draggable="true"
+              @click.once="loadChildren(team)"
+              @dragstart="($event) => startDrag(organization, team, $event)"
+              @drop.stop="onDrop($event, team)"
+              @dragover.prevent="isDropZone($event, true)"
+              @dragenter.prevent="isDropZone($event, true)"
+              @dragleave.prevent="isDropZone($event, false)"
+            >
+              <v-list-item-title
+                class="d-flex justify-space-between align-center"
+              >
+                {{ team.name }}
+                <div>
+                  <v-btn
+                    class="mr-9"
+                    variant="text"
+                    @click.stop="
+                      $emit('getEnrollments', {
+                        enrollment: team.name,
+                        parentOrg: organization,
+                      })
+                    "
+                  >
+                    {{ team.enrollments }}
+                    <v-icon end> mdi-account-multiple </v-icon>
+                  </v-btn>
+                  <v-menu :close-on-content-click="false">
+                    <template v-slot:activator="{ props }">
+                      <v-btn
+                        v-bind="props"
+                        class="ml-2"
+                        density="comfortable"
+                        icon="mdi-dots-vertical"
+                        variant="text"
+                        @click.stop
+                      />
+                    </template>
+                    <v-list density="compact">
+                      <v-menu v-model="menu" :close-on-content-click="false">
+                        <template v-slot:activator="{ props }">
+                          <v-list-item v-bind="props">
+                            <v-list-item-title>Add a team</v-list-item-title>
+                          </v-list-item>
+                        </template>
+                        <v-card min-width="200">
+                          <v-card-text>
+                            <v-text-field
+                              v-model="newTeam"
+                              label="Team name"
+                              color="primary"
+                              density="compact"
+                              hide-details
+                              single-line
+                            />
+                          </v-card-text>
+                          <v-card-actions>
+                            <v-btn
+                              @click="
+                                menu = false;
+                                newTeam = '';
+                              "
+                            >
+                              Cancel
+                            </v-btn>
+                            <v-btn @click="createTeam(team)"> Save </v-btn>
+                          </v-card-actions>
+                        </v-card>
+                      </v-menu>
+                      <v-list-item @click="confirmDelete(team)">
+                        <v-list-item-title>Delete team</v-list-item-title>
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
+                </div>
+              </v-list-item-title>
+            </v-list-item>
+          </template>
+          <v-list-item
+            v-for="child in team.children"
+            :key="child.id"
+            draggable="true"
+            @dragstart="($event) => startDrag(organization, child, $event)"
+            @drop.stop="onDrop($event, child)"
+            @dragover.prevent="isDropZone($event, true)"
+            @dragenter.prevent="isDropZone($event, true)"
+            @dragleave.prevent="isDropZone($event, false)"
+            @click.stop
+          >
+            <v-list-item-title
+              class="d-flex justify-space-between align-center"
+            >
+              {{ child.name }}
+              <div>
+                <v-btn
+                  class="mr-9"
+                  variant="text"
+                  @click.stop="
+                    $emit('getEnrollments', {
+                      enrollment: child.name,
+                      parentOrg: organization,
+                    })
+                  "
+                >
+                  {{ child.enrollments }}
+                  <v-icon end> mdi-account-multiple </v-icon>
+                </v-btn>
+                <v-menu :close-on-content-click="false">
+                  <template v-slot:activator="{ props }">
+                    <v-btn
+                      v-bind="props"
+                      class="ml-2 mr-5"
+                      density="comfortable"
+                      icon="mdi-dots-vertical"
+                      variant="text"
+                      @click.stop
+                    />
+                  </template>
+                  <v-list density="compact">
+                    <v-list-item @click="confirmDelete(child)">
+                      <v-list-item-title>Delete team</v-list-item-title>
+                    </v-list-item>
+                  </v-list>
+                </v-menu>
+              </div>
+            </v-list-item-title>
+          </v-list-item>
+        </v-list-group>
+        <v-list-item
+          v-else
           draggable="true"
-          class="align-center"
-          @dragstart="($event) => startDrag(organization, item, $event)"
-          @drop.stop="onDrop($event, item)"
+          @dragstart="($event) => startDrag(organization, team, $event)"
+          @drop.stop="onDrop($event, team)"
           @dragover.prevent="isDropZone($event, true)"
           @dragenter.prevent="isDropZone($event, true)"
           @dragleave.prevent="isDropZone($event, false)"
         >
-          <v-col>
-            <span class="font-weight-medium">{{ item.name }}</span>
-          </v-col>
-          <v-col class="d-flex justify-end mr-7">
-            <v-btn
-              small
-              depressed
-              color="transparent"
-              @click.stop="
-                $emit('getEnrollments', {
-                  enrollment: item.name,
-                  parentOrg: organization,
-                })
-              "
-            >
-              {{ item.enrollments }}
-              <v-icon small right> mdi-account-multiple </v-icon>
-            </v-btn>
-          </v-col>
-        </v-row>
-      </template>
-      <template v-slot:append="{ item }">
-        <v-menu left nudge-left="16">
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn icon small v-bind="attrs" v-on="on" class="mr-9">
-              <v-icon small>mdi-dots-vertical</v-icon>
-            </v-btn>
-          </template>
-          <v-list dense>
-            <v-edit-dialog
-              large
-              @save="createTeam(item)"
-              @cancel="newTeam = ''"
-            >
-              <v-list-item>
-                <v-list-item-title>Add a team</v-list-item-title>
-              </v-list-item>
-              <template v-slot:input>
-                <h6 class="text-subtitle-2 mt-2">
-                  Add team to {{ item.name }}
-                </h6>
-                <v-text-field
-                  v-model="newTeam"
-                  label="Name"
-                  maxlength="50"
-                  single-line
-                />
-              </template>
-            </v-edit-dialog>
-            <v-list-item @click="confirmDelete(item)">
-              <v-list-item-title>Delete team</v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </v-menu>
-      </template>
-    </v-treeview>
-    <p class="ma-3 text--secondary ml-9" v-if="teams.length === 0">No teams</p>
+          <v-list-item-title class="d-flex justify-space-between align-center">
+            {{ team.name }}
+            <div>
+              <v-btn
+                class="mr-9"
+                variant="text"
+                @click.stop="
+                  $emit('getEnrollments', {
+                    enrollment: team.name,
+                    parentOrg: organization,
+                  })
+                "
+              >
+                {{ team.enrollments }}
+                <v-icon end> mdi-account-multiple </v-icon>
+              </v-btn>
+              <v-menu :close-on-content-click="false">
+                <template v-slot:activator="{ props }">
+                  <v-btn
+                    v-bind="props"
+                    class="ml-2 mr-5"
+                    density="comfortable"
+                    icon="mdi-dots-vertical"
+                    variant="text"
+                    @click.stop
+                  />
+                </template>
+                <v-list density="compact">
+                  <v-menu v-model="menu" :close-on-content-click="false">
+                    <template v-slot:activator="{ props }">
+                      <v-list-item v-bind="props">
+                        <v-list-item-title>Add a team</v-list-item-title>
+                      </v-list-item>
+                    </template>
+                    <v-card min-width="200">
+                      <v-card-text>
+                        <v-text-field
+                          v-model="newTeam"
+                          label="Team name"
+                          color="primary"
+                          density="compact"
+                          hide-details
+                          single-line
+                        />
+                      </v-card-text>
+                      <v-card-actions>
+                        <v-btn
+                          @click="
+                            menu = false;
+                            newTeam = '';
+                          "
+                        >
+                          Cancel
+                        </v-btn>
+                        <v-btn @click="createTeam(team)"> Save </v-btn>
+                      </v-card-actions>
+                    </v-card>
+                  </v-menu>
+                  <v-list-item @click="confirmDelete(team)">
+                    <v-list-item-title>Delete team</v-list-item-title>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+            </div>
+          </v-list-item-title>
+        </v-list-item>
+      </div>
+    </v-list>
     <v-dialog v-model="dialog.isOpen" v-if="dialog.isOpen" max-width="500px">
       <v-card class="pa-3">
         <v-card-title class="headline">{{ dialog.title }}</v-card-title>
@@ -101,7 +238,6 @@
 <script>
 export default {
   name: "ExpandedOrganization",
-
   props: {
     domains: {
       type: Array,
@@ -138,6 +274,7 @@ export default {
         isOpen: false,
         title: "",
       },
+      menu: false,
     };
   },
   methods: {
@@ -161,7 +298,9 @@ export default {
       if (!enrollments) {
         return 0;
       }
-      const uniqueIndividuals = new Set(enrollments.map((item) => item.id));
+      const uniqueIndividuals = new Set(
+        enrollments.map((item) => item.individual?.mk)
+      );
 
       return uniqueIndividuals.size;
     },
@@ -200,6 +339,7 @@ export default {
             children: undefined,
           });
           this.newTeam = "";
+          this.menu = false;
         }
       } catch (error) {
         Object.assign(this.dialog, {
@@ -255,7 +395,7 @@ export default {
       });
     },
     isDropZone(event, isDragging) {
-      const treeNode = event.target.closest(".v-treeview-node__root");
+      const treeNode = event.target.closest(".v-list-item");
       const type = event.dataTransfer.getData("type");
       const types = event.dataTransfer.types;
 
@@ -271,9 +411,7 @@ export default {
     onDrop(event, item) {
       const types = event.dataTransfer.types;
 
-      event.target
-        .closest(".v-treeview-node__root")
-        .classList.remove("dropzone");
+      event.target.closest(".v-list-item").classList.remove("dropzone");
 
       if (types.includes("individuals")) {
         const droppedIndividuals = JSON.parse(
@@ -295,13 +433,14 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-::v-deep .v-treeview-node__toggle,
-::v-deep .v-treeview-node__level {
+:deep(.v-treeview-node__toggle),
+:deep(.v-treeview-node__level) {
   font-size: 1rem;
   width: 1rem;
 }
 
-.row[draggable="true"] {
+.v-list-item[draggable="true"] {
+  padding-left: 16px;
   &::before {
     font: normal normal normal 24px/1 "Material Design Icons";
     font-size: 1rem;
@@ -319,5 +458,9 @@ export default {
       opacity: 1;
     }
   }
+}
+
+:deep(.v-list-item__append) > .v-icon ~ .v-list-item__spacer {
+  width: 0;
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="isOpen" persistent max-width="440px">
+  <v-dialog :modelValue="isOpen" persistent max-width="440px">
     <v-card class="section">
       <v-card-title class="header">
         <span class="title">
@@ -14,8 +14,7 @@
                 label="Name"
                 v-model="form.name"
                 :disabled="!!savedData.name"
-                outlined
-                dense
+                density="compact"
               />
             </v-col>
           </v-row>
@@ -31,28 +30,31 @@
               <v-text-field
                 v-model="form.domains[index].domain"
                 label="Domain"
-                hide-details
-                outlined
-                dense
+                density="compact"
               />
             </v-col>
             <v-col cols="4">
               <v-checkbox
                 v-model="form.domains[index].isTopDomain"
                 label="Top domain"
-                dense
+                density="compact"
                 hide-details
               />
             </v-col>
-            <v-col cols="2" class="pt-3">
-              <v-btn icon color="primary" @click="removeDomain(index)">
-                <v-icon color="primary">mdi-delete</v-icon>
+            <v-col cols="2" class="mt-2">
+              <v-btn
+                icon="mdi-delete"
+                color="primary"
+                variant="text"
+                density="compact"
+                @click="removeDomain(index)"
+              >
               </v-btn>
             </v-col>
           </v-row>
           <v-row class="pl-3 mt-2 mb-4">
-            <v-btn text small outlined color="primary" @click="addInput">
-              <v-icon small left color="primary">
+            <v-btn size="small" color="primary" @click="addInput">
+              <v-icon size="small" color="primary" start>
                 mdi-plus-circle-outline
               </v-icon>
               Add domain
@@ -70,31 +72,25 @@
               <v-text-field
                 v-model="form.aliases[index]"
                 label="Alias"
+                density="compact"
                 hide-details
-                outlined
-                dense
               />
             </v-col>
-            <v-col cols="2" class="pt-3">
+            <v-col cols="2" class="pt-4 mt-1">
               <v-btn
-                icon
+                icon="mdi-delete"
                 color="primary"
+                density="compact"
+                variant="text"
                 @click="form.aliases.splice(index, 1)"
               >
-                <v-icon color="primary">mdi-delete</v-icon>
               </v-btn>
             </v-col>
           </v-row>
           <v-row class="pl-3 mt-2">
-            <v-btn
-              text
-              small
-              outlined
-              color="primary"
-              @click="form.aliases.push('')"
-            >
-              <v-icon small left color="primary">
-                mdi-plus-circle-outline
+            <v-btn size="small" color="primary" @click="form.aliases.push('')">
+              <v-icon size="small" color="primary" start
+                >> mdi-plus-circle-outline
               </v-icon>
               Add alias
             </v-btn>
@@ -105,11 +101,15 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="primary darken-1" text @click.prevent="closeModal">
+          <v-btn
+            color="primary darken-1"
+            variant="text"
+            @click.prevent="closeModal"
+          >
             Cancel
           </v-btn>
           <v-btn
-            depressed
+            variant="flat"
             color="primary"
             :disabled="form.name.length === 0"
             @click.prevent="onSave"

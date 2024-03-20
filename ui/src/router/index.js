@@ -1,5 +1,5 @@
-import Router from "vue-router";
-import store from "../store";
+import { createRouter, createWebHistory } from "vue-router";
+import { store } from "../store";
 
 const routes = [
   {
@@ -64,9 +64,10 @@ const routes = [
   },
 ];
 
-const router = new Router({
-  mode: "history",
-  base: process.env.NODE_ENV === "production" ? "/identities/" : null,
+const base = process.env.NODE_ENV === "production" ? "/identities/" : null;
+
+const router = new createRouter({
+  history: createWebHistory(base),
   routes,
 });
 

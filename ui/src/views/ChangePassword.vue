@@ -2,11 +2,11 @@
   <v-main>
     <v-card class="mx-auto mt-6 section" max-width="500" elevation="0" outlined>
       <v-card-title class="header">Password change</v-card-title>
-      <v-card-subtitle v-if="showForm" class="pa-8 pb-0">
-        Please enter your old password, for security’s sake, and then enter your
-        new password twice so we can verify you typed it in correctly.
-      </v-card-subtitle>
       <v-card-text class="pa-8">
+        <p v-if="showForm" class="mb-8">
+          Please enter your old password, for security's sake, and then enter
+          your new password twice so we can verify you typed it in correctly.
+        </p>
         <v-form v-if="showForm" ref="form_change_password">
           <v-text-field
             v-model="old_password"
@@ -56,7 +56,8 @@
           <v-btn
             :disabled="!old_password || !new_password1 || !new_password2"
             color="primary"
-            depressed
+            variant="flat"
+            size="default"
             @click.prevent="onSubmit"
           >
             Save

@@ -327,6 +327,6 @@ export const Expandable = () => ({
       },
     ],
     expanded: [],
-    expandable: true
+    expandable: true,
   }),
 });

@@ -1,17 +1,19 @@
-import Vue from "vue";
+import { createApp } from "vue";
 import App from "./App.vue";
 import router from "./router";
-import store from "./store";
-import vuetify from "./plugins/vuetify";
-import VueApollo from "vue-apollo";
-import VueRouter from "vue-router";
-import { ApolloClient } from "apollo-client";
-import { createHttpLink } from "apollo-link-http";
-import { InMemoryCache, defaultDataIdFromObject } from "apollo-cache-inmemory";
+import { store } from "./store";
 import Cookies from "js-cookie";
 import { ApolloLink } from "apollo-link";
-import Logger from "./plugins/logger";
-import GetErrorMessage from "./plugins/errors";
+import { createApolloProvider } from "@vue/apollo-option";
+import {
+  ApolloClient,
+  createHttpLink,
+  InMemoryCache,
+  defaultDataIdFromObject,
+} from "@apollo/client/core";
+import vuetify from "./plugins/vuetify";
+import logger from "./plugins/logger";
+import errorMessages from "./plugins/errors";
 
 const API_URL = process.env.VUE_APP_API_URL || `${process.env.BASE_URL}api/`;
 
@@ -58,21 +60,15 @@ const apolloClient = new ApolloClient({
   cache,
 });
 
-Vue.use(VueApollo);
-Vue.use(VueRouter);
-Vue.use(Logger);
-Vue.use(GetErrorMessage);
-
-const apolloProvider = new VueApollo({
+const apolloProvider = new createApolloProvider({
   defaultClient: apolloClient,
 });
 
-Vue.config.productionTip = false;
-
-new Vue({
-  router,
-  store,
-  vuetify,
-  apolloProvider,
-  render: (h) => h(App),
-}).$mount("#app");
+createApp(App)
+  .use(apolloProvider)
+  .use(errorMessages)
+  .use(logger)
+  .use(store)
+  .use(router)
+  .use(vuetify)
+  .mount("#app");

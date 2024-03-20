@@ -1,17 +1,13 @@
 import { mount } from "@vue/test-utils";
-import Vue from "vue";
-import Vuetify from "vuetify";
+import vuetify from "@/plugins/vuetify";
 import Search from "@/components/Search";
 
-Vue.use(Vuetify);
-
 describe("Search", () => {
-  const vuetify = new Vuetify();
   const mountFunction = (options) => {
     return mount(Search, {
-      Vue,
-      vuetify,
-      stubs: ["router-link"],
+      global: {
+        plugins: [vuetify],
+      },
       ...options,
     });
   };
@@ -26,7 +22,7 @@ describe("Search", () => {
       data: () => ({ inputValue: value }),
     });
 
-    const button = wrapper.find("button.mdi-magnify");
+    const button = wrapper.find('[role="button"].mdi-magnify');
     await button.trigger("click");
 
     expect(wrapper.vm.filters.term).toBe(expected);
@@ -56,7 +52,7 @@ describe("Search", () => {
       data: () => ({ inputValue: value }),
     });
 
-    const button = wrapper.find("button.mdi-magnify");
+    const button = wrapper.find('[role="button"].mdi-magnify');
     await button.trigger("click");
 
     expect(wrapper.vm.filters.dateFilter).toBe(expected);
@@ -78,9 +74,9 @@ describe("Search", () => {
       data: () => ({ inputValue: value }),
     });
 
-    const button = wrapper.find("button.mdi-magnify");
+    const button = wrapper.find('[role="button"].mdi-magnify');
     await button.trigger("click");
-    const errorMessage = wrapper.find(".error--text");
+    const errorMessage = wrapper.find('[role="alert"]');
 
     expect(errorMessage.exists()).toBe(true);
   });
@@ -93,7 +89,7 @@ describe("Search", () => {
       data: () => ({ inputValue: value }),
     });
 
-    const button = wrapper.find("button.mdi-magnify");
+    const button = wrapper.find('[role="button"].mdi-magnify');
     await button.trigger("click");
 
     expect(wrapper.vm.filters.gender).toBe(expected);
@@ -109,7 +105,7 @@ describe("Search", () => {
       data: () => ({ inputValue: value }),
     });
 
-    const button = wrapper.find("button.mdi-magnify");
+    const button = wrapper.find('[role="button"].mdi-magnify');
     await button.trigger("click");
 
     expect(wrapper.vm.filters.country).toBe(expected);
@@ -125,7 +121,7 @@ describe("Search", () => {
       data: () => ({ inputValue: value }),
     });
 
-    const button = wrapper.find("button.mdi-magnify");
+    const button = wrapper.find('[role="button"].mdi-magnify');
     await button.trigger("click");
 
     expect(wrapper.vm.filters.source).toBe(expected);
@@ -135,7 +131,7 @@ describe("Search", () => {
     "Given an invalid filter %p shows an error",
     async (value) => {
       const wrapper = mountFunction({
-        propsData: {
+        props: {
           validFilters: [
             {
               filter: "validFilter",
@@ -146,9 +142,9 @@ describe("Search", () => {
         data: () => ({ inputValue: value }),
       });
 
-      const button = wrapper.find("button.mdi-magnify");
+      const button = wrapper.find('[role="button"].mdi-magnify');
       await button.trigger("click");
-      const errorMessage = wrapper.find(".error--text");
+      const errorMessage = wrapper.find('[role="alert"]');
 
       expect(errorMessage.exists()).toBe(true);
     }
@@ -171,7 +167,7 @@ describe("Search", () => {
       },
       data: () => ({ inputValue: value }),
     });
-    const button = wrapper.find("button.mdi-magnify");
+    const button = wrapper.find('[role="button"].mdi-magnify');
     await button.trigger("click");
 
     expect(wrapper.vm.filters.booleanFilter).toBe(expected);
@@ -194,9 +190,9 @@ describe("Search", () => {
       },
       data: () => ({ inputValue: value }),
     });
-    const button = wrapper.find("button.mdi-magnify");
+    const button = wrapper.find('[role="button"].mdi-magnify');
     await button.trigger("click");
-    const errorMessage = wrapper.find(".error--text");
+    const errorMessage = wrapper.find('[role="alert"]');
 
     expect(errorMessage.exists()).toBe(true);
   });
@@ -216,10 +212,10 @@ describe("Search", () => {
       // Set an element data-app to avoid Vuetify warnings
       // https://github.com/vuetifyjs/vuetify/issues/3456
       const el = document.createElement("div");
-      el.setAttribute("data-app", true);
+      el.setAttribute("data-v-app", true);
       document.body.appendChild(el);
 
-      const button = wrapper.find(".v-input__prepend-outer .v-btn");
+      const button = wrapper.find(".v-input__prepend .v-btn");
       await button.trigger("click");
       const filter = wrapper.find(".v-list-item");
       await filter.trigger("click");
@@ -244,7 +240,7 @@ describe("Search", () => {
     document.body.appendChild(el);
 
     // Add filters when there is text on the search box
-    const button = wrapper.find(".v-input__prepend-outer .v-btn");
+    const button = wrapper.find(".v-input__prepend .v-btn");
     await button.trigger("click");
     const filter1 = wrapper.findAll(".v-list-item").at(0);
     const filter2 = wrapper.findAll(".v-list-item").at(1);
@@ -275,7 +271,7 @@ describe("Search", () => {
       },
     });
     const select = wrapper.findComponent({ ref: "orderSelector" });
-    select.vm.selectItem(orderOption);
+    select.vm.select(orderOption);
 
     // Default descending order
     expect(wrapper.vm.order.value).toBe("ordervalue");
@@ -283,7 +279,7 @@ describe("Search", () => {
     expect(wrapper.emitted().search[0][1]).toBe("-ordervalue");
 
     // Ascending order
-    const button = wrapper.find(".select .v-input__prepend-outer .v-btn");
+    const button = wrapper.find(".select .v-input__prepend .v-btn");
     await button.trigger("click");
 
     expect(wrapper.vm.order.descending).toBe(false);
