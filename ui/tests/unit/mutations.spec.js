@@ -549,6 +549,8 @@ describe("ProfileModal", () => {
         enroll: () => {},
         getCountries: () => {},
         fetchOrganizations: () => {},
+        addOrganization: () => {},
+        isOpen: false,
       },
     });
 
@@ -582,6 +584,8 @@ describe("ProfileModal", () => {
         enroll: () => {},
         getCountries: () => {},
         fetchOrganizations: () => {},
+        addOrganization: () => {},
+        isOpen: false,
       },
     });
 

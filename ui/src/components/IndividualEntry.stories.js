@@ -14,19 +14,28 @@ const individualEntryTemplate = `
     :expanded.sync="expanded"
     item-key="name"
   >
-    <template v-slot:item="{ item, expand, isExpanded }">
+    <template
+      v-slot:item="{
+        item,
+        toggleExpand,
+        isExpanded,
+        isSelected,
+        internalItem,
+        toggleSelect,
+      }">
       <individual-entry
         :name="item.name"
         :organization="item.organization"
         :email="item.email"
         :sources="item.sources"
-        :is-expanded="isExpanded"
+        :is-expanded="isExpanded(internalItem)"
         :is-locked="item.isLocked"
         :is-bot="item.isBot"
         :uuid="item.uuid"
         :is-highlighted="item.isHighlighted"
         :is-expandable="expandable"
-        @expand="expand(!isExpanded)"
+        :is-selected="isSelected([internalItem])"
+        @expand="toggleExpand(internalItem)"
       />
     </template>
     <template v-slot:expanded-item="{ item, expansion }">

@@ -8,8 +8,8 @@
     "test:unit": "vue-cli-service test:unit",
     "test:e2e": "cypress run --e2e",
     "lint": "vue-cli-service lint",
-    "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build",
     "watch": "vue-cli-service build --watch"
   },
   "dependencies": {
@@ -33,15 +33,12 @@
     "@babel/core": "^7.12.16",
     "@babel/eslint-parser": "^7.12.16",
     "@mdi/font": "^5.1.45",
-    "@storybook/addon-actions": "^6.5.15",
-    "@storybook/addon-essentials": "^6.5.15",
-    "@storybook/addon-interactions": "^6.5.15",
-    "@storybook/addon-links": "^6.5.15",
-    "@storybook/addon-storyshots": "^6.5.15",
-    "@storybook/builder-webpack5": "^6.5.15",
-    "@storybook/manager-webpack5": "^6.5.15",
-    "@storybook/testing-library": "^0.0.13",
-    "@storybook/vue3": "6.5.15",
+    "@storybook/addon-essentials": "^8.0.1",
+    "@storybook/addon-links": "^8.0.1",
+    "@storybook/addon-webpack5-compiler-babel": "^3.0.3",
+    "@storybook/vue3": "^8.0.1",
+    "@storybook/vue3-webpack5": "^8.0.1",
+    "@testing-library/vue": "^8.0.3",
     "@vue/cli-plugin-babel": "~5.0.8",
     "@vue/cli-plugin-eslint": "~5.0.8",
     "@vue/cli-plugin-unit-jest": "~5.0.8",
@@ -61,15 +58,12 @@
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-vue": "^8.0.3",
     "jest": "^27.1.0",
-    "jest-vue-preprocessor": "^1.7.1",
     "prettier": "^2.4.1",
     "sass": "1.26.5",
     "sass-loader": "^10.4.1",
+    "storybook": "^8.0.1",
     "vue-loader": "^16.4.1",
-    "webpack-plugin-vuetify": "^2.0.1"
-  },
-  "resolutions": {
-    "@vue/cli-service/cli-highlight/mz/thenify-all/thenify": "3.3.1"
+    "webpack-plugin-vuetify": "^3.0.3"
   },
   "engines": {
     "node": ">=18 <=20"

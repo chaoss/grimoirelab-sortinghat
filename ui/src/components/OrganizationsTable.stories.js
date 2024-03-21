@@ -32,7 +32,9 @@ export const Organizations = () => ({
       if (filters.term) {
         results.data.organizations.entities =
           results.data.organizations.entities.filter((organization) =>
-            organization.name.toUpperCase().includes(filters.term.toUpperCase())
+            organization.name
+              .toUpperCase()
+              .includes(filters.term.toUpperCase()),
           );
         results.data.organizations.pageInfo.totalResults =
           results.data.organizations.entities.length;
@@ -53,7 +55,7 @@ export const Organizations = () => ({
     },
     addDomain(domain, organization) {
       const index = this.query[0].data.organizations.entities.findIndex(
-        (entity) => entity.name === organization
+        (entity) => entity.name === organization,
       );
       this.query[0].data.organizations.entities[index].domains.push({
         domain: domain,
@@ -63,14 +65,14 @@ export const Organizations = () => ({
     deleteDomain(domain) {
       this.query[0].data.organizations.entities.find((entity) => {
         const index = entity.domains.findIndex(
-          (item) => item.domain === domain
+          (item) => item.domain === domain,
         );
         entity.domains.splice(index, 1);
       });
     },
     deleteOrganization(name) {
       const index = this.query[0].data.organizations.entities.findIndex(
-        (entity) => entity.name === name
+        (entity) => entity.name === name,
       );
       this.query[0].data.organizations.entities.splice(index, 1);
     },
@@ -168,7 +170,9 @@ export const Groups = () => ({
       if (filters.term) {
         results.data.organizations.entities =
           results.data.organizations.entities.filter((organization) =>
-            organization.name.toUpperCase().includes(filters.term.toUpperCase())
+            organization.name
+              .toUpperCase()
+              .includes(filters.term.toUpperCase()),
           );
         results.data.organizations.pageInfo.totalResults =
           results.data.organizations.entities.length;
@@ -189,7 +193,7 @@ export const Groups = () => ({
     },
     addDomain(domain, organization) {
       const index = this.query[0].data.organizations.entities.findIndex(
-        (entity) => entity.name === organization
+        (entity) => entity.name === organization,
       );
       this.query[0].data.organizations.entities[index].domains.push({
         domain: domain,
@@ -199,14 +203,14 @@ export const Groups = () => ({
     deleteDomain(domain) {
       this.query[0].data.organizations.entities.find((entity) => {
         const index = entity.domains.findIndex(
-          (item) => item.domain === domain
+          (item) => item.domain === domain,
         );
         entity.domains.splice(index, 1);
       });
     },
     deleteOrganization(name) {
       const index = this.query[0].data.organizations.entities.findIndex(
-        (entity) => entity.name === name
+        (entity) => entity.name === name,
       );
       this.query[0].data.organizations.entities.splice(index, 1);
     },
