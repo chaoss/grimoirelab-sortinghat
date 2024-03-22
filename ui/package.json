@@ -15,8 +15,6 @@
   "dependencies": {
     "@apollo/client": "^3.9.5",
     "@vue/apollo-option": "^4.0.0",
-    "apollo-link": "^1.2.14",
-    "apollo-link-http": "^1.5.17",
     "core-js": "^3.27.1",
     "graphql": "^16.8.1",
     "graphql-tag": "^2.12.6",

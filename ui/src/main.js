@@ -3,10 +3,10 @@ import App from "./App.vue";
 import router from "./router";
 import { store } from "./store";
 import Cookies from "js-cookie";
-import { ApolloLink } from "apollo-link";
 import { createApolloProvider } from "@vue/apollo-option";
 import {
   ApolloClient,
+  ApolloLink,
   createHttpLink,
   InMemoryCache,
   defaultDataIdFromObject,

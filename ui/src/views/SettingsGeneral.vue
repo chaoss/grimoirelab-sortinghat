@@ -109,6 +109,7 @@
             <v-col class="d-flex justify-end">
               <v-switch
                 v-model="tasks.unify.isActive"
+                color="primary"
                 density="comfortable"
                 inset
                 hide-details

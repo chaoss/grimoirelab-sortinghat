@@ -463,6 +463,7 @@ const getScheduledTasks = (apollo, jobType, backend) => {
         backend,
       },
     },
+    fetchPolicy: "no-cache",
   });
 };
 
