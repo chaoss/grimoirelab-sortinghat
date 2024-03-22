@@ -375,7 +375,7 @@ export const Default = () => ({
           results.data.individuals.entities.filter((individual) =>
             individual.profile.name
               .toUpperCase()
-              .includes(filters.term.toUpperCase())
+              .includes(filters.term.toUpperCase()),
           );
         results.data.individuals.pageInfo.totalResults =
           results.data.individuals.entities.length;
@@ -441,7 +441,7 @@ export const Expandable = () => ({
           results.data.individuals.entities.filter((individual) =>
             individual.profile.name
               .toUpperCase()
-              .includes(filters.term.toUpperCase())
+              .includes(filters.term.toUpperCase()),
           );
         results.data.individuals.pageInfo.totalResults =
           results.data.individuals.entities.length;
@@ -498,7 +498,7 @@ export const Outlined = () => ({
           results.data.individuals.entities.filter((individual) =>
             individual.profile.name
               .toUpperCase()
-              .includes(filters.term.toUpperCase())
+              .includes(filters.term.toUpperCase()),
           );
         results.data.individuals.pageInfo.totalResults =
           results.data.individuals.entities.length;
@@ -555,7 +555,7 @@ export const HiddenHeader = () => ({
           results.data.individuals.entities.filter((individual) =>
             individual.profile.name
               .toUpperCase()
-              .includes(filters.term.toUpperCase())
+              .includes(filters.term.toUpperCase()),
           );
         results.data.individuals.pageInfo.totalResults =
           results.data.individuals.entities.length;

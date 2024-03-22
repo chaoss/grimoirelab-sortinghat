@@ -37,6 +37,7 @@ const dragAndDropTemplate = `
     :unlock-individual="deleteItem"
     :withdraw="deleteItem"
     :update-enrollment="deleteItem"
+    :recommend-matches="deleteItem"
     @highlight="highlightIndividual($event, 'highlightInWorkspace', true)"
     @stopHighlight="highlightIndividual($event, 'highlightInWorkspace', false)"
     ref="table"
@@ -236,7 +237,7 @@ export const DragAndDrop = () => ({
           results.data.individuals.entities.filter((individual) =>
             individual.profile.name
               .toUpperCase()
-              .includes(filters.term.toUpperCase())
+              .includes(filters.term.toUpperCase()),
           );
         results.data.individuals.pageInfo.totalResults =
           results.data.individuals.entities.length;

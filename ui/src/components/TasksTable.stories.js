@@ -72,7 +72,7 @@ export const Default = () => ({
     deleteTask(id) {
       this.tasks.data.scheduledTasks.entities =
         this.tasks.data.scheduledTasks.entities.filter(
-          (task) => task.id !== id
+          (task) => task.id !== id,
         );
       return {
         data: {
