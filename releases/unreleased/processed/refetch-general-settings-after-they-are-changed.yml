@@ -1,9 +1,0 @@
----
-title: Refetch general settings after they are changed
-category: fixed
-author: Eva Millán <evamillan@bitergia.com>
-issue: null
-notes: >
-  The "unify" and "affiliate" switches on the general settings
-  page sometimes reflected outdated information. The page now
-  reloads the data everytime it is visited to keep it updated.

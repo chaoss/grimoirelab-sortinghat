@@ -1,8 +1,0 @@
----
-title: Migration to Vue 3
-category: dependency
-author: Eva Millán <evamillan@bitergia.com>
-issue: null
-notes: >
-  Vue 2 reached end of life on December 2023 and is
-  no longer mantained.
