@@ -107,7 +107,6 @@ ENROLLMENT_DOES_NOT_EXIST_ERROR = "enrollment with range '2050-01-01 00:00:00+00
                                   " for Example not found in the registry"
 PAGINATION_NO_RESULTS_ERROR = "That page contains no results"
 PAGINATION_PAGE_LESS_THAN_ONE_ERROR = "That page number is less than 1"
-PAGINATION_PAGE_SIZE_NEGATIVE_ERROR = "Negative indexing is not supported."
 PAGINATION_PAGE_SIZE_ZERO_ERROR = "division by zero"
 AUTHENTICATION_ERROR = "You do not have permission to perform this action"
 PARSE_DATE_INVALID_DATE_ERROR = "{} is not a valid date"
@@ -1418,7 +1417,7 @@ class TestQueryPagination(django.test.TestCase):
                                   context_value=self.context_value)
 
         msg = executed['errors'][0]['message']
-        self.assertEqual(msg, PAGINATION_PAGE_SIZE_NEGATIVE_ERROR)
+        self.assertEqual(msg, PAGINATION_NO_RESULTS_ERROR)
 
     def test_page_size_zero(self):
         """Check if it fails when `pageSize` is set to `0`"""

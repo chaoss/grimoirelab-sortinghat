@@ -174,7 +174,7 @@ CORS_ALLOW_CREDENTIALS = True
 #
 # Static files (CSS, JavaScript, Images)
 #
-# https://docs.djangoproject.com/en/3.2/howto/static-files/
+# https://docs.djangoproject.com/en/4.2/howto/static-files/
 #
 
 STATIC_URL = '/'
@@ -209,7 +209,6 @@ MEDIA_URL = 'http://media.localhost/'
 
 LANGUAGE_CODE = 'en-us'
 USE_I18N = True
-USE_L10N = True
 
 #
 # Time Zone

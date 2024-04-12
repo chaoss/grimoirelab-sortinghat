@@ -1,5 +1,5 @@
-from .testing import *  # noqa: F403,F401
-from .testing import SQL_MODE, DATABASES, RQ_QUEUES
+from .config_testing import *  # noqa: F403,F401
+from .config_testing import SQL_MODE, DATABASES, RQ_QUEUES
 
 tenants_cfg = [
     {'name': 'tenant_1', 'dedicated_queue': True},
