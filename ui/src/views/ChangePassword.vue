@@ -96,10 +96,8 @@ export default {
     },
     headers() {
       const csrftoken = Cookies.get("csrftoken");
-      const authtoken = Cookies.get("sh_authtoken");
       const headers = {
         "X-CSRFToken": csrftoken,
-        Authorization: `JWT ${authtoken}`,
       };
 
       return headers;
