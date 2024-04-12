@@ -52,7 +52,7 @@ sortinghat-admin = "sortinghat.server.sortinghat_admin:sortinghat_admin"
 python = "^3.8"
 
 click = "7.1.1"
-Django = "^3.2"
+Django = "^4.2"
 django-graphql-jwt = "^0.3.0"
 graphene-django = "^2.15"
 sgqlc = "^16.1"

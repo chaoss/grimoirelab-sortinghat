@@ -195,7 +195,7 @@ class TestGetTenantQueue(TestCase):
     def test_not_found_queue(self):
         """Check it an error is raised when the queue is not found"""
 
-        # The configuration in settings.testing_tenant ignores
+        # The configuration in settings.config_testing_tenant ignores
         # the creation of this queue, so it should raise an error.
         with self.assertRaisesRegex(JobError, "Queue 'error_tenant' not found."):
             jobs.get_tenant_queue('error_tenant')

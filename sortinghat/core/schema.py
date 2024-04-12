@@ -1100,7 +1100,7 @@ class RecommendAffiliations(graphene.Mutation):
 
     job_id = graphene.Field(lambda: graphene.String)
 
-    @check_permissions('core.execute_job')
+    @check_permissions(['core.execute_job'])
     @check_auth
     def mutate(self, info, uuids=None, last_modified=MIN_PERIOD_DATE):
         user = info.context.user
@@ -1131,7 +1131,7 @@ class RecommendMatches(graphene.Mutation):
 
     job_id = graphene.Field(lambda: graphene.String)
 
-    @check_permissions('core.execute_job')
+    @check_permissions(['core.execute_job'])
     @check_auth
     def mutate(self, info, criteria,
                source_uuids=None, target_uuids=None,
@@ -1166,7 +1166,7 @@ class RecommendGender(graphene.Mutation):
 
     job_id = graphene.Field(lambda: graphene.String)
 
-    @check_permissions('core.execute_job')
+    @check_permissions(['core.execute_job'])
     @check_auth
     def mutate(self, info, uuids=None, exclude=True, no_strict_matching=False):
         user = info.context.user
@@ -1191,7 +1191,7 @@ class Affiliate(graphene.Mutation):
 
     job_id = graphene.Field(lambda: graphene.String)
 
-    @check_permissions('core.execute_job')
+    @check_permissions(['core.execute_job'])
     @check_auth
     def mutate(self, info, uuids=None, last_modified=MIN_PERIOD_DATE):
         user = info.context.user
@@ -1221,7 +1221,7 @@ class Unify(graphene.Mutation):
 
     job_id = graphene.Field(lambda: graphene.String)
 
-    @check_permissions('core.execute_job')
+    @check_permissions(['core.execute_job'])
     @check_auth
     def mutate(self, info, criteria,
                source_uuids=None, target_uuids=None,
@@ -1256,7 +1256,7 @@ class Genderize(graphene.Mutation):
 
     job_id = graphene.Field(lambda: graphene.String)
 
-    @check_permissions('core.execute_job')
+    @check_permissions(['core.execute_job'])
     @check_auth
     def mutate(self, info, uuids=None, exclude=True, no_strict_matching=False):
         user = info.context.user

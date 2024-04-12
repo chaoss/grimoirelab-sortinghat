@@ -55,8 +55,8 @@ jobs:
         poetry run flake8
     - name: Tests
       run: |
-        poetry run python manage.py test --settings=config.settings.testing
-        poetry run python manage.py test --settings=config.settings.testing_tenant
+        poetry run python manage.py test --settings=config.settings.config_testing
+        poetry run python manage.py test --settings=config.settings.config_testing_tenant
 
   frontend:
 

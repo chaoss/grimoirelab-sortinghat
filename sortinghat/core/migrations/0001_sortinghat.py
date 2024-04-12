@@ -3,7 +3,6 @@
 import datetime
 from django.db import migrations, models
 import django.db.models.deletion
-from django.utils.timezone import utc
 import grimoirelab_toolkit.datetime
 import sortinghat.core.models
 
@@ -210,8 +209,8 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('created_at', sortinghat.core.models.CreationDateTimeField(default=grimoirelab_toolkit.datetime.datetime_utcnow, editable=False)),
                 ('last_modified', sortinghat.core.models.LastModificationDateTimeField(default=grimoirelab_toolkit.datetime.datetime_utcnow, editable=False)),
-                ('start', models.DateTimeField(default=datetime.datetime(1900, 1, 1, 0, 0, tzinfo=utc))),
-                ('end', models.DateTimeField(default=datetime.datetime(2100, 1, 1, 0, 0, tzinfo=utc))),
+                ('start', models.DateTimeField(default=datetime.datetime(1900, 1, 1, 0, 0, tzinfo=datetime.timezone.utc))),
+                ('end', models.DateTimeField(default=datetime.datetime(2100, 1, 1, 0, 0, tzinfo=datetime.timezone.utc))),
                 ('group', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='enrollments', to='core.group')),
                 ('individual', models.ForeignKey(db_column='mk', on_delete=django.db.models.deletion.CASCADE, related_name='enrollments', to='core.individual')),
             ],
