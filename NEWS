@@ -1,5 +1,27 @@
 # Releases
 
+## sortinghat 1.0.0 - (2024-04-13)
+
+**New features:**
+
+ * First major release\
+   GrimoireLab reached a stable status. This is our first major release.
+
+**Bug fixes:**
+
+ * Change password form fixed\
+   An unused header in the UI made the attempts to change the password
+   fail. It tried to guess the user from an invalid JWT token when
+   multitenancy was enabled.
+
+**Dependencies updateds:**
+
+ * Django version updated\
+   Upgrade the Django version from 3.2 to 4.2. Support for Django 3.2
+   ended at April 1, 2024. This change ensures compability with the
+   latests features and an extended support.
+
+
 ## sortinghat 0.21.2 - (2024-03-27)
 
 **Bug fixes:**
