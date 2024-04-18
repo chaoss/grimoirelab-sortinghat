@@ -1616,7 +1616,13 @@ class SortingHatQuery:
         page_size=graphene.Int(),
         page=graphene.Int(),
         filters=RecommendationFilterType(required=False),
-        description='Get all recommended matched identities.'
+        description=(
+            'Get all identities merge recommendations.'
+            ''
+            'Call without filters to get all the pending recommendations.'
+            'Use the `isApplied` filter with `true` to get applied recommendations'
+            'or with `false` to get dismissed ones.'
+        )
     )
     recommended_gender = graphene.Field(
         RecommendedGenderPaginatedType,
