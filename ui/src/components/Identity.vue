@@ -32,7 +32,8 @@
       <span>{{ email }}</span>
     </v-col>
     <v-col class="ma-2 text-center">
-      <span>{{ username }}</span>
+      <a v-if="source === 'github'" :href="`http://github.com/${username}`">{{ username }}</a>
+      <span v-else>{{ username }}</span>
     </v-col>
     <v-col class="ma-2 text-center" v-if="source !== null">
       <span>{{ source }}</span>
