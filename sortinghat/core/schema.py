@@ -2110,11 +2110,13 @@ class SortingHatMutation(graphene.ObjectType):
     enroll = Enroll.Field(
         description='Enroll an individual in an organization. Existing enrollments\
         for the same individual and organization which overlap with the new period\
-        will be merged into a single enrollment.'
+        will be merged into a single enrollment. Use the organization name for the\
+        `group` argument. The opposite action to Enroll is Withdraw.'
     )
     withdraw = Withdraw.Field(
         description='Withdraw an individual identified by `uuid` from the given\
-        `organization` during the given period of time.'
+        `organization` during the given period of time. The opposite action to Withdraw\
+        is Enroll.'
     )
     update_enrollment = UpdateEnrollment.Field(
         description='Update one or more enrollments from an individual given a new\
