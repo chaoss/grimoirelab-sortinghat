@@ -1,0 +1,8 @@
+---
+title: Organizations aliases in Python client
+category: fixed
+author: Jose Javier Merchante <jjmerchante@bitergia.com>
+issue: null
+notes: >
+  Include the aliases field in the organizations query that
+  was missing in the SortingHat client schema.
