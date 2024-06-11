@@ -261,6 +261,16 @@ class DomainType(sgqlc.types.Type):
     organization = sgqlc.types.Field(sgqlc.types.non_null('TeamType'), graphql_name='organization')
 
 
+class AliasType(sgqlc.types.Type):
+    __schema__ = sh_schema
+    __field_names__ = ('created_at', 'last_modified', 'id', 'alias', 'organization')
+    created_at = sgqlc.types.Field(sgqlc.types.non_null(DateTime), graphql_name='createdAt')
+    last_modified = sgqlc.types.Field(sgqlc.types.non_null(DateTime), graphql_name='lastModified')
+    id = sgqlc.types.Field(sgqlc.types.non_null(ID), graphql_name='id')
+    alias = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='alias')
+    organization = sgqlc.types.Field(sgqlc.types.non_null('TeamType'), graphql_name='organization')
+
+
 class Enroll(sgqlc.types.Type):
     __schema__ = sh_schema
     __field_names__ = ('uuid', 'individual')
@@ -432,7 +442,7 @@ class OrganizationPaginatedType(sgqlc.types.Type):
 
 class OrganizationType(sgqlc.types.Type):
     __schema__ = sh_schema
-    __field_names__ = ('id', 'created_at', 'last_modified', 'name', 'teams', 'domains', 'enrollments')
+    __field_names__ = ('id', 'created_at', 'last_modified', 'name', 'teams', 'domains', 'enrollments', 'aliases')
     id = sgqlc.types.Field(sgqlc.types.non_null(ID), graphql_name='id')
     created_at = sgqlc.types.Field(sgqlc.types.non_null(DateTime), graphql_name='createdAt')
     last_modified = sgqlc.types.Field(sgqlc.types.non_null(DateTime), graphql_name='lastModified')
@@ -440,6 +450,7 @@ class OrganizationType(sgqlc.types.Type):
     teams = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of(sgqlc.types.non_null('TeamType'))), graphql_name='teams')
     domains = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of(sgqlc.types.non_null(DomainType))), graphql_name='domains')
     enrollments = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of(sgqlc.types.non_null(EnrollmentType))), graphql_name='enrollments')
+    aliases = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of(sgqlc.types.non_null(AliasType))), graphql_name='aliases')
 
 
 class PaginationType(sgqlc.types.Type):
