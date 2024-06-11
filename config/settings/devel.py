@@ -179,3 +179,5 @@ RQ_QUEUES = {
         'DB': 0
     }
 }
+
+MULTI_TENANT = os.environ.get('SORTINGHAT_MULTI_TENANT', 'False').lower() in ('true', '1')
