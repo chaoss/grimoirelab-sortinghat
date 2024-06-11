@@ -146,12 +146,6 @@
                   density="comfortable"
                   hide-details
                 />
-                <v-checkbox
-                  v-model="tasks.unify.params.match_source"
-                  label="Only unify identities that share the same source"
-                  density="comfortable"
-                  hide-details
-                />
               </v-col>
             </v-row>
             <v-row class="ma-0 pl-2">
@@ -177,6 +171,13 @@
                   v-model="tasks.unify.params.criteria"
                   label="Username"
                   value="username"
+                  density="comfortable"
+                  hide-details
+                />
+                <v-checkbox
+                  class="ml-4"
+                  v-model="tasks.unify.params.match_source"
+                  label="Only unify identities that share the same source"
                   density="comfortable"
                   hide-details
                 />

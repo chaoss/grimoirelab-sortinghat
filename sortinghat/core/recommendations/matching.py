@@ -196,7 +196,7 @@ def _find_matches(set_x, set_y, criteria, exclude, verbose, strict, match_source
     def _filter_criteria(df, c, strict=True, match_source=False):
         """Filter dataframe creating a basic subset including a given column"""
         cols = ['uuid', 'individual', c]
-        if match_source:
+        if match_source and c == 'username':
             cols += ['source']
             cdf = df[cols]
             cdf = cdf[cdf['source'].isin(MATCH_USERNAME_SOURCES)]
@@ -229,7 +229,7 @@ def _find_matches(set_x, set_y, criteria, exclude, verbose, strict, match_source
     for c in criteria:
         cdf_x = _filter_criteria(df_x, c, strict, match_source)
         cdf_y = _filter_criteria(df_y, c, strict, match_source)
-        if match_source:
+        if match_source and c == 'username':
             cdf = pandas.merge(cdf_x, cdf_y, on=[c, 'source'], how='inner')
         else:
             cdf = pandas.merge(cdf_x, cdf_y, on=c, how='inner')

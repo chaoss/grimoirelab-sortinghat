@@ -10249,7 +10249,7 @@ class TestUnifyMutation(django.test.TestCase):
                             self.js_alt3.uuid, self.js_alt4.uuid,
                             self.jrae.uuid, self.jrae2.uuid, self.jrae3.uuid,
                             jrae_github.uuid],
-            'criteria': ['email', 'name', 'username'],
+            'criteria': ['username'],
             'strict': False,
             'matchSource': True
         }

@@ -1020,14 +1020,17 @@ class TestRecommendMatches(TestCase):
         # Test
         expected = {
             'results': {
-                self.john_smith.uuid: [],
-                self.jrae_no_name.uuid: [],
-                self.jr2.uuid: sorted([jrae_github.individual.mk])
+                self.john_smith.uuid: sorted([self.jsm3.individual.mk]),
+                self.jrae_no_name.uuid: sorted([self.jrae2.individual.mk]),
+                self.jr2.uuid: sorted([jrae_github.individual.mk, self.jrae.individual.mk])
             }
         }
 
         recommendations_expected = [
-            sorted([self.jr2.individual.mk, jrae_github.individual.mk])
+            sorted([self.john_smith.individual.mk, self.jsm3.individual.mk]),
+            sorted([self.jrae_no_name.individual.mk, self.jrae2.individual.mk]),
+            sorted([self.jr2.individual.mk, jrae_github.individual.mk]),
+            sorted([self.jr2.individual.mk, self.jrae.individual.mk])
         ]
 
         source_uuids = [self.john_smith.uuid, self.jrae_no_name.uuid, self.jr2.uuid]
@@ -1055,7 +1058,7 @@ class TestRecommendMatches(TestCase):
 
         self.assertDictEqual(result, expected)
 
-        self.assertEqual(MergeRecommendation.objects.count(), 1)
+        self.assertEqual(MergeRecommendation.objects.count(), 4)
 
         for rec in recommendations_expected:
             self.assertTrue(
@@ -1419,7 +1422,7 @@ class TestUnify(TestCase):
 
         # Test
         expected = {
-            'results': [jrae_github.uuid],
+            'results': [jrae_github.uuid, self.jsmith.uuid],
             'errors': []
         }
 
@@ -1439,7 +1442,11 @@ class TestUnify(TestCase):
 
         individual = Individual.objects.get(mk=jrae_github.uuid)
         identities = individual.identities.all()
-        self.assertEqual(len(identities), 4)
+        self.assertEqual(len(identities), 7)
+
+        individual = Individual.objects.get(mk=self.jsmith.uuid)
+        identities = individual.identities.all()
+        self.assertEqual(len(identities), 6)
 
     def test_unify_last_modified(self):
         """Check if unify is applied only for individuals updated after a given date"""

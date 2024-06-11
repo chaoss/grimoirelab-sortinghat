@@ -1,0 +1,11 @@
+---
+title: Match source parameter fixed in recommendations
+category: fixed
+author: Jose Javier Merchante <jjmerchante@bitergia.com>
+issue: 875
+notes: >
+  Resolve an issue where the "match source" option in unify and recommendation
+  jobs was being applied to both emails and names. With this update, this option
+  will now only apply to usernames. Additionally, users can utilize name and email
+  simultaneously without the constraint of applying the "match source" option across
+  all parameters.

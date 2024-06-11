@@ -54,12 +54,6 @@
                 density="comfortable"
                 hide-details
               />
-              <v-checkbox
-                v-model="forms.unify.matchSource"
-                label="Only unify identities that share the same source"
-                density="comfortable"
-                hide-details
-              />
             </v-col>
           </v-row>
           <v-row class="ma-0">
@@ -89,6 +83,13 @@
                   density="comfortable"
                   hide-details
                 />
+                <v-checkbox
+                  class="ml-4"
+                  v-model="forms.unify.matchSource"
+                  label="Only unify identities that share the same source"
+                  density="comfortable"
+                  hide-details
+                />
               </fieldset>
             </v-col>
           </v-row>
@@ -105,12 +106,6 @@
               <v-checkbox
                 v-model="forms.recommendMatches.strict"
                 label="Exclude individuals with invalid email adresses and names"
-                density="comfortable"
-                hide-details
-              />
-              <v-checkbox
-                v-model="forms.recommendMatches.matchSource"
-                label="Only recommend identities that share the same source"
                 density="comfortable"
                 hide-details
               />
@@ -140,6 +135,13 @@
                   v-model="forms.recommendMatches.criteria"
                   label="Username"
                   value="username"
+                  density="comfortable"
+                  hide-details
+                />
+                <v-checkbox
+                  class="ml-4"
+                  v-model="forms.recommendMatches.matchSource"
+                  label="Only recommend identities that share the same source"
                   density="comfortable"
                   hide-details
                 />
