@@ -11,6 +11,22 @@ our [website](https://chaoss.github.io/grimoirelab/).
 
 ### Quickstart 
 
+It is recommended to use [docker compose](https://docs.docker.com/compose/install/linux/) to create your SortingHat environment, but you can create it with docker commands too.
+
+#### Docker compose (recommended)
+
+To run a standalone SortingHat instance, you need git and docker compose to run the following commands:
+
+```
+git clone git@github.com:chaoss/grimoirelab-sortinghat.git
+cd grimoirelab-sortinghat/docker
+docker compose up
+```
+
+Then go to [localhost:8000](http://localhost:8000) and login with username and password `admin`.
+
+#### Docker
+
 These commands will start a SortingHat server container in developer mode
 with a MySQL and Redis server containers. The service will run on an HTTP
 server on `localhost:8000`. You can access it with credentials `admin:admin`.
