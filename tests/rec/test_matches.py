@@ -440,7 +440,7 @@ class TestRecommendMatches(TestCase):
         rec = recs[0]
         self.assertEqual(rec[0], self.john_smith.uuid)
         self.assertEqual(rec[1], self.john_smith.individual.mk)
-        self.assertEqual(rec[2], [])
+        self.assertEqual(rec[2], sorted([self.jsm3.individual.mk]))
 
         rec = recs[1]
         self.assertEqual(rec[0], self.jrae_no_name.uuid)
@@ -450,7 +450,7 @@ class TestRecommendMatches(TestCase):
         rec = recs[2]
         self.assertEqual(rec[0], self.jr2.uuid)
         self.assertEqual(rec[1], self.jr2.individual.mk)
-        self.assertEqual(rec[2], sorted([jrae_github.individual.mk]))
+        self.assertEqual(rec[2], sorted([jrae_github.individual.mk, self.jrae.individual.mk]))
 
     def test_recommend_same_source_not_trusted(self):
         """Matches are not created for ids with same source but not github or gitlab"""
@@ -489,7 +489,7 @@ class TestRecommendMatches(TestCase):
         rec = recs[0]
         self.assertEqual(rec[0], self.john_smith.uuid)
         self.assertEqual(rec[1], self.john_smith.individual.mk)
-        self.assertEqual(rec[2], [])
+        self.assertEqual(rec[2], sorted([self.jsm3.individual.mk]))
 
         rec = recs[1]
         self.assertEqual(rec[0], self.jrae_no_name.uuid)
@@ -499,4 +499,4 @@ class TestRecommendMatches(TestCase):
         rec = recs[2]
         self.assertEqual(rec[0], self.jr2.uuid)
         self.assertEqual(rec[1], self.jr2.individual.mk)
-        self.assertEqual(rec[2], [])
+        self.assertEqual(rec[2], sorted([self.jrae.individual.mk]))

@@ -66,7 +66,7 @@ from .api import (add_identity,
                   update_scheduled_task)
 from .context import SortingHatContext
 from .decorators import (check_auth, check_permissions)
-from .errors import InvalidFilterError, EqualIndividualError
+from .errors import InvalidFilterError, EqualIndividualError, InvalidValueError
 from .importer.backend import find_import_identities_backends
 from .jobs import (affiliate,
                    unify,
@@ -1141,6 +1141,9 @@ class RecommendMatches(graphene.Mutation):
         tenant = get_db_tenant()
         ctx = SortingHatContext(user=user, tenant=tenant)
 
+        if match_source and 'username' not in criteria:
+            raise InvalidValueError(msg='Match source requires username criteria.')
+
         job = get_tenant_queue(tenant).enqueue(recommend_matches,
                                                ctx,
                                                source_uuids,
@@ -1231,6 +1234,9 @@ class Unify(graphene.Mutation):
         user = info.context.user
         tenant = get_db_tenant()
         ctx = SortingHatContext(user=user, tenant=tenant)
+
+        if match_source and 'username' not in criteria:
+            raise InvalidValueError(msg='Match source requires username criteria.')
 
         job = get_tenant_queue(tenant).enqueue(unify,
                                                ctx,
