@@ -1,5 +1,21 @@
 # Releases
 
+## sortinghat 1.0.2 - (2024-06-21)
+
+**Bug fixes:**
+
+ * Match source parameter fixed in recommendations (#875)\
+   Resolve an issue where the "match source" option in unify and
+   recommendation jobs was being applied to both emails and names. With
+   this update, this option will now only apply to usernames.
+   Additionally, users can utilize name and email simultaneously without
+   the constraint of applying the "match source" option across all
+   parameters.
+ * Organizations aliases in Python client\
+   Include the aliases field in the organizations query that was missing
+   in the SortingHat client schema.
+
+
   ## sortinghat 1.0.1 - (2024-05-09)
   
   * Update Poetry's package dependencies
