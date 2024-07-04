@@ -167,6 +167,7 @@ def upgrade(no_database):
             _setup_database(database=database)
 
     _install_static_files()
+    _setup_group_permissions(database='default')
 
     click.secho("SortingHat upgrade completed", fg='bright_cyan')
 

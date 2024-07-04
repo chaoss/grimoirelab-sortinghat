@@ -20,47 +20,15 @@
 #
 
 import logging
+import json
 
+from django.conf import settings
 from django.core.management import BaseCommand
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 from django.db import DEFAULT_DB_ALIAS
 
 logger = logging.getLogger(__name__)
-
-SORTINGHAT_PERMISSION_GROUPS = {
-    "admin": {
-        "admin": {
-            "logentry": ["add", "change", "delete", "view"]
-        },
-        "auth": {
-            "group": ["add", "change", "delete", "view"],
-            "permission": ["add", "change", "delete", "view"],
-            "user": ["add", "change", "delete", "view"]
-        },
-        "contenttypes": {
-            "contenttype": ["add", "change", "delete", "view"]
-        },
-        "core": {
-            "country": ["add", "change", "delete", "view"],
-            "domain": ["add", "change", "delete", "view"],
-            "enrollment": ["add", "change", "delete", "view"],
-            "identity": ["add", "change", "delete", "view"],
-            "organization": ["add", "change", "delete", "view"],
-            "profile": ["add", "change", "delete", "view"],
-            "operation": ["add", "change", "delete", "view"],
-            "transaction": ["add", "change", "delete", "view"],
-            "individual": ["add", "change", "delete", "view"],
-            "team": ["add", "change", "delete", "view"],
-            "recommenderexclusionterm": ["add", "change", "delete", "view"],
-            "group": ["add", "change", "delete", "view"],
-            "custompermissions": ["execute_job"]
-        },
-        "sessions": {
-            "session": ["add", "change", "delete", "view"]
-        }
-    }
-}
 
 
 class Command(BaseCommand):
@@ -74,25 +42,27 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        for group_name, content_types in SORTINGHAT_PERMISSION_GROUPS.items():
-            new_group, created = Group.objects.using(options['database']).get_or_create(name=group_name)
+        with open(settings.PERMISSION_GROUPS_LIST_PATH, 'r') as f:
+            groups = json.load(f).get('groups', [])
+            for group_name, content_types in groups.items():
+                new_group, created = Group.objects.using(options['database']).get_or_create(name=group_name)
 
-            for app_label, models in content_types.items():
-                for model, permissions in models.items():
-                    try:
-                        content_type = ContentType.objects.using(options['database'])\
-                                                          .get(app_label=app_label, model=model)
-                        for permission_name in permissions:
-                            codename = f"{permission_name}_{model}"
-                            if model == "custompermissions":
-                                codename = permission_name
-                            try:
-                                permission = Permission.objects.using(options['database'])\
-                                                               .get(codename=codename, content_type=content_type)
-                                new_group.permissions.add(permission)
-                            except Permission.DoesNotExist:
-                                logger.warning(f"Permission {permission_name} not found")
-                                continue
-                    except ContentType.DoesNotExist:
-                        logger.warning(f"ContentType {model} not found in {app_label}")
-                        continue
+                for app_label, models in content_types.items():
+                    for model, permissions in models.items():
+                        try:
+                            content_type = ContentType.objects.using(options['database'])\
+                                                              .get(app_label=app_label, model=model)
+                            for permission_name in permissions:
+                                codename = f"{permission_name}_{model}"
+                                if model == "custompermissions":
+                                    codename = permission_name
+                                try:
+                                    permission = Permission.objects.using(options['database'])\
+                                                           .get(codename=codename, content_type=content_type)
+                                    new_group.permissions.add(permission)
+                                except Permission.DoesNotExist:
+                                    logger.warning(f"Permission {permission_name} not found")
+                                    continue
+                        except ContentType.DoesNotExist:
+                            logger.warning(f"ContentType {model} not found in {app_label}")
+                            continue

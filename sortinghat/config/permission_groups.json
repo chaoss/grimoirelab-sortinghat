@@ -1,0 +1,62 @@
+{
+  "groups": {
+    "admin": {
+      "core": {
+        "affiliationrecommendation": ["add", "change", "delete", "view"],
+        "alias": ["add", "change", "delete", "view"],
+        "country": ["add", "change", "delete", "view"],
+        "domain": ["add", "change", "delete", "view"],
+        "enrollment": ["add", "change", "delete", "view"],
+        "genderrecommendation": ["add", "change", "delete", "view"],
+        "group": ["add", "change", "delete", "view"],
+        "identity": ["add", "change", "delete", "view"],
+        "individual": ["add", "change", "delete", "view"],
+        "mergerecommendation": ["add", "change", "delete", "view"],
+        "organization": ["add", "change", "delete", "view"],
+        "profile": ["add", "change", "delete", "view"],
+        "recommenderexclusionterm": ["add", "change", "delete", "view"],
+        "scheduledtask": ["add", "change", "delete", "view"],
+        "team": ["add", "change", "delete", "view"],
+        "custompermissions": ["execute_job"]
+      }
+    },
+    "user": {
+      "core": {
+        "affiliationrecommendation": ["add", "change", "delete", "view"],
+        "alias": ["add", "change", "delete", "view"],
+        "country": ["add", "change", "delete", "view"],
+        "domain": ["add", "change", "delete", "view"],
+        "enrollment": ["add", "change", "delete", "view"],
+        "genderrecommendation": ["add", "change", "delete", "view"],
+        "group": ["add", "change", "delete", "view"],
+        "identity": ["add", "change", "delete", "view"],
+        "individual": ["add", "change", "delete", "view"],
+        "mergerecommendation": ["add", "change", "delete", "view"],
+        "organization": ["add", "change", "delete", "view"],
+        "profile": ["add", "change", "delete", "view"],
+        "recommenderexclusionterm": ["add", "change", "delete", "view"],
+        "scheduledtask": ["view"],
+        "team": ["add", "change", "delete", "view"]
+      }
+    },
+    "readonly": {
+      "core": {
+        "affiliationrecommendation": ["view"],
+        "alias": ["view"],
+        "country": ["view"],
+        "domain": ["view"],
+        "enrollment": ["view"],
+        "genderrecommendation": ["view"],
+        "group": ["view"],
+        "identity": ["view"],
+        "individual": ["view"],
+        "mergerecommendation": ["view"],
+        "organization": ["view"],
+        "profile": ["view"],
+        "recommenderexclusionterm": ["view"],
+        "scheduledtask": ["view"],
+        "team": ["view"]
+      }
+    }
+  }
+}

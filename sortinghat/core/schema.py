@@ -1423,7 +1423,7 @@ class ImportIdentities(graphene.Mutation):
 
     job_id = graphene.Field(lambda: graphene.String)
 
-    @check_permissions(['core.add_importidentitiestask'])
+    @check_permissions(['core.execute_job'])
     def mutate(self, info, backend, url, params=None):
         user = info.context.user
         tenant = get_db_tenant()
