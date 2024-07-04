@@ -65,7 +65,7 @@ class TestTenantSchema(django.test.TestCase):
     def setUp(self):
         """Set queries context"""
 
-        self.user = get_user_model().objects.create(username='test')
+        self.user = get_user_model().objects.create(username='test', is_superuser=True)
         self.context_value = django.test.RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 

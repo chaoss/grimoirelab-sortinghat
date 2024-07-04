@@ -659,7 +659,7 @@ class AddOrganization(graphene.Mutation):
 
     organization = graphene.Field(lambda: OrganizationType)
 
-    @check_auth
+    @check_permissions(['core.add_organization'])
     def mutate(self, info, name):
         user = info.context.user
         tenant = get_db_tenant()
@@ -678,7 +678,7 @@ class DeleteOrganization(graphene.Mutation):
 
     organization = graphene.Field(lambda: OrganizationType)
 
-    @check_auth
+    @check_permissions(['core.delete_organization'])
     def mutate(self, info, name):
         user = info.context.user
         tenant = get_db_tenant()
@@ -699,7 +699,7 @@ class AddTeam(graphene.Mutation):
 
     team = graphene.Field(lambda: TeamType)
 
-    @check_auth
+    @check_permissions(['core.add_team'])
     def mutate(self, info, team_name, organization=None, parent_name=None):
         user = info.context.user
         tenant = get_db_tenant()
@@ -719,7 +719,7 @@ class DeleteTeam(graphene.Mutation):
 
     team = graphene.Field(lambda: TeamType)
 
-    @check_auth
+    @check_permissions(['core.delete_team'])
     def mutate(self, info, team_name, organization=None):
         user = info.context.user
         tenant = get_db_tenant()
@@ -740,7 +740,7 @@ class AddDomain(graphene.Mutation):
 
     domain = graphene.Field(lambda: DomainType)
 
-    @check_auth
+    @check_permissions(['core.add_domain'])
     def mutate(self, info, organization, domain, is_top_domain=False):
         user = info.context.user
         tenant = get_db_tenant()
@@ -762,7 +762,7 @@ class DeleteDomain(graphene.Mutation):
 
     domain = graphene.Field(lambda: DomainType)
 
-    @check_auth
+    @check_permissions(['core.delete_domain'])
     def mutate(self, info, domain):
         user = info.context.user
         tenant = get_db_tenant()
@@ -782,7 +782,7 @@ class AddAlias(graphene.Mutation):
 
     alias = graphene.Field(lambda: AliasType)
 
-    @check_auth
+    @check_permissions(['core.add_alias'])
     def mutate(self, info, organization, alias):
         user = info.context.user
         tenant = get_db_tenant()
@@ -803,7 +803,7 @@ class DeleteAlias(graphene.Mutation):
 
     alias = graphene.Field(lambda: AliasType)
 
-    @check_auth
+    @check_permissions(['core.delete_alias'])
     def mutate(self, info, alias):
         user = info.context.user
         tenant = get_db_tenant()
@@ -827,7 +827,7 @@ class AddIdentity(graphene.Mutation):
     uuid = graphene.Field(lambda: graphene.String)
     individual = graphene.Field(lambda: IndividualType)
 
-    @check_auth
+    @check_permissions(['core.add_identity'])
     def mutate(self, info, source,
                name=None, email=None, username=None,
                uuid=None):
@@ -856,7 +856,7 @@ class DeleteIdentity(graphene.Mutation):
     uuid = graphene.Field(lambda: graphene.String)
     individual = graphene.Field(lambda: IndividualType)
 
-    @check_auth
+    @check_permissions(['core.delete_identity'])
     def mutate(self, info, uuid):
         user = info.context.user
         tenant = get_db_tenant()
@@ -877,7 +877,7 @@ class Lock(graphene.Mutation):
     uuid = graphene.Field(lambda: graphene.String)
     individual = graphene.Field(lambda: IndividualType)
 
-    @check_auth
+    @check_permissions(['core.change_profile'])
     def mutate(self, info, uuid):
         user = info.context.user
         tenant = get_db_tenant()
@@ -898,7 +898,7 @@ class Unlock(graphene.Mutation):
     uuid = graphene.Field(lambda: graphene.String)
     individual = graphene.Field(lambda: IndividualType)
 
-    @check_auth
+    @check_permissions(['core.change_profile'])
     def mutate(self, info, uuid):
         user = info.context.user
         tenant = get_db_tenant()
@@ -920,7 +920,7 @@ class UpdateProfile(graphene.Mutation):
     uuid = graphene.Field(lambda: graphene.String)
     individual = graphene.Field(lambda: IndividualType)
 
-    @check_auth
+    @check_permissions(['core.change_profile'])
     def mutate(self, info, uuid, data):
         user = info.context.user
         tenant = get_db_tenant()
@@ -942,7 +942,7 @@ class MoveIdentity(graphene.Mutation):
     uuid = graphene.Field(lambda: graphene.String)
     individual = graphene.Field(lambda: IndividualType)
 
-    @check_auth
+    @check_permissions(['core.change_individual'])
     def mutate(self, info, from_uuid, to_uuid):
         user = info.context.user
         tenant = get_db_tenant()
@@ -964,7 +964,7 @@ class Merge(graphene.Mutation):
     uuid = graphene.Field(lambda: graphene.String)
     individual = graphene.Field(lambda: IndividualType)
 
-    @check_auth
+    @check_permissions(['core.change_individual'])
     def mutate(self, info, from_uuids, to_uuid):
         user = info.context.user
         tenant = get_db_tenant()
@@ -985,7 +985,7 @@ class UnmergeIdentities(graphene.Mutation):
     uuids = graphene.Field(lambda: graphene.List(graphene.String))
     individuals = graphene.Field(lambda: graphene.List(IndividualType))
 
-    @check_auth
+    @check_permissions(['core.change_individual'])
     def mutate(self, info, uuids):
         user = info.context.user
         tenant = get_db_tenant()
@@ -1012,7 +1012,7 @@ class Enroll(graphene.Mutation):
     uuid = graphene.Field(lambda: graphene.String)
     individual = graphene.Field(lambda: IndividualType)
 
-    @check_auth
+    @check_permissions(['core.add_enrollment'])
     def mutate(self, info, uuid, group,
                parent_org=None,
                from_date=None, to_date=None,
@@ -1041,7 +1041,7 @@ class Withdraw(graphene.Mutation):
     uuid = graphene.Field(lambda: graphene.String)
     individual = graphene.Field(lambda: IndividualType)
 
-    @check_auth
+    @check_permissions(['core.delete_enrollment'])
     def mutate(self, info, uuid, group, parent_org=None,
                from_date=None, to_date=None):
         user = info.context.user
@@ -1070,7 +1070,7 @@ class UpdateEnrollment(graphene.Mutation):
     uuid = graphene.Field(lambda: graphene.String)
     individual = graphene.Field(lambda: IndividualType)
 
-    @check_auth
+    @check_permissions(['core.change_enrollment'])
     def mutate(self, info, uuid, group,
                from_date, to_date,
                new_from_date=None, new_to_date=None,
@@ -1284,7 +1284,7 @@ class AddRecommenderExclusionTerm(graphene.Mutation):
 
     exclusion = graphene.Field(lambda: RecommenderExclusionTermType)
 
-    @check_auth
+    @check_permissions(['core.add_recommenderexclusionterm'])
     def mutate(self, info, term):
         user = info.context.user
         tenant = get_db_tenant()
@@ -1303,7 +1303,7 @@ class DeleteRecommenderExclusionTerm(graphene.Mutation):
 
     exclusion = graphene.Field(lambda: RecommenderExclusionTermType)
 
-    @check_auth
+    @check_permissions(['core.delete_recommenderexclusionterm'])
     def mutate(self, info, term):
         user = info.context.user
         tenant = get_db_tenant()
@@ -1323,7 +1323,7 @@ class ManageMergeRecommendation(graphene.Mutation):
 
     applied = graphene.Boolean()
 
-    @check_auth
+    @check_permissions(['core.change_mergerecommendation'])
     def mutate(self, info, recommendation_id, apply):
         user = info.context.user
         tenant = get_db_tenant()
@@ -1368,7 +1368,7 @@ class ManageAffiliationRecommendation(graphene.Mutation):
 
     applied = graphene.Boolean()
 
-    @check_auth
+    @check_permissions(['core.change_affiliationrecommendation'])
     def mutate(self, info, recommendation_id, apply):
         user = info.context.user
         tenant = get_db_tenant()
@@ -1393,7 +1393,7 @@ class ManageGenderRecommendation(graphene.Mutation):
 
     applied = graphene.Boolean()
 
-    @check_auth
+    @check_permissions(['core.change_genderrecommendation'])
     def mutate(self, info, recommendation_id, apply):
         user = info.context.user
         tenant = get_db_tenant()
@@ -1423,7 +1423,7 @@ class ImportIdentities(graphene.Mutation):
 
     job_id = graphene.Field(lambda: graphene.String)
 
-    @check_auth
+    @check_permissions(['core.add_importidentitiestask'])
     def mutate(self, info, backend, url, params=None):
         user = info.context.user
         tenant = get_db_tenant()
@@ -1445,7 +1445,7 @@ class MergeOrganizations(graphene.Mutation):
 
     organization = graphene.Field(lambda: OrganizationType)
 
-    @check_auth
+    @check_permissions(['core.change_organization'])
     def mutate(self, info, from_org, to_org):
         user = info.context.user
         tenant = get_db_tenant()
@@ -1466,7 +1466,7 @@ class ScheduleTask(graphene.Mutation):
 
     task = graphene.Field(lambda: ScheduledTaskType)
 
-    @check_auth
+    @check_permissions(['core.add_scheduledtask'])
     def mutate(self, info, job, interval, params=None):
         user = info.context.user
         tenant = get_db_tenant()
@@ -1485,7 +1485,7 @@ class DeleteScheduledTask(graphene.Mutation):
 
     deleted = graphene.Boolean()
 
-    @check_auth
+    @check_permissions(['core.delete_scheduledtask'])
     def mutate(self, info, task_id):
         user = info.context.user
         tenant = get_db_tenant()
@@ -1510,7 +1510,7 @@ class UpdateScheduledTask(graphene.Mutation):
 
     task = graphene.Field(lambda: ScheduledTaskType)
 
-    @check_auth
+    @check_permissions(['core.change_scheduledtask'])
     def mutate(self, info, task_id, data):
         user = info.context.user
         tenant = get_db_tenant()
@@ -1932,7 +1932,7 @@ class SortingHatQuery:
                                                                              page,
                                                                              page_size=page_size)
 
-    @check_auth
+    @check_permissions(['core.view_transaction'])
     def resolve_transactions(self, info, filters=None,
                              page=1,
                              page_size=settings.SORTINGHAT_API_PAGE_SIZE,
@@ -1956,7 +1956,7 @@ class SortingHatQuery:
                                                                 page,
                                                                 page_size=page_size)
 
-    @check_auth
+    @check_permissions(['core.view_operation'])
     def resolve_operations(self, info, filters=None,
                            page=1,
                            page_size=settings.SORTINGHAT_API_PAGE_SIZE,
