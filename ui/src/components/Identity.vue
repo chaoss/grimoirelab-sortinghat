@@ -1,10 +1,11 @@
 <template>
-  <v-row class="d-flex align-center" no-gutters>
+  <v-row class="d-flex align-center flex-nowrap" no-gutters>
     <v-col class="uuid d-flex align-center">
       <v-tooltip open-delay="100" bottom>
         <template v-slot:activator="{ props }">
           <v-chip
             class="text-center"
+            :class="{ 'mr-6': !isMain }"
             v-bind="props"
             variant="outlined"
             @click="copy(uuid)"
@@ -25,16 +26,25 @@
         <span>Main identity</span>
       </v-tooltip>
     </v-col>
-    <v-col class="ma-2 text-center">
+    <v-col class="ma-2" md="2">
       <span>{{ name }}</span>
     </v-col>
-    <v-col class="ma-2 text-center">
-      <span>{{ email }}</span>
+    <v-col class="ma-2" cols="3">
+      <span class="text-break">{{ email }}</span>
     </v-col>
-    <v-col class="ma-2 text-center">
-      <span>{{ username }}</span>
+    <v-col class="ma-2">
+      <a
+        v-if="source?.toLowerCase() === 'github'"
+        :href="`http://github.com/${username}`"
+        class="link--underline font-weight-regular"
+        target="_blank"
+      >
+        {{ username }}
+        <v-icon size="x-small" end>mdi-open-in-new</v-icon>
+      </a>
+      <span v-else class="text-break">{{ username }}</span>
     </v-col>
-    <v-col class="ma-2 text-center" v-if="source !== null">
+    <v-col class="ma-2" v-if="source !== null">
       <span>{{ source }}</span>
     </v-col>
   </v-row>

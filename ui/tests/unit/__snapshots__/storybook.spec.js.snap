@@ -2098,7 +2098,7 @@ exports[`Storybook Tests ExpandedIndividual Default 1`] = `
             <!---->
             
             <div
-              class="v-row v-row--no-gutters d-flex align-center"
+              class="v-row v-row--no-gutters d-flex align-center flex-nowrap"
             >
               <div
                 class="v-col uuid d-flex align-center"
@@ -2159,28 +2159,38 @@ exports[`Storybook Tests ExpandedIndividual Default 1`] = `
                 
               </div>
               <div
-                class="v-col ma-2 text-center"
+                class="v-col-md-2 v-col ma-2"
               >
                 <span>
                   Tom Marvolo Riddle
                 </span>
               </div>
               <div
-                class="v-col ma-2 text-center"
+                class="v-col v-col-3 ma-2"
               >
-                <span>
+                <span
+                  class="text-break"
+                >
                   triddle@example.net
                 </span>
               </div>
               <div
-                class="v-col ma-2 text-center"
+                class="v-col ma-2"
               >
-                <span>
-                  triddle
-                </span>
+                <a
+                  class="link--underline font-weight-regular"
+                  href="http://github.com/triddle"
+                  target="_blank"
+                >
+                  triddle 
+                  <i
+                    aria-hidden="true"
+                    class="mdi-open-in-new mdi v-icon notranslate v-theme--light v-icon--size-x-small v-icon--end"
+                  />
+                </a>
               </div>
               <div
-                class="v-col ma-2 text-center"
+                class="v-col ma-2"
               >
                 <span>
                   GitHub
@@ -2284,7 +2294,7 @@ exports[`Storybook Tests ExpandedIndividual Default 1`] = `
             <!---->
             
             <div
-              class="v-row v-row--no-gutters d-flex align-center"
+              class="v-row v-row--no-gutters d-flex align-center flex-nowrap"
             >
               <div
                 class="v-col uuid d-flex align-center"
@@ -2293,7 +2303,7 @@ exports[`Storybook Tests ExpandedIndividual Default 1`] = `
                 
                 <span
                   aria-describedby="v-tooltip-11"
-                  class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center"
+                  class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center mr-6"
                   draggable="false"
                   tabindex="0"
                   targetref="[object Object]"
@@ -2334,28 +2344,38 @@ exports[`Storybook Tests ExpandedIndividual Default 1`] = `
                 <!--v-if-->
               </div>
               <div
-                class="v-col ma-2 text-center"
+                class="v-col-md-2 v-col ma-2"
               >
                 <span>
                   Voldemort
                 </span>
               </div>
               <div
-                class="v-col ma-2 text-center"
+                class="v-col v-col-3 ma-2"
               >
-                <span>
+                <span
+                  class="text-break"
+                >
                   -
                 </span>
               </div>
               <div
-                class="v-col ma-2 text-center"
+                class="v-col ma-2"
               >
-                <span>
-                  voldemort
-                </span>
+                <a
+                  class="link--underline font-weight-regular"
+                  href="http://github.com/voldemort"
+                  target="_blank"
+                >
+                  voldemort 
+                  <i
+                    aria-hidden="true"
+                    class="mdi-open-in-new mdi v-icon notranslate v-theme--light v-icon--size-x-small v-icon--end"
+                  />
+                </a>
               </div>
               <div
-                class="v-col ma-2 text-center"
+                class="v-col ma-2"
               >
                 <span>
                   GitHub
@@ -2474,7 +2494,7 @@ exports[`Storybook Tests ExpandedIndividual Default 1`] = `
             <!---->
             
             <div
-              class="v-row v-row--no-gutters d-flex align-center"
+              class="v-row v-row--no-gutters d-flex align-center flex-nowrap"
             >
               <div
                 class="v-col uuid d-flex align-center"
@@ -2483,7 +2503,7 @@ exports[`Storybook Tests ExpandedIndividual Default 1`] = `
                 
                 <span
                   aria-describedby="v-tooltip-18"
-                  class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center"
+                  class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center mr-6"
                   draggable="false"
                   tabindex="0"
                   targetref="[object Object]"
@@ -2524,28 +2544,32 @@ exports[`Storybook Tests ExpandedIndividual Default 1`] = `
                 <!--v-if-->
               </div>
               <div
-                class="v-col ma-2 text-center"
+                class="v-col-md-2 v-col ma-2"
               >
                 <span>
                   voldemort
                 </span>
               </div>
               <div
-                class="v-col ma-2 text-center"
+                class="v-col v-col-3 ma-2"
               >
-                <span>
+                <span
+                  class="text-break"
+                >
                   voldemort@example.net
                 </span>
               </div>
               <div
-                class="v-col ma-2 text-center"
+                class="v-col ma-2"
               >
-                <span>
+                <span
+                  class="text-break"
+                >
                   -
                 </span>
               </div>
               <div
-                class="v-col ma-2 text-center"
+                class="v-col ma-2"
               >
                 <span>
                   git
@@ -2664,7 +2688,7 @@ exports[`Storybook Tests ExpandedIndividual Default 1`] = `
             <!---->
             
             <div
-              class="v-row v-row--no-gutters d-flex align-center"
+              class="v-row v-row--no-gutters d-flex align-center flex-nowrap"
             >
               <div
                 class="v-col uuid d-flex align-center"
@@ -2673,7 +2697,7 @@ exports[`Storybook Tests ExpandedIndividual Default 1`] = `
                 
                 <span
                   aria-describedby="v-tooltip-25"
-                  class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center"
+                  class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center mr-6"
                   draggable="false"
                   tabindex="0"
                   targetref="[object Object]"
@@ -2714,28 +2738,32 @@ exports[`Storybook Tests ExpandedIndividual Default 1`] = `
                 <!--v-if-->
               </div>
               <div
-                class="v-col ma-2 text-center"
+                class="v-col-md-2 v-col ma-2"
               >
                 <span>
                   -
                 </span>
               </div>
               <div
-                class="v-col ma-2 text-center"
+                class="v-col v-col-3 ma-2"
               >
-                <span>
+                <span
+                  class="text-break"
+                >
                   -
                 </span>
               </div>
               <div
-                class="v-col ma-2 text-center"
+                class="v-col ma-2"
               >
-                <span>
+                <span
+                  class="text-break"
+                >
                   voldemort
                 </span>
               </div>
               <div
-                class="v-col ma-2 text-center"
+                class="v-col ma-2"
               >
                 <span>
                   irc
@@ -3341,7 +3369,7 @@ exports[`Storybook Tests ExpandedIndividual NoOrganizations 1`] = `
             <!---->
             
             <div
-              class="v-row v-row--no-gutters d-flex align-center"
+              class="v-row v-row--no-gutters d-flex align-center flex-nowrap"
             >
               <div
                 class="v-col uuid d-flex align-center"
@@ -3402,28 +3430,32 @@ exports[`Storybook Tests ExpandedIndividual NoOrganizations 1`] = `
                 
               </div>
               <div
-                class="v-col ma-2 text-center"
+                class="v-col-md-2 v-col ma-2"
               >
                 <span>
                   Hagrid
                 </span>
               </div>
               <div
-                class="v-col ma-2 text-center"
+                class="v-col v-col-3 ma-2"
               >
-                <span>
+                <span
+                  class="text-break"
+                >
                   hagrid@example.com
                 </span>
               </div>
               <div
-                class="v-col ma-2 text-center"
+                class="v-col ma-2"
               >
-                <span>
+                <span
+                  class="text-break"
+                >
                   hagrid
                 </span>
               </div>
               <div
-                class="v-col ma-2 text-center"
+                class="v-col ma-2"
               >
                 <span>
                   Git
@@ -4602,7 +4634,7 @@ exports[`Storybook Tests IdentitiesList Default 1`] = `
           <!---->
           
           <div
-            class="v-row v-row--no-gutters d-flex align-center"
+            class="v-row v-row--no-gutters d-flex align-center flex-nowrap"
           >
             <div
               class="v-col uuid d-flex align-center"
@@ -4611,7 +4643,7 @@ exports[`Storybook Tests IdentitiesList Default 1`] = `
               
               <span
                 aria-describedby="v-tooltip-3"
-                class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center"
+                class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center mr-6"
                 draggable="false"
                 tabindex="0"
                 targetref="[object Object]"
@@ -4652,28 +4684,38 @@ exports[`Storybook Tests IdentitiesList Default 1`] = `
               <!--v-if-->
             </div>
             <div
-              class="v-col ma-2 text-center"
+              class="v-col-md-2 v-col ma-2"
             >
               <span>
                 Tom Marvolo Riddle
               </span>
             </div>
             <div
-              class="v-col ma-2 text-center"
+              class="v-col v-col-3 ma-2"
             >
-              <span>
+              <span
+                class="text-break"
+              >
                 triddle@example.net
               </span>
             </div>
             <div
-              class="v-col ma-2 text-center"
+              class="v-col ma-2"
             >
-              <span>
-                triddle
-              </span>
+              <a
+                class="link--underline font-weight-regular"
+                href="http://github.com/triddle"
+                target="_blank"
+              >
+                triddle 
+                <i
+                  aria-hidden="true"
+                  class="mdi-open-in-new mdi v-icon notranslate v-theme--light v-icon--size-x-small v-icon--end"
+                />
+              </a>
             </div>
             <div
-              class="v-col ma-2 text-center"
+              class="v-col ma-2"
             >
               <span>
                 GitHub
@@ -4770,7 +4812,7 @@ exports[`Storybook Tests IdentitiesList Default 1`] = `
           <!---->
           
           <div
-            class="v-row v-row--no-gutters d-flex align-center"
+            class="v-row v-row--no-gutters d-flex align-center flex-nowrap"
           >
             <div
               class="v-col uuid d-flex align-center"
@@ -4831,28 +4873,38 @@ exports[`Storybook Tests IdentitiesList Default 1`] = `
               
             </div>
             <div
-              class="v-col ma-2 text-center"
+              class="v-col-md-2 v-col ma-2"
             >
               <span>
                 Voldemort
               </span>
             </div>
             <div
-              class="v-col ma-2 text-center"
+              class="v-col v-col-3 ma-2"
             >
-              <span>
+              <span
+                class="text-break"
+              >
                 -
               </span>
             </div>
             <div
-              class="v-col ma-2 text-center"
+              class="v-col ma-2"
             >
-              <span>
-                voldemort
-              </span>
+              <a
+                class="link--underline font-weight-regular"
+                href="http://github.com/voldemort"
+                target="_blank"
+              >
+                voldemort 
+                <i
+                  aria-hidden="true"
+                  class="mdi-open-in-new mdi v-icon notranslate v-theme--light v-icon--size-x-small v-icon--end"
+                />
+              </a>
             </div>
             <div
-              class="v-col ma-2 text-center"
+              class="v-col ma-2"
             >
               <span>
                 GitHub
@@ -4966,7 +5018,7 @@ exports[`Storybook Tests IdentitiesList Default 1`] = `
           <!---->
           
           <div
-            class="v-row v-row--no-gutters d-flex align-center"
+            class="v-row v-row--no-gutters d-flex align-center flex-nowrap"
           >
             <div
               class="v-col uuid d-flex align-center"
@@ -4975,7 +5027,7 @@ exports[`Storybook Tests IdentitiesList Default 1`] = `
               
               <span
                 aria-describedby="v-tooltip-18"
-                class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center"
+                class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center mr-6"
                 draggable="false"
                 tabindex="0"
                 targetref="[object Object]"
@@ -5016,28 +5068,32 @@ exports[`Storybook Tests IdentitiesList Default 1`] = `
               <!--v-if-->
             </div>
             <div
-              class="v-col ma-2 text-center"
+              class="v-col-md-2 v-col ma-2"
             >
               <span>
                 voldemort
               </span>
             </div>
             <div
-              class="v-col ma-2 text-center"
+              class="v-col v-col-3 ma-2"
             >
-              <span>
+              <span
+                class="text-break"
+              >
                 voldemort@example.net
               </span>
             </div>
             <div
-              class="v-col ma-2 text-center"
+              class="v-col ma-2"
             >
-              <span>
+              <span
+                class="text-break"
+              >
                 -
               </span>
             </div>
             <div
-              class="v-col ma-2 text-center"
+              class="v-col ma-2"
             >
               <span>
                 git
@@ -5150,7 +5206,7 @@ exports[`Storybook Tests IdentitiesList Default 1`] = `
           <!---->
           
           <div
-            class="v-row v-row--no-gutters d-flex align-center"
+            class="v-row v-row--no-gutters d-flex align-center flex-nowrap"
           >
             <div
               class="v-col uuid d-flex align-center"
@@ -5159,7 +5215,7 @@ exports[`Storybook Tests IdentitiesList Default 1`] = `
               
               <span
                 aria-describedby="v-tooltip-25"
-                class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center"
+                class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center mr-6"
                 draggable="false"
                 tabindex="0"
                 targetref="[object Object]"
@@ -5200,28 +5256,32 @@ exports[`Storybook Tests IdentitiesList Default 1`] = `
               <!--v-if-->
             </div>
             <div
-              class="v-col ma-2 text-center"
+              class="v-col-md-2 v-col ma-2"
             >
               <span>
                 -
               </span>
             </div>
             <div
-              class="v-col ma-2 text-center"
+              class="v-col v-col-3 ma-2"
             >
-              <span>
+              <span
+                class="text-break"
+              >
                 -
               </span>
             </div>
             <div
-              class="v-col ma-2 text-center"
+              class="v-col ma-2"
             >
-              <span>
+              <span
+                class="text-break"
+              >
                 voldemort
               </span>
             </div>
             <div
-              class="v-col ma-2 text-center"
+              class="v-col ma-2"
             >
               <span>
                 irc
@@ -5353,7 +5413,7 @@ exports[`Storybook Tests IdentitiesList Default 1`] = `
 exports[`Storybook Tests Identity Default 1`] = `
 <div>
   <div
-    class="v-row v-row--no-gutters d-flex align-center"
+    class="v-row v-row--no-gutters d-flex align-center flex-nowrap"
   >
     <div
       class="v-col uuid d-flex align-center"
@@ -5362,7 +5422,7 @@ exports[`Storybook Tests Identity Default 1`] = `
       
       <span
         aria-describedby="v-tooltip-0"
-        class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center"
+        class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center mr-6"
         draggable="false"
         tabindex="0"
         targetref="[object Object]"
@@ -5403,23 +5463,27 @@ exports[`Storybook Tests Identity Default 1`] = `
       <!--v-if-->
     </div>
     <div
-      class="v-col ma-2 text-center"
+      class="v-col-md-2 v-col ma-2"
     >
       <span>
         Tom Marvolo Riddle
       </span>
     </div>
     <div
-      class="v-col ma-2 text-center"
+      class="v-col v-col-3 ma-2"
     >
-      <span>
+      <span
+        class="text-break"
+      >
         triddle@example.net
       </span>
     </div>
     <div
-      class="v-col ma-2 text-center"
+      class="v-col ma-2"
     >
-      <span>
+      <span
+        class="text-break"
+      >
         triddle
       </span>
     </div>
@@ -5431,7 +5495,7 @@ exports[`Storybook Tests Identity Default 1`] = `
 exports[`Storybook Tests Identity MainIdentity 1`] = `
 <div>
   <div
-    class="v-row v-row--no-gutters d-flex align-center"
+    class="v-row v-row--no-gutters d-flex align-center flex-nowrap"
   >
     <div
       class="v-col uuid d-flex align-center"
@@ -5492,28 +5556,32 @@ exports[`Storybook Tests Identity MainIdentity 1`] = `
       
     </div>
     <div
-      class="v-col ma-2 text-center"
+      class="v-col-md-2 v-col ma-2"
     >
       <span>
         Tom Marvolo Riddle
       </span>
     </div>
     <div
-      class="v-col ma-2 text-center"
+      class="v-col v-col-3 ma-2"
     >
-      <span>
+      <span
+        class="text-break"
+      >
         triddle@example.net
       </span>
     </div>
     <div
-      class="v-col ma-2 text-center"
+      class="v-col ma-2"
     >
-      <span>
+      <span
+        class="text-break"
+      >
         triddle
       </span>
     </div>
     <div
-      class="v-col ma-2 text-center"
+      class="v-col ma-2"
     >
       <span>
         git
@@ -5526,7 +5594,7 @@ exports[`Storybook Tests Identity MainIdentity 1`] = `
 exports[`Storybook Tests Identity Source 1`] = `
 <div>
   <div
-    class="v-row v-row--no-gutters d-flex align-center"
+    class="v-row v-row--no-gutters d-flex align-center flex-nowrap"
   >
     <div
       class="v-col uuid d-flex align-center"
@@ -5535,7 +5603,7 @@ exports[`Storybook Tests Identity Source 1`] = `
       
       <span
         aria-describedby="v-tooltip-0"
-        class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center"
+        class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center mr-6"
         draggable="false"
         tabindex="0"
         targetref="[object Object]"
@@ -5576,28 +5644,38 @@ exports[`Storybook Tests Identity Source 1`] = `
       <!--v-if-->
     </div>
     <div
-      class="v-col ma-2 text-center"
+      class="v-col-md-2 v-col ma-2"
     >
       <span>
         Tom Marvolo Riddle
       </span>
     </div>
     <div
-      class="v-col ma-2 text-center"
+      class="v-col v-col-3 ma-2"
     >
-      <span>
+      <span
+        class="text-break"
+      >
         triddle@example.net
       </span>
     </div>
     <div
-      class="v-col ma-2 text-center"
+      class="v-col ma-2"
     >
-      <span>
-        triddle
-      </span>
+      <a
+        class="link--underline font-weight-regular"
+        href="http://github.com/triddle"
+        target="_blank"
+      >
+        triddle 
+        <i
+          aria-hidden="true"
+          class="mdi-open-in-new mdi v-icon notranslate v-theme--light v-icon--size-x-small v-icon--end"
+        />
+      </a>
     </div>
     <div
-      class="v-col ma-2 text-center"
+      class="v-col ma-2"
     >
       <span>
         github
@@ -29904,7 +29982,7 @@ exports[`Storybook Tests ProfileCard Default 1`] = `
                     
                     <v-list-item-content>
                       <div
-                        class="v-row v-row--no-gutters d-flex align-center"
+                        class="v-row v-row--no-gutters d-flex align-center flex-nowrap"
                       >
                         <div
                           class="v-col uuid d-flex align-center"
@@ -29913,7 +29991,7 @@ exports[`Storybook Tests ProfileCard Default 1`] = `
                           
                           <span
                             aria-describedby="v-tooltip-9"
-                            class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center"
+                            class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center mr-6"
                             draggable="false"
                             tabindex="0"
                             targetref="[object Object]"
@@ -29954,23 +30032,27 @@ exports[`Storybook Tests ProfileCard Default 1`] = `
                           <!--v-if-->
                         </div>
                         <div
-                          class="v-col ma-2 text-center"
+                          class="v-col-md-2 v-col ma-2"
                         >
                           <span>
                             Tom Marvolo Riddle
                           </span>
                         </div>
                         <div
-                          class="v-col ma-2 text-center"
+                          class="v-col v-col-3 ma-2"
                         >
-                          <span>
+                          <span
+                            class="text-break"
+                          >
                             triddle@example.net
                           </span>
                         </div>
                         <div
-                          class="v-col ma-2 text-center"
+                          class="v-col ma-2"
                         >
-                          <span>
+                          <span
+                            class="text-break"
+                          >
                             triddle
                           </span>
                         </div>
@@ -30000,7 +30082,7 @@ exports[`Storybook Tests ProfileCard Default 1`] = `
                     
                     <v-list-item-content>
                       <div
-                        class="v-row v-row--no-gutters d-flex align-center"
+                        class="v-row v-row--no-gutters d-flex align-center flex-nowrap"
                       >
                         <div
                           class="v-col uuid d-flex align-center"
@@ -30009,7 +30091,7 @@ exports[`Storybook Tests ProfileCard Default 1`] = `
                           
                           <span
                             aria-describedby="v-tooltip-12"
-                            class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center"
+                            class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center mr-6"
                             draggable="false"
                             tabindex="0"
                             targetref="[object Object]"
@@ -30050,23 +30132,27 @@ exports[`Storybook Tests ProfileCard Default 1`] = `
                           <!--v-if-->
                         </div>
                         <div
-                          class="v-col ma-2 text-center"
+                          class="v-col-md-2 v-col ma-2"
                         >
                           <span>
                             Voldemort
                           </span>
                         </div>
                         <div
-                          class="v-col ma-2 text-center"
+                          class="v-col v-col-3 ma-2"
                         >
-                          <span>
+                          <span
+                            class="text-break"
+                          >
                             -
                           </span>
                         </div>
                         <div
-                          class="v-col ma-2 text-center"
+                          class="v-col ma-2"
                         >
-                          <span>
+                          <span
+                            class="text-break"
+                          >
                             voldemort
                           </span>
                         </div>
@@ -30141,7 +30227,7 @@ exports[`Storybook Tests ProfileCard Default 1`] = `
                     
                     <v-list-item-content>
                       <div
-                        class="v-row v-row--no-gutters d-flex align-center"
+                        class="v-row v-row--no-gutters d-flex align-center flex-nowrap"
                       >
                         <div
                           class="v-col uuid d-flex align-center"
@@ -30150,7 +30236,7 @@ exports[`Storybook Tests ProfileCard Default 1`] = `
                           
                           <span
                             aria-describedby="v-tooltip-16"
-                            class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center"
+                            class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center mr-6"
                             draggable="false"
                             tabindex="0"
                             targetref="[object Object]"
@@ -30191,23 +30277,27 @@ exports[`Storybook Tests ProfileCard Default 1`] = `
                           <!--v-if-->
                         </div>
                         <div
-                          class="v-col ma-2 text-center"
+                          class="v-col-md-2 v-col ma-2"
                         >
                           <span>
                             voldemort
                           </span>
                         </div>
                         <div
-                          class="v-col ma-2 text-center"
+                          class="v-col v-col-3 ma-2"
                         >
-                          <span>
+                          <span
+                            class="text-break"
+                          >
                             voldemort@example.net
                           </span>
                         </div>
                         <div
-                          class="v-col ma-2 text-center"
+                          class="v-col ma-2"
                         >
-                          <span>
+                          <span
+                            class="text-break"
+                          >
                             voldemort
                           </span>
                         </div>
@@ -30282,7 +30372,7 @@ exports[`Storybook Tests ProfileCard Default 1`] = `
                     
                     <v-list-item-content>
                       <div
-                        class="v-row v-row--no-gutters d-flex align-center"
+                        class="v-row v-row--no-gutters d-flex align-center flex-nowrap"
                       >
                         <div
                           class="v-col uuid d-flex align-center"
@@ -30291,7 +30381,7 @@ exports[`Storybook Tests ProfileCard Default 1`] = `
                           
                           <span
                             aria-describedby="v-tooltip-20"
-                            class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center"
+                            class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center mr-6"
                             draggable="false"
                             tabindex="0"
                             targetref="[object Object]"
@@ -30332,28 +30422,32 @@ exports[`Storybook Tests ProfileCard Default 1`] = `
                           <!--v-if-->
                         </div>
                         <div
-                          class="v-col ma-2 text-center"
+                          class="v-col-md-2 v-col ma-2"
                         >
                           <span>
                             -
                           </span>
                         </div>
                         <div
-                          class="v-col ma-2 text-center"
+                          class="v-col v-col-3 ma-2"
                         >
-                          <span>
+                          <span
+                            class="text-break"
+                          >
                             -
                           </span>
                         </div>
                         <div
-                          class="v-col ma-2 text-center"
+                          class="v-col ma-2"
                         >
-                          <span>
+                          <span
+                            class="text-break"
+                          >
                             voldemort
                           </span>
                         </div>
                         <div
-                          class="v-col ma-2 text-center"
+                          class="v-col ma-2"
                         >
                           <span>
                             irc
