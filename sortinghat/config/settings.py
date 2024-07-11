@@ -364,3 +364,12 @@ SORTINGHAT_API_PAGE_SIZE = 10
 #
 
 SORTINGHAT_GENDERIZE_API_KEY = os.environ.get('SORTINGHAT_GENDERIZE_API_KEY', None)
+
+#
+# Path of the permission groups configuration file
+#
+# https://docs.djangoproject.com/en/5.0/topics/auth/default/#groups
+#
+
+PERMISSION_GROUPS_LIST_PATH = os.environ.get('SORTINGHAT_PERMISSION_GROUPS_LIST_PATH',
+                                            os.path.join(BASE_DIR, 'config', 'permission_groups.json'))

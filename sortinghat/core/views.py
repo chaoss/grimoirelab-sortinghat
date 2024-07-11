@@ -111,6 +111,7 @@ def api_login(request):
         login(request, user)
         response = {
             'user': username,
-            'isAdmin': user.is_superuser
+            'isAdmin': user.is_superuser,
+            'groups': [group['name'] for group in user.groups.values('name')]
         }
         return JsonResponse(response)

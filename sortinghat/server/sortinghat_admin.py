@@ -167,6 +167,7 @@ def upgrade(no_database):
             _setup_database(database=database)
 
     _install_static_files()
+    _setup_group_permissions(database='default')
 
     click.secho("SortingHat upgrade completed", fg='bright_cyan')
 
@@ -296,6 +297,22 @@ def create_user(username, is_admin, no_interactive):
         sys.exit(1)
 
 
+@click.command()
+@click.argument('username')
+@click.argument('permission_group')
+@click.option('--database', default='default')
+def set_user_group(username, permission_group, database):
+    """Assign a user to a specific permission group"""
+
+    try:
+        management.call_command('set_group', username, permission_group, database=database)
+    except management.CommandError as exc:
+        click.echo(exc)
+        sys.exit(1)
+
+    click.echo(f"User '{username}' assigned to '{permission_group}'.")
+
+
 def _create_database(database='default', db_name=None):
     """Create an empty database."""
 
@@ -396,3 +413,4 @@ sortinghat_admin.add_command(upgrade)
 sortinghat_admin.add_command(migrate_old_database)
 sortinghat_admin.add_command(create_user)
 sortinghat_admin.add_command(set_user_tenant)
+sortinghat_admin.add_command(set_user_group)

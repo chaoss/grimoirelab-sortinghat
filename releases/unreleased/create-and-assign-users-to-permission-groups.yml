@@ -1,0 +1,9 @@
+---
+title: Assign users to permission groups
+category: added
+author: Eva Millán <evamillan@bitergia.com>
+issue: 849
+notes: |
+  Users can be assigned to a permission group using the command
+  `$ sortinghat-admin set-user-group username group`. A user in
+  a group automatically has the permissions granted to that group.

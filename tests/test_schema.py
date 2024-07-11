@@ -1263,7 +1263,7 @@ class TestQueryPagination(django.test.TestCase):
     def setUp(self):
         """Load initial dataset and set queries context"""
 
-        self.user = get_user_model().objects.create(username='test')
+        self.user = get_user_model().objects.create(username='test', is_superuser=True)
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
@@ -1484,7 +1484,7 @@ class TestQueryCountries(django.test.TestCase):
     def setUp(self):
         """Set queries context"""
 
-        self.user = get_user_model().objects.create(username='test')
+        self.user = get_user_model().objects.create(username='test', is_superuser=True)
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
@@ -4026,7 +4026,7 @@ class TestQueryTransactions(django.test.TestCase):
     def setUp(self):
         """Load initial dataset and set queries context"""
 
-        self.user = get_user_model().objects.create(username='test')
+        self.user = get_user_model().objects.create(username='test', is_superuser=True)
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
@@ -4215,7 +4215,7 @@ class TestQueryOperations(django.test.TestCase):
     def setUp(self):
         """Load initial dataset and set queries context"""
 
-        self.user = get_user_model().objects.create(username='test')
+        self.user = get_user_model().objects.create(username='test', is_superuser=True)
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
@@ -5557,7 +5557,7 @@ class TestAddOrganizationMutation(django.test.TestCase):
     def setUp(self):
         """Set queries context"""
 
-        self.user = get_user_model().objects.create(username='test')
+        self.user = get_user_model().objects.create(username='test', is_superuser=True)
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
@@ -5642,7 +5642,7 @@ class TestDeleteOrganizationMutation(django.test.TestCase):
     def setUp(self):
         """Set queries context"""
 
-        self.user = get_user_model().objects.create(username='test')
+        self.user = get_user_model().objects.create(username='test', is_superuser=True)
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
@@ -5779,7 +5779,7 @@ class TestAddTeamMutation(django.test.TestCase):
     def setUp(self):
         """Set queries context"""
 
-        self.user = get_user_model().objects.create(username='test')
+        self.user = get_user_model().objects.create(username='test', is_superuser=True)
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
@@ -5938,7 +5938,7 @@ class TestDeleteTeamMutation(django.test.TestCase):
     def setUp(self):
         """Set queries context"""
 
-        self.user = get_user_model().objects.create(username='test')
+        self.user = get_user_model().objects.create(username='test', is_superuser=True)
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
@@ -6079,7 +6079,7 @@ class TestAddDomainMutation(django.test.TestCase):
     def setUp(self):
         """Set queries context"""
 
-        self.user = get_user_model().objects.create(username='test')
+        self.user = get_user_model().objects.create(username='test', is_superuser=True)
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
@@ -6187,7 +6187,7 @@ class TestDeleteDomainMutation(django.test.TestCase):
     def setUp(self):
         """Set queries context"""
 
-        self.user = get_user_model().objects.create(username='test')
+        self.user = get_user_model().objects.create(username='test', is_superuser=True)
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
@@ -6288,7 +6288,7 @@ class TestAddIdentityMutation(django.test.TestCase):
     def setUp(self):
         """Set queries context"""
 
-        self.user = get_user_model().objects.create(username='test')
+        self.user = get_user_model().objects.create(username='test', is_superuser=True)
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
@@ -6614,7 +6614,7 @@ class TestDeleteIdentityMutation(django.test.TestCase):
     def setUp(self):
         """Load initial dataset and set queries context"""
 
-        self.user = get_user_model().objects.create(username='test')
+        self.user = get_user_model().objects.create(username='test', is_superuser=True)
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
@@ -6797,7 +6797,7 @@ class TestLockMutation(django.test.TestCase):
     def setUp(self):
         """Load initial dataset and set queries context"""
 
-        self.user = get_user_model().objects.create(username='test')
+        self.user = get_user_model().objects.create(username='test', is_superuser=True)
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
@@ -6901,7 +6901,7 @@ class TestUnlockMutation(django.test.TestCase):
     def setUp(self):
         """Load initial dataset and set queries context"""
 
-        self.user = get_user_model().objects.create(username='test')
+        self.user = get_user_model().objects.create(username='test', is_superuser=True)
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
@@ -7015,7 +7015,7 @@ class TestUpdateProfileMutation(django.test.TestCase):
     def setUp(self):
         """Load initial dataset and set queries context"""
 
-        self.user = get_user_model().objects.create(username='test')
+        self.user = get_user_model().objects.create(username='test', is_superuser=True)
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
@@ -7189,7 +7189,7 @@ class TestMoveIdentityMutation(django.test.TestCase):
     def setUp(self):
         """Load initial dataset and set queries context"""
 
-        self.user = get_user_model().objects.create(username='test')
+        self.user = get_user_model().objects.create(username='test', is_superuser=True)
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
@@ -7536,7 +7536,7 @@ class TestEnrollMutation(django.test.TestCase):
     def setUp(self):
         """Load initial dataset and set queries context"""
 
-        self.user = get_user_model().objects.create(username='test')
+        self.user = get_user_model().objects.create(username='test', is_superuser=True)
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
@@ -7991,7 +7991,7 @@ class TestWithdrawMutation(django.test.TestCase):
     def setUp(self):
         """Load initial dataset and set queries context"""
 
-        self.user = get_user_model().objects.create(username='test')
+        self.user = get_user_model().objects.create(username='test', is_superuser=True)
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
@@ -8307,7 +8307,7 @@ class TestUpdateEnrollmentMutation(django.test.TestCase):
     def setUp(self):
         """Load initial dataset and set queries context"""
 
-        self.user = get_user_model().objects.create(username='test')
+        self.user = get_user_model().objects.create(username='test', is_superuser=True)
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
@@ -8787,7 +8787,7 @@ class TestMergeMutation(django.test.TestCase):
     def setUp(self):
         """Load initial dataset and set queries context"""
 
-        self.user = get_user_model().objects.create(username='test')
+        self.user = get_user_model().objects.create(username='test', is_superuser=True)
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
@@ -9207,7 +9207,7 @@ class TestUnmergeIdentitiesMutation(django.test.TestCase):
     def setUp(self):
         """Load initial dataset and set queries context"""
 
-        self.user = get_user_model().objects.create(username='test')
+        self.user = get_user_model().objects.create(username='test', is_superuser=True)
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
@@ -10655,7 +10655,7 @@ class TestAddRecommenderExclusionTermMutation(django.test.TestCase):
     def setUp(self):
         """Set queries context"""
 
-        self.user = get_user_model().objects.create(username='test')
+        self.user = get_user_model().objects.create(username='test', is_superuser=True)
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
@@ -10739,7 +10739,7 @@ class TestDeleteRecommenderExclusionTermMutation(django.test.TestCase):
     def setUp(self):
         """Set queries context"""
 
-        self.user = get_user_model().objects.create(username='test')
+        self.user = get_user_model().objects.create(username='test', is_superuser=True)
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
@@ -10811,7 +10811,7 @@ class TestManageRecommendationMergeMutation(django.test.TestCase):
     def setUp(self):
         """Set queries context"""
 
-        self.user = get_user_model().objects.create(username='test')
+        self.user = get_user_model().objects.create(username='test', is_superuser=True)
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
@@ -10917,7 +10917,7 @@ class TestManageRecommendationGenderMutation(django.test.TestCase):
     def setUp(self):
         """Set queries context"""
 
-        self.user = get_user_model().objects.create(username='test')
+        self.user = get_user_model().objects.create(username='test', is_superuser=True)
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
@@ -11015,7 +11015,7 @@ class TestManageRecommendationAffiliationMutation(django.test.TestCase):
     def setUp(self):
         """Set queries context"""
 
-        self.user = get_user_model().objects.create(username='test')
+        self.user = get_user_model().objects.create(username='test', is_superuser=True)
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
@@ -11132,7 +11132,7 @@ class TestMergeOrganizationsMutation(django.test.TestCase):
     def setUp(self):
         """Load initial dataset and set queries context"""
 
-        self.user = get_user_model().objects.create(username='test')
+        self.user = get_user_model().objects.create(username='test', is_superuser=True)
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
@@ -11506,7 +11506,7 @@ class TestAddAliasMutation(django.test.TestCase):
     def setUp(self):
         """Set queries context"""
 
-        self.user = get_user_model().objects.create(username='test')
+        self.user = get_user_model().objects.create(username='test', is_superuser=True)
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 
@@ -11611,7 +11611,7 @@ class TestDeleteAliasMutation(django.test.TestCase):
     def setUp(self):
         """Set queries context"""
 
-        self.user = get_user_model().objects.create(username='test')
+        self.user = get_user_model().objects.create(username='test', is_superuser=True)
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
 

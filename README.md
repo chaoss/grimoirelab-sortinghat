@@ -217,6 +217,15 @@ Options:
   --no-interactive  Run the command in no interactive mode.
 ```
 
+## Assign users to permission groups
+A user in a group automatically has the permissions granted to that group. To assign users to a permission group use the following command:
+```
+$ sortinghat-admin set-user-group username group
+```
+
+The list of groups can be customized using the configuration file `sortinghat/config/permission_groups.json`. You can use a different json file using the environment variable `SORTINGHAT_PERMISSION_GROUPS_LIST_PATH`.
+
+
 ## Compatibility between versions
 SortingHat 0.7.x is no longer supported. Any database using this version will not work.
 
