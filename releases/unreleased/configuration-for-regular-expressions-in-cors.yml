@@ -1,0 +1,9 @@
+---
+title: Configuration for regular expressions in CORS
+category: added
+author: Jose Javier Merchante <jjmerchante@bitergia.com>
+issue: null
+notes: >
+  Include in the configuration `SORTINGHAT_CORS_ALLOWED_ORIGIN_REGEXES`
+  environment variable that contains a list of regular expressions
+  that matches origins authorized to make cross-site HTTP requests.
