@@ -8,7 +8,7 @@
         >
           <v-row class="section pa-3 mb-4 mt-0">
             <v-col>
-              <v-list-item class="pl-1">
+              <v-list-item class="pl-1 my-n4 v-list-item--three-line">
                 <template v-slot:prepend>
                   <avatar :name="individual.name" :email="individual.email" />
                 </template>
@@ -25,13 +25,27 @@
                     @save="updateProfile({ name: $event })"
                   />
                 </v-list-item-title>
-                <v-list-item-subtitle>
+                <v-list-item-subtitle class="mb-1">
                   {{ individual.organization }}
                 </v-list-item-subtitle>
+                <p
+                  v-for="(profile, i) in socialProfiles"
+                  :key="i"
+                  class="d-flex align-center"
+                >
+                  <v-icon size="small" start>{{ profile.icon }}</v-icon>
+                  <a
+                    :href="profile.link"
+                    class="link--underline font-weight-regular"
+                    target="_blank"
+                  >
+                    {{ profile.username }}
+                  </a>
+                </p>
               </v-list-item>
             </v-col>
 
-            <v-col cols="2" class="d-flex justify-end align-center mr-1">
+            <v-col cols="2" class="d-flex justify-end align-start mr-1">
               <v-tooltip location="bottom">
                 <template v-slot:activator="{ props }">
                   <v-btn
@@ -114,6 +128,23 @@
                   >
                     <v-list-item-title>Find matches</v-list-item-title>
                   </v-list-item>
+                  <v-list-item
+                    v-if="hasLinkedinProfile"
+                    :disabled="individual.isLocked"
+                    @click="confirmRemoveIdentity"
+                  >
+                    <v-list-item-title>
+                      Remove LinkedIn profile
+                    </v-list-item-title>
+                  </v-list-item>
+                  <v-list-item
+                    v-else
+                    :disabled="individual.isLocked"
+                    @click="linkedinModal.open = true"
+                  >
+                    <v-list-item-title>Add LinkedIn profile</v-list-item-title>
+                  </v-list-item>
+                  <v-divider inline></v-divider>
                   <v-list-item
                     :disabled="individual.isLocked"
                     @click="confirmDelete"
@@ -308,6 +339,32 @@
       :uuid="mk"
     />
 
+    <v-dialog v-model="linkedinModal.open" max-width="500px">
+      <v-card class="pa-3">
+        <v-card-title class="headline">Add LinkedIn profile</v-card-title>
+        <v-card-text>
+          <v-text-field
+            v-model="linkedinModal.username"
+            label="LinkedIn username"
+            prefix="https://www.linkedin.com/in/"
+            placeholder="username"
+            autofocus
+          ></v-text-field>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn text @click="linkedinModal.open = false"> Cancel </v-btn>
+          <v-btn
+            :disabled="!linkedinModal.username"
+            color="primary"
+            @click.stop="addLinkedInProfile"
+          >
+            Confirm
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <v-dialog v-model="dialog.open" max-width="500px">
       <v-card class="pa-3">
         <v-card-title class="headline">{{ dialog.title }}</v-card-title>
@@ -347,6 +404,7 @@ import {
   findOrganization,
 } from "../apollo/queries";
 import {
+  addLinkedinProfile,
   deleteIdentity,
   enroll,
   lockIndividual,
@@ -400,7 +458,12 @@ export default {
       matchesModal: {
         open: false,
       },
+      linkedinModal: {
+        open: false,
+        username: "",
+      },
       countries: [],
+      socialProfiles: [],
     };
   },
   computed: {
@@ -416,6 +479,11 @@ export default {
     isInWorkspace() {
       const workspace = this.$store.getters.workspace;
       return workspace && workspace.indexOf(this.mk) !== -1;
+    },
+    hasLinkedinProfile() {
+      return this.socialProfiles.some(
+        (profile) => profile.source === "linkedin"
+      );
     },
   },
   methods: {
@@ -613,6 +681,7 @@ export default {
       }
 
       this.individual = formatIndividual(newData[0]);
+      this.socialProfiles = this.getSocialProfiles(newData[0]);
     },
     async fetchOrganizations(page, items, filters) {
       const response = await findOrganization(
@@ -646,6 +715,73 @@ export default {
         uuid
       );
       return response;
+    },
+    getSocialProfiles(individual) {
+      return individual.identities.reduce((result, identity) => {
+        const linkedSources = [
+          {
+            source: "github",
+            link: `http://github.com/${identity.username}`,
+            icon: "mdi-github",
+          },
+          {
+            source: "linkedin",
+            link: `https://www.linkedin.com/in/${identity.username}`,
+            icon: "mdi-linkedin",
+          },
+        ];
+        const socialProfile = linkedSources.find(
+          (item) => item.source === identity.source.toLowerCase()
+        );
+
+        if (socialProfile) {
+          result.push({ ...identity, ...socialProfile });
+        }
+
+        return result;
+      }, []);
+    },
+    async addLinkedInProfile() {
+      try {
+        const response = await addLinkedinProfile(
+          this.$apollo,
+          this.mk,
+          this.linkedinModal.username
+        );
+        this.updateIndividual(response.data.addIdentity.individual);
+        Object.assign(this.linkedinModal, { open: false, username: "" });
+      } catch (error) {
+        this.dialog = {
+          open: true,
+          title: "Error adding identity",
+          errorMessage: this.$getErrorMessage(error),
+        };
+        this.$logger.error(`Error adding identity: ${error}`);
+      }
+    },
+    async removeLinkedInProfile() {
+      try {
+        const uuid = this.socialProfiles.find(
+          (identity) => identity.source === "linkedin"
+        )?.uuid;
+        const response = await deleteIdentity(this.$apollo, uuid);
+        this.updateIndividual(response.data.deleteIdentity.individual);
+        this.closeDialog();
+      } catch (error) {
+        this.dialog = {
+          open: true,
+          title: "Error removing identity",
+          errorMessage: this.$getErrorMessage(error),
+        };
+        this.$logger.error(`Error removing identity: ${error}`);
+      }
+    },
+    confirmRemoveIdentity() {
+      this.dialog = {
+        open: true,
+        title: "Remove LinkedIn profile?",
+        action: this.removeLinkedInProfile,
+      };
     },
   },
   mounted() {

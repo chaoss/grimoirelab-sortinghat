@@ -42,6 +42,15 @@
         {{ username }}
         <v-icon size="x-small" end>mdi-open-in-new</v-icon>
       </a>
+      <a
+        v-else-if="source?.toLowerCase() === 'linkedin'"
+        :href="`https://www.linkedin.com/in/${username}`"
+        class="link--underline font-weight-regular"
+        target="_blank"
+      >
+        {{ username }}
+        <v-icon size="x-small" end>mdi-open-in-new</v-icon>
+      </a>
       <span v-else class="text-break">{{ username }}</span>
     </v-col>
     <v-col class="ma-2" v-if="source !== null">
