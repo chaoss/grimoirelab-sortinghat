@@ -37,8 +37,12 @@ const DELETE_IDENTITY = gql`
   mutation DeleteIdentity($uuid: String!) {
     deleteIdentity(uuid: $uuid) {
       uuid
+      individual {
+        ...individual
+      }
     }
   }
+  ${FULL_INDIVIDUAL}
 `;
 
 const MERGE = gql`
@@ -426,6 +430,16 @@ const DELETE_ALIAS = gql`
       }
     }
   }
+`;
+const ADD_LINKEDIN_PROFILE = gql`
+  mutation addLinkedinProfile($uuid: String!, $username: String!) {
+    addIdentity(uuid: $uuid, username: $username, source: "linkedin") {
+      individual {
+        ...individual
+      }
+    }
+  }
+  ${FULL_INDIVIDUAL}
 `;
 
 const tokenAuth = (apollo, username, password) => {
@@ -830,6 +844,16 @@ const deleteAlias = (apollo, alias) => {
   });
 };
 
+const addLinkedinProfile = (apollo, uuid, username) => {
+  return apollo.mutate({
+    mutation: ADD_LINKEDIN_PROFILE,
+    variables: {
+      uuid,
+      username,
+    },
+  });
+};
+
 export {
   tokenAuth,
   lockIndividual,
@@ -863,4 +887,5 @@ export {
   updateTask,
   addAlias,
   deleteAlias,
+  addLinkedinProfile,
 };

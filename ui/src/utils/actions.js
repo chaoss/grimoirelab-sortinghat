@@ -42,6 +42,7 @@ const groupIdentities = (identities) => {
     { source: "gitlab", icon: "mdi-gitlab" },
     { source: "dockerhub", icon: "mdi-docker" },
     { source: "jira", icon: "mdi-jira" },
+    { source: "linkedin", icon: "mdi-linkedin" },
     { source: "rss", icon: "mdi-rss" },
     { source: "slack", icon: "mdi-slack" },
     { source: "stackexchange", icon: "mdi-stack-exchange" },
