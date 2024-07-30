@@ -2,6 +2,7 @@ import path from 'path';
 import * as glob from 'glob';
 import errorMessages from "@/plugins/errors";
 import vuetify from "@/plugins/vuetify";
+import dateFormatter from "@/plugins/dateFormatter";
 import { describe, test, expect } from '@jest/globals';
 import { render } from '@testing-library/vue';
 import { composeStories } from '@storybook/vue3';
@@ -66,7 +67,7 @@ describe(options.suite, () => {
         testFn(name, async () => {
           const mounted = render(story(), {
             global: {
-              plugins: [errorMessages, vuetify, store],
+              plugins: [errorMessages, vuetify, store, dateFormatter],
               stubs: ['router-link']
             },
             container: null

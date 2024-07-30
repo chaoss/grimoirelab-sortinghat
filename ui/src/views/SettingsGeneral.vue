@@ -20,7 +20,7 @@
                   mdi-alert
                 </v-icon>
                 <v-icon v-else color="green" left small> mdi-check </v-icon>
-                Last run {{ formatDate(tasks.affiliate.lastExecution) }}
+                Last run {{ $formatDate(tasks.affiliate.lastExecution) }}
               </span>
             </v-col>
             <v-col class="d-flex justify-end">
@@ -102,7 +102,7 @@
                 </v-icon>
                 <v-icon v-else color="green" left small> mdi-check </v-icon>
                 <span class="v-list-item__subtitle text-medium-emphasis">
-                  Last run {{ formatDate(tasks.unify.lastExecution) }}
+                  Last run {{ $formatDate(tasks.unify.lastExecution) }}
                 </span>
               </span>
             </v-col>
@@ -308,9 +308,6 @@ export default {
         customInterval: task.interval,
         params: task.args,
       });
-    },
-    formatDate(dateTime) {
-      return new Date(dateTime).toLocaleString();
     },
     toggleTask(job) {
       if (this.tasks[job].isActive) {

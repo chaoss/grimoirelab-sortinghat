@@ -14,6 +14,7 @@ import {
 import vuetify from "./plugins/vuetify";
 import logger from "./plugins/logger";
 import errorMessages from "./plugins/errors";
+import dateFormatter from "./plugins/dateFormatter";
 
 const API_URL = process.env.VUE_APP_API_URL || `${process.env.BASE_URL}api/`;
 
@@ -66,6 +67,7 @@ const apolloProvider = new createApolloProvider({
 
 createApp(App)
   .use(apolloProvider)
+  .use(dateFormatter)
   .use(errorMessages)
   .use(logger)
   .use(store)

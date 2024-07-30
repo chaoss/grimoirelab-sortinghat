@@ -25517,7 +25517,7 @@ exports[`Storybook Tests JobsTable Default 1`] = `
                 recommend affiliations
               </td>
               <td>
-                2/19/2021, 12:09:21 PM
+                2021-02-19 12:09 PM
               </td>
               <td
                 class="text-center"
@@ -25590,7 +25590,7 @@ exports[`Storybook Tests JobsTable Default 1`] = `
                 recommend affiliations
               </td>
               <td>
-                2/19/2021, 2:12:00 PM
+                2021-02-19 02:12 PM
               </td>
               <td
                 class="text-center"
@@ -25663,7 +25663,7 @@ exports[`Storybook Tests JobsTable Default 1`] = `
                 affiliate
               </td>
               <td>
-                2/19/2021, 2:22:10 PM
+                2021-02-19 02:22 PM
               </td>
               <td
                 class="text-center"
@@ -25736,7 +25736,7 @@ exports[`Storybook Tests JobsTable Default 1`] = `
                 recommend affiliations
               </td>
               <td>
-                2/20/2021, 8:01:56 AM
+                2021-02-20 08:01 AM
               </td>
               <td
                 class="text-center"
@@ -25809,7 +25809,7 @@ exports[`Storybook Tests JobsTable Default 1`] = `
                 affiliate
               </td>
               <td>
-                2/20/2021, 10:45:38 AM
+                2021-02-20 10:45 AM
               </td>
               <td
                 class="text-center"
@@ -31599,7 +31599,7 @@ exports[`Storybook Tests TasksTable Default 1`] = `
                     class="mdi-alert mdi v-icon notranslate v-theme--light v-icon--size-default text-failed mb-1 mr-1"
                     small=""
                   />
-                   Last sync 3/14/2023, 2:21:10 PM
+                   Last sync 2023-03-14 02:21 PM
                 </p>
               </td>
               <td
@@ -31699,7 +31699,7 @@ exports[`Storybook Tests TasksTable Default 1`] = `
                     class="mdi-check mdi v-icon notranslate v-theme--light v-icon--size-default text-finished mb-1 mr-1"
                     small=""
                   />
-                   Last sync 3/12/2023, 11:01:40 AM
+                   Last sync 2023-03-12 11:01 AM
                 </p>
               </td>
               <td

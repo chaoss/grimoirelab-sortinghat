@@ -58,7 +58,7 @@
                 >
                   {{ task.failed ? "mdi-alert" : "mdi-check" }}
                 </v-icon>
-                Last sync {{ formatDate(task.lastExecution) }}
+                Last sync {{ $formatDate(task.lastExecution) }}
               </p>
             </td>
             <td class="text-right pr-8">
@@ -141,12 +141,6 @@ export default {
     };
   },
   methods: {
-    formatDate(dateTime) {
-      if (!dateTime) {
-        return "-";
-      }
-      return new Date(dateTime).toLocaleString("en-US");
-    },
     openModal(backend, task = {}) {
       if (typeof backend === "string") {
         backend = this.importers.find((importer) => importer.name === backend);
