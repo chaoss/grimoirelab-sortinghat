@@ -16,6 +16,7 @@
     "@apollo/client": "^3.9.5",
     "@vue/apollo-option": "^4.0.0",
     "core-js": "^3.27.1",
+    "dayjs": "^1.10.4",
     "graphql": "^16.8.1",
     "graphql-tag": "^2.12.6",
     "js-cookie": "^2.2.1",
