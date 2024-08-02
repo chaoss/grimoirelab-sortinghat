@@ -1,8 +1,0 @@
----
-title: Consistent date format
-category: fixed
-author: Eva Millán <evamillan@bitergia.com>
-issue: 901
-notes: >
-  All the job execution dates are now in YYYY-MM-DD hh:mm format
-  on the user interface.
