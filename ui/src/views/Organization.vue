@@ -1,9 +1,10 @@
 <template>
   <v-main class="mt-md-3">
-    <v-overlay :value="isLoading">
-      <v-progress-circular indeterminate size="64"></v-progress-circular>
-    </v-overlay>
-    <v-container v-if="organization">
+    <loading-spinner
+      v-if="$apollo.queries.organizations.loading"
+      label="Loading"
+    />
+    <v-container v-else-if="organization">
       <div class="section d-flex flex-column">
         <h1 class="header font-weight-medium text-h6 pa-8">
           {{ organization.name }}
@@ -354,8 +355,8 @@
       </div>
     </v-container>
 
-    <v-container v-else-if="!isLoading">
-      <v-alert text type="error">Organization {{ name }} not found </v-alert>
+    <v-container v-if="error">
+      <v-alert text type="error">{{ error }} </v-alert>
       <v-btn to="/" color="primary" depressed>
         <v-icon left dark>mdi-arrow-left</v-icon>
         Go to dashboard
@@ -388,9 +389,9 @@
 </template>
 <script>
 import {
-  getOrganization,
   getTeams,
   getPaginatedIndividuals,
+  GET_ORGANIZATION,
 } from "../apollo/queries";
 import {
   deleteIdentity,
@@ -408,13 +409,39 @@ import {
 } from "../apollo/mutations";
 import IndividualsTable from "../components/IndividualsTable.vue";
 import EditDialog from "../components/EditDialog.vue";
+import LoadingSpinner from "../components/LoadingSpinner.vue";
 
 export default {
   name: "Organization",
-  components: { IndividualsTable, EditDialog },
+  components: { IndividualsTable, EditDialog, LoadingSpinner },
+  apollo: {
+    organizations() {
+      return {
+        query: GET_ORGANIZATION,
+        variables: {
+          filters: {
+            name: this.name,
+          },
+        },
+        async result(result) {
+          if (result.data?.organizations.entities.length === 1) {
+            this.organization = Object.assign(
+              {},
+              result.data.organizations.entities[0]
+            );
+            this.teams.items = await this.fetchTeams();
+          } else if (result.errors) {
+            this.error = this.$getErrorMessage(result.errors[0]);
+          } else {
+            this.error = `Organization ${this.name} not found`;
+          }
+        },
+      };
+    },
+  },
   data() {
     return {
-      organization: {},
+      organization: null,
       isLoading: true,
       teams: {
         items: [],
@@ -438,6 +465,7 @@ export default {
       filters: null,
       tab: null,
       menu: false,
+      error: null,
     };
   },
   computed: {
@@ -446,19 +474,6 @@ export default {
     },
   },
   methods: {
-    async fetchOrganization(name) {
-      try {
-        const response = await getOrganization(this.$apollo, name);
-        if (response.data.organizations.entities.length > 0) {
-          Object.assign(
-            this.organization,
-            response.data.organizations.entities[0]
-          );
-        }
-      } catch (error) {
-        this.$logger.error(error);
-      }
-    },
     confirmDelete(action, id) {
       Object.assign(this.dialog, {
         isOpen: true,
@@ -667,11 +682,6 @@ export default {
         Object.assign(this.dialog, { text: error });
       }
     },
-  },
-  async mounted() {
-    await this.fetchOrganization(this.name);
-    this.teams.items = await this.fetchTeams();
-    this.isLoading = false;
   },
 };
 </script>

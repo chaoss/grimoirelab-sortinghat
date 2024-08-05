@@ -590,3 +590,50 @@ export const HiddenHeader = () => ({
     isExpandable: false,
   }),
 });
+
+export const OnError = () => ({
+  components: { IndividualsTable },
+  template: IndividualsTableTemplate,
+  methods: {
+    queryIndividuals() {
+      throw new Error("Test error message");
+    },
+    deleteIndividual() {
+      return true;
+    },
+    getCountries() {
+      return true;
+    },
+    recommendMatches() {
+      return {
+        data: {
+          recommendMatches: {
+            jobId: "b65d2170-a560-4b20-954e-fc8c9f5afdd4",
+          },
+        },
+      };
+    },
+  },
+  provide: () => ({
+    getRecommendations: () => {},
+    getRecommendationsCount: () => {
+      return {
+        data: {
+          recommendedMerge: {
+            pageInfo: {
+              totalResults: 0,
+            },
+          },
+        },
+      };
+    },
+    manageRecommendation: () => {},
+  }),
+  data: () => ({
+    query: query,
+    hideHeader: false,
+    outlined: true,
+    isExpandable: false,
+  }),
+});
+
