@@ -227,6 +227,9 @@ The list of groups can be customized using the configuration file `sortinghat/co
 
 
 ## Compatibility between versions
+
+### SortingHat 0.8.0 and GrimoireLab 0.8.0
+
 SortingHat 0.7.x is no longer supported. Any database using this version will not work.
 
 SortingHat databases 0.7.x are no longer compatible. The `uidentities` table was renamed
@@ -248,6 +251,14 @@ Please update your database running the following command:
 ```
 $ sortinghat-admin --config sortinghat.config.settings migrate-old-database
 ```
+
+### SortingHat 1.1.0 and GrimoireLab 1.3.0
+
+SortingHat 1.1.0 allows the assignment of users to permission groups. By default, any
+existing user in the database will have the minimum permissions, which will allow
+only read access. To explicitly assign a user to a permission group, run the
+command provided in the previous section 
+[Assign users to permission groups](#assign-users-to-permission-groups)
 
 ## Multi-tenancy
 
