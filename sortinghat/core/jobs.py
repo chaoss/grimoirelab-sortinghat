@@ -51,6 +51,7 @@ from .recommendations.engine import RecommendationEngine
 
 
 MAX_CHUNK_SIZE = 2000
+DEFAULT_JOB_RESULT_TTL = 60 * 60 * 24 * 7  # seconds
 
 
 logger = logging.getLogger(__name__)
@@ -866,6 +867,8 @@ def schedule_task(ctx, fn, task, scheduled_datetime=None, **kwargs):
                                                   on_success=on_success_job,
                                                   on_failure=on_failed_job,
                                                   job_timeout=-1,
+                                                  result_ttl=DEFAULT_JOB_RESULT_TTL,
+                                                  failure_ttl=DEFAULT_JOB_RESULT_TTL,
                                                   **kwargs)
     task.scheduled_datetime = scheduled_datetime
     task.job_id = job.id
