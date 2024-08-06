@@ -104,21 +104,31 @@ def get_jobs(tenant):
     logger.debug("Retrieving list of jobs ...")
 
     queue = get_tenant_queue(tenant)
-    started_jobs = [find_job(id, tenant)
-                    for id
-                    in queue.started_job_registry.get_job_ids()]
-    deferred_jobs = [find_job(id, tenant)
-                     for id
-                     in queue.deferred_job_registry.get_job_ids()]
-    finished_jobs = [find_job(id, tenant)
-                     for id
-                     in queue.finished_job_registry.get_job_ids()]
-    failed_jobs = [find_job(id, tenant)
-                   for id
-                   in queue.failed_job_registry.get_job_ids()]
-    scheduled_jobs = [find_job(id, tenant)
-                      for id
-                      in queue.scheduled_job_registry.get_job_ids()]
+    started_jobs = django_rq.utils.get_jobs(
+        queue,
+        queue.started_job_registry.get_job_ids(),
+        queue.started_job_registry
+    )
+    deferred_jobs = django_rq.utils.get_jobs(
+        queue,
+        queue.deferred_job_registry.get_job_ids(),
+        queue.deferred_job_registry
+    )
+    finished_jobs = django_rq.utils.get_jobs(
+        queue,
+        queue.finished_job_registry.get_job_ids(),
+        queue.finished_job_registry
+    )
+    failed_jobs = django_rq.utils.get_jobs(
+        queue,
+        queue.failed_job_registry.get_job_ids(),
+        queue.failed_job_registry
+    )
+    scheduled_jobs = django_rq.utils.get_jobs(
+        queue,
+        queue.scheduled_job_registry.get_job_ids(),
+        queue.scheduled_job_registry
+    )
     jobs = (queue.jobs + started_jobs + deferred_jobs + finished_jobs + failed_jobs + scheduled_jobs)
     jobs = (job for job in jobs if job_in_tenant(job, tenant))
 
