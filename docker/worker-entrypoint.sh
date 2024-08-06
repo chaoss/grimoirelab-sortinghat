@@ -34,7 +34,7 @@ set -e
 export SORTINGHAT_CONFIG=sortinghat.config.settings
 
 # Build the command to run
-set - sortinghatw
+set - sortinghatw "$@"
 
 # Run the worker
 exec "$@"

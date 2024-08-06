@@ -51,6 +51,7 @@ from .recommendations.engine import RecommendationEngine
 
 
 MAX_CHUNK_SIZE = 2000
+DEFAULT_JOB_RESULT_TTL = 60 * 60 * 24 * 7  # seconds
 
 
 logger = logging.getLogger(__name__)
@@ -104,21 +105,31 @@ def get_jobs(tenant):
     logger.debug("Retrieving list of jobs ...")
 
     queue = get_tenant_queue(tenant)
-    started_jobs = [find_job(id, tenant)
-                    for id
-                    in queue.started_job_registry.get_job_ids()]
-    deferred_jobs = [find_job(id, tenant)
-                     for id
-                     in queue.deferred_job_registry.get_job_ids()]
-    finished_jobs = [find_job(id, tenant)
-                     for id
-                     in queue.finished_job_registry.get_job_ids()]
-    failed_jobs = [find_job(id, tenant)
-                   for id
-                   in queue.failed_job_registry.get_job_ids()]
-    scheduled_jobs = [find_job(id, tenant)
-                      for id
-                      in queue.scheduled_job_registry.get_job_ids()]
+    started_jobs = django_rq.utils.get_jobs(
+        queue,
+        queue.started_job_registry.get_job_ids(),
+        queue.started_job_registry
+    )
+    deferred_jobs = django_rq.utils.get_jobs(
+        queue,
+        queue.deferred_job_registry.get_job_ids(),
+        queue.deferred_job_registry
+    )
+    finished_jobs = django_rq.utils.get_jobs(
+        queue,
+        queue.finished_job_registry.get_job_ids(),
+        queue.finished_job_registry
+    )
+    failed_jobs = django_rq.utils.get_jobs(
+        queue,
+        queue.failed_job_registry.get_job_ids(),
+        queue.failed_job_registry
+    )
+    scheduled_jobs = django_rq.utils.get_jobs(
+        queue,
+        queue.scheduled_job_registry.get_job_ids(),
+        queue.scheduled_job_registry
+    )
     jobs = (queue.jobs + started_jobs + deferred_jobs + finished_jobs + failed_jobs + scheduled_jobs)
     jobs = (job for job in jobs if job_in_tenant(job, tenant))
 
@@ -856,6 +867,8 @@ def schedule_task(ctx, fn, task, scheduled_datetime=None, **kwargs):
                                                   on_success=on_success_job,
                                                   on_failure=on_failed_job,
                                                   job_timeout=-1,
+                                                  result_ttl=DEFAULT_JOB_RESULT_TTL,
+                                                  failure_ttl=DEFAULT_JOB_RESULT_TTL,
                                                   **kwargs)
     task.scheduled_datetime = scheduled_datetime
     task.job_id = job.id

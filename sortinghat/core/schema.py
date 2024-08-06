@@ -102,6 +102,7 @@ from .recommendations.exclusion import delete_recommend_exclusion_term, add_reco
 
 
 DEFAULT_IMPORT_IDENTITIES_INTERVAL = 60 * 24 * 7  # minutes
+DEFAULT_JOB_RESULT_TTL = 60 * 60 * 24 * 7  # seconds
 
 
 @convert_django_field.register(JSONField)
@@ -1109,7 +1110,9 @@ class RecommendAffiliations(graphene.Mutation):
 
         job = get_tenant_queue(tenant).enqueue(recommend_affiliations,
                                                ctx, uuids, last_modified,
-                                               job_timeout=-1)
+                                               job_timeout=-1,
+                                               result_ttl=DEFAULT_JOB_RESULT_TTL,
+                                               failure_ttl=DEFAULT_JOB_RESULT_TTL)
 
         return RecommendAffiliations(
             job_id=job.id
@@ -1154,7 +1157,9 @@ class RecommendMatches(graphene.Mutation):
                                                strict,
                                                match_source,
                                                last_modified,
-                                               job_timeout=-1)
+                                               job_timeout=-1,
+                                               result_ttl=DEFAULT_JOB_RESULT_TTL,
+                                               failure_ttl=DEFAULT_JOB_RESULT_TTL)
 
         return RecommendMatches(
             job_id=job.id
@@ -1179,7 +1184,9 @@ class RecommendGender(graphene.Mutation):
         job = get_tenant_queue(tenant).enqueue(recommend_gender,
                                                ctx, uuids,
                                                exclude, no_strict_matching,
-                                               job_timeout=-1)
+                                               job_timeout=-1,
+                                               result_ttl=DEFAULT_JOB_RESULT_TTL,
+                                               failure_ttl=DEFAULT_JOB_RESULT_TTL)
 
         return RecommendGender(
             job_id=job.id
@@ -1203,7 +1210,9 @@ class Affiliate(graphene.Mutation):
 
         job = get_tenant_queue(tenant).enqueue(affiliate, ctx, uuids,
                                                last_modified,
-                                               job_timeout=-1)
+                                               job_timeout=-1,
+                                               result_ttl=DEFAULT_JOB_RESULT_TTL,
+                                               failure_ttl=DEFAULT_JOB_RESULT_TTL)
 
         return Affiliate(
             job_id=job.id
@@ -1247,7 +1256,9 @@ class Unify(graphene.Mutation):
                                                strict,
                                                match_source,
                                                last_modified,
-                                               job_timeout=-1)
+                                               job_timeout=-1,
+                                               result_ttl=DEFAULT_JOB_RESULT_TTL,
+                                               failure_ttl=DEFAULT_JOB_RESULT_TTL)
 
         return Unify(
             job_id=job.id
@@ -1271,7 +1282,9 @@ class Genderize(graphene.Mutation):
 
         job = get_tenant_queue(tenant).enqueue(genderize, ctx, uuids,
                                                exclude, no_strict_matching,
-                                               job_timeout=-1)
+                                               job_timeout=-1,
+                                               result_ttl=DEFAULT_JOB_RESULT_TTL,
+                                               failure_ttl=DEFAULT_JOB_RESULT_TTL)
 
         return Genderize(
             job_id=job.id
@@ -1431,7 +1444,9 @@ class ImportIdentities(graphene.Mutation):
 
         job = get_tenant_queue(tenant).enqueue(import_identities, ctx,
                                                backend, url, params,
-                                               job_timeout=-1)
+                                               job_timeout=-1,
+                                               result_ttl=DEFAULT_JOB_RESULT_TTL,
+                                               failure_ttl=DEFAULT_JOB_RESULT_TTL)
 
         return ImportIdentities(
             job_id=job.id
@@ -1529,7 +1544,6 @@ class UpdateScheduledTask(graphene.Mutation):
             new_dt = datetime.datetime.now(datetime.timezone.utc) \
                 + datetime.timedelta(minutes=task.interval)
             if task.scheduled_datetime and task.scheduled_datetime > new_dt:
-                find_job(task.job_id, tenant)
                 if task.job_id:
                     job = find_job(task.job_id, tenant)
                     if job:
