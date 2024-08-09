@@ -1,6 +1,7 @@
 <template>
   <v-main>
-    <v-container v-if="individual" class="ml-auto mr-auto mb-8">
+    <loading-spinner v-if="$apollo.loading" label="Loading" />
+    <v-container v-else-if="individual" class="mx-auto mb-8">
       <v-row>
         <v-col
           :cols="showRecommendations ? 8 : 12"
@@ -305,8 +306,8 @@
       </v-row>
     </v-container>
 
-    <v-container v-else>
-      <v-alert dense text type="error"> Individual {{ mk }} not found </v-alert>
+    <v-container v-if="error">
+      <v-alert dense text type="error"> Individual {{ error }} </v-alert>
       <v-btn to="/" color="primary" depressed>
         <v-icon left dark>mdi-arrow-left</v-icon>
         Go to dashboard
@@ -400,8 +401,8 @@
 <script>
 import {
   getCountries,
-  getIndividualByUuid,
   findOrganization,
+  GET_INDIVIDUAL_BYUUID,
 } from "../apollo/queries";
 import {
   addLinkedinProfile,
@@ -426,6 +427,7 @@ import EnrollModal from "../components/EnrollModal.vue";
 import TeamEnrollModal from "../components/TeamEnrollModal.vue";
 import MatchesModal from "../components/MatchesModal.vue";
 import EditDialog from "../components/EditDialog.vue";
+import LoadingSpinner from "../components/LoadingSpinner.vue";
 
 export default {
   name: "Individual",
@@ -438,11 +440,29 @@ export default {
     TeamEnrollModal,
     MatchesModal,
     EditDialog,
+    LoadingSpinner,
   },
   mixins: [enrollMixin],
+  apollo: {
+    individuals() {
+      return {
+        query: GET_INDIVIDUAL_BYUUID,
+        variables: { uuid: this.mk },
+        result(result) {
+          if (result.data.individuals.entities.length === 1) {
+            this.updateIndividual(result.data.individuals.entities);
+          } else if (result.errors) {
+            this.error = this.$getErrorMessage(result.errors[0]);
+          } else {
+            this.error = `Individual ${this.mk} not found`;
+          }
+        },
+      };
+    },
+  },
   data() {
     return {
-      individual: {},
+      individual: null,
       dialog: {
         open: false,
         title: "",
@@ -464,12 +484,11 @@ export default {
       },
       countries: [],
       socialProfiles: [],
+      mk: this.$route.params.mk,
+      error: null,
     };
   },
   computed: {
-    mk() {
-      return this.$route.params.mk;
-    },
     showRecommendations() {
       return (
         this.individual.matchRecommendations &&
@@ -487,31 +506,6 @@ export default {
     },
   },
   methods: {
-    async fetchIndividual() {
-      try {
-        const response = await getIndividualByUuid(this.$apollo, this.mk);
-
-        if (response.data.individuals.entities.length === 0) {
-          this.individual = false;
-          return;
-        }
-
-        this.updateIndividual(response.data.individuals.entities);
-
-        Object.assign(this.form, {
-          name: this.individual.name,
-          email: this.individual.email,
-          country: this.individual.country,
-          gender: this.individual.gender,
-        });
-
-        document.title = `${
-          this.individual.name || "Individual"
-        } - Sorting Hat`;
-      } catch (error) {
-        this.$logger.error(`Error fetching individual ${this.mk}: ${error}`);
-      }
-    },
     async updateProfile(data) {
       try {
         const response = await updateProfile(this.$apollo, data, this.mk);
@@ -682,6 +676,15 @@ export default {
 
       this.individual = formatIndividual(newData[0]);
       this.socialProfiles = this.getSocialProfiles(newData[0]);
+
+      Object.assign(this.form, {
+        name: this.individual.name,
+        email: this.individual.email,
+        country: this.individual.country,
+        gender: this.individual.gender,
+      });
+
+      document.title = `${this.individual.name || "Individual"} - Sorting Hat`;
     },
     async fetchOrganizations(page, items, filters) {
       const response = await findOrganization(
@@ -695,7 +698,7 @@ export default {
     async applyRecommendation(id, apply) {
       try {
         await manageMergeRecommendation(this.$apollo, id, apply);
-        this.fetchIndividual();
+        this.$apollo.queries.individuals.refetch();
         this.$logger.debug(`Applied recommendation ${id}`);
       } catch (error) {
         this.dialog = {
@@ -783,9 +786,6 @@ export default {
         action: this.removeLinkedInProfile,
       };
     },
-  },
-  mounted() {
-    this.fetchIndividual();
   },
 };
 </script>

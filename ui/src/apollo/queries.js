@@ -494,4 +494,6 @@ export {
   getOrganization,
   getScheduledTasks,
   findOrganization,
+  GET_INDIVIDUAL_BYUUID,
+  GET_ORGANIZATION,
 };

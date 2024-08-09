@@ -301,3 +301,41 @@ export const Groups = () => ({
     name: "Groups",
   }),
 });
+
+export const OnError = () => ({
+  components: { OrganizationsTable },
+  template: OrganizationsTableTemplate,
+  methods: {
+    getOrganizations(page, items, filters) {
+      throw new Error("Test error message");
+    },
+    enroll() {
+      return true;
+    },
+    addOrganization() {
+      return;
+    },
+    addDomain() {
+      return;
+    },
+    deleteDomain() {
+      return;
+    },
+    deleteOrganization() {
+      return;
+    },
+    addTeam() {
+      return;
+    },
+    deleteTeam() {
+      return;
+    },
+    fetchTeams() {
+      return;
+    },
+  },
+  data: () => ({
+    isGroup: false,
+    name: "Organizations",
+  }),
+});

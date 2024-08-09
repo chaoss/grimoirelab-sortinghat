@@ -117,3 +117,27 @@ export const Empty = () => ({
     },
   }),
 });
+
+export const OnError = () => ({
+  components: { JobsTable },
+  template: JobsTableTemplate,
+  methods: {
+    getJobs() {
+      throw new Error("Test error message")
+    },
+  },
+  data: () => ({
+    query: {
+      data: {
+        jobs: {
+          entities: [],
+          pageInfo: {
+            page: 1,
+            numPages: 1,
+            totalResults: 0,
+          },
+        },
+      },
+    },
+  }),
+});

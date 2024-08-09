@@ -204,6 +204,15 @@
           </v-col>
         </div>
       </template>
+      <template v-slot:no-data>
+        <v-alert v-if="error" class="text-left" density="compact" type="error">
+          {{ error }}
+        </v-alert>
+        <p v-else-if="Object.keys(filters).length > 0">
+          No results matched your search.
+        </p>
+        <p v-else>No data available</p>
+      </template>
     </v-data-table-server>
 
     <v-dialog v-model="dialog.open" max-width="500px">
@@ -447,6 +456,7 @@ export default {
         uuid: "",
       },
       selected: [],
+      error: null,
     };
   },
   computed: {
@@ -472,24 +482,30 @@ export default {
     ) {
       if (this.disabledSearch) return;
       this.loading = true;
-      let response = await this.fetchPage(
-        page,
-        this.itemsPerPage,
-        filters,
-        orderBy
-      );
-      if (response) {
-        this.individuals = formatIndividuals(
-          response.data.individuals.entities
+      this.error = null;
+      try {
+        let response = await this.fetchPage(
+          page,
+          this.itemsPerPage,
+          filters,
+          orderBy
         );
-        this.pageCount = response.data.individuals.pageInfo.numPages;
-        this.page = response.data.individuals.pageInfo.page;
-        this.totalResults = response.data.individuals.pageInfo.totalResults;
-        this.allSelected = false;
-        this.$emit("updateIndividuals", this.individuals);
+        if (response) {
+          this.individuals = formatIndividuals(
+            response.data.individuals.entities
+          );
+          this.pageCount = response.data.individuals.pageInfo.numPages;
+          this.page = response.data.individuals.pageInfo.page;
+          this.totalResults = response.data.individuals.pageInfo.totalResults;
+          this.allSelected = false;
+          this.$emit("updateIndividuals", this.individuals);
+        }
+      } catch (error) {
+        this.error = this.$getErrorMessage(error);
+      } finally {
+        this.loading = false;
+        this.selected = [];
       }
-      this.loading = false;
-      this.selected = [];
     },
     startDrag(item, isSelected, toggleSelect, event) {
       if (!isSelected(item)) {

@@ -98,6 +98,15 @@
           ></v-text-field>
         </div>
       </template>
+      <template v-slot:no-data>
+        <v-alert v-if="error" class="text-left" density="compact" type="error">
+          {{ error }}
+        </v-alert>
+        <p v-else-if="Object.keys(filters).length > 0">
+          No results matched your search.
+        </p>
+        <p v-else>No data available</p>
+      </template>
     </v-data-table-server>
 
     <organization-modal
@@ -267,6 +276,7 @@ export default {
         teamName: "",
       },
       loading: false,
+      error: null,
     };
   },
   created() {
@@ -275,14 +285,20 @@ export default {
   methods: {
     async getTableItems(page = this.page, filters = this.filters) {
       this.loading = true;
-      let response = await this.fetchPage(page, this.itemsPerPage, filters);
-      if (response) {
-        this.items = response.entities;
-        this.pageCount = response.pageInfo.numPages;
-        this.page = response.pageInfo.page;
-        this.totalResults = response.pageInfo.totalResults;
+      this.error = null;
+      try {
+        let response = await this.fetchPage(page, this.itemsPerPage, filters);
+        if (response) {
+          this.items = response.entities;
+          this.pageCount = response.pageInfo.numPages;
+          this.page = response.pageInfo.page;
+          this.totalResults = response.pageInfo.totalResults;
+        }
+      } catch (error) {
+        this.error = this.$getErrorMessage(error);
+      } finally {
+        this.loading = false;
       }
-      this.loading = false;
     },
     confirmEnroll(event) {
       Object.assign(this.dialog, {

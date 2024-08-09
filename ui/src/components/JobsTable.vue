@@ -15,7 +15,9 @@
         Add
       </v-btn>
     </header>
-    <v-table v-if="jobs.length > 0">
+    <v-alert v-if="error" :text="error" density="compact" type="error" />
+    <v-progress-linear v-if="isLoading" color="primary" indeterminate />
+    <v-table v-else-if="jobs.length > 0">
       <template v-slot:default>
         <thead>
           <tr>
@@ -89,6 +91,8 @@ export default {
       pageSize: 10,
       pageCount: 1,
       openModal: false,
+      error: null,
+      isLoading: false,
     };
   },
   created() {
@@ -96,11 +100,22 @@ export default {
   },
   methods: {
     async getPaginatedJobs(page = this.page, pageSize = this.pageSize) {
-      let response = await this.getJobs(page, pageSize);
-      if (response) {
-        this.jobs = response.data.jobs.entities;
-        this.pageCount = response.data.jobs.pageInfo.numPages;
-        this.page = response.data.jobs.pageInfo.page;
+      this.isLoading = true;
+      try {
+        let response = await this.getJobs(page, pageSize);
+        if (response.data.jobs.entities) {
+          this.jobs = response.data.jobs.entities;
+          this.pageCount = response.data.jobs.pageInfo.numPages;
+          this.page = response.data.jobs.pageInfo.page;
+        } else if (response.errors) {
+          this.error = `Error fetching data: ${this.$getErrorMessage(
+            response.errors
+          )}`;
+        }
+      } catch (error) {
+        this.error = `Error fetching data: ${this.$getErrorMessage(error)}`;
+      } finally {
+        this.isLoading = false;
       }
     },
     getColor(status) {
