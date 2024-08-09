@@ -1,8 +1,0 @@
----
-title: Job results in SortingHat
-category: fixed
-author: Jose Javier Merchante <jjmerchante@bitergia.com>
-issue: null
-notes: >
-  Fixed a bug that caused jobs to be missing in SortingHat.
-  Job results will be kept in SortingHat for one week.

@@ -1,9 +1,0 @@
----
-title: Improve loading and error indicators
-category: added
-author: Eva Millán <evamillan@bitergia.com>
-issue: 866
-notes: >
-  Added error and loading messages to improve the user experience
-  when the data takes time to load.
-  
