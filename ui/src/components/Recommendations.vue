@@ -1,17 +1,68 @@
 <template>
   <v-dialog v-model="isOpen" width="700" persistent>
-    <template v-slot:activator="{ props }">
-      <v-btn
+    <template v-slot:activator="{ props: dialog }">
+      <v-btn-group
         v-show="count !== 0"
-        v-bind="props"
         class="mr-4"
-        height="34"
+        density="comfortable"
         variant="outlined"
-        size="small"
+        divided
       >
-        <v-icon size="small" start>mdi-lightbulb-on-outline</v-icon>
-        {{ count }} recommendation{{ count > 1 ? "s" : "" }}
-      </v-btn>
+        <v-btn v-bind="dialog" height="34" variant="outlined" size="small">
+          <v-icon size="small" start>mdi-lightbulb-on-outline</v-icon>
+          Recommendations
+          <v-chip class="ml-1" size="x-small">{{ count }}</v-chip>
+        </v-btn>
+        <v-menu v-model="menu" location="bottom">
+          <template v-slot:activator="{ props: menu }">
+            <v-btn
+              size="small"
+              height="34"
+              icon="mdi-menu-down"
+              aria-label="Open menu"
+              v-bind="menu"
+            />
+          </template>
+          <v-list density="comfortable" nav>
+            <v-list-item v-bind="dialog">
+              <v-list-item-title>Review recommendations</v-list-item-title>
+            </v-list-item>
+            <v-dialog
+              activator="parent"
+              max-width="500"
+              aria-label="Delete recommendations confirmation"
+            >
+              <template v-slot:activator="{ props: activator }">
+                <v-list-item v-bind="activator">
+                  <v-list-item-title>
+                    Delete all recommendations
+                  </v-list-item-title>
+                </v-list-item>
+              </template>
+              <template v-slot:default="{ isActive }">
+                <v-card
+                  title="Delete all recommendations?"
+                  :text="errorMessage"
+                >
+                  <template v-slot:actions>
+                    <v-btn
+                      class="ml-auto"
+                      text="Cancel"
+                      @click="isActive.value = false"
+                    ></v-btn>
+                    <v-btn
+                      color="primary"
+                      text="Delete"
+                      variant="flat"
+                      @click="deleteRecommendations(isActive)"
+                    ></v-btn>
+                  </template>
+                </v-card>
+              </template>
+            </v-dialog>
+          </v-list>
+        </v-menu>
+      </v-btn-group>
     </template>
 
     <v-card v-if="currentItem" class="section">
@@ -98,6 +149,7 @@ export default {
     "getRecommendations",
     "getRecommendationsCount",
     "manageRecommendation",
+    "deleteMergeRecommendations",
   ],
   data() {
     return {
@@ -105,6 +157,7 @@ export default {
       currentItem: null,
       isOpen: false,
       errorMessage: null,
+      menu: null,
     };
   },
   methods: {
@@ -163,6 +216,18 @@ export default {
       this.$emit("updateTable");
       this.$emit("updateWorkspace");
     },
+    async deleteRecommendations(isActive) {
+      try {
+        await this.deleteMergeRecommendations();
+        this.count = 0;
+        this.menu = false;
+        this.errorMessage = null;
+        isActive.value = false;
+      } catch (error) {
+        this.$logger.error(`Error removing recommendations: ${error}`);
+        this.errorMessage = this.$getErrorMessage(error);
+      }
+    },
   },
   watch: {
     isOpen(value) {
@@ -182,5 +247,9 @@ export default {
 
 .col {
   max-width: 290px;
+}
+
+.v-btn-group--density-comfortable.v-btn-group {
+  height: 34px;
 }
 </style>

@@ -412,6 +412,7 @@ export const Default = () => ({
       };
     },
     manageRecommendation: () => {},
+    deleteMergeRecommendations: () => {},
   }),
   data: () => ({
     query: query,
@@ -478,6 +479,7 @@ export const Expandable = () => ({
       };
     },
     manageRecommendation: () => {},
+    deleteMergeRecommendations: () => {},
   }),
   data: () => ({
     query: query,
@@ -535,6 +537,7 @@ export const Outlined = () => ({
       };
     },
     manageRecommendation: () => {},
+    deleteMergeRecommendations: () => {},
   }),
   data: () => ({
     query: query,
@@ -582,6 +585,7 @@ export const HiddenHeader = () => ({
     getRecommendations: () => {},
     getRecommendationsCount: () => {},
     manageRecommendation: () => {},
+    deleteMergeRecommendations: () => {},
   }),
   data: () => ({
     query: query,

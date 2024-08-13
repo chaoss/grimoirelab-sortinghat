@@ -114,6 +114,7 @@ import {
   mergeOrganizations,
   addAlias,
   deleteAlias,
+  deleteMergeRecommendations,
 } from "../apollo/mutations";
 import IndividualsTable from "../components/IndividualsTable";
 import OrganizationsTable from "../components/OrganizationsTable";
@@ -369,6 +370,10 @@ export default {
       const response = await deleteAlias(this.$apollo, alias);
       return response;
     },
+    async deleteRecommendations() {
+      const response = await deleteMergeRecommendations(this.$apollo);
+      return response;
+    },
   },
   async mounted() {
     if (this.workspace && this.workspace.length > 0) {
@@ -386,6 +391,7 @@ export default {
       getRecommendations: this.getRecommendations,
       getRecommendationsCount: this.getRecommendationsCount,
       manageRecommendation: this.manageRecommendation,
+      deleteMergeRecommendations: this.deleteRecommendations,
     };
   },
 };

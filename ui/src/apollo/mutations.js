@@ -442,6 +442,14 @@ const ADD_LINKEDIN_PROFILE = gql`
   ${FULL_INDIVIDUAL}
 `;
 
+const DELETE_MERGE_RECOMMENDATIONS = gql`
+  mutation deleteMergeRecommendations {
+    deleteMergeRecommendations {
+      deleted
+    }
+  }
+`;
+
 const tokenAuth = (apollo, username, password) => {
   const response = apollo.mutate({
     mutation: TOKEN_AUTH,
@@ -854,6 +862,12 @@ const addLinkedinProfile = (apollo, uuid, username) => {
   });
 };
 
+const deleteMergeRecommendations = (apollo) => {
+  return apollo.mutate({
+    mutation: DELETE_MERGE_RECOMMENDATIONS,
+  });
+};
+
 export {
   tokenAuth,
   lockIndividual,
@@ -888,4 +902,5 @@ export {
   addAlias,
   deleteAlias,
   addLinkedinProfile,
+  deleteMergeRecommendations,
 };

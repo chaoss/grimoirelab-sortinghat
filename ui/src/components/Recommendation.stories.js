@@ -188,6 +188,7 @@ export const Default = () => ({
       getRecommendationsCount: this.getRecommendations,
       getRecommendations: this.getRecommendations,
       manageRecommendation: this.manageRecommendation,
+      deleteMergeRecommendations: () => {},
     };
   },
 });
@@ -208,12 +209,16 @@ export const CustomModalActivator = () => ({
       this.index = +!this.index;
       return true;
     },
+    deleteRecommendations() {
+      return true;
+    },
   },
   provide() {
     return {
       getRecommendationsCount: this.getRecommendations,
       getRecommendations: this.getRecommendations,
       manageRecommendation: this.manageRecommendation,
+      deleteMergeRecommendations: () => {},
     };
   },
 });

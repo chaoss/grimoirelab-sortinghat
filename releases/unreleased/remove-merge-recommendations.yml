@@ -1,0 +1,9 @@
+---
+title: Remove merge recommendations
+category: added
+author: Eva Millán <evamillan@bitergia.com>
+issue: 883
+notes: >
+  Recommendations can now be deleted from the database
+  and not just dismissed. This is useful in case there
+  are too many recommendations to handle manually. 
