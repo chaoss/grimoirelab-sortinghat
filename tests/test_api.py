@@ -49,7 +49,8 @@ from sortinghat.core.models import (Country,
                                     Transaction,
                                     Operation,
                                     ScheduledTask,
-                                    Alias)
+                                    Alias,
+                                    MergeRecommendation)
 
 NOT_FOUND_ERROR = "{entity} not found in the registry"
 ENROLLMENT_RANGE_INVALID = "range date '{start}'-'{end}' is part of an existing range for {org}"
@@ -6720,3 +6721,78 @@ class TestDeleteAlias(TestCase):
         op1_args = json.loads(op1.args)
         self.assertEqual(len(op1_args), 1)
         self.assertEqual(op1_args['alias'], 'Example Inc.')
+
+
+class TestDeleteMergeRecommendations(TestCase):
+    """Unit tests for delete_merge_recommendations"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        identity1 = api.add_identity(self.ctx, 'scm', email='jsmith@example')
+        identity2 = api.add_identity(self.ctx, 'mls', email='jsmith@example')
+        identity3 = api.add_identity(self.ctx, 'scm', email='johnsmith@example')
+
+        self.rec1 = MergeRecommendation.objects.create(individual1=identity1.individual,
+                                                       individual2=identity2.individual)
+        self.rec2 = MergeRecommendation.objects.create(individual1=identity1.individual,
+                                                       individual2=identity3.individual)
+        self.rec3 = MergeRecommendation.objects.create(individual1=identity2.individual,
+                                                       individual2=identity3.individual,
+                                                       applied=0)
+
+    def test_delete_alias(self):
+        """Check whether it deletes all unreviewed merge recommendations"""
+
+        api.delete_merge_recommendations(self.ctx)
+
+        recs = MergeRecommendation.objects.all()
+        self.assertEqual(len(recs), 1)
+
+        rec = recs[0]
+        self.assertEqual(rec, self.rec3)
+        self.assertEqual(rec.applied, 0)
+
+    def test_transaction(self):
+        """Check if a transaction is created when deleting recommendations"""
+
+        timestamp = datetime_utcnow()
+
+        api.delete_merge_recommendations(self.ctx)
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        self.assertEqual(len(transactions), 1)
+
+        trx = transactions[0]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'delete_merge_recommendations')
+        self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, self.ctx.user.username)
+
+    def test_operations(self):
+        """Check if the right operations are created when deleting recommendations"""
+
+        timestamp = datetime_utcnow()
+
+        api.delete_merge_recommendations(self.ctx)
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.DELETE.value)
+        self.assertEqual(op1.entity_type, 'merge_recommendation')
+        self.assertEqual(op1.target, 'merge_recommendations')
+        self.assertEqual(op1.trx, trx)
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 1)
+        self.assertEqual(op1_args['merge_recommendations'], [self.rec1.id, self.rec2.id])

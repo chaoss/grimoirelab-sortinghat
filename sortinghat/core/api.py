@@ -47,6 +47,7 @@ from .db import (find_individual_by_uuid,
                  delete_scheduled_task as delete_scheduled_task_db,
                  delete_domain as delete_domain_db,
                  delete_alias as delete_alias_db,
+                 delete_merge_recommendations as delete_merge_recommendations_db,
                  update_profile as update_profile_db,
                  update_scheduled_task as update_scheduled_task_db,
                  move_identity as move_identity_db,
@@ -63,7 +64,7 @@ from .errors import (InvalidValueError,
                      DuplicateRangeError,
                      EqualIndividualError)
 from .log import TransactionsLog
-from .models import Identity, MIN_PERIOD_DATE, MAX_PERIOD_DATE
+from .models import Identity, MergeRecommendation, MIN_PERIOD_DATE, MAX_PERIOD_DATE
 from .aux import merge_datetime_ranges
 from .decorators import atomic_using_tenant
 from ..utils import generate_uuid
@@ -1617,3 +1618,24 @@ def delete_scheduled_task(ctx, task_id):
     logger.info(f"Task {task_id} deleted")
 
     return task
+
+
+@atomic_using_tenant
+def delete_merge_recommendations(ctx):
+    """Remove merge recommendations from the registry.
+
+    This function removes all the merge recommendations that have not been
+    processed from the registry.
+
+    :param ctx: context from where this method is called
+    """
+    trxl = TransactionsLog.open('delete_merge_recommendations', ctx)
+
+    recommendations = MergeRecommendation.objects.filter(applied__isnull=True)
+    delete_merge_recommendations_db(trxl, recommendations=recommendations)
+
+    trxl.close()
+
+    logger.info("Merge recommendations deleted")
+
+    return recommendations

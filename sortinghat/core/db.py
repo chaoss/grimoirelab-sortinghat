@@ -46,7 +46,8 @@ from .models import (MIN_PERIOD_DATE,
                      Enrollment,
                      Operation,
                      ScheduledTask,
-                     Alias)
+                     Alias,
+                     MergeRecommendation)
 from .aux import validate_field
 
 
@@ -1328,3 +1329,26 @@ def delete_alias(trxl, alias):
     trxl.log_operation(op_type=Operation.OpType.DELETE, entity_type='alias',
                        timestamp=datetime_utcnow(), args=op_args,
                        target=op_args['alias'])
+
+
+def delete_merge_recommendations(trxl, recommendations):
+    """Remove merge recommendations from the database.
+
+    :param trxl: TransactionsLog object from the method calling this one
+    :param recommendations: MergeRecommendation queryset to remove
+
+    :raises ValueError: raised when `recommendations` is not a MergeRecommendation queryset;
+    """
+    # Setting operation arguments before they are modified
+    op_args = {
+        'merge_recommendations': [rec.id for rec in recommendations]
+    }
+
+    if recommendations.model is not MergeRecommendation:
+        raise ValueError("'recommendations' must be a MergeRecommendation queryset")
+
+    recommendations.delete()
+
+    trxl.log_operation(op_type=Operation.OpType.DELETE, entity_type='merge_recommendation',
+                       timestamp=datetime_utcnow(), args=op_args,
+                       target='merge_recommendations')
