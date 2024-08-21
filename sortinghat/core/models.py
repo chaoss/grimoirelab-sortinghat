@@ -385,6 +385,7 @@ class Tenant(EntityBase):
     user = ForeignKey(settings.AUTH_USER_MODEL, on_delete=CASCADE)
     header = CharField(max_length=MAX_SIZE_CHAR_FIELD)
     database = CharField(max_length=MAX_SIZE_CHAR_FIELD)
+    perm_group = CharField(max_length=MAX_SIZE_CHAR_FIELD, default='readonly')
 
     class Meta:
         db_table = 'tenants'

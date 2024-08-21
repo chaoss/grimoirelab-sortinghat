@@ -19,11 +19,13 @@
 #     Eva Millán <evamillan@bitergia.com>
 #
 
+from django.conf import settings
 from django.core.management import BaseCommand, CommandError
 from django.core import exceptions
 from django.contrib.auth.models import Group
 from django.contrib.auth import get_user_model
 from django.db import DEFAULT_DB_ALIAS
+from sortinghat.core.models import Tenant
 
 
 class Command(BaseCommand):
@@ -40,10 +42,16 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         try:
-            group = Group.objects.using(options['database']).get(name=options['group_name'])
+            group = Group.objects.get(name=options['group_name'])
             user = get_user_model().objects.get(username=options['username'])
-            user.groups.set([group.id])
         except Group.DoesNotExist:
             raise CommandError(f"Group '{options['group_name']}' not found")
         except exceptions.ObjectDoesNotExist:
             raise CommandError(f"User '{options['username']}' not found")
+
+        if settings.MULTI_TENANT:
+            tenant = Tenant.objects.get(user=user, database=options['database'])
+            tenant.perm_group = group.name
+            tenant.save()
+        else:
+            user.groups.set([group.id])

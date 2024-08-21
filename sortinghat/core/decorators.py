@@ -25,6 +25,7 @@ from functools import wraps
 import django.db.transaction
 
 from django.conf import settings
+from django.contrib.auth.models import Group
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
 from django.middleware.csrf import CsrfViewMiddleware
@@ -32,6 +33,8 @@ from graphql_jwt.decorators import context
 from graphql_jwt.utils import get_credentials
 from graphql_jwt.shortcuts import get_user_by_token
 from graphql_jwt.exceptions import JSONWebTokenError, PermissionDenied
+from sortinghat.core.models import Tenant
+
 from . import tenant
 from .errors import InvalidValueError
 
@@ -67,8 +70,35 @@ def user_passes_test(test_func, exc=PermissionDenied, CSRFCheck=CsrfViewMiddlewa
 check_auth = user_passes_test(lambda u: u.is_authenticated)
 
 
-def check_permissions(perms):
-    return user_passes_test(lambda u: u.has_perms(perms))
+def _get_user_tenant_permissions(user, database):
+    """Get all the permissions assigned to a user in a tenant"""
+
+    user_tenant = Tenant.objects.filter(user=user, database=database).first()
+    if not user_tenant:
+        return set()
+
+    group = Group.objects.get(name=user_tenant.perm_group)
+    perms = group.permissions.values_list("content_type__app_label", "codename")
+    perms = perms.values_list("content_type__app_label", "codename")
+    return {"%s.%s" % (ct, name) for ct, name in perms}
+
+
+def check_permissions(permissions):
+    def has_tenant_perms(user, perms):
+        if user.is_active and user.is_superuser:
+            return True
+
+        database = tenant.get_db_tenant()
+        user_perms = _get_user_tenant_permissions(user, database)
+        for perm in perms:
+            if perm not in user_perms:
+                return False
+        return True
+
+    if settings.MULTI_TENANT:
+        return user_passes_test(lambda u: has_tenant_perms(u, permissions))
+    else:
+        return user_passes_test(lambda u: u.has_perms(permissions))
 
 
 # Use GraphQL JWT authentication on Django views

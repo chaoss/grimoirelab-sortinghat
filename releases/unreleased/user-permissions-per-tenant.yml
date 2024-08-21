@@ -1,0 +1,10 @@
+---
+title: User permissions per tenant
+category: added
+author: Jose Javier Merchante <jjmerchante@bitergia.com>
+issue: null
+notes: >
+  Update the permissions system to allow assigning permissions
+  to users based on the tenant they are accessing. The command
+  `sortinghat-admin set-group` has been renamed to
+  `sortinghat.-admin set-permissions`.
