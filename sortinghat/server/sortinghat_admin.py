@@ -300,12 +300,12 @@ def create_user(username, is_admin, no_interactive):
 @click.command()
 @click.argument('username')
 @click.argument('permission_group')
-@click.option('--database', default='default')
-def set_user_group(username, permission_group, database):
+@click.option('--tenant', default='default')
+def set_user_permissions(username, permission_group, tenant):
     """Assign a user to a specific permission group"""
 
     try:
-        management.call_command('set_group', username, permission_group, database=database)
+        management.call_command('set_permissions', username, permission_group, database=tenant)
     except management.CommandError as exc:
         click.echo(exc)
         sys.exit(1)
@@ -413,4 +413,4 @@ sortinghat_admin.add_command(upgrade)
 sortinghat_admin.add_command(migrate_old_database)
 sortinghat_admin.add_command(create_user)
 sortinghat_admin.add_command(set_user_tenant)
-sortinghat_admin.add_command(set_user_group)
+sortinghat_admin.add_command(set_user_permissions)
