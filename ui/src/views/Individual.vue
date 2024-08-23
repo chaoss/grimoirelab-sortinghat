@@ -37,6 +37,7 @@
                   <v-icon size="small" start>{{ profile.icon }}</v-icon>
                   <a
                     :href="profile.link"
+                    :data-profile-link="profile.source"
                     class="link--underline font-weight-regular"
                     target="_blank"
                   >
@@ -737,7 +738,13 @@ export default {
           (item) => item.source === identity.source.toLowerCase()
         );
 
-        if (socialProfile) {
+        const isDuplicated = result.find(
+          (profile) =>
+            profile.source === identity.source &&
+            profile.username === identity.username
+        );
+
+        if (socialProfile && !isDuplicated) {
           result.push({ ...identity, ...socialProfile });
         }
 

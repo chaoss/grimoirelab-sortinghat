@@ -1,0 +1,1389 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Individual Matches snapshot 1`] = `
+<div
+  class="v-application v-theme--light v-layout v-layout--full-height v-locale--is-ltr"
+>
+  <div
+    class="v-application__wrap"
+  >
+    
+    <main
+      class="v-main"
+      style="--v-layout-left: 0px; --v-layout-right: 0px; --v-layout-top: 0px; --v-layout-bottom: 0px; transition: none;"
+    >
+      
+      <div
+        class="v-container v-locale--is-ltr mx-auto mb-8"
+      >
+        <div
+          class="v-row"
+        >
+          <div
+            class="v-col-xl-12 v-col-12"
+          >
+            <div
+              class="v-row section pa-3 mb-4 mt-0"
+            >
+              <div
+                class="v-col"
+              >
+                <div
+                  class="v-list-item v-theme--light v-list-item--density-default v-list-item--variant-text pl-1 my-n4 v-list-item--three-line"
+                >
+                  
+                  <!---->
+                  <span
+                    class="v-list-item__underlay"
+                  />
+                  
+                  <div
+                    class="v-list-item__prepend"
+                  >
+                    
+                    
+                    <div
+                      class="v-avatar v-theme--light v-avatar--density-default v-avatar--variant-flat"
+                      style="background-color: rgb(60, 0, 86); color: rgb(255, 255, 255); caret-color: #fff; width: 40px; height: 40px;"
+                    >
+                      
+                      
+                      <img
+                        aria-hidden="true"
+                        src="https://www.gravatar.com/avatar/fd876f8cd6a58277fc664d47ea10ad19.jpg?d=blank&s=40"
+                        style="width: 42px; height: 42px;"
+                      />
+                      <span
+                        class="text-white"
+                      >
+                        JD
+                      </span>
+                      
+                      
+                      
+                      <!---->
+                      <span
+                        class="v-avatar__underlay"
+                      />
+                      
+                    </div>
+                    
+                    
+                    <div
+                      class="v-list-item__spacer"
+                    />
+                  </div>
+                  <div
+                    class="v-list-item__content"
+                    data-no-activator=""
+                  >
+                    <!---->
+                    <!---->
+                    
+                    <div
+                      class="v-list-item-title font-weight-medium text-h6"
+                    >
+                      
+                      
+                      <button
+                        aria-expanded="false"
+                        aria-haspopup="menu"
+                        aria-owns="v-menu-1"
+                        class="hide-icon"
+                        targetref="[object Object]"
+                      >
+                        <span>
+                          
+                          John Doe
+                          
+                        </span>
+                        <i
+                          aria-hidden="true"
+                          aria-label="Edit name"
+                          class="mdi-lead-pencil mdi v-icon notranslate v-theme--light v-icon--size-x-small icon--hidden ml-2"
+                        />
+                      </button>
+                      
+                      <!---->
+                      
+                    </div>
+                    <div
+                      class="v-list-item-subtitle mb-1"
+                    >
+                      
+                    </div>
+                    
+                    <p
+                      class="d-flex align-center"
+                    >
+                      <i
+                        aria-hidden="true"
+                        class="mdi-github mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--start"
+                      />
+                      <a
+                        class="link--underline font-weight-regular"
+                        data-profile-link="github"
+                        href="http://github.com/johndoe"
+                        target="_blank"
+                      >
+                        johndoe
+                      </a>
+                    </p>
+                    
+                    
+                  </div>
+                  <!---->
+                </div>
+              </div>
+              <div
+                class="v-col v-col-2 d-flex justify-end align-start mr-1"
+              >
+                
+                
+                <button
+                  aria-describedby="v-tooltip-2"
+                  aria-label="Mark as bot"
+                  class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text mr-1"
+                  targetref="[object Object]"
+                  type="button"
+                >
+                  
+                  <span
+                    class="v-btn__overlay"
+                  />
+                  <span
+                    class="v-btn__underlay"
+                  />
+                  
+                  <!---->
+                  <span
+                    class="v-btn__content"
+                    data-no-activator=""
+                  >
+                    <i
+                      aria-hidden="true"
+                      class="mdi-robot-outline mdi v-icon notranslate v-theme--light v-icon--size-default"
+                    />
+                  </span>
+                  <!---->
+                  <!---->
+                </button>
+                
+                <!--teleport start-->
+                <!--teleport end-->
+                
+                
+                
+                <button
+                  aria-describedby="v-tooltip-4"
+                  aria-label="Add to workspace"
+                  class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text mr-1"
+                  targetref="[object Object]"
+                  type="button"
+                >
+                  
+                  <span
+                    class="v-btn__overlay"
+                  />
+                  <span
+                    class="v-btn__underlay"
+                  />
+                  
+                  <!---->
+                  <span
+                    class="v-btn__content"
+                    data-no-activator=""
+                  >
+                    <i
+                      aria-hidden="true"
+                      class="mdi-pin-outline mdi v-icon notranslate v-theme--light v-icon--size-default"
+                    />
+                  </span>
+                  <!---->
+                  <!---->
+                </button>
+                
+                <!--teleport start-->
+                <!--teleport end-->
+                
+                
+                
+                <button
+                  aria-describedby="v-tooltip-6"
+                  aria-label="Lock"
+                  class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text mr-1"
+                  targetref="[object Object]"
+                  type="button"
+                >
+                  
+                  <span
+                    class="v-btn__overlay"
+                  />
+                  <span
+                    class="v-btn__underlay"
+                  />
+                  
+                  <!---->
+                  <span
+                    class="v-btn__content"
+                    data-no-activator=""
+                  >
+                    <i
+                      aria-hidden="true"
+                      class="mdi-lock-outline mdi v-icon notranslate v-theme--light v-icon--size-default"
+                    />
+                  </span>
+                  <!---->
+                  <!---->
+                </button>
+                
+                <!--teleport start-->
+                <!--teleport end-->
+                
+                
+                
+                <button
+                  aria-expanded="false"
+                  aria-haspopup="menu"
+                  aria-label="See more actions"
+                  aria-owns="v-menu-8"
+                  class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
+                  targetref="[object Object]"
+                  type="button"
+                >
+                  
+                  <span
+                    class="v-btn__overlay"
+                  />
+                  <span
+                    class="v-btn__underlay"
+                  />
+                  
+                  <!---->
+                  <span
+                    class="v-btn__content"
+                    data-no-activator=""
+                  >
+                    <i
+                      aria-hidden="true"
+                      class="mdi-dots-vertical mdi v-icon notranslate v-theme--light v-icon--size-default"
+                    />
+                  </span>
+                  <!---->
+                  <!---->
+                </button>
+                
+                <!---->
+                
+              </div>
+            </div>
+            <div
+              class="v-row section mb-4"
+            >
+              <div
+                class="v-container v-container--fluid v-locale--is-ltr pb-6"
+              >
+                <div
+                  class="v-list-subheader text-subtitle-2 mb-4"
+                >
+                  <div
+                    class="v-list-subheader__text"
+                  >
+                    
+                    Profile
+                    
+                  </div>
+                </div>
+                <div
+                  class="v-row"
+                >
+                  <div
+                    class="v-col v-col-1 ml-4"
+                  >
+                     Email: 
+                  </div>
+                  <div
+                    class="v-col"
+                  >
+                    
+                    
+                    <button
+                      aria-expanded="false"
+                      aria-haspopup="menu"
+                      aria-owns="v-menu-10"
+                      class="hide-icon"
+                      targetref="[object Object]"
+                    >
+                      <span>
+                        
+                        johndoe@example.com
+                        
+                      </span>
+                      <i
+                        aria-hidden="true"
+                        aria-label="Edit email"
+                        class="mdi-lead-pencil mdi v-icon notranslate v-theme--light v-icon--size-x-small icon--hidden ml-2"
+                      />
+                    </button>
+                    
+                    <!---->
+                    
+                  </div>
+                </div>
+                <div
+                  class="v-row"
+                >
+                  <div
+                    class="v-col v-col-1 ml-4"
+                  >
+                     Country: 
+                  </div>
+                  <div
+                    class="v-col"
+                  >
+                    
+                    
+                    <button
+                      aria-expanded="false"
+                      aria-haspopup="menu"
+                      aria-owns="v-menu-11"
+                      class="hide-icon"
+                      targetref="[object Object]"
+                    >
+                      <span
+                        class="font-italic"
+                      >
+                        none
+                      </span>
+                      <i
+                        aria-hidden="true"
+                        aria-label="Edit country"
+                        class="mdi-lead-pencil mdi v-icon notranslate v-theme--light v-icon--size-x-small icon--hidden ml-2"
+                      />
+                    </button>
+                    
+                    <!---->
+                    
+                  </div>
+                </div>
+                <div
+                  class="v-row"
+                >
+                  <div
+                    class="v-col v-col-1 ml-4"
+                  >
+                     Gender: 
+                  </div>
+                  <div
+                    class="v-col"
+                  >
+                    
+                    
+                    <button
+                      aria-expanded="false"
+                      aria-haspopup="menu"
+                      aria-owns="v-menu-12"
+                      class="hide-icon"
+                      targetref="[object Object]"
+                    >
+                      <span
+                        class="font-italic"
+                      >
+                        none
+                      </span>
+                      <i
+                        aria-hidden="true"
+                        aria-label="Edit gender"
+                        class="mdi-lead-pencil mdi v-icon notranslate v-theme--light v-icon--size-x-small icon--hidden ml-2"
+                      />
+                    </button>
+                    
+                    <!---->
+                    
+                  </div>
+                </div>
+                <div
+                  class="v-row"
+                >
+                  <div
+                    class="v-col v-col-1 ml-4"
+                  >
+                    <span>
+                      UUID:
+                    </span>
+                  </div>
+                  <div
+                    class="v-col"
+                  >
+                    <span>
+                      abcde123456
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div
+              class="v-row section mb-4"
+            >
+              <div
+                class="v-container v-container--fluid v-locale--is-ltr"
+              >
+                <div
+                  class="mb-8"
+                >
+                  <div
+                    class="v-list-subheader"
+                  >
+                    <div
+                      class="v-list-subheader__text"
+                    >
+                      
+                      <span
+                        class="text-subtitle-2"
+                      >
+                        Identities (4)
+                      </span>
+                      <button
+                        class="v-btn v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-outlined"
+                        type="button"
+                      >
+                        
+                        <span
+                          class="v-btn__overlay"
+                        />
+                        <span
+                          class="v-btn__underlay"
+                        />
+                        
+                        <!---->
+                        <span
+                          class="v-btn__content"
+                          data-no-activator=""
+                        >
+                          
+                          
+                          <i
+                            aria-hidden="true"
+                            class="mdi-call-split mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--start"
+                          />
+                           Split all 
+                          
+                          
+                        </span>
+                        <!---->
+                        <!---->
+                      </button>
+                      
+                    </div>
+                  </div>
+                  
+                  <div
+                    class="v-list v-theme--light v-list--density-default v-list--one-line row-border indented"
+                    dense=""
+                    role="listbox"
+                    tabindex="0"
+                  >
+                    
+                    
+                    <div
+                      class="v-list-item v-theme--light v-list-item--density-default v-list-item--one-line v-list-item--variant-text"
+                      draggable="false"
+                    >
+                      
+                      <!---->
+                      <span
+                        class="v-list-item__underlay"
+                      />
+                      
+                      <div
+                        class="v-list-item__prepend"
+                      >
+                        
+                        
+                        
+                        
+                        <i
+                          aria-describedby="v-tooltip-15"
+                          aria-hidden="true"
+                          class="mdi-git mdi v-icon notranslate v-theme--light v-icon--size-default"
+                          targetref="[object Object]"
+                        />
+                        
+                        <!--teleport start-->
+                        <!--teleport end-->
+                        
+                        
+                        
+                        <div
+                          class="v-list-item__spacer"
+                        />
+                      </div>
+                      <div
+                        class="v-list-item__content"
+                        data-no-activator=""
+                      >
+                        <!---->
+                        <!---->
+                        
+                        <div
+                          class="v-row v-row--no-gutters d-flex align-center flex-nowrap"
+                        >
+                          <div
+                            class="v-col uuid d-flex align-center"
+                          >
+                            
+                            
+                            <span
+                              aria-describedby="v-tooltip-16"
+                              class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center mr-6"
+                              draggable="false"
+                              tabindex="0"
+                              targetref="[object Object]"
+                            >
+                              
+                              <span
+                                class="v-chip__overlay"
+                              />
+                              <span
+                                class="v-chip__underlay"
+                              />
+                              
+                              <!---->
+                              <!---->
+                              <div
+                                class="v-chip__content"
+                                data-no-activator=""
+                              >
+                                
+                                <span
+                                  class="clip"
+                                >
+                                  f0422fed699c5a1096808272ae51c69f37f7dd29
+                                </span>
+                                <i
+                                  aria-hidden="true"
+                                  class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
+                                />
+                                
+                              </div>
+                              <!---->
+                              <!---->
+                            </span>
+                            
+                            <!--teleport start-->
+                            <!--teleport end-->
+                            
+                            <!--v-if-->
+                          </div>
+                          <div
+                            class="v-col-md-2 v-col ma-2"
+                          >
+                            <span />
+                          </div>
+                          <div
+                            class="v-col v-col-3 ma-2"
+                          >
+                            <span
+                              class="text-break"
+                            >
+                              johndoe@example.com
+                            </span>
+                          </div>
+                          <div
+                            class="v-col ma-2"
+                          >
+                            <span
+                              class="text-break"
+                            />
+                          </div>
+                          <div
+                            class="v-col ma-2"
+                          >
+                            <span>
+                              git
+                            </span>
+                          </div>
+                        </div>
+                        
+                      </div>
+                      <div
+                        class="v-list-item__append"
+                      >
+                        
+                        
+                        
+                        
+                        <button
+                          aria-describedby="v-tooltip-18"
+                          class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
+                          targetref="[object Object]"
+                          type="button"
+                        >
+                          
+                          <span
+                            class="v-btn__overlay"
+                          />
+                          <span
+                            class="v-btn__underlay"
+                          />
+                          
+                          <!---->
+                          <span
+                            class="v-btn__content"
+                            data-no-activator=""
+                          >
+                            <i
+                              aria-hidden="true"
+                              class="mdi-call-split mdi v-icon notranslate v-theme--light v-icon--size-default"
+                            />
+                          </span>
+                          <!---->
+                          <!---->
+                        </button>
+                        
+                        <!--teleport start-->
+                        <!--teleport end-->
+                        
+                        
+                        
+                        <!--v-if-->
+                        
+                        <!--teleport start-->
+                        <!--teleport end-->
+                        
+                        
+                        
+                        <div
+                          class="v-list-item__spacer"
+                        />
+                      </div>
+                    </div>
+                    
+                    
+                  </div>
+                  <div
+                    class="v-list v-theme--light v-list--density-default v-list--one-line indented"
+                    dense=""
+                    role="listbox"
+                    tabindex="0"
+                  >
+                    
+                    
+                    <div
+                      class="v-list-item v-theme--light v-list-item--density-default v-list-item--one-line v-list-item--variant-text"
+                      draggable="false"
+                    >
+                      
+                      <!---->
+                      <span
+                        class="v-list-item__underlay"
+                      />
+                      
+                      <div
+                        class="v-list-item__prepend"
+                      >
+                        
+                        
+                        
+                        
+                        <i
+                          aria-describedby="v-tooltip-22"
+                          aria-hidden="true"
+                          class="mdi-github mdi v-icon notranslate v-theme--light v-icon--size-default"
+                          targetref="[object Object]"
+                        />
+                        
+                        <!--teleport start-->
+                        <!--teleport end-->
+                        
+                        
+                        
+                        <div
+                          class="v-list-item__spacer"
+                        />
+                      </div>
+                      <div
+                        class="v-list-item__content"
+                        data-no-activator=""
+                      >
+                        <!---->
+                        <!---->
+                        
+                        <div
+                          class="v-row v-row--no-gutters d-flex align-center flex-nowrap"
+                        >
+                          <div
+                            class="v-col uuid d-flex align-center"
+                          >
+                            
+                            
+                            <span
+                              aria-describedby="v-tooltip-23"
+                              class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center mr-6"
+                              draggable="false"
+                              tabindex="0"
+                              targetref="[object Object]"
+                            >
+                              
+                              <span
+                                class="v-chip__overlay"
+                              />
+                              <span
+                                class="v-chip__underlay"
+                              />
+                              
+                              <!---->
+                              <!---->
+                              <div
+                                class="v-chip__content"
+                                data-no-activator=""
+                              >
+                                
+                                <span
+                                  class="clip"
+                                >
+                                  4c8620c3d43e2873dd9d9a8748e0afadeef9d53a
+                                </span>
+                                <i
+                                  aria-hidden="true"
+                                  class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
+                                />
+                                
+                              </div>
+                              <!---->
+                              <!---->
+                            </span>
+                            
+                            <!--teleport start-->
+                            <!--teleport end-->
+                            
+                            <!--v-if-->
+                          </div>
+                          <div
+                            class="v-col-md-2 v-col ma-2"
+                          >
+                            <span>
+                              John Doe
+                            </span>
+                          </div>
+                          <div
+                            class="v-col v-col-3 ma-2"
+                          >
+                            <span
+                              class="text-break"
+                            >
+                              johndoe@example.com
+                            </span>
+                          </div>
+                          <div
+                            class="v-col ma-2"
+                          >
+                            <a
+                              class="link--underline font-weight-regular"
+                              href="http://github.com/johndoe"
+                              target="_blank"
+                            >
+                              johndoe 
+                              <i
+                                aria-hidden="true"
+                                class="mdi-open-in-new mdi v-icon notranslate v-theme--light v-icon--size-x-small v-icon--end"
+                              />
+                            </a>
+                          </div>
+                          <div
+                            class="v-col ma-2"
+                          >
+                            <span>
+                              github
+                            </span>
+                          </div>
+                        </div>
+                        
+                      </div>
+                      <div
+                        class="v-list-item__append"
+                      >
+                        
+                        
+                        
+                        
+                        <button
+                          aria-describedby="v-tooltip-25"
+                          class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
+                          targetref="[object Object]"
+                          type="button"
+                        >
+                          
+                          <span
+                            class="v-btn__overlay"
+                          />
+                          <span
+                            class="v-btn__underlay"
+                          />
+                          
+                          <!---->
+                          <span
+                            class="v-btn__content"
+                            data-no-activator=""
+                          >
+                            <i
+                              aria-hidden="true"
+                              class="mdi-call-split mdi v-icon notranslate v-theme--light v-icon--size-default"
+                            />
+                          </span>
+                          <!---->
+                          <!---->
+                        </button>
+                        
+                        <!--teleport start-->
+                        <!--teleport end-->
+                        
+                        
+                        
+                        <!--v-if-->
+                        
+                        <!--teleport start-->
+                        <!--teleport end-->
+                        
+                        
+                        
+                        <div
+                          class="v-list-item__spacer"
+                        />
+                      </div>
+                    </div>
+                    <div
+                      class="v-list-item v-theme--light v-list-item--density-default v-list-item--one-line v-list-item--variant-text"
+                      draggable="false"
+                    >
+                      
+                      <!---->
+                      <span
+                        class="v-list-item__underlay"
+                      />
+                      
+                      <div
+                        class="v-list-item__prepend"
+                      >
+                        
+                        
+                        
+                        
+                        <!--v-if-->
+                        
+                        <!--teleport start-->
+                        <!--teleport end-->
+                        
+                        
+                        
+                        <div
+                          class="v-list-item__spacer"
+                        />
+                      </div>
+                      <div
+                        class="v-list-item__content"
+                        data-no-activator=""
+                      >
+                        <!---->
+                        <!---->
+                        
+                        <div
+                          class="v-row v-row--no-gutters d-flex align-center flex-nowrap"
+                        >
+                          <div
+                            class="v-col uuid d-flex align-center"
+                          >
+                            
+                            
+                            <span
+                              aria-describedby="v-tooltip-30"
+                              class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center mr-6"
+                              draggable="false"
+                              tabindex="0"
+                              targetref="[object Object]"
+                            >
+                              
+                              <span
+                                class="v-chip__overlay"
+                              />
+                              <span
+                                class="v-chip__underlay"
+                              />
+                              
+                              <!---->
+                              <!---->
+                              <div
+                                class="v-chip__content"
+                                data-no-activator=""
+                              >
+                                
+                                <span
+                                  class="clip"
+                                >
+                                  9a6e9ca58185a7f5579bca8ab434cb58cfc79f15
+                                </span>
+                                <i
+                                  aria-hidden="true"
+                                  class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
+                                />
+                                
+                              </div>
+                              <!---->
+                              <!---->
+                            </span>
+                            
+                            <!--teleport start-->
+                            <!--teleport end-->
+                            
+                            <!--v-if-->
+                          </div>
+                          <div
+                            class="v-col-md-2 v-col ma-2"
+                          >
+                            <span />
+                          </div>
+                          <div
+                            class="v-col v-col-3 ma-2"
+                          >
+                            <span
+                              class="text-break"
+                            />
+                          </div>
+                          <div
+                            class="v-col ma-2"
+                          >
+                            <a
+                              class="link--underline font-weight-regular"
+                              href="http://github.com/johndoe"
+                              target="_blank"
+                            >
+                              johndoe 
+                              <i
+                                aria-hidden="true"
+                                class="mdi-open-in-new mdi v-icon notranslate v-theme--light v-icon--size-x-small v-icon--end"
+                              />
+                            </a>
+                          </div>
+                          <div
+                            class="v-col ma-2"
+                          >
+                            <span>
+                              github
+                            </span>
+                          </div>
+                        </div>
+                        
+                      </div>
+                      <div
+                        class="v-list-item__append"
+                      >
+                        
+                        
+                        
+                        
+                        <button
+                          aria-describedby="v-tooltip-32"
+                          class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
+                          targetref="[object Object]"
+                          type="button"
+                        >
+                          
+                          <span
+                            class="v-btn__overlay"
+                          />
+                          <span
+                            class="v-btn__underlay"
+                          />
+                          
+                          <!---->
+                          <span
+                            class="v-btn__content"
+                            data-no-activator=""
+                          >
+                            <i
+                              aria-hidden="true"
+                              class="mdi-call-split mdi v-icon notranslate v-theme--light v-icon--size-default"
+                            />
+                          </span>
+                          <!---->
+                          <!---->
+                        </button>
+                        
+                        <!--teleport start-->
+                        <!--teleport end-->
+                        
+                        
+                        
+                        <!--v-if-->
+                        
+                        <!--teleport start-->
+                        <!--teleport end-->
+                        
+                        
+                        
+                        <div
+                          class="v-list-item__spacer"
+                        />
+                      </div>
+                    </div>
+                    <div
+                      class="v-list-item v-theme--light v-list-item--density-default v-list-item--one-line v-list-item--variant-text"
+                      draggable="false"
+                    >
+                      
+                      <!---->
+                      <span
+                        class="v-list-item__underlay"
+                      />
+                      
+                      <div
+                        class="v-list-item__prepend"
+                      >
+                        
+                        
+                        
+                        
+                        <!--v-if-->
+                        
+                        <!--teleport start-->
+                        <!--teleport end-->
+                        
+                        
+                        
+                        <div
+                          class="v-list-item__spacer"
+                        />
+                      </div>
+                      <div
+                        class="v-list-item__content"
+                        data-no-activator=""
+                      >
+                        <!---->
+                        <!---->
+                        
+                        <div
+                          class="v-row v-row--no-gutters d-flex align-center flex-nowrap"
+                        >
+                          <div
+                            class="v-col uuid d-flex align-center"
+                          >
+                            
+                            
+                            <span
+                              aria-describedby="v-tooltip-37"
+                              class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center mr-6"
+                              draggable="false"
+                              tabindex="0"
+                              targetref="[object Object]"
+                            >
+                              
+                              <span
+                                class="v-chip__overlay"
+                              />
+                              <span
+                                class="v-chip__underlay"
+                              />
+                              
+                              <!---->
+                              <!---->
+                              <div
+                                class="v-chip__content"
+                                data-no-activator=""
+                              >
+                                
+                                <span
+                                  class="clip"
+                                >
+                                  5579bca8ab4349a6e9ca58185a7fcb58cfc79f15
+                                </span>
+                                <i
+                                  aria-hidden="true"
+                                  class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
+                                />
+                                
+                              </div>
+                              <!---->
+                              <!---->
+                            </span>
+                            
+                            <!--teleport start-->
+                            <!--teleport end-->
+                            
+                            <!--v-if-->
+                          </div>
+                          <div
+                            class="v-col-md-2 v-col ma-2"
+                          >
+                            <span />
+                          </div>
+                          <div
+                            class="v-col v-col-3 ma-2"
+                          >
+                            <span
+                              class="text-break"
+                            >
+                              johndoe@example.com
+                            </span>
+                          </div>
+                          <div
+                            class="v-col ma-2"
+                          >
+                            <a
+                              class="link--underline font-weight-regular"
+                              href="http://github.com/johndoe"
+                              target="_blank"
+                            >
+                              johndoe 
+                              <i
+                                aria-hidden="true"
+                                class="mdi-open-in-new mdi v-icon notranslate v-theme--light v-icon--size-x-small v-icon--end"
+                              />
+                            </a>
+                          </div>
+                          <div
+                            class="v-col ma-2"
+                          >
+                            <span>
+                              github
+                            </span>
+                          </div>
+                        </div>
+                        
+                      </div>
+                      <div
+                        class="v-list-item__append"
+                      >
+                        
+                        
+                        
+                        
+                        <button
+                          aria-describedby="v-tooltip-39"
+                          class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
+                          targetref="[object Object]"
+                          type="button"
+                        >
+                          
+                          <span
+                            class="v-btn__overlay"
+                          />
+                          <span
+                            class="v-btn__underlay"
+                          />
+                          
+                          <!---->
+                          <span
+                            class="v-btn__content"
+                            data-no-activator=""
+                          >
+                            <i
+                              aria-hidden="true"
+                              class="mdi-call-split mdi v-icon notranslate v-theme--light v-icon--size-default"
+                            />
+                          </span>
+                          <!---->
+                          <!---->
+                        </button>
+                        
+                        <!--teleport start-->
+                        <!--teleport end-->
+                        
+                        
+                        
+                        <!--v-if-->
+                        
+                        <!--teleport start-->
+                        <!--teleport end-->
+                        
+                        
+                        
+                        <div
+                          class="v-list-item__spacer"
+                        />
+                      </div>
+                    </div>
+                    
+                    
+                  </div>
+                  
+                  <div
+                    class="v-card v-theme--light bg-primary v-card--density-default v-card--variant-elevated dragged-identity"
+                    dark=""
+                  >
+                    <!---->
+                    <div
+                      class="v-card__loader"
+                    >
+                      <div
+                        aria-hidden="true"
+                        aria-valuemax="100"
+                        aria-valuemin="0"
+                        class="v-progress-linear v-theme--light v-locale--is-ltr"
+                        role="progressbar"
+                        style="top: 0px; height: 0px; --v-progress-linear-height: 2px; left: 50%; transform: translateX(-50%);"
+                      >
+                        <!---->
+                        <div
+                          class="v-progress-linear__background"
+                          style="width: 100%;"
+                        />
+                        <transition-stub
+                          appear="false"
+                          css="true"
+                          name="fade-transition"
+                          persisted="false"
+                        >
+                          <div
+                            class="v-progress-linear__indeterminate"
+                          >
+                            
+                            <div
+                              class="v-progress-linear__indeterminate long"
+                            />
+                            <div
+                              class="v-progress-linear__indeterminate short"
+                            />
+                            
+                          </div>
+                        </transition-stub>
+                        <!---->
+                      </div>
+                    </div>
+                    <!---->
+                    <!---->
+                    
+                    <div
+                      class="v-card-subtitle"
+                    >
+                       Moving 1 identity
+                    </div>
+                    
+                    <!---->
+                    
+                    <!---->
+                    <span
+                      class="v-card__underlay"
+                    />
+                    
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div
+              class="v-row section"
+            >
+              <div
+                class="v-container v-container--fluid v-locale--is-ltr"
+              >
+                <div>
+                  <div
+                    class="v-list-subheader"
+                  >
+                    <div
+                      class="v-list-subheader__text"
+                    >
+                      
+                      <span
+                        class="text-subtitle-2"
+                      >
+                         Organizations (0) 
+                      </span>
+                      <div>
+                        <button
+                          class="v-btn v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-outlined mr-4"
+                          type="button"
+                        >
+                          
+                          <span
+                            class="v-btn__overlay"
+                          />
+                          <span
+                            class="v-btn__underlay"
+                          />
+                          
+                          <!---->
+                          <span
+                            class="v-btn__content"
+                            data-no-activator=""
+                          >
+                            
+                            
+                            <i
+                              aria-hidden="true"
+                              class="mdi-plus mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--start"
+                            />
+                             Add 
+                            
+                            
+                          </span>
+                          <!---->
+                          <!---->
+                        </button>
+                        <button
+                          class="v-btn v-btn--disabled v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-outlined"
+                          disabled=""
+                          type="button"
+                        >
+                          
+                          <span
+                            class="v-btn__overlay"
+                          />
+                          <span
+                            class="v-btn__underlay"
+                          />
+                          
+                          <!---->
+                          <span
+                            class="v-btn__content"
+                            data-no-activator=""
+                          >
+                            
+                            
+                            <i
+                              aria-hidden="true"
+                              class="mdi-delete mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--start"
+                            />
+                             Remove all 
+                            
+                            
+                          </span>
+                          <!---->
+                          <!---->
+                        </button>
+                      </div>
+                      
+                    </div>
+                  </div>
+                  
+                  
+                </div>
+              </div>
+            </div>
+          </div>
+          <!--v-if-->
+        </div>
+      </div>
+      <!--v-if-->
+      
+      <!---->
+      <!---->
+      
+      <!--v-if-->
+      
+      <!---->
+      <!---->
+      
+      
+      <!---->
+      <!---->
+      
+      
+      <!---->
+      <!---->
+      
+      
+    </main>
+    
+  </div>
+</div>
+`;
