@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='tenant',
             name='perm_group',
-            field=models.CharField(default='readonly', max_length=128),
+            field=models.CharField(default='user', max_length=128),
         ),
     ]
