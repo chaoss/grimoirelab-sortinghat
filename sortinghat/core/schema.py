@@ -58,6 +58,7 @@ from .api import (add_identity,
                   delete_team,
                   delete_domain,
                   delete_alias,
+                  delete_merge_recommendations,
                   enroll,
                   withdraw,
                   update_enrollment,
@@ -1374,6 +1375,22 @@ class ManageMergeRecommendation(graphene.Mutation):
         )
 
 
+class DeleteMergeRecommendations(graphene.Mutation):
+    deleted = graphene.Boolean()
+
+    @check_permissions(['core.delete_mergerecommendation'])
+    def mutate(self, info):
+        user = info.context.user
+        tenant = get_db_tenant()
+        ctx = SortingHatContext(user=user, tenant=tenant)
+
+        rec = delete_merge_recommendations(ctx)
+
+        return DeleteMergeRecommendations(
+            deleted=True
+        )
+
+
 class ManageAffiliationRecommendation(graphene.Mutation):
     class Arguments:
         recommendation_id = graphene.Int()
@@ -2196,6 +2213,9 @@ class SortingHatMutation(graphene.ObjectType):
     )
     update_scheduled_task = UpdateScheduledTask.Field(
         description='Update a periodic task.'
+    )
+    delete_merge_recommendations = DeleteMergeRecommendations.Field(
+        description='Remove all unapplied merge recommendations.'
     )
 
     # JWT authentication

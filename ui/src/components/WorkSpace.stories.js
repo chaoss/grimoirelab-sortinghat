@@ -274,6 +274,7 @@ export const DragAndDrop = () => ({
       };
     },
     manageRecommendation: () => {},
+    deleteMergeRecommendations: () => {},
   }),
   data: () => ({
     individuals: [],

@@ -50,7 +50,8 @@ from sortinghat.core.models import (MIN_PERIOD_DATE,
                                     Transaction,
                                     Operation,
                                     ScheduledTask,
-                                    Alias)
+                                    Alias,
+                                    MergeRecommendation)
 
 DUPLICATED_ORG_ERROR = "Organization 'Example' already exists in the registry"
 DUPLICATED_DOM_ERROR = "Domain 'example.org' already exists in the registry"
@@ -111,6 +112,7 @@ FORMAT_ALREADY_EXISTS = "'{}' already exists in the registry"
 MOVE_DOMAIN_ERROR = "Domain 'example.com' is already assigned to 'Example'"
 MOVE_TEAM_ERROR = "Team 'Example team' is already assigned to 'Example organization'"
 ALIAS_NAME_WHITESPACES_ERROR = "'name' cannot be composed by whitespaces only"
+DELETE_MERGE_RECOMMENDATIONS_ERROR = "'recommendations' must be a MergeRecommendation queryset"
 
 
 class TestFindIndividual(TestCase):
@@ -3475,3 +3477,77 @@ class TestDeleteAlias(TestCase):
         op1_args = json.loads(op1.args)
         self.assertEqual(len(op1_args), 1)
         self.assertEqual(op1_args['alias'], 'Example Inc.')
+
+
+class TestDeleteMergeRecommendations(TestCase):
+    """Unit tests for delete_merge_recommendations"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        self.trxl = TransactionsLog.open('delete_merge_recommendations', self.ctx)
+
+    def test_delete_merge_recommendations(self):
+        """Check whether it deletes merge recommendations"""
+
+        indv1 = Individual.objects.create(mk='AAAA')
+        indv2 = Individual.objects.create(mk='BBBB')
+        indv3 = Individual.objects.create(mk='CCCC')
+        MergeRecommendation.objects.create(individual1=indv1, individual2=indv2)
+        MergeRecommendation.objects.create(individual1=indv1, individual2=indv3)
+        MergeRecommendation.objects.create(individual1=indv2, individual2=indv3)
+
+        recs = MergeRecommendation.objects.all()
+        self.assertEqual(len(recs), 3)
+
+        db.delete_merge_recommendations(self.trxl, recs)
+
+        recs = MergeRecommendation.objects.all()
+        self.assertEqual(len(recs), 0)
+
+    def test_delete_merge_recommendations_error(self):
+        """Check whether the wrong type of queryset cannot be removed"""
+
+        orgs = Organization.objects.all()
+
+        with self.assertRaisesRegex(ValueError, DELETE_MERGE_RECOMMENDATIONS_ERROR):
+            db.delete_merge_recommendations(self.trxl, orgs)
+
+        # Check if operations have not been generated after the failure
+        operations = Operation.objects.all()
+        self.assertEqual(len(operations), 0)
+
+    def test_operations(self):
+        """Check if the right operations are created"""
+
+        timestamp = datetime_utcnow()
+        indv1 = Individual.objects.create(mk='AAAA')
+        indv2 = Individual.objects.create(mk='BBBB')
+        indv3 = Individual.objects.create(mk='CCCC')
+        rec1 = MergeRecommendation.objects.create(individual1=indv1, individual2=indv2)
+        rec2 = MergeRecommendation.objects.create(individual1=indv1, individual2=indv3)
+        rec3 = MergeRecommendation.objects.create(individual1=indv2, individual2=indv3)
+
+        recs = MergeRecommendation.objects.all()
+        db.delete_merge_recommendations(self.trxl, recs)
+
+        transactions = Transaction.objects.filter(name='delete_merge_recommendations')
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.DELETE.value)
+        self.assertEqual(op1.entity_type, 'merge_recommendation')
+        self.assertEqual(op1.trx, trx)
+        self.assertEqual(op1.target, 'merge_recommendations')
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 1)
+        self.assertEqual(op1_args['merge_recommendations'], [rec1.id, rec2.id, rec3.id])

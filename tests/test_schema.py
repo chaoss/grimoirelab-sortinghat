@@ -11662,3 +11662,83 @@ class TestDeleteAliasMutation(django.test.TestCase):
 
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, AUTHENTICATION_ERROR)
+
+
+class TestDeleteMergeRecommendationsMutation(django.test.TestCase):
+    """Unit tests for mutation to accept a match recommendation"""
+
+    SH_DELETE_MERGE_RECS = """
+      mutation deleteMergeRecommendations {
+        deleteMergeRecommendations {
+          deleted
+        }
+      }
+    """
+
+    def setUp(self):
+        """Set queries context"""
+
+        self.user = get_user_model().objects.create(username='test', is_superuser=True)
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
+
+        indv1 = Individual.objects.create(mk='AAAA')
+        indv2 = Individual.objects.create(mk='BBBB')
+        indv3 = Individual.objects.create(mk='CCCC')
+        Profile.objects.create(name="John",
+                               email='jsmith@example.com',
+                               individual=indv1)
+        Profile.objects.create(name="John",
+                               email='jsmith2@example.com',
+                               individual=indv2)
+        Profile.objects.create(name="John",
+                               email='jsmith3@example.com',
+                               individual=indv3)
+        MergeRecommendation.objects.create(individual1=indv1, individual2=indv2)
+        MergeRecommendation.objects.create(individual1=indv2, individual2=indv3)
+
+    def test_delete_merge_recommendations(self):
+        """Check whether it deletes all merge recommendations"""
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_DELETE_MERGE_RECS,
+                                  context_value=self.context_value)
+
+        # Check result
+        rel = executed['data']['deleteMergeRecommendations']
+        self.assertEqual(rel['deleted'], True)
+
+        recs = MergeRecommendation.objects.all()
+        self.assertEqual(len(recs), 0)
+
+    def test_keep_reviewed_recommendations(self):
+        """Check whether it deletes all merge recommendations except reviewed ones"""
+
+        indv1 = Individual.objects.create(mk='DDDD')
+        indv2 = Individual.objects.create(mk='EEEE')
+        MergeRecommendation.objects.create(individual1=indv1, individual2=indv2, applied=0)
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(self.SH_DELETE_MERGE_RECS,
+                                  context_value=self.context_value)
+
+        # Check result
+        rel = executed['data']['deleteMergeRecommendations']
+        self.assertEqual(rel['deleted'], True)
+
+        recs = MergeRecommendation.objects.all()
+        self.assertEqual(len(recs), 1)
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the mutation"""
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        executed = client.execute(self.SH_DELETE_MERGE_RECS,
+                                  context_value=context_value)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
