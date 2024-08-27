@@ -1,4 +1,4 @@
-FROM debian:bullseye-slim
+FROM python:3.8-slim-bullseye
 
 LABEL maintainer="Santiago Dueñas <sduenas@bitergia.com>"
 LABEL org.opencontainers.image.title="SortingHat"
@@ -28,8 +28,6 @@ RUN apt-get update && \
         dirmngr gnupg \
         curl \
         gcc \
-        python3 python3-dev \
-        python3-pip python3-venv \
         libmariadbclient-dev-compat && \
     apt-get purge && \
     apt-get clean && \
