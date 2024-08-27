@@ -41,10 +41,10 @@ MOCK_CONFIG_FILEPATH = os.path.join(os.path.abspath(os.path.dirname(__file__)),
 
 
 CONFIG_FILE_EXISTS_ERROR = "Error: Configuration file {} already exists. Use '--overwrite' to replace it.\n"
-INVALID_CONFIG_FILE = "Error: Could not open file {}: [Errno 21] Is a directory: '{}'\n"
+INVALID_CONFIG_FILE = "Error: Could not open file '{}': [Errno 21] Is a directory: '{}'\n"
 SET_KEY_CONFIG_ERROR = "Error: {} config parameter is not supported\n"
 GET_KEY_CONFIG_ERROR = "Error: {} config parameter is not supported\n"
-NOT_FOUND_FILE_ERROR = "Error: Could not open file {}: file does not exist\n"
+NOT_FOUND_FILE_ERROR = "Error: Could not open file '{}': file does not exist\n"
 
 
 class TestInitConfig(unittest.TestCase):
