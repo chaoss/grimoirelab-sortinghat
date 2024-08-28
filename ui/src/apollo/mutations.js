@@ -378,6 +378,14 @@ const MERGE_ORGANIZATIONS = gql`
     mergeOrganizations(fromOrg: $fromOrg, toOrg: $toOrg) {
       organization {
         name
+        domains {
+          id
+          domain
+          isTopDomain
+        }
+        aliases {
+          alias
+        }
       }
     }
   }
@@ -842,6 +850,7 @@ const addAlias = (apollo, alias, organization) => {
       alias,
       organization,
     },
+    errorPolicy: "all",
   });
 };
 

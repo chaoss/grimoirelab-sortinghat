@@ -345,6 +345,7 @@
                       :set-filters="filters"
                       :withdraw="() => {}"
                       :update-enrollment="() => {}"
+                      ref="membersTable"
                     />
                   </v-container>
                 </v-window-item>
@@ -363,28 +364,7 @@
       </v-btn>
     </v-container>
 
-    <v-dialog v-model="dialog.isOpen" max-width="500">
-      <v-card class="pa-3">
-        <v-card-title class="headline">{{ dialog.title }}</v-card-title>
-        <v-card-text>
-          <p v-if="dialog.text" class="pt-2 pb-2 text-body-2">
-            {{ dialog.text }}
-          </p>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn variant="text" @click="closeDialog"> Cancel </v-btn>
-          <v-btn
-            :color="dialog.color"
-            id="confirm"
-            variant="flat"
-            @click.stop="dialog.action"
-          >
-            Confirm
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <generic-modal v-model:is-open="modalProps.isOpen" v-bind="modalProps" />
   </v-main>
 </template>
 <script>
@@ -406,14 +386,17 @@ import {
   unlockIndividual,
   addAlias,
   deleteAlias,
+  mergeOrganizations,
 } from "../apollo/mutations";
 import IndividualsTable from "../components/IndividualsTable.vue";
 import EditDialog from "../components/EditDialog.vue";
 import LoadingSpinner from "../components/LoadingSpinner.vue";
+import GenericModal from "../components/GenericModal.vue";
+import useModal from "../composables/useModal";
 
 export default {
   name: "Organization",
-  components: { IndividualsTable, EditDialog, LoadingSpinner },
+  components: { IndividualsTable, EditDialog, LoadingSpinner, GenericModal },
   apollo: {
     organizations() {
       return {
@@ -439,6 +422,10 @@ export default {
       };
     },
   },
+  setup() {
+    const { modalProps, openModal, closeModal } = useModal();
+    return { modalProps, openModal, closeModal };
+  },
   data() {
     return {
       organization: null,
@@ -449,13 +436,6 @@ export default {
         menu: false,
       },
       totalMembers: 0,
-      dialog: {
-        isOpen: false,
-        title: null,
-        action: () => {},
-        text: null,
-        color: "primary",
-      },
       form: {
         domain: null,
         isTopDomain: true,
@@ -475,11 +455,10 @@ export default {
   },
   methods: {
     confirmDelete(action, id) {
-      Object.assign(this.dialog, {
-        isOpen: true,
+      this.openModal({
         action: () => action(id),
         title: `Delete ${id}?`,
-        color: "error",
+        actionButtonColor: "error",
       });
     },
     async deleteOrganization() {
@@ -489,7 +468,7 @@ export default {
           this.$router.push({ name: "Dashboard" });
         }
       } catch (error) {
-        Object.assign(this.dialog, { text: error });
+        this.openModal({ text: this.$getErrorMessage(error) });
       }
     },
     async addDomain() {
@@ -509,8 +488,7 @@ export default {
         ];
         this.form.domain = null;
       } catch (error) {
-        Object.assign(this.dialog, {
-          isOpen: true,
+        this.openModal({
           title: "Error creating domain",
           text: this.$getErrorMessage(error),
         });
@@ -524,10 +502,9 @@ export default {
           const index = domains.findIndex((item) => item.domain === domain);
           domains.splice(index, 1);
           this.organization.domains = domains;
-          this.closeDialog();
         }
       } catch (error) {
-        Object.assign(this.dialog, { text: error });
+        this.openModal({ text: this.$getErrorMessage(error) });
       }
     },
     async fetchTeams(parent) {
@@ -562,8 +539,7 @@ export default {
           });
         }
       } catch (error) {
-        Object.assign(this.dialog, {
-          isOpen: true,
+        this.openModal({
           title: "Error creating team",
           text: this.$getErrorMessage(error),
         });
@@ -575,10 +551,9 @@ export default {
         const response = await deleteTeam(this.$apollo, team, this.name);
         if (response && !response.errors) {
           this.removeTeamNode(team);
-          this.closeDialog();
         }
       } catch (error) {
-        Object.assign(this.dialog, { text: error });
+        this.openModal({ text: this.$getErrorMessage(error) });
       }
     },
     removeTeamNode(name, teams = this.teams.items) {
@@ -608,7 +583,7 @@ export default {
         filters,
         orderBy
       );
-      if (response && !response.erros) {
+      if (response && !response.errors) {
         this.totalMembers = response.data.individuals.pageInfo.totalResults;
       }
       return response;
@@ -643,29 +618,49 @@ export default {
       const response = updateProfile(this.$apollo, data, uuid);
       return response;
     },
-    closeDialog() {
-      Object.assign(this.dialog, {
-        isOpen: false,
-        title: "",
-        action: () => {},
-        color: "primary",
-      });
-    },
     async addAlias(alias) {
       if (!alias) return;
+      const response = await addAlias(this.$apollo, alias, this.name);
 
-      try {
-        const response = await addAlias(this.$apollo, alias, this.name);
+      if (response.errors) {
+        const modalData = {
+          title: "Error creating alias",
+          text: this.$getErrorMessage(response.errors[0]),
+        };
+        const orgAlreadyExists = response.errors.find((error) => {
+          return (
+            error.extensions.code === 2 &&
+            error.message.includes("Organization")
+          );
+        });
+        if (orgAlreadyExists) {
+          Object.assign(modalData, {
+            action: () => this.mergeOrgs(alias, this.name),
+            dismissButtonLabel: "Cancel",
+            actionButtonLabel: "Merge",
+            text: (modalData.text += `. Click 'merge' to turn it into an alias of '${this.name}'.`),
+          });
+        }
+        this.openModal(modalData);
+      } else {
         this.organization.aliases = [
           ...this.organization.aliases,
           response.data.addAlias.alias,
         ];
+      }
+    },
+    async mergeOrgs(fromOrg, toOrg) {
+      try {
+        const response = await mergeOrganizations(this.$apollo, fromOrg, toOrg);
+        if (response && !response.errors) {
+          this.organization = Object.assign(
+            {},
+            response.data.mergeOrganizations.organization
+          );
+          this.$refs.membersTable.queryIndividuals();
+        }
       } catch (error) {
-        Object.assign(this.dialog, {
-          isOpen: true,
-          title: "Error creating alias",
-          text: this.$getErrorMessage(error),
-        });
+        this.openModal({ text: this.$getErrorMessage(error) });
       }
     },
     async deleteAlias(alias) {
@@ -676,10 +671,9 @@ export default {
           const index = aliases.findIndex((item) => item.alias === alias);
           aliases.splice(index, 1);
           this.organization.aliases = aliases;
-          this.closeDialog();
         }
       } catch (error) {
-        Object.assign(this.dialog, { text: error });
+        this.openModal({ text: this.$getErrorMessage(error) });
       }
     },
   },
