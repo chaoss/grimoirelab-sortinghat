@@ -292,6 +292,10 @@ RQ_QUEUES = {
     }
 }
 
+RQ = {
+    'JOB_CLASS': 'sortinghat.core.jobs.SortingHatJob'
+}
+
 #
 # SortingHat Multi-tenant
 #

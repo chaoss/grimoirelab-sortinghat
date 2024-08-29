@@ -28,7 +28,8 @@ import django_rq
 import django_rq.utils
 import rq
 import redis.exceptions
-from django.db import IntegrityError, transaction
+from django.db import IntegrityError, transaction, connection
+from rq.job import Job
 
 from .db import find_individual_by_uuid, find_organization
 from .api import enroll, merge, update_profile, add_scheduled_task, delete_scheduled_task
@@ -138,6 +139,21 @@ def get_jobs(tenant):
     logger.debug(f"List of jobs retrieved; total jobs: {len(sorted_jobs)};")
 
     return sorted_jobs
+
+
+class SortingHatJob(Job):
+    """Custom RQ Job class for SortingHat jobs.
+
+    This class closes the db connection before finishing
+    the job to avoid the 'aborted connection' error in
+    the database.
+
+    See also https://github.com/rq/django-rq/issues/17
+    """
+    def perform(self):
+        result = super().perform()
+        connection.close()
+        return result
 
 
 @django_rq.job
