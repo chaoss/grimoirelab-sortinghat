@@ -1,8 +1,0 @@
----
-title: Duplicated GitHub links
-category: fixed
-author: Eva Millán <evamillan@bitergia.com>
-issue: 912
-notes: >
-  The link to an individual's GitHub profile no longer appears several
-  times when there is more than one GitHub identity.
