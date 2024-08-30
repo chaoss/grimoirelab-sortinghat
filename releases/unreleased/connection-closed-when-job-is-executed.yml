@@ -1,0 +1,12 @@
+---
+title: Connection closed when job is executed
+category: fixed
+author: Jose Javier Merchante <jjmerchante@bitergia.com>
+issue: null
+notes: >
+  RQ workers create a fork to run the jobs. The issue arises
+  when, after completing the job, the MariaDB logs display the
+  warning: `Aborted connection to db. Got an error reading
+  communication packets`. This change ensures the database
+  connection is closed before the fork ends, preventing the
+  warning from appearing.
