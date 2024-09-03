@@ -45,7 +45,7 @@ source /opt/venv/bin/activate
 set -e
 
 # Default configuration
-export SORTINGHAT_CONFIG=sortinghat.config.settings
+export SORTINGHAT_CONFIG="${SORTINGHAT_CONFIG:-sortinghat.config.settings}"
 
 sortinghat_check_service() {
     django-admin check --settings=$SORTINGHAT_CONFIG --database default > /dev/null 2>&1
