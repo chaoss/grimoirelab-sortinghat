@@ -1,0 +1,9 @@
+---
+title: Users permissions migrated
+category: fixed
+author: Jose Javier Merchante <jjmerchante@bitergia.com>
+issue: 849
+notes: >
+  User permissions are stored in a separate table within
+  the database. These permissions will be automatically
+  migrated when running `sortinghat-admin upgrade`.

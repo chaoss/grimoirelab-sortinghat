@@ -168,6 +168,7 @@ def upgrade(no_database):
 
     _install_static_files()
     _setup_group_permissions(database='default')
+    _migrate_users_permissions()
 
     click.secho("SortingHat upgrade completed", fg='bright_cyan')
 
@@ -382,6 +383,35 @@ def _setup_group_permissions(database='default'):
     management.call_command('create_groups', database=database)
 
     click.echo("SortingHat groups created.\n")
+
+
+def _migrate_users_permissions():
+    """Migrate permissions for users from the previous version"""
+
+    from sortinghat.core.models import Tenant
+    from django.contrib.auth.models import Group
+
+    users = get_user_model().objects.all()
+
+    if settings.MULTI_TENANT:
+        for user in users:
+            group = user.groups.first()
+            if not group:
+                continue
+            Tenant.objects.filter(user=user).update(perm_group=group.name)
+            click.echo(f"Permissions for '{user}' updated to '{group.name}'.")
+            user.groups.clear()
+    else:
+        for user in users:
+            group = user.groups.first()
+            if group:
+                continue
+            if user.is_superuser:
+                group = Group.objects.get(name='admin')
+            else:
+                group = Group.objects.get(name='user')
+            click.echo(f"Permissions for '{user}' updated to '{group.name}'.")
+            user.groups.set([group.id])
 
 
 def _install_static_files():
