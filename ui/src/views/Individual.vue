@@ -48,6 +48,24 @@
             </v-col>
 
             <v-col cols="2" class="d-flex justify-end align-start mr-1">
+              <v-tooltip location="bottom" max-width="200">
+                <template v-slot:activator="{ props }">
+                  <v-btn
+                    :disabled="individual.isLocked"
+                    :aria-label="reviewButton.tooltip"
+                    :icon="reviewButton.icon"
+                    v-bind="props"
+                    class="mr-1"
+                    data-testid="review-btn"
+                    variant="text"
+                    @click="review(this.mk)"
+                  >
+                  </v-btn>
+                </template>
+                <span>
+                  {{ reviewButton.tooltip }}
+                </span>
+              </v-tooltip>
               <v-tooltip location="bottom">
                 <template v-slot:activator="{ props }">
                   <v-btn
@@ -400,6 +418,7 @@
 </template>
 
 <script>
+import dayjs from "dayjs";
 import {
   getCountries,
   findOrganization,
@@ -417,6 +436,7 @@ import {
   updateProfile,
   withdraw,
   recommendMatches,
+  reviewIndidivual,
 } from "../apollo/mutations";
 import { formatIndividual } from "../utils/actions";
 import { enrollMixin } from "../mixins/enroll";
@@ -504,6 +524,32 @@ export default {
       return this.socialProfiles.some(
         (profile) => profile.source === "linkedin"
       );
+    },
+    reviewButton() {
+      const reviewDate = this.$formatDate(
+        this.individual.lastReviewed,
+        "YYYY-MM-DD"
+      );
+      const unreviewedChanges = dayjs(this.individual.lastModified).isAfter(
+        this.individual.lastReviewed,
+        "second"
+      );
+      if (!reviewDate) {
+        return {
+          icon: "mdi-check-decagram-outline",
+          tooltip: "Mark as reviewed",
+        };
+      } else if (unreviewedChanges) {
+        return {
+          icon: "mdi-alert-decagram",
+          tooltip: `Changes since last review on ${reviewDate}`,
+        };
+      } else {
+        return {
+          icon: "mdi-check-decagram",
+          tooltip: `Last reviewed ${reviewDate}`,
+        };
+      }
     },
   },
   methods: {
@@ -792,6 +838,20 @@ export default {
         title: "Remove LinkedIn profile?",
         action: this.removeLinkedInProfile,
       };
+    },
+    async review(uuid) {
+      try {
+        const response = await reviewIndidivual(this.$apollo, uuid);
+        this.updateIndividual(response.data.review.individual);
+        this.$logger.debug(`Marked individual ${this.mk} as reviewed`);
+      } catch (error) {
+        this.dialog = {
+          open: true,
+          title: "Error reviewing individual",
+          errorMessage: this.$getErrorMessage(error),
+        };
+        this.$logger.error(`Error reviewing individual: ${error}`);
+      }
     },
   },
 };

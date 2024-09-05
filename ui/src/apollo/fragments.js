@@ -48,6 +48,8 @@ const FULL_INDIVIDUAL = gql`
   fragment individual on IndividualType {
     mk
     isLocked
+    lastReviewed
+    lastModified
     ...profile
     ...identities
     ...enrollments
