@@ -243,10 +243,11 @@ class Country(EntityBase):
 class Individual(EntityBase):
     mk = CharField(max_length=MAX_SIZE_CHAR_FIELD, primary_key=True)
     is_locked = BooleanField(default=False)
+    last_reviewed = DateTimeField(null=True, default=None)
 
     class Meta:
         db_table = 'individuals'
-        ordering = ('last_modified', 'created_at', 'profile__name',)
+        ordering = ('last_modified', 'created_at', 'profile__name', 'last_reviewed')
 
     def __str__(self):
         return self.mk
