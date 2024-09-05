@@ -22,7 +22,7 @@
 
 import logging
 
-from grimoirelab_toolkit.datetime import datetime_to_utc
+from grimoirelab_toolkit.datetime import datetime_to_utc, datetime_utcnow
 
 from .db import (find_individual_by_uuid,
                  find_identity,
@@ -57,7 +57,8 @@ from .db import (find_individual_by_uuid,
                  delete_enrollment,
                  move_domain,
                  move_team,
-                 move_alias)
+                 move_alias,
+                 review as review_db)
 from .errors import (InvalidValueError,
                      AlreadyExistsError,
                      NotFoundError,
@@ -1639,3 +1640,41 @@ def delete_merge_recommendations(ctx):
     logger.info("Merge recommendations deleted")
 
     return recommendations
+
+
+@atomic_using_tenant
+def review(ctx, uuid):
+    """Mark an individual as reviewed.
+
+    This function sets the individual identified by `uuid` as last
+    reviewed on the current date.
+
+    :param ctx: context from where this method is called
+    :param uuid: identifier of the individual which will be reviewed
+
+    :returns: an individual with its last review value updated
+
+    :raises InvalidValueError: raised when `uuid` is `None` or an empty string
+    :raises NotFoundError: when the identity with the
+        given `uuid` does not exist.
+    """
+    if uuid is None:
+        raise InvalidValueError(msg="'uuid' cannot be None")
+    if uuid == '':
+        raise InvalidValueError(msg="'uuid' cannot be an empty string")
+
+    trxl = TransactionsLog.open('review', ctx)
+
+    try:
+        individual = find_individual_by_uuid(uuid)
+    except NotFoundError as exc:
+        raise exc
+
+    review_date = datetime_utcnow()
+    individual = review_db(trxl, individual, review_date)
+
+    trxl.close()
+
+    logger.info(f"Individual {uuid} successfully updated")
+
+    return individual

@@ -3551,3 +3551,58 @@ class TestDeleteMergeRecommendations(TestCase):
         op1_args = json.loads(op1.args)
         self.assertEqual(len(op1_args), 1)
         self.assertEqual(op1_args['merge_recommendations'], [rec1.id, rec2.id, rec3.id])
+
+
+class TestReview(TestCase):
+    """Unit tests for review"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+
+        self.trxl = TransactionsLog.open('review', self.ctx)
+
+    def test_review_individual(self):
+        """Test if a given individual is reviewed"""
+
+        jsmith = Individual.objects.create(mk='AAAA')
+        review_date = datetime_utcnow()
+
+        # Check value before calling the method
+        self.assertEqual(jsmith.last_reviewed, None)
+
+        db.review(self.trxl, jsmith, review_date)
+
+        # Tests
+        individual = Individual.objects.get(mk='AAAA')
+        self.assertEqual(individual.last_reviewed, review_date)
+
+    def test_operations(self):
+        """Check if the right operations are created when reviewing an individual"""
+
+        timestamp = datetime_utcnow()
+
+        jsmith = Individual.objects.create(mk='AAAA')
+
+        jsmith = db.review(self.trxl, jsmith, review_date=timestamp)
+
+        transactions = Transaction.objects.all()
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.UPDATE.value)
+        self.assertEqual(op1.entity_type, 'individual')
+        self.assertEqual(op1.trx, trx)
+        self.assertEqual(op1.target, 'AAAA')
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 2)
+        self.assertEqual(op1_args['mk'], jsmith.mk)
+        self.assertEqual(op1_args['last_reviewed'], str(jsmith.last_reviewed))
