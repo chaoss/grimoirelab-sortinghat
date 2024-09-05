@@ -41,6 +41,10 @@
             value: 'lastModified',
           },
           {
+            title: 'Last reviewed',
+            value: 'lastReviewed',
+          },
+          {
             title: 'Created date',
             value: 'createdAt',
           },
