@@ -64,7 +64,8 @@ from .api import (add_identity,
                   update_enrollment,
                   merge_organizations,
                   delete_scheduled_task,
-                  update_scheduled_task)
+                  update_scheduled_task,
+                  review)
 from .context import SortingHatContext
 from .decorators import (check_auth, check_permissions)
 from .errors import InvalidFilterError, EqualIndividualError, InvalidValueError
@@ -485,6 +486,16 @@ class IdentityFilterType(graphene.InputObjectType):
         description='Filter individuals by whether they are affiliated to any organization.'
     )
     last_updated = graphene.String(
+        required=False,
+        description='Filter with a comparison operator (>, >=, <, <=) and a date OR with a range operator (..) between\
+                     two dates, following ISO-8601 format. Examples:\n* `>=2020-10-12T09:35:06.13045+01:00` \
+                     \n * `2020-10-12T00:00:00..2020-11-22T00:00:00`.'
+    )
+    is_reviewed = graphene.Boolean(
+        required=False,
+        description='Filters individuals by whether they have been marked as reviewed.'
+    )
+    last_reviewed = graphene.String(
         required=False,
         description='Filter with a comparison operator (>, >=, <, <=) and a date OR with a range operator (..) between\
                      two dates, following ISO-8601 format. Examples:\n* `>=2020-10-12T09:35:06.13045+01:00` \
@@ -1572,6 +1583,27 @@ class UpdateScheduledTask(graphene.Mutation):
         )
 
 
+class Review(graphene.Mutation):
+    class Arguments:
+        uuid = graphene.String()
+
+    uuid = graphene.Field(lambda: graphene.String)
+    individual = graphene.Field(lambda: IndividualType)
+
+    @check_permissions(['core.change_profile'])
+    def mutate(self, info, uuid):
+        user = info.context.user
+        tenant = get_db_tenant()
+        ctx = SortingHatContext(user=user, tenant=tenant)
+
+        individual = review(ctx, uuid)
+
+        return Review(
+            uuid=uuid,
+            individual=individual
+        )
+
+
 class SortingHatQuery:
 
     countries = graphene.Field(
@@ -1869,6 +1901,35 @@ class SortingHatQuery:
                     query = query.filter(last_modified__gte=date1)
                 elif operator == '..':
                     query = query.filter(last_modified__range=(date1, date2))
+
+        if filters and 'is_reviewed' in filters:
+            query = query.filter(mk__in=Subquery(Individual.objects
+                                                 .filter(last_reviewed__isnull=not filters['is_reviewed'])
+                                                 .values_list('mk')))
+
+        if filters and 'last_reviewed' in filters:
+            # Accepted date format is ISO 8601, YYYY-MM-DDTHH:MM:SS
+            try:
+                filter_data = parse_date_filter(filters['last_reviewed'])
+            except ValueError as e:
+                raise InvalidFilterError(filter_name='last_reviewed', msg=e)
+            except InvalidDateError as e:
+                raise InvalidFilterError(filter_name='last_reviewed', msg=e)
+
+            date1 = filter_data['date1']
+            date2 = filter_data['date2']
+            if filter_data['operator']:
+                operator = filter_data['operator']
+                if operator == '<':
+                    query = query.filter(last_reviewed__lt=date1)
+                elif operator == '<=':
+                    query = query.filter(last_reviewed__lte=date1)
+                elif operator == '>':
+                    query = query.filter(last_reviewed__gt=date1)
+                elif operator == '>=':
+                    query = query.filter(last_reviewed__gte=date1)
+                elif operator == '..':
+                    query = query.filter(last_reviewed__range=(date1, date2))
 
         return IdentityPaginatedType.create_paginated_result(query,
                                                              page,
@@ -2216,6 +2277,9 @@ class SortingHatMutation(graphene.ObjectType):
     )
     delete_merge_recommendations = DeleteMergeRecommendations.Field(
         description='Remove all unapplied merge recommendations.'
+    )
+    review = Review.Field(
+        description='Mark an individual as reviewed on the current date.'
     )
 
     # JWT authentication
