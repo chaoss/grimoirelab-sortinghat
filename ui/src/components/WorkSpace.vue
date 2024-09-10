@@ -330,13 +330,19 @@ export default {
     },
   },
   watch: {
-    individuals(value) {
-      this.savedIndividuals = value;
+    individuals: {
+      handler(value) {
+        this.savedIndividuals = value;
+      },
+      deep: true,
     },
-    savedIndividuals(value) {
-      if (value) {
-        this.$emit("updateStore", value);
-      }
+    savedIndividuals: {
+      handler(value) {
+        if (value) {
+          this.$emit("updateStore", value);
+        }
+      },
+      deep: true,
     },
   },
 };
