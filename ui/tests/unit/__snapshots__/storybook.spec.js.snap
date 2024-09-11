@@ -2103,19 +2103,12 @@ exports[`Storybook Tests ExpandedIndividual Default 1`] = `
               <div
                 class="v-col uuid d-flex align-center"
               >
-                
-                
                 <span
-                  aria-describedby="v-tooltip-3"
-                  class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center"
+                  class="v-chip v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-tonal text-center pr-2 v-chip--border"
                   draggable="false"
-                  tabindex="0"
-                  targetref="[object Object]"
                 >
                   
-                  <span
-                    class="v-chip__overlay"
-                  />
+                  <!---->
                   <span
                     class="v-chip__underlay"
                   />
@@ -2128,35 +2121,53 @@ exports[`Storybook Tests ExpandedIndividual Default 1`] = `
                   >
                     
                     <span
-                      class="clip"
+                      class="clip mr-1"
                     >
                       06e6903c91180835b6ee91dd56782c6ca72bc562
                     </span>
-                    <i
-                      aria-hidden="true"
-                      class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
-                    />
+                    <span
+                      class="d-sr-only"
+                    >
+                       Main identity 
+                    </span>
+                    
+                    
+                    <button
+                      aria-describedby="v-tooltip-4"
+                      class="v-btn v-btn--icon v-theme--light v-btn--density-comfortable v-btn--size-small v-btn--variant-text"
+                      targetref="[object Object]"
+                      type="button"
+                    >
+                      
+                      <span
+                        class="v-btn__overlay"
+                      />
+                      <span
+                        class="v-btn__underlay"
+                      />
+                      
+                      <!---->
+                      <span
+                        class="v-btn__content"
+                        data-no-activator=""
+                      >
+                        <i
+                          aria-hidden="true"
+                          class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-default"
+                        />
+                      </span>
+                      <!---->
+                      <!---->
+                    </button>
+                    
+                    <!--teleport start-->
+                    <!--teleport end-->
+                    
                     
                   </div>
                   <!---->
                   <!---->
                 </span>
-                
-                <!--teleport start-->
-                <!--teleport end-->
-                
-                
-                
-                <i
-                  aria-describedby="v-tooltip-5"
-                  aria-hidden="true"
-                  class="mdi-star mdi v-icon notranslate v-theme--light v-icon--size-small text-secondary v-icon--end"
-                  targetref="[object Object]"
-                />
-                
-                <!--teleport start-->
-                <!--teleport end-->
-                
               </div>
               <div
                 class="v-col-md-2 v-col ma-2"
@@ -2299,19 +2310,12 @@ exports[`Storybook Tests ExpandedIndividual Default 1`] = `
               <div
                 class="v-col uuid d-flex align-center"
               >
-                
-                
                 <span
-                  aria-describedby="v-tooltip-11"
-                  class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center mr-6"
+                  class="v-chip v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center pr-2"
                   draggable="false"
-                  tabindex="0"
-                  targetref="[object Object]"
                 >
                   
-                  <span
-                    class="v-chip__overlay"
-                  />
+                  <!---->
                   <span
                     class="v-chip__underlay"
                   />
@@ -2324,24 +2328,49 @@ exports[`Storybook Tests ExpandedIndividual Default 1`] = `
                   >
                     
                     <span
-                      class="clip"
+                      class="clip mr-1"
                     >
                       164e41c60c28698ac30b0d17176d3e720e036918
                     </span>
-                    <i
-                      aria-hidden="true"
-                      class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
-                    />
+                    <!--v-if-->
+                    
+                    
+                    <button
+                      aria-describedby="v-tooltip-12"
+                      class="v-btn v-btn--icon v-theme--light v-btn--density-comfortable v-btn--size-small v-btn--variant-text"
+                      targetref="[object Object]"
+                      type="button"
+                    >
+                      
+                      <span
+                        class="v-btn__overlay"
+                      />
+                      <span
+                        class="v-btn__underlay"
+                      />
+                      
+                      <!---->
+                      <span
+                        class="v-btn__content"
+                        data-no-activator=""
+                      >
+                        <i
+                          aria-hidden="true"
+                          class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-default"
+                        />
+                      </span>
+                      <!---->
+                      <!---->
+                    </button>
+                    
+                    <!--teleport start-->
+                    <!--teleport end-->
+                    
                     
                   </div>
                   <!---->
                   <!---->
                 </span>
-                
-                <!--teleport start-->
-                <!--teleport end-->
-                
-                <!--v-if-->
               </div>
               <div
                 class="v-col-md-2 v-col ma-2"
@@ -2392,7 +2421,7 @@ exports[`Storybook Tests ExpandedIndividual Default 1`] = `
             
             
             <button
-              aria-describedby="v-tooltip-13"
+              aria-describedby="v-tooltip-14"
               class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
               targetref="[object Object]"
               type="button"
@@ -2425,7 +2454,7 @@ exports[`Storybook Tests ExpandedIndividual Default 1`] = `
             
             
             <i
-              aria-describedby="v-tooltip-15"
+              aria-describedby="v-tooltip-16"
               aria-hidden="true"
               class="mdi-drag-vertical mdi v-icon notranslate v-theme--light v-icon--size-default"
               disabled="false"
@@ -2471,7 +2500,7 @@ exports[`Storybook Tests ExpandedIndividual Default 1`] = `
             
             
             <i
-              aria-describedby="v-tooltip-17"
+              aria-describedby="v-tooltip-18"
               aria-hidden="true"
               class="mdi-git mdi v-icon notranslate v-theme--light v-icon--size-default"
               targetref="[object Object]"
@@ -2499,19 +2528,12 @@ exports[`Storybook Tests ExpandedIndividual Default 1`] = `
               <div
                 class="v-col uuid d-flex align-center"
               >
-                
-                
                 <span
-                  aria-describedby="v-tooltip-18"
-                  class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center mr-6"
+                  class="v-chip v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center pr-2"
                   draggable="false"
-                  tabindex="0"
-                  targetref="[object Object]"
                 >
                   
-                  <span
-                    class="v-chip__overlay"
-                  />
+                  <!---->
                   <span
                     class="v-chip__underlay"
                   />
@@ -2524,24 +2546,49 @@ exports[`Storybook Tests ExpandedIndividual Default 1`] = `
                   >
                     
                     <span
-                      class="clip"
+                      class="clip mr-1"
                     >
                       10982379421b80e13266db011d6e5131dd519016
                     </span>
-                    <i
-                      aria-hidden="true"
-                      class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
-                    />
+                    <!--v-if-->
+                    
+                    
+                    <button
+                      aria-describedby="v-tooltip-20"
+                      class="v-btn v-btn--icon v-theme--light v-btn--density-comfortable v-btn--size-small v-btn--variant-text"
+                      targetref="[object Object]"
+                      type="button"
+                    >
+                      
+                      <span
+                        class="v-btn__overlay"
+                      />
+                      <span
+                        class="v-btn__underlay"
+                      />
+                      
+                      <!---->
+                      <span
+                        class="v-btn__content"
+                        data-no-activator=""
+                      >
+                        <i
+                          aria-hidden="true"
+                          class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-default"
+                        />
+                      </span>
+                      <!---->
+                      <!---->
+                    </button>
+                    
+                    <!--teleport start-->
+                    <!--teleport end-->
+                    
                     
                   </div>
                   <!---->
                   <!---->
                 </span>
-                
-                <!--teleport start-->
-                <!--teleport end-->
-                
-                <!--v-if-->
               </div>
               <div
                 class="v-col-md-2 v-col ma-2"
@@ -2586,7 +2633,7 @@ exports[`Storybook Tests ExpandedIndividual Default 1`] = `
             
             
             <button
-              aria-describedby="v-tooltip-20"
+              aria-describedby="v-tooltip-22"
               class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
               targetref="[object Object]"
               type="button"
@@ -2619,7 +2666,7 @@ exports[`Storybook Tests ExpandedIndividual Default 1`] = `
             
             
             <i
-              aria-describedby="v-tooltip-22"
+              aria-describedby="v-tooltip-24"
               aria-hidden="true"
               class="mdi-drag-vertical mdi v-icon notranslate v-theme--light v-icon--size-default"
               disabled="false"
@@ -2665,7 +2712,7 @@ exports[`Storybook Tests ExpandedIndividual Default 1`] = `
             
             
             <i
-              aria-describedby="v-tooltip-24"
+              aria-describedby="v-tooltip-26"
               aria-hidden="true"
               class="mdi-account-multiple mdi v-icon notranslate v-theme--light v-icon--size-default"
               targetref="[object Object]"
@@ -2693,19 +2740,12 @@ exports[`Storybook Tests ExpandedIndividual Default 1`] = `
               <div
                 class="v-col uuid d-flex align-center"
               >
-                
-                
                 <span
-                  aria-describedby="v-tooltip-25"
-                  class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center mr-6"
+                  class="v-chip v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center pr-2"
                   draggable="false"
-                  tabindex="0"
-                  targetref="[object Object]"
                 >
                   
-                  <span
-                    class="v-chip__overlay"
-                  />
+                  <!---->
                   <span
                     class="v-chip__underlay"
                   />
@@ -2718,24 +2758,49 @@ exports[`Storybook Tests ExpandedIndividual Default 1`] = `
                   >
                     
                     <span
-                      class="clip"
+                      class="clip mr-1"
                     >
                       1f1a9e56dedb45f5969413eeb4442d982e33f0f6
                     </span>
-                    <i
-                      aria-hidden="true"
-                      class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
-                    />
+                    <!--v-if-->
+                    
+                    
+                    <button
+                      aria-describedby="v-tooltip-28"
+                      class="v-btn v-btn--icon v-theme--light v-btn--density-comfortable v-btn--size-small v-btn--variant-text"
+                      targetref="[object Object]"
+                      type="button"
+                    >
+                      
+                      <span
+                        class="v-btn__overlay"
+                      />
+                      <span
+                        class="v-btn__underlay"
+                      />
+                      
+                      <!---->
+                      <span
+                        class="v-btn__content"
+                        data-no-activator=""
+                      >
+                        <i
+                          aria-hidden="true"
+                          class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-default"
+                        />
+                      </span>
+                      <!---->
+                      <!---->
+                    </button>
+                    
+                    <!--teleport start-->
+                    <!--teleport end-->
+                    
                     
                   </div>
                   <!---->
                   <!---->
                 </span>
-                
-                <!--teleport start-->
-                <!--teleport end-->
-                
-                <!--v-if-->
               </div>
               <div
                 class="v-col-md-2 v-col ma-2"
@@ -2780,7 +2845,7 @@ exports[`Storybook Tests ExpandedIndividual Default 1`] = `
             
             
             <button
-              aria-describedby="v-tooltip-27"
+              aria-describedby="v-tooltip-30"
               class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
               targetref="[object Object]"
               type="button"
@@ -2813,7 +2878,7 @@ exports[`Storybook Tests ExpandedIndividual Default 1`] = `
             
             
             <i
-              aria-describedby="v-tooltip-29"
+              aria-describedby="v-tooltip-32"
               aria-hidden="true"
               class="mdi-drag-vertical mdi v-icon notranslate v-theme--light v-icon--size-default"
               disabled="false"
@@ -2985,7 +3050,7 @@ exports[`Storybook Tests ExpandedIndividual Default 1`] = `
             
             
             <i
-              aria-describedby="v-tooltip-32"
+              aria-describedby="v-tooltip-35"
               aria-hidden="true"
               class="mdi-sitemap mdi v-icon notranslate v-theme--light v-icon--size-default mr-3"
               targetref="[object Object]"
@@ -3000,7 +3065,7 @@ exports[`Storybook Tests ExpandedIndividual Default 1`] = `
             <button
               aria-expanded="false"
               aria-haspopup="menu"
-              aria-owns="v-menu-33"
+              aria-owns="v-menu-36"
               class="v-small-dialog__activator"
               targetref="[object Object]"
             >
@@ -3022,7 +3087,7 @@ exports[`Storybook Tests ExpandedIndividual Default 1`] = `
             <button
               aria-expanded="false"
               aria-haspopup="menu"
-              aria-owns="v-menu-34"
+              aria-owns="v-menu-37"
               class="v-small-dialog__activator ml-5"
               targetref="[object Object]"
             >
@@ -3044,7 +3109,7 @@ exports[`Storybook Tests ExpandedIndividual Default 1`] = `
             
             
             <button
-              aria-describedby="v-tooltip-35"
+              aria-describedby="v-tooltip-38"
               class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
               targetref="[object Object]"
               type="button"
@@ -3077,7 +3142,7 @@ exports[`Storybook Tests ExpandedIndividual Default 1`] = `
             
             
             <button
-              aria-describedby="v-tooltip-37"
+              aria-describedby="v-tooltip-40"
               class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
               targetref="[object Object]"
               type="button"
@@ -3128,7 +3193,7 @@ exports[`Storybook Tests ExpandedIndividual Default 1`] = `
             
             
             <i
-              aria-describedby="v-tooltip-39"
+              aria-describedby="v-tooltip-42"
               aria-hidden="true"
               class="mdi-sitemap mdi v-icon notranslate v-theme--light v-icon--size-default mr-3"
               targetref="[object Object]"
@@ -3143,7 +3208,7 @@ exports[`Storybook Tests ExpandedIndividual Default 1`] = `
             <button
               aria-expanded="false"
               aria-haspopup="menu"
-              aria-owns="v-menu-40"
+              aria-owns="v-menu-43"
               class="v-small-dialog__activator"
               targetref="[object Object]"
             >
@@ -3165,7 +3230,7 @@ exports[`Storybook Tests ExpandedIndividual Default 1`] = `
             <button
               aria-expanded="false"
               aria-haspopup="menu"
-              aria-owns="v-menu-41"
+              aria-owns="v-menu-44"
               class="v-small-dialog__activator ml-5"
               targetref="[object Object]"
             >
@@ -3187,7 +3252,7 @@ exports[`Storybook Tests ExpandedIndividual Default 1`] = `
             
             
             <button
-              aria-describedby="v-tooltip-42"
+              aria-describedby="v-tooltip-45"
               class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
               targetref="[object Object]"
               type="button"
@@ -3220,7 +3285,7 @@ exports[`Storybook Tests ExpandedIndividual Default 1`] = `
             
             
             <button
-              aria-describedby="v-tooltip-44"
+              aria-describedby="v-tooltip-47"
               class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
               targetref="[object Object]"
               type="button"
@@ -3374,19 +3439,12 @@ exports[`Storybook Tests ExpandedIndividual NoOrganizations 1`] = `
               <div
                 class="v-col uuid d-flex align-center"
               >
-                
-                
                 <span
-                  aria-describedby="v-tooltip-3"
-                  class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center"
+                  class="v-chip v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-tonal text-center pr-2 v-chip--border"
                   draggable="false"
-                  tabindex="0"
-                  targetref="[object Object]"
                 >
                   
-                  <span
-                    class="v-chip__overlay"
-                  />
+                  <!---->
                   <span
                     class="v-chip__underlay"
                   />
@@ -3399,35 +3457,53 @@ exports[`Storybook Tests ExpandedIndividual NoOrganizations 1`] = `
                   >
                     
                     <span
-                      class="clip"
+                      class="clip mr-1"
                     >
                       164e41c60c28698ac30b0d17176d3e720e036918
                     </span>
-                    <i
-                      aria-hidden="true"
-                      class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
-                    />
+                    <span
+                      class="d-sr-only"
+                    >
+                       Main identity 
+                    </span>
+                    
+                    
+                    <button
+                      aria-describedby="v-tooltip-4"
+                      class="v-btn v-btn--icon v-theme--light v-btn--density-comfortable v-btn--size-small v-btn--variant-text"
+                      targetref="[object Object]"
+                      type="button"
+                    >
+                      
+                      <span
+                        class="v-btn__overlay"
+                      />
+                      <span
+                        class="v-btn__underlay"
+                      />
+                      
+                      <!---->
+                      <span
+                        class="v-btn__content"
+                        data-no-activator=""
+                      >
+                        <i
+                          aria-hidden="true"
+                          class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-default"
+                        />
+                      </span>
+                      <!---->
+                      <!---->
+                    </button>
+                    
+                    <!--teleport start-->
+                    <!--teleport end-->
+                    
                     
                   </div>
                   <!---->
                   <!---->
                 </span>
-                
-                <!--teleport start-->
-                <!--teleport end-->
-                
-                
-                
-                <i
-                  aria-describedby="v-tooltip-5"
-                  aria-hidden="true"
-                  class="mdi-star mdi v-icon notranslate v-theme--light v-icon--size-small text-secondary v-icon--end"
-                  targetref="[object Object]"
-                />
-                
-                <!--teleport start-->
-                <!--teleport end-->
-                
               </div>
               <div
                 class="v-col-md-2 v-col ma-2"
@@ -4721,19 +4797,12 @@ exports[`Storybook Tests IdentitiesList Default 1`] = `
             <div
               class="v-col uuid d-flex align-center"
             >
-              
-              
               <span
-                aria-describedby="v-tooltip-3"
-                class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center mr-6"
+                class="v-chip v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center pr-2"
                 draggable="false"
-                tabindex="0"
-                targetref="[object Object]"
               >
                 
-                <span
-                  class="v-chip__overlay"
-                />
+                <!---->
                 <span
                   class="v-chip__underlay"
                 />
@@ -4746,24 +4815,49 @@ exports[`Storybook Tests IdentitiesList Default 1`] = `
                 >
                   
                   <span
-                    class="clip"
+                    class="clip mr-1"
                   >
                     06e6903c91180835b6ee91dd56782c6ca72bc562
                   </span>
-                  <i
-                    aria-hidden="true"
-                    class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
-                  />
+                  <!--v-if-->
+                  
+                  
+                  <button
+                    aria-describedby="v-tooltip-4"
+                    class="v-btn v-btn--icon v-theme--light v-btn--density-comfortable v-btn--size-small v-btn--variant-text"
+                    targetref="[object Object]"
+                    type="button"
+                  >
+                    
+                    <span
+                      class="v-btn__overlay"
+                    />
+                    <span
+                      class="v-btn__underlay"
+                    />
+                    
+                    <!---->
+                    <span
+                      class="v-btn__content"
+                      data-no-activator=""
+                    >
+                      <i
+                        aria-hidden="true"
+                        class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-default"
+                      />
+                    </span>
+                    <!---->
+                    <!---->
+                  </button>
+                  
+                  <!--teleport start-->
+                  <!--teleport end-->
+                  
                   
                 </div>
                 <!---->
                 <!---->
               </span>
-              
-              <!--teleport start-->
-              <!--teleport end-->
-              
-              <!--v-if-->
             </div>
             <div
               class="v-col-md-2 v-col ma-2"
@@ -4814,7 +4908,7 @@ exports[`Storybook Tests IdentitiesList Default 1`] = `
           
           
           <button
-            aria-describedby="v-tooltip-5"
+            aria-describedby="v-tooltip-6"
             class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
             targetref="[object Object]"
             type="button"
@@ -4899,19 +4993,12 @@ exports[`Storybook Tests IdentitiesList Default 1`] = `
             <div
               class="v-col uuid d-flex align-center"
             >
-              
-              
               <span
-                aria-describedby="v-tooltip-10"
-                class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center"
+                class="v-chip v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-tonal text-center pr-2 v-chip--border"
                 draggable="false"
-                tabindex="0"
-                targetref="[object Object]"
               >
                 
-                <span
-                  class="v-chip__overlay"
-                />
+                <!---->
                 <span
                   class="v-chip__underlay"
                 />
@@ -4924,35 +5011,53 @@ exports[`Storybook Tests IdentitiesList Default 1`] = `
                 >
                   
                   <span
-                    class="clip"
+                    class="clip mr-1"
                   >
                     164e41c60c28698ac30b0d17176d3e720e036918
                   </span>
-                  <i
-                    aria-hidden="true"
-                    class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
-                  />
+                  <span
+                    class="d-sr-only"
+                  >
+                     Main identity 
+                  </span>
+                  
+                  
+                  <button
+                    aria-describedby="v-tooltip-12"
+                    class="v-btn v-btn--icon v-theme--light v-btn--density-comfortable v-btn--size-small v-btn--variant-text"
+                    targetref="[object Object]"
+                    type="button"
+                  >
+                    
+                    <span
+                      class="v-btn__overlay"
+                    />
+                    <span
+                      class="v-btn__underlay"
+                    />
+                    
+                    <!---->
+                    <span
+                      class="v-btn__content"
+                      data-no-activator=""
+                    >
+                      <i
+                        aria-hidden="true"
+                        class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-default"
+                      />
+                    </span>
+                    <!---->
+                    <!---->
+                  </button>
+                  
+                  <!--teleport start-->
+                  <!--teleport end-->
+                  
                   
                 </div>
                 <!---->
                 <!---->
               </span>
-              
-              <!--teleport start-->
-              <!--teleport end-->
-              
-              
-              
-              <i
-                aria-describedby="v-tooltip-12"
-                aria-hidden="true"
-                class="mdi-star mdi v-icon notranslate v-theme--light v-icon--size-small text-secondary v-icon--end"
-                targetref="[object Object]"
-              />
-              
-              <!--teleport start-->
-              <!--teleport end-->
-              
             </div>
             <div
               class="v-col-md-2 v-col ma-2"
@@ -5003,7 +5108,7 @@ exports[`Storybook Tests IdentitiesList Default 1`] = `
           
           
           <button
-            aria-describedby="v-tooltip-13"
+            aria-describedby="v-tooltip-14"
             class="v-btn v-btn--disabled v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
             disabled=""
             targetref="[object Object]"
@@ -5077,7 +5182,7 @@ exports[`Storybook Tests IdentitiesList Default 1`] = `
           
           
           <i
-            aria-describedby="v-tooltip-17"
+            aria-describedby="v-tooltip-18"
             aria-hidden="true"
             class="mdi-git mdi v-icon notranslate v-theme--light v-icon--size-default"
             targetref="[object Object]"
@@ -5105,19 +5210,12 @@ exports[`Storybook Tests IdentitiesList Default 1`] = `
             <div
               class="v-col uuid d-flex align-center"
             >
-              
-              
               <span
-                aria-describedby="v-tooltip-18"
-                class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center mr-6"
+                class="v-chip v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center pr-2"
                 draggable="false"
-                tabindex="0"
-                targetref="[object Object]"
               >
                 
-                <span
-                  class="v-chip__overlay"
-                />
+                <!---->
                 <span
                   class="v-chip__underlay"
                 />
@@ -5130,24 +5228,49 @@ exports[`Storybook Tests IdentitiesList Default 1`] = `
                 >
                   
                   <span
-                    class="clip"
+                    class="clip mr-1"
                   >
                     10982379421b80e13266db011d6e5131dd519016
                   </span>
-                  <i
-                    aria-hidden="true"
-                    class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
-                  />
+                  <!--v-if-->
+                  
+                  
+                  <button
+                    aria-describedby="v-tooltip-20"
+                    class="v-btn v-btn--icon v-theme--light v-btn--density-comfortable v-btn--size-small v-btn--variant-text"
+                    targetref="[object Object]"
+                    type="button"
+                  >
+                    
+                    <span
+                      class="v-btn__overlay"
+                    />
+                    <span
+                      class="v-btn__underlay"
+                    />
+                    
+                    <!---->
+                    <span
+                      class="v-btn__content"
+                      data-no-activator=""
+                    >
+                      <i
+                        aria-hidden="true"
+                        class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-default"
+                      />
+                    </span>
+                    <!---->
+                    <!---->
+                  </button>
+                  
+                  <!--teleport start-->
+                  <!--teleport end-->
+                  
                   
                 </div>
                 <!---->
                 <!---->
               </span>
-              
-              <!--teleport start-->
-              <!--teleport end-->
-              
-              <!--v-if-->
             </div>
             <div
               class="v-col-md-2 v-col ma-2"
@@ -5192,7 +5315,7 @@ exports[`Storybook Tests IdentitiesList Default 1`] = `
           
           
           <button
-            aria-describedby="v-tooltip-20"
+            aria-describedby="v-tooltip-22"
             class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
             targetref="[object Object]"
             type="button"
@@ -5265,7 +5388,7 @@ exports[`Storybook Tests IdentitiesList Default 1`] = `
           
           
           <i
-            aria-describedby="v-tooltip-24"
+            aria-describedby="v-tooltip-26"
             aria-hidden="true"
             class="mdi-account-multiple mdi v-icon notranslate v-theme--light v-icon--size-default"
             targetref="[object Object]"
@@ -5293,19 +5416,12 @@ exports[`Storybook Tests IdentitiesList Default 1`] = `
             <div
               class="v-col uuid d-flex align-center"
             >
-              
-              
               <span
-                aria-describedby="v-tooltip-25"
-                class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center mr-6"
+                class="v-chip v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center pr-2"
                 draggable="false"
-                tabindex="0"
-                targetref="[object Object]"
               >
                 
-                <span
-                  class="v-chip__overlay"
-                />
+                <!---->
                 <span
                   class="v-chip__underlay"
                 />
@@ -5318,24 +5434,49 @@ exports[`Storybook Tests IdentitiesList Default 1`] = `
                 >
                   
                   <span
-                    class="clip"
+                    class="clip mr-1"
                   >
                     1f1a9e56dedb45f5969413eeb4442d982e33f0f6
                   </span>
-                  <i
-                    aria-hidden="true"
-                    class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
-                  />
+                  <!--v-if-->
+                  
+                  
+                  <button
+                    aria-describedby="v-tooltip-28"
+                    class="v-btn v-btn--icon v-theme--light v-btn--density-comfortable v-btn--size-small v-btn--variant-text"
+                    targetref="[object Object]"
+                    type="button"
+                  >
+                    
+                    <span
+                      class="v-btn__overlay"
+                    />
+                    <span
+                      class="v-btn__underlay"
+                    />
+                    
+                    <!---->
+                    <span
+                      class="v-btn__content"
+                      data-no-activator=""
+                    >
+                      <i
+                        aria-hidden="true"
+                        class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-default"
+                      />
+                    </span>
+                    <!---->
+                    <!---->
+                  </button>
+                  
+                  <!--teleport start-->
+                  <!--teleport end-->
+                  
                   
                 </div>
                 <!---->
                 <!---->
               </span>
-              
-              <!--teleport start-->
-              <!--teleport end-->
-              
-              <!--v-if-->
             </div>
             <div
               class="v-col-md-2 v-col ma-2"
@@ -5380,7 +5521,7 @@ exports[`Storybook Tests IdentitiesList Default 1`] = `
           
           
           <button
-            aria-describedby="v-tooltip-27"
+            aria-describedby="v-tooltip-30"
             class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
             targetref="[object Object]"
             type="button"
@@ -5500,19 +5641,12 @@ exports[`Storybook Tests Identity Default 1`] = `
     <div
       class="v-col uuid d-flex align-center"
     >
-      
-      
       <span
-        aria-describedby="v-tooltip-0"
-        class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center mr-6"
+        class="v-chip v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center pr-2"
         draggable="false"
-        tabindex="0"
-        targetref="[object Object]"
       >
         
-        <span
-          class="v-chip__overlay"
-        />
+        <!---->
         <span
           class="v-chip__underlay"
         />
@@ -5525,24 +5659,49 @@ exports[`Storybook Tests Identity Default 1`] = `
         >
           
           <span
-            class="clip"
+            class="clip mr-1"
           >
             1f1a9e56dedb45f5969413eeb4442d982e33f0f6
           </span>
-          <i
-            aria-hidden="true"
-            class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
-          />
+          <!--v-if-->
+          
+          
+          <button
+            aria-describedby="v-tooltip-1"
+            class="v-btn v-btn--icon v-theme--light v-btn--density-comfortable v-btn--size-small v-btn--variant-text"
+            targetref="[object Object]"
+            type="button"
+          >
+            
+            <span
+              class="v-btn__overlay"
+            />
+            <span
+              class="v-btn__underlay"
+            />
+            
+            <!---->
+            <span
+              class="v-btn__content"
+              data-no-activator=""
+            >
+              <i
+                aria-hidden="true"
+                class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-default"
+              />
+            </span>
+            <!---->
+            <!---->
+          </button>
+          
+          <!--teleport start-->
+          <!--teleport end-->
+          
           
         </div>
         <!---->
         <!---->
       </span>
-      
-      <!--teleport start-->
-      <!--teleport end-->
-      
-      <!--v-if-->
     </div>
     <div
       class="v-col-md-2 v-col ma-2"
@@ -5582,19 +5741,12 @@ exports[`Storybook Tests Identity MainIdentity 1`] = `
     <div
       class="v-col uuid d-flex align-center"
     >
-      
-      
       <span
-        aria-describedby="v-tooltip-0"
-        class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center"
+        class="v-chip v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-tonal text-center pr-2 v-chip--border"
         draggable="false"
-        tabindex="0"
-        targetref="[object Object]"
       >
         
-        <span
-          class="v-chip__overlay"
-        />
+        <!---->
         <span
           class="v-chip__underlay"
         />
@@ -5607,35 +5759,53 @@ exports[`Storybook Tests Identity MainIdentity 1`] = `
         >
           
           <span
-            class="clip"
+            class="clip mr-1"
           >
             1f1a9e56dedb45f5969413eeb4442d982e33f0f6
           </span>
-          <i
-            aria-hidden="true"
-            class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
-          />
+          <span
+            class="d-sr-only"
+          >
+             Main identity 
+          </span>
+          
+          
+          <button
+            aria-describedby="v-tooltip-1"
+            class="v-btn v-btn--icon v-theme--light v-btn--density-comfortable v-btn--size-small v-btn--variant-text"
+            targetref="[object Object]"
+            type="button"
+          >
+            
+            <span
+              class="v-btn__overlay"
+            />
+            <span
+              class="v-btn__underlay"
+            />
+            
+            <!---->
+            <span
+              class="v-btn__content"
+              data-no-activator=""
+            >
+              <i
+                aria-hidden="true"
+                class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-default"
+              />
+            </span>
+            <!---->
+            <!---->
+          </button>
+          
+          <!--teleport start-->
+          <!--teleport end-->
+          
           
         </div>
         <!---->
         <!---->
       </span>
-      
-      <!--teleport start-->
-      <!--teleport end-->
-      
-      
-      
-      <i
-        aria-describedby="v-tooltip-2"
-        aria-hidden="true"
-        class="mdi-star mdi v-icon notranslate v-theme--light v-icon--size-small text-secondary v-icon--end"
-        targetref="[object Object]"
-      />
-      
-      <!--teleport start-->
-      <!--teleport end-->
-      
     </div>
     <div
       class="v-col-md-2 v-col ma-2"
@@ -5681,19 +5851,12 @@ exports[`Storybook Tests Identity Source 1`] = `
     <div
       class="v-col uuid d-flex align-center"
     >
-      
-      
       <span
-        aria-describedby="v-tooltip-0"
-        class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center mr-6"
+        class="v-chip v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center pr-2"
         draggable="false"
-        tabindex="0"
-        targetref="[object Object]"
       >
         
-        <span
-          class="v-chip__overlay"
-        />
+        <!---->
         <span
           class="v-chip__underlay"
         />
@@ -5706,24 +5869,49 @@ exports[`Storybook Tests Identity Source 1`] = `
         >
           
           <span
-            class="clip"
+            class="clip mr-1"
           >
             1f1a9e56dedb45f5969413eeb4442d982e33f0f6
           </span>
-          <i
-            aria-hidden="true"
-            class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
-          />
+          <!--v-if-->
+          
+          
+          <button
+            aria-describedby="v-tooltip-1"
+            class="v-btn v-btn--icon v-theme--light v-btn--density-comfortable v-btn--size-small v-btn--variant-text"
+            targetref="[object Object]"
+            type="button"
+          >
+            
+            <span
+              class="v-btn__overlay"
+            />
+            <span
+              class="v-btn__underlay"
+            />
+            
+            <!---->
+            <span
+              class="v-btn__content"
+              data-no-activator=""
+            >
+              <i
+                aria-hidden="true"
+                class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-default"
+              />
+            </span>
+            <!---->
+            <!---->
+          </button>
+          
+          <!--teleport start-->
+          <!--teleport end-->
+          
           
         </div>
         <!---->
         <!---->
       </span>
-      
-      <!--teleport start-->
-      <!--teleport end-->
-      
-      <!--v-if-->
     </div>
     <div
       class="v-col-md-2 v-col ma-2"
@@ -32201,19 +32389,12 @@ exports[`Storybook Tests ProfileCard Default 1`] = `
                         <div
                           class="v-col uuid d-flex align-center"
                         >
-                          
-                          
                           <span
-                            aria-describedby="v-tooltip-9"
-                            class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center mr-6"
+                            class="v-chip v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center pr-2"
                             draggable="false"
-                            tabindex="0"
-                            targetref="[object Object]"
                           >
                             
-                            <span
-                              class="v-chip__overlay"
-                            />
+                            <!---->
                             <span
                               class="v-chip__underlay"
                             />
@@ -32226,24 +32407,49 @@ exports[`Storybook Tests ProfileCard Default 1`] = `
                             >
                               
                               <span
-                                class="clip"
+                                class="clip mr-1"
                               >
                                 006afa
                               </span>
-                              <i
-                                aria-hidden="true"
-                                class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
-                              />
+                              <!--v-if-->
+                              
+                              
+                              <button
+                                aria-describedby="v-tooltip-10"
+                                class="v-btn v-btn--icon v-theme--light v-btn--density-comfortable v-btn--size-small v-btn--variant-text"
+                                targetref="[object Object]"
+                                type="button"
+                              >
+                                
+                                <span
+                                  class="v-btn__overlay"
+                                />
+                                <span
+                                  class="v-btn__underlay"
+                                />
+                                
+                                <!---->
+                                <span
+                                  class="v-btn__content"
+                                  data-no-activator=""
+                                >
+                                  <i
+                                    aria-hidden="true"
+                                    class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-default"
+                                  />
+                                </span>
+                                <!---->
+                                <!---->
+                              </button>
+                              
+                              <!--teleport start-->
+                              <!--teleport end-->
+                              
                               
                             </div>
                             <!---->
                             <!---->
                           </span>
-                          
-                          <!--teleport start-->
-                          <!--teleport end-->
-                          
-                          <!--v-if-->
                         </div>
                         <div
                           class="v-col-md-2 v-col ma-2"
@@ -32301,19 +32507,12 @@ exports[`Storybook Tests ProfileCard Default 1`] = `
                         <div
                           class="v-col uuid d-flex align-center"
                         >
-                          
-                          
                           <span
-                            aria-describedby="v-tooltip-12"
-                            class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center mr-6"
+                            class="v-chip v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center pr-2"
                             draggable="false"
-                            tabindex="0"
-                            targetref="[object Object]"
                           >
                             
-                            <span
-                              class="v-chip__overlay"
-                            />
+                            <!---->
                             <span
                               class="v-chip__underlay"
                             />
@@ -32326,24 +32525,49 @@ exports[`Storybook Tests ProfileCard Default 1`] = `
                             >
                               
                               <span
-                                class="clip"
+                                class="clip mr-1"
                               >
                                 808b18
                               </span>
-                              <i
-                                aria-hidden="true"
-                                class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
-                              />
+                              <!--v-if-->
+                              
+                              
+                              <button
+                                aria-describedby="v-tooltip-14"
+                                class="v-btn v-btn--icon v-theme--light v-btn--density-comfortable v-btn--size-small v-btn--variant-text"
+                                targetref="[object Object]"
+                                type="button"
+                              >
+                                
+                                <span
+                                  class="v-btn__overlay"
+                                />
+                                <span
+                                  class="v-btn__underlay"
+                                />
+                                
+                                <!---->
+                                <span
+                                  class="v-btn__content"
+                                  data-no-activator=""
+                                >
+                                  <i
+                                    aria-hidden="true"
+                                    class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-default"
+                                  />
+                                </span>
+                                <!---->
+                                <!---->
+                              </button>
+                              
+                              <!--teleport start-->
+                              <!--teleport end-->
+                              
                               
                             </div>
                             <!---->
                             <!---->
                           </span>
-                          
-                          <!--teleport start-->
-                          <!--teleport end-->
-                          
-                          <!--v-if-->
                         </div>
                         <div
                           class="v-col-md-2 v-col ma-2"
@@ -32446,19 +32670,12 @@ exports[`Storybook Tests ProfileCard Default 1`] = `
                         <div
                           class="v-col uuid d-flex align-center"
                         >
-                          
-                          
                           <span
-                            aria-describedby="v-tooltip-16"
-                            class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center mr-6"
+                            class="v-chip v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center pr-2"
                             draggable="false"
-                            tabindex="0"
-                            targetref="[object Object]"
                           >
                             
-                            <span
-                              class="v-chip__overlay"
-                            />
+                            <!---->
                             <span
                               class="v-chip__underlay"
                             />
@@ -32471,24 +32688,49 @@ exports[`Storybook Tests ProfileCard Default 1`] = `
                             >
                               
                               <span
-                                class="clip"
+                                class="clip mr-1"
                               >
                                 abce32
                               </span>
-                              <i
-                                aria-hidden="true"
-                                class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
-                              />
+                              <!--v-if-->
+                              
+                              
+                              <button
+                                aria-describedby="v-tooltip-19"
+                                class="v-btn v-btn--icon v-theme--light v-btn--density-comfortable v-btn--size-small v-btn--variant-text"
+                                targetref="[object Object]"
+                                type="button"
+                              >
+                                
+                                <span
+                                  class="v-btn__overlay"
+                                />
+                                <span
+                                  class="v-btn__underlay"
+                                />
+                                
+                                <!---->
+                                <span
+                                  class="v-btn__content"
+                                  data-no-activator=""
+                                >
+                                  <i
+                                    aria-hidden="true"
+                                    class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-default"
+                                  />
+                                </span>
+                                <!---->
+                                <!---->
+                              </button>
+                              
+                              <!--teleport start-->
+                              <!--teleport end-->
+                              
                               
                             </div>
                             <!---->
                             <!---->
                           </span>
-                          
-                          <!--teleport start-->
-                          <!--teleport end-->
-                          
-                          <!--v-if-->
                         </div>
                         <div
                           class="v-col-md-2 v-col ma-2"
@@ -32591,19 +32833,12 @@ exports[`Storybook Tests ProfileCard Default 1`] = `
                         <div
                           class="v-col uuid d-flex align-center"
                         >
-                          
-                          
                           <span
-                            aria-describedby="v-tooltip-20"
-                            class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center mr-6"
+                            class="v-chip v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center pr-2"
                             draggable="false"
-                            tabindex="0"
-                            targetref="[object Object]"
                           >
                             
-                            <span
-                              class="v-chip__overlay"
-                            />
+                            <!---->
                             <span
                               class="v-chip__underlay"
                             />
@@ -32616,24 +32851,49 @@ exports[`Storybook Tests ProfileCard Default 1`] = `
                             >
                               
                               <span
-                                class="clip"
+                                class="clip mr-1"
                               >
                                 4ce562
                               </span>
-                              <i
-                                aria-hidden="true"
-                                class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
-                              />
+                              <!--v-if-->
+                              
+                              
+                              <button
+                                aria-describedby="v-tooltip-24"
+                                class="v-btn v-btn--icon v-theme--light v-btn--density-comfortable v-btn--size-small v-btn--variant-text"
+                                targetref="[object Object]"
+                                type="button"
+                              >
+                                
+                                <span
+                                  class="v-btn__overlay"
+                                />
+                                <span
+                                  class="v-btn__underlay"
+                                />
+                                
+                                <!---->
+                                <span
+                                  class="v-btn__content"
+                                  data-no-activator=""
+                                >
+                                  <i
+                                    aria-hidden="true"
+                                    class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-default"
+                                  />
+                                </span>
+                                <!---->
+                                <!---->
+                              </button>
+                              
+                              <!--teleport start-->
+                              <!--teleport end-->
+                              
                               
                             </div>
                             <!---->
                             <!---->
                           </span>
-                          
-                          <!--teleport start-->
-                          <!--teleport end-->
-                          
-                          <!--v-if-->
                         </div>
                         <div
                           class="v-col-md-2 v-col ma-2"
@@ -32706,7 +32966,7 @@ exports[`Storybook Tests ProfileCard Default 1`] = `
         persisted="false"
       >
         <div
-          aria-labelledby="v-list-group--id-Symbol(22)"
+          aria-labelledby="v-list-group--id-Symbol(26)"
           class="v-list-group__items"
           role="group"
           style="display: none;"

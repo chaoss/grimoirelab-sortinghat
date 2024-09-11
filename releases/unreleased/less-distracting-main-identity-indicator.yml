@@ -1,0 +1,10 @@
+---
+title: Less distracting main identity indicator
+category: added
+author: Eva Millán <evamillan@bitergia.com>
+issue: 920
+notes: >
+  The star icon that marked an individual's main identity
+  was distracting and potentially misleading for users.
+  It has changed to a more subtle indicator since it is not
+  relevant for most users.
