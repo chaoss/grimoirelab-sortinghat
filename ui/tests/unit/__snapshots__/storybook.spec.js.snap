@@ -6168,6 +6168,7 @@ exports[`Storybook Tests IndividualCard Closable 1`] = `
         <button
           aria-expanded="false"
           aria-haspopup="menu"
+          aria-label="Expand information"
           aria-owns="v-menu-1"
           class="v-btn v-btn--icon v-theme--light v-btn--density-compact v-btn--size-small v-btn--variant-text mr-1"
           data-cy="expand-button"
@@ -6199,6 +6200,7 @@ exports[`Storybook Tests IndividualCard Closable 1`] = `
         <!---->
         
         <button
+          aria-label="Remove"
           class="v-btn v-btn--icon v-theme--light v-btn--density-compact v-btn--size-small v-btn--variant-text"
           type="button"
         >
@@ -6377,6 +6379,7 @@ exports[`Storybook Tests IndividualCard Default 1`] = `
         <button
           aria-expanded="false"
           aria-haspopup="menu"
+          aria-label="Expand information"
           aria-owns="v-menu-1"
           class="v-btn v-btn--icon v-theme--light v-btn--density-compact v-btn--size-small v-btn--variant-text mr-1"
           data-cy="expand-button"
@@ -6562,6 +6565,7 @@ exports[`Storybook Tests IndividualCard Gravatar 1`] = `
         <button
           aria-expanded="false"
           aria-haspopup="menu"
+          aria-label="Expand information"
           aria-owns="v-menu-1"
           class="v-btn v-btn--icon v-theme--light v-btn--density-compact v-btn--size-small v-btn--variant-text mr-1"
           data-cy="expand-button"
@@ -6747,6 +6751,7 @@ exports[`Storybook Tests IndividualCard Highlighted 1`] = `
         <button
           aria-expanded="false"
           aria-haspopup="menu"
+          aria-label="Expand information"
           aria-owns="v-menu-1"
           class="v-btn v-btn--icon v-theme--light v-btn--density-compact v-btn--size-small v-btn--variant-text mr-1"
           data-cy="expand-button"
@@ -6932,6 +6937,7 @@ exports[`Storybook Tests IndividualCard NoName 1`] = `
         <button
           aria-expanded="false"
           aria-haspopup="menu"
+          aria-label="Expand information"
           aria-owns="v-menu-1"
           class="v-btn v-btn--icon v-theme--light v-btn--density-compact v-btn--size-small v-btn--variant-text mr-1"
           data-cy="expand-button"
@@ -7124,6 +7130,7 @@ exports[`Storybook Tests IndividualCard Organization 1`] = `
         <button
           aria-expanded="false"
           aria-haspopup="menu"
+          aria-label="Expand information"
           aria-owns="v-menu-1"
           class="v-btn v-btn--icon v-theme--light v-btn--density-compact v-btn--size-small v-btn--variant-text mr-1"
           data-cy="expand-button"
@@ -7309,6 +7316,7 @@ exports[`Storybook Tests IndividualCard Selectable 1`] = `
         <button
           aria-expanded="false"
           aria-haspopup="menu"
+          aria-label="Expand information"
           aria-owns="v-menu-1"
           class="v-btn v-btn--icon v-theme--light v-btn--density-compact v-btn--size-small v-btn--variant-text mr-1"
           data-cy="expand-button"
@@ -7494,6 +7502,7 @@ exports[`Storybook Tests IndividualCard Selected 1`] = `
         <button
           aria-expanded="false"
           aria-haspopup="menu"
+          aria-label="Expand information"
           aria-owns="v-menu-1"
           class="v-btn v-btn--icon v-theme--light v-btn--density-compact v-btn--size-small v-btn--variant-text mr-1"
           data-cy="expand-button"
@@ -7679,6 +7688,7 @@ exports[`Storybook Tests IndividualCard SingleInitial 1`] = `
         <button
           aria-expanded="false"
           aria-haspopup="menu"
+          aria-label="Expand information"
           aria-owns="v-menu-1"
           class="v-btn v-btn--icon v-theme--light v-btn--density-compact v-btn--size-small v-btn--variant-text mr-1"
           data-cy="expand-button"
@@ -7912,6 +7922,7 @@ exports[`Storybook Tests IndividualCard Sources 1`] = `
         <button
           aria-expanded="false"
           aria-haspopup="menu"
+          aria-label="Expand information"
           aria-owns="v-menu-5"
           class="v-btn v-btn--icon v-theme--light v-btn--density-compact v-btn--size-small v-btn--variant-text mr-1"
           data-cy="expand-button"
@@ -8152,6 +8163,7 @@ exports[`Storybook Tests IndividualCard SourcesAndOrganization 1`] = `
         <button
           aria-expanded="false"
           aria-haspopup="menu"
+          aria-label="Expand information"
           aria-owns="v-menu-5"
           class="v-btn v-btn--icon v-theme--light v-btn--density-compact v-btn--size-small v-btn--variant-text mr-1"
           data-cy="expand-button"
@@ -15133,6 +15145,7 @@ exports[`Storybook Tests IndividualsGrid Default 1`] = `
                 <button
                   aria-expanded="false"
                   aria-haspopup="menu"
+                  aria-label="Expand information"
                   aria-owns="v-menu-2"
                   class="v-btn v-btn--icon v-theme--light v-btn--density-compact v-btn--size-small v-btn--variant-text mr-1"
                   data-cy="expand-button"
@@ -15367,6 +15380,7 @@ exports[`Storybook Tests IndividualsGrid Default 1`] = `
                 <button
                   aria-expanded="false"
                   aria-haspopup="menu"
+                  aria-label="Expand information"
                   aria-owns="v-menu-8"
                   class="v-btn v-btn--icon v-theme--light v-btn--density-compact v-btn--size-small v-btn--variant-text mr-1"
                   data-cy="expand-button"
@@ -15565,6 +15579,7 @@ exports[`Storybook Tests IndividualsGrid Default 1`] = `
                 <button
                   aria-expanded="false"
                   aria-haspopup="menu"
+                  aria-label="Expand information"
                   aria-owns="v-menu-12"
                   class="v-btn v-btn--icon v-theme--light v-btn--density-compact v-btn--size-small v-btn--variant-text mr-1"
                   data-cy="expand-button"
@@ -15799,6 +15814,7 @@ exports[`Storybook Tests IndividualsGrid Default 1`] = `
                 <button
                   aria-expanded="false"
                   aria-haspopup="menu"
+                  aria-label="Expand information"
                   aria-owns="v-menu-18"
                   class="v-btn v-btn--icon v-theme--light v-btn--density-compact v-btn--size-small v-btn--variant-text mr-1"
                   data-cy="expand-button"
@@ -16015,6 +16031,7 @@ exports[`Storybook Tests IndividualsGrid Default 1`] = `
                 <button
                   aria-expanded="false"
                   aria-haspopup="menu"
+                  aria-label="Expand information"
                   aria-owns="v-menu-23"
                   class="v-btn v-btn--icon v-theme--light v-btn--density-compact v-btn--size-small v-btn--variant-text mr-1"
                   data-cy="expand-button"
@@ -16249,6 +16266,7 @@ exports[`Storybook Tests IndividualsGrid Default 1`] = `
                 <button
                   aria-expanded="false"
                   aria-haspopup="menu"
+                  aria-label="Expand information"
                   aria-owns="v-menu-29"
                   class="v-btn v-btn--icon v-theme--light v-btn--density-compact v-btn--size-small v-btn--variant-text mr-1"
                   data-cy="expand-button"
@@ -16483,6 +16501,7 @@ exports[`Storybook Tests IndividualsGrid Default 1`] = `
                 <button
                   aria-expanded="false"
                   aria-haspopup="menu"
+                  aria-label="Expand information"
                   aria-owns="v-menu-35"
                   class="v-btn v-btn--icon v-theme--light v-btn--density-compact v-btn--size-small v-btn--variant-text mr-1"
                   data-cy="expand-button"
@@ -16699,6 +16718,7 @@ exports[`Storybook Tests IndividualsGrid Default 1`] = `
                 <button
                   aria-expanded="false"
                   aria-haspopup="menu"
+                  aria-label="Expand information"
                   aria-owns="v-menu-40"
                   class="v-btn v-btn--icon v-theme--light v-btn--density-compact v-btn--size-small v-btn--variant-text mr-1"
                   data-cy="expand-button"
@@ -32260,6 +32280,7 @@ exports[`Storybook Tests ProfileCard Default 1`] = `
         <button
           aria-expanded="false"
           aria-haspopup="menu"
+          aria-label="Expand information"
           aria-owns="v-menu-4"
           class="v-btn v-btn--icon v-theme--light v-btn--density-compact v-btn--size-small v-btn--variant-text mr-1"
           data-cy="expand-button"
@@ -34660,13 +34681,10 @@ exports[`Storybook Tests WorkSpace Default 1`] = `
          Workspace 
       </h3>
       <div>
-        
-        
         <button
           class="v-btn v-btn--disabled v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-outlined mr-2"
           disabled=""
           type="button"
-          v-bind="[object Object]"
         >
           
           <span
@@ -34694,16 +34712,9 @@ exports[`Storybook Tests WorkSpace Default 1`] = `
           <!---->
           <!---->
         </button>
-        
-        <!--teleport start-->
-        <!--teleport end-->
-        
-        
-        
         <button
           class="v-btn v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-outlined"
           type="button"
-          v-bind="[object Object]"
         >
           
           <span
@@ -34731,21 +34742,17 @@ exports[`Storybook Tests WorkSpace Default 1`] = `
           <!---->
           <!---->
         </button>
-        
-        <!--teleport start-->
-        <!--teleport end-->
-        
       </div>
     </div>
-    <div
-      class="v-row v-row--dense space rounded pa-md-2 ma-md-3 drag-zone"
+    <ul
+      class="grid drag-zone"
     >
       
-      <div
-        class="v-col v-col-2"
-      >
+      <li>
         <div
+          aria-pressed="false"
           class="v-card v-card--link v-theme--light v-card--density-default v-card--variant-elevated mx-auto"
+          tabindex="0"
         >
           <!---->
           <div
@@ -34864,7 +34871,7 @@ exports[`Storybook Tests WorkSpace Default 1`] = `
                     
                     
                     <i
-                      aria-describedby="v-tooltip-5"
+                      aria-describedby="v-tooltip-3"
                       aria-hidden="true"
                       class="mdi-git mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--start"
                       targetref="[object Object]"
@@ -34876,7 +34883,7 @@ exports[`Storybook Tests WorkSpace Default 1`] = `
                     
                     
                     <i
-                      aria-describedby="v-tooltip-6"
+                      aria-describedby="v-tooltip-4"
                       aria-hidden="true"
                       class="mdi-github mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--start"
                       targetref="[object Object]"
@@ -34888,7 +34895,7 @@ exports[`Storybook Tests WorkSpace Default 1`] = `
                     
                     
                     <i
-                      aria-describedby="v-tooltip-7"
+                      aria-describedby="v-tooltip-5"
                       aria-hidden="true"
                       class="mdi-gitlab mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--start"
                       targetref="[object Object]"
@@ -34915,7 +34922,8 @@ exports[`Storybook Tests WorkSpace Default 1`] = `
               <button
                 aria-expanded="false"
                 aria-haspopup="menu"
-                aria-owns="v-menu-8"
+                aria-label="Expand information"
+                aria-owns="v-menu-6"
                 class="v-btn v-btn--icon v-theme--light v-btn--density-compact v-btn--size-small v-btn--variant-text mr-1"
                 data-cy="expand-button"
                 targetref="[object Object]"
@@ -34946,6 +34954,7 @@ exports[`Storybook Tests WorkSpace Default 1`] = `
               <!---->
               
               <button
+                aria-label="Remove"
                 class="v-btn v-btn--icon v-theme--light v-btn--density-compact v-btn--size-small v-btn--variant-text"
                 type="button"
               >
@@ -34988,12 +34997,12 @@ exports[`Storybook Tests WorkSpace Default 1`] = `
           />
           
         </div>
-      </div>
-      <div
-        class="v-col v-col-2"
-      >
+      </li>
+      <li>
         <div
+          aria-pressed="false"
           class="v-card v-card--link v-theme--light v-card--density-default v-card--variant-elevated mx-auto"
+          tabindex="0"
         >
           <!---->
           <div
@@ -35112,7 +35121,7 @@ exports[`Storybook Tests WorkSpace Default 1`] = `
                     
                     
                     <i
-                      aria-describedby="v-tooltip-12"
+                      aria-describedby="v-tooltip-10"
                       aria-hidden="true"
                       class="mdi-git mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--start"
                       targetref="[object Object]"
@@ -35124,7 +35133,7 @@ exports[`Storybook Tests WorkSpace Default 1`] = `
                     
                     
                     <i
-                      aria-describedby="v-tooltip-13"
+                      aria-describedby="v-tooltip-11"
                       aria-hidden="true"
                       class="mdi-github mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--start"
                       targetref="[object Object]"
@@ -35136,7 +35145,7 @@ exports[`Storybook Tests WorkSpace Default 1`] = `
                     
                     
                     <i
-                      aria-describedby="v-tooltip-14"
+                      aria-describedby="v-tooltip-12"
                       aria-hidden="true"
                       class="mdi-account-multiple mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--start"
                       targetref="[object Object]"
@@ -35163,7 +35172,8 @@ exports[`Storybook Tests WorkSpace Default 1`] = `
               <button
                 aria-expanded="false"
                 aria-haspopup="menu"
-                aria-owns="v-menu-15"
+                aria-label="Expand information"
+                aria-owns="v-menu-13"
                 class="v-btn v-btn--icon v-theme--light v-btn--density-compact v-btn--size-small v-btn--variant-text mr-1"
                 data-cy="expand-button"
                 targetref="[object Object]"
@@ -35194,6 +35204,7 @@ exports[`Storybook Tests WorkSpace Default 1`] = `
               <!---->
               
               <button
+                aria-label="Remove"
                 class="v-btn v-btn--icon v-theme--light v-btn--density-compact v-btn--size-small v-btn--variant-text"
                 type="button"
               >
@@ -35236,9 +35247,9 @@ exports[`Storybook Tests WorkSpace Default 1`] = `
           />
           
         </div>
-      </div>
+      </li>
       
-    </div>
+    </ul>
     
     <!---->
     <!---->
@@ -35272,13 +35283,10 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
            Workspace 
         </h3>
         <div>
-          
-          
           <button
             class="v-btn v-btn--disabled v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-outlined mr-2"
             disabled=""
             type="button"
-            v-bind="[object Object]"
           >
             
             <span
@@ -35306,17 +35314,10 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
             <!---->
             <!---->
           </button>
-          
-          <!--teleport start-->
-          <!--teleport end-->
-          
-          
-          
           <button
             class="v-btn v-btn--disabled v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-outlined"
             disabled=""
             type="button"
-            v-bind="[object Object]"
           >
             
             <span
@@ -35344,14 +35345,10 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
             <!---->
             <!---->
           </button>
-          
-          <!--teleport start-->
-          <!--teleport end-->
-          
         </div>
       </div>
       <div
-        class="v-row v-row--dense space pa-md-2 ma-md-3 align-center justify-center drag-zone"
+        class="v-row v-row--dense align-center justify-center drag-zone"
       >
         <i
           aria-hidden="true"
@@ -35489,7 +35486,7 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
               aria-expanded="null"
               aria-haspopup="menu"
               aria-label="Open menu"
-              aria-owns="v-menu-7"
+              aria-owns="v-menu-5"
               class="v-btn v-btn--flat v-btn--icon v-theme--light v-btn--density-comfortable v-btn--size-small v-btn--variant-outlined"
               style="height: 34px;"
               targetref="[object Object]"
@@ -35571,7 +35568,7 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
               <button
                 aria-expanded="false"
                 aria-haspopup="menu"
-                aria-owns="v-menu-11"
+                aria-owns="v-menu-9"
                 class="v-btn v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-outlined text-body-1"
                 style="height: 32px;"
                 targetref="[object Object]"
@@ -35677,7 +35674,7 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
                   <!---->
                   <label
                     class="v-label v-field-label"
-                    for="input-10"
+                    for="input-8"
                   >
                     <!---->
                     
@@ -35688,9 +35685,9 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
                   
                   <!---->
                   <input
-                    aria-describedby="input-10-messages"
+                    aria-describedby="input-8-messages"
                     class="v-field__input"
-                    id="input-10"
+                    id="input-8"
                     outlined=""
                     size="1"
                     type="text"
@@ -35749,7 +35746,7 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
                 aria-live="polite"
                 class="v-messages"
                 css="true"
-                id="input-10-messages"
+                id="input-8-messages"
                 name="slide-y-transition"
                 persisted="false"
                 role="alert"
@@ -35776,7 +35773,7 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
               
               
               <button
-                aria-describedby="v-tooltip-15"
+                aria-describedby="v-tooltip-13"
                 class="v-btn v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-outlined text-body-1"
                 depressed=""
                 style="height: 32px;"
@@ -35823,7 +35820,7 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
               <div
                 aria-expanded="false"
                 aria-haspopup="listbox"
-                aria-owns="v-menu-18"
+                aria-owns="v-menu-16"
                 class="v-field v-field--appended v-field--center-affix v-field--single-line v-field--variant-outlined v-theme--light v-locale--is-ltr"
                 role="combobox"
               >
@@ -35876,7 +35873,7 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
                   <!---->
                   <label
                     class="v-label v-field-label"
-                    for="input-14"
+                    for="input-12"
                   >
                     <!---->
                     
@@ -35901,10 +35898,10 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
                     
                     
                     <input
-                      aria-describedby="input-14-messages"
+                      aria-describedby="input-12-messages"
                       aria-label="Open"
                       attach=""
-                      id="input-14"
+                      id="input-12"
                       inputmode="none"
                       outlined=""
                       size="1"
@@ -35957,7 +35954,7 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
                 aria-live="polite"
                 class="v-messages"
                 css="true"
-                id="input-14-messages"
+                id="input-12-messages"
                 name="slide-y-transition"
                 persisted="false"
                 role="alert"
@@ -35972,7 +35969,7 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
         
         
         <button
-          aria-describedby="v-tooltip-19"
+          aria-describedby="v-tooltip-17"
           class="v-btn v-btn--disabled v-theme--light v-btn--density-compact v-btn--size-small v-btn--variant-outlined mr-4 ml-4 order-2"
           data-cy="merge-button"
           disabled=""
@@ -36013,7 +36010,7 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
         
         
         <button
-          aria-describedby="v-tooltip-21"
+          aria-describedby="v-tooltip-19"
           class="v-btn v-btn--disabled v-theme--light v-btn--density-compact v-btn--size-small v-btn--variant-outlined order-3"
           data-cy="delete-button"
           disabled=""
@@ -36097,7 +36094,7 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
                         />
                         <input
                           aria-disabled="false"
-                          id="input-23"
+                          id="input-21"
                           type="checkbox"
                           value="true"
                         />
@@ -36262,7 +36259,7 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
                         
                         
                         <i
-                          aria-describedby="v-tooltip-29"
+                          aria-describedby="v-tooltip-27"
                           aria-hidden="false"
                           class="mdi-robot mdi v-icon notranslate v-theme--light v-icon--size-x-small v-icon--clickable v-icon--end icon--hidden"
                           role="button"
@@ -36277,7 +36274,7 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
                         
                         
                         <i
-                          aria-describedby="v-tooltip-30"
+                          aria-describedby="v-tooltip-28"
                           aria-hidden="false"
                           class="mdi-lock mdi v-icon notranslate v-theme--light v-icon--size-x-small v-icon--clickable v-icon--end icon--hidden"
                           role="button"
@@ -36313,7 +36310,7 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
                   
                   
                   <span
-                    aria-describedby="v-tooltip-31"
+                    aria-describedby="v-tooltip-29"
                     class="v-chip v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined ma-1"
                     draggable="false"
                     style="color: rgb(54, 60, 66); caret-color: #363c42;"
@@ -36349,7 +36346,7 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
                   
                   
                   <span
-                    aria-describedby="v-tooltip-33"
+                    aria-describedby="v-tooltip-31"
                     class="v-chip v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined ma-1"
                     draggable="false"
                     style="color: rgb(54, 60, 66); caret-color: #363c42;"
@@ -36385,7 +36382,7 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
                   
                   
                   <span
-                    aria-describedby="v-tooltip-35"
+                    aria-describedby="v-tooltip-33"
                     class="v-chip v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined ma-1"
                     draggable="false"
                     style="color: rgb(54, 60, 66); caret-color: #363c42;"
@@ -36497,7 +36494,7 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
                         
                         
                         <i
-                          aria-describedby="v-tooltip-38"
+                          aria-describedby="v-tooltip-36"
                           aria-hidden="false"
                           class="mdi-robot mdi v-icon notranslate v-theme--light v-icon--size-x-small v-icon--clickable v-icon--end icon--hidden"
                           role="button"
@@ -36512,7 +36509,7 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
                         
                         
                         <i
-                          aria-describedby="v-tooltip-39"
+                          aria-describedby="v-tooltip-37"
                           aria-hidden="false"
                           class="mdi-lock mdi v-icon notranslate v-theme--light v-icon--size-x-small v-icon--clickable v-icon--end icon--hidden"
                           role="button"
@@ -36548,7 +36545,7 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
                   
                   
                   <span
-                    aria-describedby="v-tooltip-40"
+                    aria-describedby="v-tooltip-38"
                     class="v-chip v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined ma-1"
                     draggable="false"
                     style="color: rgb(54, 60, 66); caret-color: #363c42;"
@@ -36584,7 +36581,7 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
                   
                   
                   <span
-                    aria-describedby="v-tooltip-42"
+                    aria-describedby="v-tooltip-40"
                     class="v-chip v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined ma-1"
                     draggable="false"
                     style="color: rgb(54, 60, 66); caret-color: #363c42;"
@@ -36620,7 +36617,7 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
                   
                   
                   <span
-                    aria-describedby="v-tooltip-44"
+                    aria-describedby="v-tooltip-42"
                     class="v-chip v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined ma-1"
                     draggable="false"
                     style="color: rgb(54, 60, 66); caret-color: #363c42;"
@@ -36737,7 +36734,7 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
                         
                         
                         <i
-                          aria-describedby="v-tooltip-48"
+                          aria-describedby="v-tooltip-46"
                           aria-hidden="false"
                           class="mdi-lock mdi v-icon notranslate v-theme--light v-icon--size-x-small v-icon--clickable v-icon--end"
                           role="button"
@@ -36771,7 +36768,7 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
                   
                   
                   <span
-                    aria-describedby="v-tooltip-49"
+                    aria-describedby="v-tooltip-47"
                     class="v-chip v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined ma-1"
                     draggable="false"
                     style="color: rgb(54, 60, 66); caret-color: #363c42;"
@@ -36883,7 +36880,7 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
                         
                         
                         <i
-                          aria-describedby="v-tooltip-52"
+                          aria-describedby="v-tooltip-50"
                           aria-hidden="false"
                           class="mdi-robot mdi v-icon notranslate v-theme--light v-icon--size-x-small v-icon--clickable v-icon--end icon--hidden"
                           role="button"
@@ -36898,7 +36895,7 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
                         
                         
                         <i
-                          aria-describedby="v-tooltip-53"
+                          aria-describedby="v-tooltip-51"
                           aria-hidden="false"
                           class="mdi-lock mdi v-icon notranslate v-theme--light v-icon--size-x-small v-icon--clickable v-icon--end icon--hidden"
                           role="button"
@@ -36934,7 +36931,7 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
                   
                   
                   <span
-                    aria-describedby="v-tooltip-54"
+                    aria-describedby="v-tooltip-52"
                     class="v-chip v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined ma-1"
                     draggable="false"
                     style="color: rgb(54, 60, 66); caret-color: #363c42;"
@@ -37046,7 +37043,7 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
                         
                         
                         <i
-                          aria-describedby="v-tooltip-57"
+                          aria-describedby="v-tooltip-55"
                           aria-hidden="false"
                           class="mdi-robot mdi v-icon notranslate v-theme--light v-icon--size-x-small v-icon--clickable v-icon--end"
                           role="button"
@@ -37061,7 +37058,7 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
                         
                         
                         <i
-                          aria-describedby="v-tooltip-58"
+                          aria-describedby="v-tooltip-56"
                           aria-hidden="false"
                           class="mdi-lock mdi v-icon notranslate v-theme--light v-icon--size-x-small v-icon--clickable v-icon--end icon--hidden"
                           role="button"
@@ -37097,7 +37094,7 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
                   
                   
                   <span
-                    aria-describedby="v-tooltip-59"
+                    aria-describedby="v-tooltip-57"
                     class="v-chip v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined ma-1"
                     draggable="false"
                     style="color: rgb(54, 60, 66); caret-color: #363c42;"
@@ -37133,7 +37130,7 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
                   
                   
                   <span
-                    aria-describedby="v-tooltip-61"
+                    aria-describedby="v-tooltip-59"
                     class="v-chip v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined ma-1"
                     draggable="false"
                     style="color: rgb(54, 60, 66); caret-color: #363c42;"
@@ -37370,7 +37367,7 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
                     <!---->
                     <label
                       class="v-label v-field-label"
-                      for="input-26"
+                      for="input-24"
                     >
                       <!---->
                       
@@ -37381,9 +37378,9 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
                     
                     <!---->
                     <input
-                      aria-describedby="input-26-messages"
+                      aria-describedby="input-24-messages"
                       class="v-field__input"
-                      id="input-26"
+                      id="input-24"
                       max="5"
                       min="1"
                       size="1"
@@ -37408,7 +37405,7 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
                       <label
                         aria-hidden="true"
                         class="v-label v-field-label v-field-label--floating"
-                        for="input-26"
+                        for="input-24"
                       >
                         <!---->
                         
@@ -37539,13 +37536,10 @@ exports[`Storybook Tests WorkSpace Empty 1`] = `
          Workspace 
       </h3>
       <div>
-        
-        
         <button
           class="v-btn v-btn--disabled v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-outlined mr-2"
           disabled=""
           type="button"
-          v-bind="[object Object]"
         >
           
           <span
@@ -37573,17 +37567,10 @@ exports[`Storybook Tests WorkSpace Empty 1`] = `
           <!---->
           <!---->
         </button>
-        
-        <!--teleport start-->
-        <!--teleport end-->
-        
-        
-        
         <button
           class="v-btn v-btn--disabled v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-outlined"
           disabled=""
           type="button"
-          v-bind="[object Object]"
         >
           
           <span
@@ -37611,14 +37598,10 @@ exports[`Storybook Tests WorkSpace Empty 1`] = `
           <!---->
           <!---->
         </button>
-        
-        <!--teleport start-->
-        <!--teleport end-->
-        
       </div>
     </div>
     <div
-      class="v-row v-row--dense space pa-md-2 ma-md-3 align-center justify-center drag-zone"
+      class="v-row v-row--dense align-center justify-center drag-zone"
     >
       <i
         aria-hidden="true"

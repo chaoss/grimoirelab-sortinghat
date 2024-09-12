@@ -14,50 +14,31 @@
         Workspace
       </h3>
       <div>
-        <v-tooltip bottom transition="expand-y-transition" open-delay="200">
-          <template v-slot:activator="{ props }">
-            <v-btn
-              variant="outlined"
-              size="small"
-              class="mr-2"
-              :v-bind="props"
-              :disabled="isDisabled"
-              @click="mergeSelected(selectedIndividuals)"
-            >
-              <v-icon size="small" start>mdi-call-merge</v-icon>
-              Merge
-            </v-btn>
-          </template>
-          <span>Merge selected</span>
-        </v-tooltip>
-        <v-tooltip bottom transition="expand-y-transition" open-delay="200">
-          <template v-slot:activator="{ props }">
-            <v-btn
-              variant="outlined"
-              size="small"
-              :disabled="savedIndividuals.length === 0"
-              :v-bind="props"
-              @click="clearSpace"
-            >
-              <v-icon size="small" start>mdi-cancel</v-icon>
-              Clear
-            </v-btn>
-          </template>
-          <span>Clear space</span>
-        </v-tooltip>
+        <v-btn
+          variant="outlined"
+          size="small"
+          class="mr-2"
+          :disabled="isDisabled"
+          @click="mergeSelected(selectedIndividuals)"
+        >
+          <v-icon size="small" start>mdi-call-merge</v-icon>
+          Merge
+        </v-btn>
+        <v-btn
+          variant="outlined"
+          size="small"
+          :disabled="savedIndividuals.length === 0"
+          @click="clearSpace"
+        >
+          <v-icon size="small" start>mdi-cancel</v-icon>
+          Clear
+        </v-btn>
       </div>
     </v-row>
-    <v-row
-      v-if="savedIndividuals.length >= 1"
-      dense
-      class="space rounded pa-md-2 ma-md-3 drag-zone"
-    >
-      <v-col
-        v-for="individual in savedIndividuals"
-        :key="individual.id"
-        cols="2"
-      >
+    <ul class="grid drag-zone" v-if="savedIndividuals.length >= 1">
+      <li v-for="individual in savedIndividuals" :key="individual.id">
         <individual-card
+          tabindex="0"
           :name="individual.name"
           :email="individual.email"
           :sources="individual.sources"
@@ -67,7 +48,9 @@
           :enrollments="individual.enrollments"
           :is-highlighted="individual.uuid === highlightIndividual"
           :is-locked="individual.isLocked"
+          :aria-pressed="isSelected(individual)"
           @enroll="confirmEnroll(individual, $event)"
+          @keyup.enter="selectIndividual(individual)"
           @merge="mergeSelected($event)"
           @mouseenter="$emit('highlight', individual)"
           @mouseleave="$emit('stopHighlight', individual)"
@@ -77,12 +60,12 @@
           closable
           selectable
         />
-      </v-col>
-    </v-row>
+      </li>
+    </ul>
     <v-row
       v-else
       dense
-      class="space pa-md-2 ma-md-3 align-center justify-center drag-zone"
+      class="align-center justify-center drag-zone"
     >
       <v-icon color="rgba(0,0,0,0.38)" left> mdi-lightbulb-on-outline </v-icon>
       <p class="mb-0 ml-2 text-medium-emphasis">
@@ -240,6 +223,7 @@ export default {
           remove: fromUuids,
         });
         this.$logger.debug("Merged individuals", { fromUuids, toUuid });
+        this.selectedIndividuals = [];
       }
       this.dialog.open = false;
     },
@@ -330,13 +314,19 @@ export default {
     },
   },
   watch: {
-    individuals(value) {
-      this.savedIndividuals = value;
+    individuals: {
+      handler(value) {
+        this.savedIndividuals = value;
+      },
+      deep: true,
     },
-    savedIndividuals(value) {
-      if (value) {
-        this.$emit("updateStore", value);
-      }
+    savedIndividuals: {
+      handler(value) {
+        if (value) {
+          this.$emit("updateStore", value);
+        }
+      },
+      deep: true,
     },
   },
 };
@@ -344,17 +334,23 @@ export default {
 <style lang="scss" scoped>
 @import "../styles/index.scss";
 .drag-zone {
-  min-height: 126px;
+  min-height: 146px;
+  transition: background-color 0.1s;
 }
 .is-dragging .drag-zone {
   outline: 1px dashed #003756;
   background-color: #f9edc7;
 }
-.v-col-2 {
-  min-width: 300px;
-}
-.space {
-  background-color: #ffffff;
-  transition: background-color 0.1s;
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+  grid-column-gap: 1rem;
+  grid-row-gap: 1rem;
+  padding: 1.5rem;
+
+  li {
+    list-style: none;
+  }
 }
 </style>

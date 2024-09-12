@@ -1,0 +1,9 @@
+---
+title: Update workspace when identities are split
+category: fixed
+author: Eva Millán <evamillan@bitergia.com>
+issue: 919
+notes: >
+  When an individual's identities are split, they are shown in the workspace,
+  but they were only shown the first time. The workspace is now updated
+  with the new individuals every time.

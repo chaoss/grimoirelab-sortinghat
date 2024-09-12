@@ -64,7 +64,9 @@
             icon="mdi-magnify-plus-outline"
             v-bind="props"
             data-cy="expand-button"
+            aria-label="Expand information"
             @mousedown.stop
+            @keyup.stop
           />
         </template>
         <v-card class="pa-1">
@@ -81,6 +83,7 @@
         icon="mdi-close"
         density="compact"
         variant="text"
+        aria-label="Remove"
         @click.stop="$emit('remove')"
         @mousedown.stop
       />
