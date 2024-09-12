@@ -1,30 +1,30 @@
 <template>
   <v-row class="d-flex align-center flex-nowrap" no-gutters>
     <v-col class="uuid d-flex align-center">
-      <v-tooltip open-delay="100" bottom>
-        <template v-slot:activator="{ props }">
-          <v-chip
-            class="text-center"
-            :class="{ 'mr-6': !isMain }"
-            v-bind="props"
-            variant="outlined"
-            @click="copy(uuid)"
-            @mouseenter="resetCopyText"
-          >
-            <span class="clip">{{ uuid }}</span>
-            <v-icon size="small" end>mdi-content-copy</v-icon>
-          </v-chip>
-        </template>
-        <span>{{ tooltip }}</span>
-      </v-tooltip>
-      <v-tooltip v-if="isMain" bottom>
-        <template v-slot:activator="{ props }">
-          <v-icon v-bind="props" color="secondary" size="small" end>
-            mdi-star
-          </v-icon>
-        </template>
-        <span>Main identity</span>
-      </v-tooltip>
+      <v-chip
+        class="text-center pr-2"
+        :class="{ 'v-chip--border': isMain }"
+        :variant="isMain ? 'tonal' : 'outlined'"
+      >
+        <span class="clip mr-1">{{ uuid }}</span>
+        <span v-if="isMain" class="d-sr-only">
+          Main identity
+        </span>
+        <v-tooltip open-delay="100" location="bottom">
+          <template v-slot:activator="{ props }">
+            <v-btn
+              v-bind="props"
+              density="comfortable"
+              icon="mdi-content-copy"
+              size="small"
+              variant="text"
+              @click="copy(uuid)"
+              @mouseenter="resetCopyText"
+            />
+          </template>
+          <span>{{ tooltip }}</span>
+        </v-tooltip>
+      </v-chip>
     </v-col>
     <v-col class="ma-2" md="2">
       <span>{{ name }}</span>
@@ -117,5 +117,9 @@ export default {
 
 .v-tooltip__content {
   font-size: 12px;
+}
+
+:deep(.v-chip--variant-tonal) .v-chip__underlay {
+  opacity: 0.04;
 }
 </style>

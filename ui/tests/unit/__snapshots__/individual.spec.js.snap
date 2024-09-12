@@ -531,19 +531,12 @@ exports[`Individual Matches snapshot 1`] = `
                           <div
                             class="v-col uuid d-flex align-center"
                           >
-                            
-                            
                             <span
-                              aria-describedby="v-tooltip-16"
-                              class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center mr-6"
+                              class="v-chip v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center pr-2"
                               draggable="false"
-                              tabindex="0"
-                              targetref="[object Object]"
                             >
                               
-                              <span
-                                class="v-chip__overlay"
-                              />
+                              <!---->
                               <span
                                 class="v-chip__underlay"
                               />
@@ -556,24 +549,49 @@ exports[`Individual Matches snapshot 1`] = `
                               >
                                 
                                 <span
-                                  class="clip"
+                                  class="clip mr-1"
                                 >
                                   f0422fed699c5a1096808272ae51c69f37f7dd29
                                 </span>
-                                <i
-                                  aria-hidden="true"
-                                  class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
-                                />
+                                <!--v-if-->
+                                
+                                
+                                <button
+                                  aria-describedby="v-tooltip-17"
+                                  class="v-btn v-btn--icon v-theme--light v-btn--density-comfortable v-btn--size-small v-btn--variant-text"
+                                  targetref="[object Object]"
+                                  type="button"
+                                >
+                                  
+                                  <span
+                                    class="v-btn__overlay"
+                                  />
+                                  <span
+                                    class="v-btn__underlay"
+                                  />
+                                  
+                                  <!---->
+                                  <span
+                                    class="v-btn__content"
+                                    data-no-activator=""
+                                  >
+                                    <i
+                                      aria-hidden="true"
+                                      class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-default"
+                                    />
+                                  </span>
+                                  <!---->
+                                  <!---->
+                                </button>
+                                
+                                <!--teleport start-->
+                                <!--teleport end-->
+                                
                                 
                               </div>
                               <!---->
                               <!---->
                             </span>
-                            
-                            <!--teleport start-->
-                            <!--teleport end-->
-                            
-                            <!--v-if-->
                           </div>
                           <div
                             class="v-col-md-2 v-col ma-2"
@@ -614,7 +632,7 @@ exports[`Individual Matches snapshot 1`] = `
                         
                         
                         <button
-                          aria-describedby="v-tooltip-18"
+                          aria-describedby="v-tooltip-19"
                           class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
                           targetref="[object Object]"
                           type="button"
@@ -687,7 +705,7 @@ exports[`Individual Matches snapshot 1`] = `
                         
                         
                         <i
-                          aria-describedby="v-tooltip-22"
+                          aria-describedby="v-tooltip-23"
                           aria-hidden="true"
                           class="mdi-github mdi v-icon notranslate v-theme--light v-icon--size-default"
                           targetref="[object Object]"
@@ -715,19 +733,12 @@ exports[`Individual Matches snapshot 1`] = `
                           <div
                             class="v-col uuid d-flex align-center"
                           >
-                            
-                            
                             <span
-                              aria-describedby="v-tooltip-23"
-                              class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center mr-6"
+                              class="v-chip v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center pr-2"
                               draggable="false"
-                              tabindex="0"
-                              targetref="[object Object]"
                             >
                               
-                              <span
-                                class="v-chip__overlay"
-                              />
+                              <!---->
                               <span
                                 class="v-chip__underlay"
                               />
@@ -740,24 +751,49 @@ exports[`Individual Matches snapshot 1`] = `
                               >
                                 
                                 <span
-                                  class="clip"
+                                  class="clip mr-1"
                                 >
                                   4c8620c3d43e2873dd9d9a8748e0afadeef9d53a
                                 </span>
-                                <i
-                                  aria-hidden="true"
-                                  class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
-                                />
+                                <!--v-if-->
+                                
+                                
+                                <button
+                                  aria-describedby="v-tooltip-25"
+                                  class="v-btn v-btn--icon v-theme--light v-btn--density-comfortable v-btn--size-small v-btn--variant-text"
+                                  targetref="[object Object]"
+                                  type="button"
+                                >
+                                  
+                                  <span
+                                    class="v-btn__overlay"
+                                  />
+                                  <span
+                                    class="v-btn__underlay"
+                                  />
+                                  
+                                  <!---->
+                                  <span
+                                    class="v-btn__content"
+                                    data-no-activator=""
+                                  >
+                                    <i
+                                      aria-hidden="true"
+                                      class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-default"
+                                    />
+                                  </span>
+                                  <!---->
+                                  <!---->
+                                </button>
+                                
+                                <!--teleport start-->
+                                <!--teleport end-->
+                                
                                 
                               </div>
                               <!---->
                               <!---->
                             </span>
-                            
-                            <!--teleport start-->
-                            <!--teleport end-->
-                            
-                            <!--v-if-->
                           </div>
                           <div
                             class="v-col-md-2 v-col ma-2"
@@ -808,7 +844,7 @@ exports[`Individual Matches snapshot 1`] = `
                         
                         
                         <button
-                          aria-describedby="v-tooltip-25"
+                          aria-describedby="v-tooltip-27"
                           class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
                           targetref="[object Object]"
                           type="button"
@@ -893,19 +929,12 @@ exports[`Individual Matches snapshot 1`] = `
                           <div
                             class="v-col uuid d-flex align-center"
                           >
-                            
-                            
                             <span
-                              aria-describedby="v-tooltip-30"
-                              class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center mr-6"
+                              class="v-chip v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center pr-2"
                               draggable="false"
-                              tabindex="0"
-                              targetref="[object Object]"
                             >
                               
-                              <span
-                                class="v-chip__overlay"
-                              />
+                              <!---->
                               <span
                                 class="v-chip__underlay"
                               />
@@ -918,24 +947,49 @@ exports[`Individual Matches snapshot 1`] = `
                               >
                                 
                                 <span
-                                  class="clip"
+                                  class="clip mr-1"
                                 >
                                   9a6e9ca58185a7f5579bca8ab434cb58cfc79f15
                                 </span>
-                                <i
-                                  aria-hidden="true"
-                                  class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
-                                />
+                                <!--v-if-->
+                                
+                                
+                                <button
+                                  aria-describedby="v-tooltip-33"
+                                  class="v-btn v-btn--icon v-theme--light v-btn--density-comfortable v-btn--size-small v-btn--variant-text"
+                                  targetref="[object Object]"
+                                  type="button"
+                                >
+                                  
+                                  <span
+                                    class="v-btn__overlay"
+                                  />
+                                  <span
+                                    class="v-btn__underlay"
+                                  />
+                                  
+                                  <!---->
+                                  <span
+                                    class="v-btn__content"
+                                    data-no-activator=""
+                                  >
+                                    <i
+                                      aria-hidden="true"
+                                      class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-default"
+                                    />
+                                  </span>
+                                  <!---->
+                                  <!---->
+                                </button>
+                                
+                                <!--teleport start-->
+                                <!--teleport end-->
+                                
                                 
                               </div>
                               <!---->
                               <!---->
                             </span>
-                            
-                            <!--teleport start-->
-                            <!--teleport end-->
-                            
-                            <!--v-if-->
                           </div>
                           <div
                             class="v-col-md-2 v-col ma-2"
@@ -982,7 +1036,7 @@ exports[`Individual Matches snapshot 1`] = `
                         
                         
                         <button
-                          aria-describedby="v-tooltip-32"
+                          aria-describedby="v-tooltip-35"
                           class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
                           targetref="[object Object]"
                           type="button"
@@ -1067,19 +1121,12 @@ exports[`Individual Matches snapshot 1`] = `
                           <div
                             class="v-col uuid d-flex align-center"
                           >
-                            
-                            
                             <span
-                              aria-describedby="v-tooltip-37"
-                              class="v-chip v-chip--link v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center mr-6"
+                              class="v-chip v-theme--light v-chip--density-default v-chip--size-default v-chip--variant-outlined text-center pr-2"
                               draggable="false"
-                              tabindex="0"
-                              targetref="[object Object]"
                             >
                               
-                              <span
-                                class="v-chip__overlay"
-                              />
+                              <!---->
                               <span
                                 class="v-chip__underlay"
                               />
@@ -1092,24 +1139,49 @@ exports[`Individual Matches snapshot 1`] = `
                               >
                                 
                                 <span
-                                  class="clip"
+                                  class="clip mr-1"
                                 >
                                   5579bca8ab4349a6e9ca58185a7fcb58cfc79f15
                                 </span>
-                                <i
-                                  aria-hidden="true"
-                                  class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
-                                />
+                                <!--v-if-->
+                                
+                                
+                                <button
+                                  aria-describedby="v-tooltip-41"
+                                  class="v-btn v-btn--icon v-theme--light v-btn--density-comfortable v-btn--size-small v-btn--variant-text"
+                                  targetref="[object Object]"
+                                  type="button"
+                                >
+                                  
+                                  <span
+                                    class="v-btn__overlay"
+                                  />
+                                  <span
+                                    class="v-btn__underlay"
+                                  />
+                                  
+                                  <!---->
+                                  <span
+                                    class="v-btn__content"
+                                    data-no-activator=""
+                                  >
+                                    <i
+                                      aria-hidden="true"
+                                      class="mdi-content-copy mdi v-icon notranslate v-theme--light v-icon--size-default"
+                                    />
+                                  </span>
+                                  <!---->
+                                  <!---->
+                                </button>
+                                
+                                <!--teleport start-->
+                                <!--teleport end-->
+                                
                                 
                               </div>
                               <!---->
                               <!---->
                             </span>
-                            
-                            <!--teleport start-->
-                            <!--teleport end-->
-                            
-                            <!--v-if-->
                           </div>
                           <div
                             class="v-col-md-2 v-col ma-2"
@@ -1158,7 +1230,7 @@ exports[`Individual Matches snapshot 1`] = `
                         
                         
                         <button
-                          aria-describedby="v-tooltip-39"
+                          aria-describedby="v-tooltip-43"
                           class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
                           targetref="[object Object]"
                           type="button"
