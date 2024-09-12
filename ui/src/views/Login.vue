@@ -66,7 +66,7 @@ export default {
         };
         const response = await this.login(authDetails);
         if (response) {
-          this.$router.push("/");
+          this.$router.push(this.$route.query.redirect || "/");
           this.$logger.info(`Log in user ${this.username}`);
         }
       } catch (error) {

@@ -41,6 +41,23 @@ describe("Login", () => {
     cy.location("pathname").should("equal", "/login");
     cy.contains("Invalid credentials").should("be.visible");
   });
+
+  it("Redirects to the original URL after login", () => {
+    const path = "/settings/general";
+
+    cy.visit(path);
+    cy.location("pathname").should("equal", "/login");
+
+    cy.get("[id=username]").type(Cypress.env("USERNAME"));
+    cy.get("[id=password]").type(Cypress.env("PASSWORD"));
+    cy.contains("button", "Log in").click();
+    cy.wait("@auth")
+      .its("response.body.user")
+      .should("equal", Cypress.env("USERNAME"));
+
+    // Redirects to the original path
+    cy.location("pathname").should("equal", path);
+  });
 });
 
 describe("Authenticated operations", () => {
