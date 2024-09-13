@@ -77,6 +77,9 @@ router.beforeEach((to, from, next) => {
     if (!isAuthenticated) {
       next({
         path: "/login",
+        query: {
+          redirect: to.fullPath,
+        },
       });
     } else {
       next();
