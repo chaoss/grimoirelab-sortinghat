@@ -26,6 +26,8 @@ import pandas
 import numpy
 
 from collections import defaultdict
+
+from django.conf import settings
 from django.forms.models import model_to_dict
 
 from ..db import (find_individual_by_uuid)
@@ -38,8 +40,6 @@ logger = logging.getLogger(__name__)
 
 EMAIL_ADDRESS_REGEX = r"^(?P<email>[^\s@]+@[^\s@.]+\.[^\s@]+)$"
 NAME_REGEX = r"^\w+\s\w+"
-
-MATCH_USERNAME_SOURCES = ['github', 'gitlab', 'slack']
 
 
 def recommend_matches(source_uuids, target_uuids,
@@ -199,7 +199,7 @@ def _find_matches(set_x, set_y, criteria, exclude, verbose, strict, match_source
         if match_source and c == 'username':
             cols += ['source']
             cdf = df[cols]
-            cdf = cdf[cdf['source'].isin(MATCH_USERNAME_SOURCES)]
+            cdf = cdf[cdf['source'].isin(settings.MATCH_TRUSTED_SOURCES)]
         else:
             cdf = df[cols]
         cdf = cdf.dropna(subset=[c])

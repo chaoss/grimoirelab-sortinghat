@@ -379,3 +379,10 @@ SORTINGHAT_GENDERIZE_API_KEY = os.environ.get('SORTINGHAT_GENDERIZE_API_KEY', No
 
 PERMISSION_GROUPS_LIST_PATH = os.environ.get('SORTINGHAT_PERMISSION_GROUPS_LIST_PATH',
                                             os.path.join(BASE_DIR, 'config', 'permission_groups.json'))
+
+#
+# Trusted data sources for matching by username
+#
+
+MATCH_TRUSTED_SOURCES = os.environ.get('SORTINGHAT_MATCH_TRUSTED_SOURCES',
+                                       'github,gitlab,slack').split(',')
