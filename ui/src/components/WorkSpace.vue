@@ -62,11 +62,7 @@
         />
       </li>
     </ul>
-    <v-row
-      v-else
-      dense
-      class="align-center justify-center drag-zone"
-    >
+    <v-row v-else dense class="align-center justify-center drag-zone">
       <v-icon color="rgba(0,0,0,0.38)" left> mdi-lightbulb-on-outline </v-icon>
       <p class="mb-0 ml-2 text-medium-emphasis">
         <span>

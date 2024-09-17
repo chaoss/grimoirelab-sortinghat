@@ -33,7 +33,7 @@ export const Default = () => ({
     action: null,
     actionButtonLabel: null,
     actionButtonColor: null,
-    dismissButtonLabel: "Close"
+    dismissButtonLabel: "Close",
   }),
 });
 
@@ -47,7 +47,6 @@ export const DestructiveAction = () => ({
     action: () => {},
     actionButtonLabel: "Delete",
     actionButtonColor: "error",
-    dismissButtonLabel: "Cancel"
+    dismissButtonLabel: "Cancel",
   }),
 });
-

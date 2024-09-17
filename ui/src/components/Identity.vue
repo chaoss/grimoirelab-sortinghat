@@ -7,9 +7,7 @@
         :variant="isMain ? 'tonal' : 'outlined'"
       >
         <span class="clip mr-1">{{ uuid }}</span>
-        <span v-if="isMain" class="d-sr-only">
-          Main identity
-        </span>
+        <span v-if="isMain" class="d-sr-only"> Main identity </span>
         <v-tooltip open-delay="100" location="bottom">
           <template v-slot:activator="{ props }">
             <v-btn

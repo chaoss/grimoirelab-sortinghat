@@ -48,7 +48,7 @@ export const Default = () => ({
       const results = JSON.parse(JSON.stringify(this.organizations));
       if (filters.term) {
         results.entities = results.entities.filter((organization) =>
-          organization.name.toUpperCase().includes(filters.term.toUpperCase()),
+          organization.name.toUpperCase().includes(filters.term.toUpperCase())
         );
       }
       return results;
@@ -79,7 +79,7 @@ export const SelectedOrganization = () => ({
       const results = JSON.parse(JSON.stringify(this.organizations));
       if (filters.term) {
         results.entities = results.entities.filter((organization) =>
-          organization.name.toUpperCase().includes(filters.term.toUpperCase()),
+          organization.name.toUpperCase().includes(filters.term.toUpperCase())
         );
       }
       return results;

@@ -123,7 +123,7 @@ export const OnError = () => ({
   template: JobsTableTemplate,
   methods: {
     getJobs() {
-      throw new Error("Test error message")
+      throw new Error("Test error message");
     },
   },
   data: () => ({
