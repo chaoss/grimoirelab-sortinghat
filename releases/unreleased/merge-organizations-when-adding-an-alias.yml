@@ -1,0 +1,10 @@
+---
+title: Merge organizations when adding an alias
+category: added
+author: Eva Millán <evamillan@bitergia.com>
+issue: null
+notes: >
+  Users now have the option to merge the organizations
+  when adding an alias that already exists on the
+  "Edit organization" dialog. That option was only
+  previously available at the organization's detail page.
