@@ -14,7 +14,7 @@ describe("Individual", () => {
         email: "johndoe@example.com",
         isBot: false,
         gender: null,
-        country: null
+        country: null,
       },
       identities: [
         {
@@ -22,44 +22,45 @@ describe("Individual", () => {
           source: "github",
           uuid: "4c8620c3d43e2873dd9d9a8748e0afadeef9d53a",
           username: "johndoe",
-          email: "johndoe@example.com"
+          email: "johndoe@example.com",
         },
         {
           source: "github",
           uuid: "9a6e9ca58185a7f5579bca8ab434cb58cfc79f15",
-          username: "johndoe"
+          username: "johndoe",
         },
         {
           source: "github",
           uuid: "5579bca8ab4349a6e9ca58185a7fcb58cfc79f15",
           username: "johndoe",
-          email: "johndoe@example.com"
+          email: "johndoe@example.com",
         },
         {
           source: "git",
-          email: "johndoe@example.com", 
-          uuid: "f0422fed699c5a1096808272ae51c69f37f7dd29"
+          email: "johndoe@example.com",
+          uuid: "f0422fed699c5a1096808272ae51c69f37f7dd29",
         },
       ],
       enrollments: [],
-      matchRecommendationSet: []
-    }
+      matchRecommendationSet: [],
+    },
   ];
 
-  const mountFunction = () => mount(VApp, {
-    slots: {
-      default: h(Individual),
-    },
-    global: {
-      mocks: {
-        $apollo: () => {},
-        $store: { getters: { workspace: [] }},
-        $route: { params: "bcde123456"}
+  const mountFunction = () =>
+    mount(VApp, {
+      slots: {
+        default: h(Individual),
       },
-      plugins: [vuetify],
-      stubs: ["routerLink"],
-    },
-  });
+      global: {
+        mocks: {
+          $apollo: () => {},
+          $store: { getters: { workspace: [] } },
+          $route: { params: "bcde123456" },
+        },
+        plugins: [vuetify],
+        stubs: ["routerLink"],
+      },
+    });
 
   test("Renders link to GitHub profile", async () => {
     const wrapper = mountFunction();
