@@ -866,7 +866,7 @@ def create_scheduled_task(ctx, job, interval, params):
         schedule_task(ctx, job_fn, task, **params)
     except redis.exceptions.ConnectionError as e:
         delete_scheduled_task(ctx, task.id)
-        raise(e)
+        raise e
 
     return task
 

@@ -1,4 +1,4 @@
-FROM python:3.8-slim-bullseye
+FROM python:3.9-slim-bullseye
 
 LABEL maintainer="Santiago Dueñas <sduenas@bitergia.com>"
 LABEL org.opencontainers.image.title="SortingHat"
