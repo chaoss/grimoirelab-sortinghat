@@ -18,6 +18,8 @@ SECRET_KEY = 'fake-key'
 
 SORTINGHAT_GENDERIZE_API_KEY = 'fake-key'
 
+MATCH_TRUSTED_SOURCES = ['github', 'gitlab', 'slack']
+
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 INSTALLED_APPS = [

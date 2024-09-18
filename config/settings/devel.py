@@ -181,3 +181,6 @@ RQ_QUEUES = {
 }
 
 MULTI_TENANT = os.environ.get('SORTINGHAT_MULTI_TENANT', 'False').lower() in ('true', '1')
+
+MATCH_TRUSTED_SOURCES = os.environ.get('SORTINGHAT_MATCH_TRUSTED_SOURCES',
+                                       'github,gitlab,slack').split(',')
