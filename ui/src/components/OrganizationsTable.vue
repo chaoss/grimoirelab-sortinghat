@@ -120,6 +120,7 @@
       :aliases="modal.aliases"
       :add-alias="addAlias"
       :delete-alias="deleteAlias"
+      :merge="mergeItems"
       @updateOrganizations="getTableItems(page)"
     />
 

@@ -87,16 +87,30 @@
               </v-btn>
             </v-col>
           </v-row>
-          <v-row class="pl-3 mt-2">
+          <v-row class="pl-3 my-2">
             <v-btn size="small" color="primary" @click="form.aliases.push('')">
-              <v-icon size="small" color="primary" start
-                >> mdi-plus-circle-outline
+              <v-icon size="small" color="primary" start>
+                mdi-plus-circle-outline
               </v-icon>
               Add alias
             </v-btn>
           </v-row>
-          <v-alert v-if="errorMessage" text type="error" class="mt-3">
-            {{ errorMessage }}
+          <v-alert
+            v-if="errorMessage"
+            :type="mergeAlias ? 'warning' : 'error'"
+            class="mt-4"
+          >
+            <p>{{ errorMessage }}</p>
+
+            <v-btn
+              v-if="mergeAlias"
+              class="mt-2 bg-surface-secondary"
+              variant="outlined"
+              size="small"
+              @click="mergeOrgs(mergeAlias, organization)"
+            >
+              Merge
+            </v-btn>
           </v-alert>
         </v-card-text>
         <v-card-actions>
@@ -170,6 +184,10 @@ export default {
       type: Function,
       required: true,
     },
+    merge: {
+      type: Function,
+      required: true,
+    },
   },
   data() {
     return {
@@ -183,6 +201,7 @@ export default {
         name: undefined,
         domains: [],
       },
+      mergeAlias: null,
     };
   },
   methods: {
@@ -191,6 +210,7 @@ export default {
     },
     async onSave() {
       this.errorMessage = "";
+      this.mergeAlias = null;
       if (!this.savedData.name) {
         try {
           const response = await this.addOrganization(this.form.name);
@@ -326,17 +346,26 @@ export default {
     },
     async addOrganizationAlias(alias, organization) {
       const response = await this.addAlias(alias, organization);
-      if (response && !response.error) {
+      if (response && !response.errors) {
         this.savedData.aliases.push(alias);
         this.$logger.debug(
           `Added alias ${alias} to organization ${organization}`
         );
         return response;
       } else if (response.errors) {
-        this.$logger.error(
-          `Error adding alias: ${response.errors[0].message}`,
-          { alias, organization }
-        );
+        let error = response.errors[0].message;
+        const orgAlreadyExists = response.errors.find((error) => {
+          return (
+            error.extensions.code === 2 &&
+            error.message.includes("Organization")
+          );
+        });
+        if (orgAlreadyExists) {
+          this.mergeAlias = alias;
+          error += `. Click 'merge' to turn it into an alias of '${this.organization}'.`;
+        }
+
+        throw new Error(error);
       }
     },
     async deleteOrganizationAlias(alias) {
@@ -344,6 +373,19 @@ export default {
       if (response) {
         this.$logger.debug(`Deleted alias ${alias}`);
         return response;
+      }
+    },
+    async mergeOrgs(fromOrg, toOrg) {
+      try {
+        const response = await this.merge(fromOrg, toOrg);
+        if (response && !response.errors) {
+          this.$logger.debug(`Merged ${fromOrg} into organization ${toOrg}`);
+          this.$emit("updateOrganizations");
+          this.closeModal();
+        }
+      } catch (error) {
+        this.errorMessage = this.$getErrorMessage(error);
+        this.$logger.error(`Error merging organizations: ${error}`);
       }
     },
   },
@@ -376,3 +418,12 @@ export default {
   },
 };
 </script>
+<style lang="scss" scoped>
+.text-warning {
+  border: thin solid;
+
+  :deep(.v-alert__content) {
+    color: rgb(var(--v-theme-on-surface));
+  }
+}
+</style>
