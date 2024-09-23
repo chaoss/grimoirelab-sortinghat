@@ -1,8 +1,0 @@
----
-title: Redirect to the original URL after log in
-category: added
-author: Eva Millán <evamillan@bitergia.com>
-issue: 925
-notes: >
-  Users are now redirected to the page they originally
-  requested after they log in.
