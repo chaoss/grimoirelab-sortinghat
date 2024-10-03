@@ -1,0 +1,11 @@
+---
+title: Wrong arrong direction when merging recommendations
+category: fixed
+author: Andre Klapper
+issue: 934
+notes: >
+  When recommendations were merged, the arrow showing the
+  direction of the merge was wrong. It showed `foo → bar`
+  but the resulting identity will be named `foo` instead
+  of `bar`. The arrow now points in the other direction
+  showing that `bar` will be merged on `foo`.
