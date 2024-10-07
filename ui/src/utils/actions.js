@@ -101,6 +101,8 @@ const formatIndividual = (individual) => {
     country: individual.profile.country,
     isLocked: individual.isLocked,
     isBot: individual.profile.isBot,
+    lastReviewed: individual.lastReviewed,
+    lastModified: individual.lastModified,
   };
 
   if (individual.enrollments && individual.enrollments.length > 0) {

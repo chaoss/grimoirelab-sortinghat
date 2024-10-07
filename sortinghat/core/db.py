@@ -1352,3 +1352,35 @@ def delete_merge_recommendations(trxl, recommendations):
     trxl.log_operation(op_type=Operation.OpType.DELETE, entity_type='merge_recommendation',
                        timestamp=datetime_utcnow(), args=op_args,
                        target='merge_recommendations')
+
+
+def review(trxl, individual, review_date):
+    """Mark a given individual as reviewed.
+
+    Sets the given `review_date` as the given `individual` last reviewed
+    date.
+
+    :param trxl: TransactionsLog object from the method calling this one
+    :param individual: individual to review
+    :param review_date: date of the last review
+
+    :returns: the individual with last_reviewed parameter updated
+    """
+    if individual.is_locked:
+        raise LockedIdentityError(uuid=individual.mk)
+
+    op_args = {
+        'mk': individual.mk,
+        'last_reviewed': copy.deepcopy(str(review_date))
+    }
+    try:
+        individual.last_reviewed = review_date
+        individual.save()
+    except django.db.utils.IntegrityError as exc:
+        _handle_integrity_error(Individual, exc)
+
+    trxl.log_operation(op_type=Operation.OpType.UPDATE, entity_type='individual',
+                       timestamp=datetime_utcnow(), args=op_args,
+                       target=op_args['mk'])
+
+    return individual

@@ -496,6 +496,13 @@ class TestIndividual(TransactionTestCase):
 
         self.assertEqual(indv.is_locked, False)
 
+    def test_last_reviewed_default(self):
+        """Check if `last_reviewed` field is set to None by default"""
+
+        indv = Individual.objects.create(mk='AAAA')
+
+        self.assertEqual(indv.last_reviewed, None)
+
 
 class TestIdentity(TransactionTestCase):
     """Unit tests for Identity class"""

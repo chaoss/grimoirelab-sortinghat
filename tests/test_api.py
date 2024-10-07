@@ -6796,3 +6796,94 @@ class TestDeleteMergeRecommendations(TestCase):
         op1_args = json.loads(op1.args)
         self.assertEqual(len(op1_args), 1)
         self.assertEqual(op1_args['merge_recommendations'], [self.rec1.id, self.rec2.id])
+
+
+class TestReview(TestCase):
+    """Unit tests for review"""
+
+    def setUp(self):
+        """Load initial dataset"""
+
+        self.user = get_user_model().objects.create(username='test')
+        self.ctx = SortingHatContext(self.user)
+        self.jsmith = api.add_identity(self.ctx, 'scm', email='jsmith@example.com')
+
+    def test_review(self):
+        """Test whether an individual's last review date is saved"""
+
+        before_dt = datetime_utcnow()
+
+        jsmith = api.review(self.ctx, self.jsmith.individual)
+
+        after_dt = datetime_utcnow()
+
+        self.assertLess(before_dt, jsmith.last_reviewed)
+        self.assertGreater(after_dt, jsmith.last_reviewed)
+
+    def test_review_using_any_identity_uuid(self):
+        """Check if it reviews an individual using any of its identities uuids"""
+
+        new_id = api.add_identity(self.ctx, 'mls', email='jsmith@example.com',
+                                  uuid=self.jsmith.uuid)
+
+        jsmith = api.review(self.ctx, new_id.uuid)
+
+        self.assertIsNotNone(jsmith.last_reviewed)
+        self.assertEqual(jsmith.mk, self.jsmith.individual.mk)
+
+    def test_review_uuid_none_or_empty(self):
+        """Check if it fails when the uuid is None or an empty string"""
+
+        with self.assertRaisesRegex(InvalidValueError, UUID_NONE_OR_EMPTY_ERROR):
+            api.review(self.ctx, None)
+
+    def test_review_uuid_not_exists(self):
+        """Check if it fails when the uuid does not exists"""
+
+        msg = NOT_FOUND_ERROR.format(entity='AAAA')
+        with self.assertRaisesRegex(NotFoundError, msg):
+            api.review(self.ctx, 'AAAA')
+
+    def test_transaction(self):
+        """Check if a transaction is created when reviewing an individual"""
+
+        timestamp = datetime_utcnow()
+        uuid = self.jsmith.individual.mk
+
+        api.review(self.ctx, uuid)
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        self.assertEqual(len(transactions), 1)
+
+        trx = transactions[0]
+        self.assertIsInstance(trx, Transaction)
+        self.assertEqual(trx.name, 'review')
+        self.assertGreater(trx.created_at, timestamp)
+        self.assertEqual(trx.authored_by, self.ctx.user.username)
+
+    def test_operations(self):
+        """Check if the right operations are created when reviewing an individual"""
+
+        timestamp = datetime_utcnow()
+        uuid = self.jsmith.individual.mk
+
+        api.review(self.ctx, uuid)
+
+        transactions = Transaction.objects.filter(created_at__gte=timestamp)
+        trx = transactions[0]
+
+        operations = Operation.objects.filter(trx=trx)
+        self.assertEqual(len(operations), 1)
+
+        op1 = operations[0]
+        self.assertIsInstance(op1, Operation)
+        self.assertEqual(op1.op_type, Operation.OpType.UPDATE.value)
+        self.assertEqual(op1.entity_type, 'individual')
+        self.assertEqual(op1.target, uuid)
+        self.assertEqual(op1.trx, trx)
+        self.assertGreater(op1.timestamp, timestamp)
+
+        op1_args = json.loads(op1.args)
+        self.assertEqual(len(op1_args), 2)
+        self.assertEqual(op1_args['mk'], uuid)
+        self.assertIsNotNone(op1_args['last_reviewed'])

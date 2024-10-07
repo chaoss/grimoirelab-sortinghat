@@ -153,6 +153,14 @@ export default {
           filter: "isEnrolled",
           type: "boolean",
         },
+        {
+          filter: "isReviewed",
+          type: "boolean",
+        },
+        {
+          filter: "lastReviewed",
+          type: "date",
+        },
       ],
     },
     orderOptions: {

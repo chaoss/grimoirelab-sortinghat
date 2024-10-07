@@ -447,6 +447,7 @@ SH_INDIVIDUALS_QUERY = """{
     entities {
       mk
       isLocked
+      lastReviewed
       profile {
         name
         email
@@ -719,6 +720,32 @@ SH_INDIVIDUALS_LAST_UPDATED_FILTER = """{
       }
     }
   }
+}"""
+SH_INDIVIDUALS_IS_REVIEWED_FILTER = """{
+    individuals(filters: {isReviewed: %s}) {
+      entities {
+        mk
+        lastReviewed
+      }
+    }
+}"""
+SH_INDIVIDUALS_LAST_REVIEWED_FILTER = """{
+    individuals(filters: {lastReviewed: "%s"}) {
+      entities {
+        mk
+        lastReviewed
+        profile {
+        name
+        email
+        gender
+        isBot
+        country {
+          code
+          name
+        }
+      }
+      }
+    }
 }"""
 SH_INDIVIDUALS_UUID_PAGINATION = """{
   individuals(
@@ -2418,6 +2445,7 @@ class TestQueryIndividuals(django.test.TestCase):
         indv = individuals[0]
         self.assertEqual(indv['mk'], 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
         self.assertEqual(indv['isLocked'], False)
+        self.assertEqual(indv['lastReviewed'], None)
 
         self.assertEqual(indv['profile']['name'], None)
         self.assertEqual(indv['profile']['email'], 'jsmith@example.com')
@@ -2458,6 +2486,7 @@ class TestQueryIndividuals(django.test.TestCase):
         indv = individuals[1]
         self.assertEqual(indv['mk'], 'c6d2504fde0e34b78a185c4b709e5442d045451c')
         self.assertEqual(indv['isLocked'], False)
+        self.assertEqual(indv['lastReviewed'], None)
 
         self.assertEqual(indv['profile']['name'], None)
         self.assertEqual(indv['profile']['email'], None)
@@ -3784,6 +3813,107 @@ class TestQueryIndividuals(django.test.TestCase):
         individuals = executed['data']['individuals']['entities']
         self.assertEqual(len(individuals), 0)
 
+    def test_filter_is_reviewed(self):
+        """Check whether it returns the uuids searched when using isReviewed filter"""
+
+        Individual.objects.create(mk='17ab00ed3825ec2f50483e33c88df223264182ba')
+        Individual.objects.create(mk='c6d2504fde0e34b78a185c4b709e5442d045451c',
+                                  last_reviewed=datetime.datetime(2024, 1, 1, 0, 0, 0, tzinfo=dateutil.tz.tzutc()))
+
+        client = graphene.test.Client(schema)
+
+        executed = client.execute(SH_INDIVIDUALS_IS_REVIEWED_FILTER % 'true',
+                                  context_value=self.context_value)
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 1)
+        indv = individuals[0]
+        self.assertEqual(indv['mk'], 'c6d2504fde0e34b78a185c4b709e5442d045451c')
+
+    def test_filter_last_reviewed(self):
+        """Check whether it returns the uuids searched when using a date filter"""
+
+        timestamp_1 = datetime_utcnow()
+        Individual.objects.create(mk='a9b403e150dd4af8953a52a4bb841051e4b705d9', last_reviewed=timestamp_1)
+        Individual.objects.create(mk='c6d2504fde0e34b78a185c4b709e5442d045451c')
+
+        timestamp_2 = datetime_utcnow()
+        Individual.objects.create(mk='e0e34b7c6d2504fd8a1842d045451c5c4b709e54', last_reviewed=timestamp_2)
+
+        timestamp_3 = datetime_utcnow()
+
+        # Tests
+
+        ts_1 = timestamp_1.strftime("%Y-%m-%dT%H:%M:%S.%f")
+        ts_2 = timestamp_2.strftime("%Y-%m-%dT%H:%M:%S.%f")
+        ts_3 = timestamp_3.strftime("%Y-%m-%dT%H:%M:%S.%f")
+
+        # Test individuals last_reviewed before first timestamp, it should return none
+        filter_no_indvs = '<{}'.format(ts_1)
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_INDIVIDUALS_LAST_REVIEWED_FILTER % filter_no_indvs,
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 0)
+
+        # Test individuals last_reviewed between first and second timestamp, it should return two
+        filter_date = "{}..{}".format(ts_1, ts_2)
+
+        executed = client.execute(SH_INDIVIDUALS_LAST_REVIEWED_FILTER % filter_date,
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 2)
+
+        indv = individuals[0]
+        self.assertEqual(indv['mk'], 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        indv = individuals[1]
+        self.assertEqual(indv['mk'], 'e0e34b7c6d2504fd8a1842d045451c5c4b709e54')
+
+        # Test individuals last_reviewed after the first timestamp, it should return one
+        filter_date = ">{}".format(ts_1)
+
+        executed = client.execute(SH_INDIVIDUALS_LAST_REVIEWED_FILTER % filter_date,
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 1)
+
+        indv = individuals[0]
+        self.assertEqual(indv['mk'], 'e0e34b7c6d2504fd8a1842d045451c5c4b709e54')
+
+        # Test individuals last_reviewed after last timestamp, it should return none
+        filter_last_ts = '>{}'.format(ts_3)
+
+        executed = client.execute(SH_INDIVIDUALS_LAST_REVIEWED_FILTER % filter_last_ts,
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 0)
+
+        # Test individuals last_reviewed before and equal to third timestamp, it
+        # should return one.
+        filter_date = '<={}'.format(ts_1)
+
+        executed = client.execute(SH_INDIVIDUALS_LAST_REVIEWED_FILTER % filter_date,
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 1)
+
+        indv = individuals[0]
+        self.assertEqual(indv['mk'], 'a9b403e150dd4af8953a52a4bb841051e4b705d9')
+
+        # Test individuals last_reviewedd after and equal to first timestamp. it should
+        # return two.
+        filter_date = '>={}'.format(ts_1)
+
+        executed = client.execute(SH_INDIVIDUALS_LAST_REVIEWED_FILTER % filter_date,
+                                  context_value=self.context_value)
+        individuals = executed['data']['individuals']['entities']
+        self.assertEqual(len(individuals), 2)
+
     def test_order_by_last_modified(self):
         """Check whether it returns the individuals ordered by last modified date"""
 
@@ -3830,6 +3960,56 @@ class TestQueryIndividuals(django.test.TestCase):
         self.assertEqual(indv['mk'], indv2.mk)
         indv = individuals[2]
         self.assertEqual(indv['mk'], indv1.mk)
+
+    def test_order_by_last_reviewed(self):
+        """Check whether it returns the individuals ordered by last reviewed date"""
+
+        indv1 = Individual.objects.create(mk='a9b403e150dd4af8953a52a4bb841051e4b705d9',
+                                          last_reviewed=datetime.datetime(2024, 1, 1, 0, 0, 0, tzinfo=dateutil.tz.tzutc()))
+        indv2 = Individual.objects.create(mk='185c4b709e5446d250b4fde0e34b78a2b4fde0e3',
+                                          last_reviewed=datetime.datetime(2023, 1, 1, 0, 0, 0, tzinfo=dateutil.tz.tzutc()))
+        indv3 = Individual.objects.create(mk='c6d2504fde0e34b78a185c4b709e5442d045451c',
+                                          last_reviewed=datetime.datetime(2022, 1, 1, 0, 0, 0, tzinfo=dateutil.tz.tzutc()))
+
+        # Test default order by mk
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_INDIVIDUALS_ORDER_BY % 'mk',
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+
+        indv = individuals[0]
+        self.assertEqual(indv['mk'], indv2.mk)
+        indv = individuals[1]
+        self.assertEqual(indv['mk'], indv1.mk)
+        indv = individuals[2]
+        self.assertEqual(indv['mk'], indv3.mk)
+
+        # Test ascending order
+        executed = client.execute(SH_INDIVIDUALS_ORDER_BY % 'lastReviewed',
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+
+        indv = individuals[0]
+        self.assertEqual(indv['mk'], indv3.mk)
+        indv = individuals[1]
+        self.assertEqual(indv['mk'], indv2.mk)
+        indv = individuals[2]
+        self.assertEqual(indv['mk'], indv1.mk)
+
+        # Test descending order
+        executed = client.execute(SH_INDIVIDUALS_ORDER_BY % '-lastReviewed',
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+
+        indv = individuals[0]
+        self.assertEqual(indv['mk'], indv1.mk)
+        indv = individuals[1]
+        self.assertEqual(indv['mk'], indv2.mk)
+        indv = individuals[2]
+        self.assertEqual(indv['mk'], indv3.mk)
 
     def test_order_by_created_at(self):
         """Check whether it returns the individuals ordered by their creation date"""
@@ -11739,6 +11919,110 @@ class TestDeleteMergeRecommendationsMutation(django.test.TestCase):
 
         executed = client.execute(self.SH_DELETE_MERGE_RECS,
                                   context_value=context_value)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, AUTHENTICATION_ERROR)
+
+
+class TestReviewMutation(django.test.TestCase):
+    """Unit tests for mutation to review individuals"""
+
+    SH_REVIEW_INDIVIDUAL = """
+          mutation reviewIndv($uuid: String) {
+            review(uuid: $uuid) {
+              uuid
+              individual {
+                mk
+                lastReviewed
+              }
+            }
+          }
+    """
+
+    def setUp(self):
+        """Load initial dataset and set queries context"""
+
+        self.user = get_user_model().objects.create(username='test', is_superuser=True)
+        self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        self.context_value.user = self.user
+
+        self.ctx = SortingHatContext(self.user)
+
+        # Transaction
+        self.trxl = TransactionsLog.open('lock', self.ctx)
+
+    def test_lock(self):
+        """Check if everything goes OK when reviewing an individual"""
+
+        api.add_identity(self.ctx, 'scm', email='jsmith@example')
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuid': 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3',
+        }
+        executed = client.execute(self.SH_REVIEW_INDIVIDUAL,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        # Check results
+        uuid = executed['data']['review']['uuid']
+        self.assertEqual(uuid, 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+
+        individual = executed['data']['review']['individual']
+        self.assertEqual(individual['mk'], 'e8284285566fdc1f41c8a22bb84a295fc3c4cbb3')
+        self.assertIsNotNone(individual['lastReviewed'])
+
+    def test_non_existing_uuid(self):
+        """Check if it fails when the uuid does not exists"""
+
+        api.add_identity(self.ctx, 'scm', email='jsmith@example')
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuid': 'FFFFFFFFFFFFFFF',
+        }
+        executed = client.execute(self.SH_REVIEW_INDIVIDUAL,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, INDIVIDUAL_DOES_NOT_EXIST_ERROR)
+
+    def test_empty_uuid(self):
+        """Check if it fails when the uuid is an empty string"""
+
+        api.add_identity(self.ctx, 'scm', email='jsmith@example')
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuid': '',
+        }
+        executed = client.execute(self.SH_REVIEW_INDIVIDUAL,
+                                  context_value=self.context_value,
+                                  variables=params)
+
+        msg = executed['errors'][0]['message']
+        self.assertEqual(msg, UUID_EMPTY_ERROR)
+
+    def test_authentication(self):
+        """Check if it fails when a non-authenticated user executes the query"""
+
+        api.add_identity(self.ctx, 'scm', email='jsmith@example')
+
+        context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
+        context_value.user = AnonymousUser()
+
+        client = graphene.test.Client(schema)
+
+        params = {
+            'uuid': '1387b129ab751a3657312c09759caa41dfd8d07d',
+        }
+        executed = client.execute(self.SH_REVIEW_INDIVIDUAL,
+                                  context_value=context_value,
+                                  variables=params)
 
         msg = executed['errors'][0]['message']
         self.assertEqual(msg, AUTHENTICATION_ERROR)

@@ -2,6 +2,7 @@ import { h, nextTick } from "vue";
 import { mount } from "@vue/test-utils";
 import { VApp } from "vuetify/components";
 import vuetify from "@/plugins/vuetify";
+import dateFormatter from "@/plugins/dateFormatter";
 import Individual from "@/views/Individual";
 
 describe("Individual", () => {
@@ -57,7 +58,7 @@ describe("Individual", () => {
           $store: { getters: { workspace: [] } },
           $route: { params: "bcde123456" },
         },
-        plugins: [vuetify],
+        plugins: [vuetify, dateFormatter],
         stubs: ["routerLink"],
       },
     });
@@ -94,5 +95,54 @@ describe("Individual", () => {
     await nextTick();
 
     expect(wrapper.element).toMatchSnapshot();
+  });
+
+  test("Renders review button", async () => {
+    const wrapper = mountFunction();
+    const component = wrapper.getComponent(Individual);
+    component.vm.updateIndividual(mockedQuery);
+
+    await nextTick();
+
+    const button = wrapper.find('[data-testid="review-btn"]');
+
+    expect(button.exists()).toBe(true);
+    expect(button.attributes("aria-label")).toBe("Mark as reviewed");
+  });
+
+  test("Renders last reviewed button", async () => {
+    const wrapper = mountFunction();
+    const component = wrapper.getComponent(Individual);
+    const query = [{
+      lastReviewed: "2024-08-01",
+      lastModified: "2024-06-04",
+      ...mockedQuery[0]
+    }]
+    component.vm.updateIndividual(query);
+
+    await nextTick();
+
+    const button = wrapper.find('[data-testid="review-btn"]');
+
+    expect(button.exists()).toBe(true);
+    expect(button.attributes("aria-label")).toBe("Last reviewed 2024-08-01");
+  });
+
+  test("Renders unreviewed changes button", async () => {
+    const wrapper = mountFunction();
+    const component = wrapper.getComponent(Individual);
+    const query = [{
+      lastReviewed: "2024-08-01",
+      lastModified: "2024-09-04",
+       ...mockedQuery[0]
+    }]
+    component.vm.updateIndividual(query);
+
+    await nextTick();
+
+    const button = wrapper.find('[data-testid="review-btn"]');
+
+    expect(button.exists()).toBe(true);
+    expect(button.attributes("aria-label")).toBe("Changes since last review on 2024-08-01");
   });
 });

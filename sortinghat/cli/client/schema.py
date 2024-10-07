@@ -82,7 +82,7 @@ class GroupFilterType(sgqlc.types.Input):
 
 class IdentityFilterType(sgqlc.types.Input):
     __schema__ = sh_schema
-    __field_names__ = ('uuid', 'term', 'is_locked', 'is_bot', 'gender', 'country', 'source', 'enrollment', 'enrollment_parent_org', 'enrollment_date', 'is_enrolled', 'last_updated')
+    __field_names__ = ('uuid', 'term', 'is_locked', 'is_bot', 'gender', 'country', 'source', 'enrollment', 'enrollment_parent_org', 'enrollment_date', 'is_enrolled', 'last_updated', 'last_reviewed', 'is_reviewed')
     uuid = sgqlc.types.Field(String, graphql_name='uuid')
     term = sgqlc.types.Field(String, graphql_name='term')
     is_locked = sgqlc.types.Field(Boolean, graphql_name='isLocked')
@@ -95,6 +95,8 @@ class IdentityFilterType(sgqlc.types.Input):
     enrollment_date = sgqlc.types.Field(String, graphql_name='enrollmentDate')
     is_enrolled = sgqlc.types.Field(Boolean, graphql_name='isEnrolled')
     last_updated = sgqlc.types.Field(String, graphql_name='lastUpdated')
+    last_reviewed = sgqlc.types.Field(String, graphql_name='lastReviewed')
+    is_reviewed = sgqlc.types.Field(Boolean, graphql_name='isReviewed')
 
 
 class OperationFilterType(sgqlc.types.Input):
@@ -350,7 +352,7 @@ class IdentityType(sgqlc.types.Type):
 
 class IndividualType(sgqlc.types.Type):
     __schema__ = sh_schema
-    __field_names__ = ('created_at', 'last_modified', 'mk', 'is_locked', 'identities', 'profile', 'enrollments')
+    __field_names__ = ('created_at', 'last_modified', 'mk', 'is_locked', 'identities', 'profile', 'enrollments', 'last_reviewed')
     created_at = sgqlc.types.Field(sgqlc.types.non_null(DateTime), graphql_name='createdAt')
     last_modified = sgqlc.types.Field(sgqlc.types.non_null(DateTime), graphql_name='lastModified')
     mk = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='mk')
@@ -358,6 +360,7 @@ class IndividualType(sgqlc.types.Type):
     identities = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of(sgqlc.types.non_null(IdentityType))), graphql_name='identities')
     profile = sgqlc.types.Field('ProfileType', graphql_name='profile')
     enrollments = sgqlc.types.Field(sgqlc.types.non_null(sgqlc.types.list_of(sgqlc.types.non_null(EnrollmentType))), graphql_name='enrollments')
+    last_reviewed = sgqlc.types.Field(String, graphql_name='lastReviewed')
 
 
 class JobPaginatedType(sgqlc.types.Type):
@@ -615,6 +618,13 @@ class Refresh(sgqlc.types.Type):
     token = sgqlc.types.Field(sgqlc.types.non_null(String), graphql_name='token')
 
 
+class Review(sgqlc.types.Type):
+    __schema__ = sh_schema
+    __field_names__ = ('uuid', 'individual')
+    uuid = sgqlc.types.Field(String, graphql_name='uuid')
+    individual = sgqlc.types.Field(IndividualType, graphql_name='individual')
+
+
 class SortingHatMutation(sgqlc.types.Type):
     __schema__ = sh_schema
     __field_names__ = ('add_organization', 'delete_organization', 'add_team', 'delete_team', 'add_domain', 'delete_domain', 'add_identity', 'delete_identity', 'update_profile', 'move_identity', 'lock', 'unlock', 'merge', 'unmerge_identities', 'enroll', 'withdraw', 'update_enrollment', 'recommend_affiliations', 'recommend_matches', 'recommend_gender', 'affiliate', 'unify', 'genderize', 'add_recommender_exclusion_term', 'delete_recommender_exclusion_term', 'token_auth', 'verify_token', 'refresh_token')
@@ -830,6 +840,13 @@ class SortingHatMutation(sgqlc.types.Type):
         graphql_name='deleteRecommenderExclusionTerm',
         args=sgqlc.types.ArgDict((
             ('term', sgqlc.types.Arg(String, graphql_name='term', default=None)),
+        ))
+    )
+    review = sgqlc.types.Field(
+        Review,
+        graphql_name='review',
+        args=sgqlc.types.ArgDict((
+            ('uuid', sgqlc.types.Arg(String, graphql_name='uuid', default=None)),
         ))
     )
     token_auth = sgqlc.types.Field(

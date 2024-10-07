@@ -179,6 +179,12 @@ const UPDATE_PROFILE = gql`
       uuid
       individual {
         ...individual
+        matchRecommendationSet {
+          id
+          individual {
+            ...individual
+          }
+        }
       }
     }
   }
@@ -456,6 +462,24 @@ const DELETE_MERGE_RECOMMENDATIONS = gql`
       deleted
     }
   }
+`;
+
+const REVIEW_INDIVIDUAL = gql`
+  mutation reviewIndidivual($uuid: String!) {
+    review(uuid: $uuid) {
+      uuid
+      individual {
+        ...individual
+        matchRecommendationSet {
+          id
+          individual {
+            ...individual
+          }
+        }
+      }
+    }
+  }
+  ${FULL_INDIVIDUAL}
 `;
 
 const tokenAuth = (apollo, username, password) => {
@@ -877,6 +901,13 @@ const deleteMergeRecommendations = (apollo) => {
   });
 };
 
+const reviewIndidivual = (apollo, uuid) => {
+  return apollo.mutate({
+    mutation: REVIEW_INDIVIDUAL,
+    variables: { uuid },
+  });
+};
+
 export {
   tokenAuth,
   lockIndividual,
@@ -912,4 +943,5 @@ export {
   deleteAlias,
   addLinkedinProfile,
   deleteMergeRecommendations,
+  reviewIndidivual,
 };
