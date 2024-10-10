@@ -97,7 +97,7 @@
             />
           </v-col>
           <v-col :cols="1" class="d-flex justify-center">
-            <v-icon>mdi-arrow-right</v-icon>
+            <v-icon>mdi-arrow-left</v-icon>
           </v-col>
           <v-col>
             <individual-card
