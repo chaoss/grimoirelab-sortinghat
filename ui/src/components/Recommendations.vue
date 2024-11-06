@@ -116,7 +116,14 @@
           {{ errorMessage }}
         </v-alert>
 
-        <v-card-actions class="pr-0 mt-4">
+        <v-card-actions class="px-0 mt-4">
+          <v-btn
+            color="primary darken-1"
+            variant="text"
+            @click.prevent="fetchItem(page + 1)"
+          >
+            Skip
+          </v-btn>
           <v-spacer></v-spacer>
           <v-btn
             color="primary darken-1"
@@ -158,6 +165,7 @@ export default {
       isOpen: false,
       errorMessage: null,
       menu: null,
+      page: 1,
     };
   },
   methods: {
@@ -169,9 +177,12 @@ export default {
         this.$logger.error(`Error fetching recommendations: ${error}`);
       }
     },
-    async fetchItem() {
+    async fetchItem(page = 1) {
+      if (this.currentItem && !this.currentItem.pageInfo.hasNext) {
+        return this.onClose();
+      }
       try {
-        const response = await this.getRecommendations(1, 1);
+        const response = await this.getRecommendations(page, 1);
         if (response.data.recommendedMerge.entities) {
           const recommendation = response.data.recommendedMerge.entities[0];
           this.currentItem = {
@@ -181,6 +192,7 @@ export default {
             pageInfo: response.data.recommendedMerge.pageInfo,
           };
           this.count = this.currentItem.pageInfo.totalResults;
+          this.page = this.currentItem.pageInfo.page;
         }
       } catch (error) {
         this.errorMessage = this.$getErrorMessage(error);
@@ -199,7 +211,7 @@ export default {
         if (!this.currentItem.pageInfo.hasNext) {
           this.onClose();
         } else {
-          this.fetchItem();
+          this.fetchItem(this.page);
         }
       } catch (error) {
         this.errorMessage = this.$getErrorMessage(error);
