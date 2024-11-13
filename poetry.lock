@@ -597,13 +597,13 @@ six = ">=1.12"
 
 [[package]]
 name = "grimoirelab-toolkit"
-version = "1.0.7rc1"
+version = "1.0.7"
 description = "Toolkit of common functions used across GrimoireLab"
 optional = false
 python-versions = "<4.0,>=3.9"
 files = [
-    {file = "grimoirelab_toolkit-1.0.7rc1-py3-none-any.whl", hash = "sha256:338e12f02ccbda1edf0639adcaed8bb1c06eab79e30ce94716dc6fbb15c30ed4"},
-    {file = "grimoirelab_toolkit-1.0.7rc1.tar.gz", hash = "sha256:002b5d40d41d735853a8fb04da699e386c885fb1742dcb49a4630e238363a871"},
+    {file = "grimoirelab_toolkit-1.0.7-py3-none-any.whl", hash = "sha256:6b8c118850e16eb10fdf789e9d9cf11b65187da251020d532f70e4ef11e87faf"},
+    {file = "grimoirelab_toolkit-1.0.7.tar.gz", hash = "sha256:621f4f3e97d9f2ffadf0f29a5d153ca130602855dd220fe4149d2441b837fa7a"},
 ]
 
 [package.dependencies]
@@ -1189,13 +1189,13 @@ files = [
 
 [[package]]
 name = "setuptools"
-version = "75.4.0"
+version = "75.5.0"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "setuptools-75.4.0-py3-none-any.whl", hash = "sha256:b3c5d862f98500b06ffdf7cc4499b48c46c317d8d56cb30b5c8bce4d88f5c216"},
-    {file = "setuptools-75.4.0.tar.gz", hash = "sha256:1dc484f5cf56fd3fe7216d7b8df820802e7246cfb534a1db2aa64f14fcb9cdcb"},
+    {file = "setuptools-75.5.0-py3-none-any.whl", hash = "sha256:87cb777c3b96d638ca02031192d40390e0ad97737e27b6b4fa831bea86f2f829"},
+    {file = "setuptools-75.5.0.tar.gz", hash = "sha256:5c4ccb41111392671f02bb5f8436dfc5a9a7185e80500531b133f5775c4163ef"},
 ]
 
 [package.extras]
