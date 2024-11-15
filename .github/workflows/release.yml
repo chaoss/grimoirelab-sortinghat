@@ -34,14 +34,6 @@ jobs:
   tests:
     needs: [build]
     runs-on: ubuntu-latest
-    services:
-      mysql:
-        image: mariadb:10.5
-        env:
-          MYSQL_ROOT_PASSWORD: root
-        ports:
-          - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     name: Python ${{ matrix.python-version }}
     strategy:
@@ -70,13 +62,6 @@ jobs:
       - name: Install dev dependencies
         run: |
           poetry install --only dev --no-root
-
-      - name: Set MySQL mode
-        env:
-          DB_HOST: 127.0.0.1
-          DB_PORT: ${{ job.services.mysql.ports[3306] }}
-        run: |
-          mysql --host $DB_HOST --port $DB_PORT -uroot -proot -e "SET GLOBAL sql_mode = 'NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION'";
 
       - name: Test package backend
         run: |

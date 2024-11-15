@@ -57,6 +57,8 @@ DATABASES = {
     }
 }
 
+TEST_DATABASE_IMAGE = "mariadb:11.4"
+
 TEST_RUNNER = 'tests.runners.SkipMultiTenantTestRunner'
 
 USE_TZ = True
