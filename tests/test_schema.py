@@ -220,7 +220,7 @@ SH_ORGS_QUERY_TERM_FILTER = """{
     }
   }
 }"""
-SH_ORGS_QUERY_ORDER_BY= """{
+SH_ORGS_QUERY_ORDER_BY = """{
   organizations (orderBy: "%s"){
     entities {
       name

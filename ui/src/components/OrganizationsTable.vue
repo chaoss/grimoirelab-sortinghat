@@ -43,6 +43,7 @@
       hover
       return-object
       @update:expanded="($event) => (expandedItems = $event)"
+      @update:sortBy="sortItems($event)"
     >
       <template v-slot:item="{ item, internalItem, toggleExpand, isExpanded }">
         <organization-entry
@@ -241,12 +242,12 @@ export default {
   data() {
     return {
       headers: [
-        { value: "name", title: "Name", sortable: false },
+        { value: "name", title: "Name", sortable: true },
         {
-          value: "enrollments",
+          value: "enrollments_count",
           title: "Enrollments",
           align: "end",
-          sortable: false,
+          sortable: true,
         },
         { value: "actions", sortable: false },
       ],
@@ -278,17 +279,27 @@ export default {
       },
       loading: false,
       error: null,
+      sortBy: "-enrollments_count",
     };
   },
   created() {
     this.getTableItems(1);
   },
   methods: {
-    async getTableItems(page = this.page, filters = this.filters) {
+    async getTableItems(
+      page = this.page,
+      filters = this.filters,
+      sortBy = this.sortBy
+    ) {
       this.loading = true;
       this.error = null;
       try {
-        let response = await this.fetchPage(page, this.itemsPerPage, filters);
+        let response = await this.fetchPage(
+          page,
+          this.itemsPerPage,
+          filters,
+          sortBy
+        );
         if (response) {
           this.items = response.entities;
           this.pageCount = response.pageInfo.numPages;
@@ -527,6 +538,17 @@ export default {
         });
         this.$logger.error(`Error merging ${fromOrg} with ${toOrg}: ${error}`);
       }
+    },
+    sortItems(options) {
+      if (options[0]) {
+        const key = options[0].key;
+        const order = options[0].order === "asc" ? "-" : "";
+
+        this.sortBy = `${order}${key}`;
+      } else {
+        this.sortBy = "-enrollments_count";
+      }
+      this.getTableItems();
     },
   },
 };
