@@ -1618,6 +1618,7 @@ class SortingHatQuery:
         page_size=graphene.Int(),
         page=graphene.Int(),
         filters=OrganizationFilterType(required=False),
+        order_by=graphene.String(required=False),
         description='Find organizations.'
     )
     teams = graphene.Field(
@@ -1731,8 +1732,10 @@ class SortingHatQuery:
     def resolve_organizations(self, info, filters=None,
                               page=1,
                               page_size=settings.SORTINGHAT_API_PAGE_SIZE,
+                              order_by='name',
                               **kwargs):
-        query = Organization.objects.all_organizations().order_by('name')
+        query = Organization.objects.all_organizations().annotate(enrollments_count=Count('enrollments')
+                                                                  ).order_by(to_snake_case(order_by))
 
         if filters and 'name' in filters:
             query = query.distinct().filter(Q(name=filters['name']) | Q(aliases__alias=filters['name']))
