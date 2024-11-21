@@ -153,12 +153,13 @@ export default {
       );
       return response;
     },
-    async getOrganizationsPage(page, items, filters) {
+    async getOrganizationsPage(page, items, filters, orderBy) {
       const response = await getPaginatedOrganizations(
         this.$apollo,
         page,
         items,
-        filters
+        filters,
+        orderBy
       );
       return response.data.organizations;
     },

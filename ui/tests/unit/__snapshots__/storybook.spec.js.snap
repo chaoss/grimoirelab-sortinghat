@@ -29779,7 +29779,7 @@ exports[`Storybook Tests OrganizationsTable Groups 1`] = `
             <tr>
               
               <th
-                class="v-data-table__td v-data-table-column--align-start v-data-table__th"
+                class="v-data-table__td v-data-table-column--align-start v-data-table__th v-data-table__th--sortable"
                 colspan="1"
                 rowspan="1"
               >
@@ -29790,13 +29790,16 @@ exports[`Storybook Tests OrganizationsTable Groups 1`] = `
                   <span>
                     Name
                   </span>
-                  <!---->
+                  <i
+                    aria-hidden="true"
+                    class="mdi-arrow-up mdi v-icon notranslate v-theme--light v-icon--size-default v-data-table-header__sort-icon"
+                  />
                   <!---->
                 </div>
                 
               </th>
               <th
-                class="v-data-table__td v-data-table-column--align-end v-data-table__th"
+                class="v-data-table__td v-data-table-column--align-end v-data-table__th v-data-table__th--sortable"
                 colspan="1"
                 rowspan="1"
               >
@@ -29807,7 +29810,10 @@ exports[`Storybook Tests OrganizationsTable Groups 1`] = `
                   <span>
                     Enrollments
                   </span>
-                  <!---->
+                  <i
+                    aria-hidden="true"
+                    class="mdi-arrow-up mdi v-icon notranslate v-theme--light v-icon--size-default v-data-table-header__sort-icon"
+                  />
                   <!---->
                 </div>
                 
@@ -30769,7 +30775,7 @@ exports[`Storybook Tests OrganizationsTable OnError 1`] = `
             <tr>
               
               <th
-                class="v-data-table__td v-data-table-column--align-start v-data-table__th"
+                class="v-data-table__td v-data-table-column--align-start v-data-table__th v-data-table__th--sortable"
                 colspan="1"
                 rowspan="1"
               >
@@ -30780,13 +30786,16 @@ exports[`Storybook Tests OrganizationsTable OnError 1`] = `
                   <span>
                     Name
                   </span>
-                  <!---->
+                  <i
+                    aria-hidden="true"
+                    class="mdi-arrow-up mdi v-icon notranslate v-theme--light v-icon--size-default v-data-table-header__sort-icon"
+                  />
                   <!---->
                 </div>
                 
               </th>
               <th
-                class="v-data-table__td v-data-table-column--align-end v-data-table__th"
+                class="v-data-table__td v-data-table-column--align-end v-data-table__th v-data-table__th--sortable"
                 colspan="1"
                 rowspan="1"
               >
@@ -30797,7 +30806,10 @@ exports[`Storybook Tests OrganizationsTable OnError 1`] = `
                   <span>
                     Enrollments
                   </span>
-                  <!---->
+                  <i
+                    aria-hidden="true"
+                    class="mdi-arrow-up mdi v-icon notranslate v-theme--light v-icon--size-default v-data-table-header__sort-icon"
+                  />
                   <!---->
                 </div>
                 
@@ -31362,7 +31374,7 @@ exports[`Storybook Tests OrganizationsTable Organizations 1`] = `
             <tr>
               
               <th
-                class="v-data-table__td v-data-table-column--align-start v-data-table__th"
+                class="v-data-table__td v-data-table-column--align-start v-data-table__th v-data-table__th--sortable"
                 colspan="1"
                 rowspan="1"
               >
@@ -31373,13 +31385,16 @@ exports[`Storybook Tests OrganizationsTable Organizations 1`] = `
                   <span>
                     Name
                   </span>
-                  <!---->
+                  <i
+                    aria-hidden="true"
+                    class="mdi-arrow-up mdi v-icon notranslate v-theme--light v-icon--size-default v-data-table-header__sort-icon"
+                  />
                   <!---->
                 </div>
                 
               </th>
               <th
-                class="v-data-table__td v-data-table-column--align-end v-data-table__th"
+                class="v-data-table__td v-data-table-column--align-end v-data-table__th v-data-table__th--sortable"
                 colspan="1"
                 rowspan="1"
               >
@@ -31390,7 +31405,10 @@ exports[`Storybook Tests OrganizationsTable Organizations 1`] = `
                   <span>
                     Enrollments
                   </span>
-                  <!---->
+                  <i
+                    aria-hidden="true"
+                    class="mdi-arrow-up mdi v-icon notranslate v-theme--light v-icon--size-default v-data-table-header__sort-icon"
+                  />
                   <!---->
                 </div>
                 

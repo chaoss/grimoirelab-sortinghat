@@ -220,6 +220,16 @@ SH_ORGS_QUERY_TERM_FILTER = """{
     }
   }
 }"""
+SH_ORGS_QUERY_ORDER_BY = """{
+  organizations (orderBy: "%s"){
+    entities {
+      name
+      enrollments {
+        id
+      }
+    }
+  }
+}"""
 SH_ORGS_QUERY_PAGINATION = """{
   organizations (
     page: %d
@@ -1842,6 +1852,64 @@ class TestQueryOrganizations(django.test.TestCase):
 
         orgs = executed['data']['organizations']['entities']
         self.assertEqual(len(orgs), 0)
+
+    def test_order_by_enrollments(self):
+        """Check whether it returns the organizations ordered by number of enrollments"""
+
+        indv1 = Individual.objects.create(mk='a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        indv2 = Individual.objects.create(mk='0010a5211c03c46d340ada434b9f5b5072a8d491')
+        indv3 = Individual.objects.create(mk='86172d829d61adabde125d2442093213f745fbfd')
+
+        org1 = Organization.add_root(name='Example')
+        Enrollment.objects.create(individual=indv1, group=org1)
+        Enrollment.objects.create(individual=indv2, group=org1)
+        Enrollment.objects.create(individual=indv3, group=org1)
+
+        org2 = Organization.add_root(name='Bitergia')
+        Enrollment.objects.create(individual=indv1, group=org2)
+        Enrollment.objects.create(individual=indv2, group=org2)
+
+        org3 = Organization.add_root(name='LibreSoft')
+
+        # Test default order by name
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_ORGS_QUERY_ORDER_BY % 'name',
+                                  context_value=self.context_value)
+
+        orgs = executed['data']['organizations']['entities']
+
+        org = orgs[0]
+        self.assertEqual(org['name'], org2.name)
+        org = orgs[1]
+        self.assertEqual(org['name'], org1.name)
+        org = orgs[2]
+        self.assertEqual(org['name'], org3.name)
+
+        # Test ascending order
+        executed = client.execute(SH_ORGS_QUERY_ORDER_BY % 'enrollments_count',
+                                  context_value=self.context_value)
+
+        orgs = executed['data']['organizations']['entities']
+
+        org = orgs[0]
+        self.assertEqual(org['name'], org3.name)
+        org = orgs[1]
+        self.assertEqual(org['name'], org2.name)
+        org = orgs[2]
+        self.assertEqual(org['name'], org1.name)
+
+        # Test descending order
+        executed = client.execute(SH_ORGS_QUERY_ORDER_BY % '-enrollments_count',
+                                  context_value=self.context_value)
+
+        orgs = executed['data']['organizations']['entities']
+
+        org = orgs[0]
+        self.assertEqual(org['name'], org1.name)
+        org = orgs[1]
+        self.assertEqual(org['name'], org2.name)
+        org = orgs[2]
+        self.assertEqual(org['name'], org3.name)
 
     def test_pagination(self):
         """Check whether it returns the organizations searched when using pagination"""

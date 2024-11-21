@@ -474,7 +474,7 @@ describe("OrganizationsTable", () => {
       },
     });
 
-    expect(query).toHaveBeenCalledWith(1, 10, { term: "Bitergia" });
+    expect(query).toHaveBeenCalledWith(1, 10, { term: "Bitergia" }, "-enrollments_count");
   });
 });
 
