@@ -1,9 +1,0 @@
----
-title: Sort organizations by number of enrollments
-category: added
-author: Eva Millán <evamillan@bitergia.com>
-issue: 940
-notes: >
-  Organizations are now sorted by the number of enrollments
-  they have by default. Clicking on a column header sorts the
-  table results by that field.

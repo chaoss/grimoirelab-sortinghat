@@ -1,9 +1,0 @@
----
-title: Skip recommendations
-category: added
-author: Eva Millán <evamillan@bitergia.com>
-issue: 937
-notes: >
-  Users can now skip a recommendation and review
-  the next one if they are unsure of whether to
-  apply it or dismiss it.
