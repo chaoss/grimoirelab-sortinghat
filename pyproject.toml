@@ -63,7 +63,7 @@ Jinja2 = "^3.1.1"
 rq = "^1.12.0"
 django-rq = "^2.3.2"
 pandas = "^2.2"
-django-cors-headers = "^3.7.0"
+django-cors-headers = "^4.6.0"
 PyJWT = "^2.4.0"
 uWSGI = "^2.0"
 django-treebeard = "^4.5.1"
@@ -73,7 +73,7 @@ grimoirelab-toolkit = { version = ">=0.3", allow-prereleases = true}
 django-storages = {extras = ["google"], version = "^1.13.2"}
 google-auth = "^2.18.0"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 fakeredis = "^2.0.0"
 httpretty = "^1.1.4"
 flake8 = "^7.1.1"
