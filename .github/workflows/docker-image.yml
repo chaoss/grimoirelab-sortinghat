@@ -30,7 +30,7 @@ jobs:
           yarn install
           yarn build
       - name: Build package using Poetry and store result
-        uses: chaoss/grimoirelab-github-actions/build@master
+        uses: chaoss/grimoirelab-github-actions/build@main
         with:
           artifact-name: sortinghat-dist
           artifact-path: dist
