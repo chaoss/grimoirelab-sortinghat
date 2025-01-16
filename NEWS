@@ -1,5 +1,14 @@
 # Releases
 
+## sortinghat 1.6.2 - (2025-01-16)
+
+**Dependencies updateds:**
+
+ * Package dependencies updated\
+   Update the version of django-cors-headers package to the latest
+   version available.
+
+
   ## sortinghat 1.6.1 - (2025-01-15)
   
   * Update Poetry's package dependencies

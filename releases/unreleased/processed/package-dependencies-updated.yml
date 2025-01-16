@@ -1,8 +1,0 @@
----
-title: Package dependencies updated
-category: dependency
-author: Jose Javier Merchante <jjmerchante@bitergia.com>
-issue: null
-notes: >
-  Update the version of django-cors-headers package to
-  the latest version available.
