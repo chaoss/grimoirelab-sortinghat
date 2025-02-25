@@ -1,0 +1,10 @@
+---
+title: More detailed individual information  when reviewing recommendations
+category: added
+author: Eva Millán <evamillan@bitergia.com>
+issue: 936
+notes: >
+  The "Review recommendations" functionality now shows a list of
+  the individuals' usernames and email addresses to help compare
+  them more easily without needing to expand the information each
+  time.

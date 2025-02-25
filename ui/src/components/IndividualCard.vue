@@ -34,7 +34,7 @@
         <v-list-item-subtitle v-if="organization">
           {{ organization }}
         </v-list-item-subtitle>
-        <v-list-item-subtitle>
+        <v-list-item-subtitle v-if="!detailed">
           <v-tooltip
             v-for="source in sources"
             :key="source.name"
@@ -50,6 +50,21 @@
             <span>{{ source.name }}</span>
           </v-tooltip>
         </v-list-item-subtitle>
+        <div v-if="detailed">
+          <v-list-item-subtitle v-for="(email, i) in emails" :key="i">
+            <v-icon size="x-small" class="mr-1">mdi-email-outline</v-icon>
+            {{ email }}
+          </v-list-item-subtitle>
+          <template v-for="username in usernames">
+            <v-list-item-subtitle
+              v-for="(name, icon) in JSON.parse(username)"
+              :key="icon"
+            >
+              <v-icon size="x-small" class="mr-1">{{ icon }}</v-icon>
+              {{ name }}
+            </v-list-item-subtitle>
+          </template>
+        </div>
       </v-list-item>
     </template>
 
@@ -151,6 +166,19 @@ export default {
     selectable: {
       type: Boolean,
       required: false,
+    },
+    emails: {
+      type: [Set, Array],
+      required: false,
+    },
+    usernames: {
+      type: [Set, Array],
+      required: false,
+    },
+    detailed: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
   },
   data() {
@@ -262,5 +290,14 @@ export default {
 
 .v-list-item--density-default.v-list-item--three-line {
   min-height: 78px;
+}
+
+.v-card--variant-outlined {
+  border-color: rgba(0, 0, 0, 0.08);
+
+  .v-card-item .v-card-item__content .v-list-item-subtitle {
+    line-height: 1.3rem;
+    opacity: 0.7;
+  }
 }
 </style>

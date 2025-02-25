@@ -18,6 +18,9 @@ const individualCardTemplate = `
     :closable="closable"
     :selectable="selectable"
     :is-selected="isSelected"
+    :usernames="usernames"
+    :emails="emails"
+    :detailed="detailed"
     />`;
 
 export const Default = () => ({
@@ -57,6 +60,15 @@ export const Default = () => ({
     isSelected: {
       default: false,
     },
+    usernames: {
+      default: () => [],
+    },
+    emails: {
+      default: () => [],
+    },
+    detailed: {
+      default: false,
+    },
   },
 });
 export const SingleInitial = () => ({
@@ -94,6 +106,15 @@ export const SingleInitial = () => ({
       default: false,
     },
     isSelected: {
+      default: false,
+    },
+    usernames: {
+      default: () => [],
+    },
+    emails: {
+      default: () => [],
+    },
+    detailed: {
       default: false,
     },
   },
@@ -147,6 +168,15 @@ export const NoName = () => ({
       default: false,
     },
     isSelected: {
+      default: false,
+    },
+    usernames: {
+      default: () => [],
+    },
+    emails: {
+      default: () => [],
+    },
+    detailed: {
       default: false,
     },
   },
@@ -240,6 +270,15 @@ export const Sources = () => ({
     isSelected: {
       default: false,
     },
+    usernames: {
+      default: () => [],
+    },
+    emails: {
+      default: () => [],
+    },
+    detailed: {
+      default: false,
+    },
   },
 });
 export const Organization = () => ({
@@ -296,6 +335,15 @@ export const Organization = () => ({
     isSelected: {
       default: false,
     },
+    usernames: {
+      default: () => [],
+    },
+    emails: {
+      default: () => [],
+    },
+    detailed: {
+      default: false,
+    },
   },
 });
 
@@ -334,6 +382,15 @@ export const Highlighted = () => ({
       default: false,
     },
     isSelected: {
+      default: false,
+    },
+    usernames: {
+      default: () => [],
+    },
+    emails: {
+      default: () => [],
+    },
+    detailed: {
       default: false,
     },
   },
@@ -445,6 +502,15 @@ export const SourcesAndOrganization = () => ({
     isSelected: {
       default: false,
     },
+    usernames: {
+      default: () => [],
+    },
+    emails: {
+      default: () => [],
+    },
+    detailed: {
+      default: false,
+    },
   },
 });
 
@@ -483,6 +549,15 @@ export const Gravatar = () => ({
       default: false,
     },
     isSelected: {
+      default: false,
+    },
+    usernames: {
+      default: () => [],
+    },
+    emails: {
+      default: () => [],
+    },
+    detailed: {
       default: false,
     },
   },
@@ -525,6 +600,15 @@ export const Closable = () => ({
     isSelected: {
       default: false,
     },
+    usernames: {
+      default: () => [],
+    },
+    emails: {
+      default: () => [],
+    },
+    detailed: {
+      default: false,
+    },
   },
 });
 
@@ -565,6 +649,15 @@ export const Selectable = () => ({
     isSelected: {
       default: false,
     },
+    usernames: {
+      default: () => [],
+    },
+    emails: {
+      default: () => [],
+    },
+    detailed: {
+      default: false,
+    },
   },
 });
 
@@ -603,6 +696,111 @@ export const Selected = () => ({
       default: true,
     },
     isSelected: {
+      default: true,
+    },
+    usernames: {
+      default: () => [],
+    },
+    emails: {
+      default: () => [],
+    },
+    detailed: {
+      default: false,
+    },
+  },
+});
+
+export const Detailed = () => ({
+  components: { IndividualCard },
+  template: individualCardTemplate,
+  props: {
+    name: {
+      default: "Tom Marvolo Riddle",
+    },
+    sources: {
+      default: () => [],
+    },
+    isLocked: {
+      default: false,
+    },
+    uuid: {
+      default: "10f546",
+    },
+    email: {
+      default: "triddle@example.net",
+    },
+    identities: {
+      default: () => [
+        {
+          name: "GitLab",
+          icon: "mdi-gitlab",
+          identities: [
+            {
+              name: "Tom Marvolo Riddle",
+              source: "GitLab",
+              email: "triddle@example.net",
+              uuid: "03b3428ee",
+              username: "triddle",
+            },
+          ],
+        },
+        {
+          name: "GitHub",
+          icon: "mdi-github",
+          identities: [
+            {
+              uuid: "808b18",
+              name: "Voldemort",
+              email: "-",
+              username: "voldemort",
+              source: "github",
+            },
+          ],
+        },
+        {
+          name: "git",
+          icon: "mdi-git",
+          identities: [
+            {
+              uuid: "006afa",
+              name: "Tom Marvolo Riddle",
+              email: "triddle@example.net",
+              username: "",
+              source: "git",
+            },
+            {
+              uuid: "abce32",
+              name: "voldemort",
+              email: "voldemort@example.net",
+              username: "-",
+              source: "git",
+            },
+          ],
+        },
+      ],
+    },
+    enrollments: {
+      default: () => [],
+    },
+    isHighlighted: {
+      default: false,
+    },
+    closable: {
+      default: false,
+    },
+    selectable: {
+      default: true,
+    },
+    isSelected: {
+      default: false,
+    },
+    usernames: {
+      default: () => ['{"mdi-gitlab":"triddle"}', '{"mdi-github":"voldemort"}'],
+    },
+    emails: {
+      default: () => ["triddle@example.net", "voldemort@example.net"],
+    },
+    detailed: {
       default: true,
     },
   },

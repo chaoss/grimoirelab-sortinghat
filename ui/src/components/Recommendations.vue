@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="isOpen" width="700" persistent>
+  <v-dialog v-model="isOpen" width="840" persistent>
     <template v-slot:activator="{ props: dialog }">
       <v-btn-group
         v-show="count !== 0"
@@ -29,7 +29,6 @@
             </v-list-item>
             <v-dialog
               activator="parent"
-              max-width="500"
               aria-label="Delete recommendations confirmation"
             >
               <template v-slot:activator="{ props: activator }">
@@ -84,7 +83,7 @@
         <span class="subtitle-1 text--secondary">{{ count }} remaining</span>
       </v-card-subtitle>
       <v-card-text class="mt-4 pl-8 pr-8">
-        <v-row align="center" class="flex-nowrap" no-gutters>
+        <v-row class="flex-nowrap" no-gutters>
           <v-col>
             <individual-card
               :name="currentItem.individual1.name"
@@ -94,9 +93,14 @@
               :identities="currentItem.individual1.identities"
               :enrollments="currentItem.individual1.enrollments"
               :is-locked="currentItem.individual1.isLocked"
+              :emails="currentItem.individual1.emails"
+              :usernames="currentItem.individual1.usernames"
+              class="h-100"
+              variant="outlined"
+              detailed
             />
           </v-col>
-          <v-col :cols="1" class="d-flex justify-center">
+          <v-col :cols="1" class="d-flex justify-center align-self-center">
             <v-icon>mdi-arrow-left</v-icon>
           </v-col>
           <v-col>
@@ -108,6 +112,11 @@
               :identities="currentItem.individual2.identities"
               :enrollments="currentItem.individual2.enrollments"
               :is-locked="currentItem.individual2.isLocked"
+              :emails="currentItem.individual2.emails"
+              :usernames="currentItem.individual2.usernames"
+              class="h-100"
+              variant="outlined"
+              detailed
             />
           </v-col>
         </v-row>

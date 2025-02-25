@@ -1,0 +1,9 @@
+---
+title: More icons for sources
+category: added
+author: Eva Millán <evamillan@bitergia.com>
+issue: null
+notes: >
+  The user interface now has icons for Confluence,
+  Jenkins, Phabricator, Meetup and Gerrit. This prevents
+  from grouping them into "other sources".

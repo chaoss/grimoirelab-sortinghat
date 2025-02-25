@@ -301,6 +301,7 @@
                 :sources="individual.sources"
                 :uuid="individual.uuid"
                 :class="{ 'mt-4': index > 0, 'mt-2': index === 0 }"
+                detailed
               />
               <v-card-actions>
                 <v-spacer></v-spacer>
