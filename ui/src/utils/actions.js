@@ -37,12 +37,22 @@ const moveIdentity = (fromUuid, toUuid, action, dialog) => {
 
 const groupIdentities = (identities) => {
   const icons = [
+    { source: "confluence", icon: "fa:fab fa-confluence" },
+    { source: "gerrit", icon: "$gerrit" },
     { source: "git", icon: "mdi-git" },
     { source: "github", icon: "mdi-github" },
     { source: "gitlab", icon: "mdi-gitlab" },
     { source: "dockerhub", icon: "mdi-docker" },
+    { source: "jenkins", icon: "fa:fab fa-jenkins" },
     { source: "jira", icon: "mdi-jira" },
+    { source: "launchpad", icon: "mdi-ubuntu" },
     { source: "linkedin", icon: "mdi-linkedin" },
+    { source: "phorge", icon: "mdi-cog" },
+    { source: "maniphest", icon: "fa:fab fa-phabricator" },
+    { source: "mbox", icon: "mdi-email-newsletter" },
+    { source: "meetup", icon: "fa:fab fa-meetup" },
+    { source: "phabricator", icon: "fa:fab fa-phabricator" },
+    { source: "pipermail", icon: "mdi-email-newsletter" },
     { source: "rss", icon: "mdi-rss" },
     { source: "slack", icon: "mdi-slack" },
     { source: "stackexchange", icon: "mdi-stack-exchange" },

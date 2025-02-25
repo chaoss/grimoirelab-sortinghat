@@ -2,8 +2,16 @@ import "@mdi/font/css/materialdesignicons.css";
 import "vuetify/styles";
 import { createVuetify } from "vuetify";
 import { VConfirmEdit } from "vuetify/labs/VConfirmEdit";
-import * as directives from "vuetify/directives";
 import * as components from "vuetify/components";
+import * as directives from "vuetify/directives";
+import { fa } from "vuetify/iconsets/fa-svg";
+import { aliases, mdi } from "vuetify/iconsets/mdi";
+import GerritIcon from "../components/GerritIcon.vue";
+
+const customAliases = {
+  ...aliases,
+  gerrit: GerritIcon,
+};
 
 export default createVuetify({
   directives,
@@ -13,6 +21,11 @@ export default createVuetify({
   },
   icons: {
     defaultSet: "mdi",
+    aliases: customAliases,
+    sets: {
+      mdi,
+      fa,
+    },
   },
   theme: {
     themes: {
