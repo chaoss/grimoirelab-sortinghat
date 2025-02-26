@@ -6152,6 +6152,7 @@ exports[`Storybook Tests IndividualCard Closable 1`] = `
               
               
             </div>
+            <!--v-if-->
             
           </div>
           <!---->
@@ -6363,6 +6364,238 @@ exports[`Storybook Tests IndividualCard Default 1`] = `
               
               
             </div>
+            <!--v-if-->
+            
+          </div>
+          <!---->
+        </div>
+        
+      </div>
+      <div
+        class="v-card-item__append"
+      >
+        
+        <!--v-if-->
+        
+        
+        <button
+          aria-expanded="false"
+          aria-haspopup="menu"
+          aria-label="Expand information"
+          aria-owns="v-menu-1"
+          class="v-btn v-btn--icon v-theme--light v-btn--density-compact v-btn--size-small v-btn--variant-text mr-1"
+          data-cy="expand-button"
+          targetref="[object Object]"
+          type="button"
+        >
+          
+          <span
+            class="v-btn__overlay"
+          />
+          <span
+            class="v-btn__underlay"
+          />
+          
+          <!---->
+          <span
+            class="v-btn__content"
+            data-no-activator=""
+          >
+            <i
+              aria-hidden="true"
+              class="mdi-magnify-plus-outline mdi v-icon notranslate v-theme--light v-icon--size-default"
+            />
+          </span>
+          <!---->
+          <!---->
+        </button>
+        
+        <!---->
+        
+        <!--v-if-->
+        
+      </div>
+    </div>
+    <!---->
+    
+    
+    
+    
+    <!---->
+    
+    <span
+      class="v-card__overlay"
+    />
+    <span
+      class="v-card__underlay"
+    />
+    
+  </div>
+</div>
+`;
+
+exports[`Storybook Tests IndividualCard Detailed 1`] = `
+<div>
+  <div
+    class="v-card v-card--link v-theme--light v-card--density-default v-card--variant-elevated mx-auto"
+  >
+    <!---->
+    <div
+      class="v-card__loader"
+    >
+      <div
+        aria-hidden="true"
+        aria-valuemax="100"
+        aria-valuemin="0"
+        class="v-progress-linear v-theme--light v-locale--is-ltr"
+        role="progressbar"
+        style="top: 0px; height: 0px; --v-progress-linear-height: 2px; left: 50%; transform: translateX(-50%);"
+      >
+        <!---->
+        <div
+          class="v-progress-linear__background"
+          style="width: 100%;"
+        />
+        <transition-stub
+          appear="false"
+          css="true"
+          name="fade-transition"
+          persisted="false"
+        >
+          <div
+            class="v-progress-linear__indeterminate"
+          >
+            
+            <div
+              class="v-progress-linear__indeterminate long"
+            />
+            <div
+              class="v-progress-linear__indeterminate short"
+            />
+            
+          </div>
+        </transition-stub>
+        <!---->
+      </div>
+    </div>
+    <div
+      class="v-card-item"
+    >
+      <div
+        class="v-card-item__prepend"
+      >
+        
+        <div
+          class="v-avatar v-theme--light v-avatar--density-default v-avatar--variant-flat"
+          style="background-color: rgb(245, 142, 12); color: rgb(255, 255, 255); caret-color: #fff; width: 30px; height: 30px;"
+        >
+          
+          
+          <img
+            aria-hidden="true"
+            src="https://www.gravatar.com/avatar/0ffaa7f50f46479b4217df22e203bfce.jpg?d=blank&s=40"
+            style="width: 32px; height: 32px;"
+          />
+          <span
+            class="text-white"
+          >
+            TR
+          </span>
+          
+          
+          
+          <!---->
+          <span
+            class="v-avatar__underlay"
+          />
+          
+        </div>
+        
+      </div>
+      <div
+        class="v-card-item__content"
+      >
+        <!---->
+        <!---->
+        
+        <div
+          class="v-list-item v-theme--light v-list-item--density-default v-list-item--three-line v-list-item--variant-text grow pa-2"
+        >
+          
+          <!---->
+          <span
+            class="v-list-item__underlay"
+          />
+          
+          <!---->
+          <div
+            class="v-list-item__content"
+            data-no-activator=""
+          >
+            <!---->
+            <!---->
+            
+            <div
+              class="v-list-item-title font-weight-medium"
+            >
+              <router-link-stub
+                class="link--underline"
+                target="_blank"
+                to="[object Object]"
+              />
+            </div>
+            <!--v-if-->
+            <!--v-if-->
+            <div>
+              
+              <div
+                class="v-list-item-subtitle"
+              >
+                <i
+                  aria-hidden="true"
+                  class="mdi-email-outline mdi v-icon notranslate v-theme--light v-icon--size-x-small mr-1"
+                />
+                 triddle@example.net
+              </div>
+              <div
+                class="v-list-item-subtitle"
+              >
+                <i
+                  aria-hidden="true"
+                  class="mdi-email-outline mdi v-icon notranslate v-theme--light v-icon--size-x-small mr-1"
+                />
+                 voldemort@example.net
+              </div>
+              
+              
+              
+              
+              <div
+                class="v-list-item-subtitle"
+              >
+                <i
+                  aria-hidden="true"
+                  class="mdi-gitlab mdi v-icon notranslate v-theme--light v-icon--size-x-small mr-1"
+                />
+                 triddle
+              </div>
+              
+              
+              
+              
+              <div
+                class="v-list-item-subtitle"
+              >
+                <i
+                  aria-hidden="true"
+                  class="mdi-github mdi v-icon notranslate v-theme--light v-icon--size-x-small mr-1"
+                />
+                 voldemort
+              </div>
+              
+              
+              
+            </div>
             
           </div>
           <!---->
@@ -6549,6 +6782,7 @@ exports[`Storybook Tests IndividualCard Gravatar 1`] = `
               
               
             </div>
+            <!--v-if-->
             
           </div>
           <!---->
@@ -6735,6 +6969,7 @@ exports[`Storybook Tests IndividualCard Highlighted 1`] = `
               
               
             </div>
+            <!--v-if-->
             
           </div>
           <!---->
@@ -6921,6 +7156,7 @@ exports[`Storybook Tests IndividualCard NoName 1`] = `
               
               
             </div>
+            <!--v-if-->
             
           </div>
           <!---->
@@ -7111,6 +7347,7 @@ exports[`Storybook Tests IndividualCard Organization 1`] = `
               
               
             </div>
+            <!--v-if-->
             
           </div>
           <!---->
@@ -7300,6 +7537,7 @@ exports[`Storybook Tests IndividualCard Selectable 1`] = `
               
               
             </div>
+            <!--v-if-->
             
           </div>
           <!---->
@@ -7486,6 +7724,7 @@ exports[`Storybook Tests IndividualCard Selected 1`] = `
               
               
             </div>
+            <!--v-if-->
             
           </div>
           <!---->
@@ -7672,6 +7911,7 @@ exports[`Storybook Tests IndividualCard SingleInitial 1`] = `
               
               
             </div>
+            <!--v-if-->
             
           </div>
           <!---->
@@ -7906,6 +8146,7 @@ exports[`Storybook Tests IndividualCard Sources 1`] = `
               
               
             </div>
+            <!--v-if-->
             
           </div>
           <!---->
@@ -8144,6 +8385,7 @@ exports[`Storybook Tests IndividualCard SourcesAndOrganization 1`] = `
               
               
             </div>
+            <!--v-if-->
             
           </div>
           <!---->
@@ -15126,6 +15368,7 @@ exports[`Storybook Tests IndividualsGrid Default 1`] = `
                       
                       
                     </div>
+                    <!--v-if-->
                     
                   </div>
                   <!---->
@@ -15364,6 +15607,7 @@ exports[`Storybook Tests IndividualsGrid Default 1`] = `
                       
                       
                     </div>
+                    <!--v-if-->
                     
                   </div>
                   <!---->
@@ -15563,6 +15807,7 @@ exports[`Storybook Tests IndividualsGrid Default 1`] = `
                       
                       
                     </div>
+                    <!--v-if-->
                     
                   </div>
                   <!---->
@@ -15798,6 +16043,7 @@ exports[`Storybook Tests IndividualsGrid Default 1`] = `
                       
                       
                     </div>
+                    <!--v-if-->
                     
                   </div>
                   <!---->
@@ -16015,6 +16261,7 @@ exports[`Storybook Tests IndividualsGrid Default 1`] = `
                       
                       
                     </div>
+                    <!--v-if-->
                     
                   </div>
                   <!---->
@@ -16250,6 +16497,7 @@ exports[`Storybook Tests IndividualsGrid Default 1`] = `
                       
                       
                     </div>
+                    <!--v-if-->
                     
                   </div>
                   <!---->
@@ -16485,6 +16733,7 @@ exports[`Storybook Tests IndividualsGrid Default 1`] = `
                       
                       
                     </div>
+                    <!--v-if-->
                     
                   </div>
                   <!---->
@@ -16702,6 +16951,7 @@ exports[`Storybook Tests IndividualsGrid Default 1`] = `
                       
                       
                     </div>
+                    <!--v-if-->
                     
                   </div>
                   <!---->
@@ -18040,8 +18290,55 @@ exports[`Storybook Tests IndividualsTable Default 1`] = `
                     
                     <i
                       aria-hidden="true"
-                      class="mdi-git mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
-                    />
+                      class="v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
+                    >
+                      <svg
+                        class="v-icon__svg"
+                        viewBox="0 0 52 52"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <rect
+                          height="38"
+                          rx="4"
+                          ry="4"
+                          width="38"
+                          x="2"
+                          xmlns="http://www.w3.org/2000/svg"
+                          y="2"
+                        />
+                        <rect
+                          height="38"
+                          rx="4"
+                          ry="4"
+                          stroke="#ffffff"
+                          stroke-width="2"
+                          width="38"
+                          x="12"
+                          xmlns="http://www.w3.org/2000/svg"
+                          y="12"
+                        />
+                        <path
+                          d="m18,22l12,0l0,4l-12,0l0,-4z"
+                          fill="#ffffff"
+                          xmlns="http://www.w3.org/2000/svg"
+                        />
+                        <path
+                          d="m34,22l12,0l0,4l-12,0l0,-4z"
+                          fill="#ffffff"
+                          xmlns="http://www.w3.org/2000/svg"
+                        />
+                        <path
+                          d="m18,36l4,0l0,-4l4,0l0,4l4,0l0,4l-4,0l0,4l-4,0l0,-4l-4,0l0,-4z"
+                          fill="#ffffff"
+                          xmlns="http://www.w3.org/2000/svg"
+                        />
+                        <path
+                          d="m34,36l4,0l0,-4l4,0l0,4l4,0l0,4l-4,0l0,4l-4,0l0,-4l-4,0l0,-4z"
+                          fill="#ffffff"
+                          xmlns="http://www.w3.org/2000/svg"
+                        />
+                      </svg>
+                    </i>
                      1
                     
                   </div>
@@ -18076,7 +18373,7 @@ exports[`Storybook Tests IndividualsTable Default 1`] = `
                     
                     <i
                       aria-hidden="true"
-                      class="mdi-github mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
+                      class="mdi-git mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
                     />
                      1
                     
@@ -18112,7 +18409,7 @@ exports[`Storybook Tests IndividualsTable Default 1`] = `
                     
                     <i
                       aria-hidden="true"
-                      class="mdi-account-multiple mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
+                      class="mdi-github mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
                     />
                      1
                     
@@ -18589,8 +18886,55 @@ exports[`Storybook Tests IndividualsTable Default 1`] = `
                     
                     <i
                       aria-hidden="true"
-                      class="mdi-gitlab mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
-                    />
+                      class="v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
+                    >
+                      <svg
+                        class="v-icon__svg"
+                        viewBox="0 0 52 52"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <rect
+                          height="38"
+                          rx="4"
+                          ry="4"
+                          width="38"
+                          x="2"
+                          xmlns="http://www.w3.org/2000/svg"
+                          y="2"
+                        />
+                        <rect
+                          height="38"
+                          rx="4"
+                          ry="4"
+                          stroke="#ffffff"
+                          stroke-width="2"
+                          width="38"
+                          x="12"
+                          xmlns="http://www.w3.org/2000/svg"
+                          y="12"
+                        />
+                        <path
+                          d="m18,22l12,0l0,4l-12,0l0,-4z"
+                          fill="#ffffff"
+                          xmlns="http://www.w3.org/2000/svg"
+                        />
+                        <path
+                          d="m34,22l12,0l0,4l-12,0l0,-4z"
+                          fill="#ffffff"
+                          xmlns="http://www.w3.org/2000/svg"
+                        />
+                        <path
+                          d="m18,36l4,0l0,-4l4,0l0,4l4,0l0,4l-4,0l0,4l-4,0l0,-4l-4,0l0,-4z"
+                          fill="#ffffff"
+                          xmlns="http://www.w3.org/2000/svg"
+                        />
+                        <path
+                          d="m34,36l4,0l0,-4l4,0l0,4l4,0l0,4l-4,0l0,4l-4,0l0,-4l-4,0l0,-4z"
+                          fill="#ffffff"
+                          xmlns="http://www.w3.org/2000/svg"
+                        />
+                      </svg>
+                    </i>
                      1
                     
                   </div>
@@ -18625,7 +18969,7 @@ exports[`Storybook Tests IndividualsTable Default 1`] = `
                     
                     <i
                       aria-hidden="true"
-                      class="mdi-account-multiple mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
+                      class="mdi-gitlab mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
                     />
                      1
                     
@@ -20357,8 +20701,55 @@ exports[`Storybook Tests IndividualsTable Expandable 1`] = `
                     
                     <i
                       aria-hidden="true"
-                      class="mdi-git mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
-                    />
+                      class="v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
+                    >
+                      <svg
+                        class="v-icon__svg"
+                        viewBox="0 0 52 52"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <rect
+                          height="38"
+                          rx="4"
+                          ry="4"
+                          width="38"
+                          x="2"
+                          xmlns="http://www.w3.org/2000/svg"
+                          y="2"
+                        />
+                        <rect
+                          height="38"
+                          rx="4"
+                          ry="4"
+                          stroke="#ffffff"
+                          stroke-width="2"
+                          width="38"
+                          x="12"
+                          xmlns="http://www.w3.org/2000/svg"
+                          y="12"
+                        />
+                        <path
+                          d="m18,22l12,0l0,4l-12,0l0,-4z"
+                          fill="#ffffff"
+                          xmlns="http://www.w3.org/2000/svg"
+                        />
+                        <path
+                          d="m34,22l12,0l0,4l-12,0l0,-4z"
+                          fill="#ffffff"
+                          xmlns="http://www.w3.org/2000/svg"
+                        />
+                        <path
+                          d="m18,36l4,0l0,-4l4,0l0,4l4,0l0,4l-4,0l0,4l-4,0l0,-4l-4,0l0,-4z"
+                          fill="#ffffff"
+                          xmlns="http://www.w3.org/2000/svg"
+                        />
+                        <path
+                          d="m34,36l4,0l0,-4l4,0l0,4l4,0l0,4l-4,0l0,4l-4,0l0,-4l-4,0l0,-4z"
+                          fill="#ffffff"
+                          xmlns="http://www.w3.org/2000/svg"
+                        />
+                      </svg>
+                    </i>
                      1
                     
                   </div>
@@ -20393,7 +20784,7 @@ exports[`Storybook Tests IndividualsTable Expandable 1`] = `
                     
                     <i
                       aria-hidden="true"
-                      class="mdi-github mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
+                      class="mdi-git mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
                     />
                      1
                     
@@ -20429,7 +20820,7 @@ exports[`Storybook Tests IndividualsTable Expandable 1`] = `
                     
                     <i
                       aria-hidden="true"
-                      class="mdi-account-multiple mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
+                      class="mdi-github mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
                     />
                      1
                     
@@ -21248,8 +21639,55 @@ exports[`Storybook Tests IndividualsTable Expandable 1`] = `
                     
                     <i
                       aria-hidden="true"
-                      class="mdi-gitlab mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
-                    />
+                      class="v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
+                    >
+                      <svg
+                        class="v-icon__svg"
+                        viewBox="0 0 52 52"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <rect
+                          height="38"
+                          rx="4"
+                          ry="4"
+                          width="38"
+                          x="2"
+                          xmlns="http://www.w3.org/2000/svg"
+                          y="2"
+                        />
+                        <rect
+                          height="38"
+                          rx="4"
+                          ry="4"
+                          stroke="#ffffff"
+                          stroke-width="2"
+                          width="38"
+                          x="12"
+                          xmlns="http://www.w3.org/2000/svg"
+                          y="12"
+                        />
+                        <path
+                          d="m18,22l12,0l0,4l-12,0l0,-4z"
+                          fill="#ffffff"
+                          xmlns="http://www.w3.org/2000/svg"
+                        />
+                        <path
+                          d="m34,22l12,0l0,4l-12,0l0,-4z"
+                          fill="#ffffff"
+                          xmlns="http://www.w3.org/2000/svg"
+                        />
+                        <path
+                          d="m18,36l4,0l0,-4l4,0l0,4l4,0l0,4l-4,0l0,4l-4,0l0,-4l-4,0l0,-4z"
+                          fill="#ffffff"
+                          xmlns="http://www.w3.org/2000/svg"
+                        />
+                        <path
+                          d="m34,36l4,0l0,-4l4,0l0,4l4,0l0,4l-4,0l0,4l-4,0l0,-4l-4,0l0,-4z"
+                          fill="#ffffff"
+                          xmlns="http://www.w3.org/2000/svg"
+                        />
+                      </svg>
+                    </i>
                      1
                     
                   </div>
@@ -21284,7 +21722,7 @@ exports[`Storybook Tests IndividualsTable Expandable 1`] = `
                     
                     <i
                       aria-hidden="true"
-                      class="mdi-account-multiple mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
+                      class="mdi-gitlab mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
                     />
                      1
                     
@@ -22684,8 +23122,55 @@ exports[`Storybook Tests IndividualsTable HiddenHeader 1`] = `
                     
                     <i
                       aria-hidden="true"
-                      class="mdi-git mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
-                    />
+                      class="v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
+                    >
+                      <svg
+                        class="v-icon__svg"
+                        viewBox="0 0 52 52"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <rect
+                          height="38"
+                          rx="4"
+                          ry="4"
+                          width="38"
+                          x="2"
+                          xmlns="http://www.w3.org/2000/svg"
+                          y="2"
+                        />
+                        <rect
+                          height="38"
+                          rx="4"
+                          ry="4"
+                          stroke="#ffffff"
+                          stroke-width="2"
+                          width="38"
+                          x="12"
+                          xmlns="http://www.w3.org/2000/svg"
+                          y="12"
+                        />
+                        <path
+                          d="m18,22l12,0l0,4l-12,0l0,-4z"
+                          fill="#ffffff"
+                          xmlns="http://www.w3.org/2000/svg"
+                        />
+                        <path
+                          d="m34,22l12,0l0,4l-12,0l0,-4z"
+                          fill="#ffffff"
+                          xmlns="http://www.w3.org/2000/svg"
+                        />
+                        <path
+                          d="m18,36l4,0l0,-4l4,0l0,4l4,0l0,4l-4,0l0,4l-4,0l0,-4l-4,0l0,-4z"
+                          fill="#ffffff"
+                          xmlns="http://www.w3.org/2000/svg"
+                        />
+                        <path
+                          d="m34,36l4,0l0,-4l4,0l0,4l4,0l0,4l-4,0l0,4l-4,0l0,-4l-4,0l0,-4z"
+                          fill="#ffffff"
+                          xmlns="http://www.w3.org/2000/svg"
+                        />
+                      </svg>
+                    </i>
                      1
                     
                   </div>
@@ -22720,7 +23205,7 @@ exports[`Storybook Tests IndividualsTable HiddenHeader 1`] = `
                     
                     <i
                       aria-hidden="true"
-                      class="mdi-github mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
+                      class="mdi-git mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
                     />
                      1
                     
@@ -22756,7 +23241,7 @@ exports[`Storybook Tests IndividualsTable HiddenHeader 1`] = `
                     
                     <i
                       aria-hidden="true"
-                      class="mdi-account-multiple mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
+                      class="mdi-github mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
                     />
                      1
                     
@@ -23233,8 +23718,55 @@ exports[`Storybook Tests IndividualsTable HiddenHeader 1`] = `
                     
                     <i
                       aria-hidden="true"
-                      class="mdi-gitlab mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
-                    />
+                      class="v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
+                    >
+                      <svg
+                        class="v-icon__svg"
+                        viewBox="0 0 52 52"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <rect
+                          height="38"
+                          rx="4"
+                          ry="4"
+                          width="38"
+                          x="2"
+                          xmlns="http://www.w3.org/2000/svg"
+                          y="2"
+                        />
+                        <rect
+                          height="38"
+                          rx="4"
+                          ry="4"
+                          stroke="#ffffff"
+                          stroke-width="2"
+                          width="38"
+                          x="12"
+                          xmlns="http://www.w3.org/2000/svg"
+                          y="12"
+                        />
+                        <path
+                          d="m18,22l12,0l0,4l-12,0l0,-4z"
+                          fill="#ffffff"
+                          xmlns="http://www.w3.org/2000/svg"
+                        />
+                        <path
+                          d="m34,22l12,0l0,4l-12,0l0,-4z"
+                          fill="#ffffff"
+                          xmlns="http://www.w3.org/2000/svg"
+                        />
+                        <path
+                          d="m18,36l4,0l0,-4l4,0l0,4l4,0l0,4l-4,0l0,4l-4,0l0,-4l-4,0l0,-4z"
+                          fill="#ffffff"
+                          xmlns="http://www.w3.org/2000/svg"
+                        />
+                        <path
+                          d="m34,36l4,0l0,-4l4,0l0,4l4,0l0,4l-4,0l0,4l-4,0l0,-4l-4,0l0,-4z"
+                          fill="#ffffff"
+                          xmlns="http://www.w3.org/2000/svg"
+                        />
+                      </svg>
+                    </i>
                      1
                     
                   </div>
@@ -23269,7 +23801,7 @@ exports[`Storybook Tests IndividualsTable HiddenHeader 1`] = `
                     
                     <i
                       aria-hidden="true"
-                      class="mdi-account-multiple mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
+                      class="mdi-gitlab mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
                     />
                      1
                     
@@ -26019,8 +26551,55 @@ exports[`Storybook Tests IndividualsTable Outlined 1`] = `
                     
                     <i
                       aria-hidden="true"
-                      class="mdi-git mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
-                    />
+                      class="v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
+                    >
+                      <svg
+                        class="v-icon__svg"
+                        viewBox="0 0 52 52"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <rect
+                          height="38"
+                          rx="4"
+                          ry="4"
+                          width="38"
+                          x="2"
+                          xmlns="http://www.w3.org/2000/svg"
+                          y="2"
+                        />
+                        <rect
+                          height="38"
+                          rx="4"
+                          ry="4"
+                          stroke="#ffffff"
+                          stroke-width="2"
+                          width="38"
+                          x="12"
+                          xmlns="http://www.w3.org/2000/svg"
+                          y="12"
+                        />
+                        <path
+                          d="m18,22l12,0l0,4l-12,0l0,-4z"
+                          fill="#ffffff"
+                          xmlns="http://www.w3.org/2000/svg"
+                        />
+                        <path
+                          d="m34,22l12,0l0,4l-12,0l0,-4z"
+                          fill="#ffffff"
+                          xmlns="http://www.w3.org/2000/svg"
+                        />
+                        <path
+                          d="m18,36l4,0l0,-4l4,0l0,4l4,0l0,4l-4,0l0,4l-4,0l0,-4l-4,0l0,-4z"
+                          fill="#ffffff"
+                          xmlns="http://www.w3.org/2000/svg"
+                        />
+                        <path
+                          d="m34,36l4,0l0,-4l4,0l0,4l4,0l0,4l-4,0l0,4l-4,0l0,-4l-4,0l0,-4z"
+                          fill="#ffffff"
+                          xmlns="http://www.w3.org/2000/svg"
+                        />
+                      </svg>
+                    </i>
                      1
                     
                   </div>
@@ -26055,7 +26634,7 @@ exports[`Storybook Tests IndividualsTable Outlined 1`] = `
                     
                     <i
                       aria-hidden="true"
-                      class="mdi-github mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
+                      class="mdi-git mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
                     />
                      1
                     
@@ -26091,7 +26670,7 @@ exports[`Storybook Tests IndividualsTable Outlined 1`] = `
                     
                     <i
                       aria-hidden="true"
-                      class="mdi-account-multiple mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
+                      class="mdi-github mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
                     />
                      1
                     
@@ -26568,8 +27147,55 @@ exports[`Storybook Tests IndividualsTable Outlined 1`] = `
                     
                     <i
                       aria-hidden="true"
-                      class="mdi-gitlab mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
-                    />
+                      class="v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
+                    >
+                      <svg
+                        class="v-icon__svg"
+                        viewBox="0 0 52 52"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <rect
+                          height="38"
+                          rx="4"
+                          ry="4"
+                          width="38"
+                          x="2"
+                          xmlns="http://www.w3.org/2000/svg"
+                          y="2"
+                        />
+                        <rect
+                          height="38"
+                          rx="4"
+                          ry="4"
+                          stroke="#ffffff"
+                          stroke-width="2"
+                          width="38"
+                          x="12"
+                          xmlns="http://www.w3.org/2000/svg"
+                          y="12"
+                        />
+                        <path
+                          d="m18,22l12,0l0,4l-12,0l0,-4z"
+                          fill="#ffffff"
+                          xmlns="http://www.w3.org/2000/svg"
+                        />
+                        <path
+                          d="m34,22l12,0l0,4l-12,0l0,-4z"
+                          fill="#ffffff"
+                          xmlns="http://www.w3.org/2000/svg"
+                        />
+                        <path
+                          d="m18,36l4,0l0,-4l4,0l0,4l4,0l0,4l-4,0l0,4l-4,0l0,-4l-4,0l0,-4z"
+                          fill="#ffffff"
+                          xmlns="http://www.w3.org/2000/svg"
+                        />
+                        <path
+                          d="m34,36l4,0l0,-4l4,0l0,4l4,0l0,4l-4,0l0,4l-4,0l0,-4l-4,0l0,-4z"
+                          fill="#ffffff"
+                          xmlns="http://www.w3.org/2000/svg"
+                        />
+                      </svg>
+                    </i>
                      1
                     
                   </div>
@@ -26604,7 +27230,7 @@ exports[`Storybook Tests IndividualsTable Outlined 1`] = `
                     
                     <i
                       aria-hidden="true"
-                      class="mdi-account-multiple mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
+                      class="mdi-gitlab mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
                     />
                      1
                     
@@ -32282,6 +32908,7 @@ exports[`Storybook Tests ProfileCard Default 1`] = `
               
               
             </div>
+            <!--v-if-->
             
           </div>
           <!---->
@@ -34924,6 +35551,7 @@ exports[`Storybook Tests WorkSpace Default 1`] = `
                     
                     
                   </div>
+                  <!--v-if-->
                   
                 </div>
                 <!---->
@@ -35174,6 +35802,7 @@ exports[`Storybook Tests WorkSpace Default 1`] = `
                     
                     
                   </div>
+                  <!--v-if-->
                   
                 </div>
                 <!---->
@@ -36584,8 +37213,55 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
                       
                       <i
                         aria-hidden="true"
-                        class="mdi-git mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
-                      />
+                        class="v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
+                      >
+                        <svg
+                          class="v-icon__svg"
+                          viewBox="0 0 52 52"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <rect
+                            height="38"
+                            rx="4"
+                            ry="4"
+                            width="38"
+                            x="2"
+                            xmlns="http://www.w3.org/2000/svg"
+                            y="2"
+                          />
+                          <rect
+                            height="38"
+                            rx="4"
+                            ry="4"
+                            stroke="#ffffff"
+                            stroke-width="2"
+                            width="38"
+                            x="12"
+                            xmlns="http://www.w3.org/2000/svg"
+                            y="12"
+                          />
+                          <path
+                            d="m18,22l12,0l0,4l-12,0l0,-4z"
+                            fill="#ffffff"
+                            xmlns="http://www.w3.org/2000/svg"
+                          />
+                          <path
+                            d="m34,22l12,0l0,4l-12,0l0,-4z"
+                            fill="#ffffff"
+                            xmlns="http://www.w3.org/2000/svg"
+                          />
+                          <path
+                            d="m18,36l4,0l0,-4l4,0l0,4l4,0l0,4l-4,0l0,4l-4,0l0,-4l-4,0l0,-4z"
+                            fill="#ffffff"
+                            xmlns="http://www.w3.org/2000/svg"
+                          />
+                          <path
+                            d="m34,36l4,0l0,-4l4,0l0,4l4,0l0,4l-4,0l0,4l-4,0l0,-4l-4,0l0,-4z"
+                            fill="#ffffff"
+                            xmlns="http://www.w3.org/2000/svg"
+                          />
+                        </svg>
+                      </i>
                        1
                       
                     </div>
@@ -36620,7 +37296,7 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
                       
                       <i
                         aria-hidden="true"
-                        class="mdi-github mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
+                        class="mdi-git mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
                       />
                        1
                       
@@ -36656,7 +37332,7 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
                       
                       <i
                         aria-hidden="true"
-                        class="mdi-account-multiple mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
+                        class="mdi-github mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
                       />
                        1
                       
@@ -37133,8 +37809,55 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
                       
                       <i
                         aria-hidden="true"
-                        class="mdi-gitlab mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
-                      />
+                        class="v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
+                      >
+                        <svg
+                          class="v-icon__svg"
+                          viewBox="0 0 52 52"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <rect
+                            height="38"
+                            rx="4"
+                            ry="4"
+                            width="38"
+                            x="2"
+                            xmlns="http://www.w3.org/2000/svg"
+                            y="2"
+                          />
+                          <rect
+                            height="38"
+                            rx="4"
+                            ry="4"
+                            stroke="#ffffff"
+                            stroke-width="2"
+                            width="38"
+                            x="12"
+                            xmlns="http://www.w3.org/2000/svg"
+                            y="12"
+                          />
+                          <path
+                            d="m18,22l12,0l0,4l-12,0l0,-4z"
+                            fill="#ffffff"
+                            xmlns="http://www.w3.org/2000/svg"
+                          />
+                          <path
+                            d="m34,22l12,0l0,4l-12,0l0,-4z"
+                            fill="#ffffff"
+                            xmlns="http://www.w3.org/2000/svg"
+                          />
+                          <path
+                            d="m18,36l4,0l0,-4l4,0l0,4l4,0l0,4l-4,0l0,4l-4,0l0,-4l-4,0l0,-4z"
+                            fill="#ffffff"
+                            xmlns="http://www.w3.org/2000/svg"
+                          />
+                          <path
+                            d="m34,36l4,0l0,-4l4,0l0,4l4,0l0,4l-4,0l0,4l-4,0l0,-4l-4,0l0,-4z"
+                            fill="#ffffff"
+                            xmlns="http://www.w3.org/2000/svg"
+                          />
+                        </svg>
+                      </i>
                        1
                       
                     </div>
@@ -37169,7 +37892,7 @@ exports[`Storybook Tests WorkSpace DragAndDrop 1`] = `
                       
                       <i
                         aria-hidden="true"
-                        class="mdi-account-multiple mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
+                        class="mdi-gitlab mdi v-icon notranslate v-theme--light v-icon--size-default v-icon--start"
                       />
                        1
                       

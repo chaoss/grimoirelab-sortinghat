@@ -37,12 +37,22 @@ const moveIdentity = (fromUuid, toUuid, action, dialog) => {
 
 const groupIdentities = (identities) => {
   const icons = [
+    { source: "confluence", icon: "fa:fab fa-confluence" },
+    { source: "gerrit", icon: "$gerrit" },
     { source: "git", icon: "mdi-git" },
     { source: "github", icon: "mdi-github" },
     { source: "gitlab", icon: "mdi-gitlab" },
     { source: "dockerhub", icon: "mdi-docker" },
+    { source: "jenkins", icon: "fa:fab fa-jenkins" },
     { source: "jira", icon: "mdi-jira" },
+    { source: "launchpad", icon: "mdi-ubuntu" },
     { source: "linkedin", icon: "mdi-linkedin" },
+    { source: "phorge", icon: "mdi-cog" },
+    { source: "maniphest", icon: "fa:fab fa-phabricator" },
+    { source: "mbox", icon: "mdi-email-newsletter" },
+    { source: "meetup", icon: "fa:fab fa-meetup" },
+    { source: "phabricator", icon: "fa:fab fa-phabricator" },
+    { source: "pipermail", icon: "mdi-email-newsletter" },
     { source: "rss", icon: "mdi-rss" },
     { source: "slack", icon: "mdi-slack" },
     { source: "stackexchange", icon: "mdi-stack-exchange" },
@@ -50,19 +60,35 @@ const groupIdentities = (identities) => {
     { source: "twitter", icon: "mdi-twitter" },
   ];
   const otherSources = "Other sources";
-  // Group identities by data source
-  const groupedIdentities = identities.reduce((result, val) => {
-    let source = val.source.toLowerCase().replace(/\s+/g, "");
+
+  // Group identities by data source, emails and usernames
+  const groupedData = identities.reduce((result, current) => {
+    let source = current.source.toLowerCase().replace(/\s+/g, "");
     const sourceIcon = icons.find((icon) => icon.source === source);
     if (!sourceIcon) {
       source = otherSources;
     }
-    if (result[source]) {
-      result[source].identities.push(val);
+    if (!result.usernames) {
+      result.usernames = new Set();
+      result.emails = new Set();
+      result.identitiesBysource = {};
+    }
+    if (current.email) {
+      result.emails.add(current.email);
+    }
+    if (current.username) {
+      result.usernames.add(
+        JSON.stringify({
+          [sourceIcon?.icon || "mdi-account-multiple"]: current.username,
+        })
+      );
+    }
+    if (result.identitiesBysource[source]) {
+      result.identitiesBysource[source].identities.push(current);
     } else {
-      result[source] = {
+      result.identitiesBysource[source] = {
         name: source,
-        identities: [val],
+        identities: [current],
         icon: sourceIcon ? sourceIcon.icon : "mdi-account-multiple",
       };
     }
@@ -70,32 +96,38 @@ const groupIdentities = (identities) => {
   }, {});
 
   // Sort sources by alphabetical order and move "other" to end of list
-  let sortedIdentities = Object.values(groupedIdentities).sort((a, b) => {
-    if (a.name === otherSources) {
-      return 1;
-    } else if (b.name === otherSources) {
-      return -1;
+  let sortedIdentities = Object.values(groupedData.identitiesBysource).sort(
+    (a, b) => {
+      if (a.name === otherSources) {
+        return 1;
+      } else if (b.name === otherSources) {
+        return -1;
+      }
+      return a.name.localeCompare(b.name);
     }
-    return a.name.localeCompare(b.name);
-  });
+  );
 
-  return sortedIdentities;
+  return { identities: sortedIdentities, ...groupedData };
 };
 
 const formatIndividual = (individual) => {
+  const { identities, emails, usernames } = groupIdentities(
+    individual.identities
+  );
   const formattedIndividual = {
     name: individual.profile.name,
     id: individual.profile.id,
     uuid: individual.mk,
     email: individual.profile.email,
-    sources: groupIdentities(individual.identities).map((identity) => {
+    emails: emails,
+    sources: identities.map((identity) => {
       return {
         name: identity.name,
         icon: identity.icon,
         count: identity.identities.length,
       };
     }),
-    identities: groupIdentities(individual.identities),
+    identities: identities,
     enrollments: individual.enrollments,
     gender: individual.profile.gender,
     country: individual.profile.country,
@@ -103,6 +135,7 @@ const formatIndividual = (individual) => {
     isBot: individual.profile.isBot,
     lastReviewed: individual.lastReviewed,
     lastModified: individual.lastModified,
+    usernames: usernames,
   };
 
   if (individual.enrollments && individual.enrollments.length > 0) {

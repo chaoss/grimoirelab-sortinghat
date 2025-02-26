@@ -11,6 +11,10 @@ import {
   InMemoryCache,
   defaultDataIdFromObject,
 } from "@apollo/client/core";
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { far } from "@fortawesome/free-regular-svg-icons";
+import { fab } from "@fortawesome/free-brands-svg-icons";
 import vuetify from "./plugins/vuetify";
 import logger from "./plugins/logger";
 import errorMessages from "./plugins/errors";
@@ -66,6 +70,7 @@ const apolloProvider = new createApolloProvider({
 });
 
 createApp(App)
+  .component("font-awesome-icon", FontAwesomeIcon)
   .use(apolloProvider)
   .use(dateFormatter)
   .use(errorMessages)
@@ -74,3 +79,7 @@ createApp(App)
   .use(router)
   .use(vuetify)
   .mount("#app");
+
+// Add FontAwesome icons
+library.add(far);
+library.add(fab);
