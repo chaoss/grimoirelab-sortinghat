@@ -1382,9 +1382,11 @@ exports[`Individual Matches snapshot 1`] = `
               <div
                 class="v-container v-container--fluid v-locale--is-ltr"
               >
-                <div>
+                <div
+                  class="pb-2"
+                >
                   <div
-                    class="v-list-subheader"
+                    class="v-list-subheader mb-2"
                   >
                     <div
                       class="v-list-subheader__text"
