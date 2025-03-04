@@ -1,0 +1,10 @@
+---
+title: Wrong order of affiliations
+category: fixed
+author: Eva Millán <evamillan@bitergia.com>
+issue: 955
+notes: >
+  Multiple affiliations to the same company caused
+  a wrong order in the list of organizations at the
+  individual's profile. All affiliations are now
+  sorted by date.
