@@ -1,10 +1,10 @@
 module.exports = {
   preset: "@vue/cli-plugin-unit-jest",
   transformIgnorePatterns: [
-    "/node_modules/(?!(@storybook/.*\\.vue$)|(vuetify)|(@mdi))",
+    "/node_modules/(?!(@storybook/.*)|(storybook/.*)|(vuetify)|(@mdi))",
   ],
   transform: {
-    "^.+\\.(ts|js|mjs)x?$": "babel-jest",
+    "^.+\\.(ts|js|mjs|cjs)x?$": "babel-jest",
   },
   moduleNameMapper: {
     "^vuetify/components$":
@@ -18,8 +18,8 @@ module.exports = {
       "<rootDir>/node_modules/vuetify/lib/iconsets/fa-svg.mjs",
     "^vuetify/iconsets/mdi":
       "<rootDir>/node_modules/vuetify/lib/iconsets/mdi.mjs",
-    "^@storybook/vue3/preview":
-      "<rootDir>/node_modules/@storybook/vue3/dist/entry-preview.js",
+    "^@storybook/core/(.*)": "<rootDir>/node_modules/@storybook/core/dist/$1",
+    "^storybook/internal/(.*)": "<rootDir>/node_modules/storybook/core/$1",
   },
   setupFiles: ["./tests/setup.js"],
 };
