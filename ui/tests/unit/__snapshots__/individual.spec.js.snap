@@ -29,7 +29,7 @@ exports[`Individual Matches snapshot 1`] = `
                 class="v-col"
               >
                 <div
-                  class="v-list-item v-theme--light v-list-item--density-default v-list-item--variant-text pl-1 my-n4 v-list-item--three-line"
+                  class="v-list-item v-theme--light v-list-item--density-default rounded-0 v-list-item--variant-text pl-1 my-n4 v-list-item--three-line"
                 >
                   
                   <!---->
@@ -86,11 +86,10 @@ exports[`Individual Matches snapshot 1`] = `
                       
                       
                       <button
+                        aria-controls="v-menu-1"
                         aria-expanded="false"
                         aria-haspopup="menu"
-                        aria-owns="v-menu-1"
                         class="hide-icon"
-                        targetref="[object Object]"
                       >
                         <span>
                           
@@ -145,7 +144,6 @@ exports[`Individual Matches snapshot 1`] = `
                   aria-label="Mark as reviewed"
                   class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text mr-1"
                   data-testid="review-btn"
-                  targetref="[object Object]"
                   type="button"
                 >
                   
@@ -179,7 +177,6 @@ exports[`Individual Matches snapshot 1`] = `
                   aria-describedby="v-tooltip-4"
                   aria-label="Mark as bot"
                   class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text mr-1"
-                  targetref="[object Object]"
                   type="button"
                 >
                   
@@ -213,7 +210,6 @@ exports[`Individual Matches snapshot 1`] = `
                   aria-describedby="v-tooltip-6"
                   aria-label="Add to workspace"
                   class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text mr-1"
-                  targetref="[object Object]"
                   type="button"
                 >
                   
@@ -247,7 +243,6 @@ exports[`Individual Matches snapshot 1`] = `
                   aria-describedby="v-tooltip-8"
                   aria-label="Lock"
                   class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text mr-1"
-                  targetref="[object Object]"
                   type="button"
                 >
                   
@@ -278,12 +273,11 @@ exports[`Individual Matches snapshot 1`] = `
                 
                 
                 <button
+                  aria-controls="v-menu-10"
                   aria-expanded="false"
                   aria-haspopup="menu"
                   aria-label="See more actions"
-                  aria-owns="v-menu-10"
                   class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
-                  targetref="[object Object]"
                   type="button"
                 >
                   
@@ -343,11 +337,10 @@ exports[`Individual Matches snapshot 1`] = `
                     
                     
                     <button
+                      aria-controls="v-menu-12"
                       aria-expanded="false"
                       aria-haspopup="menu"
-                      aria-owns="v-menu-12"
                       class="hide-icon"
-                      targetref="[object Object]"
                     >
                       <span>
                         
@@ -379,11 +372,10 @@ exports[`Individual Matches snapshot 1`] = `
                     
                     
                     <button
+                      aria-controls="v-menu-13"
                       aria-expanded="false"
                       aria-haspopup="menu"
-                      aria-owns="v-menu-13"
                       class="hide-icon"
-                      targetref="[object Object]"
                     >
                       <span
                         class="font-italic"
@@ -415,11 +407,10 @@ exports[`Individual Matches snapshot 1`] = `
                     
                     
                     <button
+                      aria-controls="v-menu-14"
                       aria-expanded="false"
                       aria-haspopup="menu"
-                      aria-owns="v-menu-14"
                       class="hide-icon"
-                      targetref="[object Object]"
                     >
                       <span
                         class="font-italic"
@@ -521,7 +512,7 @@ exports[`Individual Matches snapshot 1`] = `
                     
                     
                     <div
-                      class="v-list-item v-theme--light v-list-item--density-default v-list-item--one-line v-list-item--variant-text"
+                      class="v-list-item v-theme--light v-list-item--density-default v-list-item--one-line rounded-0 v-list-item--variant-text"
                       draggable="false"
                     >
                       
@@ -541,7 +532,6 @@ exports[`Individual Matches snapshot 1`] = `
                           aria-describedby="v-tooltip-17"
                           aria-hidden="true"
                           class="mdi-git mdi v-icon notranslate v-theme--light v-icon--size-default"
-                          targetref="[object Object]"
                         />
                         
                         <!--teleport start-->
@@ -594,7 +584,6 @@ exports[`Individual Matches snapshot 1`] = `
                                 <button
                                   aria-describedby="v-tooltip-19"
                                   class="v-btn v-btn--icon v-theme--light v-btn--density-comfortable v-btn--size-small v-btn--variant-text"
-                                  targetref="[object Object]"
                                   type="button"
                                 >
                                   
@@ -669,7 +658,6 @@ exports[`Individual Matches snapshot 1`] = `
                         <button
                           aria-describedby="v-tooltip-21"
                           class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
-                          targetref="[object Object]"
                           type="button"
                         >
                           
@@ -723,7 +711,7 @@ exports[`Individual Matches snapshot 1`] = `
                     
                     
                     <div
-                      class="v-list-item v-theme--light v-list-item--density-default v-list-item--one-line v-list-item--variant-text"
+                      class="v-list-item v-theme--light v-list-item--density-default v-list-item--one-line rounded-0 v-list-item--variant-text"
                       draggable="false"
                     >
                       
@@ -743,7 +731,6 @@ exports[`Individual Matches snapshot 1`] = `
                           aria-describedby="v-tooltip-25"
                           aria-hidden="true"
                           class="mdi-github mdi v-icon notranslate v-theme--light v-icon--size-default"
-                          targetref="[object Object]"
                         />
                         
                         <!--teleport start-->
@@ -796,7 +783,6 @@ exports[`Individual Matches snapshot 1`] = `
                                 <button
                                   aria-describedby="v-tooltip-27"
                                   class="v-btn v-btn--icon v-theme--light v-btn--density-comfortable v-btn--size-small v-btn--variant-text"
-                                  targetref="[object Object]"
                                   type="button"
                                 >
                                   
@@ -881,7 +867,6 @@ exports[`Individual Matches snapshot 1`] = `
                         <button
                           aria-describedby="v-tooltip-29"
                           class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
-                          targetref="[object Object]"
                           type="button"
                         >
                           
@@ -924,7 +909,7 @@ exports[`Individual Matches snapshot 1`] = `
                       </div>
                     </div>
                     <div
-                      class="v-list-item v-theme--light v-list-item--density-default v-list-item--one-line v-list-item--variant-text"
+                      class="v-list-item v-theme--light v-list-item--density-default v-list-item--one-line rounded-0 v-list-item--variant-text"
                       draggable="false"
                     >
                       
@@ -992,7 +977,6 @@ exports[`Individual Matches snapshot 1`] = `
                                 <button
                                   aria-describedby="v-tooltip-35"
                                   class="v-btn v-btn--icon v-theme--light v-btn--density-comfortable v-btn--size-small v-btn--variant-text"
-                                  targetref="[object Object]"
                                   type="button"
                                 >
                                   
@@ -1073,7 +1057,6 @@ exports[`Individual Matches snapshot 1`] = `
                         <button
                           aria-describedby="v-tooltip-37"
                           class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
-                          targetref="[object Object]"
                           type="button"
                         >
                           
@@ -1116,7 +1099,7 @@ exports[`Individual Matches snapshot 1`] = `
                       </div>
                     </div>
                     <div
-                      class="v-list-item v-theme--light v-list-item--density-default v-list-item--one-line v-list-item--variant-text"
+                      class="v-list-item v-theme--light v-list-item--density-default v-list-item--one-line rounded-0 v-list-item--variant-text"
                       draggable="false"
                     >
                       
@@ -1184,7 +1167,6 @@ exports[`Individual Matches snapshot 1`] = `
                                 <button
                                   aria-describedby="v-tooltip-43"
                                   class="v-btn v-btn--icon v-theme--light v-btn--density-comfortable v-btn--size-small v-btn--variant-text"
-                                  targetref="[object Object]"
                                   type="button"
                                 >
                                   
@@ -1267,7 +1249,6 @@ exports[`Individual Matches snapshot 1`] = `
                         <button
                           aria-describedby="v-tooltip-45"
                           class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
-                          targetref="[object Object]"
                           type="button"
                         >
                           
@@ -1327,12 +1308,15 @@ exports[`Individual Matches snapshot 1`] = `
                         aria-valuemin="0"
                         class="v-progress-linear v-theme--light v-locale--is-ltr"
                         role="progressbar"
-                        style="top: 0px; height: 0px; --v-progress-linear-height: 2px; left: 50%; transform: translateX(-50%);"
+                        style="top: 0px; height: 0px; --v-progress-linear-height: 2px;"
                       >
                         <!---->
                         <div
                           class="v-progress-linear__background"
-                          style="width: 100%;"
+                        />
+                        <div
+                          class="v-progress-linear__buffer"
+                          style="width: 0%;"
                         />
                         <transition-stub
                           appear="false"
