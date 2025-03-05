@@ -127,21 +127,24 @@
 
         <v-card-actions class="px-0 mt-4">
           <v-btn
+            class="text-subtitle-2"
             color="primary darken-1"
             variant="text"
             @click.prevent="fetchItem(page + 1)"
           >
-            Skip
+            Ask again later
           </v-btn>
           <v-spacer></v-spacer>
           <v-btn
+            class="text-subtitle-2"
             color="primary darken-1"
-            variant="text"
+            variant="outlined"
             @click.prevent="applyRecommendation(false)"
           >
-            Dismiss
+            Keep separate
           </v-btn>
           <v-btn
+            class="text-subtitle-2"
             color="primary"
             variant="flat"
             @click.prevent="applyRecommendation(true)"
