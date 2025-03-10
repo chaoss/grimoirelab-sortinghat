@@ -879,9 +879,11 @@ exports[`Storybook Tests EnrollModal WithOrganization 1`] = `
 
 exports[`Storybook Tests EnrollmentList Compact 1`] = `
 <div>
-  <div>
+  <div
+    class="pb-2"
+  >
     <div
-      class="v-list-subheader"
+      class="v-list-subheader mb-2"
     >
       <div
         class="v-list-subheader__text"
@@ -890,7 +892,7 @@ exports[`Storybook Tests EnrollmentList Compact 1`] = `
         <span
           class="text-subtitle-2"
         >
-           Organizations (3) 
+           Organizations (5) 
         </span>
         <!--v-if-->
         
@@ -994,9 +996,11 @@ exports[`Storybook Tests EnrollmentList Compact 1`] = `
 
 exports[`Storybook Tests EnrollmentList Default 1`] = `
 <div>
-  <div>
+  <div
+    class="pb-2"
+  >
     <div
-      class="v-list-subheader"
+      class="v-list-subheader mb-2"
     >
       <div
         class="v-list-subheader__text"
@@ -1005,7 +1009,7 @@ exports[`Storybook Tests EnrollmentList Default 1`] = `
         <span
           class="text-subtitle-2"
         >
-           Organizations (3) 
+           Organizations (5) 
         </span>
         <div>
           <button
@@ -1074,615 +1078,614 @@ exports[`Storybook Tests EnrollmentList Default 1`] = `
     </div>
     
     <div
-      class="ma-4"
+      class="v-row mx-2"
     >
-      
       <div
-        class="mb-2 d-flex justify-space-between align-center"
+        class="v-col v-col-1 pl-2"
       >
-        <div>
-          
-          
+        
+        
+        <i
+          aria-describedby="v-tooltip-2"
+          aria-hidden="true"
+          class="mdi-sitemap mdi v-icon notranslate v-theme--light v-icon--size-default mr-3"
+          targetref="[object Object]"
+        />
+        
+        <!--teleport start-->
+        <!--teleport end-->
+        
+      </div>
+      <div
+        class="v-col v-col-2"
+      >
+        Hogwarts
+      </div>
+      <div
+        class="v-col v-col-2"
+      >
+        
+        
+        <button
+          aria-expanded="false"
+          aria-haspopup="menu"
+          aria-owns="v-menu-3"
+          class="v-small-dialog__activator"
+          targetref="[object Object]"
+        >
+          <span
+            class="grey--text text--darken-2"
+          >
+            1892-09-01
+          </span>
           <i
-            aria-describedby="v-tooltip-2"
             aria-hidden="true"
-            class="mdi-sitemap mdi v-icon notranslate v-theme--light v-icon--size-default mr-3"
-            targetref="[object Object]"
+            class="mdi-lead-pencil mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
+          />
+        </button>
+        
+        <!---->
+        
+      </div>
+      <div
+        class="v-col v-col-2"
+      >
+        
+        
+        <button
+          aria-expanded="false"
+          aria-haspopup="menu"
+          aria-owns="v-menu-4"
+          class="v-small-dialog__activator"
+          targetref="[object Object]"
+        >
+          <span
+            class="grey--text text--darken-2"
+          >
+            1997-06-30
+          </span>
+          <i
+            aria-hidden="true"
+            class="mdi-lead-pencil mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
+          />
+        </button>
+        
+        <!---->
+        
+      </div>
+      <div
+        class="v-col d-flex justify-end align-center pr-1"
+      >
+        
+        
+        <!--v-if-->
+        
+        <!--teleport start-->
+        <!--teleport end-->
+        
+        
+        
+        <button
+          aria-describedby="v-tooltip-6"
+          aria-label="Remove affiliation"
+          class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
+          targetref="[object Object]"
+          type="button"
+        >
+          
+          <span
+            class="v-btn__overlay"
+          />
+          <span
+            class="v-btn__underlay"
           />
           
-          <!--teleport start-->
-          <!--teleport end-->
-          
-           Hogwarts 
-          
-          
-          <button
-            aria-expanded="false"
-            aria-haspopup="menu"
-            aria-owns="v-menu-3"
-            class="v-small-dialog__activator"
-            targetref="[object Object]"
+          <!---->
+          <span
+            class="v-btn__content"
+            data-no-activator=""
           >
-            <span
-              class="grey--text text--darken-2 ml-6"
-            >
-              1892-09-01
-            </span>
             <i
               aria-hidden="true"
-              class="mdi-lead-pencil mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
+              class="mdi-delete mdi v-icon notranslate v-theme--light v-icon--size-default"
             />
-          </button>
-          
+          </span>
           <!---->
-          
-          
-          
-          <button
-            aria-expanded="false"
-            aria-haspopup="menu"
-            aria-owns="v-menu-4"
-            class="v-small-dialog__activator ml-5"
-            targetref="[object Object]"
-          >
-            <span
-              class="grey--text text--darken-2 ml-2"
-            >
-              1997-06-30
-            </span>
-            <i
-              aria-hidden="true"
-              class="mdi-lead-pencil mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
-            />
-          </button>
-          
           <!---->
-          
-        </div>
-        <div>
-          
-          
-          <button
-            aria-describedby="v-tooltip-5"
-            class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
-            targetref="[object Object]"
-            type="button"
-          >
-            
-            <span
-              class="v-btn__overlay"
-            />
-            <span
-              class="v-btn__underlay"
-            />
-            
-            <!---->
-            <span
-              class="v-btn__content"
-              data-no-activator=""
-            >
-              <i
-                aria-hidden="true"
-                class="mdi-account-multiple-plus mdi v-icon notranslate v-theme--light v-icon--size-default"
-              />
-            </span>
-            <!---->
-            <!---->
-          </button>
-          
-          <!--teleport start-->
-          <!--teleport end-->
-          
-          
-          
-          <button
-            aria-describedby="v-tooltip-7"
-            class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
-            targetref="[object Object]"
-            type="button"
-          >
-            
-            <span
-              class="v-btn__overlay"
-            />
-            <span
-              class="v-btn__underlay"
-            />
-            
-            <!---->
-            <span
-              class="v-btn__content"
-              data-no-activator=""
-            >
-              <i
-                aria-hidden="true"
-                class="mdi-delete mdi v-icon notranslate v-theme--light v-icon--size-default"
-              />
-            </span>
-            <!---->
-            <!---->
-          </button>
-          
-          <!--teleport start-->
-          <!--teleport end-->
-          
-        </div>
+        </button>
+        
+        <!--teleport start-->
+        <!--teleport end-->
+        
       </div>
-      
-      <ul
-        class="ma-2 mr-0"
-      >
-        
-        <li
-          class="d-flex justify-space-between pr-0"
-        >
-          <div
-            class="d-flex align-center"
-          >
-            <span
-              class="ml-3 mr-4"
-            >
-              Gryffindor
-            </span>
-            
-            
-            <button
-              aria-expanded="false"
-              aria-haspopup="menu"
-              aria-owns="v-menu-9"
-              class="v-small-dialog__activator"
-              targetref="[object Object]"
-            >
-              <span
-                class="grey--text text--darken-2 ml-6"
-              >
-                1892-09-01
-              </span>
-              <i
-                aria-hidden="true"
-                class="mdi-lead-pencil mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
-              />
-            </button>
-            
-            <!---->
-            
-             - 
-            
-            
-            <button
-              aria-expanded="false"
-              aria-haspopup="menu"
-              aria-owns="v-menu-10"
-              class="v-small-dialog__activator ml-5"
-              targetref="[object Object]"
-            >
-              <span
-                class="grey--text text--darken-2 ml-2"
-              >
-                1899-06-02
-              </span>
-              <i
-                aria-hidden="true"
-                class="mdi-lead-pencil mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
-              />
-            </button>
-            
-            <!---->
-            
-          </div>
-          
-          
-          <button
-            aria-describedby="v-tooltip-11"
-            class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
-            targetref="[object Object]"
-            type="button"
-          >
-            
-            <span
-              class="v-btn__overlay"
-            />
-            <span
-              class="v-btn__underlay"
-            />
-            
-            <!---->
-            <span
-              class="v-btn__content"
-              data-no-activator=""
-            >
-              <i
-                aria-hidden="true"
-                class="mdi-delete mdi v-icon notranslate v-theme--light v-icon--size-default"
-              />
-            </span>
-            <!---->
-            <!---->
-          </button>
-          
-          <!--teleport start-->
-          <!--teleport end-->
-          
-        </li>
-        <li
-          class="d-flex justify-space-between pr-0"
-        >
-          <div
-            class="d-flex align-center"
-          >
-            <span
-              class="ml-3 mr-4"
-            >
-              Transfiguration department
-            </span>
-            
-            
-            <button
-              aria-expanded="false"
-              aria-haspopup="menu"
-              aria-owns="v-menu-13"
-              class="v-small-dialog__activator"
-              targetref="[object Object]"
-            >
-              <span
-                class="grey--text text--darken-2 ml-6"
-              >
-                1910-09-01
-              </span>
-              <i
-                aria-hidden="true"
-                class="mdi-lead-pencil mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
-              />
-            </button>
-            
-            <!---->
-            
-             - 
-            
-            
-            <button
-              aria-expanded="false"
-              aria-haspopup="menu"
-              aria-owns="v-menu-14"
-              class="v-small-dialog__activator ml-5"
-              targetref="[object Object]"
-            >
-              <span
-                class="grey--text text--darken-2 ml-2"
-              >
-                1969-06-01
-              </span>
-              <i
-                aria-hidden="true"
-                class="mdi-lead-pencil mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
-              />
-            </button>
-            
-            <!---->
-            
-          </div>
-          
-          
-          <button
-            aria-describedby="v-tooltip-15"
-            class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
-            targetref="[object Object]"
-            type="button"
-          >
-            
-            <span
-              class="v-btn__overlay"
-            />
-            <span
-              class="v-btn__underlay"
-            />
-            
-            <!---->
-            <span
-              class="v-btn__content"
-              data-no-activator=""
-            >
-              <i
-                aria-hidden="true"
-                class="mdi-delete mdi v-icon notranslate v-theme--light v-icon--size-default"
-              />
-            </span>
-            <!---->
-            <!---->
-          </button>
-          
-          <!--teleport start-->
-          <!--teleport end-->
-          
-        </li>
-        
-      </ul>
     </div>
     <div
-      class="ma-4"
+      class="v-row mx-2"
     >
-      
       <div
-        class="mb-2 d-flex justify-space-between align-center"
+        class="v-col v-col-1 pl-2"
       >
-        <div>
-          
-          
+        
+        
+        <i
+          aria-describedby="v-tooltip-8"
+          aria-hidden="true"
+          class="mdi-account-multiple mdi v-icon notranslate v-theme--light v-icon--size-default mr-3"
+          targetref="[object Object]"
+        />
+        
+        <!--teleport start-->
+        <!--teleport end-->
+        
+      </div>
+      <div
+        class="v-col v-col-2"
+      >
+        Gryffindor
+      </div>
+      <div
+        class="v-col v-col-2"
+      >
+        
+        
+        <button
+          aria-expanded="false"
+          aria-haspopup="menu"
+          aria-owns="v-menu-9"
+          class="v-small-dialog__activator"
+          targetref="[object Object]"
+        >
+          <span
+            class="grey--text text--darken-2"
+          >
+            1892-09-01
+          </span>
           <i
-            aria-describedby="v-tooltip-17"
             aria-hidden="true"
-            class="mdi-sitemap mdi v-icon notranslate v-theme--light v-icon--size-default mr-3"
-            targetref="[object Object]"
+            class="mdi-lead-pencil mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
+          />
+        </button>
+        
+        <!---->
+        
+      </div>
+      <div
+        class="v-col v-col-2"
+      >
+        
+        
+        <button
+          aria-expanded="false"
+          aria-haspopup="menu"
+          aria-owns="v-menu-10"
+          class="v-small-dialog__activator"
+          targetref="[object Object]"
+        >
+          <span
+            class="grey--text text--darken-2"
+          >
+            1899-06-02
+          </span>
+          <i
+            aria-hidden="true"
+            class="mdi-lead-pencil mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
+          />
+        </button>
+        
+        <!---->
+        
+      </div>
+      <div
+        class="v-col d-flex justify-end align-center pr-1"
+      >
+        
+        
+        <!--v-if-->
+        
+        <!--teleport start-->
+        <!--teleport end-->
+        
+        
+        
+        <button
+          aria-describedby="v-tooltip-12"
+          aria-label="Remove affiliation"
+          class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
+          targetref="[object Object]"
+          type="button"
+        >
+          
+          <span
+            class="v-btn__overlay"
+          />
+          <span
+            class="v-btn__underlay"
           />
           
-          <!--teleport start-->
-          <!--teleport end-->
-          
-           Order of the Phoenix 
-          
-          
-          <button
-            aria-expanded="false"
-            aria-haspopup="menu"
-            aria-owns="v-menu-18"
-            class="v-small-dialog__activator"
-            targetref="[object Object]"
+          <!---->
+          <span
+            class="v-btn__content"
+            data-no-activator=""
           >
-            <span
-              class="grey--text text--darken-2 ml-6"
-            >
-              1970-10-01
-            </span>
             <i
               aria-hidden="true"
-              class="mdi-lead-pencil mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
+              class="mdi-delete mdi v-icon notranslate v-theme--light v-icon--size-default"
             />
-          </button>
-          
+          </span>
           <!---->
-          
-          
-          
-          <button
-            aria-expanded="false"
-            aria-haspopup="menu"
-            aria-owns="v-menu-19"
-            class="v-small-dialog__activator ml-5"
-            targetref="[object Object]"
-          >
-            <span
-              class="grey--text text--darken-2 ml-2"
-            >
-              1997-06-30
-            </span>
-            <i
-              aria-hidden="true"
-              class="mdi-lead-pencil mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
-            />
-          </button>
-          
           <!---->
-          
-        </div>
-        <div>
-          
-          
-          <button
-            aria-describedby="v-tooltip-20"
-            class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
-            targetref="[object Object]"
-            type="button"
-          >
-            
-            <span
-              class="v-btn__overlay"
-            />
-            <span
-              class="v-btn__underlay"
-            />
-            
-            <!---->
-            <span
-              class="v-btn__content"
-              data-no-activator=""
-            >
-              <i
-                aria-hidden="true"
-                class="mdi-account-multiple-plus mdi v-icon notranslate v-theme--light v-icon--size-default"
-              />
-            </span>
-            <!---->
-            <!---->
-          </button>
-          
-          <!--teleport start-->
-          <!--teleport end-->
-          
-          
-          
-          <button
-            aria-describedby="v-tooltip-22"
-            class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
-            targetref="[object Object]"
-            type="button"
-          >
-            
-            <span
-              class="v-btn__overlay"
-            />
-            <span
-              class="v-btn__underlay"
-            />
-            
-            <!---->
-            <span
-              class="v-btn__content"
-              data-no-activator=""
-            >
-              <i
-                aria-hidden="true"
-                class="mdi-delete mdi v-icon notranslate v-theme--light v-icon--size-default"
-              />
-            </span>
-            <!---->
-            <!---->
-          </button>
-          
-          <!--teleport start-->
-          <!--teleport end-->
-          
-        </div>
+        </button>
+        
+        <!--teleport start-->
+        <!--teleport end-->
+        
       </div>
-      
-      <ul
-        class="ma-2 mr-0"
-      >
-        
-        
-      </ul>
     </div>
     <div
-      class="ma-4"
+      class="v-row mx-2"
     >
-      
       <div
-        class="mb-2 d-flex justify-space-between align-center"
+        class="v-col v-col-1 pl-2"
       >
-        <div>
-          
-          
+        
+        
+        <i
+          aria-describedby="v-tooltip-14"
+          aria-hidden="true"
+          class="mdi-account-multiple mdi v-icon notranslate v-theme--light v-icon--size-default mr-3"
+          targetref="[object Object]"
+        />
+        
+        <!--teleport start-->
+        <!--teleport end-->
+        
+      </div>
+      <div
+        class="v-col v-col-2"
+      >
+        Transfiguration department
+      </div>
+      <div
+        class="v-col v-col-2"
+      >
+        
+        
+        <button
+          aria-expanded="false"
+          aria-haspopup="menu"
+          aria-owns="v-menu-15"
+          class="v-small-dialog__activator"
+          targetref="[object Object]"
+        >
+          <span
+            class="grey--text text--darken-2"
+          >
+            1910-09-01
+          </span>
           <i
-            aria-describedby="v-tooltip-24"
             aria-hidden="true"
-            class="mdi-sitemap mdi v-icon notranslate v-theme--light v-icon--size-default mr-3"
-            targetref="[object Object]"
+            class="mdi-lead-pencil mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
+          />
+        </button>
+        
+        <!---->
+        
+      </div>
+      <div
+        class="v-col v-col-2"
+      >
+        
+        
+        <button
+          aria-expanded="false"
+          aria-haspopup="menu"
+          aria-owns="v-menu-16"
+          class="v-small-dialog__activator"
+          targetref="[object Object]"
+        >
+          <span
+            class="grey--text text--darken-2"
+          >
+            1969-06-01
+          </span>
+          <i
+            aria-hidden="true"
+            class="mdi-lead-pencil mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
+          />
+        </button>
+        
+        <!---->
+        
+      </div>
+      <div
+        class="v-col d-flex justify-end align-center pr-1"
+      >
+        
+        
+        <!--v-if-->
+        
+        <!--teleport start-->
+        <!--teleport end-->
+        
+        
+        
+        <button
+          aria-describedby="v-tooltip-18"
+          aria-label="Remove affiliation"
+          class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
+          targetref="[object Object]"
+          type="button"
+        >
+          
+          <span
+            class="v-btn__overlay"
+          />
+          <span
+            class="v-btn__underlay"
           />
           
-          <!--teleport start-->
-          <!--teleport end-->
-          
-           International Confederation of Wizards 
-          
-          
-          <button
-            aria-expanded="false"
-            aria-haspopup="menu"
-            aria-owns="v-menu-25"
-            class="v-small-dialog__activator"
-            targetref="[object Object]"
+          <!---->
+          <span
+            class="v-btn__content"
+            data-no-activator=""
           >
-            <span
-              class="grey--text text--darken-2 ml-6"
-            >
-              1991-01-01
-            </span>
             <i
               aria-hidden="true"
-              class="mdi-lead-pencil mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
+              class="mdi-delete mdi v-icon notranslate v-theme--light v-icon--size-default"
             />
-          </button>
-          
+          </span>
           <!---->
-          
-          
-          
-          <button
-            aria-expanded="false"
-            aria-haspopup="menu"
-            aria-owns="v-menu-26"
-            class="v-small-dialog__activator ml-5"
-            targetref="[object Object]"
-          >
-            <span
-              class="grey--text text--darken-2 ml-2"
-            >
-              1995-04-02
-            </span>
-            <i
-              aria-hidden="true"
-              class="mdi-lead-pencil mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
-            />
-          </button>
-          
           <!---->
-          
-        </div>
-        <div>
-          
-          
-          <button
-            aria-describedby="v-tooltip-27"
-            class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
-            targetref="[object Object]"
-            type="button"
-          >
-            
-            <span
-              class="v-btn__overlay"
-            />
-            <span
-              class="v-btn__underlay"
-            />
-            
-            <!---->
-            <span
-              class="v-btn__content"
-              data-no-activator=""
-            >
-              <i
-                aria-hidden="true"
-                class="mdi-account-multiple-plus mdi v-icon notranslate v-theme--light v-icon--size-default"
-              />
-            </span>
-            <!---->
-            <!---->
-          </button>
-          
-          <!--teleport start-->
-          <!--teleport end-->
-          
-          
-          
-          <button
-            aria-describedby="v-tooltip-29"
-            class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
-            targetref="[object Object]"
-            type="button"
-          >
-            
-            <span
-              class="v-btn__overlay"
-            />
-            <span
-              class="v-btn__underlay"
-            />
-            
-            <!---->
-            <span
-              class="v-btn__content"
-              data-no-activator=""
-            >
-              <i
-                aria-hidden="true"
-                class="mdi-delete mdi v-icon notranslate v-theme--light v-icon--size-default"
-              />
-            </span>
-            <!---->
-            <!---->
-          </button>
-          
-          <!--teleport start-->
-          <!--teleport end-->
-          
-        </div>
+        </button>
+        
+        <!--teleport start-->
+        <!--teleport end-->
+        
       </div>
-      
-      <ul
-        class="ma-2 mr-0"
+    </div>
+    <div
+      class="v-row mx-2"
+    >
+      <div
+        class="v-col v-col-1 pl-2"
       >
         
         
-      </ul>
+        <i
+          aria-describedby="v-tooltip-20"
+          aria-hidden="true"
+          class="mdi-sitemap mdi v-icon notranslate v-theme--light v-icon--size-default mr-3"
+          targetref="[object Object]"
+        />
+        
+        <!--teleport start-->
+        <!--teleport end-->
+        
+      </div>
+      <div
+        class="v-col v-col-2"
+      >
+        Order of the Phoenix
+      </div>
+      <div
+        class="v-col v-col-2"
+      >
+        
+        
+        <button
+          aria-expanded="false"
+          aria-haspopup="menu"
+          aria-owns="v-menu-21"
+          class="v-small-dialog__activator"
+          targetref="[object Object]"
+        >
+          <span
+            class="grey--text text--darken-2"
+          >
+            1970-10-01
+          </span>
+          <i
+            aria-hidden="true"
+            class="mdi-lead-pencil mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
+          />
+        </button>
+        
+        <!---->
+        
+      </div>
+      <div
+        class="v-col v-col-2"
+      >
+        
+        
+        <button
+          aria-expanded="false"
+          aria-haspopup="menu"
+          aria-owns="v-menu-22"
+          class="v-small-dialog__activator"
+          targetref="[object Object]"
+        >
+          <span
+            class="grey--text text--darken-2"
+          >
+            1997-06-30
+          </span>
+          <i
+            aria-hidden="true"
+            class="mdi-lead-pencil mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
+          />
+        </button>
+        
+        <!---->
+        
+      </div>
+      <div
+        class="v-col d-flex justify-end align-center pr-1"
+      >
+        
+        
+        <!--v-if-->
+        
+        <!--teleport start-->
+        <!--teleport end-->
+        
+        
+        
+        <button
+          aria-describedby="v-tooltip-24"
+          aria-label="Remove affiliation"
+          class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
+          targetref="[object Object]"
+          type="button"
+        >
+          
+          <span
+            class="v-btn__overlay"
+          />
+          <span
+            class="v-btn__underlay"
+          />
+          
+          <!---->
+          <span
+            class="v-btn__content"
+            data-no-activator=""
+          >
+            <i
+              aria-hidden="true"
+              class="mdi-delete mdi v-icon notranslate v-theme--light v-icon--size-default"
+            />
+          </span>
+          <!---->
+          <!---->
+        </button>
+        
+        <!--teleport start-->
+        <!--teleport end-->
+        
+      </div>
+    </div>
+    <div
+      class="v-row mx-2"
+    >
+      <div
+        class="v-col v-col-1 pl-2"
+      >
+        
+        
+        <i
+          aria-describedby="v-tooltip-26"
+          aria-hidden="true"
+          class="mdi-sitemap mdi v-icon notranslate v-theme--light v-icon--size-default mr-3"
+          targetref="[object Object]"
+        />
+        
+        <!--teleport start-->
+        <!--teleport end-->
+        
+      </div>
+      <div
+        class="v-col v-col-2"
+      >
+        International Confederation of Wizards
+      </div>
+      <div
+        class="v-col v-col-2"
+      >
+        
+        
+        <button
+          aria-expanded="false"
+          aria-haspopup="menu"
+          aria-owns="v-menu-27"
+          class="v-small-dialog__activator"
+          targetref="[object Object]"
+        >
+          <span
+            class="grey--text text--darken-2"
+          >
+            1991-01-01
+          </span>
+          <i
+            aria-hidden="true"
+            class="mdi-lead-pencil mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
+          />
+        </button>
+        
+        <!---->
+        
+      </div>
+      <div
+        class="v-col v-col-2"
+      >
+        
+        
+        <button
+          aria-expanded="false"
+          aria-haspopup="menu"
+          aria-owns="v-menu-28"
+          class="v-small-dialog__activator"
+          targetref="[object Object]"
+        >
+          <span
+            class="grey--text text--darken-2"
+          >
+            1995-04-02
+          </span>
+          <i
+            aria-hidden="true"
+            class="mdi-lead-pencil mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
+          />
+        </button>
+        
+        <!---->
+        
+      </div>
+      <div
+        class="v-col d-flex justify-end align-center pr-1"
+      >
+        
+        
+        <!--v-if-->
+        
+        <!--teleport start-->
+        <!--teleport end-->
+        
+        
+        
+        <button
+          aria-describedby="v-tooltip-30"
+          aria-label="Remove affiliation"
+          class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
+          targetref="[object Object]"
+          type="button"
+        >
+          
+          <span
+            class="v-btn__overlay"
+          />
+          <span
+            class="v-btn__underlay"
+          />
+          
+          <!---->
+          <span
+            class="v-btn__content"
+            data-no-activator=""
+          >
+            <i
+              aria-hidden="true"
+              class="mdi-delete mdi v-icon notranslate v-theme--light v-icon--size-default"
+            />
+          </span>
+          <!---->
+          <!---->
+        </button>
+        
+        <!--teleport start-->
+        <!--teleport end-->
+        
+      </div>
     </div>
     
   </div>
@@ -1915,9 +1918,11 @@ exports[`Storybook Tests ExpandedIndividual Compact 1`] = `
         
       </div>
     </div>
-    <div>
+    <div
+      class="pb-2"
+    >
       <div
-        class="v-list-subheader"
+        class="v-list-subheader mb-2"
       >
         <div
           class="v-list-subheader__text"
@@ -2960,9 +2965,11 @@ exports[`Storybook Tests ExpandedIndividual Default 1`] = `
         
       </div>
     </div>
-    <div>
+    <div
+      class="pb-2"
+    >
       <div
-        class="v-list-subheader"
+        class="v-list-subheader mb-2"
       >
         <div
           class="v-list-subheader__text"
@@ -3040,290 +3047,248 @@ exports[`Storybook Tests ExpandedIndividual Default 1`] = `
       </div>
       
       <div
-        class="ma-4"
+        class="v-row mx-2"
       >
-        
         <div
-          class="mb-2 d-flex justify-space-between align-center"
+          class="v-col v-col-1 pl-2"
         >
-          <div>
-            
-            
+          
+          
+          <i
+            aria-describedby="v-tooltip-35"
+            aria-hidden="true"
+            class="mdi-sitemap mdi v-icon notranslate v-theme--light v-icon--size-default mr-3"
+            targetref="[object Object]"
+          />
+          
+          <!--teleport start-->
+          <!--teleport end-->
+          
+        </div>
+        <div
+          class="v-col v-col-2"
+        >
+          Slytherin
+        </div>
+        <div
+          class="v-col v-col-2"
+        >
+          
+          
+          <button
+            aria-expanded="false"
+            aria-haspopup="menu"
+            aria-owns="v-menu-36"
+            class="v-small-dialog__activator"
+            targetref="[object Object]"
+          >
+            <span
+              class="grey--text text--darken-2"
+            >
+              1938-09-01
+            </span>
             <i
-              aria-describedby="v-tooltip-35"
               aria-hidden="true"
-              class="mdi-sitemap mdi v-icon notranslate v-theme--light v-icon--size-default mr-3"
-              targetref="[object Object]"
+              class="mdi-lead-pencil mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
+            />
+          </button>
+          
+          <!---->
+          
+        </div>
+        <div
+          class="v-col v-col-2"
+        >
+          
+          
+          <button
+            aria-expanded="false"
+            aria-haspopup="menu"
+            aria-owns="v-menu-37"
+            class="v-small-dialog__activator"
+            targetref="[object Object]"
+          >
+            <span
+              class="grey--text text--darken-2"
+            >
+              1998-05-02
+            </span>
+            <i
+              aria-hidden="true"
+              class="mdi-lead-pencil mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
+            />
+          </button>
+          
+          <!---->
+          
+        </div>
+        <div
+          class="v-col d-flex justify-end align-center pr-1"
+        >
+          
+          
+          <!--v-if-->
+          
+          <!--teleport start-->
+          <!--teleport end-->
+          
+          
+          
+          <button
+            aria-describedby="v-tooltip-39"
+            aria-label="Remove affiliation"
+            class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
+            targetref="[object Object]"
+            type="button"
+          >
+            
+            <span
+              class="v-btn__overlay"
+            />
+            <span
+              class="v-btn__underlay"
             />
             
-            <!--teleport start-->
-            <!--teleport end-->
-            
-             Slytherin 
-            
-            
-            <button
-              aria-expanded="false"
-              aria-haspopup="menu"
-              aria-owns="v-menu-36"
-              class="v-small-dialog__activator"
-              targetref="[object Object]"
+            <!---->
+            <span
+              class="v-btn__content"
+              data-no-activator=""
             >
-              <span
-                class="grey--text text--darken-2 ml-6"
-              >
-                1938-09-01
-              </span>
               <i
                 aria-hidden="true"
-                class="mdi-lead-pencil mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
+                class="mdi-delete mdi v-icon notranslate v-theme--light v-icon--size-default"
               />
-            </button>
-            
+            </span>
             <!---->
-            
-            
-            
-            <button
-              aria-expanded="false"
-              aria-haspopup="menu"
-              aria-owns="v-menu-37"
-              class="v-small-dialog__activator ml-5"
-              targetref="[object Object]"
-            >
-              <span
-                class="grey--text text--darken-2 ml-2"
-              >
-                1998-05-02
-              </span>
-              <i
-                aria-hidden="true"
-                class="mdi-lead-pencil mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
-              />
-            </button>
-            
             <!---->
-            
-          </div>
-          <div>
-            
-            
-            <button
-              aria-describedby="v-tooltip-38"
-              class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
-              targetref="[object Object]"
-              type="button"
-            >
-              
-              <span
-                class="v-btn__overlay"
-              />
-              <span
-                class="v-btn__underlay"
-              />
-              
-              <!---->
-              <span
-                class="v-btn__content"
-                data-no-activator=""
-              >
-                <i
-                  aria-hidden="true"
-                  class="mdi-account-multiple-plus mdi v-icon notranslate v-theme--light v-icon--size-default"
-                />
-              </span>
-              <!---->
-              <!---->
-            </button>
-            
-            <!--teleport start-->
-            <!--teleport end-->
-            
-            
-            
-            <button
-              aria-describedby="v-tooltip-40"
-              class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
-              targetref="[object Object]"
-              type="button"
-            >
-              
-              <span
-                class="v-btn__overlay"
-              />
-              <span
-                class="v-btn__underlay"
-              />
-              
-              <!---->
-              <span
-                class="v-btn__content"
-                data-no-activator=""
-              >
-                <i
-                  aria-hidden="true"
-                  class="mdi-delete mdi v-icon notranslate v-theme--light v-icon--size-default"
-                />
-              </span>
-              <!---->
-              <!---->
-            </button>
-            
-            <!--teleport start-->
-            <!--teleport end-->
-            
-          </div>
+          </button>
+          
+          <!--teleport start-->
+          <!--teleport end-->
+          
         </div>
-        
-        <ul
-          class="ma-2 mr-0"
-        >
-          
-          
-        </ul>
       </div>
       <div
-        class="ma-4"
+        class="v-row mx-2"
       >
-        
         <div
-          class="mb-2 d-flex justify-space-between align-center"
+          class="v-col v-col-1 pl-2"
         >
-          <div>
-            
-            
+          
+          
+          <i
+            aria-describedby="v-tooltip-41"
+            aria-hidden="true"
+            class="mdi-sitemap mdi v-icon notranslate v-theme--light v-icon--size-default mr-3"
+            targetref="[object Object]"
+          />
+          
+          <!--teleport start-->
+          <!--teleport end-->
+          
+        </div>
+        <div
+          class="v-col v-col-2"
+        >
+          Hogwarts School of Witchcraft and Wizardry
+        </div>
+        <div
+          class="v-col v-col-2"
+        >
+          
+          
+          <button
+            aria-expanded="false"
+            aria-haspopup="menu"
+            aria-owns="v-menu-42"
+            class="v-small-dialog__activator"
+            targetref="[object Object]"
+          >
+            <span
+              class="grey--text text--darken-2"
+            >
+              1938-09-01
+            </span>
             <i
-              aria-describedby="v-tooltip-42"
               aria-hidden="true"
-              class="mdi-sitemap mdi v-icon notranslate v-theme--light v-icon--size-default mr-3"
-              targetref="[object Object]"
+              class="mdi-lead-pencil mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
+            />
+          </button>
+          
+          <!---->
+          
+        </div>
+        <div
+          class="v-col v-col-2"
+        >
+          
+          
+          <button
+            aria-expanded="false"
+            aria-haspopup="menu"
+            aria-owns="v-menu-43"
+            class="v-small-dialog__activator"
+            targetref="[object Object]"
+          >
+            <span
+              class="grey--text text--darken-2"
+            >
+              1945-06-02
+            </span>
+            <i
+              aria-hidden="true"
+              class="mdi-lead-pencil mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
+            />
+          </button>
+          
+          <!---->
+          
+        </div>
+        <div
+          class="v-col d-flex justify-end align-center pr-1"
+        >
+          
+          
+          <!--v-if-->
+          
+          <!--teleport start-->
+          <!--teleport end-->
+          
+          
+          
+          <button
+            aria-describedby="v-tooltip-45"
+            aria-label="Remove affiliation"
+            class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
+            targetref="[object Object]"
+            type="button"
+          >
+            
+            <span
+              class="v-btn__overlay"
+            />
+            <span
+              class="v-btn__underlay"
             />
             
-            <!--teleport start-->
-            <!--teleport end-->
-            
-             Hogwarts School of Witchcraft and Wizardry 
-            
-            
-            <button
-              aria-expanded="false"
-              aria-haspopup="menu"
-              aria-owns="v-menu-43"
-              class="v-small-dialog__activator"
-              targetref="[object Object]"
+            <!---->
+            <span
+              class="v-btn__content"
+              data-no-activator=""
             >
-              <span
-                class="grey--text text--darken-2 ml-6"
-              >
-                1938-09-01
-              </span>
               <i
                 aria-hidden="true"
-                class="mdi-lead-pencil mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
+                class="mdi-delete mdi v-icon notranslate v-theme--light v-icon--size-default"
               />
-            </button>
-            
+            </span>
             <!---->
-            
-            
-            
-            <button
-              aria-expanded="false"
-              aria-haspopup="menu"
-              aria-owns="v-menu-44"
-              class="v-small-dialog__activator ml-5"
-              targetref="[object Object]"
-            >
-              <span
-                class="grey--text text--darken-2 ml-2"
-              >
-                1945-06-02
-              </span>
-              <i
-                aria-hidden="true"
-                class="mdi-lead-pencil mdi v-icon notranslate v-theme--light v-icon--size-small v-icon--end"
-              />
-            </button>
-            
             <!---->
-            
-          </div>
-          <div>
-            
-            
-            <button
-              aria-describedby="v-tooltip-45"
-              class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
-              targetref="[object Object]"
-              type="button"
-            >
-              
-              <span
-                class="v-btn__overlay"
-              />
-              <span
-                class="v-btn__underlay"
-              />
-              
-              <!---->
-              <span
-                class="v-btn__content"
-                data-no-activator=""
-              >
-                <i
-                  aria-hidden="true"
-                  class="mdi-account-multiple-plus mdi v-icon notranslate v-theme--light v-icon--size-default"
-                />
-              </span>
-              <!---->
-              <!---->
-            </button>
-            
-            <!--teleport start-->
-            <!--teleport end-->
-            
-            
-            
-            <button
-              aria-describedby="v-tooltip-47"
-              class="v-btn v-btn--icon v-theme--light v-btn--density-default v-btn--size-small v-btn--variant-text"
-              targetref="[object Object]"
-              type="button"
-            >
-              
-              <span
-                class="v-btn__overlay"
-              />
-              <span
-                class="v-btn__underlay"
-              />
-              
-              <!---->
-              <span
-                class="v-btn__content"
-                data-no-activator=""
-              >
-                <i
-                  aria-hidden="true"
-                  class="mdi-delete mdi v-icon notranslate v-theme--light v-icon--size-default"
-                />
-              </span>
-              <!---->
-              <!---->
-            </button>
-            
-            <!--teleport start-->
-            <!--teleport end-->
-            
-          </div>
+          </button>
+          
+          <!--teleport start-->
+          <!--teleport end-->
+          
         </div>
-        
-        <ul
-          class="ma-2 mr-0"
-        >
-          
-          
-        </ul>
       </div>
       
     </div>
@@ -3664,9 +3629,11 @@ exports[`Storybook Tests ExpandedIndividual NoOrganizations 1`] = `
         
       </div>
     </div>
-    <div>
+    <div
+      class="pb-2"
+    >
       <div
-        class="v-list-subheader"
+        class="v-list-subheader mb-2"
       >
         <div
           class="v-list-subheader__text"

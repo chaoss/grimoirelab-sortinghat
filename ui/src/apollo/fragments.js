@@ -5,12 +5,14 @@ const INDIVIDUAL_ENROLLMENTS = gql`
     enrollments {
       start
       end
+      id
       group {
         name
         type
         parentOrg {
           name
         }
+        numchild
       }
     }
   }
