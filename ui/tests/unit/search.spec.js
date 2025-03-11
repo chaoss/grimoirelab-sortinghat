@@ -271,7 +271,7 @@ describe("Search", () => {
       },
     });
     const select = wrapper.findComponent({ ref: "orderSelector" });
-    select.vm.select(orderOption);
+    select.setValue("ordervalue");
 
     // Default descending order
     expect(wrapper.vm.order.value).toBe("ordervalue");
