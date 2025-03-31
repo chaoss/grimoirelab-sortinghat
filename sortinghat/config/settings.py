@@ -386,3 +386,13 @@ PERMISSION_GROUPS_LIST_PATH = os.environ.get('SORTINGHAT_PERMISSION_GROUPS_LIST_
 
 MATCH_TRUSTED_SOURCES = os.environ.get('SORTINGHAT_MATCH_TRUSTED_SOURCES',
                                        'github,gitlab,slack').split(',')
+
+#
+# Session cookies configuration
+#
+# https://docs.djangoproject.com/en/4.2/topics/http/sessions/#settings
+#
+
+SESSION_COOKIE_AGE = 1800
+SESSION_COOKIE_SECURE = True
+SESSION_SAVE_EVERY_REQUEST = True

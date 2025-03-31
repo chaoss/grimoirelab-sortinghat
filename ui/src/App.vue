@@ -56,7 +56,6 @@
 </template>
 
 <script>
-import Cookies from "js-cookie";
 export default {
   name: "App",
   computed: {
@@ -67,9 +66,7 @@ export default {
   methods: {
     logOut() {
       this.$logger.info(`Log out user ${this.user}`);
-      Cookies.remove("sh_user");
-      this.$store.commit("loginUser", undefined);
-      this.$router.push("/login");
+      this.$store.dispatch("logout");
     },
   },
   watch: {

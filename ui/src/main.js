@@ -11,6 +11,7 @@ import {
   InMemoryCache,
   defaultDataIdFromObject,
 } from "@apollo/client/core";
+import { onError } from "@apollo/client/link/error";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { far } from "@fortawesome/free-regular-svg-icons";
@@ -19,6 +20,8 @@ import vuetify from "./plugins/vuetify";
 import logger from "./plugins/logger";
 import errorMessages from "./plugins/errors";
 import dateFormatter from "./plugins/dateFormatter";
+
+const AUTHENTICATION_ERROR = "Authentication credentials were not provided";
 
 const API_URL = process.env.VUE_APP_API_URL || `${process.env.BASE_URL}api/`;
 
@@ -57,7 +60,13 @@ const AuthLink = (operation, next) => {
   return next(operation);
 };
 
-const link = ApolloLink.from([AuthLink, httpLink]);
+const logoutLink = onError(({ graphQLErrors }) => {
+  if (graphQLErrors && graphQLErrors[0].message == AUTHENTICATION_ERROR) {
+    store.dispatch("logout");
+  }
+});
+
+const link = ApolloLink.from([AuthLink, logoutLink, httpLink]);
 
 // Create the apollo client
 const apolloClient = new ApolloClient({

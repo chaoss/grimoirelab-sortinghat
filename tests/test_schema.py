@@ -108,7 +108,8 @@ ENROLLMENT_DOES_NOT_EXIST_ERROR = "enrollment with range '2050-01-01 00:00:00+00
 PAGINATION_NO_RESULTS_ERROR = "That page contains no results"
 PAGINATION_PAGE_LESS_THAN_ONE_ERROR = "That page number is less than 1"
 PAGINATION_PAGE_SIZE_ZERO_ERROR = "division by zero"
-AUTHENTICATION_ERROR = "You do not have permission to perform this action"
+AUTHENTICATION_ERROR = "Authentication credentials were not provided"
+AUTHORIZATION_ERROR = "You do not have permission to perform this action"
 PARSE_DATE_INVALID_DATE_ERROR = "{} is not a valid date"
 PARSE_DATE_INVALID_FORMAT_ERROR = "Filter format is not valid"
 INVALID_FILTER_DATE_ERROR = "Error in {} filter: {} is not a valid date"
@@ -10021,7 +10022,7 @@ class TestAffiliateMutation(django.test.TestCase):
 
         msg = executed['errors'][0]['message']
 
-        self.assertEqual(msg, AUTHENTICATION_ERROR)
+        self.assertEqual(msg, AUTHORIZATION_ERROR)
 
 
 class TestUnifyMutation(django.test.TestCase):
@@ -10567,7 +10568,7 @@ class TestUnifyMutation(django.test.TestCase):
 
         msg = executed['errors'][0]['message']
 
-        self.assertEqual(msg, AUTHENTICATION_ERROR)
+        self.assertEqual(msg, AUTHORIZATION_ERROR)
 
 
 def setup_genderize_server():
@@ -10874,7 +10875,7 @@ class TestGenderizeMutation(django.test.TestCase):
 
         msg = executed['errors'][0]['message']
 
-        self.assertEqual(msg, AUTHENTICATION_ERROR)
+        self.assertEqual(msg, AUTHORIZATION_ERROR)
 
 
 class TestAddRecommenderExclusionTermMutation(django.test.TestCase):

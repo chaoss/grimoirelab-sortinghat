@@ -58,6 +58,8 @@ def user_passes_test(test_func, exc=PermissionDenied, CSRFCheck=CsrfViewMiddlewa
                 failure_reason = check.process_view(context, None, (), {})
                 if failure_reason:
                     raise exc
+            if test_func and context.user.is_anonymous is True:
+                raise exc("Authentication credentials were not provided")
             if test_func(context.user):
                 return f(*args, **kwargs)
             raise exc

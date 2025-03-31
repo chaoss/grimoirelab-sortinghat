@@ -23,7 +23,6 @@ Cypress.Commands.add("login", () => {
     })
       .its("body.user")
       .then((user) => {
-        console.log(user);
         cy.setCookie("sh_user", user);
       });
   });
@@ -40,7 +39,21 @@ Cypress.Commands.add("orderBy", (option) => {
 });
 
 Cypress.Commands.add("addIndividuals", (individuals) => {
-  cy.getCookie("csrftoken").then((csrfToken) => {
+  cy.request({
+    method: "POST",
+    url: API_URL,
+    body: {
+      operationName: "tokenAuth",
+      query: `mutation tokenAuth($username: String!, $password: String!) {
+        tokenAuth(username: $username, password: $password) {
+          token
+        }}`,
+      variables: {
+        username: Cypress.env("USERNAME"),
+        password: Cypress.env("PASSWORD"),
+      },
+    },
+  }).then((response) => {
     individuals.forEach((individual) => {
       cy.request({
         method: "POST",
@@ -56,7 +69,7 @@ Cypress.Commands.add("addIndividuals", (individuals) => {
           },
         },
         headers: {
-          "X-CSRFTOKEN": csrfToken.value,
+          "Authorization": `JWT ${response.body.data.tokenAuth.token}`,
         },
       }).then((response) => {
         if (response.body.data.addIdentity) {
