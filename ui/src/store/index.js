@@ -1,5 +1,6 @@
 import { createStore } from "vuex";
 import Cookies from "js-cookie";
+import router from "../router";
 
 export const store = createStore({
   state: {
@@ -52,6 +53,11 @@ export const store = createStore({
         const error = await response.json();
         throw new Error(error.errors);
       }
+    },
+    logout({ commit }) {
+      commit("loginUser", undefined);
+      Cookies.remove("sh_user");
+      router.push("/login");
     },
     saveWorkspace({ commit }, workspaceData) {
       const uuids = workspaceData.map((individual) => individual.uuid);

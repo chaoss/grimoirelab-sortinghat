@@ -1,0 +1,10 @@
+---
+title: Improved session cookie security
+category: added
+author: Eva Millán <evamillan@bitergia.com>
+issue: null
+notes: >
+  Session cookies are now sent with the `Secure` attribute
+  to protect them from attacks. By default, the cookies expire
+  after 30 minutes of user inactivity.
+  This configuration can be changed in the `settings.py` file.
