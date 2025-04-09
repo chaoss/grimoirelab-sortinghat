@@ -1,5 +1,34 @@
 # Releases
 
+## sortinghat 1.7.0 - (2025-04-09)
+
+**New features:**
+
+ * More detailed individual information  when reviewing recommendations (#936)\
+   The "Review recommendations" functionality now shows a list of the
+   individuals' usernames and email addresses to help compare them more
+   easily without needing to expand the information each time.
+ * Renamed recommendations view labels (#954)\
+   The text of the buttons on the recommendations view was changed to
+   make the actions to be performed clearer.
+ * Improved session cookie security\
+   Session cookies are now sent with the `Secure` attribute to protect
+   them from attacks. By default, the cookies expire after 30 minutes of
+   user inactivity. This configuration can be changed in the
+   `settings.py` file.
+ * More icons for sources\
+   The user interface now has icons for Confluence, Jenkins, Phabricator,
+   Meetup and Gerrit. This prevents from grouping them into "other
+   sources".
+
+**Bug fixes:**
+
+ * Wrong order of affiliations (#955)\
+   Multiple affiliations to the same company caused a wrong order in the
+   list of organizations at the individual's profile. All affiliations
+   are now sorted by date.
+
+
 ## sortinghat 1.6.2 - (2025-01-16)
 
 **Dependencies updateds:**
