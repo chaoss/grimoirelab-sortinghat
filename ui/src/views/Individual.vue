@@ -167,6 +167,7 @@
                   <v-divider inline></v-divider>
                   <v-list-item
                     :disabled="individual.isLocked"
+                    base-color="error"
                     @click="confirmDelete"
                   >
                     <v-list-item-title>Delete individual</v-list-item-title>
@@ -366,9 +367,8 @@
         <v-card-text>
           <v-text-field
             v-model="linkedinModal.username"
-            label="LinkedIn username"
-            prefix="https://www.linkedin.com/in/"
-            placeholder="username"
+            label="LinkedIn profile URL or username"
+            placeholder="https://www.linkedin.com/in/"
             autofocus
           ></v-text-field>
         </v-card-text>
@@ -800,6 +800,11 @@ export default {
     },
     async addLinkedInProfile() {
       try {
+        const linkedinURL = /(linkedin\.com\/in\/)(.*?)(\/|$|\?)(.*)/;
+        const match = this.linkedinModal.username.match(linkedinURL);
+        if (match) {
+          this.linkedinModal.username = match[2];
+        }
         const response = await addLinkedinProfile(
           this.$apollo,
           this.mk,
