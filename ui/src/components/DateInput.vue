@@ -95,7 +95,7 @@ export default {
           const dateTime = `${dateString}T00:00:00+00:00`;
 
           this.inputDate = dateString;
-          this.pickerDate = dateObject;
+          this.pickerDate = dateString;
           this.$emit("update:modelValue", dateTime);
         } catch {
           this.setError("Invalid date");
@@ -105,13 +105,6 @@ export default {
         this.$emit("update:modelValue", null);
         this.inputDate = "";
         this.pickerDate = null;
-      }
-    },
-  },
-  watch: {
-    modelValue(newValue, oldValue) {
-      if (newValue?.substring(0, 9) !== oldValue?.substring(0, 9)) {
-        this.formatDate(newValue);
       }
     },
   },
