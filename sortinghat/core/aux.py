@@ -21,6 +21,8 @@
 
 import re
 
+from urllib.parse import urlparse
+
 from .models import MIN_PERIOD_DATE, MAX_PERIOD_DATE
 
 
@@ -128,3 +130,6 @@ def validate_field(name, value, allow_none=False):
     m = re.match(r"^\s+$", value)
     if m:
         raise ValueError("'{}' cannot be composed by whitespaces only".format(name))
+
+    if urlparse(value).scheme:
+        raise ValueError(f"'{name}' cannot be a URL")
