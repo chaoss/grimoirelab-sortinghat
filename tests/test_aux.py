@@ -30,6 +30,7 @@ FIELD_NONE_ERROR = "'{name}' cannot be None"
 FIELD_EMPTY_ERROR = "'{name}' cannot be an empty string"
 FIELD_WHITESPACES_ERROR = "'{name}' cannot be composed by whitespaces only"
 FIELD_TYPE_ERROR = "field value must be a string; int given"
+FIELD_URL_ERROR = "'{name}' cannot be a URL"
 
 
 class TestMergeDatetimeRanges(TestCase):
@@ -398,6 +399,10 @@ class TestValidateField(TestCase):
         with self.assertRaisesRegex(ValueError, expected):
             validate_field('test_field', '  \t ')
 
+        expected = FIELD_URL_ERROR.format(name='test_field')
+        with self.assertRaisesRegex(ValueError, expected):
+            validate_field('test_field', 'https://example.com')
+
     def test_allow_none(self):
         """Check valid and invalid fields allowing `None` values"""
 
@@ -414,6 +419,10 @@ class TestValidateField(TestCase):
         expected = FIELD_WHITESPACES_ERROR.format(name='test_field')
         with self.assertRaisesRegex(ValueError, expected):
             validate_field('test_field', ' \t ', allow_none=True)
+
+        expected = FIELD_URL_ERROR.format(name='test_field')
+        with self.assertRaisesRegex(ValueError, expected):
+            validate_field('test_field', 'https://example.com', allow_none=True)
 
     def test_no_string(self):
         """Check if an exception is raised when the value type is not a string"""

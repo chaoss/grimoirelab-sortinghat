@@ -1,0 +1,8 @@
+---
+title: Allow pasting LinkedIn URL
+category: added
+author: Eva Millán <evamillan@bitergia.com>
+issue: 967
+notes: >
+  The form to add a LinkedIn profile to a user now
+  allows entering the full URL.
