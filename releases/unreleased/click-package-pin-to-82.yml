@@ -1,0 +1,8 @@
+---
+title: Click package pin to <8.2
+category: dependency
+author: Jose Javier Merchante <jjmerchante@bitergia.com>
+issue: null
+notes: >
+  The new release of Click (8.2.0) is not compatible with Python 3.9.
+  Pin that dependency to < 8.2.0.
