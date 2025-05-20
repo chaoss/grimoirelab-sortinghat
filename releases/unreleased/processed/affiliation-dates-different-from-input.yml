@@ -1,9 +1,0 @@
----
-title: Affiliation dates different from input
-category: fixed
-author: Eva Millán <evamillan@bitergia.com>
-issue: 966
-notes: >
- Affiliation dates shown in the user interface were
- sometimes different from the ones entered in the
- edit form.
