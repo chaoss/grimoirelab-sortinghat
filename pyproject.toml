@@ -51,7 +51,7 @@ sortinghat-admin = "sortinghat.server.sortinghat_admin:sortinghat_admin"
 [tool.poetry.dependencies]
 python = "^3.9"
 
-click = "^8.0.0"
+click = "<8.2.0"  # 8.2 is not compatible with Python 3.9
 Django = "^4.2"
 django-graphql-jwt = "^0.3.0"
 graphene-django = "^2.15"
