@@ -44,6 +44,7 @@ describe("Individual", () => {
       ],
       enrollments: [],
       matchRecommendationSet: [],
+      changelog: [],
     },
   ];
 

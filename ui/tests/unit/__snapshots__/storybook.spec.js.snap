@@ -82,6 +82,180 @@ exports[`Storybook Tests Avatar SingleInitial 1`] = `
 </div>
 `;
 
+exports[`Storybook Tests ChangeLog Default 1`] = `
+<div>
+  <div
+    class="fit-content"
+  >
+    <div
+      class="v-list-subheader text-subtitle-2 mb-2"
+    >
+      <div
+        class="v-list-subheader__text"
+      >
+        
+         Activity 
+        
+      </div>
+    </div>
+    <div
+      class="v-timeline v-timeline--vertical v-timeline--align-center v-timeline--justify-auto v-theme--light v-timeline--density-default v-timeline--side-end v-locale--is-ltr"
+      style="--v-timeline-line-thickness: 2px;"
+    >
+      
+      <div
+        class="v-timeline-item"
+        line-thickness="1"
+        style="--v-timeline-dot-size: 0px; --v-timeline-line-inset: 0px;"
+      >
+        <div
+          class="v-timeline-item__body"
+        >
+          
+          <span
+            class="font-weight-medium"
+          >
+            username
+          </span>
+           added an organization on 2025-05-26
+          
+        </div>
+        <div
+          class="v-timeline-divider"
+        >
+          <div
+            class="v-timeline-divider__before"
+          />
+          <div
+            class="v-timeline-divider__dot v-timeline-divider__dot--size-x-small"
+          >
+            <div
+              class="v-timeline-divider__inner-dot bg-on-surface-variant"
+            >
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate v-theme--light v-icon--size-x-small"
+              >
+                
+                <!---->
+                
+              </i>
+            </div>
+          </div>
+          <div
+            class="v-timeline-divider__after"
+          />
+        </div>
+        <div
+          class="v-timeline-item__opposite"
+        >
+          <!---->
+        </div>
+      </div>
+      <div
+        class="v-timeline-item"
+        line-thickness="1"
+        style="--v-timeline-dot-size: 0px; --v-timeline-line-inset: 0px;"
+      >
+        <div
+          class="v-timeline-item__body"
+        >
+          
+          <span
+            class="font-weight-medium"
+          >
+            An automated process
+          </span>
+           merged identities on 2025-05-21
+          
+        </div>
+        <div
+          class="v-timeline-divider"
+        >
+          <div
+            class="v-timeline-divider__before"
+          />
+          <div
+            class="v-timeline-divider__dot v-timeline-divider__dot--size-x-small"
+          >
+            <div
+              class="v-timeline-divider__inner-dot bg-on-surface-variant"
+            >
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate v-theme--light v-icon--size-x-small"
+              >
+                
+                <!---->
+                
+              </i>
+            </div>
+          </div>
+          <div
+            class="v-timeline-divider__after"
+          />
+        </div>
+        <div
+          class="v-timeline-item__opposite"
+        >
+          <!---->
+        </div>
+      </div>
+      <div
+        class="v-timeline-item"
+        line-thickness="1"
+        style="--v-timeline-dot-size: 0px; --v-timeline-line-inset: 0px;"
+      >
+        <div
+          class="v-timeline-item__body"
+        >
+          
+          <span
+            class="font-weight-medium"
+          >
+            username
+          </span>
+           split identities on 2024-07-29
+          
+        </div>
+        <div
+          class="v-timeline-divider"
+        >
+          <div
+            class="v-timeline-divider__before"
+          />
+          <div
+            class="v-timeline-divider__dot v-timeline-divider__dot--size-x-small"
+          >
+            <div
+              class="v-timeline-divider__inner-dot bg-on-surface-variant"
+            >
+              <i
+                aria-hidden="true"
+                class="v-icon notranslate v-theme--light v-icon--size-x-small"
+              >
+                
+                <!---->
+                
+              </i>
+            </div>
+          </div>
+          <div
+            class="v-timeline-divider__after"
+          />
+        </div>
+        <div
+          class="v-timeline-item__opposite"
+        >
+          <!---->
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</div>
+`;
+
 exports[`Storybook Tests DateInput Default 1`] = `
 <div>
   <div

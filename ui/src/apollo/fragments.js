@@ -61,9 +61,18 @@ const FULL_INDIVIDUAL = gql`
   ${INDIVIDUAL_IDENTITIES}
 `;
 
+const CHANGELOG = gql`
+  fragment changelog on ChangeLogType {
+    name
+    authoredBy
+    createdAt
+  }
+`;
+
 export {
   FULL_INDIVIDUAL,
   INDIVIDUAL_ENROLLMENTS,
   INDIVIDUAL_IDENTITIES,
   INDIVIDUAL_PROFILE,
+  CHANGELOG,
 };
