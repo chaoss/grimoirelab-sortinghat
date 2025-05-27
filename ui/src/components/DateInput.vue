@@ -91,11 +91,17 @@ export default {
       if (date) {
         try {
           const dateObject = this.dateFormatter.date(date);
-          const dateString = this.dateFormatter.toISO(dateObject);
+          const timeZoneOffset = Math.abs(
+            dateObject.getTimezoneOffset() * -60000
+          );
+          const normalizedDate = new Date(
+            dateObject.getTime() + timeZoneOffset
+          );
+          const dateString = this.dateFormatter.toISO(normalizedDate);
           const dateTime = `${dateString}T00:00:00+00:00`;
 
           this.inputDate = dateString;
-          this.pickerDate = dateString;
+          this.pickerDate = normalizedDate;
           this.$emit("update:modelValue", dateTime);
         } catch {
           this.setError("Invalid date");
