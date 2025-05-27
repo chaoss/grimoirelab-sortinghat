@@ -8,20 +8,17 @@ describe("DateInput", () => {
       global: {
         plugins: [vuetify],
       },
-      props: {
-        label: "Label",
-      },
       ...options,
     });
   };
 
   test("Sets date in the right formats", async () => {
-    const wrapper = mountFunction({ props: { modelValue: "2020" } });
+    const wrapper = mountFunction({ props: { modelValue: "2020", label: "Label" } });
     wrapper.find("input").trigger("change");
 
     // YYYYYY-MM-DD format in the UI
     expect(wrapper.vm.inputDate).toBe("2020-01-01");
-    expect(wrapper.vm.pickerDate).toEqual("2020-01-01");
+    expect(wrapper.vm.pickerDate.toJSON()).toMatch("2020-01-01");
 
     // Emit ISO date for the v-model
     expect(wrapper.emitted("update:modelValue")[1]).toEqual([
@@ -30,7 +27,7 @@ describe("DateInput", () => {
   });
 
   test("Shows an error for an invalid date", async () => {
-    const wrapper = mountFunction({ props: { modelValue: "invalid date" } });
+    const wrapper = mountFunction({ props: { modelValue: "invalid date",label: "Label" } });
 
     expect(wrapper.vm.error).toBe("Invalid date");
     expect(wrapper.find('[role="alert"]').exists()).toBe(true);

@@ -1,0 +1,9 @@
+---
+title: Fixed unresponsive affiliation calendar
+category: fixed
+author: Eva Millán <evamillan@bitergia.com>
+issue: 974
+notes: >
+  The calendar for affiliating didn't close after
+  selecting a date and updated the input box with
+  a wrong date.
