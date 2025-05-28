@@ -66,6 +66,10 @@ const CHANGELOG = gql`
     name
     authoredBy
     createdAt
+    operations {
+      entityType
+      args
+    }
   }
 `;
 

@@ -15,6 +15,7 @@
           }}
         </span>
         {{ parseText(item) }}
+        on {{ $formatDate(item.createdAt, "YYYY-MM-DD") }}
       </v-timeline-item>
     </v-timeline>
     <p v-else class="v-timeline">No recent activity for this profile</p>
@@ -30,23 +31,56 @@ export default {
   },
   methods: {
     parseText(item) {
-      const actions = {
-        add_identity: "added an identity",
-        enroll: "added an organization",
-        lock: "locked the profile",
-        merge: "merged identities",
-        unmerge_identities: "split identities",
-        unlock: "unlocked the profile",
-        update_profile: "updated profile data",
-        withdraw: "removed an organization",
-        review: "reviewed the profile",
-      };
       const name = item.name.split("-")[0];
 
-      const action = actions[name] || name.replace("-", " ");
-      const date = this.$formatDate(item.createdAt, "YYYY-MM-DD");
-
-      return `${action} on ${date}`;
+      switch (name) {
+        case "add_identity": {
+          const operation = item.operations?.find(
+            (op) => op.entityType === "identity"
+          );
+          const source = operation.args.source;
+          const uuid = operation.args.uuid?.substring(0, 7);
+          return `added ${source} identity ${uuid}`;
+        }
+        case "enroll": {
+          const organization = item.operations[0]?.args.group;
+          return `enrolled individual in ${organization}`;
+        }
+        case "lock":
+          return "locked the profile";
+        case "merge": {
+          const uuids = item.operations
+            .filter((op) => op.args.identity)
+            .map((op) => op.args.identity.substring(0, 7));
+          return `merged ${
+            uuids.length > 1 ? "identities" : "identity"
+          } ${uuids.join(", ")}`;
+        }
+        case "merge_organizations": {
+          const operation = item.operations?.find(
+            (op) => op.entityType === "alias"
+          );
+          return `merged ${operation.args.name} into ${operation.args.organization}`;
+        }
+        case "review":
+          return "reviewed the profile";
+        case "unlock":
+          return "unlocked the profile";
+        case "unmerge_identities":
+          return "split identity";
+        case "update_profile": {
+          const fields = Object.keys(item.operations[0]?.args)
+            .filter((key) => key !== "individual")
+            .join(", ");
+          return `updated profile ${fields}`;
+        }
+        case "withdraw": {
+          const organization = item.operations[0]?.args.group;
+          return `withdrew individual from ${organization}`;
+        }
+        default:
+          return name.replace("-", " ");
+      }
     },
   },
 };

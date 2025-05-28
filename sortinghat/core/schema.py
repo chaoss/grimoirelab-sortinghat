@@ -237,7 +237,6 @@ class CountryType(DjangoObjectType):
 class ChangeLogType(DjangoObjectType):
     class Meta:
         model = Transaction
-        fields = ('name', 'authored_by', 'created_at', 'tuid')
 
 
 class IndividualType(DjangoObjectType):
