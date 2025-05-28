@@ -1,5 +1,5 @@
 import gql from "graphql-tag";
-import { FULL_INDIVIDUAL } from "./fragments";
+import { CHANGELOG, FULL_INDIVIDUAL } from "./fragments";
 
 const GET_INDIVIDUAL_BYUUID = gql`
   query GetIndividual($uuid: String!) {
@@ -12,10 +12,14 @@ const GET_INDIVIDUAL_BYUUID = gql`
             ...individual
           }
         }
+        changelog {
+          ...changelog
+        }
       }
     }
   }
   ${FULL_INDIVIDUAL}
+  ${CHANGELOG}
 `;
 
 const GET_INDIVIDUALS = gql`

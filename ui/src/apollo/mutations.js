@@ -1,5 +1,5 @@
 import gql from "graphql-tag";
-import { FULL_INDIVIDUAL } from "./fragments";
+import { CHANGELOG, FULL_INDIVIDUAL } from "./fragments";
 
 const TOKEN_AUTH = gql`
   mutation tokenAuth($username: String!, $password: String!) {
@@ -15,10 +15,14 @@ const LOCK_INDIVIDUAL = gql`
       uuid
       individual {
         ...individual
+        changelog {
+          ...changelog
+        }
       }
     }
   }
   ${FULL_INDIVIDUAL}
+  ${CHANGELOG}
 `;
 
 const UNLOCK_INDIVIDUAL = gql`
@@ -27,10 +31,14 @@ const UNLOCK_INDIVIDUAL = gql`
       uuid
       individual {
         ...individual
+        changelog {
+          ...changelog
+        }
       }
     }
   }
   ${FULL_INDIVIDUAL}
+  ${CHANGELOG}
 `;
 
 const DELETE_IDENTITY = gql`
@@ -63,10 +71,14 @@ const UNMERGE = gql`
       uuids
       individuals {
         ...individual
+        changelog {
+          ...changelog
+        }
       }
     }
   }
   ${FULL_INDIVIDUAL}
+  ${CHANGELOG}
 `;
 
 const MOVE_IDENTITY = gql`
@@ -99,10 +111,14 @@ const ENROLL = gql`
       uuid
       individual {
         ...individual
+        changelog {
+          ...changelog
+        }
       }
     }
   }
   ${FULL_INDIVIDUAL}
+  ${CHANGELOG}
 `;
 
 const ADD_ORGANIZATION = gql`
@@ -179,6 +195,9 @@ const UPDATE_PROFILE = gql`
       uuid
       individual {
         ...individual
+        changelog {
+          ...changelog
+        }
         matchRecommendationSet {
           id
           individual {
@@ -189,6 +208,7 @@ const UPDATE_PROFILE = gql`
     }
   }
   ${FULL_INDIVIDUAL}
+  ${CHANGELOG}
 `;
 
 const DELETE_DOMAIN = gql`
@@ -219,10 +239,14 @@ const WITHDRAW = gql`
       uuid
       individual {
         ...individual
+        changelog {
+          ...changelog
+        }
       }
     }
   }
   ${FULL_INDIVIDUAL}
+  ${CHANGELOG}
 `;
 
 const DELETE_ORGANIZATION = gql`
@@ -267,10 +291,14 @@ const UPDATE_ENROLLMENT = gql`
       uuid
       individual {
         ...individual
+        changelog {
+          ...changelog
+        }
       }
     }
   }
   ${FULL_INDIVIDUAL}
+  ${CHANGELOG}
 `;
 
 const AFFILIATE = gql`
@@ -450,10 +478,14 @@ const ADD_LINKEDIN_PROFILE = gql`
     addIdentity(uuid: $uuid, username: $username, source: "linkedin") {
       individual {
         ...individual
+        changelog {
+          ...changelog
+        }
       }
     }
   }
   ${FULL_INDIVIDUAL}
+  ${CHANGELOG}
 `;
 
 const DELETE_MERGE_RECOMMENDATIONS = gql`
@@ -470,6 +502,9 @@ const REVIEW_INDIVIDUAL = gql`
       uuid
       individual {
         ...individual
+        changelog {
+          ...changelog
+        }
         matchRecommendationSet {
           id
           individual {
@@ -480,6 +515,7 @@ const REVIEW_INDIVIDUAL = gql`
     }
   }
   ${FULL_INDIVIDUAL}
+  ${CHANGELOG}
 `;
 
 const tokenAuth = (apollo, username, password) => {

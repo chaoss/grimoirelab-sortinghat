@@ -1361,7 +1361,7 @@ exports[`Individual Matches snapshot 1`] = `
               </div>
             </div>
             <div
-              class="v-row section"
+              class="v-row section mb-4"
             >
               <div
                 class="v-container v-container--fluid v-locale--is-ltr"
@@ -1449,6 +1449,34 @@ exports[`Individual Matches snapshot 1`] = `
                   </div>
                   
                   
+                </div>
+              </div>
+            </div>
+            <div
+              class="v-row section mb-0"
+            >
+              <div
+                class="v-container v-locale--is-ltr"
+              >
+                <div
+                  class="fit-content"
+                >
+                  <div
+                    class="v-list-subheader text-subtitle-2 mb-2"
+                  >
+                    <div
+                      class="v-list-subheader__text"
+                    >
+                      
+                       Activity 
+                      
+                    </div>
+                  </div>
+                  <p
+                    class="v-timeline"
+                  >
+                    No recent activity for this profile
+                  </p>
                 </div>
               </div>
             </div>

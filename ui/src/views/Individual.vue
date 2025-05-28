@@ -267,7 +267,7 @@
             </v-container>
           </v-row>
 
-          <v-row class="section">
+          <v-row class="section mb-4">
             <v-container fluid>
               <enrollment-list
                 v-if="individual.enrollments"
@@ -278,6 +278,12 @@
                 @updateEnrollment="updateEnrollment"
                 @withdraw="withdraw"
               />
+            </v-container>
+          </v-row>
+
+          <v-row class="section mb-0">
+            <v-container>
+              <change-log :changes="changelog" />
             </v-container>
           </v-row>
         </v-col>
@@ -450,6 +456,7 @@ import TeamEnrollModal from "../components/TeamEnrollModal.vue";
 import MatchesModal from "../components/MatchesModal.vue";
 import EditDialog from "../components/EditDialog.vue";
 import LoadingSpinner from "../components/LoadingSpinner.vue";
+import ChangeLog from "../components/ChangeLog.vue";
 
 export default {
   name: "Individual",
@@ -463,6 +470,7 @@ export default {
     MatchesModal,
     EditDialog,
     LoadingSpinner,
+    ChangeLog,
   },
   mixins: [enrollMixin],
   apollo: {
@@ -473,6 +481,7 @@ export default {
         result(result) {
           if (result.data.individuals.entities.length === 1) {
             this.updateIndividual(result.data.individuals.entities);
+            // this.getChangelog(this.mk);
           } else if (result.errors) {
             this.error = this.$getErrorMessage(result.errors[0]);
           } else {
@@ -508,6 +517,7 @@ export default {
       socialProfiles: [],
       mk: this.$route.params.mk,
       error: null,
+      changelog: [],
     };
   },
   computed: {
@@ -724,6 +734,7 @@ export default {
 
       this.individual = formatIndividual(newData[0]);
       this.socialProfiles = this.getSocialProfiles(newData[0]);
+      this.changelog = newData[0].changelog;
 
       Object.assign(this.form, {
         name: this.individual.name,
