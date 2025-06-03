@@ -1,5 +1,20 @@
 # Releases
 
+## sortinghat 1.9.0 - (2025-06-03)
+
+**New features:**
+
+ * History of profile changes (#972)\
+   Individuals' profiles now include a history of changes and whether the
+   actions were performed by a user or an automated process.
+
+**Bug fixes:**
+
+ * Fixed unresponsive affiliation calendar (#974)\
+   The calendar for affiliating didn't close after selecting a date and
+   updated the input box with a wrong date.
+
+
 ## sortinghat 1.8.0 - (2025-05-20)
 
 **New features:**
