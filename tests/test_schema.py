@@ -486,6 +486,18 @@ SH_INDIVIDUALS_QUERY = """{
     }
   }
 }"""
+SH_INDIVIDUAL_CHANGELOG_QUERY = """{
+  individuals {
+    entities {
+      mk
+      changelog {
+        name
+        authoredBy
+        createdAt
+      }
+    }
+  }
+}"""
 SH_INDIVIDUAL_MERGE_REC_QUERY = """{
   individuals {
     entities {
@@ -2440,6 +2452,7 @@ class TestQueryIndividuals(django.test.TestCase):
         self.user = get_user_model().objects.create(username='test')
         self.context_value = RequestFactory().get(GRAPHQL_ENDPOINT)
         self.context_value.user = self.user
+        self.ctx = SortingHatContext(self.user)
 
     def test_individuals(self):
         """Check if it returns the registry of individuals"""
@@ -2614,6 +2627,66 @@ class TestQueryIndividuals(django.test.TestCase):
         indv2 = individuals[1]
         self.assertEqual(indv2['mk'], 'BBBB')
         self.assertEqual(indv2['matchRecommendationSet'][0]['individual']['mk'], 'AAAA')
+
+    def test_resolve_changelog(self):
+        """Check if it returns the changelog of some individuals"""
+
+        indv1 = Individual.objects.create(mk='AAAA')
+        indv2 = Individual.objects.create(mk='BBBB')
+        indv3 = Individual.objects.create(mk='CCCC')
+        Profile.objects.create(name="John",
+                               email='jsmith@example.com',
+                               individual=indv1)
+        Profile.objects.create(name="John",
+                               email='jsmith2@example.com',
+                               individual=indv2)
+        Profile.objects.create(name="Jane",
+                               email='jdoe@example.com',
+                               individual=indv3)
+
+        # Operations on individual 1
+        api.merge(self.ctx, [indv2.mk], indv1.mk)
+        api.update_profile(self.ctx, indv1.mk, name="John Smith")
+        api.lock(self.ctx, indv1.mk)
+
+        # Operations on individual 3
+        api.update_profile(self.ctx, indv3.mk, name="Jane Doe")
+
+        client = graphene.test.Client(schema)
+        executed = client.execute(SH_INDIVIDUAL_CHANGELOG_QUERY,
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+
+        # Test individual 1
+        individual = individuals[0]
+        self.assertEqual(individual['mk'], 'AAAA')
+
+        changelog = individual['changelog']
+        self.assertEqual(len(changelog), 3)
+
+        change = changelog[0]
+        self.assertEqual(change['name'], 'lock')
+        self.assertEqual(change['authoredBy'], self.user.username)
+
+        change = changelog[1]
+        self.assertEqual(change['name'], 'update_profile')
+        self.assertEqual(change['authoredBy'], self.user.username)
+
+        change = changelog[2]
+        self.assertEqual(change['name'], 'merge')
+        self.assertEqual(change['authoredBy'], self.user.username)
+
+        # Test individual 3
+        individual = individuals[1]
+        self.assertEqual(individual['mk'], 'CCCC')
+
+        changelog = individual['changelog']
+        self.assertEqual(len(changelog), 1)
+
+        change = changelog[0]
+        self.assertEqual(change['name'], 'update_profile')
+        self.assertEqual(change['authoredBy'], self.user.username)
 
     def test_filter_registry(self):
         """Check whether it returns the uuid searched when using uuid filter"""

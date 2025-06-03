@@ -234,12 +234,18 @@ class CountryType(DjangoObjectType):
         model = Country
 
 
+class ChangeLogType(DjangoObjectType):
+    class Meta:
+        model = Transaction
+
+
 class IndividualType(DjangoObjectType):
     class Meta:
         model = Individual
         exclude = ('match_recommendation_individual_1', 'match_recommendation_individual_2')
 
     match_recommendation_set = graphene.List(lambda: IndividualRecommendedMergeType)
+    changelog = graphene.List(lambda: ChangeLogType)
 
     @check_auth
     def resolve_match_recommendation_set(self, info):
@@ -250,6 +256,12 @@ class IndividualType(DjangoObjectType):
             indv = rec.individual1 if rec.individual1.mk != self.mk else rec.individual2
             indv_recs.append(IndividualRecommendedMergeType(id=rec.id, individual=indv))
         return indv_recs
+
+    @check_auth
+    def resolve_changelog(self, info):
+        query = Transaction.objects.order_by('-created_at').filter(operations__target=self.mk).distinct()[:10]
+
+        return query
 
 
 class IdentityType(DjangoObjectType):
