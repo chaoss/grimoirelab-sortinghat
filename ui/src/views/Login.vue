@@ -11,6 +11,7 @@
             id="username"
             outlined
             dense
+            @keyup.enter="submit"
           />
           <v-text-field
             v-model="password"
@@ -21,6 +22,7 @@
             outlined
             dense
             @click:append="showPassword = !showPassword"
+            @keyup.enter="submit"
           />
           <v-alert v-if="errorMessage" text type="error">
             {{ errorMessage }}
