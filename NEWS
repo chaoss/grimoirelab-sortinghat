@@ -1,5 +1,14 @@
 # Releases
 
+## sortinghat 1.9.1 - (2025-06-18)
+
+**Bug fixes:**
+
+ * Press Enter key to log in (#980)\
+   Users can now press the `Enter` key after entering the username and
+   password to log in.
+
+
 ## sortinghat 1.9.0 - (2025-06-03)
 
 **New features:**

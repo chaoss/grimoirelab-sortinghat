@@ -1,8 +1,0 @@
----
-title: Press Enter key to log in
-category: fixed
-author: Eva Millán <evamillan@bitergia.com>
-issue: 980
-notes: >
-  Users can now press the `Enter` key after entering
-  the username and password to log in.
