@@ -1,4 +1,4 @@
-FROM python:3.9-slim-bullseye
+FROM python:3.12-slim-bookworm
 
 LABEL maintainer="Santiago Dueñas <sduenas@bitergia.com>"
 LABEL org.opencontainers.image.title="SortingHat"
@@ -13,9 +13,6 @@ ENV TERM=xterm-256color
 
 # Create a user an a group
 RUN groupadd -r sortinghat && useradd -r -m -g sortinghat sortinghat
-
-# Change apt sources to avoid connection problems
-RUN sed -i "s/http:\/\/deb.debian.org/http:\/\/ftp.fr.debian.org/g" /etc/apt/sources.list
 
 # Install base packages
 RUN apt-get update && \
