@@ -1,5 +1,9 @@
 # Releases
 
+  ## sortinghat 1.9.2 - (2025-06-19)
+  
+  * Update Poetry's package dependencies
+
 ## sortinghat 1.9.1 - (2025-06-18)
 
 **Bug fixes:**
