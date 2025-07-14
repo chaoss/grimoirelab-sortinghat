@@ -360,9 +360,15 @@ export default {
             error.message.includes("Organization")
           );
         });
+        const aliasAlreadyExists = response.errors.find((error) => {
+          return error.extensions.code === 2 && error.message.includes("Alias");
+        });
         if (orgAlreadyExists) {
           this.mergeAlias = alias;
-          error += `. Click 'merge' to turn it into an alias of '${this.organization}'.`;
+          error += `. Click 'merge' to turn it into an alias of '${organization}'.`;
+        } else if (aliasAlreadyExists) {
+          this.mergeAlias = alias;
+          error += `. Click 'merge' to turn it and its organization into aliases of '${organization}'.`;
         }
 
         throw new Error(error);

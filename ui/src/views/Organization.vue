@@ -633,12 +633,22 @@ export default {
             error.message.includes("Organization")
           );
         });
+        const aliasAlreadyExists = response.errors.find((error) => {
+          return error.extensions.code === 2 && error.message.includes("Alias");
+        });
         if (orgAlreadyExists) {
           Object.assign(modalData, {
             action: () => this.mergeOrgs(alias, this.name),
             dismissButtonLabel: "Cancel",
             actionButtonLabel: "Merge",
             text: (modalData.text += `. Click 'merge' to turn it into an alias of '${this.name}'.`),
+          });
+        } else if (aliasAlreadyExists) {
+          Object.assign(modalData, {
+            action: () => this.mergeOrgs(alias, this.name),
+            dismissButtonLabel: "Cancel",
+            actionButtonLabel: "Merge",
+            text: (modalData.text += `. Click 'merge' to turn it and its organization into aliases of '${this.name}'.`),
           });
         }
         this.openModal(modalData);

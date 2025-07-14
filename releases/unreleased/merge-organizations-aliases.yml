@@ -1,0 +1,8 @@
+---
+title: Merge organizations aliases
+category: fixed
+author: Eva Millán <evamillan@bitergia.com>
+issue: null
+notes: >
+  The user interface now offers to merge two organizations when a
+  user tries to add an alias that already belongs to a different one. 
