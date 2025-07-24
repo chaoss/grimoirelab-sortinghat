@@ -177,7 +177,7 @@ describe("IndividualsData", () => {
     await wrapper.setData({
       individuals_mocked,
     });
-    expect(query).toBeCalled();
+    expect(query).toHaveBeenCalled();
     expect(wrapper.element).toMatchSnapshot();
   });
 
@@ -201,7 +201,7 @@ describe("IndividualsData", () => {
       },
     });
 
-    expect(getIndividualsSpied).toBeCalled();
+    expect(getIndividualsSpied).toHaveBeenCalled();
     expect(getIndividualsSpied).toHaveBeenCalledWith(wrapper.vm.$apollo, 50);
   });
 
@@ -226,7 +226,7 @@ describe("IndividualsData", () => {
     });
     wrapper.vm.scroll();
 
-    expect(getIndividualsSpied).toBeCalled();
+    expect(getIndividualsSpied).toHaveBeenCalled();
     expect(getIndividualsSpied).toHaveBeenCalledTimes(1);
   });
 });
@@ -272,7 +272,7 @@ describe("IndividualsTable", () => {
     await wrapper.setProps({ fetchPage: query });
     await Queries.getPaginatedIndividuals(wrapper.vm.$apollo, 1, 1);
 
-    expect(query).toBeCalled();
+    expect(query).toHaveBeenCalled();
     expect(wrapper.element).toMatchSnapshot();
   });
 
@@ -402,7 +402,7 @@ describe("IndividualsTable", () => {
     await wrapper.setProps({ getCountries: query });
     await Queries.getCountries(wrapper.vm.$apollo);
 
-    expect(query).toBeCalled();
+    expect(query).toHaveBeenCalled();
     expect(wrapper.element).toMatchSnapshot();
   });
 });
@@ -435,7 +435,7 @@ describe("OrganizationsTable", () => {
       },
     });
 
-    expect(query).toBeCalled();
+    expect(query).toHaveBeenCalled();
 
     await nextTick();
 
@@ -497,7 +497,7 @@ describe("JobsTable", () => {
     });
     await nextTick();
 
-    expect(query).toBeCalled();
+    expect(query).toHaveBeenCalled();
     expect(wrapper.element).toMatchSnapshot();
     expect(wrapper.vm.jobs.length).toBe(1);
     expect(wrapper.vm.page).toBe(2);

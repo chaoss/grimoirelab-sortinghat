@@ -6,29 +6,30 @@ let uuids = [
 
 Cypress.Commands.add("login", () => {
   // Get and save the CRSF token
-  cy.visit("/");
-  cy.getCookie("csrftoken").should("exist").as("csrfToken");
+  const username = Cypress.env("USERNAME")
+  const password = Cypress.env("PASSWORD")
+  cy.session([username, password], () => {
+    cy.visit("/");
+    cy.getCookie("csrftoken").should("exist").as("csrfToken");
 
-  cy.get("@csrfToken").then((csrfToken) => {
-    cy.request({
-      method: "POST",
-      url: `${API_URL}login/`,
-      body: {
-        username: Cypress.env("USERNAME"),
-        password: Cypress.env("PASSWORD"),
-      },
-      headers: {
-        "X-CSRFTOKEN": csrfToken.value,
-      },
-    })
-      .its("body.user")
-      .then((user) => {
-        cy.setCookie("sh_user", user);
-      });
-  });
+    cy.get("@csrfToken").then((csrfToken) => {
+      cy.request({
+        method: "POST",
+        url: `${API_URL}login/`,
+        body: { username, password },
+        headers: {
+          "X-CSRFTOKEN": csrfToken.value,
+        },
+      })
+        .its("body.user")
+        .then((user) => {
+          cy.setCookie("sh_user", user);
+        });
+    });
 
-  cy.getCookie("sh_user").should("exist");
-  cy.getCookie("csrftoken").should("exist");
+    cy.getCookie("sh_user").should("exist");
+    cy.getCookie("csrftoken").should("exist");
+  })
 });
 
 Cypress.Commands.add("orderBy", (option) => {

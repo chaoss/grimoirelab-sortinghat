@@ -74,8 +74,7 @@ describe("Authenticated operations", () => {
   });
 
   beforeEach(() => {
-    // Set the token cookies in each test
-    Cypress.Cookies.preserveOnce("sh_user", "csrftoken", "sessionid");
+    cy.login()
 
     // Intercept GraphQL requests to wait for them in the tests
     cy.intercept("POST", "/api/", (req) => {
