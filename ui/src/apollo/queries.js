@@ -123,9 +123,7 @@ const GET_PAGINATED_ORGANIZATIONS = gql`
       entities {
         id
         name
-        enrollments {
-          id
-        }
+        totalEnrollments
         domains {
           domain
           isTopDomain
