@@ -254,7 +254,7 @@ describe("IndividualsTable", () => {
       "5f06473815dc415c9861680de8101813d9eb18e8"
     );
 
-    expect(mutate).toBeCalled();
+    expect(mutate).toHaveBeenCalled();
     expect(wrapper.element).toMatchSnapshot();
   });
 
@@ -273,7 +273,7 @@ describe("IndividualsTable", () => {
       "5f06473815dc415c9861680de8101813d9eb18e8"
     );
 
-    expect(mutate).toBeCalled();
+    expect(mutate).toHaveBeenCalled();
     expect(wrapper.element).toMatchSnapshot();
   });
 
@@ -292,7 +292,7 @@ describe("IndividualsTable", () => {
       "10982379421b80e13266db011d6e5131dd519016",
     ]);
 
-    expect(mutate).toBeCalled();
+    expect(mutate).toHaveBeenCalled();
     expect(wrapper.element).toMatchSnapshot();
   });
 
@@ -312,7 +312,7 @@ describe("IndividualsTable", () => {
       "7eb22d2a28e3f450ad4fbe171f156a9fab1d3971"
     );
 
-    expect(mutate).toBeCalled();
+    expect(mutate).toHaveBeenCalled();
     expect(wrapper.element).toMatchSnapshot();
   });
 
@@ -332,7 +332,7 @@ describe("IndividualsTable", () => {
       "Organization"
     );
 
-    expect(mutate).toBeCalled();
+    expect(mutate).toHaveBeenCalled();
     expect(wrapper.element).toMatchSnapshot();
   });
 
@@ -356,7 +356,7 @@ describe("IndividualsTable", () => {
     };
     await Mutations.updateEnrollment(wrapper.vm.$apollo, enrollment);
 
-    expect(mutate).toBeCalled();
+    expect(mutate).toHaveBeenCalled();
     expect(wrapper.element).toMatchSnapshot();
   });
 });
@@ -395,7 +395,7 @@ describe("OrganizationsTable", () => {
       "Organization"
     );
 
-    expect(mutate).toBeCalled();
+    expect(mutate).toHaveBeenCalled();
     expect(wrapper.element).toMatchSnapshot();
   });
 
@@ -428,7 +428,7 @@ describe("OrganizationsTable", () => {
 
     await Mutations.addOrganization(wrapper.vm.$apollo, "Name");
 
-    expect(mutate).toBeCalled();
+    expect(mutate).toHaveBeenCalled();
     expect(wrapper.element).toMatchSnapshot();
   });
 
@@ -461,7 +461,7 @@ describe("OrganizationsTable", () => {
 
     await Mutations.addDomain(wrapper.vm.$apollo, "domain.com", "Organization");
 
-    expect(mutate).toBeCalled();
+    expect(mutate).toHaveBeenCalled();
     expect(wrapper.element).toMatchSnapshot();
   });
 
@@ -493,7 +493,7 @@ describe("OrganizationsTable", () => {
     });
 
     await Mutations.addDomain(wrapper.vm.$apollo, "domain.com", "Organization");
-    expect(mutate).toBeCalled();
+    expect(mutate).toHaveBeenCalled();
     expect(wrapper.element).toMatchSnapshot();
   });
 
@@ -525,7 +525,7 @@ describe("OrganizationsTable", () => {
     });
 
     await Mutations.deleteOrganization(wrapper.vm.$apollo, "Organization");
-    expect(mutate).toBeCalled();
+    expect(mutate).toHaveBeenCalled();
     expect(wrapper.element).toMatchSnapshot();
   });
 });
@@ -562,7 +562,7 @@ describe("ProfileModal", () => {
       "username"
     );
 
-    expect(mutate).toBeCalled();
+    expect(mutate).toHaveBeenCalled();
     expect(wrapper.element).toMatchSnapshot();
   });
 
@@ -598,7 +598,7 @@ describe("ProfileModal", () => {
       "002bad315c34120cdfa2b1e26b3ca88ce36bc183"
     );
 
-    expect(mutate).toBeCalled();
+    expect(mutate).toHaveBeenCalled();
     expect(wrapper.element).toMatchSnapshot();
   });
 });
@@ -620,7 +620,7 @@ describe("Jobs", () => {
 
     await wrapper.vm.affiliate();
 
-    expect(mutate).toBeCalled();
+    expect(mutate).toHaveBeenCalled();
     expect(wrapper.element).toMatchSnapshot();
   });
 
@@ -643,7 +643,7 @@ describe("Jobs", () => {
       noStrictMatching: true,
     });
 
-    expect(mutate).toBeCalled();
+    expect(mutate).toHaveBeenCalled();
     expect(wrapper.element).toMatchSnapshot();
   });
 
@@ -666,7 +666,7 @@ describe("Jobs", () => {
       exclude: false,
     });
 
-    expect(mutate).toBeCalled();
+    expect(mutate).toHaveBeenCalled();
     expect(wrapper.element).toMatchSnapshot();
   });
 });
