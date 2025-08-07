@@ -79,18 +79,12 @@ const paginatedOrganizations = {
   entities: [
     {
       name: "Test 1",
-      enrollments: [
-        { id: 1, __typename: "EnrollmentType" },
-        { id: 2, __typename: "EnrollmentType" },
-      ],
+      totalEnrollments: 2,
       __typename: "OrganizationType",
     },
     {
       name: "Test 2",
-      enrollments: [
-        { id: 3, __typename: "EnrollmentType" },
-        { id: 4, __typename: "EnrollmentType" },
-      ],
+      totalEnrollments: 2,
       __typename: "OrganizationType",
     },
   ],

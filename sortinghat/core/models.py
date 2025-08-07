@@ -32,7 +32,8 @@ from django.db.models import (CASCADE,
                               DateTimeField,
                               PositiveIntegerField,
                               ForeignKey,
-                              OneToOneField)
+                              OneToOneField,
+                              Index)
 
 from django.db.models import JSONField
 from django.conf import settings
@@ -132,6 +133,9 @@ class Operation(Model):
     class Meta:
         db_table = 'operations'
         ordering = ('timestamp', 'ouid', 'trx')
+        indexes = [
+            Index(fields=['target'], name='op_target'),
+        ]
 
     def __str__(self):
         return '%s - %s - %s - %s - %s' % (self.ouid, self.trx, self.op_type, self.entity_type, self.target)

@@ -206,6 +206,13 @@ class OrganizationType(DjangoObjectType):
         model = Group
         exclude = ('path', 'depth', 'numchild', 'type', 'parent_org')
 
+    total_enrollments = graphene.Int()
+
+    def resolve_total_enrollments(self, info):
+        """Count the number of individuals enrolled in the organization."""
+
+        return self.enrollments.values('individual').distinct().count()
+
 
 class TeamType(DjangoObjectType):
     class Meta:
