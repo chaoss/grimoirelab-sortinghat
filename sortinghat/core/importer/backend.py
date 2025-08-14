@@ -47,6 +47,12 @@ class IdentitiesImporter:
      - :func:`__init__` (optional), with the required arguments that will
         be asked for the user in the UI.
      - :data:`NAME`, to define the name of the backend used for the UI.
+
+    After importing the identities, they can be post processed by
+    implementing the method `post_process_individual`. For example,
+    you might want to merge the imported identities with others already
+    existing using custom criteria, or to set the profile of the new identities
+    in using specific values, or affiliate them to predefined organizations.
     """
     NAME = None
 
@@ -73,23 +79,49 @@ class IdentitiesImporter:
 
         Identities that belongs to the same individual will be merged, but this method
         doesn't run matching algorithms.
+
+        After being inserted, every new individual created will be post processed
+        by the method `post_processing_individual`. By default, this method does
+        nothing.
         """
         logger.info("Importing individuals")
 
         individuals = self.get_individuals()
 
         total = 0
+
         for individual in individuals:
             uuid, nidentities = self.__load_identities(individual.identities)
-            if uuid:
-                self.__load_enrollments(individual.enrollments, uuid)
-            if uuid and individual.profile:
+
+            if not uuid:
+                continue
+
+            self.__load_enrollments(individual.enrollments, uuid)
+
+            if individual.profile:
                 # Use the profile defined in the individual
                 self.__load_profile(individual.profile, uuid)
+
+            self.post_process_individual(individual, uuid)
+
             total += nidentities
 
         logger.info("Individuals loaded")
+
         return total
+
+    def post_process_individual(self, individual, uuid):
+        """Post processing of the imported individuals.
+
+        By default, this method does nothing. Implement it
+        for post processing the individuals created while importing
+        the identities.
+
+        The method receives an individual as it was fetched - not
+        merged with other existing individuals - and the uuid assigned to
+        it after being inserted in the registry.
+        """
+        pass
 
     def __load_identities(self, identities):
         """Load identities related with a specific individual.

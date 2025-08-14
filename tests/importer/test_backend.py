@@ -36,11 +36,20 @@ class MockedIdentitiesImporter(IdentitiesImporter):
     def __init__(self, ctx, url, token=None):
         super().__init__(ctx, url)
         self.token = token
+        self.post_counter = 0
 
     def get_individuals(self):
-        indiv = ImpIndividual()
-        indiv.identities.append(ImpIdentity(source='test_backend', username='test_user'))
-        return [indiv]
+        indiv_1 = ImpIndividual()
+        indiv_1.identities.append(ImpIdentity(source='test_backend', username='test_user'))
+
+        indiv_2 = ImpIndividual()
+        indiv_2.identities.append(ImpIdentity(source='test_backend', email='test@example.com'))
+        return [indiv_1, indiv_2]
+
+    def post_process_individual(self, individual, uuid):
+        """Increases the counter each time this method is called."""
+
+        self.post_counter += 1
 
 
 class TestBackend(TestCase):
@@ -72,6 +81,8 @@ class TestBackend(TestCase):
 
         importer = MockedIdentitiesImporter(self.ctx, 'foo.url')
         individuals = importer.get_individuals()
+        self.assertEqual(len(individuals), 2)
+
         indiv = individuals[0]
         self.assertEqual(len(indiv.identities), 1)
         identity = indiv.identities[0]
@@ -93,13 +104,33 @@ class TestBackend(TestCase):
 
         individuals = Individual.objects.all()
         identities = Identity.objects.all()
-        self.assertEqual(len(individuals), 1)
-        self.assertEqual(len(identities), 1)
+        self.assertEqual(len(individuals), 2)
+        self.assertEqual(len(identities), 2)
+
         indiv = individuals[0]
-        identity = identities[0]
-        self.assertEqual(indiv.identities.first(), identity)
-        self.assertEqual(identity.source, 'test_backend')
-        self.assertEqual(identity.username, 'test_user')
+        identities = indiv.identities.all()
+        self.assertEqual(len(identities), 1)
+        self.assertEqual(identities[0].source, 'test_backend')
+        self.assertEqual(identities[0].username, 'test_user')
+
+        indiv = individuals[0]
+        identities = indiv.identities.all()
+        self.assertEqual(len(identities), 1)
+        self.assertEqual(identities[0].source, 'test_backend')
+        self.assertEqual(identities[0].username, 'test_user')
+
+    def test_post_processing_individuals(self):
+        """Test if it runs the post processing method"""
+
+        # The implementation on the mocked class increases
+        # a counter each time the method is call.
+        # The result must be the number of individuals imported.
+        importer = MockedIdentitiesImporter(self.ctx, 'foo.url')
+        importer.import_identities()
+
+        individuals = Individual.objects.all()
+        self.assertEqual(len(individuals), 2)
+        self.assertEqual(importer.post_counter, 2)
 
     def test_load_existing_individuals(self):
         """Test the import_identities method works running twice"""
@@ -109,22 +140,32 @@ class TestBackend(TestCase):
 
         individuals = Individual.objects.all()
         identities = Identity.objects.all()
-        self.assertEqual(len(individuals), 1)
-        self.assertEqual(len(identities), 1)
+        self.assertEqual(len(individuals), 2)
+        self.assertEqual(len(identities), 2)
+
         indiv = individuals[0]
-        identity = identities[0]
-        self.assertEqual(indiv.identities.first(), identity)
-        self.assertEqual(identity.source, 'test_backend')
-        self.assertEqual(identity.username, 'test_user')
+        identities = indiv.identities.all()
+        self.assertEqual(identities[0].source, 'test_backend')
+        self.assertEqual(identities[0].username, 'test_user')
+
+        indiv = individuals[1]
+        identities = indiv.identities.all()
+        self.assertEqual(identities[0].source, 'test_backend')
+        self.assertEqual(identities[0].email, 'test@example.com')
 
         importer.import_identities()
 
         individuals = Individual.objects.all()
         identities = Identity.objects.all()
-        self.assertEqual(len(individuals), 1)
-        self.assertEqual(len(identities), 1)
+        self.assertEqual(len(individuals), 2)
+        self.assertEqual(len(identities), 2)
+
         indiv = individuals[0]
-        identity = identities[0]
-        self.assertEqual(indiv.identities.first(), identity)
-        self.assertEqual(identity.source, 'test_backend')
-        self.assertEqual(identity.username, 'test_user')
+        identities = indiv.identities.all()
+        self.assertEqual(identities[0].source, 'test_backend')
+        self.assertEqual(identities[0].username, 'test_user')
+
+        indiv = individuals[1]
+        identities = indiv.identities.all()
+        self.assertEqual(identities[0].source, 'test_backend')
+        self.assertEqual(identities[0].email, 'test@example.com')
