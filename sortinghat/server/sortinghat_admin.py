@@ -24,9 +24,9 @@ import logging
 import os
 import sys
 
-import click
+from importlib import resources
 
-import importlib_resources
+import click
 
 from django.contrib.auth import get_user_model
 from django.core.wsgi import get_wsgi_application
@@ -349,8 +349,7 @@ def _setup_database(database='default'):
 
     management.call_command('migrate', database=database)
 
-    with importlib_resources.path('sortinghat.core.fixtures', 'countries.json') as p:
-        fixture_countries_path = p
+    fixture_countries_path = resources.files('sortinghat.core.fixtures').joinpath('countries.json')
 
     management.call_command('loaddata', fixture_countries_path, database=database)
 
