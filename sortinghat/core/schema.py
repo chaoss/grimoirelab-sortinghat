@@ -37,6 +37,7 @@ from graphene.utils.str_converters import to_snake_case
 
 from graphene_django.converter import convert_django_field
 from graphene_django.types import DjangoObjectType
+from rq.job import JobStatus
 
 from grimoirelab_toolkit.datetime import (str_to_datetime,
                                           InvalidDateError)
@@ -2009,7 +2010,7 @@ class SortingHatQuery:
                 GenderizeResultType(uuid=uuid, gender=rec[0], accuracy=rec[1])
                 for uuid, rec in job.result['results'].items()
             ]
-        elif status == 'failed':
+        elif status == JobStatus.FAILED:
             errors = [job.exc_info]
 
         return JobType(job_id=job_id,
