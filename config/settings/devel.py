@@ -165,10 +165,6 @@ GRAPHENE = {
     ],
 }
 
-GRAPHQL_JWT = {
-    'JWT_ALLOW_ANY_HANDLER': 'sortinghat.core.middleware.allow_any'
-}
-
 SORTINGHAT_AUTHENTICATION_REQUIRED = False
 
 RQ_QUEUES = {
