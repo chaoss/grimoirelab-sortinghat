@@ -148,7 +148,6 @@ class TestRecommendAffiliations(TestCase):
         # Test
         expected = {
             'results': {
-                '0c1e1701bc819495acf77ef731023b7d789a9c71': [],
                 '17ab00ed3825ec2f50483e33c88df223264182ba': ['Bitergia', 'Example'],
                 'dc31d2afbee88a6d1dbc1ef05ec827b878067744': ['Example']
             }
@@ -364,7 +363,6 @@ class TestAffiliateIndividuals(TestCase):
         # Test
         expected = {
             'results': {
-                '0c1e1701bc819495acf77ef731023b7d789a9c71': [],
                 '17ab00ed3825ec2f50483e33c88df223264182ba': ['Bitergia', 'Example'],
                 'dc31d2afbee88a6d1dbc1ef05ec827b878067744': ['Example']
             },
@@ -508,9 +506,7 @@ class TestAffiliateIndividuals(TestCase):
 
         # Test
         expected = {
-            'results': {
-                'dc31d2afbee88a6d1dbc1ef05ec827b878067744': []
-            },
+            'results': {},
             'errors': [
                 "dc31d2afbee88a6d1dbc1ef05ec827b878067744 not found in the registry"
             ]
@@ -536,9 +532,7 @@ class TestAffiliateIndividuals(TestCase):
 
         # Test
         expected = {
-            'results': {
-                'dc31d2afbee88a6d1dbc1ef05ec827b878067744': []
-            },
+            'results': {},
             'errors': [
                 "range date '1900-01-01'-'2100-01-01' is part of an existing range for Example"
             ]

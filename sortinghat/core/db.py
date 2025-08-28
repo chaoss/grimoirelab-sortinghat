@@ -292,7 +292,7 @@ def find_alias(name):
 def search_enrollments_in_period(mk, group_name,
                                  parent_org=None,
                                  from_date=MIN_PERIOD_DATE,
-                                 to_date=MIN_PERIOD_DATE):
+                                 to_date=MAX_PERIOD_DATE):
     """Look for enrollments in a given period.
 
     Returns the enrollments of an individual for a given

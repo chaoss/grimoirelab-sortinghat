@@ -202,6 +202,10 @@ def recommend_affiliations(ctx, uuids=None, last_modified=MIN_PERIOD_DATE):
     trxl = TransactionsLog.open('recommend_affiliations', job_ctx)
 
     for rec in engine.recommend('affiliation', uuids, last_modified):
+        # Avoid storing empty recommendations
+        if not rec.options:
+            continue
+
         results[rec.key] = rec.options
 
         for org_name in rec.options:
@@ -447,10 +451,11 @@ def affiliate(ctx, uuids=None, last_modified=MIN_PERIOD_DATE):
 
     for rec in engine.recommend('affiliation', uuids, last_modified):
         affiliated, errs = _affiliate_individual(job_ctx, rec.key, rec.options)
-        results[rec.key] = affiliated
+
         errors.extend(errs)
 
         if affiliated:
+            results[rec.key] = affiliated
             nsuccess += 1
 
     trxl.close()
