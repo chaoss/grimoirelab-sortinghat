@@ -7,7 +7,7 @@
           <p>
             Enqueued job <code>{{ jobId }}</code> to recommend matches.
           </p>
-          <router-link :to="{ name: 'Jobs' }" target="_blank">
+          <router-link :to="{ name: 'SettingsJobs' }" target="_blank">
             View jobs
           </router-link>
         </v-alert>
@@ -36,7 +36,14 @@
             label="Username"
             value="username"
             dense
+            hide-details=""
           ></v-checkbox>
+          <v-checkbox
+            class="ml-4"
+            v-model="form.matchSource"
+            label="Only recommend identities that share the same source"
+            dense
+          />
         </div>
         <v-divider></v-divider>
         <div class="my-4">
@@ -49,6 +56,12 @@
           <v-checkbox
             v-model="form.exclude"
             label="Exclude individuals in RecommenderExclusionTerm list"
+            dense
+            hide-details
+          ></v-checkbox>
+          <v-checkbox
+            v-model="form.guessGithubUser"
+            label="Match GitHub users to GitHub-generated emails"
             dense
             hide-details
           ></v-checkbox>
@@ -94,6 +107,8 @@ export default {
         criteria: ["name", "email", "username"],
         exclude: true,
         strict: true,
+        matchSource: false,
+        guessGithubUser: false,
       },
       jobId: null,
       error: null,
@@ -106,6 +121,7 @@ export default {
         criteria: ["name", "email", "username"],
         exclude: true,
         strict: true,
+        guessGithubUser: false,
       };
       this.error = null;
       this.jobId = null;
@@ -116,7 +132,9 @@ export default {
           this.form.criteria,
           this.form.exclude,
           this.form.strict,
-          [this.uuid]
+          [this.uuid],
+          this.form.matchSource,
+          this.form.guessGithubUser
         );
         this.jobId = response.data.recommendMatches.jobId;
       } catch (error) {

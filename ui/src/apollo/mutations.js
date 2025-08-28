@@ -331,12 +331,14 @@ const UNIFY = gql`
     $exclude: Boolean
     $strict: Boolean
     $matchSource: Boolean
+    $guessGithubUser: Boolean
   ) {
     unify(
       criteria: $criteria
       exclude: $exclude
       strict: $strict
       matchSource: $matchSource
+      guessGithubUser: $guessGithubUser
     ) {
       jobId
     }
@@ -361,6 +363,7 @@ const RECOMMEND_MATCHES = gql`
     $sourceUuids: [String]
     $strict: Boolean
     $matchSource: Boolean
+    $guessGithubUser: Boolean
   ) {
     recommendMatches(
       criteria: $criteria
@@ -368,6 +371,7 @@ const RECOMMEND_MATCHES = gql`
       sourceUuids: $sourceUuids
       strict: $strict
       matchSource: $matchSource
+      guessGithubUser: $guessGithubUser
     ) {
       jobId
     }
@@ -792,7 +796,14 @@ const genderize = (apollo, exclude, noStrictMatching, uuids) => {
   });
 };
 
-const unify = (apollo, criteria, exclude, strict, matchSource) => {
+const unify = (
+  apollo,
+  criteria,
+  exclude,
+  strict,
+  matchSource,
+  guessGithubUser
+) => {
   return apollo.mutate({
     mutation: UNIFY,
     variables: {
@@ -800,6 +811,7 @@ const unify = (apollo, criteria, exclude, strict, matchSource) => {
       exclude: exclude,
       strict: strict,
       matchSource: matchSource,
+      guessGithubUser: guessGithubUser,
     },
   });
 };
@@ -821,7 +833,8 @@ const recommendMatches = (
   exclude,
   strict,
   sourceUuids,
-  matchSource
+  matchSource,
+  guessGithubUser
 ) => {
   return apollo.mutate({
     mutation: RECOMMEND_MATCHES,
@@ -831,6 +844,7 @@ const recommendMatches = (
       sourceUuids: sourceUuids,
       strict: strict,
       matchSource: matchSource,
+      guessGithubUser: guessGithubUser,
     },
   });
 };

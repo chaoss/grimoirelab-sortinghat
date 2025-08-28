@@ -768,13 +768,22 @@ export default {
         this.$logger.error(`Error applying recommendation ${id}: ${error}`);
       }
     },
-    async recommendMatches(criteria, exclude, strict, uuid) {
+    async recommendMatches(
+      criteria,
+      exclude,
+      strict,
+      uuid,
+      matchSource,
+      guessGithubUser
+    ) {
       const response = await recommendMatches(
         this.$apollo,
         criteria,
         exclude,
         strict,
-        uuid
+        uuid,
+        matchSource,
+        guessGithubUser
       );
       return response;
     },
