@@ -18,6 +18,7 @@
 # Authors:
 #     Santiago Dueñas <sduenas@bitergia.com>
 #
+import datetime
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
@@ -287,3 +288,45 @@ class TestRecommendAffiliations(TestCase):
         self.assertEqual(rec[0], jroe.uuid)
         self.assertEqual(rec[1], jroe.individual.mk)
         self.assertListEqual(rec[2], ['Example'])
+
+    def test_multiple_enrollments_excluded(self):
+        """Check that enrolled organizations are excluded from recommendations"""
+
+        ctx = SortingHatContext(self.user)
+
+        # Create an individual with email addresses from multiple domains
+        jdoe = api.add_identity(ctx,
+                                source='scm',
+                                email='jdoe@example.com',
+                                name='John Doe',
+                                username='jdoe')
+        api.add_identity(ctx,
+                         source='scm',
+                         email='jdoe@bitergia.com',
+                         name='John Doe',
+                         uuid=jdoe.uuid)
+        api.add_identity(ctx,
+                         source='scm',
+                         email='jdoe@u.example.com',
+                         name='John Doe',
+                         uuid=jdoe.uuid)
+
+        # Enroll the individual in multiple organizations
+        api.enroll(ctx, jdoe.uuid, 'Example',
+                   from_date=datetime.datetime(2023, 1, 1),
+                   to_date=datetime.datetime(2023, 12, 31))
+        api.enroll(ctx, jdoe.uuid, 'Bitergia',
+                   from_date=datetime.datetime(2021, 1, 1),
+                   to_date=datetime.datetime(2021, 12, 31))
+
+        # Test
+        recs = list(recommend_affiliations([jdoe.uuid]))
+
+        self.assertEqual(len(recs), 1)
+
+        rec = recs[0]
+        self.assertEqual(rec[0], jdoe.uuid)
+        self.assertEqual(rec[1], jdoe.individual.mk)
+
+        # Only Example Int. should be recommended (Example and Bitergia are excluded)
+        self.assertListEqual(rec[2], ['Example Int.'])
