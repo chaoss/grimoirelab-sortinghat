@@ -1162,6 +1162,7 @@ class RecommendMatches(graphene.Mutation):
         strict = graphene.Boolean(required=False)
         match_source = graphene.Boolean(required=False)
         last_modified = graphene.DateTime(required=False)
+        guess_github_user = graphene.Boolean(required=False)
 
     job_id = graphene.Field(lambda: graphene.String)
 
@@ -1170,7 +1171,8 @@ class RecommendMatches(graphene.Mutation):
     def mutate(self, info, criteria,
                source_uuids=None, target_uuids=None,
                exclude=True, verbose=False, strict=True,
-               match_source=False, last_modified=MIN_PERIOD_DATE):
+               match_source=False, guess_github_user=False,
+               last_modified=MIN_PERIOD_DATE):
         user = info.context.user
         tenant = get_db_tenant()
         ctx = SortingHatContext(user=user, tenant=tenant)
@@ -1187,6 +1189,7 @@ class RecommendMatches(graphene.Mutation):
                                                verbose,
                                                strict,
                                                match_source,
+                                               guess_github_user,
                                                last_modified,
                                                job_timeout=-1,
                                                result_ttl=DEFAULT_JOB_RESULT_TTL,
@@ -1260,6 +1263,7 @@ class Unify(graphene.Mutation):
         exclude = graphene.Boolean(required=False)
         strict = graphene.Boolean(required=False)
         match_source = graphene.Boolean(required=False)
+        guess_github_user = graphene.Boolean(required=False)
         last_modified = graphene.DateTime(required=False)
 
     job_id = graphene.Field(lambda: graphene.String)
@@ -1270,6 +1274,7 @@ class Unify(graphene.Mutation):
                source_uuids=None, target_uuids=None,
                exclude=True, strict=True,
                match_source=False,
+               guess_github_user=False,
                last_modified=MIN_PERIOD_DATE):
         user = info.context.user
         tenant = get_db_tenant()
@@ -1286,6 +1291,7 @@ class Unify(graphene.Mutation):
                                                exclude,
                                                strict,
                                                match_source,
+                                               guess_github_user,
                                                last_modified,
                                                job_timeout=-1,
                                                result_ttl=DEFAULT_JOB_RESULT_TTL,

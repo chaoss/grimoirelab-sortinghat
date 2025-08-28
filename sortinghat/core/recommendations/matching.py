@@ -39,6 +39,7 @@ from .exclusion import fetch_recommender_exclusion_list
 logger = logging.getLogger(__name__)
 
 EMAIL_ADDRESS_REGEX = r"^(?P<email>[^\s@]+@[^\s@.]+\.[^\s@]+)$"
+GITHUB_EMAIL_ADDRESS_REGEX = r"^(\d+\+)?(?P<username>[a-zA-Z0-9._%+-]+)(\b@users.noreply.github.com\b)"
 NAME_REGEX = r"^\w+\s\w+"
 
 
@@ -46,6 +47,7 @@ def recommend_matches(source_uuids, target_uuids,
                       criteria, exclude=True,
                       verbose=False, strict=True,
                       match_source=False,
+                      guess_github_user=False,
                       last_modified=MIN_PERIOD_DATE):
     """Recommend identity matches for a list of individuals.
 
@@ -82,6 +84,7 @@ def recommend_matches(source_uuids, target_uuids,
     identities. Otherwise, results will include main keys from individuals
     :param strict: strict matching with well-formed email addresses and names
     :param match_source: only matching for identities with the same source
+    :param guess_github_user: infer usernames from GitHub-generated email addresses
     :param last_modified: generate recommendations only for individuals modified after
         this date
 
@@ -133,7 +136,7 @@ def recommend_matches(source_uuids, target_uuids,
         target_set.update(identities)
 
     matched = _find_matches(input_set, target_set, criteria, exclude=exclude, verbose=verbose, strict=strict,
-                            match_source=match_source)
+                            match_source=match_source, guess_github_user=guess_github_user)
     # Return filtered results
     for uuid in source_uuids:
         result = set()
@@ -153,7 +156,7 @@ def recommend_matches(source_uuids, target_uuids,
     logger.info(f"Matching recommendations generated; criteria='{criteria}'")
 
 
-def _find_matches(set_x, set_y, criteria, exclude, verbose, strict, match_source=False):
+def _find_matches(set_x, set_y, criteria, exclude, verbose, strict, match_source=False, guess_github_user=False):
     """Find identities matches between two sets using Pandas' library.
 
     This method find matches for the identities in `set_x` looking at
@@ -176,6 +179,7 @@ def _find_matches(set_x, set_y, criteria, exclude, verbose, strict, match_source
         identities. Otherwise, results will include main keys from individuals.
     :param strict: strict matching with well-formed email addresses and names
     :param match_source: only find matches for the same source
+    :param guess_github_user: infer usernames from GitHub-generated email addresses
 
     :returns: a dictionary including the set of matches found for each
         identity from `set_x`.
@@ -192,6 +196,17 @@ def _find_matches(set_x, set_y, criteria, exclude, verbose, strict, match_source
         excluded = fetch_recommender_exclusion_list()
         df_excluded = df[~df['username'].isin(excluded) & ~df['email'].isin(excluded) & ~df['name'].isin(excluded)]
         return df_excluded
+
+    def _get_github_usernames_from_email(df):
+        """Generate GitHub usernames from valid GitHub emails"""
+        df_github = df[df['email'].str.match(GITHUB_EMAIL_ADDRESS_REGEX, na=False)].copy()
+        df_github['username'] = df_github['email'].str.extract(GITHUB_EMAIL_ADDRESS_REGEX, expand=False)['username']
+        df_github['source'] = 'github'
+
+        if len(df_github) != 0:
+            df = pandas.concat([df, df_github], ignore_index=True)
+
+        return df
 
     def _filter_criteria(df, c, strict=True, match_source=False):
         """Filter dataframe creating a basic subset including a given column"""
@@ -223,6 +238,10 @@ def _find_matches(set_x, set_y, criteria, exclude, verbose, strict, match_source
     if exclude:
         df_x = _apply_recommender_exclusion_list(df_x)
         df_y = _apply_recommender_exclusion_list(df_y)
+
+    if guess_github_user:
+        df_x = _get_github_usernames_from_email(df_x)
+        df_y = _get_github_usernames_from_email(df_y)
 
     cdfs = []
 

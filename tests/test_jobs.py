@@ -1059,6 +1059,68 @@ class TestRecommendMatches(TestCase):
                 MergeRecommendation.objects.filter(individual1=rec[0],
                                                    individual2=rec[1]).exists())
 
+    def test_recommend_matches_github_email(self):
+        """Check if recommendations are obtained when a GitHub email matches a username"""
+
+        ctx = SortingHatContext(self.user)
+
+        jr_github = api.add_identity(self.ctx,
+                                     name='Jane Rae',
+                                     username='jane_rae',
+                                     source='github')
+        jr1 = api.add_identity(self.ctx,
+                               email='32474881+jane_rae@users.noreply.github.com',
+                               source='mls')
+        jr2 = api.add_identity(self.ctx,
+                               email='jane_rae@users.noreply.github.com',
+                               source='scm')
+        api.add_identity(self.ctx,
+                         email='jsmith@users.noreply.github.com',
+                         source='scm')
+        api.add_identity(self.ctx,
+                         email='2474881@users.noreply.github.com',
+                         source='mls')
+        api.add_identity(self.ctx,
+                         email='@users.noreply.github.com',
+                         source='scm')
+
+        # Test
+        expected = {
+            'results': {
+                jr_github.uuid: sorted([jr1.uuid, jr2.uuid])
+            }
+        }
+
+        recommendations_expected = [
+            sorted([jr_github.individual.mk, jr1.individual.mk]),
+            sorted([jr_github.individual.mk, jr2.individual.mk]),
+        ]
+
+        source_uuids = [jr_github.uuid]
+
+        criteria = ['email', 'name', 'username']
+
+        # Identities which don't have the fields in `criteria` or no matches won't be returned
+        job = recommend_matches.delay(ctx,
+                                      source_uuids,
+                                      None,
+                                      criteria,
+                                      strict=False,
+                                      guess_github_user=True)
+        # Preserve job results order for the comparison against the expected results
+        result = job.result
+        for key in result['results']:
+            result['results'][key] = sorted(result['results'][key])
+
+        self.assertDictEqual(result, expected)
+
+        self.assertEqual(MergeRecommendation.objects.count(), 2)
+
+        for rec in recommendations_expected:
+            self.assertTrue(
+                MergeRecommendation.objects.filter(individual1=rec[0],
+                                                   individual2=rec[1]).exists())
+
     def test_recommend_source_not_mk(self):
         """Check if recommendations work when the provided uuid is not an Individual's main key"""
 
@@ -1441,6 +1503,119 @@ class TestUnify(TestCase):
         individual = Individual.objects.get(mk=self.jsmith.uuid)
         identities = individual.identities.all()
         self.assertEqual(len(identities), 6)
+
+    def test_unify_github_email(self):
+        """Check if unify is applied when a GitHub email matches a username"""
+
+        jr_github = api.add_identity(self.ctx,
+                                     name='Jane Rae',
+                                     username='jane_rae',
+                                     source='github')
+        jr1 = api.add_identity(self.ctx,
+                               email='32474881+jane_rae@users.noreply.github.com',
+                               source='mls')
+        jr2 = api.add_identity(self.ctx,
+                               email='jane_rae@users.noreply.github.com',
+                               source='scm')
+        api.add_identity(self.ctx,
+                         email='jsmith@users.noreply.github.com',
+                         source='scm')
+        api.add_identity(self.ctx,
+                         email='2474881+jsmith@users.noreply.github.com',
+                         source='mls')
+        api.add_identity(self.ctx,
+                         email='2474881@users.noreply.github.com',
+                         source='mls')
+        api.add_identity(self.ctx,
+                         email='@users.noreply.github.com',
+                         source='scm')
+
+        ctx = SortingHatContext(self.user)
+
+        # Test
+        expected = {
+            'results': [jr_github.uuid],
+            'errors': []
+        }
+
+        source_uuids = [jr_github.uuid]
+
+        criteria = ['email', 'name', 'username']
+
+        job = unify.delay(ctx,
+                          criteria,
+                          source_uuids,
+                          None,
+                          guess_github_user=True)
+
+        result = job.result
+        self.assertDictEqual(result, expected)
+
+        # Checking if the identities have been merged
+
+        individual = Individual.objects.get(mk=jr_github.uuid)
+        identities = individual.identities.all()
+        self.assertEqual(len(identities), 3)
+
+        id1 = identities[0]
+        self.assertEqual(id1, jr_github)
+
+        id2 = identities[1]
+        self.assertEqual(id2, jr2)
+
+        id3 = identities[2]
+        self.assertEqual(id3, jr1)
+
+    def test_unify_github_email_match_source(self):
+        """Check if unify is applied when a GitHub email matches a username with source matching enabled"""
+
+        jr_github = api.add_identity(self.ctx,
+                                     name='Jane Rae',
+                                     username='jane_rae',
+                                     source='github')
+        jr1 = api.add_identity(self.ctx,
+                               email='32474881+jane_rae@users.noreply.github.com',
+                               source='mls')
+        jr2 = api.add_identity(self.ctx,
+                               email='jane_rae@users.noreply.github.com',
+                               source='scm')
+
+        ctx = SortingHatContext(self.user)
+
+        # Test
+        expected = {
+            'results': [jr_github.uuid],
+            'errors': []
+        }
+
+        source_uuids = [jr_github.uuid]
+
+        criteria = ['email', 'name', 'username']
+
+        job = unify.delay(ctx,
+                          criteria,
+                          source_uuids,
+                          None,
+                          match_source=True,
+                          guess_github_user=True)
+
+        result = job.result
+        self.assertDictEqual(result, expected)
+
+        # Checking if the identities have been merged
+
+        individual = Individual.objects.get(mk=jr_github.uuid)
+        identities = individual.identities.all()
+        self.assertEqual(len(identities), 3)
+
+        id1 = identities[0]
+        self.assertEqual(id1, jr_github)
+
+        id2 = identities[1]
+        self.assertEqual(id2, jr2)
+
+        id3 = identities[2]
+        self.assertEqual(id3, jr1)
 
     def test_unify_last_modified(self):
         """Check if unify is applied only for individuals updated after a given date"""
