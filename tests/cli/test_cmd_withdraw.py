@@ -145,7 +145,7 @@ class TestWithdrawCommand(unittest.TestCase):
         client = MockClient([])
         mock_client.return_value = client
 
-        runner = click.testing.CliRunner(mix_stderr=False)
+        runner = click.testing.CliRunner()
 
         params = [
             '322397ed782a798ffd9d0bc7e293df4292fe075d',
@@ -190,7 +190,7 @@ class TestWithdrawCommand(unittest.TestCase):
         client = MockClient(responses)
         mock_client.return_value = client
 
-        runner = click.testing.CliRunner(mix_stderr=False)
+        runner = click.testing.CliRunner()
 
         params = [
             '322397ed782a798ffd9d0bc7e293df4292fe075d',

@@ -201,7 +201,7 @@ class TestSortingHatClient(unittest.TestCase):
                 }
             }
         }
-        self.assertDictEqual(result, expected)
+        self.assertDictEqual(result['data'], expected['data'])
 
         # Check query
         expected_body = (

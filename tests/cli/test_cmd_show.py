@@ -431,7 +431,7 @@ class TestShowCommand(unittest.TestCase):
         client = MockClient(responses)
         mock_client.return_value = client
 
-        runner = click.testing.CliRunner(mix_stderr=False)
+        runner = click.testing.CliRunner()
 
         result = runner.invoke(show)
 
