@@ -146,7 +146,7 @@ class TestRmCommand(unittest.TestCase):
         client = MockClient(responses)
         mock_client.return_value = client
 
-        runner = click.testing.CliRunner(mix_stderr=False)
+        runner = click.testing.CliRunner()
 
         params = ['FFFFFFFFFFFFFFF']
         result = runner.invoke(rm, params, obj=mock_client)
