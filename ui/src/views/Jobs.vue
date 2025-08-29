@@ -62,9 +62,16 @@ export default {
         });
       }
     },
-    async unify({ criteria, exclude, strict, matchSource }) {
+    async unify({ criteria, exclude, strict, matchSource, guessGithubUser }) {
       try {
-        await unify(this.$apollo, criteria, exclude, strict, matchSource);
+        await unify(
+          this.$apollo,
+          criteria,
+          exclude,
+          strict,
+          matchSource,
+          guessGithubUser
+        );
         this.$refs.table.getPaginatedJobs();
       } catch (error) {
         this.snackbar = Object.assign(this.snackbar, {
@@ -73,7 +80,13 @@ export default {
         });
       }
     },
-    async recommendMatches({ criteria, exclude, strict, matchSource }) {
+    async recommendMatches({
+      criteria,
+      exclude,
+      strict,
+      matchSource,
+      guessGithubUser,
+    }) {
       try {
         await recommendMatches(
           this.$apollo,
@@ -81,7 +94,8 @@ export default {
           exclude,
           strict,
           [],
-          matchSource
+          matchSource,
+          guessGithubUser
         );
         this.$refs.table.getPaginatedJobs();
       } catch (error) {

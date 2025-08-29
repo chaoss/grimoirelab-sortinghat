@@ -54,6 +54,12 @@
                 density="comfortable"
                 hide-details
               />
+              <v-checkbox
+                v-model="forms.unify.guessGithubUser"
+                label="Match GitHub users to GitHub-generated emails"
+                density="comfortable"
+                hide-details
+              ></v-checkbox>
             </v-col>
           </v-row>
           <v-row class="ma-0">
@@ -109,6 +115,12 @@
                 density="comfortable"
                 hide-details
               />
+              <v-checkbox
+                v-model="forms.recommendMatches.guessGithubUser"
+                label="Match GitHub users to GitHub-generated emails"
+                density="comfortable"
+                hide-details
+              ></v-checkbox>
             </v-col>
           </v-row>
           <v-row class="ma-0">
@@ -204,12 +216,14 @@ const defaultForms = {
     exclude: true,
     strict: true,
     matchSource: false,
+    guessGithubUser: false,
   },
   recommendMatches: {
     criteria: ["name", "email", "username"],
     exclude: true,
     strict: true,
     matchSource: false,
+    guessGithubUser: false,
   },
 };
 

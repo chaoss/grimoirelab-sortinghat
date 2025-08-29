@@ -1,0 +1,10 @@
+---
+title: Recommendations based on GitHub-generated email addresses
+category: added
+author: Eva Millán <evamillan@bitergia.com>
+issue: 867
+notes: >
+  Merge recommendations can now match GitHub profiles to
+  GitHub-generated emails (<username>@users.noreply.github.com).
+  Individuals can also be automatically unified with this
+  criteria.

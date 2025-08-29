@@ -241,6 +241,7 @@ def recommend_matches(ctx, source_uuids,
                       target_uuids, criteria,
                       exclude=True, verbose=False,
                       strict=True, match_source=False,
+                      guess_github_user=False,
                       last_modified=MIN_PERIOD_DATE):
     """Generate a list of affiliation recommendations from a set of individuals.
 
@@ -268,6 +269,7 @@ def recommend_matches(ctx, source_uuids,
     :param verbose: if set to `True`, the match results will be composed by individual
         identities (even belonging to the same individual).
     :param match_source: only unify individuals that share the same source
+    :param guess_github_user: match GitHub-generated emails with usernames
     :param last_modified: generate recommendations only for individuals modified after
         this date
 
@@ -299,6 +301,7 @@ def recommend_matches(ctx, source_uuids,
                                        verbose,
                                        strict,
                                        match_source,
+                                       guess_github_user,
                                        last_modified)
     for rec in recommendations:
         results[rec.key] = list(rec.options)
@@ -471,7 +474,7 @@ def affiliate(ctx, uuids=None, last_modified=MIN_PERIOD_DATE):
 @django_rq.job
 @job_using_tenant
 def unify(ctx, criteria, source_uuids=None, target_uuids=None, exclude=True,
-          strict=True, match_source=False, last_modified=MIN_PERIOD_DATE):
+          strict=True, match_source=False, guess_github_user=False, last_modified=MIN_PERIOD_DATE):
     """Unify a set of individuals by merging them using matching recommendations.
 
     This function automates the identities unify process obtaining
@@ -496,6 +499,7 @@ def unify(ctx, criteria, source_uuids=None, target_uuids=None, exclude=True,
         if any value from the `email`, `name`, or `username` fields are found in the
         RecommenderExclusionTerm table. Otherwise, results will not ignore them.
     :param match_source: only unify individuals that share the same source
+    :param guess_github_user: match GitHub-generated emails with usernames
     :param last_modified: only unify individuals that have been modified after this date
 
     :returns: a list with the individuals resulting from merge operations
@@ -562,6 +566,7 @@ def unify(ctx, criteria, source_uuids=None, target_uuids=None, exclude=True,
                                 exclude=exclude,
                                 strict=strict,
                                 match_source=match_source,
+                                guess_github_user=guess_github_user,
                                 last_modified=last_modified):
         match_recs[rec.mk] = list(rec.options)
 

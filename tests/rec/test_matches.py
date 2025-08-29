@@ -500,3 +500,59 @@ class TestRecommendMatches(TestCase):
         self.assertEqual(rec[0], self.jr2.uuid)
         self.assertEqual(rec[1], self.jr2.individual.mk)
         self.assertEqual(rec[2], sorted([self.jrae.individual.mk]))
+
+    def test_recommend_github_email(self):
+        """Test if GitHub username recommendations are created for identities with valid GitHub emails"""
+
+        github_user1 = api.add_identity(self.ctx,
+                                       username='github-user',
+                                       source='github')
+        github_email1 = api.add_identity(self.ctx,
+                                        email='github-user@users.noreply.github.com',
+                                        source='scm')
+        github_email_numbers1 = api.add_identity(self.ctx,
+                                                email='52891811+github-user@users.noreply.github.com',
+                                                source='scm')
+        github_user2 = api.add_identity(self.ctx,
+                                       username='githubuser2',
+                                       source='github')
+        github_email2 = api.add_identity(self.ctx,
+                                        email='githubuser2@users.noreply.github.com',
+                                        source='scm')
+        github_email_numbers2 = api.add_identity(self.ctx,
+                                                email='52891811+githubuser2@users.noreply.github.com',
+                                                source='scm')
+        invalid_github_email = api.add_identity(self.ctx,
+                                                email='52891811+@users.noreply.github.com',
+                                                source='scm')
+        empty_github_email = api.add_identity(self.ctx,
+                                              email='@users.noreply.github.com',
+                                              source='scm')
+
+        source_uuids = [github_user1.uuid, github_user2.uuid]
+        target_uuids = [github_email1.uuid, github_email_numbers1.uuid,
+                        github_email2.uuid, github_email_numbers2.uuid,
+                        invalid_github_email.uuid, empty_github_email.uuid]
+
+        criteria = ['email', 'name', 'username']
+
+        recs = list(recommend_matches(source_uuids,
+                                      target_uuids,
+                                      criteria,
+                                      verbose=True,
+                                      strict=False,
+                                      guess_github_user=True))
+
+        self.assertEqual(len(recs), 2)
+
+        rec = recs[0]
+        self.assertEqual(rec[0], github_user1.uuid)
+        self.assertEqual(rec[1], github_user1.individual.mk)
+        self.assertEqual(len(rec[2]), 2)
+        self.assertEqual(rec[2], sorted([github_email1.individual.mk, github_email_numbers1.individual.mk]))
+
+        rec = recs[1]
+        self.assertEqual(rec[0], github_user2.uuid)
+        self.assertEqual(rec[1], github_user2.individual.mk)
+        self.assertEqual(len(rec[2]), 2)
+        self.assertEqual(rec[2], sorted([github_email2.individual.mk, github_email_numbers2.individual.mk]))
