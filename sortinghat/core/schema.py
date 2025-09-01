@@ -37,6 +37,7 @@ from graphene.utils.str_converters import to_snake_case
 
 from graphene_django.converter import convert_django_field
 from graphene_django.types import DjangoObjectType
+from rq.job import JobStatus
 
 from grimoirelab_toolkit.datetime import (str_to_datetime,
                                           InvalidDateError)
@@ -1759,6 +1760,9 @@ class SortingHatQuery:
                               page_size=settings.SORTINGHAT_API_PAGE_SIZE,
                               order_by='name',
                               **kwargs):
+        if not order_by:
+            order_by = 'name'
+
         query = Organization.objects.all_organizations().annotate(enrollments_count=Count('enrollments')
                                                                   ).order_by(to_snake_case(order_by))
 
@@ -1822,6 +1826,9 @@ class SortingHatQuery:
                             page_size=settings.SORTINGHAT_API_PAGE_SIZE,
                             order_by='mk',
                             **kwargs):
+        if not order_by:
+            order_by = 'mk'
+
         query = Individual.objects.annotate(identities_count=Count('identities')).order_by(to_snake_case(order_by))
 
         if filters and 'uuid' in filters:
@@ -2009,7 +2016,7 @@ class SortingHatQuery:
                 GenderizeResultType(uuid=uuid, gender=rec[0], accuracy=rec[1])
                 for uuid, rec in job.result['results'].items()
             ]
-        elif status == 'failed':
+        elif status == JobStatus.FAILED:
             errors = [job.exc_info]
 
         return JobType(job_id=job_id,
