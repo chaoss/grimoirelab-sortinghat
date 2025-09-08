@@ -40,6 +40,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build-package]
     environment: docker-release
+    permissions:
+      contents: read
+      id-token: write # needed for signing the images with GitHub OIDC Token
     steps:
       - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
@@ -50,25 +53,25 @@ jobs:
           path: dist
 
       - name: Install Cosign
-        uses: sigstore/cosign-installer@11086d25041f77fe8fe7b9ea4e48e3b9192b8f19 # v3.1.2
+        uses: sigstore/cosign-installer@d58896d6a1865668819e1d91763c7751a165e159 # v3.9.2
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@68827325e0b33c7199eb31dd4e31fbe9023e06e3 # v3.0.0
+        uses: docker/setup-qemu-action@29109295f81e9208d7d86ff1c6c12d2833863392 # v3.6.0
         with:
           platforms: linux/arm64
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@2b51285047da1547ffb1b2203d8be4c0af6b1f20 # v3.2.0
+        uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
 
       - name: Login to DockerHub
-        uses: docker/login-action@e92390c5fb421da1463c202d546fed0ec5c39f20 # v3.1.0
+        uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772 # v3.4.0
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Server Docker metadata
         id: meta-server
-        uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # v5.5.1
+        uses: docker/metadata-action@902fa8ec7d6ecbf8d84d538b9b233a880e428804 # v5.7.0
         with:
           images: |
             ${{ env.SERVER_IMAGE_NAME }}
@@ -77,7 +80,7 @@ jobs:
 
       - name: Server Build and push
         id: build-and-push
-        uses: docker/build-push-action@2cdde995de11925a030ce8070c3d77a52ffcf1c0 # v5.3.0
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         with:
           platforms: linux/amd64,linux/arm64
           context: .
@@ -85,18 +88,20 @@ jobs:
           push: true
           tags: ${{ steps.meta-server.outputs.tags }}
 
-      - name: Server Sign image with a key
-        run: |
-          echo "${TAGS}" | xargs -I {} cosign sign -y -r --key env://COSIGN_PRIVATE_KEY "{}@${DIGEST}"
+      - name: Server Sign the images with GitHub OIDC Token
         env:
           TAGS: ${{ steps.meta-server.outputs.tags }}
-          COSIGN_PRIVATE_KEY: ${{secrets.COSIGN_PRIVATE_KEY}}
-          COSIGN_PASSWORD: ${{secrets.COSIGN_PASSWORD}}
           DIGEST: ${{ steps.build-and-push.outputs.digest }}
+        run: |
+          images=""
+          for tag in ${TAGS}; do
+            images+="${tag}@${DIGEST} "
+          done
+          cosign sign --yes ${images}
 
       - name: Worker Docker metadata
         id: meta-worker
-        uses: docker/metadata-action@8e5442c4ef9f78752691e2d8f8d19755c6f78e81 # v5.5.1
+        uses: docker/metadata-action@902fa8ec7d6ecbf8d84d538b9b233a880e428804 # v5.7.0
         with:
           images: |
             ${{ env.WORKER_IMAGE_NAME }}
@@ -105,7 +110,7 @@ jobs:
 
       - name: Worker Build and push
         id: build-and-push-worker
-        uses: docker/build-push-action@2cdde995de11925a030ce8070c3d77a52ffcf1c0 # v5.3.0
+        uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         with:
           platforms: linux/amd64,linux/arm64
           context: .
@@ -113,11 +118,13 @@ jobs:
           push: true
           tags: ${{ steps.meta-worker.outputs.tags }}
 
-      - name: Worker Sign image with a key
-        run: |
-          echo "${TAGS}" | xargs -I {} cosign sign -y -r --key env://COSIGN_PRIVATE_KEY "{}@${DIGEST}"
+      - name: Worker Sign the images with GitHub OIDC Token
         env:
           TAGS: ${{ steps.meta-worker.outputs.tags }}
-          COSIGN_PRIVATE_KEY: ${{secrets.COSIGN_PRIVATE_KEY}}
-          COSIGN_PASSWORD: ${{secrets.COSIGN_PASSWORD}}
           DIGEST: ${{ steps.build-and-push-worker.outputs.digest }}
+        run: |
+          images=""
+          for tag in ${TAGS}; do
+            images+="${tag}@${DIGEST} "
+          done
+          cosign sign --yes ${images}
