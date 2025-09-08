@@ -79,10 +79,6 @@ GRAPHENE = {
     ],
 }
 
-GRAPHQL_JWT = {
-    'JWT_ALLOW_ANY_HANDLER': 'sortinghat.core.middleware.allow_any'
-}
-
 SORTINGHAT_API_PAGE_SIZE = 10
 
 MULTI_TENANT = False

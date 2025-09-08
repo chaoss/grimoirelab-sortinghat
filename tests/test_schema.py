@@ -1924,6 +1924,38 @@ class TestQueryOrganizations(django.test.TestCase):
         org = orgs[2]
         self.assertEqual(org['name'], org3.name)
 
+    def test_order_by_null(self):
+        """Check whether it returns the organizations ordered by default (name)"""
+
+        indv1 = Individual.objects.create(mk='a9b403e150dd4af8953a52a4bb841051e4b705d9')
+        indv2 = Individual.objects.create(mk='0010a5211c03c46d340ada434b9f5b5072a8d491')
+        indv3 = Individual.objects.create(mk='86172d829d61adabde125d2442093213f745fbfd')
+
+        org1 = Organization.add_root(name='Example')
+        Enrollment.objects.create(individual=indv1, group=org1)
+        Enrollment.objects.create(individual=indv2, group=org1)
+        Enrollment.objects.create(individual=indv3, group=org1)
+
+        org2 = Organization.add_root(name='Bitergia')
+        Enrollment.objects.create(individual=indv1, group=org2)
+        Enrollment.objects.create(individual=indv2, group=org2)
+
+        org3 = Organization.add_root(name='LibreSoft')
+
+        # Test default order by null
+        client = graphene.test.Client(schema)
+        executed = client.execute("""{ organizations (orderBy: null){ entities { name } } }""",
+                                  context_value=self.context_value)
+
+        orgs = executed['data']['organizations']['entities']
+
+        org = orgs[0]
+        self.assertEqual(org['name'], org2.name)
+        org = orgs[1]
+        self.assertEqual(org['name'], org1.name)
+        org = orgs[2]
+        self.assertEqual(org['name'], org3.name)
+
     def test_pagination(self):
         """Check whether it returns the organizations searched when using pagination"""
 
@@ -4294,6 +4326,29 @@ class TestQueryIndividuals(django.test.TestCase):
         self.assertEqual(indv['mk'], indv3.mk)
         indv = individuals[2]
         self.assertEqual(indv['mk'], indv1.mk)
+
+    def test_order_by_null(self):
+        """Check whether it returns the indifiduals sorted by default (mk) when ordering by null"""
+
+        indv1 = Individual.objects.create(mk='aaaa03e150dd4af8953a52a4bb841051e4b705d9')
+        indv2 = Individual.objects.create(mk='cccc4b709e5446d250b4fde0e34b78a2b4fde0e3')
+        indv3 = Individual.objects.create(mk='bbbbde0e34b78a185c4b709e5442d045451c')
+        Profile.objects.create(name='AA', individual=indv1)
+        Profile.objects.create(name='ZZ', individual=indv2)
+        Profile.objects.create(name='MM', individual=indv3)
+
+        client = graphene.test.Client(schema)
+        executed = client.execute("""{ individuals(orderBy: null) { entities { mk } } }""",
+                                  context_value=self.context_value)
+
+        individuals = executed['data']['individuals']['entities']
+
+        indv = individuals[0]
+        self.assertEqual(indv['mk'], indv1.mk)
+        indv = individuals[1]
+        self.assertEqual(indv['mk'], indv3.mk)
+        indv = individuals[2]
+        self.assertEqual(indv['mk'], indv2.mk)
 
     def test_pagination(self):
         """Check whether it returns the individuals searched when using pagination"""

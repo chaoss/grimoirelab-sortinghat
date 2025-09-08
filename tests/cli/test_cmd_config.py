@@ -104,7 +104,7 @@ class TestInitConfig(unittest.TestCase):
     def test_config_is_not_overwritten(self):
         """Check whether an existing config file is not replaced"""
 
-        runner = click.testing.CliRunner(mix_stderr=False)
+        runner = click.testing.CliRunner()
 
         with runner.isolated_filesystem() as fs:
             shutil.copy(MOCK_CONFIG_FILEPATH, fs)
@@ -132,7 +132,7 @@ class TestInitConfig(unittest.TestCase):
     def test_overwrite_config(self):
         """Check whether an existing config file is overwritten"""
 
-        runner = click.testing.CliRunner(mix_stderr=False)
+        runner = click.testing.CliRunner()
 
         with runner.isolated_filesystem() as fs:
             shutil.copy(MOCK_CONFIG_FILEPATH, fs)
@@ -240,7 +240,7 @@ class TestSetConfig(unittest.TestCase):
     def test_not_available_keys(self):
         """Check if it raises an error when the key is not available"""
 
-        runner = click.testing.CliRunner(mix_stderr=False)
+        runner = click.testing.CliRunner()
 
         with runner.isolated_filesystem() as fs:
             shutil.copy(MOCK_CONFIG_FILEPATH, fs)
@@ -260,7 +260,7 @@ class TestSetConfig(unittest.TestCase):
     def test_invalid_keys(self):
         """Check if it raises an error when the key is invalid"""
 
-        runner = click.testing.CliRunner(mix_stderr=False)
+        runner = click.testing.CliRunner()
 
         # Test keys that do not follow '<section>.<option>' schema
         with runner.isolated_filesystem() as fs:
@@ -321,7 +321,7 @@ class TestSetConfig(unittest.TestCase):
     def test_invalid_config_files(self):
         """Check whether it raises and error reading invalid configuration files"""
 
-        runner = click.testing.CliRunner(mix_stderr=False)
+        runner = click.testing.CliRunner()
 
         # Test keys that do not follow '<section>.<option>' schema
         with runner.isolated_filesystem() as fs:
@@ -405,7 +405,7 @@ class TestGetConfig(unittest.TestCase):
     def test_not_available_keys(self):
         """Check if it raises an error when the key is not available"""
 
-        runner = click.testing.CliRunner(mix_stderr=False)
+        runner = click.testing.CliRunner()
 
         with runner.isolated_filesystem() as fs:
             shutil.copy(MOCK_CONFIG_FILEPATH, fs)
@@ -424,7 +424,7 @@ class TestGetConfig(unittest.TestCase):
     def test_invalid_keys(self):
         """Check if it raises an error when the key is invalid"""
 
-        runner = click.testing.CliRunner(mix_stderr=False)
+        runner = click.testing.CliRunner()
 
         # Test keys that do not follow '<section>.<option>' schema
         with runner.isolated_filesystem() as fs:
@@ -480,7 +480,7 @@ class TestGetConfig(unittest.TestCase):
     def test_invalid_config_files(self):
         """Check whether it raises and error reading invalid configuration files"""
 
-        runner = click.testing.CliRunner(mix_stderr=False)
+        runner = click.testing.CliRunner()
 
         with runner.isolated_filesystem() as fs:
             filepath = os.path.join(fs, 'unknown_file.cfg')

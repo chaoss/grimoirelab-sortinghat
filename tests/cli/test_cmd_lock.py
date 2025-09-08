@@ -116,7 +116,7 @@ class TestLockAddCommand(unittest.TestCase):
         ]
         mock_client = MockClient(responses)
 
-        runner = click.testing.CliRunner(mix_stderr=False)
+        runner = click.testing.CliRunner()
 
         params = [
             'FFFFFFFFFFFFFFF'
@@ -174,7 +174,7 @@ class TestLockRmCommand(unittest.TestCase):
         ]
         mock_client = MockClient(responses)
 
-        runner = click.testing.CliRunner(mix_stderr=False)
+        runner = click.testing.CliRunner()
 
         params = [
             'FFFFFFFFFFFFFFF'

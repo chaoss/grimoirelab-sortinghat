@@ -193,7 +193,7 @@ class TestCountriesCommand(unittest.TestCase):
     def test_countries_invalid_code(self):
         """Check if it fails when code is invalid"""
 
-        runner = click.testing.CliRunner(mix_stderr=False)
+        runner = click.testing.CliRunner()
 
         params = ['--code', 'E']
         result = runner.invoke(countries, params)
@@ -263,7 +263,7 @@ class TestCountriesCommand(unittest.TestCase):
     def test_countries_invalid_term(self):
         """Check if it fails when term is invalid"""
 
-        runner = click.testing.CliRunner(mix_stderr=False)
+        runner = click.testing.CliRunner()
 
         params = ['--term', 'E']
         result = runner.invoke(countries, params)
@@ -334,7 +334,7 @@ class TestCountriesCommand(unittest.TestCase):
         client = MockClient(responses)
         mock_client.return_value = client
 
-        runner = click.testing.CliRunner(mix_stderr=False)
+        runner = click.testing.CliRunner()
 
         result = runner.invoke(countries)
 
