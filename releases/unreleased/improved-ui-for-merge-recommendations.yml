@@ -1,0 +1,10 @@
+---
+title: Improved UI for merge recommendations
+category: added
+author: Eva Millán <evamillan@bitergia.com>
+issue: null
+notes: >
+  The user interface now shows more than one merge
+  recommendation at a time, and recommendations for
+  an individual are now grouped so they can be managed
+  in batches.

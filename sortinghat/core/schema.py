@@ -2139,6 +2139,8 @@ class SortingHatQuery:
             distinct=True
         ))
 
+        query = query.order_by('-individual_matches_count', 'individual1__mk', 'created_at')
+
         return RecommendedMergePaginatedType.create_paginated_result(query,
                                                                      page,
                                                                      page_size=page_size)
