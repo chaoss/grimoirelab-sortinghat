@@ -6,12 +6,12 @@ export default {
 };
 
 const defaultTemplate = `
-<div>
+<v-layout>
   <recommendations />
-</div>`;
+</v-layout>`;
 
 const slotTemplate = `
-<div>
+<v-layout>
   <recommendations>
     <template v-slot:activator="{ on, items }">
       <v-chip
@@ -26,7 +26,7 @@ const slotTemplate = `
       </v-chip>
     </template>
   </recommendations>
-</div>`;
+</v-layout>`;
 
 const recommendations = [
   {
@@ -85,23 +85,55 @@ const recommendations = [
               enrollments: [],
             },
           },
-        ],
-        pageInfo: {
-          totalResults: 2,
-          page: 1,
-          hasNext: true,
-        },
-      },
-    },
-  },
-  {
-    data: {
-      recommendedMerge: {
-        entities: [
           {
-            id: "38",
+            id: "39",
             individual1: {
               mk: "4350d4c5916cfe8e2e18d290e02a471d95b112d7",
+              isLocked: false,
+              profile: {
+                name: "Tom Marvolo Riddle",
+                id: "1",
+                email: "triddle@example.com",
+              },
+              identities: [
+                {
+                  name: "Tom Marvolo Riddle",
+                  source: "git",
+                  email: "triddle@example.com",
+                  uuid: "4350d4c5916cfe8e2e18d290e02a471d95b112d7",
+                },
+              ],
+              enrollments: [
+                {
+                  group: { name: "Hogwarts" },
+                  start: "1938-09-01",
+                  end: "1945-06-02T00:00:00+00:00",
+                },
+              ],
+            },
+            individual2: {
+              mk: "8998b2f0bd86780fb7c8c141956d68c9628cbec8",
+              isLocked: false,
+              profile: {
+                name: "T. Riddle",
+                id: "37",
+                email: "triddle@example.com",
+                isBot: false,
+              },
+              identities: [
+                {
+                  source: "git",
+                  email: "triddle@example.com",
+                  uuid: "8998b2f0bd86780fb7c8c141956d68c9628cbec9",
+                },
+              ],
+              enrollments: [],
+            },
+          },
+          {
+            id: "40",
+            individual1: {
+              mk: "8998b2f0bd86780fb7c8c141956d68c9628cbec8",
               isLocked: false,
               profile: {
                 name: "Albus Dumbledore",
@@ -157,9 +189,8 @@ const recommendations = [
           },
         ],
         pageInfo: {
-          totalResults: 1,
-          page: 2,
-          hasNext: false,
+          totalResults: 4,
+          page: 1,
         },
       },
     },
@@ -179,7 +210,6 @@ export const Default = () => ({
       return recommendations[this.index];
     },
     manageRecommendation() {
-      this.index = +!this.index;
       return true;
     },
   },

@@ -6,6 +6,7 @@ export default {
 };
 
 const IndividualsTableTemplate = `
+<v-layout>
   <individuals-table
     :fetch-page="queryIndividuals.bind(this)"
     :delete-item="deleteIndividual"
@@ -26,6 +27,7 @@ const IndividualsTableTemplate = `
     :is-expandable="isExpandable"
     :recommend-matches="recommendMatches"
   />
+</v-layout>
 `;
 
 const query = [
