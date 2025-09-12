@@ -23,6 +23,7 @@
 import datetime
 
 import dateutil
+from django.db import IntegrityError
 
 from django.db.models import (CASCADE,
                               SET_NULL,
@@ -349,6 +350,15 @@ class MergeRecommendation(EntityBase):
     class Meta:
         db_table = 'merge_recommendations'
         unique_together = ('individual1', 'individual2')
+
+    def save(self, *args, **kwargs):
+        # Ensure individual1.mk is always less than individual2.mk
+        if self.individual1.mk > self.individual2.mk:
+            self.individual1, self.individual2 = self.individual2, self.individual1
+        elif self.individual1.mk == self.individual2.mk:
+            raise IntegrityError("Cannot create a MergeRecommendation with the same individual.")
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return '%s - %s' % (self.individual1.mk, self.individual2.mk)

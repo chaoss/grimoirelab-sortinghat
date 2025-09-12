@@ -953,6 +953,34 @@ class TestMergeRecommendation(TransactionTestCase):
         self.assertGreaterEqual(merge_recom.last_modified, before_modified_dt)
         self.assertLessEqual(merge_recom.last_modified, after_modified_dt)
 
+    def test_individual_order_on_save(self):
+        """Check that individual1.mk is always less than individual2.mk"""
+
+        indiv1 = Individual.objects.create(mk='AAAA')
+        indiv2 = Individual.objects.create(mk='BBBB')
+
+        # Create with individual1 > individual2
+        rec = MergeRecommendation(individual1=indiv2, individual2=indiv1)
+        rec.save()
+        self.assertLessEqual(rec.individual1.mk, rec.individual2.mk)
+
+        rec.delete()
+
+        # Create with individual1 < individual2
+        rec2 = MergeRecommendation(individual1=indiv1, individual2=indiv2)
+        rec2.save()
+        self.assertLessEqual(rec2.individual1.mk, rec2.individual2.mk)
+
+    def test_individual_different_on_save(self):
+        """Check that individual1 and individual2 are different"""
+
+        indiv1 = Individual.objects.create(mk='AAAA')
+
+        # Create with individual1 == individual2
+        rec = MergeRecommendation(individual1=indiv1, individual2=indiv1)
+        with self.assertRaises(IntegrityError):
+            rec.save()
+
 
 class TestGenderRecommendation(TransactionTestCase):
     """Unit tests for GenderRecommendation class"""
