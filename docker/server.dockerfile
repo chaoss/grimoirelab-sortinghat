@@ -25,6 +25,7 @@ RUN apt-get update && \
         dirmngr gnupg \
         curl \
         gcc \
+        pkg-config \
         libmariadbclient-dev-compat && \
     apt-get purge && \
     apt-get clean && \
@@ -36,10 +37,10 @@ RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
     dpkg-reconfigure --frontend=noninteractive locales && \
     update-locale LANG=en_US.UTF-8
 
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
-ENV LC_ALL en_US.UTF-8
-ENV LANG C.UTF-8
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US:en
+ENV LC_ALL=en_US.UTF-8
+ENV LANG=C.UTF-8
 
 # Install SortingHat and dependencies
 #
