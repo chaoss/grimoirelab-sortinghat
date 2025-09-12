@@ -4,7 +4,7 @@
     :class="{
       locked: isLocked,
       dropzone: isDragging,
-      selected: isSelected,
+      selected: isSelected && !checkbox,
       highlighted: isHighlighted,
       disabled: !selectable,
     }"
@@ -93,6 +93,13 @@
           />
         </v-card>
       </v-menu>
+      <v-checkbox-btn
+        v-if="checkbox"
+        :model-value="isSelected"
+        density="compact"
+        color="primary"
+        @update:model-value="($event) => $emit('check', $event)"
+      />
       <v-btn
         v-if="closable"
         icon="mdi-close"
@@ -157,7 +164,8 @@ export default {
     },
     isLocked: {
       type: Boolean,
-      required: true,
+      required: false,
+      default: false,
     },
     closable: {
       type: Boolean,
@@ -176,6 +184,11 @@ export default {
       required: false,
     },
     detailed: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    checkbox: {
       type: Boolean,
       required: false,
       default: false,

@@ -10,39 +10,49 @@ const workSpaceTemplate =
   '<work-space :individuals="individuals" :merge-items="mergeItems" :move-item="moveItem" :enroll="() => {}"/>';
 
 const dragAndDropTemplate = `
-  <div>
-  <work-space
-    :individuals="individuals"
-    :merge-items="mergeItems"
-    :move-item="moveItem"
-    :highlight-individual="highlightInWorkspace"
-    :enroll="deleteItem"
-    @highlight="highlightIndividual($event, 'highlightInTable', true)"
-    @stopHighlight="highlightIndividual($event, 'highlightInTable', false)"
-    @deselect="deselectIndividuals"
-  />
-  <individuals-table
-    :fetch-page="queryIndividuals.bind(this)"
-    :delete-item="deleteItem"
-    :merge-items="deleteItem"
-    :unmerge-items="deleteItem"
-    :move-item="moveItem"
-    :highlight-individual="highlightInTable"
-    :add-identity="deleteItem"
-    :enroll="deleteItem"
-    :fetch-organizations="deleteItem"
-    :update-profile="deleteItem"
-    :get-countries="getCountries.bind(this)"
-    :lock-individual="deleteItem"
-    :unlock-individual="deleteItem"
-    :withdraw="deleteItem"
-    :update-enrollment="deleteItem"
-    :recommend-matches="deleteItem"
-    @highlight="highlightIndividual($event, 'highlightInWorkspace', true)"
-    @stopHighlight="highlightIndividual($event, 'highlightInWorkspace', false)"
-    ref="table"
-  />
-  </div>
+  <v-layout>
+    <v-container>
+      <v-row>
+        <v-col>
+          <work-space
+            :individuals="individuals"
+            :merge-items="mergeItems"
+            :move-item="moveItem"
+            :highlight-individual="highlightInWorkspace"
+            :enroll="deleteItem"
+            @highlight="highlightIndividual($event, 'highlightInTable', true)"
+            @stopHighlight="highlightIndividual($event, 'highlightInTable', false)"
+            @deselect="deselectIndividuals"
+          />
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <individuals-table
+            :fetch-page="queryIndividuals.bind(this)"
+            :delete-item="deleteItem"
+            :merge-items="deleteItem"
+            :unmerge-items="deleteItem"
+            :move-item="moveItem"
+            :highlight-individual="highlightInTable"
+            :add-identity="deleteItem"
+            :enroll="deleteItem"
+            :fetch-organizations="deleteItem"
+            :update-profile="deleteItem"
+            :get-countries="getCountries.bind(this)"
+            :lock-individual="deleteItem"
+            :unlock-individual="deleteItem"
+            :withdraw="deleteItem"
+            :update-enrollment="deleteItem"
+            :recommend-matches="deleteItem"
+            @highlight="highlightIndividual($event, 'highlightInWorkspace', true)"
+            @stopHighlight="highlightIndividual($event, 'highlightInWorkspace', false)"
+            ref="table"
+          />
+        <v-col>
+      </v-row>
+    </v-container>
+  </v-layout>
 `;
 
 export const Default = () => ({

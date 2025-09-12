@@ -2129,7 +2129,7 @@ class SortingHatQuery:
         else:
             query = MergeRecommendation.objects.filter(applied=None)
 
-        query = query.order_by('created_at')
+        query = query.order_by('individual1__mk')
 
         return RecommendedMergePaginatedType.create_paginated_result(query,
                                                                      page,
