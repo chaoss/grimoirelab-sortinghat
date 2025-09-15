@@ -9,8 +9,8 @@
 # Please check the next links for details about the configuration
 # in a production environment:
 #
-# https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
-# https://docs.djangoproject.com/en/3.1/ref/settings/
+# https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
+# https://docs.djangoproject.com/en/5.2/ref/settings/
 #
 import json
 import os
@@ -28,7 +28,7 @@ SILENCED_SYSTEM_CHECKS = [
 #
 # You must never enable debug in production.
 #
-# https://docs.djangoproject.com/en/3.1/ref/settings/#std:setting-DEBUG
+# https://docs.djangoproject.com/en/5.2/ref/settings/#std:setting-DEBUG
 #
 
 DEBUG = os.environ.get('SORTINGHAT_DEBUG', 'False').lower() in ('true', '1')
@@ -38,7 +38,7 @@ DEBUG = os.environ.get('SORTINGHAT_DEBUG', 'False').lower() in ('true', '1')
 # If DEBUG is set to False, you will need to configure this parameter,
 # with the host you are using to serve SortingHat.
 #
-# https://docs.djangoproject.com/en/3.1/ref/settings/#allowed-hosts
+# https://docs.djangoproject.com/en/5.2/ref/settings/#allowed-hosts
 #
 
 if 'SORTINGHAT_ALLOWED_HOST' in os.environ:
@@ -52,7 +52,7 @@ else:
 #
 # The secret key must be a large random value and it must be kept secret.
 #
-# https://docs.djangoproject.com/en/3.1/ref/settings/#secret-key
+# https://docs.djangoproject.com/en/5.2/ref/settings/#secret-key
 #
 
 SECRET_KEY = os.environ['SORTINGHAT_SECRET_KEY']
@@ -130,7 +130,7 @@ AUTHENTICATION_BACKENDS = [
 #
 # Password validation
 #
-# https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
+# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 #
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -172,7 +172,7 @@ CORS_ALLOW_CREDENTIALS = True
 #
 # Static files (CSS, JavaScript, Images)
 #
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
+# https://docs.djangoproject.com/en/5.2/howto/static-files/
 #
 
 STATIC_URL = '/'
@@ -181,8 +181,12 @@ STATIC_URL = '/'
 # Current supported cloud platforms are: GCP
 if 'SORTINGHAT_STATICFILES_STORAGE' in os.environ:
     if os.environ['SORTINGHAT_STATICFILES_STORAGE'].lower() == 'gcp':
-        STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
-        GS_BUCKET_NAME = os.environ['SORTINGHAT_BUCKET_NAME']
+        STORAGES = {
+            "staticfiles": {
+                "BACKEND": "storages.backends.gcloud.GoogleCloudStorage",
+                "OPTIONS": {"bucket_name": os.environ["SORTINGHAT_BUCKET_NAME"]},
+            }
+        }
     else:
         raise ValueError(f"'{os.environ['SORTINGHAT_STATICFILES_STORAGE']}' storage is not supported")
 
@@ -201,7 +205,7 @@ MEDIA_URL = 'http://media.localhost/'
 #
 # Internationalization
 #
-# https://docs.djangoproject.com/en/3.1/topics/i18n/
+# https://docs.djangoproject.com/en/5.2/topics/i18n/
 #
 #
 
@@ -218,7 +222,7 @@ TIME_ZONE = 'UTC'
 #
 # SortingHat Logging
 #
-# https://docs.djangoproject.com/en/3.1/topics/logging/#configuring-logging
+# https://docs.djangoproject.com/en/5.2/topics/logging/#configuring-logging
 #
 
 LOGGING = {
@@ -370,7 +374,7 @@ SORTINGHAT_GENDERIZE_API_KEY = os.environ.get('SORTINGHAT_GENDERIZE_API_KEY', No
 #
 # Path of the permission groups configuration file
 #
-# https://docs.djangoproject.com/en/5.0/topics/auth/default/#groups
+# https://docs.djangoproject.com/en/5.2/topics/auth/default/#groups
 #
 
 PERMISSION_GROUPS_LIST_PATH = os.environ.get('SORTINGHAT_PERMISSION_GROUPS_LIST_PATH',
@@ -386,7 +390,7 @@ MATCH_TRUSTED_SOURCES = os.environ.get('SORTINGHAT_MATCH_TRUSTED_SOURCES',
 #
 # Session cookies configuration
 #
-# https://docs.djangoproject.com/en/4.2/topics/http/sessions/#settings
+# https://docs.djangoproject.com/en/5.2/topics/http/sessions/#settings
 #
 
 SESSION_COOKIE_AGE = 1800
