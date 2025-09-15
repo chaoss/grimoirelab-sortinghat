@@ -1,0 +1,8 @@
+---
+title: Django static files configuration
+category: fixed
+author: Jose Javier Merchante <jjmerchante@bitergia.com>
+issue: null
+notes: >
+  Update the Django STORAGES setting for static files, ensuring
+  compatibility with Django 5.2.
