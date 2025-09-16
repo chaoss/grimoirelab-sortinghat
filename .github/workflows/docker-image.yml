@@ -117,6 +117,8 @@ jobs:
           file: "docker/worker.dockerfile"
           push: true
           tags: ${{ steps.meta-worker.outputs.tags }}
+          build-args: |
+            BASE_IMAGE_TAG=${{ inputs.version }}
 
       - name: Worker Sign the images with GitHub OIDC Token
         env:

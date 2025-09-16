@@ -1,4 +1,6 @@
-FROM grimoirelab/sortinghat:latest
+ARG BASE_IMAGE_TAG=latest
+
+FROM grimoirelab/sortinghat:${BASE_IMAGE_TAG}
 
 LABEL maintainer="Santiago Dueñas <sduenas@bitergia.com>"
 LABEL org.opencontainers.image.title="SortingHat worker"
