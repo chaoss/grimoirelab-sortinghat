@@ -52,6 +52,7 @@ from sortinghat.core.models import (Individual,
                                     AffiliationRecommendation,
                                     MergeRecommendation,
                                     GenderRecommendation)
+from sortinghat.core.recommendations import RecommendationEngine
 
 JOB_NOT_FOUND_ERROR = "DEF not found in the registry"
 
@@ -1242,6 +1243,60 @@ class TestRecommendMatches(TestCase):
         result = job.result
 
         self.assertDictEqual(result, expected)
+
+    @unittest.mock.patch('sortinghat.core.jobs.RecommendationEngine')
+    def test_recommend_matches_with_concurrent_removal(self, mock_recommendation_engine):
+        """Check if recommendations are obtained when an identity is removed while the job is running"""
+
+        ctx = SortingHatContext(self.user)
+
+        # Mock RecommendationEngine class to return a non-existing key and an existing one
+        def mock_recommend_matches(*args, **kwargs):
+            yield (self.john_smith.individual.mk,
+                   self.john_smith.individual.mk,
+                   ['non_existing_mk', self.jsmith.individual.mk])
+
+        class MockRecommendationEngine(RecommendationEngine):
+            RECOMMENDATION_TYPES = {
+                'matches': mock_recommend_matches,
+            }
+
+        mock_recommendation_engine.return_value = MockRecommendationEngine()
+
+        # Test
+        expected = {
+            'results': {
+                self.john_smith.uuid: sorted(['non_existing_mk', self.jsm3.individual.mk])
+            }
+        }
+        recommendations_expected = [
+            sorted([self.jsmith.individual.mk, self.john_smith.individual.mk])
+        ]
+
+        source_uuids = [self.john_smith.uuid]
+        target_uuids = [self.john_smith.uuid,
+                        self.jsmith.uuid]
+
+        criteria = ['email', 'name', 'username']
+
+        job = recommend_matches.delay(ctx,
+                                      source_uuids,
+                                      target_uuids,
+                                      criteria)
+        result = job.result
+
+        # Preserve job results order for the comparison against the expected results
+        for key in result['results']:
+            result['results'][key] = sorted(result['results'][key])
+
+        self.assertDictEqual(result, expected)
+
+        self.assertEqual(MergeRecommendation.objects.count(), 1)
+
+        for rec in recommendations_expected:
+            self.assertTrue(
+                MergeRecommendation.objects.filter(individual1=rec[0],
+                                                   individual2=rec[1]).exists())
 
     def test_transactions(self):
         """Check if the right transactions were created"""
