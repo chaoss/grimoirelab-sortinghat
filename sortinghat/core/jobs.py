@@ -28,6 +28,8 @@ import django_rq
 import django_rq.utils
 import rq
 import redis.exceptions
+
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError, transaction, connection
 from rq.job import Job
 
@@ -219,7 +221,7 @@ def recommend_affiliations(ctx, uuids=None, last_modified=MIN_PERIOD_DATE):
                 with transaction.atomic():
                     AffiliationRecommendation.objects.create(individual_id=rec.mk,
                                                              organization=org)
-            except IntegrityError:
+            except (IntegrityError, ObjectDoesNotExist):
                 logger.debug(
                     f"Job {job.id} 'Unable to create affiliation recommendation for"
                     f"Individual {rec.key} and Organization {org_name}"
@@ -317,16 +319,10 @@ def recommend_matches(ctx, source_uuids,
 
             indiv_1, indiv_2 = rec.mk, match
 
-            # Generate the recommendations sorting uuids alphabetical
-            if indiv_1 == indiv_2:
-                continue
-            elif indiv_1 > indiv_2:
-                indiv_1, indiv_2 = indiv_2, indiv_1
-
             try:
                 with transaction.atomic():
                     MergeRecommendation.objects.create(individual1_id=indiv_1, individual2_id=indiv_2)
-            except IntegrityError:
+            except (IntegrityError, ObjectDoesNotExist):
                 pass
 
     trxl.close()
