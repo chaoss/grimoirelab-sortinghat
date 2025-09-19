@@ -2129,7 +2129,17 @@ class SortingHatQuery:
         else:
             query = MergeRecommendation.objects.filter(applied=None)
 
-        query = query.order_by('created_at')
+        query = query.annotate(individual_matches_count=Count(
+            'individual1__match_recommendation_individual_1',
+            filter=Q(individual1__match_recommendation_individual_1__applied=None),
+            distinct=True
+        ) + Count(
+            'individual1__match_recommendation_individual_2',
+            filter=Q(individual1__match_recommendation_individual_2__applied=None),
+            distinct=True
+        ))
+
+        query = query.order_by('-individual_matches_count', 'individual1__mk', 'created_at')
 
         return RecommendedMergePaginatedType.create_paginated_result(query,
                                                                      page,

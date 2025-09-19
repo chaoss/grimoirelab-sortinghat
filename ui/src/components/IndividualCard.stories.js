@@ -21,6 +21,7 @@ const individualCardTemplate = `
     :usernames="usernames"
     :emails="emails"
     :detailed="detailed"
+    :recommendation="recommendation"
     />`;
 
 export const Default = () => ({
@@ -801,6 +802,58 @@ export const Detailed = () => ({
       default: () => ["triddle@example.net", "voldemort@example.net"],
     },
     detailed: {
+      default: true,
+    },
+  },
+});
+
+export const Recommendation = () => ({
+  components: { IndividualCard },
+  template: individualCardTemplate,
+  props: {
+    name: {
+      default: "Tom Marvolo Riddle",
+    },
+    sources: {
+      default: () => [],
+    },
+    isLocked: {
+      default: false,
+    },
+    uuid: {
+      default: "10f546",
+    },
+    email: {
+      default: "triddle@example.net",
+    },
+    identities: {
+      default: () => [],
+    },
+    enrollments: {
+      default: () => [],
+    },
+    isHighlighted: {
+      default: false,
+    },
+    closable: {
+      default: false,
+    },
+    selectable: {
+      default: false,
+    },
+    isSelected: {
+      default: false,
+    },
+    usernames: {
+      default: () => ['{"mdi-gitlab":"triddle"}', '{"mdi-github":"voldemort"}'],
+    },
+    emails: {
+      default: () => ["triddle@example.net", "voldemort@example.net"],
+    },
+    detailed: {
+      default: true,
+    },
+    recommendation: {
       default: true,
     },
   },

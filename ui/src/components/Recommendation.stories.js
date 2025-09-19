@@ -6,12 +6,12 @@ export default {
 };
 
 const defaultTemplate = `
-<div>
+<v-layout>
   <recommendations />
-</div>`;
+</v-layout>`;
 
 const slotTemplate = `
-<div>
+<v-layout>
   <recommendations>
     <template v-slot:activator="{ on, items }">
       <v-chip
@@ -26,7 +26,7 @@ const slotTemplate = `
       </v-chip>
     </template>
   </recommendations>
-</div>`;
+</v-layout>`;
 
 const recommendations = [
   {
@@ -58,36 +58,62 @@ const recommendations = [
                   end: "1945-06-02T00:00:00+00:00",
                 },
               ],
-            },
-            individual2: {
-              mk: "8998b2f0bd86780fb7c8c141956d68c9628cbec8",
-              isLocked: false,
-              profile: {
-                name: "Voldemort",
-                id: "37",
-                email: "triddle@example.com",
-                isBot: false,
-              },
-              identities: [
+              matchRecommendationSet: [
                 {
-                  name: "Voldemort",
-                  source: "git",
-                  email: "triddle@example.com",
-                  uuid: "8998b2f0bd86780fb7c8c141956d68c9628cbec8",
+                  id: 39,
+                  individual: {
+                    mk: "8998b2f0bd86780fb7c8c141956d68c9628cbec8",
+                    isLocked: false,
+                    profile: {
+                      name: "Voldemort",
+                      id: "37",
+                      email: "triddle@example.com",
+                      isBot: false,
+                    },
+                    identities: [
+                      {
+                        name: "Voldemort",
+                        source: "git",
+                        email: "triddle@example.com",
+                        uuid: "8998b2f0bd86780fb7c8c141956d68c9628cbec8",
+                      },
+                      {
+                        username: "voldemort",
+                        source: "github",
+                        email: "triddle@example.com",
+                        uuid: "8998b2f0bd86780fb7c8c141956d68c9628cbec9",
+                      },
+                    ],
+                    enrollments: [],
+                  },
                 },
                 {
-                  username: "voldemort",
-                  source: "github",
-                  email: "triddle@example.com",
-                  uuid: "8998b2f0bd86780fb7c8c141956d68c9628cbec9",
+                  id: 40,
+                  individual: {
+                    mk: "8998b2f0bd86780fb7c8c141956d68c9628cbec8",
+                    isLocked: false,
+                    profile: {
+                      name: "T. Riddle",
+                      id: "37",
+                      email: "triddle@example.com",
+                      isBot: false,
+                    },
+                    identities: [
+                      {
+                        source: "git",
+                        email: "triddle@example.com",
+                        uuid: "8998b2f0bd86780fb7c8c141956d68c9628cbec9",
+                      },
+                    ],
+                    enrollments: [],
+                  },
                 },
               ],
-              enrollments: [],
             },
           },
         ],
         pageInfo: {
-          totalResults: 2,
+          totalResults: 4,
           page: 1,
           hasNext: true,
         },
@@ -136,23 +162,28 @@ const recommendations = [
                   end: "1899-06-02T00:00:00+00:00",
                 },
               ],
-            },
-            individual2: {
-              mk: "8998b2f0bd86780fb7c8c141956d68c9628cbec8",
-              isLocked: false,
-              profile: {
-                id: "37",
-                email: "dumbledore@example.net",
-                isBot: false,
-              },
-              identities: [
+              matchRecommendationSet: [
                 {
-                  source: "git",
-                  email: "dumbledore@example.net",
-                  uuid: "4350d4c5916cfe8e2e18d290e02a471d95b112d7",
+                  id: 39,
+                  individual: {
+                    mk: "8998b2f0bd86780fb7c8c141956d68c9628cbec8",
+                    isLocked: false,
+                    profile: {
+                      id: "37",
+                      email: "dumbledore@example.net",
+                      isBot: false,
+                    },
+                    identities: [
+                      {
+                        source: "git",
+                        email: "dumbledore@example.net",
+                        uuid: "4350d4c5916cfe8e2e18d290e02a471d95b112d7",
+                      },
+                    ],
+                    enrollments: [],
+                  },
                 },
               ],
-              enrollments: [],
             },
           },
         ],
@@ -179,7 +210,9 @@ export const Default = () => ({
       return recommendations[this.index];
     },
     manageRecommendation() {
-      this.index = +!this.index;
+      if (recommendations.length > 1) {
+        recommendations.shift();
+      }
       return true;
     },
   },
