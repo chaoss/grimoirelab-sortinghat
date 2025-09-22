@@ -62,7 +62,9 @@ const AuthLink = (operation, next) => {
 
 const logoutLink = onError(({ graphQLErrors }) => {
   if (graphQLErrors && graphQLErrors[0].message == AUTHENTICATION_ERROR) {
-    store.dispatch("logout");
+    store.dispatch("logout", {
+      redirect: router.currentRoute?.value?.fullPath,
+    });
   }
 });
 

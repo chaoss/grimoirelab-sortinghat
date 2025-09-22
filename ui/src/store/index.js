@@ -54,10 +54,10 @@ export const store = createStore({
         throw new Error(error.errors);
       }
     },
-    logout({ commit }) {
+    logout({ commit }, redirect) {
       commit("loginUser", undefined);
       Cookies.remove("sh_user");
-      router.push("/login");
+      router.push({ name: "Login", query: redirect });
     },
     saveWorkspace({ commit }, workspaceData) {
       const uuids = workspaceData.map((individual) => individual.uuid);
