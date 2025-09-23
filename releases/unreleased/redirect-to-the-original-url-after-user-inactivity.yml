@@ -1,0 +1,8 @@
+---
+title: Redirect to the original URL after user inactivity
+category: added
+author: Eva Millán <evamillan@bitergia.com>
+issue: 995
+notes: >
+  After logging in, users are now redirected to the page they were
+  visiting when they were logged out due to inactivity.
