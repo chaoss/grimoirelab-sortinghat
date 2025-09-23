@@ -1,9 +1,0 @@
----
-title: Automatic affiliation fixed and reduced results
-category: fixed
-author: Jose Javier Merchante <jjmerchante@bitergia.com>
-issue: 994
-notes: >
-  Fixes a bug that caused running the affiliate process to overwrite
-  existing affiliation dates. Now, the job result only includes
-  individuals who were newly affiliated.

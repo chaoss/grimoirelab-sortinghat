@@ -1,8 +1,0 @@
----
-title: Oraganizations endpoint performance improvement
-category: performance
-author: Jose Javier Merchante <jjmerchante@bitergia.com>
-issue: null
-notes: >
-  Improve the performance of the organizations endpoint, reducing the
-  loading time of the organizations table

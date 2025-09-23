@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sortinghat"
-version = "1.11.0-rc.3"
+version = "1.11.0"
 description = "A tool to manage identities."
 authors = [
     "GrimoireLab Developers"

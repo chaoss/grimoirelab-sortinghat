@@ -1,5 +1,44 @@
 # Releases
 
+## sortinghat 1.11.0 - (2025-09-23)
+
+**New features:**
+
+ * Recommendations based on GitHub-generated email addresses (#867)\
+   Merge recommendations can now match GitHub profiles to GitHub-
+   generated emails (<username>@users.noreply.github.com). Individuals
+   can also be automatically unified with this criteria.
+ * Increased minimum version for Python to 3.10\
+   Python 3.9 reaches the end of life in October 2025. This means it
+   won't receive new updates or patches to fix security issues.
+   GrimoireLab supports Python 3.10 and higher from now on.
+
+**Bug fixes:**
+
+ * Enforce merge recommendation integrity (#993)\
+   Ensure merge recommendations are unique between individuals and
+   prevent creating recommmendations with the same individual.
+ * Automatic affiliation fixed and reduced results (#994)\
+   Fixes a bug that caused running the affiliate process to overwrite
+   existing affiliation dates. Now, the job result only includes
+   individuals who were newly affiliated.
+ * Unavailable Individuals in Recommendations\
+   Recommendations now handle cases where an individual has been removed
+   or merged, preventing errors when creating new recommendations.
+ * Django static files configuration\
+   Update the Django STORAGES setting for static files, ensuring
+   compatibility with Django 5.2.
+
+**Performance improvements:**
+
+ * SortingHat API slow due to changelog information\
+   Improve SortingHat API performance by adding an index to the
+   transactions table in the database.
+ * Oraganizations endpoint performance improvement\
+   Improve the performance of the organizations endpoint, reducing the
+   loading time of the organizations table
+
+
   ## sortinghat 1.10.1 - (2025-08-21)
   
   * Update Poetry's package dependencies

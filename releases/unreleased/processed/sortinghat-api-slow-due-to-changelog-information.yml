@@ -1,8 +1,0 @@
----
-title: SortingHat API slow due to changelog information
-category: performance
-author: Jose Javier Merchante <jjmerchante@bitergia.com>
-issue: null
-notes: >
-  Improve SortingHat API performance by adding an index
-  to the transactions table in the database.

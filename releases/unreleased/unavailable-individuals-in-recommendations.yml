@@ -1,9 +1,0 @@
----
-title: Unavailable Individuals in Recommendations
-category: fixed
-author: Jose Javier Merchante <jjmerchante@bitergia.com>
-issue: null
-notes: >
-  Recommendations now handle cases where an individual has been
-  removed or merged, preventing errors when creating new
-  recommendations.
