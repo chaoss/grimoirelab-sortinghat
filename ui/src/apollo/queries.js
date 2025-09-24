@@ -205,10 +205,53 @@ const GET_PAGINATED_RECOMMENDED_MERGE = gql`
       entities {
         id
         individual1 {
-          ...individual
-        }
-        individual2 {
-          ...individual
+          mk
+          isLocked
+          profile {
+            name
+            email
+            isBot
+          }
+          identities {
+            name
+            source
+            email
+            uuid
+            username
+          }
+          enrollments {
+            start
+            end
+            group {
+              name
+            }
+          }
+          matchRecommendationSet {
+            id
+            individual {
+              mk
+              isLocked
+              profile {
+                name
+                email
+                isBot
+              }
+              identities {
+                name
+                source
+                email
+                uuid
+                username
+              }
+              enrollments {
+                start
+                end
+                group {
+                  name
+                }
+              }
+            }
+          }
         }
       }
       pageInfo {
@@ -220,7 +263,6 @@ const GET_PAGINATED_RECOMMENDED_MERGE = gql`
       }
     }
   }
-  ${FULL_INDIVIDUAL}
 `;
 
 const GET_IMPORTERS = gql`

@@ -4,9 +4,11 @@
     :class="{
       locked: isLocked,
       dropzone: isDragging,
-      selected: isSelected,
+      selected: isSelected && !recommendation,
       highlighted: isHighlighted,
       disabled: !selectable,
+      'selected--merge': state.merge,
+      'selected--dismiss': state.dismiss,
     }"
     :ripple="selectable"
     v-bind="$attrs"
@@ -103,6 +105,29 @@
         @mousedown.stop
       />
     </template>
+    <template v-if="recommendation" v-slot:actions>
+      <v-spacer />
+      <v-btn
+        :color="state.dismiss ? 'red-darken-2' : 'default'"
+        class="v-chip v-chip--label text-caption"
+        variant="tonal"
+        size="small"
+        @click="handleDismiss"
+      >
+        <v-icon start>mdi-close</v-icon>
+        Keep separate
+      </v-btn>
+      <v-btn
+        :color="state.merge ? 'light-green-darken-2' : 'default'"
+        class="v-chip v-chip--label text-caption"
+        variant="tonal"
+        size="small"
+        @click="handleMerge"
+      >
+        <v-icon start>mdi-call-merge</v-icon>
+        Merge
+      </v-btn>
+    </template>
     <slot />
   </v-card>
 </template>
@@ -157,7 +182,8 @@ export default {
     },
     isLocked: {
       type: Boolean,
-      required: true,
+      required: false,
+      default: false,
     },
     closable: {
       type: Boolean,
@@ -180,10 +206,19 @@ export default {
       required: false,
       default: false,
     },
+    recommendation: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
   data() {
     return {
       isDragging: false,
+      state: {
+        merge: false,
+        dismiss: false,
+      },
     };
   },
   computed: {
@@ -252,6 +287,30 @@ export default {
         this.isDragging = false;
       }
     },
+    handleMerge() {
+      if (this.state.merge) {
+        this.state.merge = false;
+        this.$emit("apply", null);
+      } else {
+        this.state.merge = true;
+        this.$emit("apply", true);
+        if (this.state.dismiss) {
+          this.state.dismiss = false;
+        }
+      }
+    },
+    handleDismiss() {
+      if (this.state.dismiss) {
+        this.state.dismiss = false;
+        this.$emit("apply", null);
+      } else {
+        this.state.dismiss = true;
+        this.$emit("apply", false);
+        if (this.state.merge) {
+          this.state.merge = false;
+        }
+      }
+    },
   },
 };
 </script>
@@ -299,5 +358,17 @@ export default {
     line-height: 1.3rem;
     opacity: 0.7;
   }
+}
+
+.v-card.selected--merge {
+  background-color: #f1f8e9;
+}
+
+.v-card.selected--dismiss {
+  background-color: #ffebee;
+}
+
+.v-card-actions {
+  padding-top: 0;
 }
 </style>

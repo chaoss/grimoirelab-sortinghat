@@ -30,6 +30,7 @@
             <v-dialog
               activator="parent"
               aria-label="Delete recommendations confirmation"
+              width="500"
             >
               <template v-slot:activator="{ props: activator }">
                 <v-list-item v-bind="activator">
@@ -79,7 +80,7 @@
       <v-card-subtitle
         class="mt-4 pl-8 pr-8 pb-0 text-subtitle-1 d-flex justify-space-between"
       >
-        Is this the same individual?
+        Select which identities to merge and which to keep separate
         <span class="subtitle-1 text--secondary">{{ count }} remaining</span>
       </v-card-subtitle>
       <v-card-text class="mt-4 pl-8 pr-8">
@@ -95,7 +96,6 @@
               :is-locked="currentItem.individual1.isLocked"
               :emails="currentItem.individual1.emails"
               :usernames="currentItem.individual1.usernames"
-              class="h-100"
               variant="outlined"
               detailed
             />
@@ -105,18 +105,24 @@
           </v-col>
           <v-col>
             <individual-card
-              :name="currentItem.individual2.name"
-              :email="currentItem.individual2.email"
-              :sources="currentItem.individual2.sources"
-              :uuid="currentItem.individual2.uuid"
-              :identities="currentItem.individual2.identities"
-              :enrollments="currentItem.individual2.enrollments"
-              :is-locked="currentItem.individual2.isLocked"
-              :emails="currentItem.individual2.emails"
-              :usernames="currentItem.individual2.usernames"
-              class="h-100"
+              v-for="match in currentItem.matches"
+              :key="match.id"
+              :name="match.individual.name"
+              :email="match.individual.email"
+              :sources="match.individual.sources"
+              :uuid="match.individual.uuid"
+              :identities="match.individual.identities"
+              :enrollments="match.individual.enrollments"
+              :is-locked="match.individual.isLocked"
+              :is-selected="match.checked"
+              :emails="match.individual.emails"
+              :usernames="match.individual.usernames"
+              class="mb-1"
               variant="outlined"
               detailed
+              recommendation
+              @check="($event) => (match.checked = $event)"
+              @apply="($event) => (match.apply = $event)"
             />
           </v-col>
         </v-row>
@@ -126,30 +132,23 @@
         </v-alert>
 
         <v-card-actions class="px-0 mt-4">
-          <v-btn
-            class="text-subtitle-2"
-            color="primary darken-1"
-            variant="text"
-            @click.prevent="fetchItem(page + 1)"
-          >
-            Ask again later
-          </v-btn>
           <v-spacer></v-spacer>
           <v-btn
             class="text-subtitle-2"
             color="primary darken-1"
             variant="outlined"
-            @click.prevent="applyRecommendation(false)"
+            @click.prevent="fetchItem(page + currentItem.matches.length)"
           >
-            Keep separate
+            Ask again later
           </v-btn>
           <v-btn
+            :loading="isLoading"
             class="text-subtitle-2"
             color="primary"
             variant="flat"
-            @click.prevent="applyRecommendation(true)"
+            @click.prevent="applyRecommendations(true)"
           >
-            Merge
+            Confirm
           </v-btn>
         </v-card-actions>
       </v-card-text>
@@ -178,6 +177,7 @@ export default {
       errorMessage: null,
       menu: null,
       page: 1,
+      isLoading: false,
     };
   },
   methods: {
@@ -193,14 +193,20 @@ export default {
       if (this.currentItem && !this.currentItem.pageInfo.hasNext) {
         return this.onClose();
       }
+      this.errorMessage = null;
       try {
         const response = await this.getRecommendations(page, 1);
         if (response.data.recommendedMerge.entities) {
           const recommendation = response.data.recommendedMerge.entities[0];
           this.currentItem = {
             individual1: formatIndividual(recommendation.individual1),
-            individual2: formatIndividual(recommendation.individual2),
-            id: parseInt(recommendation.id),
+            matches: recommendation.individual1.matchRecommendationSet.map(
+              (rec) => ({
+                apply: null,
+                id: rec.id,
+                individual: formatIndividual(rec.individual),
+              })
+            ),
             pageInfo: response.data.recommendedMerge.pageInfo,
           };
           this.count = this.currentItem.pageInfo.totalResults;
@@ -211,26 +217,40 @@ export default {
         this.$logger.error(`Error fetching item: ${error}`);
       }
     },
-    async applyRecommendation(apply) {
-      this.errorMessage = null;
+    async applyRecommendations() {
+      const recommendations = this.currentItem.matches.filter(
+        (match) => match.apply || match.apply === false
+      );
+      if (recommendations.length === 0) {
+        this.errorMessage = "No action selected";
+      }
       try {
-        await this.manageRecommendation(this.currentItem.id, apply);
+        this.isLoading = true;
+        for (let recommendation of recommendations) {
+          await this.manageRecommendation(
+            recommendation.id,
+            recommendation.apply
+          );
+        }
         this.$logger.debug(
-          `${apply ? "Applied" : "Dismissed"} recommendation ${
-            this.currentItem.id
-          }`
+          `Managed recommendations`,
+          recommendations.map((rec) => rec.id)
         );
-        if (!this.currentItem.pageInfo.hasNext) {
+        const remaining = this.currentItem.matches.filter(
+          (match) => match.apply === null
+        );
+        if (remaining.length === 0) {
+          this.fetchItem(this.page);
+        } else if (!this.currentItem.pageInfo.hasNext) {
           this.onClose();
         } else {
-          this.fetchItem(this.page);
+          this.currentItem.matches = remaining;
         }
       } catch (error) {
         this.errorMessage = this.$getErrorMessage(error);
-        this.$logger.error(
-          `Error applying recommendation ${this.currentItem.id}: ${error}`
-        );
+        this.$logger.error(`Error applying recommendations: ${error}`);
       }
+      this.isLoading = false;
     },
     onClose() {
       this.isOpen = false;
