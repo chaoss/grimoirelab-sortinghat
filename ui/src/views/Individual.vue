@@ -377,10 +377,27 @@
             placeholder="https://www.linkedin.com/in/"
             autofocus
           ></v-text-field>
+          <v-alert
+            v-if="linkedinModal.errorMessage"
+            :type="mergeIdentity ? 'warning' : 'error'"
+            class="mt-4"
+          >
+            <p>{{ linkedinModal.errorMessage }}</p>
+
+            <v-btn
+              v-if="mergeIdentity"
+              class="mt-2 bg-surface-secondary"
+              variant="outlined"
+              size="small"
+              @click="mergeIdentity(linkedinModal.uuid)"
+            >
+              Merge
+            </v-btn>
+          </v-alert>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn text @click="linkedinModal.open = false"> Cancel </v-btn>
+          <v-btn text @click="closeLikedinModal"> Cancel </v-btn>
           <v-btn
             :disabled="!linkedinModal.username"
             color="primary"
@@ -437,6 +454,7 @@ import {
   enroll,
   lockIndividual,
   manageMergeRecommendation,
+  merge,
   unlockIndividual,
   unmerge,
   updateEnrollment,
@@ -512,6 +530,8 @@ export default {
       linkedinModal: {
         open: false,
         username: "",
+        errorMessage: "",
+        uuid: null,
       },
       countries: [],
       socialProfiles: [],
@@ -620,6 +640,21 @@ export default {
           title: "Error loading country list",
           errorMessage: this.$getErrorMessage(error),
         };
+      }
+    },
+    async mergeIdentity(uuid) {
+      try {
+        const response = await merge(this.$apollo, [uuid], this.mk);
+        this.updateIndividual(response.data.merge.individual);
+        this.$logger.debug("Merged identity", uuid);
+        this.closeLikedinModal();
+      } catch (error) {
+        this.dialog = {
+          open: true,
+          title: "Error updating profile",
+          errorMessage: this.$getErrorMessage(error),
+        };
+        this.$logger.error(`Error merging identity ${uuid}: ${error}`);
       }
     },
     async unmergeIdentities(uuids) {
@@ -818,6 +853,14 @@ export default {
         return result;
       }, []);
     },
+    closeLikedinModal() {
+      Object.assign(this.linkedinModal, {
+        open: false,
+        username: "",
+        errorMessage: "",
+        uuid: null,
+      });
+    },
     async addLinkedInProfile() {
       try {
         const linkedinURL = /(linkedin\.com\/in\/)(.*?)(\/|$|\?)(.*)/;
@@ -831,13 +874,27 @@ export default {
           this.linkedinModal.username
         );
         this.updateIndividual(response.data.addIdentity.individual);
-        Object.assign(this.linkedinModal, { open: false, username: "" });
+        this.closeLikedinModal();
       } catch (error) {
-        this.dialog = {
-          open: true,
-          title: "Error adding identity",
-          errorMessage: this.$getErrorMessage(error),
-        };
+        let message = this.$getErrorMessage(error);
+        const alreadyExists = message.includes(
+          "already exists in the registry"
+        );
+        if (alreadyExists) {
+          const uuid = message.substring(10, 50);
+          message =
+            "An individual with that LinkedIn username already exists. Click 'merge' to merge it into this profile.";
+          Object.assign(this.linkedinModal, {
+            errorMessage: message,
+            uuid,
+          });
+        } else {
+          this.dialog = {
+            open: true,
+            title: "Error adding identity",
+            errorMessage: message,
+          };
+        }
         this.$logger.error(`Error adding identity: ${error}`);
       }
     },
