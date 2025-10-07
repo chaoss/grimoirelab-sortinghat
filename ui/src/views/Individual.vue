@@ -499,7 +499,6 @@ export default {
         result(result) {
           if (result.data.individuals.entities.length === 1) {
             this.updateIndividual(result.data.individuals.entities);
-            // this.getChangelog(this.mk);
           } else if (result.errors) {
             this.error = this.$getErrorMessage(result.errors[0]);
           } else {
@@ -769,7 +768,7 @@ export default {
 
       this.individual = formatIndividual(newData[0]);
       this.socialProfiles = this.getSocialProfiles(newData[0]);
-      this.changelog = newData[0].changelog;
+      this.changelog = newData[0].changelog ?? this.changelog;
 
       Object.assign(this.form, {
         name: this.individual.name,
@@ -900,11 +899,18 @@ export default {
     },
     async removeLinkedInProfile() {
       try {
-        const uuid = this.socialProfiles.find(
-          (identity) => identity.source === "linkedin"
-        )?.uuid;
-        const response = await deleteIdentity(this.$apollo, uuid);
-        this.updateIndividual(response.data.deleteIdentity.individual);
+        const linkedin = "linkedin";
+        const identities = this.individual.identities.find(
+          (source) => source.name.toLowerCase() === linkedin
+        )?.identities;
+        const responses = await Promise.all(
+          identities.map((identity) =>
+            deleteIdentity(this.$apollo, identity.uuid)
+          )
+        );
+        this.updateIndividual(
+          responses[responses.length - 1]?.data.deleteIdentity.individual
+        );
         this.closeDialog();
       } catch (error) {
         this.dialog = {
