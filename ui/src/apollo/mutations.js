@@ -59,10 +59,14 @@ const MERGE = gql`
       uuid
       individual {
         ...individual
+        changelog {
+          ...changelog
+        }
       }
     }
   }
   ${FULL_INDIVIDUAL}
+  ${CHANGELOG}
 `;
 
 const UNMERGE = gql`

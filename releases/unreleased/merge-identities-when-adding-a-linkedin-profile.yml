@@ -1,0 +1,9 @@
+---
+title: Merge identities when adding a LinkedIn profile
+category: added
+author: Eva Millán <evamillan@bitergia.com>
+issue: 987
+notes: >
+  When a user tries to add a LinkedIn identity that already
+  exists to a profile, the user interface now offers the
+  option to merge the identities.
