@@ -1,0 +1,8 @@
+---
+title: Table showing jobs failing for offset-naive datetimes
+category: fixed
+author: Jose Javier Merchante <jjmerchante@bitergia.com>
+issue: null
+notes: >
+  Showing jobs in the table combining scheduled jobs and one-time
+  jobs failed.
