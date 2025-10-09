@@ -23,14 +23,14 @@ import logging
 
 import sortinghat.core.importer.backends
 from grimoirelab_toolkit.introspect import inspect_signature_parameters
-from .. import api, db
+from .. import api
 from ..errors import (LoadError,
                       InvalidValueError,
                       AlreadyExistsError,
                       NotFoundError,
                       DuplicateRangeError)
 from ..importer.utils import find_backends
-from ..models import MIN_PERIOD_DATE, MAX_PERIOD_DATE
+from ..models import MIN_PERIOD_DATE, MAX_PERIOD_DATE, Identity
 
 logger = logging.getLogger(__name__)
 
@@ -152,7 +152,10 @@ class IdentitiesImporter:
             except InvalidValueError as e:
                 logger.warning(str(e))
             except AlreadyExistsError as e:
-                stored_identity = db.find_identity(e.eid)
+                stored_identity = Identity.objects.get(source=identity.source,
+                                                       email=identity.email,
+                                                       name=identity.name,
+                                                       username=identity.username)
                 stored_uuid = stored_identity.individual.mk
 
                 if not uuid:
