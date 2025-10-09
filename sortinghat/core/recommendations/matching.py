@@ -194,6 +194,7 @@ def _find_matches(set_x, set_y, criteria, exclude, verbose, strict, match_source
         """Apply RecommenderExclusionTerm to returns the dataframes that do not match
         `name`, `username`, or `email` with this excluded list"""
         excluded = fetch_recommender_exclusion_list()
+        excluded = [term.lower() for term in excluded]
         df_excluded = df[~df['username'].isin(excluded) & ~df['email'].isin(excluded) & ~df['name'].isin(excluded)]
         return df_excluded
 
@@ -234,6 +235,11 @@ def _find_matches(set_x, set_y, criteria, exclude, verbose, strict, match_source
 
     df_x = _to_df(data_x)
     df_y = _to_df(data_y)
+
+    # Convert to lowercase for case-insensitive matching
+    for c in criteria:
+        df_x[c] = df_x[c].str.lower()
+        df_y[c] = df_y[c].str.lower()
 
     if exclude:
         df_x = _apply_recommender_exclusion_list(df_x)

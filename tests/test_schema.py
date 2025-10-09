@@ -10233,7 +10233,7 @@ class TestUnifyMutation(django.test.TestCase):
                                        username='john_smith',
                                        source='scm')
         self.js_alt2 = api.add_identity(self.ctx,
-                                        email='JSmith@example.com',
+                                        email='J_Smith@example.com',
                                         username='john_smith',
                                         source='mls',
                                         uuid=self.js_alt.uuid)
@@ -10242,7 +10242,7 @@ class TestUnifyMutation(django.test.TestCase):
                                         source='mls',
                                         uuid=self.js_alt.uuid)
         self.js_alt4 = api.add_identity(self.ctx,
-                                        email='JSmith@example.com',
+                                        email='J_Smith@example.com',
                                         name='Smith. J',
                                         source='mls',
                                         uuid=self.js_alt.uuid)
@@ -10374,19 +10374,19 @@ class TestUnifyMutation(django.test.TestCase):
         self.assertEqual(id2, self.js_alt)
 
         id3 = identities[2]
-        self.assertEqual(id3, self.js_alt4)
+        self.assertEqual(id3, self.js_alt3)
 
         id4 = identities[3]
-        self.assertEqual(id4, self.js_alt3)
+        self.assertEqual(id4, self.jsmith)
 
         id5 = identities[4]
-        self.assertEqual(id5, self.jsmith)
+        self.assertEqual(id5, self.jsm3)
 
         id6 = identities[5]
-        self.assertEqual(id6, self.jsm3)
+        self.assertEqual(id6, new_identity)
 
         id7 = identities[6]
-        self.assertEqual(id7, new_identity)
+        self.assertEqual(id7, self.js_alt4)
 
         id8 = identities[7]
         self.assertEqual(id8, self.js_alt2)
@@ -10576,10 +10576,10 @@ class TestUnifyMutation(django.test.TestCase):
         self.assertEqual(id1, self.js_alt)
 
         id2 = identities[1]
-        self.assertEqual(id2, self.js_alt4)
+        self.assertEqual(id2, self.js_alt3)
 
         id3 = identities[2]
-        self.assertEqual(id3, self.js_alt3)
+        self.assertEqual(id3, self.js_alt4)
 
         id4 = identities[3]
         self.assertEqual(id4, self.js_alt2)

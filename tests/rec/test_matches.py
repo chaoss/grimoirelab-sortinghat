@@ -89,7 +89,7 @@ class TestRecommendMatches(TestCase):
                                        username='john_smith',
                                        source='scm')
         self.js_alt2 = api.add_identity(self.ctx,
-                                        email='JSmith@example.com',
+                                        email='J_Smith@example.com',
                                         username='john_smith',
                                         source='mls',
                                         uuid=self.js_alt.uuid)
@@ -98,7 +98,7 @@ class TestRecommendMatches(TestCase):
                                         source='mls',
                                         uuid=self.js_alt.uuid)
         self.js_alt4 = api.add_identity(self.ctx,
-                                        email='JSmith@example.com',
+                                        email='J_Smith@example.com',
                                         name='Smith. J',
                                         source='mls',
                                         uuid=self.js_alt.uuid)
@@ -556,3 +556,83 @@ class TestRecommendMatches(TestCase):
         self.assertEqual(rec[1], github_user2.individual.mk)
         self.assertEqual(len(rec[2]), 2)
         self.assertEqual(rec[2], sorted([github_email2.individual.mk, github_email_numbers2.individual.mk]))
+
+    def test_recommend_matches_case_insensitive(self):
+        """Check if recommendations are obtained in a case insensitive way"""
+
+        idiv_1 = api.add_identity(self.ctx,
+                                  username='Jsmith',
+                                  source='github')
+        idiv_2 = api.add_identity(self.ctx,
+                                  username='jSMITH',
+                                  source='gitlab')
+        idiv_3 = api.add_identity(self.ctx,
+                                  name='jOhn sMith',
+                                  source='git')
+        idiv_4 = api.add_identity(self.ctx,
+                                  name='JOHN SMITH',
+                                  source='random')
+
+        source_uuids = [idiv_1.uuid, idiv_3.uuid]
+        target_uuids = [idiv_1.uuid, idiv_2.uuid, idiv_3.uuid, idiv_4.uuid]
+
+        criteria = ['email', 'name', 'username']
+
+        # Identities which don't have the fields in `criteria` won't be returned
+        recs = list(recommend_matches(source_uuids,
+                                      target_uuids,
+                                      criteria))
+
+        self.assertEqual(len(recs), 2)
+
+        rec = recs[0]
+        self.assertEqual(rec[0], idiv_1.uuid)
+        self.assertEqual(rec[1], idiv_1.individual.mk)
+        self.assertEqual(rec[2], [idiv_2.individual.mk])
+
+        rec = recs[1]
+        self.assertEqual(rec[0], idiv_3.uuid)
+        self.assertEqual(rec[1], idiv_3.individual.mk)
+        self.assertEqual(rec[2], [idiv_4.individual.mk])
+
+    def test_recommend_matches_exclude_case_insensitive(self):
+        """Check if recommendations are obtained in a case insensitive way activating exclude"""
+
+        source_uuids = [self.john_smith.uuid, self.jrae_no_name.uuid, self.jr2.uuid]
+        target_uuids = [self.john_smith.uuid, self.js2.uuid, self.js3.uuid,
+                        self.js4.uuid,
+                        self.jsmith.uuid, self.jsm2.uuid, self.jsm3.uuid,
+                        self.jane_rae.uuid, self.jr2.uuid,
+                        self.js_alt.uuid, self.js_alt2.uuid,
+                        self.js_alt3.uuid, self.js_alt4.uuid,
+                        self.jrae.uuid, self.jrae2.uuid,
+                        self.jrae_no_name.uuid, self.jsmith_no_email.uuid]
+
+        criteria = ['email', 'name', 'username']
+
+        # Add 'JSmitH@example.com' and 'JsMith' to RecommenderExclusionTerm
+        add_recommender_exclusion_term(self.ctx, "JSmitH@example.com")
+        add_recommender_exclusion_term(self.ctx, "JsMith")
+
+        # Identities which don't have the fields in `criteria` won't be returned
+        recs = list(recommend_matches(source_uuids,
+                                      target_uuids,
+                                      criteria,
+                                      exclude=True))
+
+        self.assertEqual(len(recs), 3)
+
+        rec = recs[0]
+        self.assertEqual(rec[0], self.john_smith.uuid)
+        self.assertEqual(rec[1], self.john_smith.individual.mk)
+        self.assertEqual(rec[2], [])
+
+        rec = recs[1]
+        self.assertEqual(rec[0], self.jrae_no_name.uuid)
+        self.assertEqual(rec[1], self.jrae_no_name.individual.mk)
+        self.assertEqual(rec[2], [])
+
+        rec = recs[2]
+        self.assertEqual(rec[0], self.jr2.uuid)
+        self.assertEqual(rec[1], self.jr2.individual.mk)
+        self.assertEqual(rec[2], [self.jrae.individual.mk])
